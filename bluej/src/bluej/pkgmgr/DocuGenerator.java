@@ -63,9 +63,7 @@ public class DocuGenerator
      * consider only package, protected, and public classes and members,
      * include bottom line.
      */
-    private static String fixedJavadocParams = 
-                Config.getPropString("doctool.options") +
-                " -bottom <small><em>Generated&nbsp;by&nbsp;BlueJ</em></small>";
+    private static String fixedJavadocParams = Config.getPropString("doctool.options");
 
     /** javadoc parameters for preview runs: do not generate an index,
      * a tree, a help.
