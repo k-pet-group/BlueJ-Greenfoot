@@ -3,8 +3,8 @@
  * the BlueJ debug functionality. It contains loops and nested method calls
  * that make interesting examples to set breakpoints.
  * 
- * @author: M. Kolling
- * date: 13 August 1999
+ * @author M. Kolling
+ * @version 13 August 1999
  */
 public class Demo
 {

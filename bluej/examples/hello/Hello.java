@@ -1,7 +1,7 @@
 /**
- * Class Hello
+ * Class Hello:
  *
- * Test program to demonstrate BlueJ
+ * Hello-world program to demonstrate BlueJ.
  */
 class Hello
 {

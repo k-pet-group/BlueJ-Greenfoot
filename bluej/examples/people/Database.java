@@ -1,5 +1,5 @@
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * A very simple database of people in a university. This class simply stores
@@ -7,20 +7,20 @@ import java.util.Enumeration;
  *
  * Written as a first demo program for BlueJ.
  *
- * @author:  Michael Kolling
- * @version: 1.0, January 1999
+ * @author  Michael Kolling
+ * @version 1.1, March 2002
  */
 
 public class Database {
 
-	private Vector personVector;
+	private ArrayList persons;
 
  	/**
 	 * Create a new, empty person database.
      */
   	public Database() 
 	{
-        personVector = new Vector ();
+        persons = new ArrayList();
     }
 
     /**
@@ -28,7 +28,7 @@ public class Database {
      */
     public void addPerson(Person p) 
 	{
-        personVector.addElement(p);
+        persons.add(p);
     }
 
     /**
@@ -36,8 +36,8 @@ public class Database {
      */
     public void listAll () 
     {
-        for (Enumeration e = personVector.elements(); e.hasMoreElements();) {
-            System.out.println(e.nextElement());
+        for (Iterator i = persons.iterator(); i.hasNext();) {
+            System.out.println(i.next());
         }
     }
 }

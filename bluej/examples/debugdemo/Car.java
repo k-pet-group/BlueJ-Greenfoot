@@ -1,8 +1,8 @@
 /**
  * Class Car - nonsense class for debugger demo
  * 
- * @author: Michael Kolling
- * date: 13 August 1999
+ * @author Michael Kolling
+ * @version 13 August 1999
  */
 public class Car
 {

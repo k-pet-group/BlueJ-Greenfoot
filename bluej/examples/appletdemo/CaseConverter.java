@@ -1,19 +1,19 @@
-/**
- * Class CaseConverter - A simple applet that takes input from a text field 
- * and converts to upper or lower case in response to user button selection. 
- * Works well with a width of 250 and height of 100.  It uses the default
- * layout (FlowLayout) so different sizing will alter the appearance.
- *
- * @author: Bruce Quig 
- * date: 08/07/1999
- */
-
 import java.applet.Applet;
 import java.awt.Graphics;
 import java.awt.TextField;
 import java.awt.Button;
 import java.awt.Label;
 import java.awt.event.*;
+
+/**
+ * Class CaseConverter - A simple applet that takes input from a text field 
+ * and converts to upper or lower case in response to user button selection. 
+ * Works well with a width of 250 and height of 100.  It uses the default
+ * layout (FlowLayout) so different sizing will alter the appearance.
+ *
+ * @author Bruce Quig 
+ * @version 08/07/1999
+ */
 
 public class CaseConverter extends Applet implements ActionListener
 {

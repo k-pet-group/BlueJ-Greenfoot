@@ -7,12 +7,13 @@ import java.awt.*;
  * the BlueJ "squares" example. The main modification is that this version
  * treats the Canvas as a singleton.
  * 
- * @author: Bruce Quig
- * @author: Michael Kolling (mik)
+ * @author Bruce Quig
+ * @author Michael Kolling (mik)
  *
- * @version: 1.5
- *
- * changes:
+ * @version 1.5
+ */
+/*
+ * changes: 
  *   19.11.99   mik     added proper buffering and screen update
  *   19.5.2000  mik     modified for "shapes" example (made singleton)
  *   14.7.2000  mik     modified to accept String colours
