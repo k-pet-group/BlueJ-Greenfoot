@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2661 2004-06-25 06:41:15Z fisker $
+ * @version $Id: ObjectWrapper.java 2710 2004-07-01 13:48:49Z polle $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -130,13 +130,8 @@ public class ObjectWrapper extends JComponent
         createMenu(obj.getClassName());
 
         className = obj.getGenClassName();
-
-        int dot_index = className.lastIndexOf('.');
-        if(dot_index >= 0)
-            displayClassName = className.substring(dot_index + 1);
-        else
-            displayClassName = className;
-
+        displayClassName = obj.getStrippedGenClassName(); 
+                
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
         
         setMinimumSize(new Dimension(WIDTH+GAP, HEIGHT));
@@ -620,5 +615,8 @@ public class ObjectWrapper extends JComponent
 	 */
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
+		if(isSelected) {
+		    pmf.setStatus(getName() + " : " + displayClassName);
+		}
 	}
 }
