@@ -14,9 +14,9 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1886 2003-04-25 08:54:54Z damiano $
+ * @version    $Id: Submitter.java 1903 2003-04-27 11:58:54Z iau $
  */
-public class Submitter extends Extension implements MenuGenerator, ExtensionEventListener
+public class Submitter extends Extension implements MenuGenerator, PackageListener
 {
     private MenuAction anAction;
     private int numPackagesOpen = 0;       // Counter for menu en/disable
@@ -51,33 +51,26 @@ public class Submitter extends Extension implements MenuGenerator, ExtensionEven
         anAction.setEnabled(false);
         stat.bluej.setMenuGenerator(this);
 
-        stat.bluej.addExtensionEventListener(this);
+        stat.bluej.addPackageListener(this);
     }
 
 
     /**
-     * Something has happened in blueJ.
-     * I only need to enable or disable the submit button...
-     *
-     * @param  ev  Description of the Parameter
+     * Count packages opening in order to enable the submit button
      */
-    public void eventOccurred(ExtensionEvent ev)
+    public void packageOpened(PackageEvent ev)
     {
-        // nothing to do if it is not a package event.
-        if (!(ev instanceof bluej.extensions.event.PackageEvent)) return;
+        if ((++numPackagesOpen) > 0)
+            anAction.setEnabled(true);
+    }
 
-        PackageEvent pkgEvent = (PackageEvent)ev;
-        int evType = pkgEvent.getEvent();
-
-        if (evType == PackageEvent.PACKAGE_OPENED) {
-            if ((++numPackagesOpen) > 0)
-                anAction.setEnabled(true);
-        }
-
-        if (evType == PackageEvent.PACKAGE_CLOSING) {
-            if ((--numPackagesOpen) <= 0)
-                anAction.setEnabled(false);
-        }
+    /**
+     * Count packages closing in order to disable the submit button
+     */
+    public void packageClosing(PackageEvent ev)
+    {
+        if ((--numPackagesOpen) <= 0)
+            anAction.setEnabled(false);
     }
 
 
