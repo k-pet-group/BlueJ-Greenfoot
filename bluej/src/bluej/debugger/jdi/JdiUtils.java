@@ -2,6 +2,7 @@ package bluej.debugger.jdi;
 
 import bluej.Config;
 
+import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.ReferenceType;
@@ -11,7 +12,7 @@ import com.sun.jdi.ReferenceType;
  * 1.4 and 1.5
  * 
  * @author Davin McCall
- * @version $Id: JdiUtils.java 2766 2004-07-09 04:22:27Z davmac $
+ * @version $Id: JdiUtils.java 2830 2004-08-03 09:26:06Z polle $
  */
 public abstract class JdiUtils {
 
@@ -46,4 +47,6 @@ public abstract class JdiUtils {
     abstract public String genericSignature(ReferenceType rt);
     
     abstract public String genericSignature(LocalVariable lv);
+    
+    abstract public boolean isEnum(ClassType ct);
 }

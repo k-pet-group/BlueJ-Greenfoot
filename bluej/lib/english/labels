@@ -28,12 +28,16 @@ debugger.assert.delta=delta
 debugger.inspector.title=BlueJ:  Inspector
 debugger.inspector.object.title=BlueJ:  Object Inspector
 debugger.inspector.class.title=BlueJ:  Class Inspector
+debugger.inspector.enum.title=BlueJ:  Enum Inspector
+debugger.inspector.interface.title=BlueJ:  Interface Inspector
 debugger.inspector.result.title=BlueJ:  Method Result
 debugger.inspector.result.returned=returned:
 debugger.inspector.showClass=Show static fields
 debugger.inspector.inspect=Inspect
 debugger.inspector.get=Get
-debugger.inspector.classNameLabel=Class
+debugger.inspector.class.nameLabel=Class
+debugger.inspector.enum.nameLabel=Enum
+debugger.inspector.interface.nameLabel=Interface
 
 debugger.objectwrapper.methodException=Exception accessing methods:
 debugger.objectwrapper.invocationException=Exception during invocation:

@@ -1,5 +1,6 @@
 package bluej.debugger.jdi;
 
+import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.ReferenceType;
@@ -8,7 +9,7 @@ import com.sun.jdi.ReferenceType;
  * Jdi utilities, java 1.4 version.
  *  
  * @author Davin McCall
- * @version $Id: JdiUtils14.java 2766 2004-07-09 04:22:27Z davmac $
+ * @version $Id: JdiUtils14.java 2830 2004-08-03 09:26:06Z polle $
  */
 public class JdiUtils14 extends JdiUtils {
 
@@ -30,5 +31,10 @@ public class JdiUtils14 extends JdiUtils {
     public String genericSignature(LocalVariable lv)
     {
         return null;
+    }
+    
+    public boolean isEnum(ClassType ct)
+    {
+        return false;
     }
 }

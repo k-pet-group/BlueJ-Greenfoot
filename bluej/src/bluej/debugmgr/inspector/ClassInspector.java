@@ -21,15 +21,22 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 2799 2004-07-15 03:16:36Z davmac $
+ * @version $Id: ClassInspector.java 2830 2004-08-03 09:26:06Z polle $
  */
 public class ClassInspector extends Inspector
 {
     // === static variables ===
 
-    protected final static String inspectTitle = Config.getString("debugger.inspector.class.title");
-    protected final static String classNameLabel = Config.getString("debugger.inspector.classNameLabel");
+    protected final static String CLASS_INSPECT_TITLE = Config.getString("debugger.inspector.class.title");
+    protected final static String CLASS_NAME_LABEL = Config.getString("debugger.inspector.class.nameLabel");
 
+    protected final static String ENUM_INSPECT_TITLE = Config.getString("debugger.inspector.enum.title");
+    protected final static String ENUM_NAME_LABEL = Config.getString("debugger.inspector.enum.nameLabel");
+
+    protected final static String INTERFACE_INSPECT_TITLE = Config.getString("debugger.inspector.interface.title");
+    protected final static String INTERFACE_NAME_LABEL = Config.getString("debugger.inspector.interface.nameLabel");
+
+    
     // === instance variables ===
 
     protected DebuggerClass myClass;
@@ -106,16 +113,26 @@ public class ClassInspector extends Inspector
      */
     protected void makeFrame()
     {
-        setTitle(inspectTitle);
+        String className = JavaNames.stripPrefix(myClass.getName());
+        String headerString = null;
+        if(myClass.isEnum()) {
+            setTitle(ENUM_INSPECT_TITLE);
+            headerString = ENUM_NAME_LABEL + " " + className;
+        } else if (myClass.isInterface()) {
+            setTitle(INTERFACE_INSPECT_TITLE);
+            headerString = INTERFACE_NAME_LABEL + " " + className;
+        } else {
+            setTitle(CLASS_INSPECT_TITLE);
+            headerString = CLASS_NAME_LABEL + " " + className;
+        }
+        
         setBorder(BorderFactory.createCompoundBorder(BlueJTheme.shadowBorder, BorderFactory.createEmptyBorder(10, 10,
                 10, 10)));
 
         // Create the header
-
         JComponent header = new JPanel();
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-        String className = JavaNames.stripPrefix(myClass.getName());
-        JLabel headerLabel = new JLabel(classNameLabel + " " + className);
+        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));        
+        JLabel headerLabel = new JLabel(headerString);
 
         headerLabel.setAlignmentX(0.5f);
         header.add(headerLabel);

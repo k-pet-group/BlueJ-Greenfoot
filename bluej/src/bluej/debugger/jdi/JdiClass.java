@@ -16,7 +16,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiClass.java 2688 2004-06-30 00:07:50Z davmac $
+ *@version    $Id: JdiClass.java 2830 2004-08-03 09:26:06Z polle $
  */
 public class JdiClass extends DebuggerClass
 {
@@ -126,6 +126,26 @@ public class JdiClass extends DebuggerClass
         return (val instanceof ObjectReference);
     }
 
+    /**
+     * Returns true if this represents a Java interface
+     *  
+     */
+    public boolean isInterface()
+    {
+        return remoteClass instanceof InterfaceType;
+    }
+
+    /**
+     * Returns true if this represents an enum
+     *  
+     */
+    public boolean isEnum()
+    {
+        if (remoteClass instanceof ClassType) {
+            return JdiUtils.getJdiUtils().isEnum((ClassType) remoteClass);
+        }
+        return false;
+    }
 
     /**
      *  Return a list of strings with the description of each field

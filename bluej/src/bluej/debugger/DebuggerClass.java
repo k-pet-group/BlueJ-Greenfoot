@@ -6,7 +6,7 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerClass.java 2617 2004-06-17 01:07:36Z davmac $
+ *@version    $Id: DebuggerClass.java 2830 2004-08-03 09:26:06Z polle $
  */
 public abstract class DebuggerClass
 {
@@ -65,5 +65,17 @@ public abstract class DebuggerClass
      *@return       Description of the Returned Value
      */
     public abstract boolean staticFieldIsObject(int slot);
+    
+    /**
+     * Returns true if this represents a Java interface
+     * 
+     */
+    public abstract boolean isInterface();
+
+    /**
+     * Returns true if this represents an enum
+     * 
+     */
+    public abstract boolean isEnum();
 
 }
