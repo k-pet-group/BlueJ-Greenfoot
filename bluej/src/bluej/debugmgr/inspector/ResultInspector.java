@@ -26,7 +26,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2967 2004-08-31 06:43:25Z davmac $
+ * @version $Id: ResultInspector.java 2971 2004-09-01 07:19:47Z davmac $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -140,7 +140,8 @@ public class ResultInspector extends Inspector
         MethodView methodView = (MethodView) expressionInformation.getMethodView();
         Method m = methodView.getMethod();
 
-        if (instanceType.isRaw()) {
+        // is this a call of an instance method on a raw object?
+        if (instanceType != null && instanceType.isRaw()) {
             resultType = JavaUtils.getJavaUtils().getRawReturnType(m);
             return;
         }
