@@ -9,7 +9,7 @@
 <setting id="comment_indent_parameter_description" value="true"/>
 <setting id="comment_indent_root_tags" value="true"/>
 <setting id="comment_line_length" value="80"/>
-<setting id="comment_new_line_for_parameter" value="true"/>
+<setting id="comment_new_line_for_parameter" value="false"/>
 <setting id="comment_separate_root_tags" value="true"/>
 <setting id="org.eclipse.jdt.core.formatter.align_type_members_on_columns" value="false"/>
 <setting id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression" value="16"/>
