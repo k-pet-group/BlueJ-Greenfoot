@@ -16,16 +16,14 @@ import bluej.utility.DialogManager;
  * BlueJ packages are displayed with a different icon. <BR>
  * A double-click on a BlueJ package returns it rather than showing it's
  * content. <BR>
- * If a non-BlueJ directory is selected by button-click the user is asked  
- * whether this directory should be imported. <BR>
  *
  * @version $ $
  * @author Michael Kolling
  * @author Axel Schmolitzky
- * @author Markus Ostman 
+ * @author Markus Ostman
  */
 
-public class PackageChooser extends JFileChooser
+class PackageChooser extends JFileChooser
 {
     /**
      * Create a new PackageChooser.
@@ -37,28 +35,23 @@ public class PackageChooser extends JFileChooser
         setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         setFileView(new PackageFileView());
         setDialogTitle(Config.getString("pkgmgr.openPkg.title"));
-        setApproveButtonText(Config.getString("pkgmgr.openPkg.buttonLabel"));
+//        setApproveButtonText(Config.getString("pkgmgr.openPkg.buttonLabel"));
     }
 
     /**
-     *  Selection approved by button-click. Check whether the selected 
-     *  directory is a BlueJ package. If so, let it be opened. Otherwise ask 
-     *  the user whether to import the java source files in the selected 
+     *  Selection approved by button-click. Check whether the selected
+     *  directory is a BlueJ package. If so, let it be opened. Otherwise ask
+     *  the user whether to import the java source files in the selected
      *  directory into a new package.
      */
-    public void approveSelection() {   // redefined
-	if (Package.isBlueJPackage(getSelectedFile()))
-	    super.approveSelection();
-	else {
-	    int answer = DialogManager.askQuestion(this,
-                                                   "really-import-package");
-	    if (answer == 0)  // OK
-		super.approveSelection();
-	}
+    public void approveSelection()   // redefined
+    {
+    	if (Package.isBlueJPackage(getSelectedFile()))
+    	    super.approveSelection();
     }
 
     /**
-     *  A directory was double-clicked. If this is a BlueJ package, consider 
+     *  A directory was double-clicked. If this is a BlueJ package, consider
      *  this a package selection and accept it as the "Open" action, otherwise
      *  just traverse into the directory.
      */
