@@ -66,6 +66,7 @@ save=\n Save this class. Note that it is rarely necessary to explicitely save\n 
 reload=\n Reload the class from its source file. This operation will discard\n all changes made after the last (implicit or explicit) save operation.
 close=\n Close this class. The source text is automatically saved.
 print=\n Open a print dialog to start a print job.
+page-setup=\n Open a page-setup dialog to specify page layout.
 
 
 ## customisation functions
@@ -103,6 +104,7 @@ replace=\n Replace one text string with another.
 
 compile=\n Compile the current class. The class is automatically\n saved before being compiled.
 
+preview-doc= Generate and view documantation for this class, using javadoc.\nNote that this function generates the documentation for preview\npurposes only. If you want to generate and store documentation \npermanently, use the documentation function from the main window.
 toggle-breakpoint=\n Set or clear a breakpoint in the current line.
 
 
