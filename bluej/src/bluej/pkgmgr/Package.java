@@ -37,7 +37,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1009 2001-11-19 02:41:10Z ajp $
+ * @version $Id: Package.java 1025 2001-12-07 12:00:58Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1829,7 +1829,7 @@ public class Package extends Graph
             SourceLocation loc = (SourceLocation)iter.next();
             String filename = new File(getPath(), loc.getFileName()).getPath();
             int lineNo = loc.getLineNumber();
-            done = showEditorMessage(filename, lineNo, message, invalidate,
+            done = showEditorMessage(filename, lineNo, message, invalidate, debug
                                      true, true, false, "exception");
             if(firstTime && !done) {
                 message += " (in " + loc.getClassName() + ")";

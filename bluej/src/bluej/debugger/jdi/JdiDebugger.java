@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 935 2001-06-12 01:21:10Z mik $
+ * @version $Id: JdiDebugger.java 1025 2001-12-07 12:00:58Z mik $
  *
  * The startup process is as follows:
  *
@@ -443,7 +443,7 @@ public final class JdiDebugger extends Debugger
     /**
      * Remove an object from a package scope (when removed from object bench).
      * This has to be done tolerantly: If the named instance is not in the
-     * scope, we just quetly return.
+     * scope, we just quietly return.
      */
     public void removeObjectFromScope(String scopeId, String instanceName)
     {

@@ -247,7 +247,7 @@ public class DocuGenerator
                                                       showFile.getName());
                     }
                     if(openBrowser)
-                        Utility.openWebBrowser(showFile.getPath());
+                        Utility.openWebBrowser("file://" + showFile.getPath());
                 }
                 else {
                     BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);

@@ -23,7 +23,7 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 994 2001-10-24 07:52:29Z mik $
+ * @version $Id: Terminal.java 1025 2001-12-07 12:00:58Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -39,11 +39,6 @@ public final class Terminal extends JFrame
     private static final Color fgColour = Color.black;
     private static final Image iconImage =
         Config.getImageAsIcon("image.icon.terminal").getImage();
-
-    private static final char CHAR_CLEAR = 11;  // CTRL-K
-    private static final char CHAR_COPY = 3;    // CTRL-C
-    private static final char CHAR_SAVE = 19;   // CTRL-S
-    private static final char CHAR_CLOSE = 23;  // CTRL-W
 
     private static final int SHORTCUT_MASK = 
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
