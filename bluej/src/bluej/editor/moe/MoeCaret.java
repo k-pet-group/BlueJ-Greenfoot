@@ -12,6 +12,7 @@ import bluej.utility.Debug;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.text.*;
 
 /**
@@ -78,18 +79,16 @@ public class MoeCaret extends DefaultCaret
      *
      * @param e the mouse event
      */
-    protected void moveCaret(MouseEvent e) {
-         Point pt = new Point(e.getX(), e.getY());
-         Position.Bias[] biasRet = new Position.Bias[1];
-         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
-         if(biasRet[0] == null)
-             biasRet[0] = Position.Bias.Forward;
-         if (pos >= 0) {
-             //    moveDot(pos - 2);
-             moveDot(pos);
-         }
-     }
+    protected void moveCaret(MouseEvent e) 
+    {
+        if (e.getX() > BlueJSyntaxView.TAG_WIDTH) {
+            super.moveCaret(e);
+        }
+    }
 
+    /**
+     * Fire a state canged event.
+     */
     protected void fireStateChanged()
     {
         editor.caretMoved();

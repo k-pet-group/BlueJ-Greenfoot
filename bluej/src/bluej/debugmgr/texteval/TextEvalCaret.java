@@ -54,13 +54,8 @@ public class TextEvalCaret extends DefaultCaret
         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
 
         if (e.getX() > BlueJSyntaxView.TAG_WIDTH) {
-            if(biasRet[0] == null)
-                biasRet[0] = Position.Bias.Forward;
-            if (pos >= 0) {
+            if (pos >= 0 && textEval.isLegalCaretPos(pos)) {
                 setDot(pos);
-
-                // clear the preferred caret position
-                // see: JCaret's UpAction/DownAction
                 setMagicCaretPosition(null);
             }
         }
@@ -77,17 +72,17 @@ public class TextEvalCaret extends DefaultCaret
      *
      * @param e the mouse event
      */
-    protected void moveCaret(MouseEvent e) {
-         Point pt = new Point(e.getX(), e.getY());
-         Position.Bias[] biasRet = new Position.Bias[1];
-         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
-         if(biasRet[0] == null)
-             biasRet[0] = Position.Bias.Forward;
-         if (pos >= 0) {
-             //    moveDot(pos - 2);
-             moveDot(pos);
-         }
-     }
+    protected void moveCaret(MouseEvent e) 
+    {
+        if (e.getX() > BlueJSyntaxView.TAG_WIDTH) {
+            Point pt = new Point(e.getX(), e.getY());
+            Position.Bias[] biasRet = new Position.Bias[1];
+            int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
+            if (pos >= 0 && textEval.isLegalCaretPos(pos)) {
+                moveDot(pos);
+            }
+        }
+    }
 }
 
 

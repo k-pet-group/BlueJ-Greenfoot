@@ -1,8 +1,8 @@
 package bluej.debugmgr.texteval;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Event;
+import java.awt.event.*;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
@@ -31,10 +31,10 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2721 2004-07-02 11:30:40Z mik $
+ * @version $Id: TextEvalArea.java 2722 2004-07-02 13:20:26Z mik $
  */
 public final class TextEvalArea extends JScrollPane
-    implements ResultWatcher
+    implements ResultWatcher, KeyListener
 {
     private static final int BUFFER_LINES = 40;
 
@@ -46,7 +46,6 @@ public final class TextEvalArea extends JScrollPane
     private Invoker invoker = null;
     private boolean firstTry;
     private IndexHistory history;
-    private TextCommands commands;
     
     // the last object that we handled (this can be operated on)
     private DebuggerObject lastObject;
@@ -63,7 +62,6 @@ public final class TextEvalArea extends JScrollPane
         createComponent(font);
         
         history = new IndexHistory(20);
-        commands = TextCommands.getInstance();
     }
 
     /**
@@ -118,10 +116,10 @@ public final class TextEvalArea extends JScrollPane
         }
     }
     
-    public void tagAreaClick(int pos, boolean shift)
+    public void tagAreaClick(int pos, boolean ctrl)
     {
         if(positionHasObject(pos)) {
-            if(shift)
+            if(ctrl)
                 inspectObject(null);
             else
                 getObjectToBench();
@@ -221,6 +219,25 @@ public final class TextEvalArea extends JScrollPane
     }
 
     //   --- end of ResultWatcher interface ---
+
+    //   --- KeyListener interface ---
+
+    /**
+     * Workaround for JDK 1.4 bug: backspace keys are still handled internally
+     * even when replaced in the keymap. So we explicitly remove them here.
+     * This method (and the whole keylistener interface) can be removed
+     * when we don't support 1.4 anymore. (Fixed in JDK 5.0.)
+     */
+    public void keyTyped(KeyEvent e) {
+        if(e.getKeyChar() == '\b') {
+            e.consume();
+        }
+    }  
+
+    public void keyPressed(KeyEvent e) {}  
+    public void keyReleased(KeyEvent e) {}  
+
+    //   --- end of KeyListener interface ---
 
     /**
      * Write a (non-error) message to the text area.
@@ -325,6 +342,13 @@ public final class TextEvalArea extends JScrollPane
         text.setCaretPosition(doc.getLength());
     }
 
+    public boolean isLegalCaretPos(int pos)
+    {
+        Element line = doc.getParagraphElement(doc.getLength());
+        int lineStart = line.getStartOffset() + 1;  // ignore space at front
+        return pos >= lineStart;
+    }
+    
     /**
      * Get the text of the current line (the last line) of this area.
      * @return The text of the last line.
@@ -365,7 +389,8 @@ public final class TextEvalArea extends JScrollPane
         text.setEditorKit(new MoeSyntaxEditorKit(true));
         text.setCaret(new TextEvalCaret(this));
 //        text.setCaretColor(caretColor);
-
+        text.addKeyListener(this);
+        
         doc = (MoeSyntaxDocument) text.getDocument();
         doc.setTokenMarker(new JavaTokenMarker());
 
@@ -457,10 +482,8 @@ public final class TextEvalArea extends JScrollPane
                 history.add(line);
                 append("\n ");      // ensure space at the beginning of every line, because
                                     // line properties do not work otherwise
-                if(! commands.evalMetaCommand(line, TextEvalArea.this)) {
-                    firstTry = true;
-                    invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
-                }
+                firstTry = true;
+                invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
             }
             else {
                 markAs(TextEvalSyntaxView.OUTPUT);
@@ -506,7 +529,6 @@ public final class TextEvalArea extends JScrollPane
         
         final public void actionPerformed(ActionEvent event)
         {
-            System.out.println("yes "+getCurrentColumn());
             if(getCurrentColumn() > 1) {
                 try {
                     doc.remove(text.getCaretPosition()-1, 1);
