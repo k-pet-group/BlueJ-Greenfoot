@@ -237,7 +237,7 @@ bluej.editor.font=Monospaced
 # bluej.editor.font=Arial-bold
 
 # fonts for printing
-bluej.fontsize.printText=10
+bluej.fontsize.printText=14
 bluej.fontsize.printTitle=14
 bluej.fontsize.printInfo=10
 
