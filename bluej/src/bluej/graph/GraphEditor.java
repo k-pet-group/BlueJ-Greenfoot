@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2594 2004-06-11 18:36:53Z fisker $
+ * @version $Id: GraphEditor.java 2609 2004-06-14 11:22:46Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener, FocusListener
@@ -267,6 +267,7 @@ public class GraphEditor extends JComponent
         // Signal the graphElementController that the mouse was pressed
         if((activeGraphElement != null) && !evt.isPopupTrigger() &&
             ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
+        		graphElementController.setActiveGraphElement(activeGraphElement);
                 graphElementController.mousePressed(evt);
         }
 

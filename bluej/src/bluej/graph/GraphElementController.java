@@ -26,9 +26,9 @@ public class GraphElementController
     public static int dependencyArrowY;
     
     private Target currentTarget;
-    private Dependency currentDependency;
     private List dependencies;
-    private int currentIndex;
+    private Dependency currentDependency;
+    private int currentDependencyIndex;
     
     private boolean isMoveAllowedX;
     private boolean isMoveAllowedY;
@@ -40,6 +40,12 @@ public class GraphElementController
     public GraphElementController(GraphEditor graphEditor, Package pkg){
         this.graphEditor = graphEditor;
         this.pkg = pkg;
+    }
+    
+    public void setActiveGraphElement(GraphElement graphElement){
+    	if (graphElement instanceof Target){
+    		this.currentTarget = (Target) graphElement;
+    	}
     }
     
     /**
@@ -145,7 +151,6 @@ public class GraphElementController
             dependencyArrowX = evt.getX();
             dependencyArrowY = evt.getY();
         }
-        
     }
     /**
      * Takes care of dependency drawing.
@@ -293,13 +298,13 @@ public class GraphElementController
      * @param target
      * @return true if yes
      */
-    public boolean isStateDrawingDependency(Target target) {
+    public static boolean isStateDrawingDependency(Target target) {
         return (target.getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
         	   (target.getPackage().getState() == Package.S_CHOOSE_EXT_TO);
     }
 
     
-    private boolean isArrowKey(KeyEvent evt){
+    private static boolean isArrowKey(KeyEvent evt){
     	return evt.getKeyCode() == KeyEvent.VK_UP ||
 		 evt.getKeyCode() == KeyEvent.VK_DOWN ||
 		 evt.getKeyCode() == KeyEvent.VK_LEFT ||
@@ -368,7 +373,7 @@ public class GraphElementController
 		graphEditor.getGraphElementManager().clear();
 		graphEditor.getGraphElementManager().add(currentTarget);
 		
-		currentIndex = 0;
+		currentDependencyIndex = 0;
 		if (currentDependency != null){
 		    graphEditor.getGraphElementManager().remove(currentDependency);
 		    currentDependency = null;
@@ -462,16 +467,16 @@ public class GraphElementController
 	 */
 	private void selectDependency(KeyEvent evt) {
 		if (currentTarget instanceof DependentTarget){
-		    currentDependency = (Dependency) dependencies.get(currentIndex);
+		    currentDependency = (Dependency) dependencies.get(currentDependencyIndex);
 		    if(currentDependency != null) {
 		        graphEditor.getGraphElementManager().remove(currentDependency);
 		    }
-		    currentIndex +=(evt.getKeyCode() == KeyEvent.VK_PAGE_UP ? 1 : -1);
-		    currentIndex %= dependencies.size();
-		    if (currentIndex < 0) {//% is not a real modulo
-		        currentIndex = dependencies.size() - 1;
+		    currentDependencyIndex +=(evt.getKeyCode() == KeyEvent.VK_PAGE_UP ? 1 : -1);
+		    currentDependencyIndex %= dependencies.size();
+		    if (currentDependencyIndex < 0) {//% is not a real modulo
+		        currentDependencyIndex = dependencies.size() - 1;
 		    }
-		    currentDependency = (Dependency) dependencies.get(currentIndex);
+		    currentDependency = (Dependency) dependencies.get(currentDependencyIndex);
 		    if(currentDependency != null){
 		        graphEditor.getGraphElementManager().add(currentDependency);
 		    }
