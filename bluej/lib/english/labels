@@ -10,7 +10,8 @@ compiler.thread.title=BlueJ compiler thread
 compiler.invalidcompiler=bluej.compiler.type is not set to a valid compiler type
 compiler.nocompiler=Compiler could not be executed
 compiler.warningDialog.title=Compiler Warnings
-compiler.warningDialog.label=The compiler generated the following warnings: 
+compiler.warningDialog.label=Warnings from last compilation 
+compiler.warningDialog.noWarnings=No warnings
 
 debugger.inspector.title=BlueJ:  Inspector
 debugger.inspector.result.title=BlueJ:  Method Result
