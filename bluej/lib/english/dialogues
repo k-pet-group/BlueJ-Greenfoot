@@ -13,7 +13,7 @@ source cannot be found.  Filename:
 error-in-file
 An error occurred in a file for which the
 source cannot be found.
-Filename:line number / error message:
+class: source line number:
 
 system-exit
 The method finished through an explicit
