@@ -9,7 +9,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObject.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RObject.java 3227 2004-12-08 04:04:58Z davmac $
  */
 public interface RObject
     extends java.rmi.Remote
@@ -53,4 +53,18 @@ public interface RObject
 
     public MenuSerializer getMenu()
         throws RemoteException;
+    
+    /**
+     * Allow an arbitrary method to be invoked with arbitrary parameters.
+     * Returns the compiler error message generated, or null if everything
+     * went ok.
+     * 
+     * @param method    The name of the method to invoke
+     * @param argTypes  The classnames of the argument types of the method
+     * @param argVals   The argument "values" as they should appear in the shell code
+     * @throws RemoteException
+     */
+    public String invokeMethod(String method, String [] argTypes, String [] argVals)
+        throws RemoteException;
+
 }

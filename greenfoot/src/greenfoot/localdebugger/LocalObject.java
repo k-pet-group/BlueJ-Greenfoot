@@ -22,12 +22,15 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 3218 2004-12-06 03:43:52Z davmac $
+ * @version $Id: LocalObject.java 3227 2004-12-08 04:04:58Z davmac $
  */
 public class LocalObject extends DebuggerObject
 {
     private Object object;
     private static Field [] noFields = new Field[0]; 
+    
+    // TODO: make the constructor private, and create a static factory method.
+    // LocalObjects should be cached in a hashmap with weak references.
     
     public LocalObject(Object o)
     {
@@ -288,8 +291,20 @@ public class LocalObject extends DebuggerObject
      */
     public String getFieldValueString(int slot)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Field f = getAllFields()[slot];
+        Object v = null;
+        try {
+            v = f.get(object);
+            // Reference types are handled specially
+            if (! f.getType().isPrimitive()) {
+                if (v == null)
+                    v = Config.getString("debugger.null");
+                else
+                    v = OBJECT_REFERENCE;
+            }
+        }
+        catch (IllegalAccessException iae) {}
+        return v.toString();
     }
 
     /* (non-Javadoc)
@@ -297,8 +312,9 @@ public class LocalObject extends DebuggerObject
      */
     public String getFieldValueTypeString(int slot)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Field f = getAllFields()[slot];
+        // TODO decode arrays from "[Lxxx;" notation, handle generic types
+        return f.getType().toString();
     }
 
     /* (non-Javadoc)
