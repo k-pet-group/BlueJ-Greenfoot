@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1831 2003-04-11 09:47:48Z damiano $
+ * @version $Id: PkgMgrFrame.java 1832 2003-04-11 09:57:07Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -2206,7 +2206,7 @@ public class PkgMgrFrame extends JFrame
      */
     public void toolsExtensionsCheckSeparator()
     {
-        if(extMgr.haveMenuItems(null, this, toolsMenu)) {   // do we need one?
+        if(extMgr.haveMenuItems( )) {   // do we need one?
             if (toolsExtensionsSeparatorIndex > 0)          // have one already
                 return;
 

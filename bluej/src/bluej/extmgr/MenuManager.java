@@ -90,11 +90,9 @@ public class MenuManager
 
 
   /**
-   * I need this one to know if a gien extension has a menu to put up...
-   * I am passing a frame to have a uniform interface.
-   * It may be useful in the future.
+   * I need this one to know if a gien extension has a menu to put up.
    */
-  public boolean haveMenuItems ( PkgMgrFrame thisFrame )
+  public boolean haveMenuItems ( )
     {
     if ( ! myWrapper.isValid() ) return false;
 

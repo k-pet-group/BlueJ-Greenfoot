@@ -19,8 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.io.File;
 import javax.swing.JMenu;
-import bluej.extensions.event.BlueJExtensionEvent;
-import bluej.extensions.event.InvocationResultEvent;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
@@ -280,14 +278,9 @@ public class ExtensionsManager implements BlueJEventListener
      * AT the moemnt is just not to add a separator, but it may get
      * more useful in the future. The first menu that I find I just return
      * so this approach is not so bad in terms of performance.
-     * It may be done in a better way in the future.
-     *
-     * @param  project  Description of the Parameter
-     * @param  pmf      Description of the Parameter
-     * @param  menu     Description of the Parameter
-     * @return          Description of the Return Value
+     * It returns true if there is at least one menu item, false othervise.
      */
-    public boolean haveMenuItems(Project project, PkgMgrFrame pmf, JMenu menu)
+    public boolean haveMenuItems( )
     {
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
@@ -297,7 +290,7 @@ public class ExtensionsManager implements BlueJEventListener
             MenuManager aManager = aWrapper.getMenuManager();
             if (aManager == null) continue;
 
-            if (aManager.haveMenuItems(pmf)) return true;
+            if (aManager.haveMenuItems()) return true;
         }
 
         return false;
