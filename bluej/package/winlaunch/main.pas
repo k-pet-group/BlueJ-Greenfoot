@@ -13,7 +13,7 @@ const
 
     jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-    bluejregkey : string = '\Software\BlueJ\BlueJ\2.0.1';
+    bluejregkey : string = '\Software\BlueJ\BlueJ\2.0.2';
 
     searchingstartcaption : string = 'Search drives for all Java versions...';
     searchingstopcaption : string = 'Stop Search';
