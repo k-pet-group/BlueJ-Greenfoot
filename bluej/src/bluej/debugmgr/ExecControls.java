@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2064 2003-06-25 09:53:41Z mik $
+ * @version $Id: ExecControls.java 2066 2003-06-25 13:30:55Z mik $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -303,6 +303,11 @@ public class ExecControls extends JFrame
 		setThreadDetails();		
 	}
 
+    /**
+     * Display the details for the currently selected thread.
+     * These details include showing the therads stack, and displaying 
+     * the details for the top stack frome.
+     */
     private void setThreadDetails()
     {
         stackList.setFixedCellWidth(-1);
@@ -310,10 +315,13 @@ public class ExecControls extends JFrame
         if(stack.size() > 0) {
             stackList.setListData(stack.toArray(new Object[0]));
 			// show details of top frame
-			setStackFrameDetails(0);
+			selectStackFrame(0);
         }
     }
 
+    /**
+     * Clear the display of thread details (stack and variables).
+     */
     private void clearThreadDetails()
     {
         stackList.setListData(empty);
@@ -322,6 +330,11 @@ public class ExecControls extends JFrame
         localList.setListData(empty);
     }
 
+    /**
+     * Make a stack frame in the stack display the selected stack frame.
+     * This will cause this frame's details (local variables, etc.) to be
+     * displayed, as well as the current source position being marked.
+     */
     private void selectStackFrame(int index)
     {
         if (index >= 0) {
