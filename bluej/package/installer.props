@@ -65,4 +65,4 @@ install.requires.help.java.lang.Integer=BlueJ requires that JDK 1.2.x is install
 
 # Required files to check for
 install.requiresFile=!/../lib/tools.jar
-install.requiresFile.help=Cannot find the file "tools.jar", which usually\nis in <JDK_HOME>/lib/tools.jar.\nThe reason may be that you are running\nthis installer from a "JRE" installation\n(without the JDK tools). You need to\nrun this installer from a full JDK installation.\nFor details read\nhttp://www.sd.monash.edu.au/bluej/html/install_details.html
+install.requiresFile.help=Cannot find the file "tools.jar", which usually\nis in <JDK_HOME>/lib/tools.jar. The path to \nthe executable you specified may be incorrect \nor the executable you have specified may be a \n"JRE" version (without the JDK tools). Please \ncorrect the path to your Java executable (for \nWindows typically C:\\jdk1.3\\bin\\java). For \ndetails read\nhttp://bluej.monash.edu/html/install_details.html

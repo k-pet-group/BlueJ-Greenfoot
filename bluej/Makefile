@@ -22,7 +22,7 @@
 
 include $(OS).mk
 
-PKG_VERSION = 102
+PKG_VERSION = 103
 
 SUBDIRS = \
 	src
@@ -58,25 +58,32 @@ INSTALL_LIB_FILES = \
 	lib/bluej.defs \
 	lib/dialogues.english \
 	lib/dialogues.german \
+	lib/dialogues.swedish \
 	lib/exception.help.english \
 	lib/exception.help.german \
+	lib/exception.help.swedish \
 	lib/html.tmpl \
 	lib/interface.tmpl \
 	lib/japplet.tmpl \
 	lib/javac.help.english \
 	lib/javac.help.german \
+	lib/javac.help.swedish \
 	lib/jikes.help.english \
 	lib/jikes.help.german \
+	lib/jikes.help.swedish \
 	lib/jpda.jar \
 	lib/labels.english \
 	lib/labels.german \
+	lib/labels.swedish \
+	lib/moe.defs \
 	lib/moe.help.english \
 	lib/moe.help.german \
+	lib/moe.help.swedish \
 	lib/moe.labels.english \
 	lib/moe.labels.german \
+	lib/moe.labels.swedish \
 	lib/shell.tmpl \
-	lib/stdclass.tmpl \
-	lib/syslibs.properties
+	lib/stdclass.tmpl
 
 INSTALL_EXAMPLES = \
 	examples/appletClock \

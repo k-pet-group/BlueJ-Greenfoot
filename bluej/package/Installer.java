@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 407 2000-03-10 03:19:23Z mik $
+  * @version $Id: Installer.java 490 2000-05-19 04:40:31Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -226,8 +226,9 @@ public class Installer extends JFrame
 
     /**
      ** Check for any required classes, show a help message if not found.
+     ** Return false if not found.
      **/
-    public void checkDepends() {
+    public boolean checkDepends() {
 	String dep = (String)getProperty("requires");
 	if (dep != null) {
 	    StringTokenizer tok = new StringTokenizer(dep," \t,:;",false);
@@ -250,10 +251,12 @@ public class Installer extends JFrame
 	    fileName = replace(fileName, '@', architecture);
 	    if(! (new File(fileName).exists())) {
 		String help = (String)getProperty("requiresFile.help");
-		if (help == null) help = "";
-		notifyError(help, "Required file missing.");
+		if (help == null) help = "required file not found";
+		notifyProblem(help);
+                return false;
 	    }
 	}
+        return true;
     }
 
     /**
@@ -285,12 +288,35 @@ public class Installer extends JFrame
 
 	try {
 	    setInstallDir(directoryField.getText());
-	    if (installDir().length() == 0)
-		throw new RuntimeException("No directory specified");
+            if(!(new File(installDir()).exists())) {
+                notifyProblem(
+                    "The installation directory specified does not exist.\n" +
+                    "Please check the path and enter again.");
+                return;
+            }
 
 	    setJavaPath(javaField.getText());
-	    if (getJavaPath().length() == 0)
-		throw new RuntimeException("No java executable specified");
+            //if(getJavaPath().indexOf(" ") > -1) {
+            //  notifyProblem(
+            //     "Java cannot cope well with paths that contain spaces.\n" +
+            //     "Please install Java in a path without spaces.");
+            //  return;
+            //}
+
+            File exec = new File(getJavaPath());
+            if(!exec.exists())
+                setJavaPath(getJavaPath()+".exe");  // try Windows
+
+            exec = new File(getJavaPath());
+            if(!exec.exists()) {
+                notifyProblem(
+                      "The Java executable specified does not exist.\n" +
+                      "Please check the path and enter again.");
+                return;
+            }
+            javaHome = exec.getParent();
+            if(!checkDepends())
+                return;
 
 	    // Make sure installDir is accessible (make it if need be)
 
@@ -363,11 +389,21 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Pop up a dialog box with the message.
+     ** Pop up a dialog box with the error message. After an error,
+     ** installation cannot proceed.
      **/
     public void notifyError(String error, String msg) {
 	JOptionPane.showMessageDialog(this, error);
 	finish(msg, "Installation aborted."); 
+    }
+
+
+    /**
+     ** Pop up a dialog box with the message. After a problem,
+     ** installation can proceed.
+     **/
+    public void notifyProblem(String problem) {
+	JOptionPane.showMessageDialog(this, problem);
     }
 
 
@@ -739,7 +775,7 @@ public class Installer extends JFrame
 			
 	    (new File("Installer.class.tmp")).delete();
 	} catch (Exception e) {
-	    notifyError("Installer failed to open: " + e.getMessage(),
+	    notifyError("Installer failed to open: " + e,
 			"Could not open install file.");
 	}
     }

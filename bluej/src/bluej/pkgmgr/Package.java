@@ -41,7 +41,7 @@ import java.awt.print.PageFormat;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 489 2000-05-18 08:55:04Z bquig $
+ * @version $Id: Package.java 490 2000-05-19 04:40:31Z mik $
  * @author Michael Cahill
  *
  */
@@ -1155,7 +1155,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
     {
         if(t == null || newIdentifier == null) {
             Debug.reportError("cannot properly update target name...");
-            Debug.reportError(newIdentifier);
             return;
         }
         targets.remove(t.getBaseName());
