@@ -18,7 +18,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 2011 2003-06-03 07:07:52Z ajp $
+ * @version $Id: AppletClassRole.java 2407 2003-12-02 00:12:17Z ajp $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -195,7 +195,7 @@ public class AppletClassRole extends ClassRole
                         PkgMgrFrame.displayMessage(Config.getString("pkgmgr.appletInViewer"));
 
                         Process applet =
-                            Runtime.getRuntime().exec(execCommand);
+                            Runtime.getRuntime().exec(execCommand, null, pkg.getProject().getProjectDir());
                     } catch (Exception e) {
                         pkg.showError("appletviewer-error");
                         Debug.reportError("Exception thrown in execution of appletviewer");
