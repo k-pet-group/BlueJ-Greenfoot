@@ -10,10 +10,14 @@ import bluej.Config;
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPathEntry.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: ClassPathEntry.java 2156 2003-08-06 10:31:25Z mik $
  */
 public class ClassPathEntry implements Cloneable
 {
+    private static final String statusGood = Config.getString("classmgr.statusgood");
+    private static final String statusBad = Config.getString("classmgr.statusbad");
+    private static final String statusNew = Config.getString("classmgr.statusnew");
+
     /**
      * Hold the class path entry location.
      */
@@ -167,6 +171,19 @@ public class ClassPathEntry implements Cloneable
         return false;
     }
 
+    /**
+     * Return the current status as a string (Loaded/Not Loaded/Error).
+     */
+    public String getStatusString()
+    {
+        if (!isValid())
+            return statusBad;
+        else if(isNew())
+            return statusNew;
+        else
+            return statusGood;
+    }
+    
     /**
      * Determine if this class path entry represents a Jar file.
      *

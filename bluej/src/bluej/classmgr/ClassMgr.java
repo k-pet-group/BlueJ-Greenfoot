@@ -22,7 +22,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2101 2003-07-08 14:00:26Z mik $
+ * @version $Id: ClassMgr.java 2156 2003-08-06 10:31:25Z mik $
  */
 public class ClassMgr
 {
@@ -110,23 +110,22 @@ public class ClassMgr
     private ClassMgr()
     {
         addConfigEntries(systemLibraries, syslibPrefix);
-
         addConfigEntries(userLibraries, userlibPrefix);
 
 //        String syscp = System.getProperty("sun.boot.class.path");
+        String bootcp = Boot.getInstance().getRuntimeClassPathString();
         String syscp = Boot.getInstance().getRuntimeClassPathString();
         String envcp = System.getProperty("java.class.path");
 
         if (syscp == null) {        // pre JDK1.2
             Debug.message(errormissingbootclasspath);
-        } else {
-            if (envcp == null) {    // no classpath
-                Debug.message(errormissingclasspath);
-            }
+        } 
+        else if (envcp == null) {    // no classpath
+            Debug.message(errormissingclasspath);
         }
 
-        bootLibraries = new ClassPath(syscp, Config.getString("classmgr.bootclass"));
-        systemLibraries = new ClassPath(syscp, "Testing");
+        bootLibraries = new ClassPath(bootcp, "");
+        //systemLibraries = new ClassPath(syscp, "");
         /* XXX we should add here the boot libraries which are in the JDK extension
            directory */
         //System.getProperty("java.ext.dirs");
@@ -135,7 +134,7 @@ public class ClassMgr
            only be the bluej libraries needed to run the program. */
 
         if (envcp != null) {
-            bootLibraries.addClassPath(envcp, Config.getString("classmgr.bluejclass"));
+            bootLibraries.addClassPath(envcp, "");
         }
     }
 

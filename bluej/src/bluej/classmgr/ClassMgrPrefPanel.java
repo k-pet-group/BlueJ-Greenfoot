@@ -21,7 +21,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: ClassMgrPrefPanel.java 2156 2003-08-06 10:31:25Z mik $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -262,7 +262,7 @@ class ClassMgrCellRenderer implements ListCellRenderer
 
 		ClassPathEntry cpe = (ClassPathEntry)value;
 
-		String s = cpe.getCanonicalPathNoException() + " (" + cpe.getDescription() + ")";
+		String s = cpe.getCanonicalPathNoException() + " (" + cpe.getStatusString() + ")";
 
 		((JLabel)sup).setText(s);
 

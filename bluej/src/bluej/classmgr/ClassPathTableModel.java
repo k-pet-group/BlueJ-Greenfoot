@@ -11,17 +11,12 @@ import bluej.Config;
  * edited and then changes can be reverted or committed.
  *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassPathTableModel.java 1915 2003-04-29 05:07:57Z ajp $
+ * @cvs     $Id: ClassPathTableModel.java 2156 2003-08-06 10:31:25Z mik $
  */
 public class ClassPathTableModel extends AbstractTableModel
 {
     static final String statusLabel = Config.getString("classmgr.statuscolumn");
     static final String locationLabel = Config.getString("classmgr.locationcolumn");
-    static final String descriptionLabel = Config.getString("classmgr.descriptioncolumn");
-
-    static final String statusGood = Config.getString("classmgr.statusgood");
-    static final String statusBad = Config.getString("classmgr.statusbad");
-    static final String statusNew = Config.getString("classmgr.statusnew");
 
     private ClassPath origcp;
     private ClassPath cp;
@@ -49,8 +44,6 @@ public class ClassPathTableModel extends AbstractTableModel
             return statusLabel;
         else if (col == 1)
             return locationLabel;
-        else if (col == 2)
-            return descriptionLabel;
 
         throw new IllegalArgumentException("bad column number in ClassPathTableModel::getColumnName()");
     }
@@ -86,14 +79,8 @@ public class ClassPathTableModel extends AbstractTableModel
     {
         ClassPathEntry entry = (ClassPathEntry)cp.getEntries().get(row);
 
-        if (col == 0) {
-            if (!entry.isValid())
-                return statusBad;
-            else if(entry.isNew())
-                return statusNew;
-            else
-                return statusGood;
-        }
+        if (col == 0)
+            return entry.getStatusString();
         else if (col == 1)
             return entry.getCanonicalPathNoException();
         else if (col == 2)

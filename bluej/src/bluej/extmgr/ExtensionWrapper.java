@@ -127,28 +127,25 @@ public class ExtensionWrapper
      * It is a bit of magic, really :-)
      */
     class FirewallLoader extends ClassLoader
-      {
-      ClassLoader myParent;
+    {
+        ClassLoader myParent;
       
-      FirewallLoader ( ClassLoader parent )
+        FirewallLoader ( ClassLoader parent )
         {
-        myParent = parent;
+            myParent = parent;
         }
 
-      public Class findClass(String name) throws ClassNotFoundException
+        public Class findClass(String name) throws ClassNotFoundException
         {
-        if ( name.startsWith("bluej.") ) 
-          {
-//          Debug.message("Firewall OK: "+name);
-          return myParent.loadClass(name);
-          }
+            if ( name.startsWith("bluej.") ) {
+//              Debug.message("Firewall OK: "+name);
+                return myParent.loadClass(name);
+            }
 
-//        if ( name.startsWith("antlr.") ) System.out.println ("Firewall =="+name);
-
-        throw new ClassNotFoundException();
+//          if ( name.startsWith("antlr.") ) System.out.println ("Firewall =="+name);
+            throw new ClassNotFoundException();
         }
-
-      }
+    }
   
     /**
      *  Now, assume you have the class and you want to "istantiate" the
@@ -293,6 +290,7 @@ public class ExtensionWrapper
         return null;
     }
 
+    
     /**
      * Returns the label that are language dependents as a Properies instance
      * 
@@ -338,6 +336,7 @@ public class ExtensionWrapper
         }
     }
 
+    
     /**
      *  Gets a String representation of the path to the <CODE>.jar</CODE> file
      *  containing the extension.
@@ -366,87 +365,82 @@ public class ExtensionWrapper
      * Othervise an error in the extension will render BlueJ unusable. Damiano
      */
 
-
     /**
      * Informs any registered listeners that an event has occurred.
      */
-    void safeEventOccurred(ExtensionEvent event)
+    public void safeEventOccurred(ExtensionEvent event)
     {
-        if (!isValid()) return;
+        if (!isValid()) 
+            return;
 
-        try
-          {
-          ExtensionBridge.delegateEvent(extensionBluej,event);
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safeEventOccurred: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          return;
-          }
-      }
+        try {
+            ExtensionBridge.delegateEvent(extensionBluej,event);
+        }
+        catch (Exception exc)  {
+            Debug.message("ExtensionWrapper.safeEventOccurred: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+            return;
+        }
+    }
 
-
+    
     /**
      * Returns the extension's description.
      */
-    String safeGetExtensionDescription()
+    public String safeGetExtensionDescription()
     {
-        if (extensionInstance == null) return null;
+        if (extensionInstance == null) 
+            return null;
 
-        try
-          {
-          return extensionInstance.getDescription();
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safeGetExtensionDescription: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          return null;
-          }
+        try {
+            return extensionInstance.getDescription();
+        }
+        catch (Exception exc)  {
+            Debug.message("ExtensionWrapper.safeGetExtensionDescription: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+            return null;
+        }
     }
 
+    
     /**
      * Returns the extension's name.
      * It would be far more reliable to use the full class name of the extension. Damiano
      */
-    String safeGetExtensionName()
+    public String safeGetExtensionName()
     {
-        if (extensionInstance == null) return "";
+        if (extensionInstance == null) 
+            return "";
 
-        try
-          {
-          return extensionInstance.getName();
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safeGetExtensionName: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          return "";
-          }
+        try {
+            return extensionInstance.getName();
+        }
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safeGetExtensionName: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+            return "";
+        }
     }
 
-
-
+    
     /**
      *  Gets the extension's 'further information' URL
      *
      * @return    the extension's URL, or <CODE>null</CODE>.
      */
-    URL safeGetURL()
+    public URL safeGetURL()
     {
-        if (extensionInstance == null) return null;
+        if (extensionInstance == null) 
+            return null;
 
-        try
-          {
-          return extensionInstance.getURL();
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safeGetURL: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          return null;
-          }
+        try {
+            return extensionInstance.getURL();
+        }
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safeGetURL: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+            return null;
+        }
     }
 
 
@@ -455,22 +449,20 @@ public class ExtensionWrapper
      *
      * @return  the version of the extension
      */
-    String safeGetExtensionVersion()
+    public String safeGetExtensionVersion()
     {
-        if (extensionInstance == null) return null;
+        if (extensionInstance == null) 
+            return null;
 
-        try
-          {
+        try {
           return extensionInstance.getVersion();
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safeGetExtensionVersion: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          return null;
-          }
+        }
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safeGetExtensionVersion: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+            return null;
+        }
     }
-
 
 
     /**
@@ -480,39 +472,38 @@ public class ExtensionWrapper
      */
     private boolean safeIsCompatible()
     {
-        if (extensionInstance == null) return false;
+        if (extensionInstance == null) 
+            return false;
 
-        try
-          {
-          return extensionInstance.isCompatible();
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safeIsCompatible: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          // If one bombs at me it shurely is not compatilbe 
-          return false;
-          }
+        try {
+            return extensionInstance.isCompatible();
+        }
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safeIsCompatible: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+            // If one bombs at me it shurely is not compatilbe 
+            return false;
+        }
     }
 
+    
     /**
      *  Call the startup method in a safe way
      *
      * @return  true if it is, false otherwise
      */
-    private void safeStartup(BlueJ giveThisBluej )
+    private void safeStartup(BlueJ bluejProxy)
     {
-        if (extensionInstance == null) return;
+        if (extensionInstance == null) 
+            return;
 
-        try
-          {
-          extensionInstance.startup(giveThisBluej);
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safeStartup: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          }
+        try {
+            extensionInstance.startup(bluejProxy);
+        }
+        catch (Exception exc)  {
+            Debug.message("ExtensionWrapper.safeStartup: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+        }
     }
 
 
@@ -523,108 +514,105 @@ public class ExtensionWrapper
      */
     private void safeTerminate()
     {
-        if (extensionInstance == null) return;
+        if (extensionInstance == null) 
+            return;
 
-        try
-          {
-          // Give a chance to extension to clear up after itself.
-          extensionInstance.terminate();
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safeTerminate: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          }
+        try {
+            // Give a chance to extension to clear up after itself.
+            extensionInstance.terminate();
+        }
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safeTerminate: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+        }
     }
-
 
 
     /**
      *  Calls the EXTENSION preference panel loadValues in a sfe way
      */
-    void safePrefGenLoadValues()
+    public void safePrefGenLoadValues()
     {
-        if (extensionBluej == null) return;
+        if (extensionBluej == null) 
+            return;
 
         PreferenceGenerator aPrefGen = extensionBluej.getPreferenceGenerator();
         // The above is dafe. An extension may not have a preference panel
-        if ( aPrefGen == null ) return;
+        if (aPrefGen == null) 
+            return;
 
-        try
-          {
-          aPrefGen.loadValues();
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safePrefGenLoadValues: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          }
+        try {
+            aPrefGen.loadValues();
+        }
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safePrefGenLoadValues: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+        }
     }
 
+    
     /**
      *  Calls the EXTENSION preference panel saveValues in a sfe way
      */
-    void safePrefGenSaveValues()
+    public void safePrefGenSaveValues()
     {
-        if (extensionBluej == null) return;
+        if (extensionBluej == null) 
+            return;
 
         PreferenceGenerator aPrefGen = extensionBluej.getPreferenceGenerator();
         // The above is dafe. An extension may not have a preference panel
-        if ( aPrefGen == null ) return;
+        if (aPrefGen == null) 
+            return;
 
-        try
-          {
-          aPrefGen.saveValues();
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safePrefGenSaveValues: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          }
+        try {
+            aPrefGen.saveValues();
+        }
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safePrefGenSaveValues: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+        }
     }
 
+    
     /**
      *  Calls the EXTENSION preference panel getPanel in a sfe way
      */
-    JPanel safePrefGenGetPanel()
+    public JPanel safePrefGenGetPanel()
     {
-        if (extensionBluej == null) return null;
+        if (extensionBluej == null) 
+            return null;
 
         PreferenceGenerator aPrefGen = extensionBluej.getPreferenceGenerator();
         // The above is dafe. An extension may not have a preference panel
-        if ( aPrefGen == null ) return null;
+        if (aPrefGen == null) 
+            return null;
 
-        try
-          {
-          return aPrefGen.getPanel();
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safePrefGenGetPanel: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          return null;
-          }
+        try {
+            return aPrefGen.getPanel();
+        }
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safePrefGenGetPanel: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+            return null;
+        }
     }
 
 
     /**
      *  Calls the EXTENSION preference panel getMenuItem in a safe way
      */
-    JMenuItem safeGetMenuItem(Object attachedObject)
-        {
-        if (extensionBluej == null) return null;
+    public JMenuItem safeGetMenuItem(Object attachedObject)
+    {
+        if (extensionBluej == null) 
+            return null;
 
-        try
-          {
-          return ExtensionBridge.getMenuItem(extensionBluej, attachedObject);
-          }
-        catch ( Exception exc )
-          {
-          Debug.message("ExtensionWrapper.safeMenuGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
-          exc.printStackTrace();
-          return null;
-          }
+        try {
+            return ExtensionBridge.getMenuItem(extensionBluej, attachedObject);
         }
-
-
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safeMenuGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+            return null;
+        }
+    }
 }
