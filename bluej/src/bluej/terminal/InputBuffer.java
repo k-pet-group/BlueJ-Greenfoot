@@ -21,86 +21,86 @@ public final class InputBuffer
 
     InputBuffer(int size)
     {
-	buffer = new char[size];
-	bufferSize = size;
+        buffer = new char[size];
+        bufferSize = size;
     }
 
     public boolean putChar(char ch)
     {
-	if(isFull()) {
-	    Toolkit.getDefaultToolkit().beep();
-	    return false;
-	}
-	else {
-	    buffer[bufferNextFree] = ch;
-	    bufferNextFree = advance(bufferNextFree);
-	    return true;
-	}
+        if(isFull()) {
+            Toolkit.getDefaultToolkit().beep();
+            return false;
+        }
+        else {
+            buffer[bufferNextFree] = ch;
+            bufferNextFree = advance(bufferNextFree);
+            return true;
+        }
     }
 
     public boolean backSpace()
     {
-	if(!isEmpty()) {
-	    bufferNextFree = backwards(bufferNextFree);
-	    return true;
-	}
-	else {
-	    Toolkit.getDefaultToolkit().beep();
-	    return false;
-	}
+        if(!isEmpty()) {
+            bufferNextFree = backwards(bufferNextFree);
+            return true;
+        }
+        else {
+            Toolkit.getDefaultToolkit().beep();
+            return false;
+        }
     }
 
     public char getChar()
     {
-	// block until input available
+        // block until input available
 
-	while(isEmpty()) {
-	    try {
-		synchronized(this) {
-		    wait();		// sleep until there is some input
-		}
-	    } catch(InterruptedException e) {
-		// ignore it
-	    }
-	}
+        while(isEmpty()) {
+            try {
+                synchronized(this) {
+                    wait();		// sleep until there is some input
+                }
+            } catch(InterruptedException e) {
+                // ignore it
+            }
+        }
 
-	char ch = buffer[bufferNextFull];
-	bufferNextFull = advance(bufferNextFull);
-	return ch;
+        char ch = buffer[bufferNextFull];
+        bufferNextFull = advance(bufferNextFull);
+        return ch;
     }
 
     public int numberOfCharacters()
     {
-	if(bufferNextFree >= bufferNextFull)
-	    return bufferNextFree - bufferNextFull;
-	else
-	    return (bufferNextFree + bufferSize) - bufferNextFull;
+        if(bufferNextFree >= bufferNextFull)
+            return bufferNextFree - bufferNextFull;
+        else
+            return (bufferNextFree + bufferSize) - bufferNextFull;
     }
 
     public synchronized void notifyReaders()
     {
-	notify();
+        notify();
     }
 
     public boolean isFull()
     {
-	return advance(bufferNextFree) == bufferNextFull;
+        return advance(bufferNextFree) == bufferNextFull;
     }
 
     public boolean isEmpty()
     {
-	return bufferNextFull == bufferNextFree;
+        return bufferNextFull == bufferNextFree;
     }
 
     private int advance(int pos)
     {
-	return (++pos) % bufferSize;
+        return (++pos) % bufferSize;
     }
 
     private int backwards(int pos)
     {
-	pos--;
-	return (pos < 0 ? bufferSize - 1 : pos);
+        pos--;
+        return (pos < 0 ? bufferSize - 1 : pos);
     }
 
 }

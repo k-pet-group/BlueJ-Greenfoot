@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 910 2001-05-24 07:24:41Z mik $
+ * @version $Id: JdiDebugger.java 935 2001-06-12 01:21:10Z mik $
  *
  * The startup process is as follows:
  *
@@ -1174,8 +1174,6 @@ public final class JdiDebugger extends Debugger
     private void dumpStream(Reader reader, Writer writer)
         throws IOException
     {
-        int test = '\u4F60';
-        
         int ch;
         while ((ch = reader.read()) != -1) {
             writer.write(ch);
@@ -1191,11 +1189,9 @@ public final class JdiDebugger extends Debugger
             new BufferedReader(reader);
      
         String line;
-        //String test = "\u91cd\u505a\n";
         while ((line = in.readLine()) != null) {
             line += '\n';
             writer.write(line.toCharArray(), 0, line.length());
-            //writer.write(test.toCharArray(), 0, test.length());
             writer.flush();
         }
     }

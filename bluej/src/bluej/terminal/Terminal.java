@@ -21,9 +21,8 @@ import java.io.FileWriter;
  * The Frame part of the Terminal window used for I/O when running programs
  * under BlueJ.
  *
- * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Terminal.java 896 2001-05-16 07:28:17Z mik $
+ * @version $Id: Terminal.java 935 2001-06-12 01:21:10Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -163,6 +162,16 @@ public final class Terminal extends JFrame
 
 
     /**
+     * Write a character to the terminal.
+     */
+    private void writeToTerminal(char ch)
+    {
+        text.append(new Character(ch).toString());
+        text.setCaretPosition(text.getDocument().getLength());
+    }
+
+
+    /**
      * Set the terminal size the the specified number of rows and columns.
      */
     private void setScreenSize(int columns, int rows)
@@ -192,14 +201,18 @@ public final class Terminal extends JFrame
             int charsRead = 0;
 
             while(charsRead < len) {
-                        cbuf[off + charsRead] = buffer.getChar();
-                        charsRead++;
-                        if(buffer.numberOfCharacters() == 0)
-                            break;
+                cbuf[off + charsRead] = buffer.getChar();
+                charsRead++;
+                if(buffer.numberOfCharacters() == 0)
+                    break;
             }
             return charsRead;
         }
               
+        public int read() throws IOException
+        {
+            return buffer.getChar();
+        }
             
         public void close() throws IOException
         {
@@ -228,15 +241,21 @@ public final class Terminal extends JFrame
                 writeToTerminal(new String(cbuf, off, len));
             }
         }
-            
+
+        public void write(int ch) throws IOException
+        {
+            if (enabled) {
+                prepare();
+                writeToTerminal((char)ch);
+            }
+        }
+
         public void flush() throws IOException
         {
-            
         }
 
         public void close() throws IOException
         {
-    
         }
     };
 
@@ -258,25 +277,30 @@ public final class Terminal extends JFrame
     public void keyTyped(KeyEvent event)
     {
         char ch = event.getKeyChar();
+        boolean handled = false;
 
         // first, handle general terminal operations (menu shortcuts)
         if(Character.isISOControl(ch)) {
 
             switch(ch) {
             case CHAR_CLEAR: clear();
+                             handled = true;
                 break;
-            case CHAR_COPY: getCopyAction().actionPerformed(
+            case CHAR_COPY:  getCopyAction().actionPerformed(
                                     new ActionEvent(event.getSource(), 0, ""));
+                             handled = true;
             break;
-            case CHAR_SAVE: save();
+            case CHAR_SAVE:  save();
+                             handled = true;
                 break;
             case CHAR_CLOSE: showTerminal(false);
+                             handled = true;
                 break;
             }
         }
 
         // now, handle text input
-        if(isActive) {
+        if(isActive && !handled) {
 
             switch(ch) {
 
@@ -295,21 +319,15 @@ public final class Terminal extends JFrame
             case '\r':	// carriage return
             case '\n':	// newline
                 if(buffer.putChar('\n')) {
-                    writeToTerminal("" + ch);
+                    writeToTerminal(ch);
                     buffer.notifyReaders();
                 }
                 break;
 
             default:
-                if(Character.isISOControl(ch)) {
-                    // control character - ignore
-                    // later: bind to functions!
-                }
-                else {
-                    if(buffer.putChar(ch))
-                        writeToTerminal("" + ch);
-                    break;
-                }
+                if(buffer.putChar(ch))
+                    writeToTerminal(ch);
+                break;
             }
         }
         event.consume();	// make sure the text area doesn't handle this

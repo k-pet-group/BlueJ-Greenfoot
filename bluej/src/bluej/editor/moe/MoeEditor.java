@@ -145,6 +145,7 @@ public final class MoeEditor extends JFrame
     private int currentStepPos;         // position of step mark (or -1)
     private boolean mayHaveBreakpoints;	// true if there were BP here
     private boolean ignoreChanges = false;
+    private boolean tabsAreExpanded = false;
 
     private MoePrinter printer;
 
@@ -680,6 +681,22 @@ public final class MoeEditor extends JFrame
         setVisible(false);
         if (watcher != null)
             watcher.closeEvent(this);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Check whether TABs need expanding in this editor. If they
+     *  do, return true. At the same time, set this flag to false.
+     */
+
+    public boolean checkExpandTabs()
+    {
+        if(tabsAreExpanded)
+            return false;
+        else {
+            tabsAreExpanded = true;
+            return true;
+        }
     }
 
     // --------------------------------------------------------------------
