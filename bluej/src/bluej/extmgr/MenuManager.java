@@ -89,21 +89,6 @@ public class MenuManager
 
 
   /**
-   * I need this one to know if a gien extension has a menu to put up.
-   */
-  public boolean haveMenuItems ( )
-    {
-    if ( ! myWrapper.isValid() ) return false;
-
-    JMenuItem newMenuItem = myWrapper.safeMenuGenGetMenuItem();
-    if ( newMenuItem == null ) return false;
-
-    // NOTE: I do not really care if the given menu will be destroyed
-    return true;
-    }
-
-
-  /**
    * This will remove the given item AND return its previous position.
    * returns the removed item position if all is fine
    * -1 if either the item is null or cannot be found (strange, really)

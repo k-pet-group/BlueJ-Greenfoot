@@ -282,16 +282,15 @@ public class ExtensionsManager implements BlueJEventListener
      */
     public boolean haveMenuItems( )
     {
-        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
+        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) 
+            {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
             if (!aWrapper.isValid())  continue;
-            
-            MenuManager aManager = aWrapper.getMenuManager();
-            if (aManager == null) continue;
 
-            if (aManager.haveMenuItems()) return true;
-        }
+            // If this warpper does have a menuitem then we have some...
+            if ( aWrapper.safeMenuGenGetMenuItem() != null ) return true;
+            }
 
         return false;
     }
