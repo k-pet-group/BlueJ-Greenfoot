@@ -176,18 +176,13 @@
     <target name="ready-to-run" depends="jar-core, jar-editor, jar-extension">
     </target>
 
-    <target name="inspector">
-        <ant antfile="inspector.xml" dir="inspector" target="compile-inspector">
-            <reference refid="bluej.class.path"/>
-        </ant>
-    </target>
-
     <target name="run">
         <!-- run the java code built into the jar files -->
 		<java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
 			<classpath>
 				<pathelement location="${boot.jar}"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
+                	<pathelement location="${build_java_home}/lib/tools.jar"/>
+		        	<pathelement location="/System/Library/Java"/>
 			</classpath>                	
         </java>
     </target>
