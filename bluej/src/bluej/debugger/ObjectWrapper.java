@@ -27,12 +27,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * A wrapper around a Java object that handles calling methods, inspecting,
- * etc. The wrapper is represented by the red oval that is visible on the
+ * A wrapper around a Java object that handles calling methods, inspecting, etc.
+ *
+ * The wrapper is represented by the red oval that is visible on the
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1527 2002-11-28 15:36:18Z mik $
+ * @version $Id: ObjectWrapper.java 1535 2002-11-29 13:37:46Z ajp $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -51,46 +52,63 @@ public class ObjectWrapper extends JComponent
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
     static final Color textColour = Color.white;
 
-    public static final int WIDTH = 100;
-    public static final int HEIGHT = 70;
+    public static final int WIDTH = 90;
+    public static final int HEIGHT = 60;
     // vertical offset between instance and class name
-    public static final int WORD_GAP = 25;
-
+    public static int WORD_GAP = 20;
+    public static int SHADOW_SIZE = 5;
 
     private static int itemHeight = 19;   // wild guess until we find out
     private static boolean itemHeightKnown = false;
     private static int itemsOnScreen;
 
-    /** The Java object that this wraps **/
+    // The Java object that this wraps
     private DebuggerObject obj;
+
     protected String className;
     protected String instanceName;
-    private String displayClassName;
-    private JPopupMenu menu;
+    protected String displayClassName;
+    protected JPopupMenu menu;
     private Method[] methods;
+
+    // back references to the containers that we live in
     private Package pkg;
     private PkgMgrFrame pmf;
+    private ObjectBench ob;
 
     private Hashtable methodsUsed;
     private Hashtable actions;
 
-    public ObjectWrapper(PkgMgrFrame pmf, DebuggerObject obj, String instanceName)
+    static public ObjectWrapper getWrapper(PkgMgrFrame pmf, ObjectBench ob,
+                                            DebuggerObject obj, String instanceName)
     {
         if(pmf.isEmptyFrame())
             throw new IllegalArgumentException();
 
-        this.pmf = pmf;
-        this.pkg = pmf.getPackage();
-        this.obj = obj;
-        this.instanceName = instanceName;
+        if (obj.isArray())
+            return new ArrayWrapper(pmf, ob, obj, instanceName);
+        else
+            return new ObjectWrapper(pmf, ob, obj, instanceName);
+    }
 
+    public ObjectWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
+    {
+        if(pmf.isEmptyFrame())
+            throw new IllegalArgumentException();
+
+        // first one we construct will give us more info about the size of the screen
         if(!itemHeightKnown)
             itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
 
+        this.pmf = pmf;
+        this.pkg = pmf.getPackage();
+        this.ob = ob;
+        this.obj = obj;
+        this.instanceName = instanceName;
+
         className = obj.getClassName();
 
-        if (!obj.isArray())
-            createMenu(className);
+        createMenu(className);
 
         int dot_index = className.lastIndexOf('.');
         if(dot_index >= 0)
@@ -99,6 +117,8 @@ public class ObjectWrapper extends JComponent
             displayClassName = className;
 
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
+        
+        setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setSize(WIDTH, HEIGHT);
     }
 
@@ -123,7 +143,7 @@ public class ObjectWrapper extends JComponent
      *
      * @param className   class name of the object for which the menu is to be built
      */
-    private void createMenu(String className)
+    protected void createMenu(String className)
     {
         Class cl = pkg.loadClass(className);
 
@@ -308,6 +328,11 @@ public class ObjectWrapper extends JComponent
         return new Dimension(WIDTH, HEIGHT);
     }
 
+    public Dimension getMaximumSize()
+    {
+        return new Dimension(WIDTH, HEIGHT);
+    }
+
     public String getName()
     {
         return instanceName;
@@ -318,59 +343,74 @@ public class ObjectWrapper extends JComponent
         instanceName = newName;
     }
 
-    public void paint(Graphics g)
-    {
-        Graphics2D g2 = (Graphics2D)g;
-        drawUMLStyle(g2);
-    }
-    
     public DebuggerObject getObject()
     {
         return obj;
     }
 
+
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);            //paint background
+
+        Graphics2D g2 = (Graphics2D)g;
+        drawUMLStyle(g2);
+    }
+    
+    protected void drawUMLObjectShape(Graphics2D g, int x, int y, int w, int h, int shad, int corner)
+    {
+        g.setColor(shadow);
+        g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
+        g.setColor(bg);
+        g.fillRoundRect(x,y,w-shad,h-shad,corner,corner);
+        g.setColor(Color.black);
+        g.drawRoundRect(x,y,w-shad, h-shad,corner,corner);
+    }
+
+    protected void drawUMLObjectText(Graphics2D g, int x, int y, int w, int h, int shad, String a, String b)
+    {
+        g.setColor(textColour);
+        g.setFont(PrefMgr.getStandardFont());
+
+        FontMetrics fm = g.getFontMetrics();
+        int fontHeight = fm.getAscent() + 4;
+
+        int maxWidth = w - shad - 4;    // our uml object will be (w-shad) pixels wide
+                                        // we leave 2 pixels of space either side of shape
+
+        // draw top string (normally instance name)
+        int aWidth = fm.stringWidth(a);
+        if(aWidth > maxWidth)
+            aWidth = maxWidth;
+
+        Utility.drawCentredText(g, a, x+2, y+5, maxWidth, fontHeight);
+
+        int lineX = (int)(maxWidth - aWidth)/2;
+        int lineY = y + 5 + fontHeight;
+
+        g.drawLine(lineX, lineY, lineX + aWidth, lineY);
+
+        // draw bottom string (normally class name)
+        int bWidth = fm.stringWidth(b);
+        if(bWidth > maxWidth)
+            bWidth = maxWidth;
+
+        Utility.drawCentredText(g, b, x+2, y+25, maxWidth, fontHeight);
+        lineX = (int)(maxWidth - bWidth)/2;
+        lineY = y + 25 + fontHeight;
+        g.drawLine(lineX, lineY, lineX + bWidth, lineY);
+
+    }
+
     /**
      * draw a UML style object instance
      */
-    private void drawUMLStyle(Graphics2D g)
+    protected void drawUMLStyle(Graphics2D g)
     {
-        g.setFont(PrefMgr.getStandardFont());
-        FontMetrics fm = g.getFontMetrics();
+        drawUMLObjectShape(g,0,0,WIDTH,HEIGHT,SHADOW_SIZE,8);
 
-        g.setColor(shadow);
-        g.fillRoundRect(10, 10, WIDTH - 10, HEIGHT - 15, 8, 8);
-        g.setColor(bg);
-        g.fillRoundRect(5, 5, WIDTH - 10, HEIGHT - 15, 8, 8);
-        g.setColor(Color.black);
-        g.drawRoundRect(5, 5, WIDTH - 10, HEIGHT - 15, 8, 8);
-
-        g.setColor(textColour);
-
-        int maxWidth = WIDTH - 20;
-
-        // draw instance name
-        String objectName = instanceName + ":";
-        int h = fm.getAscent() + 4;
-        int w = fm.stringWidth(objectName);
-        if(w > maxWidth)
-            w = maxWidth;
-
-        Utility.drawCentredText(g, instanceName + ":", 10, 10,  WIDTH - 20, h);
-        int lineX = (int)(WIDTH - w)/2;
-        int lineY = h + 12;
-
-        g.drawLine(lineX, lineY, lineX + w, lineY);
-
-        // draw class name
-        w = fm.stringWidth(displayClassName);
-        if(w > maxWidth)
-            w = maxWidth;
-
-        Utility.drawCentredText(g, displayClassName, 10, 35,  WIDTH - 20, h);
-        lineX = (int)(WIDTH - w)/2;
-        lineY += WORD_GAP;
-        g.drawLine(lineX, lineY, lineX + w, lineY);
-
+        drawUMLObjectText(g,0,0,WIDTH,HEIGHT,SHADOW_SIZE,
+                            instanceName + ":", displayClassName);
     }
 
     /**
@@ -406,8 +446,7 @@ public class ObjectWrapper extends JComponent
             if(evt.getClickCount() > 1)  // double click
                 inspectObject();
             else {
-                ObjectBench bench = (ObjectBench)getParent();
-                bench.fireObjectEvent(this);
+                ob.fireObjectEvent(this);
             }
 
         }
@@ -434,15 +473,11 @@ public class ObjectWrapper extends JComponent
       	    ObjectInspector.getInstance(false, obj, instanceName, pkg, true, pmf);
     }
 
-    /**
-     * Remove this object from bench.
-     */
     private void removeObject()
     {
-        ObjectBench bench = (ObjectBench)getParent();
-        bench.remove(this, pkg.getId());
+        ob.remove(this, pkg.getId());
     }
-
+    
     /**
      * Open this object for inspection.
      */
