@@ -1,0 +1,38 @@
+# Moe editor default properties
+
+##
+##  Define the toolbar
+##
+
+toolbar = view compile undo cut copy paste find find-next close
+
+# actions for toolbar commands (only needed when it differs from command name
+
+openAction = open-file
+cutAction = cut-to-clipboard
+copyAction = copy-to-clipboard
+pasteAction = paste-from-clipboard
+find-nextAction = find-next
+
+##
+##  Define the menus. Each menu gets a key, which is used afterwards to
+##  define the menu's details.
+##
+
+menubar = class edit tools option
+
+# Actions for menus. Each value must be a defined moe action name. Each 
+#   action becomes an item in the menu. Use the minus sign (-) to create 
+#   a separator.
+
+class = save reload - print - close
+edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - comment uncomment - insert-method
+tools = find find-backward find-next replace - compile toggle-breakpoint
+option = key-bindings preferences
+
+
+
+
+
+
+
