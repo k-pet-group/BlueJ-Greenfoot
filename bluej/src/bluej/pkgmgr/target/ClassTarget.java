@@ -59,7 +59,7 @@ import javax.swing.JPopupMenu;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3319 2005-02-18 04:40:05Z bquig $
+ * @version $Id: ClassTarget.java 3334 2005-03-14 03:53:16Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -1104,17 +1104,14 @@ public class ClassTarget extends EditableTarget
             // in the destination package with the same name
             if (dstPkg.getTarget(getBaseName()) != null) {
                 DialogManager.showError(null, "package-name-clash");
-                return;
+                // fall through to enforcePackage, below.
             }
-
-            if (DialogManager.askQuestion(null, "package-name-changed") == 0) {
-                switch(dstPkg.importFile(getSourceFile())) {
-                    default :
-                        prepareForRemoval();
-                        getPackage().removeTarget(this);
-                        close();
-                        return;
-                }
+            else if (DialogManager.askQuestion(null, "package-name-changed") == 0) {
+                dstPkg.importFile(getSourceFile());
+                prepareForRemoval();
+                getPackage().removeTarget(this);
+                close();
+                return;
             }
         }
 
