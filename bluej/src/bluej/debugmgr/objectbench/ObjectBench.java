@@ -17,7 +17,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2580 2004-06-09 17:31:43Z fisker $
+ * @version $Id: ObjectBench.java 2584 2004-06-10 13:15:40Z fisker $
  */
 public class ObjectBench
 {
@@ -27,10 +27,10 @@ public class ObjectBench
     private JButton leftArrowButton, rightArrowButton;
     public JViewport viewPort;
     private ObjectBenchPanel obp;
-    private ObjectWrapper selectedObjectWrapper;
     public boolean hasFocus;
     private List objectWrappers;
-    private int currentObjectWrapperIndex;
+    private ObjectWrapper selectedObjectWrapper;
+    private int currentObjectWrapperIndex = -1;
 	
    
     
@@ -89,8 +89,8 @@ public class ObjectBench
 
         // start with a clean slate recording invocations
         resetRecordingInteractions();
-        
-       containerPanel.setFocusable(false);
+        //when empty, the objectbench is not focusable
+        containerPanel.setFocusable(false);
     }
 
     /**
@@ -130,11 +130,17 @@ public class ObjectBench
 				if (currentObjectWrapperIndex > 0){
 				currentObjectWrapperIndex--;
 				}
+				else {
+					currentObjectWrapperIndex = objectWrappers.size() - 1;
+				}
 				break;
 			}
 			case KeyEvent.VK_RIGHT: {
 				if (currentObjectWrapperIndex < objectWrappers.size() - 1){
 					currentObjectWrapperIndex++;
+				}
+				else {
+					currentObjectWrapperIndex = 0;
 				}
 				break;
 			}
@@ -146,10 +152,15 @@ public class ObjectBench
 				showPopupMenu();
 				break;
 			}
+			case KeyEvent.VK_ESCAPE:{
+				currentObjectWrapperIndex = -1;
+				setSelectedObjectWrapper(null);
+				containerPanel.repaint();
+				break;
+			}
 		}
-	
-		
-		if (objectWrappers.size() > 0){
+		boolean isInRange = (0 <= currentObjectWrapperIndex && currentObjectWrapperIndex < objectWrappers.size()); 
+		if (isInRange){
 			ObjectWrapper currentObjectWrapper = (ObjectWrapper) objectWrappers.get(currentObjectWrapperIndex);
 			setSelectedObjectWrapper(currentObjectWrapper);
 			adjustBench(currentObjectWrapper);
@@ -173,7 +184,7 @@ public class ObjectBench
     	Rectangle view = viewPort.getViewRect();
     	if (!view.contains(wrapper)){
     		if (wrapper.x < view.x) {
-    			//then the wrapper is intersecting the left side of view
+    			//then the wrapper is on the left side of view
     			int x = wrapper.x - ObjectWrapper.GAP;
     			int y = viewPort.getViewPosition().y;
     			viewPort.setViewPosition(new Point(x, y));
@@ -228,26 +239,14 @@ public class ObjectBench
         }
         
         if (buttonsNeeded) {
-            if (pt.x == 0)
-                leftArrowButton.setEnabled(false);
-            else
-                leftArrowButton.setEnabled(true);
-
-            if (pt.x >= maxExtent)
-                rightArrowButton.setEnabled(false);
-            else
-                rightArrowButton.setEnabled(true);
+            leftArrowButton.setEnabled(pt.x > 0);
+            rightArrowButton.setEnabled(pt.x < maxExtent);
+           
         }
                 
-        if (buttonsNeeded) {
-            rightArrowButton.setVisible(true);
-            leftArrowButton.setVisible(true);
-        }
-        else {
-            rightArrowButton.setVisible(false);
-            leftArrowButton.setVisible(false);
-        }
-
+        rightArrowButton.setVisible(buttonsNeeded);
+        leftArrowButton.setVisible(buttonsNeeded);
+        
         // validating now could cause re-entrancy, which seems to cause
         // some minor problems.
         Runnable refreshUI = new Runnable()
@@ -458,7 +457,6 @@ public class ObjectBench
     
     //
     private void updateFocusability(){
-    	System.err.println("updated focusabitity");
     	if (getObjectWrapperCount() > 0){
     		containerPanel.setFocusable(true);
     	}
@@ -466,7 +464,6 @@ public class ObjectBench
     		containerPanel.transferFocusBackward();
     		containerPanel.setFocusable(false);
     	}
-    	
     }
     
     /**

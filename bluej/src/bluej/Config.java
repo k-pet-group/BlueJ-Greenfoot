@@ -1,6 +1,7 @@
 package bluej;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.*;
 
@@ -33,7 +34,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2574 2004-06-03 13:56:37Z fisker $
+ * @version $Id: Config.java 2584 2004-06-10 13:15:40Z fisker $
  */
 
 public final class Config
@@ -424,16 +425,21 @@ public final class Config
      * @return
      */
     public static int getMnemonicKey(String strname){
-        int index, mnemonic;
+        int index;
+		int mnemonic = 0;
         char ch;
         String str = lang_props.getProperty(strname, strname);
         index = str.indexOf('_');
         ch = str.charAt(index + 1);
         String s = ch + "";
-        
-        // ch is appended to the emptystring to cast the argument to a string.
-        // this is needed because of a bug in AWTKeyStroke.getAWTKeyStroke(char c)
-        mnemonic = KeyStroke.getKeyStroke(s.toUpperCase()).getKeyCode();
+        if (index == -1){
+        	mnemonic = KeyEvent.VK_UNDEFINED;
+        }
+        else {
+	        // ch is appended to the emptystring to cast the argument to a string.
+	        // this is needed because of a bug in AWTKeyStroke.getAWTKeyStroke(char c)
+	        mnemonic = KeyStroke.getKeyStroke(s.toUpperCase()).getKeyCode();
+        }
         return mnemonic;
         
     }

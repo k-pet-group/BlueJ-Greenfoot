@@ -47,7 +47,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2579 2004-06-09 17:30:43Z fisker $
+ * @version $Id: PkgMgrFrame.java 2584 2004-06-10 13:15:40Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -92,6 +92,7 @@ public class PkgMgrFrame extends JFrame
     private JMenuBar menubar = null;
     private JMenu recentProjectsMenu;
     private JMenu toolsMenu;
+    private JMenu testingMenu;
     private MenuManager menuManager;
     private JMenu viewMenu;
 
@@ -2104,7 +2105,6 @@ public class PkgMgrFrame extends JFrame
             objbench = new ObjectBench();
 
             JComponent bench = objbench.getComponent();
-            bench.setFocusable(true);
             bench.setBorder(BorderFactory.createCompoundBorder(
                                 BorderFactory.createBevelBorder(BevelBorder.LOWERED),
                                 BorderFactory.createEmptyBorder(5,0,5,0)));
@@ -2163,7 +2163,8 @@ public class PkgMgrFrame extends JFrame
         JButton button = new JButton(action);
         button.setFont(PkgMgrFont);
         button.putClientProperty("JButton.buttonType", "toolbar");  // "icon"
-        button.setRequestFocusEnabled(false);// hint the laf that mouse click shouldn't request focus
+        //button.setRequestFocusEnabled(false);// hint the laf that mouse click shouldn't request focus
+        button.setFocusable(false); //bottons shouldn't get focus
         
         if (notext)
             button.setText(null);
@@ -2246,6 +2247,15 @@ public class PkgMgrFrame extends JFrame
             menu.addSeparator();
 
             createMenuItem(GenerateDocsAction.getInstance(), menu);
+            testingMenu = new JMenu(Config.getString("menu.tools.testing"));
+            testingMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
+            {
+            	createMenuItem(RunTestsAction.getInstance(), testingMenu);
+            	createMenuItem(EndTestRecordAction.getInstance(), testingMenu);
+            	createMenuItem(CancelTestRecordAction.getInstance(), testingMenu);
+            }
+            testItems.add(testingMenu);
+            menu.add(testingMenu);
             menu.addSeparator();
 
             createMenuItem(PreferencesAction.getInstance(), menu);
@@ -2272,9 +2282,12 @@ public class PkgMgrFrame extends JFrame
             JCheckBoxMenuItem item;
             createCheckboxMenuItem(ShowDebuggerAction.getInstance(), menu, false);
             createCheckboxMenuItem(ShowTerminalAction.getInstance(), menu, false);
-            menu.addSeparator();
+            JSeparator testSeparator = new JSeparator();
+            testItems.add(testSeparator);
+            menu.add(testSeparator);
 
             showTestResultsItem = createCheckboxMenuItem(ShowTestResultsAction.getInstance(), menu, false);
+            testItems.add(showTestResultsItem);
         }
         viewMenu = menu;
 
@@ -2439,10 +2452,6 @@ public class PkgMgrFrame extends JFrame
             JComponent component = (JComponent)it.next();
             component.setVisible(show);
         }
-        if (show)
-            viewMenu.add(showTestResultsItem);
-        else
-            viewMenu.remove(showTestResultsItem);
     }
     
 

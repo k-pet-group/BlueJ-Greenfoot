@@ -289,6 +289,11 @@ public class GraphElementController
         
     }
     
+    /**
+     * Is the package to which target belongs drawing a dependency.
+     * @param target
+     * @return true if yes
+     */
     public boolean isStateDrawingDependency(Target target) {
         return (target.getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
         	   (target.getPackage().getState() == Package.S_CHOOSE_EXT_TO);
