@@ -17,7 +17,7 @@ import java.io.FileOutputStream;
  * according to a given String
  * 
  * @author Clive Miller
- * @version $Id: FileHandler.java 1587 2002-12-13 14:20:39Z iau $
+ * @version $Id: FileHandler.java 1641 2003-03-04 20:28:07Z damiano $
  */
 class FileHandler
 {
@@ -35,7 +35,7 @@ class FileHandler
         essentials = sp.getProps (".file.essential");
         include = sp.getProps (".file.include");
         exclude = sp.getProps (".file.exclude");
-        projectDir = bj.getProject (pkg).getProjectDir();
+        projectDir = pkg.getProject().getProjectDir();
     }
 
     /**
@@ -43,7 +43,7 @@ class FileHandler
      */
     public File[] getFiles() throws AbortOperationException
     {
-        bj.getProject (pkg).saveProject();
+        pkg.getProject().saveProject();
         return (File[])wantedFiles().toArray (new File[0]);
     }
 

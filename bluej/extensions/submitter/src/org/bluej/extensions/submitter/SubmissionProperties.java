@@ -34,7 +34,7 @@ import javax.swing.event.TreeSelectionEvent;
  * Manages the properties appropriate to the selected submission scheme.
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: SubmissionProperties.java 1625 2003-02-06 21:40:33Z iau $
+ * @version    $Id: SubmissionProperties.java 1641 2003-03-04 20:28:07Z damiano $
  */
 
 class SubmissionProperties
@@ -90,7 +90,7 @@ class SubmissionProperties
         File userConfFile = stat.bluej.getUserFile(CONFIG_FILENAME);
         loadOneFile(userConfFile, false);
 
-        BProject proj = stat.bluej.getProject(curPkg);
+        BProject proj = curPkg.getProject();
         if (proj != null) {
             File projectConfFile = new File(proj.getProjectDir(), CONFIG_FILENAME);
             loadOneFile(projectConfFile, true);
@@ -278,7 +278,7 @@ class SubmissionProperties
         // Ok, time to retrieve the selected scheme, but first let's set a nice default
         setSelectedScheme ( "" );
 
-        BProject curProj = stat.bluej.getProject(curPkg);
+        BProject curProj = curPkg.getProject();
         // FOr some misterious reason there is no project open, let's return the default
         if (curProj == null) return selectedScheme;
 
@@ -315,7 +315,7 @@ class SubmissionProperties
         // Don't save invalid paths
         if (path == null) return;
 
-        BProject curProj = stat.bluej.getProject(curPkg);
+        BProject curProj = curPkg.getProject();
         // For some misterious reason there is no project open, let's return the default
         if (curProj == null) {
             stat.aDbg.error(Stat.SVC_PROP, "setDefaultScheme: ERROR: No current project");
