@@ -1038,48 +1038,110 @@ public final class MoeActions
     private void doIndent(JTextComponent textPane)
     {
         int lineIndex = getCurrentLineIndex(textPane);
-        if(lineIndex == 0)
+        if(lineIndex == 0) {
+            insertSpacedTab(textPane);
             return;
+        }
 
+        MoeSyntaxDocument doc = (MoeSyntaxDocument)textPane.getDocument();
+
+        Element line = getLine(textPane, lineIndex);
+        int lineStart = line.getStartOffset();
+        int pos = textPane.getCaretPosition();
+ 
         try {
+
+            // if there is any text before the cursor, just insert a tab
+
+            String prefix = doc.getText(lineStart, pos-lineStart);
+            if(prefix.trim().length() > 0) {
+                insertSpacedTab(textPane);
+                return;
+            }
+
             // get indentation string from previous line
 
-            MoeSyntaxDocument doc = (MoeSyntaxDocument)textPane.getDocument();
-            Element line = getLine(textPane, lineIndex - 1);
-            int lineStart = line.getStartOffset();
-            int lineEnd = line.getEndOffset();
-            String lineText = doc.getText(lineStart, lineEnd-lineStart);
-            int indentPos = findFirstNonWhiteChar(lineText);
+            Element prevline = getLine(textPane, lineIndex - 1);
+            int prevLineStart = prevline.getStartOffset();
+            int prevLineEnd = prevline.getEndOffset();
+            String lineText = doc.getText(prevLineStart, prevLineEnd-prevLineStart);
+            int indentPos = findFirstNonIndentChar(lineText);
+
+            // if the cursor is already past the indentation point, insert tab
+
+            int caretColumn = getCurrentColumn(textPane);
+            if(caretColumn >= indentPos) {
+                insertSpacedTab(textPane);
+                return;
+            }
+
             String indent = lineText.substring(0, indentPos);
 
             // find and replace indentation of current line
 
-            line = getLine(textPane, lineIndex);
-            lineStart = line.getStartOffset();
-            lineEnd = line.getEndOffset();
+            int lineEnd = line.getEndOffset();
             lineText = doc.getText(lineStart, lineEnd-lineStart);
-            indentPos = findFirstNonWhiteChar(lineText);
+            boolean commentEnd = lineText.trim().endsWith("*/");
+            indentPos = findFirstNonIndentChar(lineText);
             doc.remove(lineStart, indentPos);
-            doc.insertString(lineStart, indent, null);
+            doc.insertString(lineStart, nextIndent(indent, commentEnd), null);
 
             //textPane.setCaretPosition(lineStart + indent.length());
         }
-        catch (Exception exc) {}
+        catch (BadLocationException exc) {}
     }
-        
+
     /**
-     * Find the position of the first non-whitespace character in a string.
+     * Find the position of the first non-indentation character in a string.
+     * Indentation characters are <whitespace>, //, *, /*, /**.
      */ 
-    private int findFirstNonWhiteChar(String s)
+    private int findFirstNonIndentChar(String s)
     {
         int cnt=0;
         char ch = s.charAt(0);
 
-        while(ch == ' ' || ch == '\t') {   // SPACE or TAB
+        while(ch == ' ' || ch == '\t' || ch == '*' || ch == '/') {   // SPACE or TAB
             cnt++;
             ch = s.charAt(cnt);
         }
         return cnt;
+    }
+
+    /**
+     * Transform indentation string to ensure:
+     *  after " / *" follows "  *"
+     *  after " / * *" follows "  *"
+     *  after " * /" follows ""
+     */
+    private String nextIndent(String s, boolean commentEnd)
+    {
+        if(s.trim().equals("*/")) {
+            int pos = s.indexOf("*/");
+            if((pos > 0) && (s.charAt(pos-1)==' '))
+                pos--;
+            return s.substring(0, pos);
+        }
+
+        if(s.indexOf("//") >= 0)
+            return s;
+
+        if(commentEnd)
+            return(whiteSpaceOf(s));
+
+        int pos = s.indexOf("/*");
+        if(pos >= 0) {
+            return s.substring(0, pos) + " * ";
+        }
+
+        return s;
+    }
+
+    /**
+     * Return just the leading whitespace part of s.
+     */
+    private String whiteSpaceOf(String s)
+    {
+        return s;
     }
 
     /**
