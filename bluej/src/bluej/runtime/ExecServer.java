@@ -60,10 +60,7 @@ public class ExecServer
 	loaders = new Hashtable();
 
 	BlueJSecurityManager manager = new BlueJSecurityManager();
-	//Debug.message("[VM] security manager created (not installed)");
-
-	//System.setSecurityManager(manager);
-	//Debug.message("[VM] security manager installed");
+	System.setSecurityManager(manager);
     }
 
 
@@ -90,7 +87,12 @@ public class ExecServer
     public void signalStartTask(int taskType, String arg1, String arg2)
 	 throws Throwable
     {
-	performTask(taskType, arg1, arg2);
+	try {
+	    performTask(taskType, arg1, arg2);
+	}
+	catch(Exception e) {
+	    Debug.message("Exception while performing task: " + e);
+	}
     }
 
 

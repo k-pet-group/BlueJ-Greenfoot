@@ -289,15 +289,14 @@ public class JdiDebugger extends Debugger
 
 	List arguments = new ArrayList();
   	try {
+	    exitStatus = NORMAL_EXIT;
   	    Value returnVal = shellObject.invokeMethod(serverThread, 
 						      runMethod, 
 						      arguments, 0);
 	    // returnVal is type void
-	    exitStatus = NORMAL_EXIT;
 	}
   	catch(InvocationException e) {
 	    // exception thrown in remote machine
-	    exitStatus = EXCEPTION;
 	}
   	catch(Exception e) {
 	    // remote invocation failed
@@ -489,6 +488,7 @@ public class JdiDebugger extends Debugger
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
+	//Debug.message("[exceptionEvent] ");
 	String excClass = exc.exception().type().name();
 	ObjectReference remoteException = exc.exception();
 
@@ -518,17 +518,26 @@ public class JdiDebugger extends Debugger
 	String exceptionText = 
 	    (val == null ? null : val.value());
 
-	Location loc = exc.location();
-	String fileName;
-	try {
-	    fileName = loc.sourceName();
-	} catch(Exception e) {
-	    fileName = null;
+	if(excClass.equals("bluej.runtime.ExitException")) {
+	    // this was a "System.exit()", not a real exception!
+	    exitStatus = FORCED_EXIT;
+	    lastException = new ExceptionDescription(exceptionText);
 	}
-	int lineNumber = loc.lineNumber();
+	else {		// real exception
 
-	lastException = new ExceptionDescription(excClass, exceptionText,
-						 fileName, lineNumber);
+	    Location loc = exc.location();
+	    String fileName;
+	    try {
+		fileName = loc.sourceName();
+	    } catch(Exception e) {
+		fileName = null;
+	    }
+	    int lineNumber = loc.lineNumber();
+
+	    exitStatus = EXCEPTION;
+	    lastException = new ExceptionDescription(excClass, exceptionText,
+						     fileName, lineNumber);
+	}
     }
 
     /**

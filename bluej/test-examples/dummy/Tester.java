@@ -65,9 +65,28 @@ public class Tester
         throw new Exception("This is mik's fault!");
     }
 
-    public void IOExc()
+    public void DivExc()
     {
         int n = 0;
         int i = 56 / n;
+    }
+
+    /**
+     * An example of a method - replace this comment with your own
+     * 
+     * @param  y   a sample parameter for a method 
+     * @return     the sum of x and y 
+     **/
+    public int exit()
+    {
+        // put your code here
+        System.out.println("about to exit...");
+        System.exit(3);
+        System.out.println("after exit!");
+        return 33;
+    }
+    public void voidexit()
+    {
+        System.exit(0);
     }
 }

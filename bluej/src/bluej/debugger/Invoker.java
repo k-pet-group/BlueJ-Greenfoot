@@ -23,7 +23,7 @@ import sun.tools.javac.SourceClass;
 import sun.tools.javac.BatchEnvironment;
 
 /**
- ** @version $Id: Invoker.java 101 1999-06-01 05:56:29Z mik $
+ ** @version $Id: Invoker.java 102 1999-06-01 07:35:41Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -428,13 +428,17 @@ public class Invoker extends Thread
 		  break;
 
 	      case Debugger.FORCED_EXIT:  // exit through System.exit()
-		  //if(watcher != null)
-		      //pkg.reportExit(Debugger.debugger.getExceptionText());
+		  if(watcher != null) {
+		      ExceptionDescription exc = 
+			  Debugger.debugger.getException();
+		      pkg.reportExit(exc.getText());
+		  }
 		  break;
 
 	      case Debugger.EXCEPTION:
 		  ExceptionDescription exc = Debugger.debugger.getException();
-		  String text = Utility.stripPackagePrefix(exc.getClassName());
+		  String text = 
+		      Utility.stripPackagePrefix(exc.getClassName());
 		  if(exc.getText() != null)
 		      text += ":\n" + exc.getText();
 

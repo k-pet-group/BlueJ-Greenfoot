@@ -22,7 +22,7 @@ public class RemoteSecurityManager extends SecurityManager
     public void checkExit(int status)
     {
 	if(currentClassLoader() != null)
-	    throw new SecurityException("BlueJ-Exit:" + status + ":");
+	    throw new ExitException("" + status);
     }
 
     /**
@@ -30,13 +30,13 @@ public class RemoteSecurityManager extends SecurityManager
      * certain actions are legal. Here, we want to allow (contrary to the
      * default) to re-direct the IO stream.
      */
-    public void checkPermission(Permission perm)
-    {
-	if(perm.getName().equals("setIO"))
-	    return;	// allow
-	else
-	    super.checkPermission(perm);
-    }
+//      public void checkPermission(Permission perm)
+//      {
+//  	if(perm.getName().equals("setIO"))
+//  	    return;	// allow
+//  	else
+//  	    super.checkPermission(perm);
+//      }
 
     public void checkAccept(String host, int port) {}
     public void checkAccess(Thread g) {}
