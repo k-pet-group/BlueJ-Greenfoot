@@ -10,7 +10,7 @@ import bluej.Config;
  * by running the job's "compile" method.
  *
  * @author  Michael Cahill
- * @version $Id: Job.java 2197 2003-10-02 04:12:34Z ajp $
+ * @version $Id: Job.java 2691 2004-06-30 05:23:41Z davmac $
  */
 class Job
 {
@@ -19,18 +19,20 @@ class Job
     File destDir;
     String classPath;
     File sources[];
+    boolean internal; // true for compiling shell files; false for user files
 	
     /**
      * Create a job with a set of sources.
      */
     public Job(File[] sourceFiles, Compiler compiler, CompileObserver observer,
-    			String classPath, File destDir)
+    			String classPath, File destDir, boolean internal)
     {
         this.sources = sourceFiles;
         this.compiler = compiler;
         this.observer = observer;
         this.classPath = classPath;
         this.destDir = destDir;
+        this.internal = internal;
     }
 	
     /**
@@ -48,7 +50,7 @@ class Job
             if(classPath != null)
                 compiler.setClassPath(classPath);
 
-            successful = compiler.compile(sources, observer);
+            successful = compiler.compile(sources, observer, internal);
 	        //Debug.message("compile success: " + successful);
 
             if(observer != null)

@@ -11,7 +11,7 @@ import bluej.utility.DialogManager;
  * compiler. Verified working with Jikes 1.12.
  *
  * @author  Andrew Patterson
- * @version $Id: JikesCompiler.java 2500 2004-04-19 11:37:19Z polle $
+ * @version $Id: JikesCompiler.java 2691 2004-06-30 05:23:41Z davmac $
  */
 class JikesCompiler extends Compiler
 {
@@ -24,7 +24,7 @@ class JikesCompiler extends Compiler
         setDeprecation(true);
     }  
 
-    public boolean compile(File[] sources, CompileObserver watcher)
+    public boolean compile(File[] sources, CompileObserver watcher, boolean internal)
     {
         List args = new ArrayList();
 

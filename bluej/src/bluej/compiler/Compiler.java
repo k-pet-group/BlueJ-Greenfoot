@@ -16,7 +16,7 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 2599 2004-06-13 07:56:04Z mik $
+ * @version $Id: Compiler.java 2691 2004-06-30 05:23:41Z davmac $
  */
 abstract class Compiler
 {
@@ -112,10 +112,18 @@ abstract class Compiler
         }
     }
     
-    
     //  ========================= ABSTRACT METHODS ==========================        
-
-    public abstract boolean compile(File[] sources, CompileObserver observer);   
+    
+    /**
+     * Compile some source files.
+     * 
+     * @param sources   The files to compile
+     * @param observer  The compilation observer
+     * @param internal  True if compiling BlueJ-generated code (shell files)
+     *                  False if compiling user code
+     * @return
+     */
+    public abstract boolean compile(File[] sources, CompileObserver observer, boolean internal);   
 
    
 }

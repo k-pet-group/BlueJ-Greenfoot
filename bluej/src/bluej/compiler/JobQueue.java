@@ -10,7 +10,7 @@ import bluej.utility.Debug;
  * compiler.
  *
  * @author  Michael Cahill
- * @version $Id: JobQueue.java 2197 2003-10-02 04:12:34Z ajp $
+ * @version $Id: JobQueue.java 2691 2004-06-30 05:23:41Z davmac $
  */
 public class JobQueue
 {
@@ -65,10 +65,10 @@ public class JobQueue
      * Adds a job to the compile queue.
      */
     public void addJob(File[] sources, CompileObserver observer,
-                       String classPath, File destDir)
+                       String classPath, File destDir, boolean internal)
     {
         thread.addJob(new Job(sources, compiler, observer,
-                              classPath, destDir));
+                              classPath, destDir, internal));
     }
 
     /**
