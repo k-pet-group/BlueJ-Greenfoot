@@ -240,7 +240,7 @@ editor.info.docLoaded = Klasseninterface wird geladen... Fertig.
 editor.info.docAborted = Das javadoc-Interface konnte nicht generiert werden.\n Abgebrochen.
 editor.info.docDisappeared = HTML-Datei konnte nicht gefunden werden:
 editor.info.docNoFrames = Frames werden im Editor-Preview nicht unterstuetzt.
-
+editor.info.tabsExpanded = Converted all TABs to spaces. (You are working\nwith soft TABs, the file contained hard TABs.)
 editor.printer.continued=fortgesetzt
 #End Editor labels
 
@@ -332,6 +332,15 @@ pkgmgr.importfailed.title=BlueJ:  Import Status
 pkgmgr.importfailed.helpLine1=The import has failed to copy the following files.
 pkgmgr.importfailed.helpLine2=This is most likely due to these files already
 pkgmgr.importfailed.helpLine3=being present in the destination project.
+
+# "version check" dialog
+pkgmgr.versionDlg.title=BlueJ:  Check for new version
+pkgmgr.versionDlg.helpLine1=This function will check whether a newer BlueJ version
+pkgmgr.versionDlg.helpLine2=is available. You must be online for this to work.
+pkgmgr.versionDlg.check=Check Version
+pkgmgr.versionDlg.upToDate=The current version is up to date.
+pkgmgr.versionDlg.currentVersion=Your current BlueJ version is
+pkgmgr.versionDlg.newVersion=The most recent BlueJ version is
 
 # run applet dialog
 pkgmgr.runApplet.title=Applet ausführen

@@ -240,7 +240,7 @@ editor.info.docLoaded = Loading class interface... Done.
 editor.info.docAborted = There was a serious problem generating the javadoc\ninterface. Aborted.
 editor.info.docDisappeared = Cannot find HTML file:
 editor.info.docNoFrames = Frame display is disabled in editor preview.
-
+editor.info.tabsExpanded = Converted all TABs to spaces. (You are working\nwith soft TABs, the file contained hard TABs.)
 editor.printer.continued=forts
 #End Editor labels
 
@@ -333,6 +333,15 @@ pkgmgr.importfailed.helpLine1=The import has failed to copy the following files.
 pkgmgr.importfailed.helpLine2=This is most likely due to these files already
 pkgmgr.importfailed.helpLine3=being present in the destination project.
 
+# "version check" dialog
+pkgmgr.versionDlg.title=BlueJ:  Check for new version
+pkgmgr.versionDlg.helpLine1=This function will check whether a newer BlueJ version
+pkgmgr.versionDlg.helpLine2=is available. You must be online for this to work.
+pkgmgr.versionDlg.check=Check Version
+pkgmgr.versionDlg.upToDate=The current version is up to date.
+pkgmgr.versionDlg.currentVersion=Your current BlueJ version is
+pkgmgr.versionDlg.newVersion=The most recent BlueJ version is
+
 # run applet dialog
 pkgmgr.runApplet.title=Kör Applet
 pkgmgr.runApplet.webPageLabel=Skapa Websida
@@ -396,6 +405,7 @@ pkgmgr.creatingVM=Skapar virtuell maskin...
 pkgmgr.creatingVMDone=Skapar virtuell maskin... Klar
 pkgmgr.generatingDocu=Generating documentation...
 pkgmgr.docuGenerated=Generating documentation... Done
+pkgmgr.docuAborted=Generating documentation... Aborted
 pkgmgr.webBrowserMsg=Webbläsare har startats.
 pkgmgr.webBrowserError=Fel vid start av webbläsare.
 pkgmgr.usesArrowMsg="Använder" beroende har deklarerats men används inte:
