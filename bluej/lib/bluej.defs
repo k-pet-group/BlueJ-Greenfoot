@@ -129,7 +129,8 @@ bluej.debugLog=debug.log
 #######################################################################
 
 #appletviewer command 
-appletViewer.command=c:\\jdk1.3\\bin\\appletviewer
+#appletViewer.command=c:\\jdk1.3\\bin\\appletviewer
+appletViewer.command=appletviewer
 
 # which jvm browser internal or JDK plugin
 bluej.applet.jvm=html
