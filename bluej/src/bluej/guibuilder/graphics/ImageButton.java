@@ -114,13 +114,23 @@ public class ImageButton extends Component {
 		return _defaultThickness;
 	}
 	public ImageButton() {
-		this(null);
+		this((Image)null);
 	}
     public ImageButton(Image image) {
         this(image, _defaultThickness);
     }
 	public ImageButton(Image image, int thickness) {
 		this(image, thickness, null);
+    }
+    public ImageButton(String imgstr) {
+		this(Toolkit.getDefaultToolkit().getImage(imgstr), _defaultThickness);
+    }
+    public ImageButton(String image, int thickness) {
+		this(Toolkit.getDefaultToolkit().getImage(image), thickness, null);
+    }
+    public ImageButton(String image, int thickness,
+	                   ImageButtonListener listener) {
+		this(Toolkit.getDefaultToolkit().getImage(image), thickness, listener);
     }
 	public ImageButton(Image image, int thickness,
 	                   ImageButtonListener listener) {
@@ -207,6 +217,9 @@ public class ImageButton extends Component {
 	public boolean isArmed() {
 		return armed;
 	}
+    public void setImage(String image) {
+    	this.setImage(Toolkit.getDefaultToolkit().getImage(image));
+    }
     public void setImage(Image image) {
 		Assert.notNull(image);
         Util.waitForImage(this, this.image = image);
