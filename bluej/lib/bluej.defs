@@ -31,6 +31,7 @@ bluej.language=english
 #bluej.language=chinese
 #bluej.language=german
 #bluej.language=swedish
+#bluej.language=spanish
 
 
 #####################################################################
@@ -169,18 +170,18 @@ bluej.classTemplates = stdclass abstract interface applet
 
 # font and font size for most of the interface components
 # This is the name of a font face with an optional "-bold" at the end.
-bluej.fontsize=12
-bluej.font=SansSerif-bold
+#bluej.fontsize=12
+#bluej.font=SansSerif-bold
 #bluej.font=Monospaced
 
 # fonts for menus
 
-bluej.menu.font=SansSerif-bold
-bluej.menu.fontsize=12
+#bluej.menu.font=SansSerif
+#bluej.menu.fontsize=12
 
 # fonts for Targets (classes in display)
-bluej.target.font=SansSerif-bold
-bluej.target.fontsize=12
+#bluej.target.font=SansSerif-bold
+#bluej.target.fontsize=12
 
 # fontsize for the editor
 bluej.editor.fontsize=12
