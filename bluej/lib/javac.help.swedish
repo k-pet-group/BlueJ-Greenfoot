@@ -29,26 +29,24 @@ Du har skrivit en ogiltig teckenkonstant.
 En teckenkonstant är ett tecken inom enkla situations-
 tecken, tex 'a'. I de flesta fall kan man bara ha ett
 tecken inom enkla situationstecken. Det enda undantaget 
-är om det första tecknet är en "backslash" (även kallad 
+är om det första tecknet är ett omvänt snedstreck (även kallad
 "escape character") som används för att representera 
 specialtecken, tex '\n' or '\t'.
 
 Unbalanced parentheses.
-Somewhere your paranthesis (that's the round braces as
-used for this sentence) are gone out of balance. You have
-either more closing paranthesis than opening ones, or
-vice versa.
+Någonstans i koden är det obalans mellan paranteserna (de runda
+paranteserna som används för den här meningen). Du har för 
+många av en typ så de matchar inte varandra.
 
 Invalid escape character.
-An escape character is written with a backslash
-and a second character, for example '\n'. This is
-used to specify special characters. There is only 
-a fixed set of characters that may appear after 
-the backslash. They are \n, \t, \b, \r, \f, \\,
-\', \" and numbers. If you want to write the 
-backslash itself, write "\\" - this will be replaced
-by a single backslash in your string.
-
+En "escape character" skrivs med ett omvänt snedstreck 
+följt av ett tecken, tex '\n'. Det används för att 
+representera specialtecken. Endast en fast uppsättning 
+specialtecken kan komma efter det omvända snedsträcket. 
+Dessa är \n, \t, \b, \r, \f, \\, \', \" och siffror. 
+Om du vill skriva själva snedstrecket, skriv "\\", vilket
+betyder omvänt snedstreck när det används i en sträng.
+ 
 Hexadecimal numbers must contain at least one hexadecimal digit.
 You have specified a hexadecimal number. (This is done 
 by starting a number with "0X".) In hexadecimal numbers,

@@ -48,10 +48,10 @@ option = key-bindings preferences
 # menu labels (MUST be defined)
 
 classLabel = Klass
-editLabel = Edit
+editLabel = Redigera
 toolsLabel = Verktyg
 debugLabel = Avlusa
-optionLabel = Options
+optionLabel = Välj
 helpLabel = Hjälp
 
 # item labels (can be omitted if same as action name)
@@ -83,7 +83,7 @@ state.saved = sparad
 state.changed = ändrad
 
 key-bindingsLabel = Tangentbordskommandon...
-preferencesLabel = Preferences...
+preferencesLabel = Inställningar...
 
 # Dialog titles and texts
 functions.title = Ordbehandlarfunktioner
@@ -97,3 +97,20 @@ functions.categories.misc = Övrigt
 finder.title = Hitta
 finder.textfield.label = Hitta: 
 
+#Messages, warnings, etc. that is displayed by Info.java
+info.version = Moe version 0.4
+info.readingProblem = Det uppstod problem vid läsning av den här filen.
+info.regularFile = (Är det här verkligen en vanlig fil? Har du läsrättigheter?)
+info.newFile = Ny fil
+info.errorSaving = fel uppstod vid sparande av fil!
+info.compiled = Klass kompilerad - inga syntaktiska fel
+info.noChanges = Inga ändringar att spara
+info.cannotReload = Kan inte ladda om - Den här texten har aldrig blivit sparad!
+info.reload = (\"Reload\" laddar om det senast sparade tillståndet från disk.)
+info.emptySearchString = Tom söksträng.
+info.notFound = Hittades ej
+info.compiling = Kompilerar...
+info.cannotSetBreak = Kan inte sätta brytpunkt:\nIngen kod associerad med detta ordbehandlarfönster.
+info.fileDisappeared = ERROR: Filen verkar ha försvunnit!
+info.fileReadError = ERROR: Ett fel uppstod vid läsning av den här filen.
+info.saved = Fil sparad

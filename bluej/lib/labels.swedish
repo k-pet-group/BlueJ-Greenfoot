@@ -36,6 +36,12 @@ debugger.threadstatus.unknown=okänd status
 debugger.threadstatus.waiting=väntar
 debugger.threadstatus.zombie=zombie
 
+#Debugger messages
+debugger.jdiDebugger.noBreakpointMsg=Ta bort brytpunkt: Det finns ingen brytpunkt pa den här raden
+debugger.jdiDebugger.noLineNumberMsg=Den här klassen har kompilerats utan radnummerinformation.\nBrytpunkt kan inte sättas.
+debugger.jdiDebugger.noCodeMsg=Kan inte sätta brytpunkt: ingen kod på den här raden.
+debugger.jdiDebugger.internalErrorMsg=Det uppstod ett internt fel vid försök att\nsätta brytpunkt.
+
 #library browser configuration
 browser.title=Biblioteksläsare
 browser.version=0.1
@@ -75,7 +81,7 @@ classmgr.delete=Radera
 classmgr.locationcolumn=Plats
 classmgr.descriptioncolumn=Beskrivning
 classmgr.unresolvable=Obestämbar sökväg
-classmgr.bootclass=Boota Klassbibliotek
+classmgr.bootclass=Bootningsklassbibliotek
 classmgr.bluejclass=BlueJs Klassbibliotek
 classmgr.error.unresolvable=Obestämbar sökväg
 classmgr.error.loadingconfig=Saknar konfigurationsfil. Filen används för att specificera\nett bibliotek som tillägg till standard bootbiblioteket.
@@ -90,18 +96,99 @@ prefmgr.misc.editorfontsize=Fontstorlek i ordbehandlaren
 prefmgr.misc.usesyntaxhilighting=Använd "Syntax highlighting".
 prefmgr.misc.jdkurlpath=JDK dokumentations URL
 
+#---------------
+#Editor labels
+#---------------
 editor.title=BlueJ Ordbehandlare
 
-editor.find.forward=Framlänges
-editor.find.backward=Baklänges
+#button lables for toolbar commands
+editor.viewLabel1 = Implementation
+editor.viewLabel2 = Publik Vy
+editor.viewLabel3 = Paket Vy
+editor.viewLabel4 = Skyddad Vy
+editor.compileLabel = Kompilera
+editor.undoLabel = Ångra
+editor.cutLabel = Klipp
+editor.copyLabel = Kopiera
+editor.pasteLabel = Klistra in
+editor.findLabel = Hitta...
+editor.find-nextLabel = Hitta nästa
+editor.closeLabel = Stäng
 
+# menu labels (MUST be defined)
+editor.classLabel = Klass
+editor.editLabel = Redigera
+editor.toolsLabel = Verktyg
+editor.debugLabel = Avlusa
+editor.optionLabel = Välj
+editor.helpLabel = Hjälp
+
+# item labels (can be omitted if same as action name)
+editor.saveLabel = Spara
+editor.reloadLabel = Ladda om
+editor.printLabel = Skriv ut...
+editor.closeLabel = Stäng
+
+editor.redoLabel = Gör om
+editor.cut-to-clipboardLabel = Klipp ut
+editor.copy-to-clipboardLabel = Kopiera
+editor.paste-from-clipboardLabel = Klistra in
+editor.commentLabel = Kommentera
+editor.uncommentLabel = Ta bort kommentar
+editor.insert-methodLabel = Infoga metod
+
+editor.find-backwardLabel = Hitta baklänges...
+editor.replaceLabel = Ersätt...
+editor.goto-lineLabel = Gå till rad...
+editor.compileLabel = Kompilera
+editor.toggle-breakpointLabel = Sätt/Ta bort brytpunkt
+
+editor.state.readOnly = endast läsning 
+editor.state.saved = sparad 
+editor.state.changed = ändrad
+
+editor.key-bindingsLabel = Tangentbordskommandon...
+editor.preferencesLabel = Inställningar...
+
+# Dialog titles and texts
+editor.functions.title = Ordbehandlarfunktioner
+editor.functions.editFunctions = Ordbehandlarfunktioner
+editor.functions.moveScroll = Flytta & Scrolla
+editor.functions.classFunctions = Klassfunktioner
+editor.functions.customisation = Customisation
+editor.functions.help = Hjälp
+editor.functions.misc = Övrigt 
 editor.functions.defaults=Default värden
 editor.functions.categories=Kategorier:
 editor.functions.keys=Tangentbordskommando
 editor.functions.addkey=Lägg till kommando
 editor.functions.delkey=Radera kommando
 
-editor.printer.continued=continued
+editor.find.title = Hitta
+editor.find.textfield.label = Hitta:
+editor.find.forward=Framlänges
+editor.find.backward=Baklänges
+
+#Messages, warnings, etc that is displayed by Info.java
+editor.info.version = Moe version 0.4
+editor.info.readingProblem = Det uppstod problem vid läsning av den här filen.
+editor.info.regularFile = (Är det här verkligen en vanlig fil? Har du läsrättigheter?)
+editor.info.newFile = Ny fil
+editor.info.errorSaving = fel uppstod vid sparande av fil!
+editor.info.compiled = Klass kompilerad - inga syntaktiska fel
+editor.info.noChanges = Inga ändringar att spara
+editor.info.cannotReload = Kan inte ladda om - Den här texten har aldrig blivit sparad!
+editor.info.reload = (\"Reload\" laddar om det senast sparade tillståndet från disk.)
+editor.info.emptySearchString = Tom söksträng.
+editor.info.notFound = Hittades ej
+editor.info.compiling = Kompilerar...
+editor.info.cannotSetBreak = Kan inte sätta brytpunkt:\nIngen kod associerad med detta ordbehandlarfönster.
+editor.info.fileDisappeared = ERROR: Filen verkar ha försvunnit!
+editor.info.fileReadError = ERROR: Ett fel uppstod vid läsning av den här filen.
+editor.info.saved = Fil sparad
+
+editor.printer.continued=forts
+#End Editor labels
 
 pkgmgr.noTitle=<ingenTitel>
 pkgmgr.chooseUsesFrom=Välj klass som beroendet kommer ifrån
@@ -152,9 +239,20 @@ pkgmgr.newClass.newApplet=Applet
 # run applet dialog
 pkgmgr.runApplet.title=Kör Applet
 pkgmgr.runApplet.webPageLabel=Skapa Websida
-pkgmgr.runApplet.htmlComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  It is regenerated automatically each time the  -->\n<!-- applet is run.  Any manual changes made to file will be lost -->\n<!-- when the applet is next run inside BlueJ.  Spara into a       -->\n<!-- directory outside of the Paket directory if you want to    -->\n<!-- preserve this file. -->
+pkgmgr.runApplet.webPage=Generera endast websida
+pkgmgr.runApplet.appletviewer=Kör applet i "appletviewer"
+pkgmgr.runApplet.webBrowser=Kör applet i webbläsare
+pkgmgr.runApplet.heightLbl=Höjd =
+pkgmgr.runApplet.widthLbl=Bredd =
+pkgmgr.runApplet.newParameterLbl=Lägg till ny parameter
+pkgmgr.runApplet.appletParameterLbl= Appletparametrar
+pkgmgr.runApplet.nameLbl=Namn =
+pkgmgr.runApplet.valueLbl=Värde =
+pkgmgr.runApplet.paramName=PARAM NAMN
+pkgmgr.runApplet.value=VÄRDE
+pkgmgr.runApplet.htmlComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  It is regenerated automatically each time the  -->\n<!-- applet is run.  Any manual changes made to file will be lost -->\n<!-- when the applet is next run inside BlueJ.  Save into a       -->\n<!-- directory outside of the Package directory if you want to    -->\n<!-- preserve this file. -->
 
-pkgmgr.runApplet.htmlExportedComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej Paket directory of the applet at the time of this page being generated. -->\n<!-- If the location of that Paket alters you will nedd to edit the codebase value.       -->
+pkgmgr.runApplet.htmlExportedComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej Package directory of the applet at the time of this page being generated. -->\n<!-- If the location of that Paket alters you will nedd to edit the codebase value.       -->
 
 
 # method call dialog
@@ -174,6 +272,10 @@ debugger.execControls.localTitle = Lokala variabler
 debugger.execControls.threadTitle = Trådar
 debugger.execControls.updateText = Uppdatera
 
+# DialogManager labels
+dialogmgr.error = Fel
+dialogmgr.question = Fråga
+
 #Terminal Window
 terminal.title = BlueJ Terminalfönster
 
@@ -184,9 +286,12 @@ pkgmgr.creating=Skapar objekt...
 pkgmgr.createDone=Skapar objekt... Klar
 pkgmgr.creatingVM=Skapar virtuell maskin...
 pkgmgr.creatingVMDone=Skapar virtuell maskin... Klar
-pkgmgr.webBrowserMsg= Webbläsare har startats.
+pkgmgr.webBrowserMsg=Webbläsare har startats.
 pkgmgr.webBrowserError=Fel vid start av webbläsare.
 pkgmgr.usesArrowMsg="Använder" beroende har deklarerats men används inte:
+pkgmgr.breakpointMsg=En klass måste vara kompilerad för att brytpunkter ska kunna sättas.
+pkgmgr.appletInViewer=Kör applet i "appletviewer"
+pkgmgr.appletInBrowser=Kör applet i webbläsare
 
 properties.heading=BlueJ properties. Settings in this file override \"bluej.defs\"
 # menus and menu items
@@ -201,7 +306,7 @@ menu.package.importClass=Importera klass...
 menu.package.print=Skriv ut...
 menu.package.quit=Avsluta
 
-menu.edit=Edit
+menu.edit=Redigera
 menu.edit.newClass=Ny Klass...
 menu.edit.removeClass=Ta Bort Klass...
 menu.edit.newUses=Ny "Använder"-pil...

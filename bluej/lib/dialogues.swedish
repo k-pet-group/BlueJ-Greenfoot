@@ -1,220 +1,235 @@
 compile-while-executing
-You cannot compile while the machine
-is executing. This could cause strange
-problems!
+Du kan inte kompilera medans maskinen
+exekverar. Det skulle kunna skapa konstiga
+problem!
 
 exception-thrown
-An exception was thrown:
+Ett undantag inträffade:
 
 break-no-source
-Breakpoint hit in a file for which the
-source cannot be found.  Filename:
+Brytpunkt hittad i en fil vars källkod inte
+kunde hittas. Filnamn:
 
 error-in-file
-An error occurred in a file for which the
-source cannot be found.
-Filename:line number / error message:
+Ett fel inträffade i en fil vars källkod inte
+kunde hittas.
+Filnamn:radnummer / felmeddelande:
 
 system-exit
-The method finished through an explicit
-"exit" instruction. No result was
-returned. The exit code is:
+Metoden avslutades genom en explicit "exit"
+instruktion. Inget resultat returnerades.
+utgångskoden är:
 
 one-browser-only
-Sorry - you can only start one copy
-of this version of the Library Browser
+Tyvärr - du kan endast starta en upplaga av
+den här versionen av biblioteksbläddraren.
 
 no-help
-No help available for this message.
-Please mail the text of the error message
-to mik@csse.monash.edu.au - we will then
-add a help text to our help database. Thanks.
+Ingen hjälp tillgänglig för det här meddelandet.
+Var vänlig e-posta felmeddelandet till 
+mik@monash.edu.au - vi kommer då lägga till en 
+hjälptext i vår hjälpdatabas. Tack!
 
 # errors:
 #########
 
 no-lib-selected
-You have not specified a library to go to.
-Click on a library in the "Search results" list
-and then press the "Go to" button.
+Du har inte valt bibliotek att gå till.
+Klicka på ett bibliotek i "Sök resultat"-listan
+och och klicka därefter på "Gå till"-knappen.
 
 no-target-dialog
-Before you use a package from
-the Library Browser, you need
-at least one target package open
-in a BlueJ window.
+Innan du använder ett paket från
+biblioteksbläddraren, måste du ha 
+minst ett "mål"-paket öppet i Bluej
+fönstret.
 
 cannot-locate-lib-node
-Cannot locate the selected node in the 
-LibraryChooser tree.  The usual cause of 
-this error is an out-of-date package file
-in the directory containing the package.
+Kan inte hitta den valda noden i "LibraryChooser"-
+trädet. Den vanligaste orsaken till
+det här felet är en icke uppdaterad paketfil
+i katalogen där paketet finns.
 
 missing-shadow
-Cannot locate shadow area:
+Kan inte hitta "shadow area":
 
 cannot-run-compiler
-Cannot run compiler. Is the 
-program in your path? 
-Name of compiler:
+Kan inte köra kompilatorn. Finns den i
+din sökväg?
+Kompilatorns namn:
 
 compiler-error
-Compiler error:
+Kompilatorfel
 
 stream-incomplete
-Compiler error. Error stream incomplete.
+Kompilatorfel. Felströmmen är ej komplett.
 
 out-of-bounds
-Element specified is not
-within array bounds.
+Det angivna elementet är
+ej inom arrayens gränser.
 
 cannot-access-element
-Unable to access the array 
-element specified.
+Kunde ej nå det angivna
+arrrayelementet.
 
 appletviewer-error
-Error executing applet in appletviewer.
+Fel under körning av applet i Appletviewer
 
 error-no-name
-You must specify a valid name.
+Du måste ange ett godkänt namn.
 
 skeleton-error
-The default skeleton for the class could not be
-generated. This may be because of configuration
-error in the setup of BlueJ, or because of file
-system access problems.
+Klassens default-mall kunde inte skapas.
+Detta kan bero på ett konfigurationsfel 
+i Bluej's "setup", eller på grund av 
+tillträdesproblem i filsystemet.
 
 error-open-source
-There is a problem opening the source of
-this class.  Serious trouble!
+Det är problem att öppna källfilen till den
+här klassen. Allvarligt problem!
 
 invalid-name
-Invalid Class Name.
+Icke godkänt klassnamn
 
 directory-exists
-A file or directory with this
-name already exists.
+En fil eller katalog med det här namnet
+existerar redan.
 
 cannot-write-package
-Could not write package to new
-location. Please check the name
-and access rights.
+Kunde inte skriva paketet till den
+nya destinationen. Var god kontrollera
+namn och tillträdesrättigheter.
 
 cannot-copy-package
-There was a problem copying some
-of the package files. The package
-may be incomplete.
+Det uppstod problem vid kopiering av
+några av paketets filer. Paketet kan 
+vara inkomplett.
 
 file-does-not-exist
-The specified file
-does not exist.
+Den angivna filen 
+existerar inte.
 
 cannot-import
-Cannot import file. The file must
-be a Java source file (it's name
-must end in ".java").
+Den här filen kunde inte 
+importeras. Filen måste 
+vara en Java källkodsfil 
+(namnet måste sluta med ".java")
+
 
 no-java-sources-found
-No Java source files were
-found in this directory.
+Inga Java källkodsfiler kunde
+hittas i den här katalogen
 
 # this belongs to the message above and is temporarily disabled.
-(or any of its subdirectories).
+(eller i någon av dess underkataloger).
 
 duplicate-name
-A class with this name already exists
-in this package. You cannot have two
-classes with the same name.
+En klass med det här namnet existerar redan
+i det här paketet. Man kan inte ha två klasser
+med samma namn i ett paket.
 
 error-in-import
-An error occured during the attempt to
-import the file. Check access rights and
-disk space.
+Ett fel uppstod vid försök att importera
+den här filen. Kontrollera tillträdesrättigheter 
+och minnesutrymme.
 
 no-class-selected
-No Class selected for removal.
-Select Class by clicking on it 
-before trying to remove.
+Ingen klass markerad för borttagning.
+Välj klass genom att klicka på den 
+och försök igen.
 
 package-does-not-exist
-Error in opening package.
-Package does not exist:
+Fel vid öppning av paket.
+Paketet existerar inte:
 
 no-bluej-package
-Error in opening package.
-The file/directory is not 
-a BlueJ package:
+Fel vid öppning av paket.
+Filen/Katalogen är inte ett 
+Bluej paket:
 
 applet-height-width
-Applet height and width 
-must be specified.
+Appletens höjd och bredd
+måste specificeras.
 
 cannot-read-help
-Cannot read help file:
+Kan inte läsa hjälp fil.
 
 not-yet-implemented
-Not Yet Implemented - sorry.
+Inte implementerat ännu - tyvärr
 
 quit-all
-Quit all open packages?
-Quit All
-Cancel
+Avsluta alla öppna paket?
+Avsluta allt
+Avbryt
 null
 
 really-remove
-Removing this class will permanently
-delete the source file.
-Do you want to continue?
-Remove
-Cancel
+Borttagning av den har klassen betyder
+permanent radering av källfilen.
+Vill du fortsätta?
+Ta bort
+Avbryt
 null
 
 really-reload
-Reload discards all changes since the last edit.
-Are you sure?
-Reload
-Cancel
+Vid omladdning förloras icke sparade ändringar.
+Vill du verkligen ladda om?
+Ladda om
+Avbryt
 null
 
 really-print
-The text is wider than the paper. Long lines
-will be cut off. You can avoid this by resizing
-the editor window to make it narrower. Do you
-want to print anyway?
-Print
-Cancel
+Texten ar bredare än papperet. Långa rader kommer
+klippas av. Du kan undvika detta genom att göra
+textfönstret smalare. Vill du skriva ut iallafall?
+Skriv ut
+Avbryt
 null
 
 really-import-package
-You chose a directory that is not a BlueJ package.
-Do you want this directory to be searched for Java source
-files that can be displayed in a BlueJ package window?
-(If you just wanted to see the content of this directory,
-click Cancel now and then double click the directory icon).
-Search
-Cancel
+Du har valt en katalog som inte är ett Bluej paket.
+Vill du att katalogen ska genomsökas efter Java
+källkodsfiler som kan visas i Bluej?
+(Om du bara vill se innehållet i katalogen, klicka 
+på Avbryt nu och dubbelklicka sedan på katalogikonen).
+Sök
+Avbryt
 null
 
 also-search-subdirs
-The directory you chose contains subdirectories.
-Do you want these directories and all their subdirectories
-to be searched, being displayed as nested packages
-if they contain Java source files?
-Search subdirectories
-Cancel
+Katalogen du valde innehåller underkataloger.
+Vill du att dessa kataloger, och alla deras 
+underkataloger, ska genomsökas och visas som 
+nästlade paket om de innehåller Java källkods-
+filer?
+Sök underkataloger
+Avbryt
 null
 
 cannot-search-subdirs
-The directory you chose contains subdirectories.
-Currently these directories can not be searched
-for Java source files because named and nested
-packages are not supported in this BlueJ version.
-They will be supported in a future release.
-If the chosen directory itself contained Java
-source files they will be displayed now in a
-BlueJ package window.
+Katalogen du valde innehåller underkataloger.
+För tillfället kan inte dessa kataloger genomsökas
+efter Java källkodsfiler eftersom den här versionen
+av Bluej inte stödjer namngivna och nästlade paket.
+Stöd för detta kommer att finnas i framtida versioner.
+Om den valda katalogen innehåller Java källkodsfiler
+kommer dessa nu visas i ett Bluejfönster.
 
 ask-index
-Enter array element index [...]
-Array Inspection
+Ange arrayelementindex [...]
+Inspektera Array
 null
+
+
+# editor:
+#########
+
+no-search-string
+Ingen söksträng är angiven.
+(Markera en text eller använd 'Hitta' först.)
+
+
+
+
+
+

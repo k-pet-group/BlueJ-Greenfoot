@@ -36,6 +36,12 @@ debugger.threadstatus.unknown=Zustand unbekannt
 debugger.threadstatus.waiting=wartet
 debugger.threadstatus.zombie=Zombie
 
+#Debugger messages
+debugger.jdiDebugger.noBreakpointMsg=Clear breakpoint: no breakpoint found in this line.
+debugger.jdiDebugger.noLineNumberMsg=This class has been compiled without line number\ninformation. You cannot set breakpoints.
+debugger.jdiDebugger.noCodeMsg=Cannot set breakpoint: no code in this line
+debugger.jdiDebugger.internalErrorMsg=There was an internal error while attempting to\nset this breakpoint
+
 #library browser configuration
 browser.title=Library Browser
 browser.version=0.1
@@ -90,18 +96,98 @@ prefmgr.misc.editorfontsize=Editor Fontgröße
 prefmgr.misc.usesyntaxhilighting=Syntax hervorheben
 prefmgr.misc.jdkurlpath=JDK Dokumentation URL
 
-editor.title=BlueJ Editor
+#---------------
+#Editor labels
+#---------------
+editor.title=BlueJ editor
 
-editor.find.forward=Vorwärts
-editor.find.backward=Rückwärts
+#button lables for toolbar commands
+editor.viewLabel1 = Implementierung
+editor.viewLabel2 = Public-Sicht
+editor.viewLabel3 = Package-Sicht
+editor.viewLabel4 = Protected-Sicht
+editor.compileLabel = Übersetzen
+editor.undoLabel = Rückgängig
+editor.cutLabel = Ausschneiden
+editor.copyLabel = Kopieren
+editor.pasteLabel = Einfügen
+editor.findLabel = Suchen...
+editor.find-nextLabel = Nochmal suchen
+editor.closeLabel = Schließen
 
+# menu labels (MUST be defined)
+editor.classLabel = Klasse
+editor.editLabel = Bearbeiten
+editor.toolsLabel = Werkzeuge
+editor.debugLabel = Debug
+editor.optionLabel = Optionen
+editor.helpLabel = Hilfe
+
+# item labels (can be omitted if same as action name)
+editor.saveLabel = Speichern
+editor.reloadLabel = Nochmal laden
+editor.printLabel = Drucken...
+editor.closeLabel = Schließen
+
+editor.redoLabel = Nochmal
+editor.cut-to-clipboardLabel = Ausschneiden
+editor.copy-to-clipboardLabel = Kopieren
+editor.paste-from-clipboardLabel = Einfügen
+editor.commentLabel = Auskommentieren
+editor.uncommentLabel = Kommentar entfernen
+editor.insert-methodLabel = Methode einfügen
+
+editor.find-backwardLabel = Rückwärts suchen...
+editor.replaceLabel = Ersetzen...
+editor.compileLabel = Übersetzen
+editor.toggle-breakpointLabel = Breakpoint setzen/entfernen
+
+editor.state.readOnly = read-only 
+editor.state.saved = saved 
+editor.state.changed = changed
+
+editor.key-bindingsLabel = Tastendefinitionen...
+editor.preferencesLabel = Einstellungen...
+
+# Dialog titles and texts
+editor.functions.title = Editor Functions
+editor.functions.editFunctions = Edit Functions
+editor.functions.moveScroll = Move & Scroll
+editor.functions.classFunctions = Class Functions
+editor.functions.customisation = Customisation
+editor.functions.help = Help
+editor.functions.misc = Misc
 editor.functions.defaults=Standard
 editor.functions.categories=Kategorien:
 editor.functions.keys=Tastenbindungen
 editor.functions.addkey=Taste hinzufügen
 editor.functions.delkey=Taste löschen
 
+editor.find.title = Find
+editor.find.textfield.label = Find:
+editor.find.forward=Vorwärts
+editor.find.backward=Rückwärts
+
+#Messages, warnings, etc that is displayed by Info.java
+editor.info.version = Moe version 0.4
+editor.info.readingProblem = There was a problem reading this file.
+editor.info.regularFile = (Is it really a regular file? Do you have read access?)
+editor.info.newFile = New file
+editor.info.errorSaving = Error in saving file!
+editor.info.compiled = Class compiled - no syntax errors
+editor.info.noChanges = No changes need to be saved
+editor.info.cannotReload = Can not reload - this text was never saved!
+editor.info.reload = (\"Reload\" reloads the last saved state from disk.)
+editor.info.emptySearchString = Empty search string.
+editor.info.notFound = Not found
+editor.info.compiling = Compiling...
+editor.info.cannotSetBreak = Cannot set breakpoint:\nNo code associated with this editor.
+editor.info.fileDisappeared = ERROR: The file seems to have disappeared!
+editor.info.fileReadError = ERROR: There was an error while trying to read this file.
+editor.info.saved = File saved
+
 editor.printer.continued=continued
+#End Editor labels
 
 pkgmgr.noTitle=<noTitle>
 pkgmgr.chooseUsesFrom=Klicken Sie auf die Klasse von der der Pfeil ausgeht
@@ -153,6 +239,17 @@ pkgmgr.newClass.newApplet=Applet
 # run applet dialog
 pkgmgr.runApplet.title=Applet ausführen
 pkgmgr.runApplet.webPageLabel=Web-Seite erzeugen
+pkgmgr.runApplet.webPage=Generate web page only
+pkgmgr.runApplet.appletviewer=Run Applet in appletviewer
+pkgmgr.runApplet.webBrowser=Run Applet in web browser
+pkgmgr.runApplet.heightLbl=Height =
+pkgmgr.runApplet.widthLbl=Width =
+pkgmgr.runApplet.newParameterLbl=Add New Parameter
+pkgmgr.runApplet.appletParameterLbl= Applet Parameters
+pkgmgr.runApplet.nameLbl=Name =
+pkgmgr.runApplet.valueLbl=Value =
+pkgmgr.runApplet.paramName=PARAM NAME
+pkgmgr.runApplet.value=VALUE
 pkgmgr.runApplet.htmlComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  It is regenerated automatically each time the  -->\n<!-- applet is run.  Any manual changes made to file will be lost -->\n<!-- when the applet is next run inside BlueJ.  Save into a       -->\n<!-- directory outside of the package directory if you want to    -->\n<!-- preserve this file. -->
 
 pkgmgr.runApplet.htmlExportedComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej package directory of the applet at the time of this page being generated. -->\n<!-- If the location of that package alters you will nedd to edit the codebase value.       -->
@@ -175,6 +272,10 @@ debugger.execControls.localTitle = Local Variables
 debugger.execControls.threadTitle = Threads
 debugger.execControls.updateText = Update
 
+# DialogManager labels
+dialogmgr.error = Error
+dialogmgr.question = Question
+
 #Terminal Window
 terminal.title = BlueJ Terminal Window
 
@@ -188,6 +289,9 @@ pkgmgr.creatingVMDone=Virtuelle Maschine wird erzeugt... Fertig
 pkgmgr.webBrowserMsg=Web Browser ist gestartet worden.
 pkgmgr.webBrowserError=Web Browser konnte nicht gestartet werden.
 pkgmgr.usesArrowMsg=Benutzt-Beziehung deklariert, aber nicht implementiert:
+pkgmgr.breakpointMsg=Class has to be compiled to set breakpoints.
+pkgmgr.appletInViewer=Executing Applet in appletviewer
+pkgmgr.appletInBrowser=Executing Applet in web browser
 
 properties.heading=BlueJ Einstellungen. Die Werte in dieser Datei überschreiben \"bluej.defs\"
 # menus and menu items
