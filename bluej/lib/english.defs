@@ -257,7 +257,7 @@ menu.tools.preferences=Class Manager...
 menu.view=View
 menu.view.showUses=Show Uses
 menu.view.showInherits=Show Inheritance
-menu.view.showExecControls=Show Execution Controls
+menu.view.showExecControls=Show Debugger
 menu.view.showTerminal=Show Terminal
 menu.view.clearTerminal=Clear Terminal
 

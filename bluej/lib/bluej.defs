@@ -12,7 +12,7 @@ bluej.libPath=/home/blue/bluej/lib
 ## version, edit these URLs.
 #####################################################################
 
-bluej.url.tutorial=http://www.sd.monash.edu.au/bluej/tutorial/frame/
+bluej.url.tutorial=http://www.sd.monash.edu.au/javablue/tutorial/frame/
 bluej.url.reference=http://www.sd.monash.edu.au/bluej/reference/
 bluej.url.javaStdLib=http://java.sun.com/products/jdk/1.2/docs/api/index.html
 
