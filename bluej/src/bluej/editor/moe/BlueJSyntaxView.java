@@ -30,12 +30,12 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 2759 2004-07-08 08:58:27Z mik $
+ * @version $Id: BlueJSyntaxView.java 2832 2004-08-04 13:02:35Z mik $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
 {
-    //  width of tag area for setting breakpoints
+    /**  width of tag area for setting breakpoints */
     public static final short TAG_WIDTH = 14;
     protected static final int BREAKPOINT_OFFSET = TAG_WIDTH + 2;
 

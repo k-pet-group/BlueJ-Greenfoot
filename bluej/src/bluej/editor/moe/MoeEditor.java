@@ -1657,16 +1657,17 @@ public final class MoeEditor extends JFrame
     
     /**
      * delegates bracket matching to the source pane's caret
-     *
      */
-    public void doBracketMatch()
+    private void doBracketMatch()
     {
         Caret caret = sourcePane.getCaret();
         if(caret instanceof MoeCaret)
             ((MoeCaret)caret).paintMatchingBracket();
     }
     
-
+    /**
+     * Set the window title to show the defined title, or else the file name.
+     */
     private void setWindowTitle()
     {
         String title = windowTitle;
