@@ -18,7 +18,7 @@ import bluej.utility.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: NewClassDialog.java 2556 2004-05-27 10:50:01Z polle $
  */
 class NewClassDialog extends JDialog
 {
@@ -171,6 +171,12 @@ class NewClassDialog extends JDialog
 
         for(Iterator i=templates.iterator(); i.hasNext(); ) {
             String template = (String)i.next();
+            
+            //Avoid <enum> when we are not running 1.5
+            if(template.equals("enum") && ! Config.isJava15()) {
+                continue;
+            }
+            
             String label = Config.getString("pkgmgr.newClass." + template, template);
             button = new JRadioButton(label, (previousButton==null));  // enable first
             button.setActionCommand(template);
