@@ -23,7 +23,7 @@ import java.util.ArrayList;
  *
  * @author  Michael Kolling
  *
- * @version $Id: FreeFormCallDialog.java 1382 2002-10-14 14:48:48Z mik $
+ * @version $Id: FreeFormCallDialog.java 1387 2002-10-15 12:38:15Z mik $
  */
 public class FreeFormCallDialog extends CallDialog
 {
@@ -140,7 +140,7 @@ public class FreeFormCallDialog extends CallDialog
             radioButtons.add(button);
             choicePanel.add(button);
             
-            button = new JRadioButton(Config.getString("freeCallDialog.returnsNoResult"), true);
+            button = new JRadioButton(Config.getString("freeCallDialog.returnsNoResult"), false);
             button.setActionCommand(null);
             radioButtons.add(button);
             choicePanel.add(button);
