@@ -29,7 +29,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3165 2004-11-25 02:07:14Z davmac $
+ * @version $Id: DragGlassPane.java 3166 2004-11-25 02:36:34Z davmac $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -72,30 +72,6 @@ public class DragGlassPane extends JComponent
      * The listener to be notified when the drag operation finishes.
      */
     private DragListener dragListener;
-
-    /**
-     * Event listener that captures all events and redispatches them to the
-     * glasspane if they didn't originate from the glasspane. This fixes weird
-     * Mac-bug where the glasspane never got mouse events when drag initiated
-     * with Shift-buttton
-     */
-    // DAV remove.
-    /*
-    private AWTEventListener eventListener = new AWTEventListener() {
-        public void eventDispatched(AWTEvent event)
-        {
-            if (event.getSource() != DragGlassPane.this) {
-                //translate mouseevent coordinate
-                if (event instanceof MouseEvent) {
-                    MouseEvent mouseEvent = (MouseEvent) event;
-                    DragGlassPane.this.translateAndDispatchEvent(mouseEvent, (Component) mouseEvent.getSource(),
-                            DragGlassPane.this);
-                }
-
-            }
-        }
-    };
-    */
 
     public static DragGlassPane getInstance()
     {
@@ -363,26 +339,6 @@ public class DragGlassPane extends JComponent
         }
         return null;
     }
-
-    /**
-     * Translates the coordinates of the MouseEvent to destination component
-     * coordinates. Then, it creates a new event and dispatches it.
-     * 
-     * @param e
-     * @param source
-     * @param destination
-     */
-    // DAV remove
-    /*
-    private void translateAndDispatchEvent(MouseEvent e, Component source, Component destination)
-    {
-        if ((destination != null)) {
-            Point componentPoint = SwingUtilities.convertPoint(source, e.getPoint(), destination);
-            destination.dispatchEvent(new MouseEvent(destination, e.getID(), e.getWhen(), e.getModifiers(),
-                    componentPoint.x, componentPoint.y, e.getClickCount(), e.isPopupTrigger()));
-        }
-    }
-    */
 
     private void storePosition(MouseEvent e)
     {

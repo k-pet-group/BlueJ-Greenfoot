@@ -7,7 +7,6 @@ import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
-import greenfoot.util.Location;
 
 import java.awt.Component;
 import java.awt.Point;
@@ -34,7 +33,7 @@ import rmiextension.wrappers.RObject;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3165 2004-11-25 02:07:14Z davmac $
+ * @version $Id: WorldHandler.java 3166 2004-11-25 02:36:34Z davmac $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -118,15 +117,17 @@ public class WorldHandler
         maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
             GreenfootObject go = getObject(e.getX(), e.getY());
-            int dragOffsetX = go.getX() - e.getX();
-            int dragOffsetY = go.getY() - e.getY();
-            dragBeginX = go.getX();
-            dragBeginY = go.getY();
-            objectDropped = false;
-            DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
-            worldCanvas.removeMouseListener(this);
-            worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
-            worldCanvas.addMouseListener(DragGlassPane.getInstance());
+            if (go != null) {
+                int dragOffsetX = go.getX() - e.getX();
+                int dragOffsetY = go.getY() - e.getY();
+                dragBeginX = go.getX();
+                dragBeginY = go.getY();
+                objectDropped = false;
+                DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
+                worldCanvas.removeMouseListener(this);
+                worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
+                worldCanvas.addMouseListener(DragGlassPane.getInstance());
+            }
         }
     }
 
@@ -139,30 +140,7 @@ public class WorldHandler
     {
         maybeShowPopup(e);
         
-        // DAV remove
-        //check if we are dragging with DragGlassPane
-        /*
-        boolean wasDrag = wasDrag(e);
-
-        if (!wasDrag) {
-            maybeShowPopup(e);
-        }
-        */
     }
-
-    // DAV remove
-    /*
-    private boolean wasDrag(MouseEvent e)
-    {
-        boolean wasDrag = false;
-        DragGlassPane drag = DragGlassPane.getInstance();
-        Object dragObject = drag.getDragObject();
-        if (dragObject != null) {
-            wasDrag = true;
-        }
-        return wasDrag;
-    }
-    */
 
     private boolean maybeShowPopup(MouseEvent e)
     {
@@ -219,18 +197,7 @@ public class WorldHandler
      */
     public void mouseExited(MouseEvent e)
     {
-        //if we exited, we should remember to remove a dragging object.
-        // DAV remove.
-        /*
-        DragGlassPane drag = DragGlassPane.getInstance();
-        Object o = drag.getDragObject();
-        if (o != null && o instanceof GreenfootObject) {
-            GreenfootObject go = (GreenfootObject) drag.getDragObject();
-            world.removeObject(go);
-        }
-
-        worldCanvas.setCursor(Cursor.getDefaultCursor());
-        */
+        
     }
 
     /**
