@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1824 2003-04-10 21:19:18Z mik $
+ * @version $Id: ClassTarget.java 1843 2003-04-14 02:52:19Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -1164,11 +1164,11 @@ public class ClassTarget extends EditableTarget
      */
     public void prepareForRemoval()
     {
-        // flag dependent Targets as invalid
-        //invalidate();
-
         if(editor != null)
             editor.close();
+
+		// flag dependent Targets as invalid
+		invalidate();
 
         removeAllInDependencies();
         removeAllOutDependencies();
