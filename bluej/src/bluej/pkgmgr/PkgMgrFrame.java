@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2389 2003-11-26 10:27:27Z mik $
+ * @version $Id: PkgMgrFrame.java 2390 2003-11-26 10:30:35Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -130,7 +130,6 @@ public class PkgMgrFrame extends JFrame
             }
             public void handleQuit(ApplicationEvent e) {
                 getMostRecent().wantToQuit();
-                e.setHandled(true);
             }
         });
         
