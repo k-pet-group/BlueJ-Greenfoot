@@ -33,7 +33,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2726 2004-07-02 20:58:09Z mik $
+ * @version $Id: TextEvalArea.java 2727 2004-07-02 21:02:43Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener
@@ -188,6 +188,7 @@ public final class TextEvalArea extends JScrollPane
         else {
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
         }
+        text.setEditable(true);    // allow next input
     }
     
     /**
@@ -203,6 +204,7 @@ public final class TextEvalArea extends JScrollPane
     		else {
             error(message);
             lastObject = null;
+            text.setEditable(true);    // allow next input
     		}
     }
     
@@ -518,6 +520,7 @@ public final class TextEvalArea extends JScrollPane
                 append("\n ");      // ensure space at the beginning of every line, because
                                     // line properties do not work otherwise
                 firstTry = true;
+                text.setEditable(false);    // don't allow input while we're thinking
                 invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
             }
             else {
