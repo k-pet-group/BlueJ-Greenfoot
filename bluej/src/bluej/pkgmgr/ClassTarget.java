@@ -47,20 +47,19 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1183 2002-03-15 10:46:58Z ajp $
+ * @version $Id: ClassTarget.java 1304 2002-08-14 11:39:59Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
 {
     // Define Background Colours
     static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
-    static final Color librarybg = Config.getItemColour("colour.class.bg.imported");
     static final Color abstractbg = Config.getItemColour("colour.class.bg.abstract");
     static final Color interfacebg = Config.getItemColour("colour.class.bg.interface");
     static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
-    static final Color umldefaultbg = Config.getItemColour("colour.class.bg.uml.default");
-    static final Color umlcompbg = Config.getItemColour("colour.target.bg.uml.compiling");
-    static final Color umlShadowCol = Config.getItemColour("colour.target.uml.shadow");
+
+    static final Color shadowCol = Config.getItemColour("colour.target.shadow");
+    static final Color stripeCol = Config.getItemColour("colour.target.stripes");
 
     static final Color colBorder = Config.getItemColour("colour.target.border");
     static final Color graphbg = Config.getItemColour("colour.graph.background");
@@ -330,9 +329,7 @@ public class ClassTarget extends EditableTarget
 
     Color getDefaultBackground()
     {
-       if(PrefMgr.getFlag(PrefMgr.USE_UML))
-          return umldefaultbg; //bq add def for own colour
-        else if(isInterface())
+        if(isInterface())
             return interfacebg;
         else if(isAbstract())
             return abstractbg;
@@ -988,10 +985,7 @@ public class ClassTarget extends EditableTarget
     {
         super.draw(g);
 
-        if(PrefMgr.getFlag(PrefMgr.USE_UML))
-            drawUMLStyle(g);
-        else
-            drawBlueStyle(g);
+        drawUMLStyle(g);
 
         g.setColor(getBorderColour());
         drawBorders(g);
@@ -1035,9 +1029,7 @@ public class ClassTarget extends EditableTarget
         String stereotype = getStereotype();
 
         if(state != S_NORMAL) {
-            g.setColor(umlShadowCol);
-            // set divider if UML, different position if stereotype is present
-
+            g.setColor(stripeCol);
             int divider = (stereotype == null) ? 18 : 32;
             Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
         }
@@ -1068,32 +1060,6 @@ public class ClassTarget extends EditableTarget
 
 
     /**
-     * Draws "Blue" specific parts of the representation of this ClassTarget.
-     *
-     */
-    private void drawBlueStyle(Graphics2D g)
-    {
-        if(state != S_NORMAL) {
-            g.setColor(shadowCol);
-            Utility.stripeRect(g, 0, 0, width, height, 8, 3);
-        }
-
-        g.setColor(textbg);
-        g.fillRect(TEXT_BORDER, TEXT_BORDER,
-                   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
-
-        g.setColor(getBorderColour());
-        g.drawRect(TEXT_BORDER, TEXT_BORDER,
-                   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
-
-        g.setColor(getTextColour());
-        g.setFont(getFont());
-        Utility.drawCentredText(g, getIdentifierName(),
-                                TEXT_BORDER, TEXT_BORDER,
-                                width - 2 * TEXT_BORDER, TEXT_HEIGHT);
-    }
-
-    /**
      * Redefinition of the method found in Target.
      * It draws a shadow around the ClassTarget
      */
@@ -1101,9 +1067,6 @@ public class ClassTarget extends EditableTarget
     {
         g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
         g.fillRect(width, SHAD_SIZE, SHAD_SIZE, height);
-        if(!PrefMgr.getFlag(PrefMgr.USE_UML))
-            Utility.drawThickLine(g, width - HANDLE_SIZE, height,
-                                  width, height - HANDLE_SIZE, 3);
     }
 
     /**
@@ -1115,9 +1078,8 @@ public class ClassTarget extends EditableTarget
 
         int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
         Utility.drawThickRect(g, 0, 0, width, height, thickness);
-        if(PrefMgr.getFlag(PrefMgr.USE_UML))
-            if((flags & F_SELECTED) == 0)
-                return;
+        if((flags & F_SELECTED) == 0)
+            return;
         // Draw lines showing resize tag
         g.drawLine(width - HANDLE_SIZE - 2, height,
                    width, height - HANDLE_SIZE - 2);

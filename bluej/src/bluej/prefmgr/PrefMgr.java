@@ -23,7 +23,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1302 2002-08-13 14:55:52Z mik $
+ * @version $Id: PrefMgr.java 1304 2002-08-14 11:39:59Z mik $
  */
 public class PrefMgr
 {
@@ -36,7 +36,6 @@ public class PrefMgr
     public static final String ENABLE_JDK14 = "bluej.compiler.source14";
     public static final String LINK_LIB = "doctool.linkToStandardLib";
     
-    public static final String USE_UML = "bluej.notation.style";
     public static final String USE_THEMES = "bluej.useTheme";
 
 	// font property names
@@ -127,8 +126,6 @@ public class PrefMgr
         flags.put(ENABLE_JDK14, Config.getPropString(ENABLE_JDK14, "false"));
         flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
         flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
-        flags.put(USE_UML, 
-                  String.valueOf(Config.getDefaultPropString(USE_UML, Graph.UML).equals(Graph.UML)));
     }
 
     // ----- system interface to read or set prefences: -----
@@ -154,10 +151,12 @@ public class PrefMgr
         if(projectName == null)
             return;
             
-        if(recentProjects.size() == NUM_RECENT_PROJECTS)
-            recentProjects.remove(0);
+        recentProjects.remove(projectName);
         
-        recentProjects.add(projectName);
+        if(recentProjects.size() == NUM_RECENT_PROJECTS)
+            recentProjects.remove(NUM_RECENT_PROJECTS-1);
+        
+        recentProjects.add(0, projectName);
         
         for(int i = 0; i < recentProjects.size(); i++) {
             Config.putPropString("bluej.recentProject" + i, (String)recentProjects.get(i));
@@ -213,6 +212,25 @@ public class PrefMgr
             return value.equals("true");
     }
 
+    /**
+     * Set a users preference flag (a boolean preference).
+     *
+     * @param flag    The name of the flag to set
+     * @param enabled The new value of the flag
+     */
+    public static void setFlag(String flag, boolean enabled)
+    {
+        String value = String.valueOf(enabled);
+        String hs = Config.getDefaultPropString(flag, "true");
+
+        if (Boolean.valueOf(hs).booleanValue() == enabled)
+            Config.removeProperty(flag);
+        else
+            Config.putPropString(flag, value);
+
+        flags.put(flag, value);
+    }
+
     // ----- end of system preference interface -----
     
     private static List readRecentProjects()
@@ -228,25 +246,6 @@ public class PrefMgr
     }
     
     /**
-     * Set a users preference flag (a boolean preference).
-     *
-     * @param flag    The name of the flag to set
-     * @param enabled The new value of the flag
-     */
-    private static void setFlag(String flag, boolean enabled)
-    {
-        String value = String.valueOf(enabled);
-        String hs = Config.getDefaultPropString(flag, "true");
-
-        if (Boolean.valueOf(hs).booleanValue() == enabled)
-            Config.removeProperty(flag);
-        else
-            Config.putPropString(flag, value);
-
-        flags.put(flag, value);
-    }
-
-    /**
      * The following methods are protected and should only be accessed by the
      * code which implements the various preferneces dialog panels
      */
@@ -256,7 +255,7 @@ public class PrefMgr
      *
      * @param size  the size of the font
      */
-    private static void setEditorFontSize(int size)
+    protected static void setEditorFontSize(int size)
     {
         if (size > 0 && size != editorFontSize) {
             editorFontSize = size;
@@ -313,7 +312,7 @@ public class PrefMgr
      * Return the editor font size as an integer size
      * (use getStandardEditorFont() if access to the actual font is required)
      */
-    private static int getEditorFontSize()
+    protected static int getEditorFontSize()
     {
         return editorFontSize;
     }

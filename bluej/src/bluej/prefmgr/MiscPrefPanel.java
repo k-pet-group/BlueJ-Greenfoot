@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1286 2002-07-15 23:56:52Z bquig $
+ * @version $Id: MiscPrefPanel.java 1304 2002-08-14 11:39:59Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -199,7 +199,5 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             Config.removeProperty(jdkURLPropertyName);
         else
             Config.putPropString(jdkURLPropertyName, jdkURL);
-
-        PkgMgrFrame.refreshAllFrames();
     }
 }

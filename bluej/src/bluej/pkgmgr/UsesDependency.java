@@ -13,12 +13,11 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: UsesDependency.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: UsesDependency.java 1304 2002-08-14 11:39:59Z mik $
  */
 public class UsesDependency extends Dependency
 {
     private static final Color normalColour = Config.getItemColour("colour.arrow.uses");
-    private static final Color umlColour = Config.getItemColour("colour.uml.arrow.uses");
 
     private static final int SELECT_DIST = 4;
 
@@ -71,13 +70,9 @@ public class UsesDependency extends Dependency
         int[] xPoints = { dst_x, dst_x + delta_x, dst_x + delta_x };
         int[] yPoints = { dst_y, dst_y - 3, dst_y + 3 };
 
-        if(PrefMgr.getFlag(PrefMgr.USE_UML)) {
-            g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y + 4);
-            g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y - 4);
-            g.setStroke(dashed);
-        }
-        else
-            g.fillPolygon(xPoints, yPoints, 3);
+        g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y + 4);
+        g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y - 4);
+        g.setStroke(dashed);
 
        // Draw the start
         int corner_y = src_y + (start_top ? -15 : 15);
@@ -114,10 +109,7 @@ public class UsesDependency extends Dependency
 
     public void draw(Graphics2D g)
     {
-        if(PrefMgr.getFlag(PrefMgr.USE_UML))
-            draw(umlColour, g);
-        else
-            draw(normalColour, g);
+        draw(normalColour, g);
     }
 
     /**

@@ -22,7 +22,7 @@ import java.util.Properties;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 1260 2002-06-26 07:02:41Z ajp $
+ * @version $Id: AppletClassRole.java 1304 2002-08-14 11:39:59Z mik $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -319,14 +319,6 @@ public class AppletClassRole extends ClassRole
     public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width,
                      int height)
     {
-        if(!PrefMgr.getFlag(PrefMgr.USE_UML)) {
-        g.setColor(ct.getTextColour());
-        Utility.drawCentredText(g, "www",
-                                Target.TEXT_BORDER,
-                                (Target.TEXT_HEIGHT + Target.TEXT_BORDER),
-                                width - (2 * Target.TEXT_BORDER),
-                                height - (Target.TEXT_BORDER +Target.TEXT_HEIGHT));
-        }
     }
 
 }

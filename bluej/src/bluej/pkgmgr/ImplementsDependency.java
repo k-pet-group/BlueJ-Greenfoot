@@ -13,16 +13,13 @@ import java.awt.*;
  * An "implements" dependency between two (class) targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: ImplementsDependency.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: ImplementsDependency.java 1304 2002-08-14 11:39:59Z mik $
  */
 public class ImplementsDependency extends Dependency
 {
 	static final Color normalColour = Config.getItemColour("colour.arrow.implements");
-	static final Color umlColour = Config.getItemColour("colour.uml.arrow.implements");
-	//static final Color umlColour = Color.black;
 	static final Color bgGraph = Config.getItemColour("colour.graph.background");
-	static final int ARROW_SIZE = 12;		// pixels
-	static final int UML_ARROW_SIZE = 18;		// pixels
+	static final int ARROW_SIZE = 18;		// pixels
 	static final double ARROW_ANGLE = Math.PI / 6;	// radians
 	static final int SELECT_DIST = 4;
     private static final float  dash1[] = {5.0f,2.0f};
@@ -59,34 +56,21 @@ public class ImplementsDependency extends Dependency
         pFrom = ((DependentTarget)from).getAttachment(angle + Math.PI);
         pTo = ((DependentTarget)to).getAttachment(angle);
 
-        int arrowSize = PrefMgr.getFlag(PrefMgr.USE_UML) ? UML_ARROW_SIZE : ARROW_SIZE;
-
-        Point pArrow = new Point(pTo.x + (int)((arrowSize - 2) * Math.cos(angle)), pTo.y - (int)((arrowSize - 2) * Math.sin(angle)));
+        Point pArrow = new Point(pTo.x + (int)((ARROW_SIZE - 2) * Math.cos(angle)), pTo.y - (int)((ARROW_SIZE - 2) * Math.sin(angle)));
 
         // draw the arrow head
-        int[] xPoints =  { pTo.x, pTo.x + (int)((arrowSize) * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(arrowSize * Math.cos(angle - ARROW_ANGLE)) };
-        int[] yPoints =  { pTo.y, pTo.y - (int)((arrowSize) * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(arrowSize * Math.sin(angle - ARROW_ANGLE)) };
+        int[] xPoints =  { pTo.x, pTo.x + (int)((ARROW_SIZE) * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(ARROW_SIZE * Math.cos(angle - ARROW_ANGLE)) };
+        int[] yPoints =  { pTo.y, pTo.y - (int)((ARROW_SIZE) * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(ARROW_SIZE * Math.sin(angle - ARROW_ANGLE)) };
 
-        if(PrefMgr.getFlag(PrefMgr.USE_UML)) {
-            g.drawPolygon(xPoints, yPoints, 3);
-            g.setStroke(dashed);
-            g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
-        }
-        else {
-            Utility.drawThickLine(g, pFrom.x, pFrom.y, pArrow.x, pArrow.y, 5);
-            g.fillPolygon(xPoints, yPoints, 3);
-            g.setColor(bgGraph);
-            g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
-        }
+        g.drawPolygon(xPoints, yPoints, 3);
+        g.setStroke(dashed);
+        g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
 
 	}
 
 	public void draw(Graphics2D g)
 	{
-        if(PrefMgr.getFlag(PrefMgr.USE_UML))
-            draw(umlColour, g);
-        else
-            draw(normalColour, g);
+        draw(normalColour, g);
 	}
 
 	public boolean contains(int x, int y)

@@ -4,6 +4,7 @@ import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.pkgmgr.Package;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
 import bluej.utility.FileUtility;
 import bluej.utility.Debug;
@@ -29,7 +30,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1183 2002-03-15 10:46:58Z ajp $
+ * @version $Id: Project.java 1304 2002-08-14 11:39:59Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -178,6 +179,7 @@ public class Project
         }
 
         BlueJEvent.removeListener(project);
+        PrefMgr.addRecentProject(project.getProjectDir().getAbsolutePath());
         projects.remove(project.getProjectDir());
     }
 

@@ -19,13 +19,11 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: PackageTarget.java 1304 2002-08-14 11:39:59Z mik $
  */
 public class PackageTarget extends Target
 {
     static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
-    //static final Color umldefaultbg = Config.getItemColour("colour.class.bg.uml.default");
-    static final Color umldefaultbg = Config.getItemColour("colour.package.bg.uml.default");
 
     static final Color ribboncolour = defaultbg.darker().darker();
     static final Color bordercolour = Config.getItemColour("colour.target.border");
@@ -104,10 +102,7 @@ public class PackageTarget extends Target
 
     Color getBackgroundColour()
     {
-        if(PrefMgr.getFlag(PrefMgr.USE_UML))
-            return umldefaultbg;
-        else
-            return defaultbg;
+        return defaultbg;
     }
 
     Color getBorderColour()
@@ -127,10 +122,7 @@ public class PackageTarget extends Target
 
     public void draw(Graphics2D g)
     {
-        if(PrefMgr.getFlag(PrefMgr.USE_UML))
-            drawUMLStyle(g);
-        else
-            drawBlueStyle(g);
+        drawUMLStyle(g);
     }
 
     public void drawUMLStyle(Graphics2D g)
@@ -143,71 +135,19 @@ public class PackageTarget extends Target
         g.fillRect(0, TAB_HEIGHT, width, height - TAB_HEIGHT);
 
         g.setColor(shadowCol);
-        drawUMLShadow(g);
+        drawShadow(g);
 
         g.setColor(getBorderColour());
         g.setFont(getFont());
         Utility.drawCentredText(g, getDisplayName(),
         			TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT,
         			width - 2*TEXT_BORDER, TEXT_HEIGHT);
-        drawUMLBorders(g);
-    }
-
-    public void drawBlueStyle(Graphics2D g)
-    {
-        g.setColor(getBackgroundColour());
-        g.fillRect(0, 0, width, height);
-
-        // draw "ribbon"
-        g.setColor(ribboncolour);
-        int rx = 2 * TEXT_BORDER;
-        int ry = height - HANDLE_SIZE + 5;
-        g.drawLine(rx, 0, rx, height);
-        g.drawLine(0, ry, width, ry);
-
-        g.drawLine(rx -10, ry, rx - 10, ry - 3);
-        g.drawLine(rx - 10, ry - 3, rx - 8, ry - 5);
-        g.drawLine(rx - 8, ry - 5, rx - 5, ry - 5);
-        g.drawLine(rx - 5, ry - 5, rx, ry);
-        g.drawLine(rx, ry, rx + 10, ry + 10);
-
-        g.drawLine(rx + 10, ry, rx + 10, ry - 3);
-        g.drawLine(rx + 10, ry - 3, rx + 8, ry - 5);
-        g.drawLine(rx + 8, ry - 5, rx + 5, ry - 5);
-        g.drawLine(rx + 5, ry - 5, rx, ry);
-        g.drawLine(rx, ry, rx - 10, ry + 10);
-
-        g.setColor(textbg);
-        g.fillRect(TEXT_BORDER, TEXT_BORDER,
-        	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
-
-        g.setColor(shadowCol);
-        drawShadow(g);
-
-        g.setColor(getBorderColour());
-        g.setFont(getFont());
-        Utility.drawCentredText(g, getDisplayName(),
-        			TEXT_BORDER, TEXT_BORDER,
-        			width - 2*TEXT_BORDER, TEXT_HEIGHT);
-        g.drawRect(TEXT_BORDER, TEXT_BORDER,
-        	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
         drawBorders(g);
     }
 
 
     void drawBorders(Graphics2D g)
     {
-        if(PrefMgr.getFlag(PrefMgr.USE_UML))
-            drawUMLBorders(g);
-        else
-            super.drawBorders(g);
-
-    }
-
-
-    void drawUMLBorders(Graphics2D g)
-    {
-
         if(!((flags & F_SELECTED) == 0))
             g.setStroke(selectedStroke);
 
@@ -225,7 +165,7 @@ public class PackageTarget extends Target
                    width, height - HANDLE_SIZE + 2);
     }
 
-    void drawUMLShadow(Graphics2D g)
+    void drawShadow(Graphics2D g)
     {
         g.fillRect(SHAD_SIZE, height , width, SHAD_SIZE);
         g.fillRect(width, SHAD_SIZE + TAB_HEIGHT, SHAD_SIZE, height - TAB_HEIGHT);

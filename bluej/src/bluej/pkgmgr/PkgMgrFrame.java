@@ -39,49 +39,26 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1303 2002-08-14 07:38:55Z mik $
+ * @version $Id: PkgMgrFrame.java 1304 2002-08-14 11:39:59Z mik $
  */
 public class PkgMgrFrame extends JFrame
-    implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
+    implements BlueJEventListener, MouseListener,
                PackageEditorListener, MRJQuitHandler, MRJAboutHandler
 {
     // static final Color bgColor = Config.getItemColour("colour.background");
     public Font PkgMgrFont = PrefMgr.getStandardFont();
-    // Internal strings
-    static final String chooseUsesFrom = Config.getString("pkgmgr.chooseUsesFrom");
-    static final String chooseInhFrom = Config.getString("pkgmgr.chooseInhFrom");
-    static final String chooseArrow = Config.getString("pkgmgr.chooseArrow");
-    static final String packageSaved = Config.getString("pkgmgr.packageSaved");
-    static final String errCloseAlert =  Config.getString("pkgmgr.error.close.title");
-    static final String errCloseText =  Config.getString("pkgmgr.error.close.text");
-    static final String newpkgTitle =  Config.getString("pkgmgr.newPkg.title");
-    static final String createLabel =  Config.getString("pkgmgr.newPkg.buttonLabel");
 
     static final int DEFAULT_WIDTH = 420;
     static final int DEFAULT_HEIGHT = 300;
-
-    private static final String bluejUrl = Config.getPropString("bluej.url.bluej");
-    private static final String tutorialUrl = Config.getPropString("bluej.url.tutorial");
-    private static final String referenceUrl = Config.getPropString("bluej.url.reference");
-
-    private static final String webBrowserMsg = Config.getString("pkgmgr.webBrowserMsg");
-    private static final String webBrowserError = Config.getString("pkgmgr.webBrowserError");
-    private static final String creatingVM = Config.getString("pkgmgr.creatingVM");
-    private static final String creatingVMDone = Config.getString("pkgmgr.creatingVMDone");
-
-    private static final String generatingDocu = Config.getString("pkgmgr.generatingDocu");
-    private static final String docuGenerated = Config.getString("pkgmgr.docuGenerated");
-    private static final String docuAborted = Config.getString("pkgmgr.docuAborted");
-
-    private static final String addClassTitle = Config.getString("pkgmgr.addClass.title");
-    private static final String addLabel = Config.getString("pkgmgr.addClass.buttonLabel");
-    private static final String importpkgTitle = Config.getString("pkgmgr.importPkg.title");
 
     private static final Icon workingIcon = Config.getImageAsIcon("image.working");
     private static final Icon notWorkingIcon = Config.getImageAsIcon("image.working.disab");
     private static final Icon stoppedIcon = Config.getImageAsIcon("image.working.stopped");
 
     private static PageFormat pageFormat = new PageFormat();
+
+    private static final int SHORTCUT_MASK =
+        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
     // instance fields:
 
@@ -90,6 +67,7 @@ public class PkgMgrFrame extends JFrame
     private JPanel showPanel;
     private JButton imgExtendsButton;
     private JButton imgDependsButton;
+    private JMenu recentProjectsMenu;
 
     private JLabel statusbar = new JLabel(" ");
 
@@ -275,22 +253,6 @@ public class PkgMgrFrame extends JFrame
             return null;
 
         return (PkgMgrFrame[])list.toArray(new PkgMgrFrame[list.size()]);
-    }
-
-    /**
-     * Refresh (repaint()) all open frames.
-     * Called when class diagram notation style is changed
-     * in PrefMgr.
-     */
-    public static void refreshAllFrames()
-    {
-        if (!frames.isEmpty()) {
-            for(Iterator i = frames.iterator(); i.hasNext(); ) {
-                PkgMgrFrame frame = (PkgMgrFrame)i.next();
-                frame.setButtonImages();
-                frame.repaint();
-            }
-        }
     }
 
     /**
@@ -645,8 +607,9 @@ public class PkgMgrFrame extends JFrame
      */
     protected boolean doNewProject()
     {
-        String newname = FileUtility.getFileName(this, newpkgTitle, createLabel, false,
-                                                 null, true);
+        String newname = FileUtility.getFileName(this, Config.getString("pkgmgr.newPkg.title"), 
+                                                 Config.getString("pkgmgr.newPkg.buttonLabel"), 
+                                                 false, null, true);
 
         if (newname == null)
             return false;
@@ -675,30 +638,43 @@ public class PkgMgrFrame extends JFrame
         File dirName = FileUtility.getPackageName(this);
 
         if (dirName != null) {
-            Project openProj = Project.openProject(dirName.getAbsolutePath());
-
-            if(openProj != null) {
-
-                Package pkg = openProj.getPackage(openProj.getInitialPackageName());
-
-                PkgMgrFrame pmf;
-
-                if ((pmf = findFrame(pkg)) == null) {
-                    if(isEmptyFrame()) {
-                        pmf = this;
-                        openPackage(pkg);
-                    }
-                    else {
-                        pmf = createFrame(pkg);
-
-                        DialogManager.tileWindow(pmf, this);
-                    }
-                }
-
-                pmf.show();
-            }
+            openProject(dirName.getAbsolutePath());
         }
     }
+
+    /**
+     * Open the project specified by 'projectPath'.
+     * Return false if not successful.
+     */
+    private boolean openProject(String projectPath)
+    {
+        Project openProj = Project.openProject(projectPath);
+
+        if(openProj == null)
+            return false; 
+        else {
+            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
+
+            PkgMgrFrame pmf;
+
+            if ((pmf = findFrame(pkg)) == null) {
+                if(isEmptyFrame()) {
+                    pmf = this;
+                    openPackage(pkg);
+                }
+                else {
+                    pmf = createFrame(pkg);
+
+                    DialogManager.tileWindow(pmf, this);
+                }
+            }
+
+            pmf.show();
+            
+            return true;
+        }
+    }
+
 
     /**
      * Open a dialog that lets a user convert existing Java
@@ -825,6 +801,7 @@ public class PkgMgrFrame extends JFrame
         if(frameCount() == 1) {
             if(keepLastFrame) {        // close package, leave frame
                 updateWindowTitle();
+                updateRecentProjects();
             }
             else {                      // all frames gone, lets quit
                 doQuit();
@@ -842,7 +819,7 @@ public class PkgMgrFrame extends JFrame
     {
         // On MacOS, no event handling is possible in the quithandler. That's why
         // we don't show the dialog here (wantToQuit), but exit straight out.
-    // possible fix: show the dialog from another thread.
+        // possible fix: show the dialog from another thread.
         doQuit();
     }
 
@@ -851,11 +828,11 @@ public class PkgMgrFrame extends JFrame
      */
     public void wantToQuit()
     {
-    int answer = 0;
-    if(frameCount() > 1)
-        answer = DialogManager.askQuestion(this, "quit-all");
-    if(answer == 0)
-        doQuit();
+        int answer = 0;
+        if(frameCount() > 1)
+            answer = DialogManager.askQuestion(this, "quit-all");
+        if(answer == 0)
+            doQuit();
     }
 
     private void doQuit()
@@ -897,7 +874,7 @@ public class PkgMgrFrame extends JFrame
 
         pkg.save(p);
 
-        setStatus(packageSaved);
+        setStatus(Config.getString("pkgmgr.packageSaved"));
     }
 
     /**
@@ -950,7 +927,9 @@ public class PkgMgrFrame extends JFrame
     private void doAddFromFile()
     {
         String className = FileUtility.getFileName(this,
-                                                   addClassTitle, addLabel, false,
+                                                   Config.getString("pkgmgr.addClass.title"), 
+                                                   Config.getString("pkgmgr.addClass.buttonLabel"), 
+                                                   false,
                                                    FileUtility.getJavaSourceFilter(),
                                                    false);
 
@@ -1291,7 +1270,7 @@ public class PkgMgrFrame extends JFrame
     public void doNewUses()
     {
         pkg.setState(Package.S_CHOOSE_USES_FROM);
-        setStatus(chooseUsesFrom);
+        setStatus(Config.getString("pkgmgr.chooseUsesFrom"));
     }
     
     /**
@@ -1300,7 +1279,7 @@ public class PkgMgrFrame extends JFrame
     public void doNewInherits()
     {
         pkg.setState(Package.S_CHOOSE_EXT_FROM);
-        setStatus(chooseInhFrom);
+        setStatus(Config.getString("pkgmgr.chooseInhFrom"));
     }
     
     /**
@@ -1309,7 +1288,7 @@ public class PkgMgrFrame extends JFrame
     public void doRemoveArrow()
     {
         pkg.setState(Package.S_DELARROW);
-        setStatus(chooseArrow);
+        setStatus(Config.getString("pkgmgr.chooseArrow"));
     }
 
     /**
@@ -1434,10 +1413,10 @@ public class PkgMgrFrame extends JFrame
 
         switch(eventId) {
         case BlueJEvent.CREATE_VM:
-            setStatus(creatingVM);
+            setStatus(Config.getString("pkgmgr.creatingVM"));
             break;
         case BlueJEvent.CREATE_VM_DONE:
-            setStatus(creatingVMDone);
+            setStatus(Config.getString("pkgmgr.creatingVMDone"));
             break;
         case BlueJEvent.EXECUTION_STARTED:
             executionStarted();
@@ -1455,13 +1434,13 @@ public class PkgMgrFrame extends JFrame
             executionContinued();
             break;
         case BlueJEvent.GENERATING_DOCU:
-            setStatus(generatingDocu);
+            setStatus(Config.getString("pkgmgr.generatingDocu"));
             break;
         case BlueJEvent.DOCU_GENERATED:
-            setStatus(docuGenerated);
+            setStatus(Config.getString("pkgmgr.docuGenerated"));
             break;
         case BlueJEvent.DOCU_ABORTED:
-            setStatus(docuAborted);
+            setStatus(Config.getString("pkgmgr.docuAborted"));
             break;
         }
     }
@@ -1532,9 +1511,9 @@ public class PkgMgrFrame extends JFrame
     private void showWebPage(String url)
     {
         if (Utility.openWebBrowser(url))
-            setStatus(webBrowserMsg);
+            setStatus(Config.getString("pkgmgr.webBrowserMsg"));
         else
-            setStatus(webBrowserError);
+            setStatus(Config.getString("pkgmgr.webBrowserError"));
     }
 
 //     public void itemStateChanged(ItemEvent evt)
@@ -1572,51 +1551,52 @@ public class PkgMgrFrame extends JFrame
         {
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
-            String newClassString = Config.getString("menu.edit.newClass");
 
-            JButton button = new JButton(newClassString);
-            button.setFont(PkgMgrFont);
+
             ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
-            button.setIcon(emptyIcon);
-            button.setToolTipText(Config.getString("tooltip.newClass"));
-            button.addActionListener(this);
-            button.setRequestFocusEnabled(false);   // never get keyboard focus
-            makeButtonNotGrow(button);
+
+            JButton button = createButton(Config.getString("menu.edit.newClass"),
+                                          emptyIcon, 
+                                          Config.getString("tooltip.newClass"));
+            button.addActionListener(new ActionListener() {
+                                        public void actionPerformed(ActionEvent e) { 
+                                            createNewClass(); }
+                                     });
             buttonPanel.add(button);
             buttonPanel.add(Box.createVerticalStrut(3));
-            actions.put(button, new Integer(EDIT_NEWCLASS));
 
-            imgDependsButton = new JButton();
-            imgDependsButton.setToolTipText(Config.getString("tooltip.newUses"));
-            imgDependsButton.addActionListener(this);
-            imgDependsButton.setRequestFocusEnabled(false);   // never get keyboard focus
+
+            imgDependsButton = createButton("",
+                                      Config.getImageAsIcon("image.build.depends.uml"), 
+                                      Config.getString("tooltip.newUses"));
+            imgDependsButton.addActionListener(new ActionListener() {
+                                        public void actionPerformed(ActionEvent e) { 
+                                            doNewUses(); }
+                                     });
             buttonPanel.add(imgDependsButton);
             buttonPanel.add(Box.createVerticalStrut(3));
-            actions.put(imgDependsButton, new Integer(EDIT_NEWUSES));
 
-            imgExtendsButton = new JButton();
-            imgExtendsButton.setToolTipText(Config.getString("tooltip.newExtends"));
-            imgExtendsButton.addActionListener(this);
-            imgExtendsButton.setRequestFocusEnabled(false);   // never get keyboard focus
+
+            imgExtendsButton = createButton("",
+                                      Config.getImageAsIcon("image.build.extends.uml"), 
+                                      Config.getString("tooltip.newExtends"));
+            imgExtendsButton.addActionListener(new ActionListener() {
+                                        public void actionPerformed(ActionEvent e) { 
+                                            doNewInherits(); }
+                                     });
             buttonPanel.add(imgExtendsButton);
             buttonPanel.add(Box.createVerticalStrut(3));
-            actions.put(imgExtendsButton, new Integer(EDIT_NEWINHERITS));
 
-            setButtonImages();
 
-            String compileString = Config.getString("menu.tools." +
-                                                    ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
-            button = new JButton(compileString);
-            button.setFont(PkgMgrFont);
-            button.setIcon(emptyIcon);
-            button.setToolTipText(Config.getString("tooltip.compile"));
-            button.addActionListener(this);
-            button.setRequestFocusEnabled(false);   // never get keyboard focus
-            makeButtonNotGrow(button);
+            button = createButton(Config.getString("menu.tools.compile"),
+                                  emptyIcon, 
+                                  Config.getString("tooltip.compile"));
+            button.addActionListener(new ActionListener() {
+                                        public void actionPerformed(ActionEvent e) { 
+                                            pkg.compile(); }
+                                     });
             buttonPanel.add(button);
-            actions.put(button, new Integer(TOOLS_COMPILE));
         }
-
 
         viewPanel = new JPanel();
         viewPanel.setLayout(new BorderLayout());
@@ -1655,8 +1635,6 @@ public class PkgMgrFrame extends JFrame
         showExtendsCheckbox.setFont(PkgMgrFont);
         showExtendsCheckbox.setToolTipText(Config.getString(
                                                             "tooltip.showExtends"));
-        // showExtendsCheckbox.setMargin(new Insets(0,0,0,0));
-        actions.put(showExtendsCheckbox, new Integer(VIEW_SHOWINHERITS));
         showPanel.add(showExtendsCheckbox);
         viewPanel.add("Center",showPanel);
 
@@ -1667,8 +1645,11 @@ public class PkgMgrFrame extends JFrame
         progressButton.setDisabledIcon(notWorkingIcon);
         progressButton.setMargin(new Insets(0, 0, 0, 0));
         progressButton.setToolTipText(Config.getString("tooltip.progress"));
-        progressButton.addActionListener(this);
-        actions.put(progressButton, new Integer(VIEW_SHOWCONTROLS));
+        progressButton.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) { 
+                                ExecControls.showHide(true, true, null); 
+                            }
+                       });
         progressButton.setEnabled(false);
         //        progressPanel.add(progressButton);
         //        viewPanel.add("South",progressPanel);
@@ -1728,25 +1709,18 @@ public class PkgMgrFrame extends JFrame
     /**
      * Set the images on the interface buttons according to preferences.
      */
-    private void setButtonImages()
+    private JButton createButton(String text, ImageIcon icon, String toolTip)
     {
-        String dependsImage = "image.build.depends";
-        String extendsImage = "image.build.extends";
-        String umlSuffix = ".uml";
-        if(PrefMgr.getFlag(PrefMgr.USE_UML)) {
-            dependsImage += umlSuffix;
-            extendsImage += umlSuffix;
-        }
-        ImageIcon dependsIcon = Config.getImageAsIcon(dependsImage);
-        ImageIcon extendsIcon = Config.getImageAsIcon(extendsImage);
-        imgDependsButton.setIcon(dependsIcon);
-        imgExtendsButton.setIcon(extendsIcon);
-        makeButtonNotGrow(imgExtendsButton);
-        makeButtonNotGrow(imgDependsButton);
+        JButton button = new JButton(text);
+        button.setFont(PkgMgrFont);
+        button.setIcon(icon);
+        button.setToolTipText(toolTip);
+        button.setRequestFocusEnabled(false);   // never get keyboard focus
+        makeButtonNotGrow(button);
+        
+        return button;
     }
 
-    private static final int SHORTCUT_MASK =
-        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
     /**
      * setupMenus - Create the menu bar
@@ -1755,7 +1729,7 @@ public class PkgMgrFrame extends JFrame
     {
         menubar = new JMenuBar();
         JMenu menu;
-        PkgMgrFrame frame = this;
+        final PkgMgrFrame frame = this;
         
         menu = new JMenu(Config.getString("menu.package"));
         menubar.add(menu);
@@ -1768,13 +1742,15 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doOpen(); }
                            });
+            recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
+            menu.add(recentProjectsMenu);
             createMenuItem("menu.package.openNonBlueJ", menu, 0, 0, 
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doOpenNonBlueJ(); }
                            });
             createMenuItem("menu.package.close", menu, KeyEvent.VK_W, SHORTCUT_MASK, 
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); doClose(); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); doClose(true); }
                            });
             createMenuItem("menu.package.save", menu, KeyEvent.VK_S, SHORTCUT_MASK, 
                            new ActionListener() {
@@ -1900,10 +1876,7 @@ public class PkgMgrFrame extends JFrame
             menu.addSeparator();
 
             JCheckBoxMenuItem item = createCheckboxMenuItem("menu.view.showExecControls", menu, 
-                           KeyEvent.VK_D, SHORTCUT_MASK, false,
-                           new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); ExecControls.showHide(true, true, null); }
-                           });
+                           KeyEvent.VK_D, SHORTCUT_MASK, false, null);
             item.setModel(new ExecControlButtonModel());
             item = createCheckboxMenuItem("menu.view.showTerminal", menu, 
                            KeyEvent.VK_T, SHORTCUT_MASK, false, null);
@@ -1923,19 +1896,15 @@ public class PkgMgrFrame extends JFrame
     **/
 
         menu = new JMenu(Config.getString("menu.help"));
-            // Hack while "setHelpMenu" does not work...
-//             if(CmdTypes[menuType] == HELP_COMMAND) {
-//                 menubar.add(Box.createHorizontalGlue());
-//                 addUserHelpItems(menu);
-//             }
+        menubar.add(Box.createHorizontalGlue());  // Hack while "setHelpMenu" does not work...
         menubar.add(menu);
-        menubar.setHelpMenu(menu);  // not implemented in Swing 1.1
+//        menubar.setHelpMenu(menu);  // not implemented in Swing 1.2
         {    
             createMenuItem("menu.help.about", menu, 0, 0, 
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); handleAbout(); }
                            });
-            createMenuItem("menu.help.versionCheck", menu, KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_MASK, 
+            createMenuItem("menu.help.versionCheck", menu, KeyEvent.VK_V, SHORTCUT_MASK, 
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); VersionCheckDialog dialog = new VersionCheckDialog(frame); }
                            });
@@ -1947,18 +1916,20 @@ public class PkgMgrFrame extends JFrame
 
             createMenuItem("menu.help.website", menu, 0, 0, 
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(bluejUrl); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(Config.getPropString("bluej.url.bluej")); }
                            });
             createMenuItem("menu.help.tutorial", menu, 0, 0, 
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(tutorialUrl); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(Config.getPropString("bluej.url.tutorial")); }
                            });
             createMenuItem("menu.help.standardApi", menu, 0, 0, 
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(Config.getPropString("bluej.url.javaStdLib")); }
                            });
         }
-
+        addUserHelpItems(menu);
+        updateRecentProjects();
+        
         setJMenuBar(menubar);
     }
 
@@ -1985,7 +1956,7 @@ public class PkgMgrFrame extends JFrame
                                                     int key, int modifiers, boolean selected,
                                                     ActionListener listener)
     {
-        JMenuItem item = new JCheckBoxMenuItem(Config.getString(itemStr), selected);
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(Config.getString(itemStr), selected);
 
         if (key != 0)
             item.setAccelerator(KeyStroke.getKeyStroke(key, modifiers));
@@ -2035,6 +2006,22 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
+     * Update the 'Open Recent' menu
+     */
+    private void updateRecentProjects()
+    {
+        ProjectOpener opener = new ProjectOpener();
+        recentProjectsMenu.removeAll();
+        
+        List projects = PrefMgr.getRecentProjects();
+        for(Iterator it = projects.iterator(); it.hasNext(); ) {
+            JMenuItem item = recentProjectsMenu.add((String)it.next());
+            item.addActionListener(opener);
+        }
+    }
+    
+
+    /**
      * Enable/disable functionality
      */
     protected void enableFunctions(boolean enable)
@@ -2058,6 +2045,7 @@ public class PkgMgrFrame extends JFrame
         List dontDisable = Arrays.asList(new String [] {
             Config.getString("menu.package.new"),
             Config.getString("menu.package.open"),
+            Config.getString("menu.package.openRecent"),
             Config.getString("menu.package.openNonBlueJ"),
             Config.getString("menu.package.quit"),
             Config.getString("menu.tools.browse"),
@@ -2095,6 +2083,17 @@ public class PkgMgrFrame extends JFrame
         {
             String url = evt.getActionCommand();
             showWebPage(url);
+        }
+    }
+
+    class ProjectOpener implements ActionListener {
+        public ProjectOpener() {}
+
+        public void actionPerformed(ActionEvent evt)
+        {
+            String project = evt.getActionCommand();
+            if (!openProject(project))
+                setStatus(Config.getString("pkgmgr.error.open"));
         }
     }
 }
