@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2250 2003-11-04 12:43:09Z mik $
+ * @version $Id: JdiDebugger.java 2255 2003-11-04 14:52:59Z mik $
  */
 public class JdiDebugger extends Debugger
 {
@@ -89,11 +89,12 @@ public class JdiDebugger extends Debugger
 	 */
 	public synchronized void launch()
 	{
-		if (vmRunning)
+		if(vmRunning)
 			throw new IllegalStateException("JdiDebugger.launch() was called but the debugger was already loaded");
 
-		if (machineLoader != null)
-			throw new IllegalStateException("JdiDebugger.launch() was called we were already in the process of launching");
+		if(machineLoader != null)
+			 // Attempt to restart VM while already restarting - ignored.
+            return;
 		
 		autoRestart = true;
 		
