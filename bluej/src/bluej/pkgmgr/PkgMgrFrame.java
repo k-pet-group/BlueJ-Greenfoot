@@ -47,7 +47,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2594 2004-06-11 18:36:53Z fisker $
+ * @version $Id: PkgMgrFrame.java 2597 2004-06-12 19:44:28Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -970,7 +970,6 @@ public class PkgMgrFrame extends JFrame
                 SwingUtilities.invokeLater(disableUI);
             }
             else {                      // all frames gone, lets quit
-                Debug.message("doQuit called");
                 doQuit();
             }
         } else {
