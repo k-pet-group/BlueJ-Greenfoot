@@ -30,7 +30,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 2910 2004-08-19 08:42:50Z mik $
+ * @version $Id: TextEvalPane.java 2911 2004-08-19 08:43:55Z mik $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
@@ -151,7 +151,6 @@ public class TextEvalPane extends JEditorPane
             //Debug.message("type:"+result.getFieldValueTypeString(0));
 
             String resultString = result.getFieldValueString(0);
-            System.out.println("r:"+resultString);
             if(resultString.equals(nullLabel)) {
                 output(resultString);
             }
