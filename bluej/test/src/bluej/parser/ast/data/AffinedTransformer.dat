@@ -1,0 +1,95 @@
+package bluej.parser.ast.data;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class AffinedTransformer extends JFrame 
+{
+	public AffinedTransformer()
+	{		
+		super("Affined Transformation Demo");
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setResizable(false);
+		getContentPane().setLayout(null);
+		getContentPane().add(new DisplayArea(new Rectangle(0, 0, DISPLAY_WIDTH,
+DISPLAY_HEIGHT)));
+		
+		setVisible(true);
+
+		resizeToInternalSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+	}
+	
+	
+	public void resizeToInternalSize(int internalWidth, int internalHeight)
+	{
+		Insets insets = getInsets();
+		final int newWidth = internalWidth + insets.left + insets.right;
+		final int newHeight = internalHeight + insets.top + insets.bottom;
+		
+		Runnable resize = new Runnable()
+		{
+			public void run()
+			{
+				setSize(newWidth, newHeight);
+			}
+		};
+		
+		if(!SwingUtilities.isEventDispatchThread())
+		{
+			try
+			{
+				SwingUtilities.invokeAndWait(resize);
+			}
+			catch(Exception e) {}
+		}
+		else
+			resize.run();
+		
+		validate();
+	}
+	
+	
+	public class DisplayArea extends JPanel
+	{
+		public DisplayArea(Rectangle bounds)
+		{
+			setLayout(null);
+			setBounds(bounds);
+			setOpaque(false);
+		}
+		
+		public void paintComponent(Graphics g)
+		{
+			Graphics2D g2D = (Graphics2D)g;
+			
+			g2D.setColor(Color.blue);
+			g2D.fillRect(0, 0, getWidth(), getHeight());
+
+			g2D.translate(getWidth()/2, getHeight()/2);
+			
+			for(int i=0; i<120; i++)
+			{
+				g2D.setColor(new Color((float)i/120.0f, 0.0f, 0.0f));
+				// g2D.translate(i, 0);
+				g2D.rotate(Math.toRadians(12));
+				g2D.translate(i, 0);
+				// g2D.scale(1.01, 1.01);
+				// g2D.translate(i, 0);
+				g2D.fillRect(-SQUARE_SIZE/2, -SQUARE_SIZE/2, SQUARE_SIZE, SQUARE_SIZE);
+				g2D.setColor(Color.white);
+				g2D.drawRect(-SQUARE_SIZE/2, -SQUARE_SIZE/2, SQUARE_SIZE, SQUARE_SIZE);
+				g2D.translate(-i, 0);				
+			}
+		}
+	}
+	
+
+	public static void main(String[] args)
+	{
+		new AffinedTransformer();
+	}
+	
+	private static final int SQUARE_SIZE = 10;
+	private static final int DISPLAY_WIDTH = 400;
+	private static final int DISPLAY_HEIGHT = 400;
+}

@@ -1,6 +1,4 @@
-package bluej.parser.ast;
-
-import bluej.parser.*;
+package bluej.parser;
 
 /**
  * Test the unit testing parse code.
