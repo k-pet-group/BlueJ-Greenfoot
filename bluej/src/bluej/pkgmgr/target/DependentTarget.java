@@ -15,7 +15,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version	$Id: DependentTarget.java 2480 2004-03-08 13:57:18Z fisker $
  */
 public abstract class DependentTarget extends Target
 {
@@ -320,8 +320,8 @@ public abstract class DependentTarget extends Target
     abstract Color getTextColour();
     abstract Font getFont();
     
-    private int dependencyArrowX = 0;
-    private int dependencyArrowY = 0;
+    private int dependencyArrowX;
+    private int dependencyArrowY;
     private boolean isDrawingDependency;
     
     public void mousePressed(MouseEvent evt, GraphEditor editor)
@@ -333,14 +333,11 @@ public abstract class DependentTarget extends Target
 
     
     public void mouseDragged(MouseEvent evt, GraphEditor editor) {
-        int x = evt.getX();
-        int y = evt.getY();
-        if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
-                (getPackage().getState() == Package.S_CHOOSE_EXT_TO) ) {
+        if (isStateDrawingDependency()) {
             isDrawingDependency = true;
             // Draw a line from this Target to the current Cursor position
-            dependencyArrowX = x;
-            dependencyArrowY = y;
+            dependencyArrowX = evt.getX();
+            dependencyArrowY = evt.getY();
             editor.repaint(); //TODO add parameters
         }
         else {
@@ -349,25 +346,36 @@ public abstract class DependentTarget extends Target
     }
 
     public void mouseMoved(MouseEvent evt, GraphEditor editor) {
-        int x = evt.getX();
-        int y = evt.getY();
-        if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
-                (getPackage().getState() == Package.S_CHOOSE_EXT_TO) ) {
+        if (isStateDrawingDependency()) {
             isDrawingDependency = true;
-            dependencyArrowX = x;
-            dependencyArrowY = y;
+            dependencyArrowX = evt.getX();
+            dependencyArrowY = evt.getY();
             editor.repaint();
         }
-        else
+        else {
             super.mouseMoved(evt, editor);
+        }
     }
     
     public void mouseReleased(MouseEvent evt, GraphEditor editor)
     {
-        super.mouseReleased(evt, editor);
-        isDrawingDependency = false;
-        handleNewDependencies(evt);
-        handleMoveAndResizing();
+        if (isStateDrawingDependency()){
+            if (!this.contains(evt.getX(), evt.getY())) {
+	            handleNewDependencies(evt);
+		        handleMoveAndResizing();
+	            dependencyArrowX = 0;
+	            dependencyArrowY = 0;
+		        getPackage().setState(Package.S_IDLE); 
+		        editor.repaint();
+            } 
+        }else {
+            super.mouseReleased(evt, editor);
+        }
+    }
+    
+    private boolean isStateDrawingDependency() {
+        return (getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
+        	   (getPackage().getState() == Package.S_CHOOSE_EXT_TO);
     }
     
     /**
@@ -404,21 +412,19 @@ public abstract class DependentTarget extends Target
      */
     private void handleNewDependencies(MouseEvent evt) {
         //are we adding a dependency arrow
-        if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
-                (getPackage().getState() == Package.S_CHOOSE_EXT_TO)) {
+        if (isStateDrawingDependency()) {
             // What target is this pointing at now?
             Target overClass = null;
             for(Iterator it = getPackage().getVertices(); overClass == null && it.hasNext(); ) {
                 Target v = (Target)it.next();
 
-                if (v.contains(evt.getX(),evt.getY())){
+                if (v.contains(evt.getX(), evt.getY())){
                     overClass = v;
                 }
             }
             if (overClass != null && overClass != this) {
                 getPackage().targetSelected(overClass);
             }
-            getPackage().setState(Package.S_IDLE);
         }
     }
 

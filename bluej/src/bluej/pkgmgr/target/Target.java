@@ -17,7 +17,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: Target.java 2480 2004-03-08 13:57:18Z fisker $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -305,7 +305,6 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     {
         if(pkg.getState() != Package.S_IDLE) {
             pkg.targetSelected(this);
-            //return;
         }
         dragStartX = evt.getX();
         dragStartY = evt.getY();
@@ -314,17 +313,19 @@ public abstract class Target extends Vertex implements Comparable, Selectable
 
     public void mouseReleased(MouseEvent evt, GraphEditor editor)
     {
-        Rectangle newRect = new Rectangle(getX(), getY(), getWidth(), 
-                						  getHeight());      
         if (isMoving()) {
             setPos( (ghost_x >= 0 ? ghost_x : 0), (ghost_y >= 0 ? ghost_y : 0));
             endMove();
         }
         
+        Rectangle newRect = new Rectangle(getX(), getY(), getWidth(), 
+                						  getHeight());  
+        
         if(!newRect.equals(oldRect)) {
             editor.revalidate();
             editor.repaint();
         }
+
     }
 
     /**
@@ -369,7 +370,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
 	                 Math.max(new_height, MIN_HEIGHT));
 	        
         }
-        repaint();
+        editor.repaint();
     }
 
     

@@ -7,14 +7,13 @@ import java.util.Iterator;
 import javax.swing.JComponent;
 
 import bluej.Config;
-import bluej.pkgmgr.graphPainter.*;
 
 /**
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: GraphEditor.java 2480 2004-03-08 13:57:18Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -215,7 +214,7 @@ public class GraphEditor extends JComponent
             else {
                 //a class was clicked,while multiselection was up.
                 if (!((Selectable)activeGraphElement).isSelected()) {
-                    //the class was wasn't selected
+                    //the class wasn't selected
                     graphElementManager.clear();
                     graphElementManager.add(activeGraphElement);
                 }
