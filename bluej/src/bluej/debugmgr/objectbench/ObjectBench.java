@@ -9,6 +9,7 @@ import javax.swing.plaf.basic.*;
 import java.util.*;
 
 import bluej.testmgr.*;
+import bluej.testmgr.record.*;
 
 /**
  * The object responsible for the panel that displays objects
@@ -16,7 +17,7 @@ import bluej.testmgr.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2130 2003-07-24 02:20:57Z bquig $
+ * @version $Id: ObjectBench.java 2227 2003-10-28 02:08:15Z ajp $
  */
 public class ObjectBench
 {

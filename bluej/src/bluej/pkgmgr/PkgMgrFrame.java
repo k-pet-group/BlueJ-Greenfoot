@@ -14,6 +14,7 @@ import bluej.pkgmgr.target.role.*;
 import bluej.prefmgr.*;
 import bluej.terminal.*;
 import bluej.testmgr.*;
+import bluej.testmgr.record.*;
 import bluej.utility.*;
 import bluej.views.*;
 import com.apple.eawt.*;
@@ -29,7 +30,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2218 2003-10-23 02:25:46Z bquig $
+ * @version $Id: PkgMgrFrame.java 2227 2003-10-28 02:08:15Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener

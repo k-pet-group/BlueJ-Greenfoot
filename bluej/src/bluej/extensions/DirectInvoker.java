@@ -4,6 +4,7 @@ import bluej.debugger.*;
 import bluej.debugmgr.*;
 import bluej.pkgmgr.*;
 import bluej.testmgr.*;
+import bluej.testmgr.record.*;
 import bluej.views.*;
 
 /**
@@ -12,7 +13,7 @@ import bluej.views.*;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Clive Miller, University of Kent at Canterbury, 2002
  * 
- * @version $Id: DirectInvoker.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: DirectInvoker.java 2227 2003-10-28 02:08:15Z ajp $
  */
 class DirectInvoker
 {

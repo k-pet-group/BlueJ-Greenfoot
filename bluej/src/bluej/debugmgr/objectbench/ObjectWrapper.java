@@ -16,6 +16,7 @@ import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.*;
+import bluej.testmgr.record.*;
 import bluej.utility.*;
 import bluej.views.*;
 import bluej.extmgr.*;
@@ -27,7 +28,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2181 2003-09-25 10:56:45Z damiano $
+ * @version $Id: ObjectWrapper.java 2227 2003-10-28 02:08:15Z ajp $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -38,7 +39,6 @@ public class ObjectWrapper extends JComponent
     static String remove = Config.getString("debugger.objectwrapper.remove");
     static String redefinedIn = Config.getString("debugger.objectwrapper.redefined");
     static String inheritedFrom = Config.getString("debugger.objectwrapper.inherited");
-    static String serializable = Config.getString("debugger.objectwrapper.serializable");
 
     // Colors
     static final Color shadow = Config.getItemColour("colour.wrapper.shadow");

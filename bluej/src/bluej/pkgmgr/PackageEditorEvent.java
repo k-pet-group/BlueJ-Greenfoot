@@ -3,14 +3,14 @@ package bluej.pkgmgr;
 import java.util.EventObject;
 
 import bluej.debugger.DebuggerObject;
-import bluej.testmgr.InvokerRecord;
+import bluej.testmgr.record.InvokerRecord;
 import bluej.views.CallableView;
 
 /**
  * The event which occurs while editing a package
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditorEvent.java 1941 2003-05-05 06:07:49Z ajp $
+ * @version $Id: PackageEditorEvent.java 2227 2003-10-28 02:08:15Z ajp $
  */
 public class PackageEditorEvent extends EventObject
 {

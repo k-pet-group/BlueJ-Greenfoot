@@ -5,14 +5,14 @@ import java.awt.Component;
 import bluej.debugger.DebuggerObject;
 import bluej.graph.GraphEditor;
 import bluej.pkgmgr.target.*;
-import bluej.testmgr.InvokerRecord;
+import bluej.testmgr.record.InvokerRecord;
 import bluej.views.CallableView;
 
 /**
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: PackageEditor.java 2227 2003-10-28 02:08:15Z ajp $
  */
 public final class PackageEditor extends GraphEditor
 {
