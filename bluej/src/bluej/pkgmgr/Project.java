@@ -29,7 +29,7 @@ import junit.framework.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1125 2002-02-07 02:02:29Z ajp $
+ * @version $Id: Project.java 1168 2002-03-13 11:22:45Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -501,7 +501,7 @@ public class Project
     {
         // get a file name to save under
         String newName = FileUtility.getFileName(frame, saveAsTitle,
-                                                 saveLabel, false);
+                                                 saveLabel, false, null, true);
 
         if (newName != null) {
 

@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1023 2001-12-05 05:33:24Z bquig $
+ * @version $Id: Config.java 1168 2002-03-13 11:22:45Z mik $
  */
 
 public class Config
@@ -115,7 +115,8 @@ public class Config
         File userHome;
         String homeDir = bluej_props.getProperty("bluej.userHome", "");
         if(homeDir.length() == 0)
-            userHome = FileSystemView.getFileSystemView().getHomeDirectory();
+            // userHome = FileSystemView.getFileSystemView().getHomeDirectory();
+            userHome = new File(System.getProperty("user.home"));
         else
             userHome = new File(homeDir);
 

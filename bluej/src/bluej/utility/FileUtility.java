@@ -2,6 +2,7 @@ package bluej.utility;
 
 import bluej.Config;
 import bluej.pkgmgr.Package;
+import bluej.prefmgr.PrefMgr;
 
 import java.awt.Component;
 import java.awt.event.*;
@@ -16,7 +17,7 @@ import java.lang.reflect.Array;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 903 2001-05-23 05:30:50Z ajp $
+ * @version $Id: FileUtility.java 1168 2002-03-13 11:22:45Z mik $
  */
 public class FileUtility
 {
@@ -37,6 +38,9 @@ public class FileUtility
         if (chooser.showOpenDialog(parent) != JFileChooser.APPROVE_OPTION) {
             return null;
         }
+        PrefMgr.setProjectDirectory(
+                         chooser.getSelectedFile().getParentFile().getPath());
+
         return chooser.getSelectedFile();
     }
 
@@ -57,7 +61,7 @@ public class FileUtility
      */
     public static String getFileName(Component parent, String title,
                                      String buttonLabel, boolean directoryOnly,
-                                     FileFilter filter)
+                                     FileFilter filter, boolean rememberDir)
     {
         JFileChooser newChooser = getFileChooser();
 
@@ -74,21 +78,18 @@ public class FileUtility
 
         int result = newChooser.showDialog(parent, buttonLabel);
 
-        if (result == JFileChooser.APPROVE_OPTION)
+        if (result == JFileChooser.APPROVE_OPTION) {
+            if(rememberDir)
+                PrefMgr.setProjectDirectory(
+                      newChooser.getSelectedFile().getParentFile().getPath());
             return newChooser.getSelectedFile().getPath();
+        }
         else if (result == JFileChooser.CANCEL_OPTION)
             return null;
         else {
             DialogManager.showError(parent, "error-no-name");
             return null;
         }
-    }
-
-
-    public static String getFileName(Component parent, String title,
-                                     String buttonLabel, boolean directoryOnly)
-    {
-        return getFileName(parent, title, buttonLabel, directoryOnly, null);
     }
 
 
@@ -107,11 +108,9 @@ public class FileUtility
         // find current dir name
         String currentDir = (new File("x")).getAbsolutePath();
 
-        if(pkgChooser == null)
-            pkgChooser = new PackageChooserStrict(
-                           new File(Config.getPropString("bluej.defaultProjectPath",
-                                                currentDir)));
-
+        if(pkgChooser == null) {
+            pkgChooser = new PackageChooserStrict(new File(PrefMgr.getProjectDirectory()));
+        }
         pkgChooser.setDialogTitle(Config.getString("pkgmgr.openPkg.title"));
         pkgChooser.setApproveButtonText(Config.getString("pkgmgr.openPkg.buttonLabel"));
 
@@ -129,8 +128,7 @@ public class FileUtility
 
         if(pkgChooserNonBlueJ == null)
             pkgChooserNonBlueJ = new PackageChooser(
-                           new File(Config.getPropString("bluej.defaultProjectPath",
-                                                currentDir)));
+                                          new File(PrefMgr.getProjectDirectory()));
 
         pkgChooserNonBlueJ.setDialogTitle(Config.getString("pkgmgr.openNonBlueJPkg.title"));
         pkgChooserNonBlueJ.setApproveButtonText(Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"));
@@ -142,14 +140,12 @@ public class FileUtility
     /**
      * return a file chooser for choosing any directory (default behaviour)
      */
-    public static JFileChooser getFileChooser()
+    private static JFileChooser getFileChooser()
     {
         String currentDir = (new File("x")).getAbsolutePath();
 
         if(fileChooser == null) {
-            fileChooser = new BlueJFileChooser(
-                            Config.getPropString("bluej.defaultProjectPath",
-                            currentDir));
+            fileChooser = new BlueJFileChooser(PrefMgr.getProjectDirectory());
         }
 
         return fileChooser;

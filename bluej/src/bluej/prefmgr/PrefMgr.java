@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: PrefMgr.java 1168 2002-03-13 11:22:45Z mik $
  */
 public class PrefMgr
 {
@@ -61,19 +61,11 @@ public class PrefMgr
     private static int editorFontSize;
     private static Font editorStandardFont, editorStandoutFont;
 
+    // the current project directory
+    private static String projectDirectory;
+
     // flags are all boolean preferences
     private static HashMap flags = new HashMap();
-
-    // syntax hilighting
-    /*
-    private static boolean isSyntaxHilighting;
-    private static boolean isAutoIndent;
-    private static boolean isDisplayLineNumbers;
-    private static boolean isMakeBackup;
-    private static boolean isLinkDocumentation;
-    private static boolean isUML;
-    private static boolean hasTheme;
-    */
 
     private static PrefMgr prefmgr = new PrefMgr();
 
@@ -106,6 +98,8 @@ public class PrefMgr
         targetFontSize = Config.getPropInteger("bluej.target.fontsize", 12);
         targetFont = deriveFont(targetFontName, targetFontSize);        
         
+        projectDirectory = Config.getPropString("bluej.projectPath");
+
         flags.put(HILIGHTING, Config.getPropString(HILIGHTING, "true"));
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
@@ -114,6 +108,18 @@ public class PrefMgr
         flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
         flags.put(USE_UML, 
                   String.valueOf(Config.getDefaultPropString(USE_UML, Graph.UML).equals(Graph.UML)));
+    }
+
+    public static String getProjectDirectory()
+    {
+        return projectDirectory;
+    }
+
+    public static void setProjectDirectory(String newDir)
+    {
+        Debug.message("saving: "+newDir);
+        projectDirectory = newDir;
+        Config.putPropString("bluej.projectPath", newDir);
     }
 
     public static Font getStandardFont()

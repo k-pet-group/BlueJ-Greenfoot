@@ -38,7 +38,7 @@ import bluej.tester.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: PkgMgrFrame.java 1168 2002-03-13 11:22:45Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -835,7 +835,8 @@ public class PkgMgrFrame extends JFrame
      */
     protected boolean doNewProject()
     {
-        String newname = FileUtility.getFileName(this, newpkgTitle, createLabel, false);
+        String newname = FileUtility.getFileName(this, newpkgTitle, createLabel, false, 
+                                                 null, true);
 
         if (newname == null)
             return false;
@@ -1099,7 +1100,7 @@ public class PkgMgrFrame extends JFrame
         String importName = FileUtility.getFileName(this,
                              Config.getString("pkgmgr.importPkg.title"),
                              Config.getString("pkgmgr.importPkg.buttonLabel"),
-                             true);
+                             true, null, false);
 
         if (importName == null)
             return;
@@ -1140,7 +1141,8 @@ public class PkgMgrFrame extends JFrame
     {
         String className = FileUtility.getFileName(this,
                                                    addClassTitle, addLabel, false,
-                                                   FileUtility.getJavaSourceFilter());
+                                                   FileUtility.getJavaSourceFilter(),
+                                                   false);
 
         if(className == null)
             return;

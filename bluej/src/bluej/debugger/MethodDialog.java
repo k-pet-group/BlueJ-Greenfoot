@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
  * @author  Michael Kolling
  * @author  Bruce Quig
  *
- * @version $Id: MethodDialog.java 1147 2002-03-08 08:36:03Z mik $
+ * @version $Id: MethodDialog.java 1168 2002-03-13 11:22:45Z mik $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchListener
@@ -266,9 +266,6 @@ public class MethodDialog extends JDialog
                 gridBag.setConstraints(eol,constraints);
                 tmpPanel.add(eol);
             }
-//              if(paramClasses.length > 0) {
-//                  params[0].requestDefaultFocus();
-//              }
             tmpPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
             tmpPanel.setAlignmentX(LEFT_ALIGNMENT);
             panel.add(tmpPanel);
@@ -374,9 +371,6 @@ public class MethodDialog extends JDialog
 
                 tmpPanel.add(eol);
             }
-//              if(paramClasses.length > 0) {
-//                  boolean b = params[0].requestDefaultFocus();
-//              }
 
             constraints.gridx = 3;
             constraints.gridy = 0;
@@ -451,7 +445,7 @@ public class MethodDialog extends JDialog
     	setMessage("");
 
     	if (show) {
-	    show();
+            show();
     	    // clear params from any JComboBoxes
     	    clearParameters();
 
@@ -459,7 +453,7 @@ public class MethodDialog extends JDialog
             bench.addObjectBenchListener(this);
 
       	    if(params != null) {
-                  params[0].requestFocus();
+                params[0].getEditor().getEditorComponent().requestFocus();
       	    }
       	    else if(dialogType == MD_CREATE) {
                   instanceNameText.selectAll();
@@ -467,10 +461,10 @@ public class MethodDialog extends JDialog
       	    }
     	}
     	else {
-	    hide();
+            hide();
 
             // bug fix added in ver. 1.0.2 to fix refresh problem under Win NT.
-	    // removed ajp 7/1/02
+            // removed ajp 7/1/02
     	    //getOwner().repaint();
             bench.removeObjectBenchListener(this);
         }

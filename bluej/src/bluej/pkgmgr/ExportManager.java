@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 970 2001-07-06 05:38:04Z ajp $
+ * @version $Id: ExportManager.java 1168 2002-03-13 11:22:45Z mik $
  */
 final class ExportManager
 {
@@ -45,12 +45,12 @@ final class ExportManager
             newName = FileUtility.getFileName(frame,
                                         "Specify name for jar file",
                                         "Create",
-                                        false);
+                                        false, null, false);
         else
             newName = FileUtility.getFileName(frame,
                                         "Specify name for export directory",
                                         "Create",
-                                        false);
+                                        false, null, false);
         if(newName == null)
             return;
 

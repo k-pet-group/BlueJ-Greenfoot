@@ -23,7 +23,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 1149 2002-03-08 11:14:09Z mik $
+ ** @version $Id: AppletClassRole.java 1168 2002-03-13 11:22:45Z mik $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -208,7 +208,8 @@ public class AppletClassRole extends ClassRole
     {
         String fullFileName = FileUtility.getFileName(frame,
                                 Config.getString("pkgmgr.chooseWebPage.title"),
-                                Config.getString("pkgmgr.chooseWebPage.buttonLabel"), false);
+                                Config.getString("pkgmgr.chooseWebPage.buttonLabel"), 
+                                false, null, false);
 
         if (fullFileName == null)
             DialogManager.showError(frame, "error-no-name");

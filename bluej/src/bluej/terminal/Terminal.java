@@ -23,7 +23,7 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1025 2001-12-07 12:00:58Z mik $
+ * @version $Id: Terminal.java 1168 2002-03-13 11:22:45Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -141,7 +141,8 @@ public final class Terminal extends JFrame
     {
         String fileName = FileUtility.getFileName(this,
                                  Config.getString("terminal.save.title"),
-                                 Config.getString("terminal.save.buttonText"), false);
+                                 Config.getString("terminal.save.buttonText"), 
+                                 false, null, false);
         if(fileName != null) {
             try {
                 FileWriter writer = new FileWriter(fileName);
