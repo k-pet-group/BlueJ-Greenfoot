@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2335 2003-11-14 09:54:55Z mik $
+ * @version $Id: PkgMgrFrame.java 2336 2003-11-14 10:08:43Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1822,6 +1822,7 @@ public class PkgMgrFrame extends JFrame
             setStatus(Config.getString("pkgmgr.creatingVM"));
             break;
         case BlueJEvent.CREATE_VM_DONE:
+            // TODO: This seems never to be generated (a DebuggerEvent is not used instead) fix! 
             setStatus(Config.getString("pkgmgr.creatingVMDone"));
             break;
         case BlueJEvent.GENERATING_DOCU:
