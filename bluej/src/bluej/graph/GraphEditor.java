@@ -12,7 +12,7 @@ import bluej.Config;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 2085 2003-06-30 12:03:30Z fisker $
+ * @version $Id: GraphEditor.java 2176 2003-09-05 10:23:47Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -54,42 +54,82 @@ public class GraphEditor extends JComponent
         graph.draw(g);
     }
 
+
     public Graphics2D getGraphics2D()
     {
         return (Graphics2D) super.getGraphics();
     }
 
+
 	public boolean isFocusTraversable()
 	{
 		return false;
 	}
+    
+    
+    /**
+     * Finds the Edge that covers the coordinate x,y.
+     * If no edge is found, null is returned.
+     * @param x the x coordinate
+     * @param y the x coordinate
+     * @return Edge
+     */
+    private Edge findEdge(int x, int y){
+        GraphElement graphElement = null;
+        for (Iterator it = graph.getEdges(); it.hasNext(); ){
+            graphElement = (GraphElement)it.next();
+            if(graphElement.contains(x,y)){
+                return (Edge) graphElement;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Finds the Vertex that covers the coordinate x,y.
+     * If no vertex is found, null is returned.
+     * @param x the x coordinate
+     * @param y the x coordinate
+     * @return Vertex
+     */
+    private Vertex findVertex(int x, int y){
+        GraphElement currentGraphElement = null;
+        GraphElement topGraphElement = null;
+        
+        //Try to find a vertex containing the point
+        // Rather than breaking when we find the vertex we keep searching
+        // which will therefore find the LAST vertex containing the point
+        // This turns out to be the vertex which is rendered at the front
+        for (Iterator it = graph.getVertices(); it.hasNext();){
+            currentGraphElement = (GraphElement)it.next();
+            if(currentGraphElement.contains(x,y)){
+                topGraphElement = currentGraphElement;
+            }
+        }
+        return (Vertex) topGraphElement;
+    }
+    
     /**
      * Finds the graphElement that covers the coordinate x,y.
-     * If no element is found, null is returned.
+     * If no element is found, null is returned. If a Vertex and an Edge both
+     * covers x,y the Vertex will be returned.
      * @param x the x coordinate
      * @param y the x coordinate
      * @return GraphElement 
      */
     private GraphElement findGraphElement(int x, int y){
         GraphElement graphElement = null;
-        for (Iterator it = graph.getEdges(); it.hasNext(); ){
-            graphElement = (GraphElement)it.next();
-            if(graphElement.contains(x,y)){
-                return graphElement;
-            }
+        graphElement = findVertex(x, y);
+        if (graphElement != null){
+            return graphElement;
         }
-        //Try to find a vertex containing the point
-        // Rather than breaking when we find the vertex we keep searching
-        // which will therefore find the LAST vertex containing the point
-        // This turns out to be the vertex which is rendered at the front
-        GraphElement ge = null;
-        for (Iterator it = graph.getVertices(); it.hasNext();){
-            graphElement = (GraphElement)it.next();
-            if(graphElement.contains(x,y)){
-                ge = graphElement;
-            }
+        else
+        {
+            graphElement = findEdge(x,y);
         }
-        return ge;
+        return graphElement;
+       
+        
     }
 
 
