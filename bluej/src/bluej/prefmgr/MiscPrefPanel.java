@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: MiscPrefPanel.java 1176 2002-03-13 13:43:30Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -102,6 +102,8 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
             useJdk14Box = new JCheckBox(Config.getString("prefmgr.misc.usejdk14"));
             compilerPanel.add(useJdk14Box);
+            if(System.getProperty("java.vm.version").startsWith("1.3"))
+                useJdk14Box.setEnabled(false);
         }
         add(compilerPanel);
 
@@ -161,6 +163,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         autoIndentBox.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_INDENT));
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
         makeBackupBox.setSelected(PrefMgr.getFlag(PrefMgr.MAKE_BACKUP));
+        useJdk14Box.setSelected(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14));
         linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
     }
@@ -184,6 +187,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.ENABLE_JDK14, useJdk14Box.isSelected());
 
         Package.editorManager.refreshAll();
 

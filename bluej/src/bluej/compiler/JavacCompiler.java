@@ -9,6 +9,7 @@ import java.util.Iterator;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
+import bluej.prefmgr.PrefMgr;
 import bluej.Config;
 
 /**
@@ -19,7 +20,7 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 1174 2002-03-13 13:30:49Z bquig $
+ * @version $Id: JavacCompiler.java 1176 2002-03-13 13:43:30Z mik $
  */
 public class JavacCompiler extends Compiler
 {
@@ -77,6 +78,12 @@ public class JavacCompiler extends Compiler
         if(deprecation)
             args.addElement("-deprecation");
         
+        if(! System.getProperty("java.vm.version").startsWith("1.3"))
+            if(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14)) {
+                args.addElement("-source");
+                args.addElement("1.4");
+            }
+
          /** Not used at present...
         // add user specified compiler options
         List userOptions = CompileUtility.getUserCompilerOptions();
