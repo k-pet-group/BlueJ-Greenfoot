@@ -14,7 +14,7 @@ import com.apple.mrj.MRJFileUtils;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 2115 2003-07-16 05:02:43Z ajp $
+ * @version $Id: Utility.java 2172 2003-08-26 11:22:27Z mik $
  */
 public class Utility
 {
@@ -194,7 +194,7 @@ public class Utility
      */
     public static boolean openWebBrowser(String url) {
 
-        if(Config.osname.startsWith("Mac")) {                           // Mac
+        if(Config.isMacOS()) {                           // Mac
             try {
                 if((!url.startsWith("http:")) && (!url.startsWith("file:")))
                     url = encodeURLSpaces("file://" + url);
