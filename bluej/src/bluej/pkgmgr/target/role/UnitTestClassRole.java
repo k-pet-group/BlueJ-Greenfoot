@@ -32,7 +32,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2984 2004-09-03 08:01:12Z davmac $
+ * @version $Id: UnitTestClassRole.java 2985 2004-09-06 00:28:59Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -290,11 +290,14 @@ public class UnitTestClassRole extends ClassRole
         pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
         						 + ct.getBaseName() + "." + newTestName + "()");
 
+        pmf.getProject().removeLocalClassLoader();
+
         final String testName = newTestName;
         
+        // Avoid running test setup (which is user code) on the event thread.
+        // Run it on a new thread instead.
         new Thread() {
             public void run() {
-                pmf.getProject().removeLocalClassLoader();
                 
                 final Map dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
                 

@@ -21,7 +21,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2900 2004-08-18 11:52:28Z mik $
+ * @version $Id: Project.java 2985 2004-09-06 00:28:59Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -791,8 +791,14 @@ public class Project
             // remove views for classes loaded by this classloader
             View.removeAll(loader);
 
-			// dispose windows for local classes
-			getDebugger().disposeWindows();
+			// dispose windows for local classes. Should not run user code
+            // on the event queue, so run it in a seperate thread.
+			new Thread() {
+                public void run()
+                {
+                    getDebugger().disposeWindows();
+                }
+            }.start();
 			
             loader = null;
         }
