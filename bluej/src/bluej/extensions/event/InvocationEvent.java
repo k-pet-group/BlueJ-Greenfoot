@@ -7,9 +7,9 @@ import bluej.extensions.*;
  * An invocation event, it gets generated when an Object constructor is called or
  * a method is called.
  * 
- * @version $Id: InvocationEvent.java 1726 2003-03-24 13:33:06Z damiano $
+ * @version $Id: InvocationEvent.java 1791 2003-04-10 08:55:58Z damiano $
  */
-public class InvocationEvent extends BluejEvent
+public class InvocationEvent implements BlueJEvent
 {
     /**
      * Occurs when a method call has just begun. This includes constructors, object and static methods.

@@ -19,6 +19,7 @@ import java.lang.reflect.Constructor;
 import javax.swing.*;
 import bluej.extensions.MenuGenerator;
 import bluej.extensions.PreferenceGenerator;
+import bluej.extensions.event.BlueJEvent;
 
 /**
  * <PRE>
@@ -436,7 +437,7 @@ public class ExtensionWrapper
      *
      * @param  event  Description of the Parameter
      */
-    void safeEventOccurred(BluejEvent event)
+    void safeEventOccurred(BlueJEvent event)
     {
         if (!isValid()) return;
 

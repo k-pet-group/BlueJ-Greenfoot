@@ -322,7 +322,7 @@ public class ExtensionsManager implements BlueJEventListener
      *
      * @param  event  the event to delegate
      */
-    public void delegateEvent(BluejEvent event)
+    public void delegateEvent(bluej.extensions.event.BlueJEvent event)
     {
         for (Iterator it = extensions.iterator(); it.hasNext(); ) {
             ExtensionWrapper wrapper = (ExtensionWrapper) it.next();
@@ -357,7 +357,7 @@ public class ExtensionsManager implements BlueJEventListener
 
         if ( eventId == BlueJEvent.CREATE_VM_DONE) 
             {
-            delegateEvent (new AppEvent (AppEvent.APP_READY_EVENT));
+            delegateEvent (new ApplicationEvent (ApplicationEvent.APP_READY_EVENT));
             return;
             }
 
