@@ -6,6 +6,7 @@ done recently
   fixed empty-comment-bug
   fixed some problems with drawing arrows
   changed debugger (unfinished)
+  added Terminal: unlimited buffering option
 
 to do
 

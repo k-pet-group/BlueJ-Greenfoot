@@ -5,7 +5,7 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 537 2000-06-12 04:09:14Z mik $
+ ** @version $Id: Terminal.java 585 2000-06-27 23:51:09Z mik $
  **/
 
 package bluej.terminal;
@@ -52,6 +52,7 @@ public final class Terminal extends JFrame
     private TermTextArea text;
     private boolean isActive = false;
     private InputBuffer buffer;
+    private JCheckBoxMenuItem unlimitedBuffering;
 
     /**
      * Create a new terminal window with default specifications.
@@ -97,6 +98,16 @@ public final class Terminal extends JFrame
         item = menu.add(new SaveAction());
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 
                                                    Event.CTRL_MASK));
+        menu.add(new JSeparator());
+
+      // the following should be replaced once jdk 1.2.x goes out of fashion.
+      // as of 1.3, the JCheckBoxMenuItem can be created with an action
+      // parameter directly
+        unlimitedBuffering = new JCheckBoxMenuItem(
+                                     Config.getString("terminal.buffering"));
+        unlimitedBuffering.addActionListener(new BufferAction());
+        menu.add(unlimitedBuffering);
+
         menu.add(new JSeparator());
         item = menu.add(new CloseAction());
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, 
@@ -168,8 +179,8 @@ public final class Terminal extends JFrame
     public void save()
     {
         String fileName = FileUtility.getFileName(this,
-                                                  Config.getString("terminal.save.title"),
-                                                  Config.getString("terminal.save.buttonText"));
+                                 Config.getString("terminal.save.title"),
+                                 Config.getString("terminal.save.buttonText"));
         if(fileName != null) {
             try {
                 FileWriter writer = new FileWriter(fileName);
@@ -293,7 +304,7 @@ public final class Terminal extends JFrame
             case CHAR_CLEAR: clear();
                 break;
             case CHAR_COPY: getCopyAction().actionPerformed(
-                                                            new ActionEvent(event.getSource(), 0, ""));
+                                    new ActionEvent(event.getSource(), 0, ""));
             break;
             case CHAR_SAVE: save();
                 break;
@@ -387,5 +398,17 @@ public final class Terminal extends JFrame
                 return textActions[i];
 
         return null;
+    }
+
+    private class BufferAction extends AbstractAction
+    {
+        public BufferAction()
+        {
+            super(Config.getString("terminal.buffering"));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            text.setUnlimitedBuffering(unlimitedBuffering.isSelected());
+        }
     }
 }
