@@ -67,9 +67,10 @@ public class DocuGenerator
      * consider only package, protected, and public classes and members,
      * include bottom line.
      */
-    private static String fixedJavadocParams = " -author -version"
-          + " -nodeprecated -package"
-        + " -bottom <small><em>Generated&nbsp;by&nbsp;BlueJ</em></small>";
+    private static String fixedJavadocParams = 
+                Config.getPropString("doctool.options") +
+                " -bottom <small><em>Generated&nbsp;by&nbsp;BlueJ</em></small>";
+
     /** javadoc parameters for preview runs: do not generate an index,
      * a tree, a help.
      */
@@ -108,7 +109,7 @@ public class DocuGenerator
                 BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
 
         // build the call string
-        String javadocCall = docCommand + fixedJavadocParams + tmpJavadocParams
+        String javadocCall = docCommand + " " + fixedJavadocParams + tmpJavadocParams
             + " -d " + docDir.getPath() + " " + filename;
 
         // build the path for the result to be shown
