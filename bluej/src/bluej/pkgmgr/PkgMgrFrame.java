@@ -29,7 +29,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 530 2000-06-01 07:09:30Z bquig $
+ * @version $Id: PkgMgrFrame.java 531 2000-06-01 07:18:40Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -241,8 +241,11 @@ public class PkgMgrFrame extends JFrame
     public static void refreshAllFrames()
     {
         if (!frames.isEmpty()) {
-            for(Iterator i = frames.iterator(); i.hasNext(); )
-                ((PkgMgrFrame)i.next()).repaint();
+            for(Iterator i = frames.iterator(); i.hasNext(); ) {
+                PkgMgrFrame frame = (PkgMgrFrame)i.next();
+                frame.setButtonImages();
+                frame.repaint();
+            }
         }
     }
 
