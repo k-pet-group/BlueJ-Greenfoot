@@ -1,7 +1,6 @@
 package bluej.extmgr;
 
 import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefPanelListener;
 import bluej.prefmgr.PrefMgrDialog;
 
@@ -10,7 +9,6 @@ import java.util.Iterator;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.awt.event.*;
 
 import bluej.extensions.PrefGen;
 import bluej.extensions.BlueJ;
