@@ -4,7 +4,7 @@ import java.lang.reflect.Modifier;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: MemberView.java 202 1999-07-22 07:45:35Z mik $
+ ** @version $Id: MemberView.java 204 1999-07-23 05:33:43Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java class member in BlueJ
@@ -12,7 +12,7 @@ import bluej.utility.Debug;
 public abstract class MemberView
 {
 	private View view;
-	protected Comment comment;
+	private Comment comment;
 	
 	protected MemberView(View view)
 	{
