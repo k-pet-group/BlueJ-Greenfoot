@@ -14,7 +14,7 @@ import java.io.*;
  * to a given path on a given (attached) server.
  * 
  * @author Clive Miller
- * @version $Id: SmtpSession.java 1956 2003-05-16 08:36:43Z damiano $
+ * @version $Id: SmtpSession.java 1958 2003-05-16 15:30:56Z iau $
  */
 
 public class SmtpSession extends TransportSession
@@ -157,12 +157,12 @@ public class SmtpSession extends TransportSession
     sendMessage ("");
 
     /* Now we have to go line by line, until EOF and spit them out watching
-     * For the infamous single dot :-)
+     * for leading dots
      */
     while ( (oneLine=aReader.readLine()) != null )
       {
-      // If the line has a single dot in it we add an extra dot to it !
-      if ( oneLine.equals(".")) out.write('.');
+      // If the line starts with a dot, prepend a dot (RFC821 section 4.5.2)
+      if ( oneLine.startsWith(".")) out.write('.');
       out.write(oneLine.getBytes());       // Then we write what we just read
       out.write(CRLF);       // and terminate with standard CRLF
       lineCount++;
@@ -199,12 +199,12 @@ public class SmtpSession extends TransportSession
     String oneLine;
     while ( (oneLine=aReader.readLine()) != null )
       {
-      // If the line has a single dot in it we add an extra dot to it !
-      if ( oneLine.equals(".")) out.write('.');
-
-      reportLog (">> "+oneLine);
+      // If the line starts with a dot, prepend a dot (RFC821 section 4.5.2)
+      if ( oneLine.startsWith(".")) out.write('.');
       out.write(oneLine.getBytes());
       out.write(CRLF);
+
+      reportLog (">> "+oneLine);
       }
 
     out.flush();
