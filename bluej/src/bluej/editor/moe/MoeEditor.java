@@ -6,6 +6,7 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.editor.EditorWatcher;
+import bluej.pkgmgr.DocuGenerator;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -916,7 +917,8 @@ public final class MoeEditor extends JFrame
 
     public void generateDoc()
     {
-        Debug.message("documentation...");
+        save();
+        DocuGenerator.generateClassDocu(filename);
     }
 
     // --------------------------------------------------------------------

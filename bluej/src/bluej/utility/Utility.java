@@ -15,7 +15,7 @@ import javax.swing.*;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 555 2000-06-19 00:35:11Z mik $
+ * @version $Id: Utility.java 586 2000-06-28 00:52:51Z axel $
  */
 public class Utility
 {
@@ -214,7 +214,9 @@ public class Utility
     }
 
     /**
-     *  return true if the file is a BlueJ package directory
+     * Let the given URL be shown in a browser window.
+     * @param url the URL to be shown.
+     * @return true if the web browser could be started, false otherwise.
      */
     public static boolean openWebBrowser(String url) {
 
@@ -244,7 +246,7 @@ public class Utility
 
                 if(exitCode != 0 && cmd != null && cmd.length() > 0) {
                     cmd = mergeStrings(cmd, url);
-                    //Debug.message(cmd);
+                    // Debug.message(cmd);
                     p = Runtime.getRuntime().exec(cmd);
                 }
             }
