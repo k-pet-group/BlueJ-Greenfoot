@@ -8,19 +8,20 @@
     <!-- the build_java_home is used to find the compiler to fork and the
          tools.jar file to use with it. Note that in general all
          compilation should be done on the minimum supported JDK for
-         BlueJ (which is currently 1.4) -->
-    <property name="build_java_home" value="C:\program files\j2sdk_1.4.2_01"/>
-    <!-- property name="build_java_home" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK"/ -->
+         BlueJ (which is currently 1.4) 
+		 First one is for Windows, second for Mac - comment out appropriately -->
+    <!-- property name="build_java_home" value="C:\program files\j2sdk_1.4.2_01"/ -->
+    <property name="build_java_home" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK"/>
 
     <!-- the run_java_home is used to find the jvm to run and the
          corresponding tools.jar file -->
-    <property name="run_java_home" value="C:\program files\j2sdk_1.4.2_01"/>
-    <!-- property name="run_java_home" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK"/ -->
+    <!-- property name="run_java_home" value="C:\program files\j2sdk_1.4.2_01"/ -->
+    <property name="run_java_home" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK"/>
 
     <!-- Pass this property down to lower build files to find various jars etc -->
     <!-- Makes it easier if the current directory is not bluej_home -->
-    <property name="bluej_home" value="H:\home\ajp\bluej\main"/>
-    <!-- property name="bluej_home" value="/Users/mik/bluej"/ -->
+    <!-- property name="bluej_home" value="H:\home\ajp\bluej\main"/ -->
+    <property name="bluej_home" value="/Users/mik/bluej"/>
 
     <!-- ********************************************** -->
     <!-- do not edit below here for local customisation -->
@@ -48,8 +49,6 @@
         <pathelement location="${bluej_home}/lib/MRJ141Stubs.jar"/>
         <pathelement location="${bluej_home}/lib/antlr.jar"/>
         <pathelement location="${bluej_home}/lib/junit.jar"/>
-        <!--pathelement location="${bluej_home}/lib/bsh.jar"/-->
-        <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
     </path>
 
     <!--
@@ -102,7 +101,10 @@
                             bluej/tester/**,
                             bluej/browser/**,
                             bluej/guibuilder/**,
-                            bluej/editor/moe/Moe.java"
+                            bluej/editor/moe/Moe.java,
+        						bluej/debugger/jdi/JdiUtils15.java,
+        						bluej/utility/JavaUtils15.java,
+        						bluej/utility/JavaArrayReflective.java"
                 >
             <classpath>
                 <path refid="bluej.class.path"/>
@@ -194,12 +196,7 @@
 
     <target name="run">
         <!-- run the java code built into the jar files -->
-        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
-        	<classpath>
-                <pathelement location="${boot.jar}"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
-            </classpath>
-            <!-- <arg path="${bluej_home}/test-examples/dummy/bluej.pkg"/> -->
+        <java jar="${boot.jar}" fork="yes" jvm="${run_java_home}/bin/java">
         </java>
     </target>
 
