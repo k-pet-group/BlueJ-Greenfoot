@@ -1,32 +1,17 @@
 package bluej.extensions;
 
-import bluej.Config;
-import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions.event.ApplicationEvent;
-import bluej.extensions.event.ApplicationListener;
-import bluej.extensions.event.CompileEvent;
-import bluej.extensions.event.CompileListener;
-import bluej.extensions.event.ExtensionEvent;
-import bluej.extensions.event.ExtensionEventListener;
-import bluej.extensions.event.InvocationEvent;
-import bluej.extensions.event.InvocationListener;
-import bluej.extensions.event.PackageEvent;
-import bluej.extensions.event.PackageListener;
-import bluej.extmgr.ExtensionWrapper;
-import bluej.extmgr.PrefManager;
+import bluej.*;
+import bluej.debugmgr.objectbench.*;
+import bluej.extensions.event.*;
+import bluej.extmgr.*;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.target.ClassTarget;
-import java.awt.Frame;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
+import bluej.pkgmgr.target.*;
+import java.awt.*;
+import java.io.*;
+import java.util.*;
 import java.util.List;
-import java.util.Properties;
-import javax.swing.JMenuItem;
+import javax.swing.*;
 
 /**
  * A proxy object which provides services to BlueJ extensions.
@@ -62,7 +47,7 @@ import javax.swing.JMenuItem;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2433 2003-12-09 12:18:54Z mik $
+ * @version    $Id: BlueJ.java 2476 2004-02-11 10:47:31Z damiano $
  */
 
 /*
@@ -270,7 +255,6 @@ public class BlueJ
      * Install a new preference panel for this extension.
      * If you want to delete a previously installed preference panel, then set it to null
      *
-     *
      * @param  prefGen  a class instance that implements the PreferenceGenerator interface.
      */
     public void setPreferenceGenerator(PreferenceGenerator prefGen)
@@ -330,7 +314,6 @@ public class BlueJ
      * Returns a property from BlueJ's properties,
      * or the given default value if the property is not currently set.
      *
-     *
      * @param  property  The name of the required global property
      * @param  def       The default value to use if the property cannot be found.
      * @return           the value of the property.
@@ -348,7 +331,6 @@ public class BlueJ
      * Return a property associated with this extension from the standard BlueJ property repository.
      * You must use the setExtensionPropertyString to write any property that you want stored.
      * You can then come back and retrieve it using this function.
-     *
      *
      * @param  property  The name of the required global property.
      * @param  def       The default value to use if the property cannot be found.
