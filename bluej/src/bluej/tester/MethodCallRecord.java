@@ -15,7 +15,7 @@ import bluej.runtime.*;
  * Records a single user method call.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodCallRecord.java 1002 2001-11-01 04:08:25Z ajp $
+ * @version $Id: MethodCallRecord.java 1012 2001-11-30 01:26:31Z ajp $
  */
 public class MethodCallRecord extends CallRecord
 {
@@ -26,6 +26,11 @@ public class MethodCallRecord extends CallRecord
         super(methodName, theCall, args);
 
         this.parent = parent;
+    }
+
+    public String dump(int tablevel, String name, boolean declare)
+    {
+        return "METHODCALL";
     }
 
 	public String toString()
