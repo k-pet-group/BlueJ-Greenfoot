@@ -1,33 +1,37 @@
 package bluej.utility;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 /**
  * A box that can be used to dynamically (from the UI) add and remove
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 2637 2004-06-20 11:22:18Z polle $
+ * @version $Id: GrowableBox.java 2638 2004-06-20 12:06:37Z polle $
  */
 public class GrowableBox extends Box
 {
     private ComponentFactory componentFactory;
-    private Container emptyGrowable;
+    private JComponent emptyGrowable;
+    private Border emptyBorder;
     private static String addText = "+";
     private static ImageIcon addIcon;
     private static String removeText = "-";
-    private static ImageIcon removeIcon;
+    private static ImageIcon removeIcon;    
   
     /**
      * Creates a growable panel along the specifed axis. 
@@ -40,11 +44,13 @@ public class GrowableBox extends Box
      * @param axis The X_AXIS or Y_AXIS
      * @param componentFactory The factory to create new components
      */
-    public GrowableBox(ComponentFactory componentFactory, int axis) {
-        super(axis);
+    public GrowableBox(ComponentFactory componentFactory, int axis, int gap) {
+        super(axis);        
         this.componentFactory = componentFactory;
+        emptyBorder = BorderFactory.createEmptyBorder(0,0,gap,0);
         emptyGrowable = new JPanel();
-        emptyGrowable.setLayout(new FlowLayout());
+        emptyGrowable.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        
         JButton addButton = new JButton();
         JButton removeButton = new JButton();        
         initButtons(addButton, removeButton);
@@ -76,7 +82,7 @@ public class GrowableBox extends Box
         JButton addButton = new JButton();
         JButton removeButton = new JButton();
         initButtons(addButton, removeButton);
-        final Component component = componentFactory.createComponent(addButton, removeButton);
+        final JComponent component = componentFactory.createComponent(addButton, removeButton);
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int index = getIndex(component);
@@ -119,18 +125,42 @@ public class GrowableBox extends Box
         removeButton.setMargin(new Insets(0, 0, 0, 0));
     }
 
-    private void addGrowableComponent(int index, Component growableComponent) {        
+    private void addGrowableComponent(int index, JComponent growableComponent) {        
         if (getComponentCount() > 0 && getComponent(0) == emptyGrowable) {
-            remove(0);
+            removeAll();
         }
-        add(growableComponent, index);
+        add(growableComponent, index);     
+        
+        if(index != getComponentCount()-1) {
+            //this is not the last component
+            growableComponent.setBorder(emptyBorder);
+        } else {
+            //This is last component so no border is needed.
+            //But we need to set border on the nextlast
+            int nextLastIndex = index - 1;
+            if(nextLastIndex >= 0) {
+                JComponent nextLast = (JComponent) getComponent(nextLastIndex);
+                nextLast.setBorder(emptyBorder);
+            }
+        }            
         
         validate();
         repaint();
         fireResizedEvent();
     }
 
-    private void removeGrowableComponent(Component growableComponent) {
+    private void removeGrowableComponent(JComponent growableComponent) {
+        int index = getIndex(growableComponent);
+        if(index == getComponentCount()-1) {
+            //About to remove last component.
+            //So we remove border from the soon to be last component.
+            int nextLastIndex = index - 1;
+            if(nextLastIndex >= 0) {
+                JComponent nextLast = (JComponent) getComponent(nextLastIndex);
+                nextLast.setBorder(null);
+            }
+        }
+        
         remove(growableComponent);
         if (getComponentCount() == 0) {
             addGrowableComponent(0,emptyGrowable);

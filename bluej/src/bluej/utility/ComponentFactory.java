@@ -1,6 +1,6 @@
 package bluej.utility;
-import java.awt.Component;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 
 
 /**
@@ -8,9 +8,9 @@ import javax.swing.JButton;
  * 
  * @see bluej.utility.GrowableBox
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ComponentFactory.java 2585 2004-06-10 13:27:46Z polle $
+ * @version $Id: ComponentFactory.java 2638 2004-06-20 12:06:37Z polle $
  */
 public interface ComponentFactory
 {
-    public Component createComponent(JButton addButton, JButton removeButton);
+    public JComponent createComponent(JButton addButton, JButton removeButton);
 }

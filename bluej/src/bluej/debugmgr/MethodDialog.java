@@ -55,7 +55,7 @@ import bluej.views.View;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2636 2004-06-20 11:03:55Z polle $
+ * @version $Id: MethodDialog.java 2638 2004-06-20 12:06:37Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -105,7 +105,7 @@ public class MethodDialog extends CallDialog implements FocusListener
             this.dialog = dialog;
         }
 
-        public Component createComponent(JButton addButton, JButton removeButton)
+        public JComponent createComponent(JButton addButton, JButton removeButton)
         {
             Box container = new Box(BoxLayout.X_AXIS);
             JComboBox comboBox = dialog.createComboBox(history);
@@ -117,8 +117,6 @@ public class MethodDialog extends CallDialog implements FocusListener
             container.add(addButton);
             container.add(Box.createHorizontalStrut(5));
             container.add(removeButton);
-            container.setBorder(BorderFactory.createEmptyBorder(INSETS.top, INSETS.left,
-                    INSETS.bottom, INSETS.right));
             return container;
         }
     }
@@ -127,7 +125,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2636 2004-06-20 11:03:55Z polle $
+     * @version $Id: MethodDialog.java 2638 2004-06-20 12:06:37Z polle $
      */
     public static class ParameterList
     {
@@ -718,7 +716,7 @@ public class MethodDialog extends CallDialog implements FocusListener
             if (method.isVarArgs() && i == (paramClasses.length - 1)) {
                 List historyList = history.getHistory(paramClasses[i].getComponentType());
                 GrowableBox component = new GrowableBox(new VarArgFactory(this, historyList),
-                        BoxLayout.Y_AXIS);
+                        BoxLayout.Y_AXIS, INSETS.top + INSETS.bottom);
                 //We want the dialog to resize when new args are added
                 component.addComponentListener(new ComponentListener() {
                     public void componentResized(ComponentEvent e)
@@ -791,25 +789,30 @@ public class MethodDialog extends CallDialog implements FocusListener
             int oldHeight = constraints.gridheight;
             gridBag.setConstraints(component, constraints);
             tmpPanel.add(component);
-            constraints.gridx = 2;
 
-            JLabel eol = new JLabel(",  " + commentSlash + parameterList.getType(i), JLabel.LEFT);
+            JLabel eol = new JLabel(",", JLabel.LEFT);
+            JLabel type = new JLabel(" " + parameterList.getType(i), JLabel.LEFT);
             if (i == (parameterList.size() - 1)) {
-                if (parameterList.size() == 1) {
-                    eol.setText(endString);
-                } else {
-                    JLabel lastType = new JLabel(commentSlash + parameterList.getType(i));
-                    setPreferredHeight(lastType, comboHeight);
-                    constraints.anchor = GridBagConstraints.NORTH;
-                    tmpPanel.add(lastType, constraints);
-                    eol.setText(endString);
-                }
+                eol.setText(endString);
                 eol.setFont(parenthesisFont);
-            }
+                if (parameterList.size() == 1) {                    
+                    type = null;
+                } else {
+                    setPreferredHeight(type, comboHeight);
+                    constraints.anchor = GridBagConstraints.NORTH;
+                }                
+            }                      
+
+            if(type!=null) {
+	            constraints.gridx = 3;
+	            tmpPanel.add(type, constraints);
+            }            
+
+            constraints.gridx = 2;
             setPreferredHeight(eol, comboHeight);
             constraints.anchor = GridBagConstraints.SOUTHWEST;
             gridBag.setConstraints(eol, constraints);
-            tmpPanel.add(eol);
+            tmpPanel.add(eol); 
         }
         return tmpPanel;
     }
