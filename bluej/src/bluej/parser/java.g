@@ -331,6 +331,7 @@ packageDefinition
 
 
 // Import statement: import followed by a package or class name
+//   or a "static" method import
 //   Note that we do not perform any action here.  The action associated
 //   with the import statement is performed in identifierStar.  (That
 //   rule is only called from importDefinition, so it is safe to have it
@@ -856,7 +857,7 @@ parameterDeclarationList
 //   header.
 parameterDeclaration
     {JavaToken type; }
-    :   parameterModifier type=typeSpec id:IDENT
+    :   parameterModifier type=typeSpec (ELLIPSES)? id:IDENT
                       (LBRACK RBRACK
          		{ if(type != null)
 			       type.setText(type.getText() + "[]"); } )*
@@ -1639,6 +1640,8 @@ IDENT
 NUM_INT
     {boolean isDecimal=false; Token t=null;}
     :   '.' {_ttype = DOT;}
+        ( '.' '.' {_ttype = ELLIPSES;}
+        |
             (	('0'..'9')+ (EXPONENT)? (f1:FLOAT_SUFFIX {t=f1;})?
                 {
 				if (t != null && t.getText().toUpperCase().indexOf('F')>=0) {
@@ -1649,6 +1652,7 @@ NUM_INT
 				}
 				}
             )?
+     )
 
     |   (   '0' {isDecimal = true;} // special case for just '0'
 			(	('x'|'X')
