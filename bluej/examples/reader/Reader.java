@@ -5,9 +5,9 @@ import java.io.*;
 
 public class Reader
 {
-	/**
-	 ** Constructor for objects of class Reader
-	 **/
+/**
+ ** Constructor for objects of class Reader
+ **/
 	public Reader()
 	{
 	}

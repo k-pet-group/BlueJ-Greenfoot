@@ -14,7 +14,7 @@ import java.util.Vector;
 
 
 /**
- ** @version $Id: View.java 166 1999-07-08 01:01:12Z ajp $
+ ** @version $Id: View.java 176 1999-07-09 04:13:10Z mik $
  ** @author Michael Cahill
  **
  ** View class - a representation of a Java class in BlueJ
@@ -52,7 +52,7 @@ public class View
 		views.put(cl, v);
 	    }
 			
-	// Debug.message("Ended getView for class " + cl);
+	//Debug.message("Ended getView for class " + cl);
 		
 	return v;
     }
@@ -114,7 +114,7 @@ public class View
 			MemberElement elem = (MemberElement)v.elementAt(i);
 			allMethods[i] = (MethodView)elem.member;
 				// if(allMethods[i] == null)
-			// Debug.message("Warning: getAllMethods - entry == null");
+			//Debug.message("Warning: getAllMethods - entry == null");
 		    }
 	    }
 		
@@ -230,12 +230,12 @@ public class View
 	
     private int addMembers(Hashtable h, MemberView[] members, int num)
     {
-	// Debug.message("Started addMembers for " + cl);
+	//Debug.message("Started addMembers for " + cl);
 		
 	for(int i = members.length - 1; i >= 0; i--)
 	    h.put(members[i].toString(), new MemberElement(num++, members[i]));
 		
-	// Debug.message("Ended addMembers for " + cl);
+	//Debug.message("Ended addMembers for " + cl);
 	return num;
     }
 	
@@ -335,29 +335,26 @@ public class View
 	addMembers(table, getDeclaredMethods());
 		
 	// match up the comments read from the file with the members of this view
-	for(Enumeration e = comments.getComments(); e.hasMoreElements(); )
-	{
+	for(Enumeration e = comments.getComments(); e.hasMoreElements(); ) {
 	Comment c = (Comment)e.nextElement();
 			
-	if(c.getTarget().startsWith("class "))
-	{
+	if(c.getTarget().startsWith("class ")) {
 	setComment(c);
 	continue;
 	}
 			
 	MemberView m = (MemberView)table.get(c.getTarget());
 			
-	if(m == null)
-	{
-				// Debug.message("No member found for " + c.getTarget());
-				continue;
-				}
-				else
-				// Debug.message("Found member for " + c.getTarget());
-			
-				m.setComment(c);
-				}
-				}
+	if(m == null) {
+	    //Debug.message("No member found for " + c.getTarget());
+		continue;
+		}
+		else
+		//Debug.message("Found member for " + c.getTarget());
+	
+		m.setComment(c);
+		}
+	}
     */
 	
     private void addMembers(Hashtable table, MemberView[] members)

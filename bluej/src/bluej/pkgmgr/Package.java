@@ -28,7 +28,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 175 1999-07-09 02:05:09Z ajp $
+ ** @version $Id: Package.java 176 1999-07-09 04:13:10Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -470,11 +470,11 @@ public class Package extends Graph
 
 		if(target != null) {
 		    target.load(props, "target" + (i + 1));
-		    // Debug.message("Load target " + target);
+		    //Debug.message("Load target " + target);
 		    addTarget(target);
 		}
 				// else
-		// Debug.message("Failed to load target " + (i + 1));
+		//Debug.message("Failed to load target " + (i + 1));
 	    }
 
 	    for(int i = 0; i < numDependencies; i++) {
@@ -784,10 +784,10 @@ public class Package extends Graph
 		int next = 0;
 		do {
 		    dir = new File(dir).getParent();
-		    Debug.message("dir now " + dir);
+		    //Debug.message("dir now " + dir);
 
 		    next = packageName.indexOf('.', next + 1);
-		    	Debug.message("next: " + next);
+		    //Debug.message("next: " + next);
 
 		} while((next != -1) && (dir != null));
 

@@ -9,7 +9,7 @@ import bluej.utility.Utility;
 import bluej.Config;
 
 /**
- ** @version $Id: JavacCompiler.java 163 1999-07-08 00:50:23Z mik $
+ ** @version $Id: JavacCompiler.java 176 1999-07-09 04:13:10Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -160,7 +160,7 @@ public class JavacCompiler extends Compiler
 		Utility.showError(null, "Compiler error. Error stream incomplete.\n");
 	    }
 	    else {
-		Debug.message("Indicating error " + filename + " " + lineNo);
+		//Debug.message("Indicating error " + filename + " " + lineNo);
 		readerror = true;
 	
 		watcher.errorMessage(filename, lineNo, error, true);

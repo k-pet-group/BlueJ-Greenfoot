@@ -207,8 +207,6 @@ public class PkgMgrFrame extends PkgFrame
 	String name;
 	int tmp;
 
-	// Debug.message("Event[" + evtId + "] Obj[" + src.toString() + "]" );
-
 	// Always reset unless one of these buttons are pressed
 	if (evtId != EDIT_NEWUSES && evtId != EDIT_NEWINHERITS) {
 	    resetDependencyButtons();
@@ -1052,7 +1050,7 @@ public class PkgMgrFrame extends PkgFrame
 	    String menuId = "menu." + CmdTypeNames[menuType];
 	    String menuStr = Config.getString(menuId);
 
-	    // Debug.message("MenuType[" + menuType + "]" + menuId + "[" + menuStr + "]" );
+	    //Debug.message("MenuType[" + menuType + "]" + menuId + "[" + menuStr + "]" );
 	    menu = new JMenu(menuStr);
 
 	    for(int i = 0; i < CmdStrings[menuType].length; i++) {

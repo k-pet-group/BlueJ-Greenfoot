@@ -431,8 +431,12 @@ public final class MoeEditor extends JFrame
      *  Set this editor to read-only.
      */
     public void setReadOnly(boolean readOnlyStatus) {
-	if (readOnlyStatus)
+	if (readOnlyStatus) {
 	    saveState.setState(StatusLabel.READONLY);
+	    actions.undoManager.discardAllEdits();
+	    actions.undoAction.update();
+	    actions.redoAction.update();
+	}
 	textPane.setEditable(!readOnlyStatus);
     }
 		    
@@ -1144,8 +1148,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Sets the editor to contain a view. This is used if the view is set from
-     *  the outside of the editor (not by the editor function).
+     *  Sets the editor to contain a view. This is used if the view is set
+     *  from the outside of the editor (not by the editor function).
      *
      *  @param view    the new view. Must be one of the defined view constants.
      */
@@ -1216,11 +1220,16 @@ public final class MoeEditor extends JFrame
 
     public void itemStateChanged(ItemEvent evt) 
     {
-	// the only item we're listening to is the items in the view selector
-
 	if(evt.getStateChange() == ItemEvent.DESELECTED)
 	    return;  // ignore deselection events
 
+	// the only item we're listening to is the items in the view selector
+
+	viewSelected();
+    }
+
+    private void viewSelected()
+    {
 	int view;
     
 	switch (viewSelector.getSelectedIndex()) {
@@ -1235,6 +1244,9 @@ public final class MoeEditor extends JFrame
 	default:  view = 0;
 	}
 	watcher.changeView(this, view);
+
+	// calling "changeView" in the watcher will cause the right text
+	// to appear in the editor
     }
 
     // ======================= WINDOW INITIALISATION =======================
