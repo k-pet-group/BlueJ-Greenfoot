@@ -18,11 +18,9 @@ import java.awt.Point;
 import bluej.debugger.*;
 
 /**
- * The BlueJ proxy Object object. This represents an object on the Object Bench. It can be 
- * got from {@link bluej.extensions.BPackage#getObject(java.lang.String) getObject}.
- * The Idea is that this behaves much as the normal Java Object but with added properties.
+ * The BlueJ proxy Object object. 
  *
- * @version $Id: BObject.java 1651 2003-03-05 17:03:15Z damiano $
+ * @version $Id: BObject.java 1660 2003-03-06 09:44:15Z damiano $
  */
 public class BObject
 {
@@ -131,12 +129,17 @@ public class BObject
      * @param includeSuper if <code>true</code> the fields from all superclasses will
      * also be included
      * @return the fields belonging to this object, or an empty array if none exist
-     
     public BField[] getFields (boolean includeSuper)
     {
         DebuggerObject obj = wrapper.getObject();
         ObjectReference ref = obj.getObjectReference();
+        ReferenceType type = ref.referenceType();
+
+        return null;
+    }
+        /*
         BField[] bFields;
+        
         if (ref instanceof ArrayReference) {
             ArrayReference array = (ArrayReference)ref;
             ReferenceType type = ref.referenceType();
@@ -158,12 +161,27 @@ public class BObject
         }
         return bFields;
     }
+    */
+
+
+    /**
+     * This should be visible only from within the bluej.extensions
+     * Used by BField to get hold of the real Object
+     */
+    ObjectReference getObjectReference()
+        {
+        if ( wrapper == null ) return null;
+        DebuggerObject obj = wrapper.getObject();
+
+        if ( obj == null ) return null;
+        return obj.getObjectReference();
+        }
+
 
     /**
      * Gets the field in this object of a given name
      * @param name the name of the field to get
      * @return the field belonging to this object, or an empty array if none exist
-     
     public BField getField (String name)
     {
         DebuggerObject obj = wrapper.getObject();
@@ -171,7 +189,7 @@ public class BObject
         ReferenceType type = ref.referenceType();
         Field field = type.fieldByName (name);
         if (field == null) return null;
-        return new BField (pkg, obj.getObjectReference(), field);
+        return new BField (wrapper.getPackage(), obj.getObjectReference(), field);
     }
     
     /**

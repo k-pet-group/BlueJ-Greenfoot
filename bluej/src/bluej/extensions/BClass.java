@@ -21,7 +21,7 @@ import bluej.views.*;
  * The reasoning behind it is that is is no good to create a new standard when there 
  * is already one that can be used.
  * 
- * @version $Id: BClass.java 1651 2003-03-05 17:03:15Z damiano $
+ * @version $Id: BClass.java 1660 2003-03-06 09:44:15Z damiano $
  */
 public class BClass
 {
@@ -276,7 +276,7 @@ public class BClass
 
 
     /**
-     * Returns all Bfileds of this Class.
+     * Returns all BFields of this Class
      */
     public BField[] getFields()
         {
@@ -293,11 +293,29 @@ public class BClass
 
 
     /**
-     * Returns an array containing <code>Method</code> objects reflecting all
-     * the public <em>member</em> methods of the class or interface represented
-     * by this <code>Class</code> object, including those declared by the class
-     * or interface and and those inherited from superclasses and
-     * superinterfaces.
+     * Returns a specific Field of this Class
+     */
+    public BField getField(String fieldName)
+        {
+        if (!isCompiled()) return null;
+        if ( fieldName == null ) return null;
+        
+        FieldView[] fieldView = bluej_view.getAllFields();
+        BField result;
+        
+        for ( int index=0; index<fieldView.length; index++)
+            {
+            result = new BField (bluej_pkg, fieldView[index]);
+            if ( result.matches(fieldName) ) return result;
+            }
+            
+        return null;
+        }
+
+
+
+    /**
+     * See Reflection API
      */
     public int getModifiers()
     {

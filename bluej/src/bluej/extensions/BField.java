@@ -4,54 +4,45 @@ import bluej.debugger.ObjectWrapper;
 import bluej.debugger.jdi.JdiObject;
 import bluej.pkgmgr.PkgMgrFrame;
 
-import com.sun.jdi.ArrayReference;
-import com.sun.jdi.Field;
-import com.sun.jdi.ObjectReference;
-import com.sun.jdi.StringReference;
-import com.sun.jdi.Value;
-import com.sun.jdi.ShortValue;
-import com.sun.jdi.LongValue;
-import com.sun.jdi.IntegerValue;
-import com.sun.jdi.FloatValue;
-import com.sun.jdi.DoubleValue;
-import com.sun.jdi.CharValue;
-import com.sun.jdi.ByteValue;
-import com.sun.jdi.BooleanValue;
+import com.sun.jdi.*;
 
 import java.lang.reflect.Modifier;
 import bluej.pkgmgr.Package;
 import bluej.views.*;
 
 /**
- * The BlueJ proxy Field object. This represents a field of a class or object.
- *
- * @author Clive Miller
- * @version $Id: BField.java 1651 2003-03-05 17:03:15Z damiano $
- * @see bluej.extensions.BObject#getField(java.lang.String)
- * @see bluej.extensions.BObject#getFields(boolean)
- * @see bluej.extensions.BClass#getStaticField(java.lang.String)
- * @see bluej.extensions.BClass#getStaticFields()
+ * This is similar to the Reflection Field<P>
+ * The main reason to have a field coming from a Class and not from an Object is that
+ * logically we should be able to get static methods without having objects around.
+ * Reflection states that to get a static field we can use a FIled and pass null as the object to work on.<P>
+ * Damiano
  */
 public class BField
 {
-    private final Package bluej_pkg;
+    private Package bluej_pkg;
+    private FieldView bluej_view;
+
+    /*
     private final ObjectReference ref;
     private final Field field;
     private final BObject obj;
     private final boolean array;
     private final int element;
-    private FieldView bluej_view;
+*/
 
     BField (Package i_bluej_pkg, FieldView i_bluej_view )
     {
         bluej_pkg = i_bluej_pkg;
         bluej_view = i_bluej_view;
+/*
         element = 0;
         array = false;
         obj = null;
         field = null;
         ref = null;
+*/        
     }        
+
 
 
   /*
@@ -80,6 +71,18 @@ public class BField
 
 
     /**
+     * Used to see if this field matches with the given criteria
+     */
+    public boolean matches ( String fieldName )
+        {
+        // Who is so crazy to give me a null name ?
+        if ( fieldName == null ) return false;
+
+        return fieldName.equals(getName());
+        }
+
+
+    /**
      * The name of the Field, as from reflection.
      */
     public String getName()
@@ -98,36 +101,38 @@ public class BField
     /**
      * Gets this Filed Value on the given BObject
      */
-    public Object get ( BObject onThisObject )
+    public Object get ( BObject onThis )
         {
-        return null;  
+        if ( onThis == null ) return null;
+        ObjectReference objRef = onThis.getObjectReference();
+
+        ReferenceType type = objRef.referenceType();
+
+        Field thisField = type.fieldByName (bluej_view.getName());
+        if ( thisField == null ) return null;
+       
+        Value val = objRef.getValue (thisField);
+        if ( val == null ) return null;
+        
+        if (val instanceof StringReference) return ((StringReference) val).value();
+        if (val instanceof BooleanValue) return new Boolean (((BooleanValue) val).value());
+        if (val instanceof ByteValue)    return new Byte (((ByteValue) val).value());
+        if (val instanceof CharValue)    return new Character (((CharValue) val).value());
+        if (val instanceof DoubleValue)  return new Double (((DoubleValue) val).value());
+        if (val instanceof FloatValue)   return new Float (((FloatValue) val).value());
+        if (val instanceof IntegerValue) return new Integer (((IntegerValue) val).value());
+        if (val instanceof LongValue)    return new Long (((LongValue) val).value());
+        if (val instanceof ShortValue)   return new Short (((ShortValue) val).value());
+
+        if (val instanceof ObjectReference)
+          {
+          PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+          return new BObject ( new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val), getName()));
+          }
+
+        return val.toString();
         }
         
-    /**
-     * Gets the name of the type of this field object.
-     * @return the name of the type of the value held in this field. For example,
-     * <bl>
-     *    <li>int
-     *    <li>float
-     * </bl>
-     
-    public String getTypeName()
-    {
-        String type = field == null ? obj.getType().getArrayType().getName()
-                                    : field.typeName();
-        if (type.equals("java.lang.String")) type = "String"; // don't ask me why!
-        return type;
-    }
-*/
-    /**
-     * Gets the name of the field
-     * @return a String containing the fully-qualified type name
-    public String getName()
-    {
-        return array ? obj.getInstanceName()+"["+element+"]" 
-                     : field.name();
-    }
-     */
     
     /**
      * Gets the value of this field object. 
@@ -140,7 +145,6 @@ public class BField
      * <li><b>BField[]</b> - if this is an array
      * <code><b>null</b></code> - if the field is null, or if the field does not exist
      * </bl>
-     */
     public Object getValue()
     {
         Value val = array ? ((ArrayReference)ref).getValue (element)
@@ -195,5 +199,6 @@ public class BField
             return val.toString();
         }
     }
+    */
     
 }
