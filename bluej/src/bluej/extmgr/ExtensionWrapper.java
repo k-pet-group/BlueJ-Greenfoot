@@ -167,6 +167,7 @@ public class ExtensionWrapper
         if (!extensionInstance.isCompatible()) {
             extensionStatusString = Config.getString("extmgr.status.badversion");
             extensionInstance = null;
+            return;
         }
 
         // Ok, time to really start everything... This MUST be here.... after all is initialzed
