@@ -28,7 +28,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2629 2004-06-19 14:24:17Z polle $
+ * @version $Id: ObjectWrapper.java 2633 2004-06-19 14:46:42Z polle $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -114,7 +114,7 @@ public class ObjectWrapper extends JComponent
         this.obj = obj;
         this.setName(instanceName);
 
-        className = obj.getClassName();
+        className = obj.getGenClassName();
 
         createMenu(className);
 
