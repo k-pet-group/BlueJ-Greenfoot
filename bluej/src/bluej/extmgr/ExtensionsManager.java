@@ -20,6 +20,7 @@ import java.util.List;
 import java.io.File;
 import javax.swing.JMenu;
 import bluej.extensions.event.BlueJExtensionEvent;
+import bluej.extensions.event.InvocationResultEvent;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
@@ -353,7 +354,7 @@ public class ExtensionsManager implements BlueJEventListener
         if ( eventId == BlueJEvent.EXECUTION_RESULT )
             {
             ExecutionEvent exevent = (ExecutionEvent) arg;
-            delegateEvent ( new ResultEvent ( eventId, exevent ) );
+            delegateEvent ( new InvocationResultEvent ( eventId, exevent ) );
             return;              
             }
 
