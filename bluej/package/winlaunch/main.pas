@@ -13,7 +13,7 @@ const
 
     jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-    bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.5';
+    bluejregkey : string = '\Software\BlueJ\BlueJ\2.0.0';
 
     searchingstartcaption : string = 'Search drives for all Java versions...';
     searchingstopcaption : string = 'Stop Search';
@@ -455,7 +455,7 @@ end;
 function TMainForm.LaunchBlueJ(jdkpath, ver : string) : boolean;
 var
         appdir, appdirlib, vmfilename,
-          bluejjarfilename  : string;
+          bluejjarfilename , toolsjarfilename : string;
         exfile : TExFile;
 begin
     { lets never launch BlueJ twice }
@@ -476,9 +476,11 @@ begin
     else
      	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\java.exe';
 
-    appdirlib := '"' + appdir + 'lib\';
+    appdirlib := appdir + 'lib\';
 
-    bluejjarfilename := appdirlib + 'bluej.jar' + '"';
+    bluejjarfilename := appdirlib + 'bluej.jar';
+
+    toolsjarfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\lib\tools.jar';
 
 //    if (LanguageComboBox.ItemIndex <> 0) then
 //        goodparams.Add('-Dbluej.language=' + LanguageComboBox.Items[LanguageComboBox.ItemIndex]);
@@ -488,9 +490,8 @@ begin
     exfile.WaitUntilDone := false;
     exfile.WindowType := wtMinimize;
     exfile.ProcFileName := vmfilename;
-    exfile.ProcParameters := '-jar ' + bluejjarfilename + ' ' + goodparams.DelimitedText;
+    exfile.ProcParameters := '-classpath "' + bluejjarfilename + ';' + toolsjarfilename  + '" bluej.Boot' + ' ' + goodparams.DelimitedText;
     exfile.ProcCurrentDir := startingcurrentdir;
-
     result := exfile.Execute;
 
     launched := true;
