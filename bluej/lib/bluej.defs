@@ -379,20 +379,19 @@ bluej.compiler.type=internal
 #bluej.compiler.executable=javac
 
 #####################################################################
-## Options parsed to the compiler. 
+## Compiler options. 
 ## 
-## If the line is commented out BlueJ will sets the -source to the 
-## version of the jdk that runs BlueJ. If for instance JDK 1.4.2 is 
-## used, BlueJ will add the option: -source 1.4
+## Here, you can add compile options for the Java compiler (by 
+## default javac; see bluej.compiler setting above). If this attribue
+## is not specified, the compiler is run with default options.
 ## 
-## Some options will ALWAYS be added internally in BlueJ:
+## The following options will ALWAYS be added internally in BlueJ:
 ## -deprecation (Show description of each use of a deprecated method)
 ## -g           (Generate all debugging information)
 ##
-##
 #####################################################################
 
-#bluej.compiler.options=-source 1.3
+bluej.compiler.options=-source 1.4
 
 #####################################################################
 ## Options for starting the internal virtual machine.

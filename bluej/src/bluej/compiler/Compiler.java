@@ -16,48 +16,54 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 2691 2004-06-30 05:23:41Z davmac $
+ * @version $Id: Compiler.java 2770 2004-07-09 08:18:49Z mik $
  */
 abstract class Compiler
 {
     public static final String COMPILER_OPTIONS = "bluej.compiler.options";
-        
+
     private File destDir;
     private String classPath;
     private boolean debug;
     private boolean deprecation;
-    
-    
-    public void setDestDir(File destDir) {
+
+    public void setDestDir(File destDir)
+    {
         this.destDir = destDir;
     }
 
-    public void setClassPath(String classPath) {
+    public void setClassPath(String classPath)
+    {
         this.classPath = classPath;
     }
 
-    public void setDebug(boolean debug) {
+    public void setDebug(boolean debug)
+    {
         this.debug = debug;
     }
 
-    public void setDeprecation(boolean deprecation) {
+    public void setDeprecation(boolean deprecation)
+    {
         this.deprecation = deprecation;
     }
 
-   
-    public String getClassPath() {
+    public String getClassPath()
+    {
         return classPath;
-    }  
-    
-    public boolean isDebug() {
+    }
+
+    public boolean isDebug()
+    {
         return debug;
     }
-  
-    public boolean isDeprecation() {
+
+    public boolean isDeprecation()
+    {
         return deprecation;
     }
-   
-    public File getDestDir() {
+
+    public File getDestDir()
+    {
         return destDir;
     }
 
@@ -66,64 +72,59 @@ abstract class Compiler
      * 
      * @return A list of compile options.
      */
-    protected List getCompileOptions() {
+    protected List getCompileOptions()
+    {
         List args = new ArrayList();
-        
-        if(getDestDir() != null) {
+
+        if (getDestDir() != null) {
             args.add("-d");
             args.add(getDestDir().getPath());
         }
 
-        if(getClassPath() != null) {
+        if (getClassPath() != null) {
             args.add("-classpath");
             args.add(getClassPath());
         }
-        
-        if(isDebug())
+
+        if (isDebug())
             args.add("-g");
-            
-        if(isDeprecation())
-            args.add("-deprecation");   
-        
-        if(Config.systemContainsKey(COMPILER_OPTIONS)) {
+
+        if (isDeprecation())
+            args.add("-deprecation");
+
+        if (Config.systemContainsKey(COMPILER_OPTIONS)) {
             addUserSpecifiedOptions(args);
-        } else {
-            addDefaultOptions(args);            
-        }    
-        
+        }
+
         return args;
-    }    
-    
-    
-    private void addDefaultOptions(List args) {        
-        String majorVersion = System.getProperty("java.vm.version").substring(0,3);        
-        args.add("-source");
-        args.add(majorVersion);
     }
 
-    private void addUserSpecifiedOptions(List args) {
+    private void addUserSpecifiedOptions(List args)
+    {
         // add user specified compiler options
         String compilerOptions = Config.getPropString(COMPILER_OPTIONS, null);
-        if(compilerOptions != null) {
+        if (compilerOptions != null) {
             StringTokenizer st = new StringTokenizer(compilerOptions);
-            while(st.hasMoreTokens()) {              
+            while (st.hasMoreTokens()) {
                 args.add(st.nextToken());
             }
         }
     }
-    
-    //  ========================= ABSTRACT METHODS ==========================        
-    
+
+    //  ========================= ABSTRACT METHODS ==========================
+
     /**
      * Compile some source files.
      * 
-     * @param sources   The files to compile
-     * @param observer  The compilation observer
-     * @param internal  True if compiling BlueJ-generated code (shell files)
-     *                  False if compiling user code
+     * @param sources
+     *            The files to compile
+     * @param observer
+     *            The compilation observer
+     * @param internal
+     *            True if compiling BlueJ-generated code (shell files) False if
+     *            compiling user code
      * @return
      */
-    public abstract boolean compile(File[] sources, CompileObserver observer, boolean internal);   
+    public abstract boolean compile(File[] sources, CompileObserver observer, boolean internal);
 
-   
 }

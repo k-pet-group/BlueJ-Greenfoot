@@ -17,15 +17,16 @@ import bluej.utility.*;
 
 /**
  * A sub package (or parent package)
- *
- * @author  Michael Cahill
- * @version $Id: PackageTarget.java 2571 2004-06-03 13:35:37Z fisker $
+ * 
+ * @author Michael Cahill
+ * @version $Id: PackageTarget.java 2770 2004-07-09 08:18:49Z mik $
  */
-public class PackageTarget extends Target implements Moveable
+public class PackageTarget extends Target
+    implements Moveable
 {
     static final int MIN_WIDTH = 80;
-	static final int MIN_HEIGHT = 60;
-	
+    static final int MIN_HEIGHT = 60;
+
     static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
 
     static final Color ribboncolour = defaultbg.darker().darker();
@@ -56,8 +57,8 @@ public class PackageTarget extends Target implements Moveable
     }
 
     /**
-     * Return the target's base name (ie the name without the package name).
-     * eg. Target
+     * Return the target's base name (ie the name without the package name). eg.
+     * Target
      */
     public String getBaseName()
     {
@@ -65,15 +66,15 @@ public class PackageTarget extends Target implements Moveable
     }
 
     /**
-     * Return the target's name, including the package name.
-     * eg. bluej.pkgmgr
+     * Return the target's name, including the package name. eg. bluej.pkgmgr
      */
     public String getQualifiedName()
     {
         return getPackage().getQualifiedName(getBaseName());
     }
 
-    public void load(Properties props, String prefix) throws NumberFormatException
+    public void load(Properties props, String prefix)
+        throws NumberFormatException
     {
         super.load(props, prefix);
     }
@@ -86,8 +87,8 @@ public class PackageTarget extends Target implements Moveable
     }
 
     /**
-     * Deletes applicable files (directory and ALL contentes) prior to
-     * this PackageTarget being removed from a Package.
+     * Deletes applicable files (directory and ALL contentes) prior to this
+     * PackageTarget being removed from a Package.
      */
     public void deleteFiles()
     {
@@ -102,7 +103,7 @@ public class PackageTarget extends Target implements Moveable
      */
     public boolean copyFiles(String directory)
     {
-//XXX not working
+        //XXX not working
         return true;
     }
 
@@ -127,8 +128,8 @@ public class PackageTarget extends Target implements Moveable
     }
 
     /**
-     * Called when a package icon in a GraphEditor is double clicked.
-     * Creates a new PkgFrame when a package is drilled down on.
+     * Called when a package icon in a GraphEditor is double clicked. Creates a
+     * new PkgFrame when a package is drilled down on.
      */
     public void doubleClick(MouseEvent evt, GraphEditor editor)
     {
@@ -152,8 +153,7 @@ public class PackageTarget extends Target implements Moveable
         JPopupMenu menu = new JPopupMenu(getBaseName());
         JMenuItem item;
 
-        Action openAction = new OpenAction(openStr, this,
-                                 getPackage().getQualifiedName(getBaseName()));
+        Action openAction = new OpenAction(openStr, this, getPackage().getQualifiedName(getBaseName()));
 
         item = menu.add(openAction);
         item.setFont(PrefMgr.getPopupMenuFont());
@@ -212,86 +212,104 @@ public class PackageTarget extends Target implements Moveable
             getPackage().getEditor().raiseRemoveTargetEvent(t);
         }
     }
-    
-    public void remove(){
+
+    public void remove()
+    {
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-        if ( pmf.askRemovePackage(this) ){
+        if (pmf.askRemovePackage(this)) {
             deleteFiles();
-            getPackage().removePackage(this); 
-            getPackage().getProject().removePackage(getQualifiedName());  
+            getPackage().removePackage(this);
+            getPackage().getProject().removePackage(getQualifiedName());
         }
     }
 
     /**
-     * Removes the package associated with this target.
-     * No question asked, it would be nice if it was something like
-     * public void remove (boolean askConfirm); D.
+     * Removes the package associated with this target. No question asked, it
+     * would be nice if it was something like public void remove (boolean
+     * askConfirm); D.
      */
-    public void removeImmediate(){
+    public void removeImmediate()
+    {
         deleteFiles();
-        getPackage().removePackage(this); 
-        getPackage().getProject().removePackage(getQualifiedName());  
+        getPackage().removePackage(this);
+        getPackage().getProject().removePackage(getQualifiedName());
     }
 
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
     }
-    
-    public void setPos(int x, int y){
-        super.setPos(x,y);
+
+    public void setPos(int x, int y)
+    {
+        super.setPos(x, y);
         setGhostX(x);
         setGhostY(y);
     }
-    
+
     /**
      * @return Returns the ghostX.
      */
-    public int getGhostX() {
+    public int getGhostX()
+    {
         return ghostX;
     }
-    
+
     /**
      * @return Returns the ghostX.
      */
-    public int getGhostY() {
+    public int getGhostY()
+    {
         return ghostY;
-    }   
+    }
+
     /**
-     * @param ghostX The ghostX to set.
+     * @param ghostX
+     *            The ghostX to set.
      */
-    public void setGhostX(int ghostX) {
+    public void setGhostX(int ghostX)
+    {
         this.ghostX = ghostX;
     }
+
     /**
-     * @param ghostY The ghostY to set.
+     * @param ghostY
+     *            The ghostY to set.
      */
-    public void setGhostY(int ghostY) {
+    public void setGhostY(int ghostY)
+    {
         this.ghostY = ghostY;
     }
-    
+
     /** returns whether */
-    public boolean isMoving(){
+    public boolean isMoving()
+    {
         return isMoving;
     }
-    
-    public void setIsMoving(boolean isMoving){
+
+    public void setIsMoving(boolean isMoving)
+    {
         this.isMoving = isMoving;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see bluej.graph.Moveable#isMoveable()
      */
-    public boolean isMoveable() {
+    public boolean isMoveable()
+    {
         return isMoveable;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see bluej.graph.Moveable#setIsMoveable(boolean)
      */
-    public void setIsMoveable(boolean isMoveable) {
+    public void setIsMoveable(boolean isMoveable)
+    {
         this.isMoveable = isMoveable;
-        
+
     }
-    
 }
