@@ -1,15 +1,12 @@
 package bluej.debugmgr.objectbench;
 
-import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
+import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.*;
-import javax.swing.plaf.basic.BasicArrowButton;
-
 
 import bluej.Config;
 import bluej.testmgr.record.InvokerRecord;
@@ -19,7 +16,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2714 2004-07-01 15:55:03Z mik $
+ * @version $Id: ObjectBench.java 2715 2004-07-01 16:28:21Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -27,8 +24,6 @@ public class ObjectBench extends JPanel
     static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3);
     private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
     
-    private JButton leftArrowButton, rightArrowButton;
-    public JViewport viewPort;
     private ObjectBenchPanel obp;
     public boolean hasFocus;
     private List objectWrappers;
@@ -80,8 +75,6 @@ public class ObjectBench extends JPanel
         wrapper.addFocusListener(this);
         obp.add(wrapper);
         objectWrappers.add(wrapper);
-        obp.setPreferredSize(new Dimension(obp.getLayoutWidthMin(), ObjectWrapper.HEIGHT));
-        enableButtons(viewPort.getViewPosition());
         obp.revalidate();
         obp.repaint();
     }
@@ -168,8 +161,6 @@ public class ObjectBench extends JPanel
         }
 
         resetRecordingInteractions();
-                      
-        enableButtons(viewPort.getViewPosition());
         obp.revalidate();
         obp.repaint();
     }
@@ -188,14 +179,7 @@ public class ObjectBench extends JPanel
         wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
         obp.remove(wrapper);
         objectWrappers.remove(wrapper);
-        // check whether we still need navigation arrows with the reduced
-        // number of objects on the bench.
-        enableButtons(viewPort.getViewPosition());
 
-        // pull objects to the right if there is empty space on the right-
-        // hand side 
-        moveBench(0);
-        
         obp.revalidate();
         obp.repaint();
     }
@@ -217,6 +201,7 @@ public class ObjectBench extends JPanel
             currentObjectWrapperIndex = objectWrappers.indexOf(aWrapper);
             selectedObjectWrapper.requestFocusInWindow();
         }
+        // TODO: make sure this object is in view; if necessary repaint bench
     }
 
     /**
@@ -255,103 +240,6 @@ public class ObjectBench extends JPanel
     }
 
 
-    /**
-	 * Post the object menu for the selected object.
-	 */
-	private void showPopupMenu() {
-		if (selectedObjectWrapper != null){
-			selectedObjectWrapper.showMenu();
-		}
-	}
-
-	public void adjustBench(ObjectWrapper objectWrapper){
-    	Rectangle wrapper = new Rectangle(objectWrapper.getX(), objectWrapper.getY(),
-    									  objectWrapper.getWidth(), objectWrapper.getHeight());
-    	//viewPort.scrollRectToVisible(wrapper); //this doesn't word! Bug in java?
-    	Rectangle view = viewPort.getViewRect();
-    	if (!view.contains(wrapper)){
-    		if (wrapper.x < view.x) {
-    			//then the wrapper is on the left side of view
-    			int x = wrapper.x - ObjectWrapper.GAP;
-    			int y = viewPort.getViewPosition().y;
-    			viewPort.setViewPosition(new Point(x, y));
-    		} else {
-    			//then the wrapper is intersection the right side
-    			int x = wrapper.x + wrapper.width - view.width;
-    			int y = viewPort.getViewPosition().y;
-    			viewPort.setViewPosition(new Point(x, y));
-    		}
-    	}
-    }
-
-    /**
-     * Move the displayed objects on the object bench left and right.
-     * 
-     * @param xamount
-     */
-    public void moveBench(int xamount)
-    {        
-        Point pt = viewPort.getViewPosition();
-
-        pt.x += (SCROLL_AMOUNT * xamount);
-        pt.x = Math.max(0, pt.x);
-        pt.x = Math.min(getMaxXExtent(), pt.x);
-
-        viewPort.setViewPosition(pt);
-    }
-
-    /**
-     * Based on the state of the viewport, enable or disable
-     * the left and right scrolling arrows.
-     * 
-     * This also affects the visibility of the arrows.
-     * 
-     * @param pt
-     */
-    private void enableButtons(Point pt)
-    {
-        boolean buttonsNeeded = true;
-        
-        int maxExtent = getMaxXExtent();
-        int currentLWidth = leftArrowButton.isVisible() ? leftArrowButton.getWidth() : 0;
-        int currentRWidth = rightArrowButton.isVisible() ? rightArrowButton.getWidth() : 0;
-        
-        // check if we need the buttons at all
-        int allowedWidth = viewPort.getWidth() + currentLWidth + currentRWidth;
-        if (allowedWidth >= obp.getLayoutWidthMin() ) {
-            if (pt.x != 0) {
-                viewPort.setViewPosition(new Point(0,0));
-            }
-            buttonsNeeded = false;
-        }
-        
-        if (buttonsNeeded) {
-            leftArrowButton.setEnabled(pt.x > 0);
-            rightArrowButton.setEnabled(pt.x < maxExtent);
-           
-        }
-                
-        rightArrowButton.setVisible(buttonsNeeded);
-        leftArrowButton.setVisible(buttonsNeeded);
-        
-        // validating now could cause re-entrancy, which seems to cause
-        // some minor problems.
-        Runnable refreshUI = new Runnable()
-        {
-            public void run()
-            {
-                revalidate();
-                repaint();
-            }
-        };
-        SwingUtilities.invokeLater(refreshUI);
-    }
-
-    protected int getMaxXExtent()
-    {
-        return Math.max(obp.getLayoutWidthMin() - viewPort.getWidth(), 0);
-    }
-    
     // --- FocusListener interface ---
     
     /**
@@ -415,11 +303,11 @@ public class ObjectBench extends JPanel
                 break;
             }
         }
-        boolean isInRange = (0 <= currentObjectWrapperIndex && currentObjectWrapperIndex < objectWrappers.size()); 
+        boolean isInRange = (0 <= currentObjectWrapperIndex && 
+                             currentObjectWrapperIndex < objectWrappers.size()); 
         if (isInRange){
             ObjectWrapper currentObjectWrapper = (ObjectWrapper) objectWrappers.get(currentObjectWrapperIndex);
             setSelectedObject(currentObjectWrapper);
-            adjustBench(currentObjectWrapper);
             repaint();
         }
     }
@@ -480,6 +368,18 @@ public class ObjectBench extends JPanel
 
     // --- end of MouseListener interface ---
 
+
+    /**
+     * Post the object menu for the selected object.
+     */
+    private void showPopupMenu() 
+    {
+        if (selectedObjectWrapper != null){
+            selectedObjectWrapper.showMenu();
+        }
+    }
+
+    // --- methods for interaction recording ---
     
     /**
      * Reset the recording of invocations.
@@ -552,48 +452,9 @@ public class ObjectBench extends JPanel
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED),
                 BorderFactory.createEmptyBorder(5,0,5,0)));
 
-        // scroll left button
-        leftArrowButton = new ObjectBenchArrowButton(SwingConstants.WEST);
-        leftArrowButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            { 
-                moveBench(-1);
-            }
-        });
-        add(leftArrowButton);
-
         // a panel holding the actual object components
         obp = new ObjectBenchPanel();
-
-        // a sliding viewport, showing us the above panel
-        viewPort = new JViewport();
-        viewPort.setView(obp);
-        
-        // when the view changes, we may need to enable/disable
-        // the arrow buttons
-        viewPort.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e)
-            {
-                enableButtons(ObjectBench.this.viewPort.getViewPosition());
-            }
-        });
-
-        viewPort.setMinimumSize(new Dimension(ObjectWrapper.WIDTH * 3, ObjectWrapper.HEIGHT));
-        viewPort.setPreferredSize(new Dimension(ObjectWrapper.WIDTH * 3, ObjectWrapper.HEIGHT));
-        viewPort.setMaximumSize(new Dimension(ObjectWrapper.WIDTH * 1000, ObjectWrapper.HEIGHT));
-        
-        add(viewPort);
-            
-        // scroll right button
-        rightArrowButton = new ObjectBenchArrowButton(SwingConstants.EAST);
-        rightArrowButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            { 
-                moveBench(1);
-            }
-        });
-        
-        add(rightArrowButton);
+        add(obp);
 
         // start with a clean slate recording invocations
         resetRecordingInteractions();
@@ -627,15 +488,6 @@ public class ObjectBench extends JPanel
             setMinimumSize(new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT));
             setPreferredSize(new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT));
             setMaximumSize(new Dimension(ObjectWrapper.WIDTH * 1000, ObjectWrapper.HEIGHT));
-
-            setSize(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT);
-        }
-
-        public int getLayoutWidthMin()
-        {
-            Dimension d = lm.minimumLayoutSize(this);
-
-            return d.width;
         }
 
         /**
@@ -656,7 +508,7 @@ public class ObjectBench extends JPanel
         // notification on this event type.
         void fireObjectEvent(ObjectWrapper wrapper)
         {
-            setSelectedObject ( wrapper );
+            setSelectedObject(wrapper);
             // guaranteed to return a non-null array
             Object[] listeners = listenerList.getListenerList();
             // process the listeners last to first, notifying
@@ -669,58 +521,5 @@ public class ObjectBench extends JPanel
                 }
             }
         }
-    }
-    
-    // ----------- nested class ObjectBenchArrowButton ------------
-    
-    /**
-     * Nested class to define our custom Object Bench scroll buttons.
-     */
-    class ObjectBenchArrowButton extends BasicArrowButton
-    {
-        public ObjectBenchArrowButton(int direction)
-        {
-            super(direction);
-        }
-        
-        public Dimension getMaximumSize()
-        {
-            return new Dimension(14, ObjectWrapper.HEIGHT);
-        }
-
-        public Dimension getMinimumSize()
-        {
-            return new Dimension(14, ObjectWrapper.HEIGHT);
-        }
-
-        public Dimension getPreferredSize()
-        {
-            return new Dimension(14, ObjectWrapper.HEIGHT);
-        }
-
-        public void paint(Graphics g)
-        {
-            Color origColor = g.getColor();
-            int w = getSize().width;
-            int h = getSize().height;
-            final int size = 10;  // arrow size
-            boolean isPressed = getModel().isPressed();
-            
-            g.setColor(getBackground());
-            g.fillRect(0, 0, w, h);
-
-            if (isPressed) {
-                g.translate(1, 1);
-            }
-
-            paintTriangle(g, (w - size) / 2, (h - size) / 2, size, 
-                          getDirection(), isEnabled());
-        
-            // Reset the Graphics back to it's original settings
-            if (isPressed) {
-                g.translate(-1, -1);
-            }
-            g.setColor(origColor);
-        }    
     }
 }

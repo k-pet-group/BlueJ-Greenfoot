@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2714 2004-07-01 15:55:03Z mik $
+ * @version $Id: ObjectWrapper.java 2715 2004-07-01 16:28:21Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -488,10 +488,8 @@ public class ObjectWrapper extends JComponent
         }
         //manage focus
         if (evt.getID() == MouseEvent.MOUSE_CLICKED || evt.isPopupTrigger()){
-        	ob.setSelectedObject(this);
-        	ob.adjustBench(this);
-        	ob.requestFocusInWindow();
-        	ob.repaint();
+            ob.setSelectedObject(this);
+            ob.requestFocusInWindow();
         }
     }
 
