@@ -3,12 +3,11 @@ package bluej.debugger.jdi;
 import java.io.*;
 import java.util.*;
 
-import bluej.*;
+import bluej.Config;
 import bluej.classmgr.ClassMgr;
 import bluej.debugger.*;
-import bluej.runtime.ExecServer;
-import bluej.terminal.Terminal;
 import bluej.prefmgr.PrefMgr;
+import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 
 import com.sun.jdi.*;
@@ -24,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2330 2003-11-13 04:10:34Z ajp $
+ * @version $Id: VMReference.java 2372 2003-11-19 03:39:40Z ajp $
  *
  * The startup process is as follows:
  *
