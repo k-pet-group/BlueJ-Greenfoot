@@ -179,7 +179,7 @@ pkgmgr.view.inheritLabel=Inheritance
 # "new class" dialog
 pkgmgr.newClass.title=Create New Class
 pkgmgr.newClass.label=Class Name:
-pkgmgr.newClass.classType=Class Type:
+pkgmgr.newClass.classType=Class Type
 pkgmgr.newClass.newClass=Class
 pkgmgr.newClass.newAbstractClass=Abstract Class
 pkgmgr.newClass.newInterface=Interface

@@ -6,36 +6,29 @@ $PKGLINE
  ** date: 
  **/
 
-import javax.swing.JApplet;
-import javax.swing.JRootPane;
+import java.applet.Applet;
 import java.awt.Graphics;
 
-public class $CLASSNAME extends JApplet
+public class $CLASSNAME extends Applet
 {
     // instance variables - replace the example below with your own
     private int x;
 
      /**
-     * Called by the browser or applet viewer to inform this JApplet that it
+     * Called by the browser or applet viewer to inform this Applet that it
      * has been loaded into the system. It is always called before the first 
      * time that the start method is called.
      */
     public void init()
     {
-        // this is a workaround for a security conflict with current browsers
-        // including Netscape & Internet Explorer which do not allow access to 
-        // AWT system event queuen which JApplets do on startup to check access. 
-        JRootPane rootPane = this.getRootPane();
-        rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-
-        // provide any initialisation necessary for your JApplet
+        // provide any initialisation necessary for your Applet
 
     }
 
     /**
-     * Called by the browser or applet viewer to inform this JApplet that it 
+     * Called by the browser or applet viewer to inform this Applet that it 
      * should start its execution. It is called after the init method and 
-     * each time the JApplet is revisited in a Web page. 
+     * each time the Applet is revisited in a Web page. 
      */
     public void start()
     {
@@ -45,34 +38,34 @@ public class $CLASSNAME extends JApplet
     }
 
     /** 
-     * Called by the browser or applet viewer to inform this JApplet that
+     * Called by the browser or applet viewer to inform this Applet that
      * it should stop its execution. It is called when the Web page that
-     * contains this JApplet has been replaced by another page, and also
-     * just before the JApplet is to be destroyed. 
+     * contains this Applet has been replaced by another page, and also
+     * just before the Applet is to be destroyed. 
      */
     public void stop()
     {
         // provide any code that needs to be run when page
-        // is replaced by another page or before JApplet is destroyed 
+        // is replaced by another page or before Applet is destroyed 
     }
 
     /**
-     * Called by the browser or applet viewer to inform this JApplet that it
+     * Called by the browser or applet viewer to inform this Applet that it
      * is being reclaimed and that it should destroy any resources that it
      * has allocated. The stop method will always be called before destroy. 
      */
     public void destroy()
     {
-        // provide code to be run when JApplet is about to be destroyed.
+        // provide code to be run when Applet is about to be destroyed.
     }
 
 
     /**
      * Returns information about this applet. 
      * An applet should override this method to return a String containing 
-     * information about the author, version, and copyright of the JApplet.
+     * information about the author, version, and copyright of the Applet.
      *
-     * @return a String representation of information about this JApplet
+     * @return a String representation of information about this Applet
      */
     public String getAppletInfo()
     {
@@ -82,14 +75,14 @@ public class $CLASSNAME extends JApplet
 
 
     /**
-     * Returns parameter information about this JApplet. 
-     * Returns information about the parameters than are understood by this JApplet.
+     * Returns parameter information about this Applet. 
+     * Returns information about the parameters than are understood by this Applet.
      * An applet should override this method to return an array of Strings 
      * describing these parameters. 
      * Each element of the array should be a set of three Strings containing 
      * the name, the type, and a description.
      *
-     * @return a String[] representation of parameter information about this JApplet
+     * @return a String[] representation of parameter information about this Applet
      */
     public String[][] getParameterInfo()
     {

@@ -100,13 +100,27 @@ debug=on
 ##Log Files
 bluej.debugLog=debug.log
 
+#######################################################################
+## Applets -  preferences for how applets are generated and executed
+## 
+#######################################################################
+
+# which jvm browser internal or JDK plugin
+bluej.applet.jvm=html
+
+# applet type standard AWT Applet or Swing based JApplet
+bluej.applet.type=applet
+#bluej.applet.type=japplet
+
 ## Templates - skeleton files
 template.stdclass=stdclass.tmpl
 template.abstract=abstract.tmpl
 template.interface=interface.tmpl
 template.shell=shell.tmpl
 template.applet=applet.tmpl
+template.japplet=japplet.tmpl
 template.html=html.tmpl
+template.htmlplugin=htmlplugin.tmpl
 
 ## Images
 image.icon=bluej-icon.gif
