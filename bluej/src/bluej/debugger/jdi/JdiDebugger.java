@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 583 2000-06-26 01:51:17Z mik $
+ * @version $Id: JdiDebugger.java 589 2000-06-28 04:31:40Z mik $
  *
  * The startup process is as follows:
  *
@@ -89,8 +89,11 @@ public final class JdiDebugger extends Debugger
     // task
     static final String SERVER_PERFORM_METHOD_NAME = "performTask";
 
-    // name of the threadgroup that contains user threads
-    static final String MAIN_THREADGROUP = "main";
+
+    // ==== instance data ====
+
+    // The remote virtual machine used with this debugger
+    private VirtualMachine machine = null;
 
     private Process process = null;
     private VMEventHandler eventHandler = null;
@@ -115,7 +118,6 @@ public final class JdiDebugger extends Debugger
     }
 
 
-    private VirtualMachine machine = null;
     private synchronized VirtualMachine getVM()
     {
         while(!initialised)
@@ -333,12 +335,11 @@ public final class JdiDebugger extends Debugger
         List arguments = new ArrayList();	// empty argument list
         try {
             exitStatus = NORMAL_EXIT;
-            // the following is in preparation for running several threads
-            // concurrently: we remember which thread is used for executing
-            // in which package (although, currently, there is always only
-            // one thread at a time, the serverThread).
-            if(executionUserParam != null)
-                Debug.reportError("concurrent execution detected - not supported!");
+
+            // store the users execution parameter. currently, we use this to
+            // store the project that started this execution, so that we can
+            // find classes for breakpoints later (in case several projects
+            // are open).
             executionUserParam = eventParam;
             machineStatus = RUNNING;
 
@@ -786,14 +787,8 @@ public final class JdiDebugger extends Debugger
         // reverse order to make display nicer (newer threads first)
         for(int i = 0; i < len; i++) {
             ThreadReference thread = (ThreadReference)threads.get(len-i-1);
-            //if(thread.threadGroup().name().equals(MAIN_THREADGROUP)) {
-
-                String name = thread.name();
-                //if(! name.startsWith("AWT-") &&	       // known system threads
-                //   ! name.startsWith("SunToolkit.") &&
-                //   ! name.equals("TimerQueue"))
-                    threadVec.addElement(new JdiThread(thread));
-            //}
+            String name = thread.name();
+            threadVec.addElement(new JdiThread(thread));
         }
         return threadVec;
     }
@@ -801,20 +796,24 @@ public final class JdiDebugger extends Debugger
     /**
      *  A thread has been stopped.
      */
-    public void threadStopped(DebuggerThread thread)
+    public void halt(DebuggerThread thread)
     {
+        machine.suspend();
         machineStatus = SUSPENDED;
-        raiseEvent(BlueJEvent.HALT, thread);
+        if(thread != null)
+            thread.setParam(executionUserParam);
+        BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
     }
 
     /**
      * A thread has been started again by the user. Make sure that it
      * is indicated in the interface.
      */
-    public void threadContinued(DebuggerThread thread)
+    public void cont()
     {
         machineStatus = RUNNING;
-        raiseEvent(BlueJEvent.CONTINUE, thread);
+        BlueJEvent.raiseEvent(BlueJEvent.CONTINUE, null);
+        resumeMachine();
     }
 
     /**
@@ -824,16 +823,36 @@ public final class JdiDebugger extends Debugger
      */
     public void showSource(DebuggerThread thread)
     {
-        raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
-    }
-
-
-    private void raiseEvent(int event, DebuggerThread thread)
-    {
         thread.setParam(executionUserParam);
-        BlueJEvent.raiseEvent(event, thread);
+        BlueJEvent.raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
     }
 
+
+    /**
+     * Resume all threads in the VM. If the server thread is idle, make sure 
+     * that i doesn't get resumed. (The execution server thread waits for 
+     * tasks suspended at an internal breakpoint - it should never get past
+     * this breakpoint.)
+     */
+    private void resumeMachine()
+    {
+        if(serverThreadIdle())
+            serverThread.suspend();
+        getVM().resume();
+    }
+
+    private boolean serverThreadIdle()
+    {
+        try {
+            return serverThread.isAtBreakpoint() &&
+                serverThread.frame(0).location().declaringType().name().equals(
+                                                             SERVER_CLASSNAME);
+        }
+        catch (IncompatibleThreadStateException exc) {
+            Debug.reportError("debugger thread in run-away state...");
+            return false;
+        }
+    }
 
     // -- support methods --
 
@@ -993,19 +1012,6 @@ public final class JdiDebugger extends Debugger
             } catch(InterruptedException e) {}
         }
     }
-
-    /**
-     * Resume all threads in the VM excpet for the execution server thread.
-     * (This is necessary because after an interactive invocation using
-     * "invokeMethod" all threads in the machine get suspended - we don't
-     * want that.)
-     */
-    private void resumeMachine()
-    {
-        serverThread.suspend();
-        getVM().resume();
-    }
-
 
     private void dumpThreadInfo()
     {

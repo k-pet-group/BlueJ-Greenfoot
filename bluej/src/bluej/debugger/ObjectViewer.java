@@ -13,13 +13,12 @@ import java.awt.event.*;
 import java.lang.reflect.*;
 import java.util.Hashtable;
 import java.util.Enumeration;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.BorderFactory;
 import javax.swing.border.Border;
-import javax.swing.JSplitPane;
 
 /**
  * A window that displays the fields in an object (also know as an
@@ -27,7 +26,7 @@ import javax.swing.JSplitPane;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: ObjectViewer.java 583 2000-06-26 01:51:17Z mik $
+ * @version $Id: ObjectViewer.java 589 2000-06-28 04:31:40Z mik $
  */
 public final class ObjectViewer extends JFrame
     implements ActionListener, ListSelectionListener
@@ -163,14 +162,16 @@ public final class ObjectViewer extends JFrame
     {
         // if is an array and needs compressing
         if(obj.isArray() && obj.getInstanceFieldCount() > VISIBLE_ARRAY_FIELDS)
-            objFieldList.setListData(
-                   compressArrayList(obj.getInstanceFields(isInspection)));
+            objFieldList.setListData(compressArrayList(
+               obj.getInstanceFields(isInspection)).toArray(new Object[0]));
         else
-            objFieldList.setListData(obj.getInstanceFields(isInspection));
+            objFieldList.setListData(
+               obj.getInstanceFields(isInspection).toArray(new Object[0]));
 
         // static fields only applicable if not an array and list not null
         if(isInspection && !obj.isArray() && staticFieldList != null)
-            staticFieldList.setListData(obj.getStaticFields(true));
+            staticFieldList.setListData(
+               obj.getStaticFields(true).toArray(new Object[0]));
     }
 
     /**
@@ -326,20 +327,20 @@ public final class ObjectViewer extends JFrame
      * @param  fullArrayFieldList the full field list for an array
      * @return the compressed array
      */
-    private Vector compressArrayList(Vector fullArrayFieldList)
+    private List compressArrayList(List fullArrayFieldList)
     {
         //** rewrite using Vector "remove" and "add"
         if(fullArrayFieldList.size() > VISIBLE_ARRAY_FIELDS) {
-            Vector newArray = new Vector(VISIBLE_ARRAY_FIELDS);
+            List newArray = new ArrayList(VISIBLE_ARRAY_FIELDS);
 
             for(int i = 0; i < VISIBLE_ARRAY_FIELDS; i++) {
                 // first 40 elements are the same
                 if(i < ARRAY_QUERY_INDEX)
-                    newArray.add(fullArrayFieldList.elementAt(i));
+                    newArray.add(fullArrayFieldList.get(i));
                 else if(i == ARRAY_QUERY_INDEX)
                     newArray.add("[...]");
                 else
-                    newArray.add(fullArrayFieldList.elementAt(
+                    newArray.add(fullArrayFieldList.get(
                           i + fullArrayFieldList.size() - VISIBLE_ARRAY_FIELDS));
             }
             return newArray;

@@ -295,6 +295,7 @@ debugger.execControls.instanceTitle = Instance Variables
 debugger.execControls.localTitle = Local Variables
 debugger.execControls.threadTitle = Threads
 debugger.execControls.updateText = Update
+debugger.execControls.systemThreads = Show system threads
 
 # DialogManager labels
 dialogmgr.error = BlueJ:  Error

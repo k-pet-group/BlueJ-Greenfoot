@@ -1,13 +1,13 @@
 package bluej.debugger;
 
-import java.util.Vector;
+import java.util.List;
 
 /**
  * A class representing an object in the debugged VM.
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: DebuggerObject.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: DebuggerObject.java 589 2000-06-28 04:31:40Z mik $
  */
 public abstract class DebuggerObject
 {
@@ -109,24 +109,24 @@ public abstract class DebuggerObject
 
 
     /**
-     * Return an array of strings with the description of each static field
+     * Return a list of strings with the description of each static field
      * in the format "<modifier> <type> <name> = <value>".
      */
-    public abstract Vector getStaticFields(boolean includeModifiers);
+    public abstract List getStaticFields(boolean includeModifiers);
 
     /**
-     * Return an array of strings with the description of each instance field
+     * Return a list of strings with the description of each instance field
      * in the format "<modifier> <type> <name> = <value>" or
      * "<type> <name> = <value>", depending on the parameter.
      */
-    public abstract Vector getInstanceFields(boolean includeModifiers);
+    public abstract List getInstanceFields(boolean includeModifiers);
 
     /**
-     * Return an array of strings with the description of each field
+     * Return a list of strings with the description of each field
      * (including static and instance) in the
      * format "<modifier> <type> <name> = <value>" or
      * "<type> <name> = <value>", depending on the parameter.
      */
-    public abstract Vector getAllFields(boolean includeModifiers);
+    public abstract List getAllFields(boolean includeModifiers);
 
 }

@@ -22,7 +22,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 583 2000-06-26 01:51:17Z mik $
+ * @version $Id: Project.java 589 2000-06-28 04:31:40Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -475,11 +475,6 @@ public class Project
             if(thread.getParam() == this)
                 hitHalt(thread);
             break;
-        case BlueJEvent.CONTINUE:
-            thread = (DebuggerThread)arg;
-            if(thread.getParam() == this)
-                executionContinued();
-            break;
         case BlueJEvent.SHOW_SOURCE:
             thread = (DebuggerThread)arg;
             if(thread.getParam() == this)
@@ -490,24 +485,13 @@ public class Project
 
     // ---- end of BlueJEventListener interface ----
 
-    /**
-     * executionContinued - indicate in the interface that the machine
-     *  is executing again.
-     */
-    private void executionContinued()
-    {
-//         pkg.removeStepMarks();
-//         progressButton.setIcon(workingIcon);
-    }
 
     /**
      * hitBreakpoint - A breakpoint in this package was hit.
      */
     private void hitBreakpoint(DebuggerThread thread)
     {
-        String className = thread.getClass(0);  // fully qualified
-        String packageName = JavaNames.getPrefix(className);
-
+        String packageName = JavaNames.getPrefix(thread.getClass(0));
         getPackage(packageName).hitBreakpoint(thread);
     }
 
@@ -516,9 +500,7 @@ public class Project
      */
     private void hitHalt(DebuggerThread thread)
     {
-        String className = thread.getClass(0);  // fully qualified
-        String packageName = JavaNames.getPrefix(className);
-
+        String packageName = JavaNames.getPrefix(thread.getClass(0));
         getPackage(packageName).hitHalt(thread);
     }
 
@@ -528,9 +510,7 @@ public class Project
     private void showSourcePosition(DebuggerThread thread,
                                     boolean updateDebugger)
     {
-        String className = thread.getClass(0);  // fully qualified
-        String packageName = JavaNames.getPrefix(className);
-
+        String packageName = JavaNames.getPrefix(thread.getClass(0));
         getPackage(packageName).showSourcePosition(thread, updateDebugger);
     }
 

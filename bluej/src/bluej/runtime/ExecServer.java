@@ -67,6 +67,9 @@ public class ExecServer
 
     // -- instance methods --
 
+    /**
+     * Contructor: Initialise the execution server.
+     */
     private ExecServer()
     {
         //Debug.message("[VM] creating server object");

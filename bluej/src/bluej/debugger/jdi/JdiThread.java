@@ -1,12 +1,14 @@
 package bluej.debugger.jdi;
 
+import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.DebuggerObject;
 import bluej.utility.Debug;
 
-import java.util.Vector;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.StringTokenizer;
 
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
@@ -15,10 +17,38 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 583 2000-06-26 01:51:17Z mik $
+ * @version $Id: JdiThread.java 589 2000-06-28 04:31:40Z mik $
  */
 public final class JdiThread extends DebuggerThread
 {
+    /** a list of classes to exclude from source display */
+    private static List excludes;
+
+    static private List getExcludes() {
+        if (excludes == null) {
+            setExcludes("java.*, javax.*, sun.*, com.sun.*");
+        }
+        return excludes;
+    }
+
+    static void setExcludes(String excludeString) {
+        StringTokenizer t = new StringTokenizer(excludeString, " ,;");
+        List list = new ArrayList();
+        while (t.hasMoreTokens()) {
+            list.add(t.nextToken());
+        }
+        excludes = list;
+    }
+
+    static void addExcludesToRequest(StepRequest request) {
+        Iterator iter = getExcludes().iterator();
+        while (iter.hasNext()) {
+            String pattern = (String)iter.next();
+            request.addClassExclusionFilter(pattern);
+        }
+    }
+
+
     ThreadReference rt; // the reference to the remote thread
     Object userParam;   // an optional user parameter associated with this
     // thread
@@ -83,7 +113,7 @@ public final class JdiThread extends DebuggerThread
         try {
             if(rt.isAtBreakpoint()) {
                 if(rt.frame(0).location().declaringType().name().equals(
-                                                                        "bluej.runtime.ExecServer"))
+                                               "bluej.runtime.ExecServer"))
                     return "finished";
                 else
                     return "at breakpoint";
@@ -95,17 +125,17 @@ public final class JdiThread extends DebuggerThread
       	    int status = rt.status();
     	    switch(status) {
     		case ThreadReference.THREAD_STATUS_MONITOR:
-                return "at monitor";
+                    return "at monitor";
     		case ThreadReference.THREAD_STATUS_NOT_STARTED:
-                return "not started";
+                    return "not started";
     		case ThreadReference.THREAD_STATUS_RUNNING:
-                return "running";
+                    return "running";
     		case ThreadReference.THREAD_STATUS_SLEEPING:
-                return "sleeping";
+                    return "sleeping";
     		case ThreadReference.THREAD_STATUS_UNKNOWN:
-                return "unknown status";
+                    return "unknown status";
     		case ThreadReference.THREAD_STATUS_WAIT:
-                return "waiting";
+                    return "waiting";
     		case ThreadReference.THREAD_STATUS_ZOMBIE:
     		    return "zombie";
             }
@@ -147,23 +177,40 @@ public final class JdiThread extends DebuggerThread
         }
     }
 
+    // name of the threadgroup that contains user threads
+    static final String MAIN_THREADGROUP = "main";
+
+    public boolean isKnownSystemThread()
+    {
+        if(! rt.threadGroup().name().equals(MAIN_THREADGROUP))
+            return true;
+
+        String name = rt.name();
+        if(name.startsWith("AWT-") ||
+           name.equals("Timer Queue") ||
+           name.equals("Screen Updater") ||
+           name.startsWith("SunToolkit."))
+            return true;
+
+        return false;
+    }
+
+
     /**
      * Get strings showing the current stack frames. Ignore everything
      * including the __SHELL class and below.
      *
-     * The thread must be suspended to do this. Otherwise an empty vector
+     * The thread must be suspended to do this. Otherwise an empty list
      * is returned.
      *
      * @return  A Vector of Strings in the format "<class>.<method>"
      */
-    public Vector getStack()
+    public List getStack()
     {
         //Debug.message("[JdiThread] getStack");
         try {
             if(rt.isSuspended()) {
-                Debug.message("is suspended");
-
-                Vector stack = new Vector();
+                List stack = new ArrayList();
                 List frames = rt.frames();
 
                 boolean shellFound = false;
@@ -175,42 +222,42 @@ public final class JdiThread extends DebuggerThread
                         shellFound = true;
                         break;
                     }
-                    stack.addElement(classname + "." + loc.method().name());
+                    stack.add(classname + "." + loc.method().name());
                 }
                 return stack;
 //                 if(shellFound)
 //                     return stack;
 //                 else
-//                     return new Vector();
+//                     return new ArrayList();
             }
         } catch(Exception e) {
             Debug.reportError("error while getting stack info");
         }
-        return new Vector();
+        return new ArrayList();
     }
 
 
     /**
      * Return strings listing the local variables.
      *
-     * The thread must be suspended to do this. Otherwise an empty Vector
+     * The thread must be suspended to do this. Otherwise an empty List
      * is returned.
      */
-    public Vector getLocalVariables(int frameNo)
+    public List getLocalVariables(int frameNo)
     {
         //Debug.message("[JdiThread] getLocalVariables");
         try {
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
                 List vars = frame.visibleVariables();
-                Vector localVars = new Vector();
+                List localVars = new ArrayList();
 
                 for(int i = 0; i < vars.size(); i++) {
                     LocalVariable var = (LocalVariable)vars.get(i);
                     String val = JdiObject.getValueString(
                                                           frame.getValue(var));
-                    localVars.addElement(var.typeName() + " " +
-                                         var.name() + " = " + val);
+                    localVars.add(var.typeName() + " " +
+                                  var.name() + " = " + val);
 
                 }
                 return localVars;
@@ -219,7 +266,7 @@ public final class JdiThread extends DebuggerThread
             // nothing can be done...
             Debug.reportError("could not get local variable info: " + e);
         }
-        return new Vector();
+        return new ArrayList();
     }
 
     /**
@@ -267,6 +314,10 @@ public final class JdiThread extends DebuggerThread
         return null;
     }
 
+    /**
+     * Return the current object of this thread. May be null (if, for
+     * example, the thread executed only static methods).
+     */
     public DebuggerObject getCurrentObject(int frameNo)
     {
         try {
@@ -275,8 +326,7 @@ public final class JdiThread extends DebuggerThread
                 return JdiObject.getDebuggerObject(frame.thisObject());
             }
         } catch(Exception e) {
-            // nothing can be done...
-            Debug.reportError("could not get current object: " + e);
+            // nothing to do...
         }
         return null;
     }
@@ -290,12 +340,6 @@ public final class JdiThread extends DebuggerThread
     public int getSelectedFrame()
     {
         return selectedFrame;
-    }
-
-    public void stop()
-    {
-        if(!rt.isSuspended())
-            rt.suspend();
     }
 
     public void step()
@@ -313,15 +357,13 @@ public final class JdiThread extends DebuggerThread
         clearPreviousStep(rt);
         StepRequest request = eventReqMgr.createStepRequest(rt,
                                                StepRequest.STEP_LINE, depth);
+        //if(depth == StepRequest.STEP_INTO)
+            addExcludesToRequest(request);
+
         // Make sure the step event is done only once
         request.addCountFilter(1);
         request.enable();
-        rt.resume();
-    }
-
-    public void cont()
-    {
-        rt.resume();
+        Debugger.debugger.cont();
     }
 
     public void terminate()
@@ -329,7 +371,7 @@ public final class JdiThread extends DebuggerThread
         try {
             rt.stop(terminateException);
             if(rt.isSuspended())
-                rt.resume();
+                Debugger.debugger.cont();
         }
         catch(Exception e) {
             Debug.reportError("cannot terminate thread: " + e);

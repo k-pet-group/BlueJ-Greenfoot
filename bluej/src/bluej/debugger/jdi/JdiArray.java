@@ -4,8 +4,8 @@ import bluej.debugger.DebuggerObject;
 
 import bluej.utility.Debug;
 
-import java.util.Vector;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.sun.jdi.*;
 
@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * Represents an array object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiArray.java 329 2000-01-02 13:22:01Z ajp $
+ * @version $Id: JdiArray.java 589 2000-06-28 04:31:40Z mik $
  */
 public class JdiArray extends JdiObject
 {
@@ -156,19 +156,19 @@ public class JdiArray extends JdiObject
      * Return an array of strings with the description of each static field
      * in the format "<modifier> <type> <name> = <value>".
      */
-    public Vector getStaticFields(boolean includeModifiers)
+    public List getStaticFields(boolean includeModifiers)
     {
-	return new Vector();
+	return new ArrayList(0);
     }
 
     /**
      * Return an array of strings with the description of each field in the
      * format "<modifier> <type> <name> = <value>".
      */
-    public Vector getInstanceFields(boolean includeModifiers)
+    public List getInstanceFields(boolean includeModifiers)
     {
 	List values = obj.getValues();
-	Vector fields = new Vector(values.size());
+	List fields = new ArrayList(values.size());
 
 	String typeName = null;
 

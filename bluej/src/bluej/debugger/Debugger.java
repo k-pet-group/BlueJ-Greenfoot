@@ -13,7 +13,7 @@ import java.util.Vector;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 526 2000-06-01 04:54:49Z mik $
+ * @version $Id: Debugger.java 589 2000-06-28 04:31:40Z mik $
  */
 public abstract class Debugger
 {
@@ -29,7 +29,7 @@ public abstract class Debugger
 
     /** Creation of the real debugger used **/
     // the following line needs to be changed when the debugger
-    // implementation changes (this and the import statement abobe are the
+    // implementation changes (this and the import statement above are the
     // only two lines that need to be changed).
 
     public static Debugger debugger = new JdiDebugger();
@@ -170,14 +170,14 @@ public abstract class Debugger
     /**
      * A thread has been stopped.
      */
-    public abstract void threadStopped(DebuggerThread thread);
+    public abstract void halt(DebuggerThread thread);
 
 
     /**
      * A thread has been started again by the user. Make sure that it
      * is indicated in the interface.
      */
-    public abstract void threadContinued(DebuggerThread thread);
+    public abstract void cont();
 
 
     /**

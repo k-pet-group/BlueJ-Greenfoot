@@ -6,7 +6,7 @@ import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import com.sun.jdi.*;
 
@@ -14,7 +14,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 581 2000-06-23 05:55:35Z mik $
+ * @version $Id: JdiObject.java 589 2000-06-28 04:31:40Z mik $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -231,42 +231,42 @@ public class JdiObject extends DebuggerObject
      * Return an array of strings with the description of each static field
      * in the format "<modifier> <type> <name> = <value>".
      */
-    public Vector getStaticFields(boolean includeModifiers)
+    public List getStaticFields(boolean includeModifiers)
     {
         return getFields(false, true, includeModifiers);
     }
 
     /**
-     * Return a vector of strings with the description of each instance field
+     * Return a list of strings with the description of each instance field
      * in the format "<modifier> <type> <name> = <value>".
      */
-    public Vector getInstanceFields(boolean includeModifiers)
+    public List getInstanceFields(boolean includeModifiers)
     {
         return getFields(false, false, includeModifiers);
     }
 
 
     /**
-     * Return a vector of strings with the description of each field
+     * Return a list of strings with the description of each field
      * in the format "<modifier> <type> <name> = <value>".
      */
-    public Vector getAllFields(boolean includeModifiers)
+    public List getAllFields(boolean includeModifiers)
     {
         return getFields(true, true, includeModifiers);
     }
 
 
     /**
-     * Return a vector of strings with the description of each field
+     * Return a list of strings with the description of each field
      * in the format "<modifier> <type> <name> = <value>".
      * If 'getAll' is true, both static and instance fields are returned
      * ('getStatic' is ignored). If 'getAll' is false, then 'getStatic'
      * determines whether static fields or instance fields are returned.
      */
-    private Vector getFields(boolean getAll, boolean getStatic,
+    private List getFields(boolean getAll, boolean getStatic,
                              boolean includeModifiers)
     {
-        Vector fieldStrings = new Vector(fields.size());
+        List fieldStrings = new ArrayList(fields.size());
 
         ReferenceType cls = obj.referenceType();
         List visible = cls.visibleFields();
@@ -332,7 +332,7 @@ public class JdiObject extends DebuggerObject
             fields = cls.allFields();
         else {
             Debug.reportError("cannot get class for remote object");
-            fields = new Vector();
+            fields = new ArrayList();
         }
     }
 

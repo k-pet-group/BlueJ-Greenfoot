@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 583 2000-06-26 01:51:17Z mik $
+ * @version $Id: Package.java 589 2000-06-28 04:31:40Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1731,8 +1731,6 @@ public class Package extends Graph
      */
     public void hitBreakpoint(DebuggerThread thread)
     {
-        Debug.message("source file: " + thread.getClassSourceName(0));
-        Debug.message("source file: " + thread.getClass(0));
         showSource(thread.getClassSourceName(0),
                    thread.getLineNumber(0),
                    thread.getName(), true);

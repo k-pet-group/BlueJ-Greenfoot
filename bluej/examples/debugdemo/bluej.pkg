@@ -1,16 +1,15 @@
-#BlueJ project file
+#BlueJ package file
 dependency1.from=Demo
 dependency1.to=Car
 dependency1.type=UsesDependency
+package.editor.height=320
+package.editor.width=460
 package.numDependencies=1
 package.numTargets=2
-package.window.height=453
-package.window.width=590
 target1.height=50
 target1.modifiers=0
 target1.name=Demo
 target1.type=ClassTarget
-target1.valid=true
 target1.width=80
 target1.x=60
 target1.y=40
@@ -18,7 +17,6 @@ target2.height=50
 target2.modifiers=0
 target2.name=Car
 target2.type=ClassTarget
-target2.valid=true
 target2.width=80
 target2.x=220
 target2.y=100

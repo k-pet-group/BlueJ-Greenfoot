@@ -3,7 +3,9 @@ package bluej.debugger;
 import bluej.Config;
 import bluej.utility.Debug;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -11,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 583 2000-06-26 01:51:17Z mik $
+ ** @version $Id: ExecControls.java 589 2000-06-28 04:31:40Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -20,13 +22,22 @@ public class ExecControls extends JFrame
 
     implements ActionListener, ListSelectionListener
 {
-    private static final String windowTitle = Config.getString("debugger.execControls.windowTitle");
-    private static final String stackTitle = Config.getString("debugger.execControls.stackTitle");
-    private static final String instanceTitle = Config.getString("debugger.execControls.instanceTitle");
-    private static final String localTitle = Config.getString("debugger.execControls.localTitle");
-    private static final String threadTitle = Config.getString("debugger.execControls.threadTitle");
-    private static final String updateText = Config.getString("debugger.execControls.updateText");
-    private static final String closeText = Config.getString("close");
+    private static final String windowTitle = 
+        Config.getString("debugger.execControls.windowTitle");
+    private static final String stackTitle = 
+        Config.getString("debugger.execControls.stackTitle");
+    private static final String instanceTitle = 
+        Config.getString("debugger.execControls.instanceTitle");
+    private static final String localTitle = 
+        Config.getString("debugger.execControls.localTitle");
+    private static final String threadTitle = 
+        Config.getString("debugger.execControls.threadTitle");
+    private static final String updateText = 
+        Config.getString("debugger.execControls.updateText");
+    private static final String closeText = 
+        Config.getString("close");
+    private static final String systemThreadText = 
+        Config.getString("debugger.execControls.systemThreads");
 
     private static String[] empty = new String[0];
 
@@ -70,8 +81,9 @@ public class ExecControls extends JFrame
     private JButton stopButton, stepButton, stepIntoButton, continueButton, 
         terminateButton;
     private JButton updateButton, closeButton;
+    private JCheckBox showSystemThreads;
 
-    private Vector threads;
+    private List threads;
     private DebuggerThread selectedThread;	// the thread currently
     //  selected
     private DebuggerObject currentObject;	// the "this" object for the
@@ -82,7 +94,7 @@ public class ExecControls extends JFrame
     {
         super(windowTitle);
 		
-        threads = new Vector();
+        threads = new ArrayList();
         createWindow();
     }
 
@@ -91,6 +103,7 @@ public class ExecControls extends JFrame
     public void actionPerformed(ActionEvent event)
     {
         Object obj = event.getSource();
+        int machineStatus = Debugger.debugger.getStatus();
 
         if(obj == updateButton) {
             updateThreads(selectedThread);
@@ -98,28 +111,25 @@ public class ExecControls extends JFrame
         else if(obj == closeButton) {
             setVisible(false);
         }
+        else if(obj == showSystemThreads) {
+            updateThreads(selectedThread);
+        }
+        else if(obj == stopButton && machineStatus == Debugger.RUNNING) {
+            Debugger.debugger.halt(selectedThread);
+            updateThreads(selectedThread);
+        }
+        else if(obj==continueButton && machineStatus==Debugger.SUSPENDED) {
+            Debugger.debugger.cont();
+            updateThreads(selectedThread);
+        }
         else if(selectedThread != null) {
-            int machineStatus = Debugger.debugger.getStatus();
-            if(obj == stopButton && machineStatus == Debugger.RUNNING) {
-                selectedThread.stop();
-                Debugger.debugger.threadStopped(selectedThread);
-                updateThreads(selectedThread);
-            }
-            else if(obj == stepButton && machineStatus == Debugger.SUSPENDED) {
-                Debugger.debugger.threadContinued(selectedThread);
+            if(obj == stepButton && machineStatus == Debugger.SUSPENDED) {
                 selectedThread.step();
             }
             else if(obj==stepIntoButton && machineStatus==Debugger.SUSPENDED) {
-                Debugger.debugger.threadContinued(selectedThread);
                 selectedThread.stepInto();
             }
-            else if(obj==continueButton && machineStatus==Debugger.SUSPENDED) {
-                Debugger.debugger.threadContinued(selectedThread);
-                selectedThread.cont();
-                updateThreads(selectedThread);
-            }
             else if(obj == terminateButton && machineStatus != Debugger.IDLE) {
-                Debugger.debugger.threadContinued(selectedThread);
                 selectedThread.terminate();
             }
         }
@@ -168,44 +178,76 @@ public class ExecControls extends JFrame
 
     public synchronized void updateThreads(DebuggerThread select)
     {
-        int selectionIndex = -1;
+        int machineStatus = Debugger.debugger.getStatus();
 
-        DefaultListModel listModel = (DefaultListModel)threadList.getModel();
-        listModel.removeAllElements();
-
-        threads = Debugger.debugger.listThreads();
-        if(threads == null) {
-            Debug.reportError("cannot get thread info!");
-            listModel.addElement("(error: cannot list threads)");
-        }
-        else {
-            String selectName = (select == null ? "" : select.getName());
-            for(int i = 0; i < threads.size(); i++) {
-                DebuggerThread thread = (DebuggerThread)threads.get(i);
-                if(thread.getName().equals(selectName))
-                    selectionIndex = i;
-                String status = thread.getStatus();
-                listModel.addElement(thread.getName() + " [" + status + "]");
-            }
-        }
-        if(listModel.getSize() > 0) {
-            if(selectionIndex != -1) {
-                threadList.setSelectedIndex(selectionIndex);
-                threadList.ensureIndexIsVisible(selectionIndex);
-            }
-            setButtonsEnabled(true);
-        }
-        else {
+        if(machineStatus == Debugger.RUNNING) {
             clearThreadDetails();
-            setButtonsEnabled(false);
         }
+        else {
+
+            int selectionIndex = -1;
+
+            DefaultListModel listModel = (DefaultListModel)threadList.getModel();
+            listModel.removeAllElements();
+
+            threads = Debugger.debugger.listThreads();
+            if(threads == null) {
+                Debug.reportError("cannot get thread info!");
+                listModel.addElement("(error: cannot list threads)");
+            }
+            else {
+                threads = selectThreadsForDisplay(threads, select);
+                String selectName = (select == null ? "" : select.getName());
+                for(int i = 0; i < threads.size(); i++) {
+                    DebuggerThread thread = (DebuggerThread)threads.get(i);
+                    if(thread.getName().equals(selectName))
+                        selectionIndex = i;
+                    String status = thread.getStatus();
+                    listModel.addElement(thread.getName() + " [" + status + "]");
+                }
+            }
+            if(listModel.getSize() > 0) {
+                if(selectionIndex != -1) {
+                    threadList.setSelectedIndex(selectionIndex);
+                    threadList.ensureIndexIsVisible(selectionIndex);
+                }
+            }
+            else    // no threads displayed
+                clearThreadDetails();
+        }
+        setButtonsEnabled(machineStatus);
     }
-	
+    
+    /**
+     * Delete from the threads list all those threads that we don't want to
+     * see.
+     * We want to see
+     *     - the selected thread (system or not)
+     *     - the user threads is they are not finished
+     *     - other system threads only if system thread checkbox is selected
+     */
+    private List selectThreadsForDisplay(List threads, DebuggerThread selected)
+    {
+        boolean showSystem = showSystemThreads.isSelected();
+
+        List displayThreads = new ArrayList();
+        String selectedName = (selected == null? "" : selected.getName());
+
+        for(Iterator i=threads.iterator(); i.hasNext(); ) {
+            DebuggerThread thread = (DebuggerThread)i.next();
+            boolean showThread = (showSystem || !thread.isKnownSystemThread())
+                                 && (!thread.getStatus().equals("finished"));
+            if(showThread || thread.getName().equals(selectedName))
+               displayThreads.add(thread);
+        }
+        return displayThreads;
+    }
+
+
     private void selectThread(int index)
     {
         if (index >= 0) {
             selectedThread = getThread(index);
-        Debug.message("selected(" + index +"): " + selectedThread.getName());
             setThreadDetails();
         }
         else
@@ -220,9 +262,9 @@ public class ExecControls extends JFrame
     private void setThreadDetails()
     {
         stackList.setFixedCellWidth(-1);
-        Vector stack = selectedThread.getStack();
+        List stack = selectedThread.getStack();
         if(stack.size() > 0) {
-            stackList.setListData(stack);
+            stackList.setListData(stack.toArray(new Object[0]));
             setStackFrameDetails(0);  // show details of top frame
         }
     }
@@ -247,10 +289,14 @@ public class ExecControls extends JFrame
     private void setStackFrameDetails(int frameNo)
     {
         currentObject = selectedThread.getCurrentObject(frameNo);
-        instanceList.setFixedCellWidth(-1);
-        localList.setFixedCellWidth(-1);
-        instanceList.setListData(currentObject.getAllFields(false));
-        localList.setListData(selectedThread.getLocalVariables(frameNo));
+        if(currentObject != null) {
+            instanceList.setFixedCellWidth(-1);
+            localList.setFixedCellWidth(-1);
+            instanceList.setListData(
+               currentObject.getAllFields(false).toArray(new Object[0]));
+            localList.setListData(
+             selectedThread.getLocalVariables(frameNo).toArray(new Object[0]));
+        }
     }
 
     private void viewInstanceField(int index)
@@ -266,16 +312,19 @@ public class ExecControls extends JFrame
     {
         if(selectedThread.varIsObject(currentFrame, index)) {
             ObjectViewer viewer = ObjectViewer.getViewer(true, 
-                                                         selectedThread.getStackObject(currentFrame, index),
-                                                         null, null, false, this);
+                           selectedThread.getStackObject(currentFrame, index),
+                           null, null, false, this);
         }
     }
 
+    /**
+     * Create and arrange the GUI components.
+     */
     private void createWindow()
     {
-        JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout by default
-        mainPanel.setLayout(new BorderLayout(6,6));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
+        JPanel contentPane = (JPanel)getContentPane();  // has BorderLayout by default
+        contentPane.setLayout(new BorderLayout(6,6));
+        contentPane.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
 
         // Create the control button panel
 
@@ -289,92 +338,104 @@ public class ExecControls extends JFrame
         continueButton = addButton("image.continue", buttonBox, margin);
         terminateButton = addButton("image.terminate", buttonBox, margin);
 		
-        mainPanel.add(buttonBox, BorderLayout.SOUTH);
+        contentPane.add(buttonBox, BorderLayout.SOUTH);
 		
-        // Create stack listing panel
-
-        stackList = new JList(new DefaultListModel());
-        stackList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        stackList.addListSelectionListener(this);
-        stackList.setFixedCellWidth(150);
-        JScrollPane stackScrollPane = new JScrollPane(stackList);
-        stackScrollPane.setColumnHeaderView(new JLabel(stackTitle));
-
-        // Create variable display area
-
-        JPanel varArea = new JPanel();
-        varArea.setLayout(new GridLayout(0, 1));
-
         // Create instance variable panel
 
-        JScrollPane scrollPane;
         instanceList = new JList(new DefaultListModel());
-        instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        instanceList.addListSelectionListener(this);
-        instanceList.setVisibleRowCount(5);
-        instanceList.setFixedCellWidth(150);
-        scrollPane = new JScrollPane(instanceList);
-        scrollPane.setColumnHeaderView(new JLabel(instanceTitle));
+            instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            instanceList.addListSelectionListener(this);
+            instanceList.setVisibleRowCount(5);
+            instanceList.setFixedCellWidth(150);
+        JScrollPane instanceScrollPane = new JScrollPane(instanceList);
+            instanceScrollPane.setColumnHeaderView(new JLabel(instanceTitle));
 
-        varArea.add(scrollPane);
 
         // Create local variable panel
 
         localList = new JList(new DefaultListModel());
-        localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        localList.addListSelectionListener(this);
-        localList.setVisibleRowCount(5);
-        localList.setFixedCellWidth(150);
-        scrollPane = new JScrollPane(localList);
-        scrollPane.setColumnHeaderView(new JLabel(localTitle));
+            localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            localList.addListSelectionListener(this);
+            localList.setVisibleRowCount(5);
+            localList.setFixedCellWidth(150);
+        JScrollPane localScrollPane = new JScrollPane(localList);
+            localScrollPane.setColumnHeaderView(new JLabel(localTitle));
 
-        // add mouse listener to monitor for double clicks
+            // add mouse listener to monitor for double clicks
 
-        MouseListener mouseListener = new MouseAdapter() {
-                public void mouseClicked(MouseEvent e) {
-                    if (e.getClickCount() == 2) {
-                        listDoubleClick(e);
+            MouseListener mouseListener = new MouseAdapter() {
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2) {
+                            listDoubleClick(e);
+                        }
                     }
-                }
-            };
-        instanceList.addMouseListener(mouseListener);
-        localList.addMouseListener(mouseListener);
+                };
+            instanceList.addMouseListener(mouseListener);
+            localList.addMouseListener(mouseListener);
 
+        // Create variable display area
 
-        varArea.add(scrollPane);
+        JSplitPane varPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                           instanceScrollPane,localScrollPane);
+        varPane.setDividerSize(6);
+
+        // Create stack listing panel
+
+        stackList = new JList(new DefaultListModel());
+            stackList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            stackList.addListSelectionListener(this);
+            stackList.setFixedCellWidth(150);
+        JScrollPane stackScrollPane = new JScrollPane(stackList);
+            stackScrollPane.setColumnHeaderView(new JLabel(stackTitle));
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                                              stackScrollPane, varArea);
-        splitPane.setDividerSize(5);
-        splitPane.setDividerLocation(150);
-
-        mainPanel.add(splitPane, BorderLayout.CENTER);
+                                              stackScrollPane, varPane);
+        splitPane.setDividerSize(6);
 
         // Create thread panel
         JPanel threadPanel = new JPanel(new BorderLayout());
+            threadList = new JList(new DefaultListModel());
+            threadList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            threadList.addListSelectionListener(this);
+            threadList.setVisibleRowCount(4);
+        JScrollPane threadScrollPane = new JScrollPane(threadList);
+            threadScrollPane.setColumnHeaderView(new JLabel(threadTitle));
+            threadPanel.add(threadScrollPane, BorderLayout.CENTER);
 
-        threadList = new JList(new DefaultListModel());
-        threadList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        threadList.addListSelectionListener(this);
-        threadList.setVisibleRowCount(4);
-        scrollPane = new JScrollPane(threadList);
-        scrollPane.setColumnHeaderView(new JLabel(threadTitle));
-        threadPanel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(0, 1));
+        JPanel buttonPanel = new JPanel();
+            buttonPanel.setLayout(new BoxLayout(buttonPanel, 
+                                                BoxLayout.Y_AXIS));
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
-        updateButton = new JButton(updateText);
-        updateButton.addActionListener(this);
-        buttonPanel.add(updateButton);
+            updateButton = new JButton(updateText);
+            updateButton.addActionListener(this);
+            buttonPanel.add(updateButton);
+            makeButtonNotGrow(updateButton);
 
-        closeButton = new JButton(closeText);
-        closeButton.addActionListener(this);
-        buttonPanel.add(closeButton);
+            closeButton = new JButton(closeText);
+            closeButton.addActionListener(this);
+            buttonPanel.add(closeButton);
+            makeButtonNotGrow(closeButton);
 
-        buttonPanel.add(Box.createVerticalGlue());
+            buttonPanel.add(Box.createVerticalGlue());
+
         threadPanel.add(buttonPanel, BorderLayout.EAST);
 
-        mainPanel.add(threadPanel, BorderLayout.NORTH);
+        showSystemThreads = new JCheckBox(systemThreadText);
+            Font smallFont = showSystemThreads.getFont().deriveFont(10);
+            showSystemThreads.setFont(smallFont);
+            showSystemThreads.addActionListener(this);
+        JPanel checkBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,5,0));
+        //checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(0,5,5,0));
+            checkBoxPanel.add(showSystemThreads);
+        threadPanel.add(checkBoxPanel, BorderLayout.SOUTH);
+
+        JSplitPane mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                              threadPanel, splitPane);
+        mainPanel.setDividerSize(6);
+
+        contentPane.add(mainPanel, BorderLayout.CENTER);
 		
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
@@ -388,6 +449,13 @@ public class ExecControls extends JFrame
 
         pack();
 
+    }
+
+    private void makeButtonNotGrow(JButton button)
+    {
+        Dimension pref = button.getMinimumSize();
+        pref.width = Integer.MAX_VALUE;
+        button.setMaximumSize(pref);
     }
 
     /**
@@ -407,13 +475,31 @@ public class ExecControls extends JFrame
         return button;
     }
 
-    private void setButtonsEnabled(boolean enable)
+    private void setButtonsEnabled(int machineStatus)
     {
-        stopButton.setEnabled(enable);
-        stepButton.setEnabled(enable);
-        stepIntoButton.setEnabled(enable);
-        continueButton .setEnabled(enable);
-        terminateButton.setEnabled(enable);
+        switch(machineStatus) {
+        case Debugger.IDLE:
+            stopButton.setEnabled(false);
+            stepButton.setEnabled(false);
+            stepIntoButton.setEnabled(false);
+            continueButton .setEnabled(false);
+            terminateButton.setEnabled(false);
+            break;
+        case Debugger.RUNNING:
+            stopButton.setEnabled(true);
+            stepButton.setEnabled(false);
+            stepIntoButton.setEnabled(false);
+            continueButton .setEnabled(false);
+            terminateButton.setEnabled(true);
+            break;
+        case Debugger.SUSPENDED:
+            stopButton.setEnabled(false);
+            stepButton.setEnabled(true);
+            stepIntoButton.setEnabled(true);
+            continueButton .setEnabled(true);
+            terminateButton.setEnabled(true);
+            break;
+        }
     }
 
 }
