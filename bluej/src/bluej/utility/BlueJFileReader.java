@@ -4,28 +4,26 @@ import java.util.Dictionary;
 import java.io.*;
 
 /**
- ** BlueJFileReader - a (static) class grouping all functions to read and
- ** write BlueJ specific files.
- ** 
- ** The BlueJ files are help files (used for compiler help, exception help,
- ** editor help), dialogue files (for message and error dialogues) and 
- ** templates (for class skeletons).
- ** 
- ** Help texts and dialogue texts are handled through the "readHelpText"
- ** method. The files consist of text IDs (a short string) followed by
- ** the full text.
- ** 
- ** Class skeletons (handled by the "translateFile" method) are text files
- ** with place holders (variables) in them that will be replaced using a
- ** dictionary.
- ** 
- ** @author Michael Kolling
- ** @version 1.0
- **/
-
+ * BlueJFileReader - a (static) class grouping all functions to read and
+ * write BlueJ specific files.
+ *
+ * The BlueJ files are help files (used for compiler help, exception help,
+ * editor help), dialogue files (for message and error dialogues) and
+ * templates (for class skeletons).
+ *
+ * Help texts and dialogue texts are handled through the "readHelpText"
+ * method. The files consist of text IDs (a short string) followed by
+ * the full text.
+ *
+ * Class skeletons (handled by the "translateFile" method) are text files
+ * with place holders (variables) in them that will be replaced using a
+ * dictionary.
+ *
+ * @author Michael Kolling
+ * @version 1.0
+ */
 public class BlueJFileReader
 {
-
     /**
      * Read a help text out of a help file.
      *
@@ -82,7 +80,7 @@ public class BlueJFileReader
 	    }
 	}
 	catch(IOException e) {
-	    DialogManager.showErrorWithText(null, "cannot-read-help", 
+	    DialogManager.showErrorWithText(null, "cannot-read-help",
 					    fileName);
 	}
 	finally {
@@ -122,31 +120,31 @@ public class BlueJFileReader
      *  to be used as replacements.
      *  This is used to create shell files from the shell file template.
      */
-    public static void translateFile(String template, String dest, 
+    public static void translateFile(String template, String dest,
 				     Dictionary translations)
 	throws IOException
     {
 	FileReader in = null;
 	FileWriter out = null;
-		
+
 	try {
 	    in = new FileReader(template);
 	    out = new FileWriter(dest);
-			
+
 	    for(int c; (c = in.read()) != -1; ) {
 		if(c == '$') {
 		    StringBuffer buf = new StringBuffer();
 		    while(((c = in.read()) != -1) && Character.isLetter((char)c))
 			buf.append((char)c);
-						
+
 		    String key = buf.toString();
 		    String value = (String)translations.get(key);
-					
+
 		    if(value == null) {
 			out.write('$');
 			value = key;
 		    }
-					
+
 		    out.write(value);
 		    if(c != -1)
 			out.write(c);
@@ -154,7 +152,7 @@ public class BlueJFileReader
 		else
 		    out.write(c);
 	    }
-			
+
 	    in.close();
 	    out.close();
 	} catch(IOException e) {
@@ -165,11 +163,11 @@ public class BlueJFileReader
 		// File destFile = new File(dest);
 		// destFile.delete();
 	    }
-			
+
 	    throw e;
 	}
     }
-	
+
     /**
      * copyFile - copy a file
      */
@@ -182,11 +180,11 @@ public class BlueJFileReader
 	if(srcFile.getAbsolutePath().equals(destFile.getAbsolutePath()))
 	    return true;  // don't bother - they are the same
 
-	FileReader in = null;
-	FileWriter out = null;
+	Reader in = null;
+	Writer out = null;
 	try {
-	    in = new FileReader(srcFile);
-	    out = new FileWriter(destFile);
+	    in = new BufferedReader(new FileReader(srcFile));
+	    out = new BufferedWriter(new FileWriter(destFile));
 
 		for(int c; (c = in.read()) != -1; )
 		    out.write(c);
@@ -198,5 +196,7 @@ public class BlueJFileReader
 	    return false;
 	}
     }
-	
-}	
+
+
+
+}
