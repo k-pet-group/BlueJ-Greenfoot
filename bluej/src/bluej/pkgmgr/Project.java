@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: Project.java 2819 2004-07-26 05:36:45Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -171,6 +171,8 @@ public class Project
 
 		if (project.hasExecControls())
 			project.getExecControls().dispose();
+        if (project.terminal != null)
+            project.terminal.dispose();
 
 		project.getDebugger().removeDebuggerListener(project);
 		project.getDebugger().close(false);
