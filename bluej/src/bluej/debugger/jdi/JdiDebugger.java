@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 884 2001-05-09 00:40:55Z bquig $
+ * @version $Id: JdiDebugger.java 910 2001-05-24 07:24:41Z mik $
  *
  * The startup process is as follows:
  *
@@ -413,7 +413,7 @@ public final class JdiDebugger extends Debugger
             lastException = new ExceptionDescription(
                                                "Internal BlueJ error!",
                                                "Cannot execute remote command",
-                                                null, 0);
+                                                null);
         }
         machineStatus = IDLE;
         //executionUserParam = null;
@@ -733,6 +733,7 @@ public final class JdiDebugger extends Debugger
         else {		// real exception
 
             Location loc = exc.location();
+            String sourceClass = loc.declaringType().name();
             String fileName;
             try {
                 fileName = loc.sourceName();
@@ -742,9 +743,10 @@ public final class JdiDebugger extends Debugger
             }
             int lineNumber = loc.lineNumber();
 
+            List stack = new JdiThread(exc.thread(), null).getStack();
             exitStatus = EXCEPTION;
             lastException = new ExceptionDescription(excClass, exceptionText,
-                                                     fileName, lineNumber);
+                                                     stack);
         }
     }
 

@@ -3,6 +3,7 @@ package bluej.debugger.jdi;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.SourceLocation;
 import bluej.utility.Debug;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 820 2001-03-27 07:51:06Z mik $
+ * @version $Id: JdiThread.java 910 2001-05-24 07:24:41Z mik $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -208,35 +209,36 @@ public final class JdiThread extends DebuggerThread
      * The thread must be suspended to do this. Otherwise an empty list
      * is returned.
      *
-     * @return  A Vector of Strings in the format "<class>.<method>"
+     * @return  A Vector of SourceLocations
      */
     public List getStack()
     {
-        //Debug.message("[JdiThread] getStack");
         try {
             if(rt.isSuspended()) {
                 List stack = new ArrayList();
                 List frames = rt.frames();
             
-                boolean shellFound = false;
                 for(int i = 0; i < frames.size(); i++) {
                     StackFrame f = (StackFrame)frames.get(i);
                     Location loc = f.location();
                     String classname = loc.declaringType().name();
-                    if(classname.startsWith("__SHELL")) {
-                        shellFound = true;
+                    if(classname.startsWith("__SHELL"))
                         break;
-                    }
-                    stack.add(classname + "." + loc.method().name());
+
+                    String filename = loc.sourceName();
+                    String methodname = loc.method().name();
+                    int lineNumber = loc.lineNumber();
+
+                    stack.add(new SourceLocation(classname, filename, 
+                                                 methodname, lineNumber));
                 }
                 return stack;
-                //                 if(shellFound)
-                //                     return stack;
-                //                 else
-                //                     return new ArrayList();
             }
         } 
-        catch(Exception e) {
+        catch(IncompatibleThreadStateException e) {
+            Debug.reportError("error while getting stack info");
+        }
+        catch(AbsentInformationException e) {
             Debug.reportError("error while getting stack info");
         }
         return new ArrayList();

@@ -33,11 +33,10 @@ import java.text.DateFormat;
 /**
  * A Java package (collection of Java classes).
  *
- * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 860 2001-04-23 02:07:10Z mik $
+ * @version $Id: Package.java 910 2001-05-24 07:24:41Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1813,14 +1812,35 @@ public class Package extends Graph
      * Display an exception message. This is almost the same as "errorMessage"
      * except for different help texts.
      */
-    public void exceptionMessage(String filename, int lineNo, String message,
+    public void exceptionMessage(List stack, String message, 
                                  boolean invalidate)
     {
-        if(! showEditorMessage(filename, lineNo, message, invalidate, true,
-                               true, false, "exception"))
+        if(stack.size() == 0) {
+            Debug.reportError("Stack missing in exception event");
+            return;
+        }
+
+        boolean done = false;
+        Iterator iter = stack.iterator();
+        boolean firstTime = true;
+
+        while(!done && iter.hasNext()) {
+            SourceLocation loc = (SourceLocation)iter.next();
+            String filename = new File(getPath(), loc.getFileName()).getPath();
+            int lineNo = loc.getLineNumber();
+            done = showEditorMessage(filename, lineNo, message, invalidate, 
+                                     true, true, false, "exception");
+            if(firstTime && !done) {
+                message = "In " + loc.getClassName() + ": " + message;
+                firstTime = false;
+            }
+        }
+        if(!done) {
+            SourceLocation loc = (SourceLocation)stack.get(0);
             showMessageWithText("error-in-file",
-                                              filename + ":" + lineNo +
-                                              "\n" + message);
+                                loc.getClassName() + ":" + 
+                                loc.getLineNumber() + "\n" + message);
+        }
     }
 
     /**

@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 871 2001-04-26 00:56:38Z mik $
+ * @version $Id: Invoker.java 910 2001-05-24 07:24:41Z mik $
  */
 
 public class Invoker extends Thread
@@ -502,12 +502,10 @@ public class Invoker extends Thread
 		  if(exc.getText() != null)
 		      text += ":\n" + exc.getText();
 
-		  if(exc.getSourceFile() == null)
+		  if(exc.getClassName() == null)
 		      pkg.reportException(text);
 		  else
-		      pkg.exceptionMessage(
-			   new File(pkg.getPath(), exc.getSourceFile()).getPath(),
-			   exc.getLineNumber(), text, false);
+		      pkg.exceptionMessage(exc.getStack(), text, false);
 		  break;
 
 	      case Debugger.TERMINATED:  // terminated by user
