@@ -265,7 +265,8 @@ public class ExtensionWrapper
      */
     public String getExtensionClassName()
     {
-        if (extensionClass == null) return null;
+        if (extensionClass == null) 
+            return null;
 
         return extensionClass.getName();
     }

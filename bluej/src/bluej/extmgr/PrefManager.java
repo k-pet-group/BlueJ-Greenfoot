@@ -16,14 +16,14 @@ import javax.swing.border.*;
  */
 public class PrefManager implements PrefPanelListener
 {
-    private List        extensionsList;
+    private List extensionsList;
 
-    private final int   DO_panelUpdate=1;
-    private final int   DO_loadValues=2;
-    private final int   DO_saveValues=3;
+    private final int DO_panelUpdate=1;
+    private final int DO_loadValues=2;
+    private final int DO_saveValues=3;
 
-    private JPanel      drawPanel;
-    private JPanel      rootPanel;
+    private JPanel drawPanel;
+    private JPanel rootPanel;
 
     /**
      * The manager needs to know the installed extensions
@@ -62,7 +62,7 @@ public class PrefManager implements PrefPanelListener
      * what to do. Just to make code simples and cleaner
      * Note that half or more of the code is on Fault managment ...
      */
-    private void doWorkLoop( int doAction ) 
+    private void doWorkLoop(int doAction) 
     {
         // I need to remove all content, in any case...
         if (doAction == DO_panelUpdate) 
@@ -77,7 +77,7 @@ public class PrefManager implements PrefPanelListener
      * Do some work on one extension wrapper.
      * It is either adding panels, saving or loading...
      */
-    private void doWorkItem( ExtensionWrapper aWrapper, int doAction ) 
+    private void doWorkItem(ExtensionWrapper aWrapper, int doAction) 
     {
         // This extension is not valid, let me skip it
         if (! aWrapper.isValid()) return;
@@ -98,8 +98,9 @@ public class PrefManager implements PrefPanelListener
     }
 
     /**
-     * Utility to make the code nicer. Michael likes it :-)
-    private String stripName ( String i_name )
+     * Utility to make the code nicer.
+     */
+    private String stripName(String i_name)
     {
         int dotIndex = i_name.lastIndexOf(".");
         // No dots around, strange but possible...
@@ -112,13 +113,12 @@ public class PrefManager implements PrefPanelListener
 
         return i_name.substring(dotIndex+1);
     }
-     */
   
     /**
      * Being here to make code cleaner. 
      * Given an Extension preference panel add it into the main panel
      */
-    private void addUserPanel( ExtensionWrapper aWrapper, String extensionName ) 
+    private void addUserPanel(ExtensionWrapper aWrapper, String extensionName) 
     {
         JPanel aPanel = aWrapper.safePrefGenGetPanel();
         if (aPanel == null) 

@@ -15,20 +15,14 @@ class HelpDetailDialog extends JDialog implements ActionListener
 {
     private final String extensionsTag = Config.getString("extmgr.extensions");
     private final String detailsTag = Config.getString("extmgr.details");
-    private final String installedString = Config.getString("extmgr.installed");
-    private final String projectString = Config.getString("extmgr.project");
-    private final String statusTag = Config.getString("extmgr.details.status");
-    private final String nameTag = Config.getString("extmgr.details.name");
+    private final String systemString = Config.getString("extmgr.systemExtensionLong");
+    private final String projectString = Config.getString("extmgr.projectExtensionLong");
     private final String locationTag = Config.getString("extmgr.details.location");
-    private final String typeTag = Config.getString("extmgr.details.type");
     private final String versionTag = Config.getString("extmgr.details.version");
-    private final String dateTag = Config.getString("extmgr.details.date");
     private final String urlTag = Config.getString("extmgr.details.url");
-    private final String preferencesTag = Config.getString("extmgr.details.preferences");
-    private final String descriptionTag = Config.getString("extmgr.details.description");
 
-    private JLabel statusField, nameField, locationField, typeField, versionField;
-    private JLabel dateField, urlField;
+    private JLabel nameField, locationField, typeField;
+    private JLabel urlField;
     private JTextArea descriptionField;
     private URL url;
     private JButton closeButton;
@@ -38,70 +32,52 @@ class HelpDetailDialog extends JDialog implements ActionListener
      */
     HelpDetailDialog(Dialog owner)
     {
-        super(owner, "Details");
+        super(owner);
+        setTitle(detailsTag);
+        
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-
-        GridBagConstraints tag = new GridBagConstraints();
-        tag.gridx = 0;
-        tag.anchor = GridBagConstraints.NORTHEAST;
-
-        GridBagConstraints value = new GridBagConstraints();
-        value.gridx = 1;
-        value.anchor = GridBagConstraints.NORTHWEST;
-        value.gridwidth = 3;
-
-        panel.add(new JLabel(statusTag + ":  "), tag);
-        panel.add(new JLabel(nameTag + ":  "), tag);
-        panel.add(new JLabel(locationTag + ":  "), tag);
-        panel.add(new JLabel(typeTag + ":  "), tag);
-        panel.add(new JLabel(versionTag + ":  "), tag);
-        panel.add(new JLabel(dateTag + ":  "), tag);
-        panel.add(new JLabel(urlTag + ":  "), tag);
-        panel.add(new JLabel(descriptionTag + ":  "), tag);
-
-        statusField = new JLabel();
         nameField = new JLabel();
-        locationField = new JLabel();
         typeField = new JLabel();
-        versionField = new JLabel();
-        dateField = new JLabel();
-        dateField.setToolTipText("yyyy/mm/dd hh:mm:ss");
+        locationField = new JLabel();
 
         urlField = new JLabel();
         urlField.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        urlField.addMouseListener(
-            new MouseAdapter()
-            {
-                public void mouseClicked(MouseEvent e)
-                {
+        urlField.setForeground(Color.blue);
+        urlField.addMouseListener(new MouseAdapter()  {
+                public void mouseClicked(MouseEvent e) {
                     openURL();
                 }
             });
 
-        descriptionField = new JTextArea(4, 40);
+        descriptionField = new JTextArea(4, 20);
         descriptionField.setLineWrap(true);
         descriptionField.setWrapStyleWord(true);
         descriptionField.setEnabled(false);
         descriptionField.setDisabledTextColor(Color.black);
-        descriptionField.setBackground(dateField.getBackground());
-        // I need to put into a scrollbar in case the text is too much
+        descriptionField.setBackground(urlField.getBackground());
+
         JScrollPane descriptionScroller = new JScrollPane(descriptionField);
         descriptionScroller.setBorder(null);
+        descriptionScroller.setAlignmentX(0.0F);
 
-        panel.add(statusField, value);
-        panel.add(nameField, value);
-        panel.add(locationField, value);
-        panel.add(typeField, value);
-        panel.add(versionField, value);
-        panel.add(dateField, value);
-        panel.add(urlField, value);
-        panel.add(descriptionScroller, value);
+        mainPanel.add(nameField);
+        mainPanel.add(typeField);
+        mainPanel.add(Box.createVerticalStrut(12));
+        
+        mainPanel.add(locationField);
+        mainPanel.add(Box.createVerticalStrut(12));
+        
+        mainPanel.add(descriptionScroller);
+        mainPanel.add(Box.createVerticalStrut(12));
 
-        // I need to put this beast into a scroll pane
-        JScrollPane detailScroll = new JScrollPane(panel);
-
+        JPanel urlPanel = new JPanel();
+        urlPanel.setAlignmentX(0.0F);
+        urlPanel.add(new JLabel(urlTag));
+        urlPanel.add(urlField);
+        mainPanel.add(urlPanel);
+        
         // The close button goes into a panel, to make it nice...
         JPanel buttonPanel = new JPanel();
         closeButton = new JButton(Config.getString("close"));
@@ -113,7 +89,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
         rootPane.setLayout(new BorderLayout());
         rootPane.setBorder(Config.dialogBorder);
 
-        rootPane.add(detailScroll, BorderLayout.CENTER);
+        rootPane.add(mainPanel, BorderLayout.CENTER);
         rootPane.add(buttonPanel, BorderLayout.SOUTH);
 
         // save position when window is moved
@@ -184,22 +160,17 @@ class HelpDetailDialog extends JDialog implements ActionListener
     {
         if (wrapper == null) return;
 
-        statusField.setText(wrapper.getExtensionStatus());
-        statusField.setForeground(wrapper.isValid() ? Color.black : Color.red);
-
-        nameField.setText(wrapper.safeGetExtensionName());
-        locationField.setText(wrapper.getExtensionFileName());
-        typeField.setText((wrapper.getProject() != null) ? projectString : installedString);
-        versionField.setText(wrapper.safeGetExtensionVersion());
-        dateField.setText(wrapper.getExtensionModifiedDate());
+        nameField.setText(wrapper.safeGetExtensionName() + " " + versionTag + " " 
+                          + wrapper.safeGetExtensionVersion());
+        typeField.setText((wrapper.getProject() != null) ? projectString : systemString);
+        locationField.setText(locationTag + " " + wrapper.getExtensionFileName() +
+                              " (" + wrapper.getExtensionStatus() +')');
 
         url = wrapper.safeGetURL();
         if (url == null)
             urlField.setText(null);
-        else {
+        else
             urlField.setText(url.toExternalForm());
-            urlField.setForeground(Color.blue);
-        }
 
         descriptionField.setText(wrapper.safeGetExtensionDescription());
         descriptionField.setCaretPosition(0);

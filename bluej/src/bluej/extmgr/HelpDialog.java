@@ -11,7 +11,7 @@ import javax.swing.table.*;
 /**
  *  The Extensions Manager help panel allows the user to view current  extensions.
  *
- * @version    $Id: HelpDialog.java 1875 2003-04-22 13:30:24Z damiano $
+ * @version    $Id: HelpDialog.java 1877 2003-04-22 14:21:53Z mik $
  */
 
  /*
@@ -21,14 +21,14 @@ import javax.swing.table.*;
   
 public class HelpDialog implements ActionListener
 {
-    private final String installedString = Config.getString("extmgr.installed");
-    private final String projectString = Config.getString("extmgr.project");
+    private final String systemString = Config.getString("extmgr.systemExtensionShort");
+    private final String projectString = Config.getString("extmgr.projectExtensionShort");
     private final ImageIcon infoIcon = Config.getImageAsIcon("image.extmgr.info");
 
-    private JDialog          mainFrame;
+    private JDialog mainFrame;
     private HelpDetailDialog detailDialog;
-    private JButton          closeButton;
-    private JTable           extensionsTable;
+    private JButton closeButton;
+    private JTable extensionsTable;
     private ExtensionsTableModel extensionsTableModel;
     private List extensionsList;
 
@@ -56,7 +56,6 @@ public class HelpDialog implements ActionListener
 
         rootPane.add(extensionsPane, BorderLayout.CENTER);
         rootPane.add(buttonPanel, BorderLayout.SOUTH);
-        DialogManager.centreDialog(mainFrame);
 
         // save position when window is moved
         mainFrame.addComponentListener(
@@ -90,15 +89,18 @@ public class HelpDialog implements ActionListener
     private void showDetails()
     {
         // If no detail dialog is created then make it...
-        if ( detailDialog == null ) detailDialog = new HelpDetailDialog(mainFrame);
+        if (detailDialog == null) 
+            detailDialog = new HelpDetailDialog(mainFrame);
 
         int selectedColumn = extensionsTable.getSelectedColumn();
 
         // We want the user to click on the ICON !!!
-        if (selectedColumn != 0) return;
+        if (selectedColumn != 0) 
+            return;
 
         ExtensionWrapper aWrapper = getWrapper(extensionsTable.getSelectedRow());
-        if ( aWrapper == null ) return;
+        if (aWrapper == null) 
+            return;
         
         detailDialog.updateInfo(aWrapper);
     }
@@ -140,7 +142,8 @@ public class HelpDialog implements ActionListener
     private ExtensionWrapper getWrapper(int index)
     {
         // of ExtensionWrapper
-        if (index > extensionsList.size()) return null;
+        if (index > extensionsList.size()) 
+            return null;
 
         return (ExtensionWrapper) extensionsList.get(index);
     }
@@ -159,7 +162,8 @@ public class HelpDialog implements ActionListener
          */
         public void mouseClicked(MouseEvent e)
         {
-            if (e.getClickCount() == 1)  showDetails();
+            if(e.getClickCount() == 1)  
+                showDetails();
         }
     }
 
@@ -175,8 +179,7 @@ public class HelpDialog implements ActionListener
                 "",
                 Config.getString("extmgr.statuscolumn"),
                 Config.getString("extmgr.namecolumn"),
-                Config.getString("extmgr.typecolumn"),
-                Config.getString("extmgr.versioncolumn")};
+                Config.getString("extmgr.typecolumn")};
 
 
         /**
@@ -246,12 +249,9 @@ public class HelpDialog implements ActionListener
               return wrapper.safeGetExtensionName();
 
             if (col == 3)
-                return (wrapper.getProject() != null) ? projectString : installedString;
+                return (wrapper.getProject() != null) ? projectString : systemString;
 
-            if (col == 4)
-                return wrapper.safeGetExtensionVersion();
-
-            // If I trow an exception all will stop. This instead keeps going
+            // If I throw an exception all will stop. This instead keeps going
             return "getValueAt: ERROR at row=" + row + " col=" + col;
         }
 
