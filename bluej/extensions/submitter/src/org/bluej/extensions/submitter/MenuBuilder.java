@@ -29,15 +29,19 @@ public class MenuBuilder extends MenuGenerator implements ActionListener
      * @param  aPackage  Description of the Parameter
      * @return           The toolsMenuItem value
      */
-//    public JMenuItem getToolsMenuItem(BPackage aPackage)
-    public JMenuItem getMenuItem()
+    public JMenuItem getToolsMenuItem(BPackage aPackage)
     {
-//    System.out.println ("Submitter.MenuBuilder.getToolsMenuItem aPackage="+aPackage);
         JMenuItem anItem = new JMenuItem(aLabel);
-        anItem.setEnabled(isMenuEnabled(stat.bluej.getCurrentPackage()));
+        anItem.setEnabled(isMenuEnabled(aPackage));
         anItem.addActionListener(this);
         return anItem;
     }
+
+    public void notifyPostToolsMenu(BPackage bp, JMenuItem jmi) 
+    {
+        jmi.setEnabled(isMenuEnabled(bp));
+    }
+
 
     private boolean isMenuEnabled ( BPackage aPackage )
     {
@@ -51,7 +55,6 @@ public class MenuBuilder extends MenuGenerator implements ActionListener
         } catch ( Exception exc ) {
             return false;
         }
-       
     }
 
 
