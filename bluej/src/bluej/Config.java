@@ -30,7 +30,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2354 2003-11-17 05:11:22Z ajp $
+ * @version $Id: Config.java 2391 2003-11-26 10:52:27Z mik $
  */
 
 public final class Config
@@ -301,8 +301,8 @@ public final class Config
         try {
             props.load(new FileInputStream(propsFile));
         }
-        catch(Exception e) {
-            Debug.reportError("could not load properties file " + propsFile);
+        catch(IOException e) {
+            // ignore exception - this will hapen on first run of BlueJ
         }
     }
 
@@ -316,7 +316,7 @@ public final class Config
         try {
             props.store(new FileOutputStream(propsFile), getString(comment));
         }
-        catch(Exception e) {
+        catch(IOException e) {
             Debug.reportError("could not save properties file " + propsFile);
         }
     }
