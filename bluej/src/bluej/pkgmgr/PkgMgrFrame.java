@@ -26,7 +26,7 @@ import bluej.browser.LibraryBrowser;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 545 2000-06-13 07:19:12Z mik $
+ * @version $Id: PkgMgrFrame.java 552 2000-06-14 22:24:17Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -957,7 +957,9 @@ public class PkgMgrFrame extends JFrame
      */
     private void doExport()
     {
-        DialogManager.NYI(this);
+        ExportDialog ed = new ExportDialog(this);
+
+        ed.show();
     }
 
     /**
