@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3041 2004-10-07 00:40:19Z davmac $
+ * @version $Id: ExecServer.java 3045 2004-10-13 01:34:49Z davmac $
  */
 public class ExecServer
 {
@@ -815,7 +815,20 @@ public class ExecServer
                     }
                 }
                 catch(Throwable t) {
+                    // record that an exception occurred
                     exception = t;
+                    
+                    // print a filtered stack trace to System.err
+                    StackTraceElement [] stackTrace = t.getStackTrace();
+                    int i;
+                    for(i = 0; i < stackTrace.length; i++) {
+                        if(stackTrace[i].getClassName().startsWith("__SHELL"))
+                            break;
+                    }
+                    StackTraceElement [] newStackTrace = new StackTraceElement[i];
+                    System.arraycopy(stackTrace, 0, newStackTrace, 0, i);
+                    t.setStackTrace(newStackTrace);
+                    t.printStackTrace();
                 }
                 finally {
                     execAction = EXIT_VM;
