@@ -23,6 +23,8 @@
                destdir="${inspectorbuild}" >
             <classpath>
 	        <pathelement location="${bluej_home}/lib/bluej.jar"/>
+	        <pathelement location="${bluej_home}/lib/ext/bluejcore.jar"/>
+	        <pathelement location="${bluej_home}/lib/ext/bluejext.jar"/>
                 <path refid="bluej.class.path"/>
             </classpath>
         </javac>
