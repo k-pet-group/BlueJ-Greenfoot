@@ -345,10 +345,12 @@ public final class MoeEditor extends JFrame
      *  @param column		the column to move the cursor to
      *  @param beep		if true, do a system beep
      *  @param setStepMark	if true, set step mark (for single stepping)
+     *  @param help		name of help group (may be null)
      */
 
     public void displayMessage(String message, int lineNumber, int column, 
-			       boolean beep, boolean setStepMark)
+			       boolean beep, boolean setStepMark, 
+			       String help)
 			       // inherited from Editor
     {
 	Element line = getLine (lineNumber);
@@ -360,6 +362,9 @@ public final class MoeEditor extends JFrame
 	    info.warning (message);
 	else
 	    info.message (message);
+
+	if (help != null)
+	    info.setHelp(help);
     }
 
     // --------------------------------------------------------------------

@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 127 1999-06-15 05:01:18Z mik $
+ ** @version $Id: Config.java 129 1999-06-15 07:21:23Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -61,6 +61,8 @@ public class Config
     public static int printFontsize;
     public static int printTitleFontsize;
     public static int printInfoFontsize;
+    public static String compilertype;	// current compiler (javac, jikes)
+    public static String language;	// message language (english, ...)
 
     // Swing JSplitPane divider width constant for uniform look and feel
     public static final int splitPaneDividerWidth = 5;
@@ -104,8 +106,8 @@ public class Config
 	bluej_props = loadDefs("bluej", true);	// system definitions
 	loadProperties("bluej", bluej_props);	// user specific definitions
 
-	String langDefs = bluej_props.getProperty("bluej.language");
-	lang_props = loadDefs(langDefs, false);
+	language = bluej_props.getProperty("bluej.language");
+	lang_props = loadDefs(language, false);
 
 	moe_props = loadDefs("moe", false);
 
@@ -115,6 +117,9 @@ public class Config
 	printTitleFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printTitle","14"));
 	printInfoFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printInfo","10"));
 	checkDebug(user_confdir);
+	compilertype = Config.getPropString("bluej.compiler.type");
+	if(compilertype.equals("internal"))
+	    compilertype = "javac";
 
     } // initialise
 
@@ -289,6 +294,15 @@ public class Config
 	    Debug.reportError("Could not find image: " + propname);
 	    return null;
 	}
+    }
+	
+    /**
+     * Find and return the file name for a help file (eg.
+     * "bluej/lib/javac.english.help")
+     */
+    public static String getHelpFilename(String base)
+    {
+	return sys_confdir + slash + base + "." + language + ".help";
     }
 	
     public static Color getItemColour(String itemname)

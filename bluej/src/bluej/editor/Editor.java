@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- ** @version $Id: Editor.java 124 1999-06-14 07:26:17Z mik $
+ ** @version $Id: Editor.java 129 1999-06-15 07:21:23Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface between an editor and the rest of BlueJ
@@ -103,10 +103,11 @@ public interface Editor
      *  @param column		the column to move the cursor to
      *  @param beep		if true, do a system beep
      *  @param setStepMark	if true, set step mark (for single stepping)
+     *  @param help		name of help group (may be null)
      */
     void displayMessage(String message, int lineNumber, 
 			int column, boolean beep, 
-			boolean setStepMark);
+			boolean setStepMark, String help);
 
 
     /**

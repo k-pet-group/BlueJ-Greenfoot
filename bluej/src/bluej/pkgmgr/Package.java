@@ -28,7 +28,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 126 1999-06-15 03:42:35Z mik $
+ ** @version $Id: Package.java 129 1999-06-15 07:21:23Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -1281,7 +1281,7 @@ public class Package extends Graph
 	    msg = "Thread \"" + threadName + "\" stopped at breakpoint.";
 
 	if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
-			       false, false))
+			       false, false, null))
 	    Utility.showMessage(frame, "Breakpoint hit in file: " + 
 				sourcename + "\nCannot find file!");
     }
@@ -1293,7 +1293,7 @@ public class Package extends Graph
      */
     private boolean showEditorMessage(String filename, int lineNo, 
 				   String message, boolean invalidate, 
-				   boolean beep)
+				   boolean beep, String help)
     {
 	ClassTarget t = getTargetFromFilename(filename);
 
@@ -1308,7 +1308,7 @@ public class Package extends Graph
 	t.open();
 	Editor editor = t.getEditor();
 	if(editor!=null)
-	    editor.displayMessage(message, lineNo, 0, beep, false);
+	    editor.displayMessage(message, lineNo, 0, beep, false, help);
 	return true;
     }
 	
@@ -1338,7 +1338,21 @@ public class Package extends Graph
     public void errorMessage(String filename, int lineNo, String message,
 			     boolean invalidate)
     {
-	if(! showEditorMessage(filename, lineNo, message, invalidate, true))
+	if(! showEditorMessage(filename, lineNo, message, invalidate, true,
+			       Config.compilertype))
+	    Utility.showMessage(frame, "Error in file: " + filename + 
+				       ":" + lineNo + "\n" + message);
+    }
+	
+    /**
+     * Display an exception message. This is almost the same as "errorMessage"
+     * except for different help texts.
+     */
+    public void exceptionMessage(String filename, int lineNo, String message,
+			     boolean invalidate)
+    {
+	if(! showEditorMessage(filename, lineNo, message, invalidate, true, 
+			       "exception"))
 	    Utility.showMessage(frame, "Error in file: " + filename + 
 				       ":" + lineNo + "\n" + message);
     }

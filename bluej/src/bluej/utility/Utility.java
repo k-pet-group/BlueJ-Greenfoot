@@ -12,7 +12,7 @@ import javax.swing.*;
 
 /**
  ** Some generally useful utility methods available to all of bluej.
- ** $Id: Utility.java 111 1999-06-04 06:16:57Z mik $
+ ** $Id: Utility.java 129 1999-06-15 07:21:23Z mik $
  ** @author Michael Cahill
  ** @author Justin Tan
  ** @author Michael Kolling
@@ -194,26 +194,14 @@ public class Utility
     public static String askString(JFrame parent, String prompt, String title,
 				   String defaultText)
     {
-	//Debug.message("askString not implemented");
 	String response = (String)JOptionPane.showInputDialog(parent, 
-						      prompt, 
-						      title, 
-						      JOptionPane.PLAIN_MESSAGE, 
-						      null, 
-						      null,
-						      defaultText);
+						prompt, 
+						title, 
+						JOptionPane.PLAIN_MESSAGE, 
+						null, 
+						null,
+						defaultText);
 	return response;
-
-
-//  	JPanel panel = new JPanel();
-//  	panel.add("North", new Label(prompt));
-//  	JTextField tf = new JTextField(defaultText, 40);
-//  	panel.add("Center", tf);
-//  	dialog.getContentPane().add(panel, "Center");
-
-//  	centreDialog(dialog);
-
-//  	return dialog.doShow() ? tf.getText() : null;
     }
 
     // -------- end of dialogs --------

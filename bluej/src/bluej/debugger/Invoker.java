@@ -20,7 +20,7 @@ import java.io.StringWriter;
 import java.util.Hashtable;
 
 /**
- ** @version $Id: Invoker.java 124 1999-06-14 07:26:17Z mik $
+ ** @version $Id: Invoker.java 129 1999-06-15 07:21:23Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -442,7 +442,7 @@ public class Invoker extends Thread
 		  if(exc.getSourceFile() == null)
 		      pkg.reportException(text);
 		  else
-		      pkg.errorMessage(
+		      pkg.exceptionMessage(
 			   pkg.getFileName(exc.getSourceFile()),
 			   exc.getLineNumber(), text, false);
 		  break;

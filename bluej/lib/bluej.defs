@@ -122,6 +122,7 @@ image.working.stopped=working-stopped.gif
 image.break=break.gif
 image.packageIcon=packageIcon.gif
 image.broken=broken-arrow.gif
+image.help=help.gif
 
 # debugger:
 image.continue=continue.gif

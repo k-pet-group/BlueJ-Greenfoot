@@ -11,7 +11,7 @@ public class Tester
     
     private int x;
     public String name = "Michael";
-    private String privname = "Michael"; 
+    private String privname = "Michael";
     Tester t;
     public static int [] sintArray;
     private static String[] sstringArray;

@@ -1,0 +1,15 @@
+ ';' expected
+There is a semicolon missing at the end of 
+a line. This could be the line marked in the
+editor, or the line above.
+
+ String not terminated at end of line
+You have a string (with double quotes, like "this")
+in your program that starts in this line but does
+not end in the same line. Strings cannot span
+multiple lines. You either forgot the quotes at
+the end of the string, or you put them on another 
+line.
+
+
+
