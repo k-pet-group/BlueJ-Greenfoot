@@ -35,7 +35,7 @@ import javax.swing.event.TreeSelectionEvent;
  * Manages the properties appropriate to the selected submission scheme.
  *
  * @author Clive Miller
- * @version $Id: SubmissionProperties.java 1566 2002-12-10 14:52:31Z damiano $
+ * @version $Id: SubmissionProperties.java 1589 2002-12-14 22:16:07Z iau $
  **/
 
 class SubmissionProperties
@@ -238,7 +238,9 @@ class SubmissionProperties
      */
     public String getSelectedSchemeSimple()
     {
-        return selectedScheme.substring (selectedScheme.lastIndexOf ('/'));
+        int i = selectedScheme.lastIndexOf ('/');
+        if (i < 0) return selectedScheme;   // already simple
+        return selectedScheme.substring (i+1);
     }
     
     /**
