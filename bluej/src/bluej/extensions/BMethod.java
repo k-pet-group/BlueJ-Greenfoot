@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1968 2003-05-21 09:59:49Z damiano $
+ * @version $Id: BMethod.java 1970 2003-05-21 10:59:26Z damiano $
  */
 
 /*
@@ -120,7 +120,8 @@ public class BMethod
      * @return the resulting Object. It can be a wrapper for a primitive type or a BObject
      */
     public Object invoke (BObject onThis, Object[] params) 
-        throws ProjectNotOpenException, PackageNotFoundException
+        throws ProjectNotOpenException, PackageNotFoundException, 
+               InvocationArgumentException, InvocationErrorException
         {
         Package bluejPkg = parentId.getBluejPackage();
         
@@ -147,17 +148,7 @@ public class BMethod
         return BField.doGetVal(bluejPkg, resultName, objRef.getValue(thisField));
         }
     
-    /**
-     * Returns the last error that occurred during invocation.
-     * This should be called after receiving a <code>null</code> back from a call on <code>invoke()</code>.
-     * It returns a descriptive reason for the error.
-     */
-    public String getLastError()
-    {
-        if (invoker == null) return null;
-        return invoker.getError();
-    }
-    
+  
     /**
      * Returns a string representing the return type, name and signature of this method
      */

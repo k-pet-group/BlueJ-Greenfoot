@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: Invoker.java 1970 2003-05-21 10:59:26Z damiano $
  */
 
 public class Invoker extends Thread
@@ -245,28 +245,6 @@ public class Invoker extends Thread
     }
 
     // -- end of CallDialogWatcher interface --
-
-
-    /**
-     * Simple utility to decide when two params list do not match
-     */
-    private boolean paramsAlmostMatch ( String[] params, Class[] paramClass )
-    {
-        // A zero len param or a null one are the same !
-        if ( params     != null && params.length < 1 )     params=null;
-        if ( paramClass != null && paramClass.length < 1 ) paramClass=null;
-
-        if ( params == null && paramClass == null ) return true;
-
-        // If ANY of them is null we are in trouble now. (They MUST be both NOT null)
-        if ( params == null || paramClass == null ) return false;
-
-        // Now I know that BOTH are NOT empty. They MUST be the same length
-        if ( params.length != paramClass.length ) return false;
-
-        // Yes, they are almost the same, the actual type is missing :-)
-        return true;
-    }
     
     /**
      * Invokes a constructor or method with the given parameters.
@@ -274,11 +252,6 @@ public class Invoker extends Thread
     public void invokeDirect( String[] params )
     {
         if ( instanceName == null ) instanceName = objName;
-
-        if ( ! paramsAlmostMatch(params, member.getParameters() ) ) {
-            watcher.putError("Wrong parameters passed");
-            return;
-            }
 
         doInvocation(params, member.getParameters());
     }

@@ -12,7 +12,7 @@ import bluej.pkgmgr.Package;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1968 2003-05-21 09:59:49Z damiano $
+ * @version $Id: BConstructor.java 1970 2003-05-21 10:59:26Z damiano $
  */
 
 /*
@@ -84,7 +84,8 @@ public class BConstructor
      * Similar to reflection API.
      */
     public BObject newInstance ( Object[] initargs ) 
-      throws ProjectNotOpenException, PackageNotFoundException
+      throws ProjectNotOpenException, PackageNotFoundException, 
+             InvocationArgumentException, InvocationErrorException
       {
       Package bluejPkg = parentId.getBluejPackage();
       
@@ -101,15 +102,4 @@ public class BConstructor
       return new BObject(wrapper);
       }
 
-    /**
-     * Gets the last error that occurred during construction.
-     * This should be called after receiving a <code>null</code> back from newInstance.
-     * 
-     * @return any error as a String
-     */
-    public String getLastError()
-    {
-        if (invoker == null) return null;
-        return invoker.getError();
-    }
 }

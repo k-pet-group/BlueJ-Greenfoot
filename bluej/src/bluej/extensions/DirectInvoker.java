@@ -9,14 +9,15 @@ import bluej.views.*;
 /**
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
  *
- * @author Clive Miller, Damiano Bolla
- * @version $Id: DirectInvoker.java 1949 2003-05-13 14:37:36Z damiano $
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003
+ * @author Clive Miller, University of Kent at Canterbury, 2002
+ * 
+ * @version $Id: DirectInvoker.java 1970 2003-05-21 10:59:26Z damiano $
  */
 class DirectInvoker
 {
     private final Package pkg;
     private final CallableView callable;
-    private String errorMsg=null;
     private String resultName;
 
     /**
@@ -27,6 +28,79 @@ class DirectInvoker
         pkg = i_pkg;
         callable = i_callable;
     }
+
+
+    /**
+     * Call this if you want to call a constructor
+     */
+    DebuggerObject invokeConstructor (Object[] args)
+        throws InvocationArgumentException, InvocationErrorException
+        {
+        if ( ! paramsAlmostMatch(args,  callable.getParameters() ) ) 
+            throw new InvocationArgumentException ("invokeConstructor: bad arglist");
+
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+        if ( pmf == null ) return null;
+        
+        DirectResultWatcher watcher = new DirectResultWatcher();
+        Invoker invoker = new Invoker (pmf, callable, null, watcher);
+        invoker.invokeDirect ( convObjToString(args) );
+
+        // this will wait() on the invoke to finish
+        DebuggerObject result = watcher.getResult();
+
+        if (watcher.isFailed()) 
+          throw new InvocationErrorException ("invokeConstructor: Error="+watcher.getError());
+
+        if ( result == null ) // This is most likely an error, but not of the sort above. Unlikely to happen 
+          throw new InvocationErrorException ("invokeConstructor: ERROR: result==null");
+          
+        // Result is ALWAYS an Object and it is the first field on the returned object
+        result = result.getInstanceFieldObject(0);
+        resultName = watcher.getResultName();
+        return result;
+        }
+    
+    /**
+     * This if you want a method
+     * You need to pass the object where you want it applied.
+     */
+    DebuggerObject invokeMethod (String onThisObjectInstance, Object[] args)
+        throws InvocationArgumentException, InvocationErrorException
+        {
+        if ( ! paramsAlmostMatch(args,  callable.getParameters() ) ) 
+            throw new InvocationArgumentException ("invokeMethod: bad arglist");
+
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+        if ( pmf == null ) return null;
+        
+        DirectResultWatcher watcher = new DirectResultWatcher();
+        Invoker invoker = new Invoker (pmf, callable, onThisObjectInstance, watcher);
+        invoker.invokeDirect ( convObjToString(args));
+
+        // this will wait() on the invoke to finish
+        DebuggerObject result = watcher.getResult();
+
+        if (watcher.isFailed()) 
+          throw new InvocationErrorException ("invokeMethod: Error="+watcher.getError());
+
+        if (result == null) // This is most likely an error, but not of the sort above. Unlikely to happen 
+          throw new InvocationErrorException ("invokeMethod: ERROR: result==null");
+
+        // The "real" object is the first Field in this object.. BUT it is not always
+        // an Object, it may be a primitive one...
+        resultName = watcher.getResultName();
+        return result;
+        }
+
+
+    /**
+     * Returns the result object name of an invocation
+     */
+    String getResultName()
+      {
+      return resultName;
+      }
 
 
     /**
@@ -53,7 +127,7 @@ class DirectInvoker
      * Does one conversion. WARNING
      * WERIFY with MIchael or somebody else that this IS indeed correct !!!
      */
-    String convOneObj ( Object i_obj )
+    private String convOneObj ( Object i_obj )
       {
       // A string should be quoted by a couple of "".
       if ( i_obj instanceof String )     return "\""+i_obj+"\"";
@@ -64,89 +138,27 @@ class DirectInvoker
       }
     
     /**
-     * Call this if you want to call a constructor
+     * Simple utility to decide when two params list do not match
      */
-    DebuggerObject invokeConstructor (Object[] args)
-        {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-        if ( pmf == null ) return null;
-        
-        DirectResultWatcher watcher = new DirectResultWatcher();
-        Invoker invoker = new Invoker (pmf, callable, null, watcher);
-        invoker.invokeDirect ( convObjToString(args) );
-
-        // this will wait() on the invoke to finish
-        DebuggerObject result = watcher.getResult();
-
-        if (watcher.isFailed()) 
-          {
-          // If the invoke did fail miserably this is what I can do now...
-          errorMsg = "invokeConstructor: Error="+watcher.getError();
-          return null;
-          }
-
-        if ( result == null )
-          {
-          // This is most likely an error, but not of the sort above. Unlikely to happen 
-          errorMsg = "DirectInvoker.invokeConstructor: ERROR: result==null";
-          return null;
-          }
-          
-        // Result is ALWAYS an Object and it is the first field on the returned object
-        result = result.getInstanceFieldObject(0);
-        resultName = watcher.getResultName();
-        return result;
-        }
-    
-    /**
-     * This if you want a method
-     * You need to pass the object where you want it applied.
-     */
-    DebuggerObject invokeMethod (String onThisObjectInstance, Object[] args)
-        {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-        if ( pmf == null ) return null;
-        
-        DirectResultWatcher watcher = new DirectResultWatcher();
-        Invoker invoker = new Invoker (pmf, callable, onThisObjectInstance, watcher);
-        invoker.invokeDirect ( convObjToString(args));
-
-        // this will wait() on the invoke to finish
-        DebuggerObject result = watcher.getResult();
-
-        if (watcher.isFailed()) 
-          {
-          // If the invoke did fail miserably this is what I can do now...
-          errorMsg = "invokeMethod: Error="+watcher.getError();
-          return null;
-          }
-
-        if (result == null) 
-          {
-          // This is most likely an error, but not of the sort above. Unlikely to happen 
-          errorMsg = "DirectInvoker.invokeMethod: ERROR: result==null";
-          return null;
-          }
-
-        // The "real" object is the first Field in this object.. BUT it is not always
-        // an Object, it may be a primitive one...
-        resultName = watcher.getResultName();
-        return result;
-        }
-
-
-    /**
-     * If the returned error message is != null then there has been a serious error
-     */
-    public String getError()
+    private boolean paramsAlmostMatch ( Object[] params, Class[] paramClass )
       {
-      return errorMsg;
+      // A zero len param or a null one are the same !
+      if ( params     != null && params.length < 1 )     params=null;
+      if ( paramClass != null && paramClass.length < 1 ) paramClass=null;
+
+      if ( params == null && paramClass == null ) return true;
+
+      // If ANY of them is null we are in trouble now. (They MUST be both NOT null)
+      if ( params == null || paramClass == null ) return false;
+
+      // Now I know that BOTH are NOT empty. They MUST be the same length
+      if ( params.length != paramClass.length ) return false;
+
+      // Yes, they are almost the same, the actual type is missing :-)
+      return true;
       }
-    
-    public String getResultName()
-      {
-      return resultName;
-      }
+
+
     
 // ====================== UTILITY CLASS aligned left =========================
 
