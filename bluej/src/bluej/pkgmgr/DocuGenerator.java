@@ -61,7 +61,8 @@ public class DocuGenerator
 
     // static fields - tool-dependent
     /** The name (including path) of the documentation tool used. */
-    private static String docCommand = Config.getPropString("doctool.command");
+    private static String docCommand =
+                            Config.getJDKExecutablePath("doctool.command","javadoc");
 
     /** javadoc parameters for all runs: include author and version 
      * information, do not generate information about deprecated features,

@@ -18,20 +18,21 @@ import java.util.Properties;
 
 
 /**
- ** An Applet class role in a package, i.e. a target that is a Applet class file
- ** built from Java source code.
- **
- ** @author Bruce Quig
- **
- ** @version $Id: AppletClassRole.java 1168 2002-03-13 11:22:45Z mik $
- **/
+ * An Applet class role in a package, i.e. a target that is a Applet class file
+ * built from Java source code.
+ *
+ * @author Bruce Quig
+ * @version $Id: AppletClassRole.java 1260 2002-06-26 07:02:41Z ajp $
+ */
 public class AppletClassRole extends ClassRole
 {
     private RunAppletDialog dialog;
 
     static final String runAppletStr = Config.getString("pkgmgr.classmenu.runApplet");
     static final String htmlComment = Config.getString("pkgmgr.runApplet.htmlComment");
-	static final String APPLETVIEWER_COMMAND = Config.getPropString("appletViewer.command");
+
+    static final String APPLETVIEWER_COMMAND =
+                            Config.getJDKExecutablePath("appletViewer.command", "appletviewer");
 
     //static final String HTML_EXTENSION = ".html";
     static final String THIS_DIRECTORY = ".";
