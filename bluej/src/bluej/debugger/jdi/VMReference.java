@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2816 2004-07-26 00:10:16Z davmac $
+ * @version $Id: VMReference.java 2823 2004-07-27 04:51:44Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -329,11 +329,14 @@ class VMReference
      */
     public synchronized void close()
     {
-        //machine.dispose();
-        if (remoteVMprocess != null) {
-            remoteVMprocess.destroy();
+        if(machine != null) {
+            closeIO();
+            machine.dispose();
+            if (remoteVMprocess != null) {
+                remoteVMprocess.destroy();
+            }
+            // machine = null;
         }
-        machine = null;
     }
 
     /**
@@ -732,10 +735,8 @@ class VMReference
         // There appears to be a VM bug related to system.exit() being called
         // in an invocation thread. The event is only seen as a thread death.
         // Only affects some platforms/vm versions some of the time.
-        if(tr == serverThread || tr == workerThread) {
-            closeIO();
-            machine.dispose();
-        }
+        if(tr == serverThread || tr == workerThread)
+            close();
     }
 
     /**

@@ -27,9 +27,14 @@ import com.sun.jdi.*;
  * listens for remote VM events and calls back into VMReference on reciept of
  * these events.
  * 
+ * Most of the actual access to the virtual machine occurs through the
+ * MachineLoader thread. When the vm is restarted by user request, a new loader
+ * thread is created immediately so that any method calls/etc will execute
+ * on the new machine (after waiting until it has loaded).
+ * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 2816 2004-07-26 00:10:16Z davmac $
+ * @version $Id: JdiDebugger.java 2823 2004-07-27 04:51:44Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -157,7 +162,7 @@ public class JdiDebugger extends Debugger
             // possibly to then restart it).
             autoRestart = restart;
             selfRestart = restart;
-            vmRunning = false;
+            // vmRunning = false;
 
             // Create the new machine loader thread. That way any operation
             // on the VM between now and the time the new machine has finished
@@ -719,25 +724,26 @@ public class JdiDebugger extends Debugger
     synchronized void vmDisconnect()
     {
         // Debug.message("VM disconnect. Restart: " + autoRestart);
-
+        
         if (autoRestart) {
             // promote garbage collection but also indicate to the
             // launch procedure that we are not in a launch (see launch()).
             // In the case of a self-restart, a new machine loader has only
             // just been set-up, so don't trash it now!
-            if (!selfRestart && vmRunning)
+            if (!selfRestart)
                 machineLoader = new MachineLoaderThread();
             vmRunning = false;
             selfRestart = true;
-
+            
             vmRef.closeIO();
             vmRef = null;
-
+            
             launch();
-
+            
             raiseRemoveStepMarksEvent();
             raiseStateChangeEvent(Debugger.IDLE, Debugger.NOTREADY);
-
+            
+            allThreads.clear();
             treeModel.setRoot(new JdiThreadNode());
             treeModel.reload();
             usedNames.clear();
@@ -755,7 +761,7 @@ public class JdiDebugger extends Debugger
         synchronized (treeModel.getRoot()) {
             JdiThread newThread = new JdiThread(treeModel, tr);
             allThreads.add(newThread);
-
+            
             displayThread(newThread);
         }
     }
@@ -765,14 +771,14 @@ public class JdiDebugger extends Debugger
      * 
      * Use this event to keep our thread tree model up to date.
      */
-    void threadDeath(ThreadReference tr)
+    void threadDeath(final ThreadReference tr)
     {
         synchronized (treeModel.getRoot()) {
             JdiThreadNode jtn = treeModel.findThreadNode(tr);
             if (jtn != null) {
                 treeModel.removeNodeFromParent(jtn);
             }
-
+            
             allThreads.removeThread(tr);
         }
     }
