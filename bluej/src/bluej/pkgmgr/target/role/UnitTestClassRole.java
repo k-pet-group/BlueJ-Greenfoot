@@ -27,7 +27,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2360 2003-11-18 03:43:39Z ajp $
+ * @version $Id: UnitTestClassRole.java 2373 2003-11-19 03:41:04Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -151,7 +151,7 @@ public class UnitTestClassRole extends ClassRole
      */
     public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class cl)
     {
-        boolean enable = !ct.getPackage().getProject().inTestMode();
+        boolean enable = !ct.getPackage().getProject().inTestMode() && ct.hasSourceCode();
             
         addMenuItem(menu, new MakeTestCaseAction(createTest,
                                                     ct.getPackage().getEditor(), ct), enable);

@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2332 2003-11-14 04:52:53Z ajp $
+ * @version $Id: Package.java 2373 2003-11-19 03:41:04Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -629,7 +629,18 @@ public final class Package extends Graph
 
             if(target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)target;
-                ct.analyseSource(false);
+
+                if (ct.hasSourceCode()) 
+                    ct.analyseSource(false);
+                else
+                    try {
+                        Class cl = loadClass(ct.getQualifiedName());
+                        ct.determineRole(cl);
+                    }
+                    catch (LinkageError le) {
+                        Debug.message(le.toString());
+                    }
+
             }
         }
 
@@ -799,16 +810,16 @@ public final class Package extends Graph
      *   CLASS_EXISTS   - a class with this name already exists
      *   COPY_ERROR     - could not copy
      */
-    public int importFile(File sourceFile)
+    public int importFile(File aFile)
     {
         // check whether specified class exists and is a java file
 
-        if(! sourceFile.exists())
+        if(!aFile.exists())
             return FILE_NOT_FOUND;
-        String fileName = sourceFile.getName();
+        String fileName = aFile.getName();
 
         String className;
-        if(fileName.endsWith(".java"))		// it's a Java source file
+        if(fileName.endsWith(".java"))          // it's a Java source file
             className = fileName.substring(0, fileName.length() - 5);
         else
             return ILLEGAL_FORMAT;
@@ -820,7 +831,7 @@ public final class Package extends Graph
         // copy class source into package
 
         File destFile = new File(getPath(),fileName);
-        if(!FileUtility.copyFile(sourceFile, destFile))
+        if(!FileUtility.copyFile(aFile, destFile))
             return COPY_ERROR;
 
         ClassTarget t = addClass(className);
@@ -1537,6 +1548,26 @@ public final class Package extends Graph
             if(t instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)t;
                 names.add(ct.getBaseName());
+            }
+        }
+        return names;
+    }
+
+    /**
+     * Return a List of Strings with names of all classes
+     * in this package that has acccompaning source.
+     */
+    public List getAllClassnamesWithSource()
+    {
+        List names = new ArrayList();
+
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
+            Target t = (Target)it.next();
+
+            if(t instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget)t;
+                if (ct.hasSourceCode())
+                    names.add(ct.getBaseName());
             }
         }
         return names;

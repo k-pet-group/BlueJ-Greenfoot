@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2341 2003-11-14 11:26:55Z polle $
+ * @version $Id: PkgMgrFrame.java 2373 2003-11-19 03:41:04Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1120,6 +1120,7 @@ public class PkgMgrFrame extends JFrame
      */
     private void doAddFromFile()
     {
+        // file dialog that shows .java and .class files
         String className = FileUtility.getFileName(this,
                                                    Config.getString("pkgmgr.addClass.title"),
                                                    Config.getString("pkgmgr.addClass.buttonLabel"),
@@ -1487,7 +1488,7 @@ public class PkgMgrFrame extends JFrame
 			}
 		}
 
-    getProject().createPackageDirectory (fullName);
+		getProject().createPackageDirectory (fullName);
     
         // check that everything has gone well and instruct all affected
         // packages to reload (to make them notice the new sub packages)
@@ -1676,7 +1677,8 @@ public class PkgMgrFrame extends JFrame
      * @param removableTarget
      * @return true if the package should be removed.
      */
-    public boolean askRemovePackage(PackageTarget removableTarget){
+    public boolean askRemovePackage(PackageTarget removableTarget)
+    {
         String name = removableTarget.getQualifiedName();
         PkgMgrFrame[] f = getAllProjectFrames(getProject(), name);
 
@@ -1703,7 +1705,9 @@ public class PkgMgrFrame extends JFrame
             for(int i=0; i<targets.length; i++){
                 if(targets[i] instanceof ClassTarget) {
                     ClassTarget t = (ClassTarget) targets[i];
-                    pkg.compile(t);
+
+                    if (t.hasSourceCode())
+                        pkg.compile(t);
                 }
             }
         }

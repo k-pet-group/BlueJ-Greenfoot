@@ -9,7 +9,7 @@ import bluej.pkgmgr.Package;
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: EditableTarget.java 2373 2003-11-19 03:41:04Z ajp $
  */
 public abstract class EditableTarget extends DependentTarget
     implements EditorWatcher
@@ -20,11 +20,6 @@ public abstract class EditableTarget extends DependentTarget
     {
         super(pkg, name);
     }
-
-    /**
-     * @returns a boolean indicating whether this target contains source code
-     */
-    protected abstract boolean isCode();
 
     /**
      * @returns the name of the (text) file this target corresponds to.

@@ -85,7 +85,7 @@ public class PackagePrintManager extends Thread
      */
     public void printSourceCode(PrinterJob printJob)
     {
-        List classes = pkg.getAllClassnames();
+        List classes = pkg.getAllClassnamesWithSource();
 
         for (Iterator it = classes.iterator(); it.hasNext();) {
             String className = (String) it.next();

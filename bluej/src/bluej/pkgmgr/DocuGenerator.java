@@ -393,7 +393,7 @@ public class DocuGenerator
         }
 
         // second: get class names of classes in unnamed package, if any
-        List classNames = project.getPackage("").getAllClassnames(); // ok 311003 Damiano
+        List classNames = project.getPackage("").getAllClassnamesWithSource(); // ok 311003 Damiano
         String dirName = project.getProjectDir().getAbsolutePath();
         for (Iterator names = classNames.iterator();names.hasNext(); ) {
             call.add(dirName + "/" + names.next() + ".java");

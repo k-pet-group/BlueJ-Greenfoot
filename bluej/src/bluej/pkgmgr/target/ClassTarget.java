@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2370 2003-11-19 00:50:01Z ajp $
+ * @version $Id: ClassTarget.java 2373 2003-11-19 03:41:04Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -182,7 +182,7 @@ public class ClassTarget extends EditableTarget
      * significant computation (ie. reparsing). If computation is
      * required, the existing role will do for the time being.
      */
-    protected void determineRole(Class cl)
+    public void determineRole(Class cl)
     {
         if (cl != null) {
 			Class junitClass = null;
@@ -318,21 +318,17 @@ public class ClassTarget extends EditableTarget
      */
     public boolean upToDate()
     {
-        try {
-            // Check if the class file is up to date
-            File src = getSourceFile();
-            File clss = getClassFile();
+        // check if the class file is up to date
+        File src = getSourceFile();
+        File clss = getClassFile();
 
-			// if just a .class file with no src, it better be up to date
-			if(!src.exists() && clss.exists())
-				return true;
+        // if just a .class file with no src, it better be up to date
+		if(!hasSourceCode())
+			return true;
 				
-            if(!clss.exists()
-               || (src.exists() && (src.lastModified() > clss.lastModified())))
-                return false;
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        if(!clss.exists()
+             || (src.exists() && (src.lastModified() > clss.lastModified())))
+            return false;
 
         return true;
     }
@@ -396,12 +392,9 @@ public class ClassTarget extends EditableTarget
 
     // --- EditableTarget interface ---
 
-    /**
-     * @return a boolean indicating whether this target contains source code
-     */
-    protected boolean isCode()
+    public boolean hasSourceCode()
     {
-        return true;
+        return getSourceFile().canRead();
     }
 
     /**
@@ -898,7 +891,7 @@ public class ClassTarget extends EditableTarget
 
                 // trouble loading the class
                 // remove the class file and invalidate the target
-                if (getSourceFile().exists()) {
+                if (hasSourceCode()) {
                     getClassFile().delete();    
                     invalidate();
                 }
@@ -944,7 +937,7 @@ public class ClassTarget extends EditableTarget
 			if (role.createClassStaticMenu(menu, this, cl))
 				menu.addSeparator();
         role.addMenuItem(menu, new EditAction(), true);
-        role.addMenuItem(menu, new CompileAction(), true);
+        role.addMenuItem(menu, new CompileAction(), hasSourceCode());
         role.addMenuItem(menu, new InspectAction(), cl != null);
         role.addMenuItem(menu, new RemoveAction(), true);
 
@@ -990,55 +983,6 @@ public class ClassTarget extends EditableTarget
 			}
         }
     }
-
-	private class AssociateTestAction extends AbstractAction
-	{
-		public AssociateTestAction()
-		{
-			putValue(NAME, "Associate With Existing Test Class");
-		}
-
-		public void actionPerformed(ActionEvent e)
-		{
-			List unittests = getPackage().getTestTargets();
-
-			SelectTestClassDialog stcd = new SelectTestClassDialog(PkgMgrFrame.findFrame(getPackage()), unittests.toArray());
-			
-			stcd.show();			
-
-			String assocName = stcd.getResult();
-			
-			if(assocName != null && getPackage().getTarget(assocName) != null) {
-				setAssociation(getPackage().getTarget(assocName));
-				endMove();
-                getPackage().getEditor().revalidate();
-                getPackage().getEditor().repaint();
-			}
-		}
-	}
-
-	private class DisassociateTestAction extends AbstractAction
-	{
-		public DisassociateTestAction()
-		{
-			putValue(NAME, "Disassociate Test Class");
-		}
-
-		public void actionPerformed(ActionEvent e)
-		{
-			Target t = getAssociation();
-    	
-			if (t != null) {
-				t.setPos(t.getX() + 80, t.getY());
-
-                getPackage().getEditor().revalidate();
-                getPackage().getEditor().repaint();
-			}
-
-			setAssociation(null);
-		}
-	}
-
 
     private class EditAction extends AbstractAction
     {
@@ -1107,9 +1051,16 @@ public class ClassTarget extends EditableTarget
         g.setColor(getBorderColour());
         drawBorders(g);
 
-        if(!sourceInfo.isValid())
-            g.drawImage(brokenImage, getX() + TEXT_BORDER, getY() + getHeight() - 22, null);
-
+        if(!hasSourceCode()) {
+            g.setColor(getTextColour());
+            g.setFont(getFont().deriveFont((float)(getFont().getSize() - 2)));
+            Utility.drawCentredText(g, "(no source)", TEXT_BORDER, getHeight() - 18,
+                                getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
+        }
+        else if(!sourceInfo.isValid()) {
+            g.drawImage(brokenImage, TEXT_BORDER, getHeight() - 22, null);
+        }
+        
         // delegate extra functionality to role object
         getRole().draw(g, this, getX(), getY(), getWidth(), getHeight());
     }
