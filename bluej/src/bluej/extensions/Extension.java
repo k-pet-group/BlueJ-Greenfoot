@@ -4,10 +4,10 @@ import java.net.URL;
 import bluej.Config;
 
 /**
- * The Extensions superclass, all extensions must extend this class.
- * Your class must have an empty constructor.
+ * Defines the interface between BlueJ and an extension. All extensions must extend this class.
+ * A concrete extension class must also have a no-arguments constructor.
  * 
- * @version    $Id: Extension.java 1849 2003-04-14 14:05:01Z damiano $
+ * @version    $Id: Extension.java 1853 2003-04-15 14:57:46Z iau $
  */
 
 /*
@@ -22,61 +22,55 @@ public abstract class Extension
      */
     /**
      * The major version number of the Extension API.
-     * Provided so that Extensions can check for compatibility.
+     * Provided so that extensions can check for compatibility.
      */
     public int VERSION_MAJOR = 2;
 
     /**
      * The minor version number of the Extension API.
-     * Provided so that Extensions can check for compatibility.
+     * Provided so that extensions can check for compatibility.
      */
     public int VERSION_MINOR = 1;
 
     /**
      * Determine whether this extension is compatible with a particular version
      * of the extensions API. This method is called before the startup() method.
-     * The extension writer can use the VERSION_MAJOR and VERSION_MINOR as an aid to determine
-     * if his extension is compatible with the current BlueJ release.
+     * An extension can use the VERSION_MAJOR and VERSION_MINOR as an aid to determine
+     * whether it is compatible with the current BlueJ release.
      */
     public abstract boolean isCompatible();
 
     /**
-     * After the Extensions is created this method is called.
-     * A reference on the relevant BlueJ object is passed so you can interact with BlueJ.
-     * This is not a thread. You must return as quick as possible from this method. If
-     * you start doing something a thread should be created.
+     * Called when the extension can start its activity.
+     * This is not called on a separate thread. Extensions should return as quick as 
+     * possible from this method after creating their own thread if necessary.
      *
-     * @param  bluej  The statring point to interact with BlueJ
+     * @param  bluej  The starting point for interactions with BlueJ
      */
     public abstract void startup(BlueJ bluej);
 
 
     /**
-     * Terminate this extension.
-     * When bluej decides that this extension is not longer needed it will call this 
-     * method before detaching it from the system. Note that an extension may
-     * be reloaded after having been unloaded. What you Extension writer should do here is to
-     * shut down everything you created. The extension may return a not
-     * null message string that will be written to the console.
-     * In any case the extension will be disconnected from BlueJ.
-     *
-     * @return    A possible not null string that will be sent to the console
+     * Called when the extension should tidy up and terminate.
+     * When BlueJ decides that this extension is no longer needed it will call this 
+     * method before removing it from the system. Note that an extension may
+     * be reloaded after having been terminated.
      */
-    public String terminate()
+    public void terminate()
     {
-        return null;
     }
 
     /**
-     * Should return the version of the loaded extension.
-     * Please limit the string to five or 10 chars.
-     * This will be displayed into the Help->Installed Extensions
+     * Should return the version of the extension.
+     * Please limit the string to five to 10 characters.
+     * This will be displayed in the Help->Installed Extensions dialog
      */
     public abstract String getVersion();
 
     /**
      * Should return a description of the extension's function.
-     * It should be a brief statement of the Extension purpose.
+     * It should be a brief statement of the extension's purpose.
+     * This will be displayed in the Help->Installed Extensions dialog
      */
     public String getDescription()
     {
@@ -84,9 +78,10 @@ public abstract class Extension
     }
 
     /**
-     * Should return a URL for more information about the extension.
+     * Should return a URL where more information about the extension is available.
      * Ideally this includes complete manual, possible upgrades and configuration details.
-     * If no url is available then null can be returned.
+     * If no information is available then null can be returned.
+     * This will be displayed in the Help->Installed Extensions dialog
      */
     public URL getURL()
     {
