@@ -18,6 +18,8 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.*;
+import java.awt.datatransfer.*;
+
 
 import java.awt.Event;
 import java.awt.event.*;
@@ -93,13 +95,13 @@ public final class MoeActions
         SHIFT_CTRL_MASK = Event.CTRL_MASK + Event.SHIFT_MASK;
         undoManager = new UndoManager();
 
-        // the following can be changed once jdk 1.2 is not used anymore.
-        // For jdk 1.3 and later, this should read:
-        //    keymap = textComponent.getKeymap();
-        // for 1.3, this will work, because it returns a new, empty keymap.
-        // for 1.2, we need to create our own:
+        if(System.getProperty("java.version").startsWith("1.2")) {
           keymap = JTextComponent.addKeymap("BlueJ map", textComponent.getKeymap());
           textComponent.setKeymap(keymap);
+        }
+        else {
+            keymap = textComponent.getKeymap();
+        }
 
         createActionTable(textComponent);
         keyCatcher = new KeyCatcher();
@@ -274,7 +276,7 @@ public final class MoeActions
         }
 
         /* side effect: clears message in editor! */
-        protected MoeEditor getEditor(ActionEvent e) {
+        protected final MoeEditor getEditor(ActionEvent e) {
             JTextComponent textComponent = getTextComponent(e);
             MoeEditor ed = (MoeEditor)textComponent.getTopLevelAncestor();
             ed.clearMessage();
@@ -379,11 +381,11 @@ public final class MoeActions
         {
             if (undoManager.canUndo()) {
                 this.setEnabled(true);
-                putValue(Action.NAME, undoManager.getUndoPresentationName());
+                //putValue(Action.NAME, undoManager.getUndoPresentationName());
             }
             else {
                 this.setEnabled(false);
-                putValue(Action.NAME, "Undo");
+                //putValue(Action.NAME, "Undo");
             }
         }
     }
@@ -414,11 +416,11 @@ public final class MoeActions
         {
             if (undoManager.canRedo()) {
                 this.setEnabled(true);
-                putValue(Action.NAME, undoManager.getRedoPresentationName());
+                //putValue(Action.NAME, undoManager.getRedoPresentationName());
             }
             else {
                 this.setEnabled(false);
-                putValue(Action.NAME, "Redo");
+                //putValue(Action.NAME, "Redo");
             }
         }
     }
@@ -575,6 +577,84 @@ public final class MoeActions
 
             JTextComponent textPane = getTextComponent(e);
             doIndent(textPane);
+        }
+    }
+
+    // --------------------------------------------------------------------
+
+    class CopyLineAction extends MoeAbstractAction {
+
+        public CopyLineAction() {
+            super("copy-line");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            getActionByName("caret-begin-line").actionPerformed(e);
+            getActionByName("selection-down").actionPerformed(e);
+            addSelectionToClipboard(getTextComponent(e));
+        }
+    }
+
+    // --------------------------------------------------------------------
+
+    class CutLineAction extends MoeAbstractAction {
+
+        public CutLineAction() {
+            super("cut-line");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            getActionByName("caret-begin-line").actionPerformed(e);
+            getActionByName("selection-down").actionPerformed(e);
+            addSelectionToClipboard(getTextComponent(e));
+            getActionByName("delete-previous").actionPerformed(e);
+        }
+    }
+
+    // --------------------------------------------------------------------
+
+    class CutEndOfLineAction extends MoeAbstractAction {
+
+        public CutEndOfLineAction() {
+            super("cut-end-of-line");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            JTextComponent textPane = getTextComponent(e);
+            getActionByName("selection-end-line").actionPerformed(e);
+            addSelectionToClipboard(getTextComponent(e));
+            getActionByName("delete-previous").actionPerformed(e);
+        }
+    }
+
+    // --------------------------------------------------------------------
+
+    class CutWordAction extends MoeAbstractAction {
+
+        public CutWordAction() {
+            super("cut-word");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            getActionByName("caret-previous-word").actionPerformed(e);
+            getActionByName("selection-next-word").actionPerformed(e);
+            addSelectionToClipboard(getTextComponent(e));
+            getActionByName("delete-previous").actionPerformed(e);
+        }
+    }
+
+    // --------------------------------------------------------------------
+
+    class CutEndOfWordAction extends MoeAbstractAction {
+
+        public CutEndOfWordAction() {
+            super("cut-end-of-word");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            getActionByName("selection-next-word").actionPerformed(e);
+            addSelectionToClipboard(getTextComponent(e));
+            getActionByName("delete-previous").actionPerformed(e);
         }
     }
 
@@ -813,6 +893,29 @@ public final class MoeActions
 
     // ========================= SUPPORT ROUTINES ==========================
 
+    /**
+     * Add the current selection of the text component to the clipboard.
+     */
+    public void addSelectionToClipboard(JTextComponent textComponent)
+    {
+        Clipboard clipboard = textComponent.getToolkit().getSystemClipboard();
+
+        // get text from clipboard
+        Transferable content = clipboard.getContents(this);
+        String clipContent = "";
+        if (content != null) {
+            try {
+                clipContent = (String)(content.getTransferData(DataFlavor.stringFlavor));
+            } 
+            catch (Exception exc) {} // content was not string
+        }
+
+        // add current selection and store back in clipboard        
+        StringSelection contents = new StringSelection(clipContent + 
+                textComponent.getSelectedText());
+        clipboard.setContents(contents, contents);
+    }
+
     // --------------------------------------------------------------------
     /**
      * Return the current line.
@@ -914,7 +1017,6 @@ public final class MoeActions
         return cnt;
     }
 
-
     // --------------------------------------------------------------------
     /**
      * Create the table of action supported by this editor
@@ -943,6 +1045,11 @@ public final class MoeActions
             new InsertMethodAction(),
             new IndentAction(),
             new BreakAndIndentAction(),
+            new CopyLineAction(),
+            new CutLineAction(),
+            new CutEndOfLineAction(),
+            new CutWordAction(),
+            new CutEndOfWordAction(),
 
             new FindAction(),
             new FindBackwardAction(),
@@ -983,10 +1090,15 @@ public final class MoeActions
 
             // edit functions
 
-            (Action)(actions.get(DefaultEditorKit.deletePrevCharAction)),           // 0
+            (Action)(actions.get(DefaultEditorKit.deletePrevCharAction)),      // 0
             (Action)(actions.get(DefaultEditorKit.deleteNextCharAction)),
             (Action)(actions.get(DefaultEditorKit.copyAction)),
             (Action)(actions.get(DefaultEditorKit.cutAction)),
+            (Action)(actions.get("copy-line")),
+            (Action)(actions.get("cut-line")),
+            (Action)(actions.get("cut-end-of-line")),
+            (Action)(actions.get("cut-word")),
+            (Action)(actions.get("cut-end-of-word")),
             (Action)(actions.get(DefaultEditorKit.pasteAction)),
             (Action)(actions.get(DefaultEditorKit.insertTabAction)),
             (Action)(actions.get(DefaultEditorKit.insertBreakAction)),
@@ -996,66 +1108,66 @@ public final class MoeActions
             (Action)(actions.get("comment")),
             (Action)(actions.get("uncomment")),
 
-            (Action)(actions.get(DefaultEditorKit.selectWordAction)),               // 12
+            (Action)(actions.get(DefaultEditorKit.selectWordAction)),          // 17
             (Action)(actions.get(DefaultEditorKit.selectLineAction)),
             (Action)(actions.get(DefaultEditorKit.selectParagraphAction)),
-            (Action)(actions.get(DefaultEditorKit.selectAllAction)),
+            (Action)(actions.get(DefaultEditorKit.selectAllAction)),           // 20
             (Action)(actions.get(DefaultEditorKit.selectionBackwardAction)),
             (Action)(actions.get(DefaultEditorKit.selectionForwardAction)),
             (Action)(actions.get(DefaultEditorKit.selectionUpAction)),
             (Action)(actions.get(DefaultEditorKit.selectionDownAction)),
-            (Action)(actions.get(DefaultEditorKit.selectionBeginWordAction)),       // 20
+            (Action)(actions.get(DefaultEditorKit.selectionBeginWordAction)),
             (Action)(actions.get(DefaultEditorKit.selectionEndWordAction)),
             (Action)(actions.get(DefaultEditorKit.selectionPreviousWordAction)),
             (Action)(actions.get(DefaultEditorKit.selectionNextWordAction)),
             (Action)(actions.get(DefaultEditorKit.selectionBeginLineAction)),
-            (Action)(actions.get(DefaultEditorKit.selectionEndLineAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionEndLineAction)),    // 30
             (Action)(actions.get(DefaultEditorKit.selectionBeginParagraphAction)),
             (Action)(actions.get(DefaultEditorKit.selectionEndParagraphAction)),
             (Action)(actions.get("selection-page-up")),
             (Action)(actions.get("selection-page-down")),
-            (Action)(actions.get(DefaultEditorKit.selectionBeginAction)),           // 30
+            (Action)(actions.get(DefaultEditorKit.selectionBeginAction)),
             (Action)(actions.get(DefaultEditorKit.selectionEndAction)),
             (Action)(actions.get("unselect")),
 
             // move and scroll functions
 
-            (Action)(actions.get(DefaultEditorKit.backwardAction)),            // 33
+            (Action)(actions.get(DefaultEditorKit.backwardAction)),            // 38
             (Action)(actions.get(DefaultEditorKit.forwardAction)),
-            (Action)(actions.get(DefaultEditorKit.upAction)),
+            (Action)(actions.get(DefaultEditorKit.upAction)),                  // 40
             (Action)(actions.get(DefaultEditorKit.downAction)),
             (Action)(actions.get(DefaultEditorKit.beginWordAction)),
             (Action)(actions.get(DefaultEditorKit.endWordAction)),
             (Action)(actions.get(DefaultEditorKit.previousWordAction)),
-            (Action)(actions.get(DefaultEditorKit.nextWordAction)),            // 40
+            (Action)(actions.get(DefaultEditorKit.nextWordAction)),
             (Action)(actions.get(DefaultEditorKit.beginLineAction)),
             (Action)(actions.get(DefaultEditorKit.endLineAction)),
             (Action)(actions.get(DefaultEditorKit.beginParagraphAction)),
             (Action)(actions.get(DefaultEditorKit.endParagraphAction)),
-            (Action)(actions.get(DefaultEditorKit.pageUpAction)),
+            (Action)(actions.get(DefaultEditorKit.pageUpAction)),              // 50
             (Action)(actions.get(DefaultEditorKit.pageDownAction)),
             (Action)(actions.get(DefaultEditorKit.beginAction)),
             (Action)(actions.get(DefaultEditorKit.endAction)),
 
             // class functions
-            (Action)(actions.get("save")),                      // 49
+            (Action)(actions.get("save")),                      // 54
             (Action)(actions.get("reload")),
             (Action)(actions.get("close")),
             (Action)(actions.get("print")),
             (Action)(actions.get("page-setup")),
 
             // customisation functions
-            (Action)(actions.get("key-bindings")),              // 54
+            (Action)(actions.get("key-bindings")),              // 59
             (Action)(actions.get("preferences")),
 
             // help functions
-            (Action)(actions.get("describe-key")),              // 56
+            (Action)(actions.get("describe-key")),              // 61
             (Action)(actions.get("help-mouse")),
             (Action)(actions.get("show-manual")),
             (Action)(actions.get("about-editor")),
 
             // misc functions
-            undoAction,                                         // 60
+            undoAction,                                         // 65
             redoAction,
             (Action)(actions.get("find")),
             (Action)(actions.get("find-backward")),
@@ -1065,7 +1177,7 @@ public final class MoeActions
             (Action)(actions.get("compile")),
             (Action)(actions.get("toggle-interface-view")),
             (Action)(actions.get("toggle-breakpoint")),
-        };                                                      // 70
+        };                                                      // 75
 
         categories = new String[] { Config.getString("editor.functions.editFunctions"),
                                     Config.getString("editor.functions.moveScroll"),
@@ -1074,7 +1186,7 @@ public final class MoeActions
                                     Config.getString("editor.functions.help"),
                                     Config.getString("editor.functions.misc")};
 
-        categoryIndex = new int[] { 0, 33, 49, 54, 56, 60, 70 };
+        categoryIndex = new int[] { 0, 38, 54, 59, 61, 65, 75 };
     }
 
     /**

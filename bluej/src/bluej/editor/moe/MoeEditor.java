@@ -51,7 +51,7 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 
 // PENDING: add "finalize" method that does:
 //        MoeEditorManager.editorManager.removeEditor(this);
-// cuurently, editors never get removed from editor manager!
+// currently, editors never get removed from editor manager!
 
 public final class MoeEditor extends JFrame
     implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener
