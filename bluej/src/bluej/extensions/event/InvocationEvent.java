@@ -7,7 +7,7 @@ import bluej.extensions.BPackage;
  * This class represents an invocation event.
  * The various methods here provided will return you the values of the invocation.
  * 
- * @version $Id: InvocationEvent.java 1676 2003-03-10 09:26:54Z damiano $
+ * @version $Id: InvocationEvent.java 1685 2003-03-10 12:49:18Z damiano $
  */
 public class InvocationEvent extends ExtEvent
 {
@@ -95,5 +95,24 @@ public class InvocationEvent extends ExtEvent
     {
         return parameters;
     } 
+
+    /**
+     * returns a meaningful version of this object.
+     */
+    public String toString() 
+      {
+      StringBuffer aRisul = new StringBuffer (500);
+
+      aRisul.append("InvocationEvent:");
+
+      if ( className != null ) aRisul.append(" className="+className);
+      if ( objectName != null ) aRisul.append(" objectName="+objectName);
+      if ( methodName != null ) aRisul.append(" methodName="+methodName);
+      
+      return aRisul.toString();      
+      }
+
+
+    
 
 }

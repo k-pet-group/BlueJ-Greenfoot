@@ -8,7 +8,7 @@ import bluej.extensions.BPackage;
  * but it will be different as soon as I am able to get the returnin values.
  * Damiano
  * </pre>
- * @version $Id: ResultEvent.java 1682 2003-03-10 11:58:52Z damiano $
+ * @version $Id: ResultEvent.java 1685 2003-03-10 12:49:18Z damiano $
  */
 public class ResultEvent extends ExtEvent
 {
@@ -115,11 +115,34 @@ public class ResultEvent extends ExtEvent
     /**
      * The resulting object should be one of the primitive wrappers one (like Integer, Long, etc)
      * or a BObject that you can manage.
+     * WARNING: To be completed.
      * 
      * @return an Object of various types depending on the type. It can return null if the risul is void.
      */
     public Object getResult ()
       {
       return resultObj;
+      }
+
+    /**
+     * returns a meaningful version of this object.
+     */
+    public String toString() 
+      {
+      StringBuffer aRisul = new StringBuffer (500);
+
+      aRisul.append("ResultEvent:");
+
+      if ( eventId == NORMAL_EXIT ) aRisul.append(" NORMAL_EXIT");
+      if ( eventId == FORCED_EXIT ) aRisul.append(" FORCED_EXIT");
+      if ( eventId == EXCEPTION_EXIT ) aRisul.append(" EXCEPTION_EXIT");
+      if ( eventId == TERMINATED_EXIT ) aRisul.append(" TERMINATED_EXIT");
+
+      if ( className != null ) aRisul.append(" className="+className);
+      if ( objectName != null ) aRisul.append(" objectName="+objectName);
+      if ( methodName != null ) aRisul.append(" methodName="+methodName);
+      if ( resultObj != null ) aRisul.append(" resultObj="+resultObj);
+      
+      return aRisul.toString();      
       }
 }

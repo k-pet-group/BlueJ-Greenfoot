@@ -6,7 +6,7 @@ import bluej.pkgmgr.Package;
 /**
  * Package events, like package OPEN/CLOSE are delivered using this event Class
  *
- * @version $Id: PackageEvent.java 1671 2003-03-10 08:58:32Z damiano $
+ * @version $Id: PackageEvent.java 1685 2003-03-10 12:49:18Z damiano $
  */
 public class PackageEvent extends ExtEvent
 {
@@ -42,5 +42,22 @@ public class PackageEvent extends ExtEvent
     public BPackage getPackage ()
       {
       return new BPackage (thisPackage);
+      }
+
+    /**
+     * returns a meaningful description of this event
+     */
+    public String toString()
+      {
+      StringBuffer aRisul = new StringBuffer (500);
+
+      aRisul.append("PackageEvent:");
+
+      if ( eventId == PACKAGE_OPENED ) aRisul.append(" PACKAGE_OPENED");
+      if ( eventId == PACKAGE_CLOSING ) aRisul.append(" PACKAGE_CLOSING");
+      
+      aRisul.append(" packageName="+thisPackage.getQualifiedName());
+      
+      return aRisul.toString();      
       }
 }

@@ -24,4 +24,15 @@ public class AppEvent extends ExtEvent
     {
     return eventId;
     }
+
+
+  /**
+   * returns a meaningful description of this object
+   */
+  public String toString()
+    {
+    if ( eventId == APP_READY_EVENT ) return "AppEvent: APP_READY_EVENT";
+
+    return "AppEvent: UNKNOWN eventId="+eventId;
+    }
   }
