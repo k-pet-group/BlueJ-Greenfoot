@@ -4,9 +4,9 @@
 ##  Define the toolbar
 ##
 
-toolbar = compile undo cut copy paste find find-next close
+toolbar = compile undo cut copy paste close
 
-# actions for toolbar commands (only needed when it differs from command name
+# actions for toolbar commands (only needed when it differs from command name)
 
 openAction = open-file
 cutAction = cut-to-clipboard
