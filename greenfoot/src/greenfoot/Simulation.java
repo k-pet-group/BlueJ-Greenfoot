@@ -16,7 +16,7 @@ import javax.swing.event.EventListenerList;
  * obejcts in the world and then paints them.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Simulation.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: Simulation.java 3141 2004-11-23 01:17:03Z davmac $
  */
 public class Simulation extends Thread
     implements ChangeListener
@@ -99,9 +99,16 @@ public class Simulation extends Thread
      */
     public void runOnce()
     {
-        for (Iterator i = worldHandler.getGreenfootObjects(); i.hasNext();) {
-            GreenfootObject actor = (GreenfootObject) i.next();
-            actor.act();
+        try {
+            for (Iterator i = worldHandler.getGreenfootObjects(); i.hasNext();) {
+                GreenfootObject actor = (GreenfootObject) i.next();
+                actor.act();
+            }
+        }
+        catch(Throwable t) {
+            // If an exception occurs, halt the simulation
+            paused = true;
+            t.printStackTrace();
         }
         worldHandler.repaint();
     }
