@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1785 2003-04-10 08:30:07Z damiano $
+ * @version $Id: BlueJ.java 1786 2003-04-10 08:34:46Z damiano $
  */
 
 public class BlueJ
@@ -286,7 +286,7 @@ public class BlueJ
       * @param def The default value to use if the property cannot be found.
       * @return the value of that property.
       */
-    public String getBJPropString (String property, String def)
+    public String getBlueJPropertyString (String property, String def)
     {
         return Config.getPropString ( property, def);
     }
@@ -321,9 +321,9 @@ public class BlueJ
     
     /**
      * Returns a language-dependent label.
-     * The search order is to look FIRST into extensions labels and if not found into 
+     * The search order is to look first into extensions labels and if not found into 
      * systems label.
-     * Extensions labels are stored in a Property format and MUST be jarred together
+     * Extensions labels are stored in a Property format and must be jarred together
      * with the extension. The path being searched is equivalent to the bluej/lib/[language]
      * style used for the bluej system labels. An Example can be:
      * <pre>
@@ -333,43 +333,21 @@ public class BlueJ
      * </pre>
      * In the above example "label" at the end is a file that caontains the actual label values.
      */
-    public String getLabel (String wantKey)
+    public String getLabel (String thisId )
     {
         // If there are no label for this extension I can only return the system ones.
-        if ( localLabels == null ) return Config.getString (wantKey, wantKey);
+        if ( localLabels == null ) return Config.getString (thisId, thisId);
 
         // In theory there are label for this extension let me try to get them
-        String aLabel = localLabels.getProperty (wantKey, null);
+        String aLabel = localLabels.getProperty (thisId, null);
 
         // Found what I wanted, job done.
         if ( aLabel != null ) return aLabel;
 
         // ok, the only hope is to get it from the system
-        return Config.getString (wantKey, wantKey);
+        return Config.getString (thisId, thisId);
     }
     
-    /**
-     * Returns a language-independent label, and replaces the first occurrance
-     * of a <code>$</code> symbol with the given replacement string.
-     * If there is no occurrance of <code>$</code> then it will be added
-     * after a space, to the end of the resulting string
-     * 
-     * @param id the id of the label to be searched in the dictionaries
-     * @param replacement the string to replace the <code>$</code>.
-     * @return the label, suitably modified.
-     */
-    public String getLabelInsert (String id, String replacement)
-    {
-        String label = getLabel (id);
-        int p = label.indexOf ('$');
-        if (p == -1) {
-            label += " $";
-            p = label.indexOf ('$');
-        }
-        label = label.substring (0, p) + replacement + label.substring (p+1);
-        return label;
-    }
-
     
     /**
      * Request for BlueJ to close.
