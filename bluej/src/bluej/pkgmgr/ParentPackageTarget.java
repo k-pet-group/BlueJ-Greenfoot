@@ -14,16 +14,19 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 545 2000-06-13 07:19:12Z mik $
+ * @version $Id: ParentPackageTarget.java 551 2000-06-14 22:22:43Z ajp $
  */
 public class ParentPackageTarget extends PackageTarget implements ActionListener
 {
+    final static String openStr = Config.getString("pkgmgr.parentpackagetarget.open");
+    final static String openUnamedStr = Config.getString("pkgmgr.parentpackagetarget.openunamed");
+
     public ParentPackageTarget(Package pkg)
     {
         super(pkg, "<go up>");
     }
 
-    public void load(Properties props, String prefix) throws NumberFormatException
+    public void load(Properties props, String prefix)
     {
     }
 
@@ -57,49 +60,6 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
         return false;
     }
 
-    public void draw(Graphics2D g)
-    {
-        super.draw(g);
-        //     g.setColor(getBackgroundColour());
-        //         g.fillRect(0, 0, width, height);
-
-        //         // draw "ribbon"
-        //         g.setColor(ribboncolour);
-        //         int rx = 2 * TEXT_BORDER;
-        //         int ry = height - HANDLE_SIZE + 5;
-        //         g.drawLine(rx, 0, rx, height);
-        //         g.drawLine(0, ry, width, ry);
-
-        //         g.drawLine(rx - 5, ry, rx - 5, ry - 1);
-        //         g.drawLine(rx - 5, ry - 1, rx - 4, ry - 2);
-        //         g.drawLine(rx - 4, ry - 2, rx - 2, ry - 2);
-        //         g.drawLine(rx - 2, ry - 2, rx, ry);
-        //         g.drawLine(rx, ry, rx + 5, ry + 5);
-
-        //         g.drawLine(rx + 5, ry, rx + 5, ry - 1);
-        //         g.drawLine(rx + 5, ry - 1, rx + 4, ry - 2);
-        //         g.drawLine(rx + 4, ry - 2, rx + 2, ry - 2);
-        //         g.drawLine(rx + 2, ry - 2, rx, ry);
-        //         g.drawLine(rx, ry, rx - 5, ry + 5);
-
-        //         g.setColor(textbg);
-        //         g.fillRect(TEXT_BORDER, TEXT_BORDER,
-        //         	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
-
-        //         g.setColor(shadowCol);
-        //         drawShadow(g);
-
-        //         g.setColor(getBorderColour());
-        //         g.setFont(getFont());
-        //         Utility.drawCentredText(g, getDisplayName(),
-        //         			TEXT_BORDER, TEXT_BORDER,
-        //         			width - 2*TEXT_BORDER, TEXT_HEIGHT);
-        //         g.drawRect(TEXT_BORDER, TEXT_BORDER,
-        //         	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
-        //         drawBorders(g);
-
-    }
-
     /**
      * Called when a package icon in a GraphEditor is double clicked.
      * Creates a new PkgFrame when a package is drilled down on.
@@ -108,7 +68,8 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
     {
         PackageEditor pe = (PackageEditor) editor;
 
-        pe.raiseOpenPackageEvent(this, JavaNames.getPrefix(getPackage().getQualifiedName()));
+        pe.raiseOpenPackageEvent(this,
+                JavaNames.getPrefix(getPackage().getQualifiedName()));
     }
 
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
@@ -118,18 +79,21 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
             menu.show(editor, evt.getX(), evt.getY());
     }
 
+    /**
+     * Construct a popup menu which displays all our parent packages.
+     */
     private JPopupMenu createMenu(Class cl)
     {
-        JPopupMenu menu = new JPopupMenu(getName() + " operations");
+        JPopupMenu menu = new JPopupMenu(getName());
 
         String item = JavaNames.getPrefix(getPackage().getQualifiedName());
 
         while(item != "") {
-            addMenuItem(menu, "Open " + item, item);
+            addMenuItem(menu, openStr + " " + item, item);
             item = JavaNames.getPrefix(item);
         }
 
-        addMenuItem(menu, "Open unnamed package", "");
+        addMenuItem(menu, openUnamedStr, "");
 
         return menu;
     }
@@ -147,14 +111,14 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
 
     private class OpenAction extends AbstractAction
     {
-        private String pkgName;
         private Target t;
+        private String pkgName;
 
         public OpenAction(String menu, Target t, String pkgName)
         {
             super(menu);
-            this.pkgName = pkgName;
             this.t = t;
+            this.pkgName = pkgName;
         }
 
         public void actionPerformed(ActionEvent e)
