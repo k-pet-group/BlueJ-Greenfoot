@@ -25,7 +25,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Inspector.java 2828 2004-08-02 14:16:59Z polle $
+ * @version $Id: Inspector.java 2878 2004-08-16 15:49:33Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -275,6 +275,7 @@ public abstract class Inspector extends JFrame
                 if (assertPanel != null) {
                     assertPanel.updateWithResultData((String) listData[0]);
                 }
+                repaint();
             }
         });
     }
