@@ -23,7 +23,7 @@ import sun.misc.*;
  * @author	Andrew Patterson
  * @author	Damiano Bolla
  * @author	Michael Kšlling
- * @version $Id: Boot.java 2102 2003-07-08 14:01:17Z mik $
+ * @version $Id: Boot.java 2104 2003-07-08 14:20:01Z mik $
  */
 public class Boot
 {
@@ -290,20 +290,7 @@ public class Boot
         if (!url.startsWith("file:"))
             throw new IllegalStateException("Unexpected format of jar file URL (class Boot.java): " + url);
         url = url.substring(5);
-        
-        // if there are any spaces...
-        int index = url.indexOf("%20");
-        if(index != -1) {
-            StringBuffer buffer = new StringBuffer(url);
-            while(index != -1) {
-                buffer.setCharAt(index, ' ');
-                buffer.delete(index+1, index+3);
-                index = buffer.indexOf("%20", index);
-            }
-            return buffer.toString();
-        }
-        else
-            return url;
+        return java.net.URLDecoder.decode(url);
     }
 
 	/**
