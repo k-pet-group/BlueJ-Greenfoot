@@ -2,7 +2,7 @@
 ##               BlueJ properties default values
 #####################################################################
 ##
-## All settings in this file may be changed to configure BlueJ. 
+## All settings in this file may be changed to configure BlueJ.
 ## Settings in this file are system wide and apply to all users.
 ##
 ## BlueJ property settings may also be specified on a per-user basis
@@ -14,7 +14,7 @@
 ##
 ## Each of the properties in this file may be copied to the user
 ## properties file. Settings in the user file override the system
-## wide settings here. 
+## wide settings here.
 ##
 #####################################################################
 
@@ -69,12 +69,12 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 ## dollar sign ($) will be replaced by the URL to be opened.
 #####################################################################
 
-# Unix and others: First, try to open the URL in a running netscape 
+# Unix and others: First, try to open the URL in a running netscape
 # process. If that fails, start netscape.
 browserCmd1=netscape -remote openURL($)
 browserCmd2=netscape $
 
-# For Windows95/98, the following should start the default browser 
+# For Windows95/98, the following should start the default browser
 # set in the system.
 win9xBrowserCmd1=command.com /c start $
 win9xBrowserCmd2=
@@ -90,11 +90,11 @@ macBrowserCmd2=/Applications/Internet Explorer/Internet Explorer/Contents/MacOS/
 
 
 #######################################################################
-## Documentation generation. This specifies the command used for 
-## generating documentation and the directory name within the project 
-## directory where the documentation is stored. 
+## Documentation generation. This specifies the command used for
+## generating documentation and the directory name within the project
+## directory where the documentation is stored.
 ## If "linkToStandardLib" is true, we will try to use the URL specified
-## above as "bluej.url.javaStdLib" to create links. If that URL is 
+## above as "bluej.url.javaStdLib" to create links. If that URL is
 ## not accessible, documentation generation will fail. Therefore, if
 ## you want to work offline, set "linkToStandardLib" to false.
 #######################################################################
@@ -106,7 +106,7 @@ doctool.linkToStandardLib=true
 
 #######################################################################
 ## Applets. Preferences for how applets are generated and executed.
-## These are: 
+## These are:
 ##    - the command to start the applet viewer
 ##    - the virtual machine selection for the browser
 ##    - the applet type: Applet (AWT) or JApplet (Swing)
@@ -133,7 +133,7 @@ bluej.systemlibrary2.location=/usr/local/java/lib/sample.jar
 
 
 #######################################################################
-## Fonts. You can choose a font size for most of the interface 
+## Fonts. You can choose a font size for most of the interface
 ## components, and a font face and size for the editor. The editor font
 ## size can be redefined by a user in their preference dialogue.
 #######################################################################
@@ -146,7 +146,7 @@ bluej.fontsize=12
 
 bluej.editor.fontsize=12
 
-# The editor font. This is the name of a font face with an optional 
+# The editor font. This is the name of a font face with an optional
 # "-bold" at the end. Most used are monospaced fonts, such as Courier.
 # Good large fonts for screen projections are SansSerif-bold, 14pt, or
 # Courier-bold, 18pt. Some examples:
@@ -237,7 +237,7 @@ colour.menu.environOp=152,32,32
 
 #####################################################################
 ## Compiling. Commands used to execute a compiler. The first property
-## sets the type of the compiler. Currently it can be one of 
+## sets the type of the compiler. Currently it can be one of
 ## internal, javac or jikes. The second property if it exists,
 ## specifies the name of the executable to run as the compiler. This
 ## can be a fully qualified path or the name of an executable in the
@@ -273,8 +273,8 @@ bluej.editor.tabtype=hard
 ## macos and "linux".
 #####################################################################
 
-win9xVmOptions=-classic
-winVmOptions=-classic
+win9xVmOptions=
+winVmOptions=
 linuxVmOptions=-classic
 solarisVmOptions=
 macosVmOptions=
@@ -366,6 +366,21 @@ image.step=step.gif
 image.step_into=step_into.gif
 image.stop=stop.gif
 image.terminate=terminate.gif
+
+image.package.open=open16.gif
+image.package.new=new16.gif
+image.package.save=save16.gif
+image.package.saveAs=saveas16.gif
+image.package.import=import16.gif
+image.package.export=export16.gif
+image.package.pageSetup=pagesetup16.gif
+image.package.print=print16.gif
+image.edit.newClass=newclass16.gif
+image.edit.newPackage=newpackage16.gif
+image.edit.addClass=addclass16.gif
+image.edit.remove=remove16.gif
+image.tools.preferences=preferences16.gif
+image.help.about=about16.gif
 
 ## images for library browser
 browser.image.constructoricon=yellow-ball-small.gif
