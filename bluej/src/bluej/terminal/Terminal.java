@@ -23,7 +23,7 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1207 2002-04-02 04:51:24Z ajp $
+ * @version $Id: Terminal.java 1208 2002-04-02 04:56:37Z ajp $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -204,8 +204,6 @@ public final class Terminal extends JFrame
         public int read(char[] cbuf, int off, int len) throws IOException
         {
             int charsRead = 0;
-
-            prepare();
 
             while(charsRead < len) {
                 cbuf[off + charsRead] = buffer.getChar();
