@@ -16,8 +16,7 @@
         <include name="lib/english/" />
         <include name="lib/german/" />
         <include name="lib/swedish/" />
-        <include name="lib/sparc/" />
-        <include name="lib/win32/" />
+        <include name="lib/spanish/" />
     </patternset>
 
     <patternset id="bluej.examples">
