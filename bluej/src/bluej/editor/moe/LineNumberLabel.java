@@ -12,37 +12,37 @@ import javax.swing.event.*;
 
 public final class LineNumberLabel extends JLabel
 {
-  // ------------ INSTANCE VARIABLES ------------
+    // ------------ INSTANCE VARIABLES ------------
 
-  private int line;
+    private int line;
 
 
-  // -------------- CONSTRUCTORS ----------------
+    // -------------- CONSTRUCTORS ----------------
 
-  public LineNumberLabel(int initialLine)
-  {
-    super(String.valueOf(initialLine), JLabel.CENTER);
-    line = initialLine;
-  }
+    public LineNumberLabel(int initialLine)
+    {
+        super(String.valueOf(initialLine), JLabel.CENTER);
+        line = initialLine;
+    }
 
-  // ------------- PUBLIC METHODS ---------------
+    // ------------- PUBLIC METHODS ---------------
 
-  public void setLine(int newLine)
-  {
-    line = newLine;
-    setText(String.valueOf(line));
-  }
+    public void setLine(int newLine)
+    {
+        line = newLine;
+        setText(String.valueOf(line));
+    }
 
-  public void lineDown()
-  {
-    line++;
-    setText(String.valueOf(line));
-  }
+    public void lineDown()
+    {
+        line++;
+        setText(String.valueOf(line));
+    }
 
-  public void lineUp(int newLine)
-  {
-    line--;
-    setText(String.valueOf(line));
-  }
+    public void lineUp(int newLine)
+    {
+        line--;
+        setText(String.valueOf(line));
+    }
 
 }  // end class LineNumberLabel

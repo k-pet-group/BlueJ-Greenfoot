@@ -4,11 +4,11 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- ** @version $Id: Editor.java 356 2000-01-13 02:36:31Z ajp $
- ** @author Michael Cahill
- ** @author Michael Kolling
- ** Interface between an editor and the rest of BlueJ
- **/
+** @version $Id: Editor.java 361 2000-01-14 00:59:47Z mik $
+** @author Michael Cahill
+** @author Michael Kolling
+** Interface between an editor and the rest of BlueJ
+**/
 public interface Editor
 {
     // CONSTANTS:
@@ -17,7 +17,7 @@ public interface Editor
     int PACKAGE = 1;
     int INHERITED = 2;
     int IMPLEMENTATION = 3;
-	
+
     // styles
     // int StyleNormal = 0;
     // int StyleBold = 1;
@@ -37,7 +37,7 @@ public interface Editor
      *  @returns		false is there was a problem, true otherwise
      */
     boolean showFile(String filename, boolean compiled,
-		     Vector breakpoints);
+                     Vector breakpoints);
 
 
     /**
@@ -100,7 +100,7 @@ public interface Editor
      */
     void save();
 
-	
+
     /**
      *  Close the editor window.
      */
@@ -125,8 +125,8 @@ public interface Editor
      *  @param help		name of help group (may be null)
      */
     void displayMessage(String message, int lineNumber, 
-			int column, boolean beep, 
-			boolean setStepMark, String help);
+                        int column, boolean beep, 
+                        boolean setStepMark, String help);
 
 
     /**

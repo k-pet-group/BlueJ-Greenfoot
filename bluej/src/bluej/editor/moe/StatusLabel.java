@@ -8,90 +8,90 @@ import javax.swing.*;		// all the GUI components
 import javax.swing.event.*;
 
 /**
- ** @author Michael Kolling
- **
- **/
+** @author Michael Kolling
+**
+**/
 
 public final class StatusLabel extends JLabel
 
-	implements DocumentListener
+implements DocumentListener
 {
-  // ---------------- CONSTANTS -----------------
+    // ---------------- CONSTANTS -----------------
 
-  public static Font statusFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, 11);
+    public static Font statusFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, 11);
 
-  // current save state
-  static final int READONLY = 0;
-  static final int SAVED = 1;   
-  static final int CHANGED = 2; 
+    // current save state
+    static final int READONLY = 0;
+    static final int SAVED = 1;   
+    static final int CHANGED = 2; 
 
-  private final String[] stateString = { "read-only", "saved", "changed" };
-
-
-  // ------------ INSTANCE VARIABLES ------------
-
-  private int state;
-  private MoeEditor myEditor;
+    private final String[] stateString = { "read-only", "saved", "changed" };
 
 
-  // -------------- CONSTRUCTORS ----------------
+    // ------------ INSTANCE VARIABLES ------------
 
-  public StatusLabel(int initialState, MoeEditor editor)
-  {
-    super("", JLabel.CENTER);
-    setText(stateString[initialState]);
-    setFont(statusFont);
-    setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
-    state = initialState;
-    myEditor = editor;
-  }
+    private int state;
+    private MoeEditor myEditor;
 
-  // ------------- PUBLIC METHODS ---------------
 
-  // -------- three methods from DocumentListener: -------- 
+    // -------------- CONSTRUCTORS ----------------
 
-  // insert into document
-  public void insertUpdate(DocumentEvent e) 
-  {
-    if (state != CHANGED) {
-	setState (CHANGED);
-	myEditor.setChanged();
+    public StatusLabel(int initialState, MoeEditor editor)
+    {
+        super("", JLabel.CENTER);
+        setText(stateString[initialState]);
+        setFont(statusFont);
+        setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        state = initialState;
+        myEditor = editor;
     }
-  }
 
-  // remove from document
-  public void removeUpdate(DocumentEvent e) 
-  {
-    if (state != CHANGED) {
-	setState (CHANGED);
-	myEditor.setChanged();
+    // ------------- PUBLIC METHODS ---------------
+
+    // -------- three methods from DocumentListener: -------- 
+
+    // insert into document
+    public void insertUpdate(DocumentEvent e) 
+    {
+        if (state != CHANGED) {
+            setState (CHANGED);
+            myEditor.setChanged();
+        }
     }
-  }
 
-  // document (properties?) changed - ignore
-  public void changedUpdate(DocumentEvent e) {}
+    // remove from document
+    public void removeUpdate(DocumentEvent e) 
+    {
+        if (state != CHANGED) {
+            setState (CHANGED);
+            myEditor.setChanged();
+        }
+    }
 
-  // ----------------- managing the state -------------------
+    // document (properties?) changed - ignore
+    public void changedUpdate(DocumentEvent e) {}
 
-  public boolean isSaved () 
-  {
-    return (state != CHANGED);
-  }
+    // ----------------- managing the state -------------------
 
-  public boolean isChanged () 
-  {
-    return (state == CHANGED);
-  }
+    public boolean isSaved () 
+    {
+        return (state != CHANGED);
+    }
 
-  public boolean isReadOnly () 
-  {
-    return (state == READONLY);
-  }
+    public boolean isChanged () 
+    {
+        return (state == CHANGED);
+    }
 
-  public void setState (int newState)
-  {
-    state = newState;
-    setText(stateString[state]);
-  }
+    public boolean isReadOnly () 
+    {
+        return (state == READONLY);
+    }
+
+    public void setState (int newState)
+    {
+        state = newState;
+        setText(stateString[state]);
+    }
 
 }  // end class StatusLabel

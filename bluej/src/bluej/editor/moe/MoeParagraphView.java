@@ -7,14 +7,14 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 /**
- * This class manages the view of a paragraph in Moe. (A paragraph is one
- * line in the source text.)
- *
- * @author  Michael Kolling
- */
+* This class manages the view of a paragraph in Moe. (A paragraph is one
+* line in the source text.)
+*
+* @author  Michael Kolling
+*/
 
 public class MoeParagraphView extends ParagraphView  {
-   
+
     static final Image breakImage = new ImageIcon(Config.getImageFilename("image.break")).getImage();
 
 
@@ -24,9 +24,9 @@ public class MoeParagraphView extends ParagraphView  {
      * @param elem the element that this view is responsible for
      */
     public MoeParagraphView(Element elem) {
-	super(elem);
-  	setInsets((short)0, (short)(MoeEditor.TAG_WIDTH + 2), 
-		  (short)0, (short)0);
+        super(elem);
+        setInsets((short)0, (short)(MoeEditor.TAG_WIDTH + 2), 
+                  (short)0, (short)0);
     }
 
     /**
@@ -34,8 +34,8 @@ public class MoeParagraphView extends ParagraphView  {
      * space for the tag area.
      */
     protected void setPropertiesFromAttributes() {
-	super.setPropertiesFromAttributes();
-  	setInsets((short)0, (short)(MoeEditor.TAG_WIDTH+2), (short)0, (short)0);
+        super.setPropertiesFromAttributes();
+        setInsets((short)0, (short)(MoeEditor.TAG_WIDTH+2), (short)0, (short)0);
     }
 
     /**
@@ -48,17 +48,17 @@ public class MoeParagraphView extends ParagraphView  {
      * @see View#paint
      */
     public void paint(Graphics g, Shape a) {
-	// draw the text in the line
+        // draw the text in the line
         super.paint(g, a);
-	
-	// draw the separator line to tag bar
-	Rectangle bounds = a.getBounds();
-	if (Boolean.TRUE.equals(
-		getElement().getAttributes().getAttribute(
-				MoeEditor.BREAKPOINT))) {
-	    // draw break symbol
-	    g.drawImage(breakImage, bounds.x-1, bounds.y, null);
-	}
+
+        // draw the separator line to tag bar
+        Rectangle bounds = a.getBounds();
+        if (Boolean.TRUE.equals(
+                                getElement().getAttributes().getAttribute(
+                                                                          MoeEditor.BREAKPOINT))) {
+            // draw break symbol
+            g.drawImage(breakImage, bounds.x-1, bounds.y, null);
+        }
     }
 
 }

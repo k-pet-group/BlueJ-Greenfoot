@@ -19,18 +19,18 @@ import bluej.utility.DialogManager;
 import bluej.utility.FixedMultiLineLabel;
 
 /**
- ** Dialog to display user functions. The dialog displays function names,
- ** help text and key bindings.
- **
- ** @author Michael Kolling
- **
- **/
+** Dialog to display user functions. The dialog displays function names,
+** help text and key bindings.
+**
+** @author Michael Kolling
+**
+**/
 
 public final class FunctionDialog extends JDialog
 
-    implements ActionListener, ListSelectionListener, ItemListener
+implements ActionListener, ListSelectionListener, ItemListener
 {
-  // -------- CONSTANTS --------
+    // -------- CONSTANTS --------
 
     static final String close = Config.getString("close");
     static final String defaultsLabel = Config.getString("editor.functions.defaults");
@@ -39,7 +39,7 @@ public final class FunctionDialog extends JDialog
     static final String addKeyLabel = Config.getString("editor.functions.addkey");
     static final String delKeyLabel = Config.getString("editor.functions.delkey");
 
-  // -------- INSTANCE VARIABLES --------
+    // -------- INSTANCE VARIABLES --------
 
     private JButton defaultsButton;
     private JButton closeButton;
@@ -57,17 +57,17 @@ public final class FunctionDialog extends JDialog
     private int firstDisplayedFunc;	// index of first function in list
     private Properties help;
 
-  // ------------- METHODS --------------
+    // ------------- METHODS --------------
 
     public FunctionDialog(JFrame parent, Action[] actiontable, 
-			  String[] categories, int[] categoryIndex)
+                          String[] categories, int[] categoryIndex)
     {
-	super(parent, "Editor Functions", true);
-	actions = MoeActions.getActions(null);;
-  	functions = actiontable;
-	this.categoryIndex = categoryIndex;
-	makeDialog(categories);
-	openHelpFile();
+        super(parent, "Editor Functions", true);
+        actions = MoeActions.getActions(null);;
+        functions = actiontable;
+        this.categoryIndex = categoryIndex;
+        makeDialog(categories);
+        openHelpFile();
     }
 
     /**
@@ -75,7 +75,7 @@ public final class FunctionDialog extends JDialog
      */
     private void handleClose()
     {
-	setVisible(false);
+        setVisible(false);
     }
 
     /**
@@ -90,30 +90,30 @@ public final class FunctionDialog extends JDialog
      */
     private void handleFuncListSelect()
     {
-	int index = functionList.getSelectedIndex();
-	if(index == -1)
-	    return;	// deselection event - ignore
+        int index = functionList.getSelectedIndex();
+        if(index == -1)
+            return;	// deselection event - ignore
 
-	// find selected action
+        // find selected action
 
-	Action action = functions[firstDisplayedFunc + index];
+        Action action = functions[firstDisplayedFunc + index];
 
-	// display key bindings
+        // display key bindings
 
-	KeyStroke[] keys = actions.getKeyStrokesForAction(action);
-	if(keys == null)
-	    clearKeyList();
-	else {
-	    String[] keyStrings = getKeyStrings(keys);
-	    keyList.setListData(keyStrings);
-	    addKeyButton.setEnabled(false); // should be true once implemented
-	    delKeyButton.setEnabled(false);
-	}
+        KeyStroke[] keys = actions.getKeyStrokesForAction(action);
+        if(keys == null)
+            clearKeyList();
+        else {
+            String[] keyStrings = getKeyStrings(keys);
+            keyList.setListData(keyStrings);
+            addKeyButton.setEnabled(false); // should be true once implemented
+            delKeyButton.setEnabled(false);
+        }
 
-	// display help text
-	
-	String helpText = getHelpText((String)action.getValue(Action.NAME));
-	helpLabel.setText(helpText);
+        // display help text
+
+        String helpText = getHelpText((String)action.getValue(Action.NAME));
+        helpLabel.setText(helpText);
     }
 
     /**
@@ -121,7 +121,7 @@ public final class FunctionDialog extends JDialog
      */
     private void handleKeyListSelect()
     {
-	//delKeyButton.setEnabled(true);
+        //delKeyButton.setEnabled(true);
     }
 
     /**
@@ -143,37 +143,37 @@ public final class FunctionDialog extends JDialog
      */
     private String[] getKeyStrings(KeyStroke[] keys)
     {
-	String[] keyStrings = new String[keys.length];
-	for(int i = 0; i < keys.length; i++) {
-	    int modifiers = keys[i].getModifiers();
-	    keyStrings[i] = KeyEvent.getKeyModifiersText(modifiers);
-	    if(keyStrings[i].length() > 0)
-		keyStrings[i] += "+";
-	    keyStrings[i] += KeyEvent.getKeyText(keys[i].getKeyCode());
-	}
-	return keyStrings;
+        String[] keyStrings = new String[keys.length];
+        for(int i = 0; i < keys.length; i++) {
+            int modifiers = keys[i].getModifiers();
+            keyStrings[i] = KeyEvent.getKeyModifiersText(modifiers);
+            if(keyStrings[i].length() > 0)
+                keyStrings[i] += "+";
+            keyStrings[i] += KeyEvent.getKeyText(keys[i].getKeyCode());
+        }
+        return keyStrings;
     }
 
     private void clearKeyList()
     {
-	keyList.setListData(new String[0]);
+        keyList.setListData(new String[0]);
     }
 
     private void clearHelpText()
     {
-	helpLabel.setText(null);
+        helpLabel.setText(null);
     }
 
     private void openHelpFile()
     {
-	help = Config.getMoeHelp();
+        help = Config.getMoeHelp();
     }
 
     private String getHelpText(String function)
     {
-	if(help == null)
-	    return null;
-	return help.getProperty(function);
+        if(help == null)
+            return null;
+        return help.getProperty(function);
     }
 
     // ======== EVENT HANDLING INTERFACES =========
@@ -186,12 +186,12 @@ public final class FunctionDialog extends JDialog
      */
     public void actionPerformed(ActionEvent event)
     {
-	Object src = event.getSource();
+        Object src = event.getSource();
 
-	if(src == closeButton)
-	    handleClose();
-	else if(src == defaultsButton)
-	    handleDefaults();
+        if(src == closeButton)
+            handleClose();
+        else if(src == defaultsButton)
+            handleDefaults();
     }
 
     // ----- ItemListener interface -----
@@ -201,19 +201,20 @@ public final class FunctionDialog extends JDialog
      */
     public void itemStateChanged(ItemEvent evt)
     {
-	int selected = categoryMenu.getSelectedIndex();
+        int selected = categoryMenu.getSelectedIndex();
 
-	firstDisplayedFunc = categoryIndex[selected];
-	int lastFunc = categoryIndex[selected + 1];
+        firstDisplayedFunc = categoryIndex[selected];
+        int lastFunc = categoryIndex[selected + 1];
 
-	String[] names = new String[lastFunc - firstDisplayedFunc];
+        String[] names = new String[lastFunc - firstDisplayedFunc];
 
-	for(int i = firstDisplayedFunc; i < lastFunc; i++)
-	    names[i-firstDisplayedFunc] = 
-		(String)functions[i].getValue(Action.NAME);
-	functionList.setListData(names);
-	clearKeyList();
-	clearHelpText();
+        for(int i = firstDisplayedFunc; i < lastFunc; i++) {
+            names[i-firstDisplayedFunc] = 
+                (String)functions[i].getValue(Action.NAME);
+        }
+        functionList.setListData(names);
+        clearKeyList();
+        clearHelpText();
     }
 
     // ----- ListSelectionListener interface -----
@@ -223,129 +224,129 @@ public final class FunctionDialog extends JDialog
      */
     public void valueChanged(ListSelectionEvent event)
     {
-	if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
-	    return;
+        if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
+            return;
 
-	Object src = event.getSource();
+        Object src = event.getSource();
 
-	if(src == functionList)
-	    handleFuncListSelect();
-	else if(src == keyList)
-	    handleKeyListSelect();
+        if(src == functionList)
+            handleFuncListSelect();
+        else if(src == keyList)
+            handleKeyListSelect();
     }
-    
+
     // ----- end of ListSelectionListener interface -----
 
     private void makeDialog(String[] categories)
     {
-	JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout
-	mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-	// create help text area at bottom
+        // create help text area at bottom
 
-	JPanel helpPanel = new JPanel(new GridLayout());
-	helpPanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createEmptyBorder(10,0,0,0),
-				BorderFactory.createLineBorder(Color.black)));
-	helpLabel = new FixedMultiLineLabel(4);
-	helpLabel.setBackground(MoeEditor.infoColor);
-	helpPanel.add(helpLabel);
-	mainPanel.add(helpPanel, BorderLayout.SOUTH);
+        JPanel helpPanel = new JPanel(new GridLayout());
+        helpPanel.setBorder(BorderFactory.createCompoundBorder(
+                                                               BorderFactory.createEmptyBorder(10,0,0,0),
+                                                               BorderFactory.createLineBorder(Color.black)));
+        helpLabel = new FixedMultiLineLabel(4);
+        helpLabel.setBackground(MoeEditor.infoColor);
+        helpPanel.add(helpLabel);
+        mainPanel.add(helpPanel, BorderLayout.SOUTH);
 
-	// create control area on right (key bindings and buttons)
+        // create control area on right (key bindings and buttons)
 
-	JPanel controlPanel = new JPanel(new BorderLayout());
+        JPanel controlPanel = new JPanel(new BorderLayout());
 
-	    // create area for main buttons (close, defaults)
+        // create area for main buttons (close, defaults)
 
-	    JPanel buttonPanel = new JPanel();
-	    buttonPanel.setLayout(new GridLayout(0,1,5,5));
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0,1,5,5));
 
-		closeButton = new JButton(close);
-		closeButton.addActionListener(this);
-		buttonPanel.add(closeButton);
+        closeButton = new JButton(close);
+        closeButton.addActionListener(this);
+        buttonPanel.add(closeButton);
 
-		defaultsButton = new JButton(defaultsLabel);
-		defaultsButton.addActionListener(this);
-		buttonPanel.add(defaultsButton);
+        defaultsButton = new JButton(defaultsLabel);
+        defaultsButton.addActionListener(this);
+        buttonPanel.add(defaultsButton);
 
-		JPanel buttonFramePanel = new JPanel();
-		buttonFramePanel.setLayout(new BorderLayout(0,0));
-		//buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0,10,0,0));
-		buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
+        JPanel buttonFramePanel = new JPanel();
+        buttonFramePanel.setLayout(new BorderLayout(0,0));
+        //buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0,10,0,0));
+        buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
 
-	    controlPanel.add(buttonFramePanel, BorderLayout.EAST);
+        controlPanel.add(buttonFramePanel, BorderLayout.EAST);
 
-	    // create area for key bindings
+        // create area for key bindings
 
-	    JPanel keyPanel = new JPanel();
-	    keyPanel.setLayout(new BorderLayout());
-	    keyPanel.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createEtchedBorder(),
-				keyLabel));
+        JPanel keyPanel = new JPanel();
+        keyPanel.setLayout(new BorderLayout());
+        keyPanel.setBorder(BorderFactory.createTitledBorder(
+                                                            BorderFactory.createEtchedBorder(),
+                                                            keyLabel));
 
-		keyList = new JList();
-		keyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		keyList.setPrototypeCellValue("shift-ctrl-delete");	
-		keyList.addListSelectionListener(this);
-		keyList.setVisibleRowCount(4);
-		JScrollPane scrollPane;
-		scrollPane = new JScrollPane(keyList);
-		keyPanel.add(scrollPane, BorderLayout.CENTER);
-	    
-		JPanel keyButtonPanel = new JPanel();
-		    addKeyButton = new JButton(addKeyLabel);
-		    addKeyButton.addActionListener(this);
-		    addKeyButton.setMargin(new Insets(2,2,2,2));
-		    keyButtonPanel.add(addKeyButton);
+        keyList = new JList();
+        keyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        keyList.setPrototypeCellValue("shift-ctrl-delete");	
+        keyList.addListSelectionListener(this);
+        keyList.setVisibleRowCount(4);
+        JScrollPane scrollPane;
+        scrollPane = new JScrollPane(keyList);
+        keyPanel.add(scrollPane, BorderLayout.CENTER);
 
-		    delKeyButton = new JButton(delKeyLabel);
-		    delKeyButton.addActionListener(this);
-		    delKeyButton.setMargin(new Insets(2,2,2,2));
-		    keyButtonPanel.add(delKeyButton);
+        JPanel keyButtonPanel = new JPanel();
+        addKeyButton = new JButton(addKeyLabel);
+        addKeyButton.addActionListener(this);
+        addKeyButton.setMargin(new Insets(2,2,2,2));
+        keyButtonPanel.add(addKeyButton);
 
-		keyPanel.add(keyButtonPanel, BorderLayout.SOUTH);
+        delKeyButton = new JButton(delKeyLabel);
+        delKeyButton.addActionListener(this);
+        delKeyButton.setMargin(new Insets(2,2,2,2));
+        keyButtonPanel.add(delKeyButton);
 
-	    controlPanel.add(keyPanel, BorderLayout.SOUTH);
+        keyPanel.add(keyButtonPanel, BorderLayout.SOUTH);
 
-	mainPanel.add(controlPanel, BorderLayout.EAST);
+        controlPanel.add(keyPanel, BorderLayout.SOUTH);
 
-	// create function list area
+        mainPanel.add(controlPanel, BorderLayout.EAST);
 
-	JPanel funcPanel = new JPanel(new BorderLayout());
-	funcPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
+        // create function list area
 
- 	    functionList = new JList();
-	    functionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	    functionList.addListSelectionListener(this);
-	    functionList.setVisibleRowCount(12);
-	    scrollPane = new JScrollPane(functionList);
-	    
-	    funcPanel.add(scrollPane, BorderLayout.CENTER);
+        JPanel funcPanel = new JPanel(new BorderLayout());
+        funcPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
 
-	    JPanel categoryPanel = new JPanel();
+        functionList = new JList();
+        functionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        functionList.addListSelectionListener(this);
+        functionList.setVisibleRowCount(12);
+        scrollPane = new JScrollPane(functionList);
 
-		JLabel label = new JLabel(categoriesLabel);
-		categoryPanel.add(label);
-		categoryMenu = new JComboBox();
-		categoryMenu.addItemListener(this);
-		for(int i=0; i<categories.length; i++)
-		    categoryMenu.addItem(categories[i]);
-	        categoryPanel.add(categoryMenu);
+        funcPanel.add(scrollPane, BorderLayout.CENTER);
 
-	    funcPanel.add(categoryPanel, BorderLayout.NORTH);
+        JPanel categoryPanel = new JPanel();
 
-	mainPanel.add(funcPanel, BorderLayout.CENTER);
-	getRootPane().setDefaultButton(closeButton);
+        JLabel label = new JLabel(categoriesLabel);
+        categoryPanel.add(label);
+        categoryMenu = new JComboBox();
+        categoryMenu.addItemListener(this);
+        for(int i=0; i<categories.length; i++)
+            categoryMenu.addItem(categories[i]);
+        categoryPanel.add(categoryMenu);
 
-	addWindowListener(new WindowAdapter() {
-	    public void windowClosing(WindowEvent E) {
-		setVisible(false);
-	    }
-	});
+        funcPanel.add(categoryPanel, BorderLayout.NORTH);
 
-	pack();
-	DialogManager.centreDialog(this);
+        mainPanel.add(funcPanel, BorderLayout.CENTER);
+        getRootPane().setDefaultButton(closeButton);
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent E) {
+                setVisible(false);
+            }
+        });
+
+        pack();
+        DialogManager.centreDialog(this);
     }
 
 }  // end class FunctionDialog

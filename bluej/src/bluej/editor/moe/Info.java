@@ -12,16 +12,16 @@ import javax.swing.*;		// all the GUI components
 import java.io.*;
 
 /**
- ** @author Michael Kolling
- **
- **/
+** @author Michael Kolling
+**
+**/
 
 public final class Info extends JPanel
 
-    implements ActionListener 
+implements ActionListener 
 {
     static final ImageIcon helpImage = 
-	new ImageIcon(Config.getImageFilename("image.help"));
+    new ImageIcon(Config.getImageFilename("image.help"));
 
     public static Font infoFont = new Font("SansSerif", Font.BOLD, 10);
 
@@ -37,28 +37,28 @@ public final class Info extends JPanel
 
     public Info()
     {
-	super();
-	setLayout(new BorderLayout());
-	setBorder(BorderFactory.createLineBorder(Color.black));
-	setFont(infoFont);
+        super();
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createLineBorder(Color.black));
+        setFont(infoFont);
 
-	JPanel body = new JPanel(new GridLayout(0, 1));	// one col, many rows
-	body.setBackground(MoeEditor.infoColor);
-	line1 = new JLabel();
-	line2 = new JLabel();
-	body.add(line1);
-	body.add(line2);
-	add(body, BorderLayout.CENTER);
+        JPanel body = new JPanel(new GridLayout(0, 1));	// one col, many rows
+        body.setBackground(MoeEditor.infoColor);
+        line1 = new JLabel();
+        line2 = new JLabel();
+        body.add(line1);
+        body.add(line2);
+        add(body, BorderLayout.CENTER);
 
-	helpButton = new JButton(helpImage);
-	helpButton.setMargin(new Insets(0,0,0,0));
-	helpButton.addActionListener(this);
-	helpButton.setRequestFocusEnabled(false);   // never get focus
-	add(helpButton, BorderLayout.EAST);
-	helpButton.setVisible(false);
+        helpButton = new JButton(helpImage);
+        helpButton.setMargin(new Insets(0,0,0,0));
+        helpButton.addActionListener(this);
+        helpButton.setRequestFocusEnabled(false);   // never get focus
+        add(helpButton, BorderLayout.EAST);
+        helpButton.setVisible(false);
 
-	isClear = true;
-	helpGroup = "";
+        isClear = true;
+        helpGroup = "";
     }
 
     /**
@@ -66,11 +66,11 @@ public final class Info extends JPanel
      */
     public void message(String msg)
     {
-	int newline = msg.indexOf('\n');
-	if (newline == -1)
-	    message (msg, "");
-	else
-	    message (msg.substring(0, newline), msg.substring(newline+1));
+        int newline = msg.indexOf('\n');
+        if (newline == -1)
+            message (msg, "");
+        else
+            message (msg.substring(0, newline), msg.substring(newline+1));
     }
 
 
@@ -79,11 +79,11 @@ public final class Info extends JPanel
      */
     public void message(String msg1, String msg2)
     {
-	line1.setText(msg1);
-	line2.setText(msg2);
-	isClear = false;
+        line1.setText(msg1);
+        line2.setText(msg2);
+        isClear = false;
 
-	hideHelp();
+        hideHelp();
     }
 
 
@@ -92,8 +92,8 @@ public final class Info extends JPanel
      */
     public void warning(String msg)
     {
-	message (msg);
-	MoeEditorManager.editorManager.beep();
+        message (msg);
+        MoeEditorManager.editorManager.beep();
     }
 
 
@@ -102,20 +102,20 @@ public final class Info extends JPanel
      */
     public void warning(String msg1, String msg2)
     {
-	message (msg1, msg2);
-	MoeEditorManager.editorManager.beep();
+        message (msg1, msg2);
+        MoeEditorManager.editorManager.beep();
     }
 
- 
+
     /**
      * clear the display
      */
     public void clear()
     {
-	if (!isClear) {
-	    message (" ", " ");
-	    isClear = true;
-	}
+        if (!isClear) {
+            message (" ", " ");
+            isClear = true;
+        }
     }
 
 
@@ -124,8 +124,8 @@ public final class Info extends JPanel
      */
     public void setHelp(String helpGroup)
     {
-	this.helpGroup = helpGroup;
-	helpButton.setVisible(true);
+        this.helpGroup = helpGroup;
+        helpButton.setVisible(true);
     }
 
     /**
@@ -133,28 +133,28 @@ public final class Info extends JPanel
      */
     public void hideHelp()
     {
-	helpButton.setVisible(false);
+        helpButton.setVisible(false);
     }
 
     // ---- ActionListener interface ----
 
     public void actionPerformed(ActionEvent evt)
     {
-	displayHelp(helpGroup);
+        displayHelp(helpGroup);
     }
 
     private void displayHelp(String helpGroup)
     {
-	String fileName = Config.getHelpFilename(helpGroup);
-	String displayMsg = line1.getText().trim();  // message displayed
+        String fileName = Config.getHelpFilename(helpGroup);
+        String displayMsg = line1.getText().trim();  // message displayed
 
-	String helpText = BlueJFileReader.readHelpText(fileName, displayMsg,
-						       false);
+        String helpText = BlueJFileReader.readHelpText(fileName, displayMsg,
+                                                       false);
 
-	if(helpText == null)
-	    DialogManager.showMessage(null, "no-help");
-	else
-	    DialogManager.showText(null, helpText);
+        if(helpText == null)
+            DialogManager.showMessage(null, "no-help");
+        else
+            DialogManager.showText(null, helpText);
     }
 
 }  // end class Info
