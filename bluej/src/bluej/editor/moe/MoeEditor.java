@@ -1393,9 +1393,7 @@ public final class MoeEditor extends JFrame
     private boolean positionHasBreakpoint(int pos)
     {
         Element line = getLineAt(pos);
-        boolean temp = (Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT)));
-        //Debug.message("positionHasBreakpoint: " + temp);
-        return temp;
+        return Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT));
     }
 
     // --------------------------------------------------------------------
@@ -1815,9 +1813,8 @@ public final class MoeEditor extends JFrame
         sourcePane.setEditorKit(kit);
         moeCaret = new MoeCaret(this);
         sourcePane.setCaret(moeCaret);
-        sourcePane.getCaret().setBlinkRate(0);
         sourcePane.setBackground(textBgColor);
-        sourcePane.setSelectionColor(selectionColour);
+//        sourcePane.setSelectionColor(selectionColour);
         sourcePane.setCaretColor(cursorColor);
 
         // default showing:
