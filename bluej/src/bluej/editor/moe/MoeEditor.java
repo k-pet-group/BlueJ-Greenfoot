@@ -1694,11 +1694,8 @@ public final class MoeEditor extends JFrame
         // create the text pane
 
         MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit();
-        //bq MutableAttributeSet attr = kit.getInputAttributes();
-        // StyleConstants.setFontSize(attr, Config.editFontsize); doesn't work yet
 
-        //	textPane = new JTextPane();
-        textPane = new JEditorPane();
+        textPane = new MoeEditorPane();
 
         textPane.setDocument(document);
         //textPane.setLineWrap(false);
@@ -1707,7 +1704,6 @@ public final class MoeEditor extends JFrame
         textPane.setOpaque(true);
         textPane.setEditorKit(kit);
         textPane.setCaret(new MoeCaret(this));
-        //	textPane.setFont(editFont); //this does not work - don't know why
         textPane.getCaret().setBlinkRate(0);
         textPane.setSelectionColor(selectionColor);
         textPane.setCaretColor(cursorColor);
@@ -1723,8 +1719,6 @@ public final class MoeEditor extends JFrame
 
         // **** temporary: disable all unimplemented actions ****
 
-        actions.getActionByName("comment").setEnabled(false);
-        actions.getActionByName("uncomment").setEnabled(false);
         actions.getActionByName("replace").setEnabled(false);
         actions.getActionByName("goto-line").setEnabled(false);
         //actions.getActionByName("preferences").setEnabled(false);

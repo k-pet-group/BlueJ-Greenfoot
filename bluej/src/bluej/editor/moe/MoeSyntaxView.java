@@ -26,7 +26,7 @@ import bluej.Config;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 375 2000-01-24 22:56:25Z mik $
+ * @version $Id: MoeSyntaxView.java 377 2000-01-25 03:53:42Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -243,7 +243,8 @@ public class MoeSyntaxView extends PlainView
      *   represent a valid location in the associated document
      * @see View#modelToView
      */
-    public Shape modelToView(int pos, Shape a, Position.Bias b) throws BadLocationException 
+    public Shape modelToView(int pos, Shape a, Position.Bias b) 
+         throws BadLocationException 
     {
         // line coordinates
         Document doc = getDocument();
@@ -256,7 +257,7 @@ public class MoeSyntaxView extends PlainView
 
         Element line = map.getElement(lineIndex);
         int p0 = line.getStartOffset();
-        Segment buffer =  getLineBuffer(); 
+        Segment buffer = getLineBuffer();
         doc.getText(p0, pos - p0, buffer);
         int xOffs = Utilities.getTabbedTextWidth(buffer, metrics, tabBase, this, p0);
 
@@ -269,7 +270,7 @@ public class MoeSyntaxView extends PlainView
 
 
 
-  // --- TabExpander interface methods ------------------------------------------
+    // --- TabExpander interface methods -----------------------------------
 
     /**
      * Returns the next tab stop position after a given reference position.
@@ -290,7 +291,6 @@ public class MoeSyntaxView extends PlainView
         }
         return x + tabSize;
     }
-    
 
 
    /**
@@ -308,45 +308,3 @@ public class MoeSyntaxView extends PlainView
     }
 
 }
-
-/*
-* ChangeLog:
-* $Log$
-* Revision 1.2  2000/01/24 22:56:23  mik
-*
-* editor improvements:
-*  - fixed problem with compile button disable inviews
-*  - added step arrow
-*
-* Revision 1.1  2000/01/12 03:39:59  bruce
-*
-* New files added to provide Syntax highlighting.  Altered document type from Styled to Plain.
-*
-* Revision 1.23  1999/06/05 00:22:58  sp
-* LGPL'd syntax package
-*
-* Revision 1.22  1999/05/28 02:00:25  sp
-* SyntaxView bug fix, faq update, MiscUtilities.isURL() method added
-*
-* Revision 1.21  1999/05/02 00:07:21  sp
-* Syntax system tweaks, console bugfix for Swing 1.1.1
-*
-* Revision 1.20  1999/05/01 02:21:12  sp
-* 1.6pre4
-*
-* Revision 1.19  1999/05/01 00:55:11  sp
-* Option pane updates (new, easier API), syntax colorizing updates
-*
-* Revision 1.18  1999/04/30 23:20:38  sp
-* Improved colorization of multiline tokens
-*
-* Revision 1.17  1999/04/19 05:38:20  sp
-* Syntax API changes
-*
-* Revision 1.16  1999/03/13 08:50:39  sp
-* Syntax colorizing updates and cleanups, general code reorganizations
-*
-* Revision 1.15  1999/03/12 23:51:00  sp
-* Console updates, uncomment removed cos it's too buggy, cvs log tags added
-*
-*/

@@ -1,19 +1,18 @@
 #BlueJ project file
-#Tue Oct 05 16:38:08 GMT+10:00 1999
-target1.height=50
-target1.numberAppletParameters=2
-package.window.height=450
-target1.y=40
-target1.x=50
-target1.valid=true
-package.numTargets=1
-target1.appletHeight=100
-target1.appletWidth=250
-target1.type=AppletTarget
-package.window.width=512
-target1.name=CaseConverter
-target1.width=110
 package.numDependencies=0
-target1.appletParameter2=<PARAM\ NAME\ \=\ breite\ \ \ VALUE\ \=\ 200>
+package.numTargets=1
+package.window.height=450
+package.window.width=512
+target1.appletHeight=100
 target1.appletParameter1=<PARAM\ NAME\ \=\ hoehe\ \ \ VALUE\ \=\ 100>
+target1.appletParameter2=<PARAM\ NAME\ \=\ breite\ \ \ VALUE\ \=\ 200>
+target1.appletWidth=250
+target1.height=50
 target1.modifiers=0
+target1.name=CaseConverter
+target1.numberAppletParameters=2
+target1.type=AppletTarget
+target1.valid=true
+target1.width=110
+target1.x=50
+target1.y=40

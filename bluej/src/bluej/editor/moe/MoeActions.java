@@ -278,11 +278,42 @@ public final class MoeActions
 
         public CommentAction() {
             super("comment",
-                  KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, Event.CTRL_MASK));
+                  KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK));
         }
 
         public void actionPerformed(ActionEvent e) {
-            DialogManager.NYI(getEditor(e));
+
+            getEditor(e);
+            JTextComponent textPane = getTextComponent(e);
+            Caret caret = textPane.getCaret();
+            int selectionStart = caret.getMark();
+            int selectionEnd = caret.getDot();
+            if(selectionStart > selectionEnd) {
+                int tmp = selectionStart;
+                selectionStart = selectionEnd;
+                selectionEnd = tmp;
+            }
+            if(selectionStart != selectionEnd)
+                selectionEnd = selectionEnd - 1;    // skip last position
+
+            MoeSyntaxDocument doc = (MoeSyntaxDocument)textPane.getDocument();
+            Element text = doc.getDefaultRootElement();
+
+            int firstLineIndex = text.getElementIndex(selectionStart);
+            int lastLineIndex = text.getElementIndex(selectionEnd);
+            for(int i = firstLineIndex; i <= lastLineIndex; i++) {
+                Element line = text.getElement(i);
+                int lineStart = line.getStartOffset();
+                try {
+                    doc.insertString(lineStart, "// ", null);
+                }
+                catch(Exception exc) {}
+            }
+            
+             textPane.setCaretPosition(
+                          text.getElement(firstLineIndex).getStartOffset());
+             textPane.moveCaretPosition(
+                          text.getElement(lastLineIndex).getEndOffset());
         }
     }
 
@@ -292,11 +323,50 @@ public final class MoeActions
 
         public UncommentAction() {
             super("uncomment",
-                  KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, SHIFT_CTRL_MASK));
+                  KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
         }
 
         public void actionPerformed(ActionEvent e) {
-            DialogManager.NYI(getEditor(e));
+
+            getEditor(e);
+            JTextComponent textPane = getTextComponent(e);
+            Caret caret = textPane.getCaret();
+            int selectionStart = caret.getMark();
+            int selectionEnd = caret.getDot() - 1;  // skip last position
+            if(selectionStart > selectionEnd) {
+                int tmp = selectionStart;
+                selectionStart = selectionEnd;
+                selectionEnd = tmp;
+            }
+
+            MoeSyntaxDocument doc = (MoeSyntaxDocument)textPane.getDocument();
+            Element text = doc.getDefaultRootElement();
+
+            int firstLineIndex = text.getElementIndex(selectionStart);
+            int lastLineIndex = text.getElementIndex(selectionEnd);
+            for(int i = firstLineIndex; i <= lastLineIndex; i++) {
+                Element line = text.getElement(i);
+                int lineStart = line.getStartOffset();
+                int lineEnd = line.getEndOffset();
+                try {
+                    String lineText = doc.getText(lineStart, lineEnd-lineStart);
+                    if(lineText.trim().startsWith("//")) {
+                        int cnt=0;
+                        while(lineText.charAt(cnt) != '/')   // whitespace chars
+                            cnt++;
+                        if(lineText.charAt(cnt+2) == ' ')
+                            doc.remove(lineStart, cnt+3);
+                        else
+                            doc.remove(lineStart, cnt+2);
+                    }
+                }
+                catch (Exception exc) {}
+            }
+            
+            textPane.setCaretPosition(
+                         text.getElement(firstLineIndex).getStartOffset());
+            textPane.moveCaretPosition(
+                         text.getElement(lastLineIndex).getEndOffset());
         }
     }
 
@@ -598,10 +668,8 @@ public final class MoeActions
 
     private Element getCurrentLine(JTextComponent text)
     {
-        //return text.getDocument().getDefaultRootElement().getElement(
-        //		text.getCaretPosition());
-        MoeSyntaxDocument doc = (MoeSyntaxDocument)text.getDocument();
-        return doc.getParagraphElement(text.getCaretPosition());
+        MoeSyntaxDocument document = (MoeSyntaxDocument)text.getDocument();
+        return document.getParagraphElement(text.getCaretPosition());
     }
 
     // --------------------------------------------------------------------
@@ -614,36 +682,37 @@ public final class MoeActions
         return text.getDocument().getDefaultRootElement().getElement(lineNo-1);
     }
 
-    //      // --------------------------------------------------------------------
-    //      /**
-    //       * Find and return a line by text position
-    //       */
+    // -------------------------------------------------------------------
+    /**
+     * Find and return a line by text position
+     */
 
-    //      private Element getLineAt (JTextComponent textComponent, int pos)
-    //      {
-    //  	return document.getParagraphElement(pos);
-    //      }
+    private Element getLineAt(JTextComponent text, int pos)
+    {
+        MoeSyntaxDocument document = (MoeSyntaxDocument)text.getDocument();
+        return document.getParagraphElement(pos);
+    }
 
-    //      // --------------------------------------------------------------------
-    //      /**
-    //       * Return the number of the current line.
-    //       */
+//      // -------------------------------------------------------------------
+//      /**
+//       * Return the number of the current line.
+//       */
 
-    //      private int getCurrentLineNo(JTextComponent textComponent)
-    //      {
-    //  	return document.getDefaultRootElement().getElementIndex(
-    //  					textPane.getCaretPosition()) + 1;
-    //      }
+//      private int getCurrentLineNo(JTextComponent textComponent)
+//      {
+//  	return document.getDefaultRootElement().getElementIndex(
+//  					textPane.getCaretPosition()) + 1;
+//      }
 
-    //      // ------------------------------------------------------------------------
-    //      /**
-    //       * Return the number of the line containing position 'pos'.
-    //       */
+//      // -------------------------------------------------------------------
+//      /**
+//       * Return the number of the line containing position 'pos'.
+//       */
 
-    //      private int getLineNumberAt(JTextComponent textComponent, int pos)
-    //      {
-    //  	return document.getDefaultRootElement().getElementIndex(pos) + 1;
-    //      }
+//      private int getLineNumberAt(JTextComponent textComponent, int pos)
+//      {
+//  	return document.getDefaultRootElement().getElementIndex(pos) + 1;
+//      }
 
     // --------------------------------------------------------------------
     /**
