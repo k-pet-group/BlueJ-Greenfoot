@@ -20,7 +20,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2213 2003-10-13 09:55:27Z damiano $
+ * @version $Id: Project.java 2244 2003-10-31 14:25:02Z damiano $
  */
 public class Project
     implements DebuggerListener
@@ -135,7 +135,8 @@ public class Project
         }
 
         if (startingPackageName.equals("")) {
-            Package startingPackage = proj.getPackage("");
+            // The following one could be a getPackage ? 311003 Damiano
+            Package startingPackage = proj.getWizardPackage("");
 
             while(startingPackage != null) {
                 Package sub = startingPackage.getBoringSubPackage();
@@ -394,17 +395,15 @@ public class Project
 
     /**
      * Return a package from the project.
-     * This will construct the package
-     * if need be or return it from the cache
-     * if already existing. All parent packages
-     * on the way to the root of the package tree will
-     * also be constructed.
+     * This will construct the package if need be or return it from the cache
+     * if already existing. All parent packages on the way to the root of the package 
+     * tree will also be constructed.
+     * Note: This is called Wizard since it does quite a few things that are normally
+     * divided in more then one part.
      *
-     *
-     * @param qualifiedName the package name to fetch in dot qualified
-     *                      notation ie java.util or "" for unnamed package
+     * @param qualifiedName package name ie java.util or "" for unnamed package
      */
-    public Package getPackage(String qualifiedName)
+    public Package getWizardPackage(String qualifiedName)
     {
         Package existing = (Package) packages.get(qualifiedName);
 
@@ -416,13 +415,12 @@ public class Project
         {
             Package pkg;
             try {
-                Package parent = getPackage(JavaNames.getPrefix(qualifiedName));
+                Package parent = getWizardPackage(JavaNames.getPrefix(qualifiedName));
                 if(parent != null) {
-                    pkg = new Package(this, JavaNames.getBase(qualifiedName),
-                                      parent);
+                    pkg = new Package(this, JavaNames.getBase(qualifiedName), parent);
                     packages.put(qualifiedName, pkg);
                 }
-                else // parent package does not exist
+                else // parent package does not exist. How can it not exist ?
                     pkg = null;
             }
             catch (IOException exc) {
@@ -436,6 +434,16 @@ public class Project
         throw new IllegalStateException("Project.getPackage()");
     }
 
+    /**
+     * Returns a package from the project
+     * 
+     * @param qualifiedName package name ie java.util or "" for unnamed package
+     * @return null if the named package cannot be found
+     */
+    public Package getPackage( String qualifiedName )
+    {
+        return (Package) packages.get(qualifiedName);
+    }
 
     /**
      * Return a new package with the given fully qualified name.
@@ -465,6 +473,7 @@ public class Project
         
         // The above named package does not exist, lets create it.
         try {
+            // Ok, 311003 Damiano we really want to know if the parent is there.
             Package parent = getPackage(JavaNames.getPrefix(qualifiedName));
             if(parent == null) return NEW_PACKAGE_NO_PARENT;
 
@@ -516,6 +525,7 @@ public class Project
      */
     public List getPackageNames()
     {
+        // Ok getPackage() 311003 Damiano, maybe we should consider a rootPackage ?
         return getPackageNames(getPackage(""));
     }
 
@@ -597,8 +607,8 @@ public class Project
 
             Project openProj = openProject(newName);
             if(openProj != null) {
-                Package pkg = openProj.getPackage(
-                                         openProj.getInitialPackageName());
+                // This is a wizard get 311003 Damiano
+                Package pkg = openProj.getWizardPackage(openProj.getInitialPackageName());
 
                 PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
                 pmf.show();
@@ -797,6 +807,7 @@ public class Project
 		
         DebuggerThread thr = event.getThread();
 		String packageName = JavaNames.getPrefix(thr.getClass(0));
+    // This is really a getPackage 311003 Damiano
 		Package pkg = getPackage(packageName);
 		if(pkg != null) {
 			switch(event.getID()) {

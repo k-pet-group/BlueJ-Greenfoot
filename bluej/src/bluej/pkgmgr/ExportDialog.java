@@ -17,7 +17,7 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: ExportDialog.java 2244 2003-10-31 14:25:02Z damiano $
  */
 class ExportDialog extends JDialog
 {
@@ -215,6 +215,7 @@ class ExportDialog extends JDialog
 
         for (Iterator packages = packageNames.iterator(); packages.hasNext(); ) {
             String pkgName = (String)packages.next();
+            // SHould be a getPackage, Damiano
             List classNames = project.getPackage(pkgName).getAllClassnames();
             Collections.sort(classNames);
             if(pkgName.length() > 0) 

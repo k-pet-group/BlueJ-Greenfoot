@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2216 2003-10-15 11:53:31Z fisker $
+ * @version $Id: ClassTarget.java 2244 2003-10-31 14:25:02Z damiano $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -824,7 +824,9 @@ public class ClassTarget extends EditableTarget
     private void doPackageNameChange(String newName)
     {
         Project proj = getPackage().getProject();
-        Package dstPkg = proj.getPackage(newName);
+
+        // This should be a WIzard one, Damiano
+        Package dstPkg = proj.getWizardPackage(newName);
 
         if(dstPkg == null) {
             DialogManager.showError(null, "package-name-invalid");

@@ -30,7 +30,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2243 2003-10-31 13:26:39Z damiano $
+ * @version $Id: PkgMgrFrame.java 2244 2003-10-31 14:25:02Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -764,9 +764,9 @@ public class PkgMgrFrame extends JFrame
             Project proj = Project.openProject(newname);
 
             if(isEmptyFrame()) {
-                openPackage(proj.getPackage(""));
+                openPackage(proj.getWizardPackage(""));
             } else {
-                PkgMgrFrame pmf = createFrame(proj.getPackage(""));
+                PkgMgrFrame pmf = createFrame(proj.getWizardPackage(""));
                 DialogManager.tileWindow(pmf, this);
                 pmf.show();
             }
@@ -798,7 +798,7 @@ public class PkgMgrFrame extends JFrame
         if(openProj == null)
             return false;
         else {
-            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
+            Package pkg = openProj.getWizardPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
 
@@ -905,7 +905,7 @@ public class PkgMgrFrame extends JFrame
             }
 
             // now lets display the new project in a frame
-            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
+            Package pkg = openProj.getWizardPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
 
@@ -1329,7 +1329,7 @@ public class PkgMgrFrame extends JFrame
     private void openPackageTarget(String newname)
     {
         PkgMgrFrame pmf;
-        Package p = getPackage().getProject().getPackage(newname);
+        Package p = getPackage().getProject().getWizardPackage(newname);
 
         if ((pmf = findFrame(p)) == null) {
             pmf = createFrame(p);
@@ -1523,7 +1523,7 @@ public class PkgMgrFrame extends JFrame
 
         // check that everything has gone well and instruct all affected
         // packages to reload (to make them notice the new sub packages)
-        Package newPackage = getProject().getPackage(fullName);
+        Package newPackage = getProject().getWizardPackage(fullName);
 
         if (newPackage == null) {
             Debug.reportError("creation of new package failed unexpectedly");
