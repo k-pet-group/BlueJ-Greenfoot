@@ -25,7 +25,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Inspector.java 2959 2004-08-30 12:36:47Z mik $
+ * @version $Id: Inspector.java 2960 2004-08-30 12:39:41Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -38,8 +38,6 @@ public abstract class Inspector extends JFrame
     protected final static String inspectLabel = Config.getString("debugger.inspector.inspect");
     protected final static String getLabel = Config.getString("debugger.inspector.get");
     protected final static String close = Config.getString("close");
-
-    private static final Color selectionColor = Config.getItemColour("colour.inspector.list.selection");
 
     // === instance variables ===
 
@@ -245,12 +243,6 @@ public abstract class Inspector extends JFrame
                 if (fieldList.getSelectedRow() == -1 && listData.length > 0) {
                     fieldList.setRowSelectionInterval(0, 0);
                 }
-
-                // Get the current position
-                int oldposX = getX();
-                int oldposY = getY();
-                int oldWidth = getWidth();
-                int oldHeight = getHeight();
 
                 double height = fieldList.getPreferredSize().getHeight();
                 int rows = listData.length;
