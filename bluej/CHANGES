@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00093
+@bug#  : 00097
 @short : 
 @prio  : 
 @source: 
@@ -71,16 +71,28 @@ in the template for the next one):
 ============ open bugs: ============
 
 @-------
-@bug#  : 00092
-@short : handle dependency source update
+@bug#  : 00093
+@short : package lines in classes must be removed
 @prio  : 1
 @source: mik
 @date  : 1999-08-11
-@status: in process (ajp, mik)
+@status: in process (ajp)
 @fixrel: 
-@descr : insertion/removal of dependencies (graphically)
-	 must be handled
+@descr : "package" declarations must be automatically removed
 @cause : new feature
+
+@-------
+@bug#  : 00095
+@short : views don't work
+@prio  : 1
+@source: mik
+@date  : 1999-08-18
+@status: open
+@fixrel: 
+@descr : when changing views, the editor gets into all sorts of funny states.
+	 for example: change to public view in editor - cannot change back to
+	 impl view.
+@cause : buggy implementation
 
 @-------
 @bug#  : 00091
@@ -97,7 +109,7 @@ in the template for the next one):
 @-------
 @bug#  : 00045
 @short : library browser
-@prio  : 1
+@prio  : 2
 @source: mik
 @date  : 1999-02-01
 @status: in process (ajp)
@@ -105,30 +117,6 @@ in the template for the next one):
 @descr : create browser (browse libraries, import standard package,
 	 import class)
 @cause : new feature
-
-@-------
-@bug#  : 00093
-@short : package lines in classes must be removed
-@prio  : 1
-@source: mik
-@date  : 1999-08-11
-@status: in process (ajp)
-@fixrel: 
-@descr : "package" declarations must be automatically removed
-@cause : new feature
-
-@-------
-@bug#  : 00065
-@short : strange class access problem after import
-@prio  : 2
-@source: student
-@date  : 1999-04-01
-@status: open
-@fixrel: 
-@descr : after importing a class with an incorrect package line, then 
-	 removing that line, access to the class does not work. Example:
-	 package "Person" in bj-problems
-@cause : ?
 
 @-------
 @bug#  : 00012
@@ -142,16 +130,16 @@ in the template for the next one):
 @cause : new feature
 
 @-------
-@bug#  : 00017
-@short : initial access rights incorrect
+@bug#  : 00096
+@short : order of methods wrong in popup menu and views
 @prio  : 2
-@source: frankston
-@date  : 1999-02-26
+@source: mik
+@date  : 1999-08-19
 @status: open
 @fixrel: 
-@descr : the access rights for directories under <bluej_home> are set to
-	 deny "other" access. This access should be granted by default.
-@cause : 
+@descr : the order of the methods shown in the object popup menu does not 
+	 match the order in the source code.
+@cause : never properly implemented
 
 @-------
 @bug#  : 00069
@@ -263,6 +251,18 @@ in the template for the next one):
 @cause : new feature
 
 @-------
+@bug#  : 00017
+@short : initial access rights incorrect
+@prio  : 4
+@source: frankston
+@date  : 1999-02-26
+@status: open
+@fixrel: 
+@descr : the access rights for directories under <bluej_home> are set to
+	 deny "other" access. This access should be granted by default.
+@cause : 
+
+@-------
 @bug#  : 00037
 @short : cannot create nested package
 @prio  : 4
@@ -334,6 +334,18 @@ in the template for the next one):
 @cause : new feature
 
 @-------
+@bug#  : 00094
+@short : edit while stopped at breakpoint (or running?) causes problems
+@prio  : 4
+@source: axel
+@date  : 1999-08-19
+@status: open
+@fixrel: 
+@descr : editing the source (probably also compiling/ or only compiling?)
+	 while the machineis not idle causes problems!
+@cause : incomplete feature implementation
+
+@-------
 @bug#  : 00072
 @short : editor key bindings cannot be changed or saved
 @prio  : 4
@@ -379,18 +391,6 @@ in the template for the next one):
 @fixrel: 
 @descr : support for javadoc must be implemented. detail unclear so far.
 @cause : new feature
-
-@-------
-@bug#  : 00051
-@short : weird machine startup messages
-@prio  : 5
-@source: mik
-@date  : 1999-02-01
-@status: open
-@fixrel: 
-@descr : on some systems (Linux) the debug machine produces strange debug 
-	 output
-@cause : buggy library code
 
 @-------
 @bug#  : 00046
@@ -472,6 +472,58 @@ in the template for the next one):
 =======================================================================
 ============================ closed bugs: =============================
 =======================================================================
+
+============================ version 1.0.0 ============================
+
+@-------
+@bug#  : 00092
+@short : handle dependency source update
+@prio  : 1
+@source: mik
+@date  : 1999-08-11
+@status: closed, fixed (ajp, 1999-08-19)
+@fixrel: 1.0.0
+@descr : insertion/removal of dependencies (graphically)
+	 must be handled
+@cause : new feature
+
+@-------
+@bug#  : 00093
+@short : step after execution finish causes real problems
+@prio  : 2
+@source: johnr
+@date  : 1999-08-15
+@status: closed, fixed (mik, 1999-08-19)
+@fixrel: 1.0.0
+@descr : after the execution is finished, one can still click the "step"
+	 button. but this throws the machine into an inconsistent state.
+@cause : new bug in new feature
+
+@-------
+@bug#  : 00065
+@short : strange class access problem after import
+@prio  : 2
+@source: student
+@date  : 1999-04-01
+@status: closed, fixed (mik, 1999-08-19)
+@fixrel: 1.0.0
+@descr : after importing a class with an incorrect package line, then 
+	 removing that line, access to the class does not work. Example:
+	 package "Person" in bj-problems
+@cause : ?
+
+@-------
+@bug#  : 00051
+@short : weird machine startup messages
+@prio  : 5
+@source: mik
+@date  : 1999-02-01
+@status: fixed (jdk implementation)
+@fixrel: 1.0.0
+@descr : on some systems (Linux) the debug machine produces strange debug 
+	 output
+@cause : buggy library code
+
 
 ============================ version 0.9.7 ============================
 

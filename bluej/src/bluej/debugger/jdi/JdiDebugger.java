@@ -444,6 +444,11 @@ public final class JdiDebugger extends Debugger
 	    resumeMachine();
 	    return (ClassLoaderReference)returnVal;
 	}
+  	catch(com.sun.jdi.InternalException e) {
+	    // we regularly get an exception here when trying to load a class
+	    // while the machine is suspended. It doesn't seem to be fatal.
+	    // so we just ignore internal exceptions for the moment.
+  	}
   	catch(Exception e) {
 	    Debug.message("sending command to remote VM failed: " + e);
 	    Debug.message("task: " + task + " " + arg1 + " " + arg2);

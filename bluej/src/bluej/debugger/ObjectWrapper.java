@@ -1,6 +1,6 @@
 /**
  ** bluej.debugger ObjectWrapper.java
- ** $Id: ObjectWrapper.java 242 1999-08-19 06:43:31Z mik $
+ ** $Id: ObjectWrapper.java 243 1999-08-19 07:38:42Z mik $
  **
  ** A wrapper around a Java object that handles calling methods, inspecting, 
  ** etc. The wrapper is represented by the red oval that is visible on the
@@ -98,7 +98,6 @@ public class ObjectWrapper extends JComponent implements ActionListener
 
 	    // define a view filter
 	    ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PROTECTED);
-
 
 	    menu.addSeparator();
 
