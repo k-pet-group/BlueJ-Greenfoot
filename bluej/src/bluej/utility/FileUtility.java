@@ -15,7 +15,7 @@ import java.util.*;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 560 2000-06-19 02:25:48Z ajp $
+ * @version $Id: FileUtility.java 572 2000-06-21 07:17:37Z mik $
  */
 public class FileUtility
 {
@@ -114,53 +114,6 @@ public class FileUtility
     }
 
     /**
-     * To serve our purposes we need to redefine some of the methods
-     * in JFileChooser.
-     *
-     * Why is this Class static? Well since it is a nested class and
-     * it needs to be instantiated in a class (static) method, this
-     * seems to be the only way to do it.
-     * Normally an inner class is instantiated by an instance of the
-     * outer class but in this case it is the outer class itself that
-     * instantiate it.
-     */
-    private static class BluejFileChooser extends JFileChooser
-    {
-        /**
-         * Create a new BluejFileChooser.
-         * @param startDirectory Directory to start the package selection in.
-         * @param directoryOnly  Should it display just directories
-         **/
-        public BluejFileChooser(String startDirectory, boolean directoryOnly)
-        {
-            super(startDirectory);
-            setFileView(new PackageFileView());
-            if (directoryOnly)
-                setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            else
-                setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        }
-
-        /**
-         * A directory was double-clicked. If it is a BlueJ package maybe
-         * we want to treat it differently
-         */
-        public void setCurrentDirectory(File dir)    // redefined
-        {
-            //Here we could treat bluej package differently
-            //At the moment nothing is done.
-            if (Package.isBlueJPackage(dir)) {
-                setSelectedFile(new File(""));
-                super.setCurrentDirectory(dir);
-            }
-            else{
-                setSelectedFile(new File("")); //clear the textfield
-                super.setCurrentDirectory(dir);
-            }
-        }
-     }
-
-    /**
      * Copy file 'source' to file 'dest'. The source file must exist,
      * the destination file will be created. Returns true if successful.
      */
@@ -246,7 +199,7 @@ public class FileUtility
             }
             else {
                 if(!skipFile(dir[i], excludeBlueJ, excludeSource)) {
-                    File file2 = new File(dest + File.separator + dir[i]);
+                    File file2 = new File(dest, dir[i]);
                     if(!copyFile(file, file2))
                         return COPY_ERROR;
                 }

@@ -911,6 +911,16 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
+     *  Implementation of "preview documentation" user function.
+     */
+
+    public void generateDoc()
+    {
+        Debug.message("documentation...");
+    }
+
+    // --------------------------------------------------------------------
+    /**
      *  Implementation of "toggle-breakpoint" user function.
      */
 

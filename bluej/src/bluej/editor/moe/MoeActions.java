@@ -593,6 +593,19 @@ public final class MoeActions
         }
     }
 
+    // --------------------------------------------------------------------
+
+    class PreviewDocAction extends MoeAbstractAction {
+
+        public PreviewDocAction() {
+            super("preview-doc");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            getEditor(e).generateDoc();
+        }
+    }
+
     // === Debug: ===
     // --------------------------------------------------------------------
 
@@ -868,6 +881,7 @@ public final class MoeActions
             new FindNextReverseAction(),
             new ReplaceAction(),
             compileAction,
+            new PreviewDocAction(),
             new ToggleBreakPointAction(),
 
             new KeyBindingsAction(),
@@ -980,8 +994,9 @@ public final class MoeActions
             (Action)(actions.get("find-next-reverse")),
             (Action)(actions.get("replace")),
             (Action)(actions.get("compile")),
+            (Action)(actions.get("preview-doc")),
             (Action)(actions.get("toggle-breakpoint")),
-        };                                                      // 69
+        };                                                      // 70
 
         categories = new String[] { Config.getString("editor.functions.editFunctions"),
                                     Config.getString("editor.functions.moveScroll"),
@@ -990,7 +1005,7 @@ public final class MoeActions
                                     Config.getString("editor.functions.help"),
                                     Config.getString("editor.functions.misc")};
 
-        categoryIndex = new int[] { 0, 33, 49, 54, 56, 60, 69 };
+        categoryIndex = new int[] { 0, 33, 49, 54, 56, 60, 70 };
     }
 
     /**
@@ -1051,6 +1066,7 @@ public final class MoeActions
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK), 
                               (Action)(actions.get("compile")));
+        // "preview-doc" not bound
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK), 
                               (Action)(actions.get("toggle-breakpoint")));
