@@ -18,7 +18,7 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 202 1999-07-22 07:45:35Z mik $
+ ** @version $Id: MethodDialog.java 209 1999-07-23 06:42:55Z ajp $
  **
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -172,8 +172,13 @@ public class MethodDialog extends JDialog
 	    dialogPanel.setBorder(Config.generalBorder);
 
 	    dialogPanel.add(descPanel);
+		dialogPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        dialogPanel.add(new JSeparator());
+		dialogPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
 	    dialogPanel.add(centerPanel);
-            dialogPanel.add(status);
+        dialogPanel.add(status);
+        dialogPanel.add(new JSeparator());
+		dialogPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
 	    dialogPanel.add(butPanel);
         }
 
@@ -375,7 +380,6 @@ public class MethodDialog extends JDialog
 	boolean inArg = false;
 	Vector args = new Vector();
 
-	System.out.println(longMethodName);	
 	while( tokenizer.hasMoreTokens()){
 	    String token = tokenizer.nextToken();
 	    
