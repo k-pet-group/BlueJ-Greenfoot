@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 1059 2001-12-20 13:49:55Z mik $
+ ** @version $Id: ExecControls.java 1229 2002-04-19 14:17:18Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -387,7 +387,7 @@ public class ExecControls extends JFrame
         staticList = new JList(new DefaultListModel());
         staticList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         staticList.addListSelectionListener(this);
-        staticList.setVisibleRowCount(5);
+        staticList.setVisibleRowCount(3);
         staticList.setFixedCellWidth(150);
         JScrollPane staticScrollPane = new JScrollPane(staticList);
         staticScrollPane.setColumnHeaderView(new JLabel(staticTitle));
@@ -398,7 +398,7 @@ public class ExecControls extends JFrame
         instanceList = new JList(new DefaultListModel());
         instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         instanceList.addListSelectionListener(this);
-        instanceList.setVisibleRowCount(5);
+        instanceList.setVisibleRowCount(4);
         instanceList.setFixedCellWidth(150);
         JScrollPane instanceScrollPane = new JScrollPane(instanceList);
         instanceScrollPane.setColumnHeaderView(new JLabel(instanceTitle));
@@ -409,7 +409,7 @@ public class ExecControls extends JFrame
         localList = new JList(new DefaultListModel());
         localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         localList.addListSelectionListener(this);
-        localList.setVisibleRowCount(5);
+        localList.setVisibleRowCount(4);
         localList.setFixedCellWidth(150);
         JScrollPane localScrollPane = new JScrollPane(localList);
         localScrollPane.setColumnHeaderView(new JLabel(localTitle));

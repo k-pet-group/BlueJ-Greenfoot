@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1025 2001-12-07 12:00:58Z mik $
+ * @version $Id: JdiDebugger.java 1229 2002-04-19 14:17:18Z mik $
  *
  * The startup process is as follows:
  *
@@ -195,7 +195,8 @@ public final class JdiDebugger extends Debugger
             // redirect error stream from process to System.out
             InputStreamReader processErrorReader 
                 = new InputStreamReader(process.getErrorStream());
-            OutputStreamWriter errorWriter = new OutputStreamWriter(System.out);
+            //Writer errorWriter = new OutputStreamWriter(System.out);
+            Writer errorWriter = Terminal.getTerminal().getErrorWriter();
             redirectIOStream(processErrorReader, errorWriter, false);
             
             // redirect output stream from process to Terminal

@@ -23,20 +23,21 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1208 2002-04-02 04:56:37Z ajp $
+ * @version $Id: Terminal.java 1229 2002-04-19 14:17:18Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
 {
     private static final String WINDOWTITLE = Config.getString("terminal.title");
     private static final int windowHeight =
-        Config.getPropInteger("bluej.terminal.height", 25);
+        Config.getPropInteger("bluej.terminal.height", 22);
     private static final int windowWidth =
         Config.getPropInteger("bluej.terminal.width", 80);
 
     private static final Color activeBgColour = Color.white;
     private static final Color inactiveBgColour = new Color(224, 224, 224);
     private static final Color fgColour = Color.black;
+    private static final Color errorColour = Color.red;
     private static final Image iconImage =
         Config.getImageAsIcon("image.icon.terminal").getImage();
 
@@ -60,12 +61,19 @@ public final class Terminal extends JFrame
     // -- instance --
 
     private TermTextArea text;
+    private JTextArea errorText;
+    private JScrollPane errorScrollPane;
     private boolean isActive = false;
     private boolean recordMethodCalls = false;
     private InputBuffer buffer;
 
     private JCheckBoxMenuItem recordCalls;
     private JCheckBoxMenuItem unlimitedBuffering;
+
+    Reader in = new TerminalReader();
+    Writer out = new TerminalWriter(false);
+    Writer err = new TerminalWriter(true);
+
 
     /**
      * Create a new terminal window with default specifications.
@@ -177,6 +185,31 @@ public final class Terminal extends JFrame
 
 
     /**
+     * Write some text to the terminal.
+     */
+    private void writeToErrorOut(String s)
+    {
+        // FIX
+        text.append(s);
+        text.setCaretPosition(text.getDocument().getLength());
+    }
+
+
+    /**
+     * Write a character to the terminal.
+     */
+    private void writeToErrorOut(char ch)
+    {
+        if(!errorScrollPane.isVisible()) {
+            errorScrollPane.setVisible(true);
+            pack();
+        }
+        errorText.append(String.valueOf(ch));
+        errorText.setCaretPosition(errorText.getDocument().getLength());
+    }
+
+
+    /**
      * Set the terminal size the the specified number of rows and columns.
      */
     private void setScreenSize(int columns, int rows)
@@ -196,29 +229,6 @@ public final class Terminal extends JFrame
             showTerminal(true);
     }
 
-    /**
-     * Create a new Reader which reads from the terminal.
-     */
-    Reader in = new Reader() {
-
-        public int read(char[] cbuf, int off, int len) throws IOException
-        {
-            int charsRead = 0;
-
-            while(charsRead < len) {
-                cbuf[off + charsRead] = buffer.getChar();
-                charsRead++;
-                if(buffer.numberOfCharacters() == 0)
-                    break;
-            }
-            return charsRead;
-        }
-
-        public void close() throws IOException
-        {
-        }
-
-    };
 
     /**
      * Return the input stream that can be used to read from this terminal.
@@ -230,42 +240,20 @@ public final class Terminal extends JFrame
 
 
     /**
-     * Create a new output stream which writes to the terminal.
-     */
-    Writer out = new Writer() {
-
-        public void write(char[] cbuf, int off, int len) throws IOException
-        {
-            if (enabled) {
-                prepare();
-                writeToTerminal(new String(cbuf, off, len));
-            }
-        }
-
-        public void write(int ch) throws IOException
-        {
-            if (enabled) {
-                prepare();
-                writeToTerminal((char)ch);
-            }
-        }
-
-        public void flush() throws IOException
-        {
-        }
-
-        public void close() throws IOException
-        {
-        }
-    };
-
-
-    /**
      * Return the output stream that can be used to write to this terminal
      */
     public Writer getWriter()
     {
         return out;
+    }
+
+
+    /**
+     * Return the output stream that can be used to write error output to this terminal
+     */
+    public Writer getErrorWriter()
+    {
+        return err;
     }
 
 
@@ -366,6 +354,17 @@ public final class Terminal extends JFrame
         //text.setBackground(inactiveBgColour);
 
         getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+        errorText = new JTextArea(4, columns);
+        errorScrollPane = new JScrollPane(errorText);
+        errorText.setFont(PrefMgr.getTerminalFont());
+        errorText.setEditable(false);
+        errorText.setLineWrap(false);
+        errorText.setForeground(errorColour);
+        errorText.setMargin(new Insets(6, 6, 6, 6));
+
+        getContentPane().add(errorScrollPane, BorderLayout.SOUTH);
+        errorScrollPane.setVisible(false);
 
         text.addKeyListener(this);
 
@@ -496,4 +495,75 @@ public final class Terminal extends JFrame
             text.setUnlimitedBuffering(unlimitedBuffering.isSelected());
         }
     }
+            
+    /**
+     * A Reader which reads from the terminal.
+     */
+    private class TerminalReader extends Reader {
+
+        public int read(char[] cbuf, int off, int len) throws IOException
+        {
+            int charsRead = 0;
+
+            while(charsRead < len) {
+                cbuf[off + charsRead] = buffer.getChar();
+                charsRead++;
+                if(buffer.numberOfCharacters() == 0)
+                    break;
+            }
+            return charsRead;
+        }
+
+        public void close() throws IOException
+        {
+        }
+
+    }
+
+    /**
+     * A writer which writes to the terminal. It can be flagged for error output.
+     * The idea is that error output could be presented differently from standard
+     * output.
+     */
+    private class TerminalWriter extends Writer {
+
+        private boolean isErrorOut;
+
+        TerminalWriter(boolean isError)
+        {
+            super();
+            isErrorOut = isError;
+        }
+
+        public void write(char[] cbuf, int off, int len) throws IOException
+        {
+            if (enabled) {
+                prepare();
+                if(isErrorOut)
+                    writeToErrorOut(new String(cbuf, off, len));
+                else
+                    writeToTerminal(new String(cbuf, off, len));
+            }
+        }
+
+        public void write(int ch) throws IOException
+        {
+            if (enabled) {
+                prepare();
+                if(isErrorOut)
+                    writeToErrorOut((char)ch);
+                else
+                    writeToTerminal((char)ch);
+            }
+        }
+
+        public void flush() throws IOException
+        {
+        }
+
+        public void close() throws IOException
+        {
+        }
+    }
+
 }
