@@ -21,7 +21,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2307 2003-11-09 10:01:02Z fisker $
+ * @version $Id: Invoker.java 2323 2003-11-12 12:48:38Z fisker $
  */
 
 public class Invoker extends Thread
@@ -29,6 +29,7 @@ public class Invoker extends Thread
 {
     private static final String creating = Config.getString("pkgmgr.creating");
     private static final String createDone = Config.getString("pkgmgr.createDone");
+
 
     public static final int OBJ_NAME_LENGTH = 8;
     public static final String SHELLNAME = "__SHELL";
@@ -479,7 +480,7 @@ public class Invoker extends Thread
             shell.close();
             
         } catch(IOException e) {
-            e.printStackTrace();
+            DialogManager.showError(pmf,"could-not-write-shell-file");
         }
         return shellFile;
     }
@@ -528,6 +529,7 @@ public class Invoker extends Thread
                 if(dialog instanceof MethodDialog)
                     ((MethodDialog)dialog).updateParameters();
             }
+            
         }
 
         pmf.setWaitCursor(false);
@@ -541,8 +543,12 @@ public class Invoker extends Thread
         File classFile = new File(pkg.getPath(), shellName + ".class");
         classFile.delete();
 
-        if (constructing)
+        if (constructing && successful) {
             pkg.setStatus(createDone);
+        } 
+        else {
+            pkg.setStatus(" ");
+        }
     }
 
     // -- end of CompileObserver interface --

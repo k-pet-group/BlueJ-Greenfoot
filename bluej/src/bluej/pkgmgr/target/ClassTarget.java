@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2291 2003-11-06 09:39:02Z fisker $
+ * @version $Id: ClassTarget.java 2323 2003-11-12 12:48:38Z fisker $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -928,7 +928,6 @@ public class ClassTarget extends EditableTarget
         if (cl != null)
 			if (role.createClassStaticMenu(menu, this, cl))
 				menu.addSeparator();
-
         role.addMenuItem(menu, new EditAction(), true);
         role.addMenuItem(menu, new CompileAction(), true);
         role.addMenuItem(menu, new InspectAction(), cl != null);

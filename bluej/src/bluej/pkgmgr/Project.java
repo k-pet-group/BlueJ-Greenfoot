@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2307 2003-11-09 10:01:02Z fisker $
+ * @version $Id: Project.java 2323 2003-11-12 12:48:38Z fisker $
  */
 public class Project
     implements DebuggerListener
@@ -375,6 +375,10 @@ public class Project
         return projectDir;
     }
 
+    /**
+     * Return wether the project is located in a readonly directory
+     * @return
+     */
     public boolean isReadOnly(){
         return !projectDir.canWrite();
     }
