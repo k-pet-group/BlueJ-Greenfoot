@@ -117,6 +117,7 @@ public class TextCommands {
          * @param words  The words from the imput line
          */
         public void execute(String[] words, TextEvalArea textArea) {
+            textArea.getObjectToBench();
         }
     }
 

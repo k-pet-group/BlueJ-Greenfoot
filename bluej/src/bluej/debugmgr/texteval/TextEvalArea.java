@@ -19,6 +19,7 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.IndexHistory;
 import bluej.debugmgr.objectbench.ObjectBench;
+import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -31,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2692 2004-06-30 08:55:28Z mik $
+ * @version $Id: TextEvalArea.java 2693 2004-06-30 09:19:53Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -47,6 +48,12 @@ public final class TextEvalArea extends JScrollPane
     private boolean firstTry;
     private IndexHistory history;
     private TextCommands commands;
+    
+    // the last object that we handled (this can be operated on)
+    private DebuggerObject lastObject;
+    // the invoker record of the last successful call
+    private InvokerRecord lastInvokerRecord;
+    
     
     /**
      * Create a new text area with given size.
@@ -87,15 +94,41 @@ public final class TextEvalArea extends JScrollPane
         text.requestFocus();
     }
 
+    
     /**
-     * Return the object bench that is associated with this text area.
-     *
+     * Try to get the last object that was handled onto the object bench.
+     * This is the implementation of the interactive 'get' command.
      */
-    public ObjectBench getObjectBench()
+    public void getObjectToBench()
     {
-        return frame.getObjectBench();
+        if(lastObject != null) {
+            frame.getPackage().getEditor().raisePutOnBenchEvent(this, lastObject, lastInvokerRecord);
+        }
+        else {
+            error("'Get' can only be used for objects. The last result was not an object.");
+        }
     }
     
+
+    /**
+     * List the objects on the object bench.
+     * This is the implementation of the interactive 'list' command.
+     */
+    public void listObjectBench()
+    {
+        StringBuffer out = new StringBuffer(100);
+        out.append("object bench:");
+        ObjectWrapper[] objects = frame.getObjectBench().getWrappers();
+        for(int i=0; i < objects.length; i++) {
+            out.append("   (");
+            out.append(objects[i].getTypeName());
+            out.append(" ");
+            out.append(objects[i].getName());
+            out.append(")");
+        }
+        output(out.toString());
+    }
+
     //   --- ResultWatcher interface ---
 
     /**
@@ -113,6 +146,14 @@ public final class TextEvalArea extends JScrollPane
             String resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
             
             output(resultString + "   (" + resultType + ")");
+            
+            lastInvokerRecord = ir;
+            if(result.instanceFieldIsObject(0)) {
+                lastObject = result.getFieldObject(0);
+            }
+            else {
+                lastObject = null;
+            }
             
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
         } 
