@@ -15,7 +15,7 @@ import java.util.Iterator;
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 719 2000-12-12 04:15:18Z ajp $
+ * @version $Id: VMEventHandler.java 820 2001-03-27 07:51:06Z mik $
  */
 public class VMEventHandler implements Runnable
 {
@@ -52,7 +52,6 @@ public class VMEventHandler implements Runnable
 
                 // Note: If just the thread itself is suspended we leave it
                 // suspended. (We only use this for breakpoints.)
-
                 if (eventSet.suspendPolicy() == EventRequest.SUSPEND_ALL) {
                     if (resumeStoppedApp) {
                         vm.resume();

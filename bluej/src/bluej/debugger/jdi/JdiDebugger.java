@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 814 2001-03-26 04:30:12Z ajp $
+ * @version $Id: JdiDebugger.java 820 2001-03-27 07:51:06Z mik $
  *
  * The startup process is as follows:
  *
@@ -389,6 +389,7 @@ public final class JdiDebugger extends Debugger
             //dumpThreadInfo();
         }
         catch(InvocationException e) {
+            resumeMachine();
             // exception thrown in remote machine - ignored here. The
             // exception is handled through the exceptionEvent method
         }
@@ -672,19 +673,17 @@ public final class JdiDebugger extends Debugger
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
-            Debug.message("exception event...");
         String excClass = exc.exception().type().name();
         ObjectReference remoteException = exc.exception();
 
         if(excClass.equals("bluej.runtime.TerminateException")) {
-            Debug.message("terminate event... terminating machine");
             // this was an explicit "terminate" by the user
-            //disposeWindows();
+            disposeWindows();
             //restoreErrorOutput();
             exitStatus = TERMINATED;
             machineStatus = IDLE;
             lastException = null;
-            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
+            //BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
             return;
         }
 
@@ -996,14 +995,8 @@ public final class JdiDebugger extends Debugger
     public void terminate(DebuggerThread thread)
     {
         //supressErrorOutput();
-        //disposeWindows();
-        Debug.message("click: terminate!");
         thread.terminate();
-//             restoreErrorOutput();
-//             exitStatus = TERMINATED;
-//             machineStatus = IDLE;
-//             lastException = null;
-//             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
+        //restoreErrorOutput();
     }
 
     /**

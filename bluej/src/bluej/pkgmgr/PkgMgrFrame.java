@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 814 2001-03-26 04:30:12Z ajp $
+ * @version $Id: PkgMgrFrame.java 820 2001-03-27 07:51:06Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -395,7 +395,7 @@ public class PkgMgrFrame extends JFrame
 
             String x_str = p.getProperty("package.editor.x",
                                               Integer.toString(16));
-            String y_str = p.getProperty("package.editor.x",
+            String y_str = p.getProperty("package.editor.y",
                                               Integer.toString(16));
 
             int x = 16, y = 16;
