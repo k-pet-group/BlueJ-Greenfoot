@@ -352,3 +352,13 @@ menu.help.reference=BlueJ Reference Manual...
 menu.help.standardApi=Java Class Libraries...
 menu.help.about=About BlueJ...
 menu.help.copyright=Copyright...
+
+# tool tips
+
+tooltip.newClass=Create a new class in this package
+tooltip.newUses=Insert a 'uses' relation
+tooltip.newExtends=Insert an inheritance relation
+tooltip.compile=Compile all uncompiled classes inthis package
+tooltip.showUses=Toggle display of 'uses' relations
+tooltip.showExtends=Toggle display of inheritance relations
+tooltip.progress=Work indicator: indicates when virtual machine is executing

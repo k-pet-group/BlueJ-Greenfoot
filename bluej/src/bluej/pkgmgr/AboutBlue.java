@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about dialog
  *
  * @author  Justin Tan
- * @version $Id: AboutBlue.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: AboutBlue.java 511 2000-05-25 05:32:22Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -40,9 +40,6 @@ class AboutBlue extends JDialog
                      "      Bruce Quig\n" +
                      "      John Rosenberg\n" +
                      "      Axel Schmolitzky");
-        text.addText("\nwith help from:", false, true);
-        text.addText("      Michael Cahill\n" +
-                     "      Andrew Marks");
         text.addText("\nFor more information contact Michael K\u00F6lling\n" +
                      "(mik@monash.edu.au).");
 

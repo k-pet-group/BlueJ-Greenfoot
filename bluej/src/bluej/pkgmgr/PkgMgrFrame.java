@@ -29,7 +29,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 506 2000-05-24 05:58:24Z ajp $
+ * @version $Id: PkgMgrFrame.java 511 2000-05-25 05:32:22Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener, Printable
@@ -1377,6 +1377,7 @@ public class PkgMgrFrame extends JFrame
         Dimension pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
+        button.setMargin(new Insets(2,0,2,0));
     }
 
     private void makeFrame()
@@ -1403,6 +1404,7 @@ public class PkgMgrFrame extends JFrame
 
             JButton button = new JButton(newClassString);
             button.setFont(PkgMgrFont);
+            button.setToolTipText(Config.getString("tooltip.newClass"));
             button.addActionListener(this);
             button.setRequestFocusEnabled(false);   // never get keyboard focus
             makeButtonNotGrow(button);
@@ -1412,6 +1414,7 @@ public class PkgMgrFrame extends JFrame
 
             ImageIcon usesIcon = new ImageIcon(Config.getImageFilename("image.build.depends"));
             button = new JButton(usesIcon);
+            button.setToolTipText(Config.getString("tooltip.newUses"));
             button.addActionListener(this);
             button.setRequestFocusEnabled(false);   // never get keyboard focus
             makeButtonNotGrow(button);
@@ -1421,6 +1424,7 @@ public class PkgMgrFrame extends JFrame
 
             ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename("image.build.extends"));
             button = new JButton(extendsIcon);
+            button.setToolTipText(Config.getString("tooltip.newExtends"));
             button.addActionListener(this);
             button.setRequestFocusEnabled(false);   // never get keyboard focus
             makeButtonNotGrow(button);
@@ -1432,6 +1436,7 @@ public class PkgMgrFrame extends JFrame
                                         ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
             button = new JButton(compileString);
             button.setFont(PkgMgrFont);
+            button.setToolTipText(Config.getString("tooltip.compile"));
             button.addActionListener(this);
             button.setRequestFocusEnabled(false);   // never get keyboard focus
             makeButtonNotGrow(button);
@@ -1461,6 +1466,7 @@ public class PkgMgrFrame extends JFrame
                                          null, true);
         showUsesCheckbox.addItemListener(this);
         showUsesCheckbox.setFont(PkgMgrFont);
+        showUsesCheckbox.setToolTipText(Config.getString("tooltip.showUses"));
         // showUsesCheckbox.setMargin(new Insets(0,0,0,0));
         actions.put(showUsesCheckbox, new Integer(VIEW_SHOWUSES));
 
@@ -1472,6 +1478,8 @@ public class PkgMgrFrame extends JFrame
                                             null, true);
         showExtendsCheckbox.addItemListener(this);
         showExtendsCheckbox.setFont(PkgMgrFont);
+        showExtendsCheckbox.setToolTipText(Config.getString(
+                                                   "tooltip.showExtends"));
         // showExtendsCheckbox.setMargin(new Insets(0,0,0,0));
         actions.put(showExtendsCheckbox, new Integer(VIEW_SHOWINHERITS));
         showPanel.add(showExtendsCheckbox);
@@ -1483,6 +1491,7 @@ public class PkgMgrFrame extends JFrame
         progressButton = new JButton(workingIcon);
         progressButton.setDisabledIcon(notWorkingIcon);
         progressButton.setMargin(new Insets(0, 0, 0, 0));
+        progressButton.setToolTipText(Config.getString("tooltip.progress"));
         progressButton.addActionListener(this);
         actions.put(progressButton, new Integer(VIEW_SHOWCONTROLS));
         progressButton.setEnabled(false);
@@ -1499,6 +1508,7 @@ public class PkgMgrFrame extends JFrame
         toolPanel.add(buttonPanel);
         toolPanel.add(Box.createVerticalGlue());
         toolPanel.add(viewPanel);
+        toolPanel.add(Box.createVerticalStrut(4));
         toolPanel.add(progressButton);
 
         JPanel bottomPanel = new JPanel();
