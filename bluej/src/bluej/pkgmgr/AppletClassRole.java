@@ -23,7 +23,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 925 2001-06-06 04:45:32Z bquig $
+ ** @version $Id: AppletClassRole.java 961 2001-06-26 05:13:50Z bquig $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -36,8 +36,8 @@ public class AppletClassRole extends ClassRole
     //static final String HTML_EXTENSION = ".html";
     static final String THIS_DIRECTORY = ".";
     static final String URL_PREFIX = "file://localhost/";
-    static final int DEFAULT_APPLET_WIDTH = 200;
-    static final int DEFAULT_APPLET_HEIGHT = 100;
+    static final int DEFAULT_APPLET_WIDTH = 500;
+    static final int DEFAULT_APPLET_HEIGHT = 500;
 
     private String[] appletParams;
     private int appletHeight;
