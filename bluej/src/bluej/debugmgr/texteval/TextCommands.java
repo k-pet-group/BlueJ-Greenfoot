@@ -2,6 +2,8 @@ package bluej.debugmgr.texteval;
 
 import java.util.HashMap;
 
+import bluej.debugmgr.objectbench.ObjectWrapper;
+
 /**
  * This class implements the textual meta commands (such as help,
  * get, inspect, list) that can be entered in the text 
@@ -88,6 +90,17 @@ public class TextCommands {
          * @param words  The words from the imput line
          */
         public void execute(String[] words, TextEvalArea textArea) {
+            StringBuffer out = new StringBuffer(100);
+            out.append("object bench:");
+            ObjectWrapper[] objects = textArea.getObjectBench().getWrappers();
+            for(int i=0; i < objects.length; i++) {
+                out.append("   (");
+                out.append(objects[i].getTypeName());
+                out.append(" ");
+                out.append(objects[i].getName());
+                out.append(")");
+            }
+            textArea.output(out.toString());
         }
     }
 

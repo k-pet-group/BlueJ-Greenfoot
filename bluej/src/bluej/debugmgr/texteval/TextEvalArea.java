@@ -17,6 +17,7 @@ import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.IndexHistory;
+import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -29,7 +30,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2684 2004-06-29 10:59:51Z mik $
+ * @version $Id: TextEvalArea.java 2685 2004-06-29 12:22:13Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -84,6 +85,15 @@ public final class TextEvalArea extends JScrollPane
         text.requestFocus();
     }
 
+    /**
+     * Return the object bench that is associated with this text area.
+     *
+     */
+    public ObjectBench getObjectBench()
+    {
+        return frame.getObjectBench();
+    }
+    
     //   --- ResultWatcher interface ---
 
     /**
