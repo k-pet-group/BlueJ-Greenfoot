@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: MultiLineLabel.java 1819 2003-04-10 13:47:50Z fisker $
+ ** @version $Id: MultiLineLabel.java 2542 2004-05-24 08:45:29Z polle $
  ** @author Justin Tan
  ** A multi-line Label-like AWT component.
  **/
@@ -85,7 +85,12 @@ public class MultiLineLabel extends JPanel
 
     public void setForeground(Color col)
     {
-        this.col = col;        
+        this.col = col;    
+        Component[] components = this.getComponents();
+        for (int i = 0; i < components.length; i++) {
+			Component component = components[i];
+			component.setForeground(col);
+		}
     }
     	
     public void setItalic(boolean italic)
