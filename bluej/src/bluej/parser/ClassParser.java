@@ -1,36 +1,18 @@
 // $ANTLR 2.7.4: "java.g" -> "ClassParser.java"$
 
-    package bluej.parser;
+package bluej.parser;
 
-import antlr.TokenBuffer;
-import antlr.TokenStreamException;
-import antlr.TokenStreamIOException;
-import antlr.ANTLRException;
-import antlr.LLkParser;
-import antlr.Token;
-import antlr.TokenStream;
-import antlr.RecognitionException;
-import antlr.NoViableAltException;
-import antlr.MismatchedTokenException;
-import antlr.SemanticException;
-import antlr.ParserSharedInputState;
+import java.io.*;
+import java.util.Iterator;
+import java.util.Vector;
+
+import antlr.*;
 import antlr.collections.impl.BitSet;
+import bluej.parser.symtab.*;
 
-    //import bluej.utility.Debug;
-    import bluej.parser.symtab.SymbolTable;
-    import bluej.parser.symtab.JavaVector;
-    import bluej.parser.symtab.DummyClass;
-    import bluej.parser.symtab.ClassInfo;
-    import bluej.parser.symtab.Selection;
-
-    import antlr.*;
-
-    import java.util.*;
-    import java.io.*;
-
-    class JavaBitSet extends java.util.BitSet
-    {
-    }
+class JavaBitSet extends java.util.BitSet
+{
+}
 
 
 public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
