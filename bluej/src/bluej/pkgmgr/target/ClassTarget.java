@@ -30,7 +30,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: ClassTarget.java 1989 2003-05-27 09:44:23Z damiano $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -481,11 +481,6 @@ public class ClassTarget extends EditableTarget
         }
         else
             return Config.getString("pkgmgr.breakpointMsg");
-    }
-
-    public void compile(Editor editor)
-    {
-        getPackage().compile(this);
     }
 
     // --- end of EditorWatcher interface ---
