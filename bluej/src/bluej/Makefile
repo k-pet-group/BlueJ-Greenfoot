@@ -20,6 +20,9 @@ JAVAC = CLASSPATH="$(CLASSPATH)" javac
 JAVAC_OPTS = -deprecation
 # The BlueJ documentation generator (javadoc with right CLASSPATH + opts)
 JBDOC = jbdoc
+JAVADOC = CLASSPATH="$(CLASSPATH)" javadoc
+JAVADOC_OPTS = -author -sourcepath $(SRCROOT)
+DOC_DIR = $(TOP)/doc
 
 
 # Top level files
@@ -334,6 +337,24 @@ CLASSFILES = \
 	$(UTILITY_CLASSFILES) \
 	$(VIEWS_CLASSFILES)
 
+PACKAGE_NAMES = \
+	bluej \
+	bluej.browser \
+	bluej.classmgr \
+	bluej.compiler \
+	bluej.debugger \
+	bluej.debugger.jdi \
+	bluej.editor \
+	bluej.editor.moe \
+	bluej.graph \
+	bluej.parser \
+	bluej.parser.symtab \
+	bluej.pkgmgr \
+	bluej.runtime \
+	bluej.terminal \
+	bluej.utility \
+	bluej.views
+
 #
 # include a dependency file if one exists
 #
@@ -352,6 +373,9 @@ moe: $(MOE_CLASSFILES)
 
 ctxt:
 	$(JBDOC) -d $(CTXTROOT) $(SRCS_OS)
+
+doc:
+	$(JAVADOC) $(JAVADOC_OPTS) -d $(DOC_DIR) $(PACKAGE_NAMES)
 
 clean:
 	$(RM) -r $(CLASSROOT)/$(PKGNAME)
