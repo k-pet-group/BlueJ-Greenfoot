@@ -13,7 +13,7 @@ import javax.swing.*;
  *  
  *  Author: Damiano Bolla: University of Kent at Canterbury, 2002,2003,2004
  */
-class HelpDetailDialog extends JDialog implements ActionListener
+class HelpDetailDialog extends EscapeDialog implements ActionListener
 {
     private final String extensionsTag = Config.getString("extmgr.extensions");
     private final String detailsTag = Config.getString("extmgr.details");

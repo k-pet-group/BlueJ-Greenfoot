@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
 
 import java.util.List;
 import java.awt.*;
@@ -14,9 +15,9 @@ import javax.swing.*;
  * had mismatched package lines on an open non-BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportMismatchDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: ImportMismatchDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
-public class ImportMismatchDialog extends JDialog
+public class ImportMismatchDialog extends EscapeDialog
 {
     private static final String dialogTitle = Config.getString("pkgmgr.importmismatch.title");
 

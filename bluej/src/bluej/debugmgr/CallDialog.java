@@ -16,9 +16,9 @@ import bluej.utility.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 3026 2004-09-30 04:27:52Z bquig $
+ * @version $Id: CallDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
-public abstract class CallDialog extends JDialog
+public abstract class CallDialog extends EscapeDialog
 	implements ObjectBenchListener
 {
     static final int OK = 0;

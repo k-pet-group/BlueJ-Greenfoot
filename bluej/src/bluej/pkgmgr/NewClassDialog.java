@@ -18,9 +18,9 @@ import bluej.utility.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 2556 2004-05-27 10:50:01Z polle $
+ * @version $Id: NewClassDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
-class NewClassDialog extends JDialog
+class NewClassDialog extends EscapeDialog
 {
     private JTextField textFld;
     ButtonGroup templateButtons;

@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,9 +14,9 @@ import javax.swing.*;
  * an import.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportFailedDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: ImportFailedDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
-public class ImportFailedDialog extends JDialog
+public class ImportFailedDialog extends EscapeDialog
     implements ActionListener
 {
     private static final String cont = Config.getString("continue");

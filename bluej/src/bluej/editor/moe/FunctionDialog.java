@@ -21,6 +21,7 @@ import java.util.Properties;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
 import bluej.utility.FixedMultiLineLabel;
 
 /**
@@ -31,7 +32,7 @@ import bluej.utility.FixedMultiLineLabel;
 **
 **/
 
-public final class FunctionDialog extends JDialog
+public final class FunctionDialog extends EscapeDialog
 
 implements ActionListener, ListSelectionListener, ItemListener
 {

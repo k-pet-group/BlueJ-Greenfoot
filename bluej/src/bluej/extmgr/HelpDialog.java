@@ -1,6 +1,8 @@
 package bluej.extmgr;
 
 import bluej.*;
+import bluej.utility.EscapeDialog;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
@@ -8,9 +10,9 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 /**
- *  The Extensions Manager help panel allows the user to view current  extensions.
+ * The Extensions Manager help panel allows the user to view current extensions.
  *
- * @version    $Id: HelpDialog.java 2442 2003-12-17 09:34:26Z mik $
+ * @version    $Id: HelpDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
 
  /*
@@ -48,7 +50,7 @@ public class HelpDialog implements ActionListener
         buttonPanel.add(closeButton);
 
 
-        mainFrame = new JDialog(parent, Config.getString("extmgr.title"), true);
+        mainFrame = new EscapeDialog(parent, Config.getString("extmgr.title"), true);
         JPanel rootPane = (JPanel)mainFrame.getContentPane();
         rootPane.setLayout(new BorderLayout());
         rootPane.setBorder(BlueJTheme.dialogBorder);

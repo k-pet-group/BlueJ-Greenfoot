@@ -23,9 +23,9 @@ import bluej.views.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 2302 2003-11-07 03:52:29Z bquig $
+ * @version $Id: LibraryCallDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
-public class LibraryCallDialog extends JDialog
+public class LibraryCallDialog extends EscapeDialog
 	implements ActionListener, ListSelectionListener
 {
     private static final String[] clickHere = {

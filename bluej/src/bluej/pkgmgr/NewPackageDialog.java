@@ -2,6 +2,7 @@ package bluej.pkgmgr;
 
 import bluej.*;
 import bluej.Config;
+import bluej.utility.EscapeDialog;
 import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
@@ -14,9 +15,9 @@ import javax.swing.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewPackageDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: NewPackageDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
-class NewPackageDialog extends JDialog
+class NewPackageDialog extends EscapeDialog
 {
     private String newPackageName = "";
 

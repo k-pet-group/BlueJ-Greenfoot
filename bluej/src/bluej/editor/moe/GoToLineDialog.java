@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 import bluej.*;
+import bluej.utility.EscapeDialog;
 
 
 /**
@@ -22,7 +23,7 @@ import bluej.*;
  * 
  * @author Bruce Quig
  */
-public class GoToLineDialog extends JDialog implements ActionListener
+public class GoToLineDialog extends EscapeDialog implements ActionListener
 {
     static final String goToLineTitle = Config.getString("editor.gotoline.title");
     static final String goToLineLabel = Config.getString("editor.gotoline.label");

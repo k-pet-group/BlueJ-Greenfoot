@@ -8,15 +8,16 @@ import javax.swing.*;
 import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
 
 /**
  * Dialog for showing the user a list of files which failed
  * an import.
  *
  * @author  Andrew Patterson
- * @version $Id: SelectTestClassDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: SelectTestClassDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
-public class SelectTestClassDialog extends JDialog
+public class SelectTestClassDialog extends EscapeDialog
 {
     private static final String helpLine1 = Config.getString("pkgmgr.selecttestclass.helpLine1");
     private static final String helpLine2 = Config.getString("pkgmgr.selecttestclass.helpLine2");

@@ -6,6 +6,7 @@ import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPathEntry;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -22,9 +23,9 @@ import javax.swing.*;
  * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 2902 2004-08-18 13:37:04Z mik $
+ * @version $Id: ExportDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
-class ExportDialog extends JDialog
+class ExportDialog extends EscapeDialog
 {
     // Internationalisation
     private static final String dialogTitle = Config.getString("pkgmgr.export.title");

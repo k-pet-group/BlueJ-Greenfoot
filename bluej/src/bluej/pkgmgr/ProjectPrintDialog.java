@@ -4,6 +4,8 @@ import bluej.*;
 import bluej.Config;
 
 import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -13,10 +15,10 @@ import javax.swing.*;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: ProjectPrintDialog.java 3175 2004-11-25 14:33:52Z fisker $
  * @author Bruce Quig
  */
-public class ProjectPrintDialog extends JDialog
+public class ProjectPrintDialog extends EscapeDialog
 {
     private boolean ok; // result: which button?
     private JCheckBox printDiagram;

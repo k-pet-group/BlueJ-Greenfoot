@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import bluej.Config;
+import bluej.utility.EscapeDialog;
 
 /**
  * The Finder class implements the find and replace functionality of the Moe editor.
@@ -23,10 +24,10 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Finder.java 3168 2004-11-25 11:51:10Z fisker $
+ * @version $Id: Finder.java 3175 2004-11-25 14:33:52Z fisker $
  */
 
-public class Finder extends JDialog
+public class Finder extends EscapeDialog
     implements ActionListener, DocumentListener
 {
     static final String title = Config.getString("editor.find.title");

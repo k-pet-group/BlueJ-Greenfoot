@@ -10,15 +10,16 @@ import javax.swing.event.*;
 import bluej.*;
 import bluej.pkgmgr.target.role.AppletClassRole;
 import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
 
 /**
  * Dialog for generating HTML and running applets.
  * 
  * @author Bruce Quig
- * @version $Id: RunAppletDialog.java 2845 2004-08-06 08:52:38Z mik $
+ * @version $Id: RunAppletDialog.java 3175 2004-11-25 14:33:52Z fisker $
  */
 
-public class RunAppletDialog extends JDialog
+public class RunAppletDialog extends EscapeDialog
     implements ListSelectionListener
 {
     // Internationalisation
