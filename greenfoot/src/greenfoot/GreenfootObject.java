@@ -15,7 +15,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3173 2004-11-25 14:01:20Z polle $
+ * @version $Id: GreenfootObject.java 3198 2004-11-29 01:32:03Z davmac $
  */
 public class GreenfootObject
 {
@@ -35,6 +35,17 @@ public class GreenfootObject
     public GreenfootObject()
     {
         setImage("greenfoot/greenfoot-logo.png");
+    }
+    
+    /**
+     * Constructor that creates an object with a default image and a specified
+     * location.
+     */
+    public GreenfootObject(int x, int y)
+    {
+        setImage("greenfoot/greenfoot-logo.png");
+        this.x = x;
+        this.y = y;
     }
 
     /**
