@@ -1,17 +1,15 @@
 package bluej.runtime;
 
-import java.util.Hashtable;
+import java.util.Map;
 
 /**
- ** Interface implemented by all "shell" classes - used for method invocation
- ** and object creation.
- **
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** @version $Id: Shell.java 104 1999-06-02 03:56:24Z mik $
- **/
-
+ * Interface implemented by all "shell" classes - used for method invocation
+ * and object creation.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: Shell.java 319 2000-01-02 13:03:50Z ajp $
+ */
 public abstract class Shell
 {
     protected static Object makeObj(String s) { return new StringResultWrapper(s); }
@@ -24,20 +22,20 @@ public abstract class Shell
     protected static Object makeObj(long l) { return new LongResultWrapper(l); }
     protected static Object makeObj(short s) { return new ShortResultWrapper(s); }
     protected static ObjectResultWrapper makeObj(Object obj) { return new ObjectResultWrapper(obj); }
-	
+
     // dummy method called by class loader to prepare the class
     // after loading
     public static void prepare()
     {
     }
 
-    protected static Hashtable getScope(String scopeId)
+    protected static Map getScope(String scopeId)
     {
-	return ExecServer.getScope(scopeId);
+        return ExecServer.getScope(scopeId);
     }
-	
+
     protected static void putObject(String scopeId, String instanceName, Object value)
     {
-	ExecServer.putObject(scopeId, instanceName, value);
+        ExecServer.putObject(scopeId, instanceName, value);
     }
 }
