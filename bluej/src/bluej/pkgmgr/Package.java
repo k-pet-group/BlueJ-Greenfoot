@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 684 2000-09-12 06:24:16Z mik $
+ * @version $Id: Package.java 693 2000-09-14 01:28:11Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -484,6 +484,10 @@ public class Package extends Graph
             }
 
             for(int i=0; i<classFiles.length; i++) {
+                if (classFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
+                    classFiles[i].delete();
+                    continue;
+                }
                 if (classFiles[i].getName().indexOf('$') == -1)
                     interestingSet.add(JavaNames.stripSuffix(classFiles[i].getName(), ".class"));
             }
