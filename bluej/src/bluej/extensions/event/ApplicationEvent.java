@@ -3,7 +3,7 @@ package bluej.extensions.event;
 /**
  * This class encapsulates events that are at the whole application level.
  * 
- * @version $Id: ApplicationEvent.java 1807 2003-04-10 10:28:21Z damiano $
+ * @version $Id: ApplicationEvent.java 1848 2003-04-14 10:24:47Z damiano $
  */
 
  /*
@@ -30,7 +30,7 @@ public class ApplicationEvent implements BlueJExtensionEvent
     }
 
   /**
-   * Returns the event type, one of the values defined.
+   * Returns the eventId, one of the values defined.
    */
   public int getEvent ()
     {

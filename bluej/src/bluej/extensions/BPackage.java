@@ -18,7 +18,7 @@ import java.awt.Frame;
  * A wrapper for a Package in the BlueJ environment.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1838 2003-04-11 13:16:46Z damiano $
+ * @version $Id: BPackage.java 1848 2003-04-14 10:24:47Z damiano $
  */
 
 /*
@@ -44,7 +44,7 @@ public class BPackage
      * Determines whether this is a valid package.
      * This object may not be valid since what it represent has been modified or deleted
      * from the main BlueJ graphical user interface.
-     * Return true if it is still valid, false othervise.
+     * Return true if it is still valid, false otherwise.
      */
     public boolean isValid()
     {
@@ -78,7 +78,7 @@ public class BPackage
     }
     
     /**
-     * Return a handle on the package's frame.
+     * Return the package frame.
      * This may be needed for modal dialogues.
      * It may return null if this is not a valid package.
      */
@@ -127,9 +127,9 @@ public class BPackage
     }
     
     /**
-     * Return an object shown on the Object Bench.
+     * Return an object shown on the object bench.
      * @param name the name of the object as shown on the object bench
-     * @return the object, or <CODE>null</CODE> if no such object exists.
+     * @return the object, or null if no such object exists.
      */
     public BObject getObject (String instanceName)
     {
@@ -170,7 +170,7 @@ public class BPackage
 
     /**
      * Compile this Package.
-     * If forceAll is true it will compile all files othervise it will compile
+     * If forceAll is true it will compile all files otherwise it will compile
      * just the ones that are modified.
      * @param forceAll if <code>true</code> compile all files.
      */

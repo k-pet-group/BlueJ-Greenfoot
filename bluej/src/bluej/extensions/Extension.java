@@ -7,7 +7,7 @@ import bluej.Config;
  * The Extensions superclass, all extensions must extend this class.
  * Your class must have an empty constructor.
  * 
- * @version    $Id: Extension.java 1814 2003-04-10 11:10:34Z damiano $
+ * @version    $Id: Extension.java 1848 2003-04-14 10:24:47Z damiano $
  */
 
 /*
@@ -17,7 +17,7 @@ import bluej.Config;
  
 public abstract class Extension
 {
-    /* do NOT make it final othervise the compiler will cache it and it will seem immutable
+    /* do NOT make it final otherwise the compiler will cache it and it will seem immutable
      * do NOT make it static, if one want to mess about it will mess its own...
      */
     /**

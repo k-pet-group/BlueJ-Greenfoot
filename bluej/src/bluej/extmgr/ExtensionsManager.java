@@ -131,7 +131,7 @@ public class ExtensionsManager implements BlueJEventListener
             // Let me see if I already have this extension loaded
             if (isWrapperAlreadyLoaded(aWrapper)) continue;
 
-            // This MUST be here in ANY case since othervise this wrapper is NOT on the list..
+            // This MUST be here in ANY case since otherwise this wrapper is NOT on the list..
             extensions.add(aWrapper);
 
             // Now that all is nice and clean I can safely instantiate the extension
@@ -264,7 +264,7 @@ public class ExtensionsManager implements BlueJEventListener
      * AT the moemnt is just not to add a separator, but it may get
      * more useful in the future. The first menu that I find I just return
      * so this approach is not so bad in terms of performance.
-     * It returns true if there is at least one menu item, false othervise.
+     * It returns true if there is at least one menu item, false otherwise.
      */
     public boolean haveMenuItems( )
     {

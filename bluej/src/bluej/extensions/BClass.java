@@ -16,7 +16,7 @@ import bluej.views.*;
  * From this BClass you can create BObjects and call methods by following the same reasoning of the reflection API.
  * For all methods the return value is null if the class is not compiled.
  * 
- * @version $Id: BClass.java 1816 2003-04-10 11:23:06Z damiano $
+ * @version $Id: BClass.java 1848 2003-04-14 10:24:47Z damiano $
  */
 public class BClass
 {
@@ -97,7 +97,7 @@ public class BClass
     /**
      * Compile this class, and any dependants. 
      * 
-     * @return true if the compilation was successful, false othervise.
+     * @return true if the compilation was successful, false otherwise.
      */
     public boolean compile()
     {
@@ -114,7 +114,7 @@ public class BClass
      */
     public BClass getSuperclass()
     {
-        // This method is needed othervise yoy cannot get a superclass of this BClass.
+        // This method is needed otherwise yoy cannot get a superclass of this BClass.
         View sup = bluej_view.getSuper();
         if ( sup == null ) return null;
         
@@ -123,8 +123,7 @@ public class BClass
     
     /**
      * Returns all constructors of this class.
-     * This is similar to reflection API.
-     * If the class is not compiled it will return a zero len constructors array.
+     * Similar to reflection API.
      */
     public BConstructor[] getConstructors()
         {
@@ -140,6 +139,7 @@ public class BClass
      
     /**
      * Returns constructor for this class with the given signature.
+     * Similar to reflection API.
      * 
      * @param signature the signature of the required constructor.
      * @return the requested constructor of this class, or null if

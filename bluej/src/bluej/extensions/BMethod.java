@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  * Integer for int, Long for long and so on, or it may return a BObject that can
  * further be sent to the bench.
  *
- * @version $Id: BMethod.java 1837 2003-04-11 12:54:18Z damiano $
+ * @version $Id: BMethod.java 1848 2003-04-14 10:24:47Z damiano $
  */
 
 /*
@@ -40,7 +40,7 @@ public class BMethod
     /**
      * Tests if this mthod matches against the given signature.
      * This is similar to reflection API.
-     * It returns true if there is a match, false othervise.
+     * It returns true if there is a match, false otherwise.
      * A null parameter is equivaled to a zero len parameter array.
      */
     public boolean matches ( String methodName, Class[] parameter )

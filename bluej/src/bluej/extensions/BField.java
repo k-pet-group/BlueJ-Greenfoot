@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * when a real Object is actually returned it is encapsulated into a BObject. 
  * You must look for this.
  * 
- * @version $Id: BField.java 1817 2003-04-10 11:28:14Z damiano $
+ * @version $Id: BField.java 1848 2003-04-14 10:24:47Z damiano $
  */
 
 /*
@@ -55,7 +55,7 @@ public class BField
 
 
     /**
-     * The name of the Field
+     * Return the name of the Field.
      * Similar to reflection API.
      */
     public String getName()
@@ -65,7 +65,7 @@ public class BField
         }
 
     /**
-     * The type of the field.
+     * Return the type of the field.
      * Similar to Reflection API.
      */
     public Class getType()
@@ -140,7 +140,7 @@ public class BField
 
 
     /**
-     * Gets this filed value on the given object.
+     * Return this filed value on the given object.
      * This is similar to Reflection API.
      */
     public Object get ( BObject onThis )

@@ -47,7 +47,7 @@ public class PrefManager implements PrefPanelListener
         drawScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         /* Add the scroll pane to the root panel
-         * It needs to use all the available space, othervise the scroll pane does not
+         * It needs to use all the available space, otherwise the scroll pane does not
          * understand when to draw its scrollbars
          */
         rootPanel = new JPanel(new BorderLayout());

@@ -19,8 +19,14 @@ import bluej.pkgmgr.Package;
  * An invocation may finish in a normal way or it may be interrupted.
  * From this event you can extract the actual result of the invocation.
  * 
- * @version $Id: InvocationResultEvent.java 1841 2003-04-11 13:32:52Z damiano $
+ * @version $Id: InvocationResultEvent.java 1848 2003-04-14 10:24:47Z damiano $
  */
+
+/*
+ * Author Clive Miller, University of Kent at Canterbury, 2002
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ */
+ 
 public class InvocationResultEvent implements BlueJExtensionEvent
 {
     // This event is returned in case of unknown mapping
@@ -73,7 +79,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
       }
      
     /**
-     * Returns the eventId of this event.
+     * Return the eventId of this event.
      */
     public int getEvent()
       {

@@ -7,7 +7,7 @@ import java.io.File;
  * It allows an extension writer to know when a compilation fails and
  * when a compilation is successful.
  * 
- * @version $Id: CompileEvent.java 1840 2003-04-11 13:28:18Z damiano $
+ * @version $Id: CompileEvent.java 1848 2003-04-14 10:24:47Z damiano $
  */
 
 /*
@@ -21,7 +21,7 @@ public class CompileEvent implements BlueJExtensionEvent
   public static final int COMPILE_START_EVENT=1;
 
   /**
-   * Event generated when a compilation WARNING is generated.
+   * Event generated when a compilation warning is generated.
    * A warining event is one that will not invalidate the compilation.
    */
   public static final int COMPILE_WARNING_EVENT=2;
@@ -59,7 +59,7 @@ public class CompileEvent implements BlueJExtensionEvent
     }
 
   /**
-   * Returns the event type, one of the values defined.
+   * Return the eventId, one of the values defined.
    */
   public int getEvent ()
     {

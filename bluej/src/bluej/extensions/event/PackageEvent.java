@@ -6,8 +6,14 @@ import bluej.pkgmgr.Package;
 /**
  * Package events, like package OPEN/CLOSE are delivered using this event Class.
  *
- * @version $Id: PackageEvent.java 1807 2003-04-10 10:28:21Z damiano $
+ * @version $Id: PackageEvent.java 1848 2003-04-14 10:24:47Z damiano $
  */
+
+/*
+ * Author Clive Miller, University of Kent at Canterbury, 2002
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ */
+
 public class PackageEvent implements BlueJExtensionEvent
 {
     /**
@@ -24,16 +30,16 @@ public class PackageEvent implements BlueJExtensionEvent
     private Package thisPackage;
 
     /**
-     * NOT to be used by Extension writer.
+     * Constructor for the PackageEvent.
      */
-    public PackageEvent (int i_eventId, Package pkg)
+    public PackageEvent (int eventId, Package pkg)
     {
-        eventId = i_eventId;
+        this.eventId = eventId;
         thisPackage = pkg;
     }
 
     /**
-     * Returns the eventOd of this Event.
+     * Return the eventId of this Event.
      */
     public int getEvent ()
       {
@@ -41,8 +47,7 @@ public class PackageEvent implements BlueJExtensionEvent
       }
 
     /**
-     * Returns the package being closed.
-     * From a BPackage you can then get the BProject, if you need to.
+     * Return the package associated with this event.
      */
     public BPackage getPackage ()
       {
@@ -50,7 +55,7 @@ public class PackageEvent implements BlueJExtensionEvent
       }
 
     /**
-     * Returns a meaningful description of this event.
+     * Return a meaningful description of this event.
      */
     public String toString()
       {

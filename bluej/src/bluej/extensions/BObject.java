@@ -14,7 +14,7 @@ import bluej.debugger.*;
  * This wraps an object so you can add and remove it from the bench.
  * Bobjects can be obtained from BConstructor, BMethods or BField.
  *
- * @version $Id: BObject.java 1837 2003-04-11 12:54:18Z damiano $
+ * @version $Id: BObject.java 1848 2003-04-14 10:24:47Z damiano $
  */
 
 /*
@@ -37,7 +37,7 @@ public class BObject
      * Tests if this BObject is still valid in BlueJ.
      * This object may not be valid since what it represent has been modified or deleted
      * from the main BlueJ graphical user interface.
-     * Return true if it is false othervise.
+     * Return true if it is false otherwise.
      */
     public boolean isValid()
         {

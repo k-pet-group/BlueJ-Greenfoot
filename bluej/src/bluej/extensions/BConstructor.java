@@ -11,7 +11,7 @@ import bluej.views.*;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1816 2003-04-10 11:23:06Z damiano $
+ * @version $Id: BConstructor.java 1848 2003-04-14 10:24:47Z damiano $
  */
 
 /*
@@ -36,7 +36,7 @@ public class BConstructor
   /**
    * Tests if this constructor matches against the given signature.
    * 
-   * @return true if it does, false othervise.
+   * @return true if it does, false otherwise.
    */
   public boolean matches ( Class[] parameter )
     {

@@ -10,7 +10,7 @@ import java.util.ListIterator;
 /**
  * A wrapper for a Project open by BlueJ.
  *
- * @version $Id: BProject.java 1838 2003-04-11 13:16:46Z damiano $
+ * @version $Id: BProject.java 1848 2003-04-14 10:24:47Z damiano $
  */
 
 /*
@@ -51,7 +51,7 @@ public class BProject
      * Test if this project still a valid one.
      * This object may not be valid since what it represent has been modified or deleted
      * from the main BlueJ graphical user interface.
-     * @return true if this project is valid and active, false othervise.
+     * @return true if this project is valid and active, false otherwise.
      */
     public boolean isValid ()
     {

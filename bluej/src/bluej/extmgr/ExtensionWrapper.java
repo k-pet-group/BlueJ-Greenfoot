@@ -83,7 +83,7 @@ public class ExtensionWrapper
     /**
      *  This is in charge of returning a valid extension class, if any in the
      *  given jar file, it will return the Class or null if none is found
-     *  NOTE: I am showing some messages in case of failure since othervise a user may never
+     *  NOTE: I am showing some messages in case of failure since otherwise a user may never
      *  understand WHY his lovely extension is not loaded.
      *
      * @param  jarFileName  I want a jar file name to load
@@ -378,11 +378,7 @@ public class ExtensionWrapper
 
 
     /**
-     *  Convenience method to ensure uniformity of settings items
-     *
-     * @param  ew   the wrapper of the extension to which to apply the key
-     * @param  key  Description of the Parameter
-     * @return      an appropriate string to identify the setting
+     *  Convenience method to ensure uniformity of settings items.
      */
     public String getSettingsString( String key)
     {
@@ -530,7 +526,7 @@ public class ExtensionWrapper
     /**
      *  Ask to the extension if it thinks if it si compatible.
      *
-     * @return  true if it is, false othervise
+     * @return  true if it is, false otherwise
      */
     private boolean safeIsCompatible()
     {
@@ -552,7 +548,7 @@ public class ExtensionWrapper
     /**
      *  Call the startup method in a safe way
      *
-     * @return  true if it is, false othervise
+     * @return  true if it is, false otherwise
      */
     private void safeStartup(BlueJ giveThisBluej )
     {
@@ -573,7 +569,7 @@ public class ExtensionWrapper
     /**
      *  Call the terminate method in a safe way
      *
-     * @return  true if it is, false othervise
+     * @return  true if it is, false otherwise
      */
     private void safeTerminate()
     {
