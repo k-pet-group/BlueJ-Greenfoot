@@ -53,6 +53,8 @@ class ClassDef extends HasImports
      */
     private JavaVector implementers;        
 
+    /** The comment attached to this method definition */
+    private String comment;
 
     //==========================================================================
     //==  Methods
@@ -108,6 +110,10 @@ class ClassDef extends HasImports
         getSubClasses().addElement(subclass);
     }   
 
+
+    public void setComment(String comment) {
+        this.comment = comment;        
+    }
 
     /** get the list of classes that implement this interface */
     JavaVector getImplementers() {
@@ -178,31 +184,42 @@ class ClassDef extends HasImports
     /** Collect information about the class */
     public void getInfo(ClassInfo info, SymbolTable symbolTable) {
 
-	info.setName(getName());
+        StringBuffer target = new StringBuffer();  // the method signature
 
-	if(isInterface())
-	    info.setInterface(true);
+   	    info.setName(getName());
 
-	if(isAbstract)
-	    info.setAbstract(true);
+    	if(isInterface()) {
+    	    info.setInterface(true);
+    	    target.append("interface ");
+        }
+        else {
+    	    target.append("class ");
+        }            
 
-	// get info about the superclass
+        target.append(getName());
+
+    	if(isAbstract)
+    	    info.setAbstract(true);
+
+    	// get info about the superclass
         if (getSuperClass() != null)
-	    info.setSuperclass(getSuperClass().getQualifiedName());
+    	    info.setSuperclass(getSuperClass().getQualifiedName());
 
-	// get info about the interfaces which are implemented or extended
-	// by this class/interface
+    	// get info about the interfaces which are implemented or extended
+    	// by this class/interface
         if(interfaces != null) {
-	    Enumeration e = interfaces.elements();
-	    while(e.hasMoreElements())
-		info.addImplements(((ClassDef)e.nextElement()).getName());
-	}
+    	    Enumeration e = interfaces.elements();
+    	    while(e.hasMoreElements())
+        		info.addImplements(((ClassDef)e.nextElement()).getName());
+        }
 
-	// get info about imported classes/packages
+        // get info about imported classes/packages
         getImportInfo(info);
 
-	// get info about definitions within this class
-	getElementInfo(info, symbolTable);
+        info.addComment(target.toString(), comment, null);
+
+        // get info about definitions within this class
+        getElementInfo(info, symbolTable);
     }   
 
 

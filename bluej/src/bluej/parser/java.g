@@ -36,6 +36,8 @@ import bluej.parser.symtab.JavaVector;
 import bluej.parser.symtab.DummyClass;
 import bluej.parser.symtab.ClassInfo;
 
+import antlr.*;
+
 import java.util.Vector;
 import java.io.*;
 }
@@ -48,7 +50,7 @@ import java.io.*;
 class ClassParser extends Parser;
 options {
     k = 2;                           // two token lookahead
-    tokenVocabulary=Java;            // Call its vocabulary "Java"
+    importVocab=Java;            // Call its vocabulary "Java"
     codeGenMakeSwitchThreshold = 2;  // Some optimizations
     codeGenBitsetTestThreshold = 3;
     defaultErrorHandler = false;     // Don't generate parser error handlers
@@ -67,7 +69,8 @@ options {
 
     // We need a symbol table to track definitions
     private SymbolTable symbolTable;
-
+    private TokenStreamHiddenTokenFilter filter;
+    
     // the main entry point to parse a file
     public static ClassInfo parse(String filename, Vector classes)
         throws Exception 
@@ -78,7 +81,7 @@ options {
 
 	// resolve the types of all symbols in the symbol table
 	//  -- we don't need this for BlueJ
-	//symbolTable.resolveTypes();
+	// symbolTable.resolveTypes();
 
 	ClassInfo info = new ClassInfo();
 
@@ -120,11 +123,18 @@ options {
 	// Tell the scanner to create tokens of class JavaToken
 	lexer.setTokenObjectClass("bluej.parser.JavaToken");
 
+	TokenStreamHiddenTokenFilter filter = new TokenStreamHiddenTokenFilter(lexer);
+
+	// Tell the lexer to redirect all multiline comments to our
+	// hidden stream
+	filter.hide(ClassParser.ML_COMMENT);
+
 	// Create a parser that reads from the scanner
-	ClassParser parser = new ClassParser(lexer);
+	ClassParser parser = new ClassParser(filter);
 
 	// Tell the parser to use the symbol table passed to us
 	parser.setSymbolTable(symbolTable);
+	parser.setFilter(filter);
 
 	// start parsing at the compilationUnit rule
 	parser.compilationUnit();
@@ -135,13 +145,39 @@ options {
         this.symbolTable = symbolTable;
     }
 
+    public void setFilter(TokenStreamHiddenTokenFilter filter) {
+        this.filter = filter;
+    }
+
     
     // redefined from antlr.LLkParser to supress error messages
     public void reportError(ParserException ex) {
         // do nothing
     }
 
-    
+	public JavaToken findAttachedComment(JavaToken startToken)
+	{
+		CommonHiddenStreamToken ctok = null;
+
+		if (startToken != null) {
+			ctok = filter.getHiddenBefore(startToken);
+
+			if(ctok != null) {
+				// if the last line of the comment is more than
+				// two away from the start of the method/class
+				// then we can't really say that its attached.
+				// I believe it is part of the javadoc spec that
+				// says that comments and their method have to
+				// be right next to each other but I could be
+				// wrong
+				if (ctok.getLine() < startToken.getLine()-2)
+					ctok = null;
+			}
+		}
+
+		return (JavaToken)ctok;		
+	}
+	    
     //------------------------------------------------------------------------
     // Symboltable adapter methods
     // The following methods are provided to give a single set of entry
@@ -172,21 +208,23 @@ options {
     public void defineClass(JavaToken theClass,
                             JavaToken superClass,
                             JavaVector interfaces,
-			    boolean isAbstract) {
-        symbolTable.defineClass(theClass, superClass, interfaces, isAbstract);
+			    boolean isAbstract,
+			    JavaToken comment) {
+        symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, comment);
     }
 
     public void defineInterface(JavaToken theInterface,
-                                JavaVector subInterfaces) {
-        symbolTable.defineInterface(theInterface, subInterfaces);
+                                JavaVector subInterfaces,
+                                JavaToken comment) {
+        symbolTable.defineInterface(theInterface, subInterfaces, comment);
     }
 
-    public void defineVar(JavaToken theVariable, JavaToken type) {
-        symbolTable.defineVar(theVariable, type);
+    public void defineVar(JavaToken theVariable, JavaToken type, JavaToken comment) {
+        symbolTable.defineVar(theVariable, type, comment);
     }
 
-    public void defineMethod(JavaToken theMethod, JavaToken type) {
-        symbolTable.defineMethod(theMethod, type);
+    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment) {
+        symbolTable.defineMethod(theMethod, type, comment);
     }
 
     public void addImport(JavaToken id, String className, String packageName) {
@@ -247,10 +285,12 @@ importDefinition
 //   to be associated with the class or interface definition
 typeDefinition
     options {defaultErrorHandler = true;}
-    {boolean isAbstract;}
-    :   isAbstract=modifiers
-        ( classDefinition[isAbstract]
-        | interfaceDefinition
+    {boolean isAbstract;
+     JavaToken commentToken = null; }
+    : { commentToken = findAttachedComment((JavaToken)LT(1)); }
+       isAbstract=modifiers
+        ( classDefinition[isAbstract, commentToken]
+        | interfaceDefinition[commentToken]
         )
     |   SEMI
     ;
@@ -266,7 +306,7 @@ typeDefinition
 //   bottom-up
 declaration
     {JavaToken type;}
-    :   modifiers type=typeSpec variableDefinitions[type]
+    :   modifiers type=typeSpec variableDefinitions[type, null]
     ;
 
 
@@ -389,7 +429,7 @@ modifier returns [boolean isAbstract]
 
 
 // Definition of a Java class
-classDefinition[boolean isAbstract]
+classDefinition[boolean isAbstract, JavaToken commentToken]
     {JavaToken superClass=null; JavaVector interfaces=null;}
     :   "class" id:IDENT // aha! a class!
 
@@ -402,7 +442,7 @@ classDefinition[boolean isAbstract]
             // tell the symbol table about it
             // Note that defineClass pushes tyhe class' scope,
             //   so we'll have to pop...
-            {defineClass((JavaToken)id, superClass, interfaces, isAbstract);}
+            {defineClass((JavaToken)id, superClass, interfaces, isAbstract, commentToken);}
 
             // now parse the body of the class
             classBlock
@@ -414,7 +454,7 @@ classDefinition[boolean isAbstract]
 
 
 // Definition of a Java Interface
-interfaceDefinition
+interfaceDefinition[JavaToken commentToken]
     {JavaVector superInterfaces = null;}
     :   "interface" id:IDENT // aha! an interface!
             
@@ -424,7 +464,7 @@ interfaceDefinition
             // tell the symbol table about it!
             // Note that defineInterface pushes the interface scope, so
             //   we'll have to pop it...
-            {defineInterface((JavaToken)id, superInterfaces);}
+            { defineInterface((JavaToken)id, superInterfaces, commentToken);}
 
             // now parse the body of the interface (looks like a class...)
             classBlock
@@ -467,22 +507,27 @@ implementsClause returns [JavaVector inters]
 //   for example), and if this grammar were used for a compiler there would
 //   need to be some semantic checks to make sure we're doing the right thing...
 field
-    {JavaToken type;}
+    {JavaToken type;
+     JavaToken commentToken = null; }
     :   // method, constructor, or variable declaration
+	{ commentToken = findAttachedComment((JavaToken)LT(1)); }
+
         modifiers
-        (   methodHead[null]            // no type to pass...
+
+        (   methodHead[null, commentToken]            // no type to pass...
                 compoundStatement[BODY] // constructor
 
-        |   classDefinition[false]      // inner class
-        |   interfaceDefinition         // inner interface
+        |   classDefinition[false, null]      // inner class
+        |   interfaceDefinition[null]         // inner interface
 
         |   type=typeSpec  // method or variable declaration(s)
-            (   methodHead[type]
+            (   methodHead[type, commentToken]
                     ( compoundStatement[BODY] | SEMI {popScope();})
 
-            |   variableDefinitions[type] SEMI
+            |   variableDefinitions[type, commentToken] SEMI
             )
-        )
+        ) 
+          
 
     // "static { ... }" class initializer
     |   "static" compoundStatement[CLASS_INIT]
@@ -492,9 +537,9 @@ field
     ;
 
 
-variableDefinitions[JavaToken type]
-    :   variableDeclarator[type]
-        (COMMA variableDeclarator[type] )*
+variableDefinitions[JavaToken type, JavaToken commentToken]
+    :   variableDeclarator[type, commentToken]
+        (COMMA variableDeclarator[type, commentToken] )*
     ;
 
 
@@ -502,9 +547,9 @@ variableDefinitions[JavaToken type]
 //   or a local variable in a method
 // It can also include possible initialization.  Note again that the
 //   array brackets are ignored...
-variableDeclarator[JavaToken type]
+variableDeclarator[JavaToken type, JavaToken commentToken]
     :   id:IDENT (LBRACK RBRACK)* ( ASSIGN initializer )?
-        {defineVar((JavaToken)id, type);}
+        {defineVar((JavaToken)id, type, commentToken);}
     ;
 
 
@@ -535,13 +580,15 @@ initializer
 //   was necessary to resolve a conflict that several types of fields in a
 //   class started with a type and/or modifier, so they had to be left-factored
 //   This also watches for a list of exception classes in a "throws" clause.
-methodHead[JavaToken type]
+methodHead[JavaToken type, JavaToken commentToken]
     {JavaVector exceptions=null;} // to keep track of thrown exceptions
     :   method:IDENT  // the name of the method
 
-        // tell the symbol table about it.  Note that this signals that 
-        // we are in a method header so we handle parameters appropriately
-        {defineMethod((JavaToken)method, type);}
+        {
+		// tell the symbol table about it.  Note that this signals that 
+        	// we are in a method header so we handle parameters appropriately
+        	defineMethod((JavaToken)method, type, commentToken);
+        }
 
         // parse the formal parameter declarations.  These are sent to the
         // symbol table as _variables_.  Because the symbol table knows we
@@ -582,7 +629,7 @@ parameterDeclarationList
 parameterDeclaration
     {JavaToken type;}
     :   ("final")? type=typeSpec id:IDENT (LBRACK RBRACK)*
-        {defineVar((JavaToken)id, type);}
+        {defineVar((JavaToken)id, type, null);}
     ;
 
 
@@ -610,12 +657,12 @@ compoundStatement[int scopeType]
                     //   treat it like a method with a special name
                     case CLASS_INIT:
                         lc.setText("~class-init~");
-                        defineMethod(null, (JavaToken)lc);
+                        defineMethod(null, (JavaToken)lc, null);
                         endMethodHead(null);
                         break;
                     case INSTANCE_INIT:
                         lc.setText("~instance-init~");
-                        defineMethod(null, (JavaToken)lc);
+                        defineMethod(null, (JavaToken)lc, null);
                         endMethodHead(null);
                         break;
 
@@ -1029,7 +1076,7 @@ constant
 class JavaLexer extends Lexer;
 
 options {
-    tokenVocabulary=Java;  // call the vocabulary "Java"
+    importVocab=Java;  // call the vocabulary "Java"
     longestPossible=true;  // gobble characters to find the longest match
     testLiterals=false;    // don't automatically test for literals
     k=4;                   // four characters of lookahead
@@ -1098,26 +1145,28 @@ WS
             )
             { newline(); }
         )
-        { _ttype = Token.SKIP; }
+        { $setType(Token.SKIP); }
     ;
 
 
 // Single-line comments
 SL_COMMENT
-    :   "//" (~'\n')* '\n'
-            { _ttype = Token.SKIP; newline(); }
+    :   "//" (~('\n'|'\r'))* ('\n'|'\r'('\n')?)
+            { $setType(Token.SKIP); newline(); }
     ;
 
 
 // multiple-line comments
+// we are using a filter stream so these are not set to be
+// Token.SKIP, rather they are redirected with the filter stream
 ML_COMMENT
-    :   "/*"
+    :   '/'! '*'
         (   { LA(2)!='/' }? '*'
         |   '\n' { newline(); }
         |   ~('*'|'\n')
         )*
-        "*/"
-            { _ttype = Token.SKIP; }
+        '*' '/'!
+            { }
     ;
 
 

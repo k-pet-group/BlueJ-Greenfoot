@@ -12,6 +12,9 @@ class VariableDef extends Definition implements TypedDef
     //==  Class Variables
     //==========================================================================
     
+    /** The comment attached to this variable definition */
+    private String comment;
+
     /** The type of the variable */
     private Definition type = null;
 
@@ -39,8 +42,14 @@ class VariableDef extends Definition implements TypedDef
 
     /** Collect information about this variable */
     public void getInfo(ClassInfo info, SymbolTable symbolTable) {
-	info.addUsed(type.getQualifiedName());
+        info.addComment(getName(), comment, null);
+
+        info.addUsed(type.getQualifiedName());
     }   
+
+    public void setComment(String comment) {
+        this.comment = comment;        
+    }
 
 
     /** Resolve referenced symbols used by this variable */

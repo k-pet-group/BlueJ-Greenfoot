@@ -79,7 +79,7 @@ public class SymbolTable
         activeScopes    = new JavaStack();
         
         // Create a package object to represent java.lang
-	Occurrence o = new Occurrence(null,0);
+        Occurrence o = new Occurrence(null,0);
         javaLang        = new PackageDef(getUniqueName("java.lang"),
                                           new Occurrence(null,0),null);
 
@@ -251,7 +251,8 @@ public class SymbolTable
     public void defineClass(JavaToken theClass,      // class being created
 			    JavaToken superClass,    // its superclass
 			    JavaVector interfaces,   // implemented interfaces
-			    boolean isAbstract)
+			    boolean isAbstract,
+			    JavaToken comment)
     {
         // note -- we leave interfaces as a vector of JavaTokens for now
         //         we'll resolve them in pass 2.
@@ -270,7 +271,9 @@ public class SymbolTable
                                          
         // add the imported classes/packages to the class
         def.setImports(importedClasses);
-        
+
+        def.setComment(comment.getText());
+
         // add the class to the current scope
         addToCurrentScope(def);
         
@@ -281,7 +284,8 @@ public class SymbolTable
 
     /** Define an interface object */
     public void defineInterface(JavaToken theInterface,
-                                      JavaVector superInterfaces) {
+                                      JavaVector superInterfaces,
+                                      JavaToken comment) {
         // note -- we leave superInterfaces as a vector of JavaTokens for now.
         //         we'll resolve in pass 2.
         
@@ -295,6 +299,8 @@ public class SymbolTable
                                              
         def.setType(ClassDef.INTERFACE);
         
+        def.setComment(comment.getText());
+
         // add it to the current scope
         addToCurrentScope(def);
         
@@ -312,11 +318,11 @@ public class SymbolTable
 
 
     /** Define a new method object */
-    public void defineMethod(JavaToken theMethod, JavaToken type) {
+    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment) {
         // if there is no type, this is a constructor
         String name;
         if (type == null)
-            name = "~constructor~";
+            name = theMethod.getText(); //"~constructor~";
             
         // otherwise use its real name
         else {
@@ -332,7 +338,10 @@ public class SymbolTable
                                              getOccurrence(theMethod),
                                              getDummyClass(type),
                                              getCurrentScope());
-                                            
+                                             
+        if (comment != null)
+            currentMethod.setComment(comment.getText());
+                                                                             
         // add the method to the current scope
         addToCurrentScope(currentMethod);
         
@@ -367,20 +376,21 @@ public class SymbolTable
 
 
     /** create a variable definition */
-    public void defineVar(JavaToken theVariable, JavaToken type) {
+    public void defineVar(JavaToken theVariable, JavaToken type, JavaToken comment) {
         // create the variable definition
         VariableDef v = new VariableDef(getUniqueName(theVariable),
                                         getOccurrence(theVariable),
                                         getDummyClass(type),
                                         getCurrentScope());
                                             
+        if (comment != null)
+            v.setComment(comment.getText());
         // if we are in a method's parameter def, add to its parameters
         if (currentMethod != null)
             currentMethod.add(v);
-            
-        // otherwise, add to the current scope
-        else
+        else {                             // otherwise, add to the current scope
             addToCurrentScope(v);
+        }
     }   
 
 

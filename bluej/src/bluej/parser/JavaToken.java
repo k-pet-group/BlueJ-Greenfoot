@@ -10,7 +10,7 @@ import java.io.File;
  * which the token was created, and the number of parameters (telling if the
  * symbol looked like a method invocation or some other symbol reference.)
  ******************************************************************************/
-public class JavaToken extends antlr.CommonToken {
+public class JavaToken extends antlr.CommonHiddenStreamToken {
     //==========================================================================
     //==  Class Variables
     //==========================================================================
@@ -32,18 +32,18 @@ public class JavaToken extends antlr.CommonToken {
 
     public void setText(String s)
     {
-	super.setText(s);
-	//System.out.println("token " + s + " line " + getLine() + " col " + getColumn());
+        super.setText(s);
+        //System.out.println("token " + s + " line " + getLine() + " col " + getColumn());
     }
 
     public void setColumn(int c) 
     {
-	column = c;
+        column = c;
     }
 
     public int getColumn() 
     {
-	return column;
+        return column;
     }
 
     /** get the File that contained the text scanned for this token */

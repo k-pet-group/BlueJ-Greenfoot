@@ -52,6 +52,14 @@ class MultiDef extends Definition
         defs.addElement(def);
     }   
 
+    public void getInfo(ClassInfo info, SymbolTable symbolTable) {
+        Enumeration e = defs.elements();
+        while(e.hasMoreElements()) {
+            Definition d = (Definition)e.nextElement();
+            d.getInfo(info, symbolTable);
+        }
+
+    }
 
     /** Lookup a symbol in the list of symbols
      *  This is a rather lame approximation that just returns the first match

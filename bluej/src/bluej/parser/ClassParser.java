@@ -2,21 +2,21 @@
  * ANTLR-generated file resulting from grammar java.g
  * 
  * Terence Parr, MageLang Institute
- * with John Lilley, Empathy Software
- * ANTLR Version 2.5.0; 1996-1998
+ * ANTLR Version 2.6.1; 1989-1999
  */
 
 package bluej.parser;
 
 import java.io.IOException;
-import antlr.Tokenizer;
 import antlr.TokenBuffer;
 import antlr.LLkParser;
 import antlr.Token;
+import antlr.TokenStream;
 import antlr.ParserException;
 import antlr.NoViableAltException;
 import antlr.MismatchedTokenException;
 import antlr.SemanticException;
+import antlr.ParserSharedInputState;
 import antlr.collections.impl.BitSet;
 
 import bluej.utility.Debug;
@@ -25,11 +25,13 @@ import bluej.parser.symtab.JavaVector;
 import bluej.parser.symtab.DummyClass;
 import bluej.parser.symtab.ClassInfo;
 
+import antlr.*;
+
 import java.util.Vector;
 import java.io.*;
 
 public class ClassParser extends antlr.LLkParser
-       implements JavaTokenTypes
+       implements ClassParserTokenTypes
  {
 
     // these static variables are used to tell what kind of compound
@@ -42,7 +44,8 @@ public class ClassParser extends antlr.LLkParser
 
     // We need a symbol table to track definitions
     private SymbolTable symbolTable;
-
+    private TokenStreamHiddenTokenFilter filter;
+    
     // the main entry point to parse a file
     public static ClassInfo parse(String filename, Vector classes)
         throws Exception 
@@ -53,7 +56,7 @@ public class ClassParser extends antlr.LLkParser
 
 	// resolve the types of all symbols in the symbol table
 	//  -- we don't need this for BlueJ
-	//symbolTable.resolveTypes();
+	// symbolTable.resolveTypes();
 
 	ClassInfo info = new ClassInfo();
 
@@ -95,11 +98,18 @@ public class ClassParser extends antlr.LLkParser
 	// Tell the scanner to create tokens of class JavaToken
 	lexer.setTokenObjectClass("bluej.parser.JavaToken");
 
+	TokenStreamHiddenTokenFilter filter = new TokenStreamHiddenTokenFilter(lexer);
+
+	// Tell the lexer to redirect all multiline comments to our
+	// hidden stream
+	filter.hide(ClassParser.ML_COMMENT);
+
 	// Create a parser that reads from the scanner
-	ClassParser parser = new ClassParser(lexer);
+	ClassParser parser = new ClassParser(filter);
 
 	// Tell the parser to use the symbol table passed to us
 	parser.setSymbolTable(symbolTable);
+	parser.setFilter(filter);
 
 	// start parsing at the compilationUnit rule
 	parser.compilationUnit();
@@ -110,13 +120,39 @@ public class ClassParser extends antlr.LLkParser
         this.symbolTable = symbolTable;
     }
 
+    public void setFilter(TokenStreamHiddenTokenFilter filter) {
+        this.filter = filter;
+    }
+
     
     // redefined from antlr.LLkParser to supress error messages
     public void reportError(ParserException ex) {
         // do nothing
     }
 
-    
+	public JavaToken findAttachedComment(JavaToken startToken)
+	{
+		CommonHiddenStreamToken ctok = null;
+
+		if (startToken != null) {
+			ctok = filter.getHiddenBefore(startToken);
+
+			if(ctok != null) {
+				// if the last line of the comment is more than
+				// two away from the start of the method/class
+				// then we can't really say that its attached.
+				// I believe it is part of the javadoc spec that
+				// says that comments and their method have to
+				// be right next to each other but I could be
+				// wrong
+				if (ctok.getLine() < startToken.getLine()-2)
+					ctok = null;
+			}
+		}
+
+		return (JavaToken)ctok;		
+	}
+	    
     //------------------------------------------------------------------------
     // Symboltable adapter methods
     // The following methods are provided to give a single set of entry
@@ -147,21 +183,23 @@ public class ClassParser extends antlr.LLkParser
     public void defineClass(JavaToken theClass,
                             JavaToken superClass,
                             JavaVector interfaces,
-			    boolean isAbstract) {
-        symbolTable.defineClass(theClass, superClass, interfaces, isAbstract);
+			    boolean isAbstract,
+			    JavaToken comment) {
+        symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, comment);
     }
 
     public void defineInterface(JavaToken theInterface,
-                                JavaVector subInterfaces) {
-        symbolTable.defineInterface(theInterface, subInterfaces);
+                                JavaVector subInterfaces,
+                                JavaToken comment) {
+        symbolTable.defineInterface(theInterface, subInterfaces, comment);
     }
 
-    public void defineVar(JavaToken theVariable, JavaToken type) {
-        symbolTable.defineVar(theVariable, type);
+    public void defineVar(JavaToken theVariable, JavaToken type, JavaToken comment) {
+        symbolTable.defineVar(theVariable, type, comment);
     }
 
-    public void defineMethod(JavaToken theMethod, JavaToken type) {
-        symbolTable.defineMethod(theMethod, type);
+    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment) {
+        symbolTable.defineMethod(theMethod, type, comment);
     }
 
     public void addImport(JavaToken id, String className, String packageName) {
@@ -178,13 +216,18 @@ public ClassParser(TokenBuffer tokenBuf) {
   this(tokenBuf,2);
 }
 
-protected ClassParser(Tokenizer lexer, int k) {
+protected ClassParser(TokenStream lexer, int k) {
   super(lexer,k);
   tokenNames = _tokenNames;
 }
 
-public ClassParser(Tokenizer lexer) {
+public ClassParser(TokenStream lexer) {
   this(lexer,2);
+}
+
+public ClassParser(ParserSharedInputState state) {
+  super(state,2);
+  tokenNames = _tokenNames;
 }
 
 	public final void compilationUnit() throws ParserException, IOException {
@@ -214,7 +257,7 @@ public ClassParser(Tokenizer lexer) {
 		case LITERAL_class:
 		case LITERAL_interface:
 		{
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				useDefaultPackage();
 			}
 			break;
@@ -250,7 +293,7 @@ public ClassParser(Tokenizer lexer) {
 		} while (true);
 		}
 		match(Token.EOF_TYPE);
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			endFile();
 		}
 	}
@@ -263,12 +306,12 @@ public ClassParser(Tokenizer lexer) {
 			match(LITERAL_package);
 			id=identifier();
 			match(SEMI);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				definePackage(id);
 			}
 		}
 		catch (ParserException ex) {
-			if (guessing==0) {
+			if (inputState.guessing==0) {
 				reportError(ex);
 				consume();
 				consumeUntil(_tokenSet_1);
@@ -287,7 +330,7 @@ public ClassParser(Tokenizer lexer) {
 			match(SEMI);
 		}
 		catch (ParserException ex) {
-			if (guessing==0) {
+			if (inputState.guessing==0) {
 				reportError(ex);
 				consume();
 				consumeUntil(_tokenSet_1);
@@ -300,6 +343,7 @@ public ClassParser(Tokenizer lexer) {
 	public final void typeDefinition() throws ParserException, IOException {
 		
 		boolean isAbstract;
+		JavaToken commentToken = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -317,17 +361,20 @@ public ClassParser(Tokenizer lexer) {
 			case LITERAL_class:
 			case LITERAL_interface:
 			{
+				if ( inputState.guessing==0 ) {
+					commentToken = findAttachedComment((JavaToken)LT(1));
+				}
 				isAbstract=modifiers();
 				{
 				switch ( LA(1)) {
 				case LITERAL_class:
 				{
-					classDefinition(isAbstract);
+					classDefinition(isAbstract, commentToken);
 					break;
 				}
 				case LITERAL_interface:
 				{
-					interfaceDefinition();
+					interfaceDefinition(commentToken);
 					break;
 				}
 				default:
@@ -350,7 +397,7 @@ public ClassParser(Tokenizer lexer) {
 			}
 		}
 		catch (ParserException ex) {
-			if (guessing==0) {
+			if (inputState.guessing==0) {
 				reportError(ex);
 				consume();
 				consumeUntil(_tokenSet_2);
@@ -369,7 +416,7 @@ public ClassParser(Tokenizer lexer) {
 		
 		id1 = LT(1);
 		match(IDENT);
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			t=(JavaToken)id1;
 		}
 		{
@@ -379,7 +426,7 @@ public ClassParser(Tokenizer lexer) {
 				match(DOT);
 				id2 = LT(1);
 				match(IDENT);
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					t.setText(t.getText() + "." + id2.getText());
 				}
 			}
@@ -400,7 +447,7 @@ public ClassParser(Tokenizer lexer) {
 		
 		id = LT(1);
 		match(IDENT);
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			className=id.getText();
 		}
 		{
@@ -410,7 +457,7 @@ public ClassParser(Tokenizer lexer) {
 				match(DOT);
 				id2 = LT(1);
 				match(IDENT);
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					packageName += "."+className; className = id2.getText();
 				}
 			}
@@ -426,7 +473,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			match(DOT);
 			match(STAR);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				packageName += "."+className; className = null;
 			}
 			break;
@@ -441,7 +488,7 @@ public ClassParser(Tokenizer lexer) {
 		}
 		}
 		}
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			
 			// put the overall name in the token's text
 			if (packageName.equals(""))
@@ -468,7 +515,7 @@ public ClassParser(Tokenizer lexer) {
 		do {
 			if (((LA(1) >= LITERAL_private && LA(1) <= LITERAL_const))) {
 				abs=modifier();
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					isAbstract|=abs;
 				}
 			}
@@ -482,7 +529,7 @@ public ClassParser(Tokenizer lexer) {
 	}
 	
 	public final void classDefinition(
-		boolean isAbstract
+		boolean isAbstract, JavaToken commentToken
 	) throws ParserException, IOException {
 		
 		Token  id = null;
@@ -527,16 +574,18 @@ public ClassParser(Tokenizer lexer) {
 		}
 		}
 		}
-		if ( guessing==0 ) {
-			defineClass((JavaToken)id, superClass, interfaces, isAbstract);
+		if ( inputState.guessing==0 ) {
+			defineClass((JavaToken)id, superClass, interfaces, isAbstract, commentToken);
 		}
 		classBlock();
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			popScope();
 		}
 	}
 	
-	public final void interfaceDefinition() throws ParserException, IOException {
+	public final void interfaceDefinition(
+		JavaToken commentToken
+	) throws ParserException, IOException {
 		
 		Token  id = null;
 		JavaVector superInterfaces = null;
@@ -561,11 +610,11 @@ public ClassParser(Tokenizer lexer) {
 		}
 		}
 		}
-		if ( guessing==0 ) {
-			defineInterface((JavaToken)id, superInterfaces);
+		if ( inputState.guessing==0 ) {
+			defineInterface((JavaToken)id, superInterfaces, commentToken);
 		}
 		classBlock();
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			popScope();
 		}
 	}
@@ -576,7 +625,7 @@ public ClassParser(Tokenizer lexer) {
 		
 		modifiers();
 		type=typeSpec();
-		variableDefinitions(type);
+		variableDefinitions(type, null);
 	}
 	
 	public final JavaToken  typeSpec() throws ParserException, IOException {
@@ -602,17 +651,17 @@ public ClassParser(Tokenizer lexer) {
 	}
 	
 	public final void variableDefinitions(
-		JavaToken type
+		JavaToken type, JavaToken commentToken
 	) throws ParserException, IOException {
 		
 		
-		variableDeclarator(type);
+		variableDeclarator(type, commentToken);
 		{
 		_loop48:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
-				variableDeclarator(type);
+				variableDeclarator(type, commentToken);
 			}
 			else {
 				break _loop48;
@@ -661,7 +710,7 @@ public ClassParser(Tokenizer lexer) {
 		case LITERAL_abstract:
 		{
 			match(LITERAL_abstract);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				isAbstract = true;
 			}
 			break;
@@ -745,7 +794,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			bVoid = LT(1);
 			match(LITERAL_void);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)bVoid;
 			}
 			break;
@@ -754,7 +803,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			bBoolean = LT(1);
 			match(LITERAL_boolean);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)bBoolean;
 			}
 			break;
@@ -763,7 +812,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			bByte = LT(1);
 			match(LITERAL_byte);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)bByte;
 			}
 			break;
@@ -772,7 +821,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			bChar = LT(1);
 			match(LITERAL_char);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)bChar;
 			}
 			break;
@@ -781,7 +830,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			bShort = LT(1);
 			match(LITERAL_short);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)bShort;
 			}
 			break;
@@ -790,7 +839,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			bInt = LT(1);
 			match(LITERAL_int);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)bInt;
 			}
 			break;
@@ -799,7 +848,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			bFloat = LT(1);
 			match(LITERAL_float);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)bFloat;
 			}
 			break;
@@ -808,7 +857,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			bLong = LT(1);
 			match(LITERAL_long);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)bLong;
 			}
 			break;
@@ -817,7 +866,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			bDouble = LT(1);
 			match(LITERAL_double);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)bDouble;
 			}
 			break;
@@ -837,7 +886,7 @@ public ClassParser(Tokenizer lexer) {
 		
 		match(LITERAL_implements);
 		id=identifier();
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			inters.addElement(dummyClass(id));
 		}
 		{
@@ -846,7 +895,7 @@ public ClassParser(Tokenizer lexer) {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
 				id=identifier();
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					inters.addElement(dummyClass(id));
 				}
 			}
@@ -917,7 +966,7 @@ public ClassParser(Tokenizer lexer) {
 		
 		match(LITERAL_extends);
 		id=identifier();
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			supers.addElement(dummyClass(id));
 		}
 		{
@@ -926,7 +975,7 @@ public ClassParser(Tokenizer lexer) {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
 				id=identifier();
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					supers.addElement(dummyClass(id));
 				}
 			}
@@ -942,31 +991,35 @@ public ClassParser(Tokenizer lexer) {
 	public final void field() throws ParserException, IOException {
 		
 		JavaToken type;
+		JavaToken commentToken = null;
 		
 		if ((_tokenSet_3.member(LA(1))) && (_tokenSet_4.member(LA(2)))) {
+			if ( inputState.guessing==0 ) {
+				commentToken = findAttachedComment((JavaToken)LT(1));
+			}
 			modifiers();
 			{
 			switch ( LA(1)) {
 			case LITERAL_class:
 			{
-				classDefinition(false);
+				classDefinition(false, null);
 				break;
 			}
 			case LITERAL_interface:
 			{
-				interfaceDefinition();
+				interfaceDefinition(null);
 				break;
 			}
 			default:
 				if ((LA(1)==IDENT) && (LA(2)==LPAREN)) {
-					methodHead(null);
+					methodHead(null, commentToken);
 					compoundStatement(BODY);
 				}
 				else if (((LA(1) >= LITERAL_void && LA(1) <= IDENT)) && (_tokenSet_5.member(LA(2)))) {
 					type=typeSpec();
 					{
 					if ((LA(1)==IDENT) && (LA(2)==LPAREN)) {
-						methodHead(type);
+						methodHead(type, commentToken);
 						{
 						switch ( LA(1)) {
 						case LCURLY:
@@ -977,7 +1030,7 @@ public ClassParser(Tokenizer lexer) {
 						case SEMI:
 						{
 							match(SEMI);
-							if ( guessing==0 ) {
+							if ( inputState.guessing==0 ) {
 								popScope();
 							}
 							break;
@@ -990,7 +1043,7 @@ public ClassParser(Tokenizer lexer) {
 						}
 					}
 					else if ((LA(1)==IDENT) && (_tokenSet_6.member(LA(2)))) {
-						variableDefinitions(type);
+						variableDefinitions(type, commentToken);
 						match(SEMI);
 					}
 					else {
@@ -1019,7 +1072,7 @@ public ClassParser(Tokenizer lexer) {
 	}
 	
 	public final void methodHead(
-		JavaToken type
+		JavaToken type, JavaToken commentToken
 	) throws ParserException, IOException {
 		
 		Token  method = null;
@@ -1027,8 +1080,12 @@ public ClassParser(Tokenizer lexer) {
 		
 		method = LT(1);
 		match(IDENT);
-		if ( guessing==0 ) {
-			defineMethod((JavaToken)method, type);
+		if ( inputState.guessing==0 ) {
+			
+					// tell the symbol table about it.  Note that this signals that 
+				// we are in a method header so we handle parameters appropriately
+				defineMethod((JavaToken)method, type, commentToken);
+			
 		}
 		match(LPAREN);
 		{
@@ -1090,7 +1147,7 @@ public ClassParser(Tokenizer lexer) {
 		}
 		}
 		}
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			endMethodHead(exceptions);
 		}
 	}
@@ -1103,7 +1160,7 @@ public ClassParser(Tokenizer lexer) {
 		
 		lc = LT(1);
 		match(LCURLY);
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			// based on the scopeType we are processing
 			switch(scopeType) {
 			// if it's a new block, tell the symbol table
@@ -1115,12 +1172,12 @@ public ClassParser(Tokenizer lexer) {
 			//   treat it like a method with a special name
 			case CLASS_INIT:
 			lc.setText("~class-init~");
-			defineMethod(null, (JavaToken)lc);
+			defineMethod(null, (JavaToken)lc, null);
 			endMethodHead(null);
 			break;
 			case INSTANCE_INIT:
 			lc.setText("~instance-init~");
-			defineMethod(null, (JavaToken)lc);
+			defineMethod(null, (JavaToken)lc, null);
 			endMethodHead(null);
 			break;
 			
@@ -1140,14 +1197,14 @@ public ClassParser(Tokenizer lexer) {
 			
 		} while (true);
 		}
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			popScope();
 		}
 		match(RCURLY);
 	}
 	
 	public final void variableDeclarator(
-		JavaToken type
+		JavaToken type, JavaToken commentToken
 	) throws ParserException, IOException {
 		
 		Token  id = null;
@@ -1186,8 +1243,8 @@ public ClassParser(Tokenizer lexer) {
 		}
 		}
 		}
-		if ( guessing==0 ) {
-			defineVar((JavaToken)id, type);
+		if ( inputState.guessing==0 ) {
+			defineVar((JavaToken)id, type, commentToken);
 		}
 	}
 	
@@ -1349,7 +1406,7 @@ public ClassParser(Tokenizer lexer) {
 		
 		match(LITERAL_throws);
 		id=identifier();
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			exceptions.addElement(dummyClass(id));
 		}
 		{
@@ -1358,7 +1415,7 @@ public ClassParser(Tokenizer lexer) {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
 				id=identifier();
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					exceptions.addElement(dummyClass(id));
 				}
 			}
@@ -1418,8 +1475,8 @@ public ClassParser(Tokenizer lexer) {
 			
 		} while (true);
 		}
-		if ( guessing==0 ) {
-			defineVar((JavaToken)id, type);
+		if ( inputState.guessing==0 ) {
+			defineVar((JavaToken)id, type, null);
 		}
 	}
 	
@@ -1633,7 +1690,7 @@ public ClassParser(Tokenizer lexer) {
 			{
 				bid = LT(1);
 				match(IDENT);
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					reference((JavaToken)bid);
 				}
 				break;
@@ -1660,7 +1717,7 @@ public ClassParser(Tokenizer lexer) {
 			{
 				cid = LT(1);
 				match(IDENT);
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					reference((JavaToken)cid);
 				}
 				break;
@@ -1814,7 +1871,7 @@ public ClassParser(Tokenizer lexer) {
 			if (((_tokenSet_12.member(LA(1))) && (_tokenSet_13.member(LA(2))))) {
 				int _m79 = mark();
 				synPredMatched79 = true;
-				guessing++;
+				inputState.guessing++;
 				try {
 					{
 					declaration();
@@ -1824,7 +1881,7 @@ public ClassParser(Tokenizer lexer) {
 					synPredMatched79 = false;
 				}
 				rewind(_m79);
-				guessing--;
+				inputState.guessing--;
 			}
 			if ( synPredMatched79 ) {
 				declaration();
@@ -1835,7 +1892,7 @@ public ClassParser(Tokenizer lexer) {
 				match(IDENT);
 				match(COLON);
 				statement();
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					defineLabel((JavaToken)id);
 				}
 			}
@@ -1864,7 +1921,7 @@ public ClassParser(Tokenizer lexer) {
 		if (((_tokenSet_12.member(LA(1))) && (_tokenSet_13.member(LA(2))))) {
 			int _m96 = mark();
 			synPredMatched96 = true;
-			guessing++;
+			inputState.guessing++;
 			try {
 				{
 				declaration();
@@ -1874,7 +1931,7 @@ public ClassParser(Tokenizer lexer) {
 				synPredMatched96 = false;
 			}
 			rewind(_m96);
-			guessing--;
+			inputState.guessing--;
 		}
 		if ( synPredMatched96 ) {
 			declaration();
@@ -1900,7 +1957,7 @@ public ClassParser(Tokenizer lexer) {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
 				expression();
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					count++;
 				}
 			}
@@ -2497,7 +2554,7 @@ public ClassParser(Tokenizer lexer) {
 			if (((LA(1)==LPAREN) && ((LA(2) >= LITERAL_void && LA(2) <= IDENT)))) {
 				int _m148 = mark();
 				synPredMatched148 = true;
-				guessing++;
+				inputState.guessing++;
 				try {
 					{
 					match(LPAREN);
@@ -2510,14 +2567,14 @@ public ClassParser(Tokenizer lexer) {
 					synPredMatched148 = false;
 				}
 				rewind(_m148);
-				guessing--;
+				inputState.guessing--;
 			}
 			if ( synPredMatched148 ) {
 				match(LPAREN);
 				t=typeSpec();
 				match(RPAREN);
 				castExpression();
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					reference(t);
 				}
 			}
@@ -2529,7 +2586,7 @@ public ClassParser(Tokenizer lexer) {
 				{
 					match(LITERAL_instanceof);
 					t=typeSpec();
-					if ( guessing==0 ) {
+					if ( inputState.guessing==0 ) {
 						reference(t);
 					}
 					break;
@@ -2607,7 +2664,7 @@ public ClassParser(Tokenizer lexer) {
 				{
 					id = LT(1);
 					match(IDENT);
-					if ( guessing==0 ) {
+					if ( inputState.guessing==0 ) {
 						if (t!=null) t.setText(t.getText()+"."+id.getText());
 					}
 					break;
@@ -2615,7 +2672,7 @@ public ClassParser(Tokenizer lexer) {
 				case LITERAL_this:
 				{
 					match(LITERAL_this);
-					if ( guessing==0 ) {
+					if ( inputState.guessing==0 ) {
 						if (t!=null) t.setText(t.getText()+".this");
 					}
 					break;
@@ -2623,7 +2680,7 @@ public ClassParser(Tokenizer lexer) {
 				case LITERAL_class:
 				{
 					match(LITERAL_class);
-					if ( guessing==0 ) {
+					if ( inputState.guessing==0 ) {
 						if (t!=null) t.setText(t.getText()+".class");
 					}
 					break;
@@ -2680,7 +2737,7 @@ public ClassParser(Tokenizer lexer) {
 				}
 				case RPAREN:
 				{
-					if ( guessing==0 ) {
+					if ( inputState.guessing==0 ) {
 						count=0;
 					}
 					break;
@@ -2692,7 +2749,7 @@ public ClassParser(Tokenizer lexer) {
 				}
 				}
 				match(RPAREN);
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					
 					if (t!=null)
 					t.setParamCount(count);
@@ -2707,7 +2764,7 @@ public ClassParser(Tokenizer lexer) {
 			}
 		} while (true);
 		}
-		if ( guessing==0 ) {
+		if ( inputState.guessing==0 ) {
 			if (t != null) reference(t);
 		}
 		{
@@ -2785,7 +2842,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			id = LT(1);
 			match(IDENT);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)id;
 			}
 			break;
@@ -2803,7 +2860,7 @@ public ClassParser(Tokenizer lexer) {
 			t=builtInType();
 			match(DOT);
 			match(LITERAL_class);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t.setText(t.getText()+".class");
 			}
 			break;
@@ -2825,7 +2882,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			s = LT(1);
 			match(LITERAL_super);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)s;
 			}
 			break;
@@ -2844,7 +2901,7 @@ public ClassParser(Tokenizer lexer) {
 		{
 			th = LT(1);
 			match(LITERAL_this);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				t = (JavaToken)th; setNearestClassScope();
 			}
 			break;
@@ -2915,7 +2972,7 @@ public ClassParser(Tokenizer lexer) {
 			}
 			case RPAREN:
 			{
-				if ( guessing==0 ) {
+				if ( inputState.guessing==0 ) {
 					count=0;
 				}
 				break;
@@ -2927,7 +2984,7 @@ public ClassParser(Tokenizer lexer) {
 			}
 			}
 			match(RPAREN);
-			if ( guessing==0 ) {
+			if ( inputState.guessing==0 ) {
 				
 				t.setText(t.getText()+".~constructor~");
 				t.setParamCount(count);

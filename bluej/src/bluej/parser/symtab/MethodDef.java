@@ -12,6 +12,9 @@ class MethodDef extends ScopedDef implements TypedDef
     //==  Class Variables
     //==========================================================================
     
+    /** The comment attached to this method definition */
+    private String comment;
+
     /** The return type of the method */
     private Definition type = null;
     
@@ -66,6 +69,9 @@ class MethodDef extends ScopedDef implements TypedDef
         return type;
     }   
 
+    public void setComment(String comment) {
+        this.comment = comment;        
+    }
 
     /** lookup the name as a local variable or local class in this class */
     Definition lookup(String name, int numParams) {
@@ -89,28 +95,54 @@ class MethodDef extends ScopedDef implements TypedDef
 
 
     /** Collect information about this method */
-    public void getInfo(ClassInfo info, SymbolTable symbolTable) {
+    public void getInfo(ClassInfo info, SymbolTable symbolTable)
+    {
+        StringBuffer target = new StringBuffer();  // the method signature
+        
+        // if it has a return type, add it
+        if (type != null) {
+            info.addUsed(type.getQualifiedName());
+            target.append(type.getName());
+            target.append(" ");
+        }
 
-	// if it has a return type, add it
-        if (type != null)
-	    info.addUsed(type.getQualifiedName());
-
+        target.append(getName());
+        target.append("(");
         // if it has parameters, list them
+        StringBuffer paramnames = new StringBuffer();
+
         if (parameters != null) {
-	    Enumeration e = parameters.elements();
-	    while(e.hasMoreElements())
-		((VariableDef)e.nextElement()).getInfo(info, symbolTable);
-	}
-            
+    	    Enumeration e = parameters.elements();
+    	    while(e.hasMoreElements()) {
+    	        VariableDef vd = ((VariableDef)e.nextElement());
+                paramnames.append(vd.getName());
+                paramnames.append(" ");
+
+                //lets not do a getinfo on these or else we get our
+                // parameter names promoted to the status of class members
+    	        //vd.getInfo(info, symbolTable);
+    	        
+    	        target.append(vd.getType().getName());
+    	        target.append(",");
+            }
+        }
+
+        int lastchar = target.length()-1;
+        if (target.charAt(lastchar) == ',')
+            target.deleteCharAt(lastchar);
+        target.append(")");
+                    
         // if it throws exceptions, list them
         if (exceptions != null) {
-	    Enumeration e = exceptions.elements();
-	    while(e.hasMoreElements())
-		info.addUsed(((ClassDef)e.nextElement()).getQualifiedName());
-	}
-            
+    	    Enumeration e = exceptions.elements();
+    	    while(e.hasMoreElements())
+        		info.addUsed(((ClassDef)e.nextElement()).getQualifiedName());
+        }
+
+        info.addComment(target.toString(), comment, paramnames.toString());
+
         super.getInfo(info, symbolTable);
-}   
+    }   
 
 
     /** Resolve references to other symbols for pass 2 */

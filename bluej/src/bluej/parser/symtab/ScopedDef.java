@@ -134,8 +134,10 @@ abstract class ScopedDef extends Definition
     /** Collect information about all the elements */
     void getElementInfo(ClassInfo info, SymbolTable symbolTable) {
         Enumeration e = elements.elements();
-        while(e.hasMoreElements())
-            ((Definition)e.nextElement()).getInfo(info, symbolTable);
+        while(e.hasMoreElements()) {
+            Definition d = (Definition)e.nextElement();
+            d.getInfo(info, symbolTable);
+        }
     }   
 
 
@@ -143,12 +145,13 @@ abstract class ScopedDef extends Definition
     public void getInfo(ClassInfo info, SymbolTable symbolTable) {
         symbolTable.pushScope(this);
 
-	// for method: get info about local var's
+        // for method: get info about local var's
         getElementInfo(info, symbolTable);
 
-	// for method: get info things referenced in statements
+        // for method: get info things referenced in statements
         if (unresolvedStuff != null)		// search refs to other syms
             unresolvedStuff.getUnresolvedInfo(info, symbolTable);
+
         symbolTable.popScope();
     }
 
