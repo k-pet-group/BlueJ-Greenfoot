@@ -17,6 +17,7 @@ class Student extends Person
         super("(unknown name)", 0000);
         SID = "(unknown ID)";
     }
+ 
 
     /**
      * Create a student with given name, year of birth and student ID
@@ -28,16 +29,11 @@ class Student extends Person
     }
 
     /**
-     * Return the stident ID of this student.
+     * Return the student ID of this student.
      */
     public String getStudentID()
     {
        return SID;
-    }
-
-    public void sampleMethod()
-    {
-        return x + y;
     }
 
     /**
@@ -50,11 +46,4 @@ class Student extends Person
                "Student ID: " + SID + "\n";
     }
 
-    /**
-     * 
-     **/
-    public int sampleMethod(int y)
-    {
-        return 42;
-    }
 }

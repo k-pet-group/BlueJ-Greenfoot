@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 329 2000-01-02 13:22:01Z ajp $
+ * @version $Id: JdiObject.java 370 2000-01-17 03:01:18Z mik $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -344,7 +344,8 @@ public class JdiObject extends DebuggerObject
             return "<null>";
         else if (val instanceof StringReference)
         {
-            return ((StringReference)val).value();
+            return "\"" + ((StringReference)val).value() + "\"";
+            // toString should be okay for this as well once the bug is out...
         }
         else if (val instanceof ObjectReference)
         {
