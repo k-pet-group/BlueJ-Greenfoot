@@ -44,20 +44,20 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 2807 2004-07-19 05:47:15Z davmac $
+ * @version $Id: PkgMgrFrame.java 2810 2004-07-20 19:06:18Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
 {
     public Font PkgMgrFont = PrefMgr.getStandardFont();
 
-    public static final KeyStroke restartKey = KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.SHIFT_MASK
-            | InputEvent.CTRL_MASK);
+//    public static final KeyStroke restartKey = KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.SHIFT_MASK
+//            | InputEvent.CTRL_MASK);
 
     static final int DEFAULT_WIDTH = 560;
     static final int DEFAULT_HEIGHT = 400;
 
-    private static final int SHORTCUT_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+//    private static final int SHORTCUT_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
     private static Application macApplication = prepareMacOSApp();
     private static boolean testToolsShown = wantToSeeTestingTools();
@@ -1462,6 +1462,15 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+
+    /**
+     * Place a given object onto the object bench. This is done by creating an object wrapper
+     * for the internal object, which can then be added to the bench.
+     * 
+     * @param newInstanceName  Name for the instance on the bench.
+     * @param object    The internal object to be placed.
+     * @param ir    The invoker record (for recording interaction).
+     */
     public void putObjectOnBench(String newInstanceName, DebuggerObject object, InvokerRecord ir)
     {
         if (!object.isNullObject()) {
@@ -1764,6 +1773,9 @@ public class PkgMgrFrame extends JFrame
         getProject().setTestMode(false);
     }
 
+    /**
+     * Store information about the currently recorded test method.
+     */
     public void setTestInfo(String testName, ClassTarget testClass)
     {
         this.testTargetMethod = testName;
@@ -2006,6 +2018,9 @@ public class PkgMgrFrame extends JFrame
 
     // --- general support functions for user function implementations ---
 
+    /**
+     * String representation for debugging only.
+     */
     public String toString()
     {
         String str = "PkgMgrFrame(): ";
@@ -2280,10 +2295,9 @@ public class PkgMgrFrame extends JFrame
     private void setupMenus()
     {
         menubar = new JMenuBar();
-        JMenu menu;
         itemsToDisable = new ArrayList();
 
-        menu = new JMenu(Config.getString("menu.package"));
+        JMenu menu = new JMenu(Config.getString("menu.package"));
         int mnemonic = Config.getMnemonicKey("menu.package");
         menu.setMnemonic(mnemonic);
         menubar.add(menu);

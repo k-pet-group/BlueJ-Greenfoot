@@ -524,7 +524,7 @@ menu.package.import=_Import...
 menu.package.export=_Export...
 menu.package.pageSetup=Page Setup...@^P
 menu.package.print=Print...@P
-menu.package.quit=_Quit
+menu.package.quit=_Quit@Q
 
 menu.edit=_Edit
 menu.edit.newClass=New Class...@N
