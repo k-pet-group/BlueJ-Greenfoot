@@ -151,6 +151,7 @@ public class MoePrinter
         catch (Exception e) {
             // should it be an error dialog?
             Debug.reportError("Exception thrown during printing: " + e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -279,7 +280,10 @@ public class MoePrinter
             // print the text
             for(ListIterator li = text.listIterator(); li.hasNext(); ) {
                 position = textYPosition + (this.font.getSize() + 2) * (li.nextIndex() + 1);
-                g.drawString((String)li.next(), textXPosition, position); 
+                String line = (String)li.next();
+                if(line.length() == 0)  // workaround for strange problem on Mac:
+                  line = " ";           // trying to print empty lines throws exception
+                g.drawString(line, textXPosition, position); 
             }
 
             // print footer

@@ -21,14 +21,14 @@ import java.util.StringTokenizer;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: Main.java 1591 2002-12-17 10:41:38Z mik $
  */
 public class Main
 {
     public static int BLUEJ_VERSION_MAJOR = 1;
     public static int BLUEJ_VERSION_MINOR = 3;
     public static int BLUEJ_VERSION_RELEASE = 0;
-    public static String BLUEJ_VERSION_SUFFIX = " alpha";
+    public static String BLUEJ_VERSION_SUFFIX = " beta";
 
     public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
                                              BLUEJ_VERSION_MINOR * 100 +
