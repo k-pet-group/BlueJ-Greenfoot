@@ -8,7 +8,6 @@ uses
   Dialogs,
   main in 'main.pas' {MainForm},
   javatest in 'javatest.pas',
-  consoleapp in 'consoleapp.pas',
   findfile in 'findfile.pas',
   exfile in 'exfile.pas';
 
@@ -26,7 +25,7 @@ begin
    if (DebugHook <> 0) or FileExists(appdir + 'lib\bluej.jar') then
    begin
 	Application.CreateForm(TMainForm, MainForm);
-	Application.Run;
+  Application.Run;
    end
    else
        	MessageDlg('The file bluej.jar does not exist in the lib/ directory ' + #13#10 +

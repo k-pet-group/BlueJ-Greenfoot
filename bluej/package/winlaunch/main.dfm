@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 287
-  Top = 315
+  Left = 113
+  Top = 523
   ActiveControl = GoodVM
   BorderStyle = bsDialog
   Caption = 'BlueJ Launcher'
