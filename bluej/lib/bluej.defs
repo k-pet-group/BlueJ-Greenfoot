@@ -20,12 +20,12 @@ bluej.url.javaStdLib=http://java.sun.com/products/jdk/1.2/docs/api/index.html
 #####################################################################
 ## The following are the commands used for opening a web browser. On
 ## Windows systems, the winBrowserCmd is used, on all other systems
-## the browserCmd is used. BlueJ tries the first command first, and 
+## the browserCmd is used. BlueJ tries the first command first, and
 ## if it fails it tries the second command. This gives you a chance
-## to let you first try a command that opens a page in an already 
-## running browser and, if that fails, open a new browser. Or you 
+## to let you first try a command that opens a page in an already
+## running browser and, if that fails, open a new browser. Or you
 ## could try one browser first and, if that's not found try another.
-## The first dollar sign ($) will be replaced by the URL to be 
+## The first dollar sign ($) will be replaced by the URL to be
 ## opened.
 #####################################################################
 
@@ -34,7 +34,7 @@ browserCmd1=netscape -remote openURL($)
 # if that fails, start netscape
 browserCmd2=netscape $
 
-# for Windows, the following should start the default browser 
+# for Windows, the following should start the default browser
 # set in the system
 winBrowserCmd1=rundll32 url.dll,FileProtocolHandler $
 winBrowserCmd2=
@@ -93,7 +93,7 @@ bluej.compiler.type=internal
 bluej.fontsize=12
 #bluej.fontsize=10
 
-# fontsize for the editor (DO NOT CHANGE: changing edit font size currently 
+# fontsize for the editor (DO NOT CHANGE: changing edit font size currently
 # does not work)
 bluej.fontsize.editor=12
 
@@ -110,7 +110,7 @@ bluej.debugLog=debug.log
 
 #######################################################################
 ## Applets -  preferences for how applets are generated and executed
-## 
+##
 #######################################################################
 
 # which jvm browser internal or JDK plugin
@@ -137,6 +137,9 @@ image.build.depends=arrow_black.gif
 image.build.depends.selected=arrow_red.gif
 image.build.extends=darrow_black.gif
 image.build.extends.selected=darrow_red.gif
+
+image.objectviewer.object=objectIcon.gif
+image.objectviewer.blank=objectIcon_blank.gif
 
 image.working=working.gif
 image.working.disab=working-disab.gif
