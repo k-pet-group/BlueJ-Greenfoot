@@ -11,7 +11,7 @@ uses
 const
         jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-        bluejregkey : string = '\Software\BlueJ\BlueJ\1.2.1';
+        bluejregkey : string = '\Software\BlueJ\BlueJ\1.2.2';
 
         searchingstartcaption : string = 'Search drives for all Java versions...';
         searchingstopcaption : string = 'Stop Search';
