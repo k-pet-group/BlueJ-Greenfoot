@@ -3,7 +3,7 @@ package bluej.compiler;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: JobQueue.java 67 1999-05-10 02:42:49Z mik $
+ ** @version $Id: JobQueue.java 84 1999-05-17 07:13:18Z ajp $
  ** @author Michael Cahill
  ** Reasonably generic interface between the BlueJ IDE and the Java
  ** compiler.
@@ -23,7 +23,7 @@ public class JobQueue
     // ---- instance ----
 
     private CompilerThread thread = null;
-    private Compiler compiler = new JavacCompiler(new ErrorStream());
+    private Compiler compiler = new JikesCompiler(new ErrorStream());
 	
     /**
      * 
