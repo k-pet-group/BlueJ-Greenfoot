@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiObject.java 1537 2002-11-29 13:40:19Z ajp $
+ *@version    $Id: JdiObject.java 1558 2002-12-05 02:19:55Z ajp $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -382,6 +382,9 @@ public class JdiObject extends DebuggerObject
     {
         List fieldStrings = new ArrayList(fields.size());
 
+        if (obj == null)
+            return fieldStrings;
+            
         ReferenceType cls = obj.referenceType();
         List visible = cls.visibleFields();
 
