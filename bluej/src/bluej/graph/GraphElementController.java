@@ -299,165 +299,222 @@ public class GraphElementController
         	   (target.getPackage().getState() == Package.S_CHOOSE_EXT_TO);
     }
 
+    
+    private boolean isArrowKey(KeyEvent evt){
+    	return evt.getKeyCode() == KeyEvent.VK_UP ||
+		 evt.getKeyCode() == KeyEvent.VK_DOWN ||
+		 evt.getKeyCode() == KeyEvent.VK_LEFT ||
+		 evt.getKeyCode() == KeyEvent.VK_RIGHT;
+    }
     /**
      * @param evt
      */
     public void keyPressed(KeyEvent evt) {
-        
-        boolean isArrowKey = evt.getKeyCode() == KeyEvent.VK_UP ||
-        					 evt.getKeyCode() == KeyEvent.VK_DOWN ||
-        					 evt.getKeyCode() == KeyEvent.VK_LEFT ||
-        					 evt.getKeyCode() == KeyEvent.VK_RIGHT;
-        
         //init dependencies
         if (currentTarget instanceof DependentTarget){
             dependencies = ((DependentTarget)currentTarget).dependentsAsList();	                
         } else {
             dependencies = new LinkedList();//dummy empty list
         }
-        
-        //find currentTarget
-        currentTarget = (Target) graphEditor.findSingleVertex();
-        
-        
+
         //navigate the diagram
-        if (isArrowKey && !evt.isShiftDown() && !evt.isControlDown()) {
-            
-            currentTarget = (Target) traverseStragegiImpl.findNextVertex(pkg, currentTarget, evt.getKeyCode());
-            graphEditor.getGraphElementManager().clear();
-            graphEditor.getGraphElementManager().add(currentTarget);
-            
-            currentIndex = 0;
-            if (currentDependency != null){
-                graphEditor.getGraphElementManager().remove(currentDependency);
-                currentDependency = null;
-            }
+        if (isArrowKey(evt) && !evt.isShiftDown() && !evt.isControlDown()) {
+            navigate(evt);
         }        
         
         //moving targets
-        if (isArrowKey && evt.isShiftDown() && currentTarget instanceof Moveable){
-            Moveable moveableTarget = (Moveable) currentTarget;
-            if (moveableTarget.isMoveable()){
-                int deltaX = moveableTarget.getGhostX() - currentTarget.getX() - GraphEditor.GRID_SIZE;
-                int deltaY = moveableTarget.getGhostY() - currentTarget.getY() - GraphEditor.GRID_SIZE;
-                isMoveAllowed(deltaX, deltaY);
-	            switch (evt.getKeyCode()){
-	                case KeyEvent.VK_UP:{
-	                    if (isMoveAllowedY){
-	                        moveableTarget.setGhostY(moveableTarget.getGhostY() - GraphEditor.GRID_SIZE);
-	                        moveableTarget.setIsMoving(true);
-	                    }
-	                    break;
-	                }
-	                case KeyEvent.VK_DOWN:{
-	                    moveableTarget.setGhostY(moveableTarget.getGhostY() + GraphEditor.GRID_SIZE);
-	                    moveableTarget.setIsMoving(true);
-	                    break;
-	                }
-	                case KeyEvent.VK_LEFT:{
-	                    if (isMoveAllowedX){
-	                        moveableTarget.setGhostX(moveableTarget.getGhostX() - GraphEditor.GRID_SIZE);
-	                        moveableTarget.setIsMoving(true);
-	                    }
-	                    break;
-	                }
-	                case KeyEvent.VK_RIGHT:{
-	                    moveableTarget.setGhostX(moveableTarget.getGhostX() + GraphEditor.GRID_SIZE);
-	                    moveableTarget.setIsMoving(true);
-	                    break;
-	                }
-	            }
-	            graphEditor.repaint();
-	            return;
-            }
+        if (isArrowKey(evt) && evt.isShiftDown() ) {
+        	moveTargets(evt);
     	}
-        
-       
-        
-        
+                
         //resizing
-        if (isArrowKey && evt.isControlDown() && currentTarget.isResizable()){
-            switch (evt.getKeyCode()){
-                case KeyEvent.VK_UP:{
-                    currentTarget.setSize(currentTarget.getWidth(), currentTarget.getHeight() - 10);
-                    break;
-                }
-                case KeyEvent.VK_DOWN:{
-                    currentTarget.setSize(currentTarget.getWidth(), currentTarget.getHeight() + 10);
-                    break;
-                }
-                case KeyEvent.VK_LEFT:{
-                    currentTarget.setSize(currentTarget.getWidth() - 10, currentTarget.getHeight());
-                    break;
-                }
-                case KeyEvent.VK_RIGHT:{
-                    currentTarget.setSize(currentTarget.getWidth() + 10, currentTarget.getHeight());
-                    break;
-                }
-            }
+        if (isArrowKey(evt) && evt.isControlDown() ) {
+        	resizeFreely(evt);
         }
-        if(evt.getKeyCode() == KeyEvent.VK_PLUS){
-            currentTarget.setSize(currentTarget.getWidth() + 10, 
-                    			  currentTarget.getHeight() + 10);
-        }
-        if(evt.getKeyCode() == KeyEvent.VK_MINUS){
-            currentTarget.setSize(currentTarget.getWidth() - 10, 
-                      			  currentTarget.getHeight() - 10);
-        }
-        
+        boolean isPlusOrMinus = evt.getKeyCode() == KeyEvent.VK_PLUS ||
+								evt.getKeyCode() == KeyEvent.VK_MINUS;	
+        if (isPlusOrMinus){
+			resizeWithFixedRatio(evt);
+		}
+       
         //dependency selection
         if(evt.getKeyCode() == KeyEvent.VK_PAGE_UP || 
-           evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN){
-            
-            if (currentTarget instanceof DependentTarget){
-                currentDependency = (Dependency) dependencies.get(currentIndex);
-                if(currentDependency != null) {
-                    graphEditor.getGraphElementManager().remove(currentDependency);
-                }
-                currentIndex +=(evt.getKeyCode() == KeyEvent.VK_PAGE_UP ? 1 : -1);
-                currentIndex %= dependencies.size();
-                if (currentIndex < 0) {//% is not a real modulo
-                    currentIndex = dependencies.size() - 1;
-                }
-                currentDependency = (Dependency) dependencies.get(currentIndex);
-                if(currentDependency != null){
-                    graphEditor.getGraphElementManager().add(currentDependency);
-                }
-	        }
+           evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN){   
+            selectDependency(evt);
         }
         
         //context menu
         if (evt.getKeyCode() == KeyEvent.VK_SPACE ||
             evt.getKeyCode()== KeyEvent.VK_ENTER){  
-            if (currentDependency != null){
-                int x,y;
-                x = currentDependency.getTo().getX();
-                y = currentDependency.getTo().getY();
-                Point p = GraphPainterStdImpl.getDependencyPainter(currentDependency).getPopupMenuPosition(currentDependency);
-                currentDependency.popupMenu(p.x, p.y, graphEditor);
-            }
-            else if(currentTarget != null) {
-                int x,y;
-                x = currentTarget.getX() + 10;
-                y = currentTarget.getY() + currentTarget.getHeight() - 10;
-                currentTarget.popupMenu(x, y, graphEditor);
-            }
+            showPopupMenu();
         }
         
         //Escape removes selections
         if (evt.getKeyCode() == KeyEvent.VK_ESCAPE){
-            if (currentDependency != null){
-                 graphEditor.getGraphElementManager().remove(currentDependency);
-                 currentDependency = null;
-            } else {
-                graphEditor.getGraphElementManager().clear();
-                currentTarget = null;
-            }
+            undoSelection();
         }
+        
         graphEditor.repaint();
     }
-
+    
+    
     /**
+	 * @param evt
+	 */
+	private void navigate(KeyEvent evt) {
+		if (currentTarget == null){
+			currentTarget = (Target) graphEditor.findSingleVertex();
+		}
+		currentTarget = (Target) traverseStragegiImpl.findNextVertex(pkg, currentTarget, evt.getKeyCode());
+		graphEditor.getGraphElementManager().clear();
+		graphEditor.getGraphElementManager().add(currentTarget);
+		
+		currentIndex = 0;
+		if (currentDependency != null){
+		    graphEditor.getGraphElementManager().remove(currentDependency);
+		    currentDependency = null;
+		}
+	}
+    
+	
+	/**
+	 * @param evt
+	 */
+	private void moveTargets(KeyEvent evt) {
+		if (currentTarget instanceof Moveable){
+			Moveable moveableTarget = (Moveable) currentTarget;
+		    if (moveableTarget.isMoveable()){
+		        int deltaX = moveableTarget.getGhostX() - currentTarget.getX() - GraphEditor.GRID_SIZE;
+		        int deltaY = moveableTarget.getGhostY() - currentTarget.getY() - GraphEditor.GRID_SIZE;
+		        isMoveAllowed(deltaX, deltaY);
+		        switch (evt.getKeyCode()){
+		            case KeyEvent.VK_UP:{
+		                if (isMoveAllowedY){
+		                    moveableTarget.setGhostY(moveableTarget.getGhostY() - GraphEditor.GRID_SIZE);
+		                    moveableTarget.setIsMoving(true);
+		                }
+		                break;
+		            }
+		            case KeyEvent.VK_DOWN:{
+		                moveableTarget.setGhostY(moveableTarget.getGhostY() + GraphEditor.GRID_SIZE);
+		                moveableTarget.setIsMoving(true);
+		                break;
+		            }
+		            case KeyEvent.VK_LEFT:{
+		                if (isMoveAllowedX){
+		                    moveableTarget.setGhostX(moveableTarget.getGhostX() - GraphEditor.GRID_SIZE);
+		                    moveableTarget.setIsMoving(true);
+		                }
+		                break;
+		            }
+		            case KeyEvent.VK_RIGHT:{
+		                moveableTarget.setGhostX(moveableTarget.getGhostX() + GraphEditor.GRID_SIZE);
+		                moveableTarget.setIsMoving(true);
+		                break;
+		            }
+		        }
+		        graphEditor.repaint();
+		    }
+		}
+	}
+
+
+	/**
+	 * @param evt
+	 */
+	private void resizeWithFixedRatio(KeyEvent evt) {
+		if (currentTarget != null && currentTarget.isResizable()){
+			int delta = (evt.getKeyCode() == KeyEvent.VK_PLUS ? 10 : -10);
+			currentTarget.setSize(currentTarget.getWidth() + delta,
+								  currentTarget.getHeight() + delta);
+		}
+	}
+
+	
+	/**
+	 * @param evt
+	 */
+	private void resizeFreely(KeyEvent evt) {
+		if (currentTarget != null && currentTarget.isResizable()){
+		    switch (evt.getKeyCode()){
+		        case KeyEvent.VK_UP:{
+		            currentTarget.setSize(currentTarget.getWidth(), currentTarget.getHeight() - 10);
+		            break;
+		        }
+		        case KeyEvent.VK_DOWN:{
+		            currentTarget.setSize(currentTarget.getWidth(), currentTarget.getHeight() + 10);
+		            break;
+		        }
+		        case KeyEvent.VK_LEFT:{
+		            currentTarget.setSize(currentTarget.getWidth() - 10, currentTarget.getHeight());
+		            break;
+		        }
+		        case KeyEvent.VK_RIGHT:{
+		            currentTarget.setSize(currentTarget.getWidth() + 10, currentTarget.getHeight());
+		            break;
+		        }
+		    }
+		}
+	}
+	
+	
+	/**
+	 * @param evt
+	 */
+	private void selectDependency(KeyEvent evt) {
+		if (currentTarget instanceof DependentTarget){
+		    currentDependency = (Dependency) dependencies.get(currentIndex);
+		    if(currentDependency != null) {
+		        graphEditor.getGraphElementManager().remove(currentDependency);
+		    }
+		    currentIndex +=(evt.getKeyCode() == KeyEvent.VK_PAGE_UP ? 1 : -1);
+		    currentIndex %= dependencies.size();
+		    if (currentIndex < 0) {//% is not a real modulo
+		        currentIndex = dependencies.size() - 1;
+		    }
+		    currentDependency = (Dependency) dependencies.get(currentIndex);
+		    if(currentDependency != null){
+		        graphEditor.getGraphElementManager().add(currentDependency);
+		    }
+		}
+	}
+
+	
+	/**
+	 * 
+	 */
+	private void showPopupMenu() {
+		if (currentDependency != null){
+		    int x,y;
+		    x = currentDependency.getTo().getX();
+		    y = currentDependency.getTo().getY();
+		    Point p = ((GraphPainterStdImpl)GraphPainterStdImpl.getInstance()).getDependencyPainter(currentDependency).getPopupMenuPosition(currentDependency);
+		    currentDependency.popupMenu(p.x, p.y, graphEditor);
+		}
+		else if(currentTarget != null) {
+		    int x,y;
+		    x = currentTarget.getX() + 10;
+		    y = currentTarget.getY() + currentTarget.getHeight() - 10;
+		    currentTarget.popupMenu(x, y, graphEditor);
+		}
+	}
+	
+	
+	/**
+	 * 
+	 */
+	private void undoSelection() {
+		if (currentDependency != null){
+		     graphEditor.getGraphElementManager().remove(currentDependency);
+		     currentDependency = null;
+		} else {
+		    graphEditor.getGraphElementManager().clear();
+		    currentTarget = null;
+		}
+	}
+
+	
+	/**
      * @param evt
      */
     public void keyReleased(KeyEvent evt) {
@@ -484,22 +541,6 @@ public class GraphElementController
         if (currentTarget instanceof DependentTarget){
             ((DependentTarget) currentTarget).handleMoveAndResizing();
         }
-        
     }
     
-    private class dependComparator implements Comparator{
-
-        /* (non-Javadoc)
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
-        public int compare(Object o1, Object o2) {
-            if( o1 instanceof Dependency && o2 instanceof Dependency){
-                Dependency d1 = (Dependency) o1;
-                Dependency d2 = (Dependency) o2;
-                //d1.
-            }
-            return 0;
-        }
-        
-    }
 }

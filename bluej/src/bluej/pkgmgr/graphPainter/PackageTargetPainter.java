@@ -12,7 +12,7 @@ import bluej.utility.Utility;
 /**
  * Paints a packageTarget
  * @author fisker
- * @version $Id: PackageTargetPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ * @version $Id: PackageTargetPainter.java 2590 2004-06-11 11:29:14Z fisker $
  */
 public class PackageTargetPainter
 {
@@ -32,11 +32,13 @@ public class PackageTargetPainter
     private static Composite oldComposite;
     private int tabWidth;
     
+    private GraphPainterStdImpl graphPainterStdImpl;
     
     /**
      * 
      */
-    public PackageTargetPainter() {
+    public PackageTargetPainter(GraphPainterStdImpl graphPainterStdImpl){
+    	this.graphPainterStdImpl = graphPainterStdImpl;
     }
     
     public void paint(Graphics2D g, Target target){
@@ -78,14 +80,14 @@ public class PackageTargetPainter
 
     private void drawUMLBorders(Graphics2D g, PackageTarget packageTarget)
     {
-        
-        g.setStroke((packageTarget.isSelected() ? selectedStroke : normalStroke));
+        boolean isSelected = packageTarget.isSelected() && graphPainterStdImpl.isGraphEditorInFocus();
+        g.setStroke((isSelected ? selectedStroke : normalStroke));
 
         g.drawRect(0, 0, tabWidth, TAB_HEIGHT); //draw the tab
         g.drawRect(0, TAB_HEIGHT, packageTarget.getWidth(), 
                    packageTarget.getHeight() - TAB_HEIGHT); // draw Package
 
-        if(!packageTarget.isSelected())
+        if(!isSelected)
             return;
 
         g.setStroke(normalStroke);

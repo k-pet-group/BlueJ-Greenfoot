@@ -9,18 +9,19 @@ import bluej.pkgmgr.target.ReadmeTarget;
 /**
  * Paints a ReadmeTarget
  * @author fisker
- * @version $Id: ReadmeTargetPainter.java 2483 2004-03-31 09:13:31Z fisker $
+ * @version $Id: ReadmeTargetPainter.java 2590 2004-06-11 11:29:14Z fisker $
  */
 public class ReadmeTargetPainter
 {
     static final int CORNER_SIZE = 10;
     ReadmeTarget readmeTarget;
     Graphics2D g;
+    private GraphPainterStdImpl graphPainterStdImpl;
     /**
      * 
      */
-    public ReadmeTargetPainter() {
-       
+    public ReadmeTargetPainter(GraphPainterStdImpl graphPainterStdImpl){
+    	this.graphPainterStdImpl = graphPainterStdImpl;
     }
     
     public void paint(Graphics2D g, Target target)
@@ -46,7 +47,8 @@ public class ReadmeTargetPainter
 
         Polygon p = new Polygon(xpoints, ypoints, 5);
 
-        int thickness = (readmeTarget.isSelected()) ? 2 : 1;
+        boolean isSelected = readmeTarget.isSelected() && graphPainterStdImpl.isGraphEditorInFocus();
+        int thickness = (isSelected) ? 2 : 1;
 
         g.setColor(Color.white);
         g.fill(p);

@@ -27,7 +27,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2578 2004-06-09 11:43:24Z fisker $
+ * @version $Id: ObjectWrapper.java 2590 2004-06-11 11:29:14Z fisker $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -365,7 +365,7 @@ public class ObjectWrapper extends JComponent
         g.setColor(bg);
         g.fillRoundRect(x,y,w-shad,h-shad,corner,corner);
         g.setColor( Color.BLACK );
-        g.setStroke((isSelected ? selectedStroke : unselectedStroke));
+        g.setStroke((isSelected && ob.getComponent().hasFocus() ? selectedStroke : unselectedStroke));
         g.drawRoundRect(x,y,w-shad, h-shad,corner,corner);
     }
 

@@ -10,7 +10,7 @@ import bluej.utility.Utility;
 /**
  * Paints a ClassTarget
  * @author fisker
- * @version $Id: ClassTargetPainter.java 2557 2004-05-27 11:06:31Z polle $
+ * @version $Id: ClassTargetPainter.java 2590 2004-06-11 11:29:14Z fisker $
  */
 
 public class ClassTargetPainter
@@ -30,11 +30,14 @@ public class ClassTargetPainter
     private static final AlphaComposite alphaComposite = GraphPainterStdImpl.alphaComposite;
     private static Composite oldComposite;
     
+    private GraphPainterStdImpl graphPainterStdImpl;
+    
     /**
      * Construct the ClassTargetPainter 
      *
      */
-    public ClassTargetPainter(){
+    public ClassTargetPainter(GraphPainterStdImpl graphPainterStdImpl){
+    	this.graphPainterStdImpl = graphPainterStdImpl;
     }
     
     public void paint(Graphics2D g, Target target) {
@@ -196,7 +199,7 @@ public class ClassTargetPainter
         int width = classTarget.getWidth();
         int thickness = 1; // default thickness
         
-        if (classTarget.isSelected()){
+        if (classTarget.isSelected() && graphPainterStdImpl.isGraphEditorInFocus()){
             thickness = 2; // thickness of borders when class is selected
             // Draw lines showing resize tag
             g.drawLine(width - HANDLE_SIZE - 2, height,	

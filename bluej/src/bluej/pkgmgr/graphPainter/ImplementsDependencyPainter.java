@@ -11,7 +11,7 @@ import bluej.pkgmgr.target.DependentTarget;
 /**
  * Paintes ImplementsDependencies
  * @author fisker
- * @version $Id: ImplementsDependencyPainter.java 2587 2004-06-10 14:11:21Z polle $
+ * @version $Id: ImplementsDependencyPainter.java 2590 2004-06-11 11:29:14Z fisker $
  */
 public class ImplementsDependencyPainter implements DependencyPainter
 {
@@ -35,6 +35,11 @@ public class ImplementsDependencyPainter implements DependencyPainter
     private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
     private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
     
+    private GraphPainterStdImpl graphPainterStdImpl;
+    
+    public ImplementsDependencyPainter(GraphPainterStdImpl graphPainterStdImpl){
+    	this.graphPainterStdImpl = graphPainterStdImpl;
+    }
     
     public void paint(Graphics2D g, Dependency dependency) {
         if (!(dependency instanceof ImplementsDependency)){
@@ -44,7 +49,8 @@ public class ImplementsDependencyPainter implements DependencyPainter
         
         ImplementsDependency d = (ImplementsDependency) dependency;
         Stroke dashedStroke, normalStroke;
-        if (d.isSelected()) 
+        boolean isSelected = d.isSelected() && graphPainterStdImpl.isGraphEditorInFocus();
+        if (isSelected) 
         {
             dashedStroke = dashedSelected;
             normalStroke = normalSelected;            

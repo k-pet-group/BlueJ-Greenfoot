@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
 /**
  * Paints a Graph using TargetPainters
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: GraphPainterStdImpl.java 2590 2004-06-11 11:29:14Z fisker $
  */
 public class GraphPainterStdImpl implements GraphPainter
 {
@@ -36,20 +36,24 @@ public class GraphPainterStdImpl implements GraphPainter
     static AlphaComposite alphaComposite = 
         AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
     
-    private static final ClassTargetPainter classTargetPainter = new ClassTargetPainter();
-    private static final ReadmeTargetPainter readmePainter = new ReadmeTargetPainter();
-    private static final PackageTargetPainter packageTargetPainter = new PackageTargetPainter();
-    private static final ExtendsDependencyPainter extendsDependencyPainter = new ExtendsDependencyPainter();
-    private static final ImplementsDependencyPainter implementsDependencyPainter = new ImplementsDependencyPainter();
-    private static final UsesDependencyPainter usesDependencyPainter = new UsesDependencyPainter();
+    private final ClassTargetPainter classTargetPainter = new ClassTargetPainter(this);
+    private final ReadmeTargetPainter readmePainter = new ReadmeTargetPainter(this);
+    private final PackageTargetPainter packageTargetPainter = new PackageTargetPainter(this);
+    private final ExtendsDependencyPainter extendsDependencyPainter = new ExtendsDependencyPainter(this);
+    private final ImplementsDependencyPainter implementsDependencyPainter = new ImplementsDependencyPainter(this);
+    private final UsesDependencyPainter usesDependencyPainter = new UsesDependencyPainter(this);
 	private static final GraphPainterStdImpl singleton = new GraphPainterStdImpl();
+	
+	private GraphEditor graphEditor;
 	
     private GraphPainterStdImpl(){} // prevent instantiation
     
     /**
      * Paint 'graph' on 'g'
      */
-    public void paint(Graphics2D g, Graph graph){
+    public void paint(Graphics2D g, GraphEditor graphEditor){
+    	this.graphEditor = graphEditor;
+    	Graph graph = graphEditor.getGraph();
         Edge edge;
         Vertex vertex;
         Target target;
@@ -133,7 +137,7 @@ public class GraphPainterStdImpl implements GraphPainter
         getDependencyPainter(dependency).paint(g, dependency);
     }
     
-    public static DependencyPainter getDependencyPainter(Dependency dependency){
+    public DependencyPainter getDependencyPainter(Dependency dependency){
         if (dependency instanceof ImplementsDependency){
             return implementsDependencyPainter;
         }
@@ -209,6 +213,9 @@ public class GraphPainterStdImpl implements GraphPainter
        }
     }
     
+    public boolean isGraphEditorInFocus(){
+    	return graphEditor.hasFocus();
+    }
 
     /**
      * Get reference to the singleton GraphPainterStdImpl

@@ -5,9 +5,9 @@ import java.awt.Graphics2D;
 /**
  * Interface for GraphPainters
  * @author fisker
- * @version $Id: GraphPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ * @version $Id: GraphPainter.java 2590 2004-06-11 11:29:14Z fisker $
  */
 public interface GraphPainter
 {
-    void paint(Graphics2D g, Graph graph);
+    void paint(Graphics2D g, GraphEditor graphEditor);
 }
