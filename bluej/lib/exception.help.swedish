@@ -1,16 +1,16 @@
-Undantag
+Exception
 Det här är ett generellt undantag som bara 
 anger att något har gått fel. Jag har ingen
 aning om vad...
 
-NullPekarUndantag (NullPointerException)
+NullPointerException
 Du försökte accessa ett objekt (antingen ett fält
 i ett objekt eller ett objekts meddelande). Det gick
 inte på grund av att referensen du använde för att 
 nå objektet var 'null'. Till exempel: Du skrev 
 "thing.print()", and "thing" var 'null'.
 
-AritmetisktUndantag (ArithmeticException)
+ArithmeticException
 Något gick fel vid en aritmetisk operation,
 tex. division med 0.
 
