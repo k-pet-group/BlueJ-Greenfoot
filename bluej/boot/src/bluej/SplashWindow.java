@@ -3,7 +3,6 @@ package bluej;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import java.io.File;
 import java.net.URL;
 
 /**
@@ -11,7 +10,7 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2174 2003-08-26 11:28:23Z mik $
+ * @version $Id: SplashWindow.java 2280 2003-11-05 17:42:13Z mik $
  */
 
 public class SplashWindow extends JWindow

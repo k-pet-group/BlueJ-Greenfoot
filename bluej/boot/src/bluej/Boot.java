@@ -1,11 +1,8 @@
 package bluej;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.ArrayList;
-
-import sun.misc.*;
 
 /**
  * This class is the BlueJ boot loader. bluej.Boot is the class that should be 
@@ -17,7 +14,7 @@ import sun.misc.*;
  * @author  Andrew Patterson
  * @author  Damiano Bolla
  * @author  Michael Kolling
- * @version $Id: Boot.java 2261 2003-11-05 02:48:00Z ajp $
+ * @version $Id: Boot.java 2280 2003-11-05 17:42:13Z mik $
  */
 public class Boot
 {
