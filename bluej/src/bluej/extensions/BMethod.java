@@ -14,7 +14,7 @@ import java.lang.reflect.Modifier;
  * This could be a method, or constructor.
  *
  * @author Clive Miller
- * @version $Id: BMethod.java 1543 2002-11-29 13:49:49Z ajp $
+ * @version $Id: BMethod.java 1547 2002-11-29 14:10:17Z damiano $
  * @see bluej.extensions.BObject#getMethod(java.lang.String,java.lang.Class[])
  * @see bluej.extensions.BObject#getMethods(boolean)
  * @see bluej.extensions.BClass#getConstructor(java.lang.Class[])
@@ -146,22 +146,21 @@ public class BMethod
     {
         invoker = new DirectInvoker (pkg.getRealPackage(), view, instanceName);
         DebuggerObject result = invoker.invoke (args);
-// result.getInstanceFields(false).get(0);
-/*                 if (resultName != null && result.fieldIsObject (0)) {
-                    */
+
         if (result == null) return null;
 
         String resultName = invoker.getResultName();
-        if (newObjectName != null && view instanceof ConstructorView) {
+        if ( view instanceof ConstructorView) {
             PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.getRealPackage());
             ObjectWrapper wrapper =
                     new ObjectWrapper(pmf, pmf.getObjectBench(), result.getInstanceFieldObject(0), resultName);
             pmf.getObjectBench().add(wrapper);
-            // XXX
+            /* XXX To be fixed
             if (!newObjectName.equals (resultName)) {
                 Debugger.debugger.addObjectToScope(pmf.getPackage().getId(), newObjectName,
                                                     result );
             }
+*/
         }
         return new BField (pkg, result.getObjectReference(), result.getObjectReference().referenceType().fieldByName (resultName));
     }
