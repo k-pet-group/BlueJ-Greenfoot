@@ -20,6 +20,11 @@ public abstract class CallableView extends MemberView
      * @returns a boolean indicating whether this method has parameters
      */
     public abstract boolean hasParameters();
+    
+    /**
+     * @returns a boolean indicating whether this method uses var args
+     */
+    public abstract boolean isVarArgs();
 
     /**
      * Build the signature string. Format: name(type,type,type)
@@ -29,7 +34,11 @@ public abstract class CallableView extends MemberView
         sb.append(name);
         sb.append("(");
         for (int j = 0; j < params.length; j++) {
-            sb.append(View.getTypeName(params[j]));
+            String typeName = View.getTypeName(params[j]);
+            if(isVarArgs() && j==(params.length-1)) {
+                typeName = createVarArg(typeName);
+            }                
+            sb.append(typeName);
             if (j < (params.length - 1))
                 sb.append(",");
         }
@@ -47,7 +56,11 @@ public abstract class CallableView extends MemberView
         sb.append("(");
         for (int j = 0; j < params.length; j++) {
             if (includeTypeNames) {
-                sb.append(View.getTypeName(params[j]));
+                String typeName = View.getTypeName(params[j]);
+                if(isVarArgs() && j==(params.length-1)) {
+                    typeName = createVarArg(typeName);
+                }                
+                sb.append(typeName);
                 sb.append(" ");
             }
             String paramname = null;
@@ -55,7 +68,11 @@ public abstract class CallableView extends MemberView
                 paramname = getComment().getParamName(j);
             else if (!includeTypeNames) {
                 //Debug.message("substitute type for name");
-                paramname = View.getTypeName(params[j]);
+                String typeName = View.getTypeName(params[j]);
+                if(isVarArgs() && j==(params.length-1)) {
+                    typeName = createVarArg(typeName);
+                }             
+                paramname = typeName;
             }
             if (paramname != null) {
                 sb.append(paramname);
@@ -65,6 +82,17 @@ public abstract class CallableView extends MemberView
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    /**
+     * Changes an array type name (Object[]) to a var arg (Object ...)
+     * 
+     * @param typeName The name of the type
+     * @return A var arg representation of the type
+     */
+    private String createVarArg(String typeName) {
+        String lastArrayStripped = typeName.substring(0,typeName.length()-2);
+        return lastArrayStripped + " ...";        
     }
 
     /**

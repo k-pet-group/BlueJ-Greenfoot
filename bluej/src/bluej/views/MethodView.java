@@ -1,12 +1,13 @@
 package bluej.views;
 
 import java.lang.reflect.*;
+import bluej.Config;
 
 /**
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2559 2004-05-27 12:03:26Z polle $
+ *  @version $Id: MethodView.java 2560 2004-05-27 14:32:19Z polle $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -113,6 +114,23 @@ public class MethodView extends CallableView implements Comparable
         }
         return false;
     }
+    
+    /**
+     * Whether this method has a var arg.
+     * 
+     * Due to a bug in java 1.5 this doesn't work right now. For testing, this
+     * method will return true if the method name ends on VarArgs and java 1.5
+     * is used
+     */
+    public boolean isVarArgs() {
+        if (Config.isJava15()) {
+            return getName().endsWith("VarArgs");
+        }
+        return false;
+        //System.out.println(" isVarArgs 1.5: " + Config.isJava15() + "
+        // method.isVarArgs" + method.isVarArgs());
+        //return (Config.isJava15() && method.isVarArgs());
+    }
 
     /**
      * Returns a Class object that represents the formal return type
@@ -123,6 +141,8 @@ public class MethodView extends CallableView implements Comparable
             returnType = View.getView(method.getReturnType());
         return returnType;
     }
+    
+    
 
     // ==== Comparable interface ====
     /**

@@ -1,12 +1,13 @@
 package bluej.views;
 
 import java.lang.reflect.*;
+import bluej.Config;
 import bluej.utility.JavaNames;
 
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 2559 2004-05-27 12:03:26Z polle $
+ * @version $Id: ConstructorView.java 2560 2004-05-27 14:32:19Z polle $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -74,5 +75,16 @@ public final class ConstructorView extends CallableView
      */
     public Class[] getParameters() {
         return cons.getParameterTypes();
+    }
+
+    /**
+     * Whether this method has a var arg.
+     * 
+     * Due to a bug in java 1.5 this doesn't work right now, and it always returns false.
+     * 
+     */
+    public boolean isVarArgs() {
+        //System.out.println("  isVarArgs  1.5: " + Config.isJava15() + " cons.isVarArgs" +  cons.isVarArgs());
+        return (Config.isJava15() && cons.isVarArgs());
     }
 }
