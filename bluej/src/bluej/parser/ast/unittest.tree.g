@@ -1,13 +1,14 @@
 header {
-    package bluej.parser.ast;
+    package bluej.parser.ast.gen;
     
     import bluej.parser.SourceSpan;
     import bluej.parser.SourceLocation;
-    
+	import bluej.parser.ast.LocatableAST;
+	    
     import java.util.*;
     import antlr.BaseAST;
 }
-
+ 
 /** 
  * Author: (see java.g preamble)
  * Author: Andrew Patterson
@@ -306,7 +307,7 @@ objBlock
 	;
 
 ctorDef
-	:	#(CTOR_DEF modifiers methodHead ctorSList)
+	:	#(CTOR_DEF modifiers methodHead (slist)?)
 	;
 
 methodDecl
@@ -388,11 +389,7 @@ arrayInitializer
 	;
 
 methodHead
-	:	i:IDENT^ #(PARAMETERS (pd:parameterDef)* ) (throwsClause)?
-/*        {
-           #methodHead = #(i, methodHead);
-        } */
-
+	:	i:IDENT^ #( PARAMETERS (pd:parameterDef)* ) (throwsClause)?
 	;
 
 throwsClause
@@ -407,10 +404,6 @@ identifier
 identifierStar
 	:	IDENT
 	|	#( DOT identifier (STAR|IDENT) )
-	;
-
-ctorSList
-	:	#( SLIST (ctorCall)? (stat)* )
 	;
 
 slist
@@ -438,6 +431,8 @@ stat:	typeDefinition
 	|	#("synchronized" expression stat)
 	|	tryBlock
 	|	slist // nested SLIST
+    // uncomment to make assert JDK 1.4 stuff work
+    // |   #("assert" expression (expression)?)
 	|	EMPTY_STAT
 	;
 
@@ -522,6 +517,7 @@ primaryExpression
 		)
 	|	arrayIndex
 	|	#(METHOD_CALL primaryExpression elist)
+	|	ctorCall
 	|	#(TYPECAST typeSpec expr)
 	|   newExpression
 	|   constant
@@ -543,7 +539,7 @@ ctorCall
 	;
 
 arrayIndex
-	:	#(INDEX_OP primaryExpression expression)
+	:	#(INDEX_OP expr expression)
 	;
 
 constant

@@ -1,6 +1,6 @@
 // $ANTLR 2.7.2: "java.g" -> "JavaLexer.java"$
 
-    package bluej.parser.ast;
+    package bluej.parser.ast.gen;
 
 public interface JavaTokenTypes {
 	int EOF = 1;

@@ -6,6 +6,8 @@ import antlr.collections.*;
 import antlr.debug.misc.*;
 import java.awt.event.*;
 
+import bluej.parser.ast.gen.*;
+
 public class JavaParser
 {
   private ASTFactory factory;

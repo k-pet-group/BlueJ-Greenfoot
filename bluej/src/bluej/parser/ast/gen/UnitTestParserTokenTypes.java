@@ -1,10 +1,11 @@
 // $ANTLR 2.7.2: "unittest.tree.g" -> "UnitTestParser.java"$
 
-    package bluej.parser.ast;
+    package bluej.parser.ast.gen;
     
     import bluej.parser.SourceSpan;
     import bluej.parser.SourceLocation;
-    
+	import bluej.parser.ast.LocatableAST;
+	    
     import java.util.*;
     import antlr.BaseAST;
 

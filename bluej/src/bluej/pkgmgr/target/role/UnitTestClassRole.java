@@ -12,6 +12,7 @@ import bluej.Config;
 import bluej.debugger.*;
 import bluej.editor.Editor;
 import bluej.parser.ast.*;
+import bluej.parser.ast.gen.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
@@ -22,7 +23,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2241 2003-10-31 02:39:38Z ajp $
+ * @version $Id: UnitTestClassRole.java 2249 2003-11-04 05:02:18Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {

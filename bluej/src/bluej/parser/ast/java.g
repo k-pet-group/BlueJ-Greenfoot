@@ -1,5 +1,5 @@
 header {
-    package bluej.parser.ast;
+    package bluej.parser.ast.gen;
 }
 
 /** Java 1.3 Recognizer
@@ -20,6 +20,7 @@ header {
  *      Peter Williams      pete.williams@sun.com
  *      Allan Jacobs        Allan.Jacobs@eng.sun.com
  *      Steve Messick       messick@redhills.com
+ *      John Pybus			john@pybus.org
  *
  * Version 1.00 December 9, 1997 -- initial release
  * Version 1.01 December 10, 1997
@@ -63,9 +64,9 @@ header {
  *		java.tree.g didn't handle the expression of synchronized
  *		statements.
  * Version 1.18 (August 12, 2001)
- *      Terence updated to Java 2 Version 1.3 by observing/combining work of
- *      Allan Jacobs and Steve Messick.  Handles 1.3 src.
- *		Summary:
+ *      	Terence updated to Java 2 Version 1.3 by
+ *		observing/combining work of Allan Jacobs and Steve
+ *		Messick.  Handles 1.3 src.  Summary:
  *		o  primary didn't include boolean.class kind of thing
  *      o  constructor calls parsed explicitly now:
  * 		   see explicitConstructorInvocation
@@ -82,14 +83,30 @@ header {
  *		   Using Unicode charVocabulay makes code file big, but only
  *		   in the bitsets at the end. I need to make ANTLR generate
  *		   unicode bitsets more efficiently.
+ * Version 1.19 (April 25, 2002)
+ *		Terence added in nice fixes by John Pybus concerning floating
+ *		constants and problems with super() calls.  John did a nice
+ *		reorg of the primary/postfix expression stuff to read better
+ *		and makes f.g.super() parse properly (it was METHOD_CALL not
+ *		a SUPER_CTOR_CALL).  Also:
  *
- * class Test {
- *   public static void main( String args[] ) {
- *     if (boolean.class.equals(boolean.class)) {
- *       System.out.println("works");
- *     }
- *   }
- * }
+ *		o  "finally" clause was a root...made it a child of "try"
+ *		o  Added stuff for asserts too for Java 1.4, but *commented out*
+ *		   as it is not backward compatible.
+ *
+ * Version 1.20 (October 27, 2002)
+ *
+ *      Terence ended up reorging John Pybus' stuff to
+ *      remove some nondeterminisms and some syntactic predicates.
+ *      Note that the grammar is stricter now; e.g., this(...) must
+ *	be the first statement.
+ *
+ *      Trinary ?: operator wasn't working as array name:
+ *          (isBig ? bigDigits : digits)[i];
+ *
+ *      Checked parser/tree parser on source for
+ *          Resin-2.0.5, jive-2.1.1, jdk 1.3.1, Lucene, antlr 2.7.2a4,
+ *	    and the 110k-line jGuru server source.
  *
  * This grammar is in the PUBLIC DOMAIN
  */
@@ -122,8 +139,8 @@ tokens {
     {
         // we may want to use this grammar with different AST types
         // so we make sure it works if the nodes are not LocatableAST
-        if (h instanceof LocatableAST)
-            ((LocatableAST) h).addImportantToken(t);
+        if (h instanceof bluej.parser.ast.LocatableAST)
+            ((bluej.parser.ast.LocatableAST) h).addImportantToken(t);
     }
 }
 	
@@ -385,34 +402,17 @@ field!
 
 constructorBody
     :   lc:LCURLY^ {#lc.setType(SLIST);}
-		// Predicate might be slow but only checked once per constructor def
-		// not for general methods.
-		(	(explicitConstructorInvocation) => explicitConstructorInvocation
-		|
-		)
+            ( options { greedy=true; } : explicitConstructorInvocation)?
         (statement)*
         RCURLY!
     ;
 
+/** Catch obvious constructor calls, but not the expr.super(...) calls */
 explicitConstructorInvocation
-    :   (	options {
-				// this/super can begin a primaryExpression too; with finite
-				// lookahead ANTLR will think the 3rd alternative conflicts
-				// with 1, 2.  I am shutting off warning since ANTLR resolves
-				// the nondeterminism by correctly matching alts 1 or 2 when
-				// it sees this( or super(
-				generateAmbigWarnings=false;
-			}
 		:	"this"! lp1:LPAREN^ argList RPAREN! SEMI!
 			{#lp1.setType(CTOR_CALL);}
-
 	    |   "super"! lp2:LPAREN^ argList RPAREN! SEMI!
 			{#lp2.setType(SUPER_CTOR_CALL);}
-
-			// (new Outer()).super()  (create enclosing instance)
-		|	primaryExpression DOT! "super"! lp3:LPAREN^ argList RPAREN! SEMI!
-			{#lp3.setType(SUPER_CTOR_CALL);}
-		)
     ;
 
 variableDefinitions[AST mods, AST t]
@@ -601,10 +601,12 @@ statement
 	// synchronize a statement
 	|	"synchronized"^ LPAREN! expression RPAREN! compoundStatement
 
+	// asserts (uncomment if you want 1.4 compatibility)
+	// |	"assert"^ expression ( COLON! expression )? SEMI!
+
 	// empty statement
 	|	s:SEMI {#s.setType(EMPTY_STAT);}
 	;
-
 
 casesGroup
 	:	(	// CONFLICT: to which case group do the statements bind?
@@ -612,7 +614,7 @@ casesGroup
 			//           many "case"/"default" labels together then
 			//           follows them with the statements
 			options {
-				warnWhenFollowAmbig = false;
+				greedy = true;
 			}
 			:
 			aCase
@@ -654,9 +656,12 @@ forIter
 tryBlock
 	:	"try"^ compoundStatement
 		(handler)*
-		( "finally"^ compoundStatement )?
+		( finallyClause )?
 	;
 
+finallyClause
+	:	"finally"^ compoundStatement
+	;
 
 // an exception handler
 handler
@@ -844,62 +849,100 @@ unaryExpressionNotPlusMinus
 
 // qualified names, array expressions, method invocation, post inc/dec
 postfixExpression
-	:	primaryExpression // start with a primary
+	:
+    /*
+    "this"! lp1:LPAREN^ argList RPAREN!
+		{#lp1.setType(CTOR_CALL);}
 
-		(	// qualified id (id.id.id.id...) -- build the name
-			DOT^ ( IDENT
-				| "this"
-				| "class"
-				| newExpression
-				| "super" // ClassName.super.field
-				)
-			// the above line needs a semantic check to make sure "class"
-			// is the _last_ qualifier.
+    |   "super"! lp2:LPAREN^ argList RPAREN!
+		{#lp2.setType(SUPER_CTOR_CALL);}
+    |
+    */
+        primaryExpression
 
-			// allow ClassName[].class
-		|	( lbc:LBRACK^ {#lbc.setType(ARRAY_DECLARATOR);} RBRACK! )+
-			DOT^ "class"
+		(
+            /*
+            options {
+				// the use of postfixExpression in SUPER_CTOR_CALL adds DOT
+				// to the lookahead set, and gives loads of false non-det
+				// warnings.
+				// shut them off.
+				generateAmbigWarnings=false;
+			}
+		:	*/
+            DOT^ IDENT
+			(	lp:LPAREN^ {#lp.setType(METHOD_CALL);}
+				argList
+				RPAREN!
+			)?
+		|	DOT^ "this"
 
-			// an array indexing operation
-		|	lb:LBRACK^ {#lb.setType(INDEX_OP);} expression RBRACK!
-
-			// method invocation
-			// The next line is not strictly proper; it allows x(3)(4) or
-			//  x[2](4) which are not valid in Java.  If this grammar were used
-			//  to validate a Java program a semantic check would be needed, or
-			//   this rule would get really ugly...
-			// It also allows ctor invocation like super(3) which is now
-			// handled by the explicit constructor rule, but it would
-			// be hard to syntactically prevent ctor calls here
-		|	lp:LPAREN^ {#lp.setType(METHOD_CALL);}
+		|	DOT^ "super"
+            (   // (new Outer()).super()  (create enclosing instance)
+                lp3:LPAREN^ argList RPAREN!
+                {#lp3.setType(SUPER_CTOR_CALL);}
+			|   DOT^ IDENT
+                (	lps:LPAREN^ {#lps.setType(METHOD_CALL);}
 				argList
 			RPAREN!
+                )?
+            )
+		|	DOT^ newExpression
+		|	lb:LBRACK^ {#lb.setType(INDEX_OP);} expression RBRACK!
 		)*
 
-		// possibly add on a post-increment or post-decrement.
+		(   // possibly add on a post-increment or post-decrement.
 		// allows INC/DEC on too much, but semantics can check
-		(	in:INC^ {#in.setType(POST_INC);}
+			in:INC^ {#in.setType(POST_INC);}
 	 	|	de:DEC^ {#de.setType(POST_DEC);}
-		|	// nothing
-		)
+		)?
 	;
 
 // the basic element of an expression
 primaryExpression
-	:	IDENT
+	:	identPrimary ( options {greedy=true;} : DOT^ "class" )?
 	|	constant
 	|	"true"
 	|	"false"
-	|	"this"
 	|	"null"
 	|	newExpression
-	|	LPAREN! assignmentExpression RPAREN!
+	|	"this"
 	|	"super"
+	|	LPAREN! assignmentExpression RPAREN!
 		// look for int.class and int[].class
 	|	builtInType 
 		( lbt:LBRACK^ {#lbt.setType(ARRAY_DECLARATOR);} RBRACK! )*
 		DOT^ "class"
 	;
+
+/** Match a, a.b.c refs, a.b.c(...) refs, a.b.c[], a.b.c[].class,
+ *  and a.b.c.class refs.  Also this(...) and super(...).  Match
+ *  this or super.
+ */
+identPrimary
+	:	IDENT
+		(
+            options {
+				// .ident could match here or in postfixExpression.
+				// We do want to match here.  Turn off warning.
+				greedy=true;
+			}
+		:	DOT^ IDENT
+		)*
+		(
+            options {
+				// ARRAY_DECLARATOR here conflicts with INDEX_OP in
+				// postfixExpression on LBRACK RBRACK.
+				// We want to match [] here, so greedy.  This overcomes
+                // limitation of linear approximate lookahead.
+				greedy=true;
+		    }
+		:   ( lp:LPAREN^ {#lp.setType(METHOD_CALL);} argList RPAREN! )
+		|	( options {greedy=true;} :
+              lbc:LBRACK^ {#lbc.setType(ARRAY_DECLARATOR);} RBRACK!
+            )+
+		)?
+    ;
 
 /** object instantiation.
  *  Trees are built as illustrated by the following input/tree pairs:
@@ -1086,7 +1129,7 @@ WS	:	(	' '
 SL_COMMENT
 	:	"//"
 		(~('\n'|'\r'))* ('\n'|'\r'('\n')?)
-		{ newline();}
+		{$setType(Token.SKIP); newline();}
 	;
 
 // multiple-line comments
@@ -1110,7 +1153,7 @@ ML_COMMENT
 		|	~('*'|'\n'|'\r')
 		)*
 		"*/"
-		{}
+		{$setType(Token.SKIP);}
 	;
 
 
@@ -1145,12 +1188,12 @@ ESC
 		|	'\''
 		|	'\\'
 		|	('u')+ HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT 
-		|	('0'..'3')
+		|	'0'..'3'
 			(
 				options {
 					warnWhenFollowAmbig = false;
 				}
-			:	('0'..'7')
+			:	'0'..'7'
 				(	
 					options {
 						warnWhenFollowAmbig = false;
@@ -1158,12 +1201,12 @@ ESC
 				:	'0'..'7'
 				)?
 			)?
-		|	('4'..'7')
+		|	'4'..'7'
 			(
 				options {
 					warnWhenFollowAmbig = false;
 				}
-			:	('0'..'9')
+			:	'0'..'7'
 			)?
 		)
 	;
@@ -1205,7 +1248,7 @@ NUM_INT
                 	_ttype = NUM_FLOAT;
 				}
 				else {
-                	_ttype = NUM_DOUBLE;
+                	_ttype = NUM_DOUBLE; // assume double
 				}
 				}
             )?
@@ -1240,7 +1283,7 @@ NUM_INT
                 _ttype = NUM_FLOAT;
 			}
             else {
-                _ttype = NUM_DOUBLE;
+	           	_ttype = NUM_DOUBLE; // assume double
 			}
 			}
         )?
