@@ -6,7 +6,7 @@
  * Date:    January 1999
  */
 
-class Student extends Person
+class Student3 extends Person
 {
 	private String SID;    // student ID number
 

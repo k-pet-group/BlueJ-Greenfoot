@@ -28,7 +28,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: Invoker.java 510 2000-05-25 02:43:49Z mik $
  */
 
 public class Invoker extends Thread
@@ -383,7 +383,7 @@ public class Invoker extends Thread
         try {
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, null);
             DebuggerClassLoader loader = pkg.getRemoteClassLoader();
-            String shellClassName = pkg.getQualifiedName() + "." + shellName;
+            String shellClassName = pkg.getQualifiedName(shellName);
             Debugger.debugger.startClass(loader, shellClassName, pkg);
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
 
