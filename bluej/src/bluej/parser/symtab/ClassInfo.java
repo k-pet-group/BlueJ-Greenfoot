@@ -288,22 +288,6 @@ public final class ClassInfo
         }
     }
     
-    /**
-     * set type parameter selections for this class
-     */
-    public void setTypeParameterSelections(List selections)
-    {
-        typeParameterSelections = selections;
-        typeParameterTexts = new ArrayList();
-
-        Iterator it = typeParameterSelections.iterator();
-        while(it.hasNext()) {
-            Selection s = (Selection)it.next();
-            typeParameterTexts.add(s.getText());
-        }
-    }
-    
-
     public List getTypeParameterTexts()
     {
         return typeParameterTexts;
@@ -395,17 +379,17 @@ public final class ClassInfo
         return implemented;
     }
 
-    public List getTypeParameterSelections()
-    {
-        return typeParameterSelections;
-    }
-    
-    public void setTypeParameterInsert(Selection s)
+    public void setTypeParameter(Selection s)
     {
         typeParameterSelection = s;
     }
-
-    public Selection getTypeParameterSelection()
+    
+    public boolean hasTypeParameter()
+    {
+        return (typeParameterSelection != null);
+    }
+    
+    public Selection getTypeParameter()
     {
         return typeParameterSelection;
     }
