@@ -24,7 +24,7 @@ import java.util.Vector;
  * 
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: GreenfootWorld.java 3297 2005-01-20 03:52:20Z davmac $
  */
 public class GreenfootWorld extends Observable
 {
@@ -454,6 +454,11 @@ public class GreenfootWorld extends Observable
             List list = (List) map.get(object.getClass());
             if (list != null) {
                 list.remove(object);
+                if (list.isEmpty()) {
+                    map.remove(object.getClass());
+                    if (map.isEmpty())
+                        world[oldX][oldY] = null;
+                }
             }
         }
 
