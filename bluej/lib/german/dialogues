@@ -194,13 +194,9 @@ In diesem Verzeichnis wurden keine Java-Sourcedateien
 gefunden.
 
 duplicate-name
-Eine Klasse mit diesem Namen besteht in diesem 
-Paket bereits. Sie können keine zwei Klassen
+Eine Klasse oder ein Paket mit diesem Namen existiert
+bereits in diesem Paket. Sie können keine zwei Klassen
 mit demselben Namen haben.
-
-duplicate-package-name
-Ein Paket mit diesem Namen besteht bereits in 
-diesem Projekt.
 
 error-in-import
 Beim Versuch, die Datei zu importieren, ist ein 
@@ -248,7 +244,7 @@ applet-height-width
 Höhe und Breite des Applets müssen angegeben werden.
 
 cannot-read-help
-Hilfedatei kann nicht gelsen werden:
+Hilfedatei kann nicht gelesen werden:
 
 not-yet-implemented
 Leider nocht nicht implementiert.
@@ -316,6 +312,14 @@ verschieben wollen, müssen sie das Ziel-Paket
 zuerst erstellen. Die "package"-Anweisung wurde
 in ihre ursprüngliche Form zurückversetzt.
 
+package-name-clash
+Sie haben die "package"-Anweisung auf ein Paket
+geändert, das bereits eine Klasse oder ein Paket
+dieses Namens enthält. Wenn Sie die Klasse verschoben
+wird, werden die existierende Klasse oder das Paket 
+überschrieben. Daher wurde die "package"-Anweisung
+in ihre ursprüngliche Form zurückversetzt.
+
 package-name-changed
 Sie haben die "package"-Anweisung geändert, die
 für Java angibt, in welchem Paket sich die
@@ -336,6 +340,26 @@ null
 classmgr-changes-no-effect
 Ihre Änderungen an den Klassenbibliotheken werden
 erst beim nächsten Starten von BlueJ wirksam.
+
+unittest-new-test-method
+Benennen Sie den Test.
+Die Aufzeichnung wird im Anschluss gestartet.
+Neue Testmethode
+null
+
+getobject-new-name
+Geben Sie den Namen für das neue Objekt ein.
+Neuer Objektname
+null
+
+unittest-fixture-present
+Diese Testklasse hat bereits einen Objektzustand gespeichert.
+Wenn Sie fortfahren, wird die Definition ersetzt und 
+möglicherweise unbrauchbar.
+Wollen Sie fortfahren?
+Ersetzen
+Abbrechen
+null
 
 # editor:
 #########

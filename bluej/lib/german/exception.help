@@ -64,6 +64,32 @@ einer Iteration zulässig ist, besteht im Entfernen
 von Elementen mit der "remove"-Methode des Iterators
 (NICHT mit der "remove"-Methode der Sammlung selbst).
 
+AssertionError*
+Eine Zusicherung hat versagt. Das heißt, dass der 
+Ausdruck in der assert-Anweisung
+    assert(assertion-expression)
+zu false ausgewertet wurde. Die Zusicherung wurde 
+wahrscheinlich eingefügt, um sicherzustellen, dass 
+der geprüfte Ausdruck an dieser Stelle immer wahr ist,
+wohingegen ein Versagen der Zusicherung auf einen Fehler
+hindeutet. Die eigentliche Ursache des Fehlers hängt vom
+Programm ab. Es sollte näher untersucht werden, warum der 
+Ausdruck zu false ausgewertet wurde.
+
+ClassNotFoundException*
+Eine für die Ausführung der Anwendung notwendige Klasse
+wurde nicht gefunden. Es scheint, dass sie noch gefunden
+wurde, als die Anwendung übersetzt wurde, aber nun ist
+sie verschwunden. Möglicherweise ist die Java-Installation
+nicht richtig konfiguriert (falls die fehlende Klasse eine
+Systemklasse ist) oder das Projekt ist beschädigt (einige
+.class-Dateien gingen irgendwie verloren oder wurden 
+beschädigt). Versuchen Sie, das Projekt komplett neu zu
+übersetzen. Falls das Problem bestehen bleibt, probieren
+Sie es mit anderen Projekten. Falls diese auch nicht 
+funktionieren, muss möglicherweise das JDK neu installiert
+werden.
+
 ArrayStoreException*
 Leider ist keine Hilfe verfügbar.
 

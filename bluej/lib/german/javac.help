@@ -1,3 +1,13 @@
+as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
+Das Wort 'assert' ist nun Teil der Sprache Java
+und hat eine spezielle Bedeutung (es ist ein 
+Schlüsselwort). Es kann nicht verwendet werden,
+um Variablen oder Methoden zu benennen. Bitte
+wählen Sie einen anderen Namen.
+
+qualified new of static class
+Leider kein Hilfetext verfügbar.
+
 * is abstract; cannot be instantiated
 Die Klasse ist als 'abstract' deklariert. Das
 bedeutet, dass sie Methoden enthält, die sie 
