@@ -11,7 +11,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: JavaUtils15.java 2682 2004-06-29 05:51:09Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -269,7 +269,13 @@ public class JavaUtils15 extends JavaUtils {
         // The check for lowerBounds[0] == null is necessary. Appears to be
         // a bug in Java 1.5 beta2.
         if( lowerBounds.length == 0 || lowerBounds[0] == null ) {
-            if( upperBounds.length == 0 || upperBounds[0] == null ) {
+            
+            // An unbounded wildcard by reflection appears as
+            // "? extends java.lang.Object". We check for that case and
+            // reduce it back to unbounded. This is not necessarily correct
+            // seeing as it could have been declared with "extends", but that
+            // would be superfluous and will hopefully prove to be uncommon.
+            if( upperBounds.length == 0 || upperBounds[0] == null || upperBounds[0].equals(Object.class)) {
                 sb.append("?"); // unbounded wildcard
             }
             else {
