@@ -367,3 +367,9 @@ error-create-vm
 BlueJ was unable to establish connection to the debug VM.
 Possible reasons is that TCP/IP is not installed on this
 machine or that a firewall is blocking connections from localhost.
+
+project-is-readonly
+The project you are oppening is on a read-only filesystem. You will
+not be able to run any code.
+If you want to run code, copy the project to a directory on your
+harddisk in which BlueJ has permission to create files.
