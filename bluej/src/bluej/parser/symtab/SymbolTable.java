@@ -258,7 +258,8 @@ public class SymbolTable
                             JavaToken comment,
                             Selection extendsInsert, Selection implementsInsert,
                             Selection extendsReplace, Selection superReplace,
-                            Selection typeParamSelection, Vector typeParamSelections, Vector interfaceSelections)
+                            Selection typeParamSelection, 
+                            Vector interfaceSelections)
     {
         // note -- we leave interfaces as a vector of JavaTokens for now
         //         we'll resolve them in pass 2.
@@ -283,7 +284,6 @@ public class SymbolTable
         def.setSuperReplace(superReplace);
         def.setInterfaceSelections(interfaceSelections);
         def.setTypeParamInsert(typeParamSelection);
-        def.setTypeParameterSelections(typeParamSelections);
         
         // add the imported classes/packages to the class
         def.setImports(importedClasses);
@@ -306,7 +306,6 @@ public class SymbolTable
                                 JavaToken comment,
                                 Selection extendsInsert,
                                 Selection typeParamInsert,
-                                Vector typeParamSelections,
                                 Vector superInterfaceSelections)
     {
         // note -- we leave superInterfaces as a vector of JavaTokens for now.
@@ -330,8 +329,6 @@ public class SymbolTable
             def.setComment(comment.getText());
         if(typeParamInsert != null)
             def.setTypeParamInsert(typeParamInsert);
-        if(typeParamSelections != null)
-            def.setTypeParameterSelections(typeParamSelections);
 
         // add it to the current scope
         addToCurrentScope(def);
@@ -350,7 +347,7 @@ public class SymbolTable
 
 
     /** Define a new method object */
-    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment) {
+    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment, Selection typeArgument) {
         // if there is no type, this is a constructor
         String name;
         if (type == null)
@@ -364,12 +361,16 @@ public class SymbolTable
             }
             name = theMethod.getText();
         }
-
+        String typeArgumentName = null;
+        if(typeArgument != null)
+            typeArgumentName = typeArgument.getText();
+        
         // create the method definition
         currentMethod = new MethodDef(getUniqueName(name),
                                              getOccurrence(theMethod),
                                              getDummyClass(type),
-                                             getCurrentScope());
+                                             getCurrentScope(),
+                                             typeArgumentName);
 
         if (comment != null)
             currentMethod.setComment(comment.getText());
