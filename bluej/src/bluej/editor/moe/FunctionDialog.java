@@ -10,9 +10,7 @@ import javax.swing.event.ListSelectionEvent;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
-import java.util.ResourceBundle;
-import java.util.Locale;
-import java.util.MissingResourceException;
+import java.util.Properties;
 
 import bluej.Config;
 import bluej.utility.Debug;
@@ -56,7 +54,7 @@ public final class FunctionDialog extends JDialog
     private Action[] functions;		// all user functions
     private int[] categoryIndex;	// an array of indexes into "functions"
     private int firstDisplayedFunc;	// index of first function in list
-    private ResourceBundle help;
+    private Properties help;
 
   // ------------- METHODS --------------
 
@@ -167,26 +165,14 @@ public final class FunctionDialog extends JDialog
 
     private void openHelpFile()
     {
-	try {
-	    help = ResourceBundle.getBundle("moehelp", Locale.getDefault());
-	}
-	catch (MissingResourceException ex) {
-	    Debug.reportError("moe function help (lib/moehelp.properties) not found");
-	    help = null;
-	}
+	help = Config.getMoeHelp();
     }
 
     private String getHelpText(String function)
     {
 	if(help == null)
 	    return null;
-
-	try {
-	    return help.getString(function);
-	}
-	catch (MissingResourceException ex) {
-	    return null;
-	}
+	return help.getProperty(function);
     }
 
     // ======== EVENT HANDLING INTERFACES =========

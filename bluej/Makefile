@@ -27,8 +27,8 @@ INSTALL_FILES = \
 	lib/bluej.jar \
 	lib/bluej.defs \
 	lib/syslibs.properties \
-	lib/moe.properties \
-	lib/moehelp.properties \
+	lib/moe.defs \
+	lib/moehelp.defs \
 	lib/interface.tmpl \
 	lib/abstract.tmpl \
 	lib/interface.tmpl \

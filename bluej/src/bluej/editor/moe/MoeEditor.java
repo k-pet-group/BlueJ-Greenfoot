@@ -7,8 +7,7 @@ import bluej.editor.EditorWatcher;
 
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Date;
 import java.text.DateFormat;
@@ -74,7 +73,7 @@ public final class MoeEditor extends JFrame
     // -------- INSTANCE VARIABLES --------
 
     private EditorWatcher watcher;
-    private ResourceBundle resources;
+    private Properties resources;
     private DefaultStyledDocument document;
     private MoeActions actions;
 
@@ -139,7 +138,7 @@ public final class MoeEditor extends JFrame
 
     public MoeEditor(String title, boolean isCode, EditorWatcher watcher, 
 		     boolean showToolbar, boolean showLineNum, 
-		     ResourceBundle resources)
+		     Properties resources)
     {
 	super("Moe");
 
@@ -1076,14 +1075,7 @@ public final class MoeEditor extends JFrame
 
     private String getResource(String name)
     {
-	String value;
-	try {
-	    value = resources.getString(name);
-	}
-	catch (MissingResourceException ex) {
-	    value = null;
-	}
-	return value;
+	return resources.getProperty(name);
     }
 
     // --------------------------------------------------------------------

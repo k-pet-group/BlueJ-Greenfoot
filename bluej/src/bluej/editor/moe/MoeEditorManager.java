@@ -1,10 +1,12 @@
 package bluej.editor.moe;
 
+import bluej.Config;
 import bluej.utility.Debug;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 
-import java.util.*;
+import java.util.Properties;
+import java.util.Vector;
 
 import java.awt.*;		// Font
 import java.io.*;		// Object input, ouput streams
@@ -23,7 +25,7 @@ public final class MoeEditorManager
     public static MoeEditorManager editorManager;   // the manager object itself
     // private variables
 
-    private ResourceBundle resources;
+    private Properties resources;
     private Vector editors;			// open editors
     private Finder finder;			// the finder object
 
@@ -42,7 +44,7 @@ public final class MoeEditorManager
 	showToolBar = true;
 	showLineNum = false;
 
-	openResources();
+	resources = Config.moe_props;
 
 	editorManager = this;	// make this object publicly available
     }
@@ -227,18 +229,6 @@ public final class MoeEditorManager
   
     // ------------------------------------------------------------------------
 
-    private void openResources()
-    {
-	try {
-	    resources = ResourceBundle.getBundle("moe", Locale.getDefault());
-	}
-	catch (MissingResourceException ex) {
-	    System.err.println("moe resources not found - what now?");
-	    System.exit(1);
-	}
-    }
-
-    // ------------------------------------------------------------------------
     /**
      ** Read the preferences file.
      **/

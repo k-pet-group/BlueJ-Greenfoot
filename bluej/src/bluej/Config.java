@@ -18,22 +18,24 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 86 1999-05-18 02:49:53Z mik $
+ ** @version $Id: Config.java 96 1999-05-31 02:04:50Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
  ** Class to handle application configuration for BlueJ. The configuration
- ** information is spread over three files:
+ ** information is spread over several files:
  **
  **  <bluej_home>/bluej.defs
  **  <bluej_home>/<language>.defs	(eg "english.defs")
  **  <user_home>/.bluej/bluej.properties
+ **  <bluej_home>/moe.defs
  **
  ** "bluej.defs"	- contains system definitions which are not language 
- **			specific and not user specific.
+ **			  specific and not user specific.
  ** "<language>.defs"	- contains language specific strings
  ** "bluej.properties"	- contains user specific settings. Settings here
- **			override settings in bluej.defs
+ **			  override settings in bluej.defs
+ ** "moe.defs"		- definitions for moe (the editor)
  **/
 
 public class Config
@@ -44,9 +46,11 @@ public class Config
 
     public static final String syslibs_file = "syslibs.properties";
 
-    private static Properties props;		// bluej properties
-    private static Properties lang;		// The internationalisation
+    private static Properties bluej_props;	// bluej properties
+    private static Properties lang_props;	// The internationalisation
 						//  dictionary
+    public static Properties moe_props;		// moe (editor) properties
+
     private static String dirname = (slash == '/') ? ".bluej" : "bluej";
     private static String bluej_home;
     private static String sys_confdir;
@@ -96,17 +100,19 @@ public class Config
 
 	checkUserDir(user_confdir);
 
-	props = loadDefs("bluej");		// system definitions
-	loadProperties("bluej", props);		// user specific definitions
+	bluej_props = loadDefs("bluej", true);	// system definitions
+	loadProperties("bluej", bluej_props);	// user specific definitions
 
-	String langDefs = props.getProperty("bluej.language");
-	lang = loadDefs(langDefs);
+	String langDefs = bluej_props.getProperty("bluej.language");
+	lang_props = loadDefs(langDefs, false);
 
-	fontsize = Integer.parseInt(props.getProperty("bluej.fontsize","12"));
-	editFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.editor","12"));
-	printFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.printText","10"));
-	printTitleFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.printTitle","14"));
-	printInfoFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.printInfo","10"));
+	moe_props = loadDefs("moe", false);
+
+	fontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize","12"));
+	editFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.editor","12"));
+	printFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printText","10"));
+	printTitleFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printTitle","14"));
+	printInfoFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printInfo","10"));
 	checkDebug(user_confdir);
 
     } // initialise
@@ -127,9 +133,9 @@ public class Config
      */
     private static void checkDebug(String userdir)
     {
-	if (! "on".equals(props.getProperty("debug"))) {
+	if (! "on".equals(bluej_props.getProperty("debug"))) {
 	    String debugLogFileName = userdir + slash +
-				      props.getProperty("bluej.debugLog");
+				      bluej_props.getProperty("bluej.debugLog");
 	    // simple diversion of output stream to a log file
 	    try {
 		PrintStream outStream = 
@@ -147,27 +153,35 @@ public class Config
      */
     public static void handleExit()
     {
-	saveProperties("bluej", props);
+	saveProperties("bluej", bluej_props);
     }
 	
     /**
-     * Load global BlueJ definitions. This creates a properties object
-     * that has the definitions as defaults.
+     * Load a BlueJ definition file. This creates a new properties object.
+     * The new properties object can be returned directly, or an empty
+     * properties object can be returned that has the named definitions as
+     * defaults.
+     *
+     * @arg filename	the properties file
+     * @arg asDefault	if true, the definitions are used as defaults for
+     *			an empty properties objects.
      */
-    private static Properties loadDefs(String filename)
+    private static Properties loadDefs(String filename, boolean asDefault)
     {
 	String fullname = sys_confdir + slash + filename + ".defs";
 	Properties defs = new Properties();
 		
 	try {
 	    FileInputStream input = new FileInputStream(fullname);
-
 	    defs.load(input);
 	} catch(Exception e) {
 	    Debug.reportError("Unable to load definitions file: "+fullname);
 	}
-		
-	return new Properties(defs); // empty props with defs as defaults
+
+	if(asDefault)
+	    return new Properties(defs); // empty props with defs as defaults
+	else
+	    return defs;
     }
 
     /**
@@ -200,7 +214,15 @@ public class Config
 				fullname);
 	}
     }
-	
+
+    /**
+     * find and return the moe help definitions
+     */
+    public static Properties getMoeHelp()
+    {
+	return loadDefs("moehelp", false);
+    }
+
     /**
      * get a string from the language dependent definitions file
      * (eg. "english.defs")
@@ -208,7 +230,7 @@ public class Config
     public static String getString(String strname)
     {
 	try {
-	    return lang.getProperty(strname, strname);
+	    return lang_props.getProperty(strname, strname);
 	} catch(Exception e) {
 	    System.err.println("Something went wrong trying to getString for " + strname);
 	    e.printStackTrace(System.err);
@@ -223,7 +245,7 @@ public class Config
     public static String getPropString(String strname)
     {
 	try {
-	    return props.getProperty(strname, strname);
+	    return bluej_props.getProperty(strname, strname);
 	} catch(Exception e) {
 	    System.err.println("Something went wrong trying to getString for " + strname);
 	    e.printStackTrace(System.err);
@@ -234,7 +256,7 @@ public class Config
     public static String getLibFilename(String propname)
     {
 	try {
-	    String filename = props.getProperty(propname);
+	    String filename = bluej_props.getProperty(propname);
 		
 	    return bluej_home + slash + "lib" + slash + filename;
 	} catch(Exception e) {
@@ -247,7 +269,7 @@ public class Config
     public static String getImageFilename(String propname)
     {
 	try {
-	    String filename = props.getProperty(propname);
+	    String filename = bluej_props.getProperty(propname);
 		
 	    String fullfile = bluej_home + slash + "images" + slash + filename;
 	    // Debug.message("getImageFilename(" + propname + "): returning " + fullfile);
@@ -262,7 +284,7 @@ public class Config
     public static Color getItemColour(String itemname)
     {
 	try {
-	    String rgbStr = props.getProperty(itemname, "255,0,255");
+	    String rgbStr = bluej_props.getProperty(itemname, "255,0,255");
 	    String rgbVal[] = Utility.split(rgbStr, ",");
 	
 	    if (rgbVal.length < 3)
@@ -284,12 +306,12 @@ public class Config
 	
     public static String getPath(String propname)
     {
-	return getPath(props, propname, null);
+	return getPath(bluej_props, propname, null);
     }
 	
     public static String getPath(String propname, String defpath)
     {
-	return getPath(props, propname, defpath);
+	return getPath(bluej_props, propname, defpath);
     }
 	
     public static String getPath(Properties props, String propname)
@@ -311,7 +333,7 @@ public class Config
 	
     public static void putPath(String propname, String path)
     {
-	putPath(props, propname, path);
+	putPath(bluej_props, propname, path);
     }
 	
     public static void putPath(Properties props, String propname, String path)
