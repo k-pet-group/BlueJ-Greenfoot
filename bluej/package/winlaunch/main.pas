@@ -11,7 +11,7 @@ uses
 const
         jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-        bluejregkey : string = '\Software\BlueJ\BlueJ\1.2.2';
+        bluejregkey : string = '\Software\BlueJ\BlueJ\1.2.1 UKC';
 
         searchingstartcaption : string = 'Search drives for all Java versions...';
         searchingstopcaption : string = 'Stop Search';
@@ -206,7 +206,7 @@ end;
 function TMainForm.LaunchBlueJ(jdkpath : string) : boolean;
 var
         appdir, appdirlib, vmfilename, tooljarfilename,
-          bluejjarfilename, editorjarfilename,
+          bluejjarfilename, editorjarfilename, extjarfilename,
           antlrjarfilename, junitjarfilename, mrjjarfilename : string;
         exfile : TExFile;
 begin
@@ -220,6 +220,7 @@ begin
 
         bluejjarfilename := appdirlib + 'bluej.jar' + '"';
         editorjarfilename := appdirlib + 'editor.jar' + '"';
+        extjarfilename := appdirlib + 'bluejext.jar' + '"';
         antlrjarfilename := appdirlib + 'antlr.jar' + '"';
         //junitjarfilename := appdirlib + 'junit.jar' + '"';
         mrjjarfilename := appdirlib + 'MRJToolkitStubs.zip' + '"';
@@ -233,6 +234,7 @@ begin
         exfile.ProcFileName := vmfilename;
         exfile.ProcParameters := '-cp ' + bluejjarfilename + ';' +
                                            editorjarfilename + ';' +
+                                           extjarfilename + ';' +
                                            antlrjarfilename + ';' +
 //                                           junitjarfilename + ';' +
                                            mrjjarfilename + ';' +

@@ -69,7 +69,7 @@ AutoIncBuild=1
 MajorVer=1
 MinorVer=2
 Release=0
-Build=10
+Build=11
 Debug=0
 PreRelease=0
 Special=0
@@ -80,7 +80,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=Monash University
 FileDescription=BlueJ Launcher
-FileVersion=1.2.0.10
+FileVersion=1.2.0.11
 InternalName=
 LegalCopyright=
 LegalTrademarks=

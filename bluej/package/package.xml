@@ -22,6 +22,7 @@
         <include name="lib/japanese/" />
         <include name="lib/spanish/" />
         <include name="lib/swedish/" />
+        <include name="lib/extensions/" />
     </patternset>
 
     <patternset id="bluej.examples">
@@ -49,6 +50,11 @@
     <patternset id="bluej.classes" >
         <exclude name="bluej/editor/" />
         <exclude name="org/" />
+        <exclude name="bluej/extensions/" />
+    </patternset>
+
+    <patternset id="bluej.extensions" >
+        <include name="bluej/extensions/" />
     </patternset>
 
     <target name="dist">
@@ -83,6 +89,12 @@
         <jar jarfile="install_tmp/lib/bluej.jar" compress="no">
             <fileset dir="${bluej_home}/classes" >
                 <patternset refid="bluej.classes"/>
+            </fileset>
+        </jar>
+
+        <jar jarfile="install_tmp/lib/bluejext.jar" compress="no">
+            <fileset dir="${bluej_home}/classes">
+                <patternset refid="bluej.extensions"/>
             </fileset>
         </jar>
 
