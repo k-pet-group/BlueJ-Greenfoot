@@ -15,14 +15,10 @@ import javax.swing.*;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 586 2000-06-28 00:52:51Z axel $
+ * @version $Id: Utility.java 642 2000-07-12 00:35:26Z mik $
  */
 public class Utility
 {
-    static final String browserCmd1 = Config.getPropString("browserCmd1");
-    static final String browserCmd2 = Config.getPropString("browserCmd2");
-    static final String winBrowserCmd1 = Config.getPropString("winBrowserCmd1");
-    static final String winBrowserCmd2 = Config.getPropString("winBrowserCmd2");
 
     private static Random random = new Random();
     public static int getRandom(int min, int max)
@@ -226,10 +222,14 @@ public class Utility
         try {
             // try first command, eg "netscape -remote"
 
-            if(osname != null && osname.startsWith("Windows"))
-                cmd = mergeStrings(winBrowserCmd1, url);
+            if(osname != null && osname.startsWith("Windows 9"))    // win95/98
+                cmd = mergeStrings(Config.getPropString("win9xBrowserCmd1"), 
+                                   url);
+            else if(osname != null && osname.startsWith("Windows"))  // NT/2000
+                cmd = mergeStrings(Config.getPropString("winBrowserCmd1"), 
+                                   url);
             else
-                cmd = mergeStrings(browserCmd1, url);
+                cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
 
             //   Debug.message(cmd);
             Process p = Runtime.getRuntime().exec(cmd);
@@ -239,10 +239,12 @@ public class Utility
                 // we try second command
                 int exitCode = p.waitFor();
 
-                if(osname != null && osname.startsWith("Windows"))
-                    cmd = winBrowserCmd2;
+                if(osname != null && osname.startsWith("Windows 9"))
+                    cmd = Config.getPropString("win9xBrowserCmd2");
+                else if(osname != null && osname.startsWith("Windows"))
+                    cmd = Config.getPropString("winBrowserCmd2");
                 else
-                    cmd = browserCmd2;
+                    cmd = Config.getPropString("browserCmd2");
 
                 if(exitCode != 0 && cmd != null && cmd.length() > 0) {
                     cmd = mergeStrings(cmd, url);

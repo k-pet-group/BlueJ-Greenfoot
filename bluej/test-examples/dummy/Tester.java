@@ -6,7 +6,7 @@ import java.util.*;
  ** @author: Michael Kolling
  ** @version: 1.3
  **/
-public class Tester     
+public class Tester       
 {
 //     // instance variables - replace the example 
     public static int st = 33;
