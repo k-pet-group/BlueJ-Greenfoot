@@ -30,7 +30,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 242 1999-08-19 06:43:31Z mik $
+ ** @version $Id: Package.java 251 1999-08-23 06:32:46Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -982,6 +982,19 @@ public class Package extends Graph
 	}
     }
 
+    /**
+     *  Remove all step marks in all classes.
+     */
+    public void removeStepMarks()
+    {
+	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+	    Target target = (Target)e.nextElement();
+			
+	    if(target instanceof ClassTarget)
+		((ClassTarget)target).removeStepMark();
+	}
+    }
+
     public void addTarget(Target t)
     {
 	targets.put(t.getName(), t);
@@ -1541,7 +1554,7 @@ public class Package extends Graph
 	lastSourceName = sourcename;
 
 	if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
-			       false, false, bringToFront, null))
+			       false, false, bringToFront, true, null))
 	    Utility.showMessage(frame, "Breakpoint hit in file: " + 
 				sourcename + "\nCannot find file!");
 	return bringToFront;
@@ -1555,7 +1568,7 @@ public class Package extends Graph
     private boolean showEditorMessage(String filename, int lineNo, 
 				      String message, boolean invalidate, 
 				      boolean beep, boolean bringToFront,
-				      String help)
+				      boolean setStepMark, String help)
     {
 	ClassTarget t = getTargetFromFilename(filename);
 
@@ -1571,7 +1584,8 @@ public class Package extends Graph
 	    t.open();
 	Editor editor = t.getEditor();
 	if(editor!=null)
-	    editor.displayMessage(message, lineNo, 0, beep, false, help);
+	    editor.displayMessage(message, lineNo, 0, beep, setStepMark, 
+				  help);
 	return true;
     }
 	                                     
@@ -1602,7 +1616,7 @@ public class Package extends Graph
 			     boolean invalidate)
     {
 	if(! showEditorMessage(filename, lineNo, message, invalidate, true,
-			       true, Config.compilertype))
+			       true, false, Config.compilertype))
 	    Utility.showMessage(frame, "Error in file: " + filename + 
 				       ":" + lineNo + "\n" + message);
     }
@@ -1615,7 +1629,7 @@ public class Package extends Graph
 			     boolean invalidate)
     {
 	if(! showEditorMessage(filename, lineNo, message, invalidate, true, 
-			       true, "exception"))
+			       true, false, "exception"))
 	    Utility.showMessage(frame, "Error in file: " + filename + 
 				       ":" + lineNo + "\n" + message);
     }

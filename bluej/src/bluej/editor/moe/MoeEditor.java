@@ -409,7 +409,7 @@ public final class MoeEditor extends JFrame
 
     public void removeStepMark()		// inherited from Editor
     {
-	// ## NYI
+	textPane.setCaretPosition(textPane.getCaretPosition());
     }
 
     // --------------------------------------------------------------------

@@ -777,6 +777,7 @@ public class PkgMgrFrame extends PkgFrame
 	if(execCtrlWindow != null && execCtrlWindow.isVisible())
 	    execCtrlWindow.updateThreads();
 	Terminal.getTerminal().activate(false);
+	pkg.removeStepMarks();
     }
 
     /**
@@ -794,6 +795,7 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void executionContinued()
     {
+	pkg.removeStepMarks();
 	progressButton.setIcon(workingIcon);
     }
 

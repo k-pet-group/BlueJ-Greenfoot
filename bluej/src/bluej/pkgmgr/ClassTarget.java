@@ -40,7 +40,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 244 1999-08-20 06:42:33Z mik $
+ ** @version $Id: ClassTarget.java 251 1999-08-23 06:32:46Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -396,6 +396,12 @@ public class ClassTarget extends EditableTarget
     {
 	if(editor != null)
 	    editor.removeBreakpoints();
+    }
+
+    protected void removeStepMark()
+    {
+	if(editor != null)
+	    editor.removeStepMark();
     }
 
     protected boolean isCompiled()
