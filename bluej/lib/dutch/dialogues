@@ -100,7 +100,7 @@ invalid-class-name
 Class naam is niet correct.
 
 invalid-package-name
-Pakket naam is niet correct.
+Package naam is niet correct.
 
 must-be-identifier
 De naam is geen correcte Java identifier.
@@ -110,7 +110,7 @@ Er bestaat al een file of map met deze naam.
 
 cannot-copy-package
 Er ging iets fout met het kopieëren
-van de files in het pakket. Het pakket
+van de files in het package. Het package
 bestaat niet of is niet compleet.
 
 file-does-not-exist
@@ -162,7 +162,7 @@ Er zijn geen Java source code files
 gevonden in deze map.
 
 duplicate-name
-Er bestaat al een class of pakket met
+Er bestaat al een class of package met
 deze naam in dit project.
 
 error-in-import
@@ -172,7 +172,7 @@ no-class-selected-compile
 Er is geen class geselecteerd om te compileren.
 
 no-class-selected
-Er is geen class, pijl of pakket
+Er is geen class, pijl of package
 geselecteerd om te verwijderen.
 
 really-remove-class
@@ -184,28 +184,28 @@ Annuleren
 null
 
 really-remove-package
-Door het verwijderen van dit pakket
-verwijder je ook de pakket map en alle
-files in die pakket map.
+Door het verwijderen van dit package
+verwijder je ook de package map en alle
+files in die package map.
 Wil je doorgaan?
 Verwijderen
 Annuleren
 null
 
 remove-package-open
-Het pakket dat je hebt geselecteerd om
-te verwijderen bevat sub-pakketten,
+Het package dat je hebt geselecteerd om
+te verwijderen bevat sub-packages,
 die nog zijn geopend in BlueJ.
-Je moet die sub-pakketten eerst sluiten
-voordat je het pakket kan verwijderen.
+Je moet die sub-packages eerst sluiten
+voordat je het package kan verwijderen.
 
 package-does-not-exist
-Fout bij het openen van het pakket.
-Het pakket bestaat niet:
+Fout bij het openen van het package.
+Het package bestaat niet:
 
 no-bluej-package
-Fout bij het openen van het pakket.
-De file of map is geen BlueJ pakket:
+Fout bij het openen van het package.
+De file of map is geen BlueJ package:
 
 applet-height-width
 Je moet de hoogte en breedte
@@ -249,7 +249,7 @@ gevonden in deze map.
 open-non-bluej-invalid
 Je wilt deze map openen als een BlueJ
 project. Er is echter een file gevonden
-met een pakket declaratie die niet past
+met een package declaratie die niet past
 bij de huidige mappen structuur.
 (For example, if the Java class
 Shape has a package line of com.aa, then the
@@ -260,37 +260,37 @@ which is the directory you should point BlueJ
 to when attempting to open it).
 
 import-into-current
-Je hebt in dit window al een pakket open.
-Wil je importeren in het huidige pakket of
+Je hebt in dit window al een package open.
+Wil je importeren in het huidige package of
 eil je een nieuw project maken en daarin
 importeren?
-Huidige pakket
+Huidige package
 Nieuw project
 Annuleren
 
 package-name-invalid
-Je het de pakket declaratie zodanig gewijzigd
-dat die verwijst naar een pakket dat niet
+Je het de package declaratie zodanig gewijzigd
+dat die verwijst naar een package dat niet
 bestaat in dit project. Als je deze class
-wilt verplaatsen naar een ander pakket moet
-je dat pakket eerst maken. BlueJ heeft de
-pakket declaratie weer hersteld.
+wilt verplaatsen naar een ander package moet
+je dat package eerst maken. BlueJ heeft de
+package declaratie weer hersteld.
 
 package-name-clash
-Je het de pakket declaratie zodanig gewijzigd
-dat die verwijst naar een pakket dat al een
-class of pakket bevat met dezelfde naam.
+Je het de package declaratie zodanig gewijzigd
+dat die verwijst naar een package dat al een
+class of package bevat met dezelfde naam.
 Als je deze class verplaatst, zou je die
-andere class of dat andere pakket over-
-schrijven. BlueJ heeft daarom de pakket
+andere class of dat andere package over-
+schrijven. BlueJ heeft daarom de package
 declaratie weer hersteld.
 
 package-name-changed
-Je het de pakket declaratie zodanig gewijzigd
-dat die verwijst naar een ander pakket.
+Je het de package declaratie zodanig gewijzigd
+dat die verwijst naar een ander package.
 Wil je deze class daadwerkelijk verplaatsen
-naar dat andere pakket? Of wil je dat BlueJ
-de pakket declaratie weer hersteld?
+naar dat andere package? Of wil je dat BlueJ
+de package declaratie weer hersteld?
 Verplaatsen
 Herstellen
 null

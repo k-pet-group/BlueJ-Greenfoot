@@ -5,7 +5,7 @@ cancel=Annuleren
 close=Sluiten
 continue=Doorgaan
 
-main.invalidPackage=Pakket niet gevonden
+main.invalidPackage=Package niet gevonden
 
 compileException=Exception tijdens compileren
 compiler.thread.title=BlueJ compiler thread
@@ -260,12 +260,12 @@ pkgmgr.chooseUsesTo=Selecteer de class die wordt gebruikt
 pkgmgr.chooseInhFrom=Selecteer de subclass
 pkgmgr.chooseInhTo=Selecteer de superclass
 pkgmgr.chooseArrow=Selecteer de pijl de je wilt verwijderen
-pkgmgr.packageSaved=Pakket opgeslagen
+pkgmgr.packageSaved=Package opgeslagen
 pkgmgr.info.printing = Afdrukken...
 pkgmgr.info.printed = Afdrukken... is gedaan.
 
 utility.packageChooser.previewPane1=Preview van mogelijke
-utility.packageChooser.previewPane2=pakket structuur
+utility.packageChooser.previewPane2=package structuur
 
 # dialog titles and texts
 pkgmgr.title=BlueJ:
@@ -289,12 +289,12 @@ pkgmgr.newClass.msg=Geef de class een naam
 pkgmgr.newUses=Leg 'gebruikt' relatie
 pkgmgr.newExtends=Leg 'erft' relatie
 pkgmgr.unimplemented=Deze functie is nog niet gemaakt
-pkgmgr.pkgChooseError=Fout bij het selecteren van een pakketnaam
+pkgmgr.pkgChooseError=Fout bij het selecteren van een packagenaam
 pkgmgr.chooseWebPage.title=Selecteer HTML webpage bestemming
 pkgmgr.chooseWebPage.buttonLabel=HTML webpage opslaan
 
 pkgmgr.parentpackagetarget.open=Openen
-pkgmgr.parentpackagetarget.openunamed=Openen pakket zonder naam
+pkgmgr.parentpackagetarget.openunamed=Openen package zonder naam
 
 pkgmgr.packagemenu.open=Openen
 pkgmgr.packagemenu.remove=Verwijderen
@@ -336,9 +336,9 @@ pkgmgr.newClass.unittest=Unit test
 pkgmgr.newClass.enum=Enum
 
 # "new package" dialog
-pkgmgr.newPackage.title=BlueJ:  Maak nieuw pakket
-pkgmgr.newPackage.label=Pakket naam:
-pkgmgr.newPackage.newPackage=Pakket
+pkgmgr.newPackage.title=BlueJ:  Maak nieuw package
+pkgmgr.newPackage.label=Package naam:
+pkgmgr.newPackage.newPackage=Package
 
 # "Use Library Class" dialog
 callLibraryDialog.title=BlueJ:  Library class aanroepen
@@ -362,16 +362,16 @@ pkgmgr.export.specifyJar=Specificeer naam voor jar file
 pkgmgr.export.createJarText=Maak
 
 # "open-non-bluej" mismatch dialog
-pkgmgr.importmismatch.title=BlueJ kan dit pakket niet verwerken
+pkgmgr.importmismatch.title=BlueJ kan dit package niet verwerken
 pkgmgr.importmismatch.helpLine1=Waarschuwing: Java verwacht een andere top level map
-pkgmgr.importmismatch.helpLine2=project is ook al gedeclareerd in een van de class pakket declaraties van dit project.
-pkgmgr.importmismatch.helpLine3=Het openen van deze map zal alle pakket declaraties wijzigen in de
+pkgmgr.importmismatch.helpLine2=project is ook al gedeclareerd in een van de class package declaraties van dit project.
+pkgmgr.importmismatch.helpLine3=Het openen van deze map zal alle package declaraties wijzigen in de
 pkgmgr.importmismatch.helpLine4=volgende source files van het project.
 pkgmgr.importmismatch.helpLine5=Waarschijnlijk moet je de map boven de eigen map openen.
-pkgmgr.importmismatch.helpLine6=Om bij voorbeeld het project te openen met daarin het pakket
+pkgmgr.importmismatch.helpLine6=Om bij voorbeeld het project te openen met daarin het package
 pkgmgr.importmismatch.helpLine7="org.bluej", moet je de map selecteren met daarin "org"
 pkgmgr.importmismatch.helpLine8=en niet de "org" of "bluej" map zelf.
-pkgmgr.importmismatch.helpLine9=Wil je toch doorgaan om het pakket te openen en zo de declaratie van het pakket te wijzigen?
+pkgmgr.importmismatch.helpLine9=Wil je toch doorgaan om het package te openen en zo de declaratie van het package te wijzigen?
 
 # "import" failure dialog
 pkgmgr.importfailed.title=BlueJ:  Importeren status
@@ -403,8 +403,8 @@ pkgmgr.runApplet.nameLbl=Naam =
 pkgmgr.runApplet.valueLbl=Waarde =
 pkgmgr.runApplet.paramName=PARAM NAME
 pkgmgr.runApplet.value=VALUE
-pkgmgr.runApplet.htmlComment=<!-- Deze file is gegenereerd door de BlueJ ontwikkel omgeving. -->\n<!-- Dit gebeurt elke keer automatisch als de applet draait. -->\n<!-- Als je deze file met de hand wijzigt gaan de wijzigingen verloren -->\n<!-- als je de applet opnieuw draait in BlueJ. Als je dus je wijzigingen -->\n<!-- wilt bewaren moet je deze file opslaan in andere map dan de pakket map. -->
-pkgmgr.runApplet.htmlExportedComment=<!-- Deze file is gegenereerd door de BlueJ ontwikkel omgeving.  -->\n<!-- De codebase variable verwijst naar het volledige path van de -->\n<!-- pakket map van de applet toen deze webpage werd gegenereerd. -->\n<!-- Als dit pakket ergens anders moet staan, moet je dus -->\n<!-- de waarde van de codebase aanpassen. -->
+pkgmgr.runApplet.htmlComment=<!-- Deze file is gegenereerd door de BlueJ ontwikkel omgeving. -->\n<!-- Dit gebeurt elke keer automatisch als de applet draait. -->\n<!-- Als je deze file met de hand wijzigt gaan de wijzigingen verloren -->\n<!-- als je de applet opnieuw draait in BlueJ. Als je dus je wijzigingen -->\n<!-- wilt bewaren moet je deze file opslaan in andere map dan de package map. -->
+pkgmgr.runApplet.htmlExportedComment=<!-- Deze file is gegenereerd door de BlueJ ontwikkel omgeving.  -->\n<!-- De codebase variable verwijst naar het volledige path van de -->\n<!-- package map van de applet toen deze webpage werd gegenereerd. -->\n<!-- Als dit package ergens anders moet staan, moet je dus -->\n<!-- de waarde van de codebase aanpassen. -->
 
 #print project dialog
 pkgmgr.printDialog.title=BlueJ:  Project afdrukken
@@ -507,8 +507,8 @@ menu.package.quit=_Afsluiten@Q
 
 menu.edit=_Edit
 menu.edit.newClass=Nieuwe Class...@N
-menu.edit.newPackage=Nieuw Pakket...@R
-menu.edit.addClass=_Add Class from File...
+menu.edit.newPackage=Nieuw Package...@R
+menu.edit.addClass=Class toevoegen uit File...
 menu.edit.remove=Verwijderen@BACK_SPACE
 menu.edit.newUses=Leg 'gebruikt' relatie tussen...
 menu.edit.newInherits=Leg een 'erft' relatie tussen...
@@ -517,7 +517,7 @@ menu.edit.removeArrow=Verwijder relatie...
 menu.tools=_Tools
 menu.tools.compile=Compileren@K
 menu.tools.compileSelected=Selectie compileren@^K
-menu.tools.rebuild=_Alles in pakket compileren
+menu.tools.rebuild=_Alles in package compileren
 menu.tools.callLibrary=Aanroepen Library Class...@L
 menu.tools.generateDoc=Project Documentatie@J
 menu.tools.testing=_Testen
@@ -557,11 +557,11 @@ menu.help.standardApi=Java _Class Libraries
 
 # tool tips
 
-tooltip.newClass=Maak een nieuwe class binnen dit pakket
+tooltip.newClass=Maak een nieuwe class binnen dit package
 tooltip.newUses=Leg een 'gebruikt' relatie tussen classes
 tooltip.newExtends=Leg een 'erft' relatie tussen classes
-tooltip.compile=Compileer alle niet gecompileerde classes van dit pakket
-tooltip.test=Draai alle gecompileerde test classes van dit pakket
+tooltip.compile=Compileer alle niet gecompileerde classes van dit package
+tooltip.test=Draai alle gecompileerde test classes van dit package
 tooltip.progress=Laat zien wanneer de virtual machine draait
 tooltip.test.end=Opnemen van een test method afsluiten en opslaan
 tooltip.test.cancel=Opnemen van een test method afbreken en niet opslaan
