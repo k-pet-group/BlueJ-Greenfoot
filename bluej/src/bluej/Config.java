@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3017 2004-09-27 13:17:33Z iau $
+ * @version $Id: Config.java 3042 2004-10-08 05:21:57Z davmac $
  */
 
 public final class Config
@@ -270,6 +270,7 @@ public final class Config
                 PrintStream outStream =
                     new PrintStream(new FileOutputStream(debugLogFile));
                 System.setOut(outStream);
+                System.setErr(outStream);
                 Debug.message("BlueJ run started: " + new Date());
                 Debug.message("BlueJ version " + Boot.BLUEJ_VERSION + "    Java version " + 
                                     System.getProperty("java.version"));
