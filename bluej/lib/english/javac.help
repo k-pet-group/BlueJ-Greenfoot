@@ -54,9 +54,6 @@ calling it's constructor is bound to be trouble!
 cannot access *
 No help available
 
-* cannot be applied to *
-No help available
-
 cannot assign a value to final variable *
 The variable you are trying to assign to here has
 been declared "final". That means that you are not 
