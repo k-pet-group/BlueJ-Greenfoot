@@ -10,19 +10,19 @@ import javax.swing.text.BadLocationException;
 import bluej.BlueJEvent;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
-import bluej.debugmgr.FreeFormCallDialog;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 /**
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2612 2004-06-14 20:36:28Z mik $
+ * @version $Id: TextEvalArea.java 2613 2004-06-15 11:28:22Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -34,6 +34,8 @@ public final class TextEvalArea extends JScrollPane
     private JTextArea text;
     private String currentCommand;
     private PkgMgrFrame frame;
+    private Invoker invoker = null;
+    private boolean firstTry;
     
     /**
      * Create a new text area with given size.
@@ -66,38 +68,52 @@ public final class TextEvalArea extends JScrollPane
     {
         currentCommand = getCurrentLine();
         append("\n");
-        new Invoker(frame, currentCommand, this);
-        append(PROMPT);
+        firstTry = true;
+        invoker = new Invoker(frame, currentCommand, this);
     }
     
     //   --- ResultWatcher interface ---
 
     /**
      * An invocation has completed - here is the result.
-     * If the invocation has a void result (note that is a void type), name == null.
-     * It should be possible for result to be null and name to not be,
-     * though no code currently creates this situation.
+     * If the invocation has a void result (note that is a void type), result == null.
      */
     public void putResult(DebuggerObject result, String name, InvokerRecord ir)
     {
-        append("(result)\n");
+        frame.getObjectBench().addInteraction(ir);
 
-//        getObjectBench().addInteraction(ir);
-//        if (result != null) {
+        if (result != null) {
+            //Debug.message("type:"+result.getFieldValueTypeString(0));
+
+            String resultString = result.getFieldValueString(0);
+            append(resultString);
+            
 //            ResultInspector viewer = ResultInspector.getInstance(result, name,
 //                    getPackage(), ir, getExpressionInformation(), PkgMgrFrame.this);
-//            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
-//        } else {
-//            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
-//        }
-}
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
+//        	String fieldString =  JavaNames.stripPrefix(result.getFieldValueTypeString(0))        
+//            + " = " + obj.getFieldValueString(0);
+//            
+        } else {
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
+        }
+        append("\n" + PROMPT);
+    }
     
     /**
      * An invocation has failed - here is the error message
      */
     public void putError(String message)
     {
-        append("(error)\n");
+    		if(firstTry) {
+    			append("   --error: " + message + "\n");
+    			firstTry = false;
+    	        invoker.tryAgain();
+    		}
+    		else {
+    			append("Error: " + message);
+    			append("\n" + PROMPT);
+    		}
     }
     
     /**

@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2612 2004-06-14 20:36:28Z mik $
+ * @version $Id: Invoker.java 2613 2004-06-15 11:28:22Z mik $
  */
 
 public class Invoker extends Thread
@@ -84,7 +84,8 @@ public class Invoker extends Thread
     private CallDialog dialog;
     private boolean constructing;
 
-    private String commandAsString;
+    private String commandString;
+    private int numberCompiling = 0;
     private ExecutionEvent executionEvent;
     private InvokerRecord ir;
 
@@ -109,7 +110,8 @@ public class Invoker extends Thread
 
         constructing = false;
         executionEvent = ExecutionEvent.createFreeForm(this.pkg);
-        doFreeFormInvocation(command, false);
+        commandString = command;
+        doFreeFormInvocation(true);
     }
 
     /**
@@ -230,6 +232,16 @@ public class Invoker extends Thread
     }
 
     /**
+     * After attempting a free form invocation, and gettign an error,
+     * we try again. First time round, we tried inerpreting the input as a 
+     * statement, now we try as an expresssion.
+     */
+    public synchronized void tryAgain()
+    {
+        doFreeFormInvocation(false);
+    }
+    
+    /**
      *  Start a free form invocation. That is: Show the free form
      * evaluation dialog, then sit back and wait for a callback.
      * TODO: can be removed when 'Evaluate expression' function is removed.
@@ -267,7 +279,8 @@ public class Invoker extends Thread
             else if(dlg instanceof FreeFormCallDialog) {
                 pmf.setWaitCursor(true);
                 FreeFormCallDialog ffDialog = (FreeFormCallDialog)dlg;
-                doFreeFormInvocation(ffDialog.getExpression(), ffDialog.getHasResult());
+                commandString = ffDialog.getExpression();
+                doFreeFormInvocation(ffDialog.getHasResult());
             }
         }
         else
@@ -281,7 +294,8 @@ public class Invoker extends Thread
      */
     public void invokeDirect( String[] params )
     {
-        if ( instanceName == null ) instanceName = objName;
+        if (instanceName == null) 
+        		instanceName = objName;
 
         doInvocation(params, member.getParameters());
     }
@@ -396,7 +410,7 @@ public class Invoker extends Thread
         File shell = writeInvocationFile(pkg, paramInit, 
                             command + argString, constructing, isVoid);
 
-        commandAsString = command + actualArgString;
+        commandString = command + actualArgString;
         compileInvocationFile(shell);
     }
 
@@ -411,23 +425,22 @@ public class Invoker extends Thread
      * This method is still executed in the interface thread,
      * while "endCompile" will be executed by the CompilerThread.
      */
-    protected void doFreeFormInvocation(String executionString, boolean hasResult)
+    protected void doFreeFormInvocation(boolean hasResult)
     {
         if (hasResult){
             instanceName = "result";
-            ir = new ExpressionInvokerRecord(executionString);
+            ir = new ExpressionInvokerRecord(commandString);
         }
         else {
             instanceName = null;
             // this is a statement, treat as a void method result
-            ir = new VoidMethodInvokerRecord(executionString);
+            ir = new VoidMethodInvokerRecord(commandString);
         }
                 
-        File shell = writeInvocationFile(pkg, "", executionString, 
+        File shell = writeInvocationFile(pkg, "", commandString, 
                                           false, !hasResult);
 
-        commandAsString = executionString;
-        executionEvent.setCommand(executionString);
+        executionEvent.setCommand(commandString);
         compileInvocationFile(shell);
     }
 
@@ -471,8 +484,6 @@ public class Invoker extends Thread
                 buffer.append("public static Object");
             buffer.append(" __bluej_runtime_result;");
         }
-//		BeanShell
-        //executionEvent.setCommand(executionString);
         String vardecl = buffer.toString();
 
         // Build scope, ie. add one line for every object on the object
@@ -552,44 +563,6 @@ public class Invoker extends Thread
         }
         return shellFile;
     }
-
-//    BeanShell
-//    public void beanShellExecute(final String command)
-//    {
-//        SwingUtilities.invokeLater(new Runnable() {
-//            public void run() {
-//                DebuggerObject result = pmf.getProject().getDebugger().executeCode(command);
-//
-//                boolean successful = true;
-//                
-//                if(dialog != null) {
-//                    dialog.setWaitCursor(false);
-//                    if(successful) {
-//                        dialog.setVisible(false);
-//                        if(dialog instanceof MethodDialog)
-//                            ((MethodDialog)dialog).updateParameters();
-//                    }
-//                    
-//                }
-//
-//                pmf.setWaitCursor(false);
-//
-//                // result will be null here for a void call
-//                watcher.putResult(result, instanceName, ir);
-//
-//                executionEvent.setResultObject(result);                    
-//                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-//
-//
-//                if (constructing && successful) {
-//                    pkg.setStatus(createDone);
-//                } 
-//                else {
-//                    pkg.setStatus(" ");
-//                }
-//            }
-//        });
-//    }
     
     /**
      * Start the compilation of a shell fine and register us as a watcher.
@@ -598,6 +571,7 @@ public class Invoker extends Thread
     private void compileInvocationFile(File shellFile)
     {
         File[] files = { shellFile };
+        numberCompiling++;
         JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(),
                                       pkg.getProject().getProjectDir());
     }
@@ -626,7 +600,7 @@ public class Invoker extends Thread
      * is called by the CompilerThread after compilation. If
      * all went well, execute now. Then clean up.
      */
-    public void endCompile(File[] sources, boolean successful)
+    public synchronized void endCompile(File[] sources, boolean successful)
     {
         if(dialog != null) {
             dialog.setWaitCursor(false);
@@ -643,19 +617,34 @@ public class Invoker extends Thread
         if(successful)
             startClass();
 
-        File srcFile = new File(pkg.getPath(), shellName + ".java");
-		srcFile.delete();
-
-        File classFile = new File(pkg.getPath(), shellName + ".class");
-        classFile.delete();
-
         if (constructing && successful) {
             pkg.setStatus(createDone);
         } 
         else {
             pkg.setStatus(" ");
         }
+        
+        // Careful: if we want to try again with the same invoker, don't
+	    // delete the files while we are busy invoking again at the same 
+	    // time!
+        
+        numberCompiling--;
+        if(numberCompiling == 0)
+            deleteShellFiles();
     }
+
+    /**
+     * Remove the shell files that we created for this invocation.
+     */
+    private void deleteShellFiles()
+    {
+        File srcFile = new File(pkg.getPath(), shellName + ".java");
+		srcFile.delete();
+
+        File classFile = new File(pkg.getPath(), shellName + ".class");
+        classFile.delete();
+    }
+    
 
     // -- end of CompileObserver interface --
 
@@ -673,7 +662,7 @@ public class Invoker extends Thread
      */
     public void startClass()
     {
-        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandAsString);
+        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandString);
         try {
             String shellClassName = pkg.getQualifiedName(shellName);
             

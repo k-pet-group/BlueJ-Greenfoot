@@ -20,7 +20,7 @@ import bluej.testmgr.record.*;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2550 2004-05-26 11:20:49Z polle $
+ * @version    $Id: Inspector.java 2613 2004-06-15 11:28:22Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -213,7 +213,7 @@ public abstract class Inspector extends JFrame
      */
     public void update()
     {      
-    	Object[] listData = getListData();
+        Object[] listData = getListData();
         fieldList.setData(listData);
         
         fieldList.setTableHeader(null);

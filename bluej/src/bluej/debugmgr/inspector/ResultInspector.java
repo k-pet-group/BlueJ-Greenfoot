@@ -19,10 +19,10 @@ import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.Debug;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
-import bluej.testmgr.record.ExpressionInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
@@ -34,7 +34,7 @@ import bluej.views.LabelPrintWriter;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2544 2004-05-24 08:56:02Z polle $
+ * @version $Id: ResultInspector.java 2613 2004-06-15 11:28:22Z mik $
  */
 public class ResultInspector extends Inspector implements InspectorListener {
 
@@ -45,9 +45,7 @@ public class ResultInspector extends Inspector implements InspectorListener {
 	protected final static String returnedString = Config
 			.getString("debugger.inspector.result.returned");
 
-
 	
-
 	// === instance variables ===
 
 	protected DebuggerObject obj;
@@ -88,11 +86,6 @@ public class ResultInspector extends Inspector implements InspectorListener {
 
 		inspector.setVisible(true);
 		inspector.bringToFront();
-
-		if (ir instanceof ExpressionInvokerRecord) {
-			ExpressionInvokerRecord eir = (ExpressionInvokerRecord) ir;
-			System.out.println("IR: " + eir);
-		}
 
 		return inspector;
 	}
@@ -138,8 +131,7 @@ public class ResultInspector extends Inspector implements InspectorListener {
 	 */
 	protected Object[] getListData() {		
 		String fieldString =  JavaNames.stripPrefix(obj.getFieldValueTypeString(0))        
-        + " = " + obj.getFieldValueString(0);        
-
+        + " = " + obj.getFieldValueString(0);
 		return new Object[]{fieldString};
 	}
 
