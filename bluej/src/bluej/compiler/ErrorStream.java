@@ -5,18 +5,23 @@ import bluej.utility.Utility;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.OutputStream;
 
 /**
- ** @version $Id: ErrorStream.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: ErrorStream.java 81 1999-05-12 06:30:41Z ajp $
  ** @author Michael Cahill
  ** ErrorStream - OutputStream that parses javac output
  **/
 
 public class ErrorStream extends PrintStream
 {
-  public ErrorStream()
+    public ErrorStream()
     {
-      super(null);
+	// we do not actually intend to use an actual OutputStream from
+	// within this class yet our superclass requires us to pass a
+	// non-null OutputStream
+	// we pass it the system error stream
+        super(System.err);
     }
 	
   /**
@@ -34,7 +39,7 @@ public class ErrorStream extends PrintStream
    **/
   public void println(String msg)
     {
-      // Debug.message("Compiler message: " + msg);
+      Debug.message("Compiler message: " + msg);
 		
       int first_colon = msg.indexOf(':', 0);
       if(first_colon == -1) {
