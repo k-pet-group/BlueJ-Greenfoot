@@ -3,51 +3,47 @@ import java.applet.Applet;
 import java.awt.*;
 
 /**
- * Write a description of the applet class $CLASSNAME here.
+ * 类 $CLASSNAME - 在这里给出这个类的描述
  *
- * @author (your name) 
- * @version (a version number or a date)
+ * @作者（你的名字）
+ * @版本（一个版本号或者一个日期）
  */
 public class $CLASSNAME extends Applet
 {
-	// instance variables - replace the example below with your own
+	// 实例变量 - 用你自己的变量替换下面的例子
 	private int x;
 
 	/**
-	 * Called by the browser or applet viewer to inform this Applet that it
-	 * has been loaded into the system. It is always called before the first 
-	 * time that the start method is called.
+	 * 由浏览器或者applet viewer调用，通知这个JApplet它已经被装入系统。
+	 * 它总是在start方法第一次被调用之前被调用
 	 */
 	public void init()
 	{
-		// provide any initialisation necessary for your Applet
+		// 提供任何你的Applet所必须的初始化步骤
 
 	}
 
 	/**
-	 * Called by the browser or applet viewer to inform this Applet that it 
-	 * should start its execution. It is called after the init method and 
-	 * each time the Applet is revisited in a Web page. 
+	 * 由浏览器或者applet viewer调用，通知这个JApplet它应该开始执行。
+	 * 在init方法调用之后以及每次Web网页被重新访问的时候被调用
 	 */
 	public void start()
 	{
-		// provide any code requred to run each time 
-		// web page is visited
+		// 提供每次网页被访问时运行所需要的代码
 
 	}
 
 
 	/**
-	 * This may be the most important method in your applet: Here, the 
-	 * drawing of the applet gets done. "paint" gets called everytime the
-	 * applet should be drawn on the screen. So put the code here that
-	 * shows the applet.
+	 * 这可能是你的applet中最为重要的方法：在这里完成applet的绘图任务。
+	 * "paint"在每次applet应该绘制到屏幕上时候被调用。所以在这里编写
+	 * 显示applet的代码。
 	 *
-	 * @param  g   the Graphics object for this applet
+	 * @参数  g   这个applet的图形对象
 	 */
 	public void paint(Graphics g)
 	{
-		// simple text displayed on applet
+		// 在applet上显示的简单文本
 		g.setColor(Color.white);
 		g.fillRect(0, 0, 200, 100);
 		g.setColor(Color.black);
@@ -57,44 +53,40 @@ public class $CLASSNAME extends Applet
 	}
 
 
-	/** 
-	 * Called by the browser or applet viewer to inform this Applet that
-	 * it should stop its execution. It is called when the Web page that
-	 * contains this Applet has been replaced by another page, and also
-	 * just before the Applet is to be destroyed. If you do not have any
-	 * resources that you need to release (such as threads that you may
-	 * want to stop) you can remove this method.
+	/**
+	 * 由浏览器或者applet viewer调用，通知这个JApplet它应该停止执行。
+	 * 当包含这个JApplet的页面被另外一个页面替换的时候它会被调用，在
+	 * JApplet被destroy的时候也会被调用。如果你没有任何需要释放的资源
+	 * （比如你希望停止的线程）你可以删除这个方法。
 	 */
 	public void stop()
 	{
-		// provide any code that needs to be run when page
-		// is replaced by another page or before Applet is destroyed 
+		// 提供当页面被另一个页面替换或者JApplet被destroy之前需要执行的
+		// 的任何方法
 	}
 
 
 	/**
-	 * Called by the browser or applet viewer to inform this Applet that it
-	 * is being reclaimed and that it should destroy any resources that it
-	 * has allocated. The stop method will always be called before destroy. 
-	 * If you do not have any resources that you need to release you can 
-	 * remove this method.
+	 * 由浏览器或者applet viewer调用，通知这个JApplet它正在被收回，它应该
+	 * 释放所有它已经申请的资源。stop方法总会在destroy方法之前被调用。如果
+	 * 你没有任何需要释放的资源，你可以删除这个方法。
 	 */
 	public void destroy()
 	{
-		// provide code to be run when Applet is about to be destroyed.
+		// 提供Applet将要被destroy之前需要执行的代码
 	}
 
 
 	/**
-	 * Returns information about this applet. 
-	 * An applet should override this method to return a String containing 
-	 * information about the author, version, and copyright of the Applet.
+	 * 返回这个applet的信息。
+	 * 一个applet应该重写这个方法来返回一个包含这个applet信息的字符串
+	 * 关于这个applet的作者，版本，版权。
 	 *
-	 * @return a String representation of information about this Applet
+	 * @返回 一个表示这个applet信息的字符串
 	 */
 	public String getAppletInfo()
 	{
-		// replace this with your own info
+		// 使用你自己的信息替换以下的代码
 		return "Title: BlueJ Applet Demo\n" + 
 			   "Author: Bruce Quig\n" +
 			   "A simple applet that draws two strings.";
@@ -102,21 +94,18 @@ public class $CLASSNAME extends Applet
 
 
 	/**
-	 * Returns information about the parameters that are understood by this 
-	 * Applet. You should return an array of Strings here to provide details
-	 * about each of the parameters separately.
-	 * Each element of the array should be a set of three Strings containing 
-	 * the name, the type, and a description.
+	 * 返回这个Applet能够理解的参数。这里你应该返回一个String数组，分别提供
+	 * 对每一个参数的细节说明
+	 * 每一个数组元素应该由三个String组合而成，包括名字，类型，和描述。
 	 *
-	 * @return  a String[][] representation of parameter information about 
-	 *		  this Applet
+	 * @返回  一个String[][]，代表了这个Applet的参数的信息。
 	 */
 	public String[][] getParameterInfo()
 	{
-		// provide parameter information about the applet
+		// 提供这个applet的参数信息
 		String paramInfo[][] = {
-			 {"firstParameter", "1-10", "description of first parameter"},
-			 {"secondParameter", "boolean", "description of second parameter"}
+			 {"firstParameter", "1-10", "第一个参数的描述"},
+			 {"secondParameter", "boolean", "第二个参数的描述"}
 		};
 		return paramInfo;
 	}

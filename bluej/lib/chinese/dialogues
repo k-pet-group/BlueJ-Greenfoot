@@ -1,334 +1,264 @@
 compile-while-executing
-You cannot compile while the machine
-is executing. This could cause strange
-problems!
+虚拟机运行时不能编译，否则会产生异常情况!
+
 
 exception-thrown
-An exception was thrown:
+产生例外:
 
 break-no-source
-Breakpoint hit in a file for which the
-source cannot be found.  Filename:
+设置断点时发现断点所在文件不存在. 文件名:
 
 error-in-file
-An error occurred in a file for which the
-source cannot be found.
-Filename:line number / error message:
+源文件没找到由此产生错误.
+类:行号:
 
 system-exit
-The method finished through an explicit
-"exit" instruction. No result was
-returned. The exit code is:
+通过一个显式的"exit"指令结束此方法. 无返回结果.
+exit代码是:
 
 no-help
-No help available for this message.
-Please mail the text of the error message
-to mik@monash.edu.au - we will then
-add a help text to our help database. Thanks.
+此信息无帮助文件.
+请将出错信息文件用邮件发至
+mik@monash.edu.au  
+我们将在帮助数据库中添加此帮助文档
+谢谢
 
 # errors:
 #########
 
 no-lib-selected
-You have not specified a library to go to.
-Click on a library in the "Search results" list
-and then press the "Go to" button.
+你没有指定一个库.
+点击选中"查找结果" 列表中的一个库
+并且按"Go to"按钮.
 
 no-target-dialog
-Before you use a package from
-the Library Browser, you need
-at least one target package open
-in a BlueJ window.
+在你从库浏览器中使用一个包之前，
+你应该首先在BlueJ窗口中至少打开一个目标包.
 
 cannot-locate-lib-node
-Cannot locate the selected node in the
-LibraryChooser tree.  The usual cause of
-this error is an out-of-date package file
-in the directory containing the package.
+不能在库选择树定位中定位所选择的节点.
+引起此错误的原因通常是包文件过期.
+
 
 missing-shadow
-Cannot locate shadow area:
+无法定位阴影区:
 
 cannot-run-compiler
-Cannot run compiler. Is the
-program in your path?
-Name of compiler:
+不能运行编译器.该程序被添加到path中了吗?
+编译器的名字:
 
 compiler-error
-Compiler error:
+编译错误:
 
 stream-incomplete
-Compiler error. Error stream incomplete.
+编译错误. 错误流不完整.
 
 out-of-bounds
-Element specified is not
-within array bounds.
+数组元素越界.
 
 cannot-access-element
-Unable to access the array
-element specified.
+不能访问数组元素.
 
 appletviewer-error
-Error executing applet in appletviewer.
+在小应用程序阅览器中运行applet出错.
 
 error-no-name
-You must specify a valid name.
+你必须指定一个合法的名字.
 
 error-save-file
-An error occurred when trying to save
-the file. The file was not saved.
+试图保存文件时产生错误
+文件没有被保存.
 
 cannot-save-keys
-An error occurred while trying to save
-the key bindings. The bindings were not
-saved.
+当试图保存热键设置时出错.
+热键设置没有被保存.
 
 error-no-templates
-The specified template directory (the directory where 
-BlueJ finds the class templates) does not exist. It
-is defined with the property "bluej.templatePath" in
-<bluej-home>/lib/bluej/defs. Check and fix this property.
+指定的模版目录（即BlueJ找到类模版的目录）不存在。
+它一般定义在<bluej-home>/lib/bluej/defs属性文件的"bluej.templatePath"
+属性中，请仔细检查并改正该属性。
 
 skeleton-error
-The default skeleton for the class could not be
-generated. This may be because of configuration
-error in the setup of BlueJ, or because of file
-system access problems.
+缺省的类框架不能产生. 
+这可能是由于安装BlueJ时配置错误
+或者是系统访问权限问题.
 
 error-open-source
-Cannot open the source
-of this class.
+无法打开类的源文件.
 
 error-open-readme
-There is a problem opening the text note
-of this project. A new empty text note has
-been created.
-
+打开此项目的文本时产生错误.
+建立了一个空的新文本.
+ 
 error-writing-readme
-The README file for this project could not be
-updated to add the main class information.
-There was an error changing this file.
+无法增加主类信息，此项目的README文件更新失败，
+更改文件时产生错误.
 
 error-exporting
-An error occurred while trying to export the
-application. Some or all files may not have
-been correctly copied.
+当试图导出 Application 时产生错误.
+部分或全部文件无法正确复制.
 
 error-writing-jar
-The jar file could not be written correctly.
-(Check the file system for access rights and
-disk space availability.)
+jar文件不能被正确地写.
+(检查文件系统存取权限和可用磁盘空间.)
 
 invalid-class-name
-Invalid Class Name.
+不合法的类名.
 
 invalid-package-name
-Invalid Package Name.
+不合法的包名.
 
 directory-exists
-A file or directory with this
-name already exists.
+此文件或目录名已存在.
 
 cannot-copy-package
-There was a problem copying the
-package files. The package was
-not written or may be incomplete.
+复制包文件时产生错误.包没被保存或保存不完整.
 
 file-does-not-exist
-The specified file
-does not exist.
+指定的文件不存在.
 
 cannot-import
-Cannot import file. The file must
-be a Java source file (it's name
-must end in ".java").
+不能导入文件. 文件必须是Java源文件
+(它名字后缀必须为".java").
 
 docdir-blocked-by-file
-The directory for the documentation could
-not be created in the project directory
-because there is a file with same name.
+文档目录无法建在项目目录中，因为有同名文件。
 
 docdir-not-created
-The directory for the documentation could
-not be created in the project directory.
+文档目录无法建在项目目录中。
 
 no-permission-for-docdir
-The directory for the documentation could
-not be created in the project directory
-because of insufficient rights.
+文档目录无法建在项目目录中，因为权限不够。
 
 show-or-generate
-Do you want to show the documentation
-generated previously, or do you want
-to regenerate the whole documentation?
-Just Show
-Regenerate
-Cancel
+你是否想显示以前生成的文档，或者重新生成所有的文档？
+显示
+重新生成
+取消
 
 doctool-error
-Javadoc reported an error. It could be that there is a 
-syntax error in one of the files you tried to generate 
-a documentation for. It could also be that the JDK 
-documentation URL specified in the preferences is incorrect.
-Make sure that all your Java files are compiled and the 
-documentation URL is accessible or disabled. Then try again. 
-If this message appears again you should check the log file 
-with the error messages from Javadoc:
+Javadoc 报告出错。
+出错原因是在你准备产生文档的其中一个文件中存在
+语法错误。也有可能是参数设置中的 JDK 文档 URL 不正确。
+请确认你所有的Java文件都编译通过且文档 URL 可以访问。
+再试一次,如果此错误依然存在，就应该检查 Javadoc 产生
+的错误信息的日志文件:
 
 severe-doc-trouble
-An exception occured during the call
-to the external documentation tool.
+调用外部文档工具时抛出例外。
 
 no-java-sources-found
-No Java source files were
-found in this directory.
-
+此目录下无Java源文件。
+ 
 duplicate-name
-A class with this name already exists
-in this package. You cannot have two
-classes with the same name.
+包中已存在于此同名的类文件，同一个包中不能有同名的类文件。
 
 error-in-import
-An error occured during the attempt to
-import the file. Check access rights and
-disk space.
+导入文件时出错。检查存取权限和磁盘空间。
 
 no-class-selected
-No class or package selected for removal.
-Select a class or package by clicking on
-it before trying to remove.
+没有选择可删除的类或包。删除前请点击选择类或包。 
 
 really-remove-class
-Removing this class will permanently
-delete the source file.
-Do you want to continue?
-Remove
-Cancel
-null
+删除此类将永久删除源文件，是否继续？
+删除
+取消
+无
 
 really-remove-package
-Removing this package will permanently
-delete the package directory (including ALL
-the contents of that directory).
-Do you want to continue?
-Remove
-Cancel
-null
+删除此包将永久删除包目录（包括此目录下的所有
+内容），是否继续？
+删除
+取消
+无
 
 remove-package-open
-The package you have selected for
-deletion has some sub-packages opened
-within BlueJ. You must close these
-packages before you will be allowed
-to delete this package.
+所选中删除的包文件的子包被BlueJ打开。
+必须关闭这些子包才可以删除此包。
 
 package-does-not-exist
-Error in opening package.
-Package does not exist:
+打开包时出错。
+包不存在：
 
 no-bluej-package
-Error in opening package.
-The file/directory is not
-a BlueJ package:
+打开包时出错。
+文件或目录不是BlueJ的包：
 
 applet-height-width
-Applet height and width
-must be specified.
+必须指定 Applet 的高和宽。
 
 cannot-read-help
-Cannot read help file:
+无法读取帮助文件:
 
 not-yet-implemented
-Not Yet Implemented - sorry.
+仍未执行 - 抱歉.
 
 quit-all
-Quit all open projects?
-Quit All
-Cancel
-null
+退出所有的打开项目?
+所有的均退出
+取消
+无
 
 really-reload
-Reload discards all changes since the last edit.
-Are you sure?
-Reload
-Cancel
-null
+从最后一次编辑中恢复所有的丢弃的改变文档，确定吗？
+重新恢复
+取消
+无
 
 really-print
-The text is wider than the paper. Long lines
-will be cut off. You can avoid this by resizing
-the editor window to make it narrower. Do you
-want to print anyway?
-Print
-Cancel
-null
+文本比打印纸宽. 宽出的部分将被裁减，为了避免被裁减，
+请更改编辑器窗口尺寸使之变窄。你想就这样打印吗？
+打印
+取消
+无
 
 open-non-bluej-already-bluej
-The directory you have selected is already
-a BlueJ project.
+所选择的目录已是BlueJ 项目。
 
 open-non-bluej-invalid
-You have indicated you wish to open this
-directory as a BlueJ project, however a file
-has been found with a package statement that
-is incompatible with the current directory
-structure. (For example, if the Java class
-Shape has a package line of com.aa, then the
-file Shape.java must be in a directory aa
-which is itself in a directory com. This com
-directory in turn must be in another directory
-which is the directory you should point BlueJ
-to when attempting to open it).
+必须指明欲打开的目录是BlueJ项目。
+可是，所发现的包中文件与当前目录结构是矛盾的。
+（例如：如果Shap类文件中有一行包的信息com.aa，则
+Shape.java必须在aa目录中，且这个目录必须在com目录中，
+此com目录必须在另一个你打开的BlueJ目录中。）
 
 import-into-current
-You currently have a package open in this window.
-Do you want to import into the current package
-or would you like to create a new project and
-import into that?
-Current
-New Project
-Cancel
+在当前窗口中打开一个包.是否导入到此包中
+或新建一个项目并且导入到新的项目中？
+当前
+新建一个项目
+取消
 
 package-name-invalid
-You have changed the package statement
-to a package which does not exist in this project.
-If you wish to move this class to another
-package you must create the destination
-package first. The package statement has been
-reverted back to its original form.
+你将包的描述改变为一个此项目中不存在的包。
+如果你想把此类移到另一个包中，你必须首先
+保证目标包存在。包的描述被重设为原来的描述。
 
 package-name-changed
-You have changed the package statement which
-tells Java the package this class is in. Do you
-want to move this class to the indicated package
-or do you want to leave the class where it is
-(the package statement will be reverted back to
-its original form)?
-Move
-Revert
-null
+你改变了包的描述，告诉Java这个类所在的包。
+是否将此类移到指定的包中或者保持不变（包的
+描述将重新设置为原始的描述）？
+移走
+回复
+无
 
 ask-index
-Enter array element index [...]
-Array Inspection
-null
+输入数组元素下标[...]
+查看数组
+无
 
 classmgr-changes-no-effect
-The changes you have made to the class libraries
-will not take effect until the next time you
-start BlueJ.
+对类库的改变只有重新启动BlueJ才会生效.
 
 # editor:
 #########
 
 no-search-string
-No search string is defined.
-(Highlight some text or use 'Find' first.)
+没有定义查找串.
+(首先选中欲查找的串或者使用'查找'.)
 
 default-keys
-Do you really want to discard all your
-key bindings and set the default
-bindings?
-Set defaults
-Cancel
-null
+你是否真的想丢弃所有的热件设置并且选择缺省的设置?
+设置为缺省
+取消
+无

@@ -1,18 +1,105 @@
+NullPointerException*
+你试图存取一个对象（可能是对象的域或是对象的消息）。
+此操作无法执行，因为你所存取的对象时空的，即'null'。
+例如："thing.print()"，而此时的"thing"是空值。
+
+ArithmeticException*
+进行算术运算时出现错误，例如：除数为0，或者类似的错误。
+
+StringIndexOutOfBoundsException*
+你正在试图访问字符串中的一个字符或者一个子串，但是你所
+使用的索引值在那个字符串中是无效的。比如，你试图访问一
+个三字符长的字符串中的第15个字符。
+对于子字符串的操作，记住第二个参数是子字符串的长度，而
+不是最后一个字符的索引值。
+
+ClassCastException*
+你使用了强制类型转换 - 那是一条把一个不同的静态类型分配
+给一个对象的指令，就跟下面这个例子一样
+	(String)someObject
+这里someObject被强制转换为String。这是合法的当且仅当someObject
+中存放的对象的确是String类型的。
+换句话说：你能够把一个对象强制转换为类型T，当且仅当这个
+对象是类型T的或者是类型T的一个子类型，对你来讲它不是。
+
+IndexOutOfBoundsException*
+某种类型（比如一个数组，一个字符串，一个向量）的索引值超
+出了范围。"Out of range"表示索引值不在数组或其他集合中
+（你试图访问第五个元素，但是只存在三个元素）。
+
+ArrayIndexOutOfBoundsException*
+数组的索引值越界了。"Out of range"表示索引值不在数组中
+（你试图访问第五个元素，但是只存在三个元素）。合法的索
+引值是 0..数组长度-1。
+
+ConcurrentModificationException*
+这说明你正在一个集合上进行反复操作。当你正在执行这项操
+作的时候，集合被改变了。这是一个问题。你不允许改变集合
+在进行反复操作的时候。另外一种说法是：你不可以继续反复
+操作在修改了集合之后。在反复操作期间，唯一允许的修改是
+使用反复器的remove方法删除元素（不是集合本身的remove方
+法）。
+
+ArrayStoreException*
+没用帮助可用 - 抱歉。
+
+CannotRedoException*
+没用帮助可用 - 抱歉。
+
+CannotUndoException*
+没用帮助可用 - 抱歉。
+
+CMMException*
+没用帮助可用 - 抱歉。
+
+EmptyStackException*
+没用帮助可用 - 抱歉。
+
+IllegalArgumentException*
+没用帮助可用 - 抱歉。
+
+IllegalMonitorStateException*
+没用帮助可用 - 抱歉。
+
+IllegalPathStateException*
+没用帮助可用 - 抱歉。
+
+IllegalStateException*
+没用帮助可用 - 抱歉。
+
+ImagingOpException*
+没用帮助可用 - 抱歉。
+
+MissingResourceException*
+没用帮助可用 - 抱歉。
+
+NegativeArraySizeException*
+没用帮助可用 - 抱歉。
+
+NoSuchElementException*
+没用帮助可用 - 抱歉。
+
+ProfileDataException*
+没用帮助可用 - 抱歉。
+
+ProviderException*
+没用帮助可用 - 抱歉。
+
+RasterFormatException*
+没用帮助可用 - 抱歉。
+
+SecurityException*
+没用帮助可用 - 抱歉。
+
+SystemException*
+没用帮助可用 - 抱歉。
+
+UndeclaredThrowableException*
+没用帮助可用 - 抱歉。
+
+UnsupportedOperationException*
+没用帮助可用 - 抱歉。
+
 Exception
-This is a general exception that only says 
-that something went wrong. I have no idea 
-what it is...
-
-NullPointerException
-You tried to access an object (either a field
-in an object or a message of an object). This
-did not work because the object reference you
-used to access the object was 'null'. For 
-example: You wrote "thing.print()", and "thing"
-was null at the time.
-
-ArithmeticException
-Something went wrong during an arithmetic
-calculation, such as a division by 0 or
-something similar.
-
+这是一个一般的例外，只说明出错了，但并不知道
+错误出在那里...

@@ -1,8 +1,8 @@
 $PKGLINE/**
- * Class $CLASSNAME - write a description of the class here
+ * 类 $CLASSNAME - 在这里给出这个类的描述
  * 
- * @author: 
- * date: 
+ * @作者: 
+ * @日期: 
  */
 
 import javax.swing.JApplet;
@@ -11,119 +11,113 @@ import java.awt.Graphics;
 
 public class $CLASSNAME extends JApplet
 {
-	// instance variables - replace the example below with your own
+	// 实例变量 - 用你自己的变量替换下面的例子
 	private int x;
 
 	 /**
-	 * Called by the browser or applet viewer to inform this JApplet that it
-	 * has been loaded into the system. It is always called before the first 
-	 * time that the start method is called.
+	 * 由浏览器或者applet viewer调用，通知这个JApplet它已经被装入系统。
+	 * 它总是在start方法第一次被调用之前被调用
 	 */
 	public void init()
 	{
-		// this is a workaround for a security conflict with current browsers
-		// including Netscape & Internet Explorer which do not allow access to 
-		// AWT system event queuen which JApplets do on startup to check access. 
+		// 这是一个工作区，用来在启动时进行和当前浏览器的安全冲突的检查，包括
+		// Netscape & Internet Explorer，它们不允许访问JApplets要访问的AWT系统
+		// 事件队列
 		JRootPane rootPane = this.getRootPane();	
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 	
-		// provide any initialisation necessary for your JApplet
+		// 提供任何你的JApplet所必须的初始化步骤
 
 	}
 
 	/**
-	 * Called by the browser or applet viewer to inform this JApplet that it 
-	 * should start its execution. It is called after the init method and 
-	 * each time the JApplet is revisited in a Web page. 
+	 * 由浏览器或者applet viewer调用，通知这个JApplet它应该开始执行。
+	 * 在init方法调用之后以及每次Web网页被重新访问的时候被调用
 	 */
 	public void start()
 	{
-		// provide any code requred to run each time 
-		// web page is visited
+		// 提供每次网页被访问时运行所需要的代码
 
 	}
 
-	/** 
-	 * Called by the browser or applet viewer to inform this JApplet that
-	 * it should stop its execution. It is called when the Web page that
-	 * contains this JApplet has been replaced by another page, and also
-	 * just before the JApplet is to be destroyed. 
+	/**
+	 * 由浏览器或者applet viewer调用，通知这个JApplet它应该停止执行。
+	 * 当包含这个JApplet的页面被另外一个页面替换的时候它会被调用，在
+	 * JApplet被destroy的时候也会被调用。
 	 */
 	public void stop()
 	{
-		// provide any code that needs to be run when page
-		// is replaced by another page or before JApplet is destroyed 
+		// 提供当页面被另一个页面替换或者JApplet被destroy之前需要执行的
+		// 的任何方法
 	
 	}
 
 	/**
-	 * Called by the browser or applet viewer to inform this JApplet that it
-	 * is being reclaimed and that it should destroy any resources that it
-	 * has allocated. The stop method will always be called before destroy. 
+	 * 由浏览器或者applet viewer调用，通知这个JApplet它正在被收回，它应该
+	 * 释放所有它已经申请的资源。stop方法总会在destroy方法之前被调用。
 	 */
 	public void destroy()
 	{
-		// provide code to be run when JApplet is about to be destroyed.
+		// 提供JApplet将要被destroy之前需要执行的代码
 	
 	}
 
 
 	/**
-	 * Returns information about this applet. 
-	 * An applet should override this method to return a String containing 
-	 * information about the author, version, and copyright of the JApplet.
+	 * 返回这个JApplet的信息。
+	 * 一个JApplet应该重写这个方法来返回一个包含这个JApplet信息的字符串
+	 * 关于这个JApplet的作者，版本，版权。
 	 *
-	 * @return a String representation of information about this JApplet
+	 * @返回 一个表示这个JApplet信息的字符串
 	 */
 	public String getAppletInfo()
 	{
-		// provide information about the applet
+		// 使用你自己的信息替换以下的代码
 		return "Title:   \nAuthor:   \nA simple applet example description. ";
 	}
 
 
 	/**
-	 * Returns parameter information about this JApplet. 
-	 * Returns information about the parameters than are understood by this JApplet.
-	 * An applet should override this method to return an array of Strings 
-	 * describing these parameters. 
-	 * Each element of the array should be a set of three Strings containing 
-	 * the name, the type, and a description.
+	 * 返回这个JApplet的参数信息。
+	 * 返回这个JApplet能够理解的参数的信息。一个JApplet应该重写这个方法
+	 * 来返回一个String集合数组，描述它的参数。
+	 * 每一个数组元素应该由三个String组合而成，包括名字，类型，和描述。
 	 *
-	 * @return a String[] representation of parameter information about this JApplet
+	 * @返回  一个String[][]，代表了这个JApplet的参数的信息。
 	 */
+
 	public String[][] getParameterInfo()
 	{
-		// provide parameter information about the applet
+		// 提供这个applet的参数信息
 		String paramInfo[][] = {
-				 {"firstParameter",	"1-10",	"description of first parameter"},
-				 {"status", "boolean", "description of second parameter"},
-				 {"images",   "url",	 "description of third parameter"}
+				 {"firstParameter",	"1-10",	"第一个参数的描述"},
+				 {"status", "boolean", "第二个参数的描述"},
+				 {"images",   "url",	 "第三个参数的描述"}
 		};
 		return paramInfo;
 	}
 
 	/**
-	 * Paint method for applet.
+	 * applet的Paint方法
 	 * 
-	 * @param  g   the Graphics object for this applet
+	 * @参数  g   这个applet的Graphics对象
 	 */
 	public void paint(Graphics g)
 	{
-		// simple text displayed on applet
+		// 在applet上显示简单文本
 		g.drawString("Sample JApplet", 20, 20);
 	}
 
 
 	/**
-	 * An example of a method - replace this comment with your own
-	 * 	
-	 * @param  y   a sample parameter for a method
-	 * @return	 the sum of x and y 
+	 * 一个方法的例子 - 使用你自己的说明替代它
+	 * 
+	 * @参数 y，方法的一个样本参数
+	 * @返回 x，y的和 
 	 */
 	public int sampleMethod(int y)
 	{
-		// put your code here
+		// 在这里加入你的代码
 		return x + y;
 	}
 }

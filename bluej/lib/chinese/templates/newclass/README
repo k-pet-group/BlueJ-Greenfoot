@@ -1,40 +1,30 @@
 README - <bluej-home>/lib/<language>/templates/newclass/README
 --------------------------------------------------------------
 
-This directory contains class templates for BlueJ.
+这个目录包含了BlueJ的模板文件。
 
-These class templates appear as choices in the "New Class" dialogue in the
-BlueJ environment.
+这些类模板在BlueJ环境中"新建类"对话框中出现。
 
-
-Changing templates
+改变模板
 ------------------
-Templates can easily be changed by editing these files.
+模板可以很方便的被改变，通过编辑这些文件。
 
-
-Adding new templates
+添加新的模板
 --------------------
-To add a template, create a new file in this directory with a ".tmpl"
-suffix (for example "mainclass.tmpl").
+要添加一个新的模板，在这个目录中创建一个新的文件，以".tmpl"作为扩展名
+（比如"mainclass.tmpl"）
 
-Names for applets, interfaces or abstract classes should start with 
-"applet", "interface" or "abstract", respectively. Everything else will be 
-treated as a standard class.
+为applets，interfaces或者abstract classes取名时，应该分别以"applet", 
+"interface"或者"abstract"打头。任何其它的文件都会被认为是标准类。
 
-By default, this template will be listed in the New Class dialogue at the
-end of the selection list with the base of its filename ("mainclass").
+默认的，这个模板会列在新建类对话框选项列表的底部，并以它的文件名命名
+（"mainclass"）。
 
-The name appearing in the dialogue may be defined by defining a property
-"pkgmgr.newClass.<template-name>" in the labels file (the labels file
-is at <bluej-home>/lib/<language>/labels). For example, defining
-
+在对话框中出现的名字可以通过在labels（labels文件在<bluej-home>/lib/<language>/labels）
+定义一个属性"pkgmgr.newClass.<template-name>"来定义。比如，定义
    pkgmgr.newClass.mainclass=Class with Main
+会导致在对话框中出现一个新的选项"Class with Main"
 
-will result in "Class with Main" appearing in the dialogue for our new 
-choice.
-
-The position in the list may be specified by adding this new template to
-the list specified in the "bluej.classTemplates" property in the BlueJ
-definitions file (<bluej-home>/lib/bluej.defs). All templates listed here
-will appear in the specified order, other templates in this directory will
-be appended to the list in random order.
+在列表中的位置可以通过在BlueJ定义文件（<bluej-home>/lib/bluej.defs）中的
+"bluej.classTemplates"属性中添加这个模板来定义。所有在这里列出的模板，会
+以定义的顺序出现，这个目录中其它的模板会以随机的顺序被添加到列表的末尾。

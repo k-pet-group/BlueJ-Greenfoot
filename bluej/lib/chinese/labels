@@ -1,483 +1,487 @@
-okay=Ok
-cancel=Cancel
-close=Close
-continue=Continue
+okay=\u5b8c\u6210
+cancel=\u53d6\u6d88
+close=\u5173\u95ed
+continue=\u7ee7\u7eed
 
-main.invalidPackage=Package not found
+main.invalidPackage=\u6ca1\u627e\u5230\u5305
 
-compileException=Exception during compilation
-compiler.thread.title=BlueJ compiler thread
-compiler.invalidcompiler=bluej.compiler.type is not set to a valid compiler type
-compiler.nocompiler=Compiler could not be executed
+compileException=\u7f16\u8bd1\u65f6\u4ea7\u751f\u4f8b\u5916
+compiler.thread.title=BlueJ \u7f16\u8bd1\u5668\u7ebf\u7a0b
+compiler.invalidcompiler=bluej.compiler.type \u6ca1\u6709\u8bbe\u7f6e\u4e3a\u6b63\u786e\u7684\u7f16\u8bd1\u5668\u7c7b\u578b
+compiler.nocompiler=\u7f16\u8bd1\u5668\u65e0\u6cd5\u8fd0\u884c
 
-debugger.objectviewer.title=BlueJ:  Object Inspector of class
-debugger.resultviewer.title=BlueJ:  Method Result
-debugger.objectviewer.staticListTitle=Static fields
-debugger.objectviewer.objListTitle=Object fields
-debugger.objectviewer.inspect=Inspect
-debugger.objectviewer.get=Get
-debugger.objectviewer.objectClassName=Object of class
+debugger.objectviewer.title=BlueJ:  \u7c7b\u7684\u5bf9\u8c61\u68c0\u6d4b\u5668
+debugger.resultviewer.title=BlueJ:  \u65b9\u6cd5\u7684\u7ed3\u679c
+debugger.objectviewer.staticListTitle=\u9759\u6001\u57df
+debugger.objectviewer.objListTitle=\u5bf9\u8c61\u57df
+debugger.objectviewer.inspect=\u67e5\u770b
+debugger.objectviewer.get=\u83b7\u53d6
+debugger.objectviewer.objectClassName=\u7c7b\u7684\u5bf9\u8c61
 
-debugger.objectviewer.ori.reference=reference
-debugger.objectviewer.ori.copy=Copy
-debugger.objectviewer.ori.paste=Paste
-debugger.objectviewer.ori.method=Method
-debugger.objectviewer.ori.methodDialog=Method Dialog
-debugger.objectviewer.ori.assignDialog=Assign Dialog
-debugger.objectviewer.ori.dialog=Dialog
-debugger.objectviewer.ori.selected=Selected
-debugger.objectviewer.ori.primitive=Primitive
-debugger.objectviewer.ori.invoke=Invoke
-debugger.objectviewer.ori.invokeMethod=Invoke Method
-debugger.objectviewer.ori.assign=Assign
-debugger.objectviewer.ori.primitiveOrString=Primitive/String
-debugger.objectviewer.ori.error=Error:
-debugger.objectviewer.ori.primInspectError=A primitive value is selected.\nYou can't inspect primitive values!
-debugger.objectviewer.ori.nothingInspectedError=Nothing is selected:\nReference not inspected!
-debugger.objectviewer.ori.print=Print
-debugger.objectviewer.ori.printScale.1=Enter scaling factor percentage (default
-debugger.objectviewer.ori.printScale.2=\nThe default will exactly fit the flowchart on the page.
-debugger.objectviewer.ori.printScale.3=\nIf you Cancel and Print with the other orientation, you will\nbe able to obtain a larger scaling factor percentage (
-debugger.objectviewer.ori.numberError=You must enter a number.
-debugger.objectviewer.ori.datatypeError=Invalid entry for datatype
-debugger.objectviewer.ori.noSelectionError=No value has been selected
-debugger.objectviewer.ori.noAssignmentError=Assignment was not performed
-debugger.objectviewer.ori.noInvokeError=Method was not invoked
-debugger.objectviewer.ori.more=<<more>>
-debugger.objectviewer.ori.top=Top
-debugger.objectviewer.ori.bottom=Bottom
-debugger.objectviewer.ori.next=Next
-debugger.objectviewer.ori.entry=Entry
-debugger.objectviewer.ori.element=Element
-debugger.objectviewer.ori.key=Key
-debugger.objectviewer.ori.value=Value
-debugger.objectviewer.ori.alreadyShown=Object is already shown in diagram!
-debugger.objectviewer.ori.cannotPastePrim=Cannot paste a primitive type into diagram!
-debugger.objectviewer.ori.parmToolTip=Click here to set parameter
-debugger.objectviewer.ori.assignToolTip=Click here to set source
-debugger.objectviewer.ori.close=Close
-debugger.objectviewer.ori.methodResult=Returned Result
+debugger.objectviewer.ori.reference=\u53c2\u8003
+debugger.objectviewer.ori.copy=\u590d\u5236
+debugger.objectviewer.ori.paste=\u7c98\u8d34
+debugger.objectviewer.ori.method=\u65b9\u6cd5
+debugger.objectviewer.ori.methodDialog=\u65b9\u6cd5\u5bf9\u8bdd\u6846
+debugger.objectviewer.ori.assignDialog=\u8d4b\u503c\u5bf9\u8bdd\u6846
+debugger.objectviewer.ori.dialog=\u5bf9\u8bdd\u6846
+debugger.objectviewer.ori.selected=\u5df2\u9009\u4e2d
+debugger.objectviewer.ori.primitive=\u539f\u59cb\u7684
+debugger.objectviewer.ori.invoke=\u8c03\u7528
+debugger.objectviewer.ori.invokeMethod=\u65b9\u6cd5\u8c03\u7528
+debugger.objectviewer.ori.assign=\u8d4b\u503c
+debugger.objectviewer.ori.primitiveOrString=\u539f\u59cb\u7684/\u5b57\u7b26\u4e32
+debugger.objectviewer.ori.error=\u9519\u8bef:
+debugger.objectviewer.ori.primInspectError=\u9009\u62e9\u4e86\u4e00\u4e2a\u539f\u59cb\u503c.\n\u4f60\u4e0d\u80fd\u67e5\u770b\u539f\u59cb\u503c!
+debugger.objectviewer.ori.nothingInspectedError=\u672a\u9009\u4e2d\u4efb\u4f55\u5185\u5bb9:\n\u65e0\u6cd5\u67e5\u770b\u53c2\u8003!
+debugger.objectviewer.ori.print=\u6253\u5370
+debugger.objectviewer.ori.printScale.1=\u8f93\u5165\u7f29\u653e\u767e\u5206\u6bd4(\u7f3a\u7701
+debugger.objectviewer.ori.printScale.2=\n\u7f3a\u7701\u7684\u503c\u9002\u5408\u6b64\u9875\u9762\u6d41\u7a0b\u56fe.
+debugger.objectviewer.ori.printScale.3=\n\u5982\u679c\u53d6\u6d88\u548c\u6253\u5370\u53e6\u4e00\u65b9\u5411, \u4f60\u5c06\u80fd\n\u83b7\u5f97\u66f4\u5927\u7684\u7f29\u653e\u767e\u5206\u6bd4(
+debugger.objectviewer.ori.numberError=\u4f60\u5fc5\u987b\u8f93\u5165\u4e00\u4e2a\u6570\u5b57.
+debugger.objectviewer.ori.datatypeError=\u8f93\u5165\u6570\u636e\u7c7b\u578b\u5165\u53e3
+debugger.objectviewer.ori.noSelectionError=\u6ca1\u6709\u9009\u62e9\u4efb\u4f55\u503c
+debugger.objectviewer.ori.noAssignmentError=\u4efb\u52a1\u6ca1\u6709\u88ab\u6267\u884c
+debugger.objectviewer.ori.noInvokeError=\u65b9\u6cd5\u6ca1\u6709\u88ab\u8c03\u7528
+debugger.objectviewer.ori.more=<<\u66f4\u591a>>
+debugger.objectviewer.ori.top=\u9876\u90e8
+debugger.objectviewer.ori.bottom=\u5e95\u90e8
+debugger.objectviewer.ori.next=\u4e0b\u4e00\u4e2a
+debugger.objectviewer.ori.entry=\u5165\u53e3
+debugger.objectviewer.ori.element=\u5143\u7d20
+debugger.objectviewer.ori.key=\u5173\u952e\u5b57
+debugger.objectviewer.ori.value=\u503c
+debugger.objectviewer.ori.alreadyShown=\u5bf9\u8c61\u5df2\u663e\u793a\u5728\u56fe\u8868\u6846\u4e2d!
+debugger.objectviewer.ori.cannotPastePrim=\u4e0d\u80fd\u7c98\u8d34\u4e00\u4e2a\u539f\u59cb\u7c7b\u578b\u5230\u56fe\u8868\u6846\u4e2d!
+debugger.objectviewer.ori.parmToolTip=\u70b9\u51fb\u6b64\u5904\u8bbe\u7f6e\u53c2\u6570
+debugger.objectviewer.ori.assignToolTip=\u70b9\u51fb\u6b64\u5904\u8bbe\u7f6e\u6e90\u4ee3\u7801
+debugger.objectviewer.ori.close=\u5173\u95ed
+debugger.objectviewer.ori.methodResult=\u8fd4\u56de\u7ed3\u679c
 
-debugger.objectwrapper.methodException=Exception accessing methods:
-debugger.objectwrapper.invocationException=Exception during invocation:
-debugger.objectwrapper.inspect=Inspect
-debugger.objectwrapper.remove=Remove
-debugger.objectwrapper.serializable=Serialize
-debugger.objectwrapper.redefined=redefined in
-debugger.objectwrapper.inherited=inherited from
+debugger.objectwrapper.methodException=\u8bbf\u95ee\u65b9\u6cd5\u65f6\u4ea7\u751f\u4f8b\u5916:
+debugger.objectwrapper.invocationException=\u8c03\u7528\u65f6\u4ea7\u751f\u4f8b\u5916:
+debugger.objectwrapper.inspect=\u67e5\u770b
+debugger.objectwrapper.remove=\u5220\u9664
+debugger.objectwrapper.serializable=\u8fde\u7eed
+debugger.objectwrapper.redefined=\u91cd\u65b0\u5b9a\u4e49
+debugger.objectwrapper.inherited=\u7ee7\u627f\u4e8e
 
-debugger.threadstatus.finished=finished
-debugger.threadstatus.breakpoint=at breakpoint
-debugger.threadstatus.stopped=stopped
-debugger.threadstatus.monitor=at monitor
-debugger.threadstatus.notstarted=not started
-debugger.threadstatus.running=running
-debugger.threadstatus.sleeping=sleeping
-debugger.threadstatus.unknown=unknown status
-debugger.threadstatus.waiting=waiting
-debugger.threadstatus.zombie=zombie
+debugger.threadstatus.finished=\u5b8c\u6210
+debugger.threadstatus.breakpoint=\u65ad\u70b9
+debugger.threadstatus.stopped=\u505c\u6b62
+debugger.threadstatus.monitor=\u5728\u76d1\u89c6\u5668
+debugger.threadstatus.notstarted=\u6ca1\u6709\u5f00\u59cb
+debugger.threadstatus.running=\u8fd0\u884c
+debugger.threadstatus.sleeping=\u7761\u7720
+debugger.threadstatus.unknown=\u672a\u77e5\u72b6\u6001
+debugger.threadstatus.waiting=\u7b49\u5f85
+debugger.threadstatus.zombie=\u50f5\u6b7b
 
 #Debugger messages
-debugger.jdiDebugger.noBreakpointMsg=Clear breakpoint: no breakpoint found in this line.
-debugger.jdiDebugger.noLineNumberMsg=This class has been compiled without line number\ninformation. You cannot set breakpoints.
-debugger.jdiDebugger.noCodeMsg=Cannot set breakpoint: no code in this line
-debugger.jdiDebugger.internalErrorMsg=There was an internal error while attempting to\nset this breakpoint
-
+debugger.jdiDebugger.noBreakpointMsg=\u6e05\u9664\u65ad\u70b9: \u5728\u672c\u884c\u4e2d\u672a\u53d1\u73b0\u65ad\u70b9.
+debugger.jdiDebugger.noLineNumberMsg=\u6b64\u7c7b\u4e0d\u80fd\u7f16\u8bd1\uff0c\u56e0\u4e3a\u7f3a\u5c11\u884c\u53f7\u4fe1\u606f. \u4f60\u4e0d\u80fd\u8bbe\u7f6e\u65ad\u70b9.
+debugger.jdiDebugger.noCodeMsg=\u4e0d\u80fd\u8bbe\u7f6e\u65ad\u70b9\uff1a\u6b64\u884c\u65e0\u4ee3\u7801
+debugger.jdiDebugger.internalErrorMsg=\u8bd5\u56fe\u8bbe\u7f6e\u6b64\u65ad\u70b9\u65f6\u4ea7\u751f\u5185\u90e8\u9519\u8bef
+  
 #library browser configuration
-browser.title=BlueJ:  Library Browser
+browser.title=BlueJ:  \u5e93\u6d4f\u89c8\u5668
 browser.version=0.1
-browser.togglemessagebox.toggle.text=don't display this message again
+browser.togglemessagebox.toggle.text=\u4e0d\u518d\u663e\u793a\u6b64\u4fe1\u606f
 
-browser.librarychooser.loading.status=Loading libraries...
-browser.librarychooser.loaded.status=Libraries loaded.
-browser.librarychooser.openingarchive.status=Opening archive library
-browser.librarychooser.config.user=userlibs.properties
+browser.librarychooser.loading.status=\u88c5\u8f7d\u5e93...
+browser.librarychooser.loaded.status=\u5e93\u5df2\u88c5\u8f7d.
+browser.librarychooser.openingarchive.status=\u6b63\u5728\u6253\u5f00\u5b58\u6863\u5e93
+browser.librarychooser.config.user=userlibs.properties	
 
-browser.classchooser.classmenu.open=Open
-browser.classchooser.classmenu.use=Use...
-browser.classchooser.packagemenu.open=Open
-browser.classchooser.packagemenu.use=Use...
+browser.classchooser.classmenu.open=\u6253\u5f00
+browser.classchooser.classmenu.use=\u4f7f\u7528...
+browser.classchooser.packagemenu.open=\u6253\u5f00
+browser.classchooser.packagemenu.use=\u4f7f\u7528...
 
-browser.usepackage.dialog.text=Select destination package and click Ok
+browser.usepackage.dialog.text=\u9009\u62e9\u76ee\u6807\u5305\u5e76\u4e14\u70b9\u51fb\u5b8c\u6210
 
-browser.missingclass.text=The browser cannot locate the class $
+browser.missingclass.text=\u6d4f\u89c8\u5668\u4e0d\u80fd\u5b9a\u4f4d\u7c7b$
 
 #library browser menus
-browser.menu.library=Library
-browser.menu.library.properties=Properties...
-browser.menu.library.addlibrary=Add...
-browser.menu.library.addlibrary.title=Add Library
-browser.menu.library.refresh=Refresh
-browser.menu.library.close=Close
+browser.menu.library=\u5e93
+browser.menu.library.properties=\u5c5e\u6027...
+browser.menu.library.addlibrary=\u589e\u52a0...
+browser.menu.library.addlibrary.title=\u589e\u52a0\u5e93
+browser.menu.library.refresh=\u5237\u65b0
+browser.menu.library.close=\u5173\u95ed
 
 # Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Preferences
+prefmgr.title=BlueJ: \u53c2\u6570\u8bbe\u7f6e
+prefmgr.notation.title=\u5efa\u6a21\u7b26\u53f7\u98ce\u683c
+prefmgr.notation.blue=BlueJ\u98ce\u683c
+prefmgr.notation.uml=\u7edf\u4e00\u5efa\u6a21\u8bed\u8a00(UML)\u98ce\u683c
 
 # Class Manager panel user interface elements and error messages
-classmgr.prefpaneltitle=Libraries
-classmgr.userlibraries=User Libraries
-classmgr.systemlibraries=System Libraries
-classmgr.bootlibraries=Boot Libraries
-classmgr.add=Add
-classmgr.delete=Delete
-classmgr.locationcolumn=Location
-classmgr.descriptioncolumn=Description
-classmgr.bootclass=Boot class library
-classmgr.bluejclass=BlueJ class library
-classmgr.error.unresolvable=Unresolvable Path
-classmgr.error.nodescription=No Description
-classmgr.error.missingclasspath=No Java classpath. Class loading behaviour may be strange because\nclasses in the current directory will be resolved first.
-classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be run on a pre JDK 1.2 environment.
+classmgr.prefpaneltitle=\u5e93
+classmgr.userlibraries=\u7528\u6237\u5e93
+classmgr.systemlibraries=\u7cfb\u7edf\u5e93
+classmgr.bootlibraries=\u5f15\u5bfc\u5e93
+classmgr.add=\u589e\u52a0
+classmgr.delete=\u5220\u9664
+classmgr.locationcolumn=\u5b9a\u4f4d
+classmgr.descriptioncolumn=\u63cf\u8ff0
+classmgr.bootclass=\u5f15\u5bfc\u7c7b\u5e93
+classmgr.bluejclass=BlueJ\u7c7b\u5e93
+classmgr.error.unresolvable=\u4e0d\u53ef\u786e\u8ba4\u7684\u8def\u5f84
+classmgr.error.nodescription=\u65e0\u63cf\u8ff0\u4fe1\u606f
+classmgr.error.missingclasspath=\u65e0Java\u7684classpath. \u7c7b\u88c5\u8f7d\u65f6\u53ef\u80fd\u4ea7\u751f\u5f02\u5e38\uff0c\u56e0\u4e3a\u5f53\u524d\u76ee\u5f55\u4e0b\u7684\u7c7b\u5c06\u5148\u88ab\u89e3\u6790.
+classmgr.error.missingbootclasspath=\u65e0Sun boot classpath. BlueJ \u4e0d\u80fd\u5728\u65e9\u4e8eJDK 1.2\u7684\u73af\u5883\u4e0b\u8fd0\u884c.
 
 # Miscellaneous Preferences panel
-prefmgr.misc.prefpaneltitle=Miscellaneous
-prefmgr.misc.editorfontsize=Editor font size
-prefmgr.misc.usesyntaxhilighting=Use syntax hilighting
-prefmgr.misc.jdkurlpath=JDK documentation URL
-prefmgr.misc.linkToLib=Use this URL when generating project documentation
-prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation, it must be correct and accessible.
-prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
+prefmgr.misc.prefpaneltitle=\u6742\u9879
+prefmgr.misc.editorfontsize=\u7f16\u8f91\u5668\u5b57\u4f53\u5927\u5c0f
+prefmgr.misc.usesyntaxhilighting=\u4f7f\u7528\u53e5\u6cd5\u9ad8\u4eae\u663e\u793a
+prefmgr.misc.jdkurlpath=JDK \u6587\u6863URL
+prefmgr.misc.linkToLib=\u5f53\u4ea7\u751f\u9879\u76ee\u6587\u6863\u65f6\u4f7f\u7528\u6b64URL
+prefmgr.misc.linkToLibNoteLine1=\u5982\u679c\u7528\u6b64URL\u751f\u6210\u6587\u6863, \u90a3\u4e48\u5b83\u5fc5\u987b\u662f\u6b63\u786e\u7684\u548c\u53ef\u8bbf\u95ee\u7684.
+prefmgr.misc.linkToLibNoteLine2=\u53e6\u5916\u751f\u6210\u6587\u6863\u5931\u8d25\uff0c\u8bf7\u4e0d\u8981\u4f7f\u7528\u6b64\u9009\u9879\uff0c\u4f7f\u7528\u8131\u673a\u5de5\u4f5c.
 
-#---------------
+
+ #---------------
 #Editor labels
 #---------------
-editor.title=BlueJ: Editor
+editor.title=BlueJ: \u7f16\u8f91\u5668
 
 #button lables for toolbar commands
-editor.compileLabel = Compile
-editor.undoLabel = Undo
-editor.cutLabel = Cut
-editor.copyLabel = Copy
-editor.pasteLabel = Paste
-editor.findLabel = Find...
-editor.find-nextLabel = Find Next
-editor.closeLabel = Close
-editor.page-setupLabel = Page Setup...
+editor.compileLabel = \u7f16\u8bd1
+editor.undoLabel = \u64a4\u9500
+editor.cutLabel = \u526a\u5207
+editor.copyLabel = \u590d\u5236
+editor.pasteLabel = \u7c98\u8d34
+editor.findLabel = \u67e5\u627e...
+editor.find-nextLabel = \u67e5\u627e\u4e0b\u4e00\u4e2a
+editor.closeLabel = \u5173\u95ed
+editor.page-setupLabel = \u9875\u9762\u8bbe\u7f6e...
 
 # menu labels (MUST be defined)
-editor.classLabel = Class
-editor.editLabel = Edit
-editor.toolsLabel = Tools
-editor.debugLabel = Debug
-editor.optionLabel = Options
-editor.helpLabel = Help
+editor.classLabel = \u7c7b
+editor.editLabel = \u7f16\u8f91
+editor.toolsLabel = \u5de5\u5177
+editor.debugLabel = \u8c03\u8bd5
+editor.optionLabel = \u9009\u9879
+editor.helpLabel = \u5e2e\u52a9
 
 # item labels (can be omitted if same as action name)
-editor.saveLabel = Save
-editor.reloadLabel = Reload
-editor.printLabel = Print...
-editor.closeLabel =Close
+editor.saveLabel = \u4fdd\u5b58
+editor.reloadLabel = \u91cd\u65b0\u8f7d\u5165
+editor.printLabel = \u6253\u5370...
+editor.closeLabel =\u5173\u95ed
 
-editor.redoLabel = Redo
-editor.cut-to-clipboardLabel = Cut
-editor.copy-to-clipboardLabel = Copy
-editor.paste-from-clipboardLabel = Paste
-editor.commentLabel = Comment
-editor.uncommentLabel = Uncomment
-editor.insert-methodLabel = Insert method
+editor.redoLabel = \u91cd\u505a
+editor.cut-to-clipboardLabel = \u526a\u5207
+editor.copy-to-clipboardLabel = \u590d\u5236
+editor.paste-from-clipboardLabel = \u7c98\u8d34
+editor.commentLabel = \u6ce8\u91ca
+editor.uncommentLabel = \u4e0d\u6ce8\u91ca
+editor.insert-methodLabel = \u63d2\u5165\u65b9\u6cd5
 
-editor.find-backwardLabel = Find Backward...
-editor.replaceLabel = Replace...
-editor.compileLabel = Compile
-editor.toggle-breakpointLabel = Set/Clear Breakpoint
-editor.toggle-interface-viewLabel = Toggle Interface View
+editor.find-backwardLabel = \u5411\u540e\u67e5\u627e...
+editor.replaceLabel = \u66ff\u6362...
+editor.compileLabel = \u7f16\u8bd1
+editor.toggle-breakpointLabel = \u8bbe\u7f6e/\u6e05\u9664\u65ad\u70b9
+editor.toggle-interface-viewLabel = \u5207\u6362\u63a5\u53e3\u89c6\u56fe
 
-editor.implementationLabel = Implementation
-editor.interfaceLabel = Interface
+editor.implementationLabel = \u5b9e\u73b0
+editor.interfaceLabel = \u63a5\u53e3
 
-editor.state.readOnly = read-only
-editor.state.saved = saved
-editor.state.changed = changed
+editor.state.readOnly =\u53ea\u8bfb
+editor.state.saved = \u4fdd\u5b58
+editor.state.changed = \u4fee\u6539
 
-editor.key-bindingsLabel = Key Bindings...
-editor.preferencesLabel = Preferences...
+editor.key-bindingsLabel = \u70ed\u952e\u8868...
+editor.preferencesLabel = \u53c2\u6570...
 
 # Dialog titles and texts
-editor.functions.title = Editor Functions
-editor.functions.editFunctions = Edit Functions
-editor.functions.moveScroll = Move & Scroll
-editor.functions.classFunctions = Class Functions
-editor.functions.customisation = Customisation
-editor.functions.help = Help
-editor.functions.misc = Misc
-editor.functions.defaults=Defaults
-editor.functions.categories=Categories:
-editor.functions.keys=Key Bindings
-editor.functions.addkey=Add Key
-editor.functions.delkey=Delete Key
+editor.functions.title = \u7f16\u8f91\u5668\u529f\u80fd
+editor.functions.editFunctions = \u7f16\u8f91\u529f\u80fd
+editor.functions.moveScroll = \u79fb\u52a8\u548c\u5377\u6eda
+editor.functions.classFunctions = \u7c7b\u529f\u80fd
+editor.functions.customisation = \u5b9a\u5236
+editor.functions.help = \u5e2e\u52a9
+editor.functions.misc = \u6742\u9879
+editor.functions.defaults=\u7f3a\u7701
+editor.functions.categories=\u79cd\u7c7b:
+editor.functions.keys=\u5bf9\u5e94\u70ed\u952e
+editor.functions.addkey=\u589e\u52a0\u70ed\u952e
+editor.functions.delkey=\u5220\u9664\u70ed\u952e
 
-editor.find.title = Find
-editor.find.textfield.label = Find:
-editor.find.forward=Forward
-editor.find.backward=Backward
+editor.find.title = \u67e5\u627e
+editor.find.textfield.label = \u67e5\u627e:
+editor.find.forward=\u5411\u524d
+editor.find.backward=\u5411\u540e
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe version
-editor.info.readingProblem = There was a problem reading this file.
-editor.info.regularFile = (Is it really a regular file? Do you have read access?)
-editor.info.newFile = New file
-editor.info.errorSaving = Error in saving file!
-editor.info.compiled = Class compiled - no syntax errors
-editor.info.noChanges = No changes need to be saved
-editor.info.cannotReload = Can not reload - this text was never saved!
-editor.info.reload = (\"Reload\" reloads the last saved state from disk.)
-editor.info.emptySearchString = Empty search string.
-editor.info.notFound = Not found
-editor.info.compiling = Compiling...
-editor.info.cannotSetBreak = Cannot set breakpoint:\nNo code associated with this editor.
-editor.info.fileDisappeared = ERROR: The file seems to have disappeared!
-editor.info.fileReadError = ERROR: There was an error while trying to read this file.
-editor.info.saved = File saved
-editor.info.printing = Printing...
-editor.info.printed = Printing... Done.
-editor.info.cancelled = Cancelled.
-editor.info.generatingDoc = Generating class interface...
-editor.info.loadingDoc = Loading class interface...
-editor.info.docLoaded = Loading class interface... Done.
-editor.info.docAborted = There was a serious problem generating the javadoc\ninterface. Aborted.
-editor.info.docDisappeared = Cannot find HTML file:
-editor.info.docNoFrames = Frame display is disabled in editor preview.
-
-editor.printer.continued=continued
+editor.info.version = Moe \u7248
+editor.info.readingProblem = \u8bfb\u6b64\u6587\u4ef6\u65f6\u6709\u51fa\u73b0\u95ee\u9898.
+editor.info.regularFile = (\u5b83\u662f\u4e00\u4e2a\u6b63\u89c4\u7684\u6587\u4ef6\u5417\uff1f \u4f60\u6709\u8bfb\u6743\u9650\u5417\uff1f)
+editor.info.newFile =\u65b0\u5efa\u6587\u4ef6
+editor.info.errorSaving = \u4fdd\u5b58\u6587\u4ef6\u65f6\u51fa\u9519!
+editor.info.compiled = \u7f16\u8bd1\u5b8c\u6210 - \u6ca1\u6709\u8bed\u6cd5\u9519\u8bef
+editor.info.noChanges =\u6ca1\u6709\u6539\u53d8\u4e0d\u9700\u8981\u4fdd\u5b58
+editor.info.cannotReload = \u4e0d\u80fd\u91cd\u65b0\u88c5\u8f7d - \u6b64\u6587\u672c\u672a\u4fdd\u5b58!
+editor.info.reload = (\"\u91cd\u65b0\u88c5\u8f7d\" \u4ece\u78c1\u76d8\u91cd\u65b0\u88c5\u8f7d\u6700\u8fd1\u4e00\u6b21\u7684\u5b58\u50a8\u72b6\u6001.)
+editor.info.emptySearchString = \u5c06\u67e5\u627e\u5b57\u7b26\u4e32\u7f6e\u7a7a.
+editor.info.notFound = \u6ca1\u627e\u5230
+editor.info.compiling = \u7f16\u8bd1...
+editor.info.cannotSetBreak = \u4e0d\u80fd\u8bbe\u7f6e\u65ad\u70b9:\\u65e0\u4ee3\u7801\u4e0e\u6b64\u7f16\u8f91\u5668\u76f8\u5173\u8054.
+editor.info.fileDisappeared = \u9519\u8bef: \u6b64\u6587\u4ef6\u4f3c\u4e4e\u4e0d\u5b58\u5728!
+editor.info.fileReadError = \u9519\u8bef: \u5f53\u8bd5\u56fe\u8bfb\u6b64\u6587\u4ef6\u65f6\u51fa\u9519.
+editor.info.saved = \u6587\u4ef6\u4fdd\u5b58\u5b8c\u6bd5
+editor.info.printing = \u6253\u5370...
+editor.info.printed = \u6253\u5370... \u5b8c\u6210.
+editor.info.cancelled = \u53d6\u6d88.
+editor.info.generatingDoc = \u751f\u6210\u7c7b\u63a5\u53e3...
+editor.info.loadingDoc = \u88c5\u8f7d\u7c7b\u63a5\u53e3...
+editor.info.docLoaded = \u88c5\u8f7d\u7c7b\u63a5\u53e3... \u5b8c\u6210.
+editor.info.docAborted = \u6709javadoc\u751f\u6210\u63a5\u53e3\u6587\u6863\u65f6\u4ea7\u751f\n\u4e25\u91cd\u95ee\u9898. \u5931\u8d25.
+editor.info.docDisappeared = \u627e\u4e0d\u5230HTML \u6587\u4ef6:
+editor.info.docNoFrames = \u5728\u7f16\u8f91\u5668\u9884\u89c8\u4e2d\u65e0\u6cd5\u663e\u793a\u6846\u67b6.
+editor.info.tabsExpanded = \u628a\u6240\u6709TAB\u8f6c\u6362\u6210\u7a7a\u683c. (\u4f60\u5de5\u4f5c\u5728\u8f6f\nTAB\u72b6\u6001\u4e0b,\u800c\u6587\u4ef6\u5305\u542b\u4e86\u786cTAB.)
+editor.printer.continued=\u7ee7\u7eed
 #End Editor labels
 
-pkgmgr.chooseUsesFrom=Select the class where the dependency is from
-pkgmgr.chooseUsesTo=Select the class it depends on
-pkgmgr.chooseInhFrom=Select the subclass
-pkgmgr.chooseInhTo=Select the superclass
-pkgmgr.chooseArrow=Select an arrow to delete
-pkgmgr.packageSaved=Package saved
-pkgmgr.info.printing = Printing...
-pkgmgr.info.printed = Printing... Done.
+pkgmgr.chooseUsesFrom=\u9009\u62e9\u4f9d\u8d56\u4e8e\u522b\u7684\u7c7b\u7684\u90a3\u4e2a\u7c7b
+pkgmgr.chooseUsesTo=\u9009\u62e9\u5b83\u6240\u4f9d\u8d56\u7684\u7c7b
+pkgmgr.chooseInhFrom=\u9009\u62e9\u5b50\u7c7b
+pkgmgr.chooseInhTo=\u9009\u62e9\u7236\u7c7b
+pkgmgr.chooseArrow=\u9009\u62e9\u8981\u5220\u9664\u7684\u4e00\u4e2a\u7bad\u5934
+pkgmgr.packageSaved=\u5df2\u4fdd\u5b58\u5305
+pkgmgr.info.printing = \u6253\u5370...
+pkgmgr.info.printed = \u6253\u5370... \u5b8c\u6210.
 
 # dialog titles and texts
 
-pkgmgr.newPkg.title=New Project
-pkgmgr.newPkg.buttonLabel=Create
-pkgmgr.openPkg.title=Open Project
-pkgmgr.openPkg.buttonLabel=Open
-pkgmgr.openNonBlueJPkg.title=Open Non-BlueJ Project
-pkgmgr.openNonBlueJPkg.buttonLabel=Open in BlueJ
-pkgmgr.saveAs.title=Save Project
-pkgmgr.saveAs.buttonLabel=Save
-pkgmgr.addClass.title=Select Java Class to Add
-pkgmgr.addClass.buttonLabel=Add
-pkgmgr.importPkg.title=Select Directory to Import
-pkgmgr.importPkg.buttonLabel=Import
-pkgmgr.importPkgNew.title=New Project to Import Into
-pkgmgr.importPkgNew.buttonLabel=Create
+pkgmgr.newPkg.title=\u65b0\u5efa\u9879\u76ee
+pkgmgr.newPkg.buttonLabel=\u65b0\u5efa
+pkgmgr.openPkg.title=\u6253\u5f00\u9879\u76ee
+pkgmgr.openPkg.buttonLabel=\u6253\u5f00
+pkgmgr.openNonBlueJPkg.title=\u6253\u5f00\u975eBlueJ\u7684\u9879\u76ee
+pkgmgr.openNonBlueJPkg.buttonLabel=\u5728BlueJ\u4e2d\u6253\u5f00 
+pkgmgr.saveAs.title=\u4fdd\u5b58\u9879\u76ee
+pkgmgr.saveAs.buttonLabel=\u4fdd\u5b58
+pkgmgr.addClass.title=\u9009\u62e9\u8981\u589e\u52a0\u7684Java\u7c7b
+pkgmgr.addClass.buttonLabel=\u6dfb\u52a0
+pkgmgr.importPkg.title=\u9009\u62e9\u8981\u5bfc\u5165\u7684\u76ee\u5f55
+pkgmgr.importPkg.buttonLabel=\u5bfc\u5165
+pkgmgr.importPkgNew.title=\u8981\u5bfc\u5165\u7684\u65b0\u9879\u76ee
+pkgmgr.importPkgNew.buttonLabel=\u65b0\u5efa
 
-pkgmgr.newClass.msg=Enter the name of the class
-pkgmgr.newUses=New Uses Arrow
-pkgmgr.newExtends=New Extends Arrow
-pkgmgr.unimplemented=Sorry - that feature is not yet implemented
-pkgmgr.pkgChooseError=Error selecting valid package name
-pkgmgr.chooseWebPage.title=Select HTML page destination
+pkgmgr.newClass.msg=\u8bf7\u8f93\u5165\u7c7b\u540d
+pkgmgr.newUses=\u65b0\u5efa\u4f7f\u7528\u7bad\u5934
+pkgmgr.newExtends=\u65b0\u5efa\u6269\u5c55\u7bad\u5934
+pkgmgr.unimplemented=\u62b1\u6b49\u6b64\u529f\u80fd\u8fd8\u672a\u5b9e\u73b0
+pkgmgr.pkgChooseError=\u9519\u8bef\uff1a\u8bf7\u9009\u62e9\u6b63\u786e\u7684\u5305\u540d
+pkgmgr.chooseWebPage.title=\u9009\u62e9HTML\u9875\u7684\u5730\u5740
 
-pkgmgr.parentpackagetarget.open=Open
-pkgmgr.parentpackagetarget.openunamed=Open unamed package
+pkgmgr.parentpackagetarget.open=\u6253\u5f00
+pkgmgr.parentpackagetarget.openunamed=\u6253\u5f00\u672a\u547d\u540d\u7684\u5305
 
-pkgmgr.packagemenu.open=Open
-pkgmgr.packagemenu.remove=Remove
+pkgmgr.packagemenu.open=\u6253\u5f00
+pkgmgr.packagemenu.remove=\u5220\u9664
 
-pkgmgr.classmenu.runApplet=Run Applet
-pkgmgr.classmenu.edit=Open Editor
-pkgmgr.classmenu.compile=Compile
-pkgmgr.classmenu.remove=Remove
+pkgmgr.classmenu.runApplet=\u8fd0\u884cApplet
+pkgmgr.classmenu.edit=\u6253\u5f00\u7f16\u8f91\u5668
+pkgmgr.classmenu.compile=\u7f16\u8bd1
+pkgmgr.classmenu.remove=\u5220\u9664
 
-pkgmgr.view.label=View
-pkgmgr.view.usesLabel=Uses
-pkgmgr.view.inheritLabel=Inheritance
+pkgmgr.view.label=\u89c6\u56fe
+pkgmgr.view.usesLabel=\u7528\u4f8b
+pkgmgr.view.inheritLabel=\u7ee7\u627f
 
 # "new class" dialog
-pkgmgr.newClass.title=BlueJ:  Create New Class
-pkgmgr.newClass.label=Class Name:
-pkgmgr.newClass.classType=Class Type
-pkgmgr.newClass.stdclass=Class
-pkgmgr.newClass.abstract=Abstract Class
-pkgmgr.newClass.interface=Interface
+pkgmgr.newClass.title=BlueJ:  \u5efa\u65b0\u7c7b
+pkgmgr.newClass.label=\u7c7b\u540d:
+pkgmgr.newClass.classType=\u7c7b\u7684\u7c7b\u578b
+pkgmgr.newClass.stdclass=\u7c7b
+pkgmgr.newClass.abstract=\u62bd\u8c61\u7c7b
+pkgmgr.newClass.interface=\u63a5\u53e3
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
 
 # "new package" dialog
-pkgmgr.newPackage.title=BlueJ:  Create New Package
-pkgmgr.newPackage.label=Package Name:
-pkgmgr.newPackage.newPackage=Package
+pkgmgr.newPackage.title=BlueJ:  \u5efa\u65b0\u5305
+pkgmgr.newPackage.label=\u5305\u540d:
+pkgmgr.newPackage.newPackage=\u5305
 
-# "Use Library Class" dialog
-callLibraryDialog.title=BlueJ:  Call Library Class
-callLibraryDialog.classLabel=Class:
-callLibraryDialog.docButton=Documentation
-callLibraryDialog.listHeading=Constructors and static methods
-callLibraryDialog.clickHere1=Enter full class name, then press Enter
-callLibraryDialog.clickHere2=to display constructors and methods.
-callLibraryDialog.classNotFound1=Could not find the class.
-callLibraryDialog.classNotFound2=(Check the class name and press Enter again.)
-
+# " Use Library Class" dialog
+callLibraryDialog.title=BlueJ: \u8c03\u7528\u7c7b\u5e93
+callLibraryDialog.classLabel=\u7c7b:
+callLibraryDialog.docButton=\u6587\u6863
+callLibraryDialog.listHeading=\u6784\u9020\u5668\u548c\u9759\u6001\u65b9\u6cd5
+callLibraryDialog.clickHere1=\u8f93\u5165\u7c7b\u7684\u5168\u540d,\u7136\u540e\u6309\u56de\u8f66
+callLibraryDialog.clickHere2=\u663e\u793a\u6784\u9020\u5668\u548c\u65b9\u6cd5.
+callLibraryDialog.classNotFound1=\u65e0\u6cd5\u627e\u5230\u7c7b.
+callLibraryDialog.classNotFound2=(\u68c0\u67e5\u7c7b\u540d\uff0c\u518d\u6309\u56de\u8f66.)
+    
 # "export" dialog
-pkgmgr.export.title=BlueJ:  Export Project
-pkgmgr.export.helpLine1=Export stores a copy of the current project in
-pkgmgr.export.helpLine2=standard Java (non-BlueJ) format.
-pkgmgr.export.directoryLabel=Store as directory structure
-pkgmgr.export.jarFileLabel=Store as jar file
-pkgmgr.export.classLabel=main class:
-pkgmgr.export.sourceLabel=include source
-pkgmgr.export.noClassText=none (cannot be executed)
-
+pkgmgr.export.title=BlueJ:  \u5bfc\u51fa\u9879\u76ee
+pkgmgr.export.helpLine1=\u5c06\u5f53\u524d\u9879\u76ee\u7684\u526f\u672c\u5bfc\u51fa
+pkgmgr.export.helpLine2=\u6807\u51c6Java (\u975e-BlueJ) \u683c\u5f0f.
+pkgmgr.export.directoryLabel=\u6309\u76ee\u5f55\u7ed3\u6784\u5b58\u50a8
+pkgmgr.export.jarFileLabel=\u6309jar\u6587\u4ef6\u5b58\u50a8
+pkgmgr.export.classLabel=\u4e3b\u7c7b:
+pkgmgr.export.sourceLabel=\u5305\u542b\u6e90\u6587\u4ef6
+pkgmgr.export.noClassText=\u65e0 (\u65e0\u6cd5\u6267\u884c)
+    
 # "import" failure dialog
-pkgmgr.importfailed.title=BlueJ:  Import Status
-pkgmgr.importfailed.helpLine1=The import has failed to copy the following files.
-pkgmgr.importfailed.helpLine2=This is most likely due to these files already
-pkgmgr.importfailed.helpLine3=being present in the destination project.
-
+pkgmgr.importfailed.title=BlueJ:  \u5bfc\u5165\u72b6\u6001
+pkgmgr.importfailed.helpLine1=\u5bfc\u5165\u65f6\u62f7\u8d1d\u4e0b\u5217\u6587\u4ef6\u5931\u8d25.
+pkgmgr.importfailed.helpLine2=\u6587\u4ef6\u5df2\u7ecf\u5b58\u5728
+pkgmgr.importfailed.helpLine3=\u5df2\u5b58\u5728\u4e8e\u76ee\u6807\u9879\u76ee\u4e2d.
+    
 # "version check" dialog
-pkgmgr.versionDlg.title=BlueJ:  Check for new version
-pkgmgr.versionDlg.helpLine1=This function will check whether a newer BlueJ version
-pkgmgr.versionDlg.helpLine2=is available. You must be online for this to work.
-pkgmgr.versionDlg.check=Check Version
-pkgmgr.versionDlg.upToDate=The current version is up to date.
-pkgmgr.versionDlg.currentVersion=Your current BlueJ version is
-pkgmgr.versionDlg.newVersion=The most recent BlueJ version is
+pkgmgr.versionDlg.title=BlueJ: \u68c0\u67e5\u65b0\u7684\u7248\u672c
+pkgmgr.versionDlg.helpLine1=\u8fd9\u9879\u529f\u80fd\u5c06\u68c0\u67e5\u662f\u5426\u662f\u65b0\u7684 BlueJ \u7248\u672c
+pkgmgr.versionDlg.helpLine2=\u8981\u5b8c\u6210\u8fd9\u9879\u4efb\u52a1\u4f60\u5fc5\u987b\u5728\u7ebf\u5de5\u4f5c.
+pkgmgr.versionDlg.check=\u68c0\u67e5\u7248\u672c
+pkgmgr.versionDlg.upToDate=\u5f53\u524d\u7248\u672c\u5df2\u7ecf\u662f\u6700\u65b0\u7248.
+pkgmgr.versionDlg.currentVersion=\u4f60\u7684\u5f53\u524d BlueJ \u7248\u672c\u662f
+pkgmgr.versionDlg.newVersion=\u6700\u65b0\u7684 BlueJ \u7248\u672c\u662f
 
 # run applet dialog
-pkgmgr.runApplet.title=BlueJ:  Run Applet
-pkgmgr.runApplet.webPageLabel=Create Web Page
-pkgmgr.runApplet.webPage=Generate web page only
-pkgmgr.runApplet.appletviewer=Run Applet in appletviewer
-pkgmgr.runApplet.webBrowser=Run Applet in web browser
-pkgmgr.runApplet.heightLbl=Height =
-pkgmgr.runApplet.widthLbl=Width =
-pkgmgr.runApplet.newParameterLbl=Add New Parameter
-pkgmgr.runApplet.appletParameterLbl= Applet Parameters
-pkgmgr.runApplet.nameLbl=Name =
-pkgmgr.runApplet.valueLbl=Value =
-pkgmgr.runApplet.paramName=PARAM NAME
-pkgmgr.runApplet.value=VALUE
-pkgmgr.runApplet.htmlComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  It is regenerated automatically each time the  -->\n<!-- applet is run.  Any manual changes made to file will be lost -->\n<!-- when the applet is next run inside BlueJ.  Save into a       -->\n<!-- directory outside of the package directory if you want to    -->\n<!-- preserve this file. -->
-pkgmgr.runApplet.htmlExportedComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej package directory of the applet at the time of this page being generated. -->\n<!-- If the location of that package alters you will need to edit the codebase value.       -->
-
-
+pkgmgr.runApplet.title=BlueJ:  \u8fd0\u884cApplet
+pkgmgr.runApplet.webPageLabel=\u521b\u5efaWeb\u9875
+pkgmgr.runApplet.webPage=\u53ea\u751f\u6210web\u9875
+pkgmgr.runApplet.appletviewer=\u5728\u5c0f\u5e94\u7528\u7a0b\u5e8f\u9605\u89c8\u5668\u4e2d\u8fd0\u884cApplet
+pkgmgr.runApplet.webBrowser=\u5728web\u6d4f\u89c8\u5668\u4e2d\u8fd0\u884cApplet
+pkgmgr.runApplet.heightLbl=\u9ad8 =
+pkgmgr.runApplet.widthLbl=\u5bbd =
+pkgmgr.runApplet.newParameterLbl=\u6dfb\u52a0\u65b0\u53c2\u6570
+pkgmgr.runApplet.appletParameterLbl= Applet\u53c2\u6570
+pkgmgr.runApplet.nameLbl=\u540d\u79f0 =
+pkgmgr.runApplet.valueLbl=\u503c =
+pkgmgr.runApplet.paramName=\u53c2\u6570\u540d
+pkgmgr.runApplet.value=\u503c
+pkgmgr.runApplet.htmlComment=<!-- \u6b64\u6587\u4ef6\u7531BlueJ Java Development\u81ea\u52a8\u751f\u6210 -->\n<!-- \u73af\u5883.  \u6bcf\u6b21\u81ea\u52a8\u751f\u6210 -->\n<!-- applet\u5728\u8fd0\u884c.  \u4efb\u4f55\u624b\u52a8\u6539\u53d8\u90fd\u5c06\u5bfc\u81f4\u6587\u4ef6\u4e22\u5931 -->\n<!-- \u4e0b\u6b21\u6b64applet\u5728BlueJ\u4e2d\u8fd0\u884c. \u5b58\u4e3a  -->\n<!-- directory outside of the package directory if you want to    -->\n<!-- preserve this file. -->
+pkgmgr.runApplet.htmlExportedComment=<!-- \u6b64\u6587\u4ef6\u7531BlueJ Java Development \u81ea\u52a8\u751f\u6210 -->\n<!-- \u73af\u5883.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej package directory of the applet at the time of this page being generated. -->\n<!-- If the location of that package alters you will need to edit the codebase value.       -->
+    
+    
 # method call dialog
-pkgmgr.methodCall.titleCreate=BlueJ:  Create Object
-pkgmgr.methodCall.titleCall=BlueJ:  Method Call
-pkgmgr.methodCall.namePrompt=Name of Instance:
-pkgmgr.methodCall.=Interface
-error.methodCall.emptyField=Empty parameter field
-error.methodCall.illegalName=The instance name must be a Java identifier.
-error.methodCall.duplicateName=An object with this name already exists.\nPlease choose a unique name.
-
+pkgmgr.methodCall.titleCreate=BlueJ:  \u65b0\u5efa\u5bf9\u8c61
+pkgmgr.methodCall.titleCall=BlueJ:  \u65b9\u6cd5\u8c03\u7528
+pkgmgr.methodCall.namePrompt=\u5b9e\u4f8b\u540d
+pkgmgr.methodCall.=\u63a5\u53e3
+error.methodCall.emptyField=\u7a7a\u53c2\u6570\u57df
+error.methodCall.illegalName=\u5b9e\u4f8b\u540d\u5fc5\u987b\u662fJava\u7684\u6807\u8bc6\u7b26.
+error.methodCall.duplicateName=\u6b64\u5bf9\u8c61\u540d\u5df2\u5b58\u5728.\n\u8bf7\u9009\u62e9\u4e00\u4e2a\u552f\u4e00\u7684\u540d\u5b57.
+    
 # Debugger dialog (ExecControls.java)
-debugger.execControls.windowTitle = BlueJ:  Debugger
-debugger.execControls.stackTitle = Call Sequence
-debugger.execControls.instanceTitle = Instance Variables
-debugger.execControls.localTitle = Local Variables
-debugger.execControls.threadTitle = Threads
-debugger.execControls.updateText = Update
-debugger.execControls.systemThreads = Show system threads
-
+debugger.execControls.windowTitle = BlueJ:  \u8c03\u8bd5\u5668
+debugger.execControls.stackTitle = \u8c03\u7528\u987a\u5e8f
+debugger.execControls.instanceTitle = \u5b9e\u4f8b\u53d8\u91cf
+debugger.execControls.localTitle =\u5c40\u90e8\u53d8\u91cf
+debugger.execControls.threadTitle = \u7ebf\u7a0b
+debugger.execControls.updateText = \u66f4\u65b0
+debugger.execControls.systemThreads = \u663e\u793a\u7cfb\u7edf\u7ebf\u7a0b
+    
 # DialogManager labels
-dialogmgr.error = BlueJ:  Error
-dialogmgr.question = BlueJ:  Question
-dialogmgr.message = BlueJ:  Message
-
+dialogmgr.error = BlueJ:  \u9519\u8bef
+dialogmgr.question = BlueJ:  \u95ee\u9898
+dialogmgr.message = BlueJ:  \u6d88\u606f
+    
 #Terminal Window
-terminal.options = Options
-terminal.title = BlueJ:  Terminal Window
-terminal.clear = Clear
-terminal.copy = Copy
-terminal.save = Save to file...
-terminal.close = Close
-terminal.recordCalls = Record method calls
-terminal.buffering = Unlimited buffering
-terminal.save.title = Save terminal text
-terminal.save.buttonText = Save
-
+terminal.options = \u9009\u9879
+terminal.title = BlueJ:  \u7ec8\u7aef\u7a97\u53e3
+terminal.clear = \u6e05\u9664
+terminal.copy = \u590d\u5236
+terminal.save = \u4fdd\u5b58\u4e3a\u6587\u4ef6...
+terminal.close = \u5173\u95ed
+terminal.recordCalls = \u8bb0\u5f55\u65b9\u6cd5\u8c03\u7528
+terminal.buffering = \u4e0d\u53d7\u9650\u7684\u7f13\u5b58
+terminal.save.title = \u4fdd\u5b58\u7ec8\u7aef\u6587\u672c
+terminal.save.buttonText = \u4fdd\u5b58
+    
 # status messages
-pkgmgr.compiling=Compiling...
-pkgmgr.compileDone=Compiling... Done
-pkgmgr.creating=Creating object...
-pkgmgr.createDone=Creating object... Done
-pkgmgr.creatingVM=Creating virtual machine...
-pkgmgr.creatingVMDone=Creating virtual machine... Done
-pkgmgr.generatingDocu=Generating documentation...
-pkgmgr.docuGenerated=Generating documentation... Done
-pkgmgr.docuAborted=Generating documentation... Aborted
-pkgmgr.webBrowserMsg=Web browser has been started.
-pkgmgr.webBrowserError=Error starting web browser.
-pkgmgr.usesArrowMsg="Uses" dependency declared but never used:
-pkgmgr.breakpointMsg=Class has to be compiled to set breakpoints.
-pkgmgr.appletInViewer=Executing Applet in appletviewer
-pkgmgr.appletInBrowser=Executing Applet in web browser
-pkgmgr.exported=Export complete.
-pkgmgr.exported.jar=Export to jar file complete.
-
-properties.heading=BlueJ properties. Settings in this file override \"bluej.defs\"
+pkgmgr.compiling=\u7f16\u8bd1...
+pkgmgr.compileDone=\u7f16\u8bd1... \u5b8c\u6210
+pkgmgr.creating=\u65b0\u5efa\u5bf9\u8c61...
+pkgmgr.createDone=\u65b0\u5efa\u5bf9\u8c61... \u5b8c\u6210
+pkgmgr.creatingVM=\u865a\u62df\u673a...
+pkgmgr.creatingVMDone= \u865a\u62df\u673a... \u5b8c\u6210
+pkgmgr.generatingDocu=\u4ea7\u751f\u6587\u6863...
+pkgmgr.docuGenerated=\u4ea7\u751f\u6587\u6863... \u5b8c\u6210
+pkgmgr.docuAborted=\u4ea7\u751f\u6587\u6863... \u9000\u51fa
+pkgmgr.webBrowserMsg=Web\u6d4f\u89c8\u5668\u5df2\u7ecf\u542f\u52a8.
+pkgmgr.webBrowserError=\u542f\u52a8web\u6d4f\u89c8\u5668\u65f6\u4ea7\u751f\u9519\u8bef.
+pkgmgr.usesArrowMsg=\u58f0\u660e\u4e86 "Uses" \u4f46\u672a\u4f7f\u7528:
+pkgmgr.breakpointMsg=\u7c7b\u8bbe\u7f6e\u65ad\u70b9\u5fc5\u987b\u91cd\u65b0\u7f16\u8bd1.
+pkgmgr.appletInViewer=\u5728\u5c0f\u5e94\u7528\u7a0b\u5e8f\u9605\u89c8\u5176\u4e2d\u8fd0\u884cApplet
+pkgmgr.appletInBrowser=\u5728web\u6d4f\u89c8\u5668\u4e2d\u8fd0\u884cApplet
+pkgmgr.exported=\u5168\u90e8\u5bfc\u51fa.
+pkgmgr.exported.jar=\u5168\u90e8\u5bfc\u51fa\u5230jar\u6587\u4ef6.
+    
+properties.heading=BlueJ \u5c5e\u6027. \u8bbe\u7f6e\u6b64\u6587\u4ef6\u5c06\u91cd\u8f7d \"bluej.defs\"
 
 # menus and menu items
-
-menu.package=Project
-menu.package.new=New Project
-menu.package.open=Open Project...
-menu.package.openNonBlueJ=Open Non BlueJ...
-menu.package.close=Close
-menu.package.save=Save
-menu.package.saveAs=Save As...
-menu.package.import=Import
-menu.package.export=Export
-menu.package.pageSetup=Page Setup
-menu.package.print=Print
-menu.package.quit=Quit
-
-menu.edit=Edit
-menu.edit.newClass=New Class
-menu.edit.newPackage=New Package
-menu.edit.addClass=Add Class from File
-menu.edit.remove=Remove
-menu.edit.newUses=New Uses Arrow
-menu.edit.newInherits=New Inheritance Arrow
-menu.edit.removeArrow=Remove Arrow
-
-menu.tools=Tools
-menu.tools.compile=Compile
-menu.tools.compileSelected=Compile Selected
-menu.tools.callLibrary=Use Library Class...
-menu.tools.rebuild=Rebuild Package
-menu.tools.generateDoc=Project Documentation
-menu.tools.browse=Browse Libraries...
-menu.tools.preferences=Preferences
-
-menu.view=View
-menu.view.showUses=Show Uses
-menu.view.showInherits=Show Inheritance
-menu.view.showExecControls=Show Debugger
-menu.view.showTerminal=Show Terminal
-
-menu.group=Group Work
-menu.group.make=Make Group Package
-menu.group.open=Open Group Package
-menu.group.updateSelected=Update Selected
-menu.group.updateAll=Update All
-menu.group.commitSelected=Commit Selected
-menu.group.commitAll=Commit All
-menu.group.statusSelection=Status of Selection
-menu.group.statusAll=Status of All
-menu.group.users=Users
-menu.group.configuration=Configuration
-
-menu.help=Help
-menu.help.about=About BlueJ
-menu.help.versionCheck=Check Version
-menu.help.copyright=Copyright
-menu.help.website=BlueJ Web Site
-menu.help.tutorial=BlueJ Tutorial
-menu.help.standardApi=Java Class Libraries
+    
+menu.package=\u9879\u76ee
+menu.package.new=\u65b0\u5efa\u9879\u76ee
+menu.package.open=\u6253\u5f00\u9879\u76ee...
+menu.package.openNonBlueJ=\u6253\u5f00\u975eBlueJ\u6587\u4ef6...
+menu.package.close=\u5173\u95ed
+menu.package.save=\u4fdd\u5b58
+menu.package.saveAs=\u53e6\u5b58\u4e3a...
+menu.package.import=\u5bfc\u5165
+menu.package.export=\u5bfc\u51fa
+menu.package.pageSetup=\u9875\u9762\u8bbe\u7f6e
+menu.package.print=\u6253\u5370
+menu.package.quit=\u9000\u51fa
+    
+menu.edit=\u7f16\u8f91
+menu.edit.newClass=\u65b0\u5efa\u7c7b
+menu.edit.newPackage=\u65b0\u5efa\u5305
+menu.edit.addClass=\u4ece\u6587\u4ef6\u6dfb\u52a0\u7c7b
+menu.edit.remove=\u5220\u9664
+menu.edit.newUses=\u65b0\u5efa\u4f7f\u7528\u7bad\u5934
+menu.edit.newInherits=\u65b0\u5efa\u7ee7\u627f\u7bad\u5934
+menu.edit.removeArrow=\u5220\u9664\u7bad\u5934
+    
+menu.tools=\u5de5\u5177
+menu.tools.compile=\u7f16\u8bd1
+menu.tools.compileSelected=\u9009\u62e9\u7f16\u8bd1
+menu.tools.callLibrary=\u4f7f\u7528\u7c7b\u5e93...
+menu.tools.rebuild=\u91cd\u65b0\u7f16\u8bd1\u5305
+menu.tools.generateDoc=\u4ea7\u751f\u6587\u6863
+menu.tools.browse=\u6d4f\u89c8\u5e93...
+menu.tools.preferences=\u53c2\u6570
+    
+menu.view=\u89c6\u56fe
+menu.view.showUses=\u663e\u793a\u4f7f\u7528\u5173\u7cfb
+menu.view.showInherits=\u663e\u793a\u7ee7\u627f\u5173\u7cfb
+menu.view.showExecControls=\u663e\u793a\u8c03\u8bd5
+menu.view.showTerminal=\u663e\u793a\u7ec8\u7aef
+    
+menu.group=\u5de5\u4f5c\u7ec4
+menu.group.make=\u6784\u9020\u7ec4\u5305
+menu.group.open=\u6253\u5f00\u7ec4\u5305
+menu.group.updateSelected=\u9009\u62e9\u66f4\u65b0
+menu.group.updateAll=\u5168\u90e8\u66f4\u65b0
+menu.group.commitSelected=\u9009\u62e9\u63d0\u4ea4
+menu.group.commitAll=\u5168\u90e8\u63d0\u4ea4
+menu.group.statusSelection=\u9009\u62e9\u72b6\u6001
+menu.group.statusAll=\u5168\u90e8\u72b6\u6001
+menu.group.users=\u7528\u6237
+menu.group.configuration=\u914d\u7f6e
+    
+menu.help=\u5e2e\u52a9
+menu.help.about=\u5173\u4e8e BlueJ
+menu.help.versionCheck=\u68c0\u67e5\u7248\u672c
+menu.help.copyright=\u7248\u6743
+menu.help.website=BlueJ \u7f51\u7ad9
+menu.help.tutorial=BlueJ \u4f7f\u7528\u6307\u5357
+menu.help.standardApi=Java \u7c7b\u5e93
 
 # tool tips
-
-tooltip.newClass=Create a new class in this package
-tooltip.newUses=Insert a 'uses' relation
-tooltip.newExtends=Insert an inheritance relation
-tooltip.compile=Compile all uncompiled classes in this package
-tooltip.showUses=Toggle display of 'uses' relations
-tooltip.showExtends=Toggle display of inheritance relations
-tooltip.progress=Work indicator: indicates when virtual machine is executing
+    
+tooltip.newClass=\u5728\u6b64\u5305\u4e2d\u5efa\u4e00\u4e2a\u65b0\u7c7b
+tooltip.newUses=\u63d2\u5165\u4e00\u4e2a'\u4f7f\u7528' \u5173\u7cfb
+tooltip.newExtends=\u63d2\u5165\u4e00\u4e2a\u7ee7\u627f\u5173\u7cfb
+tooltip.compile=\u7f16\u8bd1\u6b64\u5305\u4e2d\u6240\u6709\u672a\u7f16\u8bd1\u7684\u5305
+tooltip.showUses=\u89e6\u53d1'\u4f7f\u7528' \u5173\u7cfb\u7684\u663e\u793a
+tooltip.showExtends=\u89e6\u53d1\u7ee7\u627f\u5173\u7cfb\u7684\u663e\u793a
+tooltip.progress=\u5de5\u4f5c\u6307\u793a\u5668: \u6307\u51fa\u865a\u62df\u673a\u4f55\u65f6\u5728\u8fd0\u884c

@@ -1,12 +1,9 @@
-This directory contains some templates used by BlueJ to generate files.
-These templates may be edited to change the default content of generated
-files.
+这个目录包含一些BlueJ用来生成文件的模板。可以通过编辑这些文件来改变
+默认的生成文件。
 
- - The readme and readmeexp templates may be freely edited.
- - The html template should be edited with care - things may not work 
-   if it is broken.
- - The shell template should probably NOT be edited (unless you REALLY
-   know what you're doing).
+ - readme和readmeexp文件可以自由的被编辑。
+ - 编辑html模板的时候要小心 - 有可能不能正常工作，如果出现错误的话
+ - shell模板尽量不要去编辑（除非你确实知道你在干什么）。
 
-The subdirectory "newclass" contains templates for classes generated
-via the "New Class" function in BlueJ.
+子目录"newclass"包含一些通过BlueJ的"新建类"功能生成类时用到的一些模
+板
