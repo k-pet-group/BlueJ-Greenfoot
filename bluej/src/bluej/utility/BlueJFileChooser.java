@@ -8,18 +8,19 @@ import java.io.File;
 import bluej.pkgmgr.Package;
 
 /**
- * BlueJFileChooser - a modified JFileChooser. Modifications are made for
+ * A modified JFileChooser. Modifications are made for
  * displaying BlueJ packages with a specific icon and to clear the selection
  * field after traversing into a directory.
  *
  * @author Michael Kolling
- * @version 1.0
+ * @version $Id: BlueJFileChooser.java 901 2001-05-23 04:29:34Z ajp $
  */
 class BlueJFileChooser extends JFileChooser
 {
     /**
      * Create a new BlueJFileChooser.
-     * @param   startDirectory  Directory to start the package selection in.
+     *
+     * @param   startDirectory  directory to start the package selection in.
      */
     public BlueJFileChooser(String startDirectory)
     {
@@ -37,7 +38,7 @@ class BlueJFileChooser extends JFileChooser
         //At the moment nothing is done.
         //if (Package.isBlueJPackage(dir)) { ...
 
-        setSelectedFile(new File("")); //clear the textfield
+        setSelectedFile(null);              //clear the textfield
         super.setCurrentDirectory(dir);
     }
 }
