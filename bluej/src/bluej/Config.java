@@ -30,7 +30,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2391 2003-11-26 10:52:27Z mik $
+ * @version $Id: Config.java 2394 2003-11-27 00:42:42Z bquig $
  */
 
 public final class Config
@@ -457,7 +457,7 @@ public final class Config
      */
     public static String removeProperty(String propertyName)
     {
-        return (String)(command_props.remove(propertyName));
+        return (String)(user_props.remove(propertyName));
     }
 
     /**
