@@ -62,6 +62,14 @@
             </fileset>
         </copy>
 
+        <!-- make sure the people .class files are dated in the future so they
+             will appear to be compiled -->
+        <touch datetime="1/1/2005 12:00 pm">
+            <fileset dir="install_tmp" >
+                <patternset refid="bluej.examples.classes"/>
+            </fileset>
+        </touch>
+
         <!-- jar up all the editor classes -->
         <jar jarfile="install_tmp/lib/editor.jar" compress="no">
             <fileset dir="${bluej_home}/classes" >
@@ -124,12 +132,6 @@
     <target name="windows-dist">
         <delete dir="install_tmp" />
         <unzip src="bluej-dist.jar" dest="install_tmp" />
-
-        <touch datetime="1/1/2005 12:00 am">
-            <fileset dir="install_tmp" >
-                <patternset refid="bluej.examples.classes"/>
-            </fileset>
-        </touch>
 
         <exec dir="winsetup" executable="C:\Program Files\Inno Setup 2\ISCC.exe">
             <arg line="bluej.iss"/>
