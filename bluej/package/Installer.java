@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 358 2000-01-13 06:12:26Z mik $
+  * @version $Id: Installer.java 407 2000-03-10 03:19:23Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -57,6 +57,7 @@ public class Installer extends JFrame
     String javaHome;
     String currentDirectory;
     String architecture;
+    String javaVersion;
 
     String installationDir = "";
     String javaPath = "";
@@ -216,6 +217,7 @@ public class Installer extends JFrame
 	javaHome = System.getProperty("java.home");
 	currentDirectory = System.getProperty("user.dir");
         architecture = System.getProperty("os.arch");
+        javaVersion = System.getProperty("java.version");
 
 	unpackTo(false);
 	makeWindow();
@@ -300,14 +302,20 @@ public class Installer extends JFrame
 
 		if(osname == null) {	// if we don't know, write both
 		    writeWindows();
-		    writeUnix(true);
+		    writeUnix();
 		}
-		else if(osname.startsWith("Windows"))
-		    writeWindows();
-		else if(osname.startsWith("Linux"))
-		    writeUnix(false);
+		else if(osname.startsWith("Windows")) {
+		    if( javaVersion.startsWith("1.3"))
+                        writeWindows();
+                    else
+                        writeWindows12();
+                }
+		else if( javaVersion.startsWith("1.3"))
+		    writeUnix(); // for 1.3 and later
+		else if( osname.startsWith("Linux"))
+		    writeUnix12(false);
 		else
-		    writeUnix(true);
+		    writeUnix12(true);
 	    }
 
 	} catch (Exception e) {
@@ -408,7 +416,16 @@ public class Installer extends JFrame
 	    directoryField.setText(currentDirectory);
 
 	    javaField = new JTextField(20);
-	    javaField.setText("java");
+            String javaBase;
+            if(javaHome.endsWith("jre"))
+                javaBase = javaHome.substring(0, javaHome.length()-4);
+            else
+                javaBase = javaHome;
+            javaField.setText(javaBase +
+                              File.separatorChar +
+                              "bin" +
+                              File.separatorChar +
+                              "java");
 
 	    optionPanel.add(new Label("Directory to install to:"));
 	    optionPanel.add(directoryField);
@@ -466,8 +483,9 @@ public class Installer extends JFrame
 
     /**
      ** Write out a Unix, Bourne shell script to start the application
+     ** For JDK 1.3 and later
      **/
-    public void writeUnix(boolean localJPDA) throws IOException 
+    public void writeUnix() throws IOException 
     {
 
 	File outputFile = new File(installDir(), (String)getProperty("exeName"));
@@ -475,10 +493,7 @@ public class Installer extends JFrame
 	out.write("#!/bin/sh\n");
 	out.write("APPBASE=" + installDir() + "\n");
 	String commands;
-        if (localJPDA)
-            commands = getProperty("unixCommands.localJPDA").toString();
-        else
-            commands = getProperty("unixCommands").toString();
+        commands = getProperty("unixCommands").toString();
 	if(commands != null) {
 	    commands = replace(commands, '~', "$APPBASE");
 	    commands = replace(commands, '!', javaHome);
@@ -487,10 +502,7 @@ public class Installer extends JFrame
 	    out.write("\n");
 	}
         String classpath;
-        if (localJPDA)
-            classpath = getProperty("classpath.localJPDA").toString();
-        else
-            classpath = getProperty("classpath").toString();
+        classpath = getProperty("classpath").toString();
 	classpath = classpath.replace(';', ':');
 	classpath = replace(classpath, '~', "$APPBASE");
 	classpath = replace(classpath, '!', javaHome);
@@ -510,7 +522,54 @@ public class Installer extends JFrame
     }
 
     /**
+     ** Write out a Unix, Bourne shell script to start the application
+     ** For JDK 1.2.2
+     **/
+    public void writeUnix12(boolean localJPDA) throws IOException 
+    {
+
+	File outputFile = new File(installDir(), (String)getProperty("exeName"));
+	FileWriter out = new FileWriter(outputFile.toString());
+	out.write("#!/bin/sh\n");
+	out.write("APPBASE=" + installDir() + "\n");
+	String commands;
+        if (localJPDA)
+            commands = getProperty("unixCommands.localJPDA").toString();
+        else
+            commands = getProperty("unixCommands.systemJPDA").toString();
+	if(commands != null) {
+	    commands = replace(commands, '~', "$APPBASE");
+	    commands = replace(commands, '!', javaHome);
+	    commands = replace(commands, '@', architecture);
+	    out.write(commands);
+	    out.write("\n");
+	}
+        String classpath;
+        if (localJPDA)
+            classpath = getProperty("classpath.localJPDA").toString();
+        else
+            classpath = getProperty("classpath.systemJPDA").toString();
+	classpath = classpath.replace(';', ':');
+	classpath = replace(classpath, '~', "$APPBASE");
+	classpath = replace(classpath, '!', javaHome);
+        classpath = replace(classpath, '@', architecture);
+	out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
+	out.write("export CLASSPATH\n");
+	out.write(getJavaPath() + " " + getProperty("javaOpts.1.2") + " -D" + 
+		  getProperty("installDirProp") + "=$APPBASE "+ 
+		  getProperty("mainClass") + " $*\n");
+	out.close();
+		
+	try {
+	    Runtime.getRuntime().exec("chmod 755 " + outputFile);
+	} catch(Exception e) {
+	    // ignore it - might not be Unix
+	}
+    }
+
+    /**
      ** Write out an MSDOS style batch file to start the application.
+     ** (JDK 1.3 and later)
      **/
     public void writeWindows() throws IOException 
     {
@@ -529,13 +588,48 @@ public class Installer extends JFrame
 	    out.write(commands);
 	    out.write("\r\n");
 	}
-	String classpath = getProperty("classpath.localJPDA").toString();
+	String classpath = getProperty("classpath").toString();
 	classpath = classpath.replace('/', '\\');
 	classpath = replace(classpath, '~', "%APPBASE%");
 	classpath = replace(classpath, '!', javaHome);
 	classpath = replace(classpath, '@', architecture);
 	out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
 	out.write(getJavaPath() + " " + getProperty("javaOpts") + " -D" + 
+		  getProperty("installDirProp") + "=%APPBASE% "+ 
+		  getProperty("mainClass") + 
+		  " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
+	out.write("set CLASSPATH=%OLDPATH%\r\n");
+
+	out.close();
+    }
+
+    /**
+     ** Write out an MSDOS style batch file to start the application.
+     **/
+    public void writeWindows12() throws IOException 
+    {
+	File outputFile = new File(installDir(),
+				   (String)getProperty("exeName") + ".bat");
+			
+	FileWriter out = new FileWriter(outputFile.toString());
+	out.write("@echo off\r\n");
+	out.write("set OLDPATH=%CLASSPATH%\r\n");
+	out.write("set APPBASE=" + installDir() + "\r\n");
+	String commands = getProperty("winCommands.12").toString();
+	if(commands != null) {
+	    commands = replace(commands, '~', "%APPBASE%");
+	    commands = replace(commands, '!', javaHome);
+	    commands = replace(commands, '@', architecture);
+	    out.write(commands);
+	    out.write("\r\n");
+	}
+	String classpath = getProperty("classpath.localJPDA").toString();
+	classpath = classpath.replace('/', '\\');
+	classpath = replace(classpath, '~', "%APPBASE%");
+	classpath = replace(classpath, '!', javaHome);
+	classpath = replace(classpath, '@', architecture);
+	out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
+	out.write(getJavaPath() + " " + getProperty("javaOpts.1.2") + " -D" + 
 		  getProperty("installDirProp") + "=%APPBASE% "+ 
 		  getProperty("mainClass") + 
 		  " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");

@@ -22,7 +22,7 @@
 
 include $(OS).mk
 
-PKG_VERSION = 101
+PKG_VERSION = 102
 
 SUBDIRS = \
 	src
@@ -83,11 +83,11 @@ INSTALL_EXAMPLES = \
 	examples/appletdemo \
 	examples/debugdemo \
 	examples/hello \
-	examples/maze \
 	examples/people \
 	examples/people2 \
 	examples/reader \
-	examples/simple
+	examples/simple \
+	examples/zork1
 
 SPARC_INSTALL_FILES = \
 	lib/sparc

@@ -38,8 +38,9 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 344 2000-01-12 03:52:06Z ajp $
+ * @version $Id: Config.java 407 2000-03-10 03:19:23Z mik $
  */
+
 public class Config
 {
     public static final String nl = System.getProperty("line.separator");
