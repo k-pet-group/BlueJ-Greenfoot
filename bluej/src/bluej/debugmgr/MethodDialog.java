@@ -3,8 +3,11 @@ package bluej.debugmgr;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -12,9 +15,14 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.gentype.GenType;
 import bluej.debugger.gentype.GenTypeArray;
+import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.GenTypeTpar;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.*;
+import bluej.utility.ComponentFactory;
+import bluej.utility.GrowableBox;
+import bluej.utility.JavaNames;
+import bluej.utility.MultiLineLabel;
 import bluej.views.*;
 
 
@@ -27,7 +35,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 3245 2004-12-19 10:32:03Z bquig $
+ * @version $Id: MethodDialog.java 3338 2005-03-23 01:06:54Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -38,6 +46,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     private int dialogType;
     private boolean listeningObjects; // listening on the object bench
     private boolean okCalled;
+    private boolean rawObject;
 
     // Window Titles
     static final String wCreateTitle = Config.getString("pkgmgr.methodCall.titleCreate");
@@ -104,7 +113,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 3245 2004-12-19 10:32:03Z bquig $
+     * @version $Id: MethodDialog.java 3338 2005-03-23 01:06:54Z davmac $
      */
     public static class ParameterList
     {
@@ -225,7 +234,8 @@ public class MethodDialog extends CallDialog implements FocusListener
      * @param instanceName The initial instance name (for a constructor dialog)
      *                     or the object instance on which the method is being called
      * @param method       The constructor or method being used
-     * @param typeMap      The mapping of type parameter names to runtime types
+     * @param typeMap      The mapping of type parameter names (as they appear
+     *                     in the method declaration) to runtime types
      *                     (a Map of String -> GenType).
      */
     public MethodDialog(PkgMgrFrame pmf, String instanceName, CallableView method, Map typeMap) {
@@ -425,9 +435,12 @@ public class MethodDialog extends CallDialog implements FocusListener
         if(dialogType == MD_CALL) {
             typeParameterMap = typeParams;
             setCallLabel(instanceName, methodName);
+            rawObject = instanceName != null && typeParams == null;
         }
-        else
+        else {
             instanceNameText.setText(instanceName);
+            rawObject = false;
+        }
         createDescription();
         
         // reset error label message
@@ -520,22 +533,48 @@ public class MethodDialog extends CallDialog implements FocusListener
     }
 
     /**
-     * getArgTypes - Get an array with the classes of the parameters for this
-     * method. "null" if there are no parameters. <br>
+     * getArgTypes - Get an array with the types of the parameters for this
+     * method. This takes into account mapping from type parameter names to
+     * their types as supplied in the constructor or setInstanceInfo call.<p>
+     * 
      * If varArgsExpanded is set to true, the varargs will be expanded to the
      * number of variable arguments that have been typed into the dialog. For
-     * instance, if the only argument is a vararg of type String and two strings
-     * has been typed in, this method will return an array of two String
-     * classes.
+     * instance, if the only argument is a vararg of type String and two
+     * strings have been typed in, this method will return an array of two
+     * String classes.
      * 
      * @param varArgsExpanded
      *            if set to true, varargs will be expanded.
      * @param raw
      *            if true, raw types will be returned
      */
-    public GenType[] getArgGenTypes(boolean varArgsExpanded, boolean raw)
+    public GenType[] getArgGenTypes(boolean varArgsExpanded, boolean ignored)
     {
+        boolean raw = rawObject;
+        
+        // first construct a type parameter map which includes not only
+        // type parameters from the declaring class, but also those from this
+        // particular call
+        Map typeMap = new HashMap();
+        if (typeParameterMap != null)
+            typeMap.putAll(typeParameterMap);
+        
+        TypeParamView[] formalTypeParamViews = getFormalTypeParams();                  
+        int len = typeParameterList == null ? 0 : formalTypeParamViews.length;
+        for (int i = 0; i < len; i++) {
+            TypeParamView view = formalTypeParamViews[i];
+            GenTypeDeclTpar formalType = view.getParamType();
+            GenType actualType = new GenTypeTpar(typeParameterList.getType(i));
+            typeMap.put(formalType.getTparName(), actualType);
+        }
+        
+        // Map type parameter names in arguments to the corresponding types
         GenType[] params = method.getParamTypes(raw);
+        for (int i = 0; i < params.length; i++) {
+            params[i] = params[i].mapTparsToTypes(typeMap);
+        }
+        
+        // handle varargs expansion
         boolean hasVarArgs = method.isVarArgs() && parameterList != null
                 && parameterList.size() >= params.length;
         if (hasVarArgs && varArgsExpanded) {

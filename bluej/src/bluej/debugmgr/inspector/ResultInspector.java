@@ -1,7 +1,12 @@
 package bluej.debugmgr.inspector;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.EventQueue;
+import java.awt.Insets;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +22,10 @@ import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.*;
+import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
+import bluej.utility.JavaUtils;
+import bluej.utility.MultiLineLabel;
 import bluej.views.Comment;
 import bluej.views.LabelPrintWriter;
 import bluej.views.MethodView;
@@ -26,7 +34,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 3324 2005-02-25 01:30:38Z davmac $
+ * @version $Id: ResultInspector.java 3338 2005-03-23 01:06:54Z davmac $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -140,12 +148,6 @@ public class ResultInspector extends Inspector
         MethodView methodView = (MethodView) expressionInformation.getMethodView();
         Method m = methodView.getMethod();
 
-        // is this a call of an instance method on a raw object?
-        if (instanceType != null && instanceType.isRaw()) {
-            resultType = JavaUtils.getJavaUtils().getRawReturnType(m);
-            return;
-        }
-        
         // Find the expected return type
         GenType methodReturnType = JavaUtils.getJavaUtils().getReturnType(m);
 
@@ -153,17 +155,29 @@ public class ResultInspector extends Inspector
         // arguments passed to the method.
         // For now, use the base type of the any generic type parameters
         if (methodReturnType instanceof GenTypeParameterizable) {
-            List tpars = JavaUtils.getJavaUtils().getTypeParams(m);
-            Map tparmap = JavaUtils.TParamsToMap(tpars);
-            methodReturnType = ((GenTypeParameterizable) methodReturnType).mapTparsToTypes(tparmap);
-
-            // Pull in parameters from declaring type
-            if (instanceType != null) {
+            
+            // The return type may contain type parameters. First, get the
+            // type parameters of the object:
+            Map tparmap;
+            if (instanceType != null)
                 tparmap = instanceType.mapToSuper2(m.getDeclaringClass().getName()).getMap();
-                
-                if (tparmap != null)
-                    methodReturnType = ((GenTypeParameterizable) methodReturnType).mapTparsToTypes(tparmap);
+            else
+                tparmap = new HashMap();
+            
+            // It's possible the mapping result is a raw type.
+            if (tparmap == null) {
+                resultType = JavaUtils.getJavaUtils().getRawReturnType(m);
+                return;
             }
+            
+            // Then put in the type parameters from the method itself,
+            // if there are any (ie. if the method is a generic method).
+            // Tpars from the method override those from the instance.
+            List tpars = JavaUtils.getJavaUtils().getTypeParams(m);
+            if (tparmap != null)
+                tparmap.putAll(JavaUtils.TParamsToMap(tpars));
+            
+            methodReturnType = ((GenTypeParameterizable) methodReturnType).mapTparsToTypes(tparmap);
         }
 
         resultType = methodReturnType;
