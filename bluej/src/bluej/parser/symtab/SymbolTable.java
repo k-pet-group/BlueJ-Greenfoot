@@ -400,7 +400,7 @@ public class SymbolTable
 
     /** create a variable definition */
     public void defineVar(JavaToken theVariable, JavaToken type,
-                            JavaToken comment)
+                            boolean isVarargs, JavaToken comment)
     {
         // pairs of square brackets will have been added to the type token
         // in order to indicate levels of array nesting
@@ -422,8 +422,8 @@ public class SymbolTable
         VariableDef v = new VariableDef(getUniqueName(theVariable),
                                         getOccurrence(theVariable),
                                         getDummyClass(type),
-                                        arrayLevel,
-                                        getCurrentScope());
+                                        isVarargs,
+                                        arrayLevel, getCurrentScope());
 
         if (comment != null)
             v.setComment(comment.getText());

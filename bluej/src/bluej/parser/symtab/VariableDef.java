@@ -21,6 +21,9 @@ class VariableDef extends Definition implements TypedDef
     /* Indicate if this was an array variable (>0) and if so, how many
        levels of nesting */
     private int arrayLevel = 0;
+    
+    /* need to track whther this represents a vararg parameter */
+    private boolean isVarargs = false;
 
     //==========================================================================
     //==  Methods
@@ -31,10 +34,12 @@ class VariableDef extends Definition implements TypedDef
     VariableDef(String name,               // the variable's name
                 Occurrence occ,            // where it was defined
                 ClassDef type,             // the type of the variable
+                boolean isVarargs,         // is it a vararg?
                 int arrayLevel,            // level of array nesting
                 ScopedDef parentScope) {   // which scope owns it
         super(name, occ, parentScope);
         this.type = type;
+        this.isVarargs = isVarargs;
         this.arrayLevel = arrayLevel;
     }
 
@@ -76,4 +81,15 @@ class VariableDef extends Definition implements TypedDef
         }
         super.resolveTypes(symbolTable);
     }
+    
+    
+    /**
+     * @return boolean representing whether it is a vararg parameter of a 
+     * method (Java 1.5 feature)
+     */
+    public boolean isVarargs()
+    {
+        return this.isVarargs;
+    }
+    
 }

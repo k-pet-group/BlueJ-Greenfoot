@@ -124,7 +124,11 @@ class MethodDef extends ScopedDef implements TypedDef
 
                 for(int i=0; i<vd.getArrayLevel(); i++)
                     target.append("[]");
-
+                
+                // if it is a vararg    
+                if(vd.isVarargs())
+    	            target.append(" ...");
+                
     	        target.append(",");
             }
         }
