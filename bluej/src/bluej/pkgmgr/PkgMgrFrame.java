@@ -10,8 +10,8 @@ import java.awt.*;
 import java.awt.print.*;
 import java.text.DateFormat;
 
-import junit.swingui.TestRunner;
-import junit.framework.*;
+//import junit.swingui.TestRunner;
+//import junit.framework.*;
 
 import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
 import com.apple.mrj.MRJQuitHandler;
@@ -33,12 +33,12 @@ import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.groupwork.*;
-import bluej.tester.*;
+//import bluej.tester.*;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1168 2002-03-13 11:22:45Z mik $
+ * @version $Id: PkgMgrFrame.java 1183 2002-03-15 10:46:58Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -619,8 +619,8 @@ public class PkgMgrFrame extends JFrame
 
             if(ct.isApplet())
                 runAppletTarget(ct);
-            else if(ct.isUnitTest())
-                runUnitTest(ct);
+//            else if(ct.isUnitTest())
+//                runUnitTest(ct);
 
             break;
 
@@ -835,7 +835,7 @@ public class PkgMgrFrame extends JFrame
      */
     protected boolean doNewProject()
     {
-        String newname = FileUtility.getFileName(this, newpkgTitle, createLabel, false, 
+        String newname = FileUtility.getFileName(this, newpkgTitle, createLabel, false,
                                                  null, true);
 
         if (newname == null)
@@ -1296,14 +1296,14 @@ public class PkgMgrFrame extends JFrame
     /*
      * Run a target (currently only unit test)
      */
-    private void runUnitTest(ClassTarget ct)
+/*    private void runUnitTest(ClassTarget ct)
     {
         String args[]= { ct.getQualifiedName() };
- 
+
         getProject().testRunner.start( args );
         getProject().testRunner.setSuite( ct.getQualifiedName() );
         getProject().testRunner.runSuite();
-    }
+    } */
 
     /**
      * Create an object on the object bench.

@@ -19,7 +19,7 @@ import bluej.views.CallableView;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
-import bluej.tester.*;
+//import bluej.tester.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -47,7 +47,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: ClassTarget.java 1183 2002-03-15 10:46:58Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -112,7 +112,7 @@ public class ClassTarget extends EditableTarget
         super(pkg, baseName);
 
         boolean isApplet = (template!=null) && (template.startsWith("applet"));
-        boolean isUnitTest = (template!=null) && (template.startsWith("unittest"));
+//        boolean isUnitTest = (template!=null) && (template.startsWith("unittest"));
 
         boolean isAbstract = (template!=null) &&
                              (template.startsWith("abstract"));
@@ -120,8 +120,8 @@ public class ClassTarget extends EditableTarget
                               (template.startsWith("interface"));
         if(isApplet)
             role = new AppletClassRole();
-        else if (isUnitTest)
-            role = new UnitTestClassRole();
+//        else if (isUnitTest)
+//            role = new UnitTestClassRole();
         else
             role = new StdClassRole();
 
@@ -164,8 +164,8 @@ public class ClassTarget extends EditableTarget
         String type = props.getProperty(prefix + ".type");
         if("AppletTarget".equals(type) && (!(role instanceof AppletClassRole)))
             role = new AppletClassRole();
-        if("UnitTestTarget".equals(type) && (!(role instanceof UnitTestClassRole)))
-            role = new UnitTestClassRole();
+//        if("UnitTestTarget".equals(type) && (!(role instanceof UnitTestClassRole)))
+//            role = new UnitTestClassRole();
 
         role.load(props, prefix);
         String modifierStr = props.getProperty(prefix + ".modifiers", "0");
@@ -320,13 +320,13 @@ public class ClassTarget extends EditableTarget
      * Verify whether this class target is a UnitTest
      * @return true if class target is a UnitTest (or subclass), else returns false
      */
-    public boolean isUnitTest()
-    {
-        ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
-        if(!(role instanceof UnitTestClassRole) && ((classInfo != null) && classInfo.isUnitTest()))
-            role = new UnitTestClassRole();
-        return (role instanceof UnitTestClassRole);
-    } 
+//    public boolean isUnitTest()
+//    {
+//        ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
+//        if(!(role instanceof UnitTestClassRole) && ((classInfo != null) && classInfo.isUnitTest()))
+//            role = new UnitTestClassRole();
+//        return (role instanceof UnitTestClassRole);
+//    }
 
     Color getDefaultBackground()
     {
@@ -411,9 +411,9 @@ public class ClassTarget extends EditableTarget
 
     class InnerClassFileFilter implements FileFilter
     {
-        public boolean accept(File pathname) 
+        public boolean accept(File pathname)
         {
-            return pathname.getName().startsWith(getBaseName() + "$");    
+            return pathname.getName().startsWith(getBaseName() + "$");
         }
     }
 
@@ -533,10 +533,10 @@ public class ClassTarget extends EditableTarget
                 if( ! (role instanceof AppletClassRole))
                     role = new AppletClassRole();
             }
-            else if (junit.framework.TestCase.class.isAssignableFrom(cl)) {
+/*            else if (junit.framework.TestCase.class.isAssignableFrom(cl)) {
                 if( ! (role instanceof UnitTestClassRole))
                     role = new UnitTestClassRole();
-            }
+            } */
             else {
                 if( ! (role instanceof StdClassRole)) {
                     role = new StdClassRole();
@@ -872,7 +872,7 @@ public class ClassTarget extends EditableTarget
     	// call on role object to add any options needed
      	role.createMenu(menu, this, state);
 
-    	if ((cl != null) && (!isUnitTest()))
+    	if ((cl != null)) // && (!isUnitTest()))
     	    createClassMenu(menu, cl);
 
     	addMenuItem(menu, editStr, true);
@@ -1019,8 +1019,8 @@ public class ClassTarget extends EditableTarget
             type = INTERFACE_LABEL;
         else if(isApplet())
             type = APPLET_LABEL;
-        else if(isUnitTest())
-            type = UNITTEST_LABEL;
+//        else if(isUnitTest())
+//            type = UNITTEST_LABEL;
 
         return type;
     }
@@ -1245,7 +1245,7 @@ public class ClassTarget extends EditableTarget
                 }
             }
         }
- 
+
         role.prepareFilesForRemoval(getSourceFile().getPath(),
                                     getClassFile().getPath(),
                                     getContextFile().getPath());
