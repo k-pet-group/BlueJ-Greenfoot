@@ -79,15 +79,6 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 
 
 #####################################################################
-## Project directory. This is the directory that the file chooser
-## will initially display when opening a project. If commented out,
-## the directory where BlueJ was started will be used.
-#####################################################################
-
-#bluej.defaultProjectPath=/home/mik/bluej/test-examples
-
-
-#####################################################################
 ## Web browser. The following are the commands used for opening a
 ## web browser. On Windows systems, the win9xBrowserCmd (Win 95/98)
 ## or the winBrowserCmd (Win Nt/2000) is used. On all other systems
