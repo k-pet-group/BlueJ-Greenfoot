@@ -18,6 +18,7 @@ import bluej.views.Comment;
 import bluej.views.CommentList;
 import bluej.classmgr.*;
 
+import java.util.List;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
@@ -37,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 601 2000-06-29 05:09:38Z mik $
+ * @version $Id: Package.java 608 2000-06-30 04:24:13Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -290,9 +291,41 @@ public class Package extends Graph
         return new File(project.getProjectDir(), getRelativePath().getPath());
     }
 
+    /**
+     * Return our parent package or null if we are the unnamed package.
+     */
     protected Package getParent()
     {
         return parentPackage;
+    }
+
+    /**
+     * Return an array of package objects which are nested one level
+     * below us. Will return an empty List object if there are no
+     * children.
+     */
+    protected List getChildren()
+    {
+        List children = new ArrayList();
+
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if(target instanceof PackageTarget &&
+                !(target instanceof ParentPackageTarget)) {
+                    PackageTarget pt = (PackageTarget)target;
+
+                    Package child = getProject().
+                                        getPackage(pt.getQualifiedName());
+
+                    if (child == null)
+                        continue;
+
+                    children.add(child);
+            }
+        }
+
+        return children;
     }
 
     public void setStatus(String msg)
@@ -454,21 +487,27 @@ public class Package extends Graph
             // version so if we have a class target called Foo but we
             // discover a directory call Foo, a PackageTarget will be
             // inserted to replace the ClassTarget
-            File subdirs[] = getPath().listFiles(new SubPackageFilter());
+            File subDirs[] = getPath().listFiles(new SubPackageFilter());
 
-            for(int i=0; i<subdirs.length; i++) {
-                Target target = (Target) propTargets.get(subdirs[i].getName());
+            for(int i=0; i<subDirs.length; i++) {
+                Target target = (Target) propTargets.get(subDirs[i].getName());
 
                 if(target == null || !(target instanceof PackageTarget))
-                    target = new PackageTarget(this, subdirs[i].getName());
+                    target = new PackageTarget(this, subDirs[i].getName());
 
                 addTarget(target);
             }
 
-            File srcfiles[] = getPath().listFiles(new JavaSourceFilter());
+            File srcFiles[] = getPath().listFiles(new JavaSourceFilter());
 
-            for(int i=0; i<srcfiles.length; i++) {
-                String targetName = JavaNames.stripSuffix(srcfiles[i].getName(), ".java");
+            for(int i=0; i<srcFiles.length; i++) {
+                String targetName = JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
+
+                if (targetName.startsWith(Invoker.SHELLNAME)) {
+                    srcFiles[i].delete();
+                    continue;
+                }
+
                 Target target = (Target) propTargets.get(targetName);
                 if(target == null || !(target instanceof ClassTarget)) {
                     target = new ClassTarget(this, targetName);
@@ -524,7 +563,7 @@ public class Package extends Graph
 
             if(target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)target;
-                ct.analyseDependencies();
+                ct.analyseSource(false);
             }
         }
 
@@ -568,6 +607,12 @@ public class Package extends Graph
 
         for(int i=0; i<srcFiles.length; i++) {
             String targetName = JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
+
+            if (targetName.startsWith(Invoker.SHELLNAME)) {
+                srcFiles[i].delete();
+                continue;
+            }
+
             Target target = (Target) targets.get(targetName);
 
             if(target == null) {
@@ -580,7 +625,7 @@ public class Package extends Graph
 
             if(target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)target;
-                ct.analyseDependencies();
+                ct.analyseSource(false);
             }
         }
 
@@ -719,7 +764,7 @@ public class Package extends Graph
 
         ClassTarget t = addClass(className);
 
-        t.analyseDependencies();
+        t.analyseSource(false);
 
         return NO_ERROR;
     }
@@ -889,7 +934,7 @@ public class Package extends Graph
                 if (ct.editorOpen())
                     ct.getEditor().save();
                 ct.setState(Target.S_INVALID);
-                ct.analyseDependencies();
+                ct.analyseSource(false);
                 v.addElement(ct);
             }
         }
@@ -1665,7 +1710,7 @@ public class Package extends Graph
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
 
-        if(! showEditorMessage(new File(getPath(),sourcename).getPath(), lineNo, 
+        if(! showEditorMessage(new File(getPath(),sourcename).getPath(), lineNo,
                                msg, false, false, bringToFront, true, null))
             showMessageWithText("break-no-source", sourcename);
 
