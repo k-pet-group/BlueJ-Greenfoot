@@ -1,11 +1,11 @@
 as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
-The word 'assert' is now part of the Java language
-and carries a special meaning (it is a keyword).
-You cannot use it to name you variables or methods.
-Please choose another name.
+Die woord 'assert' is nou deel van die Java taal
+en het 'n spesiale betekenis (dit is 'n sleutelwoord).
+U kan dit nie gebruik as naam vir 'n veranderlike of metode nie.
+Kies asb. 'n ander naam.
 
 qualified new of static class
-No help available.
+Geen verdere hulp beskikbaar.
 
 * is abstract; cannot be instantiated
 Die klas is gedefinieer as "abstract". Dit beteken
@@ -269,10 +269,10 @@ skryf, gebruik dan "\\" - dit sal vervang word met 'n
 enkele agteroorskuinsstreep in die string.
 
 illegal forward reference
-No help available
+Geen verdere hulp beskikbaar.
 
 illegal initializer for *
-No help available
+Geen verdere hulp beskikbaar.
 
 illegal line end in character literal
 Ongeldige reeleinde in karakterkonstante.
@@ -282,10 +282,10 @@ As u 'n reelbreuk (nuwe lyn) wil spesifiseer, moet us
 dit skryf as 'n spesiale karakter, naamlik '\n'.
 
 illegal qualifier; {0} is not an inner class
-No help available
+Geen verdere hulp beskikbaar.
 
 illegal start of expression
-No help available
+Geen verdere hulp beskikbaar.
 
 illegal start of type
 By 'n posisie in die bronkode waar die naam van 
@@ -294,13 +294,13 @@ By 'n posisie in die bronkode waar die naam van
 Deursoek hierdie lyntjie vir ongeldige tipe-definisies.
 
 illegal unicode escape
-No help available
+Geen verdere hulp beskikbaar.
 
 improperly formed type, some parameters are missing
-No help available
+Geen verdere hulp beskikbaar.
 
 incomparable types: *
-No help available
+Geen verdere hulp beskikbaar.
 
 integer number too large: *
 Hier is 'n getal gegee wat te groot is om in te pas 
@@ -309,7 +309,7 @@ is moontlik om 'n groter datatipe te gebruik byvoorbeeld
 "long" in plaas van "int".
 
 internal error; cannot instantiate *
-No help available
+Geen verdere hulp beskikbaar.
 
 * but with different return type
 Hier is moontlik 'n kombinasie van twee metodes met 
@@ -423,7 +423,7 @@ Verwyder die metodelyf (die blok tussen krulhakies { } ),
 of verwyder die sleutelwoord "native".
 
 no enclosing instance of type {0} is in scope
-No help available
+Geen verdere hulp beskikbaar.
 
 no interface expected here
 Hier word verwys na 'n koppelvlak (moontlik in die "extends"
@@ -433,26 +433,26 @@ die koppelvlak wil "erf" moet u die koppelvlak implementeer deur
 die sleutelwoord "implements" te gebruik in plaas van "extends".
 
 {0} has no match in entry in {1}; required {2}
-No help available
+Geen verdere hulp beskikbaar.
 
 * is not defined in a public class or interface; cannot be accessed from outside package
-No help available
+Geen verdere hulp beskikbaar.
 
 * cannot be accessed from outside package
-The class you are trying to use here is not a pubic class.
-That is: it's definition does not start with
+Die klas wat u hier probeer gebruik is nie 'pubic' nie.
+Dit beteken: die definisie daarvan begin nie met die volgende nie:
    public class ...
-If a class is not public, it cannot be used outside
-its own package. If you really need to use the class, you
-must change its definition to make it public.
+As 'n klas nie 'public' is nie, kan dit nie buitekant
+sy eie pakket beguik word nie. As u regtig hierdie klas moet gebruik,
+dan moet u sy definisie aanpas sodat dit 'public' is.
 
 not a loop label: *
-The labels you use for loop operations such as
-   continue <label>;
-must be defined to mark a loop (that is: they
-must be set immediately before the start of the
-loop). The label you named here is not at the right
-location - it does not mark a loop.
+Die etikette wat u gebruik vir lusbewerkings, soos
+   continue <etiket>;
+moet gedefinieer word om 'n lus aan te dui (dit beteken: 
+hulle moet geplaas word direk voor die begin van
+'n lus). Die etiket wat u hier noem is nie op die regte
+plek nie - dit dui nie die begin van 'n lus aan nie.
 
 not a statement
 Hier is 'n lyntjie kode wat nie 'n volledige Java uitdrukking 
@@ -477,10 +477,10 @@ Gewoonlik begin die naam van 'n klas met 'n hoofletter en die
 naam van 'n pakkette met 'n kleinletter.
 
 possible fall-through into case
-No help available
+Geen verdere hulp beskikbaar.
 
 error reading *
-No help available
+Geen verdere hulp beskikbaar.
 
 recursive constructor invocation
 Volgens hierdie kode moet die konstruktor
@@ -507,7 +507,7 @@ In hierdie deklarasie is dieselfde aanpasser tweemaal gebruik.
   final, static, public, private, volatile, ...
 
 {0} has {1} access in {2}
-No help available
+Geen verdere hulp beskikbaar.
 
 return outside method
 You can use a 'return' statement only in methods
@@ -515,10 +515,10 @@ You can use a 'return' statement only in methods
 code segments).
 
 signature does not match {0}; incompatible interfaces
-No help available
+Geen verdere hulp beskikbaar.
 
 signature does not match {0}; incompatible supertype
-No help available
+Geen verdere hulp beskikbaar.
 
 * should be declared abstract; it does not define *
 Hierdie klas erf vanaf 'n abstrakte klas of koppelvlak.
@@ -530,7 +530,7 @@ As al die oorgeërfde metodes nie geïmplementeer word nie,
 dan moet hierdie klas ook nog as abstrak gedefinieer word.
 
 error writing source; cannot overwrite input file *
-No help available
+Geen verdere hulp beskikbaar.
 
 'try' without 'catch' or 'finally'
 As daar 'n "try"-blok in die kode is, dan moet dit
@@ -547,17 +547,17 @@ opgevolg word deur òf 'n "catch"-blok, òf 'n
    }
 
 * does not take parameters
-The type you used is not a parameterized type.
-You cannot supply a parameter here.
+Die tipe wat hier gebruik word kan nie parameters neem nie.
+U kan nie hier 'n parameter gee nie.
 
 wrong number of type arguments; required *
-No help available
+Geen verdere hulp beskikbaar.
 
 type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
-No help available
+Geen verdere hulp beskikbaar.
 
 type variable {0} occurs more than once in type of {1}; cannot be left uninstantiated
-No help available
+Geen verdere hulp beskikbaar.
 
 unclosed character literal
 Hier is moontlik 'n karakterkonstante wat nie afgesluit is deur
@@ -636,10 +636,10 @@ As u twyfel, dan is dit beter om dit 'n waarde te gee
 tesame met die deklarasie.
 
 variable {0} might be assigned in loop
-No help available
+Geen verdere hulp beskikbaar.
 
 error while writing *
-No help available
+Geen verdere hulp beskikbaar.
 
 * is public, should be declared in a file named *
 'n Klas wat as "public" gedeklareer is, moet gestoor 
@@ -650,7 +650,7 @@ Byvoorbeerd: "public class Foo" moet gestoor word
 'n 'n lêer genaamd "Foo.java".
 
 cannot read: *
-No help available
+Geen verdere hulp beskikbaar.
 
 * uses or overrides a deprecated API.
 Hier word 'n metode gebruik wat nie meer aanbeveel word nie.
@@ -672,7 +672,7 @@ Dit is moontlik die lyntjie wat aangedui word, of
 net die lyntjie daarbo.
 
 'case', 'default' or '}' expected
-No help available
+Geen verdere hulp beskikbaar.
 
 'class' or 'interface' expected
 Die sleutelwoord "class" of "interface" word verwag
@@ -681,7 +681,7 @@ Dit is moontlik hier uitgelaat, of daar is ander teks
 voor dit wat nie daar hoort nie.
 
 '.class' expected
-No help available
+Geen verdere hulp beskikbaar.
 
 '(' or '[' expected
 Dit lys asof daar 'n onewe aantal hakies in die kode is
@@ -695,16 +695,16 @@ punt in die kode verwag, maar dit was nie daar nie.
 Probeer vasstel waarom hierdie simbool hier verwag is.
 
 orphaned *
-No help available
+Geen verdere hulp beskikbaar.
 
 cannot access *
-No help available
+Geen verdere hulp beskikbaar.
 
 type parameter {0} is not within its bound *
-No help available
+Geen verdere hulp beskikbaar.
 
 type parameters of {0} cannot be determined
-No help available
+Geen verdere hulp beskikbaar.
 
 incompatible types*
 'n Uitdrukking van 'n sekere tipe is hier benodig.
@@ -717,7 +717,7 @@ Die tipe wat hier gegee is kan nie outomaties
 omgeskakel word na die verlangde tipe nie.
 
 possible loss of precision
-No help available
+Geen verdere hulp beskikbaar.
 
 unexpected type
 'n Uitdrukking van 'n sekere tipe is hier benodig.
@@ -726,10 +726,10 @@ versoenbaar is nie, byvoorbeeld 'n "String" is gevind
 waar 'n "int" verwag was.
 
 abstract {0} {1} cannot be accessed directly
-No help available
+Geen verdere hulp beskikbaar.
 
 *An explicit 'this' qualifier must be used to select the desired instance.
-No help available
+Geen verdere hulp beskikbaar.
 
 * cannot be referenced from a static context
 You are trying to access an instance field or instance
@@ -741,42 +741,43 @@ their class (or they need to use an explicit object
 for the call).
 
 cannot resolve symbol*
-You are using a symbol here (a name for a variable,
-a method, or a class) that has not been declared in
-any visible scope. Check the spelling of that name -
-did you mistype it? Or did you forget to declare it?
-Or maybe you did declare it, but it is not visible
-from here.
+U gebruik hier 'n simbool ('n naam vir 'n veranderlike,
+metode of klas) wat nog nie tot dusver gedefinieer is
+binne die sigbare reikwydte nie.  Maak seker van die
+spelling van die naam, en of u nie vergeet het om dit te
+deklareer nie.  As dit wel gedeklareer is, is dit dalk
+nie toeganklik van hier af nie (buite die reikwydte).
+
 
 {0}; {1} and {2} are static
-No help available
+Geen verdere hulp beskikbaar.
 
 {0}; overridden method is {1}
-No help available
+Geen verdere hulp beskikbaar.
 
 * attempting to assign weaker access privileges; was *
-You are overiding a method here and you are changing the access
-modifier (private, protected, public). You can change the access 
-modifier only to allow wider access (e.g. from private to public)
-but you are not allowed to narrow it (e.g. from public to
-private). Of course, you can leave it as it was.
+U herdefinieer hier 'n metode en verander tergelykertyd die 
+toegangsregte (private, protected, public). Dit is slegs moontlik 
+om wyer toegangsregte toe te ken (bv. van private na public)
+en nie om toegang in te perk nie (bv. van public na private). 
+Natuurlik is dit ook toelaatbaar om dit te onveranderd weer te gee.
 
 * overridden method does not throw *
-You are overiding a method here and you are throwing an
-exception. Overriding methods may not throw exceptions
-that the overriden (superclass) method does not throw
-as well. The method in the subclass can throw fewer
-exceptions, but not more.
+U herdefinieer hier 'n metode en meld 'n uitsondering aan. 
+Herdefiniërende metodes mag nie uitsonderings aanmeld 
+as die superklas se metode dit nie ook aanmeld nie.
+Die metode in die subklas mag dus minder uitsonderings aanmeld,
+maar nie meer nie.
 
 * attempting to use incompatible return type
-No help available
+Geen verdere hulp beskikbaar.
 
 * is already defined in this compilation unit
-You have used this name twice here. Choose a different
-name for this identifier.
+U het hierdie naam vir die tweede maal gedefinieer. 
+Kies 'n ander naam vir hierdie identifiseerder.
 
 {0} is already defined in a single-type import
-No help available
+Geen verdere hulp beskikbaar.
 
 * conflicts with a compiler-synthesized symbol in *
-No help available
+Geen verdere hulp beskikbaar.

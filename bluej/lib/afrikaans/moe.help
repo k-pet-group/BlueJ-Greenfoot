@@ -16,97 +16,95 @@ cut-end-of-line=\n Knip die einde van die huidige lyntjie teks na die knipbord. 
 cut-word=\n Knip die huidige woord na die knipbord. \n Herhaalde knipbewerkings voeg teks by die knipbord.
 cut-end-of-word=\n Knip die einde van die huidige woord na die knipbord. \n Herhaalde knipbewerkings voeg teks by die knipbord.
 paste-from-clipboard=\n Plak die teks wat tans op die knipbord is, tussen \n die bestaande teks by die wyserposisie.
-indent=\n If 'indent' is selected in the editor preferences, indent as the\n line above. Otherwise insert a soft (spaced) tab. 
-insert-tab=\n Voeg 'n TAB karakter in.
-new-line=\n Insert a line break. If 'indent' is selected in the editor\n preferences, also indent as the line above.
-## insert-spaced-tab=\n Voeg spasies in tot by die posisie van die volgende TAB. (Dit wil sê: doen die\n TAB-bewerking met spasies in plaas van die ware TAB-karakter).
+indent=\n As 'indent' geselekteer is in die redigeerdervoorkeure, word inkeping gedoen soos\n in die reël hierbo. Andersins word 'n sagte inkeping (met spasies) gedoen. 
+insert-tab=\n Voeg 'n TAB-karakter in.
+new-line=\n Voeg 'n reëlbreuk in. As 'indent' geselekteer is in die\n redigeerdervoorkeure, doen dan ook inkeping soos hierbo.
+insert-break=\n Voeg 'n reëlbreuk in by die huidige wyserposisie sonder enige poging om inkeping te doen.
+insert-method=\n Voeg die geraamtekode van 'n Java-metode in.
+comment-block=\n Merk die reëls want tans geselekteer is as kommentaar. Die kommentaaraanduiding kan later\n maklik verwyder word (sien uncomment-block).
+uncomment-block=\n Verwyder kommentaarmerkers van die reëls wat tans geselekteer is.\n Sien ook comment-block.
+indent-block=\n Voeg een vlak van inkeping by die reëls wat tans geselekteer is\n (of net vir die huidige reël).
+deindent-block=\n Verwyder een vlak van inkeping by reëls wat tans geselekteer is\n (of net vir die huidige reël).
 
-insert-break=\n Voeg 'n reelbreuk in by die huidige wyserposisie.
-insert-method=\n Insert a skeleton for a Java method into the text.
-comment-block=\n Comment out currently selected lines. The comment can easily be\n removed later (see uncomment-block).
-uncomment-block=\n Remove comment symbols from the start of currently selected lines.\n See also comment-block.
-indent-block=\n Add one level of indentation to each line in the current selection\n (or the current line if there is no selection).
-deindent-block=\n Remove one level of indentation from each line in the current selection\n (or the current line if there is no selection).
-
-select-word=\n Select the current word (also bound to\n left-mouse-button: double-click).
-select-line=\n Select the current line (also bound to\n left-mouse-button: triple-click).
-select-paragraph=\n Select the current paragraph.
-select-all=\n Select the whole text.
-selection-backward=\n Move the end of the selection one character backwards.
-selection-forward=\n Move the end of the selection one character forward.
-selection-up=\n Move the end of the selection one line up.
-selection-down=\n Move the end of the selection one line down.
-selection-begin-word=\n Move the end of the selection to the beginning of\n the current word.
-selection-end-word=\n Move the end of the selection to the end of\n the current word.
-selection-previous-word=\n Move the end of the selection to the beginning of\n the previous word.
-selection-next-word=\n Move the end of the selection to the beginning of\n the next word.
-selection-begin-line=\n Move the end of the selection to the beginning of\n the current line.
-selection-end-line=\n Move the end of the selection to the end of\n the current line.
-selection-begin-paragraph=\n Move the end of the selection to the beginning of\n the current paragraph.
-selection-end-paragraph=\n Move the end of the selection to the end of\n the current paragraph.
-selection-page-up=\n Move the end of the selection one page up.
-selection-page-down=\n Move the end of the selection one page down.
-selection-begin=\n Move the end of the selection to the beginning of the text.
-selection-end=\n Move the end of the selection to the end of the text.
-unselect=\n Remove the selection (not the selected text!).
+select-word=\n Selekteer die huidige woord (ook gebind aan\n linkermuisknop: dubbelklik).
+select-line=\n Selekteer die huidige reël (ook gebind aan\n linkermuisknop: trippelklik).
+select-paragraph=\n Selekteer die huidige paragraaf.
+select-all=\n Selekteer die hele teks.
+selection-backward=\n Skuif (verkort) die einde van die seleksie een karakter terug.
+selection-forward=\n Skuif (verleng) die einde van die seleksie een karakter aan.
+selection-up=\n Skuif (verkort) die einde van die seleksie een reël op.
+selection-down=\n Skuif (verleng) die einde van die seleksie een reël af.
+selection-begin-word=\n Skuif (verkort) die einde van die seleksie na die begin van die \n huidige woord.
+selection-end-word=\n Skuif (verleng) die einde van die seleksie na die einde van die \n huidige woord.
+selection-previous-word=\n Skuif (verkort) die einde van die seleksie na die begin van die \n vorige woord.
+selection-next-word=\n Skuif (verleng) die einde van die seleksie na die begin van die \n volgende woord.
+selection-begin-line=\n Skuif (verkort) die einde van die seleksie na die begin van die \n huidige reël.
+selection-end-line=\n Skuif (verleng) die einde van die seleksie na die einde van die \n huidige reël.
+selection-begin-paragraph=\n Skuif (verkort) die einde van die seleksie na die begin van die \n huidige paragraaf.
+selection-end-paragraph=\n Skuif (verleng) die einde van die seleksie na die einde van die \n huidige paragraaf.
+selection-page-up=\n Skuif (verkort) die einde van die seleksie een bladsy op.
+selection-page-down=\n Skuif (verleng) die einde van die seleksie een bladsy af.
+selection-begin=\n Skuif (verkort) die einde van die seleksie na die begin van die teks.
+selection-end=\n Skuif (verleng) die einde van die seleksie na die einde van die teks.
+unselect=\n Skakel die seleksie af (verwyder nie die teks nie!).
 
 ## move and scroll functions
 
-caret-backward=\n Move the caret (cursor) one character backwards.
-caret-forward=\n Move the caret one character forward.
-caret-up=\n Move the caret one line up.
-caret-down=\n Move the caret one line down.
-caret-begin-word=\n Move the caret to the beginning of the current word.
-caret-end-word=\n Move the caret to the end of the current word.
-caret-previous-word=\n Move the caret to the beginning of the previous word.
-caret-next-word=\n Move the caret to the beginning of the next word.
-caret-begin-line=\n Move the caret to the beginning of the current line.
-caret-end-line=\n Move the caret to the end of the current line.
-caret-begin-paragraph=\n Move the caret to the beginning of the current paragraph.
-caret-end-paragraph=\n Move the caret to the end of the current paragraph.
-page-up=\n Move the caret one page up.
-page-down=\n Move the caret one page down.
-caret-begin=\n Move the caret to the beginning of the text.
-caret-end=\n Move the caret to the end of the text.
+caret-backward=\n Skuif die wyser een karakter terug.
+caret-forward=\n Skuif die wyser een karakter aan.
+caret-up=\n Skuif die wyser een reël op.
+caret-down=\n Skuif die wyser een reël af.
+caret-begin-word=\n Skuif die wyser na die begin van die huidige woord.
+caret-end-word=\n Skuif die wyser na die einde van die huidige woord.
+caret-previous-word=\n Skuif die wyser na die begin van die vorige woord.
+caret-next-word=\n Skuif die wyser na die begin van die volgende woord.
+caret-begin-line=\n Skuif die wyser na die begin van die huidige reël.
+caret-end-line=\n Skuif die wyser na die einde van die huidige reël.
+caret-begin-paragraph=\n Skuif die wyser na die begin van die huidige paragraaf.
+caret-end-paragraph=\n Skuif die wyser na die einde van die huidige paragraaf.
+page-up=\n Skuif die wyser een bladsy op.
+page-down=\n Skuif die wyser een bladsy af.
+caret-begin=\n Skuif die wyser na die begin van die teks.
+caret-end=\n Skuif die wyser na die einde van die teks.
 
 ## class functions
 
-save=\n Save this class. Note that it is rarely necessary to explicitely save\n the class because closing it saves it automatically.
-reload=\n Reload the class from its source file. This operation will discard\n all changes made after the last (implicit or explicit) save operation.
-close=\n Close this class. The source text is automatically saved.
-print=\n Open a print dialog to start a print job.
-page-setup=\n Open a page-setup dialog to specify page layout.
+save=\n Stoor hierdie klas. Dit is gewoonlik nie nodig om die klas eksplisiet te stoor nie\n want dit word outomaties gestoor voor dit toegemaak of gekompileer word.
+reload=\n Herlaai die klas vanaf die bronlêer. Hiedie bewerking maak\n alle veranderinge sedert die laaste (implisiete of eksplisiete) stoor ongedaan.
+close=\n Maak hierdie klas toe. Die bronkode word outomaties gestoor.
+print=\n Maak 'n dialoogkassie oop waarvandaan drukwerk aangevra kan word.
+page-setup=\n Maak 'n dialoogkassie oop waarop die bladsy-uitleg van drukwerk gespesifiseer kan word.
 
 
 ## customisation functions
 
-key-bindings=\n View and change the key bindings for Moe's user functions.
-preferences=\n Specify some preference settings for the editor.
+key-bindings=\n Bekyk en verander die sleutelbindings vir Moe se gebruikersfunksies.
+preferences=\n Spesifiseer sommige voorkeure vir die redigeerder.
 
 
 ## help functions
 
-describe-key=\n After invoking this function, type a key. The name of the\n function bound to this key is displayed.
-help-mouse=\n Display mouse button bindings.
-show-manual=\n Open a web browser to show the Moe User Manual.
-about-editor=\n Display a brief note about Moe.
+describe-key=\n Nadat hierdie funksie gekies is, druk 'n sleutel om uit te vind\n waarvoor hierdie sleutel tans opgestel is as funksiesleutel.
+help-mouse=\n Vertoon die funksieverbindings van muisknoppe.
+show-manual=\n maak 'n webblaaier oop om die Moe gebruikershandleiding te vertoon.
+about-editor=\n Wys 'n kort kennisgewing oor Moe.
 
 
 ## misc functions
 
-undo=\n Undo the last edit operation. (This can then be re-done with 'redo'.)
-redo=\n Redo the last operation that was undone.
+undo=\n Herroep die vorige redigeerbewerking. (Daarna kan dit herstel word met 'herdoen'.)
+redo=\n Herstel die laaste redigeerbewerking wat herroep is.
 
-find=\n Open a dialog to start a search for a string in the text. The dialog\n allows to start searches backward or forward.
-find-next= If a selection is on, find the next occurrence of the selected text. If no\n selection is on, search again for the same string that was used in the\n last search. Stop at the end of the text. If called again after the end\n of the text was reached, wrap around and continue search from the top.
-find-next-backward=\n Like find-next, but searches up rather than down.
-replace=\n Replace one text string with another.
+find=\n Maak 'n dialoogkassie oop om 'n soektog te begin vir 'n string in die teks. \nDit is moontlik om vorentoe of agtertoe te soek.
+find-next= As iets geselekteer is, soek die volgende voorkoms van die geselkteerde teks. As niks\n geselekteer is nie, soek weer vir dieselfde string as voorheen.\n Stop by die einde van die teks. As die soektog gekanselleer word aan die einde\n van die teks, spring na bo en sit die soektog van daar af voort.
+find-next-backward=\n Soos soek-volgende, maar soek boontoe i.p.v. ondertoe.
+replace=\n Vervang een teksstring met 'n ander.
 
-compile=\n Compile the current class. The class is automatically\n saved before being compiled.
-toggle-interface-view=\n Toggle the display between interface and source view.\n The interface view shpws the class interface in Javadoc format.
-toggle-breakpoint=\n Set or clear a breakpoint in the current line.
+compile=\n Kompileer die huidige klas. Die klas word outomaties gestoor\n voordat dit gekompileer word.
+toggle-interface-view=\n Wissel die aansig tussen koppelvlak en bronkode.\n Die koppelvlakaansig wys die koppelvlak in Javadoc formaat.
+toggle-breakpoint=\n Stel of verwyder 'n inbreekpunt op die huidige lyn.
 
 ## help texts for adding key bindings
 
-press-key=\n  Press the key you want to add...
-cannot-redefine=\n  Printable keys cannot be redefined.
+press-key=\n  Druk die sleutel wat u wil byvoeg...
+cannot-redefine=\n  Karaktersleutels kan geherdefiniëer word nie.

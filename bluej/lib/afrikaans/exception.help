@@ -52,6 +52,30 @@ tydens iterasie is wanneer elemente deur die Iterator se
 verwydermetode verwyder word (nie deur die versameling se
 eie verwydermetode nie).
 
+AssertionError*
+'n Handhawing het misluk. Dit beteken dat die uitdrukking
+binne die 'assert'-stelling
+    assert(uitdrukking)
+geëvalueer is as vals. Die handhawingstelling is waarskynlik
+daar geplaas om te verseker dat die handhawing bevestig moet
+word as waar, wanneer hierdie punt bereik word, en aangesien dit
+vals is dui dit op een of ander soort fout.
+Die presiese aard van hierdie fout hang af van die program self.
+U behoort noukeurig na te gaan waarom hierdie uitdrukking vals was.
+
+ClassNotFoundException*
+Een van die klass wat nodig is op hierdie toepassing te
+laat loop kon nie gevind word nie.  Dit wil voorkom of dit
+wel beskikbaar was tydens kompilering, maar nou is dit weg.
+Moontlike oorsake is dat die Java stelsel nie behoorlik
+opgestel is nie (as die betrokke klas 'n stelselklas is)
+of dat die projek beskadig is deurdat sommige klaslêers
+verlore of korrup geraak het.
+Probeer om die hele projek te herbou.  As die probleem
+aanhou, vergelyk dit met ander projekte.  As dit met meer
+as een projek gebeur mag dit dalk nodig wees om die JDK 
+weer te installeer.
+
 ArrayStoreException*
 Geen hulp beskikbaar nie - Jammer.
 

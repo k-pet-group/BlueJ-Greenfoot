@@ -37,28 +37,6 @@ in die projekgids. As die klas beskadig is,
        java lêer. Hernoem dit met die oorsproklike naam
        (met 'n '.java' uitgang)
 
-# errors:
-#########
-
-no-lib-selected
-U het nie 'n biblioteek gespesifiseer om heen te gaan nie.
-Klik op 'n biblioteek in die lys van "Soekresultate" en
-druk dan die "Gaan na" knoppie.
-
-no-target-dialog
-Voordat u 'n pakket uit die klasbiblioteek 
-rondblaaier gebruik, moet u ten minste een
-pakket oop hê in BlueJ as bestemming.
-
-cannot-locate-lib-node
-Die geselekteerde node kan nie in die
-biblioteekselekteerder gevind word nie.
-Gewoonlik beteken dit dat daar 'n verouderde
-pakket in die lêergids is.
-
-missing-shadow
-Kan nie skadu-area vind nie:
-
 cannot-run-compiler
 Kan nie die kompileerder loop nie.
 Is die program in u padveranderlike?
@@ -110,10 +88,6 @@ probleme is met lêerstelsel toegang.
 error-open-source
 Die bronkode van hierdie klas kon nie
 oopgemaak word nie.
-
-error-open-readme
-Daar is 'n probleem met die oopmaak van die teksnota
-van die projek.  'n Nuwe, leë teksnota is geskep.
 
 error-writing-readme
 Die "README"-lêer vir hierdie projek kon nie opdateer
@@ -202,13 +176,14 @@ Daar bestaan reeds 'n klas met hierdie naam
 in hierdie pakket. Daar mag nie twee klasse
 met dieselfde naam in een pakket wees nie.
 
-duplicate-package-name
-Daar bestaan reeds 'n pakket met hierdie naam
-in hierdie projek.
-
 error-in-import
 'n Fout het voorgekom tydens die intrekking van
 die lêer. Kyk vir toegangsregte en skyfspasie.
+
+no-class-selected-compile
+Geen klas is gekies om te kompileer nie.
+Selekteer 'n klas deur daarop te klik
+voodat die kompileeropdrag gegee word.
 
 no-class-selected
 Geen klas of pakket is geselekteer omte verwyser nie.
@@ -313,6 +288,15 @@ As u hierdie klas wil skuif na 'n ander pakket,
 dan moet u eers die nuwe pakket skep.
 Die pakketstelling is terugverander na wat dit was.
 
+
+package-name-clash
+U het die package-instruksie sodat dit verwys na 
+'n pakket of 'n klas wat reeds hierdie naam het.
+As die klas verskuif word, sal die bestaande klas
+of pakket oorskryf word, daarom is die package-stelling
+terugverander na die oorspronklike naam.
+
+
 package-name-changed
 U het die pakketstelling verander na 'n ander pakket.
 Wil u dus hê dat die klas verskuif moet word na
@@ -332,14 +316,41 @@ classmgr-changes-no-effect
 Die veranderinge aan die klasbiblioteke sal eers in werking
 tree wanneer u BlueJ volgende keer weer aan die gang sit.
 
+pref-optimise-no-effect
+Veranderinge aan die instellings vir die virtuele masjien
+sal eers in werking tree vir projekte wat oopgemaak word
+nadat die veranderinge aangebring is, of wanneer die
+virtuele masjien herbegin word.
+
+unittest-new-test-method
+Spesifiseer 'n naam vir hierdie toets.
+Die vaslegging sal dan begin.
+Nuwe toetsmetode
+null
+
 getobject-new-name
-Verskaf die naam vir die nuwe objek op die objek-werkbank.
+Verskaf die naam vir die nuwe objek op die 
+objek-werkbank.
 Nuwe Objek Naam
 null
 
+unittest-fixture-present
+Hierdie eenheidstoets bevat reeds 'n gedeklareerde 
+vastepunt.  Indien u voortgaan sal die definisie van hiedie
+vastepunt vervang word.
+Wil u voortgaan?
+Vervang
+Kanselleer
+null
 
-# editor:
-#########
+unittest-method-present
+Hierdie eenheidstoets bevat reeds 'n metode met dieselfde
+naam.  Indien u voortgaan sal die definisie van hierdie metode
+vervang word.
+Wil u voortgaan?
+Vervang
+Kanselleer
+null
 
 no-search-string
 Geen soekstring is gedefinieer nie.
@@ -351,3 +362,35 @@ en die verstekwaardes aanvaar?
 Verstekwaardes
 Kanselleer
 null
+
+error-create-vm
+BlueJ kon nie 'n virtuele masjien (VM) aan die gang sit om projekte mee uit te voer nie.
+Dit is 'n ernstige fout - u sal nie kan voortgaan om objekte te skep of
+metodes uit te voer voordat die probleem opgelos is nie
+Normaalweg word hierdie probleem veroorsaak deur spesifieke
+netwerkinstellings op die rekenaar.  BlueJ gebruik TCP/IP en sockets
+om die VM aan die gang te sit.  Die mees algemene rede vir hierdie
+probleem is 'n oormatige streng netskans wat
+nie verbindings vanaf hierdie masjien toelaat nie.  Om dit te toets,
+skakel die netskans (firwall) van hierdie masjien af (indien daar een is).
+As dit die probleem oplos, probeer dan om 'n netskansopstelling te kry
+wat verbindings vanaf hierdie masjien toelaat.
+Ander moontlike oorsake is foutiewe netwerkinstellings.
+Maak seker dat die TCP/IP opstelling korrek is en gaan ander netwerkopsies na.
+As die probleem voortduur, vra vir hulp (sien http://www.bluej.org/help/ask-help.html).
+
+project-is-readonly
+Die projek het lees-alleen toegang.  U sal nie objekte kan skep
+of metodes kan uitvoer nie.
+Moontlik is die toegangsregte van die projekgids gestel na 'read-only'
+of die hele lêerstelsel is onskryfbaar (bv. as dit op 'n CD is).
+Om hierdie projek ten volle te kan gebruik
+moet dit op 'n skryfbare lêerstelsel wees (normaalweg die hardeskyf)
+en die toegangsregte moet so gestel wees dat u skryftoegang het
+na die gids en elke lêer daarin.
+
+could-not-write-shell-file
+Uitvoering het gefaal omdat die projekgids nie skryfbaar is nie.
+Om objekte te kan skep en metodes te kan uitvoer moet BlueJ na 
+die betrokke gids en lêers kan skryf.  Maak seker dit is nie 'n CD
+nie en dat jy skryftoegang het na die gids en alle lêers daarin.
