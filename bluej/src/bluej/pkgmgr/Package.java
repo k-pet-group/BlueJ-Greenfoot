@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 625 2000-07-05 10:39:53Z ajp $
+ * @version $Id: Package.java 628 2000-07-06 05:31:09Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1099,14 +1099,26 @@ public class Package extends Graph
      *  @param removableTarget   the ClassTarget representing the class to
      *				 be removed.
      */
-    public void removeClass(Target removableTarget)
+    public void removeClass(ClassTarget removableTarget)
     {
-        if(removableTarget instanceof ClassTarget)
-            ((ClassTarget)removableTarget).prepareForRemoval();
-
+        removableTarget.prepareForRemoval();
         removeTarget(removableTarget);
         getEditor().repaint();
     }
+
+    /**
+     *  Removes a class from the Package
+     *
+     *  @param removableTarget   the ClassTarget representing the class to
+     *				 be removed.
+     */
+    public void removePackage(PackageTarget removableTarget)
+    {
+        removableTarget.deleteFiles();
+        removeTarget(removableTarget);
+        getEditor().repaint();
+    }
+
 
     /**
      *  Add a dependancy in this package. The dependency is also added to the

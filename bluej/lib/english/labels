@@ -226,6 +226,9 @@ pkgmgr.chooseWebPage.title=Select HTML page destination
 pkgmgr.parentpackagetarget.open=Open
 pkgmgr.parentpackagetarget.openunamed=Open unamed package
 
+pkgmgr.packagemenu.open=Open
+pkgmgr.packagemenu.remove=Remove
+
 pkgmgr.classmenu.runApplet=Run Applet
 pkgmgr.classmenu.edit=Edit Implementation
 pkgmgr.classmenu.public=Public View

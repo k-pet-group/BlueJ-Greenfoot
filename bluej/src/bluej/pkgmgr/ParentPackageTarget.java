@@ -14,9 +14,9 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 607 2000-06-30 04:23:32Z ajp $
+ * @version $Id: ParentPackageTarget.java 628 2000-07-06 05:31:09Z ajp $
  */
-public class ParentPackageTarget extends PackageTarget implements ActionListener
+public class ParentPackageTarget extends PackageTarget
 {
     final static String openStr = Config.getString("pkgmgr.parentpackagetarget.open");
     final static String openUnamedStr = Config.getString("pkgmgr.parentpackagetarget.openunamed");
@@ -31,6 +31,16 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
     }
 
     public void save(Properties props, String prefix)
+    {
+    }
+
+    /**
+     * Deletes applicable files (directory and ALL contentes) prior to
+     * this PackageTarget being removed from a Package. For safety (it
+     * should never be called on this target) we override this to do
+     * nothing
+     */
+    public void deleteFiles()
     {
     }
 

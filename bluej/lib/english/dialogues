@@ -182,6 +182,23 @@ No class or package selected for removal.
 Select a class or package by clicking on
 it before trying to remove.
 
+really-remove-class
+Removing this class will permanently
+delete the source file.
+Do you want to continue?
+Remove
+Cancel
+null
+
+really-remove-package
+Removing this package will permanently
+delete the package directory (including ALL
+the contents of that directory).
+Do you want to continue?
+Remove
+Cancel
+null
+
 package-does-not-exist
 Error in opening package.
 Package does not exist:
@@ -204,14 +221,6 @@ Not Yet Implemented - sorry.
 quit-all
 Quit all open projects?
 Quit All
-Cancel
-null
-
-really-remove
-Removing this class will permanently
-delete the source file.
-Do you want to continue?
-Remove
 Cancel
 null
 
@@ -242,8 +251,7 @@ Cancel
 
 package-name-invalid
 You have changed the package statement which
-tells Java the package this class is in to a
-package which does not exist in this project.
+to a package which does not exist in this project.
 If you wish to move this class to another
 package you must create the destination
 package first. The package statement has been
@@ -253,9 +261,11 @@ package-name-changed
 You have changed the package statement which
 tells Java the package this class is in. Do you
 want to move this class to the indicated package
-or do you want to leave the class where it is?
+or do you want to leave the class where it is
+(the package statement will be reverted back to
+its original form)?
 Move
-Leave
+Revert
 null
 
 ask-index

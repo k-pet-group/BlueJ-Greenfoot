@@ -6,7 +6,10 @@ import bluej.graph.GraphEditor;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 import java.util.Properties;
+
+import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -16,9 +19,9 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 607 2000-06-30 04:23:32Z ajp $
+ * @version $Id: PackageTarget.java 628 2000-07-06 05:31:09Z ajp $
  */
-public class PackageTarget extends Target implements ActionListener
+public class PackageTarget extends Target
 {
     static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
     //static final Color umldefaultbg = Config.getItemColour("colour.class.bg.uml.default");
@@ -32,9 +35,8 @@ public class PackageTarget extends Target implements ActionListener
     static final int TAB_HEIGHT = 12;
     private int tabWidth;
 
-
-    static String useStr = Config.getString("browser.classchooser.packagemenu.use");
-    static String openStr = Config.getString("browser.classchooser.packagemenu.open");
+    static String openStr = Config.getString("pkgmgr.packagemenu.open");
+    static String removeStr = Config.getString("pkgmgr.packagemenu.remove");
 
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
@@ -76,6 +78,15 @@ public class PackageTarget extends Target implements ActionListener
         super.save(props, prefix);
 
         props.put(prefix + ".type", "PackageTarget");
+    }
+
+    /**
+     * Deletes applicable files (directory and ALL contentes) prior to
+     * this PackageTarget being removed from a Package.
+     */
+    public void deleteFiles()
+    {
+        FileUtility.deleteDir(new File(getPackage().getPath(), getBaseName()));
     }
 
     /**
@@ -238,37 +249,73 @@ public class PackageTarget extends Target implements ActionListener
             menu.show(editor, evt.getX(), evt.getY());
     }
 
+    /**
+     * Construct a popup menu which displays all our parent packages.
+     */
     private JPopupMenu createMenu(Class cl)
     {
         JPopupMenu menu = new JPopupMenu(getBaseName());
+        JMenuItem item;
 
-        return null;
+        Action openAction = new OpenAction(openStr, this,
+                                 getPackage().getQualifiedName(getBaseName()));
+
+        item = menu.add(openAction);
+        item.setFont(PrefMgr.getStandardMenuFont());
+        item.setForeground(envOpColour);
+
+        Action removeAction = new RemoveAction(removeStr, this);
+
+        item = menu.add(removeAction);
+        item.setFont(PrefMgr.getStandardMenuFont());
+        item.setForeground(envOpColour);
+
+        return menu;
     }
 
-    private void addMenuItem(JPopupMenu menu, String itemString, boolean enabled)
+    private void addMenuItem(JPopupMenu menu, String itemString, String pkgName)
     {
         JMenuItem item;
 
-        menu.add(item = new JMenuItem(itemString));
-        item.addActionListener(this);
+        Action openAction = new OpenAction(itemString, this, pkgName);
+
+        item = menu.add(openAction);
         item.setFont(PrefMgr.getStandardMenuFont());
         item.setForeground(envOpColour);
-        if(!enabled)
-            item.setEnabled(false);
     }
 
-
-    public void actionPerformed(ActionEvent e)
+    private class OpenAction extends AbstractAction
     {
-	String cmd = e.getActionCommand();
-	if (useStr.equals(cmd)) {
-				// insert code to do same thing as double click here
-//	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-//		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
-//	} else if (openStr.equals(cmd)) {
-				// insert code to do same thing as double click here
-//	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-//		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openPackage(this);
-	}
+        private Target t;
+        private String pkgName;
+
+        public OpenAction(String menu, Target t, String pkgName)
+        {
+            super(menu);
+            this.t = t;
+            this.pkgName = pkgName;
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            getPackage().getEditor().raiseOpenPackageEvent(t, pkgName);
+        }
     }
+
+    private class RemoveAction extends AbstractAction
+    {
+        private Target t;
+
+        public RemoveAction(String menu, Target t)
+        {
+            super(menu);
+            this.t = t;
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            getPackage().getEditor().raiseRemoveTargetEvent(t);
+        }
+    }
+
 }

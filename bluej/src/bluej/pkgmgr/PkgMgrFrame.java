@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 618 2000-07-04 07:25:30Z mik $
+ * @version $Id: PkgMgrFrame.java 628 2000-07-06 05:31:09Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -531,8 +531,8 @@ public class PkgMgrFrame extends JFrame
 
         case PackageEditorEvent.TARGET_REMOVE:     // user has initiated target
                                                    //   "remove" option
-            ClassTarget t = (ClassTarget) e.getSource();
-            removeClass(t);
+//            Target t = ;
+            doRemove((Target) e.getSource());
             break;
 
          case PackageEditorEvent.TARGET_OPEN:       // user has initiated a
@@ -629,7 +629,7 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case EDIT_REMOVE:
-            removeClass();
+            doRemove();
             break;
 
         case EDIT_NEWUSES:
@@ -1300,21 +1300,31 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+    public void doRemove(Target target)
+    {
+        if(target instanceof ClassTarget) {
+            ClassTarget t = (ClassTarget) target;
+            removeClass(t);
+        } else if(target instanceof PackageTarget) {
+            if(!(target instanceof ParentPackageTarget)) {
+                PackageTarget t = (PackageTarget) target;
+                removePackage(t);
+            }
+        }
+    }
+
     /**
      * Removes the currently selected ClassTarget
      * from the Package in this frame.
      */
-    public void removeClass()
+    public void doRemove()
     {
         Target target = pkg.getSelectedTarget();
 
         if(target == null)
             DialogManager.showError(this, "no-class-selected");
         else {
-            if(target instanceof ClassTarget) {
-                ClassTarget t = (ClassTarget) target;
-                removeClass(t);
-            }
+            doRemove(target);
         }
     }
 
@@ -1324,11 +1334,24 @@ public class PkgMgrFrame extends JFrame
     public void removeClass(ClassTarget removableTarget)
     {
         // Check they realise that this will delete the files.
-        int response = DialogManager.askQuestion(this, "really-remove");
+        int response = DialogManager.askQuestion(this, "really-remove-class");
 
         // if they agree
         if(response == 0)
             pkg.removeClass(removableTarget);
+    }
+
+    /**
+     * Removes the specified PackageTarget from the Package.
+     */
+    public void removePackage(PackageTarget removableTarget)
+    {
+        // Check they realise that this will delete ALL the files.
+        int response = DialogManager.askQuestion(this, "really-remove-package");
+
+        // if they agree
+        if(response == 0)
+            pkg.removePackage(removableTarget);
     }
 
 

@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 625 2000-07-05 10:39:53Z ajp $
+ * @version $Id: ClassTarget.java 628 2000-07-06 05:31:09Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -89,7 +89,7 @@ public class ClassTarget extends EditableTarget
 
     private String stereotype;
     private boolean analysing = false;	// flag to prevent recursive
-					// calls to analyseDependancies()
+                                        // calls to analyseDependancies()
 
     /**
      * Create a new class target in package 'pkg'.
@@ -557,10 +557,10 @@ public class ClassTarget extends EditableTarget
      */
     public void analyseSource(boolean modifySource)
     {
-	if(analysing)
-		return;
+        if(analysing)
+        	return;
 
-	analysing = true;
+        analysing = true;
 
         ClassInfo info = sourceInfo.getInfo(getSourceFile().getPath(),
                                             getPackage().getAllClassnames());
@@ -692,7 +692,10 @@ public class ClassTarget extends EditableTarget
                                          getClassFile().getPath(),
                                          getContextFile().getPath());
 
-            setIdentifierName(newName); 
+            // this is extremely dangerous code here.. must track all
+            // variables which are set when ClassTarget is first
+            // constructed and fix them up for new class name
+            setIdentifierName(newName);
             setDisplayName(newName);
 
             return true;
@@ -704,32 +707,31 @@ public class ClassTarget extends EditableTarget
     private void doPackageNameChange(String newName)
     {
         Project proj = getPackage().getProject();
-	Package dstPkg = proj.getPackage(newName);
+        Package dstPkg = proj.getPackage(newName);
 
-	if(dstPkg == null) {
+        if(dstPkg == null) {
             DialogManager.showError(null, "package-name-invalid");
         }
         else {
             if(DialogManager.askQuestion(null, "package-name-changed") == 0) {
                 switch(dstPkg.importFile(getSourceFile())) {
-		 default:
-		    prepareForRemoval();
-		    getPackage().removeTarget(this);
+                default:
+                    prepareForRemoval();
+                    getPackage().removeTarget(this);
                     close();
                     return;
                 }
-	    }
-	}
+            }
+        }
 
-	// all non working paths lead here.. lets fix the package line
-	// up so it is back to what we expect
+        // all non working paths lead here.. lets fix the package line
+        // up so it is back to what we expect
 
-	try {
-		enforcePackage(getPackage().getQualifiedName());
-		getEditor().reloadFile();
-	}
-	catch(IOException ioe) { }
-
+        try {
+            enforcePackage(getPackage().getQualifiedName());
+            getEditor().reloadFile();
+        }
+        catch(IOException ioe) { }
     }
 
     protected Class last_class = null;
