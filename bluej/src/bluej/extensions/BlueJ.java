@@ -46,7 +46,12 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1807 2003-04-10 10:28:21Z damiano $
+ * @version $Id: BlueJ.java 1813 2003-04-10 11:04:51Z damiano $
+ */
+
+/*
+ * Author Clive Miller, University of Kent at Canterbury, 2002
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003
  */
 
 public class BlueJ
@@ -60,13 +65,13 @@ public class BlueJ
     private Properties             localLabels;
 
     /**
-     * NOT to be used by Extension writer.
+     * Constructor
      */
-    public BlueJ (ExtensionWrapper i_myWrapper, PrefManager i_prefManager, MenuManager i_menuManager)
+    public BlueJ (ExtensionWrapper aWrapper, PrefManager aPrefManager, MenuManager aMenuManager)
     {
-        myWrapper   = i_myWrapper;
-        prefManager = i_prefManager;
-        menuManager = i_menuManager;
+        myWrapper   = aWrapper;
+        prefManager = aPrefManager;
+        menuManager = aMenuManager;
 
         /* I do NOT want lazy initialization othervise I may try to load it
          * may times just because I cannof find anything.
@@ -165,7 +170,7 @@ public class BlueJ
 
 
     /**
-     * Returns the currently selected Package.
+     * Returns the currently selected package.
      * It can return null if this information is not available.
      */
     public BPackage getCurrentPackage()
@@ -185,9 +190,9 @@ public class BlueJ
     }
 
     /**
-     * Gets the current Frame being displayed. 
+     * Returns the current Frame being displayed. 
      * Used for modal dialog or similar.
-     * Use this one when there are NO packages open.
+     * Use this one when there are no packages open.
      */
     public Frame getCurrentFrame()
     {
@@ -208,7 +213,7 @@ public class BlueJ
     }
 
     /**
-     * Returns the currently registered MenuGen instance
+     * Returns the currently registered MenuGenerator instance
      */
     public MenuGenerator getMenuGenerator ()
     {
@@ -219,7 +224,7 @@ public class BlueJ
      * Install a new preference panel for this extension.
      * If you want to delete it set prefGen to null
      * 
-     * @param prefGen a class instance that implements the PrefGen interface.
+     * @param prefGen a class instance that implements the PreferenceGenerator interface.
      */
     public void setPreferenceGenerator(PreferenceGenerator prefGen)
     {
