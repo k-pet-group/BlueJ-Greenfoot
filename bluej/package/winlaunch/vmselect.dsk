@@ -3,8 +3,8 @@ File_0=SourceModule,'O:\home\banjo\project\BlueJ\vmselect\javatest.pas',0,1,59,1
 
 [Modules]
 Module0=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\main.pas
-Module1=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\exfile.pas
-Module2=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\findfile.pas
+Module1=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\findfile.pas
+Module2=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\exfile.pas
 Module3=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\vmselect.dpr
 Count=4
 EditWindowCount=1
@@ -14,12 +14,12 @@ ModuleType=SourceModule
 FormState=1
 FormOnTop=0
 
-[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\exfile.pas]
+[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\findfile.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\findfile.pas]
+[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\exfile.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
@@ -70,9 +70,9 @@ LeftCol=1
 
 [View1]
 Module=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\main.pas
-CursorX=20
-CursorY=437
-TopLine=428
+CursorX=23
+CursorY=435
+TopLine=425
 LeftCol=1
 
 [View2]
@@ -174,7 +174,7 @@ LRDockWidth=322
 Dockable=1
 SplitPos=105
 ArrangeBy=Name
-SelectedItem=Caption
+SelectedItem=ParentBiDiMode
 ExpandedItems=
 HiddenCategories=
 

@@ -12,10 +12,8 @@ UninstallFilesDir={app}\uninst
 DefaultDirName={sd}\BlueJ
 DefaultGroupName=BlueJ
 Compression=bzip/9
-OutputBaseFilename=bluej120setup.exe
-
-; uncomment the following line if you want your installation to run on NT 3.51 too.
-; MinVersion=4,3.51
+OutputBaseFilename=bluejsetup
+OutputDir=.
 
 [Messages]
 SetupWindowTitle=BlueJ Installer
@@ -36,6 +34,7 @@ Name: "{app}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Param
 [Files]
 Source: "..\install_tmp\*.*"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: recursesubdirs
 Source: "..\winlaunch\vmselect.exe"; DestDir: "{app}"; DestName: "bluej.exe"
+Source: "..\winlaunch\README.TXT"; DestDir: "{app}"
 
 [Run]
 Filename: "{app}\README.TXT"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
