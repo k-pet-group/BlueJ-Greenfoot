@@ -11,7 +11,7 @@ import bluej.utility.Utility;
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 2877 2004-08-16 15:12:46Z polle $
+ * @version $Id: ClassTargetPainter.java 2884 2004-08-17 08:31:20Z mik $
  */
 
 public class ClassTargetPainter
@@ -28,7 +28,7 @@ public class ClassTargetPainter
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
     private static final int TEXT_BORDER = GraphPainterStdImpl.TEXT_BORDER;
-    private static final Color[] colours = GraphPainterStdImpl.colours;
+    private static final Color[] shadowColours = GraphPainterStdImpl.shadowColours;
     private static final AlphaComposite alphaComposite = GraphPainterStdImpl.alphaComposite;
     private static Composite oldComposite;
 
@@ -170,18 +170,18 @@ public class ClassTargetPainter
     private void drawShadow(Graphics2D g, int width, int height)
     {
         // colorchange is expensive on mac, so draworder is by color, not position
-        g.setColor(colours[3]);
+        g.setColor(shadowColours[3]);
         g.drawLine(3, height + 1, width, height + 1);//bottom
 
-        g.setColor(colours[2]);
+        g.setColor(shadowColours[2]);
         g.drawLine(4, height + 2, width, height + 2);//bottom
         g.drawLine(width + 1, height + 2, width + 1, 3);//left
 
-        g.setColor(colours[1]);
+        g.setColor(shadowColours[1]);
         g.drawLine(5, height + 3, width + 1, height + 3);//bottom
         g.drawLine(width + 2, height + 3, width + 2, 4);//left
 
-        g.setColor(colours[0]);
+        g.setColor(shadowColours[0]);
         g.drawLine(6, height + 4, width + 2, height + 4); //bottom
         g.drawLine(width + 3, height + 3, width + 3, 5); // left
     }

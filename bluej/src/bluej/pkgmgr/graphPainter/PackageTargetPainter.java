@@ -13,7 +13,7 @@ import bluej.utility.Utility;
  * Paints a packageTarget
  * 
  * @author fisker
- * @version $Id: PackageTargetPainter.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: PackageTargetPainter.java 2884 2004-08-17 08:31:20Z mik $
  */
 public class PackageTargetPainter
 {
@@ -25,7 +25,7 @@ public class PackageTargetPainter
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
     private static final int TEXT_BORDER = GraphPainterStdImpl.TEXT_BORDER;
-    private static final Color[] colours = GraphPainterStdImpl.colours;
+    private static final Color[] shadowColours = GraphPainterStdImpl.shadowColours;
     private static final AlphaComposite alphaComposite = GraphPainterStdImpl.alphaComposite;
     private static Composite oldComposite;
     private int tabWidth;
@@ -107,20 +107,20 @@ public class PackageTargetPainter
      */
     private void drawShadow(Graphics2D g, PackageTarget packageTarget, int width, int height)
     {
-        g.setColor(colours[3]);
+        g.setColor(shadowColours[3]);
         g.drawLine(3, height + 1, width, height + 1);                   //bottom
 
-        g.setColor(colours[2]);
+        g.setColor(shadowColours[2]);
         g.drawLine(4, height + 2, width, height + 2);                   //bottom
         g.drawLine(width + 1, height + 2, width + 1, 3 + TAB_HEIGHT);   //right
         g.drawLine(tabWidth + 1, 3, tabWidth + 1, TAB_HEIGHT);          //tab
 
-        g.setColor(colours[1]);
+        g.setColor(shadowColours[1]);
         g.drawLine(5, height + 3, width + 1, height + 3);               // bottom
         g.drawLine(width + 2, height + 3, width + 2, 4 + TAB_HEIGHT);   // right
         g.drawLine(tabWidth + 2, 4, tabWidth + 2, TAB_HEIGHT);//tab
 
-        g.setColor(colours[0]);
+        g.setColor(shadowColours[0]);
         g.drawLine(6, height + 4, width + 2, height + 4);               // bottom
         g.drawLine(width + 3, height + 3, width + 3, 5 + TAB_HEIGHT);   // right
         g.drawLine(tabWidth + 3, 5, tabWidth + 3, TAB_HEIGHT);          // tab

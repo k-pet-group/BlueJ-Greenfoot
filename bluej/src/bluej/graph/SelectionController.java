@@ -136,6 +136,7 @@ public class SelectionController
         
         if(moving || resizing) {
             endMove();
+            graphEditor.revalidate();
             graphEditor.repaint();
         }
     }
