@@ -137,8 +137,8 @@ appletViewer.command=appletviewer
 ## a list of templates is presented to choose from. This property
 ## defines this list. To add additional templates, you should
 ##  - choose a name for the template and add it to the list below
-##  - create a file named <template-name>.tmpl in <bluej>/lib/ that
-##    contains the template
+##  - create a file named <template-name>.tmpl in 
+##    <bluej>/lib/<language>/templates/newclass/ that contains the text
 ##  - add a property named "pkgmgr.newClass.<template-name>" in the 
 ##    language label files for all languages you intend to use 
 ##    (<bluej>/lib/<language>/labels), defining the label to appear in
@@ -147,9 +147,8 @@ appletViewer.command=appletviewer
 ## name you choose should start with "applet", "interface" or 
 ## "abstract", respectively. Everything else will be treated as a 
 ## standard class.
-## A template for Swing applets (type JApplet) already exists - its 
-## name is "appletj". To use it, just replace "applet" in the list
-## below with "appletj".
+## More information is in 
+##      <bluej-home>/lib/<language>/templates/newclass/README
 ## The bluej.templatePath property can be used to choose a different
 ## directory to store the templates (the default is <bluej_home>/lib/).
 #######################################################################
@@ -334,17 +333,6 @@ VmOptions=-classic
 debug=on
 bluej.debugLog=debug.log
 
-
-#######################################################################
-## Template files (in <BLUEJ_HOME>/lib/) used to create default texts
-## for classes, applets, readme files, etc.
-#######################################################################
-
-template.shell=shell.tmpl
-template.html=html.tmpl
-template.htmlplugin=htmlplugin.tmpl
-template.readme=readme.tmpl
-template.readme.export=readmeexp.tmpl
 
 #######################################################################
 ## Images.
