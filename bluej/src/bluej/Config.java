@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1176 2002-03-13 13:43:30Z mik $
+ * @version $Id: Config.java 1216 2002-04-03 08:27:22Z mik $
  */
 
 public class Config
@@ -115,7 +115,6 @@ public class Config
         File userHome;
         String homeDir = bluej_props.getProperty("bluej.userHome", "");
         if(homeDir.length() == 0)
-            // userHome = FileSystemView.getFileSystemView().getHomeDirectory();
             userHome = new File(System.getProperty("user.home"));
         else
             userHome = new File(homeDir);
@@ -145,6 +144,9 @@ public class Config
         compilertype = Config.getPropString("bluej.compiler.type");
         if(compilertype.equals("internal"))
             compilertype = "javac";
+
+        String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "false");
+        System.setProperty("com.apple.macos.useScreenMenuBar", macOSscreenMenuBar);
 
         boolean themed = Boolean.valueOf(
             Config.getPropString("bluej.useTheme", "false")).booleanValue();
