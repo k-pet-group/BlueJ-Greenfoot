@@ -33,7 +33,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2696 2004-06-30 10:48:58Z mik $
+ * @version $Id: TextEvalArea.java 2698 2004-06-30 11:29:45Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -116,14 +116,26 @@ public final class TextEvalArea extends JScrollPane
      * Try to inspect the last object that was handled.
      * This is the implementation of the interactive 'inspect' command.
      */
-    public void inspectObject()
+    public void inspectObject(String objectName)
     {
-        if(lastObject != null) {
-            ObjectInspector viewer =
-                ObjectInspector.getInstance(lastObject, null, frame.getPackage(), null, frame);
+        if(objectName == null) {        // inspect last object used
+            if(lastObject != null) {
+                ObjectInspector viewer =
+                    ObjectInspector.getInstance(lastObject, null, frame.getPackage(), null, frame);
+            }
+            else {
+                error("'inspect' can only be used for objects. The last result was not an object.");
+            }
         }
         else {
-            error("'inspect' can only be used for objects. The last result was not an object.");
+            ObjectWrapper object = frame.getObjectBench().getObject(objectName);
+            if(object == null) {
+                error("No object named '" + objectName + "' on the bench.");
+            }
+            else {
+                ObjectInspector viewer =
+                    ObjectInspector.getInstance(object.getObject(), objectName, frame.getPackage(), null, frame);                
+            }
         }
     }
     

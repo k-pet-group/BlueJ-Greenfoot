@@ -64,6 +64,7 @@ public class TextCommands {
 
     abstract class TextCommand {
         public abstract void execute(String[] words, TextEvalArea textArea);
+        public abstract String[] getHelp();
     }
     
     
@@ -74,9 +75,29 @@ public class TextCommands {
          * @param words  The words from the imput line
          */
         public void execute(String[] words, TextEvalArea textArea) {
-            textArea.output("Type a Java expression or statement for evaluation.");
-            textArea.output("Environment commands: " + commands.keySet());
-            textArea.output("Type 'help <command>' for command specific help.");            
+            if(words.length > 1) {
+                TextCommand command = (TextCommand) commands.get(words[1]);
+                if(command == null) {
+                    textArea.error("'" + words[1] + "' is not a known command.");
+                }
+                else {
+                    String[] s = command.getHelp();
+                    for(int i=0; i < s.length; i++) {
+                        textArea.output(s[i]);
+                    }
+                }
+            }
+            else {
+                textArea.output("Type a Java expression or statement for evaluation.");
+                textArea.output("Environment commands: " + commands.keySet());
+                textArea.output("Type 'help <command>' for command specific help.");
+            }
+        }
+        
+        public String[] getHelp()
+        {
+            return new String[] { "help:           general help", 
+                                  "help <command>: command specific help" }; 
         }
     }
 
@@ -88,7 +109,15 @@ public class TextCommands {
          * @param words  The words from the imput line
          */
         public void execute(String[] words, TextEvalArea textArea) {
-            textArea.listObjectBench();
+            if(words.length > 1)
+                textArea.error("This command does not expect parameters");
+            else
+                textArea.listObjectBench();
+        }
+        
+        public String[] getHelp()
+        {
+            return new String[] { "list:  list the objects currently on the object bench" }; 
         }
     }
 
@@ -100,7 +129,15 @@ public class TextCommands {
          * @param words  The words from the imput line
          */
         public void execute(String[] words, TextEvalArea textArea) {
-            textArea.getObjectToBench();
+            if(words.length > 1)
+                textArea.error("This command does not expect parameters");
+            else
+                textArea.getObjectToBench();
+        }
+        
+        public String[] getHelp()
+        {
+            return new String[] { "get:  get the result object of the last expression onto the object bench" }; 
         }
     }
 
@@ -112,7 +149,18 @@ public class TextCommands {
          * @param words  The words from the imput line
          */
         public void execute(String[] words, TextEvalArea textArea) {
-            textArea.inspectObject();
+            if(words.length > 2)
+                textArea.error("This command does not expect parameters");
+            else if(words.length == 2)
+                textArea.inspectObject(words[1]);
+            else
+                textArea.inspectObject(null);
+        }
+        
+        public String[] getHelp()
+        {
+            return new String[] { "inspect:          inspect the result of the last expression", 
+                                  "inspect <object>: inspect a named object from the object bench" }; 
         }
     }
 }

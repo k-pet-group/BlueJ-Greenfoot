@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ObjectInspector.java 2690 2004-06-30 01:30:58Z davmac $
+ * @version $Id: ObjectInspector.java 2698 2004-06-30 11:29:45Z mik $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -106,7 +106,10 @@ public class ObjectInspector extends Inspector
         setBorder(BlueJTheme.roundedShadowBorder);
         
         this.obj = obj;
-        this.objName = name;        
+        if(name == null)
+            this.objName = "";      
+        else
+            this.objName = name;      
         
         makeFrame();
 

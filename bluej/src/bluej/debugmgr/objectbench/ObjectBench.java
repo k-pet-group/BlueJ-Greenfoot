@@ -19,7 +19,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2669 2004-06-28 11:44:42Z polle $
+ * @version $Id: ObjectBench.java 2698 2004-06-30 11:29:45Z mik $
  */
 public class ObjectBench
 {
@@ -501,13 +501,25 @@ public class ObjectBench
      */
     public boolean hasObject(String name)
     {
+        return getObject(name) != null;
+    }
+
+    /**
+     * Get the object with name 'name', or null, if it does not
+     * exist.
+     *
+     * @param name  The name to check for.
+     * @return  The named object wrapper, or null if not found.
+     */
+    public ObjectWrapper getObject(String name)
+    {
         ObjectWrapper[] wrappers = getWrappers();
 
         for(int i=0; i<wrappers.length; i++)
             if(wrappers[i].getName().equals(name))
-                return true;
+                return wrappers[i];
 
-        return false;
+        return null;
     }
 
     /**
