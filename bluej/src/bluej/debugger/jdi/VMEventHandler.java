@@ -1,15 +1,17 @@
 package bluej.debugger.jdi;
 
-import com.sun.jdi.*;
+import com.sun.jdi.ReferenceType;
+import com.sun.jdi.VMDisconnectedException;
+import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.*;
 
 /**
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 3023 2004-09-29 06:42:35Z bquig $
+ * @version $Id: VMEventHandler.java 3025 2004-09-30 04:07:50Z bquig $
  */
-class VMEventHandler implements Runnable
+class VMEventHandler extends Thread
 {
     final static String DONT_RESUME = "dontResume";
     
@@ -19,12 +21,14 @@ class VMEventHandler implements Runnable
     
     volatile boolean exiting = false;
     
+    public Object requestLock = new Object();
+    
     VMEventHandler(VMReference vm, VirtualMachine vmm)
     {
+        super("vm-event-handler");
         this.vm = vm;
         queue = vmm.eventQueue();
-        thread = new Thread(this, "vm-event-handler");
-        thread.start();  // will execute our own run method
+        start();  // will execute our own run method
     }
     
     public void run()
@@ -32,7 +36,10 @@ class VMEventHandler implements Runnable
         while (!exiting) {
             try {
                 // wait for the next event
+                //Debug.message("get event off queue..."); // TODO
+                //Debug.message(" isInterrupted = " + isInterrupted());
                 EventSet eventSet = queue.remove();
+                boolean storedInterrupt = interrupted();
                 
                 // From the JDK documentation
                 // The events that are grouped in an EventSet are restricted in the following ways:
@@ -62,6 +69,7 @@ class VMEventHandler implements Runnable
                 //		 o StepEvent
                 //		 o MethodEntryEvent 
                 
+                // synchronize to avoid getting interrupt()ed temporarily
                 synchronized(this) {
                     boolean addToSuspendCount = false;
                     
@@ -101,9 +109,22 @@ class VMEventHandler implements Runnable
                     
                     // resume the VM
                     eventSet.resume();
+                    
+                    if (storedInterrupt)
+                        throw new InterruptedException();
                 }
             }
-            catch (InterruptedException exc) { }
+            catch (InterruptedException exc) {
+                // InterruptedException means we have a request from another thread.
+                // Grant that thread control for a time.
+                synchronized(this) {
+                    notify();
+                    try {
+                        wait();
+                    }
+                    catch(InterruptedException ie) {}
+                }
+            }
             catch (VMDisconnectedException discExc) { exiting = true; }
         }
     }

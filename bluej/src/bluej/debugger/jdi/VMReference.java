@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3023 2004-09-29 06:42:35Z bquig $
+ * @version $Id: VMReference.java 3025 2004-09-30 04:07:50Z bquig $
  * 
  * The startup process is as follows:
  * 
@@ -1116,29 +1116,37 @@ class VMReference
 
         // to stop our server thread getting away from us, lets halt the
         // VM temporarily
-        synchronized(eventHandler) {
-            machine.suspend();
-            
-            // we need to throw away all the breakpoints referring to the old
-            // class loader but then we need to restore our exitMarker and
-            // suspendMethod breakpoints
-            erm.deleteAllBreakpoints();
-            serverClassAddBreakpoints();
-            
-            // add all the new breakpoints we have created
-            Iterator it = newSaved.iterator();
-            
-            while (it.hasNext()) {
-                Location l = (Location) it.next();
+        synchronized(eventHandler.requestLock) {
+            synchronized(eventHandler) {
+                eventHandler.interrupt();
+                try {
+                    eventHandler.wait();
+                }
+                catch(InterruptedException ie) {}
+                machine.suspend();
                 
-                BreakpointRequest bpreq = erm.createBreakpointRequest(l);
-                bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-                bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
-                bpreq.enable();
+                // we need to throw away all the breakpoints referring to the old
+                // class loader but then we need to restore our exitMarker and
+                // suspendMethod breakpoints
+                erm.deleteAllBreakpoints();
+                serverClassAddBreakpoints();
+                
+                // add all the new breakpoints we have created
+                Iterator it = newSaved.iterator();
+                
+                while (it.hasNext()) {
+                    Location l = (Location) it.next();
+                    
+                    BreakpointRequest bpreq = erm.createBreakpointRequest(l);
+                    bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+                    bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
+                    bpreq.enable();
+                }
+                
+                // start the machine back up
+                machine.resume();
+                eventHandler.notify();
             }
-            
-            // start the machine back up
-            machine.resume();
         }
     }
 
@@ -1180,12 +1188,30 @@ class VMReference
     }
     
     /**
+     * Signal the event handler thread, and wait for acknowledgement.
+     * The event handler's monitor must be held.
+     */
+    private void signalEventHandler()
+    {
+        eventHandler.interrupt();
+        try {
+            eventHandler.wait();
+        }
+        catch(InterruptedException ie) {}
+    }
+    
+    
+    /**
      * Resume the "server" thread on the debug VM, in a way that is thread safe (on this VM).
      */
     private void serverThreadResume()
     {
-        synchronized(eventHandler) {
-            serverThread.resume();
+        synchronized(eventHandler.requestLock) {
+            synchronized(eventHandler) {
+                signalEventHandler();
+                serverThread.resume();
+                eventHandler.notify();
+            }
         }
     }
 
@@ -1320,22 +1346,26 @@ class VMReference
         // go through the args and if any aren't VM reference types
         // then fail (unless they are strings in which case we
         // mirror them onto the vm)
-        synchronized(eventHandler) {
-            machine.suspend();
-            for (ListIterator lit = args.listIterator(); lit.hasNext();) {
-                Object o = lit.next();
-                
-                if (o instanceof String) {
-                    StringReference s = machine.mirrorOf((String) o);
-                    enableCollectionList.add(s);
-                    s.disableCollection();
-                    lit.set(s);
+        synchronized(eventHandler.requestLock) {
+            synchronized(eventHandler) {
+                signalEventHandler();
+                machine.suspend();
+                for (ListIterator lit = args.listIterator(); lit.hasNext();) {
+                    Object o = lit.next();
+                    
+                    if (o instanceof String) {
+                        StringReference s = machine.mirrorOf((String) o);
+                        enableCollectionList.add(s);
+                        s.disableCollection();
+                        lit.set(s);
+                    }
+                    else if (!(o instanceof Mirror)) {
+                        throw new IllegalArgumentException("invokeStaticRemoteMethod passed a non-Mirror argument");
+                    }
                 }
-                else if (!(o instanceof Mirror)) {
-                    throw new IllegalArgumentException("invokeStaticRemoteMethod passed a non-Mirror argument");
-                }
+                machine.resume();
+                eventHandler.notify();
             }
-            machine.resume();
         }
 
         // machine.setDebugTraceMode(VirtualMachine.TRACE_EVENTS |
@@ -1363,8 +1393,12 @@ class VMReference
 
                 // invokeMethod leaves everything suspended, so restart
                 // all the threads
-                synchronized(eventHandler) {
-                    machine.resume();
+                synchronized(eventHandler.requestLock) {
+                    synchronized(eventHandler) {
+                        signalEventHandler();
+                        machine.resume();
+                        eventHandler.notify();
+                    }
                 }
             }
 
@@ -1529,11 +1563,15 @@ class VMReference
             s.enableCollection();
         }
         catch(ObjectCollectedException oce) {
-            synchronized(eventHandler) {
-                machine.suspend();
-                StringReference s = machine.mirrorOf(value);
-                setStaticFieldValue(cl, fieldName, s);
-                machine.resume();
+            synchronized(eventHandler.requestLock) {
+                synchronized(eventHandler) {
+                    signalEventHandler();
+                    machine.suspend();
+                    StringReference s = machine.mirrorOf(value);
+                    setStaticFieldValue(cl, fieldName, s);
+                    machine.resume();
+                    eventHandler.notify();
+                }
             }
         }
     }
