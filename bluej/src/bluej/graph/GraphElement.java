@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
  */
 public abstract class GraphElement {
     
-    abstract public void remove();
+    //abstract public void remove();
     
     /**
      * Subtypes of Graph elements must override this if it want GraphEditor
