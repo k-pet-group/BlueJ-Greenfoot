@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2719 2004-07-02 10:50:48Z polle $
+ * @version $Id: ClassTarget.java 2732 2004-07-05 00:44:59Z bquig $
  */
 public class ClassTarget extends EditableTarget implements Moveable
 {	
@@ -752,7 +752,7 @@ public class ClassTarget extends EditableTarget implements Moveable
     public void setTypeParameters(ClassInfo info)
     {
         if(info.hasTypeParameter()) {
-            String newTypeParameters = info.getTypeParameter().getText();
+            String newTypeParameters = info.getTypeParameterText().getText();
             if(! newTypeParameters.equals(typeParameters)) {
                 typeParameters = newTypeParameters;
                 updateSize();

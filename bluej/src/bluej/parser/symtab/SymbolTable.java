@@ -258,7 +258,8 @@ public class SymbolTable
                             JavaToken comment,
                             Selection extendsInsert, Selection implementsInsert,
                             Selection extendsReplace, Selection superReplace,
-                            Selection typeParamSelection, 
+                            Selection typeParamSelection,
+                            Vector typeParameterSelections,
                             Vector interfaceSelections)
     {
         // note -- we leave interfaces as a vector of JavaTokens for now
@@ -306,6 +307,7 @@ public class SymbolTable
                                 JavaToken comment,
                                 Selection extendsInsert,
                                 Selection typeParamInsert,
+                                Vector typeParameterSelections,
                                 Vector superInterfaceSelections)
     {
         // note -- we leave superInterfaces as a vector of JavaTokens for now.

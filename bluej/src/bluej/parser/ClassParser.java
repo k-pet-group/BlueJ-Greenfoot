@@ -25,7 +25,7 @@ import antlr.collections.impl.BitSet;
 
     import antlr.*;
 
-    import java.util.Vector;
+    import java.util.*;
     import java.io.*;
 
     class JavaBitSet extends java.util.BitSet
@@ -239,12 +239,14 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
 			    JavaToken comment,
 			    Selection extendsInsert, Selection implementsInsert,
 			    Selection extendsReplace, Selection superReplace,
-			    Selection typeParamInsert,
+			    Selection typeParameterTextSelection,
+			    Vector typeParameterSelections,
 			    Vector interfaceSelections)
     {
         symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, isPublic,
         			isEnum, comment, extendsInsert, implementsInsert,
-        			extendsReplace, superReplace, typeParamInsert,
+        			extendsReplace, superReplace, typeParameterTextSelection,
+        			typeParameterSelections,
         			interfaceSelections);
     }
 
@@ -253,11 +255,13 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
                                 boolean isPublic,
                                 JavaToken comment,
                                 Selection extendsInsert,
-                                Selection typeParamInsert,
+                                Selection typeParameterTextSelection,
+                                Vector typeParameterSelections,
                                 Vector superInterfaceSelections)
     {
         symbolTable.defineInterface(theInterface, superInterfaces, isPublic, comment,
-                                    extendsInsert, typeParamInsert,
+                                    extendsInsert, typeParameterTextSelection,
+                                    typeParameterSelections,
                                     superInterfaceSelections);
     }
 
@@ -266,9 +270,9 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
     }
 
 
-    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment, Selection typeParameters) {
+    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment, Selection typeParameterText) {
         //System.out.println("entering method" + theMethod);
-        symbolTable.defineMethod(theMethod, type, comment, typeParameters);
+        symbolTable.defineMethod(theMethod, type, comment, typeParameterText);
     }
 
     public void addImport(JavaToken id, String className, String packageName) {
@@ -279,8 +283,16 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
     // in
     public Selection selectionAfterToken(JavaToken id)
     {
-	return new Selection(id.getFile(), id.getLine(),
+	    return new Selection(id.getFile(), id.getLine(),
                               id.getColumn() + id.getText().length());
+    }
+    
+    // create a selection which consists of the location just after the token passed
+    // in
+    public Selection nextSelection(Selection sel)
+    {
+	    return new Selection(sel.getFile(), sel.getLine(),
+                              sel.getColumn() + sel.getText().length());
     }
 
 protected ClassParser(TokenBuffer tokenBuf, int k) {
@@ -719,11 +731,15 @@ public ClassParser(ParserSharedInputState state) {
 		Token  ex = null;
 		
 			JavaToken superClass=null;
-		JavaVector interfaces = new JavaVector();
+			JavaVector interfaces = new JavaVector();
 		Vector interfaceSelections = new Vector();
+		Vector typeParameterSelections = new Vector();
 		Selection extendsInsert=null, implementsInsert=null,
 		extendsReplace=null, superReplace=null,
-		typeParamsInsert=null;
+		typeParameterTextSelection=null;
+		// JavaTokens for type args
+		Vector typeArguments = new Vector();
+		
 		
 		
 		
@@ -734,7 +750,7 @@ public ClassParser(ParserSharedInputState state) {
 		switch ( LA(1)) {
 		case LT:
 		{
-			typeParamsInsert=typeParameters();
+			typeParameterTextSelection=typeParameters(typeParameterSelections);
 			break;
 		}
 		case LITERAL_extends:
@@ -756,6 +772,14 @@ public ClassParser(ParserSharedInputState state) {
 			// it is also potentially the place where we would insert a
 			// "implements" so we will set that here and allow it to be overridden
 			// later on if need be
+			
+			// Need to also allow for type parameters with java 1.5 generic types
+			Selection lastTypeParamSelection = null;
+			if(!typeParameterSelections.isEmpty()) {
+				lastTypeParamSelection = (Selection)typeParameterSelections.lastElement();
+				extendsInsert = implementsInsert = nextSelection(lastTypeParamSelection);
+			}
+			else
 			extendsInsert = implementsInsert = selectionAfterToken((JavaToken)id);
 			
 		}
@@ -765,14 +789,29 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			ex = LT(1);
 			match(LITERAL_extends);
-			superClass=classOrInterfaceType(false);
+			superClass=classOrInterfaceType(false, typeArguments);
 			if ( inputState.guessing==0 ) {
 				
 				extendsReplace = new Selection((JavaToken)ex);
+				
 				superReplace = new Selection(superClass);
 				
+				// may be more than just the superclasses name if there is a generic
+				// type argument involved
+				if(!typeArguments.isEmpty()){
+				Iterator it = typeArguments.iterator();
+				while(it.hasNext()){
+					superReplace.addToken((JavaToken)it.next());
+				}	
+				}
+				
 				// maybe we need to place "implements" lines after this superClass..
-				// set it here
+				// set it here. Factor in type arguments as well...
+				if(!typeArguments.isEmpty()) {
+					JavaToken lastArg = (JavaToken)typeArguments.lastElement();
+					implementsInsert = selectionAfterToken((JavaToken)lastArg);
+				}
+				else
 				implementsInsert = selectionAfterToken((JavaToken)superClass);
 				
 			}
@@ -807,14 +846,16 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		}
 		if ( inputState.guessing==0 ) {
-			defineClass( (JavaToken)id, superClass,
+			
+				defineClass( (JavaToken)id, superClass,
 					  interfaces,
 					  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
 					  false, //not an enum
 					  commentToken,
 					  extendsInsert, implementsInsert,
 					  extendsReplace, superReplace,
-					  typeParamsInsert,
+					  typeParameterTextSelection,
+					  typeParameterSelections,
 					  interfaceSelections);
 		}
 		classBlock();
@@ -831,8 +872,11 @@ public ClassParser(ParserSharedInputState state) {
 		
 		JavaVector superInterfaces = new JavaVector();
 		Vector superInterfaceSelections = new Vector();
+		Vector typeParameterSelections = new Vector();
 		Selection extendsInsert = null;
-		Selection typeParamsInsert = null;
+		//Selection typeParamsInsert = null;
+		Selection typeParameterTextSelection = null;
+		//JavaToken typeParameterText = null;
 		
 		
 		match(LITERAL_interface);
@@ -842,7 +886,7 @@ public ClassParser(ParserSharedInputState state) {
 		switch ( LA(1)) {
 		case LT:
 		{
-			typeParamsInsert=typeParameters();
+			typeParameterTextSelection=typeParameters(typeParameterSelections);
 			break;
 		}
 		case LITERAL_extends:
@@ -858,9 +902,15 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		if ( inputState.guessing==0 ) {
 			
-				    // the place which we would want to insert an "extends" is at the
-				    // character just after the interfacename identifier
-				    extendsInsert = selectionAfterToken((JavaToken)id);
+				        // the place which we would want to insert an "extends" is at the
+				        // character just after the interfacename identifier
+				        Selection lastTypeParamSelection = null;
+			if(!typeParameterSelections.isEmpty()) {
+				lastTypeParamSelection = (Selection)typeParameterSelections.lastElement();
+				extendsInsert = nextSelection(lastTypeParamSelection);
+			}
+			else
+			extendsInsert = selectionAfterToken((JavaToken)id);
 			
 		}
 		{
@@ -881,11 +931,13 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		}
 		if ( inputState.guessing==0 ) {
-			defineInterface((JavaToken)id,
+			
+				defineInterface((JavaToken)id,
 					            superInterfaces,
 					            mods.get(MOD_PUBLIC), commentToken,
 					            extendsInsert,
-					            typeParamsInsert,
+					            typeParameterTextSelection,
+					            typeParameterSelections,
 					superInterfaceSelections);
 		}
 		classBlock();
@@ -941,7 +993,7 @@ public ClassParser(ParserSharedInputState state) {
 					  commentToken,
 					  null, implementsInsert,
 					  null, null,
-					  null,
+					  null, null,
 					  interfaceSelections);
 		}
 		enumBlock();
@@ -1026,7 +1078,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		t=null;
 		
-		t=classOrInterfaceType(true);
+		t=classOrInterfaceType(true, null);
 		{
 		_loop23:
 		do {
@@ -1098,7 +1150,7 @@ public ClassParser(ParserSharedInputState state) {
 	}
 	
 	public final JavaToken  classOrInterfaceType(
-		boolean includeTypeArgs
+		boolean includeTypeArgs, Vector typeArgTokens
 	) throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
@@ -1109,18 +1161,22 @@ public ClassParser(ParserSharedInputState state) {
 		JavaToken typeArg = null;
 		
 		
+		
 		id1 = LT(1);
 		match(IDENT);
 		if ( inputState.guessing==0 ) {
-			t=(JavaToken)id1;
+			
+				        	t=(JavaToken)id1;
+				
 		}
 		{
 		switch ( LA(1)) {
 		case LT:
 		{
-			typeArg=typeArguments();
+			typeArg=typeArguments(typeArgTokens);
 			if ( inputState.guessing==0 ) {
 				
+					        	
 					        	if(includeTypeArgs)
 					    	    t.setText(t.getText() + typeArg.getText());	
 					
@@ -1197,7 +1253,7 @@ public ClassParser(ParserSharedInputState state) {
 				switch ( LA(1)) {
 				case LT:
 				{
-					typeArg=typeArguments();
+					typeArg=typeArguments(typeArgTokens);
 					if ( inputState.guessing==0 ) {
 						
 							            	if(includeTypeArgs)
@@ -1272,7 +1328,9 @@ public ClassParser(ParserSharedInputState state) {
 		return t;
 	}
 	
-	public final JavaToken  typeArguments() throws RecognitionException, TokenStreamException {
+	public final JavaToken  typeArguments(
+		Vector typeArgTokens
+	) throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
 		Token  lt = null;
@@ -1290,13 +1348,17 @@ public ClassParser(ParserSharedInputState state) {
 		lt = LT(1);
 		match(LT);
 		if ( inputState.guessing==0 ) {
-			ltCounter++;t = (JavaToken)lt;
+			
+				ltCounter++;
+				t = (JavaToken)lt;
+				if(typeArgTokens != null)
+				       typeArgTokens.add(t);
 			
 		}
-		st=singleTypeArgument();
+		st=singleTypeArgument(typeArgTokens);
 		if ( inputState.guessing==0 ) {
 			
-				t.setText(t.getText() + ((JavaToken)st).getText());
+				t.setText(t.getText() + st.getText());
 			
 		}
 		{
@@ -1305,7 +1367,7 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==COMMA) && (_tokenSet_8.member(LA(2)))) {
 				co = LT(1);
 				match(COMMA);
-				st1=singleTypeArgument();
+				st1=singleTypeArgument(typeArgTokens);
 				if ( inputState.guessing==0 ) {
 					
 					t.setText(t.getText() + ((JavaToken)co).getText() + ((JavaToken)st1).getText());
@@ -1323,6 +1385,8 @@ public ClassParser(ParserSharedInputState state) {
 			te=typeArgumentsEnd();
 			if ( inputState.guessing==0 ) {
 				
+					if(typeArgTokens != null)
+					    typeArgTokens.add(te);
 				t.setText(t.getText() + ((JavaToken)te).getText());
 				
 			}
@@ -1339,7 +1403,9 @@ public ClassParser(ParserSharedInputState state) {
 		return t;
 	}
 	
-	public final JavaToken  singleTypeArgument() throws RecognitionException, TokenStreamException {
+	public final JavaToken  singleTypeArgument(
+		Vector typeArgTokens
+	) throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
 		Token  qu = null;
@@ -1360,7 +1426,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			t3=classTypeSpec();
 			if ( inputState.guessing==0 ) {
-				t = t3;
+				t = t3; if(typeArgTokens != null) typeArgTokens.add(t);
 			}
 			break;
 		}
@@ -1376,7 +1442,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			t4=builtInTypeSpec();
 			if ( inputState.guessing==0 ) {
-				t = t4;
+				t = t4; if(typeArgTokens != null) typeArgTokens.add(t);
 			}
 			break;
 		}
@@ -1385,7 +1451,7 @@ public ClassParser(ParserSharedInputState state) {
 			qu = LT(1);
 			match(QUESTION);
 			if ( inputState.guessing==0 ) {
-				if(qu != null) t = (JavaToken)qu;
+				if(qu != null) t = (JavaToken)qu; if(typeArgTokens != null) typeArgTokens.add(t);
 			}
 			break;
 		}
@@ -1419,10 +1485,13 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			if ( inputState.guessing==0 ) {
 				
-				if(id1 != null) 
+				if(id1 != null){ 
 				t.setText(t.getText() + " " + ((JavaToken)id1).getText());
+				if(typeArgTokens != null) typeArgTokens.add(id1);
+				}
 				else if(id2 != null) 
 				t.setText(t.getText() + " " + ((JavaToken)id2).getText());
+				if(typeArgTokens != null) typeArgTokens.add(id2);
 				
 			}
 			{
@@ -1431,7 +1500,7 @@ public ClassParser(ParserSharedInputState state) {
 			{
 				t1=classTypeSpec();
 				if ( inputState.guessing==0 ) {
-					t.setText(t.getText() + " " + t1.getText());
+					t.setText(t.getText() + " " + t1.getText()); if(typeArgTokens != null) typeArgTokens.add(t1);
 				}
 				break;
 			}
@@ -1447,7 +1516,7 @@ public ClassParser(ParserSharedInputState state) {
 			{
 				t2=builtInTypeSpec();
 				if ( inputState.guessing==0 ) {
-					t.setText(t.getText() + " " + t2.getText());
+					t.setText(t.getText() + " " + t2.getText()); if(typeArgTokens != null) typeArgTokens.add(t2);
 				}
 				break;
 			}
@@ -1456,7 +1525,7 @@ public ClassParser(ParserSharedInputState state) {
 				qu1 = LT(1);
 				match(QUESTION);
 				if ( inputState.guessing==0 ) {
-					t.setText(t.getText() + ((JavaToken)qu1).getText());
+					t.setText(t.getText() + ((JavaToken)qu1).getText()); if(typeArgTokens != null) typeArgTokens.add(t3);
 				}
 				break;
 			}
@@ -1633,7 +1702,7 @@ public ClassParser(ParserSharedInputState state) {
 		switch ( LA(1)) {
 		case IDENT:
 		{
-			t=classOrInterfaceType(false);
+			t=classOrInterfaceType(false, null);
 			break;
 		}
 		case LITERAL_void:
@@ -1745,17 +1814,20 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final Selection  typeParameters() throws RecognitionException, TokenStreamException {
+	public final Selection  typeParameters(
+		Vector typeParameterSelections
+	) throws RecognitionException, TokenStreamException {
 		Selection typeParamInsert;
 		
 		Token  id = null;
 		Token  co = null;
 		int currentLtLevel = 0;
 		typeParamInsert = null;
+		JavaToken typeParameterText = null;
 		JavaToken typeParam = null;
 		JavaToken paramEnd = null;
 		// the full token for the type parameter selection
-		JavaToken typeParameters = null;     
+		//JavaToken typeParameters = null;     
 		
 		
 		if ( inputState.guessing==0 ) {
@@ -1765,15 +1837,21 @@ public ClassParser(ParserSharedInputState state) {
 		match(LT);
 		if ( inputState.guessing==0 ) {
 			ltCounter++;
-			typeParameters = (JavaToken)id;
-			typeParamInsert = new Selection(typeParameters);                
+			typeParameterText = (JavaToken)id;
+			//build up selection to be returned at the end
+			typeParamInsert = new Selection(typeParameterText);
+			// add this as first selection
+			typeParameterSelections.add(typeParamInsert);
+			
 			
 		}
-		typeParam=typeParameter();
+		typeParam=typeParameter(typeParameterSelections);
 		if ( inputState.guessing==0 ) {
 			
-				typeParameters.setText(typeParameters.getText() + typeParam.getText());
-				typeParamInsert = new Selection(typeParameters);     	    
+				Selection s = new Selection(typeParam);
+				typeParameterSelections.add(s);
+				typeParameterText.setText(typeParameterText.getText() + typeParam.getText());
+				typeParamInsert = new Selection(typeParameterText);     	    
 			
 		}
 		{
@@ -1782,11 +1860,15 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==COMMA)) {
 				co = LT(1);
 				match(COMMA);
-				typeParam=typeParameter();
+				typeParam=typeParameter(typeParameterSelections);
 				if ( inputState.guessing==0 ) {
 					
-						typeParameters.setText(typeParameters.getText() + ((JavaToken)co).getText() + typeParam.getText());
-						typeParamInsert = new Selection(typeParameters);     	    
+						Selection s = new Selection((JavaToken)co);
+						typeParameterSelections.add(s);
+						s = new Selection((JavaToken)typeParam);
+						typeParameterSelections.add(s);
+						typeParameterText.setText(typeParameterText.getText() + ((JavaToken)co).getText() + typeParam.getText());
+						typeParamInsert = new Selection(typeParameterText);     	    
 					
 				}
 			}
@@ -1806,8 +1888,10 @@ public ClassParser(ParserSharedInputState state) {
 			if ( inputState.guessing==0 ) {
 				
 					if(paramEnd != null) {
-						typeParameters.setText(typeParameters.getText() + paramEnd.getText());
-						typeParamInsert = new Selection(typeParameters);
+						Selection s = new Selection((JavaToken)paramEnd);
+						typeParameterSelections.add(s);
+						typeParameterText.setText(typeParameterText.getText() + paramEnd.getText());
+						typeParamInsert = new Selection(typeParameterText);
 					}
 				
 			}
@@ -1848,19 +1932,34 @@ public ClassParser(ParserSharedInputState state) {
 		Token  im = null;
 		Token  co = null;
 		JavaToken id;
+		Vector typeArgs = new Vector();
 		implementsInsert = null;
 		
 		
 		im = LT(1);
 		match(LITERAL_implements);
-		id=classOrInterfaceType(false);
+		id=classOrInterfaceType(false, typeArgs);
 		if ( inputState.guessing==0 ) {
 			
+			if(!typeArgs.isEmpty()) {
+				  JavaToken lastArg = (JavaToken)typeArgs.lastElement();
+				  implementsInsert = selectionAfterToken(lastArg);
+			}	
+			else
 			implementsInsert = selectionAfterToken((JavaToken)id);
 			
 				  interfaceSelections.addElement(new Selection((JavaToken)im));
 			interfaces.addElement(dummyClass(id));
-				  interfaceSelections.addElement(new Selection((JavaToken)id));
+			Selection s = new Selection((JavaToken)id);
+			if(!typeArgs.isEmpty()) {
+				  Iterator it = typeArgs.iterator();
+			while(it.hasNext()){
+			s.addToken((JavaToken)it.next());
+			}	
+			}
+				  interfaceSelections.addElement(s);
+				  //clear typeArgs in case it is re-used in optional section below
+				  typeArgs.removeAllElements();
 			
 		}
 		{
@@ -1869,14 +1968,27 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==COMMA)) {
 				co = LT(1);
 				match(COMMA);
-				id=classOrInterfaceType(false);
+				id=classOrInterfaceType(false, typeArgs);
 				if ( inputState.guessing==0 ) {
 					
+					if(!typeArgs.isEmpty()) {
+						  JavaToken lastArg = (JavaToken)typeArgs.lastElement();
+						  implementsInsert = selectionAfterToken(lastArg);
+					}	
+					else
 					implementsInsert = selectionAfterToken((JavaToken)id);
 					
 					interfaceSelections.addElement(new Selection((JavaToken)co));
 					interfaces.addElement(dummyClass(id));
-					interfaceSelections.addElement(new Selection((JavaToken)id));
+					Selection s = new Selection((JavaToken)id);
+					if(!typeArgs.isEmpty()) {
+						  Iterator it = typeArgs.iterator();
+					while(it.hasNext()){
+					s.addToken((JavaToken)it.next());
+					}
+					}
+						  interfaceSelections.addElement(s);
+						  typeArgs.removeAllElements();
 					
 				}
 			}
@@ -1952,19 +2064,35 @@ public ClassParser(ParserSharedInputState state) {
 		Token  ex = null;
 		Token  co = null;
 		JavaToken id;
+		Vector typeArgs = new Vector();
 		extendsInsert = null;
 		
 		
 		ex = LT(1);
 		match(LITERAL_extends);
-		id=classOrInterfaceType(false);
+		id=classOrInterfaceType(false, typeArgs);
 		if ( inputState.guessing==0 ) {
 			
+				  if(!typeArgs.isEmpty()) {
+				  JavaToken lastArg = (JavaToken)typeArgs.lastElement();
+				  extendsInsert = selectionAfterToken(lastArg);
+			}
+			else	
 			extendsInsert = selectionAfterToken((JavaToken)id);
 			
 			interfaceSelections.addElement(new Selection((JavaToken)ex));
 				  interfaces.addElement(dummyClass(id));
-				  interfaceSelections.addElement(new Selection((JavaToken)id));
+				  //deal with type args if they exist
+				  Selection s = new Selection((JavaToken)id);
+			if(!typeArgs.isEmpty()) {
+				  Iterator it = typeArgs.iterator();
+			while(it.hasNext()){
+			s.addToken((JavaToken)it.next());
+			}	
+			}
+				  interfaceSelections.addElement(s);
+				  //clear typeArgs in case it is re-used in optional section below
+				  typeArgs.removeAllElements();
 			
 		}
 		{
@@ -1973,13 +2101,22 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==COMMA)) {
 				co = LT(1);
 				match(COMMA);
-				id=classOrInterfaceType(false);
+				id=classOrInterfaceType(false, typeArgs);
 				if ( inputState.guessing==0 ) {
 					
 					extendsInsert = selectionAfterToken((JavaToken)id);
 					
 					interfaceSelections.addElement(new Selection((JavaToken)co));
 					interfaces.addElement(dummyClass(id));
+					Selection s = new Selection((JavaToken)id);
+					if(!typeArgs.isEmpty()) {
+						  Iterator it = typeArgs.iterator();
+					while(it.hasNext()){
+					s.addToken((JavaToken)it.next());
+					}
+					}
+						  interfaceSelections.addElement(s);
+						  typeArgs.removeAllElements();
 					interfaceSelections.addElement(new Selection((JavaToken)id));
 					
 				}
@@ -2116,7 +2253,9 @@ public ClassParser(ParserSharedInputState state) {
 		match(RCURLY);
 	}
 	
-	public final JavaToken  typeParameter() throws RecognitionException, TokenStreamException {
+	public final JavaToken  typeParameter(
+		Vector typeParameterSelections
+	) throws RecognitionException, TokenStreamException {
 		JavaToken paramInsert;
 		
 		Token  id2 = null;
@@ -2153,16 +2292,19 @@ public ClassParser(ParserSharedInputState state) {
 				if(id2 != null)
 				    paramInsert = (JavaToken)id2;
 				else if(id3 != null)
-				    paramInsert = (JavaToken)id3;    
+				    paramInsert = (JavaToken)id3;
+				typeParameterSelections.add(new Selection(paramInsert));    
 			
 		}
 		{
 		if ((LA(1)==LITERAL_extends) && (LA(2)==IDENT)) {
 			ex = LT(1);
 			match(LITERAL_extends);
-			id=classOrInterfaceType(false);
+			id=classOrInterfaceType(false, null);
 			if ( inputState.guessing==0 ) {
 				
+					typeParameterSelections.add(new Selection((JavaToken)ex));
+					typeParameterSelections.add(new Selection((JavaToken)id));
 					paramInsert.setText(paramInsert.getText() + " " + ex.getText());
 					paramInsert.setText(paramInsert.getText() + " " + id.getText());
 					Selection s = new Selection((JavaToken)paramInsert);
@@ -2174,9 +2316,11 @@ public ClassParser(ParserSharedInputState state) {
 				if ((LA(1)==BAND)) {
 					band = LT(1);
 					match(BAND);
-					id=classOrInterfaceType(false);
+					id=classOrInterfaceType(false, null);
 					if ( inputState.guessing==0 ) {
 						
+							typeParameterSelections.add(new Selection((JavaToken)band));
+							typeParameterSelections.add(new Selection((JavaToken)id));
 							paramInsert.setText(paramInsert.getText() + " " + band.getText());
 							paramInsert.setText(paramInsert.getText() + " " + id.getText());
 							Selection s = new Selection((JavaToken)paramInsert);
@@ -2207,7 +2351,10 @@ public ClassParser(ParserSharedInputState state) {
 		JavaToken  type, commentToken = null;
 		JavaVector exceptions = null;           // track thrown exceptions
 		JavaBitSet mods = null;
-		Selection typeParameterSelection = null;
+		//Selection typeParameterSelection = null;
+		Vector typeParameterSelections = new Vector();
+		Selection typeParameterTextSelection = null;
+		//JavaToken typeParameterText = null;
 		
 		
 		if ((_tokenSet_14.member(LA(1))) && (_tokenSet_15.member(LA(2)))) {
@@ -2242,7 +2389,7 @@ public ClassParser(ParserSharedInputState state) {
 					switch ( LA(1)) {
 					case LT:
 					{
-						typeParameterSelection=typeParameters();
+						typeParameterTextSelection=typeParameters(typeParameterSelections);
 						break;
 					}
 					case IDENT:
@@ -2273,7 +2420,8 @@ public ClassParser(ParserSharedInputState state) {
 							
 							// tell the symbol table about it.  Note that this signals that
 								        // we are in a method header so we handle parameters appropriately
-								        defineMethod((JavaToken)method, type, commentToken, typeParameterSelection);
+								        
+								        defineMethod((JavaToken)method, type, commentToken, typeParameterTextSelection);
 							
 						}
 						match(LPAREN);

@@ -66,7 +66,7 @@ class ClassDef extends HasImports
 
     /**
      */
-     private Vector interfaceSelections; //, typeParameterSelections;
+     private Vector interfaceSelections, typeParameterSelections;
      private Selection extendsInsert, implementsInsert,
                         extendsReplace, superReplace, typeParamInsert;
 
@@ -214,6 +214,11 @@ class ClassDef extends HasImports
     {
         this.interfaceSelections = interfaceSelections;
     }
+    
+    void setTypeParameterSelections(Vector typeParamSelections)
+    {
+        this.typeParameterSelections = typeParamSelections;
+    }
 
     /** Lookup a method in the class or its superclasses */
     Definition lookup(String name, int numParams) {
@@ -296,8 +301,11 @@ class ClassDef extends HasImports
                 info.setExtendsReplaceSelection(extendsReplace);
                 info.setSuperReplaceSelection(superReplace);
                 if(typeParamInsert != null)
-                    info.setTypeParameter(typeParamInsert);
+                    info.setTypeParameterText(typeParamInsert);
                 
+                if(typeParameterSelections != null)
+                  info.setTypeParameterSelections(typeParameterSelections);
+              
                 info.setInterfaceSelections(interfaceSelections);
             }
         }

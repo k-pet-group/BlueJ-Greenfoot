@@ -19,9 +19,9 @@ public final class ClassInfo
     private List used = new ArrayList();
     private List comments = new LinkedList();
     
-    private List typeParameterSelections = new ArrayList();
+    private List typeParameterSelections;
     private List typeParameterTexts;
-    private Selection typeParameterSelection = new Selection(null,1,1);
+    private Selection typeParameterText = new Selection(null,1,1);
 
     private class SavedComment
     {
@@ -284,8 +284,23 @@ public final class ClassInfo
         Iterator it = interfaceSelections.iterator();
         while(it.hasNext()) {
             Selection s = (Selection)it.next();
-            interfaceTexts.add(s.getText());
+            // we don't want the interface texts to show type argument info
+            // which may be present in the selections. The texts are used to
+            // match to the base name of a ClassTarget when dependencies are
+            // removed. It would probably be nicer to bring these back from
+            // the parser at a lower level. The interfaces however start to
+            // get even more cluttered...
+            String sel = s.getText();
+            int index = sel.indexOf("<");
+            if(index > 0)
+                sel = sel.substring(0, index);
+            interfaceTexts.add(sel);
         }
+    }
+    
+    public void setTypeParameterSelections(List selections)
+    {
+        typeParameterSelections = selections;
     }
     
     public List getTypeParameterTexts()
@@ -379,19 +394,24 @@ public final class ClassInfo
         return implemented;
     }
 
-    public void setTypeParameter(Selection s)
+    public void setTypeParameterText(Selection s)
     {
-        typeParameterSelection = s;
+        typeParameterText = s;
     }
     
     public boolean hasTypeParameter()
     {
-        return (typeParameterSelection != null);
+        return (typeParameterText != null);
     }
     
-    public Selection getTypeParameter()
+    public Selection getTypeParameterText()
     {
-        return typeParameterSelection;
+        return typeParameterText;
+    }
+    
+    public void setTypeParameterSelections(Selection s)
+    {
+        typeParameterText = s;
     }
     
     public List getImported()
