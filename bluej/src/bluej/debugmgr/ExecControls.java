@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2074 2003-06-26 10:26:09Z mik $
+ * @version $Id: ExecControls.java 2077 2003-06-26 14:09:27Z mik $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -85,7 +85,6 @@ public class ExecControls extends JFrame
                                             //  selected stack frame
     private int currentFrame = 0;		    // currently selected frame
     
-    private boolean hideSystemThreads;      // true if we don't want to see system threads
 
 	/**
 	 * Create a window to view and interact with a debug VM.
@@ -102,7 +101,6 @@ public class ExecControls extends JFrame
 			
 		this.project = project;
 		this.debugger = debugger;
-        hideSystemThreads = true;
 
         createWindow();
     }
@@ -633,7 +631,8 @@ public class ExecControls extends JFrame
 		JMenuItem item;
 
 		systemThreadItem = new JCheckBoxMenuItem(new HideSystemThreadAction());
-        systemThreadItem.setSelected(hideSystemThreads);
+        systemThreadItem.setSelected(true);
+        debugger.hideSystemThreads(true);
 		menu.add(systemThreadItem);
 
 		menu.add(new JSeparator());
@@ -692,7 +691,7 @@ public class ExecControls extends JFrame
         }
 
         public void actionPerformed(ActionEvent e) {
-            hideSystemThreads = systemThreadItem.isSelected();
+            debugger.hideSystemThreads(systemThreadItem.isSelected());
         }
     }
 }

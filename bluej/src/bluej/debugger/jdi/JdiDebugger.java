@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2072 2003-06-26 04:49:58Z ajp $
+ * @version $Id: JdiDebugger.java 2077 2003-06-26 14:09:27Z mik $
  */
 public class JdiDebugger extends Debugger
 {
@@ -42,7 +42,10 @@ public class JdiDebugger extends Debugger
 	// the thread that we spawn to load the current remote VM
 	private MachineLoaderThread machineLoader;
 
-	// a TreeModel exposing all the JdiThreads in the VM
+	// a set holding all the JdiThreads in the VM
+	private JdiThreadSet allThreads;
+	
+	// a TreeModel exposing selected JdiThreads in the VM
 	private JdiThreadTreeModel treeModel;
 	
 	// listeners for events that occur in the debugger	
@@ -55,6 +58,9 @@ public class JdiDebugger extends Debugger
 	// object bench. We endeavour to not reuse them.
 	private Set usedNames;
 	
+    // indicate whether we want to see system threads
+    private boolean hideSystemThreads;
+
 	/**
 	 * Construct an instance of the debugger.
 	 *
@@ -68,8 +74,10 @@ public class JdiDebugger extends Debugger
     {
 		this.startingDirectory = startingDirectory;
 		
+        allThreads = new JdiThreadSet();
 		treeModel = new JdiThreadTreeModel(new JdiThreadNode());
 		usedNames = new TreeSet();
+        hideSystemThreads = true;
     }
 
 	/**
@@ -511,18 +519,20 @@ public class JdiDebugger extends Debugger
 	 */
 	public void breakpoint(ThreadReference tr)
 	{
+        JdiThread breakThread = allThreads.find(tr);
 		JdiThreadNode jtn = treeModel.findThreadNode(tr);
 
-		if (jtn != null) {
-			treeModel.nodeChanged(jtn);		
-
-			fireTargetEvent(new DebuggerEvent(this,
-												 DebuggerEvent.THREAD_BREAKPOINT,
-												 new JdiThread(treeModel, tr)));
-		}
-		else {
-			Debug.message("Received breakpoint for unknown thread " + tr);
-		}
+        // if the thread at the breakpoint is not currently displayed, display it now.
+		if (jtn == null) {
+            JdiThreadNode root = treeModel.getThreadRoot();
+            treeModel.insertNodeInto(new JdiThreadNode(breakThread), root, 0);
+        }
+        else
+            treeModel.nodeChanged(jtn);
+        
+        fireTargetEvent(new DebuggerEvent(this,
+                                          DebuggerEvent.THREAD_BREAKPOINT,
+                                          breakThread));
 	}
 
 
@@ -537,13 +547,10 @@ public class JdiDebugger extends Debugger
 	void threadStart(ThreadReference tr)
 	{
 		synchronized(treeModel.getRoot()) {
-			JdiThreadNode root = treeModel.findThreadNode(tr.threadGroup());
-			
-			if (root == null) {
-				// System.out.println("unknown thread group " + tr.threadGroup());
-				root = treeModel.getThreadRoot();
-			}					
-			treeModel.insertNodeInto(new JdiThreadNode(new JdiThread(treeModel, tr)), root, 0);
+            JdiThread newThread = new JdiThread(treeModel, tr);
+            allThreads.add(newThread);
+            
+            displayThread(newThread);
 		}
 	}
 
@@ -557,13 +564,55 @@ public class JdiDebugger extends Debugger
 	{
 		synchronized(treeModel.getRoot()) {
 			JdiThreadNode jtn = treeModel.findThreadNode(tr);
-		
 			if (jtn != null) {
 				treeModel.removeNodeFromParent(jtn);
 			}
+            
+            allThreads.removeThread(tr);
 		}
 	}
 
+    /**
+     * Set or clear the option to hide system threads.
+     * This method also updates the current display if necessary.
+     */
+    public void hideSystemThreads(boolean hide)
+    {
+        if(hideSystemThreads == hide)
+            return;
+
+        hideSystemThreads = hide;
+        updateThreadDisplay();
+    }
+    
+    /**
+     * Re-build the treeModel for the currently displayed threads using
+     * the allThreads set and the 'hideSystemThreads' flag.
+     */
+    private void updateThreadDisplay()
+    {
+   		treeModel.setRoot(new JdiThreadNode());
+        
+        for(Iterator it=allThreads.iterator(); it.hasNext(); ) {
+            JdiThread currentThread = (JdiThread)it.next();
+            displayThread(currentThread);
+        }
+
+		treeModel.reload();
+    }
+
+    /**
+     * Add the given thread to the displayed threads if appropriate.
+     * System threads are displayed conditional on the 'hideSystemThreads' flag.
+     */
+    private void displayThread(JdiThread newThread)
+    {
+        if(! (hideSystemThreads && newThread.isKnownSystemThread())) {
+            JdiThreadNode root = treeModel.getThreadRoot();
+            treeModel.insertNodeInto(new JdiThreadNode(newThread), root, 0);
+        }
+    }
+    
     // -- support methods --
 
     public void dumpThreadInfo()

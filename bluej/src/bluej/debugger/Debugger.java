@@ -12,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2063 2003-06-25 07:03:00Z ajp $
+ * @version $Id: Debugger.java 2077 2003-06-26 14:09:27Z mik $
  */
 public abstract class Debugger
 {
@@ -194,4 +194,11 @@ public abstract class Debugger
      *          as the leaves.
      */
     public abstract DebuggerThreadTreeModel getThreadTreeModel();
+
+    /**
+     * Set or clear the option to hide system threads.
+     * This method also updates the current display if necessary.
+     */
+    public abstract void hideSystemThreads(boolean hide);
+
 }
