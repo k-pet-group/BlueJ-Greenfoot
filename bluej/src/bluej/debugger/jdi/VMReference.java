@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2596 2004-06-12 19:42:55Z mik $
+ * @version $Id: VMReference.java 2606 2004-06-14 06:13:46Z davmac $
  *
  * The startup process is as follows:
  *
@@ -1076,7 +1076,8 @@ class VMReference
 										   boolean propagateException,
 										   boolean dontSuspendAll) throws InvocationException
 	{
-		final int smallDelay = 50;	// milliseconds
+        final int smallDelay = 50;	// milliseconds
+        List enableCollectionList = new LinkedList();
     	
 		// go through the args and if any aren't VM reference types
 		// then fail (unless they are strings in which case we
@@ -1085,7 +1086,10 @@ class VMReference
 			Object o = lit.next();
 
 			if (o instanceof String) {
-				lit.set(machine.mirrorOf((String) o));
+			    StringReference s = machine.mirrorOf((String) o);
+                enableCollectionList.add(s);
+                s.disableCollection();
+                lit.set(s);
 			} else if (!(o instanceof Mirror)) {
 				throw new IllegalArgumentException("invokeStaticRemoteMethod passed a non-Mirror argument");
 			}
@@ -1195,7 +1199,11 @@ class VMReference
 		catch (Exception e) {
 			Debug.message("sending command " + m.name() + " to remote VM failed: " + e);
 		}
-
+        
+        // re-enable collection for arguments for which we have disabled collection
+		for( Iterator i = enableCollectionList.iterator(); i.hasNext(); )
+            ((ObjectReference)i.next()).enableCollection();
+        
 		//machine.setDebugTraceMode(VirtualMachine.TRACE_NONE);
 		return null;
 	}
