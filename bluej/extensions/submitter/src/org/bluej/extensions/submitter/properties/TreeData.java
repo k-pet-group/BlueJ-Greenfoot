@@ -48,6 +48,25 @@ public class TreeData
     }
 
 
+
+  /**
+   * This method will check if there is a submission config file in any of the three
+   * possible places.
+   */
+  public boolean haveConfiguration ( File projectRoot )
+    {
+    File systemConfFile = new File(stat.bluej.getSystemLibDir(), CONFIG_FILENAME);
+    if ( systemConfFile.canRead() ) return true;
+
+    File userConfFile = new File(stat.bluej.getUserConfigDir(),CONFIG_FILENAME);
+    if ( userConfFile.canRead() ) return true;
+
+    File projectConfFile = new File(projectRoot, CONFIG_FILENAME);
+    if ( projectConfFile.canRead() ) return true;
+
+    return false;      
+    }
+
   /**
    * This will load the tree with the right content. This is not in the constructor since
    * we may want to be smart in the future and trow some nice exceptions :-)
