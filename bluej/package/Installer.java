@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 618 2000-07-04 07:25:30Z mik $
+  * @version $Id: Installer.java 621 2000-07-05 04:58:47Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -224,6 +224,10 @@ public class Installer extends JFrame
     {
 	super();
 	currentDirectory = System.getProperty("user.dir");
+        if(currentDirectory.endsWith("bluej"))
+            installationDir = currentDirectory;
+        else
+            installationDir = currentDirectory + File.separator + "bluej";
         osname = System.getProperty("os.name");
         architecture = System.getProperty("os.arch");
         javaVersion = System.getProperty("java.version");
@@ -318,10 +322,8 @@ public class Installer extends JFrame
         }
 
 	try {
-            if(!(new File(installationDir).exists())) {
-                installDirProblem();
+            if(!checkInstallDir(installationDir, true))
                 return;
-            }
 
 	    unpackTo(true);
 
@@ -370,21 +372,25 @@ public class Installer extends JFrame
     }
 
     /**
-     * 
+     * Get an installtion directory from the user via a file selection
+     * dialogue.
      */
     private void getInstallDirectory()
     {
         String dirName = getDirName("Select installation directory");
         if(dirName != null) {
-            installationDir = dirName;
+            if(dirName.endsWith("bluej"))
+                installationDir = dirName;
+            else
+                installationDir = dirName + File.separator + "bluej";
             directoryField.setText(installationDir);
-            if(!(new File(installationDir).exists()))
-                installDirProblem();
+            checkInstallDir(installationDir, false);
         }
     }
 
     /**
-     * Read the values that the user selected into the appropriate variables.
+     * Get the jdk directory from the user via a file selection
+     * dialogue.
      */
     private void getJDKDirectory()
     {
@@ -460,13 +466,47 @@ public class Installer extends JFrame
     }
 
     /**
-     * Inform user of invalid install dir.
+     * Inform user of invalid install dir. Return true if everything is fine.
      */
-    private void installDirProblem() 
+    private boolean checkInstallDir(String dirName, boolean make) 
     {
-        notifyProblem(
-                  "The installation directory specified does not exist.\n" +
+        File installDir = new File(dirName);
+        if(installDir.exists()) {
+            if(installDir.isDirectory())
+                return true;
+            else {
+                notifyProblem("The name you specified exists\n" +
+                              "and is not a directory. Cannot\n" +
+                              "install there.");
+                return false;
+            }
+        }
+
+        else {  // dir does not exist
+
+            // see whether parent dir exists
+            File parent = installDir.getParentFile();
+            if(parent.exists()) {
+                if(parent.isDirectory()) {
+                    // parent exists. that's fine. create dir if requested.
+                    if(make)
+                        installDir.mkdir();
+                    return true;
+                }
+                else {
+                    notifyProblem(parent.getAbsolutePath() + " is not\n" +
+                                  "a directory. Cannot install there.");
+                    return false;
+                }
+            }
+            else {
+                notifyProblem(
+                  "The directory " + parent.getAbsolutePath() +
+                  "\ndoes not exist.\n" +
                   "Please check the path and enter again.");
+                return false;
+            }
+        }
     }
 
     /**
@@ -524,7 +564,7 @@ public class Installer extends JFrame
             Box dirPanel = new Box(BoxLayout.X_AXIS);
                 dirPanel.add(Box.createHorizontalGlue());
                 dirPanel.add(new JLabel("Directory to install to:"));
-	        directoryField = new JTextField(currentDirectory, 16);
+	        directoryField = new JTextField(installationDir, 16);
                 dirPanel.add(directoryField);
                 browseDirButton = new JButton("Browse");
                 browseDirButton.addActionListener(this);
@@ -624,7 +664,7 @@ public class Installer extends JFrame
 	File outputFile = new File(installationDir, (String)getProperty("exeName"));
 	FileWriter out = new FileWriter(outputFile.toString());
 	out.write("#!/bin/sh\n");
-	out.write("APPBASE=" + installationDir + "\n");
+	out.write("APPBASE=`dirname $0`\n");
 	String commands;
         commands = getProperty("unixCommands").toString();
 	if(commands != null) {
@@ -664,7 +704,7 @@ public class Installer extends JFrame
 	File outputFile = new File(installationDir, (String)getProperty("exeName"));
 	FileWriter out = new FileWriter(outputFile.toString());
 	out.write("#!/bin/sh\n");
-	out.write("APPBASE=" + installationDir + "\n");
+	out.write("APPBASE=`dirname $0`\n");
 	String commands;
         if (localJPDA)
             commands = getProperty("unixCommands.localJPDA").toString();
