@@ -332,8 +332,8 @@ colour.target.bg.compiling=200,150,100
 colour.target.shadow=192,192,192
 colour.target.stripes=152,152,152
 
-// colours for different types of classes (by default we make most
-// of them the same - except for unit tests).
+# colours for different types of classes (by default we make most
+# of them the same - except for unit tests).
 colour.class.bg.default=245,204,155
 colour.class.bg.abstract=245,204,155
 colour.class.bg.interface=245,204,155
