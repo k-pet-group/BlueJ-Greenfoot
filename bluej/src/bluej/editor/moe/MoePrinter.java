@@ -98,34 +98,14 @@ public class MoePrinter
 
 
     /**
-     * Remove double newline and carriage return characters from the end 
-     * of this string. This is needed because of what appears to be a
-     * bug in the document classes: sometimes the lines appear to include
-     * double NL or CR characters, and those get printed.
+     * Remove newline and carriage return characters from the end 
+     * of this string. This is needed to fix a printing bug with 
+     * the handling of newline characters on some printers
      */
     private String removeNewLines(String line)
     {
-       //  int length = line.length();
-//         char secondLastChar = (length > 1 ? line.charAt(line.length()-2) : ' ');
-//         while((secondLastChar == '\n') || (secondLastChar == '\r')) {
-//             line = line.substring(0, line.length()-2) + '\n';
-//             length = line.length();
-//             secondLastChar = (length > 1 ? line.charAt(line.length()-2) : ' ');
-//         }
-//         return line;
-
         int length = line.length();
-        System.out.print("initial length: " + length);
-
         char lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
-                
-        //temp debug info
-        if(lastChar == '\n')
-            System.out.println(" - newline");
-        else if(lastChar == '\r')
-            System.out.println(" - carriage return");
-        else
-            System.out.println(" - other");
 
         while((lastChar == '\n') || (lastChar == '\r')) {
             
@@ -133,8 +113,6 @@ public class MoePrinter
             length = line.length();
             lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
         }
-        System.out.println("reduced length: " + length);
-            
         return line;
     }
 
