@@ -431,7 +431,7 @@ public final class MoeEditor extends JFrame
         // highlight the line
 
         currentTextPane.setCaretPosition(pos);
-        currentTextPane.moveCaretPosition(line.getEndOffset());
+        currentTextPane.moveCaretPosition(line.getEndOffset()-1); // w/o line break
 
         // display the message
 

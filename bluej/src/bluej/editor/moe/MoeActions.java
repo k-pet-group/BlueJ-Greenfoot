@@ -85,12 +85,15 @@ public final class MoeActions
     private static MoeActions moeActions;
 
     /**
-     * Get the actions object (a singleton).
+     * Get the actions object (a singleton) and, at the same time, install the
+     * action keymap as the main keymap for the given textComponent..
      */
     public static MoeActions getActions(JTextComponent textComponent)
     {
         if(moeActions == null)
             moeActions = new MoeActions(textComponent);
+
+        textComponent.setKeymap(moeActions.keymap);
         return moeActions;
     }
 
@@ -119,7 +122,6 @@ public final class MoeActions
         // install our own keymap, with the existing one as parent
         keymap = JTextComponent.addKeymap("BlueJ map", 
                                           textComponent.getKeymap());
-        textComponent.setKeymap(keymap);
 
         createActionTable(textComponent);
         keyCatcher = new KeyCatcher();
