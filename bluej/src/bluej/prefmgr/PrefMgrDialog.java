@@ -19,9 +19,9 @@ import bluej.utility.Debug;
  *
  * Note that this is a singleton class. There can be only one
  * instance of PrefMgrDialog at any time.
- * 
+ *
  * @author Andrew Patterson
- * @version $Id: PrefMgrDialog.java 278 1999-11-16 00:58:12Z ajp $
+ * @version $Id: PrefMgrDialog.java 304 1999-12-09 23:48:13Z ajp $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -37,7 +37,7 @@ public class PrefMgrDialog extends JFrame
 
 	/**
 	 * Setup the UI for the dialog and event handlers for the dialog's buttons.
-	 * 
+	 *
 	 * @param title the title of the dialog
 	 */
     private PrefMgrDialog()
@@ -57,15 +57,15 @@ public class PrefMgrDialog extends JFrame
         JPanel contentPanel = new JPanel();
         {
             // arbitrary dimensions here.. what is the best way of getting these??
-            contentPanel.setPreferredSize(new Dimension(610,380));
+            contentPanel.setPreferredSize(new Dimension(512,450));
 
             contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
             contentPanel.setBorder(Config.generalBorder);
-       
+
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
-        
+
                 JButton okButton = new JButton(Config.getString("okay"));
                 {
                     okButton.addActionListener(new ActionListener() {
@@ -79,9 +79,9 @@ public class PrefMgrDialog extends JFrame
                         }
                     });
                 }
-    
+
                 getRootPane().setDefaultButton(okButton);
-        
+
                 JButton cancelButton = new JButton(Config.getString("cancel"));
                 {
                     cancelButton.addActionListener(new ActionListener() {
@@ -95,15 +95,15 @@ public class PrefMgrDialog extends JFrame
                         }
                     });
                 }
-    
+
                 buttonPanel.add(okButton);
                 buttonPanel.add(cancelButton);
-        
+
                 // try to make the OK and cancel buttons have equal width
                 okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
                                 okButton.getPreferredSize().height));
             } // buttonPanel
-    
+
             contentPanel.add(tabbedPane);
             contentPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
             contentPanel.add(buttonPanel);
@@ -127,13 +127,13 @@ public class PrefMgrDialog extends JFrame
         listeners.add(listener);
         titles.add(title);
     }
- 
+
 	/**
 	 * Show the preferences dialog.  The first argument should
 	 * be null if you want the dialog to come up in the center
 	 * of the screen.  Otherwise, the argument should be the
 	 * component on top of which the dialog should appear.
-	 * 
+	 *
 	 * @param comp the parent component for the dialog.
 	 */
 	public static boolean showDialog(Component comp) {
@@ -152,7 +152,7 @@ public class PrefMgrDialog extends JFrame
 		return true;
 	}
 }
-                                          
+
 /*
 import bluej.editor.moe.MoeEditorPrefPanel;
         MoeEditorPrefPanel p2 = new MoeEditorPrefPanel();
