@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 636 2000-07-07 05:03:00Z mik $
+ * @version $Id: Package.java 641 2000-07-11 04:31:27Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -300,8 +300,41 @@ public class Package extends Graph
     }
 
     /**
+     * Returns the sub-package if this package is "boring".
+     * Our definition of boring is that the package has no classes in
+     * it and only one sub package. If this package is not
+     * boring, this method returns null.
+     */
+    protected Package getBoringSubPackage()
+    {
+        PackageTarget pt = null;
+
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if(target instanceof ClassTarget)
+                return null;
+
+            if((target instanceof PackageTarget) &&
+                !(target instanceof ParentPackageTarget)) {
+                    // we have found our second sub package
+                    // this means this package is not boring
+                    if(pt != null)
+                        return null;
+
+                    pt = (PackageTarget) target;
+            }
+        }
+
+        if (pt == null)
+            return null;
+        else
+            return getProject().getPackage(pt.getQualifiedName());
+    }
+
+    /**
      * Return an array of package objects which are nested one level
-     * below us. Will return an empty List object if there are no
+     * below us. Will return null if there are no
      * children.
      */
     protected List getChildren()
@@ -324,6 +357,9 @@ public class Package extends Graph
                     children.add(child);
             }
         }
+
+        if (children.size() == 0)
+            children = null;
 
         return children;
     }
@@ -1476,34 +1512,32 @@ public class Package extends Graph
     {
         getProject().convertPathToPackageName(filename);
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); )
-            {
-                Target t = (Target)e.nextElement();
-                if(!(t instanceof ClassTarget))
-                    continue;
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target t = (Target)e.nextElement();
+            if(!(t instanceof ClassTarget))
+                continue;
 
-                ClassTarget ct = (ClassTarget)t;
+            ClassTarget ct = (ClassTarget)t;
 
-                if(filename.equals(ct.getSourceFile().getPath()))
-                    return ct;
-            }
+            if(filename.equals(ct.getSourceFile().getPath()))
+                return ct;
+        }
 
         return null;
     }
 
     public EditableTarget getTargetFromEditor(Editor editor)
     {
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); )
-            {
-                Target t = (Target)e.nextElement();
-                if(!(t instanceof EditableTarget))
-                    continue;
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target t = (Target)e.nextElement();
+            if(!(t instanceof EditableTarget))
+                continue;
 
-                EditableTarget et = (EditableTarget)t;
+            EditableTarget et = (EditableTarget)t;
 
-                if(et.usesEditor(editor))
-                    return et;
-            }
+            if(et.usesEditor(editor))
+                return et;
+        }
 
         return null;
     }

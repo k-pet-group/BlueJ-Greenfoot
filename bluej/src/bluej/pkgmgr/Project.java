@@ -23,16 +23,16 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 636 2000-07-07 05:03:00Z mik $
+ * @version $Id: Project.java 641 2000-07-11 04:31:27Z ajp $
  */
 public class Project
     implements BlueJEventListener
 {
     // static fields
 
-    private static final String saveAsTitle = 
+    private static final String saveAsTitle =
         Config.getString("pkgmgr.saveAs.title");
-    private static final String saveLabel = 
+    private static final String saveLabel =
         Config.getString("pkgmgr.saveAs.buttonLabel");
 
     /**
@@ -106,7 +106,24 @@ public class Project
             projects.put(projectDir, proj);
         }
 
-        proj.initialPackageName = startingPackageName;
+        if (startingPackageName.equals("")) {
+            Package startingPackage = proj.getPackage("");
+
+            while(startingPackage != null) {
+                Package sub = startingPackage.getBoringSubPackage();
+
+                if (sub == null)
+                    break;
+
+                startingPackage = sub;
+            }
+
+            proj.initialPackageName = startingPackage.getQualifiedName();
+        }
+        else
+            proj.initialPackageName = startingPackageName;
+
+
         return proj;
     }
 
@@ -139,12 +156,13 @@ public class Project
 
             if(dir.mkdir()) {
                 File newpkgFile = new File(dir, Package.pkgfileName);
+                File newreadmeFile = new File(dir, Package.readmeName);
 
                 try {
                     if(newpkgFile.createNewFile()) {
                         if(FileUtility.copyFile(
-                                   Config.getLibFilename("template.readme"),
-                                   dir + File.separator + Package.readmeName))
+                                   new File(Config.getLibFilename("template.readme")),
+                                   newreadmeFile))
                             return true;
                         else
                             Debug.message("could not copy readme template");
@@ -310,7 +328,7 @@ public class Project
 
         children = rootPackage.getChildren();
 
-        if(children.size() > 0) {
+        if(children != null) {
             Iterator i = children.iterator();
 
             while(i.hasNext()) {
@@ -377,13 +395,13 @@ public class Project
     public void saveAs(PkgMgrFrame frame)
     {
         // get a file name to save under
-        String newName = FileUtility.getFileName(frame, saveAsTitle, 
+        String newName = FileUtility.getFileName(frame, saveAsTitle,
                                                  saveLabel, false);
 
         if (newName != null) {
 
             saveAll();
-            new ExportManager(frame).saveAs(getProjectDir().getPath(), 
+            new ExportManager(frame).saveAs(getProjectDir().getPath(),
                                             newName);
             closeProject(this);
 
@@ -393,7 +411,7 @@ public class Project
             if(openProj != null) {
                 Package pkg = openProj.getPackage(
                                          openProj.getInitialPackageName());
-                
+
                 PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
                 pmf.show();
             }
