@@ -570,4 +570,4 @@ tooltip.compile=Compile all uncompiled classes in this package
 tooltip.test=Run all compiled test classes in this package
 tooltip.progress=Work indicator: indicates when virtual machine is executing
 tooltip.test.end=End a recording of a test method and save it.
-tooltop.test.cancel=Cancel and discard a recording of a test method.
+tooltip.test.cancel=Cancel and discard a recording of a test method.
