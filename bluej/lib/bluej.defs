@@ -77,6 +77,14 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 
 
 #####################################################################
+## The number of past projects that will be shown on the 
+## File/Open Recent... menu.
+#####################################################################
+
+bluej.numberOfRecentProjects=12
+
+
+#####################################################################
 ## User's home directory. This is also defined by Java, and if that's
 ## fine for you, don't specify this property. This property, if
 ## specified, will override Java's user.home property.
