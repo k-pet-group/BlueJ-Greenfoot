@@ -27,7 +27,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2970 2004-09-01 06:03:09Z davmac $
+ * @version $Id: MethodDialog.java 3027 2004-09-30 04:29:21Z bquig $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -37,6 +37,7 @@ public class MethodDialog extends CallDialog implements FocusListener
 
     private int dialogType;
     private boolean listeningObjects; // listening on the object bench
+    private boolean okCalled;
 
     // Window Titles
     static final String wCreateTitle = Config.getString("pkgmgr.methodCall.titleCreate");
@@ -103,7 +104,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2970 2004-09-01 06:03:09Z davmac $
+     * @version $Id: MethodDialog.java 3027 2004-09-30 04:29:21Z bquig $
      */
     public static class ParameterList
     {
@@ -263,28 +264,32 @@ public class MethodDialog extends CallDialog implements FocusListener
 
     /**
      * doOk - Process an "Ok" event to invoke a Constructor or Method.
-     *  Collects arguments and calls watcher objects (Invoker).
+     * Collects arguments and calls watcher objects (Invoker).
      */
     public void doOk()
     {
-        if (dialogType == MD_CREATE) {
-            if (!JavaNames.isIdentifier(getNewInstanceName())) {
-                setErrorMessage(illegalNameMsg);
-                return;
+        // only process if 
+        if(!okCalled) {
+            if (dialogType == MD_CREATE) {
+                if (!JavaNames.isIdentifier(getNewInstanceName())) {
+                    setErrorMessage(illegalNameMsg);
+                    return;
+                }
+                if (getObjectBench().hasObject(getNewInstanceName())) {
+                    setErrorMessage(duplicateNameMsg);
+                    return;
+                }
             }
-            if (getObjectBench().hasObject(getNewInstanceName())) {
-                setErrorMessage(duplicateNameMsg);
-                return;
+            
+            if (!parameterFieldsOk()) {
+                setErrorMessage(emptyFieldMsg);            
+            } else if(!typeParameterFieldsOk()) {     
+                setErrorMessage(emptyTypeFieldMsg);
+            } else {
+                setWaitCursor(true);
+                callWatcher(OK);
+                okCalled = true;
             }
-        }
-
-        if (!parameterFieldsOk()) {
-            setErrorMessage(emptyFieldMsg);            
-        } else if(!typeParameterFieldsOk()) {     
-            setErrorMessage(emptyTypeFieldMsg);
-        } else {
-            setWaitCursor(true);
-            callWatcher(OK);
         }
     }
 
@@ -996,5 +1001,29 @@ public class MethodDialog extends CallDialog implements FocusListener
         // add FocusListener for text insertion
         ((JTextField) component.getEditor().getEditorComponent()).addFocusListener(this);
         return component;
+    }
+    
+    /**
+     * Redefined setEnabled method to ensure that OK button gets disabled.
+     * As ActionListeners are also attached to combo boxes it can trigger 
+     * more than one OK action as the default button also catches an 
+     * action whther it has focus or not.
+     * 
+     * Calling setEnabled on the Dialog alone does not prevent the default button 
+     * from getting action events. We therefore explicitly call setEnabled on the 
+     * default button (OK)
+     * 
+     * The okCalled flag is used to prevent multiple rapid button presses before
+     * the button and dialog are disabled.
+     * 
+     */
+    public void setEnabled(boolean state)
+    {
+        okButton.setEnabled(state);
+        super.setEnabled(state);
+        if(state) {
+            //reset ok called status when re-enabling dialog
+            okCalled = false;    
+        }
     }
 }
