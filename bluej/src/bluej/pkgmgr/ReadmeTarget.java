@@ -16,7 +16,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 547 2000-06-13 23:47:56Z mik $
+ * @version $Id: ReadmeTarget.java 548 2000-06-14 01:45:28Z ajp $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -108,7 +108,7 @@ public class ReadmeTarget extends Target
     {
         if(editor == null)
             editor = getPackage().editorManager.openText(getSourceFile().getPath(),
-                                                        "README.TXT", this);
+                                                        Package.readmeName, this);
         return editor;
     }
 

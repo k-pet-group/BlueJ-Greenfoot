@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 540 2000-06-13 03:44:10Z ajp $
+ * @version $Id: Project.java 548 2000-06-14 01:45:28Z ajp $
  */
 public class Project
 {
@@ -120,10 +120,11 @@ public class Project
             if(dir.mkdir())
             {
                 File newpkgFile = new File(dir, Package.pkgfileName);
+                File newreadmeFile = new File(dir, Package.readmeName);
 
                 try {
-                    if(newpkgFile.createNewFile());
-                    {
+                    if(newpkgFile.createNewFile()) {
+                        newreadmeFile.createNewFile();
                         return true;
                     }
                 }

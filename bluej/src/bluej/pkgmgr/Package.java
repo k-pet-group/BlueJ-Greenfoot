@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 538 2000-06-12 10:20:59Z ajp $
+ * @version $Id: Package.java 548 2000-06-14 01:45:28Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -56,6 +56,8 @@ public class Package extends Graph
     public static final String pkgfileName = "bluej.pkg";
     /** the name of the backup file of the package file */
     public static final String pkgfileBackup = "bluej.pkh";
+
+    public static final String readmeName = "README.TXT";
 
     /** error code */ public static final int NO_ERROR = 0;
     /** error code */ public static final int FILE_NOT_FOUND = 1;
@@ -900,6 +902,9 @@ public class Package extends Graph
      */
     private void doCompile(Vector targetList)
     {
+        if(targetList.size() == 0)
+            return;
+
         String[] files = new String[targetList.size()];
         for(int i = 0; i < targetList.size(); i++) {
             ClassTarget ct = (ClassTarget)targetList.get(i);
