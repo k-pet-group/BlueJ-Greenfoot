@@ -84,7 +84,7 @@ the file. The file was not saved.
 
 cannot-save-keys
 An error occurred while trying to save
-the key bindings. The bindings were not 
+the key bindings. The bindings were not
 saved.
 
 skeleton-error
@@ -202,34 +202,14 @@ Print
 Cancel
 null
 
-really-import-package
-You chose a directory that is not a BlueJ package.
-Do you want this directory to be searched for Java source
-files that can be displayed in a BlueJ package window?
-(If you just wanted to see the content of this directory,
-click Cancel now and then double click the directory icon).
-Search
-Cancel
+import-into-current
+You currently have a package open in this window.
+Do you want to import into the current package
+or would you like to create a new project and
+import into that?
+Current
+New Project
 null
-
-also-search-subdirs
-The directory you chose contains subdirectories.
-Do you want these directories and all their subdirectories
-to be searched, being displayed as nested packages
-if they contain Java source files?
-Search subdirectories
-Cancel
-null
-
-cannot-search-subdirs
-The directory you chose contains subdirectories.
-Currently these directories can not be searched
-for Java source files because named and nested
-packages are not supported in this BlueJ version.
-They will be supported in a future release.
-If the chosen directory itself contained Java
-source files they will be displayed now in a
-BlueJ package window.
 
 ask-index
 Enter array element index [...]
