@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.plaf.basic.*;
 import java.util.*;
 
 import bluej.utility.Debug;
@@ -15,7 +16,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1546 2002-11-29 13:53:45Z ajp $
+ * @version $Id: ObjectBench.java 1567 2002-12-11 12:37:51Z mik $
  */
 public class ObjectBench
 {
@@ -31,18 +32,19 @@ public class ObjectBench
         containerPanel = new JPanel();
         containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.X_AXIS));
             
-        leftArrowButton = new JButton("<");
+//        leftArrowButton = new JButton("<");
+        leftArrowButton = new ObjectBenchArrowButton(SwingConstants.WEST);
         leftArrowButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             { 
                 moveBench(-1);
             }
         });
-        leftArrowButton.setAlignmentY(0);
-        leftArrowButton.setMinimumSize(new Dimension(14, ObjectWrapper.HEIGHT));
-        leftArrowButton.setPreferredSize(new Dimension(14, ObjectWrapper.HEIGHT));
-        leftArrowButton.setMaximumSize(new Dimension(14, ObjectWrapper.HEIGHT));
-        leftArrowButton.setBorder(BorderFactory.createEmptyBorder());
+//        leftArrowButton.setAlignmentY(0);
+//        leftArrowButton.setMinimumSize(new Dimension(24, ObjectWrapper.HEIGHT));
+//        leftArrowButton.setPreferredSize(new Dimension(24, ObjectWrapper.HEIGHT));
+//        leftArrowButton.setMaximumSize(new Dimension(24, ObjectWrapper.HEIGHT));
+//        leftArrowButton.setBorder(BorderFactory.createEmptyBorder());
         
         containerPanel.add(leftArrowButton);
 
@@ -50,7 +52,7 @@ public class ObjectBench
 
         viewPort = new JViewport();
         viewPort.setView(obp);
-        viewPort.setAlignmentY(0);
+//        viewPort.setAlignmentY(0);
 //        viewPort.setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
 
 /*        obp.addComponentListener(new ComponentListener() {
@@ -76,18 +78,19 @@ public class ObjectBench
         
         containerPanel.add(viewPort);
             
-        rightArrowButton = new JButton(">");
+        //rightArrowButton = new JButton(">");
+        rightArrowButton = new ObjectBenchArrowButton(SwingConstants.EAST);
         rightArrowButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             { 
                 moveBench(1);
             }
         });
-        rightArrowButton.setAlignmentY(0);
-        rightArrowButton.setMinimumSize(new Dimension(14, ObjectWrapper.HEIGHT));
-        rightArrowButton.setPreferredSize(new Dimension(14, ObjectWrapper.HEIGHT));
-        rightArrowButton.setMaximumSize(new Dimension(14, ObjectWrapper.HEIGHT));
-        rightArrowButton.setBorder(BorderFactory.createEmptyBorder());
+//         rightArrowButton.setAlignmentY(0);
+//         rightArrowButton.setMinimumSize(new Dimension(44, ObjectWrapper.HEIGHT));
+//         rightArrowButton.setPreferredSize(new Dimension(44, ObjectWrapper.HEIGHT));
+//         rightArrowButton.setMaximumSize(new Dimension(44, ObjectWrapper.HEIGHT));
+//         rightArrowButton.setBorder(BorderFactory.createEmptyBorder());
 
 //        containerPanel.add(Box.createHorizontalGlue());
         
@@ -196,6 +199,56 @@ public class ObjectBench
             }
         }
     }
+    
+    // ----------- nested class ObjectBenchArrowButton ------------
+    
+    /**
+     * Nested class to define our custom Object Bench scroll buttons.
+     */
+    class ObjectBenchArrowButton extends BasicArrowButton
+    {
+        public ObjectBenchArrowButton(int direction)
+        {
+            super(direction);
+        }
+        
+        public Dimension getMaximumSize()
+        {
+            return new Dimension(14, ObjectWrapper.HEIGHT);
+        }
+
+        public Dimension getMinimumSize()
+        {
+            return new Dimension(14, ObjectWrapper.HEIGHT);
+        }
+
+        public Dimension getPreferredSize()
+        {
+            return new Dimension(14, ObjectWrapper.HEIGHT);
+        }
+
+        public void paint(Graphics g)
+        {
+            int w = getSize().width;
+            int h = getSize().height;
+            final int size = 10;  // arrow size
+            boolean isPressed = getModel().isPressed();
+            
+            if (isPressed) {
+                g.translate(1, 1);
+            }
+
+            paintTriangle(g, (w - size) / 2, (h - size) / 2, size, 
+                          getDirection(), isEnabled());
+        
+            // Reset the Graphics back to it's original settings
+            if (isPressed) {
+                g.translate(-1, -1);
+            }
+        }    
+    }
+    
+    // ----------------- end of nested class ------------------
 
     public Component getComponent()
     {
