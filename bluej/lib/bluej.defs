@@ -486,7 +486,7 @@ bluej.vm.optimize=true
 ##  is written to a log file in the user's bluej settings directory.
 #######################################################################
 
-bluej.debug=true
+bluej.debug=false
 
 
 #######################################################################
