@@ -197,6 +197,11 @@ bluej.target.fontsize=12
 # fontsize for the editor
 bluej.editor.fontsize=12
 
+# fontsize for the terminal
+bluej.terminal.font=monospaced
+#bluej.terminal.font=monospaced-bold
+bluej.terminal.fontsize=12
+
 # The editor font. This is the name of a font face with an optional
 # "-bold" at the end. Most used are monospaced fonts, such as Courier.
 # Good large fonts for screen projections are SansSerif-bold, 14pt, or
@@ -220,6 +225,12 @@ browser.fontsize.treeroot=12
 browser.fontname.treeleaf=MonoSpaced
 browser.fontsize.treeleaf=11
 
+
+#######################################################################
+## Terminal settings. Height and width are in number of characters.
+#######################################################################
+bluej.terminal.height=25
+bluej.terminal.width=80
 
 #######################################################################
 ## Syntax highlighting - should we do it?
