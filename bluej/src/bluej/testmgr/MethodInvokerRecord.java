@@ -9,7 +9,7 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 2140 2003-08-04 07:58:49Z bquig $
+ * @version $Id: MethodInvokerRecord.java 2222 2003-10-27 02:19:26Z bquig $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
@@ -72,6 +72,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 		StringBuffer sb = new StringBuffer();
 		sb.append(secondIndent);
 		sb.append(benchAssignmentTypecast());
+        sb.append(statementEnd);
 		
 		return sb.toString();
     }
