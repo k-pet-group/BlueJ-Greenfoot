@@ -236,11 +236,20 @@ bluej.editor.font=Monospaced
 # bluej.editor.font=SansSerif-bold
 # bluej.editor.font=Arial-bold
 
-# fonts for printing
+
+#######################################################################
+## Printing settings.
+#######################################################################
+
+# fonts for printing source text
 bluej.fontsize.printText=10
 bluej.fontsize.printTitle=14
 bluej.fontsize.printInfo=9
 
+# scale factor for printing the class diagram. The value is in percent.
+# (a value of 100 will print at approx same size as the diagram on 
+# screen, a value of 50 will reduce the printed version to 50%, etc.)
+bluej.print.scale=60
 
 #######################################################################
 ## Terminal settings. Height and width are in number of characters.

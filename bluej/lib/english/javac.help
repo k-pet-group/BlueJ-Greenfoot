@@ -728,7 +728,7 @@ No help available
 *An explicit 'this' qualifier must be used to select the desired instance.
 No help available
 
-* cannot be referenced from a static context
+*cannot be referenced from a static context
 You are trying to access an instance field or instance
 method from a static method. That is not allowed. The
 instance fields and methods belong to an object, while

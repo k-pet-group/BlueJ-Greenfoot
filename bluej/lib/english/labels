@@ -126,29 +126,23 @@ prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions
 extmgr.extensions=Extensions
-extmgr.installed=Installed
-extmgr.project=Project
+extmgr.systemExtensionShort=System
+extmgr.systemExtensionLong=System extension (active for all projects)
+extmgr.projectExtensionShort=Project
+extmgr.projectExtensionLong=Project extension (for current project only)
 extmgr.statuscolumn=Status
 extmgr.namecolumn=Name
 extmgr.typecolumn=Type
-extmgr.versioncolumn=Version
-extmgr.details=Details
-extmgr.details.status=Status
-extmgr.details.name=Name
-extmgr.details.location=Location
-extmgr.details.type=Type
-extmgr.details.version=Version
-extmgr.details.date=Built date
-extmgr.details.url=URL
-extmgr.details.menus=Menus
-extmgr.details.preferences=Preferences
-extmgr.details.description=Description
+extmgr.details=Extension Details
+extmgr.details.location=Location:
+extmgr.details.version=version
+extmgr.details.url=More information at:
 
-extmgr.status.notused=Not used
-extmgr.status.loaded=Loaded
-extmgr.status.error=Error
-extmgr.status.unloaded=Unloaded
-extmgr.version.unknown=Unknown
+extmgr.status.notused=not used
+extmgr.status.loaded=loaded
+extmgr.status.error=error
+extmgr.status.unloaded=unloaded
+extmgr.version.unknown=unknown
 extensions.nodescription=None given.
 
 # Extension errors
