@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2338 2003-11-14 10:15:19Z mik $
+ * @version $Id: PkgMgrFrame.java 2341 2003-11-14 11:26:55Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1713,8 +1713,8 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * User function "Free Form Call...". Pop up the dialog that allows
-     * users to make that call.
+     * User function "Use Library Class...". Pop up the dialog that allows
+     * users to invoke library classes.
      */
     public void callLibraryClass()
     {
@@ -1724,9 +1724,9 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * User function "Use Library Class...". Pop up the dialog that allows
-     * users to invoke library classes.
-     */
+     * User function "Free Form Call...". Pop up the dialog that allows
+     * users to make that call.
+     */   
     public void callFreeForm()
     {
         if(freeFormCallDialog == null) {
@@ -1735,11 +1735,14 @@ public class PkgMgrFrame extends JFrame
         ResultWatcher watcher = new ResultWatcher() {
            public void putResult(DebuggerObject result, String name, InvokerRecord ir)
            {
-                getObjectBench().addInteraction(ir);
-
-               ResultInspector viewer =
-                    ResultInspector.getInstance(result, name, getPackage(), ir, PkgMgrFrame.this);
-               BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
+               getObjectBench().addInteraction(ir);
+               if(result != null) {
+                   ResultInspector viewer =
+                   ResultInspector.getInstance(result, name, getPackage(), ir, PkgMgrFrame.this);
+                   BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
+               } else {
+                   BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
+               }               
            }
            public void putError(String msg) { }
         };
