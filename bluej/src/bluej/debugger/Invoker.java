@@ -15,7 +15,7 @@ import bluej.views.LabelPrintWriter;
 import bluej.views.MemberView;
 import bluej.views.CallableView;
 import bluej.views.MethodView;
-import bluej.tester.*;
+// import bluej.tester.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -30,7 +30,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1018 2001-12-04 05:08:03Z ajp $
+ * @version $Id: Invoker.java 1055 2001-12-20 06:07:05Z ajp $
  */
 
 public class Invoker extends Thread
@@ -196,6 +196,70 @@ public class Invoker extends Thread
 
     // -- end of MethodDialogWatcher interface --
 
+    private String cleverQualifyTypeName(Package p, String typeName)
+    {
+        // if we happen to have a class in this package with the
+        // same name as the start of the package, then fully qualifying names
+        // does not work ie if the package is Test.Sub and we have
+        // a class called Test, then all fully qualified names
+        // fail ie new Test.Sub.Test() and new Test.Sub.Foo()
+        // in the package where the class Test exists.
+        // so in this case we need to use the unqualified name
+	// ie new Test() and new Foo()
+
+        // note we need to retain the fully qualified case for when
+        // we add library classes etc which may involve constructing
+        // objects of types which are not in the current package
+
+        if (!p.isUnnamedPackage()) {
+            String pkgName = p.getQualifiedName();
+            int lastDot = pkgName.indexOf(".");
+
+            if (lastDot >= 0)
+                pkgName = pkgName.substring(0, lastDot);
+
+            // if the first part of the package name exists as a target
+            // lets unqualify the typeName
+            if (p.getTarget(pkgName) != null)
+                typeName = JavaNames.getBase(typeName);
+        }
+
+	// now we need to deal with nested types
+	// these types will have a $ in them but depending on whether
+	// they are anonymous classes or member classes will change how
+	// we want to refer to them
+	// an anonymous class we can refer to as MyClass$1 and the
+	// compiler is ok with that
+	// a member class, despite being given a type name of
+	// MyClass$MemberClass, must be referred to as MyClass.MemberClass
+	// in the source code. Here we make this change to the typeName
+	// based entirely on whether the character following the $ is
+	// a numeral or not (which just happens to be the way it is at
+	// the moment but I don't think its written down in the JLS or
+	// anything so this may break)
+
+	int firstDollar;
+
+	if ((firstDollar = typeName.indexOf('$')) != -1) {
+	    StringBuffer sb = new StringBuffer(typeName);
+
+            // go to length - 1 only so we always have an i+1 character
+            // to check. What this means is that if the last character
+            // in the typeName is a $, it won't be converted but I don't
+            // think a type name with a $ as the last character is valid
+            // anyway
+	    for(int i=firstDollar; i<sb.length()-1; i++) {
+		if (sb.charAt(i) == '$' &&
+                     !Character.isDigit(sb.charAt(i+1)))
+			sb.setCharAt(i, '.');
+            }
+
+            typeName = sb.toString();
+	}
+
+	return typeName;
+    }
+
     /**
      * After all the interactive stuff is finished, finally do
      * the invocation of the method. (This can be a constructor
@@ -212,7 +276,6 @@ public class Invoker extends Thread
     protected void doInvocation(String[] args, Class[] argTypes)
     {
         Component[] wrappers = pmf.getObjectBench().getComponents();
-        boolean dontQualify = false;
 
         // PENDING: this should be changed to write directly to file.
         // The hashtable mechanism doesn't make so much sense anymore
@@ -220,30 +283,6 @@ public class Invoker extends Thread
 
         int numArgs = (args==null ? 0 : args.length);
         String className = member.getClassName();
-
-        // if we happen to have a class in this package with the
-        // same name as the start of the package, then fully qualifying names
-        // does not work ie if the package is Test.Sub and we have
-        // a class called Test, then all fully qualified names
-        // fail ie new Test.Sub.Test() and new Test.Sub.Foo()
-        // in the package where the class Test exists.
-        // so in this case we need to use the unqualified name
-
-        // note we need to retain the fully qualified case for when
-        // we add library classes etc which may involve constructing
-        // objects of types which are not in the current package
-        if (!pkg.isUnnamedPackage()) {
-            String pkgName = pkg.getQualifiedName();
-            int lastDot = pkgName.indexOf(".");
-
-            if (lastDot >= 0)
-                pkgName = pkgName.substring(0, lastDot);
-
-            // the first part of the package name exists as a target
-            // then we must not qualify names
-            if (pkg.getTarget(pkgName) != null)
-                dontQualify = true;
-        }
 
         // Create package specification line ("package xyz")
 
@@ -299,19 +338,15 @@ public class Invoker extends Thread
                   + scopeId + "\");" + Config.nl);
         for(int i = 0; i < wrappers.length; i++) {
             ObjectWrapper wrapper = (ObjectWrapper)wrappers[i];
-            String type = (dontQualify ?
-                                JavaNames.getBase(wrapper.className) :
-                                wrapper.className);
+            String type = cleverQualifyTypeName(pkg, wrapper.className);
             String instname = wrapper.instanceName;
+
             buffer.append("\t\t" + type + " " + instname + " = ");
             buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
             buffer.append(instname + "\");" + Config.nl);
         }
         for(int i = 0; i < numArgs; i++) {
-            buffer.append("\t\t" +
-                            (dontQualify ?
-                              JavaNames.getBase(JavaNames.typeName(argTypes[i].getName())) :
-                              JavaNames.typeName(argTypes[i].getName())));
+            buffer.append("\t\t" + cleverQualifyTypeName(pkg, argTypes[i].getName()));
             buffer.append(" __bluej_param" + i);
             buffer.append(" = " + args[i]);
             buffer.append(";" + Config.nl);
@@ -322,7 +357,7 @@ public class Invoker extends Thread
         String command;  // the interactive command in text form
 
         if(constructing) {
-            command = "new " + (dontQualify ? JavaNames.getBase(className) : className);
+            command = "new " + cleverQualifyTypeName(pkg, className);
 
             buffer.append("__bluej_runtime_result = makeObj((Object)");
             buffer.append(command + argString + ");" + Config.nl);
@@ -330,21 +365,19 @@ public class Invoker extends Thread
             buffer.append(instanceName);
             buffer.append("\", __bluej_runtime_result.result);");
 
-            CallRecord.getCallRecord(instanceName, member, args);
+//             CallRecord.getCallRecord(instanceName, member, args);
         }
         else {  // it's a method call
             MethodView method = (MethodView)member;
             boolean isVoid = method.isVoid();
 
             if(method.isStatic())
-                command = (dontQualify ?
-                             JavaNames.getBase(className) :
-                             className) + "." + method.getName();
+                command = cleverQualifyTypeName(pkg, className) + "." + method.getName();
             else {
                 command = objName + "." + method.getName();
 
-                CallRecord.addMethodCallRecord(objName, method.getName(),
-                                                member, args);
+//                CallRecord.addMethodCallRecord(objName, method.getName(),
+//                                                member, args);
             }
 
             if(!isVoid)
