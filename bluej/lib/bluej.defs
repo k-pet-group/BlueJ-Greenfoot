@@ -461,20 +461,22 @@ bluej.compiler.type=internal
 
 bluej.vm.optimize=true
 
-# transport used to communicate with the debug VM. Available
-# transports are "dt_socket" (TCP/IP transport) and "dt_shmem"
-# (shared memory transport, which is available on Windows only).
-#
-# Normally, this setting should be left alone.
-#
-# The default is to try TCP/IP first, and fall back to shared memory
-# if available (TCP/IP may not work if an overly restrictive firewall
-# is installed). The transport actually used will be noted in the
-# debuglog file.
-# 
-# There is a small delay at startup if the TCP/IP transport fails;
-# this delay can be alleviated by specifying to only try the shared
-# memory transport, by uncommenting the following line:
+#####################################################################
+## transport used to communicate with the debug VM. Available
+## transports are "dt_socket" (TCP/IP transport) and "dt_shmem"
+## (shared memory transport, which is available on Windows only).
+##
+## Normally, this setting should be left alone.
+##
+## The default is to try TCP/IP first, and fall back to shared memory
+## if available (TCP/IP may not work if an overly restrictive firewall
+## is installed). The transport actually used will be noted in the
+## debuglog file.
+## 
+## There is a small delay at startup if the TCP/IP transport fails;
+## this delay can be alleviated by specifying to only try the shared
+## memory transport, by uncommenting the following line:
+#####################################################################
 
 #bluej.vm.transport=dt_shmem
 
