@@ -57,6 +57,7 @@ winBrowserCmd2=
 ## qualified path or the name of an executable in the path. If it is not
 ## specified then BlueJ defaults to the standard name of the specified
 ## compiler type (ie javac for type javac and jikes for type jikes)
+#####################################################################
 
 bluej.compiler.type=internal
 
@@ -84,15 +85,14 @@ bluej.compiler.type=internal
 #bluej.lookAndFeel=javax.swing.plaf.motif.MotifLookAndFeel
 
 #####################################################################
-## Class manager configuration files
-##
-##
+## System libraries which are  added to BlueJ's class path
 #####################################################################
 
-# Found in the user's home directory
-# classmgr.userconfig=userlibs.properties
-# Found in the bluej home directory
-# classmgr.systemconfig=syslibs.properties
+bluej.systemlibrary1.description=A Sample Library for Windows
+bluej.systemlibrary1.location=S\:\\Programming\\Java\\lib\\sample.jar
+
+bluej.systemlibrary2.description=A Sample Library for UNIX
+bluej.systemlibrary2.location=/usr/local/java/lib/sample.jar
 
 #######################################################################
 ## Fonts. With Java, you don't have much choice of font faces, but you
@@ -128,7 +128,7 @@ bluej.debugLog=debug.log
 ##
 #######################################################################
 
-#appletviewer command 
+#appletviewer command
 #appletViewer.command=c:\\jdk1.3\\bin\\appletviewer
 appletViewer.command=appletviewer
 
@@ -188,6 +188,11 @@ browser.fontsize.treeroot=12
 
 browser.fontname.treeleaf=MonoSpaced
 browser.fontsize.treeleaf=11
+
+## images for gui builder
+guibuilder.image.selectbutton=selectarrow.gif
+guibuilder.image.jbutton=jbutton.gif
+guibuilder.image.jradiobutton=jradiobutton.gif
 
 ### Colour Definitions
 colour.background=208,212,208
