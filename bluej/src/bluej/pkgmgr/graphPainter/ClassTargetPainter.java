@@ -1,4 +1,4 @@
-package bluej.graph;
+package bluej.pkgmgr.graphPainter;
 
 import java.awt.*;
 import java.awt.Color;
@@ -9,74 +9,67 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
 
 
-public class ClassTargetPainter 
+public class ClassTargetPainter
 {
-    Graphics2D g;
-    static final int TEXT_HEIGHT = 16;
-    static final int TEXT_BORDER = 4;
-    static final int SHAD_SIZE = 4;
-    static final int HANDLE_SIZE = 20;
+    private static final int HANDLE_SIZE = 20;
+    private static final String STEREOTYPE_OPEN = "<<";
+    private static final String STEREOTYPE_CLOSE = ">>";
     private static final Color textfg = Config.getItemColour("colour.text.fg");
     private static final Color colBorder = Config.getItemColour("colour.target.border");
     private static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
     private static final Color stripeCol = Config.getItemColour("colour.target.stripes");
-    static final Color shadowCol = Config.getItemColour("colour.target.shadow");
-    private static final String STEREOTYPE_OPEN = "<<";
-    private static final String STEREOTYPE_CLOSE = ">>";
-    private static final Image brokenImage =
-        Config.getImageAsIcon("image.broken").getImage();
-    ClassTarget classTarget;
-    private AlphaComposite alphaComposite;
-    private Composite oldComposite;
-    static final float alpha = (float)0.5;
+    private static final Image brokenImage = Config.getImageAsIcon("image.broken").getImage();
     
+    private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
+    private static final int TEXT_BORDER = GraphPainterStdImpl.TEXT_BORDER;
+    private static final Color[] colours = GraphPainterStdImpl.colours;
+    private static final AlphaComposite alphaComposite = GraphPainterStdImpl.alphaComposite;
+    private static Composite oldComposite;
+    
+    /**
+     * Construct the ClassTargetPainter 
+     *
+     */
     public ClassTargetPainter(){
-        this.alphaComposite = 
-            AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
     }
     
-    public void paint(Graphics2D g, ClassTarget classTarget){
-        this.classTarget = classTarget;
-        this.g = g;
+    public void paint(Graphics2D g, Target target) {
+        ClassTarget classTarget = (ClassTarget) target;
         g.translate(classTarget.getX(), classTarget.getY());
         
         // draw the stationary class
-        drawSkeleton();
-        drawUMLStyle();
-        drawWarnings();
-        drawRole();
-        // if the class is being dragged, draw the moving class as a ghost
+        drawSkeleton(g, classTarget);
+        drawUMLStyle(g, classTarget);
+        drawWarnings(g, classTarget);
+        drawRole(g, classTarget);
         g.translate(-classTarget.getX(), -classTarget.getY());
     }
     
-    public void paintGhost(Graphics2D g, ClassTarget classTarget){
-        this.classTarget = classTarget;
-        this.g = g;
+    
+    public void paintGhost(Graphics2D g, Target target){
+        ClassTarget classTarget = (ClassTarget) target;
         oldComposite = g.getComposite();
         g.translate(classTarget.getGhostX(), classTarget.getGhostY());
         g.setComposite(alphaComposite);
-        drawSkeleton();
-        drawUMLStyle();
-        drawWarnings();
-        drawRole();
+        drawSkeleton(g, classTarget);
+        drawUMLStyle(g, classTarget);
+        drawWarnings(g, classTarget);
+        drawRole(g, classTarget);
         g.setComposite(oldComposite); 
         g.translate(-classTarget.getGhostX(), -classTarget.getGhostY());
     }
+    
     
     /**
      * Draw the Coloured rectangle, the shadow and the borders.
      *
      */
-    private void drawSkeleton()
+    private void drawSkeleton(Graphics2D g, ClassTarget classTarget)
     {
-        g.setColor(getBackgroundColour());
+        g.setColor(getBackgroundColour(classTarget));
         g.fillRect(0, 0, classTarget.getWidth(), classTarget.getHeight());
 
-        g.setColor(shadowCol);
-        drawShadow();
-
-        g.setColor(getBorderColour());
-        //drawBorders();
+        drawShadow(g, classTarget);
     }
     
     
@@ -84,19 +77,17 @@ public class ClassTargetPainter
      * Draw the stereotype, identifier name and the line beneath the identifier 
      * name. 
      */
-    private void drawUMLStyle()
+    private void drawUMLStyle(Graphics2D g, ClassTarget classTarget)
     {
         // get the Stereotype
         String stereotype = classTarget.getRole().getStereotypeLabel();
         
         Font originalFont = getFont();
-        Color originalColor = g.getColor();
         g.setColor(getTextColour());
         int currentTextPosY = 2;
 
         // draw stereotype if applicable
         if(stereotype != null) {
-
             String stereotypeLabel = STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE;
             Font stereotypeFont = originalFont.deriveFont((float)(originalFont.getSize() - 2));
             g.setFont(stereotypeFont);
@@ -114,8 +105,9 @@ public class ClassTargetPainter
                 				classTarget.getWidth() - 2 * TEXT_BORDER,
                 				TEXT_HEIGHT);
         currentTextPosY += TEXT_HEIGHT;
-        g.setColor(originalColor);
+
         // draw line beneath the stereotype and indentifiername. The UML-style
+        g.setColor(getBorderColour());
         g.drawLine(0, currentTextPosY, classTarget.getWidth(), currentTextPosY);
     }
     
@@ -125,7 +117,7 @@ public class ClassTargetPainter
      * Write warning if the sourcecode is missing. Display the "broken" image
      * if the sourcecode couldn't be parsed.
      */
-    private void drawWarnings(){
+    private void drawWarnings(Graphics2D g, ClassTarget classTarget){
         
         // If the state isn't normal, draw stripes in the rectangle
         String stereotype = classTarget.getRole().getStereotypeLabel();
@@ -136,7 +128,7 @@ public class ClassTargetPainter
         }
         
         g.setColor(getBorderColour());
-        drawBorders();
+        drawBorders(g, classTarget);
 
         // if sourcecode is missing. Write "(no source)" in the diagram
         if(!classTarget.hasSourceCode()) {
@@ -157,7 +149,7 @@ public class ClassTargetPainter
     /**
      * Let the role object of the class draw.
      */
-    private void drawRole() {
+    private void drawRole(Graphics2D g, ClassTarget classTarget) {
         // If a role ever needs to add to the diagram, put the drawing code here
         // delegate extra functionality to role object
         //ClassRole role =  classTarget.getRole();
@@ -169,7 +161,7 @@ public class ClassTargetPainter
     }
 
    
-    Color getBackgroundColour() {
+    Color getBackgroundColour(ClassTarget classTarget) {
         Color bg;
         if(classTarget.getState() == ClassTarget.S_COMPILING) {
             return compbg;
@@ -178,47 +170,61 @@ public class ClassTargetPainter
         }
     }
     
+    
     Color getTextColour()
     {
         return textfg;
     }
 
+    
     Font getFont()
     {
         return PrefMgr.getTargetFont();
     }
     
+    
     /**
      * Draw the borders of this target.
      */
-    protected void drawBorders()
+    protected void drawBorders(Graphics2D g, ClassTarget classTarget)
     {
+        int height = classTarget.getHeight();
+        int width = classTarget.getWidth();
         int thickness = 1; // default thickness
+        
         if (classTarget.isSelected()){
             thickness = 2; // thickness of borders when class is selected
             // Draw lines showing resize tag
-            g.drawLine(classTarget.getWidth() - HANDLE_SIZE - 2,
-                    classTarget.getHeight(),	classTarget.getWidth(), 
-                    classTarget.getHeight() - HANDLE_SIZE - 2);
-            g.drawLine(classTarget.getWidth() - HANDLE_SIZE + 2, 
-                       classTarget.getHeight(), classTarget.getWidth(),
-                       classTarget.getHeight() - HANDLE_SIZE + 2);  
+            g.drawLine(width - HANDLE_SIZE - 2, height,	
+                       width, height - HANDLE_SIZE - 2);
+            g.drawLine(width - HANDLE_SIZE + 2, height, 
+                       width, height - HANDLE_SIZE + 2);  
         }
-        Utility.drawThickRect(g, 0, 0, classTarget.getWidth(),
-                			  classTarget.getHeight(), thickness);
+        Utility.drawThickRect(g, 0, 0, width, height, thickness);
     }
+    
     
     /**
      * Draw a 'shadow' appearance under and to the right of the target.
      */
-    protected void drawShadow()
-    {
-        int shadSize = SHAD_SIZE + (classTarget.isSelected() ? 1 : 0);
-        //bottom rectangle
-        g.fillRect(shadSize, classTarget.getHeight(), 
-                   classTarget.getWidth(), shadSize  );
-        //right rectangle
-        g.fillRect(classTarget.getWidth(), shadSize, 
-                shadSize, classTarget.getHeight());
+    private void drawShadow(Graphics2D g, Target target)
+    {// colorchange is expensive on mac, so draworder is by color, not position
+        int height = target.getHeight();
+        int width = target.getWidth();
+
+        g.setColor(colours[3]);
+        g.drawLine(3, height + 1, width , height + 1);//bottom
+        
+        g.setColor(colours[2]);
+        g.drawLine(4, height + 2, width , height + 2);//bottom
+        g.drawLine(width + 1, height + 2, width + 1, 3);//left
+        
+        g.setColor(colours[1]);
+        g.drawLine(5, height + 3, width + 1, height + 3);//bottom
+        g.drawLine(width + 2, height + 3, width + 2, 4);//left
+        
+        g.setColor(colours[0]);
+        g.drawLine(6, height + 4, width + 2, height + 4 ); //bottom
+        g.drawLine(width + 3, height + 3, width + 3, 5); // left 
     }
 }

@@ -18,7 +18,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 2269 2003-11-05 11:31:55Z damiano $
+ * @version $Id: PackageTarget.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public class PackageTarget extends Target
 {
@@ -117,57 +117,6 @@ public class PackageTarget extends Target
     {
         return (state == S_INVALID) ? PrefMgr.getStandoutFont() : PrefMgr.getStandardFont();
     }
-
-    public void draw(Graphics2D g)
-    {
-        drawUMLStyle(g);
-    }
-
-    public void drawUMLStyle(Graphics2D g)
-    {
-        tabWidth = getWidth() / 3;
-
-        g.setColor(getBackgroundColour());
-        //g.fillRect(0, 0, width, height);
-        g.fillRect(0, 0, tabWidth, TAB_HEIGHT);
-        g.fillRect(0, TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT);
-
-        g.setColor(shadowCol);
-        drawShadow(g);
-
-        g.setColor(getBorderColour());
-        g.setFont(getFont());
-        Utility.drawCentredText(g, getDisplayName(),
-        			TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT,
-        	            		getWidth() - 2*TEXT_BORDER, TEXT_HEIGHT);
-        drawUMLBorders(g);
-    }
-
-    void drawUMLBorders(Graphics2D g)
-    {
-        if(isSelected())
-            g.setStroke(selectedStroke);
-
-        g.drawRect(0, 0, tabWidth, TAB_HEIGHT);
-        g.drawRect(0, TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT);
-
-        if(!isSelected())
-                return;
-
-        g.setStroke(normalStroke);
-        // Draw lines showing resize tag
-        g.drawLine(getWidth() - HANDLE_SIZE - 2, getHeight(),
-                   getWidth(), getHeight() - HANDLE_SIZE - 2);
-        g.drawLine(getWidth() - HANDLE_SIZE + 2, getHeight(),
-                   getWidth(), getHeight() - HANDLE_SIZE + 2);
-    }
-
-    public void drawShadow(Graphics2D g)
-    {
-        g.fillRect(SHAD_SIZE, getHeight() , getWidth(), SHAD_SIZE);
-        g.fillRect(getWidth(), SHAD_SIZE + TAB_HEIGHT, SHAD_SIZE, getHeight() - TAB_HEIGHT);
-    }
-
 
     /**
      * Called when a package icon in a GraphEditor is double clicked.

@@ -1,6 +1,5 @@
 package bluej.pkgmgr.dependency;
 
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.util.Properties;
 
@@ -18,7 +17,7 @@ import bluej.utility.Debug;
  * A dependency between two targets in a package.
  *
  * @author  Michael Cahill
- * @version $Id: Dependency.java 2198 2003-10-02 04:13:48Z ajp $
+ * @version $Id: Dependency.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public abstract class Dependency extends Edge implements Selectable
 {
@@ -88,8 +87,6 @@ public abstract class Dependency extends Edge implements Selectable
         props.put(prefix + ".to", ((DependentTarget)to).getIdentifierName());
     }
 
-    public abstract void draw(Graphics2D g);
-    public abstract void highlight(Graphics2D g);
 
     public void popupMenu(int x, int y, GraphEditor editor) {
         JPopupMenu menu = new JPopupMenu();

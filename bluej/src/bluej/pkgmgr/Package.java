@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: Package.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -2138,26 +2138,6 @@ public final class Package extends Graph
         if(t instanceof ClassTarget) {
             ClassTarget ct = (ClassTarget)t;
         }
-    }
-
-    /**
-     * find an arrow, given a point on the screen
-     */
-    Dependency findArrow(int x, int y)
-    {
-        for(Iterator it = usesArrows.iterator(); it.hasNext(); ) {
-            Dependency d = (Dependency)it.next();
-            if(d.contains(x, y))
-                return d;
-        }
-
-        for(Iterator it = extendsArrows.iterator(); it.hasNext(); ) {
-            Dependency d = (Dependency)it.next();
-            if(d.contains(x, y))
-                return d;
-        }
-
-        return null;
     }
 
    

@@ -11,7 +11,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: UsesDependency.java 2465 2004-01-29 13:33:46Z fisker $
+ * @version $Id: UsesDependency.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public class UsesDependency extends Dependency
 {
@@ -32,8 +32,8 @@ public class UsesDependency extends Dependency
     private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
                                                               
                                                               
-    private int src_x, src_y, dst_x, dst_y;
-    private boolean start_top, end_left;
+    private int sourceX, sourceY, destX, destY;
+    private boolean startTop, endLeft;
     private boolean flag;	// flag to mark some dependencies
 
     public UsesDependency(Package pkg, DependentTarget from, DependentTarget to)
@@ -49,85 +49,18 @@ public class UsesDependency extends Dependency
 
     public void setSourceCoords(int src_x, int src_y, boolean start_top)
     {
-        this.src_x = src_x;
-        this.src_y = src_y;
-        this.start_top = start_top;
+        this.sourceX = src_x;
+        this.sourceY = src_y;
+        this.setStartTop(start_top);
     }
 
     public void setDestCoords(int dst_x, int dst_y, boolean end_left)
     {
-        this.dst_x = dst_x;
-        this.dst_y = dst_y;
-        this.end_left = end_left;
+        this.destX = dst_x;
+        this.destY = dst_y;
+        this.setEndLeft(end_left);
     }
 
-    void draw(Color colour, Graphics2D g)
-    {
-        Stroke dashedStroke, normalStroke;
-        if (isSelected()) 
-        {
-            dashedStroke = dashedSelected;
-            normalStroke = normalSelected;         
-        } 
-        else
-        {
-            dashedStroke = dashedUnselected;
-            normalStroke = normalUnselected;   
-        }
-        g.setStroke(normalStroke);
-        int src_x = this.src_x;
-        int src_y = this.src_y;
-        int dst_x = this.dst_x;
-        int dst_y = this.dst_y;
-
-        g.setColor(colour);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        // Draw the end arrow
-        int delta_x = end_left ? -10 : 10;
-        int[] xPoints = { dst_x, dst_x + delta_x, dst_x + delta_x };
-        int[] yPoints = { dst_y, dst_y - 3, dst_y + 3 };
-
-        g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y + 4);
-        g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y - 4);
-        g.setStroke(dashedStroke);
-
-       // Draw the start
-        int corner_y = src_y + (start_top ? -15 : 15);
-        g.drawLine(src_x, corner_y, src_x, src_y);
-        src_y = corner_y;
-
-        // Draw the last line segment
-        int corner_x = dst_x + (end_left ? -15 : 15);
-        g.drawLine(corner_x, dst_y, dst_x, dst_y);
-        dst_x = corner_x;
-
-        // if arrow vertical corner, draw first segment up to corner
-        if((src_y != dst_y) && (start_top == (src_y < dst_y))) {
-            corner_x = ((src_x + dst_x) / 2) + (end_left ? 15 : -15);
-            corner_x = (end_left ? Math.min(dst_x, corner_x) :
-                        Math.max(dst_x, corner_x));
-            g.drawLine(src_x, src_y, corner_x, src_y);
-            src_x = corner_x;
-        }
-
-        // if arrow horiz. corner, draw first segment up to corner
-        if((src_x != dst_x) && (end_left == (src_x > dst_x))) {
-            corner_y = ((src_y + dst_y) / 2) + (start_top ? 15 : -15);
-            corner_y = (start_top ? Math.min(src_y, corner_y) :
-                        Math.max(src_y, corner_y));
-            g.drawLine(dst_x, corner_y, dst_x, dst_y);
-            dst_y = corner_y;
-        }
-
-        // draw the middle bit
-        g.drawLine(src_x, src_y, src_x, dst_y);
-        g.drawLine(src_x, dst_y, dst_x, dst_y);
-    }
-
-    public void draw(Graphics2D g)
-    {
-        draw(normalColour, g);
-    }
 
     /**
      * Test whether (x,y) is in rectangle (x0,x1,y0,y1),
@@ -143,29 +76,29 @@ public class UsesDependency extends Dependency
 
     public boolean contains(int x, int y)
     {
-        int src_x = this.src_x;
-        int src_y = this.src_y;
-        int dst_x = this.dst_x;
-        int dst_y = this.dst_y;
+        int src_x = this.sourceX;
+        int src_y = this.sourceY;
+        int dst_x = this.destX;
+        int dst_y = this.destY;
 
         // Check the first segment
-        int corner_y = src_y + (start_top ? -15 : 15);
+        int corner_y = src_y + (isStartTop() ? -15 : 15);
         if(inRect(x, y, src_x - SELECT_DIST, corner_y, src_x + SELECT_DIST, src_y))
             return true;
 
         src_y = corner_y;
 
         // Check the last line segment
-        int corner_x = dst_x + (end_left ? -15 : 15);
+        int corner_x = dst_x + (isEndLeft() ? -15 : 15);
         if(inRect(x, y, corner_x, dst_y - SELECT_DIST, dst_x, dst_y + SELECT_DIST))
             return true;
 
         dst_x = corner_x;
 
         // if arrow vertical corner, check first segment up to corner
-        if((src_y != dst_y) && (start_top == (src_y < dst_y))) {
-            corner_x = ((src_x + dst_x) / 2) + (end_left ? 15 : -15);
-            corner_x = (end_left ? Math.min(dst_x, corner_x) :
+        if((src_y != dst_y) && (isStartTop() == (src_y < dst_y))) {
+            corner_x = ((src_x + dst_x) / 2) + (isEndLeft() ? 15 : -15);
+            corner_x = (isEndLeft() ? Math.min(dst_x, corner_x) :
                         Math.max(dst_x, corner_x));
             if(inRect(x, y, src_x, src_y - SELECT_DIST, corner_x, src_y + SELECT_DIST))
                 return true;
@@ -173,9 +106,9 @@ public class UsesDependency extends Dependency
         }
 
         // if arrow horiz. corner, check first segment up to corner
-        if((src_x != dst_x) && (end_left == (src_x > dst_x))) {
-            corner_y = ((src_y + dst_y) / 2) + (start_top ? 15 : -15);
-            corner_y = (start_top ? Math.min(src_y, corner_y) :
+        if((src_x != dst_x) && (isEndLeft() == (src_x > dst_x))) {
+            corner_y = ((src_y + dst_y) / 2) + (isStartTop() ? 15 : -15);
+            corner_y = (isStartTop() ? Math.min(src_y, corner_y) :
                         Math.max(src_y, corner_y));
             if(inRect(x, y, dst_x - SELECT_DIST, corner_y, dst_x + SELECT_DIST, dst_y))
                 return true;
@@ -187,13 +120,6 @@ public class UsesDependency extends Dependency
             || inRect(x, y, src_x, dst_y - SELECT_DIST, dst_x, dst_y + SELECT_DIST);
     }
 
-    public void highlight(Graphics2D g)
-    {
-        g.setXORMode(Color.red);
-        draw(g);
-        //        draw(normalColour, g);
-        g.setPaintMode();
-    }
 
     public void load(Properties props, String prefix)
     {
@@ -222,5 +148,51 @@ public class UsesDependency extends Dependency
     
     public void remove(){
         pkg.removeArrow(this);
+    }
+    /**
+     * @return Returns the sourceX.
+     */
+    public int getSourceX() {
+        return sourceX;
+    }
+    /**
+     * @return Returns the sourceY.
+     */
+    public int getSourceY() {
+        return sourceY;
+    }
+    /**
+     * @param sourceY The sourceY to set.
+     */
+    public void setSourceY(int sourceY) {
+        this.sourceY = sourceY;
+    }
+    /**
+     * @return Returns the destX.
+     */
+    public int getDestX() {
+        return destX;
+    }
+    /**
+     * @return Returns the destY.
+     */
+    public int getDestY() {
+        return destY;
+    }
+
+    public void setStartTop(boolean startTop) {
+        this.startTop = startTop;
+    }
+
+    public boolean isStartTop() {
+        return startTop;
+    }
+
+    public void setEndLeft(boolean endLeft) {
+        this.endLeft = endLeft;
+    }
+
+    public boolean isEndLeft() {
+        return endLeft;
     }
 }

@@ -8,6 +8,7 @@ import bluej.debugmgr.objectbench.*;
 import bluej.extmgr.*;
 import bluej.parser.*;
 import bluej.parser.symtab.*;
+import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
 import bluej.pkgmgr.target.*;
 import bluej.pkgmgr.target.role.*;
 import bluej.prefmgr.*;
@@ -29,7 +30,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: PkgMgrFrame.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -447,7 +448,8 @@ public class PkgMgrFrame extends JFrame
 
         this.pkg = pkg;
         this.editor = new PackageEditor(pkg);
-        //editor.setFocusable(true);  // since 1.4 - after 1.3 is phased out, use this and remove isFocusTraversable from GraphEditor
+        editor.setGraphPainter(GraphPainterStdImpl.getInstance());
+        editor.setFocusable(true);
         editor.addMouseListener(this);        // This listener MUST be before
         editor.addMouseListener(editor);      //  the editor itself!
         editor.addKeyListener(editor);

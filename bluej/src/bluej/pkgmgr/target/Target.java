@@ -6,10 +6,8 @@ import bluej.prefmgr.PrefMgr;
 import bluej.graph.*;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
-import bluej.utility.Utility;
 
 import java.util.Properties;
-import java.util.Iterator;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
@@ -19,7 +17,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2465 2004-01-29 13:33:46Z fisker $
+ * @version $Id: Target.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -35,7 +33,6 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     static final int HANDLE_SIZE = 20;
     static final int TEXT_HEIGHT = 16;
     static final int TEXT_BORDER = 4;
-    //static final int SHAD_SIZE = 5;
     static final int SHAD_SIZE = 4;
 
     static final Color shadowCol = Config.getItemColour("colour.target.shadow");
@@ -54,8 +51,8 @@ public abstract class Target extends Vertex implements Comparable, Selectable
 
     protected boolean resizing;
     protected boolean disabled;
-    protected static int drag_start_x; 
-    protected static int drag_start_y;
+    private static int dragStartX; 
+    private static int dragStartY;
     private int ghost_x;
     private int ghost_y;
     private boolean isMoving;
@@ -308,35 +305,17 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     {
         if(pkg.getState() != Package.S_IDLE) {
             pkg.targetSelected(this);
-            return;
+            //return;
         }
-        drag_start_x = evt.getX();
-        drag_start_y = evt.getY();
-        oldRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
+        dragStartX = evt.getX();
+        dragStartY = evt.getY();
+        oldRect = new Rectangle(getX(), getY(), getWidth(), getHeight());
     }
 
     public void mouseReleased(MouseEvent evt, GraphEditor editor)
     {
-        Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), 
-                						  getHeight());
-        //are we adding a dependency arrow
-        if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
-            (pkg.getState() == Package.S_CHOOSE_EXT_TO)) {
-            // What target is this pointing at now?
-            Target overClass = null;
-            for(Iterator it = pkg.getVertices(); overClass == null && it.hasNext(); ) {
-                Target v = (Target)it.next();
-
-                if (v.contains(evt.getX(),evt.getY())){
-                    overClass = v;
-                }
-            }
-            if (overClass != null && overClass != this) {
-                pkg.targetSelected(overClass);
-                pkg.setState(Package.S_IDLE);
-            }
-        }
-        
+        Rectangle newRect = new Rectangle(getX(), getY(), getWidth(), 
+                						  getHeight());      
         if (isMoving()) {
             setPos( (ghost_x >= 0 ? ghost_x : 0), (ghost_y >= 0 ? ghost_y : 0));
             endMove();
@@ -357,8 +336,8 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         int current_x = evt.getX();
         int current_y = evt.getY();
         
-        int deltaX = current_x - drag_start_x;
-        int deltaY = current_y - drag_start_y;
+        int deltaX = current_x - getDragStartX();
+        int deltaY = current_y - getDragStartY();
         
         isMoving = !isResizing(); // if this class is clicked and dragged
         						  // and isn't resizing, it must be moving.
@@ -461,5 +440,15 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     public boolean hasMoved(){
         return getX() != getGhostX() || getY() != getGhostY();
     }
+
+    public int getDragStartX() {
+        return dragStartX;
+    }
+
+    public int getDragStartY() {
+        return dragStartY;
+    }
+    
+    
 	    
 }

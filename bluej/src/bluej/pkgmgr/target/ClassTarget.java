@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2465 2004-01-29 13:33:46Z fisker $
+ * @version $Id: ClassTarget.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -1041,15 +1041,9 @@ public class ClassTarget extends EditableTarget
     }
 
    
-    int anchor_x = 0, anchor_y = 0;
-    int last_x = 0, last_y = 0;
-
     public void mousePressed(MouseEvent evt, GraphEditor editor)
     {
         super.mousePressed(evt, editor);
-
-        anchor_x = last_x = evt.getX();
-        anchor_y = last_y = evt.getY();
     }
 
     public void singleClick(MouseEvent evt, GraphEditor editor)
@@ -1070,45 +1064,6 @@ public class ClassTarget extends EditableTarget
             //TODO magic numbers. Should also take grid size in to account.
             t.setPos(getX() + 30, getY() - 30);
         }
-    }
-
-    public void mouseDragged(MouseEvent evt, GraphEditor editor)
-    {
-        int x = evt.getX();
-        int y = evt.getY();
-        if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
-            (getPackage().getState() == Package.S_CHOOSE_EXT_TO) ) {
-            // Draw a line from this Target to the current Cursor position
-            Graphics g = editor.getGraphics();
-            g.setColor(colBorder);
-            g.setXORMode(graphbg);
-            g.drawLine( anchor_x , anchor_y , last_x , last_y );
-            g.drawLine( anchor_x , anchor_y , x , y );
-            last_x = x;
-            last_y = y;
-        }
-        else{
-            super.mouseDragged(evt, editor);
-        }
-    }
-
-    public void mouseMoved(MouseEvent evt, GraphEditor editor)
-    {
-        int x = evt.getX();
-        int y = evt.getY();
-        if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
-            (getPackage().getState() == Package.S_CHOOSE_EXT_TO) ) {
-                // Draw a line from this Target to the current Cursor position
-                Graphics g = editor.getGraphics();
-                g.setColor(colBorder);
-                g.setXORMode(graphbg);
-                g.drawLine( anchor_x , anchor_y , last_x , last_y );
-                g.drawLine( anchor_x , anchor_y , x , y );
-                last_x = x;
-                last_y = y;
-            }
-        else
-            super.mouseMoved(evt, editor);
     }
 
     /**

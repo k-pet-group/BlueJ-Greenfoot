@@ -9,7 +9,7 @@ import java.awt.geom.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 2465 2004-01-29 13:33:46Z fisker $
+ * @version $Id: Graph.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public abstract class Graph
 {
@@ -17,7 +17,6 @@ public abstract class Graph
     public final static String BLUE="blue";
 
     private static final int RIGHT_PLACEMENT_MIN = 300;
-    private static final int SNAP_GRID_SIZE = 10;
     private static final int WHITESPACE_SIZE = 10;
 
     public abstract Iterator getVertices();

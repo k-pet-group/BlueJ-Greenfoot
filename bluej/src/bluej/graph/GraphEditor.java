@@ -7,13 +7,14 @@ import java.util.Iterator;
 import javax.swing.JComponent;
 
 import bluej.Config;
+import bluej.pkgmgr.graphPainter.*;
 
 /**
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2465 2004-01-29 13:33:46Z fisker $
+ * @version $Id: GraphEditor.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -29,7 +30,7 @@ public class GraphEditor extends JComponent
     // Contains the elements that have been selected
     private GraphElementManager graphElementManager;
     private int lastClickX, lastClickY; //coordinates for the last left clicked position
-    private GraphPainter graphPainter = new GraphPainter();
+    private GraphPainter graphPainter;
     private MarqueePainter marqueePainter = new MarqueePainter();
     
     public GraphEditor(Graph graph)
@@ -62,23 +63,9 @@ public class GraphEditor extends JComponent
         }
 
         graphPainter.paint(g2D, graph);
-        //graph.draw(g2D);     
         marqueePainter.paint(g2D, marquee);
-
-        //marquee.draw(g2D);
     }
 
-
-    public Graphics2D getGraphics2D()
-    {
-        return (Graphics2D) super.getGraphics();
-    }
-
-
-	public boolean isFocusTraversable()
-	{
-		return false;
-	}
     
     
     /**
@@ -338,4 +325,18 @@ public class GraphEditor extends JComponent
 	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 	 */
 	public void mouseExited(MouseEvent e) {}
+    /**
+     * @return Returns the graphPainter.
+     */
+	
+    public GraphPainter getGraphPainter() {
+        return graphPainter;
+    }
+    
+    /**
+     * @param graphPainter The graphPainter to set.
+     */
+    public void setGraphPainter(GraphPainter graphPainter) {
+        this.graphPainter = graphPainter;
+    }
 }

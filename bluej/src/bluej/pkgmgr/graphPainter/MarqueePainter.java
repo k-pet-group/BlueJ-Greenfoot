@@ -1,7 +1,9 @@
-package bluej.graph;
+package bluej.pkgmgr.graphPainter;
 
 import java.awt.*;
 import java.awt.Graphics2D;
+
+import bluej.graph.Marquee;
 
 
 public class MarqueePainter

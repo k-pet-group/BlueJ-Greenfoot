@@ -18,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2271 2003-11-05 12:59:12Z fisker $
+ * @version $Id: ReadmeTarget.java 2472 2004-02-09 13:00:47Z fisker $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -169,38 +169,6 @@ public class ReadmeTarget extends Target
     {
     }
 
-    public void draw(Graphics2D g)
-    {
-        int width = getWidth(), height = getHeight();
-
-        // draw the shadow
-        g.setColor(shadowCol);
-        g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
-        g.fillRect(width, CORNER_SIZE + SHAD_SIZE, SHAD_SIZE, height - CORNER_SIZE);
-
-        // draw folded paper edge
-        int xpoints[] = { 1, width - CORNER_SIZE, width, width, 1 };
-        int ypoints[] = { 1, 1, CORNER_SIZE + 1, height, height };
-
-        Polygon p = new Polygon(xpoints, ypoints, 5);
-
-        int thickness = (isSelected()) ? 2 : 1;
-
-        g.setColor(Color.white);
-        g.fill(p);
-        g.setColor(Color.black);
-        g.setStroke(new BasicStroke(thickness));
-        g.draw(p);
-
-        g.drawLine(width - CORNER_SIZE, 1,
-                   width - CORNER_SIZE, CORNER_SIZE);
-        g.drawLine(width - CORNER_SIZE, CORNER_SIZE,
-                   width - 2, CORNER_SIZE);
-
-        g.setStroke(new BasicStroke(1));
-        for(int yPos = CORNER_SIZE+10; yPos <= height-10; yPos += 5)
-            g.drawLine(10, yPos, width - 10, yPos);
-    }
 
     private void openEditor()
     {
