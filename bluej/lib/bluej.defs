@@ -350,6 +350,7 @@ colour.package.bg.default=180,130,44
 
 
 # object bench
+colour.objectbench.background=255,255,255
 colour.wrapper.bg=205,38,38
 colour.wrapper.shadow=152,152,152
 

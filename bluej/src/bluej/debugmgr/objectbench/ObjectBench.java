@@ -11,6 +11,7 @@ import javax.swing.event.*;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 
+import bluej.Config;
 import bluej.testmgr.record.InvokerRecord;
 
 /**
@@ -18,12 +19,13 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2612 2004-06-14 20:36:28Z mik $
+ * @version $Id: ObjectBench.java 2669 2004-06-28 11:44:42Z polle $
  */
 public class ObjectBench
 {
     static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3);
-
+    private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
+    
     private JPanel containerPanel;
     private JButton leftArrowButton, rightArrowButton;
     public JViewport viewPort;
@@ -92,8 +94,11 @@ public class ObjectBench
 
         // start with a clean slate recording invocations
         resetRecordingInteractions();
-        //when empty, the objectbench is not focusable
-        containerPanel.setFocusable(false);
+        //when empty, the objectbench is focusable
+        containerPanel.setFocusable(true);        
+
+        obp.setBackground(BACKGROUND_COLOR);
+        containerPanel.setBackground(BACKGROUND_COLOR);        
     }
 
     /**
@@ -450,22 +455,10 @@ public class ObjectBench
 		objectWrappers.add(wrapper);
         obp.setPreferredSize(new Dimension(obp.getLayoutWidthMin(), ObjectWrapper.HEIGHT));
         enableButtons(viewPort.getViewPosition());
-        updateFocusability();
         obp.revalidate();
         obp.repaint();
     }
 
-    
-    //
-    private void updateFocusability(){
-    	if (getObjectWrapperCount() > 0){
-    		containerPanel.setFocusable(true);
-    	}
-    	else{
-    		containerPanel.transferFocusBackward();
-    		containerPanel.setFocusable(false);
-    	}
-    }
     
     /**
      * Return all the wrappers stored in this object bench in an array
@@ -539,7 +532,6 @@ public class ObjectBench
         resetRecordingInteractions();
                       
         enableButtons(viewPort.getViewPosition());
-        updateFocusability();
     	obp.revalidate();
         obp.repaint();
     }
@@ -566,7 +558,6 @@ public class ObjectBench
         // hand side 
         moveBench(0);
         
-        updateFocusability();
     	obp.revalidate();
     	obp.repaint();
     }
