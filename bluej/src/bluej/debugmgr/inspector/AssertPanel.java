@@ -12,7 +12,7 @@ import bluej.Config;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2139 2003-08-04 07:54:56Z bquig $
+ * @version $Id: AssertPanel.java 2142 2003-08-04 10:15:17Z bquig $
  */
 public class AssertPanel extends JPanel
 {
@@ -117,7 +117,7 @@ public class AssertPanel extends JPanel
             standardPanel.add(assertCombo);
 			standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
             
-            deltaLabel = new JLabel("delta");
+            deltaLabel = new JLabel(Config.getString("debugger.assert.delta"));
             standardPanel.add(assertData = new JTextField(14));
             standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
             standardPanel.add(deltaLabel);

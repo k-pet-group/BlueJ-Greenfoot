@@ -16,11 +16,12 @@ compiler.warningDialog.noWarnings=No warnings
 debugger.assert.assertThat=Assert that:
 debugger.assert.resultIs=result is
 debugger.assert.equalTo=equal to
-debugger.assert.equalToFloatingPoint= equal to (double or float)"
+debugger.assert.equalToFloatingPoint= equal to (double or float)
 debugger.assert.sameAs=the same as
 debugger.assert.notSameAs=not the same as
 debugger.assert.notNull=not null
 debugger.assert.null=null
+debugger.assert.delta=delta
 
 debugger.inspector.title=BlueJ:  Inspector
 debugger.inspector.result.title=BlueJ:  Method Result
