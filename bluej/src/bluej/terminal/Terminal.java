@@ -18,7 +18,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 2384 2003-11-24 04:27:53Z ajp $
+ * @version $Id: Terminal.java 2406 2003-12-01 22:58:02Z ajp $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -76,7 +76,7 @@ public final class Terminal extends JFrame
      */
     public Terminal(Project project)
     {
-        this(WINDOWTITLE, windowWidth, windowHeight);
+        this(WINDOWTITLE + " - " + project.getProjectName(), windowWidth, windowHeight);
 
         this.project = project;
     }
