@@ -67,6 +67,10 @@ type
           that we have not dealt with and consumed ourselves }
         goodparams : TStringList;
 
+        { directory when we start the application - used as the
+          current directory for when we launch java }
+        startingcurrentdir : string;
+
         forcedialog : boolean;
         usejavaw : boolean;
         launched : boolean;
@@ -123,6 +127,8 @@ begin
     { initialise our global variables }
 	advancedwinheight := ClientHeight;
 	simplewinheight := LaunchButton.Height + LaunchButton.Top + 8;
+
+    startingcurrentdir := GetCurrentDir;
 
     forcedialog := false;
     usejavaw := false;
@@ -474,7 +480,7 @@ begin
     exfile.WindowType := wtMinimize;
     exfile.ProcFileName := vmfilename;
     exfile.ProcParameters := '-jar ' + bluejjarfilename + ' ' + goodparams.DelimitedText;
-    exfile.ProcCurrentDir := GetCurrentDir;
+    exfile.ProcCurrentDir := startingcurrentdir;
 
     result := exfile.Execute;
 

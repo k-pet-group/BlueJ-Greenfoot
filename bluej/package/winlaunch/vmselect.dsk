@@ -23,7 +23,7 @@ ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[C:\Program Files\Borland\Delphi6\Projects\ProjectGroup1.bpg]
+[H:\home\ajp\BlueJ\main\package\winlaunch\ProjectGroup1.bpg]
 FormState=0
 FormOnTop=0
 
@@ -63,16 +63,16 @@ LeftCol=1
 
 [View1]
 Module=H:\home\ajp\BlueJ\main\package\winlaunch\main.pas
-CursorX=56
-CursorY=16
-TopLine=61
+CursorX=38
+CursorY=483
+TopLine=468
 LeftCol=1
 
 [View2]
 Module=H:\home\ajp\BlueJ\main\package\winlaunch\javatest.pas
 CursorX=1
 CursorY=1
-TopLine=1
+TopLine=92
 LeftCol=1
 
 [Watches]
