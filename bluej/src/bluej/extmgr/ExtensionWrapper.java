@@ -33,7 +33,7 @@ import java.lang.ClassNotFoundException;
 public class ExtensionWrapper
 {
     private final ExtensionsManager extensionsManager;
-    private final PrefManager prefManager;
+    private final ExtensionPrefManager prefManager;
 
     private File extensionJarFileName;
 
@@ -57,7 +57,7 @@ public class ExtensionWrapper
      * @param  prefManager        Description of the Parameter
      * @param  jarFile            Description of the Parameter
      */
-    public ExtensionWrapper(ExtensionsManager extensionsManager, PrefManager prefManager, File jarFile)
+    public ExtensionWrapper(ExtensionsManager extensionsManager, ExtensionPrefManager prefManager, File jarFile)
     {
         this.extensionsManager = extensionsManager;
         this.prefManager = prefManager;
@@ -163,7 +163,7 @@ public class ExtensionWrapper
         if (extensionClass == null)  return;
 
         project = aProject;
-        extensionBluej = ExtensionBridge.newBluej(this, prefManager );
+        extensionBluej = ExtensionBridge.newBluej(this, prefManager);
 
         try {
             extensionInstance = (Extension)extensionClass.newInstance();

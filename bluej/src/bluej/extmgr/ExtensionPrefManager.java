@@ -1,6 +1,5 @@
 package bluej.extmgr;
 
-import bluej.*;
 import bluej.prefmgr.*;
 import java.awt.*;
 import java.util.*;
@@ -12,9 +11,12 @@ import javax.swing.border.*;
  * This manages the whole preference pane for Extensions
  * It will be loaded in the appropriate tab when the register() is called
  * 
- * Author: Damiano Bolla: University of Kent at Canterbury: 2003,2004
+ * @author  Damiano Bolla: University of Kent at Canterbury
+ * @author  Michael Kolling
+ * 
+ * @version $Id: ExtensionPrefManager.java 2745 2004-07-06 19:38:04Z mik $
  */
-public class PrefManager implements PrefPanelListener
+public class ExtensionPrefManager implements PrefPanelListener
 {
     private List extensionsList;
 
@@ -28,7 +30,7 @@ public class PrefManager implements PrefPanelListener
     /**
      * The manager needs to know the installed extensions
      */
-    public PrefManager(List i_extensionsList) 
+    public ExtensionPrefManager(List i_extensionsList) 
     {
         extensionsList = i_extensionsList;
 
@@ -51,12 +53,16 @@ public class PrefManager implements PrefPanelListener
          */
         rootPanel = new JPanel(new BorderLayout());
         rootPanel.add(drawScroll,BorderLayout.CENTER);
-
-        // After all of this I may join the club in the main BlueJ
-        PrefMgrDialog.add(rootPanel, Config.getString("extmgr.extensions"), this);
     }
 
-
+    /**
+     * Return the panel that shows the GUI.
+     */
+    public JPanel getPanel()
+    {
+        return rootPanel;
+    }
+    
     /**
      * This is the looper, I will use some const to decide at the end
      * what to do. Just to make code simples and cleaner
@@ -127,7 +133,7 @@ public class PrefManager implements PrefPanelListener
      */
     public void panelRevalidate() 
     {
-        EventQueue.invokeLater(new PrefManager.DoPanelUpdate());
+        EventQueue.invokeLater(new ExtensionPrefManager.DoPanelUpdate());
     }
     
     /**
@@ -152,7 +158,7 @@ public class PrefManager implements PrefPanelListener
      */
     public void revertEditing() 
     {
-        doWorkLoop (DO_loadValues);
+        doWorkLoop(DO_loadValues);
     }
 
     /**
@@ -160,7 +166,7 @@ public class PrefManager implements PrefPanelListener
      */
     public void commitEditing()
     {
-        doWorkLoop (DO_saveValues);
+        doWorkLoop(DO_saveValues);
     }
 
 }

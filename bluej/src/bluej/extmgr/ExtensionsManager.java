@@ -14,41 +14,35 @@ import bluej.utility.Debug;
 import javax.swing.*;
 
 /**
- *  Manages extensions and provides the main interface to PkgMgrFrame.
+ * Manages extensions and provides the main interface to PkgMgrFrame.
+ * A singleton.
  *  
- *  Author Clive Miller, University of Kent at Canterbury, 2002
- *  Author Damiano Bolla, University of Kent at Canterbury, 2003
+ * @author Clive Miller, University of Kent at Canterbury, 2002
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003
+ * @author Michael Kolling
+ * 
+ * @version $Id: ExtensionsManager.java 2745 2004-07-06 19:38:04Z mik $
  */
 public class ExtensionsManager implements BlueJEventListener
 {
     private static ExtensionsManager instance;
 
     /**
-     * Create a new singleton instance of the ExtensionsManager.
+     * Singleton factory method.
      */
-    public static ExtensionsManager initialise( )
+    public static synchronized ExtensionsManager getInstance()
     {
-        if (instance != null) 
-          {
-          // Really, there is no need to trow an exception.
-          Debug.message("ExtensionManager is already initilized");
-          return instance;
-          }
-
-        return  instance = new ExtensionsManager( );
-    }
-
-    /**
-     * Returns the ExtensionManager instance.
-     */
-    public static ExtensionsManager get()
-    {
+        if(instance == null) {
+            instance = new ExtensionsManager();
+            instance.loadExtensions();
+        }
         return instance;
     }
 
-
+    // ============== instance part ==============
+    
     private List extensions;
-    private PrefManager prefManager;
+    private ExtensionPrefManager prefManager = null;
 
     /**
      *  Constructor for the ExtensionsManager object.
@@ -59,18 +53,14 @@ public class ExtensionsManager implements BlueJEventListener
         // Sync issues should be clear... 
         extensions = new ArrayList();
 
-        // This will also register the panel with BlueJ.
-        prefManager = new PrefManager(extensions);
-
         // This must be here, after all has been initialized.
         BlueJEvent.addListener(this);
     }
 
-
     /**
      * Loads extensions that are in system and user location.
      */
-    public void loadExtensions()
+    private void loadExtensions()
     {
         // Most of the time the systemDirectory will be this.
         File systemDir = new File(Config.getBlueJLibDir(), "extensions");
@@ -91,15 +81,14 @@ public class ExtensionsManager implements BlueJEventListener
      * Normally called just before bluej is closing.
      */
     public synchronized void unloadExtensions ()
-      {
-      for (Iterator iter = extensions.iterator(); iter.hasNext(); ) 
-        {
-        ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+    {
+        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
+            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
-        aWrapper.terminate();         // The following terminated the Extension
-        iter.remove();
+            aWrapper.terminate();         // The following terminated the Extension
+            iter.remove();
         }
-      }
+    }
 
     /**
      *  Searches through the given directory for jar files that contain a valid
@@ -130,7 +119,7 @@ public class ExtensionsManager implements BlueJEventListener
             if (!thisFile.getName().endsWith(".jar")) continue;
 
             // Ok, lets try to get a wrapper up and running
-            ExtensionWrapper aWrapper = new ExtensionWrapper(this, prefManager, thisFile);
+            ExtensionWrapper aWrapper = new ExtensionWrapper(this, getPrefManager(), thisFile);
 
             // Loading this warpper failed miserably, too bad...
             if (!aWrapper.isJarValid()) continue;
@@ -183,15 +172,26 @@ public class ExtensionsManager implements BlueJEventListener
     }
 
     /**
+     * Return the preferences manager for extensions.
+     */
+    public ExtensionPrefManager getPrefManager()
+    {
+        if(prefManager == null) {
+            prefManager = new ExtensionPrefManager(extensions);
+        }
+        return prefManager;
+    }
+    
+    /**
      * Ask for extension manager to show the help dialog for extensions.
      * This is here to be shure that the help dialog is called when extension manager is valid.
      */
-    public void showHelp ( JFrame parentFrame )
-      {
-      // It should be constructed and then destroyed, since it is associated with a frame...
-      // I give it an unmodifiable collection so I am not LOCKING the list of extensions.
-      HelpDialog aHelp = new HelpDialog ( Collections.unmodifiableList(extensions), parentFrame );
-      }
+    public void showHelp(JFrame parentFrame)
+    {
+        // It should be constructed and then destroyed, since it is associated with a frame...
+        // I give it an unmodifiable collection so I am not LOCKING the list of extensions.
+        HelpDialog aHelp = new HelpDialog ( Collections.unmodifiableList(extensions), parentFrame );
+    }
 
     /**
      *  Searches for and loads any new extensions found in the project.

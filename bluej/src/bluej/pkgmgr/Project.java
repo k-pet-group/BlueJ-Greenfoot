@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2736 2004-07-05 10:09:07Z mik $
+ * @version $Id: Project.java 2745 2004-07-06 19:38:04Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -151,8 +151,7 @@ public class Project
         else
             proj.initialPackageName = startingPackageName;
 
-        //Debugger.debugger.setDirectory(projectDir.getAbsolutePath());
-        ExtensionsManager.get().projectOpening( proj );
+        ExtensionsManager.getInstance().projectOpening(proj);
 
         return proj;
     }

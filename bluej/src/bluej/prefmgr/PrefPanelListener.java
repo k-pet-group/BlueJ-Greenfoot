@@ -3,7 +3,7 @@ package bluej.prefmgr;
 /**
  * 
  * @author Andrew Patterson
- * @version $Id: PrefPanelListener.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: PrefPanelListener.java 2745 2004-07-06 19:38:04Z mik $
  */
 public interface PrefPanelListener
 {

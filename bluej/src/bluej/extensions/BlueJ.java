@@ -47,7 +47,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2476 2004-02-11 10:47:31Z damiano $
+ * @version    $Id: BlueJ.java 2745 2004-07-06 19:38:04Z mik $
  */
 
 /*
@@ -57,7 +57,7 @@ import javax.swing.*;
 public class BlueJ
 {
     private final ExtensionWrapper myWrapper;
-    private final PrefManager prefManager;
+    private final ExtensionPrefManager prefManager;
 
     private PreferenceGenerator currentPrefGen = null;
     private MenuGenerator currentMenuGen = null;
@@ -78,7 +78,7 @@ public class BlueJ
      * @param  aWrapper      Description of the Parameter
      * @param  aPrefManager  Description of the Parameter
      */
-    BlueJ(ExtensionWrapper aWrapper, PrefManager aPrefManager)
+    BlueJ(ExtensionWrapper aWrapper, ExtensionPrefManager aPrefManager)
     {
         myWrapper = aWrapper;
         prefManager = aPrefManager;

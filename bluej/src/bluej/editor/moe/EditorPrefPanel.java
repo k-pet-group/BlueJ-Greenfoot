@@ -21,7 +21,7 @@ import bluej.prefmgr.*;
  * editor settings
  *
  * @author  Michael Kolling
- * @version $Id: EditorPrefPanel.java 2281 2003-11-05 17:43:53Z mik $
+ * @version $Id: EditorPrefPanel.java 2745 2004-07-06 19:38:04Z mik $
  */
 public class EditorPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -34,19 +34,9 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
     private JCheckBox matchBracketsBox;
 
     /**
-     * Registers the edit preference panel with the preferences
-     * dialog
-     */
-    public static void register()
-    {
-        EditorPrefPanel panel = new EditorPrefPanel();
-        PrefMgrDialog.add(panel, Config.getString("prefmgr.edit.prefpaneltitle"), panel);
-    }
-
-    /**
      * Setup the UI for the dialog and event handlers for the buttons.
      */
-    private EditorPrefPanel()
+    public EditorPrefPanel()
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.generalBorder);

@@ -31,7 +31,7 @@ public class ExtensionBridge
     return BField.doGetVal(aFrame, instanceName, val );
     }
 
-  public static BlueJ newBluej(ExtensionWrapper aWrapper, PrefManager aPrefManager )
+  public static BlueJ newBluej(ExtensionWrapper aWrapper, ExtensionPrefManager aPrefManager )
     {
     return new BlueJ (aWrapper, aPrefManager );
     }

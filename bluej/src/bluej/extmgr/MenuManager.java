@@ -30,7 +30,7 @@ public class MenuManager implements PopupMenuListener
      */
     public MenuManager(JPopupMenu aPopupMenu)
     {
-        extMgr = ExtensionsManager.get();
+        extMgr = ExtensionsManager.getInstance();
         popupMenu = aPopupMenu;
         popupMenu.addPopupMenuListener(this);
     }

@@ -3,12 +3,8 @@ package bluej;
 import java.io.File;
 import java.util.Properties;
 
-import bluej.classmgr.ClassMgrPrefPanel;
-import bluej.editor.moe.EditorPrefPanel;
-import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.prefmgr.MiscPrefPanel;
 import bluej.utility.Debug;
 
 /**
@@ -18,7 +14,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2433 2003-12-09 12:18:54Z mik $
+ * @version $Id: Main.java 2745 2004-07-06 19:38:04Z mik $
  */
 public class Main
 {
@@ -37,19 +33,16 @@ public class Main
 
         Config.initialise(bluejLibDir, processCommandLineProperties(args));
 
-        EditorPrefPanel.register();
-        MiscPrefPanel.register();
-        ClassMgrPrefPanel.register();
-
-        // You got to create it here since it is used by the Package manager frame
-        ExtensionsManager extManager = ExtensionsManager.initialise();
-        
-        // It is here to have an extension to be ready whan a command line project is summoned
-        extManager.loadExtensions();
-
         processArgs(args);
     }
 
+    /**
+     * Analyse and process command line specified properties.
+     * Properties can be specified with -D... command line options.
+     * 
+     * @param args The command line parameters
+     * @return The property object
+     */
     private Properties processCommandLineProperties(String[] args)
     {
         Properties props = new Properties();

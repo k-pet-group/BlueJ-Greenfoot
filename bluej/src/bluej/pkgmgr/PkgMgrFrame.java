@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2742 2004-07-05 21:18:44Z mik $
+ * @version $Id: PkgMgrFrame.java 2745 2004-07-06 19:38:04Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -131,7 +131,7 @@ public class PkgMgrFrame extends JFrame
 
     private static List frames = new ArrayList();  // of PkgMgrFrames
 
-    private static ExtensionsManager extMgr = ExtensionsManager.get();
+    private static ExtensionsManager extMgr = ExtensionsManager.getInstance();
 
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit menu)
@@ -543,7 +543,7 @@ public class PkgMgrFrame extends JFrame
         this.menuManager.setAttachedObject(pkg);
         this.menuManager.addExtensionMenu(pkg.getProject());
         
-        extMgr.packageOpened (pkg);
+        extMgr.packageOpened(pkg);
     }
 
     /**
@@ -554,7 +554,7 @@ public class PkgMgrFrame extends JFrame
         if(isEmptyFrame())
             return;
 
-        extMgr.packageClosing (pkg);
+        extMgr.packageClosing(pkg);
 
         classScroller.setViewportView(null);
 

@@ -35,7 +35,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2742 2004-07-05 21:18:44Z mik $
+ * @version $Id: Config.java 2745 2004-07-06 19:38:04Z mik $
  */
 
 public final class Config
