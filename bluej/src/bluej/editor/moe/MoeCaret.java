@@ -44,6 +44,9 @@ public class MoeCaret extends DefaultCaret
      */
     protected void positionCaret(MouseEvent e) 
     {
+        if(e.getID() != MouseEvent.MOUSE_PRESSED)
+            return;
+
         editor.caretMoved();
         Point pt = new Point(e.getX(), e.getY());
         Position.Bias[] biasRet = new Position.Bias[1];
@@ -62,10 +65,8 @@ public class MoeCaret extends DefaultCaret
             }
         }
         else {
-            if(e.getID() == MouseEvent.MOUSE_PRESSED)
-                editor.toggleBreakpoint(pos);
+            editor.toggleBreakpoint(pos);
         }
-        
     }
 
     /**
