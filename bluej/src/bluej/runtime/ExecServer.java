@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2857 2004-08-09 01:53:13Z davmac $
+ * @version $Id: ExecServer.java 2859 2004-08-09 06:25:04Z davmac $
  */
 public class ExecServer
 {
@@ -72,6 +72,7 @@ public class ExecServer
     public static final int TEST_SETUP = 1;
     public static final int TEST_RUN = 2;
     public static final int DISPOSE_WINDOWS = 3;
+    public static final int EXIT_VM = 4;
     
     // a BeanShell interpreter that we use for executing code
 //	BeanShell    
@@ -716,6 +717,8 @@ public class ExecServer
                             break;
                         case DISPOSE_WINDOWS:
                             disposeWindows();
+                        case EXIT_VM:
+                            System.exit(0);
                         default:
                     }
                 }
