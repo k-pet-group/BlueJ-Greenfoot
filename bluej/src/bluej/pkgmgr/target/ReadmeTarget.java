@@ -18,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2725 2004-07-02 20:33:26Z mik $
+ * @version $Id: ReadmeTarget.java 2747 2004-07-06 21:57:23Z mik $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -144,7 +144,7 @@ public class ReadmeTarget extends Target
     public Editor getEditor()
     {
         if(editor == null)
-            editor = Package.editorManager.openText(
+            editor = EditorManager.getEditorManager().openText(
                                                  getSourceFile().getPath(),
                                                  Package.readmeName, this, editorBounds);
         return editor;

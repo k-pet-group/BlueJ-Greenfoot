@@ -13,7 +13,7 @@ import java.awt.*;
 
 import bluej.Config;
 import bluej.BlueJTheme;
-import bluej.pkgmgr.Package;
+import bluej.editor.EditorManager;
 import bluej.prefmgr.*;
 
 /**
@@ -21,7 +21,7 @@ import bluej.prefmgr.*;
  * editor settings
  *
  * @author  Michael Kolling
- * @version $Id: EditorPrefPanel.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: EditorPrefPanel.java 2747 2004-07-06 21:57:23Z mik $
  */
 public class EditorPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -109,6 +109,6 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
 
-        Package.editorManager.refreshAll();
+        EditorManager.getEditorManager().refreshAll();
     }
 }

@@ -14,6 +14,7 @@ import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugmgr.inspector.*;
 import bluej.editor.Editor;
+import bluej.editor.EditorManager;
 import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
 import bluej.parser.ClassParser;
@@ -34,7 +35,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2732 2004-07-05 00:44:59Z bquig $
+ * @version $Id: ClassTarget.java 2747 2004-07-06 21:57:23Z mik $
  */
 public class ClassTarget extends EditableTarget implements Moveable
 {	
@@ -489,7 +490,7 @@ public class ClassTarget extends EditableTarget implements Moveable
         if(editor == null){
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
-            editor = Package.editorManager.openClass(filename, 
+            editor = EditorManager.getEditorManager().openClass(filename, 
                     docFilename, 
                     getBaseName(), 
                     this, 

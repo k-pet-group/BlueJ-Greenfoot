@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: Package.java 2747 2004-07-06 21:57:23Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -67,12 +67,6 @@ public final class Package extends Graph
        locations */
     public static final int FIXED_TARGET_X = 10;
     public static final int FIXED_TARGET_Y = 10;
-
-    /** Interface to editor */
-    //bq    public static EditorManager editorManager = new MoeEditorManager();
-    public static EditorManager editorManager = EditorManager.getEditorManager();
-    // static EditorManager editorManager = new RedEditorManager(false);
-    // static EditorManager editorManager = new SimpleEditorManager();
 
     /* the Project this package is in */
     private Project project;
