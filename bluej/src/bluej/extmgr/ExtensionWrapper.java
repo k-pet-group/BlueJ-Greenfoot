@@ -11,6 +11,7 @@ import java.net.*;
 import java.util.*;
 import java.util.jar.*;
 import javax.swing.*;
+import java.lang.ClassNotFoundException;
 
 /**
  * <PRE>
@@ -107,7 +108,9 @@ public class ExtensionWrapper
             }
 
             URL url = jarFileName.toURL();
-            URLClassLoader ucl = new URLClassLoader(new URL[]{url});
+            URL[] urlList=new URL[]{url};
+            FirewallLoader fireLoader = new FirewallLoader(getClass().getClassLoader());
+            URLClassLoader ucl = new URLClassLoader(urlList,fireLoader);
 
             classRisul = ucl.loadClass(className);
             if (!Extension.class.isAssignableFrom(classRisul)) {
@@ -123,7 +126,33 @@ public class ExtensionWrapper
         return classRisul;
     }
 
+    /**
+     * It is a bit of magic, really :-)
+     */
+    class FirewallLoader extends ClassLoader
+      {
+      ClassLoader myParent;
+      
+      FirewallLoader ( ClassLoader parent )
+        {
+        myParent = parent;
+        }
 
+      public Class findClass(String name) throws ClassNotFoundException
+        {
+        if ( name.startsWith("bluej.") ) 
+          {
+//          Debug.message("Firewall OK: "+name);
+          return myParent.loadClass(name);
+          }
+
+//        if ( name.startsWith("antlr.") ) System.out.println ("Firewall =="+name);
+
+        throw new ClassNotFoundException();
+        }
+
+      }
+  
     /**
      *  Now, assume you have the class and you want to "istantiate" the
      *  extension You have to call this. NOTE that the extension wrapper is
@@ -138,14 +167,10 @@ public class ExtensionWrapper
         if (extensionClass == null)  return;
 
         project = aProject;
-
         extensionBluej = ExtensionBridge.newBluej(this, prefManager, menuManager);
 
-        extensionStatusString = Config.getString("extmgr.status.notused");
-
         try {
-            Constructor cons = extensionClass.getConstructor(new Class[]{});
-            extensionInstance = (Extension) cons.newInstance(new Object[]{});
+            extensionInstance = (Extension)extensionClass.newInstance();
         } catch (Throwable ex) {
             extensionInstance = null;
             extensionStatusString = "newExtension: Exception=" + ex.getMessage();

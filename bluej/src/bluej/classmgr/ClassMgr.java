@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import bluej.utility.Debug;
 import bluej.Config;
+import bluej.*;
 
 /**
  * Class to maintain a global class loading environment.
@@ -21,7 +22,7 @@ import bluej.Config;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: ClassMgr.java 1997 2003-05-30 12:10:30Z damiano $
  */
 public class ClassMgr
 {
@@ -112,7 +113,8 @@ public class ClassMgr
 
         addConfigEntries(userLibraries, userlibPrefix);
 
-        String syscp = System.getProperty("sun.boot.class.path");
+//        String syscp = System.getProperty("sun.boot.class.path");
+        String syscp = Boot.get().getRuntimeClassPathString();
         String envcp = System.getProperty("java.class.path");
 
         if (syscp == null) {        // pre JDK1.2

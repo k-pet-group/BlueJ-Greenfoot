@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: VMReference.java 1997 2003-05-30 12:10:30Z damiano $
  *
  * The startup process is as follows:
  *
@@ -111,6 +111,7 @@ public class VMReference
 	public VirtualMachine newLaunch(File initDir, VirtualMachineManager mgr)
 	{
 		// launch the VM
+    Boot boot = Boot.get();
 		Process p = null;		
 
 		try {
@@ -119,7 +120,8 @@ public class VMReference
 			launchCommand.append("java");
 			launchCommand.append(" ");
 			launchCommand.append("-classpath \"");
-			launchCommand.append(System.getProperty("java.class.path"));
+//			launchCommand.append(System.getProperty("java.class.path"));
+      launchCommand.append(boot.getRuntimeClassPathString());
 			launchCommand.append("\" ");
 			launchCommand.append("-Xdebug -Xint -Xrunjdwp:transport=dt_socket,server=y,address=8000");
 			launchCommand.append(" ");
@@ -1094,34 +1096,42 @@ public class VMReference
         Thread thr;
 
         if(buffered) {
-            thr =
-                new Thread("I/O reader (buffered)") {
-                        public void run() {
-                            try {
-                                dumpStreamBuffered(reader, writer);
-                            }
-                            catch (IOException ex) {
-                                Debug.reportError("Cannot read output user VM.");
-                            }
-                        }
-                    };
+            thr = new bufferThread ( reader, writer, 1);
         }
         else {
-            thr =
-                new Thread("I/O reader (unbuffered)") {
-                        public void run() {
-                            try {
-                                dumpStream(reader, writer);
-                            }
-                            catch (IOException ex) {
-                                Debug.reportError("Cannot read output user VM.");
-                            }
-                        }
-                    };
+            thr =  new bufferThread ( reader, writer, 2);
         }
         thr.setPriority(Thread.MAX_PRIORITY-1);
         thr.start();
     }
+
+class bufferThread extends Thread
+{
+    private Reader reader;
+    private Writer writer;
+    int type;
+    
+    bufferThread ( Reader aReader, Writer aWriter, int aType )
+      {
+      reader = aReader;
+      writer = aWriter;
+      type=aType;
+      }
+// Damiano
+public void run() 
+  {
+  try 
+    {
+    if ( type == 1) dumpStream(reader, writer);
+    if ( type == 2) dumpStreamBuffered(reader, writer);
+    }
+  catch (IOException ex) 
+    {
+    Debug.reportError("Cannot read output user VM.");
+    }
+  }
+                       
+}
 
     private void dumpStream(Reader reader, Writer writer)
         throws IOException

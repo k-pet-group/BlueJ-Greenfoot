@@ -1,23 +1,20 @@
 package bluej;
 
-//import com.apple.mrj.MRJFileUtils;
-
-import java.io.File;
-import java.util.StringTokenizer;
-
 import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.extmgr.ExtensionsManager;
-import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.MiscPrefPanel;
 import bluej.utility.Debug;
+import java.io.File;
 
 /**
  * This is the main entry point to BlueJ. Normal invocations start
- * in this class's main method.
+ * in this class's main method.  
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: Main.java 1997 2003-05-30 12:10:30Z damiano $
  */
 public class Main
 {
@@ -40,15 +37,21 @@ public class Main
 
     public static String BLUEJ_JAR = "bluej.jar";
 
-    private static int FIRST_X_LOCATION = 20;
-    private static int FIRST_Y_LOCATION = 20;
+
+    private int FIRST_X_LOCATION = 20;
+    private int FIRST_Y_LOCATION = 20;
+
 
     /**
      * Entry point to starting up the system. Initialise the
      * system and start the first package manager frame.
      */
-    public static void main(String[] args)
+    public Main()
     {
+        Boot boot = Boot.get();
+        String [] args = boot.getArgs();
+        File bluejLibDir = boot.getBluejLibDir();
+        
         if((args.length >= 1) && "-version".equals(args[0])) {
             System.out.println("BlueJ version " + BLUEJ_VERSION
                                + " (Java version "
@@ -72,17 +75,10 @@ public class Main
                                + System.getProperty("os.arch")
                                + ")");
             System.exit(-1);
-        }
+            }
 
-        File bluejLib = findBlueJLib();
-        if(bluejLib == null) {
-            Debug.reportError("Cannot find lib directory");
-            Debug.reportError("A file named " + BLUEJ_JAR + " should be in the classpath!");
-            System.exit(-1);
-        }
-
-        SplashWindow splash = new SplashWindow(bluejLib);
-        Config.initialise(bluejLib);
+        SplashWindow splash = new SplashWindow(bluejLibDir);
+        Config.initialise(bluejLibDir);
 
         MiscPrefPanel.register();
         ClassMgrPrefPanel.register();
@@ -95,14 +91,14 @@ public class Main
 
         processArgs(args);
         splash.remove();
-    }
+        }
 
     /**
      * Start everything off. This is used to open the projects
      * specified on the command line when starting BlueJ.
      * Any parameters starting with '-' are ignored for now.
      */
-    private static void processArgs(String[] args)
+    private  void processArgs(String[] args)
     {
         boolean oneOpened = false;
         if(args.length > 0) {
@@ -133,34 +129,6 @@ public class Main
         }
     }
 
-    /**
-     * Find out and return the directory path of BlueJ's lib directory
-     * Return null, if we can't find it.
-     */
-    private static File findBlueJLib()
-    {
-        String bluejLib = null;
-        String classpath = System.getProperty("java.class.path");
-
-        StringTokenizer st = new StringTokenizer(classpath,
-                                                 File.pathSeparator);
-        while(st.hasMoreTokens()) {
-            String entry = st.nextToken();
-            if(entry.endsWith(BLUEJ_JAR)) {
-                bluejLib = entry.substring(0,
-                                     entry.length() - BLUEJ_JAR.length());
-                break;
-            }
-        }
-        if (bluejLib != null) {
-            File blueJLibFile = new File(bluejLib);
-
-            if (blueJLibFile.isDirectory())
-                return blueJLibFile;
-        }
-
-        return null;
-    }
 
     /**
      * Exit BlueJ.
@@ -178,4 +146,5 @@ public class Main
         // exit with success status
         System.exit(0);
     }
+
 }
