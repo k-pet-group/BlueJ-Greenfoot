@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2331 2003-11-14 04:52:24Z ajp $
+ * @version $Id: PkgMgrFrame.java 2335 2003-11-14 09:54:55Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -459,35 +459,31 @@ public class PkgMgrFrame extends JFrame
         Properties p = pkg.getLastSavedProperties();
 
         try {
-            String width_str = p.getProperty(
-                                             "package.editor.width",
+            String width_str = p.getProperty("package.editor.width",
                                              Integer.toString(DEFAULT_WIDTH));
-            String height_str = p.getProperty(
-                                              "package.editor.height",
+            String height_str = p.getProperty("package.editor.height",
                                               Integer.toString(DEFAULT_HEIGHT));
 
             classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str),
                                                          Integer.parseInt(height_str)));
 
-            String x_str = p.getProperty("package.editor.x",
-                                              Integer.toString(16));
-            String y_str = p.getProperty("package.editor.y",
-                                              Integer.toString(16));
+            String x_str = p.getProperty("package.editor.x", "30");
+            String y_str = p.getProperty("package.editor.y", "30");
 
-            int x = 16, y = 16;
+            int x = Integer.parseInt(x_str);
+            int y = Integer.parseInt(y_str);
 
-            x = Integer.parseInt(x_str);
-            y = Integer.parseInt(y_str);
+            if (x > (Config.screenBounds.width - 40))
+                x = Config.screenBounds.width - 40;
 
-            if (x > (Config.screenBounds.width - 16))
-                x = Config.screenBounds.width - 16;
-
-            if (y > (Config.screenBounds.height - 16))
-                y = Config.screenBounds.height - 16;
+            if (y > (Config.screenBounds.height - 40))
+                y = Config.screenBounds.height - 40;
 
             setLocation(x,y);
         }
-        catch (Exception e) { }
+        catch (NumberFormatException e) { 
+            Debug.reportError("Could not read preferred project screen position");
+        }
 
         String uses_str = p.getProperty("package.showUses", "true");
         String extends_str = p.getProperty("package.showExtends", "true");
