@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2996 2004-09-09 01:45:24Z davmac $
+ * @version $Id: VMReference.java 3023 2004-09-29 06:42:35Z bquig $
  * 
  * The startup process is as follows:
  * 
@@ -1116,28 +1116,30 @@ class VMReference
 
         // to stop our server thread getting away from us, lets halt the
         // VM temporarily
-        machine.suspend();
-
-        // we need to throw away all the breakpoints referring to the old
-        // class loader but then we need to restore our exitMarker and
-        // suspendMethod breakpoints
-        erm.deleteAllBreakpoints();
-        serverClassAddBreakpoints();
-
-        // add all the new breakpoints we have created
-        Iterator it = newSaved.iterator();
-
-        while (it.hasNext()) {
-            Location l = (Location) it.next();
-
-            BreakpointRequest bpreq = erm.createBreakpointRequest(l);
-            bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-            bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
-            bpreq.enable();
+        synchronized(eventHandler) {
+            machine.suspend();
+            
+            // we need to throw away all the breakpoints referring to the old
+            // class loader but then we need to restore our exitMarker and
+            // suspendMethod breakpoints
+            erm.deleteAllBreakpoints();
+            serverClassAddBreakpoints();
+            
+            // add all the new breakpoints we have created
+            Iterator it = newSaved.iterator();
+            
+            while (it.hasNext()) {
+                Location l = (Location) it.next();
+                
+                BreakpointRequest bpreq = erm.createBreakpointRequest(l);
+                bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+                bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
+                bpreq.enable();
+            }
+            
+            // start the machine back up
+            machine.resume();
         }
-
-        // start the machine back up
-        machine.resume();
     }
 
     // -- support methods --
@@ -1176,6 +1178,16 @@ class VMReference
         }
         catch (InterruptedException ie) {}
     }
+    
+    /**
+     * Resume the "server" thread on the debug VM, in a way that is thread safe (on this VM).
+     */
+    private void serverThreadResume()
+    {
+        synchronized(eventHandler) {
+            serverThread.resume();
+        }
+    }
 
     /**
      * Invoke a shell class (a class which has been generated on-the-fly in
@@ -1196,7 +1208,7 @@ class VMReference
         // Resume the thread, wait for it to finish and the new thread to start
         debuggerState = Debugger.RUNNING;
         serverThreadStarted = false;
-        serverThread.resume();
+        serverThreadResume();
         serverThreadStartWait();
         debuggerState = Debugger.IDLE;
         
@@ -1223,7 +1235,7 @@ class VMReference
         // Resume the thread, wait for it to finish and the new thread to start
         debuggerState = Debugger.RUNNING;
         serverThreadStarted = false;
-        serverThread.resume();
+        serverThreadResume();
         serverThreadStartWait();
         debuggerState = Debugger.IDLE;
         
@@ -1252,7 +1264,7 @@ class VMReference
         // Resume the thread, wait for it to finish and the new thread to start
         debuggerState = Debugger.RUNNING;
         serverThreadStarted = false;
-        serverThread.resume();
+        serverThreadResume();
         serverThreadStartWait();
         debuggerState = Debugger.IDLE;
 
@@ -1276,7 +1288,7 @@ class VMReference
 
         // Resume the thread, it then proceeds to remove open windows
         serverThreadStarted = false;
-        serverThread.resume();
+        serverThreadResume();
     }
 
     /**
@@ -1308,21 +1320,23 @@ class VMReference
         // go through the args and if any aren't VM reference types
         // then fail (unless they are strings in which case we
         // mirror them onto the vm)
-        machine.suspend();
-        for (ListIterator lit = args.listIterator(); lit.hasNext();) {
-            Object o = lit.next();
-
-            if (o instanceof String) {
-                StringReference s = machine.mirrorOf((String) o);
-                enableCollectionList.add(s);
-                s.disableCollection();
-                lit.set(s);
+        synchronized(eventHandler) {
+            machine.suspend();
+            for (ListIterator lit = args.listIterator(); lit.hasNext();) {
+                Object o = lit.next();
+                
+                if (o instanceof String) {
+                    StringReference s = machine.mirrorOf((String) o);
+                    enableCollectionList.add(s);
+                    s.disableCollection();
+                    lit.set(s);
+                }
+                else if (!(o instanceof Mirror)) {
+                    throw new IllegalArgumentException("invokeStaticRemoteMethod passed a non-Mirror argument");
+                }
             }
-            else if (!(o instanceof Mirror)) {
-                throw new IllegalArgumentException("invokeStaticRemoteMethod passed a non-Mirror argument");
-            }
+            machine.resume();
         }
-        machine.resume();
 
         // machine.setDebugTraceMode(VirtualMachine.TRACE_EVENTS |
         // VirtualMachine.TRACE_OBJREFS);
@@ -1349,7 +1363,9 @@ class VMReference
 
                 // invokeMethod leaves everything suspended, so restart
                 // all the threads
-                machine.resume();
+                synchronized(eventHandler) {
+                    machine.resume();
+                }
             }
 
             // we shouldn't return until the thread makes it back to its
@@ -1513,10 +1529,12 @@ class VMReference
             s.enableCollection();
         }
         catch(ObjectCollectedException oce) {
-            machine.suspend();
-            StringReference s = machine.mirrorOf(value);
-            setStaticFieldValue(cl, fieldName, s);
-            machine.resume();
+            synchronized(eventHandler) {
+                machine.suspend();
+                StringReference s = machine.mirrorOf(value);
+                setStaticFieldValue(cl, fieldName, s);
+                machine.resume();
+            }
         }
     }
 
