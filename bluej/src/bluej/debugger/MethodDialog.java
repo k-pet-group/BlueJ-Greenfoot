@@ -28,11 +28,10 @@ import java.util.StringTokenizer;
  * can be an object creation or an invocation of an object method.
  * A new instance of this dialog is created for each method.
  *
- * @author  Michael Cahill
- * @author  Bruce Quig
  * @author  Michael Kolling
+ * @author  Bruce Quig
  *
- * @version $Id: MethodDialog.java 1064 2002-01-07 04:45:00Z ajp $
+ * @version $Id: MethodDialog.java 1147 2002-03-08 08:36:03Z mik $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchListener
@@ -42,7 +41,6 @@ public class MethodDialog extends JDialog
 
     static final String CMD_OKAY = "okay";
     static final String CMD_CANCEL = "cancel";
-    static final String CMD_PARAM = "param";
 
     static final int OK = 0;
     static final int CANCEL = 1;
@@ -242,8 +240,12 @@ public class MethodDialog extends JDialog
                 params[i] = new JComboBox(historyList.toArray());
                 params[i].insertItemAt(defaultParamValue, 0);
                 params[i].setEditable(true);
-                params[i].setActionCommand(CMD_PARAM);
-                params[i].addActionListener(this);
+                // treat 'return' in text field as OK
+                params[i].getEditor().addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent evt) {
+                            doOk();
+                        }
+                    });
 
                 // add FocusListener for text insertion
                 ((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
@@ -264,6 +266,9 @@ public class MethodDialog extends JDialog
                 gridBag.setConstraints(eol,constraints);
                 tmpPanel.add(eol);
             }
+//              if(paramClasses.length > 0) {
+//                  params[0].requestDefaultFocus();
+//              }
             tmpPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
             tmpPanel.setAlignmentX(LEFT_ALIGNMENT);
             panel.add(tmpPanel);
@@ -295,6 +300,12 @@ public class MethodDialog extends JDialog
 
         JLabel instName = new JLabel(sNameOfInstance);
         instanceNameText = new JTextField(instanceName, 16);
+        // treat 'return' in text field as OK
+        instanceNameText.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent evt) {
+                    doOk();
+                }
+            });
 
         if(paramNames != null) {
             ConstructorView consView = (ConstructorView)method;
@@ -336,6 +347,12 @@ public class MethodDialog extends JDialog
                 params[i] = new JComboBox(historyList.toArray());
                 params[i].insertItemAt(defaultParamValue, 0);
                 params[i].setEditable(true);
+                // treat 'return' in text field as OK
+                params[i].getEditor().addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent evt) {
+                            doOk();
+                        }
+                    });
 
                 // add FocusListener for text insertion
                 ((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
@@ -357,6 +374,9 @@ public class MethodDialog extends JDialog
 
                 tmpPanel.add(eol);
             }
+//              if(paramClasses.length > 0) {
+//                  boolean b = params[0].requestDefaultFocus();
+//              }
 
             constraints.gridx = 3;
             constraints.gridy = 0;
@@ -438,15 +458,13 @@ public class MethodDialog extends JDialog
             // register a watcher for Object Bench selections
             bench.addObjectBenchListener(this);
 
-    	    if(params != null) {
-                params[0].requestFocus();
-    	    }
-    	    else if(dialogType == MD_CREATE) {
-                instanceNameText.selectAll();
-                instanceNameText.requestFocus();
-    	    }
-    	    else
-                bOk.requestFocus();
+      	    if(params != null) {
+                  params[0].requestFocus();
+      	    }
+      	    else if(dialogType == MD_CREATE) {
+                  instanceNameText.selectAll();
+                  instanceNameText.requestFocus();
+      	    }
     	}
     	else {
 	    hide();
@@ -469,8 +487,6 @@ public class MethodDialog extends JDialog
             doOk();
         else if (CMD_CANCEL.equals(command))
             doCancel();
-        else if (CMD_PARAM.equals(command))
-            doParamEntered((JComponent)event.getSource());
     }
 
     /**
@@ -509,14 +525,6 @@ public class MethodDialog extends JDialog
     public void doCancel()
     {
         callWatcher(CANCEL);
-    }
-
-    /**
-     *
-     */
-    public void doParamEntered(JComponent field)
-    {
-        field.transferFocus();
     }
 
     /**
