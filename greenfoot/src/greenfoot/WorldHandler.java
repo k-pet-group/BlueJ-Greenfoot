@@ -31,7 +31,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3268 2005-01-13 01:20:25Z davmac $
+ * @version $Id: WorldHandler.java 3293 2005-01-19 03:40:00Z davmac $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -300,6 +300,7 @@ public class WorldHandler
                     GreenfootObject go = (GreenfootObject) object;
                     int dragOffsetX = -go.getImage().getWidth() / 2;
                     int dragOffsetY = -go.getImage().getHeight() / 2;
+                    objectDropped = false;
                     DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
                     // On the mac, the glass pane doesn't seem to receive
                     // mouse move events; the shift/move is treated like a drag
@@ -454,7 +455,7 @@ public class WorldHandler
                 objectDropped = true;
             }
         }
-        else
+        else if (objectDropped)
             quickAddIfActive();
     }
 }
