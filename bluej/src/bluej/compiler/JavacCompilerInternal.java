@@ -9,32 +9,31 @@ import sun.tools.javac.Main;
 import bluej.utility.*;
 
 /**
- ** @version $Id: JavacCompilerInternal.java 269 1999-11-10 05:36:05Z mik $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** JavacCompilerInternal class - an implementation for the BlueJ "Compiler"
- ** class. This implementation provides an interface to Sun's javac
- ** compiler by executing the sun.tools methods directly.
- **/
-
+ * JavacCompilerInternal class - an implementation for the BlueJ "Compiler"
+ * class. This implementation provides an interface to Sun's javac
+ * compiler by executing the sun.tools methods directly.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: JavacCompilerInternal.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public class JavacCompilerInternal extends Compiler
 {
-	String destdir;
-	String classpath;
-	boolean debug;
-	boolean deprecation;
+	private String destdir;
+	private String classpath;
+	private boolean debug;
+	private boolean deprecation;
 
 	public JavacCompilerInternal()
 	{
 		setDebug(true);
 	}
-	
+
 	public void setDestDir(String destdir)
 	{
 		this.destdir = destdir;
 	}
-	
+
 	public void setClassPath(String classpath)
 	{
 		this.classpath = classpath;
@@ -53,34 +52,34 @@ public class JavacCompilerInternal extends Compiler
 	public boolean compile(String[] sources, CompileObserver watcher)
 	{
 		Vector args = new Vector();
-		
+
 		if(destdir != null) {
 			args.addElement("-d");
 			args.addElement(destdir);
 		}
-		
+
 		if(classpath != null) {
 			args.addElement("-classpath");
 			args.addElement(classpath);
 		}
-		
+
 		if(debug)
 			args.addElement("-g");
-		
+
 		if(deprecation)
 			args.addElement("-deprecation");
-		
+
 		for(int i = 0; i < sources.length; i++)
 			args.addElement(sources[i]);
-			
+
 		int length = args.size();
 		String[] params = new String[length];
 		args.copyInto(params);
-		
+
 		ErrorStream output = new ErrorStream();
 
 		Main javac = new Main(output, "javac");
-		
+
 		boolean result = javac.compile(params);
 
 		if (output.hasError()) {
@@ -88,17 +87,16 @@ public class JavacCompilerInternal extends Compiler
 						output.getLineNo(),
 						output.getMessage(),true);
 		}
-		
+
 		return result;
 	}
 }
 
 /**
- ** @version $Id: JavacCompilerInternal.java 269 1999-11-10 05:36:05Z mik $
- ** @author Michael Cahill
- ** ErrorStream - OutputStream that parses javac output.
- **/
-
+ * An OutputStream that parses javac output.
+ *
+ * @author  Michael Cahill
+ */
 class ErrorStream extends PrintStream
 {
     private boolean haserror = false;
@@ -107,56 +105,56 @@ class ErrorStream extends PrintStream
 
     public ErrorStream()
     {
-	// we do not actually intend to use an actual OutputStream from
-	// within this class yet our superclass requires us to pass a
-	// non-null OutputStream
-	// we pass it the system error stream
-	super(System.err);
+        // we do not actually intend to use an actual OutputStream from
+        // within this class yet our superclass requires us to pass a
+        // non-null OutputStream
+        // we pass it the system error stream
+        super(System.err);
     }
-	
+
     public boolean hasError()
     {
-	return haserror;
+        return haserror;
     }
 
     public String getFilename()
     {
-	Debug.assert(haserror);
-	return filename;
+        Debug.assert(haserror);
+        return filename;
     }
 
     public int getLineNo()
     {
-	Debug.assert(haserror);
-	return lineno;
+        Debug.assert(haserror);
+        return lineno;
     }
 
-    public String getMessage() 
+    public String getMessage()
     {
 	Debug.assert(haserror);
 	return message;
     }
 
     /**
-     ** Note: this class "cheats" by assuming that all output will be written by
-     ** a call to println. It happens that this is true for the current version 
-     ** of javac but this could change in the future.
-     **
-     ** We assume a certain error message format here:
-     **   filename:line-number:message
-     **
-     ** We find the components by searching for the colons. Careful: MS Windows
-     ** systems might have a colon in the file name (if it is an absolute path
-     ** with a drive name included). In that case we have to ignore the first
-     ** colon.
-     **/
+     * Note: this class "cheats" by assuming that all output will be written by
+     * a call to println. It happens that this is true for the current version
+     * of javac but this could change in the future.
+     *
+     * We assume a certain error message format here:
+     *   filename:line-number:message
+     *
+     * We find the components by searching for the colons. Careful: MS Windows
+     * systems might have a colon in the file name (if it is an absolute path
+     * with a drive name included). In that case we have to ignore the first
+     * colon.
+     */
     public void println(String msg)
     {
 	if (haserror)
 	    return;
 
 	// Debug.message("Compiler message: " + msg);
-		
+
 	int first_colon = msg.indexOf(':', 0);
 	if(first_colon == -1) {
 	    // cannot read format of error message

@@ -168,15 +168,8 @@ public class BlueJFileReader
         }
     }
 
-    /**
-     * copyFile - copy a file
-     */
-    public static boolean copyFile(String source, String dest)
+    public static boolean copyFile(File srcFile, File destFile)
     {
-        // check whether source and dest are the same
-        File srcFile = new File(source);
-        File destFile = new File(dest);
-
         if(srcFile.getAbsolutePath().equals(destFile.getAbsolutePath()))
             return true;  // don't bother - they are the same
 
@@ -202,7 +195,18 @@ public class BlueJFileReader
             } catch (IOException e) {
             }
         }
-        
+    }
+
+    /**
+     * copyFile - copy a file
+     */
+    public static boolean copyFile(String source, String dest)
+    {
+        // check whether source and dest are the same
+        File srcFile = new File(source);
+        File destFile = new File(dest);
+
+        return copyFile(srcFile, destFile);
     }
 
 

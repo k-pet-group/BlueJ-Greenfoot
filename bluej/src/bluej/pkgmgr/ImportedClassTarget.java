@@ -7,21 +7,21 @@ import java.util.Properties;
 import java.awt.Color;
 import java.awt.Font;
 
-/** 
+/**
  * This target represents a class that was imported into the package from
  * a library. For these classes, the target lives in the current package,
  * but the source and the class of the target are in other locations.
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: ImportedClassTarget.java 305 1999-12-09 23:50:57Z ajp $
+ * @version $Id: ImportedClassTarget.java 505 2000-05-24 05:44:24Z ajp $
  */
 
 public class ImportedClassTarget extends ClassTarget
 {
     static Color abstractbg = defaultbg.brighter();
     static Color compcolour = Config.getItemColour("colour.target.bg.compiling");
-	
+
 
     String sourcePkgDir;
 
@@ -94,11 +94,12 @@ public class ImportedClassTarget extends ClassTarget
     public Editor getEditor()
     {
 	    if(editor == null)
-	        editor = pkg.editorManager.openClass(sourceFile(), name, this,
+	        editor = getPackage().editorManager.openClass(getSourceFile().getPath(),
+	                    getBaseName(), this,
 						 isCompiled(), breakpoints);
 	return editor;
     }
-	
+
     /**
      ** @return the current view being shown - one of the Editor constants
      **/
@@ -145,12 +146,12 @@ public class ImportedClassTarget extends ClassTarget
         return "";
 //        return sourcePkgDir + File.separator + name + ".java";
     }
- 
+
     /**
-     * 
-     * Removes applicable files (.class, .java and .ctxt) prior to 
-     * this ClassTarget being removed from a Package.  At present there 
-     * are no files.  This function overloads it's super class's method 
+     *
+     * Removes applicable files (.class, .java and .ctxt) prior to
+     * this ClassTarget being removed from a Package.  At present there
+     * are no files.  This function overloads it's super class's method
      * which does remove files.
      *
      */

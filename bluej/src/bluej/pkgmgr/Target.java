@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 427 2000-04-18 04:33:04Z ajp $
+ * @version $Id: Target.java 505 2000-05-24 05:44:24Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -52,9 +52,12 @@ public abstract class Target extends Vertex
     static final int F_SELECTED = 1 << 0;
     static final int F_QUEUED = 1 << 1;
 
-    protected String name;          // name of the target
-    protected String fullname;		// name with package name
-    protected Package pkg;		// the package this target belongs to
+    private String identifierName;      // the name handle for this target within
+                                        // this package (must be unique within this
+                                        // package)
+    private String displayName;         // displayed name of the target
+    private Package pkg;                // the package this target belongs to
+
     protected SortableVector inUses;
     protected SortableVector outUses;
     protected Vector parents;
@@ -76,25 +79,31 @@ public abstract class Target extends Vertex
     /**
      * Create a new target at a specified position.
      */
-    public Target(Package pkg, String name, int x, int y,
-		  int width, int height)
+    public Target(Package pkg, String identifierName, int x, int y,
+                    int width, int height)
     {
-	super(x, y, width, height);
+        super(x, y, width, height);
 
-	this.pkg = pkg;
-	setName(name);
-	inUses = new SortableVector();
-	outUses = new SortableVector();
-	parents = new Vector();
-	children = new Vector();
+        if (pkg == null)
+            throw new NullPointerException();
+
+        this.pkg = pkg;
+        this.identifierName = identifierName;
+        this.displayName = identifierName;
+
+        inUses = new SortableVector();
+        outUses = new SortableVector();
+        parents = new Vector();
+        children = new Vector();
     }
 
     /**
      * Create a new target with automatic placement and default size.
      */
-    public Target(Package pkg, String name)
+    public Target(Package pkg, String identifierName)
     {
-	this(pkg, name, nextX(), nextY(), calculateWidth(name), DEF_HEIGHT);
+        this(pkg, identifierName, nextX(), nextY(),
+                calculateWidth(identifierName), DEF_HEIGHT);
     }
 
     /** last pos used for placement of new target (use only through method) **/
@@ -106,10 +115,10 @@ public abstract class Target extends Vertex
      */
     private static int nextX()
     {
-	last_pos_x += 15;
-	if(last_pos_x > 200)
-	    last_pos_x = 65;
-	return last_pos_x;
+        last_pos_x += 15;
+        if(last_pos_x > 200)
+            last_pos_x = 65;
+        return last_pos_x;
     }
 
     /**
@@ -117,12 +126,11 @@ public abstract class Target extends Vertex
      */
     private static int nextY()
     {
-	last_pos_y += 15;
-	if(last_pos_y > 250)
-	    last_pos_y = 65;
-	return last_pos_y;
+        last_pos_y += 15;
+        if(last_pos_y > 250)
+            last_pos_y = 65;
+        return last_pos_y;
     }
-
 
     /**
      * Calculate the width of a target depending on the length of its name
@@ -133,13 +141,13 @@ public abstract class Target extends Vertex
      */
     private static int calculateWidth(String name)
     {
-	int width = 0;
-	if (name != null)
-	    width = (int)PrefMgr.getStandardFont().getStringBounds(name,FRC).getWidth();
-	if ((width+20) <= DEF_WIDTH)
-	    return DEF_WIDTH;
-	else
-	    return (width+29)/10 * 10;
+        int width = 0;
+        if (name != null)
+            width = (int)PrefMgr.getStandardFont().getStringBounds(name,FRC).getWidth();
+        if ((width+20) <= DEF_WIDTH)
+            return DEF_WIDTH;
+        else
+            return (width+29)/10 * 10;
     }
 
     /**
@@ -151,13 +159,10 @@ public abstract class Target extends Vertex
         throws NumberFormatException
     {
         // No super.load, but need to get Vertex properties:
-	this.x = Integer.parseInt(props.getProperty(prefix + ".x"));
-	this.y = Integer.parseInt(props.getProperty(prefix + ".y"));
-	this.width = Integer.parseInt(props.getProperty(prefix + ".width"));
-	this.height = Integer.parseInt(props.getProperty(prefix + ".height"));
-
-        // Now read the properties for this
-        setName(props.getProperty(prefix + ".name"));
+        this.x = Integer.parseInt(props.getProperty(prefix + ".x"));
+        this.y = Integer.parseInt(props.getProperty(prefix + ".y"));
+        this.width = Integer.parseInt(props.getProperty(prefix + ".width"));
+        this.height = Integer.parseInt(props.getProperty(prefix + ".height"));
     }
 
     /**
@@ -165,12 +170,12 @@ public abstract class Target extends Vertex
      */
     public void save(Properties props, String prefix)
     {
-	props.put(prefix + ".x", String.valueOf(x));
-	props.put(prefix + ".y", String.valueOf(y));
-	props.put(prefix + ".width", String.valueOf(width));
-	props.put(prefix + ".height", String.valueOf(height));
+        props.put(prefix + ".x", String.valueOf(x));
+        props.put(prefix + ".y", String.valueOf(y));
+        props.put(prefix + ".width", String.valueOf(width));
+        props.put(prefix + ".height", String.valueOf(height));
 
-	props.put(prefix + ".name", name);
+        props.put(prefix + ".name", getIdentifierName());
     }
 
     /**
@@ -179,43 +184,10 @@ public abstract class Target extends Vertex
      */
     public abstract boolean copyFiles(String directory);
 
-    /**
-     * Return the target's name, including the package name.
-     * eg.   bluej.pkgmgr.Target
-     */
-    public String getName()
-    {
-	// This implementation currently only returns the target's base name.
-	// This is due to fact that most of BlueJ code expects to get a base
-	// name here (but not all). All calls of this methods have to be
-	// checked whether they expect a fully qualified name or just a
-	// simple name.       -as-  11/99
-//  	return fullname;
-	return name;
-    }
-
-    /**
-     * Return the target's base name (ie the name without the package name).
-     * eg.  Target
-     */
-    public String getBaseName()
-    {
-	return name;
-    }
-
-    public void setName(String name)
-    {
-	this.name = name;
-	if(name != null)
-	    this.fullname = pkg.getQualifiedName(name);
-	// PENDING: add support for lib classes, where full name if different
-	//  (not in package)
-    }
 
     /**
      * Return this target's package (ie the package that this target is currently
-     * shown in - for library targets this is the package where they are used,
-     * not where their source is).
+     * shown in)
      */
     public Package getPackage()
     {
@@ -223,8 +195,26 @@ public abstract class Target extends Vertex
     }
 
     /**
+     *
+     */
+    public void setDisplayName(String name)
+    {
+        displayName = name;
+    }
+
+    public String getDisplayName()
+    {
+        return displayName;
+    }
+
+    public String getIdentifierName()
+    {
+        return identifierName;
+    }
+
+    /**
      * Return the current state of the target (one of S_NORMAL, S_INVALID,
-     * S_COMPILING, S_INVALID)
+     * S_COMPILING)
      */
     public int getState()
     {
@@ -237,56 +227,56 @@ public abstract class Target extends Vertex
      */
     public void setState(int newState)
     {
-	if((state == S_NORMAL) && (newState == S_INVALID))
-	    pkg.invalidate(this);
+        if((state == S_NORMAL) && (newState == S_INVALID))
+            pkg.invalidate(this);
 
-	state = newState;
-	repaint();
+        state = newState;
+        repaint();
     }
 
     public void setFlag(int flag)
     {
-	if((this.flags & flag) != flag)
-	    {
-		this.flags |= flag;
-		repaint();
-	    }
+        if((this.flags & flag) != flag)
+        {
+            this.flags |= flag;
+            repaint();
+        }
     }
 
     public void unsetFlag(int flag)
     {
-	if((this.flags & flag) != 0)
-	    {
-		this.flags &= ~flag;
-		repaint();
-	    }
+        if((this.flags & flag) != 0)
+        {
+            this.flags &= ~flag;
+            repaint();
+        }
     }
 
     public void toggleFlag(int flag)
     {
-	this.flags ^= flag;
-	repaint();
+        this.flags ^= flag;
+        repaint();
     }
 
     public boolean isFlagSet(int flag)
     {
-	return ((this.flags & flag) == flag);
+        return ((this.flags & flag) == flag);
     }
 
     public void addDependencyOut(Dependency d, boolean recalc)
     {
-	if(d instanceof UsesDependency) {
-	    outUses.addElement(d);
-	    if(recalc)
-		recalcOutUses();
-	}
-	else if((d instanceof ExtendsDependency)
-		|| (d instanceof ImplementsDependency)) {
-	    parents.addElement(d);
-	}
+        if(d instanceof UsesDependency) {
+            outUses.addElement(d);
+            if(recalc)
+                recalcOutUses();
+        }
+        else if((d instanceof ExtendsDependency)
+        || (d instanceof ImplementsDependency)) {
+            parents.addElement(d);
+        }
 
-	if(recalc)
-	    setState(S_INVALID);
+        if(recalc)
+            setState(S_INVALID);
     }
 
     public void addDependencyIn(Dependency d, boolean recalc)
@@ -535,88 +525,88 @@ public abstract class Target extends Vertex
      */
     public void draw(Graphics2D g)
     {
-	g.setColor(getBackgroundColour());
-	g.fillRect(0, 0, width, height);
+        g.setColor(getBackgroundColour());
+        g.fillRect(0, 0, width, height);
 
-	if(state != S_NORMAL) {
-	    // Debug.message("Target: drawing invalid target " + this);
-	    g.setColor(shadowCol); // Color.lightGray
-	    Utility.stripeRect(g, 0, 0, width, height, 8, 3);
-	}
+        if(state != S_NORMAL) {
+            g.setColor(shadowCol);      // Color.lightGray
+            Utility.stripeRect(g, 0, 0, width, height, 8, 3);
+        }
 
-	g.setColor(textbg);
-	g.fillRect(TEXT_BORDER, TEXT_BORDER,
-		   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+        g.setColor(textbg);
+        g.fillRect(TEXT_BORDER, TEXT_BORDER,
+        	   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
 
-	g.setColor(shadowCol);
-	drawShadow(g);
+        g.setColor(shadowCol);
+        drawShadow(g);
 
-	g.setColor(getBorderColour());
-	g.drawRect(TEXT_BORDER, TEXT_BORDER,
-		   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
-	drawBorders(g);
+        g.setColor(getBorderColour());
+        g.drawRect(TEXT_BORDER, TEXT_BORDER,
+        	   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+        drawBorders(g);
 
-	g.setColor(getTextColour());
-	g.setFont(getFont());
-	Utility.drawCentredText(g, name,
-				TEXT_BORDER, TEXT_BORDER,
-				width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+        g.setColor(getTextColour());
+        g.setFont(getFont());
+        Utility.drawCentredText(g, displayName,
+                                TEXT_BORDER, TEXT_BORDER,
+                                width - 2 * TEXT_BORDER, TEXT_HEIGHT);
     }
 
     void drawShadow(Graphics2D g)
     {
-	g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
-	g.fillRect(width, SHAD_SIZE, SHAD_SIZE, height);
-	Utility.drawThickLine(g, width - HANDLE_SIZE, height,
-			      width, height - HANDLE_SIZE, 3);
+        g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
+        g.fillRect(width, SHAD_SIZE, SHAD_SIZE, height);
+        Utility.drawThickLine(g, width - HANDLE_SIZE, height,
+        		      width, height - HANDLE_SIZE, 3);
     }
 
     void drawBorders(Graphics2D g)
     {
-	int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
-	Utility.drawThickRect(g, 0, 0, width, height, thickness);
+        int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
+        Utility.drawThickRect(g, 0, 0, width, height, thickness);
 
-	// Draw lines showing resize tag
-	g.drawLine(width - HANDLE_SIZE - 2, height,
-		   width, height - HANDLE_SIZE - 2);
-	g.drawLine(width - HANDLE_SIZE + 2, height,
-		   width, height - HANDLE_SIZE + 2);
+        // Draw lines showing resize tag
+        g.drawLine(width - HANDLE_SIZE - 2, height,
+                    width, height - HANDLE_SIZE - 2);
+        g.drawLine(width - HANDLE_SIZE + 2, height,
+                    width, height - HANDLE_SIZE + 2);
     }
 
     Rectangle oldRect;
 
     public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	if(pkg.getState() != Package.S_IDLE) {
-	    pkg.targetSelected(this);
-	    return;
-	}
+        if(pkg.getState() != Package.S_IDLE) {
+            pkg.targetSelected(this);
+            return;
+        }
 
-	resizing = (x - this.x + y - this.y >= width + height - HANDLE_SIZE);
-	drag_start_x = x;
-	drag_start_y = y;
-	oldRect = new Rectangle(this.x, this.y, width, height);
+        resizing = (x - this.x + y - this.y >= width + height - HANDLE_SIZE);
+        drag_start_x = x;
+        drag_start_y = y;
+        oldRect = new Rectangle(this.x, this.y, width, height);
     }
 
     public void mouseReleased(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	Rectangle newRect = new Rectangle(this.x, this.y, width, height);
+        Rectangle newRect = new Rectangle(this.x, this.y, width, height);
 
-	if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
-	    (pkg.getState() == Package.S_CHOOSE_EXT_TO)) {
-	    // What target is this pointing at now?
-	    Target overClass = null;
-	    for(Enumeration e = pkg.getVertices(); overClass == null && e.hasMoreElements(); ) {
-		Target v = (Target)e.nextElement();
+        if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
+        (pkg.getState() == Package.S_CHOOSE_EXT_TO)) {
+            // What target is this pointing at now?
+            Target overClass = null;
+            for(Enumeration e = pkg.getVertices(); overClass == null && e.hasMoreElements(); ) {
+                Target v = (Target)e.nextElement();
 
-		if((v.x <= x) && (x < v.x + v.width) && (v.y <= y) && (y < v.y + v.height))
-		    overClass = v;
-	    }
-	    if (overClass != null && overClass != this) {
-		pkg.targetSelected(overClass);
-		pkg.setState(Package.S_IDLE);
-	    }
-	}
+                if((v.x <= x) && (x < v.x + v.width) && (v.y <= y) && (y < v.y + v.height))
+                    overClass = v;
+            }
+
+            if (overClass != null && overClass != this) {
+                pkg.targetSelected(overClass);
+                pkg.setState(Package.S_IDLE);
+            }
+    	}
 
 	if(!newRect.equals(oldRect)) {
 	    // Recalculate arrows
@@ -684,6 +674,6 @@ public abstract class Target extends Vertex
 
     public String toString()
     {
-	return getClass().getName() + "[\"" + fullname + "\"]";
+        return getDisplayName();
     }
 }

@@ -12,7 +12,7 @@ import bluej.utility.Debug;
  * The panel that displays objects at the bottom of the package manager
  *
  * @author  Michael Cahill
- * @version $Id: ObjectBench.java 335 2000-01-02 13:33:42Z ajp $
+ * @version $Id: ObjectBench.java 505 2000-05-24 05:44:24Z ajp $
  */
 public class ObjectBench extends JPanel
 {
@@ -74,7 +74,7 @@ public class ObjectBench extends JPanel
 
     public void addWatcher(ObjectBenchWatcher watcher)
     {
-	watchers.addElement(watcher);
+        watchers.addElement(watcher);
     }
 
     public void removeWatcher(ObjectBenchWatcher watcher)
@@ -84,10 +84,10 @@ public class ObjectBench extends JPanel
 
     public ObjectWrapper[] getWrappers()
     {
-	Component[] components = getComponents();
-	ObjectWrapper[] wrappers = new ObjectWrapper[components.length];
-	System.arraycopy(components, 0, wrappers, 0, components.length);
-	return wrappers;
+        Component[] components = getComponents();
+        ObjectWrapper[] wrappers = new ObjectWrapper[components.length];
+        System.arraycopy(components, 0, wrappers, 0, components.length);
+        return wrappers;
     }
 
     void objectSelected(ObjectWrapper wrapper)
@@ -140,6 +140,19 @@ public class ObjectBench extends JPanel
     public void remove(ObjectWrapper wrapper)
     {
         Debug.reportError("attempt to incorrectly remove object from bench");
+    }
+
+    public void removeAll(String scopeId)
+    {
+        ObjectWrapper[] wrappers = getWrappers();
+
+        for(int i=0; i<wrappers.length; i++) {
+            super.remove(wrappers[i]);
+            Debugger.debugger.removeObjectFromScope(
+                                scopeId, wrappers[i].getName());
+        }
+
+        repaint();
     }
 
     /**

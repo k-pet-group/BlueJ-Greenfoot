@@ -1,15 +1,15 @@
 package bluej.debugger;
 
 /**
- ** Debugger interface implemented by classes interested in the result of an invocation
- ** @version $Id: ResultWatcher.java 49 1999-04-28 03:01:02Z ajp $
- ** @author Michael Cahill
- **/
-
+ * Debugger interface implemented by classes interested in the result of an invocation
+ *
+ * @author  Michael Cahill
+ * @version $Id: ResultWatcher.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public interface ResultWatcher
 {
 	/**
-	 ** An invocation has completed - here is the result
-	 **/
+	 * An invocation has completed - here is the result
+	 */
 	void putResult(DebuggerObject result, String name);
 }

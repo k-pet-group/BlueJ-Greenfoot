@@ -12,111 +12,112 @@ import com.sun.jdi.*;
 import com.sun.jdi.request.*;
 
 /**
- ** This class represents a thread running on the remote virtual machine.
- **
- ** @author Michael Kolling
- **/
-
+ * This class represents a thread running on the remote virtual machine.
+ *
+ * @author  Michael Kolling
+ * @version $Id: JdiThread.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public final class JdiThread extends DebuggerThread
 {
     ThreadReference rt; // the reference to the remote thread
-    Object userParam;	// an optional user parameter associated with this
-			// thread
+    Object userParam;   // an optional user parameter associated with this
+                        // thread
     int selectedFrame;  // stores a stack frame that was selected for this
-			// thread (selection is done for debugging)
+                        // thread (selection is done for debugging)
 
     EventRequestManager eventReqMgr;
 
-    static ObjectReference terminateException;	// The exception object to use
-						//   to terminate a thread
+    static ObjectReference terminateException;  // The exception object to use
+                                                //   to terminate a thread
 
     public static void setTerminateException(ObjectReference terminateExc)
     {
-	terminateException = terminateExc;
+        terminateException = terminateExc;
     }
 
     // ---- instance: ----
 
     public JdiThread(ThreadReference rt, Object userParam)
     {
-	this.rt = rt;
-	this.userParam = userParam;
-	selectedFrame = 0;	// unless specified otherwise, assume we want
-				//  to see the top level frame
+        this.rt = rt;
+        this.userParam = userParam;
+
+        selectedFrame = 0;      // unless specified otherwise, assume we want
+                                //  to see the top level frame
     }
-	
+
     public JdiThread(ThreadReference rt)
     {
-	this(rt, null);
+        this(rt, null);
     }
-	
+
     public String getName()
     {
-	String name = null;
-		
-	try {
-	    name = rt.name();
-	} catch(Exception e) {
-	    // ignore it
-	}
-	return name;
+        String name = null;
+
+        try {
+            name = rt.name();
+        } catch(Exception e) {
+            // ignore it
+        }
+        return name;
     }
 
     public void setParam(Object param)
     {
-	userParam = param;
+        userParam = param;
     }
 
     public Object getParam()
     {
-	return userParam;
+        return userParam;
     }
 
     public ThreadReference getRemoteThread()
     {
-	return rt;
+        return rt;
     }
-	
+
     public String getStatus()
     {
-  	try {
-	    if(rt.isAtBreakpoint()) {
-		if(rt.frame(0).location().declaringType().name().equals(
-						"bluej.runtime.ExecServer"))
-		    return "finished";
-		else
-		    return "at breakpoint";
-	    }
+        try {
+            if(rt.isAtBreakpoint()) {
+                if(rt.frame(0).location().declaringType().name().equals(
+                				"bluej.runtime.ExecServer"))
+                    return "finished";
+                else
+                    return "at breakpoint";
+            }
 
-	    if(rt.isSuspended())
-		return "stopped";
+            if(rt.isSuspended())
+                return "stopped";
 
-  	    int status = rt.status();
-	    switch(status) {
-		case ThreadReference.THREAD_STATUS_MONITOR: 
-		    return "at monitor";
-		case ThreadReference.THREAD_STATUS_NOT_STARTED: 
-		    return "not started";
-		case ThreadReference.THREAD_STATUS_RUNNING:
-		    return "running";
-		case ThreadReference.THREAD_STATUS_SLEEPING:
-		    return "sleeping";
-		case ThreadReference.THREAD_STATUS_UNKNOWN: 
-		    return "unknown status";
-		case ThreadReference.THREAD_STATUS_WAIT:
-		    return "waiting";
-		case ThreadReference.THREAD_STATUS_ZOMBIE:
-		    return "zombie";
-	    }
-  	} catch(Exception e) {
-  	    return "???";
-  	}
-	return null; // to shut up compiler
+      	    int status = rt.status();
+    	    switch(status) {
+    		case ThreadReference.THREAD_STATUS_MONITOR:
+                return "at monitor";
+    		case ThreadReference.THREAD_STATUS_NOT_STARTED:
+                return "not started";
+    		case ThreadReference.THREAD_STATUS_RUNNING:
+                return "running";
+    		case ThreadReference.THREAD_STATUS_SLEEPING:
+                return "sleeping";
+    		case ThreadReference.THREAD_STATUS_UNKNOWN:
+                return "unknown status";
+    		case ThreadReference.THREAD_STATUS_WAIT:
+                return "waiting";
+    		case ThreadReference.THREAD_STATUS_ZOMBIE:
+    		    return "zombie";
+            }
+      	} catch(Exception e) {
+      	    return "???";
+      	}
+        return null; // to shut up compiler
     }
 
     public boolean isSuspended()
     {
-	return rt.isSuspended();
+        return rt.isSuspended();
     }
 
     public String getClassSourceName(int frameNo)
@@ -177,7 +178,7 @@ public final class JdiThread extends DebuggerThread
 	return new Vector();
     }
 
-	
+
     /**
      * Return strings listing the local variables.
      *
@@ -197,9 +198,9 @@ public final class JdiThread extends DebuggerThread
 		    LocalVariable var = (LocalVariable)vars.get(i);
 		    String val = JdiObject.getValueString(
 						frame.getValue(var));
-		    localVars.addElement(var.typeName() + " " + 
+		    localVars.addElement(var.typeName() + " " +
 					 var.name() + " = " + val);
-  					 
+
 		}
 		return localVars;
 	    }
@@ -288,23 +289,27 @@ public final class JdiThread extends DebuggerThread
 
     public void step()
     {
-	doStep(StepRequest.STEP_OVER);
+        doStep(StepRequest.STEP_OVER);
     }
 
     public void stepInto()
     {
-	doStep(StepRequest.STEP_INTO);
+        doStep(StepRequest.STEP_INTO);
     }
 
     private void doStep(int depth)
     {
+        System.out.println("clearStep");
         clearPreviousStep(rt);
         StepRequest request = eventReqMgr.createStepRequest(rt,
 					StepRequest.STEP_LINE, depth);
         // Make sure the step event is done only once
         request.addCountFilter(1);
+        System.out.println("request.enable");
         request.enable();
-	rt.resume();
+        System.out.println(rt.status());
+        rt.resume();
+        System.out.println("doStep end");
     }
 
     public void cont()
@@ -325,28 +330,34 @@ public final class JdiThread extends DebuggerThread
     }
 
     /**
-     *  a previously set step may not have completed yet - find out and
-     *  if it is so, remove it.
+     * A previously set step may not have completed yet - find out and
+     * if it is so, remove it.
      */
-    private void clearPreviousStep(ThreadReference thread) 
+    private void clearPreviousStep(ThreadReference thread)
     {
-	if(eventReqMgr == null)
-	    getEventRequestManager();
+        if(eventReqMgr == null)
+            getEventRequestManager();
 
-         List requests = eventReqMgr.stepRequests();
-         Iterator iter = requests.iterator();
-         while (iter.hasNext()) {
-             StepRequest request = (StepRequest)iter.next();
-             if (request.thread().equals(thread)) {
-                 eventReqMgr.deleteEventRequest(request);
-                 break;
-             }
-         }
+        List requests = eventReqMgr.stepRequests();
+        Iterator iter = requests.iterator();
+
+        while (iter.hasNext()) {
+            StepRequest request = (StepRequest)iter.next();
+
+            if (request != null && request.thread() != null) {
+                System.out.println("clearing previous step");
+                if (request.thread().equals(thread)) {
+                System.out.println("clearing previous step definately " + request.isEnabled());
+                    eventReqMgr.deleteEventRequest(request);
+                    break;
+                }
+            }
+        }
     }
-    
+
     private void getEventRequestManager()
     {
-	eventReqMgr = rt.virtualMachine().eventRequestManager();
+        eventReqMgr = rt.virtualMachine().eventRequestManager();
     }
 
 }

@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.awt.*;
 
 /**
- ** @version $Id: UsesDependency.java 487 2000-05-18 05:21:45Z bquig $
+ ** @version $Id: UsesDependency.java 505 2000-05-24 05:44:24Z ajp $
  ** @author Michael Cahill
  **
  ** A dependency between two targets in a package
@@ -18,11 +18,11 @@ public class UsesDependency extends Dependency
     private static final Color normalColour = Config.getItemColour("colour.arrow.uses");
     private static final int SELECT_DIST = 4;
 
-    private static final float  dash1[] = {10.0f};
-    private static final BasicStroke dashed = new BasicStroke(1.0f,
-                                                      BasicStroke.CAP_BUTT,
-                                                      BasicStroke.JOIN_MITER,
-                                                      10.0f, dash1, 0.0f);
+//    private static final float  dash1[] = {10.0f};
+//    private static final BasicStroke dashed = new BasicStroke(1.0f,
+//                                                      BasicStroke.CAP_BUTT,
+//                                                      BasicStroke.JOIN_MITER,
+//                                                      10.0f, dash1, 0.0f);
     private int src_x, src_y, dst_x, dst_y;
     private boolean start_top, end_left;
     private boolean flag;	// flag to mark some dependencies
@@ -60,7 +60,7 @@ public class UsesDependency extends Dependency
 	int dst_y = this.dst_y;
 
 	g.setColor(colour);
-	//g.setStroke(dashed);
+//    g.setStroke(dashed);
 
 	// Draw the start
 	int corner_y = src_y + (start_top ? -15 : 15);

@@ -22,12 +22,12 @@ import java.util.*;
  * to access (public, private or protected) and type (field/method or constructor).
  * Uses an AttributeChooserRenderer (private class declared below) to handle the
  * visual categorization.
- * 
+ *
  * @see AttributeChooserRenderer
  * @see AttributeThread
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: AttributeChooser.java 305 1999-12-09 23:50:57Z ajp $
+ * @version $Id: AttributeChooser.java 505 2000-05-24 05:44:24Z ajp $
  */
 public class AttributeChooser extends JPanel {
 
@@ -39,14 +39,14 @@ public class AttributeChooser extends JPanel {
 	public AttributeChooser() {
 		this.setLayout(new BorderLayout());
 	}
-	
+
 	/**
 	 * Open a new class.  Call this method whenever you wish to update the
 	 * attribute chooser to display the attributes of a new class or interface.
-	 * This method finds all the attributes of the class, starts the thread to 
-	 * load the tree with them and redisplays the tree.  Will not open class 
+	 * This method finds all the attributes of the class, starts the thread to
+	 * load the tree with them and redisplays the tree.  Will not open class
 	 * if it is the currently open one.
-	 * 
+	 *
 	 * @param className the name of the attributes' class specified in
 	 *                  class notation (i.e., java.io.File)
 	 */
@@ -64,7 +64,7 @@ public class AttributeChooser extends JPanel {
 
 	protected synchronized void addAttributeWindow(JScrollPane pane)
 	{
-		removeAll();		
+		removeAll();
 		add(pane, BorderLayout.CENTER);
 
 		invalidate();
@@ -111,7 +111,7 @@ class AttributeThread extends Thread {
 			if (cl == null) {
 				root.setUserObject(getCantLoadMessage(className));
 			} else {
-				View classView = new View(cl);
+				View classView = View.getView(cl);
 
 				root.setUserObject((classView.isInterface() ? "Interface " : "Class ") + className);
 
@@ -129,7 +129,7 @@ class AttributeThread extends Thread {
 
 			root.setUserObject(getCantLoadMessage(className));
 		}
-		
+
 		parent.addAttributeWindow(new JScrollPane(attributes));
 	}
 
@@ -147,14 +147,14 @@ class AttributeThread extends Thread {
 	/**
 	 * Determine if a member of the class was originally declared in that class,
 	 * or inherited from a parent class.
-	 * 
+	 *
 	 * @param member the member of the class.
 	 * @return true if the member was originally declared in this class.
 	 */
 	private boolean isMemberDeclaredInThisClass(MemberView member) {
-		return member.getDeclaringView().getName().equals(className);
+		return member.getDeclaringView().getQualifiedName().equals(className);
 	}
-	
+
 	/**
 	 * Allocate the constructors, fields and methods of the current class
 	 * to the corresponding top level node in the tree, based on their
@@ -213,7 +213,7 @@ class AttributeThread extends Thread {
  * A simple TreeCellRenderer implementer for colour-coding entries in
  * the AttributeChooser based on access and type (i.e., field or method).
  * Renders the tree cells as JLabels containing HTML.
- * 
+ *
  * @author Andy Marks
  * @author Andrew Patterson
  */
@@ -243,14 +243,14 @@ class AttributeChooserRenderer extends JLabel implements TreeCellRenderer {
 	public AttributeChooserRenderer() {
 		this.setOpaque(true);
 	}
-		
+
 	/**
 	 * Creates the rendered node.  This method is called for each node prior to
 	 * rendering and should return the rendered node Component.  Renders the root
 	 * node differently than all others.  Set the icon appropriate to the access of
-	 * the MemberView object contained within the node, or null if the node has no 
+	 * the MemberView object contained within the node, or null if the node has no
 	 * MemberView object.
-	 * 
+	 *
 	 * @return the rendered node.
 	 * @param tree the tree containing the node.
 	 * @param value the node to render.

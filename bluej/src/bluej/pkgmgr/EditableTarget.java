@@ -1,23 +1,23 @@
 package bluej.pkgmgr;
 
+import java.io.*;
+
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 
-/** 
- * @version $Id: EditableTarget.java 485 2000-05-18 03:00:38Z mik $
- * @author Michael Cahill
- *
+/**
  * A target in a package that can be edited as text
+ *
+ * @author  Michael Cahill
+ * @version $Id: EditableTarget.java 505 2000-05-24 05:44:24Z ajp $
  */
-
 public abstract class EditableTarget extends Target
-
-	implements EditorWatcher
+    implements EditorWatcher
 {
     protected Editor editor;
-	
+
     protected EditableTarget(Package pkg, String name)
     {
         super(pkg, name);
@@ -27,32 +27,31 @@ public abstract class EditableTarget extends Target
      * @returns a boolean indicating whether this target contains source code
      */
     protected abstract boolean isCode();
-	
+
     /**
      * @returns the name of the (text) file this target corresponds to.
      */
-    protected abstract String sourceFile();
-	
+    protected abstract File getSourceFile();
+
     /**
      * @return the editor object associated with this target
      */
     public abstract Editor getEditor();
 
     /**
-    ** @return the current view being shown - one of the Editor constants
-    **/
+     * @return the current view being shown - one of the Editor constants
+     */
     public abstract int getDisplayedView();
-	
+
     /**
-    ** Called to open the editor for this target
-    **/
+     * Called to open the editor for this target
+     */
     protected void open()
     {
-	getEditor();
-	if(editor == null)
-	    DialogManager.showError(pkg.getFrame(), "error-open-source");
-        else
-            editor.setVisible(true);
+        getEditor().setVisible(true);
+
+        if(editor == null)
+            getPackage().showError("error-open-source");
     }
 
     /**
@@ -60,61 +59,69 @@ public abstract class EditableTarget extends Target
     **/
     protected void reopen()
     {
-	if(editor != null)
-	    editor.reloadFile();
+        if(editor != null)
+            editor.reloadFile();
     }
-	
+
+    /**
+     *
+     */
+    protected void close()
+    {
+        getEditor().close();
+    }
+
     public boolean usesEditor(Editor editor)
     {
-	return (this.editor == editor);
+        return (this.editor == editor);
     }
 
     public boolean editorOpen()
     {
-	return (editor!=null);
+        return (editor!=null);
     }
 
     // --- EditorWatcher interface ---
     // (The EditorWatcher methods are typically redefined in subclasses)
 
     /**
-     ** Called by Editor when a file is changed
-     ** @param filename	the name of the file that was modified
-     **/
+     * Called by Editor when a file is changed
+     * @param filename	the name of the file that was modified
+     */
     public void modificationEvent(Editor editor) {}
 
     /**
-     ** Called by Editor when a file is saved
-     ** @param editor	the editor object being saved
-     **/
+     * Called by Editor when a file is saved
+     * @param editor	the editor object being saved
+     */
     public void saveEvent(Editor editor) {}
 
     /**
-     ** Called by Editor when a file is closed
-     ** @param editor	the editor object being closed
-     **/
+     * Called by Editor when a file is closed
+     * @param editor	the editor object being closed
+     */
     public void closeEvent(Editor editor) {}
-    
+
     /**
-     ** Called by Editor when a breakpoint is been set/cleared
-     ** @param filename	the name of the file that was modified
-     ** @param lineNo	the line number of the breakpoint
-     ** @param set	whether the breakpoint is set (true) or cleared
-     **/
+     * Called by Editor when a breakpoint is been set/cleared
+     * @param filename	the name of the file that was modified
+     * @param lineNo	the line number of the breakpoint
+     * @param set	whether the breakpoint is set (true) or cleared
+     */
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     { return null; }
 
     /**
-     ** Called by Editor to change the view displayed by an editor
-     ** @param viewname	the name of the view to display, should be 
-     **			one of bluej.editor.Editor.PUBLIC, etc.
-     ** @returns a boolean indicating if the change was allowed
-     **/
+     * Called by Editor to change the view displayed by an editor
+     * @param viewname	the name of the view to display, should be
+     *			one of bluej.editor.Editor.PUBLIC, etc.
+     * @returns a boolean indicating if the change was allowed
+     */
     public boolean changeView(Editor editor, int viewType) { return false; }
 
     /**
-     ** The "compile" function was invoked in the editor
-     **/
+     * The "compile" function was invoked in the editor
+     */
     public void compile(Editor editor) {}
 
     // --- end of EditorWatcher interface ---

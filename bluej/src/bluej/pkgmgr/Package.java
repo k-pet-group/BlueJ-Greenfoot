@@ -2,12 +2,8 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
-import bluej.compiler.CompileObserver;
-import bluej.debugger.ObjectBench;
-import bluej.debugger.ObjectWrapper;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerClassLoader;
-import bluej.debugger.CallHistory;
+import bluej.compiler.*;
+import bluej.debugger.*;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
@@ -16,12 +12,8 @@ import bluej.editor.EditorManager;
 import bluej.editor.moe.MoeEditorManager;
 import bluej.graph.Graph;
 import bluej.graph.Vertex;
-import bluej.utility.Debug;
-import bluej.utility.MultiEnumeration;
-import bluej.utility.Utility;
-import bluej.utility.DialogManager;
-import bluej.utility.BlueJFileReader;
-import bluej.utility.SortedProperties;
+import bluej.utility.*;
+import bluej.utility.filefilter.*;
 import bluej.views.Comment;
 import bluej.views.CommentList;
 import bluej.classmgr.*;
@@ -41,18 +33,17 @@ import java.awt.print.PageFormat;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 491 2000-05-19 14:28:26Z ajp $
- * @author Michael Cahill
- *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @author  Axel Schmolitzky
+ * @author  Andrew Patterson
+ * @version $Id: Package.java 505 2000-05-24 05:44:24Z ajp $
  */
 public class Package extends Graph
-
-implements CompileObserver, MouseListener, MouseMotionListener
+    implements CompileObserver, MouseListener, MouseMotionListener
 {
-    static final Color titleCol = Config.getItemColour("colour.text.fg");
-    static final Color lightGrey = new Color(224, 224, 224);
     /** the title of a package frame with no package loaded */
-    public static String noPackage = Config.getString("pkgmgr.noPackage");
+    public static String noPackageTitle = Config.getString("pkgmgr.noPackage");
 
     /** message to be shown on the status bar */
     static final String compiling = Config.getString("pkgmgr.compiling");
@@ -92,17 +83,18 @@ implements CompileObserver, MouseListener, MouseMotionListener
     // static EditorManager editorManager = new RedEditorManager(false);
     // static EditorManager editorManager = new SimpleEditorManager();
 
-    /** unqualified name of pkg (eg util) or string noPackage */
-    protected String packageName = noPackage;
+    /* the Project this package is in */
+    private Project project;
 
-    /** fully qualified name of pkg (eg java.util) or string "No Package" */
-    protected String fullPackageName = noPackage;
+    /* the parent Package object for this package or null if this is the unnamed package
+       ie. the root of the package tree */
+    private Package parentPackage = null;
 
-    /** the directory of this package (may be relative). */
-    protected String dirname;
+    /* base name of package (eg util) ("" for the unnamed package) */
+    private String baseName = "";
 
-    /** the absolute path to the directory which contains the package dir */
-    protected String baseDir;
+    /* fully qualified name of pkg (eg java.util) ("" for the unnamed package) */
+    private String qualifiedName = "";
 
     /** all the targets in a package */
     protected Hashtable targets;
@@ -119,16 +111,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
     /** Holds the choice of "from" target for a new dependency */
     protected Target fromChoice;
 
-    /** the PkgFrame of a package */
-    PkgFrame frame;
-
     /** used during arrow deletion */
     Dependency currentArrow;
-
-    /** a ClassLoader for the local virtual machine */
-    private ClassLoader loader;
-    /** a ClassLoader for the remote virtual machine */
-    private DebuggerClassLoader debuggerLoader;
 
     /** the CallHistory of a package */
     private CallHistory callHistory;
@@ -142,9 +126,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
      *  needs to be brought to the front */
     private String lastSourceName = "";
 
-    /** filter used for importing packages */
+    /* filter used for importing packages */
     protected static DirectoryFilter dirsOnly = new DirectoryFilter();
-    /** filter used for importing packages */
+    /* filter used for importing packages */
     protected static JavaSourceFilter javaOnly = new JavaSourceFilter();
 
     /** state constant */ public static final int S_IDLE = 0;
@@ -167,15 +151,44 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
     /* ------------------- end of field declarations ------------------- */
 
+    /**
+     * Create a package of a project with the package name of
+     * qualifiedName (ie java.util) and with a parent package of parent
+     */
+    public Package(Project project, String qualifiedName, Package parent)
+    {
+        if (parent == null)
+            throw new NullPointerException("Package must have a valid parent package");
+
+        if (qualifiedName.length() == 0)
+            throw new IllegalArgumentException("unnamedPackage must be created using Package(project)");
+
+        if (!JavaNames.isQualifiedIdentifier(qualifiedName))
+            throw new IllegalArgumentException(qualifiedName + " is not a valid qualifiedName for Package");
+
+        this.project = project;
+        this.qualifiedName = qualifiedName;
+        this.baseName = JavaNames.getBase(qualifiedName);
+        this.parentPackage = parent;
+
+        init();
+    }
 
     /**
-     * Create a new package from a given directory in a given frame.
+     * Create the unnamed package of a project
      */
-    public Package(String dirname, PkgFrame frame)
+    public Package(Project project)
     {
-        this.dirname = dirname;
-        this.frame = frame;
+        this.project = project;
+        this.qualifiedName = "";
+        this.baseName = "";
+        this.parentPackage = null;
 
+        init();
+    }
+
+    private void init()
+    {
         targets = new Hashtable();
         usesArrows = new Vector();
         extendsArrows = new Vector();
@@ -185,28 +198,17 @@ implements CompileObserver, MouseListener, MouseMotionListener
         //    isUML = false;
     }
 
-    /**
-     * Create a package not associated to a frame.
-     */
-    public Package(String dirname)
+    public boolean isUnnamedPackage()
     {
-        this(dirname, null);
+        return parentPackage == null;
     }
 
     /**
-     * Create a new package not associated to a directory or frame.
+     * Return the project this package belongs to.
      */
-    public Package()
+    public Project getProject()
     {
-        this(null, null);
-    }
-
-    /**
-     * Return the path to this package's directory (may be relative).
-     */
-    public String getDirName()
-    {
-        return dirname;
+        return project;
     }
 
     /**
@@ -215,70 +217,107 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     public String getId()
     {
-        return dirname;
+        return getPath().getPath();
     }
 
     /**
-     * Return this package's frame (may be null).
+     * Return this package's base name (eg util)
+     * ("" for the unnamed package)
      */
-    public PkgFrame getFrame()
+    public String getBaseName()
     {
-        return frame;
+        return baseName;
     }
 
     /**
-     * Return the fully qualified name of this package (eg java.util) or,
-     * if this package has no name, the string Package.noPackage).
+     * Return the qualified name of an identifier in this
+     * package (eg java.util.Random if given Random)
      */
-    public String getFullName()
+    public String getQualifiedName(String identifier)
     {
-        return fullPackageName;
+        if(isUnnamedPackage())
+            return identifier;
+        else
+            return getQualifiedName() + "." + identifier;
     }
 
     /**
-     * Return this package's name (eg util) or, if this package has no name,
-     * the string Package.noPackage).
+     * Return the qualified name of the package (eg. java.util)
+     * ("" for the unnamed package)
      */
-    public String getName()
+    public String getQualifiedName()
     {
-        return packageName;
-    }
+        Package currentPkg = this;
+        String retName = "";
 
-    public String getClassPath()
-    {
-        // construct a class path out of all our class path entries and
-        // our current class directory
-        StringBuffer c = new StringBuffer();
+        while(!currentPkg.isUnnamedPackage()) {
+            if(retName == "")
+                retName = currentPkg.getBaseName();
+            else
+                retName = currentPkg.getBaseName() + "." + retName;
 
-        Iterator i = ClassMgr.getClassMgr().getAllClassPathEntries();
-
-        while(i.hasNext()) {
-            ClassPathEntry cpe = (ClassPathEntry)i.next();
-
-            c.append(cpe.getPath());
-            c.append(File.pathSeparator);
+            currentPkg = currentPkg.getParent();
         }
-        c.append(getDirName());  // for classes in current package
 
-        return c.toString();
+        return retName;
     }
 
-    public ObjectBench getBench()
+    private File getRelativePath()
     {
-        ObjectBench bench = null;
-        try {
-            bench = ((PkgMgrFrame) frame).objbench;
-        } catch (ClassCastException cce) {
-            cce.printStackTrace();
+        Package currentPkg = this;
+        File retFile = new File(currentPkg.getBaseName());
+
+        /* loop through our parent packages constructing a relative
+           path for this file */
+        while(!currentPkg.isUnnamedPackage()) {
+            currentPkg = currentPkg.getParent();
+
+            retFile = new File(currentPkg.getBaseName(), retFile.getPath());
         }
-        return bench;
+
+        return retFile;
     }
 
+    /**
+     * Return a file object of the directory location of this package.
+     *
+     * @return  The file object representing the full path to the
+     *          packages directory
+     */
+    public File getPath()
+    {
+        /* append our relative path onto the absolute path which our project
+           gives us */
+        return new File(project.getProjectDir(), getRelativePath().getPath());
+    }
+
+    protected Package getParent()
+    {
+        return parentPackage;
+    }
+
+
+
+    public void setStatus(String msg)
+    {
+        //XXX raise an event to show the status somehow for this package
+    }
+
+    public void setStatusProject(String msg)
+    {
+        //XXX raise an event to show the status in all windows belong to this project
+    }
 
   //   public boolean isUML()
 //     {
 //         return isUML;
 //     }
+
+    public void setStatusAll(String msg)
+    {
+        //XXX raise an event to show the status in all open pkgmgrframes
+    }
+
 
     public void repaint()
     {
@@ -286,6 +325,11 @@ implements CompileObserver, MouseListener, MouseMotionListener
             editor.revalidate();
             editor.repaint();
         }
+    }
+
+    public PackageEditor getEditor()
+    {
+        return (PackageEditor)editor;
     }
 
     /**
@@ -305,41 +349,19 @@ implements CompileObserver, MouseListener, MouseMotionListener
      * file exists in this directory already, or when the files come
      * from an archive library (i.e., ZIP or JAR)
      *
-     * @param classFiles the array of class files to use for the package
-     * @param packageDir the directory in which to create the package
-     * @param fromArchive true if the package is being created for an archive (i.e., ZIP or JAR)
-     * @return the properties describing the new package
-     * @exception IOException if the package file could not be saved
+     * @param       classFiles the array of class files to use for the package
+     * @param       packageDir the directory in which to create the package
+     * @param       fromArchive true if the package is being created for an archive (i.e., ZIP or JAR)
+     * @return      the properties describing the new package
+     * @exception   IOException if the package file could not be saved
      */
     public static SortedProperties createDefaultPackage(String[] classFiles,
-                                                        String packageLocation,
-                                                        String packageName,
-                                                        boolean fromArchive)
+                                                          String packageLocation)
         throws IOException
     {
+        boolean fromArchive = false;
         SortedProperties props = new SortedProperties();
         int numberOfTargets = classFiles.length;
-        // every file returned by the filter is considered valid, so the array
-        // size if the number of targets in the package
-        props.put("package.numTargets", "" + numberOfTargets);
-
-        /*	if (packageName == null)
-            packageName = "unknown";
-            else if (packageName != "") {
-            // only write the package name if it has a value,
-            // then append the "." for later when using the
-            // package name as the root for sub package names
-            props.put("package.name", packageName);
-            packageName += ".";
-            }
-        */
-        props.put("package.name", packageName);
-
-        // not too sure about this one, let's make it the current directory
-        // for now
-        // classdir is used to locate the class files for the corresponding java files
-        // classdir is added to the classpath for this package
-        // props.put("package.classdir", ".");
 
         int nbrColumns = (int) Math.sqrt(new Double("" + numberOfTargets).doubleValue());
         int rowPos = STARTROWPOS;
@@ -355,7 +377,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
             } else {
                 props.put("target" + (current + 1) + ".type", "PackageTarget");
                 props.put("target" + (current + 1) + ".name", currentFile);
-                props.put("target" + (current + 1) + ".packageName", packageName + currentFile);
+//                props.put("target" + (current + 1) + ".packageName", packageName + currentFile);
             }
 
             String fullname = props.get("target" + (current + 1) + ".name").toString();
@@ -402,61 +424,41 @@ implements CompileObserver, MouseListener, MouseMotionListener
     }
 
     /**
-     * Load the elements of a package from a specified directory
-     * @param dirname the directory from which to load the properties
-     */
-    void load(String dirname) {
-        this.load(dirname, null, true, false);
-    }
-
-    /**
      * Load the elements of a package from a specified directory.
-     *
-     * @param dirname the directory from which to load the properties
-     * @param props the already created properties for this package
-     * @param readyToPaint true if the UI is in a state suitable for
-     *	      painting right now
-     * @param libraryPackage true if this method was called to create a
-     *	      package for the library browser
      */
-    public void load(String dirname, Properties props, boolean readyToPaint,
-                     boolean libraryPackage)
+    public void load()
     {
-        // Read the package properties
-        String fullpkgfile = dirname + File.separator + pkgfileName;
-        this.dirname = dirname;
+        SortedProperties props = new SortedProperties();
+        // read the package properties
+        File pkgFile = new File(getPath(), pkgfileName);
 
-        // if we haven't been given properties to use, load them
-        if (props == null) {
-            // try to load the package file for this package
-            try {
-                FileInputStream input = new FileInputStream(fullpkgfile);
+        // try to load the package file for this package
+        try {
+            FileInputStream input = new FileInputStream(pkgFile);
 
-                props = new SortedProperties();
-                props.load(input);
-            } catch(IOException e) {
-                Debug.reportError("Error loading initialisation file" +
-                                  fullpkgfile + ": " + e);
-                // if it's not found, let's create a default one
-            }
-
-            if (props == null)
-                return;
+            props = new SortedProperties();
+            props.load(input);
+        } catch(IOException e) {
+            Debug.reportError("Error loading initialisation file" +
+                              pkgFile + ": " + e);
         }
 
-        this.packageName = props.getProperty("package.name", noPackage);
+        if (props == null)
+            return;
+
         String width_str = props.getProperty("package.window.width", "512");
         String height_str = props.getProperty("package.window.height", "450");
-        frame.setSize(Integer.parseInt(width_str), Integer.parseInt(height_str));
+//XXX        frame.setSize(Integer.parseInt(width_str), Integer.parseInt(height_str));
 
         // This is to make sure that opening a package into an empty frame
         // works properly
 
-        frame.invalidate();
-        frame.validate();
+/* XXX        frame.invalidate();
+        frame.validate(); */
 
 
         // read in all the targets contained in this package
+        Map propTargets = new HashMap();
 
         try {
             int numTargets = Integer.parseInt(props.getProperty("package.numTargets", "0"));
@@ -465,26 +467,50 @@ implements CompileObserver, MouseListener, MouseMotionListener
             for(int i = 0; i < numTargets; i++) {
                 Target target = null;
                 String type = props.getProperty("target" + (i + 1) + ".type");
+                String identifierName = props.getProperty("target" + (i + 1) + ".name");
 
                 if("ClassTarget".equals(type) || "AppletTarget".equals(type)) {
-                    target = new ClassTarget(this,  "AppletTarget".equals(type));
-                    // all library classes should be considered to be compiled
-                    if (libraryPackage) {
-                        target.state = Target.S_NORMAL;
-                    }
+                    target = new ClassTarget(this, identifierName, "AppletTarget".equals(type));
                 }
-                else if("ImportedClassTarget".equals(type))
-                    target = new ImportedClassTarget(this);
                 else if("PackageTarget".equals(type))
-                    target = new PackageTarget(this);
+                    target = new PackageTarget(this, identifierName);
 
                 if(target != null) {
-                    target.load(props, "target" + (i + 1));
                     //Debug.message("Load target " + target);
-                    addTarget(target);
+                    target.load(props, "target" + (i + 1));
+                    //Debug.message("Putting " + identifierName);
+                    propTargets.put(identifierName, target);
                 }
-                // else
-                //Debug.message("Failed to load target " + (i + 1));
+            }
+
+            File subdirs[] = getPath().listFiles(new SubPackageFilter());
+
+            for(int i=0; i<subdirs.length; i++)
+            {
+                Target target = (Target) propTargets.get(subdirs[i].getName());
+
+                if(target == null || !(target instanceof PackageTarget))
+                    target = new PackageTarget(this, subdirs[i].getName());
+
+                addTarget(target);
+            }
+
+            File srcfiles[] = getPath().listFiles(new JavaSourceFilter());
+
+            for(int i=0; i<srcfiles.length; i++)
+            {
+                String targetName = JavaNames.stripSuffix(srcfiles[i].getName(), ".java");
+                Target target = (Target) propTargets.get(targetName);
+                if(target == null || !(target instanceof ClassTarget))
+                    target = new ClassTarget(this, targetName);
+
+                addTarget(target);
+            }
+
+            if (!isUnnamedPackage()) {
+                Target t = new ParentPackageTarget(this);
+                t.setPos(10,10);
+                addTarget(t);
             }
 
             for(int i = 0; i < numDependencies; i++) {
@@ -506,7 +532,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
             recalcArrows();
         } catch(Exception e) {
             Debug.reportError("Error loading from file " +
-                              fullpkgfile + ": " + e);
+                              pkgFile + ": " + e);
             e.printStackTrace();
             return;
         }
@@ -525,7 +551,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
             if((t instanceof ClassTarget)
                && ((ClassTarget)t).upToDate()) {
                 ClassTarget ct = (ClassTarget)t;
-                if (readyToPaint)
+//                if (readyToPaint)
                     ct.setState(Target.S_NORMAL);
                 // XXX: Need to invalidate things dependent on t
             }
@@ -536,66 +562,58 @@ implements CompileObserver, MouseListener, MouseMotionListener
      * Save this package to disk. The package is saved to the standard
      * package file (bluej.pkg).
      */
-    private boolean save(String dirname)
+    public boolean save()
     {
-        File dir = new File(dirname);
-        if(!dir.exists())
+        /* create the directory if it doesn't exist */
+        File dir = getPath();
+        if(!dir.exists()) {
             if(!dir.mkdir()) {
-                Debug.reportError("Error creating directory "+ dirname);
+                Debug.reportError("Error creating directory " + dir);
                 return false;
             }
+        }
+
+        File file = new File(dir, pkgfileName);
+        if(!file.canWrite())
+            return false;
+        if(file.exists()) {			// make backup of original
+            file.renameTo(new File(getPath(), pkgfileBackup));
+        }
 
         SortedProperties props = new SortedProperties();
 
-        File file = new File(dir, pkgfileName);
-        if(file.exists()) {			// make backup of original
-            file.renameTo(new File(dir, pkgfileBackup));
-        }
-
-        if(packageName != noPackage)
-            props.setProperty("package.name", packageName);
-        if(frame != null) {
-            Dimension size = frame.getSize();
-            props.put("package.window.width", String.valueOf(size.width));
-            props.put("package.window.height", String.valueOf(size.height));
-        }
-
         // save targets and dependencies in package
 
-        props.put("package.numTargets", String.valueOf(targets.size()));
         props.put("package.numDependencies",
-                  String.valueOf(usesArrows.size() + extendsArrows.size()));
-        //	if(relclassdir != null)
-        //	    Config.putPath(props, "package.classdir", relclassdir);
+                  String.valueOf(usesArrows.size()));
 
-        Enumeration t_enum = targets.elements();		// targets
+        Enumeration t_enum = targets.elements();            // targets
+        int t_count = 0;
         for(int i = 0; t_enum.hasMoreElements(); i++) {
             Target t = (Target)t_enum.nextElement();
-            t.save(props, "target" + (i + 1));
+            // should use a better method of determining non saved targets
+            if(!(t instanceof ParentPackageTarget)) {
+                t.save(props, "target" + (i + 1));
+                t_count++;
+            }
         }
-        for(int i = 0; i < usesArrows.size(); i++) {		// uses arrows
+        props.put("package.numTargets", String.valueOf(t_count));
+
+
+        for(int i = 0; i < usesArrows.size(); i++) {        // uses arrows
             Dependency d = (Dependency)usesArrows.elementAt(i);
             d.save(props, "dependency" + (i + 1));
         }
-        //	for(int i = 0; i < extendsArrows.size(); i++) {		// inherit arrows
-        //	    Dependency d = (Dependency)extendsArrows.elementAt(i);
-        //	    d.save(props, "dependency" + (usesArrows.size() + i + 1));
-        //	}
 
         try {
             FileOutputStream output = new FileOutputStream(file);
-            props.store(output, "BlueJ project file");
+            props.store(output, "BlueJ package file");
         } catch(IOException e) {
             Debug.reportError("Error saving project file " + file + ": " + e);
             return false;
         }
 
         return true;
-    }
-
-    public boolean save()
-    {
-        return save(dirname);
     }
 
     /**
@@ -606,8 +624,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     public int saveAs(String newname)
     {
-        if (!save(newname))
-            return CREATE_ERROR;
+//        if (!save(newname))
+//            return CREATE_ERROR;
 
         boolean okay = true;
         Enumeration t_enum = targets.elements();
@@ -625,8 +643,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         }
         // PENDING: update all package directives in sources
 
-        dirname = newname;
-        baseDir = null;		// will be recomputed
+ //XXX       dirname = newname;
 
         if(okay)
             return NO_ERROR;
@@ -664,14 +681,14 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
         // copy class source into package
 
-        String destPath = dirname + File.separator + fileName;
+        String destPath = new File(getPath(),fileName).getPath();
         if(!BlueJFileReader.copyFile(sourcePath, destPath))
             return COPY_ERROR;
 
         // remove package line in class source
 
         try {
-            ClassTarget.enforcePackage(destPath, "");
+            ClassTarget.enforcePackage(destPath, getQualifiedName());
         }
         catch(IOException ioe)
             {
@@ -686,143 +703,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
         return NO_ERROR;
     }
-
-
-    /**
-     * Enable to open a plain directory as a package by adding BlueJ specific
-     * information to that directory. If the directory contains subdirs
-     * prompt the user if they should be searched recursively. If Java source
-     * files are found in a directory, information about them (names,
-     * generated layout) is written into a newly created package file in that
-     * directory. So, after this method is run the directory can be opened as
-     * a BlueJ package.
-     *
-     * NOT YET WORKING! Named and nested packages do not work currently.
-     * That's why in this method six lines are commented out. TEMPORARILY!!!
-     *
-     * @param dir the directory denoting the potential Java package.
-     * @param frame the frame where questions may be displayed.
-     * @return true if any Java source was found, false otherwise.
-     */
-    public static boolean importPackage(File dir, JFrame frame) {
-
-        Package newPkg = new Package();
-        newPkg.dirname = dir.getPath();
-        //          newPkg.packageName = dir.getName();
-
-        // try to find sources in the directory itself
-        boolean found = importJavaSources(dir, newPkg);
-
-        // try to find subpackages and create targets for them
-        File[] subdirs = dir.listFiles(dirsOnly);
-        if (subdirs.length > 0) {
-
-            DialogManager.showMessage(frame,"cannot-search-subdirs");
-
-            //              int answer = DialogManager.askQuestion(frame,
-            //                                                     "also-search-subdirs");
-
-            //              if (answer == 0) { // yes, search subdirs
-            //                  found = (importSubPackages(subdirs, newPkg) || found);
-            //              }
-        }
-
-        if (found) {
-            newPkg.doDefaultLayout();
-            newPkg.save(newPkg.dirname);
-
-            return true;
-        }
-        else
-            return false;
-    }
-
-
-    /**
-     * Try to import the directories in "dirlist" as subpackages into
-     * "parent".
-     *
-     * @param dirlist a list of directories.
-     * @param parent the parent package for the subpackages found.
-     * @return true if at least one of the directories could be imported
-     * as a subpackage (i.e. contains Java sources or subpackages itself),
-     * false otherwise.
-     */
-    private static boolean importSubPackages(File[] dirlist, Package parent)
-    {
-        boolean found = false;
-        for (int i = 0; i < dirlist.length; i++) {
-            File subdir = dirlist[i];
-            Package subpackage = importSubPackage(subdir, parent.packageName);
-            if(subpackage != null) {
-                Target t = new PackageTarget(parent, subdir.getName(),
-                                             subpackage.packageName);
-                parent.addTarget(t);
-                found = true;
-            }
-        }
-        return found;
-    }
-
-
-    /**
-     * Find Java source files in a directory that is nested in a package.
-     * If source files are found in this or any subdirectory then the
-     * appropriate package files are written.
-     * @param dir the directory denoting the potential subpackage.
-     * @param parentName the name of the parent package.
-     * @return a package for dir if sources found, null otherwise.
-     */
-
-    private static Package importSubPackage(File dir, String parentName)
-    {
-        Package newPkg = new Package();
-        newPkg.dirname = dir.getPath();
-        newPkg.packageName = parentName + "." + dir.getName();
-
-        // if it is already a BlueJ package return just the name information
-        if (isBlueJPackage(dir))
-            return newPkg;
-
-        // try to find sources in the directory itself
-        boolean found = importJavaSources(dir, newPkg);
-
-        // try to find subpackages
-        found = (importSubPackages(dir.listFiles(dirsOnly), newPkg) || found);
-
-        if (found) {
-            newPkg.doDefaultLayout();
-            newPkg.save(newPkg.dirname);
-            return newPkg;
-        }
-        else
-            return null;
-    }
-
-
-    /**
-     * Import the Java source files from a given directory into a package.
-     *
-     * @param dir the directory to be searched.
-     * @param pkg the package the source shall be imported into.
-     * @return true if any Java source file was found in dir, false otherwise.
-     */
-    private static boolean importJavaSources(File dir, Package pkg)
-    {
-        // create targets for all Java source files and add them to pkg
-        File[] files = dir.listFiles(javaOnly);
-        for (int i = 0; i < files.length; i++) {
-            String filename = files[i].getName();
-            // remove ".java"
-            String classname = filename.substring(0, filename.length() - 5);
-            ClassTarget t = new ClassTarget(pkg, classname);
-            pkg.addTarget(t);
-        }
-        return (files.length > 0);
-
-    } // importJavaSources
-
-
 
     /**
      * Arrange all the targets in this package in a standard layout.
@@ -867,50 +747,25 @@ implements CompileObserver, MouseListener, MouseMotionListener
                 }
             }
         }
-
-    }
-
-
-    /**
-     * Add a new class to this package from a library.
-     * Invoked by the library browser when the user
-     * has selected a class, issued the "use" command
-     * and selected the open package to use the class in.
-     *
-     * @param qualifiedName the fully qualified name of the class
-     *        in java format (eg. java.awt.Frame)
-     * @return an error code indicating the status of the insert (eg. NO_ERROR)
-     */
-    public int insertLibClass(String qualifiedName) {
-        // create class icon (ClassTarget) for new class
-
-        ImportedClassTarget target = new ImportedClassTarget(this,
-                                                             qualifiedName);
-        target.setState(Target.S_NORMAL);
-        addTarget(target);
-
-        return NO_ERROR;
     }
 
     /**
-     * Add a new package to this package from a library.
-     * Invoked by the library browser when the user
-     * has selected a package, issued the "use" command
-     * and selected the open package to use the package in.
-     *
-     * @param packageName the name of the package in java format (i.e., java.awt)
-     * @return an error code indicating the status of the insert (e.g., INSERTOK)
+     * Get the DebuggerClassLoader for this package.
+     * The DebuggerClassLoader load classes on the remote VM
+     * (the machine used for user code execution).
      */
-    public int insertLibPackage(String packageName) {
-        Debug.message("Inserting package: " + packageName + " in " + this.getFrame().getTitle());
+    public synchronized DebuggerClassLoader getRemoteClassLoader()
+    {
+        return getProject().getRemoteClassLoader();
+    }
 
-        String packagePath = "";
-        if (getFrame() instanceof PkgMgrFrame) {
-            //	    packagePath = ((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
-            Debug.message("Package lives in directory: " + packagePath);
-        }
-
-        return NO_ERROR;
+    /**
+     * Loads a class using the current class loader.
+     * Creates a classloader if none currently exists.
+     */
+    public Class loadClass(String className)
+    {
+        return getProject().loadClass(className);
     }
 
 
@@ -929,32 +784,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
             enumerations.addElement(extendsArrows.elements());
 
         return new MultiEnumeration(enumerations);
-    }
-
-    /**
-     * Return the base directory, ie the absolute path to the directory
-     * that contains this package (the parent directory).
-     */
-    public String getBaseDir()
-    {
-        if(baseDir == null) {
-            if(packageName == noPackage) {
-                baseDir = new File(dirname).getParent();
-            }
-            else {
-                String dir = new File(dirname).getAbsolutePath();
-
-                int next = 0;
-                do {
-                    dir = new File(dir).getParent();
-                    next = packageName.indexOf('.', next + 1);
-
-                } while((next != -1) && (dir != null));
-
-                baseDir = dir;
-            }
-        }
-        return baseDir;
     }
 
     /**
@@ -1089,11 +918,12 @@ implements CompileObserver, MouseListener, MouseMotionListener
         String[] files = new String[targetList.size()];
         for(int i = 0; i < targetList.size(); i++) {
             ClassTarget ct = (ClassTarget)targetList.get(i);
-            files[i] = ct.sourceFile();
+            files[i] = ct.getSourceFile().getPath();
         }
         removeBreakpoints();
 
-        bluej.compiler.JobQueue.getJobQueue().addJob(files, this, getClassPath(), getDirName());
+        JobQueue.getJobQueue().addJob(files, this, getProject().getClassPath(),
+                                        getProject().getProjectDir().getPath());
     }
 
 
@@ -1103,7 +933,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
     private boolean checkCompile()
     {
         if(Debugger.debugger.getStatus() != Debugger.IDLE) {
-            DialogManager.showMessage(frame, "compile-while-executing");
+            showMessage("compile-while-executing");
             return false;
         }
         else
@@ -1138,12 +968,15 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
     public void addTarget(Target t)
     {
-        targets.put(t.getBaseName(), t);
+        if(t.getPackage() != this)
+            throw new IllegalArgumentException();
+
+        targets.put(t.getIdentifierName(), t);
     }
 
     public void removeTarget(Target t)
     {
-        targets.remove(t.getBaseName());
+        targets.remove(t.getIdentifierName());
     }
 
     /**
@@ -1151,17 +984,18 @@ implements CompileObserver, MouseListener, MouseMotionListener
      * with their name as the key.  If class name changes we need to
      * remove the target and add again with the new key.
      */
+/*XXX should we make target identifiers immutable and require a new target to
+  be constructed to do this rename??
     public void updateTargetIdentifier(Target t, String newIdentifier)
     {
         if(t == null || newIdentifier == null) {
             Debug.reportError("cannot properly update target name...");
             return;
         }
-        targets.remove(t.getBaseName());
+        targets.remove(t.getIdentifierName());
         targets.put(newIdentifier, t);
     }
-
-
+*/
     /**
      *  Removes a class from the Package
      *
@@ -1174,7 +1008,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
             ((ClassTarget)removableTarget).prepareForRemoval();
 
         removeTarget(removableTarget);
-        editor.repaint();
+        getEditor().repaint();
         save();
     }
 
@@ -1228,7 +1062,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         // Debug.message("Implements class dependency from " + from.getName() + " to " + to.getName());
 
         try {
-            ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
 
             Selection s1 = info.getImplementsInsertSelection();
             ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
@@ -1241,12 +1075,12 @@ implements CompileObserver, MouseListener, MouseMotionListener
                 Vector exists = info.getInterfaceTexts();
 
                 // XXX make this equality check against full package name
-                if(!exists.contains(to.getName()))
-                    ed.insertText(", " + to.getName(), false, false);
+                if(!exists.contains(to.getBaseName()))
+                    ed.insertText(", " + to.getBaseName(), false, false);
             } else {
                 // otherwise we need to put the actual "implements" word
                 // and the interface name
-                ed.insertText(" implements " + to.getName(), false, false);
+                ed.insertText(" implements " + to.getBaseName(), false, false);
             }
             ed.save();
         }
@@ -1272,7 +1106,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         // Debug.message("Implements interface dependency from " + from.getName() + " to " + to.getName());
 
         try {
-            ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
 
             Selection s1 = info.getExtendsInsertSelection();
             ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
@@ -1285,12 +1119,12 @@ implements CompileObserver, MouseListener, MouseMotionListener
                 Vector exists = info.getInterfaceTexts();
 
                 // XXX make this equality check against full package name
-                if(!exists.contains(to.getName()))
-                    ed.insertText(", " + to.getName(), false, false);
+                if(!exists.contains(to.getBaseName()))
+                    ed.insertText(", " + to.getBaseName(), false, false);
             } else {
                 // otherwise we need to put the actual "extends" word
                 // and the interface name
-                ed.insertText(" extends " + to.getName(), false, false);
+                ed.insertText(" extends " + to.getBaseName(), false, false);
             }
             ed.save();
         }
@@ -1314,18 +1148,18 @@ implements CompileObserver, MouseListener, MouseMotionListener
         Editor ed = from.getEditor();
 
         try {
-            ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
 
             if (info.getSuperclass() == null) {
                 Selection s1 = info.getExtendsInsertSelection();
 
                 ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
-                ed.insertText(" extends " + to.getName(), false, false);
+                ed.insertText(" extends " + to.getBaseName(), false, false);
             } else {
                 Selection s1 = info.getSuperReplaceSelection();
 
                 ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
-                ed.insertText(to.getName(), false, false);
+                ed.insertText(to.getBaseName(), false, false);
             }
             ed.save();
         }
@@ -1353,7 +1187,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         Editor ed = from.getEditor();
 
         try {
-            ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
             Selection s1 = null;
             Selection s2 = null;               // set to the selections we wish to delete
             Selection sinsert = null;          // our selection if we want to insert something
@@ -1374,7 +1208,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
                             sinserttext = "implements ";
                         }
 
-                    int where = vtexts.indexOf(to.getName());
+                    int where = vtexts.indexOf(to.getBaseName());
 
                     if (where > 0)              // should always be true
                         {
@@ -1396,7 +1230,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
                     s2 = info.getSuperReplaceSelection();
                 }
 
-            // delete (maybe insert) text from end backwards so that our line/col positions
+            // delete (maybe insert) text from the end backwards so that our line/col positions
             // for s1 are not mucked up by the deletion
             if(sinsert != null) {
                 ed.setSelection(sinsert.getLine(), sinsert.getColumn(), sinsert.getLength());
@@ -1492,8 +1326,10 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
         for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
             Target t = (Target)e.nextElement();
-            if(t instanceof ClassTarget || t instanceof PackageTarget) {
-                names.add(t.getBaseName());
+
+            if(t instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget)t;
+                names.add(ct.getBaseName());
             }
         }
         return names;
@@ -1514,7 +1350,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
                 ClassTarget ct = (ClassTarget)t;
 
-                if(filename.equals(ct.sourceFile()))
+                if(filename.equals(ct.getSourceFile().getPath()))
                     return ct;
             }
 
@@ -1556,11 +1392,11 @@ implements CompileObserver, MouseListener, MouseMotionListener
         switch(this.state) {
         case S_DELARROW:
             if(currentArrow != null) {
-                currentArrow.highlight(frame.editor.getGraphics2D());
+                currentArrow.highlight(getEditor().getGraphics2D());
                 currentArrow = null;
             }
-            frame.editor.removeMouseListener(this);
-            frame.editor.removeMouseMotionListener(this);
+            getEditor().removeMouseListener(this);
+            getEditor().removeMouseMotionListener(this);
             break;
         }
 
@@ -1569,8 +1405,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
         // Set up new state, if necessary
         switch(this.state) {
         case S_DELARROW:
-            frame.editor.addMouseListener(this);
-            frame.editor.addMouseMotionListener(this);
+            getEditor().addMouseListener(this);
+            getEditor().addMouseMotionListener(this);
             break;
         }
     }
@@ -1580,37 +1416,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
         return state;
     }
 
-    /**
-     * Return a path to a file in this package. This is done
-     * by concatenating the path to the package and the name
-     * of the file.
-     *
-     * @param basename  The name of the file in the package.
-     * @return  The path to the file within the package.
-     */
-    public String getFileName(String basename)
-    {
-        return dirname + File.separator + basename;
-    }
-
-    public String getClassFileName(String basename)
-    {
-        return dirname + File.separator + basename.replace('.', File.separatorChar);
-    }
-
-    /**
-     * Return the name of a target qualified by the package name (eg for
-     * basename "JFrame" and package "javax.swing" return
-     * "javax.swing.JFrame"). If the base name is already qualified, or
-     * the package has no name, the basename is returned unchanged.
-     */
-    public String getQualifiedName(String basename)
-    {
-        if((packageName == noPackage) || (basename.indexOf('.', 0) != -1))
-            return basename;
-        else
-            return packageName + "." + basename;
-    }
 
 
     /**
@@ -1618,7 +1423,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
      *  @param f the file instance that is tested for denoting a BlueJ package.
      *  @return true if f denotes a directory and a BlueJ package.
      */
-    public static boolean isBlueJPackage(File f) {
+    public static boolean isBlueJPackage(File f)
+    {
         if (f == null)
             return false;
 
@@ -1645,21 +1451,21 @@ implements CompileObserver, MouseListener, MouseMotionListener
         case S_CHOOSE_USES_FROM:
             fromChoice = t;
             setState(S_CHOOSE_USES_TO);
-            frame.setStatus(chooseUsesTo);
+            setStatus(chooseUsesTo);
             break;
 
         case S_CHOOSE_USES_TO:
             if (t != fromChoice) {
                 setState(S_IDLE);
                 addDependency(new UsesDependency(this, fromChoice, t), true);
-                frame.clearStatus();
+                setStatus("");
             }
             break;
 
         case S_CHOOSE_EXT_FROM:
             fromChoice = t;
             setState(S_CHOOSE_EXT_TO);
-            frame.setStatus(chooseInhTo);
+            setStatus(chooseInhTo);
             break;
 
         case S_CHOOSE_EXT_TO:
@@ -1694,7 +1500,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
                             }
                         }
                     }
-                frame.clearStatus();
+                setStatus("");
             }
             break;
 
@@ -1702,8 +1508,39 @@ implements CompileObserver, MouseListener, MouseMotionListener
             // e.g. deleting arrow - selecting target ignored
             break;
         }
-        if (getState() == S_IDLE)
-            frame.resetDependencyButtons();
+//XXX        if (getState() == S_IDLE)
+//            frame.resetDependencyButtons();
+    }
+
+    /**
+     * Use the dialog manager to display an error message.
+     * The PkgMgrFrame is used to find a parent window so we
+     * can correctly offset the dialog.
+     */
+    public void showError(String msgId)
+    {
+        PkgMgrFrame.showError(this, msgId);
+    }
+
+    /**
+     * Use the dialog manager to display a message.
+     * The PkgMgrFrame is used to find a parent window so we
+     * can correctly offset the dialog.
+     */
+    public void showMessage(String msgId)
+    {
+        PkgMgrFrame.showMessage(this, msgId);
+    }
+
+
+    /**
+     * Use the dialog manager to display a message with text.
+     * The PkgMgrFrame is used to find a parent window so we
+     * can correctly offset the dialog.
+     */
+    public void showMessageWithText(String msgId, String text)
+    {
+        PkgMgrFrame.showMessageWithText(this, msgId, text);
     }
 
     /**
@@ -1713,7 +1550,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     public void reportException(String text)
     {
-        DialogManager.showMessageWithText(frame, "exception-thrown", text);
+        showMessageWithText("exception-thrown", text);
     }
 
     /**
@@ -1739,10 +1576,10 @@ implements CompileObserver, MouseListener, MouseMotionListener
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
 
-        if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
+        if(! showEditorMessage(new File(getPath(),sourcename).getPath(), lineNo, msg,
                                false, false, bringToFront, true, null))
-            DialogManager.showMessageWithText(frame, "break-no-source",
-                                              sourcename);
+            showMessageWithText("break-no-source", sourcename);
+
         return bringToFront;
     }
 
@@ -1785,7 +1622,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     public void startCompile(String[] sources)
     {
-        frame.setStatus(compiling);
+        setStatus(compiling);
         for(int i = 0; i < sources.length; i++) {
             String filename = sources[i];
 
@@ -1805,7 +1642,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
     {
         if(! showEditorMessage(filename, lineNo, message, invalidate, true,
                                true, false, Config.compilertype))
-            DialogManager.showMessageWithText(frame, "error-in-file",
+            showMessageWithText("error-in-file",
                                               filename + ":" + lineNo +
                                               "\n" + message);
     }
@@ -1819,7 +1656,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
     {
         if(! showEditorMessage(filename, lineNo, message, invalidate, true,
                                true, false, "exception"))
-            DialogManager.showMessageWithText(frame, "error-in-file",
+            showMessageWithText("error-in-file",
                                               filename + ":" + lineNo +
                                               "\n" + message);
     }
@@ -1830,8 +1667,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     public void endCompile(String[] sources, boolean successful)
     {
-
-
         for(int i = 0; i < sources.length; i++) {
             String filename = sources[i];
 
@@ -1839,10 +1674,11 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
             if (successful) {
 
+                /* compute ctxt files (files with comments and parameters names) */
                 try {
-                    ClassInfo info = ClassParser.parse(t.sourceFile(), getAllClassnames());
+                    ClassInfo info = ClassParser.parse(t.getSourceFile().getPath(), getAllClassnames());
 
-                    OutputStream out = new FileOutputStream(t.contextFile());
+                    OutputStream out = new FileOutputStream(t.getContextFile());
                     info.getComments().store(out, "BlueJ class context");
                     out.close();
                 } catch (Exception ex) {
@@ -1855,8 +1691,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
             if(successful && t.editorOpen())
                 t.getEditor().setCompiled(true);
         }
-        frame.setStatus(compileDone);
-        frame.editor.repaint();
+            setStatus(compileDone);
+            getEditor().repaint();
 
     }
 
@@ -1869,12 +1705,11 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     public void reportExit(String exitCode)
     {
-        DialogManager.showMessageWithText(frame, "system-exit", exitCode);
+        showMessageWithText("system-exit", exitCode);
     }
 
     /**
-     * getLocalClassLoader - get the ClassLoader for this package.
-     *  The ClassLoader load classes on the local VM.
+     * Closes all currently open editors within package.
      */
     private synchronized ClassLoader getLocalClassLoader()
     {
@@ -1953,17 +1788,16 @@ implements CompileObserver, MouseListener, MouseMotionListener
     public void closeAllEditors()
     {
         for(Enumeration e = targets.elements(); e.hasMoreElements(); )
+        {
+            Target t = (Target)e.nextElement();
+            if(t instanceof ClassTarget)
             {
-                Target t = (Target)e.nextElement();
-                if(t instanceof ClassTarget)
-                    {
-                        ClassTarget ct = (ClassTarget)t;
-                        if(ct.editorOpen())
-                            ct.getEditor().close();
-                    }
+                ClassTarget ct = (ClassTarget)t;
+                if(ct.editorOpen())
+                    ct.getEditor().close();
             }
+        }
     }
-
 
     /**
      * get history of invocation calls
@@ -1974,69 +1808,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
         return callHistory;
     }
 
-
-
-    // Add a title to printouts
-    static final int PRINT_HMARGIN = 6;
-    static final int PRINT_VMARGIN = 24;
-    static final Font printTitleFont = new Font("SansSerif", Font.PLAIN,
-                                                12); //Config.printTitleFontsize);
-    static final Font printInfoFont = new Font("SansSerif", Font.ITALIC,
-                                               10); //Config.printInfoFontsize);
-
-    /**
-     * Return the rectangle on the page in which to draw the class diagram.
-     * The rectangle is the page minus margins minus space for header and
-     * footer text.
-     */
-    public Rectangle getPrintArea(PageFormat pageFormat)
-    {
-        FontMetrics tfm = frame.getFontMetrics(printTitleFont);
-        FontMetrics ifm = frame.getFontMetrics(printInfoFont);
-        return new Rectangle((int)pageFormat.getImageableX() + PRINT_HMARGIN,
-                             (int)pageFormat.getImageableY() + 2 * PRINT_VMARGIN,
-                             (int)pageFormat.getImageableWidth() - (2 * PRINT_HMARGIN),
-                             (int)pageFormat.getImageableHeight() - (2 * PRINT_VMARGIN));
-    }
-
-
-    /**
-     * Print the page title and other page decorations (frame, footer).
-     */
-    public void printTitle(Graphics g, PageFormat pageFormat, int pageNum)
-    {
-        FontMetrics tfm = frame.getFontMetrics(printTitleFont);
-        FontMetrics ifm = frame.getFontMetrics(printInfoFont);
-        Rectangle printArea = new Rectangle((int)pageFormat.getImageableX(),
-                                            (int)pageFormat.getImageableY(),
-                                            (int)pageFormat.getImageableWidth(),
-                                            (int)pageFormat.getImageableHeight());
-
-        // frame header area
-        g.setColor(lightGrey);
-        g.fillRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
-
-        g.setColor(titleCol);
-        g.drawRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
-
-        // frame print area
-        g.drawRect(printArea.x, printArea.y, printArea.width,
-                   printArea.height - PRINT_VMARGIN);
-
-        // write header
-        String title = (packageName == noPackage) ? dirname : packageName;
-        g.setFont(printTitleFont);
-        Utility.drawCentredText(g, "BlueJ package - " + title,
-                                printArea.x, printArea.y,
-                                printArea.width, tfm.getHeight());
-        // write footer
-        g.setFont(printInfoFont);
-        DateFormat dateFormat = DateFormat.getDateTimeInstance();
-        Utility.drawRightText(g, dateFormat.format(new Date()) + ", page " + pageNum,
-                              printArea.x, printArea.y + printArea.height - PRINT_VMARGIN,
-                              printArea.width, ifm.getHeight());
-    }
-
     /**
      * Called after a change to a Target
      */
@@ -2045,10 +1816,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
         if(t instanceof ClassTarget) {
             ClassTarget ct = (ClassTarget)t;
 
-            if((loader != null) /*&& loader.hasClass(ct.getName())*/) {
-                removeLocalClassLoader();
-                removeRemoteClassLoader();
-            }
+            getProject().removeLocalClassLoader();
+            getProject().removeRemoteClassLoader();
         }
     }
 
@@ -2057,8 +1826,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     Dependency findArrow(int x, int y)
     {
-        // FIX: check if translation necessary (scrolling, etc.)
-
         for(Enumeration e = usesArrows.elements(); e.hasMoreElements(); ) {
             Dependency d = (Dependency)e.nextElement();
             if(d.contains(x, y))
@@ -2082,7 +1849,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         case S_DELARROW:
             Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
             if((currentArrow != null) && (currentArrow != selectedArrow))
-                currentArrow.highlight(frame.editor.getGraphics2D());
+                currentArrow.highlight(getEditor().getGraphics2D());
             if(selectedArrow != null)
                 {
 
@@ -2091,7 +1858,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
                             userRemoveDependency(selectedArrow);
                         }
                     removeDependency(selectedArrow, true);
-                    frame.editor.repaint();
+                    getEditor().repaint();
                 }
             currentArrow = null;
             setState(S_IDLE);
@@ -2114,9 +1881,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
         case S_DELARROW:	// currently deleting an arrow
             Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
             if((currentArrow != null) && (currentArrow != selectedArrow))
-                currentArrow.highlight(frame.editor.getGraphics2D());
+                currentArrow.highlight(getEditor().getGraphics2D());
             if((selectedArrow != null) && (currentArrow != selectedArrow))
-                selectedArrow.highlight(frame.editor.getGraphics2D());
+                selectedArrow.highlight(getEditor().getGraphics2D());
             currentArrow = selectedArrow;
             break;
         }

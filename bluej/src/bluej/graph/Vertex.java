@@ -1,45 +1,44 @@
-/**
- ** @version $Id: Vertex.java 427 2000-04-18 04:33:04Z ajp $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** General graph vertices
- **/
-
 package bluej.graph;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 
+/**
+ * General graph vertices
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: Vertex.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public abstract class Vertex
 {
-    public int x, y;		// position
-    public int width, height;	// size
+    public int x, y;            // position
+    public int width, height;   // size
 
     public Vertex(int x, int y, int width, int height)
     {
-	this.x = x;
-	this.y = y;
-	this.width = width;
-	this.height = height;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
 
     public void setPos(int x, int y)
     {
-	this.x = x;
-	this.y = y;
+        this.x = x;
+        this.y = y;
     }
 
     public void setSize(int width, int height)
     {
-	this.width = width;
-	this.height = height;
+        this.width = width;
+        this.height = height;
     }
 
     public int getWidth()
     {
-	return this.width;
+        return this.width;
     }
 
     void drawUntranslated(Graphics g)

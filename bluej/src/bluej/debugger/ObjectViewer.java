@@ -21,7 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 431 2000-04-27 01:19:49Z ajp $
+ ** @version $Id: ObjectViewer.java 505 2000-05-24 05:44:24Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -426,15 +426,15 @@ public final class ObjectViewer extends JFrame
      */
     private void doGet()
     {
-        ObjectWrapper wrapper = new ObjectWrapper(selectedObject,
-                                                    selectedObjectName,
-                                                    pkg);
-        pkg.getFrame().getObjectBench().add(wrapper);  // might change name
+/*        ObjectWrapper wrapper = new ObjectWrapper(pmf, selectedObject,
+                                                    selectedObjectName);
+        pmf.getObjectBench().add(wrapper);  // might change name
 
         // load the object into runtime scope
         Debugger.debugger.addObjectToScope(pkgScopeId, viewerId,
                                             selectedObjectName,
                                             wrapper.getName());
+*/
     }
 
 
@@ -619,11 +619,11 @@ public final class ObjectViewer extends JFrame
 	mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 	pack();
-	if(isInspection || pkg == null) {
+/*XXX	if(isInspection || pkg == null) {
 	    DialogManager.tileWindow(this, parent);
 	}
 	else
-	    DialogManager.centreWindow(this, pkg.getFrame());
+	    DialogManager.centreWindow(this, pkg.getFrame()); */
 
 	setVisible(true);
 	button.requestFocus();

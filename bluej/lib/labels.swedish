@@ -143,8 +143,8 @@ editor.goto-lineLabel = Gå till rad...
 editor.compileLabel = Kompilera
 editor.toggle-breakpointLabel = Sätt/Ta bort brytpunkt
 
-editor.state.readOnly = endast läsning 
-editor.state.saved = sparad 
+editor.state.readOnly = endast läsning
+editor.state.saved = sparad
 editor.state.changed = ändrad
 
 editor.key-bindingsLabel = Tangentbordskommandon...
@@ -157,7 +157,7 @@ editor.functions.moveScroll = Flytta & Scrolla
 editor.functions.classFunctions = Klassfunktioner
 editor.functions.customisation = Customisation
 editor.functions.help = Hjälp
-editor.functions.misc = Övrigt 
+editor.functions.misc = Övrigt
 editor.functions.defaults=Default värden
 editor.functions.categories=Kategorier:
 editor.functions.keys=Tangentbordskommando
@@ -217,7 +217,6 @@ pkgmgr.newUses=Ny Använder Pil
 pkgmgr.newExtends=Ny Extends Pil
 pkgmgr.unimplemented=Tyvärr - inte implementerat ännu
 pkgmgr.pkgChooseError=Fel vid val av giltigt Paketnamn
-pkgmgr.noPackage=<No Package>
 pkgmgr.chooseWebPage.title=Välj destination för HTML sida
 
 pkgmgr.classmenu.runApplet=Kör Applet

@@ -36,7 +36,6 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
-
 /**
  * A class target in a package, i.e. a target that is a class file
  * built from Java source code
@@ -45,10 +44,9 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 427 2000-04-18 04:33:04Z ajp $
+ * @version $Id: ClassTarget.java 505 2000-05-24 05:44:24Z ajp $
  */
 public class ClassTarget extends EditableTarget
-
 	implements ActionListener
 {
     // Define Background Colours
@@ -84,17 +82,18 @@ public class ClassTarget extends EditableTarget
     /**
      * Create a new class target in package 'pkg'.
      */
-    public ClassTarget(Package pkg, String name)
+    public ClassTarget(Package pkg, String baseName)
     {
-        this(pkg, name, false);
+        this(pkg, baseName, false);
     }
 
     /**
      * Create a new class target in package 'pkg'.
      */
-    public ClassTarget(Package pkg, String name, boolean isApplet)
+    public ClassTarget(Package pkg, String baseName, boolean isApplet)
     {
-        super(pkg, name);
+        super(pkg, baseName);
+
         if(isApplet)
             role = new AppletClassRole();
         else
@@ -102,14 +101,22 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     *  Create a new class target in package 'pkg' without a name. The
-     *  name must be set later.
+     * Return the target's name, including the package name.
+     * eg. bluej.pkgmgr.Target
      */
-    public ClassTarget(Package pkg, boolean isApplet)
+    public String getQualifiedName()
     {
-        this(pkg, null, isApplet);
+        return getPackage().getQualifiedName(getBaseName());
     }
 
+    /**
+     * Return the target's base name (ie the name without the package name).
+     * eg. Target
+     */
+    public String getBaseName()
+    {
+        return getIdentifierName();
+    }
 
     /**
      * load existing information about this class target
@@ -150,16 +157,16 @@ public class ClassTarget extends EditableTarget
     {
         boolean okay = true;
 
-        if (!BlueJFileReader.copyFile(sourceFile(),
-                                      directory + name + ".java"))
+        if (!BlueJFileReader.copyFile(getSourceFile(),
+                                      new File(directory, getBaseName() + ".java")))
             okay = false;
 
         if(upToDate()) {
-            if(!BlueJFileReader.copyFile(classFile(),
-                                         directory + name + ".class"))
+            if(!BlueJFileReader.copyFile(getClassFile(),
+                                         new File(directory, getBaseName() + ".class")))
                 okay = false;
-            if(!BlueJFileReader.copyFile(contextFile(),
-                                         directory + name + ".ctxt"))
+            if(!BlueJFileReader.copyFile(getContextFile(),
+                                         new File(directory, getBaseName() + ".ctxt")))
                 okay = false;
         }
         return okay;
@@ -173,8 +180,8 @@ public class ClassTarget extends EditableTarget
     {
         try {
             // Check if the class file is up to date
-            File src = new File(sourceFile());
-            File clss = new File(classFile());
+            File src = getSourceFile();
+            File clss = getClassFile();
 
             if(!clss.exists()
                || (src.exists() && (src.lastModified() > clss.lastModified())))
@@ -303,18 +310,28 @@ public class ClassTarget extends EditableTarget
     /**
      * @return the name of the (text) file this target corresponds to.
      */
-    public String sourceFile()
+    public File getSourceFile()
     {
-        return pkg.getFileName(name) + ".java";
+        return new File(getPackage().getPath(), getBaseName() + ".java");
     }
 
     /**
      * @return the name of the context(.ctxt) file this target corresponds to.
      */
-    public String contextFile()
+    public File getContextFile()
     {
-        return pkg.getFileName(name) + ".ctxt";
+        return new File(getPackage().getPath(), getBaseName() + ".ctxt");
     }
+
+    /**
+     * @return the name of the class (.class) file this target corresponds to.
+     */
+    public File getClassFile()
+    {
+        return new File(getPackage().getPath(), getBaseName() + ".class");
+    }
+
+
     /**
      ** @return the editor object associated with this target. May be null
      **  if there was a problem opening this editor.
@@ -322,7 +339,7 @@ public class ClassTarget extends EditableTarget
     public Editor getEditor()
     {
         if(editor == null)
-            editor = pkg.editorManager.openClass(sourceFile(), name, this,
+            editor = getPackage().editorManager.openClass(getSourceFile().getPath(), getBaseName(), this,
                                                  isCompiled(), breakpoints);
         return editor;
     }
@@ -367,8 +384,8 @@ public class ClassTarget extends EditableTarget
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     {
         if(isCompiled()) {
-            DebuggerClassLoader loader = pkg.getRemoteClassLoader();
-            return Debugger.debugger.toggleBreakpoint(name, lineNo, set,
+            DebuggerClassLoader loader = getPackage().getRemoteClassLoader();
+            return Debugger.debugger.toggleBreakpoint(getQualifiedName(), lineNo, set,
                                                       loader);
         }
         else
@@ -390,7 +407,7 @@ public class ClassTarget extends EditableTarget
 
     public void compile(Editor editor)
     {
-        pkg.compile(this);
+        getPackage().compile(this);
     }
 
     // --- end of EditorWatcher interface ---
@@ -415,11 +432,6 @@ public class ClassTarget extends EditableTarget
     }
 
 
-    public String classFile()
-    {
-        return pkg.getClassFileName(name) + ".class";
-    }
-
 
     /**
      * generates a source code skeleton for this class
@@ -428,7 +440,8 @@ public class ClassTarget extends EditableTarget
     public void generateSkeleton()
     {
         // delegate to role object
-        role.generateSkeleton(pkg, name, sourceFile(), isAbstract(), isInterface());
+        role.generateSkeleton(getPackage(), getBaseName(), getSourceFile().getPath(),
+                                isAbstract(), isInterface());
         // do we need to check whether skeleton generated before setting state?
         setState(Target.S_INVALID);
     }
@@ -527,17 +540,16 @@ public class ClassTarget extends EditableTarget
     	removeInheritDependencies();
     	unflagAllOutDependencies();
 
-        ClassInfo info = sourceInfo.getInfo(sourceFile(),
-                                            pkg.getAllClassnames());
-
+        ClassInfo info = sourceInfo.getInfo(getSourceFile().getPath(),
+                                            getPackage().getAllClassnames());
 
         // info will be null if the source was unparseable
         if(info == null) {
-            pkg.repaint();
+            getPackage().repaint();
             return;
         }
 
-        checkName(info);
+//        checkName(info);
 
         if(info.isApplet()) {
             if( ! (role instanceof AppletClassRole))
@@ -554,10 +566,10 @@ public class ClassTarget extends EditableTarget
         // handle superclass
 
         if(info.getSuperclass() != null) {
-            Target superclass = pkg.getTarget(info.getSuperclass());
+            Target superclass = getPackage().getTarget(info.getSuperclass());
             if (superclass != null)
-                pkg.addDependency(
-                                  new ExtendsDependency(pkg, this, superclass),
+                getPackage().addDependency(
+                                  new ExtendsDependency(getPackage(), this, superclass),
                                   false);
         }
 
@@ -566,11 +578,11 @@ public class ClassTarget extends EditableTarget
         Vector vect = info.getImplements();
         for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
             String name = (String)e.nextElement();
-            Target interfce = pkg.getTarget(name);
+            Target interfce = getPackage().getTarget(name);
             // Debug.message("Implements " + name);
             if (interfce != null) {
-                pkg.addDependency(
-                                  new ImplementsDependency(pkg, this, interfce),
+                getPackage().addDependency(
+                                  new ImplementsDependency(getPackage(), this, interfce),
                                   false);
             }
         }
@@ -579,14 +591,14 @@ public class ClassTarget extends EditableTarget
         vect = info.getUsed();
         for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
             String name = (String)e.nextElement();
-            Target used = pkg.getTarget(name);
+            Target used = getPackage().getTarget(name);
             if (used != null)
-                pkg.addDependency(new UsesDependency(pkg, this, used), true);
+                getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
         }
 
         checkForUsesInconsistencies();
 
-        pkg.repaint();
+        getPackage().repaint();
     }
 
     private void checkForUsesInconsistencies()
@@ -594,7 +606,7 @@ public class ClassTarget extends EditableTarget
         for(int i = 0; i < outUses.size(); i++) {
             UsesDependency usesDep = ((UsesDependency)outUses.elementAt(i));
             if(! usesDep.isFlagged())
-                pkg.getFrame().setStatus(usesArrowMsg + usesDep);
+                getPackage().setStatus(usesArrowMsg + usesDep);
         }
     }
 
@@ -606,19 +618,23 @@ public class ClassTarget extends EditableTarget
      */
     private void checkName(ClassInfo info)
     {
-        if(!name.equals(info.getName())) {
+        String newName = info.getName();
+
+        if(!getBaseName().equals(newName)) {
             //need to check that class does not already exist
-            if(pkg.getTarget(info.getName()) != null) {
-                DialogManager.showError(pkg.getFrame(), "duplicate-name");
+            if(getPackage().getTarget(newName) != null) {
+                getPackage().showError("duplicate-name");
                 return;
             }
-            String newSourceFileName = pkg.getDirName() + File.separator + info.getName() + ".java";
-            String oldSourceFileName = sourceFile();
-            if(BlueJFileReader.copyFile(oldSourceFileName , newSourceFileName)) {
-                pkg.updateTargetIdentifier(this, info.getName());
+
+            File newSourceFile = new File(getPackage().getPath(), newName + ".java");
+            File oldSourceFile = getSourceFile();
+
+            if(BlueJFileReader.copyFile(oldSourceFile, newSourceFile)) {
+/*  XXX              getPackage().updateTargetIdentifier(this, info.getName());
                 getEditor().changeName(info.getName(), newSourceFileName);
-                role.prepareFilesForRemoval(oldSourceFileName, classFile(), contextFile());
-                name = info.getName();
+                role.prepareFilesForRemoval(oldSourceFileName, getClassFile().getPath(), getContextFile().getPath());
+                name = info.getName(); */
             }
         }
     }
@@ -631,12 +647,11 @@ public class ClassTarget extends EditableTarget
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
     {
         if (state == S_NORMAL) {
-            //  	    Class cl = pkg.loadClass(fullname);
-            Class cl = pkg.loadClass(name);
+            Class cl = getPackage().loadClass(getQualifiedName());
             if ((cl != null) && (last_class != cl)) {
                 if (menu != null)
                     editor.remove(menu);
-                menu = createMenu(cl, editor.getFrame());
+                menu = createMenu(cl);
                 editor.add(menu);
                 compiledMenu = true;
             }
@@ -644,7 +659,7 @@ public class ClassTarget extends EditableTarget
         }
         else {
             if (compiledMenu || menu == null) {
-                menu = createMenu(null, editor.getFrame());
+                menu = createMenu(null);
                 editor.add(menu);
                 compiledMenu = false;
             }
@@ -653,20 +668,21 @@ public class ClassTarget extends EditableTarget
             menu.show(editor, evt.getX(), evt.getY());
     }
 
+
+
     protected Hashtable actions;
 
     /**
      * creates a popup menu for this class target.
      *
-     * @param cl Class object associated with this class target
-     * @param editorFrame the parent editorFrame
-     *
-     * @return the created popup menu object
+     * @param   cl  class object associated with this class target
+     * @return      the created popup menu object
      */
-    protected JPopupMenu createMenu(Class cl, JFrame editorFrame) {
+    protected JPopupMenu createMenu(Class cl)
+    {
         actions = new Hashtable();
 
-        JPopupMenu menu = new JPopupMenu(getName() + " operations");
+        JPopupMenu menu = new JPopupMenu(getBaseName() + " operations");
 
     	// call on role object to add any options needed
      	role.createMenu(menu, this, state);
@@ -747,11 +763,12 @@ public class ClassTarget extends EditableTarget
                 if(!filter.accept(m))
                     continue;
                 // Debug.message("createSubMenu - creating MenuItem");
-                item = new JMenuItem(prefix + m.getShortDesc());
-                item.addActionListener(this);
+
+                Action callAction = new CallAction(prefix + m.getShortDesc(),
+                                                    this, m);
+
+                item = menu.add(callAction);
                 item.setFont(PrefMgr.getStandardMenuFont());
-                actions.put(item, m);
-                menu.add(item);
                 hasEntries = true;
             } catch(Exception e) {
                 Debug.reportError("Exception accessing methods: " + e);
@@ -761,6 +778,29 @@ public class ClassTarget extends EditableTarget
         return hasEntries;
     }
 
+    private class CallAction extends AbstractAction
+    {
+        private CallableView cv;
+        private Target t;
+
+        public CallAction(String menu, Target t, CallableView cv)
+        {
+            super(menu);
+            this.cv = cv;
+            this.t = t;
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            if(state != S_NORMAL) {
+                Debug.reportError("Can't instantiate modified class");
+                return;
+            }
+
+            getPackage().getEditor().raiseMethodCallEvent(t, cv);
+
+        }
+    }
 
     /**
      *  Draw this target, redefined from Target.
@@ -785,49 +825,6 @@ public class ClassTarget extends EditableTarget
         String cmd = e.getActionCommand();
 
         if(member != null) {
-            if(state != S_NORMAL) {
-                Debug.reportError("Can't instantiate modified class");
-                return;
-            }
-
-            ResultWatcher watcher = null;
-
-            // if we are constructing an object, create a watcher that waits for
-            // completion of the call and then places the object on the object
-            // bench
-
-            if(member instanceof ConstructorView)
-                watcher = new ResultWatcher() {
-                        public void putResult(DebuggerObject result, String name) {
-                            if((name == null) || (name.length() == 0))
-                                name = "result";
-                            if(result != null) {
-                                ObjectWrapper wrapper =
-                                    new ObjectWrapper(result.getInstanceFieldObject(0),
-                                                      name, pkg);
-                                pkg.getFrame().getObjectBench().add(wrapper);
-                            }
-                            else
-                                Debug.reportError("cannot get execution result");
-                        }
-                    };
-
-            // if we are calling a method that has a result, create a watcher
-            // that waits for completion of the call and then displays the
-            // result
-
-            else if(!((MethodView)member).isVoid())
-                watcher = new ResultWatcher() {
-                        public void putResult(DebuggerObject result, String name) {
-                            ObjectViewer viewer =
-                                ObjectViewer.getViewer(false, result, name, pkg, true,
-                                                       pkg.getFrame());
-                        }
-                    };
-
-            // create an Invoker to handle the actual invocation
-
-            new Invoker(pkg, (CallableView)member, null, watcher);
         }
         else if(editStr.equals(cmd)) {
             showView(Editor.IMPLEMENTATION);
@@ -842,14 +839,15 @@ public class ClassTarget extends EditableTarget
             showView(Editor.INHERITED);
         }
         else if(compileStr.equals(cmd)) {
-            pkg.compile(this);
+            getPackage().compile(this);
         }
         else if(removeStr.equals(cmd)) {
-            try {
-                ((PkgMgrFrame)pkg.getFrame()).removeClass(this);
-            } catch (ClassCastException cce) {
-                System.err.println("Invalid cast to JFrame in ClassTarget");
-            }
+            // getPackage().raiseRemoveEvent()
+//XXX            try {
+//                ((PkgMgrFrame)getPackage().getFrame()).removeClass(this);
+//            } catch (ClassCastException cce) {
+//                System.err.println("Invalid cast to JFrame in ClassTarget");
+//            }
         }
         else
             // if not handled send to class role for consumption
@@ -879,8 +877,8 @@ public class ClassTarget extends EditableTarget
 
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-        if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
-            (pkg.getState() == Package.S_CHOOSE_EXT_TO) ) {
+        if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
+            (getPackage().getState() == Package.S_CHOOSE_EXT_TO) ) {
             // Draw a line from this Target to the current Cursor position
             Graphics g = editor.getGraphics();
             g.setColor(colBorder);
@@ -896,7 +894,7 @@ public class ClassTarget extends EditableTarget
 
     public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-        if (pkg.getState() != Package.S_IDLE)
+        if (getPackage().getState() != Package.S_IDLE)
             {
                 // Draw a line from this Target to the current Cursor position
                 Graphics g = editor.getGraphics();
@@ -911,6 +909,8 @@ public class ClassTarget extends EditableTarget
             super.mouseMoved(evt, x, y, editor);
     }
 
+    /*
+     */
     public void showView(int viewType)
     {
         if(viewType == displayedView)
@@ -939,7 +939,7 @@ public class ClassTarget extends EditableTarget
             reopen();
         else {
             editor.clear();
-            Class cl = pkg.loadClass(name);
+            Class cl = getPackage().loadClass(getQualifiedName());
             if(cl != null) {
                 View view = View.getView(cl);
                 int filterType = 0;
@@ -960,7 +960,6 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     *
      * Prepares this ClassTarget for removal from a Package.
      * It removes dependency arrows and calls prepareFilesForRemoval()
      * to remove applicable files.
@@ -988,9 +987,9 @@ public class ClassTarget extends EditableTarget
     public void prepareFilesForRemoval()
     {
         // delegated to role object
-        role.prepareFilesForRemoval(sourceFile(), classFile(), contextFile());
+        role.prepareFilesForRemoval(getSourceFile().getPath(), getClassFile().getPath(),
+                                    getContextFile().getPath());
     }
-
 
 
     // Internal strings

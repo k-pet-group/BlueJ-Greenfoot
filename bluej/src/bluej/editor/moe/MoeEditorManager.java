@@ -17,9 +17,8 @@ import java.io.*;		// Object input, ouput streams
 **
 **/
 
-public final class MoeEditorManager 
-
-implements bluej.editor.EditorManager
+public final class MoeEditorManager
+    implements bluej.editor.EditorManager
 {
     // public static variables
 
@@ -38,7 +37,7 @@ implements bluej.editor.EditorManager
     // =========================== PUBLIC METHODS ===========================
 
     public MoeEditorManager()
-    {	
+    {
         editors = new Vector(4,4);
         finder = new Finder();
 
@@ -54,8 +53,8 @@ implements bluej.editor.EditorManager
     // ------------------------------------------------------------------------
     /**
     ** Open an editor to display a class. The filename may be "null"
-    ** to open an empty editor (e.g. for displaying a view). The editor 
-    ** is initially hidden. A call to "Editor::show" is needed to make 
+    ** to open an empty editor (e.g. for displaying a view). The editor
+    ** is initially hidden. A call to "Editor::show" is needed to make
     ** is visible after opening it.
     **
     ** @param filename	name of the source file to open (may be null)
@@ -66,21 +65,21 @@ implements bluej.editor.EditorManager
     ** @returns		the new editor, or null if there was a problem
     **/
 
-    public Editor openClass(String filename, String windowTitle, 
+    public Editor openClass(String filename, String windowTitle,
                             EditorWatcher watcher, boolean compiled,
                             Vector breakpoints)	// inherited from EditorManager
     {
-        return openEditor (filename, true, windowTitle, watcher, compiled, 
+        return openEditor (filename, true, windowTitle, watcher, compiled,
                            breakpoints);
     }
 
     // ------------------------------------------------------------------------
     /**
-    ** Open an editor to display a text document. The difference to 
-    ** "openClass" is that code specific functions (such as compile, 
+    ** Open an editor to display a text document. The difference to
+    ** "openClass" is that code specific functions (such as compile,
     ** debug, view) are disabled in the editor. The filename may be
-    ** "null" to open an empty editor. The editor is initially hidden. 
-    ** A call to "Editor::show" is needed to make is visible after 
+    ** "null" to open an empty editor. The editor is initially hidden.
+    ** A call to "Editor::show" is needed to make is visible after
     ** opening it.
     **
     ** @param filename	name of the source file to open (may be null)
@@ -89,7 +88,7 @@ implements bluej.editor.EditorManager
     ** @returns		the new editor, or null if there was a problem
     **/
 
-    public Editor openText(String filename, String windowTitle, 
+    public Editor openText(String filename, String windowTitle,
                            EditorWatcher watcher)	// inherited from EditorManager
     {
         return openEditor (filename, false, windowTitle, watcher, false, null);
@@ -123,12 +122,12 @@ implements bluej.editor.EditorManager
     //     // Create a file dialog to query the user for a filename
     //     FileDialog fd = new FileDialog(editor.getFrame(), "Load File",
     // 				   FileDialog.LOAD);
-    // 
+    //
     //     fd.show();                      	// Display the dialog and block
     //     String filename = fd.getFile();  	// Get users response
-    // 
+    //
     //     if(filename != null)          	// if user didn't click "Cancel"
-    //     { 
+    //     {
     // 	// See if the requested file is readable
     // 	File file = new File(filename);
     // 	if(file.canRead())
@@ -146,7 +145,7 @@ implements bluej.editor.EditorManager
     /**
     ** An editor has issued a "save_as" (or a save with no
     ** filename specified).  It now requests of Red to initiate a "save-as"
-    ** dialog.  The file selection dialog is shown. If the 
+    ** dialog.  The file selection dialog is shown. If the
     ** OK button was clicked save the buffer under that new filename.
     **
     ** Only used in stand-alone version.
@@ -155,7 +154,7 @@ implements bluej.editor.EditorManager
     //   public void saveAsRequest(RedEditor editor)
     //   {
     //     // Create a file dialog to query the user for a filename
-    //     FileDialog fd = new FileDialog(editor.getFrame(), "Save File As", 
+    //     FileDialog fd = new FileDialog(editor.getFrame(), "Save File As",
     // 				   FileDialog.SAVE);
     //     fd.show();                      	// Display the dialog and block
     //     String filename = fd.getFile();     	// Get users response
@@ -182,18 +181,13 @@ implements bluej.editor.EditorManager
             Toolkit.getDefaultToolkit().beep();
     }
 
-    // ========================== PACKAGE METHODS ===========================
-
-    // ------------------------------------------------------------------------
-    /**
-    ** Remove an editor from the list of open editors. Called by MoeEditor 
-    ** when it closes.
-    **/
-
-    void removeEditor(MoeEditor editor)
+    public void discardEditor(Editor ed)
     {
-        editors.removeElement(editor);
+        ed.close();
+        editors.removeElement(ed);
     }
+
+    // ========================== PACKAGE METHODS ===========================
 
     // ------------------------------------------------------------------------
     /**
@@ -210,8 +204,8 @@ implements bluej.editor.EditorManager
     // ------------------------------------------------------------------------
     /**
     ** Open an editor to display a class. The filename may be "null"
-    ** to open an empty editor (e.g. for displaying a view). The editor 
-    ** is initially hidden. A call to "Editor::show" is needed to make 
+    ** to open an empty editor (e.g. for displaying a view). The editor
+    ** is initially hidden. A call to "Editor::show" is needed to make
     ** is visible after opening it.
     **
     ** @param filename	name of the source file to open (may be null)
@@ -222,13 +216,13 @@ implements bluej.editor.EditorManager
     ** @returns		the new editor, or null if there was a problem
     **/
 
-    private Editor openEditor(String filename, boolean isCode, 
-                              String windowTitle, EditorWatcher watcher, 
+    private Editor openEditor(String filename, boolean isCode,
+                              String windowTitle, EditorWatcher watcher,
                               boolean compiled, Vector breakpoints)
     {
         MoeEditor editor;
 
-        editor = new MoeEditor(windowTitle, isCode, watcher, showToolBar, 
+        editor = new MoeEditor(windowTitle, isCode, watcher, showToolBar,
                                showLineNum, resources);
         editors.addElement(editor);
         if (watcher!=null && filename==null)	// editor for class interface
@@ -251,11 +245,11 @@ implements bluej.editor.EditorManager
         //     String filename = red_prefs_file;
         //     String version = RedVersion.versionString();
         //     boolean done = false;
-        // 
+        //
         //     try {
         // 	FileInputStream fis = new FileInputStream(filename);
         // 	ObjectInputStream file = new ObjectInputStream(fis);
-        // 		
+        //
         // 	version = (String)file.readObject();
         // 	if(!version.equals(RedVersion.versionString()))
         // 	{
@@ -264,7 +258,7 @@ implements bluej.editor.EditorManager
         // 	    done = false;
         // 	    file.close ();
         // 	}
-        // 	
+        //
         // 	show_toolbar = file.readBoolean();
         // 	show_line_num = file.readBoolean();
         // 	beep_warning = file.readBoolean();
@@ -274,13 +268,13 @@ implements bluej.editor.EditorManager
         // 	quote_string = (String)file.readObject();
         // 	comment_start_string = (String)file.readObject();
         // 	comment_end_string = (String)file.readObject();
-        // 		
+        //
         // 	file.close ();
         // 	done = true;
         //     } catch(Exception e) {
         // 	done = false; 			// pref file does not exist
         //     }
-        // 	    
+        //
         //     if (!done)		//  -> use defaults
         //     {
         // 	show_toolbar = true;
@@ -293,7 +287,7 @@ implements bluej.editor.EditorManager
         // 	comment_start_string = "//";
         // 	comment_end_string = "";
         //     }
-        // 
+        //
         //     if (!version.equals(RedVersion.versionString())) // pref version is old...
         // 	write_prefs ();
     }
@@ -306,7 +300,7 @@ implements bluej.editor.EditorManager
     public void write_prefs ()
     {
         //     String filename = red_prefs_file;
-        // 
+        //
         //     try {
         // 	FileOutputStream fos = new FileOutputStream(filename);
         // 	ObjectOutputStream file = new ObjectOutputStream(fos);

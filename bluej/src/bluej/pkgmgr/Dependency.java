@@ -9,49 +9,47 @@ import java.awt.Point;
 import java.awt.Color;
 
 /**
- ** A dependency between two targets in a package
- **
- ** @author Michael Cahill
- **
- ** @version $Id: Dependency.java 485 2000-05-18 03:00:38Z mik $
- **/
-
+ * A dependency between two targets in a package
+ *
+ * @author  Michael Cahill
+ * @version $Id: Dependency.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public abstract class Dependency extends Edge
 {
     Package pkg;
 
     public Dependency(Package pkg, Target from, Target to)
     {
-	super(from, to);
-	this.pkg = pkg;
+        super(from, to);
+        this.pkg = pkg;
     }
 
     public Dependency(Package pkg)
     {
-	this(pkg, null, null);
+        this(pkg, null, null);
     }
 
     public boolean equals(Object other)
     {
-	if(!(other instanceof Dependency))
-	    return false;
-	Dependency d = (Dependency)other;
-	return (d != null) && (d.from == from) && (d.to == to);
+        if(!(other instanceof Dependency))
+            return false;
+        Dependency d = (Dependency)other;
+        return (d != null) && (d.from == from) && (d.to == to);
     }
 
     public int hashCode()
     {
-	return to.hashCode() - from.hashCode();
+        return to.hashCode() - from.hashCode();
     }
 
     public Target getFrom()
     {
-	return (Target)from;
+        return (Target)from;
     }
 
     public Target getTo()
     {
-	return (Target)to;
+        return (Target)to;
     }
 
     public void load(Properties props, String prefix)
@@ -68,8 +66,8 @@ public abstract class Dependency extends Edge
 
     public void save(Properties props, String prefix)
     {
-	props.put(prefix + ".from", ((Target)from).getName());
-	props.put(prefix + ".to", ((Target)to).getName());
+        props.put(prefix + ".from", ((Target)from).getIdentifierName());
+        props.put(prefix + ".to", ((Target)to).getIdentifierName());
     }
 
     public abstract void draw(Graphics2D g);
@@ -78,6 +76,7 @@ public abstract class Dependency extends Edge
 
     public String toString()
     {
-	return getFrom().getBaseName() + " --> " + getTo().getBaseName();
+        return getFrom().getIdentifierName() +
+                " --> " + getTo().getIdentifierName();
     }
 }

@@ -23,7 +23,7 @@ import bluej.Config;
  *               and supply the directory the package lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 416 2000-03-14 03:03:13Z ajp $
+ * @version $Id: ClassMgr.java 505 2000-05-24 05:44:24Z ajp $
  */
 public class ClassMgr
 {
@@ -56,8 +56,8 @@ public class ClassMgr
      * directory (while delegating other class loading to the default BlueJ
      * class loader).
      */
-    public static ClassLoader getLoader(String classdir) {
-        return new ClassPathLoader(new ClassPath(classdir, "Package " + classdir),
+    public static ClassLoader getLoader(File classdir) {
+        return new ClassPathLoader(new ClassPath(classdir.getPath(), "Package " + classdir),
                         getBlueJLoader());
     }
 

@@ -4,17 +4,17 @@ import bluej.utility.Debug;
 import bluej.Config;
 
 /**
- ** @version $Id: JobQueue.java 124 1999-06-14 07:26:17Z mik $
- ** @author Michael Cahill
- ** Reasonably generic interface between the BlueJ IDE and the Java
- ** compiler.
- **/
-
+ * Reasonably generic interface between the BlueJ IDE and the Java
+ * compiler.
+ *
+ * @author  Michael Cahill
+ * @version $Id: JobQueue.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public class JobQueue
 {
     private static JobQueue queue = null;
 
-    public static JobQueue getJobQueue() 
+    public static JobQueue getJobQueue()
     {
 	if(queue == null)
 	    queue = new JobQueue();
@@ -25,9 +25,9 @@ public class JobQueue
 
     private CompilerThread thread = null;
     private Compiler compiler = null;
-	
+
     /**
-     * 
+     *
      */
     private JobQueue()
     {
@@ -69,7 +69,7 @@ public class JobQueue
 			      classpath, destdir));
     }
 
-    /** 
+    /**
      * Adds a job to the compile queue.
      */
     public void addJob(String sourcefile, CompileObserver observer,

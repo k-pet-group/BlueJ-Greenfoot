@@ -13,11 +13,11 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: RunAppletDialog.java 411 2000-03-13 02:54:47Z markus $
- ** @author Bruce Quig
- **
- ** Dialog for generating HTML and running applets.
- **/
+ * Dialog for generating HTML and running applets.
+ *
+ * @author  Bruce Quig
+ * @version $Id: RunAppletDialog.java 505 2000-05-24 05:44:24Z ajp $
+ */
 
 class RunAppletDialog extends JDialog
 
@@ -41,12 +41,12 @@ class RunAppletDialog extends JDialog
     static final int EXEC_APPLETVIEWER = 0;
     static final int EXEC_WEBBROWSER = 1;
     static final int GENERATE_PAGE_ONLY = 2;
-  
+
     private static final String ADD_BUTTON = Config.getString("classmgr.add");
     private static final String DELETE_BUTTON = Config.getString("classmgr.delete");
     private static final String PARAM_NAME = "PARAM NAME";
     // Config.getString("pkgmgr.runApplet.paramName");
-    
+
     private static final String VALUE = "VALUE";
     //Config.getString("pkgmgr.runApplet.value");
     private String webPageName;
@@ -77,7 +77,7 @@ class RunAppletDialog extends JDialog
 	    }
 	});
 	JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout
-	mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));	
+	mainPanel.setBorder(Config.dialogBorder);
 
 	appletParameters = new DefaultListModel();
 	webPageName = appletClassName + AppletClassRole.HTML_EXTENSION;
@@ -114,77 +114,77 @@ class RunAppletDialog extends JDialog
 	radioPanel.add(runWebBrowser);
 	bGroup.add(runWebBrowser);
 	getContentPane().add("North", radioPanel);
-	
+
 	webPanel.setBorder(BorderFactory.createCompoundBorder(
 			       BorderFactory.createLineBorder(Color.darkGray),
 			       BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-	
-	addGridBagComponent(webPanel, gridBag, gridConstraints, 
-                            new JLabel(heightLbl), 
+
+	addGridBagComponent(webPanel, gridBag, gridConstraints,
+                            new JLabel(heightLbl),
 			    0, 1, 1, 1, GridBagConstraints.EAST);
 
 	heightField = new JTextField(5);
-	addGridBagComponent(webPanel, gridBag, gridConstraints, heightField, 
+	addGridBagComponent(webPanel, gridBag, gridConstraints, heightField,
 			    1, 1, 1, 1, GridBagConstraints.WEST);
 
-	addGridBagComponent(webPanel, gridBag, gridConstraints, 
+	addGridBagComponent(webPanel, gridBag, gridConstraints,
                             new JLabel(widthLbl),
 			    2, 1, 1, 1, GridBagConstraints.EAST);
 
 	widthField = new JTextField(5);
-	addGridBagComponent(webPanel, gridBag, gridConstraints, widthField, 
+	addGridBagComponent(webPanel, gridBag, gridConstraints, widthField,
 			    3, 1, 1, 1, GridBagConstraints.WEST);
-	
+
 	addGridBagComponent(webPanel, gridBag, gridConstraints,
-                            new JLabel(newParameterLbl), 
-			    4, 2, 2, 1, GridBagConstraints.CENTER); 
+                            new JLabel(newParameterLbl),
+			    4, 2, 2, 1, GridBagConstraints.CENTER);
 
 	parameterList = new JList(appletParameters);
 	parameterList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	parameterList.setModel(appletParameters);
 	parameterList.addListSelectionListener(this);
 	JScrollPane parameterScroller = new JScrollPane(parameterList);
-	parameterScroller.setColumnHeaderView(new JLabel(appletParameterLbl, 
+	parameterScroller.setColumnHeaderView(new JLabel(appletParameterLbl,
                                                          JLabel.CENTER));
-	addGridBagComponent(webPanel, gridBag, gridConstraints, 
-                            parameterScroller, 
+	addGridBagComponent(webPanel, gridBag, gridConstraints,
+                            parameterScroller,
 			    0, 2, 4, 4, GridBagConstraints.CENTER);
 
-	addGridBagComponent(webPanel, gridBag, gridConstraints, 
-                            new JLabel(nameLbl), 
+	addGridBagComponent(webPanel, gridBag, gridConstraints,
+                            new JLabel(nameLbl),
 			    4, 3, 1, 1, GridBagConstraints.WEST);
 
 	paramNameField = new JTextField(16);
-	addGridBagComponent(webPanel, gridBag, gridConstraints, 
-                            paramNameField, 
+	addGridBagComponent(webPanel, gridBag, gridConstraints,
+                            paramNameField,
 			    5, 3, 1, 1, GridBagConstraints.WEST);
 
-	addGridBagComponent(webPanel, gridBag, gridConstraints, 
-                            new JLabel(valueLbl), 
+	addGridBagComponent(webPanel, gridBag, gridConstraints,
+                            new JLabel(valueLbl),
 			    4, 4, 1, 1, GridBagConstraints.WEST);
 
 	paramValueField = new JTextField(16);
-	addGridBagComponent(webPanel, gridBag, gridConstraints, paramValueField, 
+	addGridBagComponent(webPanel, gridBag, gridConstraints, paramValueField,
 			    5, 4, 1, 1, GridBagConstraints.WEST);
 
 	deleteButton = new JButton(DELETE_BUTTON);
 	deleteButton.addActionListener(this);
-	addGridBagComponent(webPanel, gridBag, gridConstraints, deleteButton, 
+	addGridBagComponent(webPanel, gridBag, gridConstraints, deleteButton,
 			    4, 5, 1, 1, GridBagConstraints.EAST);
  	deleteButton.setEnabled(false);
 
 	addButton = new JButton(ADD_BUTTON);
 	addButton.addActionListener(this);
-	addGridBagComponent(webPanel, gridBag, gridConstraints, addButton, 
+	addGridBagComponent(webPanel, gridBag, gridConstraints, addButton,
 			    5, 5, 1, 1, GridBagConstraints.WEST);
 	addButton.setEnabled(true);
 
  	getContentPane().add("Center", webPanel);
-		
+
 	DialogManager.centreDialog(this);
     }
-  
-    
+
+
     /**
      * Method to simplify adding components to a gridbag layout and modify constraints
      * @param container  the container the component is to be added to
@@ -197,8 +197,8 @@ class RunAppletDialog extends JDialog
      * @param gridHeight  number of grid cells for height of component
      * @param anchor  the alignment of component within grid cell
      */
-    private void addGridBagComponent(Container container, GridBagLayout layout, 
-				     GridBagConstraints constraints, Component component, 
+    private void addGridBagComponent(Container container, GridBagLayout layout,
+				     GridBagConstraints constraints, Component component,
 				     int gridx, int gridy, int gridWidth, int gridHeight, int anchor)
     {
 	constraints.gridx = gridx;
@@ -208,7 +208,7 @@ class RunAppletDialog extends JDialog
 	constraints.anchor = anchor;
 	layout.setConstraints(component, constraints);
 	// check that this layout has not already been set
-	if(!container.getLayout().equals(layout)) 
+	if(!container.getLayout().equals(layout))
 	    container.setLayout(layout);
 	container.add(component);
     }
@@ -264,8 +264,8 @@ class RunAppletDialog extends JDialog
      */
     public void addAppletParameter()
     {
-	String appletParameter = 
-	    "<" + PARAM_NAME + " = " + paramNameField.getText() 
+	String appletParameter =
+	    "<" + PARAM_NAME + " = " + paramNameField.getText()
 	    + "   " + VALUE + " = " + paramValueField.getText() + ">";
 	appletParameters.addElement(appletParameter);
 	paramNameField.setText("");
@@ -299,7 +299,7 @@ class RunAppletDialog extends JDialog
 
 
     /**
-     * Check that required fields have entries.  
+     * Check that required fields have entries.
      * There is no checking the validity of what is entered.
      * @return true if both width and height fields are not empty
      */
@@ -376,7 +376,7 @@ class RunAppletDialog extends JDialog
 
 
     /**
-     * Returns an int representing the radio button chosen 
+     * Returns an int representing the radio button chosen
      * for execution option.
      * @return int representing index of radio button selected
      */
@@ -394,7 +394,7 @@ class RunAppletDialog extends JDialog
     // ----- ListSelectionListener interface -----
 
     /**
-     * The value of the list selection has changed. 
+     * The value of the list selection has changed.
      */
     public void valueChanged(ListSelectionEvent e)
     {

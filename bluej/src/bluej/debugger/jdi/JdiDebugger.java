@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 411 2000-03-13 02:54:47Z markus $
+ * @version $Id: JdiDebugger.java 505 2000-05-24 05:44:24Z ajp $
  *
  * The startup process is as follows:
  *
@@ -72,7 +72,7 @@ public final class JdiDebugger extends Debugger
     static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
 
     // options for the remote virtual machine
-    static final String VM_OPTIONS = "-classic";
+    static final String VM_OPTIONS = "";
 
     // the field name of the static field within that class that hold the
     // server object
@@ -556,24 +556,23 @@ public final class JdiDebugger extends Debugger
     public DebuggerObject getStaticValue(String className, String fieldName)
 	throws Exception
     {
-	DebuggerObject object = null;
+        DebuggerObject object = null;
 
-	ReferenceType classMirror = findClassByName(getVM(), className, null);
+        ReferenceType classMirror = findClassByName(getVM(), className, null);
 
-	//Debug.message("[getStaticValue] " + className);
+        //Debug.message("[getStaticValue] " + className + ", " + fieldName);
 
-	if(classMirror == null) {
-	    Debug.reportError("Cannot find class for result value");
-	    object = null;
-	}
-	else {
-	    Field resultField = classMirror.fieldByName(fieldName);
-	    ObjectReference obj =
-		(ObjectReference)classMirror.getValue(resultField);
-	    object = JdiObject.getDebuggerObject(obj);
-	}
+        if(classMirror == null) {
+            Debug.reportError("Cannot find class for result value");
+            object = null;
+        }
+        else {
+            Field resultField = classMirror.fieldByName(fieldName);
+            ObjectReference obj = (ObjectReference)classMirror.getValue(resultField);
+            object = JdiObject.getDebuggerObject(obj);
+        }
 
-	return object;
+        return object;
     }
 
 
@@ -710,16 +709,17 @@ public final class JdiDebugger extends Debugger
      * @return  null if there was no problem, or an error string
      */
     public String toggleBreakpoint(String className, int line, boolean set,
-				   DebuggerClassLoader loader)
+                                    DebuggerClassLoader loader)
     {
-	//Debug.message("[toggleBreakpoint]: " + className);
+        //Debug.message("[toggleBreakpoint]: " + className);
 
-	VirtualMachine vm = getVM();
+        VirtualMachine vm = getVM();
 
-	loadClass(loader, className);
-  	ClassType remoteClass = findClassByName(vm, className, loader);
-  	if(remoteClass == null)
-  	    return "Class not found";
+        loadClass(loader, className);
+        ClassType remoteClass = findClassByName(vm, className, loader);
+
+        if(remoteClass == null)
+            return "Class not found";
 
 	try {
 	    Location loc = findLocationInLine(remoteClass, line);

@@ -91,20 +91,31 @@ options {
     	return parse(filename, null);
     }
 
+    public static ClassInfo parse(File file)
+        throws Exception
+    {
+    	return parse(file, null);
+    }
+
     // the main entry point to parse a file
     public static ClassInfo parse(String filename, Vector classes)
         throws Exception
+    {
+    	return parse(new File(filename), classes);
+    }
+
+    public static ClassInfo parse(File file, Vector classes)
+    	throws Exception
     {
 	// create a new symbol table
 	SymbolTable symbolTable = new SymbolTable();
         ClassInfo info = new ClassInfo();
 
-	doFile(new File(filename), symbolTable, info); // parse it
+	doFile(file, symbolTable, info); // parse it
 
 	// resolve the types of all symbols in the symbol table
 	//  -- we don't need this for BlueJ
 	// symbolTable.resolveTypes();
-
 
 	// add existing classes to the symbol table
 	if(classes != null)
@@ -177,7 +188,7 @@ options {
 
 
     // redefined from antlr.LLkParser to supress error messages
-    public void reportError(ParserException ex) {
+    public void reportError(RecognitionException ex) {
         // do nothing
     }
 
@@ -234,7 +245,7 @@ options {
     public void defineClass(JavaToken theClass,
                             JavaToken superClass,
                             JavaVector interfaces,
-                            boolean isAbstract,
+			    boolean isAbstract,
 			    boolean isPublic,
 			    JavaToken comment,
 			    Selection extendsInsert, Selection implementsInsert,
@@ -1233,7 +1244,7 @@ options {
 	protected int tokColumn = 1;
 	protected int column = 1;
 
-	public void consume() throws IOException
+	public void consume() throws CharStreamException
 	{
 //		if ( inputState.guessing==0 ) {
 		if (text.length()==0) {
@@ -1254,7 +1265,7 @@ options {
 		return tok;
 	}
 
-	public void reportError(ScannerException ex)
+	public void reportError(RecognitionException ex)
 	{
 		// do nothing
         }

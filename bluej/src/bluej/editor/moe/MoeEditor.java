@@ -40,7 +40,7 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 // cuurently, editors never get removed from editor manager!
 
 public final class MoeEditor extends JFrame
-    implements bluej.editor.Editor, ItemListener 
+    implements bluej.editor.Editor, ItemListener
 {
     // -------- CONSTANTS --------
 
@@ -61,9 +61,7 @@ public final class MoeEditor extends JFrame
     static final Color titleCol = Config.getItemColour("colour.text.fg");
 
     // Fonts
-    public static Font editFont = new Font("Monospaced", Font.PLAIN, 
-                                           12);
-    public static Font printFont = new Font("Monospaced", Font.PLAIN, 
+    public static Font printFont = new Font("Monospaced", Font.PLAIN,
                                             10);
     // suffixes for resources
     static final String LabelSuffix = "Label";
@@ -117,7 +115,7 @@ public final class MoeEditor extends JFrame
     // inner class for listening for undoable edits in text
 
     private class MoeUndoableEditListener implements UndoableEditListener {
-        
+
         public void undoableEditHappened(UndoableEditEvent e)
         {
             actions.undoManager.addEdit(e.getEdit());
@@ -155,8 +153,8 @@ public final class MoeEditor extends JFrame
      *  Constructor. Title may be null
      */
 
-    public MoeEditor(String title, boolean isCode, EditorWatcher watcher, 
-                     boolean showToolbar, boolean showLineNum, 
+    public MoeEditor(String title, boolean isCode, EditorWatcher watcher,
+                     boolean showToolbar, boolean showLineNum,
                      Properties resources)
     {
         super("Moe");
@@ -304,7 +302,7 @@ public final class MoeEditor extends JFrame
 //         //getLineNumberAt(textPane.getCaretPosition());
 //         Debug.message("Element start offset = " + currentElement.getStartOffset());
 //         SimpleAttributeSet attr = new SimpleAttributeSet();
-        
+
 //         StyleConstants.setBold(attr, bold);
 //         StyleConstants.setItalic(attr, italic);
 //         int start = currentElement.getStartOffset();
@@ -321,7 +319,7 @@ public final class MoeEditor extends JFrame
 //         //getLineNumberAt(textPane.getCaretPosition());
 //         Debug.message("Element start offset = " + currentElement.getStartOffset());
 //         SimpleAttributeSet attr = new SimpleAttributeSet();
-        
+
 //         StyleConstants.setBold(attr, bold);
 //         StyleConstants.setItalic(attr, italic);
         //((MutableAttributeSet)currentElement.getAttributes()).addAttributes(attr);
@@ -336,7 +334,7 @@ public final class MoeEditor extends JFrame
     /**
      *  Make the editor display a given view.
      *
-     *  @param view     the view to be displayed. Must be one of the 
+     *  @param view     the view to be displayed. Must be one of the
      *                  view constants defined above
      */
     public void setView(int view)
@@ -374,7 +372,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Refresh the editor window. 
+     *  Refresh the editor window.
      */
     public void refresh()	// inherited from Editor, redefined
     {
@@ -458,8 +456,8 @@ public final class MoeEditor extends JFrame
      *  @param help		name of help group (may be null)
      */
 
-    public void displayMessage(String message, int lineNumber, int column, 
-                               boolean beep, boolean setStepMark, 
+    public void displayMessage(String message, int lineNumber, int column,
+                               boolean beep, boolean setStepMark,
                                String help)
                                // inherited from Editor
     {
@@ -515,7 +513,7 @@ public final class MoeEditor extends JFrame
             a.addAttribute(STEPMARK, Boolean.FALSE);
             document.setParagraphAttributes(currentStepPos, 0, a, false);
             currentStepPos = -1;
-            // force an update of UI 
+            // force an update of UI
             repaint();
         }
         // remove highlight as well
@@ -614,7 +612,7 @@ public final class MoeEditor extends JFrame
     {
         if (saveState.isSaved())
             info.message (Config.getString("editor.info.noChanges"));
-        else 
+        else
             save();
     }
 
@@ -659,7 +657,6 @@ public final class MoeEditor extends JFrame
     public void doClose()
     {
         setVisible(false);
-        //MoeEditorManager.editorManager.removeEditor(this);
         if (watcher != null)
             watcher.closeEvent(this);
     }
@@ -836,7 +833,7 @@ public final class MoeEditor extends JFrame
                 if(lineText != null && lineText.length() > 0) {
                     int foundPos = lineText.lastIndexOf(s);
                     if (foundPos != -1) {
-                        textPane.select(lineStart+foundPos, 
+                        textPane.select(lineStart+foundPos,
                                         lineStart+foundPos+s.length());
                         found = true;
                     }
@@ -903,7 +900,7 @@ public final class MoeEditor extends JFrame
     void toggleBreakpoint()
     {
         if (!isCode)
-            return;     // PENDING: add dialog: 
+            return;     // PENDING: add dialog:
                         // "can only set bp in implementation view"
         toggleBreakpoint(textPane.getCaretPosition());
     }
@@ -991,7 +988,7 @@ public final class MoeEditor extends JFrame
             else
                 info.warning(result);
 
-            // force an update of UI 
+            // force an update of UI
             repaint();
         }
         else
@@ -1024,7 +1021,7 @@ public final class MoeEditor extends JFrame
         a.addAttribute(STEPMARK, Boolean.TRUE);
         document.setParagraphAttributes(pos, 0, a, false);
         currentStepPos = pos;
-        // force an update of UI 
+        // force an update of UI
         repaint();
     }
 
@@ -1205,9 +1202,9 @@ public final class MoeEditor extends JFrame
 
         if (title == null) {
             if (filename == null)
-                title = "Moe: <no name>";
+                title = "Moe:  <no name>";
             else
-                title = "Moe: " + filename;
+                title = "Moe:  " + filename;
         }
         setTitle(title);
     }
@@ -1460,7 +1457,7 @@ public final class MoeEditor extends JFrame
                     if (label != null)
                         item.setText(label);
                     KeyStroke[] keys = actions.getKeyStrokesForAction(action);
-                    if (keys != null) 
+                    if (keys != null)
                         item.setAccelerator(keys[0]);
                 }
             }
@@ -1500,7 +1497,7 @@ public final class MoeEditor extends JFrame
     {
         String label = Config.getString("editor."+key + LabelSuffix);
         JButton button = new JButton(label);
-    
+
         button.setRequestFocusEnabled(false);   // never get keyboard focus
         button.setMargin(new Insets(2,2,2,2));
 
@@ -1524,7 +1521,7 @@ public final class MoeEditor extends JFrame
 
     private JComboBox createViewSelector(String key)
     {
-        String[] viewStrings = 
+        String[] viewStrings =
         { Config.getString("editor."+key + LabelSuffix + "1"),
           Config.getString("editor."+key + LabelSuffix + "2"),
           Config.getString("editor."+key + LabelSuffix + "3"),
@@ -1549,16 +1546,16 @@ public final class MoeEditor extends JFrame
             if(printer == null)
                 printer = new MoePrinter();
 
-            //printer.printDocument(document, windowTitle, printFont, pageFormat);  
+            //printer.printDocument(document, windowTitle, printFont, pageFormat);
             // print document, using new pageformat object at present
             info.message (Config.getString("editor.info.printing"));
-            if(printer.printDocument(document, windowTitle, printFont, 
+            if(printer.printDocument(document, windowTitle, printFont,
                                   new PageFormat()))
                 info.message (Config.getString("editor.info.printed"));
             else
                 info.message (Config.getString("editor.info.cancelled"));
         }
-        
+
     }
 
 

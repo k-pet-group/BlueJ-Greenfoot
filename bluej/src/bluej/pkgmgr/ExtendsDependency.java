@@ -13,7 +13,7 @@ import java.awt.Color;
  ** An "extends" dependency between two (class) targets in a package
  **
  ** @author Michael Cahill
- ** @version $Id: ExtendsDependency.java 427 2000-04-18 04:33:04Z ajp $
+ ** @version $Id: ExtendsDependency.java 505 2000-05-24 05:44:24Z ajp $
  **/
 public class ExtendsDependency extends Dependency
 {
@@ -52,8 +52,10 @@ public class ExtendsDependency extends Dependency
 	Utility.drawThickLine(g, pFrom.x, pFrom.y, pArrow.x, pArrow.y, 5);
 
 	// draw the arrow head
-	int[] xPoints =  { pTo.x, pTo.x + (int)(ARROW_SIZE * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(ARROW_SIZE * Math.cos(angle - ARROW_ANGLE)) };
-	int[] yPoints =  { pTo.y, pTo.y - (int)(ARROW_SIZE * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(ARROW_SIZE * Math.sin(angle - ARROW_ANGLE)) };
+	int[] xPoints =  { pTo.x, pTo.x + (int)(ARROW_SIZE * Math.cos(angle + ARROW_ANGLE)),
+	                    pTo.x + (int)(ARROW_SIZE * Math.cos(angle - ARROW_ANGLE)) };
+	int[] yPoints =  { pTo.y, pTo.y - (int)(ARROW_SIZE * Math.sin(angle + ARROW_ANGLE)),
+	                    pTo.y - (int)(ARROW_SIZE * Math.sin(angle - ARROW_ANGLE)) };
 	g.fillPolygon(xPoints, yPoints, 3);
 
 	g.setColor(bgGraph);

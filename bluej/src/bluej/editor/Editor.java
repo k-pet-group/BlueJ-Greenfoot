@@ -4,11 +4,12 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
-** @version $Id: Editor.java 375 2000-01-24 22:56:25Z mik $
-** @author Michael Cahill
-** @author Michael Kolling
-** Interface between an editor and the rest of BlueJ
-**/
+ * Interface between an editor and the rest of BlueJ
+ *
+ * @author Michael Cahill
+ * @author Michael Kolling
+ * @version $Id: Editor.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public interface Editor
 {
     // CONSTANTS:
@@ -31,8 +32,8 @@ public interface Editor
      *
      *  @param filename	the file to be read
      *  @param compiled	true if this is a compiled class
-     *  @param breakpoints	Vector of Integers: list of breakpoints in 
-     *			current class (if 'compiled' is false, 
+     *  @param breakpoints	Vector of Integers: list of breakpoints in
+     *			current class (if 'compiled' is false,
      *			'breakpoints' must be null).
      *  @returns		false is there was a problem, true otherwise
      */
@@ -55,13 +56,13 @@ public interface Editor
 
 
     /**
-     *  Insert a string into the buffer. The editor is not immediately 
+     *  Insert a string into the buffer. The editor is not immediately
      *  redisplayed. This function is typically used in a sequence
      *  "clear; [insertText]*; show".
      *
      *  @param text		the text to be inserted
      *  @param style  	the style in which the text is to be displayed
-     *			(one of the style constants defined in this 
+     *			(one of the style constants defined in this
      *			class)
      */
     void insertText(String text, boolean bold, boolean italic);
@@ -81,7 +82,7 @@ public interface Editor
      *  Make the editor display a given view. Does not show the editor if
      *  it's not shown, just fills the contents.
      *
-     *  @param view     the view to be displayed. Must be one of the 
+     *  @param view     the view to be displayed. Must be one of the
      *                  view constants defined above
      */
     void setView(int view);
@@ -89,7 +90,7 @@ public interface Editor
 
     /**
      *  Show the editor window. This includes whatever is necessary of the
-     *  following: make visible, de-iconify, bring to front of window 
+     *  following: make visible, de-iconify, bring to front of window
      *  stack.
      */
     void setVisible(boolean vis);
@@ -102,7 +103,7 @@ public interface Editor
 
 
     /**
-     *  Save the buffer to disk under the current file name. This is an 
+     *  Save the buffer to disk under the current file name. This is an
      *  error if the editor has not been given a file name (ie. if
      *  readFile was not executed).
      */
@@ -127,15 +128,15 @@ public interface Editor
      *  can contain a newline character.
      *
      *  @param message	the message to be displayed
-     *  @param lineNumber	the line to move the cursor to (the line is 
+     *  @param lineNumber	the line to move the cursor to (the line is
      *			also highlighted)
      *  @param column		the column to move the cursor to
      *  @param beep		if true, do a system beep
      *  @param setStepMark	if true, set step mark (for single stepping)
      *  @param help		name of help group (may be null)
      */
-    void displayMessage(String message, int lineNumber, 
-                        int column, boolean beep, 
+    void displayMessage(String message, int lineNumber,
+                        int column, boolean beep,
                         boolean setStepMark, String help);
 
 

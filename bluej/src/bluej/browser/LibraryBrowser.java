@@ -22,7 +22,6 @@ import bluej.utility.DialogManager;
 import bluej.utility.Debug;
 import bluej.editor.Editor;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PackageCacheMgr;
 
 
 /**
@@ -30,7 +29,7 @@ import bluej.pkgmgr.PackageCacheMgr;
  *
  * @author  Andy Marks
  * @author  Andrew Patterson
- * @cvs     $Id: LibraryBrowser.java 284 1999-11-25 02:34:37Z ajp $
+ * @cvs     $Id: LibraryBrowser.java 505 2000-05-24 05:44:24Z ajp $
  */
 public class LibraryBrowser extends JFrame implements ActionListener
 {
@@ -45,7 +44,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 	private AttributeChooser attributeChooser = null;
 
     private CodeViewer codeViewer = null;
-    
+
     private JMenuItem closeMI = null;
     private JMenuItem refreshMI = null;
     private JMenuItem addLibMI = null;
@@ -57,14 +56,14 @@ public class LibraryBrowser extends JFrame implements ActionListener
     private JMenuItem propMI = null;
     private JMenuItem editPackageMI = null;
     private JMenuBar menuBar = null;
-  
+
 
     private static final Dimension CHOOSERPANELSIZE = new Dimension(200, 250);
 	private static final Dimension classPanelSize = new Dimension(700, 450);
-    /* 
+    /*
 	Package cache: Hashtable mapping package dir -> Package object
     */
-    private PackageCacheMgr packageCache = new PackageCacheMgr();
+//    private PackageCacheMgr packageCache = new PackageCacheMgr();
 
     private String currentPackageName = null;
     private String currentPackageDir = null;
@@ -73,7 +72,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 
 	private static final char INNERCLASSINDICATOR = '$';
 	private static final String JAVASOURCEEXTENSION = ".java";
-	
+
 	// index into showDialog array
 	private static final int INNERCLASSDIALOG = 0;
 	private static final int NOSOURCEFORCLASSDIALOG = 1;
@@ -93,9 +92,9 @@ public class LibraryBrowser extends JFrame implements ActionListener
 
     	setIconImage(iconImage);
     	setSize(new Dimension(780,580));
-    	
+
         setWaitCursor(true);
-        
+
     	// lazy instantiation of our panels
         classChooser = new ClassChooser();
 
@@ -120,26 +119,26 @@ public class LibraryBrowser extends JFrame implements ActionListener
                         break;
                     }
                 }
-            }            
+            }
         );
 
     	attributeChooser = new AttributeChooser();
     	codeViewer = new CodeViewer();
-    	
+
     	frame = this;
     	setTitle(Config.getString("browser.title"));
-    	
+
     	setupUI();
-    	
+
     //	pack();
     	show();
-    	
+
     	addWindowListener(new WindowAdapter() {
     		public void windowClosing(WindowEvent e) {
     			close();
     		}
     	});
-	
+
 //	classChooser.addActionListener(new ActionListener() {
 //	    public void actionPerformed(ActionEvent e) {
 //	        openClass(e.getActionCommand());
@@ -151,7 +150,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
     /**
      * Set the frames cursor to a WAIT_CURSOR while system is busy
      */
-    private void setWaitCursor(boolean wait)    
+    private void setWaitCursor(boolean wait)
     {
         getGlassPane().setVisible(wait);
     }
@@ -171,14 +170,14 @@ public class LibraryBrowser extends JFrame implements ActionListener
      */
     public void close() {
 	if (libraryChooser != null)
-	
+
 		if (frame != null) {
 			setVisible(false);
 			frame = null; // so that next browser start wont short circuit and quit
 		}
 		dispose();
     }
-    
+
 	/**
 	 * Choose the layout manager, add the components to the frame
 	 * and layout the frame.
@@ -205,7 +204,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 						splitPaneTwo.setDividerSize(Config.splitPaneDividerWidth);
 						splitPaneTwo.setRightComponent(classChooser);
 						splitPaneTwo.setOneTouchExpandable(false);
-			         
+
 						// set the initial location and size of the divider
 						splitPaneTwo.setDividerLocation(getWidth()/3);
 					}
@@ -223,7 +222,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 //				splitPaneOne.setTopComponent(chooserPanel);
 //				splitPaneOne.setBottomComponent(classChooser);
 //				splitPaneOne.setOneTouchExpandable(false);
-			        
+
 				// set the initial location and size of the divider
 //				splitPaneOne.setDividerLocation(200);
 //			}
@@ -248,26 +247,26 @@ public class LibraryBrowser extends JFrame implements ActionListener
 //		refreshMI.addActionListener(this);
 //		libraryM.add(refreshMI);
 //		refreshMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getKeyText(KeyEvent.VK_F5)));
-	
+
 //		libraryM.addSeparator();
 		closeMI = new JMenuItem(Config.getString("browser.menu.library.close"));
 		closeMI.addActionListener(this);
 		libraryM.add(closeMI);
 		closeMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK));
-	
+
 		libraryM.setEnabled(false);
 		menuBar.add(libraryM);
 
 /*    private class UseAction extends AbstractAction
     {
         private Package pkg;
-        
+
         public UseAction(String menu, Package pkg)
         {
             super(menu);
 
             this.pkg = pkg;
-        }    
+        }
 
         public void actionPerformed(ActionEvent e) {
             pkg.insertLibClass(cl.getName());
@@ -282,16 +281,16 @@ public class LibraryBrowser extends JFrame implements ActionListener
 
 //		editM.setEnabled(false);
 //		menuBar.add(editM);
-			
+
 //		JMenu packageM = new JMenu(Config.getString("browser.menu.package"));
-	
+
 //		if (!isStandalone) {
 //			editPackageMI = new JMenuItem(Config.getString("browser.menu.package.edit"));
 //			editPackageMI.addActionListener( new ActionListener() {
 //				public void actionPerformed(ActionEvent ae) {
-//					if (editor == null) 
+//					if (editor == null)
 //						return;
-				
+
 //				Utility.NYI(LibraryBrowserPkgMgrFrame.getFrame());
 				// open a new PkgMgrFrame with this package in it
 				//bluej.pkgmgr.Main.openPackage(currentPackageDir);
@@ -299,21 +298,21 @@ public class LibraryBrowser extends JFrame implements ActionListener
 
 //		packageM.add(editPackageMI);
 //		}
-	
+
 //		packageM.setEnabled(false);
 //		menuBar.add(packageM);
-	
+
 		setJMenuBar(menuBar);
 	}
-    
+
     /**
-     * Handle events originated from menus, 
+     * Handle events originated from menus,
      **/
 	public void actionPerformed(ActionEvent ae) {
 	Object source = ae.getSource();
 	if (source == closeMI) {
 	    // we're about to exit - make sure everything is saved
-				
+
 	    close();
 	} else if (source == findMI) {
 //	    new FindLibraryDialog(this).display();
@@ -325,27 +324,27 @@ public class LibraryBrowser extends JFrame implements ActionListener
 
     /**
      * Call the appropraite method in the package to use the selected package.
-     * 
+     *
      * @param thePackage the Package in which to open the class or package
      */
     public void usePackage(Package thePackage, String lib, boolean isClass) {
-	    if (isClass) {
+//	    if (isClass) {
 		    // separate class name from package name
-		    thePackage.insertLibClass(lib);
-	    } else
-		thePackage.insertLibPackage(lib);
+//		    thePackage.insertLibClass(lib);
+//	    } else
+//		thePackage.insertLibPackage(lib);
     }
 
-    
+
     /**
      * This is the main method to create a graphical display of a package
-     * using a GraphEditor.  
-     * 
+     * using a GraphEditor.
+     *
      * Note: this method only adds the package to the cache if it is loaded
      * in this method (i.e., it is null upon entering this method).  If you
      * are calling this method with a valid package object, you must ensure
      * it is added to the cache yourself.
-     * 
+     *
      * @param packageName the directory containing the package
      * @param pkg the package to open, or null if the package needs to be loaded
      */
@@ -359,12 +358,12 @@ public class LibraryBrowser extends JFrame implements ActionListener
 			pkg = new Package(packageName, this);
 			packageCache.addPackageToCache(packageName, pkg);
 		}
-	
+
 		// create a GraphEditor for this package
 		// and enable the package menu if this is the first package to open
 //		if (editor == null)
 //			menuBar.getMenu(2).setEnabled(true);
-	
+
 //		editor = new GraphEditor(pkg, this);
 //		editor.setReadOnly(true);
 
@@ -372,7 +371,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 		JScrollPane scroller = new JScrollPane(editor);
 		// remove previous components so new GraphEditor will show
 		classPanel.removeAll();
-		
+
 		// add newly created components back to panel
 		classPanel.add(scroller, BorderLayout.CENTER);
 
@@ -394,7 +393,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 		currentPackageName = packageName;
 		currentPackage = pkg;
 		currentPackageDir = pkg.getDirName();
-	
+
 		// make sure the scrollbar resizes to the current package dimensions
 		scroller.invalidate();
 		scroller.validate();
@@ -406,17 +405,17 @@ public class LibraryBrowser extends JFrame implements ActionListener
      */
     public void openPackage(String packageName) {
 	// check cache for package before creating a new one
-	Package cachePackage = (Package)packageCache.getPackageFromCache(packageName);
+//	Package cachePackage = (Package)packageCache.getPackageFromCache(packageName);
 	//openPackage(packageName, cachePackage);
    }
-	
+
 
     /**
-     * Update the class chooser and library chooser to reflect a new package.  
+     * Update the class chooser and library chooser to reflect a new package.
      * Make sure we're not trying to open a ZIP/JAR package here as it won't
      * exist if we try and access it using the normal approach.
      * Invoked when a package name is double clicked in the graph editor.
-     * 
+     *
      * @param thePackage the PackageTarget object associated with the new package.
      */
 //    public void openPackage(PackageTarget thePackage) {
@@ -431,18 +430,18 @@ public class LibraryBrowser extends JFrame implements ActionListener
      * Update both the code viewer and attribute chooser to reflect
      * a new class.  Invoked as the result of a class icon being
      * double clicked in the graph editor.
-     * 
+     *
      * @param theClass the ClassTarget object associated with the new class
      */
     public void openClass(String theClass)
     {
         attributeChooser.openClass(theClass);
     }
-	
+
     /**
      * Attempt to open the class in the code viewer if it exists.  If the class is
      * an inner class (embedde4 $ in name), open the parent class instead.
-     * 
+     *
      * @param className the class name specified as a filesystem file (with .java extension)
      * @param isCompiled true if the file to open has been compiled
      */
@@ -453,7 +452,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 
 /*	if (!new File(className).exists()) {
 		if (showDialog[NOSOURCEFORCLASSDIALOG])
-			new ToggleMessageBox(this, 
+			new ToggleMessageBox(this,
 					     Utility.mergeStrings(Config.getString("browser.openclassineditor.nosourceforclassdialog.text"), theClass.sourceFile()),
 					     Config.getString("browser.openclassineditor.nosourceforclassdialog.title"),
 					     JOptionPane.INFORMATION_MESSAGE,
@@ -465,16 +464,16 @@ public class LibraryBrowser extends JFrame implements ActionListener
 			// it's an inner class - let's turn foo$bar.java into foo.java for MOE
 			className = className.substring(0, innerClassIndicatorPos) + JAVASOURCEEXTENSION;
 			if (showDialog[INNERCLASSDIALOG])
-				new ToggleMessageBox(this, 
+				new ToggleMessageBox(this,
 						     Config.getString("browser.openclassineditor.innerclassdialog.text"),
 						     Config.getString("browser.openclassineditor.innerclassdialog.title"),
 						     JOptionPane.INFORMATION_MESSAGE,
 						     INNERCLASSDIALOG).display();
-   
+
 		}
 	} */
 //    }
-		
+
     /**
      * @param className the class name specified in package notation (i.e., a.b.c)
      */

@@ -3,9 +3,10 @@ package bluej.views;
 import java.lang.reflect.*;
 import bluej.utility.Utility;
 import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 /**
- ** @version $Id: ConstructorView.java 244 1999-08-20 06:42:33Z mik $
+ ** @version $Id: ConstructorView.java 505 2000-05-24 05:44:24Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -14,7 +15,7 @@ import bluej.utility.Debug;
 public final class ConstructorView extends CallableView
 {
     protected Constructor cons;
-	
+
     /**
      * Constructor.
      */
@@ -23,7 +24,7 @@ public final class ConstructorView extends CallableView
 	super(view);
 	this.cons = cons;
     }
-	
+
     /**
      * Returns a string describing this Constructor.
      */
@@ -36,7 +37,7 @@ public final class ConstructorView extends CallableView
     {
 	return cons.getModifiers();
     }
-	
+
     /**
      * @returns a boolean indicating whether this method has parameters
      */
@@ -44,15 +45,15 @@ public final class ConstructorView extends CallableView
     {
 	return (cons.getParameterTypes().length > 0);
     }
-	
+
     /**
-     * Returns a signature string in the format 
+     * Returns a signature string in the format
      *  name(type,type,type)
      */
     public String getSignature()
     {
 	Class[] params = cons.getParameterTypes();
-	return makeSignature(cons.getName(), params);
+	return makeSignature(JavaNames.getBase(cons.getName()), params);
     }
 
     /**
@@ -64,7 +65,7 @@ public final class ConstructorView extends CallableView
 	Class[] params = cons.getParameterTypes();
 	return makeDescription(cons.getName(), params, false);
     }
-	
+
     /**
      * Get a long String describing this member. A long description is
      * similar to the short description, but it has type names and parameters

@@ -3,9 +3,10 @@ package bluej.views;
 import java.lang.reflect.*;
 import bluej.utility.Utility;
 import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 /**
- ** @version $Id: MethodView.java 244 1999-08-20 06:42:33Z mik $
+ ** @version $Id: MethodView.java 505 2000-05-24 05:44:24Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -15,7 +16,7 @@ public class MethodView extends CallableView
 {
     protected Method method;
     protected View returnType;
-	
+
     /**
      * Constructor.
      */
@@ -32,12 +33,12 @@ public class MethodView extends CallableView
     {
 	return method.toString();
     }
-	
+
     public int getModifiers()
     {
 	return method.getModifiers();
     }
-	
+
     /**
      * @returns a boolean indicating whether this method has parameters
      */
@@ -47,13 +48,13 @@ public class MethodView extends CallableView
     }
 
     /**
-     * Returns a signature string in the format 
+     * Returns a signature string in the format
      *  name(type,type,type)
      */
     public String getSignature()
     {
-	String name = View.getTypeName(method.getReturnType()) + 
-		      " " + 
+	String name = View.getTypeName(method.getReturnType()) +
+		      " " +
 		      method.getName();
 	Class[] params = method.getParameterTypes();
 
@@ -66,14 +67,14 @@ public class MethodView extends CallableView
      */
     public String getShortDesc()
     {
-	String name = View.getTypeName(method.getReturnType()) + 
-		      " " + 
+	String name = View.getTypeName(method.getReturnType()) +
+		      " " +
 		      method.getName();
 	Class[] params = method.getParameterTypes();
 
 	return makeDescription(name, params, false);
     }
-	
+
     /**
      * Get a long String describing this member. A long description is
      * similar to the short description, but it has type names and parameters
@@ -81,8 +82,8 @@ public class MethodView extends CallableView
      */
     public String getLongDesc()
     {
-	String name = View.getTypeName(method.getReturnType()) + 
-		      " " + 
+	String name = View.getTypeName(method.getReturnType()) +
+		      " " +
 		      method.getName();
 	Class[] params = method.getParameterTypes();
 
@@ -105,16 +106,16 @@ public class MethodView extends CallableView
     {
 	return method.getName();
     }
-	
+
     /**
      * @returns a boolean indicating whether this method has no return value
      */
     public boolean isVoid()
     {
-	String resultName = getReturnType().getName();
-	return "void".equals(resultName);
+        String resultName = getReturnType().getQualifiedName();
+        return "void".equals(resultName);
     }
-	
+
     /**
      * Returns a Class object that represents the formal return type
      * of the method represented by this Method object.
@@ -123,7 +124,7 @@ public class MethodView extends CallableView
     {
 	if(returnType == null)
 	    returnType = View.getView(method.getReturnType());
-		
+
 	return returnType;
     }
 

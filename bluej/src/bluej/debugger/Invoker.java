@@ -8,6 +8,7 @@ import bluej.utility.BlueJFileReader;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.ConstructorView;
 import bluej.views.LabelPrintWriter;
 import bluej.views.MemberView;
@@ -27,7 +28,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 324 2000-01-02 13:09:04Z ajp $
+ * @version $Id: Invoker.java 505 2000-05-24 05:44:24Z ajp $
  */
 
 public class Invoker extends Thread
@@ -54,6 +55,7 @@ public class Invoker extends Thread
      */
     private static Map methods = new HashMap();
 
+    private PkgMgrFrame pmf;
     private Package pkg;
     private ResultWatcher watcher;
     private CallableView member;
@@ -74,9 +76,13 @@ public class Invoker extends Thread
      *                  relevance when we are calling a constructor or static method)
      * @param watcher   an object interested in the result of the invocation
      */
-    public Invoker(Package pkg, CallableView member, String objName, ResultWatcher watcher)
+    public Invoker(PkgMgrFrame pmf, CallableView member, String objName, ResultWatcher watcher)
     {
-        this.pkg = pkg;
+        if (pmf.isEmptyFrame())
+            throw new IllegalArgumentException();
+
+        this.pmf = pmf;
+        this.pkg = pmf.getPackage();
         this.member = member;
         this.watcher = watcher;
 
@@ -130,7 +136,7 @@ public class Invoker extends Thread
             dialog = (MethodDialog)methods.get(member);
 
             if(dialog == null) {
-                dialog = new MethodDialog(pkg,
+                dialog = new MethodDialog(pmf,
                                             member.getClassName(),
                                             objName,
                                             member);
@@ -169,9 +175,9 @@ public class Invoker extends Thread
 
             instanceName = dlg.getNewInstanceName();
             doInvocation(dlg.getArgs(), dlg.getArgTypes());
-            pkg.getFrame().setWaitCursor(true);
+            pmf.setWaitCursor(true);
             if (constructing)
-                pkg.getFrame().setStatus(creating);
+                pkg.setStatus(creating);
         }
         else
             Debug.reportError("Invoker: Unknown MethodDialog event");
@@ -194,122 +200,122 @@ public class Invoker extends Thread
      */
     protected void doInvocation(String[] args, Class[] argTypes)
     {
-	Component[] wrappers;
+        Component[] wrappers;
 
-	// PENDING: this should be changed to write directly to file.
-	// The hashtable mechanism doesn't make so much sense anymore
-	// since most of it gets constructed here anyway.
+        // PENDING: this should be changed to write directly to file.
+        // The hashtable mechanism doesn't make so much sense anymore
+        // since most of it gets constructed here anyway.
 
-	int numArgs = (args==null ? 0 : args.length);
-	String className = member.getClassName();
+        int numArgs = (args==null ? 0 : args.length);
+        String className = member.getClassName();
 
-	  // Create package specification line ("package xyz")
+          // Create package specification line ("package xyz")
 
-	Hashtable trans = new Hashtable();
-	String pkgname = pkg.getName();
-	if((pkgname == Package.noPackage))
-	    trans.put("PKGLINE", "");
-	else
-	    trans.put("PKGLINE", "package " + pkgname + ";");
+        Hashtable trans = new Hashtable();
 
-	  // Create class name
+        if(pkg.isUnnamedPackage())
+            trans.put("PKGLINE", "");
+        else
+            trans.put("PKGLINE", "package " + pkg.getQualifiedName() + ";");
 
-	trans.put("CLASSNAME", shellName);
+          // Create class name
 
-	  // add variable declarations: one for a (possible) result, and one
-	  // for each parameter
+        trans.put("CLASSNAME", shellName);
 
-	StringBuffer buffer = new StringBuffer();
-	if(constructing)
-	    buffer.append("public static ObjectResultWrapper");
-	else
-	    buffer.append("public static Object");
-	buffer.append(" __bluej_runtime_result;" + Config.nl);
-	trans.put("VARDECL", buffer.toString());
+          // add variable declarations: one for a (possible) result, and one
+          // for each parameter
 
-	  // Build a string with parameter list: "(param0,param1,...)"
+        StringBuffer buffer = new StringBuffer();
+        if(constructing)
+            buffer.append("public static ObjectResultWrapper");
+        else
+            buffer.append("public static Object");
+        buffer.append(" __bluej_runtime_result;" + Config.nl);
+        trans.put("VARDECL", buffer.toString());
 
-	buffer = new StringBuffer("(");
-	if(numArgs>0)
-	    buffer.append("__bluej_param0");
-	for(int i = 1; i < numArgs; i++)
-	    buffer.append(",__bluej_param" + i);
-	buffer.append(")");
-	String argString = buffer.toString();
+        // Build a string with parameter list: "(param0,param1,...)"
 
-	  // Build scope, ie. add one line for every object on the object
-	  // bench that gets the object and makes it available for use as
-	  // a parameter. Then add one line for each parameter setting the
-	  // parameter value.
+        buffer = new StringBuffer("(");
+        if(numArgs>0)
+            buffer.append("__bluej_param0");
+        for(int i = 1; i < numArgs; i++)
+            buffer.append(",__bluej_param" + i);
+        buffer.append(")");
+        String argString = buffer.toString();
 
-	wrappers = pkg.getBench().getComponents();
-	buffer = new StringBuffer();
-	String scopeId = Utility.quoteSloshes(pkg.getId());
-	if(wrappers.length > 0)
-	    buffer.append("Map __bluej_runtime_scope = getScope(\""
-			  + scopeId + "\");" + Config.nl);
-	for(int i = 0; i < wrappers.length; i++) {
-	    ObjectWrapper wrapper = (ObjectWrapper)wrappers[i];
-	    String type = wrapper.className;
-	    String instname = wrapper.instanceName;
-	    buffer.append("\t\t" + type + " " + instname + " = ");
-	    buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
-	    buffer.append(instname + "\");" + Config.nl);
-	}
-	for(int i = 0; i < numArgs; i++) {
-	    buffer.append("\t\t" + Utility.typeName(argTypes[i].getName()));
-	    buffer.append(" __bluej_param" + i);
-	    buffer.append(" = " + args[i]);
-	    buffer.append(";" + Config.nl);
-	}
-	trans.put("SCOPEINIT", buffer.toString());
+          // Build scope, ie. add one line for every object on the object
+          // bench that gets the object and makes it available for use as
+          // a parameter. Then add one line for each parameter setting the
+          // parameter value.
 
-	buffer = new StringBuffer();
-	if(constructing) {
-	    buffer.append("__bluej_runtime_result = makeObj(new ");
-	    buffer.append(className + argString + ");" + Config.nl);
-	    buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
-	    buffer.append(instanceName);
-	    buffer.append("\", __bluej_runtime_result.result);");
-	}
-	else {	// it's a method call
-	    MethodView method = (MethodView)member;
-	    boolean isVoid = method.isVoid();
+        wrappers = pmf.getObjectBench().getComponents();
+        buffer = new StringBuffer();
+        String scopeId = Utility.quoteSloshes(pkg.getId());
+        if(wrappers.length > 0)
+            buffer.append("Map __bluej_runtime_scope = getScope(\""
+        		  + scopeId + "\");" + Config.nl);
+        for(int i = 0; i < wrappers.length; i++) {
+            ObjectWrapper wrapper = (ObjectWrapper)wrappers[i];
+            String type = wrapper.className;
+            String instname = wrapper.instanceName;
+            buffer.append("\t\t" + type + " " + instname + " = ");
+            buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
+            buffer.append(instname + "\");" + Config.nl);
+        }
+        for(int i = 0; i < numArgs; i++) {
+            buffer.append("\t\t" + Utility.typeName(argTypes[i].getName()));
+            buffer.append(" __bluej_param" + i);
+            buffer.append(" = " + args[i]);
+            buffer.append(";" + Config.nl);
+        }
+        trans.put("SCOPEINIT", buffer.toString());
 
-	    if(!isVoid)
-		buffer.append("__bluej_runtime_result = makeObj(");
-	    if(method.isStatic())
-		buffer.append(className + "." + method.getName() + argString);
-	    else
-		buffer.append(objName + "." + method.getName() + argString);
-	    if(!isVoid)
-		buffer.append(")");
-	    buffer.append(";" + Config.nl);
+        buffer = new StringBuffer();
+        if(constructing) {
+            buffer.append("__bluej_runtime_result = makeObj(new ");
+            buffer.append(className + argString + ");" + Config.nl);
+            buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
+            buffer.append(instanceName);
+            buffer.append("\", __bluej_runtime_result.result);");
+        }
+        else {	// it's a method call
+            MethodView method = (MethodView)member;
+            boolean isVoid = method.isVoid();
 
-	    if(!isVoid) {
-		// generate and store unique ID for result object
-		resultId = getResultId();
-		buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
-		buffer.append(resultId);
-		buffer.append("\", __bluej_runtime_result);");
-	    }
-	}
-	trans.put("INVOCATION", buffer.toString());
+            if(!isVoid)
+                buffer.append("__bluej_runtime_result = makeObj(");
+            if(method.isStatic())
+                buffer.append(className + "." + method.getName() + argString);
+            else
+                buffer.append(objName + "." + method.getName() + argString);
+            if(!isVoid)
+                buffer.append(")");
+            buffer.append(";" + Config.nl);
 
-	String templateFileName = Config.getLibFilename("template.shell");
-	String shellFileName = pkg.getFileName(shellName) + ".java";
+            if(!isVoid) {
+            	// generate and store unique ID for result object
+            	resultId = getResultId();
+            	buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
+            	buffer.append(resultId);
+            	buffer.append("\", __bluej_runtime_result);");
+            }
+        }
+        trans.put("INVOCATION", buffer.toString());
 
-	try {
-	    BlueJFileReader.translateFile(templateFileName, shellFileName,
-					  trans);
-	} catch(IOException e) {
-	    e.printStackTrace();
-	    return;
-	}
+        String templateFileName = Config.getLibFilename("template.shell");
+        String shellFileName = new File(pkg.getPath(),shellName + ".java").getPath();
 
-	String[] files = { shellFileName };
-	JobQueue.getJobQueue().addJob(files, this, pkg.getClassPath(),
-				      pkg.getDirName());
+        try {
+            BlueJFileReader.translateFile(templateFileName, shellFileName,
+        				  trans);
+        } catch(IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        String[] files = { shellFileName };
+        JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(),
+                                        pkg.getProject().getProjectDir().getPath());
     }
 
     // -- CompileObserver interface --
@@ -343,19 +349,19 @@ public class Invoker extends Thread
     	    }
     	}
 
-    	pkg.getFrame().setWaitCursor(false);
+        pmf.setWaitCursor(false);
 
-	if(successful)
-	    startClass();
+        if(successful)
+            startClass();
 
-	File srcFile = new File(pkg.getFileName(shellName) + ".java");
-	srcFile.delete();
+        File srcFile = new File(pkg.getPath(), shellName + ".java");
+        srcFile.delete();
 
-	File classFile = new File(pkg.getClassFileName(shellName) + ".class");
-	classFile.delete();
+        File classFile = new File(pkg.getPath(), shellName + ".class");
+        classFile.delete();
 
-	if (constructing)
-	    pkg.getFrame().setStatus(createDone);
+        if (constructing)
+            pkg.setStatus(createDone);
     }
 
     // -- end of CompileObserver interface --
@@ -374,24 +380,24 @@ public class Invoker extends Thread
      */
     public void startClass()
     {
-	try {
-	    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, null);
-	    DebuggerClassLoader loader = pkg.getRemoteClassLoader();
-	    String shellClassName = pkg.getQualifiedName(shellName);
-	    Debugger.debugger.startClass(loader, shellClassName, pkg);
-	    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
+        try {
+            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, null);
+            DebuggerClassLoader loader = pkg.getRemoteClassLoader();
+            String shellClassName = pkg.getQualifiedName() + "." + shellName;
+            Debugger.debugger.startClass(loader, shellClassName, pkg);
+            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
 
-	    // the execution is completed, get the result if there was one
-	    // (this could be either a construction of a function result)
+            // the execution is completed, get the result if there was one
+            // (this could be either a construction of a function result)
 
-	    handleResult(shellClassName);
+            handleResult(shellClassName);
 
-	    // update all open inspect windows
-	    ObjectViewer.updateViewers();
+            // update all open inspect windows
+            ObjectViewer.updateViewers();
 
-	} catch(Throwable e) {
-	    e.printStackTrace(System.err);
-	}
+        } catch(Throwable e) {
+            e.printStackTrace(System.err);
+        }
     }
 
     /**
@@ -437,7 +443,7 @@ public class Invoker extends Thread
 		      pkg.reportException(text);
 		  else
 		      pkg.exceptionMessage(
-			   pkg.getFileName(exc.getSourceFile()),
+			   new File(pkg.getPath(), exc.getSourceFile()).getPath(),
 			   exc.getLineNumber(), text, false);
 		  break;
 

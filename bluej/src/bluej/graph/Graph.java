@@ -10,7 +10,7 @@ import java.util.Vector;
  * General graph
  *
  * @author  Michael Cahill
- * @version $Id: Graph.java 427 2000-04-18 04:33:04Z ajp $
+ * @version $Id: Graph.java 505 2000-05-24 05:44:24Z ajp $
  */
 public abstract class Graph
 {
@@ -36,15 +36,15 @@ public abstract class Graph
     {
     }
 
-    public void setEditor(GraphEditor editor)
+/*    public void setEditor(GraphEditor editor)
     {
-	this.editor = editor;
+        this.editor = editor;
     }
 
     public GraphEditor getEditor()
     {
-	return editor;
-    }
+        return editor;
+    } */
 
     public Dimension getMinimumSize()
     {

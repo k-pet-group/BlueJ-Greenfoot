@@ -12,7 +12,7 @@ import java.util.*;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 330 2000-01-02 13:25:14Z ajp $
+ * @version $Id: SourceInfo.java 505 2000-05-24 05:44:24Z ajp $
  */
 public final class SourceInfo
 {
@@ -62,14 +62,10 @@ public final class SourceInfo
 
     public void save(Properties props, String prefix)
     {
-        // XXX does it make any sense to save this??
-        props.put(prefix + ".valid", ""+valid);
     }
 
     public void load(Properties props, String prefix)
     {
-        String validStr = props.getProperty(prefix + ".valid", "true");
-        valid = Boolean.valueOf(validStr).booleanValue();
     }
 
 }

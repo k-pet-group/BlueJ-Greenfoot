@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.graph.GraphEditor;
+import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import java.util.Properties;
@@ -12,11 +13,11 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: PackageTarget.java 437 2000-05-04 05:47:02Z ajp $
- ** @author Michael Cahill
- **
- ** A link to a package embedded in another package.
- **/
+ * A sub package (or parent package)
+ *
+ * @author  Michael Cahill
+ * @version $Id: PackageTarget.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public class PackageTarget extends Target implements ActionListener
 {
     static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
@@ -33,40 +34,28 @@ public class PackageTarget extends Target implements ActionListener
 
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
-    public PackageTarget(Package pkg, String shortName, String fullName)
+    public PackageTarget(Package pkg, String shortName)
     {
-	super(pkg, shortName);
-	packageDir = shortName;
-	packageName = fullName;
-    }
-
-    public PackageTarget(Package pkg)
-    {
-	super(pkg, null);
+        super(pkg, shortName);
+        packageDir = shortName;
+        packageName = shortName;
     }
 
     public String getName()
     {
-	return packageName;
+        return packageName;
     }
 
     public void load(Properties props, String prefix) throws NumberFormatException
     {
-	super.load(props, prefix);
-
-//	packageDir = Config.getPath(props, prefix + ".packageDir");
-	packageName = props.getProperty(prefix + ".packageName");
+        super.load(props, prefix);
     }
 
     public void save(Properties props, String prefix)
     {
-	super.save(props, prefix);
+        super.save(props, prefix);
 
-	props.put(prefix + ".type", "PackageTarget");
-//	if(packageDir != null)
-//	    Config.putPath(props, prefix + ".packageDir", packageDir);
-	if(packageName != null)
-	    props.put(prefix + ".packageName", packageName);
+        props.put(prefix + ".type", "PackageTarget");
     }
 
     /**
@@ -77,24 +66,23 @@ public class PackageTarget extends Target implements ActionListener
      */
     public boolean copyFiles(String directory)
     {
-	DialogManager.showText(pkg.getFrame(),
-			"\"Save As\" does not yet work for nested packages.");
-	return true;
+//XXX not working
+        return true;
     }
 
     Color getBackgroundColour()
     {
-	return defaultbg;
+        return defaultbg;
     }
 
     Color getBorderColour()
     {
-	return bordercolour;
+        return bordercolour;
     }
 
     Color getTextColour()
     {
-	return textfg;
+        return textfg;
     }
 
     Font getFont()
@@ -102,81 +90,82 @@ public class PackageTarget extends Target implements ActionListener
         return (state == S_INVALID) ? PrefMgr.getStandoutFont() : PrefMgr.getStandardFont();
     }
 
-    public void draw(Graphics2D g) {
-	g.setColor(getBackgroundColour());
-	g.fillRect(x, y, width, height);
+    public void draw(Graphics2D g)
+    {
+        g.setColor(getBackgroundColour());
+        g.fillRect(0, 0, width, height);
 
-	// draw "ribbon"
-	g.setColor(ribboncolour);
-	int rx = x + 2 * TEXT_BORDER;
-	int ry = y + height - HANDLE_SIZE + 5;
-	g.drawLine(rx, y, rx, y + height);
-	g.drawLine(x, ry, x + width, ry);
+        // draw "ribbon"
+        g.setColor(ribboncolour);
+        int rx = 2 * TEXT_BORDER;
+        int ry = height - HANDLE_SIZE + 5;
+        g.drawLine(rx, 0, rx, height);
+        g.drawLine(0, ry, width, ry);
 
-	g.drawLine(rx -10, ry, rx - 10, ry - 3);
-	g.drawLine(rx - 10, ry - 3, rx - 8, ry - 5);
-	g.drawLine(rx - 8, ry - 5, rx - 5, ry - 5);
-	g.drawLine(rx - 5, ry - 5, rx, ry);
-	g.drawLine(rx, ry, rx + 10, ry + 10);
+        g.drawLine(rx -10, ry, rx - 10, ry - 3);
+        g.drawLine(rx - 10, ry - 3, rx - 8, ry - 5);
+        g.drawLine(rx - 8, ry - 5, rx - 5, ry - 5);
+        g.drawLine(rx - 5, ry - 5, rx, ry);
+        g.drawLine(rx, ry, rx + 10, ry + 10);
 
-	g.drawLine(rx + 10, ry, rx + 10, ry - 3);
-	g.drawLine(rx + 10, ry - 3, rx + 8, ry - 5);
-	g.drawLine(rx + 8, ry - 5, rx + 5, ry - 5);
-	g.drawLine(rx + 5, ry - 5, rx, ry);
-	g.drawLine(rx, ry, rx - 10, ry + 10);
+        g.drawLine(rx + 10, ry, rx + 10, ry - 3);
+        g.drawLine(rx + 10, ry - 3, rx + 8, ry - 5);
+        g.drawLine(rx + 8, ry - 5, rx + 5, ry - 5);
+        g.drawLine(rx + 5, ry - 5, rx, ry);
+        g.drawLine(rx, ry, rx - 10, ry + 10);
 
-	g.setColor(textbg);
-	g.fillRect(x + TEXT_BORDER, y + TEXT_BORDER,
-		   width - 2*TEXT_BORDER, TEXT_HEIGHT);
+        g.setColor(textbg);
+        g.fillRect(TEXT_BORDER, TEXT_BORDER,
+        	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
 
-	g.setColor(getBorderColour());
-	g.setFont(getFont());
-	Utility.drawCentredText(g, name,
-				x + TEXT_BORDER, y + TEXT_BORDER,
-				width - 2*TEXT_BORDER, TEXT_HEIGHT);
-	g.drawRect(x + TEXT_BORDER, y + TEXT_BORDER,
-		   width - 2*TEXT_BORDER, TEXT_HEIGHT);
-	drawBorders(g);
+        g.setColor(shadowCol);
+        drawShadow(g);
 
-	g.setColor(shadowCol);
-	drawShadow(g);
+        g.setColor(getBorderColour());
+        g.setFont(getFont());
+        Utility.drawCentredText(g, getDisplayName(),
+        			TEXT_BORDER, TEXT_BORDER,
+        			width - 2*TEXT_BORDER, TEXT_HEIGHT);
+        g.drawRect(TEXT_BORDER, TEXT_BORDER,
+        	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
+        drawBorders(g);
     }
 
     /**
      * Called when a package icon in a GraphEditor is double clicked.
      * Creates a new PkgFrame when a package is drilled down on.
-     * Andy - needs to use the current frame for the new package if
-     * the GraphEditor is within a LibraryBrowser.
      */
-    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) {
-	    Package newpkg = Main.openPackage(pkg.getBaseDir(), packageName);
-	    // open a new Frame for the new package
-	    PkgFrame frame = newpkg.getFrame();
-	    frame.setVisible(true);
+    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
+    {
+        PackageEditor pe = (PackageEditor) editor;
+
+        pe.raiseOpenPackageEvent(this, getPackage().getQualifiedName(getName()));
     }
+
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	JPopupMenu menu = createMenu(null, editor.getFrame());
-	if (menu != null)
-	    menu.show(editor, evt.getX(), evt.getY());
+        JPopupMenu menu = createMenu(null);
+        if (menu != null)
+            menu.show(editor, evt.getX(), evt.getY());
     }
 
-    private JPopupMenu createMenu(Class cl, JFrame editorFrame) {
-	JPopupMenu menu = new JPopupMenu(getName() + " operations");
+    private JPopupMenu createMenu(Class cl)
+    {
+        JPopupMenu menu = new JPopupMenu(getName() + " operations");
 
-	return null;
+        return null;
     }
 
     private void addMenuItem(JPopupMenu menu, String itemString, boolean enabled)
     {
-	JMenuItem item;
+        JMenuItem item;
 
-	menu.add(item = new JMenuItem(itemString));
-	item.addActionListener(this);
-	item.setFont(PrefMgr.getStandardMenuFont());
-	item.setForeground(envOpColour);
-	if(!enabled)
-	    item.setEnabled(false);
+        menu.add(item = new JMenuItem(itemString));
+        item.addActionListener(this);
+        item.setFont(PrefMgr.getStandardMenuFont());
+        item.setForeground(envOpColour);
+        if(!enabled)
+            item.setEnabled(false);
     }
 
     public void actionPerformed(ActionEvent e)

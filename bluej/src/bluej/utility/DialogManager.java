@@ -10,10 +10,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** 
- ** 
- ** 
- ** 
+ **
+ **
+ **
+ **
  ** @author Michael Kolling
  **/
 public class DialogManager
@@ -41,7 +41,7 @@ public class DialogManager
      * (eg. "dialogues.english"). A text (given in a parameter) is appended
      * to the message.
      */
-    public static void showMessageWithText(Component parent, String msgID, 
+    public static void showMessageWithText(Component parent, String msgID,
 					   String text)
     {
 	String message = getMessage(msgID);
@@ -69,7 +69,7 @@ public class DialogManager
     {
 	String message = getMessage(msgID);
 	if(message != null)
-	    JOptionPane.showMessageDialog(parent, message, 
+	    JOptionPane.showMessageDialog(parent, message,
                                           Config.getString("dialogmgr.error"),
 					  JOptionPane.ERROR_MESSAGE);
     }
@@ -78,12 +78,12 @@ public class DialogManager
     /**
      * Show an error dialog with message and "OK" button.
      */
-    public static void showErrorWithText(Component parent, String msgID, 
+    public static void showErrorWithText(Component parent, String msgID,
 					 String text)
     {
 	String message = getMessage(msgID);
 	if(message != null)
-	    JOptionPane.showMessageDialog(parent, message + "\n" + text, 
+	    JOptionPane.showMessageDialog(parent, message + "\n" + text,
 					  "Error", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -111,10 +111,10 @@ public class DialogManager
 	    else
 		options = new Object[] { button1, button2, button3 };
 
-	    return JOptionPane.showOptionDialog(parent, message, 
-                                                Config.getString("dialogmgr.question"), 
-                                                JOptionPane.DEFAULT_OPTION, 
-                                                JOptionPane.WARNING_MESSAGE, 
+	    return JOptionPane.showOptionDialog(parent, message,
+                                                Config.getString("dialogmgr.question"),
+                                                JOptionPane.DEFAULT_OPTION,
+                                                JOptionPane.WARNING_MESSAGE,
                                                 null, options, options[0]);
 	}
 	return 0;
@@ -136,26 +136,26 @@ public class DialogManager
 	    message = message.substring(0, titleIndex);
 	    if("null".equals(defaultText))
 		defaultText = null;
-	    response = (String)JOptionPane.showInputDialog(parent, 
-						message, 
-						title, 
-						JOptionPane.PLAIN_MESSAGE, 
-						null, 
-						null, 
+	    response = (String)JOptionPane.showInputDialog(parent,
+						message,
+						title,
+						JOptionPane.PLAIN_MESSAGE,
+						null,
+						null,
 						defaultText);
 	}
 	return response;
     }
 
     /**
-     * Support routine for dialogues. Read the message text out of the 
+     * Support routine for dialogues. Read the message text out of the
      * dialogue text file (language dependent).
      */
     public static String getMessage(String msgID) {
 	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
 	String message = BlueJFileReader.readHelpText(filename, msgID, true);
 	if(message == null)
-	    JOptionPane.showMessageDialog(null, 
+	    JOptionPane.showMessageDialog(null,
 				"BlueJ configuration problem:\n" +
 				"text not found for message ID\n" +
 				msgID);
@@ -188,16 +188,16 @@ public class DialogManager
     public static void centreWindow(Window child, Window parent)
     {
 	child.pack();
-		
+
 	Point p_topleft = parent.getLocationOnScreen();
 	Dimension p_size = parent.getSize();
 	Dimension d_size = child.getSize();
-		
-	child.setLocation(p_topleft.x + (p_size.width - d_size.width) / 2, 
+
+	child.setLocation(p_topleft.x + (p_size.width - d_size.width) / 2,
 			  p_topleft.y + (p_size.height - d_size.height) / 2);
     }
-	
-	
+
+
     /**
      * tileWindow - position the child at 20, 20 offset of parent
      *  location
@@ -207,4 +207,4 @@ public class DialogManager
 	Point p_topleft = parent.getLocationOnScreen();
 	child.setLocation(p_topleft.x + 20, p_topleft.y + 20);
     }
-}	
+}

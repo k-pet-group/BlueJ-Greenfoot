@@ -8,7 +8,7 @@ import bluej.utility.MultiEnumeration;
 import bluej.utility.SortableVector;
 import bluej.utility.Utility;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Main;
+import bluej.pkgmgr.PkgMgrFrame;
 
 import java.util.Vector;
 import java.util.Properties;
@@ -18,7 +18,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: ClassTarget.java 437 2000-05-04 05:47:02Z ajp $
+ ** @version $Id: ClassTarget.java 505 2000-05-24 05:44:24Z ajp $
  ** @author Michael Cahill
  **
  ** A general target for the browser
@@ -36,11 +36,11 @@ public class ClassTarget extends Target
         super(Utility.stripPackagePrefix(cl.getName()));
 
         this.cl = cl;
-        
+
         setBorder(BorderFactory.createEmptyBorder(0,0, SHAD_SIZE, SHAD_SIZE));
 
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
-        
+
         MouseListener ml = new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 setSelected(!getSelected());
@@ -49,7 +49,7 @@ public class ClassTarget extends Target
         addMouseListener(ml);
     }
 
-    protected Color getBackgroundColour() 
+    protected Color getBackgroundColour()
     {
         if(cl.isInterface())
             return interfacebg;
@@ -61,36 +61,34 @@ public class ClassTarget extends Target
     {
         JPopupMenu menu = new JPopupMenu();
 
-        Package[] openpackages = bluej.pkgmgr.Main.getAllOpenPackages();
-            
-        if(openpackages != null) {
-            for(int i=0; i<openpackages.length; i++) {
+        PkgMgrFrame[] openFrames = PkgMgrFrame.getAllOpenPackageFrames();
 
-                Action useAction = new UseAction("Use in package " + openpackages[i].getId(),
-                                                openpackages[i]); 
+        if(openFrames != null) {
+            for(int i=0; i<openFrames.length; i++) {
 
+                Action useAction = new UseAction("Use in package " +
+                                          openFrames[i].getPackage().getId(),
+                                          openFrames[i].getPackage());
             	useAction.setEnabled(true);
-
                 menu.add(useAction);
             }
 
              menu.show(this,x,y);
-        }                
+        }
     }
 
     private class UseAction extends AbstractAction
     {
         private Package pkg;
-        
+
         public UseAction(String menu, Package pkg)
         {
             super(menu);
-
             this.pkg = pkg;
-        }    
+        }
 
         public void actionPerformed(ActionEvent e) {
-            pkg.insertLibClass(cl.getName());
+//            pkg.insertLibClass(cl.getName());
         }
     }
 }

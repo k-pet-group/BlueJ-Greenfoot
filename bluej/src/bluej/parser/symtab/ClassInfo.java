@@ -343,7 +343,6 @@ public final class ClassInfo
         return superclass;
     }
 
-
     public String getName()
     {
         return name;

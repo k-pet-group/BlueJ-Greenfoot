@@ -4,7 +4,7 @@ import java.lang.reflect.Modifier;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: MemberView.java 244 1999-08-20 06:42:33Z mik $
+ ** @version $Id: MemberView.java 505 2000-05-24 05:44:24Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java class member in BlueJ
@@ -13,7 +13,7 @@ public abstract class MemberView
 {
     private View view;
     private Comment comment;
-	
+
     protected MemberView(View view)
     {
 	if (view == null)
@@ -21,7 +21,7 @@ public abstract class MemberView
 
 	this.view = view;
     }
-	
+
     /**
      ** Returns the View of the class or interface that declares this member.
      **/
@@ -29,13 +29,13 @@ public abstract class MemberView
     {
 	return view;
     }
-	
+
     /**
      ** Returns the name of the class or interface that declares this member.
      **/
     public String getClassName()
     {
-	return view.getName();
+        return view.getQualifiedName();
     }
 
     /**
@@ -46,12 +46,12 @@ public abstract class MemberView
      ** @see Modifier
      **/
     public abstract int getModifiers();
-	
+
     /**
      ** Returns a string describing this member in a human-readable format
      **/
     public abstract String getSignature();
-	
+
     /**
      ** Sets the (javadoc) comment for this Member
      **/
@@ -59,7 +59,7 @@ public abstract class MemberView
     {
 	this.comment = comment;
     }
-	
+
     /**
      ** Returns the (javadoc) comment for this Member
      **/
@@ -67,7 +67,7 @@ public abstract class MemberView
     {
         if (view != null)
 	    view.loadComments();
-		
+
 	return comment;
     }
 
@@ -75,12 +75,12 @@ public abstract class MemberView
      ** Get a short String describing this member
      **/
     public abstract String getShortDesc();
-	
+
     /**
      ** Get a longer String describing this member
      **/
     public abstract String getLongDesc();
-	
+
     /**
      ** @returns a boolean indicating whether this member is static
      **/
@@ -88,7 +88,7 @@ public abstract class MemberView
     {
 	return Modifier.isStatic(getModifiers());
     }
-	
+
     public void print(FormattedPrintWriter out)
     {
 	print(out, 0);

@@ -5,27 +5,24 @@ import bluej.utility.Debug;
 import bluej.utility.Comparer;
 import bluej.utility.SortableVector;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 
 import java.lang.reflect.*;
 import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 
 /**
-** @version $Id: View.java 365 2000-01-14 06:33:17Z mik $
-** @author Michael Cahill
-**
-** View class - a representation of a Java class in BlueJ
-**/
+ * A representation of a Java class in BlueJ
+ *
+ * @author  Michael Cahill
+ * @version $Id: View.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public class View
 {
     /** The class that this view is for **/
     protected Class cl;
-
-    protected View superView;
-    protected View[] interfaceViews;
 
     protected FieldView[] fields;
     protected FieldView[] allFields;
@@ -36,8 +33,12 @@ public class View
     protected Comment comment;
     private int instanceNum = 0;
 
-    protected static Hashtable views = new Hashtable();
+    private static Map views = new HashMap();
 
+    /**
+     * Return a view of a class.
+     * This is the only way to obtain a View object.
+     */
     public static View getView(Class cl)
     {
         if(cl == null)
@@ -47,42 +48,68 @@ public class View
 
         View v = (View)views.get(cl);
         if(v == null)
-            {
-                v = new View(cl);
-                views.put(cl, v);
-            }
+        {
+            v = new View(cl);
+            views.put(cl, v);
+        }
 
         // Debug.message("Ended getView for class " + cl);
 
         return v;
     }
 
-    public View(Class cl)
+    /**
+     * Remove from the view cache, all views of classes
+     * which were loaded by loader
+     */
+    public static void removeAll(ClassLoader loader)
+    {
+        Iterator it = views.values().iterator();
+
+        while(it.hasNext())
+        {
+            View v = (View) it.next();
+
+            if (v.getClassLoader() == loader) {
+                it.remove();
+            }
+            else {
+            }
+        }
+    }
+
+    private View(Class cl)
     {
         this.cl = cl;
     }
 
-    public String getName()
+    private ClassLoader getClassLoader()
+    {
+        return cl.getClassLoader();
+    }
+
+    public String getQualifiedName()
     {
         return cl.getName();
     }
 
+    public String getBaseName()
+    {
+        return JavaNames.getBase(cl.getName());
+    }
+
     public View getSuper()
     {
-        if(superView == null)
-            superView = getView(cl.getSuperclass());
-        return superView;
+        return getView(cl.getSuperclass());
     }
 
     public View[] getInterfaces()
     {
-        if(interfaceViews == null)
-            {
-                Class[] interfaces = cl.getInterfaces();
-                interfaceViews = new View[interfaces.length];
-                for(int i = 0; i < interfaces.length; i++)
-                    interfaceViews[i] =  getView(interfaces[i]);
-            }
+        Class[] interfaces = cl.getInterfaces();
+
+        View[] interfaceViews = new View[interfaces.length];
+        for(int i = 0; i < interfaces.length; i++)
+            interfaceViews[i] =  getView(interfaces[i]);
 
         return interfaceViews;
     }
@@ -230,8 +257,10 @@ public class View
     {
         //Debug.message("Started addMembers for " + cl);
 
-        for(int i = members.length - 1; i >= 0; i--)
+        for(int i = members.length - 1; i >= 0; i--) {
+            //Debug.message("Adding ->" + members[i].toString() + "<-");
             h.put(members[i].toString(), new MemberElement(num++, members[i]));
+        }
 
         //Debug.message("Ended addMembers for " + cl);
         return num;
@@ -310,24 +339,29 @@ public class View
         // traverse up through the class and its superclasses
         View curview = this;
 
-        while(curview != null) {            
+        while(curview != null) {
 
             CommentList comments = null;
-            String filename = curview.getName().replace('.', '/') + ".ctxt";  
+            String filename = curview.getQualifiedName().replace('.', '/') + ".ctxt";
 
             try {
                 InputStream in = null;
 
-                if (curview.cl.getClassLoader() == null)
+                if (curview.cl.getClassLoader() == null) {
                     in = ClassLoader.getSystemResourceAsStream(filename);
-                else
+                }
+                else {
                     in = curview.cl.getClassLoader().getResourceAsStream(filename);
+                }
 
                 if(in != null) {
                     comments = new CommentList();
                     comments.load(in);
                     in.close();
                 }
+                //else
+                //    Debug.message("Failed to load .ctxt file " + filename);
+
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -349,7 +383,7 @@ public class View
                     MemberView m = (MemberView)table.get(c.getTarget());
 
                     if(m == null) {
-                        // Debug.message("No member found for " + c.getTarget() + " in file " + filename);
+                        //Debug.message("No member found for " + c.getTarget() + " in file " + filename);
                         continue;
                     }
                     else {
@@ -367,7 +401,7 @@ public class View
     private void addMembers(Hashtable table, MemberView[] members)
     {
         for(int i = 0; i < members.length; i++) {
-            // Debug.message("Adding member " + members[i].getSignature());
+            //Debug.message("Adding member " + members[i].getSignature());
             table.put(members[i].getSignature(), members[i]);
         }
     }

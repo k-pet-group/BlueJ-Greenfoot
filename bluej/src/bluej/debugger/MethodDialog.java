@@ -6,6 +6,7 @@ import bluej.utility.MultiLineLabel;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.ConstructorView;
 import bluej.views.MemberView;
 import bluej.views.CallableView;
@@ -30,10 +31,9 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 399 2000-02-25 03:58:55Z bquig $
+ * @version $Id: MethodDialog.java 505 2000-05-24 05:44:24Z ajp $
  */
-
-public class MethodDialog extends JDialog 
+public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchWatcher
 {
     static final int MD_CREATE = 0;
@@ -43,7 +43,7 @@ public class MethodDialog extends JDialog
     static final int CANCEL = 1;
 
     int dialogType;
-	
+
     // Window Titles
     static final String wCreateTitle = Config.getString("pkgmgr.methodCall.titleCreate");
     static final String wCallRoutineTitle = Config.getString("pkgmgr.methodCall.titleCall");
@@ -79,13 +79,15 @@ public class MethodDialog extends JDialog
     private boolean emptyField = false;
     private String defaultParamValue = "";
 
-    public MethodDialog(Package pkg, String className, String instanceName, 
-                        CallableView method)
+    public MethodDialog(PkgMgrFrame pmf, String className,
+                        String instanceName, CallableView method)
     {
-        super(pkg.getFrame(), false);
+        super(pmf, false);
+
+        Package pkg = pmf.getPackage();
 
         history = pkg.getCallHistory();
-        bench = pkg.getBench();
+        bench = pmf.getObjectBench();
 
         // set up panel for error message
         status = new MultiLineLabel("\n\n", LEFT_ALIGNMENT);
@@ -93,11 +95,11 @@ public class MethodDialog extends JDialog
         JPanel statusPanel = new JPanel();
         statusPanel.setMinimumSize(new Dimension(120,40));
 
-        // Find out the type of dialog 
+        // Find out the type of dialog
         if( method instanceof MethodView ) {
             dialogType = MD_CALL;
             methodName = ((MethodView)method).getName();
-        }		
+        }
         else if (method instanceof ConstructorView ) {
             dialogType = MD_CREATE;
         }
@@ -114,9 +116,9 @@ public class MethodDialog extends JDialog
             {
                 centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
                 centerPanel.setAlignmentX(LEFT_ALIGNMENT);
-		
+
             	// parse method signature for param fields, there may be a better way
-            	String[] paramNames = null;	
+            	String[] paramNames = null;
             	if(method.hasParameters())
             	    paramNames = parseParamNames(method.getLongDesc());
 
@@ -124,31 +126,31 @@ public class MethodDialog extends JDialog
             	// Set dialog items depends on the Dialog type
             	//
             	switch (dialogType) {
-            	
-                case MD_CALL:		
-            	    makeCallDialog(className, instanceName, method, paramNames, 
+
+                case MD_CALL:
+            	    makeCallDialog(className, instanceName, method, paramNames,
                                    centerPanel);
             	    break;
-            
+
                 case MD_CREATE:
-            	    makeCreateDialog(className, instanceName, method, paramNames, 
+            	    makeCreateDialog(className, instanceName, method, paramNames,
                                      centerPanel);
             	    break;
-            	    
+
                 default:	// error!
             	    throw new Error("Invalid MethodDialog type " + dialogType);
             	}
             }
-            
+
             // create the Button Panel
             JPanel butPanel = new JPanel();
             {
                 butPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
                 butPanel.setAlignmentX(LEFT_ALIGNMENT);
-                
+
                 butPanel.add(bOk = new JButton(Config.getString("okay")));
                 bOk.addActionListener(this);
-            
+
             	butPanel.add(bCancel = new JButton(Config.getString("cancel")));
             	bCancel.addActionListener(this);
                 getRootPane().setDefaultButton(bOk);
@@ -159,9 +161,9 @@ public class MethodDialog extends JDialog
 
             }
 
-            //          	statusPanel.add(status);	
+            //          	statusPanel.add(status);
             //            statusPanel.setAlignmentX(LEFT_ALIGNMENT);
-	
+
             dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
             dialogPanel.setBorder(Config.generalBorder);
 
@@ -178,7 +180,7 @@ public class MethodDialog extends JDialog
 
         getContentPane().add(dialogPanel);
         pack();
-		
+
         // Set some attributes for this DialogBox
         DialogManager.centreDialog(this);
 
@@ -189,19 +191,19 @@ public class MethodDialog extends JDialog
                 }
             });
     }
-    
+
 
     /**
      * makeCallDialog - create a dialog to make a method call
      */
-    private void makeCallDialog(String className, String instanceName, 
-                                MemberView method, String[] paramNames, 
+    private void makeCallDialog(String className, String instanceName,
+                                MemberView method, String[] paramNames,
                                 JPanel panel)
     {
         JPanel tmpPanel;
 
         setTitle(wCallRoutineTitle);
-	
+
         if (paramNames != null) {
 
             MethodView methView = (MethodView)method;
@@ -214,7 +216,7 @@ public class MethodDialog extends JDialog
             constraints.insets = new Insets(2,2,2,2);
 
     	    callLabel = new JLabel("", JLabel.RIGHT);
-    
+
             if(method.isStatic())
                 setCallLabel(className, methodName);
             else
@@ -250,7 +252,7 @@ public class MethodDialog extends JDialog
                         eol.setText(")");
                     else
                         eol.setText(")  " + commentSlash + paramNames[i] );
-				    
+
                 gridBag.setConstraints(eol,constraints);
                 tmpPanel.add(eol);
             }
@@ -272,7 +274,7 @@ public class MethodDialog extends JDialog
     }
 
     /**
-     * makeCreateDialog - create a dialog to create an object (including 
+     * makeCreateDialog - create a dialog to create an object (including
      *  constructor call)
      */
     private void makeCreateDialog(String className, String instanceName,
@@ -283,9 +285,11 @@ public class MethodDialog extends JDialog
 
         setTitle(wCreateTitle);
 
+        System.out.println("creating " + className + " into " + instanceName);
+
         JLabel instName = new JLabel(sNameOfInstance);
         instanceNameText = new JTextField(instanceName, 16);
-				
+
         if(paramNames != null) {
             ConstructorView consView = (ConstructorView)method;
             paramClasses = consView.getParameters();
@@ -298,7 +302,7 @@ public class MethodDialog extends JDialog
 
             gridBag.setConstraints(instName, constraints);
             tmpPanel.add(instName);
-		    
+
             constraints.gridx = 1;
             constraints.gridwidth = 1;
             constraints.anchor = GridBagConstraints.WEST;
@@ -315,7 +319,7 @@ public class MethodDialog extends JDialog
             tmpPanel.add(name);
 
             params = new JComboBox[paramClasses.length];
-		    
+
             for (int i = 0; i < paramClasses.length; i++) {
                 constraints.gridy = (i + 1);
                 constraints.anchor = GridBagConstraints.WEST;
@@ -329,7 +333,7 @@ public class MethodDialog extends JDialog
 
                 // add FocusListener for text insertion
                 ((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
-	  
+
                 gridBag.setConstraints(params[i], constraints);
                 tmpPanel.add(params[i]);
 
@@ -342,7 +346,7 @@ public class MethodDialog extends JDialog
                     else
                         eol.setText(")  " + commentSlash + paramNames[i]);
                 }
-		
+
                 gridBag.setConstraints(eol,constraints);
 
                 tmpPanel.add(eol);
@@ -369,13 +373,13 @@ public class MethodDialog extends JDialog
 
 
     /**
-     * parseParamNames - parses a long description of a method and returns 
+     * parseParamNames - parses a long description of a method and returns
      * the argument types and names as an array of Strings.
      *
-     * @return an array of Strings representing method arguments. 
+     * @return an array of Strings representing method arguments.
      */
     public String[] parseParamNames(String longMethodName)
-    { 
+    {
         String[] argNames = null;
         StringTokenizer tokenizer = new StringTokenizer(longMethodName,",()",true);
         String arg = "";
@@ -384,7 +388,7 @@ public class MethodDialog extends JDialog
 
         while( tokenizer.hasMoreTokens()){
             String token = tokenizer.nextToken();
-	    
+
             if (token.equals("(")){
                 inArg = true;
                 arg = "";
@@ -400,14 +404,14 @@ public class MethodDialog extends JDialog
             }
             else {
                 if(inArg)
-                    arg += token; 
-            }	
+                    arg += token;
+            }
         }
         //Debug.message("params = " + args.toString());
         argNames = new String[args.size()];
         for(int i = 0; i < args.size(); i++)
 	    argNames[i] = ((String)args.get(i)).trim();
-	
+
         return argNames;
     } // parseParamNames
 
@@ -416,16 +420,16 @@ public class MethodDialog extends JDialog
      * Return true is this is a call to
      *     public static void main(String[])
      */
-    private boolean isMainCall(MemberView method, String name, 
+    private boolean isMainCall(MemberView method, String name,
                                Class[] paramClasses)
     {
-        return method.isStatic() && "main".equals(name) && 
+        return method.isStatic() && "main".equals(name) &&
             paramClasses.length == 1 && paramClasses[0].isArray() &&
             paramClasses[0].getComponentType().getName().equals("java.lang.String");
     }
 
     /**
-     * Set the visibility of the dialog, clearing parameter edit fields 
+     * Set the visibility of the dialog, clearing parameter edit fields
      * and setting focus.
      */
     public void setVisible(boolean show)
@@ -433,14 +437,14 @@ public class MethodDialog extends JDialog
     	super.setVisible(show);
     	// reset status label message
     	setMessage("");
-    
+
     	if (show) {
     	    // clear params from any JComboBoxes
     	    clearParameters();
-    
+
             // register a watcher for Object Bench selections
             bench.addWatcher(this);
-    
+
     	    if(params != null) {
                 params[0].requestFocus();
     	    }
@@ -460,21 +464,21 @@ public class MethodDialog extends JDialog
 
     /**
      * Process action events
-     */	
+     */
     public void actionPerformed(ActionEvent event)
     {
         Object obj = event.getSource();
 
-        if (obj == bOk) 
+        if (obj == bOk)
             doOk();
         else if (obj == bCancel)
             doCancel();
     }
 
     /**
-     * doOk - Process an "Ok" event to invoke a Constructor or Method. 
+     * doOk - Process an "Ok" event to invoke a Constructor or Method.
      *  Collects arguments and calls watcher objects (Invoker).
-     */		
+     */
     public void doOk()
     {
         paramNames = getParamNames();  // sets "emptyField"
@@ -503,10 +507,10 @@ public class MethodDialog extends JDialog
     /**
      * Process a "Cancel" event to cancel a Constructor or Method call.
      * Makes dialog invisible.
-     */		
+     */
     public void doCancel()
     {
-        callWatcher(CANCEL);     
+        callWatcher(CANCEL);
     }
 
     /**
@@ -514,13 +518,13 @@ public class MethodDialog extends JDialog
      */
     public void addWatcher(MethodDialogWatcher w)
     {
-        if (w != null) 
+        if (w != null)
             watcher = w;
-    }	
+    }
 
     /**
      * callWatcher - notify watcher of dialog events.
-     */	
+     */
     public void callWatcher(int event)
     {
         if (watcher != null)
@@ -538,7 +542,7 @@ public class MethodDialog extends JDialog
         invalidate();
         validate();
     }
-	
+
     /**
      * Get arguments from param entry fields as array of strings.
      * May be null (if there are no arguments).
@@ -561,10 +565,10 @@ public class MethodDialog extends JDialog
     }
 
     /**
-     * Inserts text into edit field (JComboBox) that has focus. 
+     * Inserts text into edit field (JComboBox) that has focus.
      * Has problems at present (09/02/99) finding focused component.
      * Swing bug?
-     */	
+     */
     public void insertText(String text)
     {
         if(params != null) {
@@ -578,7 +582,7 @@ public class MethodDialog extends JDialog
 
     /**
      * setMessage - Sets a status bar style message for the dialog mainly
-     *  for reporting back compiler errors upon method calls. 
+     *  for reporting back compiler errors upon method calls.
      */
     public void setMessage(String message)
     {
@@ -639,23 +643,23 @@ public class MethodDialog extends JDialog
     /**
      * Workaround for udating model problems with JComboBox.
      * Updates CallHistory and resets model to updated Vectors.  Ugly and
-     * brutal but corrects problems with JComboBox update problems. 
+     * brutal but corrects problems with JComboBox update problems.
      */
     public void updateParameters()
     {
         if(params != null) {
             for(int i = 0; i < params.length; i++) {
-                history.addCall(paramClasses[i], 
+                history.addCall(paramClasses[i],
                                 (String)params[i].getEditor().getItem());
                 List historyList = history.getHistory(paramClasses[i]);
                 params[i].setModel(new DefaultComboBoxModel(historyList.toArray()));
                 params[i].insertItemAt(defaultParamValue, 0);
-            }	    
+            }
         }
     }
 
     /**
-     * Clear parameters of any param entry fields 
+     * Clear parameters of any param entry fields
      *
      */
     private void clearParameters()
@@ -667,8 +671,8 @@ public class MethodDialog extends JDialog
     }
 
     /**
-     * setWaitCursor - Sets the cursor to "wait" style cursor, using swing 
-     *  bug workaround at present 
+     * setWaitCursor - Sets the cursor to "wait" style cursor, using swing
+     *  bug workaround at present
      */
     public void setWaitCursor(boolean wait)
     {
@@ -688,11 +692,11 @@ public class MethodDialog extends JDialog
     {
         insertText(wrapper.instanceName);
     }
-	
+
     // --- FocusListener interface methods ---
 
     /**
-     * FocusEventListener method fired when watched component gains focus 
+     * FocusEventListener method fired when watched component gains focus
      * Assigns focusedTextField to work around difficulties in JComboBox
      * firing focus gained events.
      */
@@ -703,10 +707,10 @@ public class MethodDialog extends JDialog
     }
 
     /**
-     * FocusEventListener method fired when watched component loses focus 
+     * FocusEventListener method fired when watched component loses focus
      * Does nothing at present except for debug message.
-     * 
-     */   
+     *
+     */
     public void focusLost(FocusEvent fe)
     {
         // Debug.message(" Focus Lost: " + fe.paramString());

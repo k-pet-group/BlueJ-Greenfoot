@@ -7,12 +7,12 @@ import java.util.Vector;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: DebuggerObject.java 334 2000-01-02 13:32:56Z ajp $
+ * @version $Id: DebuggerObject.java 505 2000-05-24 05:44:24Z ajp $
  */
 public abstract class DebuggerObject
 {
     /**
-     * Get the name of the class of this object.
+     * Get the fully qualified name of the class of this object.
      */
     public abstract String getClassName();
 

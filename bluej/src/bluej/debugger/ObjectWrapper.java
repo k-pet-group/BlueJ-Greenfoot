@@ -4,6 +4,7 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Utility;
 import bluej.views.MethodView;
 import bluej.views.View;
@@ -26,7 +27,7 @@ import java.util.Vector;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 347 2000-01-12 03:54:04Z ajp $
+ * @version $Id: ObjectWrapper.java 505 2000-05-24 05:44:24Z ajp $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -43,6 +44,7 @@ public class ObjectWrapper extends JComponent
     private JPopupMenu menu;
     private Method[] methods;
     private Package pkg;
+    private PkgMgrFrame pmf;
 
     private Hashtable methodsUsed;
     private Hashtable actions;
@@ -50,11 +52,15 @@ public class ObjectWrapper extends JComponent
     public static final int WIDTH = 100;
     public static final int HEIGHT = 70;
 
-    public ObjectWrapper(DebuggerObject obj, String instanceName, Package pkg)
+    public ObjectWrapper(PkgMgrFrame pmf, DebuggerObject obj, String instanceName)
     {
+        if(pmf.isEmptyFrame())
+            throw new IllegalArgumentException();
+
+        this.pmf = pmf;
+        this.pkg = pmf.getPackage();
         this.obj = obj;
         this.instanceName = instanceName;
-        this.pkg = pkg;
 
         className = obj.getClassName();
         createMenu(className);
@@ -74,17 +80,20 @@ public class ObjectWrapper extends JComponent
         return pkg;
     }
 
+    public PkgMgrFrame getFrame()
+    {
+        return pmf;
+    }
+
     /**
-     * Creates the popup mene structure by parsing the object's
+     * Creates the popup menu structure by parsing the object's
      * class inheritance hierarchy.
      *
      * @param   className   class name of the object for which the menu is to be built
      */
     private void createMenu(String className)
     {
-        Class cl = null;
-
-        cl = pkg.loadClass(className);
+        Class cl = pkg.loadClass(className);
 
         Vector classes = getClassHierarchy(cl);
 
@@ -263,7 +272,7 @@ public class ObjectWrapper extends JComponent
         int menuOffset;
         super.processMouseEvent(evt);
 
-        pkg.getFrame().clearStatus();
+//XXX        pkg.getFrame().clearStatus();
 
         if(isPopupEvent(evt)) {
             int itemHeight = ((JComponent)menu.getComponent(0)).getHeight();
@@ -342,9 +351,9 @@ public class ObjectWrapper extends JComponent
      */
     private void inspectObject()
     {
-	ObjectViewer viewer =
-	    ObjectViewer.getViewer(true, obj, instanceName, pkg, true,
-				   pkg.getFrame());
+//XXX	ObjectViewer viewer =
+//	    ObjectViewer.getViewer(true, obj, instanceName, pkg, true,
+//				   pkg.getFrame());
     }
 
     /**
@@ -354,21 +363,22 @@ public class ObjectWrapper extends JComponent
      */
     private void executeMethod(MethodView method)
     {
-	ResultWatcher watcher = null;
+        ResultWatcher watcher = null;
 
-	pkg.forgetLastSource();
-	if(!method.isVoid())
-	    watcher = new ResultWatcher() {
-		public void putResult(DebuggerObject result, String name)
-		{
-		    ObjectViewer viewer = ObjectViewer.getViewer(false, result,
-								 name,
-								 pkg, true,
-								 pkg.getFrame());
-		}
-	    };
+        pkg.forgetLastSource();
+        if(!method.isVoid()) {
+            watcher = new ResultWatcher() {
+                public void putResult(DebuggerObject result, String name)
+                {
+                    ObjectViewer viewer = ObjectViewer.getViewer(false, result,
+                                        						 name,
+                                        						 pkg, true,
+                                        						 pmf);
+                }
+            };
+        }
 
-        Invoker invoker = new Invoker(pkg, method, instanceName, watcher);
+        Invoker invoker = new Invoker(pmf, method, instanceName, watcher);
     }
 
 

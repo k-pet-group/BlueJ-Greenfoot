@@ -28,7 +28,7 @@ public class JavaLexer extends antlr.CharScanner implements JavaLexerTokenTypes,
 	protected int tokColumn = 1;
 	protected int column = 1;
 
-	public void consume() throws IOException
+	public void consume() throws CharStreamException
 	{
 //		if ( inputState.guessing==0 ) {
 		if (text.length()==0) {
@@ -49,7 +49,7 @@ public class JavaLexer extends antlr.CharScanner implements JavaLexerTokenTypes,
 		return tok;
 	}
 
-	public void reportError(ScannerException ex)
+	public void reportError(RecognitionException ex)
 	{
 		// do nothing
         }

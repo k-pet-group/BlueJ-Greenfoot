@@ -25,29 +25,28 @@ import bluej.utility.Debug;
 import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPathEntry;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Main;
 
 /**
  * A JPanel subclass which displays all the classes in a package. ie
  * show all classes in java.lang.
  * Allows the user to select a particular class which fires an action
  * event indicating the class chosen.
- * 
+ *
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: ClassChooser.java 282 1999-11-18 10:36:00Z ajp $
+ * @version $Id: ClassChooser.java 505 2000-05-24 05:44:24Z ajp $
  */
 public class ClassChooser extends JPanel {
 
     private FlowPanel flowpanel = null;
-    
+
     /**
      * Create a new empty ClassChooser.
      */
     public ClassChooser()  {
 
         setLayout(new BorderLayout());
-        
+
 /*        tree.addTreeSelectionListener(new TreeSelectionListener() {
                 public void valueChanged(TreeSelectionEvent e) {
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode)(e.getPath().getLastPathComponent());
@@ -62,18 +61,18 @@ public class ClassChooser extends JPanel {
             String[] d = {"Collection", "Collectable", "free", "four"};
             String[] d2 = {"lang", "io", "awt", "swing"};
             interfaces = new JList(d);
-            packages = new JList(d2);            
+            packages = new JList(d2);
 
             b.add(packages);
             b.add(interfaces);
-            b.add(tree);            
-           
+            b.add(tree);
+
         }
 
         MouseListener ml = new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int selRow = tree.getRowForLocation(e.getX(), e.getY());
-                TreePath selPath = tree.getPathForLocation(e.getX(), e.getY()); 
+                TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
                 if(selRow != -1) {
                     popupClick(selRow, selPath);
                 }
@@ -82,26 +81,26 @@ public class ClassChooser extends JPanel {
         tree.addMouseListener(ml);
   */
         flowpanel = new FlowPanel();
-        
+
         JScrollPane scroller = new JScrollPane(flowpanel);
         {
             scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         }
 
-        add(scroller);      
+        add(scroller);
     }
 
     public void openPackage(String packageName, String[] classes, String[] packages)
     {
         flowpanel.removeAll();
-        
+
         for(int i=0; i<classes.length; i++)
         {
             try {
                 String className = packageName + "." + classes[i];
                 Class packageClass = ClassMgr.loadBlueJClass(className);
-            
+
                 flowpanel.add(new ClassTarget(packageClass));
             }
             catch(ClassNotFoundException cfe) { }
@@ -113,12 +112,12 @@ public class ClassChooser extends JPanel {
 
             flowpanel.add(new PackageTarget(nestedPackageName));
         }
-                
+
         flowpanel.invalidate();
-        flowpanel.revalidate();        
+        flowpanel.revalidate();
         flowpanel.repaint();
     }
-        
+
     public void addActionListener(ActionListener l) {
         listenerList.add(ActionListener.class, l);
     }
@@ -129,8 +128,8 @@ public class ClassChooser extends JPanel {
 
 
     // Notify all listeners that have registered interest for
-    // notification on this event type.  The event instance 
-    // is lazily created using the parameters passed into 
+    // notification on this event type.  The event instance
+    // is lazily created using the parameters passed into
     // the fire method.
 
     protected void fireActionEvent(String className) {
@@ -142,9 +141,9 @@ public class ClassChooser extends JPanel {
             if (listeners[i] == ActionListener.class) {
                 ((ActionListener)listeners[i+1]).actionPerformed(
                         new ActionEvent(this, ActionEvent.ACTION_PERFORMED, className));
-            }	       
+            }
         }
-    }	
+    }
 
     /**
      *  Construct a tree representing the classe heirarchy
@@ -163,7 +162,7 @@ public class ClassChooser extends JPanel {
             try {
                 String className = packageName + "." + classNames[i];
                 Class packageClass = ClassMgr.loadBlueJClass(className);
-            
+
                 if (packageClass.isPrimitive() ||
                     packageClass.isInterface() ||
                     packageClass == Object.class)
@@ -177,7 +176,7 @@ public class ClassChooser extends JPanel {
         }
 
         return classes;
-    }    
+    }
 
     /**
      *  Insert the class (a real class, not an interface or primitive)
@@ -192,7 +191,7 @@ public class ClassChooser extends JPanel {
         // precondition: root's user object is a superclass of cl
 
         Class rootClass = (Class)root.getUserObject();
-    
+
         if (!rootClass.isAssignableFrom(cl))
             throw new IllegalArgumentException("Precondition wasn't true for " + rootClass.getName() + " " + cl.getName());
 
@@ -208,7 +207,7 @@ public class ClassChooser extends JPanel {
         {
             DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)root.getChildAt(i);
             Class childClass = (Class)childNode.getUserObject();
-            
+
             if (cl.isAssignableFrom(childClass))
             {
                 // cl is a superclass of the child so we need to reparent
@@ -216,10 +215,10 @@ public class ClassChooser extends JPanel {
                 // but we can't reparent yet because it will stuff up our
                 // enumerating so we store them in an array and reparent them
                 // in a batch later on
-                
+
                 reparentToClass[reparentCount++] = childNode;
             }
-            
+
             if (childClass.isAssignableFrom(cl))
             {
                 if (reparentCount > 0)
@@ -228,21 +227,21 @@ public class ClassChooser extends JPanel {
                 // childClass is a superclass of cl so we recurse down the tree
                 insertInto(childNode, cl);
                 return;
-            }            
+            }
         }
 
         for(int i=0; i<reparentCount; i++)
-            classNode.add(reparentToClass[i]); 
+            classNode.add(reparentToClass[i]);
 
         root.add(classNode);
     }
- 
+
 }
 
 class FlowPanel extends JPanel  {
-    
+
 /*    public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
-    
+
     public int getScrollableUnitIncrement(Rectangle visibleRect,
                                       int orientation,
                                       int direction)
@@ -254,7 +253,7 @@ class FlowPanel extends JPanel  {
                                        int orientation,
                                        int direction)
     {
-        return 20;        
+        return 20;
     }
 
     public boolean getScrollableTracksViewportWidth() { return true; }
@@ -270,11 +269,11 @@ class FlowPanel extends JPanel  {
     public Dimension getPreferredSize()
     {
         Dimension supdim = super.getPreferredSize();
-        
+
         return new Dimension(1,getHeight());
-    }        
-     
-    
+    }
+
+
 }
 
 class QuickCellRenderer extends DefaultTreeCellRenderer {
@@ -285,7 +284,7 @@ class QuickCellRenderer extends DefaultTreeCellRenderer {
 						  boolean expanded,
 						  boolean leaf,
 						  int row,
-						  boolean hasFocus) 
+						  boolean hasFocus)
     {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
         Class cl = (Class)node.getUserObject();

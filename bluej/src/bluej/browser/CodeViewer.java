@@ -1,8 +1,8 @@
 package bluej.browser;
 
-import javax.swing.*; 
-import javax.swing.border.*; 
-import java.awt.*; 
+import javax.swing.*;
+import javax.swing.border.*;
+import java.awt.*;
 
 import bluej.editor.moe.MoeEditorManager;
 import bluej.editor.moe.MoeEditor;
@@ -17,9 +17,9 @@ import bluej.classmgr.ClassMgr;
 /**
 * A read only (Moe) text editor for showing views of a class selected
 * in the library browser.  Defaults to a public view of a class.
-* 
-* @author $Author: mik $
-* @version $Id: CodeViewer.java 375 2000-01-24 22:56:25Z mik $
+*
+* @author $Author: ajp $
+* @version $Id: CodeViewer.java 505 2000-05-24 05:44:24Z ajp $
 */
 public class CodeViewer implements EditorWatcher {
     private MoeEditorManager edMgr = new MoeEditorManager();
@@ -35,9 +35,9 @@ public class CodeViewer implements EditorWatcher {
     public CodeViewer() {}
 
     /**
-     * Return the editor used by the code viewer, 
+     * Return the editor used by the code viewer,
      * or null if the editor hasn't been created yet.
-     * 
+     *
      * @return the editor used by the code viewer.
      */
     public Editor getEditor() {
@@ -48,7 +48,7 @@ public class CodeViewer implements EditorWatcher {
      * Spawn an independent Moe Editor window for the specified file.
      * As this editor is to be used in read only mode, don't register
      * a watcher for it.  Set the editor to show the public view of the class.
-     * 
+     *
      * @param theClass the ClassTarget representing the class to view
      * @param className the name of the class in package notation (i.e., a.b.c)
      * @param isCompiled true if <code>fileName</code> is compiled
@@ -56,9 +56,9 @@ public class CodeViewer implements EditorWatcher {
     public void openClass(ClassTarget theClass, String className, boolean isCompiled) {
         this.theClass = theClass;
         this.className = className;
-        String fileName = theClass.sourceFile();
-        editor = edMgr.openClass(null, 
-                                 "Library Browser - " + fileName, 
+        String fileName = theClass.getSourceFile().getPath();
+        editor = edMgr.openClass(null,
+                                 "Library Browser - " + fileName,
                                  this,
                                  isCompiled,
                                  null);
@@ -68,7 +68,7 @@ public class CodeViewer implements EditorWatcher {
 
     /**
      * Open a class that has no corresponding source file.
-     * 
+     *
      * @param theClass the ClassTarget representing the class to view
      * @param className the name of the class in package notation (i.e., a.b.c)
      * @param isCompiled true if <code>fileName</code> is compiled
@@ -81,33 +81,33 @@ public class CodeViewer implements EditorWatcher {
     /**
      * Called when the source of the editor has been changed.  Unimplemented because
      * the editor used is read only.  Part of the EditorWatcher interface.
-     * 
+     *
      * @param editor the editor with the modified contents.
      */
     public void modificationEvent(Editor editor) {}
 
     /**
      * Called when the file open in the editor is saved.  Unimplemented because
-     * the editor used is read only.  Part of the EditorWatcher interface.  
-     * 
+     * the editor used is read only.  Part of the EditorWatcher interface.
+     *
      * @param editor the editor with the file to be saved.
      **/
     public void saveEvent(Editor editor) {}
 
     /**
      * Called when the file open in the editor is closed.  Unimplemented because
-     * the CodeViewer has no interest in the file when it is closed as it has not 
-     * been modified.  Part of the EditorWatcher interface.  
-     * 
+     * the CodeViewer has no interest in the file when it is closed as it has not
+     * been modified.  Part of the EditorWatcher interface.
+     *
      * @param editor the editor with the file to be closed.
      **/
     public void closeEvent(Editor editor) {}
 
     /**
-     * Called by Editor when a breakpoint is been set/cleared.  Unimplemented 
-     * because setting of breakpoints is not allowed in the read only editor.  
-     * Part of the EditorWatcher interface.  
-     * 
+     * Called by Editor when a breakpoint is been set/cleared.  Unimplemented
+     * because setting of breakpoints is not allowed in the read only editor.
+     * Part of the EditorWatcher interface.
+     *
      * @arg lineNo the line number of the breakpoint
      * @arg set	whether the breakpoint is set (true) or cleared
      */
@@ -122,34 +122,34 @@ public class CodeViewer implements EditorWatcher {
     **/
     public boolean changeView(Editor editor, int viewType) {
         showView(editor, viewType);
-        return true; 
+        return true;
     }
 
     /**
      * Called by Editor when a file is to be compiled.  Unimplemented because compilation is not allowed in the read only editor.
-     * Part of the EditorWatcher interface.  
+     * Part of the EditorWatcher interface.
      **/
     public void compile(Editor editor) {}
 
     /**
      * Handles the changing of views within the open editor.
      * Stops view changing when no source is available (only allowed PUBLIC view).
-     * 
+     *
      * @param editor the editor with the file to change the view of
      * @param viewType the type of view requested.
      */
-    private void showView(Editor editor, int viewType) { 
+    private void showView(Editor editor, int viewType) {
         editor.setReadOnly(false);
         if (!hasSource)
             viewType = Editor.PUBLIC;
 
         if (viewType == Editor.IMPLEMENTATION) {
-            editor.showFile(theClass.sourceFile(), true, null);
+            editor.showFile(theClass.getSourceFile().getPath(), true, null);
         } else {
 
             try {
                 editor.clear();
-                View view = new View(ClassMgr.loadBlueJClass(className));
+                View view = View.getView(ClassMgr.loadBlueJClass(className));
                 int filterType = 0;
                 if(viewType == Editor.PUBLIC)
                     filterType = ViewFilter.PUBLIC;

@@ -1,16 +1,15 @@
 package bluej.compiler;
 
 /**
- ** @version $Id: Compiler.java 36 1999-04-27 04:04:54Z mik $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** Compiler class - an abstract interface to a source -> bytecode compiler.
- ** This can be implemented by different compiler implementations.
- **
- ** Currently known implementations: JavacCompiler.
- **/
-
+ * Compiler class - an abstract interface to a source -> bytecode compiler.
+ * This can be implemented by different compiler implementations.
+ *
+ * Currently known implementations: JavacCompiler, JikesCompiler.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: Compiler.java 505 2000-05-24 05:44:24Z ajp $
+ */
 public abstract class Compiler
 {
 	public abstract void setDestDir(String destdir);
