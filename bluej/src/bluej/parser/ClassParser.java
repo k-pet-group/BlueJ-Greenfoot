@@ -3982,7 +3982,6 @@ public ClassParser(ParserSharedInputState state) {
 		"ML_COMMENT",
 		"ESC",
 		"HEX_DIGIT",
-		"VOCAB",
 		"EXPONENT",
 		"FLOAT_SUFFIX"
 	};

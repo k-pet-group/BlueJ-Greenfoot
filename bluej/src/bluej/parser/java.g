@@ -1423,48 +1423,24 @@ options {
     exportVocab=Java;		// call the vocabulary "Java"
     testLiterals=false;		// don't automatically test for literals
     k=4;			// four characters of lookahead
-    charVocabulary = '\3'..'\377';	// all of useful 8 bit ASCII
-                                        // once the main code is redone to use
-                                        // Readers and the ANTLR unicode support
-                                        // fully works we can change this to support
-                                        // full unicode
+	charVocabulary='\u0003'..'\uFFFD';
+	// without inlining some bitset tests, couldn't do unicode;
+	// I need to make ANTLR generate smaller bitsets; see
+	// bottom of JavaLexer.java
+	codeGenBitsetTestThreshold=20;
 }
 
 {
-/*	protected int tokColumn = 1;
-	protected int column = 1;
-
-	public void consume() throws CharStreamException
-	{
-//		if ( inputState.guessing==0 ) {
-		if (text.length()==0) {
-			// remember token start column
-			tokColumn = column;
-		}
-//		}
-		column++;
-		super.consume();
-	}
-
-	public void newline() { super.newline(); column = 1; }
-
-	protected Token makeToken(int t)
-	{
-		Token tok = super.makeToken(t);
-		tok.setColumn(tokColumn);
-		return tok;
-	}
-*/
 	public void reportError(RecognitionException ex)
 	{
 		// do nothing
-        }
-        /** Parser error-reporting function can be overridden in subclass */
-        public void reportError(String s)
-        {
-        	// do nothing
-        }
+    }
 
+    /** Parser error-reporting function can be overridden in subclass */
+    public void reportError(String s)
+    {
+      	// do nothing
+    }
 }
 
 
@@ -1631,21 +1607,13 @@ HEX_DIGIT
     ;
 
 
-// a dummy rule to force vocabulary to be all characters (except special
-//   ones that ANTLR uses internally (0 to 2)
-protected
-VOCAB
-    :   '\3'..'\377'
-    ;
-
-
 // an identifier.  Note that testLiterals is set to true!  This means
 // that after we match the rule, we look in the literals table to see
 // if it's a literal or really an identifer
 IDENT
     options {testLiterals=true;}
-    :   ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00c0'..'\u00ff')
-        ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00c0'..'\u00ff'|'0'..'9')*
+    :   ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00C0'..'\u00ff')
+        ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00C0'..'\ufffe'|'0'..'9')*
     ;
 
 

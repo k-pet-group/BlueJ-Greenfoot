@@ -151,7 +151,6 @@ public interface JavaTokenTypes {
 	int ML_COMMENT = 147;
 	int ESC = 148;
 	int HEX_DIGIT = 149;
-	int VOCAB = 150;
-	int EXPONENT = 151;
-	int FLOAT_SUFFIX = 152;
+	int EXPONENT = 150;
+	int FLOAT_SUFFIX = 151;
 }
