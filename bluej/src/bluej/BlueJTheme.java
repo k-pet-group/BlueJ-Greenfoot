@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  * components for i18n purposes.
  *
  * @author  Bruce Quig
- * @version $Id: BlueJTheme.java 2277 2003-11-05 16:32:48Z polle $
+ * @version $Id: BlueJTheme.java 2343 2003-11-14 12:34:10Z polle $
  */
 public class BlueJTheme extends DefaultMetalTheme
 {
@@ -214,13 +214,14 @@ public class BlueJTheme extends DefaultMetalTheme
 	    private Color shadowColor = new Color(145,145,145);
 	    private Color backgroundColor = Color.WHITE;
 	    private Color borderColor = Color.BLACK;
+        private int backgroundThickness = 5; //extra space around the frame
 	    
 	    public RoundedShadowBorder() {
             insets = new Insets(0,0,0,0);
-	        insets.bottom = bottomLeftCorner.getIconHeight();	         
-	        insets.top = topLeftCorner.getIconHeight();
-	        insets.left = topLeftCorner.getIconHeight();
-	        insets.right = topRightCorner.getIconHeight();
+	        insets.bottom = bottomLeftCorner.getIconHeight()+backgroundThickness;	         
+	        insets.top = topLeftCorner.getIconHeight()+backgroundThickness;
+	        insets.left = topLeftCorner.getIconHeight()+backgroundThickness;
+	        insets.right = topRightCorner.getIconHeight()+backgroundThickness;
 	    }
 	    
 	    /** 
@@ -265,8 +266,12 @@ public class BlueJTheme extends DefaultMetalTheme
 				int width,
 				int height) {       
 	        
+            x+=backgroundThickness;
+            y+=backgroundThickness;
+            height-=2*backgroundThickness;
+            width-=2*backgroundThickness;
 	        //Top
-	        g.setColor(backgroundColor);
+	        g.setColor(backgroundColor);            
 	        g.drawLine(x,y,x+width,y);
 	        g.drawLine(x,y+1,x+width,y+1);
 	        g.drawLine(x,y+2,x+width,y+2);
@@ -279,8 +284,6 @@ public class BlueJTheme extends DefaultMetalTheme
 	        g.setColor(shadowColor);
 	        g.drawLine(x,y+height-3,x+width,y+height-3);
 	        g.drawLine(x,y+height-2,x+width,y+height-2);
-	        g.setColor(backgroundColor);
-	        g.drawLine(x,y+height-1,x+width,y+height-1);
 	        
 	        //Left
 	        g.setColor(backgroundColor);
@@ -291,19 +294,26 @@ public class BlueJTheme extends DefaultMetalTheme
 	        g.drawLine(x+3,y,x+3,y+height);
 	        
 	        //Right
-	        g.setColor(borderColor);
+            g.setColor(borderColor);
 	        g.drawLine(x+width-4,y,x+width-4,y+height);
 	        g.setColor(shadowColor);           
 	        g.drawLine(x+width-3,y,x+width-3,y+height);
 	        g.drawLine(x+width-2,y,x+width-2,y+height);
-	        g.setColor(backgroundColor);           
-	        g.drawLine(x+width-1,y,x+width-1,y+height);
-	        
+	      
+            //Background around the border
+            g.setColor(backgroundColor);      
+            for(int i=0; i < backgroundThickness+1; i++) {
+                g.drawRect(x-i,y-i,width-1+2*i,height-1+2*i);
+            }
+
 	        //Corners
-	        topLeftCorner.paintIcon(c,g,x,y);
+            height+=backgroundThickness;
+            width+=backgroundThickness;            
+            topLeftCorner.paintIcon(c,g,x,y);
 	        topRightCorner.paintIcon(c, g, x + width - insets.right, y );
 	        bottomLeftCorner.paintIcon(c, g, x, y + height -insets.bottom);
-	        bottomRightCorner.paintIcon(c, g, x + width - insets.right, y + height -insets.bottom);	        
+	        bottomRightCorner.paintIcon(c, g, x + width - insets.right, y + height -insets.bottom);	            
+            
 	    }
 	    
 	}
@@ -317,9 +327,11 @@ public class BlueJTheme extends DefaultMetalTheme
 	    private Color shadowColor = new Color(145,145,145);
 	    private Color backgroundColor = Color.WHITE;
 	    private Color borderColor = Color.BLACK;
+        private int backgroundThickness = 5; //extra space around the frame
+       
 	    
 	    public ShadowBorder() {
-	        insets = new Insets(4,4,4,4);				
+	        insets = new Insets(4+backgroundThickness,4+backgroundThickness,4+backgroundThickness,4+backgroundThickness);				
 	    }
 	    
 	    /** 
@@ -364,7 +376,12 @@ public class BlueJTheme extends DefaultMetalTheme
 				int width,
 				int height) {       
 	        
-	        //Right
+            x+=backgroundThickness;
+            y+=backgroundThickness;
+            height-=2*backgroundThickness;
+            width-=2*backgroundThickness;
+	        
+            //Right
 	        g.setColor(borderColor);
 	        g.drawLine(x+width-4,y,x+width-4,y+height);
 	        g.setColor(shadowColor);           
@@ -398,7 +415,13 @@ public class BlueJTheme extends DefaultMetalTheme
 	        g.drawLine(x+1,y,x+1,y+height);
 	        g.drawLine(x+2,y,x+2,y+height);
 	        g.setColor(borderColor);
-	        g.drawLine(x+3,y+3,x+3,y+height-4);       
+	        g.drawLine(x+3,y+3,x+3,y+height-4);  
+
+            //Background around the border
+            g.setColor(backgroundColor);      
+            for(int i=0; i < backgroundThickness+1; i++) {
+                g.drawRect(x-i,y-i,width-1+2*i,height-1+2*i);
+            }     
 	        
 	    }	    
 	}
