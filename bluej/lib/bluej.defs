@@ -183,7 +183,7 @@ appletViewer.command=appletviewer
 ## double-backslashes (see example).
 #######################################################################
 
-bluej.classTemplates = stdclass abstract interface applet
+bluej.classTemplates = stdclass abstract interface applet unittest
 #bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
 #bluej.templatePath = F:\\shared\\bluej\\templates
 

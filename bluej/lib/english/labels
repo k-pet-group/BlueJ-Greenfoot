@@ -320,6 +320,7 @@ pkgmgr.newClass.abstract=Abstract Class
 pkgmgr.newClass.interface=Interface
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
+pkgmgr.newClass.unittest=Unit Test
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Create New Package
