@@ -13,14 +13,21 @@ import java.util.zip.*;
 import javax.swing.table.*;
 
 /**
- ** @version $Id: ClassMgr.java 105 1999-06-03 02:14:25Z ajp $
+ ** @version $Id: ClassMgr.java 132 1999-06-16 04:44:24Z ajp $
  ** @author Andrew Patterson
  ** Class to maintain a global classpath environment.
  **/
 public class ClassMgr
 {
+	static final String errorloadingconfig = Config.getString("classmgr.error.loadingconfig");
+	static final String errormissingclasspath = Config.getString("classmgr.error.missingclasspath");
+	static final String errormissingbootclasspath = Config.getString("classmgr.error.missingbootclasspath");
+
+	static final String userlibs_file = Config.getPropString("classmgr.userconfig","userlibs.properties");
+	static final String syslibs_file = Config.getPropString("classmgr.systemconfig","syslibs.properties");
+
 	private static ClassMgr currentClassMgr = new ClassMgr();
-      
+
 	/**
 	 * Returns the classmgr object associated with the current BlueJ.
 	 * environment. Most of the methods of class <code>ClassMgr</code> are instance 
@@ -32,179 +39,137 @@ public class ClassMgr
 	public static ClassMgr getClassMgr() { 
 		return currentClassMgr;
 	}
-    
-	public ArrayList systemLibraries = new ArrayList();
-	public ArrayList bootLibraries = new ArrayList();
-	public ClassPath userLibraries;
 
-	public ArrayList allLibraries = new ArrayList();
+	/**
+	 * Protected to allow access by the class manager dialog.
+	 * These start off as empty classpath's. If the corresponding
+	 * file does not exist and therefore throws an exception
+	 * when we go to open it we will still end up with a valid
+	 * classpath object (albeit empty)
+	 */
+	protected ClassPath systemLibraries = new ClassPath();
+	protected ClassPath userLibraries = new ClassPath();
+	protected ClassPath bootLibraries = new ClassPath();
+
+	private Loader classloader = new Loader();
+
+	/**
+	 * Returns the class loader associated with this ClassMgr.
+	 * This class loader should be used as the parent of all
+	 * class loaders created within BlueJ.
+	 * 
+	 * @return  the <code>ClassLoader</code> associated with BlueJ's
+	 *          current ClassMgr
+	 */
+	public ClassLoader getLoader() {
+		return classloader;
+	}
 
 	/** Don't let anyone else instantiate this class */
 	private ClassMgr() {
 
 		try {
-			userLibraries = new ClassPath(new FileInputStream(getUserConfigFilename()));
+			userLibraries = new ClassPath(new FileInputStream(getUserConfigFile()));
 		} catch (IOException ioe) {
-			Debug.message("config file not found");
+			Debug.message(errorloadingconfig + "\n" + ioe.getLocalizedMessage());
 		}
 
-		fillTableFromClasspath(System.getProperty("sun.boot.class.path"),
-					bootLibraries, "from boot path");
-		fillTableFromConfigFile(getSystemConfigFilename() , systemLibraries);
-//		fillTableFromConfigFile(getUserConfigFilename() , userLibraries);
-
-//		allLibraries.addAll(userLibraries);
-		allLibraries.addAll(systemLibraries);
-		allLibraries.addAll(bootLibraries);
-
-//		System.out.println(allLibraries.toString());
-
-		/* now check whether there are any entries in the environment
-		   variable CLASSPATH which we have not yet seen. We will add
-		   them to the user's libraries so that they will be saved out
-		   for next time */
-		   
-		ArrayList cpLibraries = new ArrayList();
-		fillTableFromClasspath(System.getProperty("java.class.path"),
-					cpLibraries, "from class path");
-
-		Iterator cpLibrariesIterator = cpLibraries.listIterator();
-
-/*       if (syscp == null) {
-            cp = System.getProperty("java.class.path");
-            if (cp == null)
-                cp = ".";
-        } else {
-            String envcp = System.getProperty("env.class.path");
-            if (envcp == null)
-                envcp = ".";
-            cp = syscp + File.pathSeparator + envcp;
-		while (cpLibrariesIterator.hasNext()) {
-			String nextEntry = (String)cpLibrariesIterator.next();
-
-			if (!allLibraries.contains(nextEntry)) {
-				userLibraries.add(nextEntry,cpLibraries.get(nextEntry));
-				allLibraries.put(nextEntry,cpLibraries.get(nextEntry));
-
-				System.out.println("Entry " + nextEntry + " in class path variable is not list anyhwer");
-			} 
-		} */
-	}
-
-	/**
-	 * Read from a classpath string all the libraries which it references
-	 *
-	 * @return true if the file loaded successfully, false otherwise
-	 */
-	private void fillTableFromClasspath(String classpath, ArrayList table,
-						String genericdescription)
-	{
 		try {
-			StringTokenizer st = new StringTokenizer(classpath, Config.colonstring);
+			systemLibraries = new ClassPath(new FileInputStream(getSystemConfigFile()));
+		} catch (IOException ioe) {
+			Debug.message(errorloadingconfig + "\n" + ioe.getLocalizedMessage());
+		}
 
-			while(st.hasMoreTokens()) {
-				String entry = st.nextToken();
-				ClassPathEntry cpentry = new ClassPathEntry(entry, genericdescription);
+		String syscp = System.getProperty("sun.boot.class.path");
+		String envcp = System.getProperty("java.class.path");
 
-				table.add(cpentry);
+		if (syscp == null) {		// pre JDK1.2
+			Debug.message(errormissingbootclasspath);
+		} else {
+			if (envcp == null) {	// no classpath
+				Debug.message(errormissingclasspath);
 			}
 		}
-		catch(Exception e) {
-			e.printStackTrace();
+
+		bootLibraries = new ClassPath(syscp, Config.getString("classmgr.bootclass"));
+
+		/* The libraries which are in the java classpath environment variable should
+		   only be the bluej libraries needed to run the program */
+
+		if (envcp != null) {
+			bootLibraries.addClassPath(envcp, Config.getString("classmgr.bluejclass"));
 		}
-	}
-
-	private boolean fillTableFromConfigFile(String configfile, ArrayList table)
-	{
-		Properties config = new Properties();
-
-		try {
-			config.load(new FileInputStream(configfile));
-		} catch (IOException ioe) {
-			Debug.message(Config.getString("browser.librarychooser.missingsysconfdialog.text"));
-			return false;
-		}
-	
-		int resourceID = 1;
-		try {
-			String alias, location;
-
-			while (true) {
-				alias = config.getProperty("lib" + resourceID + ".alias");
-				location = config.getProperty("lib" + resourceID + ".location");
-
-				if (alias == null || location == null)
-					break;
-
-				ClassPathEntry cpentry = new ClassPathEntry(location, alias);
-				table.add(cpentry);
-				resourceID++;
-			}
-		} catch (MissingResourceException mre) {
-			// it is normal that this is exception is thrown, it just means we've come to the end of the file
-		}
-
-		return true;
 	}
 
 	/**
 	 * Create the user configuration file name.
 	 * 
-	 * @return the name of the user configuration file
+	 * @return the user configuration file
 	 */
-	private static String getUserConfigFilename() {
-		return Config.getUserConfigDir() + File.separator +
-			Config.getString("browser.librarychooser.config.user");
+	private File getUserConfigFile() {
+		return new File(Config.getUserConfigDir(),userlibs_file);
 	}
 				       
 	/**
 	 * Create the system configuration file name.
 	 * 
-	 * @return the name of the system configuration file
+	 * @return the system configuration file
 	 */
-	private static String getSystemConfigFilename() {
-		return Config.getSystemConfigDir() + File.separator +
-			 Config.syslibs_file;
+	private File getSystemConfigFile() {
+		return new File(Config.getSystemConfigDir(),syslibs_file);
 	}
 
-/*	public Vector getBootLibraries() 
+	class Loader extends ClassLoader
 	{
+		/**
+		 * Read in a class file from disk. Return a class object.
+		 */
+		protected Class findClass(String name)
+		{
+			// Debug.message("classmgrloader: finding ", name);
 
+			byte[] bytes = loadClassData(name);
+			if(bytes != null) {
+				// Debug.message("classmgrloader: succeeded", name);
+				return defineClass(name, bytes, 0, bytes.length);
+			}
+			else {
+				// Debug.message("classmgrloader: failed", name);
+				return null;
+			}
+		}
+
+		/**
+		 * Read in a class file from disk. Return the class code as a byte
+		 * array. The JDK class loader delegation model means that we are
+		 * only ever asked to look up a class if the parent system loader
+		 * has failed. Therefore we need only look in our userLibraries and
+		 * systemLibraries. The bootLibraries will have been searched by
+		 * the system loader.
+		 */
+		protected byte[] loadClassData(String name)
+		{
+			byte[] classData = null;
+
+			try {
+				String filename = name.replace('.', Config.slash) + ".class";
+
+				InputStream in = systemLibraries.getFile(filename);
+
+				if(in == null)
+					in = userLibraries.getFile(filename);
+
+				if(in != null) {
+					byte[] buffer = new byte[in.available()];
+					in.read(buffer);
+					classData = buffer;
+					in.close();
+				}
+			} catch(Exception e) {
+				Debug.reportError("cannot load class " + name + ": " + e);
+				e.printStackTrace();
+			}
+			return classData;
+		}
 	}
-
-	public Vector getSystemLibraries()
-	{
-
-
-	}
-*/
-	/**
-	 * Save the current user configured libraries back to the user configuration file.
-	 * Note that any comments originally appearing in this file will be removed.
-	 * 
-	 * @return true if the configuration could be saved.
-	 */
-/*	public boolean saveUserConfigFile() {
-		Properties userConfig = new Properties();
-		
-		Enumeration librariesEnum = userLibraries.keys();
-
-		int current = 1;
-		while (librariesEnum.hasMoreElements()) {
-			String nextAlias = libraries.nextElement().toString();
-	    if (libraryAliases.get(nextAlias) instanceof UserLibraryNode) {
-		userConfig.put("lib" + current + ".alias", nextAlias);
-		userConfig.put("lib" + current + ".location", ((UserLibraryNode)libraryAliases.get(nextAlias)).getInternalName());
-		current++;
-	    }
-	}
-		
-	try {
-	    userConfig.save(new FileOutputStream(Config.getUserConfigDir() + File.separator + Config.getString("browser.librarychooser.config.user")), "");
-	} catch (IOException ioe) {
-	    ioe.printStackTrace();
-	}
-		
-	return true;
-    } */
 }

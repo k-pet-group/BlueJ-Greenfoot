@@ -5,21 +5,26 @@ import bluej.Config;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.*;
+import java.util.jar.*;
 
 import javax.swing.table.*;
 
 /**
- ** @version $Id: ClassPath.java 110 1999-06-03 02:53:22Z ajp $
+ ** @version $Id: ClassPath.java 132 1999-06-16 04:44:24Z ajp $
  ** @author Andrew Patterson
  ** Class to maintain a list of ClassPathEntry's.
  **/
 public class ClassPath
 {
-	public ArrayList entries = new ArrayList();
+	private ArrayList entries = new ArrayList();
 
 	public ClassPath()
 	{
+	}
+
+	public ClassPath(ClassPath classpath)
+	{
+		addClassPath(classpath);
 	}
 
 	public ClassPath(String classpath, String genericdescription)
@@ -32,42 +37,67 @@ public class ClassPath
 		addConfigFile(configstream);
 	}
 
-		/* now check whether there are any entries in the environment
-		   variable CLASSPATH which we have not yet seen. We will add
-		   them to the user's libraries so that they will be saved out
-		   for next time */
-		   
-/*		Config.getString("classmgr.missingsysconfdialog.text")
+	/**
+	 *
+	 */
 
-ArrayList cpLibraries = new ArrayList();
-		fillTableFromClasspath(System.getProperty("java.class.path"),
-					cpLibraries, "from class path");
+	protected List getEntries()
+	{
+		return entries;
+	}
+	/**
+	 * Remove elements from the classpath
+	 */
+	public void removeClassPath(String classpath)
+	{
+		try {
+			StringTokenizer st = new StringTokenizer(classpath, Config.colonstring);
 
-		Iterator cpLibrariesIterator = cpLibraries.listIterator();
- */
-/*       if (syscp == null) {
-            cp = System.getProperty("java.class.path");
-            if (cp == null)
-                cp = ".";
-        } else {
-            String envcp = System.getProperty("env.class.path");
-            if (envcp == null)
-                envcp = ".";
-            cp = syscp + File.pathSeparator + envcp;
-		while (cpLibrariesIterator.hasNext()) {
-			String nextEntry = (String)cpLibrariesIterator.next();
+			while(st.hasMoreTokens()) {
+				String entry = st.nextToken();
 
-			if (!allLibraries.contains(nextEntry)) {
-				userLibraries.add(nextEntry,cpLibraries.get(nextEntry));
-				allLibraries.put(nextEntry,cpLibraries.get(nextEntry));
+				entries.remove(entry);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-				System.out.println("Entry " + nextEntry + " in class path variable is not list anyhwer");
-			} 
-		} */
+	public void removeAll()
+	{
+		entries.clear();
+	}
+
+	public void addClassPath(ClassPath classpath)
+	{
+		// make a copy of the entries.. don't just add the entries to the
+		// new class path
+
+		Iterator it = classpath.entries.iterator();
+
+		while (it.hasNext()) {
+
+			ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+
+			try {
+				ClassPathEntry cpentry = (ClassPathEntry)nextEntry.clone();
+
+				if(!entries.contains(cpentry))
+					entries.add(cpentry);
+			} catch(CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * Add from a classpath string all the libraries which it references
 	 *
+	 * @param	classpath	a string containing a sequence of filenames
+	 *				separated by a path separator character
+	 * @param	genericdescription	a string which will be used as the
+	 *					description for all entries created for
+	 *					this classpath
 	 */
 	public void addClassPath(String classpath, String genericdescription)
 	{
@@ -78,27 +108,22 @@ ArrayList cpLibraries = new ArrayList();
 				String entry = st.nextToken();
 				ClassPathEntry cpentry = new ClassPathEntry(entry, genericdescription);
 
-				entries.add(cpentry);
+				if(!entries.contains(cpentry))
+					entries.add(cpentry);
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-/*		try {
-			config.load(new FileInputStream(configfile));
-		} catch (IOException ioe) {
-			Debug.message(notfoundmessage);
-			return false;
-		}
-	*/
 	}
 
 	/**
 	 * Read from an inputstream a set of configuration items which describe
 	 * the set of class path entries
 	 *
-	 * @param
-	 **/
+	 * @param	configstream	an inputstream which can be parsed as
+	 *				properties
+	 */
 	private void addConfigFile(InputStream configstream)
 	{
 		Properties config = new Properties();
@@ -122,7 +147,10 @@ ArrayList cpLibraries = new ArrayList();
 					break;
 
 				ClassPathEntry cpentry = new ClassPathEntry(location, description);
-				entries.add(cpentry);
+
+				if(!entries.contains(cpentry))
+					entries.add(cpentry);
+
 				resourceID++;
 			}
 		} catch (MissingResourceException mre) {
@@ -131,16 +159,15 @@ ArrayList cpLibraries = new ArrayList();
 	}
 
 	/**
-	 * Save the current user configured libraries back to the user configuration file.
+	 * Save the current libraries back to a configuration file.
 	 * Note that any comments originally appearing in this file will be removed.
 	 * 
-	 * @return true if the configuration could be saved.
 	 */
 	public void putConfigFile(OutputStream configstream)
 	{
 		Properties config = new Properties();
 
-		Iterator it = entries.listIterator();
+		Iterator it = entries.iterator();
 		int current = 1;
 
 		while (it.hasNext()) {
@@ -150,13 +177,75 @@ ArrayList cpLibraries = new ArrayList();
 			config.put("lib" + current + ".description", nextEntry.getDescription());
 
 			current++;
-	    }
+		}
 
 		try {
-			config.store(configstream, "User libraries");
+			config.store(configstream, "Class Libraries");
 		} catch(IOException ioe) {
 			Debug.message("Writing library configuration: " + ioe.getLocalizedMessage());
 		}
 	}
-}
 
+	/**
+	 * Find a file in the classpath
+	 *
+	 * @param	filename	a string which specifies a file to look
+	 *				for throughout the class path
+	 */
+	public InputStream getFile(String filename) throws IOException
+	{
+		Iterator it = entries.iterator();
+
+		while (it.hasNext()) {
+			ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+	    
+			// each entry can be either a jar/zip file or a directory
+			// or neither in which case we ignore it
+
+			if(nextEntry.isJar()) {
+				InputStream ret = readJar(nextEntry.getFile(), filename);
+
+				if (ret != null)
+					return ret;
+			} else if (nextEntry.isClassRoot()) {
+				File fd = new File(nextEntry.getFile(), filename);
+
+				if(fd.exists())
+					return new FileInputStream(fd);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieve an entry out of a jar file
+	 *
+	 * @param	classjar	a file representing the jar to look in
+	 * @param	filename	a string which specifies a file to look
+	 *				for in the jar
+	 */
+
+	private InputStream readJar(File classjar, String filename) throws IOException
+	{
+		JarFile jarf = new JarFile(classjar);
+
+		// filenames are passed into us in native slash separated form.
+		// jar files require us to always use the forward slash when looking
+		// for files so if we are on a system where / is not the actual
+		// separator character we have to first fix the filename up
+
+		if(File.separatorChar != '/')
+			filename = filename.replace('/', File.separatorChar);
+
+		JarEntry entry = jarf.getJarEntry(filename);
+
+		if(entry == null)
+			return null;
+
+		InputStream is = jarf.getInputStream(entry);
+
+		jarf.close();
+
+		return is;
+	}
+}

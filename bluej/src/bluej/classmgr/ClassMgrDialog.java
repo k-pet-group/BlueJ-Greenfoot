@@ -19,11 +19,11 @@ import bluej.Config;
  * archive) or directory, with an associated alias in either case.
  * 
  * @author Andrew Patterson
- * @version $Id: ClassMgrDialog.java 110 1999-06-03 02:53:22Z ajp $
+ * @version $Id: ClassMgrDialog.java 132 1999-06-16 04:44:24Z ajp $
  */
 public class ClassMgrDialog extends JDialog {
 
-	private static ClassMgrDialog dialog = new ClassMgrDialog("BlueJ Class Manger");
+	private static ClassMgrDialog dialog = new ClassMgrDialog(Config.getString("classmgr.title"));
 
 	private JTable userLibrariesTable = null;
 	private ClassPathTableModel userLibrariesModel = null;
@@ -34,6 +34,9 @@ public class ClassMgrDialog extends JDialog {
 	 * @param title the title of the dialog
 	 */
 	private ClassMgrDialog(String title) {
+
+		Vector bootLibrariesList = new Vector(ClassMgr.getClassMgr().bootLibraries.getEntries());
+		Vector systemLibrariesList = new Vector(ClassMgr.getClassMgr().systemLibraries.getEntries());
 
 		setTitle(title);
 
@@ -52,7 +55,7 @@ public class ClassMgrDialog extends JDialog {
 				JScrollPane scrollPane = new JScrollPane();
 				{
 					// table of user library classpath entries
-					userLibrariesModel = new ClassPathTableModel(ClassMgr.getClassMgr().userLibraries.entries);
+					userLibrariesModel = new ClassPathTableModel(ClassMgr.getClassMgr().userLibraries);
 					userLibrariesTable = new JTable(userLibrariesModel);						
 					{
 						userLibrariesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -90,9 +93,9 @@ public class ClassMgrDialog extends JDialog {
 
 					// allow the Add and Delete buttons to be resized to equal width
 					addButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-													addButton.getPreferredSize().height));
+									addButton.getPreferredSize().height));
 					deleteButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-													deleteButton.getPreferredSize().height));
+									deleteButton.getPreferredSize().height));
 				}
 
 				lefttorightPane.setLayout(new BoxLayout(lefttorightPane, BoxLayout.X_AXIS));
@@ -109,7 +112,7 @@ public class ClassMgrDialog extends JDialog {
 			{
 				JList list = new JList();
 				{
-					list.setListData(new Vector(ClassMgr.getClassMgr().systemLibraries));
+					list.setListData(systemLibrariesList);
 					list.setCellRenderer(new ClassMgrCellRenderer());
 					list.setEnabled(false);
 				}
@@ -130,7 +133,7 @@ public class ClassMgrDialog extends JDialog {
 			{
 				JList list = new JList();
 				{
-					list.setListData(new Vector(ClassMgr.getClassMgr().bootLibraries));
+					list.setListData(bootLibrariesList);
 					list.setCellRenderer(new ClassMgrCellRenderer());
 					list.setEnabled(false);
 				}
@@ -149,21 +152,24 @@ public class ClassMgrDialog extends JDialog {
 			{
 				buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 	
-				// XXX currently ok and cancel are identical
 				JButton okButton = new JButton(Config.getString("okay"));
 				{
 					okButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
+							userLibrariesModel.commitEntries();
 							ClassMgr.getClassMgr().userLibraries.putConfigFile(System.out);
 							setVisible(false);
 						}
 					});
 				}
 
+				getRootPane().setDefaultButton(okButton);
+
 				JButton cancelButton = new JButton(Config.getString("cancel"));
 				{
 					cancelButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
+							userLibrariesModel.revertEntries();
 							setVisible(false);
 						}
 					});
@@ -174,7 +180,7 @@ public class ClassMgrDialog extends JDialog {
 
 				// try to make the OK and cancel buttons have equal width
 				okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
-													okButton.getPreferredSize().height));
+								okButton.getPreferredSize().height));
 			}
 
 			dialogPane.setLayout(new BoxLayout(dialogPane, BoxLayout.Y_AXIS));
@@ -200,7 +206,6 @@ public class ClassMgrDialog extends JDialog {
 //		tabbedPane.addTab("Classes", null, dialogPane);
 
 		getContentPane().add(dialogPane);
-
 		pack();
     }
 
@@ -227,11 +232,11 @@ public class ClassMgrDialog extends JDialog {
 		}
 	}
 
-    /**
-     * Delete the currently selected row (if there is one)
+	/**
+	 * Delete the currently selected row (if there is one)
 	 * of the user library table from the user library
 	 * classpath.
-     **/
+	 */
 	private void deleteUserLibrary() {
 		int which = userLibrariesTable.getSelectedRow();
 
@@ -239,19 +244,20 @@ public class ClassMgrDialog extends JDialog {
 			userLibrariesModel.deleteEntry(which);
 	}
 
-    /**
-     * Show the initialized dialog.  The first argument should
-     * be null if you want the dialog to come up in the center
-     * of the screen.  Otherwise, the argument should be the
-     * component on top of which the dialog should appear.
-     * 
-     * @param comp the parent component for the dialog.
-     */
+	/**
+	 * Show the initialized dialog.  The first argument should
+	 * be null if you want the dialog to come up in the center
+	 * of the screen.  Otherwise, the argument should be the
+	 * component on top of which the dialog should appear.
+	 * 
+	 * @param comp the parent component for the dialog.
+	 */
 	public static boolean showDialog(Component comp) {
 		if (comp != null) {
 			dialog.setLocationRelativeTo(comp);
 		}
 		dialog.setVisible(true);
+
 		return true;
 	}
 }
@@ -260,7 +266,7 @@ public class ClassMgrDialog extends JDialog {
  * A private class to render class path entries into a list box
  * in the format of 
  * location (description)
- **/
+ */
 class ClassMgrCellRenderer implements ListCellRenderer {
 	// This is the only method defined by ListCellRenderer.  We just
 	// reconfigure the Jlabel each time we're called.
@@ -294,20 +300,20 @@ class LibraryFileFilter extends FileFilter {
 	/**
 	 * Check if it is a valid library archive file.
 	 * 
-	 * @param f the file to be check.
-	 * @return true if the file was accepted.
+	 * @param	f the file to be check.
+	 * @return	true if the file was accepted.
 	 */
 	public boolean accept(File f) {
 		return (f.isDirectory() || 
-						f.getName().toLowerCase().endsWith(".jar") ||
-						f.getName().toLowerCase().endsWith(".zip"));
+			f.getName().toLowerCase().endsWith(".jar") ||
+			f.getName().toLowerCase().endsWith(".zip"));
 	}
 
 	/**
 	 * Return a description of the files accepted by this filter.  Used
 	 * in the "file types" drop down list in file chooser dialogs.
 	 * 
-	 * @return a description of the files accepted by this filter.
+	 * @return	a description of the files accepted by this filter.
 	 */
 	public String getDescription() {
 		return "Library files (*.jar;*.zip)";
