@@ -16,10 +16,10 @@ import bluej.pkgmgr.Package;
 
 /**
  * This Class represent a Result event, an event generated when the invocation finished.
- * AN invocation may finish in a normal way or it may be interrupted.
+ * An invocation may finish in a normal way or it may be interrupted.
  * From this event you can extract the actual result of the invocation.
  * 
- * @version $Id: InvocationResultEvent.java 1808 2003-04-10 10:34:50Z damiano $
+ * @version $Id: InvocationResultEvent.java 1841 2003-04-11 13:32:52Z damiano $
  */
 public class InvocationResultEvent implements BlueJExtensionEvent
 {
@@ -51,9 +51,9 @@ public class InvocationResultEvent implements BlueJExtensionEvent
     
     
     /** 
-     * NOT to be used by Extension writer.
+     * Constructor for an InvocationResultEvent
      */
-    public InvocationResultEvent ( int BluejEventId, ExecutionEvent exevent )
+    public InvocationResultEvent ( ExecutionEvent exevent )
       {
       eventId = UNKNOWN_EXIT; // a Preset
       String resultType = exevent.getResult();
@@ -73,7 +73,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
       }
      
     /**
-     * Returns the eventId of this Event.
+     * Returns the eventId of this event.
      */
     public int getEvent()
       {
@@ -81,7 +81,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
       }
 
     /**
-     * Returns the BPachage of this Invocation.
+     * Returns the pachage of this invocation.
      * Using a BPackage you can retrieve further information on this Event.
      */
     public BPackage getBPackage()
@@ -90,7 +90,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
       }
 
     /**
-     * Returns the Class name on which the event happened.
+     * Returns the class name on which the event happened.
      * If you need to have further information about this Class you can obtain a 
      * BClass from BPackage using this name as a reference.
      */
@@ -104,8 +104,8 @@ public class InvocationResultEvent implements BlueJExtensionEvent
      * If you need the BObject you can use the getObject(instanceName) in the BPackage using
      * this name as a key.
      * 
-     * In case of a static method this will be null
-     * If it is a constructor call it will be the new instance name of the opbject
+     * In case of a static method this will be null.
+     * If it is a constructor call it will be the new instance name of the opbject.
      * For methods call it will be the name of the object where the operation occourred.
      */
     public String getObjectName()
@@ -142,7 +142,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
 
     /**
      * Returns the newly created Object (if any).
-     * If the object is one that you can put in the bench it will be a BObject...
+     * If the object is one that you can put in the bench it will be a BObject.
      * 
      * @return an Object of various types. It can return null if the result is void.
      */
@@ -181,7 +181,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
 
 
     /**
-     * Returns a meaningful description of this Event.
+     * Return a meaningful description of this Event.
      */
     public String toString() 
       {
