@@ -35,7 +35,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 903 2001-05-23 05:30:50Z ajp $
+ * @version $Id: PkgMgrFrame.java 919 2001-05-25 06:57:09Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -108,11 +108,6 @@ public class PkgMgrFrame extends JFrame
     /* The graph editor which works on the package or null for the case where
        there is no package current being edited (isEmptyFrame() == true) */
     private PackageEditor editor = null;
-
-    /* A silly variable which is used by one of our inner classes. It is
-       initialised to be the same as 'this' because we cannot use 'this'
-       in the inner class */
-    private PkgMgrFrame outer;
 
     private ObjectBench objbench;
     private LibraryCallDialog libraryCallDialog = null;
@@ -353,7 +348,6 @@ public class PkgMgrFrame extends JFrame
     {
         this.pkg = null;
         this.editor = null;
-        this.outer = this;
 
         makeFrame();
 
@@ -1165,7 +1159,7 @@ public class PkgMgrFrame extends JFrame
                             name = "result";
                         if(result != null) {
                             ObjectWrapper wrapper =
-                                new ObjectWrapper(outer, result.getInstanceFieldObject(0),
+                                new ObjectWrapper(PkgMgrFrame.this, result.getInstanceFieldObject(0),
                                                   name);
                             getObjectBench().add(wrapper);
                         }
@@ -1194,7 +1188,7 @@ public class PkgMgrFrame extends JFrame
                         public void putResult(DebuggerObject result, String name) {
                             ObjectViewer viewer =
                                 ObjectViewer.getViewer(false, result, name, getPackage(), true,
-                                                       outer);
+                                                       PkgMgrFrame.this);
                             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                         }
                     };
