@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1870 2003-04-22 11:41:27Z damiano $
+ * @version $Id: BlueJ.java 1873 2003-04-22 12:50:07Z damiano $
  */
 
 /*
@@ -67,8 +67,10 @@ public class BlueJ
 
     private ArrayList eventListeners;       // This is the queue for the whole of them
     private ArrayList bluejReadyListeners;  // This is just for the BlueJReady event
-
-
+    private ArrayList packageOpenedListeners;
+    private ArrayList packageClosingListeners;
+    private ArrayList compileListeners;
+    
     /**
      * Constructor for a BlueJ proxy object.
      * See the ExtensionBridge class
@@ -81,6 +83,9 @@ public class BlueJ
 
         eventListeners = new ArrayList();
         bluejReadyListeners = new ArrayList();
+        packageOpenedListeners = new ArrayList();
+        packageClosingListeners = new ArrayList();
+        compileListeners = new ArrayList();
         
         /* I do NOT want lazy initialization otherwise I may try to load it
          * may times just because I cannof find anything.
@@ -354,9 +359,7 @@ public class BlueJ
      */
     public void addBlueJExtensionEventListener (BlueJExtensionEventListener listener)
     {
-        if (listener == null) return;
-
-        eventListeners.add(listener);
+        if (listener != null) eventListeners.add(listener);
     }
 
 
@@ -365,9 +368,7 @@ public class BlueJ
      */
     public void removeBlueJExtensionEventListener (BlueJExtensionEventListener listener)
     {
-        if (listener == null) return;
-
-        eventListeners.remove(listener);
+        if (listener != null) eventListeners.remove(listener);
     }
 
     /**
@@ -375,21 +376,69 @@ public class BlueJ
      */
     public void addBlueJReadyEventListener (BlueJReadyEventListener listener)
     {
-        if (listener == null) return;
-
-        bluejReadyListeners.add(listener);
+        if (listener != null) bluejReadyListeners.add(listener);
     }
-
 
     /**
      * Removes the specified listener so no that it no longer receives BlueJExtensionsEvents.
      */
     public void removeBlueJReadyEventListener (BlueJReadyEventListener listener)
     {
-        if (listener == null) return;
-
-        bluejReadyListeners.remove(listener);
+        if (listener != null) bluejReadyListeners.remove(listener);
     }
+
+    /**
+     * Registers a listener for packages being opened events.
+     */
+    public void addPackageOpenedEventListener (PackageOpenedEventListener listener)
+    {
+        if (listener != null) packageOpenedListeners.add(listener);
+    }
+
+    /**
+     * Removes the specified listener so no that it no longer receives events when a package is openeing.
+     */
+    public void removePackageOpenedEventListener (PackageOpenedEventListener listener)
+    {
+        if (listener != null) packageOpenedListeners.remove(listener);
+    }
+
+    /**
+     * Registers a listener for packages being closed events.
+     */
+    public void addPackageClosingEventListener (PackageClosingEventListener listener)
+    {
+        if (listener != null) packageClosingListeners.add(listener);
+    }
+
+    /**
+     * Removes the specified listener so no that it no longer receives events when a package is closing.
+     */
+    public void removePackageClosingEventListener (PackageClosingEventListener listener)
+    {
+        if (listener != null) packageClosingListeners.remove(listener);
+    }
+
+
+    /**
+     * Registers a listener for compile events.
+     */
+    public void addCompileEventListener (CompileEventListener listener)
+    {
+        if (listener != null) compileListeners.add(listener);
+    }
+
+    /**
+     * Removes the specified listener so no that it no longer receives events when a package is closing.
+     */
+    public void removeCompileEventListener (CompileEventListener listener)
+    {
+        if (listener != null) compileListeners.remove(listener);
+    }
+
+
+
+
 
 
 
@@ -398,8 +447,6 @@ public class BlueJ
      */
     private void delegateExtensionEvent ( BlueJExtensionEvent event )
         {
-        // I do not bother to check for emptiness, the iterator will fail quick !
-
         for (Iterator iter = eventListeners.iterator(); iter.hasNext(); ) 
             {
             BlueJExtensionEventListener eventListener = (BlueJExtensionEventListener)iter.next();
@@ -412,8 +459,6 @@ public class BlueJ
      */
     private void delegateBluejReadyEvent ( BlueJReadyEvent event )
         {
-        // I do not bother to check for emptiness, the iterator will fail quick !
-
         for (Iterator iter = bluejReadyListeners.iterator(); iter.hasNext(); ) 
             {
             BlueJReadyEventListener eventListener = (BlueJReadyEventListener)iter.next();
@@ -423,15 +468,71 @@ public class BlueJ
 
 
 
+
+
+    /**
+     * Dispatch this event to the listeners for the Package events.
+     */
+    private void delegatePackageEvent ( PackageEvent event )
+        {
+        if ( event.getEvent() == PackageEvent.PACKAGE_CLOSING ) 
+          {  
+          for (Iterator iter = packageClosingListeners.iterator(); iter.hasNext(); ) 
+            {
+            PackageClosingEventListener eventListener = (PackageClosingEventListener)iter.next();
+            eventListener.packageClosing(event);
+            }
+          return;
+          }
+
+        if ( event.getEvent() == PackageEvent.PACKAGE_OPENED ) 
+          {  
+          for (Iterator iter = packageOpenedListeners.iterator(); iter.hasNext(); ) 
+            {
+            PackageOpenedEventListener eventListener = (PackageOpenedEventListener)iter.next();
+            eventListener.packageOpened(event);
+            }
+          return;
+          }
+
+        }
+
+    /**
+     * Dispatch this event to the listeners for the bluejReady events.
+     */
+    private void delegateCompileEvent ( CompileEvent event )
+        {
+        int thisEvent = event.getEvent();
+        
+        for (Iterator iter = compileListeners.iterator(); iter.hasNext(); ) 
+            {
+            CompileEventListener eventListener = (CompileEventListener)iter.next();
+            if ( thisEvent == CompileEvent.COMPILE_START_EVENT )    
+              eventListener.compileStarted(event);
+            if ( thisEvent == CompileEvent.COMPILE_ERROR_EVENT )    
+              eventListener.compileError(event);
+            if ( thisEvent == CompileEvent.COMPILE_WARNING_EVENT )    
+              eventListener.compileWarning(event);
+            if ( thisEvent == CompileEvent.COMPILE_FAILED_EVENT )    
+              eventListener.compileFailed(event);
+            if ( thisEvent == CompileEvent.COMPILE_DONE_EVENT )    
+              eventListener.compileSuceeded(event);
+            }
+        }
+
     /**
      * Informs any registered listeners that an event has occurred.
      * This will call the various dispatcher as needed.
      * Errors will be trapped by the caller.
+     * NOTE: The return type int is a simple placeholder to use the simple return syntax
      */
     void delegateEvent (BlueJExtensionEvent event)
       {
       delegateExtensionEvent ( event );
       if ( event instanceof BlueJReadyEvent ) delegateBluejReadyEvent ((BlueJReadyEvent)event);
+      else if ( event instanceof PackageEvent ) delegatePackageEvent ((PackageEvent)event);
+      else if ( event instanceof CompileEvent ) delegateCompileEvent ((CompileEvent)event);
+
       }
     
 }
