@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2965 2004-08-31 05:58:15Z davmac $
+ * @version $Id: JdiObject.java 2973 2004-09-01 10:44:52Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -187,7 +187,7 @@ public class JdiObject extends DebuggerObject
      */
     private boolean isRaw()
     {
-        if(obj.referenceType().genericSignature() != null && genericParams == null)
+        if(JdiUtils.getJdiUtils().hasGenericSig(obj) && genericParams == null)
             return true;
         else
             return false;

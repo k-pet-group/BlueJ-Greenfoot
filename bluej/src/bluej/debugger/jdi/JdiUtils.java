@@ -16,7 +16,7 @@ import com.sun.jdi.Value;
  * 1.4 and 1.5
  * 
  * @author Davin McCall
- * @version $Id: JdiUtils.java 2961 2004-08-30 12:54:12Z polle $
+ * @version $Id: JdiUtils.java 2973 2004-09-01 10:44:52Z polle $
  */
 public abstract class JdiUtils {
 
@@ -45,7 +45,7 @@ public abstract class JdiUtils {
         return jutils;
     }
 
-    abstract public boolean hasGenericSig(Field f);
+    abstract public boolean hasGenericSig(ObjectReference obj);
     
     abstract public String genericSignature(Field f);
     
