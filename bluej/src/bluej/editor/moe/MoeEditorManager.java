@@ -14,7 +14,8 @@ import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 
 import java.util.Properties;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
 
 import java.awt.*;		// Font
@@ -35,7 +36,7 @@ public final class MoeEditorManager
     // private variables
 
     private Properties resources;
-    private Vector editors;			// open editors
+    private List editors;			// open editors
     private Finder finder;			// the finder object
 
     // user preferences
@@ -47,7 +48,7 @@ public final class MoeEditorManager
 
     public MoeEditorManager()
     {
-        editors = new Vector(4,4);
+        editors = new ArrayList(4);
         finder = new Finder();
                
         showToolBar = true;
@@ -70,13 +71,13 @@ public final class MoeEditorManager
     ** @param windowTitle	title of window (usually class name)
     ** @param watcher	an object interested in editing events
     ** @param compiled	true, if the class has been compiled
-    ** @param breakpoints	vector of Integers: line numbers where bpts are
+    ** @param breakpoints	list of Integers: line numbers where bpts are
     ** @returns		the new editor, or null if there was a problem
     **/
 
     public Editor openClass(String filename, String windowTitle,
                             EditorWatcher watcher, boolean compiled,
-                            Vector breakpoints)	// inherited from EditorManager
+                            List breakpoints)	// inherited from EditorManager
     {
         return openEditor (filename, true, windowTitle, watcher, compiled,
                            breakpoints);
@@ -193,7 +194,7 @@ public final class MoeEditorManager
     public void discardEditor(Editor ed)
     {
         ed.close();
-        editors.removeElement(ed);
+        editors.remove(ed);
     }
 
     // ========================== PACKAGE METHODS ===========================
@@ -224,19 +225,19 @@ public final class MoeEditorManager
     ** @param windowTitle	title of window (usually class name)
     ** @param watcher	an object interested in editing events
     ** @param compiled	true, if the class has been compiled
-    ** @param breakpoints	vector of Integers: line numbers where bpts are
+    ** @param breakpoints	list of Integers: line numbers where bpts are
     ** @returns		the new editor, or null if there was a problem
     **/
 
     private Editor openEditor(String filename, boolean isCode,
                               String windowTitle, EditorWatcher watcher,
-                              boolean compiled, Vector breakpoints)
+                              boolean compiled, List breakpoints)
     {
         MoeEditor editor;
 
         editor = new MoeEditor(windowTitle, isCode, watcher, showToolBar,
                                showLineNum, resources);
-        editors.addElement(editor);
+        editors.add(editor);
         if (watcher!=null && filename==null)	// editor for class interface
             return editor;
         if (editor.showFile(filename, compiled))

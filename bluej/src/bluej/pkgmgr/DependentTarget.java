@@ -5,30 +5,31 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
-import bluej.utility.MultiEnumeration;
-import bluej.utility.SortableVector;
+import bluej.utility.MultiIterator;
 import bluej.utility.Utility;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Properties;
-import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Collections;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: DependentTarget.java 648 2000-07-26 00:25:17Z ajp $
+ * @version $Id: DependentTarget.java 1417 2002-10-18 07:56:39Z mik $
  * @author Michael Cahill
  *
  * A general target in a package
  */
 public abstract class DependentTarget extends Target
 {
-    protected SortableVector inUses;
-    protected SortableVector outUses;
-    protected Vector parents;
-    protected Vector children;
+    protected List inUses;
+    protected List outUses;
+    protected List parents;
+    protected List children;
     /**
      * Create a new target at a specified position.
      */
@@ -37,22 +38,22 @@ public abstract class DependentTarget extends Target
         super(pkg, identifierName);
 //             calculateWidth(identifierName), DEF_HEIGHT);
 
-        inUses = new SortableVector();
-        outUses = new SortableVector();
-        parents = new Vector();
-        children = new Vector();
+        inUses = new ArrayList();
+        outUses = new ArrayList();
+        parents = new ArrayList();
+        children = new ArrayList();
     }
 
     public void addDependencyOut(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
-            outUses.addElement(d);
+            outUses.add(d);
             if(recalc)
                 recalcOutUses();
         }
         else if((d instanceof ExtendsDependency)
                 || (d instanceof ImplementsDependency)) {
-            parents.addElement(d);
+            parents.add(d);
         }
 
         if(recalc)
@@ -62,26 +63,26 @@ public abstract class DependentTarget extends Target
     public void addDependencyIn(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
-            inUses.addElement(d);
+            inUses.add(d);
             if(recalc)
                 recalcInUses();
         }
         else if((d instanceof ExtendsDependency)
                 || (d instanceof ImplementsDependency)) {
-            children.addElement(d);
+            children.add(d);
         }
     }
 
     public void removeDependencyOut(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
-            outUses.removeElement(d);
+            outUses.remove(d);
             if(recalc)
                 recalcOutUses();
         }
         else if((d instanceof ExtendsDependency)
                 || (d instanceof ImplementsDependency)) {
-            parents.removeElement(d);
+            parents.remove(d);
         }
 
         if(recalc)
@@ -91,30 +92,30 @@ public abstract class DependentTarget extends Target
     public void removeDependencyIn(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
-            inUses.removeElement(d);
+            inUses.remove(d);
             if(recalc)
                 recalcInUses();
         }
         else if((d instanceof ExtendsDependency)
                 || (d instanceof ImplementsDependency)) {
-            children.removeElement(d);
+            children.remove(d);
         }
     }
 
-    public Enumeration dependencies()
+    public Iterator dependencies()
     {
-        Vector v = new Vector(2);
-        v.addElement(parents.elements());
-        v.addElement(outUses.elements());
-        return new MultiEnumeration(v);
+        List v = new ArrayList(2);
+        v.add(parents.iterator());
+        v.add(outUses.iterator());
+        return new MultiIterator(v);
     }
 
-    public Enumeration dependents()
+    public Iterator dependents()
     {
-        Vector v = new Vector(2);
-        v.addElement(children.elements());
-        v.addElement(inUses.elements());
-        return new MultiEnumeration(v);
+        List v = new ArrayList(2);
+        v.add(children.iterator());
+        v.add(inUses.iterator());
+        return new MultiIterator(v);
     }
 
 
@@ -131,7 +132,7 @@ public abstract class DependentTarget extends Target
         // delete outgoing uses dependencies
         if(!outUses.isEmpty()) {
             Dependency[] outUsesArray = new Dependency[outUses.size()];
-            outUses.copyInto(outUsesArray);
+            outUses.toArray(outUsesArray);
             for(int i = 0; i < outUsesArray.length ; i++)
                 getPackage().removeDependency(outUsesArray[i], false);
         }
@@ -150,7 +151,7 @@ public abstract class DependentTarget extends Target
 
         if(!parents.isEmpty()) {
             Dependency[] parentsArray = new Dependency[ parents.size() ];
-            parents.copyInto(parentsArray);
+            parents.toArray(parentsArray);
             for(int i = 0; i < parentsArray.length ; i++)
                 getPackage().removeDependency(parentsArray[i], false);
         }
@@ -169,7 +170,7 @@ public abstract class DependentTarget extends Target
         // delete incoming uses dependencies
         if(!inUses.isEmpty()) {
             Dependency[] inUsesArray = new Dependency[ inUses.size() ];
-            inUses.copyInto(inUsesArray);
+            inUses.toArray(inUsesArray);
             for(int i = 0; i < inUsesArray.length ; i++)
                 getPackage().removeDependency(inUsesArray[i], false);
         }
@@ -177,7 +178,7 @@ public abstract class DependentTarget extends Target
         // delete dependencies to child classes
         if(!children.isEmpty()) {
             Dependency[] childrenArray = new Dependency[ children.size() ];
-            children.copyInto(childrenArray);
+            children.toArray(childrenArray);
             for(int i = 0; i < childrenArray.length ; i++)
                 getPackage().removeDependency(childrenArray[i], false);
         }
@@ -186,13 +187,13 @@ public abstract class DependentTarget extends Target
     public void recalcOutUses()
     {
         // Order the arrows by quadrant and then appropriate coordinate
-        outUses.sort(new LayoutComparer(this, false));
+        Collections.sort(outUses, new LayoutComparer(this, false));
 
         // Count the number of arrows into each quadrant
         int cy = y + height / 2;
         int n_top = 0, n_bottom = 0;
         for(int i = outUses.size() - 1; i >= 0; i--) {
-            Target to = ((Dependency)outUses.elementAt(i)).getTo();
+            Target to = ((Dependency)outUses.get(i)).getTo();
             int to_cy = to.y + to.height / 2;
             if(to_cy < cy)
                 ++n_top;
@@ -204,7 +205,7 @@ public abstract class DependentTarget extends Target
         int top_left = x + (width - (n_top - 1) * ARR_HORIZ_DIST) / 2;
         int bottom_left = x + (width - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
         for(int i = 0; i < n_top + n_bottom; i++) {
-            UsesDependency d = (UsesDependency)outUses.elementAt(i);
+            UsesDependency d = (UsesDependency)outUses.get(i);
             int to_cy = d.getTo().y + d.getTo().height / 2;
             if(to_cy < cy) {
                 d.setSourceCoords(top_left, y - 4, true);
@@ -220,14 +221,14 @@ public abstract class DependentTarget extends Target
     public void recalcInUses()
     {
         // Order the arrows by quadrant and then appropriate coordinate
-        inUses.sort(new LayoutComparer(this, true));
+        Collections.sort(inUses, new LayoutComparer(this, true));
 
         // Count the number of arrows into each quadrant
         int cx = x + width / 2;
         int n_left = 0, n_right = 0;
         for(int i = inUses.size() - 1; i >= 0; i--)
             {
-                Target from = ((Dependency)inUses.elementAt(i)).getFrom();
+                Target from = ((Dependency)inUses.get(i)).getFrom();
                 int from_cx = from.x + from.width / 2;
                 if(from_cx < cx)
                     ++n_left;
@@ -240,7 +241,7 @@ public abstract class DependentTarget extends Target
         int right_top = y + (height - (n_right - 1) * ARR_VERT_DIST) / 2;
         for(int i = 0; i < n_left + n_right; i++)
             {
-                UsesDependency d = (UsesDependency)inUses.elementAt(i);
+                UsesDependency d = (UsesDependency)inUses.get(i);
                 int from_cx = d.getFrom().x + d.getFrom().width / 2;
                 if(from_cx < cx)
                     {
@@ -261,7 +262,7 @@ public abstract class DependentTarget extends Target
     protected void unflagAllOutDependencies()
     {
         for(int i = 0; i < outUses.size(); i++)
-            ((UsesDependency)outUses.elementAt(i)).setFlag(false);
+            ((UsesDependency)outUses.get(i)).setFlag(false);
     }
 
     public Point getAttachment(double angle)
@@ -317,12 +318,12 @@ public abstract class DependentTarget extends Target
             recalcOutUses();
 
             // Recalculate neighbours' arrows
-            for(Enumeration e = inUses.elements(); e.hasMoreElements(); ) {
-                Dependency d = (Dependency)e.nextElement();
+            for(Iterator it = inUses.iterator(); it.hasNext(); ) {
+                Dependency d = (Dependency)it.next();
                 d.getFrom().recalcOutUses();
             }
-            for(Enumeration e = outUses.elements(); e.hasMoreElements(); ) {
-                Dependency d = (Dependency)e.nextElement();
+            for(Iterator it = outUses.iterator(); it.hasNext(); ) {
+                Dependency d = (Dependency)it.next();
                 d.getTo().recalcInUses();
             }
             editor.revalidate();

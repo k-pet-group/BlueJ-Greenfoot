@@ -1,14 +1,14 @@
 package bluej.pkgmgr;
 
-import bluej.utility.Comparer;
+import java.util.Comparator;
 
 /**
- ** @version $Id: LayoutComparer.java 533 2000-06-09 04:24:08Z ajp $
+ ** @version $Id: LayoutComparer.java 1417 2002-10-18 07:56:39Z mik $
  ** @author Michael Cahill
  **
  ** An ordering on targets to make layout nicer (reduce line intersections, etc.)
  **/
-class LayoutComparer implements Comparer
+class LayoutComparer implements Comparator
 {
 	DependentTarget centre;
 	boolean in;
@@ -25,7 +25,7 @@ class LayoutComparer implements Comparer
 	 **
 	 ** Note: this is designed to reduce intersections when drawing lines.
 	 **/
-	public int cmp(Object a, Object b)
+	public int compare(Object a, Object b)
 	{
 		DependentTarget ta = in ? ((Dependency)a).getFrom() : ((Dependency)a).getTo();
 		DependentTarget tb = in ? ((Dependency)b).getFrom() : ((Dependency)b).getTo();

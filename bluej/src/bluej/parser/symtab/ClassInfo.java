@@ -14,9 +14,9 @@ public final class ClassInfo
     private String name;
     private String superclass;
 
-    private Vector implemented = new Vector();
-    private Vector imported = new Vector();
-    private Vector used = new Vector();
+    private List implemented = new ArrayList();
+    private List imported = new ArrayList();
+    private List used = new ArrayList();
     private List comments = new LinkedList();
 
     private class SavedComment
@@ -106,7 +106,7 @@ public final class ClassInfo
             return;
 
         if(!implemented.contains(name))
-            implemented.addElement(name);
+            implemented.add(name);
     }
 
     public void addImported(String name)
@@ -115,7 +115,7 @@ public final class ClassInfo
             return;
 
         if(!imported.contains(name))
-            imported.addElement(name);
+            imported.add(name);
     }
 
     public void addUsed(String name)
@@ -133,7 +133,7 @@ public final class ClassInfo
 
         // don't add if already there
         if(! used.contains(name))
-            used.addElement(name);
+            used.add(name);
     }
 
     public void addComment(String target, String comment)
@@ -258,29 +258,28 @@ public final class ClassInfo
     // or a interfaces "extends" clause
     // ie "extends" "InterfaceA" "," "InterfaceB"
     // or null if there is no clause
-    private Vector interfaceSelections;
-    private Vector interfaceTexts;
+    private List interfaceSelections;
+    private List interfaceTexts;
 
-    public void setInterfaceSelections(Vector selections)
+    public void setInterfaceSelections(List selections)
     {
         interfaceSelections = selections;
 
-        interfaceTexts = new Vector();
+        interfaceTexts = new ArrayList();
 
-        Enumeration e = interfaceSelections.elements();
-        while(e.hasMoreElements()) {
-            Selection s = (Selection)e.nextElement();
-
+        Iterator it = interfaceSelections.iterator();
+        while(it.hasNext()) {
+            Selection s = (Selection)it.next();
             interfaceTexts.add(s.getText());
         }
     }
 
-    public Vector getInterfaceSelections()
+    public List getInterfaceSelections()
     {
         return interfaceSelections;
     }
 
-    public Vector getInterfaceTexts()
+    public List getInterfaceTexts()
     {
         return interfaceTexts;
     }
@@ -355,17 +354,17 @@ public final class ClassInfo
         return name;
     }
 
-    public Vector getImplements()
+    public List getImplements()
     {
         return implemented;
     }
 
-    public Vector getImported()
+    public List getImported()
     {
         return imported;
     }
 
-    public Vector getUsed()
+    public List getUsed()
     {
         return used;
     }
@@ -410,20 +409,20 @@ public final class ClassInfo
 
         System.out.println();
         System.out.println("implements:");
-        Enumeration e = implemented.elements();
-        while(e.hasMoreElements())
-        System.out.println("   " + (String)e.nextElement());
+        Iterator it = implemented.iterator();
+        while(it.hasNext())
+        System.out.println("   " + (String)it.next());
 
         System.out.println();
         System.out.println("uses:");
-        e = used.elements();
-        while(e.hasMoreElements())
-        System.out.println("   " + (String)e.nextElement());
+        it = used.iterator();
+        while(it.hasNext())
+        System.out.println("   " + (String)it.next());
 
         System.out.println();
         System.out.println("imports:");
-        e = imported.elements();
-        while(e.hasMoreElements())
-        System.out.println("   " + (String)e.nextElement());
+        it = imported.iterator();
+        while(it.hasNext())
+        System.out.println("   " + (String)it.next());
     }
 }

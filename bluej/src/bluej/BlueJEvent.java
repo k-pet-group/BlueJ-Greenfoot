@@ -2,7 +2,8 @@ package bluej;
 
 import bluej.utility.Debug;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  ** @author Michael Kolling
@@ -17,37 +18,37 @@ import java.util.Vector;
  **
  ** Event types and their arguments:
  **
- **  type		argument		sent when...
+ **  type       argument        sent when...
  **  -----------------------------------------------------------------------
- **  CREATE_VM		(unused)		creation of VM has started
+ **  CREATE_VM      (unused)        creation of VM has started
  **
- **  CREATE_VM_DONE	(unused)		creation of VM completed
+ **  CREATE_VM_DONE (unused)        creation of VM completed
  **
- **  METHOD_CALL	a String representing	an interactive method call
+ **  METHOD_CALL    a String representing   an interactive method call
  **                      the call                was started
  **
- **  EXECUTION_STARTED	(unused)		VM execution started
+ **  EXECUTION_STARTED  (unused)        VM execution started
  **
- **  EXECUTION_FINISHED	(unused)		VM execution finished
+ **  EXECUTION_FINISHED (unused)        VM execution finished
  **
- **  GENERATING_DOCU	(unused)		documentation generation started
+ **  GENERATING_DOCU    (unused)        documentation generation started
  **
- **  DOCU_GENERATED	(unused)		documentation generation finished
+ **  DOCU_GENERATED (unused)        documentation generation finished
  **
- **  DOCU_ABORTED	(unused)		documentation generation aborted
+ **  DOCU_ABORTED   (unused)        documentation generation aborted
  **
- **  BREAKPOINT		the JdiThread object	a thread hit a breakpoint
- **			 that hit the breakpoint
+ **  BREAKPOINT     the JdiThread object    a thread hit a breakpoint
+ **          that hit the breakpoint
  **
- **  HALT		the JdiThread object	a thread was halted either
- **			 that was halted	 interactively or after doing
- **						 a step
+ **  HALT       the JdiThread object    a thread was halted either
+ **          that was halted     interactively or after doing
+ **                      a step
  **
- **  CONTINUE		the JdiThread object	a thread has started running
- **			 that was continued	 again
+ **  CONTINUE       the JdiThread object    a thread has started running
+ **          that was continued  again
  **
- **  SHOW_SOURCE	the JdiThread object	a thread wants some of its
- **			 that is selected	 source displayed
+ **  SHOW_SOURCE    the JdiThread object    a thread wants some of its
+ **          that is selected    source displayed
  **
  **/
 
@@ -71,7 +72,7 @@ public class BlueJEvent
 
     // other variables
 
-    private static Vector listeners = new Vector();
+    private static List listeners = new ArrayList();
 
     /**
      * Raise a BlueJ event with an argument. All registered listeners
@@ -79,29 +80,29 @@ public class BlueJEvent
      */
     public static void raiseEvent(int eventId, Object arg)
     {
-	for(int i = listeners.size() - 1; i >= 0; i--) {
-	    BlueJEventListener listener = 
-		(BlueJEventListener)listeners.elementAt(i);
-	    listener.blueJEvent(eventId, arg);
-	}
+        for(int i = listeners.size() - 1; i >= 0; i--) {
+            BlueJEventListener listener = 
+            (BlueJEventListener)listeners.get(i);
+            listener.blueJEvent(eventId, arg);
+        }
     }
-	
+    
     /**
      * Add a listener object. The object must implement the
      * BlueJEventListener interface.
      */
     public static void addListener(BlueJEventListener listener)
     {
-	listeners.addElement(listener);
+        listeners.add(listener);
     }
-	
+    
     /**
      * Remove a listener object from the known listener set.
      */
     public static void removeListener(BlueJEventListener listener)
     {
-	listeners.removeElement(listener);
+        listeners.remove(listener);
     }
-	
+    
 }
 

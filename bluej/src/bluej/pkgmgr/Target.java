@@ -5,13 +5,10 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
-import bluej.utility.MultiEnumeration;
-import bluej.utility.SortableVector;
 import bluej.utility.Utility;
 
-import java.util.Vector;
 import java.util.Properties;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
@@ -21,7 +18,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 1010 2001-11-19 02:45:21Z ajp $
+ * @version $Id: Target.java 1417 2002-10-18 07:56:39Z mik $
  */
 public abstract class Target extends Vertex
 {
@@ -320,8 +317,8 @@ public abstract class Target extends Vertex
             (pkg.getState() == Package.S_CHOOSE_EXT_TO)) {
             // What target is this pointing at now?
             Target overClass = null;
-            for(Enumeration e = pkg.getVertices(); overClass == null && e.hasMoreElements(); ) {
-                Target v = (Target)e.nextElement();
+            for(Iterator it = pkg.getVertices(); overClass == null && it.hasNext(); ) {
+                Target v = (Target)it.next();
 
                 if((v.x <= x) && (x < v.x + v.width) && (v.y <= y) && (y < v.y + v.height))
                     overClass = v;

@@ -34,7 +34,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1296 2002-08-01 11:00:21Z mik $
+ * @version $Id: Package.java 1417 2002-10-18 07:56:39Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -97,13 +97,13 @@ public class Package extends Graph
     private SortedProperties lastSavedProps = new SortedProperties();
 
     /** all the targets in a package */
-    protected Hashtable targets;
+    protected HashMap targets;
 
     /** all the uses-arrows in a package */
-    protected Vector usesArrows;
+    protected List usesArrows;
 
     /** all the extends-arrows in a package */
-    protected Vector extendsArrows;
+    protected List extendsArrows;
 
     /** the currently selected target */
     protected Target selected;
@@ -187,9 +187,9 @@ public class Package extends Graph
     private void init()
         throws IOException
     {
-        targets = new Hashtable();
-        usesArrows = new Vector();
-        extendsArrows = new Vector();
+        targets = new HashMap();
+        usesArrows = new ArrayList();
+        extendsArrows = new ArrayList();
         selected = null;
         callHistory = new CallHistory(HISTORY_LENGTH);
         load();
@@ -306,8 +306,8 @@ public class Package extends Graph
     {
         PackageTarget pt = null;
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target target = (Target)it.next();
 
             if(target instanceof ClassTarget)
                 return null;
@@ -338,8 +338,8 @@ public class Package extends Graph
     {
         List children = new ArrayList();
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target target = (Target)it.next();
 
             if(target instanceof PackageTarget &&
                !(target instanceof ParentPackageTarget)) {
@@ -584,8 +584,8 @@ public class Package extends Graph
             return;
         }
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target target = (Target)it.next();
 
             if(target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)target;
@@ -593,8 +593,8 @@ public class Package extends Graph
             }
         }
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target t = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target t = (Target)it.next();
             if((t instanceof ClassTarget)
                && ((ClassTarget)t).upToDate()) {
                 ClassTarget ct = (ClassTarget)t;
@@ -636,9 +636,7 @@ public class Package extends Graph
 
         Set interestingSet = findTargets(getPath());
 
-        Iterator it = interestingSet.iterator();
-
-        while(it.hasNext()) {
+        for(Iterator it = interestingSet.iterator(); it.hasNext(); ) {
             String targetName = (String) it.next();
 
             // first check if the target name would be a valid class name
@@ -653,8 +651,8 @@ public class Package extends Graph
             }
         }
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target target = (Target)it.next();
 
             if(target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)target;
@@ -697,10 +695,10 @@ public class Package extends Graph
         props.put("package.numDependencies",
                   String.valueOf(usesArrows.size()));
 
-        Enumeration t_enum = targets.elements();            // targets
+        Iterator t_enum = targets.values().iterator();            // targets
         int t_count = 0;
-        for(int i = 0; t_enum.hasMoreElements(); i++) {
-            Target t = (Target)t_enum.nextElement();
+        for(int i = 0; t_enum.hasNext(); i++) {
+            Target t = (Target)t_enum.next();
             // should we save this target
             if(t.isSaveable()) {
                 t.save(props, "target" + (t_count + 1));
@@ -710,7 +708,7 @@ public class Package extends Graph
         props.put("package.numTargets", String.valueOf(t_count));
 
         for(int i = 0; i < usesArrows.size(); i++) {        // uses arrows
-            Dependency d = (Dependency)usesArrows.elementAt(i);
+            Dependency d = (Dependency)usesArrows.get(i);
             d.save(props, "dependency" + (i + 1));
         }
 
@@ -812,21 +810,21 @@ public class Package extends Graph
     }
 
 
-    public Enumeration getVertices()
+    public Iterator getVertices()
     {
-        return targets.elements();
+        return targets.values().iterator();
     }
 
-    public Enumeration getEdges()
+    public Iterator getEdges()
     {
-        Vector enumerations = new Vector();
+        List iterations = new ArrayList();
 
         if(showUses)
-            enumerations.addElement(usesArrows.elements());
+            iterations.add(usesArrows.iterator());
         if(showExtends)
-            enumerations.addElement(extendsArrows.elements());
+            iterations.add(extendsArrows.iterator());
 
-        return new MultiEnumeration(enumerations);
+        return new MultiIterator(iterations);
     }
 
     /**
@@ -838,17 +836,17 @@ public class Package extends Graph
         if(!checkCompile())
             return;
 
-        Vector toCompile = new Vector();
+        List toCompile = new ArrayList();
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target target = (Target)it.next();
 
             if(target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)target;
                 if (ct.editorOpen())
                     ct.getEditor().save();
                 if(ct.getState() == Target.S_INVALID)
-                    toCompile.addElement(ct);
+                    toCompile.add(ct);
             }
         }
         compileSet(toCompile);
@@ -878,10 +876,10 @@ public class Package extends Graph
         if(!checkCompile())
             return;
 
-        Vector v = new Vector();
+        List compileTargets = new ArrayList();
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target target = (Target)it.next();
 
             if(target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)target;
@@ -889,17 +887,17 @@ public class Package extends Graph
                     ct.getEditor().save();
                 ct.setState(Target.S_INVALID);
                 ct.analyseSource(false);
-                v.addElement(ct);
+                compileTargets.add(ct);
             }
         }
-        doCompile(v);
+        doCompile(compileTargets);
     }
 
 
-    private void compileSet(Vector toCompile)
+    private void compileSet(List toCompile)
     {
         for(int i = toCompile.size() - 1; i >= 0; i--)
-            searchCompile((ClassTarget)toCompile.elementAt(i), 1,
+            searchCompile((ClassTarget)toCompile.get(i), 1,
                           new Stack());
     }
 
@@ -916,10 +914,10 @@ public class Package extends Graph
 
         stack.push(t);
 
-        Enumeration dependencies = t.dependencies();
+        Iterator dependencies = t.dependencies();
 
-        while(dependencies.hasMoreElements()) {
-            Dependency d = (Dependency)dependencies.nextElement();
+        while(dependencies.hasNext()) {
+            Dependency d = (Dependency)dependencies.next();
             if(!(d.getTo() instanceof ClassTarget))
                 continue;
 
@@ -936,15 +934,15 @@ public class Package extends Graph
         }
 
         if(t.link == t.dfn) {
-            Vector v = new Vector();
+            List compileTargets = new ArrayList();
             ClassTarget x;
 
             do {
                 x = (ClassTarget)stack.pop();
-                v.addElement(x);
+                compileTargets.add(x);
             } while(x != t);
 
-            doCompile(v);
+            doCompile(compileTargets);
         }
     }
 
@@ -952,7 +950,7 @@ public class Package extends Graph
      *  Compile every Target in 'targetList'. Every compilation goes through
      *  this method.
      */
-    private void doCompile(Vector targetList)
+    private void doCompile(List targetList)
     {
         if(targetList.size() == 0)
             return;
@@ -998,8 +996,8 @@ public class Package extends Graph
      */
     private void removeBreakpoints()
     {
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target target = (Target)it.next();
 
             if(target instanceof ClassTarget)
                 ((ClassTarget)target).removeBreakpoints();
@@ -1011,8 +1009,8 @@ public class Package extends Graph
      */
     public void removeStepMarks()
     {
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target target = (Target)it.next();
 
             if(target instanceof ClassTarget)
                 ((ClassTarget)target).removeStepMark();
@@ -1095,13 +1093,13 @@ public class Package extends Graph
                 return;
             }
             else
-                usesArrows.addElement(d);
+                usesArrows.add(d);
         }
         else {
             if(extendsArrows.contains(d))
                 return;
             else
-                extendsArrows.addElement(d);
+                extendsArrows.add(d);
         }
 
         from.addDependencyOut(d, recalc);
@@ -1124,7 +1122,7 @@ public class Package extends Graph
         // Debug.message("Implements class dependency from " + from.getName() + " to " + to.getName());
 
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
 
             Selection s1 = info.getImplementsInsertSelection();
             ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
@@ -1134,7 +1132,7 @@ public class Package extends Graph
                 // comma and the interface name but not before checking that we don't
                 // already have it
 
-                Vector exists = info.getInterfaceTexts();
+                List exists = info.getInterfaceTexts();
 
                 // XXX make this equality check against full package name
                 if(!exists.contains(to.getBaseName()))
@@ -1168,7 +1166,7 @@ public class Package extends Graph
         // Debug.message("Implements interface dependency from " + from.getName() + " to " + to.getName());
 
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
 
             Selection s1 = info.getExtendsInsertSelection();
             ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
@@ -1178,7 +1176,7 @@ public class Package extends Graph
                 // comma and the interface name but not before checking that we don't
                 // already have it
 
-                Vector exists = info.getInterfaceTexts();
+                List exists = info.getInterfaceTexts();
 
                 // XXX make this equality check against full package name
                 if(!exists.contains(to.getBaseName()))
@@ -1210,7 +1208,7 @@ public class Package extends Graph
         Editor ed = from.getEditor();
 
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
 
             if (info.getSuperclass() == null) {
                 Selection s1 = info.getExtendsInsertSelection();
@@ -1249,48 +1247,45 @@ public class Package extends Graph
         Editor ed = from.getEditor();
 
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
             Selection s1 = null;
             Selection s2 = null;               // set to the selections we wish to delete
             Selection sinsert = null;          // our selection if we want to insert something
             String sinserttext = "";
 
-            if(d instanceof ImplementsDependency)
-                {
-                    Vector vsels, vtexts;
+            if(d instanceof ImplementsDependency) {
+                List vsels, vtexts;
 
-                    if(info.isInterface())
-                        {
-                            vsels = info.getInterfaceSelections();
-                            vtexts = info.getInterfaceTexts();
-                            sinserttext = "extends ";
-                        } else {
-                            vsels = info.getInterfaceSelections();
-                            vtexts = info.getInterfaceTexts();
-                            sinserttext = "implements ";
-                        }
-
-                    int where = vtexts.indexOf(to.getBaseName());
-
-                    if (where > 0)              // should always be true
-                        {
-                            s1 = (Selection)vsels.get(where-1);
-                            s2 = (Selection)vsels.get(where);
-                        }
-                    // we have a special case if we deleted the first bit of an "implements"
-                    // clause, yet there are still clauses left.. we have to replace the ","
-                    // with "implements" (note that there must already be a leading space so we
-                    // do not need to insert one but we may need a trailing space)
-                    if(where == 1 && vsels.size() > 2) {
-                        sinsert = (Selection)vsels.get(where+1);
-                    }
+                if(info.isInterface()) {
+                    vsels = info.getInterfaceSelections();
+                    vtexts = info.getInterfaceTexts();
+                    sinserttext = "extends ";
+                } 
+                else {
+                    vsels = info.getInterfaceSelections();
+                    vtexts = info.getInterfaceTexts();
+                    sinserttext = "implements ";
                 }
-            else if(d instanceof ExtendsDependency)
-                {
-                    // a class extends
-                    s1 = info.getExtendsReplaceSelection();
-                    s2 = info.getSuperReplaceSelection();
+
+                int where = vtexts.indexOf(to.getBaseName());
+
+                if (where > 0) {             // should always be true
+                    s1 = (Selection)vsels.get(where-1);
+                    s2 = (Selection)vsels.get(where);
                 }
+                // we have a special case if we deleted the first bit of an "implements"
+                // clause, yet there are still clauses left.. we have to replace the ","
+                // with "implements" (note that there must already be a leading space so we
+                // do not need to insert one but we may need a trailing space)
+                if(where == 1 && vsels.size() > 2) {
+                    sinsert = (Selection)vsels.get(where+1);
+                }
+            }
+            else if(d instanceof ExtendsDependency) {
+                // a class extends
+                s1 = info.getExtendsReplaceSelection();
+                s2 = info.getSuperReplaceSelection();
+            }
 
             // delete (maybe insert) text from the end backwards so that our line/col positions
             // for s1 are not mucked up by the deletion
@@ -1326,9 +1321,9 @@ public class Package extends Graph
     public void removeDependency(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency)
-            usesArrows.removeElement(d);
+            usesArrows.remove(d);
         else
-            extendsArrows.removeElement(d);
+            extendsArrows.remove(d);
 
         DependentTarget from = (DependentTarget)d.getFrom();
         from.removeDependencyOut(d, recalc);
@@ -1339,9 +1334,9 @@ public class Package extends Graph
 
     public void recalcArrows()
     {
-        Enumeration e = getVertices();
-        while(e.hasMoreElements()) {
-            Target t = (Target)e.nextElement();
+        Iterator it = getVertices();
+        while(it.hasNext()) {
+            Target t = (Target)it.next();
 
             if (t instanceof DependentTarget) {
                 DependentTarget dt = (DependentTarget)t;
@@ -1362,8 +1357,8 @@ public class Package extends Graph
             // int index = targets.indexOf(selected);
             // int last = targets.size() - 1;
             // Swap selected vertex with top
-            // targets.setElementAt(targets.elementAt(last), index);
-            // targets.setElementAt(selected, last);
+            // targets.put(targets.elementAt(last), index);
+            // targets.put(selected, last);
 
             selected.toggleFlag(Target.F_SELECTED);
         }
@@ -1403,15 +1398,15 @@ public class Package extends Graph
     }
 
     /**
-     * Return a vector of Strings with names of all classes
+     * Return a List of Strings with names of all classes
      * in this package.
      */
-    public Vector getAllClassnames()
+    public List getAllClassnames()
     {
-        Vector names = new Vector();
+        List names = new ArrayList();
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target t = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target t = (Target)it.next();
 
             if(t instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)t;
@@ -1430,8 +1425,8 @@ public class Package extends Graph
     {
         getProject().convertPathToPackageName(filename);
 
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target t = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target t = (Target)it.next();
             if(!(t instanceof ClassTarget))
                 continue;
 
@@ -1446,8 +1441,8 @@ public class Package extends Graph
 
     public EditableTarget getTargetFromEditor(Editor editor)
     {
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target t = (Target)e.nextElement();
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target t = (Target)it.next();
             if(!(t instanceof EditableTarget))
                 continue;
 
@@ -1865,7 +1860,7 @@ public class Package extends Graph
 
                 /* compute ctxt files (files with comments and parameters names) */
                 try {
-                    ClassInfo info = ClassParser.parse(t.getSourceFile(), getAllClassnames());
+                    ClassInfo info = ClassParser.parse(t.getSourceFile(), new Vector(getAllClassnames()));
 
                     OutputStream out = new FileOutputStream(t.getContextFile());
                     info.getComments().store(out, "BlueJ class context");
@@ -1904,16 +1899,14 @@ public class Package extends Graph
      */
     public void closeAllEditors()
     {
-        for(Enumeration e = targets.elements(); e.hasMoreElements(); )
-            {
-                Target t = (Target)e.nextElement();
-                if(t instanceof ClassTarget)
-                    {
-                        ClassTarget ct = (ClassTarget)t;
-                        if(ct.editorOpen())
-                            ct.getEditor().close();
-                    }
+        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+            Target t = (Target)it.next();
+            if(t instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget)t;
+                if(ct.editorOpen())
+                    ct.getEditor().close();
             }
+        }
     }
 
     /**
@@ -1943,14 +1936,14 @@ public class Package extends Graph
      */
     Dependency findArrow(int x, int y)
     {
-        for(Enumeration e = usesArrows.elements(); e.hasMoreElements(); ) {
-            Dependency d = (Dependency)e.nextElement();
+        for(Iterator it = usesArrows.iterator(); it.hasNext(); ) {
+            Dependency d = (Dependency)it.next();
             if(d.contains(x, y))
                 return d;
         }
 
-        for(Enumeration e = extendsArrows.elements(); e.hasMoreElements(); ) {
-            Dependency d = (Dependency)e.nextElement();
+        for(Iterator it = extendsArrows.iterator(); it.hasNext(); ) {
+            Dependency d = (Dependency)it.next();
             if(d.contains(x, y))
                 return d;
         }

@@ -1,15 +1,16 @@
 package bluej.graph;
 
 import java.awt.*;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.List;
+import java.util.Iterator;
 import java.awt.geom.*;
 
 /**
  * General graph
  *
  * @author  Michael Cahill
- * @version $Id: Graph.java 653 2000-07-26 01:46:35Z ajp $
+ * @author  Michael Kolling
+ * @version $Id: Graph.java 1417 2002-10-18 07:56:39Z mik $
  */
 public abstract class Graph
 {
@@ -20,18 +21,18 @@ public abstract class Graph
     private static final int SNAP_GRID_SIZE = 10;
     private static final int WHITESPACE_SIZE = 10;
 
-    public abstract Enumeration getVertices();
-    public abstract Enumeration getEdges();
+    public abstract Iterator getVertices();
+    public abstract Iterator getEdges();
 
     public void draw(Graphics g)
     {
-        for(Enumeration e = getEdges(); e.hasMoreElements(); ) {
-            Edge edge = (Edge)e.nextElement();
+        for(Iterator it = getEdges(); it.hasNext(); ) {
+            Edge edge = (Edge)it.next();
             edge.draw((Graphics2D) g.create());
         }
 
-        for(Enumeration e = getVertices(); e.hasMoreElements(); ) {
-            Vertex vertex = (Vertex)e.nextElement();
+        for(Iterator it = getVertices(); it.hasNext(); ) {
+            Vertex vertex = (Vertex)it.next();
             vertex.drawUntranslated((Graphics2D) g.create());
         }
     }
@@ -45,8 +46,8 @@ public abstract class Graph
         int minWidth = 1;
         int minHeight = 1;
 
-        for(Enumeration e = getVertices(); e.hasMoreElements(); ) {
-            Vertex v = (Vertex)e.nextElement();
+        for(Iterator it = getVertices(); it.hasNext(); ) {
+            Vertex v = (Vertex)it.next();
 
             if(v.x + v.width > minWidth)
         	minWidth = v.x + v.width;
@@ -61,8 +62,8 @@ public abstract class Graph
     {
         Area a = new Area();
 
-        for(Enumeration e = getVertices(); e.hasMoreElements(); ) {
-            Vertex vertex = (Vertex)e.nextElement();
+        for(Iterator it = getVertices(); it.hasNext(); ) {
+            Vertex vertex = (Vertex)it.next();
 
             // lets discount the vertex we are adding from the space
             // calculations

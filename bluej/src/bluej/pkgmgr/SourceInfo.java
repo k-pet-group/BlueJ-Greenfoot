@@ -12,7 +12,7 @@ import java.util.*;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 689 2000-09-13 04:40:59Z bquig $
+ * @version $Id: SourceInfo.java 1417 2002-10-18 07:56:39Z mik $
  */
 public final class SourceInfo
 {
@@ -35,12 +35,12 @@ public final class SourceInfo
         info = null;
     }
 
-    public ClassInfo getInfo(String sourceFile, Vector classNames)
+    public ClassInfo getInfo(String sourceFile, List classNames)
     {
         if(info == null)
         {
             try {
-                info = ClassParser.parse(sourceFile, classNames);
+                info = ClassParser.parse(sourceFile, new Vector(classNames));
                 valid = true;
             }
             catch(Exception e) {

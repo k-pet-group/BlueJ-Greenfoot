@@ -26,10 +26,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.Modifier;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Properties;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.applet.Applet;
 
 /*import net.sourceforge.transmogrify.hook.bluej.BlueJHook;
@@ -47,7 +48,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1359 2002-10-07 19:52:18Z mik $
+ * @version $Id: ClassTarget.java 1417 2002-10-18 07:56:39Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -86,7 +87,7 @@ public class ClassTarget extends EditableTarget
     private String template = null;
 
     protected int modifiers;
-    protected Vector breakpoints = new Vector();
+    protected List breakpoints = new ArrayList();
     protected SourceInfo sourceInfo = new SourceInfo();
 
     // Fields used in Tarjan's algorithm:
@@ -239,8 +240,8 @@ public class ClassTarget extends EditableTarget
     {
         setState(S_INVALID);
 
-        for(Enumeration e = dependents(); e.hasMoreElements(); ) {
-            Dependency d = (Dependency)e.nextElement();
+        for(Iterator it = dependents(); it.hasNext(); ) {
+            Dependency d = (Dependency)it.next();
             Target dependent = d.getFrom();
             dependent.setState(S_INVALID);
         }
@@ -726,9 +727,9 @@ public class ClassTarget extends EditableTarget
         }
 
         // handle implemented interfaces
-        Vector vect = info.getImplements();
-        for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-            String name = (String)e.nextElement();
+        List vect = info.getImplements();
+        for(Iterator it = vect.iterator(); it.hasNext(); ) {
+            String name = (String)it.next();
             DependentTarget interfce = getPackage().getDependentTarget(name);
             // Debug.message("Implements " + name);
             if (interfce != null) {
@@ -740,8 +741,8 @@ public class ClassTarget extends EditableTarget
 
         // handle used classes
         vect = info.getUsed();
-        for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-            String name = (String)e.nextElement();
+        for(Iterator it = vect.iterator(); it.hasNext(); ) {
+            String name = (String)it.next();
             DependentTarget used = getPackage().getDependentTarget(name);
             if (used != null)
                 getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
@@ -749,7 +750,7 @@ public class ClassTarget extends EditableTarget
 
         // check for inconsistent use dependencies
         for(int i = 0; i < outUses.size(); i++) {
-            UsesDependency usesDep = ((UsesDependency)outUses.elementAt(i));
+            UsesDependency usesDep = ((UsesDependency)outUses.get(i));
             if(! usesDep.isFlagged())
                 getPackage().setStatus(usesArrowMsg + usesDep);
         }
@@ -852,7 +853,7 @@ public class ClassTarget extends EditableTarget
 
 
 
-    protected Hashtable actions;
+    protected HashMap actions;
 
     /**
      * creates a popup menu for this class target.
@@ -862,7 +863,7 @@ public class ClassTarget extends EditableTarget
      */
     protected JPopupMenu createMenu(Class cl)
     {
-        actions = new Hashtable();
+        actions = new HashMap();
 
         JPopupMenu menu = new JPopupMenu(getBaseName() + " operations");
 

@@ -4,7 +4,7 @@ import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Package;
 
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -13,12 +13,11 @@ import javax.swing.*;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 1359 2002-10-07 19:52:18Z mik $
+ * @version $Id: GraphEditor.java 1417 2002-10-18 07:56:39Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
 {
-    static final long DBL_CLICK_TIME = 300;		// milliseconds
     static final Color background = Config.getItemColour("colour.background");
     static final Color realBackground = Config.getItemColour("colour.graph.background");
     private Graph graph;
@@ -103,8 +102,8 @@ public class GraphEditor extends JComponent
         // Rather than breaking when we find the vertex we keep searching
         // which will therefore find the LAST vertex containing the point
         // This turns out to be the vertex which is rendered at the front
-        for(Enumeration e = graph.getVertices(); e.hasMoreElements(); ) {
-            Vertex v = (Vertex)e.nextElement();
+        for(Iterator it = graph.getVertices(); it.hasNext(); ) {
+            Vertex v = (Vertex)it.next();
 
             if((v.x <= x) && (x < v.x + v.width) && (v.y <= y) && (y < v.y + v.height)) {
                 activeVertex = v;

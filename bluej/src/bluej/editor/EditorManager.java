@@ -8,7 +8,7 @@
 
 package bluej.editor;
 
-import java.util.Vector;
+import java.util.List;
 import bluej.editor.moe.MoeEditorManager;
 
 /**
@@ -17,7 +17,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 999 2001-10-24 15:31:05Z mik $
+ * @version $Id: EditorManager.java 1417 2002-10-18 07:56:39Z mik $
  */
 public abstract class EditorManager
 {
@@ -50,7 +50,7 @@ public abstract class EditorManager
      */
     public abstract Editor openClass(String filename, String windowTitle,
                      EditorWatcher watcher, boolean compiled,
-                     Vector breakpoints);
+                     List breakpoints);
 
 
     /**
