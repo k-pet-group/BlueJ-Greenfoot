@@ -1,4 +1,4 @@
-<project name="bluej" default="compile" basedir=".">
+<project name="bluej" default="ready-to-run" basedir=".">
 
     <!-- set global properties for this build -->
     <!-- the first two are the only values you should need to change -->
@@ -38,7 +38,22 @@
         </javac>
     </target>
 
-    <target name="run" depends="compile">
+    <target name="ready-to-run" depends="compile, inspector">
+    </target>
+
+    <target name="inspector">
+        <ant antfile="inspector.xml" dir="inspector" target="install-inspector"/>
+    </target>
+
+    <target name="parser">
+        <!-- Generate the parser Java code -->
+        <antlr
+            fork="yes"
+            target="src\bluej\parser\java.g"
+        />
+    </target>
+
+    <target name="run">
         <!-- Run the java code in ${build} -->
         <java classname="bluej.Main" fork="yes" jvm="${java_home}\bin\java">
             <sysproperty key="bluej.home" value="${bluej_home}"/>
