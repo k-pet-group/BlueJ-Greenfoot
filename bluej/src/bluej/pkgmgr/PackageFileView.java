@@ -11,6 +11,7 @@ import java.io.File;
  * A FileView subclass that enables BlueJ packages to be displayed with a
  * distinct icon in a FileChooser.
  *
+ * @version $ $
  * @author Michael Kolling
  * @see PackageChooser
  */

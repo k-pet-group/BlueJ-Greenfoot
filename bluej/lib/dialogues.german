@@ -123,6 +123,9 @@ werden.
 
 no-java-sources-found
 Es wurden keine Java-Quelltextdateien
+in diesem Verzeichnis gefunden.
+
+# this belongs to the message above and is temporarily disabled.
 in diesem Verzeichnis (oder in einem
 der Unterverzeichnisse) gefunden.
 

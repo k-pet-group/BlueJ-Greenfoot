@@ -30,89 +30,135 @@ import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
 import java.awt.event.*;
+import javax.swing.JFrame;
 import java.io.*;
 import java.util.*;
 
 /**
-** @version $Id: Package.java 305 1999-12-09 23:50:57Z ajp $
-** @author Michael Cahill
-**
-** A Java package (collection of Java classes).
-**/
+ * A Java package (collection of Java classes).
+ *
+ * @version $Id: Package.java 311 1999-12-14 00:58:28Z axel $
+ * @author Michael Cahill
+ *
+ */
 public class Package extends Graph
 
 implements CompileObserver, MouseListener, MouseMotionListener
 {
     static final Color titleCol = Config.getItemColour("colour.text.fg");
     static final Color lightGrey = new Color(224, 224, 224);
+    /** the title of a package frame with no package loaded */
     public static String noPackage = Config.getString("pkgmgr.noPackage");
+
+    /** message to be shown on the status bar */
     static final String compiling = Config.getString("pkgmgr.compiling");
+    /** message to be shown on the status bar */
     static final String compileDone = Config.getString("pkgmgr.compileDone");
+    /** message to be shown on the status bar */
     static final String chooseUsesTo = Config.getString("pkgmgr.chooseUsesTo");
+    /** message to be shown on the status bar */
     static final String chooseInhTo = Config.getString("pkgmgr.chooseInhTo");
+
+    /** the name of the package file in a package directory that holds 
+     *  information about the package and its targets. */
     public static final String pkgfileName = "bluej.pkg";
+    /** the name of the backup file of the package file */
     public static final String pkgfileBackup = "bluej.pkh";
 
-    /** ERROR CODES **/
-    public static final int NO_ERROR = 0;
-    public static final int FILE_NOT_FOUND = 1;
-    public static final int ILLEGAL_FORMAT = 2;
-    public static final int COPY_ERROR = 3;
-    public static final int CLASS_EXISTS = 4;
-    public static final int CREATE_ERROR = 5;
+    /** error code */ public static final int NO_ERROR = 0;
+    /** error code */ public static final int FILE_NOT_FOUND = 1;
+    /** error code */ public static final int ILLEGAL_FORMAT = 2;
+    /** error code */ public static final int COPY_ERROR = 3;
+    /** error code */ public static final int CLASS_EXISTS = 4;
+    /** error code */ public static final int CREATE_ERROR = 5;
 
-    private static final int STARTROWPOS = 20;
-    private static final int STARTCOLUMNPOS = 20;
-    private static final int DEFAULTTARGETCHARWIDTH = 12;
-    private static final int DEFAULTTARGETHEIGHT = 50;
-    private static final int TARGETGAP = 20;
-    private static final int SMALL_LAYOUT_BOUND = 600;
-    private static final int LARGE_LAYOUT_BOUND = 800;
-    // used to size frame when no existing size information can be found
+    /** layout constant */ private static final int STARTROWPOS = 20;
+    /** layout constant */ private static final int STARTCOLUMNPOS = 20;
+    /** layout constant */ private static final int DEFAULTTARGETHEIGHT = 50;
+    /** layout constant */ private static final int TARGETGAP = 20;
+    /** layout constant */ private static final int RIGHT_LAYOUT_BOUND = 500;
+
+    /** used to size frame when no existing size information can be found */
     private static final int DEFAULTFRAMEHEIGHT = 600;
+    /** used to size frame when no existing size information can be found */
     private static final int DEFAULTFRAMEWIDTH = 800;
 
-    /** Interface to editor **/
+    /** Interface to editor */
     static EditorManager editorManager = new MoeEditorManager();
     // static EditorManager editorManager = new RedEditorManager(false);
     // static EditorManager editorManager = new SimpleEditorManager();
 
-    protected String packageName = noPackage;	// unqualified name of pkg (eg util)
-    //  or string "No Package"
-    protected String fullPackageName = noPackage;  // fully qualified name of pkg
-    // (eg java.util) or string "No Package"
-    protected String dirname;			// the directory of this package (may
-    //  be relative)
-    protected String baseDir;			// the absolute path to the directory
-    //  which contains the package directory
+    /** unqualified name of pkg (eg util) or string noPackage */
+    protected String packageName = noPackage;
 
+    /** fully qualified name of pkg (eg java.util) or string "No Package" */
+    protected String fullPackageName = noPackage;
+
+    /** the directory of this package (may be relative). */
+    protected String dirname;
+
+    /** the absolute path to the directory which contains the package dir */
+    protected String baseDir;
+
+    /** all the targets in a package */
     protected Hashtable targets;
-    protected Vector usesArrows;
-    protected Vector extendsArrows;
-    protected Target selected;		// Currently selected target
-    protected Target fromChoice;	// Holds the choice of "from" target 
-    //  for a new dependency
-    PkgFrame frame;
-    Dependency currentArrow;	// used during arrow deletion
 
+    /** all the uses-arrows in a package */
+    protected Vector usesArrows;
+
+    /** all the extends-arrows in a package */
+    protected Vector extendsArrows;
+
+    /** the currently selected target */
+    protected Target selected;
+
+    /** Holds the choice of "from" target for a new dependency */
+    protected Target fromChoice;
+
+    /** the PkgFrame of a package */
+    PkgFrame frame;
+
+    /** used during arrow deletion */
+    Dependency currentArrow;
+
+    /** a ClassLoader for the local virtual machine */
     private ClassLoader loader;
+    /** a ClassLoader for the remote virtual machine */
     private DebuggerClassLoader debuggerLoader;
-    private CallHistory callHistory; 	
+
+    /** the CallHistory of a package */
+    private CallHistory callHistory;
+
+    /** whether extends-arrows should be shown */
     protected boolean showExtends = true;
+    /** whether uses-arrows should be shown */
     protected boolean showUses = true;
 
+    /** needed when debugging with breakpoints to see if the editor window  
+     *  needs to be brought to the front */
     private String lastSourceName = "";
 
-    public static final int S_IDLE = 0;
-    public static final int S_CHOOSE_USES_FROM = 1;
-    public static final int S_CHOOSE_USES_TO = 2;
-    public static final int S_CHOOSE_EXT_FROM = 3;
-    public static final int S_CHOOSE_EXT_TO = 4;
-    public static final int S_DELARROW = 5;
+    /** filter used for importing packages */
+    protected static DirectoryFilter dirsOnly = new DirectoryFilter();
+    /** filter used for importing packages */
+    protected static JavaSourceFilter javaOnly = new JavaSourceFilter();
 
+    /** state constant */ public static final int S_IDLE = 0;
+    /** state constant */ public static final int S_CHOOSE_USES_FROM = 1;
+    /** state constant */ public static final int S_CHOOSE_USES_TO = 2;
+    /** state constant */ public static final int S_CHOOSE_EXT_FROM = 3;
+    /** state constant */ public static final int S_CHOOSE_EXT_TO = 4;
+    /** state constant */ public static final int S_DELARROW = 5;
+
+    /** determines the maximum length of the CallHistory of a package */
     public static final int HISTORY_LENGTH = 6;
 
-    private int state = S_IDLE;	// What state is this package in? (one of the S_* values)
+    /** the state a package can be in (one of the S_* values) */
+    private int state = S_IDLE;
+
+
+    /* ------------------- end of field declarations ------------------- */
+
 
     /**
      * Create a new package from a given directory in a given frame.
@@ -675,40 +721,46 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
 
     /**
-     * Try to open a plain directory as a package by importing all source
-     * files in it into a BlueJ package. If this directory contains subdirs
+     * Enable to open a plain directory as a package by adding BlueJ specific
+     * information to that directory. If the directory contains subdirs
      * prompt the user if they should be searched recursively. If Java source 
      * files are found in a directory, information about them (names, 
      * generated layout) is written into a newly created package file in that
-     * directory. So, after this method ran the directory can be opened as if
-     * it was a BlueJ package.
+     * directory. So, after this method is run the directory can be opened as
+     * a BlueJ package.
+     *
+     * NOT YET WORKING! Named and nested packages do not work currently.
+     * That's why in this method six lines are commented out. TEMPORARILY!!!
      * 
      * @param dir the directory denoting the potential Java package.
      * @param frame the frame where questions may be displayed.
      * @return true if any Java source was found, false otherwise.
      */
-    public static boolean importPackage(File dir, PkgMgrFrame frame) {
+    public static boolean importPackage(File dir, JFrame frame) {
 
         Package newPkg = new Package();
         newPkg.dirname = dir.getPath();
-        newPkg.packageName = dir.getName();
+//          newPkg.packageName = dir.getName();
 
-        // read sources in this directory; the number of layout rows used is returned
-        int rows = importJavaSources(dir,newPkg);
+        // try to find sources in the directory itself
+        boolean found = importJavaSources(dir, newPkg);
 
         // try to find subpackages and create targets for them
-        File[] subdirs = dir.listFiles(new DirectoryFilter());
+        File[] subdirs = dir.listFiles(dirsOnly);
         if (subdirs.length > 0) {
 
-            int answer = DialogManager.askQuestion(frame,
-                                                   "also-search-subdirs");
+            DialogManager.showMessage(frame,"cannot-search-subdirs");
 
-            if (answer == 0) { // yes, search subdirs
-                rows = importSubPackages(subdirs,newPkg,rows);
-            }
+//              int answer = DialogManager.askQuestion(frame,
+//                                                     "also-search-subdirs");
+
+//              if (answer == 0) { // yes, search subdirs
+//                  found = (importSubPackages(subdirs, newPkg) || found);
+//              }
         }
 
-        if (rows > 0) {
+        if (found) {
+            newPkg.doDefaultLayout();
             newPkg.save(newPkg.dirname);
             return true;
         }
@@ -719,44 +771,28 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
     /**
      * Try to import the directories in "dirlist" as subpackages into
-     * "parent", which used "rowsSoFar" rows for the layout of previously
-     * imported class targets.
+     * "parent".
      *
      * @param dirlist a list of directories.
      * @param parent the parent package for the subpackages found.
-     * @param rowsSoFar gives the number of layout rows needed for class
-     * targets already imported into "parent".
-     * @return the number of layout rows used for all targets imported into
-     * "parent".
+     * @return true if at least one of the directories could be imported
+     * as a subpackage (i.e. contains Java sources or subpackages itself),
+     * false otherwise.
      */
-    private static int importSubPackages(File[] dirlist, Package parent,
-                                         int rowsSoFar)
+    private static boolean importSubPackages(File[] dirlist, Package parent)
     {
-        int rows = rowsSoFar;
-        // layout: start a new row for subpackages
-        int horizontal = STARTCOLUMNPOS;
-        int vertical = STARTROWPOS + rowsSoFar * (Target.DEF_HEIGHT+TARGETGAP);
-        int rightBound = (rowsSoFar>3)?LARGE_LAYOUT_BOUND:SMALL_LAYOUT_BOUND;
-
+        boolean found = false;
         for (int i = 0; i < dirlist.length; i++) {
             File subdir = dirlist[i];
-            Package subpackage = importSubPackage(subdir,parent.packageName); 
+            Package subpackage = importSubPackage(subdir, parent.packageName);
             if(subpackage != null) {
                 Target t = new PackageTarget(parent, subdir.getName(),
                                              subpackage.packageName);
                 parent.addTarget(t);
-                t.setPos(horizontal,vertical);
-                if (rows==0) rows++;
-                horizontal += t.getWidth() + TARGETGAP;
-                if (horizontal > rightBound) {
-                    horizontal = STARTCOLUMNPOS;
-                    vertical += Target.DEF_HEIGHT + TARGETGAP;
-                    rows++;
-                }
+                found = true;
             }
         }
-        if ((rows>rowsSoFar) && (horizontal==STARTCOLUMNPOS)) rows--;
-        return rows;
+        return found;
     }
 
 
@@ -779,15 +815,14 @@ implements CompileObserver, MouseListener, MouseMotionListener
         if (isBlueJPackage(dir))
             return newPkg;
 
-        // read sources in this directory
-        int rows = importJavaSources(dir,newPkg);
+        // try to find sources in the directory itself
+        boolean found = importJavaSources(dir, newPkg);
 
         // try to find subpackages
+        found = (importSubPackages(dir.listFiles(dirsOnly), newPkg) || found);
 
-        rows = importSubPackages(dir.listFiles(new DirectoryFilter()),newPkg,
-                                 rows);
-
-        if(rows > 0) {
+        if (found) {
+            newPkg.doDefaultLayout();
             newPkg.save(newPkg.dirname);
             return newPkg;
         }
@@ -797,42 +832,74 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
 
     /**
-     * Import the Java source files from a given directory into a package and
-     * position them nicely in rows.
+     * Import the Java source files from a given directory into a package.
      *
      * @param dir the directory to be searched.
-     * @param pack the package the source shall be imported into.
-     * @return the number of layout rows needed for the imported Java source
-     * files.
+     * @param pkg the package the source shall be imported into.
+     * @return true if any Java source file was found in dir, false otherwise.
      */
-    private static int importJavaSources(File dir, Package pack)
+    private static boolean importJavaSources(File dir, Package pkg)
     {
-        // create targets for all Java source files and add them to pack
-        int rows = 0;
-        int horizontal = STARTCOLUMNPOS;
-        int vertical = STARTROWPOS;
-        File[] files = dir.listFiles(new JavaSourceFilter());
-        if (files.length>0) rows++;
-        int rightBound = (files.length>15)?LARGE_LAYOUT_BOUND:SMALL_LAYOUT_BOUND;
+        // create targets for all Java source files and add them to pkg
+        File[] files = dir.listFiles(javaOnly);
         for (int i = 0; i < files.length; i++) {
             String filename = files[i].getName();
+            // remove ".java"
             String classname = filename.substring(0, filename.length() - 5);
-            Target t = new ClassTarget(pack, classname);
-            t.setPos(horizontal,vertical);
-            horizontal += t.getWidth() + TARGETGAP;
-            if (horizontal > rightBound) {
-                horizontal = STARTCOLUMNPOS;
-                vertical += Target.DEF_HEIGHT + TARGETGAP;
-                rows++;
-            }
-            pack.addTarget(t);
+            Target t = new ClassTarget(pkg, classname);
+            pkg.addTarget(t);
         }
-        // if the targets just filled up the last row: correct the row counter
-        if ((rows>0) && (horizontal==STARTCOLUMNPOS))
-            rows--;
-        return rows;
+        return (files.length > 0);
 
     } // importJavaSources
+
+
+
+    /**
+     * Arrange all the targets in this package in a standard layout.
+     * It is guaranteed that after this method is called no targets in the
+     * package do overlap.
+     * This method is typically called after mass-importing targets, as with
+     * importPackage.
+     */
+    public void doDefaultLayout()
+    {
+        int horizontal = STARTCOLUMNPOS;
+        int vertical = STARTROWPOS;
+
+        // first iterate over the class targets and lay them out in rows
+        for (Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if (target instanceof ClassTarget) {
+                target.setPos(horizontal, vertical);
+                horizontal += target.getWidth() + TARGETGAP;
+                if (horizontal > RIGHT_LAYOUT_BOUND) {
+                    horizontal = STARTCOLUMNPOS;
+                    vertical += Target.DEF_HEIGHT + TARGETGAP;
+                }
+            }
+        }
+
+        // then iterate over the package targets, starting on a new row
+        if (horizontal != STARTCOLUMNPOS) {
+            horizontal = STARTCOLUMNPOS;
+            vertical += Target.DEF_HEIGHT + TARGETGAP;
+        }
+        for (Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if (target instanceof PackageTarget) {
+                target.setPos(horizontal, vertical);
+                horizontal += target.getWidth() + TARGETGAP;
+                if (horizontal > RIGHT_LAYOUT_BOUND) {
+                    horizontal = STARTCOLUMNPOS;
+                    vertical += Target.DEF_HEIGHT + TARGETGAP;
+                }
+            }
+        }
+
+    }
 
 
     /**

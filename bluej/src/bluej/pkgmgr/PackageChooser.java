@@ -19,6 +19,7 @@ import bluej.utility.DialogManager;
  * If a non-BlueJ directory is selected by button-click the user is asked  
  * whether this directory should be imported. <BR>
  *
+ * @version $ $
  * @author Michael Kolling
  * @author Axel Schmolitzky
  */

@@ -242,14 +242,6 @@ implements BlueJEventListener
 	    importClass();
 	    break;
 
-	case PKG_IMPORTPKG:
-	    importPackage();
-	    break;
-
-	case PKG_EXPORTPKG:
-	    exportPackage();
-	    break;
-
 	case PKG_PRINT:
 	    print();
 	    break;
@@ -505,36 +497,6 @@ implements BlueJEventListener
 	}
     }
 
-    /**
-     * importPackage - implementation if the "Import Package" user function
-     */
-    private void importPackage()
-    {
-	DialogManager.NYI(this);
-//  	    String dirname = openPackageDialog(false);
-//  	    if(dirname == null)
-//  		break;
-			
-//  	    File pkgfile = new File(dirname, Package.pkgfileName);
-//  	    if(pkgfile.exists())
-//  		Debug.reportError("Package " + dirname + " already exists");
-//  	    else {
-//  		String pkgname = DialogManager.askString(this, "ask-package");
-//  		if((pkgname == null) || (pkgname.length() == 0))
-//  		    pkgname = Package.noPackage;
-
-//  		if(Package.importDir(dirname, pkgname))
-//  		    doOpenPackage(dirname);
-//  	    }
-    }
-
-    /**
-     * exportPackage - implementation if the "Export Package" user function
-     */
-    private void exportPackage()
-    {
-	DialogManager.NYI(this);
-    }
 
     /**
      * print - implementation if the "print" user function
@@ -1154,7 +1116,6 @@ implements BlueJEventListener
 			    String label = item.getText();
 			    if(!label.equals(Config.getString("menu.package.new"))
 			       && !label.equals(Config.getString("menu.package.open"))
-			       && !label.equals(Config.getString("menu.package.importPackage"))
 			       && !label.equals(Config.getString("menu.package.quit"))
 			       && !label.equals(Config.getString("menu.package"))
 			       && !label.equals(Config.getString("menu.tools"))

@@ -116,7 +116,9 @@ must end in ".java").
 
 no-java-sources-found
 No Java source files were
-found in this directory
+found in this directory.
+
+# this belongs to the message above and is temporarily disabled.
 (or any of its subdirectories).
 
 duplicate-name
@@ -201,6 +203,16 @@ if they contain Java source files?
 Search subdirectories
 Cancel
 null
+
+cannot-search-subdirs
+The directory you chose contains subdirectories.
+Currently these directories can not be searched
+for Java source files because named and nested
+packages are not supported in this BlueJ version.
+They will be supported in a future release.
+If the chosen directory itself contained Java
+source files they will be displayed now in a
+BlueJ package window.
 
 ask-index
 Enter array element index [...]

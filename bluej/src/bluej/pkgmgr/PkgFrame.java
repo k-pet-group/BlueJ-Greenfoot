@@ -22,7 +22,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 305 1999-12-09 23:50:57Z ajp $
+ ** @version $Id: PkgFrame.java 311 1999-12-14 00:58:28Z axel $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -278,14 +278,12 @@ implements ActionListener, ItemListener
     static final int PKG_SAVE = PKG_CLOSE + 1;
     static final int PKG_SAVEAS = PKG_SAVE + 1;
     static final int PKG_IMPORTCLASS = PKG_SAVEAS + 1;
-    static final int PKG_IMPORTPKG = PKG_IMPORTCLASS + 1;
-    static final int PKG_EXPORTPKG = PKG_IMPORTPKG + 1;
-    static final int PKG_PRINT = PKG_EXPORTPKG + 1;
+    static final int PKG_PRINT = PKG_IMPORTCLASS + 1;
     static final int PKG_QUIT = PKG_PRINT + 1;
 
     static final String[] PkgCmds = {
-        "new", "open", "close", "save", "saveAs", "importClass", "importPackage", 
-        "exportPackage", "print", "quit"
+        "new", "open", "close", "save", "saveAs", "importClass", 
+        "print", "quit"
     };
 
     static final KeyStroke[] PkgKeys = {
@@ -295,14 +293,12 @@ implements ActionListener, ItemListener
         KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK),
         null,
         null,
-        null,
-        null,
         KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK)
     };
 
     static final int[] PkgSeparators = {
-        PKG_SAVEAS, PKG_EXPORTPKG, PKG_PRINT
+        PKG_SAVEAS, PKG_IMPORTCLASS, PKG_PRINT
     };
 
     static final int EDIT_COMMAND = PKG_COMMAND + 100;
