@@ -180,7 +180,7 @@ bluej.classTemplates = stdclass abstract interface applet
 bluej.useTheme=false
 
 bluej.fontsize=12
-bluej.font=SansSerif-bold
+bluej.font=SansSerif
 #bluej.font=Monospaced
 #bluej.font=SIMSUN
 
