@@ -192,7 +192,7 @@ class Tab extends Border
      * Sets the state of the tab.
      *
      * @param state	The state of the tab. true means selected, and false means not selected.
-     * @see GUIGraphics.Tab#isSelected()
+     * @see javablue.GUIGraphics.Tab#isSelected()
      **/
     public void setSelected (boolean state)
     {
@@ -204,7 +204,7 @@ class Tab extends Border
      * Returns the state of the tab.
      *
      * @return	The state of the tab. true means selected, and false means not selected.
-     * @see GUIGraphics.Tab#setSelected()
+     * @see javablue.GUIGraphics.Tab#setSelected()
      **/
     public boolean isSelected ()
     {

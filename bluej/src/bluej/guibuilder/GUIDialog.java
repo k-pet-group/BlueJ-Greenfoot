@@ -3,7 +3,13 @@ package javablue.GUIBuilder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.*;
 import java.util.Vector;
+import javablue.pkgmgr.*;
+import javablue.editor.*;
+import javablue.editor.red.*;
+
+
 /**
  * A class representing a Dialog.
  *
@@ -34,11 +40,43 @@ class GUIDialog extends Dialog implements GUIComponentNormalNode
     public GUIDialog (Frame frame, GUIComponentNode parent, StructureContainer structCont, GUIBuilderApp app)
     {
 	super(frame, "Dialog"+counter);
-	setName("Dialog"+counter);
-	counter++;
         this.parent = parent;
         this.structCont = structCont;
         this.app =app;
+	setName("Dialog"+counter);
+	counter++;
+    }
+
+
+    public void setName(String name)
+    {
+	super.setName(name);
+	if (structCont!=null)
+	{
+	    ClassTarget target = structCont.getClassTarget();
+	    String oldname = target.sourceFile();
+	    if (target!=null)
+	    {
+		target.setName(name);
+		structCont.saveCode();
+		if (target.editorOpen())
+		{
+		    Editor editor = target.getEditor();
+		    if (editor instanceof RedEditor)
+		    {
+			((RedEditor)editor).change_filename(target.sourceFile());
+			((RedEditor)editor).do_revert();
+		    }
+		    else
+			editor.close();
+		}
+	    }
+	    if (!oldname.equals(target.sourceFile()))
+	    {
+		File fil = new File(oldname);
+		fil.delete();
+	    }
+	}
     }
 
 
@@ -200,7 +238,7 @@ class GUIDialog extends Dialog implements GUIComponentNormalNode
      *
      * @param component The GUIComponent to be added to the container.
      *
-     * @see GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
+     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
      */
     public void add(GUIComponent component)
     {
@@ -217,7 +255,7 @@ class GUIDialog extends Dialog implements GUIComponentNormalNode
      * @param component The GUIComponent to be added to the container.
      * @param constraints The constraints to be used.
      *
-     * @see GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
+     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
      */
     public void add(GUIComponent component, Object constraints)
     {
@@ -321,7 +359,7 @@ class GUIDialog extends Dialog implements GUIComponentNormalNode
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUIButtonPropertyDialog
+     * @see javablue.GUIButtonPropertyDialog
      */
     public void showPropertiesDialog()
     {

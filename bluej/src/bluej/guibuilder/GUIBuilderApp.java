@@ -5,7 +5,7 @@ import java.awt.event.*;
 import javablue.GUIGraphics.*;
 import java.io.*;
 import java.util.Vector;
-
+import javablue.pkgmgr.*;
 
 /**
  * This is the main class for the GUI-Builder application. Instantiate this
@@ -22,8 +22,8 @@ public class GUIBuilderApp extends Frame
      * Ease-of-use constant for setMode() and getMode().
      * Specifies the application to be in add-mode.
      *
-     * @see GUIBuilder.GUIBuilderApp#setMode
-     * @see GUIBuilder.GUIBuilderApp#getMode
+     * @see javablue.GUIBuilder.GUIBuilderApp#setMode
+     * @see javablue.GUIBuilder.GUIBuilderApp#getMode
      */
     public static final int ADDMODE = 0;
 
@@ -31,8 +31,8 @@ public class GUIBuilderApp extends Frame
      * Ease-of-use constant for setMode() and getMode().
      * Specifies the application to be in move-mode.
      *
-     * @see GUIBuilder.GUIBuilderApp#setMode
-     * @see GUIBuilder.GUIBuilderApp#getMode
+     * @see javablue.GUIBuilder.GUIBuilderApp#setMode
+     * @see javablue.GUIBuilder.GUIBuilderApp#getMode
      */
     public static final int MOVEMODE = 1;
 
@@ -40,8 +40,8 @@ public class GUIBuilderApp extends Frame
      * Ease-of-use constant for setMode() and getMode().
      * Specifies the application to be in select-mode.
      *
-     * @see GUIBuilder.GUIBuilderApp#setMode
-     * @see GUIBuilder.GUIBuilderApp#getMode
+     * @see javablue.GUIBuilder.GUIBuilderApp#setMode
+     * @see javablue.GUIBuilder.GUIBuilderApp#getMode
      */
     public static final int SELECTMODE = 2;
 
@@ -59,6 +59,7 @@ public class GUIBuilderApp extends Frame
     
     private Vector structureVector = new Vector();
     private StructureContainer structCont = null;
+    private Package pkg = null;
 
     private String defaultdir = new String();
     private String structdir = new String();
@@ -95,12 +96,28 @@ public class GUIBuilderApp extends Frame
     }
 
 
+    public GUIBuilderApp(Package pkg)
+    {
+	super("GUIBuilder");
+	app = this;
+	this.pkg = pkg;
+	addWindowListener(new WindowAdapter() { public void 
+		    windowClosing(WindowEvent e) { shutdown(); } } );
+	setResizable(false);
+	setBackground(Color.lightGray);
+	createInterface();
+
+	show();
+    }
+
+
     /**
      * Shuts down the application and closes all open windows.
      */
     public void shutdown()
     {
-	setVisible(false);
+	while (structureVector.size()>0)
+	    ((StructureContainer)structureVector.elementAt(0)).delete();
 	dispose();
     }
 
@@ -110,9 +127,9 @@ public class GUIBuilderApp extends Frame
      *
      * @param newmode The mode of the application.
      *
-     * @see GUIBuilder.GUIBuilderApp#ADDMODE
-     * @see GUIBuilder.GUIBuilderApp#MOVEMODE
-     * @see GUIBuilder.GUIBuilderApp#SELECTMODE
+     * @see javablue.GUIBuilder.GUIBuilderApp#ADDMODE
+     * @see javablue.GUIBuilder.GUIBuilderApp#MOVEMODE
+     * @see javablue.GUIBuilder.GUIBuilderApp#SELECTMODE
      */
     public void setMode(int newmode)
     {
@@ -138,9 +155,9 @@ public class GUIBuilderApp extends Frame
      *
      * @return The mode of the application.
      *
-     * @see GUIBuilder.GUIBuilderApp#ADDMODE
-     * @see GUIBuilder.GUIBuilderApp#MOVEMODE
-     * @see GUIBuilder.GUIBuilderApp#SELECTMODE
+     * @see javablue.GUIBuilder.GUIBuilderApp#ADDMODE
+     * @see javablue.GUIBuilder.GUIBuilderApp#MOVEMODE
+     * @see javablue.GUIBuilder.GUIBuilderApp#SELECTMODE
      */
     public int getMode()
     {
@@ -196,7 +213,13 @@ public class GUIBuilderApp extends Frame
     {
 	return selectedComponent;
     }
-    
+
+
+    public Package getPackage()
+    {
+	return pkg;
+    }
+
 
     /**
      * Sets the selected structure. The preview, save and generate menu items
@@ -401,7 +424,7 @@ public class GUIBuilderApp extends Frame
                     f.setModal(true);
                     f.show();
                 
-                    String strFile = f.getFile();
+                    String strFile = f.getDirectory()+f.getFile();
                     File file = null;
                     if(strFile!=null)
                 	file = new File(strFile);
@@ -439,8 +462,7 @@ public class GUIBuilderApp extends Frame
                     if(file!=null)
                     {
                         structdir = f.getDirectory();
-                        
-                        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+                        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(structdir+file.getName()));
                         out.writeObject(selectedStruct);
                         out.close();
                         
@@ -472,8 +494,9 @@ public class GUIBuilderApp extends Frame
          
                     if(file!=null)
                     {
-                	PrintWriter pw = new PrintWriter(new FileOutputStream(file));
                 	defaultdir = f.getDirectory();
+			PrintWriter pw = new PrintWriter(new FileOutputStream(defaultdir+file.getName()));
+                	
                 	pw.print(selectedStruct.generateCode());
                 	pw.flush();
                 	pw.close();

@@ -355,7 +355,7 @@ class GUIBorderLayout extends BorderLayout implements GUIComponentLayoutNode
      * Shows the layout property dialog. This method will not return until the
      * dialog is closed.
      *
-     * @see GUILayoutPropertyDialog
+     * @see javablue.GUILayoutPropertyDialog
      */
     public void showPropertiesDialog()
     {

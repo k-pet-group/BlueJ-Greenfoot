@@ -12,7 +12,7 @@ import java.util.Vector;
  *
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
- * @see GUIMenu
+ * @see javablue.GUIMenu
  */
 public interface GUIMenuNodeMenuComponent extends GUIMenuNodeComponent
 {

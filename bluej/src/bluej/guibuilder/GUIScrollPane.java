@@ -222,7 +222,7 @@ class GUIScrollPane extends ScrollPane implements GUIComponentNormalNode
      * @param component The GUIComponent to be added to the container.
      * @param constraints The constraints to be ignored.
      *
-     * @see GUIScrollPane@add(GUIComponent component)
+     * @see javablue.GUIScrollPane@add(GUIComponent component)
      */
     public void add(GUIComponent component, Object constraints)
     {
@@ -332,7 +332,7 @@ class GUIScrollPane extends ScrollPane implements GUIComponentNormalNode
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUIButtonPropertyDialog
+     * @see javablue.GUIButtonPropertyDialog
      */
     public void showPropertiesDialog()
     {

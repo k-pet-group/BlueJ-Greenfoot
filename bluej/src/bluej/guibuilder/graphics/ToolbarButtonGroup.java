@@ -2,6 +2,7 @@ package javablue.GUIGraphics;
 
 import java.awt.*;
 import java.util.Vector;
+import javablue.GUIGraphics.*;
 
 /**
  * This class is used to group a set of ToolbarButtons together on one group.
@@ -15,7 +16,7 @@ import java.util.Vector;
  *
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
- * @see GUIGraphics.ToolbarButton
+ * @see javablue.GUIGraphics.ToolbarButton
  */
 public class ToolbarButtonGroup
 {
@@ -36,7 +37,7 @@ public class ToolbarButtonGroup
      *
      * @param button The Button to be added.
      *
-     * @see GUIGraphics.ToolbarButtonGroup#removeButton
+     * @see javablue.GUIGraphics.ToolbarButtonGroup#removeButton
      */
     public void addButton(ToolbarButton button)
     {
@@ -50,7 +51,7 @@ public class ToolbarButtonGroup
      *
      * @return The success of the operation. true means successful and false indicates a failure.
      *
-     * @see GUIGraphics.ToolbarButtonGroup#addButton
+     * @see javablue.GUIGraphics.ToolbarButtonGroup#addButton
      */
     public boolean removeButton(ToolbarButton b)
     {
@@ -100,9 +101,9 @@ public class ToolbarButtonGroup
      * @param button	The button to change the state of.
      * @param state	The new state of the specified button.
      *
-     * @see GUIGraphics.ToolbarButton#UNSELECTED
-     * @see GUIGraphics.ToolbarButton#SELECTED
-     * @see GUIGraphics.ToolbarButton#PERMANENT
+     * @see javablue.GUIGraphics.ToolbarButton#UNSELECTED
+     * @see javablue.GUIGraphics.ToolbarButton#SELECTED
+     * @see javablue.GUIGraphics.ToolbarButton#PERMANENT
      */
     public void changeState(ToolbarButton button,int state)
     {

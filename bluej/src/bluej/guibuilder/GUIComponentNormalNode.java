@@ -27,7 +27,7 @@ public interface GUIComponentNormalNode extends GUIComponentNode, GUIConcreteCom
      *
      * @param component The GUIComponent to be added to the container.
      *
-     * @see GUIBuilder.GUIComponentLayoutNode#addGUIComponent(GUIComponent component)
+     * @see javablue.GUIBuilder.GUIComponentLayoutNode#addGUIComponent(GUIComponent component)
      */
     public abstract void add (GUIComponent component);
 
@@ -40,7 +40,7 @@ public interface GUIComponentNormalNode extends GUIComponentNode, GUIConcreteCom
      * @param component The GUIComponent to be added to the container.
      * @param constraints The constraints to be used.
      *
-     * @see GUIBuilder.GUIComponentLayoutNode#addGUIComponent(GUIComponent component, Object constraints)
+     * @see javablue.GUIBuilder.GUIComponentLayoutNode#addGUIComponent(GUIComponent component, Object constraints)
      */
     public abstract void add (GUIComponent component, Object constraints);
 

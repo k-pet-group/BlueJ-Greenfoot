@@ -161,7 +161,7 @@ public class ListenerContainer implements Serializable
 	// name, eventtype, [method, description]...
 	String[][] methods = {
 	    {"ActionListener", "Action",
-		"ActionPerformed", "Invoked when an action occurs."},
+		"actionPerformed", "Invoked when an action occurs."},
 	    {"AdjustmentListener", "Adjustment",
 		"adjustmentValueChanged", "Invoked when the value of the adjustable has changed."},
 	    {"ComponentListener", "Component",

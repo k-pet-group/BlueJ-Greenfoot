@@ -73,7 +73,10 @@ public class ListenerDialog extends Dialog
         updateTotalListenerList(typesChoice.getSelectedItem());
         listenerVector = (component.getComponentDescriptor()).getListenerVector();
         for(int i = 0 ; i < listenerVector.size() ; i++)
-                    listenerList.addItem(((ListenerPair)listenerVector.elementAt(i)).name);
+        {
+            ListenerPair tmp = (ListenerPair)listenerVector.elementAt(i);
+	    listenerList.addItem(tmp.name+":"+tmp.type);
+	}
                 
 	GridBagConstraints gbc1 = new GridBagConstraints();
         gbc1.gridx = 1;
@@ -196,9 +199,9 @@ public class ListenerDialog extends Dialog
                 if(listenerList.getSelectedIndex()!=-1) // remove an assigned Listener from the component
                 {
                     String item = listenerList.getSelectedItem();
-                    String type = new String(item.substring(0,item.indexOf("\t")-1));
-                    String name = new String(item.substring(item.indexOf(":")+1));
-                    totalListenerList.getSelectedItem();
+                    String name = new String(item.substring(0,item.indexOf(":")-1));
+                    String type = new String(item.substring(item.indexOf(":")+1));
+                    listenerPair = new ListenerPair(name,type);
                     listenerContainer.decReference(componentStr,listenerPair);
                     listenerVector.removeElementAt(listenerList.getSelectedIndex());
                     updateListenerList();

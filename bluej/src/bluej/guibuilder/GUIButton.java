@@ -218,7 +218,7 @@ public class GUIButton extends Button implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUIButtonPropertyDialog
+     * @see javablue.GUIButtonPropertyDialog
      */
     public void showPropertiesDialog()
     {

@@ -247,7 +247,7 @@ public class GUIList extends List implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUIListPropertyDialog
+     * @see javablue.GUIListPropertyDialog
      */
     public void showPropertiesDialog()
     {

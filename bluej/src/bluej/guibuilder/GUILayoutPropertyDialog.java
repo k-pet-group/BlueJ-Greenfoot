@@ -157,9 +157,9 @@ public class GUILayoutPropertyDialog extends Dialog {
         this.componentNode = componentNode;
         this.app =app;
         this.structCont = structCont;
-
+        
         setLayout(new BorderLayout());
-
+        setTitle("Layout properties");
         prepareTopPanel();
         
         preparePanels();
@@ -402,15 +402,15 @@ public class GUILayoutPropertyDialog extends Dialog {
 
         // borderLayout
         borderPanel.setLayout(new GridLayout(2,2));
-        borderPanel.add(new Label("HGap"));
+        borderPanel.add(new Label("Horizontal Gap"));
         borderPanel.add(tfHgap[BORDERLAYOUT]);
-        borderPanel.add(new Label("VGap"));
+        borderPanel.add(new Label("Vertical Gap"));
         borderPanel.add(tfVgap[BORDERLAYOUT]);
         // gridPanel
         gridPanel.setLayout(new GridLayout(4,2));
-        gridPanel.add(new Label("HGap"));
+        gridPanel.add(new Label("Horizontal Gap"));
         gridPanel.add(tfHgap[GRIDLAYOUT]);
-        gridPanel.add(new Label("VGap"));
+        gridPanel.add(new Label("Vertical Gap"));
         gridPanel.add(tfVgap[GRIDLAYOUT]);
         gridPanel.add(new Label("Rows:"));
         gridPanel.add(tfRows);
@@ -502,9 +502,9 @@ public class GUILayoutPropertyDialog extends Dialog {
         // CardPanel
         
         cardPanel.setLayout(new GridLayout(6,2));
-        cardPanel.add(new Label("HGap"));
+        cardPanel.add(new Label("Horizontal Gap"));
         cardPanel.add(tfHgap[CARDLAYOUT]);
-        cardPanel.add(new Label("VGap"));
+        cardPanel.add(new Label("Vertical Gap"));
         cardPanel.add(tfVgap[CARDLAYOUT]);
         cardPanel.add(prevButton);
         cardPanel.add(nextButton);
@@ -518,9 +518,9 @@ public class GUILayoutPropertyDialog extends Dialog {
         
         // FlowPanel
         flowPanel.setLayout(new GridLayout(3,2));
-        flowPanel.add(new Label("HGap"));
+        flowPanel.add(new Label("Horizontal Gap"));
         flowPanel.add(tfHgap[FLOWLAYOUT]);
-        flowPanel.add(new Label("VGap"));
+        flowPanel.add(new Label("Vertical Gap"));
         flowPanel.add(tfVgap[FLOWLAYOUT]);
         flowPanel.add(new Label("Alignment"));
         flowPanel.add(alignmentChoice);

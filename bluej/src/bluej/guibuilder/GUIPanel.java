@@ -178,7 +178,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
      *
      * @param component The GUIComponent to be added to the container.
      *
-     * @see GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
+     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
      */
     public void add(GUIComponent component)
     {
@@ -195,7 +195,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
      * @param component The GUIComponent to be added to the container.
      * @param constraints The constraints to be used.
      *
-     * @see GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
+     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
      */
     public void add(GUIComponent component, Object constraints)
     {
@@ -293,7 +293,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUIButtonPropertyDialog
+     * @see javablue.GUIButtonPropertyDialog
      */
     public void showPropertiesDialog()
     {

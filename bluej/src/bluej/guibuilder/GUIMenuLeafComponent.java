@@ -10,9 +10,9 @@ import java.util.Vector;
  *
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
- * @see GUIMenuItem
- * @see GUIMenuCheckboxItem
- * @see GUIMenuSeparator
+ * @see javablue.GUIMenuItem
+ * @see javablue.GUIMenuCheckboxItem
+ * @see javablue.GUIMenuSeparator
  */
 public interface GUIMenuLeafComponent extends GUIMenuComponent
 {

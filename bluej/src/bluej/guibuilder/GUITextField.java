@@ -242,7 +242,7 @@ class GUITextField extends TextField implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUITextFieldPropertyDialog
+     * @see javablue.GUITextFieldPropertyDialog
      */
     public void showPropertiesDialog()
     {

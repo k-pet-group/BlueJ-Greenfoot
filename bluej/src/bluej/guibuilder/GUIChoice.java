@@ -207,7 +207,7 @@ public class GUIChoice extends Choice implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUIChoicePropertyDialog
+     * @see javablue.GUIChoicePropertyDialog
      */
     public void showPropertiesDialog()
     {

@@ -157,7 +157,7 @@ public class GUICheckbox extends Checkbox implements GUIComponentLeaf
      * Set it to an empty string to delete the group from this checkbox.
      *
      * @param	The name of the CheckboxGroup as used in CheckboxGroupContainer.
-     * @see	CheckboxGroupContainer
+     * @see	javablue.CheckboxGroupContainer
      */
     public void setGroup(String groupName)
     {
@@ -243,7 +243,7 @@ public class GUICheckbox extends Checkbox implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUICheckboxPropertyDialog
+     * @see javablue.GUICheckboxPropertyDialog
      */
     public void showPropertiesDialog()
     {

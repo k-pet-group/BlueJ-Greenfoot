@@ -22,8 +22,8 @@ public class ToolbarButton extends Canvas
      * Ease-of-use constant for setState() and getState().
      * Specifies an unselected button.
      *
-     * @see GUIGraphics.ToolbarButton#setState
-     * @see GUIGraphics.ToolbarButton#getState
+     * @see javablue.GUIGraphics.ToolbarButton#setState
+     * @see javablue.GUIGraphics.ToolbarButton#getState
      */
     public static final int UNSELECTED = 0;
 
@@ -31,8 +31,8 @@ public class ToolbarButton extends Canvas
      * Ease-of-use constant for setState() and getState().
      * Specifies a selected button.
      *
-     * @see GUIGraphics.ToolbarButton#setState
-     * @see GUIGraphics.ToolbarButton#getState
+     * @see javablue.GUIGraphics.ToolbarButton#setState
+     * @see javablue.GUIGraphics.ToolbarButton#getState
      */
     public static final int SELECTED = 1;
 
@@ -40,8 +40,8 @@ public class ToolbarButton extends Canvas
      * Ease-of-use constant for setState() and getState().
      * Specifies a permanent selected button.
      *
-     * @see GUIGraphics.ToolbarButton#setState
-     * @see GUIGraphics.ToolbarButton#getState
+     * @see javablue.GUIGraphics.ToolbarButton#setState
+     * @see javablue.GUIGraphics.ToolbarButton#getState
      */
     public static final int PERMANENT = 2;
 
@@ -95,7 +95,7 @@ public class ToolbarButton extends Canvas
      *
      * @param label A string label for the button.
      *
-     * @see GUIGraphics.ToolbarButton#getLabel
+     * @see javablue.GUIGraphics.ToolbarButton#getLabel
      */
     public void setLabel(String label)
     {
@@ -109,7 +109,7 @@ public class ToolbarButton extends Canvas
      *
      * @return A string representing the label.
      *
-     * @see GUIGraphics.ToolbarButton#setLabel
+     * @see javablue.GUIGraphics.ToolbarButton#setLabel
      */
     public String getLabel()
     {
@@ -122,9 +122,9 @@ public class ToolbarButton extends Canvas
      *
      * @return An integer representing the state.
      *
-     * @see GUIGraphics.ToolbarButton#UNSELECTED
-     * @see GUIGraphics.ToolbarButton#SELECTED
-     * @see GUIGraphics.ToolbarButton#PERMANENT
+     * @see javablue.GUIGraphics.ToolbarButton#UNSELECTED
+     * @see javablue.GUIGraphics.ToolbarButton#SELECTED
+     * @see javablue.GUIGraphics.ToolbarButton#PERMANENT
      */
     public int getState()
     {
@@ -137,9 +137,9 @@ public class ToolbarButton extends Canvas
      *
      * @param state The new state of the button.
      *
-     * @see GUIGraphics.ToolbarButton#UNSELECTED
-     * @see GUIGraphics.ToolbarButton#SELECTED
-     * @see GUIGraphics.ToolbarButton#PERMANENT
+     * @see javablue.GUIGraphics.ToolbarButton#UNSELECTED
+     * @see javablue.GUIGraphics.ToolbarButton#SELECTED
+     * @see javablue.GUIGraphics.ToolbarButton#PERMANENT
      */
     public void setState(int state)
     {
@@ -154,7 +154,7 @@ public class ToolbarButton extends Canvas
      *
      * @param state The new state of the button.
      *
-     * @see GUIGraphics.ToolbarButtonGroup
+     * @see javablue.GUIGraphics.ToolbarButtonGroup
      */
     public void setStateFromGroup(int state)
     {

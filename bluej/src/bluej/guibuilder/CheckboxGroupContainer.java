@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * A class used to store all GUICheckbox groups.
  *
- * Created: Oct 1, 1998.
+ * Created: Oct 2, 1998.
  *
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0

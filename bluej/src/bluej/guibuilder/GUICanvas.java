@@ -195,7 +195,7 @@ public class GUICanvas extends Canvas implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUICanvasPropertyDialog
+     * @see javablue.GUICanvasPropertyDialog
      */
     public void showPropertiesDialog()
     {

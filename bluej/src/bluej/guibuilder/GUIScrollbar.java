@@ -260,7 +260,7 @@ public class GUIScrollbar extends Scrollbar implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUIScrollbarPropertyDialog
+     * @see javablue.GUIScrollbarPropertyDialog
      */
     public void showPropertiesDialog()
     {

@@ -3,7 +3,11 @@ package javablue.GUIBuilder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.*;
 import java.util.Vector;
+import javablue.pkgmgr.*;
+import javablue.editor.*;
+import javablue.editor.red.*;
 
 
 /**
@@ -35,13 +39,44 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
     public GUIFrame (GUIComponentNode parent,StructureContainer structCont,GUIBuilderApp app)
     {
 	super();
-	setName("Frame"+counter);
-	counter++;
         this.parent = parent;
         this.structCont = structCont;
         this.app =app;
+	setName("Frame"+counter);
+	counter++;
     }
 
+
+    public void setName(String name)
+    {
+	super.setName(name);
+	if (structCont!=null)
+	{
+	    ClassTarget target = structCont.getClassTarget();
+	    String oldname = target.sourceFile();
+	    if (target!=null)
+	    {
+		target.setName(name);
+		structCont.saveCode();
+		if (target.editorOpen())
+		{
+		    Editor editor = target.getEditor();
+		    if (editor instanceof RedEditor)
+		    {
+			((RedEditor)editor).change_filename(target.sourceFile());
+			((RedEditor)editor).do_revert();
+		    }
+		    else
+			editor.close();
+		}
+	    }
+	    if (!oldname.equals(target.sourceFile()))
+	    {
+		File fil = new File(oldname);
+		fil.delete();
+	    }
+	}
+    }
 
     /**
      * Sets the parent of this component.
@@ -191,7 +226,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
      *
      * @param component The GUIComponent to be added to the container.
      *
-     * @see GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
+     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
      */
     public void add(GUIComponent component)
     {
@@ -208,7 +243,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
      * @param component The GUIComponent to be added to the container.
      * @param constraints The constraints to be used.
      *
-     * @see GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
+     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
      */
     public void add(GUIComponent component, Object constraints)
     {
@@ -337,7 +372,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUIButtonPropertyDialog
+     * @see javablue.GUIButtonPropertyDialog
      */
     public void showPropertiesDialog()
     {

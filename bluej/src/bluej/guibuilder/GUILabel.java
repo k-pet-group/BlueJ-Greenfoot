@@ -240,7 +240,7 @@ public class GUILabel extends Label implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUILabelPropertyDialog
+     * @see javablue.GUILabelPropertyDialog
      */
     public void showPropertiesDialog()
     {

@@ -5,7 +5,11 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.Serializable;
+import java.io.*;
+
+import javablue.pkgmgr.*;
+import javablue.editor.*;
+import javablue.editor.red.*;
 
 
 /**
@@ -23,6 +27,7 @@ public class StructureContainer implements Serializable
     private ListenerContainer listeners = new ListenerContainer();
     private CheckboxGroupContainer groups = new CheckboxGroupContainer();
     private transient GUIBuilderApp app;
+    private transient ClassTarget target = null;
     private StructureContainer structCont;
 
     private WindowHandler windowHandler = new WindowHandler();
@@ -43,8 +48,22 @@ public class StructureContainer implements Serializable
 	treeTop.setStructureContainer(this);
 	treeTop.setGUILayout (new GUIBorderLayout (guiTree, this, app));
 
+	Package pkg = app.getPackage();
+	if (pkg!=null)
+	{
+	    target = new ClassTarget(app.getPackage(), guiTree.getName());
+	    target.setAbstract(false);
+	    target.setInterface(false);
+	    pkg.addTarget(target);
+	    target.invalidate();
+	    pkg.getFrame().setModified(true);
+	}
+
 	((Window)guiTree).addWindowListener(windowHandler);
 	show();
+
+	if (pkg!=null)
+	    saveCode();
     }
 
 
@@ -102,6 +121,12 @@ public class StructureContainer implements Serializable
 	return groups;
     }
 
+
+
+    public ClassTarget getClassTarget()
+    {
+	return target;
+    }
 
     /**
      * Generates the Java code used to make this entire GUI-structure. The code
@@ -177,8 +202,37 @@ public class StructureContainer implements Serializable
 	((Window)guiTree).setSize(width, height);
         ((Window)guiTree).validate();
         ((Window)guiTree).repaint();
+
+	if (target!=null)
+	    saveCode();
     }
 
+
+    public void saveCode()
+    {
+	try
+	{
+	    PrintWriter pw = new PrintWriter(new FileOutputStream(target.sourceFile()));
+	    pw.print(generateCode());
+	    pw.flush();
+	    pw.close();
+
+	    if (target.editorOpen())
+	    {
+		Editor editor = target.getEditor();
+		if (editor instanceof RedEditor)
+		    ((RedEditor)target.getEditor()).do_revert();
+		else
+		    target.getEditor().reopen();
+	    }
+
+	    target.invalidate();
+	}
+	catch (IOException e)
+	{
+	    System.out.println("Exception: "+e.getMessage());
+	}
+    }
 
 
     /**

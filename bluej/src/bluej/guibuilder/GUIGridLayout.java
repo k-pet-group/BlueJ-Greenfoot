@@ -405,7 +405,7 @@ class GUIGridLayout extends GridLayout implements GUIComponentLayoutNode
 
        
 	for (int i=0; i<position.size(); i++)
-	    if (position.elementAt(i)!=null)
+	    if (position.elementAt(i)!=null && ((GUIContainer)position.elementAt(i)).getComponent()!=null)
 	    {
 		childCode = ((GUIComponent)((GUIContainer)(position.elementAt(i))).getComponent()).generateCode();
 		code.addGlobal (childCode.getGlobalCode());
@@ -444,7 +444,7 @@ class GUIGridLayout extends GridLayout implements GUIComponentLayoutNode
      * Shows the layout property dialog. This method will not return until the
      * dialog is closed.
      *
-     * @see GUILayoutPropertyDialog
+     * @see javablue.GUILayoutPropertyDialog
      */
     public void showPropertiesDialog()
     {

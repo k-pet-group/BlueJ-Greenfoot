@@ -148,7 +148,7 @@ public class GUIContainer extends Panel
      * to insert component in the first free container.
      *
      * @param state The new state of this container. true means insertion is allowed.
-     * @see GUIGridLayout
+     * @see javablue.GUIGridLayout
      */
     public void setValidAddPosition(boolean state)
     {

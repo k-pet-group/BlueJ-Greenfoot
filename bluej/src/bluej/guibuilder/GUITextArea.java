@@ -262,7 +262,7 @@ class GUITextArea extends TextArea implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUITextAreaPropertyDialog
+     * @see javablue.GUITextAreaPropertyDialog
      */
     public void showPropertiesDialog()
     {

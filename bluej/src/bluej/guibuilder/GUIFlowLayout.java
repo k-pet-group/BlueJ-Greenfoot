@@ -342,7 +342,7 @@ class GUIFlowLayout extends FlowLayout implements GUIComponentLayoutNode
      * Shows the layout property dialog. This method will not return until the
      * dialog is closed.
      *
-     * @see GUILayoutPropertyDialog
+     * @see javablue.GUILayoutPropertyDialog
      */
     public void showPropertiesDialog()
     {

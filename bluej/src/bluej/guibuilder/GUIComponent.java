@@ -80,7 +80,7 @@ public interface GUIComponent
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see GUIButtonPropertyDialog
+     * @see javablue.GUIButtonPropertyDialog
      */
     public abstract void showPropertiesDialog();
 
