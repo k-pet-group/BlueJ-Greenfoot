@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2733 2004-07-05 02:38:20Z davmac $
+ * @version $Id: JdiObject.java 2868 2004-08-12 10:36:15Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -664,6 +664,12 @@ public class JdiObject extends DebuggerObject
         {
             return "\"" + ((StringReference) val).value() + "\"";
             // toString should be okay for this as well once the bug is out...
+        }
+        else if (val.type() instanceof ClassType && JdiUtils.getJdiUtils().isEnum((ClassType) val.type())) {
+            ClassType type =  (ClassType) val.type();
+            Field nameField = type.fieldByName("name");
+            String name = ((StringReference) ((ObjectReference) val).getValue(nameField)).value();
+            return name;
         }
         else if (val instanceof ObjectReference)
         {
