@@ -32,7 +32,7 @@ public final class ClassInfo
                                     // this is a comma seperated list of name
                                     // associated with the parameters
 
-        SavedComment(String target, String comment, String paramnames)
+        public SavedComment(String target, String comment, String paramnames)
         {
             if (target == null)
                 throw new NullPointerException();
@@ -154,7 +154,7 @@ public final class ClassInfo
                     line.deleteCharAt(0);
                     ch = (line.length() > 0 ? line.charAt(0) : 'x');
                 }
-                finalComment.append(line);
+                finalComment.append(line.toString());
                 finalComment.append('\n');
             }
             comment = finalComment.toString();
