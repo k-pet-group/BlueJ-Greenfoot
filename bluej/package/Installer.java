@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 723 2000-12-12 04:43:19Z mik $
+  * @version $Id: Installer.java 758 2001-01-31 03:04:38Z bquig $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -461,11 +461,11 @@ public class Installer extends JFrame
     private void jdkPathProblem() 
     {
         notifyProblem(
-          "The Java directory you have specified is not a valid \n" +
-          "JDK directory. The JDK directory is the directory \n" +
-          "that JDK (aka Java 2 SDK) was installed to. It must \n" +
-          "have a subdirectory \"lib\" with a file named \n" +
-          "\"tools.jar\" in it.");
+		      "The Java directory you have specified is not a valid \n" +
+		      "JDK directory. The JDK directory is the directory \n" +
+		      "that JDK (aka Java 2 SDK) was installed to. It must \n" +
+		      "have a subdirectory \"lib\" with a file named \n" +
+		      "\"tools.jar\" in it.");
     }
 
     /**
@@ -549,13 +549,13 @@ public class Installer extends JFrame
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(backgroundColour);
 
-	    installButton = new JButton("Install");
-	    buttonPanel.add(installButton);
-	    installButton.addActionListener(this);
+	installButton = new JButton("Install");
+	buttonPanel.add(installButton);
+	installButton.addActionListener(this);
 
-	    cancelButton = new JButton("Cancel");
-	    buttonPanel.add(cancelButton);
-	    cancelButton.addActionListener(this);
+	cancelButton = new JButton("Cancel");
+	buttonPanel.add(cancelButton);
+	cancelButton.addActionListener(this);
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -605,12 +605,12 @@ public class Installer extends JFrame
         jdkPanel.add(jdk12Button);
         jdkPanel.add(jdk13Button);
         jdkPanel.add(Box.createHorizontalGlue());
-	    centrePanel.add(jdkPanel);
+	centrePanel.add(jdkPanel);
 
         centrePanel.add(Box.createVerticalStrut(12));
 
-	    progress = new JProgressBar(); 
-	    centrePanel.add(progress);
+	progress = new JProgressBar(); 
+	centrePanel.add(progress);
 
         centrePanel.add(Box.createVerticalStrut(5));
 
@@ -621,10 +621,10 @@ public class Installer extends JFrame
         textLabel2 = new JLabel(" ", JLabel.LEFT);
         labelPanel.add(textLabel2);
 
-	    centrePanel.add(labelPanel);
+	centrePanel.add(labelPanel);
 
-	    String tagline = (String)getProperty("tagline");
-	    if(tagline != null)
+	String tagline = (String)getProperty("tagline");
+	if(tagline != null)
             textLabel2.setText(tagline);
 
 
@@ -872,7 +872,16 @@ public class Installer extends JFrame
                 ClassLoader.getSystemResourceAsStream("Installer.class");
 
             //InputStream cpin = getFileFromClasspath("Installer.class");
-            FileOutputStream cpout = new FileOutputStream("Installer.class.tmp");
+			String fullTempClassName = "Installer.class.tmp";
+			String homePath = System.getProperty("user.home");		
+			if(homePath != null)
+				fullTempClassName = homePath + File.separator + fullTempClassName;
+							
+			File tempInstallerClass = new File(fullTempClassName);
+			System.out.println("Installer.class is " + fullTempClassName);
+			//File tempInstallerClass = new File("Installer.class.tmp");
+			//FileOutputStream cpout = new FileOutputStream("Installer.class.tmp");
+			FileOutputStream cpout = new FileOutputStream(tempInstallerClass);
             byte[] buffer = new byte[8192];
             int len;
             while((len = cpin.read(buffer)) != -1)
@@ -880,7 +889,7 @@ public class Installer extends JFrame
             cpin.close();
             cpout.close();
 			
-            RandomAccessFile in = new RandomAccessFile("Installer.class.tmp","r");
+            RandomAccessFile in = new RandomAccessFile(tempInstallerClass, "r");
             in.seek(in.length() - 8);
             long size = in.readLong();
             in.seek(in.length() - 8 - size);
@@ -894,9 +903,8 @@ public class Installer extends JFrame
             if (doJar) {
                 dumpJar(installationDir, new FileInputStream(in.getFD()));
             }
-            in.close();
-			
-            (new File("Installer.class.tmp")).delete();
+	    in.close();
+	    tempInstallerClass.delete();
         } catch (Exception e) {
             notifyError("Installer failed to open: " + e,
                         "Could not open install file.");
@@ -905,7 +913,7 @@ public class Installer extends JFrame
 
 
     /**
-     * Recusrively make directories needed for a file.
+     * Recursively make directories needed for a file.
      */
     public void makeDirsFor(String start, String path) {
         String sofar = null;
@@ -921,6 +929,7 @@ public class Installer extends JFrame
         }
         return;
     }
+
 
     /**
      * Extract a JAR from a file stream to the given directory on disk.
