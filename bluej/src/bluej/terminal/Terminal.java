@@ -5,7 +5,7 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 585 2000-06-27 23:51:09Z mik $
+ ** @version $Id: Terminal.java 598 2000-06-28 05:09:01Z ajp $
  **/
 
 package bluej.terminal;
@@ -89,14 +89,14 @@ public final class Terminal extends JFrame
         JMenu menu = new JMenu("Options");
         JMenuItem item;
         item = menu.add(new ClearAction());
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, 
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,
                                                    Event.CTRL_MASK));
         item = menu.add(getCopyAction());
         item.setText(Config.getString("terminal.copy"));
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
                                                    Event.CTRL_MASK));
         item = menu.add(new SaveAction());
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
                                                    Event.CTRL_MASK));
         menu.add(new JSeparator());
 
@@ -110,7 +110,7 @@ public final class Terminal extends JFrame
 
         menu.add(new JSeparator());
         item = menu.add(new CloseAction());
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, 
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
                                                    Event.CTRL_MASK));
 
         menubar.add(menu);
@@ -180,7 +180,7 @@ public final class Terminal extends JFrame
     {
         String fileName = FileUtility.getFileName(this,
                                  Config.getString("terminal.save.title"),
-                                 Config.getString("terminal.save.buttonText"));
+                                 Config.getString("terminal.save.buttonText"), false);
         if(fileName != null) {
             try {
                 FileWriter writer = new FileWriter(fileName);
@@ -193,7 +193,7 @@ public final class Terminal extends JFrame
         }
     }
 
-    
+
     /**
      * Write some text to the terminal.
      */
@@ -317,14 +317,14 @@ public final class Terminal extends JFrame
         if(isActive) {
 
             switch(ch) {
-	    
+
             case '\b':	// backspace
                 if(buffer.backSpace()) {
                     try {
                         int length = text.getDocument().getLength();
                         text.replaceRange("", length-1, length);
                     }
-                    catch (Exception exc) { 
+                    catch (Exception exc) {
                         Debug.reportError("bad location " + exc);
                     }
                 }

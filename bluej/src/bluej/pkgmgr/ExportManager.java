@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 582 2000-06-23 06:55:35Z mik $
+ * @version $Id: ExportManager.java 598 2000-06-28 05:09:01Z ajp $
  */
 final class ExportManager
 {
@@ -42,30 +42,32 @@ final class ExportManager
 
         String newName;
         if(dialog.saveAsJar())
-            newName = FileUtility.getFileName(frame, 
-                                              "Specify name for jar file", 
-                                              "Create");
+            newName = FileUtility.getFileName(frame,
+                                              "Specify name for jar file",
+                                              "Create",
+                                              false);
         else
-            newName = FileUtility.getFileName(frame, 
-                                              "Specify name for directory", 
-                                              "Create");
+            newName = FileUtility.getFileName(frame,
+                                              "Specify name for directory",
+                                              "Create",
+                                              true);
         if(newName == null)
             return;
 
         String sourceDir = frame.getProject().getProjectDir().getPath();
 
         if(dialog.saveAsJar())
-            exportJar(sourceDir, newName, dialog.getMainClass(), 
+            exportJar(sourceDir, newName, dialog.getMainClass(),
                       dialog.includeSource());
         else
-            exportDir(sourceDir, newName, dialog.getMainClass(), 
+            exportDir(sourceDir, newName, dialog.getMainClass(),
                       dialog.includeSource());
     }
 
     /**
      * Export this project to a jar file.
      */
-    private void exportJar(String sourceDir, String fileName, 
+    private void exportJar(String sourceDir, String fileName,
                            String mainClass, boolean includeSource)
     {
         if(!fileName.endsWith(".jar"))
@@ -125,7 +127,7 @@ final class ExportManager
     /**
      * Write a jar file entry to the jar output stream.
      */
-    private void writeJarEntry(File file, JarOutputStream jStream, 
+    private void writeJarEntry(File file, JarOutputStream jStream,
                                   String entryName)
         throws IOException
     {
@@ -145,10 +147,10 @@ final class ExportManager
     /**
      * Export this project to a directory.
      */
-    private void exportDir(String sourceDir, String destDir, String mainClass, 
+    private void exportDir(String sourceDir, String destDir, String mainClass,
                            boolean includeSource)
     {
-        int result = FileUtility.copyDirectory(sourceDir, destDir, 
+        int result = FileUtility.copyDirectory(sourceDir, destDir,
                                                true, !includeSource);
         switch(result) {
         case FileUtility.NO_ERROR:
@@ -186,7 +188,7 @@ final class ExportManager
             translations.put("MAINCLASS", mainClass);
 
             String templateName = Config.getLibFilename("template.readme");
-            BlueJFileReader.translateFile(templateName, readMePath, 
+            BlueJFileReader.translateFile(templateName, readMePath,
                                           translations);
             // append original README
             InputStream in = new BufferedInputStream(new FileInputStream(tmp));

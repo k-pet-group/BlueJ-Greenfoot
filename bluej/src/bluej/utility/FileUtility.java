@@ -15,7 +15,7 @@ import java.util.*;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 572 2000-06-21 07:17:37Z mik $
+ * @version $Id: FileUtility.java 598 2000-06-28 05:09:01Z ajp $
  */
 public class FileUtility
 {
@@ -23,20 +23,37 @@ public class FileUtility
     private static final String contextSuffix = ".ctxt";
     private static final String packageFilePrefix = "bluej.pk";
 
-    private static PackageChooser pkgChooser = null;
+    private static JFileChooser pkgChooser = null;
     private static JFileChooser fileChooser = null;
 
     //========================= STATIC METHODS ============================
+
+    public static File getPackageName(Component parent)
+    {
+        JFileChooser chooser = getPackageChooser();
+
+        if (chooser.showOpenDialog(parent) != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+        return chooser.getSelectedFile();
+    }
 
     /**
      *  Get a file name from the user, using a file selection dialogue.
      *  If cancelled or an invalid name was specified, return null.
      */
     public static String getFileName(Component parent, String title,
-                                     String buttonLabel, FileFilter filter)
+                                     String buttonLabel, boolean directoryOnly,
+                                     FileFilter filter)
     {
-        JFileChooser newChooser = getFileChooser(false);
+        JFileChooser newChooser = getFileChooser();
+
         newChooser.setDialogTitle(title);
+
+        if (directoryOnly)
+            newChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        else
+            newChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
         if(filter == null)
             filter = newChooser.getAcceptAllFileFilter();
@@ -55,9 +72,9 @@ public class FileUtility
     }
 
     public static String getFileName(Component parent, String title,
-                                     String buttonLabel)
+                                     String buttonLabel, boolean directoryOnly)
     {
-        return getFileName(parent, title, buttonLabel, null);
+        return getFileName(parent, title, buttonLabel, directoryOnly, null);
     }
 
     public static FileFilter getJavaSourceFilter()
@@ -69,7 +86,7 @@ public class FileUtility
      * Return a BlueJ package chooser, i.e. a file chooser which
      * recognises BlueJ packages and treats them differently.
      */
-    public static JFileChooser getPackageChooser()
+    private static JFileChooser getPackageChooser()
     {
         if(pkgChooser == null)
             pkgChooser = new PackageChooser(
@@ -81,12 +98,12 @@ public class FileUtility
     /**
      * return a file chooser for choosing any directory (default behaviour)
      */
-    public static JFileChooser getFileChooser(boolean directoryOnly)
+    private static JFileChooser getFileChooser()
     {
         if(fileChooser == null) {
             fileChooser = new BlueJFileChooser(
                             Config.getPropString("bluej.defaultProjectPath",
-                                                 "."), directoryOnly);
+                            "."));
         }
 
         return fileChooser;
@@ -101,8 +118,9 @@ public class FileUtility
          */
         public boolean accept(File pathname)
         {
-            if (pathname.isDirectory() || pathname.getName().endsWith(".java"))
-                return true;
+            if (pathname.isDirectory() ||
+                pathname.getName().endsWith(sourceSuffix))
+                   return true;
             else
                 return false;
         }
