@@ -344,7 +344,7 @@ public class ExtensionsManager implements BlueJEventListener
      * @param  arg      This really depends on that event is given
      */
     public void blueJEvent(int eventId, Object arg)
-    {
+        {
         if ( eventId == BlueJEvent.EXECUTION_STARTED )
             {
             ExecutionEvent exevent = (ExecutionEvent) arg;
@@ -365,38 +365,8 @@ public class ExtensionsManager implements BlueJEventListener
             return;
             }
 
-
-
-/*
-        {
-            ExecutionEvent exevent = (ExecutionEvent) arg;
-            delegateEvent(new InvocationEvent(new BPackage(exevent.getPackage()),
-                    exevent.getClassName(),
-                    exevent.getObjectName(),
-                    exevent.getMethodName(),
-                    exevent.getSignature(),
-                    exevent.getParameters()));
-            return;
+        // I cannot put any warining on unknown events here since I get a bunch of events in any case.
         }
-
-        if (eventId == BlueJEvent.EXECUTION_RESULT) {
-            ExecutionEvent exevent = (ExecutionEvent) arg;
-            String result = "Unknown";
-            if (exevent.getResult() == ExecutionEvent.NORMAL_EXIT)
-                result = InvocationEvent.NORMAL_EXIT;
-            else if (exevent.getResult() == ExecutionEvent.FORCED_EXIT)
-                result = InvocationEvent.FORCED_EXIT;
-            else if (exevent.getResult() == ExecutionEvent.EXCEPTION_EXIT)
-                result = InvocationEvent.EXCEPTION_EXIT;
-            else if (exevent.getResult() == ExecutionEvent.TERMINATED_EXIT)
-                result = InvocationEvent.TERMINATED_EXIT;
-
-            delegateEvent(new InvocationEvent(new BPackage(exevent.getPackage()), result));
-            return;
-        }
-*/        
-
-    }
 
 
 

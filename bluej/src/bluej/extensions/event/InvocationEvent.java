@@ -4,21 +4,15 @@ import bluej.debugger.ExecutionEvent;
 import bluej.extensions.BPackage;
 
 /**
- * This class represents an invocation event. It is provided to a <code>BJEventListener</code> 
- * that has registered an interest in receiving such events with 
- * a <CODE>BlueJ</CODE> object by using its <CODE>addBJEventListener</CODE> method.
- * <p>The parameters provided indicated the method that has occurred.
- * <table border><tr><td><th>className<th>objectName<th>methodName</tr>
- * <tr><th>Constructor<td>class name<td>new instance name<td><code>null</code></tr>
- * <tr><th>Static method<td>class name<td><code>null</code><td>method name</tr>
- * <tr><th>Object method<td><code>null</code><td>object name<td>method name</tr>
- * </table>
- * @version $Id: InvocationEvent.java 1671 2003-03-10 08:58:32Z damiano $
+ * This class represents an invocation event.
+ * The various methods here provided will return you the values of the invocation.
+ * 
+ * @version $Id: InvocationEvent.java 1676 2003-03-10 09:26:54Z damiano $
  */
 public class InvocationEvent extends ExtEvent
 {
     // Occurs when a method call has just begun. This includes constructors, object and static methods.
-    public  final int INVOCATION_STARTED = 4;
+    public static final int INVOCATION_STARTED = 4;
 
     private String className, objectName, methodName, result;
     private Class[] signature;
@@ -102,12 +96,4 @@ public class InvocationEvent extends ExtEvent
         return parameters;
     } 
 
-    /**
-     * Gets the result when an invocation has finished.
-     * @return one of NORMAL_EXIT, FORCED_EXIT, EXCEPTION_EXIT or TERMINATED_EXIT
-     */
-    public String getResult()
-    {
-        return result;
-    }
 }

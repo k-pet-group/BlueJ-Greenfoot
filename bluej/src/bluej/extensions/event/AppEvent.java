@@ -8,7 +8,7 @@ package bluej.extensions.event;
 
 public class AppEvent extends ExtEvent 
   {
-  public static final int APP_READY_EVENT=16;
+  public static final int APP_READY_EVENT=1;
 
   private int eventId;
   

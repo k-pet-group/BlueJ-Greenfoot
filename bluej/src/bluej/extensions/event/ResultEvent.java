@@ -8,7 +8,7 @@ import bluej.extensions.BPackage;
  * but it will be different as soon as I am able to get the returnin values.
  * Damiano
  * </pre>
- * @version $Id: ResultEvent.java 1670 2003-03-10 08:57:39Z damiano $
+ * @version $Id: ResultEvent.java 1676 2003-03-10 09:26:54Z damiano $
  */
 public class ResultEvent extends ExtEvent
 {
@@ -23,7 +23,7 @@ public class ResultEvent extends ExtEvent
     // The execution has finished because the user has forcefully terminated it
     public static final int TERMINATED_EXIT = 4;
 
-    private String className, objectName, methodName, result;
+    private String className, objectName, methodName;
     private Class[] signature;
     private String[] parameters;
     private int eventId;
@@ -110,12 +110,4 @@ public class ResultEvent extends ExtEvent
         return parameters;
     } 
 
-    /**
-     * Gets the result when an invocation has finished.
-     * @return one of NORMAL_EXIT, FORCED_EXIT, EXCEPTION_EXIT or TERMINATED_EXIT
-     */
-    public String getResult()
-    {
-        return result;
-    }
 }
