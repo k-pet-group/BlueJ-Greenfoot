@@ -42,7 +42,7 @@ option = key-bindings preferences
 # keyword2	Class creation keywords (package, import, class, interface, extends, implements)
 # keyword3	Remaining Java keywords (this, null, super, true, false)
 # primitive	Java primitives (int, float, double, char)
-# string	String literals (anything in "quotes")
+# string    String literals (anything in "quotes")
 
 # Any of the values above that are not defined are given the BlueJ default colours.
 

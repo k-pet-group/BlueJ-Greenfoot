@@ -18,7 +18,6 @@ import javax.swing.text.*;
 import java.awt.*;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
-
 import org.gjt.sp.jedit.syntax.*;
 
 /**
@@ -32,7 +31,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 2076 2003-06-26 12:14:56Z mik $
+ * @version $Id: MoeSyntaxView.java 2618 2004-06-17 14:03:32Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -47,6 +46,12 @@ public class MoeSyntaxView extends PlainView
     FontMetrics lineNumberMetrics;
     private boolean initialised = false;
 
+    // Attributes for lines and document
+    public static final String BREAKPOINT = "break";
+    public static final String STEPMARK = "step";
+    public static final String OUTPUT = "output";
+    public static final String ERROR = "error";
+
     static final Image breakImage =
         Config.getImageAsIcon("image.breakmark").getImage();
     static final Image stepImage =
@@ -55,6 +60,9 @@ public class MoeSyntaxView extends PlainView
         Config.getImageAsIcon("image.breakstepmark").getImage();
     static final int BREAKPOINT_OFFSET = MoeEditor.TAG_WIDTH + 2;
 
+    static final Color outputColor = new Color(0, 120, 0);
+    static final Color errorColor = new Color(200, 0, 20);
+    
     /**
      * Creates a new <code>MoeSyntaxView</code> for painting the specified
      * element.
@@ -115,11 +123,9 @@ public class MoeSyntaxView extends PlainView
             // draw breakpoint and/or step image
 
             if (Boolean.TRUE.equals
-                (lineElement.getAttributes().getAttribute(
-                                                MoeEditor.BREAKPOINT))) {
+                (lineElement.getAttributes().getAttribute(BREAKPOINT))) {
                 if (Boolean.TRUE.equals
-                    (lineElement.getAttributes().getAttribute(
-                                                MoeEditor.STEPMARK))) {
+                    (lineElement.getAttributes().getAttribute(STEPMARK))) {
                     g.drawImage(breakStepImage, x-1,
                                 y+3-breakStepImage.getHeight(null), null);
                 }
@@ -129,20 +135,38 @@ public class MoeSyntaxView extends PlainView
                 }
             }
             else if (Boolean.TRUE.equals
-                (lineElement.getAttributes().getAttribute(
-                                                MoeEditor.STEPMARK))) {
+                (lineElement.getAttributes().getAttribute(STEPMARK))) {
                 g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null),
                             null);
             }
 
-            // if no tokenMarker just paint as plain text
-            if(tokenMarker == null) {
+            if (Boolean.TRUE.equals
+                    (lineElement.getAttributes().getAttribute(OUTPUT))) {
+                g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null),
+                        null);
+                g.setColor(outputColor);
                 Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
-                                         0);
+                        0);
+            }
+            else if (Boolean.TRUE.equals
+                    (lineElement.getAttributes().getAttribute(ERROR))) {
+                g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null),
+                        null);
+                g.setColor(errorColor);
+                Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
+                        0);
             }
             else {
-                paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
-                                document, tokenMarker, def);
+    
+                // if no tokenMarker just paint as plain text
+                if(tokenMarker == null) {
+                    Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
+                                             0);
+                }
+                else {
+                    paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+                                    document, tokenMarker, def);
+                }
             }
         }
         catch(BadLocationException bl) {

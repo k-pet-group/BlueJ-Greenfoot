@@ -27,7 +27,7 @@ import java.awt.Color;
 * care of inserting and deleting lines from the token marker's state.
 *
 * @author Slava Pestov
-* @version $Id: DefaultSyntaxDocument.java 2614 2004-06-15 15:37:24Z mik $
+* @version $Id: DefaultSyntaxDocument.java 2618 2004-06-17 14:03:32Z mik $
 *
 * @see org.gjt.sp.jedit.syntax.SyntaxDocument
 */
@@ -37,9 +37,9 @@ implements SyntaxDocument
     /**
      * Creates a new <code>DefaultSyntaxDocument</code> instance.
      */
-    public DefaultSyntaxDocument()
+    public DefaultSyntaxDocument(Color[] colors)
     {
-        colors = SyntaxUtilities.getDefaultSyntaxColors();
+        this.colors = colors;
         addDocumentListener(new DocumentHandler());
     }
 

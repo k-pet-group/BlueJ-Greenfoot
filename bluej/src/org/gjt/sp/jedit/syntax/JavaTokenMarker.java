@@ -22,37 +22,19 @@ package org.gjt.sp.jedit.syntax;
 * Java token marker.
 *
 * @author Slava Pestov
-* @version $Id: JavaTokenMarker.java 2503 2004-04-20 06:23:16Z bquig $
+* @version $Id: JavaTokenMarker.java 2618 2004-06-17 14:03:32Z mik $
 */
 public class JavaTokenMarker extends CTokenMarker
 {
     public JavaTokenMarker()
     {
-        super(false,getKeywords());
+        super(getKeywords());
     }
 
     public static KeywordMap getKeywords()
     {
         if(javaKeywords == null) {
             javaKeywords = new KeywordMap(false);
-            javaKeywords.add("package",Token.KEYWORD2);
-            javaKeywords.add("import",Token.KEYWORD2);
-            javaKeywords.add("class",Token.KEYWORD2);
-            javaKeywords.add("interface",Token.KEYWORD2);
-            javaKeywords.add("extends",Token.KEYWORD2);
-            javaKeywords.add("implements",Token.KEYWORD2);
-
-            javaKeywords.add("byte",Token.KEYWORD3);
-            javaKeywords.add("char",Token.KEYWORD3);
-            javaKeywords.add("short",Token.KEYWORD3);
-            javaKeywords.add("int",Token.KEYWORD3);
-            javaKeywords.add("long",Token.KEYWORD3);
-            javaKeywords.add("float",Token.KEYWORD3);
-            javaKeywords.add("double",Token.KEYWORD3);
-            javaKeywords.add("boolean",Token.KEYWORD3);
-            javaKeywords.add("void",Token.KEYWORD3);
-            javaKeywords.add("enum",Token.KEYWORD3);
-
             javaKeywords.add("abstract",Token.KEYWORD1);
             javaKeywords.add("final",Token.KEYWORD1);
             javaKeywords.add("private",Token.KEYWORD1);
@@ -82,11 +64,29 @@ public class JavaTokenMarker extends CTokenMarker
             javaKeywords.add("throws",Token.KEYWORD1);
             javaKeywords.add("assert",Token.KEYWORD1);
 
-            javaKeywords.add("this",Token.LITERAL2);
-            javaKeywords.add("null",Token.LITERAL2);
-            javaKeywords.add("super",Token.LITERAL2);
-            javaKeywords.add("true",Token.LITERAL2);
-            javaKeywords.add("false",Token.LITERAL2);
+            javaKeywords.add("package",Token.KEYWORD2);
+            javaKeywords.add("import",Token.KEYWORD2);
+            javaKeywords.add("class",Token.KEYWORD2);
+            javaKeywords.add("interface",Token.KEYWORD2);
+            javaKeywords.add("extends",Token.KEYWORD2);
+            javaKeywords.add("implements",Token.KEYWORD2);
+
+            javaKeywords.add("this",Token.KEYWORD3);
+            javaKeywords.add("null",Token.KEYWORD3);
+            javaKeywords.add("super",Token.KEYWORD3);
+            javaKeywords.add("true",Token.KEYWORD3);
+            javaKeywords.add("false",Token.KEYWORD3);
+
+            javaKeywords.add("byte",Token.PRIMITIVE);
+            javaKeywords.add("char",Token.PRIMITIVE);
+            javaKeywords.add("short",Token.PRIMITIVE);
+            javaKeywords.add("int",Token.PRIMITIVE);
+            javaKeywords.add("long",Token.PRIMITIVE);
+            javaKeywords.add("float",Token.PRIMITIVE);
+            javaKeywords.add("double",Token.PRIMITIVE);
+            javaKeywords.add("boolean",Token.PRIMITIVE);
+            javaKeywords.add("void",Token.PRIMITIVE);
+            javaKeywords.add("enum",Token.PRIMITIVE);
         }
         return javaKeywords;
     }
@@ -98,6 +98,11 @@ public class JavaTokenMarker extends CTokenMarker
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.8  2004/06/17 14:03:32  mik
+* next stage of text evaluator: does syntax colouring now,
+can evaluate most expressions and statements
+still work in progress
+*
 * Revision 1.7  2004/04/20 06:23:16  bquig
 * Added enum as keyword to editor syntax recognition as partial support for "Tiger" (j2sdk 1.5)
 *

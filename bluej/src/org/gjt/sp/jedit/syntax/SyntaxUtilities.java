@@ -28,7 +28,7 @@ import java.awt.Color;
 * the default color table.
 *
 * @author Slava Pestov
-* @version $Id: SyntaxUtilities.java 1307 2002-08-15 09:44:22Z mik $
+* @version $Id: SyntaxUtilities.java 2618 2004-06-17 14:03:32Z mik $
 */
 public class SyntaxUtilities
 {
@@ -181,30 +181,6 @@ public class SyntaxUtilities
         return -1;
     }
 
-    /**
-     * Returns the default color table. This can be passed to the
-     * <code>setColors()</code> method of <code>SyntaxDocument</code>
-     * to use the default syntax colors.
-     */
-    public static Color[] getDefaultSyntaxColors()
-    {
-        Color[] colors = new Color[Token.ID_COUNT];
-
-        colors[Token.COMMENT1] = new Color(0x1a1a80);    // private comment
-        colors[Token.COMMENT2] = colors[Token.COMMENT1]; // javadoc comment
-        colors[Token.COMMENT3] = colors[Token.COMMENT1]; // stand-out comment
-        colors[Token.KEYWORD1] = new Color(0xcc0033);    // red(ish)
-        colors[Token.KEYWORD2] = new Color(0xcc8033);
-        colors[Token.KEYWORD3] = new Color(0x996699);
-        colors[Token.LITERAL1] = new Color(0x339933);     // string, green(ish)
-        colors[Token.LITERAL2] = new Color(0x338033);
-        colors[Token.LABEL] = new Color(0x990000);
-        colors[Token.OPERATOR] = new Color(0xcc9900);
-        colors[Token.INVALID] = new Color(0xff3300);
-
-        return colors;
-    }
-
     // private members
     private SyntaxUtilities() {}
     private static Color[] COLORS;
@@ -253,6 +229,11 @@ public class SyntaxUtilities
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.6  2004/06/17 14:03:32  mik
+* next stage of text evaluator: does syntax colouring now,
+can evaluate most expressions and statements
+still work in progress
+*
 * Revision 1.5  2002/08/15 09:44:21  mik
 * added new syntax colouring catergory: stand-out comment (/*#).
 *

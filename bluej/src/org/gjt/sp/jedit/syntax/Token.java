@@ -26,7 +26,7 @@ package org.gjt.sp.jedit.syntax;
  * token in the text, and a pointer to the next token in the list.
  *
  * @author Slava Pestov
- * @version $Id: Token.java 1307 2002-08-15 09:44:22Z mik $
+ * @version $Id: Token.java 2618 2004-06-17 14:03:32Z mik $
  */
 public class Token
 {
@@ -46,7 +46,7 @@ public class Token
 	 */
 	public static final byte COMMENT2 = 2;
 
-		/**
+	/**
 	 * Comment 2 token id. This can be used to mark a comment.
 	 */
 	public static final byte COMMENT3 = 3;
@@ -61,7 +61,7 @@ public class Token
 	 * Literal 2 token id. This can be used to mark an object
 	 * literal (eg, Java mode uses this to mark true, false, etc)
 	 */
-	public static final byte LITERAL2 = 5;
+	public static final byte PRIMITIVE = 5;
 
 	/**
 	 * Label token id. This can be used to mark labels
@@ -164,6 +164,11 @@ public class Token
 /*
  * ChangeLog:
  * $Log$
+ * Revision 1.3  2004/06/17 14:03:32  mik
+ * next stage of text evaluator: does syntax colouring now,
+can evaluate most expressions and statements
+still work in progress
+ *
  * Revision 1.2  2002/08/15 09:44:22  mik
  * added new syntax colouring catergory: stand-out comment (/*#).
  *

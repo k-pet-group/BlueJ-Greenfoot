@@ -24,7 +24,7 @@ import javax.swing.text.Segment;
  * HTML token marker.
  *
  * @author Slava Pestov
- * @version $Id: HTMLTokenMarker.java 342 2000-01-12 03:18:00Z bruce $
+ * @version $Id: HTMLTokenMarker.java 2618 2004-06-17 14:03:32Z mik $
  */
 public class HTMLTokenMarker extends TokenMarker
 {
@@ -197,11 +197,11 @@ loop:		for(int i = offset; i < length; i++)
 					backslash = false;
 				else if(token == JAVASCRIPT)
 				{
-					token = Token.LITERAL2;
+					token = Token.PRIMITIVE;
 					addToken(i - lastOffset,Token.NULL);
 					lastOffset = i;
 				}
-				else if(token == Token.LITERAL2)
+				else if(token == Token.PRIMITIVE)
 				{
 					token = JAVASCRIPT;
 					addToken(i1 - lastOffset,Token.LITERAL1);
@@ -227,7 +227,7 @@ loop:		for(int i = offset; i < length; i++)
 		}
 		if(lastOffset != length)
 		{
-			if(token == Token.LITERAL1 || token == Token.LITERAL2)
+			if(token == Token.LITERAL1 || token == Token.PRIMITIVE)
 			{
 				addToken(length - lastOffset,Token.INVALID);
 				token = JAVASCRIPT;
@@ -252,6 +252,11 @@ loop:		for(int i = offset; i < length; i++)
 /*
  * ChangeLog:
  * $Log$
+ * Revision 1.2  2004/06/17 14:03:32  mik
+ * next stage of text evaluator: does syntax colouring now,
+can evaluate most expressions and statements
+still work in progress
+ *
  * Revision 1.1  2000/01/12 03:17:59  bruce
  *
  * Addition of Syntax Colour Highlighting Package to CVS tree.  This is LGPL code used in the Moe Editor to provide syntax highlighting.

@@ -22,6 +22,7 @@
 package bluej.editor.moe;
 
 import javax.swing.text.*;
+
 import java.awt.Color;
 import bluej.Config;
 
@@ -42,13 +43,17 @@ import java.util.Properties;
  */
 public class MoeSyntaxDocument extends DefaultSyntaxDocument
 {
+    public static final String OUTPUT = "output";
+    public static final String ERROR = "error";
 
+	private static Color[] colors = null;
+    
     public MoeSyntaxDocument()
     {
+        super(getUserColors());
          // defaults to 4 if cannot read property
          int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
          putProperty(tabSizeAttribute, new Integer(tabSize));
-         setUserColors();
     }
 
     /**
@@ -63,27 +68,16 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
      * @param s the attributes
      * @param replace whether to replace existing attributes, or merge them
      */
-    public void setParagraphAttributes(int offset, int length, AttributeSet s,
-                                       boolean replace)
+    public void setParagraphAttributes(int offset, AttributeSet s)
     {
-        // code closely resembles method from DefaultStyleDocument
+        // modified version of method from DefaultStyleDocument
         try {
             writeLock();
             
-            Element section = getDefaultRootElement();
-            int index0 = section.getElementIndex(offset);
-            int index1 = section.getElementIndex(offset + 
-                                                ((length>0) ? length-1 : 0));
-
-            for (int i = index0; i <= index1; i++) {
-                Element paragraph = section.getElement(i);
-                MutableAttributeSet attr = 
+            Element paragraph = getParagraphElement(offset);
+            MutableAttributeSet attr = 
                     (MutableAttributeSet) paragraph.getAttributes();
-                if (replace) {
-                    attr.removeAttributes(attr);
-                }
-                attr.addAttributes(s);
-            }
+            attr.addAttributes(s);
         } finally {
             writeUnlock();
         }
@@ -97,102 +91,103 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
      * default colours are used.
      * @author This method was added by Jo Wood (jwo@soi.city.ac.uk), 9th March, 2001.
      */
-    private void setUserColors()
+    private static Color[] getUserColors()
     { 
-    	    Properties editorProps = Config.moe_user_props;
-        
-        // Build colour table.	   
-        Color[] colors = new Color[Token.ID_COUNT];
-    	    	 
-    	// Replace with user-defined colours.
-    	String colorStr;
-    	int    colorInt;
-    	
-    	// Comments.
-    	colorStr = editorProps.getProperty("comment","1a1a80");
-    	try	{
-    	    colorInt = Integer.parseInt(colorStr,16);
-    	}
-    	catch (NumberFormatException e)	{
-    	    colorInt = 0x1a1a80;
-    	}
-    	colors[Token.COMMENT1] = new Color(colorInt);	
-    	
-    	// Javadoc comments.
-    	colorStr = editorProps.getProperty("javadoc","1a1a80");
-    	try {
-    	    colorInt = Integer.parseInt(colorStr,16);
-    	}
-    	catch (NumberFormatException e)	{
-    	    colorInt = 0x1a1a80;
-    	}
-    	colors[Token.COMMENT2] = new Color(colorInt);
-    	
-    	// Stand-out comments (/*#).
-    	colorStr = editorProps.getProperty("stand-out","ee00bb");
-    	try {
-    	    colorInt = Integer.parseInt(colorStr,16);
-    	}
-    	catch (NumberFormatException e)	{
-    	    colorInt = 0xee00bb;
-    	}
-    	colors[Token.COMMENT3] = new Color(colorInt);
-    	
-    	// Java keywords.	
-    	colorStr = editorProps.getProperty("keyword1","cc0033");
-    	try	{
-    	    colorInt = Integer.parseInt(colorStr,16);
-    	}
-    	catch (NumberFormatException e) {
-    	    colorInt = 0xcc0033;
-    	}
-    	colors[Token.KEYWORD1] = new Color(colorInt);
-    	
-    	// Class-based keywords.
-        colorStr = editorProps.getProperty("keyword2","cc8033");
-    	try	{
-    	    colorInt = Integer.parseInt(colorStr,16);
-    	}
-    	catch (NumberFormatException e)	{
-    	    colorInt = 0xcc8033;
-    	}
-    	colors[Token.KEYWORD2] = new Color(colorInt);
-    	    	
-    	// Other Java keywords (true, false, this, super).
-        colorStr = editorProps.getProperty("keyword3","339933");
-    	try	{
-    	    colorInt = Integer.parseInt(colorStr,16);
-    	}
-    	catch (NumberFormatException e)	{
-    	    colorInt = 0x339933;
-    	}
-    	colors[Token.LITERAL2] = new Color(colorInt);
-
-        // Primitives.
-        colorStr = editorProps.getProperty("primitive","996699");
-    	try	{
-    	    colorInt = Integer.parseInt(colorStr,16);
-    	}
-    	catch (NumberFormatException e)	{
-    	    colorInt = 0x996699;
-    	}
-    	colors[Token.KEYWORD3] = new Color(colorInt);
-	
-	    // String literals.
-        colorStr = editorProps.getProperty("string","339933");
-    	try	{
-    	    colorInt = Integer.parseInt(colorStr,16);
-    	}
-    	catch (NumberFormatException e)	{
-    	    colorInt = 0x339933;
-    	}
-    	colors[Token.LITERAL1] = new Color(colorInt);
-    	
-    	// Leave remaining tokens as default.
-    	colors[Token.LABEL]    = new Color(0x990000);
-        colors[Token.OPERATOR] = new Color(0xcc9900);
-        colors[Token.INVALID]  = new Color(0xff3300);
-
-        setColors(colors);
+        if(colors == null) {
+            	Properties editorProps = Config.moe_user_props;
+            	
+            	// Build colour table.	   
+            	colors = new Color[Token.ID_COUNT];
+            	
+            	// Replace with user-defined colours.
+            	String colorStr;
+            	int    colorInt;
+            	
+            	// Comments.
+            	colorStr = editorProps.getProperty("comment","1a1a80");
+            	try    {
+            		colorInt = Integer.parseInt(colorStr,16);
+            	}
+            	catch (NumberFormatException e)    {
+            		colorInt = 0x1a1a80;
+            	}
+            	colors[Token.COMMENT1] = new Color(colorInt);    
+            	
+            	// Javadoc comments.
+            	colorStr = editorProps.getProperty("javadoc","1a1a80");
+            	try {
+            		colorInt = Integer.parseInt(colorStr,16);
+            	}
+            	catch (NumberFormatException e)    {
+            		colorInt = 0x1a1a80;
+            	}
+            	colors[Token.COMMENT2] = new Color(colorInt);
+            	
+            	// Stand-out comments (/*#).
+            	colorStr = editorProps.getProperty("stand-out","ee00bb");
+            	try {
+            		colorInt = Integer.parseInt(colorStr,16);
+            	}
+            	catch (NumberFormatException e)    {
+            		colorInt = 0xee00bb;
+            	}
+            	colors[Token.COMMENT3] = new Color(colorInt);
+            	
+            	// Java keywords.    
+            	colorStr = editorProps.getProperty("keyword1","660033");
+            	try    {
+            		colorInt = Integer.parseInt(colorStr,16);
+            	}
+            	catch (NumberFormatException e) {
+            		colorInt = 0x660033;
+            	}
+            	colors[Token.KEYWORD1] = new Color(colorInt);
+            	
+            	// Class-based keywords.
+            	colorStr = editorProps.getProperty("keyword2","cc8033");
+            	try    {
+            		colorInt = Integer.parseInt(colorStr,16);
+            	}
+            	catch (NumberFormatException e)    {
+            		colorInt = 0xcc8033;
+            	}
+            	colors[Token.KEYWORD2] = new Color(colorInt);
+            	
+            	// Other Java keywords (true, false, this, super).
+            	colorStr = editorProps.getProperty("keyword3","006699");
+            	try    {
+            		colorInt = Integer.parseInt(colorStr,16);
+            	}
+            	catch (NumberFormatException e)    {
+            		colorInt = 0x006699;
+            	}
+            	colors[Token.KEYWORD3] = new Color(colorInt);
+            	
+            	// Primitives.
+            	colorStr = editorProps.getProperty("primitive","cc0000");
+            	try    {
+            		colorInt = Integer.parseInt(colorStr,16);
+            	}
+            	catch (NumberFormatException e)    {
+            		colorInt = 0xcc0000;
+            	}
+            	colors[Token.PRIMITIVE] = new Color(colorInt);
+            	
+            	// String literals.
+            	colorStr = editorProps.getProperty("string","339933");
+            	try    {
+            		colorInt = Integer.parseInt(colorStr,16);
+            	}
+            	catch (NumberFormatException e)    {
+            		colorInt = 0x339933;
+            	}
+            	colors[Token.LITERAL1] = new Color(colorInt);
+            	
+            	// Leave remaining tokens as default.
+            	colors[Token.LABEL]    = new Color(0x990000);
+            	colors[Token.OPERATOR] = new Color(0xcc9900);
+            	colors[Token.INVALID]  = new Color(0xff3300);
+        }
+        return colors;
     }
 }

@@ -32,7 +32,7 @@ import javax.swing.text.*;
  * jEdit classes.
  *
  * @author Slava Pestov
- * @version $Id: SyntaxEditorKit.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: SyntaxEditorKit.java 2618 2004-06-17 14:03:32Z mik $
  *
  * @see org.gjt.sp.jedit.syntax.SyntaxView
  */
@@ -69,13 +69,18 @@ public class SyntaxEditorKit extends DefaultEditorKit implements ViewFactory
 	 */
 	public Document createDefaultDocument()
 	{
-		return new DefaultSyntaxDocument();
+		return new DefaultSyntaxDocument(null);
 	}
 }
 
 /*
  * ChangeLog:
  * $Log$
+ * Revision 1.3  2004/06/17 14:03:32  mik
+ * next stage of text evaluator: does syntax colouring now,
+can evaluate most expressions and statements
+still work in progress
+ *
  * Revision 1.2  2003/04/10 13:47:48  fisker
  * removed more unused imports
  *

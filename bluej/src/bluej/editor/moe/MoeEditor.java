@@ -103,9 +103,6 @@ public final class MoeEditor extends JFrame
 
     static final String spaces = "    ";
 
-    // Attributes for lines and document
-    public static final String BREAKPOINT = "break";
-    public static final String STEPMARK = "step";
     static final String COMPILED = "compiled";
 
     // PageFormat object for printing page format
@@ -579,8 +576,8 @@ public final class MoeEditor extends JFrame
     {
         if(currentStepPos != -1) {
             SimpleAttributeSet a = new SimpleAttributeSet();
-            a.addAttribute(STEPMARK, Boolean.FALSE);
-            sourceDocument.setParagraphAttributes(currentStepPos, 0, a, false);
+            a.addAttribute(MoeSyntaxView.STEPMARK, Boolean.FALSE);
+            sourceDocument.setParagraphAttributes(currentStepPos, a);
             currentStepPos = -1;
             // force an update of UI
             repaint();
@@ -1395,7 +1392,7 @@ public final class MoeEditor extends JFrame
     private boolean positionHasBreakpoint(int pos)
     {
         Element line = getLineAt(pos);
-        boolean temp = (Boolean.TRUE.equals(line.getAttributes().getAttribute(BREAKPOINT)));
+        boolean temp = (Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT)));
         //Debug.message("positionHasBreakpoint: " + temp);
         return temp;
     }
@@ -1408,7 +1405,7 @@ public final class MoeEditor extends JFrame
     {
         Element line = getLine(lineNo);
         return (Boolean.TRUE.equals(
-                                    line.getAttributes().getAttribute(BREAKPOINT)));
+                                    line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT)));
     }
 
     // --------------------------------------------------------------------
@@ -1426,13 +1423,13 @@ public final class MoeEditor extends JFrame
                 // no problem, go ahead
                 SimpleAttributeSet a = new SimpleAttributeSet();
                 if(set) {
-                    a.addAttribute(BREAKPOINT, Boolean.TRUE);
+                    a.addAttribute(MoeSyntaxView.BREAKPOINT, Boolean.TRUE);
                     mayHaveBreakpoints = true;
                 }
                 else
-                    a.addAttribute(BREAKPOINT, Boolean.FALSE);
+                    a.addAttribute(MoeSyntaxView.BREAKPOINT, Boolean.FALSE);
 
-                sourceDocument.setParagraphAttributes(pos, 0, a, false);
+                sourceDocument.setParagraphAttributes(pos, a);
             }
             else
                 info.warning(result);
@@ -1452,8 +1449,8 @@ public final class MoeEditor extends JFrame
     private void doRemoveBreakpoint(int pos)
     {
         SimpleAttributeSet a = new SimpleAttributeSet();
-        a.addAttribute(BREAKPOINT, Boolean.FALSE);
-        sourceDocument.setParagraphAttributes(pos, 0, a, false);
+        a.addAttribute(MoeSyntaxView.BREAKPOINT, Boolean.FALSE);
+        sourceDocument.setParagraphAttributes(pos, a);
     }
 
     // --------------------------------------------------------------------
@@ -1465,8 +1462,8 @@ public final class MoeEditor extends JFrame
     {
         removeStepMark();
         SimpleAttributeSet a = new SimpleAttributeSet();
-        a.addAttribute(STEPMARK, Boolean.TRUE);
-        sourceDocument.setParagraphAttributes(pos, 0, a, false);
+        a.addAttribute(MoeSyntaxView.STEPMARK, Boolean.TRUE);
+        sourceDocument.setParagraphAttributes(pos, a);
         currentStepPos = pos;
         // force an update of UI
         repaint();

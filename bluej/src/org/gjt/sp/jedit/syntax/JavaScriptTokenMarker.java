@@ -22,13 +22,13 @@ package org.gjt.sp.jedit.syntax;
  * JavaScript token marker.
  *
  * @author Slava Pestov
- * @version $Id: JavaScriptTokenMarker.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: JavaScriptTokenMarker.java 2618 2004-06-17 14:03:32Z mik $
  */
 public class JavaScriptTokenMarker extends CTokenMarker
 {
 	public JavaScriptTokenMarker()
 	{
-		super(false,getKeywords());
+		super(getKeywords());
 	}
 
 	public static KeywordMap getKeywords()
@@ -64,6 +64,11 @@ public class JavaScriptTokenMarker extends CTokenMarker
 /*
  * ChangeLog:
  * $Log$
+ * Revision 1.3  2004/06/17 14:03:32  mik
+ * next stage of text evaluator: does syntax colouring now,
+can evaluate most expressions and statements
+still work in progress
+ *
  * Revision 1.2  2003/04/10 13:47:48  fisker
  * removed more unused imports
  *

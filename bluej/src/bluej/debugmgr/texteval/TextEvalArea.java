@@ -1,6 +1,5 @@
 package bluej.debugmgr.texteval;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
@@ -19,6 +18,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
+import bluej.editor.moe.*;
 
 import org.gjt.sp.jedit.syntax.*;
 
@@ -26,7 +26,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2614 2004-06-15 15:37:24Z mik $
+ * @version $Id: TextEvalArea.java 2618 2004-06-17 14:03:32Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -35,9 +35,9 @@ public final class TextEvalArea extends JScrollPane
     private static final String PROMPT = "> ";
     private static final int PROMPT_LENGTH = 2;
     
-//    private JTextArea text;
+    //    private JTextArea text;
     private JEditorPane text;
-    private DefaultSyntaxDocument doc;  // the text document behind the editor pane
+    private MoeSyntaxDocument doc;  // the text document behind the editor pane
     private String currentCommand;
     private PkgMgrFrame frame;
     private Invoker invoker = null;
@@ -53,14 +53,12 @@ public final class TextEvalArea extends JScrollPane
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED),
                 BorderFactory.createEmptyBorder(5,0,5,0)));
 
-//        text = new JTextArea(6,40);
         text = new JEditorPane();
         text.setMargin(new Insets(2,2,2,2));
-        text.setEditorKit(new SyntaxEditorKit());
+        text.setEditorKit(new MoeSyntaxEditorKit());
 
-        doc = (DefaultSyntaxDocument) text.getDocument();
-        doc.setTokenMarker(new TextEvalTokenMarker());
-        doc.setColors(getTextColors());
+        doc = (MoeSyntaxDocument) text.getDocument();
+        doc.setTokenMarker(new JavaTokenMarker());
 
         setViewportView(text);
         text.setFont(font);
@@ -70,20 +68,11 @@ public final class TextEvalArea extends JScrollPane
         text.getKeymap().addActionForKeyStroke(enterKey, new ExecuteCommandAction(this));
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         setPreferredSize(new Dimension(200,100));
-
     }
 
     public void requestFocus()
     {
         text.requestFocus();
-    }
-
-    private Color[] getTextColors()
-    { 
-        Color[] colors = new Color[1];
-
-        colors[0] = new Color(255, 10, 10);
-        return colors;
     }
 
     /**
@@ -113,8 +102,7 @@ public final class TextEvalArea extends JScrollPane
             String resultString = result.getFieldValueString(0);
             String resultType = result.getFieldValueTypeString(0);
             
-            append(resultString);
-            append("   (" + resultType + ")");
+            output(resultString + "   (" + resultType + ")");
             
 //            ResultInspector viewer = ResultInspector.getInstance(result, name,
 //                    getPackage(), ir, getExpressionInformation(), PkgMgrFrame.this);
@@ -124,8 +112,8 @@ public final class TextEvalArea extends JScrollPane
 //            
         } else {
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
+            append(PROMPT);
         }
-        append("\n" + PROMPT);
     }
     
     /**
@@ -134,13 +122,12 @@ public final class TextEvalArea extends JScrollPane
     public void putError(String message)
     {
     		if(firstTry) {
-    			append("   --error: " + message + "\n");
+    			// append("   --error: " + message + "\n");
     			firstTry = false;
     	        invoker.tryAgain();
     		}
     		else {
-    			append("Error: " + message);
-    			append("\n" + PROMPT);
+    			error(message);
     		}
     }
     
@@ -159,11 +146,45 @@ public final class TextEvalArea extends JScrollPane
     //   --- end of ResultWatcher interface ---
 
 
-/**
+    private void output(String s)
+    {
+        try {
+            doc.insertString(doc.getLength(), s, null);
+            markAs(MoeSyntaxView.OUTPUT);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in terminal operation");
+        }
+    }
+    
+    private void error(String s)
+    {
+        try {
+            doc.insertString(doc.getLength(), "Error: " + s, null);
+            markAs(MoeSyntaxView.ERROR);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in terminal operation");
+        }
+    }
+    
+    /**
+     * Mark the last line of the text area as output.
+     */
+    private void markAs(String flag)
+    {
+        append("\n" + PROMPT);
+        SimpleAttributeSet a = new SimpleAttributeSet();
+        a.addAttribute(flag, Boolean.TRUE);
+        doc.setParagraphAttributes(doc.getLength()-1-PROMPT_LENGTH, a);
+        text.repaint();
+    }
+    
+    /**
      * Append some text to this area.
      * @param s The text to append.
      */
-    public void append(String s)
+    private void append(String s)
     {
         try {
             doc.insertString(doc.getLength(), s, null);
@@ -180,10 +201,10 @@ public final class TextEvalArea extends JScrollPane
         }
     }
     
-    public void caretToEnd() {
+    private void caretToEnd() {
         text.setCaretPosition(doc.getLength());
     }
-    
+
     /**
      * Get the text of the current line (the last line) of this area.
      * @return The text of the last line.
