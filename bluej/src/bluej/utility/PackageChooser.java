@@ -22,12 +22,15 @@ import bluej.utility.filefilter.*;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooser.java 899 2001-05-23 04:27:53Z ajp $
+ * @version $Id: PackageChooser.java 964 2001-07-05 04:00:51Z ajp $
  */
 class PackageChooser extends JFileChooser
 {
     static final Icon classIcon = Config.getImageAsIcon("image.classIcon");
     static final Icon packageIcon = Config.getImageAsIcon("image.packageIcon");
+
+    static final String previewLine1 = Config.getString("utility.packageChooser.previewPane1");
+    static final String previewLine2 = Config.getString("utility.packageChooser.previewPane2");
 
     PackageDisplay displayPanel;
 
@@ -78,6 +81,10 @@ class PackageChooser extends JFileChooser
 
     class PackageDisplay extends JList
     {
+        // number of lines at the top to display a header
+        // explaining what the PackageDisplay is
+        final int headerLines = 3;
+
         // index of the last class displayed (after this all list items are packages
         // and hence will have a different icon)
 
@@ -91,6 +98,9 @@ class PackageChooser extends JFileChooser
             setDisplayDirectory(displayDir);
         }
 
+        protected void processMouseEvent(MouseEvent e) { }
+        protected void processMouseMotionEvent(MouseEvent e) { }
+
         void setDisplayDirectory(File displayDir)
         {
             if (displayDir == null)
@@ -100,6 +110,11 @@ class PackageChooser extends JFileChooser
             File subDirs[] = displayDir.listFiles(new DirectoryFilter());
             File srcFiles[] = displayDir.listFiles(new JavaSourceFilter());
             Vector listVec = new Vector();
+
+            // headerLines is 3
+            listVec.add(previewLine1);
+            listVec.add(previewLine2);
+            listVec.add(" ");
 
             if(subDirs != null) {
                 for(lastClass=0; lastClass<srcFiles.length && lastClass<maxDisplay; lastClass++) {
@@ -150,7 +165,9 @@ class PackageChooser extends JFileChooser
                 Component s = super.getListCellRendererComponent(list, value, index,
                                                                     isSelected, cellHasFocus);
 
-                if (index < lastClass)
+                if (index < headerLines)
+                    ;
+                else if ((index-headerLines) < lastClass)
                     ((JLabel)s).setIcon(classIcon);
                 else
                     ((JLabel)s).setIcon(packageIcon);

@@ -253,6 +253,9 @@ pkgmgr.packageSaved=Paket sparat
 pkgmgr.info.printing = Printing...
 pkgmgr.info.printed = Printing... Done.
 
+utility.packageChooser.previewPane1=Preview of possible
+utility.packageChooser.previewPane2=package structure
+
 # dialog titles and texts
 
 pkgmgr.newPkg.title=Nytt Projekt
