@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 174 1999-07-08 23:00:28Z mik $
+  * @version $Id: Installer.java 177 1999-07-09 05:52:24Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -712,21 +712,21 @@ public class Installer extends JFrame
      **/
     private void writeBlueJprops() throws IOException {
 
-	String libDirPath = installDir() + slash + libDir;
+	// Don't do this anymore...
 
-	//File outputFile = new File(libDirPath, syslibs);
-	//FileWriter out = new FileWriter(outputFile.toString(),true);
-	FileWriter out = new FileWriter(libDirPath + slash + syslibs);
+//  	String libDirPath = installDir() + slash + libDir;
 
-	out.write("# BlueJ system libraries" + nl);
-	out.write("# These libraries will be shown as system libraries in the" + nl);
-	out.write("# library browser of all users. Add other libraries here" + nl);
-	out.write("# which you want all users to see.\n");
-	out.write("lib1.alias=JDK Standard Classes" + nl);
-	out.write("lib1.location=" + getFullPath(standardClasses) + nl);
-	out.write("lib2.alias=Swing" + nl);
-	out.write("lib2.location=" + libDirPath + slash + "swing.jar" + nl);
-	out.close();
+//  	FileWriter out = new FileWriter(libDirPath + slash + syslibs);
+
+//  	out.write("# BlueJ system libraries" + nl);
+//  	out.write("# These libraries will be shown as system libraries in the" + nl);
+//  	out.write("# library browser of all users. Add other libraries here" + nl);
+//  	out.write("# which you want all users to see.\n");
+//  	out.write("lib1.alias=JDK Standard Classes" + nl);
+//  	out.write("lib1.location=" + getFullPath(standardClasses) + nl);
+//  	out.write("lib2.alias=Swing" + nl);
+//  	out.write("lib2.location=" + libDirPath + slash + "swing.jar" + nl);
+//  	out.close();
     }
 
     /**

@@ -10,15 +10,15 @@ public class Hello
      */
     public void go()
     {
-	System.out.println("Hello, world");
+        System.out.println("Hello, world");
     }
-	
+    
     /**
      *  main method for testing outside BlueJ 
      */
     public static void main(String[] args)
     {
-	Hello hi = new Hello();
-	hi.go();
+        Hello hi = new Hello();
+        hi.go();
     }
 }

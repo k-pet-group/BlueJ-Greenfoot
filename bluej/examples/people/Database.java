@@ -14,31 +14,31 @@ import java.util.Enumeration;
 
 public class Database {
 
-	// instance variables:
+    // instance variables:
 
-	private Vector personVector;
+    private Vector personVector;
 
-	/**
-	 ** Create a new, empty person database.
-	 **/
-	public Database() {
-	    personVector = new Vector ();
-	}
+    /**
+     ** Create a new, empty person database.
+     **/
+    public Database() {
+        personVector = new Vector ();
+    }
 
-	/**
-	 ** Add a person to the database.
-	 **/
-	public void addPerson(Person p) {
-	    personVector.addElement(p);
-	}
+    /**
+     ** Add a person to the database.
+     **/
+    public void addPerson(Person p) {
+        personVector.addElement(p);
+    }
 
-	/**
-	 ** List all the persons currently in the database on standard out.
-	 **/
-	public void listAll () {
-	    for (Enumeration e = personVector.elements(); e.hasMoreElements();) {
-	        System.out.println(e.nextElement());
-	    }
-	}
+    /**
+     ** List all the persons currently in the database on standard out.
+     **/
+    public void listAll () {
+        for (Enumeration e = personVector.elements(); e.hasMoreElements();) {
+            System.out.println(e.nextElement());
+        }
+    }
 
 }

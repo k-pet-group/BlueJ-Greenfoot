@@ -16,7 +16,7 @@ public class Address
      **/
     public Address(String street, String town, String postCode)
     {
-	this(street, town, postCode, "");
+        this(street, town, postCode, "");
     }
 
     /**
@@ -24,10 +24,10 @@ public class Address
      **/
     public Address(String street, String town, String postCode, String country)
     {
-	this.street = street;
-	this.town = town;
-	this.postCode = postCode;
-	this.country = country;
+        this.street = street;
+        this.town = town;
+        this.postCode = postCode;
+        this.country = country;
     }
 
     /**
@@ -35,8 +35,8 @@ public class Address
      **/
     public String toString()
     {
-	return street + "\n" +
-	       town + " " + postCode + "\n" +
-	       country + "\n";
+        return street + "\n" +
+               town + " " + postCode + "\n" +
+               country + "\n";
     }
 }

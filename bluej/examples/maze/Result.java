@@ -6,29 +6,29 @@ public class Result
 
     public Result(Command cmd,Item item,boolean two_words)
     {
-	this.cmd = cmd;
-	this.item = item;
-	this.two_words = two_words;
+        this.cmd = cmd;
+        this.item = item;
+        this.two_words = two_words;
     }
 
     public Command getCommand()
     {
-	return cmd;
+        return cmd;
     }
 
     public Item getItem()
     {
-	return item;
+        return item;
     }
 
     public boolean getTwo_Words()
     {
-	return two_words;
+        return two_words;
     }
     
     public boolean hasItem()
     {
-	return !item.equals("");
+        return !item.equals("");
     }
 }
 

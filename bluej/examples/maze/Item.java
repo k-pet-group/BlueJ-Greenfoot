@@ -13,47 +13,47 @@ Short:   An item (a thing that is found) in an adventure game.
 */
 
 class Item {
-	private String name;
-	private String description;
+    private String name;
+    private String description;
 
-/*	Create an item with == Create name 'name'.  'name' is used to refer
-	to the item in commands.  It should be a single word. 'description'
-	describes what you see when looking at the item. It should be
-	written in a way that, when prefixed with the words  "You see", a
-	correct sentence is formed (i.e. "You see <description>", with
-	description being something like "an ugly blob of slime").
+/*    Create an item with == Create name 'name'.  'name' is used to refer
+    to the item in commands.  It should be a single word. 'description'
+    describes what you see when looking at the item. It should be
+    written in a way that, when prefixed with the words  "You see", a
+    correct sentence is formed (i.e. "You see <description>", with
+    description being something like "an ugly blob of slime").
 */
-	public Item (String name, String description) {
-		this.name = name;
-		this.description = description;
-	}
+    public Item (String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 
-//	Copy another item into this item.
-	public void copy (Item item) {
-		name = item.name;
-		description = item.description;
-	}
+    //    Copy another item into this item.
+    public void copy (Item item) {
+        name = item.name;
+        description = item.description;
+    }
 
-//	Return the name of this item.
-	public String getName () {
-		return name;
-	}
+    //    Return the name of this item.
+    public String getName () {
+        return name;
+    }
 
-//	Return a string with a description of this item.
-	public String toString () {
-		return description;
-	}
+    //    Return a string with a description of this item.
+    public String toString () {
+        return description;
+    }
 
-//	Compare this item with a string or another item.
-	public boolean equals (Object anObject) {
-		// Is it a string?
-		if (anObject instanceof String)
-			return (name.equals (anObject));
-		// Or another Item?
-		else if (anObject instanceof Item)
-			return (((Item)anObject).name.equals (name));
-		// No, it's something else. Use lowest common denominator.
-		else
-			return (anObject.equals (this));
-	}
+    //    Compare this item with a string or another item.
+    public boolean equals (Object anObject) {
+        // Is it a string?
+        if (anObject instanceof String)
+            return (name.equals (anObject));
+        // Or another Item?
+        else if (anObject instanceof Item)
+            return (((Item)anObject).name.equals (name));
+        // No, it's something else. Use lowest common denominator.
+        else
+            return (anObject.equals (this));
+    }
 }

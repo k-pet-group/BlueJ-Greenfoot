@@ -15,46 +15,46 @@ import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
 class Command implements Enumeration {
-	private int index;
-	private final static String validCommands[] = {"north","south","west"
-		,"east","back","quit","take","drop","solve","help"};
+    private int index;
+    private final static String validCommands[] = {"north","south","west"
+        ,"east","back","quit","take","drop","solve","help"};
 
-//	Compare this Command to either a String or another Command.
-	public boolean equals (Object anObject) {
-		// Is it a String?
-		if (anObject instanceof String)
-			return (validCommands[index].equals (anObject));
-		// Or is it an other Command?
-		else if (anObject instanceof Command)
-			return (((Command)anObject).index == index);
-		// No, it's something else. Use lowest common denominator.
-		else
-			return (anObject.equals (this));
-	}
+    //    Compare this Command to either a String or another Command.
+    public boolean equals (Object anObject) {
+        // Is it a String?
+        if (anObject instanceof String)
+            return (validCommands[index].equals (anObject));
+        // Or is it an other Command?
+        else if (anObject instanceof Command)
+            return (((Command)anObject).index == index);
+        // No, it's something else. Use lowest common denominator.
+        else
+            return (anObject.equals (this));
+    }
 
-//	Print all valid commands to System.out.
-	public void showAll () {
-		int i = 0;
-		while (i<validCommands.length-1)
-			System.out.print (validCommands[i++]+", ");
-		if (i<validCommands.length)
-			System.out.println (validCommands[i]);
-	}
+    //    Print all valid commands to System.out.
+    public void showAll () {
+        int i = 0;
+        while (i<validCommands.length-1)
+            System.out.print (validCommands[i++]+", ");
+        if (i<validCommands.length)
+            System.out.println (validCommands[i]);
+    }
 
-//	Needed for Enumerator. Does this list contain more elements?
-	public boolean hasMoreElements() {
-		return (index < validCommands.length-1);
-	}
+    //    Needed for Enumerator. Does this list contain more elements?
+    public boolean hasMoreElements() {
+        return (index < validCommands.length-1);
+    }
 
-//	Needed for Enumerator. Return the next element.
-	public Object nextElement() {
-		if (!hasMoreElements ())
-			throw (new NoSuchElementException ());
-		return validCommands[++index];
-	}
+    //    Needed for Enumerator. Return the next element.
+    public Object nextElement() {
+        if (!hasMoreElements ())
+            throw (new NoSuchElementException ());
+        return validCommands[++index];
+    }
 
-//	Reset the enumerator.
-	public void gotoFirstElement () {
-		index = -1;
-	}
+    //    Reset the enumerator.
+    public void gotoFirstElement () {
+        index = -1;
+    }
 }
