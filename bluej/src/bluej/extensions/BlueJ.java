@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1788 2003-04-10 08:43:16Z damiano $
+ * @version $Id: BlueJ.java 1807 2003-04-10 10:28:21Z damiano $
  */
 
 public class BlueJ
@@ -270,7 +270,7 @@ public class BlueJ
      * 
      * @param listener an instance of a class that implements the BluejEventListener interface
      */
-    public void addBluejEventListener (BluejEventListener listener)
+    public void addBlueJExtensionEventListener (BlueJExtensionEventListener listener)
     {
         myWrapper.addBluejEventListener (listener);
     }

@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.io.File;
 import javax.swing.JMenu;
+import bluej.extensions.event.BlueJExtensionEvent;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
@@ -322,7 +323,7 @@ public class ExtensionsManager implements BlueJEventListener
      *
      * @param  event  the event to delegate
      */
-    public void delegateEvent(BluejEvent event)
+    public void delegateEvent(BlueJExtensionEvent event)
     {
         for (Iterator it = extensions.iterator(); it.hasNext(); ) {
             ExtensionWrapper wrapper = (ExtensionWrapper) it.next();

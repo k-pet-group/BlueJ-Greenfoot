@@ -19,7 +19,6 @@ import java.lang.reflect.Constructor;
 import javax.swing.*;
 import bluej.extensions.MenuGenerator;
 import bluej.extensions.PreferenceGenerator;
-import bluej.extensions.event.BluejEvent;
 
 /**
  * <PRE>
@@ -418,7 +417,7 @@ public class ExtensionWrapper
      *
      * @param  el  The feature to be added to the BJEventListener attribute
      */
-    public void addBluejEventListener(BluejEventListener eventListener)
+    public void addBluejEventListener(BlueJExtensionEventListener eventListener)
     {
         if (eventListener == null) return;
 
@@ -437,7 +436,7 @@ public class ExtensionWrapper
      *
      * @param  event  Description of the Parameter
      */
-    void safeEventOccurred(BluejEvent event)
+    void safeEventOccurred(BlueJExtensionEvent event)
     {
         if (!isValid()) return;
 
@@ -447,7 +446,7 @@ public class ExtensionWrapper
           {
           for (Iterator iter = eventListeners.iterator(); iter.hasNext(); ) 
             {
-            BluejEventListener eventListener = (BluejEventListener) iter.next();
+            BlueJExtensionEventListener eventListener = (BlueJExtensionEventListener)iter.next();
             eventListener.eventOccurred(event);
             }
           }

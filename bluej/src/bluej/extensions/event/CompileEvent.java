@@ -5,9 +5,9 @@ import java.io.File;
 /**
  * This class encapsulates compiler events
  * 
- * @version $Id: CompileEvent.java 1795 2003-04-10 09:21:11Z damiano $
+ * @version $Id: CompileEvent.java 1807 2003-04-10 10:28:21Z damiano $
  */
-public class CompileEvent implements BluejEvent 
+public class CompileEvent implements BlueJExtensionEvent 
 {
   /**
    * Event generated when compilation begins

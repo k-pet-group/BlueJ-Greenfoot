@@ -6,9 +6,9 @@ import bluej.pkgmgr.Package;
 /**
  * Package events, like package OPEN/CLOSE are delivered using this event Class.
  *
- * @version $Id: PackageEvent.java 1795 2003-04-10 09:21:11Z damiano $
+ * @version $Id: PackageEvent.java 1807 2003-04-10 10:28:21Z damiano $
  */
-public class PackageEvent implements BluejEvent
+public class PackageEvent implements BlueJExtensionEvent
 {
     /**
      * Thie event occurs when a package has just been opened
