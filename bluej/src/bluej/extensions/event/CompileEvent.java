@@ -15,13 +15,13 @@ import java.io.File;
  * </pre>
  * Note that currently BlueJ only reports the first compilation error or warning.
  * 
- * @version $Id: CompileEvent.java 1851 2003-04-14 15:52:26Z iau $
+ * @version $Id: CompileEvent.java 1885 2003-04-25 08:53:48Z damiano $
  */
 
 /*
  * Author Damiano Bolla, University of Kent at Canterbury, 2003
  */
-public class CompileEvent implements BlueJExtensionEvent 
+public class CompileEvent implements ExtensionEvent 
 {
   /**
    * Event generated when compilation begins

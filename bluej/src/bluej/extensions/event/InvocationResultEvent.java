@@ -16,7 +16,7 @@ import com.sun.jdi.*;
  * From this event you can extract the actual result of the invocation, and access the BlueJ
  * classes and objects involved.
  * 
- * @version $Id: InvocationResultEvent.java 1878 2003-04-22 14:36:01Z damiano $
+ * @version $Id: InvocationResultEvent.java 1885 2003-04-25 08:53:48Z damiano $
  */
 
 /*
@@ -24,7 +24,7 @@ import com.sun.jdi.*;
  * Author Damiano Bolla, University of Kent at Canterbury, 2003
  */
  
-public class InvocationResultEvent implements BlueJExtensionEvent
+public class InvocationResultEvent implements ExtensionEvent
 {
     // This event is returned in case of unknown mapping
     public static final int UNKNOWN_EXIT = 0;

@@ -7,14 +7,14 @@ package bluej.extensions.event;
  * not receive this event since BlueJ has already completed its 
  * initialization before the extension is loaded.
  * 
- * @version $Id: BlueJReadyEvent.java 1870 2003-04-22 11:41:27Z damiano $
+ * @version $Id: BlueJReadyEvent.java 1885 2003-04-25 08:53:48Z damiano $
  */
 
  /*
   * Author Damiano Bolla, University of Kent at Canterbury, January 2003
   */
 
-public class BlueJReadyEvent implements BlueJExtensionEvent 
+public class BlueJReadyEvent implements ExtensionEvent 
   {
 
 

@@ -1,25 +1,17 @@
 package bluej.extmgr;
 
+import bluej.*;
 import bluej.extensions.*;
 import bluej.extensions.event.*;
-
-import bluej.Config;
-import bluej.pkgmgr.Project;
-import bluej.utility.Debug;
-
+import bluej.pkgmgr.*;
+import bluej.utility.*;
+import java.io.*;
+import java.lang.reflect.*;
+import java.net.*;
+import java.text.*;
 import java.util.*;
 import java.util.jar.*;
-import java.io.*;
-
-import java.net.URL;
-import java.net.URLClassLoader;
-
-import java.text.SimpleDateFormat;
-import java.lang.reflect.Constructor;
 import javax.swing.*;
-import bluej.extensions.MenuGenerator;
-import bluej.extensions.PreferenceGenerator;
-import bluej.extensions.ExtensionBridge;
 
 /**
  * <PRE>
@@ -397,7 +389,7 @@ public class ExtensionWrapper
     /**
      * Informs any registered listeners that an event has occurred.
      */
-    void safeEventOccurred(BlueJExtensionEvent event)
+    void safeEventOccurred(ExtensionEvent event)
     {
         if (!isValid()) return;
 

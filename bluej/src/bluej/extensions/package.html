@@ -64,20 +64,20 @@ import java.net.URL;
 /**
  * This is the starting point of a BlueJ Extension
  */
-public class SimpleExtension extends Extension implements BlueJExtensionEventListener
+public class SimpleExtension extends Extension implements ExtensionEventListener
   {
   /**
    * When this method is called, the extension may start its work.
    */
   public void startup (BlueJ bluej) {
-    bluej.addBlueJExtensionEventListener(this);
+    bluej.addExtensionEventListener(this);
     }
 
   /** 
    * Something has happened in BlueJ
    * Simply display the contents of the event on the console.
    */
-  public void eventOccurred ( BlueJExtensionEvent ev ) {
+  public void eventOccurred ( ExtensionEvent ev ) {
     System.out.println ("Event="+ev.toString());
     }  
     

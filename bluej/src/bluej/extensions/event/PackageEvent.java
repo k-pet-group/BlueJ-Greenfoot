@@ -6,7 +6,7 @@ import bluej.pkgmgr.Package;
 /**
  * This class encapsulates events on BlueJ packages.
  *
- * @version $Id: PackageEvent.java 1869 2003-04-21 11:04:44Z damiano $
+ * @version $Id: PackageEvent.java 1885 2003-04-25 08:53:48Z damiano $
  */
 
 /*
@@ -14,7 +14,7 @@ import bluej.pkgmgr.Package;
  * Author Damiano Bolla, University of Kent at Canterbury, 2003
  */
 
-public class PackageEvent implements BlueJExtensionEvent
+public class PackageEvent implements ExtensionEvent
 {
     /**
      * This event occurs when a package has just been opened.

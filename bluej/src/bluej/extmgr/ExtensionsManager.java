@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import bluej.extensions.event.BlueJReadyEvent;
+import bluej.extensions.event.ExtensionEvent;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
@@ -288,7 +289,7 @@ public class ExtensionsManager implements BlueJEventListener
     /**
      * Delegates an event to all known extensions.
      */
-    public void delegateEvent(BlueJExtensionEvent event)
+    public void delegateEvent(ExtensionEvent event)
     {
         for (Iterator it = extensions.iterator(); it.hasNext(); ) {
             ExtensionWrapper wrapper = (ExtensionWrapper) it.next();

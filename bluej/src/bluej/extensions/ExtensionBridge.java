@@ -1,11 +1,10 @@
 package bluej.extensions;
 
+import bluej.debugger.*;
 import bluej.extensions.event.*;
 import bluej.extmgr.*;
-
-import com.sun.jdi.*;
 import bluej.pkgmgr.Package;
-import bluej.debugger.ObjectWrapper;
+import com.sun.jdi.*;
 
 /*
  * This class is here to bridge methods call between packages that should not
@@ -36,7 +35,7 @@ import bluej.debugger.ObjectWrapper;
 
 public class ExtensionBridge 
   {
-  public static void delegateEvent ( BlueJ thisBluej, BlueJExtensionEvent anEvent )
+  public static void delegateEvent ( BlueJ thisBluej, ExtensionEvent anEvent )
     {
     thisBluej.delegateEvent(anEvent);
     }
