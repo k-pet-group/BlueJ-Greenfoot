@@ -430,3 +430,12 @@ image.testmgr.failure=failure.gif
 
 # extensions manager help page
 image.extmgr.info=extmgr-info.gif
+
+#inspector object reference arrow
+image.inspector.objectref=objectref.gif
+
+#borders
+image.border.topleft=corner_top_left.gif
+image.border.topright=corner_top_right.gif
+image.border.bottomleft=corner_bottom_left.gif
+image.border.bottomright=corner_bottom_right.gif
