@@ -11,7 +11,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2682 2004-06-29 05:51:09Z davmac $
+ * @version $Id: JavaUtils15.java 2701 2004-06-30 15:59:15Z polle $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -342,7 +342,25 @@ public class JavaUtils15 extends JavaUtils {
         if( tparams.length != 0 ) {
             String name = "<";
             for( int i = 0; i < tparams.length; i++ ) {
-                name += getTypeName(tparams[i]);
+                TypeVariable type = tparams[i];
+                name += type.getName();        
+                Type[] upperBounds = type.getBounds();
+
+                // An unbounded type by reflection appears as
+                // " extends java.lang.Object". We check for that case and
+                // reduce it back to unbounded. This is not necessarily correct
+                // seeing as it could have been declared with "extends", but that
+                // would be superfluous and will hopefully prove to be uncommon.
+                if (upperBounds.length == 0 || upperBounds[0] == null
+                        || upperBounds[0].equals(Object.class)) {
+                    //add nothing
+                } else {
+                    name += " extends " + getTypeName(upperBounds[0]);
+                    if (upperBounds.length != 1)
+                        Debug.message("getTypeName: multiple upper bounds for typevariable type?");
+                }
+                
+                               
                 if( i != tparams.length - 1 )
                     name += ',';
             }
