@@ -38,6 +38,7 @@ Set/add the following Java Properties:
    growbox.intrudes                                     true
    com.apple.macos.useScreenMenuBar                     false  (true)
    com.apple.mrj.application.apple.menu.about.name      BlueJ
+   com.apple.macosx.useSolarisWinActiveFocus            false
 
 Build the application (will fail)
 Copy the icon file ("BlueJ-icon/bluej.icns") to "Contents/Resources"
