@@ -161,6 +161,22 @@ bluej.macos.screenmenubar=true
 #bluej.systemlibrary2.location=/usr/local/java/lib/sample.jar
 
 
+#####################################################################
+## The VM that the windows client should use
+##
+## This setting can be used in lab environment where there is a
+## shared instance of BlueJ on a network drive, along with
+## a shared instance of a JDK somewhere.
+##
+## This setting should not be uncommented except in that situation.
+##
+## The commented out examples below are just to show the
+## syntax used
+#####################################################################
+
+#bluej.windows.vm=X\:\\Programming Apps\\J2SDK_1.4.1_02
+
+
 #######################################################################
 ## Class templates for new class generation. When creating a new class
 ## a list of templates is presented to choose from. This property
