@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 652 2000-07-26 00:30:48Z ajp $
+ * @version $Id: PkgMgrFrame.java 653 2000-07-26 01:46:35Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1136,7 +1136,7 @@ public class PkgMgrFrame extends JFrame
             // loop does not do much at present, only first page printed
             for(int i = 0; i < pageRows; i++) {
                 for(int j = 0; j < 1; j++) {
-                    printTitle(g, pageFormat, i * pageColumns + j + 1);
+//                    printTitle(g, pageFormat, i * pageColumns + j + 1);
                     g.translate(printArea.x - j * printArea.width,
                                 printArea.y - i * printArea.height);
                     g.setClip(j * printArea.width, i * printArea.height,
@@ -1283,7 +1283,11 @@ public class PkgMgrFrame extends JFrame
                 target.setInterface(classType == NewClassDialog.NC_INTERFACE);
                 target.generateSkeleton();
 
+                pkg.findSpaceForVertex(target);
                 pkg.addTarget(target);
+
+                editor.revalidate();
+                editor.scrollRectToVisible(target.getRectangle());
                 editor.repaint();
             }
         }
@@ -1315,7 +1319,10 @@ public class PkgMgrFrame extends JFrame
                         if(newpkgFile.createNewFile()) {
                             PackageTarget target = new PackageTarget(pkg, name);
 
+                            pkg.findSpaceForVertex(target);
                             pkg.addTarget(target);
+                            editor.revalidate();
+                            editor.scrollRectToVisible(target.getRectangle());
                             editor.repaint();
                         }
                     }

@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 650 2000-07-26 00:29:43Z ajp $
+ * @version $Id: Package.java 653 2000-07-26 01:46:35Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -518,6 +518,19 @@ public class Package extends Graph
                 }
             }
 
+            // add our immovable targets (either a text note or a package
+            // which goes to the parent package)
+            if (!isUnnamedPackage()) {
+                Target t = new ParentPackageTarget(this);
+                t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
+                addTarget(t);
+            }
+            else {
+                Target t = new ReadmeTarget(this);
+                t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
+                addTarget(t);
+            }
+
             // make our Package targets reflect what is actually on disk
             // note that we consider this on-disk version the master
             // version so if we have a class target called Foo but we
@@ -528,8 +541,10 @@ public class Package extends Graph
             for(int i=0; i<subDirs.length; i++) {
                 Target target = (Target) propTargets.get(subDirs[i].getName());
 
-                if(target == null || !(target instanceof PackageTarget))
+                if(target == null || !(target instanceof PackageTarget)) {
                     target = new PackageTarget(this, subDirs[i].getName());
+                    findSpaceForVertex(target);
+                }
 
                 addTarget(target);
             }
@@ -547,6 +562,7 @@ public class Package extends Graph
                 Target target = (Target) propTargets.get(targetName);
                 if(target == null || !(target instanceof ClassTarget)) {
                     target = new ClassTarget(this, targetName);
+                    findSpaceForVertex(target);
                 }
 
                 try {
@@ -558,17 +574,6 @@ public class Package extends Graph
                 catch(ClassCastException cce) { }
 
                 addTarget(target);
-            }
-
-            if (!isUnnamedPackage()) {
-                Target t = new ParentPackageTarget(this);
-                t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
-                addTarget(t);
-            }
-            else {
-                Target t = new ReadmeTarget(this);
-                t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
-                addTarget(t);
             }
 
             for(int i = 0; i < numDependencies; i++) {
@@ -636,7 +641,6 @@ public class Package extends Graph
 
             if(target == null) {
                 Target newtarget = addPackage(subDirs[i].getName());
-
                 findSpaceForVertex(newtarget);
             }
         }
@@ -655,7 +659,6 @@ public class Package extends Graph
 
             if(target == null) {
                 Target newtarget = addClass(targetName);
-
                 findSpaceForVertex(newtarget);
             }
         }

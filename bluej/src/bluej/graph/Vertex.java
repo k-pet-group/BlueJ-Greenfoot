@@ -1,7 +1,6 @@
 package bluej.graph;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 
 /**
@@ -9,7 +8,7 @@ import java.awt.event.MouseEvent;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Vertex.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: Vertex.java 653 2000-07-26 01:46:35Z ajp $
  */
 public abstract class Vertex
 {
@@ -34,6 +33,11 @@ public abstract class Vertex
     {
         this.width = width;
         this.height = height;
+    }
+
+    public Rectangle getRectangle()
+    {
+        return new Rectangle(x,y,width,height);
     }
 
     public int getWidth()

@@ -27,7 +27,7 @@ import java.text.DateFormat;
 
 /**
  *
- * @version $Id: Import.java 593 2000-06-28 05:04:23Z ajp $
+ * @version $Id: Import.java 653 2000-07-26 01:46:35Z ajp $
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
@@ -103,6 +103,9 @@ class Import
             File f = (File) i.next();
 
             File bluejFile = new File(f, Package.pkgfileName);
+
+            if (bluejFile.exists())
+                continue;
 
             try {
                 bluejFile.createNewFile();
