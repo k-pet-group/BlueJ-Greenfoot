@@ -50,15 +50,24 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 
 
 #####################################################################
-## 
-##
+## Additional help menu items. Users can add their own menu items to
+## the help menu here. Each menu item, when selected, will open a URL
+## in a web browser. The items are listed in the help.menu.items
+## property in the form
+##    bluej.help.items=<tag1> <tag2> ...
+## Tags can be any identifier. For every tag, there should be two
+## additional properties:
+##    bluej.help.<tag>.label=<menu label>
+##    bluej.help.<tag>.url=<URL to open>
+## The label will appear in the menu, the URL will be opened in the
+## browser. See (commented out) example below.
 #####################################################################
 
-bluej.help.items=myCustomLib courseInfo
-bluej.help.myCustomLib.label=CS1 libraries
-bluej.help.myCustomLib.url=http://www.google.com/
-bluej.help.courseInfo.label=CS1 course info
-bluej.help.courseInfo.url=http://www.bluej.org/
+#bluej.help.items=myCustomLib courseInfo
+#bluej.help.myCustomLib.label=My CS1 libraries
+#bluej.help.myCustomLib.url=http://www.google.com/
+#bluej.help.courseInfo.label=CS1 course info
+#bluej.help.courseInfo.url=http://www.bluej.org/help/archive.html
 
 #####################################################################
 ## User's home directory. This is also defined by Java, and if that's
