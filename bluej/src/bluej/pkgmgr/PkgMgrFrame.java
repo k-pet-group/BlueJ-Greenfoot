@@ -38,7 +38,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1066 2002-01-07 06:24:09Z ajp $
+ * @version $Id: PkgMgrFrame.java 1070 2002-01-08 11:45:42Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -693,7 +693,7 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case PROJ_QUIT:        // can be executed when isEmptyFrame() is true
-	    wantToQuit();
+            wantToQuit();
             break;
 
             // Edit commands
@@ -2128,18 +2128,18 @@ public class PkgMgrFrame extends JFrame
     // definitions for project commands are not final, since they are different on a Mac
     // system
     {
-        if(Config.osname.startsWith("Mac")) {   // no "Quit" here for Mac
-            ProjCmds = new String[] {
-                "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
-                "pageSetup", "print"
-            };
-        }
-        else {
+//          if(Config.osname.startsWith("Mac")) {   // no "Quit" here for Mac
+//              ProjCmds = new String[] {
+//                  "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
+//                  "pageSetup", "print"
+//              };
+//          }
+//          else {
             ProjCmds = new String[] {
                 "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
                 "pageSetup", "print", "quit"
             };
-        }
+//          }
         CmdStrings = new String[][] {
             ProjCmds, EditCmds, ToolsCmds, ViewCmds, GrpCmds, HelpCmds
         };
