@@ -37,7 +37,7 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 284 1999-11-25 02:34:37Z ajp $
+ * @version $Id: Config.java 286 1999-11-25 05:47:42Z ajp $
  */
 public class Config
 {
@@ -64,8 +64,10 @@ public class Config
     public static final int splitPaneDividerWidth = 3;
     // Other general spacing constants. We should try to use these for consistency
     public static final int generalSpacingWidth = 5;
-    public static final Border generalBorder = BorderFactory.createEmptyBorder(10,10,10,10);
-    public static final Border generalBorderWithStatusBar = BorderFactory.createEmptyBorder(10,10,0,10);
+    public static final Border generalBorder = 
+                                 BorderFactory.createEmptyBorder(10,10,10,10);
+    public static final Border generalBorderWithStatusBar =
+                                 BorderFactory.createEmptyBorder(10,10,0,10);
 
     private static boolean initialised = false;
 
@@ -168,20 +170,20 @@ public class Config
      * properties object can be returned that has the named definitions as
      * defaults.
      *
-     * @param filename	the properties file
-     * @param asDefault	if true, the definitions are used as defaults for
-     *			an empty properties objects.
+     * @param filename  the properties file
+     * @param asDefault if true, the definitions are used as defaults for
+     *                  an empty properties objects.
      */
     private static Properties loadDefs(String filename, boolean asDefault)
     {
-        String fullname = sys_confdir + File.separator + filename;
+        File propsFile = new File(sys_confdir, filename);
         Properties defs = new Properties();
 
         try {
-            FileInputStream input = new FileInputStream(fullname);
-            defs.load(input);
+            defs.load(new FileInputStream(propsFile));
+
         } catch(Exception e) {
-            Debug.reportError("Unable to load definitions file: "+fullname);
+            Debug.reportError("Unable to load definitions file: " + propsFile);
         }
 
         if(asDefault)
@@ -196,11 +198,11 @@ public class Config
      */
     private static void loadProperties(String filename, Properties props)
     {
-        String fullname = user_confdir + File.separator + filename + ".properties";
+        File propsFile = new File(user_confdir, filename + ".properties");
 
         try {
-            FileInputStream input = new FileInputStream(fullname);
-            props.load(input);
+            props.load(new FileInputStream(propsFile));
+
         } catch(Exception e) {
             // ignore
         }
@@ -211,13 +213,15 @@ public class Config
      */
     private static void saveProperties(String filename, Properties props)
     {
-        String fullname = user_confdir + File.separator + filename + ".properties";
+        File propsFile = new File(user_confdir, filename + ".properties");
+
         try {
-            FileOutputStream output = new FileOutputStream(fullname);
-            props.store(output, getString("properties.heading"));
+            props.store(new FileOutputStream(propsFile),
+                         getString("properties.heading"));
+
         } catch(Exception e) {
             Debug.reportError("Warning: could not save properties file " + 
-                              fullname);
+                              propsFile);
         }
     }
 
