@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 896 2001-05-16 07:28:17Z mik $
+ * @version $Id: Config.java 915 2001-05-25 05:06:27Z ajp $
  */
 
 public class Config
@@ -54,7 +54,7 @@ public class Config
     //  dictionary
     public static DefaultProperties moe_props;		// moe (editor) properties
 
-    private static String bluej_conf_dirname = (File.separatorChar == '/') ? 
+    private static String bluej_conf_dirname = (File.separatorChar == '/') ?
                                                ".bluej" : "bluej";
     private static File bluej_lib_dir;
     private static File user_conf_dir;
@@ -121,7 +121,7 @@ public class Config
         // construct paths for the configuration directories
 
         Config.bluej_lib_dir = bluej_lib_dir;
-        
+
         bluej_props = loadDefs("bluej.defs", true);	// system definitions
 
         // get user home directory
@@ -155,7 +155,7 @@ public class Config
             compilertype = "javac";
 
         MetalLookAndFeel.setCurrentTheme(new BluejTheme());
-        
+
     } // initialise
 
     /**
@@ -415,18 +415,6 @@ public class Config
     public static String removeProperty(String propertyName)
     {
         return (String)(bluej_props.remove(propertyName));
-    }
-
-    public static File getLibFile(String propname)
-    {
-        try {
-            String filename = bluej_props.getProperty(propname);
-            return new File(bluej_lib_dir, filename);
-        }
-        catch(Exception e) {
-            Debug.reportError("Could not get library name: " + propname);
-            return null;
-        }
     }
 
     /**
