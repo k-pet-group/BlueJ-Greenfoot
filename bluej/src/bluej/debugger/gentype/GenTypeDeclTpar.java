@@ -25,11 +25,13 @@ public class GenTypeDeclTpar extends GenTypeTpar {
      * Example: T extends Integer
      */
     public String toString(boolean stripPrefix) {
-        String bound = getBound().toString(false);
+        //need prefix to match java.lang.Object
+        String bound = getBound().toString(false); 
         if (bound.equals("java.lang.Object")) {
             return getTparName();
         } else {
-            return getTparName() + " extends " + getBound();
+            //now we strip the prefix if needed
+            return getTparName() + " extends " + getBound().toString(true);
         }
     }
 
