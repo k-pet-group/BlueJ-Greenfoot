@@ -89,11 +89,6 @@ error-open-source
 Non è possibile aprire
 il sorgente di questa classe.
 
-error-open-readme
-Si è verificato un problema aprendo le
-note di questo progetto. E' stato creato
-un nuovo file vuoto per le note.
-
 error-writing-readme
 Si è verificato un errore nell'aggiornamento
 del file README di questo progetto: non è possibile
@@ -200,8 +195,8 @@ da rimuovere. Scegli le classi e i package
 da rimuovere facendo click su essi.
 
 really-remove-class
-L'eliminazione di questa classe cancellerà
-definitivamente il file sorgente.
+L'eliminazione delle classi cancellerà
+definitivamente i relativi file sorgente.
 Vuoi continuare?
 Elimina
 Annulla
@@ -332,6 +327,11 @@ I cambiamenti che hai fatto alle librerie di
 classe non avranno effetto sino al successivo
 riavvio di BlueJ.
 
+pref-optimise-no-effect
+Le modifiche nella configurazione della virtual machine
+avranno effetto solo sui progetti che apri successivamente
+(a meno di non riavviare la virtual machine).
+
 unittest-new-test-method
 Indica un nome per questo test,
 poi comincerà la registrazione.
@@ -353,6 +353,15 @@ Sostituisci
 Annulla
 null
 
+unittest-method-present
+Questa classe unità di test contiene già un metodo
+test dichiarato con lo stesso nome. Se continui la 
+definizione del metodo verrà sostituita.
+Vuoi continuare?
+Sostituisci
+Annulla
+null
+
 no-search-string
 Non è definita alcuna stringa di ricerca.
 (Evidenzia del testo, oppure prima usa 'Trova').
@@ -364,3 +373,33 @@ alla configurazione iniziale?
 Configurazione iniziale
 Annulla
 null
+
+error-create-vm
+BlueJ non ha potuto creare una Virtual Machine (VM) per eseguire i progetti.
+Questo è un problema grave: se non lo risolvi non potrai creare oggetti o
+eseguire metodi.
+Spesso questo problema è dovuto a particolari configurazioni di rete del
+tuo computer, in quanto BlueJ usa TCP/IP e socket per la creazione della VM.
+Una causa molto comune per questi problemi è la presenza di un firewall
+che non permette connessioni dal localhost. Se hai un firewall, prova a
+disabilitarlo, e se ciò risolve cerca una configurazione del firewall che
+consenta connessioni dal localhots.
+Un'altra possibile causa è data da configurazioni di rete errate. Verifica
+che il TCP/IP e gli altri parametri di rete siano configurati correttamente.
+Se ancora non riesci a risolvere il problema, chiedi aiuto (prova
+all'indirizzo http://www.bluej.org/help/ask-help.html).
+
+project-is-readonly
+Il progetto è di sola lettura: non potrai creare oggetti o eseguire metodi.
+Forse hai diritto di sola lettura per la directory del progetto, oppure
+l'intero file system è di sola lettura (ad esempio se è un CD).
+Per poter usare completamente il progetto, devi assicurarti che sia in un
+file system scrivibile (tipicamente un hard disk), e che tu abbia diritto
+di scrittura sulla directory del progetto e tutti i suoi file.
+
+could-not-write-shell-file
+L'esecuzione è fallita perchè non è possibile scrivere nella directory
+del progetto, il che è necessario per creare oggetti o eseguire metodi.
+Assicurati che il progetto sia in un file system scrivibile (ad esempio
+non in un CD) e di avere diritti di scrittura per la directory del 
+progetto e per tutti i suoi file.
