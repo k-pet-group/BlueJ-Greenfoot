@@ -145,6 +145,12 @@ options {
 	parser.compilationUnit();
     }
 
+	class CommaClauses {
+		public JavaVector classes = new JavaVector();
+		public Vector positions = new Vector();		// a vector of Selections
+		public Vector texts = new Vector();		// a vector of Strings
+	}
+
     // Tell the parser which symbol table to use
     public void setSymbolTable(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
@@ -445,7 +451,7 @@ modifier returns [boolean isAbstract]
 
 // Definition of a Java class
 classDefinition[boolean isAbstract, JavaToken commentToken]
-    {JavaToken superClass=null; JavaVector interfaces=null;}
+    { JavaToken superClass=null; CommaClauses interfaces=null;}
     :   "class" id:IDENT // aha! a class!
             {
 		// the place which we would want to insert an "extends" is at the
@@ -465,21 +471,25 @@ classDefinition[boolean isAbstract, JavaToken commentToken]
                 info.setClassSuperClassReplaceSelection(new Selection(superClass));
 
 		// maybe we need to place "implements" lines after this superClass..
-		// set it here but of course it could be overidden later on...
-		JavaToken jid = (JavaToken)superClass;
-		info.setClassImplementsInsertSelection(sel);
+		// set it here
+		info.setClassImplementsInsertSelection(selectionAfterToken((JavaToken)superClass));
             }
             )?
 
             // it might implement some interfaces...
             ( interfaces=implementsClause
-            { }
+            {
+            	info.setClassImplementsSelections(interfaces.positions,
+            	                                   interfaces.texts);
+            }           
             )?
 
             // tell the symbol table about it
             // Note that defineClass pushes tyhe class' scope,
             //   so we'll have to pop...
-            {defineClass((JavaToken)id, superClass, interfaces, isAbstract, commentToken);}
+            { defineClass((JavaToken)id, superClass,
+            		 (interfaces!=null?interfaces.classes : null),
+            		  isAbstract, commentToken); }
 
             // now parse the body of the class
             classBlock
@@ -492,16 +502,29 @@ classDefinition[boolean isAbstract, JavaToken commentToken]
 
 // Definition of a Java Interface
 interfaceDefinition[JavaToken commentToken]
-    {JavaVector superInterfaces = null;}
+    {CommaClauses superInterfaces = null;}
     :   "interface" id:IDENT // aha! an interface!
+
+            {
+		// the place which we would want to insert an "extends" is at the
+		// character just after the interfacename identifier
+		info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
+            }
             
             // it might extend some other interfaces
-            (superInterfaces=interfaceExtends)? 
+            (superInterfaces=interfaceExtends
+            {
+                info.setInterfaceExtendsSelections(superInterfaces.positions,
+                				    superInterfaces.texts);
+            }
+            )? 
             
             // tell the symbol table about it!
             // Note that defineInterface pushes the interface scope, so
             //   we'll have to pop it...
-            { defineInterface((JavaToken)id, superInterfaces, commentToken);}
+            { defineInterface((JavaToken)id,
+            			(superInterfaces!=null?superInterfaces.classes : null),
+            			 commentToken);}
 
             // now parse the body of the interface (looks like a class...)
             classBlock
@@ -522,24 +545,70 @@ classBlock
 
 // An interface can extend several other interfaces, so we collect a vector
 //   of all the superinterfaces and return it
-interfaceExtends returns [JavaVector supers]
-    {JavaToken id; supers = new JavaVector();}
-    :   "extends" id=identifier
-    	{ supers.addElement(dummyClass(id)); }
-        (COMMA id=identifier
-        { supers.addElement(dummyClass(id)); }
-         )*
+// We also collect a vector of all the positions of the tokens so we can
+//   add and remove them from the source
+// We also collect a vector of all the text of the tokens so that we can find
+// a particular name for deletion
+interfaceExtends returns [CommaClauses supers]
+    { JavaToken id; supers = new CommaClauses();}
+    :   ex:"extends" id=identifier
+    	{
+          info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
+          supers.positions.add(new Selection((JavaToken)ex));
+          supers.texts.add(new String(ex.getText()));
+
+    	  supers.classes.addElement(dummyClass(id));
+
+    	  supers.positions.add(new Selection((JavaToken)id));
+          supers.texts.add(new String(id.getText()));
+        }
+        ( co:COMMA id=identifier
+        {
+          info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
+          supers.positions.add(new Selection((JavaToken)co));
+          supers.texts.add(new String(co.getText()));
+
+          supers.classes.addElement(dummyClass(id));
+
+          supers.positions.add(new Selection((JavaToken)id));
+          supers.texts.add(new String(id.getText()));
+        }
+        )*
     ;
 
 
 // A class can implement several interfaces, so we collect a vector of
 //   all the implemented interfaces and return it
-implementsClause returns [JavaVector inters]
-    {inters = new JavaVector(); JavaToken id;}
-    :   "implements" id=identifier  {inters.addElement(dummyClass(id));}
-        ( COMMA id=identifier       {inters.addElement(dummyClass(id));} )*
-    ;
+// We also collect a vector of all the positions of the tokens so we can
+//   add and remove them from the source
+// We also collect a vector of all the text of the tokens so that we can find
+// a particular name for deletion
+implementsClause returns [CommaClauses inters]
+    { JavaToken id; inters = new CommaClauses(); }
+    :   im:"implements" id=identifier
+        {
+          info.setClassImplementsInsertSelection(selectionAfterToken((JavaToken)id));
+    	  inters.positions.add(new Selection((JavaToken)im));
+    	  inters.texts.add(new String(im.getText()));
 
+          inters.classes.addElement(dummyClass(id));
+
+    	  inters.positions.add(new Selection((JavaToken)id));
+    	  inters.texts.add(new String(id.getText()));
+        }
+        ( co:COMMA id=identifier
+        {
+          info.setClassImplementsInsertSelection(selectionAfterToken((JavaToken)id));
+          inters.positions.add(new Selection((JavaToken)co));
+    	  inters.texts.add(new String(co.getText()));
+
+          inters.classes.addElement(dummyClass(id));
+
+          inters.positions.add(new Selection((JavaToken)id));
+    	  inters.texts.add(new String(id.getText()));
+        }
+        )*
+    ;
 
 
 // Now the various things that can be defined inside a class or interface...

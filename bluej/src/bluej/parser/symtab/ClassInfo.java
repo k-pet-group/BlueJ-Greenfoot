@@ -131,9 +131,31 @@ public final class ClassInfo {
         isAbstract = b;
     }
 
+    // where we would insert the string "extends" in a class
     private Selection classextendsinsertselection;
+    // how we would replace the string "extends" in a class
     private Selection classextendsreplaceselection; 
+    // how we would replace the superclass name in a class
     private Selection classsuperclassreplaceselection;
+    // where we would insert the string "implements" in a class
+    private Selection classimplementsinsertselection;
+
+    // where we would insert the string "extends" in an interface
+    private Selection interfaceextendsinsertselection;
+
+    // a vector of Selections (and texts) of all the elements in a classes
+    // "implements" clause
+    // ie "implements" "InterfaceA" "," "InterfaceB"
+    // or null if there is no "implements" clause
+    private Vector classimplementsselections;
+    private Vector classimplementstexts;
+
+    // a vector of Selections (and texts) of all the elements in an interfaces
+    // "extends" clause
+    // ie "extends" "InterfaceA" "," "InterfaceB"
+    // or null if there is no "extends" clause
+    private Vector interfaceextendsselections;
+    private Vector interfaceextendstexts;
 
     public void setClassExtendsInsertSelection(Selection s) {
         classextendsinsertselection = s;
@@ -158,6 +180,56 @@ public final class ClassInfo {
 
     public Selection getClassSuperClassReplaceSelection() {
         return classsuperclassreplaceselection;
+    }
+
+    public void setClassImplementsInsertSelection(Selection s) {
+        classimplementsinsertselection = s;
+    }
+
+    public Selection getClassImplementsInsertSelection() {
+        return classimplementsinsertselection;
+    }
+
+    public void setInterfaceExtendsInsertSelection(Selection s) {
+        interfaceextendsinsertselection = s;
+    }
+
+    public Selection getInterfaceExtendsInsertSelection() {
+        return interfaceextendsinsertselection;
+    }
+
+    public void setClassImplementsSelections(Vector sels, Vector texts) {
+        classimplementsselections = sels;
+        classimplementstexts = texts;
+    }
+
+    public Vector getClassImplementsSelections() {
+        return classimplementsselections;
+    }
+
+    public Vector getClassImplementsTexts() {
+        return classimplementstexts;
+    }
+
+    public boolean hasClassImplementsSelections() {
+        return classimplementsselections != null;
+    }
+
+    public void setInterfaceExtendsSelections(Vector sels, Vector texts) {
+        interfaceextendsselections = sels;
+        interfaceextendstexts = texts;
+    }
+
+    public Vector getInterfaceExtendsSelections() {
+        return interfaceextendsselections;
+    }
+
+    public Vector getInterfaceExtendsTexts() {
+        return interfaceextendstexts;
+    }
+
+    public boolean hasInterfaceExtendsSelections() {
+        return interfaceextendsselections != null;
     }
         
     // accessors:

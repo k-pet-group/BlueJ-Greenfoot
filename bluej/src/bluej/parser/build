@@ -1,2 +1,2 @@
-java antlr.Tool java.g
-javac *.java symtab/*.java
+java -cp ..\..\..\..\antlr antlr.Tool java.g
+
