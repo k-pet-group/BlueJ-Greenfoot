@@ -125,7 +125,6 @@ public final class MoeEditor extends JFrame
 
     private Info info;	            // the info number label
     private JPanel statusArea;	    // the status area
-    private LineNumberLabel lineCounter;	// the line number label
     private StatusLabel saveState;  // the status label
     private JComboBox interfaceToggle;
 
@@ -209,7 +208,7 @@ public final class MoeEditor extends JFrame
         currentStepPos = -1;
         mayHaveBreakpoints = false;
 
-        initWindow(showToolbar, showLineNum);
+        initWindow(showToolbar);
     }
 
     // --------------------------------------------------------------------
@@ -1429,20 +1428,6 @@ public final class MoeEditor extends JFrame
     }
 
     // --------------------------------------------------------------------
-    /**
-     *  Show or hide the line number display (depending on the parameter
-     *  'show').
-     */
-    private void showLineCounter(boolean show)
-    {
-        if (show)
-            statusArea.add(lineCounter);
-        else
-            statusArea.remove(lineCounter);
-        validate();
-    }
-
-    // --------------------------------------------------------------------
 
     private String getResource(String name)
     {
@@ -1473,7 +1458,7 @@ public final class MoeEditor extends JFrame
      *  Create all the Window components
      */
 
-    private void initWindow(boolean showTool, boolean showLine)
+    private void initWindow(boolean showTool)
     {
         setIconImage(iconImage);
         setBackground(frameBgColor);
@@ -1497,10 +1482,7 @@ public final class MoeEditor extends JFrame
         statusArea.setBackground(infoColor);
         statusArea.setBorder(BorderFactory.createLineBorder(Color.black));
 
-        lineCounter = new LineNumberLabel(1);
         saveState = new StatusLabel(StatusLabel.SAVED);
-        if (showLine)				// if the line number display
-            statusArea.add(lineCounter);
         statusArea.add(saveState);
         bottomArea.add(statusArea, BorderLayout.EAST);
 

@@ -35,7 +35,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 999 2001-10-24 15:31:05Z mik $
+ * @version $Id: MoeSyntaxView.java 1026 2001-12-07 12:11:54Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -96,12 +96,14 @@ public class MoeSyntaxView extends PlainView
         Color def = getDefaultColor();
 
         try {
-            Element lineElement = getElement()
-                .getElement(lineIndex);
+            Element lineElement = getElement().getElement(lineIndex);
             int start = lineElement.getStartOffset();
             int end = lineElement.getEndOffset();
 
             document.getText(start,end - (start + 1),line);
+
+            // draw line number
+            g.drawString(Integer.toString(lineIndex), x, y);
 
             // draw breakpoint and/or step image
 

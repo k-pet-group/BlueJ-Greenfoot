@@ -22,14 +22,11 @@ import bluej.utility.Debug;
  **/
 
 public class Finder extends JDialog
-
     implements ActionListener
 {
     static final String title = Config.getString("editor.find.title");
-    static final String textfieldLabel = Config.getString("editor.find.textfield.label");
-    static final String cancel = Config.getString("cancel");
-    static final String forwardText = Config.getString("editor.find.forward");
-    static final String backwardText = Config.getString("editor.find.backward");
+    static final String findLabel = Config.getString("editor.find.find.label");
+    static final String replaceLabel = Config.getString("editor.find.replace.label");
 
     // -------- CONSTANTS --------
 
@@ -44,12 +41,12 @@ public class Finder extends JDialog
     protected int searchDirection;	// direction of search
     protected boolean cancelled;	// last dialog cancelled
 
-    JButton forwardButton;
-    JButton backwardButton;
+    JButton findButton;
+    JButton replaceButton;
+    JButton replaceAllButton;
     JButton cancelButton;
     JTextField textField;
-    //DefaultComboBoxModel queryModel;
-    //JComboBox textField;
+    JTextField replaceField;
     
     // ------------- METHODS --------------
 
@@ -83,9 +80,9 @@ public class Finder extends JDialog
     public String getNewSearchString(JFrame parent, int direction)
     {
         if(direction == FORWARD)
-            getRootPane().setDefaultButton(forwardButton);
-        if(direction == BACKWARD)
-            getRootPane().setDefaultButton(backwardButton);
+            getRootPane().setDefaultButton(findButton);
+        //        if(direction == BACKWARD)
+        //    getRootPane().setDefaultButton(backwardButton);
 
         textField.selectAll();
         textField.requestFocus();
@@ -94,18 +91,8 @@ public class Finder extends JDialog
         // the dialog is modal, so when we get here it was closed.
         if(cancelled)
             return null;
-        else {
-            // unused for now: code to use combobox instead of textfield
-//             String query = (String)textField.getSelectedItem();
-//             int queryIndex = queryModel.getIndexOf(query);
-//             if(queryIndex != 0) {
-//                 if(queryIndex > 0)
-//                     queryModel.removeElement(query);
-//                 queryModel.insertElementAt(query, 0);
-//             }
-//             return (String)textField.getSelectedItem();
+        else
             return textField.getText();
-        }
     }
 
     /**
@@ -147,14 +134,14 @@ public class Finder extends JDialog
     public void actionPerformed(ActionEvent evt)
     {
         Object src = evt.getSource();
-        if(src == forwardButton) {
+        if(src == findButton) {
             searchDirection = FORWARD;
             cancelled = false;
         }
-        else if(src == backwardButton) {
-            searchDirection = BACKWARD;
-            cancelled = false;
-        }
+//          else if(src == replaButton) {
+//              searchDirection = BACKWARD;
+//              cancelled = false;
+//          }
         else if(src == cancelButton)
             cancelled = true;
 
@@ -170,35 +157,71 @@ public class Finder extends JDialog
                 }
             });
         
-        JPanel textPanel = new JPanel();
-        textPanel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
-        textPanel.setLayout(new GridLayout(0,1));
-        
-                 
-         textPanel.add(new JPanel());
-        // add search text field
-        textPanel.add(new JLabel(textfieldLabel), BorderLayout.NORTH);
+        // add search and replace text fields with labels
 
-        textField = new JTextField(16);
-        textPanel.add(textField);
-	
-         textPanel.add(new JPanel());
-        getContentPane().add("Center", textPanel);
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
+        {
+            JPanel findPanel = new JPanel(new BorderLayout());
+            findPanel.add(new JLabel(findLabel), BorderLayout.WEST);
+            textField = new JTextField(16);
+            findPanel.add(textField, BorderLayout.CENTER);
+            textPanel.add(findPanel);
+
+            textPanel.add(Box.createVerticalStrut(6));
+
+            JPanel replacePanel = new JPanel(new BorderLayout());
+            replacePanel.add(new JLabel(replaceLabel), BorderLayout.WEST);
+            replaceField = new JTextField(16);
+            replacePanel.add(replaceField, BorderLayout.CENTER);
+            textPanel.add(replacePanel);
+
+            textPanel.add(Box.createVerticalStrut(6));
+
+            Box togglesBox = new Box(BoxLayout.X_AXIS);
+            {
+                Box optionBox = new Box(BoxLayout.Y_AXIS);
+                {
+                    JCheckBox ignoreCase = new JCheckBox("Ignore case");
+                    optionBox.add(ignoreCase);
+                    optionBox.add(Box.createVerticalStrut(6));
+                    JCheckBox wholeWord = new JCheckBox("Whole word");
+                    optionBox.add(wholeWord);
+                }
+                togglesBox.add(optionBox);
+
+                Box directionBox = new Box(BoxLayout.Y_AXIS);
+                {
+                    JToggleButton dirUp = new JRadioButton("Search up");
+                    directionBox.add(dirUp);
+                    directionBox.add(Box.createVerticalStrut(6));
+                    JToggleButton dirDown = new JRadioButton("Search down");
+                    directionBox.add(dirDown);
+                }
+                togglesBox.add(directionBox);
+            }
+            textPanel.add(togglesBox);
+        }
+        getContentPane().add(textPanel, BorderLayout.CENTER);
 
         // add buttons
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(3, 0, 0, 5));
+        JPanel buttonPanel = new JPanel(new GridLayout(0, 1, 0, 5));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        forwardButton = new JButton(forwardText);
-        buttonPanel.add(forwardButton);
-        forwardButton.addActionListener(this);
+        findButton = new JButton(Config.getString("editor.find.findNext"));
+        buttonPanel.add(findButton);
+        findButton.addActionListener(this);
    
-        backwardButton = new JButton(backwardText);
-        buttonPanel.add(backwardButton);
-        backwardButton.addActionListener(this);
+        replaceButton = new JButton(Config.getString("editor.find.replace"));
+        buttonPanel.add(replaceButton);
+        replaceButton.addActionListener(this);
    
-        cancelButton = new JButton(cancel);
+        replaceAllButton = new JButton(Config.getString("editor.find.replaceAll"));
+        buttonPanel.add(replaceAllButton);
+        replaceAllButton.addActionListener(this);
+   
+        cancelButton = new JButton(Config.getString("close"));
         buttonPanel.add(cancelButton);
         cancelButton.addActionListener(this);
         getContentPane().add("East", buttonPanel);
