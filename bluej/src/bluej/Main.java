@@ -1,6 +1,6 @@
 package bluej;
 
-import  com.apple.mrj.MRJFileUtils;
+//import com.apple.mrj.MRJFileUtils;
 
 import bluej.utility.Debug;
 import bluej.pkgmgr.Project;
@@ -21,7 +21,7 @@ import java.util.StringTokenizer;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Main.java 861 2001-04-23 04:48:45Z mik $
+ * @version $Id: Main.java 862 2001-04-23 04:56:49Z mik $
  */
 public class Main
 {
