@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 608 2000-06-30 04:24:13Z ajp $
+ * @version $Id: Package.java 620 2000-07-05 04:29:58Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -967,10 +967,6 @@ public class Package extends Graph
         while(dependencies.hasMoreElements()) {
             Dependency d = (Dependency)dependencies.nextElement();
             if(!(d.getTo() instanceof ClassTarget))
-                continue;
-
-            // XXX bad bad bad. Must fix
-            if(d.getTo() instanceof ImportedClassTarget)
                 continue;
 
             ClassTarget to = (ClassTarget)d.getTo();
