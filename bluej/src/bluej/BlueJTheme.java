@@ -10,14 +10,11 @@ import bluej.prefmgr.PrefMgr;
  * Specifically created to allow access to default Fonts for user interface
  * components for i18n purposes.
  *
- * @author Bruce Quig
- * 
- * @version $Id: BlueJTheme.java 1773 2003-04-10 02:11:25Z ajp $
+ * @author  Bruce Quig
+ * @version $Id: BlueJTheme.java 1774 2003-04-10 04:09:11Z ajp $
  */
-
 public class BlueJTheme extends DefaultMetalTheme
 {
-
     private final FontUIResource controlFont = 
         new FontUIResource(PrefMgr.getStandardFont());
     private final FontUIResource systemFont = 
@@ -27,38 +24,31 @@ public class BlueJTheme extends DefaultMetalTheme
     private final FontUIResource menuFont = 
         new FontUIResource(PrefMgr.getStandardMenuFont());
 
-
     /**
-     * name of theme
+     * Name of theme
      */
     public String getName() 
     {  
-        return "BluejTheme"; 
+        return "BlueJTheme"; 
     } 
-
 
     public FontUIResource getControlTextFont() 
     {  
         return controlFont;
     }
-
  
-     public FontUIResource getSystemTextFont() 
-     {  
-         return systemFont;
-     }
-
+    public FontUIResource getSystemTextFont() 
+    {  
+        return systemFont;
+    }
  
     public FontUIResource getUserTextFont() 
     {  
         return userFont;
     }
-
  
     public FontUIResource getMenuTextFont() 
     {  
         return menuFont;
-    } 
-    
+    }  
 }
-
