@@ -20,8 +20,8 @@ import bluej.utility.Debug;
  * Note that this is a singleton class. There can be only one
  * instance of PrefMgrDialog at any time.
  *
- * @author Andrew Patterson
- * @version $Id: PrefMgrDialog.java 304 1999-12-09 23:48:13Z ajp $
+ * @author  Andrew Patterson
+ * @version $Id: PrefMgrDialog.java 436 2000-05-04 05:37:53Z ajp $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -45,7 +45,7 @@ public class PrefMgrDialog extends JFrame
         setIconImage(iconImage);
         setTitle(Config.getString("prefmgr.title"));
 
-        tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
 
         for (ListIterator i = tabs.listIterator(); i.hasNext(); ) {
             int index = i.nextIndex();
@@ -60,7 +60,7 @@ public class PrefMgrDialog extends JFrame
             contentPanel.setPreferredSize(new Dimension(512,450));
 
             contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-            contentPanel.setBorder(Config.generalBorder);
+            contentPanel.setBorder(Config.dialogBorder);
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
