@@ -1,14 +1,14 @@
 package bluej.extensions.event;
 
 import bluej.debugger.ExecutionEvent;
-import bluej.extensions.BPackage;
+import bluej.extensions.*;
 
 /**
  * This is an invocation event, it gets generated when Objects or methods are
  * invoked on BlueJ objects.
  * The various methods here provided will return you the values of the invocation.
  * 
- * @version $Id: InvocationEvent.java 1707 2003-03-14 06:37:51Z damiano $
+ * @version $Id: InvocationEvent.java 1719 2003-03-21 09:28:42Z damiano $
  */
 public class InvocationEvent extends BluejEvent
 {
@@ -22,7 +22,6 @@ public class InvocationEvent extends BluejEvent
     private String[] parameters;
     private int eventId;
     private bluej.pkgmgr.Package thisPackage;
-    
     
     /** 
      * For bluej.extensions use ONLY
@@ -38,8 +37,6 @@ public class InvocationEvent extends BluejEvent
       parameters  = exevent.getParameters();
       }
      
-
-
     /**
      * Get the type of event, at the moment it can only be INVOCATION_STARTED.
      * TODO: Differentiate between Constructors and Methods
@@ -63,10 +60,11 @@ public class InvocationEvent extends BluejEvent
       }
 
     /**
-     * Gets the Class on which the event happened.
-     * TODO: Return a BClass
+     * Gets the Class name on which the event happened.
+     * If you need to have further information about this Class you can obtain a 
+     * BClass from BPackage using this name as a reference.
      * 
-     * @return the name of the class being operated on, or <code>null</code> if it is an object method
+     * @return the Class name associated with this event
      */
     public String getClassName()
     {
@@ -74,11 +72,15 @@ public class InvocationEvent extends BluejEvent
     }
     
     /**
-     * Gets what is the instanceName, that is the name of the object on the object bench
-     * TODO: It should return a BObject. You can then operate more consistently.
+     * Gets what is the instanceName, that is the name of the object on the object bench.
+     * If you need the BObject you can use the getObject(instanceName) in the BPackage using
+     * this name as a key.
      * 
-     * @return the name of the object being operated on, or <code>null</code> if it is a static method, or the
-     * new instance name if it is a constructor
+     * In case of a static method this will be null
+     * If it is a constructor call it will be the new instance name of the opbject
+     * For methods call it will be the name of the object where the operation occourred.
+     * 
+     * @return the instance name of the object being operated on.
      */
     public String getObjectName()
     {
@@ -121,7 +123,7 @@ public class InvocationEvent extends BluejEvent
 
       aRisul.append("InvocationEvent:");
 
-      if ( className != null ) aRisul.append(" className="+className);
+      if ( className != null ) aRisul.append(" BClass="+className);
       if ( objectName != null ) aRisul.append(" objectName="+objectName);
       if ( methodName != null ) aRisul.append(" methodName="+methodName);
       
