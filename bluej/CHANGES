@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00098
+@bug#  : 00099
 @short : 
 @prio  : 
 @source: 
@@ -117,6 +117,18 @@ in the template for the next one):
 @descr : create browser (browse libraries, import standard package,
 	 import class)
 @cause : new feature
+
+@-------
+@bug#  : 00098
+@short : debugger hangs when used to quickly
+@prio  : 2
+@source: mik
+@date  : 1999-08-23
+@status: open
+@fixrel: 
+@descr : when clicking the step button several times too quickly, the 
+	 debugger hangs
+@cause : ?
 
 @-------
 @bug#  : 00012
