@@ -17,12 +17,15 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 2771 2004-07-09 09:27:41Z mik $
+ * @version $Id: ArrayWrapper.java 2957 2004-08-30 10:43:16Z polle $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
     public static int WORD_GAP = 8;
     public static int SHADOW_SIZE = 3;
+    public static int ARRAY_GAP = 3;
+    
+    
 
     public ArrayWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
     {
@@ -78,9 +81,9 @@ public class ArrayWrapper extends ObjectWrapper
     {
         g.setFont(PrefMgr.getStandardFont());
 
-        drawUMLObjectShape(g, HGAP + 10, (VGAP / 2) + 10, WIDTH - 10, HEIGHT - 10, 3, 5);
-        drawUMLObjectShape(g, HGAP + 5, (VGAP / 2) + 5, WIDTH - 10, HEIGHT - 10, 3, 5);
-        drawUMLObjectShape(g, HGAP, (VGAP / 2), WIDTH - 10, HEIGHT - 10, 3, 5);
+        drawUMLObjectShape(g, HGAP + ARRAY_GAP*2, (VGAP / 2) + ARRAY_GAP*2, WIDTH - 10, HEIGHT - 10,  SHADOW_SIZE, 8);
+        drawUMLObjectShape(g, HGAP + ARRAY_GAP, (VGAP / 2) + ARRAY_GAP, WIDTH - 10, HEIGHT - 10,  SHADOW_SIZE, 8);
+        drawUMLObjectShape(g, HGAP, (VGAP / 2), WIDTH - 10, HEIGHT - 10,  SHADOW_SIZE, 8);
 
         drawUMLObjectText(g, HGAP, (VGAP / 2), WIDTH - 10, 3, getName() + ":", displayClassName);
 
