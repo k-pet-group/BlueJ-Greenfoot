@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.event.KeyListener;
+//import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
@@ -18,7 +18,6 @@ import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.IndexHistory;
-import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
@@ -32,7 +31,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2693 2004-06-30 09:19:53Z mik $
+ * @version $Id: TextEvalArea.java 2694 2004-06-30 09:27:46Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -103,6 +102,7 @@ public final class TextEvalArea extends JScrollPane
     {
         if(lastObject != null) {
             frame.getPackage().getEditor().raisePutOnBenchEvent(this, lastObject, lastInvokerRecord);
+            listObjectBench();
         }
         else {
             error("'Get' can only be used for objects. The last result was not an object.");
@@ -119,12 +119,17 @@ public final class TextEvalArea extends JScrollPane
         StringBuffer out = new StringBuffer(100);
         out.append("object bench:");
         ObjectWrapper[] objects = frame.getObjectBench().getWrappers();
-        for(int i=0; i < objects.length; i++) {
-            out.append("   (");
-            out.append(objects[i].getTypeName());
-            out.append(" ");
-            out.append(objects[i].getName());
-            out.append(")");
+        if(objects.length == 0) {
+            out.append("   empty");
+        }
+        else {
+            for(int i=0; i < objects.length; i++) {
+                out.append("   (");
+                out.append(JavaNames.stripPrefix(objects[i].getTypeName()));
+                out.append(" ");
+                out.append(objects[i].getName());
+                out.append(")");
+            }
         }
         output(out.toString());
     }
