@@ -18,7 +18,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 1417 2002-10-18 07:56:39Z mik $
+ * @version $Id: Target.java 1521 2002-11-27 13:22:48Z mik $
  */
 public abstract class Target extends Vertex
 {
@@ -139,7 +139,7 @@ public abstract class Target extends Vertex
      * Return this target's package (ie the package that this target is currently
      * shown in)
      */
-    public Package getPackage()
+    public final Package getPackage()
     {
         return pkg;
     }

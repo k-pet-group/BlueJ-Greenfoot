@@ -48,41 +48,47 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1507 2002-11-18 11:50:46Z ajp $
+ * @version $Id: ClassTarget.java 1521 2002-11-27 13:22:48Z mik $
  */
 public class ClassTarget extends EditableTarget
-	implements ActionListener
 {
+    private static final String editStr = Config.getString("pkgmgr.classmenu.edit");
+    private static final String openStr = Config.getString("browser.classchooser.classmenu.open");
+    private static final String useStr = Config.getString("browser.classchooser.classmenu.use");
+    private static final String compileStr = Config.getString("pkgmgr.classmenu.compile");
+    private static final String inspectStr = Config.getString("pkgmgr.classmenu.inspect");
+    private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
+
     // Define Background Colours
-    static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
-    static final Color abstractbg = Config.getItemColour("colour.class.bg.abstract");
-    static final Color interfacebg = Config.getItemColour("colour.class.bg.interface");
-    static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
+    private static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
+    private static final Color abstractbg = Config.getItemColour("colour.class.bg.abstract");
+    private static final Color interfacebg = Config.getItemColour("colour.class.bg.interface");
+    private static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
 
-    static final Color shadowCol = Config.getItemColour("colour.target.shadow");
-    static final Color stripeCol = Config.getItemColour("colour.target.stripes");
+    private static final Color shadowCol = Config.getItemColour("colour.target.shadow");
+    private static final Color stripeCol = Config.getItemColour("colour.target.stripes");
 
-    static final Color colBorder = Config.getItemColour("colour.target.border");
-    static final Color graphbg = Config.getItemColour("colour.graph.background");
-    static final Color textfg = Config.getItemColour("colour.text.fg");
+    private static final Color colBorder = Config.getItemColour("colour.target.border");
+    private static final Color graphbg = Config.getItemColour("colour.graph.background");
+    private static final Color textfg = Config.getItemColour("colour.text.fg");
 
-    static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    private static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
-    static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
+    private static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
-    static final Image brokenImage =
-	    Config.getImageAsIcon("image.broken").getImage();
+    private static final Image brokenImage =
+        Config.getImageAsIcon("image.broken").getImage();
 
-    static final String STEREOTYPE_OPEN = "<<";
-    static final String STEREOTYPE_CLOSE = ">>";
-    static final String INTERFACE_LABEL = "interface";
-    static final String APPLET_LABEL = "applet";
-    static final String ABSTRACT_CLASS_LABEL = "abstract";
-    static final String UNITTEST_LABEL = "unit test";
+    private static final String STEREOTYPE_OPEN = "<<";
+    private static final String STEREOTYPE_CLOSE = ">>";
+    private static final String INTERFACE_LABEL = "interface";
+    private static final String APPLET_LABEL = "applet";
+    private static final String ABSTRACT_CLASS_LABEL = "abstract";
+    private static final String UNITTEST_LABEL = "unit test";
     static final String HTML_EXTENSION = ".html";
 
 
-    // variables
+    // instance variables
     private ClassRole role;
     private String template = null;
 
@@ -93,7 +99,7 @@ public class ClassTarget extends EditableTarget
     // Fields used in Tarjan's algorithm:
     public int dfn, link;
 
-    private boolean analysing = false;	// flag to prevent recursive
+    private boolean analysing = false;  // flag to prevent recursive
                                         // calls to analyseDependancies()
 
     /**
@@ -428,6 +434,33 @@ public class ClassTarget extends EditableTarget
         return editor;
     }
 
+    // --- end of EditableTarget interface ---
+
+    // --- user interface function implementation ---
+
+    /**
+     *
+     */
+    private void compile()
+    {
+        getPackage().compile(this);
+    }
+    
+    /**
+     *
+     */
+    private void inspect()
+    {
+    }
+    
+    /**
+     *
+     */
+    private void remove()
+    {
+        getPackage().getEditor().raiseRemoveTargetEvent(this);
+    }
+    
 
     // --- EditorWatcher interface ---
 
@@ -442,7 +475,7 @@ public class ClassTarget extends EditableTarget
 
     /**
      * Called by Editor when a file is saved
-     * @param editor	the editor object being saved
+     * @param editor    the editor object being saved
      */
     public void saveEvent(Editor editor)
     {
@@ -451,9 +484,9 @@ public class ClassTarget extends EditableTarget
 
     /**
      * Called by Editor when a breakpoint is been set/cleared
-     * @param filename	the name of the file that was modified
-     * @param lineNo	the line number of the breakpoint
-     * @param set	whether the breakpoint is set (true) or cleared
+     * @param filename  the name of the file that was modified
+     * @param lineNo    the line number of the breakpoint
+     * @param set   whether the breakpoint is set (true) or cleared
      *
      * @return  null if there was no problem, or an error string
      */
@@ -499,8 +532,6 @@ public class ClassTarget extends EditableTarget
 */
 
     // --- end of EditorWatcher interface ---
-
-    // --- end of EditableTarget interface ---
 
     protected void removeBreakpoints()
     {
@@ -726,11 +757,11 @@ public class ClassTarget extends EditableTarget
      */
     public void analyseDependencies(ClassInfo info)
     {
-    	// currently we don't remove uses dependencies, but just warn
+        // currently we don't remove uses dependencies, but just warn
 
-    	//removeAllOutDependencies();
-    	removeInheritDependencies();
-    	unflagAllOutDependencies();
+        //removeAllOutDependencies();
+        removeInheritDependencies();
+        unflagAllOutDependencies();
 
         // handle superclass dependency
         if(info.getSuperclass() != null) {
@@ -907,17 +938,30 @@ public class ClassTarget extends EditableTarget
 
         JPopupMenu menu = new JPopupMenu(getBaseName() + " operations");
 
-    	// call on role object to add any options needed
-     	role.createMenu(menu, this, state);
+        // call on role object to add any options needed
+        role.createMenu(menu, this, state);
 
-    	if ((cl != null)) // && (!isUnitTest()))
-    	    createClassMenu(menu, cl);
+        if ((cl != null)) // && (!isUnitTest()))
+            createClassMenu(menu, cl);
 
-    	addMenuItem(menu, editStr, true);
-    	addMenuItem(menu, compileStr, true);
-    	addMenuItem(menu, removeStr, true);
+        addMenuItem(menu, editStr, true,
+                    new ActionListener() {
+                        public void actionPerformed(ActionEvent e) { open(); }
+                    });
+        addMenuItem(menu, compileStr, true,
+                    new ActionListener() {
+                        public void actionPerformed(ActionEvent e) { compile(); }
+                    });
+        addMenuItem(menu, inspectStr, (state == S_NORMAL),
+                    new ActionListener() {
+                        public void actionPerformed(ActionEvent e) { inspect(); }
+                    });
+        addMenuItem(menu, removeStr, true,
+                    new ActionListener() {
+                        public void actionPerformed(ActionEvent e) { remove(); }
+                    });
 
-    	return menu;
+        return menu;
     }
 
     /**
@@ -928,17 +972,17 @@ public class ClassTarget extends EditableTarget
      * @param enabled boolean value representing whether item should be enabled
      *
      */
-    protected void addMenuItem(JPopupMenu menu, String itemString, boolean enabled)
+    protected void addMenuItem(JPopupMenu menu, String itemString, boolean enabled,
+                               ActionListener listener)
     {
-        //	 role.addMenuItem(menu, itemString, enabled);
-    	JMenuItem item;
+        JMenuItem item;
 
-    	menu.add(item = new JMenuItem(itemString));
-    	item.addActionListener(this);
-    	item.setFont(PrefMgr.getPopupMenuFont());
-    	item.setForeground(envOpColour);
-    	if(!enabled)
-    	    item.setEnabled(false);
+        menu.add(item = new JMenuItem(itemString));
+        item.addActionListener(listener);
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
+        if(!enabled)
+            item.setEnabled(false);
     }
 
     /**
@@ -1129,32 +1173,6 @@ public class ClassTarget extends EditableTarget
     }
 
 
-    // -- ActionListener interface --
-
-    public void actionPerformed(ActionEvent e)
-    {
-        //role.actionPerformed(e, pkg, actions, state);
-
-        MemberView member = (MemberView)actions.get(e.getSource());
-        String cmd = e.getActionCommand();
-
-        if(member != null) {
-        }
-        else if(editStr.equals(cmd)) {
-            open();
-        }
-        else if(compileStr.equals(cmd)) {
-            getPackage().compile(this);
-        }
-        else if(removeStr.equals(cmd)) {
-            getPackage().getEditor().raiseRemoveTargetEvent(this);
-        }
-        else
-            // if not handled send to class role for consumption
-            role.actionPerformed(e, this);
-
-    }
-
     int anchor_x = 0, anchor_y = 0;
     int last_x = 0, last_y = 0;
 
@@ -1253,13 +1271,4 @@ public class ClassTarget extends EditableTarget
                                     getClassFile().getPath(),
                                     getContextFile().getPath());
     }
-
-
-    // Internal strings
-
-    static String editStr = Config.getString("pkgmgr.classmenu.edit");
-    static String openStr = Config.getString("browser.classchooser.classmenu.open");
-    static String useStr = Config.getString("browser.classchooser.classmenu.use");
-    static String compileStr = Config.getString("pkgmgr.classmenu.compile");
-    static String removeStr = Config.getString("pkgmgr.classmenu.remove");
 }

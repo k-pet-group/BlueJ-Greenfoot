@@ -32,11 +32,20 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1519 2002-11-26 12:01:16Z mik $
+ * @version $Id: ObjectWrapper.java 1521 2002-11-27 13:22:48Z mik $
  */
 public class ObjectWrapper extends JComponent
-    implements ActionListener
 {
+    // Strings
+    static String methodException = Config.getString("debugger.objectwrapper.methodException");
+    static String invocationException = Config.getString("debugger.objectwrapper.invocationException");
+    static String inspect = Config.getString("debugger.objectwrapper.inspect");
+    static String remove = Config.getString("debugger.objectwrapper.remove");
+    static String redefinedIn = Config.getString("debugger.objectwrapper.redefined");
+    static String inheritedFrom = Config.getString("debugger.objectwrapper.inherited");
+    static String serializable = Config.getString("debugger.objectwrapper.serializable");
+
+    // Colors
     static final Color shadow = Config.getItemColour("colour.wrapper.shadow");
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
@@ -160,26 +169,37 @@ public class ObjectWrapper extends JComponent
         // add inspect, serializable and remove options
         JMenuItem item;
         menu.add(item = new JMenuItem(inspect));
-        item.addActionListener(this);
+        item.addActionListener(
+            new ActionListener() {
+                public void actionPerformed(ActionEvent e) { inspectObject(); }
+            });
         item.setFont(PrefMgr.getStandoutMenuFont());
         item.setForeground(envOpColour);
 
         // serializable support - not yet enabled 12/01/2000 ajp
-        /*      if (Serializable.class.isAssignableFrom(cl))
-                {
-                menu.add(item = new JMenuItem(serializable));
-                item.addActionListener(this);
-                item.setFont(PrefMgr.getStandoutMenuFont());
-                item.setForeground(envOpColour);
-                } */
-
-	/* menu.add(item = new JMenuItem("make test"));
-	item.addActionListener(this);
-	item.setFont(PrefMgr.getStandoutMenuFont());
-	item.setForeground(envOpColour);*/
+        /* if (Serializable.class.isAssignableFrom(cl)) {
+            menu.add(item = new JMenuItem(serializable));
+            item.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) { serializeObject(); }
+                });
+            item.setFont(PrefMgr.getStandoutMenuFont());
+            item.setForeground(envOpColour);
+        } */
+    
+        /* menu.add(item = new JMenuItem("make test"));
+        item.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) { testObject(); }
+                });
+        item.setFont(PrefMgr.getStandoutMenuFont());
+        item.setForeground(envOpColour);*/
 
         menu.add(item = new JMenuItem(remove));
-        item.addActionListener(this);
+        item.addActionListener(
+            new ActionListener() {
+                public void actionPerformed(ActionEvent e) { removeObject(); }
+            });
         item.setFont(PrefMgr.getStandoutMenuFont());
         item.setForeground(envOpColour);
 
@@ -229,7 +249,10 @@ public class ObjectWrapper extends JComponent
                     methodsUsed.put(methodSignature, m.getClassName());
                 }
                 item = new JMenuItem(methodDescription);
-                item.addActionListener(this);
+                item.addActionListener(
+                    new ActionListener() {
+                        public void actionPerformed(ActionEvent e) { invokeMethod(e.getSource()); }
+                    });
                 item.setFont(PrefMgr.getPopupMenuFont());
                 actions.put(item, m);
 
@@ -390,51 +413,16 @@ public class ObjectWrapper extends JComponent
         }
     }
 
-    public void actionPerformed(ActionEvent e)
+    // --- popup menu actions ---
+    
+    /**
+     * Invoke a method on this object.
+     */
+    public void invokeMethod(Object eventSource)
     {
-        MethodView method = (MethodView)actions.get(e.getSource());
+        MethodView method = (MethodView)actions.get(eventSource);
         if(method != null)
             executeMethod(method);			// user method
-        else {
-            String cmd = e.getActionCommand();
-            if(inspect.equals(cmd)) {			// inspect
-                // load the object into runtime scope
-                inspectObject();
-            }
-            else if(remove.equals(cmd))	{		// remove
-                ObjectBench bench = (ObjectBench)getParent();
-                bench.remove(this, pkg.getId());
-            }
-
-/*		else if ("make test".equals(cmd)) {
-
-			CallRecord cr = CallRecord.getCallRecord(getName());
-
-			if (cr == null)
-				System.out.println("object was constructed with a get");
-			else
-				System.out.println(cr.dump(1, "wow", false));
-		} */
-            // serializable support - not yet enabled 12/01/2000 ajp
-            /*            else if(serializable.equals(cmd)) {
-
-                          Debugger.debugger.serializeObject(pkg.getId(),
-                          instanceName, "test.obj");
-            */
-            /*                DebuggerObject debObj =
-                              Debugger.debugger.deserializeObject(pkg.getRemoteClassLoader().getId(),
-                              pkg.getId(),
-                              "unserial_1",
-                              "test.obj");
-
-                              ObjectWrapper wrapper = new ObjectWrapper(debObj,
-                              "unserial_1",
-                              pkg);
-
-                              pkg.getFrame().getObjectBench().add(wrapper);  // might change name
-                              }
-            */
-        }
     }
 
     /**
@@ -445,6 +433,48 @@ public class ObjectWrapper extends JComponent
         ObjectViewer viewer =
       	    ObjectViewer.getViewer(true, obj, instanceName, pkg, true, pmf);
     }
+
+    /**
+     * Remove this object from bench.
+     */
+    private void removeObject()
+    {
+        ObjectBench bench = (ObjectBench)getParent();
+        bench.remove(this, pkg.getId());
+    }
+
+    /**
+     * Open this object for inspection.
+     */
+//     private void testObject()
+//     {
+//         CallRecord cr = CallRecord.getCallRecord(getName());
+// 
+//         if (cr == null)
+//             System.out.println("object was constructed with a get");
+//         else
+//             System.out.println(cr.dump(1, "wow", false));
+//     }
+
+    /**
+     * Open this object for inspection.
+     */
+//     private void serializeObject()
+//     {
+//         Debugger.debugger.serializeObject(pkg.getId(),
+//         instanceName, "test.obj");
+//         DebuggerObject debObj =
+//         Debugger.debugger.deserializeObject(pkg.getRemoteClassLoader().getId(),
+//         pkg.getId(),
+//         "unserial_1",
+//         "test.obj");
+// 
+//         ObjectWrapper wrapper = new ObjectWrapper(debObj,
+//         "unserial_1",
+//         pkg);
+// 
+//         pkg.getFrame().getObjectBench().add(wrapper);  // might change name
+//     }
 
     /**
      * Execute an interactive method call. If the method has results,
@@ -473,24 +503,4 @@ public class ObjectWrapper extends JComponent
         Invoker invoker = new Invoker(pmf, method, instanceName, watcher);
         invoker.invokeInteractive();
     }
-
-    // Internationalisation
-    static String methodException =
-        Config.getString("debugger.objectwrapper.methodException");
-    static String invocationException =
-        Config.getString("debugger.objectwrapper.invocationException");
-
-    static String inspect =
-        Config.getString("debugger.objectwrapper.inspect");
-    static String remove =
-        Config.getString("debugger.objectwrapper.remove");
-
-    static String redefinedIn =
-        Config.getString("debugger.objectwrapper.redefined");
-
-    static String inheritedFrom =
-        Config.getString("debugger.objectwrapper.inherited");
-
-    static String serializable =
-        Config.getString("debugger.objectwrapper.serializable");
 }

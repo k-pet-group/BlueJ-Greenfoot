@@ -22,7 +22,7 @@ import java.util.Properties;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: AppletClassRole.java 1521 2002-11-27 13:22:48Z mik $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -116,24 +116,19 @@ public class AppletClassRole extends ClassRole
      * @param editorFrame the frame in which this targets package is displayed
      * @return the generated JPopupMenu
      */
-    protected void createMenu(JPopupMenu menu, ClassTarget ct, int state) {
+    protected void createMenu(JPopupMenu menu, ClassTarget ct, int state) 
+    {
+        final ClassTarget target = ct;
         // add run applet option
-        ct.addMenuItem(menu, runAppletStr, (state == Target.S_NORMAL));
+        target.addMenuItem(menu, runAppletStr, (state == Target.S_NORMAL),
+                       new ActionListener() {
+                        public void actionPerformed(ActionEvent e) { 
+                            target.getPackage().getEditor().raiseRunTargetEvent(target);
+                        }
+                       });
         menu.addSeparator();
     }
 
-
-    /**
-     *  modified from ActionListener interface
-     *
-     */
-    public void actionPerformed(ActionEvent e, ClassTarget ct)
-    {
-        String cmd = e.getActionCommand();
-
-        if(runAppletStr.equals(cmd))
-            ct.getPackage().getEditor().raiseRunTargetEvent(ct);
-    }
 
     /**
      * Runs the applet using options provided by user RunAppletDialog dialog

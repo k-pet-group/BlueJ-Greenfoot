@@ -12,7 +12,7 @@ import java.util.Properties;
  * StdClassRole is used to represent standard Java classes.
  *
  * @author Bruce Quig
- * @version $Id: StdClassRole.java 1018 2001-12-04 05:08:03Z ajp $
+ * @version $Id: StdClassRole.java 1521 2002-11-27 13:22:48Z mik $
  */
 public class StdClassRole extends ClassRole
 {
@@ -57,12 +57,5 @@ public class StdClassRole extends ClassRole
     public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width, int height)
     {
         // no implementation as yet
-    }
-
-    // -- modified ActionListener interface --
-
-    public void actionPerformed(ActionEvent e, ClassTarget ct)
-    {
-        // no implementation
     }
 }

@@ -19,7 +19,7 @@ import java.util.Properties;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 875 2001-04-26 06:34:39Z mik $
+ * @version $Id: ClassRole.java 1521 2002-11-27 13:22:48Z mik $
  */
 public abstract class ClassRole
 {
@@ -92,14 +92,6 @@ public abstract class ClassRole
      * @return the created popup menu object
      */
     protected abstract void createMenu(JPopupMenu menu, ClassTarget ct, int state);
-
-
-    /**
-     *  modified from ActionListener interface
-     *
-     */
-    public abstract void actionPerformed(ActionEvent e, ClassTarget ct);
-
 
 
     /**
