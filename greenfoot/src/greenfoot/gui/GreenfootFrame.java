@@ -19,6 +19,7 @@ import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -26,6 +27,8 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -51,7 +54,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3165 2004-11-25 02:07:14Z davmac $
+ * @version $Id: GreenfootFrame.java 3188 2004-11-26 12:15:11Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -96,6 +99,9 @@ public class GreenfootFrame extends JFrame
         }
         this.blueJ = blueJ;
         setSize(400, 300);
+        URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
+        ImageIcon icon = new ImageIcon(iconFile);
+        setIconImage(icon.getImage());
         buildUI();
         addWindowListener(this);
         Greenfoot.getInstance().addCompileListener(this);
