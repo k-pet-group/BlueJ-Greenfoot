@@ -359,6 +359,15 @@ public class ExtensionWrapper
     }
 
 
+    /**
+     * Returns useful information about this wrapper
+     */
+    public String toString()
+    {
+        if ( ! isValid() ) return "ExtensionWrapper: invalid";
+
+        return "ExtensionWrapper: "+ extensionClass.getName();
+    }
 
     /* ====================== ERROR WRAPPED CALLS HERE =========================
      * I need to wrapp ALL calls from BlueJ to the Extension into a try/catch
