@@ -2274,7 +2274,7 @@ public class ObjectReferenceInspector extends Inspector
                         }
                         if (ok)
                         {
-                            setVisible(false);
+                            MethodDialog.this.setVisible(false);
                             bluej.debugger.ObjectViewer.updateViewers();
                         }
                     }
@@ -2287,7 +2287,7 @@ public class ObjectReferenceInspector extends Inspector
                 {
                     public void actionPerformed(ActionEvent evt)
                     {
-                        setVisible(false);
+                        MethodDialog.this.setVisible(false);
                     }
                 });
             closeButton.setEnabled(true);
@@ -2437,7 +2437,7 @@ public class ObjectReferenceInspector extends Inspector
                         }
                         if (ok)
                         {
-                            setVisible(false);
+                            AssignDialog.this.setVisible(false);
                             bluej.debugger.ObjectViewer.updateViewers();
                         }
                     }
@@ -2450,7 +2450,7 @@ public class ObjectReferenceInspector extends Inspector
                 {
                     public void actionPerformed(ActionEvent evt)
                     {
-                        setVisible(false);
+                        AssignDialog.this.setVisible(false);
                     }
                 });
             closeButton.setEnabled(true);
