@@ -1,0 +1,12 @@
+Ce répertoire contient quelques modèles utilisés par BlueJ pour générer des fichiers.
+On peut modifier (éditer) ces modèles pour changer le contenu par défaut
+des fichiers générés.
+
+ - Les modèles readme et readmeexp peuvent être librement modifiés.
+ - Le modèle html doit être modifié avec précaution - il peut y avoir des
+   problèmes si sa structure est modifiée.
+ - Le modèle shell ne devrait pas être modifié (sauf si vous savez VRAIMENT
+   ce que vous faites).
+
+Le sous-répertoire "newclass" contient des modèles pour les classes générées
+via la fonction "Nouvelle classe" de BlueJ.

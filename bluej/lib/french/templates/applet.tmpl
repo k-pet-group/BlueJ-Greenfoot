@@ -3,120 +3,117 @@ import java.applet.Applet;
 import java.awt.*;
 
 /**
- * Write a description of the applet class $CLASSNAME here.
+ * Décrivez votre classe d'applet $CLASSNAME ici.
  *
- * @author (your name) 
- * @version (a version number or a date)
+ * @author  (votre nom) 
+ * @version (un numéro de version ou une date)
  */
 public class $CLASSNAME extends Applet
 {
-	// instance variables - replace the example below with your own
+	// variables d'instance - remplacez cet exemple par le vôtre
 	private int x;
 
 	/**
-	 * Called by the browser or applet viewer to inform this Applet that it
-	 * has been loaded into the system. It is always called before the first 
-	 * time that the start method is called.
+	 * Appelée par le fureteur ou le visualiseur afin de signaler à l'Applet
+	 * qu'il est maintenant pris en charge par le système.
+	 * Il est garanti que ceci précédera le premier appel de la méthode start.
 	 */
 	public void init()
 	{
-		// provide any initialisation necessary for your Applet
+		// insérez ici l'initialisation requise par votre Applet
 
 	}
 
 	/**
-	 * Called by the browser or applet viewer to inform this Applet that it 
-	 * should start its execution. It is called after the init method and 
-	 * each time the Applet is revisited in a Web page. 
+	 * Appelée par le fureteur ou le visualiseur pour signaler à l'Applet
+	 * qu'il devrait commencer à s'exécuter.  Ceci se produit après l'appel
+	 * de init et chaque fois que la page Web est actualisée.
 	 */
 	public void start()
 	{
-		// provide any code requred to run each time 
-		// web page is visited
+		// Insérez ici le code qui doit s'exécuter chaque fois
+		// que la page Web est actualisée.
 
 	}
 
 
 	/**
-	 * This may be the most important method in your applet: Here, the 
-	 * drawing of the applet gets done. "paint" gets called everytime the
-	 * applet should be drawn on the screen. So put the code here that
-	 * shows the applet.
+	 * Probablement la méthode la plus importante de votre Applet:
+	 * c'est ici que l'applet peint l'écran.  "paint" est appelée
+	 * chaque fois que l'applet est rafraîchi.  Insérez ici le code
+	 * qui dessine l'applet.
 	 *
-	 * @param  g   the Graphics object for this applet
+	 * @param  g   l'objet Graphics de cet applet
 	 */
 	public void paint(Graphics g)
 	{
-		// simple text displayed on applet
+		// Exemple : affichage de texte noir et bleu sur blanc
 		g.setColor(Color.white);
 		g.fillRect(0, 0, 200, 100);
 		g.setColor(Color.black);
-		g.drawString("Sample Applet", 20, 20);
+		g.drawString("Applet modèle", 20, 20);
 		g.setColor(Color.blue);
-		g.drawString("created by BlueJ", 20, 40);
+		g.drawString("créé par BlueJ", 20, 40);
 	}
 
 
 	/** 
-	 * Called by the browser or applet viewer to inform this Applet that
-	 * it should stop its execution. It is called when the Web page that
-	 * contains this Applet has been replaced by another page, and also
-	 * just before the Applet is to be destroyed. If you do not have any
-	 * resources that you need to release (such as threads that you may
-	 * want to stop) you can remove this method.
+	 * Appelée par le fureteur ou le visualiseur afin de signaler à l'Applet
+	 * qu'il doit arrêter de s'exécuter.  Ceci se produit lorsque la page
+	 * Web qui contient l'Applet est remplacée par une autre, ainsi que
+	 * juste avant que l'Applet soit détruit.  Si vous n'avez pas de
+	 * ressources à libérer (comme des fils d'exécution à stopper),
+	 * vous pouvez supprimer cette méthode.
 	 */
 	public void stop()
 	{
-		// provide any code that needs to be run when page
-		// is replaced by another page or before Applet is destroyed 
+		// Insérez le code à exécuter lorsque l'Applet est arrêté 
 	}
 
 
 	/**
-	 * Called by the browser or applet viewer to inform this Applet that it
-	 * is being reclaimed and that it should destroy any resources that it
-	 * has allocated. The stop method will always be called before destroy. 
-	 * If you do not have any resources that you need to release you can 
-	 * remove this method.
+	 * Appelée par le fureteur ou le visualiseur afin de signaler à l'Applet
+	 * qu'il est sur le point d'être détruit.  Cette méthode précède toujours
+	 * destroy.  Si vous n'avez pas de ressources à libérer, vous pouvez
+	 * supprimer cette méthode.
 	 */
 	public void destroy()
 	{
-		// provide code to be run when Applet is about to be destroyed.
+		// Insérez le code à exécuter lorsque l'Applet est détruit.
 	}
 
 
 	/**
-	 * Returns information about this applet. 
-	 * An applet should override this method to return a String containing 
-	 * information about the author, version, and copyright of the Applet.
+	 * Retourne quelques renseignements à propos de cet applet. 
+	 * Un applet devrait remplacer cette méthode afin de retourner un String
+	 * décrivant l'auteur, la version et les droits d'auteur.
 	 *
-	 * @return a String representation of information about this Applet
+	 * @return un String décrivant l'Applet
 	 */
 	public String getAppletInfo()
 	{
-		// replace this with your own info
-		return "Title: BlueJ Applet Demo\n" + 
-			   "Author: Bruce Quig\n" +
-			   "A simple applet that draws two strings.";
+		// remplacez ceci par votre code
+		return "Titre : Applet démo BlueJ\n" + 
+			   "Auteur : Bruce Quig\n" +
+			   "Un applet qui dessine deux chaînes de caractères.";
 	}
 
 
 	/**
-	 * Returns information about the parameters that are understood by this 
-	 * Applet. You should return an array of Strings here to provide details
-	 * about each of the parameters separately.
-	 * Each element of the array should be a set of three Strings containing 
-	 * the name, the type, and a description.
+	 * Retourne quelques renseignements à propos des paramètres acceptés
+	 * par l'Applet.  Vous devriez retourner un tableau de Strings décrivant
+	 * chaque paramètre séparément (premier indice).
+	 * Le second indice du tableau correspond aux nom, type et description
+	 * de chaque paramètre.
 	 *
-	 * @return  a String[][] representation of parameter information about 
-	 *		  this Applet
+	 * @return  un String[][] décrivant l'Applet
 	 */
 	public String[][] getParameterInfo()
 	{
-		// provide parameter information about the applet
+		// Décrivez vos paramètres ici
 		String paramInfo[][] = {
-			 {"firstParameter", "1-10", "description of first parameter"},
-			 {"secondParameter", "boolean", "description of second parameter"}
+			 {"firstParameter", "1-10", "description du premier paramètre"},
+			 {"secondParameter", "boolean", "description du second paramètre"}
 		};
 		return paramInfo;
 	}

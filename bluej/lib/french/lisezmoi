@@ -1,84 +1,108 @@
 fichier: lisezmoi
 description: Traduction française du logiciel BlueJ
-Date: 2002/10/17
-Auteur: P. Moreaux
-        Université de Reims Champagne-Ardenne, FRANCE
-        (patrice.moreaux@univ-reims.fr)
+Date: 2003-07-28
+Auteur: Daniel U. Thibault
+        R & D pour la défense Canada - Valcartier
+        (Daniel.Thibault@DRDC-RDDC.GC.Ca)
 
 
-Version BlueJ concernée: 1.2.2 (2002/10/16)
+Version BlueJ concernée: 1.3.0ß4 (2003-07-14)
 
+
+Remerciements
+-----------------------
+Cette traduction est basée sur celle fournie par
+   P. Moreaux
+   Université de Reims Champagne-Ardenne, FRANCE
+   (patrice.moreaux@univ-reims.fr)
+pour la version 1.2.2.  Elle a été améliorée, complétée et corrigée,
+avec l'aide des services en ligne de l'Office de la langue française
+--en particulier le Signet (http://w3.olf.gouv.qc.ca/banque/).
 
 Principes de traduction
 -----------------------
-La traduction concerne l'environnement BlueJ:
-- menus,
-- commentaires d'erreur,
-- messages d'aide de BlueJ.
-
-La traduction ne concerne pas:
+La traduction concerne l'environnement BlueJ :
+- menus
+- commentaires d'erreur
+- messages d'aide de BlueJ
 - les aides de l'éditeur "moe" liées aux associations de touches
   (key bindings)
 - les messages du système sous-jacent Java
 - le texte des exemples
-- le texte des "templates" (modèles).
+- le texte des modèles (templates)
 
-Nous considérons qu'un programmeur francophone, même débutant,
-doit programmer en Anglais, y compris pour les noms d'entités
-(variables, méthodes, classes, etc.) et la documentation
-du code.
-De plus, l'Anglais est mieux adapté à un style concis, tout
-en restant précis, le Français exigeant beaucoup de <<petits mots>>
-(de, la, un, et, etc.) pour être précis.
+Je considère qu'un programmeur francophone, même débutant,
+peut programmer aussi bien en anglais qu'en français, pour
+ce qui est des noms d'entités privées (variables, méthodes,
+classes, etc.).  Cependant, il est préférable que les noms
+d'entités publiques et la documentation du code soient en
+anglais afin de préserver l'universalité du code.
 
 
-Termes non traduits
--------------------
-Ces termes sont d'un usage consacré, même dans les pays francophones,
-ou à caractère technique (en Java ou en programmation objet).
+Terminologie
+------------
 
-Terme         sens en Français
+Les équivalences signalées par l'abréviation CGTN sont celles
+suggérées par la Commission générale de terminologie et de néologie
+de France.
+
+
+Anglais       Français
 ------------|---------------------------------------------------
-thread        processus léger
-debugger      metteur au point
-package       packetage
-'uses'        clause uses
-browser       butineur
-web           web
-url           adresse Internet
-applet        "appliquette"
-appletviewer  "visualiseur" d'"appliquette"
+applet        applet (CGTN : appliquette)
+appletviewer  visualiseur d'applet
+backup        sauvegarde, sauvegarder
+boot          amorcer, démarrer
+breakpoint    point d'arrêt, d'interruption
+browser       navigateur
+buffer        tampon
+catch         attraper (une exception)
+commit        valider
+crash         se planter, plantage
+debugger      débogueur
+exception     exception
+'extends'     clause 'extends'
+fixture       engagements (au sens junit.framework.TestCase)
+font          police
+handler       gestionnaire (pilote, dans le cas d'un périphérique)
+identifier    identificateur, identifiant
+inner class   classe imbriquée
+jar           (extension des fichiers compressés Java)
+key bindings  raccourcis-clavier
+label         étiquette
+library       bibliothèque
+log           journal
+'main'        méthode 'main'
+modifier      modificateur
+native        intrinsèque
+notify        aviser
+override      remplacer
+package       paquetage
 path          chemin d'accès
-stream        flux
-Extends       clause extends
-TAB           caractère tabulation
-jar           extension des fichiers compressés Java
-template      modèle, patron
-main          méthode main
-log           fichier log (ou trace si traduit selon le contexte)
-
-
-Choix de traduction de termes techniques
-----------------------------------------
-identifier   = identificateur
-buffer       = tampon
-key bindings =  associations aux touches ou des touches selon le contexte.
-log          = trace (fichier de -)
-Save         = enregistrer (un fichier)
-
-
-Traduction classique mais souvent incorrecte
---------------------------------------------
-library = bibliothèque (et non pas librairie)
+proxy         mandataire
+raster        trame
+save          enregistrer
+scope         contexte
+stream        flot
+tab           tabulation
+tag           balise
+template      modèle
+thread        fil
+throw         lever, lancer (une exception)
+token         atome (au sens syntactique)
+typecast      forçage de type
+url           adresse Internet
+'uses'        clause 'uses'
+web           Web (CGTN : Toile)
 
 
 Contenu et installation de la traduction
 ----------------------------------------
 le répertoire "french" contient tous les fichiers remplacés par
-leur traduction:
+leur traduction :
 - dialogues
-- labels
-- sous-répertoire templates
+- étiquettes
+- sous-répertoire 'templates'
   - readme
   - sous-répertoire newclass
     - readme

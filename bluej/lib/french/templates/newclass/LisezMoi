@@ -1,27 +1,27 @@
-README - <bluej-home>/lib/<french>/templates/newclass/README
+LISEZMOI - <bluej-home>/lib/<french_canadian>/templates/newclass/LisezMoi
 --------------------------------------------------------------
 
-Ce répertoire contient les templates de classe pour BlueJ.
+Ce répertoire contient les modèles de classe pour BlueJ.
 
-Ces templates de classe sont proposés dans la fonction "Nouvelle classe"
+Ces modèles de classe sont proposés par la fonction "Nouvelle classe"
 de l'environnement BlueJ.
 
 
-Modification des templates
+Modification des modèles
 --------------------------
-Les templates peuvent être facilement modifiés en éditant ces fichiers.
+Les modèles peuvent être facilement modifiés en éditant ces fichiers.
 
 
-Ajouter de nouveaux templates
+Ajouter de nouveaux modèles
 -----------------------------
-Pour ajouter un template, créer un nouveau fichier dans ce répertoire
+Pour ajouter un modèle, créez un nouveau fichier dans ce répertoire
 avec l'extension ".tmpl" (par exemple "mainclass.tmpl").
 
 Les noms pour les applets, interfaces ou classes abstraites doivent commencer
 par "applet", "interface" ou "abstract" respectivement.
 Tout autre nom sera considéré comme une classe standard.
 
-Par défaut, ce template apparaîtra en fin de liste de sélection dans
+Par défaut, ce modèle apparaîtra en fin de liste de sélection dans
 la fonction "Nouvelle classe" de BlueJ avec son nom ("mainclass").
 
 Le nom apparaissant dans la liste peut être défini
@@ -31,11 +31,11 @@ Par exemple, en définissant
 
    pkgmgr.newClass.mainclass=Class with Main
 
-le nom "Class with Main" apparaîtra dans la liste pour notre nouveau choix.
+le nom "Class with Main" apparaîtra dans la liste pour votre nouveau choix.
 
 La position dans la liste peut être spécifiée en
-ajoutant ce nouveau template à la liste définie par la propriété
+ajoutant ce nouveau modèle à la liste définie par la propriété
 "bluej.classTemplates" du fichier de définitions BlueJ
 (<bluej-home>/lib/bluej.defs).
-Tous les templates qui y sont indiqués apparaîtront dans l'ordre indiqué,
-les autres templates seront présentés dans un ordre aléatoire.
+Tous les modèles qui y sont indiqués apparaîtront dans l'ordre indiqué,
+les autres modèles seront présentés dans un ordre aléatoire.

@@ -1,124 +1,183 @@
 NullPointerException*
-You tried to access an object (either a field
-in an object or a method of an object). This
-did not work because the object reference you
-used to access the object was 'null'. For
-example: You wrote "thing.print()", and "thing"
-was null at the time.
+Vous avez tenté d'accéder à un objet (soit un
+champ ou une méthode d'un objet).  Ceci a échoué
+parce que la référence utilisée avait la valeur
+'null'.
+Par exemple : Vous écrivez "thing.print()", et
+"thing" est 'null'.
 
 ArithmeticException*
-Something went wrong during an arithmetic
-calculation, such as a division by 0 or
-something similar.
+Quelque chose a cloché pendant un calcul
+arithmétique, comme une division par zéro
+ou un débordement de valeur entière.
 
 StringIndexOutOfBoundsException*
-You have tried to access a character or a substring
-in a string , and the index you used does not exist
-in that string. For example, you may have tried to
-access the fifth character in a string that is only
-three characters long.
-For the substring operation, remember that the second
-parameter is the length of the substring, not the
-end index.
+Vous avez tenté d'accéder à un caractère ou à une
+sous-chaîne d'une chaîne de caractères, et l'indice
+utilisé n'existe pas dans cette chaîne.  Par exemple,
+le cinquième caractère d'une chaîne qui n'en compte
+que trois.
+Dans le cas de la méthode 'substring', le second
+paramètre spécifie l'indice du premier caractère au
+delà de la fin de la sous-chaîne et non sa longueur.
 
 ClassCastException*
-You used a "cast" - that is an instruction assigning
-a different static type to an object, such as in this
-example:
+Vous avez tenté de forcer le type - d'assigner un
+type statique différent à un objet, comme dans cet
+exemple :
        (String)someObject
-Here, "someObject" is cast to "String". This is legal
-only if the object stored in someObject really is of
-type String.
-In other words: you can cast to type T only if the
-object you are casting is of type T or one of its
-subtypes. In your case it wasn't.
+Le type de "someObject" est forcé à "String".
+Ceci n'est légal que si le type de l'objet contenu
+dans "someObject" est String ou un sous-type de
+String.  En d'autres mots : vous pouvez forcer le
+type d'un objet à T seulement si l'objet est de type
+T ou un de ses sous-types.
 
 IndexOutOfBoundsException*
-An index of some sort (such as to an array, to a string,
-or to a vector) is out of range. "Out of range" means
-that the index does not exist in the array or other
-collection (e.g. you tried to access element 5, but only
-three elements exist).
+Un index quelconque (dans un tableau, une chaîne ou
+un vecteur) déborde.  Il y a débordement lorsque
+l'indice n'existe pas dans le tableau ou collection
+(e.g. vous spécifiez l'élément 5, mais il n'en existe
+que trois).
 
 ArrayIndexOutOfBoundsException*
-An array index is out of range. "Out of range" means
-that the index does not exist in the array (e.g. you
-tried to access element 5, but only three elements
-exist). The legal index range is 0..arraylength-1.
+Un indice dans un tableau déborde.  Il y a débordement
+lorsque l'indice n'existe pas dans le tableau (e.g.
+vous spécifiez l'élément 5, mais il n'en existe que
+trois).  Les indices courent de 0 à longueur-1.
 
 ConcurrentModificationException*
-You are doing an iteration over a collection here.
-While you are doing this, the collection was modified.
-That's a problem. You are not allowed to modify the
-collection during an iteration. Or the other way
-around: you cannot continue the iteration after
-modifying the collection. The only modification
-allowed during an iteration is removing elements with
-the Iterator's remove method (NOT the remove in the
-collection itself).
+Tandis que vous itériez sur une collection, elle a
+été modifiée, d'où problème.  Vous ne pouvez pas
+modifier une collection pendant une itération.  Ni
+l'inverse : vous ne pouvez pas poursuivre une
+itération après avoir modifié une collection.
+La seule modification permise pendant une itération
+est la suppression d'éléments à l'aide de la méthode
+"remove" de l'itérateur (et non celle de la
+collection elle-même).
+
+AssertionError*
+Une assertion a échoué.  Ce qui veut dire que
+l'expression argument de "assert"
+    assert(assertion-expression)
+a la valeur 'false'.  L'assertion a pour but de
+s'assurer de la véracité de l'expression en question,
+aussi est-ce considéré une erreur.  La nature exacte
+de cette erreur dépend du programme.  Vous devriez
+chercher à savoir pourquoi cela s'est produit.
+
+ClassNotFoundException*
+Une classe nécessaire à l'exécution de cette
+application est introuvable.  Elle était présente
+lors de la compilation, mais ce n'est plus le cas.
+Il pourrait y avoir un problème de configuration
+de votre système Java (s'il s'agit d'une classe
+système) ou votre projet pourrait être endommagé
+(des fichiers '.class' sont disparus ou corrompus).
+Si le problème survient avec d'autres projets, le
+premier cas est probable - ré-installez le JDK.
+Sinon, essayez de recompiler votre projet en
+entier.
 
 ArrayStoreException*
-No help available - sorry.
+Vous avez tenté d'assigner un objet d'un certain
+type à un tableau d'objets d'un autre type.
+Par exemple, un Integer dans un String[].
 
 CannotRedoException*
-No help available - sorry.
+Vous avez tenté de répéter ou rétablir un changement
+(méthode 'redo' de javax.swing.text ou
+javax.swing.undo) et cela s'est avéré impossible.
 
 CannotUndoException*
-No help available - sorry.
+Vous avez tenté d'annuler un changement (méthode
+'undo' de javax.swing.text ou javax.swing.undo) et
+cela s'est avéré impossible.
 
 CMMException*
-No help available - sorry.
+Une erreur s'est produite dans le CMM
+(Module de gestion des couleurs).
 
 EmptyStackException*
-No help available - sorry.
+Une méthode de la classe 'Stack' a tenté de
+récupérer un élément de la pile alors que
+cette dernière était vide.
 
 IllegalArgumentException*
-No help available - sorry.
+Une méthode a reçu un argument illégal ou
+inapproprié.  (Erreur générique)
 
 IllegalMonitorStateException*
-No help available - sorry.
+Un fil a tenté d'attendre le moniteur d'un objet ou
+d'aviser d'autres fils attendant le moniteur d'un
+objet sans être le propriétaire du moniteur en
+question.
 
 IllegalPathStateException*
-No help available - sorry.
+Un chemin géométrique était dans un état illégal
+pour l'opération tentée.  Par exemple, vous tentez
+d'ajouter (méthode 'append') à un chemin
+('GeneralPath') sans avoir d'abord effectué un
+'moveto'.
 
 IllegalStateException*
-No help available - sorry.
+Une méthode a été invoquée sur un objet qui se
+trouvait dans un état illégal ou inapproprié pour
+cette méthode.  (Erreur générique)
 
 ImagingOpException*
-No help available - sorry.
+Une méthode de filtrage d'image (interfaces
+'BufferedImageOp' ou 'RasterOp') a échoué.
 
 MissingResourceException*
-No help available - sorry.
+Une ressource nécessaire n'est pas disponible.
 
 NegativeArraySizeException*
-No help available - sorry.
+Vous avez tenté de créer un tableau dont au moins
+une dimension est négative.
 
 NoSuchElementException*
-No help available - sorry.
+Vous avez invoqué la méthode 'nextElement' d'une
+énumération épuisée.
 
 ProfileDataException*
-No help available - sorry.
+Une erreur est survenue lors d'un accès à ou
+d'un traitement sur un profil colorimétrique
+(objet 'ICC_Profile').
 
 ProviderException*
-No help available - sorry.
+Une erreur est survenue dans un fournisseur de
+service (objet 'Provider'), comme par exemple un
+problème de configuration.  (Erreur générique)
 
 RasterFormatException*
-No help available - sorry.
+Une trame (objet 'Raster') contient des données
+de disposition invalides.
 
 SecurityException*
-No help available - sorry.
+Une violation de sécurité est survenue.
+(Erreur générique)
 
 SystemException*
-No help available - sorry.
+Une exception standard CORBA a été levée.
+(Erreur générique)
 
 UndeclaredThrowableException*
-No help available - sorry.
+Un gestionnaire d'invocation mis en place pour un
+mandataire quelconque utilise sa méthode 'invoke'
+pour invoquer les méthodes du mandataire.  Si un
+'Throwable' est levé qui ne peut être assigné à
+'Error', à 'RuntimeException' ni à une des exceptions
+spécifiées par la clause 'throws' de la méthode
+invoquée, cette exception l'encapsule.
+(Du moins c'est ce que je crois avoir compris)
 
 UnsupportedOperationException*
-No help available - sorry.
+Une opération non supportée a été demandée.
+(Erreur générique)
 
 Exception
-This is a general exception that only says
-that something went wrong. I have no idea
-what it is...
+Quelque chose est allé de travers.
+(Erreur générique)
 
