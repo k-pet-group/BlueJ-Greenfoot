@@ -566,7 +566,7 @@ public final class MoeActions
                 converted = convertTabsToSpaces(textPane);
 
             if(PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
-                doIndent(textPane);
+                doIndent(textPane, false);
             else
                 insertSpacedTab(textPane);
 
@@ -584,14 +584,14 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
-            JTextComponent textPane = getTextComponent(e);
-            int column = getCurrentColumn(textPane);
 
             Action action = (Action)(actions.get(DefaultEditorKit.insertBreakAction));
             action.actionPerformed(e);
 
-            if(PrefMgr.getFlag(PrefMgr.AUTO_INDENT) && (column > 0))
-                doIndent(textPane);
+            if(PrefMgr.getFlag(PrefMgr.AUTO_INDENT)) {
+                JTextComponent textPane = getTextComponent(e);
+                doIndent(textPane, true);
+            }
         }
     }
 
@@ -1012,10 +1012,10 @@ public final class MoeActions
      * to the same depth, using the same characters (TABs or spaces) as the
      * line immediately above.
      */ 
-    private void doIndent(JTextComponent textPane)
+    private void doIndent(JTextComponent textPane, boolean isNewLine)
     {
         int lineIndex = getCurrentLineIndex(textPane);
-        if(lineIndex == 0) {
+        if(lineIndex == 0) {  // first line
             insertSpacedTab(textPane);
             return;
         }
@@ -1047,10 +1047,12 @@ public final class MoeActions
             int indentPos = findFirstNonIndentChar(lineText, commentEnd);
 
             // if the cursor is already past the indentation point, insert tab
+            // (unless we just did a line break, then we just stop)
 
             int caretColumn = getCurrentColumn(textPane);
             if(caretColumn >= indentPos) {
-                insertSpacedTab(textPane);
+                if(!isNewLine)
+                    insertSpacedTab(textPane);
                 return;
             }
 
