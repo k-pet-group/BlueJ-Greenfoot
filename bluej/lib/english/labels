@@ -182,6 +182,7 @@ editor.insert-methodLabel = Insert method
 
 editor.find-backwardLabel = Find Backward...
 editor.replaceLabel = Replace...
+editor.find.replacefield.label = Replace with:
 editor.compileLabel = Compile
 editor.toggle-breakpointLabel = Set/Clear Breakpoint
 editor.toggle-interface-viewLabel = Toggle Interface View
