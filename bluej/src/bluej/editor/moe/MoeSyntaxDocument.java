@@ -66,7 +66,7 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
         // code closely resembles method from DefaultStyleDocument
         try {
             writeLock();
-
+            
             Element section = getDefaultRootElement();
             int index0 = section.getElementIndex(offset);
             int index1 = section.getElementIndex(offset + 
@@ -80,6 +80,7 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
                     attr.removeAttributes(attr);
                 }
                 attr.addAttributes(s);
+            }
         } finally {
             writeUnlock();
         }
