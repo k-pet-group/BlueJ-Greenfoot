@@ -40,12 +40,12 @@ class Student extends Person
     /**
      * Return a string representation of this object.
      */
-//     public String toString()    // redefined from "Person"
-//     {
-//         return super.toString() +
-//                "Student\n" +
-//                "Student ID: " + SID + "\n";
-//     }
+    public String toString()    // redefined from "Person"
+    {
+        return super.toString() +
+               "Student\n" +
+               "Student ID: " + SID + "\n";
+    }
 
 }
 

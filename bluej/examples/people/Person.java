@@ -55,9 +55,9 @@ abstract class Person
     /**
      * Return a string representation of this object.
      */
-//     public String toString()    // redefined from "Object"
-//     {
-//         return "Name: " + name + "\n" +
-//                "Year of birth: " + yearOfBirth + "\n";
-//     }
+    public String toString()    // redefined from "Object"
+    {
+        return "Name: " + name + "\n" +
+               "Year of birth: " + yearOfBirth + "\n";
+    }
 }
