@@ -16,7 +16,7 @@ import java.io.File;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2010 2003-06-03 07:07:12Z ajp $
+ * @version $Id: Main.java 2023 2003-06-05 05:04:53Z ajp $
  */
 public class Main
 {
@@ -32,7 +32,6 @@ public class Main
         Boot boot = Boot.get();
         String [] args = boot.getArgs();
 		File bluejLibDir = boot.getBluejLibDir();
-		System.out.println("Main " + getClass().getClassLoader());
         
         Config.initialise(bluejLibDir);
 
