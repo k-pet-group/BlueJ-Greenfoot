@@ -107,7 +107,7 @@ browser.menu.help.about.title=About BlueJ Library Browser 0.1
 
 # Class Manager user interface elements and error messages
 #
-classmgr.title=BlueJ Class Manager
+classmgr.title=BlueJ Preferences
 classmgr.userlibraries=User Libraries
 classmgr.systemlibraries=System Libraries
 classmgr.bootlibraries=Boot Libraries
@@ -242,6 +242,7 @@ menu.edit.removeClass=Remove Class...
 menu.edit.newUses=New Uses Arrow...
 menu.edit.newInherits=New Inheritance Arrow...
 menu.edit.removeArrow=Remove Arrow...
+menu.edit.preferences=Preferences...
 
 menu.tools=Tools
 menu.tools.compile=Compile
