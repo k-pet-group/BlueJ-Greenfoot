@@ -37,7 +37,7 @@ import bluej.utility.FileUtility;
  * The main class for greenfoot. This is a singelton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Greenfoot.java 3165 2004-11-25 02:07:14Z davmac $
+ * @version $Id: Greenfoot.java 3201 2004-11-29 04:07:13Z davmac $
  */
 public class Greenfoot
 {
@@ -273,14 +273,15 @@ public class Greenfoot
 
         String newname = FileUtility.getFileName(frame, Config.getString("pkgmgr.newPkg.title"), Config
                 .getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
-        try {
-            RProject newProject = rBlueJ.newProject(new File(newname));
-            prepareGreenfootProject(newProject);
+        if (newname != null) {
+            try {
+                RProject newProject = rBlueJ.newProject(new File(newname));
+                prepareGreenfootProject(newProject);
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-
     }
 
     /**
