@@ -17,7 +17,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * It can also set-up an accelerator key.
  * 
  * @author Davin McCall
- * @version $Id: PkgMgrAction.java 2573 2004-06-03 13:56:01Z fisker $
+ * @version $Id: PkgMgrAction.java 3055 2004-10-20 08:30:17Z fisker $
  */
 public abstract class PkgMgrAction extends AbstractAction {
         
@@ -61,7 +61,10 @@ public abstract class PkgMgrAction extends AbstractAction {
     public PkgMgrAction(String s)
     { 
         super(Config.getString(s)); 
-        putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(s)));
+        if (!Config.isMacOS()){
+        	// Mnemonic keys are against the apple gui guidelines.
+        	putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(s)));
+        }
         if (Config.hasAcceleratorKey(s)){
             putValue(ACCELERATOR_KEY, Config.getAcceleratorKey(s));
         }
