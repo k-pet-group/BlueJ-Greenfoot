@@ -35,7 +35,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2723 2004-07-02 15:22:53Z mik $
+ * @version $Id: Config.java 2742 2004-07-05 21:18:44Z mik $
  */
 
 public final class Config
@@ -479,14 +479,18 @@ public final class Config
         String keyString;
         index = str.indexOf('@');
         index++;
-        if (str.charAt(index) == '^'){ //then the modifiers is CTRL + SHIFT
+        if(str.charAt(index) == '^') { //then the modifiers is CTRL + SHIFT
             index++;
             modifiers |= KeyEvent.SHIFT_MASK;
         }
         keyString = str.substring(index).toUpperCase();
-        KeyStroke k1= KeyStroke.getKeyStroke(keyString);
-        KeyStroke k2= KeyStroke.getKeyStroke(k1.getKeyCode(), modifiers);
-        return k2;
+        if(keyString.length() == 1) {
+            return KeyStroke.getKeyStroke(keyString.charAt(0), modifiers);
+        }
+        else {
+            KeyStroke k1= KeyStroke.getKeyStroke(keyString);
+            return KeyStroke.getKeyStroke(k1.getKeyCode(), modifiers);
+        }
     }
     
     

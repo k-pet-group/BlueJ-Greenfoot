@@ -25,7 +25,7 @@ import bluej.views.*;
  * then loads the resulting class file and executes a method in a new thread.
  *
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2716 2004-07-01 21:53:37Z mik $
+ * @version $Id: Invoker.java 2742 2004-07-05 21:18:44Z mik $
  */
 
 public class Invoker extends Thread
@@ -100,31 +100,7 @@ public class Invoker extends Thread
         doFreeFormInvocation(true);
     }
 
-    /**
-     * Create an invoker for a free form statement or expression.
-     * TODO: can be removed when 'Evaluate expression' function is removed.
-     */
-    public Invoker(PkgMgrFrame pmf, FreeFormCallDialog callDialog, ResultWatcher watcher)
-    {
-        if(pmf.isEmptyFrame())
-            throw new IllegalArgumentException();
 
-        if(watcher == null)
-            throw new NullPointerException("Invoker: watcher == null");
-            
-        this.pmf = pmf;
-        this.pkg = pmf.getPackage();
-        this.watcher = watcher;
-        this.member = null;
-        this.shellName = getShellName();
-        this.objName = null;
-        this.instanceName = null;
-
-        constructing = false;
-        executionEvent = ExecutionEvent.createFreeForm(this.pkg);
-        doFreeForm(callDialog);
-    }
-        
     /**
      * Call a class's constructor, then create an ObjectWrapper for the
      * resulting object
@@ -287,19 +263,6 @@ public class Invoker extends Thread
         doFreeFormInvocation(false);
     }
     
-    /**
-     *  Start a free form invocation. That is: Show the free form
-     * evaluation dialog, then sit back and wait for a callback.
-     * TODO: can be removed when 'Evaluate expression' function is removed.
-     */
-    private void doFreeForm(FreeFormCallDialog callDialog)
-    {
-        dialog = callDialog;
-        dialog.setWatcher(this);
-        dialog.setVisible(true);
-        // after this, wait for callDialogEvent
-    }
-
     // -- CallDialogWatcher interface --
 
     /**
@@ -321,12 +284,6 @@ public class Invoker extends Thread
                 pmf.setWaitCursor(true);
                 if(constructing)
                     pkg.setStatus(creating);
-            }
-            else if(dlg instanceof FreeFormCallDialog) {
-                pmf.setWaitCursor(true);
-                FreeFormCallDialog ffDialog = (FreeFormCallDialog)dlg;
-                commandString = ffDialog.getExpression();
-                doFreeFormInvocation(ffDialog.getHasResult());
             }
         }
         else

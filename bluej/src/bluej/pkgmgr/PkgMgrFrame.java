@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2736 2004-07-05 10:09:07Z mik $
+ * @version $Id: PkgMgrFrame.java 2742 2004-07-05 21:18:44Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -119,8 +119,6 @@ public class PkgMgrFrame extends JFrame
     
 	// lazy initialised dialogs
     private LibraryCallDialog libraryCallDialog = null;
-    // TODO: can be removed when 'Evaluate expression' function is removed.
-    private FreeFormCallDialog freeFormCallDialog = null;
     private ProjectPrintDialog projectPrintDialog = null;
 
 	// set PageFormat for default page for default printer
@@ -144,15 +142,15 @@ public class PkgMgrFrame extends JFrame
         macApp.setEnabledPreferencesMenu(true);
         macApp.addApplicationListener(new com.apple.eawt.ApplicationAdapter() {
             public void handleAbout(ApplicationEvent e) {
-                getMostRecent().aboutBlueJ();
+                HelpAboutAction.getInstance().actionPerformed(getMostRecent());
                 e.setHandled(true);
             }
             public void handlePreferences(ApplicationEvent e) {
-                getMostRecent().showPreferences();
+                PreferencesAction.getInstance().actionPerformed(getMostRecent());
                 e.setHandled(true);
             }
             public void handleQuit(ApplicationEvent e) {
-                getMostRecent().wantToQuit();
+                QuitAction.getInstance().actionPerformed(getMostRecent());
             }
         });
         
@@ -1295,7 +1293,7 @@ public class PkgMgrFrame extends JFrame
     {
         JOptionPane.showMessageDialog(this,
               new String[] {
-                  "BlueJ \u00a9 2000-2003 Michael K\u00F6lling, John Rosenberg.",
+                  "BlueJ \u00a9 2000-2004 Michael K\u00F6lling, John Rosenberg.",
                   " ",
                   Config.getString("menu.help.copyright.line1"),
                   Config.getString("menu.help.copyright.line2"),
@@ -1820,39 +1818,6 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * User function "Free Form Call...". Pop up the dialog that allows users to
-     * make that call.
-     */
-    public void callFreeForm() {
-        if (freeFormCallDialog == null) {
-            freeFormCallDialog = new FreeFormCallDialog(this);
-        }
-        ResultWatcher watcher = new ResultWatcher() {
-            FreeFormCallDialog freeFormCallDialog = PkgMgrFrame.this.freeFormCallDialog;
-
-            public void putResult(DebuggerObject result, String name, InvokerRecord ir) {
-                getObjectBench().addInteraction(ir);
-                if (result != null) {
-                    ResultInspector viewer = ResultInspector.getInstance(result, name,
-                            getPackage(), ir, getExpressionInformation(), PkgMgrFrame.this);
-                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
-                } else {
-                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
-                }
-            }
-
-            public void putError(String msg) {
-            }
-
-            public ExpressionInformation getExpressionInformation() {
-                String expression = freeFormCallDialog.getExpression();
-                return new ExpressionInformation(expression);
-            }
-        };
-        new Invoker(this, freeFormCallDialog, watcher);
-    }
-
-    /**
      * User function "Generate Documentation...".
      */
     public void generateProjectDocumentation()
@@ -2348,28 +2313,29 @@ public class PkgMgrFrame extends JFrame
             menu.addSeparator();
 
             createMenuItem(UseLibraryAction.getInstance(), menu);
-            createMenuItem(EvalExpressionAction.getInstance(), menu);
-            menu.addSeparator();
-
             createMenuItem(GenerateDocsAction.getInstance(), menu);
+
             testingMenu = new JMenu(Config.getString("menu.tools.testing"));
             testingMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
             {
-            	createMenuItem(RunTestsAction.getInstance(), testingMenu);
-            	createMenuItem(EndTestRecordAction.getInstance(), testingMenu);
-            	createMenuItem(CancelTestRecordAction.getInstance(), testingMenu);
+                createMenuItem(RunTestsAction.getInstance(), testingMenu);
+                createMenuItem(EndTestRecordAction.getInstance(), testingMenu);
+                createMenuItem(CancelTestRecordAction.getInstance(), testingMenu);
             }
             testItems.add(testingMenu);
             menu.add(testingMenu);
-            menu.addSeparator();
 
-            createMenuItem(PreferencesAction.getInstance(), menu);
-
-            // This will attache the general handling of extension menu
+            if(!Config.usingMacScreenMenubar()) {   // no "Preferences" here for Mac
+                menu.addSeparator();
+                createMenuItem(PreferencesAction.getInstance(), menu);
+            }
+            
+            // Create the menu manager that looks after extension menus
             menuManager = new MenuManager(menu.getPopupMenu());
 
-            // If this is the first frame I have to attach the extension menu, no project openend here.
-            if ( frames.size() <= 1 )
+            // If this is the first frame create the extension menu now.
+            // (Otherwise, it will be created during project open.)
+            if(frames.size() <= 1)
                 menuManager.addExtensionMenu(null);
         }
 
@@ -2401,10 +2367,12 @@ public class PkgMgrFrame extends JFrame
 
         menu = new JMenu(Config.getString("menu.help"));
         menu.setMnemonic(Config.getMnemonicKey("menu.help"));
-        menubar.add(Box.createHorizontalGlue());  //TODO Hack while "setHelpMenu" does not work...
+        menubar.add(Box.createHorizontalGlue());
         menubar.add(menu);
         {
-            createMenuItem(HelpAboutAction.getInstance(), menu);
+            if(!Config.usingMacScreenMenubar()) {   // no "About" here for Mac
+                createMenuItem(HelpAboutAction.getInstance(), menu);
+            }
             createMenuItem(CheckVersionAction.getInstance(), menu);
             createMenuItem(CheckExtensionsAction.getInstance(), menu);
             createMenuItem(ShowCopyrightAction.getInstance(), menu);
@@ -2511,7 +2479,6 @@ public class PkgMgrFrame extends JFrame
         actionsToDisable.add(CompileSelectedAction.getInstance());
         actionsToDisable.add(RebuildAction.getInstance());
         actionsToDisable.add(UseLibraryAction.getInstance());
-        actionsToDisable.add(EvalExpressionAction.getInstance());
         actionsToDisable.add(GenerateDocsAction.getInstance());
         actionsToDisable.add(ShowUsesAction.getInstance());
         actionsToDisable.add(ShowInheritsAction.getInstance());
