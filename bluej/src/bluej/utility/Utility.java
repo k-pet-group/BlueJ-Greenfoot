@@ -12,7 +12,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 2462 2004-01-27 12:34:34Z mik $
+ * @version $Id: Utility.java 2709 2004-07-01 13:01:21Z polle $
  */
 public class Utility
 {
@@ -50,7 +50,8 @@ public class Utility
     }
 
     /**
-     * Draw a string at a given location on screen centered in a given rectangle.
+     * Draw a string at a given location on screen centered in a given rectangle.<br>
+     * Left justifies the string if it is too long to fit all of the string inside the rectangle.
      */
     public static void drawCentredText(Graphics g, String str, int x, int y, int width, int height)
     {
@@ -58,8 +59,12 @@ public class Utility
 
         Shape oldClip = g.getClip();
         g.clipRect(x, y, width, height);
-        g.drawString(str, x + (width - fm.stringWidth(str)) / 2,
-                     y + (height + fm.getAscent()) / 2);
+        int xOffset = (width - fm.stringWidth(str)) / 2;        
+        if(xOffset<0) {            
+            xOffset=0;
+        }
+        int yOffset = (height + fm.getAscent()) / 2;
+        g.drawString(str, x + xOffset, y + yOffset);
         g.setClip(oldClip);
     }
 
