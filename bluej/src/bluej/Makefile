@@ -142,9 +142,10 @@ MOE_CLASSES = \
 		MoeBoxView \
 		MoeCaret \
 		MoeEditor \
-		MoeEditorKit \
+		MoeSyntaxEditorKit \
 		MoeEditorManager \
-		MoeParagraphView \
+		MoeSyntaxView \
+		MoeSyntaxDocument \
 		Preferences \
 		StatusLabel
 MOE_SRCS = $(MOE_CLASSES:%=editor/moe/%.java)
