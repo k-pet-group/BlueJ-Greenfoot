@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2345 2003-11-14 13:02:02Z polle $
+ * @version    $Id: Inspector.java 2347 2003-11-14 13:53:18Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -193,7 +193,8 @@ public abstract class Inspector extends JFrame
     {      
         Object[] listData = getListData();
         ((ListTableModel)fieldList.getModel()).setDataVector(listData);
-
+      //  fieldList.setTableHeader(null);
+        
         if (fieldList != null) {
             fieldList.revalidate();
         }
@@ -336,6 +337,7 @@ public abstract class Inspector extends JFrame
 	 */
 	public void setHeader(JComponent newComponent) {       
         header.setLayout(new GridLayout(1,1));
+        header.setOpaque(false);
 		this.header.add(newComponent);	
 	}
 	
@@ -386,6 +388,7 @@ public abstract class Inspector extends JFrame
         fieldList.setBorder(null);
         JScrollPane scrollPane = new JScrollPane(fieldList);
         scrollPane.setBorder(BlueJTheme.generalBorder);
+        scrollPane.setOpaque(false);
         fieldList.requestDefaultFocus();
         fieldList.setRowHeight(25);
         fieldList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
