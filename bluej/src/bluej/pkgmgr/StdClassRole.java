@@ -1,18 +1,13 @@
 package bluej.pkgmgr;
 
-import bluej.utility.Utility;
-
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import java.util.Properties;
 
 /**
  * A role object which a class target uses to delegate behaviour to.
  * StdClassRole is used to represent standard Java classes.
  *
  * @author Bruce Quig
- * @version $Id: StdClassRole.java 1551 2002-12-02 05:58:45Z ajp $
+ * @version $Id: StdClassRole.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class StdClassRole extends ClassRole
 {

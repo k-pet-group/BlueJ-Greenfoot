@@ -1,15 +1,8 @@
 package bluej.utility;
 
-import bluej.Config;
 import bluej.pkgmgr.Package;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.beans.*;
 import java.io.File;
-import bluej.utility.DialogManager;
-import bluej.utility.filefilter.*;
 
 /**
  * A file chooser for opening packages (with strict behaviour with
@@ -23,7 +16,7 @@ import bluej.utility.filefilter.*;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooserStrict.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: PackageChooserStrict.java 1819 2003-04-10 13:47:50Z fisker $
  */
 class PackageChooserStrict extends PackageChooser
 {

@@ -1,10 +1,9 @@
 package bluej.views;
 
 import java.lang.reflect.*;
-import bluej.utility.Utility;
 
 /**
- ** @version $Id: FieldView.java 244 1999-08-20 06:42:33Z mik $
+ ** @version $Id: FieldView.java 1819 2003-04-10 13:47:50Z fisker $
  ** @author Michael Cahill
  **
  ** A representation of a Java field in BlueJ

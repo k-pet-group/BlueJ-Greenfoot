@@ -1,8 +1,5 @@
 package bluej.views;
 
-import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 
 import java.lang.reflect.*;
@@ -14,7 +11,7 @@ import java.util.*;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 1650 2003-03-05 14:55:40Z damiano $
+ * @version $Id: View.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class View
 {

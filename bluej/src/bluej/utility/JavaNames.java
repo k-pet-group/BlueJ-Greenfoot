@@ -1,19 +1,14 @@
 package bluej.utility;
 
-import bluej.Config;
-
-import java.awt.*;
 import java.io.*;
 import java.util.*;
-import java.awt.event.*;
-import javax.swing.*;
 
 /**
  * Some generally useful utility methods to do with dealing with
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 1088 2002-01-12 13:31:47Z ajp $
+ * @version $Id: JavaNames.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class JavaNames
 {

@@ -1,11 +1,7 @@
 package bluej.utility;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import java.io.File;
-
-import bluej.pkgmgr.Package;
 
 /**
  * A modified JFileChooser. Modifications are made for
@@ -13,7 +9,7 @@ import bluej.pkgmgr.Package;
  * field after traversing into a directory.
  *
  * @author Michael Kolling
- * @version $Id: BlueJFileChooser.java 1119 2002-01-30 00:06:26Z bquig $
+ * @version $Id: BlueJFileChooser.java 1819 2003-04-10 13:47:50Z fisker $
  */
 class BlueJFileChooser extends JFileChooser
 {

@@ -2,11 +2,7 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import bluej.utility.JavaNames;
-import bluej.utility.Utility;
-
 import java.awt.*;
 import java.awt.event.*;
 
@@ -16,7 +12,7 @@ import javax.swing.*;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 1579 2002-12-12 06:43:40Z bquig $
+ * @version $Id: ProjectPrintDialog.java 1819 2003-04-10 13:47:50Z fisker $
  * @author Bruce Quig
  */
 public class ProjectPrintDialog extends JDialog implements ActionListener

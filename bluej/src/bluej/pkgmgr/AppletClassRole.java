@@ -6,8 +6,6 @@ import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.FileUtility;
-import bluej.prefmgr.PrefMgr;
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -21,7 +19,7 @@ import java.util.Properties;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 1778 2003-04-10 05:04:18Z ajp $
+ * @version $Id: AppletClassRole.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class AppletClassRole extends ClassRole
 {

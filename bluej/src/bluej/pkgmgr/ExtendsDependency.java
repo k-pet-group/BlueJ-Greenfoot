@@ -1,10 +1,6 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.prefmgr.PrefMgr;
-
 import java.util.Properties;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -14,7 +10,7 @@ import java.awt.*;
  * An "extends" dependency between two (class) targets in a package
  *
  * @author Michael Cahill
- * @version $Id: ExtendsDependency.java 1539 2002-11-29 13:44:44Z ajp $
+ * @version $Id: ExtendsDependency.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class ExtendsDependency extends Dependency
 {

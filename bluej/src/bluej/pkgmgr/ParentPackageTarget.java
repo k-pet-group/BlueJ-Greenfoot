@@ -6,7 +6,6 @@ import bluej.graph.GraphEditor;
 import bluej.utility.*;
 
 import java.util.Properties;
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -14,7 +13,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 925 2001-06-06 04:45:32Z bquig $
+ * @version $Id: ParentPackageTarget.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class ParentPackageTarget extends PackageTarget
 {

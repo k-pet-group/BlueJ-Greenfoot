@@ -1,19 +1,10 @@
 package bluej.prefmgr;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
-
 import java.awt.*;
-import java.awt.event.*;
-
-import java.io.*;
 import java.util.List;
 import java.util.*;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.graph.Graph;
 
 /**
  * A class to manage the user editable preferences
@@ -23,7 +14,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1308 2002-08-15 18:25:25Z mik $
+ * @version $Id: PrefMgr.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class PrefMgr
 {

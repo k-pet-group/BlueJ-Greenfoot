@@ -1,6 +1,5 @@
 package bluej.parser.ast;
 
-import java.io.File;
 import java.util.*;
 
 import antlr.collections.*;

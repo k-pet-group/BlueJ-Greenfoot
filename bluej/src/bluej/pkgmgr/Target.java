@@ -2,7 +2,6 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
 import bluej.utility.Utility;
@@ -18,7 +17,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 1539 2002-11-29 13:44:44Z ajp $
+ * @version $Id: Target.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public abstract class Target extends Vertex implements Comparable
 {

@@ -1,10 +1,9 @@
 package bluej.views;
 
 import java.lang.reflect.Modifier;
-import bluej.utility.Debug;
 
 /**
- ** @version $Id: MemberView.java 1083 2002-01-11 16:54:51Z mik $
+ ** @version $Id: MemberView.java 1819 2003-04-10 13:47:50Z fisker $
  ** @author Michael Cahill
  **
  ** A representation of a Java class member in BlueJ

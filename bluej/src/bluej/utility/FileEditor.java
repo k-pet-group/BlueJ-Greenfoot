@@ -2,7 +2,6 @@ package bluej.utility;
 
 import bluej.parser.symtab.Selection;
 
-import java.util.*;
 import java.io.*;
 import javax.swing.text.*;
 
@@ -11,7 +10,7 @@ import javax.swing.text.*;
  * disk.
  *
  * @author  Andrew Patterson
- * @version $Id: FileEditor.java 506 2000-05-24 05:58:24Z ajp $
+ * @version $Id: FileEditor.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class FileEditor extends PlainDocument
 {

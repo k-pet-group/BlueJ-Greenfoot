@@ -1,14 +1,11 @@
 package bluej.runtime;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.security.Permission;
-import java.awt.*;
 
 /**
  *
  * @author  Andrew Patterson
- * @version $Id: RemoteObjectInputStream.java 331 2000-01-02 13:27:10Z ajp $
+ * @version $Id: RemoteObjectInputStream.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class RemoteObjectInputStream extends ObjectInputStream
 {

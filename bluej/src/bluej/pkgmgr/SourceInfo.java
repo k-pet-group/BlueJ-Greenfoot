@@ -1,6 +1,5 @@
 package bluej.pkgmgr;
 
-import bluej.utility.Debug;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 
@@ -12,7 +11,7 @@ import java.util.*;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 1417 2002-10-18 07:56:39Z mik $
+ * @version $Id: SourceInfo.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public final class SourceInfo
 {

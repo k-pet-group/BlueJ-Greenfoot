@@ -1,19 +1,16 @@
 package bluej.pkgmgr;
 
 import bluej.graph.GraphEditor;
-import bluej.graph.Graph;
 import bluej.views.CallableView;
 import bluej.debugger.DebuggerObject;
 
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 
 /**
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: PackageEditor.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class PackageEditor extends GraphEditor
 {

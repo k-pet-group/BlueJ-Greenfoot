@@ -1,12 +1,9 @@
 package bluej.pkgmgr;
 
-import bluej.utility.Utility;
 import bluej.views.CallableView;
 
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.Properties;
 
 /**
  * An action representing an initiation of a call on a method or

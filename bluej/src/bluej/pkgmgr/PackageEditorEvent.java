@@ -1,10 +1,6 @@
 package bluej.pkgmgr;
 
-import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
-import java.io.*;
-
 import bluej.views.*;
 import bluej.debugger.DebuggerObject;
 
@@ -12,7 +8,7 @@ import bluej.debugger.DebuggerObject;
  * The event which occurs while editing a package
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditorEvent.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: PackageEditorEvent.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class PackageEditorEvent extends EventObject
 {

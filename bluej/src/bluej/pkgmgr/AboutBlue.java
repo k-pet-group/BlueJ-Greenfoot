@@ -2,7 +2,6 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 import bluej.utility.MultiLineLabel;
-import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 
 import java.awt.*;
@@ -13,7 +12,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 1599 2003-01-15 14:43:51Z mik $
+ * @version $Id: AboutBlue.java 1819 2003-04-10 13:47:50Z fisker $
  */
 class AboutBlue extends JDialog
 {

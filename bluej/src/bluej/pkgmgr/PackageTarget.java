@@ -3,9 +3,7 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.graph.GraphEditor;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
-import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import java.util.Properties;
 
@@ -19,7 +17,7 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 1539 2002-11-29 13:44:44Z ajp $
+ * @version $Id: PackageTarget.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class PackageTarget extends Target
 {

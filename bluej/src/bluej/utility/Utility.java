@@ -7,9 +7,6 @@ import java.io.*;
 import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
-import java.awt.event.*;
-import javax.swing.*;
-
 import com.apple.mrj.MRJFileUtils;
 
 /**
@@ -18,7 +15,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1596 2003-01-11 16:13:31Z mik $
+ * @version $Id: Utility.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class Utility
 {

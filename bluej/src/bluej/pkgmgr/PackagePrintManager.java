@@ -4,8 +4,6 @@ import bluej.Config;
 
 import bluej.editor.Editor;
 
-import bluej.utility.Debug;
-
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 

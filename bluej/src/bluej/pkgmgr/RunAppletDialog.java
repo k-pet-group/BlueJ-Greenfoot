@@ -1,8 +1,6 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 
 import java.util.Enumeration;
@@ -16,7 +14,7 @@ import javax.swing.event.ListSelectionEvent;
  * Dialog for generating HTML and running applets.
  *
  * @author  Bruce Quig
- * @version $Id: RunAppletDialog.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: RunAppletDialog.java 1819 2003-04-10 13:47:50Z fisker $
  */
 
 class RunAppletDialog extends JDialog

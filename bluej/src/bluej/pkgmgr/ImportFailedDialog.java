@@ -1,9 +1,6 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
 import java.awt.*;
@@ -15,7 +12,7 @@ import javax.swing.*;
  * an import.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportFailedDialog.java 1098 2002-01-16 04:53:33Z ajp $
+ * @version $Id: ImportFailedDialog.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class ImportFailedDialog extends JDialog
     implements ActionListener

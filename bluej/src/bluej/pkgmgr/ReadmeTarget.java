@@ -3,20 +3,18 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.graph.GraphEditor;
-import bluej.utility.*;
 import bluej.editor.*;
 
 import java.util.Properties;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import javax.swing.*;
 
 /**
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 1754 2003-04-04 14:20:56Z fisker $
+ * @version $Id: ReadmeTarget.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher

@@ -5,7 +5,6 @@ import java.awt.*;
 import java.util.Date;
 import java.text.DateFormat;
 
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.Config;
 

@@ -1,17 +1,12 @@
 package bluej.prefmgr;
 
 import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
-
 import java.awt.*;
 import java.awt.event.*;
 
-import java.io.*;
 import java.util.*;
 
 import bluej.Config;
-import bluej.utility.Debug;
 
 /**
  * A JDialog subclass to allow the user to interactively edit
@@ -21,7 +16,7 @@ import bluej.utility.Debug;
  * instance of PrefMgrDialog at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgrDialog.java 1766 2003-04-09 05:57:10Z ajp $
+ * @version $Id: PrefMgrDialog.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class PrefMgrDialog extends JFrame
 {

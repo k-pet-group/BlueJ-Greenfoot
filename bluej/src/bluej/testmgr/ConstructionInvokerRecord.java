@@ -1,20 +1,11 @@
 package bluej.testmgr;
 
-import java.util.List;
-import java.util.*;
-
-import bluej.utility.Utility;
-import bluej.utility.Debug;
-import bluej.views.*;
-import bluej.debugger.*;
-import bluej.runtime.*;
-
 /**
  * Records a single user interaction with the object construction
  * mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ConstructionInvokerRecord.java 1628 2003-02-13 00:21:54Z ajp $
+ * @version $Id: ConstructionInvokerRecord.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class ConstructionInvokerRecord extends InvokerRecord
 {

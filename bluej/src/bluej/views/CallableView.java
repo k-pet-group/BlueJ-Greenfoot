@@ -1,9 +1,5 @@
 package bluej.views;
 
-import java.lang.reflect.*;
-import bluej.utility.Utility;
-import bluej.utility.Debug;
-
 /**
  ** @author Michael Kolling
  **

@@ -1,27 +1,16 @@
 package bluej.prefmgr;
 
 import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
-import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.awt.event.*;
-
-import java.io.*;
-
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.prefmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.graph.Graph;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: MiscPrefPanel.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {

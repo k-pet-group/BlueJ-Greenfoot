@@ -1,15 +1,9 @@
 package bluej.runtime;
 
-import bluej.utility.Debug;
-import bluej.Config;
 import bluej.classmgr.*;
 
 import java.io.*;
-import java.util.*;
-import java.util.zip.*;
 import java.net.*;
-
-import javax.swing.table.*;
 
 /**
  * Class to maintain a global classpath environment on the
@@ -25,7 +19,7 @@ import javax.swing.table.*;
  *              (one for each project)
  *
  * @author  Andrew Patterson
- * @version $Id: RemoteClassMgr.java 1226 2002-04-15 12:58:51Z mik $
+ * @version $Id: RemoteClassMgr.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class RemoteClassMgr
 {

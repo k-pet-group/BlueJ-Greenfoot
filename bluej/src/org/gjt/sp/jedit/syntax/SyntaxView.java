@@ -21,7 +21,6 @@ package org.gjt.sp.jedit.syntax;
 
 import javax.swing.text.*;
 import java.awt.*;
-import java.util.*;
 
 /**
  * A Swing view implementation that colorizes lines of a
@@ -31,7 +30,7 @@ import java.util.*;
  * should be used instead.
  *
  * @author Slava Pestov
- * @version $Id: SyntaxView.java 342 2000-01-12 03:18:00Z bruce $
+ * @version $Id: SyntaxView.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class SyntaxView extends PlainView
 {
@@ -164,6 +163,9 @@ public class SyntaxView extends PlainView
 /*
  * ChangeLog:
  * $Log$
+ * Revision 1.2  2003/04/10 13:47:48  fisker
+ * removed more unused imports
+ *
  * Revision 1.1  2000/01/12 03:18:00  bruce
  *
  * Addition of Syntax Colour Highlighting Package to CVS tree.  This is LGPL code used in the Moe Editor to provide syntax highlighting.

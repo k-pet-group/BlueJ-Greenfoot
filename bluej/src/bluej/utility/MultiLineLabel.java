@@ -1,12 +1,10 @@
 package bluej.utility;
 
-import bluej.Config;
-
 import java.awt.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: MultiLineLabel.java 305 1999-12-09 23:50:57Z ajp $
+ ** @version $Id: MultiLineLabel.java 1819 2003-04-10 13:47:50Z fisker $
  ** @author Justin Tan
  ** A multi-line Label-like AWT component.
  **/

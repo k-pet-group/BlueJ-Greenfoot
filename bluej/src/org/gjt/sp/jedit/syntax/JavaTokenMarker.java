@@ -18,13 +18,11 @@
 */
 package org.gjt.sp.jedit.syntax;
 
-import javax.swing.text.Segment;
-
 /**
 * Java token marker.
 *
 * @author Slava Pestov
-* @version $Id: JavaTokenMarker.java 1196 2002-03-26 10:20:43Z mik $
+* @version $Id: JavaTokenMarker.java 1819 2003-04-10 13:47:50Z fisker $
 */
 public class JavaTokenMarker extends CTokenMarker
 {
@@ -99,6 +97,9 @@ public class JavaTokenMarker extends CTokenMarker
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.6  2003/04/10 13:47:48  fisker
+* removed more unused imports
+*
 * Revision 1.5  2002/03/26 10:20:43  mik
 * added "-source 1.4" option to javadoc call when appropriate
 * added "assert" to syntax highlight set

@@ -1,12 +1,10 @@
 package bluej.views;
 
 import java.lang.reflect.*;
-import bluej.utility.Utility;
-import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
 /**
- ** @version $Id: ConstructorView.java 811 2001-03-25 23:11:51Z mik $
+ ** @version $Id: ConstructorView.java 1819 2003-04-10 13:47:50Z fisker $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **

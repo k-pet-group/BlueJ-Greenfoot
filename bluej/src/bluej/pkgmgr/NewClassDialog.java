@@ -1,8 +1,6 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
@@ -21,7 +19,7 @@ import java.io.File;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 921 2001-06-04 07:26:13Z mik $
+ * @version $Id: NewClassDialog.java 1819 2003-04-10 13:47:50Z fisker $
  */
 class NewClassDialog extends JDialog
     implements ActionListener

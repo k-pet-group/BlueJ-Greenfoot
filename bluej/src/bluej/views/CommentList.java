@@ -1,17 +1,15 @@
 package bluej.views;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Properties;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
 /**
- ** @version $Id: CommentList.java 1418 2002-10-18 09:38:56Z mik $
+ ** @version $Id: CommentList.java 1819 2003-04-10 13:47:50Z fisker $
  ** @author Michael Cahill
  **
  ** CommentList class - maintains a list of BlueJ comments

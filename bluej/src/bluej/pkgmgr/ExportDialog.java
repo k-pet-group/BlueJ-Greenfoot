@@ -2,9 +2,6 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
 import java.util.List;
@@ -19,7 +16,7 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 925 2001-06-06 04:45:32Z bquig $
+ * @version $Id: ExportDialog.java 1819 2003-04-10 13:47:50Z fisker $
  */
 class ExportDialog extends JDialog
     implements ActionListener

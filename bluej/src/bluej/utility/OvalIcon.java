@@ -3,14 +3,11 @@ package bluej.utility;
 import javax.swing.*;
 import java.awt.*;
 
-import bluej.utility.Debug;
-import bluej.Config;
-
 /**
  * Return a filled oval as an Icon
  *
  * @author  Andrew Patterson
- * @cvs     $Id: OvalIcon.java 1067 2002-01-08 05:49:39Z ajp $
+ * @cvs     $Id: OvalIcon.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class OvalIcon implements Icon
 {

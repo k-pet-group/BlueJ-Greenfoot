@@ -1,8 +1,6 @@
 package bluej.utility;
 
 import bluej.Config;
-import bluej.pkgmgr.Package;
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -10,7 +8,6 @@ import java.beans.*;
 import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
-import bluej.utility.DialogManager;
 import bluej.utility.filefilter.*;
 
 /**
@@ -23,7 +20,7 @@ import bluej.utility.filefilter.*;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooser.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: PackageChooser.java 1819 2003-04-10 13:47:50Z fisker $
  */
 class PackageChooser extends JFileChooser
 {

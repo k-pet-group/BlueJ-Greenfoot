@@ -1,17 +1,12 @@
 package bluej.pkgmgr;
 
-import bluej.utility.Utility;
-
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import java.util.Properties;
 
 /**
  * A role object to represent the behaviour of abstract classes.
  *
  * @author  Andrew Patterson 
- * @version $Id: AbstractClassRole.java 1538 2002-11-29 13:43:32Z ajp $
+ * @version $Id: AbstractClassRole.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class AbstractClassRole extends ClassRole
 {

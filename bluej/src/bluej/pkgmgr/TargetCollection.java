@@ -1,19 +1,12 @@
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
-import bluej.graph.Vertex;
-import bluej.graph.GraphEditor;
-import bluej.utility.Utility;
-
 import java.util.*;
 
 /**
  * 
  *
  * @author  Andrew Patterson
- * @version $Id: TargetCollection.java 1759 2003-04-08 02:52:53Z ajp $
+ * @version $Id: TargetCollection.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class TargetCollection
 {

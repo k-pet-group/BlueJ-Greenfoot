@@ -1,9 +1,7 @@
 package bluej.runtime;
 
-import java.util.Hashtable;
-
 /**
- ** @version $Id: ObjectResultWrapper.java 47 1999-04-28 01:24:27Z ajp $
+ ** @version $Id: ObjectResultWrapper.java 1819 2003-04-10 13:47:50Z fisker $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface implemented by all "shell" classes - used for method invocation

@@ -1,7 +1,5 @@
 package bluej.runtime;
 
-import java.io.*;
-import java.net.InetAddress;
 import java.security.Permission;
 import java.awt.*;
 
@@ -10,7 +8,7 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 1602 2003-01-24 09:15:14Z mik $
+ * @version $Id: RemoteSecurityManager.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class RemoteSecurityManager extends SecurityManager
 {

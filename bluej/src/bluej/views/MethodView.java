@@ -1,12 +1,9 @@
 package bluej.views;
 
 import java.lang.reflect.*;
-import bluej.utility.Utility;
-import bluej.utility.Debug;
-import bluej.utility.JavaNames;
 
 /**
- ** @version $Id: MethodView.java 808 2001-03-21 06:15:16Z mik $
+ ** @version $Id: MethodView.java 1819 2003-04-10 13:47:50Z fisker $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **

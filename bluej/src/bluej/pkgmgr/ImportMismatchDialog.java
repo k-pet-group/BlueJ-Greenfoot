@@ -1,9 +1,6 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
 import java.util.List;
@@ -16,7 +13,7 @@ import javax.swing.*;
  * had mismatched package lines on an open non-BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportMismatchDialog.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: ImportMismatchDialog.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class ImportMismatchDialog extends JDialog
     implements ActionListener

@@ -1,14 +1,13 @@
 package bluej.utility;
 
 import java.util.*;
-import java.io.*;
 
 /**
  * A properties object which allows the default properties
  * to be fetched independantly of the normal calls
  *
  * @author  Andrew Patterson
- * @version $Id: DefaultProperties.java 305 1999-12-09 23:50:57Z ajp $
+ * @version $Id: DefaultProperties.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class DefaultProperties extends Properties
 {

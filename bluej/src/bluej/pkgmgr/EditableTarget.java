@@ -1,18 +1,14 @@
 package bluej.pkgmgr;
 
 import java.io.*;
-import javax.swing.text.*;
-
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
-import bluej.utility.Utility;
-import bluej.utility.DialogManager;
 
 /**
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 1018 2001-12-04 05:08:03Z ajp $
+ * @version $Id: EditableTarget.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public abstract class EditableTarget extends DependentTarget
     implements EditorWatcher

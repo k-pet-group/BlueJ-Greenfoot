@@ -1,11 +1,6 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
-import bluej.graph.Edge;
-import bluej.utility.Utility;
-import bluej.prefmgr.PrefMgr;
-
-
 import java.util.Properties;
 import java.awt.*;
 
@@ -13,7 +8,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: UsesDependency.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: UsesDependency.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public class UsesDependency extends Dependency
 {

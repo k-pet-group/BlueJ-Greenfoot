@@ -2,14 +2,11 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
 import bluej.views.*;
 import bluej.prefmgr.PrefMgr;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +18,7 @@ import java.util.Properties;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 1737 2003-04-02 05:02:25Z ajp $
+ * @version $Id: ClassRole.java 1819 2003-04-10 13:47:50Z fisker $
  */
 public abstract class ClassRole
 {

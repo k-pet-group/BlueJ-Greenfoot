@@ -3,7 +3,6 @@ package bluej.parser.symtab;
 
 import java.io.File;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 import java.util.StringTokenizer;
 import bluej.parser.JavaToken;
