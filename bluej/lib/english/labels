@@ -387,8 +387,9 @@ error.methodCall.duplicateName=An object with this name already exists.\nPlease 
 # Debugger dialog (ExecControls.java)
 debugger.execControls.windowTitle = BlueJ:  Debugger
 debugger.execControls.stackTitle = Call Sequence
-debugger.execControls.instanceTitle = Instance Variables
-debugger.execControls.localTitle = Local Variables
+debugger.execControls.staticTitle = Static variables
+debugger.execControls.instanceTitle = Instance variables
+debugger.execControls.localTitle = Local variables
 debugger.execControls.threadTitle = Threads
 debugger.execControls.updateText = Update
 debugger.execControls.systemThreads = Show system threads
