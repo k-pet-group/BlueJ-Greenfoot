@@ -1,21 +1,12 @@
 package bluej.testmgr;
 
-import java.util.List;
-import java.util.*;
-
-import bluej.utility.Utility;
-import bluej.utility.Debug;
-import bluej.views.*;
-import bluej.debugger.*;
-import bluej.runtime.*;
-
 /**
  * Records a single user interaction with the 
  * method call mechanisms of BlueJ (assuming it returns a
  * value).
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: MethodInvokerRecord.java 1730 2003-04-01 03:55:19Z ajp $
  */
 public class MethodInvokerRecord extends InvokerRecord
 {

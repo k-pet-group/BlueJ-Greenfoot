@@ -9,7 +9,7 @@ import javax.swing.JProgressBar;
  */
 class ProgressBar extends JProgressBar
 {
-	boolean fError= false;
+	boolean fError = false;
 	
 	public ProgressBar()
 	{
@@ -31,12 +31,11 @@ class ProgressBar extends JProgressBar
 		setValue(0);
 	}
 	
-	public void start(int total)
+	public void setmaximum(int total)
 	{
 		setMaximum(total);
-		reset();
 	}
-	
+
 	public void step(int value, boolean successful)
 	{
 		setValue(value);

@@ -38,11 +38,18 @@ public class TestDisplayFrame
     
     private CounterPanel cp;
     private int errorCount, failureCount;
-    
+    private int testTotal; 
+    private boolean doingMultiple;
+        
     private FailureDetailView fdv;
     
     public TestDisplayFrame()
     {
+        testTotal = 0;
+        errorCount = 0;
+        failureCount = 0;
+        doingMultiple = false;
+
         createUI();
     }
 
@@ -64,7 +71,7 @@ public class TestDisplayFrame
 
 
     
-    public void createUI()
+    protected void createUI()
     {
 		frame = new JFrame(Config.getString("testdisplay.title"));
 
@@ -93,29 +100,87 @@ public class TestDisplayFrame
         frame.pack();
     }
 
-	public void startTests(int num)
+    protected void reset()
+    {
+        testEntries.clear();
+        
+        errorCount = 0;
+        failureCount = 0;
+        testTotal = 0;   
+
+        fdv.clear();
+        pb.reset();
+        cp.setTotal(0);       
+    }
+    
+    /**
+     * Indicate that we are starting a bunch of tests and that we
+     * do not know how many total tests there will be. Each call to
+     * startTest from now on will add on to the previous results,
+     * until endMultipleTests() is called.
+     */
+    public void startMultipleTests()
+    {
+        doingMultiple = true;    
+
+        reset();
+    }
+    
+    public void endMultipleTests()
+    {
+        doingMultiple = false;
+    }  
+
+    /**
+     * Tell the dialog we are about to start a test run.
+     * 
+     * @param num   the number of tests we will run
+     */
+	public void startTest(int num)
 	{
-//		testEntries.clear();
-		
-		pb.start(num);
-		cp.setTotal(num);
-	
-		errorCount = 0;
-		failureCount = 0;	
+        if (doingMultiple) {
+            testTotal += num;
+        }
+        else {
+            reset();
+            
+            testTotal = num;
+        }
+
+        cp.setTotal(testTotal);
+        pb.setmaximum(testTotal);	
 	}
-	
+
+    /**
+     * Add a test result to the test displayer.
+     * 
+     * @param dtr
+     */	
 	public void addResult(DebuggerTestResult dtr)
 	{
+        addResultQuietly(dtr);
+        
 		showTestDisplay(true);
-
-		testEntries.addElement(dtr);
-    	
-		cp.setRunValue(testEntries.getSize());
-		pb.step(testEntries.getSize(), dtr.isSuccess());
-		
-		if (!dtr.isSuccess())
-			cp.setErrorValue(++errorCount);
 	}
+
+    /**
+     * Add a test result to the test displayer but do not
+     * bring the test display window to the front.
+     * 
+     * @param dtr
+     */ 
+    public void addResultQuietly(DebuggerTestResult dtr)
+    {
+        testEntries.addElement(dtr);
+        
+        cp.setRunValue(testEntries.getSize());
+        pb.step(testEntries.getSize(), dtr.isSuccess());
+        
+        if (!dtr.isSuccess())
+            cp.setErrorValue(++errorCount);
+    }
+
+
 
 	class MyListSelectionListener implements ListSelectionListener
 	{

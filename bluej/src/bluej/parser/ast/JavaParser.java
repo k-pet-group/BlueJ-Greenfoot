@@ -197,6 +197,14 @@ Adds a file to an AST tree
 			// Create a scanner that reads from the input stream passed to us
 			JavaLexer lexer = new JavaLexer(r);
             lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
+            // with a tab size of one, the rows and column numbers that
+            // locatable token returns are model coordinates in the editor
+            // (not view coordinates)
+            // ie a keyword may appear to start at column 14 because of tabs
+            // but in the actual document model its really at column 4
+            // so we set our tabsize to 1 so that it maps directly to the
+            // document model
+            lexer.setTabSize(1);
 
             // Create a filter to handle our comments
             TokenStreamHiddenTokenFilter filter;

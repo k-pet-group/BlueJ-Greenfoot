@@ -1,40 +1,32 @@
 package bluej.pkgmgr;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.*;
 import java.awt.event.*;
+import java.awt.print.*;
+import java.io.*;
 import java.util.*;
 import java.util.List;
-import java.io.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.print.*;
-import java.text.DateFormat;
 
-import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
-import com.apple.mrj.MRJQuitHandler;
-import com.apple.mrj.MRJAboutHandler;
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
 
-import bluej.Config;
-import bluej.BlueJEvent;
-import bluej.BlueJEventListener;
-import bluej.utility.*;
+import com.apple.mrj.*;
+
+import bluej.*;
 import bluej.debugger.*;
-import bluej.views.*;
-import bluej.terminal.Terminal;
-import bluej.terminal.TerminalButtonModel;
-import bluej.prefmgr.PrefMgrDialog;
-import bluej.prefmgr.PrefMgr;
+import bluej.extmgr.*;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
-import bluej.extmgr.ExtensionsManager;
-import bluej.extmgr.HelpDialog;
+import bluej.prefmgr.*;
+import bluej.terminal.*;
 import bluej.testmgr.*;
+import bluej.utility.*;
+import bluej.views.*;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1728 2003-03-28 02:01:36Z ajp $
+ * @version $Id: PkgMgrFrame.java 1730 2003-04-01 03:55:19Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1411,11 +1403,14 @@ public class PkgMgrFrame extends JFrame
 
 		Iterator it = l.iterator();
 		
+        TestDisplayFrame.getTestDisplay().startMultipleTests();
+
 		while(it.hasNext()) {
 			ClassTarget ct = (ClassTarget) it.next();
-
 			ct.getRole().run(this, ct, null);
 		}
+
+        TestDisplayFrame.getTestDisplay().endMultipleTests();
 	}
 
 

@@ -1,19 +1,15 @@
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.prefmgr.PrefMgr;
-
-
-import java.util.Properties;
 import java.awt.*;
+import java.util.Properties;
+
+import bluej.Config;
 
 /**
  * An "implements" dependency between two (class) targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: ImplementsDependency.java 1539 2002-11-29 13:44:44Z ajp $
+ * @version $Id: ImplementsDependency.java 1730 2003-04-01 03:55:19Z ajp $
  */
 public class ImplementsDependency extends Dependency
 {
