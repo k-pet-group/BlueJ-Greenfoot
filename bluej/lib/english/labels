@@ -319,6 +319,7 @@ terminal.clear = Clear
 terminal.copy = Copy
 terminal.save = Save to file...
 terminal.close = Close
+terminal.recordCalls = Record method calls
 terminal.buffering = Unlimited buffering
 terminal.save.title = Save terminal text
 terminal.save.buttonText = Save

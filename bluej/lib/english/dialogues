@@ -90,8 +90,8 @@ error in the setup of BlueJ, or because of file
 system access problems.
 
 error-open-source
-There is a problem opening the source of
-this class.  Serious trouble!
+Cannot open the source 
+of this class.
 
 error-open-readme
 There is a problem opening the text note

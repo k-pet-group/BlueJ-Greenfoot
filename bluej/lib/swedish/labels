@@ -305,12 +305,14 @@ dialogmgr.message = Meddelande
 
 #Terminal Window ##TO BE TRANSLATED##
 terminal.title = BlueJ Terminalfönster
-terminal.clear = Clear
-terminal.copy = Copy
-terminal.save = Save to file...
-terminal.close = Close
-terminal.save.title = Save terminal text
-terminal.save.buttonText = Save
+terminal.clear = Rensa
+terminal.copy = Kopiera
+terminal.save = Spara...
+terminal.close = Stäng
+terminal.recordCalls = Protokoll för metodanrop
+terminal.buffering = Obegränsad terminalbuffer
+terminal.save.title = Spara terminal text
+terminal.save.buttonText = Spara
 
 # status messages
 pkgmgr.compiling=Kompilerar...

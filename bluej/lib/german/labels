@@ -298,6 +298,8 @@ terminal.clear = Löschen
 terminal.copy = Kopieren
 terminal.save = Speichern...
 terminal.close = Schließen
+terminal.recordCalls = Methodenaufrufe protokollieren
+terminal.buffering = Unbegrenzter Terminalpuffer
 terminal.save.title = Terminal text speichern
 terminal.save.buttonText = Speichern
 
