@@ -12,6 +12,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
@@ -25,7 +26,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2762 2004-07-08 11:13:23Z mik $
+ * @version $Id: ResultInspector.java 2779 2004-07-12 03:18:05Z davmac $
  */
 public class ResultInspector extends Inspector implements InspectorListener {
 
@@ -140,8 +141,11 @@ public class ResultInspector extends Inspector implements InspectorListener {
             methodReturnType = ((GenTypeParameterizable)methodReturnType).mapTparsToTypes(tparmap);
         
             // Pull in parameters from declaring type
-            tparmap = obj.getGenType().mapToSuper(m.getDeclaringClass().getName());
-            methodReturnType = ((GenTypeParameterizable)methodReturnType).mapTparsToTypes(tparmap);
+            if(instanceType instanceof GenTypeClass) {
+                GenTypeClass maptype = (GenTypeClass)instanceType;
+                tparmap = maptype.mapToSuper(m.getDeclaringClass().getName());
+                methodReturnType = ((GenTypeParameterizable)methodReturnType).mapTparsToTypes(tparmap);
+            }
         }
 
         resultType = methodReturnType;

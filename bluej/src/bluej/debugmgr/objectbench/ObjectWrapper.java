@@ -39,7 +39,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2771 2004-07-09 09:27:41Z mik $
+ * @version $Id: ObjectWrapper.java 2779 2004-07-12 03:18:05Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -572,7 +572,7 @@ public class ObjectWrapper extends JComponent
         pkg.forgetLastSource();
 
         watcher = new ResultWatcher() {
-            private ExpressionInformation expressionInformation = new ExpressionInformation(method,getName());
+            private ExpressionInformation expressionInformation = new ExpressionInformation(method,getName(),obj.getGenType());
             
             public void putResult(DebuggerObject result, String name, InvokerRecord ir)
             {

@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  *  
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2766 2004-07-09 04:22:27Z davmac $
+ * @version $Id: JdiReflective.java 2779 2004-07-12 03:18:05Z davmac $
  */
 public class JdiReflective extends Reflective {
 
@@ -164,6 +164,35 @@ public class JdiReflective extends Reflective {
     {
         checkLoaded();
         List rlist = new ArrayList();
+        
+        if(JdiUtils.getJdiUtils().genericSignature(rclass) == null) {
+            if(rclass instanceof ClassType) {
+                ClassType ctClass = (ClassType)rclass;
+                
+                // superclass
+                Reflective r = new JdiReflective(ctClass.superclass());
+                rlist.add(new GenTypeClass(r));
+                
+                // interfaces
+                List interfaces = ctClass.interfaces();
+                for(Iterator i = interfaces.iterator(); i.hasNext(); ) {
+                    r = new JdiReflective((InterfaceType)i.next());
+                    rlist.add(new GenTypeClass(r));
+                }
+                return rlist;
+            }
+            else {
+                // rclass must be an InterfaceType
+                InterfaceType itClass = (InterfaceType)rclass;
+                
+                List interfaces = itClass.superinterfaces();
+                for(Iterator i = interfaces.iterator(); i.hasNext(); ) {
+                    Reflective r = new JdiReflective((InterfaceType)i.next());
+                    rlist.add(new GenTypeClass(r));
+                }
+                return rlist;
+            }
+        }
         
         // A generic signature for a type looks something like:
         //    <..type params..>Lbase/class<...>;...interfaces...
@@ -576,6 +605,9 @@ public class JdiReflective extends Reflective {
             this.s = s;
             if( s == null )
                 Debug.message("StringIterator with null string??");
+            // DAV !
+            if( s == null )
+                throw new NullPointerException();
         }
         
         public char current()
