@@ -6,7 +6,7 @@ import java.lang.reflect.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2583 2004-06-10 07:27:17Z polle $
+ * @version $Id: JavaUtils15.java 2605 2004-06-14 03:27:34Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -58,20 +58,20 @@ public class JavaUtils15 extends JavaUtils {
             primtype = ((GenericArrayType)primtype).getGenericComponentType();
         }
         
-        if( type == null )
+        if( primtype == null )
             Debug.message("type == null??");
             
-        if(type instanceof Class)
-            sb.append(JavaUtils14.getTypeName((Class)type));
-        else if(type instanceof ParameterizedType)
-            sb.append(getTypeName((ParameterizedType)type));
-        else if(type instanceof TypeVariable)
-            sb.append(((TypeVariable)type).getName());
-        else if(type instanceof WildcardType)
-            sb.append(getTypeName((WildcardType)type));
+        if(primtype instanceof Class)
+            sb.append(JavaUtils14.getTypeName((Class)primtype));
+        else if(primtype instanceof ParameterizedType)
+            sb.append(getTypeName((ParameterizedType)primtype));
+        else if(primtype instanceof TypeVariable)
+            sb.append(((TypeVariable)primtype).getName());
+        else if(primtype instanceof WildcardType)
+            sb.append(getTypeName((WildcardType)primtype));
         else
-            Debug.message("getTypeName: Unknown type: " + type.getClass().getName());
-
+            Debug.message("getTypeName: Unknown type: " + primtype.getClass().getName());
+        
         while( dimensions > 0 ) {
             sb.append("[]");
             dimensions--;
