@@ -19,7 +19,7 @@ public class MyClass
 	x = 0;
 	name = "Michael";
     }
-
+    
     /**
      ** An example of a method - replace this comment with your own
      ** 	
