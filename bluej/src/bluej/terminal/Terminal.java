@@ -1,102 +1,161 @@
-package bluej.terminal;
-
-import java.awt.Dimension;
-import java.io.*;
-
-import bluej.utility.Debug;
-
 /**
- ** A simple I/O interface for BlueJ programs. 
- ** 
- ** These functions should not be called from the BlueJ environment, but
- ** are provided to be called by user programs. The terminal object being
- ** called here runs on the remote machine!
+ ** The Frame part of the Terminal window used for I/O when running programs
+ ** under BlueJ.
  **
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 95 1999-05-28 06:08:18Z mik $
+ ** @version $Id: Terminal.java 99 1999-05-31 06:29:40Z mik $
  **/
-public class Terminal
+
+package bluej.terminal;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class Terminal extends JFrame
 {
-    private static TerminalCanvas term = BlueJRuntime.terminal.term;
-    static BufferedReader in = new BufferedReader(new InputStreamReader(BlueJRuntime.terminal.getInputStream()));
-    private static PrintWriter out = new PrintWriter(BlueJRuntime.terminal.getOutputStream());
-    // private static PrintWriter out = new PrintWriter(System.out);
-	
-    public static void setVisible(boolean visible)
+    static final String defaultTitle = "BlueJ Terminal Window";
+
+    // -- static singleton factory method --
+
+    static Terminal frame = null;
+    public synchronized static Terminal getTerminal()
     {
-	BlueJRuntime.terminal.setVisible(visible);
+	if(frame == null)
+	    frame = new Terminal();
+	return frame;
     }
-	
-    public static void print(String s)
+
+    // -- instance --
+
+    TerminalCanvas term;
+    private boolean isActive;
+
+    private Terminal()
     {
-	out.print(s);
+	this(defaultTitle, 80, 25);
     }
-	
-    public static void println(String s)
+
+    private Terminal(String title, int width, int height)
     {
-	out.println(s);
+	super(title);
+
+	term = new TerminalCanvas(width, height);
+
+	getContentPane().setLayout(new BorderLayout());
+	getContentPane().add(term, "Center");
+	setScreenSize(width, height);
+
+	// Close Action when close button is pressed
+	addWindowListener(new WindowAdapter() {
+	    public void windowClosing(WindowEvent event)
+		{
+		    Window win = (Window)event.getSource();
+		    win.setVisible(false);
+		    //win.dispose();
+		}
+	});
     }
-	
-    public static void flush()
+
+    protected void processWindowEvent(WindowEvent e)
     {
-	out.flush();
+	super.processWindowEvent(e);
+		
+	if (e.getID() == WindowEvent.WINDOW_CLOSING)
+	    show(false);
     }
-	
-    public static String readLine()
+
+
+    public void showTerminal(boolean doShow)
     {
-	try {
-	    return in.readLine();
-	} catch(IOException e) {
-	    return null;
-	}
+	show(doShow);
     }
-	
-    /**
-     ** Gets a single character from the terminal (unbuffered).
-     ** Blocks until a key is pressed.
-     **/
-    public static char getChar()
+
+    public boolean isShown()
     {
-	return term.getCharUnbuffered();
+	return isShowing();
     }
-	
-    /**
-     ** Returns a boolean indicating whether there is a character available
-     ** for getChar() to read. A return value of false indicates that getChar
-     ** will block.
-     **/
-    public static boolean askChar()
-    {
-	return term.askCharUnbuffered();
-    }
-	
-    public static int getWidth()
-    {
-	Dimension size = term.getSize();
-	return size.width;
-    }
-	
-    public static int getHeight()
-    {
-	Dimension size = term.getSize();
-	return size.height;
-    }
-	
-    public static void clear()
+
+    public void clear()
     {
 	term.clear();
     }
-	
-    public static void cursorTo(int x, int y)
+
+    /**
+     * Make the window active.
+     */
+    public void activate(boolean active)
     {
-	out.flush();
-	term.cursorTo(x, y);
+	if(active != isActive) {
+	    term.setEnabled(active);
+	    term.activate(active);
+	    isActive = active;
+	}
     }
-	
-    public static void showCursor(boolean cursorOn)
+
+    protected void setScreenSize(int w, int h)
     {
-	term.setCursor(cursorOn);
+	term.setScreenSize(w,h);
+	pack();
+    }
+
+    InputStream in = new InputStream() {
+	public int available()
+	{
+	    return term.available();
+	}
+
+	public int read()
+	{
+	    if(!isVisible())
+	        setVisible(true);
+	    if(!isActive) {
+    		activate(true);
+		term.requestFocus();
+	    }
+	    return term.getChar();
+	}
+
+	public int read(byte b[], int off, int len) throws IOException
+	{
+	    int nBytes = 0;
+
+	    while(nBytes < len)
+	    {
+		b[off + (nBytes++)] = (byte)term.getChar();
+		if(term.available() == 0)
+		break;
+	    }
+
+	    return nBytes;
+	}
+    };
+
+    public InputStream getInputStream()
+    {
+	return in;
+    }
+
+    OutputStream out = new OutputStream() {
+	public void write(int b) throws IOException
+	{
+	    if(!isVisible())
+	        setVisible(true);
+	    if(!isActive) {
+    		activate(true);
+		term.requestFocus();
+	    }
+	    term.putchar((char)b);
+	}
+    };
+
+    public OutputStream getOutputStream()
+    {
+	return out;
     }
 }

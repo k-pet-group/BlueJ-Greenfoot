@@ -5,7 +5,7 @@ import bluej.debugger.*;
 import bluej.BlueJEvent;
 import bluej.utility.Debug;
 import bluej.runtime.ExecServer;
-import bluej.terminal.TerminalFrame;
+import bluej.terminal.Terminal;
 
 import bluej.pkgmgr.Package;
 
@@ -647,7 +647,7 @@ public class JdiDebugger extends Debugger
 	    public void run() {
                 try {
                     dumpStream(stream, 
-			 TerminalFrame.getTerminalFrame().getOutputStream());
+			 Terminal.getTerminal().getOutputStream());
                 } catch (IOException ex) {
                     Debug.reportError("Cannot read output user VM.");
                 }
@@ -667,7 +667,7 @@ public class JdiDebugger extends Debugger
 	    public void run() {
                 try {
                     dumpStream(
-			 TerminalFrame.getTerminalFrame().getInputStream(),
+			 Terminal.getTerminal().getInputStream(),
 			 stream);
                 } catch (IOException ex) {
                     Debug.reportError("Cannot read output user VM.");

@@ -23,7 +23,9 @@ import bluej.graph.GraphEditor;
 import bluej.debugger.Debugger;
 import bluej.debugger.ObjectBench;
 import bluej.debugger.ExecControls;
-import bluej.terminal.TerminalFrame;
+import bluej.debugger.ExecControlButtonModel;
+import bluej.terminal.Terminal;
+import bluej.terminal.TerminalButtonModel;
 
 
 public class PkgMgrFrame extends PkgFrame 
@@ -65,8 +67,6 @@ public class PkgMgrFrame extends PkgFrame
 
     JCheckBoxMenuItem showUsesMenuItem;
     JCheckBoxMenuItem showExtendsMenuItem;
-    JCheckBoxMenuItem showControlsMenuItem;
-    JCheckBoxMenuItem showTerminalMenuItem;
 	
     JCheckBox showUsesCheckbox;
     JCheckBox showExtendsCheckbox;
@@ -321,11 +321,11 @@ public class PkgMgrFrame extends PkgFrame
 	    break;
 
 	case VIEW_SHOWCONTROLS:
-	    toggleExecControls();
+	    //toggleExecControls();
 	    break;
 
 	case VIEW_SHOWTERMINAL:
-	    toggleTerminal();
+	    //toggleTerminal();
 	    break;
 
 	case VIEW_CLEARTERMINAL:
@@ -669,12 +669,11 @@ public class PkgMgrFrame extends PkgFrame
     }
 
     /**
-     * Toggle visibility of the exec control window. 
+     * 
      */
-    public void toggleExecControls()
+    public ExecControls getExecControls()
     {
-	boolean isVisible = (execCtrlWindow != null) && execCtrlWindow.isVisible();
-	showHideExecControls(!isVisible, true);
+	return execCtrlWindow;
     }
 
     /**
@@ -693,18 +692,6 @@ public class PkgMgrFrame extends PkgFrame
 	execCtrlWindow.setVisible(show);
 	if(show && update)
 	    execCtrlWindow.updateThreads();
-	showControlsMenuItem.setSelected(show);
-    }
-
-    /**
-     * Toggle visibility of the terminal window. 
-     */
-    private void toggleTerminal()
-    {
-	if(showTerminalMenuItem.getState())
-	    TerminalFrame.getTerminalFrame().doShow();
-	else
-	    TerminalFrame.getTerminalFrame().doClose();
     }
 
     /**
@@ -712,7 +699,7 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void clearTerminal()
     {
-	TerminalFrame.getTerminalFrame().clear();
+	Terminal.getTerminal().clear();
     }
 
     // ---- BlueJEventListener interface ----
@@ -1012,15 +999,15 @@ public class PkgMgrFrame extends PkgFrame
 		    break;
 							
 		case VIEW_SHOWCONTROLS:
-		    item = showControlsMenuItem = new JCheckBoxMenuItem(itemStr,false);
-		    item.addActionListener(this); 
+		    item = new JCheckBoxMenuItem(itemStr,false);
+		    item.setModel(new ExecControlButtonModel(this));
 		    if (accelerator != null)
 			item.setAccelerator(accelerator);
 		    break;
 
 		case VIEW_SHOWTERMINAL:
-		    item = showTerminalMenuItem = new JCheckBoxMenuItem(itemStr,false);
-		    item.addActionListener(this);
+		    item = new JCheckBoxMenuItem(itemStr,false);
+		    item.setModel(new TerminalButtonModel());
 		    if (accelerator != null)
 			item.setAccelerator(accelerator);
 		    break;

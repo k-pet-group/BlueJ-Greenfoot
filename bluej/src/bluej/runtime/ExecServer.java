@@ -57,21 +57,27 @@ public class ExecServer
 
     ExecServer()
     {
-	System.out.println("[VM] creating server object");
+	//Debug.message("[VM] creating server object");
 
 	loaders = new Hashtable();
 
 	BlueJSecurityManager manager = new BlueJSecurityManager();
-	System.out.println("[VM] security manager created (not installed)");
+	//Debug.message("[VM] security manager created (not installed)");
 
 	//System.setSecurityManager(manager);
-	//System.out.println("[VM] security manager installed");
+	//Debug.message("[VM] security manager installed");
     }
 
 
+    /**
+     *  This method is used to suspend the execution of this server thread.
+     *  This is done via a breakpoint: a breakpoint is set in this method
+     *  so calling this method suspends execution.
+     */
     public void suspendExecution()
     {
-	System.out.println("[VM] in suspend");
+	// <BREAKPOINT!>
+	//Debug.message("[VM] in suspend");
     }
 
 
@@ -122,7 +128,7 @@ public class ExecServer
      */
     private void createClassLoader(String loaderId, String classpath)
     {
-	System.out.println("[VM] createClassLoader " + loaderId);
+	//Debug.message("[VM] createClassLoader " + loaderId);
 	BlueJClassLoader loader = new BlueJClassLoader(classpath);
 	loaders.put(loaderId, loader);
     }
@@ -133,7 +139,7 @@ public class ExecServer
      */
     private void removeClassLoader(String loaderId)
     {
-	System.out.println("[VM] removeLoader " + loaderId);
+	//Debug.message("[VM] removeLoader " + loaderId);
 	loaders.remove(loaderId);
     }
 
@@ -154,7 +160,7 @@ public class ExecServer
     private void startClass(String loaderId, String classname)
 	throws Throwable
     {
-	System.out.println("[VM] startClass: " + classname);
+	//Debug.message("[VM] startClass: " + classname);
 	Class cl = loadClass(loaderId, classname);
 	if(cl == null)
 	    Debug.reportError("[VM] Could not load class");
@@ -183,7 +189,7 @@ public class ExecServer
     private Class loadClass(String loaderId, String classname)
 	throws Throwable
     {
-	System.out.println("[VM] loadClass");
+	//Debug.message("[VM] loadClass");
 	Class cl = null;
 
 	try {
@@ -216,7 +222,7 @@ public class ExecServer
 
     static Hashtable getScope(String scopeId)
     {
-	System.out.println("[VM] getScope");
+	//Debug.message("[VM] getScope");
 	Hashtable scope = (Hashtable)scopes.get(scopeId);
 
 	if(scope == null) {
@@ -232,7 +238,7 @@ public class ExecServer
      */
     static void putObject(String scopeId, String instanceName, Object value)
     {
-	System.out.println("[VM] putObject: " + instanceName);
+	//Debug.message("[VM] putObject: " + instanceName);
 	Hashtable scope = getScope(scopeId);
 	scope.put(instanceName, value);
     }
@@ -245,7 +251,7 @@ public class ExecServer
     static void addObject(String scopeId, String instance, String fieldName,
 			  String newName)
     {
-	System.out.println("[VM] addObject: " + newName);
+	//Debug.message("[VM] addObject: " + newName);
 	Hashtable scope = getScope(scopeId);
 	Object wrapObject = scope.get(instance);
 	try {
@@ -267,7 +273,7 @@ public class ExecServer
      */
     static void removeObject(String scopeId, String instanceName)
     {
-	System.out.println("[VM] removeObject: " + instanceName);
+	//Debug.message("[VM] removeObject: " + instanceName);
 	Hashtable scope = getScope(scopeId);
 	scope.remove(instanceName);
 

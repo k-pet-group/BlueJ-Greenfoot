@@ -229,17 +229,6 @@ in the template for the next one):
 @cause : feature was not fully implemented
 
 @-------
-@bug#  : 00004
-@short : inspection of arrays does not work
-@prio  : 3
-@source: mik
-@date  : 1999-02-23
-@status: open
-@fixrel: 
-@descr : arrays cannot be inspected.
-@cause : feature was not fully implemented
-
-@-------
 @bug#  : 00036
 @short : make tab stops in editor smaller
 @prio  : 3
@@ -542,6 +531,41 @@ in the template for the next one):
 =======================================================================
 
 ============================ version 0.9.3 ============================
+
+@-------
+@bug#  : 00077
+@short : virtual machine reimplementation
+@prio  : 2
+@source: mik
+@date  : 1999-05-31
+@status: closed, fixed (mik, 1999-05-05)
+@fixrel: 0.9.3
+@descr : complete reimplementation of remote VM
+@cause : bugs in Java environment
+
+@-------
+@bug#  : 00078
+@short : switch to JDK 1.2
+@prio  : 2
+@source: mik
+@date  : 1999-05-31
+@status: in process (mik,ajp,bruce)
+@fixrel: 0.9.3
+@descr : change to support JDK 1.2
+@cause : Java developments
+
+@-------
+@bug#  : 00004
+@short : inspection of arrays does not work
+@prio  : 3
+@source: mik
+@date  : 1999-02-23
+@status: closed, fixed (bruce, 1999-05-05)
+@fixrel: 0.9.3
+@descr : arrays cannot be inspected
+@cause : feature was not fully implemented
+
+============================ version 0.9.2a ============================
 
 @-------
 @bug#  : 00075
