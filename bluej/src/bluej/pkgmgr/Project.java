@@ -21,7 +21,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2895 2004-08-18 08:42:23Z mik $
+ * @version $Id: Project.java 2897 2004-08-18 08:54:17Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -32,12 +32,6 @@ public class Project
      */
     private static Map projects = new HashMap();
 
-	/**
-	 * An initial debugger instance that we start immediately. This will be
-	 * used by the first project opened.
-	 */
-	private static Debugger initialDebugger = null;
-	
     /**
      * Check if the path given is either a directory with a bluej pkg file or
      * the name of a bluej pkg file.
@@ -162,7 +156,7 @@ public class Project
      */
     public static void closeProject(Project project)
     {
-//        System.out.println
+        System.out.println("closing project");
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(project);
 
         if (frames != null) {
@@ -170,7 +164,16 @@ public class Project
                 frames[i].doClose(true);
             }
         }
-
+        // closing the last frame will cause a call to 'cleanUp'
+    }
+    
+    /**
+     * CleanUp the mess left by a project that has now been closed and
+     * throw it away.
+     */
+    public static void cleanUp(Project project)
+    {
+        System.out.println("cleanUp");
 		if (project.hasExecControls())
 			project.getExecControls().dispose();
         if (project.terminal != null)
@@ -919,8 +922,8 @@ public class Project
     public void debuggerEvent(final DebuggerEvent event)
     {
         EventQueue.invokeLater(new Runnable() {
+
             public void run() {
-                DebuggerThread thread;
 
                 if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
                     PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(Project.this);
