@@ -34,6 +34,7 @@
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
         <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip"/>
+	<pathelement location="${bluej_home}/lib/MRJ141Stubs.jar"/>
         <pathelement location="${bluej_home}/lib/antlr.jar"/>
         <pathelement location="${bluej_home}/lib/junit.jar"/>
         <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
