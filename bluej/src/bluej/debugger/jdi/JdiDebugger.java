@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1554 2002-12-02 06:00:30Z ajp $
+ * @version $Id: JdiDebugger.java 1559 2002-12-06 03:46:43Z ajp $
  *
  * The startup process is as follows:
  *
@@ -746,7 +746,6 @@ public final class JdiDebugger extends Debugger
      * Get the value of a static field in a class.
      */
     public DebuggerObject getStaticValue(String className, String fieldName)
-        throws Exception
     {
         DebuggerObject object = null;
 
@@ -760,6 +759,9 @@ public final class JdiDebugger extends Debugger
         }
         else {
             Field resultField = classMirror.fieldByName(fieldName);
+            if (resultField == null)
+                return null;
+                
             ObjectReference obj = (ObjectReference)classMirror.getValue(resultField);
             object = JdiObject.getDebuggerObject(obj);
         }

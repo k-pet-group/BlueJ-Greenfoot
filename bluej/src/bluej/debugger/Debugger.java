@@ -14,7 +14,7 @@ import java.util.List;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 1537 2002-11-29 13:40:19Z ajp $
+ * @version $Id: Debugger.java 1559 2002-12-06 03:46:43Z ajp $
  */
 public abstract class Debugger
 {
@@ -143,9 +143,7 @@ public abstract class Debugger
     /**
      * Get the value of a static field in a class
      */
-    public abstract DebuggerObject getStaticValue(String className, String fieldName)
-        throws Exception;
-
+    public abstract DebuggerObject getStaticValue(String className, String fieldName);
 
     /**
      * Set/clear a breakpoint at a specified line in a class.
