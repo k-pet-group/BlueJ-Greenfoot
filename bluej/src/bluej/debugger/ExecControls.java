@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 137 1999-06-21 07:45:37Z mik $
+ ** @version $Id: ExecControls.java 215 1999-07-30 06:58:26Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -153,11 +153,11 @@ public class ExecControls extends JFrame
 			listModel.addElement(thread.getName() + " [" +
 					     status + "]");
 		}
-		if(listModel.getSize() > 0)
-		    threadList.setSelectedIndex(0);  // select the first one
-		else
-		    clearThreadDetails();
 	    }
+	    if(listModel.getSize() > 0)
+		threadList.setSelectedIndex(0);  // select the first one
+	    else
+		clearThreadDetails();
 //  	}
     }
 	

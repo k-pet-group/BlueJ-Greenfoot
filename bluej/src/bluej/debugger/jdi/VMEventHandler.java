@@ -48,17 +48,19 @@ public class VMEventHandler implements Runnable {
                     resumeStoppedApp |= handleEvent(it.nextEvent());
                 }
 
-                // Note: we never request events to suspend just the event
-                // thread, so there's no code here to handle that case.
+                // Note: If just the thread itself is suspended we leave it
+                // suspended. (We only use this for breakpoints.)
+
                 if (eventSet.suspendPolicy() == EventRequest.SUSPEND_ALL) {
                     if (resumeStoppedApp) {
                         vm.resume();
-                    } else {
-                        //notifier.vmInterrupted();
+                    }
+		    else {
+			//Debug.message("   machine suspended. ");
                     }
                 }
             } catch (InterruptedException exc) {
-                // Do nothing. Any changes will be seen at top of loop.
+		// Do nothing. Any changes will be seen at top of loop.
             } catch (VMDisconnectedException discExc) {
                 handleDisconnectedException();
                 break;
@@ -117,7 +119,7 @@ public class VMEventHandler implements Runnable {
 
     private boolean breakpointEvent(Event event)
     {
-        debugger.breakEvent((LocatableEvent)event, true);
+	debugger.breakEvent((LocatableEvent)event, true);
         return false;
     }
 

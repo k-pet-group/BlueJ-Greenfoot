@@ -8,6 +8,7 @@ import bluej.runtime.ExecServer;
 import bluej.terminal.Terminal;
 
 import java.io.*;
+import java.util.Collection;
 import java.util.Vector;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Hashtable;
 
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
+import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.BreakpointRequest;
@@ -31,26 +33,37 @@ import com.sun.jdi.event.ExceptionEvent;
  ** Execution and debugging is implemented here on a second ("remote") 
  ** virtual machine, which gets started from here via the JDI interface.
  **
+ ** @author Michael Kolling
+ **
  ** The startup process is as follows:
  **
- **  - After creation of this object, the startDebugger method gets called.
- **    This method creates the remote virtual machine and starts the "main"
- **    method of the execution server class ("bluej.runtime.ExecServer",
- **    defined in the constant SERVER_CLASSNAME). It also requests to be
- **    notified when the class is prepared.
- **    
- **  - When the server class is prepared on the remote VM, the 
- **    serverClassPrepared() method gets called.  Here, we set a breakpoint
- **    in the remote server class to make it wait for out instructions.
- **    
- **  - The server on the remote VM hits the breakpoint and waits.
- **    
- **  - We can now execute commands on the remote VM by invoking methods
- **    using the server thread (which is suspended at the breakpoint).
- **    This is done in the "startServer()" method
- **    
  **
- ** @author Michael Kolling
+ **  Debugger		VMEventHandler Thread		Remote VM
+ **  ----------------------------------------------------------------------
+ **  startDebugger:
+ **    start VM --------------------------------------> start
+ **    start event handler ---> start                     .
+ **      .                        .                       .
+ **      .                        .                       .
+ **      .                        .                     server class loaded
+ **      .                      prepared-event < ---------.
+ **  serverClassPrepared() <------.
+ **    set break in remote VM
+ **    continue remote VM
+ **    wait
+ **      .                        .                       
+ **      .  ------------------------------------------> continue
+ **      .                        .                       .
+ **      .                        .                     hit breakpoint
+ **      .                      break-event < ------------.
+ **    continue <-----------------.
+ **      .
+ **      .
+ **
+ ** We can now execute commands on the remote VM by invoking methods
+ ** using the server thread (which is suspended at the breakpoint).
+ ** This is done in the "startServer()" method.
+ **
  **/
 
 public final class JdiDebugger extends Debugger
@@ -152,6 +165,8 @@ public final class JdiDebugger extends Debugger
 	    (Connector.Argument)arguments.get("main");
         Connector.Argument optionsArg = 
 	    (Connector.Argument)arguments.get("options");
+        //Connector.Argument suspendArg = 
+	//    (Connector.Argument)arguments.get("suspend");
 
         if (mainArg == null || optionsArg == null) {
 	    Debug.reportError("Cannot start virtual machine.");
@@ -160,6 +175,7 @@ public final class JdiDebugger extends Debugger
         }
         mainArg.setValue(SERVER_CLASSNAME);
         optionsArg.setValue(VM_OPTIONS);
+	//suspendArg.setValue("false");
 
         try {
             machine = connector.launch(arguments);
@@ -183,7 +199,7 @@ public final class JdiDebugger extends Debugger
 	eventHandler = new VMEventHandler(this, machine);
 
 	// now wait until the machine really has started up. We will know that
-	// it has when the first breakpoint is hit (see breakpointEvent).
+	// it has when the first breakpoint is hit (see breakEvent).
 	try {
 	    wait();
 	} catch(InterruptedException e) {}
@@ -235,6 +251,9 @@ public final class JdiDebugger extends Debugger
 	Location loc = suspendMethod.location();
 	EventRequestManager erm = machine.eventRequestManager();
 	BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
+	bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+	bpreq.putProperty("isBluejBreak", "true");
+	//bpreq.setSuspendPolicy(EventRequest.SUSPEND_NONE);
 	bpreq.enable();
 
 	// ** remove the "class prepare" event request (not needed anymore) **
@@ -316,12 +335,17 @@ public final class JdiDebugger extends Debugger
 	    // one thread at a time, the serverThread).
 	    activeThreads.put(serverThread, eventParam);
 	    machineIsRunning = true;
+
   	    Value returnVal = shellClass.invokeMethod(serverThread, 
 						      runMethod, 
 						      arguments, 0);
 	    // returnVal is type void
 	    // 'invokeMethod' is synchronous - when we get here it has
 	    // finished
+
+	    // invokeMethod leaves everything suspended, so restart the 
+	    // system threads... 
+	    resumeSystemThreads();
 	}
   	catch(InvocationException e) {
 	    // exception thrown in remote machine - ignored here. The
@@ -404,7 +428,7 @@ public final class JdiDebugger extends Debugger
 		return null;
 	}
 
-	List arguments = new ArrayList(3);
+	List arguments = new ArrayList(5);
 	arguments.add(vm.mirrorOf(task));
 	arguments.add(vm.mirrorOf(arg1));
 	arguments.add(vm.mirrorOf(arg2));
@@ -415,6 +439,9 @@ public final class JdiDebugger extends Debugger
   	    Value returnVal = execServer.invokeMethod(serverThread, 
 						      performTaskMethod, 
 						      arguments, 0);
+	    // invokeMethod leaves everything suspended, so restart the 
+	    // system threads... 
+	    resumeSystemThreads();
 	    return (ClassLoaderReference)returnVal;
 	}
   	catch(Exception e) {
@@ -467,7 +494,7 @@ public final class JdiDebugger extends Debugger
 	List list = vm.allThreads();
 	for (int i=0 ; i<list.size() ; i++) {
 	    ThreadReference threadRef = (ThreadReference)list.get(i);
-	    if("main".equals(threadRef.name()))
+	    if("BlueJ-Execution-Server".equals(threadRef.name()))
 		serverThread = threadRef;
 	}
 
@@ -600,7 +627,12 @@ public final class JdiDebugger extends Debugger
     {
 	// if we hit a breakpoint before the VM is initialised, then it is
 	// our own breakpoint that we have been waiting for at startup
+
+	if("true".equals(event.request().getProperty("isBluejBreak")))
+	    Debug.message("  found bluej break...");
+
 	if(!initialised) {
+	    Debug.message("  initial break reached...");
 	    synchronized(this) {
 		notifyAll();
 	    }
@@ -661,6 +693,7 @@ public final class JdiDebugger extends Debugger
 	    EventRequestManager erm = vm.eventRequestManager();
 	    if(set) {
 		BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
+		bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
 		bpreq.enable();
 		return null;
 	    }
@@ -705,19 +738,19 @@ public final class JdiDebugger extends Debugger
 	List threads = getVM().allThreads();
 	int len = threads.size();
 
-	Vector threadVec = new Vector(len);
+	Vector threadVec = new Vector();
 
 	// reverse order to make display nicer (newer threads first)
 	for(int i = 0; i < len; i++) {
 	    ThreadReference thread = (ThreadReference)threads.get(len-i-1);
-	    if(thread.threadGroup().name().equals(MAIN_THREADGROUP)) {
+	    //if(thread.threadGroup().name().equals(MAIN_THREADGROUP)) {
 
 		String name = thread.name();
-		if(! name.startsWith("AWT-") &&	       // known system threads
-		   ! name.startsWith("SunToolkit.") && 
-		   ! name.equals("TimerQueue"))
-		    threadVec.add(i, new JdiThread(thread));
-	    }
+		if(! name.startsWith("xAWT-") &&	       // known system threads
+		   ! name.startsWith("xSunToolkit.") && 
+		   ! name.equals("xTimerQueue"))
+		    threadVec.addElement(new JdiThread(thread));
+		//}
 	}
 	return threadVec;
     }
@@ -901,6 +934,45 @@ public final class JdiDebugger extends Debugger
 	    try {
 		wait(millisec);
 	    } catch(InterruptedException e) {}
+	}
+    }
+
+    public void dumpThreadInfo()
+    {
+	Debug.message("threads:");
+	Debug.message("--------");
+
+	Vector threads = listThreads();
+	if(threads == null)
+	    Debug.message("cannot get thread info!");
+	else {
+	    for(int i = 0; i < threads.size(); i++) {
+		JdiThread thread = (JdiThread)threads.get(i);
+		String status = thread.getStatus();
+		Debug.message(thread.getName() + " [" + status + "]");
+		try{
+		    Debug.message("  group: " + 
+				  ((JdiThread)thread).getRemoteThread().
+				  threadGroup());
+		    Debug.message("  monitor: " + 
+				  ((JdiThread)thread).getRemoteThread().
+				  currentContendedMonitor());
+		}
+		catch (Exception e) { 
+		    Debug.message("  monitor: exc: " + e); }
+		}
+	}
+    }
+
+    private void resumeSystemThreads()
+    {
+	List threads = getVM().allThreads();
+
+	for(int i = 0; i < threads.size(); i++) {
+	    ThreadReference thread = (ThreadReference)threads.get(i);
+	    if(thread.isSuspended())
+		if(! thread.name().equals("BlueJ-Execution-Server"))
+		    thread.resume();
 	}
     }
 }

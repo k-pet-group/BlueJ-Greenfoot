@@ -189,6 +189,18 @@ in the template for the next one):
 @cause : ?
 
 @-------
+@bug#  : 00088
+@short : debugger error messages
+@prio  : 3
+@source: mik
+@date  : 1999-07-29
+@status: open
+@fixrel: 
+@descr : when being stopped at a breakpoint or a step, removing an existing
+	 breakpoint causes a debugger error message in the console
+@cause : ?
+
+@-------
 @bug#  : 00021
 @short : state of read-only package must be shown
 @prio  : 3

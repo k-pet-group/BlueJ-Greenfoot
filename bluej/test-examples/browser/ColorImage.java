@@ -150,47 +150,47 @@ public class ColorImage extends Panel implements Runnable {
 	}
 
     public void run() {
-	if (original == null) {
-	    // Acquire the desired image
-//            original = getImage(getDocumentBase(), imgName);
-		original = Toolkit.getDefaultToolkit().getImage( imgName );
-	    // wait for it to arrive
-	    tracker = new MediaTracker(this);
-	    tracker.addImage(original, 0);
-	    original.getHeight(this);
-	    try {
-		tracker.waitForID(0);
-		}
-	    catch (InterruptedException e) {
-		return;
-		}
+        if (original == null) {
+            // Acquire the desired image
+            //            original = getImage(getDocumentBase(), imgName);
+            	original = Toolkit.getDefaultToolkit().getImage( imgName );
+            // wait for it to arrive
+            tracker = new MediaTracker(this);
+            tracker.addImage(original, 0);
+            original.getHeight(this);
+            try {
+                tracker.waitForID(0);
+            	}
+            catch (InterruptedException e) {
+                return;
+            }
 
-	    // establish pixel buffer for image manipulations
-	    height = size().height;
-	    width = size().width;
-	    pixels = new int[width * height];
-	    sourcePixels = new int[width * height];
-	    redPixels = new int[width * height];
-	    greenPixels = new int[width * height];
-	    bluePixels = new int[width * height];
-	    alphaPixels = new int[width * height];
+            // establish pixel buffer for image manipulations
+            height = size().height;
+            width = size().width;
+            pixels = new int[width * height];
+            sourcePixels = new int[width * height];
+            redPixels = new int[width * height];
+            greenPixels = new int[width * height];
+            bluePixels = new int[width * height];
+            alphaPixels = new int[width * height];
 
-	    ColorModel cm = ColorModel.getRGBdefault();
+        	    ColorModel cm = ColorModel.getRGBdefault();
 
-	    grabber = new PixelGrabber(original, 0, 0,
-			Math.min(width, original.getWidth(this)),
-			Math.min(height, original.getHeight(this)),
-			sourcePixels, 0, width);
-	    try {
-		grabber.grabPixels();
-		}
-	    catch (InterruptedException e) {
-		return;
-		}
-	    if ((grabber.status() & ImageObserver.ABORT) != 0) {
-		System.err.println("image fetch aborted");
-		return;
-		}
+            grabber = new PixelGrabber(original, 0, 0,
+                                Math.min(width, original.getWidth(this)),
+                                Math.min(height, original.getHeight(this)),
+                                sourcePixels, 0, width);
+            try {
+                grabber.grabPixels();
+            		}
+            catch (InterruptedException e) {
+                return;
+            }
+            if ((grabber.status() & ImageObserver.ABORT) != 0) {
+                System.err.println("image fetch aborted");
+                return;
+		            }
 
 	    int n = width * height;
 	    for (int i = 0; i < n; i++) {
