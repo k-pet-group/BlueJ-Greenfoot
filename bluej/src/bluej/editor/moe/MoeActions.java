@@ -376,7 +376,8 @@ public final class MoeActions
         protected final MoeEditor getEditor(ActionEvent e) {
             JTextComponent textComponent = getTextComponent(e);
             MoeEditor ed = (MoeEditor)textComponent.getTopLevelAncestor();
-            ed.clearMessage();
+            if(ed != null)
+                ed.clearMessage();
             return ed;
         }
     }
