@@ -4,15 +4,16 @@ import java.awt.*;
 import java.awt.Graphics2D;
 
 import bluej.Config;
+import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.target.DependentTarget;
 
 /**
  * Paintes ImplementsDependencies
  * @author fisker
- * @version $Id: ImplementsDependencyPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ * @version $Id: ImplementsDependencyPainter.java 2571 2004-06-03 13:35:37Z fisker $
  */
-public class ImplementsDependencyPainter
+public class ImplementsDependencyPainter implements DependencyPainter
 {
     protected static final float strokeWithDefault = 1.0f;
     protected static final float strokeWithSelected = 2.0f;
@@ -33,7 +34,13 @@ public class ImplementsDependencyPainter
             10.0f, dash1, 0.0f);
     private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
     private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
-    public void paint(Graphics2D g, ImplementsDependency d) {
+    
+    
+    public void paint(Graphics2D g, Dependency dependency) {
+        if (!(dependency instanceof ImplementsDependency)){
+            throw new IllegalArgumentException();
+        }
+        ImplementsDependency d = (ImplementsDependency) dependency;
         Stroke dashedStroke, normalStroke;
         if (d.isSelected()) 
         {
@@ -71,5 +78,29 @@ public class ImplementsDependencyPainter
         
         g.setStroke(normalStroke);
         g.drawPolygon(xPoints, yPoints, 3);
+    }
+    /* (non-Javadoc)
+     * @see bluej.pkgmgr.graphPainter.DependencyPainter#getPopupMenuPosition(bluej.pkgmgr.dependency.Dependency)
+     */
+    public Point getPopupMenuPosition(Dependency dependency) {
+        ImplementsDependency usesDependency;
+        if (! (dependency instanceof ImplementsDependency)){
+            throw new IllegalArgumentException("Not a ExtendsDependency");
+        }
+        usesDependency = (ImplementsDependency) dependency;
+        Point pFrom = new Point(dependency.getFrom().getX() + dependency.getFrom().getWidth()/2,
+                				dependency.getFrom().getY() + dependency.getFrom().getHeight()/2);
+        Point pTo = new Point(dependency.getTo().getX() + dependency.getTo().getWidth()/2,
+                			  dependency.getTo().getY() + dependency.getTo().getHeight()/2);
+        // Get the angle of the line from src to dst.
+        double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
+        pTo = ((DependentTarget)dependency.getTo()).getAttachment(angle);
+        
+//      draw the arrow head
+        int[] xPoints =  { pTo.x, pTo.x + (int)((ARROW_SIZE) * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(ARROW_SIZE * Math.cos(angle - ARROW_ANGLE)) };
+        int[] yPoints =  { pTo.y, pTo.y - (int)((ARROW_SIZE) * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(ARROW_SIZE * Math.sin(angle - ARROW_ANGLE)) };
+                
+        return new Point((xPoints[0] + xPoints[1] + xPoints[2])/3, 
+                		 (yPoints[0] + yPoints[1] + yPoints[2])/3);
     }
 }

@@ -3,8 +3,6 @@
  */
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 
@@ -13,7 +11,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * be compiled.
  * 
  * @author Davin McCall
- * @version $Id: CompileAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: CompileAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class CompileAction extends PkgMgrAction {
     
@@ -33,7 +31,7 @@ final public class CompileAction extends PkgMgrAction {
     
     private CompileAction()
     {
-        super("menu.tools.compile", KeyEvent.VK_K);
+        super("menu.tools.compile");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.compile"));
     }
     

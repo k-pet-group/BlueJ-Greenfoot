@@ -1,7 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -9,7 +7,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * which is then evaluated and the result inspected.
  * 
  * @author Davin McCall
- * @version $Id: EvalExpressionAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: EvalExpressionAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 
 final public class EvalExpressionAction extends PkgMgrAction {
@@ -30,7 +28,7 @@ final public class EvalExpressionAction extends PkgMgrAction {
     
     private EvalExpressionAction()
     {
-        super("menu.tools.callFreeForm", KeyEvent.VK_E);
+        super("menu.tools.callFreeForm");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

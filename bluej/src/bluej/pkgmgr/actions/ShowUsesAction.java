@@ -1,14 +1,12 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * Action to toggle display of "uses" relationships in the graph window.
  * 
  * @author Davin McCall
- * @version $Id: ShowUsesAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: ShowUsesAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 
 final public class ShowUsesAction extends PkgMgrAction {
@@ -29,7 +27,7 @@ final public class ShowUsesAction extends PkgMgrAction {
     
     private ShowUsesAction()
     {
-        super("menu.view.showUses", KeyEvent.VK_U);
+        super("menu.view.showUses");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

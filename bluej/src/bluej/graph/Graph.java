@@ -9,7 +9,7 @@ import java.awt.geom.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: Graph.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public abstract class Graph
 {
@@ -18,9 +18,11 @@ public abstract class Graph
 
     private static final int RIGHT_PLACEMENT_MIN = 300;
     private static final int WHITESPACE_SIZE = 10;
+    
 
     public abstract Iterator getVertices();
     public abstract Iterator getEdges();
+    
 
     
     public void setActiveGraphElement(GraphElement ge)
@@ -80,5 +82,6 @@ public abstract class Graph
 
         t.setPos(10,min.height+10);
     }
+    
     
 }

@@ -1,7 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -10,7 +8,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * relation, modify the source to reflect the change.
  * 
  * @author Davin McCall.
- * @version $Id: RemoveAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: RemoveAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class RemoveAction extends PkgMgrAction {
     
@@ -30,7 +28,7 @@ final public class RemoveAction extends PkgMgrAction {
     
     private RemoveAction()
     {
-        super("menu.edit.remove", KeyEvent.VK_BACK_SPACE);
+        super("menu.edit.remove");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.metal.MetalLookAndFeel;
@@ -32,7 +33,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2554 2004-05-27 08:20:56Z polle $
+ * @version $Id: Config.java 2571 2004-06-03 13:35:37Z fisker $
  */
 
 public final class Config
@@ -67,6 +68,8 @@ public final class Config
     public static final String debugLogName = "bluej-debuglog.txt";
     
     private static boolean initialised = false;
+    protected static final int SHORTCUT_MASK =
+        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
@@ -400,8 +403,64 @@ public final class Config
      */
     public static String getString(String strname, String def)
     {
-        return lang_props.getProperty(strname, def);
+        int index;
+        String str = lang_props.getProperty(strname, def);
+        // remove all underscores
+        while( (index = str.indexOf('_')) != -1){
+            str = str.substring(0, index) + str.substring(index+1);
+        }
+        if ((index = str.indexOf('@')) != -1){ 
+            //remove everything from @
+            str = str.substring(0, index);
+        }
+        return str;
     }
+    
+    
+    /**
+     * Use hasMnemonicKey to ensure that the label has a mnemonicKey. If the
+     * lable doesn't have a mnemomic an exception will be thrown.
+     * @param strname
+     * @return
+     */
+    public static int getMnemonicKey(String strname){
+        int index, mnemonic;
+        char ch;
+        String str = lang_props.getProperty(strname, strname);
+        index = str.indexOf('_');
+        ch = str.charAt(index + 1);
+        String s = ch + "";
+        
+        // ch is appended to the emptystring to cast the argument to a string.
+        // this is needed because of a bug in AWTKeyStroke.getAWTKeyStroke(char c)
+        mnemonic = KeyStroke.getKeyStroke(s.toUpperCase()).getKeyCode();
+        return mnemonic;
+        
+    }
+    
+    public static boolean hasAcceleratorKey(String strname){
+        return lang_props.getProperty(strname, strname).indexOf('@') != -1;
+    }
+    
+    public static KeyStroke getAcceleratorKey(String strname){
+        int index;
+        String modifiers = "ctrl ";
+        KeyStroke keyStroke;
+        String str = lang_props.getProperty(strname, strname);
+        String keyString;
+        index = str.indexOf('@');
+        index++;
+        if (str.charAt(index) == '^'){ //then the modifiers is CTRL + SHIFT
+            index++;
+            modifiers = "shift ctrl ";
+        }
+        keyString = str.substring(index).toUpperCase();
+        System.err.println("modifiers: " + modifiers);
+        keyStroke = KeyStroke.getKeyStroke(modifiers + keyString);
+        return keyStroke;
+    }
+    
+    
         
     /**
      * Get a non-language-dependent string from the BlueJ properties

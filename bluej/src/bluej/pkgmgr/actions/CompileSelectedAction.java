@@ -1,15 +1,12 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.Event;
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * "Compile selected" command. Compiles the selected classes.
  * 
  * @author Davin McCall
- * @version $Id: CompileSelectedAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: CompileSelectedAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class CompileSelectedAction extends PkgMgrAction {
     
@@ -29,7 +26,7 @@ final public class CompileSelectedAction extends PkgMgrAction {
     
     private CompileSelectedAction()
     {
-        super("menu.tools.compileSelected", KeyEvent.VK_K, SHORTCUT_MASK | Event.SHIFT_MASK);
+        super("menu.tools.compileSelected");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

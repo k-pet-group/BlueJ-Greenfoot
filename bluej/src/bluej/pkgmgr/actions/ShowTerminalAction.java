@@ -1,7 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import javax.swing.ButtonModel;
 
 import bluej.pkgmgr.PkgMgrFrame;
@@ -11,7 +9,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * which can be tied to a check-box.
  * 
  * @author Davin McCall
- * @version $Id: ShowTerminalAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: ShowTerminalAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 
 final public class ShowTerminalAction extends PkgMgrAction
@@ -33,7 +31,7 @@ final public class ShowTerminalAction extends PkgMgrAction
     
     private ShowTerminalAction()
     {
-        super("menu.view.showTerminal", KeyEvent.VK_T);
+        super("menu.view.showTerminal");
     }
     
     public ButtonModel getToggleModel(PkgMgrFrame pmf)

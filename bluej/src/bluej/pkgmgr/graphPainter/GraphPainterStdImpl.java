@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
 /**
  * Paints a Graph using TargetPainters
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2497 2004-04-15 08:34:09Z fisker $
+ * @version $Id: GraphPainterStdImpl.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public class GraphPainterStdImpl implements GraphPainter
 {
@@ -90,7 +90,7 @@ public class GraphPainterStdImpl implements GraphPainter
         //Paint the vertices
         for(Iterator it = graph.getVertices(); it.hasNext(); ) {
             vertex = (Vertex)it.next();
-            paintVertex(g, vertex);
+            paintVertex(g, vertex, graph);
         }
     }
     
@@ -103,16 +103,16 @@ public class GraphPainterStdImpl implements GraphPainter
      */
     private void paintGhosts(Graphics2D g, Graph graph) {
         Vertex vertex;
-        Target target;
+        Moveable moveable;
         boolean isTargetAtStartingPoint;
         //Paint the ghosts
         for(Iterator it = graph.getVertices(); it.hasNext(); ) {
             vertex = (Vertex)it.next();
-            if( vertex instanceof Target){
-                target = (Target) vertex;
-                isTargetAtStartingPoint = target.getX() != target.getGhostX() || 
-                                          target.getY() != target.getGhostY();
-                if (target.isMoving() && isTargetAtStartingPoint){
+            if( vertex instanceof Moveable){
+                moveable = (Moveable) vertex;
+                isTargetAtStartingPoint = vertex.getX() != moveable.getGhostX() || 
+                						  vertex.getY() != moveable.getGhostY();
+                if (moveable.isMoving() && isTargetAtStartingPoint){
                     paintGhostVertex(g, vertex);
                 }
             }
@@ -126,17 +126,26 @@ public class GraphPainterStdImpl implements GraphPainter
      * @param edge
      */
     private void paintEdge(Graphics2D g, Edge edge){
-        if (edge instanceof ImplementsDependency){
-            implementsDependencyPainter.paint(g, (ImplementsDependency) edge);
+        if (!(edge instanceof Dependency)){
+            throw new IllegalArgumentException("Not a dependency");
         }
-        else if (edge instanceof ExtendsDependency){
-            extendsDependencyPainter.paint(g, (ExtendsDependency) edge);
+        Dependency dependency = (Dependency) edge;
+        getDependencyPainter(dependency).paint(g, dependency);
+    }
+    
+    public static DependencyPainter getDependencyPainter(Dependency dependency){
+        if (dependency instanceof ImplementsDependency){
+            return implementsDependencyPainter;
         }
-        else if (edge instanceof UsesDependency){
-            usesDependencyPainter.paint(g, (UsesDependency) edge);
+        else if (dependency instanceof ExtendsDependency){
+            return extendsDependencyPainter;
+        }
+        else if (dependency instanceof UsesDependency){
+            return usesDependencyPainter;
         }
         else {
-            //asserts false;
+            //assert false;
+            return null;
         }
     }
     
@@ -146,7 +155,7 @@ public class GraphPainterStdImpl implements GraphPainter
      * @param g
      * @param vertex
      */
-    private void paintVertex(Graphics2D g, Vertex vertex){
+    private void paintVertex(Graphics2D g, Vertex vertex, Graph graph){
 
         if (vertex instanceof ClassTarget){
             classTargetPainter.paint(g, (ClassTarget) vertex);        

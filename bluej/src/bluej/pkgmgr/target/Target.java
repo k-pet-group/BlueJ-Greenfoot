@@ -1,6 +1,5 @@
 package bluej.pkgmgr.target;
 
-import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
 import bluej.graph.*;
@@ -17,7 +16,7 @@ import java.awt.geom.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2484 2004-04-06 06:58:05Z fisker $
+ * @version $Id: Target.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -45,9 +44,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     protected boolean resizing;
     protected boolean disabled;
     
-    public int ghostX;
-    public int ghostY;
-    private boolean isMoving;
+    
     public Rectangle oldRect; //TODO incapsulate field
 
     protected int state = S_INVALID;
@@ -76,6 +73,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         this.displayName = identifierName;
     }
 
+    
     /**
      * Calculate the width of a target depending on the length of its name
      * and the font used for displaying the name. The size returned is
@@ -207,14 +205,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         this.resizing = resizing;
     }
 
-    /** returns whether */
-    public boolean isMoving(){
-        return isMoveable() && isMoving;
-    }
     
-    public void setIsMoving(boolean isMoving){
-        this.isMoving = isMoving;
-    }
     
     public boolean isQueued() {
         return queued;
@@ -262,10 +253,6 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         return true;
     }
 
-    public boolean isMoveable()
-    {
-        return true;
-    }
 
     public boolean isSaveable()
     {
@@ -277,12 +264,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         return true;
     }
 
-    public void endMove()
-    {
-        isMoving = false;
-    }
-
-   
+       
     public void repaint()
     {
         if (pkg.getEditor() != null) {
@@ -334,18 +316,4 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     {
         return getDisplayName();
     }
-	    
-    /**
-     * @return Returns the ghostX.
-     */
-    public int getGhostX() {
-        return ghostX;
-    }
-    
-    /**
-     * @return Returns the ghostX.
-     */
-    public int getGhostY() {
-        return ghostY;
-    }   
 }

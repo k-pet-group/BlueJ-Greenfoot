@@ -1,15 +1,12 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.Event;
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * Page setup, for printing. Specify page layout etc via a dialog box.
  * 
  * @author Davin McCall
- * @version $Id: PageSetupAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: PageSetupAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class PageSetupAction extends PkgMgrAction {
     
@@ -29,7 +26,7 @@ final public class PageSetupAction extends PkgMgrAction {
     
     private PageSetupAction()
     {
-        super("menu.package.pageSetup", KeyEvent.VK_P, SHORTCUT_MASK | Event.SHIFT_MASK);
+        super("menu.package.pageSetup");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

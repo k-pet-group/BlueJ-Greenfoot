@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2489 2004-04-08 08:58:58Z polle $
+ * @version $Id: Package.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -97,9 +97,6 @@ public final class Package extends Graph
 
     /** all the extends-arrows in a package */
     private List extendsArrows;
-
-    /** the currently selected graphElement */
-    private GraphElement selected;
 
     /** Holds the choice of "from" target for a new dependency */
     private DependentTarget fromChoice;
@@ -182,7 +179,6 @@ public final class Package extends Graph
         targets = new TargetCollection();
         usesArrows = new ArrayList();
         extendsArrows = new ArrayList();
-        selected = null;
         callHistory = new CallHistory(HISTORY_LENGTH);
         load();
     }
@@ -1501,24 +1497,6 @@ public final class Package extends Graph
         }
     }
 
-    /**
-     * Sets which GraphElement is currently active. If the graphElement is 
-     * selectable (implements Selectable) the element gets a message that it
-     * is selected. The element (if any) that was selected before, get a 
-     * messeage that it is no longer selected.
-     * @param ge the GraphElement that now active.
-     */
-    public void setActiveGraphElement(GraphElement ge)
-    {
-        if(selected != null && selected instanceof Selectable){
-            ((Selectable)selected).setSelected(false);
-        }
-        selected = ge;
-        if(selected != null && selected instanceof Selectable){
-            ((Selectable)selected).setSelected(true);
-        }
-            
-    }
 
     /**
      * Return the target with name "identifierName".

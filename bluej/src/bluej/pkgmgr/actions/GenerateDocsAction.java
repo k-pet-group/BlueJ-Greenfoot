@@ -1,7 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -10,7 +8,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * browser.
  * 
  * @author Davin McCall
- * @version $Id: GenerateDocsAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: GenerateDocsAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class GenerateDocsAction extends PkgMgrAction {
     
@@ -30,7 +28,7 @@ final public class GenerateDocsAction extends PkgMgrAction {
     
     private GenerateDocsAction()
     {
-        super("menu.tools.generateDoc", KeyEvent.VK_J);
+        super("menu.tools.generateDoc");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

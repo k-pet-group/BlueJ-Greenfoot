@@ -1,7 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 
@@ -11,7 +9,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * applet, etc)
  * 
  * @author Davin McCall
- * @version $Id: NewClassAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: NewClassAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class NewClassAction extends PkgMgrAction {
     
@@ -31,7 +29,7 @@ final public class NewClassAction extends PkgMgrAction {
     
     private NewClassAction()
     {
-        super("menu.edit.newClass", KeyEvent.VK_N);
+        super("menu.edit.newClass");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.newClass"));
     }
     

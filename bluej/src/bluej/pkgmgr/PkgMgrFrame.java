@@ -47,7 +47,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2544 2004-05-24 08:56:02Z polle $
+ * @version $Id: PkgMgrFrame.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -444,7 +444,6 @@ public class PkgMgrFrame extends JFrame
         this.editor = null;
 
         makeFrame();
-
         updateWindowTitle();
         setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
     }
@@ -467,13 +466,12 @@ public class PkgMgrFrame extends JFrame
         this.pkg = pkg;
         this.editor = new PackageEditor(pkg);
         editor.setGraphPainter(GraphPainterStdImpl.getInstance());
-        editor.setGraphElementController(new GraphElementController(editor));
+        editor.setGraphElementController(new GraphElementController(editor, pkg));
         editor.setFocusable(true);
         editor.addMouseListener(this);        // This listener MUST be before
         editor.addMouseListener(editor);      //  the editor itself!
         editor.addKeyListener(editor);
         this.pkg.editor = this.editor;
-        editor.requestFocus();
 
         classScroller.setViewportView(editor);
         editor.addPackageEditorListener(this);
@@ -519,6 +517,7 @@ public class PkgMgrFrame extends JFrame
 
         pack();
         editor.revalidate();
+        editor.requestFocus();
 
         // we have had trouble with BlueJ freezing when
         // the enable/disable GUI code was run off a menu
@@ -2105,6 +2104,7 @@ public class PkgMgrFrame extends JFrame
             objbench = new ObjectBench();
 
             JComponent bench = objbench.getComponent();
+            bench.setFocusable(true);
             bench.setBorder(BorderFactory.createCompoundBorder(
                                 BorderFactory.createBevelBorder(BevelBorder.LOWERED),
                                 BorderFactory.createEmptyBorder(5,0,5,0)));
@@ -2163,7 +2163,7 @@ public class PkgMgrFrame extends JFrame
         JButton button = new JButton(action);
         button.setFont(PkgMgrFont);
         button.putClientProperty("JButton.buttonType", "toolbar");  // "icon"
-        button.setRequestFocusEnabled(false);   // never get keyboard focus
+        //button.setRequestFocusEnabled(false);   // never get keyboard focus
         
         if (notext)
             button.setText(null);
@@ -2187,6 +2187,8 @@ public class PkgMgrFrame extends JFrame
         itemsToDisable = new ArrayList();
         
         menu = new JMenu(Config.getString("menu.package"));
+        int mnemonic = Config.getMnemonicKey("menu.package");
+        menu.setMnemonic(mnemonic);
         menubar.add(menu);
         {
             createMenuItem(NewProjectAction.getInstance(),menu);
@@ -2214,6 +2216,7 @@ public class PkgMgrFrame extends JFrame
 
 
         menu = new JMenu(Config.getString("menu.edit"));
+        menu.setMnemonic(Config.getMnemonicKey("menu.edit"));
         menubar.add(menu);
         {
             createMenuItem(NewClassAction.getInstance(), menu);
@@ -2229,6 +2232,7 @@ public class PkgMgrFrame extends JFrame
 
         menu = new JMenu(Config.getString("menu.tools"));
         toolsMenu = menu;
+        menu.setMnemonic(Config.getMnemonicKey("menu.tools"));
         menubar.add(menu);
         {
             createMenuItem(CompileAction.getInstance(), menu);
@@ -2255,6 +2259,7 @@ public class PkgMgrFrame extends JFrame
 
 
         menu = new JMenu(Config.getString("menu.view"));
+        menu.setMnemonic(Config.getMnemonicKey("menu.view"));
         menubar.add(menu);
         {
             showUsesMenuItem = createCheckboxMenuItem(ShowUsesAction.getInstance(),
@@ -2273,19 +2278,10 @@ public class PkgMgrFrame extends JFrame
         viewMenu = menu;
 
 
-    /**
-      GrpCmds = {
-        "make", "open",
-        "updateSelected", "updateAll",
-        "commitSelected", "commitAll",
-        "statusSelection", "statusAll",
-        "users",
-        "configuration"
-      }
-    **/
 
         menu = new JMenu(Config.getString("menu.help"));
-        menubar.add(Box.createHorizontalGlue());  // Hack while "setHelpMenu" does not work...
+        menu.setMnemonic(Config.getMnemonicKey("menu.help"));
+        menubar.add(Box.createHorizontalGlue());  //TODO Hack while "setHelpMenu" does not work...
         menubar.add(menu);
         {
             createMenuItem(HelpAboutAction.getInstance(), menu);

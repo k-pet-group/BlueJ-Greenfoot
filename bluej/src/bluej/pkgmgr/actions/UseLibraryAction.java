@@ -1,7 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -9,7 +7,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * from the standard library onto the object bench.
  * 
  * @author Davin McCall
- * @version $Id: UseLibraryAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: UseLibraryAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public class UseLibraryAction extends PkgMgrAction {
     
@@ -29,7 +27,7 @@ public class UseLibraryAction extends PkgMgrAction {
     
     private UseLibraryAction()
     {
-        super("menu.tools.callLibrary", KeyEvent.VK_L);
+        super("menu.tools.callLibrary");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

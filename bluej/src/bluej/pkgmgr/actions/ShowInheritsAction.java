@@ -1,14 +1,12 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * Action to toggle display of "extends" relationships in the graph window.
  * 
  * @author Davin McCall
- * @version $Id: ShowInheritsAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: ShowInheritsAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class ShowInheritsAction extends PkgMgrAction {
     
@@ -28,7 +26,7 @@ final public class ShowInheritsAction extends PkgMgrAction {
     
     private ShowInheritsAction()
     {
-        super("menu.view.showInherits", KeyEvent.VK_I);
+        super("menu.view.showInherits");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

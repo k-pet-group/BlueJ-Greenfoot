@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2488 2004-04-06 09:42:07Z fisker $
+ * @version $Id: GraphEditor.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -33,6 +33,8 @@ public class GraphEditor extends JComponent
     private MarqueePainter marqueePainter = new MarqueePainter();
     private GraphElementController graphElementController;
     public static final int GRID_SIZE = 10;
+    
+    
     
     public GraphEditor(Graph graph)
     {
@@ -153,14 +155,33 @@ public class GraphEditor extends JComponent
         
     }
 
+    public Vertex findSingleVertex() {
+        Iterator selection = graphElementManager.iterator();
+        Vertex currentVertex = null;
+        
+        // if there is a selection we pick a vertex from that
+        if (selection.hasNext()){
+            currentVertex = (Vertex) selection.next();
+            
+            //if there is no selection we select an existing vertex
+        }else{
+            Iterator i = graph.getVertices();
+            currentVertex = (Vertex) i.next();
+        }
+        return currentVertex;
+    }
+    
+    
 	// ---- KeyListener interface ----
 	
     public void keyPressed(KeyEvent evt)
-    {
+    {   
+        graphElementController.keyPressed(evt);
     }
     
     public void keyReleased(KeyEvent evt)
     {
+        graphElementController.keyReleased(evt);
     }
     
     public void keyTyped(KeyEvent evt)
@@ -190,9 +211,9 @@ public class GraphEditor extends JComponent
     {
         lastClickX = evt.getX();
         lastClickY = evt.getY();
+        requestFocus();
         
-        
-        marquee.start(lastClickX, lastClickY); 
+        marquee.start(lastClickX, lastClickY); //TODO could this be a local variable?
         activeGraphElement = findGraphElement(lastClickX, lastClickY);
 
         if (activeGraphElement == null) {

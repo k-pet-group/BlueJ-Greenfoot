@@ -17,7 +17,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * It can also set-up an accelerator key.
  * 
  * @author Davin McCall
- * @version $Id: PkgMgrAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: PkgMgrAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public abstract class PkgMgrAction extends AbstractAction {
         
@@ -25,6 +25,7 @@ public abstract class PkgMgrAction extends AbstractAction {
 
     protected static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    
     
     // --------- STATIC METHODS ------------
     
@@ -57,7 +58,14 @@ public abstract class PkgMgrAction extends AbstractAction {
     
     // --------- INSTANCE METHODS ----------
     
-    public PkgMgrAction(String s) { super(Config.getString(s)); }
+    public PkgMgrAction(String s)
+    { 
+        super(Config.getString(s)); 
+        putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(s)));
+        if (Config.hasAcceleratorKey(s)){
+            putValue(ACCELERATOR_KEY, Config.getAcceleratorKey(s));
+        }
+    }
     
     /**
      * Constructor for an action with an accelerator key. The default shift
@@ -66,12 +74,12 @@ public abstract class PkgMgrAction extends AbstractAction {
      * @param keycode       the keycode of the accelerator key (one of
      *                          KeyEvent.*)
      */
-    public PkgMgrAction(String s, int keycode)
-    {
-        super(Config.getString(s));
-        KeyStroke ks = KeyStroke.getKeyStroke(keycode, SHORTCUT_MASK);
-        putValue(ACCELERATOR_KEY, ks);
-    }
+    //public PkgMgrAction(String s, int keycode)
+    //{
+        //super(Config.getString(s));
+        //KeyStroke ks = KeyStroke.getKeyStroke(keycode, SHORTCUT_MASK);
+        //putValue(ACCELERATOR_KEY, ks);
+    //}
     
     /**
      * Constructor for an action with an accelerator key, not using the default modifiers.
@@ -81,6 +89,7 @@ public abstract class PkgMgrAction extends AbstractAction {
      */
     public PkgMgrAction(String s, int keycode, int modifiers)
     {
+
         super(Config.getString(s));
         KeyStroke ks = KeyStroke.getKeyStroke(keycode, modifiers);
         putValue(ACCELERATOR_KEY, ks);

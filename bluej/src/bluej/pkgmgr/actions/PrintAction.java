@@ -3,8 +3,6 @@
  */
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -12,7 +10,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * and project "README".
  * 
  * @author Davin McCall
- * @version $Id: PrintAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: PrintAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class PrintAction extends PkgMgrAction {
     
@@ -32,7 +30,7 @@ final public class PrintAction extends PkgMgrAction {
     
     private PrintAction()
     {
-        super("menu.package.print", KeyEvent.VK_P);
+        super("menu.package.print");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

@@ -13,9 +13,6 @@ class GraphElementManager
 {
     private GraphEditor graphEditor;
     private List graphElements = new LinkedList();
-    private int minX = Integer.MAX_VALUE;
-    private int minY = Integer.MAX_VALUE;
-    
     
     /**
      * 
@@ -39,15 +36,6 @@ class GraphElementManager
             ((Selectable)graphElement).setSelected(true);
             graphElements.add(graphElement);
         }
-        if ( graphElement instanceof Vertex){
-            Vertex vertex = (Vertex) graphElement;
-            if (vertex.getX() < minX){
-                minX = vertex.getX();
-            }
-            if (vertex.getY() < minY){
-                minY = vertex.getY();
-            }
-        }
     }
     
     /**
@@ -61,7 +49,6 @@ class GraphElementManager
             i.remove();
             graphElements.add(graphElement);
         }
-        findMin();
     }
     
     /**
@@ -73,7 +60,6 @@ class GraphElementManager
             ((Selectable)graphElement).setSelected(false);
         }
         graphElements.remove(graphElement);
-        findMin();
     }
     
     /**
@@ -90,8 +76,6 @@ class GraphElementManager
             } 
             i.remove();
         }
-        minX = Integer.MAX_VALUE;
-        minY = Integer.MAX_VALUE;
     }
     
     public Iterator iterator(){
@@ -107,25 +91,25 @@ class GraphElementManager
         return graphElements.size();
     }
     
-    public Point getMinPosition(){
-        return new Point(minX, minY);
-    }
-    
-    private void findMin(){
+    public Point getMinGhostPosition(){
         GraphElement graphElement;
         Vertex vertex;
+        Moveable moveable;
+        int minGhostX = Integer.MAX_VALUE;
+        int minGhostY = Integer.MAX_VALUE;
         
         for(Iterator i=graphElements.iterator();i.hasNext();){
             graphElement = (GraphElement) i.next();
-            if(graphElement instanceof Vertex){
-                vertex = (Vertex) graphElement;
-                if (vertex.getX() < minX){
-                    minX = vertex.getX();
+            if(graphElement instanceof Moveable ){
+                moveable = (Moveable) graphElement;
+                if (moveable.getGhostX() < minGhostX){
+                    minGhostX = moveable.getGhostX();
                 }
-                if (vertex.getY() < minY){
-                    minY = vertex.getY();
+                if (moveable.getGhostY() < minGhostY){
+                    minGhostY = moveable.getGhostY();
                 }
             } 
         }
+        return new Point(minGhostX, minGhostY);
     }
 }

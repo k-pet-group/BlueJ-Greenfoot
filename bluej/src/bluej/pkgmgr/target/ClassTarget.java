@@ -15,6 +15,7 @@ import bluej.debugger.DebuggerClass;
 import bluej.debugmgr.inspector.*;
 import bluej.editor.Editor;
 import bluej.graph.GraphEditor;
+import bluej.graph.Moveable;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.*;
 import bluej.pkgmgr.*;
@@ -33,9 +34,9 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2567 2004-06-02 04:18:11Z bquig $
+ * @version $Id: ClassTarget.java 2571 2004-06-03 13:35:37Z fisker $
  */
-public class ClassTarget extends EditableTarget
+public class ClassTarget extends EditableTarget implements Moveable
 {	
     static final int MIN_WIDTH = 80;
 	static final int MIN_HEIGHT = 50;
@@ -94,6 +95,11 @@ public class ClassTarget extends EditableTarget
 
     // flag to prevent recursive calls to analyseDependancies()
     private boolean analysing = false;
+    
+    private int ghostX;
+    private int ghostY;
+    private boolean isMoving = false;
+    private boolean isMoveable = true;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -1008,7 +1014,7 @@ public class ClassTarget extends EditableTarget
                     if(ct != null && ct.isUnitTest())
                         setAssociation(getPackage().getTarget(getIdentifierName() + "Test"));
                 }
-                endMove();
+                updateAssociatePosition();
                 getPackage().getEditor().revalidate();
                 getPackage().getEditor().repaint();
 
@@ -1086,9 +1092,49 @@ public class ClassTarget extends EditableTarget
         open();
     }
 
-    public void endMove()
-    {
-        super.endMove();
+    /**
+     * @return Returns the ghostX.
+     */
+    public int getGhostX() {
+        return ghostX;
+    }
+    
+    /**
+     * @return Returns the ghostX.
+     */
+    public int getGhostY() {
+        return ghostY;
+    }   
+    /**
+     * @param ghostX The ghostX to set.
+     */
+    public void setGhostX(int ghostX) {
+        this.ghostX = ghostX;
+    }
+    /**
+     * @param ghostY The ghostY to set.
+     */
+    public void setGhostY(int ghostY) {
+        this.ghostY = ghostY;
+    }
+    
+    /** returns whether */
+    public boolean isMoving(){
+        return isMoving;
+    }
+    
+    public void setIsMoving(boolean isMoving){
+        this.isMoving = isMoving;
+    }
+    
+    public void setPos(int x, int y){
+        super.setPos(x,y);
+        setGhostX(x);
+        setGhostY(y);
+    }
+    
+    public void updateAssociatePosition() {
+        
     	Target t = getAssociation();
     	
         if (t != null) {
@@ -1096,6 +1142,7 @@ public class ClassTarget extends EditableTarget
             t.setPos(getX() + 30, getY() - 30);
         }
     }
+    
 
     /**
      * Prepares this ClassTarget for removal from a Package.
@@ -1170,6 +1217,20 @@ public class ClassTarget extends EditableTarget
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
+    }
+
+    /* (non-Javadoc)
+     * @see bluej.graph.Moveable#isMoveable()
+     */
+    public boolean isMoveable() {
+        return isMoveable;
+    }
+
+    /* (non-Javadoc)
+     * @see bluej.graph.Moveable#setIsMoveable(boolean)
+     */
+    public void setIsMoveable(boolean isMoveable) {
+        this.isMoveable = isMoveable;
     }
     
 }

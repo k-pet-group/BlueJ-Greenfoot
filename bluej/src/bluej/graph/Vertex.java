@@ -8,12 +8,13 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Vertex.java 2483 2004-03-31 09:13:31Z fisker $
+ * @version $Id: Vertex.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public abstract class Vertex extends GraphElement
 {
     private int x, y;            // position
     private int width, height;   // size
+    
 
     public Vertex(int x, int y, int width, int height)
     {
@@ -60,6 +61,8 @@ public abstract class Vertex extends GraphElement
     {
         return this.height;
     }
+    
+    
     
     /**
      * The default shape for a vertex is a rectangle. Child classes can

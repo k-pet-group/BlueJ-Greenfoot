@@ -1,7 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.VersionCheckDialog;
 
@@ -11,7 +9,7 @@ import bluej.pkgmgr.VersionCheckDialog;
  * BlueJ is available.
  * 
  * @author Davin McCall
- * @version $Id: CheckVersionAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: CheckVersionAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class CheckVersionAction extends PkgMgrAction {
     
@@ -31,7 +29,7 @@ final public class CheckVersionAction extends PkgMgrAction {
 
     private CheckVersionAction()
     {
-        super("menu.help.versionCheck", KeyEvent.VK_V);
+        super("menu.help.versionCheck");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

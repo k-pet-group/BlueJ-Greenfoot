@@ -1,6 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
 
 import bluej.pkgmgr.PkgMgrFrame;
 
@@ -28,7 +27,7 @@ final public class OpenProjectAction extends PkgMgrAction {
     
     private OpenProjectAction()
     {
-        super("menu.package.open", KeyEvent.VK_O);
+        super("menu.package.open");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

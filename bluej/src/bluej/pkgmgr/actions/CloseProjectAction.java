@@ -3,8 +3,6 @@
  */
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -13,7 +11,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * the window regardless.
  * 
  * @author Davin McCall
- * @version $Id: CloseProjectAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: CloseProjectAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class CloseProjectAction extends PkgMgrAction {
 
@@ -33,7 +31,7 @@ final public class CloseProjectAction extends PkgMgrAction {
     
     private CloseProjectAction()
     {
-        super("menu.package.close", KeyEvent.VK_W);
+        super("menu.package.close");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

@@ -5,15 +5,16 @@ import java.awt.Graphics2D;
 
 import bluej.Config;
 import bluej.graph.GraphElementController;
+import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.DependentTarget;
 
 /**
  * Paints usesDependencies
  * @author fisker
- * @version $Id: UsesDependencyPainter.java 2484 2004-04-06 06:58:05Z fisker $
+ * @version $Id: UsesDependencyPainter.java 2571 2004-06-03 13:35:37Z fisker $
  */
-public class UsesDependencyPainter
+public class UsesDependencyPainter implements DependencyPainter
 {
     protected static final float strokeWithDefault = 1.0f;
     protected static final float strokeWithSelected = 2.0f;
@@ -35,7 +36,11 @@ public class UsesDependencyPainter
     private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
     private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
     
-    public void paint(Graphics2D g, UsesDependency d){
+    public void paint(Graphics2D g, Dependency dependency){
+        if (!(dependency instanceof UsesDependency)){
+            throw new IllegalArgumentException("Not a UsesDependency");
+        }
+        UsesDependency d = (UsesDependency) dependency; 
         Stroke dashedStroke, normalStroke;
         if (d.isSelected()) 
         {
@@ -133,5 +138,26 @@ public class UsesDependencyPainter
         g.setStroke(dashedStroke);
         g.drawLine(pFrom.x, pFrom.y, xPoints[0],yPoints[0]);
         
+    }
+
+    /* (non-Javadoc)
+     * @see bluej.pkgmgr.graphPainter.DependencyPainter#getPopupMenuPosition(bluej.pkgmgr.dependency.Dependency)
+     */
+    public Point getPopupMenuPosition(Dependency d) {
+        UsesDependency usesDependency;
+        if (! (d instanceof UsesDependency)){
+            throw new IllegalArgumentException("Not a UsesDependency");
+        }
+        usesDependency = (UsesDependency) d;
+        
+        int delta_x = usesDependency.isEndLeft() ? -10 : 10;
+        int dst_x = usesDependency.getDestX();
+        int dst_y = usesDependency.getDestY();
+        
+        int[] xPoints = { dst_x, dst_x + delta_x, dst_x + delta_x };
+        int[] yPoints = { dst_y, dst_y - 3, dst_y + 3 };
+
+        return new Point((xPoints[0] + xPoints[1] + xPoints[2])/3, 
+       		 			 (yPoints[0] + yPoints[1] + yPoints[2])/3);
     }
 }

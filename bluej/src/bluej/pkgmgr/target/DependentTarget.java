@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.List;
 
 import bluej.graph.GraphEditor;
+import bluej.graph.Moveable;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.dependency.*;
@@ -15,7 +16,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 2484 2004-04-06 06:58:05Z fisker $
+ * @version	$Id: DependentTarget.java 2571 2004-06-03 13:35:37Z fisker $
  */
 public abstract class DependentTarget extends Target
 {
@@ -40,6 +41,12 @@ public abstract class DependentTarget extends Target
         
         assoc = null;
     }
+    
+    /*public void setPos(int x, int y){
+        super.setPos(x,y);
+        recalcOutUses();
+        recalcInUses();
+    }*/
 
 	/**
 	 * Save association information about this class target
@@ -59,6 +66,10 @@ public abstract class DependentTarget extends Target
 	public void setAssociation(Target t)
 	{
 		assoc = t;
+		//assoiated classes are not allowed to move on their own
+		if (assoc instanceof Moveable){
+		    ((Moveable)assoc).setIsMoveable(false);
+		}
 	}
 	
 	public Target getAssociation()
@@ -138,6 +149,15 @@ public abstract class DependentTarget extends Target
         v.add(children.iterator());
         v.add(inUses.iterator());
         return new MultiIterator(v);
+    }
+    
+    public List dependentsAsList(){
+        List list = new LinkedList();
+        list.addAll(inUses);
+        list.addAll(outUses);
+        list.addAll(children);
+        list.addAll(parents);
+        return list;
     }
 
 	public Iterator usesDependencies()

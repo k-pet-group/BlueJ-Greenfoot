@@ -1,7 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.KeyEvent;
-
 import javax.swing.ButtonModel;
 
 import bluej.pkgmgr.PkgMgrFrame;
@@ -11,7 +9,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * so that it can be tied to a check-box.
  * 
  * @author Davin McCall
- * @version $Id: ShowDebuggerAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: ShowDebuggerAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class ShowDebuggerAction extends PkgMgrAction
 {
@@ -32,7 +30,7 @@ final public class ShowDebuggerAction extends PkgMgrAction
     
     private ShowDebuggerAction()
     {
-        super("menu.view.showExecControls", KeyEvent.VK_D);
+        super("menu.view.showExecControls");
     }
             
     public ButtonModel getToggleModel(PkgMgrFrame pmf)

@@ -1,8 +1,5 @@
 package bluej.pkgmgr.actions;
 
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -11,7 +8,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * objects from the bench.
  * 
  * @author Davin McCall
- * @version $Id: RestartVMAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: RestartVMAction.java 2571 2004-06-03 13:35:37Z fisker $
  */
 final public class RestartVMAction extends PkgMgrAction
 {    
@@ -31,7 +28,7 @@ final public class RestartVMAction extends PkgMgrAction
     
     private RestartVMAction()
     {
-        super("workIndicator.resetMachine", KeyEvent.VK_R, InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK);
+        super("workIndicator.resetMachine");
     }
     
     public void actionPerformed(PkgMgrFrame pmf)

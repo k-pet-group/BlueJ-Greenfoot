@@ -9,6 +9,7 @@ import javax.swing.*;
 
 import bluej.Config;
 import bluej.graph.GraphEditor;
+import bluej.graph.Moveable;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
@@ -18,9 +19,9 @@ import bluej.utility.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 2483 2004-03-31 09:13:31Z fisker $
+ * @version $Id: PackageTarget.java 2571 2004-06-03 13:35:37Z fisker $
  */
-public class PackageTarget extends Target
+public class PackageTarget extends Target implements Moveable
 {
     static final int MIN_WIDTH = 80;
 	static final int MIN_HEIGHT = 60;
@@ -42,6 +43,10 @@ public class PackageTarget extends Target
     static final BasicStroke normalStroke = new BasicStroke(1);
     static final BasicStroke selectedStroke = new BasicStroke(3);
 
+    private int ghostX;
+    private int ghostY;
+    private boolean isMoving;
+    private boolean isMoveable = true;
 
     public PackageTarget(Package pkg, String baseName)
     {
@@ -232,4 +237,61 @@ public class PackageTarget extends Target
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
     }
+    
+    public void setPos(int x, int y){
+        super.setPos(x,y);
+        setGhostX(x);
+        setGhostY(y);
+    }
+    
+    /**
+     * @return Returns the ghostX.
+     */
+    public int getGhostX() {
+        return ghostX;
+    }
+    
+    /**
+     * @return Returns the ghostX.
+     */
+    public int getGhostY() {
+        return ghostY;
+    }   
+    /**
+     * @param ghostX The ghostX to set.
+     */
+    public void setGhostX(int ghostX) {
+        this.ghostX = ghostX;
+    }
+    /**
+     * @param ghostY The ghostY to set.
+     */
+    public void setGhostY(int ghostY) {
+        this.ghostY = ghostY;
+    }
+    
+    /** returns whether */
+    public boolean isMoving(){
+        return isMoving;
+    }
+    
+    public void setIsMoving(boolean isMoving){
+        this.isMoving = isMoving;
+    }
+
+    /* (non-Javadoc)
+     * @see bluej.graph.Moveable#isMoveable()
+     */
+    public boolean isMoveable() {
+        return isMoveable;
+    }
+
+    /* (non-Javadoc)
+     * @see bluej.graph.Moveable#setIsMoveable(boolean)
+     */
+    public void setIsMoveable(boolean isMoveable) {
+        this.isMoveable = isMoveable;
+        
+    }
+    
 }
