@@ -30,7 +30,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2004 2003-06-02 11:09:50Z damiano $
+ * @version $Id: ClassTarget.java 2011 2003-06-03 07:07:52Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -833,7 +833,6 @@ public class ClassTarget extends EditableTarget
 	 * Construct a popup menu for the class target, including caching
 	 * of results.
 	 */
-    protected Class last_class = null;
     protected JPopupMenu menu = null;
     boolean compiledMenu = false;
 
@@ -862,24 +861,19 @@ public class ClassTarget extends EditableTarget
             }
         }
 
+		if (menu != null)
+			 editor.remove(menu);
+
         // check that the class loading hasn't changed out state
         if (state == S_NORMAL) {
-            if (true) { //(cl != null) && (last_class != cl)) {
-               if (menu != null)
-                    editor.remove(menu);
-                menu = createMenu(cl);
-                editor.add(menu);
-                compiledMenu = true;
-            }
-            last_class = cl;
+            menu = createMenu(cl);
+            editor.add(menu);
         }
         else {
-            if (compiledMenu || menu == null) {
-                menu = createMenu(null);
-                editor.add(menu);
-                compiledMenu = false;
-            }
+            menu = createMenu(null);
+            editor.add(menu);
         }
+
         if (menu != null)
             menu.show(editor, x, y);
     }
@@ -895,15 +889,15 @@ public class ClassTarget extends EditableTarget
         JPopupMenu menu = new JPopupMenu(getBaseName() + " operations");
 
         // call on role object to add any options needed at top
-        role.createRoleMenu(menu, this, state);
+        role.createRoleMenu(menu, this, cl, state);
 
         if (cl != null)
-            if (role.createClassConstructorMenu(menu, this, cl));
+            if (role.createClassConstructorMenu(menu, this, cl))
                 menu.addSeparator();
 
         if (cl != null)
-            if (role.createClassStaticMenu(menu, this, cl))
-                menu.addSeparator();
+			if (role.createClassStaticMenu(menu, this, cl))
+				menu.addSeparator();
 
         role.addMenuItem(menu, new EditAction(), true);
         role.addMenuItem(menu, new CompileAction(), true);

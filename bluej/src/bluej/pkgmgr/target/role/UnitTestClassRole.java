@@ -8,7 +8,6 @@ import java.util.*;
 import javax.swing.*;
 
 import antlr.BaseAST;
-
 import bluej.Config;
 import bluej.debugger.*;
 import bluej.editor.Editor;
@@ -18,13 +17,12 @@ import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.utility.*;
-import bluej.utility.DialogManager;
 
 /**
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: UnitTestClassRole.java 2011 2003-06-03 07:07:52Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -79,14 +77,29 @@ public class UnitTestClassRole extends ClassRole
      * @param editorFrame the frame in which this targets package is displayed
      * @return the generated JPopupMenu
      */
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
+    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class cl, int state)
     {
+		boolean enableTestAll = false;
+		
+		if (state == Target.S_NORMAL && cl != null) {
+			Method[] allMethods = cl.getMethods();
+		
+			for (int i=0; i < allMethods.length; i++) {
+				Method m = allMethods[i];
+
+				if (isJUnitTestMethod(m)) {
+					enableTestAll = true;
+					break;
+				}
+			}
+		}
+
         // add run all tests option
         addMenuItem(menu, new TestAction(testAll, ct.getPackage().getEditor(),ct),
-        			(state == Target.S_NORMAL));
+        			enableTestAll);
         menu.addSeparator();
 
-        return true;
+        return false;
     }
 
     /**
@@ -122,7 +135,7 @@ public class UnitTestClassRole extends ClassRole
 			item.setEnabled(false);
 			menu.add(item);
         }
-        return hasEntries;
+        return true;
     }
 
     /**
@@ -282,7 +295,11 @@ public class UnitTestClassRole extends ClassRole
         Editor ed = ct.getEditor();
 
         try {
-            BaseAST ast = (BaseAST) bluej.parser.ast.JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));
+            BaseAST ast = (BaseAST) JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));
+
+			// operate on the first class defined in the source file.
+			// this could be a mistaken assumption but for unit tests its
+			// probably correct
             BaseAST firstClass = (BaseAST) ast.getFirstChild();
 
             java.util.List variables = null;
@@ -298,8 +315,8 @@ public class UnitTestClassRole extends ClassRole
             while(childAST != null) {
                 if(childAST.getType() == UnitTestParserTokenTypes.OBJBLOCK) {
                     
-                    variables = bluej.parser.ast.JavaParser.getVariableSelections(childAST);
-                    setup = bluej.parser.ast.JavaParser.getSetupMethodSelections(childAST);
+                    variables = UnitTestParser.getVariableSelections(childAST);
+                    setup = UnitTestParser.getSetupMethodSelections(childAST);
                     break;
                 }               
                 childAST = (BaseAST) childAST.getNextSibling();            
@@ -398,6 +415,8 @@ public class UnitTestClassRole extends ClassRole
         }
     }
 
+	/**
+	 */
     private class MakeTestCaseAction extends TargetAbstractAction
     {
         public MakeTestCaseAction(String name, PackageEditor ped, Target t)

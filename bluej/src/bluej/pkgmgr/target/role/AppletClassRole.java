@@ -18,7 +18,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: AppletClassRole.java 2011 2003-06-03 07:07:52Z ajp $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -122,7 +122,7 @@ public class AppletClassRole extends ClassRole
      * @param   state   whether the target is COMPILED etc.
      * @return  true if we added any menu tiems, false otherwise
      */
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
+    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class cl, int state)
     {
         // add run applet option
         addMenuItem(menu, new AppletAction(ct.getPackage().getEditor(),ct),

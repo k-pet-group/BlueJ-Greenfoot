@@ -19,7 +19,7 @@ import bluej.views.*;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: ClassRole.java 2011 2003-06-03 07:07:52Z ajp $
  */
 public abstract class ClassRole
 {
@@ -132,7 +132,7 @@ public abstract class ClassRole
      *
      * @return true if any menu items have been added
      */
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
+    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class cl, int state)
     {
         return false;
     }
