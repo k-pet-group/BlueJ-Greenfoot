@@ -1,0 +1,83 @@
+# Moe editor properties - German version
+# author: Michael Kölling (mik), Nov 1999
+
+##
+##  Define the toolbar
+##
+
+toolbar = view compile undo cut copy paste find find-next close
+
+# button lables for toolbar commands
+
+viewLabel1 = Implementation
+viewLabel2 = Public View
+viewLabel3 = Package View
+viewLabel4 = Protected View
+compileLabel = Compile
+undoLabel = Rückgängig
+cutLabel = Ausschneiden
+copyLabel = Kopieren
+pasteLabel = Einfügen
+findLabel = Suchen...
+find-nextLabel = Nochmal suchen
+closeLabel = Schließen
+
+# actions for toolbar commands (only needed when it differs from command name
+
+openAction = open-file
+cutAction = cut-to-clipboard
+copyAction = copy-to-clipboard
+pasteAction = paste-from-clipboard
+find-nextAction = find-next
+
+##
+##  Define the menus. Each menu gets a key, which is used afterwards to
+##  define the menu's details.
+##
+
+menubar = class edit tools option
+
+# Actions for menus. Each value must be a defined moe action name. Each 
+#   action becomes an item in the menu. Use the minus sign (-) to create 
+#   a separator.
+
+class = save reload - print - close
+edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - comment uncomment - insert-method
+tools = find find-backward find-next replace - compile toggle-breakpoint
+option = preferences key-bindings
+
+# menu labels (MUST be defined)
+
+classLabel = Klasse
+editLabel = Bearbeiten
+toolsLabel = Werkzeuge
+debugLabel = Debug
+optionLabel = Optionen
+helpLabel = Hilfe
+
+# item labels
+
+saveLabel = Speichern
+reloadLabel = Nochmal laden
+printLabel = Drucken...
+closeLabel = Schließen
+
+undoLabel = Rückgängig
+redoLabel = Nochmal
+cut-to-clipboardLabel = Ausschneiden
+copy-to-clipboardLabel = Kopieren
+paste-from-clipboardLabel = Einfügen
+commentLabel = Auskommentieren
+uncommentLabel = Kommentar entfernen
+insert-methodLabel = Methode einfügen
+
+findLabel = Suchen...
+find-backwardLabel = Rückwärts suchen...
+find-nextLabel = Nochmal suchen
+replaceLabel = Ersetzen...
+goto-lineLabel = Gehe nach...
+compileLabel = Compile
+toggle-breakpointLabel = Breakpoint setzen/entfernen
+
+preferencesLabel = Einstellungen...
+key-bindingsLabel = Tastendefinitionen...

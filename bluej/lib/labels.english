@@ -19,7 +19,6 @@ debugger.objectviewer.objectClassName=Object of class
 
 debugger.objectwrapper.methodException=Exception accessing methods: 
 debugger.objectwrapper.invocationException=Exception during invocation: 
-debugger.objectwrapper.systemMethods=System Methods
 debugger.objectwrapper.inspect=Inspect
 debugger.objectwrapper.remove=Remove
 
@@ -61,20 +60,6 @@ browser.menu.library.addlibrary=Add...
 browser.menu.library.addlibrary.title=Add Library
 browser.menu.library.refresh=Refresh
 browser.menu.library.close=Close
-
-browser.menu.edit=Edit
-browser.menu.edit.find=Find...
-
-browser.menu.package=Package
-browser.menu.package.edit=Open package for editing
-
-browser.menu.help=Help
-browser.menu.help.about=About...
-browser.menu.help.contents=Contents...
-browser.menu.help.index=Index...
-browser.menu.help.topics=Help Topics...
-browser.menu.help.about.text=<html><center><strong><font color="#DBDB70">BlueJ Library Browser 0.1\n\nWritten by Andy Marks, January 1999</font></strong></center></html>
-browser.menu.help.about.title=About BlueJ Library Browser 0.1
 
 # Class Manager user interface elements and error messages
 #

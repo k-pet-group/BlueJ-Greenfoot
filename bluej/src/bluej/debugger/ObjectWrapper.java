@@ -1,6 +1,6 @@
 /**
  ** bluej.debugger ObjectWrapper.java
- ** $Id: ObjectWrapper.java 244 1999-08-20 06:42:33Z mik $
+ ** $Id: ObjectWrapper.java 270 1999-11-10 07:19:39Z mik $
  **
  ** A wrapper around a Java object that handles calling methods, inspecting, 
  ** etc. The wrapper is represented by the red oval that is visible on the
@@ -347,8 +347,6 @@ public class ObjectWrapper extends JComponent implements ActionListener
     static String invocationException = 
 	Config.getString("debugger.objectwrapper.invocationException");
 	
-    static String systemMethods = 
-	Config.getString("debugger.objectwrapper.systemMethods");
     static String inspect = 
 	Config.getString("debugger.objectwrapper.inspect");
     static String remove = 

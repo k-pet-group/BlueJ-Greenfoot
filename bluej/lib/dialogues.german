@@ -1,0 +1,158 @@
+compile-while-executing
+Klassen können nicht übersetzt werden
+während ein Programm ausgeführt wird.
+Das Programm muss erst beendet werden.
+
+exception-thrown
+Eine Exception ist ausgelöst worden:
+
+break-no-source
+Ein Breakpoint wurde erreicht in einer Datei,
+für die der Quelltext nicht gefunden werden
+kann. Name der Datei:
+
+error-in-file
+Ein Fehler ist aufgetreten in einer Datei,
+für die der Quelltext nicht gefunden werden
+kann. Name der Datei:Zeilennummer:
+
+system-exit
+Der Aufruf ist durch eine explizite "exit"-
+Operation beendet worden. Ein Ergebnis wurde
+nicht zurückgegeben. Der "exit" code ist:
+
+one-browser-only
+Von dem Library Browser kann nur eine
+Kopie zur Zeit geöffnet werden.
+
+no-help
+Für diese Fehlermeldung ist kein Hilfetext
+verfügbar. Bitte schicken Sie den Text der
+Fehlermeldung an mik@csse.monash.edu.au - 
+wir werden dann einen Hilfstext hinzufuegen.
+
+# errors:
+#########
+
+no-lib-selected
+<Dieser Hilfstext ist noch nicht übersetzt worden.>
+You have not specified a library to go to.
+Click on a library in the "Search results" list
+and then press the "Go to" button.
+
+no-target-dialog
+<Dieser Hilfstext ist noch nicht übersetzt worden.>
+Before you use a package from
+the Library Browser, you need
+at least one target package open
+in a BlueJ window.
+
+cannot-locate-lib-node
+<Dieser Hilfstext ist noch nicht übersetzt worden.>
+Cannot locate the selected node in the 
+LibraryChooser tree.  The usual cause of 
+this error is an out-of-date package file
+in the directory containing the package.
+
+missing-shadow
+<Dieser Hilfstext ist noch nicht übersetzt worden.>
+Cannot locate shadow area:
+
+cannot-run-compiler
+Der Compiler konnte nicht gestartet werden.
+Ist er im Kommandopfad?
+Name des Compilers:
+
+compiler-error
+Compilerfehler:
+
+stream-incomplete
+Compilerfehler. Der "error stream" 
+ist unvollstaendig.
+
+out-of-bounds
+Das angegebene Arrayelement ist 
+außerhalb der Arraygrenzen.
+
+cannot-access-element
+Das angegebene Arrayelement konnte
+nicht gelesen werden.
+
+appletviewer-error
+Bei dem Versuch, den Appletviewer zu 
+starten, ist ein Fehler aufgetreten.
+
+error-no-name
+Ein gültiger Name muss angegeben werden.
+
+skeleton-error
+Das Skelett für die Klasse konnte nicht erzeugt
+werden. Der Grund dafür ist möglicherweise
+inkorrekte Installation oder Probleme, das
+Dateisystem zu lesen.
+
+error-open-source
+Der Quelltext der Klasse konnte nicht 
+geöffnet werden. Das sieht böse aus!
+
+invalid-name
+Ungültiger Klassenname.
+
+directory-exists
+Ein Verzeichnis mit dem Namen
+existiert schon.
+
+cannot-write-package
+Das Package konnte nicht geschrieben
+werden. Bitte überprüfen Sie den
+Namen und Zugriffsrechte.
+
+cannot-copy-package
+Es gab Probleme beim Kopieren einiger
+Package-Dateien. Das Package ist
+eventuell unvollständig.
+
+file-does-not-exist
+Die angegebene Datei existiert nicht.
+
+cannot-import
+Die Datei kann nicht importiert werden.
+Nur Java Quelltexte deren Namen mit
+".java" endet können importiert
+werden.
+
+duplicate-name
+Eine Klasse diesen Namens gibt es in
+diesem Package schon. Das Package
+kann nicht zwei Klassen mit gleichem
+Namen enthalten.
+
+error-in-import
+Bei dem Versuch, die Datei zu importieren,
+ist ein Fehler aufgetreten. Prüfen Sie
+Zugriffsrechte und stellen Sie sicher,
+dass Speicherplatz verfügbar ist.
+
+no-class-selected
+Es ist keine Klasse selektiert.
+Selektieren Sie erst eine Klasse
+(durch draufklicken).
+
+package-does-not-exist
+Das Package konnte nicht geöffnet werden - 
+es scheint nicht zu existieren:
+
+no-bluej-package
+Das Package konnte nicht geöffnet werden.
+Es ist kein BlueJ package:
+
+applet-height-width
+Höhe und Breite des Applets 
+müssen angegeben werden.
+
+cannot-read-help
+Die folgende Hilfsdatei konnte
+nicht gelesen werden:
+
+not-yet-implemented
+Noch nicht implementiert - sorry.

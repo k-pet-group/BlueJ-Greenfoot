@@ -3,7 +3,8 @@
 # Properties can be added or overridden in bluej.properties
 
 ## BlueJ global properties
-bluej.language=english
+#bluej.language=english
+bluej.language=german
 
 #####################################################################
 ## Here are the URLs for the BlueJ manuals and documentation. If you

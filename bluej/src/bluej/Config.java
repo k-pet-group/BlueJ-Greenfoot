@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: Config.java 270 1999-11-10 07:19:39Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -28,16 +28,16 @@ import java.util.Properties;
  ** information is spread over several files:
  **
  **  <bluej_home>/bluej.defs
- **  <bluej_home>/<language>.defs	(eg "english.defs")
+ **  <bluej_home>/labels.<language>	(eg "labels.english")
  **  <user_home>/.bluej/bluej.properties
- **  <bluej_home>/moe.defs
+ **  <bluej_home>/moe.labels.<language>
  **
  ** "bluej.defs"	- contains system definitions which are not language 
  **			  specific and not user specific.
- ** "<language>.defs"	- contains language specific strings
+ ** "labels.<language>"	- contains language specific strings
  ** "bluej.properties"	- contains user specific settings. Settings here
  **			  override settings in bluej.defs
- ** "moe.defs"		- definitions for moe (the editor)
+ ** "moe.labels.english"- definitions for moe (the editor)
  **/
 
 public class Config
@@ -114,7 +114,7 @@ public class Config
 	language = bluej_props.getProperty("bluej.language");
 	lang_props = loadDefs("labels." + language, false);
 
-	moe_props = loadDefs("moe.defs", false);
+	moe_props = loadDefs("moe.labels." + language, false);
 
 	fontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize","12"));
 	editFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.editor","12"));
