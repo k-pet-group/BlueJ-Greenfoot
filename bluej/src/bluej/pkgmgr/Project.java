@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: Project.java 518 2000-05-30 05:15:03Z ajp $
  */
 public class Project
 {
@@ -28,17 +28,14 @@ public class Project
     private static Map projects = new HashMap();
 
     /**
-     * Open an existing BlueJ project into a new frame.
+     * Open a BlueJ project.
+     *
+     * @returns The Project representing the BlueJ project
+     *          that has this directory within it or
+     *          null if there were no bluej.pkg files in the
+     *          specified directory.
      */
     public static Project openProject(String projectPath)
-    {
-        return openProject(projectPath, null);
-    }
-
-    /**
-     * Open an existing BlueJ project into an already existing frame.
-     */
-    public static Project openProject(String projectPath, PkgMgrFrame existingFrame)
     {
         String startingPackageName;
         File projectDir, startingDir;
@@ -87,24 +84,17 @@ public class Project
             return null;
         }
 
-        System.out.println("Project directory is " + projectDir);
-        System.out.println(startingPackageName);
         // check whether it already exists
         Project proj = (Project)projects.get(projectDir);
+
         if(proj == null) {
             proj = new Project(projectDir);
             projects.put(projectDir, proj);
+        }
 
-            Package pkg = proj.getPackage(startingPackageName);
+        proj.initialPackageName = startingPackageName;
 
-            if (existingFrame == null)
-                existingFrame = PkgMgrFrame.createFrame();
-
-            existingFrame.openPackage(pkg);
-            existingFrame.setVisible(true);
-         }
-
-         return proj;
+        return proj;
     }
 
     /**
@@ -165,6 +155,15 @@ public class Project
     /* a ClassLoader for the remote virtual machine */
     private DebuggerClassLoader debuggerLoader;
 
+    /* when a project is opened, the user may specify a
+       directory deep into the projects directory structure.
+       BlueJ will correctly find the top of this package
+       heirarchy but the bit of the name left over will be
+       put into this variable
+       ie if opening /home/user/foo/com/sun where
+       /home/user/foo is the project directory, this variable
+       will be set to com.sun */
+    private String initialPackageName = "";
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -208,9 +207,19 @@ public class Project
         return "BJID" + getProjectDir().getPath();
     }
 
+    public String getInitialPackageName()
+    {
+        return initialPackageName;
+    }
+
     /**
-     * Return a package from the project (constructing the package
-     * if need be or returning it from the cache if already existing)
+     * Return a package from the project.
+     * This will construct the package
+     * if need be or return it from the cache
+     * if already existing. All parent packages
+     * on the way to the root of the package tree will
+     * also be constructed.
+     *
      * @param qualifiedName the package name to fetch in dot qualified
      *                      notation ie java.util or "" for unnamed package
      */

@@ -1,10 +1,10 @@
 package bluej;
 
-import bluej.debugger.Debugger;
 import bluej.utility.Debug;
-
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.debugger.Debugger;
 import bluej.debugger.MachineLoader;
 import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.prefmgr.MiscPrefPanel;
@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Main.java 511 2000-05-25 05:32:22Z mik $
+ * @version $Id: Main.java 518 2000-05-30 05:15:03Z ajp $
  */
 public class Main
 {
@@ -39,7 +39,7 @@ public class Main
     public static String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
 
     /**
-     * main - entry point to starting up the system. Initialise the
+     * Entry point to starting up the system. Initialise the
      * system and start the first package manager frame.
      */
     public static void main(String[] args) {
@@ -111,8 +111,17 @@ public class Main
         boolean oneOpened = false;
         if(args.length > 0) {
             for(int i = 0; i < args.length; i++) {
-                if(Project.openProject(args[i]) != null)
+                Project openProj;
+                if((openProj = Project.openProject(args[i])) != null) {
                     oneOpened = true;
+
+                    Package pkg = openProj.getPackage(
+                                    openProj.getInitialPackageName());
+
+                    PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
+
+                    pmf.show();
+                }
             }
         }
 
@@ -123,15 +132,22 @@ public class Main
         }
     }
 
-
     /**
-     * Close all frames and exit.
+     * Exit BlueJ.
+     *
+     * The open frame count should be zero by this point as PkgMgrFrame
+     * is responsible for cleaning itself up before getting here.
      */
     public static void exit()
     {
-        PkgMgrFrame.handleExit();
+        if (PkgMgrFrame.frameCount() > 0)
+            Debug.reportError("Frame count was not zero when exiting. Work may not have been saved");
+
+        // save configuration properties
         Config.handleExit();
+        // free resources for debugger
         Debugger.handleExit();
+        // exit with success status
         System.exit(0);
     }
 }

@@ -3,12 +3,12 @@ package bluej.pkgmgr;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.event.*;
+import java.util.*;
+import java.io.*;
 import java.awt.*;
 import java.awt.print.*;
 import java.awt.AWTEvent;
-
-import java.util.*;
-import java.io.*;
+import java.util.List;
 import java.text.DateFormat;
 
 
@@ -29,7 +29,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 514 2000-05-25 07:57:41Z ajp $
+ * @version $Id: PkgMgrFrame.java 518 2000-05-30 05:15:03Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener, Printable
@@ -111,45 +111,64 @@ public class PkgMgrFrame extends JFrame
     // ============================================================
     // static methods to create and remove frames
 
-    private static Vector frames = new Vector();  // of PkgMgrFrames
+    private static List frames = new ArrayList();  // of PkgMgrFrames
 
     /**
-     * Open a PkgMgrFrame with no package. This is the only way
-     * PkgMgrFrames can be created. Packages can be installed into
-     * frames using the methods openPackage/closePackage.
+     * Open a PkgMgrFrame with no package.
+     * Packages can be installed into this
+     * frame using the methods openPackage/closePackage.
      */
     public static PkgMgrFrame createFrame()
     {
         PkgMgrFrame frame = new PkgMgrFrame();
-        frames.addElement(frame);
+
+        frames.add(frame);
+
+        BlueJEvent.addListener(frame);
+
         return frame;
     }
 
     /**
-     * Remove a frame from the set of currently open PkgMgrFrames.
+     * Open a PkgMgrFrame with a package.
+     * This may create a new frame or return an existing frame
+     * if this package is already being edited by a frame.
      */
-    public static void closeFrame(PkgMgrFrame frame)
+    public static PkgMgrFrame createFrame(Package pkg)
     {
-        // If only one frame, close should close existing package rather
-        // than remove frame
+        PkgMgrFrame pmf = findFrame(pkg);
 
-        if(frames.size() == 1) {	// close package, leave frame
-            frame.doSave();
-//            frame.removePackage();
-            frame.updateWindowTitle();
-        }
-        else {                      // remove package and frame
-            frame.doClose();
-            frames.removeElement(frame);
+        if (pmf == null) {
+            pmf = createFrame();
+            pmf.openPackage(pkg);
         }
 
-        BlueJEvent.removeListener(frame);
+        return pmf;
     }
 
     /**
-     * return the number of currently open top level frames
+     * Remove a frame from the set of currently open PkgMgrFrames.
+     * The PkgMgrFrame must not be editing a package when this
+     * function is called.
      */
-    private static int frameCount()
+    public static void closeFrame(PkgMgrFrame frame)
+    {
+        if(!frame.isEmptyFrame())
+            throw new IllegalArgumentException();
+
+        frames.remove(frame);
+
+        BlueJEvent.removeListener(frame);
+
+        // frame should be garbage collected but we will speed it
+        // on its way
+        frame.dispose();
+    }
+
+    /**
+     * @return the number of currently open top level frames
+     */
+    public static int frameCount()
     {
         return frames.size();
     }
@@ -174,10 +193,10 @@ public class PkgMgrFrame extends JFrame
      */
     public static PkgMgrFrame[] getAllProjectFrames(Project proj)
     {
-        int count=0, i=0;
+        int count=0, j=0;
 
-        for(Enumeration e = frames.elements(); e.hasMoreElements(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)e.nextElement();
+        for(Iterator i = frames.iterator(); i.hasNext(); ) {
+            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
 
             if (!pmf.isEmptyFrame() && pmf.getProject() == proj)
                 count++;
@@ -188,44 +207,48 @@ public class PkgMgrFrame extends JFrame
 
         PkgMgrFrame[] projectFrames = new PkgMgrFrame[count];
 
-        for(Enumeration e = frames.elements(); e.hasMoreElements(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)e.nextElement();
+        for(Iterator i = frames.iterator(); i.hasNext(); ) {
+            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
 
             if (!pmf.isEmptyFrame() && pmf.getProject() == proj)
-                projectFrames[i++] = pmf;
+                projectFrames[j++] = pmf;
         }
 
         return projectFrames;
     }
 
     /**
-     * Close all open frames.
+     * Find a frame which is editing a particular Package and return
+     * it or return null if it is not being edited
      */
-    public static void handleExit()
+    private static PkgMgrFrame findFrame(Package pkg)
     {
-        for(int i = frames.size() - 1; i >= 0; i--) {
-            PkgMgrFrame frame = (PkgMgrFrame)frames.elementAt(i);
-            frame.doClose();
+        for(Iterator i = frames.iterator(); i.hasNext(); ) {
+            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
+
+            if (!pmf.isEmptyFrame() && pmf.getPackage() == pkg)
+                return pmf;
         }
+        return null;
     }
 
     /**
-     * displayMessage - display a short text message to the user. In the
-     *  current implementation, this is done by showing the message in
-     *  the status bars of all open package windows.
+     * Display a short text message to the user. In the
+     * current implementation, this is done by showing the message in
+     * the status bars of all open package windows.
      */
     public static void displayMessage(String message)
     {
-        for(Enumeration e = frames.elements(); e.hasMoreElements(); ) {
-            PkgMgrFrame frame = (PkgMgrFrame)e.nextElement();
+        for(Iterator i = frames.iterator(); i.hasNext(); ) {
+            PkgMgrFrame frame = (PkgMgrFrame)i.next();
             frame.setStatus(message);
         }
     }
 
     public static void showError(Package sourcePkg, String msgId)
     {
-        for(Enumeration e = frames.elements(); e.hasMoreElements(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)e.nextElement();
+        for(Iterator i = frames.iterator(); i.hasNext(); ) {
+            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
 
             if(!pmf.isEmptyFrame() && pmf.getPackage() == sourcePkg)
                 DialogManager.showError(pmf, msgId);
@@ -234,8 +257,8 @@ public class PkgMgrFrame extends JFrame
 
     public static void showMessage(Package sourcePkg, String msgId)
     {
-        for(Enumeration e = frames.elements(); e.hasMoreElements(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)e.nextElement();
+        for(Iterator i = frames.iterator(); i.hasNext(); ) {
+            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
 
             if(!pmf.isEmptyFrame() && pmf.getPackage() == sourcePkg)
                 DialogManager.showMessage(pmf, msgId);
@@ -244,8 +267,8 @@ public class PkgMgrFrame extends JFrame
 
     public static void showMessageWithText(Package sourcePkg, String msgId, String text)
     {
-        for(Enumeration e = frames.elements(); e.hasMoreElements(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)e.nextElement();
+        for(Iterator i = frames.iterator(); i.hasNext(); ) {
+            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
 
             if(!pmf.isEmptyFrame() && pmf.getPackage() == sourcePkg)
                 DialogManager.showMessageWithText(pmf, msgId, text);
@@ -271,8 +294,6 @@ public class PkgMgrFrame extends JFrame
         updateWindowTitle();
 
         setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
-
-        BlueJEvent.addListener(this);
     }
 
     /**
@@ -300,10 +321,19 @@ public class PkgMgrFrame extends JFrame
         invalidate();
         validate();
 
-        enableFunctions(true);
-        updateWindowTitle();
+        // we have had trouble with BlueJ freezing when
+        // the enable/disable GUI code was run off a menu
+        // item. This code will delay the menu disable
+        // until after menu processing has finished
+        Runnable enableUI = new Runnable() {
+            public void run() {
+                enableFunctions(true);
+                updateWindowTitle();
+                show();
+            }
+        };
 
-        //mik:Main.addPackage(pkg);
+        SwingUtilities.invokeLater(enableUI);
     }
 
     /**
@@ -319,18 +349,25 @@ public class PkgMgrFrame extends JFrame
 
         editor.removePackageEditorListener(this);
 
-        getProject().removeLocalClassLoader();
-        getProject().removeRemoteClassLoader();
-        pkg.closeAllEditors();
+        getObjectBench().removeAll(getProject().getUniqueId());
 
-        // remove package from list of open packages
-        //mik:Main.removePackage(pkg);
+        getPackage().closeAllEditors();
 
         editor = null;
         pkg = null;
 
-//XXX this is causing lock ups??
-//        enableFunctions(false);
+        // we have had trouble with BlueJ freezing when
+        // the enable/disable GUI code was run off a menu
+        // item. This code will delay the menu disable
+        // until after menu processing has finished
+        Runnable disableUI = new Runnable() {
+            public void run() {
+                enableFunctions(false);
+                updateWindowTitle();
+            }
+        };
+
+        SwingUtilities.invokeLater(disableUI);
     }
 
     /**
@@ -552,8 +589,9 @@ public class PkgMgrFrame extends JFrame
 			String newname = e.getName();
 
 			Package p = getPackage().getProject().getPackage(newname);
+            PkgMgrFrame newframe = createFrame(p);
 
-			openPackage(p);
+            newframe.show();
             break;
         }
     }
@@ -577,7 +615,7 @@ public class PkgMgrFrame extends JFrame
         clearStatus();
 
         switch(evtId) {
-        // Project commands
+         // Project commands
          case PROJ_NEW:                 // can be executed when isEmptyFrame() is true
             doNewProject();
             break;
@@ -587,7 +625,7 @@ public class PkgMgrFrame extends JFrame
             break;
 
          case PROJ_CLOSE:
-            closeFrame(this);
+            doClose(true);
             break;
 
          case PROJ_SAVE:
@@ -612,7 +650,7 @@ public class PkgMgrFrame extends JFrame
             if(frameCount() > 1)
                 answer = DialogManager.askQuestion(this, "quit-all");
             if(answer == 0) {
-                bluej.Main.exit();
+                doQuit();
             }
             break;
 
@@ -756,61 +794,94 @@ public class PkgMgrFrame extends JFrame
 
         if (Project.createNewProject(newname))
         {
+            Project proj = Project.openProject(newname);
+
             if(isEmptyFrame()) {
-                Project.openProject(newname, this);
+                openPackage(proj.getPackage(""));
             }
             else {
-                Project.openProject(newname);
+                PkgMgrFrame pmf = createFrame(proj.getPackage(""));
+
+                pmf.show();
             }
         }
     }
 
     /**
-     * This comment is no longer true
-     * open a dialog that lets the user choose a project
-     * (either a BlueJ project or a plain directory to import). If the
-     * chosen directory is not a BlueJ package then "Package.importPackage"
-     * is called to try to turn the chosen directory into a BlueJ project.
-     * If this was successful or the project was a BlueJ project in the
-     * first place, then the project is opened in a frame.
+     * Open a dialog that lets the user choose a project.
+     * The project selected is opened in a frame.
      */
     private void doOpen()
     {
         String pkgPath = openPackageDialog();
 
         if (pkgPath != null) {
+            Project openProj;
 
-            if(isEmptyFrame()) {
-                Project.openProject(pkgPath, this);
+            if((openProj = Project.openProject(pkgPath)) != null) {
+
+                Package pkg = openProj.getPackage(
+                                openProj.getInitialPackageName());
+
+                PkgMgrFrame pmf;
+
+                if ((pmf = findFrame(pkg)) == null) {
+                    if(isEmptyFrame()) {
+                        pmf = this;
+                    }
+                    else
+                        pmf = createFrame(pkg);
+                }
+
+                pmf.show();
             }
-            else {
-                Project.openProject(pkgPath);
-            }
-
-//            File packageDir = new File(pkgPath);
-
-            // if path is not a valid BlueJ package - try to import it
-//            if (!Package.isBlueJPackage(packageDir)) {
-//                if (!Package.importPackage(packageDir,this)) {
-//                    DialogManager.showMessage(this,"no-java-sources-found");
- //                   return;
-//                }
-//            }
-//            else
         }
     }
 
     /**
-     * Close this package. This should be called ONLY through the
-     * static functions in this class since it needs to be taken
-     * out of the frame list when closed.
+     * Perform a user initiated close of this frame/package.
+     *
+     * There are two different methods for the user to initiate
+     * a close. One is through the "Close" menu item and the other
+     * is with the windows close button. We want slightly different
+     * behaviour for these two cases.
      */
-    private void doClose()
+    private void doClose(boolean doingMenuClose)
     {
         doSave();
         closePackage();
-        setVisible(false);
-        BlueJEvent.removeListener(this);
+
+        // If only one frame and this was from the menu
+        // "close", close should close existing package rather
+        // than remove frame
+
+        if(frameCount() == 1) {
+            if(doingMenuClose) {        // close package, leave frame
+                updateWindowTitle();
+            }
+            else {                      // all frames gone, lets quit
+                doQuit();
+            }
+        }
+        else {                          // remove package and frame
+            PkgMgrFrame.closeFrame(this);
+        }
+    }
+
+    private void doQuit()
+    {
+        // close all open frames.
+        PkgMgrFrame[] f = getAllFrames();
+
+        // We replicate some of the behaviour of doClose() here
+        // rather than call it to avoid a nasty recursion
+        for(int i = f.length - 1; i >= 0; i--) {
+            f[i].doSave();
+            f[i].closePackage();
+            PkgMgrFrame.closeFrame(f[i]);
+        }
+
+        bluej.Main.exit();
     }
 
     /**
@@ -824,7 +895,7 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * doSaveAs - implementation if the "Save As.." user function
+     * Implementation of the "Save As.." user function.
      */
     private void doSaveAs()
     {
@@ -1061,23 +1132,22 @@ public class PkgMgrFrame extends JFrame
         if(okay) {
             String name = dlg.getClassName();
             if (name.length() > 0) {
+                // check whether name is already used
+                if(pkg.getTarget(name) != null) {
+                    DialogManager.showError(this, "duplicate-name");
+                    return;
+                }
 
-            // check whether name is already used
-            if(pkg.getTarget(name) != null) {
-                DialogManager.showError(this, "duplicate-name");
-                return;
-            }
+                ClassTarget target =  null;
+                int classType = dlg.getClassType();
+                target = new ClassTarget(pkg, name, classType == NewClassDialog.NC_APPLET);
 
-            ClassTarget target =  null;
-            int classType = dlg.getClassType();
-            target = new ClassTarget(pkg, name, classType == NewClassDialog.NC_APPLET);
+                target.setAbstract(classType == NewClassDialog.NC_ABSTRACT);
+                target.setInterface(classType == NewClassDialog.NC_INTERFACE);
+                target.generateSkeleton();
 
-            target.setAbstract(classType == NewClassDialog.NC_ABSTRACT);
-            target.setInterface(classType == NewClassDialog.NC_INTERFACE);
-            target.generateSkeleton();
-
-            pkg.addTarget(target);
-            editor.repaint();
+                pkg.addTarget(target);
+                editor.repaint();
             }
         }
     }
@@ -1526,13 +1596,10 @@ public class PkgMgrFrame extends JFrame
         addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent E)
                 {
-                    if(frameCount() == 1)
-                        bluej.Main.exit();
-                    else
-                        PkgMgrFrame.closeFrame((PkgMgrFrame)E.getWindow());
+                    PkgMgrFrame pmf = (PkgMgrFrame)E.getWindow();
+                    pmf.doClose(false);
                 }
             });
-
 
         // grey out certain functions if package not open.
         if(isEmptyFrame())
