@@ -112,11 +112,14 @@ browser.menu.library.close=Cerrar
 
 # Preferences Manager user interface elements and error messages
 prefmgr.title=BlueJ:  Preferencias
+prefmgr.notation.title=Notation Style
+prefmgr.notation.blue=Blue
+prefmgr.notation.uml=Unified Modeling Language (UML)
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Librerías
 classmgr.userlibraries=Librerías de Usuario
-classmgr.systemlibraries=Librerías del Sistema 
+classmgr.systemlibraries=Librerías del Sistema
 classmgr.bootlibraries=Librerías de Inicio
 classmgr.add=Agregar
 classmgr.delete=Eliminar
@@ -133,8 +136,8 @@ classmgr.error.missingbootclasspath=No existe classpath de inicio de Sun. BlueJ 
 prefmgr.misc.prefpaneltitle=Miscelánea
 prefmgr.misc.editorfontsize=Editor de tamaño de fuentes
 prefmgr.misc.usesyntaxhilighting=Use resaltar sintaxis
-prefmgr.misc.jdkurlpath=URL de documentación del JDK 
-prefmgr.misc.linkToLib=Use esta URL cuando genere la documentación del proyecto 
+prefmgr.misc.jdkurlpath=URL de documentación del JDK
+prefmgr.misc.linkToLib=Use esta URL cuando genere la documentación del proyecto
 prefmgr.misc.linkToLibNoteLine1=Si esta URL es usada para generar la documentación, ella debe ser correcta y accesible.
 prefmgr.misc.linkToLibNoteLine2=De otro modo la generación de la documentación fallará. Para trabajar fuera de línea, desmarque esta opción.
 
@@ -179,7 +182,6 @@ editor.insert-methodLabel = Insertar método
 editor.find-backwardLabel = Encontrar hacia atrás...
 editor.replaceLabel = Reemplazar...
 editor.compileLabel = Compilar
-editor.preview-docLabel = Documentación Previa
 editor.toggle-breakpointLabel = Configurar/Eliminar Breakpoint
 editor.toggle-interface-viewLabel = Cambiar a Vista de Interfaz
 
@@ -238,7 +240,7 @@ editor.info.docLoaded = Cargando interfaz de clase... Listo.
 editor.info.docAborted = Hubo un serio problema generando la javadoc\ninterface. Abortado.
 editor.info.docDisappeared = No puede encontrar el archivo HTML:
 editor.info.docNoFrames = Mostrar Frames está deshabilitado en vista preliminary del editor.
-
+editor.info.tabsExpanded = Converted all TABs to spaces. (You are working\nwith soft TABs, the file contained hard TABs.)
 editor.printer.continued=continuado
 #End Editor labels
 
@@ -294,10 +296,11 @@ pkgmgr.view.inheritLabel=Herencia
 pkgmgr.newClass.title=BlueJ:  Crear Nueva Clase
 pkgmgr.newClass.label=Nombre de Clase:
 pkgmgr.newClass.classType=Tipo de Clase
-pkgmgr.newClass.newClass=Clase
-pkgmgr.newClass.newAbstractClass=Clase Abstracta
-pkgmgr.newClass.newInterface=Interfaz
-pkgmgr.newClass.newApplet=Applet
+pkgmgr.newClass.stdclass=Class
+pkgmgr.newClass.abstract=Abstract Class
+pkgmgr.newClass.interface=Interface
+pkgmgr.newClass.applet=Applet
+pkgmgr.newClass.appletj=Applet
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Crear Nuevo Paquete
@@ -330,12 +333,21 @@ pkgmgr.importfailed.helpLine1=Importar ha fallado al copiar los siguientes archi
 pkgmgr.importfailed.helpLine2=Esto se puede deber a que estos archivos ya
 pkgmgr.importfailed.helpLine3=estaban presentes en el proyecto de destino.
 
+# "version check" dialog
+pkgmgr.versionDlg.title=BlueJ:  Check for new version
+pkgmgr.versionDlg.helpLine1=This function will check whether a newer BlueJ version
+pkgmgr.versionDlg.helpLine2=is available. You must be online for this to work.
+pkgmgr.versionDlg.check=Check Version
+pkgmgr.versionDlg.upToDate=The current version is up to date.
+pkgmgr.versionDlg.currentVersion=Your current BlueJ version is
+pkgmgr.versionDlg.newVersion=The most recent BlueJ version is
+
 # run applet dialog
 pkgmgr.runApplet.title=BlueJ:  Ejecutar Applet
 pkgmgr.runApplet.webPageLabel=Crear Página Web
 pkgmgr.runApplet.webPage=Generar pagina web solamente
 pkgmgr.runApplet.appletviewer=Ejecutar Applet en appletviewer
-pkgmgr.runApplet.webBrowser=Ejecutar Applet en browser de web 
+pkgmgr.runApplet.webBrowser=Ejecutar Applet en browser de web
 pkgmgr.runApplet.heightLbl=Altura =
 pkgmgr.runApplet.widthLbl=Ancho =
 pkgmgr.runApplet.newParameterLbl=Agregar Nuevo Parámetro
@@ -360,7 +372,7 @@ error.methodCall.duplicateName=Un objeto con este nombre ya existe.\nPor favor e
 # Debugger dialog (ExecControls.java)
 debugger.execControls.windowTitle = BlueJ:  Traceo
 debugger.execControls.stackTitle = Secuencia de Llamado
-debugger.execControls.instanceTitle = Variables de Instancia 
+debugger.execControls.instanceTitle = Variables de Instancia
 debugger.execControls.localTitle = Variables Locales
 debugger.execControls.threadTitle = Hilos
 debugger.execControls.updateText = Actualizar
@@ -372,6 +384,7 @@ dialogmgr.question = BlueJ:  Pregunta
 dialogmgr.message = BlueJ:  Mensaje
 
 #Terminal Window
+terminal.options = Options
 terminal.title = BlueJ:  Ventana de Terminal
 terminal.clear = Limpiar
 terminal.copy = Copiar
@@ -454,10 +467,11 @@ menu.group.users=Usuarios
 menu.group.configuration=Configuración
 
 menu.help=Ayuda
-menu.help.tutorial=Tutorial BlueJ ...
-menu.help.reference=Manual de Referencia BlueJ...
-menu.help.standardApi=Librerías de Clases Java...
 menu.help.about=Acerca de BlueJ...
+menu.help.versionCheck=Check Version
+menu.help.website=BlueJ Web Site
+menu.help.tutorial=Tutorial BlueJ ...
+menu.help.standardApi=Librerías de Clases Java...
 menu.help.copyright=Copyright...
 
 # tool tips

@@ -16,7 +16,7 @@ código fuente no pudo ser encontrado.
 NombredeArchivo:número de línea / mensaje de error:
 
 system-exit
-El método finalizó a través de una instrucción 
+El método finalizó a través de una instrucción
 "exit" explícita. Ningún resultado fue
 retornado. El código de salida es:
 
@@ -37,7 +37,7 @@ y presione el botón "Ir a".
 no-target-dialog
 Antes de que usted use un paquete desde
 el Borwser de la Librería, usted necesita
-al menos un paquete objetivo abierto 
+al menos un paquete objetivo abierto
 en una ventana BlueJ.
 
 cannot-locate-lib-node
@@ -65,7 +65,7 @@ El elemento especificado no está
 dentro de los límites del arreglo.
 
 cannot-access-element
-No disponible para acceder el 
+No disponible para acceder el
 elemento especificado del arreglo.
 
 appletviewer-error
@@ -95,7 +95,7 @@ de esta clase.
 
 error-open-readme
 Existe un problema abriendo la nota de texto
-de este proyecto. Una nueva nota de texto 
+de este proyecto. Una nueva nota de texto
 vacía ha sido creada.
 
 error-writing-readme
@@ -105,12 +105,12 @@ Hubo un error cambiando este archivo.
 
 error-exporting
 Un error ocurrió mientras trataba de exportar la
-aplicación. Algunos o todos los archivos npudieron no 
+aplicación. Algunos o todos los archivos npudieron no
 haber sido copiados correctamente.
 
 error-writing-jar
 El archivo jar no pudo ser escrito correctamente.
-(Chequee el sistema de archivos por derechos de 
+(Chequee el sistema de archivos por derechos de
 acceso y disponibilidad en espacio en disco.)
 
 invalid-class-name
@@ -138,8 +138,8 @@ ser un archivo fuente Java (su nombre
 debe terminar en ".java").
 
 docdir-blocked-by-file
-El directorio para la documentación no pudo ser 
-creado en el directorio de proyecto debido a 
+El directorio para la documentación no pudo ser
+creado en el directorio de proyecto debido a
 que existe un archivo con el mismo nombre.
 
 docdir-not-created
@@ -167,7 +167,7 @@ código fuente no pudo ser encontrado.
 NombredeArchivo:número de línea / mensaje de error:
 
 system-exit
-El método finalizó a través de una instrucción 
+El método finalizó a través de una instrucción
 "exit" explícita. Ningún resultado fue
 retornado. El código de salida es:
 
@@ -188,7 +188,7 @@ y presione el botón "Ir a".
 no-target-dialog
 Antes de que usted use un paquete desde
 el Borwser de la Librería, usted necesita
-al menos un paquete objetivo abierto 
+al menos un paquete objetivo abierto
 en una ventana BlueJ.
 
 cannot-locate-lib-node
@@ -216,7 +216,7 @@ El elemento especificado no está
 dentro de los límites del arreglo.
 
 cannot-access-element
-No disponible para acceder el 
+No disponible para acceder el
 elemento especificado del arreglo.
 
 appletviewer-error
@@ -246,7 +246,7 @@ de esta clase.
 
 error-open-readme
 Existe un problema abriendo la nota de texto
-de este proyecto. Una nueva nota de texto 
+de este proyecto. Una nueva nota de texto
 vacía ha sido creada.
 
 error-writing-readme
@@ -256,12 +256,12 @@ Hubo un error cambiando este archivo.
 
 error-exporting
 Un error ocurrió mientras trataba de exportar la
-aplicación. Algunos o todos los archivos npudieron no 
+aplicación. Algunos o todos los archivos npudieron no
 haber sido copiados correctamente.
 
 error-writing-jar
 El archivo jar no pudo ser escrito correctamente.
-(Chequee el sistema de archivos por derechos de 
+(Chequee el sistema de archivos por derechos de
 acceso y disponibilidad en espacio en disco.)
 
 invalid-class-name
@@ -289,8 +289,8 @@ ser un archivo fuente Java (su nombre
 debe terminar en ".java").
 
 docdir-blocked-by-file
-El directorio para la documentación no pudo ser 
-creado en el directorio de proyecto debido a 
+El directorio para la documentación no pudo ser
+creado en el directorio de proyecto debido a
 que existe un archivo con el mismo nombre.
 
 docdir-not-created
