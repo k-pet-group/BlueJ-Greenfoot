@@ -20,15 +20,15 @@ public final class ExceptionDescription
     public ExceptionDescription(String className, String text, 
                                 List stack)
     {
-	this.className = className;
-	this.text = text;
+        this.className = className;
+        this.text = text;
         this.stack = stack;
     }
 
     public ExceptionDescription(String text)
     {
-	this.className = null;
-	this.text = text;
+        this.className = null;
+        this.text = text;
         this.stack = null;
     }
 
@@ -37,7 +37,7 @@ public final class ExceptionDescription
      */
     public String getClassName()
     {
-	return className;
+        return className;
     }
 
     /**
@@ -45,25 +45,25 @@ public final class ExceptionDescription
      */    
     public String getText()
     {
-	return text;
+        return text;
     }
 
     /**
      * Return the file the exception was thrown from.
      */    
-//     public String getSourceFile()
-//     {
-// 	return sourceFile;
-//     }
+    //     public String getSourceFile()
+    //     {
+    // 	return sourceFile;
+    //     }
 
-//     /**
-//      * Return the line number in the source file where this exception was
-//      * thrown.
-//      */
-//     public int getLineNumber()
-//     {
-// 	return lineNumber;
-//     }
+    //     /**
+    //      * Return the line number in the source file where this exception was
+    //      * thrown.
+    //      */
+    //     public int getLineNumber()
+    //     {
+    // 	return lineNumber;
+    //     }
 
     /**
      * Return the stack (a list of SourceLocation objects) for the exception
@@ -72,12 +72,12 @@ public final class ExceptionDescription
      */
     public List getStack()
     {
-	return stack;
+        return stack;
     }
 
     public String toString()
     {
-	return className + ": " + text;
+        return className + ": " + text;
     }
 
 }

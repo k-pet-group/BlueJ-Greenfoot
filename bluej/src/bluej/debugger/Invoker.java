@@ -30,7 +30,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1072 2002-01-08 12:40:26Z mik $
+ * @version $Id: Invoker.java 1295 2002-08-01 10:58:17Z mik $
  */
 
 public class Invoker extends Thread
@@ -538,15 +538,13 @@ public class Invoker extends Thread
 
             case Debugger.EXCEPTION:
                 ExceptionDescription exc = Debugger.debugger.getException();
-                String text =
-                    JavaNames.stripPrefix(exc.getClassName());
-                if(exc.getText() != null)
-                    text += ":\n" + exc.getText();
-
-                if(exc.getClassName() == null)
-                    pkg.reportException(text);
-                else
+                String text = exc.getClassName();
+                if(text != null) {
+                    text = JavaNames.stripPrefix(text) + ":\n" + exc.getText();
                     pkg.exceptionMessage(exc.getStack(), text, false);
+                } else {
+                    pkg.reportException(exc.getText());
+                }
                 break;
 
             case Debugger.TERMINATED:  // terminated by user
