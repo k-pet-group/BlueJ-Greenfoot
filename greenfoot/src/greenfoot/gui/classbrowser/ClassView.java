@@ -38,7 +38,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ClassView.java 3200 2004-11-29 03:55:26Z davmac $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -392,7 +392,23 @@ public class ClassView extends JToggleButton
             e.printStackTrace();
         }
         catch (InvocationTargetException e) {
-            e.printStackTrace();
+            Throwable cause = e.getCause();
+            if (cause != null) {
+                // Filter the stack trace. Take it from the first point
+                // at which code from this class was being executed.
+                StackTraceElement [] strace = cause.getStackTrace();
+                for (int i = strace.length; i > 0; i--) {
+                    if (strace[i-1].getClassName().equals(realClass.getName())) {
+                        StackTraceElement [] newStrace = new StackTraceElement[i];
+                        System.arraycopy(strace, 0, newStrace, 0, i);
+                        cause.setStackTrace(newStrace);
+                        break;
+                    }
+                }
+                cause.printStackTrace();
+            }
+            else
+                e.printStackTrace();
         }
 
         return null;
