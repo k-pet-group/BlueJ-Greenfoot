@@ -8,21 +8,16 @@
     <!-- the build_java_home is used to find the compiler to fork and the
          tools.jar file to use with it. Note that in general all
          compilation should be done on the minimum supported JDK for
-         BlueJ (which is currently 1.3) -->
-    <property name="build_java_home" value="/usr/jdk-1.3.1_08"/>
-
-    <!-- the build14_java_home is used to find the compiler to fork and the
-         tools.jar file to use to compile ExitChecker.java which requires
-         JDK 1.4. -->
-    <property name="build14_java_home" value="/usr/jdk-1.4"/>
+         BlueJ (which is currently 1.4) -->
+    <property name="build_java_home" value="C:\program files\j2sdk_1.4.2_01"/>
 
     <!-- the run_java_home is used to find the jvm to run and the
          corresponding tools.jar file -->
-    <property name="run_java_home" value="/usr/jdk-1.3.1_08"/>
+    <property name="run_java_home" value="C:\program files\j2sdk_1.4.2_01"/>
 
     <!-- Pass this property down to lower build files to find various jars etc -->
     <!-- Makes it easier if the current directory is not bluej_home -->
-    <property name="bluej_home" value="/home/ajp/bluej-build"/>
+    <property name="bluej_home" value="H:\home\ajp\bluej\main"/>
 
     <!-- ********************************************** -->
     <!-- do not edit below here for local customisation -->
@@ -50,6 +45,7 @@
         <pathelement location="${bluej_home}/lib/MRJ141Stubs.jar"/>
         <pathelement location="${bluej_home}/lib/antlr.jar"/>
         <pathelement location="${bluej_home}/lib/junit.jar"/>
+        <pathelement location="${bluej_home}/lib/bsh.jar"/>
         <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
     </path>
 
@@ -59,8 +55,11 @@
      -->
     <target name="parser">
         <antlr target="${core.src}/bluej/parser/java.g"/>
-        <antlr target="${core.src}/bluej/parser/ast/java.g"/>
-        <antlr target="${core.src}/bluej/parser/ast/unittest.tree.g"/>
+        
+        <antlr target="${core.src}/bluej/parser/ast/java.g"
+               outputdirectory="${core.src}/bluej/parser/ast/gen"/>
+        <antlr target="${core.src}/bluej/parser/ast/unittest.tree.g"
+               outputdirectory="${core.src}/bluej/parser/ast/gen"/>
     </target>
 
     <!--
@@ -84,16 +83,6 @@
      -->
     <target name="compile-core">
         <mkdir dir="${core.build}"/>
-        <javac
-                executable="${build14_java_home}/bin/javac"
-                fork="yes"
-                srcdir="${core.src}"
-                destdir="${core.build}"
-                debug="on"
-                deprecation="yes"
-                includes="bluej/runtime/ExitChecker.java"
-                >
-        </javac>
         <!-- Compile the java code from ${core.src} into ${core.build} -->
         <javac
                 executable="${build_java_home}/bin/javac"
@@ -110,8 +99,7 @@
                             bluej/tester/**,
                             bluej/browser/**,
                             bluej/guibuilder/**,
-                            bluej/editor/moe/Moe.java,
-                            bluej/runtime/ExitChecker.java"
+                            bluej/editor/moe/Moe.java"
                 >
             <classpath>
                 <path refid="bluej.class.path"/>
@@ -213,7 +201,7 @@
     </target>
 
     <target name="dist" depends="ready-to-run">
-        <ant dir="extensions" target="buildall"/>
+	    <echo message="Do you have the latest copy of the submitter extension in your lib/extensions directory??"/>
         <ant dir="package" target="dist"/>
         <ant dir="package" target="windows-dist"/>
     </target>
@@ -304,8 +292,6 @@
     <target name="clean" depends="clean-boot, clean-core">
         <!-- Clean inspectors -->
         <ant antfile="inspector.xml" dir="inspector" target="clean-inspector"/>
-    	<!-- Clean extensions -->
-    	<ant antfile="build.xml" dir="extensions" target="cleanall"/>
     </target>
 
     <target name="editor-clean">
