@@ -9,55 +9,55 @@ import java.util.StringTokenizer;
 import bluej.parser.JavaToken;
 
 /*******************************************************************************
- * A SymbolTable object keeps track of all symbols encountered while 
+ * A SymbolTable object keeps track of all symbols encountered while
  *  parsing a file.  It's main components are a list of all packages
  *  that have been parsed or imported, and a stack of symbols that represent
  *  the syntactical scope of a source file as it is being parsed.
  ******************************************************************************/
-public class SymbolTable        
+public class SymbolTable
 {
     //==========================================================================
     //==  Class Variables
     //==========================================================================
-    
+
     /** a dummy scope to hold things like primitive types */
     private BlockDef baseScope = null;
 
     /** the "default" package to hold classes w/o package definitions */
     private PackageDef defaultPackage = null;
-    
+
     /** A list of all strings encountered in the source */
     private StringTable   names = new StringTable();
-    
+
     /** A stack of currently-active scopes */
     private JavaStack     activeScopes;
-    
+
     /** A list of all packages that have been parsed or imported */
     private JavaHashtable packages;
-    
+
     /** A specific scope to look in if the source code contains
      *  an explicitly-qualified identifier
      */
     private Definition    qualifiedScope;
-    
+
     /** The file that is currently being parsed */
     private File          currentFile;
-    
+
     /** The method header that is currently being parsed.
      *  This is used to associate variable definitions as
      *  parameters to a method
      */
     private MethodDef     currentMethod;
-    
+
     /** The amount of spacing to use when printing a report line */
     private String        currentIndent = "";
-    
+
     /** A list of packages that are being imported on demand */
     private JavaVector    demand;
-    
+
     /** A list of classes that have been explicitly imported */
     private JavaHashtable importedClasses;
-    
+
     /** The java.lang package */
     private PackageDef javaLang;
 
@@ -70,14 +70,14 @@ public class SymbolTable
     //==========================================================================
     //==  Methods
     //==========================================================================
-    
 
-    /** Constructor to create a new symbol table */ 
+
+    /** Constructor to create a new symbol table */
     public SymbolTable() {
         // allocate storage for the packages and scope lists
         packages        = new JavaHashtable();
         activeScopes    = new JavaStack();
-        
+
         // Create a package object to represent java.lang
         Occurrence o = new Occurrence(null,0,0);
         javaLang        = new PackageDef(getUniqueName("java.lang"),
@@ -87,7 +87,7 @@ public class SymbolTable
         baseScope = new BlockDef(null, null, null);
         pushScope(baseScope);
         baseScope.setDefaultOrBaseScope(true);
-        
+
         // define the predefined types
         // treat them as being an inheritance hierarchy to make widening
         //   conversions automatic. For example, a float can widen to a double,
@@ -116,7 +116,7 @@ public class SymbolTable
                                                           pInt,        baseScope);
         PrimitiveDef pVoid    = new PrimitiveDef(getUniqueName("void"),
                                                           getObject(), baseScope);
-        
+
         baseScope.add(pBoolean);
         baseScope.add(pDouble);
         baseScope.add(pFloat);
@@ -138,7 +138,7 @@ public class SymbolTable
         predefined.addElement("char");
         predefined.addElement("void");
         predefined.addElement("String");
-    }   
+    }
 
 
     public static Vector getPredefined()
@@ -150,7 +150,7 @@ public class SymbolTable
      *  Add some classes to the current scope. 'classes' is a vector of
      *  Strings (the class names).
      */
-    public void addClasses(Vector classes) 
+    public void addClasses(Vector classes)
     {
 	if(classes != null) {
 	    Enumeration e = classes.elements();
@@ -159,12 +159,12 @@ public class SymbolTable
 
 		// add the definition to the current scope
 		getCurrentScope().add(def);
-        
+
 		// set the parent scope for the definition
 		def.setParentScope(getCurrentScope());
 	    }
 	}
-    }   
+    }
 
 
     /** Add a package to the list of packages available on demand
@@ -182,18 +182,18 @@ public class SymbolTable
     /** Add a package that has been imported */
     public void addImport(JavaToken tok, String className, String packageName) {
         if (importedClasses == null) // lazy instantiation
-            importedClasses = new JavaHashtable();  
-        
+            importedClasses = new JavaHashtable();
+
         // if there is no package name, use the default package
         if (packageName.equals(".") || packageName.equals("")) {
             importedClasses.put(getUniqueName("~default~"), getDefaultPackage());
             return;
-        }   
-            
+        }
+
         // otherwise, chop the extra "." that the parser adds...
         else
             packageName = packageName.substring(1);
-            
+
         // if there is no class, we are importing a package on demand
         // so create a dummy package definition (if one doesn't already
         // exist)
@@ -204,11 +204,11 @@ public class SymbolTable
                                    new Occurrence(currentFile, tok.getLine(), tok.getColumn()),
                                    null);
                 packages.put(packageName, d);
-            }   
+            }
             importedClasses.put(d.getName(), d);
             reference(tok);
-        }   
-        
+        }
+
         // otherwise, create a placeholder class for class/interface ref
         else {
             importedClasses.put(getUniqueName(className),
@@ -216,7 +216,7 @@ public class SymbolTable
                                new Occurrence(currentFile, tok.getLine(), tok.getColumn()),
                                getUniqueName(packageName)));
             reference(tok);
-        }   
+        }
     }
 
 
@@ -224,17 +224,17 @@ public class SymbolTable
     void addToCurrentScope(Definition def) {
         // add the definition to the current scope
         getCurrentScope().add(def);
-        
+
         // set the parent scope for the definition
         def.setParentScope(getCurrentScope());
-    }   
+    }
 
 
     /** We are done with imports, so clear the list */
     void closeImports() {
         demand          = null;
         importedClasses = null;
-    }   
+    }
 
 
     /** Define a curly-brace-delimited block of code */
@@ -244,7 +244,7 @@ public class SymbolTable
         BlockDef def = new BlockDef(null, getOccurrence(tok), getCurrentScope());
         addToCurrentScope(def);
         return pushScope(def);
-    }   
+    }
 
 
     /** Define a class object */
@@ -266,9 +266,9 @@ public class SymbolTable
 				                getDummyClass(superClass),
 				    interfaces,
 				    getCurrentScope());
-                                         
+
         def.setType(ClassDef.CLASS);
-                                         
+
         // add the imported classes/packages to the class
         def.setImports(importedClasses);
 
@@ -277,10 +277,10 @@ public class SymbolTable
 
         // add the class to the current scope
         addToCurrentScope(def);
-        
+
         // make the claa be the new current scope
         pushScope(def);
-    }   
+    }
 
 
     /** Define an interface object */
@@ -289,7 +289,7 @@ public class SymbolTable
                                       JavaToken comment) {
         // note -- we leave superInterfaces as a vector of JavaTokens for now.
         //         we'll resolve in pass 2.
-        
+
         // create the new interface object
         ClassDef def = new ClassDef(getUniqueName(theInterface),
 				    false,
@@ -297,18 +297,18 @@ public class SymbolTable
                                     null, // no super class...
                                     superInterfaces,
                                     getCurrentScope());
-                                             
+
         def.setType(ClassDef.INTERFACE);
-        
+
         if (comment != null)
             def.setComment(comment.getText());
 
         // add it to the current scope
         addToCurrentScope(def);
-        
+
         // make the interface the current scope
         pushScope(def);
-    }   
+    }
 
 
     /** Define a new label object */
@@ -316,7 +316,7 @@ public class SymbolTable
         addToCurrentScope(new LabelDef(getUniqueName(theLabel),
                                 getOccurrence(theLabel),
                                 getCurrentScope()));
-    }   
+    }
 
 
     /** Define a new method object */
@@ -325,52 +325,52 @@ public class SymbolTable
         String name;
         if (type == null)
             name = theMethod.getText(); //"~constructor~";
-            
+
         // otherwise use its real name
         else {
             if (theMethod == null) {
                 theMethod = type;
                 type = null;
-            }   
-            name = theMethod.getText();         
-        }   
+            }
+            name = theMethod.getText();
+        }
 
         // create the method definition
         currentMethod = new MethodDef(getUniqueName(name),
                                              getOccurrence(theMethod),
                                              getDummyClass(type),
                                              getCurrentScope());
-                                             
+
         if (comment != null)
             currentMethod.setComment(comment.getText());
-                                                                             
+
         // add the method to the current scope
         addToCurrentScope(currentMethod);
-        
+
         // make the method be the current scope
         pushScope(currentMethod);
     }
 
 
-    /** Define a new package object 
+    /** Define a new package object
      *  This is an adapter version to get the name of the package from a token
      */
     public void definePackage(JavaToken tok) {
         definePackage(getUniqueName(tok));
-    }   
+    }
 
 
     /** Define a new package object */
     PackageDef definePackage(String name) {
         // try to find thew package
         PackageDef pkg = (PackageDef)packages.get(name);
-        
+
         // if we don't already have the package, define it
         if (pkg == null) {
             pkg = new PackageDef(getUniqueName(name), null, null);
             packages.put(name, pkg);
-        }   
-        
+        }
+
         // make the package be the current scope
         pushScope(pkg);
         return pkg;
@@ -378,13 +378,32 @@ public class SymbolTable
 
 
     /** create a variable definition */
-    public void defineVar(JavaToken theVariable, JavaToken type, JavaToken comment) {
+    public void defineVar(JavaToken theVariable, JavaToken type,
+                            JavaToken comment)
+    {
+        // pairs of square brackets will have been added to the type token
+        // in order to indicate levels of array nesting
+        // we will remove them from the token here and calculate the arrayLevel
+
+        String typename = type.getText();
+
+        int arrayLevel = 0;
+
+        while(typename.endsWith("[]"))
+        {
+            arrayLevel++;
+            typename = typename.substring(0, typename.length()-2);
+        }
+
+        type.setText(typename);
+
         // create the variable definition
         VariableDef v = new VariableDef(getUniqueName(theVariable),
                                         getOccurrence(theVariable),
                                         getDummyClass(type),
+                                        arrayLevel,
                                         getCurrentScope());
-                                            
+
         if (comment != null)
             v.setComment(comment.getText());
         // if we are in a method's parameter def, add to its parameters
@@ -393,31 +412,31 @@ public class SymbolTable
         else {                             // otherwise, add to the current scope
             addToCurrentScope(v);
         }
-    }   
+    }
 
 
     /** State that we are done processing the method header */
     public void endMethodHead(JavaVector exceptions) {
         // set its thrown exception list
         currentMethod.setExceptions(exceptions);
-        
+
         // reset the method indicator
         // NOTE:  this is not a problem for inner classes; you cannot define an
         //        inner class inside a formal parameter list, so we don't need a
         //        stack of methods here...
         currentMethod = null;
-    }   
+    }
 
 
     /** look for the name in the import list for this class */
     Definition findInImports(String name) {
         Definition def=null;
-        
+
         // look at the stuff we imported
         // (the name could be a class name)
         if (importedClasses != null)
             def = (Definition)importedClasses.get(name);
-        
+
         // otherwise, take a look in the import-on-demand packages to
         //   see if the class is defined
         if (def==null && demand != null && name.charAt(0) != '~') {
@@ -425,15 +444,15 @@ public class SymbolTable
             while(def==null && e.hasMoreElements())
                 def = ((PackageDef)e.nextElement()).lookup(name);
         }
-        
+
         return def;
-    }   
+    }
 
 
     /** Lookup a package in the list of all parsed packages */
     Definition findPackage(String name) {
         return (Definition)packages.get(name);
-    }       
+    }
 
 
     /** Return the currently-active scope */
@@ -441,7 +460,7 @@ public class SymbolTable
         if (activeScopes.empty())
             return null;
         return (ScopedDef)activeScopes.peek();
-    }   
+    }
 
 
     /** Define a new package object */
@@ -452,7 +471,7 @@ public class SymbolTable
             defaultPackage = new PackageDef(getUniqueName("~default~"), null, null);
             packages.put(getUniqueName("~default~"), defaultPackage);
             defaultPackage.setDefaultOrBaseScope(true);
-        }   
+        }
         return defaultPackage;
     }
 
@@ -461,7 +480,7 @@ public class SymbolTable
     public DummyClass getDummyClass(JavaToken tok) {
         if (tok == null) return null;
         return new DummyClass(getUniqueName(tok), getOccurrence(tok));
-    }   
+    }
 
 
     /** Get the current indentation string */
@@ -477,9 +496,9 @@ public class SymbolTable
             object.setType(ClassDef.CLASS);
             // add it to package java.lang
             javaLang.add(object);
-        }   
-        return object;  
-    }   
+        }
+        return object;
+    }
 
 
     /** Create a new occurrence object */
@@ -488,7 +507,7 @@ public class SymbolTable
             return new Occurrence(null, 0, 0);
         else
             return new Occurrence(currentFile, tok.getLine(), tok.getColumn());
-    }   
+    }
 
 
     /** return the current qualified scope for lookup.  */
@@ -499,22 +518,22 @@ public class SymbolTable
     /** Get a unique occurrence of a String that has the name we want */
     String getUniqueName(JavaToken tok) {
         return getUniqueName(tok.getText());
-    }   
+    }
 
 
     /** Get a unique occurrence of a String that has the specified name */
     String getUniqueName(String name) {
         return names.getName(name);
-    }   
+    }
 
 
-    /** Lookup a non-method in the symbol table 
+    /** Lookup a non-method in the symbol table
      *  This version of lookup is a convenience wrapper that just passes -1
      *  as the parameter count to the real lookup routine
      */
     Definition lookup(String name) {
         return lookup(name, -1);
-    }   
+    }
 
 
     /** Lookup a name in the symbol table */
@@ -522,7 +541,7 @@ public class SymbolTable
         Definition def     = null;
         StringTokenizer st = null;
         String afterPackage = null;
-        
+
         // If we have a dot ('.') in the name, we must first resolve the package,
         //  class or interface that starts the name, the progress through the
         //  name
@@ -532,7 +551,7 @@ public class SymbolTable
             //  eg.  pkg com.magelang.xref  and class xref in
             //       com.magelang can coexist...
             //  The lookup algorithm use here is far simpler, and may
-            //    resolve improperly (ie, if we have packages 
+            //    resolve improperly (ie, if we have packages
             //    com.magelang.xref and com.magelang and the string we are
             //   testing is com.magelang.xref, we will always assume that it
             //   is a package)
@@ -560,30 +579,30 @@ public class SymbolTable
                     if (def != null) {
                         doneWithPackage = true;
                         id = (String)st.nextElement();
-                    }   
-                }   
+                    }
+                }
                 else
                     testName += "." + id;
-                
+
                 // keep track of the longest name that is a package
                 if (!doneWithPackage &&
                     ((testIt = (PackageDef)packages.get(name)) != null)) {
                     def = testIt;
                     afterPackage = null;
-                }   
+                }
                 else if (afterPackage == null)
                     afterPackage = id;
                 else
                     afterPackage += "." + id;
             }
-        }   
-        
+        }
+
         // otherwise, just try to find the name in the imported classes/packages
         else if (numParams == -1) {
-            def = findInImports(name);                  
+            def = findInImports(name);
             if (def != null)
                 return def;
-            }   
+            }
 
 
         // At this point, we may have a definition that represents the
@@ -598,12 +617,12 @@ public class SymbolTable
             afterPackage = name;
 
 
-        // Here we know we have more to look at...              
+        // Here we know we have more to look at...
         if (afterPackage != null) { // more to chew on...
             // check to see if we still have any DOTs in the name
             // if so, we'll need to figure out where certain names start/end
             st = new StringTokenizer(afterPackage, ".");
-         
+
             // find and load the classes up to the last
             while (st.hasMoreElements()) {
                 String id = (String)st.nextElement();
@@ -616,7 +635,7 @@ public class SymbolTable
                 // Otherwise, first try a scoped lookup
                 else
                     def = activeScopes.lookup(id, numParams);
-                
+
                 if (def == null) break;
 
                 if (st.hasMoreElements())
@@ -632,18 +651,18 @@ public class SymbolTable
     Definition lookupDummy(Definition d) {
         String pkg = ((DummyClass)d).getPackage();
         return lookup((pkg==null?"":pkg+".")+d.getName());
-    }   
+    }
 
 
     /** Set up the list of imported packages for use in symbol lookup */
     void openImports(JavaHashtable imports) {
         // start a new demand list
         demand = new JavaVector();
-        
+
         // add package java.lang to the demand list...
         demand.addElement(javaLang);
         importedClasses = new JavaHashtable();
-        
+
         // if this class has something to import...
         if (imports != null) {
             // walk through the list of imports
@@ -657,13 +676,13 @@ public class SymbolTable
                 else {
                     if (d instanceof DummyClass) {
                         Definition newD = lookupDummy(d);
-                        if (newD != null) 
+                        if (newD != null)
                             d = newD;
-                    }   
+                    }
                     importedClasses.put(d.getName(), d);
-                }   
+                }
             }
-        }   
+        }
     }
 
 
@@ -672,13 +691,13 @@ public class SymbolTable
         while(activeScopes.peek() != baseScope)
             activeScopes.pop();
         importedClasses = null;
-    }   
+    }
 
 
     /** Pop off the current scope from the stack */
     public void popScope() {
         activeScopes.pop();
-    }   
+    }
 
 
     /** Push a scope on the stack for symbol lookup */
@@ -687,14 +706,14 @@ public class SymbolTable
             throw new RuntimeException("Not a ScopedDef");
         activeScopes.push(scope);
         return scope;
-    }   
+    }
 
 
     /** Add an unresolved reference to the current scope */
     public void reference(JavaToken t) {
         t.setFile(currentFile);
         getCurrentScope().addUnresolved(t);
-    }   
+    }
 
 
     /** Get some info about this class */
@@ -703,8 +722,8 @@ public class SymbolTable
         while(e.hasMoreElements()) {
             PackageDef p = (PackageDef)e.nextElement();
             p.getInfo(info, this);
-        }   
-    }   
+        }
+    }
 
 
     /** unset the qualifiedScope so normal scoped lookup applies on the next
@@ -712,7 +731,7 @@ public class SymbolTable
      */
     void resetScope() {
         setScope((Definition)null);
-    }   
+    }
 
 
     /** resolve types of anything that needs resolution in the symbol table */
@@ -727,7 +746,7 @@ public class SymbolTable
     /** Mark the current file that is being parsed */
     public void setFile(File file) {
         currentFile = file;
-    }   
+    }
 
     /** Return the current file that is being parsed */
     public File getFile() {
@@ -738,7 +757,7 @@ public class SymbolTable
     public void setNearestClassScope() {
         // find the nearest class scope
         setScope(activeScopes.findTopmostClass());
-    }   
+    }
 
 
     /** Set the qualified scope for the next name lookup.  Names will only be
@@ -748,12 +767,12 @@ public class SymbolTable
     void setScope(JavaToken t) {
         Definition def = lookup(t.getText());
 	System.out.println("   using class (scope): " + def.getName());
-	
+
         if (def != null) {
             def.addReference(getOccurrence(t));
             setScope(def);
-        }   
-    }   
+        }
+    }
 
 
     /** Set the qualified scope for the next name lookup.  Names will only be
@@ -776,13 +795,13 @@ public class SymbolTable
         Definition def = lookup(name);
         if (def != null)
             setScope(def);
-    }   
+    }
 
 
     /** Return a String representation for the entire symbol table */
     public String toString() {
         return "Symbol Table";
-    }   
+    }
 
 
     /** Used to push the scope of the default package.  This is used by the
@@ -791,5 +810,5 @@ public class SymbolTable
      */
     public void useDefaultPackage() {
         pushScope(getDefaultPackage());
-    }   
+    }
 }

@@ -10,44 +10,46 @@ public final class ClassInfo {
 
     private String name;
     private String superclass;
-    
+    private String packageName = "";
+
     private Vector implemented = new Vector();
     private Vector imported = new Vector();
     private Vector used = new Vector();
-    private Vector comments = new Vector();
+    private List comments = new LinkedList();
 
-    class SavedComment {
-
+    private class SavedComment
+    {
         public String target;   // the method signature of the item we have a
                                 // comment for. Can be
                                 // class name      or
                                 // interface name
-                                // in the case of a comment for a whole class/interface        
+                                // in the case of a comment for a whole class/interface
 
         public String comment;  // the actual text of the comment
-        
+
         public String paramnames;   // if this is a method or constructor, then
                                     // this is a comma seperated list of name
-                                    // associated with the parameters        
+                                    // associated with the parameters
 
-        SavedComment(String target, String comment, String paramnames) {
+        SavedComment(String target, String comment, String paramnames)
+        {
             if (target == null)
                 throw new NullPointerException();
             this.target = target;
             this.comment = comment;
             this.paramnames = paramnames;
         }
-        
+
         public void save(Properties p, String prefix)
         {
             p.put(prefix + ".target", target);
             if(comment != null)
                 p.setProperty(prefix + ".text", comment);
             if(paramnames != null)
-                p.setProperty(prefix + ".params", paramnames);      
+                p.setProperty(prefix + ".params", paramnames);
         }
     }
-        
+
     private boolean isInterface = false;
     private boolean isAbstract = false;
     private boolean isApplet = false;
@@ -66,11 +68,11 @@ public final class ClassInfo {
     {
         if(name.equals(this.name))
             return;
-    
+
         superclass = name;
         if(used.contains(name))
             used.remove(name);
-    
+
         for (int i = 0; i < appletClasses.length; i++) {
             if(name.equals(appletClasses[i]))
             isApplet = true;
@@ -81,7 +83,7 @@ public final class ClassInfo {
     {
         if(name.equals(this.name))
             return;
-    
+
         if(!implemented.contains(name))
             implemented.addElement(name);
     }
@@ -90,7 +92,7 @@ public final class ClassInfo {
     {
         if(name.equals(this.name))
             return;
-    
+
         if(!imported.contains(name))
             imported.addElement(name);
     }
@@ -99,15 +101,15 @@ public final class ClassInfo {
     {
         if(name.equals(this.name))
             return;
-    
+
         // don't add predefined types (int, boolean, String, etc)
         if(SymbolTable.getPredefined().contains(name))
             return;
-    
+
         // don't add superclass
         if(name.equals(superclass))
             return;
-    
+
         // don't add if already there
         if(! used.contains(name))
             used.addElement(name);
@@ -115,32 +117,37 @@ public final class ClassInfo {
 
     public void addComment(String target, String comment)
     {
-        addComment(target, comment, null);        
+        addComment(target, comment, null);
     }
-    
+
     public void addComment(String target, String comment, String paramnames)
     {
-	// remove asterisks (*) from beginning of comment
+        // remove asterisks (*) from beginning of comment
 
-	if(comment != null) {
-	    StringBuffer finalComment = new StringBuffer(comment.length());
-	    StringTokenizer tokenizer = new StringTokenizer(comment,"\n\r\f");
+        // a valid comment must being with /* and end with */ so we have
+        // at least 4 characters
 
-	    while(tokenizer.hasMoreTokens()) {
-		StringBuffer line = new StringBuffer(tokenizer.nextToken());
-		char ch = (line.length() > 0 ? line.charAt(0) : 'x');
-		while(ch == ' ' || ch == '\t' || ch == '*') {
-		    line.deleteCharAt(0);
-		    ch = (line.length() > 0 ? line.charAt(0) : 'x');
-		}
-		finalComment.append(line);
-		finalComment.append('\n');
-	    }
-	    comment = finalComment.toString();
-	}
-	comments.addElement(new SavedComment(target, comment, paramnames));
+        if(comment != null && comment.length() > 4) {
+            comment = comment.substring(2, comment.length()-2);
+
+            StringBuffer finalComment = new StringBuffer(comment.length());
+            StringTokenizer tokenizer = new StringTokenizer(comment,"\n\r\f");
+
+            while(tokenizer.hasMoreTokens()) {
+                StringBuffer line = new StringBuffer(tokenizer.nextToken());
+                char ch = (line.length() > 0 ? line.charAt(0) : 'x');
+                while(ch == ' ' || ch == '\t' || ch == '*') {
+                    line.deleteCharAt(0);
+                    ch = (line.length() > 0 ? line.charAt(0) : 'x');
+                }
+                finalComment.append(line);
+                finalComment.append('\n');
+            }
+            comment = finalComment.toString();
+        }
+        comments.add(new SavedComment(target, comment, paramnames));
     }
-    
+
     public void setInterface(boolean b)
     {
         isInterface = b;
@@ -179,7 +186,7 @@ public final class ClassInfo {
     public Selection getClassExtendsInsertSelection() {
         return classExtendsInsertSelection;
     }
-    
+
     private Selection classExtendsInsertSelection;
 
     /**
@@ -197,7 +204,7 @@ public final class ClassInfo {
         return classextendsreplaceselection;
     }
 
-    private Selection classextendsreplaceselection; 
+    private Selection classextendsreplaceselection;
 
 
 
@@ -296,27 +303,28 @@ public final class ClassInfo {
      * If a package line exists, they are updated, otherwise they are
      * left pointing the very start of the file (which is where we would
      * want to insert a package line if we were to add one)
-     */    
+     */
     private boolean packageStatementExists = false;
     private Selection packageStatementSelection = new Selection(null,1,1,0);
     private Selection packageNameSelection = new Selection(null,1,1,0);
     private Selection packageSemiSelection = new Selection(null,1,1,0);
 
-    public void setPackageSelections(Selection pkgStatement, Selection pkgName,
+    public void setPackageSelections(Selection pkgStatement, Selection pkgName, String pkgNameText,
                                         Selection pkgSemi)
     {
         packageStatementSelection = pkgStatement;
         packageNameSelection = pkgName;
-        packageSemiSelection = pkgSemi;    
+        packageName = pkgNameText;
+        packageSemiSelection = pkgSemi;
 
-        packageStatementExists = true;   
+        packageStatementExists = true;
     }
 
     public boolean hasPackageStatement()
     {
         return packageStatementExists;
     }
-    
+
     public Selection getPackageStatementSelection()
     {
         return packageStatementSelection;
@@ -334,12 +342,17 @@ public final class ClassInfo {
 
 
 
-        
+
     // accessors:
 
     public String getSuperclass()
     {
         return superclass;
+    }
+
+    public String getPackage()
+    {
+        return packageName;
     }
 
     public Vector getImplements()
@@ -361,15 +374,15 @@ public final class ClassInfo {
     {
         Properties props = new SortedProperties();
         props.setProperty("numComments", String.valueOf(comments.size()));
-        Enumeration e = comments.elements();
-        for(int i = 0; e.hasMoreElements(); i++)
+        Iterator it = comments.iterator();
+        for(int i = 0; it.hasNext(); i++)
         {
-            SavedComment c = (SavedComment)e.nextElement();
+            SavedComment c = (SavedComment)it.next();
             c.save(props, "comment" + i);
         }
         return props;
     }
-    
+
     public boolean isInterface()
     {
         return this.isInterface;
@@ -390,7 +403,7 @@ public final class ClassInfo {
     {
         System.out.println();
         System.out.println("superclass: " + superclass);
-    
+
         System.out.println();
         System.out.println("implements:");
         Enumeration e = implemented.elements();

@@ -4,23 +4,23 @@ package bluej.parser.symtab;
 import java.util.Enumeration;
 
 /*******************************************************************************
- * A definition of a method in a class  
+ * A definition of a method in a class
  ******************************************************************************/
 class MethodDef extends ScopedDef implements TypedDef
-{ 
+{
     //==========================================================================
     //==  Class Variables
     //==========================================================================
-    
+
     /** The comment attached to this method definition */
     private String comment;
 
     /** The return type of the method */
     private Definition type = null;
-    
+
     /** A list of formal parameters to the method */
     private JavaVector parameters;
-    
+
     /** A list of exceptions that can be thrown */
     private JavaVector exceptions;
 
@@ -28,7 +28,7 @@ class MethodDef extends ScopedDef implements TypedDef
     //==========================================================================
     //==  Methods
     //==========================================================================
-    
+
 
     /** Constructor to create a method definition object */
     MethodDef(String name,               // the name of the method
@@ -45,7 +45,7 @@ class MethodDef extends ScopedDef implements TypedDef
         if (exceptions == null) // lazy instantiation
             exceptions = new JavaVector();
         exceptions.addElement(excep);
-    }   
+    }
 
 
     /** Add a parameter to the method's parameter list */
@@ -53,7 +53,7 @@ class MethodDef extends ScopedDef implements TypedDef
         if (parameters == null) // lazy instantiation
             parameters = new JavaVector();
         parameters.addElement(param);
-    }   
+    }
 
 
     /** Find out how many parameters this method has */
@@ -67,10 +67,10 @@ class MethodDef extends ScopedDef implements TypedDef
     /** Return the return type of the method */
     public Definition getType() {
         return type;
-    }   
+    }
 
     public void setComment(String comment) {
-        this.comment = comment;        
+        this.comment = comment;
     }
 
     /** lookup the name as a local variable or local class in this class */
@@ -79,7 +79,7 @@ class MethodDef extends ScopedDef implements TypedDef
             // look for it in the method's scope
             Definition d = super.lookup(name, numParams);
             if (d != null) return d;
-        
+
             // otherwise, look in the parameters for the method
             if (parameters != null) {
                 Enumeration e = parameters.elements();
@@ -87,18 +87,18 @@ class MethodDef extends ScopedDef implements TypedDef
                     d = (Definition)e.nextElement();
                     if (d.getName().equals(name))
                         return d;
-                }   
-            }   
-        }   
+                }
+            }
+        }
         return null;
-    }   
+    }
 
 
     /** Collect information about this method */
     public void getInfo(ClassInfo info, SymbolTable symbolTable)
     {
         StringBuffer target = new StringBuffer();  // the method signature
-        
+
         // if it has a return type, add it
         if (type != null) {
             info.addUsed(type.getQualifiedName());
@@ -119,17 +119,25 @@ class MethodDef extends ScopedDef implements TypedDef
                 paramnames.append(" ");
 
     	        vd.getInfo(info, symbolTable);
-    	        
+
     	        target.append(vd.getType().getName());
+
+                for(int i=0; i<vd.getArrayLevel(); i++)
+                    target.append("[]");
+
     	        target.append(",");
             }
         }
 
-        int lastchar = target.length()-1;
+        int lastchar = paramnames.length()-1;
+        if (lastchar >= 0 && paramnames.charAt(lastchar) == ' ')
+            paramnames.deleteCharAt(lastchar);
+
+        lastchar = target.length()-1;
         if (target.charAt(lastchar) == ',')
             target.deleteCharAt(lastchar);
         target.append(")");
-                    
+
         // if it throws exceptions, list them
         if (exceptions != null) {
     	    Enumeration e = exceptions.elements();
@@ -140,7 +148,7 @@ class MethodDef extends ScopedDef implements TypedDef
         info.addComment(target.toString(), comment, paramnames.toString());
 
         super.getInfo(info, symbolTable);
-    }   
+    }
 
 
     /** Resolve references to other symbols for pass 2 */
@@ -148,16 +156,16 @@ class MethodDef extends ScopedDef implements TypedDef
         // if we have parameters and/or exceptions, resolve them
         if (parameters != null) parameters.resolveTypes(symbolTable);
         if (exceptions != null) exceptions.resolveTypes(symbolTable);
-        
+
         // if we have a return type, resolve it
         if (type != null && type instanceof DummyClass) {
             Definition newType = symbolTable.lookupDummy(type);
             if (newType != null) {
                 newType.addReference(type.getOccurrence());
                 type = newType;
-            }   
-        }   
-        
+            }
+        }
+
         // perform resolution for our superclass
         super.resolveTypes(symbolTable);
     }
@@ -166,5 +174,5 @@ class MethodDef extends ScopedDef implements TypedDef
     /** set the list of exceptions that this method can throw */
     void setExceptions(JavaVector exceptions) {
         this.exceptions = exceptions;
-    }   
+    }
 }
