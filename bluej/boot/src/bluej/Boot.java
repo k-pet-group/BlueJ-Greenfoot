@@ -15,7 +15,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 2370 2003-11-19 00:50:01Z ajp $
+ * @version $Id: Boot.java 2449 2004-01-09 02:29:47Z ajp $
  */
 public class Boot
 {
@@ -46,7 +46,7 @@ public class Boot
     // The jar files we expect in the BlueJ lib directory
     // The first lot are the ones to run BlueJ itself
     private static String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-                                          "antlr.jar", "MRJ141Stubs.jar", "MRJToolkitStubs.zip" };
+                                          "antlr.jar", "bsh.jar", "MRJ141Stubs.jar", "MRJToolkitStubs.zip" };
     // The second group are available to user code (and to bluej)
     private static String[] bluejUserJars = { "junit.jar" };
     
@@ -250,10 +250,15 @@ public class Boot
             // above us to use
             File startingDir = (new File(bootFullName).getParentFile());
 
-            while(!(new File(startingDir.getParentFile(), "lib").isDirectory()))
-                startingDir = startingDir.getParentFile();
+            while((startingDir != null) &&
+                   !(new File(startingDir.getParentFile(), "lib").isDirectory())) {
+                        startingDir = startingDir.getParentFile();
+            }
             
-            bluejDir = new File(startingDir.getParentFile(), "lib");			
+            if (startingDir == null)
+                bluejDir = null;
+            else
+                bluejDir = new File(startingDir.getParentFile(), "lib");			
 		} else {
 			//It was in a jar. Cut of the class name
 			bootName = bootFullName.substring(0, classIndex);

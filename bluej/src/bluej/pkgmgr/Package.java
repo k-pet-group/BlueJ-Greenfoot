@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2433 2003-12-09 12:18:54Z mik $
+ * @version $Id: Package.java 2449 2004-01-09 02:29:47Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -424,10 +424,10 @@ public final class Package extends Graph
         // process all *.java files
         for(int i=0; i<srcFiles.length; i++) {
             // remove all __SHELL*.java files (temp files created by us)
-            if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
-                srcFiles[i].delete();
-                continue;
-            }
+//            if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
+//                srcFiles[i].delete();
+//                continue;
+//            }
             String javaFileName =
                 JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
 
@@ -443,10 +443,10 @@ public final class Package extends Graph
         // process all *.class files
         for(int i=0; i<classFiles.length; i++) {
             // remove all __SHELL*.class files (temp files created by us)
-            if (classFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
-                classFiles[i].delete();
-                continue;
-            }
+//            if (classFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
+//                classFiles[i].delete();
+//                continue;
+//            }
             String classFileName =
                 JavaNames.stripSuffix(classFiles[i].getName(), ".class");
 
@@ -1115,10 +1115,12 @@ public final class Package extends Graph
         return project.generateDocumentation();
     }
 
-	/**
-	 * Generate documentation for class in 'filename'
-	 * @param filename
-	 */
+    /**
+     * Generate documentation for class in this ClassTarget.
+     * 
+     * @param ct
+     *            the class to generate docs for
+     */
 	public void generateDocumentation(ClassTarget ct)
 	{
 		ct.getEditor().save();

@@ -8,14 +8,12 @@ import java.util.*;
 
 import javax.swing.*;
 
-import antlr.BaseAST;
 import bluej.Config;
 import bluej.debugger.*;
 import bluej.editor.Editor;
 import bluej.editor.moe.MoeEditor;
 import bluej.parser.*;
 import bluej.parser.SourceLocation;
-import bluej.parser.ast.LocatableAST;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
@@ -27,7 +25,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2429 2003-12-09 10:54:54Z mik $
+ * @version $Id: UnitTestClassRole.java 2449 2004-01-09 02:29:47Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {

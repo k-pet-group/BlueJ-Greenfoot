@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2380 2003-11-24 02:26:30Z ajp $
+ * @version $Id: VMReference.java 2449 2004-01-09 02:29:47Z ajp $
  *
  * The startup process is as follows:
  *
@@ -476,10 +476,10 @@ class VMReference
         	findMethodByName(serverClass, ExecServer.LOAD_CLASS));
         execServerMethods.put(ExecServer.ADD_OBJECT,
             findMethodByName(serverClass, ExecServer.ADD_OBJECT));
+        execServerMethods.put(ExecServer.GET_OBJECTS,
+            findMethodByName(serverClass, ExecServer.GET_OBJECTS));
         execServerMethods.put(ExecServer.REMOVE_OBJECT,
             findMethodByName(serverClass, ExecServer.REMOVE_OBJECT));
-        execServerMethods.put(ExecServer.SET_LIBRARIES,
-            findMethodByName(serverClass, ExecServer.SET_LIBRARIES));
         execServerMethods.put(ExecServer.RUN_TEST_SETUP,
             findMethodByName(serverClass, ExecServer.RUN_TEST_SETUP));
         execServerMethods.put(ExecServer.RUN_TEST_METHOD,
@@ -490,7 +490,9 @@ class VMReference
             findMethodByName(serverClass, ExecServer.RESTORE_OUTPUT));
         execServerMethods.put(ExecServer.DISPOSE_WINDOWS,
             findMethodByName(serverClass, ExecServer.DISPOSE_WINDOWS));
-
+        execServerMethods.put(ExecServer.EXECUTE_CODE,
+            findMethodByName(serverClass, ExecServer.EXECUTE_CODE));
+        
         //Debug.message(" connection to remote VM established");
         return true;
     }
@@ -523,11 +525,15 @@ class VMReference
      */
     ClassLoaderReference newClassLoader(String classPath)
     {
+        ClassLoaderReference loader = null;
         Object args[] = { classPath };
 
-        ClassLoaderReference loader =
+        try {
+            loader =
             (ClassLoaderReference) invokeExecServerWorker(ExecServer.NEW_LOADER, Arrays.asList(args));
-
+        }
+        catch (InvocationException ie) { }
+        
         currentLoader = loader;
 
         return loader;
@@ -543,19 +549,23 @@ class VMReference
     ReferenceType loadClass(String className)
     	throws ClassNotFoundException
     {
+        Value v = null;
         Object args[] = { className };
 
-        Value v = invokeExecServerWorker(ExecServer.LOAD_CLASS, Arrays.asList(args));
+        try {
+            v = invokeExecServerWorker(ExecServer.LOAD_CLASS, Arrays.asList(args));
+            // we get back a reference to an instance of a class of type "java.lang.Class"
+            // but we know the class has been loaded in the remote VM.
+            // now we find an actual reference to the class type.
+            if (v.type().name().equals("java.lang.Class")) {
+                ReferenceType rt = findClassByName(className, currentLoader);
 
-		// we get back a reference to an instance of a class of type "java.lang.Class"
-		// but we know the class has been loaded in the remote VM.
-		// now we find an actual reference to the class type.
-        if (v.type().name().equals("java.lang.Class")) {
-            ReferenceType rt = findClassByName(className, currentLoader);
-
-            if (rt != null)
-                return rt;
+                if (rt != null)
+                    return rt;
+            }
         }
+        catch (InvocationException ie) { }
+        
 
         throw new ClassNotFoundException(className);
     }
@@ -615,7 +625,7 @@ class VMReference
 	 * @return				the return value of the method call
 	 * 						as an mirrored object on the VM
 	 */
-	Value invokeExecServerWorker(String methodName, List args)
+	Value invokeExecServerWorker(String methodName, List args) throws InvocationException
 	{
 		if (serverThread == null) {
 			if (!setupServerConnection(machine))
@@ -642,7 +652,7 @@ class VMReference
      * @return				the return value of the method call
      * 						as an mirrored object on the VM
      */
-    Value invokeExecServer(String methodName, List args)
+    Value invokeExecServer(String methodName, List args) throws InvocationException
     {
         if (serverThread == null) {
             if (!setupServerConnection(machine))
@@ -1039,10 +1049,12 @@ class VMReference
 	 * @return				the return value of the method call
 	 * 						as a mirrored object on the VM
 	 */
-	private Value invokeStaticRemoteMethod(ThreadReference thr, ClassType cl, Method m,
-											List args,
-											boolean propagateException,
-											boolean dontSuspendAll)
+	private Value invokeStaticRemoteMethod(ThreadReference thr,
+										   ClassType cl,
+                                           Method m,
+										   List args,
+										   boolean propagateException,
+										   boolean dontSuspendAll) throws InvocationException
 	{
 		final int smallDelay = 50;	// milliseconds
     	
@@ -1114,9 +1126,8 @@ class VMReference
 			// we can either propagate the exception as a value
 			if (!dontSuspendAll)
 				machine.resume();
-
 			if (propagateException)
-				return e.exception();
+				throw e;
 			// or ignore it because it will be handled
 			// in exceptionEvent()
 		}

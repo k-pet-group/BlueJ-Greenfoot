@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2433 2003-12-09 12:18:54Z mik $
+ * @version $Id: PkgMgrFrame.java 2449 2004-01-09 02:29:47Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1268,15 +1268,13 @@ public class PkgMgrFrame extends JFrame
                         name = "result";
                         
                     if(result != null) {
-                        DebuggerObject realResult = result.getInstanceFieldObject(0);
-
                         ObjectWrapper wrapper = ObjectWrapper.getWrapper(
                                                        PkgMgrFrame.this, getObjectBench(),
-                                                       realResult,
+                                                       result,
                                                        name);
                         getObjectBench().add(wrapper);
 
-                        getPackage().getDebugger().addObject(wrapper.getName(), realResult);
+                        getPackage().getDebugger().addObject(wrapper.getName(), result);
                                                 
                         getObjectBench().addInteraction(ir);
                     }

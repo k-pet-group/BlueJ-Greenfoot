@@ -1,7 +1,6 @@
 package bluej.utility;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -15,7 +14,7 @@ import com.apple.mrj.MRJFileUtils;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 2389 2003-11-26 10:27:27Z mik $
+ * @version $Id: Utility.java 2449 2004-01-09 02:29:47Z ajp $
  */
 public class Utility
 {

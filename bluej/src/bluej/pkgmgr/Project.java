@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2433 2003-12-09 12:18:54Z mik $
+ * @version $Id: Project.java 2449 2004-01-09 02:29:47Z ajp $
  */
 public class Project
     implements DebuggerListener
@@ -38,11 +38,12 @@ public class Project
 	private static Debugger initialDebugger = null;
 	
     /**
-     * Check if the path given is either a directory with a bluej pkg file
-     * or the name of a bluej pkg file.
-     *
-     * @param   A string representing the path to check. This can either
-     *          be a directory name or the filename of a bluej.pkg file.
+     * Check if the path given is either a directory with a bluej pkg file or
+     * the name of a bluej pkg file.
+     * 
+     * @param projectPath
+     *            a string representing the path to check. This can either be a
+     *            directory name or the filename of a bluej.pkg file.
      */
     public static boolean isProject(String projectPath)
     {
@@ -63,13 +64,13 @@ public class Project
 
     /**
      * Open a BlueJ project.
-     *
-     * @param   A string representing the path to open. This can either
-     *          be a directory name or the filename of a bluej.pkg file.
-     * @return  The Project representing the BlueJ project
-     *          that has this directory within it or
-     *          null if there were no bluej.pkg files in the
-     *          specified directory.
+     * 
+     * @param projectPath
+     *            a string representing the path to open. This can either be a
+     *            directory name or the filename of a bluej.pkg file.
+     * @return the Project representing the BlueJ project that has this
+     *         directory within it or null if there were no bluej.pkg files in
+     *         the specified directory.
      */
     public static Project openProject(String projectPath)
     {
@@ -491,18 +492,21 @@ public class Project
         }
     }
 
-    /**
-     * Returns a new package with the given fully qualified name.
-     * Once NEW_PACKAGE_DONE is returned you can use getPackage to get the actual package.
-     * 
-     * @param qualifiedName Ex. java.util or "" for unnamed package
-     * @return Project.NEW_PACKAGE_DONE, Project.NEW_PACKAGE_EXIST, Project.NEW_PACKAGE_BAD_NAME
-     */
     public static final int NEW_PACKAGE_DONE=0;
     public static final int NEW_PACKAGE_EXIST=1;
     public static final int NEW_PACKAGE_BAD_NAME=2;
     public static final int NEW_PACKAGE_NO_PARENT=3;
 
+    /**
+     * Returns a new package with the given fully qualified name. Once
+     * NEW_PACKAGE_DONE is returned you can use getPackage to get the actual
+     * package.
+     * 
+     * @param qualifiedName
+     *            Ex. java.util or "" for unnamed package
+     * @return Project.NEW_PACKAGE_DONE, Project.NEW_PACKAGE_EXIST,
+     *         Project.NEW_PACKAGE_BAD_NAME
+     */
     public int newPackage(String qualifiedName)
     {
         if(qualifiedName == null)

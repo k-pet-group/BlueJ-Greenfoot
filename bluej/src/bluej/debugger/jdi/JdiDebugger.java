@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2371 2003-11-19 03:39:06Z ajp $
+ * @version $Id: JdiDebugger.java 2449 2004-01-09 02:29:47Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -230,8 +230,11 @@ public class JdiDebugger extends Debugger
     {
         Object args[] = { newInstanceName, ((JdiObject)dob).getObjectReference() };
 
-		getVM().invokeExecServerWorker( ExecServer.ADD_OBJECT, Arrays.asList(args));
-		
+		try {
+            getVM().invokeExecServerWorker( ExecServer.ADD_OBJECT, Arrays.asList(args));
+        }
+        catch (InvocationException ie) { }
+        
 		usedNames.add(newInstanceName);
 		
 		return true;
@@ -252,39 +255,65 @@ public class JdiDebugger extends Debugger
 			getVM().invokeExecServerWorker( ExecServer.REMOVE_OBJECT, Arrays.asList(args) );
 		}
 		catch (VMDisconnectedException e) { }
+        catch (InvocationException ie) { }
     }
 
     
     /**
-     * Set the class path of the remote VM
+     * Return the debugger objects that exist in the
+     * debugger.
+     * 
+     * @return          a Map of (String name, DebuggerObject obj) entries
      */
-    public void setLibraries(String classpath)
+    public Map getObjects()
     {
-        Object args[] = { classpath };
+        ArrayReference arrayRef = null;   
+        
+        try {
+            arrayRef = (ArrayReference) getVM().invokeExecServer(ExecServer.GET_OBJECTS, Collections.EMPTY_LIST);
+        }
+        catch (InvocationException ie) {
+            return null;            
+        }
 
-		getVM().invokeExecServerWorker( ExecServer.SET_LIBRARIES, Arrays.asList(args));
+        // the returned array consists of double the number of objects
+        // they alternate, name, object, name, object
+        // ie.
+        // arrayRef[0] = a field name 0 (StringReference)
+        // arrayRef[1] = a field value 0 (ObjectReference)
+        // arrayRef[2] = a field name 1 (StringReference)
+        // arrayRef[3] = a field value 1 (ObjectReference)
+        //
+        Map returnMap = new HashMap();
+
+        if (arrayRef != null) {
+            for(int i=0; i<arrayRef.length(); i+=2)
+                returnMap.put(((StringReference) arrayRef.getValue(i)).value(),
+                        JdiObject.getDebuggerObject((ObjectReference)arrayRef.getValue(i+1)));
+        }
+
+        // the resulting map consists of entries (String fieldName, JdiObject obj)
+        return returnMap;
     }
 
-    
-	/**
-	 * Return the debugger objects that exist in the
-	 * debugger.
-	 * 
-	 * @return			a Map of (String name, DebuggerObject obj) entries
-	 */
-	public Map getObjects()
-	{
-		throw new IllegalStateException("not implemented");
-		// the returned array consists of double the number of objects
-		// they alternate, name, object, name, object
-		// ie.
-		// arrayRef[0] = a field name 0 (StringReference)
-		// arrayRef[1] = a field value 0 (ObjectReference)
-		// arrayRef[2] = a field name 1 (StringReference)
-		// arrayRef[3] = a field value 1 (ObjectReference)
-		//
-	}
+    public DebuggerObject executeCode(String code)
+    {
+        Value obRef = null;
+        Object args[] = { code };
 
+        try {
+            obRef = getVM().invokeExecServerWorker( ExecServer.EXECUTE_CODE, Arrays.asList(args));
+        }
+        catch (InvocationException ie)
+        {
+            ie.printStackTrace();    
+        }
+        if (obRef == null)
+            return null;
+        
+        return JdiObject.getDebuggerObject((ObjectReference)obRef);
+    }
+    
 	/**
 	 * Run the setUp() method of a test class and return the created
 	 * objects.
@@ -294,10 +323,17 @@ public class JdiDebugger extends Debugger
 	 */
     public Map runTestSetUp(String className)
     {
+        ArrayReference arrayRef = null;
         Object args[] = { className };
 
-        ArrayReference arrayRef = (ArrayReference) getVM().invokeExecServer(ExecServer.RUN_TEST_SETUP, Arrays.asList(args));
-       
+        try {
+            arrayRef = (ArrayReference) getVM().invokeExecServer(ExecServer.RUN_TEST_SETUP, Arrays.asList(args));
+        }
+        catch (InvocationException ie) {
+            // what to do here??
+            return null;
+        }       
+        
         // the returned array consists of double the number of fields created by running test setup
         // they alternate, fieldname, fieldvalue, fieldname, fieldvalue
         // ie.
@@ -329,10 +365,17 @@ public class JdiDebugger extends Debugger
 	 */
     public DebuggerTestResult runTestMethod(String className, String methodName)
     {
+        ArrayReference arrayRef = null;
         Object args[] = { className, methodName };
 
-		ArrayReference arrayRef = (ArrayReference) getVM().invokeExecServer(ExecServer.RUN_TEST_METHOD, Arrays.asList(args));
-      
+		try {
+            arrayRef = (ArrayReference) getVM().invokeExecServer(ExecServer.RUN_TEST_METHOD, Arrays.asList(args));
+        }
+        catch (InvocationException ie) {
+            // what to do here??
+            return null;
+        }       
+        
         if (arrayRef != null && arrayRef.length() > 2) {
 			String failureType = ((StringReference) arrayRef.getValue(0)).value();
 			String exMsg = ((StringReference) arrayRef.getValue(1)).value();
@@ -372,7 +415,8 @@ public class JdiDebugger extends Debugger
 			getVM().invokeExecServerWorker(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
 		}
 		catch (VMDisconnectedException e) { }
-    }
+        catch (InvocationException ie) { }
+        }
 
     /**
      * Supress error output on the remote machine.
@@ -382,7 +426,10 @@ public class JdiDebugger extends Debugger
 		if (!vmRunning)
 			return;
 
-		getVM().invokeExecServerWorker( ExecServer.SUPRESS_OUTPUT, Collections.EMPTY_LIST );
+		try {
+            getVM().invokeExecServerWorker( ExecServer.SUPRESS_OUTPUT, Collections.EMPTY_LIST );
+        }
+        catch (InvocationException ie) { }
     }
 
     /**
@@ -393,7 +440,10 @@ public class JdiDebugger extends Debugger
 		if (!vmRunning)
 			return;
 
-		getVM().invokeExecServerWorker( ExecServer.RESTORE_OUTPUT, Collections.EMPTY_LIST );
+		try {
+            getVM().invokeExecServerWorker( ExecServer.RESTORE_OUTPUT, Collections.EMPTY_LIST );
+        }
+        catch (InvocationException ie) { }
     }
 
 	/**
