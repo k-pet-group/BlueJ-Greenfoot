@@ -1,12 +1,10 @@
-# Afrikaans translation by Petri Jooste, Potchefstroom University, South Africa
-
+#Text for labels in BlueJ
+#Mon Aug 30 12:30:40 CAT 2004
 okay=Ok
 cancel=Kanselleer
-close=Sluit af
+close=Maak toe
 continue=Gaan voort
-
 main.invalidPackage=Pakket nie gevind
-
 compileException=Uitsondering tydens kompilering
 compiler.thread.title=BlueJ kompileerder uitvoerdraad
 compiler.invalidcompiler=bluej.compiler.type is nie as geldige kompileerdertipe ingestel nie
@@ -14,34 +12,36 @@ compiler.nocompiler=Kompileerder kon nie uitgevoer word nie
 compiler.warningDialog.title=Kompileerderwaarskuwings
 compiler.warningDialog.label=Waarskuwings van die laaste kompileeropdrag 
 compiler.warningDialog.noWarnings=Geen waarskuwings
-
-debugger.assert.assertThat=Handhaaf:
+debugger.null=null
+debugger.assert.assertThat=Handhaaf\:
 debugger.assert.resultIs=die resultaat is
 debugger.assert.equalTo=gelyk aan
-debugger.assert.equalToFloatingPoint= gelyk aan (double of float)
+debugger.assert.equalToFloatingPoint=gelyk aan (double of float)
 debugger.assert.sameAs=dieselfde as
 debugger.assert.notSameAs=nie dieselfde as
 debugger.assert.notNull=nie null
 debugger.assert.null=null
 debugger.assert.delta=delta
-
-debugger.inspector.title=BlueJ:  Inspekteur
-debugger.inspector.object.title=BlueJ:  Objekinspekteur
-debugger.inspector.class.title=BlueJ:  Klasinspekteur
-debugger.inspector.result.title=BlueJ:  Metodeinspekteur
+debugger.inspector.title=BlueJ\:  Inspekteur
+debugger.inspector.object.title=BlueJ\:  Objekinspekteur
+debugger.inspector.class.title=BlueJ\:  Klasinspekteur
+debugger.inspector.enum.title=BlueJ\:  Enum-inspekteur
+debugger.inspector.interface.title=BlueJ\:  Interface-inspekteur
+debugger.inspector.result.title=BlueJ\:  Metodeinspekteur
+debugger.inspector.result.returned=Teruggegee\:
 debugger.inspector.showClass=Wys statiese velde
 debugger.inspector.inspect=Inspekteer
 debugger.inspector.get=Kry
-debugger.inspector.classNameLabel=Klas
-
-debugger.objectwrapper.methodException=Uitsondering tydens toegang na metodes:
-debugger.objectwrapper.invocationException=Uitsondering tydens inwerkingstelling:
+debugger.inspector.class.nameLabel=Klas
+debugger.inspector.enum.nameLabel=Enum
+debugger.inspector.interface.nameLabel=Interface
+debugger.objectwrapper.methodException=Uitsondering tydens toegang na metodes\:
+debugger.objectwrapper.invocationException=Uitsondering tydens inwerkingstelling\:
 debugger.objectwrapper.inspect=Inspekteer
 debugger.objectwrapper.remove=Verwyder
 debugger.objectwrapper.serializable=Opeenvolgend maak
 debugger.objectwrapper.redefined=geherdefinieer in
 debugger.objectwrapper.inherited=oorgeerf van
-
 debugger.threadstatus.finished=klaar
 debugger.threadstatus.breakpoint=by inbreekpunt
 debugger.threadstatus.stopped=gestop
@@ -52,41 +52,10 @@ debugger.threadstatus.sleeping=aan die slaap
 debugger.threadstatus.unknown=status onbekend
 debugger.threadstatus.waiting=besig om te wag
 debugger.threadstatus.zombie=zombie
-
-#Debugger messages
-debugger.jdiDebugger.noBreakpointMsg=Verwyder inbreekpunt: geen inbreekpunt in hierdie lyn gevind nie.
+debugger.jdiDebugger.noBreakpointMsg=Verwyder inbreekpunt\: geen inbreekpunt in hierdie lyn gevind nie.
 debugger.jdiDebugger.noLineNumberMsg=Hierdie klas is gekompileer sonder lynnommer \ninligting. U kan nie 'n inbreekpunt stel nie.
-debugger.jdiDebugger.noCodeMsg=Kan nie inbreekpunt stel nie: geen kode in hierdie lyn
+debugger.jdiDebugger.noCodeMsg=Kan nie inbreekpunt stel nie\: geen kode in hierdie lyn
 debugger.jdiDebugger.internalErrorMsg=Daar was 'n interne fout toe hierdie inbreekpunt probeer stel is.
-
-#library browser configuration
-browser.title=BlueJ:  Klasbiblioteek rondblaaier
-browser.version=0.1
-browser.togglemessagebox.toggle.text=moenie hierdie boodskap weer wys nie
-
-browser.librarychooser.loading.status=Klasbiblioteke word gelaai...
-browser.librarychooser.loaded.status=Klasbiblioteke is gelaai.
-browser.librarychooser.openingarchive.status=Argiefbiblioteek word oopgemaak
-browser.librarychooser.config.user=userlibs.properties
-
-browser.classchooser.classmenu.open=Open...
-browser.classchooser.classmenu.use=Gebruik...
-browser.classchooser.packagemenu.open=Open...
-browser.classchooser.packagemenu.use=Gebruik...
-
-browser.usepackage.dialog.text=Kies pakket vir bestemming en klik Ok
-
-browser.missingclass.text=Die blaaier kan nie die klas $ opspoor nie
-
-#library browser menus
-browser.menu.library=Klasbiblioteek
-browser.menu.library.properties=Eienskappe...
-browser.menu.library.addlibrary=Voeg by...
-browser.menu.library.addlibrary.title=Voeg biblioteek by
-browser.menu.library.refresh=Hervertoon
-browser.menu.library.close=Maak toe
-
-# Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Biblioteke
 classmgr.userlibraries=Eie biblioteke
 classmgr.userliblibraries=Eie biblioteke vanaf
@@ -101,11 +70,7 @@ classmgr.error.unresolvable=Nie-volgbare pad
 classmgr.error.nodescription=Geen beskrywing
 classmgr.error.missingclasspath=Geen Java classpath. Klas-laai optrede mag vreemd wees want\nklasse in die huidige gids sal eerste gevind word.
 classmgr.error.missingbootclasspath=Geen Sun boot classpath. BlueJ behoort nie te loop in 'n omgewing ouer as JDK 1.2
-
-# Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Voorkeure
-
-# Miscellaneous Preferences panel
+prefmgr.title=BlueJ\:  Voorkeure
 prefmgr.misc.prefpaneltitle=Allerlei
 prefmgr.misc.documentation.title=Dokumentasie opsies
 prefmgr.misc.jdkurlpath=URL van JDK dokumentasie
@@ -116,22 +81,17 @@ prefmgr.misc.testing.title=Eenheidstoetsing opstellings
 prefmgr.misc.showTesting=Wys eenheidstoetsing hulpmiddels
 prefmgr.misc.vm.title=Virtuele masjien instellings
 prefmgr.misc.optimiseVM=Gebruik optimering (vinniger, maar kan dalk probleme met ontfouting veroorsaak)
-prefmgr.misc.addLibTitle=Selekteer gids or jar/zip-lêer
-prefmgr.misc.libFileFilter=Biblioteeklêers (*.jar;*.zip) of gidse met klasse
-
-# Editor Preferences panel
+prefmgr.misc.addLibTitle=Selekteer gids or jar/zip-l\u00EAer
+prefmgr.misc.libFileFilter=Biblioteekl\u00EAers (*.jar;*.zip) of gidse met klasse
 prefmgr.edit.prefpaneltitle=Redigeerder
 prefmgr.edit.editor.title=Redigeerder opsies
 prefmgr.edit.editorfontsize=Redigeerder fontgrootte
 prefmgr.edit.usesyntaxhilighting=Gebruik sintaksverkleuring
 prefmgr.edit.autoindent=Outo-indenteer (Enter en Tab sleutels)
-prefmgr.edit.displaylinenumbers=Vertoon reëlnommers
-prefmgr.edit.makeBackup=Maak rugsteunkopie van bronkodelêers
+prefmgr.edit.displaylinenumbers=Wys re\u00EBlnommers
+prefmgr.edit.makeBackup=Maak rugsteunkopie van bronkodel\u00EAers
 prefmgr.edit.matchBrackets=Sorg dat hakies pas { ... } 
-
-
-# Extensions Manager Help panel
-extmgr.title=BlueJ:  Geïnstalleerde Uitbreidings
+extmgr.title=BlueJ\:  Ge\u00EFnstalleerde Uitbreidings
 extmgr.extensions=Uitbreidings
 extmgr.systemExtensionShort=Stelsel
 extmgr.systemExtensionLong=Stelseluitbreiding (aktief vir alle projekte)
@@ -141,102 +101,77 @@ extmgr.statuscolumn=Status
 extmgr.namecolumn=Naam
 extmgr.typecolumn=Tipe
 extmgr.details=Besonderhede
-extmgr.details.location=Stoorplek:
+extmgr.details.location=Stoorplek\:
 extmgr.details.version=Weergawe
-extmgr.details.url=Meer inligting by:
-
+extmgr.details.url=Meer inligting by\:
 extmgr.status.notused=Nie gebruik nie
 extmgr.status.loaded=Gelaai
 extmgr.status.error=Fout
 extmgr.status.unloaded=Uitgelaai
 extmgr.version.unknown=Onbekend
 extensions.nodescription=Geen
-
-# Extension errors
-extmgr.error.nomanifest=Geen manifes-lêer
+extmgr.error.nomanifest=Geen manifes-l\u00EAer
 extmgr.error.nomain=Manifes bevat geen Main-Class attribuut nie
 extmgr.error.notsubclass=Hoofklas is nie 'n subklas van die uitbreiding nie
 extmgr.error.cannotload=Uitbreding kon nie gelaai word nie.
-
-#---------------
-#Editor labels
-#---------------
-editor.title=BlueJ: Redigeerder
-
-#button lables for toolbar commands
-editor.compileLabel = Kompileer
-editor.undoLabel = Herroep
-editor.cutLabel = Knip
-editor.copyLabel = Kopieer
-editor.pasteLabel = Plak
-editor.closeLabel = Maak toe
-editor.page-setupLabel = Bladsy opstelling...
-
-# menu labels (MUST be defined)
-editor.classLabel = Klas
-editor.editLabel = Redigeer
-editor.toolsLabel = Gereedskap
-editor.debugLabel = Ontfout
-editor.optionLabel = Opsies
-editor.helpLabel = Help
-
-# item labels (can be omitted if same as action name)
-editor.saveLabel = Stoor
-editor.reloadLabel = Herlaai
-editor.printLabel = Druk...
-editor.closeLabel = Maak toe
-
-editor.redoLabel = Herhaal
-editor.cut-to-clipboardLabel = Knip
-editor.copy-to-clipboardLabel = Kopieer
-editor.paste-from-clipboardLabel = Plak
-editor.indent-blockLabel = Indenteer meer
-editor.deindent-blockLabel = Indenteer minder
-editor.comment-blockLabel = plaas kommentaaraanduiding
-editor.uncomment-blockLabel = verwyder kommentaaraanduiding
-editor.insert-methodLabel = Voeg metode in
-
-editor.findLabel = Soek vir...
-editor.find-nextLabel = Soek volgende
-editor.find-next-backwardLabel = Soek vorige
-editor.go-to-lineLabel = Gaan na reël ...
-editor.replaceLabel = Vervang...
-editor.compileLabel = Kompileer
-editor.toggle-breakpointLabel = Stel/Verwyder Inbreekpunt
-editor.toggle-interface-viewLabel = Verwissel Koppelvlakaansig
-
-editor.go-to-lineLabel = Gaan na reël ...
-editor.gotoline.title = Gaan na reël
-editor.gotoline.label = Tik reëlnommer in
-editor.gotoline.notNumericMessage = Toevoer moet numeries wees
-
-editor.implementationLabel = Implementering
-editor.interfaceLabel = Koppelvak
-
-editor.state.readOnly = leesalleen
-editor.state.saved = gestoor
-editor.state.changed = gewysig
-
-editor.key-bindingsLabel = Sleutelkoppelings...
-editor.preferencesLabel = Voorkeure...
-
-# Dialog titles and texts
-editor.functions.title = Redigeerderfunksies
-editor.functions.editFunctions = Redigeerfunksies
-editor.functions.moveScroll = Beweeg & Rol
-editor.functions.classFunctions = Klasfunksies
-editor.functions.customisation = Pasmaking
-editor.functions.help = Help
-editor.functions.misc = Allerlei
-editor.functions.defaults= Verstek
-editor.functions.categories= Kategorieë:
-editor.functions.keys= Sleutelkoppelings
-editor.functions.addkey= Voeg sleutel by
-editor.functions.delkey= Verwyder sleutel
-
-editor.find.title = Soek
-editor.find.find.label = Soek vir:
-editor.find.replace.label = Vervang met:
+editor.title=BlueJ\: Redigeerder
+editor.compileLabel=Kompileer
+editor.undoLabel=Herroep
+editor.cutLabel=Knip
+editor.copyLabel=Kopieer
+editor.pasteLabel=Plak
+editor.closeLabel=Maak toe
+editor.page-setupLabel=Bladsy opstelling...
+editor.classLabel=Klas
+editor.editLabel=Redigeer
+editor.toolsLabel=Gereedskap
+editor.debugLabel=Ontfout
+editor.optionLabel=Opsies
+editor.helpLabel=Help
+editor.saveLabel=Stoor
+editor.reloadLabel=Herlaai
+editor.printLabel=Druk...
+editor.redoLabel=Herhaal
+editor.cut-to-clipboardLabel=Knip
+editor.copy-to-clipboardLabel=Kopieer
+editor.paste-from-clipboardLabel=Plak
+editor.indent-blockLabel=Indenteer meer
+editor.deindent-blockLabel=Indenteer minder
+editor.comment-blockLabel=plaas kommentaaraanduiding
+editor.uncomment-blockLabel=verwyder kommentaaraanduiding
+editor.insert-methodLabel=Voeg metode in
+editor.findLabel=Soek vir...
+editor.find-nextLabel=Soek volgende
+editor.find-next-backwardLabel=Soek vorige
+editor.go-to-lineLabel=Gaan na re\u00EBl ...
+editor.replaceLabel=Vervang...
+editor.toggle-breakpointLabel=Stel/Verwyder Inbreekpunt
+editor.toggle-interface-viewLabel=Verwissel Koppelvlakaansig
+editor.gotoline.title=Gaan na re\u00EBl
+editor.gotoline.label=Tik re\u00EBlnommer in
+editor.gotoline.notNumericMessage=Toevoer moet numeries wees
+editor.implementationLabel=Implementering
+editor.interfaceLabel=Koppelvak
+editor.state.readOnly=leesalleen
+editor.state.saved=gestoor
+editor.state.changed=gewysig
+editor.key-bindingsLabel=Sleutelkoppelings...
+editor.preferencesLabel=Voorkeure...
+editor.functions.title=Redigeerderfunksies
+editor.functions.editFunctions=Redigeerfunksies
+editor.functions.moveScroll=Beweeg & Rol
+editor.functions.classFunctions=Klasfunksies
+editor.functions.customisation=Pasmaking
+editor.functions.help=Help
+editor.functions.misc=Allerlei
+editor.functions.defaults=Verstek
+editor.functions.categories=Kategorie\u00EB\:
+editor.functions.keys=Sleutelkoppelings
+editor.functions.addkey=Voeg sleutel by
+editor.functions.delkey=Verwyder sleutel
+editor.find.title=Soek
+editor.find.find.label=Soek vir\:
+editor.find.replace.label=Vervang met\:
 editor.find.findNext=Soek volgende
 editor.find.replace=Vervang
 editor.find.replaceAll=Vervang alle
@@ -244,52 +179,44 @@ editor.find.up=Soek terug
 editor.find.down=Soek vorentoe
 editor.find.ignoreCase=Ignoreer kas
 editor.find.wholeWord=Heel woorde
-
-#Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe weergawe
-editor.info.readingProblem = Daar was 'n probleem met die lees van hierdie lêer.
-editor.info.regularFile = (Is dit 'n normale lêer? Het u leestoegang?)
-editor.info.newFile = Nuwe lêer
-editor.info.errorSaving = Fout met stoor van lêer!
-editor.info.compiled = Klas gekompileer - geen sintaksfoute
-editor.info.noChanges = Geen veranderinge hoef gestoor te word nie
-editor.info.cannotReload = Kan nie herlaai nie - hierdie teks was nooit gestoor nie!
-editor.info.reload = (\"Herlaai\" laai die vorige gestoorde weergawe vanaf skyf.)
-editor.info.emptySearchString = Leë soekstring.
-editor.info.notFound = Nie gevind nie
-editor.info.compiling = Besig met kompilering...
-editor.info.cannotSetBreak = Inbreekpunt kan nie gestel word nie:\nGeen kode vir hierdie redigeerder.
-editor.info.fileDisappeared = FOUT: Die lêer het blykbaar verdwyn!
-editor.info.fileReadError = FOUT: Daar was fout met die lees van hierdie lêer.
-editor.info.saved = Lêer gestoor
-editor.info.printing = Besig met drukwerk...
-editor.info.printed = Drukwerk... Klaar.
-editor.info.cancelled = Gekanselleer.
-editor.info.generatingDoc = Klaskoppelvlak word gegenereer...
-editor.info.loadingDoc = Klaskoppelvlak word gelaai...
-editor.info.docLoaded = Klaskoppelvlak word gelaai... Voltooi.
-editor.info.docAborted = Ernstige probleem tydens die generering van die javadoc\nkoppelvlak. Proses gestaak.
-editor.info.docDisappeared = Kan nie HTML lêer vind nie:
-editor.info.docNoFrames = Raamvertoon is onaktief in redigeerder voorskou.
-editor.info.tabsExpanded = Alle keepkarakters is omgeskakel na spasies. (U gebruik tans \n sagte inkeping en die lêer het ware keepkarakters bevat.)
+editor.info.version=Moe weergawe
+editor.info.readingProblem=Daar was 'n probleem met die lees van hierdie l\u00EAer.
+editor.info.regularFile=(Is dit 'n normale l\u00EAer? Het u leestoegang?)
+editor.info.newFile=Nuwe l\u00EAer
+editor.info.errorSaving=Fout met stoor van l\u00EAer\!
+editor.info.compiled=Klas gekompileer - geen sintaksfoute
+editor.info.noChanges=Geen veranderinge hoef gestoor te word nie
+editor.info.cannotReload=Kan nie herlaai nie - hierdie teks was nooit gestoor nie\!
+editor.info.reload=("Herlaai" laai die vorige gestoorde weergawe vanaf skyf.)
+editor.info.emptySearchString=Le\u00EB soekstring.
+editor.info.notFound=Nie gevind nie
+editor.info.compiling=Besig met kompilering...
+editor.info.cannotSetBreak=Inbreekpunt kan nie gestel word nie\:\nGeen kode vir hierdie redigeerder.
+editor.info.fileDisappeared=FOUT\: Die l\u00EAer het blykbaar verdwyn\!
+editor.info.fileReadError=FOUT\: Daar was fout met die lees van hierdie l\u00EAer.
+editor.info.saved=L\u00EAer gestoor
+editor.info.printing=Besig met drukwerk...
+editor.info.printed=Drukwerk... Klaar.
+editor.info.cancelled=Gekanselleer.
+editor.info.generatingDoc=Klaskoppelvlak word gegenereer...
+editor.info.loadingDoc=Klaskoppelvlak word gelaai...
+editor.info.docLoaded=Klaskoppelvlak word gelaai... Voltooi.
+editor.info.docAborted=Ernstige probleem tydens die generering van die javadoc\nkoppelvlak. Proses gestaak.
+editor.info.docDisappeared=Kan nie HTML l\u00EAer vind nie\:
+editor.info.docNoFrames=Raamvertoon is onaktief in redigeerder-aansig.
+editor.info.tabsExpanded=Alle keepkarakters is omgeskakel na spasies. (U gebruik tans \n sagte inkeping en die l\u00EAer het ware keepkarakters bevat.)
 editor.printer.continued=voortgegaan
-#End Editor labels
-
 pkgmgr.chooseUsesFrom=Kies die klas waar die afhanklikheid vandaan kom
 pkgmgr.chooseUsesTo=Kies die klas waarvan dit afhanklik is
 pkgmgr.chooseInhFrom=Kies die subklas
 pkgmgr.chooseInhTo=Kies die superklas
 pkgmgr.chooseArrow=Kies 'n pyl om te verwyder
 pkgmgr.packageSaved=Pakket gestoor
-pkgmgr.info.printing = Besig met drukwerk...
-pkgmgr.info.printed = Drukwerk... Klaar.
-
+pkgmgr.info.printing=Besig met drukwerk...
+pkgmgr.info.printed=Drukwerk... Klaar.
 utility.packageChooser.previewPane1=Voorskou van moontlike
 utility.packageChooser.previewPane2=pakketstruktuur
-
-# dialog titles and texts
-pkgmgr.title=BlueJ:  
-
+pkgmgr.title=BlueJ\:  
 pkgmgr.newPkg.title=Nuwe Projek
 pkgmgr.newPkg.buttonLabel=Skep
 pkgmgr.openPkg.title=Open Projek
@@ -304,47 +231,39 @@ pkgmgr.importPkg.title=Kies gids om in te trek
 pkgmgr.importPkg.buttonLabel=Trek in
 pkgmgr.importPkgNew.title=Nuwe Projek vir intrek
 pkgmgr.importPkgNew.buttonLabel=Maak nuwe
-
 pkgmgr.newClass.msg=Tik die naam van die klas
-pkgmgr.newUses=Nuwe \"Komposisie\" pyl
-pkgmgr.newExtends=Nuwe \"Oorerwing\" pyl
+pkgmgr.newUses=Nuwe "Komposisie" pyl
+pkgmgr.newExtends=Nuwe "Oorerwing" pyl
 pkgmgr.unimplemented=Jammer - daardie funksie bestaan nog nie in BlueJ nie
 pkgmgr.pkgChooseError=Fout met die kies van 'n geldige pakketnaam
 pkgmgr.chooseWebPage.title=Kies 'n bestemming vir die HTML bladsy
-
+pkgmgr.chooseWebPage.buttonLabel=Stoor HTML-bladsy
 pkgmgr.parentpackagetarget.open=Open
 pkgmgr.parentpackagetarget.openunamed=Open naamlose pakket
-
 pkgmgr.packagemenu.open=Open
 pkgmgr.packagemenu.remove=Verwyder
-
 pkgmgr.classmenu.runApplet=Loop miniprogram
 pkgmgr.classmenu.edit=Open Redigeerder
 pkgmgr.classmenu.compile=Kompileer
 pkgmgr.classmenu.inspect=Inspekteer
 pkgmgr.classmenu.remove=Verwyder
 pkgmgr.classmenu.createTest=Skep toetsklas
-
 pkgmgr.test.label=Besig om te toets
 pkgmgr.test.record=Besig om op te neem
 pkgmgr.test.run=Doen toetse
-pkgmgr.test.end=Beëindig
+pkgmgr.test.end=Be\u00EBindig
 pkgmgr.test.succeeded=Het geslaag
 pkgmgr.test.noTestName=U moet 'n naam vir die toets spesifiseer
 pkgmgr.test.invalidTestName=Die toets se naam moet 'n geldige Java identifiseerder wees
 pkgmgr.test.recording=Besig om op te neem
-
 pkgmgr.test.popup.testAll=Toets alles
 pkgmgr.test.popup.noTests=Geentoets-metodes
 pkgmgr.test.popup.testPrefix=Toets
 pkgmgr.test.popup.createTest=Skep toetsmetode...
 pkgmgr.test.popup.benchToFixture=Van objekwerkbank na vastepunt
 pkgmgr.test.popup.fixtureToBench=Van vastepunt na objekwerkbank
-
-
-# "new class" dialog
-pkgmgr.newClass.title=BlueJ: Maak nuwe klas
-pkgmgr.newClass.label=Klasnaam:
+pkgmgr.newClass.title=BlueJ\: Maak nuwe klas
+pkgmgr.newClass.label=Klasnaam\:
 pkgmgr.newClass.classType=Klastipe
 pkgmgr.newClass.stdclass=Klas
 pkgmgr.newClass.abstract=Abstrakte Klas
@@ -352,140 +271,109 @@ pkgmgr.newClass.interface=Koppelvlak (Interface)
 pkgmgr.newClass.applet=Miniprogram (Applet)
 pkgmgr.newClass.appletj=Miniprogram
 pkgmgr.newClass.unittest=junit Toetsgeval
-
-# "new package" dialog
-pkgmgr.newPackage.title=BlueJ:  Maak nuwe pakket
-pkgmgr.newPackage.label=Pakket Naam:
+pkgmgr.newClass.enum=Enum
+pkgmgr.newPackage.title=BlueJ\:  Maak nuwe pakket
+pkgmgr.newPackage.label=Pakket Naam\:
 pkgmgr.newPackage.newPackage=Pakket
-
-# "Use Library Class" dialog
-callLibraryDialog.title=BlueJ:  Roep klas uit biblioteek
-callLibraryDialog.classLabel=Klas:
+callLibraryDialog.title=BlueJ\:  Roep klas uit biblioteek
+callLibraryDialog.classLabel=Klas\:
 callLibraryDialog.docButton=Dokumentasie
 callLibraryDialog.listHeading=Konstruktors and statiese metodes
 callLibraryDialog.clickHere1=Tik volledige klasnaam en druk dan Enter
-callLibraryDialog.clickHere2=om konstruktors en metodes te vertoon.
+callLibraryDialog.clickHere2=om konstruktors en metodes te wys.
 callLibraryDialog.classNotFound1=Klas nie gevind.
 callLibraryDialog.classNotFound2=(Korrigeer klasnaam en druk weer Enter.)
-
-# "Free Form Call" dialog
-freeCallDialog.title=BlueJ:  Evalueer
-freeCallDialog.fieldLabel=Evalueer:
-freeCallDialog.resultLabel=Dit is
-freeCallDialog.returnsResult='n uitdrukking (lewer 'n resultaat)
-freeCallDialog.returnsNoResult='n stelling  (lewer geen resultaat)
-
-# "export" dialog
-pkgmgr.export.title=BlueJ:  Skryf uit
-pkgmgr.export.helpLine1=\"Skryf uit\" stoor 'n kopie van die huidige projek
+pkgmgr.export.title=BlueJ\:  Skryf uit
+pkgmgr.export.helpLine1="Skryf uit" stoor 'n kopie van die huidige projek
 pkgmgr.export.helpLine2=in standaard Java (nie-BlueJ) formaat.
-pkgmgr.export.directoryLabel=Stoor as gidsstruktuur
-pkgmgr.export.jarFileLabel=Stoor as jar-lêer
-pkgmgr.export.classLabel=hoofklas:
+pkgmgr.export.classLabel=hoofklas\:
+pkgmgr.export.includeLibs=sluit gebruikerbiblioteke in
 pkgmgr.export.sourceLabel=sluit bronkode in
 pkgmgr.export.noClassText=geen (kan nie uitgevoer word nie)
-
-# "open-non-bluej" mismatch dialog
-pkgmgr.importmismatch.title=BlueJ:  \"package\"-lyn verskil
-pkgmgr.importmismatch.helpLine1=WAARSKUWING: Hierdie is nie die verwagte topvlak subgids van hierdie Java
+pkgmgr.export.specifyJar=Spesifiseer die jar-l\u00EAer se naam
+pkgmgr.export.createJarText=Skep
+pkgmgr.importmismatch.title=BlueJ\:  "package"-lyn verskil
+pkgmgr.importmismatch.helpLine1=WAARSKUWING\: Hierdie is nie die verwagte topvlak subgids van hierdie Java
 pkgmgr.importmismatch.helpLine2=projek (soos verklaar in sommige klasse se "package" stellings) nie.
 pkgmgr.importmismatch.helpLine3=As u hierdie subgids oopmaak sal al die pakket-deklarasies in die 
-pkgmgr.importmismatch.helpLine4=daaropvolgende bronkodelêers van die projek verander word.
+pkgmgr.importmismatch.helpLine4=daaropvolgende bronkodel\u00EAers van die projek verander word.
 pkgmgr.importmismatch.helpLine5=U moet waarskynlik eerder die ouer-gids ("parent directory") van die een
 pkgmgr.importmismatch.helpLine6=wat u gekies het, oopmaak. Byvoorbeeld om 'n Java projek oop te maak wat
 pkgmgr.importmismatch.helpLine7=die pakket "org.bluej" bevat, moet u die subgids kies _waarbinne_ "org"
-pkgmgr.importmismatch.helpLine8=geleë is en nie die "org"- of "bluej"-subgids self nie.
+pkgmgr.importmismatch.helpLine8=gele\u00EB is en nie die "org"- of "bluej"-subgids self nie.
 pkgmgr.importmismatch.helpLine9=Wil u voortgaan met die oopmaak van die projek en sodoende die pakket-deklarasies verander?
-
-# "import" failure dialog
-pkgmgr.importfailed.title=BlueJ:  Intrekstatus
-pkgmgr.importfailed.helpLine1=Die intrekfunksie kon nie die volgende lêers kopieer nie.
-pkgmgr.importfailed.helpLine2=Heel waarskynlik bestaan hierdie lêers alreeds in
+pkgmgr.importfailed.title=BlueJ\:  Intrekstatus
+pkgmgr.importfailed.helpLine1=Die intrekfunksie kon nie die volgende l\u00EAers kopieer nie.
+pkgmgr.importfailed.helpLine2=Heel waarskynlik bestaan hierdie l\u00EAers alreeds in
 pkgmgr.importfailed.helpLine3=die projek waar dit geplaas moes word.
-
-# "version check" dialog
-pkgmgr.versionDlg.title=BlueJ:  Toets vir nuwer weergawe
+pkgmgr.versionDlg.title=BlueJ\:  Toets vir nuwer weergawe
 pkgmgr.versionDlg.helpLine1=Hierdie funksie toets of daar 'n nuwer weergawe van BlueJ
 pkgmgr.versionDlg.helpLine2=beskikbaar is. Die internet moet gekoppel wees hiervoor.
 pkgmgr.versionDlg.check=Toets weergawe
 pkgmgr.versionDlg.upToDate=Die huidige weergawe is op datum.
 pkgmgr.versionDlg.currentVersion=Jou huidige BlueJ weergawe is
 pkgmgr.versionDlg.newVersion=Die mees onlangse BlueJ weergawe is
-
-# run applet dialog
-pkgmgr.runApplet.title=BlueJ:  Loop minitoepassing
-pkgmgr.runApplet.webPageLabel= Maak webbladsy
+pkgmgr.runApplet.title=BlueJ\:  Loop minitoepassing
+pkgmgr.runApplet.webPageLabel=Maak webbladsy
 pkgmgr.runApplet.webPage=Genereer slegs webbladsy
 pkgmgr.runApplet.appletviewer=Loop minitoepassing in appletviewer
 pkgmgr.runApplet.webBrowser=Loop minitoepassing in webleser
-pkgmgr.runApplet.heightLbl=Hoogte =
-pkgmgr.runApplet.widthLbl=Wydte =
+pkgmgr.runApplet.heightLbl=Hoogte \=
+pkgmgr.runApplet.widthLbl=Wydte \=
 pkgmgr.runApplet.newParameterLbl=Voeg nuwe parameter by
-pkgmgr.runApplet.appletParameterLbl= Minitoepassing Parameters
-pkgmgr.runApplet.nameLbl=Naam =
-pkgmgr.runApplet.valueLbl=Waarde =
+pkgmgr.runApplet.appletParameterLbl=Minitoepassing Parameters
+pkgmgr.runApplet.nameLbl=Naam \=
+pkgmgr.runApplet.valueLbl=Waarde \=
 pkgmgr.runApplet.paramName=PARAM NAAM
 pkgmgr.runApplet.value=WAARDE
-pkgmgr.runApplet.htmlComment=<!-- Hierdie lêer is outomaties gegenereer deur die BlueJ Java Ontwikkelingsomgewing.  -->\n<!--  Dit word elke keer weer gegenereer as die miniprogram uitgevoer word. -->\n<!--  Enige veranderinge wat per hand aangebring word in hierdie lêer, sal verlore gaan -->\n<!-- sodra die miniprogram vanuit BlueJ uitgevoer word.   -->\n<!-- As u hierdie lêer met wil behou met veranderinge, stoor dit in 'n gids buite die pakketgids.  -->\n<!--  -->
-pkgmgr.runApplet.htmlExportedComment=<!-- Hierdie lêer is outomaties gegenereer deur die BlueJ Java Ontwikkelingsomgewing.  -->\n<!--  Die codebase veranderlike is gestel volgens wat die pakketgids was toe hierdie bladsy gegenereer is. -->\n<!--  As die pakket dus geskuif word, moet die codebase veranderlike aangepas word.  -->\n<!--  -->
-
-#print project dialog
-pkgmgr.printDialog.title=BlueJ:  Druk projek
+pkgmgr.runApplet.htmlComment=<\!-- Hierdie l\u00EAer is outomaties gegenereer deur die BlueJ Java Ontwikkelingsomgewing.  -->\n<\!--  Dit word elke keer weer gegenereer as die miniprogram uitgevoer word. -->\n<\!--  Enige veranderinge wat per hand aangebring word in hierdie l\u00EAer, sal verlore gaan -->\n<\!-- sodra die miniprogram vanuit BlueJ uitgevoer word.   -->\n<\!-- As u hierdie l\u00EAer met wil behou met veranderinge, stoor dit in 'n gids buite die pakketgids.  -->\n<\!--  -->
+pkgmgr.runApplet.htmlExportedComment=<\!-- Hierdie l\u00EAer is outomaties gegenereer deur die BlueJ Java Ontwikkelingsomgewing.  -->\n<\!--  Die codebase veranderlike is gestel volgens wat die pakketgids was toe hierdie bladsy gegenereer is. -->\n<\!--  As die pakket dus geskuif word, moet die codebase veranderlike aangepas word.  -->\n<\!--  -->
+pkgmgr.printDialog.title=BlueJ\:  Druk projek
 pkgmgr.printDialog.printDiagram=Druk klasdiagram
 pkgmgr.printDialog.printSource=Druk bronkode
-pkgmgr.printDialog.printReadme=Druk projek se README-lêer 
-
-# method call dialog
-pkgmgr.methodCall.titleCreate=BlueJ:  Instansieer 'n objek
-pkgmgr.methodCall.titleCall=BlueJ:  Roep 'n metode
-pkgmgr.methodCall.namePrompt=Naam van eksemplaar:
-error.methodCall.emptyField=Fout: leë parameterveld
+pkgmgr.printDialog.printReadme=Druk projek se README-l\u00EAer 
+pkgmgr.methodCall.titleCreate=BlueJ\:  Instansieer 'n objek
+pkgmgr.methodCall.titleCall=BlueJ\:  Roep 'n metode
+pkgmgr.methodCall.namePrompt=Naam van eksemplaar\:
+pkgmgr.methodCall.typeParametersPrompt=Tipe-parameters\:
+pkgmgr.methodCall.typeParameterPrompt=Tipe-parameter\:
+error.methodCall.emptyField=Fout\: Le\u00EB parameterveld
+error.methodCall.emptyTypeField=Error\: Le\u00EB veld vir tipe-parameter.\nVerskaf al die die parameters of geen een van hulle nie.
 error.methodCall.illegalName=Die eksemplaar se naam moet volgens Java se naamreels wees.
 error.methodCall.duplicateName=Daar bestaan reeds 'n objek met hierdie naam.\nKies asb. 'n unieke naam.
-
-# Debugger dialog (ExecControls.java)
-debugger.execControls.windowTitle = BlueJ:  Ontfouter
-debugger.execControls.stackTitle = Roepvolgorde
-debugger.execControls.staticTitle = Statiese veranderlikes
-debugger.execControls.instanceTitle = Eksemplaarveranderlikes
-debugger.execControls.localTitle = Lokale veranderlikes
-debugger.execControls.threadTitle = Uitvoerdrade
-debugger.execControls.haltButtonText = Halt
-debugger.execControls.stepButtonText = Stap aan
-debugger.execControls.stepIntoButtonText = Stap in
-debugger.execControls.continueButtonText = Gaan voort
-debugger.execControls.terminateButtonText = Termineer
-
-debugger.options = Opsies
-debugger.hideSystemThreads = Verberg stelseluitvoerdrade
-debugger.threadRunning = <html><center>Uitvoerdraad loop tans.<br>Uitvoerdrade moet gestop word om besonderhede te kan wys.</html>
-
-# DialogManager labels
-
-dialogmgr.error = BlueJ:  Fout
-dialogmgr.question = BlueJ:  Vraag
-dialogmgr.message = BlueJ:  Boodskap
-
-#Terminal Window
-terminal.options = Opsies
-terminal.title = BlueJ:  Terminaalvenster
-terminal.clear = Maak skoon
-terminal.copy = Kopieer
-terminal.save = Stoor na lêer...
-terminal.close = Maak toe
-terminal.clearScreen = Maak skerm skoon by metoderoep
-terminal.recordCalls = Teken metoderoepe aan
-terminal.buffering = Buffer onbeperk
-terminal.save.title = Stoor terminaalteks
-terminal.save.buttonText = Stoor
-
-#TestDisplay Window
-testdisplay.title = BlueJ:  Uitslae van toetse
-testdisplay.counter.runs=Lopies:
-testdisplay.counter.errors=Foute:
-testdisplay.counter.failures=Mislukkings:
-
-# status messages
+debugger.execControls.windowTitle=BlueJ\:  Ontfouter
+debugger.execControls.stackTitle=Roepvolgorde
+debugger.execControls.staticTitle=Statiese veranderlikes
+debugger.execControls.instanceTitle=Eksemplaarveranderlikes
+debugger.execControls.localTitle=Lokale veranderlikes
+debugger.execControls.threadTitle=Uitvoerdrade
+debugger.execControls.haltButtonText=Halt
+debugger.execControls.stepButtonText=Stap aan
+debugger.execControls.stepIntoButtonText=Stap in
+debugger.execControls.continueButtonText=Gaan voort
+debugger.execControls.terminateButtonText=Termineer
+debugger.options=Opsies
+debugger.hideSystemThreads=Verberg stelseluitvoerdrade
+debugger.threadRunning=<html><center>Uitvoerdraad loop tans.<br>Uitvoerdrade moet gestop word om besonderhede te kan wys.</html>
+dialogmgr.error=BlueJ\:  Fout
+dialogmgr.question=BlueJ\:  Vraag
+dialogmgr.message=BlueJ\:  Boodskap
+terminal.options=Opsies
+terminal.title=BlueJ\:  Terminaalvenster
+terminal.clear=Maak skoon
+terminal.copy=Kopieer
+terminal.save=Stoor na l\u00EAer...
+terminal.close=Maak toe
+terminal.clearScreen=Maak skerm skoon by metoderoep
+terminal.recordCalls=Teken metoderoepe aan
+terminal.buffering=Buffer onbeperk
+terminal.save.title=Stoor terminaalteks
+terminal.save.buttonText=Stoor
+testdisplay.title=BlueJ\:  Uitslae van toetse
+testdisplay.counter.runs=Lopies\:
+testdisplay.counter.errors=Foute\:
+testdisplay.counter.failures=Mislukkings\:
+testdisplay.showsource=Wys bronkode
 pkgmgr.compiling=Besig met kompilering...
 pkgmgr.compileDone=Kompilering... Klaar
 pkgmgr.creating=Instansieer objek...
@@ -497,114 +385,92 @@ pkgmgr.docuGenerated=Dokumentasie word gegenereer... Klaar.
 pkgmgr.docuAborted=Dokumentasie word gegenereer... Gestaak.
 pkgmgr.webBrowserMsg=Webleser is aan die gang gesit.
 pkgmgr.webBrowserError=Fout met die loop van die webleser.
-pkgmgr.usesArrowMsg="Komposisieverwantskap" gedeklareer maar nooit gebruik:
+pkgmgr.usesArrowMsg="Komposisieverwantskap" gedeklareer maar nooit gebruik\:
 pkgmgr.breakpointMsg=Klas moet gekompileer wees om inbreekpunte te stel.
-pkgmgr.appletInViewer=Minitoepassing word in Appletviewer vertoon
-pkgmgr.appletInBrowser=Minitoepassing word in webleser vertoon
-pkgmgr.exported=Uitskryfproses is voltooi.
-pkgmgr.exported.jar=Uitskryf na jar-lêer is voltooi.
+pkgmgr.appletInViewer=Minitoepassing word in Appletviewer geloop
+pkgmgr.appletInBrowser=Minitoepassing word in webleser geloop
+pkgmgr.exported.jar=Uitskryf na jar-l\u00EAer is voltooi.
 pkgmgr.error.open=Die projek bestaan nie (meer nie)
 pkgmgr.checkingVersion=Besig om verbinding met bediener te op te stel
-
-properties.heading.bluej=BlueJ eienskappe. Opstellings in hierdie lêer oorheers \"bluej.defs\"
-properties.heading.moe=Moe-redigeerder eienskappe. Opstellingsgs in hierdie lêer oorheers \"moe.defs\"
-
-# menus and menu items
-
-menu.package=Projek
-menu.package.new=Nuwe...
-menu.package.open=Open...
+properties.heading.bluej=BlueJ eienskappe. Opstellings in hierdie l\u00EAer oorheers "bluej.defs"
+properties.heading.moe=Moe-redigeerder eienskappe. Opstellings in hierdie l\u00EAer oorheers "moe.defs"
+menu.package=_Projek
+menu.package.new=_Nuwe...
+menu.package.open=Open Projek...@O
 menu.package.openRecent=Open onlangse...
-menu.package.openNonBlueJ=Open nie-BlueJ...
-menu.package.close=Sluit
-menu.package.save=Stoor
-menu.package.saveAs=Stoor as...
-menu.package.import=Trek in...
-menu.package.export=Skryf uit...
-menu.package.pageSetup=Bladsy opstelling...
-menu.package.print=Druk...
-menu.package.quit=Afsluit
-
-menu.edit=Redigeer
-menu.edit.newClass=Nuwe klas...
-menu.edit.newPackage=Nuwe pakket...
-menu.edit.addClass=Nuwe klas uit lêer intrek...
-menu.edit.remove=Verwyder...
-menu.edit.newUses=Nuwe Komposisie pyltjie...
-menu.edit.newInherits=Nuwe Oorerwing pyltjie...
+menu.package.openNonBlueJ=Open nie-_BlueJ...
+menu.package.close=Maak toe@W
+menu.package.save=Stoor@S
+menu.package.saveAs=Stoor _as...
+menu.package.import=Trek _in...
+menu.package.export=Skep _Jar-l\u00EAer...
+menu.package.pageSetup=Bladsy opstelling...@^P
+menu.package.print=Druk...@P
+menu.package.quit=Afsluit@Q
+menu.edit=R_edigeer
+menu.edit.newClass=Nuwe klas...@N
+menu.edit.newPackage=Nuwe pakket...@R
+menu.edit.addClass=Nuwe klas uit _l\u00EAer intrek...
+menu.edit.remove=Verwyder@BACK_SPACE
+menu.edit.newUses=Nuwe _Komposisie pyltjie...
+menu.edit.newInherits=Nuwe _Oorerwing pyltjie...
 menu.edit.removeArrow=Verwyder pyltjie...
-
-menu.tools=Doen
-menu.tools.compile=Kompileer
-menu.tools.test=Doen toetse
-menu.tools.compileSelected=Kompileer geselekteerde
-menu.tools.rebuild=Herbou pakket
-menu.tools.callLibrary=Gebruik biblioteekklas ...
-menu.tools.callFreeForm=Evalueer Uitdrukking...
-menu.tools.generateDoc=Genereer Dokumentasie
-menu.tools.preferences=Voorkeure...
-
-menu.view=Aansig
-menu.view.showUses=Vertoon Gebruikverwantskappe
-menu.view.showInherits=Vertoon Oorerwing
-menu.view.showExecControls=Vertoon ontfouter
-menu.view.showTerminal=Vertoon Terminaal
-menu.view.showTestDisplay=Vertoon toetsuitslae
-
-menu.group=Groepeer werk
-menu.group.make=Maak groep pakket
-menu.group.open=Open Groep Pakket
+menu.tools=_Doen
+menu.tools.compile=Kompileer@K
+menu.tools.compileSelected=Kompileer geselekteerde@^K
+menu.tools.rebuild=He_rbou pakket
+menu.tools.callLibrary=Gebruik biblioteekklas ...@L
+menu.tools.generateDoc=Genereer Dokumentasie@J
+menu.tools.testing=_Toetsing
+menu.tools.run=Doen toetse
+menu.tools.end=Staak opname
+menu.tools.cancel=Kanselleer opname
+menu.tools.preferences=_Voorkeure...@,
+menu.view=_Aansig
+menu.view.showUses=Wys Gebruikverwantskappe@U
+menu.view.showInherits=Wys Oorerwing@I
+menu.view.showExecControls=Wys ontfouter@D
+menu.view.showTerminal=Wys Terminaal@T
+menu.view.showTextEval=Wys teks-evalueerarea@E
+menu.view.showTestDisplay=Wys toets_uitslae
+menu.group=_Groepeer werk
+menu.group.make=_Maak groep pakket
+menu.group.open=_Open groep Pakket
 menu.group.updateSelected=Opdateer geselekteerde
 menu.group.updateAll=Opdateer alles
 menu.group.commitSelected=Stel geselekteerde
-menu.group.commitAll=Stel Alles
+menu.group.commitAll=Stel alles
 menu.group.statusSelection=Status van seleksie
 menu.group.statusAll=Status van alles
 menu.group.users=Gebruikers
 menu.group.configuration=Konfigurasie
-
-menu.help=Hulp
-menu.help.about=Aangaande BlueJ...
-menu.help.extensions=Geïnstalleerde uitbreidings
-menu.help.versionCheck=Gaan weergawe na
-menu.help.extensions=Geïnstalleerde uitbreidings
-menu.help.copyright=Kopiereg...
-menu.help.website=BlueJ Webwerf
-menu.help.tutorial=BlueJ Tutoriaal...
-menu.help.standardApi=Java klasbiblioteke...
-
-# tool tips
-
+menu.help=_Hulp
+menu.help.about=_Aangaande BlueJ...
+menu.help.extensions=Ge\u00EFnstalleerde _uitbreidings
+menu.help.versionCheck=Kontro_lleer weergawe@V
+menu.help.copyright=_Kopiereg...
+menu.help.website=BlueJ _Webwerf
+menu.help.tutorial=BlueJ _Tutoriaal...
+menu.help.standardApi=Java klas_biblioteke...
 tooltip.newClass=Maak 'n nuwe klas in hierdie pakket
 tooltip.newUses=Voeg 'n komposisieverwantskap in
 tooltip.newExtends=Voeg 'n oorerwingsverwantskap in
 tooltip.compile=Kompileer alle ongekompileerde klasse in hierdie pakket
 tooltip.test=Loop alle gekompileerde toetsklasse in hierdie pakket
-tooltip.progress=Werkaanduider: dui aan wanneer die virtuele masjien besig is om uit te voer.
-tooltip.test.end=Beëindig die vaslegging van 'n toetsmetode en stoor dit.
+tooltip.progress=Werkaanduider\: dui aan wanneer die virtuele masjien besig is om uit te voer.
+tooltip.test.end=Be\u00EBindig die vaslegging van 'n toetsmetode en stoor dit.
 tooltip.test.cancel=Kanselleer die vaslegging van 'n toetsmetode en gooi dit weg.
-
-#Copyright
-
 menu.help.copyright.title=BlueJ Kopiereg
 menu.help.copyright.line1=BlueJ is gratis beskikbaar en mag vrylik
 menu.help.copyright.line2=versprei word. Dit mag nie verkoop word teen 'n wins nie
 menu.help.copyright.line3=en ook nie sonder magtiging ingesluit word in ander 
 menu.help.copyright.line4=pakette wat teen 'n wins verkoop word nie.
-
-# About
-
 about.bluej.version=BlueJ weergawe
 about.java.version=Java weergawe
-about.vm=Virtuele masjien:
-about.runningOn=Loop op:
-about.javahome=Java tuiste:
-about.logfile=Ontfoutingsrekord:
+about.vm=Virtuele masjien\:
+about.runningOn=Loop op\:
+about.javahome=Java tuiste\:
+about.logfile=Ontfoutingsrekord\:
 about.moreInfo=Meer inligting is by www.bluej.org.
-about.theTeam.deakin=Die BlueJ span van Deakin University
-about.theTeam.denmark=Die BlueJ span van die University of Southern Denmark
-about.theTeam.kent=Die BlueJ span van Kent University
-
-# Work Indicator
-workIndicator.showDebugger=Show Debugger
-workIndicator.resetMachine=Reset Machine
+about.theTeam=Die BlueJ span\:
+workIndicator.resetMachine=Herlaai Masjien@^R

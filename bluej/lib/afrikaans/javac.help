@@ -1,5 +1,5 @@
 as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
-Die woord 'assert' is nou deel van die Java taal
+Die woord 'assert' is nou (sedert 1.4) deel van die Java taal
 en het 'n spesiale betekenis (dit is 'n sleutelwoord).
 U kan dit nie gebruik as naam vir 'n veranderlike of metode nie.
 Kies asb. 'n ander naam.

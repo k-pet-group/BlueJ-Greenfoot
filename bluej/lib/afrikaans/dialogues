@@ -115,6 +115,10 @@ Ongeldige klasnaam.
 invalid-package-name
 Ongeldige pakketnaam.
 
+must-be-identifier
+Die naam is ongeldig. dit moet
+'n Java identifiseerder wees.
+
 directory-exists
 'n Lêer of gids met hierdie naam bestaan reeds.
 
@@ -255,7 +259,8 @@ Kanselleer
 null
 
 open-non-bluej-already-bluej
-Die gids wat u geselekteer het is reeds 'n BlueJ projek.
+Die gids wat u geselekteer het is 
+reeds 'n BlueJ projek.
 
 open-non-bluej-no-java
 Geen Java bronkodelêers kon in 

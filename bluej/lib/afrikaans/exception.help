@@ -76,6 +76,22 @@ aanhou, vergelyk dit met ander projekte.  As dit met meer
 as een projek gebeur mag dit dalk nodig wees om die JDK 
 weer te installeer.
 
+StackOverflowError*
+Die fout dui aan dat die geheue op die stapel alles gebruik
+is.  Dit gebeur tipies wanneer jou program 'n spesifieke
+soort fout het, naamlik "oneindige rekursie".
+Rekursie beteken dat 'n metode homself roep.  Oneindige
+rekursie dui daarop dat dit oor en oor gebeur sonder om 
+te stop en omdat elke metoderoep geheue gebruik, raak
+die geheue dan vol.  Bestudeer jou program en kyk of
+een van die metodes homself roep.  Die selfroep as sodanig
+is nie die probleem nie, maar as daar nie 'n voorwaardelike
+stoppunt bereik kan word nie.
+Dieselfde probleem kom ook voor as daar 'n konstruktor
+is wat 'n ander objek van dieselfde klas instansieer.
+Dan roep die konstruktor homself, en die geroepte een
+roep homself ... ensovoorts.
+
 ArrayStoreException*
 Geen hulp beskikbaar nie - Jammer.
 
