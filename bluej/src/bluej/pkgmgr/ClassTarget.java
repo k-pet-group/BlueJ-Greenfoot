@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 570 2000-06-19 06:45:09Z ajp $
+ * @version $Id: ClassTarget.java 577 2000-06-22 02:25:35Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -169,15 +169,15 @@ public class ClassTarget extends EditableTarget
         boolean okay = true;
 
         if (!FileUtility.copyFile(getSourceFile(),
-                                      new File(directory, getBaseName() + ".java")))
+                              new File(directory, getBaseName() + ".java")))
             okay = false;
 
         if(upToDate()) {
             if(!FileUtility.copyFile(getClassFile(),
-                                         new File(directory, getBaseName() + ".class")))
+                              new File(directory, getBaseName() + ".class")))
                 okay = false;
             if(!FileUtility.copyFile(getContextFile(),
-                                         new File(directory, getBaseName() + ".ctxt")))
+                              new File(directory, getBaseName() + ".ctxt")))
                 okay = false;
         }
         return okay;

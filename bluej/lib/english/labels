@@ -1,6 +1,7 @@
 okay=Ok
 cancel=Cancel
 close=Close
+continue=Continue
 
 main.invalidPackage=Package not found
 
@@ -323,6 +324,8 @@ pkgmgr.usesArrowMsg="Uses" dependency declared but never used:
 pkgmgr.breakpointMsg=Class has to be compiled to set breakpoints.
 pkgmgr.appletInViewer=Executing Applet in appletviewer
 pkgmgr.appletInBrowser=Executing Applet in web browser
+pkgmgr.exported=Export complete.
+pkgmgr.exported.jar=Export to jar file complete.
 
 properties.heading=BlueJ properties. Settings in this file override \"bluej.defs\"
 # menus and menu items

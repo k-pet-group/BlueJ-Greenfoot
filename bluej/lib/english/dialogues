@@ -98,9 +98,19 @@ There is a problem opening the source of
 this class.  Serious trouble!
 
 error-open-readme
-There is a problem opening the text notes
+There is a problem opening the text note
 of this project. A new empty text note has
 been created.
+
+error-writing-readme
+The README file for this project could not be
+updated to add the main class information.
+There was an error changing this file.
+
+error-exporting
+An error occurred while trying to export the
+application. Some or all files may not have 
+been correctly copied.
 
 invalid-class-name
 Invalid Class Name.

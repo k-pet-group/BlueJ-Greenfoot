@@ -14,13 +14,13 @@ import javax.swing.*;
 * Dialog for choosing options when exporting
 *
 * @author  Andrew Patterson
-* @version $Id: ExportDialog.java 555 2000-06-19 00:35:11Z mik $
+* @version $Id: ExportDialog.java 577 2000-06-22 02:25:35Z mik $
 */
 class ExportDialog extends JDialog
 implements ActionListener
 {
     // Internationalisation
-    private static final String okay = Config.getString("okay");
+    private static final String cont = Config.getString("continue");
     private static final String cancel = Config.getString("cancel");
     private static final String dialogTitle = Config.getString("pkgmgr.export.title");
     private static final String helpLine1 = Config.getString("pkgmgr.export.helpLine1");
@@ -110,7 +110,7 @@ implements ActionListener
             {
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-                JButton okButton = new JButton(okay);
+                JButton okButton = new JButton(cont);
                 {
                     okButton.addActionListener(this);
                 }
@@ -126,8 +126,9 @@ implements ActionListener
                 getRootPane().setDefaultButton(okButton);
 
                 // try to make the OK and cancel buttons have equal width
-                okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
-                                                        okButton.getPreferredSize().height));
+                cancelButton.setPreferredSize(
+                       new Dimension(okButton.getPreferredSize().width,
+                                     cancelButton.getPreferredSize().height));
             }
 
             mainPanel.add(buttonPanel);
@@ -180,7 +181,7 @@ implements ActionListener
     public void actionPerformed(ActionEvent evt)
     {
         String cmd = evt.getActionCommand();
-        if(okay.equals(cmd))
+        if(cont.equals(cmd))
             doOK();
         else if(cancel.equals(cmd))
             doCancel();

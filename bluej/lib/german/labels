@@ -314,8 +314,10 @@ pkgmgr.webBrowserMsg=Web Browser ist gestartet worden.
 pkgmgr.webBrowserError=Web Browser konnte nicht gestartet werden.
 pkgmgr.usesArrowMsg=Benutzt-Beziehung deklariert, aber nicht implementiert:
 pkgmgr.breakpointMsg=Class has to be compiled to set breakpoints.
-pkgmgr.appletInViewer=Executing Applet in appletviewer
-pkgmgr.appletInBrowser=Executing Applet in web browser
+pkgmgr.appletInViewer=Applet wird im appletviewer ausgeführt
+pkgmgr.appletInBrowser=Applet wird im Web Browser ausgeführt
+pkgmgr.exported=Export erfolgreich beended.
+pkgmgr.exported.jar=Jar-Export erfolgreich beended.
 
 properties.heading=BlueJ Einstellungen. Die Werte in dieser Datei überschreiben \"bluej.defs\"
 

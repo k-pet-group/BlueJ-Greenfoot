@@ -9,13 +9,14 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.BlueJFileReader;
 
 /**
  * Component to manage exporting projects to standard Java format.
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 555 2000-06-19 00:35:11Z mik $
+ * @version $Id: ExportManager.java 577 2000-06-22 02:25:35Z mik $
  */
 final class ExportManager
 {
@@ -86,6 +87,7 @@ final class ExportManager
             oStream = new FileOutputStream(jarFile);
             jStream = new JarOutputStream(oStream, manifest);
 
+            // write jar entries from source directory
             File srcFile = new File(sourceDir);
             String[] dir = srcFile.list();
             for(int i=0; i<dir.length; i++) {
@@ -100,6 +102,7 @@ final class ExportManager
                     }
                 }
             }
+            frame.setStatus(Config.getString("pkgmgr.exported.jar"));
         }
         catch(IOException exc) {
             Debug.reportError("problem: " + exc);
@@ -141,8 +144,46 @@ final class ExportManager
             return;
         case FileUtility.SRC_NOT_DIRECTORY:
         case FileUtility.COPY_ERROR:
-            Debug.message("copy error");
+            DialogManager.showError(frame, "error-exporting");
             return;
+        }
+        writeReadMe(destDir, mainClass);
+        frame.setStatus(Config.getString("pkgmgr.exported"));
+    }
+
+    /**
+     * If a main class was specified, add information to the readme
+     * file about how to start the application.
+     */
+    private void writeReadMe(String dir, String mainClass)
+    {
+        if(mainClass.length() == 0)
+            return;
+
+        try {
+            // copy README to tmp file
+            String readMePath = dir + File.separator + Package.readmeName;
+            File readMe = new File(readMePath);
+            File tmp = File.createTempFile("bluej", "txt");
+            FileUtility.copyFile(readMe, tmp);
+
+            // write template to README
+            Hashtable translations = new Hashtable();
+            translations.put("MAINCLASS", mainClass);
+
+            String templateName = Config.getLibFilename("template.readme");
+            BlueJFileReader.translateFile(templateName, readMePath, 
+                                          translations);
+            // append original README
+            InputStream in = new BufferedInputStream(new FileInputStream(tmp));
+            OutputStream out = new BufferedOutputStream(
+                new FileOutputStream(readMePath, true));
+            FileUtility.copyStream(in, out);
+            in.close();
+            out.close();
+        } catch(IOException e) {
+            DialogManager.showError(frame, "error-writing-readme");
+            Debug.reportError("README file could not be updated. " + e);
         }
     }
 

@@ -175,6 +175,7 @@ template.applet=applet.tmpl
 template.japplet=japplet.tmpl
 template.html=html.tmpl
 template.htmlplugin=htmlplugin.tmpl
+template.readme=readme.tmpl
 
 ## Images
 image.icon=bluej-icon.gif
