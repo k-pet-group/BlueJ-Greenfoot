@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: JdiDebugger.java 1844 2003-04-14 06:14:21Z ajp $
  *
  * The startup process is as follows:
  *
@@ -506,7 +506,7 @@ public final class JdiDebugger extends Debugger
 
 		ArrayReference arrayRef = (ArrayReference) invokeExecServer(ExecServer.RUN_TEST_METHOD, Arrays.asList(args));
       
-        if (arrayRef != null) {
+        if (arrayRef != null && arrayRef.length() > 1) {
 			String exMsg = ((StringReference) arrayRef.getValue(0)).value();
 			String traceMsg = ((StringReference) arrayRef.getValue(1)).value();
 
