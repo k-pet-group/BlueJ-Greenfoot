@@ -12,7 +12,7 @@
 install.gif.logo=installer-logo.gif
 
 # Title to center under that
-install.title=Installation
+install.title=BlueJ Installation
 
 # Name the JAR containing the package
 install.pkgJar=bluej-dist.jar
@@ -56,4 +56,4 @@ install.width=500
 install.height=340
 
 # Tag line to put at bottom (your web site, copyright, etc.)
-install.tagline=BlueJ Installer version 2.1 - Monash University
+install.tagline=BlueJ Installer version 2.2 - Monash University

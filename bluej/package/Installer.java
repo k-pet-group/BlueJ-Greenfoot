@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 911 2001-05-24 07:28:51Z mik $
+  * @version $Id: Installer.java 927 2001-06-08 01:49:21Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -320,6 +320,12 @@ public class Installer extends JFrame
         }
 
         try {
+            if(isJDK12)
+                notifyError("BlueJ requires JDK 1.3 or newer.\n" +
+                            "You are running on JDK 1.2. Please upgrade\n" +
+                            "JDK before installing BlueJ.",
+                            "JDK 1.3 required");
+
             if(!checkInstallDir(installationDir, true))
                 return;
 
