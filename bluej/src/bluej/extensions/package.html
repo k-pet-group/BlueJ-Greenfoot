@@ -43,79 +43,62 @@ Main_Class to be run on the jar file.</P>
 import bluej.extensions.*;
 import bluej.extensions.event.*;
 
-
 import java.net.URL;
 
 /**
  * This is the starting point of a BlueJ Extension
  */
-public class SimpleExtension extends Extension implements BluejEventListener
+public class SimpleExtension extends Extension implements BlueJExtensionEventListener
   {
   /**
-   * Called when the extension is loaded. The starting point.
+   * Here you can actually start using your nice extension, all pieces are in place.
    */
-  public void startup (BlueJ bluej)
-    {
-    bluej.addBluejEventListener(this);
+  public void startup (BlueJ bluej) {
+    bluej.addBlueJExtensionEventListener(this);
     }
 
-  /**
-   * Called when the extension should exit, to allow the extension to tidy up.
-   */
-  public String terminate()
-    {
-    return null;
-    }
 
   /** 
-   * Something has happened in blueJ, display it on the console.
+   * Something has happened in blueJ
+   * What we do is to put it into the queue of events happening
+   * and also we display it into the console.
    */
-  public void eventOccurred ( BluejEvent ev )    
-    {
-    System.out.println ("\neventOccurred: Event="+ev.toString());
+  public void eventOccurred ( BlueJExtensionEvent ev ) {
+    System.out.println ("Event="+ev.toString());
     }  
     
-    
   /**
-   * Tries to decide if this Extension is compatible with the current release of Extensions API
+   * Tryes to decide if this Extension is compatible with the current release of Extensions API
    */
-  public boolean isCompatible ()  
-    { 
+  public boolean isCompatible () { 
     return true; 
     }
 
   /**
-   * Returns to the system the version of this extension
+   * Returs to the system the version of this extension
    */
-  public String  getVersion ()    
-    { 
+  public String  getVersion () { 
     return ("2003.03");  
     }
 
-  public String getDescription ()
-    {
+  public String getDescription () {
     return ("A simple extension");
     }
 
   /**
    * Returns a URL where you can find info on this extension.
-   * The real problem is making sure that the link will be alive in three years.
+   * WARNING: The real problem is making shure that the link will be alive in three years...
    */
-  public URL getURL ()
-    {
-    try
-      {
+  public URL getURL () {
+    try {
       return new URL("http://www.cs.ukc.ac.uk/projects/bluej/");
       }
-    catch ( Exception eee )
-      {
+    catch ( Exception eee ) {
       // There is no reason at all that this should trow exception...
       System.out.println ("BlueJscript: getURL: Exception="+eee.getMessage());
       return null;
       }
     }
-   
-
 }
 </PRE>
 
