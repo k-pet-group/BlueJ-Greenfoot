@@ -34,8 +34,9 @@ public class ExecServer
     public static final int ADD_OBJECT     = 3;
     public static final int REMOVE_OBJECT  = 4;
     public static final int SET_LIBRARIES  = 5;
-    public static final int SERIALIZE_OBJECT = 6;
-    public static final int DESERIALIZE_OBJECT = 7;
+    public static final int SET_DIRECTORY  = 6;
+    public static final int SERIALIZE_OBJECT = 7;
+    public static final int DESERIALIZE_OBJECT = 8;
 
 
     static ExecServer server = null;
@@ -147,6 +148,9 @@ public class ExecServer
                 return null;
             case SET_LIBRARIES:
                 setLibraries(arg1);
+                return null;
+            case SET_DIRECTORY:
+                setDirectory(arg1);
                 return null;
             case SERIALIZE_OBJECT:
                 serializeObject(arg1, arg2, arg3);
@@ -409,5 +413,13 @@ public class ExecServer
     private void setLibraries(String libraries)
     {
         classmgr.setLibraries(libraries);
+    }
+
+    /**
+     *  Set the current working directory for this virtual machine.
+     */
+    private void setDirectory(String dir)
+    {
+        System.setProperty("user.dir", dir);
     }
 }

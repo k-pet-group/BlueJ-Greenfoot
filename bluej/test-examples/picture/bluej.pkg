@@ -1,10 +1,20 @@
 #BlueJ package file
-package.numDependencies=0
-package.numTargets=1
+dependency1.from=__SHELL0
+dependency1.to=PersonDisplay
+dependency1.type=UsesDependency
+package.numDependencies=1
+package.numTargets=2
 target1.height=50
 target1.modifiers=1
 target1.name=PersonDisplay
 target1.type=ClassTarget
 target1.width=120
-target1.x=50
-target1.y=20
+target1.x=60
+target1.y=60
+target2.height=50
+target2.modifiers=0
+target2.name=__SHELL0
+target2.type=ClassTarget
+target2.width=80
+target2.x=200
+target2.y=140

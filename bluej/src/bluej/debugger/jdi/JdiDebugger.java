@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 507 2000-05-24 06:36:15Z ajp $
+ * @version $Id: JdiDebugger.java 526 2000-06-01 04:54:49Z mik $
  *
  * The startup process is as follows:
  *
@@ -411,6 +411,17 @@ public final class JdiDebugger extends Debugger
     }
 
     /**
+     * Set the remote "current directory" for relative file access.
+     * Cannot be used currently because all the class loading goes wrong
+     * once the directory gets changed. Someone needs to fix the class 
+     * loading first.
+     */
+    public void setDirectory(String path)
+    {
+        startServer(ExecServer.SET_DIRECTORY, path, "", "", "");
+    }
+
+    /**
      * Serialize an object in the debugger to a file
      */
     public void serializeObject(String scopeId, String instanceName,
@@ -473,8 +484,8 @@ public final class JdiDebugger extends Debugger
             arguments.add(vm.mirrorOf(arg4));
 
       	    Value returnVal = execServer.invokeMethod(serverThread,
-                                                        performTaskMethod,
-                                                        arguments, 0);
+                                                      performTaskMethod,
+                                                      arguments, 0);
             // invokeMethod leaves everything suspended, so restart the
             // system threads...
             resumeMachine();

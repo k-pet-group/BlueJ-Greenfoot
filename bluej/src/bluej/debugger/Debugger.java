@@ -13,7 +13,7 @@ import java.util.Vector;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 334 2000-01-02 13:32:56Z ajp $
+ * @version $Id: Debugger.java 526 2000-06-01 04:54:49Z mik $
  */
 public abstract class Debugger
 {
@@ -78,7 +78,8 @@ public abstract class Debugger
     /**
      * Remove an object from a package scope (when removed from object bench)
      */
-    public abstract void removeObjectFromScope(String scopeId, String instanceName);
+    public abstract void removeObjectFromScope(String scopeId, 
+                                               String instanceName);
 
 
     /**
@@ -87,10 +88,18 @@ public abstract class Debugger
      */
     public abstract int getStatus();
 
+
     /**
      * Set the remote VM classpath
      */
     public abstract void setLibraries(String classpath);
+
+
+    /**
+     * Set the remote "current directory" for relative file access.
+     */
+    public abstract void setDirectory(String path);
+
 
     /**
      * Serialize an object in the debugger to a file

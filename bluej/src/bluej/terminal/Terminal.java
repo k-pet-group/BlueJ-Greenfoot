@@ -5,7 +5,7 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 523 2000-06-01 02:44:00Z mik $
+ ** @version $Id: Terminal.java 526 2000-06-01 04:54:49Z mik $
  **/
 
 package bluej.terminal;
@@ -84,18 +84,18 @@ public final class Terminal extends JFrame
 	JMenuBar menubar = new JMenuBar();
 	JMenu menu = new JMenu("Options");
         JMenuItem item;
-            item = menu.add(new JMenuItem(new ClearAction()));
+            item = menu.add(new ClearAction());
             item.setAccelerator(KeyStroke.getKeyStroke(
                                              KeyEvent.VK_K, Event.CTRL_MASK));
-            item = menu.add(new JMenuItem(getCopyAction()));
+            item = menu.add(getCopyAction());
             item.setText(Config.getString("terminal.copy"));
             item.setAccelerator(KeyStroke.getKeyStroke(
                                              KeyEvent.VK_C, Event.CTRL_MASK));
-            item = menu.add(new JMenuItem(new SaveAction()));
+            item = menu.add(new SaveAction());
             item.setAccelerator(KeyStroke.getKeyStroke(
                                              KeyEvent.VK_S, Event.CTRL_MASK));
             menu.add(new JSeparator());
-            item = menu.add(new JMenuItem(new CloseAction()));
+            item = menu.add(new CloseAction());
             item.setAccelerator(KeyStroke.getKeyStroke(
                                              KeyEvent.VK_W, Event.CTRL_MASK));
 

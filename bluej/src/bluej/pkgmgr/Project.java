@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 519 2000-05-31 04:05:07Z ajp $
+ * @version $Id: Project.java 526 2000-06-01 04:54:49Z mik $
  */
 public class Project
 {
@@ -64,7 +64,8 @@ public class Project
 
             while(curDir != null && Package.isBlueJPackage(curDir)) {
                 if(lastDir != null)
-                    startingPackageName = "." + lastDir.getName() + startingPackageName;
+                    startingPackageName = "." + lastDir.getName() + 
+                                          startingPackageName;
 
                 lastDir = curDir;
                 curDir = curDir.getParentFile();
@@ -93,7 +94,6 @@ public class Project
         }
 
         proj.initialPackageName = startingPackageName;
-
         return proj;
     }
 

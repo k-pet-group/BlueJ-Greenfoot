@@ -61,13 +61,14 @@ public class PersonDisplay
     public PersonDisplay(String name)
     {
 	String fileName = name + ".gif";
-	if ((new File(fileName)).exists())
+	File gifFile = new File(fileName);
+	if (gifFile.exists())
 	{
 	    JFrame theFrame = new imageFrame(fileName);
 	} else
 	{
-	    System.out.println("Could not find an image with the name " +
-			name + ".gif");
+	    System.out.println("Could not find a file with the name " +
+			gifFile.getAbsolutePath());
 	}
     }
 
