@@ -57,6 +57,16 @@ allowed during an iteration is removing elements with
 the Iterator's remove method (NOT the remove in the
 collection itself).
 
+AssertionError*
+An assertion has failed. This means that the expression
+inside the assert statement
+    assert(assertion-expression)
+evaluated to false. The assertion was put there most
+likely to ensure that the assertion is true at this
+point, and it being false indicates some sort of error.
+The exact nature of this error depends on the program.
+You should investigate why this expression was false.
+
 ArrayStoreException*
 No help available - sorry.
 
