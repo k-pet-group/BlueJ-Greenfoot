@@ -21,7 +21,7 @@ source distribution -->
         <delete dir="${bluej_home}/package/editor_tmp/bluej-editor"/>
         <mkdir dir="${bluej_home}/package/editor_tmp/bluej-editor"/>
         
-        <copy todir="editor_tmp/bluej-editor">
+        <copy todir="${bluej_home}/package/editor_tmp/bluej-editor">
             <fileset dir="${bluej_home}" >
                 <patternset refid="editor.source"/>
             </fileset>
@@ -30,8 +30,9 @@ source distribution -->
             </fileset>
         </copy>
         
-       <!-- jar up all the editor source files -->
-        <jar jarfile="${bluej_home}/package/editor-src.jar" basedir="editor_tmp"/>
+        <!-- jar up all the editor source files -->
+        <jar jarfile="${bluej_home}/package/editor-src.jar" basedir="${bluej_home}/package/editor_tmp"/>
+        <delete dir="${bluej_home}/package/editor_tmp/"/>
     </target>
     
     <target name="clean">
