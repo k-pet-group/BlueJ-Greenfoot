@@ -2,6 +2,7 @@ package bluej.compiler;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -15,7 +16,8 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Compiler.java 2500 2004-04-19 11:37:19Z polle $
+ * @author Poul Henriksen
+ * @version $Id: Compiler.java 2501 2004-04-19 13:57:47Z polle $
  */
 abstract class Compiler
 {
@@ -60,6 +62,11 @@ abstract class Compiler
         return destDir;
     }
 
+    /**
+     * Creates a list of the options that should be used for the compilation.
+     * 
+     * @return A list of compile options.
+     */
     protected List getCompileOptions() {
         List args = new ArrayList();
         
@@ -77,49 +84,39 @@ abstract class Compiler
             args.add("-g");
             
         if(isDeprecation())
-            args.add("-deprecation");
+            args.add("-deprecation");   
         
-        if(! System.getProperty("java.vm.version").startsWith("1.3")) {
-            args.add("-source");
-            args.add("1.4");
-        }
-        
-        /** Not used at present...
-        // add user specified compiler options
-        List userOptions = CompileUtility.getUserCompilerOptions();
-        if(userOptions != null && userOptions.size() > 0) {
-            Iterator it = userOptions.iterator();
-            while(it.hasNext()) {
-                args.add((String)it.next());
-            }
-        }
-        */
+        if(Config.systemContainsKey(COMPILER_OPTIONS)) {
+            addUserSpecifiedOptions(args);
+        } else {
+            addDefaultOptions(args);            
+        }    
         
         return args;
+    }    
+    
+    
+    private void addDefaultOptions(List args) {        
+        String majorVersion = System.getProperty("java.vm.version").substring(0,3);        
+        args.add("-source");
+        args.add(majorVersion);
     }
-    
-    
-    //  ========================= ABSTRACT METHODS ==========================    
-    
-    public abstract boolean compile(File[] sources, CompileObserver observer);
-    
 
-    //  ========================= STATIC METHODS ============================
-        
-    /**
-     * returns user specified compiler options from bluej defs.
-     *
-     * @return compiler options
-     */
-    public static List getUserCompilerOptions()
-    {
-        ArrayList options = new ArrayList();   
+    private void addUserSpecifiedOptions(List args) {
+        // add user specified compiler options
         String compilerOptions = Config.getPropString(COMPILER_OPTIONS, null);
         if(compilerOptions != null) {
             StringTokenizer st = new StringTokenizer(compilerOptions);
-            while(st.hasMoreTokens()) 
-                options.add(st.nextToken());
+            while(st.hasMoreTokens()) {              
+                args.add(st.nextToken());
+            }
         }
-        return options;
     }
+    
+    
+    //  ========================= ABSTRACT METHODS ==========================        
+
+    public abstract boolean compile(File[] sources, CompileObserver observer);   
+
+   
 }
