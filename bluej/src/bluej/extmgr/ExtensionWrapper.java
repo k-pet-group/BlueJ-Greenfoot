@@ -5,8 +5,6 @@ import bluej.extensions.event.*;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.DialogManager;
 import bluej.utility.Debug;
 
 import java.util.*;
@@ -16,7 +14,6 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.lang.reflect.Constructor;
 
@@ -471,7 +468,7 @@ public class ExtensionWrapper
      *
      * @param  el  The feature to be added to the BJEventListener attribute
      */
-    public void addExtEventListener(ExtEventListener el)
+    public void addBluejEventListener(BluejEventListener el)
     {
         if (el != null)
             eventListeners.add(el);
@@ -483,14 +480,14 @@ public class ExtensionWrapper
      *
      * @param  event  Description of the Parameter
      */
-    void eventOccurred(ExtEvent event)
+    void eventOccurred(BluejEvent event)
     {
         if (!isValid()) return;
 
         if (eventListeners.isEmpty()) return;
 
         for (Iterator it = eventListeners.iterator(); it.hasNext(); ) {
-            ExtEventListener el = (ExtEventListener) it.next();
+            BluejEventListener el = (BluejEventListener) it.next();
             el.eventOccurred(event);
         }
     }

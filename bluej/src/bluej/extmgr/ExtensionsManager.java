@@ -1,6 +1,5 @@
 package bluej.extmgr;
 
-import bluej.extensions.*;
 import bluej.extensions.event.*;
 
 import bluej.BlueJEvent;
@@ -15,7 +14,6 @@ import bluej.utility.DialogManager;
 
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -326,11 +324,11 @@ public class ExtensionsManager implements BlueJEventListener
      *
      * @param  event  the event to delegate
      */
-    private void delegateEvent(ExtEvent event)
+    private void delegateEvent(BluejEvent event)
     {
         for (Iterator it = extensions.iterator(); it.hasNext(); ) {
-            ExtensionWrapper ew = (ExtensionWrapper) it.next();
-            ew.eventOccurred(event);
+            ExtensionWrapper wrapper = (ExtensionWrapper) it.next();
+            wrapper.eventOccurred(event);
         }
     }
 
