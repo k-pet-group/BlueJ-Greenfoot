@@ -21,6 +21,9 @@ debugger.objectwrapper.methodException=Exception während Methodenzugriff:
 debugger.objectwrapper.invocationException=Exception während Ausführung:
 debugger.objectwrapper.inspect=Inspect
 debugger.objectwrapper.remove=Entfernen
+debugger.objectwrapper.serializable=Serialize
+debugger.objectwrapper.redefined=redefined in
+debugger.objectwrapper.inherited=inherited from
 
 debugger.threadstatus.finished=finished
 debugger.threadstatus.breakpoint=at breakpoint
