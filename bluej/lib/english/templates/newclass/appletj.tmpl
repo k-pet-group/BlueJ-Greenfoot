@@ -1,14 +1,14 @@
-$PKGLINE/**
- * Class $CLASSNAME - write a description of the class here
- * 
- * @author: 
- * date: 
- */
-
+$PKGLINE
 import javax.swing.JApplet;
 import javax.swing.JRootPane;
 import java.awt.Graphics;
 
+/**
+ * Class $CLASSNAME - write a description of the class here
+ * 
+ * @author (your name) 
+ * @version (a version number)
+ */
 public class $CLASSNAME extends JApplet
 {
 	// instance variables - replace the example below with your own
@@ -28,7 +28,6 @@ public class $CLASSNAME extends JApplet
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 	
 		// provide any initialisation necessary for your JApplet
-
 	}
 
 	/**
@@ -40,7 +39,6 @@ public class $CLASSNAME extends JApplet
 	{
 		// provide any code requred to run each time 
 		// web page is visited
-
 	}
 
 	/** 
@@ -53,7 +51,22 @@ public class $CLASSNAME extends JApplet
 	{
 		// provide any code that needs to be run when page
 		// is replaced by another page or before JApplet is destroyed 
-	
+	}
+
+	/**
+	 * Paint method for applet.
+	 * 
+	 * @param  g   the Graphics object for this applet
+	 */
+	public void paint(Graphics g)
+	{
+		// simple text displayed on applet
+		g.setColor(Color.white);
+		g.fillRect(0, 0, 200, 100);
+		g.setColor(Color.black);
+		g.drawString("Sample Applet", 20, 20);
+		g.setColor(Color.blue);
+		g.drawString("created by BlueJ", 20, 40);
 	}
 
 	/**
@@ -64,7 +77,6 @@ public class $CLASSNAME extends JApplet
 	public void destroy()
 	{
 		// provide code to be run when JApplet is about to be destroyed.
-	
 	}
 
 
@@ -101,29 +113,5 @@ public class $CLASSNAME extends JApplet
 				 {"images",   "url",	 "description of third parameter"}
 		};
 		return paramInfo;
-	}
-
-	/**
-	 * Paint method for applet.
-	 * 
-	 * @param  g   the Graphics object for this applet
-	 */
-	public void paint(Graphics g)
-	{
-		// simple text displayed on applet
-		g.drawString("Sample JApplet", 20, 20);
-	}
-
-
-	/**
-	 * An example of a method - replace this comment with your own
-	 * 	
-	 * @param  y   a sample parameter for a method
-	 * @return	 the sum of x and y 
-	 */
-	public int sampleMethod(int y)
-	{
-		// put your code here
-		return x + y;
 	}
 }
