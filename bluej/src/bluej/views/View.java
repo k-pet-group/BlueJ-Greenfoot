@@ -14,7 +14,7 @@ import java.util.*;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: View.java 1650 2003-03-05 14:55:40Z damiano $
  */
 public class View
 {
@@ -87,6 +87,16 @@ public class View
     public String getQualifiedName()
     {
         return cl.getName();
+    }
+
+    /**
+     * Gets the Class this view is looking into.
+     * This is used to know the exact return type of a method and is consistent 
+     * with the Java Reflection API. Damiano
+     */
+    public Class getViewClass ()
+    {
+        return cl;
     }
 
     public String getBaseName()
