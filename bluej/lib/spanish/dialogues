@@ -154,6 +154,157 @@ Usted no puede compilar mientras la máquina
 está ejecutando. Esto podría causar problemas
 extraños!
 
+show-or-generate
+Do you want to show the documentation
+generated previously, or do you want
+to regenerate the whole documentation?
+Just Show
+Regenerate
+Cancel
+
+doctool-error
+Javadoc reported an error. It could be that there is a
+syntax error in one of the files you tried to generate
+a documentation for. It could also be that the JDK
+documentation URL specified in the preferences is incorrect.
+Make sure that all your Java files are compiled and the
+documentation URL is accessible or disabled. Then try again.
+If this message appears again you should check the log file
+with the error messages from Javadoc:
+
+severe-doc-trouble
+An exception occured during the call
+to the external documentation tool.
+
+no-java-sources-found
+No Java source files were
+found in this directory.
+
+duplicate-name
+A class with this name already exists
+in this package. You cannot have two
+classes with the same name.
+
+error-in-import
+An error occured during the attempt to
+import the file. Check access rights and
+disk space.
+
+no-class-selected
+No class or package selected for removal.
+Select a class or package by clicking on
+it before trying to remove.
+
+really-remove-class
+Removing this class will permanently
+delete the source file.
+Do you want to continue?
+Remove
+Cancel
+null
+
+really-remove-package
+Removing this package will permanently
+delete the package directory (including ALL
+the contents of that directory).
+Do you want to continue?
+Remove
+Cancel
+null
+
+remove-package-open
+The package you have selected for
+deletion has some sub-packages opened
+within BlueJ. You must close these
+packages before you will be allowed
+to delete this package.
+
+package-does-not-exist
+Error in opening package.
+Package does not exist:
+
+no-bluej-package
+Error in opening package.
+The file/directory is not
+a BlueJ package:
+
+applet-height-width
+Applet height and width
+must be specified.
+
+cannot-read-help
+Cannot read help file:
+
+not-yet-implemented
+Not Yet Implemented - sorry.
+
+quit-all
+Quit all open projects?
+Quit All
+Cancel
+null
+
+really-reload
+Reload discards all changes since the last edit.
+Are you sure?
+Reload
+Cancel
+null
+
+really-print
+The text is wider than the paper. Long lines
+will be cut off. You can avoid this by resizing
+the editor window to make it narrower. Do you
+want to print anyway?
+Print
+Cancel
+null
+
+open-non-bluej-already-bluej
+The directory you have selected is already
+a BlueJ project.
+
+open-non-bluej-invalid
+You have indicated you wish to open this
+directory as a BlueJ project, however a file
+has been found with a package statement that
+is incompatible with the current directory
+structure. (For example, if the Java class
+Shape has a package line of com.aa, then the
+file Shape.java must be in a directory aa
+which is itself in a directory com. This com
+directory in turn must be in another directory
+which is the directory you should point BlueJ
+to when attempting to open it).
+
+import-into-current
+You currently have a package open in this window.
+Do you want to import into the current package
+or would you like to create a new project and
+import into that?
+Current
+New Project
+Cancel
+
+package-name-invalid
+You have changed the package statement
+to a package which does not exist in this project.
+If you wish to move this class to another
+package you must create the destination
+package first. The package statement has been
+reverted back to its original form.
+
+package-name-changed
+You have changed the package statement which
+tells Java the package this class is in. Do you
+want to move this class to the indicated package
+or do you want to leave the class where it is
+(the package statement will be reverted back to
+its original form)?
+Move
+Revert
+null
+
 exception-thrown
 Una excepción fue lanzada:
 
@@ -176,6 +327,16 @@ NO existe ayuda disponible para este mensaje.
 Por favor envíe por e-mail el mensaje de error a
 mik@monash.edu.au - luego nosotros le agregaremos un
 texto de ayuda a nuestra base de datos de ayuda. Gracias.
+
+ask-index
+Enter array element index [...]
+Array Inspection
+null
+
+classmgr-changes-no-effect
+The changes you have made to the class libraries
+will not take effect until the next time you
+start BlueJ.
 
 # errors:
 #########
@@ -300,3 +461,18 @@ ser creado en el directorio del proyecto.
 no-permission-for-docdir
 El directorio para la documentación no pudo
 ser creado en el directorio de proyectos
+
+# editor:
+#########
+
+no-search-string
+No search string is defined.
+(Highlight some text or use 'Find' first.)
+
+default-keys
+Do you really want to discard all your
+key bindings and set the default
+bindings?
+Set defaults
+Cancel
+null
