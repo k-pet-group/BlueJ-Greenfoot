@@ -14,16 +14,10 @@ import org.bluej.utility.*;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1643 2003-03-05 11:15:06Z damiano $
+ * @version    $Id: Submitter.java 1653 2003-03-06 09:14:54Z damiano $
  */
 public class Submitter extends Extension implements MenuGen, BJEventListener
 {
-    private final static int BUILT_FOR_MAJOR = 1;
-    private final static int BUILD_FOR_MINOR = 0;
-
-    private final static int VERSION_MAJOR = 2;
-    private final static int VERSION_MINOR = 4;
-
     private SubmissionDialog sd;
     private Thread submitterThread;
     private PrefPanel globalPreferences;
@@ -175,31 +169,27 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
      */
     public boolean isCompatible()
     {
-        if ( Extension.VERSION_MAJOR != 2 ) return false;
-        if ( Extension.VERSION_MINOR != 1 ) return false;
+        if ( VERSION_MAJOR != 2 ) return false;
+        if ( VERSION_MINOR != 1 ) return false;
         return (true);
     }
 
 
     /**
-     * Get this extension major
-     *
      * @return    The versionMajor value
      */
     public int getVersionMajor()
     {
-        return VERSION_MAJOR;
+        return 2;
     }
 
 
     /**
-     * Gets this extension minor
-     *
      * @return    The versionMinor value
      */
     public int getVersionMinor()
     {
-        return VERSION_MINOR;
+        return 5;
     }
 
 
