@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2621 2004-06-18 01:58:59Z davmac $
+ * @version $Id: JdiObject.java 2626 2004-06-19 11:39:25Z mik $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -131,7 +131,7 @@ public class JdiObject extends DebuggerObject
         if (obj == null)
             return "";
         else
-        return obj.referenceType().name();
+            return obj.referenceType().name();
     }
 
     /**
@@ -145,7 +145,7 @@ public class JdiObject extends DebuggerObject
     {
         if (obj == null)
             return "";
-        if( genericParams != null )
+        if(genericParams != null)
             return new GenTypeClass(new JdiReflective(obj.referenceType()),
                     genericParams).toString();
         else
@@ -158,9 +158,9 @@ public class JdiObject extends DebuggerObject
      */
     public String getStrippedGenClassName()
     {
-        if( obj == null )
+        if(obj == null)
             return "";
-        if( genericParams != null )
+        if(genericParams != null)
             return new GenTypeClass(new JdiReflective(obj.referenceType()),
                     genericParams).toString(true);
         else
@@ -349,7 +349,7 @@ public class JdiObject extends DebuggerObject
     {
         Field field = getField(false, slot);
         ObjectReference val = (ObjectReference) obj.getValue(field);
-        if( expectedType instanceof GenTypeClass )
+        if(expectedType instanceof GenTypeClass)
             return new JdiObject(val, (GenTypeClass)expectedType);
         else
             return new JdiObject(val, field, this);
@@ -395,16 +395,17 @@ public class JdiObject extends DebuggerObject
         return getDebuggerObject(val, field, this);
     }
     
-    public String getFieldValueString(int slot) {
-    	Field field = (Field) fields.get(slot);
+    public String getFieldValueString(int slot) 
+    {
+        Field field = (Field) fields.get(slot);
         Value val = obj.getValue(field);
         return getValueString(val); 
     }
     
-    public String getFieldValueTypeString(int slot) {
-    	Field field = (Field) fields.get(slot);
+    public String getFieldValueTypeString(int slot) 
+    {
+        Field field = (Field) fields.get(slot);
         Value val = obj.getValue(field);
-        
         return val.type().name();  
     }
 
@@ -517,15 +518,13 @@ public class JdiObject extends DebuggerObject
     {
         int count = 0;
 
-        for (int i = 0; i < fields.size(); i++)
-        {
+        for (int i = 0; i < fields.size(); i++) {
             Field field = (Field) fields.get(i);
 
             if (checkIgnoreField(field))
                 continue;
 
-            if (field.isStatic() == getStatic)
-            {
+            if (field.isStatic() == getStatic) {
                 count++;
             }
         }
