@@ -20,7 +20,7 @@ import java.io.*;
  * dictionary.
  *
  * @author  Michael Kolling
- * @version $Id: BlueJFileReader.java 557 2000-06-19 02:16:00Z ajp $
+ * @version $Id: BlueJFileReader.java 749 2001-01-11 04:53:40Z mik $
  */
 public class BlueJFileReader
 {
@@ -103,11 +103,17 @@ public class BlueJFileReader
     {
         if(pattern.length() == 0)
             return false;
-        if(pattern.charAt(0) == '*')
+        if(pattern.charAt(pattern.length()-1) == '*') {
+            if(pattern.charAt(0) == '*') {  // * at both ends
+                pattern = pattern.substring(1, pattern.length()-3);
+                return (message.indexOf(pattern) > -1);
+            }
+            else  // * at end
+                return message.startsWith(
+                     pattern.substring(0, pattern.length()-2));
+        }
+        else if(pattern.charAt(0) == '*')
             return message.endsWith(pattern.substring(1));
-        if(pattern.charAt(pattern.length()-1) == '*')
-            return message.startsWith(
-                                      pattern.substring(0, pattern.length()-2));
         else
             return pattern.equals(message);
     }
