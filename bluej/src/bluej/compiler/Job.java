@@ -6,7 +6,7 @@ import bluej.utility.Debug;
 import java.util.Vector;
 
 /**
- ** @version $Id: Job.java 1083 2002-01-11 16:54:51Z mik $
+ ** @version $Id: Job.java 1085 2002-01-11 22:30:13Z mik $
  ** @author Michael Cahill
  **
  ** A compiler "job" - list of filenames to compile + parameters.
@@ -65,7 +65,8 @@ public class Job
                 compiler.setClassPath(classpath);
 
             successful = compiler.compile(sources, observer);
-			
+	    //Debug.message("compile success: " + successful);
+
             if(observer != null)
                 observer.endCompile(sources, successful);
         } catch(Exception e) {

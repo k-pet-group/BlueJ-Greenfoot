@@ -36,7 +36,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 1040 2001-12-10 16:35:56Z mik $
+ * @version $Id: MoeSyntaxView.java 1085 2002-01-11 22:30:13Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -162,9 +162,12 @@ public class MoeSyntaxView extends PlainView
     {
         String number = Integer.toString(lineNumber);
         int stringWidth = lineNumberMetrics.stringWidth(number);
-        int xoffset = BREAKPOINT_OFFSET - stringWidth - 3;
+        int xoffset = BREAKPOINT_OFFSET - stringWidth - 4;
 
-        if(xoffset < -2) {
+        if(xoffset < -2)      // if it doesn't fit, shift one pixel over.
+            xoffset++;
+
+        if(xoffset < -2) {    // if it still doesn't fit...
             g.setFont(smallLineNumberFont);
             g.drawString(number, x-3, y);
         }

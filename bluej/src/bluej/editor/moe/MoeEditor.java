@@ -45,13 +45,14 @@ import java.awt.geom.*;
 import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 
 /**
- * @author Michael Kolling
+ * Moe is the editor of the BlueJ environment. This class is the main class of this 
+ * editor and implements the top-level functionality.
  *
+ * MoeEditor implements the Editor interface, which defines the interface to the
+ * rest of the BlueJ system.
+ *
+ * @author Michael Kolling
  */
-
-// PENDING: add "finalize" method that does:
-//        MoeEditorManager.editorManager.removeEditor(this);
-// currently, editors never get removed from editor manager!
 
 public final class MoeEditor extends JFrame
     implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, 
@@ -60,13 +61,12 @@ public final class MoeEditor extends JFrame
     // -------- CONSTANTS --------
 
     // version number
-    static final int version = 110;
-    static final String versionString = "1.1";
+    static final int version = 120;
+    static final String versionString = "1.2";
 
     // colours
     static final Color textColor = new Color(0,0,0);		// normal text
     static final Color textBgColor = new Color(255,255,255);	// background
-    static final Color selectionColor = Color.pink;		// selection
     static final Color cursorColor = new Color(255,0,100);	// cursor
 
     static final Color frameBgColor = new Color(196, 196, 196);
@@ -81,12 +81,11 @@ public final class MoeEditor extends JFrame
         Config.getImageAsIcon("image.icon.editor").getImage();
 
     // Fonts
-    public static Font printFont = new Font("Monospaced", Font.PLAIN,
-                                            10);
+    public static Font printFont = new Font("Monospaced", Font.PLAIN, 10);
+
     // Strings
     String implementationString = Config.getString("editor.implementationLabel");
     String interfaceString = Config.getString("editor.interfaceLabel");
-
 
     // suffixes for resources
     static final String LabelSuffix = "Label";
@@ -1579,7 +1578,7 @@ public final class MoeEditor extends JFrame
         sourcePane.setEditorKit(kit);
         sourcePane.setCaret(new MoeCaret(this));
         sourcePane.getCaret().setBlinkRate(0);
-        sourcePane.setSelectionColor(selectionColor);
+        sourcePane.setSelectionColor(selectionColour);
         sourcePane.setCaretColor(cursorColor);
 
         // default showing:

@@ -35,7 +35,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1045 2001-12-11 11:41:50Z mik $
+ * @version $Id: Package.java 1085 2002-01-11 22:30:13Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -64,11 +64,11 @@ public class Package extends Graph
     /** error code */ public static final int CLASS_EXISTS = 4;
     /** error code */ public static final int CREATE_ERROR = 5;
 
- /*    private static final int STARTROWPOS = 20;
-     private static final int STARTCOLUMNPOS = 20;
-     private static final int DEFAULTTARGETHEIGHT = 50;
-     private static final int TARGETGAP = 20;
-     private static final int RIGHT_LAYOUT_BOUND = 500; */
+    /*    private static final int STARTROWPOS = 20;
+          private static final int STARTCOLUMNPOS = 20;
+          private static final int DEFAULTTARGETHEIGHT = 50;
+          private static final int TARGETGAP = 20;
+          private static final int RIGHT_LAYOUT_BOUND = 500; */
 
     /* In the top left corner of each package we have a fixed target -
        either a ParentPackageTarget or a ReadmeTarget. These are there
@@ -314,13 +314,13 @@ public class Package extends Graph
                 return null;
 
             if((target instanceof PackageTarget) &&
-                !(target instanceof ParentPackageTarget)) {
-                    // we have found our second sub package
-                    // this means this package is not boring
-                    if(pt != null)
-                        return null;
+               !(target instanceof ParentPackageTarget)) {
+                // we have found our second sub package
+                // this means this package is not boring
+                if(pt != null)
+                    return null;
 
-                    pt = (PackageTarget) target;
+                pt = (PackageTarget) target;
             }
         }
 
@@ -343,16 +343,16 @@ public class Package extends Graph
             Target target = (Target)e.nextElement();
 
             if(target instanceof PackageTarget &&
-                !(target instanceof ParentPackageTarget)) {
-                    PackageTarget pt = (PackageTarget)target;
+               !(target instanceof ParentPackageTarget)) {
+                PackageTarget pt = (PackageTarget)target;
 
-                    Package child = getProject().
-                                        getPackage(pt.getQualifiedName());
+                Package child = getProject().
+                    getPackage(pt.getQualifiedName());
 
-                    if (child == null)
-                        continue;
+                if (child == null)
+                    continue;
 
-                    children.add(child);
+                children.add(child);
             }
         }
 
@@ -417,7 +417,7 @@ public class Package extends Graph
                 continue;
             }
             String javaFileName =
-               JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
+                JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
 
             // check if the name would be a valid java name
             if (!JavaNames.isIdentifier(javaFileName))
@@ -599,8 +599,8 @@ public class Package extends Graph
             if((t instanceof ClassTarget)
                && ((ClassTarget)t).upToDate()) {
                 ClassTarget ct = (ClassTarget)t;
-//                if (readyToPaint)
-                    ct.setState(Target.S_NORMAL);
+                //                if (readyToPaint)
+                ct.setState(Target.S_NORMAL);
                 // XXX: Need to invalidate things dependent on t
             }
         }
@@ -625,7 +625,7 @@ public class Package extends Graph
         for(int i=0; i<subDirs.length; i++) {
             // first check if the directory name would be a valid package name
             if (!JavaNames.isIdentifier(subDirs[i].getName()))
-                   continue;
+                continue;
 
             Target target = (Target) targets.get(subDirs[i].getName());
 
@@ -966,7 +966,7 @@ public class Package extends Graph
         removeBreakpoints();
 
         JobQueue.getJobQueue().addJob(files, this, getProject().getClassPath(),
-                                       getProject().getProjectDir().getPath());
+                                      getProject().getProjectDir().getPath());
     }
 
 
@@ -1687,7 +1687,7 @@ public class Package extends Graph
                                       boolean setStepMark, String help)
     {
         String fullName = getProject().
-                                convertPathToPackageName(filename);
+            convertPathToPackageName(filename);
         String packageName = JavaNames.getPrefix(fullName);
         String className = JavaNames.getBase(fullName);
 
@@ -1696,16 +1696,16 @@ public class Package extends Graph
         // check if the error is from a file belonging to another package
         if (packageName != getQualifiedName()) {
 
-                Package pkg = getProject().getPackage(packageName);
-                PkgMgrFrame pmf;
+            Package pkg = getProject().getPackage(packageName);
+            PkgMgrFrame pmf;
 
-                if ((pmf = PkgMgrFrame.findFrame(pkg)) == null) {
-                    pmf = PkgMgrFrame.createFrame(pkg);
-                }
+            if ((pmf = PkgMgrFrame.findFrame(pkg)) == null) {
+                pmf = PkgMgrFrame.createFrame(pkg);
+            }
 
-                pmf.show();
+            pmf.show();
 
-                t = (ClassTarget) pkg.getTarget(className);
+            t = (ClassTarget) pkg.getTarget(className);
         }
         else
             t = (ClassTarget) getTarget(className);
@@ -1753,7 +1753,7 @@ public class Package extends Graph
      * showSourcePosition - The debugger display needs updating.
      */
     public void showSourcePosition(DebuggerThread thread,
-                                    boolean updateDebugger)
+                                   boolean updateDebugger)
     {
         int frame = thread.getSelectedFrame();
         if(showSource(thread.getClassSourceName(frame),
@@ -1798,8 +1798,8 @@ public class Package extends Graph
         if(! showEditorMessage(filename, lineNo, message, invalidate, true,
                                true, false, Config.compilertype))
             showMessageWithText("error-in-file",
-                                              filename + ":" + lineNo +
-                                              "\n" + message);
+                                filename + ":" + lineNo +
+                                "\n" + message);
     }
 
     public void checkTarget(String qualifiedName)
@@ -1879,9 +1879,8 @@ public class Package extends Graph
             if(successful && t.editorOpen())
                 t.getEditor().setCompiled(true);
         }
-            setStatus(compileDone);
-            getEditor().repaint();
-
+        setStatus(compileDone);
+        getEditor().repaint();
     }
 
     // ---- end of bluej.compiler.CompileObserver interface ----
@@ -1905,15 +1904,15 @@ public class Package extends Graph
     public void closeAllEditors()
     {
         for(Enumeration e = targets.elements(); e.hasMoreElements(); )
-        {
-            Target t = (Target)e.nextElement();
-            if(t instanceof ClassTarget)
             {
-                ClassTarget ct = (ClassTarget)t;
-                if(ct.editorOpen())
-                    ct.getEditor().close();
+                Target t = (Target)e.nextElement();
+                if(t instanceof ClassTarget)
+                    {
+                        ClassTarget ct = (ClassTarget)t;
+                        if(ct.editorOpen())
+                            ct.getEditor().close();
+                    }
             }
-        }
     }
 
     /**
@@ -1963,7 +1962,7 @@ public class Package extends Graph
     public void mousePressed(MouseEvent evt)
     {
         switch(state) {
-         case S_DELARROW:
+        case S_DELARROW:
             Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
             if((currentArrow != null) && (currentArrow != selectedArrow))
                 currentArrow.highlight(getEditor().getGraphics2D());

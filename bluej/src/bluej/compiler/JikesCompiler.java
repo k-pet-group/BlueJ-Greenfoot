@@ -16,7 +16,7 @@ import bluej.Config;
  * compiler. Verified working with Jikes 1.12.
  *
  * @author  Andrew Patterson
- * @version $Id: JikesCompiler.java 973 2001-07-25 04:14:47Z ajp $
+ * @version $Id: JikesCompiler.java 1085 2002-01-11 22:30:13Z mik $
  */
 public class JikesCompiler extends Compiler
 {
@@ -101,7 +101,8 @@ public class JikesCompiler extends Compiler
         return result;
     }
 
-    private boolean executeCompiler(String[] params, CompileObserver watcher) throws IOException, InterruptedException
+    private boolean executeCompiler(String[] params, CompileObserver watcher) 
+        throws IOException, InterruptedException
     {
 	int processresult = 0;		// default to fail in case we don't even start compiler process
 	boolean readerror = false;
