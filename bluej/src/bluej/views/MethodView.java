@@ -12,7 +12,7 @@ import bluej.utility.JavaUtils;
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2969 2004-09-01 05:07:49Z davmac $
+ *  @version $Id: MethodView.java 3014 2004-09-23 13:13:45Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -189,17 +189,26 @@ public class MethodView extends CallableView implements Comparable
     
     /**
      * Whether this method has a var arg.
-     *
      */
-    public boolean isVarArgs() {
+    public boolean isVarArgs()
+    {
         return JavaUtils.getJavaUtils().isVarArgs(method);
+    }
+    
+    /**
+     * Test whether the method is generic.
+     */
+    public boolean isGeneric()
+    {
+        return !JavaUtils.getJavaUtils().getTypeParams(method).isEmpty();
     }
 
     /**
      * Returns a Class object that represents the formal return type
      * of the method represented by this Method object.
      */
-    public View getReturnType() {
+    public View getReturnType()
+    {
         if (returnType == null)
             returnType = View.getView(method.getReturnType());
         return returnType;
