@@ -33,7 +33,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1571 2002-12-11 14:45:40Z mik $
+ * @version $Id: ObjectWrapper.java 1574 2002-12-11 20:36:07Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -137,6 +137,14 @@ public class ObjectWrapper extends JComponent
     public String getClassName()
     {
         return className;
+    }
+
+    /**
+     * Open this object for inspection.
+     */
+    public void prepareRemove()
+    {
+        Inspector.removeInstance(obj);
     }
 
     /**

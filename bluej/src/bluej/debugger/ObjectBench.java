@@ -16,7 +16,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1572 2002-12-11 16:23:16Z mik $
+ * @version $Id: ObjectBench.java 1574 2002-12-11 20:36:07Z mik $
  */
 public class ObjectBench
 {
@@ -351,6 +351,7 @@ public class ObjectBench
         ObjectWrapper[] wrappers = getWrappers();
 
         for(int i=0; i<wrappers.length; i++) {
+            wrappers[i].prepareRemove();
             obp.remove(wrappers[i]);
             Debugger.debugger.removeObjectFromScope(scopeId, wrappers[i].getName());
         }
@@ -370,6 +371,7 @@ public class ObjectBench
      */
     public void remove(ObjectWrapper wrapper, String scopeId)
     {
+        wrapper.prepareRemove();
         obp.remove(wrapper);
         Debugger.debugger.removeObjectFromScope(scopeId, wrapper.getName());
 

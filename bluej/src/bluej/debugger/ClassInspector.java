@@ -8,13 +8,14 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.utility.JavaNames;
+import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
 
 /**
  * A window that displays the static fields in an class.
  *
  * @author     Michael Kolling
- * @version    $Id: ClassInspector.java 1572 2002-12-11 16:23:16Z mik $
+ * @version    $Id: ClassInspector.java 1574 2002-12-11 20:36:07Z mik $
  */
 public class ClassInspector extends Inspector
 {
@@ -32,7 +33,7 @@ public class ClassInspector extends Inspector
 
     protected DebuggerClass myClass;
 
-   /**
+    /**
      *  Return a ClassInspector for a class. The inspector is visible.
      *  This is the only way to get access to viewers - they cannot be
      *  directly created.
@@ -45,8 +46,8 @@ public class ClassInspector extends Inspector
      * @param  parent      The parent frame of this frame
      * @return             The Viewer value
      */
-    public static ClassInspector getInstance(DebuggerClass clss, Package pkg,
-            JFrame parent)
+    public static ClassInspector getInstance(DebuggerClass clss, 
+            Package pkg, JFrame parent)
     {
         ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
 
@@ -61,7 +62,6 @@ public class ClassInspector extends Inspector
 
         return inspector;
     }
-
 
     /**
      *  Constructor
@@ -153,7 +153,7 @@ public class ClassInspector extends Inspector
      */
     protected void remove()
     {
-        inspectors.remove(myClass);
+        inspectors.remove(myClass.getName());
     }  
 
     /**

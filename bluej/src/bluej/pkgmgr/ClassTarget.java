@@ -8,6 +8,7 @@ import bluej.utility.DialogManager;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClassLoader;
 import bluej.debugger.DebuggerClass;
+import bluej.debugger.Inspector;
 import bluej.debugger.ClassInspector;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
@@ -50,7 +51,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1549 2002-12-02 05:57:08Z ajp $
+ * @version $Id: ClassTarget.java 1574 2002-12-11 20:36:07Z mik $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -154,6 +155,16 @@ public class ClassTarget extends EditableTarget
     public String getBaseName()
     {
         return getIdentifierName();
+    }
+
+    /**
+     * Change the state of this target. The target will be repainted to show
+     * the new state.
+     */
+    public void setState(int newState)
+    {	
+     	Inspector.removeInstance(getQualifiedName());
+    	super.setState(newState);
     }
 
     /**
@@ -432,8 +443,8 @@ public class ClassTarget extends EditableTarget
     {
         DebuggerClassLoader loader = getPackage().getRemoteClassLoader();
         DebuggerClass clss = Debugger.debugger.getClass(getQualifiedName(), loader);
-        ClassInspector insp =
-   	       ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
+        ClassInspector insp = 
+            ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
     }
 
     // --- EditorWatcher interface ---

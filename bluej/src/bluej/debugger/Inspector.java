@@ -20,7 +20,7 @@ import javax.swing.border.Border;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1572 2002-12-11 16:23:16Z mik $
+ * @version    $Id: Inspector.java 1574 2002-12-11 20:36:07Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -70,6 +70,17 @@ public abstract class Inspector extends JFrame
             inspector.update();
         }
     }
+
+    /**
+     *  Remove an Inspector from the pool of existing inspectors.
+     */
+    public static void removeInstance(Object key)
+    {
+        Inspector insp = (Inspector)inspectors.get(key);
+        if(insp != null)
+            insp.doClose();
+    }
+
 
 
     // === instance methods ===
