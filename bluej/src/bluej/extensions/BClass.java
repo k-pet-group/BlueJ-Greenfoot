@@ -15,7 +15,7 @@ import java.util.*;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1988 2003-05-27 09:08:18Z damiano $
+ * @version $Id: BClass.java 1990 2003-05-27 09:54:17Z damiano $
  */
 
 public class BClass
@@ -86,13 +86,17 @@ public class BClass
      * @param waitCompileEnd <code>true</code> waits for the compilation to be finished.
      * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
      * @throws PackageNotFoundException if the package to which this class belongs has been deleted by the user.
+     * @throws CompilationNotStartedException if BlueJ is currently executing Java code.
      */
     public void compile( boolean waitCompileEnd )  
-        throws ProjectNotOpenException, PackageNotFoundException
+        throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
         {
         Package bluejPkg    = classId.getBluejPackage();
         ClassTarget aTarget = classId.getClassTarget();
-    
+
+        if ( ! bluejPkg.isDebuggerIdle() )
+          throw new CompilationNotStartedException ("BlueJ is currently executing Java code");
+          
         // Ask for compilation of this target
         bluejPkg.compile(aTarget);        
 

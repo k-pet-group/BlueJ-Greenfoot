@@ -19,7 +19,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1988 2003-05-27 09:08:18Z damiano $
+ * @version $Id: BPackage.java 1990 2003-05-27 09:54:17Z damiano $
  */
 
 /*
@@ -183,11 +183,15 @@ public class BPackage
      * @param  waitCompileEnd <code>true</code> waits for the compilation to be finished.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
+     * @throws CompilationNotStartedException if BlueJ is currently executing Java code.
      */
     public void compile ( boolean waitCompileEnd ) 
-        throws ProjectNotOpenException, PackageNotFoundException
+        throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
         {
         Package bluejPkg = packageId.getBluejPackage();
+
+        if ( ! bluejPkg.isDebuggerIdle() )
+          throw new CompilationNotStartedException ("BlueJ is currently executing Java code");
 
         // Start compilation
         bluejPkg.compile();
@@ -203,11 +207,15 @@ public class BPackage
      * @param  waitCompileEnd <code>true</code> waits for the compilation to be finished.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
+     * @throws CompilationNotStartedException if BlueJ is currently executing Java code.
      */
     public void compileAll ( boolean waitCompileEnd ) 
-        throws ProjectNotOpenException, PackageNotFoundException
+        throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
         {
         Package bluejPkg = packageId.getBluejPackage();
+
+        if ( ! bluejPkg.isDebuggerIdle() )
+          throw new CompilationNotStartedException ("BlueJ is currently executing Java code");
 
         // Request for ALL files to be compiled
         bluejPkg.rebuild(); 

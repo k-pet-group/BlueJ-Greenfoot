@@ -26,7 +26,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1976 2003-05-22 10:05:14Z damiano $
+ * @version $Id: Package.java 1990 2003-05-27 09:54:17Z damiano $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1045,17 +1045,27 @@ public final class Package extends Graph
                                       	getProject().getProjectDir());
     }
 
+
     /**
-     *  Check whether it's okay to compile.
+     * Returns true if the debugger is IDLE.
+     * If the debugger is executing something then the compilation is not possible.
+     */
+    public boolean isDebuggerIdle ()
+    {
+        return getDebugger().getStatus() == Debugger.IDLE;
+    }
+
+
+    /**
+     * Check whether it's okay to compile and display a message about it.
      */
     private boolean checkCompile()
     {
-        if(getDebugger().getStatus() != Debugger.IDLE) {
-            showMessage("compile-while-executing");
-            return false;
-        }
-        else
-            return true;
+        if ( isDebuggerIdle() ) return true;
+        
+        // The debugger is NOT idle, show a message about it.
+        showMessage("compile-while-executing");
+        return false;
     }
 
     /**
