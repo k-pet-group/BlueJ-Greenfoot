@@ -36,7 +36,7 @@ import bluej.classmgr.ClassPathEntry;
  * 
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: LibraryChooser.java 170 1999-07-08 02:12:42Z ajp $
+ * @version $Id: LibraryChooser.java 172 1999-07-08 02:31:17Z ajp $
  */
 public class LibraryChooser extends JPanel implements Runnable {
     // used to build tree
@@ -502,9 +502,9 @@ public class LibraryChooser extends JPanel implements Runnable {
 		libNode.setArchiveFile(true);
 		openJARLibrary(libNode, new JarFile(library), alias);
 	    } else {
-		setStatusText("Opening dir " + alias + " " + library + "...");
-		libNode.setArchiveFile(false);
-		openLibrary(libNode, new File(library));
+//		setStatusText("Opening dir " + alias + " " + library + "...");
+//		libNode.setArchiveFile(false);
+//		openLibrary(libNode, new File(library));
 	    }
 	} catch (IOException ioe) {
 	    // ioe.printStackTrace();
@@ -881,14 +881,15 @@ public class LibraryChooser extends JPanel implements Runnable {
 			parent.openPackage(packageName);
 			}
 			else 
-			{ */
+			{ 
+	 */
+
 	// easiest case is a cached package - let's open it straight away
-	/*			if (parent.isPackageInCache(packageName)) {
-				System.out.println(packageName + " was cached");
-				parent.openPackage(packageName);
-				return;
-				}
-	*/		
+	//if (parent.isPackageInCache(packageName)) {
+	//	parent.openPackage(packageName);
+	//	return;
+	//}
+
 	// because the package file doesn't exist, we need to identify all the 
 	// items that would appear in this package (i.e., classes and sub packages
 	// for the currently selected tree node)
@@ -910,15 +911,18 @@ public class LibraryChooser extends JPanel implements Runnable {
 	    // show the package
 	    parent.addPackageToCache(packageName, pkg);
 	    parent.openPackage(packageName, pkg);
-	} else if (!new File(packageName + Package.pkgfileName).exists()) {
+	}
+/*
+ else {
+		if (!new File(packageName + Package.pkgfileName).exists()) {
 	    
 	    // the package directory exists but the package file doesn't
 	    // in other words, a package in a directory but no package file
 	    try {
-		props = Package.createDefaultPackage(foundEntries, packageLocation, packageName, false);
+		props = Package.createDefaultPackage(foundEntries, packageLocation, packageName, true);
 		parent.openPackage(packageName);
 	    } catch (IOException ioe) {
-		// createDefaultPackage# could not save the package file,
+ 		// createDefaultPackage# could not save the package file,
 		// (could be non writable directory like a CD)
 		// we'll have to create our own using the properties we've created
 		pkg = new Package(packageName);
@@ -929,6 +933,7 @@ public class LibraryChooser extends JPanel implements Runnable {
 	} else 
 	    Debug.reportError("Unexpected control flow in openSelectedPackageInClassChooser(LibraryChooser.java) " + packageName);
 	// }
+*/
 					
     }
 	
