@@ -67,6 +67,25 @@ public class BlueJSecurityManager extends SecurityManager
     public boolean checkTopLevelWindow(Object window) { return true; }
     public void checkWrite(FileDescriptor fd) {}
     public void checkWrite(String file) {}
+
+    /**
+     * With the exception of checkExit(int) we want to
+     * behave just as if there were no SecurityManager
+     * installed, so we override to do nothing.
+     * 
+     * @param perm The permission object to ignore.
+     */
+    public void checkPermission(Permission perm)  {}
+     
+    /**
+     * With the exception of checkExit(int) we want to
+     * behave just as if there were no SecurityManager
+     * installed, so we override to do nothing.
+     * 
+     * @param perm The permission object to ignore.
+     * @param context The context object to ignore.
+     */
+    public void checkPermission(Permission perm, Object context)  {} 
 	
     ThreadGroup threadGroup;
     public void setThreadGroup(ThreadGroup threadGroup)
