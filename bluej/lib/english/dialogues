@@ -388,5 +388,8 @@ file system (usually your hard disk), and that you have write
 permission in the project directory and each file within it.
 
 could-not-write-shell-file
-BlueJ was unable to write to the project directory.
-Make it writable.
+Execution failed because the project directory is not writable.
+To create opjects or execute methods, we must be able to write
+to the project directory. Make sure your project is on a writable 
+file system (not a CD!) and that you have write permission in
+the project directory and all files in it.
