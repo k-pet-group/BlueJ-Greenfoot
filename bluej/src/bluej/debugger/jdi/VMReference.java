@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2048 2003-06-24 05:08:17Z ajp $
+ * @version $Id: VMReference.java 2063 2003-06-25 07:03:00Z ajp $
  *
  * The startup process is as follows:
  *
@@ -58,14 +58,6 @@ class VMReference
     // the class name of the execution server class running on the remote VM
     static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
 
-    // the field name of the static field within that class that hold the
-    // server object
-    static final String SERVER_FIELD_NAME = "server";
-
-    // the field name of the static field within that class that hold the
-    // exit exception object
-    static final String EXIT_FIELD_NAME = "exitException";
-
     // the field name of the static field within that class
     // the name of the method used to signal a System.exit()
     static final String SERVER_EXIT_MARKER_METHOD_NAME = "exitMarker";
@@ -94,6 +86,9 @@ class VMReference
 
     // the thread running inside the ExecServer
     private ThreadReference serverThread = null;
+
+	// the worker thread running inside the ExecServer
+	private ThreadReference workerThread = null;
 
     // the current class loader in the ExecServer
     private ClassLoaderReference currentLoader = null;
@@ -138,13 +133,13 @@ class VMReference
             Process p = Runtime.getRuntime().exec(launchParams, null, initDir);
 
 			// redirect error stream from process to Terminal
-			redirectIOStream(new InputStreamReader(p.getErrorStream()), new OutputStreamWriter(System.err),
-								//Terminal.getTerminal().getErrorWriter(),
+			redirectIOStream(new InputStreamReader(p.getErrorStream()), //new OutputStreamWriter(System.err),
+								Terminal.getTerminal().getErrorWriter(),
 								false);
 
 			// redirect output stream from process to Terminal
-			redirectIOStream(new InputStreamReader(p.getInputStream()), new OutputStreamWriter(System.err),
-								//Terminal.getTerminal().getWriter(),
+			redirectIOStream(new InputStreamReader(p.getInputStream()), //new OutputStreamWriter(System.err),
+								Terminal.getTerminal().getWriter(),
 								false);
 
 			// redirect Terminal input to process output stream
@@ -299,18 +294,20 @@ class VMReference
     {
 		this.owner = owner;
 		
+		// machine will be suspended at startup
         machine = localhostSocketLaunch(initialDirectory,
         								Bootstrap.virtualMachineManager());
 
+		// indicate the events we want to receive
 		EventRequestManager erm = machine.eventRequestManager();
 		erm.createExceptionRequest(null, false, true).enable();
 		erm.createClassPrepareRequest().enable();
 		erm.createThreadStartRequest().enable();
 		erm.createThreadDeathRequest().enable();
 
+		// start the VM event handler (will handle the VMStartEvent
+		// which will set the machine running)
 		eventHandler = new VMEventHandler(this, machine);
-
-		// machine.resume();
     }
 
     /**
@@ -359,6 +356,14 @@ class VMReference
         ClassPrepareRequest cpreq = (ClassPrepareRequest) list.get(0);
         erm.deleteEventRequest(cpreq);
 
+		try {
+			serverClass = (ClassType) findClassByName(SERVER_CLASSNAME, null);
+		}
+		catch (ClassNotFoundException cnfe) {
+			throw new IllegalStateException(
+				"can't find class " + SERVER_CLASSNAME + " in debug virtual machine");
+		}
+
         // add the breakpoints (these may be cleared later on and so will
         // need to be readded)
         serverClassAddBreakpoints();
@@ -372,14 +377,6 @@ class VMReference
     private void serverClassAddBreakpoints()
     {
         EventRequestManager erm = machine.eventRequestManager();
-        
-        try {
-			serverClass = (ClassType) findClassByName(SERVER_CLASSNAME, null);
-        }
-		catch (ClassNotFoundException cnfe) {
-			throw new IllegalStateException(
-				"can't find class " + SERVER_CLASSNAME + " in debug virtual machine");
-		}
 
         // set a breakpoint in the vm started method
         {
@@ -419,13 +416,15 @@ class VMReference
         }
 
         // set a breakpoint on a special exitMarker method
-        Method exitMarkerMethod = findMethodByName(serverClass, SERVER_EXIT_MARKER_METHOD_NAME);
-        Location exitMarkerLoc = exitMarkerMethod.location();
+        {
+			Method exitMarkerMethod = findMethodByName(serverClass, SERVER_EXIT_MARKER_METHOD_NAME);
+			Location exitMarkerLoc = exitMarkerMethod.location();
 
-        BreakpointRequest exitbpreq = erm.createBreakpointRequest(exitMarkerLoc);
-        exitbpreq.setSuspendPolicy(EventRequest.SUSPEND_NONE);
-        exitbpreq.putProperty(SERVER_EXIT_MARKER_METHOD_NAME, "yes");
-        exitbpreq.enable();       
+			BreakpointRequest exitbpreq = erm.createBreakpointRequest(exitMarkerLoc);
+			exitbpreq.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+			exitbpreq.putProperty(SERVER_EXIT_MARKER_METHOD_NAME, "yes");
+			exitbpreq.enable();       
+        }
     }
 
     /**
@@ -436,15 +435,29 @@ class VMReference
      */
     private boolean setupServerConnection(VirtualMachine vm)
     {
-        if (serverClass == null)
-            Debug.reportError("server class not initialised!");
+        if (serverClass == null) {
+			Debug.reportError("server class not initialised!");
+			return false;
+        }
 
         // set up an exit exception object on the remote machine
-        Field exitExcField = serverClass.fieldByName(EXIT_FIELD_NAME);
-        exitException = (ObjectReference) serverClass.getValue(exitExcField);
+        exitException = getStaticField(serverClass,
+        								 ExecServer.EXIT_EXCEPTION_NAME);
 
-        // okay, we have the server object; now get the methods we need
+		// get our main server thread
+		serverThread = (ThreadReference) getStaticField(serverClass,
+														ExecServer.MAIN_THREAD_NAME);		
 
+		// get our worker thread
+		workerThread = (ThreadReference) getStaticField(serverClass,
+														ExecServer.WORKER_THREAD_NAME);		
+
+		if (exitException == null || serverThread == null || workerThread == null) {
+			Debug.reportError("Cannot find fields on remote VM");
+			return false;
+		}
+		
+        // okay, we have the server objects; now get the methods we need
         execServerMethods = new HashMap();
 
         execServerMethods.put(ExecServer.NEW_LOADER,
@@ -467,19 +480,6 @@ class VMReference
             findMethodByName(serverClass, ExecServer.RESTORE_OUTPUT));
         execServerMethods.put(ExecServer.DISPOSE_WINDOWS,
             findMethodByName(serverClass, ExecServer.DISPOSE_WINDOWS));
-
-        List list = vm.allThreads();
-        for (int i = 0; i < list.size(); i++) {
-            ThreadReference threadRef = (ThreadReference) list.get(i);
-            if ("main".equals(threadRef.name()))
-                serverThread = threadRef;
-        }
-
-        if (serverThread == null) {
-            Debug.reportError("Cannot find server thread on remote VM");
-            Debug.reportError("Fatal: User code execution will not work");
-            return false;
-        }
 
         //Debug.message(" connection to remote VM established");
         return true;
@@ -516,7 +516,7 @@ class VMReference
         Object args[] = { classPath };
 
         ClassLoaderReference loader =
-            (ClassLoaderReference) invokeExecServer(ExecServer.NEW_LOADER, Arrays.asList(args));
+            (ClassLoaderReference) invokeExecServerWorker(ExecServer.NEW_LOADER, Arrays.asList(args));
 
         currentLoader = loader;
 
@@ -535,7 +535,7 @@ class VMReference
     {
         Object args[] = { className };
 
-        Value v = invokeExecServer(ExecServer.LOAD_CLASS, Arrays.asList(args));
+        Value v = invokeExecServerWorker(ExecServer.LOAD_CLASS, Arrays.asList(args));
 
 		// we get back a reference to an instance of a class of type "java.lang.Class"
 		// but we know the class has been loaded in the remote VM.
@@ -574,10 +574,11 @@ class VMReference
         try {
             exitStatus = Debugger.NORMAL_EXIT;
 
-			owner.raiseStateChangeEvent(Debugger.RUNNING);
+			owner.raiseStateChangeEvent(Debugger.IDLE, Debugger.RUNNING);
 
             Value v =
-                invokeStaticRemoteMethod(shellClass, runMethod, Collections.EMPTY_LIST, false);
+                invokeStaticRemoteMethod(serverThread, shellClass, runMethod,
+                							Collections.EMPTY_LIST, false, false);
 
         } catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
@@ -590,8 +591,35 @@ class VMReference
                 new ExceptionDescription(
                     "Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
-		owner.raiseStateChangeEvent(Debugger.IDLE);
+		owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
     }
+
+	/**
+	 * Cause the exec server to execute a method.
+	 * Note that all arguments to methods must be either String's
+	 * or objects that are already mirrored onto the remote VM.
+	 * 
+	 * @param methodName    the name of the method in the class ExecServer
+	 * @param args			the List of arguments to the method
+	 * @return				the return value of the method call
+	 * 						as an mirrored object on the VM
+	 */
+	Value invokeExecServerWorker(String methodName, List args)
+	{
+		if (serverThread == null) {
+			if (!setupServerConnection(machine))
+				return null;
+		}
+
+		Debug.message("[VMRefWorker] Invoking " + methodName);
+		Method m = (Method) execServerMethods.get(methodName);
+
+		if (m == null)
+			throw new IllegalArgumentException("no ExecServer method called " + methodName);
+
+		return invokeStaticRemoteMethod(workerThread, serverClass, m, args, true, true);
+	}
+
 
     /**
      * Cause the exec server to execute a method.
@@ -610,116 +638,15 @@ class VMReference
                 return null;
         }
 
-		Debug.message("[VMRef] Invoking " + methodName);
+		Debug.message("[VMRefMain] Invoking " + methodName);
         Method m = (Method) execServerMethods.get(methodName);
 
         if (m == null)
             throw new IllegalArgumentException("no ExecServer method called " + methodName);
 
-        return invokeStaticRemoteMethod(serverClass, m, args, true);
+        return invokeStaticRemoteMethod(serverThread, serverClass, m, args, true, false);
     }
 
-    /**
-     * Invoked a static method on a class in the remote VM.
-     * Note that all arguments to methods must be either String's
-     * or objects that are already mirrored onto the remote VM.
-     * 
-     * @param cl		    the reference to the class the method exists in
-     * @param m    			the Method we want to call
-     * @param args			the List of arguments to the method
-     * @param propagateException whether exceptions thrown should be ignored
-     * 							 or returned as the return value
-     * @return				the return value of the method call
-     * 						as a mirrored object on the VM
-     */
-    private Value invokeStaticRemoteMethod(ClassType cl, Method m,
-        									List args, boolean propagateException)
-    {
-    	int smallDelay = 100;
-    	
-        // go through the args and if any aren't VM reference types
-        // then fail (unless they are strings in which case we
-        // mirror them onto the vm)
-        for (ListIterator lit = args.listIterator(); lit.hasNext();) {
-            Object o = lit.next();
-
-            if (o instanceof String) {
-                lit.set(machine.mirrorOf((String) o));
-            } else if (!(o instanceof Mirror)) {
-                throw new IllegalArgumentException("invokeStaticRemoteMethod passed a non-Mirror argument");
-            }
-        }
-
-        machine.setDebugTraceMode(VirtualMachine.TRACE_EVENTS | VirtualMachine.TRACE_OBJREFS);
-
-        try {
-            // if serverThread has not returned to its breakpoint yet, we
-            // must be patient
-			while(!serverThread.isAtBreakpoint()) {
-				synchronized(this) {
-					try { wait(smallDelay); } catch (InterruptedException ie) {}
-				}
-			}
-
-            Value v = cl.invokeMethod(serverThread, m, args, 0);
-
-            // invokeMethod leaves everything suspended, so restart
-            // all the threads
-            machine.resume();
-
-			// we shouldn't return until server thread makes it back to its
-			// breakpoint
-			while(!serverThread.isAtBreakpoint()) {
-				synchronized(this) {
-					try { wait(smallDelay); } catch (InterruptedException ie) {}
-				}
-			}
-
-            // our serverThread in the ExecServer has now
-            // returned to a breakpoint. This will then
-            // suspend it (see VMEventHandler).
-            // This is the state we need - all threads running
-            // except serverThread (which should be waiting at a breakpoint).
-            return v;
-        }
-		
-		// the first three exceptions would all be the result
-		// of errors in our code. Lets print a stack trace.
-        catch (IllegalArgumentException iae) {
-			Debug.message(iae.toString());        	
-        }
-        catch (ClassNotLoadedException cnle) {
-			Debug.message(cnle.toString());        	
-        }
-		catch (InvalidTypeException ite) {
-        	Debug.message(ite.toString());
-		}
-        catch (InvocationException e) {
-            // exception thrown in remote machine
-            // we can either propagate the exception as a value
-            if (propagateException)
-                return e.exception();
-            // or ignore it because it will be handled
-            // in exceptionEvent()
-        }
-        catch (com.sun.jdi.InternalException e) {
-            e.printStackTrace();
-            // TODO: is this true?? ajp 28/5/03
-            //we regularly get an exception here when trying to load a class
-            // while the machine is suspended. It doesn't seem to be fatal.
-            // so we just ignore internal exceptions for the moment.
-        }
-		catch (VMDisconnectedException e) {
-			// vm has died or been killed
-			throw e;		
-		}
-		catch (Exception e) {
-            Debug.message("sending command " + m.name() + " to remote VM failed: " + e);
-        }
-
-        //machine.setDebugTraceMode(VirtualMachine.TRACE_NONE);
-        return null;
-    }
 
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
@@ -743,12 +670,6 @@ class VMReference
 	 */
 	public void vmStartEvent(VMStartEvent vmse)
 	{
-		// want all uncaught exceptions and all class prepare events
-/*		EventRequestManager erm = machine.eventRequestManager();
-		erm.createExceptionRequest(null, false, true).enable();
-		erm.createClassPrepareRequest().enable();
-		erm.createThreadStartRequest().enable();
-		erm.createThreadDeathRequest().enable(); */
 	}
 	
 	/**
@@ -805,7 +726,7 @@ class VMReference
 
             // this was a "System.exit()", not a real exception!
             exitStatus = Debugger.FORCED_EXIT;
-			owner.raiseStateChangeEvent(Debugger.IDLE);
+			owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
             lastException = new ExceptionDescription(exceptionText);
         } else {
         	// real exception
@@ -840,17 +761,13 @@ class VMReference
             }
         }
         // if the breakpoint is marked with the SERVER_SUSPEND property
-        // then it is our main server worker thread returning to its breakpoint
+        // then it is a main/worker thread returning to its breakpoint
         // after completing some work. We want to leave it suspended here until
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
-        	if (serverThread != null)
-	        	synchronized(this) {
-	        		notifyAll();
-	        	}
-
 			// do nothing except signify our change of state
-			owner.raiseStateChangeEvent(Debugger.IDLE);
+			if (serverThread != null && serverThread.equals(event.thread()))
+				owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
         }
         // if the breakpoint is marked as "ExitMarker" then this is our
         // own breakpoint that the RemoteSecurityManager executes in order
@@ -865,14 +782,28 @@ class VMReference
                 } catch (com.sun.jdi.InvalidTypeException ite) {}
             }
         } else {
-        	System.out.println("here with thread" + event.thread());
             // breakpoint set by user in user code
 			if (serverThread.equals(event.thread()))
-				owner.raiseStateChangeEvent(Debugger.SUSPENDED);
+				owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.SUSPENDED);
 
-			owner.breakpoint(event.thread());
-			
-			// machine.resume();
+			// a breakpoint/step event in our SHELL class
+			// means the user has stepped past the end of a method
+			// and we should continue the machine
+			Location location = event.location();
+			String fileName;
+			try {
+				fileName = location.sourceName();
+			} catch (AbsentInformationException e) {
+				fileName = null;
+			}
+
+			if (fileName != null && fileName.startsWith("__SHELL")) {
+				machine.resume();
+			}
+			else {
+				// otherwise, signal the breakpoint/step to the user
+				owner.breakpoint(event.thread());
+			}
         }
     }
 
@@ -1026,6 +957,118 @@ class VMReference
     // -- support methods --
 
 	/**
+	 * Invoked a static method on a class in the remote VM.
+	 * Note that all arguments to methods must be either String's
+	 * or objects that are already mirrored onto the remote VM.
+	 * 
+	 * @param thr           the thread to use as a worker
+	 * @param cl		    the reference to the class the method exists in
+	 * @param m    			the Method we want to call
+	 * @param args			the List of arguments to the method
+	 * @param propagateException whether exceptions thrown should be ignored
+	 * 							 or returned as the return value
+	 * @return				the return value of the method call
+	 * 						as a mirrored object on the VM
+	 */
+	private Value invokeStaticRemoteMethod(ThreadReference thr, ClassType cl, Method m,
+											List args,
+											boolean propagateException,
+											boolean dontSuspendAll)
+	{
+		int smallDelay = 50;	// milliseconds
+    	
+		// go through the args and if any aren't VM reference types
+		// then fail (unless they are strings in which case we
+		// mirror them onto the vm)
+		for (ListIterator lit = args.listIterator(); lit.hasNext();) {
+			Object o = lit.next();
+
+			if (o instanceof String) {
+				lit.set(machine.mirrorOf((String) o));
+			} else if (!(o instanceof Mirror)) {
+				throw new IllegalArgumentException("invokeStaticRemoteMethod passed a non-Mirror argument");
+			}
+		}
+
+		// machine.setDebugTraceMode(VirtualMachine.TRACE_EVENTS | VirtualMachine.TRACE_OBJREFS);
+
+		try {
+			// if the thread has not returned to its breakpoint yet, we
+			// must be patient
+			while(!thr.isAtBreakpoint()) {
+				synchronized(this) {
+					try { wait(smallDelay); } catch (InterruptedException ie) {}
+				}
+			}
+
+			Value v = null;
+			
+			if (dontSuspendAll) {
+				v = cl.invokeMethod(thr, m, args, ObjectReference.INVOKE_SINGLE_THREADED);
+				
+			} else {
+				v = cl.invokeMethod(thr, m, args, 0);
+
+				// invokeMethod leaves everything suspended, so restart
+				// all the threads
+				machine.resume();
+			}
+
+			// we shouldn't return until the thread makes it back to its
+			// breakpoint
+			while(!thr.isAtBreakpoint()) {
+				synchronized(this) {
+					try { wait(smallDelay); } catch (InterruptedException ie) {}
+				}
+			}
+
+			// our serverThread in the ExecServer has now
+			// returned to a breakpoint. This will then
+			// suspend it (see VMEventHandler).
+			// This is the state we need - all threads running
+			// except serverThread (which should be waiting at a breakpoint).
+			return v;
+		}
+		
+		// the first three exceptions would all be the result
+		// of errors in our code. Lets print a stack trace.
+		catch (IllegalArgumentException iae) {
+			Debug.message(iae.toString());        	
+		}
+		catch (ClassNotLoadedException cnle) {
+			Debug.message(cnle.toString());        	
+		}
+		catch (InvalidTypeException ite) {
+			Debug.message(ite.toString());
+		}
+		catch (InvocationException e) {
+			// exception thrown in remote machine
+			// we can either propagate the exception as a value
+			if (propagateException)
+				return e.exception();
+			// or ignore it because it will be handled
+			// in exceptionEvent()
+		}
+		catch (com.sun.jdi.InternalException e) {
+			e.printStackTrace();
+			// TODO: is this true?? ajp 28/5/03
+			//we regularly get an exception here when trying to load a class
+			// while the machine is suspended. It doesn't seem to be fatal.
+			// so we just ignore internal exceptions for the moment.
+		}
+		catch (VMDisconnectedException e) {
+			// vm has died or been killed
+			throw e;		
+		}
+		catch (Exception e) {
+			Debug.message("sending command " + m.name() + " to remote VM failed: " + e);
+		}
+
+		//machine.setDebugTraceMode(VirtualMachine.TRACE_NONE);
+		return null;
+	}
+
+	/**
 	 * 
 	 */
 	static boolean isAtMainBreakpoint(ThreadReference tr)
@@ -1036,6 +1079,23 @@ class VMReference
         } catch (IncompatibleThreadStateException e) {
             return false;
         }
+	}
+
+	/**
+	 * 
+	 * @param cl
+	 * @param fieldName
+	 * @return
+	 */
+	private ObjectReference getStaticField(ClassType cl, String fieldName)
+	{
+		Field resultField = cl.fieldByName(fieldName);
+
+		if (resultField == null)
+			throw new IllegalArgumentException(
+				"getting field " + fieldName + " resulted in no fields");
+
+		return (ObjectReference) cl.getValue(resultField);
 	}
 	
     /**
@@ -1063,7 +1123,7 @@ class VMReference
                     return cl;
             }
         }
-		throw new ClassNotFoundException();
+		throw new ClassNotFoundException(className);
     }
 
     /**

@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2048 2003-06-24 05:08:17Z ajp $
+ * @version $Id: Project.java 2063 2003-06-25 07:03:00Z ajp $
  */
 public class Project
     implements DebuggerListener
@@ -168,6 +168,9 @@ public class Project
                 frames[i].doClose(true);
             }
         }
+
+		if (project.hasExecControls())
+			project.getExecControls().dispose();
 
 		project.getDebugger().removeDebuggerListener(project);
 		project.getDebugger().close();
@@ -654,7 +657,7 @@ public class Project
         try {
             return getLocalClassLoader().loadClass(className);
         } catch(ClassNotFoundException e) {
-//            e.printStackTrace();
+            e.printStackTrace();
             return null;
         }
     }
@@ -704,7 +707,7 @@ public class Project
     {
         DebuggerThread thread;
 
-		if (de.getID() == DebuggerEvent.DEBUGGER_STATE) {
+		if (de.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
 			PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
 			if (frames == null)
@@ -713,7 +716,7 @@ public class Project
 			for(int i=0; i< frames.length; i++)
 				frames[i].showDebuggerState(de.getNewState());
 				
-			if (de.getNewState() == Debugger.IDLE)
+			if (de.getOldState() == Debugger.NOTREADY && de.getNewState() == Debugger.IDLE)
 				PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVMDone"));
 				
 			return;			

@@ -12,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2039 2003-06-19 06:03:24Z ajp $
+ * @version $Id: Debugger.java 2063 2003-06-25 07:03:00Z ajp $
  */
 public abstract class Debugger
 {
@@ -22,10 +22,12 @@ public abstract class Debugger
     public static final int TERMINATED = 3;
 
     // machine states
-    public static final int NOTREADY = 0;
-    public static final int IDLE = 1;
-	public static final int RUNNING = 2;
-    public static final int SUSPENDED = 3;
+    public static final int UNKNOWN = 0;	// cannot move to this state,
+    										// but this can be the oldState in an event
+    public static final int NOTREADY = 1;
+    public static final int IDLE = 2;
+	public static final int RUNNING = 3;
+    public static final int SUSPENDED = 4;
 
 	/**
 	 * Create an instance of a debugger.

@@ -3,6 +3,7 @@ package bluej.debugger.jdi;
 import java.io.File;
 import java.util.*;
 
+import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
 import bluej.Config;
@@ -28,7 +29,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2048 2003-06-24 05:08:17Z ajp $
+ * @version $Id: JdiDebugger.java 2063 2003-06-25 07:03:00Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -80,7 +81,7 @@ public class JdiDebugger extends Debugger
 		if (vmReady)
 			throw new IllegalStateException("JdiDebugger.launch() was called but the debugger was already loaded");
 
-		raiseStateChangeEvent(Debugger.NOTREADY);
+		raiseStateChangeEvent(Debugger.UNKNOWN, Debugger.NOTREADY);
 
 		// start the MachineLoader (a separate thread) to load the
 		// remote virtual machine in the background
@@ -97,7 +98,7 @@ public class JdiDebugger extends Debugger
 	{	
 		vmReady = false;
 
-		raiseStateChangeEvent(Debugger.NOTREADY);
+		raiseStateChangeEvent(Debugger.IDLE, Debugger.NOTREADY);
 
 		treeModel.setRoot(new JdiThreadNode());
 		treeModel.reload();
@@ -194,7 +195,7 @@ public class JdiDebugger extends Debugger
     {
         Object args[] = { newInstanceName, ((JdiObject)dob).getObjectReference() };
 
-		getVM().invokeExecServer( ExecServer.ADD_OBJECT, Arrays.asList(args));
+		getVM().invokeExecServerWorker( ExecServer.ADD_OBJECT, Arrays.asList(args));
 		
 		usedNames.add(newInstanceName);
 		
@@ -211,9 +212,7 @@ public class JdiDebugger extends Debugger
     		
         Object args[] = { instanceName };
 
-		getVM().invokeExecServer( ExecServer.REMOVE_OBJECT, Arrays.asList(args) );
-		
-		System.out.println(getVM().getStatus());
+		getVM().invokeExecServerWorker( ExecServer.REMOVE_OBJECT, Arrays.asList(args) );
     }
 
     /**
@@ -223,7 +222,7 @@ public class JdiDebugger extends Debugger
     {
         Object args[] = { classpath };
 
-		getVM().invokeExecServer( ExecServer.SET_LIBRARIES, Arrays.asList(args));
+		getVM().invokeExecServerWorker( ExecServer.SET_LIBRARIES, Arrays.asList(args));
     }
 
 	/**
@@ -328,7 +327,7 @@ public class JdiDebugger extends Debugger
 		if (!vmReady)
 			return;
 
-		getVM().invokeExecServer(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
+		getVM().invokeExecServerWorker(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
     }
 
     /**
@@ -339,7 +338,7 @@ public class JdiDebugger extends Debugger
 		if (!vmReady)
 			return;
 
-		getVM().invokeExecServer( ExecServer.SUPRESS_OUTPUT, Collections.EMPTY_LIST );
+		getVM().invokeExecServerWorker( ExecServer.SUPRESS_OUTPUT, Collections.EMPTY_LIST );
     }
 
     /**
@@ -350,7 +349,7 @@ public class JdiDebugger extends Debugger
 		if (!vmReady)
 			return;
 
-		getVM().invokeExecServer( ExecServer.RESTORE_OUTPUT, Collections.EMPTY_LIST );
+		getVM().invokeExecServerWorker( ExecServer.RESTORE_OUTPUT, Collections.EMPTY_LIST );
     }
 
 	/**
@@ -439,9 +438,14 @@ public class JdiDebugger extends Debugger
 		}
 	}
 
-	void raiseStateChangeEvent(int newState)
+	void raiseStateChangeEvent(int oldState, int newState)
 	{
-		fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATE, newState));
+		fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATECHANGED, oldState, newState));
+	}
+
+	void raiseRemoveStepMarksEvent()
+	{
+		fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_REMOVESTEPMARKS));
 	}
 
     // ==== code for active debugging: setting breakpoints, stepping, etc ===
@@ -457,7 +461,7 @@ public class JdiDebugger extends Debugger
      */
     public String toggleBreakpoint(String className, int line, boolean set)
     {
-        //Debug.message("[toggleBreakpoint]: " + className);
+        Debug.message("[toggleBreakpoint]: " + className + " line " + line);
 
         try {
             if(set) {
@@ -512,17 +516,6 @@ public class JdiDebugger extends Debugger
 		else {
 			Debug.message("Received breakpoint for unknown thread " + tr);
 		}
-
-		/*JdiThread thread = new JdiThread(null, remoteThread, executionUserParam);
-		if (thread.getClassSourceName(0).startsWith("__SHELL")) {
-			// stepped out into the shell class - resume to finish
-			machine.resume();
-		} else {
-			if (breakpoint)
-				BlueJEvent.raiseEvent(BlueJEvent.BREAKPOINT, thread);
-			else
-				BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
-		} */
 	}
 
 
@@ -595,7 +588,7 @@ public class JdiDebugger extends Debugger
 			notifyAll();	// wake any internal getVM() calls that
 							// are waiting for us to finish
 
-			raiseStateChangeEvent(Debugger.IDLE);
+			raiseStateChangeEvent(Debugger.NOTREADY, Debugger.IDLE);
 		 }
 		 
 		private synchronized VMReference getVM()
