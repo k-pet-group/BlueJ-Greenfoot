@@ -18,7 +18,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2085 2003-06-30 12:03:30Z fisker $
+ * @version $Id: ExecServer.java 2125 2003-07-21 03:24:10Z ajp $
  */
 public class ExecServer
 {
@@ -107,6 +107,7 @@ public class ExecServer
 				System.err.println("worker thread bye bye");
 			}
 		};
+		workerThread.setDaemon(true);
 		workerThread.start();
 
 		// register a listener to record all window opens and closes
