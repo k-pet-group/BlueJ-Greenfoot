@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.lang.reflect.Modifier;
 import java.awt.Point;
+import bluej.pkgmgr.Package;
 
 /**
  * This should behave as much as possible like the Java reflection API.
@@ -19,7 +20,7 @@ import java.awt.Point;
  * The reasoning behind it is that is is no good to create a new standard when there 
  * is already one that can be used.
  * 
- * @version $Id: BClass.java 1640 2003-03-04 20:26:52Z damiano $
+ * @version $Id: BClass.java 1648 2003-03-05 12:01:14Z damiano $
  */
 public class BClass
 {
@@ -56,45 +57,59 @@ public class BClass
         return className;
     }
     
-    private BPackage pkg;
+    private Package  bluej_pkg;
     private final ClassTarget classTarget;
     private final Class loadedClass;
     private final View view;
 
-    BClass (BPackage pkg, ClassTarget classTarget)
+
+    /**
+     * For use only by the bluej.extensions package
+     */
+    BClass (Package i_bluej_pkg, ClassTarget classTarget)
     {
-        this.pkg = pkg;
+        bluej_pkg = i_bluej_pkg;
         this.classTarget = classTarget;
-        this.loadedClass = pkg.bluej_pkg.loadClass (classTarget.getQualifiedName());
+        this.loadedClass = bluej_pkg.loadClass (classTarget.getQualifiedName());
         this.view = View.getView (loadedClass);
     }
-    
-    BClass (BPackage pkg, Class systemClass)
+
+    BClass (Package i_bluej_pkg, Class systemClass)
     {
-        this.pkg = pkg;
+        bluej_pkg = i_bluej_pkg;
         this.classTarget = null;
         this.loadedClass = systemClass;
         this.view = View.getView (loadedClass);
     }
 
-    BClass (BPackage pkg, View view)
+
+    private BClass (Package i_bluej_pkg, View view)
     {
-        this.pkg = pkg;
+        bluej_pkg = i_bluej_pkg;
         this.classTarget = null;
-        this.loadedClass = pkg.bluej_pkg.loadClass (view.getQualifiedName());
+        this.loadedClass = bluej_pkg.loadClass (view.getQualifiedName());
         this.view = view;
     }
 
     /**
      * @param className the Java style className, eg int[][]
      */    
-    BClass (BPackage pkg, String className)
+    BClass (Package i_bluej_pkg, String className)
     {
-        this.pkg = pkg;
+        bluej_pkg = i_bluej_pkg;
         this.classTarget = null;
-        this.loadedClass = pkg.bluej_pkg.loadClass (transJavaToClass (className));
+        this.loadedClass = bluej_pkg.loadClass (transJavaToClass (className));
         this.view = View.getView (loadedClass);
     }
+
+
+    /**
+     * TODO:
+     */
+    public boolean isValid()
+      {
+      return true;
+      }
     
     /**
      * Gets the owning Package of this class
@@ -102,7 +117,7 @@ public class BClass
      */
     public BPackage getPackage()
     {
-        return pkg;
+        return new BPackage (bluej_pkg);
     }
     
     /**
@@ -173,8 +188,10 @@ public class BClass
     public BClass getSuper()
     {
         View sup = view.getSuper();
-        return sup == null ? null
-                           : new BClass (pkg, sup);
+
+        if ( sup == null ) return null;
+        
+        return new BClass (bluej_pkg, sup);
     }
     
     /** Gets the array type of this array
@@ -184,32 +201,34 @@ public class BClass
     public BClass getArrayType()
     {
         if (!loadedClass.isArray()) throw new IllegalArgumentException ("Not an array");
-        return new BClass (pkg, loadedClass.getComponentType());
+        return new BClass (bluej_pkg, loadedClass.getComponentType());
     }
     
     /**
-     * Gets the constructors available for this class
-     * @return the constructors of this class, or an empty array if none exist, or <code>null</code> if
-     * the class has not been compiled.
+     * As From reflection: gets all constructors of this class
+     * NOTE: If the class is NOT compiled it WILL return a zero len constructors array
+     * 
+     * @return an array of constructors, zero len array if none or invalid
      */
-    public BMethod[] getConstructors()
-    {
-        if (!isCompiled()) return null;
+    public BConstructor[] getConstructors()
+        {
+        if ( ! isValid() ) return new BConstructor[0];
+
+        if ( ! isCompiled() ) return new BConstructor[0];
+
         ConstructorView[] constructorViews = view.getConstructors();
-        BMethod[] methods = new BMethod [constructorViews.length];
-        for (int i=0; i<constructorViews.length; i++) {
-            methods[i] = new BMethod (pkg, constructorViews[i], null);
+        BConstructor[] result = new BConstructor [constructorViews.length];
+        for (int index=0; index<constructorViews.length; index++) 
+            result[index] = new BConstructor (bluej_pkg, constructorViews[index]);
+
+        return result;
         }
-        Class a;
-        return methods;
-    }
-    
+     
     /**
      * Gets a constructor for this class complying with the given criteria
      * @param signature the signature of the required constructor
      * @return the requested constructor of this class, or <code>null</code> if
      * the class has not been compiled or the constructor cannot be found.
-     */
     public BMethod getConstructor (Class[] signature)
     {
         if (!isCompiled()) return null;
@@ -220,6 +239,7 @@ public class BClass
         }
         return null;
     }
+     */
     
     /**
      * Gets the static methods available for this class
@@ -232,7 +252,7 @@ public class BClass
         MethodView[] methodViews = view.getDeclaredMethods();
         BMethod[] methods = new BMethod [methodViews.length];
         for (int i=0; i<methods.length; i++) {
-            methods[i] = new BMethod (pkg, methodViews[i], null);
+            methods[i] = new BMethod (bluej_pkg, methodViews[i], null);
         }
         return methods;
     }
@@ -249,7 +269,7 @@ public class BClass
         if (!isCompiled()) return null;
         MethodView[] methodViews = view.getAllMethods();
         for (int i=0; i<methodViews.length; i++) {
-            BMethod method = new BMethod (pkg, methodViews[i], null);
+            BMethod method = new BMethod (bluej_pkg, methodViews[i], null);
             if (BMethod.matches (method, name, signature)) return method;
         }
         return null;

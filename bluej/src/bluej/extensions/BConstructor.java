@@ -1,15 +1,42 @@
 package bluej.extensions;
 
+
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.ObjectWrapper;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.views.*;
+import java.lang.reflect.Modifier;
+
+
 /**
  * This should behave as much as possible as a reflection COnstructor
  * 
  */
 public class BConstructor 
-{
-  public BConstructor()
   {
-  }
+  private bluej.pkgmgr.Package bluej_pkg;
+  private ConstructorView bluej_view;
+  private String instanceName;
 
+  /**
+   * NOT for public use: to be used from within the xtension package
+   */
+  BConstructor(bluej.pkgmgr.Package i_pkg, ConstructorView i_view )
+    {
+    bluej_pkg  = i_pkg;
+    bluej_view = i_view;
+    }
+
+  /**
+   * If you want to name the object that appears in the object bench with something
+   * you like, you can do it using this method BEFORE you call the newInstance.
+   */
+  public String setInstanceName ( String i_instanceName )
+    {
+    return instanceName = i_instanceName;
+    }
+    
   /**
    * Get the name of this constructor
    */
@@ -21,30 +48,28 @@ public class BConstructor
   /**
    * Creates a new instance of the object described by this constructor
    */
-  public BObject newInstance ( Object [] initargs )
+  public BObject newInstance ( String[] initargs )
     {
-    /*
-    invoker = new DirectInvoker (pkg.getRealPackage(), view, instanceName);
-    DebuggerObject result = invoker.invoke (args);
+    DirectInvoker invoker = new DirectInvoker (bluej_pkg, bluej_view, instanceName);
+    DebuggerObject result = invoker.invoke (initargs);
 
     if (result == null) return null;
 
+    if (result.isNullObject()) 
+      {
+      System.out.println ("BConstructor.newInstance: ERROR isNulObject == true");
+      return null;
+      }
+
     String resultName = invoker.getResultName();
-    if ( view instanceof ConstructorView) {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.getRealPackage());
+    PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
 
-        if (!result.isNullObject()) {
-            ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
-            pmf.getObjectBench().add(wrapper);  // might change name
+    ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
+    pmf.getObjectBench().add(wrapper);
 
-            // load the object into runtime scope
-            Debugger.debugger.addObjectToScope(pmf.getPackage().getId(),
-                                                wrapper.getName(), result);
-        }
+    // load the object into runtime scope
+    Debugger.debugger.addObjectToScope(pmf.getPackage().getId(), wrapper.getName(), result);
+
+    return new BObject(wrapper);
     }
-    return new BField (pkg, result.getObjectReference(), result.getObjectReference().referenceType().fieldByName (resultName));
-*/
-    return null;
-    }
-  
-}
+  }
