@@ -12,15 +12,15 @@ D   show debugger
 E   evaluate expression
 F
 G
-H
+H   <MacOS: Hide>
 I   show inheritance
-J
+J   generate doc
 K   compile             compile selected
 L   use library
 M
 N   new class
 O   open project
-P   print
+P   print               page setup
 Q   quit
 R   new package
 S   save
