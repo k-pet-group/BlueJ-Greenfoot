@@ -99,7 +99,7 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
      */
     public void setUserColors()
     { 
-    	Properties editorProps = Config.moe_props;
+    	Properties editorProps = Config.moe_user_props;
         
         // Build colour table.	   
     	Color[] colors = new Color[Token.ID_COUNT];
