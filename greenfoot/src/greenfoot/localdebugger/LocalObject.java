@@ -22,20 +22,38 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 3227 2004-12-08 04:04:58Z davmac $
+ * @version $Id: LocalObject.java 3268 2005-01-13 01:20:25Z davmac $
  */
 public class LocalObject extends DebuggerObject
 {
     private Object object;
     private static Field [] noFields = new Field[0]; 
     
-    // TODO: make the constructor private, and create a static factory method.
-    // LocalObjects should be cached in a hashmap with weak references.
-    
+    /**
+     * Construct a LocalObject to represent a local object as a DebuggerObject.
+     * @param o  The local object to represent
+     */
     public LocalObject(Object o)
     {
         object = o;
     }
+    
+    // hash and equality defined in terms of the underlying object
+    
+    public int hashCode()
+    {
+        return object.hashCode();
+    }
+    
+    public boolean equals(Object other)
+    {
+        if (other instanceof LocalObject) {
+            Object otherObj = ((LocalObject) other).object;
+            return object.equals(otherObj);
+        }
+        return false;
+    }
+    
     
     /* (non-Javadoc)
      * @see bluej.debugger.DebuggerObject#getClassName()

@@ -11,24 +11,14 @@ import greenfoot.localdebugger.LocalObject;
 
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.rmi.RemoteException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import rmiextension.ObjectTracker;
 import rmiextension.wrappers.RObject;
@@ -41,7 +31,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: WorldHandler.java 3268 2005-01-13 01:20:25Z davmac $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -178,7 +168,7 @@ public class WorldHandler
     private JPopupMenu makePopupMenu(final GreenfootObject obj)
     {
         JPopupMenu menu = new JPopupMenu();
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj));
+        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj), Collections.EMPTY_MAP);
         menu.addSeparator();
         
         // "inspect" menu item
@@ -382,7 +372,7 @@ public class WorldHandler
                 if (e.isPopupTrigger()) {
                     JPopupMenu menu = new JPopupMenu();
                     Object world = WorldHandler.this.world;
-                    ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world));
+                    ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world), Collections.EMPTY_MAP);
                     menu.show(worldTitle, e.getX(), e.getY());
                 }
             }
