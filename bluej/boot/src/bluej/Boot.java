@@ -1,6 +1,7 @@
 package bluej;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.*;
 
@@ -15,7 +16,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 2464 2004-01-28 02:39:23Z ajp $
+ * @version $Id: Boot.java 2467 2004-02-03 09:38:23Z mik $
  */
 public class Boot
 {
@@ -284,15 +285,14 @@ public class Boot
         if (!url.startsWith("file:"))
             throw new IllegalStateException("Unexpected format of jar file URL (class Boot.java): " + url);
         url = url.substring(5);
-        return java.net.URLDecoder.decode(url);
+//        return java.net.URLDecoder.decode(url);
         
-        //replace with the following when we go to jdk 1.4
-       /* try {
+        try {
             return java.net.URLDecoder.decode(url, "UTF-8");
         }
         catch(UnsupportedEncodingException exc) {
             return null;
-        } */
+        }
     }
 
     /**
