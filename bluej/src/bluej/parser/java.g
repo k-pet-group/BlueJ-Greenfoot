@@ -255,13 +255,14 @@ tokens {
                             JavaVector interfaces,
 			    boolean isAbstract,
 			    boolean isPublic,
+                boolean isEnum,
 			    JavaToken comment,
 			    Selection extendsInsert, Selection implementsInsert,
 			    Selection extendsReplace, Selection superReplace,
 			    Vector interfaceSelections)
     {
         symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, isPublic,
-        			comment, extendsInsert, implementsInsert,
+        			isEnum, comment, extendsInsert, implementsInsert,
         			extendsReplace, superReplace, interfaceSelections);
     }
 
@@ -559,7 +560,8 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
         { defineClass( (JavaToken)id, superClass,
             		  interfaces,
             		  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
-            		  commentToken,
+            		  false, //not an enum
+                      commentToken,
             		  extendsInsert, implementsInsert,
             		  extendsReplace, superReplace,
             		  interfaceSelections); }
@@ -633,7 +635,8 @@ enumDefinition[JavaBitSet mods, JavaToken commentToken]
         { defineClass( (JavaToken)id, superClass,
             		  interfaces,
             		  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
-            		  commentToken,
+            		  true, // yes, it is an enum
+                      commentToken,
             		  null, implementsInsert,
             		  null, null,
             		  interfaceSelections); }
@@ -1041,7 +1044,8 @@ statement
 	|	mods=modifiers (mods=modifiers classDefinition[mods, null]) => classDefinition[mods, null]
 	
 	// enum definition
-	|	mods=modifiers enumDefinition[mods, null]
+    // this was legal with Java 1.5 beta1 but not beta2
+	//|	mods=modifiers enumDefinition[mods, null]
 
     // Attach a label to the front of a statement
     |   id:IDENT COLON statement  {defineLabel((JavaToken)id);}

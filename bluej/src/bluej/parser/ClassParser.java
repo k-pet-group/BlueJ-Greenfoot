@@ -235,13 +235,14 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
                             JavaVector interfaces,
 			    boolean isAbstract,
 			    boolean isPublic,
+                boolean isEnum,
 			    JavaToken comment,
 			    Selection extendsInsert, Selection implementsInsert,
 			    Selection extendsReplace, Selection superReplace,
 			    Vector interfaceSelections)
     {
         symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, isPublic,
-        			comment, extendsInsert, implementsInsert,
+        			isEnum, comment, extendsInsert, implementsInsert,
         			extendsReplace, superReplace, interfaceSelections);
     }
 
@@ -784,7 +785,8 @@ public ClassParser(ParserSharedInputState state) {
 			defineClass( (JavaToken)id, superClass,
 					  interfaces,
 					  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
-					  commentToken,
+					  false, //not an enum
+			commentToken,
 					  extendsInsert, implementsInsert,
 					  extendsReplace, superReplace,
 					  interfaceSelections);
@@ -888,7 +890,8 @@ public ClassParser(ParserSharedInputState state) {
 			defineClass( (JavaToken)id, superClass,
 					  interfaces,
 					  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
-					  commentToken,
+					  true, // yes, it is an enum
+			commentToken,
 					  null, implementsInsert,
 					  null, null,
 					  interfaceSelections);
@@ -2469,10 +2472,6 @@ public ClassParser(ParserSharedInputState state) {
 					mods=modifiers();
 					classDefinition(mods, null);
 				}
-				else if ((_tokenSet_29.member(LA(1))) && (_tokenSet_30.member(LA(2)))) {
-					mods=modifiers();
-					enumDefinition(mods, null);
-				}
 				else if ((LA(1)==IDENT) && (LA(2)==COLON)) {
 					id = LT(1);
 					match(IDENT);
@@ -2750,7 +2749,7 @@ public ClassParser(ParserSharedInputState state) {
 			{
 			_loop99:
 			do {
-				if ((LA(1)==COMMA) && (_tokenSet_31.member(LA(2)))) {
+				if ((LA(1)==COMMA) && (_tokenSet_29.member(LA(2)))) {
 					match(COMMA);
 					initializer();
 				}
@@ -3073,7 +3072,7 @@ public ClassParser(ParserSharedInputState state) {
 		int _cnt141=0;
 		_loop141:
 		do {
-			if ((LA(1)==LITERAL_default||LA(1)==LITERAL_case) && (_tokenSet_32.member(LA(2)))) {
+			if ((LA(1)==LITERAL_default||LA(1)==LITERAL_case) && (_tokenSet_30.member(LA(2)))) {
 				aCase();
 			}
 			else {
@@ -3135,7 +3134,6 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_synchronized:
 		case LITERAL_volatile:
 		case LITERAL_class:
-		case LITERAL_enum:
 		case AT:
 		case LCURLY:
 		case RCURLY:
@@ -3248,7 +3246,7 @@ public ClassParser(ParserSharedInputState state) {
 		if ( synPredMatched154 ) {
 			declaration();
 		}
-		else if ((_tokenSet_25.member(LA(1))) && (_tokenSet_33.member(LA(2)))) {
+		else if ((_tokenSet_25.member(LA(1))) && (_tokenSet_31.member(LA(2)))) {
 			count=expressionList();
 		}
 		else {
@@ -3750,7 +3748,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 		_loop204:
 		do {
-			if ((_tokenSet_34.member(LA(1)))) {
+			if ((_tokenSet_32.member(LA(1)))) {
 				{
 				switch ( LA(1)) {
 				case STAR:
@@ -3932,7 +3930,7 @@ public ClassParser(ParserSharedInputState state) {
 						
 					}
 				}
-				else if ((_tokenSet_12.member(LA(1))) && (_tokenSet_35.member(LA(2)))) {
+				else if ((_tokenSet_12.member(LA(1))) && (_tokenSet_33.member(LA(2)))) {
 					postfixExpression();
 				}
 				else {
@@ -4369,7 +4367,7 @@ public ClassParser(ParserSharedInputState state) {
 		int _cnt229=0;
 		_loop229:
 		do {
-			if ((LA(1)==LBRACK) && (_tokenSet_36.member(LA(2)))) {
+			if ((LA(1)==LBRACK) && (_tokenSet_34.member(LA(2)))) {
 				match(LBRACK);
 				{
 				switch ( LA(1)) {
@@ -4775,7 +4773,7 @@ public ClassParser(ParserSharedInputState state) {
 	}
 	public static final BitSet _tokenSet_13 = new BitSet(mk_tokenSet_13());
 	private static final long[] mk_tokenSet_14() {
-		long[] data = { -3459710643576242176L, 103029694079L, 1048524L, 0L, 0L, 0L};
+		long[] data = { -3459710643576242176L, 103029693567L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_14 = new BitSet(mk_tokenSet_14());
@@ -4785,12 +4783,12 @@ public ClassParser(ParserSharedInputState state) {
 	}
 	public static final BitSet _tokenSet_15 = new BitSet(mk_tokenSet_15());
 	private static final long[] mk_tokenSet_16() {
-		long[] data = { -3459710643576242176L, 103029689983L, 1048524L, 0L, 0L, 0L};
+		long[] data = { -3459710643576242176L, 103029689471L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_16 = new BitSet(mk_tokenSet_16());
 	private static final long[] mk_tokenSet_17() {
-		long[] data = { -3459710643576242176L, 137423052415L, 1048524L, 0L, 0L, 0L};
+		long[] data = { -3459710643576242176L, 137423051903L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_17 = new BitSet(mk_tokenSet_17());
@@ -4850,44 +4848,34 @@ public ClassParser(ParserSharedInputState state) {
 	}
 	public static final BitSet _tokenSet_28 = new BitSet(mk_tokenSet_28());
 	private static final long[] mk_tokenSet_29() {
-		long[] data = { -4611541432648335360L, 1599L, 0L, 0L};
+		long[] data = { 1151795604700004352L, 804864L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_29 = new BitSet(mk_tokenSet_29());
 	private static final long[] mk_tokenSet_30() {
-		long[] data = { -4035080680344911872L, 1599L, 0L, 0L};
+		long[] data = { 1151795604700004352L, 9191424L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_30 = new BitSet(mk_tokenSet_30());
 	private static final long[] mk_tokenSet_31() {
-		long[] data = { 1151795604700004352L, 804864L, 1048524L, 0L, 0L, 0L};
+		long[] data = { 4610876777869344768L, -549753954304L, 1048575L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_31 = new BitSet(mk_tokenSet_31());
 	private static final long[] mk_tokenSet_32() {
-		long[] data = { 1151795604700004352L, 9191424L, 1048524L, 0L, 0L, 0L};
+		long[] data = { 2305843009213693952L, 0L, 48L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_32 = new BitSet(mk_tokenSet_32());
 	private static final long[] mk_tokenSet_33() {
-		long[] data = { 4610876777869344768L, -549753954304L, 1048575L, 0L, 0L, 0L};
+		long[] data = { 4611439727822766080L, -549745528832L, 1048575L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_33 = new BitSet(mk_tokenSet_33());
 	private static final long[] mk_tokenSet_34() {
-		long[] data = { 2305843009213693952L, 0L, 48L, 0L, 0L, 0L};
-		return data;
-	}
-	public static final BitSet _tokenSet_34 = new BitSet(mk_tokenSet_34());
-	private static final long[] mk_tokenSet_35() {
-		long[] data = { 4611439727822766080L, -549745528832L, 1048575L, 0L, 0L, 0L};
-		return data;
-	}
-	public static final BitSet _tokenSet_35 = new BitSet(mk_tokenSet_35());
-	private static final long[] mk_tokenSet_36() {
 		long[] data = { 1152358554653425664L, 802816L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
-	public static final BitSet _tokenSet_36 = new BitSet(mk_tokenSet_36());
+	public static final BitSet _tokenSet_34 = new BitSet(mk_tokenSet_34());
 	
 	}
