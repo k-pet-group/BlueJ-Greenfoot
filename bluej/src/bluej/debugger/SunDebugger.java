@@ -12,7 +12,7 @@ import sun.tools.debug.DebuggerCallback;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunDebugger.java 82 1999-05-13 03:36:09Z mik $
+ ** @version $Id: SunDebugger.java 83 1999-05-14 01:13:04Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -45,7 +45,8 @@ public class SunDebugger extends Debugger
 	try {
 	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM, null);
 	    boolean debugOutput = true;
-	    remoteDebugger = new RemoteDebugger("", this, debugOutput);
+	    String arguments = "-Xbootclasspath/a:/usr/local/jdk1.2/lib/tools.jar";
+	    remoteDebugger = new RemoteDebugger(arguments, this, debugOutput);
 	    String[] args = { BlueJRuntime.INIT };
 	    runtimeCmd(args, "");		// Initialise
 	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
