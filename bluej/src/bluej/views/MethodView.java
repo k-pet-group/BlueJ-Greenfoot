@@ -5,7 +5,7 @@ import bluej.utility.Utility;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: MethodView.java 203 1999-07-23 05:32:28Z ajp $
+ ** @version $Id: MethodView.java 212 1999-07-28 02:13:34Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java method in BlueJ
@@ -100,7 +100,7 @@ public class MethodView extends MemberView
 		}
 	    }
 	    if (j < (params.length - 1))
-		sb.append(", ");
+		sb.append(",");
 	}
 	sb.append(")");
 	return sb.toString();

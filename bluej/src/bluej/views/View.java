@@ -14,7 +14,7 @@ import java.util.Vector;
 
 
 /**
- ** @version $Id: View.java 208 1999-07-23 06:19:40Z ajp $
+ ** @version $Id: View.java 212 1999-07-28 02:13:34Z ajp $
  ** @author Michael Cahill
  **
  ** View class - a representation of a Java class in BlueJ
@@ -300,68 +300,78 @@ public class View
             return;     // already loaded - nothing to do
 
         comments_loaded = true;
-        
-        CommentList comments = null;
-        
-        try {
-            String filename = getName().replace('.', '/') + ".ctxt";
 
-            InputStream in = null;
-            
-            if (cl.getClassLoader() == null)
-                in = ClassLoader.getSystemResourceAsStream(filename);
-            else
-                in = cl.getClassLoader().getResourceAsStream(filename);
-
-            if(in != null)
-            {
-                comments = new CommentList();
-                comments.load(in);
-    
-                in.close();
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-            
-        if(comments == null) {
-            return;
-        }
-        
         // match the comments against this view's members
         // -> put all members into a hashtable indexed by
         // <member>.getSignature() (== <comment>.getTarget())
         Hashtable table = new Hashtable();
-        addMembers(table, getDeclaredFields());
+        addMembers(table, getAllFields());
         addMembers(table, getConstructors());
-        addMembers(table, getDeclaredMethods());
+        addMembers(table, getAllMethods());
+        
+        // curview records the view we are looking for comments in as we
+        // traverse up through the class and its superclasses
+        View curview = this;
+        
+        while(curview != null) {            
+    
+            CommentList comments = null;
+            String filename = curview.getName().replace('.', '/') + ".ctxt";  
             
-        // match up the comments read from the file with the members of this view
-        for(Enumeration e = comments.getComments(); e.hasMoreElements(); ) {
-            Comment c = (Comment)e.nextElement();
+            try {
+                InputStream in = null;
                 
-            if(c.getTarget().startsWith("class ") ||
-               c.getTarget().startsWith("interface ")) {
-                setComment(c);
-                continue;
+                if (curview.cl.getClassLoader() == null)
+                    in = ClassLoader.getSystemResourceAsStream(filename);
+                else
+                    in = curview.cl.getClassLoader().getResourceAsStream(filename);
+    
+                if(in != null)
+                {
+                    comments = new CommentList();
+                    comments.load(in);
+                    in.close();
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
             }
-                
-            MemberView m = (MemberView)table.get(c.getTarget());
-                    
-            if(m == null) {
-                // Debug.message("No member found for " + c.getTarget());
-                continue;
+            
+            if(comments != null) {
+                // match up the comments read from the file with the members of this view
+                for(Enumeration e = comments.getComments(); e.hasMoreElements(); ) {
+                    Comment c = (Comment)e.nextElement();
+                        
+                    if(c.getTarget().startsWith("class ") ||
+                       c.getTarget().startsWith("interface ")) {
+                        // we only want to set a class comment on our base class, not for our
+                        // supers
+                        if (curview == this)
+                            setComment(c);
+                        continue;
+                    }
+                        
+                    MemberView m = (MemberView)table.get(c.getTarget());
+                            
+                    if(m == null) {
+                        // Debug.message("No member found for " + c.getTarget() + " in file " + filename);
+                        continue;
+                    }
+                    else {
+                        // Debug.message("Found member for " + c.getTarget() + " in file " + filename);
+                        m.setComment(c);
+                    }
+                }
             }
-            else {
-                // Debug.message("Found member for " + c.getTarget());
-                m.setComment(c);
-            }
+
+            // move up to the superclass
+            curview = curview.getSuper();
         }
     }
     
     private void addMembers(Hashtable table, MemberView[] members)
     {
         for(int i = 0; i < members.length; i++) {
+            // Debug.message("Adding member " + members[i].getSignature());
             table.put(members[i].getSignature(), members[i]);
         }
     }
