@@ -218,6 +218,8 @@ editor.find.replace=Replace
 editor.find.replaceAll=Replace All
 editor.find.up=Search up
 editor.find.down=Search down
+editor.find.ignoreCase=Ignore case
+editor.find.wholeWord=Whole word
 
 #Messages, warnings, etc that is displayed by Info.java
 editor.info.version = Moe version
