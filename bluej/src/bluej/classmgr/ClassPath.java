@@ -10,13 +10,13 @@ import java.util.zip.*;
 import javax.swing.table.*;
 
 /**
- ** @version $Id: ClassPath.java 105 1999-06-03 02:14:25Z ajp $
+ ** @version $Id: ClassPath.java 110 1999-06-03 02:53:22Z ajp $
  ** @author Andrew Patterson
  ** Class to maintain a list of ClassPathEntry's.
  **/
 public class ClassPath
 {
-	public ArrayList entries;
+	public ArrayList entries = new ArrayList();
 
 	public ClassPath()
 	{
@@ -151,11 +151,12 @@ ArrayList cpLibraries = new ArrayList();
 
 			current++;
 	    }
+
+		try {
+			config.store(configstream, "User libraries");
+		} catch(IOException ioe) {
+			Debug.message("Writing library configuration: " + ioe.getLocalizedMessage());
+		}
 	}
-		
-//	try {
-//	    userConfig.save(new FileOutputStream(Config.getUserConfigDir() + File.separator + Config.getString("browser.librarychooser.config.user")), "");
-//	} catch (IOException ioe) {
-//	    ioe.printStackTrace();
-//	}
 }
+

@@ -18,8 +18,8 @@ import bluej.Config;
  * to the browser.  The new library can be specified as either a file (ZIP or JAR
  * archive) or directory, with an associated alias in either case.
  * 
- * @author $Author: ajp $
- * @version $Id: ClassMgrDialog.java 105 1999-06-03 02:14:25Z ajp $
+ * @author Andrew Patterson
+ * @version $Id: ClassMgrDialog.java 110 1999-06-03 02:53:22Z ajp $
  */
 public class ClassMgrDialog extends JDialog {
 
@@ -28,14 +28,14 @@ public class ClassMgrDialog extends JDialog {
 	private JTable userLibrariesTable = null;
 	private ClassPathTableModel userLibrariesModel = null;
 
-	private static final FlowLayout PANELLAYOUT = new FlowLayout(FlowLayout.LEFT);
-		
 	/**
 	 * Setup the UI for the dialog and event handlers for the dialog's buttons.
 	 * 
 	 * @param title the title of the dialog
 	 */
 	private ClassMgrDialog(String title) {
+
+		setTitle(title);
 
 		JPanel dialogPane = new JPanel();
 		{
@@ -195,31 +195,13 @@ public class ClassMgrDialog extends JDialog {
 
 //		JTabbedPane tabbedPane = new JTabbedPane();
 
+		// arbitrary dimensions here.. what is the best way of getting these??
 		dialogPane.setPreferredSize(new Dimension(610,410));
 //		tabbedPane.addTab("Classes", null, dialogPane);
 
 		getContentPane().add(dialogPane);
 
 		pack();
-
-	/**
-	 * If we have a valid library entered, ask the parent frame to add it.
-	 */
-/*	okButton.addActionListener(new ActionListener() {
-	    public void actionPerformed(ActionEvent e) {
-		setVisible(false);
-		if (libraryTF.getText() != null) {
-			File library = new File(libraryTF.getText());
-			if (aliasTF.getText() == null || aliasTF.getText().equals(""))
-				alias = library.getName();
-			else
-				alias = aliasTF.getText();
-		}
-	    }
-	});
-*/
-
-
     }
 
 	/**
@@ -231,6 +213,7 @@ public class ClassMgrDialog extends JDialog {
 		// ask the user to select the file or directory
 		JFileChooser chooser = new JFileChooser();
 		{
+			// LibraryFileFilter is a private class defined below
 			chooser.setFileFilter(new LibraryFileFilter()); 
 			// files for archive libraries, directories for library trees
 			chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -273,6 +256,11 @@ public class ClassMgrDialog extends JDialog {
 	}
 }
 
+/**
+ * A private class to render class path entries into a list box
+ * in the format of 
+ * location (description)
+ **/
 class ClassMgrCellRenderer implements ListCellRenderer {
 	// This is the only method defined by ListCellRenderer.  We just
 	// reconfigure the Jlabel each time we're called.
@@ -290,7 +278,7 @@ class ClassMgrCellRenderer implements ListCellRenderer {
 
 		ClassPathEntry cpe = (ClassPathEntry)value;
 	
-		String s = cpe.getCanonicalPathNoException() + "(" + cpe.getDescription() + ")";;
+		String s = cpe.getCanonicalPathNoException() + " (" + cpe.getDescription() + ")";;
 
 		((JLabel)sup).setText(s);
         
@@ -300,7 +288,7 @@ class ClassMgrCellRenderer implements ListCellRenderer {
 
 /**
  * A simple FileFilter subclass to accept on valid library files (i.e., ZIP or JAR extension)
- * Used by the AddLibraryDialog to only allow selection of valid library archive files.
+ * Used by the addUserLibrary method to only allow selection of valid library archive files.
  */
 class LibraryFileFilter extends FileFilter {
 	/**
