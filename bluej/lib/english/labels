@@ -515,7 +515,7 @@ properties.heading.moe=Moe Editor properties. Settings in this file override \"m
 
 menu.package=_Project
 menu.package.new=_New Project...
-menu.package.open=Open Project...@P
+menu.package.open=Open Project...@O
 menu.package.openRecent=Open Recent
 menu.package.openNonBlueJ=Open Non _BlueJ...
 menu.package.close=Close@W
