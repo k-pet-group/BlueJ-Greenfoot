@@ -5,6 +5,8 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.ImageIcon;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import bluej.utility.*;
@@ -30,7 +32,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2437 2003-12-10 11:40:47Z mik $
+ * @version $Id: Config.java 2443 2003-12-19 14:41:17Z fisker $
  */
 
 public final class Config
@@ -142,13 +144,22 @@ public final class Config
         
         boolean themed = Boolean.valueOf(
             Config.getPropString("bluej.useTheme", "false")).booleanValue();
-        if(themed)    
+        if(themed){    
             MetalLookAndFeel.setCurrentTheme(new BlueJTheme());
-            
-//        try {
-//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//        }
-//        catch (Exception e) { }
+        }
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+
     } // initialise
 
     
