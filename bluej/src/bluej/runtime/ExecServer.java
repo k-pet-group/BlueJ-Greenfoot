@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2865 2004-08-12 04:23:38Z davmac $
+ * @version $Id: ExecServer.java 2869 2004-08-13 02:39:49Z davmac $
  */
 public class ExecServer
 {
@@ -747,6 +747,7 @@ public class ExecServer
                             break;
                         case DISPOSE_WINDOWS:
                             disposeWindows();
+                            break;
                         case EXIT_VM:
                             System.exit(0);
                         default:
