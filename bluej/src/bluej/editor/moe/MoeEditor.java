@@ -1920,6 +1920,10 @@ public final class MoeEditor extends JFrame
             button.setEnabled(false);
             Debug.message("Moe: action not found for button " + label);
         }
+
+        // mac os property to change button shape
+        button.putClientProperty("JButton.buttonType", "toolbar");  //"icon"
+
         return button;
     }
 

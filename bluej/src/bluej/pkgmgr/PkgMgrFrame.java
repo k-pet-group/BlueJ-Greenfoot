@@ -42,7 +42,7 @@ import antlr.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1581 2002-12-12 14:46:18Z damiano $
+ * @version $Id: PkgMgrFrame.java 1623 2003-02-05 15:31:43Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1602,13 +1602,13 @@ public class PkgMgrFrame extends JFrame
         buttonPanel = new JPanel();
         {
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-            buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));
 
 
-            ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
+            //ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
 
             JButton button = createButton(Config.getString("menu.edit.newClass"),
-                                          emptyIcon,
+                                          null, //emptyIcon,
                                           Config.getString("tooltip.newClass"));
             button.addActionListener(new ActionListener() {
                                         public void actionPerformed(ActionEvent e) {
@@ -1641,7 +1641,7 @@ public class PkgMgrFrame extends JFrame
 
 
             button = createButton(Config.getString("menu.tools.compile"),
-                                  emptyIcon,
+                                  null, // emptyIcon,
                                   Config.getString("tooltip.compile"));
             button.addActionListener(new ActionListener() {
                                         public void actionPerformed(ActionEvent e) {
@@ -1774,7 +1774,11 @@ public class PkgMgrFrame extends JFrame
         JButton button = new JButton(text);
         button.setFont(PkgMgrFont);
         if (icon != null)
-        button.setIcon(icon);
+            button.setIcon(icon);
+
+        // mac os property to change button shape
+        button.putClientProperty("JButton.buttonType", "toolbar");  // "icon"
+
         button.setToolTipText(toolTip);
         button.setRequestFocusEnabled(false);   // never get keyboard focus
 
@@ -1783,7 +1787,7 @@ public class PkgMgrFrame extends JFrame
         Dimension pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
-        button.setMargin(new Insets(2, 0, 2, 0));
+//        button.setMargin(new Insets(2, 0, 2, 0));
 
         return button;
     }
