@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: PkgMgrFrame.java 2749 2004-07-07 02:51:31Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1177,36 +1177,39 @@ public class PkgMgrFrame extends JFrame
      */
     public void doAddFromFile()
     {
-        // file dialog that shows .java and .class files
-        String className = FileUtility.getFileName(this,
+        // multi selection file dialog that shows .java and .class files
+        File[] classes = FileUtility.getMultipleFiles(this,
                                                    Config.getString("pkgmgr.addClass.title"),
                                                    Config.getString("pkgmgr.addClass.buttonLabel"),
-                                                   false,
-                                                   FileUtility.getJavaSourceFilter(),
-                                                   false);
+                                                   FileUtility.getJavaSourceFilter());
 
-        if(className == null)
+        if(classes == null)
             return;
-
-        File classFile = new File(className);
-
-        int result = pkg.importFile(classFile);
-        switch (result) {
-        case Package.NO_ERROR:
-            editor.repaint();
-            break;
-        case Package.FILE_NOT_FOUND:
-            DialogManager.showError(this, "file-does-not-exist");
-            break;
-        case Package.ILLEGAL_FORMAT:
-            DialogManager.showError(this, "cannot-import");
-            break;
-        case Package.CLASS_EXISTS:
-            DialogManager.showError(this, "duplicate-name");
-            break;
-        case Package.COPY_ERROR:
-            DialogManager.showError(this, "error-in-import");
-            break;
+        // if there are errors this will potentially bring up multiple error dialogs
+        // these could be aggregated however the error messages may be different 
+        // for each error
+        for(int i = 0; i < classes.length; i++) {
+            int result = pkg.importFile(classes[i]);
+            
+            switch (result) {
+                case Package.NO_ERROR:
+                    // Have commented out repaint as it does not seem to be needed
+                    //editor.repaint();
+                    break;
+                case Package.FILE_NOT_FOUND:
+                    DialogManager.showErrorWithText(this, "file-does-not-exist", classes[i].getName());
+                    break;
+                case Package.ILLEGAL_FORMAT:
+                    DialogManager.showErrorWithText(this, "cannot-import", classes[i].getName());
+                    break;
+                case Package.CLASS_EXISTS:
+                    DialogManager.showErrorWithText(this, "duplicate-name", classes[i].getName());
+                    break;
+                case Package.COPY_ERROR:
+                    DialogManager.showErrorWithText(this, "error-in-import", classes[i].getName());
+                    break;
+            }
+    
         }
     }
 
@@ -1226,7 +1229,21 @@ public class PkgMgrFrame extends JFrame
     public void doPageSetup()
     {
         PrinterJob job = PrinterJob.getPrinterJob();
-        setPageFormat(job.validatePage(job.pageDialog(getPageFormat())));
+        PageFormat pfmt = job.pageDialog(getPageFormat());
+        //if(!pfmt.equals(pageFormat))
+        {
+            setPageFormat(pfmt);
+            //job.validatePage()
+//            double x = pageFormat.getImageableX();
+//            double y = pageFormat.getImageableY();
+//            double width = pageFormat.getImageableWidth();
+//            double height = pageFormat.getImageableHeight();
+//            Config.putPropDouble("bluej.printer.paper.x", x);
+//            Config.putPropDouble("bluej.printer.paper.y", y);
+//            Config.putPropDouble("bluej.printer.paper.width", width);
+//            Config.putPropDouble("bluej.printer.paper.height", height);
+//            Debug.message("paper: " + x + ", " + y + ", " + width + ", " + height);
+        }        
     }
     
     /**
@@ -1236,9 +1253,20 @@ public class PkgMgrFrame extends JFrame
      */
     public static PageFormat getPageFormat()
     {
-		if (pageFormat == null)
+		if (pageFormat == null) {
 			pageFormat = PrinterJob.getPrinterJob().defaultPage();
-
+//            double x = Config.getPropDouble("bluej.printer.paper.x", 0);
+//            double y = Config.getPropDouble("bluej.printer.paper.y", 0);
+//            double width = Config.getPropDouble("bluej.printer.paper.width", 0);
+//            double height = Config.getPropDouble("bluej.printer.paper.height", 0);
+//            Debug.message("making paper: " + x + ", " + y + ", " + width + ", " + height);
+//            Paper paper = pageFormat.getPaper();
+//            paper.setImageableArea(x, y, width, height);
+//            pageFormat.setPaper(paper);
+            
+            
+            
+        }    
 		return pageFormat;   
     }
     
