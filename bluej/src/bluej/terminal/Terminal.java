@@ -23,15 +23,15 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1206 2002-04-01 16:52:29Z mik $
+ * @version $Id: Terminal.java 1207 2002-04-02 04:51:24Z ajp $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
 {
     private static final String WINDOWTITLE = Config.getString("terminal.title");
-    private static final int windowHeight = 
+    private static final int windowHeight =
         Config.getPropInteger("bluej.terminal.height", 25);
-    private static final int windowWidth = 
+    private static final int windowWidth =
         Config.getPropInteger("bluej.terminal.width", 80);
 
     private static final Color activeBgColour = Color.white;
@@ -40,7 +40,7 @@ public final class Terminal extends JFrame
     private static final Image iconImage =
         Config.getImageAsIcon("image.icon.terminal").getImage();
 
-    private static final int SHORTCUT_MASK = 
+    private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
         //Event.CTRL_MASK;
 
@@ -141,7 +141,7 @@ public final class Terminal extends JFrame
     {
         String fileName = FileUtility.getFileName(this,
                                  Config.getString("terminal.save.title"),
-                                 Config.getString("terminal.save.buttonText"), 
+                                 Config.getString("terminal.save.buttonText"),
                                  false, null, false);
         if(fileName != null) {
             try {
@@ -200,10 +200,12 @@ public final class Terminal extends JFrame
      * Create a new Reader which reads from the terminal.
      */
     Reader in = new Reader() {
-        
+
         public int read(char[] cbuf, int off, int len) throws IOException
         {
             int charsRead = 0;
+
+            prepare();
 
             while(charsRead < len) {
                 cbuf[off + charsRead] = buffer.getChar();
@@ -213,12 +215,7 @@ public final class Terminal extends JFrame
             }
             return charsRead;
         }
-              
-        public int read() throws IOException
-        {
-            return buffer.getChar();
-        }
-            
+
         public void close() throws IOException
         {
         }
@@ -238,7 +235,7 @@ public final class Terminal extends JFrame
      * Create a new output stream which writes to the terminal.
      */
     Writer out = new Writer() {
-           
+
         public void write(char[] cbuf, int off, int len) throws IOException
         {
             if (enabled) {
@@ -278,12 +275,12 @@ public final class Terminal extends JFrame
 
     public void keyPressed(KeyEvent event) {
         if(event.getModifiers() != SHORTCUT_MASK)  // let menu commands pass
-            event.consume(); 
+            event.consume();
     }
 
     public void keyReleased(KeyEvent event) {
         if(event.getModifiers() != SHORTCUT_MASK)
-            event.consume(); 
+            event.consume();
     }
 
     public void keyTyped(KeyEvent event)
