@@ -31,7 +31,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3313 2005-02-16 09:38:33Z polle $
+ * @version $Id: WorldHandler.java 3321 2005-02-21 15:44:21Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -373,9 +373,10 @@ public class WorldHandler
             
             private void maybeShowPopup(MouseEvent e)
             {
-                if (e.isPopupTrigger()) {
+
+                Object world = WorldHandler.this.world;
+                if (e.isPopupTrigger() && world != null) {
                     JPopupMenu menu = new JPopupMenu();
-                    Object world = WorldHandler.this.world;
                     ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world), Collections.EMPTY_MAP);
                     menu.show(worldTitle, e.getX(), e.getY());
                 }
@@ -420,7 +421,7 @@ public class WorldHandler
 
     public boolean drag(Object o, Point p)
     {
-        if (o instanceof GreenfootObject) {
+        if (o instanceof GreenfootObject && world != null) {
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
             go.setLocationInPixels((int) p.getX(),(int) p.getY());
