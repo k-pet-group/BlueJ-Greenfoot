@@ -1,0 +1,128 @@
+<project name="bluej-package" basedir=".">
+
+    <patternset id="bluej.images">
+        <exclude name="**/.#*" />
+        <include name="images/*.gif" />
+        <include name="images/*.jpg" />
+    </patternset>
+
+    <patternset id="bluej.libfiles">
+        <exclude name="**/.#*" />
+        <include name="lib/abstract.tmpl" />
+        <include name="lib/antlr.jar" />
+        <include name="lib/applet.tmpl" />
+        <include name="lib/bluej.defs" />
+        <include name="lib/bluej.ico" />
+        <include name="lib/html.tmpl" />
+        <include name="lib/interface.tmpl" />
+        <include name="lib/japplet.tmpl" />
+        <include name="lib/jpda.jar" />
+        <include name="lib/moe.defs" />
+        <include name="lib/readme.tmpl" />
+        <include name="lib/readmeexp.tmpl" />
+        <include name="lib/shell.tmpl" />
+        <include name="lib/stdclass.tmpl" />
+    </patternset>
+
+    <patternset id="bluej.libdirs">
+        <exclude name="**/.#*" />
+        <include name="lib/inspector/ListInspector*.class" />
+        <include name="lib/english/" />
+        <include name="lib/german/" />
+        <include name="lib/swedish/" />
+        <include name="lib/sparc/" />
+        <include name="lib/win32/" />
+    </patternset>
+
+    <patternset id="bluej.examples">
+        <exclude name="**/*.pkh" />
+        <exclude name="**/.#*" />
+        <include name="examples/appletClock/" />
+        <include name="examples/appletdemo/" />
+        <include name="examples/debugdemo/" />
+        <include name="examples/hello/" />
+        <include name="examples/people/" />
+        <include name="examples/people2/" />
+        <include name="examples/picture/" />
+        <include name="examples/reader/" />
+        <include name="examples/shapes/" />
+        <include name="examples/zork1/" />
+    </patternset>
+
+    <patternset id="bluej.editorclasses" >
+        <include name="bluej/editor/" />
+        <include name="org/" />
+    </patternset>
+
+    <patternset id="bluej.classes" >
+        <exclude name="bluej/editor/" />
+        <exclude name="org/" />
+    </patternset>
+
+    <target name="dist">
+        <delete dir="install_tmp" />
+        <mkdir dir="install_tmp"/>
+
+        <!-- construct the directory structure we want for the distribution -->
+        <copy todir="install_tmp">
+            <fileset dir="${bluej_home}" >
+                <patternset refid="bluej.images"/>
+                <patternset refid="bluej.libfiles"/>
+                <patternset refid="bluej.libdirs"/>
+                <patternset refid="bluej.examples"/>
+            </fileset>
+        </copy>
+
+        <!-- jar up all the editor classes -->
+        <jar jarfile="install_tmp/lib/editor.jar" compress="no">
+            <fileset dir="${bluej_home}/classes" >
+                <patternset refid="bluej.editorclasses"/>
+            </fileset>
+        </jar>
+
+        <!-- jar up all the other classes -->
+        <jar jarfile="install_tmp/lib/bluej.jar" compress="no">
+            <fileset dir="${bluej_home}/classes" >
+                <patternset refid="bluej.classes"/>
+            </fileset>
+        </jar>
+
+	<chmod dir="install_tmp" perm="a+r"/>
+
+        <!-- jar the entire distribution into one jar file -->
+        <jar jarfile="bluej-dist.jar"
+             basedir="install_tmp"
+             compress="yes"
+        />
+
+        <!-- compile and run the installer -->
+        <javac srcdir="."
+               destdir="."
+               includes="Installer.java"
+        />
+
+        <java classname="Installer" fork="yes" jvm="${java_home}/bin/java">
+            <classpath>
+                 <pathelement location="." />
+            </classpath>
+            <arg line="build installer.props"/>
+        </java>
+
+        <!-- bundle the resulting class into the final distribution jar file -->
+        <jar jarfile="bluej-dist-new.jar"
+             basedir="."
+             compress="no"
+             includes="*.class"
+             manifest="manifest"
+             whenempty="fail" />
+
+        <!-- cleanup -->
+	<delete file="bluej-dist.jar"/>
+	<delete>
+             <fileset dir="." includes="*.class"/>
+        </delete>
+        <delete dir="install_tmp" />
+
+    </target>
+
+</project>
