@@ -8,7 +8,6 @@ import bluej.utility.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
-import java.text.*;
 import java.util.*;
 import java.util.jar.*;
 import javax.swing.*;
@@ -36,7 +35,6 @@ public class ExtensionWrapper
     private final MenuManager menuManager;
 
     private File extensionJarFileName;
-    private long extensionLastModified;
 
     // If != null the jar is good. DO NOT expose this unless REALLY needed
     private Class extensionClass;
@@ -68,7 +66,6 @@ public class ExtensionWrapper
         if ((extensionClass = getExtensionClass(jarFile)) == null)  return;
 
         extensionJarFileName  = jarFile;
-        extensionLastModified = jarFile.lastModified();
     }
 
 
@@ -341,32 +338,6 @@ public class ExtensionWrapper
     {
         if (extensionJarFileName == null) return null;
         return extensionJarFileName.getPath();
-    }
-
-
-    /**
-     *  Gets the timestamp of the jar file.
-     *  NOTE: Need to return the date in locale format...
-     *  
-     * @return    yyyy/mm/dd hh:mm:ss
-     */
-    public String getExtensionModifiedDate()
-    {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        return timeFormat.format(new Date(extensionLastModified));
-    }
-
-
-    /**
-     *  Convenience method to ensure uniformity of preference items
-     *
-     * @param  ew   the wrapper of the extension to which to apply the key
-     * @param  key  Description of the Parameter
-     * @return      an appropriate string to identify the preference item
-     */
-    public String getPreferencesString( String key)
-    {
-        return "extensions." + getExtensionClassName() + ".preferences." + key;
     }
 
 

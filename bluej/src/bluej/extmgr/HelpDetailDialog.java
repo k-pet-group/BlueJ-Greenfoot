@@ -121,38 +121,6 @@ class HelpDetailDialog extends JDialog implements ActionListener
         if (src == closeButton) setVisible(false);
     }
 
-
-    /**
-     *  Utility, to make code clean. Concatenate a series of strings separated
-     *  by, We are just tryng to be quick, not that it really matters but still
-     *  better nd clearer
-     *
-     * @param  list  Description of the Parameter
-     * @return       Description of the Return Value
-     */
-    private String commaList(String[] list)
-    {
-        if (list == null)
-            return "";
-        if (list.length < 1)
-            return "";
-
-        StringBuffer commaList = new StringBuffer(200);
-
-        int lastIndex = list.length - 1;
-        // We know that there is at least one element
-        for (int index = 0; ; index++) {
-            commaList.append(list[index]);
-            if (index >= lastIndex)
-                break;
-            // There is another element in the list, add a comma
-            commaList.append(",");
-        }
-
-        return commaList.toString();
-    }
-
-
     /**
      * When a different extension is shown you call this one.
      */
