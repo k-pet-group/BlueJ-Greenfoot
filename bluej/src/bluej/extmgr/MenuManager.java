@@ -54,7 +54,7 @@ public class MenuManager implements PopupMenuListener
      */
     public void addExtensionMenu ()
     {
-        menuItems = extMgr.getMenuItems(null);
+        menuItems = extMgr.getMenuItems(attachedObject);
 
         for (Iterator iter = menuItems.iterator(); iter.hasNext(); )
             popupMenu.add((JComponent) iter.next());
