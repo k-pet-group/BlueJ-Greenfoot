@@ -28,7 +28,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2662 2004-06-25 09:44:48Z polle $
+ * @version $Id: MethodDialog.java 2671 2004-06-28 12:12:46Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -98,7 +98,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2662 2004-06-25 09:44:48Z polle $
+     * @version $Id: MethodDialog.java 2671 2004-06-28 12:12:46Z polle $
      */
     public static class ParameterList
     {
@@ -766,7 +766,6 @@ public class MethodDialog extends CallDialog implements FocusListener
             } else {
                 List historyList = history.getHistory(paramClasses[i]);
                 JComboBox component = createComboBox(historyList);
-                System.out.println("paramname " + i + ": " + paramString);
                 parameterList.addParameter(i, component, paramString);
             }
         }
