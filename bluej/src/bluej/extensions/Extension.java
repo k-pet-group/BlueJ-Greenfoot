@@ -6,10 +6,10 @@ import bluej.Config;
 /**
  *  The Extensions superclass. All extensions must extend this. <p>
  *
- *  <b>This API is version 1.2</b> Your class MUST have an empty parameters
- *  constructor AND implement the startup and teminate methods.
+ *  Your class MUST have an empty parameters constructor 
+ *  and it must implement all the abstract methods.
  *
- * @version    $Id: Extension.java 1642 2003-03-05 11:12:15Z damiano $
+ * @version    $Id: Extension.java 1644 2003-03-05 11:24:04Z damiano $
  */
 public abstract class Extension
 {
