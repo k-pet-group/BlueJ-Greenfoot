@@ -165,10 +165,8 @@ public class VMEventHandler implements Runnable {
      */
     private boolean exceptionEvent(Event event)
     {
-	Debug.message("[VM Event] exceptionEvent (NYI)");
-        ExceptionEvent ee = (ExceptionEvent)event;
-	//if(ee.exception().type().name().equals(....))
-        return true;
+        debugger.exceptionEvent((ExceptionEvent)event);
+	return true;
     }
 
     private boolean threadDeathEvent(Event event)

@@ -20,6 +20,7 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ExceptionRequest;
 import com.sun.jdi.event.BreakpointEvent;
+import com.sun.jdi.event.ExceptionEvent;
 
 import java.io.*;
 import java.util.*;
@@ -57,7 +58,7 @@ public class JdiDebugger extends Debugger
     volatile private boolean initialised = false;
 
     private int exitStatus;
-    private String exceptionMsg;
+    private ExceptionDescription lastException;
 
 
     private VirtualMachine machine = null;
@@ -258,10 +259,54 @@ public class JdiDebugger extends Debugger
     public void startClass(DebuggerClassLoader loader, String classname, 
 			   Package pkg)
     {
-	startServer(ExecServer.START_CLASS, loader.getId(), classname, pkg);
+	startServer(ExecServer.LOAD_CLASS, loader.getId(), classname, pkg);
 
-	// exitStatus = NORMAL_EXIT;	// for now, we assume all goes okay...
-	// runtimeCmd(allArgs, pkg);
+	// ** find the mirror of the server object **
+
+	List list = machine.classesByName(classname);
+	if(list.size() != 1)
+	    Debug.reportError("error starting class " + classname);
+
+	ReferenceType shellType = (ReferenceType)list.get(0);
+	Field shellObjectField = shellType.fieldByName("shellObject");
+	ObjectReference shellObject = 
+	    (ObjectReference)shellType.getValue(shellObjectField);
+
+	// ** find the run method **
+
+	list = shellType.methodsByName("run");
+	if(list.size() != 1)
+	    Debug.reportError("Problem getting 'run' method");
+
+	Method runMethod = (Method)list.get(0);
+
+	if(runMethod == null) {
+	    Debug.reportError("Could not find shell run method");
+	    return;
+	}
+
+	// ** call shellObject.run() **
+
+	List arguments = new ArrayList();
+  	try {
+  	    Value returnVal = shellObject.invokeMethod(serverThread, 
+						      runMethod, 
+						      arguments, 0);
+	    // returnVal is type void
+	    exitStatus = NORMAL_EXIT;
+	}
+  	catch(InvocationException e) {
+	    // exception thrown in remote machine
+	    exitStatus = EXCEPTION;
+	}
+  	catch(Exception e) {
+	    // remote invocation failed
+	    Debug.message("starting shell class failed: " + e);
+	    exitStatus = EXCEPTION;
+	    lastException = new ExceptionDescription("Internal BlueJ error!",
+					     "Cannot execute remote command",
+					     null, 0);
+  	}
     }
 
 
@@ -272,7 +317,7 @@ public class JdiDebugger extends Debugger
     public void addObjectToScope(String scopeId, String instanceName, 
 				 String fieldName, String newObjectName)
     {
-	Debug.message("[addObjectToScope]");
+	Debug.message("[addObjectToScope] - NYI");
 	//  	String[] args = { BlueJRuntime.ADD_OBJECT, 
 	//  			  scopeId, instanceName, fieldName, newObjectName };
 	//  	runtimeCmd(args, "");
@@ -283,22 +328,12 @@ public class JdiDebugger extends Debugger
      */
     public void removeObjectFromScope(String scopeId, String instanceName)
     {
-	Debug.message("[removeObjectFromScope]");
+	Debug.message("[removeObjectFromScope] - NYI");
 	//  	String[] args = { BlueJRuntime.REMOVE_OBJECT, 
 	//  			  scopeId, instanceName };
 	//  	runtimeCmd(args, "");
     }
 
-    /**
-     * Load a class into the remote machine
-     */
-    public void loadClass(DebuggerClassLoader loader, String classname)
-    {
-	Debug.message("[loadClass]");
-	//  	String[] args = { BlueJRuntime.LOAD_CLASS, 
-	//  			  loader.getId(), classname };
-	//  	runtimeCmd(args, "");
-    }
 
     /**
      * Start the server process on the remote machine to perform a task.
@@ -328,14 +363,9 @@ public class JdiDebugger extends Debugger
   	    Value returnVal = execServer.invokeMethod(serverThread, 
 						      signalMethod, 
 						      arguments, 0);
-	    // return value currently unused (void)
-  	}
-  	catch(InvocationException e) {
-	    // exception thrown in remote machine
-	    Debug.message("remote exc: " + e);
+	    // returnVal currently unused (void)
 	}
   	catch(Exception e) {
-	    // remote invocation failed
 	    Debug.message("sending command to remote VM failed: " + e);
   	}
     }
@@ -434,6 +464,73 @@ public class JdiDebugger extends Debugger
 	return object;
     }
 
+
+    /**
+     * Return the status of the last invocation. One of (NORMAL_EXIT,
+     * FORCED_EXIT, EXCEPTION).
+     */ 
+    public int getExitStatus()
+    {
+	return exitStatus;
+    }
+
+
+    /**
+     * Return the text of the last exception.
+     */
+    public ExceptionDescription getException()
+    {
+	return lastException;
+    }
+
+
+    /**
+     *  An exception was thrown in the remote machine.
+     */
+    public void exceptionEvent(ExceptionEvent exc)
+    {
+	String excClass = exc.exception().type().name();
+	ObjectReference remoteException = exc.exception();
+
+	// attention: the following depends on the (undocumented) fact that 
+	// the internal exception message field is named "detailMessage".
+  	Field msgField = 
+  	    remoteException.referenceType().fieldByName("detailMessage");
+  	StringReference val = 
+  	    (StringReference)remoteException.getValue(msgField);
+
+
+	//better: get message via method call
+//  	List list = remoteException.referenceType().methodsByName("getMessage");
+//  	if(list.size() != 1)
+//  	    Debug.reportError("Problem getting exception message");
+
+//  	Method getMessageMethod = (Method)list.get(0);
+//  	StringReference val = null;
+//    	try {
+//  	    val = (StringReference)execServer.invokeMethod(serverThread, 
+//  						getMessageMethod, 
+//  						null, 0);
+//  	} catch(Exception e) {
+//  	    Debug.reportError("Problem getting exception message: " + e);
+//  	}
+
+	String exceptionText = 
+	    (val == null ? null : val.value());
+
+	Location loc = exc.location();
+	String fileName;
+	try {
+	    fileName = loc.sourceName();
+	} catch(Exception e) {
+	    fileName = null;
+	}
+	int lineNumber = loc.lineNumber();
+
+	lastException = new ExceptionDescription(excClass, exceptionText,
+						 fileName, lineNumber);
+    }
+
     /**
      * A breakpoint has been hit in the specified thread. Find the user
      * thread that started the execution and let it continue. (The user
@@ -497,23 +594,6 @@ public class JdiDebugger extends Debugger
 	//  	}
 
 	return null;
-    }
-
-    /**
-     * Return the status of the last invocation. One of (NORMAL_EXIT,
-     * FORCED_EXIT, EXCEPTION).
-     */ 
-    public int getExitStatus()
-    {
-	return exitStatus;
-    }
-
-    /**
-     * Return the text of the last exception.
-     */
-    public String getExceptionText()
-    {
-	return exceptionMsg;
     }
 
     /**
@@ -593,41 +673,6 @@ public class JdiDebugger extends Debugger
 
     // --- DebuggerCallback interface --- 
 	
-    //      /**
-    //       * An exception has occurred.
-    //       *
-    //       * @exception java.lang.Exception if a general exception occurs.
-    //       */
-    //      public synchronized void exceptionEvent(RemoteThread rt, String errorText)
-    //  	throws Exception
-    //      {
-    //  	//Debug.message("JdiDebugger: exception event ");
-
-    //  	// System.exit() gets caught by the security manager and translated
-    //  	// into an exception called "BlueJ-Exit". First, we check for this.
-    //  	// Otherwise it's a real exception.
-
-    //  	int pos = errorText.indexOf("BlueJ-Exit:");
-    //  	if(pos != -1) {
-    //  	    exitStatus = FORCED_EXIT;
-    //  	    // get exit code
-    //  	    int endpos = errorText.indexOf(":", pos+11);  // find second ":"
-    //  	    exceptionMsg = errorText.substring(pos+11, endpos);
-    //  	}
-    //  	else {
-    //  	    exitStatus = EXCEPTION;
-    //  	    exceptionMsg = errorText;
-    //  	}
-
-    //  	if(waitqueue.containsKey(rt)) {	// someone is waiting on this...
-    //  	    waitqueue.remove(rt);
-    //  	    notifyAll();
-    //  	}
-    //  	else
-    //  	    rt.stop();
-    //      }
-
-
     private void setEventRequests(VirtualMachine vm) {
         EventRequestManager erm = vm.eventRequestManager();
         // want all uncaught exceptions
@@ -678,6 +723,15 @@ public class JdiDebugger extends Debugger
 	thr.start();
     }
 
+
+//      private void dumpStream(InputStream inStream, OutputStream outStream) 
+//  	throws IOException 
+//      {
+//          int ch;
+//          while ((ch = inStream.read()) != -1) {
+//              outStream.write(ch);
+//          }
+//      }
 
     private void dumpStream(InputStream inStream, OutputStream outStream) 
 	throws IOException 

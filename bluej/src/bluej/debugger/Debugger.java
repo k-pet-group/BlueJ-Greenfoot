@@ -13,7 +13,7 @@ import bluej.pkgmgr.Package;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Debugger.java 95 1999-05-28 06:08:18Z mik $
+ ** @version $Id: Debugger.java 101 1999-06-01 05:56:29Z mik $
  **/
 
 public abstract class Debugger
@@ -70,11 +70,6 @@ public abstract class Debugger
      */
     public abstract void removeObjectFromScope(String scopeId, String instanceName);
 
-    /**
-     * Load a class into the remote machine
-     */
-    public abstract void loadClass(DebuggerClassLoader loader, 
-				    String classname);
 
     /**
      * "Start" a class (i.e. invoke its main method without arguments)
@@ -106,9 +101,9 @@ public abstract class Debugger
     public abstract int getExitStatus();
 
     /**
-     * Return the text of the last exception.
+     * Return a description of the last exception.
      */
-    public abstract String getExceptionText();
+    public abstract ExceptionDescription getException();
 
     /**
      * List all the threads being debugged

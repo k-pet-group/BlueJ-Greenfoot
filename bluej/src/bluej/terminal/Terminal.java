@@ -5,7 +5,7 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 99 1999-05-31 06:29:40Z mik $
+ ** @version $Id: Terminal.java 101 1999-06-01 05:56:29Z mik $
  **/
 
 package bluej.terminal;
@@ -112,8 +112,8 @@ public class Terminal extends JFrame
 
 	public int read()
 	{
-	    if(!isVisible())
-	        setVisible(true);
+	    if(!isShown())
+	        showTerminal(true);
 	    if(!isActive) {
     		activate(true);
 		term.requestFocus();
@@ -144,8 +144,8 @@ public class Terminal extends JFrame
     OutputStream out = new OutputStream() {
 	public void write(int b) throws IOException
 	{
-	    if(!isVisible())
-	        setVisible(true);
+	    if(!isShown())
+	        showTerminal(true);
 	    if(!isActive) {
     		activate(true);
 		term.requestFocus();

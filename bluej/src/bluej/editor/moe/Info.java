@@ -71,7 +71,8 @@ public final class Info extends JPanel
 
   public void warning(String msg)
   {
-    warning(msg, "");
+    message (msg);
+    MoeEditorManager.editorManager.beep();
   }
 
 

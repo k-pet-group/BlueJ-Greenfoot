@@ -23,7 +23,7 @@ import sun.tools.javac.SourceClass;
 import sun.tools.javac.BatchEnvironment;
 
 /**
- ** @version $Id: Invoker.java 93 1999-05-28 00:54:37Z mik $
+ ** @version $Id: Invoker.java 101 1999-06-01 05:56:29Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -428,52 +428,28 @@ public class Invoker extends Thread
 		  break;
 
 	      case Debugger.FORCED_EXIT:  // exit through System.exit()
-		  if(watcher != null)
-		      pkg.reportExit(Debugger.debugger.getExceptionText());
+		  //if(watcher != null)
+		      //pkg.reportExit(Debugger.debugger.getExceptionText());
 		  break;
 
 	      case Debugger.EXCEPTION:
-		  analyseExceptionText(Debugger.debugger.getExceptionText());
+		  ExceptionDescription exc = Debugger.debugger.getException();
+		  String text = Utility.stripPackagePrefix(exc.getClassName());
+		  if(exc.getText() != null)
+		      text += ":\n" + exc.getText();
+
+		  if(exc.getSourceFile() == null)
+		      pkg.reportException(text);
+		  else
+		      pkg.errorMessage(
+			   pkg.getFileName(exc.getSourceFile()),
+			   exc.getLineNumber(), text, false);
 		  break;
 
 	    } // switch
 	} catch(Throwable e) {
 	    e.printStackTrace(System.err);
 	}
-    }
-
-    /**
-     * After catching an exception, try to pick the text apart to find the
-     * file and the line number. The message is in a format such as:
-     * <exception description>
-     *    at <class>.<method>(<filename>:<line>)
-     *    at ...<stack trace>
-     * We try to get the exception description, filename and line number,
-     * and then use these to report the error properly.
-     */
-    private void analyseExceptionText(String text)
-    {
-	// We assume that the first line is the exception type
-  	String msg = text.substring(0, text.indexOf("\n"));
-
-	// now we search for text in the form "(___:__)"
-
-	int startPos = text.indexOf('(');
-	int colonPos = text.indexOf(':', startPos);
-  	int endPos = text.indexOf(')', startPos);
-	colonPos = text.lastIndexOf(':', endPos);
-	startPos = text.lastIndexOf('(', colonPos);
-  	if(startPos == -1 || endPos == -1 || colonPos == -1) {
-	    // could not parse the message - use general report dialog
-  	    pkg.reportException(msg);
-  	    return;
-  	}
-
-	String fileName = text.substring(startPos+1, colonPos);
-  	String line = text.substring(colonPos+1, endPos);
-  	int lineNum = Integer.parseInt(line);
-
-  	pkg.errorMessage(pkg.getFileName(fileName), lineNum, msg, false);
     }
 
     public void notifyParsed(ClassDeclaration decl, SourceClass src, BatchEnvironment env) {}

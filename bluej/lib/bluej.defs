@@ -53,7 +53,7 @@ winBrowserCmd2=
 ## compiler type (ie javac for type javac and jikes for type jikes)
 
 bluej.compiler.type=jikes
-## bluej.compiler.executable=jikes
+bluej.compiler.executable=jikes
 
 #####################################################################
 ## User Interface "Look and Feel"

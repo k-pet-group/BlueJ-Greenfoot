@@ -13,13 +13,12 @@ import java.util.Enumeration;
 
 /**
  ** Class that controls the runtime of code executed within BlueJ.
- ** Sets up a SecurityManager, terminal window, initial thread state, etc.
+ ** Sets up a SecurityManager, initial thread state, etc.
  **
- ** This class both holds runtime attibutes (such as the terminal, etc.)
- ** and executes commands. Execution is done through a call to the "main"
- ** method. The main method is executed on the remote machine; its
- ** parameters encode the actual action to be taken. See "main" for more
- ** detail.
+ ** This class both holds runtime attibutes and executes commands. 
+ ** Execution is done through a call to the "main" method. The main method
+ ** is executed on the remote machine; its parameters encode the actual
+ ** action to be taken. See "main" for more detail.
  **
  ** @author Michael Kolling
  **/
@@ -29,10 +28,9 @@ public class ExecServer
 
     public static final int CREATE_LOADER  = 0;
     public static final int REMOVE_LOADER  = 1;
-    public static final int START_CLASS	   = 2;
-    public static final int LOAD_CLASS	   = 3;
-    public static final int ADD_OBJECT     = 4;
-    public static final int REMOVE_OBJECT  = 5;
+    public static final int LOAD_CLASS	   = 2;
+    public static final int ADD_OBJECT     = 3;
+    public static final int REMOVE_OBJECT  = 4;
 
 
     static ExecServer server = null;
@@ -111,10 +109,8 @@ public class ExecServer
 	case REMOVE_LOADER:
 	    removeClassLoader(arg1);
 	    break;
-	case START_CLASS:
-	    startClass(arg1, arg2);
-	    break;
 	case LOAD_CLASS:
+	    loadClass(arg1, arg2);
 	    break;
 	case ADD_OBJECT:
 	    break;
@@ -154,46 +150,15 @@ public class ExecServer
 
 
     /**
-     * Start executing a class in the remote runtime. That is: call its
-     * main method with 'null' argument.
-     */
-    private void startClass(String loaderId, String classname)
-	throws Throwable
-    {
-	//Debug.message("[VM] startClass: " + classname);
-	Class cl = loadClass(loaderId, classname);
-	if(cl == null)
-	    Debug.reportError("[VM] Could not load class");
-
-	try {
-	    Class[] params = { String[].class };
-	    Method m = cl.getMethod("main", params);
-			
-	    Object[] meth_args = { null };
-	    m.invoke(null, meth_args);
-	} catch(InvocationTargetException e) {
-	    // System.err.println("Exception during invocation " + e);
-	    Throwable t = e.getTargetException();
-	    throw t;
-	} catch(Exception e) {
-	    Debug.reportError("Exception while trying to start class " 
-			      + classname
-			      + ": " + e);
-	}
-    }
-
-
-    /**
      * Load a class in the remote runtime.
      */
     private Class loadClass(String loaderId, String classname)
 	throws Throwable
     {
-	//Debug.message("[VM] loadClass");
 	Class cl = null;
 
 	try {
-  	    //System.out.println("loading class " + classname);
+  	    //Debug.message("loading class " + classname);
 
 	    if(loaderId == null)
 		cl = Class.forName(classname);
@@ -201,15 +166,13 @@ public class ExecServer
 		BlueJClassLoader loader = getLoader(loaderId);
 		if(loader != null)
 		    cl = loader.loadClass(classname);
-		//Field[] f = cl.getFields();	// to force loading of class
-		// into remote machine
 	    }
 
 	    if(cl == null)
 		Debug.reportError("Could not load class for execution");
-	    //else 
-	    //System.out.println("class loaded");
-
+	    else
+		prepareClass(cl);
+	    
 	} catch(Exception e) {
 	    Debug.reportError ("Exception while trying to load class " + 
 			       classname + ": " + e);
@@ -217,6 +180,21 @@ public class ExecServer
 	return cl;
     }
 
+    /**
+     *  Run the initialisation ("prepare" method) of the new shell class.
+     *  This guarantees that the class is properly prepared, as well as
+     *  executing some init code in that shell method.
+     */
+    private void prepareClass(Class cl)
+	throws Throwable
+    {
+	try {
+	    Method m = cl.getMethod("prepare", null);
+	    m.invoke(null, null);
+	} catch(Exception e) {
+	    Debug.reportError("Exception while trying to prepare class:" + e);
+	}
+    }
 
     // ===
 

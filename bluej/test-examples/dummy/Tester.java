@@ -59,4 +59,15 @@ public class Tester
 	       return x;
     }
 
+    public void exctest()
+    throws Exception
+    {
+        throw new Exception("This is mik's fault!");
+    }
+
+    public void IOExc()
+    {
+        int n = 0;
+        int i = 56 / n;
+    }
 }

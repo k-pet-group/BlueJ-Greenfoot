@@ -263,7 +263,7 @@ public class Game {
 		curr_Room = out;
 		last_Room = null;
 		
-		solve_Room = lab;
+	solve_Room = lab;
 	}
 
     /**
@@ -275,7 +275,6 @@ public class Game {
 		
         Result result;
 	
-	Terminal.clear();
         System.out.println("\nWelcome to Maze!\n\n");
        	System.out.println("Try to solve all your problems - good luck!\n");
         System.out.println("Type 'help' if you need help.\n\n");

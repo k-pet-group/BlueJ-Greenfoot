@@ -60,27 +60,27 @@ public class MyClass
 
     private int nested1(int par)
     {
-	int sum = 0;
-	sum = nested2(sum) + 3;
-	return sum;
+        int sum = 0;
+        sum = nested2(sum) + 3;
+        return sum;
     }
 
     private int nested2(int par2)
     {
-	int sum = 0;
-	sum = nested3(par2) + 3;
-	return sum;
+        int sum = 0;
+        sum = nested3(par2) + 3;
+        return sum;
     }
 
     private int nested3(int par3)
     {
-	int sum = par3 + 1;
-	return sum;
+        int sum = par3 + 1;
+        return sum;
     }
 
    public void newMethod()
    {
-	x = 88;
-	System.out.println("The debugger is shit!");
+        x = 88;
+        System.out.println("The debugger is shit!");
    }
 }

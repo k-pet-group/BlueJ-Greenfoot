@@ -9,7 +9,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Shell.java 95 1999-05-28 06:08:18Z mik $
+ ** @version $Id: Shell.java 101 1999-06-01 05:56:29Z mik $
  **/
 
 public abstract class Shell
@@ -34,7 +34,6 @@ public abstract class Shell
     {
 	ExecServer.putObject(scopeId, instanceName, value);
     }
-
 
     //  	protected static Object getObject(String scopeId, String instanceName)
     //  	{
