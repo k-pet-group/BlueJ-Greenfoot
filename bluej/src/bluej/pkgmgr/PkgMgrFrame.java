@@ -38,7 +38,7 @@ import bluej.tester.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1030 2001-12-07 12:24:23Z mik $
+ * @version $Id: PkgMgrFrame.java 1065 2002-01-07 06:08:42Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -113,7 +113,6 @@ public class PkgMgrFrame extends JFrame
     private PackageEditor editor = null;
 
     private ObjectBench objbench;
-    private UnitTestBench unittestBench;
 
     private LibraryCallDialog libraryCallDialog = null;
 
@@ -423,9 +422,6 @@ public class PkgMgrFrame extends JFrame
 
         pack();
         editor.revalidate();
-
-        unittestBench.add(new FixtureWrapper(this, "andrew", "java.lang.String"));
-        unittestBench.add(new FixtureWrapper(this, "micheal_1", "java.util.HashMap"));
 
         // we have had trouble with BlueJ freezing when
         // the enable/disable GUI code was run off a menu
@@ -1783,23 +1779,12 @@ public class PkgMgrFrame extends JFrame
         {
             bottomPanel.setLayout(new BorderLayout());
 
-            JTabbedPane tabPane = new JTabbedPane(JTabbedPane.BOTTOM);
+            JScrollPane objScroller = new JScrollPane(objbench = new ObjectBench());
             {
-                JScrollPane objScroller = new JScrollPane(objbench = new ObjectBench());
-                {
-                    objScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-                }
-
-                JScrollPane unitScroller = new JScrollPane(unittestBench = new UnitTestBench());
-                {
-                    unitScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-                }
-
-                tabPane.add("Dynamic", objScroller);
-                tabPane.add("Unit Test", unitScroller);
+                objScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
             }
 
-            bottomPanel.add("North", tabPane);
+            bottomPanel.add("North", objScroller);
             bottomPanel.add("South", statusbar);
         }
 

@@ -12,12 +12,12 @@ import bluej.utility.Debug;
  * The panel that displays objects at the bottom of the package manager
  *
  * @author  Michael Cahill
- * @version $Id: ObjectBench.java 1017 2001-12-04 05:00:19Z ajp $
+ * @version $Id: ObjectBench.java 1065 2002-01-07 06:08:42Z ajp $
  */
 public class ObjectBench extends JPanel
 {
     static final int WIDTH = 3 * (ObjectWrapper.WIDTH + 10);
-    static final int HEIGHT = ObjectWrapper.HEIGHT + 4;
+    static final int HEIGHT = ObjectWrapper.HEIGHT + 10;
 
     public ObjectBench()
     {
