@@ -13,7 +13,7 @@ import java.util.*;
  * 
  *
  * @author  Andrew Patterson
- * @version $Id: TargetCollection.java 1627 2003-02-12 06:02:44Z ajp $
+ * @version $Id: TargetCollection.java 1759 2003-04-08 02:52:53Z ajp $
  */
 public class TargetCollection
 {
@@ -40,9 +40,14 @@ public class TargetCollection
         return (Target) targets.remove(identifierName);
     }
 
-    public void add(Target target)
+    public void add(String identifierName, Target target)
     {
-        targets.put(target.getIdentifierName(), target);
+        targets.put(identifierName, target);
+    }
+    
+    public String toString()
+    {
+    	return targets.toString();
     }
 }
 

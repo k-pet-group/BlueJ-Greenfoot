@@ -24,7 +24,7 @@ import bluej.extmgr.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1746 2003-04-04 13:45:35Z fisker $
+ * @version $Id: Package.java 1759 2003-04-08 02:52:53Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1084,7 +1084,7 @@ public class Package extends Graph
         if(t.getPackage() != this)
             throw new IllegalArgumentException();
 
-        targets.add(t);
+        targets.add(t.getIdentifierName(), t);
     }
 
     public void removeTarget(Target t)
@@ -1104,7 +1104,7 @@ public class Package extends Graph
             return;
         }
         targets.remove(oldIdentifier);
-        targets.add(t);
+        targets.add(newIdentifier, t);
     }
 
     /**
@@ -1942,7 +1942,6 @@ public class Package extends Graph
                 continue;
 
             if (successful) {
-
                 t.endCompile();
 
                 /* compute ctxt files (files with comments and parameters names) */
