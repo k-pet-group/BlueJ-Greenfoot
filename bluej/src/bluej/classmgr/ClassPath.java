@@ -9,7 +9,7 @@ import java.net.*;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 2161 2003-08-06 11:57:36Z mik $
+ * @version $Id: ClassPath.java 2457 2004-01-19 00:52:53Z ajp $
  */
 public class ClassPath
 {
@@ -47,8 +47,9 @@ public class ClassPath
 
     /**
      * Construct a Classpath from an array of URLs
-     *
-     * @param   an array of File URLs
+     * 
+     * @param urls
+     *            an array of File URLs
      */
     public ClassPath(URL urls[])
     {
