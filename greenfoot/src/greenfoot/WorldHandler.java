@@ -33,7 +33,7 @@ import rmiextension.wrappers.RObject;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3166 2004-11-25 02:36:34Z davmac $
+ * @version $Id: WorldHandler.java 3182 2004-11-26 01:14:21Z davmac $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -125,6 +125,7 @@ public class WorldHandler
                 objectDropped = false;
                 DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
                 worldCanvas.removeMouseListener(this);
+                worldCanvas.removeKeyListener(this);
                 worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
                 worldCanvas.addMouseListener(DragGlassPane.getInstance());
             }
@@ -237,10 +238,10 @@ public class WorldHandler
     public void keyPressed(KeyEvent e)
     {
         isQuickAddActive = e.isShiftDown();
-        // quickAddIfActive();
+        quickAddIfActive();
     }
 
-    private boolean quickAdd()
+    private void quickAddIfActive()
     {
         if (isQuickAddActive) {
             ClassView cls = (ClassView) classSelectionManager.getSelected();
@@ -254,11 +255,9 @@ public class WorldHandler
                     int dragOffsetX = -go.getImage().getIconWidth() / 2;
                     int dragOffsetY = -go.getImage().getIconHeight() / 2;
                     DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
-                    return true;
                 }
             }
         }
-        return false;
     }
 
     /*
@@ -270,6 +269,7 @@ public class WorldHandler
     {
         isQuickAddActive = e.isShiftDown();
         // DragGlassPane.getInstance().endDrag();
+        DragGlassPane.getInstance().cancelDrag();
         worldCanvas.requestFocus();
     }
 
@@ -400,20 +400,23 @@ public class WorldHandler
     public void dragFinished(Object o)
     {
         // restore listeners
-        if (! objectDropped || ! isQuickAddActive || ! quickAdd()) {
+        if (! isQuickAddActive ) {
             DragGlassPane drag = DragGlassPane.getInstance();
             worldCanvas.removeMouseListener(drag);
             worldCanvas.removeMouseMotionListener(drag);
             worldCanvas.addMouseListener(this);
+            worldCanvas.addKeyListener(this);
+
+            // if the operation was cancelled, add the object back into the world
+            // at its original position
+            if (! objectDropped && o instanceof GreenfootObject) {
+                GreenfootObject go = (GreenfootObject) o;
+                go.setLocation(dragBeginX, dragBeginY);
+                world.addObject(go);
+                objectDropped = true;
+            }
         }
-        
-        // if the operation was cancelled, add the object back into the world
-        // at its original position
-        if (! objectDropped && o instanceof GreenfootObject) {
-            GreenfootObject go = (GreenfootObject) o;
-            go.setLocation(dragBeginX, dragBeginY);
-            world.addObject(go);
-            objectDropped = true;
-        }
+        else
+            quickAddIfActive();
     }
 }

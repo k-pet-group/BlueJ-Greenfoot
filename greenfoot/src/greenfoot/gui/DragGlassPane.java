@@ -28,8 +28,12 @@ import javax.swing.*;
  * - drop() is sent to the drop target (dragEnded() is not sent)
  * - dragFinished() is sent to the drag listener
  * 
+ * If the drag is cancelled:
+ * - dragEnded() is sent to the drop target
+ * - dragFinished() is sent to the drag listener
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3166 2004-11-25 02:36:34Z davmac $
+ * @version $Id: DragGlassPane.java 3182 2004-11-26 01:14:21Z davmac $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -176,10 +180,22 @@ public class DragGlassPane extends JComponent
     }
 
     /**
-     * Call this method when the drag should be ended.
-     *  
+     * Call this method to cancel a drag/drop operation. dragEnded() will be
+     * called for the dropTarget over which the object is currently being
+     * dragged, and then dragFinished() will be called on the DragListener.
      */
-    public void endDrag()
+    public void cancelDrag()
+    {
+        if (lastDropTarget != null)
+            lastDropTarget.dragEnded(data);
+        
+        endDrag();
+    }
+    
+    /**
+     * The drag is finished.
+     */
+    private void endDrag()
     {
         logger.info("DragGlassPane.endDrag: " + this);
         if (lastDropTarget != null) {
