@@ -9,7 +9,7 @@ import bluej.utility.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
-import bluej.extensions.event.BlueJReadyEvent;
+import bluej.extensions.event.ApplicationEvent;
 import bluej.extensions.event.ExtensionEvent;
 import bluej.extensions.event.InvocationEvent;
 
@@ -326,7 +326,7 @@ public class ExtensionsManager implements BlueJEventListener
 
         if ( eventId == BlueJEvent.CREATE_VM_DONE) 
             {
-            delegateEvent (new BlueJReadyEvent ());
+            delegateEvent (new ApplicationEvent (ApplicationEvent.APP_READY_EVENT));
             return;
             }
 

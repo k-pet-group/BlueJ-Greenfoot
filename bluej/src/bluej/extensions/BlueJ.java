@@ -19,6 +19,8 @@ import bluej.extensions.event.ExtensionEvent;
 import bluej.extensions.event.ExtensionEventListener;
 import bluej.extensions.event.InvocationEvent;
 import bluej.extensions.event.InvocationEventListener;
+import bluej.extensions.event.ApplicationEvent;
+import bluej.extensions.event.ApplicationEventListener;
 
 /**
  * A proxy object which provides services to BlueJ extensions. 
@@ -50,7 +52,7 @@ import bluej.extensions.event.InvocationEventListener;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1888 2003-04-25 09:09:16Z damiano $
+ * @version $Id: BlueJ.java 1889 2003-04-25 09:28:26Z damiano $
  */
 
 /*
@@ -70,7 +72,7 @@ public class BlueJ
 
 
     private ArrayList eventListeners;       // This is the queue for the whole of them
-    private ArrayList bluejReadyListeners;  // This is just for the BlueJReady event
+    private ArrayList applicationListeners;  
     private ArrayList packageOpenedListeners;
     private ArrayList packageClosingListeners;
     private ArrayList compileListeners;
@@ -87,7 +89,7 @@ public class BlueJ
         menuManager = aMenuManager;
 
         eventListeners = new ArrayList();
-        bluejReadyListeners = new ArrayList();
+        applicationListeners = new ArrayList();
         packageOpenedListeners = new ArrayList();
         packageClosingListeners = new ArrayList();
         compileListeners = new ArrayList();
@@ -378,19 +380,19 @@ public class BlueJ
     }
 
     /**
-     * Registers a listener for BlueJReady events.
+     * Registers a listener for application events.
      */
-    public void addBlueJReadyEventListener (BlueJReadyEventListener listener)
+    public void addApplicationEventListener (ApplicationEventListener listener)
     {
-        if (listener != null) bluejReadyListeners.add(listener);
+        if (listener != null) applicationListeners.add(listener);
     }
 
     /**
      * Removes the specified listener so no that it no longer receives events.
      */
-    public void removeBlueJReadyEventListener (BlueJReadyEventListener listener)
+    public void removeApplicationEventListener (ApplicationEventListener listener)
     {
-        if (listener != null) bluejReadyListeners.remove(listener);
+        if (listener != null) applicationListeners.remove(listener);
     }
 
     /**
@@ -480,11 +482,11 @@ public class BlueJ
     /**
      * Dispatch this event to the listeners for the bluejReady events.
      */
-    private void delegateBluejReadyEvent ( BlueJReadyEvent event )
+    private void delegateApplicationEvent ( ApplicationEvent event )
         {
-        for (Iterator iter = bluejReadyListeners.iterator(); iter.hasNext(); ) 
+        for (Iterator iter = applicationListeners.iterator(); iter.hasNext(); ) 
             {
-            BlueJReadyEventListener eventListener = (BlueJReadyEventListener)iter.next();
+            ApplicationEventListener eventListener = (ApplicationEventListener)iter.next();
             eventListener.BlueJReady(event);
             }
         }
@@ -566,7 +568,7 @@ public class BlueJ
     void delegateEvent (ExtensionEvent event)
       {
       delegateExtensionEvent ( event );
-      if ( event instanceof BlueJReadyEvent ) delegateBluejReadyEvent ((BlueJReadyEvent)event);
+      if ( event instanceof ApplicationEvent ) delegateApplicationEvent ((ApplicationEvent)event);
       else if ( event instanceof PackageEvent ) delegatePackageEvent ((PackageEvent)event);
       else if ( event instanceof CompileEvent ) delegateCompileEvent ((CompileEvent)event);
       else if ( event instanceof InvocationEvent ) delegateInvocationResultEvent ((InvocationEvent)event);
