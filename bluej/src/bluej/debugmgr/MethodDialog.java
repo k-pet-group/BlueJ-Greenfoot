@@ -28,7 +28,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: MethodDialog.java 2662 2004-06-25 09:44:48Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -98,7 +98,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2655 2004-06-24 05:53:55Z davmac $
+     * @version $Id: MethodDialog.java 2662 2004-06-25 09:44:48Z polle $
      */
     public static class ParameterList
     {
@@ -434,6 +434,15 @@ public class MethodDialog extends CallDialog implements FocusListener
     }
     
     /**
+     * Returns the formal type parameters for the class that declares this method.
+     * @return Array of typeParamViews
+     */
+    public TypeParamView[] getFormalTypeParams() {
+        View clazz = method.getDeclaringView();
+        return clazz.getTypeParams();        
+    }
+    
+    /**
      * Workaround for udating model problems with JComboBox.
      * Updates CallHistory and resets model to updated Vectors.  Ugly and
      * brutal but corrects problems with JComboBox update problems.
@@ -449,6 +458,20 @@ public class MethodDialog extends CallDialog implements FocusListener
                 parameterList.getParameter(i).setModel(
                         new DefaultComboBoxModel(historyList.toArray()));
                 parameterList.getParameter(i).insertItemAt(defaultParamValue, 0);
+            }
+        }
+        
+        if (typeParameterList != null) {
+            TypeParamView[] formalTypeParams = getFormalTypeParams();
+            String[] typeParams = getTypeParams();
+            for (int i = 0; i < typeParams.length; i++) {
+                history.addCall(formalTypeParams[i], typeParams[i]);
+                List historyList = history.getHistory(formalTypeParams[i]);
+                if (historyList != null) {
+                    typeParameterList.getParameter(i).setModel(
+                            new DefaultComboBoxModel(historyList.toArray()));
+                    typeParameterList.getParameter(i).insertItemAt(defaultParamValue, 0);
+                }                
             }
         }
     }
@@ -639,7 +662,7 @@ public class MethodDialog extends CallDialog implements FocusListener
             gridBag.setConstraints(name, constraints);
             tmpPanel.add(name);
 
-            JPanel typeParameterPanel = createTypeParameterPanel(clazz);
+            JPanel typeParameterPanel = createTypeParameterPanel();
             constraints.gridwidth = 1;
             constraints.gridx = 1;
             constraints.anchor = GridBagConstraints.WEST;
@@ -682,16 +705,15 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Creates a panel of type parameters for a new object
      * 
      */
-    private JPanel createTypeParameterPanel(View clazz)
+    private JPanel createTypeParameterPanel()
     {
-        TypeParamView typeParams[] = clazz.getTypeParams();
+        TypeParamView formalTypeParams[] = getFormalTypeParams();
 
-        typeParameterList = new ParameterList(typeParams.length, false);
-        for (int i = 0; i < typeParams.length; i++) {
-            //TODO support history for type parameters
-            //List historyList = history.getHistory(typeParams[i]);
-            JComboBox component = createComboBox(new ArrayList());
-            typeParameterList.addParameter(i, component, typeParams[i].toString());
+        typeParameterList = new ParameterList(formalTypeParams.length, false);
+        for (int i = 0; i < formalTypeParams.length; i++) {
+            List historyList = history.getHistory(formalTypeParams[i]);            
+            JComboBox component = createComboBox(historyList);
+            typeParameterList.addParameter(i, component, formalTypeParams[i].toString());
         }
         String startString = "<";
         String endString = ">";
@@ -854,7 +876,10 @@ public class MethodDialog extends CallDialog implements FocusListener
     }
 
     private JComboBox createComboBox(List history)
-    {
+    {        
+        if(history == null) {
+            history = new ArrayList();
+        }
         JComboBox component = new JComboBox(history.toArray());
         component.insertItemAt(defaultParamValue, 0);
         component.setEditable(true);

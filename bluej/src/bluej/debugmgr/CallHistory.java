@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+import bluej.views.TypeParamView;
+
 /** 
  ** Manages an invocation history of arguments used in a package when objects 
  ** created on the ObjectBench
@@ -18,6 +20,7 @@ public class CallHistory
     private Map objectTypes = null;
     private List objectClasses = null;
     private List objectParams = null;
+    private Map typeParams = null;
 
     private int historyLength;
 
@@ -51,6 +54,7 @@ public class CallHistory
         objectTypes.put(STRING_NAME, new ArrayList(length));
         objectClasses = new ArrayList();
         objectParams = new ArrayList();
+        typeParams = new HashMap();
 
     }
 
@@ -82,6 +86,29 @@ public class CallHistory
         return history;
     }
 
+
+    /**
+     * Gets the appropriate history for the type param
+     * 
+     * @param typeParam
+     *            the type parameter
+     * @return the List containing the appropriate history of invocations
+     */
+    public List getHistory(TypeParamView typeParam)
+    {
+        List history = (List) typeParams.get(typeParam.toString());
+        return history;
+    }
+
+    public void addCall(TypeParamView typeParam, String parameter)
+    {
+        List history = (List) typeParams.get(typeParam.toString());
+        if(history == null) {
+            history = new ArrayList();
+            typeParams.put(typeParam.toString(), history);
+        }
+        history.add(parameter);        
+    }
 
     /**
      * Adds a call to the history of a particular datatype
