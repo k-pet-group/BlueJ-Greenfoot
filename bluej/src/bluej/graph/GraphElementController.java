@@ -37,22 +37,25 @@ public class GraphElementController
     
     private TraverseStragegy traverseStragegiImpl = new TraverseStragegyImpl();
     
-    public GraphElementController(GraphEditor graphEditor, Package pkg){
+    public GraphElementController(GraphEditor graphEditor, Package pkg)
+    {
         this.graphEditor = graphEditor;
         this.pkg = pkg;
     }
     
-    public void setActiveGraphElement(GraphElement graphElement){
-    	if (graphElement instanceof Target){
-    		this.currentTarget = (Target) graphElement;
-    	}
+    public void setActiveGraphElement(GraphElement graphElement)
+    {
+        if (graphElement instanceof Target) {
+            this.currentTarget = (Target) graphElement;
+        }
     }
     
     /**
      * Invoke 'mousePressed' on all the GraphElements in the list
      * @param evt the mouseEvent
      */
-    public void mousePressed(MouseEvent evt){
+    public void mousePressed(MouseEvent evt)
+    {
         dragStartX = evt.getX();
         dragStartY = evt.getY();
         GraphElement graphElement;
@@ -90,20 +93,21 @@ public class GraphElementController
      * @param int deltaX, int deltaY
      * @return
      */
-    private void isMoveAllowed(int deltaX, int deltaY) {
+    private void isMoveAllowed(int deltaX, int deltaY) 
+    {
         GraphElement graphElement = null;
         
         isMoveAllowedX = true;
         isMoveAllowedY = true;
         
-        for(Iterator i=graphEditor.getGraphElementManager().iterator(); i.hasNext();){
+        for(Iterator i=graphEditor.getGraphElementManager().iterator(); i.hasNext();) {
             graphElement = (GraphElement) i.next();
             if (graphElement instanceof Vertex){
                 Vertex vertex = (Vertex) graphElement;
-                if (vertex.getX() + deltaX < 0){
+                if (vertex.getX() + deltaX < 0) {
                     isMoveAllowedX = false;
                 }                
-                if (vertex.getY() + deltaY < 0){
+                if (vertex.getY() + deltaY < 0) {
                     isMoveAllowedY = false;
                 }
             }
@@ -115,7 +119,8 @@ public class GraphElementController
      * Invoke 'mouseMoved' on all the GraphElements in the list
      * @param evt the mouseEvent
      */
-    public void mouseMoved(MouseEvent evt){
+    public void mouseMoved(MouseEvent evt)
+    {
         /*GraphElement graphElement;
         for(Iterator i=graphEditor.getGraphElementManager().iterator(); i.hasNext();){
             graphElement = (GraphElement) i.next();
@@ -129,7 +134,8 @@ public class GraphElementController
      * Invoke 'mouseReleased' on all the GraphElements in the list
      * @param evt the mouseEvent
      */
-    public void mouseReleased(MouseEvent evt){
+    public void mouseReleased(MouseEvent evt)
+    {
         GraphElement graphElement;
        
         for(Iterator i=graphEditor.getGraphElementManager().iterator(); i.hasNext();){
@@ -138,7 +144,8 @@ public class GraphElementController
         }
     }
     
-    private void handleMousePressed(MouseEvent evt, GraphElement graphElement, GraphEditor graphEditor){
+    private void handleMousePressed(MouseEvent evt, GraphElement graphElement, GraphEditor graphEditor)
+    {
         if(graphElement instanceof Target){
             Target target = (Target)graphElement;
             
@@ -183,18 +190,19 @@ public class GraphElementController
      * @param evt
      * @param classTarget
      */
-    private void handleMouseDraggedTarget(Target target) {
+    private void handleMouseDraggedTarget(Target target) 
+    {
         Moveable moveableTarget;
-        if (target instanceof Moveable){
+        if (target instanceof Moveable) {
             moveableTarget = (Moveable) target;
-            if (moveableTarget.isMoveable()){
+            if (moveableTarget.isMoveable()) {
 	            moveableTarget.setIsMoving(!target.isResizing()); // if this class is clicked and dragged
 				  // and isn't resizing, it must be moving.
 	            //TODO I don't like "if this class is clicked and dragged and isn't resizing, it must be moving.
 	            if (moveableTarget.isMoving()&& isMoveAllowedX) {	        
 	                moveableTarget.setGhostX( target.getX() + deltaX );
 	            }
-	            else{
+	            else {
 	                int minGhostX = graphEditor.getGraphElementManager().getMinGhostPosition().x;
 	                moveableTarget.setGhostX(moveableTarget.getGhostX()- minGhostX);
 	                // int minGhostX = graphEditor.getGraphElementManager().getMinGhostPosition().x;
@@ -219,7 +227,8 @@ public class GraphElementController
     
     
     
-    private void handleMouseReleased(MouseEvent evt, GraphElement graphElement, GraphEditor graphEditor){
+    private void handleMouseReleased(MouseEvent evt, GraphElement graphElement, GraphEditor graphEditor)
+    {
         if(graphElement instanceof Moveable){
             Target target = (Target)graphElement;
             Moveable moveable = (Moveable) graphElement;
@@ -238,7 +247,7 @@ public class GraphElementController
                 graphEditor.repaint();
             }
         }
-        if(graphElement instanceof ClassTarget){
+        if(graphElement instanceof ClassTarget) {
             ClassTarget classTarget = (ClassTarget) graphElement;
             classTarget.updateAssociatePosition();
             classTarget.handleMoveAndResizing();
@@ -261,7 +270,8 @@ public class GraphElementController
      * dependency should be created.
      * @param evt
      */
-    public void handleNewDependencies(MouseEvent evt, ClassTarget classTarget) {
+    public void handleNewDependencies(MouseEvent evt, ClassTarget classTarget) 
+    {
         //are we adding a dependency arrow
         if (isStateDrawingDependency(classTarget)) {
             // What target is this pointing at now?
@@ -315,6 +325,11 @@ public class GraphElementController
     	           evt.getKeyCode() == KeyEvent.VK_RIGHT;
     }
     
+    private static boolean isPlusOrMinusKey(KeyEvent evt)
+    {
+        return evt.getKeyCode() == KeyEvent.VK_PLUS ||
+               evt.getKeyCode() == KeyEvent.VK_MINUS;  
+    }
     
     /**
      * @param evt
@@ -328,6 +343,8 @@ public class GraphElementController
             dependencies = new LinkedList();//dummy empty list
         }
 
+        boolean handled = true;  // assume for a start that we are handling the key here
+        
         if(isArrowKey(evt)) {
             if(evt.isControlDown()) {       //resizing
                 resizeFreely(evt);
@@ -339,31 +356,37 @@ public class GraphElementController
                 navigate(evt);
             }
         }
-        
-        boolean isPlusOrMinus = evt.getKeyCode() == KeyEvent.VK_PLUS ||
-                                evt.getKeyCode() == KeyEvent.VK_MINUS;  
-        if (isPlusOrMinus){
+
+        else if(isPlusOrMinusKey(evt)) {
             resizeWithFixedRatio(evt);
+            evt.consume();
         }
        
         //dependency selection
-        if(evt.getKeyCode() == KeyEvent.VK_PAGE_UP || 
-           evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN){   
+        else if(evt.getKeyCode() == KeyEvent.VK_PAGE_UP || 
+           evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {   
             selectDependency(evt);
+            evt.consume();
         }
         
         //context menu
-        if (evt.getKeyCode() == KeyEvent.VK_SPACE ||
-            evt.getKeyCode()== KeyEvent.VK_ENTER){  
+        else if (evt.getKeyCode() == KeyEvent.VK_SPACE ||
+            evt.getKeyCode()== KeyEvent.VK_ENTER) {
             showPopupMenu();
         }
-        
+
         //Escape removes selections
-        if (evt.getKeyCode() == KeyEvent.VK_ESCAPE){
+        else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
             undoSelection();
         }
         
-        evt.consume();
+        else {
+            handled = false;
+        }
+
+        if(handled)
+            evt.consume();
+
         graphEditor.repaint();
     }
     
