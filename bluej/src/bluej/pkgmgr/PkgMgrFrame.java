@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: PkgMgrFrame.java 1926 2003-04-30 06:30:28Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -737,7 +737,7 @@ public class PkgMgrFrame extends JFrame
         String newname = FileUtility.getFileName(this,
                                                  Config.getString("pkgmgr.newPkg.title"), 
                                                  Config.getString("pkgmgr.newPkg.buttonLabel"),
-                                                 true, null, true);
+                                                 false, null, true);
 
         if (newname == null)
             return false;
