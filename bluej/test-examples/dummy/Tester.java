@@ -23,7 +23,7 @@ public class Tester
     public int [] intArray;
     private String[] stringArray;
     private Tester[] testArray;
-    private Object[] objArray;
+    public Object[] objArray;
     /**
      ** Constructor for objects of class Tester
      **/
