@@ -347,7 +347,10 @@ start BlueJ.
 unittest-new-test-method
 Enter the name of the new test method you
 wish to create using the BlueJ object
-interaction.
+interaction. For example, if you enter
+Basic here, a test method called
+testBasic will be constructed in the unit test
+class.
 New Test Method
 null
 
@@ -355,6 +358,15 @@ getobject-new-name
 Enter the name for the new object on the
 object bench.
 New Object Name
+null
+
+unittest-fixture-present
+This unit test class already has a fixture declared
+in it. If you proceed, the definition of this
+fixture will be replaced.
+Do you want to continue?
+Replace
+Cancel
 null
 
 # editor:
