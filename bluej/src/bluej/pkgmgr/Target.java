@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 305 1999-12-09 23:50:57Z ajp $
+ * @version $Id: Target.java 332 2000-01-02 13:30:59Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -45,7 +45,7 @@ public abstract class Target extends Vertex
     static final int S_NORMAL = 0;
     static final int S_INVALID = 1;
     static final int S_COMPILING = 2;
-	
+
     /** Flags **/
     static final int F_SELECTED = 1 << 0;
     static final int F_QUEUED = 1 << 1;
@@ -57,8 +57,8 @@ public abstract class Target extends Vertex
     protected SortableVector outUses;
     protected Vector parents;
     protected Vector children;
-    protected boolean resizing;	
-    protected boolean disabled;	
+    protected boolean resizing;
+    protected boolean disabled;
     protected int drag_start_x, drag_start_y;
 
     protected int state = S_INVALID;
@@ -74,7 +74,7 @@ public abstract class Target extends Vertex
     /**
      * Create a new target at a specified position.
      */
-    public Target(Package pkg, String name, int x, int y, 
+    public Target(Package pkg, String name, int x, int y,
 		  int width, int height)
     {
 	super(x, y, width, height);
@@ -127,7 +127,7 @@ public abstract class Target extends Vertex
      * and the font used for displaying the name. The size returned is
      * a multiple of 10 (to fit the interactive resizing behaviour).
      * @param name the name of the target (may be null).
-     * @return the width the target should have to fully display its name. 
+     * @return the width the target should have to fully display its name.
      */
     private static int calculateWidth(String name)
     {
@@ -142,10 +142,10 @@ public abstract class Target extends Vertex
 
     /**
      * Load this target's properties from a properties file. The prefix is an
-     * internal name used for this target to identify its properties in a 
+     * internal name used for this target to identify its properties in a
      * properties file used by multiple targets.
      */
-    public void load(Properties props, String prefix) 
+    public void load(Properties props, String prefix)
         throws NumberFormatException
     {
         // No super.load, but need to get Vertex properties:
@@ -241,7 +241,7 @@ public abstract class Target extends Vertex
 	state = newState;
 	repaint();
     }
-	
+
     public void setFlag(int flag)
     {
 	if((this.flags & flag) != flag)
@@ -250,7 +250,7 @@ public abstract class Target extends Vertex
 		repaint();
 	    }
     }
-	
+
     public void unsetFlag(int flag)
     {
 	if((this.flags & flag) != 0)
@@ -259,18 +259,18 @@ public abstract class Target extends Vertex
 		repaint();
 	    }
     }
-	
+
     public void toggleFlag(int flag)
     {
 	this.flags ^= flag;
 	repaint();
     }
-	
+
     public boolean isFlagSet(int flag)
     {
 	return ((this.flags & flag) == flag);
     }
-	
+
     public void addDependencyOut(Dependency d, boolean recalc)
     {
 	if(d instanceof UsesDependency) {
@@ -286,7 +286,7 @@ public abstract class Target extends Vertex
 	if(recalc)
 	    setState(S_INVALID);
     }
-	
+
     public void addDependencyIn(Dependency d, boolean recalc)
     {
 	if(d instanceof UsesDependency) {
@@ -381,7 +381,7 @@ public abstract class Target extends Vertex
 	    parents.copyInto(parentsArray);
 	    for(int i = 0; i < parentsArray.length ; i++)
 		pkg.removeDependency(parentsArray[i], false);
-	} 
+	}
     }
 
     /**
@@ -400,13 +400,13 @@ public abstract class Target extends Vertex
 	    inUses.copyInto(inUsesArray);
 	    for(int i = 0; i < inUsesArray.length ; i++)
 	    pkg.removeDependency(inUsesArray[i], false);
-	} 
+	}
 
 	// delete dependencies to child classes
 	if(!children.isEmpty()) {
 	    Dependency[] childrenArray = new Dependency[ children.size() ];
 	    children.copyInto(childrenArray);
-	    for(int i = 0; i < childrenArray.length ; i++) 
+	    for(int i = 0; i < childrenArray.length ; i++)
 		pkg.removeDependency(childrenArray[i], false);
 	}
     }
@@ -415,7 +415,7 @@ public abstract class Target extends Vertex
     {
 	// Order the arrows by quadrant and then appropriate coordinate
 	outUses.sort(new LayoutComparer(this, false));
-		
+
 	// Count the number of arrows into each quadrant
 	int cy = y + height / 2;
 	int n_top = 0, n_bottom = 0;
@@ -427,7 +427,7 @@ public abstract class Target extends Vertex
 	    else
 		++n_bottom;
 	}
-		
+
 	// Assign source coordinates to each arrow
 	int top_left = x + (width - (n_top - 1) * ARR_HORIZ_DIST) / 2;
 	int bottom_left = x + (width - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
@@ -444,12 +444,12 @@ public abstract class Target extends Vertex
 	    }
 	}
     }
-	
+
     public void recalcInUses()
     {
 	// Order the arrows by quadrant and then appropriate coordinate
 	inUses.sort(new LayoutComparer(this, true));
-		
+
 	// Count the number of arrows into each quadrant
 	int cx = x + width / 2;
 	int n_left = 0, n_right = 0;
@@ -462,7 +462,7 @@ public abstract class Target extends Vertex
 		else
 		    ++n_right;
 	    }
-		
+
 	// Assign source coordinates to each arrow
 	int left_top = y + (height - (n_left - 1) * ARR_VERT_DIST) / 2;
 	int right_top = y + (height - (n_right - 1) * ARR_VERT_DIST) / 2;
@@ -507,13 +507,13 @@ public abstract class Target extends Vertex
 
 	Point p = new Point(x + width / 2 + (int)(radius * cos),
 			    y + height / 2 - (int)(radius * sin));
-			
+
 	// Correct for shadow
 	if((-m < tan) && (tan < m) && (cos > 0))	// right side
 	    p.x += SHAD_SIZE;
 	if((Math.abs(tan) > m) && (sin < 0) && (p.x > x + SHAD_SIZE))	// bottom
 	    p.y += SHAD_SIZE;
-			
+
 	return p;
     }
 
@@ -524,7 +524,8 @@ public abstract class Target extends Vertex
 
     public void repaint()
     {
-        pkg.getEditor().repaint(x, y, width + SHAD_SIZE, height + SHAD_SIZE);
+        if (pkg.getEditor() != null)
+            pkg.getEditor().repaint(x, y, width + SHAD_SIZE, height + SHAD_SIZE);
     }
 
     /**
@@ -534,7 +535,7 @@ public abstract class Target extends Vertex
     {
 	g.setColor(getBackgroundColour());
 	g.fillRect(x, y, width, height);
-		
+
 	if(state != S_NORMAL) {
 	    // Debug.message("Target: drawing invalid target " + this);
 	    g.setColor(shadowCol); // Color.lightGray
@@ -547,12 +548,12 @@ public abstract class Target extends Vertex
 
 	g.setColor(shadowCol);
 	drawShadow(g);
-		
+
 	g.setColor(getBorderColour());
 	g.drawRect(x + TEXT_BORDER, y + TEXT_BORDER,
 		   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
 	drawBorders(g);
-		
+
 	g.setColor(getTextColour());
 	g.setFont(getFont());
 	Utility.drawCentredText(g, name,
@@ -567,7 +568,7 @@ public abstract class Target extends Vertex
 	Utility.drawThickLine(g, x + width - HANDLE_SIZE, y + height,
 			      x + width, y + height - HANDLE_SIZE, 3);
     }
-	
+
     void drawBorders(Graphics g)
     {
 	int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
@@ -605,7 +606,7 @@ public abstract class Target extends Vertex
 	    Target overClass = null;
 	    for(Enumeration e = pkg.getVertices(); overClass == null && e.hasMoreElements(); ) {
 		Target v = (Target)e.nextElement();
-		
+
 		if((v.x <= x) && (x < v.x + v.width) && (v.y <= y) && (y < v.y + v.height))
 		    overClass = v;
 	    }
@@ -619,7 +620,7 @@ public abstract class Target extends Vertex
 	    // Recalculate arrows
 	    recalcInUses();
 	    recalcOutUses();
-	    
+
 	    // Recalculate neighbours' arrows
 	    for(Enumeration e = inUses.elements(); e.hasMoreElements(); ) {
 		Dependency d = (Dependency)e.nextElement();
@@ -644,10 +645,10 @@ public abstract class Target extends Vertex
 
         // this shouldn't happen (oldRect shouldn't be null if we have got
         // here but on Windows it has happened to me (ajp))
-        
+
         if (oldRect == null)
             return;
-            
+
 	int orig_x = (resizing ? oldRect.width : oldRect.x);
 	int orig_y = (resizing ? oldRect.height : oldRect.y);
 	int current_x = (resizing ? width : this.x);

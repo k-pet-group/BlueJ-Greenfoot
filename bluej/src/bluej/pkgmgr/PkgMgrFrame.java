@@ -31,7 +31,7 @@ import bluej.terminal.TerminalButtonModel;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.browser.LibraryBrowser;
 
-public class PkgMgrFrame extends PkgFrame 
+public class PkgMgrFrame extends PkgFrame
 
 implements BlueJEventListener
 {
@@ -97,7 +97,7 @@ implements BlueJEventListener
     public static void closeFrame(PkgMgrFrame frame) {
 
         // If only one frame, close should close existing package rather
-        // than remove frame 
+        // than remove frame
 
         if(frames.size() == 1) {	// close package, leave frame
             frame.doSave();
@@ -220,7 +220,7 @@ implements BlueJEventListener
 	case PKG_NEW:
 	    doNewPackage();
 	    break;
-		
+
 	case PKG_OPEN:
 	    doOpen();
 	    break;
@@ -255,16 +255,16 @@ implements BlueJEventListener
 	    }
 	    break;
 
-		
+
 	    // Edit commands
 	case EDIT_NEWCLASS:
 	    createNewClass();
 	    break;
-			
+
 	case EDIT_REMOVECLASS:
 	    removeClass();
 	    break;
-			
+
 	case EDIT_NEWUSES:
 	    pkg.setState(Package.S_CHOOSE_USES_FROM);
 	    setStatus(chooseUsesFrom);
@@ -295,29 +295,29 @@ implements BlueJEventListener
 
 	case TOOLS_BROWSE:
 /*
-	    DialogManager.showText(this, 
+	    DialogManager.showText(this,
 		"The library browser is not implemented in this version.\n" +
 		"To browse the Java standard libraries, select \"Java\n" +
-		"Class Libraries...\" from the Help menu."); 
+		"Class Libraries...\" from the Help menu.");
 */
 
-  	    getBrowser().setVisible(true);
   	    // offset browser from this window
-  	    getBrowser().setLocation(this.getLocation().x + 100, 
+  	    getBrowser().setLocation(this.getLocation().x + 100,
  				     this.getLocation().y + 100);
   	    getBrowser().invalidate();
  	    getBrowser().validate();
+  	    getBrowser().setVisible(true);
 	    break;
 
 	case TOOLS_PREFERENCES:
-		PrefMgrDialog.showDialog(null);
+		PrefMgrDialog.showDialog(this);
 		break;
 
 	    // View commands
 	case VIEW_SHOWUSES:
 	    toggleShowUses(src);
 	    break;
-			
+
 	case VIEW_SHOWINHERITS:
 	    toggleShowExtends(src);
 	    break;
@@ -362,9 +362,9 @@ implements BlueJEventListener
 	    about.setVisible(true);
 	    break;
 
-	case HELP_COPYRIGHT:    
+	case HELP_COPYRIGHT:
 		JOptionPane.showMessageDialog(this,
-		new String[] { 
+		new String[] {
 		    "BlueJ \u00a9 1999 Michael K\u00F6lling, John Rosenberg.",
 		    " ",
 		    "BlueJ is available free of charge and may be",
@@ -384,7 +384,7 @@ implements BlueJEventListener
     // --- below are implementations of particular user actions ---
 
     /**
-     * doOpen - open a dialog that lets the user choose a package 
+     * doOpen - open a dialog that lets the user choose a package
      * (either a BlueJ package or a plain directory to import). If the
      * chosen directory is not a BlueJ package then "Package.importPackage"
      * is called to try to turn the chosen directory into a BlueJ package.
@@ -403,7 +403,7 @@ implements BlueJEventListener
                     return;
                 }
 
-            if(pkg.getDirName() == noTitle || pkg.getDirName() == null) 
+            if(pkg.getDirName() == noTitle || pkg.getDirName() == null)
                 doOpenPackage(pkgPath);
             else {
                 // Otherwise open it in a new window
@@ -478,32 +478,62 @@ implements BlueJEventListener
 	if(className != null) {
 	    int result = pkg.importFile(className);
 	    switch (result) {
-	        case Package.NO_ERROR: 
+	        case Package.NO_ERROR:
 		    editor.repaint();
 		    break;
-	        case Package.FILE_NOT_FOUND: 
+	        case Package.FILE_NOT_FOUND:
 		    DialogManager.showError(this, "file-does-not-exist");
 		    break;
-	        case Package.ILLEGAL_FORMAT: 
+	        case Package.ILLEGAL_FORMAT:
 		    DialogManager.showError(this, "cannot-import");
 		    break;
-	        case Package.CLASS_EXISTS: 
+	        case Package.CLASS_EXISTS:
 		    DialogManager.showError(this, "duplicate-name");
 		    break;
-	        case Package.COPY_ERROR: 
+	        case Package.COPY_ERROR:
 		    DialogManager.showError(this, "error-in-import");
 		    break;
 	    }
 	}
     }
 
+    /**
+     * importPackage - implementation if the "Import Package" user function
+     */
+    private void importPackage()
+    {
+	DialogManager.NYI(this);
+//  	    String dirname = openPackageDialog(false);
+//  	    if(dirname == null)
+//  		break;
+
+//  	    File pkgfile = new File(dirname, Package.pkgfileName);
+//  	    if(pkgfile.exists())
+//  		Debug.reportError("Package " + dirname + " already exists");
+//  	    else {
+//  		String pkgname = DialogManager.askString(this, "ask-package");
+//  		if((pkgname == null) || (pkgname.length() == 0))
+//  		    pkgname = Package.noPackage;
+
+//  		if(Package.importDir(dirname, pkgname))
+//  		    doOpenPackage(dirname);
+//  	    }
+    }
+
+    /**
+     * exportPackage - implementation if the "Export Package" user function
+     */
+    private void exportPackage()
+    {
+	DialogManager.NYI(this);
+    }
 
     /**
      * print - implementation if the "print" user function
      */
     private void print()
     {
-        PrintJob printjob = getToolkit().getPrintJob(this, 
+        PrintJob printjob = getToolkit().getPrintJob(this,
                                                      "BlueJ package: " + pkg.getDirName(),
                                                      System.getProperties());
         if(printjob != null) {
@@ -515,7 +545,7 @@ implements BlueJEventListener
     /**
      * printGraph - part of the print function. Pring out the package graph
      */
-    private void printGraph(PrintJob printjob) 
+    private void printGraph(PrintJob printjob)
     {
         Dimension pageSize = printjob.getPageDimension();
         Rectangle printArea = pkg.getPrintArea(pageSize);
@@ -528,9 +558,9 @@ implements BlueJEventListener
                 Graphics g = printjob.getGraphics();
                 pkg.printTitle(g, pageSize, i * cols + j + 1);
 
-                g.translate(printArea.x - j * printArea.width, 
+                g.translate(printArea.x - j * printArea.width,
                             printArea.y - i * printArea.height);
-                g.setClip(j * printArea.width, i * printArea.height, 
+                g.setClip(j * printArea.width, i * printArea.height,
                           printArea.width, printArea.height);
                 editor.print(g);
                 g.dispose();
@@ -567,11 +597,11 @@ implements BlueJEventListener
 		ClassTarget target =  null;
 		int classType = dlg.getClassType();
 		target = new ClassTarget(pkg, name, classType == NewClassDialog.NC_APPLET);
-		
+
 		target.setAbstract(classType == NewClassDialog.NC_ABSTRACT);
 		target.setInterface(classType == NewClassDialog.NC_INTERFACE);
 		target.generateSkeleton();
-		
+
 		pkg.addTarget(target);
 		editor.repaint();
 	    }
@@ -593,7 +623,7 @@ implements BlueJEventListener
 
     /**
        /**
-        * removeClass - removes the specified ClassTarget from the Package. 
+        * removeClass - removes the specified ClassTarget from the Package.
         */
     public void removeClass(ClassTarget removableTarget)
     {
@@ -640,7 +670,7 @@ implements BlueJEventListener
     }
 
     /**
-     * Show or hide the exec control window. 
+     * Show or hide the exec control window.
      */
     public void showHideExecControls(boolean show, boolean update)
     {
@@ -654,7 +684,7 @@ implements BlueJEventListener
     }
 
     /**
-     * Clear the terminal window. 
+     * Clear the terminal window.
      */
     private void clearTerminal()
     {
@@ -710,7 +740,7 @@ implements BlueJEventListener
     // ---- end of BlueJEventListener interface ----
 
     /**
-     * executionStarted - indicate in the interface that the machine has 
+     * executionStarted - indicate in the interface that the machine has
      *  started executing.
      */
     public void executionStarted()
@@ -757,8 +787,8 @@ implements BlueJEventListener
      */
     private void hitBreakpoint(DebuggerThread thread)
     {
-        pkg.showSource(thread.getClassSourceName(0), 
-                       thread.getLineNumber(0), 
+        pkg.showSource(thread.getClassSourceName(0),
+                       thread.getLineNumber(0),
                        thread.getName(), true);
         showHideExecControls(true, true);
         executionHalted();
@@ -778,12 +808,12 @@ implements BlueJEventListener
     /**
      * showSourcePosition - The debugger display needs updating.
      */
-    private void showSourcePosition(DebuggerThread thread, 
+    private void showSourcePosition(DebuggerThread thread,
                                     boolean updateDebugger)
     {
         int frame = thread.getSelectedFrame();
-        if(pkg.showSource(thread.getClassSourceName(frame), 
-                          thread.getLineNumber(frame), 
+        if(pkg.showSource(thread.getClassSourceName(frame),
+                          thread.getLineNumber(frame),
                           thread.getName(), false))
             execCtrlWindow.setVisible(true);
 
@@ -818,7 +848,7 @@ implements BlueJEventListener
         // check whether path exists
 
 	if (!packageFile.exists()) {
-	    DialogManager.showErrorWithText(this, "package-does-not-exist", 
+	    DialogManager.showErrorWithText(this, "package-does-not-exist",
 					    path);
 	    return false;
 	}
@@ -862,8 +892,8 @@ implements BlueJEventListener
         GridLayout buttonGridLayout = new GridLayout(0, 1, 0, 3);
         buttonGridLayout.setVgap(5);
         buttonPanel.setLayout(buttonGridLayout);
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));	
-        String newClassString = Config.getString("menu.edit." + 
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
+        String newClassString = Config.getString("menu.edit." +
                                                  EditCmds[EDIT_NEWCLASS - EDIT_COMMAND]);
         JButton button = new JButton(newClassString);
         button.setFont(PkgMgrFont);
@@ -901,11 +931,11 @@ implements BlueJEventListener
         viewPanel = new JPanel();
         viewPanel.setLayout(new BorderLayout());
 
-        TitledBorder border = 
+        TitledBorder border =
             BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.darkGray),
                                              Config.getString("pkgmgr.view.label"),
                                              TitledBorder.CENTER,
-                                             TitledBorder.BELOW_TOP, 
+                                             TitledBorder.BELOW_TOP,
                                              PkgMgrFont);
 
         showPanel = new JPanel();
@@ -915,7 +945,7 @@ implements BlueJEventListener
         // Add the Checkbox to ShowUses Arrows (this must also control
         // the Menu's Checkbox Items)
 
-        showUsesCheckbox = new JCheckBox(Config.getString("pkgmgr.view.usesLabel"), 
+        showUsesCheckbox = new JCheckBox(Config.getString("pkgmgr.view.usesLabel"),
                                          null, true);
         showUsesCheckbox.addItemListener(this);
         showUsesCheckbox.setFont(PkgMgrFont);
@@ -923,10 +953,10 @@ implements BlueJEventListener
         actions.put(showUsesCheckbox, new Integer(VIEW_SHOWUSES));
 
         showPanel.add(showUsesCheckbox);
-        // Add the Checkbox to ShowExtends Arrows (this must also control 
+        // Add the Checkbox to ShowExtends Arrows (this must also control
         // the Menu's Checkbox Items)
 
-        showExtendsCheckbox = new JCheckBox(Config.getString("pkgmgr.view.inheritLabel"), 
+        showExtendsCheckbox = new JCheckBox(Config.getString("pkgmgr.view.inheritLabel"),
                                             null, true);
         showExtendsCheckbox.addItemListener(this);
         showExtendsCheckbox.setFont(PkgMgrFont);
@@ -1019,7 +1049,7 @@ implements BlueJEventListener
                 switch (actionId) {
                 case VIEW_SHOWUSES:		// Add these as CheckBoxMenuItems
                     item = showUsesMenuItem = new JCheckBoxMenuItem(itemStr,true);
-                    item.addActionListener(this); 
+                    item.addActionListener(this);
                     if (accelerator != null)
                         item.setAccelerator(accelerator);
                     break;
@@ -1134,7 +1164,7 @@ implements BlueJEventListener
     public LibraryBrowser getBrowser() {
 	if (browser == null)
 	    browser = new LibraryBrowser();
-	
+
 	return browser;
     }
 }
