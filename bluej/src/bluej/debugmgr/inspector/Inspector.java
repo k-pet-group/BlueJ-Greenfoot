@@ -6,11 +6,7 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 
 import bluej.*;
 import bluej.debugger.DebuggerObject;
@@ -20,11 +16,11 @@ import bluej.testmgr.record.*;
 /**
  * 
  * A window that displays the fields in an object or class. This class is subclassed
- * for objects and classes separately (ObjectInspector, ClassInspector).
+ * for objects, classes and method results separately (ObjectInspector, ClassInspector, ResultInspector).
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2529 2004-05-10 12:33:31Z polle $
+ * @version    $Id: Inspector.java 2534 2004-05-19 15:03:04Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -47,7 +43,7 @@ public abstract class Inspector extends JFrame
     
     // === instance variables ===
 
-    protected JTable fieldList = null;
+    protected FieldList fieldList = null;
 
     protected JButton inspectButton;
     protected JButton getButton;
@@ -62,19 +58,12 @@ public abstract class Inspector extends JFrame
     protected Package pkg;
     protected InvokerRecord ir;
 
-  
-    // The top component of the UI
-    private JPanel header = new JPanel();
-
     //The maximum length of the description (modifiers + field-name)    
     private final static int MAX_DESCRIPTION_LENGTH = 30;
     
     //The width of the list
     private static final int LIST_WIDTH = 300;    
-
-    // === static methods ===
-
-
+ 
     /**
      *  Update all open inspectors to show up-to-date values.
      */
@@ -97,9 +86,6 @@ public abstract class Inspector extends JFrame
     }
 
 
-
-    // === instance methods ===
-
     /**
      *  Constructor.
      *
@@ -113,11 +99,48 @@ public abstract class Inspector extends JFrame
         setIconImage(BlueJTheme.getIconImage());
 
         this.pkg = pkg;
-        this.ir = ir;
-
+        this.ir = ir;       
+        
         if (pkg == null && ir != null) {
             throw new IllegalArgumentException("Get button cannot be enabled when pkg==null");
         }
+        
+        addWindowListener(
+                new WindowAdapter()
+                {
+                    public void windowClosing(WindowEvent E)
+                    {
+                        doClose();
+                    }
+                });
+        
+        initFieldList();
+    }
+
+    /**
+     * Initializes the list of fields. This creates the component that shows the fields.
+     */
+    private void initFieldList() {
+        fieldList = new FieldList(getMaxDescriptionLength());
+        fieldList.setBackground(this.getBackground());
+        fieldList.setOpaque(true);
+        fieldList.setSelectionBackground(getSelectionColor());
+        fieldList.getSelectionModel().addListSelectionListener(this);  
+        // add mouse listener to monitor for double clicks to inspect list
+        // objects. assumption is made that valueChanged will have selected
+        // object on first click
+        MouseListener mouseListener =
+            new MouseAdapter()
+            {
+                public void mouseClicked(MouseEvent e)
+                {
+                    // monitor for double clicks
+                    if (e.getClickCount() == 2) {
+                        doInspect();
+                    }
+                }
+            };
+        fieldList.addMouseListener(mouseListener);
     }
 
     protected boolean isGetEnabled()
@@ -191,7 +214,8 @@ public abstract class Inspector extends JFrame
     public void update()
     {      
     	Object[] listData = getListData();
-        ((ListTableModel)fieldList.getModel()).setDataVector(listData);
+        fieldList.setData(listData);
+        
         fieldList.setTableHeader(null);
         
         if (fieldList != null) {
@@ -218,7 +242,7 @@ public abstract class Inspector extends JFrame
         if (assertPanel != null) {
             assertPanel.updateWithResultData((String) listData[0]);
         }
-}
+    }
 
 
     // ----- ListSelectionListener interface -----
@@ -281,7 +305,7 @@ public abstract class Inspector extends JFrame
      *  The "Inspect" button was pressed. Inspect the
      *  selected object.
      */
-    private void doInspect()
+    protected void doInspect()
     {
         prepareInspection();
 
@@ -327,90 +351,42 @@ public abstract class Inspector extends JFrame
 		}
 	}
 	
-	/**
-	 * Sets the component that will be displayed in the top left.
-	 * @param icon The icon.
-	 */
-	public void setHeader(JComponent newComponent) {       
-        header.setLayout(new GridLayout(1,1));
-        header.setOpaque(false);
-		this.header.add(newComponent);	
-	}
-	
 	public void setBorder(Border border) {
 		((JPanel) getContentPane()).setBorder(border);
 	}
-	
 
+    
+    public int getMaxDescriptionLength() {
+        return MAX_DESCRIPTION_LENGTH;
+    }
+    
+    public int getListWidth() {
+        return LIST_WIDTH;
+    }
+    
+    public Color getSelectionColor() {
+        return selectionColor;
+    }
+    
+    protected JButton createCloseButton() {
+        JButton button = new JButton(close);
+        {
+            button.addActionListener(new ActionListener() {
+                 public void actionPerformed(ActionEvent e) { doClose(); }
+              });
+        }
+        
+        return button;
+        
+    }
+
+    
     /**
-     * Build the GUI interface.
-     *
-     * @param  parent        The parent frame
-     * @param  isResult      Indicates if this is a result window or an inspector window
-     * @param  isObject      Indicates if this is a object inspector window
-     * @param  showAssert    Indicates if assertions should be shown.
+     * Creates a panel with an inspect button and a get button
+     * 
+     * @return A panel with two buttons
      */
-    protected void makeFrame(boolean isObject, boolean showAssert)
-    {
-       
-        addWindowListener(
-            new WindowAdapter()
-            {
-                public void windowClosing(WindowEvent E)
-                {
-                    doClose();
-                }
-            });
-        
-        
-        ((JComponent) this.getContentPane()).setBackground(getBackground());
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setOpaque(false);
-        
-        // the field list is either the fields of an object or class, the elements
-        // of an array, or if we are viewing a result, the result of a method call
-        fieldList = new JTable(new ListTableModel());
-        
-        fieldList.setShowGrid(false);
-        fieldList.setRowSelectionAllowed(true);
-        fieldList.setColumnSelectionAllowed(false);
-        fieldList.setSelectionBackground(selectionColor);
-        fieldList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        fieldList.setIntercellSpacing(new Dimension());        
-        fieldList.setDefaultRenderer(Object.class, new ListTableCellRenderer(MAX_DESCRIPTION_LENGTH));
-        fieldList.getSelectionModel().addListSelectionListener(this);
-        
-        fieldList.setBackground(this.getBackground());
-        JScrollPane scrollPane = new JScrollPane(fieldList);
-        scrollPane.setBorder(BlueJTheme.generalBorder);
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setOpaque(false);
-        fieldList.requestDefaultFocus();
-        fieldList.setRowHeight(25);
-        fieldList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        fieldList.setSelectionBackground(selectionColor);
-        fieldList.setPreferredScrollableViewportSize(new Dimension(LIST_WIDTH, 25));        
-        fieldList.getTableHeader().setVisible(false);
-        
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainPanel.setOpaque(false);
-       
-        // add mouse listener to monitor for double clicks to inspect list
-        // objects. assumption is made that valueChanged will have selected
-        // object on first click
-        MouseListener mouseListener =
-            new MouseAdapter()
-            {
-                public void mouseClicked(MouseEvent e)
-                {
-                    // monitor for double clicks
-                    if (e.getClickCount() == 2) {
-                        doInspect();
-                    }
-                }
-            };
-        fieldList.addMouseListener(mouseListener);
-
+    protected JPanel createInspectAndGetButtons() {
         // Create panel with "inspect" and "get" buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
@@ -434,200 +410,47 @@ public abstract class Inspector extends JFrame
         buttonFramePanel.setOpaque(false);
         buttonFramePanel.setLayout(new BorderLayout(0, 0));
         buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
-        mainPanel.add(buttonFramePanel, BorderLayout.EAST);
-
-        getContentPane().add(mainPanel, BorderLayout.CENTER);
-
-        // create bottom button pane with "Close" button
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setOpaque(false);
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-
-        if (showAssert && (this instanceof  ResultInspector) && pkg.getProject().inTestMode()) {          
-            assertPanel = new AssertPanel();
-            {
-                assertPanel.setAlignmentX(LEFT_ALIGNMENT);
-                bottomPanel.add(assertPanel);
-            }
-        }
-        
-        buttonPanel = new JPanel(new BorderLayout());
-        buttonPanel.setOpaque(false);
-
-        // if we are doing an inspection, we add a label at the bottom, left of the close-button
-        if (!(this instanceof  ResultInspector)) {
-            mainPanel.add(header, BorderLayout.NORTH);
-            if(isObject) {                
-                JButton classButton = new JButton(showClassLabel);
-                classButton.addActionListener(new ActionListener() {
-                         public void actionPerformed(ActionEvent e) { showClass(); }
-                      });
-                buttonPanel.add(classButton, BorderLayout.WEST);                
-            }            
-        }
-
-        JButton button = new JButton(close);
-        {
-            buttonPanel.add(button,BorderLayout.EAST);
-            button.addActionListener(new ActionListener() {
-                 public void actionPerformed(ActionEvent e) { doClose(); }
-              });
-        }
-        bottomPanel.add(buttonPanel);
-
-        //because the class inspector header needs to draw a line
-        //from left to right border we can't have an empty border
-        //Instead we put these borders on the sub-components        
-        Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
-        buttonFramePanel.setBorder(new EmptyBorder(0, 0, 0, insets.right));
-        fieldList.setBorder(BorderFactory.createEmptyBorder(0,insets.left,0,0));        
-        
-        getRootPane().setDefaultButton(button);
-        ((JPanel) getContentPane()).add(bottomPanel, BorderLayout.SOUTH);
-        pack();
+        return buttonFramePanel;
     }
-    
     
     
     
     /**
-     * Cell renderer that makes a two column table look like a list.
+     * Creates a header component for the inspector.
+     * The header has a horizontal line at the bottom
      * 
-     * @author Poul Henriksen
-     *  
+     * @return a header component
      */
-    public static class ListTableCellRenderer extends JLabel
-    		implements TableCellRenderer 
-	{
-        final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");
-        final private static Border valueBorder = BorderFactory.createLineBorder(Color.gray);
-        
-        private int maxDescriptionLength;
-        
-        public ListTableCellRenderer(int maxDescriptionLength) {
-            this.maxDescriptionLength = maxDescriptionLength;
-            this.setOpaque(true);            
-        }       
-      
-        public Component getTableCellRendererComponent(
-                JTable table,
-				Object value,
-				boolean isSelected,
-				boolean hasFocus,
-				int row,
-				int column) {           
-            
-            String valueString = (String) value; 
-            
-            if(valueString.equals(" " + DebuggerObject.OBJECT_REFERENCE)) {                                
-                this.setIcon(objectrefIcon);
-                this.setText("");
-            } else {
-                // display some control characters in the displayed string in the
-                // correct form. This code should probably be somewhere else
-                StringBuffer displayString = new StringBuffer(valueString);
-                replaceAll(displayString, "\n", "\\n");
-                replaceAll(displayString, "\t", "\\t");
-                replaceAll(displayString, "\r", "\\r");
+    protected JComponent createHeader() {
+        JComponent header = new JPanel() {
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Dimension size = this.getSize();
+                g.drawLine(0,size.height-1, size.width, size.height-1);
+            }            
+        };
                 
-                this.setIcon(null);
-                this.setText(displayString.toString());
-            }
-            
-            
-            if (isSelected) {
-                this.setBackground(table.getSelectionBackground());               
-            } else {
-                this.setBackground(table.getBackground());
-            }
-            
-            Border b = BorderFactory.createLineBorder(this.getBackground(), 3);
-            super.setBorder(b);  
-            
-            TableColumn tableColumn = table.getColumnModel().getColumn(column);
-            int preferredWidth = tableColumn.getPreferredWidth();
-            int labelWidth = this.getPreferredSize().width;                       
-            if(labelWidth > preferredWidth) {
-                preferredWidth = labelWidth;
-                tableColumn.setPreferredWidth(preferredWidth);
-            }        
-            
-            //depending in which column we are in, we have to do some different stuff
-            if(column==1) {
-                this.setBackground(Color.white);                
-                this.setHorizontalAlignment(JLabel.CENTER);
-                Border compoundBorder = BorderFactory.createCompoundBorder(getBorder(),valueBorder);
-                super.setBorder(compoundBorder);                
-            } else {
-                this.setHorizontalAlignment(JLabel.LEADING);
-                //Determine the minimum width
-                if(valueString.length() < maxDescriptionLength) { 
-                    if(preferredWidth > tableColumn.getMinWidth()) {
-                        tableColumn.setMinWidth(preferredWidth);
-                    }
-                } else {
-                    String tmp = valueString.substring(0, maxDescriptionLength);
-                    JLabel dummy = new JLabel(tmp);
-                    int minWidth = dummy.getPreferredSize().width;
-                    if(tableColumn.getMinWidth() < minWidth) {
-                        tableColumn.setMinWidth(minWidth);
-                    }
-                }
-            }           
-            return this;
-        }
+        header.setOpaque(false);
+        return header;
+    }
 
-        private void replaceAll(StringBuffer sb, String orig, String replacement)
-        {
-            //The call to toString is not efficient, but this method will not be 
-            //called that many times anyway, so it doesn't matter that much.
-            int location = sb.toString().indexOf(orig);
-            while(location != -1) {
-                sb.replace(location, location+orig.length(), replacement);
-                location = sb.toString().indexOf(orig);
-            }
-        }
+    /**
+     * Creates a ScrollPane for the fieldList
+     * 
+     * @return
+     */
+    protected JScrollPane createFieldListScrollPane() {
+        JScrollPane scrollPane = new JScrollPane(fieldList);
+        scrollPane.setBorder(BlueJTheme.generalBorder);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        
+        fieldList.setPreferredScrollableViewportSize(new Dimension(getListWidth(), 25));
+        return scrollPane;
     }
+
+  
     
-    public static class ListTableModel extends DefaultTableModel {
-        public ListTableModel() {
-            super();
-        }
-        
-        public ListTableModel(Object[] rows) {
-            setDataVector(rows);
-        }
-        
-        public void setDataVector(Object[] rows) {
-            Object[][] cells = new Object[rows.length][2];
-            for (int i = 0; i < rows.length; i++) {
-                String s = (String) rows[i];
-                String descriptionString;
-                String valueString;
-                //split on "="
-                int delimiterIndex = s.indexOf('=');
-                if (delimiterIndex >= 0) {
-                    descriptionString = s.substring(0, delimiterIndex);
-                    valueString = s.substring(delimiterIndex + 1);
-                    
-                } else {
-                    //It was not a "normal" object. We just show the string.
-                    //It could be an array compression [...]
-                    descriptionString = s;
-                    valueString = "";
-                }
-                cells[i][0] = descriptionString; 
-                cells[i][1] = valueString;               
-            }
-            this.setDataVector(cells, new Object[] { "", "" });
-        }
-        
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-        
-        
-    }
+   
     
 }

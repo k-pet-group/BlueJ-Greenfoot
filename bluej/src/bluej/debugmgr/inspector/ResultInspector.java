@@ -1,10 +1,20 @@
 package bluej.debugmgr.inspector;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -15,8 +25,9 @@ import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
 /**
- * @author Poul Henriksen
+ * A window that displays a method return value.
  *
+ * @author Poul Henriksen
  */
 public class ResultInspector extends Inspector implements InspectorListener {
 
@@ -25,9 +36,6 @@ public class ResultInspector extends Inspector implements InspectorListener {
     protected final static String resultTitle =
         Config.getString("debugger.inspector.result.title");
    
-    protected static Class[] inspectorClasses = new Class[10];
-    protected static int inspectorCount = 0;
-    protected static Set loadedProjects = new HashSet();
 
    /**
      * Return an ObjectInspector for an object. The inspector is visible.
@@ -90,10 +98,6 @@ public class ResultInspector extends Inspector implements InspectorListener {
         setTitle(resultTitle);        
         setBorder(BlueJTheme.generalBorderWithStatusBar);
         
-        // removed - mik - results dlgs don't have a header!?
-        //String fullTitle = name + " : " + className;        
-        //String underlinedNameLabel = "<html><u>"+fullTitle+ "</u></font>";
-        //setHeader(new JLabel(underlinedNameLabel, JLabel.CENTER));
         this.obj = obj;
         this.objName = name;        
         
@@ -116,6 +120,67 @@ public class ResultInspector extends Inspector implements InspectorListener {
         return new Object[] {fieldString};        
     }
 
+    
+    /**
+     * Build the GUI
+     *
+     * @param  parent        The parent frame
+     * @param  isResult      Indicates if this is a result window or an inspector window
+     * @param  isObject      Indicates if this is a object inspector window
+     * @param  showAssert    Indicates if assertions should be shown.
+     */
+    protected void makeFrame(boolean isObject, boolean showAssert)
+    {   
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setOpaque(false);
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
+
+     
+        JScrollPane scrollPane = createFieldListScrollPane();  
+        mainPanel.add(scrollPane, BorderLayout.CENTER);  
+
+        JPanel inspectAndGetButtons = createInspectAndGetButtons();
+        mainPanel.add(inspectAndGetButtons, BorderLayout.EAST);
+
+        
+        
+        // create bottom button pane with "Close" button
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setOpaque(false);
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
+               
+        JPanel buttonPanel;        
+        buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setOpaque(false);       
+        JButton button = createCloseButton();
+        buttonPanel.add(button,BorderLayout.EAST);
+        
+        bottomPanel.add(buttonPanel);                    
+
+        if (showAssert && pkg.getProject().inTestMode()) {          
+            assertPanel = new AssertPanel();
+            {
+                assertPanel.setAlignmentX(LEFT_ALIGNMENT);
+                bottomPanel.add(assertPanel);
+            }
+        }   
+        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+        
+      
+
+        //TODO move to superclass
+        //because the class inspector header needs to draw a line
+        //from left to right border we can't have an empty border
+        //Instead we put these borders on the sub-components        
+        Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
+        inspectAndGetButtons.setBorder(new EmptyBorder(0, 0, 0, insets.right));
+        fieldList.setBorder(BorderFactory.createEmptyBorder(0,insets.left,0,0));        
+        
+        getRootPane().setDefaultButton(button);
+        pack();
+    }
+    
     
     /**
      * An element in the field list was selected.
