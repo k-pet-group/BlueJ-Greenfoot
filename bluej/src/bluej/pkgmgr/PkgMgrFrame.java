@@ -8,6 +8,7 @@ import bluej.debugmgr.objectbench.*;
 import bluej.extmgr.*;
 import bluej.parser.*;
 import bluej.parser.symtab.*;
+import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
 import bluej.pkgmgr.target.*;
 import bluej.pkgmgr.target.role.*;
@@ -30,7 +31,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: PkgMgrFrame.java 2481 2004-03-09 12:16:51Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1511,17 +1512,31 @@ public class PkgMgrFrame extends JFrame
      * display an errormessage.
      */
     public void doRemove(){
-        Target[] targets = pkg.getSelectedTargets();
-        if (targets.length > 0){
-            if( askRemoveClass() ){
-                for(int i=0; i<targets.length; i++){
-                    targets[i].remove();
-                }
-            }
-        }
-        else {
+        if (! (doRemoveTargets() || doRemoveDependency() )) {
             DialogManager.showError(this, "no-class-selected");
         }
+    }
+    
+    private boolean doRemoveTargets() {
+        Target[] targets = pkg.getSelectedTargets();
+        if (targets.length <= 0){
+            return false;
+        }
+        if( askRemoveClass() ){
+            for(int i=0; i<targets.length; i++){
+                targets[i].remove();
+            }
+        }
+        return true;
+    }
+    
+    private boolean doRemoveDependency() {
+        Dependency dependency = pkg.getSelectedDependency();
+        if (dependency == null){
+            return false;
+        }
+        dependency.remove();
+        return true;   
     }
 
 

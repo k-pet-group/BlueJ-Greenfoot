@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: Package.java 2481 2004-03-09 12:16:51Z fisker $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -405,6 +405,22 @@ public final class Package extends Graph
         return (Target[]) list.toArray(targetArray);
     }
 
+    /**
+     * Get the selected Dependencies.
+     * @return The currently selected dependency or null.
+     */
+    public Dependency getSelectedDependency(){
+        for(Iterator it = getEdges(); it.hasNext(); ) {
+            Edge edge = (Edge) it.next();
+            if (edge instanceof Dependency){
+                Dependency dependency = (Dependency)edge;
+            	if (dependency.isSelected()) {
+            	    return dependency;
+            	}
+            }
+        }
+        return null;
+    }
     /**
      * Search a directory for Java source and class files and add their
      * names to a set which is returned.
