@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 860 2001-04-23 02:07:10Z mik $
+ * @version $Id: ClassTarget.java 886 2001-05-09 00:42:09Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -330,7 +330,7 @@ public class ClassTarget extends EditableTarget
 
     Font getFont()
     {
-        return PrefMgr.getStandardFont();
+        return PrefMgr.getTargetFont();
     }
 
     // --- EditableTarget interface ---
