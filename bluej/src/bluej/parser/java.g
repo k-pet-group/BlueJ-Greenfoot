@@ -231,10 +231,10 @@ options {
 			    boolean isAbstract,
 			    JavaToken comment) {
 
-	// if the class we just processed has the same name as the src file it
+	// if the class we are constructing has the same name as the src file it
 	// is in then we indicate that we have found the main class for this file
 	if (symbolTable.getFile().getName().compareToIgnoreCase(theClass.getText() + ".java") == 0) {
-		info.setParsedFileHeader(true);
+	    info.setParsedFileHeader(theClass.getText());
 	}
         symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, comment);
     }
@@ -243,8 +243,10 @@ options {
                                 JavaVector subInterfaces,
                                 JavaToken comment) {
 
+	// if the class we are constructing has the same name as the src file it
+        // is in then we indicate that we have found the main class for this file
 	if (symbolTable.getFile().getName().compareToIgnoreCase(theInterface.getText() + ".java") == 0) {
-		info.setParsedFileHeader(true);
+	    info.setParsedFileHeader(theInterface.getText());
 	}
         symbolTable.defineInterface(theInterface, subInterfaces, comment);
     }

@@ -4,8 +4,8 @@ import java.util.*;
 
 import bluej.utility.SortedProperties;
 
-public final class ClassInfo {
-
+public final class ClassInfo
+{
     private static final String[] appletClasses = { "Applet", "JApplet" };
 
     private String name;
@@ -54,14 +54,19 @@ public final class ClassInfo {
     private boolean isAbstract = false;
     private boolean isApplet = false;
 
-    // source positions
-    int superClassLine;
-    int superClassCol;
-
-
-    public void setName(String name)
+    /**
+     * Returns true if this setName succeeded (this means that the name
+     * we set it to was the same as the name of the .java file we were
+     * processing and therefore this means that this class is the main
+     * class for the file ie not a inner class)
+     */
+    public boolean setName(String name)
     {
-        this.name = name;
+        if(parsedname == name) {
+            this.name = name;
+            return true;
+        }
+        return false;
     }
 
     public void setSuperclass(String name)
@@ -166,10 +171,12 @@ public final class ClassInfo {
      * later on in the file
      */
     private boolean parsedfileheader = false;
+    private String parsedname;
 
-    public void setParsedFileHeader(boolean status)
+    public void setParsedFileHeader(String parsedName)
     {
-        this.parsedfileheader = status;
+        this.parsedfileheader = true;
+        this.parsedname = parsedName;
     }
 
     /**
@@ -178,11 +185,18 @@ public final class ClassInfo {
      * @param s the Selection object which records a location to
      *          insert the "extends" keyword
      */
-    public void setClassExtendsInsertSelection(Selection s) {
+    public void setClassExtendsInsertSelection(Selection s)
+    {
         if(!parsedfileheader)
             classExtendsInsertSelection = s;
     }
 
+    /**
+     * Returns where we would insert the string "extends" in a class
+     *
+     * @returns s the Selection object which records a location to
+     *          insert the "extends" keyword
+     */
     public Selection getClassExtendsInsertSelection() {
         return classExtendsInsertSelection;
     }
