@@ -9,6 +9,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.pkgmgr.Package;
+import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
@@ -18,7 +19,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: ClassInspector.java 2486 2004-04-06 08:11:09Z mik $
+ * @version    $Id: ClassInspector.java 2533 2004-05-17 09:09:35Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -54,7 +55,8 @@ public class ClassInspector extends Inspector
 
         if (inspector == null) {
             // XXX
-            inspector = new ClassInspector(clss, pkg, null, parent);
+            ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
+            inspector = new ClassInspector(clss, pkg, ir, parent);
             inspectors.put(clss.getName(), inspector);
         }
         inspector.update();
