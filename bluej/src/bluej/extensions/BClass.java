@@ -14,7 +14,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1968 2003-05-21 09:59:49Z damiano $
+ * @version $Id: BClass.java 1969 2003-05-21 10:28:27Z damiano $
  */
 
 public class BClass
@@ -41,7 +41,8 @@ public class BClass
      * Note that this is for information only. If you want to interact with BlueJ you must
      * use the methods provided in BClass.
      */
-    public Class getJavaClass () throws ProjectNotOpenException
+    public Class getJavaClass () 
+      throws ProjectNotOpenException, ClassNotFoundException
       {
       return classId.getJavaClass();
       }
@@ -101,30 +102,32 @@ public class BClass
      * Similar to reflection API.
      * ============ NEEDS TESTING ======================
      */
-    public BClass getSuperclass() throws ProjectNotOpenException, PackageNotFoundException
-    {
-        // This method is needed otherwise you cannot get a superclass of this BClass.
+    public BClass getSuperclass() 
+      throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
+      {
+      // This method is needed otherwise you cannot get a superclass of this BClass.
 
-        View bluejView = classId.getBluejView();
+      View bluejView = classId.getBluejView();
         
-        View superView = bluejView.getSuper();
+      View superView = bluejView.getSuper();
         
-        if ( superView == null ) return null;
+      if ( superView == null ) return null;
 
-        // WARNING: This is most likely wrong !
-        Project bluejPrj = classId.getBluejProject();
-        // WARNING: This is most likely wrong !
-        Package bluejPkg = classId.getBluejPackage();
-        String  className = superView.getQualifiedName();
+      // WARNING: This is most likely wrong !
+      Project bluejPrj = classId.getBluejProject();
+      // WARNING: This is most likely wrong !
+      Package bluejPkg = classId.getBluejPackage();
+      String  className = superView.getQualifiedName();
         
-        return new BClass (new Identifier (bluejPrj, bluejPkg, className ));
-    }
+      return new BClass (new Identifier (bluejPrj, bluejPkg, className ));
+      }
     
     /**
      * Returns all the constructors of this class.
      * Similar to reflection API.
      */
-    public BConstructor[] getConstructors() throws ProjectNotOpenException
+    public BConstructor[] getConstructors() 
+        throws ProjectNotOpenException, ClassNotFoundException
         {
         View bluejView   = classId.getBluejView();
         
@@ -144,7 +147,8 @@ public class BClass
      * @return the requested constructor of this class, or null if
      * the class has not been compiled or the constructor cannot be found.
      */
-    public BConstructor getConstructor (Class[] signature) throws ProjectNotOpenException
+    public BConstructor getConstructor (Class[] signature) 
+        throws ProjectNotOpenException, ClassNotFoundException
         {
         View bluejView = classId.getBluejView();
         
@@ -162,8 +166,9 @@ public class BClass
      * Returns the declared methods of this class.
      * Similar to reflection API.
      */
-    public BMethod[] getDeclaredMethods() throws ProjectNotOpenException
-    {
+    public BMethod[] getDeclaredMethods() 
+        throws ProjectNotOpenException, ClassNotFoundException
+        {
         View bluejView = classId.getBluejView();
         
         MethodView[] methodView = bluejView.getDeclaredMethods();
@@ -180,7 +185,7 @@ public class BClass
      * Similar to reflection API.
      */
     public BMethod getDeclaredMethod(String methodName, Class[] params ) 
-        throws ProjectNotOpenException
+        throws ProjectNotOpenException, ClassNotFoundException
         {
         View bluejView = classId.getBluejView();
         
@@ -202,7 +207,7 @@ public class BClass
      * Similar to reflection API.
      */
     public BField[] getFields()
-        throws ProjectNotOpenException
+        throws ProjectNotOpenException, ClassNotFoundException
         {
         View bluejView = classId.getBluejView();
 
@@ -220,7 +225,7 @@ public class BClass
      * Similar to Reflection API.
      */
     public BField getField(String fieldName)
-        throws ProjectNotOpenException
+        throws ProjectNotOpenException, ClassNotFoundException
         {
         if ( fieldName == null ) return null;
 

@@ -120,10 +120,14 @@ class Identifier
   /**
    * Returns the Java class that is associated with this name in this package
    */
-  Class getJavaClass () throws ProjectNotOpenException
+  Class getJavaClass () throws ProjectNotOpenException, ClassNotFoundException
     {
     Project bluejPrj = getBluejProject();
-    return bluejPrj.loadClass(qualifiedClassName);
+
+    Class aClass = bluejPrj.loadClass(qualifiedClassName);
+    if ( aClass == null ) throw new ClassNotFoundException ("Class "+qualifiedClassName+" Not Found");
+
+    return aClass;
     }
 
   /**
@@ -148,7 +152,8 @@ class Identifier
   /**
    * Returns the view associated with this Class
    */
-  View getBluejView () throws ProjectNotOpenException
+  View getBluejView () 
+    throws ProjectNotOpenException, ClassNotFoundException
     {
     Class aClass = getJavaClass();
 
