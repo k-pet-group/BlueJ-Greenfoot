@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3240 2004-12-16 00:04:59Z davmac $
+ * @version $Id: TextParser.java 3269 2005-01-13 01:22:06Z davmac $
  */
 public class TextParser
 {
@@ -1695,8 +1695,7 @@ public class TextParser
             default:
         }
         
-        // DAV !
-        bluej.utility.Debug.message("Unknown type: " + fcNode.getType());
+        // bluej.utility.Debug.message("Unknown type: " + fcNode.getType());
         return null;
     }
     
