@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3096 2004-11-15 23:59:23Z davmac $
+ * @version $Id: VMReference.java 3140 2004-11-23 01:15:45Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -666,11 +666,11 @@ class VMReference
             workerThread.resume();
             workerThreadReadyWait();
             
-            ReferenceType rt = ((ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME)).reflectedType();
-            if (rt == null)
+            ClassObjectReference robject = (ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
+            if (robject == null)
                 throw new ClassNotFoundException(className);
             
-            return rt;
+            return robject.reflectedType();
         }
     }
 

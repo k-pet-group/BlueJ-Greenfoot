@@ -1,11 +1,15 @@
 package bluej.runtime;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.AWTEvent;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.AWTEventListener;
+import java.awt.event.WindowEvent;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.List;
 
 import junit.framework.*;
 //BeanShell
@@ -20,7 +24,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3045 2004-10-13 01:34:49Z davmac $
+ * @version $Id: ExecServer.java 3140 2004-11-23 01:15:45Z davmac $
  */
 public class ExecServer
 {
@@ -131,14 +135,14 @@ public class ExecServer
 
 		// the following causes the class loader mechanism to be initialised:
 		// we attempt to load a (non-existent) class
-		try {
-			newLoader(".");
-			loadClass("Dummy");
-			currentLoader = null;
-		}
-		catch(Exception e) {
+		//try {
+			//newLoader(".");
+			//loadClass("Dummy");
+			//currentLoader = null;
+		//}
+		//catch(Throwable e) {
 			// ignore - we will get a ClassNotFound exception here
-		}
+		//}
 
         // construct a BeanShell interpreter
 //    	BeanShell    
@@ -165,7 +169,7 @@ public class ExecServer
                             try {
                                 workerReturn = loadClass(className);
                             }
-                            catch(ClassNotFoundException cnfe) {
+                            catch(Throwable cnfe) {
                                 workerReturn = null;
                             }
                             break;
@@ -315,33 +319,20 @@ public class ExecServer
         throws ClassNotFoundException
     {
     	//Debug.message("[VM] loadClass: " + className);
-		Class cl = null;
-		
-        // until we first setup the class loader
-		if (currentLoader == null) {
-			cl = classmgr.getLoader().loadClass(className);	
-		}
-		else {
-			cl = currentLoader.loadClass(className);	
-		}
-
-        // run the initialisation ("prepare" method) of the class.
-        // For our SHELL clasees, this is important.
-        // This guarantees that the class is properly prepared, as well as
-        // executing some init code in that shell method.
+        
+        if (currentLoader == null)
+            newLoader(".");
+        
+        Class cl;
         try {
-            Method m = cl.getMethod("prepare", null);
-            m.invoke(null, null);
-        } catch(Exception e) {
-            // ignore - some classes don't have prepare method. attempt to
-            // call will still prepare the class
-            //
-            // WRONG! we need to force the initilisation of the class.
-            // When inspecting we need the class to be initialized in order
-            // to show the values of static fields.
-            forceInitialisation(cl);              
-        }         
-       
+            cl = Class.forName(className, true, currentLoader);
+        }
+        catch (Error eiie) {
+            // This could ExceptionInInitializer, or NoClassDefFound, etc.
+            // The class may exist, but cannot be initialized for some reason.
+            cl = Class.forName(className, false, currentLoader);
+            cl.getFields();
+        }
        
         return cl;
     }
