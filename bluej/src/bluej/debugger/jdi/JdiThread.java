@@ -20,7 +20,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 1142 2002-03-06 13:11:09Z mik $
+ * @version $Id: JdiThread.java 1187 2002-03-15 15:10:23Z mik $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -197,7 +197,8 @@ public final class JdiThread extends DebuggerThread
         if(name.startsWith("AWT-") ||
            name.equals("Timer Queue") ||
            name.equals("Screen Updater") ||
-           name.startsWith("SunToolkit."))
+           name.startsWith("SunToolkit.") ||
+           name.startsWith("Native Carbon"))
             return true;
       
         return false;

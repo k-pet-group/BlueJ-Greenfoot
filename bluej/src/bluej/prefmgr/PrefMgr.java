@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1176 2002-03-13 13:43:30Z mik $
+ * @version $Id: PrefMgr.java 1187 2002-03-15 15:10:23Z mik $
  */
 public class PrefMgr
 {
@@ -119,7 +119,6 @@ public class PrefMgr
 
     public static void setProjectDirectory(String newDir)
     {
-        Debug.message("saving: "+newDir);
         projectDirectory = newDir;
         Config.putPropString("bluej.projectPath", newDir);
     }
