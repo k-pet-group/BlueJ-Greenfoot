@@ -19,36 +19,40 @@ import java.awt.Cursor;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Hashtable;
+import java.util.*;
 
 /**
- ** @version $Id: Invoker.java 281 1999-11-18 03:58:18Z axel $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** Debugger class that constructs a "shell" java source file, compiles it,
- ** then loads the resulting class file and executes a method in a new thread.
- **/
+ * Debugger class that constructs a "shell" java source file, compiles it,
+ * then loads the resulting class file and executes a method in a new thread.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: Invoker.java 293 1999-11-30 11:18:42Z ajp $
+ */
 
 public class Invoker extends Thread 
-
-	implements CompileObserver, MethodDialogWatcher, ObjectBenchWatcher
+	implements CompileObserver, MethodDialogWatcher
 {
-    private static String creating = Config.getString("pkgmgr.creating");
-    private static String createDone = Config.getString("pkgmgr.createDone");
+    private static final String creating = Config.getString("pkgmgr.creating");
+    private static final String createDone = Config.getString("pkgmgr.createDone");
 
     private static final String SHELLNAME = "__SHELL";
     private static int shellNumber = 0;
 
     private static final synchronized String getShellName() {
-	return SHELLNAME + (shellNumber++);
+        return SHELLNAME + (shellNumber++);
     }
 
     private static final synchronized String getResultId() {
-	return "#result" + shellNumber;
+        return "#result" + shellNumber;
     }
-	
-    private static Hashtable methods = new Hashtable();
+
+    /**
+     * To allow each method/constructor dialog to have a call history we need
+     * to cache the dialogs we create. We store the mapping from method to
+     * dialog in this hashtable.
+     */	
+    private static Map methods = new HashMap();
 	
     private Package pkg;
     private ResultWatcher watcher;
@@ -56,34 +60,58 @@ public class Invoker extends Thread
     private String shellName;
     private String objName;
     private String instanceName;
-    private boolean constructing;
     private MethodDialog dialog;
+    private boolean constructing;
     private String resultId;
 
     /**
      * Call a class's constructor, then create an ObjectWrapper for the
      * resulting object
      *
-     * @param pkg - the Package we are working on
-     * @param member - the member to invoke
-     * @param objName - the name of the object on which the method is called
-     * @param watcher - an object interested in the result of the invocation
+     * @param pkg       the Package we are working on
+     * @param member    the member to invoke
+     * @param objName   the name of the object on which the method is called (has no
+     *                  relevance when we are calling a constructor or static method)
+     * @param watcher   an object interested in the result of the invocation
      */
     public Invoker(Package pkg, CallableView member, String objName, ResultWatcher watcher)
     {
-	this.pkg = pkg;
-	this.member = member;
-	this.objName = objName;
-	this.watcher = watcher;
-		
-	this.shellName = getShellName();
-	if (member instanceof ConstructorView)
-	    constructing = true;
-	else if(member instanceof MethodView)
-	    constructing = false;
-	else
-	    Debug.reportError("illegal member type in invokation");
-	invoke();
+        this.pkg = pkg;
+        this.member = member;
+        this.watcher = watcher;
+        
+        this.shellName = getShellName();
+
+        // in the case of a constructor, we need to construct an object name
+        if (member instanceof ConstructorView) {
+
+            String baseName = member.getClassName();
+            int dot_index = baseName.lastIndexOf('.');
+            if(dot_index >= 0)
+                baseName = baseName.substring(dot_index + 1);
+
+            this.objName = Character.toLowerCase(baseName.charAt(0)) +
+                                    baseName.substring(1) + "_" + 
+                                    member.getDeclaringView().getInstanceNum();
+
+             constructing = true;
+        }
+        else if(member instanceof MethodView) {
+        
+            // in the case of a static method call, we use the class name as an
+            // object name
+            if(((MethodView)member).isStatic()) {
+                this.objName = Utility.stripPackagePrefix(member.getClassName());
+            } else {           
+                this.objName = objName;
+            }
+            
+            constructing = false;
+        }
+        else
+            Debug.reportError("illegal member type in invokation");
+
+        invoke();
     }
 	
     /**
@@ -93,68 +121,36 @@ public class Invoker extends Thread
      */
     private void invoke()
     {
-	String className = member.getClassName();
+        // check for a method call with no parameter
+        // if so, just do it
+        if(!constructing && !member.hasParameters()) {
+            doInvocation(null, null);
+        }
+        else {
+            dialog = (MethodDialog)methods.get(member);
+
+            if(dialog == null) {
+                dialog = new MethodDialog(pkg,
+                                            member.getClassName(),
+                                            objName,
+                                            member);
+                methods.put(member, dialog);
+            }
+            else {
+                if (constructing)
+                    dialog.setNewInstanceName(objName);
+                else
+                    dialog.setInstanceName(objName);
+            }
+        }
 		
-	if(constructing) {
-	    dialog = (MethodDialog)methods.get(member);
-
-	    String baseName = className;
-	    int dot_index = baseName.lastIndexOf('.');
-	    if(dot_index >= 0)
-		baseName = baseName.substring(dot_index + 1);
-
-	    String objectName = Character.toLowerCase(baseName.charAt(0)) +
-				baseName.substring(1) + "_" + 
-				member.getDeclaringView().getInstanceNum();
-	    if(dialog == null) {
-		dialog = new MethodDialog(pkg,
-					  className,
-					  objectName,
-					  member);
-		methods.put(member, dialog);
-	    }
-	    else
-		dialog.setNewInstanceName(objectName);
-	}
-	else {
-	    if(member.hasParameters()) {
-		dialog = (MethodDialog)methods.get(member);
-
-		if(dialog == null) {
-		    dialog = new MethodDialog(pkg,
-					      className,
-					      objName,
-					      member);
-
-		    methods.put(member, dialog);
-		}
-		else
-		    dialog.setInstanceName(objName);
-	    }
-	    else // no parameters - don't need dialog
-		doInvocation(null, null);
-	}
-		
-	if(dialog != null) {
-	    LabelPrintWriter writer = new LabelPrintWriter();
-	    member.print(writer);
-	    dialog.setDescription(writer.getLabel());
-	    dialog.addWatcher(this);
-	    dialog.setVisible(true);
-	    pkg.getBench().addWatcher(this);
-	}
-    }
-	
-    // -- ObjectBenchWatcher interface --
-
-    /**
-     * The object was selected interactively (by clicking
-     * on it with the mouse pointer).
-     */
-    public void objectSelected(ObjectWrapper wrapper)
-    {
-	if(dialog != null)
-	    dialog.insertText(wrapper.instanceName);
+        if(dialog != null) {
+            LabelPrintWriter writer = new LabelPrintWriter();
+            member.print(writer);
+            dialog.setDescription(writer.getLabel());
+            dialog.addWatcher(this);
+            dialog.setVisible(true);
+        }
     }
 	
     // -- MethodDialogWatcher interface --
@@ -165,19 +161,20 @@ public class Invoker extends Thread
      */
     public void methodDialogEvent(MethodDialog dlg, int event)
     {
-	if(event == MethodDialog.CANCEL){
-	    pkg.getBench().removeWatcher(this);
-	}
-	else if(event == MethodDialog.OK) {
-	    instanceName = dlg.getNewInstanceName();
-	    pkg.getBench().removeWatcher(this);
-	    doInvocation(dlg.getArgs(), dlg.getArgTypes());
-	    pkg.getFrame().setWaitCursor(true);
-	    if (constructing)
-		pkg.getFrame().setStatus(creating);
-	}
-	else
-	    Debug.reportError("Invoker: Unknown MethodDialog event");
+        if(event == MethodDialog.CANCEL) {
+
+            dialog.setVisible(false);
+        }
+        else if(event == MethodDialog.OK) {
+
+            instanceName = dlg.getNewInstanceName();
+            doInvocation(dlg.getArgs(), dlg.getArgTypes());
+            pkg.getFrame().setWaitCursor(true);
+            if (constructing)
+                pkg.getFrame().setStatus(creating);
+        }
+        else
+            Debug.reportError("Invoker: Unknown MethodDialog event");
     }
 
     // -- end of MethodDialogWatcher interface --
@@ -193,7 +190,7 @@ public class Invoker extends Thread
      * Compilation is done asynchronously by the CompilerThread.
      *
      * This method is still executed in the interface thread,
-     * while "endCompile" will be executed by the ComilerThread.
+     * while "endCompile" will be executed by the CompilerThread.
      */
     protected void doInvocation(String[] args, Class[] argTypes)
     {
@@ -324,14 +321,11 @@ public class Invoker extends Thread
      * class.
      */
     public void errorMessage(String filename, int lineNo, String message,
-			     boolean invalidate)
+                                boolean invalidate)
     {
-	if(dialog != null) {
-	    dialog.setMessage("Error: " + message);
-	    //added so that dialog can still insert from object bench after
-	    // error
-	    pkg.getBench().addWatcher(this);
-	}
+    	if(dialog != null) {
+    	    dialog.setMessage("Error: " + message);
+    	}
     }
 
     /**
@@ -341,14 +335,15 @@ public class Invoker extends Thread
      */
     public void endCompile(String[] sources, boolean successful)
     {
-	if(dialog != null) {
-	    dialog.setWaitCursor(false);
-	    if(successful) {
-		dialog.setVisible(false);
-		dialog.updateParameters();
-	    }
-	}
-	pkg.getFrame().setWaitCursor(false);
+    	if(dialog != null) {
+    	    dialog.setWaitCursor(false);
+    	    if(successful) {
+    		dialog.setVisible(false);
+    		dialog.updateParameters();
+    	    }
+    	}
+
+    	pkg.getFrame().setWaitCursor(false);
 
 	if(successful)
 	    startClass();

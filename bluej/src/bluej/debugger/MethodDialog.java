@@ -22,20 +22,19 @@ import java.util.StringTokenizer;
 
 
 /**
- ** @version $Id: MethodDialog.java 267 1999-11-10 02:53:02Z mik $
- **
- ** @author Michael Cahill
- ** @author Bruce Quig
- ** @author Michael Kolling
- **
- **  This dialog is used for an interactive method call. The call
- **  can be an object creation or an invocation of an object method.
- **  A new instance of this dialog is created for each method.
+ * This dialog is used for an interactive method call. The call
+ * can be an object creation or an invocation of an object method.
+ * A new instance of this dialog is created for each method.
+ *
+ * @author  Michael Cahill
+ * @author  Bruce Quig
+ * @author  Michael Kolling
+ *
+ * @version $Id: MethodDialog.java 293 1999-11-30 11:18:42Z ajp $
  */
 
 public class MethodDialog extends JDialog 
-
-	implements ActionListener, FocusListener
+	implements ActionListener, FocusListener, ObjectBenchWatcher
 {
     static final int MD_CREATE = 0;
     static final int MD_CALL = 1;
@@ -81,12 +80,13 @@ public class MethodDialog extends JDialog
     private String defaultParamValue = "";
 
     public MethodDialog(Package pkg, String className, String instanceName, 
-			CallableView method)
+                            CallableView method)
     {
         super(pkg.getFrame(), false);
 
 	history = pkg.getCallHistory();
 	bench = pkg.getBench();
+
 
 	// set up panel for error message
 	status = new MultiLineLabel("\n\n", LEFT_ALIGNMENT);
@@ -137,7 +137,7 @@ public class MethodDialog extends JDialog
             	
 		case MD_CALL:		
             	    makeCallDialog(className, instanceName, method, paramNames, 
-				   centerPanel);
+                                    centerPanel);
             	    break;
             
 		case MD_CREATE:
@@ -205,13 +205,13 @@ public class MethodDialog extends JDialog
      * makeCallDialog - create a dialog to make a method call
      */
     private void makeCallDialog(String className, String instanceName, 
-				MemberView method, String[] paramNames, 
-				JPanel panel)
+                                MemberView method, String[] paramNames, 
+                                JPanel panel)
     {
-	JPanel tmpPanel;
+        JPanel tmpPanel;
 
-	setTitle(wCallRoutineTitle);
-		
+        setTitle(wCallRoutineTitle);
+	
 	if (paramNames != null) {
 
 	    MethodView methView = (MethodView)method;
@@ -223,14 +223,15 @@ public class MethodDialog extends JDialog
 	    GridBagConstraints constraints = new GridBagConstraints();
 	    constraints.insets = new Insets(2,2,2,2);
 
-	    callLabel = new JLabel("", JLabel.RIGHT);
-	    if(method.isStatic())
-		setCallLabel(className, methodName);
-	    else
-		setCallLabel(instanceName, methodName);
+    	    callLabel = new JLabel("", JLabel.RIGHT);
+    
+            if(method.isStatic())
+                setCallLabel(className, methodName);
+            else
+                setCallLabel(instanceName, methodName);
 
 	    if(isMainCall(method, methodName, paramClasses))
-		defaultParamValue = "null";
+            defaultParamValue = "null";
 
 	    gridBag.setConstraints(callLabel, constraints);
 	    tmpPanel.add(callLabel);
@@ -271,13 +272,13 @@ public class MethodDialog extends JDialog
 
 
     /**
-     * setCallLabel - set the text of the label showing the call to be
-     *  made.
+     * Set the text of the label showing the call to be made.
      */
     private void setCallLabel(String instanceName, String methodName)
     {
-	if (callLabel != null)
-	    callLabel.setText(instanceName + "." + methodName + " (");
+        if (callLabel != null)
+            callLabel.setText(Utility.stripPackagePrefix(instanceName) +
+                            "." + methodName + " (");
     }
 
     /**
@@ -439,24 +440,29 @@ public class MethodDialog extends JDialog
      */
     public void setVisible(boolean show)
     {
-	super.setVisible(show);
-	// reset status label message
-	setMessage("");
-
-	if (show) {
-	    // clear params from any JComboBoxes
-	    clearParameters();
-
-	    if(params != null) {
-		params[0].requestFocus();
-	    }
-	    else if(dialogType == MD_CREATE) {
-		instanceNameText.selectAll();
-		instanceNameText.requestFocus();
-	    }
-	    else
-		bOk.requestFocus();
-	}
+    	super.setVisible(show);
+    	// reset status label message
+    	setMessage("");
+    
+    	if (show) {
+    	    // clear params from any JComboBoxes
+    	    clearParameters();
+    
+            // register a watcher for Object Bench selections
+            bench.addWatcher(this);
+    
+    	    if(params != null) {
+    		params[0].requestFocus();
+    	    }
+    	    else if(dialogType == MD_CREATE) {
+    		instanceNameText.selectAll();
+    		instanceNameText.requestFocus();
+    	    }
+    	    else
+    		bOk.requestFocus();
+    	}
+    	else
+    	    bench.removeWatcher(this);
     }
 
     /**
@@ -478,28 +484,27 @@ public class MethodDialog extends JDialog
      */		
     public void doOk()
     {
-	// Debug.message("doOk()");
-	paramNames = getParamNames();  // sets "emptyField"
+        paramNames = getParamNames();  // sets "emptyField"
 
-	if(dialogType == MD_CREATE) {
-	    if(! Utility.isIdentifier(getNewInstanceName())) {
-		setMessage(illegalNameMsg);
-		return;
-	    }
-	    if(bench.hasObject(getNewInstanceName())) {
-		setMessage(duplicateNameMsg);
-		return;
-	    }
-	}
+        if(dialogType == MD_CREATE) {
+            if(!Utility.isIdentifier(getNewInstanceName())) {
+                setMessage(illegalNameMsg);
+                return;
+            }
+            if(bench.hasObject(getNewInstanceName())) {
+                setMessage(duplicateNameMsg);
+                return;
+            }
+        }
 
-	if(emptyField) {
-	    setMessage(emptyFieldMsg);
-	    emptyField = false;
-	}
-	else {
-	    setWaitCursor(true);
-	    callWatcher(OK);
-	}
+        if(emptyField) {
+            setMessage(emptyFieldMsg);
+            emptyField = false;
+        }
+        else {
+            setWaitCursor(true);
+            callWatcher(OK);
+        }
     }
 
     /**
@@ -508,8 +513,7 @@ public class MethodDialog extends JDialog
      */		
     public void doCancel()
     {
-	callWatcher(CANCEL);
-	this.setVisible(false);
+        callWatcher(CANCEL);     
     }
 
     /**
@@ -597,7 +601,7 @@ public class MethodDialog extends JDialog
      */
     public void setInstanceName(String instanceName)
     {
-	setCallLabel(instanceName, methodName);
+        setCallLabel(instanceName, methodName);
     }
 
     /**
@@ -606,7 +610,7 @@ public class MethodDialog extends JDialog
      */
     public void setNewInstanceName(String name)
     {
-	instanceNameText.setText(name);
+        instanceNameText.setText(name);
     }
 
     /**
@@ -678,6 +682,17 @@ public class MethodDialog extends JDialog
 	getGlassPane().setVisible(state);
     }
 
+    // -- ObjectBenchWatcher interface --
+
+    /**
+     * The object was selected interactively (by clicking
+     * on it with the mouse pointer).
+     */
+    public void objectSelected(ObjectWrapper wrapper)
+    {
+        insertText(wrapper.instanceName);
+    }
+	
     // --- FocusListener interface methods ---
 
     /**
