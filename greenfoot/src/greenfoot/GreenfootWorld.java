@@ -1,17 +1,16 @@
 package greenfoot;
 
-import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Observable;
-import java.util.Vector;
 
 
-/**
+/** 
  * This class represents the object world, which is a 2 dimensional grid of
  * cells. The world can be populated with GreenfootObjects. <br>
  * 
@@ -24,12 +23,12 @@ import java.util.Vector;
  * 
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3297 2005-01-20 03:52:20Z davmac $
+ * @version $Id: GreenfootWorld.java 3322 2005-02-21 15:57:35Z polle $
  */
 public class GreenfootWorld extends Observable
 {
     private Map[][] world;
-    private List objects = new ArrayList();
+    private Collection objects = new LinkedHashSet();
 
     /** The size of the cell in pixels.*/
     private int cellSize = 1;
@@ -44,7 +43,7 @@ public class GreenfootWorld extends Observable
      */
     private Map objectMaxSizes = new HashMap();
 
-    private static Collection emptyCollection = new Vector();
+    private static Collection emptyCollection = Collections.unmodifiableCollection(new LinkedHashSet());
 
     /** Image painted in the background. */
     private Image backgroundImage;
@@ -134,7 +133,7 @@ public class GreenfootWorld extends Observable
      * Get the cell size. If no cell size has been specified via the
      * constructor, it defaults to 1.
      */
-    int getCellSize()
+    public int getCellSize()
     {
         return cellSize;
     }
@@ -181,12 +180,12 @@ public class GreenfootWorld extends Observable
                 world[thing.getX()][thing.getY()] = map;
             }
             Class clazz = thing.getClass();
-            List list = (List) map.get(clazz);
-            if (list == null) {
-                list = new ArrayList();
-                map.put(clazz, list);
+            Collection myClasses = (Collection) map.get(clazz);
+            if (myClasses == null) {
+                myClasses = new LinkedHashSet();
+                map.put(clazz, myClasses);
             }
-            list.add(thing);
+            myClasses.add(thing);
             thing.setWorld(this);
             objects.add(thing);
 
@@ -208,7 +207,8 @@ public class GreenfootWorld extends Observable
         int height = thing.getHeight();
         int width = thing.getWidth();
         int diag = (int) Math.sqrt(width * width + height * height);
-
+        	
+        
         int newSizeInCells = toCellCeil(diag);
 
         if (maxSize == null || maxSize.intValue() < newSizeInCells) {
@@ -224,12 +224,12 @@ public class GreenfootWorld extends Observable
         Map map = (Map) world[x][y];
         if (map != null) {
             Collection values = map.values();
-            Collection list = new ArrayList();
+            Collection objectsHere = new LinkedHashSet();
             for (Iterator iter = values.iterator(); iter.hasNext();) {
-                List element = (List) iter.next();
-                list.addAll(element);
+                Collection element = (Collection) iter.next();
+                objectsHere.addAll(element);
             }
-            return list;
+            return objectsHere;
         }
         else {
             return emptyCollection;
@@ -244,7 +244,7 @@ public class GreenfootWorld extends Observable
      */
     public Collection getObjectsAt(int x, int y, Class cls)
     {
-        List objectsThere = new ArrayList();
+        Collection objectsThere = new LinkedHashSet();
         Collection objectsAtCell = getObjectsAt(x, y);
         for (Iterator iter = objectsAtCell.iterator(); iter.hasNext();) {
             GreenfootObject go = (GreenfootObject) iter.next();
@@ -264,7 +264,7 @@ public class GreenfootWorld extends Observable
     {
         int maxSize = getMaxSize();
 
-        List objectsThere = new ArrayList();
+        Collection objectsThere = new LinkedHashSet();
         int xStart = (x - maxSize) + 1;
         int yStart = (y - maxSize) + 1;
         if (xStart < 0) {
@@ -282,12 +282,14 @@ public class GreenfootWorld extends Observable
 
         for (int xi = xStart; xi <= x; xi++) {
             for (int yi = yStart; yi <= y; yi++) {
+//                System.out.println("Looking at: " + xi + "," + yi);
                 Map map = world[xi][yi];
                 if (map != null) {
-                    Collection list = getObjectsWithLocation(xi, yi);
-                    for (Iterator iter = Collections.unmodifiableCollection(list).iterator(); iter.hasNext();) {
+                    Collection candidates = getObjectsWithLocation(xi, yi);
+                    for (Iterator iter = Collections.unmodifiableCollection(candidates).iterator(); iter.hasNext();) {
                         GreenfootObject go = (GreenfootObject) iter.next();
                         if (go.contains(x - xi, y - yi)) {
+  //                          System.out.println("Bingo: " + go);
                             objectsThere.add(go);
                         }
                     }
@@ -335,7 +337,7 @@ public class GreenfootWorld extends Observable
     {
         Iterator objects = getObjects();
 
-        List neighbours = new ArrayList();
+        Collection neighbours = new LinkedHashSet();
         while (objects.hasNext()) {
             Object o = objects.next();
             if (cls.isInstance(o) && o != this) {
@@ -397,11 +399,11 @@ public class GreenfootWorld extends Observable
      */
     public synchronized void removeObject(GreenfootObject object)
     {
-        Map map = world[object.getX()][object.getY()];
-        if (map != null) {
-            List list = (List) map.get(object.getClass());
-            if (list != null) {
-                list.remove(object);
+        Map allHere = world[object.getX()][object.getY()];
+        if (allHere != null) {
+            Collection myClasses = (Collection) allHere.get(object.getClass());
+            if (myClasses != null) {
+                myClasses.remove(object);
                 object.setWorld(null);
             }
         }
@@ -417,7 +419,7 @@ public class GreenfootWorld extends Observable
     {
         //TODO: Make sure that the iterator returns things in the correct
         // paint-order (whatever that is)
-        List c = new ArrayList();
+        Collection c = new LinkedHashSet();
         c.addAll(objects);
         return c.iterator();
     }
@@ -448,31 +450,31 @@ public class GreenfootWorld extends Observable
      */
     void updateLocation(GreenfootObject object, int oldX, int oldY)
     {
-        Map map = world[oldX][oldY];
+        Map allHere = world[oldX][oldY];
         Class clazz = object.getClass();
-        if (map != null) {
-            List list = (List) map.get(object.getClass());
-            if (list != null) {
-                list.remove(object);
-                if (list.isEmpty()) {
-                    map.remove(object.getClass());
-                    if (map.isEmpty())
+        if (allHere != null) {
+            Collection myClasses = (Collection) allHere.get(object.getClass());
+            if (myClasses != null) {
+                myClasses.remove(object);
+                if (myClasses.isEmpty()) {
+                    allHere.remove(object.getClass());
+                    if (allHere.isEmpty())
                         world[oldX][oldY] = null;
                 }
             }
         }
 
-        map = world[object.getX()][object.getY()];
-        if (map == null) {
-            map = new HashMap();
-            world[object.getX()][object.getY()] = map;
+        allHere = world[object.getX()][object.getY()];
+        if (allHere == null) {
+            allHere = new HashMap();
+            world[object.getX()][object.getY()] = allHere;
         }
-        List list = (List) map.get(clazz);
-        if (list == null) {
-            list = new ArrayList();
-            map.put(clazz, list);
+        Collection myClasses = (Collection) allHere.get(clazz);
+        if (myClasses == null) {
+            myClasses = new LinkedHashSet();
+            allHere.put(clazz, myClasses);
         }
-        list.add(object);
+        myClasses.add(object);
         update();
     }
 
