@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2489 2004-04-08 08:58:58Z polle $
+ * @version $Id: ExecServer.java 2518 2004-05-04 04:45:58Z davmac $
  */
 public class ExecServer
 {
@@ -42,8 +42,8 @@ public class ExecServer
     public static final String DISPOSE_WINDOWS  = "disposeWindows";
 //	BeanShell    
     //public static final String EXECUTE_CODE     = "executeCode";
+    public static final String NEW_THREAD       = "newThread";
     
-
 	// these fields will be fetched by VMReference
 	
     // the initial thread that starts main()
@@ -65,6 +65,12 @@ public class ExecServer
 	private static ClassLoader currentLoader;
 	// a hashmap of names to objects
     private static Map objects = new HashMap();
+    
+    // Whether the current server thread should die. In particular this can
+    // be used to kill off one thread in order to start another. See
+    // newThread().
+    public static final String SHOULD_DIE = "shouldDie";
+    public static boolean shouldDie = false;
 
     /**
      * We need to keep track of open windows so that we can dispose of them
@@ -118,7 +124,7 @@ public class ExecServer
 				System.err.println("worker thread bye bye");
 			}
 		};
-		workerThread.setDaemon(true);
+		// workerThread.setDaemon(true);
 		workerThread.start();
 
 		// register a listener to record all window opens and closes
@@ -152,11 +158,12 @@ public class ExecServer
         // for some reason vmSuspend() is not working - say the connecting
         // VM has failed and therefore the breakpoint has been removed -
         // in this case we will fall through the loop and exit)
-		while(count++ < 100000) {
+		while(count++ < 100000 && ! shouldDie) {
 			vmSuspend();
 		}
 		
-		System.err.println("main thread bye bye");
+		if(! shouldDie)
+		    System.err.println("main thread bye bye");
     }
 
 	/**
@@ -601,4 +608,44 @@ public class ExecServer
             disposingAllWindows = false;
         }
     }
+    
+    /**
+     * Bug in the java debug VM means that exception events are unreliable 
+     * if we re-use the same thread over and over. So, whenever running user
+     * code results in an exception, this method is used to spawn a new thread.
+     */
+    static void newThread()
+    {
+        // First wait until the old thread dies.
+        if( mainThread != null) {
+            boolean joined = false;
+            while(! joined) {
+                try {
+                    mainThread.join();
+                    joined = true;
+                }
+                catch(InterruptedException ie) { }
+            }
+            shouldDie = false;
+        }
+        
+        // Then make a new one.
+        mainThread = new Thread("main") {
+            public void run()
+            {
+                vmStarted();
+                int count = 0;
+                
+                // wait in an infinit(ish) loop.. (we want the loop to finish if
+                // for some reason vmSuspend() is not working - say the connecting
+                // VM has failed and therefore the breakpoint has been removed -
+                // in this case we will fall through the loop and exit)
+                while(count++ < 100000 && ! shouldDie) {
+                    vmSuspend();
+                }
+            }
+        };
+        mainThread.start();
+    }
+    
 }

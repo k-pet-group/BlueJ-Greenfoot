@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2510 2004-04-28 04:08:57Z davmac $
+ * @version $Id: VMReference.java 2518 2004-05-04 04:45:58Z davmac $
  *
  * The startup process is as follows:
  *
@@ -88,6 +88,7 @@ class VMReference
 
     // the thread running inside the ExecServer
     private ThreadReference serverThread = null;
+    private boolean serverThreadStarted = false;
 
 	// the worker thread running inside the ExecServer
 	private ThreadReference workerThread = null;
@@ -311,7 +312,8 @@ class VMReference
         // second a breakpoint is hit (see breakEvent)
         // when that happens, this wait() is notify()'ed.
         try {
-            wait();
+            if(!serverThreadStarted)
+                wait();
         } catch (InterruptedException e) {}
         
         setupServerConnection(machine);
@@ -500,6 +502,9 @@ class VMReference
             findMethodByName(serverClass, ExecServer.RESTORE_OUTPUT));
         execServerMethods.put(ExecServer.DISPOSE_WINDOWS,
             findMethodByName(serverClass, ExecServer.DISPOSE_WINDOWS));
+        execServerMethods.put(ExecServer.NEW_THREAD,
+            findMethodByName(serverClass, ExecServer.NEW_THREAD));
+        
 //		BeanShell        
         //execServerMethods.put(ExecServer.EXECUTE_CODE,
         //    findMethodByName(serverClass, ExecServer.EXECUTE_CODE));
@@ -670,13 +675,15 @@ class VMReference
                 return null;
         }
 
-		//Debug.message("[VMRefMain] Invoking " + methodName);
+        // Debug.message("[VMRefMain] Invoking " + methodName);
         Method m = (Method) execServerMethods.get(methodName);
 
         if (m == null)
             throw new IllegalArgumentException("no ExecServer method called " + methodName);
 
-        return invokeStaticRemoteMethod(serverThread, serverClass, m, args, true, false);
+        Value v = invokeStaticRemoteMethod(serverThread, serverClass, m, args, true, false);
+        Debug.message("[VMRefMain] Returning from invocation.");
+        return v;
     }
 
 
@@ -702,6 +709,7 @@ class VMReference
 	 */
 	public void vmStartEvent(VMStartEvent vmse)
 	{
+        serverThreadStarted = false;
 	}
 
 	/**
@@ -766,15 +774,15 @@ class VMReference
         // else {
         	// real exception
 
-            Location loc = exc.location();
-            String sourceClass = loc.declaringType().name();
-            String fileName;
-            try {
-                fileName = loc.sourceName();
-            } catch (AbsentInformationException e) {
-                fileName = null;
-            }
-            int lineNumber = loc.lineNumber();
+            //Location loc = exc.location();
+            //String sourceClass = loc.declaringType().name();
+            //String fileName;
+            //try {
+            //    fileName = loc.sourceName();
+            //} catch (AbsentInformationException e) {
+            //    fileName = null;
+            //}
+            //int lineNumber = loc.lineNumber();
 
             List stack = JdiThread.getStack(exc.thread());
             exitStatus = Debugger.EXCEPTION;
@@ -796,6 +804,7 @@ class VMReference
         else if (event.request().getProperty(SERVER_STARTED_METHOD_NAME) != null) {
             // wake up the waitForStartup() method
             synchronized (this) {
+                serverThreadStarted = true;
                 notifyAll();
             }
         }
@@ -1084,7 +1093,7 @@ class VMReference
 
 		// machine.setDebugTraceMode(VirtualMachine.TRACE_EVENTS | VirtualMachine.TRACE_OBJREFS);
 
-		try {
+        try {
 			// if the thread has not returned to its breakpoint yet, we
 			// must be patient
 			while(!thr.isAtBreakpoint()) {
@@ -1118,7 +1127,8 @@ class VMReference
 			// suspend it (see VMEventHandler).
 			// This is the state we need - all threads running
 			// except serverThread (which should be waiting at a breakpoint).
-			return v;
+
+            return v;
 		}
 		
 		// the first three exceptions would all be the result
@@ -1135,9 +1145,38 @@ class VMReference
 		catch (InvocationException e) {
 			// exception thrown in remote machine
 			// we can either propagate the exception as a value
-			if (!dontSuspendAll)
-				machine.resume();
-			if (propagateException)
+            
+            // Set "shouldDie" field in ExecServer to true
+            Field shouldDie = serverClass.fieldByName(ExecServer.SHOULD_DIE);
+            Value shouldDieV = machine.mirrorOf(true);
+            try {
+                serverClass.setValue(shouldDie, shouldDieV);
+            }
+            catch(ClassNotLoadedException cnle) { }
+            catch(InvalidTypeException ite) { }
+            
+            // Run the thread to let it die
+            if (!dontSuspendAll)
+                machine.resume();
+            else
+                serverThread.resume();
+            
+            // Invoke "newThread" method in the worker thread
+            serverThreadStarted = false;
+            invokeExecServerWorker(ExecServer.NEW_THREAD, Collections.EMPTY_LIST);
+            synchronized(this) {
+                try {
+                    if(! serverThreadStarted)
+                        wait();  // wait for new thread to start
+                }
+                catch(InterruptedException ie) { }
+            }
+            
+            // Get the new thread as our server thread.
+            serverThread = (ThreadReference) getStaticField(serverClass,
+                    ExecServer.MAIN_THREAD_NAME);       
+            
+            if (propagateException)
 				throw e;
 			// or ignore it because it will be handled
 			// in exceptionEvent()
