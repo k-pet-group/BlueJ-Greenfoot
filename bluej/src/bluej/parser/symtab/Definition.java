@@ -36,7 +36,7 @@ abstract class Definition implements Reportable
         this.definition  = occ;
         this.parentScope = parentScope;
         this.name        = name;
-        
+
         // create a new vector to keep track of references to this symbol
         this.references  = new JavaVector();
     }   

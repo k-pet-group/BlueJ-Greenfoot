@@ -32,7 +32,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: ObjectWrapper.java 1519 2002-11-26 12:01:16Z mik $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -207,7 +207,6 @@ public class ObjectWrapper extends JComponent
                                  int sizeLimit)
     {
         JMenuItem item;
-        String methodSignature;
 
         Arrays.sort(methods);
         for(int i = first; i < last; i++) {
@@ -216,19 +215,20 @@ public class ObjectWrapper extends JComponent
                 if(!filter.accept(m))
                     continue;
 
+                String methodSignature = m.getSignature();   // uses types for params
+                String methodDescription = m.getShortDesc(); // uses names for params
                 // check if method signature has already been added to a menu
-                if(methodsUsed.containsKey(m.getSignature())) {
-                    methodSignature = ( m.getSignature()
+                if(methodsUsed.containsKey(methodSignature)) {
+                    methodDescription = methodDescription
                              + "   [ " + redefinedIn + " "
                              + JavaNames.stripPrefix(
-                                   ((String)methodsUsed.get(m.getSignature())))
-                             + " ]");
+                                   ((String)methodsUsed.get(methodSignature)))
+                             + " ]";
                 }
                 else {
-                    methodSignature = m.getSignature();
-                    methodsUsed.put(m.getSignature(), m.getClassName());
+                    methodsUsed.put(methodSignature, m.getClassName());
                 }
-                item = new JMenuItem(methodSignature);
+                item = new JMenuItem(methodDescription);
                 item.addActionListener(this);
                 item.setFont(PrefMgr.getPopupMenuFont());
                 actions.put(item, m);
