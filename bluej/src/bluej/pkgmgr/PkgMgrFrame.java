@@ -10,9 +10,9 @@ import java.awt.*;
 import java.awt.print.*;
 import java.text.DateFormat;
 
-import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
-import com.apple.mrj.MRJQuitHandler;
-import com.apple.mrj.MRJAboutHandler;
+//import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
+//import com.apple.mrj.MRJQuitHandler;
+//import com.apple.mrj.MRJAboutHandler;
 
 import bluej.Config;
 import bluej.BlueJEvent;
@@ -33,11 +33,11 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 861 2001-04-23 04:48:45Z mik $
+ * @version $Id: PkgMgrFrame.java 875 2001-04-26 06:34:39Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
-               PackageEditorListener, MRJQuitHandler, MRJAboutHandler
+               PackageEditorListener //, MRJQuitHandler, MRJAboutHandler
 {
     // static final Color bgColor = Config.getItemColour("colour.background");
     public Font PkgMgrFont = PrefMgr.getStandardFont();
@@ -356,8 +356,8 @@ public class PkgMgrFrame extends JFrame
         makeFrame();
 
         updateWindowTitle();
-	MRJApplicationUtils.registerQuitHandler(this);
-	MRJApplicationUtils.registerAboutHandler(this);
+	//MRJApplicationUtils.registerQuitHandler(this);
+	//MRJApplicationUtils.registerAboutHandler(this);
 
         setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
     }

@@ -21,7 +21,7 @@ import java.io.File;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 871 2001-04-26 00:56:38Z mik $
+ * @version $Id: NewClassDialog.java 875 2001-04-26 06:34:39Z mik $
  */
 class NewClassDialog extends JDialog
     implements ActionListener
@@ -149,16 +149,21 @@ class NewClassDialog extends JDialog
         // merge them in
 
         File templateDir = Config.getClassTemplateDir();
-        String[] files = templateDir.list();
-        
-        for(int i=0; i < files.length; i++) {
-            if(files[i].endsWith(templateSuffix)) {
-                String template = files[i].substring(0, files[i].length() - suffixLength);
-                if(!templates.contains(template))
-                    templates.add(template);
+        if(!templateDir.exists()) {
+            DialogManager.showError(this, "error-no-templates");
+        }
+        else {
+            String[] files = templateDir.list();
+            
+            for(int i=0; i < files.length; i++) {
+                if(files[i].endsWith(templateSuffix)) {
+                    String template = files[i].substring(0, files[i].length() - suffixLength);
+                    if(!templates.contains(template))
+                        templates.add(template);
+                }
             }
         }
-            
+
         // create a radio button for each template found
 
         JRadioButton button;

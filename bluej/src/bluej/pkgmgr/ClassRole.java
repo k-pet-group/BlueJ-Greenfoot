@@ -19,7 +19,7 @@ import java.util.Properties;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 871 2001-04-26 00:56:38Z mik $
+ * @version $Id: ClassRole.java 875 2001-04-26 06:34:39Z mik $
  */
 public abstract class ClassRole
 {
@@ -75,7 +75,7 @@ public abstract class ClassRole
         } catch(IOException e) {
             pkg.showError("skeleton-error");
             Debug.reportError("The default skeleton for the class could not be generated");
-            e.printStackTrace();
+            Debug.reportError("Exception: " + e);
         }
 
         //setState(Target.S_INVALID);
