@@ -20,7 +20,7 @@ public class AppEvent extends ExtEvent
   /**
    * get the event type, one of the static values defined.
    */
-  int getEvent ()
+  public int getEvent ()
     {
     return eventId;
     }
