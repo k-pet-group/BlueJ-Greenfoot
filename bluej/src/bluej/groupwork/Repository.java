@@ -374,7 +374,7 @@ public class Repository {
 	 * @throws CommandException
 	 * @throws CommandAbortedException
 	 */
-	private UpdateListener updateFromRepository() throws CommandAbortedException, CommandException, AuthenticationException{
+	private UpdateServerResponse updateFromRepository() throws CommandAbortedException, CommandException, AuthenticationException{
 		setupConnection();
 		UpdateCommand command = new UpdateCommand();
 		command.setCleanCopy(false);
@@ -382,17 +382,17 @@ public class Repository {
 		command.setBuildDirectories(true);
 		command.setPruneDirectories(false);
 		command.setCVSCommand('I', Package.pkgfileName);// ignore bluej.pkg files
-		UpdateListener updateListener = new UpdateListener();
-		client.getEventManager().addCVSListener(updateListener);
+		UpdateServerResponse updateServerResponse = new UpdateServerResponse();
+		client.getEventManager().addCVSListener(updateServerResponse);
 		client.setLocalPath(project.getProjectDir().getAbsolutePath());
 		printCommand(command);
 		
 		client.executeCommand(command, globalOptions);
 		
-		updateListener.waitForExecutionToFinish();
-		client.getEventManager().removeCVSListener(updateListener);
+		updateServerResponse.waitForExecutionToFinish();
+		client.getEventManager().removeCVSListener(updateServerResponse);
 		disconnect();
-		return updateListener;
+		return updateServerResponse;
 	}
 	
 	/**
@@ -454,17 +454,17 @@ public class Repository {
 	// util methods begin
 	
 	/**
-	 * Get a UpdateListener that would result from an update. No changes
+	 * Get a UpdateServerResponse that would result from an update. No changes
 	 * are made to the repository or the local copy.
 	 * @return List of UpdateResults
 	 * @throws AuthenticationException
 	 * @throws CommandException
 	 * @throws CommandAbortedException
 	 */
-	private UpdateListener getUpdateListener() throws CommandAbortedException, CommandException, AuthenticationException{
+	private UpdateServerResponse getUpdateListener() throws CommandAbortedException, CommandException, AuthenticationException{
 		setupConnection();
 		UpdateCommand command = new UpdateCommand();
-		UpdateListener updateListener = new UpdateListener();
+		UpdateServerResponse updateServerResponse = new UpdateServerResponse();
 		GlobalOptions globalOptions = new GlobalOptions();
 		
 		command.setRecursive(true);
@@ -475,13 +475,13 @@ public class Repository {
 		globalOptions.setCVSCommand('n',"");//Don't change any files
 		globalOptions.setCVSCommand('q',"");// be quiet
 		client.setLocalPath(project.getProjectDir().getAbsolutePath());
-		client.getEventManager().addCVSListener(updateListener);
+		client.getEventManager().addCVSListener(updateServerResponse);
 		
 		client.executeCommand(command, globalOptions);
 		
-		client.getEventManager().removeCVSListener(updateListener);
+		client.getEventManager().removeCVSListener(updateServerResponse);
 		disconnect();
-		return updateListener;
+		return updateServerResponse;
 	}
 	
 	/**
@@ -719,23 +719,23 @@ public class Repository {
 	 * @throws AuthenticationException
 	 * @throws CommandException
 	 * @throws CommandAbortedException
-	 * @return UpdateListener if an update was performed
+	 * @return UpdateServerResponse if an update was performed
 	 */
-	public UpdateListener updateAll(boolean includeGraphLayout) throws CommandAbortedException, CommandException, AuthenticationException{
-		UpdateListener updateListener;
+	public UpdateServerResponse updateAll(boolean includeGraphLayout) throws CommandAbortedException, CommandException, AuthenticationException{
+		UpdateServerResponse updateServerResponse;
 		if (!hasBeenCheckedOut(project)){
 			checkout();
-			updateListener = new UpdateListener();// empty UpdateListener
+			updateServerResponse = new UpdateServerResponse();// empty UpdateServerResponse
 		}
 		else {
-			updateListener = updateFromRepository();
+			updateServerResponse = updateFromRepository();
 		}
 		if (includeGraphLayout){
 			updateGraphLayout();
 			project.reReadAllGraphLayout();
 		}
 		project.reloadAll();
-		return updateListener;
+		return updateServerResponse;
 	}
 	
 	/**

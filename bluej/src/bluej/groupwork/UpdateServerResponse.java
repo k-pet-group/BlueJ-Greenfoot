@@ -13,8 +13,8 @@ import org.netbeans.lib.cvsclient.event.TerminationEvent;
  * This class can be registred as a listener when doing an update. Registering
  * could look like this <br/>
  * <em> 
- * UpdateListener updateListener = new UpdateListener();
- * client.getEventManager().addCVSListener(updateListener);
+ * UpdateServerResponse updateServerResponse = new UpdateServerResponse();
+ * client.getEventManager().addCVSListener(updateServerResponse);
  * <em/>
  * When the UpdateCommand has been executed, this listener will have build a 
  * list of UpdateResults that can be accessed using getUpdateResults()
@@ -22,7 +22,7 @@ import org.netbeans.lib.cvsclient.event.TerminationEvent;
  * @author fisker
  * 
  */
-public class UpdateListener extends BasicServerResponse{
+public class UpdateServerResponse extends BasicServerResponse{
 	/**
      * Stores a tagged line
      */

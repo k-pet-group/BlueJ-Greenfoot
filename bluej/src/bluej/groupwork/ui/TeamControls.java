@@ -28,7 +28,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.Repository;
 import bluej.groupwork.BasicServerResponse;
-import bluej.groupwork.UpdateListener;
+import bluej.groupwork.UpdateServerResponse;
 import bluej.groupwork.UpdateResult;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -134,9 +134,9 @@ public class TeamControls extends JFrame {
 	private void doUpdate() {
 		Thread thread = new Thread(){
 			public void run(){
-				UpdateListener updateListener = null;
+				UpdateServerResponse updateServerResponse = null;
 				try {
-					updateListener = project.getRepository().updateAll(includeGraphLayoutCheckBox.isSelected());
+					updateServerResponse = project.getRepository().updateAll(includeGraphLayoutCheckBox.isSelected());
 				} catch (CommandAbortedException e) {
 					e.printStackTrace();
 				} catch (CommandException e) {
@@ -146,14 +146,14 @@ public class TeamControls extends JFrame {
 				}
 				project.reloadFilesInEditors();
 				progress.stop();
-				handleConflicts(updateListener);
+				handleConflicts(updateServerResponse);
 			}
 			
-			public void handleConflicts(UpdateListener updateListener){
+			public void handleConflicts(UpdateServerResponse updateServerResponse){
 				StringBuffer conflicts = new StringBuffer();
-				if (updateListener.getConflicts().size() > 0){
+				if (updateServerResponse.getConflicts().size() > 0){
 					conflicts.append("The following classes had conflicts:\n");
-					for (Iterator i = updateListener.getConflicts().iterator(); i.hasNext();) {
+					for (Iterator i = updateServerResponse.getConflicts().iterator(); i.hasNext();) {
 						UpdateResult updateResult = (UpdateResult) i.next();
 						conflicts.append(updateResult.getFilename() + "\n");					
 					}
