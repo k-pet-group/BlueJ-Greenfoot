@@ -28,16 +28,16 @@ REFERENCE_LANG=english
 LIBDIR=$BLUEJ_HOME/lib
 
 echo "# Testing dialogues"
-test_it dialogues.$REFERENCE_LANG dialogues.$1
+test_it $REFERENCE_LANG/dialogues $1/dialogues
 echo "# Testing exception.help"
-test_it exception.help.$REFERENCE_LANG exception.help.$1
+test_it $REFERENCE_LANG/exception.help $1/exception.help
 echo "# Testing jikes.help"
-test_it jikes.help.$REFERENCE_LANG jikes.help.$1
+test_it $REFERENCE_LANG/jikes.help $1/jikes.help
 echo "# Testing javac.help"
-test_it javac.help.$REFERENCE_LANG javac.help.$1
+test_it $REFERENCE_LANG/javac.help $1/javac.help
+echo "# Testing moe.help"
+test_it $REFERENCE_LANG/moe.help $1/moe.help
 
 echo "# Testing labels"
-test_props labels.$REFERENCE_LANG labels.$1
-echo "# Testing moe labels"
-test_props moe.labels.$REFERENCE_LANG moe.labels.$1
+test_props $REFERENCE_LANG/labels $1/labels
 
