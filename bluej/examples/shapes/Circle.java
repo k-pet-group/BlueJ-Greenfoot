@@ -2,9 +2,9 @@ import java.awt.*;
 import java.awt.geom.*;
 
 /**
- * A square that can be manipuleted and that draws itself on a canvas.
+ * A circle that can be manipulated and that draws itself on a canvas.
  * 
- * @author	Michael Kolling
+ * @author	Michael Kolling and David J. Barnes
  * @version 1.0  (15 July 2000)
  */
 
@@ -14,9 +14,10 @@ public class Circle
 	private int xPosition;
 	private int yPosition;
 	private String color;
-
+	private boolean isVisible;
+	
     /**
-     * Create a new square at default position with default color.
+     * Create a new circle at default position with default color.
      */
     public Circle()
     {
@@ -24,11 +25,29 @@ public class Circle
 		xPosition = 20;
 		yPosition = 60;
 		color = "blue";
-		draw();
+		isVisible = false;
     }
 
+	/**
+	 * Make this circle visible. If it was already visible, do nothing.
+	 */
+	public void makeVisible()
+	{
+		isVisible = true;
+		draw();
+	}
+	
+	/**
+	 * Make this circle invisible. If it was already invisible, do nothing.
+	 */
+	public void makeInvisible()
+	{
+		erase();
+		isVisible = false;
+	}
+	
     /**
-     * Move the square a few pixels to the right.
+     * Move the circle a few pixels to the right.
      */
     public void moveRight()
     {
@@ -36,7 +55,7 @@ public class Circle
     }
 
     /**
-     * Move the square a few pixels to the left.
+     * Move the circle a few pixels to the left.
      */
     public void moveLeft()
     {
@@ -44,7 +63,7 @@ public class Circle
     }
 
     /**
-     * Move the square a few pixels up.
+     * Move the circle a few pixels up.
      */
     public void moveUp()
     {
@@ -52,7 +71,7 @@ public class Circle
     }
 
     /**
-     * Move the square a few pixels down.
+     * Move the circle a few pixels down.
      */
     public void moveDown()
     {
@@ -60,7 +79,7 @@ public class Circle
     }
 
     /**
-     * Move the square horizontally by 'distance' pixels.
+     * Move the circle horizontally by 'distance' pixels.
      */
     public void moveHorizontal(int distance)
     {
@@ -70,7 +89,7 @@ public class Circle
     }
 
     /**
-     * Move the square vertically by 'distance' pixels.
+     * Move the circle vertically by 'distance' pixels.
      */
     public void moveVertical(int distance)
     {
@@ -80,7 +99,7 @@ public class Circle
     }
 
     /**
-     * Slowly move the square horizontally by 'distance' pixels.
+     * Slowly move the circle horizontally by 'distance' pixels.
      */
     public void slowMoveHorizontal(int distance)
     {
@@ -98,14 +117,13 @@ public class Circle
 
 		for(int i = 0; i < distance; i++)
 		{
-			erase();
 			xPosition += delta;
 			draw();
 		}
     }
 
     /**
-     * Slowly move the square vertically by 'distance' pixels.
+     * Slowly move the circle vertically by 'distance' pixels.
      */
     public void slowMoveVertical(int distance)
     {
@@ -123,7 +141,6 @@ public class Circle
 
 		for(int i = 0; i < distance; i++)
 		{
-			erase();
 			yPosition += delta;
 			draw();
 		}
@@ -150,24 +167,26 @@ public class Circle
     }
 
 	/*
-	 * Draw the square with current specifications on screen.
+	 * Draw the circle with current specifications on screen.
 	 */
 	private void draw()
 	{
-		Canvas canvas = Canvas.getCanvas();
-		canvas.setForegroundColour(color);
-		canvas.fill(new Ellipse2D.Double(xPosition, yPosition, 
-										 diameter, diameter));
-		canvas.wait(10);
+		if(isVisible) {
+			Canvas canvas = Canvas.getCanvas();
+			canvas.draw(this, color, new Ellipse2D.Double(xPosition, yPosition, 
+														  diameter, diameter));
+			canvas.wait(10);
+		}
 	}
 
 	/*
-	 * Erase the square on screen.
+	 * Erase the circle on screen.
 	 */
 	private void erase()
 	{
-		Canvas canvas = Canvas.getCanvas();
-		canvas.erase(new Ellipse2D.Double(xPosition, yPosition, 
-										 diameter, diameter));
+		if(isVisible) {
+			Canvas canvas = Canvas.getCanvas();
+			canvas.erase(this);
+		}
 	}
 }

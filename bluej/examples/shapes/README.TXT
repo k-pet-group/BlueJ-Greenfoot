@@ -1,9 +1,13 @@
-----------------
 Project "shapes"
-----------------
+Authors: Michael Kolling and David J. Barnes
 
-Copyright (c) Michael Kölling, 2000
-              Monash University
+This project is part of the material for the book
+
+   Objects First with Java - A Practical Introduction using BlueJ
+   David J. Barnes and Michael Kolling
+   Pearson Education, 2002
+
+It is discussed in chapter 1.
 
 This is a very simple project to demonstrate some characteristics of
 objects.
@@ -37,4 +41,4 @@ A good second project to look at after this is "picture", which adds a class
 to those ones in this project. That class (named "Picture") uses the shapes
 to draw a picture. It can be used to experiment with coding.
 
-Michael Kölling, July 2000
+Michael Kolling, July 2000

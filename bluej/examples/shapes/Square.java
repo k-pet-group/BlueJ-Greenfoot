@@ -1,9 +1,9 @@
 import java.awt.*;
 
 /**
- * A square that can be manipuleted and that draws itself on a canvas.
+ * A square that can be manipulated and that draws itself on a canvas.
  * 
- * @author	Michael Kolling
+ * @author	Michael Kolling and David J. Barnes
  * @version 1.0  (15 July 2000)
  */
 
@@ -13,6 +13,7 @@ public class Square
 	private int xPosition;
 	private int yPosition;
 	private String color;
+	private boolean isVisible;
 
     /**
      * Create a new square at default position with default color.
@@ -23,9 +24,27 @@ public class Square
 		xPosition = 60;
 		yPosition = 50;
 		color = "red";
-		draw();
+		isVisible = false;
     }
 
+	/**
+	 * Make this square visible. If it was already visible, do nothing.
+	 */
+	public void makeVisible()
+	{
+		isVisible = true;
+		draw();
+	}
+	
+	/**
+	 * Make this square invisible. If it was already invisible, do nothing.
+	 */
+	public void makeInvisible()
+	{
+		erase();
+		isVisible = false;
+	}
+	
     /**
      * Move the square a few pixels to the right.
      */
@@ -97,7 +116,6 @@ public class Square
 
 		for(int i = 0; i < distance; i++)
 		{
-			erase();
 			xPosition += delta;
 			draw();
 		}
@@ -122,7 +140,6 @@ public class Square
 
 		for(int i = 0; i < distance; i++)
 		{
-			erase();
 			yPosition += delta;
 			draw();
 		}
@@ -153,10 +170,12 @@ public class Square
 	 */
 	private void draw()
 	{
-		Canvas canvas = Canvas.getCanvas();
-		canvas.setForegroundColour(color);
-		canvas.fill(new Rectangle(xPosition, yPosition, size, size));
-		canvas.wait(10);
+		if(isVisible) {
+			Canvas canvas = Canvas.getCanvas();
+			canvas.draw(this, color,
+						new Rectangle(xPosition, yPosition, size, size));
+			canvas.wait(10);
+		}
 	}
 
 	/*
@@ -164,7 +183,9 @@ public class Square
 	 */
 	private void erase()
 	{
-		Canvas canvas = Canvas.getCanvas();
-		canvas.erase(new Rectangle(xPosition, yPosition, size, size));
+		if(isVisible) {
+			Canvas canvas = Canvas.getCanvas();
+			canvas.erase(this);
+		}
 	}
 }
