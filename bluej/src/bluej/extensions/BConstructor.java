@@ -8,11 +8,16 @@ import bluej.views.*;
 
 
 /**
- * A wrapper for a Constructor of a BlueJ Class.
+ * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1726 2003-03-24 13:33:06Z damiano $
+ * @version $Id: BConstructor.java 1816 2003-04-10 11:23:06Z damiano $
  */
+
+/*
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ */
+ 
 public class BConstructor 
   {
   private bluej.pkgmgr.Package bluej_pkg;
@@ -20,7 +25,7 @@ public class BConstructor
   private DirectInvoker invoker;
 
   /**
-   * NOT for public use: to be used from within the xtension package
+   * Constructor 
    */
   BConstructor(bluej.pkgmgr.Package i_pkg, ConstructorView i_view )
     {
@@ -29,7 +34,7 @@ public class BConstructor
     }
 
   /**
-   * Tests if this constructor matches against the given param.
+   * Tests if this constructor matches against the given signature.
    * 
    * @return true if it does, false othervise.
    */
@@ -57,7 +62,8 @@ public class BConstructor
     }
 
     /**
-     * As From reflection API
+     * Returns the parameters of this constructor.
+     * Similar to reflection API.
      */
     public Class[] getParameterTypes ()
       {
@@ -65,7 +71,8 @@ public class BConstructor
       }
 
     /**
-     * Creates a new instance of the object described by this constructor
+     * Creates a new instance of the object described by this constructor.
+     * Similar to reflection API.
      */
     public BObject newInstance ( Object[] initargs )
       {

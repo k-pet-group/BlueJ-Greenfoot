@@ -13,13 +13,10 @@ import bluej.views.*;
 
 /**
  * A wrapper for a BlueJ Class. 
- * From this BClass you can create Bobjects and call methods
- * by following the same reasoning of the reflection API.
- * BClass allows you to know the real underlyng class because there is a need to 
- * understand what is the identity of this Class (BClass) and the identity of the hidden one.
- * NOTE: For all methods the return value is null if the class is not compiled.
+ * From this BClass you can create BObjects and call methods by following the same reasoning of the reflection API.
+ * For all methods the return value is null if the class is not compiled.
  * 
- * @version $Id: BClass.java 1770 2003-04-09 16:24:27Z damiano $
+ * @version $Id: BClass.java 1816 2003-04-10 11:23:06Z damiano $
  */
 public class BClass
 {
@@ -28,10 +25,6 @@ public class BClass
     private final Class loadedClass;
     private final View  bluej_view;
 
-
-    /**
-     * For use only by the bluej.extensions package
-     */
     BClass (Package i_bluej_pkg, ClassTarget classTarget)
     {
         bluej_pkg = i_bluej_pkg;
@@ -48,9 +41,6 @@ public class BClass
         bluej_view = View.getView (loadedClass);
     }
 
-    /**
-     * For extensions use only.
-     */    
     BClass (Package i_bluej_pkg, String className)
     {
         bluej_pkg = i_bluej_pkg;
@@ -58,7 +48,6 @@ public class BClass
         this.loadedClass = bluej_pkg.loadClass (transJavaToClass(className));
         bluej_view = View.getView (loadedClass);
     }
-
 
     private BClass (Package i_bluej_pkg, View view)
     {
@@ -76,7 +65,7 @@ public class BClass
      * Is it an array
      * What is the type of the array element
      * 
-     * NOTE: This is for INFORMATION ONLY, if you want to interact with BlueJ you MUST
+     * Note that this is for information only. If you want to interact with BlueJ you must
      * use the methods proviced in BClass.
      */
     public Class getJavaClass ()
@@ -85,7 +74,7 @@ public class BClass
       }
 
     /**
-     * Returns the BPackage this Class belongs to.
+     * Returns the package this class belongs to.
      */
     public BPackage getPackage()
     {
@@ -95,8 +84,8 @@ public class BClass
       
     /**
      * Checks to see if a class has been compiled. 
-     * Returns true if this BClass is compiled and is a valid one.
-     * Returns <code>true</code> if it is a virtual class.
+     * Returns true if this class is compiled and is a valid one.
+     * Returns true if it is a virtual class.
      */
     public boolean isCompiled()
     {
@@ -107,8 +96,6 @@ public class BClass
     
     /**
      * Compile this class, and any dependants. 
-     * Performed synchronously.  
-     * Ignored and returns <code>true</code> if it is a virtual class.
      * 
      * @return true if the compilation was successful, false othervise.
      */
@@ -122,7 +109,7 @@ public class BClass
     }
 
     /**
-     * Returns the superclass of this BClass.
+     * Returns the superclass of this class.
      * If there is no superclass null is returned.
      */
     public BClass getSuperclass()
@@ -137,7 +124,7 @@ public class BClass
     /**
      * Returns all constructors of this class.
      * This is similar to reflection API.
-     * NOTE: If the class is NOT compiled it WILL return a zero len constructors array.
+     * If the class is not compiled it will return a zero len constructors array.
      */
     public BConstructor[] getConstructors()
         {
@@ -152,7 +139,7 @@ public class BClass
         }
      
     /**
-     * Returns constructor for this class with the given criteria.
+     * Returns constructor for this class with the given signature.
      * 
      * @param signature the signature of the required constructor.
      * @return the requested constructor of this class, or null if
@@ -211,7 +198,7 @@ public class BClass
 
 
     /**
-     * Returns all BFields of this Class.
+     * Returns all fileds of this class.
      * Similar to reflection API.
      */
     public BField[] getFields()
@@ -229,6 +216,7 @@ public class BClass
 
     /**
      * Returns a specific Field of this Class, given its name.
+     * Similar to Reflection API.
      */
     public BField getField(String fieldName)
         {
