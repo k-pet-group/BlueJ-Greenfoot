@@ -1,0 +1,119 @@
+NullPointerException*
+Você tentou acessar um objeto (ou um campo
+de um objeto ou um método de um objeto). Não
+funcionou porque a referência que você usou para
+acessar o objeto possuia 'null'. Por exemplo:
+você escreveu "coisa.print()", e "coisa" continha
+null naquele momento.
+
+ArithmeticException*
+Algo deu errado durante uma operação aritmética,
+tal como uma divisão por zero, por exemplo.
+
+StringIndexOutOfBoundsException*
+Você tentou acessar um caractere ou substring de um
+string com um índice não existente no string. Por exemplo,
+você deve ter tentado acessar o quinto caractere em um string
+que possui apenas três caracteres.
+Para operações de substring, lembre-se que o segundo
+parâmetro é o tamanho do substring, não o índice final.
+
+ClassCastException*
+Você usou um "cast" - isto é, uma instrução atribuindo
+um tipo estático diferente do tipo do objeto, tal
+como neste exemplo:
+       (String) algumObjeto
+Aqui, "algumObjeto" é forçado para ser um "String". Isto só
+é válido se o objeto armazenado em algumObjeto for
+realmente um String.
+Em outras palavras: você pode usar um cast para um
+tipo T apenas se o objeto que você está forçando for
+do tipo T ou de algum subtipo. Não é o caso do seu código.
+
+IndexOutOfBoundsException*
+Um índice de algum tipo (para um arranjo, para um string,
+para um vetor) está fora da faixa. "Fora da faixa" significa
+que o índice não existe no arranjo ou outra coleção (e.g. você
+tentou acessar o elemento 5 de um arranjo de 3 elementos).
+
+ArrayIndexOutOfBoundsException*
+Um índice de arranjo está fora da faixa. "Fora da
+faixa" significa que o índice não existe no arranjo
+(e.g. você tentou acessar o elemento 5, mas apenas
+três elementos existem). A faixa válida de um índice
+é 0..tamanhoarranjo-1.
+
+ConcurrentModificationException*
+Você está fazendo um iteração numa coleção.
+Enquanto você está fazendo isso, a coleção foi
+modificada. Não é permitido modificar a coleção
+durante uma iteração. Dito de outra forma: você
+não pode continuar a iteração após modificar a coleção.
+A única modificação permitida durante uma iteração é a 
+remoção de elementos com o método remove de Iterator (não
+o método remove da coleção).
+
+ArrayStoreException*
+Nenhuma ajuda disponível - desculpe.
+
+CannotRedoException*
+Nenhuma ajuda disponível - desculpe.
+
+CannotUndoException*
+Nenhuma ajuda disponível - desculpe.
+
+CMMException*
+Nenhuma ajuda disponível - desculpe.
+
+EmptyStackException*
+Nenhuma ajuda disponível - desculpe.
+
+IllegalArgumentException*
+Nenhuma ajuda disponível - desculpe.
+
+IllegalMonitorStateException*
+Nenhuma ajuda disponível - desculpe.
+
+IllegalPathStateException*
+Nenhuma ajuda disponível - desculpe.
+
+IllegalStateException*
+Nenhuma ajuda disponível - desculpe.
+
+ImagingOpException*
+Nenhuma ajuda disponível - desculpe.
+
+MissingResourceException*
+Nenhuma ajuda disponível - desculpe.
+
+NegativeArraySizeException*
+Nenhuma ajuda disponível - desculpe.
+
+NoSuchElementException*
+Nenhuma ajuda disponível - desculpe.
+
+ProfileDataException*
+Nenhuma ajuda disponível - desculpe.
+
+ProviderException*
+Nenhuma ajuda disponível - desculpe.
+
+RasterFormatException*
+Nenhuma ajuda disponível - desculpe.
+
+SecurityException*
+Nenhuma ajuda disponível - desculpe.
+
+SystemException*
+Nenhuma ajuda disponível - desculpe.
+
+UndeclaredThrowableException*
+Nenhuma ajuda disponível - desculpe.
+
+UnsupportedOperationException*
+Nenhuma ajuda disponível - desculpe.
+
+Exception
+Esta é uma exceção geral que diz que algo
+deu errado. Eu não tenho a mínima idéia
+do que foi...

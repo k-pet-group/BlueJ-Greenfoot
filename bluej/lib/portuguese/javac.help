@@ -1,0 +1,772 @@
+as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
+A palavra 'assert' agora faz parte da linguagem Java
+e, portanto, possui um significado especial (palavra chave).
+Você não poderá usá-la para nomear variáveis ou métodos.
+Por favor, esclha um outro nome.
+
+qualified new of static class
+Nenhuma ajuda disponível.
+
+* is abstract; cannot be instantiated
+A classe é "abstract". Isto significa que
+ela contém alguns métodos para os quais não fornece
+implementação (métodos abstratos). Você não pode
+criar objetos de classes abstratas. Ou você usa uma
+subsclasse ou escreve uma subclasse desta classe
+abstrata que implemente todos os métodos abstratos.
+Assim, você poderá criar objetos desta subclasse.
+
+abstract methods cannot have a body
+Você declarou um método "abstract" e escreveu
+um corpo para este método. Isto é uma contradição.
+Declarações de métodos abstratos possuem apenas um
+cabeçalho de método seguido por ponto-e-vírgula.
+Remova a palavra "abstract" ou remova o corpo do 
+método.
+
+* is already defined in *
+Já existe uma variável (ou talvez um parâmetro)
+neste método que possui o mesmo nome. Use
+um nome diferente para este. (Se sua intenção
+é utilizar a variável neste ponto do código,
+então deve remover o tipo para que isto não
+pareça uma nova declaração de variável).
+
+anonymous class implements interface; cannot have arguments
+Nenhuma ajuda disponível.
+
+anonymous class implements interface; cannot have qualifier for new
+Nenhuma ajuda disponível.
+
+array required, but *
+Parece que você está querendo acessar um elemento de
+um arranjo. Entretanto, a variável que você está
+usando não é um arranjo.
+
+break outside switch or loop
+O comando "break" interrompe um bloco, tal
+como um comando "switch" ou um laço ("for",
+"while" ou "do"). Ele não pode ser utilizado fora
+de tais blocos.
+
+* must be first statement in constructor
+A primeira coisa a ser executada numa classe que possui
+superclasse é chamar o construtor da superclasse.
+Você faz isso adicionando
+    super(...);
+na primeira linha do seu construtor (substituindo os
+pontos pelos parâmetros apropriados). Tentar usar
+membros de uma superclasse antes de chamar seu
+construtor pode levar a sérios problemas!
+
+cannot access *
+Nenhuma ajuda disponível.
+
+cannot assign a value to final variable *
+A variável a que você está tentando atribuir um valor
+foi declarada "final". Isto significa que não é permitido
+mudar seu valor. Se você realmente precisa mudar o valor,
+remova a palavra "final" da declaração da variável.
+
+type variables cannot be dereferenced
+Você não pode usar o ponto para acessar
+campos ou métodos de variáveis primitivas.
+
+* cannot be dereferenced
+Você está usando o ponto para acessar um campo ou um 
+método de outro objeto. Entretanto, a variável que você
+está usando não é referência para um objeto - ela não 
+possui campos ou métodos.
+
+cannot inherit from final *
+A superclasse (a classe que aparece após a
+palavra "extends") é declarada final. Isto 
+significa que ela não permite subclasses.
+Desculpe - você não pode criar subclasses
+dela se ela não deseja que você o faça...
+
+* before supertype constructor has been called
+A primeira coisa a ser executada numa classe que possui
+superclasse é chamar o construtor da superclasse.
+Você faz isso adicionando
+    super(...);
+na primeira linha do seu construtor (substituindo os
+pontos pelos parâmetros apropriados). Tentar usar
+membros de uma superclasse antes de chamar seu
+construtor pode levar a sérios problemas!
+
+cannot return a value from method whose result type is void
+Um tipo void como retorno de um método indica que
+este método não retorna valores. O corpo do método não deve
+ter um comando return dentro dele.
+
+cannot select a static class from a parameterized type
+Nenhuma ajuda disponível.
+
+* cannot be inherited with different arguments:*
+Nenhuma ajuda disponível.
+
+'catch' without 'try'
+"catch" é uma palavra Java que só pode aparecer após
+um bloco "try". O padrão correto é
+   try {
+      comandos;
+   }
+   catch(Exception e) {
+     comandos;
+   }
+
+* clashes with package of same name
+Certifique-se que a classe e o pacote
+têm nomes diferentes. Em geral, classes
+devem começar com letras maiúsculas, enquanto
+nomes de pacotes devem começar com letras minúsculas.
+
+code too large for try statement
+Você pôs muito código dentro deste comando try.
+Ponha o código em um método separado e insira
+uma chamada de método aqui.
+
+constant expression required
+Você usou uma variável ou uma expressão aqui, mas isto 
+é ilegal. Apenas constantes podem ser usadas aqui.
+Constantes são números literais (como 42) ou 
+identificadores declarados com "final".
+
+continue outside of loop
+O comando "continue" é usado para 
+iniciar a próxima iteração do laço
+imediatamente. Ele não possui significado
+fora de um laço. Ele só pode ser usado dentro
+de um "for", "while" ou "do".
+
+cyclic inheritance involving *
+Você está tentando estender uma classe,
+mas aquela classe já declara que extende
+a sua classe. Bem, isto não funciona!
+Você deve decidir qual delas é a superclasse
+e qual é a subclasse.
+
+* does not exist
+O nome que você usou aqui (que pode ser uma variável, 
+uma classe ou um pacote) não existe. Não há uma variável,
+classe ou pacote com este nome.
+
+duplicate class:*
+Já há uma classe com este nome.
+
+duplicate case label
+Você usou o mesmo rótulo duas vezes no mesmo
+comando "switch".
+
+duplicate default label
+Você escreveu "default" duas vezes no mesmo
+comando switch. Você não pode fazer isso - uma vez
+é suficiente.
+
+'else' without 'if'
+Um 'else' só pode apareder como parte de um comando
+'if' na seguinte forma
+   if (condição)
+     comando;
+   else
+     comando;
+Você não esqueceu de por as chaves envolvendo os comandos?
+Se você tiver mais de um comando após o if, você terá
+que adicionar chaves, desta forma:
+   if (condição) 
+   {
+      comando1;
+      comando2;
+   }
+   else
+   {
+      comando3;
+   }
+
+empty character literal
+Você escreveu um caractere literal vazio ilegal.
+Você não pode escrever ''. Uma constante caractere é
+formada por um único caractere envolto em apóstrofos, 
+como por exemplo 'a'. Na maioria das vezes só pode haver
+um único caractere entre apóstrofos. A única exceção é se
+o primeiro caractere for uma contra-barra ("\", chamada
+de caractere de escape) para definição de caracteres
+especiais, e.g. '\n' ou '\t'.
+
+* has already been caught
+Este comando catch é inútil. Ele 
+nunca será executado, porque todas as
+exceções que ele diz tratar já foram
+tratadas pelos catchs acima dele.
+
+* is never thrown in body of corresponding try statement
+Você declarou que deseja tratar uma exceção aqui.
+Mas eu devo informá-lo que esta exceção nunca será
+lançada neste ponto! Não há nenhum comando no
+bloco "try" que lance esta exceção.
+
+'finally' without 'try'
+"finally" é uma palavra reservada Java que só pode aparecer
+após um bloco "try". O padrão correto é
+   try {
+      comandos;
+   }
+   catch(Exception e) {
+     comandos;
+   }
+   finally {
+      comandos;
+   }
+
+floating point number too large
+O sistema não consegue lidar com números de
+ponto flutuante tão grandes.
+
+floating point number too small
+O sistema não consegue lidar com números de
+ponto flutuante tão pequenos.
+
+inner classes cannot have static declarations
+Você não pode declarar variáveis static
+em classes aninhadas. Se precisar de tipos
+static aqui declare-os na classe externa.
+
+illegal character:*
+Há um caractere ilegal no código fonte. Este caractere pode
+estar invisível. Se você não conseguir encontrá-lo para
+apagá-lo, apague a linha inteira e digite-a novamente.
+
+illegal combination of modifiers: *
+Você tentou combinar dois modificadores Java que
+são considerados pares ilegais. É provável que o
+significado de um seja contraditório para o outro.
+Um exemplo disto seria definir um método como
+abstract e native, final, private ou synchronized.
+
+illegal escape character
+Um caractere de escape é escrito com uma contra-barra
+e um segundo caractere, por exemplo '\n'. Isto é utilizado
+para definir caracteres especiais. Só há apenas
+um conjunto fixo de caracteres que podem aparecer
+após uma contra-barra. São eles \n, \t, \b, \r, \f, \\,
+\', \" e números. Se você deseja escreve o próprio
+contra-barra, use "\\" - isto será substituído 
+por um único caractere contra-barra no seu string.
+
+illegal forward reference
+Nenhuma ajuda disponível.
+
+illegal initializer for *
+Nenhuma ajuda disponível.
+
+illegal line end in character literal
+Há uma quebra de linha onde um literal de caractere
+deveria ser especificado. Você não pode fazer isso.
+Se você quiser colocar um caractere de quebra de linha
+use o '\n'.
+
+illegal qualifier; {0} is not an inner class
+Nenhuma ajuda disponível.
+
+illegal start of expression
+Nenhuma ajuda disponível.
+
+illegal start of type
+Na posição do código fonte onde era esperado um
+nome de tipo há uma outra coisa (provavelmente
+uma palavra reservada Java). Procure possíveis
+definições incorretas nesta linha.
+
+illegal unicode escape
+Nenhuma ajuda disponível.
+
+improperly formed type, some parameters are missing
+Nenhuma ajuda disponível.
+
+incomparable types: *
+Nenhuma ajuda disponível.
+
+integer number too large: *
+Você escreveu um número que é muito grande para
+o tipo de dado de se espera receber aqui. Você
+deve usar um tipo de dado maior (por exemplo,
+"long" ao invés de "int").
+
+internal error; cannot instantiate *
+Nenhuma ajuda disponível.
+
+* but with different return type
+Você deve estar tentando combinar dois métodos que
+têm a mesma assinatura, exceto pelo tipo de retorno. Isto
+não é permitido. Isto está acontecendo muito provavelmente
+porque sua classe está tentando implementar duas interfaces.
+Cada interface tem um método com o mesmo nome e parâmetros, mas
+diferentes tipos de retorno. Você não pode implementar ambas
+as interfaces, a menos que mude uma delas. Ou você renomeia um
+dos métodos ou muda o tipo de retorno para ser o mesmo em ambos.
+
+interface expected here
+Uma interface só pode extender outra interface. O nome
+que você especificou após a palavra "extends" não é de uma
+interface.
+
+interface methods cannot have body
+Métodos de interfaces possuem apenas a declaração.
+Isto significa que eles devem ter um cabeçalho seguido
+por um ponto-e-vígula. Não pode haver nenhum corpo de
+método.
+
+hexadecimal numbers must contain at least one hexadecimal digit
+Você especificou um número em hexadecimal. (Isto é
+feito colocando-se um "0x" no início do número). Números
+hexadecimais devem possuir pelo menos um dígito após o "X".
+
+invalid method declaration; return type required
+Uma declaração de método deve ter um tipo de retorno.
+Por exemplo, se seu método retorna um String, escreva
+    public String myMethod();
+Se você não quiser que o método retorne nenhum valor,
+use a palavra especial "void".
+Por exemplo:
+    public void myMethod();
+
+* already in use
+Já existe uma variável (ou talvez um 
+parâmetro) neste método que possui
+o mesmo nome. Use um nome diferente.
+(Você pretende usar a mesma
+variável aqui? Neste caso, remova
+o nome do tipo para que isso não se
+pareça com uma nova delcaração de variável).
+
+* is accessed from within inner class; needs to be declared final
+Variáveis locais não são acessíveis por classes internas.
+Mas isto é exatamente o que você está tentando fazer
+aqui. Você tem duas opções: ou desiste de acessar
+esta variável ou declara a variável como "final"
+- e assim pode acessá-la.
+
+malformed floating point literal
+Você cometeu erros ao escrever um número de ponto
+flutuante. (Um número de ponto flutuante é um
+que possui um ponto decimal). Exemplos de
+números de ponto flutuante corretos:
+18.0      18.     1.8e1     .18E2
+
+missing method body, or declare abstract
+Métodos devem ter um corpo ou serem abstratos.
+Um corpo de método é um bloco formado por
+chaves { }, que vêm logo após o cabeçalho do método,
+e possuem comandos. Se um método não possui um corpo,
+então ele deve ter a palavra "abstract" em seu
+cabeçalho. Por exemplo:
+    public abstract int getAnswer();
+
+missing return statement
+Você tem um método que retorna um valor. Não há,
+entretanto, nenhum comando "return" no corpo do método.
+Ambas as situações não podem acontecer. Você deve:
+   - declarar o tipo de retorno do método como "void",
+     caso não queira retornar nenhum valor, ou
+   - escrever um comando "return" com um valor
+     de retorno correto, por exemplo
+         return 42;
+O tipo do valor de retorno deve ser igual ao declarado
+no cabeçalho do método.
+
+missing return value
+Aqui você escreveu um comando "return" que não retorna
+nenhum valor. O cabeçalho do método, no entanto, declara
+que este método retorna um valor. Ou você declara
+que este método não retorna um valor (usando "void"
+como tipo de retorno no cabeçalho), ou retorna um valor
+do tipo correto, por exemplo
+    return 42;
+ou
+    return "Marvin";
+
+name clash: *
+Você definiu dois métodos com o mesmo nome. Isto só
+é permitido se um sobrescrever o outro (o que não é o 
+caso aqui). Um dos nomes deve ser mudado.
+
+* is reserved for internal use
+O termo exibido é reservado para uso interno, se você
+o estiver usando como nome de uma variável terá que mudá-lo
+
+native methods cannot have a body
+Você declarou um método "native" e, no entanto, escreveu
+um corpo para ele. Declarações de métodos nativos têm
+apenas um cabeçalho seguido por ponto-e-vígula. Ou você
+remove a palavra "native" ou remove o corpo do método.
+
+no enclosing instance of type {0} is in scope
+Nenhuma ajuda disponível.
+
+no interface expected here
+Você está referenciando uma interface (possivelmente
+na declaração "extends" da classe). Uma classe só pode
+extender outra classe (nunca interfaces). Se você deseja
+implementar esta interface, use a palavra "implements"
+em lugar de "extends".
+
+{0} has no match in entry in {1}; required {2}
+Nenhuma ajuda disponível.
+
+* is not defined in a public class or interface; cannot be accessed from outside package
+Nenhuma ajuda disponível.
+
+* cannot be accessed from outside package
+A classe que você está tentando usar aqui não é pública.
+Isto é: sua definição não começa com
+   public class ...
+Se uma classe não for pública, ela não pode ser usada
+fora do seu pacote. Se você precisar realmente usar
+esta classe, deve mudar a sua definição de modo 
+a torná-la pública.
+
+not a loop label: *
+Os rótulos que você usa em laços tais como
+   continue <label>;
+devem ser definidos para marcar um laço (isto é:
+eles devem ser definidos imediatamente antes
+do início do laço). O rótulo (label) que você
+definiu aqui não está no local correto - ele
+não está rotulando um laço.
+
+not a statement
+Você escreveu uma linha de código que não é
+um comando completo. Por favor, verifique novamente
+o que você pretendia fazer e como deve fazê-lo.
+
+not an enclosing class:*
+Você tentou acessar o ponteiro de objeto corrente ('this')
+de uma outra classe externa a sua. Isto só é permitido se
+aquela outra classe for uma classe que contém a sua.
+(em outras palavras: numa classe interna você pode acessar
+a classe externa e mais nenhuma outra).
+
+* cannot be applied to *
+O operador que você usou aqui é incompatível com
+o tipo do valor em um dos operandos. Ou você está
+utilizando o tipo incorreto ou o operador incorreto.
+
+* clashes with class of same name
+Certifique-se de que a classe e o pacote
+possuem nomes diferentes. Em geral, classes
+devem começar com letras maiúsculas, enquanto
+que pacotes devem ter seu nome escrito com letras
+minúsculas.
+
+possible fall-through into case
+Nenhuma ajuda disponível.
+
+error reading *
+Nenhuma ajuda disponível.
+
+recursive constructor invocation
+Você escreveu um código que faz o construtor
+chamar a si próprio. Isto não é permitido (e
+pode causar loops infinitos).
+
+* is ambiguous, both *
+O identificador desta mensagem não pôde ser adequadamente
+resolvido porque há mais de uma classe ou interface
+com este nome definidos nos pacotes que você importou.
+Ou você se refere à classe utilizando seu nome
+qualificado (e.g. java.util.List) ou a importa com seu
+nome qualificado (e.g. import java.util.List).
+
+repeated interface
+Você listou duas vezes a mesma
+interface na declaração "implements".
+Uma é o suficiente. Minha memória não
+é tão ruim!
+
+repeated modifier
+Nesta declaração você escreveu o mesmo modificador
+duas vezes. Um modificador é uma palavra reservada,
+tal como final, static, public, private, volatile,...
+
+{0} has {1} access in {2}
+Nenhuma ajuda disponível.
+
+return outside method
+Você só pode usar um comando 'return' em métodos
+(nunca em blocos de inicialização ou outros segmentos
+de código que não sejam métodos).
+
+signature does not match {0}; incompatible interfaces
+Nenhuma ajuda disponível.
+
+signature does not match {0}; incompatible supertype
+Nenhuma ajuda disponível.
+
+* should be declared abstract; it does not define *
+A classe corrente herda de uma classe abstrata ou 
+de uma interface. Classes abstratas e interfaces
+definem métodos sem fornecer uma implementação.
+Esta classe não define implementações para todos
+os métodos que precisam de uma implementação,
+fazendo com que a classe também seja abstrata (ela
+ainda tem métodos sem implementação). Ou você
+declara esta classe abstrata
+   public abstract class ...
+ao invés de apenas
+   public class ...
+ou você fornece uma implementação para
+o método indicado na mensagem de erro
+
+error writing source; cannot overwrite input file *
+Nenhuma ajuda disponível.
+
+'try' without 'catch' or 'finally'
+Se você usa um bloco "try", deve sucedê-lo ou com
+um bloco "catch" ou com um bloco "finally" (ou 
+ambos). O padrão correto é
+   try {
+      comandos;
+   }
+   catch(Exception e) {
+     comandos;
+   }
+   finally {
+      comandos;
+   }
+
+* does not take parameters
+O tipo utilizado não é parametrizado.
+Você não pode fornecer um parâmetro aqui.
+
+wrong number of type arguments; required *
+Nenhuma ajuda disponível.
+
+type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
+Nenhuma ajuda disponível.
+
+type variable {0} occurs more than once in type of {1}; cannot be left uninstantiated
+Nenhuma ajuda disponível.
+
+unclosed character literal
+É provável que você tenha declarado um caractere literal e
+não tenha fechado o apóstrofo: '.
+
+unclosed comment
+É provável que você tenha aberto um comentário e
+não o tenha fechado: */
+
+unclosed string literal
+É provável que você tenha declarado um literal String
+(limitado por aspas) e tenha se esquecido de fechá-lo
+com ". Um string deve ser fechado na mesma linha em que
+inicia.
+
+undefined label: *
+A variável que você está tentando usar aqui não 
+foi encontrada. Ou ela não foi declarada ou foi
+declarada em algum lugar fora do contexto.
+A primeira possibilidade pode ter sido resultado de
+algum erro de digitação no nome da variável.
+Verifique se a variável está escrita corretamente,
+incluindo as letras maiúsculas ("umNumero" não é
+o mesmo que "umnumero"!).
+A segunda possibilidade acontece quando uma variável
+é declarada dentro de um bloco. (Um bloco é um par de
+chaves, como este { }). Se você declara uma variável
+dentro de um laço, por exemplo, ela só será visível
+lá dentro. Como regra geral: uma variável torna-se
+invisível após um fecha-chaves (}) que encerra
+o bloco no qual ela está declarada.
+
+unreachable statement
+Este comando nunca será executado. Se você
+examinar o código com cuidado notará que o 
+fluxo de controle é tal que ele nunca 
+atingirá este comando. Apague-o, caso 
+não queira que ele seja executado, ou então
+corrija seu código.
+
+initializer must be able to complete normally
+Você não pode lançar exceções ou terminar
+blocos de inicialização estáticos. Você deve
+deixá-los terminar a execução naturalmente.
+
+* must be caught or declared to be thrown
+Seu código fez uma chamada a um método que pode
+lançar uma exceção. Você tem duas escolhas: ou 
+captura esta exceção ou declara que seu método
+repassa a exceção. Se você quiser capturar a exceção,
+deve usar um bloco
+   try 
+   {
+      ...
+   }
+   catch(...)
+   {
+      ...
+   }
+Se você quiser passá-la adiante, deve escrever
+a seguinte declaração
+   throws <NomeExceção>
+na assinatura do método.
+
+'void' type not allowed here
+O tipo void não pode ser utilizado neste contexto.
+Ele é um tipo especial utilizado para indicar
+ausência de tipo de retorno em métodos. Ele não
+pode ser usado para declarar variáveis.
+
+* not allowed here
+Você utilizou um modificador de acesso (tal como "private",
+"protected", etc.). Este modificador não é permitido
+neste ponto.
+
+* might already have been assigned to
+Uma variável "final" só pode receber atribuição uma vez.
+(A sua variável em questão aqui é final). Seu código
+possui duas atribuições para esta variável, o compilador
+está achando que eles podem ser executados.
+
+* might not have been initialized
+Você está utilizando uma variável local que pode não
+ter sido inicializada antes do primeiro uso. Na dúvida,
+inicialize-a na declaração.
+
+variable {0} might be assigned in loop
+Nenhuma ajuda disponível.
+
+error while writing *
+Nenhuma ajuda disponível.
+
+* is public, should be declared in a file named *
+Classes públicas devem ficar em arquivos cujo nome
+seja o mesmo da classe, com uma extensão ".java".
+Por exemplo, a classe pública Foo tem que estar
+num arquivo cujo nome seja "Foo.java".
+
+cannot read: *
+Nenhuma ajuda disponível.
+
+* uses or overrides a deprecated API.
+Você está utilizando um método não mais recomendado.
+É provável que exista exista um outro método que 
+ofereça esta funcionalidade. Consulte a documentação
+da API para mais detalhes.
+
+* has been deprecated
+Você está utilizando um método que não é mais recomendado.
+É provável que exista um outro método que 
+ofereça esta funcionalidade. Consulte a documentação
+da API para mais detalhes.
+
+';' expected
+Está faltando um ponto-e-vírgula no final da linha.
+Pode ser a linha marcada no editor ou a acima dela.
+
+'case', 'default' or '}' expected
+Nenhuma ajuda disponível.
+
+'class' or 'interface' expected
+A palavra "class" ou "interface" é esperada
+no início do arquivo fonte. Ela está faltando
+(ou há algum lixo antes dela atrapalhando)
+
+'.class' expected
+Nenhuma ajuda disponível.
+
+'(' or '[' expected
+Parece que há algum parêntesis ou colchete descasado
+no seu código, o que está confundindo o compilador.
+Cuidadosamente, verifique seu código em busca de
+delimitadores descasados.
+
+* expected
+O símbolo na mensagem de erro era esperado
+neste ponto do código. Ele não foi encontrado,
+em seu lugar havia um outro símbolo qualquer.
+Tente pensar porque este símbolo era esperado aqui.
+
+orphaned *
+Nenhuma ajuda disponível.
+
+cannot access *
+Nenhuma ajuda disponível.
+
+type parameter {0} is not within its bound *
+Nenhuma ajuda disponível.
+
+type parameters of {0} cannot be determined
+Nenhuma ajuda disponível.
+
+incompatible types*
+Uma expressão de um certo tipo era requerida aqui.
+Você forneceu uma expressão de um tipo diferente
+e não compatível. (E.g. colocar String quando um
+int era esperado).
+
+inconvertible types*
+O tipo utilizado aqui não pôde ser convertido
+automaticamente para o tipo requerido.
+
+possible loss of precision
+Nenhuma ajuda disponível.
+
+unexpected type
+Uma expressão de um certo tipo era requerida aqui.
+Você forneceu uma expressão de um tipo diferente
+e não compatível. (E.g. colocar String quando um
+int era esperado).
+
+abstract {0} {1} cannot be accessed directly
+Nenhuma ajuda disponível.
+
+*An explicit 'this' qualifier must be used to select the desired instance.
+Nenhuma ajuda disponível.
+
+* cannot be referenced from a static context
+Você está tentando acessar um campo ou método de
+instância a partir de um método de classe. Isto não
+é permitido. Variáveis e métodos de instância pertencem
+a um objeto. Métodos de classe (static) só podem
+chamar outros métodos de classe da sua classe. 
+
+cannot resolve symbol*
+Você está utilizando um símbolo aqui (um nome de uma
+variável, um método ou uma classe) que não foi declarada
+em nenhum escopo visível. Verifique o nome - você
+cometeu algum erro de digitação? Ou apenas esqueçeu
+de declará-lo? Ou talvez você tenha declarado num
+escopo que não é visível daqui.
+
+{0}; {1} and {2} are static
+Nenhuma ajuda disponível.
+
+{0}; overridden method is {1}
+Nenhuma ajuda disponível.
+
+* attempting to assign weaker access privileges; was *
+Você está sobrepondo um método e está mudando o modificador
+de acesso (private, protected, public). Você só pode mudar o 
+modificador de acesso para permitir um acesso mais amplo (e.g.
+de private para public), nunca para estreitá-lo (e.g. de public
+para private). Claro, você também pode deixá-lo inalterado.
+
+* overridden method does not throw *
+Você está sobrepondo um método e o está fazendo lançar
+uma exceção. Métodos sobrepostos não podem lançar exceções
+que o método sobreposto (superclasse) também não lance.
+O método na subclasse pode lançar menos exceções, nunca mais.
+
+* attempting to use incompatible return type
+Nenhuma ajuda disponível.
+
+* is already defined in this compilation unit
+Você está usando este nome duas vezes aqui. Escolha um
+outro nome para seu identificador.
+
+{0} is already defined in a single-type import
+Nenhuma ajuda disponível.
+
+* conflicts with a compiler-synthesized symbol in *
+Nenhuma ajuda disponível.

@@ -101,7 +101,7 @@ find-next-backward=\n Like find-next, but searches up rather than down.
 replace=\n Replace one text string with another.
 
 compile=\n Compile the current class. The class is automatically\n saved before being compiled.
-toggle-interface-view=\n Toggle the display between interface and source view.\n The interface view shpws the class interface in Javadoc format.
+toggle-interface-view=\n Toggle the display between interface and source view.\n The interface view shows the class interface in Javadoc format.
 toggle-breakpoint=\n Set or clear a breakpoint in the current line.
 
 ## help texts for adding key bindings
