@@ -1,19 +1,21 @@
 package bluej.utility;
 
 import bluej.Config;
+import bluej.pkgmgr.Package;
 
-import java.awt.*;
+import java.awt.Component;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.*;
+import javax.swing.filechooser.FileFilter;
 import java.io.*;
+import java.util.*;
 
 /**
  * A file utility for various file related actions.
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 557 2000-06-19 02:16:00Z ajp $
+ * @version $Id: FileUtility.java 560 2000-06-19 02:25:48Z ajp $
  */
 public class FileUtility
 {
@@ -184,7 +186,7 @@ public class FileUtility
         OutputStream out = null;
         try {
             in = new BufferedInputStream(new FileInputStream(srcFile));
-            out = new BufferedOutputStream(new FileOutputStream(destFile);
+            out = new BufferedOutputStream(new FileOutputStream(destFile));
             copyStream(in, out);
             return true;
         } catch(IOException e) {
