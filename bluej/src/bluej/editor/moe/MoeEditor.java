@@ -2033,7 +2033,7 @@ public final class MoeEditor extends JFrame
         // default showing:
         document = sourceDocument;
         currentTextPane = sourcePane;
-
+        
         scrollPane = new JScrollPane(currentTextPane);
         scrollPane.setPreferredSize(new Dimension(598, 400));
 
@@ -2064,13 +2064,10 @@ public final class MoeEditor extends JFrame
             {
                 close();
             }
-
-            public void windowActivated(WindowEvent e)
-            {
-                currentTextPane.requestFocus();
-            }
         });
 
+        this.setFocusTraversalPolicy(new MoeFocusTraversalPolicy());
+        
         setWindowTitle();
         pack();
     }
@@ -2420,4 +2417,34 @@ public final class MoeEditor extends JFrame
         }
     }
 
+    /**
+     * Custom focus traversal implementation to make sure that the text area
+     * gets and never loses focus.
+     */
+    class MoeFocusTraversalPolicy extends FocusTraversalPolicy
+    {
+        public Component getComponentAfter(Container focusCycleRoot,  Component aComponent) {
+            return currentTextPane;
+        }
+
+        public Component getComponentBefore(Container focusCycleRoot,  Component aComponent) {
+            return currentTextPane;
+        }
+
+        public Component getDefaultComponent(Container focusCycleRoot) {
+            return currentTextPane;
+        }
+
+        public Component getFirstComponent(Container focusCycleRoot) {
+            return currentTextPane;
+        }
+
+        public Component getInitialComponent(Window window) {
+            return currentTextPane;
+        }
+
+        public Component getLastComponent(Container focusCycleRoot) {
+            return currentTextPane;
+        }
+    }
 }
