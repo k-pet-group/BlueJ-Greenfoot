@@ -6,7 +6,7 @@ import java.util.List;
 
 import bluej.debugger.gentype.Reflective;
 
-/*
+/**
  * A reflective for generic arrays (GenericArrayType). "Normal" arrays
  * are a Class, so they can use JavaReflective instead, but so called
  * generic arrays have no class type.
@@ -14,7 +14,7 @@ import bluej.debugger.gentype.Reflective;
  * This is a "java 1.5-only" class.
  * 
  * @author Davin McCall
- * @version $Id: JavaArrayReflective.java 2617 2004-06-17 01:07:36Z davmac $
+ * @version $Id: JavaArrayReflective.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class JavaArrayReflective extends Reflective {
 
@@ -28,6 +28,11 @@ public class JavaArrayReflective extends Reflective {
     public String getName()
     {
         return "";
+    }
+    
+    public Reflective getArrayOf()
+    {
+        return null;
     }
 
     // TODO. Are these correct? What are the supertypes of a generic array?
@@ -47,6 +52,11 @@ public class JavaArrayReflective extends Reflective {
     public List getSuperTypes()
     {
         return Collections.EMPTY_LIST;
+    }
+    
+    public boolean isAssignableFrom(Reflective r)
+    {
+        return false;
     }
 
 }

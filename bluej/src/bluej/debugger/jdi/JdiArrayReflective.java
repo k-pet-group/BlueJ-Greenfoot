@@ -2,13 +2,15 @@ package bluej.debugger.jdi;
 
 import bluej.debugger.gentype.*;
 
+import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.VirtualMachine;
 
 /**
  * A proxy-type reflective for arrays.
  * 
  * @author Davin McCall
- * @version $Id: JdiArrayReflective.java 2733 2004-07-05 02:38:20Z davmac $
+ * @version $Id: JdiArrayReflective.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class JdiArrayReflective extends JdiReflective {
 
@@ -18,6 +20,11 @@ public class JdiArrayReflective extends JdiReflective {
     {
         super(null, srctype);
         componentType = t;
+    }
+    
+    public JdiArrayReflective(GenType t, ClassLoaderReference classLoader, VirtualMachine vm)
+    {
+        super(null, classLoader, vm);
     }
     
     public String getName()

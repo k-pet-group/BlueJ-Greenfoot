@@ -43,7 +43,7 @@ public class GenTypeTpar extends GenTypeSolid
             return newType;
     }
     
-    protected void getParamsFromTemplate(Map map, GenTypeParameterizable template)
+    public void getParamsFromTemplate(Map map, GenTypeParameterizable template)
     {
         // If a mapping already exists, precisify it against the template.
         // Otherwise, create a new mapping to the template.
@@ -56,13 +56,47 @@ public class GenTypeTpar extends GenTypeSolid
         map.put(name, x);
     }
     
-    protected GenTypeParameterizable precisify(GenTypeParameterizable other)
+    public GenTypeParameterizable precisify(GenTypeParameterizable other)
     {
         return other;
+    }
+    
+    public GenTypeParameterizable getTparGcd(GenTypeParameterizable other)
+    {
+        // TODO fix this.
+        return new GenTypeUnbounded();
     }
 
     public boolean isPrimitive()
     {
         return false;
     }
+    
+    public boolean isAssignableFrom(GenType t)
+    {
+        if (t instanceof GenTypeTpar)
+            if (((GenTypeTpar)t).name.equals(name))
+                return true;
+
+        return false;
+    }
+    
+    public boolean isAssignableFromRaw(GenType t)
+    {
+        // TODO.
+        return false;
+    }
+    
+    public GenTypeClass [] getUpperBoundsC()
+    {
+        // TODO.
+        return new GenTypeClass[0];
+    }
+    
+    public GenTypeSolid [] getLowerBounds()
+    {
+        // TODO.
+        return new GenTypeSolid[0];
+    }
+
 }

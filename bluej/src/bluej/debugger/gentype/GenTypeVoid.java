@@ -1,24 +1,25 @@
 package bluej.debugger.gentype;
 
-import java.util.Map;
 
-/* Primitive type "void".
+/**
+ * Primitive type "void".
  * 
  * @author Davin McCall
+ * @version $Id: GenTypeVoid.java 3075 2004-11-09 00:10:18Z davmac $
  */
-public class GenTypeVoid implements GenType {
+public class GenTypeVoid extends GenTypePrimitive
+{
+    public GenTypeVoid()
+    {
+        super();
+    }
 
-    public String toString(boolean stripPrefix) {
+    public String toString() {
         return "void";
     }
 
-    public boolean isPrimitive()
+    public boolean isAssignableFrom(GenType t)
     {
-        return true;
-    }
-    
-    public GenType mapTparsToTypes(Map tparams)
-    {
-        return this;
+        return false;
     }
 }

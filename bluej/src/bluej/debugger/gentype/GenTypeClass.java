@@ -12,7 +12,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 3063 2004-10-25 02:37:00Z davmac $
+ * @version $Id: GenTypeClass.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -215,6 +215,52 @@ public class GenTypeClass extends GenTypeSolid {
         return reflective;
     }
     
+    public boolean isAssignableFrom(GenType t)
+    {
+        if (! (t instanceof GenTypeClass))
+            return false;
+        
+        GenTypeClass c = (GenTypeClass) t;
+        Reflective r = c.reflective;
+
+        // check the inheritance hierarchy
+        if( getInheritanceChain(r, reflective.getName()) != null) {
+            if (isRaw() || c.isRaw())
+                return true;
+            
+            // need to check type parameters
+            Map m = c.mapToSuper(reflective.getName());
+            GenTypeClass other = new GenTypeClass(reflective, m);
+            GenTypeClass precise = (GenTypeClass) precisify(other);
+            
+            if (precise == null)
+                return false;
+            
+            // If after precisifying precise == other, then this type imposes
+            // no additional restrictions not already part of other. So it's
+            // a match.
+            if (other.equals(precise))
+                return true;
+        }
+
+        return false;
+    }
+    
+    public boolean isAssignableFromRaw(GenType t)
+    {
+        if (! (t instanceof GenTypeClass))
+            return false;
+        
+        GenTypeClass c = (GenTypeClass) t;
+        Reflective r = c.reflective;
+
+        // check the inheritance hierarchy
+        if( getInheritanceChain(r, reflective.getName()) != null)
+            return true;
+        else
+            return false;
+    }
+    
     /**
      * Map the type parameter in a base type to the types
      * used in the super type. For instance, if A<T> extends B<U>, Then to map
@@ -412,7 +458,11 @@ public class GenTypeClass extends GenTypeSolid {
     
     /**
      * Get a map of type parameter names to the corresponding types, for this
-     * type. Returns null if this represents a raw type.
+     * type. The returned map is a mutable copy, that is, it can freely be
+     * modified by the caller without affecting this GenTypeClass object. 
+     * 
+     * Returns null if this represents a raw type.
+     * 
      * @return the map (of String -> GenTypeParameterizable).
      */
     public Map getMap()
@@ -477,7 +527,7 @@ public class GenTypeClass extends GenTypeSolid {
      * @param r  the Map to put the entries in. 
      * @see bluej.debugger.gentype.GenTypeParameterizable#getParamsFromTemplate(java.util.Map, bluej.debugger.gentype.GenTypeParameterizable)
      */
-    protected void getParamsFromTemplate(Map r, GenTypeParameterizable template)
+    public void getParamsFromTemplate(Map r, GenTypeParameterizable template)
     {
         // We are classA<...>, template could be anything.
         // possibilities for template:
@@ -539,12 +589,16 @@ public class GenTypeClass extends GenTypeSolid {
      * extends Runnable> then the result is: Map <? extends Thread, ? extends
      * Thread>
      */
-    protected GenTypeParameterizable precisify(GenTypeParameterizable other)
+    public GenTypeParameterizable precisify(GenTypeParameterizable other)
     {
         // If "other" is not a GenTypeClass, let it do the work. (It's
         // probably a wildcard).
         if( ! (other instanceof GenTypeClass) )
             return other.precisify(this);
+        
+        // handle raw types gracefully
+        if (params == null)
+            return other;
         
         List l = new LinkedList();
         Iterator i = params.iterator();
@@ -554,7 +608,7 @@ public class GenTypeClass extends GenTypeSolid {
         }
         return new GenTypeClass(reflective,l);
     }
-        
+    
     /**
      * For all type parameters which don't already occur in the given Map,
      * add them in as the "default" given by the class definition. For instance
@@ -578,5 +632,73 @@ public class GenTypeClass extends GenTypeSolid {
             }
         }
         return;
+    }
+    
+    public GenTypeClass[] getUpperBoundsC()
+    {
+        return new GenTypeClass [] {this};
+    }
+    
+    public GenTypeSolid[] getLowerBounds()
+    {
+        return new GenTypeSolid [] {this};
+    }
+
+    /**
+     * Find the common bases between two classes, and add them into the given
+     * list. 
+     */
+    protected static void getCommonBases(GenTypeClass a, GenTypeClass b, List r)
+    {
+        Reflective [] ra = new Reflective [] {a.reflective};
+        Reflective [] rb = new Reflective [] {b.reflective};
+        Set checked = new HashSet(); // keep track of type already added
+        
+        while (ra.length != 0 && rb.length != 0) {
+            
+            ArrayList newRa = new ArrayList();
+            ArrayList newRb = new ArrayList();
+
+            for (int i = 0; i < ra.length; i++) {
+                
+                if (checked.contains(ra[i]))
+                    continue;
+                
+                for (int j = 0; j < rb.length; j++) {
+                    // skip already checked elements
+                    if (checked.contains(rb[i]))
+                        continue;
+                    
+                    if (ra[i].isAssignableFrom(rb[i])) {
+                        // TODO are they really common bases? must find the
+                        // tpar gcd, but beware of infinite recursion!
+                        Map m = a.mapToSuper(ra[i].getName());
+                        r.add(new GenTypeClass(ra[i], m));
+                        checked.add(ra[i]);
+
+                        if (! rb[i].equals(ra[i]))
+                            newRb.addAll(rb[i].getSuperTypesR());
+                    }
+                    else if (rb[i].isAssignableFrom(ra[i])) {
+                        if (! checked.contains(rb[i])) {
+                            Map m = a.mapToSuper(rb[i].getName());
+                            r.add(new GenTypeClass(rb[i], m));
+                            checked.add(rb[i]);
+                        }
+                        if (! ra[i].equals(rb[i]))
+                            newRa.addAll(ra[i].getSuperTypesR());
+                    }
+                    else {
+                        // Add the supertypes of ra[i] into newRa, and the
+                        // supertypes of rb[i] into newRb
+                        newRa.addAll(ra[i].getSuperTypesR());
+                        newRb.addAll(rb[i].getSuperTypesR());
+                    }
+                }
+            }
+            
+            ra = (Reflective []) newRa.toArray(new Reflective[0]);
+            rb = (Reflective []) newRb.toArray(new Reflective[0]);
+        }
     }
 }

@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2816 2004-07-26 00:10:16Z davmac $
+ * @version $Id: JdiReflective.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -96,6 +96,14 @@ public class JdiReflective extends Reflective
         return rclass.name();
     }
 
+    public Reflective getArrayOf()
+    {
+        if (rclass != null)
+            return new JdiArrayReflective(new GenTypeClass(this), rclass);
+        else
+            return new JdiArrayReflective(new GenTypeClass(this), sourceLoader, sourceVM);
+    }
+    
     public List getTypeParams()
     {
         checkLoaded();
@@ -122,27 +130,17 @@ public class JdiReflective extends Reflective
             // '::' indicates lower bound is an interface. Ignore.
             if (s.peek() == ':')
                 s.next();
+
             // multiple bounds appear as T:bound1;:bound2; ... etc
-            boolean firstBound = true;
-
-            //TODO refactor this messy while loop...
+            ArrayList bounds = new ArrayList(3);
             while (s.current() == ':') {
-                GenTypeSolid bound = (GenTypeSolid) fromSignature(s, null, rclass);
-                // TODO properly support multiple bounds. At the moment we'll
-                // just throw the subsequent bounds away.
-                if (firstBound) {
-                    rlist.add(new GenTypeDeclTpar(paramName, bound));
-                    firstBound = false;
-                }
+                bounds.add(fromSignature(s, null, rclass));
+                
                 //we don't want the next char to be eaten...
-                if (s.peek() == ':') {
-
+                if (s.peek() == ':')
                     s.next();
-                }
-                else {
-                    break;
-                }
             }
+            rlist.add(new GenTypeDeclTpar(paramName, (GenTypeSolid []) bounds.toArray(new GenTypeSolid [0])));
             c = s.peek();
         }
         return rlist;
@@ -268,6 +266,90 @@ public class JdiReflective extends Reflective
         }
         return rlist;
     }
+    
+    public boolean isAssignableFrom(Reflective r)
+    {
+        if (this.equals(r))
+            return true;
+        
+        // Any reference type, including arrays, can be assigned to Object
+        if (getName().equals("java.lang.Object"))
+            return true;
+        
+        if (r instanceof JdiReflective) {
+            JdiReflective jr = (JdiReflective) r;
+            
+            jr.checkLoaded();
+            return checkAssignability(rclass, jr.rclass);
+        }
+        else
+            return false;
+    }
+    
+    /**
+     * Check that type b is assingable to a variable of type a.
+     */
+    private static boolean checkAssignability(ReferenceType a, ReferenceType b)
+    {
+        while (true)
+        {
+            if (a instanceof ClassType) {
+                if (b instanceof InterfaceType) {
+                    List l = ((ClassType)a).allInterfaces();
+                    return l.contains(b);
+                }
+                else if (b instanceof ClassType) {
+                    ClassType classType = (ClassType) a;
+                    
+                    while (classType != null) {
+                        if (b.equals(classType))
+                            return true;
+                        classType = classType.superclass();
+                    }
+                }
+                return false;
+            }
+            else if (a instanceof InterfaceType) {
+                if (! (b instanceof InterfaceType))
+                    return false;
+                
+                List l = new LinkedList(); 
+                l.addAll(((InterfaceType) a).superinterfaces());
+                while (! l.isEmpty()) {
+                    // get the first superinterface in the list
+                    InterfaceType it = (InterfaceType) l.get(0);
+                    if (a.equals(it))
+                        return true;
+                    
+                    l.addAll(it.superinterfaces());
+                    l.remove(0);
+                }
+                return false;
+            }
+            else if (a instanceof ArrayType) {
+                if (! (b instanceof ArrayType))
+                    return false;
+                
+                try {
+                    Type an = ((ArrayType) a).componentType();
+                    Type bn = ((ArrayType) b).componentType();
+                
+                    if (an instanceof ReferenceType && bn instanceof ReferenceType) {
+                        a = (ReferenceType) an;
+                        b = (ReferenceType) bn;
+                    }
+                    else
+                        return false;
+                }
+                catch (ClassNotLoadedException cnle) {
+                    return false;
+                }
+            }
+            else
+                // unknown type
+                return false;
+        }
+    }
 
     /**
      * Find a class by name, using the given class loader.
@@ -329,7 +411,7 @@ public class JdiReflective extends Reflective
     }
 
     /**
-     * Generate a JdiGenType structure from a type specification found in a
+     * Generate a GenType structure from a type specification found in a
      * signature string, optionally mapping type parameter names to their actual
      * types.
      * 
@@ -372,7 +454,7 @@ public class JdiReflective extends Reflective
         if (c == '[') {
             // array
             GenType t = fromSignature(i, tparams, parent);
-            t = new GenTypeArray(t, new JdiArrayReflective(t, parent));
+            t = new GenArray(t);
             return t;
         }
         if (c == 'T') {

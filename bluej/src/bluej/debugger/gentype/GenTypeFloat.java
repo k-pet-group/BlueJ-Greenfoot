@@ -1,14 +1,13 @@
 package bluej.debugger.gentype;
 
-import java.util.Map;
 
-/*
+/**
  * "float" primitive type.
  *  
  * @author Davin McCall
- * @version $Id: GenTypeFloat.java 2656 2004-06-25 01:44:18Z davmac $
+ * @version $Id: GenTypeFloat.java 3075 2004-11-09 00:10:18Z davmac $
  */
-public class GenTypeFloat implements GenType
+public class GenTypeFloat extends GenTypePrimitive
 {
     public GenTypeFloat()
     {
@@ -17,21 +16,24 @@ public class GenTypeFloat implements GenType
     
     public String toString()
     {
-        return toString(false);
-    }
-    
-    public String toString(boolean stripPrefix)
-    {
         return "float";
     }
     
-    public boolean isPrimitive()
+    public boolean isAssignableFrom(GenType t)
     {
-        return true;
-    }
-    
-    public GenType mapTparsToTypes(Map tparams)
-    {
-        return this;
+        if (t instanceof GenTypeByte)
+            return true;
+        else if (t instanceof GenTypeChar)
+            return true;
+        else if (t instanceof GenTypeShort)
+            return true;
+        else if (t instanceof GenTypeInt)
+            return true;
+        else if (t instanceof GenTypeLong)
+            return true;
+        else if (t instanceof GenTypeFloat)
+            return true;
+        else
+            return false;
     }
 }

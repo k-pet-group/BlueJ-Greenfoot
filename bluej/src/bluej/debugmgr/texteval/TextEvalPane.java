@@ -11,10 +11,7 @@ import org.syntax.jedit.tokenmarker.JavaTokenMarker;
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.ExpressionInformation;
-import bluej.debugmgr.IndexHistory;
-import bluej.debugmgr.Invoker;
-import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.*;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.editor.moe.BlueJSyntaxView;
 import bluej.editor.moe.MoeSyntaxDocument;
@@ -30,7 +27,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3070 2004-11-08 04:14:32Z bquig $
+ * @version $Id: TextEvalPane.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
@@ -48,6 +45,7 @@ public class TextEvalPane extends JEditorPane
     private IndexHistory history;
     private Invoker invoker = null;
     private boolean firstTry;
+    private boolean wrappedResult;
     private boolean mouseInTag = false;
     private boolean mouseOverObject = false;
     private Action softReturnAction;
@@ -127,34 +125,43 @@ public class TextEvalPane extends JEditorPane
      * An invocation has completed - here is the result.
      * If the invocation has a void result (note that is a void type), result == null.
      */
-    public void putResult(DebuggerObject result, String name, InvokerRecord ir)
+    public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
     {
-        frame.getObjectBench().addInteraction(ir);
-
-        append(" ");
-        if (result != null) {
-            //Debug.message("type:"+result.getFieldValueTypeString(0));
-
-            String resultString = result.getFieldValueString(0);
-            if(resultString.equals(nullLabel)) {
-                output(resultString);
-            }
-            else {
-                String resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
-                boolean isObject = result.instanceFieldIsObject(0);
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                frame.getObjectBench().addInteraction(ir);
                 
-                if(isObject)
-                    objectOutput(resultString + "   (" + resultType + ")", 
-                                 new ObjectInfo(result.getFieldObject(0), ir));
-                else
-                    output(resultString + "   (" + resultType + ")");
-            }            
-            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
-        } 
-        else {
-            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
-        }
-        setEditable(true);    // allow next input
+                append(" ");
+                if (result != null) {
+                    //Debug.message("type:"+result.getFieldValueTypeString(0));
+                    
+                    String resultString = result.getFieldValueString(0);
+                    
+                    if(resultString.equals(nullLabel)) {
+                        output(resultString);
+                    }
+                    else {
+                        String resultType;
+                        boolean isObject = result.instanceFieldIsObject(0);
+                        
+                        if(isObject) {
+                            resultType = result.getFieldObject(0).getStrippedGenClassName();
+                            objectOutput(resultString + "   (" + resultType + ")", 
+                                    new ObjectInfo(result.getFieldObject(0), ir));
+                        }
+                        else {
+                            resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
+                            output(resultString + "   (" + resultType + ")");
+                        }
+                    }            
+                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
+                } 
+                else {
+                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
+                }
+                setEditable(true);    // allow next input
+            }
+        });
     }
     
     /**
@@ -590,7 +597,10 @@ public class TextEvalPane extends JEditorPane
                 markCurrentAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
                 firstTry = true;
                 setEditable(false);    // don't allow input while we're thinking
-                invoker = new Invoker(frame, currentCommand, TextEvalPane.this);
+                TextParser tp = new TextParser(frame.getProject().getLocalClassLoader(), frame.getPackage().getQualifiedName(), frame.getObjectBench());
+                String retType = tp.parseCommand(currentCommand);
+                wrappedResult = (retType != null && retType.length() != 0);
+                invoker = new Invoker(frame, currentCommand, TextEvalPane.this, retType);
             }
             else {
                 markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);

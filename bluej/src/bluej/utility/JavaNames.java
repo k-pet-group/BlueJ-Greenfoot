@@ -8,7 +8,7 @@ import java.util.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 2864 2004-08-12 02:12:37Z bquig $
+ * @version $Id: JavaNames.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class JavaNames
 {
@@ -49,7 +49,8 @@ public class JavaNames
     }
 
     /**
-     * Strips package prefix's from full class name.
+     * Strips package prefix's from full class name. This works only for
+     * class names, not generic types.
      *
      * @return the stripped class name.
      */

@@ -1,25 +1,47 @@
 package bluej.debugger.gentype;
 
-/*
+/**
  * This represents a type parameter in a declaration list. It is the same
  * as a type parameter anywhere else, except that it can be bounded.
  * 
  * @author Davin McCall
+ * @version $Id: GenTypeDeclTpar.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class GenTypeDeclTpar extends GenTypeTpar {
 
-    GenTypeSolid upperBound;
+    GenTypeSolid [] upperBounds;
     
     public GenTypeDeclTpar(String parname, GenTypeSolid bound) {
         super(parname);
-        upperBound = bound;
+        upperBounds = new GenTypeSolid [] { bound };
     }
     
+    /**
+     * Constructor for a type parameter with bounds. The array passed to this
+     * constructor should not be modified afterwards.
+     * 
+     * @param parname  The name of this type parameter
+     * @param bounds   The declared upper bounds for this type parameter
+     */
+    public GenTypeDeclTpar(String parname, GenTypeSolid [] bounds) {
+        super(parname);
+        upperBounds = bounds;
+    }
+    
+    // TODO: replace all calls to this with "getBounds".
     public GenTypeSolid getBound() {
-        return upperBound;
+        return upperBounds[0];
     }
     
-   
+    /**
+     * Get the bounds of this type parameter, as an array of GenTypeSolid.
+     */
+    public GenTypeSolid [] upperBounds() {
+        GenTypeSolid [] r = new GenTypeSolid [upperBounds.length];
+        System.arraycopy(upperBounds, 0, r, 0, upperBounds.length);
+        return r;
+    }
+    
     /**
      * Returns a string describing this type parameter. This includes name and bound as written in Java. <br>
      * Example: T extends Integer

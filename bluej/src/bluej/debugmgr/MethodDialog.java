@@ -27,7 +27,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 3027 2004-09-30 04:29:21Z bquig $
+ * @version $Id: MethodDialog.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -104,7 +104,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 3027 2004-09-30 04:29:21Z bquig $
+     * @version $Id: MethodDialog.java 3075 2004-11-09 00:10:18Z davmac $
      */
     public static class ParameterList
     {
@@ -526,7 +526,7 @@ public class MethodDialog extends CallDialog implements FocusListener
             int totalParams = parameterList.size();
             GenType[] allParams = new GenType[totalParams];
             System.arraycopy(params, 0, allParams, 0, params.length);
-            GenType varArgType = ((GenTypeArray)params[params.length - 1]).getBaseType();
+            GenType varArgType = ((GenTypeArray)params[params.length - 1]).getArrayComponent();
             for (int i = params.length - 1; i < totalParams; i++) {
                 allParams[i] = varArgType;
             }

@@ -1,6 +1,7 @@
 package bluej.utility;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -9,13 +10,13 @@ import bluej.debugger.gentype.GenType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 
-/*
+/**
  * Utilities for dealing with reflection, which must behave differently for
  * Java 1.4 / 1.5. Use the factory method "getJavaUtils" to retrieve an object
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2969 2004-09-01 05:07:49Z davmac $
+ * @version $Id: JavaUtils.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -127,10 +128,20 @@ public abstract class JavaUtils {
     
     abstract public boolean isEnum(Class cl);    
     
+    /**
+     * Get the return type of a method.
+     */
     abstract public GenType getReturnType(Method method);
     
     abstract public GenType getRawReturnType(Method method);
 
+    /**
+     * Get the declared type of a field.
+     */
+    abstract public GenType getFieldType(Field field);
+    
+    abstract public GenType getRawFieldType(Field field);
+    
     /**
      * Get a list of the type parameters for a generic method.
      * (return an empty list if the method is not generic).
@@ -142,6 +153,9 @@ public abstract class JavaUtils {
     
     abstract public List getTypeParams(Class cl);
     
+    /**
+     * Get the declared supertype of a class.
+     */
     abstract public GenTypeClass getSuperclass(Class cl);
     
     /**

@@ -5,11 +5,11 @@ import java.util.*;
 
 import bluej.debugger.gentype.*;
 
-/*
+/**
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2969 2004-09-01 05:07:49Z davmac $
+ * @version $Id: JavaUtils15.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -196,14 +196,30 @@ public class JavaUtils15 extends JavaUtils {
         return JavaUtils14.genTypeFromClass(c);
     }
     
+    public GenType getFieldType(Field field)
+    {
+        return genTypeFromType(field.getGenericType());
+    }
+    
+    public GenType getRawFieldType(Field field)
+    {
+        Class c = field.getType();
+        return JavaUtils14.genTypeFromClass(c);
+    }
+    
     public List getTypeParams(Method method)
     {
         List rlist = new ArrayList();
         TypeVariable [] tvars = method.getTypeParameters();
         for( int i = 0; i < tvars.length; i++ ) {
-            // TODO multiple bounds.
-            GenTypeSolid upperBound = (GenTypeSolid)genTypeFromType(tvars[i].getBounds()[0]);
-            rlist.add(new GenTypeDeclTpar(tvars[i].getName(), upperBound));
+            // find the bounds.
+            Type [] bounds = tvars[i].getBounds();
+            GenTypeSolid [] upperBounds = new GenTypeSolid[bounds.length];
+            for (int j = 0; j < bounds.length; j++)
+                upperBounds[j] = (GenTypeSolid) genTypeFromType(bounds[j]);
+            
+            // add the type parameter to the list.
+            rlist.add(new GenTypeDeclTpar(tvars[i].getName(), upperBounds));
         }
         return rlist;
     }
@@ -212,10 +228,16 @@ public class JavaUtils15 extends JavaUtils {
     {
         List rlist = new ArrayList();
         TypeVariable [] tvars = cl.getTypeParameters();
-        for( int i = 0; i < tvars.length; i++ ) {
-            // TODO multiple bounds.
-            GenTypeSolid upperBound = (GenTypeSolid)genTypeFromType(tvars[i].getBounds()[0]);
-            rlist.add(new GenTypeDeclTpar(tvars[i].getName(), upperBound));
+        for (int i = 0; i < tvars.length; i++) {
+            
+            // find the bounds.
+            Type [] bounds = tvars[i].getBounds();
+            GenTypeSolid [] upperBounds = new GenTypeSolid[bounds.length];
+            for (int j = 0; j < bounds.length; j++)
+                upperBounds[j] = (GenTypeSolid) genTypeFromType(bounds[j]);
+            
+            // add the type parameter to the list.
+            rlist.add(new GenTypeDeclTpar(tvars[i].getName(), upperBounds));
         }
         return rlist;
     }
@@ -439,8 +461,9 @@ public class JavaUtils15 extends JavaUtils {
                     //add nothing
                 } else {
                     name += " extends " + getTypeName(upperBounds[0]);
-                    if (upperBounds.length != 1)
-                        Debug.message("getTypeName: multiple upper bounds for typevariable type?");
+                    for (int j = 1; j < upperBounds.length; j++) {
+                        name += " & " + getTypeName(upperBounds[j]);
+                    }
                 }
                 
                                

@@ -2,6 +2,8 @@ package bluej.debugger.gentype;
 
 import java.util.*;
 
+import bluej.utility.Debug;
+
 /**
  * A wildcard type with an upper and/or lower bound.<p>
  * 
@@ -12,7 +14,7 @@ import java.util.*;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 3063 2004-10-25 02:37:00Z davmac $
+ * @version $Id: GenTypeWildcard.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameterizable
 {
@@ -34,6 +36,13 @@ public class GenTypeWildcard extends GenTypeParameterizable
             lowerBounds = noBounds;
     }
     
+    /**
+     * Constructor with a given range of upper and lower bounds. The arrays
+     * used should not be modified afterwards.
+     * 
+     * @param uppers  The upper bounds
+     * @param lowers  The lower bounds
+     */
     public GenTypeWildcard(GenTypeSolid [] uppers, GenTypeSolid [] lowers)
     {
         upperBounds = uppers;
@@ -48,10 +57,16 @@ public class GenTypeWildcard extends GenTypeParameterizable
     public String toString(boolean stripPrefix)
     {
         // return only a legal java type string
-        if (lowerBounds.length != 0)
+        if (lowerBounds.length != 0) {
             return "? super " + lowerBounds[0].toString(stripPrefix);
-        else if (upperBounds.length != 0)
+        }
+        else if (upperBounds.length != 0) {
+            if (upperBounds[0] instanceof GenTypeClass) {
+                if (((GenTypeClass) upperBounds[0]).rawName().equals("java.lang.Object"))
+                    return "?";
+            }
             return "? extends " + upperBounds[0].toString(stripPrefix);
+        }
         else
             return "?";
     }
@@ -59,15 +74,22 @@ public class GenTypeWildcard extends GenTypeParameterizable
     public String toString(NameTransform nt)
     {
         // return only a legal java type string
-        if (lowerBounds.length != 0)
+        if (lowerBounds.length != 0) {
             return "? super " + lowerBounds[0].toString(nt);
-        else if (upperBounds.length != 0)
+        }
+        else if (upperBounds.length != 0) {
+            if (upperBounds[0] instanceof GenTypeClass) {
+                if (((GenTypeClass) upperBounds[0]).rawName().equals("java.lang.Object"))
+                    return "?";
+            }
             return "? extends " + upperBounds[0].toString(nt);
+        }
         else
             return "?";
     }
     
-    protected GenTypeParameterizable precisify(GenTypeParameterizable other)
+    // TODO refactor.
+    public GenTypeParameterizable precisify(GenTypeParameterizable other)
     {
         // create a copy of our current lower bounds, as an arrayList
         List lbounds = new ArrayList(lowerBounds.length);
@@ -83,7 +105,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
             for (int i = 0; i < otherwc.lowerBounds.length; i++) {
                 int j;
                 for (j = 0; j < lowerBounds.length; j++) {
-                    GenTypeParameterizable precis = otherwc.lowerBounds[i].precisify((GenTypeSolid) lbounds.get(j));
+                    GenTypeParameterizable precis = otherwc.lowerBounds[i].precisify((GenTypeParameterizable) lbounds.get(j));
                     if (precis != null) {
                         lbounds.set(j, precis);
                         break;
@@ -100,7 +122,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
             for (int i = 0; i < otherwc.upperBounds.length; i++) {
                 int j;
                 for (j = 0; j < upperBounds.length; j++) {
-                    GenTypeParameterizable precis = otherwc.upperBounds[i].precisify((GenTypeSolid) ubounds.get(j));
+                    GenTypeParameterizable precis = otherwc.upperBounds[i].precisify((GenTypeParameterizable) ubounds.get(j));
                     if (precis != null) {
                         ubounds.set(j, precis);
                         break;
@@ -113,12 +135,12 @@ public class GenTypeWildcard extends GenTypeParameterizable
                     ubounds.add(otherwc.lowerBounds[i]);
             }
             
-            // Ceck for merging of upper & lower bounds.
+            // Check for merging of upper & lower bounds.
             // ie. if upper == lower then return GenTypeClass.
             for (Iterator i = ubounds.iterator(); i.hasNext(); ) {
                 for (Iterator j = lbounds.iterator(); j.hasNext(); ) {
-                    GenTypeSolid ubound = (GenTypeSolid) i.next();
-                    GenTypeSolid lbound = (GenTypeSolid) j.next();
+                    GenTypeParameterizable ubound = (GenTypeParameterizable) i.next();
+                    GenTypeParameterizable lbound = (GenTypeParameterizable) j.next();
                     
                     if (ubound.equals(lbound))
                         return ubound;
@@ -165,18 +187,147 @@ public class GenTypeWildcard extends GenTypeParameterizable
         return null;
     }
     
+    /*
+     * Do not create abominations such as "? extends ? extends ...".
+     *   "? extends ? super ..."    => "?" (ie. the bounds is eliminated).
+     *   "? extends ? extends X"    => "? extends X".
+     *   "? super ? super X"        => "? super X".
+     */
     public GenType mapTparsToTypes(Map tparams)
     {
-        GenTypeSolid [] newUpper = new GenTypeSolid[upperBounds.length];
-        GenTypeSolid [] newLower = new GenTypeSolid[lowerBounds.length];
+        ArrayList newUpper = new ArrayList();
+        ArrayList newLower = new ArrayList();
         
-        for (int i = 0; i < upperBounds.length; i++)
-            newUpper[i] = (GenTypeSolid) upperBounds[i].mapTparsToTypes(tparams);
+        // find the new upper bounds
+        for (int i = 0; i < upperBounds.length; i++) {
+            GenTypeParameterizable newBound = (GenTypeParameterizable) upperBounds[i].mapTparsToTypes(tparams);
+            if (newBound instanceof GenTypeWildcard) {
+                GenTypeWildcard newWcBound = (GenTypeWildcard) newBound;
+                for (int j = 0; j < newWcBound.upperBounds.length; j++)
+                    newUpper.add(newWcBound.upperBounds[j]);
+            }
+            else
+                newUpper.add(newBound);
+        }
         
-        for (int i = 0; i < lowerBounds.length; i++)
-            newLower[i] = (GenTypeSolid) lowerBounds[i].mapTparsToTypes(tparams);
+        // find the new lower bounds
+        for (int i = 0; i < lowerBounds.length; i++) {
+            GenTypeParameterizable newBound = (GenTypeParameterizable) lowerBounds[i].mapTparsToTypes(tparams);
+            if (newBound instanceof GenTypeWildcard) {
+                GenTypeWildcard newWcBound = (GenTypeWildcard) newBound;
+                for (int j = 0; j < newWcBound.lowerBounds.length; j++)
+                    newLower.add(newWcBound.lowerBounds[j]);
+            }
+        }
+            
+        // above may yield redundant bounds. Optimize.
+        return optimize(newUpper, newLower);
+    }
+    
+    // TODO  refactoring potential here is enormous
+    private GenTypeParameterizable optimize(ArrayList ubounds, ArrayList lbounds)
+    {
+        // first optimize the upper bounds
+        for (int i = 0; i < ubounds.size() - 1; i++) {
+            for (int j = i + 1; j < ubounds.size(); j++) {
+                GenTypeSolid a = (GenTypeSolid) ubounds.get(i);
+                GenTypeSolid b = (GenTypeSolid) ubounds.get(j);
+                
+                // If one of the bounds types is assignable to the other, one
+                // of them is redundant. Find out which, and remove it.
+                if (a.isAssignableFromRaw(b)) {
+                    if (a instanceof GenTypeClass && b instanceof GenTypeClass) {
+                        GenTypeClass aClass = (GenTypeClass) a;
+                        GenTypeClass bClass = (GenTypeClass) b;
+                        Map m = aClass.mapToDerived(bClass.getReflective());
+                        GenTypeClass mapped = new GenTypeClass(bClass.getReflective(), m);
+                        mapped = (GenTypeClass) mapped.precisify(bClass);
+                        ubounds.set(i, mapped);
+                    }
+                    else {
+                        ubounds.set(i, b);
+                    }
+                    ubounds.remove(j);
+                    j--;
+                }
+                else if (b.isAssignableFromRaw(a)) {
+                    if (a instanceof GenTypeClass && b instanceof GenTypeClass) {
+                        GenTypeClass aClass = (GenTypeClass) a;
+                        GenTypeClass bClass = (GenTypeClass) b;
+                        Map m = bClass.mapToDerived(aClass.getReflective());
+                        GenTypeClass mapped = new GenTypeClass(aClass.getReflective(), m);
+                        mapped = (GenTypeClass) mapped.precisify(aClass);
+                        ubounds.set(i, mapped);
+                    }
+                    ubounds.remove(j);
+                    j--;
+                }
+            }
+        }
 
-        return new GenTypeWildcard(newUpper, newLower);
+        // Now process the lower bounds in a similar fashion.
+        for (int i = 0; i < lbounds.size() - 1; i++) {
+            for (int j = i + 1; j < ubounds.size(); j++) {
+                GenTypeSolid a = (GenTypeSolid) lbounds.get(i);
+                GenTypeSolid b = (GenTypeSolid) lbounds.get(j);
+                
+                // If one of the bounds types is assignable to the other, one
+                // of them is redundant. Find out which, and remove it.
+                if (a.isAssignableFromRaw(b)) {
+                    if (a instanceof GenTypeClass && b instanceof GenTypeClass) {
+                        GenTypeClass aClass = (GenTypeClass) a;
+                        GenTypeClass bClass = (GenTypeClass) b;
+                        Map m = bClass.mapToSuper(aClass.rawName());
+                        GenTypeClass mapped = new GenTypeClass(aClass.getReflective(), m);
+                        mapped = (GenTypeClass) mapped.precisify(aClass);
+                        lbounds.set(i, mapped);
+                    }
+                    lbounds.remove(j);
+                    j--;
+                }
+                else if (b.isAssignableFrom(a)) {
+                    if (a instanceof GenTypeClass && b instanceof GenTypeClass) {
+                        GenTypeClass aClass = (GenTypeClass) a;
+                        GenTypeClass bClass = (GenTypeClass) b;
+                        Map m = aClass.mapToSuper(bClass.rawName());
+                        GenTypeClass mapped = new GenTypeClass(bClass.getReflective(), m);
+                        mapped = (GenTypeClass) mapped.precisify(bClass);
+                        lbounds.set(i, mapped);
+                    }
+                    else {
+                        lbounds.set(i, b);
+                    }
+                    lbounds.remove(j);
+                    j--;
+                }
+            }
+        }
+
+        // Now check to see if any upper bounds are equal to the lower bound
+        for (int i = 0; i < ubounds.size(); i++) {
+            for (int j = 0; j < lbounds.size(); j++) {
+                GenTypeSolid u = (GenTypeSolid) ubounds.get(i);
+                GenTypeSolid l = (GenTypeSolid) lbounds.get(j);
+                
+                // first a simple equality check, which also works for tpars
+                if (u.equals(l))
+                    return u;
+                
+                // otherwise might be the same class, with different type
+                // parameters
+                if (u instanceof GenTypeClass && l instanceof GenTypeClass) {
+                    GenTypeClass uClass = (GenTypeClass) u;
+                    GenTypeClass lClass = (GenTypeClass) l;
+                    
+                    if (uClass.rawName().equals(lClass.rawName()))
+                        return uClass.precisify(lClass);
+                }
+            }
+        }
+        
+        GenTypeSolid [] uboundsA = (GenTypeSolid []) ubounds.toArray(noBounds);
+        GenTypeSolid [] lboundsA = (GenTypeSolid []) lbounds.toArray(noBounds);
+        return new GenTypeWildcard(uboundsA, lboundsA);
     }
     
     public boolean equals(GenTypeParameterizable other)
@@ -199,7 +350,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
             boolean matched = false;
             ListIterator j = oLowerBounds.listIterator();
             while (j.hasNext()) {
-                GenTypeSolid x = (GenTypeSolid) j.next();
+                GenTypeParameterizable x = (GenTypeParameterizable) j.next();
                 if (x.equals(lowerBounds[i])) {
                     matched = true;
                     j.remove();
@@ -215,7 +366,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
             boolean matched = false;
             ListIterator j = oUpperBounds.listIterator();
             while (j.hasNext()) {
-                GenTypeSolid x = (GenTypeSolid) j.next();
+                GenTypeParameterizable x = (GenTypeParameterizable) j.next();
                 if (x.equals(upperBounds[i])) {
                     matched = true;
                     j.remove();
@@ -232,12 +383,28 @@ public class GenTypeWildcard extends GenTypeParameterizable
     protected void getParamsFromTemplate(Map map, GenTypeParameterizable template)
     {
         // This should never actually be called on a wildcard type (I think).
+        // TODO fix. Actually it probably can get called. When it is called, it
+        // should only be on an actual java type (not a type with multiple
+        // bounds), and it may match against a wildcard or a class.
+        Debug.reportError("getParamsFromTemplate called on GenTypeWildcard.");
         return;
     }
     
     public boolean isPrimitive()
     {
         return true;
+    }
+    
+    public boolean isAssignableFrom(GenType t)
+    {
+        // TODO fix
+        return false;
+    }
+    
+    public boolean isAssignableFromRaw(GenType t)
+    {
+        // TODO fix
+        return false;
     }
     
     /**

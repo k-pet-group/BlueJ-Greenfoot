@@ -1,14 +1,13 @@
 package bluej.debugger.gentype;
 
-import java.util.Map;
 
-/*
+/**
  * "int" primitive type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeInt.java 2656 2004-06-25 01:44:18Z davmac $
+ * @version $Id: GenTypeInt.java 3075 2004-11-09 00:10:18Z davmac $
  */
-public class GenTypeInt implements GenType
+public class GenTypeInt extends GenTypePrimitive
 {
     public GenTypeInt()
     {
@@ -17,21 +16,19 @@ public class GenTypeInt implements GenType
     
     public String toString()
     {
-        return toString(false);
-    }
-    
-    public String toString(boolean stripPrefix)
-    {
         return "int";
     }
     
-    public boolean isPrimitive()
+    public boolean isAssignableFrom(GenType t)
     {
-        return true;
-    }
-    
-    public GenType mapTparsToTypes(Map tparams)
-    {
-        return this;
+        if (t instanceof GenTypeChar)
+            return true;
+        else if (t instanceof GenTypeByte)
+            return true;
+        else if (t instanceof GenTypeShort)
+            return true;
+        else if (t instanceof GenTypeInt)
+            return true;
+        return false;
     }
 }

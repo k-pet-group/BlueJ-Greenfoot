@@ -1,6 +1,7 @@
 package bluej.utility;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +14,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 2969 2004-09-01 05:07:49Z davmac $
+ * @version $Id: JavaUtils14.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -99,6 +100,16 @@ public class JavaUtils14 extends JavaUtils
     public GenType getRawReturnType(Method method)
     {
         return getReturnType(method);
+    }
+    
+    public GenType getFieldType(Field field)
+    {
+        return genTypeFromClass(field.getType());
+    }
+    
+    public GenType getRawFieldType(Field field)
+    {
+        return genTypeFromClass(field.getType());
     }
 
     public List getTypeParams(Method method)

@@ -9,7 +9,7 @@ import java.util.List;
  * determine the generic type parameters, etc.
  *  
  * @author Davin McCall
- * @version $Id: Reflective.java 3063 2004-10-25 02:37:00Z davmac $
+ * @version $Id: Reflective.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public abstract class Reflective {
 
@@ -41,6 +41,24 @@ public abstract class Reflective {
      * @return A List of GenTypeClass.
      */
     public abstract List getSuperTypes();
+    
+    /**
+     * Get a reflective which represents an array, whose element type is
+     * represented by this reflective.
+     * 
+     * @return A reflective representing an array
+     */
+    public abstract Reflective getArrayOf();
+    
+    /**
+     * Return true if a variable of the reference type reflected by this
+     * reflective can be assigned a value of the type represented by the given
+     * reflective.
+     * 
+     * @param r  The other reflective
+     * @return   True if the other reflective type is assignable to this type
+     */
+    public abstract boolean isAssignableFrom(Reflective r);
     
     /**
      * Get a supertype (as a GenTypeClass) by name. The default implementation

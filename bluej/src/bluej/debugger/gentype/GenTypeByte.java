@@ -1,14 +1,13 @@
 package bluej.debugger.gentype;
 
-import java.util.Map;
 
-/*
+/**
  * "byte" primitive type
  * 
  * @author Davin McCall
- * @version $Id: GenTypeByte.java 2656 2004-06-25 01:44:18Z davmac $
+ * @version $Id: GenTypeByte.java 3075 2004-11-09 00:10:18Z davmac $
  */
-public class GenTypeByte implements GenType
+public class GenTypeByte extends GenTypePrimitive
 {
     public GenTypeByte()
     {
@@ -17,21 +16,14 @@ public class GenTypeByte implements GenType
     
     public String toString()
     {
-        return toString(false);
-    }
-    
-    public String toString(boolean stripPrefix)
-    {
         return "byte";
     }
     
-    public boolean isPrimitive()
+    public boolean isAssignableFrom(GenType t)
     {
-        return true;
-    }
-    
-    public GenType mapTparsToTypes(Map tparams)
-    {
-        return this;
+        if (t instanceof GenTypeByte)
+            return true;
+        else
+            return false;
     }
 }

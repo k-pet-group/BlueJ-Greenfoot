@@ -25,7 +25,7 @@ public class GenTypeArray extends GenTypeClass
             return baseType.toString() + "[]";
     }
     
-    public GenType getBaseType()
+    public GenType getArrayComponent()
     {
         return baseType;
     }

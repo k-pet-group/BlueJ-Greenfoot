@@ -17,7 +17,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 3063 2004-10-25 02:37:00Z davmac $
+ * @version    $Id: JdiArray.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -46,7 +46,7 @@ public class JdiArray extends JdiObject
             // Go downwards until we find the base component type
             while(genericType instanceof GenTypeArray) {
                 GenTypeArray genericArray = (GenTypeArray)genericType;
-                genericType = genericArray.getBaseType();
+                genericType = genericArray.getArrayComponent();
                 ctypestr = ctypestr.substring(1);
                 level++;
             }

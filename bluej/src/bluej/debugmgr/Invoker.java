@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3065 2004-10-25 06:45:16Z bquig $
+ * @version $Id: Invoker.java 3075 2004-11-09 00:10:18Z davmac $
  */
 
 public class Invoker
@@ -77,7 +77,7 @@ public class Invoker
     /**
      * Create an invoker for a free form statement or expression.
      */
-    public Invoker(PkgMgrFrame pmf, String command, ResultWatcher watcher)
+    public Invoker(PkgMgrFrame pmf, String command, ResultWatcher watcher, String retType)
     {
         if (pmf.isEmptyFrame())
             throw new IllegalArgumentException();
@@ -96,7 +96,7 @@ public class Invoker
         constructing = false;
         executionEvent = new ExecutionEvent(this.pkg);
         commandString = command;
-        doFreeFormInvocation(true);
+        doFreeFormInvocation(retType);
     }
 
     /**
@@ -240,7 +240,7 @@ public class Invoker
      */
     public synchronized void tryAgain()
     {
-        doFreeFormInvocation(false);
+        doFreeFormInvocation(null);
     }
 
     // -- CallDialogWatcher interface --
@@ -478,9 +478,12 @@ public class Invoker
      * This method is still executed in the interface thread, while "endCompile"
      * will be executed by the CompilerThread.
      */
-    protected void doFreeFormInvocation(boolean hasResult)
+    protected void doFreeFormInvocation(String resultType)
     {
+        boolean hasResult = resultType != null;
         if (hasResult) {
+            if (resultType.equals(""))
+                resultType = null;
             instanceName = "result";
             ir = new ExpressionInvokerRecord(commandString);
         }
@@ -490,7 +493,7 @@ public class Invoker
             ir = new VoidMethodInvokerRecord(commandString);
         }
 
-        File shell = writeInvocationFile(pkg, "", commandString, false, !hasResult, null);
+        File shell = writeInvocationFile(pkg, "", commandString, false, !hasResult, resultType);
 
         executionEvent.setCommand(commandString);
         compileInvocationFile(shell);
@@ -583,6 +586,7 @@ public class Invoker
             String type = wrapper.getGenType().toString(new CleverQualifyTypeNameTransform(pkg));
             String instname = wrapper.getName();
 
+            buffer.append("final ");
             buffer.append(type);
 
             buffer.append(" " + instname + " = ");
@@ -607,11 +611,21 @@ public class Invoker
             // A sample of the code generated (for a method call)
             //  __bluej_runtime_result = makeObj(2+new String("ap").length());
 
-            if (!isVoid)
-                buffer.append("__bluej_runtime_result = makeObj(");
+            if (!isVoid) {
+                if (constype == null)
+                    buffer.append("__bluej_runtime_result = makeObj(");
+                else {
+                    buffer.append("__bluej_runtime_result = new Object() {");
+                    buffer.append(" " + constype + " result = ");
+                }
+            }
             buffer.append(callString);
-            if (!isVoid)
-                buffer.append(")");
+            if (!isVoid) {
+                if (constype == null)
+                    buffer.append(")");
+                if (constype != null)
+                    buffer.append("; }");
+            }
         }
 
         if(! callString.endsWith(";"))

@@ -6,9 +6,11 @@ import java.util.List;
 import bluej.debugger.gentype.GenType;
 import bluej.debugger.gentype.Reflective;
 
-/*
+/**
+ * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
+ * @version $Id: JavaReflective.java 3075 2004-11-09 00:10:18Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -27,6 +29,23 @@ public class JavaReflective extends Reflective {
     public List getTypeParams()
     {
         return JavaUtils.getJavaUtils().getTypeParams(c);
+    }
+    
+    public Reflective getArrayOf()
+    {
+        String rname;
+        if (c.isArray())
+            rname = "[" + c.getName();
+        else
+            rname = "[L" + c.getName() + ";";
+        
+        try {
+            Class arrClass = c.getClassLoader().loadClass(rname);
+            return new JavaArrayReflective(arrClass);
+        }
+        catch (ClassNotFoundException cnfe) {}
+        
+        return null;
     }
 
     public List getSuperTypesR() {
@@ -56,5 +75,22 @@ public class JavaReflective extends Reflective {
         }
         return l;
     }
+    
+    /**
+     * Get the underlying class (as a java.lang.Class object) that this
+     * reflective represents.
+     */
+    public Class getUnderlyingClass()
+    {
+        return c;
+    }
 
+    public boolean isAssignableFrom(Reflective r)
+    {
+        if (r instanceof JavaReflective) {
+            return c.isAssignableFrom(((JavaReflective)r).getUnderlyingClass());
+        }
+        else
+            return false;
+    }
 }
