@@ -1,17 +1,12 @@
 #!/bin/sh
 
 BINDIR=`dirname $0`
-. $BINDIR/config
-
-JAVA_HOME=/usr/java
-SUNTOOLS=$JAVA_HOME/lib/tools.jar
 BLUEJ_HOME=$BINDIR/.. 
-CLASSROOT=$BLUEJ_HOME/classes
-ANTLR=$BLUEJ_HOME/lib/antlr.jar
-
-CLASSPATH=`makepath "$CLASSROOT;$ANTLR;$SUNTOOLS;$CLASSPATH"`
-export CLASSPATH
+SUNTOOLS=/usr/java/lib/tools.jar
 
 THREADS_FLAG=native; export THREADS_FLAG
 
-java -noverify -Dbluej.home=`makepath $BLUEJ_HOME` bluej.Main $@
+CLASSPATH=$BLUEJ_HOME/lib/bluej.jar:$BLUEJ_HOME/classes:$BLUEJ_HOME/lib/antlr.jar:$SUNTOOLS
+export CLASSPATH
+
+java bluej.Main $@
