@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -26,7 +27,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2625 2004-06-19 11:35:15Z mik $
+ * @version $Id: TextEvalArea.java 2632 2004-06-19 14:41:19Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -60,11 +61,9 @@ public final class TextEvalArea extends JScrollPane
 
         setViewportView(text);
         text.setFont(font);
+        text.setText(" ");      // ensure space at the beginning of every line
 
-        KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-        Keymap newmap = JTextComponent.addKeymap("texteval", text.getKeymap());
-        newmap.addActionForKeyStroke(enterKey, new ExecuteCommandAction(this));
-        text.setKeymap(newmap);
+        defineKeymap();
         
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         setPreferredSize(new Dimension(200,100));
@@ -75,17 +74,6 @@ public final class TextEvalArea extends JScrollPane
         text.requestFocus();
     }
 
-    /**
-     * Execute the text of the current line in the text area as a Java command.
-     */
-    public void executeCommand()
-    {
-        currentCommand = getCurrentLine();
-        append("\n");
-        firstTry = true;
-        invoker = new Invoker(frame, currentCommand, this);
-    }
-    
     //   --- ResultWatcher interface ---
 
     /**
@@ -172,10 +160,10 @@ public final class TextEvalArea extends JScrollPane
      */
     private void markAs(String flag)
     {
-        append("\n");
+        append("\n ");          // ensure space at the beginning of every line
         SimpleAttributeSet a = new SimpleAttributeSet();
         a.addAttribute(flag, Boolean.TRUE);
-        doc.setParagraphAttributes(doc.getLength()-1, a);
+        doc.setParagraphAttributes(doc.getLength()-2, a);
         text.repaint();
     }
     
@@ -222,4 +210,99 @@ public final class TextEvalArea extends JScrollPane
             return "";
         }
     }
+    
+    private void defineKeymap()
+    {
+        Keymap newmap = JTextComponent.addKeymap("texteval", text.getKeymap());
+
+        Action action = new ExecuteCommandAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), action);
+
+        action = new CursorLeftAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, 0), action);
+
+        action = new HistoryBackAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_UP, 0), action);
+
+        action = new HistoryForwardAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, 0), action);
+
+
+        text.setKeymap(newmap);
+   
+    }
+    
+    // ======= Actions =======
+    
+    final class ExecuteCommandAction extends AbstractAction {
+        
+        /**
+         */
+        public ExecuteCommandAction()
+        {
+            super("ExecuteCommand");
+        }
+        
+        /**
+         * Execute the text of the current line in the text area as a Java command.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            currentCommand = getCurrentLine();
+            append("\n ");      // ensure space at the beginning of every line, because
+                                // line properties do not work otherwise
+            firstTry = true;
+            invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
+        }
+
+    }
+
+    final class CursorLeftAction extends AbstractAction {
+
+        /**
+         */
+        public CursorLeftAction()
+        {
+            super("CursorLeft");
+        }
+        
+        final public void actionPerformed(ActionEvent event)
+        {
+        }
+
+    }
+
+    final class HistoryBackAction extends AbstractAction {
+
+        /**
+         */
+        public HistoryBackAction()
+        {
+            super("HistoryBack");
+        }
+        
+        final public void actionPerformed(ActionEvent event)
+        {
+        }
+
+    }
+
+    final class HistoryForwardAction extends AbstractAction {
+
+        /**
+         */
+        public HistoryForwardAction()
+        {
+            super("HistoryForward");
+        }
+        
+        final public void actionPerformed(ActionEvent event)
+        {
+        }
+
+    }
+
 }
