@@ -9,7 +9,7 @@ import bluej.utility.JavaReflective;
  * Tests for the GenType classes.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeTests.java 3325 2005-02-25 01:30:57Z davmac $
+ * @version $Id: GenTypeTests.java 3336 2005-03-18 06:26:03Z davmac $
  */
 public class GenTypeTests extends TestCase
 {
@@ -112,5 +112,35 @@ public class GenTypeTests extends TestCase
         GenTypeClass mapped = derived.mapToSuper2("base");
         
         assertEquals(mapped.toString(), "base");
+    }
+    
+    /**
+     * For a type A which inherits the raw version of a generic type B which
+     * inherits a generic base C, mapping A -> C should yield the raw type C.
+     */
+    public void test4()
+    {
+        TestReflective aReflective = new TestReflective("AClass");
+        TestReflective bReflective = new TestReflective("BClass");
+        TestReflective cReflective = new TestReflective("CClass");
+        TestReflective objReflective = new TestReflective("java.lang.Object");
+   
+        // BClass and CClass have a type parameter "T"
+        GenTypeDeclTpar tparT = new GenTypeDeclTpar("T", new GenTypeSolid[] {new GenTypeClass(objReflective)});
+        bReflective.typeParams.add(tparT);
+        cReflective.typeParams.add(tparT);
+        
+        // AClass derives from raw BClass
+        aReflective.superTypes.add(new GenTypeClass(bReflective));
+        
+        // BClass<T> derives from CClass<T>
+        List l = new ArrayList();
+        l.add(tparT);
+        bReflective.superTypes.add(new GenTypeClass(cReflective, l));
+        
+        // test!
+        GenTypeClass instanceAClass = new GenTypeClass(aReflective);
+        GenTypeClass mapped = instanceAClass.mapToSuper2("CClass");
+        assertEquals(mapped.toString(), "CClass");
     }
 }
