@@ -1,0 +1,34 @@
+BlueJ shortcut key assignments
+
+
+main window: 
+------------
+    plain               shift
+----------------------------------------
+A
+B
+C
+D   show debugger
+E   evaluate expression
+F
+G
+H
+I   show inheritance
+J
+K   compile             compile selected
+L   use library
+M
+N   new class
+O   open project
+P   print
+Q   quit
+R   new package
+S   save
+T   show terminal
+U   show uses
+V   check version
+W   close
+X
+Y
+Z
+
