@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2967 2004-08-31 06:43:25Z davmac $
+ * @version $Id: JavaUtils15.java 2969 2004-09-01 05:07:49Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -58,7 +58,7 @@ public class JavaUtils15 extends JavaUtils {
         String name = getTypeParameters(method);
         GenType rtype = getReturnType(method);
         name += rtype.mapTparsToTypes(newMap).toString(true) + " " + method.getName();
-        GenType[] paramTypes = getParamGenTypes(method);
+        GenType[] paramTypes = getParamGenTypes(method, false);
         String[] paramTypeNames = new String[paramTypes.length];
         for(int i = 0; i < paramTypes.length; i++)
             paramTypeNames[i] = paramTypes[i].mapTparsToTypes(newMap).toString(true);
@@ -106,7 +106,7 @@ public class JavaUtils15 extends JavaUtils {
         String name = getTypeParameters(method);
         GenType rtype = getReturnType(method);
         name += rtype.mapTparsToTypes(newMap).toString(true) + " " + method.getName();
-        GenType[] paramTypes = getParamGenTypes(method);
+        GenType[] paramTypes = getParamGenTypes(method, false);
         String[] paramTypeNames = new String[paramTypes.length];
         for(int i = 0; i < paramTypes.length; i++)
             paramTypeNames[i] = paramTypes[i].mapTparsToTypes(newMap).toString(true);
@@ -246,9 +246,13 @@ public class JavaUtils15 extends JavaUtils {
         return getParameterTypes(params, isVarArgs);
     }
     
-    public GenType[] getParamGenTypes(Method method)
+    public GenType[] getParamGenTypes(Method method, boolean raw)
     {
-        Type [] params = method.getGenericParameterTypes();
+        Type [] params;
+        if (raw)
+            params = method.getParameterTypes();
+        else
+            params = method.getGenericParameterTypes();
         GenType [] gentypes = new GenType[params.length];
         for(int i = 0; i < params.length; i++) {
             gentypes[i] = genTypeFromType(params[i]);

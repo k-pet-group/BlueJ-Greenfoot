@@ -62,9 +62,10 @@ public abstract class CallableView extends MemberView
      * 
      * ... would return Object as the type parameter. 
      * 
+     * @param raw  whether to return raw versions of the parameter types
      * @return  the parameter types
      */
-    public abstract GenType[] getParamTypes();
+    public abstract GenType[] getParamTypes(boolean raw);
 
     /**
      * Gets an array of strings with the names of the parameters

@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 2967 2004-08-31 06:43:25Z davmac $
+ * @version $Id: Invoker.java 2969 2004-09-01 05:07:49Z davmac $
  */
 
 public class Invoker
@@ -57,6 +57,7 @@ public class Invoker
     private String shellName;
     private String objName;
     private Map typeMap; // map type parameter names to types
+    private Map instanceMap;  // original map from the object
 
     /**
      * The instance name for any object we create. For a constructed object the
@@ -190,6 +191,7 @@ public class Invoker
         // from the object's class to that class.
         this.objName = objWrapper.getName();
         this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName());
+        instanceMap = typeMap;
         if (typeMap == null)
             typeMap = new HashMap();
         Reflective superRefl = new JavaReflective(member.getDeclaringView().getViewClass());
@@ -217,12 +219,12 @@ public class Invoker
             MethodDialog mDialog = (MethodDialog) methods.get(member);
 
             if (mDialog == null) {
-                mDialog = new MethodDialog(pmf, objName, member, typeMap);
+                mDialog = new MethodDialog(pmf, objName, member, instanceMap);
                 methods.put(member, mDialog);
                 mDialog.setVisible(true);
             }
             else {
-                mDialog.setInstanceName(objName);
+                mDialog.setInstanceInfo(objName, instanceMap);
             }
 
             mDialog.setWatcher(this);
@@ -275,7 +277,7 @@ public class Invoker
 	                }
                 }
                 
-                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true), actualTypeParams);
+                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true, instanceMap == null), actualTypeParams);
                 pmf.setWaitCursor(true);
                 if (constructing)
                     pkg.setStatus(creating);
@@ -295,7 +297,7 @@ public class Invoker
         if (instanceName == null)
             instanceName = objName;
 
-        doInvocation(params, member.getParamTypes(), null);
+        doInvocation(params, member.getParamTypes(false), null);
     }
 
     /**

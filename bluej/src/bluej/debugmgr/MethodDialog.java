@@ -27,7 +27,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2964 2004-08-31 01:14:04Z davmac $
+ * @version $Id: MethodDialog.java 2969 2004-09-01 05:07:49Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -102,7 +102,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2964 2004-08-31 01:14:04Z davmac $
+     * @version $Id: MethodDialog.java 2969 2004-09-01 05:07:49Z davmac $
      */
     public static class ParameterList
     {
@@ -242,9 +242,8 @@ public class MethodDialog extends CallDialog implements FocusListener
             dialogType = MD_CREATE;
         }
 
-        typeParameterMap = typeMap;
         makeDialog(method.getClassName(), instanceName, method);
-        setInstanceName(instanceName);
+        setInstanceInfo(instanceName, typeMap);
     }
 
     /**
@@ -420,12 +419,15 @@ public class MethodDialog extends CallDialog implements FocusListener
 
     /**
      * setInstanceName - set the name of the instance shown in the label
-     *  for method call dialogs, or in the text field for construction dialogs.
+     * for method call dialogs, or in the text field for construction dialogs,
+     * and the assosciated type parameters.
      */
-    public void setInstanceName(String instanceName)
+    public void setInstanceInfo(String instanceName, Map typeParams)
     {
-        if(dialogType == MD_CALL)
+        if(dialogType == MD_CALL) {
+            typeParameterMap = typeParams;
             setCallLabel(instanceName, methodName);
+        }
         else
             instanceNameText.setText(instanceName);
         createDescription();
@@ -501,10 +503,12 @@ public class MethodDialog extends CallDialog implements FocusListener
      * 
      * @param varArgsExpanded
      *            if set to true, varargs will be expanded.
+     * @param raw
+     *            if true, raw types will be returned
      */
-    public GenType[] getArgGenTypes(boolean varArgsExpanded)
+    public GenType[] getArgGenTypes(boolean varArgsExpanded, boolean raw)
     {
-        GenType[] params = method.getParamTypes();
+        GenType[] params = method.getParamTypes(raw);
         boolean hasVarArgs = method.isVarArgs() && parameterList != null
                 && parameterList.size() >= params.length;
         if (hasVarArgs && varArgsExpanded) {

@@ -8,7 +8,7 @@ import bluej.utility.JavaUtils;
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: ConstructorView.java 2969 2004-09-01 05:07:49Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -82,7 +82,7 @@ public final class ConstructorView extends CallableView
         return JavaUtils.getJavaUtils().getParameterTypes(cons);
     }
     
-    public GenType[] getParamTypes()
+    public GenType[] getParamTypes(boolean raw)
     {
         return JavaUtils.getJavaUtils().getParamGenTypes(cons);
     }

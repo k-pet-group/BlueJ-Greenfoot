@@ -15,7 +15,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2967 2004-08-31 06:43:25Z davmac $
+ * @version $Id: JavaUtils.java 2969 2004-09-01 05:07:49Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -166,9 +166,10 @@ public abstract class JavaUtils {
      * type.
      * 
      * @param method  the method whose argument types to get
+     * @param raw     whether to return the raw versions of argument types
      * @return  the argument types
      */
-    abstract public GenType[] getParamGenTypes(Method method);
+    abstract public GenType[] getParamGenTypes(Method method, boolean raw);
     
     /**
      * Gets an array of nicely formatted strings with the types of the parameters.
