@@ -31,7 +31,7 @@ public class GenTypeDeclTpar extends GenTypeTpar {
             return getTparName();
         } else {
             //now we strip the prefix if needed
-            return getTparName() + " extends " + getBound().toString(true);
+            return getTparName() + " extends " + getBound().toString(stripPrefix);
         }
     }
 
