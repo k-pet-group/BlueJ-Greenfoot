@@ -194,8 +194,8 @@ Select a class, arrow or package by clicking on
 it before trying to remove.
 
 really-remove-class
-Removing this class will permanently
-delete the source file.
+Removing classes will permanently
+delete their source file(s).
 Do you want to continue?
 Remove
 Cancel
