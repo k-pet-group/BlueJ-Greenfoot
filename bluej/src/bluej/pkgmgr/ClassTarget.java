@@ -39,7 +39,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 126 1999-06-15 03:42:35Z mik $
+ ** @version $Id: ClassTarget.java 127 1999-06-15 05:01:18Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -62,11 +62,15 @@ public class ClassTarget extends EditableTarget
     static final Font italicMenuFont = new Font("SansSerif", Font.ITALIC, Config.fontsize);
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
+    static final Image brokenImage = Toolkit.getDefaultToolkit().getImage(
+					Config.getImageFilename("image.broken"));
+
     // variables
 
     protected int modifiers;
     protected Vector breakpoints = new Vector();
     protected int displayedView = Editor.IMPLEMENTATION;
+    protected SourceInfo sourceInfo = new SourceInfo();
 
     // Fields used in Tarjan's algorithm:
     public int dfn, link;
@@ -88,12 +92,14 @@ public class ClassTarget extends EditableTarget
 	super(pkg, null);
     }
 
-    public void load(Properties props, String prefix) throws NumberFormatException
+    public void load(Properties props, String prefix) 
+	throws NumberFormatException
     {
 	super.load(props, prefix);
 
 	String modifierStr = props.getProperty(prefix + ".modifiers", "0");
 	modifiers = Integer.parseInt(modifierStr, 16);
+	sourceInfo.load(props, prefix);
     }
 
     public void save(Properties props, String prefix)
@@ -101,6 +107,7 @@ public class ClassTarget extends EditableTarget
 	super.save(props, prefix);
 	props.put(prefix + ".type", "ClassTarget");
 	props.put(prefix + ".modifiers", Integer.toString(modifiers, 16));
+	sourceInfo.save(props, prefix);
     }
 	
     /**
@@ -429,9 +436,11 @@ public class ClassTarget extends EditableTarget
 		    pkg.addDependency(new UsesDependency(pkg, this, used), true);
 	    }
 
+	    sourceInfo.setValid(true);
 	}
 	catch(Exception e) {
-	    // parse exception
+	    // exception during parsing
+	    sourceInfo.setValid(false);
 	}
 
 	pkg.repaint();
@@ -558,6 +567,17 @@ public class ClassTarget extends EditableTarget
 	}
 	return hasEntries;
     }
+
+    /**
+     *  Draw this target, redefined from Target.
+     */
+    public void draw(Graphics g)
+    {
+	super.draw(g);
+	if(!sourceInfo.isValid())
+	    g.drawImage(brokenImage, x + TEXT_BORDER, y + height - 22, null);
+    }
+
 
     // -- ActionListener interface --
 

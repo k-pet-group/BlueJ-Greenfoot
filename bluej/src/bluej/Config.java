@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 118 1999-06-08 05:35:11Z bruce $
+ ** @version $Id: Config.java 127 1999-06-15 05:01:18Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -233,7 +233,7 @@ public class Config
 	try {
 	    return lang_props.getProperty(strname, strname);
 	} catch(Exception e) {
-	    System.err.println("Something went wrong trying to getString for " + strname);
+	    Debug.reportError("Could not get string for " + strname);
 	    e.printStackTrace(System.err);
 	    return strname;
 	}
@@ -248,8 +248,7 @@ public class Config
 	try {
 	    return bluej_props.getProperty(strname, strname);
 	} catch(Exception e) {
-	    System.err.println("Something went wrong trying to getString for " + strname);
-	    e.printStackTrace(System.err);
+	    Debug.reportError("Could not get string for " + strname);
 	    return strname;
 	}
     }
@@ -263,8 +262,7 @@ public class Config
 	try {
 	    return bluej_props.getProperty(strname, def);
 	} catch(Exception e) {
-	    System.err.println("Something went wrong trying to getString for " + strname);
-	    e.printStackTrace(System.err);
+	    Debug.reportError("Could not get string for " + strname);
 	    return strname;
 	}
     }
@@ -272,26 +270,23 @@ public class Config
     {
 	try {
 	    String filename = bluej_props.getProperty(propname);
-		
 	    return bluej_home + slash + "lib" + slash + filename;
 	} catch(Exception e) {
-	    System.err.println("Something went wrong trying to getLibFilename for " + propname);
-	    e.printStackTrace(System.err);
+	    Debug.reportError("Could not get library name: " + propname);
 	    return null;
 	}
     }
-	
+
+    /**
+     * Find and return the file name for an image.
+     */
     public static String getImageFilename(String propname)
     {
 	try {
 	    String filename = bluej_props.getProperty(propname);
-		
-	    String fullfile = bluej_home + slash + "images" + slash + filename;
-	    // Debug.message("getImageFilename(" + propname + "): returning " + fullfile);
-	    return fullfile;
+	    return bluej_home + slash + "images" + slash + filename;
 	} catch(Exception e) {
-	    System.err.println("Something went wrong trying to getImageFilename for " + propname);
-	    e.printStackTrace(System.err);
+	    Debug.reportError("Could not find image: " + propname);
 	    return null;
 	}
     }
@@ -312,8 +307,7 @@ public class Config
 		return new Color(r, g, b);
 	    }
 	} catch(Exception e) {
-	    System.err.println("Something went wrong trying to getItemColour for " + itemname);
-	    e.printStackTrace(System.err);
+	    Debug.reportError("Could not get colour for " + itemname);
 	}
 		
 	return null;

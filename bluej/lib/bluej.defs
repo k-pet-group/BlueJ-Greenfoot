@@ -110,21 +110,25 @@ template.html=html.tmpl
 
 ## Images
 image.icon=bluej-icon.gif
+image.logo=bluej-logo.gif
 image.build.depends=arrow_black.gif
 image.build.depends.selected=arrow_red.gif
 image.build.extends=darrow_black.gif
 image.build.extends.selected=darrow_red.gif
-image.logo=bluej-logo.gif
-image.continue=continue.gif
-image.step=step.gif
-image.step_into=step_into.gif
-image.stop=stop.gif
-image.terminate=terminate.gif
+
 image.working=working.gif
 image.working.disab=working-disab.gif
 image.working.stopped=working-stopped.gif
 image.break=break.gif
 image.packageIcon=packageIcon.gif
+image.broken=broken-arrow.gif
+
+# debugger:
+image.continue=continue.gif
+image.step=step.gif
+image.step_into=step_into.gif
+image.stop=stop.gif
+image.terminate=terminate.gif
 
 ## images for navigation buttons above graph editor panel in library browser
 browser.classchooser.backbutton.image=leftarrow.gif
@@ -141,6 +145,7 @@ colour.text.bg=255,255,255
 colour.text.fg=0,0,0
 
 colour.arrow.uses=136,56,56
+#colour.arrow.uses=152,16,16
 colour.arrow.implements=35,115,15
 colour.arrow.extends=40,40,80
 
