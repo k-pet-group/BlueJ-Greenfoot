@@ -3,8 +3,8 @@ import java.util.*;
 /**
  ** Class Tester - write a description of the class here
  ** 
- ** @author: 
- ** Date: vnjf vjf
+ ** @author: Michael Kolling
+ ** @version: 1.3
  **/
 public class Tester     
 {

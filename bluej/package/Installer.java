@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 554 2000-06-16 07:05:43Z mik $
+  * @version $Id: Installer.java 618 2000-07-04 07:25:30Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -40,28 +40,35 @@ public class Installer extends JFrame
     private static final String colon = File.pathSeparator;
 
 
-    // File to test for JDK (relative to javaHome):
-    static private String jdkFile = "/../lib/tools.jar";
+    // File to test for JDK (relative to javaPath):
+    static private String jdkFile = "/lib/tools.jar";
 
     static final int BUFFER_SIZE=8192;
 
-    static String[] classpath;   // an array with all the paths in CLASSPATH
-
+    // user interface components
     Color backgroundColour;
     Color textColour;
     JTextField directoryField;
     JTextField javaField;
     JLabel textLabel1;
     JLabel textLabel2;
+    JButton browseDirButton;
+    JButton browseJdkButton;
+    JRadioButton jdk12Button;
+    JRadioButton jdk13Button;
     JButton installButton;
     JButton cancelButton;
-    JProgressBar progress; 
+    JProgressBar progress;
+
+ 
     int progressPercent = 0;
     Timer timer;
-    String javaHome;
-    String currentDirectory;
-    String architecture;
+
+    String currentDirectory;    // the user's working dir
+    String osname;              // "SunOS", "Windows*", "Linux*", etc
+    String architecture;        // "sparc", "i386", etc
     String javaVersion;
+    boolean isJDK12;
 
     String installationDir = "";
     String javaPath = "";
@@ -86,17 +93,15 @@ public class Installer extends JFrame
 
     public static void main(String[] args) 
     {
-	classpath = getClassPath(System.getProperty("java.class.path"));
-
 	if (args.length > 0) {
-	    if (args[0].equals("build")) {
+	    if (args[0].equals("build"))
 		buildInstaller(args[1]);
-		System.exit(0);
-	    }
+	    else
+                System.out.println("unknown argument: " + args[0]);
+            System.exit(0);
 	}
-
-	// Install time
-	new Installer();
+        else    // Install time
+            new Installer();
     }
 
 
@@ -171,8 +176,8 @@ public class Installer extends JFrame
      * Load the properties file and create a capsule to be used at install
      * time.
      */
-    public static Hashtable loadProperties(String fileName) {
-
+    public static Hashtable loadProperties(String fileName) 
+    {
 	Hashtable capsule = new Hashtable();
 	Properties props = new Properties();
 	try {
@@ -218,39 +223,73 @@ public class Installer extends JFrame
     public Installer()
     {
 	super();
-	javaHome = System.getProperty("java.home");
 	currentDirectory = System.getProperty("user.dir");
+        osname = System.getProperty("os.name");
         architecture = System.getProperty("os.arch");
         javaVersion = System.getProperty("java.version");
+        isJDK12 = javaVersion.startsWith("1.2");
+        javaPath = findJavaPath();
+
+        //System.out.println(javaPath);
+        //System.out.println(osname);
+        //System.out.println(javaVersion);
+        //System.out.println(architecture);
 
 	unpackTo(false);
 	makeWindow();
-        checkJDK();
     }
 
+    private String findJavaPath()
+    {
+	String javaHome = System.getProperty("java.home");
+        if(isJDKPath(javaHome))
+            return javaHome;
 
-    /**
-     * Check that the current Java version is a full JDK. Warn if not.
-     */
-    public void checkJDK() {
-        String jdkFilePath = javaHome + jdkFile;
-        if(! (new File(jdkFilePath).exists())) {
-            notifyProblem("The current Java version you are using to run\n" +
-                        "this installer is not a full Java JDK (it is \n" +
-                        "probably a JRE version). Please start this\n" +
-                        "installer with a full path name to your JDK \n" +
-                        "Java command. (On Windows, it usually is similar\n" +
-                        "to \"C:\\jdk1.3\\bin\\java\")");
-            finish("Installation aborted.", "(JDK Java version required.)");
+        // try to remove "/jre"
+        if(javaHome.endsWith("jre")) {
+            javaHome = javaHome.substring(0, javaHome.length()-4);
+            if(isJDKPath(javaHome))
+                return javaHome;
         }
+
+        // have a few wild guesses...
+
+        String shortVersion = javaVersion.substring(0, javaVersion.length()-2);
+        String[] tryPaths = { 
+            "C:\\jdk" + javaVersion, 
+            "C:\\jdk" + shortVersion, 
+            "D:\\jdk" + javaVersion, 
+            "D:\\jdk" + shortVersion, 
+            "/usr/java", 
+            "/usr/local/java",
+            "/usr/jdk" + javaVersion, 
+            "/usr/jdk" + shortVersion, 
+            "/usr/local/jdk" + javaVersion, 
+            "/usr/local/jdk" + shortVersion, 
+        };
+
+        for(int i = 0; i < tryPaths.length; i++)
+            if(isJDKPath(tryPaths[i]))
+                return tryPaths[i];
+
+        // give up
+        return "";
     }
 
     /**
      * Handle button press.
      */
-    public void actionPerformed(ActionEvent evt) {
+    public void actionPerformed(ActionEvent evt) 
+    {
 	Object src = evt.getSource();
-	if(src == installButton) {
+
+	if(src == browseDirButton) {
+            getInstallDirectory();
+        }
+	else if(src == browseJdkButton) {
+            getJDKDirectory();
+        }
+	else if(src == installButton) {
 	    InstallThread p = new InstallThread();
 	    p.setPriority(Thread.MIN_PRIORITY + 1);
 	    p.start();
@@ -270,14 +309,17 @@ public class Installer extends JFrame
     /**
      * Install button action
      */
-    public void doInstall() {
+    public void doInstall() 
+    {
+        readInputValues();
+        if(! isJDKPath(javaPath)) {
+            jdkPathProblem();
+            return;
+        }
 
 	try {
-	    setInstallDir(directoryField.getText());
-            if(!(new File(installDir()).exists())) {
-                notifyProblem(
-                    "The installation directory specified does not exist.\n" +
-                    "Please check the path and enter again.");
+            if(!(new File(installationDir).exists())) {
+                installDirProblem();
                 return;
             }
 
@@ -285,20 +327,19 @@ public class Installer extends JFrame
 
 	    // Write the scripts, if this is an application
 	    if (getProperty("exeName") != null) {
-		String osname = System.getProperty("os.name");
 
 		if(osname == null) {	// if we don't know, write both
 		    writeWindows();
 		    writeUnix();
 		}
 		else if(osname.startsWith("Windows")) {
-		    if( javaVersion.startsWith("1.3"))
-                        writeWindows();
-                    else
+		    if(isJDK12)
                         writeWindows12();
+                    else
+                        writeWindows();
                 }
-		else if( javaVersion.startsWith("1.3"))
-		    writeUnix(); // for 1.3 and later
+		else if( ! isJDK12)
+		    writeUnix();      // for 1.3 and later
 		else if( osname.startsWith("Linux"))
 		    writeUnix12(false);
 		else
@@ -312,11 +353,11 @@ public class Installer extends JFrame
 	}
 
 	if (getProperty("exeName") != null) {
-	    finish("BlueJ has been installed to " + installDir(),
+	    finish("BlueJ has been installed to " + installationDir,
 		   "To run it, execute \"" + 
 		   (String)getProperty("exeName") + "\".");
 	} else {
-	    finish("The package has been installed to " + installDir(), "");
+	    finish("The package has been installed to "+installationDir, " ");
 	}
 
     }
@@ -324,10 +365,56 @@ public class Installer extends JFrame
     /**
      * Cancel button action
      */
-    public void doCancel() {
-	System.exit(1);
+    private void doCancel() {
+	System.exit(0);
     }
 
+    /**
+     * 
+     */
+    private void getInstallDirectory()
+    {
+        String dirName = getDirName("Select installation directory");
+        if(dirName != null) {
+            installationDir = dirName;
+            directoryField.setText(installationDir);
+            if(!(new File(installationDir).exists()))
+                installDirProblem();
+        }
+    }
+
+    /**
+     * Read the values that the user selected into the appropriate variables.
+     */
+    private void getJDKDirectory()
+    {
+        String dirName = getDirName("Select JDK directory");
+        if(dirName != null) {
+            javaPath = dirName;
+            javaField.setText(javaPath);
+            if(! isJDKPath(javaPath))
+                jdkPathProblem();
+        }
+    }
+
+    /**
+     * Read the values that the user selected into the appropriate variables.
+     */
+    private void readInputValues()
+    {
+        installationDir = directoryField.getText();
+        javaPath = javaField.getText();
+        isJDK12 = jdk12Button.isSelected();
+    }
+
+    /**
+     * Check that the current Java version is a full JDK. Warn if not.
+     */
+    public boolean isJDKPath(String path) 
+    {
+        String jdkFilePath = path + jdkFile;
+        return new File(jdkFilePath).exists();
+    }
 
     /**
      * Update the status dialog
@@ -360,10 +447,33 @@ public class Installer extends JFrame
 
 
     /**
+     * Inform user of invalid jdk.
+     */
+    private void jdkPathProblem() 
+    {
+        notifyProblem(
+                  "The Java directory you have specified is not a valid \n" +
+                  "JDK directory. The JDK directory is the directory \n" +
+                  "that JDK (aka Java 2 SDK) was installed to. It must \n" +
+                  "have a subdirectory \"lib\" with a file named \n" +
+                  "\"tools.jar\" in it.");
+    }
+
+    /**
+     * Inform user of invalid install dir.
+     */
+    private void installDirProblem() 
+    {
+        notifyProblem(
+                  "The installation directory specified does not exist.\n" +
+                  "Please check the path and enter again.");
+    }
+
+    /**
      * Pop up a dialog box with the message. After a problem,
      * installation can proceed.
      */
-    public void notifyProblem(String problem) {
+    private void notifyProblem(String problem) {
 	JOptionPane.showMessageDialog(this, problem);
     }
 
@@ -375,12 +485,14 @@ public class Installer extends JFrame
     {
 	backgroundColour = (Color)getProperty("color.background");
 	textColour = (Color)getProperty("color.text");
+	setBackground(backgroundColour);
 
 	String title = (String)getProperty("title");
 	if(title != null)
 	    setTitle(title);
 
 	JPanel mainPanel = (JPanel)getContentPane();
+	mainPanel.setLayout(new BorderLayout(15, 15));
 	mainPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
 	mainPanel.setBackground(backgroundColour);
 
@@ -389,8 +501,10 @@ public class Installer extends JFrame
 	JLabel logoLabel = new JLabel(new ImageIcon(img));
 	mainPanel.add(logoLabel, BorderLayout.NORTH);
 
-	    JPanel buttonPanel = new JPanel();
-	    buttonPanel.setBackground(backgroundColour);
+        // create the buttons (south)
+
+        JPanel buttonPanel = new JPanel();
+            buttonPanel.setBackground(backgroundColour);
 
 	    installButton = new JButton("Install");
 	    buttonPanel.add(installButton);
@@ -403,47 +517,73 @@ public class Installer extends JFrame
 	mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 
-	JPanel centrePanel = new JPanel(new BorderLayout(10, 10));
-	centrePanel.setBackground(backgroundColour);
+        // create the centre panel
 
-	    JPanel optionPanel = new JPanel(new GridLayout(2, 2, 8, 8));
-	    optionPanel.setBackground(backgroundColour);
+	Box centrePanel = new Box(BoxLayout.Y_AXIS);
 
-	    directoryField = new JTextField(20);
-	    directoryField.setText(currentDirectory);
+            Box dirPanel = new Box(BoxLayout.X_AXIS);
+                dirPanel.add(Box.createHorizontalGlue());
+                dirPanel.add(new JLabel("Directory to install to:"));
+	        directoryField = new JTextField(currentDirectory, 16);
+                dirPanel.add(directoryField);
+                browseDirButton = new JButton("Browse");
+                browseDirButton.addActionListener(this);
+                dirPanel.add(browseDirButton);
+            centrePanel.add(dirPanel);
 
-	    javaField = new JTextField();
-            String javaBase;
-            if(javaHome.endsWith("jre"))
-                javaBase = javaHome.substring(0, javaHome.length()-4);
-            else
-                javaBase = javaHome;
-            javaPath = javaBase + File.separatorChar + "bin" +
-                       File.separatorChar + "java";
-            javaField.setText(javaPath);
+            centrePanel.add(Box.createVerticalStrut(5));
 
-	    optionPanel.add(new Label("Directory to install to:"));
-	    optionPanel.add(directoryField);
-	    optionPanel.add(new Label("Java executable:"));
-	    optionPanel.add(javaField);
+            Box jdkDirPanel = new Box(BoxLayout.X_AXIS);
+                jdkDirPanel.add(Box.createHorizontalGlue());
+                jdkDirPanel.add(new JLabel("Java (JDK) directory:"));
+                javaField = new JTextField(javaPath, 16);
+                jdkDirPanel.add(javaField);
+                browseJdkButton = new JButton("Browse");
+                browseJdkButton.addActionListener(this);
+                jdkDirPanel.add(browseJdkButton);
+            centrePanel.add(jdkDirPanel);
 
-	centrePanel.add(optionPanel, BorderLayout.CENTER);
+            centrePanel.add(Box.createVerticalStrut(5));
 
-	JPanel textPanel = new JPanel(new GridLayout(0, 1));
-	textPanel.setBackground(backgroundColour);
+            Box jdkPanel = new Box(BoxLayout.X_AXIS);
+                jdkPanel.add(new JLabel("JDK version:", JLabel.LEFT));
+                jdkPanel.add(Box.createHorizontalStrut(20));
+                jdk12Button = new JRadioButton("jdk 1.2", isJDK12);
+                jdk13Button = new JRadioButton("jdk 1.3", !isJDK12);
+                jdk12Button.setBackground(backgroundColour);
+                jdk13Button.setBackground(backgroundColour);
+
+                ButtonGroup bGroup = new ButtonGroup();
+                {
+                    bGroup.add(jdk12Button);
+                    bGroup.add(jdk13Button);
+                }
+
+                jdkPanel.add(jdk12Button);
+                jdkPanel.add(jdk13Button);
+                jdkPanel.add(Box.createHorizontalGlue());
+	    centrePanel.add(jdkPanel);
+
+            centrePanel.add(Box.createVerticalStrut(12));
 
 	    progress = new JProgressBar(); 
-	    textPanel.add(progress);
-	    textLabel1 = new JLabel();
-	    textPanel.add(textLabel1);
-	    textLabel2 = new JLabel();
-	    textPanel.add(textLabel2);
+	    centrePanel.add(progress);
+
+            centrePanel.add(Box.createVerticalStrut(5));
+
+            JPanel labelPanel = new JPanel(new GridLayout(0,1));
+                labelPanel.setBackground(backgroundColour);
+	        textLabel1 = new JLabel(" ", JLabel.LEFT);
+                labelPanel.add(textLabel1);
+                textLabel2 = new JLabel(" ", JLabel.LEFT);
+                labelPanel.add(textLabel2);
+
+	    centrePanel.add(labelPanel);
 
 	    String tagline = (String)getProperty("tagline");
 	    if(tagline != null)
 		textLabel2.setText(tagline);
 
-	centrePanel.add(textPanel, BorderLayout.SOUTH);
 
 	mainPanel.add(centrePanel, BorderLayout.CENTER);
 
@@ -481,15 +621,15 @@ public class Installer extends JFrame
     public void writeUnix() throws IOException 
     {
 
-	File outputFile = new File(installDir(), (String)getProperty("exeName"));
+	File outputFile = new File(installationDir, (String)getProperty("exeName"));
 	FileWriter out = new FileWriter(outputFile.toString());
 	out.write("#!/bin/sh\n");
-	out.write("APPBASE=" + installDir() + "\n");
+	out.write("APPBASE=" + installationDir + "\n");
 	String commands;
         commands = getProperty("unixCommands").toString();
 	if(commands != null) {
 	    commands = replace(commands, '~', "$APPBASE");
-	    commands = replace(commands, '!', javaHome);
+	    commands = replace(commands, '!', javaPath);
 	    commands = replace(commands, '@', architecture);
 	    out.write(commands);
 	    out.write("\n");
@@ -498,11 +638,11 @@ public class Installer extends JFrame
         classpath = getProperty("classpath").toString();
 	classpath = classpath.replace(';', ':');
 	classpath = replace(classpath, '~', "$APPBASE");
-	classpath = replace(classpath, '!', javaHome);
+	classpath = replace(classpath, '!', javaPath);
         classpath = replace(classpath, '@', architecture);
 	out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
 	out.write("export CLASSPATH\n");
-	out.write(javaPath + " " + getProperty("javaOpts") +
+	out.write(javaPath + "/bin/java " + getProperty("javaOpts") +
 		   " -D" + getProperty("installDirProp") + "=$APPBASE "+ 
 		  getProperty("mainClass") + " $*\n");
 	out.close();
@@ -521,10 +661,10 @@ public class Installer extends JFrame
     public void writeUnix12(boolean localJPDA) throws IOException 
     {
 
-	File outputFile = new File(installDir(), (String)getProperty("exeName"));
+	File outputFile = new File(installationDir, (String)getProperty("exeName"));
 	FileWriter out = new FileWriter(outputFile.toString());
 	out.write("#!/bin/sh\n");
-	out.write("APPBASE=" + installDir() + "\n");
+	out.write("APPBASE=" + installationDir + "\n");
 	String commands;
         if (localJPDA)
             commands = getProperty("unixCommands.localJPDA").toString();
@@ -532,7 +672,7 @@ public class Installer extends JFrame
             commands = getProperty("unixCommands.systemJPDA").toString();
 	if(commands != null) {
 	    commands = replace(commands, '~', "$APPBASE");
-	    commands = replace(commands, '!', javaHome);
+	    commands = replace(commands, '!', javaPath);
 	    commands = replace(commands, '@', architecture);
 	    out.write(commands);
 	    out.write("\n");
@@ -544,11 +684,11 @@ public class Installer extends JFrame
             classpath = getProperty("classpath.systemJPDA").toString();
 	classpath = classpath.replace(';', ':');
 	classpath = replace(classpath, '~', "$APPBASE");
-	classpath = replace(classpath, '!', javaHome);
+	classpath = replace(classpath, '!', javaPath);
         classpath = replace(classpath, '@', architecture);
 	out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
 	out.write("export CLASSPATH\n");
-	out.write(javaPath + " " + 
+	out.write(javaPath + "/bin/java " + 
                   getProperty("javaOpts.1.2") + " -D" + 
 		  getProperty("installDirProp") + "=$APPBASE "+ 
 		  getProperty("mainClass") + " $*\n");
@@ -567,17 +707,17 @@ public class Installer extends JFrame
      */
     public void writeWindows() throws IOException 
     {
-	File outputFile = new File(installDir(),
+	File outputFile = new File(installationDir,
 				   (String)getProperty("exeName") + ".bat");
 			
 	FileWriter out = new FileWriter(outputFile.toString());
 	out.write("@echo off\r\n");
 	out.write("set OLDPATH=%CLASSPATH%\r\n");
-	out.write("set APPBASE=" + installDir() + "\r\n");
+	out.write("set APPBASE=" + installationDir + "\r\n");
 	String commands = getProperty("winCommands").toString();
 	if(commands != null) {
 	    commands = replace(commands, '~', "%APPBASE%");
-	    commands = replace(commands, '!', javaHome);
+	    commands = replace(commands, '!', javaPath);
 	    commands = replace(commands, '@', architecture);
 	    out.write(commands);
 	    out.write("\r\n");
@@ -585,10 +725,10 @@ public class Installer extends JFrame
 	String classpath = getProperty("classpath").toString();
 	classpath = classpath.replace('/', '\\');
 	classpath = replace(classpath, '~', "%APPBASE%");
-	classpath = replace(classpath, '!', javaHome);
+	classpath = replace(classpath, '!', javaPath);
 	classpath = replace(classpath, '@', architecture);
 	out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
-	out.write(javaPath + " " +
+	out.write(javaPath + "\\bin\\java " +
                   getProperty("javaOpts") + " -D" + 
 		  getProperty("installDirProp") + "=%APPBASE% "+ 
 		  getProperty("mainClass") + 
@@ -603,17 +743,17 @@ public class Installer extends JFrame
      */
     public void writeWindows12() throws IOException 
     {
-	File outputFile = new File(installDir(),
+	File outputFile = new File(installationDir,
 				   (String)getProperty("exeName") + ".bat");
 			
 	FileWriter out = new FileWriter(outputFile.toString());
 	out.write("@echo off\r\n");
 	out.write("set OLDPATH=%CLASSPATH%\r\n");
-	out.write("set APPBASE=" + installDir() + "\r\n");
+	out.write("set APPBASE=" + installationDir + "\r\n");
 	String commands = getProperty("winCommands.12").toString();
 	if(commands != null) {
 	    commands = replace(commands, '~', "%APPBASE%");
-	    commands = replace(commands, '!', javaHome);
+	    commands = replace(commands, '!', javaPath);
 	    commands = replace(commands, '@', architecture);
 	    out.write(commands);
 	    out.write("\r\n");
@@ -621,10 +761,10 @@ public class Installer extends JFrame
 	String classpath = getProperty("classpath.localJPDA").toString();
 	classpath = classpath.replace('/', '\\');
 	classpath = replace(classpath, '~', "%APPBASE%");
-	classpath = replace(classpath, '!', javaHome);
+	classpath = replace(classpath, '!', javaPath);
 	classpath = replace(classpath, '@', architecture);
 	out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
-	out.write(javaPath + " " + 
+	out.write(javaPath + "\\bin\\java " + 
                   getProperty("javaOpts.1.2") + " -D" + 
 		  getProperty("installDirProp") + "=%APPBASE% "+ 
 		  getProperty("mainClass") + 
@@ -639,68 +779,6 @@ public class Installer extends JFrame
     // File I/O (JAR extraction)
     // ===========================================================
 
-    /**
-     * Find a classfile in the classpath
-     */
-    InputStream getFileFromClasspath(String filename) throws IOException
-    {
-	for(int i = 0; i < classpath.length; i++) {
-	    if(classpath[i].endsWith(".zip") || classpath[i].endsWith(".jar")) {
-		InputStream ret = readZip(classpath[i], filename);
-		if(ret !=null)
-		    return ret;
-	    }
-	    else {
-		if(File.separatorChar != '/')
-		    filename = filename.replace('/', File.separatorChar);
-		String fullpath = classpath[i] + File.separator + filename;
-		File fd = new File(fullpath);
-		
-		if(fd.exists())
-		    return new FileInputStream(fd);
-	    }
-	}
-		
-	throw new FileNotFoundException(filename);
-    }
-
-    InputStream readZip(String classzip, String arg) throws IOException
-    {
-	ZipFile zipf = new ZipFile(classzip);
-	ZipEntry entry = zipf.getEntry(arg);
-
-	if(entry == null)
-	    return null;
-
-	long size = entry.getCompressedSize();
-
-	InputStream is = zipf.getInputStream(entry);
-	return is;
-    }
-
-    public static String[] getClassPath(String cp)
-    {
-	String[] entries = {};
-		
-	try {
-	    Vector v = new Vector();
-			
-	    StringTokenizer st = new StringTokenizer(cp, File.pathSeparator);
-	    while(st.hasMoreTokens()) {
-		String entry = st.nextToken();
-		File entryFile = new File(entry);
-		if(entryFile.exists())
-		    v.addElement(entry);
-	    }
-			
-	    entries = new String[v.size()];
-	    v.copyInto(entries);
-	} catch(Exception e) {
-	    e.printStackTrace();
-	}
-	
-	return entries;
-    }
 
     /**
      * Grab the jar data from the class file and unjar it into the 
@@ -732,7 +810,7 @@ public class Installer extends JFrame
 		System.err.println (nf.getMessage());
 	    }
 	    if (doJar) {
-		dumpJar(installDir(), new FileInputStream(in.getFD()));
+		dumpJar(installationDir, new FileInputStream(in.getFD()));
 	    }
 	    in.close();
 			
@@ -819,17 +897,6 @@ public class Installer extends JFrame
 	progress.setValue(100);	
     }
 
-    /**
-     * Find and return the full path to an archive in CLASSPATH
-     */
-    private String getFullPath(String archiveName)
-    {
-	for(int i = 0; i < classpath.length; i++) {
-	    if(classpath[i].endsWith(archiveName))
-		return classpath[i];
-	}
-	return null;
-    }
 
     /**
      * Constructs a new string by replacing the character in
@@ -853,18 +920,29 @@ public class Installer extends JFrame
 	return ret.toString();
     }
 	
-    // =============== property access ================
+    /**
+     * Get a directory name via a file selection dialog.
+     */
+    public String getDirName(String title)
+    {
+        JFileChooser newChooser = new JFileChooser();
 
+        newChooser.setDialogTitle(title);
+        newChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        int result = newChooser.showDialog(this, "Choose");
+
+        if (result == JFileChooser.APPROVE_OPTION)
+            return newChooser.getSelectedFile().getPath();
+        else 
+            return null;
+    }
+
+    /**
+     * property access
+     */
     public Object getProperty(String key) {
 	return properties.get(key);
-    }
-
-    public String installDir() {
-	return installationDir;
-    }
-
-    public void setInstallDir(String dir) {
-	installationDir = dir;
     }
 
 

@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 614 2000-07-03 02:35:00Z mik $
+ * @version $Id: PkgMgrFrame.java 618 2000-07-04 07:25:30Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -666,10 +666,10 @@ public class PkgMgrFrame extends JFrame
                 DialogManager.showText(this,message);
             break;
 
-        case TOOLS_BROWSE:
-            DialogManager.NYI(this);
-            //            LibraryBrowser lb = new LibraryBrowser();
-            break;
+//         case TOOLS_BROWSE:
+//             DialogManager.NYI(this);
+//             //            LibraryBrowser lb = new LibraryBrowser();
+//             break;
 
         case TOOLS_PREFERENCES:         // can be executed when isEmptyFrame() is true
             PrefMgrDialog.showDialog(this);
@@ -1857,12 +1857,12 @@ public class PkgMgrFrame extends JFrame
     static final int TOOLS_COMPILESELECTED = TOOLS_COMPILE + 1;
     static final int TOOLS_REBUILD = TOOLS_COMPILESELECTED + 1;
     static final int TOOLS_GENERATEDOC = TOOLS_REBUILD + 1;
-    static final int TOOLS_BROWSE = TOOLS_GENERATEDOC + 1;
-    static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
-    //    static final int TOOLS_PREFERENCES = TOOLS_REBUILD + 1;
+    //static final int TOOLS_BROWSE = TOOLS_GENERATEDOC + 1;
+    //static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
+    static final int TOOLS_PREFERENCES = TOOLS_GENERATEDOC + 1;
 
     static final String[] ToolsCmds = {
-	"compile", "compileSelected", "rebuild", "generateDoc", "browse",
+	"compile", "compileSelected", "rebuild", "generateDoc", // "browse",
         "preferences",
     };
 
@@ -1871,13 +1871,13 @@ public class PkgMgrFrame extends JFrame
         KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.SHIFT_MASK | Event.CTRL_MASK),
         null,
         null,
-        KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
+        // KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
         null
     };
 
     static final int[] ToolsSeparators = {
         TOOLS_REBUILD,
-        TOOLS_BROWSE
+        TOOLS_GENERATEDOC,
     };
 
     static final int VIEW_COMMAND = TOOLS_COMMAND + 100;
