@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 999 2001-10-24 15:31:05Z mik $
+ * @version $Id: Config.java 1023 2001-12-05 05:33:24Z bquig $
  */
 
 public class Config
@@ -88,6 +88,7 @@ public class Config
     public static final int dialogCommandButtonsVertical = 17;
     
     public static final String osname = System.getProperty("os.name");
+    public static final String DEFAULT_LANGUAGE = "english";
 
     private static boolean initialised = false;
 
@@ -125,8 +126,11 @@ public class Config
         loadProperties("bluej", bluej_props);  // add user specific definitions
 
         // find our language (but default to english if none found)
-        language = bluej_props.getProperty("bluej.language", "english");
-        lang_props = loadDefs(language + File.separator + "labels", false);
+        language = bluej_props.getProperty("bluej.language", DEFAULT_LANGUAGE);
+        lang_props = loadLanguageLabels(language);
+        
+        
+        //lang_props = loadDefs(language + File.separator + "labels", false);
 
         moe_props = loadDefs("moe.defs", true);
         loadProperties("moe", moe_props);  // add user specific editor definitions
@@ -237,6 +241,24 @@ public class Config
         else
             return defs;
     }
+    
+    private static DefaultProperties loadLanguageLabels(String language)
+    {
+        // add the defaults (English)
+        DefaultProperties labels = loadDefs(DEFAULT_LANGUAGE + File.separator + "labels", true);
+        // add localised labels if necessary...
+        if(!DEFAULT_LANGUAGE.equals(language)) {
+            String languageFileName = language + File.separator + "labels";
+            File languageFile = new File(bluej_lib_dir, languageFileName);
+            try{
+                labels.load(new FileInputStream(languageFile));
+            }
+            catch(Exception e){
+                Debug.reportError("Unable to load definitions file: " + languageFile);
+            }
+        }
+        return labels;
+    }
 
     /**
      * Load local BlueJ properties. The properties definitions override
@@ -248,7 +270,6 @@ public class Config
 
         try {
             props.load(new FileInputStream(propsFile));
-
         }
         catch(Exception e) {
             // ignore
@@ -305,7 +326,7 @@ public class Config
             return strname;
         }
     }
-
+        
     /**
      * Get a non-language-dependent string from the BlueJ properties
      * ("bluej.defs" or "bluej.properties")
