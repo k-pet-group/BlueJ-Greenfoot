@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2370 2003-11-19 00:50:01Z ajp $
+ * @version    $Id: Inspector.java 2402 2003-12-01 05:09:55Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -532,9 +532,17 @@ public abstract class Inspector extends JFrame
                 this.setIcon(objectrefIcon);
                 this.setText("");
             } else {
+                // display some control characters in the displayed string in the
+                // correct form. This code should probably be somewhere else
+                StringBuffer displayString = new StringBuffer(valueString);
+                replaceAll(displayString, "\n", "\\n");
+                replaceAll(displayString, "\t", "\\t");
+                replaceAll(displayString, "\r", "\\r");
+                
                 this.setIcon(null);
-                this.setText(valueString);
-            }            
+                this.setText(displayString.toString());
+            }
+            
             
             if (isSelected) {
                 this.setBackground(table.getSelectionBackground());               
@@ -576,7 +584,16 @@ public abstract class Inspector extends JFrame
                 }
             }           
             return this;
-        }        
+        }
+
+        private void replaceAll(StringBuffer sb, String orig, String replacement)
+        {
+            int location = sb.indexOf(orig);
+            while(location != -1) {
+                sb.replace(location, location+orig.length(), replacement);
+                location = sb.indexOf(orig);
+            }
+        }
     }
     
     public static class ListTableModel extends DefaultTableModel {
