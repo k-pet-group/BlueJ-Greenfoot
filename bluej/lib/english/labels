@@ -441,6 +441,7 @@ pkgmgr.printDialog.printReadme=Print project readme
 pkgmgr.methodCall.titleCreate=BlueJ:  Create Object
 pkgmgr.methodCall.titleCall=BlueJ:  Method Call
 pkgmgr.methodCall.namePrompt=Name of Instance:
+pkgmgr.methodCall.typeParametersPrompt=Type Parameters:
 error.methodCall.emptyField=Error: Empty parameter field
 error.methodCall.illegalName=The instance name must be a Java identifier.
 error.methodCall.duplicateName=An object with this name already exists.\nPlease choose a unique name.
