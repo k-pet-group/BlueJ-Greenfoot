@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2348 2003-11-14 14:37:58Z polle $
+ * @version    $Id: Inspector.java 2363 2003-11-18 11:20:16Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -193,7 +193,7 @@ public abstract class Inspector extends JFrame
     {      
         Object[] listData = getListData();
         ((ListTableModel)fieldList.getModel()).setDataVector(listData);
-      //  fieldList.setTableHeader(null);
+        fieldList.setTableHeader(null);
         
         if (fieldList != null) {
             fieldList.revalidate();
@@ -385,10 +385,10 @@ public abstract class Inspector extends JFrame
         fieldList.getSelectionModel().addListSelectionListener(this);
         
         fieldList.setBackground(this.getBackground());
-        fieldList.setBorder(null);
         JScrollPane scrollPane = new JScrollPane(fieldList);
         scrollPane.setBorder(BlueJTheme.generalBorder);
         scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
         fieldList.requestDefaultFocus();
         fieldList.setRowHeight(25);
         fieldList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -396,6 +396,7 @@ public abstract class Inspector extends JFrame
         
         
         mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.setOpaque(false);
        
         // add mouse listener to monitor for double clicks to inspect list
         // objects. assumption is made that valueChanged will have selected
@@ -556,6 +557,8 @@ public abstract class Inspector extends JFrame
             if(column==1) {
                 this.setBackground(Color.white);                
                 this.setHorizontalAlignment(JLabel.CENTER);
+                Border compoundBorder = BorderFactory.createCompoundBorder(getBorder(),valueBorder);
+                setBorder(compoundBorder);                
             } else {
                 this.setHorizontalAlignment(JLabel.LEADING);
                 //Determine the minimum width
