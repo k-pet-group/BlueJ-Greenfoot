@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 2993 2004-09-06 13:05:11Z polle $
+ * @version $Id: Invoker.java 3013 2004-09-23 04:09:12Z davmac $
  */
 
 public class Invoker
@@ -336,28 +336,38 @@ public class Invoker
         int numArgs = (args == null ? 0 : args.length);
         String className = member.getClassName();
 
-        // prepare variables (assigned with actual values) for each parameter
+        boolean isGenericMethod = false;
+        
+        // Generic methods require special handling
+        if (! constructing) {
+            MethodView method = (MethodView) member;
+            if (method.isGeneric())
+                isGenericMethod = true;
+        }
 
+        // prepare variables (assigned with actual values) for each parameter
         StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < numArgs; i++) {
-            GenType argType;
-            if (typeMap != null)
-                argType = argTypes[i].mapTparsToTypes(typeMap);
-            else
-                argType = argTypes[i];
-            if (argType instanceof GenTypeExtends) {
-                argType = ((GenTypeExtends) argType).getUpperBound();
-                buffer.append(((GenTypeSolid) argType).toString(new CleverQualifyTypeNameTransform(pkg)));
+        if (! isGenericMethod) {
+            for (int i = 0; i < numArgs; i++) {
+                GenType argType;
+                if (typeMap != null)
+                    argType = argTypes[i].mapTparsToTypes(typeMap);
+                else
+                    argType = argTypes[i];
+                if (argType instanceof GenTypeExtends) {
+                    argType = ((GenTypeExtends) argType).getUpperBound();
+                    buffer.append(((GenTypeSolid) argType).toString(new CleverQualifyTypeNameTransform(pkg)));
+                }
+                else if (argType instanceof GenTypeWildcard)
+                    buffer.append("Object");
+                else if (argType instanceof GenTypeParameterizable)
+                    buffer.append(((GenTypeParameterizable) argType).toString(new CleverQualifyTypeNameTransform(pkg)));
+                else
+                    buffer.append(argType.toString());
+                buffer.append(" __bluej_param" + i);
+                buffer.append(" = " + args[i]);
+                buffer.append(";" + Config.nl);
             }
-            else if (argType instanceof GenTypeWildcard)
-                buffer.append("Object");
-            else if (argType instanceof GenTypeParameterizable)
-                buffer.append(((GenTypeParameterizable) argType).toString(new CleverQualifyTypeNameTransform(pkg)));
-            else
-                buffer.append(argType.toString());
-            buffer.append(" __bluej_param" + i);
-            buffer.append(" = " + args[i]);
-            buffer.append(";" + Config.nl);
         }
         String paramInit = buffer.toString();
 
@@ -380,6 +390,8 @@ public class Invoker
         argBuffer.append(")");
         String argString = buffer.toString();
         String actualArgString = argBuffer.toString();
+        if (isGenericMethod)
+            argString = actualArgString;
 
         // build the invocation string
 
