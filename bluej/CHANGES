@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00099
+@bug#  : 00100
 @short : 
 @prio  : 
 @source: 
@@ -498,6 +498,18 @@ in the template for the next one):
 =======================================================================
 ============================ closed bugs: =============================
 =======================================================================
+
+============================ version 1.0.1 ============================
+@-------
+@bug#  : 00099
+@short : array index out of bounds when inspecting large arrays
+@prio  : 
+@source: bruce
+@date  : 1999-08-25
+@status: closed, fixed (bruce, 1999-08-25) 
+@fixrel: 1.0.1
+@descr : array index out of bounds when inspecting large arrays
+@cause : introduced by changes to array display format
 
 ============================ version 1.0.0 ============================
 
