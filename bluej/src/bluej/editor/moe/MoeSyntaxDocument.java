@@ -28,7 +28,11 @@ import javax.swing.undo.*;
 
 import bluej.utility.*;
 import bluej.Config;
+
 import org.gjt.sp.jedit.syntax.*;
+
+import java.io.*;		// For configuration file reading.
+import java.util.Properties;
 
 /**
  * A simple implementation of <code>SyntaxDocument</code> that 
@@ -37,6 +41,7 @@ import org.gjt.sp.jedit.syntax.*;
  * It adds the ability to handle paragraph attributes on a per line basis.
  *
  * @author Bruce Quig
+ * @author Jo Wood (Modified to allow user-defined colours, March 2001)
  *
  */
 public class MoeSyntaxDocument extends DefaultSyntaxDocument
@@ -44,9 +49,10 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
 
     public MoeSyntaxDocument()
     {
-        // defaults to 4 if cannot read property
-        int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-        putProperty(tabSizeAttribute, new Integer(tabSize));
+         // defaults to 4 if cannot read property
+         int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
+         putProperty(tabSizeAttribute, new Integer(tabSize));
+         setUserColors();
     }
 
     /**
@@ -86,5 +92,101 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
             writeUnlock();
         }
     }
-}
+    
+    
+    /**
+     * Allows user-defined colours to be set for synax highlighting. The file 
+     * containing the colour values is should be 'lib/syntaxColors.defs'.
+     * If this file is not found, or not all colours are defined, the BlueJ
+     * default colours are used.
+     * @author This method was added by Jo Wood (jwo@soi.city.ac.uk), 9th March, 2001.
+     */
+    public void setUserColors()
+    { 
+    	Properties editorProps = Config.moe_props;
+        
+        // Build colour table.	   
+    	Color[] colors = new Color[Token.ID_COUNT];
+    	    	 
+    	// Replace with user-defined colours.
+    	String colorStr;
+    	int    colorInt;
+    	
+    	// Comments.
+    	colorStr = editorProps.getProperty("comment","1a1a80");
+    	try	{
+    	    colorInt = Integer.parseInt(colorStr,16);
+    	}
+    	catch (NumberFormatException e)	{
+    	    colorInt = 0x1a1a80;
+    	}
+    	colors[Token.COMMENT1] = new Color(colorInt);	
+    	
+    	// Javadoc comments.
+    	colorStr = editorProps.getProperty("javadoc","1a1a80");
+    	try {
+    	    colorInt = Integer.parseInt(colorStr,16);
+    	}
+    	catch (NumberFormatException e)	{
+    	    colorInt = 0x1a1a80;
+    	}
+    	colors[Token.COMMENT2] = new Color(colorInt);
+    	
+    	// Java keywords.	
+    	colorStr = editorProps.getProperty("keyword1","cc0033");
+    	try	{
+    	    colorInt = Integer.parseInt(colorStr,16);
+    	}
+    	catch (NumberFormatException e) {
+    	    colorInt = 0xcc0033;
+    	}
+    	colors[Token.KEYWORD1] = new Color(colorInt);
+    	
+    	// Class-based keywords.
+        colorStr = editorProps.getProperty("keyword2","cc8033");
+    	try	{
+    	    colorInt = Integer.parseInt(colorStr,16);
+    	}
+    	catch (NumberFormatException e)	{
+    	    colorInt = 0xcc8033;
+    	}
+    	colors[Token.KEYWORD2] = new Color(colorInt);
+    	    	
+    	// Other Java keywords (true, false, this, super).
+        colorStr = editorProps.getProperty("keyword3","339933");
+    	try	{
+    	    colorInt = Integer.parseInt(colorStr,16);
+    	}
+    	catch (NumberFormatException e)	{
+    	    colorInt = 0x339933;
+    	}
+    	colors[Token.LITERAL2] = new Color(colorInt);
 
+        // Primitives.
+        colorStr = editorProps.getProperty("primitive","996699");
+    	try	{
+    	    colorInt = Integer.parseInt(colorStr,16);
+    	}
+    	catch (NumberFormatException e)	{
+    	    colorInt = 0x996699;
+    	}
+    	colors[Token.KEYWORD3] = new Color(colorInt);
+	
+	    // String literals.
+        colorStr = editorProps.getProperty("string","339933");
+    	try	{
+    	    colorInt = Integer.parseInt(colorStr,16);
+    	}
+    	catch (NumberFormatException e)	{
+    	    colorInt = 0x339933;
+    	}
+    	colors[Token.LITERAL1] = new Color(colorInt);
+    	
+    	// Leave remaining tokens as default.
+    	colors[Token.LABEL]    = new Color(0x990000);
+        colors[Token.OPERATOR] = new Color(0xcc9900);
+        colors[Token.INVALID]  = new Color(0xff3300);
+
+        setColors(colors);
+    }
+}
