@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 841 2001-04-12 04:57:04Z mik $
+  * @version $Id: Installer.java 911 2001-05-24 07:28:51Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -692,7 +692,7 @@ public class Installer extends JFrame
         out.write("CLASSPATH=" + classpath + "\n");
         out.write("export CLASSPATH\n");
         out.write(javaPath + "/bin/java " + getProperty("javaOpts") +
-                  getProperty("mainClass") + " $*\n");
+                  " " + getProperty("mainClass") + " $*\n");
         out.close();
 		
         try {
@@ -737,7 +737,7 @@ public class Installer extends JFrame
         out.write("CLASSPATH=" + classpath + "\n");
         out.write("export CLASSPATH\n");
         out.write(javaPath + "/bin/java " + 
-                  getProperty("javaOpts.1.2") +
+                  getProperty("javaOpts.1.2") + " " + 
                   getProperty("mainClass") + " $*\n");
         out.close();
 		
@@ -776,7 +776,7 @@ public class Installer extends JFrame
         out.write("CLASSPATH=" + classpath + "\n");
         out.write("export CLASSPATH\n");
         //out.write(javaPath + "/Commands/java " + getProperty("javaOpts") +
-        out.write("java " + getProperty("javaOpts") +
+        out.write("java " + getProperty("javaOpts") + " " +
                   getProperty("mainClass") + " $*\n");
         out.close();
 		
@@ -814,8 +814,8 @@ public class Installer extends JFrame
         classpath = replace(classpath, '!', javaPath);
         classpath = replace(classpath, '@', architecture);
         out.write("set CLASSPATH=" + classpath + "\r\n");
-        out.write(javaPath + "\\bin\\java " +
-                  getProperty("javaOpts") + 
+        out.write("\"" + javaPath + "\\bin\\java\" " +
+                  getProperty("javaOpts") + " " +
                   getProperty("mainClass") + 
                   " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
         out.write("set CLASSPATH=%OLDPATH%\r\n");
@@ -849,8 +849,8 @@ public class Installer extends JFrame
         classpath = replace(classpath, '!', javaPath);
         classpath = replace(classpath, '@', architecture);
         out.write("set CLASSPATH=" + classpath + "\r\n");
-        out.write(javaPath + "\\bin\\java " + 
-                  getProperty("javaOpts.1.2") +
+        out.write("\"" + javaPath + "\\bin\\java\" " + 
+                  getProperty("javaOpts.1.2") + " " + 
                   getProperty("mainClass") + 
                   " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
         out.write("set CLASSPATH=%OLDPATH%\r\n");
