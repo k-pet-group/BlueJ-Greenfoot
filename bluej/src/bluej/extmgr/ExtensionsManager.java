@@ -252,9 +252,6 @@ public class ExtensionsManager implements BlueJEventListener
             aWrapper.terminate();
             iter.remove();
         }
-
-        // We need to revalidate possible tools menu.
-        PkgMgrFrame.extensionToolsMenuRevalidate();
     }
 
     /**
@@ -263,11 +260,10 @@ public class ExtensionsManager implements BlueJEventListener
      * if there is something to display.
      */
     LinkedList getMenuItems( Object attachedObject )
-        {
+    {
         LinkedList menuItems = new LinkedList();
 
-        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) 
-            {
+        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
             if (!aWrapper.isValid()) continue;
@@ -275,6 +271,8 @@ public class ExtensionsManager implements BlueJEventListener
             JMenuItem anItem = aWrapper.safeGetMenuItem(attachedObject);
             if ( anItem == null ) continue;
 
+            anItem.putClientProperty("bluej.extmgr.ExtensionWrapper",aWrapper);
+            
             menuItems.add(anItem);
             }
 
@@ -285,7 +283,7 @@ public class ExtensionsManager implements BlueJEventListener
         menuItems.addFirst(new JPopupMenu.Separator());
         
         return menuItems;
-        }
+    }
 
     /**
      * Delegates an event to all known extensions.

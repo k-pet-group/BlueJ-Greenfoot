@@ -1,16 +1,20 @@
 package bluej.extensions;
 
-import java.awt.Frame;
-import java.io.File;
-import java.util.*;
-
-import javax.swing.JMenuItem;
-
-import bluej.Config;
+import bluej.*;
+import bluej.debugmgr.objectbench.*;
 import bluej.extensions.event.*;
 import bluej.extmgr.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.*;
+import java.awt.*;
+import java.io.*;
+import java.util.*;
+import javax.swing.*;
+
+
+
+
 
 /**
  * A proxy object which provides services to BlueJ extensions.
@@ -46,7 +50,7 @@ import bluej.pkgmgr.Package;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2129 2003-07-23 06:25:49Z ajp $
+ * @version    $Id: BlueJ.java 2177 2003-09-15 11:02:55Z damiano $
  */
 
 /*
@@ -236,8 +240,6 @@ public class BlueJ
             throw new ExtensionUnloadedException();
 
         currentMenuGen = menuGen;
-
-        PkgMgrFrame.extensionToolsMenuRevalidate();
     }
 
 
@@ -655,8 +657,73 @@ public class BlueJ
         if (currentMenuGen == null)
             return null;
 
-        return currentMenuGen.getMenuItem();
+        if (attachedObject == null) {
+            JMenuItem anItem = currentMenuGen.getToolsMenuItem(null);
+            if ( anItem != null ) 
+                return anItem;
+
+            // Try to use the old deprecated method.
+            return currentMenuGen.getMenuItem();
+        }
+
+        if (attachedObject instanceof Package) {
+            Package attachedPkg = (Package) attachedObject;
+            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg);
+            return currentMenuGen.getToolsMenuItem(new BPackage(anId));
+        }
+
+        if (attachedObject instanceof ClassTarget) {
+            ClassTarget aTarget = (ClassTarget) attachedObject;
+        System.out.println ("Get class="+aTarget);
+            String qualifiedClassName = aTarget.getQualifiedName();
+            Package attachedPkg = aTarget.getPackage();
+            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg, qualifiedClassName);
+            return currentMenuGen.getClassMenuItem(new BClass(anId));
+        }
+
+        if (attachedObject instanceof ObjectWrapper) {
+            ObjectWrapper aWrapper = (ObjectWrapper) attachedObject;
+            return currentMenuGen.getObjectMenuItem(new BObject(aWrapper));
+        }
+
+        return null;
     }
+
+
+    /**
+     * Post a notification of a menu going to be display
+     */
+    void postMenuItem(Object attachedObject, JMenuItem onThisItem )
+    {
+        // If the extension has no menuGenerator there is nothing to do
+        if (currentMenuGen == null)
+            return;
+
+        // If the attached object is null I cannot decide which method to call
+        if (attachedObject == null)
+            return;
+
+        if (attachedObject instanceof Package) {
+            Package attachedPkg = (Package) attachedObject;
+            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg);
+            currentMenuGen.notifyPostMenu(new BPackage(anId),onThisItem);
+        }
+
+        if (attachedObject instanceof ClassTarget) {
+            ClassTarget aTarget = (ClassTarget) attachedObject;
+            String qualifiedClassName = aTarget.getQualifiedName();
+            Package attachedPkg = aTarget.getPackage();
+            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg, qualifiedClassName);
+            currentMenuGen.notifyPostMenu(new BClass(anId),onThisItem);
+        }
+
+        if (attachedObject instanceof ObjectWrapper) {
+            ObjectWrapper aWrapper = (ObjectWrapper) attachedObject;
+            currentMenuGen.notifyPostMenu(new BObject(aWrapper),onThisItem);
+        }
+    }
+
+
 
 
 }

@@ -18,6 +18,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.*;
 import bluej.utility.*;
 import bluej.views.*;
+import bluej.extmgr.*;
 
 /**
  * A wrapper around a Java object that handles calling methods, inspecting, etc.
@@ -26,7 +27,7 @@ import bluej.views.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2129 2003-07-23 06:25:49Z ajp $
+ * @version $Id: ObjectWrapper.java 2177 2003-09-15 11:02:55Z damiano $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -209,6 +210,9 @@ public class ObjectWrapper extends JComponent
         item.setFont(PrefMgr.getStandoutMenuFont());
         item.setForeground(envOpColour);
 
+        MenuManager menuManager = new MenuManager (menu); 
+        menuManager.setAttachedObject(this);
+        menuManager.addExtensionMenu();
 
         add(menu);
     }

@@ -22,6 +22,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.role.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
+import bluej.extmgr.*;
 
 /**
  * A class target in a package, i.e. a target that is a class file
@@ -31,7 +32,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2129 2003-07-23 06:25:49Z ajp $
+ * @version $Id: ClassTarget.java 2177 2003-09-15 11:02:55Z damiano $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -928,6 +929,10 @@ public class ClassTarget extends EditableTarget
         // call on role object to add any options needed at bottom
         role.createRoleMenuEnd(menu, this, state);
 
+        MenuManager menuManager = new MenuManager( menu );
+        menuManager.setAttachedObject(this);
+        menuManager.addExtensionMenu();
+        
         return menu;
     }
 

@@ -52,7 +52,10 @@ public class ExtensionBridge
     return aBluej.getMenuItem(attachedObject);
     }
 
-
+  public static void postMenuItem ( BlueJ aBluej, Object attachedObject, JMenuItem onThisItem )
+    {
+    aBluej.postMenuItem(attachedObject, onThisItem);
+    }
 
   
   }

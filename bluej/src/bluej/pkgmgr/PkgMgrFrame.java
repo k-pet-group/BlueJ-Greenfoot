@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+//import javax.swing.border.BeveFlBorder;
 import javax.swing.border.BevelBorder;
 
 import bluej.*;
@@ -33,7 +34,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2148 2003-08-05 08:17:51Z mik $
+ * @version $Id: PkgMgrFrame.java 2177 2003-09-15 11:02:55Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -149,7 +150,7 @@ public class PkgMgrFrame extends JFrame
         PkgMgrFrame frame = new PkgMgrFrame();
         frames.add(frame);
         BlueJEvent.addListener(frame);
-        PkgMgrFrame.extensionToolsMenuRevalidate();
+//        PkgMgrFrame.extensionToolsMenuRevalidate();
         return frame;
     }
 
@@ -415,8 +416,7 @@ public class PkgMgrFrame extends JFrame
     }
 
 
-    /**
-     */
+    /** Damiano
     public static void extensionToolsMenuRevalidate ()
     {
         // What I need to do is to call a resync on all the frames, in swing thread
@@ -430,7 +430,6 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Go trough all frames and fix al tools menu.
-     */
     private static void fixAllToolsMenu()
     {
         // We have to be extra safe since this may be called any time
@@ -443,6 +442,7 @@ public class PkgMgrFrame extends JFrame
         }
      
     }
+     */
 
 
     // ================ (end of static part) ==========================
@@ -552,7 +552,8 @@ public class PkgMgrFrame extends JFrame
 
         SwingUtilities.invokeLater(enableUI);
 
-        PkgMgrFrame.extensionToolsMenuRevalidate();
+        this.menuManager.setAttachedObject(pkg);
+        
         extMgr.packageOpened (pkg);
     }
 
@@ -581,6 +582,8 @@ public class PkgMgrFrame extends JFrame
         editor = null;
         pkg = null;
 
+        this.menuManager.setAttachedObject(pkg);
+        
         // if there are no other frames editing this project, we close
         // the project
         if (PkgMgrFrame.getAllProjectFrames(proj) == null)
@@ -2281,8 +2284,8 @@ public class PkgMgrFrame extends JFrame
                            });
 
             // Lets get the menu to display, Damiano
-            menuManager = new MenuManager();
-            menuManager.revalidate(menu.getPopupMenu());;
+            menuManager = new MenuManager(menu.getPopupMenu());
+            menuManager.addExtensionMenu();;
         }
 
 

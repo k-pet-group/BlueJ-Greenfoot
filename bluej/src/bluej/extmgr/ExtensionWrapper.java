@@ -599,7 +599,7 @@ public class ExtensionWrapper
 
 
     /**
-     *  Calls the EXTENSION preference panel getMenuItem in a safe way
+     *  Calls the EXTENSION getMenuItem in a safe way
      */
     public JMenuItem safeGetMenuItem(Object attachedObject)
     {
@@ -615,4 +615,25 @@ public class ExtensionWrapper
             return null;
         }
     }
+
+    /**
+     *  Calls the EXTENSION postMenuItem in a safe way
+     */
+    public void safePostMenuItem(Object attachedObject, JMenuItem onThisItem)
+    {
+        if (extensionBluej == null) 
+            return;
+
+        try {
+            ExtensionBridge.postMenuItem(extensionBluej, attachedObject, onThisItem );
+        }
+        catch (Exception exc) {
+            Debug.message("ExtensionWrapper.safePostGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+            exc.printStackTrace();
+        }
+    }
+
+
+
+
 }
