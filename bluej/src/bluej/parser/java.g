@@ -277,8 +277,8 @@ tokens {
                                     extendsInsert, superInterfaceSelections);
     }
 
-    public void defineVar(JavaToken theVariable, JavaToken type, JavaToken comment) {
-        symbolTable.defineVar(theVariable, type, comment);
+    public void defineVar(JavaToken theVariable, JavaToken type, boolean isVarargs, JavaToken comment) {
+        symbolTable.defineVar(theVariable, type, isVarargs, comment);
     }
 
 
@@ -413,6 +413,7 @@ classTypeSpec returns [JavaToken t]
 classOrInterfaceType returns [JavaToken t]
      {t=null;}
 	:   id1:IDENT (typeArguments)? {t=(JavaToken)id1;}
+		//System.out.println("t.getText() = " + t.getText());}
         (options{greedy=true;}: // match as many as possible
             DOT
             id2:IDENT (typeArguments)? {t.setText(t.getText() + "." + id2.getText());}
@@ -958,7 +959,7 @@ variableDeclarator[JavaToken type, JavaToken commentToken]
     :   id:IDENT (LBRACK RBRACK  { if(type != null)
     					type.setText(type.getText() + "[]");
     				   } )* varInitializer
-        {defineVar((JavaToken)id, type, commentToken);}
+        {defineVar((JavaToken)id, type, false, commentToken);}
     ;
 
 varInitializer
@@ -1045,12 +1046,13 @@ parameterDeclarationList
 //   the symbol table adds it to the parameter list of the current method
 //   header.
 parameterDeclaration
-    {JavaToken type; }
-    :   parameterModifier type=typeSpec (ELLIPSES)? id:IDENT
+    {JavaToken type;
+     boolean isVarargs = false; }
+    :   parameterModifier type=typeSpec (ELLIPSES {isVarargs=true;})? id:IDENT
                       (LBRACK RBRACK
          		{ if(type != null)
 			       type.setText(type.getText() + "[]"); } )*
-        {defineVar((JavaToken)id, type, null);}
+        {defineVar((JavaToken)id, type, isVarargs, null);}
     ;
 
 parameterModifier
