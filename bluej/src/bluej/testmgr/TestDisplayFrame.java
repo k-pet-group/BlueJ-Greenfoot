@@ -1,6 +1,7 @@
 package bluej.testmgr;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -13,12 +14,6 @@ import bluej.debugger.DebuggerTestResult;
  */
 public class TestDisplayFrame
 {
-    static final String windowTitle = Config.getString("terminal.title");
-
-    private static final Color fgColour = Color.black;
-    private static final Color errorColour = Color.red;
-    private static final Image iconImage = Config.getImageAsIcon("image.icon.terminal").getImage();
-
     // -- static singleton factory method --
 
     static TestDisplayFrame singleton = null;
@@ -68,35 +63,51 @@ public class TestDisplayFrame
     {
         return frame.isShowing();
     }
-
-
     
+    /**
+     * Create the user-interface for the error display dialog.
+     */
     protected void createUI()
     {
 		frame = new JFrame(Config.getString("testdisplay.title"));
 
-		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(),BoxLayout.Y_AXIS));
+		frame.setIconImage(Config.frameImage);
+		frame.setLocation(Config.getLocation("bluej.testdisplay"));
 
-		testEntries = new DefaultListModel();
+		// save position when window is moved
+		frame.addComponentListener(new ComponentAdapter() {
+				public void componentMoved(ComponentEvent event)
+				{
+					Config.putLocation("bluej.testdisplay", frame.getLocation());
+				}
+			});
 		
-		JScrollPane jsp = new JScrollPane();
+		JPanel topPanel = new JPanel();
 		{
-			testnames = new JList(testEntries);
-			testnames.setCellRenderer(new MyCellRenderer());
-
-			testnames.addListSelectionListener(new MyListSelectionListener());
-						
-			jsp.setViewportView(testnames);
+			topPanel.setBorder(Config.generalBorder);
+			topPanel.setLayout(new BoxLayout(topPanel,BoxLayout.Y_AXIS));
+					
+			JScrollPane jsp = new JScrollPane();
+			{
+				testEntries = new DefaultListModel();
+				
+				testnames = new JList(testEntries);
+				testnames.setCellRenderer(new MyCellRenderer());
+				testnames.addListSelectionListener(new MyListSelectionListener());
+							
+				jsp.setViewportView(testnames);
+			}
+		
+			topPanel.add(jsp);
+	        topPanel.add(pb=new ProgressBar());
+	        topPanel.add(cp=new CounterPanel());
+        
+	        fdv = new FailureDetailView();
+        
+        	topPanel.add(new JScrollPane(fdv.getComponent()));
 		}
 		
-		frame.getContentPane().add(jsp);
-        frame.getContentPane().add(pb=new ProgressBar());
-        frame.getContentPane().add(cp=new CounterPanel());
-        
-        fdv = new FailureDetailView();
-        
-        frame.getContentPane().add(new JScrollPane(fdv.getComponent()));
-
+		frame.getContentPane().add(topPanel);
         frame.pack();
     }
 
@@ -176,11 +187,13 @@ public class TestDisplayFrame
         cp.setRunValue(testEntries.getSize());
         pb.step(testEntries.getSize(), dtr.isSuccess());
         
-        if (!dtr.isSuccess())
-            cp.setErrorValue(++errorCount);
+        if (!dtr.isSuccess()) {
+        	if (dtr.isFailure())
+				cp.setFailureValue(++failureCount);
+			else
+				cp.setErrorValue(++errorCount);
+        }
     }
-
-
 
 	class MyListSelectionListener implements ListSelectionListener
 	{
@@ -189,7 +202,7 @@ public class TestDisplayFrame
 			if (testnames.getSelectedValue() != null) {
 				DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
 
-				if (dtr.isError()) {
+				if (dtr.isError() || dtr.isFailure()) {
 					fdv.showFailure(dtr.getExceptionMessage() + "\n---\n" + dtr.getTrace());
 				} else
 					fdv.clear();		
@@ -201,6 +214,7 @@ public class TestDisplayFrame
 class MyCellRenderer extends JLabel implements ListCellRenderer
 {
 	final static Icon errorIcon = Config.getImageAsIcon("image.testmgr.error");
+	final static Icon failureIcon = Config.getImageAsIcon("image.testmgr.failure");
 	final static Icon okIcon = Config.getImageAsIcon("image.testmgr.ok");
 
 	// This is the only method defined by ListCellRenderer.
@@ -216,7 +230,7 @@ class MyCellRenderer extends JLabel implements ListCellRenderer
 			DebuggerTestResult dtr = (DebuggerTestResult) value;
 			
 			setText(dtr.getName());
-			setIcon((dtr.isSuccess()) ? okIcon : errorIcon);
+			setIcon((dtr.isSuccess()) ? okIcon : (dtr.isFailure() ? failureIcon : errorIcon));
 			
 		} else
 			setText(value.toString());
