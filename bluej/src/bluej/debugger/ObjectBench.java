@@ -9,11 +9,11 @@ import java.util.Vector;
 import bluej.utility.Debug;
 
 /**
- ** The panel that displays objects at the bottom of the package manager
- ** @version $Id: ObjectBench.java 111 1999-06-04 06:16:57Z mik $
- ** @author Michael Cahill
- **/
-
+ * The panel that displays objects at the bottom of the package manager
+ *
+ * @author  Michael Cahill
+ * @version $Id: ObjectBench.java 291 1999-11-30 06:24:36Z ajp $
+ */
 public class ObjectBench extends JPanel
 {
     static final int WIDTH = 3 * (ObjectWrapper.WIDTH + 10);
