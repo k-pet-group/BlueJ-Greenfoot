@@ -11,11 +11,11 @@ import java.awt.Point;
 import java.awt.*;
 
 /**
- ** An "extends" dependency between two (class) targets in a package
- **
- ** @author Michael Cahill
- ** @version $Id: ExtendsDependency.java 1304 2002-08-14 11:39:59Z mik $
- **/
+ * An "extends" dependency between two (class) targets in a package
+ *
+ * @author Michael Cahill
+ * @version $Id: ExtendsDependency.java 1539 2002-11-29 13:44:44Z ajp $
+ */
 public class ExtendsDependency extends Dependency
 {
 
@@ -40,8 +40,8 @@ public class ExtendsDependency extends Dependency
         g.setColor(colour);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	    // Start from the centre of the src class
-        Point pFrom = new Point(from.x + from.width/2, from.y + from.height/2);
-        Point pTo = new Point(to.x + to.width/2, to.y + to.height/2);
+        Point pFrom = new Point(from.getX() + from.getWidth()/2, from.getY() + from.getHeight()/2);
+        Point pTo = new Point(to.getX() + to.getWidth()/2, to.getY() + to.getHeight()/2);
 
         // Get the angle of the line from src to dst.
         double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
@@ -69,8 +69,8 @@ public class ExtendsDependency extends Dependency
     public boolean contains(int x, int y)
     {
         // Start from the centre of the src class
-        Point pFrom = new Point(from.x + from.width/2, from.y + from.height/2);
-        Point pTo = new Point(to.x + to.width/2, to.y + to.height/2);
+        Point pFrom = new Point(from.getX() + from.getWidth()/2, from.getY() + from.getHeight()/2);
+        Point pTo = new Point(to.getX() + to.getWidth()/2, to.getY() + to.getHeight()/2);
 
         // Get the angle of the line from pFrom to pTo.
         double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);

@@ -19,7 +19,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: DependentTarget.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: DependentTarget.java 1539 2002-11-29 13:44:44Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -190,11 +190,11 @@ public abstract class DependentTarget extends Target
         Collections.sort(outUses, new LayoutComparer(this, false));
 
         // Count the number of arrows into each quadrant
-        int cy = y + height / 2;
+        int cy = getY() + getHeight() / 2;
         int n_top = 0, n_bottom = 0;
         for(int i = outUses.size() - 1; i >= 0; i--) {
             Target to = ((Dependency)outUses.get(i)).getTo();
-            int to_cy = to.y + to.height / 2;
+            int to_cy = to.getY() + to.getHeight() / 2;
             if(to_cy < cy)
                 ++n_top;
             else
@@ -202,17 +202,17 @@ public abstract class DependentTarget extends Target
         }
 
         // Assign source coordinates to each arrow
-        int top_left = x + (width - (n_top - 1) * ARR_HORIZ_DIST) / 2;
-        int bottom_left = x + (width - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
+        int top_left = getX() + (getWidth() - (n_top - 1) * ARR_HORIZ_DIST) / 2;
+        int bottom_left = getX() + (getWidth() - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
         for(int i = 0; i < n_top + n_bottom; i++) {
             UsesDependency d = (UsesDependency)outUses.get(i);
-            int to_cy = d.getTo().y + d.getTo().height / 2;
+            int to_cy = d.getTo().getY() + d.getTo().getHeight() / 2;
             if(to_cy < cy) {
-                d.setSourceCoords(top_left, y - 4, true);
+                d.setSourceCoords(top_left, getY() - 4, true);
                 top_left += ARR_HORIZ_DIST;
             }
             else {
-                d.setSourceCoords(bottom_left, y + height + 4, false);
+                d.setSourceCoords(bottom_left, getY() + getHeight() + 4, false);
                 bottom_left += ARR_HORIZ_DIST;
             }
         }
@@ -224,12 +224,12 @@ public abstract class DependentTarget extends Target
         Collections.sort(inUses, new LayoutComparer(this, true));
 
         // Count the number of arrows into each quadrant
-        int cx = x + width / 2;
+        int cx = getX() + getWidth() / 2;
         int n_left = 0, n_right = 0;
         for(int i = inUses.size() - 1; i >= 0; i--)
             {
                 Target from = ((Dependency)inUses.get(i)).getFrom();
-                int from_cx = from.x + from.width / 2;
+                int from_cx = from.getX() + from.getWidth() / 2;
                 if(from_cx < cx)
                     ++n_left;
                 else
@@ -237,20 +237,20 @@ public abstract class DependentTarget extends Target
             }
 
         // Assign source coordinates to each arrow
-        int left_top = y + (height - (n_left - 1) * ARR_VERT_DIST) / 2;
-        int right_top = y + (height - (n_right - 1) * ARR_VERT_DIST) / 2;
+        int left_top = getY() + (getHeight() - (n_left - 1) * ARR_VERT_DIST) / 2;
+        int right_top = getY() + (getHeight() - (n_right - 1) * ARR_VERT_DIST) / 2;
         for(int i = 0; i < n_left + n_right; i++)
             {
                 UsesDependency d = (UsesDependency)inUses.get(i);
-                int from_cx = d.getFrom().x + d.getFrom().width / 2;
+                int from_cx = d.getFrom().getX() + d.getFrom().getWidth() / 2;
                 if(from_cx < cx)
                     {
-                        d.setDestCoords(x - 4, left_top, true);
+                        d.setDestCoords(getX() - 4, left_top, true);
                         left_top += ARR_VERT_DIST;
                     }
                 else
                     {
-                        d.setDestCoords(x + width + 4, right_top, false);
+                        d.setDestCoords(getX() + getWidth() + 4, right_top, false);
                         right_top += ARR_VERT_DIST;
                     }
             }
@@ -271,20 +271,20 @@ public abstract class DependentTarget extends Target
         double sin = Math.sin(angle);
         double cos = Math.cos(angle);
         double tan = sin / cos;
-        double m = (double)height / width;
+        double m = (double) getHeight() / getWidth();
 
         if(Math.abs(tan) < m)	// side
-            radius = 0.5 * width / Math.abs(cos);
+            radius = 0.5 * getWidth() / Math.abs(cos);
         else	// top
-            radius = 0.5 * height / Math.abs(sin);
+            radius = 0.5 * getHeight() / Math.abs(sin);
 
-        Point p = new Point(x + width / 2 + (int)(radius * cos),
-                            y + height / 2 - (int)(radius * sin));
+        Point p = new Point(getX() + getWidth() / 2 + (int)(radius * cos),
+                            getY() + getHeight() / 2 - (int)(radius * sin));
 
         // Correct for shadow
         if((-m < tan) && (tan < m) && (cos > 0))	// right side
             p.x += SHAD_SIZE;
-        if((Math.abs(tan) > m) && (sin < 0) && (p.x > x + SHAD_SIZE))	// bottom
+        if((Math.abs(tan) > m) && (sin < 0) && (p.x > getX() + SHAD_SIZE))	// bottom
             p.y += SHAD_SIZE;
 
         return p;
@@ -298,7 +298,7 @@ public abstract class DependentTarget extends Target
     public void repaint()
     {
         if (getPackage().getEditor() != null)
-            getPackage().getEditor().repaint(x, y, width + SHAD_SIZE, height + SHAD_SIZE);
+            getPackage().getEditor().repaint(getX(), getY(), getWidth() + SHAD_SIZE, getHeight() + SHAD_SIZE);
     }
 
     public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor)
@@ -308,7 +308,7 @@ public abstract class DependentTarget extends Target
 
     public void mouseReleased(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-        Rectangle newRect = new Rectangle(this.x, this.y, width, height);
+        Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
 
         super.mouseReleased(evt, x, y, editor);
 

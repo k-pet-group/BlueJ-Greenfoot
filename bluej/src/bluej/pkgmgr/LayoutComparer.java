@@ -3,11 +3,11 @@ package bluej.pkgmgr;
 import java.util.Comparator;
 
 /**
- ** @version $Id: LayoutComparer.java 1417 2002-10-18 07:56:39Z mik $
- ** @author Michael Cahill
- **
- ** An ordering on targets to make layout nicer (reduce line intersections, etc.)
- **/
+ * An ordering on targets to make layout nicer (reduce line intersections, etc.)
+ *
+ * @author Michael Cahill
+ * @version $Id: LayoutComparer.java 1539 2002-11-29 13:44:44Z ajp $
+ */
 class LayoutComparer implements Comparator
 {
 	DependentTarget centre;
@@ -20,26 +20,26 @@ class LayoutComparer implements Comparator
 	}
 
 	/**
-	 ** Order <a> and <b> depending on their relative positions
-	 ** and their positions relative to the centre
-	 **
-	 ** Note: this is designed to reduce intersections when drawing lines.
-	 **/
+     * Order <a> and <b> depending on their relative positions
+     * and their positions relative to the centre
+     *
+     * Note: this is designed to reduce intersections when drawing lines.
+     */
 	public int compare(Object a, Object b)
 	{
 		DependentTarget ta = in ? ((Dependency)a).getFrom() : ((Dependency)a).getTo();
 		DependentTarget tb = in ? ((Dependency)b).getFrom() : ((Dependency)b).getTo();
 
-		int ax = ta.x + ta.width/2;
-		int ay = ta.y + ta.height/2;
-		int bx = tb.x + tb.width/2;
-		int by = tb.y + tb.height/2;
+        int ax = ta.getX() + ta.getWidth()/2;
+        int ay = ta.getY() + ta.getHeight()/2;
+        int bx = tb.getX() + tb.getWidth()/2;
+        int by = tb.getY() + tb.getHeight()/2;
 
 		if((ax == bx) && (ay == by))
 			return 0;
 
-		int cx = centre.x + centre.width/2;
-		int cy = centre.y + centre.height/2;
+        int cx = centre.getX() + centre.getWidth()/2;
+        int cy = centre.getY() + centre.getHeight()/2;
 
 		boolean a_above = (ay < cy);
 		boolean a_left = (ax < cx);

@@ -19,7 +19,7 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: PackageTarget.java 1539 2002-11-29 13:44:44Z ajp $
  */
 public class PackageTarget extends Target
 {
@@ -127,12 +127,12 @@ public class PackageTarget extends Target
 
     public void drawUMLStyle(Graphics2D g)
     {
-        tabWidth = width / 3;
+        tabWidth = getWidth() / 3;
 
         g.setColor(getBackgroundColour());
         //g.fillRect(0, 0, width, height);
         g.fillRect(0, 0, tabWidth, TAB_HEIGHT);
-        g.fillRect(0, TAB_HEIGHT, width, height - TAB_HEIGHT);
+        g.fillRect(0, TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT);
 
         g.setColor(shadowCol);
         drawShadow(g);
@@ -141,34 +141,33 @@ public class PackageTarget extends Target
         g.setFont(getFont());
         Utility.drawCentredText(g, getDisplayName(),
         			TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT,
-        			width - 2*TEXT_BORDER, TEXT_HEIGHT);
-        drawBorders(g);
+        	            		getWidth() - 2*TEXT_BORDER, TEXT_HEIGHT);
+        drawUMLBorders(g);
     }
 
-
-    void drawBorders(Graphics2D g)
+    void drawUMLBorders(Graphics2D g)
     {
         if(!((flags & F_SELECTED) == 0))
             g.setStroke(selectedStroke);
 
         g.drawRect(0, 0, tabWidth, TAB_HEIGHT);
-        g.drawRect(0, TAB_HEIGHT, width, height - TAB_HEIGHT);
+        g.drawRect(0, TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT);
 
         if((flags & F_SELECTED) == 0)
                 return;
 
         g.setStroke(normalStroke);
         // Draw lines showing resize tag
-        g.drawLine(width - HANDLE_SIZE - 2, height,
-                   width, height - HANDLE_SIZE - 2);
-        g.drawLine(width - HANDLE_SIZE + 2, height,
-                   width, height - HANDLE_SIZE + 2);
+        g.drawLine(getWidth() - HANDLE_SIZE - 2, getHeight(),
+                   getWidth(), getHeight() - HANDLE_SIZE - 2);
+        g.drawLine(getWidth() - HANDLE_SIZE + 2, getHeight(),
+                   getWidth(), getHeight() - HANDLE_SIZE + 2);
     }
 
     void drawShadow(Graphics2D g)
     {
-        g.fillRect(SHAD_SIZE, height , width, SHAD_SIZE);
-        g.fillRect(width, SHAD_SIZE + TAB_HEIGHT, SHAD_SIZE, height - TAB_HEIGHT);
+        g.fillRect(SHAD_SIZE, getHeight() , getWidth(), SHAD_SIZE);
+        g.fillRect(getWidth(), SHAD_SIZE + TAB_HEIGHT, SHAD_SIZE, getHeight() - TAB_HEIGHT);
     }
 
 

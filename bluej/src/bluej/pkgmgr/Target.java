@@ -18,9 +18,9 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 1521 2002-11-27 13:22:48Z mik $
+ * @version $Id: Target.java 1539 2002-11-29 13:44:44Z ajp $
  */
-public abstract class Target extends Vertex
+public abstract class Target extends Vertex implements Comparable
 {
     static final int MIN_WIDTH = 60;
     static final int MIN_HEIGHT = 40;
@@ -110,10 +110,10 @@ public abstract class Target extends Vertex
         throws NumberFormatException
     {
         // No super.load, but need to get Vertex properties:
-        this.x = Integer.parseInt(props.getProperty(prefix + ".x"));
-        this.y = Integer.parseInt(props.getProperty(prefix + ".y"));
-        this.width = Integer.parseInt(props.getProperty(prefix + ".width"));
-        this.height = Integer.parseInt(props.getProperty(prefix + ".height"));
+        setPos(Integer.parseInt(props.getProperty(prefix + ".x")),
+                Integer.parseInt(props.getProperty(prefix + ".y")));
+        setSize(Integer.parseInt(props.getProperty(prefix + ".width")),
+                 Integer.parseInt(props.getProperty(prefix + ".height")));
     }
 
     /**
@@ -121,10 +121,10 @@ public abstract class Target extends Vertex
      */
     public void save(Properties props, String prefix)
     {
-        props.put(prefix + ".x", String.valueOf(x));
-        props.put(prefix + ".y", String.valueOf(y));
-        props.put(prefix + ".width", String.valueOf(width));
-        props.put(prefix + ".height", String.valueOf(height));
+        props.put(prefix + ".x", String.valueOf(getX()));
+        props.put(prefix + ".y", String.valueOf(getY()));
+        props.put(prefix + ".width", String.valueOf(getWidth()));
+        props.put(prefix + ".height", String.valueOf(getHeight()));
 
         props.put(prefix + ".name", getIdentifierName());
     }
@@ -139,7 +139,7 @@ public abstract class Target extends Vertex
      * Return this target's package (ie the package that this target is currently
      * shown in)
      */
-    public final Package getPackage()
+    public Package getPackage()
     {
         return pkg;
     }
@@ -240,6 +240,11 @@ public abstract class Target extends Vertex
         return true;
     }
 
+    public void endMove()
+    {
+
+    }
+
     abstract Color getBackgroundColour();
     abstract Color getBorderColour();
     abstract Color getTextColour();
@@ -248,7 +253,7 @@ public abstract class Target extends Vertex
     public void repaint()
     {
         if (pkg.getEditor() != null)
-            pkg.getEditor().repaint(x, y, width + SHAD_SIZE, height + SHAD_SIZE);
+            pkg.getEditor().repaint(getX(), getY(), getWidth() + SHAD_SIZE, getHeight() + SHAD_SIZE);
     }
 
     /**
@@ -257,7 +262,7 @@ public abstract class Target extends Vertex
     public void draw(Graphics2D g)
     {
         g.setColor(getBackgroundColour());
-        g.fillRect(0, 0, width, height);
+        g.fillRect(0, 0, getWidth(), getHeight());
 
         // functionality transferred to ClassTarget
         // if(state != S_NORMAL) {
@@ -274,22 +279,22 @@ public abstract class Target extends Vertex
 
     void drawShadow(Graphics2D g)
     {
-        g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
-        g.fillRect(width, SHAD_SIZE, SHAD_SIZE, height);
-        //Utility.drawThickLine(g, width - HANDLE_SIZE, height,
-        //                      width, height - HANDLE_SIZE, 3);
+        g.fillRect(SHAD_SIZE, getHeight(), getWidth(), SHAD_SIZE);
+        g.fillRect(getWidth(), SHAD_SIZE, SHAD_SIZE, getHeight());
+        //Utility.drawThickLine(g, getWidth() - HANDLE_SIZE, getHeight(),
+        //                      getWidth(), getHeight() - HANDLE_SIZE, 3);
     }
 
     void drawBorders(Graphics2D g)
     {
         int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
-        Utility.drawThickRect(g, 0, 0, width, height, thickness);
+        Utility.drawThickRect(g, 0, 0, getWidth(), getHeight(), thickness);
 
         // Draw lines showing resize tag
-        g.drawLine(width - HANDLE_SIZE - 2, height,
-                   width, height - HANDLE_SIZE - 2);
-        g.drawLine(width - HANDLE_SIZE + 2, height,
-                   width, height - HANDLE_SIZE + 2);
+        g.drawLine(getWidth() - HANDLE_SIZE - 2, getHeight(),
+                   getWidth(), getHeight() - HANDLE_SIZE - 2);
+        g.drawLine(getWidth() - HANDLE_SIZE + 2, getHeight(),
+                   getWidth(), getHeight() - HANDLE_SIZE + 2);
     }
 
     /* Mouse interaction handling */
@@ -303,15 +308,15 @@ public abstract class Target extends Vertex
             return;
         }
 
-        resizing = (x - this.x + y - this.y >= width + height - HANDLE_SIZE);
+        resizing = (x - this.getX() + y - this.getY() >= getWidth() + getHeight() - HANDLE_SIZE);
         drag_start_x = x;
         drag_start_y = y;
-        oldRect = new Rectangle(this.x, this.y, width, height);
+        oldRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
     }
 
     public void mouseReleased(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-        Rectangle newRect = new Rectangle(this.x, this.y, width, height);
+        Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
 
         if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
             (pkg.getState() == Package.S_CHOOSE_EXT_TO)) {
@@ -320,7 +325,7 @@ public abstract class Target extends Vertex
             for(Iterator it = pkg.getVertices(); overClass == null && it.hasNext(); ) {
                 Target v = (Target)it.next();
 
-                if((v.x <= x) && (x < v.x + v.width) && (v.y <= y) && (y < v.y + v.height))
+                if((v.getX() <= x) && (x < v.getX() + v.getWidth()) && (v.getY() <= y) && (y < v.getY() + v.getHeight()))
                     overClass = v;
             }
             if (overClass != null && overClass != this) {
@@ -333,6 +338,9 @@ public abstract class Target extends Vertex
             editor.revalidate();
             editor.repaint();
         }
+
+        if (!resizing)
+            endMove();
     }
 
     /**
@@ -351,8 +359,8 @@ public abstract class Target extends Vertex
 
         int orig_x = (resizing ? oldRect.width : oldRect.x);
         int orig_y = (resizing ? oldRect.height : oldRect.y);
-        int current_x = (resizing ? width : this.x);
-        int current_y = (resizing ? height : this.y);
+        int current_x = (resizing ? getWidth() : this.getX());
+        int current_y = (resizing ? getHeight() : this.getY());
 
         int x_steps = (orig_x + x - drag_start_x) / GRID_SIZE;
         int new_x = x_steps * GRID_SIZE;
@@ -369,21 +377,63 @@ public abstract class Target extends Vertex
 
             g.setColor(getBorderColour());
             g.setXORMode(graphbg);
-            g.translate(this.x,this.y);
+            g.translate(this.getX(),this.getY());
             drawBorders(g);		// remove current border
-            g.translate(-this.x,-this.y);
+            g.translate(-this.getX(),-this.getY());
             if (resizing) {
-                this.width = Math.max(new_x, MIN_WIDTH);
-                this.height = Math.max(new_y, MIN_HEIGHT);
+                setSize( Math.max(new_x, MIN_WIDTH),Math.max(new_y, MIN_HEIGHT));
             }
             else {
-                this.x = (new_x >= 0 ? new_x : 0);
-                this.y = (new_y >= 0 ? new_y : 0);
+                setPos( (new_x >= 0 ? new_x : 0), (new_y >= 0 ? new_y : 0));
             }
-            g.translate(this.x,this.y);
+            g.translate(this.getX(),this.getY());
             drawBorders(g);		// draw new border
-            g.translate(-this.x,-this.y);
+            g.translate(-this.getX(),-this.getY());
         }
+    }
+
+    /**
+     * We have a notion of equality that relates solely to the
+     * identifierName. If the identifierNames's are equal then
+     * the Target's are equal.
+     */
+    public boolean equals(Object o)
+    {
+        if (o instanceof Target) {
+            Target t = (Target) o;
+            return this.identifierName.equals(t.identifierName);
+        }
+        return false;
+    }
+
+    public int hashCode()
+    {
+        return identifierName.hashCode();
+        }
+
+/**
+*
+*
+*
+*/
+public int compareTo(Object o)
+{
+   if (equals(o))
+       return 0;
+
+   Target t = (Target) o;
+
+   if (this.getY() < t.getY())
+       return -1;
+   else if (this.getY() > t.getY())
+       return 1;
+
+   if (this.getX() < t.getX())
+       return -1;
+   else if (this.getX() > t.getX())
+       return 1;
+
+   return this.identifierName.compareTo(t.getIdentifierName()); 
     }
 
     public String toString()

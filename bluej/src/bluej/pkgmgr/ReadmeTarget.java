@@ -18,7 +18,7 @@ import net.sourceforge.transmogrify.hook.bluej.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 1523 2002-11-28 02:26:05Z bquig $
+ * @version $Id: ReadmeTarget.java 1539 2002-11-29 13:44:44Z ajp $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -170,6 +170,8 @@ public class ReadmeTarget extends Target
 
     public void draw(Graphics2D g)
     {
+        int width = getWidth(), height = getHeight();
+
         // draw the shadow
         g.setColor(shadowCol);
         g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);

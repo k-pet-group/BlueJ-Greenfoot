@@ -12,7 +12,7 @@ import bluej.debugger.DebuggerObject;
  * The event which occurs while editing a package
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditorEvent.java 634 2000-07-07 02:38:22Z ajp $
+ * @version $Id: PackageEditorEvent.java 1539 2002-11-29 13:44:44Z ajp $
  */
 public class PackageEditorEvent extends EventObject
 {
@@ -20,14 +20,15 @@ public class PackageEditorEvent extends EventObject
     public final static int TARGET_REMOVE = 2;
     public final static int TARGET_OPEN = 3;
     public final static int TARGET_RUN = 4;
+    public final static int TARGET_BENCHTOFIXTURES = 5; // only for unit tests
+    public final static int TARGET_MAKETESTCASE = 6;    // only for unit tests
 
-    public final static int OBJECT_PUTONBENCH = 5;
+    public final static int OBJECT_PUTONBENCH = 7;
 
     protected int id;
     protected CallableView cv;
     protected DebuggerObject obj;
     protected String name;
-    protected String instname;
 
     public PackageEditorEvent(Object source, int id)
     {
@@ -54,8 +55,8 @@ public class PackageEditorEvent extends EventObject
         this.cv = cv;
     }
 
-    public PackageEditorEvent(Object source, int id, DebuggerObject obj,
-                                String instanceName, String fieldName)
+    public PackageEditorEvent(Object source, int id, String newInstanceName,
+                                DebuggerObject obj)
     {
         super(source);
 
@@ -64,8 +65,7 @@ public class PackageEditorEvent extends EventObject
 
         this.id = id;
         this.obj = obj;
-        this.name = fieldName;
-        this.instname = instanceName;
+        this.name = newInstanceName;
     }
 
     public int getID()
@@ -76,16 +76,6 @@ public class PackageEditorEvent extends EventObject
     public String getName()
     {
         return name;
-    }
-
-    public String getFieldName()
-    {
-        return name;
-    }
-
-    public String getInstanceName()
-    {
-        return instname;
     }
 
     public CallableView getCallable()

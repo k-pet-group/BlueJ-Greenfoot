@@ -50,7 +50,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1529 2002-11-28 15:59:21Z mik $
+ * @version $Id: ClassTarget.java 1539 2002-11-29 13:44:44Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -83,26 +83,29 @@ public class ClassTarget extends EditableTarget
 
     private static final String STEREOTYPE_OPEN = "<<";
     private static final String STEREOTYPE_CLOSE = ">>";
-    private static final String INTERFACE_LABEL = "interface";
-    private static final String APPLET_LABEL = "applet";
-    private static final String ABSTRACT_CLASS_LABEL = "abstract";
-    private static final String UNITTEST_LABEL = "unit test";
     static final String HTML_EXTENSION = ".html";
 
+    // the role object represents the changing roles that are class
+    // target can have ie changing from applet to an interface etc
+    // 'role' should never be null
+    // role should be accessed using getRole() and set using
+    // setRole(). A role should not contain important state information
+    // because role objects are thrown away at a whim.
+    private ClassRole role = new StdClassRole();
 
-    // instance variables
-    private ClassRole role;
-    private String template = null;
-
-    protected int modifiers;
+    // the set of breakpoints set in this class
     protected List breakpoints = new ArrayList();
-    protected SourceInfo sourceInfo = new SourceInfo();
 
-    // Fields used in Tarjan's algorithm:
+    // cached information obtained by parsing the source code
+    // automatically becomes invalidated when the source code is
+    // edited
+    private SourceInfo sourceInfo = new SourceInfo();
+
+    // fields used in Tarjan's algorithm:
     public int dfn, link;
 
-    private boolean analysing = false;  // flag to prevent recursive
-                                        // calls to analyseDependancies()
+    // flag to prevent recursive calls to analyseDependancies()
+    private boolean analysing = false;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -119,23 +122,20 @@ public class ClassTarget extends EditableTarget
     {
         super(pkg, baseName);
 
-        boolean isApplet = (template!=null) && (template.startsWith("applet"));
-//        boolean isUnitTest = (template!=null) && (template.startsWith("unittest"));
-
-        boolean isAbstract = (template!=null) &&
-                             (template.startsWith("abstract"));
-        boolean isInterface = (template!=null) &&
-                              (template.startsWith("interface"));
-        if(isApplet)
+        // we can take a guess at what the role is going to be for the
+        // object based on the start of the template name. If we get this
+        // wrong, its no great shame as it'll be fixed the first time they
+        // successfully analyse/compile the source.
+        if (template != null) {
+            if (template.startsWith("applet"))
             role = new AppletClassRole();
-//        else if (isUnitTest)
-//            role = new UnitTestClassRole();
-        else
-            role = new StdClassRole();
-
-        setInterface(isInterface);
-        setAbstract(isAbstract);
-        this.template = template;
+//            else if (template.startsWith("unittest"))
+//                role = new UnitTestClassRole();
+            else if (template.startsWith("abstract"))
+                role = new AbstractClassRole();
+            else if (template.startsWith("interface"))
+                role = new InterfaceClassRole();
+        }
     }
 
     /**
@@ -157,7 +157,69 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * load existing information about this class target
+     * Return the role object for this class target.
+     */
+    protected ClassRole getRole()
+    {
+        return role;
+    }
+
+    /**
+     * Set the role for this class target.
+     *
+     * Avoids changing over the role object if the new one is of the same
+     * type
+     */
+    protected void setRole(ClassRole newRole)
+    {
+        if ((role == null) || !(newRole.getClass().equals(role.getClass())))
+            role = newRole;
+    }
+
+    /**
+     * Use a variety of tests to determine what our role is.
+     *
+     * All tests must be very quick and should not rely on any
+     * significant computation (ie. reparsing). If computation is
+     * required, the existing role will do for the time being.
+     */
+    protected void determineRole(Class cl)
+    {
+        if (cl != null) {
+            // if cl is non-null then it is the definitive information
+            // source ie. if it thinks its an applet who are we to argue
+            // with it.
+            if (Applet.class.isAssignableFrom(cl))
+                setRole(new AppletClassRole());
+//            else if (junit.framework.TestCase.class.isAssignableFrom(cl))
+//                setRole(new UnitTestClassRole());
+            else if (Modifier.isInterface(cl.getModifiers()))
+                setRole(new InterfaceClassRole());
+            else if (Modifier.isAbstract(cl.getModifiers())) 
+                setRole(new AbstractClassRole());
+            else
+                setRole(new StdClassRole());
+        }
+        else {
+            // try the parsed source code
+            ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
+
+            if (classInfo != null) {
+                if (classInfo.isApplet())
+                    setRole(new AppletClassRole());
+//                if (classInfo.isUnitTest())
+//                    setRole(new UnitTestClassRole());
+                if (classInfo.isInterface())
+                    setRole(new InterfaceClassRole());
+                if (classInfo.isAbstract())
+                    setRole(new AbstractClassRole());
+            }
+        }
+        // everything failed, lets leave the role as it was
+    }
+
+    /**
+     * Load existing information about this class target
      * @param props the properties object to read
      * @param prefix an internal name used for this target to identify
      * its properties in a properties file used by multiple targets.
@@ -167,22 +229,25 @@ public class ClassTarget extends EditableTarget
     {
         super.load(props, prefix);
 
-        // check type in case it is an Applet or UnitTest.  Mainly useful in case
-        // it inherits from Applet or UnitTest further up the inheritance tree
+        // XXX try to determine if any role was set when we saved
+        // the class target. Be careful here as if you add role types
+        // you need to add them here as well.
         String type = props.getProperty(prefix + ".type");
-        if("AppletTarget".equals(type) && (!(role instanceof AppletClassRole)))
-            role = new AppletClassRole();
-//        if("UnitTestTarget".equals(type) && (!(role instanceof UnitTestClassRole)))
-//            role = new UnitTestClassRole();
 
-        role.load(props, prefix);
-        String modifierStr = props.getProperty(prefix + ".modifiers", "0");
-        modifiers = Integer.parseInt(modifierStr, 16);
-        sourceInfo.load(props, prefix);
+        if (AppletClassRole.APPLET_ROLE_NAME.equals(type))
+            setRole(new AppletClassRole());
+//        else if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type))
+//            setRole(new UnitTestClassRole());
+        else if (AbstractClassRole.ABSTRACT_ROLE_NAME.equals(type))
+            setRole(new AbstractClassRole());
+        else if (InterfaceClassRole.INTERFACE_ROLE_NAME.equals(type))
+            setRole(new InterfaceClassRole());
+
+        getRole().load(props, prefix);
     }
 
     /**
-     * save information about this class target
+     * Save information about this class target
      * @param props the properties object to save to
      * @param prefix an internal name used for this target to identify
      * its properties in a properties file used by multiple targets.
@@ -190,8 +255,11 @@ public class ClassTarget extends EditableTarget
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
-        role.save(props,modifiers, prefix);
-        sourceInfo.save(props, prefix);
+
+        if (getRole().getRoleName() != null) 
+            props.put(prefix + ".type", getRole().getRoleName());
+
+        getRole().save(props, 0, prefix);
     }
 
     /**
@@ -221,7 +289,7 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * Check if the compiled class and the source are up to date
+     * Check if the compiled class and the source are up to date.
      * @return true if they are in sync otherwise false.
      */
     public boolean upToDate()
@@ -255,38 +323,9 @@ public class ClassTarget extends EditableTarget
         }
     }
 
-
-    /**
-     * return the modifiers associated with this class target
-     * @return int representing the modifiers
-     */
-    public int getModifiers()
-    {
-        return modifiers;
-    }
-
-    /**
-     * verify whether this class target is an interface
-     * @return true if class target is an interface, else returns false
-     */
     public boolean isInterface()
     {
-        return Modifier.isInterface(modifiers);
-    }
-
-    /**
-     * change modifiers so that this class is either an interface or not
-     * @param isInterface boolean value reperesenting whether target should be set
-     *  to an interface or not
-     */
-    public void setInterface(boolean isInterface)
-    {
-        if(isInterface) {
-            modifiers |= Modifier.INTERFACE;
-        }
-        else {
-            modifiers &= ~Modifier.INTERFACE;
-        }
+        return (getRole() instanceof InterfaceClassRole);
     }
 
     /**
@@ -295,55 +334,7 @@ public class ClassTarget extends EditableTarget
      */
     public boolean isAbstract()
     {
-        return Modifier.isAbstract(modifiers);
-    }
-
-    /**
-     * change modifiers so that this class is either an interface or not
-     * @param isAbstract boolean value reperesenting whether target should be set
-     *  to abstract or not
-     */
-    public void setAbstract(boolean isAbstract)
-    {
-        if(isAbstract) {
-            modifiers |= Modifier.ABSTRACT;
-        }
-        else
-            modifiers &= ~Modifier.ABSTRACT;
-    }
-
-    /**
-     * verify whether this class target is an Applet
-     * @return true if class target is an Applet (or subclass), else returns false
-     */
-    public boolean isApplet()
-    {
-        ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
-        if(!(role instanceof AppletClassRole) && ((classInfo != null) && classInfo.isApplet()))
-            role = new AppletClassRole();
-        return (role instanceof AppletClassRole);
-    }
-
-    /**
-     * Verify whether this class target is a UnitTest
-     * @return true if class target is a UnitTest (or subclass), else returns false
-     */
-//    public boolean isUnitTest()
-//    {
-//        ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
-//        if(!(role instanceof UnitTestClassRole) && ((classInfo != null) && classInfo.isUnitTest()))
-//            role = new UnitTestClassRole();
-//        return (role instanceof UnitTestClassRole);
-//    }
-
-    Color getDefaultBackground()
-    {
-        if(isInterface())
-            return interfacebg;
-        else if(isAbstract())
-            return abstractbg;
-        else
-            return defaultbg;
+        return (getRole() instanceof AbstractClassRole);
     }
 
     // --- Target interface ---
@@ -352,9 +343,8 @@ public class ClassTarget extends EditableTarget
     {
         if(state == S_COMPILING) {
             return compbg;
-        }
-        else
-            return getDefaultBackground();
+        } else
+            return getRole().getBackgroundColour();
     }
 
     Color getBorderColour()
@@ -450,15 +440,6 @@ public class ClassTarget extends EditableTarget
         ClassInspector insp =
    	       ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
     }
-    
-    /**
-     * Remove this class target from the system.
-     */
-    private void remove()
-    {
-        getPackage().getEditor().raiseRemoveTargetEvent(this);
-    }
-    
 
     // --- EditorWatcher interface ---
 
@@ -478,6 +459,7 @@ public class ClassTarget extends EditableTarget
     public void saveEvent(Editor editor)
     {
         analyseSource(true);
+        determineRole(null);
     }
 
     /**
@@ -545,60 +527,27 @@ public class ClassTarget extends EditableTarget
 
     public boolean isCompiled()
     {
-        checkUpToDate();
         return (state == S_NORMAL);
     }
 
     /**
-     * Check if the sourcefile has been changed, and if so invalidate this and all dependents
-     */
-    public void checkUpToDate()
-    {
-        // Has something mysteriously changed? Take action!
-        if (!upToDate()) {
-            invalidate();
-            sourceInfo.setSourceModified();
-        }
-
-    }
-    
-    /**
      *  Called when this class target has just been successfully compiled.
+     *
+     * We load the compiled class if possible and check it the compilation
+     * has resulted in it taking a different role (ie abstract to applet)
      */
     public void endCompile()
     {
         Class cl = getPackage().loadClass(getQualifiedName());
 
-        if (cl != null) {
-            if (Applet.class.isAssignableFrom(cl)) {
-                if( ! (role instanceof AppletClassRole))
-                    role = new AppletClassRole();
-            }
-/*            else if (junit.framework.TestCase.class.isAssignableFrom(cl)) {
-                if( ! (role instanceof UnitTestClassRole))
-                    role = new UnitTestClassRole();
-            } */
-            else {
-                if( ! (role instanceof StdClassRole)) {
-                    role = new StdClassRole();
-                }
-            }
-        }
-    }
-
-    public void runApplet(PkgMgrFrame parent)
-    {
-        if (role instanceof AppletClassRole) {
-            AppletClassRole acr = (AppletClassRole) role;
-            acr.runApplet(parent, this);
-        }
+        determineRole(cl);
     }
 
     /**
      * generates a source code skeleton for this class
      *
      */
-    public void generateSkeleton()
+    public void generateSkeleton(String template)
     {
         // delegate to role object
         if(template == null)
@@ -705,17 +654,14 @@ public class ClassTarget extends EditableTarget
 
         analysing = true;
 
-        checkUpToDate();
         ClassInfo info = sourceInfo.getInfo(getSourceFile().getPath(),
                                             getPackage().getAllClassnames());
 
         // info will be null if the source was unparseable
         if(info != null) {
-
-            // the following three may update the package display but they
+            // the following may update the package display but it
             // will not modify the classes source code
-            setInterface(info.isInterface());
-            setAbstract(info.isAbstract());
+            determineRole(null);
             analyseDependencies(info);
 
             // these two however will potentially modify the source
@@ -920,10 +866,6 @@ public class ClassTarget extends EditableTarget
             menu.show(editor, x, y);
     }
 
-
-
-    protected HashMap actions;
-
     /**
      * creates a popup menu for this class target.
      *
@@ -932,132 +874,93 @@ public class ClassTarget extends EditableTarget
      */
     protected JPopupMenu createMenu(Class cl)
     {
-        actions = new HashMap();
-
         JPopupMenu menu = new JPopupMenu(getBaseName() + " operations");
 
         // call on role object to add any options needed
-        role.createMenu(menu, this, state);
+        role.createRoleMenu(menu, this, state);
 
-        if ((cl != null)) // && (!isUnitTest()))
-            createClassMenu(menu, cl);
+        if (cl != null)
+            if (role.createClassConstructorMenu(menu, this, cl));
+                menu.addSeparator();
 
-        addMenuItem(menu, editStr, true,
-                    new ActionListener() {
-                        public void actionPerformed(ActionEvent e) { open(); }
-                    });
-        addMenuItem(menu, compileStr, true,
-                    new ActionListener() {
-                        public void actionPerformed(ActionEvent e) { compile(null); }
-                    });
-        addMenuItem(menu, inspectStr, (state == S_NORMAL),
-                    new ActionListener() {
-                        public void actionPerformed(ActionEvent e) { inspect(); }
-                    });
-        addMenuItem(menu, removeStr, true,
-                    new ActionListener() {
-                        public void actionPerformed(ActionEvent e) { remove(); }
-                    });
+        if (cl != null)
+            if (role.createClassStaticMenu(menu, this, cl))
+                menu.addSeparator();
+
+        role.addMenuItem(menu, new EditAction(), true);
+        role.addMenuItem(menu, new CompileAction(), true);
+        role.addMenuItem(menu, new InspectAction(), true);
+        role.addMenuItem(menu, new RemoveAction(), true);
+
+        if (getRole() instanceof StdClassRole) {
+            menu.addSeparator();
+            role.addMenuItem(menu, new CreateTestAction(), true);
+        }
 
         return menu;
     }
 
-    /**
-     * adds a menu item to a popup menu.
-     *
-     * @param menu the popup menu the item is to be added to
-     * @param itemString the String to be displayed on menu item
-     * @param enabled boolean value representing whether item should be enabled
-     *
-     */
-    protected void addMenuItem(JPopupMenu menu, String itemString, boolean enabled,
-                               ActionListener listener)
+    private class CreateTestAction extends AbstractAction
     {
-        JMenuItem item;
-
-        menu.add(item = new JMenuItem(itemString));
-        item.addActionListener(listener);
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-        if(!enabled)
-            item.setEnabled(false);
-    }
-
-    /**
-     * creates a class menu containing any constructors and static methods etc.
-     *
-     * @param menu the popup menu to add the class menu items to
-     * @param cl Class object associated with this class target
-     *
-     */
-    protected void createClassMenu(JPopupMenu menu, Class cl)
-    {
-        ViewFilter filter;
-        View view = View.getView(cl);
-
-        if(!isAbstract()) {
-            filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
-            ConstructorView[] constructors = view.getConstructors();
-
-            if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new "))
-                menu.addSeparator();
-        }
-
-        filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
-        MethodView[] allMethods = view.getAllMethods();
-        if(createMenuItems(menu, allMethods, filter, 0, allMethods.length, ""))
-            menu.addSeparator();
-    }
-
-
-    protected boolean createMenuItems(JPopupMenu menu,
-                                      CallableView[] members, ViewFilter filter,
-                                      int first, int last, String prefix)
-    {
-        // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
-        boolean hasEntries = false;
-        JMenuItem item;
-
-        for(int i = first; i < last; i++) {
-            try {
-                CallableView m = members[last - i - 1];
-                if(!filter.accept(m))
-                    continue;
-                // Debug.message("createSubMenu - creating MenuItem");
-
-                Action callAction = new CallAction(prefix + m.getShortDesc(),
-                                                    this, m);
-
-                item = menu.add(callAction);
-                item.setFont(PrefMgr.getPopupMenuFont());
-                hasEntries = true;
-            } catch(Exception e) {
-                Debug.reportError("Exception accessing methods: " + e);
-                e.printStackTrace();
-            }
-        }
-        return hasEntries;
-    }
-
-    private class CallAction extends AbstractAction
-    {
-        private CallableView cv;
-        private Target t;
-
-        public CallAction(String menu, Target t, CallableView cv)
+        public CreateTestAction()
         {
-            super(menu);
-            this.cv = cv;
-            this.t = t;
+            putValue(NAME, "Create Test Class");
         }
 
         public void actionPerformed(ActionEvent e)
         {
-            if(state != S_NORMAL) {
-                Debug.reportError("Can't instantiate modified class");
-                return;
-            }
-            getPackage().getEditor().raiseMethodCallEvent(t, cv);
+        }
+    }
+
+    private class EditAction extends AbstractAction
+    {
+        public EditAction()
+        {
+            putValue(NAME, editStr);
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            open();
+        }
+    }
+
+    private class CompileAction extends AbstractAction
+    {
+        public CompileAction()
+        {
+            putValue(NAME, compileStr);
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            getPackage().compile(ClassTarget.this);
+        }
+    }
+
+    private class RemoveAction extends AbstractAction
+    {
+        public RemoveAction()
+        {
+            putValue(NAME, removeStr);
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this);
+        }
+    }
+
+    private class InspectAction extends AbstractAction
+    {
+        public InspectAction()
+        {
+            putValue(NAME, inspectStr);
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            inspect();
         }
     }
 
@@ -1074,32 +977,10 @@ public class ClassTarget extends EditableTarget
         drawBorders(g);
 
         if(!sourceInfo.isValid())
-            g.drawImage(brokenImage, x + TEXT_BORDER, y + height - 22, null);
+            g.drawImage(brokenImage, getX() + TEXT_BORDER, getY() + getHeight() - 22, null);
 
         // delegate extra functionality to role object
-        role.draw(g, this, x, y, width, height);
-    }
-
-
-    /**
-     * creates a stereotype name as a String if it is an interface,
-     * abstract class or Applet.
-     * @return String representing the type of stereotype or null if not applicable
-     */
-    public String getStereotype()
-    {
-        String type = null;
-
-        if(isAbstract())
-            type = ABSTRACT_CLASS_LABEL;
-        else if(isInterface())
-            type = INTERFACE_LABEL;
-        else if(isApplet())
-            type = APPLET_LABEL;
-//        else if(isUnitTest())
-//            type = UNITTEST_LABEL;
-
-        return type;
+        getRole().draw(g, this, getX(), getY(), getWidth(), getHeight());
     }
 
     /**
@@ -1109,12 +990,12 @@ public class ClassTarget extends EditableTarget
     private void drawUMLStyle(Graphics2D g)
     {
         // call to getStereotype
-        String stereotype = getStereotype();
+        String stereotype = getRole().getStereotypeLabel();
 
         if(state != S_NORMAL) {
             g.setColor(stripeCol);
             int divider = (stereotype == null) ? 18 : 32;
-            Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
+            Utility.stripeRect(g, 0, divider, getWidth(), getHeight() - divider, 8, 3);
         }
 
         g.setColor(getTextColour());
@@ -1129,18 +1010,17 @@ public class ClassTarget extends EditableTarget
             g.setFont(stereotypeFont);
             Utility.drawCentredText(g, stereotypeLabel,
                                     TEXT_BORDER, currentY,
-                                    width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+                    getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
             currentY += TEXT_HEIGHT -2;
         }
         g.setFont(original);
 
         Utility.drawCentredText(g, getIdentifierName(),
                                 TEXT_BORDER, currentY,
-                                width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+                getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
         currentY += ( TEXT_HEIGHT);
-        g.drawLine(0, currentY, width, currentY);
+        g.drawLine(0, currentY, getWidth(), currentY);
     }
-
 
     /**
      * Redefinition of the method found in Target.
@@ -1148,8 +1028,8 @@ public class ClassTarget extends EditableTarget
      */
    void drawShadow(Graphics2D g)
     {
-        g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
-        g.fillRect(width, SHAD_SIZE, SHAD_SIZE, height);
+        g.fillRect(SHAD_SIZE, getHeight(), getWidth(), SHAD_SIZE);
+        g.fillRect(getWidth(), SHAD_SIZE, SHAD_SIZE, getHeight());
     }
 
     /**
@@ -1158,18 +1038,17 @@ public class ClassTarget extends EditableTarget
      */
     void drawBorders(Graphics2D g)
     {
-
         int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
-        Utility.drawThickRect(g, 0, 0, width, height, thickness);
+        Utility.drawThickRect(g, 0, 0, getWidth(), getHeight(), thickness);
+
         if((flags & F_SELECTED) == 0)
             return;
         // Draw lines showing resize tag
-        g.drawLine(width - HANDLE_SIZE - 2, height,
-                   width, height - HANDLE_SIZE - 2);
-        g.drawLine(width - HANDLE_SIZE + 2, height,
-                   width, height - HANDLE_SIZE + 2);
+        g.drawLine(getWidth() - HANDLE_SIZE - 2, getHeight(),
+                getWidth(), getHeight() - HANDLE_SIZE - 2);
+        g.drawLine(getWidth() - HANDLE_SIZE + 2, getHeight(),
+                getWidth(), getHeight() - HANDLE_SIZE + 2);
     }
-
 
     int anchor_x = 0, anchor_y = 0;
     int last_x = 0, last_y = 0;
@@ -1191,6 +1070,14 @@ public class ClassTarget extends EditableTarget
         open();
     }
 
+    public void endMove()
+    {
+        Target t = getPackage().getTarget(getBaseName() + "Test");
+
+        if (t != null)
+            t.setPos(getX() + 30, getY() - 35);
+    }
+
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
     {
         if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
@@ -1210,8 +1097,7 @@ public class ClassTarget extends EditableTarget
 
     public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-        if (getPackage().getState() != Package.S_IDLE)
-            {
+        if (getPackage().getState() != Package.S_IDLE) {
                 // Draw a line from this Target to the current Cursor position
                 Graphics g = editor.getGraphics();
                 g.setColor(colBorder);
@@ -1265,7 +1151,7 @@ public class ClassTarget extends EditableTarget
             }
         }
 
-        role.prepareFilesForRemoval(getSourceFile().getPath(),
+        getRole().prepareFilesForRemoval(getSourceFile().getPath(),
                                     getClassFile().getPath(),
                                     getContextFile().getPath());
     }
