@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 143 1999-06-26 02:00:59Z ajp $
+ ** @version $Id: Config.java 144 1999-06-26 02:05:43Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -280,7 +280,7 @@ public class Config
 	{
 		int value;
 		try {
-			value = new Integer(bluej_props.getProperty(intname, new String(def))).intValue();
+			value = new Integer(bluej_props.getProperty(intname, String.valueOf(def))).intValue();
 		}
 		catch(Exception e) {
 			Debug.reportError("Could not get integer for " + intname);
