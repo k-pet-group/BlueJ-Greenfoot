@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2210 2003-10-11 14:50:39Z mik $
+ * @version $Id: PkgMgrFrame.java 2218 2003-10-23 02:25:46Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -954,6 +954,7 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+
     /**
      * Quit menu item was chosen.
      */
@@ -966,6 +967,7 @@ public class PkgMgrFrame extends JFrame
             doQuit();
     }
 
+
     private void doQuit()
     {
         /* Ask to extension manager to unload all extensions. 
@@ -977,6 +979,9 @@ public class PkgMgrFrame extends JFrame
         // close all open frames.
         PkgMgrFrame[] pkgFrames = getAllFrames();
 
+        // handle open packages so they are re-opened on startup
+        handleOrphanPackages(pkgFrames);
+        
         // We replicate some of the behaviour of doClose() here
         // rather than call it to avoid a nasty recursion
         for(int i = pkgFrames.length - 1; i >= 0; i--) {
@@ -985,10 +990,56 @@ public class PkgMgrFrame extends JFrame
             aFrame.closePackage();
             PkgMgrFrame.closeFrame(aFrame);
         }
-
         bluej.Main.exit();
     }
 
+    
+    /**
+     * When bluej is exited with open packages we want it to
+     * open these the next time that is started (this is default 
+     * action, can be changed by setting
+     * @param openFrames
+     */
+    private void handleOrphanPackages(PkgMgrFrame[] openFrames)
+    {
+        // if there was a previous list, delete it
+        if(hadOrphanPackages())
+             removeOrphanPackageList();
+        // add an entry for each open package     
+        for(int i = 0; i < openFrames.length ; i++) {
+            PkgMgrFrame aFrame = openFrames[i];
+            if(!aFrame.isEmptyFrame()) {
+                Config.putPropString(Config.BLUEJ_OPENPACKAGE + (i + 1), 
+                    aFrame.getPackage().getPath().toString()); 
+            }       
+        }
+    }
+    
+
+    /**
+     * Checks if there were oprphan packages on last exit by looking for
+     * existence of the value saved for the first orphaned package.
+     * @return whether a value could be found indicating orphan package(s)
+     */
+    public static boolean hadOrphanPackages()
+    {
+        // check if bluej.openPackage1 exists
+        return (Config.getPropString(Config.BLUEJ_OPENPACKAGE + 1, null) != null);
+    }
+    
+
+    /**
+     * removes previously listed orphan packages from bluej properties
+     */
+    private void removeOrphanPackageList()
+    {
+        String exists = "";
+        for(int i = 1; exists != null; i++) {
+            exists = Config.removeProperty(Config.BLUEJ_OPENPACKAGE + i);
+        }
+    }
+    
+ 
     /**
      * Save this package. Don't ask questions - just do it.
      */

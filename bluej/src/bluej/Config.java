@@ -24,7 +24,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 2173 2003-08-26 11:23:50Z mik $
+ * @version $Id: Config.java 2218 2003-10-23 02:25:46Z bquig $
  */
 
 public final class Config
@@ -50,6 +50,7 @@ public final class Config
 
     public static final String osname = System.getProperty("os.name", "");
     public static final String DEFAULT_LANGUAGE = "english";
+    public static final String BLUEJ_OPENPACKAGE = "bluej.openPackage";
 
     private static boolean initialised = false;
     
@@ -564,7 +565,7 @@ public final class Config
      */
     public static File getDefaultLanguageFile(String base)
     {
-    	return new File(bluej_lib_dir, DEFAULT_LANGUAGE + File.separator + base);
+        return new File(bluej_lib_dir, DEFAULT_LANGUAGE + File.separator + base);
     }
 
     /**
@@ -661,7 +662,7 @@ public final class Config
     {
         bluej_props.setProperty(strname, value);
     }
-
+    
     /**
      * Get the Inspector directory for the system
      */
