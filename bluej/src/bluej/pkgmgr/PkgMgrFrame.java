@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2181 2003-09-25 10:56:45Z damiano $
+ * @version $Id: PkgMgrFrame.java 2209 2003-10-10 14:02:43Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1355,7 +1355,12 @@ public class PkgMgrFrame extends JFrame
             createNewClass(name, template);
         }        
     }
-    
+
+    /**
+     * Creates a new class using the given name and template
+     * @param name is not a fully qualified class name
+     * @param template can be null in this case no template will be generated
+     */
     public void createNewClass(String name, String template)
     {
         if (name.length() > 0) {

@@ -16,7 +16,7 @@ import java.io.*;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 2087 2003-06-30 12:55:15Z damiano $
+ * @version    $Id: BClass.java 2209 2003-10-10 14:02:43Z damiano $
  */
 
 public class BClass
@@ -35,6 +35,21 @@ public class BClass
         classId = thisClassId;
     }
 
+    /**
+     * Removes this Class from BlueJ
+     *
+     * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
+     * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
+     * @throws  ClassNotFoundException   if the class has been deleted by the user.
+     */
+    public void remove()
+             throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
+    {
+        Package bluejPkg = classId.getBluejPackage();
+        ClassTarget bluejClass = classId.getClassTarget();
+
+        bluejPkg.removeClass(bluejClass);        
+    }
 
     /**
      * Returns the Java class being wrapped by this BClass.

@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2147 2003-08-04 20:36:21Z iau $
+ * @version $Id: BPackage.java 2209 2003-10-10 14:02:43Z damiano $
  */
 
 /*
@@ -63,6 +63,40 @@ public class BPackage
 
         return bluejPkg.getQualifiedName();
         }
+
+
+    /**
+     * Reloads the entire package.
+     * This is used (e.g.) when a new <code>.java</code> file has been added to the package.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
+     */
+    public void reload() 
+        throws ProjectNotOpenException, PackageNotFoundException
+        {
+        Package bluejPkg = packageId.getBluejPackage();
+
+        bluejPkg.reload();
+        }
+
+    /**
+     * Creates a new Class with the given name.
+     * The class name must not be a fully qualified name.
+     */
+    public BClass newClass ( String className )
+        throws ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
+        {
+        Package bluejPkg = packageId.getBluejPackage();
+        PkgMgrFrame bluejFrame = packageId.getPackageFrame();
+
+        File classJavaFile = new File (bluejPkg.getPath(),className+".java");
+        if ( ! classJavaFile.canWrite() ) 
+            throw new MissingJavaFileException (classJavaFile.toString());
+        
+        bluejFrame.createNewClass(className,null);
+        return getBClass ( className );
+        }
+
     
     /**
      * Returns the package frame.
@@ -101,7 +135,7 @@ public class BPackage
         ClassTarget classTarget = (ClassTarget)aTarget;
         
         return new BClass (new Identifier (bluejPrj,bluejPkg, classTarget.getQualifiedName()));
-    }
+        }
     
     /**
      * Returns an array containing all the classes in this package.
@@ -125,9 +159,9 @@ public class BPackage
             int index=iter.nextIndex();
             String className = pkgBasename+(String)iter.next();
             classes [index] = new BClass (new Identifier (bluejPrj,bluejPkg,className));
-        }
+            }
         return classes;
-    }
+        }
     
     /**
      * Returns a wrapper for the object with the given name on BlueJ's object bench.
@@ -224,19 +258,6 @@ public class BPackage
         }
 
 
-    /**
-     * Reloads the entire package.
-     * This is used (e.g.) when a new <code>.java</code> file has been added to the package.
-     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
-     * @throws PackageNotFoundException if the package has been deleted by the user.
-     */
-    public void reload() 
-        throws ProjectNotOpenException, PackageNotFoundException
-        {
-        Package bluejPkg = packageId.getBluejPackage();
-
-        bluejPkg.reload();
-        }
 
 
     /** 
