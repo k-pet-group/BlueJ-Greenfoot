@@ -1064,18 +1064,6 @@ public final class MoeEditor extends JFrame
             return -1;
     }
 
-    // --------------------------------------------------------------------
-    /**
-     *
-     */
-    public void setFontSize(int size)
-    {
-        MutableAttributeSet attr = new SimpleAttributeSet();
-        //bq StyleConstants.setFontSize(attr, size);
-        int start = document.getStartPosition().getOffset();
-        int length = document.getEndPosition().getOffset() - start;
-        //bq document.setCharacterAttributes(start, length, attr, false);
-    }
 
     // --------------------------------------------------------------------
     /**
@@ -1922,7 +1910,8 @@ public final class MoeEditor extends JFrame
             button = new JButton(label);
 
         button.setRequestFocusEnabled(false);   // never get keyboard focus
-        button.setMargin(new Insets(2,2,2,2));
+        //button.setMargin(new Insets(2,2,2,2));
+        button.setFont(PrefMgr.getStandardFont());
 
         String actionName = getResource(key + ActionSuffix);
         if (actionName == null)
@@ -1956,6 +1945,7 @@ public final class MoeEditor extends JFrame
         interfaceToggle.setRequestFocusEnabled(false);
         interfaceToggle.setBorder(new EmptyBorder(2,2,2,2));
         interfaceToggle.setForeground(envOpColour);
+        interfaceToggle.setFont(PrefMgr.getStandardFont());
 
         String actionName = "toggle-interface-view";
         Action action = actions.getActionByName(actionName);

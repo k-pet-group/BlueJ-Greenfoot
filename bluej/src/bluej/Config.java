@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: Config.java 1696 2003-03-11 19:55:19Z mik $
  */
 
 public class Config
@@ -146,7 +146,7 @@ public class Config
             compilertype = "javac";
 
         String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "false");
-        System.setProperty("com.apple.macos.useScreenMenuBar", macOSscreenMenuBar);
+        System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);
 
         boolean themed = Boolean.valueOf(
             Config.getPropString("bluej.useTheme", "false")).booleanValue();
