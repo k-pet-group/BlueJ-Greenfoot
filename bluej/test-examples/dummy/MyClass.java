@@ -15,9 +15,9 @@ public class MyClass
      **/
     public MyClass(int a)
     {
-	// initialise instance variables
-	x = a;
-	name = "Michael";
+        	// initialise instance variables
+        x = a;
+        	name = "Michael";
     }
     
     /**
@@ -28,14 +28,13 @@ public class MyClass
      **/
     public int loop(int count)
     {
-	int sum = 0;
+        	int sum = 0;
 
-	for (int i=0; i<count; i++) {
-	  sum = sum + i;
-	  sum = sum -200;
-	}
-
-	return x + 5;
+        	for (int i=0; i<count; i++) {
+            sum = sum + i;
+            sum = sum -200;
+        }
+        	return x + 5;
     }
 
     public int longloop()

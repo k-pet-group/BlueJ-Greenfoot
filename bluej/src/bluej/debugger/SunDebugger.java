@@ -8,10 +8,11 @@ import bluej.pkgmgr.Package;
 
 import java.util.Hashtable;
 import java.util.Vector;
+import sun.tools.debug.DebuggerCallback;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunDebugger.java 69 1999-05-11 04:23:02Z bruce $
+ ** @version $Id: SunDebugger.java 82 1999-05-13 03:36:09Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -39,10 +40,12 @@ public class SunDebugger extends Debugger
     {
 	if(remoteDebugger != null)
 	    return;
+	Debug.message("starting debugger");
 
 	try {
 	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM, null);
-	    remoteDebugger = new RemoteDebugger("", this, false);
+	    boolean debugOutput = true;
+	    remoteDebugger = new RemoteDebugger("", this, debugOutput);
 	    String[] args = { BlueJRuntime.INIT };
 	    runtimeCmd(args, "");		// Initialise
 	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);

@@ -1081,27 +1081,29 @@ public class PkgMgrFrame extends PkgFrame
 	JMenu menu = null;
 
 	for (int i = 0; i < menus.length; i++) {
-	    menu = (JMenu)menus[i];
+	    if(menus[i] != null) {
+		menu = (JMenu)menus[i];
 
-	    if(menu.getText().equals(Config.getString("menu.package")) ||
-	       menu.getText().equals(Config.getString("menu.tools"))) {
-		for (int j = 0; j < menu.getItemCount(); j++) {
-		    JMenuItem item = menu.getItem(j);
-		    if(item != null) {  // separators are returned as null
-			String label = item.getText();
-			if(!label.equals(Config.getString("menu.package.new"))
-			   && !label.equals(Config.getString("menu.package.open"))
-			   && !label.equals(Config.getString("menu.package.importPackage"))
-			   && !label.equals(Config.getString("menu.package.quit"))
-			   && !label.equals(Config.getString("menu.package"))
-			   && !label.equals(Config.getString("menu.tools"))
-			   && !label.equals(Config.getString("menu.tools.browse")))
-			    item.setEnabled(enable);
+		if(menu.getText().equals(Config.getString("menu.package")) ||
+		   menu.getText().equals(Config.getString("menu.tools"))) {
+		    for (int j = 0; j < menu.getItemCount(); j++) {
+			JMenuItem item = menu.getItem(j);
+			if(item != null) {  // separators are returned as null
+			    String label = item.getText();
+			    if(!label.equals(Config.getString("menu.package.new"))
+			       && !label.equals(Config.getString("menu.package.open"))
+			       && !label.equals(Config.getString("menu.package.importPackage"))
+			       && !label.equals(Config.getString("menu.package.quit"))
+			       && !label.equals(Config.getString("menu.package"))
+			       && !label.equals(Config.getString("menu.tools"))
+			       && !label.equals(Config.getString("menu.tools.browse")))
+				item.setEnabled(enable);
+			}
 		    }
 		}
+		else if(!menu.getText().equals(Config.getString("menu.help")))
+		    menu.setEnabled(enable);
 	    }
-	    else if(!menu.getText().equals(Config.getString("menu.help")))
-		menu.setEnabled(enable);
 	}
     }
 

@@ -8,7 +8,7 @@ CLASSROOT=$BLUEJ_HOME/classes
 LIB_DIR=$BLUEJ_HOME/lib
 
 XCLASSPATH=""
-CLASSPATH=`makepath "$CLASSROOT;$SWING_JARS;$LIB_DIR;$CLASSPATH"`
+CLASSPATH=`makepath "$CLASSROOT;$LIB_DIR;$CLASSPATH"`
 export CLASSPATH
 
 java -noverify -Dbluej.home=`makepath $BLUEJ_HOME` bluej.Main $@
