@@ -1,16 +1,20 @@
-package bluej.parser;
+package bluej.parser.ast;
 
+import java.io.*;
 import java.io.File;
 import java.net.URL;
 
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
 import bluej.parser.symtab.ClassInfo;
 
 /**
- * Run a whole directory of sample source files through our parser.
+ * Run sample source file(s) containing Java 1.5 specific features
+ * eg. generics, enums, static imports, foreach, varargs etc.
  *
- * @author  Andrew Patterson
+ * @author  Bruce Quig
  */
-public class BasicParseTest extends junit.framework.TestCase
+public class Parse15Test extends junit.framework.TestCase
 {
     /**
      * Get a data or result file from our hidden stash..
@@ -49,39 +53,35 @@ public class BasicParseTest extends junit.framework.TestCase
     protected void tearDown()
     {
     }
-
+ 
+    
     /**
      * Lots of sample files, none of which should cause exceptions
      * in our parser.
      * 
-     * @throws Exception
+     * @throws RecognitionException
+     * @throws TokenStreamException
+     * @throws FileNotFoundException
      */
-    public void testNoParseExceptionsOnStandardCode()
-        throws Exception
+    public void testNoParseExceptions()
+        throws RecognitionException, TokenStreamException, FileNotFoundException
     {
         // this file came from some guys web page.. it just includes lots of
         // Java constructs
-        ClassParser.parse(getFile("java_basic.dat"), null);
-
-        // these files came from the test suite accompanying antlr
-        ClassParser.parse(getFile("A.dat"),null);
-        ClassParser.parse(getFile("B.dat"),null);
-        ClassParser.parse(getFile("C.dat"),null);
-        ClassParser.parse(getFile("D.dat"),null);
-        ClassParser.parse(getFile("E.dat"),null);
+        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("15_generic.dat"))));
     } 
 
-    public void testValidClassInfo()
-        throws Exception
-    {
-        ClassInfo info;
-        File file = getFile("AffinedTransformer.dat");
-        info = bluej.parser.ClassParser.parse(file);
-
-        assertEquals("AffinedTransformer",info.getName());
-        assertEquals("JFrame",info.getSuperclass());
-        assertEquals("bluej.parser.ast.data",info.getPackage());
-
-        assertEquals(6, info.getUsed().size());
-    }
+//    public void testValidClassInfo()
+//        throws Exception
+//    {
+//        ClassInfo info;
+//        File file = getFile("AffinedTransformer.dat");
+//        info = bluej.parser.ClassParser.parse(file);
+//
+//        assertEquals("AffinedTransformer",info.getName());
+//        assertEquals("JFrame",info.getSuperclass());
+//        assertEquals("bluej.parser.ast.data",info.getPackage());
+//
+//        assertEquals(6, info.getUsed().size());
+//    }
 }
