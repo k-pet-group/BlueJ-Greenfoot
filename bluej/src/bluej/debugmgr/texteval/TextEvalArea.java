@@ -26,7 +26,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2820 2004-07-26 10:48:03Z polle $
+ * @version $Id: TextEvalArea.java 2879 2004-08-17 07:31:45Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener, MouseMotionListener
@@ -95,6 +95,7 @@ public final class TextEvalArea extends JScrollPane
     {
         frame.getObjectBench().addInteraction(ir);
 
+        append(" ");
         if (result != null) {
             //Debug.message("type:"+result.getFieldValueTypeString(0));
 
@@ -127,6 +128,7 @@ public final class TextEvalArea extends JScrollPane
             invoker.tryAgain();
         }
         else {
+            append(" ");
             error(message);
             text.setEditable(true);    // allow next input
         }
@@ -362,6 +364,16 @@ public final class TextEvalArea extends JScrollPane
     }
     
     /**
+     * Mark the last line of the text area as output.
+     */
+    private void markCurrentAs(String flag, Object value)
+    {
+        SimpleAttributeSet a = new SimpleAttributeSet();
+        a.addAttribute(flag, value);
+        doc.setParagraphAttributes(doc.getLength(), a);
+    }
+    
+    /**
      * Append some text to this area.
      * @param s The text to append.
      */
@@ -471,7 +483,7 @@ public final class TextEvalArea extends JScrollPane
         text.setAutoscrolls(false);  // important - dragging objects from this component
                                      // does not work correctly otherwise
         text.setText(" ");      // ensure space at the beginning of every line
-
+        
         doc = (MoeSyntaxDocument) text.getDocument();
         doc.setTokenMarker(new JavaTokenMarker());
 
@@ -556,6 +568,9 @@ public final class TextEvalArea extends JScrollPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            if(!text.isEditable())
+                return;
+            
             String s = event.getActionCommand();  // will always be length 1
             if(s.charAt(0) != '\n') {             // bug workaround: enter goes through default
                                                   //  action as well as set action
@@ -587,8 +602,9 @@ public final class TextEvalArea extends JScrollPane
             if(currentCommand.length() != 0) {
                        
                 history.add(line);
-                append("\n ");      // ensure space at the beginning of every line, because
+                append("\n");      // ensure space at the beginning of every line, because
                                     // line properties do not work otherwise
+                markCurrentAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
                 firstTry = true;
                 text.setEditable(false);    // don't allow input while we're thinking
                 invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
