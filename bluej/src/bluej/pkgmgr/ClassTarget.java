@@ -39,7 +39,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 198 1999-07-22 00:50:03Z ajp $
+ ** @version $Id: ClassTarget.java 207 1999-07-23 05:38:29Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -432,13 +432,6 @@ public class ClassTarget extends EditableTarget
 	    ClassInfo info = ClassParser.parse(sourceFile(), 
 					       pkg.getAllClassnames());
 
-        try {
-            OutputStream out = new FileOutputStream(contextFile());
-            info.getComments().save(out, "BlueJ class context for class "/* + c*/);
-            out.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }    
 	    if(info.isApplet()) {
 		if( ! (role instanceof AppletClassRole))
 		    role = new AppletClassRole();
