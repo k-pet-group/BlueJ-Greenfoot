@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 522 2000-06-01 02:34:58Z bquig $
+ * @version $Id: Target.java 530 2000-06-01 07:09:30Z bquig $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -114,7 +114,7 @@ public abstract class Target extends Vertex
     /**
      * get the next x value to be used for placement of new target
      */
-    private static int nextX()
+    protected static int nextX()
     {
         last_pos_x += 15;
         if(last_pos_x > 200)
@@ -125,7 +125,7 @@ public abstract class Target extends Vertex
     /**
      * get the next y value to be used for placement of new target
      */
-    private static int nextY()
+    protected static int nextY()
     {
         last_pos_y += 15;
         if(last_pos_y > 250)
@@ -140,7 +140,7 @@ public abstract class Target extends Vertex
      * @param name the name of the target (may be null).
      * @return the width the target should have to fully display its name.
      */
-    private static int calculateWidth(String name)
+    protected static int calculateWidth(String name)
     {
         int width = 0;
         if (name != null)
@@ -529,11 +529,11 @@ public abstract class Target extends Vertex
         g.setColor(getBackgroundColour());
         g.fillRect(0, 0, width, height);
 
-
-        //        if(state != S_NORMAL) {
-        //             g.setColor(shadowCol); // Color.lightGray
-        //             Utility.stripeRect(g, 0, 0, width, height, 8, 3);
-        //         }
+        // functionality transferred to ClassTarget
+        // if(state != S_NORMAL) {
+        //     g.setColor(shadowCol); // Color.lightGray
+        //     Utility.stripeRect(g, 0, 0, width, height, 8, 3);
+        // }
 
         g.setColor(shadowCol);
         drawShadow(g);

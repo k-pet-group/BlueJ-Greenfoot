@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 522 2000-06-01 02:34:58Z bquig $
+ * @version $Id: ClassTarget.java 530 2000-06-01 07:09:30Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -841,21 +841,6 @@ public class ClassTarget extends EditableTarget
     {
         super.draw(g);
 
-      //   if(state != S_NORMAL) {
-//             // Debug.message("Target: drawing invalid target " + this);
-//             g.setColor(compbg); 
-
-//             int divider = 0;
-
-//             // set divider if UML, different position if stereotype is present
-//             if(PrefMgr.isUML())
-//                 divider = (stereotype == null) ? 18 : 32; 
-
-//             Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
-//         }
-
-
-
         if(PrefMgr.isUML())
             drawUMLStyle(g);
         else
@@ -871,6 +856,11 @@ public class ClassTarget extends EditableTarget
         role.draw(g, this, x, y, width, height);
     }
 
+
+    /**
+     * Draws UML specific parts of the representation of this ClassTarget.
+     *
+     */
     private void drawUMLStyle(Graphics2D g)
     {
         if(state != S_NORMAL) {
@@ -903,6 +893,11 @@ public class ClassTarget extends EditableTarget
         g.drawLine(0, currentY, width, currentY);
     }
 
+
+    /**
+     * Draws "Blue" specific parts of the representation of this ClassTarget.
+     *
+     */
     private void drawBlueStyle(Graphics2D g)
     {
         if(state != S_NORMAL) {
@@ -925,6 +920,10 @@ public class ClassTarget extends EditableTarget
                                 width - 2 * TEXT_BORDER, TEXT_HEIGHT);
     }
 
+    /**
+     * Redefinition of the method found in Target.  
+     * It draws a shadow around the ClassTarget
+     */
    void drawShadow(Graphics2D g)
     {
         g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
@@ -934,6 +933,10 @@ public class ClassTarget extends EditableTarget
                                   width, height - HANDLE_SIZE, 3);
     }
 
+    /**
+     * Redefinition of the method found in Target.  
+     * It draws a shadow around the ClassTarget
+     */
     void drawBorders(Graphics2D g)
     {
         

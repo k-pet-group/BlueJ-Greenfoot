@@ -16,13 +16,13 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 529 2000-06-01 05:59:19Z bquig $
+ * @version $Id: PackageTarget.java 530 2000-06-01 07:09:30Z bquig $
  */
 public class PackageTarget extends Target implements ActionListener
 {
     static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
     //static final Color umldefaultbg = Config.getItemColour("colour.class.bg.uml.default");
-    static final Color umldefaultbg = defaultbg;
+    static final Color umldefaultbg = Config.getItemColour("colour.package.bg.uml.default");
 
     static final Color ribboncolour = defaultbg.darker().darker();
     static final Color bordercolour = Config.getItemColour("colour.target.border");
@@ -47,7 +47,7 @@ public class PackageTarget extends Target implements ActionListener
 
     public PackageTarget(Package pkg, String shortName)
     {
-        super(pkg, shortName);
+        super(pkg, shortName, nextX(), nextY(), calculateWidth(shortName), DEF_HEIGHT + TAB_HEIGHT);
         packageDir = shortName;
         packageName = shortName;
     }

@@ -29,10 +29,10 @@ import bluej.prefmgr.PrefMgr;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 523 2000-06-01 02:44:00Z mik $
+ * @version $Id: PkgMgrFrame.java 530 2000-06-01 07:09:30Z bquig $
  */
 public class PkgMgrFrame extends JFrame
-    implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener, Printable
+    implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
 {
     // static final Color bgColor = Config.getItemColour("colour.background");
     public Font PkgMgrFont = PrefMgr.getStandardFont();
@@ -70,13 +70,15 @@ public class PkgMgrFrame extends JFrame
 
     private static ExecControls execCtrlWindow = null;
 
-    private PageFormat pageFormat;
+    private static PageFormat pageFormat = new PageFormat();
 
     // instance fields:
 
     JPanel buttonPanel;
     JPanel viewPanel;
     JPanel showPanel;
+    JButton imgExtendsButton;
+    JButton imgDependsButton;
 
     static PackageChooser pkgChooser = null;	// chooser for packages only
     static JFileChooser fileChooser = null;	// chooser for all files/dirs
@@ -703,6 +705,10 @@ public class PkgMgrFrame extends JFrame
             importClass();
             break;
 
+        case PROJ_PAGESETUP:
+            pageSetup();
+            break;
+
          case PROJ_PRINT:
             print();
             break;
@@ -1035,94 +1041,94 @@ public class PkgMgrFrame extends JFrame
         DialogManager.NYI(this);
     }
 
-
     /**
+     * Creates a page setup dialog to alter page dimensions.
+     *
+     */
+    public void pageSetup()
+    {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        pageFormat = job.validatePage(job.pageDialog(pageFormat));
+    }
+
+
+     /**
      * print - implementation of the "print" user function
      */
     private void print()
     {
-        PrinterJob printerJob = PrinterJob.getPrinterJob();
-        if(pageFormat == null)
-            pageFormat = new PageFormat();
-
-        //Paper paper = pageFormat.getPaper();
-
-        // make it A4 roughly
-	// this gives a one size fit all approach adopted at present due to
-	// inconsistent page size handling in the 2D printing framework.
-	// This should be unified with printing also done in the editor (moe)
-        //paper.setSize(a4Width, a4Height);
-
-        // manipulate borders for a reasonable size print area
-        //double leftSideMargin = 36;
-        //double rightSideMargin = 72;
-        //double topMargin = 36;
-        //double bottomMargin = 72;
-
-        //paper.setImageableArea(leftSideMargin,
-        //                       topMargin,
-        //                       paper.getWidth() - (leftSideMargin + rightSideMargin),
-        //                       paper.getHeight() - (topMargin + bottomMargin));
-
-        //pageFormat.setPaper(paper);
-
-        Dimension graphSize = pkg.getMinimumSize();
-	if(graphSize.width > graphSize.height)
-	    pageFormat.setOrientation(PageFormat.LANDSCAPE);
-	else
-	    pageFormat.setOrientation(PageFormat.PORTRAIT);
-
-        pageFormat = printerJob.validatePage(pageFormat);
-        printerJob.setPrintable(this, pageFormat);
-
-        if (printerJob.printDialog()) {
-            try {
-                // call the Printable interface to do the actual printing
-                printerJob.print();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
+        PrinterThread printer = new PrinterThread();
+        printer.setPriority((Thread.currentThread().getPriority() - 1));
+        printer.start();
     }
 
-    private int pageColumns = 0;
-    private int pageRows = 0;
-    private int currentColumn = 0;
-    private int currentRow = 0;
-
-    final static int a4Width = 595;
-    final static int a4Height = 840;
-
-    /**
-     * Method that implements Printable interface and does that actual printing of
-     * class diagram.
-     */
-    public int print(Graphics g, PageFormat pageFormat, int pageIndex)
+    class PrinterThread extends Thread implements Printable
     {
-        // temporary solution that only prints one page
-        if(pageIndex >= 1)
-            return Printable.NO_SUCH_PAGE;
-
-        Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(),
-                                           (int)pageFormat.getImageableHeight());
-        Dimension graphSize = pkg.getMinimumSize();
-        Rectangle printArea = getPrintArea(pageFormat);
-        pageColumns = (graphSize.width + printArea.width - 1) / printArea.width;
-        pageRows = (graphSize.height + printArea.height - 1) / printArea.height;
-
-	// loop does not do much at present, only first page printed
-        for(int i = 0; i < pageRows; i++) {
-            for(int j = 0; j < 1; j++) {
-                printTitle(g, pageFormat, i * pageColumns + j + 1);
-                g.translate(printArea.x - j * printArea.width,
-                            printArea.y - i * printArea.height);
-                g.setClip(j * printArea.width, i * printArea.height,
-                          printArea.width, printArea.height);
-                editor.paint(g);
-            }
+        public void run()
+        {
+            this.printPackage();
         }
-        return Printable.PAGE_EXISTS;
-    }
+
+        private void printPackage()
+        {
+
+            PrinterJob printerJob = PrinterJob.getPrinterJob();
+
+            Dimension graphSize = pkg.getMinimumSize();
+            printerJob.setPrintable(this, pageFormat);
+
+            if (printerJob.printDialog()) {
+                setStatus(Config.getString("pkgmgr.info.printing"));
+                try {
+                    // call the Printable interface to do the actual printing
+                    printerJob.print();  
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                setStatus(Config.getString("pkgmgr.info.printed"));
+            }     
+        }
+
+        private int pageColumns = 0;
+        private int pageRows = 0;
+        private int currentColumn = 0;
+        private int currentRow = 0;
+
+        final static int a4Width = 595;
+        final static int a4Height = 840;
+
+        /**
+         * Method that implements Printable interface and does that actual printing of 
+         * class diagram.
+         */
+        public int print(Graphics g, PageFormat pageFormat, int pageIndex)
+        {
+            // temporary solution that only prints one page
+            if(pageIndex >= 1)
+                return Printable.NO_SUCH_PAGE;
+            
+            Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(), 
+                                               (int)pageFormat.getImageableHeight());
+            Dimension graphSize = pkg.getMinimumSize();
+            Rectangle printArea = getPrintArea(pageFormat);
+            pageColumns = (graphSize.width + printArea.width - 1) / printArea.width;
+            pageRows = (graphSize.height + printArea.height - 1) / printArea.height;
+
+            // loop does not do much at present, only first page printed
+            for(int i = 0; i < pageRows; i++) {
+                for(int j = 0; j < 1; j++) {
+                    printTitle(g, pageFormat, i * pageColumns + j + 1);
+                    g.translate(printArea.x - j * printArea.width,
+                                printArea.y - i * printArea.height);
+                    g.setClip(j * printArea.width, i * printArea.height,
+                              printArea.width, printArea.height);
+                    editor.paint(g);
+                } 
+            }              
+            return Printable.PAGE_EXISTS;
+        }
+    } // end of nested class PrinterThread
+
 
     public void resetDependencyButtons()
     {
@@ -1169,18 +1175,18 @@ public class PkgMgrFrame extends JFrame
                                             (int)pageFormat.getImageableHeight());
 
         // frame header area
-//XXX        g.setColor(lightGrey);
+        //XXX        g.setColor(lightGrey);
         g.fillRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
 
-//XXX        g.setColor(titleCol);
+        //XXX        g.setColor(titleCol);
         g.drawRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
-
+        
         // frame print area
         g.drawRect(printArea.x, printArea.y, printArea.width,
                    printArea.height - PRINT_VMARGIN);
 
         // write header
-/*XXX        String title = (packageName == noPackage) ? dirname : packageName;
+        /*XXX        String title = (packageName == noPackage) ? dirname : packageName;
         g.setFont(printTitleFont);
         Utility.drawCentredText(g, "BlueJ package - " + title,
                                 printArea.x, printArea.y,
@@ -1548,25 +1554,28 @@ public class PkgMgrFrame extends JFrame
             buttonPanel.add(Box.createVerticalStrut(3));
             actions.put(button, new Integer(EDIT_NEWCLASS));
 
-            ImageIcon usesIcon = new ImageIcon(Config.getImageFilename("image.build.depends"));
-            button = new JButton(usesIcon);
-            button.setToolTipText(Config.getString("tooltip.newUses"));
-            button.addActionListener(this);
-            button.setRequestFocusEnabled(false);   // never get keyboard focus
-            makeButtonNotGrow(button);
-            buttonPanel.add(button);
-            buttonPanel.add(Box.createVerticalStrut(3));
-            actions.put(button, new Integer(EDIT_NEWUSES));
 
-            ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename("image.build.extends"));
-            button = new JButton(extendsIcon);
-            button.setToolTipText(Config.getString("tooltip.newExtends"));
-            button.addActionListener(this);
-            button.setRequestFocusEnabled(false);   // never get keyboard focus
-            makeButtonNotGrow(button);
-            buttonPanel.add(button);
+            //ImageIcon usesIcon = new ImageIcon(Config.getImageFilename("image.build.depends"));
+            imgDependsButton = new JButton();
+            imgDependsButton.setToolTipText(Config.getString("tooltip.newUses"));
+            imgDependsButton.addActionListener(this);
+            imgDependsButton.setRequestFocusEnabled(false);   // never get keyboard focus
+            //makeButtonNotGrow(imgDependsButton);
+            buttonPanel.add(imgDependsButton);
             buttonPanel.add(Box.createVerticalStrut(3));
-            actions.put(button, new Integer(EDIT_NEWINHERITS));
+            actions.put(imgDependsButton, new Integer(EDIT_NEWUSES));
+
+            //ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename("image.build.extends"));
+            imgExtendsButton = new JButton();
+            imgExtendsButton.setToolTipText(Config.getString("tooltip.newExtends"));
+            imgExtendsButton.addActionListener(this);
+            imgExtendsButton.setRequestFocusEnabled(false);   // never get keyboard focus
+            //makeButtonNotGrow(imgExtendsButton);
+            buttonPanel.add(imgExtendsButton);
+            buttonPanel.add(Box.createVerticalStrut(3));
+            actions.put(imgExtendsButton, new Integer(EDIT_NEWINHERITS));
+
+            setButtonImages();
 
             String compileString = Config.getString("menu.tools." +
                                         ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
@@ -1678,6 +1687,28 @@ public class PkgMgrFrame extends JFrame
             enableFunctions(false);
     }
 
+
+    /**
+     * 
+     */
+    private void setButtonImages()
+    {
+        String dependsImage = "image.build.depends";
+        String extendsImage = "image.build.extends";
+        String umlSuffix = ".uml";
+        if(PrefMgr.isUML()) {
+            dependsImage += umlSuffix;
+            extendsImage += umlSuffix;
+        }
+        ImageIcon dependsIcon = new ImageIcon(Config.getImageFilename(dependsImage));
+        ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename(extendsImage));
+        imgDependsButton.setIcon(dependsIcon);
+        imgExtendsButton.setIcon(extendsIcon);
+        makeButtonNotGrow(imgExtendsButton);
+        makeButtonNotGrow(imgDependsButton);
+
+    }
+
     /**
      * setupMenus - Create the menu bar
      */
@@ -1781,12 +1812,13 @@ public class PkgMgrFrame extends JFrame
     static final int PROJ_SAVE = PROJ_CLOSE + 1;
     static final int PROJ_SAVEAS = PROJ_SAVE + 1;
     static final int PROJ_IMPORTCLASS = PROJ_SAVEAS + 1;
-    static final int PROJ_PRINT = PROJ_IMPORTCLASS + 1;
+    static final int PROJ_PAGESETUP = PROJ_IMPORTCLASS + 1;
+    static final int PROJ_PRINT = PROJ_PAGESETUP + 1;
     static final int PROJ_QUIT = PROJ_PRINT + 1;
 
     static final String[] ProjCmds = {
         "new", "open", "close", "save", "saveAs", "importClass",
-        "print", "quit"
+        "pageSetup", "print", "quit"
     };
 
     static final KeyStroke[] ProjKeys = {
@@ -1794,6 +1826,7 @@ public class PkgMgrFrame extends JFrame
         KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK),
+        null,
         null,
         null,
         KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK),
