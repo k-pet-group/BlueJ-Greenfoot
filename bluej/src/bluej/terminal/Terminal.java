@@ -12,8 +12,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.io.FileWriter;
 
 /**
@@ -22,7 +23,7 @@ import java.io.FileWriter;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Terminal.java 876 2001-04-30 05:51:15Z bquig $
+ * @version $Id: Terminal.java 883 2001-05-09 00:39:48Z bquig $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -126,7 +127,8 @@ public final class Terminal extends JFrame
      */
     public void clear()
     {
-        text.setText("");
+        //text.setText("");
+        text.append("Unicode experiment: " + "\u4F60\u597D\uFF0C\u4E16\u754C");
     }
 
 
@@ -182,38 +184,34 @@ public final class Terminal extends JFrame
     }
 
     /**
-     * Create a new input stream which reads from the terminal.
+     * Create a new Reader which reads from the terminal.
      */
-    InputStream in = new InputStream() {
-            public int available()
-            {
-                return buffer.numberOfCharacters();
+    Reader in = new Reader() {
+        
+        public int read(char[] cbuf, int off, int len) throws IOException
+        {
+            int charsRead = 0;
+
+            while(charsRead < len) {
+                        cbuf[off + charsRead] = buffer.getChar();
+                        charsRead++;
+                        if(buffer.numberOfCharacters() == 0)
+                            break;
             }
+            return charsRead;
+        }
+              
+            
+        public void close() throws IOException
+        {
+        }
 
-            public int read()
-            {
-                return buffer.getChar();
-            }
-
-            public int read(byte b[], int off, int len) throws IOException
-            {
-                int bytesRead = 0;
-
-                while(bytesRead < len) {
-                    b[off + bytesRead] = (byte)buffer.getChar();
-                    bytesRead++;
-                    if(buffer.numberOfCharacters() == 0)
-                        break;
-                }
-
-                return bytesRead;
-            }
-        };
+    };
 
     /**
      * Return the input stream that can be used to read from this terminal.
      */
-    public InputStream getInputStream()
+    public Reader getReader()
     {
         return in;
     }
@@ -222,28 +220,32 @@ public final class Terminal extends JFrame
     /**
      * Create a new output stream which writes to the terminal.
      */
-    OutputStream out = new OutputStream() {
-            public void write(int b) throws IOException
-            {
-                if (enabled) {
-                    prepare();
-                    writeToTerminal("" + (char)b);
-                }
+    Writer out = new Writer() {
+           
+        public void write(char[] cbuf, int off, int len) throws IOException
+        {
+            if (enabled) {
+                prepare();
+                writeToTerminal(new String(cbuf, off, len));
             }
+        }
+            
+        public void flush() throws IOException
+        {
+            
+        }
 
-            public void write(byte[] b, int off, int len) throws IOException
-            {
-                if (enabled) {
-                    prepare();
-                    writeToTerminal(new String(b, off, len));
-                }
-            }
-        };
+            
+        public void close() throws IOException
+        {
+    
+        }
+    };
 
     /**
      * Return the output stream that can be used to write to this terminal
      */
-    public OutputStream getOutputStream()
+    public Writer getWriter()
     {
         return out;
     }
