@@ -13,79 +13,26 @@ import bluej.utility.DialogManager;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 2197 2003-10-02 04:12:34Z ajp $
+ * @version $Id: JavacCompiler.java 2500 2004-04-19 11:37:19Z polle $
  */
 class JavacCompiler extends Compiler
 {
-    private String executable;
-    private File destDir;
-    private String classPath;
-    private boolean debug;
-    private boolean deprecation;
+    private String executable;   
 
     public JavacCompiler(String executable)
     {
         this.executable = executable;
         setDebug(true);
-    }
-
-    public void setDestDir(File destDir)
-    {
-        this.destDir = destDir;
-    }
-
-    public void setClassPath(String classPath)
-    {
-        this.classPath = classPath;
-    }
-
-    public void setDebug(boolean debug)
-    {
-        this.debug = debug;
-    }
-
-    public void setDeprecation(boolean deprecation)
-    {
-        this.deprecation = deprecation;
-    }
+        setDeprecation(true);
+    }   
 
     public boolean compile(File[] sources, CompileObserver watcher)
     {
         List args = new ArrayList();
 
-        args.add(executable);
+        args.add(executable);       
 
-        if(destDir != null) {
-            args.add("-d");
-            args.add(destDir.getPath());
-        }
-
-        if(classPath != null) {
-            args.add("-classpath");
-            args.add(classPath);
-        }
-
-        if(debug)
-            args.add("-g");
-
-        if(deprecation)
-            args.add("-deprecation");
-        
-        if(! System.getProperty("java.vm.version").startsWith("1.3")) {
-            args.add("-source");
-            args.add("1.4");
-        }
-
-         /** Not used at present...
-        // add user specified compiler options
-        List userOptions = CompileUtility.getUserCompilerOptions();
-        if(userOptions != null && userOptions.size() > 0) {
-            Iterator it = userOptions.iterator();
-            while(it.hasNext()) {
-                args.add((String)it.next());
-            }
-        }
-        */
+        args.addAll(getCompileOptions());        
 
         for(int i = 0; i < sources.length; i++)
             args.add(sources[i].getPath());

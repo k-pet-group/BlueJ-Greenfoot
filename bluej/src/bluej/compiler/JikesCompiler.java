@@ -11,41 +11,18 @@ import bluej.utility.DialogManager;
  * compiler. Verified working with Jikes 1.12.
  *
  * @author  Andrew Patterson
- * @version $Id: JikesCompiler.java 2197 2003-10-02 04:12:34Z ajp $
+ * @version $Id: JikesCompiler.java 2500 2004-04-19 11:37:19Z polle $
  */
 class JikesCompiler extends Compiler
 {
     String executable;
-    File destDir;
-    String classPath;
-    boolean debug;
-    boolean deprecation;
-
+   
     public JikesCompiler(String executable)
     {
         this.executable = executable;
         setDebug(true);
-    }
-
-    public void setDestDir(File destDir)
-    {
-        this.destDir = destDir;
-    }
-
-    public void setClassPath(String classPath)
-    {
-        this.classPath = classPath;
-    }
-
-    public void setDebug(boolean debug)
-    {
-        this.debug = debug;
-    }
-
-    public void setDeprecation(boolean deprecation)
-    {
-        this.deprecation = deprecation;
-    }
+        setDeprecation(true);
+    }  
 
     public boolean compile(File[] sources, CompileObserver watcher)
     {
@@ -57,23 +34,23 @@ class JikesCompiler extends Compiler
         args.add("+D");		// generate Emacs style error messages
         args.add("-Xstdout"); // errors must go to stdout
 
-        if(destDir != null) {
+        if(getDestDir() != null) {
             args.add("-d");
-            args.add(destDir);
+            args.add(getDestDir());
         }
 
         // as of Jikes 0.50, jikes will not automatically find the standard
         // JDK 1.2 classes because of changes Sun has made to the classpath
         // mechanism. We will supply jikes with the sun boot classes
-        if(classPath != null) {
+        if(getClassPath() != null) {
             args.add("-classpath");
-            args.add(classPath + File.pathSeparator + System.getProperty("sun.boot.class.path"));
+            args.add(getClassPath() + File.pathSeparator + System.getProperty("sun.boot.class.path"));
         }
 
-        if(debug)
+        if(isDebug())
             args.add("-g");
 
-        if(deprecation)
+        if(isDeprecation())
             args.add("-deprecation");
 
         for(int i = 0; i < sources.length; i++)
