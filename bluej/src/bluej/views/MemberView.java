@@ -3,11 +3,11 @@ package bluej.views;
 import java.lang.reflect.Modifier;
 
 /**
- ** @version $Id: MemberView.java 1819 2003-04-10 13:47:50Z fisker $
- ** @author Michael Cahill
- **
- ** A representation of a Java class member in BlueJ
- **/
+ * A representation of a Java class member in BlueJ.
+ *
+ * @author  Michael Cahill
+ * @version $Id: MemberView.java 2016 2003-06-04 05:55:54Z ajp $
+ */
 public abstract class MemberView
 {
     private View view;
@@ -22,16 +22,16 @@ public abstract class MemberView
     }
 
     /**
-     ** Returns the View of the class or interface that declares this member.
-     **/
+     * @return the View of the class or interface that declares this member.
+     */
     public View getDeclaringView()
     {
         return view;
     }
 
     /**
-     ** Returns the name of the class or interface that declares this member.
-     **/
+     * @return the name of the class or interface that declares this member.
+     */
     public String getClassName()
     {
         return view.getQualifiedName();
@@ -81,8 +81,8 @@ public abstract class MemberView
     public abstract String getLongDesc();
 
     /**
-     ** @returns a boolean indicating whether this member is static
-     **/
+     * @return a boolean indicating whether this member is static
+     */
     public boolean isStatic()
     {
         return Modifier.isStatic(getModifiers());
