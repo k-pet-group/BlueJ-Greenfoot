@@ -457,6 +457,9 @@ terminal.save.buttonText = Save
 
 #TestDisplay Window
 testdisplay.title = BlueJ:  Test Display
+testdisplay.counter.runs=Runs:
+testdisplay.counter.errors=Errors:
+testdisplay.counter.failures=Failures:
 
 # status messages
 pkgmgr.compiling=Compiling...

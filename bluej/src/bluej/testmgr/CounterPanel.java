@@ -10,7 +10,7 @@ import bluej.Config;
  * A panel with test run counters.
  *
  * @author  Andrew Patterson (derived from JUnit src)
- * @version $Id: CounterPanel.java 1882 2003-04-24 06:28:11Z ajp $
+ * @version $Id: CounterPanel.java 1906 2003-04-28 05:48:45Z ajp $
  */
 public class CounterPanel extends JPanel
 {
@@ -28,7 +28,7 @@ public class CounterPanel extends JPanel
 		fNumberOfFailures= createOutputField(5);
 		fNumberOfRuns= createOutputField(9);
 
-      addToGrid(new JLabel("Runs:", JLabel.CENTER),
+      addToGrid(new JLabel(Config.getString("testdisplay.counter.runs"), JLabel.CENTER),
           0, 0, 1, 1, 0.0, 0.0,
           GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(0, 0, 0, 0));
@@ -37,7 +37,7 @@ public class CounterPanel extends JPanel
           GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
           new Insets(0, 8, 0, 0));
 
-     addToGrid(new JLabel("Errors:", fErrorIcon, SwingConstants.LEFT),
+     addToGrid(new JLabel(Config.getString("testdisplay.counter.errors"), fErrorIcon, SwingConstants.LEFT),
           2, 0, 1, 1, 0.0, 0.0,
           GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(0, 8, 0, 0));
@@ -46,7 +46,7 @@ public class CounterPanel extends JPanel
           GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
           new Insets(0, 8, 0, 0));
 
-      addToGrid(new JLabel("Failures:", fFailureIcon, SwingConstants.LEFT),
+      addToGrid(new JLabel(Config.getString("testdisplay.counter.failures"), fFailureIcon, SwingConstants.LEFT),
           4, 0, 1, 1, 0.0, 0.0,
           GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(0, 8, 0, 0));
