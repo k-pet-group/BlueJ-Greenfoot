@@ -19,7 +19,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2203 2003-10-06 13:04:21Z fisker $
+ * @version $Id: Target.java 2216 2003-10-15 11:53:31Z fisker $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -289,9 +289,9 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     public void repaint()
     {
         if (pkg.getEditor() != null) {
-            pkg.getEditor().repaint();
+            //pkg.getEditor().repaint();
             // the following would be preferred, but causes a clipping bug on MacOS
-            //pkg.getEditor().repaint(getX(), getY(), getWidth() + SHAD_SIZE, getHeight() + SHAD_SIZE);
+            pkg.getEditor().repaint(getX(), getY(), getWidth() + SHAD_SIZE, getHeight() + SHAD_SIZE);
         }
     }
 
@@ -338,7 +338,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
 
     Rectangle oldRect;
 
-    public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void mousePressed(MouseEvent evt, GraphEditor editor)
     {
         if(pkg.getState() != Package.S_IDLE) {
             pkg.targetSelected(this);
@@ -349,7 +349,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         oldRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
     }
 
-    public void mouseReleased(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void mouseReleased(MouseEvent evt, GraphEditor editor)
     {
         Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
 
@@ -360,7 +360,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
             for(Iterator it = pkg.getVertices(); overClass == null && it.hasNext(); ) {
                 Target v = (Target)it.next();
 
-                if (v.contains(x,y)){
+                if (v.contains(evt.getX(),evt.getY())){
                     overClass = v;
                 }
             }
@@ -383,8 +383,10 @@ public abstract class Target extends Vertex implements Comparable, Selectable
      * The mouse is dragged while being clicked in this target. Move or
      * resize the target.
      */
-    public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void mouseDragged(MouseEvent evt, GraphEditor editor)
     {
+        int x = evt.getX();
+        int y = evt.getY();
         Graphics2D g = (Graphics2D) editor.getGraphics();
 
         // this shouldn't happen (oldRect shouldn't be null if we have got

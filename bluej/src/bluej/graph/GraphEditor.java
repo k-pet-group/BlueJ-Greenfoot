@@ -12,7 +12,7 @@ import bluej.Config;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 2205 2003-10-07 09:35:40Z fisker $
+ * @version $Id: GraphEditor.java 2216 2003-10-15 11:53:31Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -170,10 +170,10 @@ public class GraphEditor extends JComponent
     {
         if(activeGraphElement != null) {
             if(evt.getClickCount() > 1 && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-                activeGraphElement.doubleClick(evt, evt.getX(), evt.getY(), this);
+                activeGraphElement.doubleClick(evt, this);
             }
             else {
-                activeGraphElement.singleClick(evt, evt.getX(), evt.getY(), this);
+                activeGraphElement.singleClick(evt, this);
             }
             if (!isMultiselectionKeyDown(evt)) {
                 graphElementManager.clear();

@@ -18,7 +18,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 2212 2003-10-13 08:41:47Z damiano $
+ * @version $Id: PackageTarget.java 2216 2003-10-15 11:53:31Z fisker $
  */
 public class PackageTarget extends Target
 {
@@ -173,7 +173,7 @@ public class PackageTarget extends Target
      * Called when a package icon in a GraphEditor is double clicked.
      * Creates a new PkgFrame when a package is drilled down on.
      */
-    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void doubleClick(MouseEvent evt, GraphEditor editor)
     {
         PackageEditor pe = (PackageEditor) editor;
 

@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2200 2003-10-02 04:15:04Z ajp $
+ * @version $Id: ClassTarget.java 2216 2003-10-15 11:53:31Z fisker $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -1142,19 +1142,19 @@ public class ClassTarget extends EditableTarget
     int anchor_x = 0, anchor_y = 0;
     int last_x = 0, last_y = 0;
 
-    public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void mousePressed(MouseEvent evt, GraphEditor editor)
     {
-        super.mousePressed(evt, x, y, editor);
+        super.mousePressed(evt, editor);
 
-        anchor_x = last_x = x;
-        anchor_y = last_y = y;
+        anchor_x = last_x = evt.getX();
+        anchor_y = last_y = evt.getY();
     }
 
-    public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void singleClick(MouseEvent evt, GraphEditor editor)
     {
     }
 
-    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void doubleClick(MouseEvent evt, GraphEditor editor)
     {
         open();
     }
@@ -1167,8 +1167,10 @@ public class ClassTarget extends EditableTarget
             t.setPos(getX() + 30, getY() - 35);
     }
 
-    public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void mouseDragged(MouseEvent evt, GraphEditor editor)
     {
+        int x = evt.getX();
+        int y = evt.getY();
         if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
             (getPackage().getState() == Package.S_CHOOSE_EXT_TO) ) {
             // Draw a line from this Target to the current Cursor position
@@ -1181,11 +1183,13 @@ public class ClassTarget extends EditableTarget
             last_y = y;
         }
         else
-            super.mouseDragged(evt, x, y, editor);
+            super.mouseDragged(evt, editor);
     }
 
-    public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void mouseMoved(MouseEvent evt, GraphEditor editor)
     {
+        int x = evt.getX();
+        int y = evt.getY();
         if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
             (getPackage().getState() == Package.S_CHOOSE_EXT_TO) ) {
                 // Draw a line from this Target to the current Cursor position
@@ -1198,7 +1202,7 @@ public class ClassTarget extends EditableTarget
                 last_y = y;
             }
         else
-            super.mouseMoved(evt, x, y, editor);
+            super.mouseMoved(evt, editor);
     }
 
     /**

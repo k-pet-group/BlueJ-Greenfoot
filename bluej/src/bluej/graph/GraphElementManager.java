@@ -1,7 +1,3 @@
-/*
- * Created on Sep 17, 2003
- *
- */
 package bluej.graph;
 
 import java.awt.event.MouseEvent;
@@ -9,7 +5,7 @@ import java.util.*;
 
 
 /**
- * 
+ * GraphElementManager holds a list of selected graphElements.
  * @author fisker
  *
  */
@@ -93,7 +89,7 @@ public class GraphElementManager
         int y = evt.getY();
         for(Iterator i=graphElements.iterator(); i.hasNext();){
             graphElement = (GraphElement) i.next();
-            graphElement.mouseDragged(evt, x, y, graphEditor);
+            graphElement.mouseDragged(evt, graphEditor);
         }
     }
     
@@ -108,7 +104,7 @@ public class GraphElementManager
         int y = evt.getY();
         for(Iterator i=graphElements.iterator(); i.hasNext();){
             graphElement = (GraphElement) i.next();
-            graphElement.mouseMoved(evt, x, y, graphEditor);
+            graphElement.mouseMoved(evt, graphEditor);
         }
     }
     
@@ -122,7 +118,7 @@ public class GraphElementManager
         int y = evt.getY();
         for(Iterator i=graphElements.iterator(); i.hasNext();){
             graphElement = (GraphElement) i.next();
-            graphElement.mousePressed(evt, x, y, graphEditor);
+            graphElement.mousePressed(evt, graphEditor);
         }
     }
 
@@ -136,7 +132,7 @@ public class GraphElementManager
         int y = evt.getY();
         for(Iterator i=graphElements.iterator(); i.hasNext();){
             graphElement = (GraphElement) i.next();
-            graphElement.mouseReleased(evt, x, y, graphEditor);
+            graphElement.mouseReleased(evt, graphEditor);
         }
     }
     

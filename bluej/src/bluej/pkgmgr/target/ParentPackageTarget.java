@@ -16,7 +16,7 @@ import bluej.utility.JavaNames;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 2085 2003-06-30 12:03:30Z fisker $
+ * @version $Id: ParentPackageTarget.java 2216 2003-10-15 11:53:31Z fisker $
  */
 public class ParentPackageTarget extends PackageTarget
 {
@@ -76,7 +76,7 @@ public class ParentPackageTarget extends PackageTarget
      * Called when a package icon in a GraphEditor is double clicked.
      * Creates a new PkgFrame when a package is drilled down on.
      */
-    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void doubleClick(MouseEvent evt, GraphEditor editor)
     {
         PackageEditor pe = (PackageEditor) editor;
 

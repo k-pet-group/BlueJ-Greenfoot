@@ -24,12 +24,12 @@ public abstract class GraphElement {
     
     public abstract void draw(Graphics2D g);
 
-    public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor) {}
-    public void mouseReleased(MouseEvent evt, int x, int y, GraphEditor editor) {}
-    public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor) {}
-    public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor) {}
-    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) {}
-    public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor) {}
+    public void mousePressed(MouseEvent evt, GraphEditor editor) {}
+    public void mouseReleased(MouseEvent evt, GraphEditor editor) {}
+    public void mouseDragged(MouseEvent evt, GraphEditor editor) {}
+    public void mouseMoved(MouseEvent evt, GraphEditor editor) {}
+    public void doubleClick(MouseEvent evt, GraphEditor editor) {}
+    public void singleClick(MouseEvent evt, GraphEditor editor) {}
     public void popupMenu(int x, int y, GraphEditor editor) {}
     
 }
