@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2749 2004-07-07 02:51:31Z bquig $
+ * @version $Id: PkgMgrFrame.java 2750 2004-07-07 07:36:38Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2175,9 +2175,11 @@ public class PkgMgrFrame extends JFrame
             statusArea.setBorder(BorderFactory.createEmptyBorder(2,0,4,6));
 
             statusbar = new JLabel(" ");
+            statusbar.setFont(PkgMgrFont);
             statusArea.add(statusbar, BorderLayout.CENTER);
 
             testStatusMessage = new JLabel(" ");
+            testStatusMessage.setFont(PkgMgrFont);
             statusArea.add(testStatusMessage, BorderLayout.WEST);
         }
         contentPane.add(statusArea, BorderLayout.SOUTH);
