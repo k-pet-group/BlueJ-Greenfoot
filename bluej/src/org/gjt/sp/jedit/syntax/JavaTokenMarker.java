@@ -22,7 +22,7 @@ package org.gjt.sp.jedit.syntax;
 * Java token marker.
 *
 * @author Slava Pestov
-* @version $Id: JavaTokenMarker.java 1819 2003-04-10 13:47:50Z fisker $
+* @version $Id: JavaTokenMarker.java 2503 2004-04-20 06:23:16Z bquig $
 */
 public class JavaTokenMarker extends CTokenMarker
 {
@@ -51,6 +51,7 @@ public class JavaTokenMarker extends CTokenMarker
             javaKeywords.add("double",Token.KEYWORD3);
             javaKeywords.add("boolean",Token.KEYWORD3);
             javaKeywords.add("void",Token.KEYWORD3);
+            javaKeywords.add("enum",Token.KEYWORD3);
 
             javaKeywords.add("abstract",Token.KEYWORD1);
             javaKeywords.add("final",Token.KEYWORD1);
@@ -97,6 +98,9 @@ public class JavaTokenMarker extends CTokenMarker
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.7  2004/04/20 06:23:16  bquig
+* Added enum as keyword to editor syntax recognition as partial support for "Tiger" (j2sdk 1.5)
+*
 * Revision 1.6  2003/04/10 13:47:48  fisker
 * removed more unused imports
 *
