@@ -9,7 +9,7 @@ import com.sun.jdi.event.*;
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 3037 2004-10-05 04:29:18Z davmac $
+ * @version $Id: VMEventHandler.java 3044 2004-10-12 04:51:05Z davmac $
  */
 class VMEventHandler extends Thread
 {
@@ -64,7 +64,7 @@ class VMEventHandler extends Thread
                 //		 o StepEvent
                 //		 o MethodEntryEvent 
                 
-                boolean addToSuspendCount = false;
+                boolean addToSuspendCount = true;
                 
                 // iterate through all events in the set
                 EventIterator it = eventSet.eventIterator();
@@ -80,22 +80,14 @@ class VMEventHandler extends Thread
                     // to leave the relevant thread suspended. If the dontResume
                     // property for the event is set, then lets do this.
                     if(ev.request() != null) {
-                        if(ev.request().getProperty(DONT_RESUME) != null) {
-                            addToSuspendCount = true;
-                        }
-                    }
-                    
-                    if (addToSuspendCount) {
-                        // we ensure that the thread will stay suspended
-                        // by incrementing its suspend count (to counter
-                        // the resume() that will be executed in eventSet.resume())
-                        // we may have a case where multiple Break, Step events
-                        // occur at the same line (in the same EventSet).
-                        // use of the addToSuspendCount variable ensures that
-                        // we will still only add 1 to the suspend count					
-                        if(ev instanceof LocatableEvent) {
-                            LocatableEvent le = (LocatableEvent) ev;
-                            le.thread().suspend();
+                        if(addToSuspendCount && ev.request().getProperty(DONT_RESUME) != null) {
+                            if(ev instanceof LocatableEvent) {
+                                LocatableEvent le = (LocatableEvent) ev;
+                                le.thread().suspend();
+                                addToSuspendCount = false;
+                                // a step and breakpoint can be hit at the same
+                                // time - make sure to only suspend once
+                            }
                         }
                     }
                 }
