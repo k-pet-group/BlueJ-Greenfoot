@@ -1,13 +1,27 @@
 package bluej.extensions.event;
 
-public class AppEvent extends BJEvent 
+
+/**
+ * These are events that are on the whole application level.
+ * Like when the one that happens when the whole system is ready.
+ */
+
+public class AppEvent extends ExtEvent 
   {
-  // I really think that all event ID should go into one place.
-  // Will do it ASAP
   public static final int APP_READY_EVENT=16;
 
+  private int eventId;
+  
   public AppEvent(int i_eventId)
     {
-    super ( i_eventId, null );
+    eventId = i_eventId;
+    }
+
+  /**
+   * get the event type, one of the static values defined.
+   */
+  int getEvent ()
+    {
+    return eventId;
     }
   }
