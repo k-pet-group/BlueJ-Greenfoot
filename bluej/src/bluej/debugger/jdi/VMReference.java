@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2489 2004-04-08 08:58:58Z polle $
+ * @version $Id: VMReference.java 2510 2004-04-28 04:08:57Z davmac $
  *
  * The startup process is as follows:
  *
@@ -333,22 +333,6 @@ class VMReference
      */
     public synchronized void close()
     {
-    	// close our IO redirectors
-    	if (inputStreamRedirector != null) {
-			inputStreamRedirector.close();
-			inputStreamRedirector.interrupt();
-    	}
-    		
-		if (errorStreamRedirector != null) {
-			errorStreamRedirector.close();
-			errorStreamRedirector.interrupt();
-		}
-
-		if (outputStreamRedirector != null) {
-			outputStreamRedirector.close();
-			outputStreamRedirector.interrupt();
-		}
-    		
         // can cause deadlock - why bother
         // lets just nuke it
         //machine.dispose();
@@ -357,7 +341,30 @@ class VMReference
         }
         machine = null;
     }
+    
+    /**
+     * Close I/O redirectors.
+     */
+    public void closeIO()
+    {
+        // close our IO redirectors
+        if (inputStreamRedirector != null) {
+            inputStreamRedirector.close();
+            inputStreamRedirector.interrupt();
+        }
+        
+        if (errorStreamRedirector != null) {
+            errorStreamRedirector.close();
+            errorStreamRedirector.interrupt();
+        }
 
+        if (outputStreamRedirector != null) {
+            outputStreamRedirector.close();
+            outputStreamRedirector.interrupt();
+        }
+        
+    }
+    
     /**
      * This method is called by the VMEventHandler when the execution server
      * class (ExecServer) has been loaded into the VM. We use this to set

@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2507 2004-04-26 06:13:02Z davmac $
+ * @version $Id: JdiDebugger.java 2510 2004-04-28 04:08:57Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -718,6 +718,7 @@ public class JdiDebugger extends Debugger
             treeModel.reload();
             usedNames.clear();
 
+            vmRef.closeIO();
             vmRef = null;
 
             // promote garbage collection but also indicate to the
