@@ -1,95 +1,179 @@
 package bluej.compiler;
 
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import sun.tools.javac.BlueJJavacMain;
-
 import bluej.utility.Debug;
+import bluej.utility.Utility;
+import bluej.Config;
 
 /**
- ** @version $Id: JavacCompiler.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: JavacCompiler.java 92 1999-05-27 06:27:15Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
  ** JavacCompiler class - an implementation for the BlueJ "Compiler"
  ** class. This implementation provides an interface to Sun's javac
- ** compiler.
+ ** compiler running through a seperate Process.
  **/
 
 public class JavacCompiler extends Compiler
 {
-    PrintStream output;
-    String destdir;
-    String classpath;
-    boolean debug;
-    boolean deprecation;
+	PrintStream output;
+	String destdir;
+	String classpath;
+	boolean debug;
+	boolean deprecation;
 
-    public JavacCompiler(PrintStream output)
-    {
-	this.output = output;
-	setDebug(true);
-    }
+	public JavacCompiler(PrintStream output)
+	{
+		this.output = output;
+		setDebug(true);
+	}
 	
-    public void setDestDir(String destdir)
-    {
-	this.destdir = destdir;
-    }
+	public void setDestDir(String destdir)
+	{
+		this.destdir = destdir;
+	}
 	
-    public void setClassPath(String classpath)
-    {
+	public void setClassPath(String classpath)
+	{
 	this.classpath = classpath;
-    }
-
-    public void setDebug(boolean debug)
-    {
-	this.debug = debug;
-    }
-
-    public void setDeprecation(boolean deprecation)
-    {
-	this.deprecation = deprecation;
-    }
-
-    public boolean compile(String[] sources, CompileObserver watcher)
-    {
-	Vector args = new Vector();
-		
-	if(destdir != null) {
-	    args.addElement("-d");
-	    args.addElement(destdir);
 	}
-		
-	if(classpath != null) {
-	    args.addElement("-classpath");
-	    args.addElement(classpath);
+
+	public void setDebug(boolean debug)
+	{
+		this.debug = debug;
 	}
+
+	public void setDeprecation(boolean deprecation)
+	{
+		this.deprecation = deprecation;
+	}
+
+	public boolean compile(String[] sources, CompileObserver watcher)
+	{
+		Vector args = new Vector();
 		
-	if(debug)
-	    args.addElement("-g");
+		args.addElement("javac");
+
+		if(destdir != null) {
+			args.addElement("-d");
+			args.addElement(destdir);
+		}
 		
-	if(deprecation)
-	    args.addElement("-deprecation");
+		if(classpath != null) {
+			args.addElement("-classpath");
+			args.addElement(classpath);
+		}
 		
-	for(int i = 0; i < sources.length; i++)
-	    args.addElement(sources[i]);
+		if(debug)
+			args.addElement("-g");
+		
+		if(deprecation)
+			args.addElement("-deprecation");
+		
+		for(int i = 0; i < sources.length; i++)
+			args.addElement(sources[i]);
 			
-	int length = args.size();
-	String[] params = new String[length];
-	args.copyInto(params);
+		int length = args.size();
+		String[] params = new String[length];
+		args.copyInto(params);
 		
-	BlueJJavacMain javac = new BlueJJavacMain(output);
-		
-	boolean result = false;
-		
-	try {
-	    result = javac.compile(params, watcher);
-	} catch(CompilerMessageError e) {
-	    watcher.errorMessage(e.getFilename(), e.getLineNo(), 
-				 e.getMessage(), true);
+		boolean result = false;
+
+		try {
+			result = executeCompiler(params, watcher);
+		}
+		catch (Exception ioe) {
+			Utility.showError(null, "Compiler error invoking javac (is javac in your path)\n");
+		}
+
+		return result;	
 	}
-		
-	return result;
-    }
+
+	private boolean executeCompiler(String[] params, CompileObserver watcher) throws IOException, InterruptedException
+	{
+		int processresult = 0;		// default to fail in case we don't even start compiler process
+		boolean readerror = false;
+			
+		Process compiler = Runtime.getRuntime().exec(params);
+	
+		BufferedReader d = new BufferedReader(
+					new InputStreamReader(compiler.getErrorStream()));
+		String line;
+	
+		while((line = d.readLine()) != null) {
+	
+			Debug.message("Compiler message: " + line);
+	
+			// javac produces error messages in the format
+			// /home/ajp/sample/Tester.java:10: description of error.
+			// line of source code
+				//              ^
+	
+			int first_colon = line.indexOf(':', 0);
+	
+			if(first_colon == -1) {
+				// cannot read format of error message
+				Utility.showError(null, "Compiler error:\n" + line);
+				break;
+			}
+
+			String filename = line.substring(0, first_colon);
+	
+			// Windows might have a colon after drive name. If so, ignore it
+			if(! filename.endsWith(".java")) {
+				first_colon = line.indexOf(':', first_colon + 1);
+	
+				if(first_colon == -1) {
+					// cannot read format of error message
+					Utility.showError(null, "Compiler error:\n" + line);
+					break;
+				}
+				filename = line.substring(0, first_colon);
+			}
+	
+			int second_colon = line.indexOf(':', first_colon + 1);
+			if(second_colon == -1) {
+				// cannot read format of error message
+				Utility.showError(null, "Compiler error:\n" + line);
+				break;
+			}
+	
+			int lineNo = 0;
+	
+			try {
+				lineNo = Integer.parseInt(line.substring(first_colon + 1, second_colon));
+			} catch(NumberFormatException e) {
+				// ignore it
+			}
+
+			String error = line.substring(second_colon + 1);
+	
+			// read and ignore the following two lines (these contain
+			// the faulty source line and an up arrow ^)
+
+			if((d.readLine() == null) || (d.readLine() == null)) {
+				// we are missing part of the normal error report
+				Utility.showError(null, "Compiler error. Error stream incomplete.\n");
+			}
+			else {
+				Debug.message("Indicating error " + filename + " " + lineNo);
+				readerror = true;
+	
+				watcher.errorMessage(filename, lineNo, error, true);
+				break;
+			}
+		}
+
+		processresult = compiler.waitFor();
+
+		// we consider ourselves successful if we got no error messages and the process 
+		// gave a 0 result
+	
+		return (processresult == 0 && !readerror);
+	}
 }
+
