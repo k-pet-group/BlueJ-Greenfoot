@@ -8,7 +8,7 @@ import javax.swing.JToggleButton.ToggleButtonModel;
  * is shown or changed.
  *
  * @author  Michael Kolling
- * @version $Id: TestDisplayButtonModel.java 1882 2003-04-24 06:28:11Z ajp $
+ * @version $Id: TestDisplayButtonModel.java 2746 2004-07-06 21:32:45Z mik $
  */
 public class TestDisplayButtonModel extends ToggleButtonModel
 {
@@ -16,7 +16,7 @@ public class TestDisplayButtonModel extends ToggleButtonModel
 
     public boolean isSelected()
     {
-        return TestDisplayFrame.getTestDisplay().isShown();
+        return TestDisplayFrame.isFrameShown();
     }
 
     public void setSelected(boolean b)

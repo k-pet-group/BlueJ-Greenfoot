@@ -32,13 +32,11 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: TextEvalArea.java 2746 2004-07-06 21:32:45Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener
 {
-    private static final int BUFFER_LINES = 40;
-
     //    private JTextArea text;
     private JEditorPane text;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane

@@ -14,7 +14,7 @@ import bluej.debugger.DebuggerTestResult;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: TestDisplayFrame.java 2746 2004-07-06 21:32:45Z mik $
  */
 public class TestDisplayFrame
 {
@@ -27,6 +27,14 @@ public class TestDisplayFrame
         if(singleton == null)
             singleton = new TestDisplayFrame();
         return singleton;
+    }
+
+    public static boolean isFrameShown()
+    {
+        if(singleton == null)
+            return false;
+        else
+            return singleton.isShown();
     }
 
     private JFrame frame;

@@ -17,14 +17,14 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 2716 2004-07-01 21:53:37Z mik $
+ * @version $Id: ArrayWrapper.java 2746 2004-07-06 21:32:45Z mik $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
     public static int WORD_GAP = 8;
     public static int SHADOW_SIZE = 3;
 
-    ArrayWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
+    public ArrayWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
     {
         super(pmf, ob, obj, instanceName);
     }

@@ -14,7 +14,7 @@ import java.util.*;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 2714 2004-07-01 15:55:03Z mik $
+ * @version $Id: BObject.java 2746 2004-07-06 21:32:45Z mik $
  */
 
 /*
@@ -50,11 +50,11 @@ public class BObject
      */
     public BPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException
-        {
+    {
         Project bluejPrj = wrapperId.getBluejProject();
         Package bluejPkg = wrapperId.getBluejPackage();
-        return new BPackage(new Identifier(bluejPrj, bluejPkg ));
-        }
+        return new BPackage(new Identifier(bluejPrj, bluejPkg));
+    }
         
     /**
      * Removes this object from the object bench. 
@@ -65,7 +65,7 @@ public class BObject
      */
     public void removeFromBench()
         throws ProjectNotOpenException, PackageNotFoundException
-        {
+    {
         Package aPackage = wrapperId.getBluejPackage();
         PkgMgrFrame aFrame = wrapperId.getPackageFrame();
 
@@ -73,7 +73,7 @@ public class BObject
         aBench.removeObject(wrapper, aPackage.getId());
 
         wrapper = null;
-        }
+    }
     
 
     /**
@@ -87,14 +87,17 @@ public class BObject
      */
     public void addToBench(String instanceName)
         throws ProjectNotOpenException, PackageNotFoundException
-        {
-        if ( wrapper == null ) return;
+    {
+        if(wrapper == null) 
+            return;
         
         // No reational to add a null object, isn't it ?
-        if (wrapper.getObject().isNullObject()) return;
+        if(wrapper.getObject().isNullObject()) 
+            return;
 
         // If you want you may set the instance name here. Othervise accept default
-        if ( instanceName != null ) wrapper.setName(instanceName);
+        if(instanceName != null) 
+            wrapper.setName(instanceName);
         
         // This should really always exists, no need to check
         Package aPackage = wrapperId.getBluejPackage();
@@ -105,7 +108,7 @@ public class BObject
 
         // load the object into runtime scope
         aPackage.getDebugger().addObject(wrapper.getName(), wrapper.getObject());
-        }
+    }
 
 
     /**
@@ -113,11 +116,12 @@ public class BObject
      * @return The instance name if the object can be put into bench, null othervise
      */
     public String getInstanceName()
-        {
-        if ( wrapper == null ) return null;
+    {
+        if(wrapper == null) 
+            return null;
 
         return wrapper.getName();
-        }
+    }
     
     /**
      * Return the class of this object.
@@ -128,13 +132,13 @@ public class BObject
      */
     public BClass getBClass()
         throws ProjectNotOpenException, ClassNotFoundException
-        {
+    {
         // Tis is to test if the Bobject is till valid
         wrapperId.getJavaClass();
         
         // Tested also with string array. 20 may 2003, Damiano
-        return new BClass ( wrapperId );
-        } 
+        return new BClass(wrapperId);
+    } 
 
     /**
      * Returns the underlying BlueJ package.
@@ -144,78 +148,82 @@ public class BObject
      */
     PkgMgrFrame getPackageFrame ()
         throws ProjectNotOpenException, PackageNotFoundException
-        {
+    {
         return wrapperId.getPackageFrame();
-        }
+    }
 
     /**
      * Used by BField to get hold of the real Object
      */
     ObjectReference getObjectReference()
-        {
-        if ( wrapper == null ) return null;
+    {
+        if(wrapper == null) 
+            return null;
         DebuggerObject obj = wrapper.getObject();
 
-        if ( obj == null ) return null;
+        if(obj == null) 
+            return null;
         return obj.getObjectReference();
-        }
+    }
 
 
     /**
      * Returns a string representation of the Object
      */
     public String toString ()
-      {
-      return "BObject instanceName="+getInstanceName()+" Class Name="+wrapper.getClassName();
-      }
+    {
+        return "BObject instanceName="+getInstanceName()+" Class Name="+wrapper.getClassName();
+    }
 
 
 // ============================ UTILITY ========================================
 
-   private static HashMap primiMap;
+    private static HashMap primiMap;
 
-   static
-      {
-      // This will be executed once when this class is loaded
-      primiMap = new HashMap();
-      primiMap.put ("boolean", "Z");
-      primiMap.put ("byte", "B");
-      primiMap.put ("short", "S");
-      primiMap.put ("char", "C");
-      primiMap.put ("int", "I");
-      primiMap.put ("long", "J");
-      primiMap.put ("float", "F");
-      primiMap.put ("double", "D");
-      }
-
-  /**
-   * Needed to convert java style class names to classloaded class names.
-   * From: java.lang.String[]
-   * To:   [Ljava.lang.String;
-   */
-  private String transJavaToClass ( String javaStyle )
-    {
-    String className = javaStyle;
-
-    int arrayCount = 0;
-    while (className.endsWith ("[]")) 
-      {
-      // Counts how may arrays are in this class name
-      arrayCount++;
-      className = className.substring (0, className.length()-2);
-      }
-
-    // No array around, nothing to do.  
-    if (arrayCount <= 0) return className;
-        
-    String replace = (String)primiMap.get(className);
-
-    // If I can substitute the name I will do it
-    if (replace != null)  className = replace;
-    else                  className = "L"+className+";";
-            
-    while (arrayCount-- > 0) className = "["+className;
-          
-    return className;
+    static {
+        // This will be executed once when this class is loaded
+        primiMap = new HashMap();
+        primiMap.put ("boolean", "Z");
+        primiMap.put ("byte", "B");
+        primiMap.put ("short", "S");
+        primiMap.put ("char", "C");
+        primiMap.put ("int", "I");
+        primiMap.put ("long", "J");
+        primiMap.put ("float", "F");
+        primiMap.put ("double", "D");
     }
-  }   
+
+    /**
+     * Needed to convert java style class names to classloaded class names.
+     * From: java.lang.String[]
+     * To:   [Ljava.lang.String;
+     */
+    private String transJavaToClass(String javaStyle)
+    {
+        String className = javaStyle;
+  
+        int arrayCount = 0;
+        while(className.endsWith ("[]")) {
+            // Counts how may arrays are in this class name
+            arrayCount++;
+            className = className.substring (0, className.length()-2);
+        }
+  
+        // No array around, nothing to do.  
+        if(arrayCount <= 0) 
+            return className;
+        
+        String replace = (String)primiMap.get(className);
+  
+        // If I can substitute the name I will do it
+        if(replace != null)  
+            className = replace;
+        else
+            className = "L"+className+";";
+            
+        while(arrayCount-- > 0) 
+            className = "["+className;
+              
+        return className;
+    }
+}
