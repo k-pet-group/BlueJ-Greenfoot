@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
+import java.io.File;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -22,7 +23,7 @@ import bluej.views.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 2158 2003-08-06 10:39:13Z mik $
+ * @version $Id: LibraryCallDialog.java 2302 2003-11-07 03:52:29Z bquig $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
@@ -149,8 +150,8 @@ public class LibraryCallDialog extends JDialog
 
         boolean loaded;
         try {
-            cl = Class.forName(className, true,
-                               ClassMgr.getBlueJLoader());
+            File file = pkg.getProject().getProjectDir();
+            cl = Class.forName(className, true, ClassMgr.getProjectLoader(file));
             loaded = true;
         }
         catch(Exception exc) {
@@ -158,8 +159,9 @@ public class LibraryCallDialog extends JDialog
         }
         if (!loaded) {   // try for unqualified names in java.lang
             try {
-               cl = Class.forName("java.lang." + className, true,
-                                  ClassMgr.getBlueJLoader());
+                File file = pkg.getProject().getProjectDir();
+                cl = Class.forName("java.lang." + className, true,
+                                                 ClassMgr.getProjectLoader(file));
             }
             catch(Exception exc) {
                 displayTextInClassList(classNotFound);
