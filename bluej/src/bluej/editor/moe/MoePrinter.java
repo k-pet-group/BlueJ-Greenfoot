@@ -29,7 +29,7 @@ import bluej.Config;
 /**
  * Class to handle printing for the MoeEditor.
  * This borrows ideas and some source code from Andrew Weiland's Print example
- * at http://www.wam.umd.edu/~aweiland/Print.java.  
+ * at http://www.wam.umd.edu/~aweiland/Print.java.  Which no longer exists..
  * @author Bruce Quig
  * @version $ Id: $
  */
