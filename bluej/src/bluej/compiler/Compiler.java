@@ -16,7 +16,7 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 2770 2004-07-09 08:18:49Z mik $
+ * @version $Id: Compiler.java 2773 2004-07-09 10:39:08Z polle $
  */
 abstract class Compiler
 {
@@ -91,6 +91,10 @@ abstract class Compiler
 
         if (isDeprecation())
             args.add("-deprecation");
+            
+        String majorVersion = System.getProperty("java.vm.version").substring(0,3);        
+        args.add("-source");
+        args.add(majorVersion);
 
         if (Config.systemContainsKey(COMPILER_OPTIONS)) {
             addUserSpecifiedOptions(args);
@@ -101,7 +105,6 @@ abstract class Compiler
 
     private void addUserSpecifiedOptions(List args)
     {
-        // add user specified compiler options
         String compilerOptions = Config.getPropString(COMPILER_OPTIONS, null);
         if (compilerOptions != null) {
             StringTokenizer st = new StringTokenizer(compilerOptions);

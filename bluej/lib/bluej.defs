@@ -384,13 +384,17 @@ bluej.compiler.type=internal
 ## default javac; see bluej.compiler setting above). If this attribue
 ## is not specified, the compiler is run with default options.
 ## 
-## The following options will ALWAYS be added internally in BlueJ:
+## The following options will ALWAYS be added internally in BlueJ. If
+## you change these, funny things might happen (such as BlueJ not 
+## working at all)
 ## -deprecation (Show description of each use of a deprecated method)
 ## -g           (Generate all debugging information)
+## -source      (set to the version of the running JDK (1.4 or 1.5))
+## -d           (set the output directory)
 ##
 #####################################################################
 
-bluej.compiler.options=-source 1.4
+##bluej.compiler.options=-source 1.4
 
 #####################################################################
 ## Options for starting the internal virtual machine.
