@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 615 2000-07-03 04:12:37Z mik $
+ * @version $Id: ObjectWrapper.java 617 2000-07-04 06:28:32Z bquig $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -37,14 +37,14 @@ public class ObjectWrapper extends JComponent
     static final Color shadow = Config.getItemColour("colour.wrapper.shadow");
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
-
-    //static final Color umlbg = Config.getItemColour("colour.wrapper.bg");
-    //static final Color umlbg = Color.white;
-    static final Color umlbg = Color.red.darker();
+    static final Color umlbg = Config.getItemColour("colour.uml.wrapper.bg");
+    static final Color umlShadow = Config.getItemColour("colour.uml.wrapper.shadow");
     static final Color umlText = Color.white;
 
     public static final int WIDTH = 100;
     public static final int HEIGHT = 70;
+    // vertical offset between instance and class name
+    public static final int UML_WORD_GAP = 25;
 
 
     private static int itemHeight = 19;   // wild guess until we find out
@@ -292,7 +292,10 @@ public class ObjectWrapper extends JComponent
             drawBlueStyle(g2);
     }
 
-    public void drawBlueStyle(Graphics2D g)
+    /**
+     * draw a Blue style object instance
+     */
+    private void drawBlueStyle(Graphics2D g)
     {
         g.setFont(PrefMgr.getStandardFont());
         FontMetrics fm = g.getFontMetrics();
@@ -316,33 +319,48 @@ public class ObjectWrapper extends JComponent
         Utility.drawCentredText(g, instanceName, 0, 10, w, h);
     }
 
-
-    public void drawUMLStyle(Graphics2D g)
+    /**
+     * draw a UML style object instance
+     */
+    private void drawUMLStyle(Graphics2D g)
     {
-        //Font instanceName = new 
         g.setFont(PrefMgr.getStandardFont());
         FontMetrics fm = g.getFontMetrics();
 
         g.setColor(shadow);
-        g.fillRoundRect(10, 5, WIDTH - 10, HEIGHT - 5,5,5);
+        g.fillRoundRect(10, 10, WIDTH - 10, HEIGHT - 15, 8, 8);
         g.setColor(umlbg);
-        g.fillRoundRect(10, 5, WIDTH - 15, HEIGHT - 10,5,5);
+        g.fillRoundRect(5, 5, WIDTH - 10, HEIGHT - 15, 8, 8);
         g.setColor(Color.black);
-        g.drawRoundRect(10, 5, WIDTH - 15, HEIGHT - 10,5,5);
-
-        //        g.setColor(Color.white);
+        g.drawRoundRect(5, 5, WIDTH - 10, HEIGHT - 15, 8, 8);
+        
         g.setColor(umlText);
 
-        Utility.drawCentredText(g, instanceName + ": ", 10, 0, WIDTH - 15, HEIGHT - 25);
-        //Utility.drawCentredText(g, displayClassName, 10, 5, WIDTH - 15, HEIGHT - 5);
-        //g.drawLine(10, 10, WIDTH - 20, 10);
-        //int w = fm.stringWidth(instanceName) + 10;
-        //int h = fm.getAscent() + 4;
-        //g.fillRect(0, 10, w, h);
+        int maxWidth = WIDTH - 20;
 
-        //g.setColor(Color.black);
-        //g.drawRect(0, 10, w, h);
-        Utility.drawCentredText(g, displayClassName, 0, 10, WIDTH, HEIGHT -5);
+        // draw instance name
+        String objectName = instanceName + ":";
+        int h = fm.getAscent() + 4;
+        int w = fm.stringWidth(objectName);
+        if(w > maxWidth)
+            w = maxWidth;
+
+        Utility.drawCentredText(g, instanceName + ":", 10, 10,  WIDTH - 20, h);
+        int lineX = (int)(WIDTH - w)/2;
+        int lineY = h + 12;
+
+        g.drawLine(lineX, lineY, lineX + w, lineY);
+        
+        // draw class name
+        w = fm.stringWidth(displayClassName);
+        if(w > maxWidth)
+            w = maxWidth;
+
+        Utility.drawCentredText(g, displayClassName, 10, 35,  WIDTH - 20, h);
+        lineX = (int)(WIDTH - w)/2;
+        lineY += UML_WORD_GAP;
+        g.drawLine(lineX, lineY, lineX + w, lineY);
+
     }
 
 
