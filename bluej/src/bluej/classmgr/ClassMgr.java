@@ -19,11 +19,11 @@ import bluej.Config;
  *    ^  ^  ^     or use ClassMgr.loadClass() to use directly)
  *    |  |  |
  *  ClassPathLoaders
- *              (one for each package, retrieve using getLoader(dir)
- *               and supply the directory the package lives in)
+ *              (one for each project, retrieve using getLoader(dir)
+ *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: ClassMgr.java 826 2001-03-28 13:31:54Z ajp $
  */
 public class ClassMgr
 {
@@ -57,8 +57,8 @@ public class ClassMgr
      * class loader).
      */
     public static ClassLoader getLoader(File classdir) {
-        return new ClassPathLoader(new ClassPath(classdir.getPath(), "Package " + classdir),
-                        getBlueJLoader());
+        return new ClassPathLoader(new ClassPath(classdir.getPath(), "Project " + classdir),
+                                        getBlueJLoader());
     }
 
     /**
@@ -155,6 +155,7 @@ public class ClassMgr
 
         /* XXX we should add here the boot libraries which are in the JDK extension
            directory */
+        //System.getProperty("java.ext.dirs");
 
         /* The libraries which are in the java classpath environment variable should
            only be the bluej libraries needed to run the program. */
@@ -229,6 +230,14 @@ public class ClassMgr
         }
     }
 
+    /**
+     * A ClassLoader which can load classes from the user library
+     * list as well as the system library list.
+     *
+     * We aim to construct a class hierarchy like this
+     *
+     *  DefaultSystemLoader
+     */
     class BlueJLoader extends ClassLoader
     {
         /**
