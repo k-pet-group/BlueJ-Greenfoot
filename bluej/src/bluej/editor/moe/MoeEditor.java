@@ -13,38 +13,33 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.editor.EditorWatcher;
-import bluej.pkgmgr.DocuGenerator;
 import bluej.pkgmgr.PkgMgrFrame;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Date;
-import java.text.DateFormat;
 import java.io.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
 import java.awt.event.*;        // New Event model
+
+
 import javax.swing.*;		// all the GUI components
 import javax.swing.event.*;
 import javax.swing.border.*;
 import javax.swing.text.*;
-import javax.swing.undo.*;
-
 import javax.swing.text.html.*;
 import java.net.URL;
-
 import java.awt.print.*;
-import java.awt.geom.*;
-
 import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
+
+
 
 
 /**
@@ -149,7 +144,7 @@ public final class MoeEditor extends JFrame
     private String windowTitle;	    // title of editor window
     private boolean firstSave;      // true if never been saved
     private boolean isCompiled;	    // true when source has been compiled
-    private String docpath;         // path to javadoc html file
+    private String docFilename;     // path to javadoc html file
 
     private String newline;	        // the line break character used
     private boolean sourceIsCode;   // true if current buffer is code
@@ -208,8 +203,7 @@ public final class MoeEditor extends JFrame
      */
 
     public MoeEditor(String title, boolean isCode, EditorWatcher watcher,
-                     boolean showToolbar, boolean showLineNum,
-                     Properties resources)
+                     boolean showToolbar, boolean showLineNum, Properties resources)
     {
         super("Moe");
         this.watcher = watcher;
@@ -232,10 +226,11 @@ public final class MoeEditor extends JFrame
     /**
      *  Load the file "filename" and show the editor window.
      */
-    public boolean showFile(String filename, boolean compiled)
+    public boolean showFile(String filename, boolean compiled, String docFilename)
                             // inherited from Editor, redefined
     {
         this.filename = filename;
+        this.docFilename = docFilename;
 
         boolean loaded = false;
         boolean readError = false;
@@ -1199,7 +1194,8 @@ public final class MoeEditor extends JFrame
         else {  // interface needs to be re-generated
             info.message(Config.getString("editor.info.generatingDoc"));
             BlueJEvent.addListener(this);
-            DocuGenerator.generateClassDocu(filename);
+            //DocuGenerator.generateClassDocu(filename);
+            watcher.generateDoc();
         }
     }
 
@@ -1211,7 +1207,7 @@ public final class MoeEditor extends JFrame
     {
         try {
             File src = new File(filename);
-            File doc = new File(getDocPath());
+            File doc = new File(docFilename);
 
             if(!doc.exists()
                || (src.exists() && (src.lastModified() > doc.lastModified())))
@@ -1549,8 +1545,6 @@ public final class MoeEditor extends JFrame
             doBracketMatch();
         else 
             moeCaret.removeBracket();
-        
-            
     }
     
     /**
@@ -1649,8 +1643,6 @@ public final class MoeEditor extends JFrame
             ((MoeCaret)caret).paintMatchingBracket();
     }
     
-    
-       
 
     private void setWindowTitle()
     {
@@ -1671,9 +1663,7 @@ public final class MoeEditor extends JFrame
      */
     private String getDocPath()
     {
-        if(docpath == null)
-            docpath = DocuGenerator.getDocuPath(filename);
-        return docpath;
+        return docFilename;
     }
 
     // --------------------------------------------------------------------
