@@ -18,7 +18,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 2526 2004-05-10 09:15:28Z polle $
+ * @version $Id: Terminal.java 2798 2004-07-14 16:22:29Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -29,8 +29,6 @@ public final class Terminal extends JFrame
     private static final int windowWidth =
         Config.getPropInteger("bluej.terminal.width", 80);
 
-    private static final Color activeBgColour = Color.white;
-    private static final Color inactiveBgColour = new Color(224, 224, 224);
     private static final Color fgColour = Color.black;
     private static final Color errorColour = Color.red;
     private static final Image iconImage =
@@ -218,17 +216,6 @@ public final class Terminal extends JFrame
             }
             erroutBuffer.setLength(0);
         }
-    }
-
-
-    /**
-     * Set the terminal size the the specified number of rows and columns.
-     */
-    private void setScreenSize(int columns, int rows)
-    {
-        text.setColumns(columns);
-        text.setRows(rows);
-        pack();
     }
 
 

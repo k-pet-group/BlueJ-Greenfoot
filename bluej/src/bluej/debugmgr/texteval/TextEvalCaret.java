@@ -17,8 +17,6 @@ public class TextEvalCaret extends DefaultCaret
 {
    
     private TextEvalArea textEval;
-    // matching bracket highlight holder
-    private Object matchingBracketHighlight;
 
     /**
      * Constructs a Moe Caret
@@ -45,7 +43,7 @@ public class TextEvalCaret extends DefaultCaret
         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
 
         if (e.getX() > BlueJSyntaxView.TAG_WIDTH) {
-            if (pos >= 0 && textEval.isLegalCaretPos(pos)) {
+            if (pos >= 0) {
                 setDot(pos);
                 setMagicCaretPosition(null);
             }
@@ -69,28 +67,10 @@ public class TextEvalCaret extends DefaultCaret
             Point pt = new Point(e.getX(), e.getY());
             Position.Bias[] biasRet = new Position.Bias[1];
             int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
-            if (pos >= 0 && textEval.isLegalCaretPos(pos)) {
+            if (pos >= 0) {
                 moveDot(pos);
             }
         }
-    }
-    
-    /**
-     * Set the dot (caret) to a new location.
-     */
-    public void setDot(int dot)
-    {
-        if(textEval.isLegalCaretPos(dot))
-            super.setDot(dot);
-    }
-    
-    /**
-     * Move the dot (caret) to a new location, leaving behind the mark.
-     */
-    public void moveDot(int dot)
-    {
-        if(textEval.isLegalCaretPos(dot))
-            super.moveDot(dot);
     }
 }
 

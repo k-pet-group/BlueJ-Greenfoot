@@ -26,7 +26,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2760 2004-07-08 09:39:51Z mik $
+ * @version $Id: TextEvalArea.java 2798 2004-07-14 16:22:29Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener, MouseMotionListener
@@ -373,8 +373,22 @@ public final class TextEvalArea extends JScrollPane
     }
     
     /**
-     * Append some text to this area.
-     * @param s The text to append.
+     * Insert some text to this area.
+     * @param s The text to insert.
+     */
+    private void insert(String s)
+    {
+        try {
+            doc.insertString(text.getCaretPosition(), s, null);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in terminal operation");
+        }
+    }
+    
+    /**
+     * Replace the text of the current line with some new text.
+     * @param s The new text for the line.
      */
     private void replaceLine(String s)
     {
@@ -397,20 +411,6 @@ public final class TextEvalArea extends JScrollPane
         text.setCaretPosition(doc.getLength());
     }
 
-    /**
-     * Check whether the given text positiob is allowed as a caret position in
-     * the text eval area. This will only allow positions in the last line.
-     * 
-     * @param pos  The position to be checked
-     * @return  True is placing the caret to this position is okay.
-     */
-    public boolean isLegalCaretPos(int pos)
-    {
-        Element line = doc.getParagraphElement(doc.getLength());
-        int lineStart = line.getStartOffset() + 1;  // ignore space at front
-        return pos >= lineStart;
-    }
-    
     /**
      * Get the text of the current line (the last line) of this area.
      * @return The text of the last line.
@@ -488,7 +488,10 @@ public final class TextEvalArea extends JScrollPane
     {
         Keymap newmap = JTextComponent.addKeymap("texteval", text.getKeymap());
 
-        Action action = new ExecuteCommandAction();
+        Action action = new InsertCharacterAction();
+        newmap.setDefaultAction(action);
+
+        action = new ExecuteCommandAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), action);
 
         action = new ContinueCommandAction();
@@ -516,13 +519,15 @@ public final class TextEvalArea extends JScrollPane
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), action);
 
         text.setKeymap(newmap);
-   
     }
     
     final class ObjectInfo {
         DebuggerObject obj;
         InvokerRecord ir;
         
+        /**
+         * Create an object holding information about an invocation.
+         */
         public ObjectInfo(DebuggerObject obj, InvokerRecord ir) {
             this.obj = obj;
             this.ir = ir;
@@ -531,6 +536,32 @@ public final class TextEvalArea extends JScrollPane
     
     // ======= Actions =======
     
+    final class InsertCharacterAction extends AbstractAction {
+
+        /**
+         * Create a new action object. This action executes the current command.
+         */
+        public InsertCharacterAction()
+        {
+            super("InsertCharacter");
+        }
+        
+        /**
+         * Insert a character into the text.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            String s = event.getActionCommand();  // will always be length 1
+            if(s.charAt(0) != '\n') {             // bug workaround: enter goes through default
+                                                  //  action as well as set action
+                if(text.isLegalCaretPos())
+                    insert(s);
+                else
+                    append(s);
+            }
+        }
+    }
+
     final class ExecuteCommandAction extends AbstractAction {
 
         /**
@@ -599,6 +630,9 @@ public final class TextEvalArea extends JScrollPane
             super("BackSpace");
         }
         
+        /**
+         * Perform a backspace action.
+         */
         final public void actionPerformed(ActionEvent event)
         {
             if(getCurrentColumn() > 1) {
@@ -621,7 +655,10 @@ public final class TextEvalArea extends JScrollPane
         {
             super("CursorLeft");
         }
-        
+
+        /**
+         * Move the cursor left (if allowed).
+         */
         final public void actionPerformed(ActionEvent event)
         {
             if(getCurrentColumn() > 1) {
@@ -641,6 +678,9 @@ public final class TextEvalArea extends JScrollPane
             super("HistoryBack");
         }
         
+        /**
+         * Set the current line to the previous input history entry.
+         */
         final public void actionPerformed(ActionEvent event)
         {
             String line = history.getPrevious();
@@ -661,6 +701,9 @@ public final class TextEvalArea extends JScrollPane
             super("HistoryForward");
         }
         
+        /**
+         * Set the current line to the next input history entry.
+         */
         final public void actionPerformed(ActionEvent event)
         {
             String line = history.getNext();
@@ -682,6 +725,9 @@ public final class TextEvalArea extends JScrollPane
             this.forward = forward;
         }
         
+        /**
+         * Transfer the keyboard focus to another component.
+         */
         final public void actionPerformed(ActionEvent event)
         {
             if(forward)
