@@ -34,7 +34,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 2825 2004-07-28 01:33:39Z davmac $
+ * @version $Id: JdiDebugger.java 2843 2004-08-06 00:01:41Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -411,10 +411,10 @@ public class JdiDebugger extends Debugger
     public Map runTestSetUp(String className)
     {
         ArrayReference arrayRef = null;
-        Object args[] = {className};
+        // Object args[] = {className};
 
         try {
-            arrayRef = (ArrayReference) getVM().invokeExecServer(ExecServer.RUN_TEST_SETUP, Arrays.asList(args));
+            arrayRef = (ArrayReference) getVM().invokeTestSetup(className);
         }
         catch (InvocationException ie) {
             // what to do here??
@@ -458,10 +458,10 @@ public class JdiDebugger extends Debugger
     public DebuggerTestResult runTestMethod(String className, String methodName)
     {
         ArrayReference arrayRef = null;
-        Object args[] = {className, methodName};
+        // Object args[] = {className, methodName};
 
         try {
-            arrayRef = (ArrayReference) getVM().invokeExecServer(ExecServer.RUN_TEST_METHOD, Arrays.asList(args));
+            arrayRef = (ArrayReference) getVM().invokeRunTest(className, methodName);
         }
         catch (InvocationException ie) {
             // what to do here??
@@ -504,10 +504,11 @@ public class JdiDebugger extends Debugger
             return;
 
         try {
-            getVM().invokeExecServerWorker(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
+            // getVM().invokeExecServerWorker(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
+            getVM().disposeWindows();
         }
         catch (VMDisconnectedException e) {}
-        catch (InvocationException ie) {}
+        // catch (InvocationException ie) {}
     }
 
     /**

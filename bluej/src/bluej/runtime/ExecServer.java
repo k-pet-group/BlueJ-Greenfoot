@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2531 2004-05-12 14:38:14Z polle $
+ * @version $Id: ExecServer.java 2843 2004-08-06 00:01:41Z davmac $
  */
 public class ExecServer
 {
@@ -39,10 +39,10 @@ public class ExecServer
     public static final String RUN_TEST_METHOD  = "runTestMethod";
     public static final String SUPRESS_OUTPUT   = "supressOutput";
     public static final String RESTORE_OUTPUT   = "restoreOutput";
-    public static final String DISPOSE_WINDOWS  = "disposeWindows";
+    // public static final String DISPOSE_WINDOWS  = "disposeWindows";
 //	BeanShell    
     //public static final String EXECUTE_CODE     = "executeCode";
-    public static final String NEW_THREAD       = "newThread";
+    //public static final String NEW_THREAD       = "newThread";
     
 	// these fields will be fetched by VMReference
 	
@@ -53,7 +53,26 @@ public class ExecServer
 	// a worker thread that we create
 	public static final String WORKER_THREAD_NAME = "workerThread";
 	public static Thread workerThread = null;
-
+    
+    // Parameters for main thread actions
+    public static String classToRun;
+    public static String methodToRun;
+    public static int execAction;   // EXEC_SHELL, TEST_SETUP or TEST_RUN
+    public static Object methodReturn;
+    public static Throwable exception;
+    
+    public static final String CLASS_TO_RUN_NAME = "classToRun";
+    public static final String METHOD_TO_RUN_NAME = "methodToRun";
+    public static final String EXEC_ACTION_NAME = "execAction";
+    public static final String METHOD_RETURN_NAME = "methodReturn";
+    public static final String EXCEPTION_NAME = "exception";
+    
+    // Possible actions for the main thread
+    public static final int EXEC_SHELL = 0;  // Execute a shell class
+    public static final int TEST_SETUP = 1;
+    public static final int TEST_RUN = 2;
+    public static final int DISPOSE_WINDOWS = 3;
+    
     // a BeanShell interpreter that we use for executing code
 //	BeanShell    
     //private static Interpreter interpreter;
@@ -110,21 +129,21 @@ public class ExecServer
         //interpreter.setStrictJava(true);
         
 		// record our main thread
-		mainThread = Thread.currentThread();
+		// mainThread = Thread.currentThread();
 		
 		// create another worker thread we can use for stuff
 		workerThread = new Thread("BlueJ worker thread") {
 			public void run() {
-				int count = 0;
+				//int count = 0;
 		
 				// an infinite loop.. 
-				while(count++ < 100000) {
+				while(true) {
 					vmSuspend();
 				}
-				System.err.println("worker thread bye bye");
+				// System.err.println("worker thread bye bye");
 			}
 		};
-		// workerThread.setDaemon(true);
+		workerThread.setDaemon(true);
 		workerThread.start();
 
 		// register a listener to record all window opens and closes
@@ -150,20 +169,11 @@ public class ExecServer
 		System.setSecurityManager(new RemoteSecurityManager());
 
 		// signal with a breakpoint that we have performed out VM initialisation
-		vmStarted();
+		// vmStarted();
+        newThread();
 		
-		int count = 0;
-		
-		// wait in an infinit(ish) loop.. (we want the loop to finish if
-        // for some reason vmSuspend() is not working - say the connecting
-        // VM has failed and therefore the breakpoint has been removed -
-        // in this case we will fall through the loop and exit)
-		while(count++ < 100000 && ! shouldDie) {
-			vmSuspend();
-		}
-		
-		if(! shouldDie)
-		    System.err.println("main thread bye bye");
+		//if(! shouldDie)
+		//    System.err.println("main thread bye bye");
     }
 
 	/**
@@ -646,7 +656,8 @@ public class ExecServer
     static void newThread()
     {
         // First wait until the old thread dies.
-        if( mainThread != null) {
+/*        if( mainThread != null) {
+            System.out.println("... trying to join old thread...");
             boolean joined = false;
             while(! joined) {
                 try {
@@ -656,25 +667,79 @@ public class ExecServer
                 catch(InterruptedException ie) { }
             }
             shouldDie = false;
-        }
+            System.out.println("... joined successfully.");
+        } */
         
+        final Thread oldThread = mainThread;
         // Then make a new one.
         mainThread = new Thread("main") {
             public void run()
             {
+                //try {
+                //if(oldThread != null)
+                //    oldThread.join();
+                //}
+                //catch(InterruptedException ie) { }
+                
                 vmStarted();
-                int count = 0;
+                // int count = 0;
                 
                 // wait in an infinit(ish) loop.. (we want the loop to finish if
                 // for some reason vmSuspend() is not working - say the connecting
                 // VM has failed and therefore the breakpoint has been removed -
                 // in this case we will fall through the loop and exit)
-                while(count++ < 100000 && ! shouldDie) {
+                //while(count++ < 100000 && ! shouldDie) {
+                    // Wait for a command from the BlueJ VM
                     vmSuspend();
-                }
-            }
+
+                    // Execute the command
+                    methodReturn = null;
+                    exception = null;
+                    try {
+                        switch(execAction) {
+                            case EXEC_SHELL:
+                                // Execute a shell class.
+                                Class c = currentLoader.loadClass(classToRun);
+                                Method m = c.getMethod("run", new Class[0]);
+                                try {
+                                    methodReturn = m.invoke(null, new Object[0]);
+                                }
+                                catch(InvocationTargetException ite) {
+                                    throw ite.getCause();
+                                }
+                                break;
+                            case TEST_SETUP:
+                                methodReturn = runTestSetUp(classToRun);
+                                break;
+                            case TEST_RUN:
+                                methodReturn = runTestMethod(classToRun, methodToRun);
+                                break;
+                            case DISPOSE_WINDOWS:
+                                disposeWindows();
+                            default:
+                        }
+                    }
+                    catch(Throwable t) {
+                        exception = t;
+                        // throw new BlueJRuntimeException(t);
+                    }
+                    finally {
+                        newThread();
+                    }
+                //}
+           }
         };
         mainThread.start();
     }
-    
+ 
+    /* static class BlueJRuntimeException extends RuntimeException
+    {
+        Throwable cause;
+        BlueJRuntimeException(Throwable t)
+        {
+            super();
+            cause = t;
+            setStackTrace(t.getStackTrace());
+        }
+    } */
 }
