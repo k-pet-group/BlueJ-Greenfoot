@@ -160,17 +160,17 @@ public abstract class Boid extends GreenfootObject
            vectorPlan.setX(-10 * vectorPlan.getX());
            x=1;
         }
-        if(x>=getWorld().getWorldWidth()) {
+        if(x>=getWorld().getWidth()) {
            vectorPlan.setX(-10 * vectorPlan.getX());
-           x=getWorld().getWorldWidth()-2;
+           x=getWorld().getWidth()-2;
         }
         if(y<=0 ) {
             vectorPlan.setY(-10 * vectorPlan.getY());                
             y=1;
         }
-        if(y>=getWorld().getWorldHeight()) {
+        if(y>=getWorld().getHeight()) {
             vectorPlan.setY(-10 * vectorPlan.getY());                
-            y=getWorld().getWorldHeight() -2 ;
+            y=getWorld().getHeight() -2 ;
         }
         
     }

@@ -9,7 +9,7 @@ public class Space extends GreenfootWorld
      * with a cell size of 50x50 pixels
      */
     public Space() {
-        super(400,400,1,1);
+        super(400,400);
         setBackgroundColor(java.awt.Color.BLACK);
         createStars(500);
         createRocketAndSpeeder();
@@ -17,7 +17,7 @@ public class Space extends GreenfootWorld
     
     public void createRocketAndSpeeder() {
         Rocket rocket = new Rocket();        
-        rocket.setLocation(getWorldWidth() - rocket.getImage().getIconWidth(), getWorldHeight()- rocket.getImage().getIconHeight());
+        rocket.setLocation(getWidth() - rocket.getImage().getIconWidth(), getHeight()- rocket.getImage().getIconHeight());
         addObject(rocket);
         
         Speeder speeder = new Speeder();
@@ -33,8 +33,8 @@ public class Space extends GreenfootWorld
              
         for(int i=0; i < number; i++) {
             
-             int x = (int) (Math.random() * getWorldWidth());          
-             int y = (int) (Math.random() * getWorldHeight());
+             int x = (int) (Math.random() * getWidth());          
+             int y = (int) (Math.random() * getHeight());
              int color = 255 - (int) (Math.random() * 200);
              canvas.setColor(new Color(color,color,color));
              canvas.fillOval(x,y,1,1);

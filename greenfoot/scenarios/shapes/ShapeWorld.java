@@ -16,7 +16,7 @@ public class ShapeWorld extends GreenfootWorld
      * with a cell size of one pixel.
      */
     public ShapeWorld() {
-        super(600,400,1,1);
+        super(600,400);
     }
     
     /**

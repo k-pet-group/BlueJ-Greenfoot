@@ -14,7 +14,7 @@ public class Sky extends GreenfootWorld
      * with a cell size of 50x50 pixels
      */
     public Sky() {
-        super(WIDTH,HEIGHT,1,1);
+        super(WIDTH,HEIGHT);
         setBackgroundColor(new Color(90,90,255));
       //  populate(20);
       
@@ -33,8 +33,8 @@ public class Sky extends GreenfootWorld
     public void populateNaive(int number) {
         for(int i=0; i < number; i++) {
             
-             int x = (int) (Math.random() * getWorldWidth());          
-             int y = (int) (Math.random() * getWorldHeight());
+             int x = (int) (Math.random() * getWidth());          
+             int y = (int) (Math.random() * getHeight());
              Boid b = new Naive();
              b.setLocation(x,y);
              addObject(b);
