@@ -5,7 +5,7 @@ The next update column indicates whether it is likely that the translator will d
 language        last update     next update    comment         translator
 --------------------------------------------------------------------------------------------------------------
 afrikaans       2.0.0                x                         Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
-chinese         1.3.5                                          Gu Zhifeng          <gu_zhifeng@263.net>
+chinese         2.0.4                                          Gu Zhifeng          <gu_zhifeng@263.net>
 catalan         2.0.0                x          only labels    Santiago Manrique   <smanriqu@pie.xtec.es>
 czech           2.0.0                x                         Petr Skoda          <petr.skoda@vslib.cz> (or Rudolf: rudolf@pecinovsky.cz)
 dutch           2.0.0                x                         Peter van Diepen    <pvdiepen@tiscali.nl>
