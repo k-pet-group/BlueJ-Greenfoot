@@ -18,7 +18,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 3047 2004-10-14 04:32:51Z bquig $
+ * @version $Id: Terminal.java 3315 2005-02-17 00:21:15Z davmac $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -305,6 +305,12 @@ public final class Terminal extends JFrame
 
             switch(ch) {
 
+            case 4:   // CTRL-D (unix/Mac EOF)
+            case 26:  // CTRL-Z (DOS/Windows EOF)
+                buffer.signalEOF();
+                writeToTerminal('\n');
+                break;
+                
             case '\b':	// backspace
                 if(buffer.backSpace()) {
                     try {
@@ -424,10 +430,6 @@ public final class Terminal extends JFrame
 
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                    scrollPane, errorScrollPane); 
-        
-        
-        
-        
     }
     
     /**
@@ -616,7 +618,7 @@ public final class Terminal extends JFrame
             while(charsRead < len) {
                 cbuf[off + charsRead] = buffer.getChar();
                 charsRead++;
-                if(buffer.numberOfCharacters() == 0)
+                if(buffer.isEmpty())
                     break;
             }
             return charsRead;

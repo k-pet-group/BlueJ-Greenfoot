@@ -8,10 +8,16 @@ import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
-import junit.framework.*;
+import junit.framework.TestCase;
+import junit.framework.TestFailure;
+import junit.framework.TestResult;
+import junit.framework.TestSuite;
 //BeanShell
 //import bsh.*;
 
@@ -24,7 +30,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3140 2004-11-23 01:15:45Z davmac $
+ * @version $Id: ExecServer.java 3315 2005-02-17 00:21:15Z davmac $
  */
 public class ExecServer
 {
@@ -133,17 +139,10 @@ public class ExecServer
 
 		classmgr = new RemoteClassMgr();
 
-		// the following causes the class loader mechanism to be initialised:
-		// we attempt to load a (non-existent) class
-		//try {
-			//newLoader(".");
-			//loadClass("Dummy");
-			//currentLoader = null;
-		//}
-		//catch(Throwable e) {
-			// ignore - we will get a ClassNotFound exception here
-		//}
-
+        // Set up an input stream filter to detect "End of file" signals
+        // (CTRL-Z or CTRL-D typed in terminal)
+        System.setIn(new BJInputStream(System.in));
+        
         // construct a BeanShell interpreter
 //    	BeanShell    
         //interpreter = new Interpreter();
@@ -343,6 +342,7 @@ public class ExecServer
      * 
      * @param cl The class to initialise
      */
+    /*
     private static void forceInitialisation(Class cl) {
         Field[] fields = cl.getFields();
         for (int i = 0; i < fields.length; i++) {
@@ -359,6 +359,7 @@ public class ExecServer
             }
         }
     }
+    */
 
     /**
      * Add an object into a package scope (for possible use as parameter
