@@ -16,12 +16,10 @@ import com.sun.jdi.*;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 2758 2004-07-08 04:07:50Z davmac $
+ * @version    $Id: JdiArray.java 2961 2004-08-30 12:54:12Z polle $
  */
 public class JdiArray extends JdiObject
-{
-    private static final String nullLabel =	Config.getString("debugger.null");
-    
+{    
     private GenType componentType; 
     
     protected JdiArray(ArrayReference obj)
@@ -259,17 +257,7 @@ public class JdiArray extends JdiObject
 
         for (int i = 0; i < values.size(); i++) {
             Value val = (Value) values.get(i);
-            String valString;
-
-            if (val == null) {
-                valString = nullLabel;
-            } else if ((val instanceof ObjectReference) &&
-                        !(val instanceof StringReference)) {
-                valString = "<object reference>";
-            } else {
-                valString = val.toString();
-            }
-
+            String valString = JdiUtils.getJdiUtils().getValueString(val);
             fields.add("[" + i + "]" + " = " + valString);
         }
         return fields;

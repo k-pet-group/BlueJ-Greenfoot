@@ -17,12 +17,10 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2868 2004-08-12 10:36:15Z polle $
+ * @version $Id: JdiObject.java 2961 2004-08-30 12:54:12Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
-    private static final String nullLabel =
-		Config.getString("debugger.null");
     
     // boolean - true if our JVM supports generics
     static boolean jvmSupportsGenerics = Config.isJava15();
@@ -392,7 +390,7 @@ public class JdiObject extends DebuggerObject
     {
         Field field = (Field) fields.get(slot);
         Value val = obj.getValue(field);
-        return getValueString(val); 
+        return JdiUtils.getJdiUtils().getValueString(val); 
     }
     
     public String getFieldValueTypeString(int slot) 
@@ -557,7 +555,7 @@ public class JdiObject extends DebuggerObject
             if (getAll || (field.isStatic() == getStatic)) {
                 Value val = obj.getValue(field);
 
-                String valString = getValueString(val);
+                String valString = JdiUtils.getJdiUtils().getValueString(val);
                 String fieldString = "";
 
                 if (includeModifiers) {
@@ -647,36 +645,6 @@ public class JdiObject extends DebuggerObject
         Value val = obj.getValue(field);
         return (val instanceof ObjectReference);
     }  // list of fields of the object
-
-    /**
-     *  Return the value of a field as as string.
-     *
-     *@param  val  Description of Parameter
-     *@return      The ValueString value
-     */
-    public static String getValueString(Value val)
-    {
-        if (val == null)
-        {
-            return nullLabel;
-        }
-        else if (val instanceof StringReference)
-        {
-            return "\"" + ((StringReference) val).value() + "\"";
-            // toString should be okay for this as well once the bug is out...
-        }
-        else if (val.type() instanceof ClassType && JdiUtils.getJdiUtils().isEnum((ClassType) val.type())) {
-            ClassType type =  (ClassType) val.type();
-            Field nameField = type.fieldByName("name");
-            String name = ((StringReference) ((ObjectReference) val).getValue(nameField)).value();
-            return name;
-        }
-        else if (val instanceof ObjectReference)
-        {
-            return OBJECT_REFERENCE;
-        }
-        return val.toString();
-    }
 
     /**
      * Base our object equality on the object that we are referring

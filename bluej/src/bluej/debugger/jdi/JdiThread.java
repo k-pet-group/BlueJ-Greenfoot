@@ -16,7 +16,7 @@ import com.sun.jdi.request.StepRequest;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2766 2004-07-09 04:22:27Z davmac $
+ * @version $Id: JdiThread.java 2961 2004-08-30 12:54:12Z polle $
  */
 class JdiThread extends DebuggerThread
 {
@@ -328,7 +328,7 @@ class JdiThread extends DebuggerThread
 
                     // Add "type name = value" to the list
                     GenType vartype = JdiReflective.fromLocalVar(frame, var);
-                    String val = JdiObject.getValueString(frame.getValue(var));
+                    String val = JdiUtils.getJdiUtils().getValueString(frame.getValue(var));
                     localVars.add(vartype.toString(true) + " " + var.name()
                             + " = " + val);
                 }

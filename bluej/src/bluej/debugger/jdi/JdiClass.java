@@ -16,11 +16,10 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiClass.java 2846 2004-08-06 09:13:55Z polle $
+ *@version    $Id: JdiClass.java 2961 2004-08-30 12:54:12Z polle $
  */
 public class JdiClass extends DebuggerClass
 {
-    private static final String nullLabel =	Config.getString("debugger.null");
     ReferenceType remoteClass;  // the remote class represented
     List staticFields;
 
@@ -161,7 +160,7 @@ public class JdiClass extends DebuggerClass
 
             Value val = remoteClass.getValue(field);
 
-            String valString = getValueString(val);
+            String valString = JdiUtils.getJdiUtils().getValueString(val);
             String fieldString = "";
 
             if (includeModifiers) {
@@ -207,35 +206,4 @@ public class JdiClass extends DebuggerClass
             Debug.reportError("cannot get fields for remote class");
         }
     }
-
-
-    /**
-     *  Return the value of a field as as string.
-     *
-     *@param  val  Description of Parameter
-     *@return      The ValueString value
-     */
-    public static String getValueString(Value val)
-    {
-        
-        if (val == null) {
-            return nullLabel;
-        }
-        else if (val instanceof StringReference) {
-            return "\"" + ((StringReference) val).value() + "\"";
-            // toString should be okay for this as well once the bug is out...
-        }
-        else if (val.type() instanceof ClassType && JdiUtils.getJdiUtils().isEnum((ClassType) val.type())) {
-            ClassType type =  (ClassType) val.type();
-            Field nameField = type.fieldByName("name");
-            String name = ((StringReference) ((ObjectReference) val).getValue(nameField)).value();
-            return name;
-        }
-        else if (val instanceof ObjectReference) {
-            return "<object reference>";
-        }
-
-        return val.toString();
-    }
-
 }
