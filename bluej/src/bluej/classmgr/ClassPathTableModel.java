@@ -18,12 +18,16 @@ import bluej.Config;
  * edited and then changes can be reverted or committed.
  *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassPathTableModel.java 1067 2002-01-08 05:49:39Z ajp $
+ * @cvs     $Id: ClassPathTableModel.java 1082 2002-01-10 06:41:42Z ajp $
  */
 public class ClassPathTableModel extends AbstractTableModel
 {
+    static final String statusLabel = Config.getString("classmgr.statuscolumn");
     static final String locationLabel = Config.getString("classmgr.locationcolumn");
     static final String descriptionLabel = Config.getString("classmgr.descriptioncolumn");
+
+    static final String statusGood = Config.getString("classmgr.statusgood");
+    static final String statusBad = Config.getString("classmgr.statusbad");
 
     private ClassPath origcp;
     private ClassPath cp;
@@ -48,7 +52,7 @@ public class ClassPathTableModel extends AbstractTableModel
     public String getColumnName(int col)
     {
         if (col == 0)
-            return "";
+            return statusLabel;
         else if (col == 1)
             return locationLabel;
         else if (col == 2)
@@ -56,22 +60,6 @@ public class ClassPathTableModel extends AbstractTableModel
 
         throw new IllegalArgumentException("bad column number in ClassPathTableModel::getColumnName()");
     }
-
-    /**
-     * Return the class of a particular column
-     * (this is used to determine which CellRenderer
-     *  to use)
-     *
-     * @param col   the column we are naming
-     * @return      the class of the column
-     */
-    public Class getColumnClass(int col)
-    {
-        if (col == 0)
-           return ImageIcon.class;
-        else
-           return Object.class;
-    } 
 
     /**
      * Return the number of rows in the table
@@ -106,9 +94,9 @@ public class ClassPathTableModel extends AbstractTableModel
 
         if (col == 0) {
             if (entry.isValid())
-                return OvalIcon.getBlankOvalIcon();
+                return statusGood;
             else
-                return OvalIcon.getRedOvalIcon();
+                return statusBad;
         }
         else if (col == 1)
             return entry.getCanonicalPathNoException();
@@ -173,27 +161,3 @@ public class ClassPathTableModel extends AbstractTableModel
         fireTableDataChanged();
     }
 }
-
-class ColorizedIcon implements Icon {
-
-    Color color;
-   public ColorizedIcon (Color c) {
-  color = c;
-}
-public void paintIcon (Component c, Graphics g, int x, int y)
-{
-  if(color != null) {
-  int width = getIconWidth();
-  int height = getIconHeight();
-   g.setColor (color);
-  g.fillOval (x, y, width, height);
-  }
-}
-public int getIconWidth() {
-  return 10;
-}
-public int getIconHeight() { 
-  return 10;
-}
-}
-
