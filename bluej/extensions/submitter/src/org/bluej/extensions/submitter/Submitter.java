@@ -13,161 +13,219 @@ import org.bluej.utility.*;
  * An extension that allows users to automatically submit
  * their project by the agreed method
  *
- * @author Clive Miller
- * @version $Id: Submitter.java 1594 2002-12-19 17:08:03Z iau $
+ * @author     Clive Miller, Damiano Bolla
+ * @version    $Id: Submitter.java 1608 2003-01-27 09:45:56Z damiano $
  */
 public class Submitter extends Extension implements MenuGen, BJEventListener
 {
-    private static final int BUILT_FOR_MAJOR = 1;
-    private static final int BUILD_FOR_MINOR = 0;
+    private final static int BUILT_FOR_MAJOR = 1;
+    private final static int BUILD_FOR_MINOR = 0;
 
-    private static final int VERSION_MAJOR = 2;
-    private static final int VERSION_MINOR = 4;
-    
-    private boolean functionEnabled = false;
-    private BlueJ bj;
-    private SubmissionProperties sp;
+    private final static int VERSION_MAJOR = 2;
+    private final static int VERSION_MINOR = 4;
+
     private SubmissionDialog sd;
     private Thread submitterThread;
     private PrefPanel globalPreferences;
     private MenuAction anAction;
+    private int numPackagesOpen = 0;
+    // Counter for menu en/disable
     private Stat stat;
-    
-    private int numPackagesOpen = 0;  // Counter for menu en/disable
 
-    
-    public boolean isCompatibleWith (int majorVersion, int minorVersion)
+
+    /**
+     * This is where the submitter starts to work. It is called by the BlueJ
+     *
+     * @param  i_bluej  Description of the Parameter
+     */
+    public void startup(final BlueJ i_bluej)
     {
-        return (majorVersion == BUILT_FOR_MAJOR && minorVersion >= BUILD_FOR_MINOR);
-    }
-
-
-    public void startup (final BlueJ i_bj)
-    {
-        bj = i_bj;
-
         stat = new Stat();
-        stat.bluej = bj;
-        stat.aDbg  = new Flexdbg();
+        stat.bluej = i_bluej;
+        stat.aDbg = new Flexdbg();
 
-        stat.aDbg.setDebugLevel(Flexdbg.NOTICE);
+        int debugLevel = Utility.convStringToInt(stat.bluej.getExtPropString("debug.level", ""), Flexdbg.ERROR);
+        stat.aDbg.setDebugLevel(debugLevel);
+
         stat.aDbg.setServiceMask(Flexdbg.ALL_SERVICES);
 
-        stat.aDbg.trace(Stat.SVC_PROP,"Submitter.startup: CALLED");
-               
-        sp = null;
-        globalPreferences = new PrefPanel(bj);   
-        bj.setPrefGen(globalPreferences);
+        stat.aDbg.trace(Stat.SVC_PROP, "Submitter.startup: CALLED");
 
-        String aLabel = bj.getLabel ("menu.submit");
-        anAction = new MenuAction ( aLabel  );
+        globalPreferences = new PrefPanel(stat.bluej);
+        stat.bluej.setPrefGen(globalPreferences);
+
+        String aLabel = stat.bluej.getLabel("menu.submit");
+        anAction = new MenuAction(aLabel);
         anAction.setEnabled(false);
-        bj.setMenuGen(this);
+        stat.bluej.setMenuGen(this);
 
-        bj.addBJEventListener(this);
+        stat.bluej.addBJEventListener(this);
     }
 
+
+    /**
+     * This method is called when BLueJ decides  (for whatever reason) that this extensions
+     * should terminate. Really it should clean up possibly running tasks...
+     *
+     * @return    Description of the Return Value
+     */
     public String terminate()
     {
         return "";
     }
 
 
-  /** 
-   * Something has happened in blueJ
-   * What we do is to put it into the queue of events happening
-   * and also we display it into the console.
-   */
-  public void eventOccurred ( BJEvent ev )    
+    /**
+     * Something has happened in blueJ
+     * What we do is to put it into the queue of events happening
+     * and also we display it into the console.
+     *
+     * @param  ev  Description of the Parameter
+     */
+    public void eventOccurred(BJEvent ev)
     {
-    int evType = ev.getEvent();
+        int evType = ev.getEvent();
 
-    // nothing to do if it is not a package event.
-    if ( ! (ev instanceof bluej.extensions.event.PackageEvent) ) 
-      return;
-    
-    if ( evType == PackageEvent.PACKAGE_OPENED ) {
-      if (numPackagesOpen == 0) anAction.setEnabled(true);
-      numPackagesOpen++;
-    }
-
-    if ( evType == PackageEvent.PACKAGE_CLOSING ) {
-      numPackagesOpen--;
-      if (numPackagesOpen == 0) anAction.setEnabled(false);
-    }
-    }  
-
-
-
-  /** 
-   * If it is as expected I will have only one to give out
-   * do NOT store the menu tree you just create, rely on the 
-   * callback to know which menu gets selected.
-   */
-  public JMenuItem getMenuItem()
-    {
-    return new JMenuItem (anAction);
-    }
-
-
-  /**
-   * This is the action that has to be performed when the given menu is selected
-   * It is fairly flexible to use and the parameters are just an example...
-   */
-  public class MenuAction extends AbstractAction
-    {
-    public MenuAction ( String menuName )
-      {
-      putValue (AbstractAction.NAME,menuName);
-      }
-
-    public void actionPerformed ( ActionEvent anEvent )
-      {
-      final BPackage pkg = bj.getCurrentPackage();
-        if (pkg == null) 
+        // nothing to do if it is not a package event.
+        if (!(ev instanceof bluej.extensions.event.PackageEvent))
             return;
-        
-        if (submitterThread != null && submitterThread.isAlive()) {
-            stat.aDbg.notice(Stat.SVC_BUTTON,"MenuAction.actionPerformed: previous thread is alive");
-            return;
+
+        if (evType == PackageEvent.PACKAGE_OPENED) {
+            if ((++numPackagesOpen) > 0)
+                anAction.setEnabled(true);
         }
-        
-        submitterThread = new Thread() {
-            public void run() {
-                sp = new SubmissionProperties (stat, pkg);
-                sp.reload();
-                sd = new SubmissionDialog (bj, pkg, sp);
-                sd.reset();
-                sd.show();
+
+        if (evType == PackageEvent.PACKAGE_CLOSING) {
+            if ((--numPackagesOpen) <= 0)
+                anAction.setEnabled(false);
+        }
+    }
+
+
+
+    /**
+     * If it is as expected I will have only one to give out
+     * do NOT store the menu tree you just create, rely on the
+     * callback to know which menu gets selected.
+     *
+     * @return    The menuItem value
+     */
+    public JMenuItem getMenuItem()
+    {
+        return new JMenuItem(anAction);
+    }
+
+
+    /**
+     * This is the action that has to be performed when the given menu is selected
+     * It is fairly flexible to use and the parameters are just an example...
+     */
+    public class MenuAction extends AbstractAction
+    {
+        /**
+         *Constructor for the MenuAction object
+         *
+         * @param  menuName  Description of the Parameter
+         */
+        public MenuAction(String menuName)
+        {
+            putValue(AbstractAction.NAME, menuName);
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @param  anEvent  Description of the Parameter
+         */
+        public void actionPerformed(ActionEvent anEvent)
+        {
+            final BPackage pkg = stat.bluej.getCurrentPackage();
+
+            // If there is no current package open what am I dong here ?
+            if (pkg == null)
+                return;
+
+            if (submitterThread != null && submitterThread.isAlive()) {
+                stat.aDbg.notice(Stat.SVC_BUTTON, "MenuAction.actionPerformed: previous thread is alive");
+                return;
             }
-        };
-        submitterThread.start();
+
+            submitterThread =
+                new Thread()
+                {
+                    public void run()
+                    {
+                        stat.submiProp = new SubmissionProperties(stat, pkg);
+                        stat.submiProp.loadTree();
+                        sd = new SubmissionDialog(stat, pkg);
+                        sd.reset();
+                        sd.show();
+                    }
+                };
+            submitterThread.start();
         }
     }
 
 
+    /**
+     *  Gets the compatibleWith attribute of the Submitter object
+     *
+     * @param  majorVersion  Description of the Parameter
+     * @param  minorVersion  Description of the Parameter
+     * @return               The compatibleWith value
+     */
+    public boolean isCompatibleWith(int majorVersion, int minorVersion)
+    {
+        return (majorVersion == BUILT_FOR_MAJOR && minorVersion >= BUILD_FOR_MINOR);
+    }
+
+
+    /**
+     * Get this extension major
+     *
+     * @return    The versionMajor value
+     */
     public int getVersionMajor()
     {
         return VERSION_MAJOR;
     }
 
+
+    /**
+     * Gets this extension minor
+     *
+     * @return    The versionMinor value
+     */
     public int getVersionMinor()
     {
         return VERSION_MINOR;
     }
-    
+
+
+    /**
+     * Gets the description
+     *
+     * @return    The description value
+     */
     public String getDescription()
     {
-        return bj.getLabel ("description");
+        return stat.bluej.getLabel("description");
     }
-    
+
+
+    /**
+     * returns the a URL where you can find more info
+     *
+     * @return    The uRL value
+     */
     public URL getURL()
     {
         URL url = null;
         try {
-            url = new URL ("http://www.cs.ukc.ac.uk/projects/bluej/submit.html");
+            url = new URL("http://www.cs.ukc.ac.uk/projects/bluej/submit.html");
         } catch (java.net.MalformedURLException ex) {}
-        return url;  
+        return url;
     }
 }
-        
+
