@@ -520,6 +520,22 @@ instead of just
 or you must provide an implementation for the 
 method named in the error message.
 
+* is not abstract and does not override abstract method *
+The current class inherits from an abstract class
+or an interface. Abstract classes and interfaces 
+define methods without giving the implementation.
+This class does not define implementations for 
+all the methods that still need implementations,
+so this class itself is still abstract (meaning
+it still has methods without implementations).
+You must either declare this class abstract by 
+starting it with
+   public abstract class ...
+instead of just 
+   public class ...
+or you must provide an implementation for the 
+method named in the error message.
+
 error writing source; cannot overwrite input file *
 No help available
 
@@ -777,3 +793,4 @@ No help available
 
 * conflicts with a compiler-synthesized symbol in *
 No help available
+
