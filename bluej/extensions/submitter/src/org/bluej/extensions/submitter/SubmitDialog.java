@@ -394,7 +394,7 @@ public class SubmitDialog implements ActionListener
         ex = ((AbortOperationException) ex).getException();
           
     if (ex instanceof java.net.UnknownHostException)
-        return stat.bluej.getLabelInsert("exception.unknownhost", ex.getMessage());
+        return getLabelInsert("exception.unknownhost", ex.getMessage());
           
     if (ex instanceof java.net.NoRouteToHostException)
         return stat.bluej.getLabel("exception.notroutetohost");
@@ -403,7 +403,7 @@ public class SubmitDialog implements ActionListener
         return ex.getMessage();
           
     if (ex instanceof java.io.FileNotFoundException)
-        return stat.bluej.getLabelInsert("exception.filenotfound", ex.getMessage());
+        return getLabelInsert("exception.filenotfound", ex.getMessage());
           
     if (ex instanceof IllegalArgumentException && ex.getMessage().equals("SMTP Host has not been set"))
         return stat.bluej.getLabel("exception.hostnotset");
@@ -414,6 +414,30 @@ public class SubmitDialog implements ActionListener
     // I want to have a message in any case...        
     return ex.getMessage();
     }
+
+
+
+    /**
+     * Returns a language-independent label, and replaces the first occurrance
+     * of a <code>$</code> symbol with the given replacement string.
+     * If there is no occurrance of <code>$</code> then it will be added
+     * after a space, to the end of the resulting string
+     */
+    public String getLabelInsert (String id, String replacement)
+    {
+        String label = stat.bluej.getLabel (id);
+        int p = label.indexOf ('$');
+        if (p == -1) {
+            label += " $";
+            p = label.indexOf ('$');
+        }
+        label = label.substring (0, p) + replacement + label.substring (p+1);
+        return label;
+    }
+
+
+
+
 
 
 
