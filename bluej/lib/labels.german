@@ -285,6 +285,12 @@ dialogmgr.message = Message
 
 #Terminal Window
 terminal.title = BlueJ Terminal Window
+terminal.clear = Löschen
+terminal.copy = Kopieren
+terminal.save = Speichern...
+terminal.close = Schließen
+terminal.save.title = Terminal text speichern
+terminal.save.buttonText = Speichern
 
 # status messages
 pkgmgr.compiling=Übersetzen...
@@ -333,7 +339,6 @@ menu.view.showUses=Benutzt-Pfeile zeigen
 menu.view.showInherits=Vererbungspfeile zeigen
 menu.view.showExecControls=Debugger zeigen
 menu.view.showTerminal=Terminal zeigen
-menu.view.clearTerminal=Terminalinhalt löschen
 
 menu.group=Gruppenarbeit
 menu.group.make=Make Group Package

@@ -84,6 +84,8 @@ implements ActionListener, ListSelectionListener, ItemListener
     private void handleClose()
     {
         removeKeyListener();
+        if(!actions.save())
+            DialogManager.showError(this, "cannot-save-keys");
         setVisible(false);
     }
 

@@ -7,6 +7,7 @@ import bluej.utility.DialogManager;
 import bluej.prefmgr.PrefMgrDialog;
 
 import java.util.Hashtable;
+import java.io.*;
 
 import java.awt.Event;
 import java.awt.event.*;
@@ -36,11 +37,9 @@ public final class MoeActions
 {
     // -------- CONSTANTS --------
 
+    private static String KEYS_FILE = "bluej.keys";
     private static int SHIFT_CTRL_MASK;
-
-    //  spaces for entering half tabs
-    private static final String spaces = "    ";
-
+    
     // -------- INSTANCE VARIABLES --------
 
     private Action[] actionTable;	// table of all known actions
@@ -87,6 +86,7 @@ public final class MoeActions
         keymap = textComponent.getKeymap();
         createActionTable(textComponent);
         keyCatcher = new KeyCatcher();
+        load();
     }
 
     /**
@@ -123,6 +123,56 @@ public final class MoeActions
     public void removeKeyStrokeBinding(KeyStroke key)
     {
         keymap.removeKeyStrokeBinding(key);
+    }
+
+    /**
+     * Save the key bindings. Return true if successful.
+     */
+    public boolean save()
+    {
+        try {
+            String filename = Config.getUserConfigFilename(KEYS_FILE);
+            FileOutputStream ostream = new FileOutputStream(filename);
+            ObjectOutputStream stream = new ObjectOutputStream(ostream);
+            KeyStroke[] keys = keymap.getBoundKeyStrokes();
+            stream.writeInt(keys.length);
+            for(int i=0; i<keys.length; i++) {
+                stream.writeObject(keys[i]);
+                stream.writeObject(
+                           keymap.getAction(keys[i]).getValue(Action.NAME));
+            }
+            stream.flush();
+            ostream.close();
+            return true;
+        }
+        catch(Exception exc) {
+            Debug.message("Cannot save key bindings: " + exc);
+            return false;
+        }
+    }
+
+    /**
+     * Load the key bindings. Return true if successful.
+     */
+    public void load()
+    {
+        try {
+            String filename = Config.getUserConfigFilename(KEYS_FILE);
+            FileInputStream istream = new FileInputStream(filename);
+            ObjectInputStream stream = new ObjectInputStream(istream);
+            KeyStroke[] keys = keymap.getBoundKeyStrokes();
+            int count = stream.readInt();
+            for(int i=0; i<count; i++) {
+                KeyStroke key = (KeyStroke)stream.readObject();
+                String actionName = (String)stream.readObject();
+                Action action = (Action)(actions.get(actionName));
+                keymap.addActionForKeyStroke(key, action);
+            }
+            istream.close();
+        }
+        catch(Exception exc) {
+            // ignore  - file probably didn't exist (yet)
+        }
     }
 
     /**
@@ -450,25 +500,6 @@ public final class MoeActions
         }
     }
 
-    // --------------------------------------------------------------------
-
-    // **** not needed any more - TABs now set to 4
-    // 	public HalfTabAction() {
-    //  	    super("insert-half-tab",
-    //  		  KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));
-    // 	}
-
-    // 	public void actionPerformed(ActionEvent e) {
-    // 	    getEditor(e);
-    // 	    JTextComponent textPane = getTextComponent(e);
-    // 	    Element line = getCurrentLine(textPane);
-    // 	    int lineStart = line.getStartOffset();
-    // 	    int cursorPos = textPane.getCaretPosition();
-    // 	    int numSpaces = 4 - ((cursorPos - lineStart) % 4);
-    // 	    textPane.replaceSelection(spaces.substring(0, numSpaces));
-    // 	}
-    //     }
-
     // === Tools: ===
 
     // --------------------------------------------------------------------
@@ -632,6 +663,7 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
+            Debug.message("describe..");
             JTextComponent textComponent = getTextComponent(e);
             textComponent.addKeyListener(keyCatcher);
             MoeEditor ed = getEditor(e);
@@ -868,6 +900,7 @@ public final class MoeActions
         Action action;
         for (int i=0; i < textActions.length; i++) {
             action = textActions[i];
+            //Debug.message("a: " + action.getValue(Action.NAME));
             actions.put(action.getValue(Action.NAME), action);
         }
         for (int i=0; i < myActions.length; i++) {
@@ -942,7 +975,6 @@ public final class MoeActions
             (Action)(actions.get("print")),
             (Action)(actions.get("page-setup")),
 
-
             // customisation functions
             (Action)(actions.get("key-bindings")),              // 54
             (Action)(actions.get("preferences")),
@@ -972,9 +1004,13 @@ public final class MoeActions
                                     Config.getString("editor.functions.help"),
                                     Config.getString("editor.functions.misc")};
 
-        categoryIndex = new int[] { 0, 33, 49, 53, 55, 59, 68 };
+        categoryIndex = new int[] { 0, 33, 49, 54, 56, 60, 69 };
     }
 
+    /**
+     * Class KeyCatcher - used for implementation of "describe-key" command to
+     * catch the next key press so that we can see what it does.
+     */
     class KeyCatcher extends KeyAdapter
     {
         MoeEditor editor;

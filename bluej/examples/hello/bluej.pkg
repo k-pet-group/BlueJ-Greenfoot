@@ -1,10 +1,7 @@
 #BlueJ package file
-dependency1.from=Hello
-dependency1.to=Hello
-dependency1.type=UsesDependency
 package.editor.height=242
 package.editor.width=380
-package.numDependencies=1
+package.numDependencies=0
 package.numTargets=1
 target1.height=50
 target1.modifiers=1

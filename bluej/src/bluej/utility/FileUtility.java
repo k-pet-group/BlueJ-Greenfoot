@@ -25,6 +25,28 @@ public class FileUtility
     //========================= STATIC METHODS ============================
 
     /**
+     *  Get a file name from the user, using a file selection dialogue.
+     *  If cancelled or an invalid name was specified, return null.
+     */
+    public static String getFileName(Component parent, String title, 
+                                     String buttonLabel)
+    {
+        JFileChooser newChooser = getFileChooser(false);
+        newChooser.setDialogTitle(title);
+
+        int result = newChooser.showDialog(parent, buttonLabel);
+
+        if (result == JFileChooser.APPROVE_OPTION)
+            return newChooser.getSelectedFile().getPath();
+        else if (result == JFileChooser.CANCEL_OPTION)
+            return null;
+        else {
+            DialogManager.showError(parent, "error-no-name");
+            return null;
+        }
+    }
+
+    /**
      * Return a BlueJ package chooser, i.e. a file chooser which
      * recognises BlueJ packages and treats them differently.
      */

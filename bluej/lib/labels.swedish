@@ -285,6 +285,12 @@ dialogmgr.message = Meddelande
 
 #Terminal Window
 terminal.title = BlueJ Terminalfönster
+terminal.clear = Clear
+terminal.copy = Copy
+terminal.save = Save to file...
+terminal.close = Close
+terminal.save.title = Save terminal text
+terminal.save.buttonText = Save
 
 # status messages
 pkgmgr.compiling=Kompilerar...
@@ -333,7 +339,6 @@ menu.view.showUses=Visa Använder
 menu.view.showInherits=Visa Arv
 menu.view.showExecControls=Visa Debugger
 menu.view.showTerminal=Visa Terminal
-menu.view.clearTerminal=Rensa Terminal
 
 menu.group=Group Work
 menu.group.make=Make Group Paket

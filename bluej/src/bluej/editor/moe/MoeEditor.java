@@ -369,7 +369,7 @@ public final class MoeEditor extends JFrame
         if(vis) {
             textPane.setFont(PrefMgr.getStandardEditorFont());
             checkSyntaxStatus();
-            //  ## NYI: de-iconify
+            setState(Frame.NORMAL);  // de-iconify
         }
         super.setVisible(vis);		// show the window
     }

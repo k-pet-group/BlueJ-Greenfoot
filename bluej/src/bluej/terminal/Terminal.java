@@ -5,13 +5,15 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 526 2000-06-01 04:54:49Z mik $
+ ** @version $Id: Terminal.java 537 2000-06-12 04:09:14Z mik $
  **/
 
 package bluej.terminal;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import bluej.utility.FileUtility;
+import bluej.utility.DialogManager;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,6 +21,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.FileWriter;
 
 public final class Terminal extends JFrame
 	implements KeyListener
@@ -39,9 +42,9 @@ public final class Terminal extends JFrame
     static Terminal frame = null;
     public synchronized static Terminal getTerminal()
     {
-	if(frame == null)
-	    frame = new Terminal();
-	return frame;
+        if(frame == null)
+            frame = new Terminal();
+        return frame;
     }
 
     // -- instance --
@@ -55,7 +58,7 @@ public final class Terminal extends JFrame
      */
     private Terminal()
     {
-	this(WINDOWTITLE, 80, 25);
+        this(WINDOWTITLE, 80, 25);
     }
 
 
@@ -64,53 +67,53 @@ public final class Terminal extends JFrame
      */
     private Terminal(String title, int columns, int rows)
     {
-	super(title);
+        super(title);
 
-	buffer = new InputBuffer(256);
+        buffer = new InputBuffer(256);
 
-	text = new TermTextArea(rows, columns);
-	JScrollPane scrollPane = new JScrollPane(text);
-	text.setFont(new Font("Monospaced", Font.PLAIN, FONTSIZE));
-	text.setEditable(false);
-	text.setLineWrap(false);
-	text.setForeground(fgColour);
-	text.setMargin(new Insets(6, 6, 6, 6));
-	//text.setBackground(inactiveBgColour);
+        text = new TermTextArea(rows, columns);
+        JScrollPane scrollPane = new JScrollPane(text);
+        text.setFont(new Font("Monospaced", Font.PLAIN, FONTSIZE));
+        text.setEditable(false);
+        text.setLineWrap(false);
+        text.setForeground(fgColour);
+        text.setMargin(new Insets(6, 6, 6, 6));
+        //text.setBackground(inactiveBgColour);
 
-	getContentPane().add(scrollPane, BorderLayout.CENTER);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-	text.addKeyListener(this);
+        text.addKeyListener(this);
 
-	JMenuBar menubar = new JMenuBar();
-	JMenu menu = new JMenu("Options");
+        JMenuBar menubar = new JMenuBar();
+        JMenu menu = new JMenu("Options");
         JMenuItem item;
-            item = menu.add(new ClearAction());
-            item.setAccelerator(KeyStroke.getKeyStroke(
-                                             KeyEvent.VK_K, Event.CTRL_MASK));
-            item = menu.add(getCopyAction());
-            item.setText(Config.getString("terminal.copy"));
-            item.setAccelerator(KeyStroke.getKeyStroke(
-                                             KeyEvent.VK_C, Event.CTRL_MASK));
-            item = menu.add(new SaveAction());
-            item.setAccelerator(KeyStroke.getKeyStroke(
-                                             KeyEvent.VK_S, Event.CTRL_MASK));
-            menu.add(new JSeparator());
-            item = menu.add(new CloseAction());
-            item.setAccelerator(KeyStroke.getKeyStroke(
-                                             KeyEvent.VK_W, Event.CTRL_MASK));
+        item = menu.add(new ClearAction());
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, 
+                                                   Event.CTRL_MASK));
+        item = menu.add(getCopyAction());
+        item.setText(Config.getString("terminal.copy"));
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 
+                                                   Event.CTRL_MASK));
+        item = menu.add(new SaveAction());
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 
+                                                   Event.CTRL_MASK));
+        menu.add(new JSeparator());
+        item = menu.add(new CloseAction());
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, 
+                                                   Event.CTRL_MASK));
 
         menubar.add(menu);
-	setJMenuBar(menubar);
+        setJMenuBar(menubar);
 
-	// Close Action when close button is pressed
-	addWindowListener(new WindowAdapter() {
-	    public void windowClosing(WindowEvent event) {
-		Window win = (Window)event.getSource();
-		win.setVisible(false);
-	    }
-	});
+        // Close Action when close button is pressed
+        addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent event) {
+                    Window win = (Window)event.getSource();
+                    win.setVisible(false);
+                }
+            });
 
-	pack();
+        pack();
     }
 
 
@@ -119,9 +122,11 @@ public final class Terminal extends JFrame
      */
     public void showTerminal(boolean doShow)
     {
-	setVisible(doShow);
-	if(doShow)
+        setVisible(doShow);
+        if(doShow) {
+            setState(Frame.NORMAL);  // de-iconify / de-minimize
             text.requestFocus();
+        }
     }
 
 
@@ -130,7 +135,7 @@ public final class Terminal extends JFrame
      */
     public boolean isShown()
     {
-	return isShowing();
+        return isShowing();
     }
 
 
@@ -139,12 +144,12 @@ public final class Terminal extends JFrame
      */
     public void activate(boolean active)
     {
-	if(active != isActive) {
-	    text.setEditable(active);
-	    //text.setEnabled(active);
-	    //text.setBackground(active ? activeBgColour : inactiveBgColour);
-	    isActive = active;
-	}
+        if(active != isActive) {
+            text.setEditable(active);
+            //text.setEnabled(active);
+            //text.setBackground(active ? activeBgColour : inactiveBgColour);
+            isActive = active;
+        }
     }
 
 
@@ -153,7 +158,7 @@ public final class Terminal extends JFrame
      */
     public void clear()
     {
-	text.setText("");
+        text.setText("");
     }
 
 
@@ -162,7 +167,19 @@ public final class Terminal extends JFrame
      */
     public void save()
     {
-	//  NYI
+        String fileName = FileUtility.getFileName(this,
+                                                  Config.getString("terminal.save.title"),
+                                                  Config.getString("terminal.save.buttonText"));
+        if(fileName != null) {
+            try {
+                FileWriter writer = new FileWriter(fileName);
+                text.write(writer);
+                writer.close();
+            }
+            catch (IOException ex) {
+                DialogManager.showError(this, "error-save-file");
+            }
+        }
     }
 
     
@@ -171,8 +188,8 @@ public final class Terminal extends JFrame
      */
     private void writeToTerminal(String s)
     {
-	text.append(s);
-	text.setCaretPosition(text.getDocument().getLength());
+        text.append(s);
+        text.setCaretPosition(text.getDocument().getLength());
     }
 
 
@@ -181,9 +198,9 @@ public final class Terminal extends JFrame
      */
     private void setScreenSize(int columns, int rows)
     {
-	text.setColumns(columns);
-	text.setRows(rows);
-	pack();
+        text.setColumns(columns);
+        text.setRows(rows);
+        pack();
     }
 
 
@@ -192,45 +209,45 @@ public final class Terminal extends JFrame
      */
     private void prepare()
     {
-	if(!isShown())
-	    showTerminal(true);
+        if(!isShown())
+            showTerminal(true);
     }
 
     /**
      * Create a new input stream which reads from the terminal.
      */
     InputStream in = new InputStream() {
-	public int available()
-	{
-	    return buffer.numberOfCharacters();
-	}
+            public int available()
+            {
+                return buffer.numberOfCharacters();
+            }
 
-	public int read()
-	{
-	    return buffer.getChar();
-	}
+            public int read()
+            {
+                return buffer.getChar();
+            }
 
-	public int read(byte b[], int off, int len) throws IOException
-	{
-  	    int bytesRead = 0;
+            public int read(byte b[], int off, int len) throws IOException
+            {
+                int bytesRead = 0;
 
-  	    while(bytesRead < len) {
-  		b[off + bytesRead] = (byte)buffer.getChar();
-		bytesRead++;
-  		if(buffer.numberOfCharacters() == 0)
-		    break;
-	    }
+                while(bytesRead < len) {
+                    b[off + bytesRead] = (byte)buffer.getChar();
+                    bytesRead++;
+                    if(buffer.numberOfCharacters() == 0)
+                        break;
+                }
 
-  	    return bytesRead;
-	}
-    };
+                return bytesRead;
+            }
+        };
 
     /**
      * Return the input stream that can be used to read from this terminal.
      */
     public InputStream getInputStream()
     {
-	return in;
+        return in;
     }
 
 
@@ -238,25 +255,25 @@ public final class Terminal extends JFrame
      * Create a new output stream which writes to the terminal.
      */
     OutputStream out = new OutputStream() {
-	public void write(int b) throws IOException
-	{
-	    prepare();
-	    writeToTerminal("" + (char)b);
-	}
+            public void write(int b) throws IOException
+            {
+                prepare();
+                writeToTerminal("" + (char)b);
+            }
 
-	public void write(byte[] b, int off, int len) throws IOException
-	{
-	    prepare();
-	    writeToTerminal(new String(b, off, len));
-	}
-    };
+            public void write(byte[] b, int off, int len) throws IOException
+            {
+                prepare();
+                writeToTerminal(new String(b, off, len));
+            }
+        };
 
     /**
      * Return the output stream that can be used to write to this terminal
      */
     public OutputStream getOutputStream()
     {
-	return out;
+        return out;
     }
 
 
@@ -272,57 +289,57 @@ public final class Terminal extends JFrame
         // first, handle general terminal operations (menu shortcuts)
         if(Character.isISOControl(ch)) {
 
-             switch(ch) {
-                 case CHAR_CLEAR: clear();
-                      break;
-                 case CHAR_COPY: getCopyAction().actionPerformed(
-                                     new ActionEvent(event.getSource(), 0, ""));
-                      break;
-                 case CHAR_SAVE: save();
-                      break;
-                 case CHAR_CLOSE: showTerminal(false);
-                      break;
-             }
+            switch(ch) {
+            case CHAR_CLEAR: clear();
+                break;
+            case CHAR_COPY: getCopyAction().actionPerformed(
+                                                            new ActionEvent(event.getSource(), 0, ""));
+            break;
+            case CHAR_SAVE: save();
+                break;
+            case CHAR_CLOSE: showTerminal(false);
+                break;
+            }
         }
 
         // now, handle text input
-	if(isActive) {
+        if(isActive) {
 
-	    switch(ch) {
+            switch(ch) {
 	    
-	    case '\b':	// backspace
-		if(buffer.backSpace()) {
-		    try {
-			int length = text.getDocument().getLength();
-			text.replaceRange("", length-1, length);
-		    }
-		    catch (Exception exc) { 
-			Debug.reportError("bad location " + exc);
-		    }
-		}
-		break;
+            case '\b':	// backspace
+                if(buffer.backSpace()) {
+                    try {
+                        int length = text.getDocument().getLength();
+                        text.replaceRange("", length-1, length);
+                    }
+                    catch (Exception exc) { 
+                        Debug.reportError("bad location " + exc);
+                    }
+                }
+                break;
 
-	    case '\r':	// carriage return
-	    case '\n':	// newline
-		if(buffer.putChar('\n')) {
-		    writeToTerminal("" + ch);
-		    buffer.notifyReaders();
-		}
-		break;
+            case '\r':	// carriage return
+            case '\n':	// newline
+                if(buffer.putChar('\n')) {
+                    writeToTerminal("" + ch);
+                    buffer.notifyReaders();
+                }
+                break;
 
-	    default:
-		if(Character.isISOControl(ch)) {
-		    // control character - ignore
-		    // later: bind to functions!
-		}
-		else {
-		    if(buffer.putChar(ch))
-			writeToTerminal("" + ch);
-		    break;
-		}
-	    }
-	}
-	event.consume();	// make sure the text area doesn't handle this
+            default:
+                if(Character.isISOControl(ch)) {
+                    // control character - ignore
+                    // later: bind to functions!
+                }
+                else {
+                    if(buffer.putChar(ch))
+                        writeToTerminal("" + ch);
+                    break;
+                }
+            }
+        }
+        event.consume();	// make sure the text area doesn't handle this
     }
 
 
@@ -369,6 +386,6 @@ public final class Terminal extends JFrame
             if(textActions[i].getValue(Action.NAME).equals("copy-to-clipboard"))
                 return textActions[i];
 
-	return null;
+        return null;
     }
 }

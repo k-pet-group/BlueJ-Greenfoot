@@ -4,19 +4,18 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 import java.io.*;
 import java.awt.*;
 import java.awt.print.*;
-import java.awt.AWTEvent;
-import java.util.List;
 import java.text.DateFormat;
-
 
 import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.FileUtility;
 import bluej.utility.DialogManager;
 import bluej.graph.GraphEditor;
 import bluej.debugger.*;
@@ -30,7 +29,7 @@ import bluej.browser.LibraryBrowser;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 532 2000-06-08 07:46:08Z ajp $
+ * @version $Id: PkgMgrFrame.java 537 2000-06-12 04:09:14Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -47,8 +46,8 @@ public class PkgMgrFrame extends JFrame
     static final String newpkgTitle =  Config.getString("pkgmgr.newPkg.title");
     static final String createLabel =  Config.getString("pkgmgr.newPkg.buttonLabel");
 
-    static final int DEFAULT_WIDTH = 480;
-    static final int DEFAULT_HEIGHT = 340;
+    static final int DEFAULT_WIDTH = 460;
+    static final int DEFAULT_HEIGHT = 320;
 
     private static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
     private static String referenceUrl = Config.getPropString("bluej.url.reference");
@@ -415,27 +414,6 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     *  Get (via a dialogue from the user) and return a new package name.
-     *  If cancelled or an invalid name was specified, return null.
-     */
-    protected String getFileNameDialog(String title, String buttonLabel)
-    {
-        JFileChooser newChooser = getFileChooser(false);
-        newChooser.setDialogTitle(title);
-
-        int result = newChooser.showDialog(this, buttonLabel);
-
-        if (result == JFileChooser.APPROVE_OPTION)
-            return newChooser.getSelectedFile().getPath();
-        else if (result == JFileChooser.CANCEL_OPTION)
-            return null;
-        else {
-            DialogManager.showError(this, "error-no-name");
-            return null;
-        }
-    }
-
-    /**
      * return a file chooser for choosing any directory (default behaviour)
      */
     private JFileChooser getFileChooser(boolean directoryOnly)
@@ -751,10 +729,6 @@ public class PkgMgrFrame extends JFrame
             showHideExecControls(true, true);
             break;
 
-        case VIEW_CLEARTERMINAL:
-            clearTerminal();
-            break;
-
             // Group work commands
         case GRP_CREATE:
         case GRP_OPEN:
@@ -813,7 +787,7 @@ public class PkgMgrFrame extends JFrame
      */
     protected void doNewProject()
     {
-        String newname = getFileNameDialog(newpkgTitle, createLabel);
+        String newname = FileUtility.getFileName(this, newpkgTitle, createLabel);
 
         if (Project.createNewProject(newname))
         {
@@ -933,7 +907,7 @@ public class PkgMgrFrame extends JFrame
     private void doSaveAs()
     {
         // get a file name to save under
-        String newname = getFileNameDialog(saveAsTitle, saveLabel);
+        String newname = FileUtility.getFileName(this, saveAsTitle, saveLabel);
 
         if (newname != null) {
 
@@ -964,7 +938,7 @@ public class PkgMgrFrame extends JFrame
      */
     private void importClass()
     {
-        String className = getFileNameDialog(importClassTitle, importLabel);
+        String className = FileUtility.getFileName(this, importClassTitle, importLabel);
 
         if(className != null) {
             int result = pkg.importFile(className);
@@ -1850,11 +1824,9 @@ public class PkgMgrFrame extends JFrame
     static final int VIEW_SHOWINHERITS = VIEW_SHOWUSES + 1;
     static final int VIEW_SHOWCONTROLS = VIEW_SHOWINHERITS + 1;
     static final int VIEW_SHOWTERMINAL = VIEW_SHOWCONTROLS + 1;
-    static final int VIEW_CLEARTERMINAL = VIEW_SHOWTERMINAL + 1;
 
     static final String[] ViewCmds = {
         "showUses", "showInherits", "showExecControls", "showTerminal",
-        "clearTerminal",
     };
 
     static final KeyStroke[] ViewKeys = {
@@ -1862,11 +1834,10 @@ public class PkgMgrFrame extends JFrame
         KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK),
-        null,
     };
 
     static final int[] ViewSeparators = {
-        VIEW_SHOWINHERITS, VIEW_SHOWTERMINAL,
+        VIEW_SHOWINHERITS, 
     };
 
     static final int GRP_COMMAND = VIEW_COMMAND + 100;

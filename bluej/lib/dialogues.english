@@ -78,6 +78,15 @@ Error executing applet in appletviewer.
 error-no-name
 You must specify a valid name.
 
+error-save-file
+An error occurred when trying to save
+the file. The file was not saved.
+
+cannot-save-keys
+An error occurred while trying to save
+the key bindings. The bindings were not 
+saved.
+
 skeleton-error
 The default skeleton for the class could not be
 generated. This may be because of configuration

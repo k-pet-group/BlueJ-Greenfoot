@@ -7,6 +7,7 @@ import bluej.utility.DefaultProperties;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.text.JTextComponent;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
@@ -38,7 +39,7 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 434 2000-05-04 05:30:23Z ajp $
+ * @version $Id: Config.java 537 2000-06-12 04:09:14Z mik $
  */
 
 public class Config
@@ -88,7 +89,7 @@ public class Config
     static {
         JTextField f = new JTextField();
         KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-        Keymap map = f.getKeymap();
+        Keymap map = f.getKeymap(JTextComponent.DEFAULT_KEYMAP);
         map.removeKeyStrokeBinding(enter);
     }
 
@@ -384,6 +385,15 @@ public class Config
     public static String getLanguageFilename(String base)
     {
         return sys_confdir + File.separator + base + "." + language;
+    }
+
+    /**
+     * Return the file name for a file in the user config directory
+     * (<user_home>/.bluej/<base>)
+     */
+    public static String getUserConfigFilename(String base)
+    {
+        return user_confdir + File.separator + base;
     }
 
     public static Color getItemColour(String itemname)

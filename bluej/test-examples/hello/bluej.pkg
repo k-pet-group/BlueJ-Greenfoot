@@ -1,13 +1,26 @@
-#BlueJ project file
+#BlueJ package file
+package.editor.height=320
+package.editor.width=460
 package.numDependencies=0
-package.numTargets=1
-package.window.height=445
-package.window.width=565
+package.numTargets=3
 target1.height=50
-target1.modifiers=1
-target1.name=hello
+target1.modifiers=0
+target1.name=Person
 target1.type=ClassTarget
-target1.valid=true
-target1.width=90
-target1.x=70
-target1.y=60
+target1.width=80
+target1.x=110
+target1.y=180
+target2.height=50
+target2.modifiers=1
+target2.name=hello
+target2.type=ClassTarget
+target2.width=90
+target2.x=70
+target2.y=60
+target3.height=50
+target3.modifiers=0
+target3.name=Test
+target3.type=ClassTarget
+target3.width=80
+target3.x=240
+target3.y=100

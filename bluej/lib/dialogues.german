@@ -85,6 +85,16 @@ starten, ist ein Fehler aufgetreten.
 error-no-name
 Ein gültiger Name muss angegeben werden.
 
+error-save-file
+Fehler beim Versuch, die Datei zu speichern.
+Die Datei wurde nicht gespeichert.
+
+cannot-save-keys
+Beim Versuch, die Tastenbindungen zu
+speichern, ist ein Fehler aufgetreten.
+Die Tastenbindungen konnten nicht
+gespeichert werden.
+
 skeleton-error
 Das Skelett für die Klasse konnte nicht erzeugt
 werden. Mögliche Gründe dafür sind eine

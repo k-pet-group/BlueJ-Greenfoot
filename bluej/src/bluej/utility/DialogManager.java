@@ -28,11 +28,11 @@ public class DialogManager
      */
     public static void showMessage(Component parent, String msgID)
     {
-	String message = getMessage(msgID);
-	if(message != null)
-	    JOptionPane.showMessageDialog(parent, message,
+        String message = getMessage(msgID);
+        if(message != null)
+            JOptionPane.showMessageDialog(parent, message,
                                           Config.getString("dialogmgr.message"),
-					  JOptionPane.INFORMATION_MESSAGE);
+                                          JOptionPane.INFORMATION_MESSAGE);
     }
 
 
@@ -44,11 +44,11 @@ public class DialogManager
      * to the message.
      */
     public static void showMessageWithText(Component parent, String msgID,
-					   String text)
+                                           String text)
     {
-	String message = getMessage(msgID);
-	if(message != null)
-	    JOptionPane.showMessageDialog(parent, message + "\n" + text);
+        String message = getMessage(msgID);
+        if(message != null)
+            JOptionPane.showMessageDialog(parent, message + "\n" + text);
     }
 
 
@@ -60,7 +60,7 @@ public class DialogManager
      */
     public static void showText(Component parent, String text)
     {
-	JOptionPane.showMessageDialog(parent, text);
+        JOptionPane.showMessageDialog(parent, text);
     }
 
 
@@ -69,11 +69,11 @@ public class DialogManager
      */
     public static void showError(Component parent, String msgID)
     {
-	String message = getMessage(msgID);
-	if(message != null)
-	    JOptionPane.showMessageDialog(parent, message,
+        String message = getMessage(msgID);
+        if(message != null)
+            JOptionPane.showMessageDialog(parent, message,
                                           Config.getString("dialogmgr.error"),
-					  JOptionPane.ERROR_MESSAGE);
+                                          JOptionPane.ERROR_MESSAGE);
     }
 
 
@@ -81,12 +81,12 @@ public class DialogManager
      * Show an error dialog with message and "OK" button.
      */
     public static void showErrorWithText(Component parent, String msgID,
-					 String text)
+                                         String text)
     {
-	String message = getMessage(msgID);
-	if(message != null)
-	    JOptionPane.showMessageDialog(parent, message + "\n" + text,
-					  "Error", JOptionPane.ERROR_MESSAGE);
+        String message = getMessage(msgID);
+        if(message != null)
+            JOptionPane.showMessageDialog(parent, message + "\n" + text,
+                                          "Error", JOptionPane.ERROR_MESSAGE);
     }
 
 
@@ -98,28 +98,28 @@ public class DialogManager
      */
     public static int askQuestion(Component parent, String msgID)
     {
-	String message = getMessage(msgID);
-	if(message != null) {
-	    int button3Index = message.lastIndexOf("\n");
-	    int button2Index = message.lastIndexOf("\n", button3Index-1);
-	    int button1Index = message.lastIndexOf("\n", button2Index-1);
-	    String button3 = message.substring(button3Index+1);
-	    String button2 = message.substring(button2Index+1, button3Index);
-	    String button1 = message.substring(button1Index+1, button2Index);
-	    message = message.substring(0, button1Index);
-	    Object[] options;
-	    if ("null".equals(button3))
-		options = new Object[] { button1, button2 };
-	    else
-		options = new Object[] { button1, button2, button3 };
+        String message = getMessage(msgID);
+        if(message != null) {
+            int button3Index = message.lastIndexOf("\n");
+            int button2Index = message.lastIndexOf("\n", button3Index-1);
+            int button1Index = message.lastIndexOf("\n", button2Index-1);
+            String button3 = message.substring(button3Index+1);
+            String button2 = message.substring(button2Index+1, button3Index);
+            String button1 = message.substring(button1Index+1, button2Index);
+            message = message.substring(0, button1Index);
+            Object[] options;
+            if ("null".equals(button3))
+                options = new Object[] { button1, button2 };
+            else
+                options = new Object[] { button1, button2, button3 };
 
-	    return JOptionPane.showOptionDialog(parent, message,
+            return JOptionPane.showOptionDialog(parent, message,
                                                 Config.getString("dialogmgr.question"),
                                                 JOptionPane.DEFAULT_OPTION,
                                                 JOptionPane.WARNING_MESSAGE,
                                                 null, options, options[0]);
-	}
-	return 0;
+        }
+        return 0;
     }
 
 
@@ -128,25 +128,25 @@ public class DialogManager
      */
     public static String askString(Component parent, String msgID)
     {
-	String response = "";
-	String message = getMessage(msgID);
-	if(message != null) {
-	    int defaultTextIndex = message.lastIndexOf("\n");
-	    int titleIndex = message.lastIndexOf("\n", defaultTextIndex-1);
-	    String defaultText = message.substring(defaultTextIndex+1);
-	    String title = message.substring(titleIndex+1, defaultTextIndex);
-	    message = message.substring(0, titleIndex);
-	    if("null".equals(defaultText))
-		defaultText = null;
-	    response = (String)JOptionPane.showInputDialog(parent,
-						message,
-						title,
-						JOptionPane.PLAIN_MESSAGE,
-						null,
-						null,
-						defaultText);
-	}
-	return response;
+        String response = "";
+        String message = getMessage(msgID);
+        if(message != null) {
+            int defaultTextIndex = message.lastIndexOf("\n");
+            int titleIndex = message.lastIndexOf("\n", defaultTextIndex-1);
+            String defaultText = message.substring(defaultTextIndex+1);
+            String title = message.substring(titleIndex+1, defaultTextIndex);
+            message = message.substring(0, titleIndex);
+            if("null".equals(defaultText))
+                defaultText = null;
+            response = (String)JOptionPane.showInputDialog(parent,
+                                                           message,
+                                                           title,
+                                                           JOptionPane.PLAIN_MESSAGE,
+                                                           null,
+                                                           null,
+                                                           defaultText);
+        }
+        return response;
     }
 
     /**
@@ -154,14 +154,14 @@ public class DialogManager
      * dialogue text file (language dependent).
      */
     public static String getMessage(String msgID) {
-	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
-	String message = BlueJFileReader.readHelpText(filename, msgID, true);
-	if(message == null)
-	    JOptionPane.showMessageDialog(null,
-				"BlueJ configuration problem:\n" +
-				"text not found for message ID\n" +
-				msgID);
-	return message;
+        String filename = Config.getLanguageFilename(DLG_FILE_NAME);
+        String message = BlueJFileReader.readHelpText(filename, msgID, true);
+        if(message == null)
+            JOptionPane.showMessageDialog(null,
+                                          "BlueJ configuration problem:\n" +
+                                          "text not found for message ID\n" +
+                                          msgID);
+        return message;
     }
 
     /**
@@ -169,7 +169,7 @@ public class DialogManager
      */
     public static void NYI(Component frame)
     {
-	showMessage(frame, "not-yet-implemented");
+        showMessage(frame, "not-yet-implemented");
     }
 
 
@@ -180,7 +180,7 @@ public class DialogManager
      */
     public static void centreDialog(JDialog dialog)
     {
-	centreWindow(dialog, (Window)dialog.getParent());
+        centreWindow(dialog, (Window)dialog.getParent());
     }
 
 
@@ -189,14 +189,14 @@ public class DialogManager
      */
     public static void centreWindow(Window child, Window parent)
     {
-	child.pack();
+        child.pack();
 
-	Point p_topleft = parent.getLocationOnScreen();
-	Dimension p_size = parent.getSize();
-	Dimension d_size = child.getSize();
+        Point p_topleft = parent.getLocationOnScreen();
+        Dimension p_size = parent.getSize();
+        Dimension d_size = child.getSize();
 
-	child.setLocation(p_topleft.x + (p_size.width - d_size.width) / 2,
-			  p_topleft.y + (p_size.height - d_size.height) / 2);
+        child.setLocation(p_topleft.x + (p_size.width - d_size.width) / 2,
+                          p_topleft.y + (p_size.height - d_size.height) / 2);
     }
 
 
@@ -206,7 +206,7 @@ public class DialogManager
      */
     public static void tileWindow(Window child, Window parent)
     {
-	Point p_topleft = parent.getLocationOnScreen();
-	child.setLocation(p_topleft.x + 20, p_topleft.y + 20);
+        Point p_topleft = parent.getLocationOnScreen();
+        child.setLocation(p_topleft.x + 20, p_topleft.y + 20);
     }
 }

@@ -290,6 +290,8 @@ terminal.clear = Clear
 terminal.copy = Copy
 terminal.save = Save to file...
 terminal.close = Close
+terminal.save.title = Save terminal text
+terminal.save.buttonText = Save
 
 # status messages
 pkgmgr.compiling=Compiling...
@@ -339,7 +341,6 @@ menu.view.showUses=Show Uses
 menu.view.showInherits=Show Inheritance
 menu.view.showExecControls=Show Debugger
 menu.view.showTerminal=Show Terminal
-menu.view.clearTerminal=Clear Terminal
 
 menu.group=Group Work
 menu.group.make=Make Group Package

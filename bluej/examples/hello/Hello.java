@@ -3,9 +3,9 @@
  *
  * Test program to demonstrate BlueJ
  */
- class Hello
+class Hello
 {
-    /** 
+    /**
      * Method that does the work 
      */
     public void go()

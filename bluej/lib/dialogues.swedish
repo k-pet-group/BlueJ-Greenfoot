@@ -78,6 +78,15 @@ Fel under körning av applet i Appletviewer
 error-no-name
 Du måste ange ett godkänt namn.
 
+error-save-file
+An error occurred when trying to save
+the file. The file was not saved.
+
+cannot-save-keys
+An error occurred while trying to save
+the key bindings. The bindings were not 
+saved.
+
 skeleton-error
 Klassens default-mall kunde inte skapas.
 Detta kan bero på ett konfigurationsfel 
