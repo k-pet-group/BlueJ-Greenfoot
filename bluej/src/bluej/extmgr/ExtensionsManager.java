@@ -341,13 +341,14 @@ public class ExtensionsManager implements BlueJEventListener
      */
     public void blueJEvent(int eventId, Object arg)
         {
+/*        
         if ( eventId == BlueJEvent.EXECUTION_STARTED )
             {
             ExecutionEvent exevent = (ExecutionEvent) arg;
             delegateEvent ( new InvocationEvent ( eventId, exevent ) );
             return;              
             }
-
+*/
         if ( eventId == BlueJEvent.EXECUTION_RESULT )
             {
             ExecutionEvent exevent = (ExecutionEvent) arg;
