@@ -1,4 +1,4 @@
-last revised: 8/12/2003
+last revised: 8/11/2004
 
 Notes on the distribution:
 
@@ -31,6 +31,8 @@ be released at the same time as each BlueJ version.
 CONTENTS
 
 license.txt - BlueJ editor license (MIT license)
+license-jedit.syntax.txt - The license for the syntax highlighting 
+    package used in BlueJ editor.
 install.txt - information on how to extend the editor
 readme.txt  - this file
 build.xml   - a simple build file for the ant build tool 
@@ -53,7 +55,13 @@ felt it was the most flexible to allow you to do whatever you want
 with the code.  We welcome you to post back any enhancements you make
 to the editor for possible inclusion in the standard bluej release or
 to allow us to provide links to your implementation if you would like
-to share with others. Please mail your comments, questions and
+to share with others.
+
+The jedit syntax code (org.syntax.jedit) is a very early version of 
+the jEdit syntax highlighting code released under a public domain 
+license (see http://syntax.jedit.org/)
+
+Please mail your comments, questions and
 improvements to bluej-support@bluej.org.
 
 
