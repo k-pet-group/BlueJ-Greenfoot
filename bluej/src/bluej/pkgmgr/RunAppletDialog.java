@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: RunAppletDialog.java 281 1999-11-18 03:58:18Z axel $
+ ** @version $Id: RunAppletDialog.java 411 2000-03-13 02:54:47Z markus $
  ** @author Bruce Quig
  **
  ** Dialog for generating HTML and running applets.
@@ -28,16 +28,27 @@ class RunAppletDialog extends JDialog
     static final String cancel = Config.getString("cancel");
     static final String runAppletTitle = Config.getString("pkgmgr.runApplet.title");
     static final String createWebPage = Config.getString("pkgmgr.runApplet.webPageLabel");
+    static final String radioButtonText1 = Config.getString("pkgmgr.runApplet.webPage");
+    static final String radioButtonText2 = Config.getString("pkgmgr.runApplet.appletviewer");
+    static final String radioButtonText3 = Config.getString("pkgmgr.runApplet.webBrowser");
+    static final String heightLbl = Config.getString("pkgmgr.runApplet.heightLbl");
+    static final String widthLbl = Config.getString("pkgmgr.runApplet.widthLbl");
+    static final String newParameterLbl = Config.getString("pkgmgr.runApplet.newParameterLbl");
+    static final String appletParameterLbl = Config.getString("pkgmgr.runApplet.appletParameterLbl");
+    static final String nameLbl = Config.getString("pkgmgr.runApplet.nameLbl");
+    static final String valueLbl = Config.getString("pkgmgr.runApplet.valueLbl");
 
     static final int EXEC_APPLETVIEWER = 0;
     static final int EXEC_WEBBROWSER = 1;
     static final int GENERATE_PAGE_ONLY = 2;
   
-    private static final String ADD_BUTTON = "Add";
-    private static final String DELETE_BUTTON = "Delete";
+    private static final String ADD_BUTTON = Config.getString("classmgr.add");
+    private static final String DELETE_BUTTON = Config.getString("classmgr.delete");
     private static final String PARAM_NAME = "PARAM NAME";
+    // Config.getString("pkgmgr.runApplet.paramName");
     
     private static final String VALUE = "VALUE";
+    //Config.getString("pkgmgr.runApplet.value");
     private String webPageName;
 
     private JList parameterList;
@@ -93,13 +104,13 @@ class RunAppletDialog extends JDialog
 	JPanel radioPanel = new JPanel();
 	radioPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 	radioPanel.setLayout(new GridLayout(3, 1));
-	generateWebPage = new JRadioButton("Generate web page only", false);
+	generateWebPage = new JRadioButton(radioButtonText1, false);
 	radioPanel.add(generateWebPage);
 	bGroup.add(generateWebPage);
-	runAppletViewer = new JRadioButton("Run Applet in appletviewer", true);
+	runAppletViewer = new JRadioButton(radioButtonText2, true);
 	radioPanel.add(runAppletViewer);
 	bGroup.add(runAppletViewer);
-	runWebBrowser = new JRadioButton("Run Applet in web browser", false);
+	runWebBrowser = new JRadioButton(radioButtonText3, false);
 	radioPanel.add(runWebBrowser);
 	bGroup.add(runWebBrowser);
 	getContentPane().add("North", radioPanel);
@@ -108,21 +119,24 @@ class RunAppletDialog extends JDialog
 			       BorderFactory.createLineBorder(Color.darkGray),
 			       BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 	
-	addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel("Height = "), 
+	addGridBagComponent(webPanel, gridBag, gridConstraints, 
+                            new JLabel(heightLbl), 
 			    0, 1, 1, 1, GridBagConstraints.EAST);
 
 	heightField = new JTextField(5);
 	addGridBagComponent(webPanel, gridBag, gridConstraints, heightField, 
 			    1, 1, 1, 1, GridBagConstraints.WEST);
 
-	addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel("Width = "),
+	addGridBagComponent(webPanel, gridBag, gridConstraints, 
+                            new JLabel(widthLbl),
 			    2, 1, 1, 1, GridBagConstraints.EAST);
 
 	widthField = new JTextField(5);
 	addGridBagComponent(webPanel, gridBag, gridConstraints, widthField, 
 			    3, 1, 1, 1, GridBagConstraints.WEST);
 	
-	addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel("Add new parameter"), 
+	addGridBagComponent(webPanel, gridBag, gridConstraints,
+                            new JLabel(newParameterLbl), 
 			    4, 2, 2, 1, GridBagConstraints.CENTER); 
 
 	parameterList = new JList(appletParameters);
@@ -130,18 +144,23 @@ class RunAppletDialog extends JDialog
 	parameterList.setModel(appletParameters);
 	parameterList.addListSelectionListener(this);
 	JScrollPane parameterScroller = new JScrollPane(parameterList);
-	parameterScroller.setColumnHeaderView(new JLabel("Applet parameters", JLabel.CENTER));
-	addGridBagComponent(webPanel, gridBag, gridConstraints, parameterScroller, 
+	parameterScroller.setColumnHeaderView(new JLabel(appletParameterLbl, 
+                                                         JLabel.CENTER));
+	addGridBagComponent(webPanel, gridBag, gridConstraints, 
+                            parameterScroller, 
 			    0, 2, 4, 4, GridBagConstraints.CENTER);
 
-	addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel("Name = "), 
+	addGridBagComponent(webPanel, gridBag, gridConstraints, 
+                            new JLabel(nameLbl), 
 			    4, 3, 1, 1, GridBagConstraints.WEST);
 
 	paramNameField = new JTextField(16);
-	addGridBagComponent(webPanel, gridBag, gridConstraints, paramNameField, 
+	addGridBagComponent(webPanel, gridBag, gridConstraints, 
+                            paramNameField, 
 			    5, 3, 1, 1, GridBagConstraints.WEST);
 
-	addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel("Value = "), 
+	addGridBagComponent(webPanel, gridBag, gridConstraints, 
+                            new JLabel(valueLbl), 
 			    4, 4, 1, 1, GridBagConstraints.WEST);
 
 	paramValueField = new JTextField(16);

@@ -5,11 +5,12 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 221 1999-08-10 04:30:15Z mik $
+ ** @version $Id: Terminal.java 411 2000-03-13 02:54:47Z markus $
  **/
 
 package bluej.terminal;
 
+import bluej.Config;
 import bluej.utility.Debug;
 
 import java.awt.*;
@@ -22,7 +23,7 @@ import java.io.OutputStream;
 public final class Terminal extends JFrame
 	implements KeyListener
 {
-    private static final String WINDOWTITLE = "BlueJ Terminal Window";
+    private static final String WINDOWTITLE = Config.getString("terminal.title");
     private static final int FONTSIZE = 12;
     private static final Color activeBgColour = Color.white;
     private static final Color inactiveBgColour = new Color(224, 224, 224);

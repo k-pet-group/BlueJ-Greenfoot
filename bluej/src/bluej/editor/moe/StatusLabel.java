@@ -1,5 +1,6 @@
 package bluej.editor.moe;
 
+import bluej.Config;
 import bluej.utility.Debug;
 
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
@@ -25,7 +26,9 @@ implements DocumentListener
     static final int SAVED = 1;   
     static final int CHANGED = 2; 
 
-    private final String[] stateString = { "read-only", "saved", "changed" };
+    private final String[] stateString = { Config.getString("editor.state.readOnly"), 
+                                           Config.getString("editor.state.saved"),
+                                           Config.getString("editor.state.changed")};
 
 
     // ------------ INSTANCE VARIABLES ------------

@@ -1,14 +1,13 @@
 #BlueJ project file
-#Tue Aug 10 17:53:57 GMT+10:00 1999
-target1.height=50
-package.window.height=450
-target1.y=50
-target1.x=90
-target1.valid=true
-package.numTargets=1
-target1.type=ClassTarget
-package.window.width=512
-target1.name=SimpleInput
-target1.width=90
 package.numDependencies=0
+package.numTargets=1
+package.window.height=450
+package.window.width=512
+target1.height=50
 target1.modifiers=1
+target1.name=SimpleInput
+target1.type=ClassTarget
+target1.valid=true
+target1.width=90
+target1.x=90
+target1.y=50

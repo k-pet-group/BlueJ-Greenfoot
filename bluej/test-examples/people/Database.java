@@ -59,9 +59,9 @@ public class Database {
     /**
      * method comment here
      */
-    public String getS()
+    public Vector getS()
     {
-        return "";
+        return (Vector)personVector.clone();
     }
 
     /**

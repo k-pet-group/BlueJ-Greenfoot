@@ -33,6 +33,7 @@ implements ActionListener, ListSelectionListener, ItemListener
 {
     // -------- CONSTANTS --------
 
+    static final String title = Config.getString("editor.functions.title");
     static final String close = Config.getString("close");
     static final String defaultsLabel = Config.getString("editor.functions.defaults");
     static final String categoriesLabel = Config.getString("editor.functions.categories");
@@ -66,7 +67,7 @@ implements ActionListener, ListSelectionListener, ItemListener
     public FunctionDialog(JFrame parent, Action[] actiontable, 
                           String[] categories, int[] categoryIndex)
     {
-        super(parent, "Editor Functions", true);
+        super(parent, title, true);
         focusMgr = FocusManager.getCurrentManager();
         actions = MoeActions.getActions(null);
         currentAction = null;

@@ -73,7 +73,7 @@ public class Clock extends Applet implements Runnable {
     }
 
     // Plotpoints allows calculation to only cover 45 degrees of the circle,
-    // and then mirror
+    // and then mirror    
     public void plotpoints(int x0, int y0, int x, int y, Graphics g) {
         g.drawLine(x0+x,y0+y,x0+x,y0+y);
         g.drawLine(x0+y,y0+x,x0+y,y0+x);

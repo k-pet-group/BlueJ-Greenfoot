@@ -36,5 +36,5 @@ target4.name=Database
 target4.type=ClassTarget
 target4.valid=true
 target4.width=80
-target4.x=20
-target4.y=20
+target4.x=30
+target4.y=40

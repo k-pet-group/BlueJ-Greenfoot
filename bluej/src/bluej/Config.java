@@ -38,7 +38,7 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 407 2000-03-10 03:19:23Z mik $
+ * @version $Id: Config.java 411 2000-03-13 02:54:47Z markus $
  */
 
 public class Config
@@ -113,7 +113,7 @@ public class Config
         language = bluej_props.getProperty("bluej.language");
         lang_props = loadDefs("labels." + language, false);
 
-        moe_props = loadDefs("moe.labels." + language, false);
+        moe_props = loadDefs("moe.defs", false);
 
 /*        fontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize","12"));
         editFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.editor","12"));
@@ -239,7 +239,7 @@ public class Config
 
     /**
      * get a string from the language dependent definitions file
-     * (eg. "english.defs")
+     * (eg. "labels.english")
      */
     public static String getString(String strname)
     {

@@ -4,7 +4,7 @@
  **
  ** Test program to demonstrate JavaBlue
  **/
- 
+
 public class hello
 {
     static final int cons = 42;
@@ -15,9 +15,8 @@ public class hello
     public void go()
     {
         int nummer;
-
         nummer = 42;
-        System.out.println("hello, world");
+        System.out.println("hello, world");		
     }
 	
     	/**

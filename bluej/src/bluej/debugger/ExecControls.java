@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 242 1999-08-19 06:43:31Z mik $
+ ** @version $Id: ExecControls.java 411 2000-03-13 02:54:47Z markus $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -20,13 +20,13 @@ public class ExecControls extends JFrame
 
     implements ActionListener, ListSelectionListener
 {
-    private static final String windowTitle = "BlueJ Debugger";
-    private static final String stackTitle = "Call Sequence";
-    private static final String instanceTitle = "Instance Variables";
-    private static final String localTitle = "Local Variables";
-    private static final String threadTitle = "Threads";
-    private static final String updateText = "Update";
-    private static final String closeText = "Close";
+    private static final String windowTitle = Config.getString("debugger.execControls.windowTitle");
+    private static final String stackTitle = Config.getString("debugger.execControls.stackTitle");
+    private static final String instanceTitle = Config.getString("debugger.execControls.instanceTitle");
+    private static final String localTitle = Config.getString("debugger.execControls.localTitle");
+    private static final String threadTitle = Config.getString("debugger.execControls.threadTitle");
+    private static final String updateText = Config.getString("debugger.execControls.updateText");
+    private static final String closeText = Config.getString("close");
 
     private static String[] empty = new String[0];
 

@@ -5,14 +5,15 @@
  * Version: 1.0
  * Date:    January 1999
  */
-	
-class Student extends Person  
+
+class Student extends Person
 {
 	private String SID;    // student ID number
 
     /**
      * Create a student with default settings for detail information.
      */
+
     Student()
     {
     	super("(unknown name)", 0000);
@@ -48,3 +49,5 @@ class Student extends Person
     }
 
 }
+
+

@@ -16,6 +16,8 @@ public final class Finder extends JDialog
 
     implements ActionListener
 {
+    static final String title = Config.getString("editor.find.title");
+    static final String textfieldLabel = Config.getString("editor.find.textfield.label");
     static final String cancel = Config.getString("cancel");
     static final String forwardText = Config.getString("editor.find.forward");
     static final String backwardText = Config.getString("editor.find.backward");
@@ -42,7 +44,7 @@ public final class Finder extends JDialog
 
     public Finder()
     {
-	super((Frame)null, "Find", true);
+	super((Frame)null, title, true);
 
 	searchString = null;
 	searchFound = true;
@@ -167,7 +169,7 @@ public final class Finder extends JDialog
 	textPanel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
 	textPanel.setLayout(new GridLayout(0,1));
 
-	textPanel.add(new JLabel("Find:"));
+	textPanel.add(new JLabel(textfieldLabel));
 	textField = new JTextField(16);
 	textPanel.add(textField);
 	

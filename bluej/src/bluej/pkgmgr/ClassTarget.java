@@ -43,7 +43,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 406 2000-03-09 02:19:04Z ajp $
+ * @version $Id: ClassTarget.java 411 2000-03-13 02:54:47Z markus $
  */
 public class ClassTarget extends EditableTarget
 
@@ -370,7 +370,7 @@ public class ClassTarget extends EditableTarget
 						      loader);
 	}
 	else
-	    return "Class has to be compiled to set breakpoints.";
+	    return Config.getString("pkgmgr.breakpointMsg");
     }
 
     /**

@@ -21,7 +21,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 392 2000-02-15 03:56:03Z bquig $
+ ** @version $Id: AppletClassRole.java 411 2000-03-13 02:54:47Z markus $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -205,21 +205,22 @@ public class AppletClassRole extends ClassRole
 		String url = URL_PREFIX + absoluteFileName;
 
 		if(execOption == RunAppletDialog.EXEC_APPLETVIEWER) {
-		    try {
-				String[] execCommand = {APPLETVIEWER_COMMAND, url};
-				((PkgMgrFrame)pkg.getFrame()).displayMessage("Executing Applet in appletviewer");
-			Process applet = 
-			    Runtime.getRuntime().exec(execCommand);
-		    } catch (Exception e) {
-			DialogManager.showError(pkg.getFrame(), 
-						"appletviewer-error");	
-			Debug.reportError("Exception thrown in execution of appletviewer");
-			e.printStackTrace();
-		    }
+                  try {
+                    String[] execCommand = {APPLETVIEWER_COMMAND, url};
+                    ((PkgMgrFrame)pkg.getFrame()).displayMessage(Config.getString("pkgmgr.appletInViewer"));
+                    
+                    Process applet = 
+                      Runtime.getRuntime().exec(execCommand);
+                  } catch (Exception e) {
+                    DialogManager.showError(pkg.getFrame(), 
+                                            "appletviewer-error");	
+                    Debug.reportError("Exception thrown in execution of appletviewer");
+                    e.printStackTrace();
+                  }
 		}
 		else {
-		    // start in Browser
-		    ((PkgMgrFrame)pkg.getFrame()).displayMessage("Executing Applet in web browser");
+                    // start in Browser
+		    ((PkgMgrFrame)pkg.getFrame()).displayMessage(Config.getString("pkgmgr.appletInBrowser"));
 		    Utility.openWebBrowser(absoluteFileName);
 		}
 	    }

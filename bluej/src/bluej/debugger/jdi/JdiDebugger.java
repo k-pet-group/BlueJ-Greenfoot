@@ -2,6 +2,7 @@ package bluej.debugger.jdi;
 
 import bluej.debugger.*;
 
+import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.utility.Debug;
 import bluej.runtime.ExecServer;
@@ -34,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 329 2000-01-02 13:22:01Z ajp $
+ * @version $Id: JdiDebugger.java 411 2000-03-13 02:54:47Z markus $
  *
  * The startup process is as follows:
  *
@@ -723,7 +724,7 @@ public final class JdiDebugger extends Debugger
 	try {
 	    Location loc = findLocationInLine(remoteClass, line);
 	    if(loc == null)
-		return "Cannot set breakpoint: no code in this line";
+		return Config.getString("debugger.jdiDebugger.noCodeMsg");
 
 	    EventRequestManager erm = vm.eventRequestManager();
 	    if(set) {
@@ -742,20 +743,18 @@ public final class JdiDebugger extends Debugger
 		    }
 		}
 		// bp not found
-		return "Clear breakpoint: no breakpoint found in this line.";
+		return Config.getString("debugger.jdiDebugger.noBreakpointMsg");
 	    }
 	}
 	catch(AbsentInformationException e) {
-	    return "This class has been compiled without line number\n" +
-		"information. You cannot set breakpoints.";
+	    return Config.getString("debugger.jdiDebugger.noLineNumberMsg");
 	}
 	catch(InvalidLineNumberException e) {
-	    return "Cannot set breakpoint: no code in this line";
+	    return Config.getString("debugger.jdiDebugger.noCodeMsg");
 	}
 	catch(Exception e) {
 	    Debug.reportError("breakpoint error: " + e);
-	    return "There was an internal error while attempting to\n" +
-		   "set this breakpoint";
+	    return Config.getString("debugger.jdiDebugger.internalErrorMsg");
 	}
     }
 

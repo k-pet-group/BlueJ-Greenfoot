@@ -5,7 +5,6 @@
  * Version: 1.0
  * Date:    January 1999
  */
-
 class Student extends Person
 {
     private String SID;    // student ID number

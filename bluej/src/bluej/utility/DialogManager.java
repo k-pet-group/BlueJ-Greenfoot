@@ -69,7 +69,8 @@ public class DialogManager
     {
 	String message = getMessage(msgID);
 	if(message != null)
-	    JOptionPane.showMessageDialog(parent, message, "Error",
+	    JOptionPane.showMessageDialog(parent, message, 
+                                          Config.getString("dialogmgr.error"),
 					  JOptionPane.ERROR_MESSAGE);
     }
 
@@ -110,10 +111,11 @@ public class DialogManager
 	    else
 		options = new Object[] { button1, button2, button3 };
 
-	    return JOptionPane.showOptionDialog(parent, message, "Question", 
-					    JOptionPane.DEFAULT_OPTION, 
-					    JOptionPane.WARNING_MESSAGE, 
-					    null, options, options[0]);
+	    return JOptionPane.showOptionDialog(parent, message, 
+                                                Config.getString("dialogmgr.question"), 
+                                                JOptionPane.DEFAULT_OPTION, 
+                                                JOptionPane.WARNING_MESSAGE, 
+                                                null, options, options[0]);
 	}
 	return 0;
     }

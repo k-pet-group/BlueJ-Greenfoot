@@ -15,7 +15,7 @@ class Student extends Person
 	 **/
 	Student()
 	{
-	    super("(unknown name)", 0000);
+	    super("(unknown name)", "(unknown name)", 0000);
 	    SID = "(unknown ID)";
 	}
 
@@ -24,7 +24,7 @@ class Student extends Person
 	 **/
 	Student(String name, int yearOfBirth, String studentID)
 	{
-	    super(name, yearOfBirth);
+	    super(name, studentID, yearOfBirth);
 	    SID = studentID;
 	}
 

@@ -1,5 +1,6 @@
 package bluej.editor.moe;
 
+import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
@@ -948,12 +949,13 @@ public final class MoeActions
             (Action)(actions.get("toggle-breakpoint")),
         };                                                      // 68
 
-        categories = new String[] { "Edit Functions",
-                                    "Move & Scroll",
-                                    "Class Functions",
-                                    "Customisation",
-                                    "Help",
-                                    "Misc." };
+        categories = new String[] { Config.getString("editor.functions.editFunctions"),
+                                    Config.getString("editor.functions.moveScroll"),
+                                    Config.getString("editor.functions.classFunctions"),
+                                    Config.getString("editor.functions.customisation"),
+                                    Config.getString("editor.functions.help"),
+                                    Config.getString("editor.functions.misc")};
+
         categoryIndex = new int[] { 0, 33, 49, 53, 55, 59, 68 };
     }
 
@@ -999,6 +1001,7 @@ public final class MoeActions
         {
             editor = ed;
         }
+
     }
 
 } // end class MoeActions

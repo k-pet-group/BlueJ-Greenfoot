@@ -33,7 +33,7 @@ class Student extends Person
 	 **/
 	public String getStudentID()
 	{
-	    return SID;
+	    return null;//SID;
 	}
 
 	/**

@@ -231,12 +231,13 @@ public final class MoeEditor extends JFrame
         //       save_state = Saved;
 
         if (loaded)
-            info.message ("Moe version " + versionString);
+            info.message (Config.getString("editor.info.version"));
         else if (readError)
-            info.warning ("There was a problem reading this file.",
-                          "(Is it really a regular file? Do you have read access?)");
+            info.warning (Config.getString("editor.info.readingProblem"),
+                          Config.getString("editor.info.regularFile"));
         else
-            info.message ("Moe version " + versionString, "New file");
+            info.message (Config.getString("editor.info.version"),
+                          Config.getString("editor.info.newFile"));
 
         setWindowTitle();
         textPane.setFont(PrefMgr.getStandardEditorFont());
@@ -416,7 +417,7 @@ public final class MoeEditor extends JFrame
                 setSaved();
             }
             catch (IOException ex) {
-                info.warning ("Error in saving file!");
+                info.warning (Config.getString("editor.info.errorSaving"));
             }
         }
     }
@@ -544,7 +545,7 @@ public final class MoeEditor extends JFrame
     {
         setCompileStatus(compiled);
         if (compiled)
-            info.message("Class compiled - no syntax errors");
+            info.message(Config.getString("editor.info.compiled"));
     }
 
     // --------------------------------------------------------------------
@@ -610,7 +611,7 @@ public final class MoeEditor extends JFrame
     public void userSave()
     {
         if (saveState.isSaved())
-            info.message ("No changes need to be saved");
+            info.message (Config.getString("editor.info.noChanges"));
         else 
             save();
     }
@@ -622,8 +623,8 @@ public final class MoeEditor extends JFrame
     public void reload()
     {
         if (filename == null) {
-            info.warning ("Can not reload - this text was never saved!",
-                          "(\"Reload\" reloads the last saved state from disk.)");
+            info.warning (Config.getString("editor.info.cannotReload"),
+                          Config.getString("editor.info.reload"));
         }
         else if (saveState.isChanged()) {
             int answer = DialogManager.askQuestion(this, "really-reload");
@@ -735,7 +736,7 @@ public final class MoeEditor extends JFrame
     private void findString(Finder finder, String s, boolean backward)
     {
         if (s.length()==0) {
-            info.warning("Empty search string.");
+            info.warning(Config.getString("editor.info.emptySearchString"));
             return;
         }
         String msg;
@@ -751,7 +752,7 @@ public final class MoeEditor extends JFrame
         finder.setSearchString(s);
         finder.setSearchFound(found);
         if (! found)
-            info.warning(msg, "Not found");
+            info.warning(msg, Config.getString("editor.info.notFound"));
     }
 
     // --------------------------------------------------------------------
@@ -888,7 +889,7 @@ public final class MoeEditor extends JFrame
         if (!isCode)
             return;
 
-        info.message ("Compiling...");
+        info.message (Config.getString("editor.info.compiling"));
         watcher.compile(this);
     }
 
@@ -992,8 +993,7 @@ public final class MoeEditor extends JFrame
             repaint();
         }
         else
-            info.warning("Cannot set breakpoint:\n" +
-                         "No code associated with this editor.");
+            info.warning(Config.getString("editor.info.cannotSetBreak"));
 
     }
 
@@ -1119,10 +1119,10 @@ public final class MoeEditor extends JFrame
             document.addUndoableEditListener(new MoeUndoableEditListener());
         }
         catch (FileNotFoundException ex) {
-            info.warning ("ERROR: The file seems to have disappeared!");
+            info.warning (Config.getString("editor.info.fileDisappeared"));
         }
         catch (IOException ex) {
-            info.warning ("ERROR: There was an error while trying to read this file");
+            info.warning (Config.getString("editor.info.fileReadError"));
         }
         setSaved();
     }
@@ -1175,7 +1175,7 @@ public final class MoeEditor extends JFrame
      */
     private void setSaved()
     {
-        info.message ("File saved");
+        info.message (Config.getString("editor.info.saved"));
         saveState.setState (StatusLabel.SAVED);
         if(watcher != null)
             watcher.saveEvent(this);
@@ -1431,7 +1431,7 @@ public final class MoeEditor extends JFrame
         String label;
 
         // get menu title
-        JMenu menu = new JMenu(getResource(key + LabelSuffix));
+        JMenu menu = new JMenu(Config.getString("editor."+key + LabelSuffix));
 
         // get menu definition
         String itemString = getResource(key);
@@ -1453,7 +1453,7 @@ public final class MoeEditor extends JFrame
                     Debug.message ("Moe: cannot find action " + itemKeys[i]);
                 else {
                     item = menu.add(action);
-                    label = getResource(itemKeys[i] + LabelSuffix);
+                    label = Config.getString("editor."+itemKeys[i] + LabelSuffix);
                     if (label != null)
                         item.setText(label);
                     KeyStroke[] keys = actions.getKeyStrokesForAction(action);
@@ -1495,7 +1495,7 @@ public final class MoeEditor extends JFrame
 
     private JButton createToolbarButton(String key)
     {
-        String label = getResource(key + LabelSuffix);
+        String label = Config.getString("editor."+key + LabelSuffix);
         JButton button = new JButton(label);
     
         button.setRequestFocusEnabled(false);   // never get keyboard focus
@@ -1522,10 +1522,10 @@ public final class MoeEditor extends JFrame
     private JComboBox createViewSelector(String key)
     {
         String[] viewStrings = 
-        { getResource(key + LabelSuffix + "1"),
-          getResource(key + LabelSuffix + "2"),
-          getResource(key + LabelSuffix + "3"),
-          getResource(key + LabelSuffix + "4") };
+        { Config.getString("editor."+key + LabelSuffix + "1"),
+          Config.getString("editor."+key + LabelSuffix + "2"),
+          Config.getString("editor."+key + LabelSuffix + "3"),
+          Config.getString("editor."+key + LabelSuffix + "4") };
         viewSelector = new JComboBox(viewStrings);
         viewSelector.setRequestFocusEnabled(false);   // never get focus
         viewSelector.addItemListener(this);
