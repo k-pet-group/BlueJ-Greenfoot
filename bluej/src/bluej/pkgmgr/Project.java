@@ -21,7 +21,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2890 2004-08-18 04:32:58Z davmac $
+ * @version $Id: Project.java 2895 2004-08-18 08:42:23Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -162,6 +162,7 @@ public class Project
      */
     public static void closeProject(Project project)
     {
+//        System.out.println
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(project);
 
         if (frames != null) {
@@ -694,8 +695,20 @@ public class Project
         if (newName != null) {
 
             saveAll();
-            new ExportManager(frame).saveAs(getProjectDir().getPath(),
-                                            newName);
+            
+            int result = FileUtility.copyDirectory(getProjectDir().getPath(), newName);
+            switch(result) {
+                case FileUtility.NO_ERROR:
+                    break;
+                case FileUtility.DEST_EXISTS:
+                    DialogManager.showError(frame, "directory-exists");
+                    return;
+                case FileUtility.SRC_NOT_DIRECTORY:
+                case FileUtility.COPY_ERROR:
+                    DialogManager.showError(frame, "cannot-copy-package");
+                    return;
+            }
+
             closeProject(this);
 
             // open new project

@@ -5,7 +5,6 @@ import java.util.zip.*;
 import java.io.*;
 
 import bluej.Config;
-import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ProjectClassLoader;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -16,7 +15,7 @@ import bluej.utility.FileUtility;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 2887 2004-08-17 15:18:28Z mik $
+ * @version $Id: ExportManager.java 2895 2004-08-18 08:42:23Z mik $
  */
 final class ExportManager
 {
@@ -83,13 +82,6 @@ final class ExportManager
             classpath += " " + libs[i].getName();
         }
         
-//        // add jar files from lib/userlib and Preferences to classpath
-//        String userLibs = ClassMgr.getClassMgr().getUserClassPath().asList(' ', false);
-//        if(userLibs.length() > 0) {
-//            classpath += " " + userLibs;
-//        }
-//        System.out.println(classpath);
-
         try {
             // create manifest
             Manifest manifest = new Manifest();
@@ -213,26 +205,6 @@ final class ExportManager
         finally {
             if(in != null)
                 in.close();
-        }
-    }
-
-    /**
-     * Do a 'save as' -- that is: copy this project dir to another location.
-     */
-    public void saveAs(String sourceDir, String destDir)
-    {
-         int result = FileUtility.copyDirectory(sourceDir, destDir,
-                                               false, false);
-        switch(result) {
-            case FileUtility.NO_ERROR:
-                break;
-            case FileUtility.DEST_EXISTS:
-                DialogManager.showError(frame, "directory-exists");
-                return;
-            case FileUtility.SRC_NOT_DIRECTORY:
-            case FileUtility.COPY_ERROR:
-                DialogManager.showError(frame, "cannot-copy-package");
-                return;
         }
     }
 }

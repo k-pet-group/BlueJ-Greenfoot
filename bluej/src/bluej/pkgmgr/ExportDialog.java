@@ -2,12 +2,15 @@ package bluej.pkgmgr;
 
 import bluej.*;
 import bluej.Config;
+import bluej.classmgr.ClassMgr;
+import bluej.classmgr.ClassPathEntry;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
 
 import java.util.List;
 import java.util.Iterator;
 import java.util.Collections;
+import java.io.File;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -17,7 +20,7 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 2887 2004-08-17 15:18:28Z mik $
+ * @version $Id: ExportDialog.java 2895 2004-08-18 08:42:23Z mik $
  */
 class ExportDialog extends JDialog
 {
@@ -33,15 +36,14 @@ class ExportDialog extends JDialog
 
     private JComboBox classSelect;
     private JCheckBox sourceBox;
-
+    private UserLibInfo[] userLibs;
+    
     private boolean ok;		// result: which button?
-    private Project project;
 
     public ExportDialog(PkgMgrFrame parent)
     {
         super(parent, dialogTitle, true);
-        project = parent.getProject();
-        makeDialog();
+        makeDialog(parent.getProject());
     }
 
     /**
@@ -95,7 +97,7 @@ class ExportDialog extends JDialog
     /**
      * Create the dialog interface.
      */
-    private void makeDialog()
+    private void makeDialog(Project project)
     {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -121,7 +123,6 @@ class ExportDialog extends JDialog
                 inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
                 inputPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-                //create compound border empty border outside of a titled border
 				inputPanel.setBorder(BorderFactory.createCompoundBorder(
 						BorderFactory.createEtchedBorder(),
 						BorderFactory.createEmptyBorder(5, 10, 5, 10)));
@@ -132,8 +133,12 @@ class ExportDialog extends JDialog
 
                 classSelect = new JComboBox();
                 classSelect.setAlignmentX(LEFT_ALIGNMENT);
-                makeClassPopup(classSelect);
+                makeClassPopup(project, classSelect);
                 inputPanel.add(classSelect);
+                inputPanel.add(Box.createVerticalStrut(5));
+                
+                JPanel userLibPanel = createUserLibPanel();
+                inputPanel.add(userLibPanel);
                 inputPanel.add(Box.createVerticalStrut(5));
 
                 sourceBox = new JCheckBox(sourceLabel, false);
@@ -176,9 +181,9 @@ class ExportDialog extends JDialog
     /**
      * Fill the class name popup selector with all classes of the project
      */
-    private void makeClassPopup(JComboBox popup)
+    private void makeClassPopup(Project project, JComboBox popup)
     {
-    	popup.setFont(PrefMgr.getPopupMenuFont());
+        popup.setFont(PrefMgr.getPopupMenuFont());
         popup.addItem(noClassText);
 
         List packageNames = project.getPackageNames();
@@ -195,6 +200,54 @@ class ExportDialog extends JDialog
             else
                 for (Iterator classes = classNames.iterator(); classes.hasNext();)
                     popup.addItem(classes.next());
+        }
+    }
+    
+    private JPanel createUserLibPanel()
+    {
+        // collect info about jar files from lib/userlib and Preferences
+        List libs = ClassMgr.getClassMgr().getUserClassPath().getPathEntries();
+        UserLibInfo[] userLibs = new UserLibInfo[libs.size()];
+        int idx = 0;
+        for(Iterator it = libs.iterator(); it.hasNext(); ) {
+            ClassPathEntry cpe = (ClassPathEntry) it.next();
+            userLibs[idx++] = new UserLibInfo(cpe.getFile());
+        }
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setAlignmentX(LEFT_ALIGNMENT);
+        
+        for(int i = 0; i < userLibs.length; i++) {
+            panel.add(userLibs[i].getCheckBox());
+        }
+        return panel;
+    }
+    
+    class UserLibInfo {
+        private File sourceFile;
+        private JCheckBox checkBox;
+        
+        public UserLibInfo(File source)
+        {
+            sourceFile = source;
+            this.checkBox = new JCheckBox(sourceFile.getName(), false);
+        }
+        
+        /**
+         * Return a checkBox with this lib's name as a label.
+         */
+        public JCheckBox getCheckBox()
+        {
+            return checkBox;
+        }
+        
+        /**
+         * Tell whether this lib has been selected.
+         */
+        public boolean isSelected()
+        {
+            return checkBox.isSelected();
         }
     }
 }

@@ -9,7 +9,7 @@ import java.net.*;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 2887 2004-08-17 15:18:28Z mik $
+ * @version $Id: ClassPath.java 2895 2004-08-18 08:42:23Z mik $
  */
 public class ClassPath
 {
@@ -62,12 +62,21 @@ public class ClassPath
     }
 
     /**
-     * Return the list of entries
+     * Return the list of entries (mutable, so only for close friends)
      */
     protected List getEntries()
     {
         return entries;
     }
+
+    /**
+     * Return the list of entries (immutable)
+     */
+    public List getPathEntries()
+    {
+        return Collections.unmodifiableList(entries);
+    }
+
 
     /**
      * Remove elements from the classpath
