@@ -12,12 +12,12 @@ import bluej.utility.Debug;
  * The panel that displays objects at the bottom of the package manager
  *
  * @author  Michael Cahill
- * @version $Id: ObjectBench.java 836 2001-04-04 12:25:30Z ajp $
+ * @version $Id: ObjectBench.java 1017 2001-12-04 05:00:19Z ajp $
  */
 public class ObjectBench extends JPanel
 {
     static final int WIDTH = 3 * (ObjectWrapper.WIDTH + 10);
-    static final int HEIGHT = ObjectWrapper.HEIGHT + 10;
+    static final int HEIGHT = ObjectWrapper.HEIGHT + 4;
 
     public ObjectBench()
     {
@@ -70,32 +70,36 @@ public class ObjectBench extends JPanel
         }
     }
 
-    public ObjectWrapper[] getWrappers()
+    public void add(ObjectWrapper wrapper)
+    {
+        // check whether name is already taken
+
+        String newname = wrapper.getName();
+        int count = 1;
+
+        while(hasObject(newname)) {
+            count++;
+            newname = wrapper.getName() + "_" + count;
+        }
+        wrapper.setName(newname);
+
+        // add to bench
+
+        super.add(wrapper);
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Helper function to return all the wrappers stored in this object
+     * bench in an array
+     */
+    private ObjectWrapper[] getWrappers()
     {
         Component[] components = getComponents();
         ObjectWrapper[] wrappers = new ObjectWrapper[components.length];
         System.arraycopy(components, 0, wrappers, 0, components.length);
         return wrappers;
-    }
-
-    public void add(ObjectWrapper wrapper)
-    {
-	// check whether name is already taken
-
-	String newname = wrapper.getName();
-	int count = 1;
-
-	while(hasObject(newname)) {
-	    count++;
-	    newname = wrapper.getName() + "_" + count;
-	}
-	wrapper.setName(newname);
-
-	// add to bench
-
-	super.add(wrapper);
-	revalidate();
-	repaint();
     }
 
     /**
@@ -105,12 +109,13 @@ public class ObjectBench extends JPanel
      */
     public boolean hasObject(String name)
     {
-	ObjectWrapper[] wrappers = getWrappers();
+        ObjectWrapper[] wrappers = getWrappers();
 
-	for(int i=0; i<wrappers.length; i++)
-	    if(wrappers[i].getName().equals(name))
-		return true;
-	return false;
+        for(int i=0; i<wrappers.length; i++)
+            if(wrappers[i].getName().equals(name))
+                return true;
+
+        return false;
     }
 
     /**
@@ -122,6 +127,9 @@ public class ObjectBench extends JPanel
         Debug.reportError("attempt to incorrectly remove object from bench");
     }
 
+    /**
+     * Remove all objects from the object bench.
+     */
     public void removeAll(String scopeId)
     {
         ObjectWrapper[] wrappers = getWrappers();
@@ -132,6 +140,7 @@ public class ObjectBench extends JPanel
                                 scopeId, wrappers[i].getName());
         }
 
+    	revalidate();
         repaint();
     }
 
@@ -142,12 +151,15 @@ public class ObjectBench extends JPanel
      */
     public void remove(ObjectWrapper wrapper, String scopeId)
     {
-    super.remove(wrapper);
-	Debugger.debugger.removeObjectFromScope(scopeId, wrapper.getName());
+        super.remove(wrapper);
+        Debugger.debugger.removeObjectFromScope(scopeId, wrapper.getName());
 
-	doLayout();
-	invalidate();
-	getParent().invalidate();
-	repaint();
+    	revalidate();
+    	repaint();
+
+/*        doLayout();
+        invalidate();
+        getParent().invalidate();
+        repaint();*/
     }
 }
