@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2713 2004-07-01 15:21:57Z polle $
+ * @version $Id: ClassTarget.java 2719 2004-07-02 10:50:48Z polle $
  */
 public class ClassTarget extends EditableTarget implements Moveable
 {	
@@ -529,7 +529,15 @@ public class ClassTarget extends EditableTarget implements Moveable
     public void modificationEvent(Editor editor)
     {
         invalidate();        
-        removeBreakpoints();
+        
+        //Lazy remove breakpoints
+        Thread t = new Thread() {
+            public void run() {
+                removeBreakpoints();
+            }
+        };
+        t.start();
+        
         sourceInfo.setSourceModified();        
     }
 

@@ -1451,7 +1451,8 @@ public final class MoeEditor extends JFrame
     {
         SimpleAttributeSet a = new SimpleAttributeSet();
         a.addAttribute(MoeSyntaxView.BREAKPOINT, Boolean.FALSE);
-        sourceDocument.setParagraphAttributesWithoutLock(pos, a);
+        sourceDocument.setParagraphAttributes(pos, a);
+        repaint();
     }
 
     // --------------------------------------------------------------------
