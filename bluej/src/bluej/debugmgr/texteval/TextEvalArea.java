@@ -18,9 +18,11 @@ import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.IndexHistory;
+import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.editor.moe.*;
@@ -31,7 +33,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2694 2004-06-30 09:27:46Z mik $
+ * @version $Id: TextEvalArea.java 2696 2004-06-30 10:48:58Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -111,6 +113,22 @@ public final class TextEvalArea extends JScrollPane
     
 
     /**
+     * Try to inspect the last object that was handled.
+     * This is the implementation of the interactive 'inspect' command.
+     */
+    public void inspectObject()
+    {
+        if(lastObject != null) {
+            ObjectInspector viewer =
+                ObjectInspector.getInstance(lastObject, null, frame.getPackage(), null, frame);
+        }
+        else {
+            error("'inspect' can only be used for objects. The last result was not an object.");
+        }
+    }
+    
+
+    /**
      * List the objects on the object bench.
      * This is the implementation of the interactive 'list' command.
      */
@@ -173,12 +191,13 @@ public final class TextEvalArea extends JScrollPane
     public void putError(String message)
     {
     		if(firstTry) {
-    			// append("   --error: " + message + "\n");
+    			// append("   --error, first try: " + message + "\n");
     			firstTry = false;
     	        invoker.tryAgain();
     		}
     		else {
-    			error(message);
+            error(message);
+            lastObject = null;
     		}
     }
     
