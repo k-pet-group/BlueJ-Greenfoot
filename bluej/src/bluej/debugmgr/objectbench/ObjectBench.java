@@ -9,15 +9,15 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.plaf.basic.BasicArrowButton;
 
+
 import bluej.testmgr.record.InvokerRecord;
 
 /**
  * The object responsible for the panel that displays objects
  * at the bottom of the package manager.
- *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2496 2004-04-15 01:32:32Z davmac $
+ * @version $Id: ObjectBench.java 2577 2004-06-08 13:08:42Z fisker $
  */
 public class ObjectBench
 {
@@ -25,9 +25,14 @@ public class ObjectBench
 
     private JPanel containerPanel;
     private JButton leftArrowButton, rightArrowButton;
-    private JViewport viewPort;
+    public JViewport viewPort;
     private ObjectBenchPanel obp;
     private ObjectWrapper selectedObjectWrapper;
+    public boolean hasFocus;
+    private List objectWrappers;
+    private int currentObjectWrapperIndex;
+	
+   
     
     /**
      * Construct an object bench which is used to hold
@@ -35,7 +40,8 @@ public class ObjectBench
      */
     public ObjectBench()
     {
-        containerPanel = new JPanel();
+    	objectWrappers = new LinkedList();
+        containerPanel = new ContainerPanel(this);
         containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.X_AXIS));
 
         // scroll left button
@@ -91,7 +97,17 @@ public class ObjectBench
      */
     public void setSelectedObjectWrapper (ObjectWrapper aWrapper)
     {
+    	if (selectedObjectWrapper != null){
+    		selectedObjectWrapper.setSelected(false);
+    		
+    	}
         selectedObjectWrapper = aWrapper;
+        
+        if (selectedObjectWrapper != null){
+    		selectedObjectWrapper.setSelected(true);
+    		currentObjectWrapperIndex = objectWrappers.indexOf(aWrapper);
+    		selectedObjectWrapper.requestFocusInWindow();
+    	}
     }
 
     /**
@@ -102,13 +118,73 @@ public class ObjectBench
     {
         return selectedObjectWrapper;
     }
+    
+    /**
+	 * @param key
+	 */
+	public void handleKeyPressed(int key) {
+		switch (key){
+			case KeyEvent.VK_LEFT: {
+				if (currentObjectWrapperIndex > 0){
+				currentObjectWrapperIndex--;
+				}
+				break;
+			}
+			case KeyEvent.VK_RIGHT: {
+				if (currentObjectWrapperIndex < objectWrappers.size() - 1){
+					currentObjectWrapperIndex++;
+				}
+				break;
+			}
+			case KeyEvent.VK_ENTER:{
+				if (selectedObjectWrapper != null){
+					selectedObjectWrapper.getMenu().show(containerPanel, 
+											(int)selectedObjectWrapper.getX(), 
+											(int)selectedObjectWrapper.getY());
+				}
+				break;
+			}
+			case KeyEvent.VK_SPACE:{
+				fireObjectEvent(selectedObjectWrapper);
+				break;
+			}
+		}
+	
+		
+		if (objectWrappers.size() > 0){
+			ObjectWrapper currentObjectWrapper = (ObjectWrapper) objectWrappers.get(currentObjectWrapperIndex);
+			setSelectedObjectWrapper(currentObjectWrapper);
+			adjustBench(currentObjectWrapper);
+			containerPanel.repaint();
+		}
+	}
+    
+    public void adjustBench(ObjectWrapper objectWrapper){
+    	Rectangle wrapper = new Rectangle(objectWrapper.getX(), objectWrapper.getY(),
+    									  objectWrapper.getWidth(), objectWrapper.getHeight());
+    	//viewPort.scrollRectToVisible(wrapper); //this doesn't word! Bug in java?
+    	Rectangle view = viewPort.getViewRect();
+    	if (!view.contains(wrapper)){
+    		if (wrapper.x < view.x) {
+    			//then the wrapper is intersecting the left side of view
+    			int x = wrapper.x - ObjectWrapper.GAP;
+    			int y = viewPort.getViewPosition().y;
+    			viewPort.setViewPosition(new Point(x, y));
+    		} else {
+    			//then the wrapper is intersection the right side
+    			int x = wrapper.x + wrapper.width - view.width;
+    			int y = viewPort.getViewPosition().y;
+    			viewPort.setViewPosition(new Point(x, y));
+    		}
+    	}
+    }
 
     /**
      * Move the displayed objects on the object bench left and right.
      * 
      * @param xamount
      */
-    private void moveBench(int xamount)
+    public void moveBench(int xamount)
     {        
         Point pt = viewPort.getViewPosition();
 
@@ -299,6 +375,13 @@ public class ObjectBench
         }    
     }
     
+    /**
+     * The panel that contains the arrows and the objectBenchPanel.
+     * @author fisker
+     *
+     */
+    
+    
     // ----------------- end of nested class ------------------
 
     public JComponent getComponent()
@@ -355,8 +438,9 @@ public class ObjectBench
 		}
 		else
 */
+        wrapper.addFocusListener((FocusListener) containerPanel);
 		obp.add(wrapper);
-
+		objectWrappers.add(wrapper);
         obp.setPreferredSize(new Dimension(obp.getLayoutWidthMin(), ObjectWrapper.HEIGHT));
         enableButtons(viewPort.getViewPosition());
 //        obp.setSize(new Dimension(obp.getLayoutWidthMin(), HEIGHT));
@@ -455,7 +539,7 @@ public class ObjectBench
         wrapper.prepareRemove();
 		wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
         obp.remove(wrapper);
-
+        objectWrappers.remove(wrapper);
         // check whether we still need navigation arrows with the reduced
         // number of objects on the bench.
         enableButtons(viewPort.getViewPosition());
@@ -533,4 +617,6 @@ public class ObjectBench
 
         return sb.toString();
     }
+
+	
 }

@@ -13,10 +13,10 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: GraphEditor.java 2577 2004-06-08 13:08:42Z fisker $
  */
 public class GraphEditor extends JComponent
-    implements MouseListener, MouseMotionListener, KeyListener
+    implements MouseListener, MouseMotionListener, KeyListener, FocusListener
 {
     protected static final Color background = Config.getItemColour("colour.graph.background");
     final static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
@@ -33,6 +33,7 @@ public class GraphEditor extends JComponent
     private MarqueePainter marqueePainter = new MarqueePainter();
     private GraphElementController graphElementController;
     public static final int GRID_SIZE = 10;
+    private boolean hasFocus = false;
     
     
     
@@ -42,6 +43,7 @@ public class GraphEditor extends JComponent
         activeGraphElement = null;
         graphElementManager = new GraphElementManager(this);
         addMouseMotionListener(this);
+        addFocusListener(this);
         marquee = new Marquee(graph, this);
     }
 
@@ -63,6 +65,10 @@ public class GraphEditor extends JComponent
             Dimension d = getSize();
             g2D.setColor(background);
             g2D.fillRect(0, 0, d.width, d.height);
+            if (hasFocus){
+            	g2D.setColor(Color.BLUE);
+            	g2D.drawRect(0, 0, d.width - 1, d.height - 1);
+            }
         }
 
         graphPainter.paint(g2D, graph);
@@ -394,4 +400,23 @@ public class GraphEditor extends JComponent
     public void clearSelection(){
         graphElementManager.clear();
     }
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.FocusListener#focusGained(java.awt.event.FocusEvent)
+	 */
+	public void focusGained(FocusEvent e) {
+		System.err.println();
+		hasFocus = true;
+		repaint();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.FocusListener#focusLost(java.awt.event.FocusEvent)
+	 */
+	public void focusLost(FocusEvent e) {
+		if (!e.isTemporary()){
+			hasFocus = false;
+			repaint();
+		}
+	}
 }

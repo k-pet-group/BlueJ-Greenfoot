@@ -27,9 +27,9 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2544 2004-05-24 08:56:02Z polle $
+ * @version $Id: ObjectWrapper.java 2577 2004-06-08 13:08:42Z fisker $
  */
-public class ObjectWrapper extends JComponent
+public class ObjectWrapper extends JComponent implements MouseListener, MouseMotionListener
 {
     // Strings
     static String methodException = Config.getString("debugger.objectwrapper.methodException");
@@ -74,6 +74,7 @@ public class ObjectWrapper extends JComponent
     private Method[] methods;
     private Hashtable methodsUsed;
     private Hashtable actions;
+    private boolean isSelected = false;
 
     static public ObjectWrapper getWrapper(PkgMgrFrame pmf, ObjectBench ob,
                                             DebuggerObject obj, String instanceName)
@@ -116,8 +117,12 @@ public class ObjectWrapper extends JComponent
         
         setMinimumSize(new Dimension(WIDTH+GAP, HEIGHT));
         setSize(WIDTH + GAP, HEIGHT);
+    	addMouseListener(this);
+    	addMouseMotionListener(this);
+    	setFocusable(false);
     }
 
+    
     public Package getPackage()
     {
         return pkg;
@@ -289,6 +294,9 @@ public class ObjectWrapper extends JComponent
         }
     }
 
+    public JPopupMenu getMenu(){
+    	return menu;
+    }
 
     /**
      * Creates a List containing all classes in an inheritance hierarchy
@@ -353,13 +361,17 @@ public class ObjectWrapper extends JComponent
         g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
         g.setColor(bg);
         g.fillRoundRect(x,y,w-shad,h-shad,corner,corner);
-        g.setColor(Color.black);
+        g.setColor((isSelected ? Color.BLUE : Color.BLACK));
         g.drawRoundRect(x,y,w-shad, h-shad,corner,corner);
     }
 
     protected void drawUMLObjectText(Graphics2D g, int x, int y, int w, int h, int shad, String a, String b)
     {
+    	
         g.setColor(textColour);
+        if (isSelected()){
+        	g.setColor(Color.YELLOW);
+        }
         g.setFont(PrefMgr.getStandardFont());
 
         FontMetrics fm = g.getFontMetrics();
@@ -411,46 +423,60 @@ public class ObjectWrapper extends JComponent
     {
         int menuOffset;
         super.processMouseEvent(evt);
-
         if(evt.isPopupTrigger()) {
             if(menu == null)
                 return;
 
-            if(!itemHeightKnown) {
-                int height = ((JComponent)menu.getComponent(0)).getHeight();
-
-                // first time, before it's shown, we won't get the real height
-                if(height > 1) {
-                    itemHeight = height;
-                    itemsOnScreen = (int)Config.screenBounds.getHeight() /
-                                         itemHeight;
-                    itemHeightKnown = true;
-                }
-            }
-            // try tp position menu so that the pointer is near the method items
-            int offsetFactor = 4;
-            int menuCount = menu.getComponentCount();
-            // typically there are a minimum of 4 menu items for most objects
-            // arrays however do not (at present) so calculation is adjusted to compensate 
-            if( menuCount < 4)
-                offsetFactor = menuCount;
-            menuOffset = (menu.getComponentCount() - offsetFactor) * itemHeight;
-         
+            menuOffset = calcOffset();
             menu.show(this, evt.getX() + 1, evt.getY() - menuOffset);
         }
         else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
             if(evt.getClickCount() > 1)  // double click
                 inspectObject();
-            else {
+            else {//single click
                 ob.fireObjectEvent(this);
             }
 
+        }
+        //manage focus
+        if (evt.getID() == MouseEvent.MOUSE_CLICKED || evt.isPopupTrigger()){
+        	ob.setSelectedObjectWrapper(this);
+        	ob.adjustBench(this);
+        	ob.getComponent().requestFocusInWindow();
+        	ob.getComponent().repaint();
         }
     }
 
     // --- popup menu actions ---
     
     /**
+	 * @return
+	 */
+	private int calcOffset() {
+		int menuOffset;
+		if(!itemHeightKnown) {
+		    int height = ((JComponent)menu.getComponent(0)).getHeight();
+
+		    // first time, before it's shown, we won't get the real height
+		    if(height > 1) {
+		        itemHeight = height;
+		        itemsOnScreen = (int)Config.screenBounds.getHeight() /
+		                             itemHeight;
+		        itemHeightKnown = true;
+		    }
+		}
+		// try tp position menu so that the pointer is near the method items
+		int offsetFactor = 4;
+		int menuCount = menu.getComponentCount();
+		// typically there are a minimum of 4 menu items for most objects
+		// arrays however do not (at present) so calculation is adjusted to compensate 
+		if( menuCount < 4)
+		    offsetFactor = menuCount;
+		menuOffset = (menu.getComponentCount() - offsetFactor) * itemHeight;
+		return menuOffset;
+	}
+
+	/**
      * Invoke a method on this object.
      */
     protected void invokeMethod(Object eventSource)
@@ -513,4 +539,58 @@ public class ObjectWrapper extends JComponent
         Invoker invoker = new Invoker(pmf, method, instanceName, watcher);
         invoker.invokeInteractive();
     }
+    
+	/**
+	 * @return Returns the isSelected.
+	 */
+	public boolean isSelected() {
+		return isSelected;
+	}
+	/**
+	 * @param isSelected The isSelected to set.
+	 */
+	public void setSelected(boolean isSelected) {
+		this.isSelected = isSelected;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	 */
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	 */
+	public void mouseExited(MouseEvent e) {
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	 */
+	public void mousePressed(MouseEvent e) {
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent e) {
+	}
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+	 */
+	public void mouseDragged(MouseEvent e) {
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+	 */
+	public void mouseMoved(MouseEvent e) {
+	}
 }
