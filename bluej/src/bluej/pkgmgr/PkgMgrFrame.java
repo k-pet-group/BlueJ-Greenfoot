@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 636 2000-07-07 05:03:00Z mik $
+ * @version $Id: PkgMgrFrame.java 637 2000-07-07 05:29:36Z axel $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -58,6 +58,7 @@ public class PkgMgrFrame extends JFrame
 
     private static final String generatingDocu = Config.getString("pkgmgr.generatingDocu");
     private static final String docuGenerated = Config.getString("pkgmgr.docuGenerated");
+    private static final String docuAborted = Config.getString("pkgmgr.docuAborted");
 
     private static final String addClassTitle = Config.getString("pkgmgr.addClass.title");
     private static final String addLabel = Config.getString("pkgmgr.addClass.buttonLabel");
@@ -1443,6 +1444,9 @@ public class PkgMgrFrame extends JFrame
             break;
         case BlueJEvent.DOCU_GENERATED:
             setStatus(docuGenerated);
+            break;
+        case BlueJEvent.DOCU_ABORTED:
+            setStatus(docuAborted);
             break;
         }
     }

@@ -152,7 +152,13 @@ not be created in the project directory
 because of insufficient rights.
 
 doctool-error
-The documentation tool used reported an error:
+Javadoc reported an error. It could be that
+there is a syntax error in one of the files
+you tried to generate a documentation for.
+Make sure that all your Java files are compiled
+and try again. If this message appears again
+you should check the log file with the error
+messages from Javadoc: 
 
 severe-doc-trouble
 An exception occured during the call

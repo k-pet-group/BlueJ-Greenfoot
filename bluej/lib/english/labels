@@ -330,6 +330,7 @@ pkgmgr.creatingVM=Creating virtual machine...
 pkgmgr.creatingVMDone=Creating virtual machine... Done
 pkgmgr.generatingDocu=Generating documentation...
 pkgmgr.docuGenerated=Generating documentation... Done
+pkgmgr.docuAborted=Generating documentation... Aborted
 pkgmgr.webBrowserMsg=Web browser has been started.
 pkgmgr.webBrowserError=Error starting web browser.
 pkgmgr.usesArrowMsg="Uses" dependency declared but never used:

@@ -6,6 +6,7 @@ import bluej.pkgmgr.Package;
 import bluej.utility.Utility;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 
 import java.util.*;
 import java.io.*;
@@ -17,8 +18,8 @@ import java.net.*;
  * For each Project instance there should be one instance of DocuGenerator
  * that takes care of project documentation. Project documentation is written
  * into a directory in the project directory.
- * The documentation for a single class serves merely as a preview option,
- * the documentation is thus generated in a temporary directory.
+ * As the documentation for a single class serves merely as a preview option,
+ * it is generated in a temporary directory.
  *
  * Information in this class belongs to one of three categories: <BR>
  * <BR>
@@ -44,24 +45,205 @@ public class DocuGenerator
     /** The name of the directory where project documentation is written to. */
     private static String docDirName =
                                 Config.getPropString("doctool.outputdir");
+    /** The directory where temporary documentation for a single class is
+     *  written to. This name is unique for every instantiation of BlueJ.*/
+    private static File docTempDir;
 
     // static fields - tool-dependent
     /** The name (including path) of the documentation tool used. */
     private static String docCommand = Config.getPropString("doctool.command");
-    /** javadoc parameters for all runs: include author information, do not
-     * generate information about deprecated features, include bottom line,
-     * read overview information from README file.
+
+    /** javadoc parameters for all runs: include author and version 
+     * information, do not generate information about deprecated features,
+     * consider only package, protected, and public classes and members,
+     * include bottom line.
      */
-    private static String fixedJavadocParams = " -author -nodeprecated"
-          + " -bottom <small><em>Generated&nbsp;by&nbsp;BlueJ</em></small>"
-//          + " -overview " + Package.readmeName
-          ;
+    private static String fixedJavadocParams = " -author -version"
+          + " -nodeprecated -package"
+        + " -bottom <small><em>Generated&nbsp;by&nbsp;BlueJ</em></small>";
     /** javadoc parameters for preview runs: do not generate an index,
      * a tree, a help.
      */
     private static String tmpJavadocParams = " -noindex -notree -nohelp";
 
-    /* ------------------- end of static declarations ------------------ */
+    /* -------------- end of static field declarations ----------------- */
+
+    /**
+     * Generate documentation for the class in file 'filename'. The
+     * documentation is generated in a temporary directory. If the
+     * generation was successful the result will be displayed in a web browser.
+     * @param filename the fully qualified filename of the class to be
+     * documented.
+     */
+    public static void generateClassDocu(String filename)
+    {
+        File docDir = getDocTempDir();
+        if (docDir == null) {
+                BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
+        }
+
+        // build the call string
+        String javadocCall = docCommand + fixedJavadocParams + tmpJavadocParams
+            + " -d " + docDir.getPath() + " " + filename;
+
+        // build the URL for the result to be shown
+        String className = new File(filename).getName();
+        if (className.endsWith(".java"))
+            className = className.substring(0,className.indexOf(".java"));
+        File htmlFile = new File(docDir,className + ".html");
+        File logFile = new File(docDir,"logfile");
+
+        doCallThenBrowse(javadocCall,htmlFile,logFile);
+    }
+
+
+        
+    /**
+     * Create a temporary directory. The name of the directory is unique for
+     * every BlueJ instantiation.
+     * @return the file instance if successful, null otherwise.
+     */
+    private static File getDocTempDir()
+    {
+        if (docTempDir == null) {  // first time called, create File instance
+            try {
+                docTempDir = File.createTempFile("bluej","tmp"); 
+            }
+            catch (IOException e) {
+                return null;
+            }
+
+            docTempDir.delete(); // it's a file, remove it first to allow mkdir
+            docTempDir.mkdir();
+        }
+        else {  // not the first call, remove previous content
+            FileUtility.deleteDir(docTempDir);
+            docTempDir.mkdir();
+        }
+            
+        return docTempDir;
+    }
+
+    /**
+     * Creates a separate thread that starts the external call for faster
+     * return to the GUI. If the call was successful the URL given in 'url'
+     * will be shown in a web browser.
+     * @param call the call to the documentation generating tool.
+     * @param url the URL to be shown after successful completion.
+     */
+    private static void doCallThenBrowse(String call, File result, File log)
+    {
+        // start the call in a separate thread to allow fast return to GUI.
+        Thread starterThread = new Thread(new docuRunStarter(call,result,log));
+        starterThread.setPriority(Thread.MIN_PRIORITY);
+        starterThread.start();
+        BlueJEvent.raiseEvent(BlueJEvent.GENERATING_DOCU, null);
+    }
+
+
+    /**
+     * This class enables to run the external call for a documentation
+     * generation in a different thread. An instance of this class gets
+     * the string that constitutes the external call as a constructor
+     * parameter. The second constructor parameter is the name of the
+     * HTML file that should be opened by a web browser if the documentation
+     * generation was successful.
+     */
+    private static class docuRunStarter implements Runnable
+    {
+        private String docuCall;
+        private File showFile;
+        private File logFile;
+
+        public docuRunStarter(String call, File result, File log)
+        {
+            docuCall = call;
+            showFile = result;
+            logFile = log;
+        }
+
+        /**
+         * Perform the call that was passed in as a constructor parameter.
+         * If this call was successful let the result be shown in a browser.
+         */
+        public void run()
+        {
+            Process docuRun;
+            try {
+//                 Debug.message(docuCall);
+                OutputStream logStream = new FileOutputStream(logFile);
+//                 Writer logWriter = new OutputStreamWriter(logStream);
+                PrintWriter logWriter = new PrintWriter(logStream,true);
+                logWriter.println(docuCall);
+                logWriter.flush();
+                docuRun = Runtime.getRuntime().exec(docuCall);
+
+                // because we don't know what comes first we have to start
+                // two threads that consume both the standard and the error
+                // output of the external process. The output is appended to
+                // the log file.
+                EchoThread outEcho = new EchoThread(docuRun.getInputStream(),
+                                                    logStream);
+                EchoThread errEcho = new EchoThread(docuRun.getErrorStream(),
+                                                    logStream);
+                outEcho.start();
+                errEcho.start();
+                try {
+                    docuRun.waitFor();
+                    outEcho.join();
+                    errEcho.join();
+                }
+                catch(InterruptedException e) {
+                    System.err.println("Interrupted waiting for process");
+                }
+
+                if (docuRun.exitValue() == 0) {
+                    BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED,null);
+                    if (!showFile.exists()) {
+                        showFile=FileUtility.findFile(showFile.getParentFile(),
+                                                      showFile.getName());
+                    }
+                    Utility.openWebBrowser(showFile.getPath());
+                }
+                else {
+                    BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
+                    DialogManager.showMessageWithText(null,
+                                                      "doctool-error",
+                                                      logFile.getPath());
+                }
+            }
+            catch (IOException exc) {
+                DialogManager.showMessage(null,"severe-doc-trouble");
+            }
+        }
+
+        private static class EchoThread extends Thread {
+            private InputStream   readStream;
+            private OutputStream outStream;
+            private byte[] lastBuf;
+            public EchoThread(InputStream r,OutputStream out) {
+                readStream = r;
+                outStream = out;
+            }
+            public void run() {
+                try {
+                    byte[] buf = new byte[1000];
+                    int n;
+                    while((n = readStream.read(buf)) != -1) {
+                        outStream.write(buf, 0, n);
+                    }
+                }
+                catch(IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    /* ------------------- end of static part ------------------- */
+    /* ---------------------------------------------------------- */
+
 
     //    instance fields
 
@@ -86,9 +268,7 @@ public class DocuGenerator
     /** javadoc params for setting window and project title */
     private String titleParams;
 
-
-
-    /* ------------------- end of field declarations ------------------- */
+    /* -------------- end of instance field declarations ---------------- */
 
     /**
      * Construct a documentation generator instance for a project.
@@ -117,6 +297,7 @@ public class DocuGenerator
      * @return "" if the external process was started, an error message
      * otherwise.
      */
+
     public String generateProjectDocu()
     {
         // test whether the documentation directory is accessible.
@@ -125,12 +306,18 @@ public class DocuGenerator
             return docDirStatus;
 
         // get the names of all the targets for the documentation tool.
-        // first: get all package names
+        // first: get the names of all packages that contain java sources.
         List packageNames = project.getPackageNames();
         StringBuffer tmp = new StringBuffer();
         for (Iterator names=packageNames.iterator(); names.hasNext(); ) {
-            tmp.append(" ");
-            tmp.append((String)names.next());
+            String packageName = (String)names.next();
+            // as javadoc doesn't like packages with no java-files, we have to
+            // pass only names of packages that really contain java files.
+            Package pack = project.getPackage(packageName);
+            if (FileUtility.containsFile(pack.getPath(),".java")) {
+                tmp.append(" ");
+                tmp.append(packageName);
+            }
         }
         // second: get class names of classes in unnamed package, if any
         List classNames = project.getPackage(project.getInitialPackageName())
@@ -153,136 +340,10 @@ public class DocuGenerator
                           + targets;
 
         File startPage = new File(docDir,"index.html");
-        String fileURL = "file://"+startPage.getPath();
+        File logFile = new File(docDir,"logfile");
 
-        doCallThenBrowse(javadocCall,fileURL);
+        doCallThenBrowse(javadocCall,startPage,logFile);
         return "";
-    }
-
-    /**
-     * Generate documentation for the class in file 'filename'. The
-     * documentation is generated in a temporary directory only. If the
-     * generation was successful the result will be displayed in a web browser.
-     * @param filename the fully qualified filename of the class to be
-     * documented.
-     */
-    public static void generateClassDocu(String filename)
-    {
-        // create a temporary directory and let it be removed on exiting BlueJ
-        File docTempDir = new File(System.getProperty("java.io.tmpdir"),
-                                                                   "BJdoctmp");
-        docTempDir.mkdir();
-        docTempDir.deleteOnExit();
-
-        // build the call string
-        String javadocCall = docCommand + fixedJavadocParams + tmpJavadocParams
-            + " -d " + docTempDir.getPath() + " " + filename;
-
-        // build the URL for the result to be shown
-        String className = new File(filename).getName();
-        if (className.endsWith(".java"))
-            className = className.substring(0,className.indexOf(".java"));
-        File htmlFile = new File(docTempDir,className + ".html");
-        String url = htmlFile.getPath();
-
-        doCallThenBrowse(javadocCall,url);
-    }
-
-
-
-    /**
-     * Creates a separate thread that starts the external call for faster
-     * return to the GUI. If the call was successful the URL given in 'url'
-     * will be shown in a web browser.
-     * @param call the call to the documentation generating tool.
-     * @param url the URL to be shown after successful completion.
-     */
-    private static void doCallThenBrowse(String call, String url)
-    {
-        // start the call in a separate thread to allow fast return to GUI.
-        Thread starterThread = new Thread(new docuRunStarter(call,url));
-        starterThread.setPriority(Thread.MIN_PRIORITY);
-        starterThread.start();
-        BlueJEvent.raiseEvent(BlueJEvent.GENERATING_DOCU, null);
-    }
-
-
-    /**
-     * This class enables to run the external call for a documentation
-     * generation in a different thread. An instance of this class gets
-     * the string that constitutes the external call as a constructor
-     * parameter. The second constructor parameter is the name of the
-     * HTML file that should be opened by a web browser if the documentation
-     * generation was successful.
-     */
-    private static class docuRunStarter implements Runnable
-    {
-        private String docuCall;
-        private String showURL;
-
-        public docuRunStarter(String call, String showURL)
-        {
-            docuCall = call;
-            this.showURL = showURL;
-        }
-
-        /**
-         * Perform the call that was passed in as a constructor parameter.
-         * If this call was successful let the result be shown in a browser.
-         */
-        public void run()
-        {
-            Process docuRun;
-            try {
-                Debug.message(docuCall);
-                docuRun = Runtime.getRuntime().exec(docuCall);
-
-                Thread outEcho = new EchoThread(docuRun.getInputStream(), System.out);
-                Thread errEcho = new EchoThread(docuRun.getErrorStream(), System.out);
-                outEcho.start();
-                errEcho.start();
-                try {
-                    docuRun.waitFor();
-                    outEcho.join();
-                    errEcho.join();
-                }
-                catch(InterruptedException e) {
-                    System.err.println("Interrupted waiting for process");
-                }
-
-                if (docuRun.exitValue() == 0) {
-                    BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED,null);
-                    Utility.openWebBrowser(showURL);
-                }
-                else {
-                    DialogManager.showMessageWithText(null,
-                                            "doctool-error", "wow"); //reader.readLine());
-                }
-            }
-            catch (IOException exc) {
-                DialogManager.showMessage(null,"severe-doc-trouble");
-            }
-        }
-
-        private static class EchoThread extends Thread {
-            InputStream   readStream;
-            OutputStream  echoStream;
-            public EchoThread(InputStream r, OutputStream o) {
-                readStream = r;
-                echoStream = o;
-            }
-            public void run() {
-                try {
-                    byte[] buf = new byte[1000];
-                    int n;
-                    while((n = readStream.read(buf)) != -1)
-                        echoStream.write(buf, 0, n);
-                }
-                catch(IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
 
@@ -309,6 +370,7 @@ public class DocuGenerator
         }
         return "";
     }
+
 
     /**
      * javadoc can link the generated documentation to existing documentation.
