@@ -10,11 +10,11 @@ import java.util.Vector;
 import com.sun.jdi.*;
 
 /**
- ** Represents an object running on the user (remote) machine.
- **
- ** @author Michael Kolling
- **/
-
+ * Represents an object running on the user (remote) machine.
+ *
+ * @author  Michael Kolling
+ * @version $Id: JdiObject.java 329 2000-01-02 13:22:01Z ajp $
+ */
 public class JdiObject extends DebuggerObject
 {
     ObjectReference obj;    // the remote object represented
@@ -23,18 +23,18 @@ public class JdiObject extends DebuggerObject
     /**
      * Factory method that returns instances of JdiObjects.
      *
-     * @param obj	the remote object this encapsulates.
-     * @return		a new JdiObject or a new JdiArray object if 
-     *			remote object is an array
-     */	
+     * @param obj   the remote object this encapsulates.
+     * @return      a new JdiObject or a new JdiArray object if
+     *              remote object is an array
+     */
     public static JdiObject getDebuggerObject(ObjectReference obj)
     {
-	if(obj instanceof ArrayReference)
-      	    return new JdiArray((ArrayReference)obj);
-	else 
-	    return new JdiObject(obj);
+        if(obj instanceof ArrayReference)
+            return new JdiArray((ArrayReference)obj);
+        else
+            return new JdiObject(obj);
     }
-	
+
 
     // -- instance methods --
 
@@ -45,11 +45,11 @@ public class JdiObject extends DebuggerObject
      * factory method.
      *
      * @param obj the remote debugger object (Jdi code) this encapsulates.
-     */	
+     */
     private JdiObject(ObjectReference obj)
     {
-	this.obj = obj;
-	getRemoteFields();
+        this.obj = obj;
+        getRemoteFields();
     }
 
 
@@ -58,19 +58,19 @@ public class JdiObject extends DebuggerObject
      */
     public String getClassName()
     {
-	return obj.referenceType().name();
+        return obj.referenceType().name();
     }
-	
+
     /**
      * Return true if this object is an array. This is always false, since
      * arrays are wropped in the subclass "JdiArray".
      */
     public boolean isArray()
     {
-	return false;
+        return false;
     }
 
-	
+
     /**
      * Return the number of static fields (including inherited fields).
      */
@@ -130,7 +130,7 @@ public class JdiObject extends DebuggerObject
     {
 	return getField(true, slot).isPublic();
     }
-	
+
     /**
      * Return true if the object field 'slot' is public.
      *
@@ -140,7 +140,7 @@ public class JdiObject extends DebuggerObject
     {
 	return getField(false, slot).isPublic();
     }
-	
+
 
     /**
      * Return true if the static field 'slot' is an object (and not
@@ -152,7 +152,7 @@ public class JdiObject extends DebuggerObject
     {
 	return checkFieldForObject(true, slot);
     }
-	
+
     /**
      * Return true if the object field 'slot' is an object (and not
      * a simple type).
@@ -184,7 +184,7 @@ public class JdiObject extends DebuggerObject
 	return (val instanceof ObjectReference);
     }
 
-	
+
     /**
      * Return the object in static field 'slot'. Slot must exist and
      * must be of object type.
@@ -198,7 +198,7 @@ public class JdiObject extends DebuggerObject
 	ObjectReference val = (ObjectReference)obj.getValue(field);
 	return getDebuggerObject(val);
     }
-	
+
     /**
      * Return the object in object field 'slot'. Slot must exist and
      * must be of object type.
@@ -234,7 +234,7 @@ public class JdiObject extends DebuggerObject
     {
         return getFields(false, true, includeModifiers);
     }
-	
+
     /**
      * Return a vector of strings with the description of each instance field
      * in the format "<modifier> <type> <name> = <value>".
@@ -262,7 +262,7 @@ public class JdiObject extends DebuggerObject
      * ('getStatic' is ignored). If 'getAll' is false, then 'getStatic'
      * determines whether static fields or instance fields are returned.
      */
-    private Vector getFields(boolean getAll, boolean getStatic, 
+    private Vector getFields(boolean getAll, boolean getStatic,
                                 boolean includeModifiers)
     {
         Vector fieldStrings = new Vector(fields.size());
@@ -296,7 +296,7 @@ public class JdiObject extends DebuggerObject
                     fieldString += " (hidden)";
         		}
 		// the following code adds the word "inherited" to inherited
-		// fields - currently unused 
+		// fields - currently unused
 		//else if (!field.declaringType().equals(cls)) {
 		//    fieldString += " (inherited)";
 		//}

@@ -33,7 +33,8 @@ import com.sun.jdi.event.ExceptionEvent;
  * Execution and debugging is implemented here on a second ("remote")
  * virtual machine, which gets started from here via the JDI interface.
  *
- * @author Michael Kolling
+ * @author  Michael Kolling
+ * @version $Id: JdiDebugger.java 329 2000-01-02 13:22:01Z ajp $
  *
  * The startup process is as follows:
  *

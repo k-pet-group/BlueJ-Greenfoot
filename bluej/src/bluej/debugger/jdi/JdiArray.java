@@ -10,23 +10,22 @@ import java.util.List;
 import com.sun.jdi.*;
 
 /**
- ** Represents an array object running on the user (remote) machine.
- **
- ** @author Michael Kolling
- **
- **/
-
+ * Represents an array object running on the user (remote) machine.
+ *
+ * @author  Michael Kolling
+ * @version $Id: JdiArray.java 329 2000-01-02 13:22:01Z ajp $
+ */
 public class JdiArray extends JdiObject
 {
-	
+
     private ArrayReference obj;
-    
+
     protected JdiArray(ArrayReference obj)
     {
 	this.obj = obj;
     }
-	
-	
+
+
     /**
      * Get the name of the class of this object.
      * @return String representing the Class name.
@@ -44,7 +43,7 @@ public class JdiArray extends JdiObject
 	return true;
     }
 
-	
+
     /**
      * Return the number of static fields.
      */
@@ -92,7 +91,7 @@ public class JdiArray extends JdiObject
     {
 	return false;
     }
-	
+
     /**
      * Return true if the object field 'slot' is public.
      *
@@ -102,7 +101,7 @@ public class JdiArray extends JdiObject
     {
 	return false;
     }
-	
+
 
     /**
      * Return true if the static field 'slot' is an object (and not
@@ -114,7 +113,7 @@ public class JdiArray extends JdiObject
     {
 	return false;
     }
-	
+
     /**
      * Return true if the object field 'slot' is an object (and not
      * a simple type).
@@ -129,7 +128,7 @@ public class JdiArray extends JdiObject
 	else
 	    return (val instanceof ObjectReference);
     }
-	
+
     /**
      * Return the object in static field 'slot'.
      *
@@ -140,7 +139,7 @@ public class JdiArray extends JdiObject
     {
 	return null;
     }
-	
+
     /**
      * Return the object in object field 'slot'.
      *
@@ -161,7 +160,7 @@ public class JdiArray extends JdiObject
     {
 	return new Vector();
     }
-	
+
     /**
      * Return an array of strings with the description of each field in the
      * format "<modifier> <type> <name> = <value>".
@@ -171,12 +170,12 @@ public class JdiArray extends JdiObject
 	List values = obj.getValues();
 	Vector fields = new Vector(values.size());
 
-	String typeName = null; 
+	String typeName = null;
 
 	for(int i = 0; i < values.size(); i++) {
 	    Value val = (Value)values.get(i);
 	    String valString;
-				
+
 	    if(val == null)
 		valString = "<null>";
 	    else if((val instanceof ObjectReference) &&

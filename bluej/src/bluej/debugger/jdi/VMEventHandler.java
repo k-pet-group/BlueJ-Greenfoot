@@ -14,7 +14,8 @@ import java.util.Iterator;
 /**
  * Event handler class to handle events coming from the remote VM.
  *
- * @author Michael Kolling
+ * @author  Michael Kolling
+ * @version $Id: VMEventHandler.java 329 2000-01-02 13:22:01Z ajp $
  */
 public class VMEventHandler implements Runnable
 {
