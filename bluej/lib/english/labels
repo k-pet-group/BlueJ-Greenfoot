@@ -559,7 +559,7 @@ menu.view.showUses=Show Uses@U
 menu.view.showInherits=Show Inheritance@I
 menu.view.showExecControls=Show Debugger@D
 menu.view.showTerminal=Show Terminal@T
-menu.view.showTextEval=Show Text Evaluation Area@E
+menu.view.showTextEval=Show Scratchpad@E
 menu.view.showTestDisplay=Show Test _Results
 
 menu.group=_Group Work
