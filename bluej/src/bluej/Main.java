@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Main.java 684 2000-09-12 06:24:16Z mik $
+ * @version $Id: Main.java 691 2000-09-13 05:00:06Z mik $
  */
 public class Main
 {
@@ -120,6 +120,7 @@ public class Main
 
                     PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
 
+                    pmf.setLocation(i*30 + 20, i*30 + 20);
                     pmf.show();
                 }
             }
@@ -128,6 +129,7 @@ public class Main
         if(args.length == 0 || !oneOpened) {
             // no arguments, so start an empty package manager window
             PkgMgrFrame frame = PkgMgrFrame.createFrame();
+            frame.setLocation(20, 20);
             frame.show();
         }
     }

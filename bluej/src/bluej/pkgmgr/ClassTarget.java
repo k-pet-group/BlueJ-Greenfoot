@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 689 2000-09-13 04:40:59Z bquig $
+ * @version $Id: ClassTarget.java 691 2000-09-13 05:00:06Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -389,7 +389,6 @@ public class ClassTarget extends EditableTarget
     public void modificationEvent(Editor editor)
     {
         invalidate();
-
         sourceInfo.setSourceModified();
     }
 
@@ -592,7 +591,7 @@ public class ClassTarget extends EditableTarget
     public void analyseSource(boolean modifySource)
     {
         if(analysing)
-        	return;
+            return;
 
         analysing = true;
 
