@@ -27,6 +27,7 @@
         <include name="lib/german/" />
         <include name="lib/italian/" />
         <include name="lib/japanese/" />
+        <include name="lib/korean/" />
         <include name="lib/portuguese/" />
         <include name="lib/spanish/" />
         <include name="lib/swedish/" />
