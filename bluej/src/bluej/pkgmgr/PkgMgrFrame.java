@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 2820 2004-07-26 10:48:03Z polle $
+ * @version $Id: PkgMgrFrame.java 2822 2004-07-26 13:01:30Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2144,7 +2144,7 @@ public class PkgMgrFrame extends JFrame
             }
             testItems.add(testPanel);
 
-            machineIcon = new MachineIcon(this);
+            machineIcon = new MachineIcon();
             machineIcon.setAlignmentX(0.5f);
             itemsToDisable.add(machineIcon);
 
