@@ -101,10 +101,10 @@ public class Marquee
         oldComposite = g2D.getComposite();
                 
         if(oldRect != null){
-            g2D.setColor(Color.BLACK);
+            g2D.setColor(Color.black);
             g2D.draw(oldRect);
             g2D.setComposite(alphaComposite);
-            g2D.setColor(Color.GRAY);
+            g2D.setColor(Color.gray);
             g2D.fill(oldRect);
             g2D.setComposite(oldComposite);     
         }

@@ -12,7 +12,7 @@ import bluej.Config;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 2216 2003-10-15 11:53:31Z fisker $
+ * @version $Id: GraphEditor.java 2226 2003-10-28 02:07:26Z ajp $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -141,7 +141,7 @@ public class GraphEditor extends JComponent
 
     private boolean isMultiselectionKeyDown(MouseEvent evt){
         int mKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        int modifiers = evt.getModifiersEx();
+        //int modifiers = evt.getModifiersEx();
         /*System.out.println("mKey=" + mKey + " modifiers=" + modifiers + 
                            " CTRL_MASK=" + Event.CTRL_MASK + 
                            " CTRL_DOWN_MASK="+ MouseEvent.CTRL_DOWN_MASK);
