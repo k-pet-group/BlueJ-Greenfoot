@@ -318,11 +318,11 @@ public class ExtensionsManager implements BlueJEventListener
 
 
     /**
-     *  Delegates an event to all known extensions
+     *  Delegates an event to all known extensions.
      *
      * @param  event  the event to delegate
      */
-    private void delegateEvent(BluejEvent event)
+    public void delegateEvent(BluejEvent event)
     {
         for (Iterator it = extensions.iterator(); it.hasNext(); ) {
             ExtensionWrapper wrapper = (ExtensionWrapper) it.next();
