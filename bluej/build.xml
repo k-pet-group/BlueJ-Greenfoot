@@ -187,11 +187,17 @@
        </javadoc>
         <mkdir dir="${extdoc}"/>
         <javadoc destdir="${extdoc}"
-            packagenames="bluej.extensions, bluej.extensions.event"
+            packagenames="bluej.extensions.event"
             sourcepath="${src}"
+
             Windowtitle="BlueJ Extensions API"
             Doctitle="BlueJ Extensions API"
-            bottom="&lt;a href=//www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;">
+            bottom="&lt;a href=http://www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;">
+
+            <fileset dir="src" defaultexcludes="yes">
+              <include name="bluej/extensions/*.java" />
+              <exclude name="bluej/extensions/ExtensionBridge.java"/>
+            </fileset>
             <classpath refid="bluej.class.path"/>
        </javadoc>
     </target>
