@@ -37,7 +37,7 @@ public class BMethod
 
     /**
      * Tests if this mthod matches against the given param.
-     * @return: true if it matches false othervise.
+     * @return true if it matches false othervise.
      */
     public boolean matches ( String methodName, Class[] parameter )
       {
@@ -134,8 +134,9 @@ public class BMethod
         }
     
     /**
-     * Gets the last error that occurred<P>
-     * This should be called after receiving a <code>null</code> back from an invoke
+     * Gets the last error that occurred.
+     * This should be called after receiving a <code>null</code> back from an invoke.
+     * 
      * @return any error as a String
      */
     public String getLastError()

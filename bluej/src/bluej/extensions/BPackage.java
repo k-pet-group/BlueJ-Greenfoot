@@ -41,7 +41,7 @@ import java.awt.event.ActionListener;
  * possible and try to get all info dynamically. I need this to be in sync with BlueJ
  * This MAY NOT be ENOUGH so, check it with Andrew.
  *
- * @version $Id: BPackage.java 1680 2003-03-10 11:57:57Z damiano $
+ * @version $Id: BPackage.java 1684 2003-03-10 12:19:40Z damiano $
  */
 public class BPackage
 {
@@ -58,8 +58,9 @@ public class BPackage
     }
 
     /**
-     * Gets the package's project
-     * <p>If this is an empty package, no action will be taken and <code>null</code> will be returned.
+     * Gets the package's project.
+     * If this is an empty package, no action will be taken and <code>null</code> will be returned.
+     * 
      * @return the project that this package belongs to
      */
     public BProject getProject()
@@ -85,6 +86,7 @@ public class BPackage
     
     /**
      * Gets a handle on the package's frame, in case you need to do modal dialogues etc.
+     * 
      * @return package Frame. Can return null if none found
      */
     public Frame getFrame()
@@ -107,7 +109,8 @@ public class BPackage
     
     /**
      * Gets a class proxy object relating to a particular class in this package.
-     * <p>If this is an empty package, no action will be taken and <code>null</code> will be returned.
+     * If this is an empty package, no action will be taken and <code>null</code> will be returned.
+     * 
      * @param name the simple name of the required class. For example, <CODE>Person</CODE>.
      * @return the proxy class object, or <CODE>null</CODE> if no such class exists.
      */
@@ -145,6 +148,7 @@ public class BPackage
 
     /**
      * Gets a System class. This can be manipulated in the same way as other BlueJ proxy classes.
+     * 
      * @param name the fully-qualified name of the System class
      * @return the proxy class object
      */
@@ -184,6 +188,7 @@ public class BPackage
 
     /**
      * Gets a list of the object names on the object bench of this project.
+     * 
      * @return an array containing the names of all the objects on the object bench
      */
     public BObject[] getObjects()

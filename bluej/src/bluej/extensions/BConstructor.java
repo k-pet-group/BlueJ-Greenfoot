@@ -80,8 +80,9 @@ public class BConstructor
       }
 
     /**
-     * Gets the last error that occurred<P>
-     * This should be called after receiving a <code>null</code> back from an invoke
+     * Gets the last error that occurred.
+     * This should be called after receiving a <code>null</code> back from an invoke.
+     * 
      * @return any error as a String
      */
     public String getLastError()
