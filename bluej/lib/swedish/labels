@@ -184,6 +184,10 @@ editor.goto-lineLabel = Gå till rad...
 editor.compileLabel = Kompilera
 editor.preview-docLabel = Kör Javadoc
 editor.toggle-breakpointLabel = Sätt/Ta bort brytpunkt
+editor.toggle-interface-viewLabel = Toggle Interface View
+
+editor.implementationLabel = Implementation
+editor.interfaceLabel = Interface
 
 editor.state.readOnly = endast läsning
 editor.state.saved = sparad
@@ -212,7 +216,7 @@ editor.find.forward=Framlänges
 editor.find.backward=Baklänges
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe version 0.4
+editor.info.version = Moe version 
 editor.info.readingProblem = Det uppstod problem vid läsning av den här filen.
 editor.info.regularFile = (Är det här verkligen en vanlig fil? Har du läsrättigheter?)
 editor.info.newFile = Ny fil
@@ -231,6 +235,12 @@ editor.info.saved = Fil sparad
 editor.info.printing = Printing...
 editor.info.printed = Printing... Done.
 editor.info.cancelled = Cancelled.
+editor.info.generatingDoc = Generating class interface...
+editor.info.loadingDoc = Loading class interface...
+editor.info.docLoaded = Loading class interface... Done.
+editor.info.docAborted = There was a serious problem generating the javadoc\ninterface. Aborted.
+editor.info.docDisappeared = Cannot find HTML file:
+editor.info.docNoFrames = Frame display is disabled in editor preview.
 
 editor.printer.continued=forts
 #End Editor labels
@@ -260,6 +270,7 @@ pkgmgr.importPkg.title=Välj katalog för import
 pkgmgr.importPkg.buttonLabel=Importera
 pkgmgr.importPkgNew.title=Nytt Projekt att importera till
 pkgmgr.importPkgNew.buttonLabel=Skapa
+
 pkgmgr.newClass.msg=Ange klassens namn
 pkgmgr.newUses=Ny Använder Pil
 pkgmgr.newExtends=Ny Arvs Pil
@@ -270,13 +281,14 @@ pkgmgr.chooseWebPage.title=Välj destination för HTML sida
 pkgmgr.parentpackagetarget.open=Öppna
 pkgmgr.parentpackagetarget.openunamed=Öppna namnlöst paket
 
+pkgmgr.packagemenu.open=Open
+pkgmgr.packagemenu.remove=Remove
+
 pkgmgr.classmenu.runApplet=Kör Applet
 pkgmgr.classmenu.edit=Editera Implementation
-pkgmgr.classmenu.public=Public Vy
-pkgmgr.classmenu.package=Paket Vy
-pkgmgr.classmenu.inherited=Ärvd Vy
 pkgmgr.classmenu.compile=Kompilera
 pkgmgr.classmenu.remove=Ta Bort
+
 pkgmgr.view.label=Visa
 pkgmgr.view.usesLabel=Använder
 pkgmgr.view.inheritLabel=Arv
@@ -303,6 +315,13 @@ pkgmgr.export.directoryLabel=Spara som katalogstruktur
 pkgmgr.export.jarFileLabel=Spara som jar-fil
 pkgmgr.export.classLabel=Huvud klass:
 pkgmgr.export.sourceLabel=Inkludera källkod
+pkgmgr.export.noClassText=none (cannot be executed)
+
+# "import" failure dialog
+pkgmgr.importfailed.title=BlueJ:  Import Status
+pkgmgr.importfailed.helpLine1=The import has failed to copy the following files.
+pkgmgr.importfailed.helpLine2=This is most likely due to these files already
+pkgmgr.importfailed.helpLine3=being present in the destination project.
 
 # run applet dialog
 pkgmgr.runApplet.title=Kör Applet
@@ -339,6 +358,7 @@ debugger.execControls.instanceTitle = Instansvariabler
 debugger.execControls.localTitle = Lokala variabler
 debugger.execControls.threadTitle = Trådar
 debugger.execControls.updateText = Uppdatera
+debugger.execControls.systemThreads = Show system threads
 
 # DialogManager labels
 dialogmgr.error = Fel
@@ -380,6 +400,7 @@ properties.heading=BlueJ properties. Settings in this file override \"bluej.defs
 menu.package=Paket
 menu.package.new=Nytt...
 menu.package.open=Öppna...
+menu.package.openNonBlueJ=Open Non BlueJ...
 menu.package.close=Stäng
 menu.package.save=Spara
 menu.package.saveAs=Spara som...
