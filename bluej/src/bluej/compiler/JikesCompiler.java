@@ -7,9 +7,10 @@ import java.lang.Runtime;
 
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.Config;
 
 /**
- ** @version $Id: JikesCompiler.java 85 1999-05-17 07:16:31Z ajp $
+ ** @version $Id: JikesCompiler.java 98 1999-05-31 06:25:17Z ajp $
  ** @author Andrew Patterson
  **
  ** JikesCompiler class - an implementation for the BlueJ "Compiler"
@@ -19,132 +20,166 @@ import bluej.utility.Utility;
 
 public class JikesCompiler extends Compiler
 {
-    PrintStream output;
-    String destdir;
-    String classpath;
-    boolean debug;
-    boolean deprecation;
+	String executable;
+	String destdir;
+	String classpath;
+	boolean debug;
+	boolean deprecation;
 
-    public JikesCompiler(PrintStream output)
-    {
-	this.output = output;
-	setDebug(true);
-    }
+	public JikesCompiler(String executable)
+	{
+		this.executable = executable;
+		setDebug(true);
+	}
 	
-    public void setDestDir(String destdir)
-    {
-	this.destdir = destdir;
-    }
+	public void setDestDir(String destdir)
+	{
+		this.destdir = destdir;
+	}
 	
-    public void setClassPath(String classpath)
-    {
-	this.classpath = classpath;
-    }
-
-    public void setDebug(boolean debug)
-    {
-	this.debug = debug;
-    }
-
-    public void setDeprecation(boolean deprecation)
-    {
-	this.deprecation = deprecation;
-    }
-
-    public boolean compile(String[] sources, CompileObserver watcher)
-    {
-	Vector args = new Vector();
-
-	args.addElement("jikes");
-
-	if(destdir != null) {
-	    args.addElement("-d");
-	    args.addElement(destdir);
+	public void setClassPath(String classpath)
+	{
+		this.classpath = classpath;
 	}
 
-	if(classpath != null) {
-	    args.addElement("-classpath");
-	    args.addElement(classpath + ":/usr/local/jdk1.2/jre/lib/rt.jar:/usr/local/jdk1.2/jre/lib/i18n.jar");
+	public void setDebug(boolean debug)
+	{
+		this.debug = debug;
 	}
-		
-	if(debug)
-	    args.addElement("-g");
 
-//	currently Jikes does not have a deprecation mode		
-//	if(deprecation)
-//	    args.addElement("-deprecation");
+	public void setDeprecation(boolean deprecation)
+	{
+		this.deprecation = deprecation;
+	}
 
-	args.addElement("-nowarn");	// suppress warnings
-	args.addElement("+D");		// generate Emacs style error messages
-		
-	for(int i = 0; i < sources.length; i++)
-	    args.addElement(sources[i]);
-			
-	int length = args.size();
-	String[] params = new String[length];
-	args.copyInto(params);
-		
-//	System.out.println(args.toString());
-		
-	boolean result = false;
-		
-	try {
-		Process compiler = Runtime.getRuntime().exec(params);
-
-		int processresult = compiler.waitFor();
-
-		if (processresult == 0) {	// process returns 0 - no need to read msg's
-			result = true;
+	public boolean compile(String[] sources, CompileObserver watcher)
+	{
+		Vector args = new Vector();
+	
+		args.addElement(executable);
+	
+		args.addElement("-nowarn");	// suppress warnings
+		args.addElement("+D");		// generate Emacs style error messages
+	
+		if(destdir != null) {
+		    args.addElement("-d");
+		    args.addElement(destdir);
 		}
-		else {
-			BufferedReader d = new BufferedReader(new InputStreamReader(compiler.getInputStream()));
-			String line;
+	
+		// as of Jikes 0.50, jikes will not automatically find the standard
+		// JDK 1.2 classes because of changes Sun has made to the classpath
+		// mechanism. We will supply jikes with the sun boot classes
+		if(classpath != null) {
+		    args.addElement("-classpath");
+		    args.addElement(classpath + Config.colon + System.getProperty("sun.boot.class.path"));
+		}
+	
+		if(debug)
+		    args.addElement("-g");
+	
+		// currently Jikes does not have a deprecation mode		
+		//	if(deprecation)
+		//	    args.addElement("-deprecation");
+	
+		for(int i = 0; i < sources.length; i++)
+		    args.addElement(sources[i]);
+				
+		int length = args.size();
+		String[] params = new String[length];
+		args.copyInto(params);
 
-			while((line = d.readLine()) != null) {
+		boolean result = false;
 
-				// Jikes produces error messages in the format (subject to change)
-				// /home/ajp/sample/Tester.java:10:20:10:22:
-				//    Syntax: ; expected instead of this token
+		try {
+			result = executeCompiler(params, watcher);
+		}
+		catch (Exception ioe) {
+			Utility.showError(null, "Compiler error running " + executable + " (is the program in your path)\n");
+		}
 
-				int first_colon = line.indexOf(':', 0);
+		return result;
+	}
 
+	private boolean executeCompiler(String[] params, CompileObserver watcher) throws IOException, InterruptedException
+	{
+		int processresult = 0;		// default to fail in case we don't even start compiler process
+		boolean readerror = false;
+			
+		Process compiler = Runtime.getRuntime().exec(params);
+	
+		BufferedReader d = new BufferedReader(new InputStreamReader(compiler.getInputStream()));
+		String line;
+	
+		while((line = d.readLine()) != null) {
+	
+			Debug.message("Compiler message: " + line);
+	
+			// Jikes produces error messages in the format (subject to change)
+			// /home/ajp/sample/Tester.java:10:20:10:22:
+			//    Syntax: ; expected instead of this token
+	
+			int first_colon = line.indexOf(':', 0);
+
+			if(first_colon == -1) {
+				// cannot read format of error message
+				Utility.showError(null, "Compiler error:\n" + line);
+				break;
+			}
+	
+			String filename = line.substring(0, first_colon);
+	
+			// Windows might have a colon after drive name. If so, ignore it
+			if(! filename.endsWith(".java")) {
+				first_colon = line.indexOf(':', first_colon + 1);
+	
 				if(first_colon == -1) {
 					// cannot read format of error message
 					Utility.showError(null, "Compiler error:\n" + line);
 					break;
 				}
+				filename = line.substring(0, first_colon);
+			}
+	
+			int second_colon = line.indexOf(':', first_colon + 1);
+			if(second_colon == -1) {
+				// cannot read format of error message
+				Utility.showError(null, "Compiler error:\n" + line);
+					break;
+			}
+	
+			int lineNo = 0;
+	
+			try {
+				lineNo = Integer.parseInt(line.substring(first_colon + 1, second_colon));
+			} catch(NumberFormatException e) {
+				// ignore it
+			}
+	
+			if((line = d.readLine()) != null) {
+				Debug.message("Compiler message: " + line);
 
-				String filename = line.substring(0, first_colon);
-
-				int second_colon = line.indexOf(':', first_colon + 1);
-				if(second_colon == -1) {
-					// cannot read format of error message
-					Utility.showError(null, "Compiler error:\n" + line);
+				if(line.indexOf("arning:") == -1) {
+					System.out.println("Indicating error " + filename + " " + lineNo);
+					readerror = true;
+	
+					watcher.errorMessage(filename, lineNo, line, true);
 					break;
 				}
-
-				int lineNo = 0;
-
-				try {
-        				lineNo = Integer.parseInt(line.substring(first_colon + 1, second_colon));
-				} catch(NumberFormatException e) {
-					// ignore it
-				}
-
-				if((line = d.readLine()) != null) {
-					watcher.errorMessage(filename, lineNo, line, true);
-				}
 				else {
-					// missing explanation part of error message
-					Utility.showError(null, "Compiler error\n");
+					System.out.println("Ignored warning");
 				}
- 			}
+			}
+			else {
+				// missing explanation part of error message
+				Utility.showError(null, "Compiler error\n");
+			}
 		}
+	
+		processresult = compiler.waitFor();
+
+		// we consider ourselves successful if we got no error messages and the process 
+		// gave a 0 result
+	
+		return (processresult == 0 && !readerror);
 	}
-	catch (Exception ioe) {
-		Utility.showError(null, "Compiler error invoking Jikes (is jikes in your path)\n");
-	}
-		
-	return result;
-    }
 }

@@ -9,7 +9,7 @@ import bluej.utility.Utility;
 import bluej.Config;
 
 /**
- ** @version $Id: JavacCompiler.java 92 1999-05-27 06:27:15Z ajp $
+ ** @version $Id: JavacCompiler.java 98 1999-05-31 06:25:17Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -20,15 +20,15 @@ import bluej.Config;
 
 public class JavacCompiler extends Compiler
 {
-	PrintStream output;
+	String executable;
 	String destdir;
 	String classpath;
 	boolean debug;
 	boolean deprecation;
 
-	public JavacCompiler(PrintStream output)
+	public JavacCompiler(String executable)
 	{
-		this.output = output;
+		this.executable = executable;
 		setDebug(true);
 	}
 	
@@ -56,7 +56,7 @@ public class JavacCompiler extends Compiler
 	{
 		Vector args = new Vector();
 		
-		args.addElement("javac");
+		args.addElement(executable);
 
 		if(destdir != null) {
 			args.addElement("-d");
@@ -87,7 +87,7 @@ public class JavacCompiler extends Compiler
 			result = executeCompiler(params, watcher);
 		}
 		catch (Exception ioe) {
-			Utility.showError(null, "Compiler error invoking javac (is javac in your path)\n");
+			Utility.showError(null, "Compiler error running " + executable + " (is the program in your path)\n");
 		}
 
 		return result;	
@@ -111,7 +111,7 @@ public class JavacCompiler extends Compiler
 			// javac produces error messages in the format
 			// /home/ajp/sample/Tester.java:10: description of error.
 			// line of source code
-				//              ^
+			//              ^
 	
 			int first_colon = line.indexOf(':', 0);
 	

@@ -43,6 +43,17 @@ browserCmd2=netscape $
 winBrowserCmd1=rundll32 url.dll,FileProtocolHandler $
 winBrowserCmd2=
 
+#####################################################################
+## The following are the commands used to execute a compiler. The first
+## property sets the type of the compiler. Currently it can be one of
+## internal, javac or jikes. The second property if it exists, specifies
+## the name of the executable to run as the compiler. This can be a fully
+## qualified path or the name of an executable in the path. If it is not
+## specified then BlueJ defaults to the standard name of the specified
+## compiler type (ie javac for type javac and jikes for type jikes)
+
+bluej.compiler.type=jikes
+## bluej.compiler.executable=jikes
 
 #####################################################################
 ## User Interface "Look and Feel"
