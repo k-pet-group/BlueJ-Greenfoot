@@ -9,13 +9,13 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 2287 2003-11-06 00:55:29Z ajp $
+ * @version $Id: MethodInvokerRecord.java 2376 2003-11-19 23:16:33Z bquig $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
     private Class returnType;
 	private String benchType;
-	private String benchName;
+	protected String benchName;
 	
     /**
      * Records a method call that returns a result to the user.
@@ -189,7 +189,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      * @return A string representing the assignment statement
      *         with an optional typecast to get the type correct
      */
-	private String benchAssignmentTypecast()
+	protected String benchAssignmentTypecast()
 	{
 		StringBuffer sb = new StringBuffer();
 		

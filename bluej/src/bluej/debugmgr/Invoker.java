@@ -21,7 +21,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2323 2003-11-12 12:48:38Z fisker $
+ * @version $Id: Invoker.java 2376 2003-11-19 23:16:33Z bquig $
  */
 
 public class Invoker extends Thread
@@ -351,10 +351,15 @@ public class Invoker extends Thread
      */
     protected void doFreeFormInvocation(String executionString, boolean hasResult)
     {
-        if (hasResult)
+        if (hasResult){
             instanceName = "result";
-        else
+            ir = new ExpressionInvokerRecord(executionString);
+        }
+        else {
             instanceName = null;
+            // this is a statement, treat as a void method result
+            ir = new VoidMethodInvokerRecord(executionString);
+        }
                 
         File shell = writeInvocationFile(pkg, "", executionString, 
                                           false, !hasResult);
