@@ -27,7 +27,7 @@ import javax.swing.border.Border;
  *@author     Michael Cahill
  *@author     Michael Kolling
  *@author     Duane Buck
- *@version    $Id: ObjectViewer.java 827 2001-03-28 13:36:18Z ajp $
+ *@version    $Id: ObjectViewer.java 830 2001-03-29 00:53:04Z mik $
  */
 public final class ObjectViewer extends JFrame
          implements ActionListener, ListSelectionListener, InspectorListener
@@ -231,8 +231,7 @@ public final class ObjectViewer extends JFrame
     }
 
     /**
-     *  Update the field values shown in this viewer to show current
-     *  object values.
+     *  De-iconify the window (if necessary) and bring it to the front. 
      */
     public void bringToFront()
     {
@@ -293,6 +292,20 @@ public final class ObjectViewer extends JFrame
 
         if (listPane != null)
             listPane.resetToPreferredSizes();
+
+        // Ensure a minimum width for the lists: if both lists are narrower
+        // than 200 pixels, set them to 200 (need to set only one - the other
+        // will be resized as well.
+
+        double width = objFieldList.getPreferredScrollableViewportSize().getWidth();
+        if (staticFieldList != null) {
+            width = Math.max(width,
+               staticFieldList.getPreferredScrollableViewportSize().getWidth());
+        }
+        if(width <= 200)
+            objFieldList.setFixedCellWidth(200);
+        else
+            objFieldList.setFixedCellWidth(-1);
 
         pack();
 
