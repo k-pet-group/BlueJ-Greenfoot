@@ -1,7 +1,7 @@
 /**
  * A class representing students for a simple JavaBlue demo program.
  *
- * Author:  Michael K?lling
+ * Author:  Michael Kölling
  * Version: 1.0
  * Date:    January 1999
  */

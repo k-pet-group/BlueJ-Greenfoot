@@ -51,11 +51,13 @@ implements ActionListener, ListSelectionListener, ItemListener
     private FixedMultiLineLabel helpLabel;
 
     private MoeActions actions;		// The Moe action manager
+    private Action currentAction;       // the action currently selected
 
     private Action[] functions;		// all user functions
     private int[] categoryIndex;	// an array of indexes into "functions"
     private int firstDisplayedFunc;	// index of first function in list
     private Properties help;
+    private KeyCatcher keyCatcher;
 
     // ------------- METHODS --------------
 
@@ -63,7 +65,9 @@ implements ActionListener, ListSelectionListener, ItemListener
                           String[] categories, int[] categoryIndex)
     {
         super(parent, "Editor Functions", true);
-        actions = MoeActions.getActions(null);;
+        keyCatcher = new KeyCatcher();
+        actions = MoeActions.getActions(null);
+        currentAction = null;
         functions = actiontable;
         this.categoryIndex = categoryIndex;
         makeDialog(categories);
@@ -96,23 +100,24 @@ implements ActionListener, ListSelectionListener, ItemListener
 
         // find selected action
 
-        Action action = functions[firstDisplayedFunc + index];
+        currentAction = functions[firstDisplayedFunc + index];
 
         // display key bindings
 
-        KeyStroke[] keys = actions.getKeyStrokesForAction(action);
+        KeyStroke[] keys = actions.getKeyStrokesForAction(currentAction);
         if(keys == null)
             clearKeyList();
         else {
             String[] keyStrings = getKeyStrings(keys);
             keyList.setListData(keyStrings);
-            addKeyButton.setEnabled(false); // should be true once implemented
-            delKeyButton.setEnabled(false);
+            //addKeyButton.setEnabled(false);
+            //delKeyButton.setEnabled(false);
         }
 
         // display help text
 
-        String helpText = getHelpText((String)action.getValue(Action.NAME));
+        String helpText = 
+            getHelpText((String)currentAction.getValue(Action.NAME));
         helpLabel.setText(helpText);
     }
 
@@ -121,7 +126,7 @@ implements ActionListener, ListSelectionListener, ItemListener
      */
     private void handleKeyListSelect()
     {
-        //delKeyButton.setEnabled(true);
+        delKeyButton.setEnabled(true);
     }
 
     /**
@@ -129,6 +134,8 @@ implements ActionListener, ListSelectionListener, ItemListener
      */
     private void handleAddKey()
     {
+        helpLabel.setText("  Press the key you want to add...");
+        this.addKeyListener(keyCatcher);
     }
 
     /**
@@ -136,6 +143,7 @@ implements ActionListener, ListSelectionListener, ItemListener
      */
     private void handleDelKey()
     {
+        Debug.message("not yet implemented");
     }
 
     /**
@@ -176,6 +184,11 @@ implements ActionListener, ListSelectionListener, ItemListener
         return help.getProperty(function);
     }
 
+    private void removeKeyListener()
+    {
+        this.removeKeyListener(keyCatcher);
+    }
+
     // ======== EVENT HANDLING INTERFACES =========
 
     // ----- ActionListener interface -----
@@ -192,6 +205,10 @@ implements ActionListener, ListSelectionListener, ItemListener
             handleClose();
         else if(src == defaultsButton)
             handleDefaults();
+        else if(src == addKeyButton)
+            handleAddKey();
+        else if(src == delKeyButton)
+            handleDelKey();
     }
 
     // ----- ItemListener interface -----
@@ -215,6 +232,7 @@ implements ActionListener, ListSelectionListener, ItemListener
         functionList.setListData(names);
         clearKeyList();
         clearHelpText();
+        currentAction = null;
     }
 
     // ----- ListSelectionListener interface -----
@@ -347,6 +365,49 @@ implements ActionListener, ListSelectionListener, ItemListener
 
         pack();
         DialogManager.centreDialog(this);
+    }
+
+
+    class KeyCatcher extends KeyAdapter
+    {
+        public void keyPressed(KeyEvent e)
+        {
+            int keyCode = e.getKeyCode();
+
+            if(keyCode == KeyEvent.VK_CAPS_LOCK ||    // the keys we want to ignore...
+               keyCode == KeyEvent.VK_SHIFT ||
+               keyCode == KeyEvent.VK_CONTROL ||
+               keyCode == KeyEvent.VK_META ||
+               keyCode == KeyEvent.VK_ALT ||
+               keyCode == KeyEvent.VK_ALT_GRAPH ||
+               keyCode == KeyEvent.VK_COMPOSE ||
+               keyCode == KeyEvent.VK_NUM_LOCK ||
+               keyCode == KeyEvent.VK_SCROLL_LOCK ||
+               keyCode == KeyEvent.VK_UNDEFINED
+               )
+                return;
+
+            if(currentAction == null)
+                Debug.message("action is null - problem...");
+            else {
+                KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
+                if(isPrintable(key, e))
+                    helpLabel.setText("\n  Printable keys cannot be redefined.");
+                else {
+                    actions.addActionForKeyStroke(key, currentAction);
+                    handleFuncListSelect();
+                }
+            }
+            removeKeyListener();
+        }
+
+        private boolean isPrintable(KeyStroke key, KeyEvent e)
+        {
+            int modifiers = key.getModifiers();
+            if(modifiers != 0 && modifiers != Event.SHIFT_MASK)
+                return false;
+            return ! e.isActionKey();
+        }
     }
 
 }  // end class FunctionDialog

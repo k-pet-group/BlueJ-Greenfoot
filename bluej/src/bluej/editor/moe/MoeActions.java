@@ -109,6 +109,14 @@ public final class MoeActions
     }
 
     /**
+     * Add a new key binding into the action table.
+     */
+    public void addActionForKeyStroke(KeyStroke key, Action a)
+    {
+        keymap.addActionForKeyStroke(key, a);
+    }
+
+    /**
      * Get a keystroke for an action by action name. Return null is there
      * is none.
      */
@@ -943,37 +951,40 @@ public final class MoeActions
 
     class KeyCatcher extends KeyAdapter
     {
-        Action action;
-        boolean haveKey = false;
-        String keyName;
         MoeEditor editor;
 
         public void keyPressed(KeyEvent e)
         {
-            KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
-            keyName = KeyEvent.getKeyModifiersText(key.getModifiers());
-            if(keyName.length() == 0)
-                keyName = "" + (char)key.getKeyCode();
-            else
-                keyName = keyName + "+" + (char)key.getKeyCode();
-            action = keymap.getAction(key);
-            haveKey = true;
-            e.consume();
-        }
+            int keyCode = e.getKeyCode();
 
-        public void keyTyped(KeyEvent e)
-        {
-            if(haveKey) {
-                if (action == null)
-                    editor.writeMessage(keyName + " is not bound to a function");
-                else {
-                    String name = (String) action.getValue(Action.NAME);
-                    editor.writeMessage(keyName + " calls the function \"" + name
-                                    + "\"");
-                }                    
-                e.getComponent().removeKeyListener(keyCatcher);
-                haveKey = false;
-            }
+            if(keyCode == KeyEvent.VK_CAPS_LOCK ||    // the keys we want to ignore...
+               keyCode == KeyEvent.VK_SHIFT ||
+               keyCode == KeyEvent.VK_CONTROL ||
+               keyCode == KeyEvent.VK_META ||
+               keyCode == KeyEvent.VK_ALT ||
+               keyCode == KeyEvent.VK_ALT_GRAPH ||
+               keyCode == KeyEvent.VK_COMPOSE ||
+               keyCode == KeyEvent.VK_NUM_LOCK ||
+               keyCode == KeyEvent.VK_SCROLL_LOCK ||
+               keyCode == KeyEvent.VK_UNDEFINED
+               )
+                return;
+
+            KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
+            String modifierName = KeyEvent.getKeyModifiersText(key.getModifiers());
+            String keyName = KeyEvent.getKeyText(keyCode);
+            if(modifierName.length() > 0)
+                keyName = modifierName + "+" + keyName;
+
+            Action action = keymap.getAction(key);
+            if (action == null)
+                editor.writeMessage(keyName + " is not bound to a function.");
+            else {
+                String name = (String) action.getValue(Action.NAME);
+                editor.writeMessage(keyName + " calls the function \"" + name + "\"");
+            }                    
+            e.getComponent().removeKeyListener(keyCatcher);
+            e.consume();
         }
 
         public void setEditor(MoeEditor ed)

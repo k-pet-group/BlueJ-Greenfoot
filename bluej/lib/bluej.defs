@@ -7,6 +7,7 @@ bluej.language=english
 #bluej.language=german
 #bluej.language=swedish
 
+
 #####################################################################
 ## Here are the URLs for the BlueJ manuals and documentation. If you
 ## have the documents installed locally and want to use your local
@@ -17,6 +18,14 @@ bluej.url.tutorial=http://www.csse.monash.edu.au/bluej/tutorial/tutorial.pdf
 bluej.url.reference=http://www.csse.monash.edu.au/bluej/reference/
 bluej.url.javaStdLib=http://java.sun.com/products/jdk/1.2/docs/api/index.html
 
+
+#####################################################################
+## This is the directory that the file chooser will initially display
+## when opening a project. You can comment it out, then the directory
+## where BlueJ was started will be used.
+#####################################################################
+
+#bluej.defaultSourcePath=/home/mik/bluej/test-examples
 
 #####################################################################
 ## The following are the commands used for opening a web browser. On
