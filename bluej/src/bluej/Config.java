@@ -9,6 +9,8 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
+import javax.swing.*;
+import javax.swing.border.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,7 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 129 1999-06-15 07:21:23Z mik $
+ ** @version $Id: Config.java 143 1999-06-26 02:00:59Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -46,8 +48,6 @@ public class Config
     public static final String slashstring = File.separator;
     public static final String colonstring = File.pathSeparator;
 
-    public static final String syslibs_file = "syslibs.properties";
-
     private static Properties bluej_props;	// bluej properties
     private static Properties lang_props;	// The internationalisation
 						//  dictionary
@@ -61,12 +61,17 @@ public class Config
     public static int printFontsize;
     public static int printTitleFontsize;
     public static int printInfoFontsize;
+
     public static String compilertype;	// current compiler (javac, jikes)
     public static String language;	// message language (english, ...)
 
     // Swing JSplitPane divider width constant for uniform look and feel
-    public static final int splitPaneDividerWidth = 5;
-	
+    public static final int splitPaneDividerWidth = 3;
+    // Other general spacing constants. We should try to use these for consistency
+    public static final int generalSpacingWidth = 5;
+    public static final Border generalBorder = BorderFactory.createEmptyBorder(10,10,10,10);
+    public static final Border generalBorderWithStatusBar = BorderFactory.createEmptyBorder(10,10,0,10);
+
     private static boolean initialised = false;
 
     /*
@@ -244,33 +249,48 @@ public class Config
 	}
     }
 
-    /**
-     * Get a non-language-dependent string from the BlueJ properties 
-     * ("bluej.defs" or "bluej.properties")
-     */
-    public static String getPropString(String strname)
-    {
-	try {
-	    return bluej_props.getProperty(strname, strname);
-	} catch(Exception e) {
-	    Debug.reportError("Could not get string for " + strname);
-	    return strname;
+	/**
+	 * Get a non-language-dependent string from the BlueJ properties 
+	 * ("bluej.defs" or "bluej.properties")
+	 */
+	public static String getPropString(String strname)
+	{
+		return getPropString(strname, strname);
 	}
-    }
 
-    /**
-     * Get a non-language-dependent string from the BlueJ properties
-     * ("bluej.defs" or "bluej.properties") with a default value
-     */
-    public static String getPropString(String strname, String def)
-    {
-	try {
-	    return bluej_props.getProperty(strname, def);
-	} catch(Exception e) {
-	    Debug.reportError("Could not get string for " + strname);
-	    return strname;
+	/**
+	 * Get a non-language-dependent string from the BlueJ properties
+	 * ("bluej.defs" or "bluej.properties") with a default value
+	 */
+	public static String getPropString(String strname, String def)
+	{
+		try {
+			return bluej_props.getProperty(strname, def);
+		} catch(Exception e) {
+			Debug.reportError("Could not get string for " + strname);
+			return def;
+		}
 	}
-    }
+
+	/**
+	 * Get a non-language dependant integer from the BlueJ properties
+	 * ("bluej.defs" or "bluej.properties") with a default value
+	 */
+	public static int getPropInteger(String intname, int def)
+	{
+		int value;
+		try {
+			value = new Integer(bluej_props.getProperty(intname, new String(def))).intValue();
+		}
+		catch(Exception e) {
+			Debug.reportError("Could not get integer for " + intname);
+			return def;
+		}
+		return value;
+	}
+
+
+
     public static String getLibFilename(String propname)
     {
 	try {
