@@ -1,6 +1,7 @@
 package bluej.editor.moe;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
@@ -17,7 +18,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
-import java.awt.event.*;        // New Event model    
+import java.awt.event.*;        // New Event model
 import javax.swing.*;		// all the GUI components
 import javax.swing.KeyStroke;
 import javax.swing.event.*;
@@ -51,10 +52,8 @@ public final class MoeEditor extends JFrame
     static final Color titleCol = Config.getItemColour("colour.text.fg");
 
     // Fonts
-    public static Font editFont = new Font("Monospaced", Font.PLAIN, 
-					   Config.editFontsize);
-    public static Font printFont = new Font("Monospaced", Font.PLAIN, 
-					    Config.printFontsize);
+    public static Font printFont = new Font("Monospaced", Font.PLAIN,
+					    10); //Config.printFontsize);
 
     // suffixes for resources
     static final String LabelSuffix = "Label";
@@ -104,7 +103,7 @@ public final class MoeEditor extends JFrame
     // inner class for listening for undoable edits in text
 
     private class MoeUndoableEditListener implements UndoableEditListener {
-  
+
 	public void undoableEditHappened(UndoableEditEvent e)
 	{
 	    actions.undoManager.addEdit(e.getEdit());
@@ -113,9 +112,9 @@ public final class MoeEditor extends JFrame
 	}
     }
 
-    /** 
+    /**
      *  Inner class listening for disabling actions - if an action is
-     *  disabled (enabled), the connected button is disabled (enabled) 
+     *  disabled (enabled), the connected button is disabled (enabled)
      *  as well.
      */
     private class ActionChangeListener implements PropertyChangeListener {
@@ -138,11 +137,11 @@ public final class MoeEditor extends JFrame
     // =========================== PUBLIC METHODS ===========================
 
     /**
-     *  Constructor. Title may be null 
+     *  Constructor. Title may be null
      */
 
-    public MoeEditor(String title, boolean isCode, EditorWatcher watcher, 
-		     boolean showToolbar, boolean showLineNum, 
+    public MoeEditor(String title, boolean isCode, EditorWatcher watcher,
+		     boolean showToolbar, boolean showLineNum,
 		     Properties resources)
     {
 	super("Moe");
@@ -220,7 +219,7 @@ public final class MoeEditor extends JFrame
 
 	setWindowTitle();
 	//show();
-	textPane.setFont(editFont);
+	textPane.setFont(PrefMgr.getStandardEditorFont());
 
 	setCompileStatus(compiled);
 	if (!isCode)
@@ -238,7 +237,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Wipe out contents of the editor.  
+     *  Wipe out contents of the editor.
      */
 
     public void clear()	// inherited from Editor, redefined
@@ -278,14 +277,15 @@ public final class MoeEditor extends JFrame
      *  Show the editor window. This includes whatever is necessary of the
      *  following: make visible, de-iconify, bring to front of window stack.
      *
-     *  @param view		the view to be displayed. Must be one of the 
+     *  @param view		the view to be displayed. Must be one of the
      *			view constants defined above
      */
     public void show(int view)	// inherited from Editor, redefined
     {
+	textPane.setFont(PrefMgr.getStandardEditorFont());
+
 	setView(view);
 	setVisible(true);		// show the window
-	textPane.setFont(editFont);
 	//  ## NYI: de-iconify
     }
 
@@ -305,7 +305,7 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
     /**
      *  Save the buffer to disk under current filename.  This is often called
-     *  from the outside - just in case.  Save only if really necessary, 
+     *  from the outside - just in case.  Save only if really necessary,
      *  otherwise we save much too often.
      *  PRE: filename != null
      */
@@ -356,7 +356,7 @@ public final class MoeEditor extends JFrame
      *  can contain a newline character.
      *
      *  @param message	the message to be displayed
-     *  @param line		the line to move the cursor to (the line is 
+     *  @param line		the line to move the cursor to (the line is
      *			also highlighted)
      *  @param column		the column to move the cursor to
      *  @param beep		if true, do a system beep
@@ -364,8 +364,8 @@ public final class MoeEditor extends JFrame
      *  @param help		name of help group (may be null)
      */
 
-    public void displayMessage(String message, int lineNumber, int column, 
-			       boolean beep, boolean setStepMark, 
+    public void displayMessage(String message, int lineNumber, int column,
+			       boolean beep, boolean setStepMark,
 			       String help)
 			       // inherited from Editor
     {
@@ -473,14 +473,14 @@ public final class MoeEditor extends JFrame
 	}
 	textPane.setEditable(!readOnlyStatus);
     }
-		    
+
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
     // --------------------------------------------------------------------
 
     // --------------------------------------------------------------------
     /**
-     *  Clear the message in the info area. 
+     *  Clear the message in the info area.
      */
     public void clearMessage()
     {
@@ -491,19 +491,19 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  
+     *
      */
     public void userSave()
     {
 	if (saveState.isSaved())
 	    info.message ("No changes need to be saved");
-	else 
+	else
 	    save();
     }
 
     // --------------------------------------------------------------------
     /**
-     *  
+     *
      */
     public void reload()
     {
@@ -527,7 +527,7 @@ public final class MoeEditor extends JFrame
      */
     public void print()
     {
-	PrintJob printjob = getToolkit().getPrintJob(this, 
+	PrintJob printjob = getToolkit().getPrintJob(this,
 						     "Class " + windowTitle,
 						     null);
 	if(printjob != null) {
@@ -541,7 +541,7 @@ public final class MoeEditor extends JFrame
      *  Part of the print function. Print out the class view currently
      *  visible in the editor.
      */
-    private void printClass(PrintJob printjob) 
+    private void printClass(PrintJob printjob)
     {
   	Dimension pageSize = printjob.getPageDimension();
 
@@ -552,7 +552,7 @@ public final class MoeEditor extends JFrame
 	Dimension textSize = textPane.getSize(null);
 	//Debug.message("text height: " + textSize.height);
 	textSize.width -= (TAG_WIDTH + 3);
-	int pages = (textSize.height + printArea.height - 1) / 
+	int pages = (textSize.height + printArea.height - 1) /
 	    printArea.height;
 	//Debug.message("pages: " + pages);
 
@@ -569,10 +569,10 @@ public final class MoeEditor extends JFrame
 	    for(int i = 0; i < pages; i++) {
 		Graphics g = printjob.getGraphics();
 		printFrame(g, printArea, i + 1, date);
-		
-		g.translate(printArea.x - TAG_WIDTH - 2, 
+
+		g.translate(printArea.x - TAG_WIDTH - 2,
 			    printArea.y - i * printArea.height);
-		g.setClip(TAG_WIDTH + 3, i * printArea.height, 
+		g.setClip(TAG_WIDTH + 3, i * printArea.height,
 			  printArea.width, printArea.height);
 		textPane.print(g);
 		g.dispose();
@@ -584,10 +584,10 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
     static final int PRINT_HMARGIN = 16;
     static final int PRINT_VMARGIN = 16;
-    static final Font printTitleFont = new Font("SansSerif", Font.PLAIN, 
-						Config.printTitleFontsize);
-    static final Font printInfoFont = new Font("SansSerif", Font.ITALIC, 
-					       Config.printInfoFontsize);
+    static final Font printTitleFont = new Font("SansSerif", Font.PLAIN,
+						12); //Config.printTitleFontsize);
+    static final Font printInfoFont = new Font("SansSerif", Font.ITALIC,
+					       12); //Config.printInfoFontsize);
 
     // --------------------------------------------------------------------
     /**
@@ -601,7 +601,7 @@ public final class MoeEditor extends JFrame
 	FontMetrics ifm = getFontMetrics(printInfoFont);
 	int fontSize = textPane.getFont().getSize();
 
-	int printHeight = pageSize.height - 2 * PRINT_VMARGIN - 
+	int printHeight = pageSize.height - 2 * PRINT_VMARGIN -
 	    tfm.getHeight() - ifm.getHeight() - 4;
 
 	// ensure printHeight is multiple of font size
@@ -621,7 +621,7 @@ public final class MoeEditor extends JFrame
      *  page, including header and footer.
      */
     private void printFrame(Graphics g, Rectangle printArea, int pageNum,
-			    String date) 
+			    String date)
     {
 	FontMetrics tfm = getFontMetrics(printTitleFont);
 	FontMetrics ifm = getFontMetrics(printInfoFont);
@@ -630,15 +630,15 @@ public final class MoeEditor extends JFrame
 
 	// frame header area
 	g.setColor(lightGrey);
-	g.fillRect(frameArea.x, PRINT_VMARGIN, frameArea.width, 
+	g.fillRect(frameArea.x, PRINT_VMARGIN, frameArea.width,
 		   frameArea.y - PRINT_VMARGIN);
 
 	g.setColor(titleCol);
-	g.drawRect(frameArea.x, PRINT_VMARGIN, frameArea.width, 
+	g.drawRect(frameArea.x, PRINT_VMARGIN, frameArea.width,
 		   frameArea.y - PRINT_VMARGIN);
 
 	// frame print area
-	g.drawRect(frameArea.x, frameArea.y, frameArea.width, 
+	g.drawRect(frameArea.x, frameArea.y, frameArea.width,
 		   frameArea.height);
 
 	// write header
@@ -646,7 +646,7 @@ public final class MoeEditor extends JFrame
 	String title = "Class " + windowTitle;
 	if(pageNum > 1)
 	    title = title + " (continued)";
-	Utility.drawCentredText(g, title, printArea.x, PRINT_VMARGIN, 
+	Utility.drawCentredText(g, title, printArea.x, PRINT_VMARGIN,
 				printArea.width, tfm.getHeight()+4);
 
 	// write footer
@@ -658,7 +658,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  The editor has been closed. Hide the editor window now. 
+     *  The editor has been closed. Hide the editor window now.
      */
     public void doClose()
     {
@@ -842,7 +842,7 @@ public final class MoeEditor extends JFrame
 		if(lineText != null && lineText.length() > 0) {
 		    int foundPos = lineText.lastIndexOf(s);
 		    if (foundPos != -1) {
-			textPane.select(lineStart+foundPos, 
+			textPane.select(lineStart+foundPos,
 					lineStart+foundPos+s.length());
 			found = true;
 		    }
@@ -873,7 +873,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  
+     *
      */
 
     public void setFontSize(int size)
@@ -995,7 +995,7 @@ public final class MoeEditor extends JFrame
 	else
 	    info.warning("Cannot set breakpoint:\n" +
 			 "No code associated with this editor.");
-	    
+
     }
 
     // --------------------------------------------------------------------
@@ -1224,7 +1224,7 @@ public final class MoeEditor extends JFrame
 	Vector v = new Vector();
 	StringTokenizer t = new StringTokenizer(input);
 	String tokens[];
-    
+
 	while (t.hasMoreTokens())
 	    v.addElement(t.nextToken());
 	tokens = new String[v.size()];
@@ -1236,7 +1236,7 @@ public final class MoeEditor extends JFrame
 
     // ---- ItemListener interface ----
 
-    public void itemStateChanged(ItemEvent evt) 
+    public void itemStateChanged(ItemEvent evt)
     {
 	if(evt.getStateChange() == ItemEvent.DESELECTED)
 	    return;  // ignore deselection events
@@ -1249,7 +1249,7 @@ public final class MoeEditor extends JFrame
     private void viewSelected()
     {
 	int view;
-    
+
 	switch (viewSelector.getSelectedIndex()) {
 	case (0): view = bluej.editor.Editor.IMPLEMENTATION;
 	    break;
@@ -1303,7 +1303,7 @@ public final class MoeEditor extends JFrame
 	    statusArea.add(lineCounter);
 	statusArea.add(saveState);
 	bottomArea.add(statusArea, BorderLayout.EAST);
-  
+
 	contentPane.add(bottomArea, BorderLayout.SOUTH);
 
 	// create the text document
@@ -1346,7 +1346,6 @@ public final class MoeEditor extends JFrame
 	actions.getActionByName("uncomment").setEnabled(false);
 	actions.getActionByName("replace").setEnabled(false);
 	actions.getActionByName("goto-line").setEnabled(false);
-	//actions.getActionByName("preferences").setEnabled(false);
 	actions.getActionByName("describe-key").setEnabled(false);
 	actions.getActionByName("show-manual").setEnabled(false);
 
@@ -1447,7 +1446,7 @@ public final class MoeEditor extends JFrame
 		    if (label != null)
 			item.setText(label);
 		    KeyStroke[] keys = actions.getKeyStrokesForAction(action);
-		    if (keys != null) 
+		    if (keys != null)
 			item.setAccelerator(keys[0]);
 		}
 	    }
@@ -1487,7 +1486,7 @@ public final class MoeEditor extends JFrame
     {
 	String label = getResource(key + LabelSuffix);
 	JButton button = new JButton(label);
-    
+
 	button.setRequestFocusEnabled(false);   // never get keyboard focus
 	button.setMargin(new Insets(2,2,2,2));
 
@@ -1512,7 +1511,7 @@ public final class MoeEditor extends JFrame
 
     private JComboBox createViewSelector(String key)
     {
-	String[] viewStrings = 
+	String[] viewStrings =
 	{ getResource(key + LabelSuffix + "1"),
 	  getResource(key + LabelSuffix + "2"),
 	  getResource(key + LabelSuffix + "3"),

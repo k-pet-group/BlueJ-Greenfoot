@@ -51,7 +51,7 @@ public final class MoeActions
     public UndoAction undoAction;
     public RedoAction redoAction;
     public UndoManager undoManager;
-    
+
     // frequently needed actions
     public Action compileAction;
 
@@ -72,7 +72,7 @@ public final class MoeActions
     // ========================== INSTANCE METHODS ==========================
 
     /**
-     * Constructor. 
+     * Constructor.
      */
 
     private MoeActions(JTextComponent textComponent)
@@ -98,7 +98,7 @@ public final class MoeActions
     public KeyStroke[] getKeyStrokesForAction(Action action)
     {
 	KeyStroke[] keys = keymap.getKeyStrokesForAction(action);
-	if (keys != null && keys.length > 0) 
+	if (keys != null && keys.length > 0)
 	    return keys;
 	else
 	    return null;
@@ -112,7 +112,7 @@ public final class MoeActions
 //      {
 //  	Action action = getActionByName(actionName);
 //  	KeyStroke[] keys = keymap.getKeyStrokesForAction(action);
-//  	if (keys != null && keys.length > 0) 
+//  	if (keys != null && keys.length > 0)
 //  	    return keys;
 //  	else
 //  	    return null;
@@ -143,7 +143,7 @@ public final class MoeActions
     class SaveAction extends MoeAbstractAction {
 
 	public SaveAction() {
-	    super("save", 
+	    super("save",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
 	}
 
@@ -174,7 +174,7 @@ public final class MoeActions
     class PrintAction extends MoeAbstractAction {
 
 	public PrintAction() {
-	    super("print", 
+	    super("print",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK));
 	}
 
@@ -188,7 +188,7 @@ public final class MoeActions
     class CloseAction extends MoeAbstractAction {
 
 	public CloseAction() {
-	    super("close", 
+	    super("close",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK));
 	}
 
@@ -202,14 +202,14 @@ public final class MoeActions
 
     class UndoAction extends MoeAbstractAction {
 
-	public UndoAction() 
+	public UndoAction()
 	{
-	    super("undo", 
+	    super("undo",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.CTRL_MASK));
 	    this.setEnabled(false);
 	}
-    
-	public void actionPerformed(ActionEvent e) 
+
+	public void actionPerformed(ActionEvent e)
 	{
 	    try {
 		undoManager.undo();
@@ -238,14 +238,14 @@ public final class MoeActions
 
     class RedoAction extends MoeAbstractAction {
 
-	public RedoAction() 
+	public RedoAction()
 	{
-	    super("redo", 
+	    super("redo",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_Y, Event.CTRL_MASK));
 	    this.setEnabled(false);
 	}
 
-	public void actionPerformed(ActionEvent e) 
+	public void actionPerformed(ActionEvent e)
 	{
 	    try {
 		undoManager.redo();
@@ -275,7 +275,7 @@ public final class MoeActions
     class CommentAction extends MoeAbstractAction {
 
 	public CommentAction() {
-	    super("comment", 
+	    super("comment",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, Event.CTRL_MASK));
 	}
 
@@ -289,7 +289,7 @@ public final class MoeActions
     class UncommentAction extends MoeAbstractAction {
 
 	public UncommentAction() {
-	    super("uncomment", 
+	    super("uncomment",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, SHIFT_CTRL_MASK));
 	}
 
@@ -303,7 +303,7 @@ public final class MoeActions
     class InsertMethodAction extends MoeAbstractAction {
 
 	public InsertMethodAction() {
-	    super("insert-method", 
+	    super("insert-method",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_M, Event.CTRL_MASK));
 	}
 
@@ -315,12 +315,12 @@ public final class MoeActions
 		"    /**\n" +
 		"     * An example of a method - replace this comment with your own\n" +
 		"     * \n" +
-		"     * @param  y   a sample parameter for a method \n" + 
+		"     * @param  y   a sample parameter for a method \n" +
 		"     * @return     the sum of x and y \n" +
-		"     **/\n" + 
+		"     **/\n" +
 		"    public int sampleMethod(int y)\n" +
 		"    {\n" +
-		"        // put your code here\n" + 
+		"        // put your code here\n" +
 		"        return x + y;\n" +
 		"    }");
 	    textPane.setCaretPosition(pos);
@@ -352,9 +352,9 @@ public final class MoeActions
     // --------------------------------------------------------------------
 
     class FindAction extends MoeAbstractAction {
- 
+
 	public FindAction() {
-	    super("find", 
+	    super("find",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
 	}
 
@@ -368,7 +368,7 @@ public final class MoeActions
     class FindBackwardAction extends MoeAbstractAction {
 
 	public FindBackwardAction() {
-	    super("find-backward", 
+	    super("find-backward",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_F, SHIFT_CTRL_MASK));
 	}
 
@@ -382,7 +382,7 @@ public final class MoeActions
     class FindNextAction extends MoeAbstractAction {
 
 	public FindNextAction() {
-	    super("find-next", 
+	    super("find-next",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
 	}
 
@@ -394,9 +394,9 @@ public final class MoeActions
     // --------------------------------------------------------------------
 
     class FindNextReverseAction extends MoeAbstractAction {
- 
+
 	public FindNextReverseAction() {
-	    super("find-next-reverse", 
+	    super("find-next-reverse",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_CTRL_MASK));
 	}
 
@@ -410,7 +410,7 @@ public final class MoeActions
     class ReplaceAction extends MoeAbstractAction {
 
 	public ReplaceAction() {
-	    super("replace", 
+	    super("replace",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK));
 	}
 
@@ -424,7 +424,7 @@ public final class MoeActions
     class GotoLineAction extends MoeAbstractAction {
 
 	public GotoLineAction() {
-	    super("goto-line", 
+	    super("goto-line",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
 	}
 
@@ -440,7 +440,7 @@ public final class MoeActions
     class CompileAction extends MoeAbstractAction {
 
 	public CompileAction() {
-	    super("compile", 
+	    super("compile",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK));
 	}
 
@@ -455,7 +455,7 @@ public final class MoeActions
     class ToggleBreakPointAction extends MoeAbstractAction {
 
 	public ToggleBreakPointAction() {
-	    super("toggle-breakpoint", 
+	    super("toggle-breakpoint",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK));
 	}
 
@@ -467,27 +467,10 @@ public final class MoeActions
     // === Options: ===
     // --------------------------------------------------------------------
 
-    class PreferencesAction extends MoeAbstractAction {
- 
-	public PreferencesAction() {
-	    super("preferences", null);
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Preferences pref = new Preferences();
-	    MoeEditor ed = getEditor(e);
-	    boolean confirmed = pref.showDialog(ed);
-	    
-	    if(confirmed) {
-		ed.setFontSize(pref.getFontSize());
-	    }
-	}
-    }
-
     // --------------------------------------------------------------------
 
     class KeyBindingsAction extends MoeAbstractAction {
- 
+
 	public KeyBindingsAction() {
 	    super("key-bindings", null);
 	}
@@ -511,7 +494,7 @@ public final class MoeActions
 
 	public void actionPerformed(ActionEvent e) {
 	    JOptionPane.showMessageDialog(getEditor(e),
-		new String[] { 
+		new String[] {
 		    "Moe",
 		    "Version " + MoeEditor.versionString,
 		    " ",
@@ -527,7 +510,7 @@ public final class MoeActions
     class DescribeKeyAction extends MoeAbstractAction {
 
 	public DescribeKeyAction() {
-	    super("describe-key", 
+	    super("describe-key",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK));
 	}
 
@@ -546,7 +529,7 @@ public final class MoeActions
 
 	public void actionPerformed(ActionEvent e) {
 	    JOptionPane.showMessageDialog(getEditor(e),
-		new String[] { 
+		new String[] {
 		    "Moe Mouse Buttons:",
 		    " ",
 		    "left button:",
@@ -578,11 +561,11 @@ public final class MoeActions
     // --------------------------------------------------------------------
 
     //     class Action extends MoeAbstractAction {
-    //  
+    //
     //       public Action() {
     //  	 super("");
     //       }
-    // 
+    //
     //       public void actionPerformed(ActionEvent e) {
     // 	  DialogManager.NYI(editor);
     //       }
@@ -593,7 +576,7 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
     /**
-     * 
+     *
      */
 
     // --------------------------------------------------------------------
@@ -686,7 +669,6 @@ public final class MoeActions
 	    compileAction,
 	    new ToggleBreakPointAction(),
 
-	    new PreferencesAction(),
 	    new KeyBindingsAction(),
 
 	    new AboutAction(),
@@ -774,17 +756,16 @@ public final class MoeActions
 	    (Action)(actions.get("print")),
 
 	    // customisation functions
-	    (Action)(actions.get("preferences")),		// 52
-	    (Action)(actions.get("key-bindings")),
+	    (Action)(actions.get("key-bindings")),		// 52
 
 	    // help functions
-	    (Action)(actions.get("describe-key")),		// 54
+	    (Action)(actions.get("describe-key")),		// 53
 	    (Action)(actions.get("help-mouse")),
 	    (Action)(actions.get("show-manual")),
 	    (Action)(actions.get("about-editor")),
 
 	    // misc functions
-	    undoAction,						// 58
+	    undoAction,						// 57
 	    redoAction,
 	    (Action)(actions.get("find")),
 	    (Action)(actions.get("find-backward")),
@@ -794,16 +775,16 @@ public final class MoeActions
 	    (Action)(actions.get("goto-line")),
 	    (Action)(actions.get("compile")),
 	    (Action)(actions.get("toggle-breakpoint")),
-	};							// 68
+	};							// 67
 
-	categories = new String[] { "Edit Functions", 
+	categories = new String[] { "Edit Functions",
 				    "Move & Scroll",
 				    "Class Functions",
 				    "Customisation",
 				    "Help",
 				    "Misc." };
 	// (#1) temporarily altered until next swing version
-	categoryIndex = new int[] { 0, 32, 48, 52, 54, 58, 68 };
+	categoryIndex = new int[] { 0, 32, 48, 52, 53, 57, 67 };
 	//categoryIndex = new int[] { 0, 29, 45, 49, 51, 55, 65 };
     }
 
