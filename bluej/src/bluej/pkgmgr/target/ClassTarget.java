@@ -30,7 +30,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1992 2003-05-30 04:19:51Z ajp $
+ * @version $Id: ClassTarget.java 2004 2003-06-02 11:09:50Z damiano $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -497,6 +497,12 @@ public class ClassTarget extends EditableTarget
     public boolean isCompiled()
     {
         return (state == S_NORMAL);
+    }
+
+
+    public void compile(Editor editor)
+    {
+        getPackage().compile(this);
     }
 
     /**
