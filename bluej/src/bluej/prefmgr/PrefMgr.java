@@ -14,7 +14,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 2210 2003-10-11 14:50:39Z mik $
+ * @version $Id: PrefMgr.java 2296 2003-11-06 16:57:14Z mik $
  */
 public class PrefMgr
 {
@@ -38,7 +38,7 @@ public class PrefMgr
     private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
 
     // other constants
-    private static final int NUM_RECENT_PROJECTS = 12;
+    private static final int NUM_RECENT_PROJECTS = Config.getPropInteger("bluej.numberOfRecentProjects", 12);
     
 	// preference variables: FONTS
     private static int fontSize;
