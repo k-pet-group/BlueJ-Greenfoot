@@ -17,7 +17,7 @@ public class IndexHistory extends History {
      */
     public IndexHistory(int maxLength)
     {
-        super(maxLength, false);
+        super(maxLength, true);
         currentIndex = 0;
     }
     
@@ -29,17 +29,41 @@ public class IndexHistory extends History {
     public void add(String newString)
     {
         super.add(newString);
-        currentIndex = 0;        
+        currentIndex = 0;
     }
     
+    /**
+     * Get the previous history entry. Calling this repeatedly walks
+     * back through the history
+     * 
+     * @return The previous history entry.
+     */
     public String getPrevious()
     {
-        if(currentIndex >= history.size()) {
-            return null;
+        if(currentIndex+1 < history.size()) {
+            currentIndex++;
+            return (String) history.get(currentIndex);
         }
         else {
-            currentIndex++;
-            return (String) history.get(currentIndex-1);
+            return null;
         }
     }
+
+    /**
+     * Get the next history entry. Calling this repeatedly walks
+     * forward through the history
+     * 
+     * @return The next history entry.
+     */
+    public String getNext()
+    {
+        if(currentIndex > 0) {
+            currentIndex--;
+            return (String) history.get(currentIndex);
+        }
+        else {
+            return null;
+        }
+    }
+
 }
