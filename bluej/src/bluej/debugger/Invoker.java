@@ -30,7 +30,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1055 2001-12-20 06:07:05Z ajp $
+ * @version $Id: Invoker.java 1072 2002-01-08 12:40:26Z mik $
  */
 
 public class Invoker extends Thread
@@ -109,9 +109,9 @@ public class Invoker extends Thread
                 baseName.substring(1, stringEndIndex);
 
             this.objName = instanceName + "_" +
-                                    member.getDeclaringView().getInstanceNum();
+                member.getDeclaringView().getInstanceNum();
 
-             constructing = true;
+            constructing = true;
         }
         else if(member instanceof MethodView) {
 
@@ -205,7 +205,7 @@ public class Invoker extends Thread
         // fail ie new Test.Sub.Test() and new Test.Sub.Foo()
         // in the package where the class Test exists.
         // so in this case we need to use the unqualified name
-	// ie new Test() and new Foo()
+        // ie new Test() and new Foo()
 
         // note we need to retain the fully qualified case for when
         // we add library classes etc which may involve constructing
@@ -224,40 +224,40 @@ public class Invoker extends Thread
                 typeName = JavaNames.getBase(typeName);
         }
 
-	// now we need to deal with nested types
-	// these types will have a $ in them but depending on whether
-	// they are anonymous classes or member classes will change how
-	// we want to refer to them
-	// an anonymous class we can refer to as MyClass$1 and the
-	// compiler is ok with that
-	// a member class, despite being given a type name of
-	// MyClass$MemberClass, must be referred to as MyClass.MemberClass
-	// in the source code. Here we make this change to the typeName
-	// based entirely on whether the character following the $ is
-	// a numeral or not (which just happens to be the way it is at
-	// the moment but I don't think its written down in the JLS or
-	// anything so this may break)
+        // now we need to deal with nested types
+        // these types will have a $ in them but depending on whether
+        // they are anonymous classes or member classes will change how
+        // we want to refer to them
+        // an anonymous class we can refer to as MyClass$1 and the
+        // compiler is ok with that
+        // a member class, despite being given a type name of
+        // MyClass$MemberClass, must be referred to as MyClass.MemberClass
+        // in the source code. Here we make this change to the typeName
+        // based entirely on whether the character following the $ is
+        // a numeral or not (which just happens to be the way it is at
+        // the moment but I don't think its written down in the JLS or
+        // anything so this may break)
 
-	int firstDollar;
+        int firstDollar;
 
-	if ((firstDollar = typeName.indexOf('$')) != -1) {
-	    StringBuffer sb = new StringBuffer(typeName);
+        if ((firstDollar = typeName.indexOf('$')) != -1) {
+            StringBuffer sb = new StringBuffer(typeName);
 
             // go to length - 1 only so we always have an i+1 character
             // to check. What this means is that if the last character
             // in the typeName is a $, it won't be converted but I don't
             // think a type name with a $ as the last character is valid
             // anyway
-	    for(int i=firstDollar; i<sb.length()-1; i++) {
-		if (sb.charAt(i) == '$' &&
-                     !Character.isDigit(sb.charAt(i+1)))
-			sb.setCharAt(i, '.');
+            for(int i=firstDollar; i<sb.length()-1; i++) {
+                if (sb.charAt(i) == '$' &&
+                    !Character.isDigit(sb.charAt(i+1)))
+                    sb.setCharAt(i, '.');
             }
 
             typeName = sb.toString();
-	}
+        }
 
-	return typeName;
+        return JavaNames.typeName(typeName);
     }
 
     /**
@@ -293,12 +293,12 @@ public class Invoker extends Thread
         else
             trans.put("PKGLINE", "package " + pkg.getQualifiedName() + ";");
 
-          // Create class name
+        // Create class name
 
         trans.put("CLASSNAME", shellName);
 
-          // add variable declarations: one for a (possible) result, and one
-          // for each parameter
+        // add variable declarations: one for a (possible) result, and one
+        // for each parameter
 
         StringBuffer buffer = new StringBuffer();
         if(constructing)
@@ -326,16 +326,16 @@ public class Invoker extends Thread
         String argString = buffer.toString();
         String actualArgString = argBuffer.toString();
 
-          // Build scope, ie. add one line for every object on the object
-          // bench that gets the object and makes it available for use as
-          // a parameter. Then add one line for each parameter setting the
-          // parameter value.
+        // Build scope, ie. add one line for every object on the object
+        // bench that gets the object and makes it available for use as
+        // a parameter. Then add one line for each parameter setting the
+        // parameter value.
 
         buffer = new StringBuffer();
         String scopeId = Utility.quoteSloshes(pkg.getId());
         if(wrappers.length > 0)
             buffer.append("java.util.Map __bluej_runtime_scope = getScope(\""
-                  + scopeId + "\");" + Config.nl);
+                          + scopeId + "\");" + Config.nl);
         for(int i = 0; i < wrappers.length; i++) {
             ObjectWrapper wrapper = (ObjectWrapper)wrappers[i];
             String type = cleverQualifyTypeName(pkg, wrapper.className);
@@ -365,7 +365,7 @@ public class Invoker extends Thread
             buffer.append(instanceName);
             buffer.append("\", __bluej_runtime_result.result);");
 
-//             CallRecord.getCallRecord(instanceName, member, args);
+            //             CallRecord.getCallRecord(instanceName, member, args);
         }
         else {  // it's a method call
             MethodView method = (MethodView)member;
@@ -376,8 +376,8 @@ public class Invoker extends Thread
             else {
                 command = objName + "." + method.getName();
 
-//                CallRecord.addMethodCallRecord(objName, method.getName(),
-//                                                member, args);
+                //                CallRecord.addMethodCallRecord(objName, method.getName(),
+                //                                                member, args);
             }
 
             if(!isVoid)
@@ -402,7 +402,7 @@ public class Invoker extends Thread
 
         try {
             BlueJFileReader.translateFile(templateFile, shellFile,
-                                            trans);
+                                          trans);
         } catch(IOException e) {
             e.printStackTrace();
             return;
@@ -412,7 +412,7 @@ public class Invoker extends Thread
 
         String[] files = { shellFile.getPath() };
         JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(),
-                                        pkg.getProject().getProjectDir().getPath());
+                                      pkg.getProject().getProjectDir().getPath());
     }
 
     // -- CompileObserver interface --
@@ -425,7 +425,7 @@ public class Invoker extends Thread
      * class.
      */
     public void errorMessage(String filename, int lineNo, String message,
-                                boolean invalidate)
+                             boolean invalidate)
     {
         if(dialog != null) {
             dialog.setMessage("Error: " + message);
@@ -442,8 +442,8 @@ public class Invoker extends Thread
         if(dialog != null) {
             dialog.setWaitCursor(false);
             if(successful) {
-            dialog.setVisible(false);
-            dialog.updateParameters();
+                dialog.setVisible(false);
+                dialog.updateParameters();
             }
         }
 
@@ -511,47 +511,47 @@ public class Invoker extends Thread
             int status = Debugger.debugger.getExitStatus();
             switch(status) {
 
-                case Debugger.NORMAL_EXIT:
-                    if(watcher != null) {
-                        DebuggerObject result = Debugger.debugger.getStaticValue(
-                                    shellClassName,
-                                    "__bluej_runtime_result");
-                        if(constructing) {
-                            watcher.putResult(result, instanceName);
-                        }
-                        else {
-                            watcher.putResult(result, resultId);
-                        }
+            case Debugger.NORMAL_EXIT:
+                if(watcher != null) {
+                    DebuggerObject result = Debugger.debugger.getStaticValue(
+                                                                             shellClassName,
+                                                                             "__bluej_runtime_result");
+                    if(constructing) {
+                        watcher.putResult(result, instanceName);
                     }
-                    break;
+                    else {
+                        watcher.putResult(result, resultId);
+                    }
+                }
+                break;
 
-              case Debugger.FORCED_EXIT:  // exit through System.exit()
-                      // possible change: currently, exits don't get reported for
-                      // void methods. maybe: exits should get reported if return
-                      // value != 0
-              if(watcher != null) {
-                  ExceptionDescription exc =
-                  Debugger.debugger.getException();
-                  pkg.reportExit(exc.getText());
-              }
-              break;
+            case Debugger.FORCED_EXIT:  // exit through System.exit()
+                // possible change: currently, exits don't get reported for
+                // void methods. maybe: exits should get reported if return
+                // value != 0
+                if(watcher != null) {
+                    ExceptionDescription exc =
+                        Debugger.debugger.getException();
+                    pkg.reportExit(exc.getText());
+                }
+                break;
 
-              case Debugger.EXCEPTION:
-              ExceptionDescription exc = Debugger.debugger.getException();
-              String text =
-                  JavaNames.stripPrefix(exc.getClassName());
-              if(exc.getText() != null)
-                  text += ":\n" + exc.getText();
+            case Debugger.EXCEPTION:
+                ExceptionDescription exc = Debugger.debugger.getException();
+                String text =
+                    JavaNames.stripPrefix(exc.getClassName());
+                if(exc.getText() != null)
+                    text += ":\n" + exc.getText();
 
-              if(exc.getClassName() == null)
-                  pkg.reportException(text);
-          else
-              pkg.exceptionMessage(exc.getStack(), text, false);
-          break;
+                if(exc.getClassName() == null)
+                    pkg.reportException(text);
+                else
+                    pkg.exceptionMessage(exc.getStack(), text, false);
+                break;
 
-          case Debugger.TERMINATED:  // terminated by user
-          // nothing to do
-          break;
+            case Debugger.TERMINATED:  // terminated by user
+                // nothing to do
+                break;
 
             } // switch
         } catch(Throwable e) {
