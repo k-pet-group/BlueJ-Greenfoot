@@ -21,7 +21,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 1049 2001-12-11 16:17:05Z mik $
+ * @version $Id: ClassMgrPrefPanel.java 1050 2001-12-11 19:37:46Z mik $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -38,7 +38,7 @@ public class ClassMgrPrefPanel extends JPanel
     public static void register()
     {
         ClassMgrPrefPanel p = new ClassMgrPrefPanel();
-        //PrefMgrDialog.add(p, prefpaneltitle, p);
+        PrefMgrDialog.add(p, prefpaneltitle, p);
     }
 
     /**

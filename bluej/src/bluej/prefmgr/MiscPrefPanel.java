@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1049 2001-12-11 16:17:05Z mik $
+ * @version $Id: MiscPrefPanel.java 1050 2001-12-11 19:37:46Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -60,15 +60,15 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(Config.generalBorder);
 
-        add(Box.createGlue());
+        add(Box.createVerticalGlue());
 
-        JPanel editorPanel = new JPanel(new GridLayout(2,2));
+        JPanel editorPanel = new JPanel(new GridLayout(2,2,0,0));
         {
             String editorTitle = Config.getString("prefmgr.misc.editor.title");
             editorPanel.setBorder(BorderFactory.createCompoundBorder(
                                         BorderFactory.createTitledBorder(editorTitle),
                                         Config.generalBorder));
-            //editorPanel.setAlignmentX(LEFT_ALIGNMENT);
+            editorPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
             {
@@ -95,17 +95,22 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             docPanel.setBorder(BorderFactory.createCompoundBorder(
                                         BorderFactory.createTitledBorder(docTitle),
                                         Config.generalBorder));
-            //docPanel.setAlignmentX(LEFT_ALIGNMENT);
+            docPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            JLabel jdkURLTag = new JLabel(Config.getString("prefmgr.misc.jdkurlpath"));
-            docPanel.add(jdkURLTag);
-
-            jdkURLField = new SingleLineTextField(8);
-            docPanel.add(jdkURLField);
+            JPanel urlPanel = new JPanel(new BorderLayout(5, 0));
+            {
+                urlPanel.add(new JLabel(Config.getString("prefmgr.misc.jdkurlpath")), 
+                             BorderLayout.WEST);
+                jdkURLField = new JTextField(32);
+                urlPanel.add(jdkURLField, BorderLayout.CENTER);
+            }
+            urlPanel.setAlignmentX(LEFT_ALIGNMENT);
+            docPanel.add(urlPanel);
 
             docPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
 
             linkToLibBox = new JCheckBox(Config.getString("prefmgr.misc.linkToLib"));
+            linkToLibBox.setAlignmentX(LEFT_ALIGNMENT);
             docPanel.add(linkToLibBox);
 
             docPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
@@ -114,12 +119,14 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
                               Config.getString("prefmgr.misc.linkToLibNoteLine1"));
             Font smallFont = linkToLibNoteLine1.getFont().deriveFont(10);
             linkToLibNoteLine1.setFont(smallFont);
-            //docPanel.add(linkToLibNoteLine1);
+            linkToLibNoteLine1.setAlignmentX(LEFT_ALIGNMENT);
+            docPanel.add(linkToLibNoteLine1);
 
             JLabel linkToLibNoteLine2 = new JLabel(
                               Config.getString("prefmgr.misc.linkToLibNoteLine2"));
             linkToLibNoteLine2.setFont(smallFont);
-            //docPanel.add(linkToLibNoteLine2);
+            linkToLibNoteLine2.setAlignmentX(LEFT_ALIGNMENT);
+            docPanel.add(linkToLibNoteLine2);
         }
         add(docPanel);
 
@@ -132,7 +139,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             notationPanel.setBorder(BorderFactory.createCompoundBorder(
                                           BorderFactory.createTitledBorder(notationTitle),
                                           Config.generalBorder));
-            //notationPanel.setAlignmentX(LEFT_ALIGNMENT);
+            notationPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             notationStyleGroup = new ButtonGroup();
             umlRadioButton = 
@@ -165,11 +172,11 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
                   compilerPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
                   compilerPanel.add(executableTag);
-                  compilerPanel.add(new SingleLineTextField(8));
+                  compilerPanel.add(new JTextField(8));
                   }
         */
 
-        add(Box.createGlue());
+        add(Box.createVerticalGlue());
     }
 
     public void beginEditing()
@@ -216,22 +223,5 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         String notationStyle = notationStyleGroup.getSelection().getActionCommand();
         PrefMgr.setNotationStyle(notationStyle);
         PkgMgrFrame.refreshAllFrames();
-    }
-
-    class SingleLineTextField extends JTextField
-    {
-        public SingleLineTextField(int col)
-        {
-            super(col);
-        }
-
-        public Dimension getMaximumSize()
-        {
-            Dimension d = super.getPreferredSize();
-
-            d.width = Integer.MAX_VALUE;
-
-            return d;
-        }
     }
 }

@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * instance of PrefMgrDialog at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgrDialog.java 1049 2001-12-11 16:17:05Z mik $
+ * @version $Id: PrefMgrDialog.java 1050 2001-12-11 19:37:46Z mik $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -52,12 +52,9 @@ public class PrefMgrDialog extends JFrame
             tabbedPane.addTab((String)titles.get(index), null, p);
         }
 
-        JPanel contentPanel = (JPanel)getContentPane(); // new JPanel();
+        JPanel contentPanel = (JPanel)getContentPane();
         {
-            // arbitrary dimensions here.. what is the best way of getting these??
-            //contentPanel.setPreferredSize(new Dimension(550,425));
-
-            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+            contentPanel.setLayout(new BorderLayout());
             contentPanel.setBorder(Config.dialogBorder);
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -102,12 +99,9 @@ public class PrefMgrDialog extends JFrame
                                                         okButton.getPreferredSize().height));
             } // buttonPanel
 
-            contentPanel.add(tabbedPane);
-            contentPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
-            contentPanel.add(buttonPanel);
+            contentPanel.add(tabbedPane, BorderLayout.CENTER);
+            contentPanel.add(buttonPanel, BorderLayout.SOUTH);
         }
-
-        //getContentPane().add(contentPanel);
 
         // save position when window is moved
         addComponentListener(new ComponentAdapter() {
