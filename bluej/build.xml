@@ -17,6 +17,8 @@
     <!-- set up classpath -->
     <path id="bluej.class.path">
         <pathelement location="${bluej_home}/lib/antlrall.jar" />
+        <pathelement location="${bluej_home}/lib/jcvsii.jar" />
+        <pathelement location="${bluej_home}/lib/junit.jar" />
         <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip" />
         <pathelement location="${java_home}/lib/tools.jar" />
     </path>
@@ -28,6 +30,16 @@
         <mkdir dir="${build}" />
     </target>
 
+    <target name="parser">
+        <ant dir="src/bluej/parser" target="construct"/>
+        <!-- Generate the parser Java code
+        <antlr
+            fork="no"
+            target="src/bluej/parser/java.g"
+            outputdirectory="src/bluej/parser"
+        /> -->
+    </target>
+
     <target name="compile" depends="prepare">
         <!-- depend srcdir="${src}"
                 destdir="${build}"
@@ -37,7 +49,8 @@
         <javac srcdir="${src}"
             destdir="${build}"
             excludes="de/**, archiver/**, gnu/**, javax/**, kopi/**,
-                        bluej/groupwork/**,
+            		net/**/test/**,
+			bluej/groupwork/**,
                         bluej/browser/**,
                         bluej/guibuilder/**,
                         bluej/editor/moe/Moe.java" >
@@ -61,15 +74,6 @@
         <ant antfile="inspector.xml" dir="inspector" target="compile-inspector"/>
     </target>
 
-    <target name="parser">
-        <!-- Generate the parser Java code -->
-        <antlr
-            fork="yes"
-            target="src/bluej/parser/java.g"
-            outputdirectory="src/bluej/parser"
-        />
-    </target>
-
     <target name="run">
         <!-- Run the java code in ${build} -->
         <java classname="bluej.Main" fork="yes" jvm="${java_home}/bin/java">
@@ -77,6 +81,7 @@
 	        <pathelement location="${bluej_home}/lib/bluej.jar" />
                 <path refid="bluej.class.path" />
             </classpath>
+            <!-- <arg path="${bluej_home}/test-examples/dummy/bluej.pkg"/> -->
         </java>
     </target>
 
