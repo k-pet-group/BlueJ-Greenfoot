@@ -14,7 +14,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 2206 2003-10-08 08:05:57Z mik $
+ * @version $Id: PrefMgr.java 2207 2003-10-08 11:08:52Z mik $
  */
 public class PrefMgr
 {
@@ -31,6 +31,7 @@ public class PrefMgr
 
 	// font property names
     private static final String editorFontPropertyName = "bluej.editor.font";
+    private static final String editorMacFontPropertyName = "bluej.editor.MacOS.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
     private static final String terminalFontPropertyName = "bluej.terminal.font";
     private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
@@ -262,9 +263,15 @@ public class PrefMgr
             else
                 Config.putPropInteger(editorFontSizePropertyName, size);
 
-            String fontName = Config.getPropString(editorFontPropertyName, 
-                                                   "Monospaced");
-         
+            String fontName;
+            if(Config.isMacOS()) {
+                fontName = Config.getPropString(editorMacFontPropertyName, 
+                                                "Monaco");
+            }
+            else {
+                fontName = Config.getPropString(editorFontPropertyName, 
+                                                "Monospaced");
+            }
             editorStandardFont = deriveFont(fontName, size);
             editorStandoutFont = new Font(fontName, Font.BOLD, size);
         }
