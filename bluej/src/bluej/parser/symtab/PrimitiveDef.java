@@ -20,7 +20,7 @@ class PrimitiveDef extends ClassDef
     PrimitiveDef(String name,               // the name of the primitive
                  ClassDef superClass,       // the superclass (if applicable)
                  ScopedDef parentScope) {   // which scope owns it
-        super(name, false, false, null, superClass, null, parentScope);
+        super(name, false, false, false, null, superClass, null, parentScope);
     }
 
 }

@@ -30,7 +30,7 @@ public class DummyClass extends ClassDef {
 
     /** Constructor to create a placeholder class object */
     public DummyClass(String name, Occurrence occ) {
-        super(name, false, false, occ, null, null, null);
+        super(name, false, false, false, occ, null, null, null);
     }
 
 
@@ -38,7 +38,7 @@ public class DummyClass extends ClassDef {
      *  This version provides a means to set the package containing the class
      */
     public DummyClass(String name, Occurrence occ, String pkg) {
-        super(name, false, false, occ, null, null, null);
+        super(name, false, false, false, occ, null, null, null);
         this.pkg = pkg;
     }
 

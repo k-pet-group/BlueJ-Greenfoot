@@ -56,6 +56,7 @@ public final class ClassInfo
     private boolean isAbstract = false;
     private boolean isApplet = false;
     private boolean isUnitTest = false;
+    private boolean isEnum = false;
 
     public boolean foundClass()
     {
@@ -98,6 +99,10 @@ public final class ClassInfo
             if(name.equals(unitTestClasses[i]))
                 isUnitTest = true;
         }
+    }
+    
+    public void setEnum(boolean isEnum) {
+        this.isEnum = isEnum;
     }
 
     public void addImplements(String name)
@@ -401,6 +406,12 @@ public final class ClassInfo
     {
         return this.isUnitTest;
     }
+    
+    public boolean isEnum()
+    {
+        return this.isEnum;
+    }
+
 
     public void print()
     {

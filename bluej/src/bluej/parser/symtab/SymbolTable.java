@@ -252,6 +252,7 @@ public class SymbolTable
                             JavaVector interfaces,   // implemented interfaces
                             boolean isAbstract,
                             boolean isPublic,
+                            boolean isEnum,
                             JavaToken comment,
                             Selection extendsInsert, Selection implementsInsert,
                             Selection extendsReplace, Selection superReplace,
@@ -263,6 +264,7 @@ public class SymbolTable
         // create a new class definition for the class
         ClassDef def = new ClassDef(getUniqueName(theClass),
                                     isAbstract, isPublic,
+                                    isEnum,
                                     getOccurrence(theClass),
                                     superClass==null ?
                                                 null :
@@ -306,7 +308,7 @@ public class SymbolTable
 
         // create the new interface object
         ClassDef def = new ClassDef(getUniqueName(theInterface),
-                                    false, true,
+                                    false, true, false,
                                     getOccurrence(theInterface),
                                     null,       // no super class...
                                     superInterfaces,

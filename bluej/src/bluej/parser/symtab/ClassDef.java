@@ -20,6 +20,7 @@ class ClassDef extends HasImports
     static final int CLASS = 0;
     static final int INTERFACE = 1;
     static final int EITHER = 2;
+    //static final int ENUM = 3;
 
     /** The type of object this represents
      *  We may not initially know, as a statement like
@@ -36,6 +37,9 @@ class ClassDef extends HasImports
 
     /** indicating whether we have a public class */
     private boolean isPublic=false;
+    
+    /** indicating whether we have an enum class */
+    private boolean isEnum=false;
 
     /** The class from which this class was extended
      *  (This only applies if this represents a CLASS)
@@ -90,6 +94,7 @@ class ClassDef extends HasImports
     ClassDef(String name,               // the name of the class
                 boolean isAbstract,     // is this class abstract?
                 boolean isPublic,       // is this class public?
+                boolean isEnum,         // is this class an enum?
                 Occurrence occ,            // where it was defined
                 ClassDef superClass,       // its superclass (if applicable)
                 JavaVector interfaces,     // interfaces that it implements
@@ -99,6 +104,7 @@ class ClassDef extends HasImports
 
         this.isAbstract = isAbstract;
         this.isPublic = isPublic;
+        this.isEnum = isEnum;
 
         // if a superclass was specified, set it
         if (superClass != null)
@@ -168,6 +174,15 @@ class ClassDef extends HasImports
     /** Does this represent a Java interface? */
     boolean isInterface() {
         return classOrInterface == INTERFACE;
+    }
+    
+    /**
+     * 
+     * @return whether this represents an enum (Java 1.5 onwards)
+     */
+    boolean isEnum()
+    {
+        return isEnum;        
     }
 
     void setExtendsInsert(Selection extendsInsert)
@@ -241,6 +256,9 @@ class ClassDef extends HasImports
             	    info.setInterface(true);
             	    target.append("interface ");
                 }
+            	else if(isEnum()) {
+            	    info.setEnum(true);
+            	}
                 else {
             	    target.append("class ");
                 }
