@@ -32,16 +32,16 @@ import javax.swing.JPanel;
  * public JPanel getPanel ()  { return myPanel; }
  *
  * public void saveValues () {
- *   bluej.setExtPropString(PROFILE_LABEL,profileCmd.getText());
+ *   bluej.setExtensionPropertyString(PROFILE_LABEL,profileCmd.getText());
  *   }
  *
  * public void loadValues () {
- *   profileCmd.setText(bluej.getExtPropString(PROFILE_LABEL,""));
+ *   profileCmd.setText(bluej.getExtensionPropertyString(PROFILE_LABEL,""));
  *   }
  * }
  * </pre>
  *
- * @version $Id: PreferenceGenerator.java 1780 2003-04-10 08:10:42Z damiano $
+ * @version $Id: PreferenceGenerator.java 1839 2003-04-11 13:20:19Z damiano $
  */
 
 /*
@@ -52,7 +52,7 @@ public interface PreferenceGenerator
 {
     /**
      * Bluej will call this method to get the panel where preferences for this
-     * extension are. Preferences can be layout aswished.
+     * extension are. Preferences can be layout as desired.
      *
      * @return    The JPanel where preferences are.
      */
@@ -62,7 +62,7 @@ public interface PreferenceGenerator
     /**
      * When this method is called the Extension should load its current values into
      * its preference panel.
-     * This is called from a swing thread, so ALWAYS be quick in doing your job.
+     * This is called from a swing thread, so be always quick in doing your job.
      */
     public void loadValues();
 
@@ -71,7 +71,7 @@ public interface PreferenceGenerator
      * When this method is called the Extension should save values from the preference panel to 
      * a longer term of storage. At this stage some sort of control on what is being
      * saved can be done.
-     * This is called from a swing thread, so ALWAYS be quick in doing your job
+     * This is called from a swing thread, so be always quick in doing your job
      */
     public void saveValues();
 }
