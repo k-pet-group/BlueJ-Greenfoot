@@ -47,7 +47,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: PkgMgrFrame.java 2579 2004-06-09 17:30:43Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2163,7 +2163,7 @@ public class PkgMgrFrame extends JFrame
         JButton button = new JButton(action);
         button.setFont(PkgMgrFont);
         button.putClientProperty("JButton.buttonType", "toolbar");  // "icon"
-        //button.setRequestFocusEnabled(false);   // never get keyboard focus
+        button.setRequestFocusEnabled(false);// hint the laf that mouse click shouldn't request focus
         
         if (notext)
             button.setText(null);
@@ -2175,6 +2175,7 @@ public class PkgMgrFrame extends JFrame
 
         return button;
     }
+    
 
     /**
      * setupMenus - Create the menu bar
