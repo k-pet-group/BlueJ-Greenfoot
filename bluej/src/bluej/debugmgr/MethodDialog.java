@@ -28,7 +28,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2785 2004-07-12 12:22:11Z polle $
+ * @version $Id: MethodDialog.java 2821 2004-07-26 11:09:56Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -43,8 +43,8 @@ public class MethodDialog extends CallDialog implements FocusListener
     static final String wCallRoutineTitle = Config.getString("pkgmgr.methodCall.titleCall");
     // MD_CREATE Specific
     static final String sNameOfInstance = Config.getString("pkgmgr.methodCall.namePrompt");
-    static final String sTypeParameters = Config
-            .getString("pkgmgr.methodCall.typeParametersPrompt");
+    static final String sTypeParameters = Config.getString("pkgmgr.methodCall.typeParametersPrompt");
+    static final String sTypeParameter = Config.getString("pkgmgr.methodCall.typeParameterPrompt");
     static final String emptyFieldMsg = Config.getString("error.methodCall.emptyField");
     static final String emptyTypeFieldMsg = Config.getString("error.methodCall.emptyTypeField");
     static final String illegalNameMsg = Config.getString("error.methodCall.illegalName");
@@ -102,7 +102,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2785 2004-07-12 12:22:11Z polle $
+     * @version $Id: MethodDialog.java 2821 2004-07-26 11:09:56Z polle $
      */
     public static class ParameterList
     {
@@ -719,7 +719,12 @@ public class MethodDialog extends CallDialog implements FocusListener
 
         View clazz = method.getDeclaringView();
         if (clazz.isGeneric()) {
-            JLabel name = new JLabel(sTypeParameters);
+            JLabel name = null;
+            if(getFormalTypeParams().length > 1) {
+                name = new JLabel(sTypeParameters);
+            } else {
+                name = new JLabel(sTypeParameter);
+            }
             constraints.gridwidth = 1;
             constraints.gridx = 0;
             constraints.gridy++;

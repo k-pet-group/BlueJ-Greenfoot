@@ -439,6 +439,7 @@ pkgmgr.methodCall.titleCreate=BlueJ:  Create Object
 pkgmgr.methodCall.titleCall=BlueJ:  Method Call
 pkgmgr.methodCall.namePrompt=Name of Instance:
 pkgmgr.methodCall.typeParametersPrompt=Type Parameters:
+pkgmgr.methodCall.typeParameterPrompt=Type Parameter:
 error.methodCall.emptyField=Error: Empty parameter field.
 error.methodCall.emptyTypeField=Error: Empty type parameter field.\nEither fill out all type parameters or none of them.
 error.methodCall.illegalName=The instance name must be a Java identifier.
