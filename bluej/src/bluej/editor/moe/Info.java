@@ -154,7 +154,7 @@ implements ActionListener
         String helpText = BlueJFileReader.readHelpText(fileName, displayMsg,
                                                        false);
 
-        if(displayMsg.length() > 40) {
+        if(displayMsg.length() > 60) {
             int half = displayMsg.length() / 2;
             displayMsg = displayMsg.substring(0, half) + "\n" + 
                          displayMsg.substring(half);
