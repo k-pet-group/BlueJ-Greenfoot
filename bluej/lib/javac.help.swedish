@@ -1,0 +1,1232 @@
+Internal error.
+Det här är en bugg i själva Javakompilatorn. Det finns antagligen
+även en bugg i din kod, men kompilatorn kan inte lista ut vad.
+Du kanske behöver få hjälp från någon annan...
+
+Comment not terminated at end of input.
+Du har en kommentar (av typ " /* ") någonstans i 
+slutet av din kod som inte har avslutats ordentligt. 
+Symbolen " */ " saknas. Du måste hitta kommentaren och 
+avsluta den med rätt symbol.
+
+String not terminated at end of input.
+Du har en sträng (inom situationstecken, så "här")
+någonstans i ditt program som inte har avslutats 
+ordentligt. Det skulle kunna vara så att slutet på 
+din källkodsfil saknas. Eller har du bara glömt det 
+andra situationstecknet i din sista sträng?
+
+String not terminated at end of line.
+Du har en sträng (inom situationstecken, så "här")
+i ditt program som börjar på den här raden men som
+inte avslutas på samma rad. Strängar kan inte sträcka
+sig över flera rader. Du har antingen glömt situations-
+tecknet som avslutar strängen eller så har det hamnat
+på en annan rad.
+
+Invalid character constant.
+You have written a character constant that it not valid.
+A character constant is a single character enclosed in 
+single quotes, for example 'a'. Most of the time, there
+can be only one single character between the quotes. The
+only exception is if the first character is the backslash
+(called the "escape character") for specifying special
+characters, eg. '\n' or '\t'.
+
+Unbalanced parentheses.
+Somewhere your paranthesis (that's the round braces as
+used for this sentence) are gone out of balance. You have
+either more closing paranthesis than opening ones, or
+vice versa.
+
+Invalid escape character.
+An escape character is written with a backslash
+and a second character, for example '\n'. This is
+used to specify special characters. There is only 
+a fixed set of characters that may appear after 
+the backslash. They are \n, \t, \b, \r, \f, \\,
+\', \" and numbers. If you want to write the 
+backslash itself, write "\\" - this will be replaced
+by a single backslash in your string.
+
+Hexadecimal numbers must contain at least one hexadecimal digit.
+You have specified a hexadecimal number. (This is done 
+by starting a number with "0X".) In hexadecimal numbers,
+you must have at least one digit after the "X".
+
+Invalid character in octal number.
+You have specified an octal number. (Every integer
+number starting with a 0 (zero) is read as an octal
+number.) Octal numbers can only have digits in the
+range 0..7.  If you did not intend to use an octal
+number, remove the zero at the beginning of the 
+number.
+
+Invalid character in number.
+You have a character here within a number that doesn't
+belong there. If this was not an accident (ie. the
+character is supposed to mean something) then you need
+to put at least a space between it and the number.
+
+Invalid character in input.
+There is a character in the source file here
+that the compiler cannot cope with.
+
+Invalid floating point format.
+You have made some mistake in writing a floating
+point number. (A floating point number is one
+with a decimal point in it.) Examples of correctly 
+written floating point numbers are 
+18.0      18.     1.8e1     .18E2
+
+Integer literal out of range.
+You have written a number that is either too large or 
+too small to fit into the data type that is expected 
+here. You need to use a smaller number, or a larger
+data type (for example, "long" instead of "int").
+
+Numeric overflow: float literal too large.
+The system cannot cope with floating point numbers
+this big.
+
+Numeric overflow: double literal too large.
+The system cannot cope with floating point doubles
+this big.
+
+Numeric underflow: float literal too small.
+The system cannot cope with floating point numbers
+this small.
+
+Numeric underflow: double literal too small.
+The system cannot cope with floating point doubles
+this small.
+
+Statement expected.
+A statement was expected at this point. A
+statement is an instruction like "x = 3;"
+or similar.
+
+Type expected.
+The next thing appearing in the code at this 
+position was expected to be a type, such as
+"int" or "String". You may have a wrong symbol
+in your code here, or you forgot a symbol 
+(possibly on one of the lines above).
+
+Identifier expected.
+The next thing appearing in the code at this 
+position was expected to be an identifier.
+An identifier is a name for a variable or
+a method or similar things, such as "a" or
+"add" or "myMethod". You do not seem to have
+a valid identifier where you needed one. This
+also happens when you try to use a word as
+an identifier that already means something
+else (like "class" or "int").
+
+'class' or 'interface' keyword expected.
+The word "class" or "interface" is expected to
+appear somewhere near the top of a source file.
+This is missing here (or there is stuff in front
+of it that doesn't belong there).
+
+Class or interface declaration expected.
+The source file must start with a proper class or
+interface definition, such as "public class MyClass"
+or something similar. The compiler could not find 
+that here.
+
+';' expected.
+Ett semikolon saknas i slutet av en rad.
+Antingen i den markerade raden eller i 
+raden ovanför.
+
+* expected.
+Symbolen som nämns i felmeddelandet förväntas
+finnas vid den här platsen i koden. Den fanns inte
+där, utan istället var där en annan symbol. Försök 
+lista ut varför symbolen i felmeddelandet kan 
+förväntas här.
+
+Missing term.
+Wow - you really got the compiler confused here!
+You have written something that does not make
+sense this way. You have one part of a construct
+while another part of the same construct is
+missing. For example, you may have an array index
+("[2]") without naming a variable.
+
+Assignment expressions are not permitted as the third subexpression of a conditional expression (that is, a ? : expression).  Try parenthesizing this assignment expression.
+The second term in your conditional expression 
+(condition ? term1 : term2) is an assignment.
+That is not legal. You can fix this by putting
+paranthesis around that term, ie writing
+(condition ? term1 : (term2))
+
+'else' without 'if'.
+An 'else' keyword can only appear as part of an 'if'
+statement, in the form
+   if (condition)
+     statement;
+   else
+     statement;
+Maybe you just forgot the braces around the statements?
+If you have more than one statement after the if, you
+have to add braces, like this:
+   if (condition) 
+   {
+      statement1;
+      statement2;
+   }
+   else
+   {
+      statement3;
+   }
+
+'catch' without 'try'.
+"catch" is a Java keyword that can only appear after a
+"try" block. The correct pattern is
+   try {
+      statements;
+   }
+   catch(Exception e) {
+     statements;
+   }
+
+'finally' without 'try'.
+"finally" is a Java keyword that can only appear after a
+"try" block. The correct pattern is
+   try {
+      statements;
+   }
+   catch(Exception e) {
+     statements;
+   }
+   finally {
+      statements;
+   }
+
+'try' without 'catch' or 'finally'.
+If you use a "try" block, then it must be followed
+by either a "catch" block or a "finally" block (or
+both).  The correct pattern is
+   try {
+      statements;
+   }
+   catch(Exception e) {
+     statements;
+   }
+   finally {
+      statements;
+   }
+
+'case' outside switch statement.
+"case" is a Java keyword that can only appear as part
+of a "switch" statement. A switch statement looks like
+this:
+   switch (value) {
+     case value1:
+        statements;
+        break;
+     case value2:
+        statements;
+        break;
+     default:
+        statements;
+        break;
+   }
+The word "case" cannot appear outside of the
+"switch" block.
+
+'default' outside switch statement.
+"default" is a Java keyword that can only appear as part
+of a "switch" statement. A switch statement looks like
+this:
+   switch (value) {
+     case value1:
+        statements;
+        break;
+     case value2:
+        statements;
+        break;
+     default:
+        statements;
+        break;
+   }
+The word "default" cannot appear outside of the
+"switch" block.
+
+I/O error *
+The was an input or output error while accessing a
+file or device. This happens most frequently when 
+accessing files, and the disk is full or there is a 
+desk error or the disk has been taken out.
+
+The class file containing {0} has a malformed '{1}' attribute.
+No help available.
+
+Array index required.
+This code looks like an array access. In other
+words: I think you want to access an array element
+here. But you have not written the array index,
+that is, the number of the element you are trying
+to access. You need to write something like
+"myarray[42]" instead of just "myarray[]".
+
+[] can only be applied to arrays.*
+You are using an array access here (the square brackets
+with the number inbetween, eg. "[42]"), but the thing
+that you are trying to access is not an array. That
+cannot work!
+
+Can't specify array dimension in a declaration.
+This looks to me like you are trying to declare an
+array variable. If you do, you cannot specify the array
+size in the declaration. That is, you cannot write
+   int[3] intArray;
+to create an array of size 3. Instead, you should write
+   int[] intArray = new int[3];
+This will create the array with size 3.
+
+Can't specify array dimension in a type expression.
+No help available.
+
+Array constants can only be used in initializers.
+An array constant is an array that is enumerated using the
+curly braces, for example { 1, 2, 3 }.
+You can use these array constants only when you initialise
+a new variable; you cannot use it in normal assignments
+later.
+If you need an array constant in an assignment, instead
+of writing
+    myArray = { 1, 2, 3 };    // ERROR!
+you can write
+    myArray = new int[] { 1, 2, 3 };  // correct
+This creates and initialises a new array and then assigns
+it.
+
+Invalid initializer for type *
+You tried to initialise a variable in it's declaration.
+The initialisation you tried here is not legal.
+
+Invalid left hand side of assignment.
+You are using an assignment (=), but the term to the
+left of the equal sign is wrong. You can have only
+one identifier on the left side of the equal sign, and
+that identifier must be the name of a variable. For
+example:
+   answer = 42;
+
+Invalid arguments to {0}.
+No help available.
+
+Invalid cast *
+You used a cast here. A cast is if you want to turn
+one type into another, for example turning a "Person"
+variable into a "Student", like this:
+   aStudent = (Student)aPerson;
+or a "float" into an "int":
+   anInt = (int)aFloat;
+The cast you tried to do is not legal, though. The type
+on the right side cannot be casted to the type on the
+left.
+
+Impossible for *
+You tried to cast a variable on one type to another,
+for example
+    aStudent = (Student)aPerson;
+The cast itself it the expression on the right in the
+form
+    (NewType)variable
+This can only work if the current type of the variable
+is a subtype of "NewType" (or a subtype of a subtype).
+In your case, the type of the variable is not a subtype
+of the type your are trying to cast to, so the cast can 
+never work.
+
+Invalid type expression.
+No help available.
+
+Only named classes can have 'extends' or 'implements' clauses.
+You have used an anonymous class (a class that does not have
+a name). Anonymous classes cannot extend or implement other
+classes or interfaces.
+
+Attempt to reference field *
+You tried to access a field in an object, but
+the object does not have a field of that name.
+
+No variable *
+The variable you tried to access does not exist
+in that class.
+
+* not accessible from *
+You tried to access a variable or a method from another
+class here, but you are not permitted to access that 
+method or variable. It has access rights (such as "private"
+or "protected") that do not allow access from this class.
+
+No inner class *
+You tried to access an inner class of another class here.
+But that class does not have an inner class of that name.
+
+Can't make a static reference to nonstatic variable *
+You are in a static method here. Static methods can only
+access static variables. The variable you are trying to
+use here is not static, so it cannot be used here.
+
+Can't make a static reference to inner class *
+You are in a static method here. Static methods cannot
+access inner classes.
+
+Reference to {0} is ambiguous. It is defined in {1} and {2}.
+No help available.
+
+Attempt to reference method*
+You are accessing a method here as if it were a 
+variable (ie. without the paranthesis). If you 
+want to call a method, add the paranthesis (eg.
+write "myMethod()" instead of "myMethod"). If 
+you want to access a variable, then you got the
+name wrong.
+
+Can't assign a value to a final variable: *
+The variable you are trying to assign to here has
+been declared "final". That means that you are not 
+allowed to change its value later on. If you really
+need to change the value, remove the "final" keyword
+from the variable declaration.
+
+Can't assign a second value to a blank final variable: *
+The variable is declared "final". Final variable may
+only be assigned at the point where they are declared,
+or in a constructor, and thay can only be assigned 
+exactly once. You either tried to assign the variable
+outside of a constructor, or you tried to assign it a
+second time.
+
+The variable in an assignment to a static blank final must be a simple name (it may not follow a dot '.').
+You've got a static variable here that has been declared
+"final". This variable can only be assigned once, and 
+that has to be at the point where it is declared, or 
+from within the constructor of the class in which it is
+declared. You cannot assign this variable from outside
+of the class.
+
+The variable in an assignment to a blank final must be a simple name or a simple name qualified by 'this': *
+You've got a variable here that has been declared
+"final". This variable can only be assigned once, and 
+that has to be at the point where it is declared, or 
+from within the constructor of the class in which it is
+declared. You cannot assign this variable from outside
+of the class.
+
+Attempt to assign a blank final variable *
+You've got a variable here that has been declared
+"final". This variable can only be assigned once, and 
+that has to be at the point where it is declared, or 
+from within the constructor of the class in which it is
+declared. Because you can assign this variable only 
+once, you cannot do it in a loop.
+
+Attempt to assign to a variable *
+You cannot access that variable from here. The variable
+you are trying to access is only visible from within
+the method in which it is defined.
+
+Attempt to use a non-final variable *
+You cannot access that variable from here. The variable
+you are trying to access is only visible from within
+the method in which it is defined.
+
+* The "super" keyword may only be used for member access and constructor invocation.
+"super" is a reserved word in Java. You cannot use it 
+for a variable. If you tried to assign the "super"
+object to a variable - well, that doesn't work.
+"super" can only be used to call the constructor
+("super();") or to access fields or methods within
+the superclass (eg. "super.length()"). "super"
+alone does not have a sensible meaning otherwise.
+
+Undefined variable: *
+The variable you are trying to use here cannot be
+found. Either it was never declared or it was
+declared somewhere where you cannot see it.
+The first case happens easily if you have a
+spelling error in a variable. Check that the variable
+is spelled correctly, including all capital characters
+("aNumber" is not the same as "anumber"!).
+The second case happens if a variable is declared 
+inside a block. (A block is a pair of curly braces, 
+like this { }.) If you have a variable declaration
+inside a loop, for instance, then the variable is
+only visible inside that loop. As a rule of thumb:
+a variable becomes invisible after the curly brace (})
+that closes the block in which it is declared.
+
+Undefined variable or package name: *
+The name you used here (which could be either
+an attempt to name a variable or a package)
+does not exist. There was neither a variable
+nor a package with this name.
+
+Undefined class or package name: *
+The name you used here (which could be either
+an attempt to name a class or a package)
+does not exist. There was neither a class
+nor a package with this name.
+
+Undefined variable, class, or package name: *
+The name you used here (which could be either
+an attempt to name a variable, a class or a 
+package) does not exist. There was neither a 
+variable nor a class nor a package with this 
+name.
+
+Undefined class name: *
+A class with this name could not be found.
+This may be due to a spelling error in the
+name. Or did you forget to import that class
+from another package?
+
+Undefined variable or class name: *
+The name you used here (which could be either
+an attempt to name a class or a variable)
+does not exist. There was neither a class
+nor a variable with this name.
+
+* may not have been initialized. It must be assigned a value in an initializer, or in every constructor.
+You've got a variable here that has been declared
+"final". This variable must be initialised (that is,
+you must assign a value to it) either where it is
+declared or in the body of every constructor of the 
+class. It cannot be left uninitialised, and it cannot
+be assigned later.
+
+* may not have been initialized.
+You are using a variable here, but it is not certain
+that the variable has been assigned a value yet. That
+is very bad coding practice! Make sure that this 
+variable has a value assigned somewhere before you
+use it.
+
+* before the superclass constructor has been called.
+As the very first thing in every class that has a 
+superclass, you should call the superclass's 
+constructor. You do that by adding
+    super(...);
+as the first line of your constructor (where you
+replace the dots with the appropriate parameters).
+Trying to use members of the superclass before
+calling it's constructor is bound to be trouble!
+
+Ambiguous class: *
+You used a class here that is defined in two different 
+packages. More precisely: there are two different classes
+that have the same name. Both packages were imported.
+You can solve this problem by writing the fully
+qualified class name, including the package name. For
+example, write
+    java.lang.String
+instead of just 
+    String
+to clarify which of the two you mean.
+
+Invalid argument to {0}.
+No help available.
+
+Invalid argument type {0} for {1}.
+The type you used is not a valid type for 
+the argument. Check the type that was expected.
+
+'length' applied to *
+The "length" operation only makes sense for array
+objects, not for the type you've got here. Other
+types have different methods to find out their
+size (often a method called "size()", or something
+sililar).
+
+Only constructors can invoke constructors.
+You tried to invoke a constructor here. You cannot do 
+that from within this method. Constructors can be
+invoked explicitly only from within another constructor.
+
+Constructor invocation must be the first thing in a method.
+The call to the constructor of the superclass ("super()") 
+must be the first statement in the constructor code. You 
+cannot have any other statements executed in the constructor
+before calling the superclass's constructor.
+
+Can't invoke a method on a *
+The variable you used to invoke this method on
+is declared of a simple type (like "int" or "char"
+or something similar). Simple types do not have
+methods. If you need the method, use the corrosponding
+class for the simple type, for instance "Integer" 
+instead of "int".
+
+* not found in *
+The method (or class or package) you tried to access here
+was not found. This could be due to a spelling error.
+Check the spelling, including all capital letters.
+
+Can't make static reference to method *
+You are trying to call a non-static method from a 
+static method. You cannot do that. Non-static methods
+are always invoked on a particular object, whereas
+static methods are invoked without a current object.
+If you just call a non-static method from a static
+one, it is not clear what the current object should 
+be.
+
+Can't access protected method *
+The method you are trying to call here has been
+declared "protected". That means that it can only
+be called from the class in which it is defined and 
+from subclasses. Here, you try to call it from a 
+class that is not a subclass. That is not permitted.
+
+Can't access protected field *
+The field you are trying to access here has been
+declared "protected". That means that it can only
+be accessed from the class in which it is defined and 
+from subclasses. Here, you try to access it from a 
+class that is not a subclass. That is not permitted.
+
+Can't access protected inner type *
+The inner type you are trying to access here has been
+declared "protected". That means that it can only
+be accessed from the class in which it is defined and 
+from subclasses. Here, you try to access it from a 
+class that is not a subclass. That is not permitted.
+
+Can't access protected constructor of *
+The constructor you are trying to call here has not 
+been declared "public". That means that it can only
+be called from the class in which it is defined and 
+from classes in the same package.
+
+Reference to variable *
+You have an access to a member of an object here
+in the form
+   a.name()
+This looks like a method access (because of the 
+paranthesis) but the member you are accessing here
+is in fact a field, not a method.
+If you want to access the field, remove the paranthesis.
+If you meant to access a method, then you got the 
+name wrong.
+
+Reference to method *
+You have an access to a member of an object here
+in the form
+   a.name
+This looks like a field access (because there are no
+paranthesis) but the member you are accessing here
+is in fact a method, not a field.
+If you want to access the method, add paranthesis, 
+like this:
+   a.name()
+If you meant to access a field, then you got the 
+name wrong.
+
+The null literal is not a legal argument for the synchronized statement.
+In a "synchronised" statement, the argument you give
+to the "synchronised" instruction cannot be null.
+
+Invalid array dimension.
+Array dimensions (that is the number that specifies
+how large you want an array to be) must be written
+as a single integer number greater than or equal
+to zero inside the square brackets of an array 
+creation. Here is an example. If you want to create
+an array of Strings with space for 7 elements, then
+you write:
+    new String[7]
+The array size can also be an integer variable.
+
+Constructor is ambiguous: {0}, {1}
+No help available.
+
+* Explicit cast needed to convert *
+You have tried to use an expression of one type
+where another type was expected. This type conversion
+cannot be done automatically. You need to write a
+"cast" instruction to make this work (if it was not
+done by accident altogether). A cast instruction is
+written by specifying a new type in paranthesis 
+before an expression. For example, I can "cast" the 
+floating point number 3.14 to an integer by writing
+    (int)3.14
+After it has been casted, it can be assigned to an 
+int, like this: 
+    int i = (int)3.14
+
+* Can't convert *
+You have tried to use an expression of one type
+where another type was expected. This type conversion
+cannot be done automatically. The types just don't
+match.
+
+Invalid term.
+No help available.
+
+* must be declared abstract. It does not define *
+The current class inherits from an abstract class
+or an interface. Abstract classes and interfaces 
+define methods without giving the implementation.
+This class does not define implementations for 
+all the methods that still need implementations,
+so this class itself is still abstract (meaning
+it still has methods without implementations).
+You must either declare this class abstract by 
+starting it with
+   public abstract class ...
+instead of just 
+   public class ...
+or you must provide an implementation for the 
+method named in the error message.
+
+* must be declared abstract.  The package-private abstract method *
+You must declare this class abstract by starting 
+it with
+   public abstract class ...
+instead of just 
+   public class ...
+It is abstract because it inherits an abstract 
+method. You cannot provide an implementation for
+that method here, because that method is
+"package private" - the implementation can only
+be provided by subclasses in its own package.
+
+* is an interface. It can't be instantiated.
+You cannot create objects of an "interface"
+type. In other words, if "someInterface" is 
+the name of an interface, then you cannot
+write
+    new someInterface()
+(well, you can write it, but it won't work :-/ )
+The reason is that interfaces only define
+method signatures, but not the implementation.
+You need to find or write a class that 
+"implements" the interface and then instantiate
+that class.
+
+Can't directly invoke abstract method *
+The method you are trying to call here is
+abstract. Abstract methods have no 
+implementation, so you cannot call them.
+
+No method matching *
+The method you are trying to call here does 
+not exist in that class you specified. This
+could be due to a typing error - check the
+spelling of the method name, including all
+capital letters.
+
+No constructor matching *
+A constructor with the name and parameters
+you used here does not exist. Check the class
+again that you want to instantiate here. Then
+check the spelling of the constructor and the
+types of the parameters.
+
+Wrong number of arguments in *
+The number of the arguments (also called
+parameters) does not match in this method call.
+For example, you may have written a call without
+parameters, such as
+   a.someMethod();
+but the method is defined with a parameter, eg.
+   void someMethod(int i)
+If the method expects a paremeter, then you have
+to call it with a parameter, eg:
+   a.someMethod(42)
+The same 
+
+Wrong number of arguments in {0}.
+No help available.
+
+Can't make forward reference to {0} in {1}.
+No help available.
+
+Array dimension missing.
+When you create an array you have to specify
+how big it should be. (This is called the
+"array dimension".) You do this by specifying
+the number of elements in the square brackets
+after the "new" instruction and the type name.
+For example:
+    new String[4]
+creates a new String array with four elements.
+
+* is an abstract class. It can't be instantiated.
+The class is declared "abstract". That means that
+it contains some methods for which it does not
+provide an implementation ("abstract methods").
+You cannot create objects of abstract classes.
+You need to find or write a subclass of the
+abstract class that implements all abstract 
+methods. You can then create objects of that 
+class.
+
+No label definition found for *
+The label you are trying to
+access here has not been defined
+anywhere.
+
+'break' must be in loop or switch.
+The "break" statement breaks out of a block,
+such as a "switch" statement or a loop 
+("for", "while" or "do" loop). It cannot be 
+used outside of such a block.
+
+'continue' must be in loop.
+The "continue" statement is used to 
+immediately start the next loop
+iteration. It has no meaning outside
+of a loop. It can only be used inside
+a "for", "while" or "do" loop.
+
+a 'break' or 'continue' must transfer control within the same method.
+If you use a 'break' or 'continue' statement
+with a label to change the control flow, you
+must make sure that the label is declared in
+the same method in which the 'break' or
+'continue' statement is.
+
+Invalid declaration.
+No help available.
+
+'return' with value from *
+You have a 'return' statement with a value
+in your method. Your method is not expected
+to return a value, though. The return type
+is declared in the header of the method. In
+your case, it says it doesn't return anything.
+Either change the return statement to just say
+        return;
+(without a parameter), or change the method 
+declaration to indicate that this method has
+a return value.
+
+Incompatible type for return *
+The return type of a method is defined in the
+header of the method (before the method name).
+For example, the method
+     public int doSomething()
+is defined to return a value of type "int". The
+value that is then actually returned using the
+"return" statement must be an "int" (or something
+compatible). For example, you could write
+     return 42;
+but not
+     return "two";   // illegal
+The second one tries to return a String - that's
+not an "int", so it doesn't work.
+
+'return' without value from {0}.
+No help available.
+
+'return' inside static initializer.
+No help available.
+
+Invalid label.
+No help available.
+
+Return required at end of {0}.
+No help available.
+
+Duplicate case label: {0}
+No help available.
+
+Case label {0} too large for 'switch' on {1}
+No help available.
+
+A statement cannot be labeled with the same identifier as one of its enclosing statements: {0}
+No help available.
+
+A declaration cannot be labeled: {0}
+No help available.
+
+Constant expression required.
+No help available.
+
+Duplicate 'default' label.
+No help available.
+
+'{0}' not supported.
+No help available.
+
+'return' with value from constructor: {0}
+No help available.
+
+Only one package declaration allowed.
+No help available.
+
+Class {0} already defined in {1}.
+No help available.
+
+Class name {0} clashes with imported class {1}.
+No help available.
+
+Interfaces can't have constructors.
+No help available.
+
+Constructors can't be native, abstract, static, synchronized, or final: {0}
+No help available.
+
+Interfaces can't have static initializers.
+No help available.
+
+Interface methods can't be native, static, synchronized, final, private, or protected : {0}
+No help available.
+
+Interface fields can't be private or protected: {0}
+No help available.
+
+Method {0} can't be transient. Only variables can be transient.
+No help available.
+
+Method {0} can't be volatile. Only variables can be volatile.
+No help available.
+
+Abstract methods can't be private: {0}
+No help available.
+
+Abstract methods can't be static: {0}
+No help available.
+
+Abstract methods can't be final: {0}
+No help available.
+
+Abstract methods can't be native: {0}
+No help available.
+
+Abstract methods can't be synchronized: {0}
+No help available.
+
+Abstract and native methods can't have a body: {0}
+No help available.
+
+Variables can't be synchronized, abstract or native: {0}
+No help available.
+
+Variables can't be declared strict: {0}
+No help available.
+
+Inner classes can't be volatile, transient, native, or synchronized: {0}
+No help available.
+
+Transient variables can't be members of interfaces: {0}
+No help available.
+
+Volatile variables can't be final or members of interfaces: {0}
+No help available.
+
+This final variable must be initialized: {0}
+No help available.
+
+Duplicate method declaration: *
+You have declared two methods with the same name
+and the same parameter types. Each method inside
+a particular class must have a different signature -
+that is, either the name of the method or the number
+of parameters or the parameter types must be 
+different.
+
+Methods can't be redefined with a different return type: {0} was {1}
+No help available.
+
+Duplicate variable declaration: *
+You have declared two variables with the same name.
+Each variable must have a unique name - you cannot
+have the same name twice.
+
+Duplicate inner class declaration: {0} is already defined in this scope.
+No help available.
+
+Superclass of {0} can't be an interface: {1}
+No help available.
+
+Can't access {0}. Class or interface must be public, in same package, or an accessible member class.
+No help available.
+
+The type name in a qualified 'new' expression must be an unqualified identifier.
+No help available.
+
+Repeated modifier.
+No help available.
+
+Inconsistent member declaration. At most one of public, private, or protected may be specified.
+No help available.
+
+Can't subclass final classes: {0}
+No help available.
+
+Can't subclass interfaces: {0}
+No help available.
+
+Cyclic class inheritance.
+No help available.
+
+Cyclic class inheritance:  A subclass cannot enclose a superclass.
+No help available.
+
+Cyclic interface inheritance.
+No help available.
+
+Cyclic class inheritance or scoping.
+No help available.
+
+{0} must be an interface.
+No help available.
+
+Interfaces can't be final: {0}
+No help available.
+
+An interface can't implement anything; it can only extend other interfaces.
+No help available.
+
+Multiple inheritance is not supported.
+No help available.
+
+Interface {0} repeated.
+No help available.
+
+Invalid class file format in {0}.  {1}
+No help available.
+
+Unexpected end of file encountered while reading the class file {0}.
+No help available.
+
+Method {0} requires a method body. Otherwise declare it as abstract.
+No help available.
+
+Constructor {0} requires a method body.
+No help available.
+
+Constructors may not be modified by strictfp.
+No help available.
+
+Instance variables can't be void: {0}
+No help available.
+
+Invalid method declaration; return type required.
+No help available.
+
+Invalid method declaration; method name required.
+No help available.
+
+Invalid qualified constructor name.
+No help available.
+
+Superclass {0} of {1} not found.
+No help available.
+
+Interface {0} of {1} not found.
+No help available.
+
+        Class {0} can't be declared both abstract and final.
+No help available.
+
+Array of void is not a valid type.
+No help available.
+
+Argument can't have type void: {0}
+No help available.
+
+Invalid expression statement.
+No help available.
+
+catch not reached.
+No help available.
+
+Statement not reached.
+No help available.
+
+Initializer must be able to complete normally.
+No help available.
+
+Arithmetic exception.
+No help available.
+
+
+Public {0} must be defined in a file called "{1}".
+No help available.
+
+{0} is defined in {1}. Because it is used outside of its source file, it should be defined in a file called "{2}".
+No help available.
+
+Possible loss of precision. Use an explicit cast to convert {0} to {1}.
+No help available.
+
+Variable '{0}' is used twice in the argument list of this method.
+No help available.
+
+Variable '{0}' is already defined in this method.
+No help available.
+
+Local class '{0}' is already defined in this method.
+No help available.
+
+The class name '{0}' is already defined in this scope.  An inner class may not have the same simple name as any of its enclosing classes.
+No help available.
+
+Variable '{0}' is inherited in {1}, and hides a variable of the same name in {2}. An explicit 'this' qualifier must be used to select the desired instance.
+No help available.
+
+Variable '{0}' is inherited in {1}, and hides a local variable of the same name. An explicit 'this' qualifier must be used to select the variable, or the local must be renamed.
+No help available.
+
+Method '{0}' is inherited in {1}, and hides a method of the same name in {2}. An explicit 'this' qualifier must be used to select the desired instance.
+No help available.
+
+Type '{0}' is inherited in {1}, and hides a type of the same name in an enclosing scope. An explicit qualifier prefix must be used to name this type.
+No help available.
+
+The type {0} can't be private. Package members are always accessible within the current package.
+No help available.
+
+The type {0} can't be declared static. It is already top-level, since it is a member of a package.
+No help available.
+
+The type {0} can't be made protected. Package members can either be public or local to the current package.
+No help available.
+
+Recursive constructor invocation: {0}.
+No help available.
+
+File {0} does not contain {1} as expected, but {2}. Please remove the file, or make sure it appears in the correct subdirectory of the class path.
+No help available.
+
+File {0} does not contain {1} as expected. Please adjust the class path so that the file does not appear in the {2}.
+No help available.
+
+Class {0} not found.
+No help available.
+
+Package {0} not found.  Please adjust the classpath so that package {0} is accessible.
+No help available.
+
+A type and a package cannot have the same name.  The name {0} cannot be used to name a class while the package {0} is accessible.
+No help available.
+
+A type and a package cannot have the same name.  The name {0} cannot be used to name a package while the class {1} is accessible.
+No help available.
+
+The name {0} must refer to a package.  It is illegal for there to be an accessible class named {1} because types and packages cannot have the same name.  The class {1} should be renamed or taken off the classpath.
+No help available.
+
+Invalid name {0} for {1}.
+No help available.
+
+Ambiguous name: {0} is both a class and a package.
+No help available.
+
+{0} in throws clause must be a subclass of class java.lang.Throwable.
+No help available.
+
+Can't throw {0}; it must be a subclass of class java.lang.Throwable.
+No help available.
+
+Can't catch {0}; it must be a subclass of class java.lang.Throwable.
+No help available.
+
+Exception {0} can't be thrown in initializer.
+No help available.
+
+Can't read: {0}
+No help available.
+
+Can't write: {0}
+No help available.
+
+An error has occurred in the compiler; please file a bug report (http://java.sun.com/cgi-bin/bugreport.cgi).
+No help available.
+
+An exception has occurred in the compiler; please file a bug report (http://java.sun.com/cgi-bin/bugreport.cgi).
+No help available.
+
+Support for inner classes has been disabled.
+No help available.
+
+Exception {0} must be caught, or it must be declared in the throws clause of this method.
+No help available.
+
+Exception {0} must be caught, or it must be declared in the throws clause of this constructor.
+No help available.
+
+A default constructor cannot be created for this class because the constructor of its superclass throws the exception {0}.  Define the constructor for this class explicitly.
+No help available.
+
+Exception {0} is never thrown in the body of the corresponding try statement.
+
+#warning:
+No help available.
+
+Note: The cloning of an array does not throw any checked exceptions, and therefore does not require any catch clauses.  Please remove unused catch clauses, or if you wish to retain compatibility with older compilers, you may insert an artificial throw as follows:  if (false) throw new CloneNotSupportedException();
+No help available.
+
+No enclosing instance of {0} is in scope; an explicit one must be provided when creating {1}, as in "outer. new Inner()" or "outer. super()".
+No help available.
+
+No enclosing instance of {0} is in scope; cannot create a default constructor for {1}.
+No help available.
+
+No enclosing instance of {0} is in scope; an explicit one must be provided when accessing {1}, as in "outer.member".
+No help available.
+
+Member interfaces can only occur in interfaces and top-level classes.
+No help available.
+
+The type {0} can't be static.  Static members can only occur in interfaces and top-level classes.
+No help available.
+
+Variable {0} can't be static in {1}.  Only members of interfaces and top-level classes can be static.
+No help available.
+
+Method {0} can't be static in {1}.  Only members of interfaces and top-level classes can be static.
+No help available.
+
+Too many errors.  (The limit on reported errors is {0}.)
+No help available.
+
+The instance method {0} declared in {1} cannot override the static method of the same signature declared in {2}.  It is illegal to override a static method.
+No help available.
+
+The static method {0} declared in {1} cannot hide the instance method of the same signature declared in {2}.  It is illegal to hide an instance method.
+No help available.
+
+The method {0} declared in {1} cannot override the final method of the same signature declared in {2}.  Final methods cannot be overridden.
+No help available.
+
+The method {0} declared in {1} is not deprecated, but overrides a deprecated method of the same signature declared in {2}.
+No help available.
+
+The method {0} declared in {1} cannot override the method of the same signature declared in {2}.  The access modifier is made more restrictive.
+No help available.
+
+The method {0} declared in {1} cannot override the method of the same signature declared in {2}.  They must have the same return type.
+No help available.
+
+The method {0} declared in {1} cannot override the method of the same signature declared in {2}.  Their throws clauses are incompatible.
+No help available.
+
+The method {0} inherited from {1} is incompatible with the method of the same signature inherited from {2}.  They must have the same return type.
+No help available.
+
+The definitions of method {0} inherited from {1} and {2} are compatible, but the combination of them is nontrivial and has not been implemented.  As a workaround, declare {0} explicitly in this class.
+No help available.
+
+This code requires generating a method with more than 64K bytes.  Virtual machines may refuse the resulting class file.
+No help available.
+
+The major version '{0}' is too old for this tool to understand.
+No help available.
+
+The major.minor version '{0}' is too recent for this tool to understand.
+No help available.
+
+
+
