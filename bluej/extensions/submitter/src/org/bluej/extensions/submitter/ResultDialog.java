@@ -49,7 +49,7 @@ public class ResultDialog implements ActionListener
     mainPanel.add(buttonPanel,BorderLayout.SOUTH);
 
     // This does not NEED to be a modal dialog, we may want to look at the results...
-    thisDialog = new JDialog(parentFrame,stat.bluej.getLabel("message.result"));
+    thisDialog = new JDialog(parentFrame,stat.bluej.getLabel("title.results"));
     thisDialog.setContentPane(mainPanel);
     thisDialog.pack();
     thisDialog.setLocation(100,100);
