@@ -5,6 +5,7 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
+import bluej.utility.FileUtility;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -21,7 +22,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 522 2000-06-01 02:34:58Z bquig $
+ ** @version $Id: AppletClassRole.java 602 2000-06-29 05:28:10Z markus $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -237,8 +238,9 @@ public class AppletClassRole extends ClassRole
      */
     private String chooseWebPage(JFrame frame)
     {
-        JFileChooser newChooser = new JFileChooser(".");
-        newChooser.setDialogTitle("Select HTML page destination");
+	JFileChooser newChooser = FileUtility.getFileChooser(false);
+	newChooser.setDialogTitle(Config.getString
+                                  ("pkgmgr.chooseWebPage.title"));
 
         int result = newChooser.showSaveDialog(frame);
         String fullFileName = null;
