@@ -29,7 +29,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 2885 2004-08-17 10:37:37Z mik $
+ * @version $Id: TextEvalPane.java 2886 2004-08-17 11:57:08Z mik $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
@@ -47,6 +47,7 @@ public class TextEvalPane extends JEditorPane
     private boolean firstTry;
     private boolean mouseInTag = false;
     private boolean mouseOverObject = false;
+    private Action softReturnAction;
 
     public TextEvalPane(PkgMgrFrame frame)
     {
@@ -97,7 +98,6 @@ public class TextEvalPane extends JEditorPane
     {
         if(!isLegalCaretPos())
             setCaretPosition(getDocument().getLength());
-        //String[] lines = ;
         super.paste();
     }
 
@@ -119,15 +119,18 @@ public class TextEvalPane extends JEditorPane
     
     /**
      * This is called when we get a 'paste' action (since we are handling 
-     * ordinary key input differently with the InsertCharacterAction in
-     * TextEvalArea.
+     * ordinary key input differently with the InsertCharacterAction.
      * So: here we assume that we have a potential multi-line paste, and we
      * want to treat it accordingly (as multi-line input).
      */
     public void replaceSelection(String content)
     {
-        //Action action = new TextEvalArea.ContinueCommandAction();
-        System.out.println("yes!");
+        String[] lines = content.split("\n");
+        append(lines[0]);
+        for(int i=1; i< lines.length;i++) {
+            softReturnAction.actionPerformed(null);
+            append(lines[i]);
+        }
     }
     
     //   --- ResultWatcher interface ---
@@ -481,8 +484,8 @@ public class TextEvalPane extends JEditorPane
         action = new ExecuteCommandAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), action);
 
-        action = new ContinueCommandAction();
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK), action);
+        softReturnAction = new ContinueCommandAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK), softReturnAction);
 
         action = new BackSpaceAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), action);
