@@ -15,7 +15,7 @@ import bluej.utility.JavaUtils;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 2624 2004-06-18 14:31:46Z polle $
+ * @version $Id: View.java 2824 2004-07-27 10:06:22Z polle $
  */
 public class View
 {
@@ -288,10 +288,10 @@ public class View
         return num;
     }
 
-    private boolean hideMethodName(String name)
+    private boolean hideMethodName(Method method)
     {
-        return (name.startsWith(classIgnore) ||
-                name.startsWith(accessIgnore));
+        String name = method.getName();
+        return (name.startsWith(classIgnore) || name.startsWith(accessIgnore) || method.isBridge());
     }
 
     public MethodView[] getDeclaredMethods()
@@ -301,14 +301,14 @@ public class View
             Method[] cl_methods = cl.getDeclaredMethods();
 
             for(int i = 0; i < cl_methods.length; i++) {
-                if (!hideMethodName(cl_methods[i].getName()))
+                if (!hideMethodName(cl_methods[i]))
                     count++;
             }
             methods = new MethodView[count];
 
             count = 0;
             for(int i = 0; i < cl_methods.length; i++) {
-                if (!hideMethodName(cl_methods[i].getName())) {
+                if (!hideMethodName(cl_methods[i])) {
                     methods[count] = new MethodView(this, cl_methods[i]);
                     count++;
                 }
