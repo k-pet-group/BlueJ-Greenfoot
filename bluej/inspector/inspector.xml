@@ -12,7 +12,11 @@
         <pathelement location="${java_home}/lib/tools.jar" />
     </path>
 
-    <target name="prepare-inspector">
+    <target name="check" unless="bluej_home">
+        <fail message="You must build from the top level directory, not this directory"/>
+    </target>
+
+    <target name="prepare-inspector" depends="check">
         <!-- Create the time stamp -->
         <tstamp/>
         <!-- Create the build directory structure used by compile -->
@@ -29,7 +33,7 @@
 
     <target name="install-inspector" depends="compile-inspector">
         <!-- Copy the MonashImage inspectors into a project directory -->
-        <copy todir="${bluej_home}/examples/imageviewer/(Inspector)" >
+        <copy todir="${bluej_home}/examples/imageviewer/+inspector" >
             <fileset dir="${inspectorbuild}" >
                 <include name="MonashImageInspector*.class"/>
             </fileset>
@@ -45,9 +49,13 @@
     </target>
 
     <target name="clean-inspector">
-        <!-- Delete the ${build} directory tree -->
-        <delete dir="${inspectorbuild}" />
-        <delete dir="${inspectorinstall}" />
+        <!-- Delete the ${build} directory trees -->
+        <delete>
+            <fileset dir="${inspectorbuild}" includes="**/*.class"/>
+	</delete>
+        <delete>
+            <fileset dir="${inspectorinstall}" includes="**/*.class"/>
+	</delete>
     </target>
 
 </project>
