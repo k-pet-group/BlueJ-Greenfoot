@@ -24,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2310 2003-11-10 00:24:54Z bquig $
+ * @version $Id: ClassMgr.java 2408 2003-12-02 00:14:27Z ajp $
  */
 public class ClassMgr
 {
@@ -262,6 +262,7 @@ public class ClassMgr
                 }
                 catch (IOException ioe) { }
 
+                // if can't find it in system libraries, try 'userlibs' directory
                 if(in == null) {
                     try {
                         in = userlibExtLibraries.getFile(filename);
@@ -269,6 +270,7 @@ public class ClassMgr
                     catch (IOException ioe) { }
                 }
                 
+                // if still can't find it, try the defined user libraries
                 if(in == null) {
                     try {
                         in = userLibraries.getFile(filename);
