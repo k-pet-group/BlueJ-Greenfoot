@@ -10,16 +10,14 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: NewClassDialog.java 281 1999-11-18 03:58:18Z axel $
- ** @author Justin Tan
- ** @author Michael Kolling
- **
- ** Dialog for creating a new class
+ * Dialog for creating a new class
+ *
+ * @author  Justin Tan
+ * @author  Michael Kolling
+ * @version $Id: NewClassDialog.java 433 2000-05-04 05:28:55Z ajp $
  **/
-
 class NewClassDialog extends JDialog
-
-	implements ActionListener
+    implements ActionListener
 {
     static final int NC_DEFAULT = 0;
     static final int NC_ABSTRACT = 1;
@@ -64,7 +62,7 @@ class NewClassDialog extends JDialog
 		JPanel mainPanel = new JPanel();
 		{
 			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-			mainPanel.setBorder(Config.generalBorder);
+			mainPanel.setBorder(Config.dialogBorder);
 
 			JLabel newclassTag = new JLabel(newClassLabel);
 			{
@@ -84,7 +82,7 @@ class NewClassDialog extends JDialog
 			{
 				choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
 				choicePanel.setAlignmentX(LEFT_ALIGNMENT);
-	
+
 				//create compound border empty border outside of a titled border
 				choicePanel.setBorder(BorderFactory.createCompoundBorder(
 						BorderFactory.createTitledBorder(classTypeStr),
@@ -100,13 +98,17 @@ class NewClassDialog extends JDialog
 					bGroup.add(typeNormal);
 					bGroup.add(typeAbstract);
 					bGroup.add(typeInterface);
-					bGroup.add(typeApplet);	
+					bGroup.add(typeApplet);
 				}
 
 				choicePanel.add(typeNormal);
 				choicePanel.add(typeAbstract);
 				choicePanel.add(typeInterface);
 				choicePanel.add(typeApplet);
+
+				typeNormal.setNextFocusableComponent(typeAbstract);
+				typeAbstract.setNextFocusableComponent(typeInterface);
+				typeInterface.setNextFocusableComponent(typeApplet);
 			}
 
 			choicePanel.setMaximumSize(new Dimension(textFld.getMaximumSize().width,
@@ -115,13 +117,11 @@ class NewClassDialog extends JDialog
 						choicePanel.getPreferredSize().height));
 
 			mainPanel.add(choicePanel);
-			mainPanel.add(Box.createVerticalStrut(5));
+			mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
 
 			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 			{
 				buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-				//buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 				JButton okButton = new JButton(okay);
 				{
@@ -148,7 +148,7 @@ class NewClassDialog extends JDialog
 
 		getContentPane().add(mainPanel);
 		pack();
-		
+
 		DialogManager.centreDialog(this);
 	}
 
@@ -158,29 +158,29 @@ class NewClassDialog extends JDialog
      */
     public boolean display()
     {
-	ok = false;
-	textFld.requestFocus();
-	setVisible(true);
-	return ok;
+        ok = false;
+        textFld.requestFocus();
+        setVisible(true);
+        return ok;
     }
 
     public String getClassName()
     {
-	return newClassName;
+        return newClassName;
     }
 
     public int getClassType()
     {
-	return classType;
+        return classType;
     }
 
     public void actionPerformed(ActionEvent evt)
     {
-	String cmd = evt.getActionCommand();
-	if(okay.equals(cmd))
-	    doOK();
-	else if(cancel.equals(cmd))
-	    doCancel();
+        String cmd = evt.getActionCommand();
+        if(okay.equals(cmd))
+            doOK();
+        else if(cancel.equals(cmd))
+            doCancel();
     }
 
     /**
@@ -188,23 +188,23 @@ class NewClassDialog extends JDialog
      */
     public void doOK()
     {
-	newClassName = textFld.getText().trim();
+        newClassName = textFld.getText().trim();
 
-	if (Utility.isIdentifier(newClassName)) {
-	    if(typeAbstract.isSelected())
-		classType = NC_ABSTRACT;
-	    else if(typeInterface.isSelected())
-		classType = NC_INTERFACE;
-	    else if(typeApplet.isSelected())
-		classType = NC_APPLET;
-	    ok = true;
-	    setVisible(false);
-	}
-	else {
-	    DialogManager.showError((JFrame)this.getParent(), "invalid-name");
-	    textFld.selectAll();
-	    textFld.requestFocus();
-	}
+        if (Utility.isIdentifier(newClassName)) {
+            if(typeAbstract.isSelected())
+            classType = NC_ABSTRACT;
+            else if(typeInterface.isSelected())
+            classType = NC_INTERFACE;
+            else if(typeApplet.isSelected())
+            classType = NC_APPLET;
+            ok = true;
+            setVisible(false);
+        }
+        else {
+            DialogManager.showError((JFrame)this.getParent(), "invalid-name");
+            textFld.selectAll();
+            textFld.requestFocus();
+        }
     }
 
     /**
@@ -212,7 +212,7 @@ class NewClassDialog extends JDialog
      */
     public void doCancel()
     {
-	ok = false;
-	setVisible(false);
+        ok = false;
+        setVisible(false);
     }
 }
