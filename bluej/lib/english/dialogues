@@ -289,6 +289,10 @@ open-non-bluej-already-bluej
 The directory you have selected is already
 a BlueJ project.
 
+open-non-bluej-no-java
+No Java source files were
+found in this directory.
+
 open-non-bluej-invalid
 You have indicated you wish to open this
 directory as a BlueJ project, however a file
