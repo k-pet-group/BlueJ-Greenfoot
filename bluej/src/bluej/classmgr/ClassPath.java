@@ -1,6 +1,7 @@
 package bluej.classmgr;
 
 import bluej.utility.Debug;
+import bluej.utility.SortedProperties;
 import bluej.Config;
 
 import java.io.*;
@@ -13,7 +14,7 @@ import javax.swing.table.*;
 /**
  * Class to maintain a list of ClassPathEntry's.
  *
- * @version $Id: ClassPath.java 284 1999-11-25 02:34:37Z ajp $
+ * @version $Id: ClassPath.java 287 1999-11-25 05:48:24Z ajp $
  * @author Andrew Patterson
  */
 public class ClassPath
@@ -164,7 +165,7 @@ public class ClassPath
      */
     private void addConfigFile(InputStream configstream)
     {
-        Properties config = new Properties();
+        Properties config = new SortedProperties();
 
         try {
             config.load(configstream);
@@ -203,7 +204,7 @@ public class ClassPath
      */
     public void putConfigFile(OutputStream configstream)
     {
-        Properties config = new Properties();
+        Properties config = new SortedProperties();
 
         Iterator it = entries.iterator();
         int current = 1;
@@ -211,8 +212,8 @@ public class ClassPath
         while (it.hasNext()) {
             ClassPathEntry nextEntry = (ClassPathEntry)it.next();
 
-            config.put("lib" + current + ".location", nextEntry.getPath());
-            config.put("lib" + current + ".description", nextEntry.getDescription());
+            config.setProperty("lib" + current + ".location", nextEntry.getPath());
+            config.setProperty("lib" + current + ".description", nextEntry.getDescription());
 
             current++;
         }

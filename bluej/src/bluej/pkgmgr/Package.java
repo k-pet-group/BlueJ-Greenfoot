@@ -20,6 +20,7 @@ import bluej.utility.MultiEnumeration;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
+import bluej.utility.SortedProperties;
 import bluej.views.Comment;
 import bluej.views.CommentList;
 import bluej.classmgr.*;
@@ -32,7 +33,7 @@ import java.io.*;
 import java.util.*;
 
 /**
-** @version $Id: Package.java 284 1999-11-25 02:34:37Z ajp $
+** @version $Id: Package.java 287 1999-11-25 05:48:24Z ajp $
 ** @author Michael Cahill
 **
 ** A Java package (collection of Java classes).
@@ -303,13 +304,13 @@ implements CompileObserver, MouseListener, MouseMotionListener
      * @return the properties describing the new package
      * @exception IOException if the package file could not be saved
      */
-    public static Properties createDefaultPackage(String[] classFiles, 
+    public static SortedProperties createDefaultPackage(String[] classFiles, 
                                                   String packageLocation,
                                                   String packageName,
                                                   boolean fromArchive) 
         throws IOException 
     {	
-        Properties props = new Properties();
+        SortedProperties props = new SortedProperties();
         int numberOfTargets = classFiles.length;
         // every file returned by the filter is considered valid, so the array
         // size if the number of targets in the package
@@ -424,7 +425,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
             try {
                 FileInputStream input = new FileInputStream(fullpkgfile);
 
-                props = new Properties();
+                props = new SortedProperties();
                 props.load(input);
             } catch(IOException e) {
                 Debug.reportError("Error loading initialisation file" + 
@@ -538,7 +539,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
                 return false;
             }
 
-        Properties props = new Properties();
+        SortedProperties props = new SortedProperties();
 
         File file = new File(dir, pkgfileName);
         if(file.exists()) {			// make backup of original
@@ -546,7 +547,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         }
 
         if(packageName != noPackage)
-            props.put("package.name", packageName);
+            props.setProperty("package.name", packageName);
         if(frame != null) {
             Dimension size = frame.getSize();
             props.put("package.window.width", String.valueOf(size.width));
@@ -1779,7 +1780,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
                     ClassInfo info = ClassParser.parse(t.sourceFile(), getAllClassnames());
 
                     OutputStream out = new FileOutputStream(t.contextFile());
-                    info.getComments().store(out, "BlueJ class context for " + filename);
+                    info.getComments().store(out, "BlueJ class context");
                     out.close();
                 } catch (Exception ex) {
                     ex.printStackTrace();

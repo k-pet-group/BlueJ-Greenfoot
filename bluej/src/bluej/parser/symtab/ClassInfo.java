@@ -2,6 +2,8 @@ package bluej.parser.symtab;
 
 import java.util.*;
 
+import bluej.utility.SortedProperties;
+
 public final class ClassInfo {
 
     private static final String[] appletClasses = { "Applet", "JApplet" };
@@ -40,9 +42,9 @@ public final class ClassInfo {
         {
             p.put(prefix + ".target", target);
             if(comment != null)
-                p.put(prefix + ".text", comment);
+                p.setProperty(prefix + ".text", comment);
             if(paramnames != null)
-                p.put(prefix + ".params", paramnames);      
+                p.setProperty(prefix + ".params", paramnames);      
         }
     }
         
@@ -297,8 +299,8 @@ public final class ClassInfo {
 
     public Properties getComments()
     {
-        Properties props = new Properties();
-        props.put("numComments", String.valueOf(comments.size()));
+        Properties props = new SortedProperties();
+        props.setProperty("numComments", String.valueOf(comments.size()));
         Enumeration e = comments.elements();
         for(int i = 0; e.hasMoreElements(); i++)
         {
