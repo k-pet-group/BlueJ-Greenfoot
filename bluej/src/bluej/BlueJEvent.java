@@ -17,6 +17,8 @@ import java.util.List;
   *  type       argument        sent when...
   *  -----------------------------------------------------------------------
   *  CREATE_VM      (unused)        creation of VM has started
+  * 
+  *  CREATE_VM_FAILURE (unused)     creation of VM has failed
   *
   *  CREATE_VM_DONE (unused)        creation of VM completed
   *
@@ -35,7 +37,7 @@ import java.util.List;
   *
   * </PRE>
   * @author Michael Kolling
-  * @version $Id: BlueJEvent.java 2304 2003-11-07 12:52:25Z fisker $
+  * @version $Id: BlueJEvent.java 2307 2003-11-09 10:01:02Z fisker $
   *
   */
 
@@ -47,7 +49,8 @@ public class BlueJEvent
     public static final int CREATE_VM_FAILED    = CREATE_VM + 1;
     public static final int CREATE_VM_DONE      = CREATE_VM_FAILED + 1;
     public static final int METHOD_CALL         = CREATE_VM_DONE + 1;
-    public static final int EXECUTION_RESULT    = METHOD_CALL + 1;
+    public static final int METHOD_CALL_FAILED  = METHOD_CALL + 1;
+    public static final int EXECUTION_RESULT    = METHOD_CALL_FAILED + 1;
     public static final int GENERATING_DOCU     = EXECUTION_RESULT + 1;
     public static final int DOCU_GENERATED      = GENERATING_DOCU + 1;
     public static final int DOCU_ABORTED        = DOCU_GENERATED + 1;

@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2304 2003-11-07 12:52:25Z fisker $
+ * @version $Id: PkgMgrFrame.java 2307 2003-11-09 10:01:02Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -780,7 +780,7 @@ public class PkgMgrFrame extends JFrame
     private void doOpen()
     {
         File dirName = FileUtility.getPackageName(this);
-
+        
         if (dirName != null) {
             openProject(dirName.getAbsolutePath());
         }
@@ -797,6 +797,10 @@ public class PkgMgrFrame extends JFrame
         if(openProj == null)
             return false;
         else {
+            if (openProj.isReadOnly()) {
+                DialogManager.showMessage(this, "project-is-readonly");
+            }
+            
             Package pkg = openProj.getOrCreatePackageTree(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;

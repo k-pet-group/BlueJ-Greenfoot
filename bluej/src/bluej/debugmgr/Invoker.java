@@ -21,7 +21,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2287 2003-11-06 00:55:29Z ajp $
+ * @version $Id: Invoker.java 2307 2003-11-09 10:01:02Z fisker $
  */
 
 public class Invoker extends Thread
@@ -477,7 +477,7 @@ public class Invoker extends Thread
             shell.newLine();
             shell.write("}}");
             shell.close();
-
+            
         } catch(IOException e) {
             e.printStackTrace();
         }
