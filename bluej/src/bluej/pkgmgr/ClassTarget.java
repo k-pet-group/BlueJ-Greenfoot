@@ -39,7 +39,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 220 1999-08-10 04:23:38Z bruce $
+ ** @version $Id: ClassTarget.java 230 1999-08-12 04:04:54Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -426,64 +426,66 @@ public class ClassTarget extends EditableTarget
      */
     public void analyseDependencies()
     {
-	removeAllOutDependencies();
-
-	try {
-	    ClassInfo info = ClassParser.parse(sourceFile(), 
-					       pkg.getAllClassnames());
-
-	    if(info.isApplet()) {
-		if( ! (role instanceof AppletClassRole))
-		    role = new AppletClassRole();
-	    }
-	    else {
-		if( ! (role instanceof StdClassRole))
-		    role = new StdClassRole();
-	    }
-
-	    setInterface(info.isInterface());
-	    setAbstract(info.isAbstract());
-
-	    // handle superclass
-
-	    if(info.getSuperclass() != null) {
-		Target superclass = pkg.getTarget(info.getSuperclass());
-		if (superclass != null)
-		    pkg.addDependency(
-				      new ExtendsDependency(pkg, this, superclass), 
-				      false);
-	    }
-
-	    // handle implemented interfaces
-
-	    Vector vect = info.getImplements();
-	    for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-		String name = (String)e.nextElement();
-		Target interfce = pkg.getTarget(name);
-		if (interfce != null)
-		    pkg.addDependency(
-				      new ImplementsDependency(pkg, this, interfce), 
-				      false);
-	    }
-
-	    // handle used classes
-
-	    vect = info.getUsed();
-	    for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-		String name = (String)e.nextElement();
-		Target used = pkg.getTarget(name);
-		if (used != null)
-		    pkg.addDependency(new UsesDependency(pkg, this, used), true);
-	    }
-
-	    sourceInfo.setValid(true);
-	}
-	catch(Exception e) {
-	    // exception during parsing
-	    sourceInfo.setValid(false);
-	}
-
-	pkg.repaint();
+        removeAllOutDependencies();
+    
+        try {
+            ClassInfo info = ClassParser.parse(sourceFile(), 
+                               pkg.getAllClassnames());
+    
+            if(info.isApplet()) {
+                if( ! (role instanceof AppletClassRole))
+                    role = new AppletClassRole();
+            }
+            else {
+                if( ! (role instanceof StdClassRole))
+                    role = new StdClassRole();
+            }
+    
+            setInterface(info.isInterface());
+            setAbstract(info.isAbstract());
+    
+            // handle superclass
+    
+            if(info.getSuperclass() != null) {
+                Target superclass = pkg.getTarget(info.getSuperclass());
+                if (superclass != null)
+                    pkg.addDependency(
+                              new ExtendsDependency(pkg, this, superclass), 
+                              false);
+            }
+    
+            // handle implemented interfaces
+    
+            Vector vect = info.getImplements();
+            for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
+            String name = (String)e.nextElement();
+            Target interfce = pkg.getTarget(name);
+            // Debug.message("Implements " + name);
+            if (interfce != null)
+                pkg.addDependency(
+                          new ImplementsDependency(pkg, this, interfce), 
+                          false);
+            }
+    
+            // handle used classes
+    
+            vect = info.getUsed();
+            for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
+            String name = (String)e.nextElement();
+            // Debug.message("Uses " + name);
+            Target used = pkg.getTarget(name);
+            if (used != null)
+                pkg.addDependency(new UsesDependency(pkg, this, used), true);
+            }
+    
+            sourceInfo.setValid(true);
+        }
+        catch(Exception e) {
+            // exception during parsing
+            sourceInfo.setValid(false);
+        }
+    
+        pkg.repaint();
     }
 
     protected Class last_class = null;
