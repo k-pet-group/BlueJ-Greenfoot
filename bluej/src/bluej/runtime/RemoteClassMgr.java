@@ -25,7 +25,7 @@ import javax.swing.table.*;
  *              (one for each project)
  *
  * @author  Andrew Patterson
- * @version $Id: RemoteClassMgr.java 1053 2001-12-19 06:31:58Z ajp $
+ * @version $Id: RemoteClassMgr.java 1145 2002-03-08 05:00:48Z ajp $
  */
 public class RemoteClassMgr
 {
@@ -77,12 +77,12 @@ public class RemoteClassMgr
         }
     }
 
-	private static URL[] getStringAsURLArray(String libraries)
-	{
-	    ClassPath librariesClassPath = new ClassPath(libraries, "");
+    private static URL[] getStringAsURLArray(String libraries)
+    {
+            ClassPath librariesClassPath = new ClassPath(libraries, "");
 
-	    URL librariesURLs[] = librariesClassPath.getURLs();
+            URL librariesURLs[] = librariesClassPath.getURLs();
 
-	    return librariesURLs;
-	}
+            return librariesURLs;
+    	}
 }
