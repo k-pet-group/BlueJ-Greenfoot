@@ -1,7 +1,6 @@
 
 package bluej.pkgmgr.target;
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -23,7 +22,6 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.role.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
-import bluej.extmgr.*;
 
 /**
  * A class target in a package, i.e. a target that is a class file
@@ -33,7 +31,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2097 2003-07-07 18:50:52Z damiano $
+ * @version $Id: ClassTarget.java 2129 2003-07-23 06:25:49Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {

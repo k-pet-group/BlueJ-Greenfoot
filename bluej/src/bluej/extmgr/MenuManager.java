@@ -1,10 +1,9 @@
 package bluej.extmgr;
 
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
 import java.util.*;
+
+import javax.swing.JPopupMenu;
 
 /**
  * Michael: this is work in progress, when it is done it will be formatted and commented appropriately.

@@ -1,12 +1,11 @@
 package bluej.pkgmgr;
 
-import java.awt.*;
+import java.awt.AWTEvent;
 import java.awt.event.*;
 
 import javax.swing.*;
 
 import bluej.Config;
-import bluej.utility.Debug;
 
 public class MachineIcon extends JLabel
 {

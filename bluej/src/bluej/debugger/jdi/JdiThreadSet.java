@@ -1,18 +1,17 @@
 package bluej.debugger.jdi;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import com.sun.jdi.*;
+import java.util.*;
 
-import bluej.debugger.*;
 import bluej.utility.Debug;
+
+import com.sun.jdi.ThreadReference;
 
 /**
  * A wrapper around a TreeSet that helps us
  * store JdiThreads.
  * 
  * @author  Michael Kolling
- * @version $Id: JdiThreadSet.java 2118 2003-07-18 04:39:33Z ajp $
+ * @version $Id: JdiThreadSet.java 2129 2003-07-23 06:25:49Z ajp $
  */
 public class JdiThreadSet extends HashSet
 {

@@ -1,16 +1,16 @@
 package bluej.extensions;
 
-import bluej.*;
+import java.awt.Frame;
+import java.io.File;
+import java.util.*;
+
+import javax.swing.JMenuItem;
+
+import bluej.Config;
 import bluej.extensions.event.*;
 import bluej.extmgr.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import javax.swing.*;
-import bluej.pkgmgr.target.*;
-import bluej.debugmgr.objectbench.*;
 
 /**
  * A proxy object which provides services to BlueJ extensions.
@@ -46,7 +46,7 @@ import bluej.debugmgr.objectbench.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2097 2003-07-07 18:50:52Z damiano $
+ * @version    $Id: BlueJ.java 2129 2003-07-23 06:25:49Z ajp $
  */
 
 /*

@@ -1,30 +1,23 @@
 package bluej.debugmgr.objectbench;
 
-import bluej.Config;
-import bluej.BlueJEvent;
+import java.awt.*;
+import java.awt.event.*;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.List;
+
+import javax.swing.*;
+
+import bluej.*;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.*;
 import bluej.debugmgr.inspector.*;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.Utility;
-import bluej.utility.JavaNames;
-import bluej.views.MethodView;
-import bluej.views.View;
-import bluej.views.ViewFilter;
+import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.lang.reflect.*;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import bluej.extmgr.*;
+import bluej.utility.*;
+import bluej.views.*;
 
 /**
  * A wrapper around a Java object that handles calling methods, inspecting, etc.
@@ -33,7 +26,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2097 2003-07-07 18:50:52Z damiano $
+ * @version $Id: ObjectWrapper.java 2129 2003-07-23 06:25:49Z ajp $
  */
 public class ObjectWrapper extends JComponent
 {
