@@ -48,12 +48,25 @@ public class BasicParseTest extends junit.framework.TestCase
     }
 
     /**
-     * A sample test case method
+     * Lots of sample files, none of which should cause exceptions
+     * in our parser.
+     * 
+     * @throws RecognitionException
+     * @throws TokenStreamException
+     * @throws FileNotFoundException
      */
-    public void testStandardAssertion()
+    public void testNoParseExceptionsOnStandardCode()
         throws RecognitionException, TokenStreamException, FileNotFoundException
     {
-        JavaAnalyzer ja = new JavaAnalyzer(
-            new BufferedReader(new FileReader(getFile("java_basic.dat"))));
+        // this file came from some guys web page.. it just includes lots of
+        // Java constructs
+        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("java_basic.dat"))));
+
+        // these files came from the test suite accompanying antlr
+        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("A.dat"))));
+        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("B.dat"))));
+        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("C.dat"))));
+        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("D.dat"))));
+        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("E.dat"))));
     } 
 }

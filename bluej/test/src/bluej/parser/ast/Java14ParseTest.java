@@ -49,11 +49,13 @@ public class Java14ParseTest extends junit.framework.TestCase
 
     /**
      * A sample test case method
+     * @throws RecognitionException
+     * @throws TokenStreamException
+     * @throws FileNotFoundException
      */
     public void testStandardAssertion()
         throws RecognitionException, TokenStreamException, FileNotFoundException
     {
-        JavaAnalyzer ja = new JavaAnalyzer(
-            new BufferedReader(new FileReader(getFile("14_assertion.dat"))));
+        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("14_assertion.dat"))));
     } 
 }
