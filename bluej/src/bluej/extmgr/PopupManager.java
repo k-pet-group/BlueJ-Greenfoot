@@ -44,6 +44,8 @@ public class PopupManager implements PopupMenuListener
 //    System.out.println ("PopupManager attachedTo="+attachedTo);
         extMgr = ExtensionsManager.get();
         attachedObject = attachedTo;
+        // It needs to be initialized to handle correctly all possible cases.
+        menuItems = new LinkedList();
     }
 
 
@@ -59,6 +61,15 @@ public class PopupManager implements PopupMenuListener
         attachedObject = attachedTo;
     }
 
+    /**
+     * This is used only to fix a Mac bug, do not use it othervise !
+     */
+    public void revalidate ( JPopupMenu aPopup )
+    {
+        PopupMenuEvent anEvent = new PopupMenuEvent(aPopup);
+        popupMenuWillBecomeInvisible(anEvent);
+        popupMenuWillBecomeVisible(anEvent);
+    }
 
     /**
      * Called just before the PopupMenu becomes visible.

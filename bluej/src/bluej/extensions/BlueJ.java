@@ -46,7 +46,7 @@ import bluej.debugmgr.objectbench.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2088 2003-07-01 09:23:58Z damiano $
+ * @version    $Id: BlueJ.java 2090 2003-07-03 08:33:04Z damiano $
  */
 
 /*
@@ -236,6 +236,8 @@ public class BlueJ
             throw new ExtensionUnloadedException();
 
         currentMenuGen = menuGen;
+
+        PkgMgrFrame.fixMacToolsMenu();
     }
 
 
