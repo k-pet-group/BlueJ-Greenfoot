@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
+import java.applet.Applet;
 
 /**
  * A class target in a package, i.e. a target that is a class file
@@ -39,7 +40,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 657 2000-07-26 07:39:59Z mik $
+ * @version $Id: ClassTarget.java 666 2000-08-10 03:28:53Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -102,8 +103,10 @@ public class ClassTarget extends EditableTarget
     {
         super(pkg, baseName);
 
-        if(isApplet)
+        if(isApplet) {
             role = new AppletClassRole();
+            stereotype = APPLET_LABEL;
+        }
         else
             role = new StdClassRole();
 
@@ -451,6 +454,27 @@ public class ClassTarget extends EditableTarget
         return (state == S_NORMAL);
     }
 
+    /**
+     *  Called when this class target has just been successfully compiled.
+     */
+    public void endCompile()
+    {
+        Class cl = getPackage().loadClass(getQualifiedName());
+
+        if (cl != null) {
+            if (Applet.class.isAssignableFrom(cl)) {
+                if( ! (role instanceof AppletClassRole))
+                    role = new AppletClassRole();
+                stereotype = APPLET_LABEL;
+            }
+            else {
+                if( ! (role instanceof StdClassRole))
+                    role = new StdClassRole();
+                stereotype = null;
+            }
+        }
+    }
+
     public void runApplet(PkgMgrFrame parent)
     {
         if (role instanceof AppletClassRole) {
@@ -573,11 +597,13 @@ public class ClassTarget extends EditableTarget
         // info will be null if the source was unparseable
         if(info != null) {
 
-            // the following two may update the package display but they
+            // the following three may update the package display but they
             // will not modify the classes source code
-            analyseRole(info);
+            setInterface(info.isInterface());
+            setAbstract(info.isAbstract());
             analyseDependencies(info);
 
+            // these two however will potentially modify the source
             if (modifySource) {
                 if(analyseClassName(info))
                     doClassNameChange(info.getName());
@@ -588,7 +614,7 @@ public class ClassTarget extends EditableTarget
 
         getPackage().repaint();
 
-	analysing = false;
+        analysing = false;
     }
 
     public boolean analyseClassName(ClassInfo info)
@@ -603,23 +629,6 @@ public class ClassTarget extends EditableTarget
         String newName = info.getPackage();
 
         return (!getPackage().getQualifiedName().equals(newName));
-    }
-
-    public void analyseRole(ClassInfo info)
-    {
-        if(info.isApplet()) {
-            if( ! (role instanceof AppletClassRole))
-                role = new AppletClassRole();
-            stereotype = APPLET_LABEL;
-        }
-        else {
-            if( ! (role instanceof StdClassRole))
-                role = new StdClassRole();
-            stereotype = null;
-        }
-
-        setInterface(info.isInterface());
-        setAbstract(info.isAbstract());
     }
 
     /**

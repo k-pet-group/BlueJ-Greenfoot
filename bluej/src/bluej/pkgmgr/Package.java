@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 653 2000-07-26 01:46:35Z ajp $
+ * @version $Id: Package.java 666 2000-08-10 03:28:53Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1880,6 +1880,8 @@ public class Package extends Graph
                 continue;
 
             if (successful) {
+
+                t.endCompile();
 
                 /* compute ctxt files (files with comments and parameters names) */
                 try {
