@@ -25,7 +25,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2714 2004-07-01 15:55:03Z mik $
+ * @version $Id: UnitTestClassRole.java 2860 2004-08-10 05:55:35Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -191,9 +191,9 @@ public class UnitTestClassRole extends ClassRole
 
 		if (param != null) {
 			// Test a single method
-			dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), param);
+            TestDisplayFrame.getTestDisplay().startTest(pmf.getProject(), 1);
 
-			TestDisplayFrame.getTestDisplay().startTest(1);
+            dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), param);
 
 			if (dtr.isSuccess()) {
 				pmf.setStatus(param + " " + Config.getString("pkgmgr.test.succeeded"));
@@ -219,7 +219,7 @@ public class UnitTestClassRole extends ClassRole
 					testCount++;
 			}
 
-			TestDisplayFrame.getTestDisplay().startTest(testCount);
+			TestDisplayFrame.getTestDisplay().startTest(pmf.getProject(), testCount);
 				
 			for (int i=0; i < allMethods.length; i++) {
 				Method m = allMethods[i];

@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2819 2004-07-26 05:36:45Z davmac $
+ * @version $Id: Project.java 2860 2004-08-10 05:55:35Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -465,7 +465,7 @@ public class Project
         File newPkgDir = getProjectDir();
 
         while(st.hasMoreTokens()) 
-            newPkgDir = new File(newPkgDir, (String)st.nextToken());
+            newPkgDir = new File(newPkgDir, st.nextToken());
 
         // now actually construct the directories and add the bluej
         // package marker files
@@ -481,7 +481,7 @@ public class Project
             }
 
             while(st.hasMoreTokens()) {
-                newPkgDir = new File(newPkgDir, (String)st.nextToken());
+                newPkgDir = new File(newPkgDir, st.nextToken());
                 newPkgFile = new File(newPkgDir, Package.pkgfileName);
 
                 try {
@@ -542,16 +542,58 @@ public class Project
         return NEW_PACKAGE_DONE;
     }
 
+    /**
+     * Returns the existing package with the given fully qualified name, or
+     * null if it doesn't exist.
+     * 
+     * @param packageName   The fully qualified name of the package to look for
+     * @return    The requested package (or null)
+     */
+    public Package getExistingPackage(String packageName)
+    {
+        Package r = getPackage(""); // start at root package
+
+        while (packageName.length() != 0) {
+
+            // Get the next component in the fully qualified package name.
+            String nextName;
+            int firstPos = packageName.indexOf('.');
+            if (firstPos == -1) {
+                nextName = packageName;
+                packageName = "";
+            }
+            else {
+                nextName = packageName.substring(0, firstPos);
+                packageName = packageName.substring(firstPos + 1);
+            }
+
+            // Search the children of the current package to find the next
+            // component.
+            List children = r.getChildren();
+            Iterator i = children.iterator();
+            Package child = null;
+            while (i.hasNext()) {
+                child = (Package) i.next();
+                if (child.getBaseName().equals(nextName))
+                    break;
+            }
+            if (child == null)
+                return null;
+            r = child;
+        }
+
+        return r;
+    }
 
 
     /**
-     * Get the names of all packages in this project consisting of
-     * rootPackage package and all packages nested below it.
-     *
-     * @param   rootPackage the root package to consider in looking
-     *          for nested packages
-     * @return  an array of String containing the fully qualified names
-     *          of the packages.
+     * Get the names of all packages in this project consisting of rootPackage
+     * package and all packages nested below it.
+     * 
+     * @param rootPackage
+     *            the root package to consider in looking for nested packages
+     * @return an array of String containing the fully qualified names of the
+     *         packages.
      */
     private List getPackageNames(Package rootPackage)
     {

@@ -4,17 +4,20 @@ import java.awt.Component;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import bluej.*;
+import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerTestResult;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 
 /**
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 2746 2004-07-06 21:32:45Z mik $
+ * @version $Id: TestDisplayFrame.java 2860 2004-08-10 05:55:35Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -49,6 +52,8 @@ public class TestDisplayFrame
     private boolean doingMultiple;
         
     private FailureDetailView fdv;
+    
+    private Project lastProject;
     
     public TestDisplayFrame()
     {
@@ -106,6 +111,7 @@ public class TestDisplayFrame
 				testnames = new JList(testEntries);
 				testnames.setCellRenderer(new MyCellRenderer());
 				testnames.addListSelectionListener(new MyListSelectionListener());
+                testnames.addMouseListener(new DoubleClickListener());
 							
 				jsp.setViewportView(testnames);
 			}
@@ -161,8 +167,9 @@ public class TestDisplayFrame
      * 
      * @param num   the number of tests we will run
      */
-	public void startTest(int num)
+	public void startTest(Project project, int num)
 	{
+        lastProject = project;
         if (doingMultiple) {
             testTotal += num;
         }
@@ -223,6 +230,51 @@ public class TestDisplayFrame
 			}
 		}
 	}
+    
+    class DoubleClickListener extends MouseAdapter
+    {
+        public void mouseClicked(MouseEvent e)
+        {
+            // bluej.utility.Debug.message("clicked, count = " +
+            // e.getClickCount());
+            int cc = e.getClickCount();
+            if (cc == 2) {
+                DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
+                if (dtr != null && (dtr.isError() || dtr.isFailure())) {
+                    String trace = dtr.getTrace();
+                    int index1 = trace.indexOf('\n');
+                    index1 = trace.indexOf("at ", index1) + 3;
+                    int index2 = trace.indexOf('\n', index1 + 1);
+                    String loc = trace.substring(index1, index2 - 1).trim();
+
+                    // Now loc is:
+                    // "package.class$innerclass.method(filename.java:lineno"
+                    index1 = loc.indexOf('(');
+                    String packageClassMethod = loc.substring(0, index1);
+                    index2 = packageClassMethod.lastIndexOf('.');
+                    index2 = packageClassMethod.lastIndexOf('.', index2 - 1);
+                    String packageName;
+                    if (index2 != -1)
+                        packageName = packageClassMethod.substring(0, index2);
+                    else
+                        packageName = "";
+
+                    Package spackage = lastProject.getExistingPackage(packageName);
+                    if (spackage == null)
+                        return;
+
+                    // We have the package name. Now get the source name and
+                    // line number.
+                    index2 = loc.lastIndexOf(':');
+                    String sourceName = loc.substring(index1 + 1, index2);
+                    int lineno = Integer.parseInt(loc.substring(index2 + 1));
+
+                    spackage.showSource(sourceName, lineno, "", false);
+                }
+            }
+        }
+    };
+
 }
 
 class MyCellRenderer extends JLabel implements ListCellRenderer
@@ -264,3 +316,4 @@ class MyCellRenderer extends JLabel implements ListCellRenderer
 		return this;
 	}
 }
+
