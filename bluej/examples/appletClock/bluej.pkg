@@ -1,0 +1,17 @@
+#BlueJ project file
+#Fri Jul 09 13:48:23 GMT+10:00 1999
+target1.height=50
+target1.numberAppletParameters=0
+package.window.height=498
+target1.y=50
+target1.x=40
+target1.valid=true
+package.numTargets=1
+target1.appletHeight=200
+target1.appletWidth=300
+target1.type=AppletTarget
+package.window.width=572
+target1.name=Clock
+target1.width=100
+package.numDependencies=0
+target1.modifiers=0
