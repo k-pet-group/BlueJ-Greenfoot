@@ -16,7 +16,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 2112 2003-07-15 04:51:33Z ajp $
+ * @version $Id: Terminal.java 2148 2003-08-05 08:17:51Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -58,7 +58,7 @@ public final class Terminal extends JFrame
     private JScrollPane errorScrollPane;
     private JScrollPane scrollPane;
     private JSplitPane splitPane;
-//    private boolean isActive = false;
+    private boolean isActive = false;
     private boolean recordMethodCalls = false;
     private boolean clearOnMethodCall = false;
     private boolean newMethodCall = false;
@@ -69,9 +69,9 @@ public final class Terminal extends JFrame
     private JCheckBoxMenuItem recordCalls;
     private JCheckBoxMenuItem unlimitedBuffering;
 
-    Reader in = new TerminalReader();
-    Writer out = new TerminalWriter(false);
-    Writer err = new TerminalWriter(true);
+    private Reader in = new TerminalReader();
+    private Writer out = new TerminalWriter(false);
+    private Writer err = new TerminalWriter(true);
 
 
     /**
@@ -122,12 +122,13 @@ public final class Terminal extends JFrame
      */
     public void activate(boolean active)
     {
-/*        if(active != isActive) {
+        if(active != isActive) {
             text.setEditable(active);
+            //System.out.println("activate: " + active);
             //text.setEnabled(active);
             //text.setBackground(active ? activeBgColour : inactiveBgColour);
             isActive = active;
-        } */
+        }
     }
 
 
@@ -307,7 +308,7 @@ public final class Terminal extends JFrame
 
     public void keyTyped(KeyEvent event)
     {
-        if(true /*isActive*/) {
+        if(isActive) {
             char ch = event.getKeyChar();
 
             switch(ch) {
@@ -363,6 +364,9 @@ public final class Terminal extends JFrame
 
     // ---- make window frame ----
 
+    /**
+     * Create the Swing window.
+     */
     private void makeWindow(int columns, int rows)
     {
         setIconImage(iconImage);

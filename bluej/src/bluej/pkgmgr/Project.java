@@ -20,7 +20,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2115 2003-07-16 05:02:43Z ajp $
+ * @version $Id: Project.java 2148 2003-08-05 08:17:51Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -724,36 +724,38 @@ public class Project
     // ---- DebuggerListener interface ----
 
     /**
+     * A debugger event was fired. Analyse which event it was, and take
+     * appropriate action.
      */
-    public void debuggerEvent(DebuggerEvent de)
+    public void debuggerEvent(DebuggerEvent event)
     {
         DebuggerThread thread;
 
-		if (de.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
+		if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
 			PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
 			if (frames == null)
 				return;
 
 			for(int i=0; i< frames.length; i++)
-				frames[i].showDebuggerState(de.getNewState());
+				frames[i].setDebuggerState(event.getNewState());
 				
-			if (de.getOldState() == Debugger.NOTREADY && de.getNewState() == Debugger.IDLE)
+			if (event.getOldState() == Debugger.NOTREADY && event.getNewState() == Debugger.IDLE)
 				PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVMDone"));
 				
 			return;			
 		}
 
-		if (de.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
+		if (event.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
 			removeStepMarks();
 			return;
 		}
 		
-        DebuggerThread thr = de.getThread();
+        DebuggerThread thr = event.getThread();
 		String packageName = JavaNames.getPrefix(thr.getClass(0));
 		Package pkg = getPackage(packageName);
 		if(pkg != null) {
-			switch(de.getID()) {
+			switch(event.getID()) {
 			 case DebuggerEvent.THREAD_BREAKPOINT:
 			 	pkg.hitBreakpoint(thr);
 				break;

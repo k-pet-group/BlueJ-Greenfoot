@@ -33,7 +33,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2135 2003-07-31 05:23:30Z bquig $
+ * @version $Id: PkgMgrFrame.java 2148 2003-08-05 08:17:51Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1839,10 +1839,12 @@ public class PkgMgrFrame extends JFrame
     // ---- end of BlueJEventListener interface ----
 
     /**
-     * Indicate in our interface the debugger worker
-     * thread state.
+     * The debugger state has changed. Indicate the state in our interface
+     * and change the system state accordingly (e.g. enable/disable terminal).
+     *
+     * NOTE: The current implementation assumes that user VMs DO NOT run concurrently!
      */
-    public void showDebuggerState(int state)
+    public void setDebuggerState(int state)
     {
 		switch (state) {
 		 case Debugger.NOTREADY:
@@ -1850,10 +1852,12 @@ public class PkgMgrFrame extends JFrame
 
 		 case Debugger.IDLE:
 		 	machineIcon.setIdle();
+            Terminal.getTerminal().activate(false);
         	break;
 		 
 		 case Debugger.RUNNING:
             machineIcon.setRunning();
+            Terminal.getTerminal().activate(true);
 		 	break;
 	 
 		 case Debugger.SUSPENDED:

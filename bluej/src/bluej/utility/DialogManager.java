@@ -7,11 +7,13 @@ import java.io.*;
 import javax.swing.*;
 
 /**
- *
- *
- *
+ * The dialog manager is a utility class to simplyfy communication with 
+ * the user via dialogs. It provides convinience methods to display
+ * message, choice or question dialogs. Messages are properly
+ * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
+ * @version $Id: DialogManager.java 2148 2003-08-05 08:17:51Z mik $
  */
 public class DialogManager
 {

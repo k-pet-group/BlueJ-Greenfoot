@@ -7,7 +7,7 @@ import java.awt.Toolkit;
  * a circular array.
  *
  * @author  Michael Kolling
- * @version $Id: InputBuffer.java 2132 2003-07-29 04:35:53Z ajp $
+ * @version $Id: InputBuffer.java 2148 2003-08-05 08:17:51Z mik $
  */
 public final class InputBuffer 
 {
@@ -16,7 +16,7 @@ public final class InputBuffer
     private int bufferNextFree = 0;	// next full position
     private int bufferSize;
 
-    InputBuffer(int size)
+    public InputBuffer(int size)
     {
         buffer = new char[size];
         bufferSize = size;
