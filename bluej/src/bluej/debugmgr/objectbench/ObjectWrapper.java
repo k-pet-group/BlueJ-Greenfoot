@@ -32,7 +32,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: ObjectWrapper.java 2053 2003-06-24 10:30:59Z damiano $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -155,6 +155,7 @@ public class ObjectWrapper extends JComponent
      */
     protected void createMenu(String className)
     {
+        // System.out.println ("Bobject createMenu");    Damiano, marker for dynamic menu
         Class cl = pkg.loadClass(className);
 
         List classes = getClassHierarchy(cl);

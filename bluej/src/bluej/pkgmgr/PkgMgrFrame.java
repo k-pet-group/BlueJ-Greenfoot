@@ -15,7 +15,7 @@ import bluej.debugger.*;
 import bluej.debugmgr.*;
 import bluej.debugmgr.inspector.*;
 import bluej.debugmgr.objectbench.*;
-import bluej.extmgr.ExtensionsManager;
+import bluej.extmgr.*;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.target.*;
@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2039 2003-06-19 06:03:24Z ajp $
+ * @version $Id: PkgMgrFrame.java 2053 2003-06-24 10:30:59Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -76,7 +76,10 @@ public class PkgMgrFrame extends JFrame
     private JMenuBar menubar = null;
     private JMenu recentProjectsMenu;
     private JMenu toolsMenu;
-    private int toolsExtensionsSeparatorIndex;
+
+//    private int toolsExtensionsSeparatorIndex;
+    private PopupManager popupManager;
+    
     private JMenu viewMenu;
     private JMenuItem showTestResultsItem;
     private List itemsToDisable;
@@ -172,7 +175,8 @@ public class PkgMgrFrame extends JFrame
             pmf.openPackage(pkg);
         }
 
-        extMgr.addMenuItems( pmf);
+        pmf.popupManager.setAttachedObject ( pkg );
+//        extMgr.addMenuItems( pmf); Damiano, needs to know exactly why it is here
         return pmf;
     }
 
@@ -2263,8 +2267,12 @@ public class PkgMgrFrame extends JFrame
                                public void actionPerformed(ActionEvent e) { menuCall(); showPreferences(); }
                            });
 
-            toolsExtensionsCheckSeparator();
-            extMgr.addMenuItems ( this );
+//            toolsExtensionsCheckSeparator();
+//            extMgr.addMenuItems ( this ); Damiano
+
+            JPopupMenu aMenu = menu.getPopupMenu();
+            popupManager = new PopupManager( pkg );
+            aMenu.addPopupMenuListener(popupManager);
         }
 
 
@@ -2401,7 +2409,7 @@ public class PkgMgrFrame extends JFrame
     
     /**
      * Add or remove a separator in the tools menu for extensions as needed.
-     */
+     * To be deleted, Damiano
     public void toolsExtensionsCheckSeparator()
     {
         if(extMgr.haveMenuItems( )) {   // do we need one?
@@ -2419,6 +2427,7 @@ public class PkgMgrFrame extends JFrame
             toolsExtensionsSeparatorIndex = 0;
         }
     }
+     */
     
 
     /**

@@ -43,7 +43,7 @@ import java.util.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version $Id: BlueJ.java 1982 2003-05-23 08:08:34Z damiano $
+ * @version $Id: BlueJ.java 2053 2003-06-24 10:30:59Z damiano $
  */
 
 /*
@@ -207,7 +207,7 @@ public class BlueJ
         if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
 
         currentMenuGen = menuGen;
-        menuManager.menuExtensionRevalidateReq();
+//        menuManager.menuExtensionRevalidateReq();
     }
 
     /**

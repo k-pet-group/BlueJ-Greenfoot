@@ -125,6 +125,8 @@ public class MenuManager
     {
     public void run ()
       {
+      }
+      /*
       HashMap newFramesToJmenu = new HashMap(20);
       PkgMgrFrame[] allFrames  = PkgMgrFrame.getAllFrames();
 
@@ -140,6 +142,7 @@ public class MenuManager
         }
       framesToJmenu = newFramesToJmenu;
       }
+      */
     }
   }
 

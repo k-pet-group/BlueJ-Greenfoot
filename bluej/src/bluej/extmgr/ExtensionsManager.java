@@ -11,7 +11,9 @@ import bluej.extensions.event.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.utility.Debug;
-
+import javax.swing.*;
+//import JMenuItem.*;
+//
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
  *  
@@ -256,7 +258,7 @@ public class ExtensionsManager implements BlueJEventListener
 
     /**
      * Adds extension menu items to a newly created frame.
-     */
+     * DELENDI, Damiano
     public void addMenuItems( PkgMgrFrame pmf )
     {
         // Try to decide if this frame needs a separator or not
@@ -273,6 +275,35 @@ public class ExtensionsManager implements BlueJEventListener
             aManager.menuFrameRevalidateReq(pmf);
         }
     }
+
+
+    /**
+     * Returns a List of menues currently provided by extensions.
+     * NOTE: There is a separator added here ad the beginning of the list
+     * if there is something to display.
+     */
+    LinkedList getMenuItems( Object attachedObject )
+    {
+        LinkedList menuItems = new LinkedList();
+        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
+            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+
+            if (!aWrapper.isValid()) continue;
+
+            JMenuItem anItem = aWrapper.safeMenuGenGetMenuItem();
+            if ( anItem == null ) continue;
+
+            menuItems.add(anItem);
+        }
+
+        // If the list is empty there is nothing else to do.
+        if ( menuItems.isEmpty() ) return menuItems;
+
+        menuItems.addFirst(new JPopupMenu.Separator());
+        return menuItems;
+    }
+
+
 
 
     /**
