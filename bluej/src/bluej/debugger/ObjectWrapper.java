@@ -6,6 +6,7 @@ import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
@@ -27,7 +28,7 @@ import java.util.Vector;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: ObjectWrapper.java 517 2000-05-25 07:58:59Z ajp $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -120,7 +121,7 @@ public class ObjectWrapper extends JComponent
                 view = View.getView(currentClass);
                 declaredMethods = view.getDeclaredMethods();
                 JMenu subMenu =  new JMenu(inheritedFrom + " "
-                                + Utility.stripPackagePrefix(currentClass.getName()));
+                                + JavaNames.stripPrefix(currentClass.getName()));
                 subMenu.setFont(PrefMgr.getStandoutMenuFont());
                 createMenuItems(subMenu, declaredMethods, filter, 0, declaredMethods.length);
                 menu.insert(subMenu, 0);
@@ -184,7 +185,7 @@ public class ObjectWrapper extends JComponent
 		if(methodsUsed.containsKey(m.getShortDesc())) {
 		    methodSignature = ( m.getShortDesc()
 					+ "   [ " + redefinedIn + " "
-					+ Utility.stripPackagePrefix(((String)methodsUsed.get(m.getShortDesc())))
+					+ JavaNames.stripPrefix(((String)methodsUsed.get(m.getShortDesc())))
 			+ " ]");
 		}
 		else {

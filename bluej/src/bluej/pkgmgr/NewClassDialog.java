@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
 import java.awt.*;
@@ -14,8 +15,8 @@ import javax.swing.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 433 2000-05-04 05:28:55Z ajp $
- **/
+ * @version $Id: NewClassDialog.java 517 2000-05-25 07:58:59Z ajp $
+ */
 class NewClassDialog extends JDialog
     implements ActionListener
 {
@@ -190,7 +191,7 @@ class NewClassDialog extends JDialog
     {
         newClassName = textFld.getText().trim();
 
-        if (Utility.isIdentifier(newClassName)) {
+        if (JavaNames.isIdentifier(newClassName)) {
             if(typeAbstract.isSelected())
             classType = NC_ABSTRACT;
             else if(typeInterface.isSelected())
@@ -201,7 +202,7 @@ class NewClassDialog extends JDialog
             setVisible(false);
         }
         else {
-            DialogManager.showError((JFrame)this.getParent(), "invalid-name");
+            DialogManager.showError((JFrame)this.getParent(), "invalid-class-name");
             textFld.selectAll();
             textFld.requestFocus();
         }

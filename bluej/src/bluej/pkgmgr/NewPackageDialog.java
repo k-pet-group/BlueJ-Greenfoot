@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
 import java.awt.*;
@@ -14,7 +15,7 @@ import javax.swing.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewPackageDialog.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: NewPackageDialog.java 517 2000-05-25 07:58:59Z ajp $
  */
 class NewPackageDialog extends JDialog
     implements ActionListener
@@ -63,11 +64,6 @@ class NewPackageDialog extends JDialog
 			mainPanel.add(textFld);
 			mainPanel.add(Box.createVerticalStrut(5));
 
-/*			choicePanel.setMaximumSize(new Dimension(textFld.getMaximumSize().width,
-						choicePanel.getMaximumSize().height));
-			choicePanel.setPreferredSize(new Dimension(textFld.getPreferredSize().width,
-						choicePanel.getPreferredSize().height));
-*/
 			mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
 
 			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -136,12 +132,12 @@ class NewPackageDialog extends JDialog
     {
         newPackageName = textFld.getText().trim();
 
-        if (Utility.isIdentifier(newPackageName)) {
+        if (JavaNames.isIdentifier(newPackageName)) {
             ok = true;
             setVisible(false);
         }
         else {
-            DialogManager.showError((JFrame)this.getParent(), "invalid-name");
+            DialogManager.showError((JFrame)this.getParent(), "invalid-package-name");
             textFld.selectAll();
             textFld.requestFocus();
         }

@@ -4,6 +4,7 @@ import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 import bluej.utility.BlueJFileReader;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.JobQueue;
@@ -28,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 510 2000-05-25 02:43:49Z mik $
+ * @version $Id: Invoker.java 517 2000-05-25 07:58:59Z ajp $
  */
 
 public class Invoker extends Thread
@@ -107,7 +108,7 @@ public class Invoker extends Thread
             // in the case of a static method call, we use the class name as an
             // object name
             if(((MethodView)member).isStatic()) {
-                this.objName = Utility.stripPackagePrefix(member.getClassName());
+                this.objName = JavaNames.stripPrefix(member.getClassName());
             } else {
                 this.objName = objName;
             }
@@ -263,7 +264,7 @@ public class Invoker extends Thread
             buffer.append(instname + "\");" + Config.nl);
         }
         for(int i = 0; i < numArgs; i++) {
-            buffer.append("\t\t" + Utility.typeName(argTypes[i].getName()));
+            buffer.append("\t\t" + JavaNames.typeName(argTypes[i].getName()));
             buffer.append(" __bluej_param" + i);
             buffer.append(" = " + args[i]);
             buffer.append(";" + Config.nl);
@@ -435,7 +436,7 @@ public class Invoker extends Thread
 	      case Debugger.EXCEPTION:
 		  ExceptionDescription exc = Debugger.debugger.getException();
 		  String text =
-		      Utility.stripPackagePrefix(exc.getClassName());
+		      JavaNames.stripPrefix(exc.getClassName());
 		  if(exc.getText() != null)
 		      text += ":\n" + exc.getText();
 

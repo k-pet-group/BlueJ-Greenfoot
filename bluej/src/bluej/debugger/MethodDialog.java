@@ -4,6 +4,7 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -31,7 +32,7 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: MethodDialog.java 517 2000-05-25 07:58:59Z ajp $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchWatcher
@@ -269,7 +270,7 @@ public class MethodDialog extends JDialog
     private void setCallLabel(String instanceName, String methodName)
     {
         if (callLabel != null)
-            callLabel.setText(Utility.stripPackagePrefix(instanceName) +
+            callLabel.setText(JavaNames.stripPrefix(instanceName) +
                               "." + methodName + " (");
     }
 
@@ -484,7 +485,7 @@ public class MethodDialog extends JDialog
         paramNames = getParamNames();  // sets "emptyField"
 
         if(dialogType == MD_CREATE) {
-            if(!Utility.isIdentifier(getNewInstanceName())) {
+            if(!JavaNames.isIdentifier(getNewInstanceName())) {
                 setMessage(illegalNameMsg);
                 return;
             }

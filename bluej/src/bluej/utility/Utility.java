@@ -10,12 +10,13 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** Some generally useful utility methods available to all of bluej.
- ** $Id: Utility.java 472 2000-05-12 06:54:15Z bquig $
- ** @author Michael Cahill
- ** @author Justin Tan
- ** @author Michael Kolling
- **/
+ * Some generally useful utility methods available to all of bluej.
+ *
+ * @author  Michael Cahill
+ * @author  Justin Tan
+ * @author  Michael Kolling
+ * @version $Id: Utility.java 517 2000-05-25 07:58:59Z ajp $
+ */
 public class Utility
 {
     static final String browserCmd1 = Config.getPropString("browserCmd1");
@@ -45,7 +46,7 @@ public class Utility
         int ldy = (int)(thickness * Math.sin(perp)) / 2;
         int rdx = (int)(thickness * Math.cos(perp));
         int rdy = (int)(thickness * Math.sin(perp));
-		
+
         xPoints[0] = x1 - ldx;
         yPoints[0] = y1 + ldy;
         xPoints[1] = x2 - ldx;
@@ -75,21 +76,21 @@ public class Utility
         for(int offset = 0; offset < width + height; offset += separation)
             for(int i = 0; i < thickness; i++, offset++) {
                 int x1, y1, x2, y2;
-				
+
                 if(offset < height)
                     { x1 = x; y1 = y + offset; }
                 else
                     { x1 = x + offset - height; y1 = y + height; }
-				
+
                 if(offset < width)
                     { x2 = x + offset; y2 = y; }
                 else
                     { x2 = x + width; y2 = y + offset - width; }
-				
+
                 g.drawLine(x1, y1, x2, y2);
             }
     }
-	
+
     public static void drawCentredText(Graphics g, String str, int x, int y, int width, int height)
     {
         FontMetrics fm = g.getFontMetrics();
@@ -151,7 +152,7 @@ public class Utility
         int	start = 0;
         int len = str.length();
         int dlen = delimiter.length();
-        int offset = str.lastIndexOf(delimiter);		// First of all, find the         
+        int offset = str.lastIndexOf(delimiter);		// First of all, find the
         // Last occurance of the Delimiter
         // Stop empty delimiters
         if (dlen < 1)
@@ -161,7 +162,7 @@ public class Utility
             String[] result = { str };
             return result;
 	    }
-			
+
         //
         // Append the delimiter onto the end if it doesn't already exit
         //
@@ -169,22 +170,22 @@ public class Utility
             str += delimiter;
             len += dlen;
         }
-	
+
         do {
             // Get the new Offset
             offset = str.indexOf(delimiter,start);
             strings.addElement(str.substring(start,offset));
-			
+
             // Get the new Start position
             start = offset + dlen;
         } while ((start < len) && (offset != -1));
 
         // Convert the Vector into an Array of Strings
         String result[] = new String[strings.size()];
-        strings.copyInto(result);		
+        strings.copyInto(result);
         return result;
     }
-	
+
     /**
      ** Splits "string" into lines (stripping end-of-line characters)
      ** @param str - the string to be split
@@ -196,53 +197,21 @@ public class Utility
     }
 
     /**
-     * Check whether a string is a valid Java identifier
-     */
-    public static boolean isIdentifier(String str)
-    {
-        if (str.length() == 0)
-            return false;
-        if (! Character.isJavaIdentifierStart(str.charAt(0)))
-            return false;
-        for (int i=1; i < str.length(); i++)
-            if (! Character.isJavaIdentifierPart(str.charAt(i)))
-                return false;
-
-        return true;
-    }
-
-    /**
      * return a string in which all the '\' characters of the
      * original string are quoted ('\\').
      */
     public static String quoteSloshes(String src)
     {
         StringBuffer buf = new StringBuffer();
-		
+
         for(int i = 0; i < src.length(); i++)
             {
                 if(src.charAt(i) == '\\')
                     buf.append('\\');
                 buf.append(src.charAt(i));
             }
-		
+
         return buf.toString();
-    }
-
-    /**
-     * Strips package prefix's from full class name.
-     * 
-     * @return the stripped class name.
-     */
-    public static String stripPackagePrefix(String fullClassName)
-    {
-        if(fullClassName != null) {
-            int index = fullClassName.lastIndexOf(".");
-            if(index >= 0)
-                return fullClassName.substring(++index);
-        }
-
-        return fullClassName;
     }
 
     /**
@@ -309,54 +278,12 @@ public class Utility
     /**
      * merge strings in s2 into s1 at positions of '$'
      */
-    public static String mergeStrings (String s1, String s2[]) { 
+    public static String mergeStrings (String s1, String s2[]) {
 	    for (int current = 0; current < s2.length; current++) {
 		    s1 = mergeStrings(s1, s2[current]);
 	    }
-	    
+
 	    return s1;
-    }
-
-    /**
-     * typeName - a utility function to fix up Java class names. Class names
-     *  as returned by the Class.getName() functions are okay for non-array
-     *  classes (we don't need to do anything for them), but are in a funny
-     *  format for arrays. "String[]", for example, is shown as
-     *  "[Ljava.lang.String;". See the Class.getName() documentation for 
-     *  details. Here, we transform the array names into standard Java syntax.
-     */
-    public static String typeName(String className)
-    {
-        if( !(className.charAt(0) == '['))
-            return className;
-
-        String name = "";
-        while (className.startsWith("[")) {
-            className = className.substring(1);
-            name = name + "[]";
-        }
-        switch (className.charAt(0)) {
-	    case 'L' : name = className.substring(1, className.length()-1)
-                       + name;
-        break;
-	    case 'B' : name = "byte" + name;
-            break;
-	    case 'C' : name = "char" + name;
-            break;
-	    case 'D' : name = "double" + name;
-            break;
-	    case 'F' : name = "float" + name;
-            break;
-	    case 'I' : name = "int" + name;
-            break;
-	    case 'J' : name = "long" + name;
-            break;
-	    case 'S' : name = "short" + name;
-            break;
-	    case 'Z' : name = "boolean" + name;
-            break;
-        }
-        return name;
     }
 
     /**
@@ -377,14 +304,14 @@ public class Utility
                     buffer.deleteCharAt(i);
                     // calculate how many spaces to add
                     int numberOfSpaces = tabSize - (i % tabSize);
-                    for(int j = 0; j < numberOfSpaces; j++)  
+                    for(int j = 0; j < numberOfSpaces; j++)
                         buffer.insert(i, ' ');
                 }
             }
             return buffer.toString();
         }
-        else 
+        else
             return originalString;
     }
 
-}	
+}

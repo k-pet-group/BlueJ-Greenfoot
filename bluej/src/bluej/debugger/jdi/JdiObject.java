@@ -3,6 +3,7 @@ package bluej.debugger.jdi;
 import bluej.debugger.DebuggerObject;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 
 import java.util.List;
 import java.util.Vector;
@@ -13,7 +14,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 370 2000-01-17 03:01:18Z mik $
+ * @version $Id: JdiObject.java 517 2000-05-25 07:58:59Z ajp $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -288,7 +289,7 @@ public class JdiObject extends DebuggerObject
                         fieldString = "public ";
                 }
 
-                fieldString += Utility.stripPackagePrefix(field.typeName())
+                fieldString += JavaNames.stripPrefix(field.typeName())
                                                             + " " + field.name()
                                                             + " = " + valString;
 

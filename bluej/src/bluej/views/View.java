@@ -17,7 +17,7 @@ import java.util.*;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: View.java 517 2000-05-25 07:58:59Z ajp $
  */
 public class View
 {
@@ -424,7 +424,7 @@ public class View
                             primtype = primtype.getComponentType();
                         }
                     StringBuffer sb = new StringBuffer();
-                    sb.append(Utility.stripPackagePrefix(primtype.getName()));
+                    sb.append(JavaNames.stripPrefix(primtype.getName()));
                     for (int i = 0; i < dimensions; i++)
                         sb.append("[]");
                     return sb.toString();
@@ -432,7 +432,7 @@ public class View
                     // ignore it
                 }
             }
-        return Utility.stripPackagePrefix(type.getName());
+        return JavaNames.stripPrefix(type.getName());
     }
 
     public int getInstanceNum()

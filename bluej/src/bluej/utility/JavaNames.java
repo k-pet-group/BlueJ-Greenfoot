@@ -13,7 +13,7 @@ import javax.swing.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: JavaNames.java 517 2000-05-25 07:58:59Z ajp $
  */
 public class JavaNames
 {
@@ -68,6 +68,16 @@ public class JavaNames
         }
 
         return fullClassName;
+    }
+
+    public static String stripSuffix(String name, String suffix)
+    {
+        int s = name.lastIndexOf(suffix);
+
+        if(s > 0)
+            return name.substring(0, s);
+        else
+            return name;
     }
 
     /**
@@ -144,15 +154,5 @@ public class JavaNames
             break;
         }
         return name;
-    }
-
-    public static String stripSuffix(String name, String suffix)
-    {
-        int s = name.lastIndexOf(suffix);
-
-        if(s > 0)
-            return name.substring(0, s);
-        else
-            return name;
     }
 }

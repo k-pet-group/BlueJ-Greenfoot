@@ -5,6 +5,7 @@ import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
 import java.awt.*;
@@ -21,7 +22,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 505 2000-05-24 05:44:24Z ajp $
+ ** @version $Id: ObjectViewer.java 517 2000-05-25 07:58:59Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -500,7 +501,7 @@ public final class ObjectViewer extends JFrame
 	String className = "";
 
 	if(isInspection) {
-	    className = Utility.stripPackagePrefix(obj.getClassName());
+	    className = JavaNames.stripPrefix(obj.getClassName());
 	    //className = obj.getClassName();
 	    setTitle(inspectTitle + " " + className);
 	}
