@@ -8,13 +8,14 @@ import bluej.views.*;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
+import java.util.*;
 
 /**
  * A wrapper for a BlueJ class. 
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1977 2003-05-22 10:25:47Z damiano $
+ * @version $Id: BClass.java 1978 2003-05-22 11:12:00Z damiano $
  */
 
 public class BClass
@@ -91,29 +92,70 @@ public class BClass
         return aTarget.isCompiled();
     }
 
+
+    /**
+     * Utility. Finds the package name given a fully qualified name
+     * If no package exist then an EMPTY string is retrned.
+     */
+    private String findPkgName ( String fullyQualifiedName )
+      {
+      if ( fullyQualifiedName == null ) return "";
+
+      int dotIndex = fullyQualifiedName.lastIndexOf(".");
+      // If there is no package name to be found return an empty one.
+      if ( dotIndex <  0 ) return "";
+
+      return fullyQualifiedName.substring(0,dotIndex);
+      }
+
     /**
      * Returns the superclass of this class.
      * Similar to reflection API.
-     * ============ NEEDS TESTING ======================
+     * If this <code>Class</code> represents either the Object class, an interface, 
+     * a primitive type, or void, then null is returned.
+     * If this <code>Class</code> cannot be referret to a package of this project then 
+     * null is returned.
      */
     public BClass getSuperclass() 
       throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
+      // Tested 22 may 2003, Damiano
       {
-      // This method is needed otherwise you cannot get a superclass of this BClass.
+      Project bluejPrj = classId.getBluejProject();
 
       View bluejView = classId.getBluejView();
-        
       View superView = bluejView.getSuper();
-        
+
+      // If this <code>Class</code> represents either the Object class, an interface, 
+      // a primitive type, or void, then null is returned
       if ( superView == null ) return null;
 
-      // WARNING: This is most likely wrong !
-      Project bluejPrj = classId.getBluejProject();
-      // WARNING: This is most likely wrong !
-      Package bluejPkg = classId.getBluejPackage();
-      String  className = superView.getQualifiedName();
-        
-      return new BClass (new Identifier (bluejPrj, bluejPkg, className ));
+      // The class exists, is it part of this project ?
+      Class aTest = bluejPrj.loadClass(superView.getQualifiedName());
+      // Really strange, a superclass  that is not part of this project classloader...
+      if ( aTest == null ) return null;
+
+      String classPkgName = findPkgName ( superView.getQualifiedName());
+      System.out.println ("Parent="+classPkgName);
+      
+      // Now I need to find out to what package it belongs to...
+      boolean foundPackageMatch=false;
+      List pkgList = bluejPrj.getPackageNames();
+      for ( Iterator iter=pkgList.iterator(); iter.hasNext(); )
+        {
+        if ( ! classPkgName.equals(iter.next()) ) continue;
+        // Fount it, remembar that we found it and get out.
+        foundPackageMatch = true;
+        break;
+        }
+
+      // There is no point to return a BClass whose package does not match..
+      // Things would just fall here and there...
+      if ( ! foundPackageMatch ) return null;
+
+      // Let me get the package I want now...
+      Package bluejPkg = bluejPrj.getPackage(classPkgName);
+      
+      return new BClass (new Identifier (bluejPrj, bluejPkg, superView.getQualifiedName() ));
       }
     
     /**
