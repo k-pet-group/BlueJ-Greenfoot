@@ -9,7 +9,11 @@ import bluej.pkgmgr.target.PackageTarget;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
 
-
+/**
+ * Paints a packageTarget
+ * @author fisker
+ * @version $Id: PackageTargetPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ */
 public class PackageTargetPainter
 {
     private static final int TAB_HEIGHT = 12;

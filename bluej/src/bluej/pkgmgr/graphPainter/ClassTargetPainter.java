@@ -7,7 +7,11 @@ import bluej.Config;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
-
+/**
+ * Paints a ClassTarget
+ * @author fisker
+ * @version $Id: ClassTargetPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ */
 
 public class ClassTargetPainter
 {

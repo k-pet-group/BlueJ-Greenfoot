@@ -7,7 +7,11 @@ import bluej.Config;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.DependentTarget;
 
-
+/**
+ * Paints usesDependencies
+ * @author fisker
+ * @version $Id: UsesDependencyPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ */
 public class UsesDependencyPainter
 {
     protected static final float strokeWithDefault = 1.0f;

@@ -2,6 +2,11 @@ package bluej.pkgmgr.graphPainter;
 
 import java.awt.*;
 
+/**
+ * Contains constants used by TargetPainters
+ * @author fisker
+ * @version $Id: TargetPainterConstants.java 2475 2004-02-10 09:53:59Z fisker $
+ */
 public class TargetPainterConstants
 {
 	private TargetPainterConstants(){}// prevent instantiation

@@ -12,7 +12,11 @@ import bluej.pkgmgr.target.*;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.Package;
 
-
+/**
+ * Paints a Graph using TargetPainters
+ * @author fisker
+ * @version $Id: GraphPainterStdImpl.java 2475 2004-02-10 09:53:59Z fisker $
+ */
 public class GraphPainterStdImpl implements GraphPainter
 {
     /**

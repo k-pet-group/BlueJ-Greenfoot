@@ -1,9 +1,9 @@
 package bluej.graph;
 
 /**
- * @author fisker
  * Implemented by GraphElements that is selectable
- * @version $Id: Selectable.java 2474 2004-02-10 09:40:47Z fisker $
+ * @author fisker
+ * @version $Id: Selectable.java 2475 2004-02-10 09:53:59Z fisker $
  */
 public interface Selectable {
     //selection

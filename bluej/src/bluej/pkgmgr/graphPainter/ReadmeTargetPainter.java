@@ -6,6 +6,11 @@ import java.awt.Graphics2D;
 import bluej.pkgmgr.target.*;
 import bluej.pkgmgr.target.ReadmeTarget;
 
+/**
+ * Paints a ReadmeTarget
+ * @author fisker
+ * @version $Id: ReadmeTargetPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ */
 public class ReadmeTargetPainter
 {
     static final int CORNER_SIZE = 10;
