@@ -2,14 +2,17 @@ package bluej.views;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.Map;
 
+import bluej.debugger.gentype.GenType;
 import bluej.utility.JavaUtils;
 
 /**
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2636 2004-06-20 11:03:55Z polle $
+ *  @version $Id: MethodView.java 2655 2004-06-24 05:53:55Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -82,7 +85,21 @@ public class MethodView extends CallableView implements Comparable
         return method.getParameterTypes();
     }
     
-    public String[] getParamTypes() 
+    public GenType[] getParamTypes()
+    {
+        JavaUtils jutils = JavaUtils.getJavaUtils();
+        GenType [] ptypes = jutils.getParamGenTypes(method);
+        
+        // Now map the generic method type parameters to their base types
+        List tparams = jutils.getTypeParams(method);
+        Map tpmap = JavaUtils.TParamsToMap(tparams);
+        for(int i=0; i < ptypes.length; i++) {
+            ptypes[i] = ptypes[i].mapTparsToTypes(tpmap);
+        }
+        return ptypes;
+    }
+    
+    public String[] getParamTypeStrings() 
     {
         return JavaUtils.getJavaUtils().getParameterTypes(method);
     }

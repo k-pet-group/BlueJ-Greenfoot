@@ -15,7 +15,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2650 2004-06-22 02:34:36Z bquig $
+ * @version $Id: JavaUtils.java 2655 2004-06-24 05:53:55Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -131,6 +131,17 @@ public abstract class JavaUtils {
     abstract public String[] getParameterTypes(Method method);
     
     /**
+     * Get an array containing the argument types of the method.
+     * 
+     * In the case of a varargs method, the last argument will be an array
+     * type.
+     * 
+     * @param method  the method whose argument types to get
+     * @return  the argument types
+     */
+    abstract public GenType[] getParamGenTypes(Method method);
+    
+    /**
      * Gets an array of nicely formatted strings with the types of the parameters.
      * Include the ellipsis (...) for a varargs constructor.
      * 
@@ -138,6 +149,17 @@ public abstract class JavaUtils {
      */
     abstract public String[] getParameterTypes(Constructor constructor);
     
+    /**
+     * Get an array containing the argument types of the method.
+     * 
+     * In the case of a varargs method, the last argument will be an array
+     * type.
+     * 
+     * @param method  the method whose argument types to get
+     * @return  the argument types
+     */
+    abstract public GenType[] getParamGenTypes(Constructor constructor);
+
     /**
      * Change a list of type parameters (with bounds) into a map, which maps
      * the name of the parameter to its bounding type.
@@ -150,7 +172,7 @@ public abstract class JavaUtils {
         Map rmap = new HashMap();
         for( Iterator i = tparams.iterator(); i.hasNext(); ) {
             GenTypeDeclTpar n = (GenTypeDeclTpar)i.next();
-            rmap.put(n.getTparName(), n.getBound());
+            rmap.put(n.getTparName(), n.getBound().mapTparsToTypes(rmap));
         }
         return rmap;
     }

@@ -1,49 +1,22 @@
 package bluej.debugmgr;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.GenTypeArray;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.ComponentFactory;
-import bluej.utility.GrowableBox;
-import bluej.utility.JavaNames;
-import bluej.utility.MultiLineLabel;
-import bluej.views.CallableView;
-import bluej.views.ConstructorView;
-import bluej.views.MethodView;
-import bluej.views.TypeParamView;
-import bluej.views.View;
+import bluej.utility.*;
+import bluej.views.*;
 
 
 /**
@@ -55,7 +28,7 @@ import bluej.views.View;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2638 2004-06-20 12:06:37Z polle $
+ * @version $Id: MethodDialog.java 2655 2004-06-24 05:53:55Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -125,7 +98,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2638 2004-06-20 12:06:37Z polle $
+     * @version $Id: MethodDialog.java 2655 2004-06-24 05:53:55Z davmac $
      */
     public static class ParameterList
     {
@@ -430,6 +403,37 @@ public class MethodDialog extends CallDialog implements FocusListener
     }
 
     /**
+     * getArgTypes - Get an array with the classes of the parameters for this
+     * method. "null" if there are no parameters. <br>
+     * If varArgsExpanded is set to true, the varargs will be expanded to the
+     * number of variable arguments that have been typed into the dialog. For
+     * instance, if the only argument is a vararg of type String and two strings
+     * has been typed in, this method will return an array of two String
+     * classes.
+     * 
+     * @param varArgsExpanded
+     *            if set to true, varargs will be expanded.
+     */
+    public GenType[] getArgGenTypes(boolean varArgsExpanded)
+    {
+        GenType[] params = method.getParamTypes();
+        boolean hasVarArgs = method.isVarArgs() && parameterList != null
+                && parameterList.size() >= params.length;
+        if (hasVarArgs && varArgsExpanded) {
+            int totalParams = parameterList.size();
+            GenType[] allParams = new GenType[totalParams];
+            System.arraycopy(params, 0, allParams, 0, params.length);
+            GenType varArgType = ((GenTypeArray)params[params.length - 1]).getBaseType();
+            for (int i = params.length - 1; i < totalParams; i++) {
+                allParams[i] = varArgType;
+            }
+            return allParams;
+        } else {
+            return params;
+        }
+    }
+    
+    /**
      * Workaround for udating model problems with JComboBox.
      * Updates CallHistory and resets model to updated Vectors.  Ugly and
      * brutal but corrects problems with JComboBox update problems.
@@ -705,7 +709,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     {
         Class[] paramClasses = getArgTypes(false);
         String[] paramNames = method.getParamNames();
-        String[] paramTypes = method.getParamTypes();
+        String[] paramTypes = method.getParamTypeStrings();
 
         parameterList = new ParameterList(paramClasses.length, method.isVarArgs());
         for (int i = 0; i < paramTypes.length; i++) {

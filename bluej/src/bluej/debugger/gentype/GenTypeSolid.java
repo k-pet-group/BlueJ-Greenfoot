@@ -7,14 +7,9 @@ import java.util.Map;
  * a component type for a wildcard clause.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSolid.java 2615 2004-06-16 07:01:33Z davmac $
+ * @version $Id: GenTypeSolid.java 2655 2004-06-24 05:53:55Z davmac $
  */
 public abstract class GenTypeSolid extends GenTypeParameterizable {
-
-    /**
-     * @see bluej.debugger.gentype.GenTypeParameterizable#mapTparsToTypes(java.util.Map)
-     */
-    public abstract GenTypeParameterizable mapTparsToTypes(Map tparams);
 
     /**
      * @see bluej.debugger.gentype.GenTypeParameterizable#equals(bluej.debugger.gentype.GenTypeParameterizable)

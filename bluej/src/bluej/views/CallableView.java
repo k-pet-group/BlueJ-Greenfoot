@@ -1,5 +1,7 @@
 package bluej.views;
 
+import bluej.debugger.gentype.GenType;
+
 /**
  * A "callable" is the generalisation of a Constructor and a Method. This class
  * contains aspects common to both of those.
@@ -46,10 +48,23 @@ public abstract class CallableView extends MemberView
     }
 
     /**
-     * Get an array of Class objects representing parameters
-     * @returns array of Class objects
+     * Get an array of Class objects representing parameter classes
+     * @return  array of Class objects
      */
     public abstract Class[] getParameters();
+    
+    /**
+     * Get an array of GenType objects representing parameter types. For a
+     * generic method the types returned will be the base type of any type
+     * parameters, rather than the type parameters themselves.<p>
+     * 
+     * For instance, <code>&lt;T extends Object&gt; T genMethod(T a)</code><p>
+     * 
+     * ... would return Object as the type parameter. 
+     * 
+     * @return  the parameter types
+     */
+    public abstract GenType[] getParamTypes();
 
     /**
      * Gets an array of strings with the names of the parameters
@@ -66,5 +81,5 @@ public abstract class CallableView extends MemberView
     /**
      * Gets an array of nicely formatted strings with the types of the parameters 
      */
-    public abstract String[] getParamTypes();
+    public abstract String[] getParamTypeStrings();
 }

@@ -1,10 +1,12 @@
 package bluej.debugger.gentype;
 
+import java.util.Map;
+
 /*
  * "short" primitive type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeShort.java 2615 2004-06-16 07:01:33Z davmac $
+ * @version $Id: GenTypeShort.java 2655 2004-06-24 05:53:55Z davmac $
  */
 public class GenTypeShort implements GenType
 {
@@ -21,5 +23,10 @@ public class GenTypeShort implements GenType
     public boolean isPrimitive()
     {
         return true;
+    }
+    
+    public GenType mapTparsToTypes(Map tparams)
+    {
+        return this;
     }
 }

@@ -29,7 +29,7 @@ public class GenTypeTpar extends GenTypeSolid
         return name.equals(((GenTypeTpar)other).name);
     }
     
-    public GenTypeParameterizable mapTparsToTypes(Map tparams)
+    public GenType mapTparsToTypes(Map tparams)
     {
         GenTypeParameterizable newType = (GenTypeParameterizable)tparams.get(name);
         if( newType == null )

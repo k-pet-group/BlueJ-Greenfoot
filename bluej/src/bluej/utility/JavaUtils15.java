@@ -11,7 +11,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2645 2004-06-22 01:03:12Z davmac $
+ * @version $Id: JavaUtils15.java 2655 2004-06-24 05:53:55Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -168,6 +168,16 @@ public class JavaUtils15 extends JavaUtils {
         return getParameterTypes(params, isVarArgs);
     }
     
+    public GenType[] getParamGenTypes(Method method)
+    {
+        Type [] params = method.getGenericParameterTypes();
+        GenType [] gentypes = new GenType[params.length];
+        for(int i = 0; i < params.length; i++) {
+            gentypes[i] = genTypeFromType(params[i]);
+        }
+        return gentypes;
+    }
+
     public String[] getParameterTypes(Constructor constructor) 
     {
         Type [] params = constructor.getGenericParameterTypes();
@@ -175,6 +185,16 @@ public class JavaUtils15 extends JavaUtils {
         return getParameterTypes(params, isVarArgs);
     }
 
+    public GenType[] getParamGenTypes(Constructor constructor)
+    {
+        Type [] params = constructor.getGenericParameterTypes();
+        GenType [] gentypes = new GenType[params.length];
+        for(int i = 0; i < params.length; i++) {
+            gentypes[i] = genTypeFromType(params[i]);
+        }
+        return gentypes;
+    }
+    
     /* -------------- Internal methods ---------------- */
     
     /**

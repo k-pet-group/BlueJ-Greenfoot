@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2651 2004-06-22 05:24:56Z davmac $
+ * @version $Id: GenTypeClass.java 2655 2004-06-24 05:53:55Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -239,7 +239,7 @@ public class GenTypeClass extends GenTypeSolid {
      *                 name (String) to its actual type (GenType).
      * @return the corresponding type structure, with parameters mapped.
      */
-    public GenTypeParameterizable mapTparsToTypes(Map tparams)
+    public GenType mapTparsToTypes(Map tparams)
     {
         // If there are no generic parameters, there's nothing to map...
         if( params == null )

@@ -12,7 +12,7 @@ import bluej.debugger.gentype.*;
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils14.java 2645 2004-06-22 01:03:12Z davmac $
+ * @version $Id: JavaUtils14.java 2655 2004-06-24 05:53:55Z davmac $
  */
 public class JavaUtils14 extends JavaUtils {
 
@@ -112,10 +112,31 @@ public class JavaUtils14 extends JavaUtils {
         return getParameterTypes(params);
     }
     
+    public GenType[] getParamGenTypes(Method method)
+    {
+        Class [] params = method.getParameterTypes();
+        GenType [] gentypes = new GenType[params.length];
+        for(int i = 0; i < params.length; i++) {
+            gentypes[i] = genTypeFromClass(params[i]);
+        }
+        return gentypes;
+    }
+
+    
     public String[] getParameterTypes(Constructor constructor) 
     {        
         Class [] params = constructor.getParameterTypes();
         return getParameterTypes(params);
+    }
+
+    public GenType[] getParamGenTypes(Constructor constructor)
+    {
+        Class [] params = constructor.getParameterTypes();
+        GenType [] gentypes = new GenType[params.length];
+        for(int i = 0; i < params.length; i++) {
+            gentypes[i] = genTypeFromClass(params[i]);
+        }
+        return gentypes;
     }
 
     /* ------------- Internal methods --------------- */

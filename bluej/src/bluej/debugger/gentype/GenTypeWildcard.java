@@ -10,7 +10,7 @@ import java.util.Map;
  * can deduce the type of some object to be this.
  *
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 2615 2004-06-16 07:01:33Z davmac $
+ * @version $Id: GenTypeWildcard.java 2655 2004-06-24 05:53:55Z davmac $
  */
 class GenTypeWildcard extends GenTypeParameterizable
 {
@@ -62,14 +62,14 @@ class GenTypeWildcard extends GenTypeParameterizable
         return new GenTypeWildcard(myUpper.upperBound, myLower.lowerBound);
     }
     
-    public GenTypeParameterizable mapTparsToTypes(Map tparams)
+    public GenType mapTparsToTypes(Map tparams)
     {
         GenTypeParameterizable newUpper = null;
         GenTypeParameterizable newLower = null;
         if( upperBound != null )
-            newUpper = upperBound.mapTparsToTypes(tparams);
+            newUpper = (GenTypeParameterizable)upperBound.mapTparsToTypes(tparams);
         if( lowerBound != null )
-            newLower = lowerBound.mapTparsToTypes(tparams);
+            newLower = (GenTypeParameterizable)lowerBound.mapTparsToTypes(tparams);
         
         return new GenTypeWildcard((GenTypeSolid)newUpper, (GenTypeSolid)newLower);
     }

@@ -14,7 +14,7 @@ import bluej.views.CallableView;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Clive Miller, University of Kent at Canterbury, 2002
  * 
- * @version $Id: DirectInvoker.java 2544 2004-05-24 08:56:02Z polle $
+ * @version $Id: DirectInvoker.java 2655 2004-06-24 05:53:55Z davmac $
  */
 class DirectInvoker
 {
@@ -42,7 +42,7 @@ class DirectInvoker
             throw new InvocationArgumentException ("invokeConstructor: bad arglist");
 
         DirectResultWatcher watcher = new DirectResultWatcher();
-        Invoker invoker = new Invoker (pkgFrame, callable, null, watcher);
+        Invoker invoker = new Invoker (pkgFrame, callable, (String)null, watcher);
         invoker.invokeDirect ( convObjToString(args) );
 
         // this will wait() on the invoke to finish

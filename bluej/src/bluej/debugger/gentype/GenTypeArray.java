@@ -14,4 +14,9 @@ public class GenTypeArray extends GenTypeClass
     {
         return baseType.toString(stripPrefix) + "[]";
     }
+    
+    public GenType getBaseType()
+    {
+        return baseType;
+    }
 }

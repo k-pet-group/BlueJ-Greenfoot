@@ -11,6 +11,7 @@ import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
+import bluej.debugger.gentype.GenType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -27,7 +28,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2651 2004-06-22 05:24:56Z davmac $
+ * @version $Id: Invoker.java 2655 2004-06-24 05:53:55Z davmac $
  */
 
 public class Invoker extends Thread
@@ -59,6 +60,7 @@ public class Invoker extends Thread
     private CallableView member;
     private String shellName;
     private String objName;
+    private Map typeMap;    // map type parameter names to types
 
     /**
      * The instance name for any object we create.
@@ -180,6 +182,58 @@ public class Invoker extends Thread
    }
 
     /**
+     * Call an instance method on an object
+     *
+     * @param pmf       the frame of the package we are working on
+     * @param member    the member to invoke
+     * @param objWrapper   the object to invoke the method on
+     * @param watcher   an object interested in the result of the invocation
+     */
+    public Invoker(PkgMgrFrame pmf, CallableView member, ObjectWrapper objWrapper,
+                   ResultWatcher watcher)
+    {
+        if(pmf.isEmptyFrame())
+            throw new IllegalArgumentException();
+
+        if(watcher == null)
+            throw new NullPointerException("Invoker: watcher == null");
+            
+        this.pmf = pmf;
+        this.pkg = pmf.getPackage();
+        this.member = member;
+        this.watcher = watcher;
+
+        this.shellName = getShellName();
+
+        // in the case of a constructor, we need to construct an object name
+        if(member instanceof ConstructorView) {
+
+            this.objName = pmf.getProject().getDebugger().guessNewName(member.getClassName());
+
+            constructing = true;
+            executionEvent = ExecutionEvent.createConstructor(member.getClassName());
+        }
+        else if(member instanceof MethodView) {
+
+            // in the case of a static method call, we use the class name as an
+            // object name
+            if(((MethodView)member).isStatic()) {
+                this.objName = JavaNames.stripPrefix(member.getClassName());
+                executionEvent = ExecutionEvent.createStaticMethod(objName);
+            } else {
+                this.objName = objWrapper.getName();
+                this.typeMap = objWrapper.getObject().getGenericParams();
+                executionEvent = ExecutionEvent.createObjectMethod(objName);
+            }
+
+            constructing = false;
+        }
+        else
+            Debug.reportError("illegal member type in invocation");
+        executionEvent.setPackage(pkg);
+   }
+    
+    /**
      * Open a dialog to get further information about the requested invocation.
      * When the dialog is complete, it will call methodDialogEvent.
      */
@@ -258,7 +312,7 @@ public class Invoker extends Thread
             if(dlg instanceof MethodDialog) {
                 MethodDialog mDialog = (MethodDialog)dlg;
                 instanceName = mDialog.getNewInstanceName();                
-                doInvocation(mDialog.getArgs(), mDialog.getArgTypes(true), mDialog.getTypeParams());
+                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true), mDialog.getTypeParams());
                 pmf.setWaitCursor(true);
                 if(constructing)
                     pkg.setStatus(creating);
@@ -284,7 +338,7 @@ public class Invoker extends Thread
         if (instanceName == null) 
         		instanceName = objName;
 
-        doInvocation(params, member.getParameters(), null);
+        doInvocation(params, member.getParamTypes(), null);
     }
     
     /**
@@ -301,7 +355,7 @@ public class Invoker extends Thread
      * while "endCompile" will be executed by the CompilerThread.
      * 
      */
-    protected void doInvocation(String[] args, Class[] argTypes, String[] typeParams)
+    protected void doInvocation(String[] args, GenType[] argTypes, String[] typeParams)
     {
         //TODO support type parameters when constructing.
         //check all calls to doInvocation to see where it makes sense to add typeParams
@@ -328,7 +382,14 @@ public class Invoker extends Thread
         
         StringBuffer buffer = new StringBuffer();
         for(int i = 0; i < numArgs; i++) {
-            buffer.append(cleverQualifyTypeName(pkg, argTypes[i].getName()));
+            // TODO cleverQualifyTypeName doesn't really work with generic types
+            //      - use some other way.
+            GenType argType;
+            if(typeMap != null)
+                argType = argTypes[i].mapTparsToTypes(typeMap);
+            else
+                argType = argTypes[i];
+            buffer.append(cleverQualifyTypeName(pkg, argType.toString()));
             buffer.append(" __bluej_param" + i);
             buffer.append(" = " + args[i]);
             buffer.append(";" + Config.nl);
@@ -514,7 +575,9 @@ public class Invoker extends Thread
             buffer.append(gtype.getParamString());
             
             buffer.append( " " + instname + " = ");
-            buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
+            buffer.append("(" + type);
+            buffer.append(gtype.getParamString());
+            buffer.append(")__bluej_runtime_scope.get(\"");
             buffer.append(instname + "\");" + Config.nl);
         }
         String scopeInit = buffer.toString();
@@ -645,7 +708,7 @@ public class Invoker extends Thread
     private void deleteShellFiles()
     {
         File srcFile = new File(pkg.getPath(), shellName + ".java");
-		srcFile.delete();
+        srcFile.delete();
 
         File classFile = new File(pkg.getPath(), shellName + ".class");
         classFile.delete();

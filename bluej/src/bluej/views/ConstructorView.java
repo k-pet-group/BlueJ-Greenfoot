@@ -2,12 +2,13 @@ package bluej.views;
 
 import java.lang.reflect.Constructor;
 
+import bluej.debugger.gentype.GenType;
 import bluej.utility.JavaUtils;
 
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 2636 2004-06-20 11:03:55Z polle $
+ * @version $Id: ConstructorView.java 2655 2004-06-24 05:53:55Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -76,10 +77,15 @@ public final class ConstructorView extends CallableView
         return cons.getParameterTypes();
     }
     
-    public String[] getParamTypes() 
+    public String[] getParamTypeStrings() 
     {
         return JavaUtils.getJavaUtils().getParameterTypes(cons);
-    }    
+    }
+    
+    public GenType[] getParamTypes()
+    {
+        return JavaUtils.getJavaUtils().getParamGenTypes(cons);
+    }
 
     /**
      * Whether this method has a var arg.

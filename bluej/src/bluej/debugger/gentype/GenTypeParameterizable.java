@@ -17,7 +17,7 @@ public abstract class GenTypeParameterizable implements GenType
      * @param tparams  A map of (String name -> GenType type).
      * @return  An equivalent type with parameters mapped.
      */
-    abstract public GenTypeParameterizable mapTparsToTypes(Map tparams);
+    abstract public GenType mapTparsToTypes(Map tparams);
     
     abstract public boolean equals(GenTypeParameterizable other);
     

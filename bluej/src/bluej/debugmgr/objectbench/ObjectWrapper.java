@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2651 2004-06-22 05:24:56Z davmac $
+ * @version $Id: ObjectWrapper.java 2655 2004-06-24 05:53:55Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -611,7 +611,7 @@ public class ObjectWrapper extends JComponent
             }              
         };
 
-        Invoker invoker = new Invoker(pmf, method, getName(), watcher);
+        Invoker invoker = new Invoker(pmf, method, this, watcher);
         invoker.invokeInteractive();
     }
     

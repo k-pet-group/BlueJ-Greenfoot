@@ -1,11 +1,16 @@
 package bluej.extensions.event;
 
 import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.*;
-import bluej.debugmgr.objectbench.*;
-import bluej.extensions.*;
-import bluej.pkgmgr.*;
-import com.sun.jdi.*;
+import bluej.debugger.gentype.GenType;
+import bluej.debugmgr.ExecutionEvent;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.BPackage;
+import bluej.extensions.ExtensionBridge;
+import bluej.pkgmgr.PkgMgrFrame;
+
+import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ReferenceType;
 
 
 
@@ -16,7 +21,7 @@ import com.sun.jdi.*;
  * From this event you can extract the actual result of the invocation, and access the BlueJ
  * classes and objects involved.
  * 
- * @version $Id: InvocationEvent.java 2147 2003-08-04 20:36:21Z iau $
+ * @version $Id: InvocationEvent.java 2655 2004-06-24 05:53:55Z davmac $
  */
 
 /*
@@ -46,7 +51,7 @@ public class InvocationEvent implements ExtensionEvent
     public static final int TERMINATED_EXIT = 4;
 
     private String className, objectName, methodName;
-    private Class[] signature;
+    private GenType[] signature;
     private String[] parameters;
     private int invocationStatus;
     private bluej.pkgmgr.Package bluej_pkg;
@@ -128,7 +133,7 @@ public class InvocationEvent implements ExtensionEvent
     /**
      * Returns the signature of the invoked method or constructor.
      */
-    public Class[] getSignature()
+    public GenType[] getSignature()
     {
         return signature;
     }

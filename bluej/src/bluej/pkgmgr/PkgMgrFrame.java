@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2612 2004-06-14 20:36:28Z mik $
+ * @version $Id: PkgMgrFrame.java 2655 2004-06-24 05:53:55Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1358,7 +1358,7 @@ public class PkgMgrFrame extends JFrame
 
         // create an Invoker to handle the actual invocation
 
-        new Invoker(this, cv, null, watcher).invokeInteractive();
+        new Invoker(this, cv, (String)null, watcher).invokeInteractive();
     }
 
     /**
