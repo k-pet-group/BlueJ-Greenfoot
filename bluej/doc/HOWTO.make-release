@@ -1,7 +1,7 @@
 How to make a BlueJ release                    (last update 31.08.2001, mik)
 ---------------------------
 
- 1. Set the right BlueJ version number in bluej/src/bluej/Main.java
+ 1. Set the right BlueJ version number in bluej/boot/src/bluej/Boot.java
 
  2. Compile and build the release with:  ant dist
     (make sure the JDK version used for the build is the lowest

@@ -18,7 +18,8 @@ OR:
 ---
 Start Jar Bundler
 
-- Set main class to bluej.Main
+- Set main class to bluej.Boot
+- set JVM Version to 1.4+
 - choose icon (Programming/BlueJ/BlueJ-icon/bluej.icns)
 - Add all bluej/lib files (not directories) to "Additional Files" section
 - Set the following properties:
