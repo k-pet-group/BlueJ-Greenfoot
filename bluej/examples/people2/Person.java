@@ -2,7 +2,7 @@
  * A person class for a simple BlueJ demo program. Person is used as
  * an abstract superclass of more specific person classes.
  *
- * @author:  Michael Kšlling
+ * @author:  Michael Kolling
  * @version: 1.0, January 1999
  */
 
