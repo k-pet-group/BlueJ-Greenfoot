@@ -17,7 +17,7 @@ import sun.misc.*;
  * @author  Andrew Patterson
  * @author  Damiano Bolla
  * @author  Michael Kolling
- * @version $Id: Boot.java 2254 2003-11-04 14:37:49Z mik $
+ * @version $Id: Boot.java 2261 2003-11-05 02:48:00Z ajp $
  */
 public class Boot
 {
@@ -49,7 +49,7 @@ public class Boot
     // The first lot are the ones to run BlueJ itself
     private static String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
                                           "antlr.jar", "MRJ141Stubs.jar", "MRJToolkitStubs.zip" };
-    // The second group are available to user code
+    // The second group are available to user code (and to bluej)
     private static String[] bluejUserJars = { "junit.jar" };
     
     private static boolean useClassesDir = false;
@@ -236,23 +236,32 @@ public class Boot
      *
      * @return    the path of the BlueJ lib directory
      */
-	private File calculateBluejLibDir() {
+	private File calculateBluejLibDir()
+    {
+        File bluejDir = null;
 		String bootFullName = getClass().getResource("Boot.class").getFile();
 
 		// Assuming the class is in a jar file, '!' separates the jar file name from the class name.		
 		int classIndex = bootFullName.indexOf("!");
 		String bootName = null;
 		if (classIndex < 0) {
-			//Boot.class is not in a jar-file. Use the DIR containing Boot.class
-			bootName = (new File(bootFullName).getParent());			
+			// Boot.class is not in a jar-file. Find a lib directory somewhere
+            // above us to use
+            File startingDir = (new File(bootFullName).getParentFile());
+
+            while(!(new File(startingDir.getParentFile(), "lib").isDirectory()))
+                startingDir = startingDir.getParentFile();
+            
+            bluejDir = new File(startingDir.getParentFile(), "lib");			
 		} else {
 			//It was in a jar. Cut of the class name
 			bootName = bootFullName.substring(0, classIndex);
 			bootName = getURLPath(bootName);
+
+            File finalFile = new File(bootName);
+            bluejDir = finalFile.getParentFile();
 		}	
 		
-		File finalFile = new File(bootName);
-		File bluejDir = finalFile.getParentFile();
 		return bluejDir;
 	}
 
@@ -271,12 +280,12 @@ public class Boot
         return java.net.URLDecoder.decode(url);
         
         //replace with the following when we go to jdk 1.4
-//        try {
-//            return java.net.URLDecoder.decode(url, "UTF-8");
-//        }
-//        catch(UnsupportedEncodingException exc) {
-//            return null;
-//        }
+       /* try {
+            return java.net.URLDecoder.decode(url, "UTF-8");
+        }
+        catch(UnsupportedEncodingException exc) {
+            return null;
+        } */
     }
 
     /**
@@ -321,6 +330,7 @@ public class Boot
             if(toolsURL != null)
                 urlList.add(toolsURL);
         }
+        System.out.println(urlList);
         return (URL[]) urlList.toArray(new URL[0]);
     }
     
