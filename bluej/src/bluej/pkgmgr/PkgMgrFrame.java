@@ -33,7 +33,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2085 2003-06-30 12:03:30Z fisker $
+ * @version $Id: PkgMgrFrame.java 2086 2003-06-30 12:25:09Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1470,34 +1470,7 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
-//    public void doRemove(Target target)
-//    {
-//        if(target instanceof ClassTarget) {
-//            ClassTarget t = (ClassTarget) target;
-//            removeClass(t);
-//        } else if(target instanceof PackageTarget) {
-//            if(!(target instanceof ParentPackageTarget)) {
-//                PackageTarget t = (PackageTarget) target;
-//                removePackage(t);
-//            }
-//        }
-//    }
-//
-//
-//    /**
-//     * Removes the currently selected ClassTarget
-//     * from the Package in this frame.
-//     */
-//    public void doRemove()
-//    {
-//        Target target = pkg.getSelectedTarget();
-//
-//        if(target == null)
-//            DialogManager.showError(this, "no-class-selected");
-//        else {
-//            doRemove(target);
-//        }
-//    }
+
 
     public void doRemove(){
         GraphElement graphElement = pkg.getSelectedGraphElement();
