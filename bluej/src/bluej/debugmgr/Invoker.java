@@ -27,7 +27,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2702 2004-06-30 23:53:08Z davmac $
+ * @version $Id: Invoker.java 2714 2004-07-01 15:55:03Z mik $
  */
 
 public class Invoker extends Thread
@@ -580,7 +580,7 @@ public class Invoker extends Thread
 
         buffer = new StringBuffer();
         String scopeId = Utility.quoteSloshes(pkg.getId());
-        ObjectWrapper[] wrappers = pmf.getObjectBench().getWrappers();
+        ObjectWrapper[] wrappers = pmf.getObjectBench().getObjects();
 
         if(wrappers.length > 0)
             buffer.append("java.util.Map __bluej_runtime_scope = getScope(\""

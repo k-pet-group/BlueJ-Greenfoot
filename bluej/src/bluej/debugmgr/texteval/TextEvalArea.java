@@ -33,7 +33,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2698 2004-06-30 11:29:45Z mik $
+ * @version $Id: TextEvalArea.java 2714 2004-07-01 15:55:03Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -148,7 +148,7 @@ public final class TextEvalArea extends JScrollPane
     {
         StringBuffer out = new StringBuffer(100);
         out.append("object bench:");
-        ObjectWrapper[] objects = frame.getObjectBench().getWrappers();
+        ObjectWrapper[] objects = frame.getObjectBench().getObjects();
         if(objects.length == 0) {
             out.append("   empty");
         }

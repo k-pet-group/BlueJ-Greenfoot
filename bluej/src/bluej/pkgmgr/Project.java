@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2486 2004-04-06 08:11:09Z mik $
+ * @version $Id: Project.java 2714 2004-07-01 15:55:03Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -728,7 +728,7 @@ public class Project
             PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
             for(int i=0; i< frames.length; i++)
-                frames[i].getObjectBench().removeAll(getUniqueId());
+                frames[i].getObjectBench().removeAllObjects(getUniqueId());
 
             // remove views for classes loaded by this classloader
             View.removeAll(loader);

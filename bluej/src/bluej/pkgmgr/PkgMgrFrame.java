@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2707 2004-07-01 11:06:58Z mik $
+ * @version $Id: PkgMgrFrame.java 2714 2004-07-01 15:55:03Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -564,7 +564,7 @@ public class PkgMgrFrame extends JFrame
         editor.removeMouseListener(this);
         editor.removeKeyListener(editor);
 
-        getObjectBench().removeAll(getProject().getUniqueId());
+        getObjectBench().removeAllObjects(getProject().getUniqueId());
 
         getPackage().closeAllEditors();
 
@@ -1310,7 +1310,7 @@ public class PkgMgrFrame extends JFrame
                                                        PkgMgrFrame.this, getObjectBench(),
                                                        result,
                                                        name);
-                        getObjectBench().add(wrapper);
+                        getObjectBench().addObject(wrapper);
 
                         getPackage().getDebugger().addObject(wrapper.getName(), result);
                                                 
@@ -1435,7 +1435,7 @@ public class PkgMgrFrame extends JFrame
     {
         if (!object.isNullObject()) {
             ObjectWrapper wrapper = ObjectWrapper.getWrapper(this, getObjectBench(), object, newInstanceName);
-            getObjectBench().add(wrapper);  // might change name
+            getObjectBench().addObject(wrapper);  // might change name
 
             // load the object into runtime scope
             getPackage().getDebugger().addObject(wrapper.getName(), object);
@@ -2129,7 +2129,7 @@ public class PkgMgrFrame extends JFrame
         // create the object bench
         
         objbench = new ObjectBench();
-        objectBenchPanel = objbench.getComponent();
+        objectBenchPanel = objbench;
 
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                    mainPanel, objectBenchPanel);

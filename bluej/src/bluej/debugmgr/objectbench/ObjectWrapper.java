@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2710 2004-07-01 13:48:49Z polle $
+ * @version $Id: ObjectWrapper.java 2714 2004-07-01 15:55:03Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -386,7 +386,7 @@ public class ObjectWrapper extends JComponent
     
     protected void drawUMLObjectShape(Graphics2D g, int x, int y, int w, int h, int shad, int corner)
     {
-    	boolean isSelected = isSelected() && ob.getComponent().hasFocus();
+    	boolean isSelected = isSelected() && ob.hasFocus();
     	//draw shadow
         drawShadow(g, x, y, w, h, shad, corner);
         // draw red round rectangle
@@ -488,10 +488,10 @@ public class ObjectWrapper extends JComponent
         }
         //manage focus
         if (evt.getID() == MouseEvent.MOUSE_CLICKED || evt.isPopupTrigger()){
-        	ob.setSelectedObjectWrapper(this);
+        	ob.setSelectedObject(this);
         	ob.adjustBench(this);
-        	ob.getComponent().requestFocusInWindow();
-        	ob.getComponent().repaint();
+        	ob.requestFocusInWindow();
+        	ob.repaint();
         }
     }
 
@@ -563,7 +563,7 @@ public class ObjectWrapper extends JComponent
 
     protected void removeObject()
     {
-        ob.remove(this, pkg.getId());
+        ob.removeObject(this, pkg.getId());
     }
     
     /**

@@ -14,7 +14,7 @@ import java.util.*;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 2314 2003-11-10 14:49:48Z damiano $
+ * @version $Id: BObject.java 2714 2004-07-01 15:55:03Z mik $
  */
 
 /*
@@ -70,7 +70,7 @@ public class BObject
         PkgMgrFrame aFrame = wrapperId.getPackageFrame();
 
         ObjectBench aBench = aFrame.getObjectBench();
-        aBench.remove(wrapper, aPackage.getId());
+        aBench.removeObject(wrapper, aPackage.getId());
 
         wrapper = null;
         }
@@ -101,7 +101,7 @@ public class BObject
         PkgMgrFrame aFrame = wrapperId.getPackageFrame();
 
         ObjectBench aBench = aFrame.getObjectBench();
-        aBench.add(wrapper);
+        aBench.addObject(wrapper);
 
         // load the object into runtime scope
         aPackage.getDebugger().addObject(wrapper.getName(), wrapper.getObject());

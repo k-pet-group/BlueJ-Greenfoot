@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2365 2003-11-18 16:11:56Z iau $
+ * @version $Id: BPackage.java 2714 2004-07-01 15:55:03Z mik $
  */
 
 /*
@@ -197,7 +197,7 @@ public class BPackage
         Package bluejPkg = packageId.getBluejPackage();
         PkgMgrFrame pmf = packageId.getPackageFrame();
         
-        ObjectWrapper[] objects = pmf.getObjectBench().getWrappers();
+        ObjectWrapper[] objects = pmf.getObjectBench().getObjects();
         for (int index=0; index<objects.length; index++) 
             {
             ObjectWrapper wrapper = objects[index];
@@ -218,7 +218,7 @@ public class BPackage
         Package bluejPkg = packageId.getBluejPackage();
         PkgMgrFrame pmf = packageId.getPackageFrame();
    
-        ObjectWrapper[] objectWrappers = pmf.getObjectBench().getWrappers();
+        ObjectWrapper[] objectWrappers = pmf.getObjectBench().getObjects();
         BObject[] objects = new BObject [objectWrappers.length];
         for (int index=0; index<objectWrappers.length; index++) {
             ObjectWrapper wrapper = (ObjectWrapper)objectWrappers[index];
@@ -317,7 +317,7 @@ public class BPackage
 
         ArrayList aList  = new ArrayList();
         // In the futire we will really return more than one element
-        ObjectWrapper aWrapper = aBench.getSelectedObjectWrapper();
+        ObjectWrapper aWrapper = aBench.getSelectedObject();
         if ( aWrapper != null ) aList.add(new BObject(aWrapper));
 
         return (BObject[]) aList.toArray(new BObject[aList.size()]);

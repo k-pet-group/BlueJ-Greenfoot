@@ -19,14 +19,14 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2698 2004-06-30 11:29:45Z mik $
+ * @version $Id: ObjectBench.java 2714 2004-07-01 15:55:03Z mik $
  */
-public class ObjectBench
+public class ObjectBench extends JPanel 
+    implements FocusListener, KeyListener, MouseListener
 {
     static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3);
     private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
     
-    private JPanel containerPanel;
     private JButton leftArrowButton, rightArrowButton;
     public JViewport viewPort;
     private ObjectBenchPanel obp;
@@ -35,6 +35,9 @@ public class ObjectBench
     private ObjectWrapper selectedObjectWrapper;
     private int currentObjectWrapperIndex = -1;
 	
+    // All invocations done since our last reset.
+    private List invokerRecords;
+
    
     /**
      * Construct an object bench which is used to hold
@@ -42,140 +45,218 @@ public class ObjectBench
      */
     public ObjectBench()
     {
-        objectWrappers = new LinkedList();
-        containerPanel = new ContainerPanel(this);
-        containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.X_AXIS));
-        containerPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
-                BorderFactory.createEmptyBorder(5,0,5,0)));
-
-        // scroll left button
-        leftArrowButton = new ObjectBenchArrowButton(SwingConstants.WEST);
-        leftArrowButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            { 
-                moveBench(-1);
-            }
-        });
-        containerPanel.add(leftArrowButton);
-
-        // a panel holding the actual object components
-        obp = new ObjectBenchPanel();
-
-        // a sliding viewport, showing us the above panel
-        viewPort = new JViewport();
-        viewPort.setView(obp);
-        
-        // when the view changes, we may need to enable/disable
-        // the arrow buttons
-        viewPort.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e)
-            {
-                enableButtons(ObjectBench.this.viewPort.getViewPosition());
-            }
-        });
-
-        viewPort.setMinimumSize(new Dimension(ObjectWrapper.WIDTH * 3, ObjectWrapper.HEIGHT));
-        viewPort.setPreferredSize(new Dimension(ObjectWrapper.WIDTH * 3, ObjectWrapper.HEIGHT));
-        viewPort.setMaximumSize(new Dimension(ObjectWrapper.WIDTH * 1000, ObjectWrapper.HEIGHT));
-        
-        containerPanel.add(viewPort);
-            
-        // scroll right button
-        rightArrowButton = new ObjectBenchArrowButton(SwingConstants.EAST);
-        rightArrowButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            { 
-                moveBench(1);
-            }
-        });
-        
-        containerPanel.add(rightArrowButton);
-
-        // start with a clean slate recording invocations
-        resetRecordingInteractions();
-        //when empty, the objectbench is focusable
-        containerPanel.setFocusable(true);        
-
-        obp.setBackground(BACKGROUND_COLOR);
-        containerPanel.setBackground(BACKGROUND_COLOR);        
+        super();
+        objectWrappers = new ArrayList();
+        createComponent();
     }
 
+    
+    /**
+     * Paint the object bench.
+     */
+    public void paint(Graphics g){
+        super.paint(g);
+        if(hasFocus){
+            g.setColor(Color.BLUE);
+            g.drawRect(0, 0, getWidth() - 2, getHeight() - 3);
+        }
+    }
+    /**
+     * Add an object (in the form of an ObjectWrapper) to this bench.
+     */
+    public void addObject(ObjectWrapper wrapper)
+    {
+        // check whether name is already taken
+
+        String newname = wrapper.getName();
+        int count = 1;
+
+        while(hasObject(newname)) {
+            count++;
+            newname = wrapper.getName() + "_" + count;
+        }
+        wrapper.setName(newname);
+
+        wrapper.addFocusListener(this);
+        obp.add(wrapper);
+        objectWrappers.add(wrapper);
+        obp.setPreferredSize(new Dimension(obp.getLayoutWidthMin(), ObjectWrapper.HEIGHT));
+        enableButtons(viewPort.getViewPosition());
+        obp.revalidate();
+        obp.repaint();
+    }
+
+    /**
+     * Return all the wrappers stored in this object bench in an array
+     */
+    public ObjectWrapper[] getObjects()
+    {
+        Component[] components = obp.getComponents();
+        int count = getObjectCount();
+                        
+        ObjectWrapper[] wrappers = new ObjectWrapper[count];
+
+        for(int i=0, j=0; i<components.length; i++) {
+            if (components[i] instanceof ObjectWrapper)
+                wrappers[j++] = (ObjectWrapper) components[i];
+        }
+        
+        return wrappers;
+    }
+    
+    /**
+     * Get the object with name 'name', or null, if it does not
+     * exist.
+     *
+     * @param name  The name to check for.
+     * @return  The named object wrapper, or null if not found.
+     */
+    public ObjectWrapper getObject(String name)
+    {
+        ObjectWrapper[] wrappers = getObjects();
+
+        for(int i=0; i<wrappers.length; i++)
+            if(wrappers[i].getName().equals(name))
+                return wrappers[i];
+
+        return null;
+    }
+
+    /**
+     * Check whether the bench contains an object with name 'name'.
+     *
+     * @param name  The name to check for.
+     */
+    public boolean hasObject(String name)
+    {
+        return getObject(name) != null;
+    }
+
+    /**
+     * Count of object bench copmponents that are object wrappers
+     * @return number of ObjectWrappers on the bench
+     */
+    public int getObjectCount()
+    {
+        Component[] components = obp.getComponents();
+        int count = 0;
+        
+        for(int i=0; i<components.length; i++) {
+            if (components[i] instanceof ObjectWrapper)
+                count++;
+        }
+        return count;
+    }
+
+    /**
+     * Remove all objects from the object bench.
+     */
+    public void removeAllObjects(String scopeId)
+    {
+        ObjectWrapper[] wrappers = getObjects();
+
+        for(int i=0; i<wrappers.length; i++) {
+            ObjectWrapper aWrapper = wrappers[i];
+
+            if ( aWrapper == selectedObjectWrapper )
+                setSelectedObject ( null );
+            
+            aWrapper.prepareRemove();
+            aWrapper.getPackage().getDebugger().removeObject(aWrapper.getName());
+
+            obp.remove(aWrapper);
+        }
+
+        resetRecordingInteractions();
+                      
+        enableButtons(viewPort.getViewPosition());
+        obp.revalidate();
+        obp.repaint();
+    }
+
+    /**
+     * Remove an object from the object bench. When this is done, the object
+     * is also removed from the scope of the package (so it is not accessible
+     * as a parameter anymore) and the bench is redrawn.
+     */
+    public void removeObject(ObjectWrapper wrapper, String scopeId)
+    {
+        if ( wrapper == selectedObjectWrapper )
+            setSelectedObject ( null );
+            
+        wrapper.prepareRemove();
+        wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
+        obp.remove(wrapper);
+        objectWrappers.remove(wrapper);
+        // check whether we still need navigation arrows with the reduced
+        // number of objects on the bench.
+        enableButtons(viewPort.getViewPosition());
+
+        // pull objects to the right if there is empty space on the right-
+        // hand side 
+        moveBench(0);
+        
+        obp.revalidate();
+        obp.repaint();
+    }
+
+    
     /**
      * Sets what is the currently selected ObjectWrapper, null can be given to 
      * signal that no wrapper is selected.
      */
-    public void setSelectedObjectWrapper (ObjectWrapper aWrapper)
+    public void setSelectedObject (ObjectWrapper aWrapper)
     {
-    	if (selectedObjectWrapper != null){
-    		selectedObjectWrapper.setSelected(false);
-    		
-    	}
+        if (selectedObjectWrapper != null){
+            selectedObjectWrapper.setSelected(false);
+        }
         selectedObjectWrapper = aWrapper;
         
-        if (selectedObjectWrapper != null){
-    		selectedObjectWrapper.setSelected(true);
-    		currentObjectWrapperIndex = objectWrappers.indexOf(aWrapper);
-    		selectedObjectWrapper.requestFocusInWindow();
-    	}
+        if (selectedObjectWrapper != null) {
+            selectedObjectWrapper.setSelected(true);
+            currentObjectWrapperIndex = objectWrappers.indexOf(aWrapper);
+            selectedObjectWrapper.requestFocusInWindow();
+        }
     }
 
     /**
      * Returns the currently selected object wrapper. 
-    * If no wrapper is selected null is returned.
+     * If no wrapper is selected null is returned.
      */
-    public ObjectWrapper getSelectedObjectWrapper()
+    public ObjectWrapper getSelectedObject()
     {
         return selectedObjectWrapper;
     }
+
+    /**
+     * Add a listener for object events to this bench.
+     * @param l  The listener object.
+     */
+    public void addObjectBenchListener(ObjectBenchListener l)
+    {
+        obp.addObjectBenchListener(l);
+    }
+
+    /**
+     * Remove a listener for object events to this bench.
+     * @param l  The listener object.
+     */
+    public void removeObjectBenchListener(ObjectBenchListener l)
+    {
+        obp.removeObjectBenchListener(l);
+    }
     
     /**
-	 * @param key
-	 */
-	public void handleKeyPressed(int key) {
-		switch (key){
-			case KeyEvent.VK_LEFT: {
-				if (currentObjectWrapperIndex > 0){
-				currentObjectWrapperIndex--;
-				}
-				else if (currentObjectWrapperIndex < 0 ){
-					//currentObjectWrapperIndex = objectWrappers.size() - 1;
-					currentObjectWrapperIndex = 0;
-				}
-				break;
-			}
-			case KeyEvent.VK_RIGHT: {
-				if (currentObjectWrapperIndex < objectWrappers.size() - 1){
-					currentObjectWrapperIndex++;
-				}
-				break;
-			}
-			case KeyEvent.VK_ENTER:{
-				showPopupMenu();
-				break;
-			}
-			case KeyEvent.VK_SPACE:{
-				showPopupMenu();
-				break;
-			}
-			case KeyEvent.VK_ESCAPE:{
-				currentObjectWrapperIndex = -1;
-				setSelectedObjectWrapper(null);
-				containerPanel.repaint();
-				break;
-			}
-		}
-		boolean isInRange = (0 <= currentObjectWrapperIndex && currentObjectWrapperIndex < objectWrappers.size()); 
-		if (isInRange){
-			ObjectWrapper currentObjectWrapper = (ObjectWrapper) objectWrappers.get(currentObjectWrapperIndex);
-			setSelectedObjectWrapper(currentObjectWrapper);
-			adjustBench(currentObjectWrapper);
-			containerPanel.repaint();
-		}
-	}
-    
+     * Fire an object event for the named object.
+     */
+    public void fireObjectEvent(ObjectWrapper wrapper)
+    {
+        obp.fireObjectEvent(wrapper);
+    }
+
+
     /**
-	 * 
+	 * Post the object menu for the selected object.
 	 */
 	private void showPopupMenu() {
 		if (selectedObjectWrapper != null){
@@ -259,8 +340,8 @@ public class ObjectBench
         {
             public void run()
             {
-                containerPanel.revalidate();
-                containerPanel.repaint();
+                revalidate();
+                repaint();
             }
         };
         SwingUtilities.invokeLater(refreshUI);
@@ -271,7 +352,263 @@ public class ObjectBench
         return Math.max(obp.getLayoutWidthMin() - viewPort.getWidth(), 0);
     }
     
- 
+    // --- FocusListener interface ---
+    
+    /**
+     * Note that the object bench got keyboard focus.
+     * @see java.awt.event.FocusListener#focusGained(java.awt.event.FocusEvent)
+     */
+    public void focusGained(FocusEvent e) {
+        hasFocus = true;
+        repaint();
+    }
+
+    /**
+     * Note that the object bench lost keyboard focus.
+     * @see java.awt.event.FocusListener#focusLost(java.awt.event.FocusEvent)
+     */
+    public void focusLost(FocusEvent e) {
+        hasFocus = false;
+        repaint();
+    }
+
+    // --- end of FocusListener interface ---
+
+    // --- KeyListener interface ---
+
+    /**
+     * A key was pressed in the object bench.
+     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+     */
+    public void keyPressed(KeyEvent e) 
+    {
+        int key = e.getKeyCode();
+        switch (key){
+            case KeyEvent.VK_LEFT: {
+                if (currentObjectWrapperIndex > 0){
+                currentObjectWrapperIndex--;
+                }
+                else if (currentObjectWrapperIndex < 0 ){
+                    //currentObjectWrapperIndex = objectWrappers.size() - 1;
+                    currentObjectWrapperIndex = 0;
+                }
+                break;
+            }
+            case KeyEvent.VK_RIGHT: {
+                if (currentObjectWrapperIndex < objectWrappers.size() - 1){
+                    currentObjectWrapperIndex++;
+                }
+                break;
+            }
+            case KeyEvent.VK_ENTER:{
+                showPopupMenu();
+                break;
+            }
+            case KeyEvent.VK_SPACE:{
+                showPopupMenu();
+                break;
+            }
+            case KeyEvent.VK_ESCAPE:{
+                currentObjectWrapperIndex = -1;
+                setSelectedObject(null);
+                repaint();
+                break;
+            }
+        }
+        boolean isInRange = (0 <= currentObjectWrapperIndex && currentObjectWrapperIndex < objectWrappers.size()); 
+        if (isInRange){
+            ObjectWrapper currentObjectWrapper = (ObjectWrapper) objectWrappers.get(currentObjectWrapperIndex);
+            setSelectedObject(currentObjectWrapper);
+            adjustBench(currentObjectWrapper);
+            repaint();
+        }
+    }
+
+    /**
+     * A key was released in the object bench.
+     * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+     */
+    public void keyReleased(KeyEvent e) {
+    }
+
+    /**
+     * A key was typed in the object bench.
+     * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+     */
+    public void keyTyped(KeyEvent e) {
+    }
+    
+    // --- end of KeyListener interface ---
+
+    // --- MouseListener interface ---
+
+    /**
+     * The mouse was clicked in the object bench.
+     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     */
+    public void mouseClicked(MouseEvent e) {
+    }
+
+    /**
+     * The mouse entered the object bench.
+     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+     */
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    /**
+     * The mouse left the object bench.
+     * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+     */
+    public void mouseExited(MouseEvent e) {
+    }
+
+    /**
+     * The mouse was pressed in the object bench.
+     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+     */
+    public void mousePressed(MouseEvent e) {
+        requestFocusInWindow();
+    }
+
+    /**
+     * The mouse was released in the object bench.
+     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     */
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    // --- end of MouseListener interface ---
+
+    
+    /**
+     * Reset the recording of invocations.
+     */
+    public void resetRecordingInteractions()
+    {
+        invokerRecords = new LinkedList();
+    }
+
+    public void addInteraction(InvokerRecord ir)
+    {
+        if (invokerRecords == null)
+            resetRecordingInteractions();
+            
+        invokerRecords.add(ir);    
+    }
+    
+    public String getFixtureDeclaration()
+    {
+        StringBuffer sb = new StringBuffer();
+        Iterator it = invokerRecords.iterator();
+        
+        while(it.hasNext()) {
+            InvokerRecord ir = (InvokerRecord) it.next();
+            
+            if (ir.toFixtureDeclaration() != null)
+            	sb.append(ir.toFixtureDeclaration());
+        }                    
+
+        return sb.toString();
+    }
+    
+    public String getFixtureSetup()
+    {
+        StringBuffer sb = new StringBuffer();
+        Iterator it = invokerRecords.iterator();
+        
+        while(it.hasNext()) {
+            InvokerRecord ir = (InvokerRecord) it.next();
+            
+			if (ir.toFixtureSetup() != null)
+	            sb.append(ir.toFixtureSetup());
+        }                    
+
+        return sb.toString();
+    }
+    
+    public String getTestMethod()
+    {
+        StringBuffer sb = new StringBuffer();
+        Iterator it = invokerRecords.iterator();
+        
+        while(it.hasNext()) {
+            InvokerRecord ir = (InvokerRecord) it.next();
+            
+			if (ir.toTestMethod() != null)
+	            sb.append(ir.toTestMethod());
+        }                    
+
+        return sb.toString();
+    }
+
+    /**
+     * Create the object bench as a good looking Swing component.
+     */
+    private void createComponent()
+    {
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
+                BorderFactory.createEmptyBorder(5,0,5,0)));
+
+        // scroll left button
+        leftArrowButton = new ObjectBenchArrowButton(SwingConstants.WEST);
+        leftArrowButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            { 
+                moveBench(-1);
+            }
+        });
+        add(leftArrowButton);
+
+        // a panel holding the actual object components
+        obp = new ObjectBenchPanel();
+
+        // a sliding viewport, showing us the above panel
+        viewPort = new JViewport();
+        viewPort.setView(obp);
+        
+        // when the view changes, we may need to enable/disable
+        // the arrow buttons
+        viewPort.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e)
+            {
+                enableButtons(ObjectBench.this.viewPort.getViewPosition());
+            }
+        });
+
+        viewPort.setMinimumSize(new Dimension(ObjectWrapper.WIDTH * 3, ObjectWrapper.HEIGHT));
+        viewPort.setPreferredSize(new Dimension(ObjectWrapper.WIDTH * 3, ObjectWrapper.HEIGHT));
+        viewPort.setMaximumSize(new Dimension(ObjectWrapper.WIDTH * 1000, ObjectWrapper.HEIGHT));
+        
+        add(viewPort);
+            
+        // scroll right button
+        rightArrowButton = new ObjectBenchArrowButton(SwingConstants.EAST);
+        rightArrowButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            { 
+                moveBench(1);
+            }
+        });
+        
+        add(rightArrowButton);
+
+        // start with a clean slate recording invocations
+        resetRecordingInteractions();
+        //when empty, the objectbench is focusable
+        setFocusable(true);        
+
+        obp.setBackground(BACKGROUND_COLOR);
+        setBackground(BACKGROUND_COLOR);        
+
+        addFocusListener(this);
+        addKeyListener(this);
+        addMouseListener(this);        
+    }
+
+    
     // ------------- nested class ObjectBenchPanel --------------
 
     /**
@@ -319,7 +656,7 @@ public class ObjectBench
         // notification on this event type.
         void fireObjectEvent(ObjectWrapper wrapper)
         {
-            setSelectedObjectWrapper ( wrapper );
+            setSelectedObject ( wrapper );
             // guaranteed to return a non-null array
             Object[] listeners = listenerList.getListenerList();
             // process the listeners last to first, notifying
@@ -386,259 +723,4 @@ public class ObjectBench
             g.setColor(origColor);
         }    
     }
-    
-    /**
-     * The panel that contains the arrows and the objectBenchPanel.
-     * @author fisker
-     *
-     */
-    
-    
-    // ----------------- end of nested class ------------------
-
-    public JComponent getComponent()
-    {
-        return containerPanel;
-    }
-
-    public void addObjectBenchListener(ObjectBenchListener l)
-    {
-        obp.addObjectBenchListener(l);
-    }
-
-    public void removeObjectBenchListener(ObjectBenchListener l)
-    {
-        obp.removeObjectBenchListener(l);
-    }
-    
-    public void fireObjectEvent(ObjectWrapper wrapper)
-    {
-        obp.fireObjectEvent(wrapper);
-    }
-
-    /**
-     * Add an object (in the form of an ObjectWrapper) to this bench.
-     */
-    public void add(ObjectWrapper wrapper)
-    {
-        // check whether name is already taken
-
-        String newname = wrapper.getName();
-        int count = 1;
-
-        while(hasObject(newname)) {
-            count++;
-            newname = wrapper.getName() + "_" + count;
-        }
-        wrapper.setName(newname);
-
-        // add to bench
-
-/*
-		Experimental code to add == signs between equal objects on the object bench
-		
-		ObjectWrapper[] wrappers = getWrappers();
-		int addPosition = -1;
-		
-		for(int i=wrappers.length-1; i>=0; i--)
-			if(wrappers[i].getObject().equals(wrapper.getObject()))
-				addPosition = i;
-
-		if (addPosition != -1) {
-			obp.add(wrapper, addPosition+1);
-			obp.add(new JLabel(" =="), addPosition+1);
-		}
-		else
-*/
-        wrapper.addFocusListener((FocusListener) containerPanel);
-		obp.add(wrapper);
-		objectWrappers.add(wrapper);
-        obp.setPreferredSize(new Dimension(obp.getLayoutWidthMin(), ObjectWrapper.HEIGHT));
-        enableButtons(viewPort.getViewPosition());
-        obp.revalidate();
-        obp.repaint();
-    }
-
-    
-    /**
-     * Return all the wrappers stored in this object bench in an array
-     */
-    public ObjectWrapper[] getWrappers()
-    {
-        Component[] components = obp.getComponents();
-        int count = getObjectWrapperCount();
-                        
-        ObjectWrapper[] wrappers = new ObjectWrapper[count];
-
-        for(int i=0, j=0; i<components.length; i++) {
-            if (components[i] instanceof ObjectWrapper)
-                wrappers[j++] = (ObjectWrapper) components[i];
-        }
-        
-        return wrappers;
-    }
-    
-    /**
-     * Count of object bench copmponents that are object wrappers
-     * @return number of ObjectWrappers on the bench
-     */
-    public int getObjectWrapperCount()
-    {
-        Component[] components = obp.getComponents();
-        int count = 0;
-        
-        for(int i=0; i<components.length; i++) {
-            if (components[i] instanceof ObjectWrapper)
-                count++;
-        }
-        return count;
-    }
-
-    /**
-     * Check whether the bench contains an object with name 'name'.
-     *
-     * @param name  The name to check for.
-     */
-    public boolean hasObject(String name)
-    {
-        return getObject(name) != null;
-    }
-
-    /**
-     * Get the object with name 'name', or null, if it does not
-     * exist.
-     *
-     * @param name  The name to check for.
-     * @return  The named object wrapper, or null if not found.
-     */
-    public ObjectWrapper getObject(String name)
-    {
-        ObjectWrapper[] wrappers = getWrappers();
-
-        for(int i=0; i<wrappers.length; i++)
-            if(wrappers[i].getName().equals(name))
-                return wrappers[i];
-
-        return null;
-    }
-
-    /**
-     * Remove all objects from the object bench.
-     */
-    public void removeAll(String scopeId)
-    {
-        ObjectWrapper[] wrappers = getWrappers();
-
-        for(int i=0; i<wrappers.length; i++) {
-            ObjectWrapper aWrapper = wrappers[i];
-
-            if ( aWrapper == selectedObjectWrapper )
-                setSelectedObjectWrapper ( null );
-            
-            aWrapper.prepareRemove();
-            aWrapper.getPackage().getDebugger().removeObject(aWrapper.getName());
-
-            obp.remove(aWrapper);
-        }
-
-        resetRecordingInteractions();
-                      
-        enableButtons(viewPort.getViewPosition());
-    	obp.revalidate();
-        obp.repaint();
-    }
-
-    /**
-     * Remove an object from the object bench. When this is done, the object
-     * is also removed from the scope of the package (so it is not accessible
-     * as a parameter anymore) and the bench is redrawn.
-     */
-    public void remove(ObjectWrapper wrapper, String scopeId)
-    {
-        if ( wrapper == selectedObjectWrapper )
-            setSelectedObjectWrapper ( null );
-            
-        wrapper.prepareRemove();
-		wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
-        obp.remove(wrapper);
-        objectWrappers.remove(wrapper);
-        // check whether we still need navigation arrows with the reduced
-        // number of objects on the bench.
-        enableButtons(viewPort.getViewPosition());
-
-        // pull objects to the right if there is empty space on the right-
-        // hand side 
-        moveBench(0);
-        
-    	obp.revalidate();
-    	obp.repaint();
-    }
-
-    /**
-     * All invocations done since our last reset.
-     */
-    private List invokerRecords;
-      
-    /**
-     * Reset the recording of invocations.
-     */
-    public void resetRecordingInteractions()
-    {
-        invokerRecords = new LinkedList();
-    }
-
-    public void addInteraction(InvokerRecord ir)
-    {
-        if (invokerRecords == null)
-            resetRecordingInteractions();
-            
-        invokerRecords.add(ir);    
-    }
-    
-    public String getFixtureDeclaration()
-    {
-        StringBuffer sb = new StringBuffer();
-        Iterator it = invokerRecords.iterator();
-        
-        while(it.hasNext()) {
-            InvokerRecord ir = (InvokerRecord) it.next();
-            
-            if (ir.toFixtureDeclaration() != null)
-            	sb.append(ir.toFixtureDeclaration());
-        }                    
-
-        return sb.toString();
-    }
-    
-    public String getFixtureSetup()
-    {
-        StringBuffer sb = new StringBuffer();
-        Iterator it = invokerRecords.iterator();
-        
-        while(it.hasNext()) {
-            InvokerRecord ir = (InvokerRecord) it.next();
-            
-			if (ir.toFixtureSetup() != null)
-	            sb.append(ir.toFixtureSetup());
-        }                    
-
-        return sb.toString();
-    }
-    
-    public String getTestMethod()
-    {
-        StringBuffer sb = new StringBuffer();
-        Iterator it = invokerRecords.iterator();
-        
-        while(it.hasNext()) {
-            InvokerRecord ir = (InvokerRecord) it.next();
-            
-			if (ir.toTestMethod() != null)
-	            sb.append(ir.toTestMethod());
-        }                    
-
-        return sb.toString();
-    }
-
-	
 }
