@@ -27,7 +27,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2281 2003-11-05 17:43:53Z mik $
+ * @version $Id: ObjectWrapper.java 2318 2003-11-10 16:39:45Z polle $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -468,7 +468,7 @@ public class ObjectWrapper extends JComponent
         InvokerRecord ir = new ObjectInspectInvokerRecord(getClassName(), getName());
         
         ObjectInspector viewer =
-      	    ObjectInspector.getInstance(false, obj, instanceName, pkg, ir, pmf);
+      	    ObjectInspector.getInstance(obj, instanceName, pkg, ir, pmf);
     }
 
     protected void removeObject()
@@ -496,9 +496,9 @@ public class ObjectWrapper extends JComponent
                 if (name == null)
                     return;
                                     
-                ObjectInspector viewer =
-                    ObjectInspector.getInstance(true, result, name,
-                                           pkg, ir, pmf);
+                ResultInspector viewer =
+                    ResultInspector.getInstance(result, name, pkg,
+                                           ir, pmf);
                 BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
                                       viewer.getResult());
             }
