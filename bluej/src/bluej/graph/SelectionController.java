@@ -123,21 +123,20 @@ public class SelectionController
         if (isDrawingDependency()) {
             SelectableGraphElement selectedElement = graph.findGraphElement(evt.getX(), evt.getY());
             notifyPackage(selectedElement);
+            graphEditor.repaint();
         }
         rubberBand = null;
         
         SelectionSet newSelection = marquee.stop();     // may or may not have had a marquee...
         if(newSelection != null) {
             selection.addAll(newSelection);
+            graphEditor.repaint();
         }
         
         if(moving || resizing) {
-            selection.moveStopped();
-            moving = false;
-            resizing = false;
+            endMove();
+            graphEditor.repaint();
         }
-        
-        graphEditor.repaint();
     }
     
     /**
@@ -259,6 +258,9 @@ public class SelectionController
 
         // Escape removes selections
         else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            if(moving || resizing) {
+                endMove();
+            }
             clearSelection();
         }
 
@@ -342,7 +344,18 @@ public class SelectionController
         keyDeltaY = 0;
         moving = true;
     }
-     
+    
+    /**
+     * End a move or resize gesture.
+     *
+     */
+    private void endMove() 
+    {
+        selection.moveStopped();
+        moving = false;
+        resizing = false;
+    }
+    
     /**
      * Prepare a key-based resize operation.
      */

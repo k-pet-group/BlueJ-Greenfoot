@@ -7,6 +7,16 @@ package bluej.graph;
 public interface Moveable
 {
     /**
+     * Return the current x coordinate.
+     */
+    public int getX();
+
+    /**
+     * Return the current y coordinate.
+     */
+    public int getY();
+    
+    /**
      * @return Returns the ghostX.
      */
     public int getGhostX();

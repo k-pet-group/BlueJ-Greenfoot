@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
  * @author fisker
  * @author Michael Kolling
  * 
- * @version $Id: SelectionSet.java 2789 2004-07-12 18:08:11Z mik $
+ * @version $Id: SelectionSet.java 2797 2004-07-14 13:25:50Z mik $
  */
 public final class SelectionSet
 {
@@ -120,8 +120,8 @@ public final class SelectionSet
         for (Iterator i = elements.iterator(); i.hasNext();) {
             GraphElement element = (GraphElement) i.next();
 
-            if(element instanceof Vertex) {
-                Vertex target = (Vertex) element;
+            if(element instanceof Moveable) {
+                Moveable target = (Moveable) element;
 
                 if(target.getX() + deltaX < 0)
                     deltaX = -target.getX();
