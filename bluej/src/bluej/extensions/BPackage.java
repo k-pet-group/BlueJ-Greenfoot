@@ -1,18 +1,14 @@
 package bluej.extensions;
 
+import bluej.compiler.*;
+import bluej.debugmgr.objectbench.*;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.*;
-import bluej.pkgmgr.target.Target;
-import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.compiler.JobQueue;
-
-
-import java.util.List; 
-import java.util.ListIterator;
-import java.awt.Frame;
+import java.awt.*;
 import java.io.*;
+import java.util.*;
+import java.util.List;
 
 
 
@@ -20,7 +16,7 @@ import java.io.*;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2087 2003-06-30 12:55:15Z damiano $
+ * @version $Id: BPackage.java 2088 2003-07-01 09:23:58Z damiano $
  */
 
 /*
@@ -251,6 +247,8 @@ public class BPackage
         throws ProjectNotOpenException, PackageNotFoundException
     {
         Target aTarget = packageId.getCurrentBluejTarget();
+        // The above may return null if there is nothing selected.
+        if ( aTarget == null ) return null;
 
         // Nothing to do if it is not a class target.
         if ( !(aTarget instanceof ClassTarget )) return null; 
@@ -262,6 +260,30 @@ public class BPackage
 
         return new BClass(anId);
     }
+
+    /** 
+     * Returns the currently selected Object in the Object Bench.
+     * If no Object is being selected null is returned.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
+     */
+    public BObject getCurrentObject ()
+        throws ProjectNotOpenException, PackageNotFoundException
+    {
+        PkgMgrFrame bluejFrame = packageId.getPackageFrame();
+
+        ObjectBench aBench = bluejFrame.getObjectBench();
+        // Should never happens really.
+        if ( aBench == null ) return null;
+
+        ObjectWrapper aWrapper = aBench.getSelectedObjectWrapper();
+        // This can happen quite easly.
+        if ( aWrapper == null ) return null;
+        
+        return new BObject(aWrapper);
+    }
+
+
 
     /**
      * Returns the directory where this package is stored.

@@ -16,7 +16,7 @@ import bluej.testmgr.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: ObjectBench.java 2088 2003-07-01 09:23:58Z damiano $
  */
 public class ObjectBench
 {
@@ -26,6 +26,7 @@ public class ObjectBench
     private JButton leftArrowButton, rightArrowButton;
     private JViewport viewPort;
     private ObjectBenchPanel obp;
+    private ObjectWrapper selectedObjectWrapper;
 
     public ObjectBench()
     {
@@ -93,6 +94,26 @@ public class ObjectBench
 
         resetRecordingInteractions();
     }
+
+    /**
+     * Sets what is the currently selected ObjectWrapper, null can be given to 
+     * signal that no wrapper is selected.
+     */
+    public void setSelectedObjectWrapper ( ObjectWrapper aWrapper )
+    {
+        selectedObjectWrapper = aWrapper;
+    }
+
+    /**
+     * Returns the currently selected object wrapper. 
+    * If no wrapper is selected null is returned.
+     */
+    public ObjectWrapper getSelectedObjectWrapper ( )
+    {
+        return selectedObjectWrapper;
+    }
+
+
 
     private void moveBench(int xamount)
     {        
@@ -185,6 +206,7 @@ public class ObjectBench
         // notification on this event type.
         void fireObjectEvent(ObjectWrapper wrapper)
         {
+            setSelectedObjectWrapper ( wrapper );
             // guaranteed to return a non-null array
             Object[] listeners = listenerList.getListenerList();
             // process the listeners last to first, notifying
@@ -366,10 +388,15 @@ public class ObjectBench
         ObjectWrapper[] wrappers = getWrappers();
 
         for(int i=0; i<wrappers.length; i++) {
-            wrappers[i].prepareRemove();
-			wrappers[i].getPackage().getDebugger().removeObject(wrappers[i].getName());
+            ObjectWrapper aWrapper = wrappers[i];
 
-            obp.remove(wrappers[i]);
+            if ( aWrapper == selectedObjectWrapper )
+                setSelectedObjectWrapper ( null );
+            
+            aWrapper.prepareRemove();
+            aWrapper.getPackage().getDebugger().removeObject(aWrapper.getName());
+
+            obp.remove(aWrapper);
         }
 
         resetRecordingInteractions();
@@ -386,6 +413,9 @@ public class ObjectBench
      */
     public void remove(ObjectWrapper wrapper, String scopeId)
     {
+        if ( wrapper == selectedObjectWrapper )
+            setSelectedObjectWrapper ( null );
+            
         wrapper.prepareRemove();
 		wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
         obp.remove(wrapper);
