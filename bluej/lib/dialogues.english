@@ -45,8 +45,8 @@ at least one target package open
 in a BlueJ window.
 
 cannot-locate-lib-node
-Cannot locate the selected node in the 
-LibraryChooser tree.  The usual cause of 
+Cannot locate the selected node in the
+LibraryChooser tree.  The usual cause of
 this error is an out-of-date package file
 in the directory containing the package.
 
@@ -54,8 +54,8 @@ missing-shadow
 Cannot locate shadow area:
 
 cannot-run-compiler
-Cannot run compiler. Is the 
-program in your path? 
+Cannot run compiler. Is the
+program in your path?
 Name of compiler:
 
 compiler-error
@@ -69,7 +69,7 @@ Element specified is not
 within array bounds.
 
 cannot-access-element
-Unable to access the array 
+Unable to access the array
 element specified.
 
 appletviewer-error
@@ -97,8 +97,16 @@ error-open-source
 There is a problem opening the source of
 this class.  Serious trouble!
 
-invalid-name
+error-open-readme
+There is a problem opening the text notes
+of this project. A new empty text note has
+been created.
+
+invalid-class-name
 Invalid Class Name.
+
+invalid-package-name
+Invalid Package Name.
 
 directory-exists
 A file or directory with this
@@ -142,7 +150,7 @@ disk space.
 
 no-class-selected
 No class or package selected for removal.
-Select a class or package by clicking on 
+Select a class or package by clicking on
 it before trying to remove.
 
 package-does-not-exist
@@ -151,11 +159,11 @@ Package does not exist:
 
 no-bluej-package
 Error in opening package.
-The file/directory is not 
+The file/directory is not
 a BlueJ package:
 
 applet-height-width
-Applet height and width 
+Applet height and width
 must be specified.
 
 cannot-read-help
@@ -165,7 +173,7 @@ not-yet-implemented
 Not Yet Implemented - sorry.
 
 quit-all
-Quit all open packages?
+Quit all open projects?
 Quit All
 Cancel
 null
