@@ -16,7 +16,7 @@ import com.sun.jdi.*;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 2733 2004-07-05 02:38:20Z davmac $
+ * @version    $Id: JdiArray.java 2758 2004-07-08 04:07:50Z davmac $
  */
 public class JdiArray extends JdiObject
 {
@@ -60,25 +60,45 @@ public class JdiArray extends JdiObject
             // Having established a component type that is not an array, we'll
             // make the bold assumption that it is a reference type. (This is
             // correct due to the presence of a generic signature in the field).
-            
-            // the sig looks like "Lpackage/package/class;". Strip the 'L' and
-            // the ';'
-            String compName = ctypestr.substring(1, ctypestr.length() - 1);
-            compName = compName.replace('/','.');
-            
-            Reflective compReflective = new JdiReflective(compName, obj.referenceType());
-            
-            Map genericParams = ((GenTypeClass)genericType).
-                    mapToDerived(compReflective);
-            GenTypeClass component = new GenTypeClass(compReflective, genericParams);
-            
-            while(level > 1) {
-                component = new GenTypeArray(component,
-                        new JdiArrayReflective(component, obj.referenceType()));
-                level--;
-            }
-            componentType = component;
 
+            // It's not really possible for an array to have a component type
+            // that is a wildcard, but this type is inferred in some cases so
+            // it must be handled here.
+            
+            GenTypeParameterizable component;
+            
+            if(genericType instanceof GenTypeExtends)
+                genericType = ((GenTypeExtends)genericType).getUpperBound();
+            if(genericType instanceof GenTypeClass) {
+                // the sig looks like "Lpackage/package/class;". Strip the 'L' and
+                // the ';'
+                String compName = ctypestr.substring(1, ctypestr.length() - 1);
+                compName = compName.replace('/','.');
+                
+                Reflective compReflective = new JdiReflective(compName, obj.referenceType());
+                
+                Map genericParams = ((GenTypeClass)genericType).
+                mapToDerived(compReflective);
+                component = new GenTypeClass(compReflective, genericParams);
+                
+                while(level > 1) {
+                    component = new GenTypeArray(component,
+                            new JdiArrayReflective(component, obj.referenceType()));
+                    level--;
+                }
+                componentType = component;
+            }
+            else {
+                // GenTypeSuper or the like. In some cases it would be possible
+                // to map from a super type to a sub type, but it's possible
+                // that the super type is not even loaded. So don't even try.
+                String compName = ctypestr.substring(1, ctypestr.length() - 1);
+                compName = compName.replace('/','.');
+                
+                Reflective compReflective = new JdiReflective(compName, obj.referenceType());
+
+                componentType = new GenTypeClass(compReflective);
+            }
         }            
     }
 
