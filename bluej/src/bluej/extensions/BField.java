@@ -12,21 +12,25 @@ import bluej.debugger.*;
 import bluej.utility.Debug;
 
 /**
- * This is similar to the Reflection Field
+ * This is similar to the Reflection Field.
  * The main reason to have a field coming from a Class and not from an Object is that
- * logically we should be able to get static methods without having objects around.
+ * logically we should be able to get static Field without having objects around.
  * Reflection states that to get a static field we can use a Field and pass null as the object to work on.
  * NOTE: the get method returns an Object, in most cases it is a String, Integer, Long and so on BUT
  * when a real Object is actually returned it is encapsulated into a BObject. You MUST look for this.
  * Damiano
- * 
  */
 public class BField
 {
     private FieldView bluej_view;
-
-    BField (FieldView i_bluej_view )
+    private Package   bluej_package;
+    
+    /**
+     * From use only by bluej.extensions.
+     */
+    BField (Package i_bluej_package, FieldView i_bluej_view )
     {
+        bluej_package = i_bluej_package;
         bluej_view = i_bluej_view;
     }        
 
@@ -65,10 +69,11 @@ public class BField
      * When you are inspecting a static Field use this one to get hold
      * of a reference to the debgged Class
      */
-    private Object getStaticField (BObject onThis)
+    private Object getStaticField ()
       {
-      Package bluej_pkg = onThis.getBluejPackage();
-      DebuggerClassLoader loader = bluej_pkg.getRemoteClassLoader();
+      // UFF, there seems to be no way to get the package from the view...
+      // Maybe should ask Michael, when he has time...
+      DebuggerClassLoader loader = bluej_package.getRemoteClassLoader();
 
       View parentView = bluej_view.getDeclaringView();
       String className = parentView.getQualifiedName();
@@ -105,7 +110,7 @@ public class BField
 
 // I need a way to get hold of the value in a non coded form.....
 
-      
+/*      
       Debug.message("Got objRef="+objRef);
       ReferenceType type = objRef.referenceType();
       Debug.message("Got type="+type);
@@ -114,6 +119,8 @@ public class BField
       Debug.message("Got thisField");
        
       return getVal(bluej_pkg, "static", objRef.getValue(thisField));
+*/      
+      return "DUMMY RESULT";
       }
 
 
@@ -123,7 +130,7 @@ public class BField
     public Object get ( BObject onThis )
         {
         // If someone gives me a null it means that he wants a static field
-        if ( onThis == null ) return getStaticField(onThis);
+        if ( onThis == null ) return getStaticField();
         
         ObjectReference objRef = onThis.getObjectReference();
 
