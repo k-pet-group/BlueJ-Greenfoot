@@ -16,7 +16,7 @@ import java.io.File;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooserStrict.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: PackageChooserStrict.java 2981 2004-09-02 23:46:35Z davmac $
  */
 class PackageChooserStrict extends PackageChooser
 {
@@ -38,6 +38,8 @@ class PackageChooserStrict extends PackageChooser
     {
     	if (Package.isBlueJPackage(getSelectedFile()))
     	    super.approveSelection();
+        else
+            super.setCurrentDirectory(getSelectedFile());
     }
 
     /**
@@ -52,7 +54,6 @@ class PackageChooserStrict extends PackageChooser
             super.approveSelection();
         }
         else{
-            setSelectedFile(null);
             super.setCurrentDirectory(dir);
         }
     }
