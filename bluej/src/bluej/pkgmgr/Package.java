@@ -14,6 +14,8 @@ import bluej.parser.ClassParser;
 import bluej.parser.symtab.*;
 import bluej.utility.*;
 import bluej.utility.filefilter.*;
+import bluej.extensions.event.*;
+import bluej.extmgr.*;
 
 
 /**
@@ -22,7 +24,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1728 2003-03-28 02:01:36Z ajp $
+ * @version $Id: Package.java 1744 2003-04-04 09:59:05Z damiano $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1815,6 +1817,11 @@ public class Package extends Graph
      */
     public void startCompile(String[] sources)
     {
+
+        // The following two lines will send a compilation event to extensions.
+        CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT,sources);
+        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+   
         setStatus(compiling);
 
         if (sources.length > 0) {
@@ -1842,6 +1849,18 @@ public class Package extends Graph
     public void errorMessage(String filename, int lineNo, String message,
                              boolean invalidate)
     {
+
+        // The following lines will send a compilation Error event to extensions.
+        int eventId = invalidate?CompileEvent.COMPILE_ERROR_EVENT:CompileEvent.COMPILE_WARNING_EVENT;
+        String [] sources = new String[1]; 
+        sources [0] = filename;
+        CompileEvent aCompileEvent = new CompileEvent(eventId,sources);
+        aCompileEvent.setErrorLineNumber(lineNo);
+        aCompileEvent.setErrorMessage(message);
+        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+
+
+    
         if(! showEditorMessage(filename, lineNo, message, invalidate, true,
                                true, false, Config.compilertype))
             showMessageWithText("error-in-file",
@@ -1897,6 +1916,12 @@ public class Package extends Graph
      */
     public void endCompile(String[] sources, boolean successful)
     {
+
+        // The following three lines will send a compilation event to extensions.
+        int eventId = successful?CompileEvent.COMPILE_DONE_EVENT:CompileEvent.COMPILE_FAILED_EVENT;
+        CompileEvent aCompileEvent = new CompileEvent(eventId,sources);
+        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+    
         for(int i = 0; i < sources.length; i++) {
             String filename = sources[i];
 
