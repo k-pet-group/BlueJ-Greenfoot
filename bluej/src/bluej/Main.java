@@ -1,5 +1,7 @@
 package bluej;
 
+import bluej.extensions.event.*;
+import bluej.extmgr.*;
 import java.io.File;
 import java.util.Properties;
 
@@ -14,7 +16,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: Main.java 2836 2004-08-04 14:48:23Z damiano $
  */
 public class Main
 {
@@ -127,6 +129,8 @@ public class Main
                 openEmptyFrame();
             }
         }
+        
+    ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
     }
     
     /**
