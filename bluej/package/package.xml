@@ -8,20 +8,11 @@
 
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
-        <include name="lib/abstract.tmpl" />
         <include name="lib/antlr.jar" />
-        <include name="lib/applet.tmpl" />
         <include name="lib/bluej.defs" />
         <include name="lib/bluej.ico" />
-        <include name="lib/html.tmpl" />
-        <include name="lib/interface.tmpl" />
-        <include name="lib/japplet.tmpl" />
         <include name="lib/jpda.jar" />
         <include name="lib/moe.defs" />
-        <include name="lib/readme.tmpl" />
-        <include name="lib/readmeexp.tmpl" />
-        <include name="lib/shell.tmpl" />
-        <include name="lib/stdclass.tmpl" />
     </patternset>
 
     <patternset id="bluej.libdirs">
