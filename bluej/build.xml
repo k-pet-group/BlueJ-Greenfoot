@@ -48,7 +48,7 @@
         <pathelement location="${bluej_home}/lib/MRJ141Stubs.jar"/>
         <pathelement location="${bluej_home}/lib/antlr.jar"/>
         <pathelement location="${bluej_home}/lib/junit.jar"/>
-        <pathelement location="${bluej_home}/lib/bsh.jar"/>
+        <!--pathelement location="${bluej_home}/lib/bsh.jar"/-->
         <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
     </path>
 
