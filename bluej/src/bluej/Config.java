@@ -26,7 +26,7 @@ import bluej.utility.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: Config.java 1773 2003-04-10 02:11:25Z ajp $
  */
 
 public class Config
@@ -135,7 +135,7 @@ public class Config
         boolean themed = Boolean.valueOf(
             Config.getPropString("bluej.useTheme", "false")).booleanValue();
         if(themed)    
-            MetalLookAndFeel.setCurrentTheme(new BluejTheme());
+            MetalLookAndFeel.setCurrentTheme(new BlueJTheme());
 
     } // initialise
 
