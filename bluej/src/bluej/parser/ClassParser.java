@@ -104,7 +104,7 @@ public class ClassParser extends antlr.LLkParser
 
     // This method decides what action to take based on the type of
     //   file we are looking at
-    public static void doFile(File f, SymbolTable symbolTable, ClassInfo info)
+    private static void doFile(File f, SymbolTable symbolTable, ClassInfo info)
 	throws Exception
     {
         // If this is a directory, walk each file/dir in that directory
@@ -120,7 +120,7 @@ public class ClassParser extends antlr.LLkParser
     }
 
     // Here's where we do the real work...
-    public static void parseFile(InputStream s,
+    private static void parseFile(InputStream s,
                                  SymbolTable symbolTable, ClassInfo info)
 	throws Exception
     {
@@ -2839,182 +2839,303 @@ public ClassParser(ParserSharedInputState state) {
 		Token  id = null;
 		JavaToken t; int count=-1;
 		
-		t=primaryExpression();
+		switch ( LA(1)) {
+		case IDENT:
+		case LPAREN:
+		case LITERAL_super:
+		case LITERAL_true:
+		case LITERAL_false:
+		case LITERAL_this:
+		case LITERAL_null:
+		case LITERAL_new:
+		case NUM_INT:
+		case CHAR_LITERAL:
+		case STRING_LITERAL:
+		case NUM_FLOAT:
 		{
-		_loop154:
-		do {
-			switch ( LA(1)) {
-			case DOT:
+			t=primaryExpression();
 			{
-				match(DOT);
-				{
+			_loop157:
+			do {
 				switch ( LA(1)) {
-				case IDENT:
+				case DOT:
 				{
-					id = LT(1);
-					match(IDENT);
-					if ( inputState.guessing==0 ) {
-						if (t!=null) t.setText(t.getText()+"."+id.getText());
+					match(DOT);
+					{
+					switch ( LA(1)) {
+					case IDENT:
+					{
+						id = LT(1);
+						match(IDENT);
+						if ( inputState.guessing==0 ) {
+							if (t!=null) t.setText(t.getText()+"."+id.getText());
+						}
+						break;
+					}
+					case LITERAL_this:
+					{
+						match(LITERAL_this);
+						if ( inputState.guessing==0 ) {
+							if (t!=null) t.setText(t.getText()+".this");
+						}
+						break;
+					}
+					case LITERAL_class:
+					{
+						match(LITERAL_class);
+						if ( inputState.guessing==0 ) {
+							if (t!=null) t.setText(t.getText()+".class");
+						}
+						break;
+					}
+					case LITERAL_new:
+					{
+						newExpression();
+						break;
+					}
+					case LITERAL_super:
+					{
+						match(LITERAL_super);
+						match(LPAREN);
+						{
+						switch ( LA(1)) {
+						case LITERAL_void:
+						case LITERAL_boolean:
+						case LITERAL_byte:
+						case LITERAL_char:
+						case LITERAL_short:
+						case LITERAL_int:
+						case LITERAL_float:
+						case LITERAL_long:
+						case LITERAL_double:
+						case IDENT:
+						case LPAREN:
+						case PLUS:
+						case MINUS:
+						case INC:
+						case DEC:
+						case BNOT:
+						case LNOT:
+						case LITERAL_super:
+						case LITERAL_true:
+						case LITERAL_false:
+						case LITERAL_this:
+						case LITERAL_null:
+						case LITERAL_new:
+						case NUM_INT:
+						case CHAR_LITERAL:
+						case STRING_LITERAL:
+						case NUM_FLOAT:
+						{
+							expressionList();
+							break;
+						}
+						case RPAREN:
+						{
+							break;
+						}
+						default:
+						{
+							throw new NoViableAltException(LT(1), getFilename());
+						}
+						}
+						}
+						match(RPAREN);
+						break;
+					}
+					default:
+					{
+						throw new NoViableAltException(LT(1), getFilename());
+					}
+					}
 					}
 					break;
 				}
-				case LITERAL_this:
-				{
-					match(LITERAL_this);
-					if ( inputState.guessing==0 ) {
-						if (t!=null) t.setText(t.getText()+".this");
-					}
-					break;
-				}
-				case LITERAL_class:
-				{
-					match(LITERAL_class);
-					if ( inputState.guessing==0 ) {
-						if (t!=null) t.setText(t.getText()+".class");
-					}
-					break;
-				}
-				default:
-				{
-					throw new NoViableAltException(LT(1), getFilename());
-				}
-				}
-				}
-				break;
-			}
-			case LBRACK:
-			{
-				match(LBRACK);
-				expression();
-				match(RBRACK);
-				break;
-			}
-			case LPAREN:
-			{
-				match(LPAREN);
-				{
-				switch ( LA(1)) {
-				case LITERAL_void:
-				case LITERAL_boolean:
-				case LITERAL_byte:
-				case LITERAL_char:
-				case LITERAL_short:
-				case LITERAL_int:
-				case LITERAL_float:
-				case LITERAL_long:
-				case LITERAL_double:
-				case IDENT:
 				case LPAREN:
-				case PLUS:
-				case MINUS:
-				case INC:
-				case DEC:
-				case BNOT:
-				case LNOT:
-				case LITERAL_super:
-				case LITERAL_true:
-				case LITERAL_false:
-				case LITERAL_this:
-				case LITERAL_null:
-				case LITERAL_new:
-				case NUM_INT:
-				case CHAR_LITERAL:
-				case STRING_LITERAL:
-				case NUM_FLOAT:
 				{
-					count=expressionList();
-					break;
-				}
-				case RPAREN:
-				{
+					match(LPAREN);
+					{
+					switch ( LA(1)) {
+					case LITERAL_void:
+					case LITERAL_boolean:
+					case LITERAL_byte:
+					case LITERAL_char:
+					case LITERAL_short:
+					case LITERAL_int:
+					case LITERAL_float:
+					case LITERAL_long:
+					case LITERAL_double:
+					case IDENT:
+					case LPAREN:
+					case PLUS:
+					case MINUS:
+					case INC:
+					case DEC:
+					case BNOT:
+					case LNOT:
+					case LITERAL_super:
+					case LITERAL_true:
+					case LITERAL_false:
+					case LITERAL_this:
+					case LITERAL_null:
+					case LITERAL_new:
+					case NUM_INT:
+					case CHAR_LITERAL:
+					case STRING_LITERAL:
+					case NUM_FLOAT:
+					{
+						count=expressionList();
+						break;
+					}
+					case RPAREN:
+					{
+						if ( inputState.guessing==0 ) {
+							count=0;
+						}
+						break;
+					}
+					default:
+					{
+						throw new NoViableAltException(LT(1), getFilename());
+					}
+					}
+					}
+					match(RPAREN);
 					if ( inputState.guessing==0 ) {
-						count=0;
+						
+							                if (t!=null)
+							                    t.setParamCount(count);
+							
 					}
 					break;
 				}
 				default:
-				{
-					throw new NoViableAltException(LT(1), getFilename());
+					if ((LA(1)==LBRACK) && (LA(2)==RBRACK)) {
+						{
+						int _cnt155=0;
+						_loop155:
+						do {
+							if ((LA(1)==LBRACK)) {
+								match(LBRACK);
+								match(RBRACK);
+							}
+							else {
+								if ( _cnt155>=1 ) { break _loop155; } else {throw new NoViableAltException(LT(1), getFilename());}
+							}
+							
+							_cnt155++;
+						} while (true);
+						}
+						match(DOT);
+						match(LITERAL_class);
+					}
+					else if ((LA(1)==LBRACK) && (_tokenSet_15.member(LA(2)))) {
+						match(LBRACK);
+						expression();
+						match(RBRACK);
+					}
+				else {
+					break _loop157;
 				}
 				}
-				}
-				match(RPAREN);
-				if ( inputState.guessing==0 ) {
-					
-					if (t!=null)
-					t.setParamCount(count);
-					
-				}
+			} while (true);
+			}
+			if ( inputState.guessing==0 ) {
+				if (t != null) reference(t);
+			}
+			{
+			switch ( LA(1)) {
+			case INC:
+			{
+				match(INC);
+				break;
+			}
+			case DEC:
+			{
+				match(DEC);
+				break;
+			}
+			case SEMI:
+			case RBRACK:
+			case STAR:
+			case RCURLY:
+			case COMMA:
+			case ASSIGN:
+			case RPAREN:
+			case COLON:
+			case PLUS_ASSIGN:
+			case MINUS_ASSIGN:
+			case STAR_ASSIGN:
+			case DIV_ASSIGN:
+			case MOD_ASSIGN:
+			case SR_ASSIGN:
+			case BSR_ASSIGN:
+			case SL_ASSIGN:
+			case BAND_ASSIGN:
+			case BXOR_ASSIGN:
+			case BOR_ASSIGN:
+			case QUESTION:
+			case LOR:
+			case LAND:
+			case BOR:
+			case BXOR:
+			case BAND:
+			case NOT_EQUAL:
+			case EQUAL:
+			case LT:
+			case GT:
+			case LE:
+			case GE:
+			case SL:
+			case SR:
+			case BSR:
+			case PLUS:
+			case MINUS:
+			case DIV:
+			case MOD:
+			case LITERAL_instanceof:
+			{
 				break;
 			}
 			default:
 			{
-				break _loop154;
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
-		} while (true);
-		}
-		if ( inputState.guessing==0 ) {
-			if (t != null) reference(t);
-		}
-		{
-		switch ( LA(1)) {
-		case INC:
-		{
-			match(INC);
+			}
 			break;
 		}
-		case DEC:
+		case LITERAL_void:
+		case LITERAL_boolean:
+		case LITERAL_byte:
+		case LITERAL_char:
+		case LITERAL_short:
+		case LITERAL_int:
+		case LITERAL_float:
+		case LITERAL_long:
+		case LITERAL_double:
 		{
-			match(DEC);
-			break;
-		}
-		case SEMI:
-		case RBRACK:
-		case STAR:
-		case RCURLY:
-		case COMMA:
-		case ASSIGN:
-		case RPAREN:
-		case COLON:
-		case PLUS_ASSIGN:
-		case MINUS_ASSIGN:
-		case STAR_ASSIGN:
-		case DIV_ASSIGN:
-		case MOD_ASSIGN:
-		case SR_ASSIGN:
-		case BSR_ASSIGN:
-		case SL_ASSIGN:
-		case BAND_ASSIGN:
-		case BXOR_ASSIGN:
-		case BOR_ASSIGN:
-		case QUESTION:
-		case LOR:
-		case LAND:
-		case BOR:
-		case BXOR:
-		case BAND:
-		case NOT_EQUAL:
-		case EQUAL:
-		case LT:
-		case GT:
-		case LE:
-		case GE:
-		case SL:
-		case SR:
-		case BSR:
-		case PLUS:
-		case MINUS:
-		case DIV:
-		case MOD:
-		case LITERAL_instanceof:
-		{
+			builtInType();
+			{
+			_loop160:
+			do {
+				if ((LA(1)==LBRACK)) {
+					match(LBRACK);
+					match(RBRACK);
+				}
+				else {
+					break _loop160;
+				}
+				
+			} while (true);
+			}
+			match(DOT);
+			match(LITERAL_class);
 			break;
 		}
 		default:
 		{
 			throw new NoViableAltException(LT(1), getFilename());
-		}
 		}
 		}
 	}
@@ -3034,24 +3155,6 @@ public ClassParser(ParserSharedInputState state) {
 			match(IDENT);
 			if ( inputState.guessing==0 ) {
 				t = (JavaToken)id;
-			}
-			break;
-		}
-		case LITERAL_void:
-		case LITERAL_boolean:
-		case LITERAL_byte:
-		case LITERAL_char:
-		case LITERAL_short:
-		case LITERAL_int:
-		case LITERAL_float:
-		case LITERAL_long:
-		case LITERAL_double:
-		{
-			t=builtInType();
-			match(DOT);
-			match(LITERAL_class);
-			if ( inputState.guessing==0 ) {
-				t.setText(t.getText()+".class");
 			}
 			break;
 		}
@@ -3246,8 +3349,8 @@ public ClassParser(ParserSharedInputState state) {
 		case LBRACK:
 		{
 			{
-			int _cnt163=0;
-			_loop163:
+			int _cnt168=0;
+			_loop168:
 			do {
 				if ((LA(1)==LBRACK) && (_tokenSet_21.member(LA(2)))) {
 					match(LBRACK);
@@ -3297,10 +3400,10 @@ public ClassParser(ParserSharedInputState state) {
 					match(RBRACK);
 				}
 				else {
-					if ( _cnt163>=1 ) { break _loop163; } else {throw new NoViableAltException(LT(1), getFilename());}
+					if ( _cnt168>=1 ) { break _loop168; } else {throw new NoViableAltException(LT(1), getFilename());}
 				}
 				
-				_cnt163++;
+				_cnt168++;
 			} while (true);
 			}
 			{

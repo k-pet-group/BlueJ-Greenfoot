@@ -129,7 +129,7 @@ options {
 
     // This method decides what action to take based on the type of
     //   file we are looking at
-    public static void doFile(File f, SymbolTable symbolTable, ClassInfo info)
+    private static void doFile(File f, SymbolTable symbolTable, ClassInfo info)
 	throws Exception
     {
         // If this is a directory, walk each file/dir in that directory
@@ -145,7 +145,7 @@ options {
     }
 
     // Here's where we do the real work...
-    public static void parseFile(InputStream s,
+    private static void parseFile(InputStream s,
                                  SymbolTable symbolTable, ClassInfo info)
 	throws Exception
     {
@@ -1126,48 +1126,58 @@ postfixExpression
     :   t=primaryExpression // start with a primary
 
 
-        (   // qualified id (id.id.id.id...) -- buid the name
-            DOT ( id:IDENT {if (t!=null) t.setText(t.getText()+"."+id.getText());}
-                | "this"   {if (t!=null) t.setText(t.getText()+".this");}
-                | "class"  {if (t!=null) t.setText(t.getText()+".class");}
-                )
-            // the above line needs a semantic check to make sure "class"
-            //   is the _last_ qualifier.  Could also add it as a dummy
-            //   data member in all classes in the symbol table...
+	        (   // qualified id (id.id.id.id...) -- build the name
+	            DOT ( id:IDENT {if (t!=null) t.setText(t.getText()+"."+id.getText());}
+	                | "this"   {if (t!=null) t.setText(t.getText()+".this");}
+	                | "class"  {if (t!=null) t.setText(t.getText()+".class");}
+	                | newExpression
+	                | "super" LPAREN ( expressionList )? RPAREN
+	                )
+	            // the above line needs a semantic check to make sure "class"
+	            //   is the _last_ qualifier.  Could also add it as a dummy
+	            //   data member in all classes in the symbol table...
 
-        // an array indexing operation (not handled)
-        |   LBRACK expression RBRACK
+			// allow ClassName[].class
+		|  ( LBRACK RBRACK )+ DOT "class"
 
-        // method invocation - keep number of parameters
-        // note that this will not quite work correctly in the cross reference
-        //   tool -- we really need to evaluate the method call's return
-        //   type and use that as the base for the next qualifier...
-        // but this works fine for example use, in method calls like
-        //   x.y(4);
+	        // an array indexing operation (not handled)
+	        |   LBRACK expression RBRACK
 
-        // The next line is not strictly proper; it allows x(3)(4) or
-        //   x[2](4) which are not valid in Java.  If this grammar were used
-        //   to validate a Java program a semantic check would be needed, or
-        //   this rule would get really ugly...
-        |   LPAREN
-                ( count=expressionList
-                | /*nothing*/ {count=0;}
-                )
-            RPAREN
-            {
-                if (t!=null)
-                    t.setParamCount(count);
-            }
-        )*
+	        // method invocation - keep number of parameters
+	        // note that this will not quite work correctly in the cross reference
+	        //   tool -- we really need to evaluate the method call's return
+	        //   type and use that as the base for the next qualifier...
+	        // but this works fine for example use, in method calls like
+	        //   x.y(4);
 
-        // if we have a reference, tell the symbol table
-        {if (t != null) reference(t);}
+	        // The next line is not strictly proper; it allows x(3)(4) or
+	        //   x[2](4) which are not valid in Java.  If this grammar were used
+	        //   to validate a Java program a semantic check would be needed, or
+	        //   this rule would get really ugly...
+	        |   LPAREN
+	                ( count=expressionList
+	                | /*nothing*/ {count=0;}
+	                )
+	            RPAREN
+	            {
+	                if (t!=null)
+	                    t.setParamCount(count);
+	            }
+	        )*
 
-        // possibly add on a post-increment or post-decrement
-        (   INC
-        |   DEC
-        |   // nothing
-        )
+	        // if we have a reference, tell the symbol table
+	        {if (t != null) reference(t);}
+
+	        // possibly add on a post-increment or post-decrement
+	        (   INC
+	        |   DEC
+	        |   // nothing
+	        )
+
+		// look for int.class and int[].class
+	|
+	builtInType
+	( LBRACK RBRACK )* DOT "class"
     ;
 
 
@@ -1175,7 +1185,7 @@ postfixExpression
 primaryExpression returns [JavaToken t]
     {t=null;}
     :   id:IDENT {t = (JavaToken)id;}
-    |   t=builtInType DOT "class" {t.setText(t.getText()+".class");}
+//    |   t=builtInType DOT "class" {t.setText(t.getText()+".class");}
     |   t=newExpression
     |   constant
     |   s:"super"        {t = (JavaToken)s;}
