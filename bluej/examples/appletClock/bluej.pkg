@@ -1,16 +1,15 @@
-#BlueJ project file
+#BlueJ package file
+package.editor.height=249
+package.editor.width=395
 package.numDependencies=0
 package.numTargets=1
-package.window.height=498
-package.window.width=572
 target1.appletHeight=200
 target1.appletWidth=300
-target1.height=50
+target1.height=60
 target1.modifiers=0
 target1.name=Clock
 target1.numberAppletParameters=0
 target1.type=AppletTarget
-target1.valid=true
 target1.width=90
-target1.x=40
+target1.x=70
 target1.y=50

@@ -15,3 +15,10 @@ other
   labels update for non-english
   see Test: "import subpackage" does not work!
   default button works again!?
+
+do before release:
+  remove "maze" example
+  remove simple
+  add shapes
+  add picture
+  add bluej.ico to lib

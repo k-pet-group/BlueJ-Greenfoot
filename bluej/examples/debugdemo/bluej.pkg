@@ -2,8 +2,8 @@
 dependency1.from=Demo
 dependency1.to=Car
 dependency1.type=UsesDependency
-package.editor.height=320
-package.editor.width=460
+package.editor.height=250
+package.editor.width=468
 package.numDependencies=1
 package.numTargets=2
 target1.height=50

@@ -1,9 +1,8 @@
 /**
  * A class representing staff members for a simple BlueJ demo program.
  *
- * Author:  Michael Kölling
- * Version: 1.0
- * Date:    January 1999
+ * @author:  Michael Kölling
+ * @version: 1.0, January 1999
  */
 
 class Staff extends Person

@@ -1,5 +1,6 @@
 /**
  * Class Reader - Simplifies reading in user input.
+ * @author: Michael Kölling
  */
 import java.io.*;
 
@@ -13,11 +14,12 @@ public class Reader
     }
 
     /**
-     * Read a line of input, and return it
+     * Read a line of input, and return it. You can supply a prompt, if you
+	 * like. (The prompt can be an empty String if you don't want one.)
      */
-    public String readLine()
+    public String readLine(String prompt)
     {
-        System.out.print("Enter some text: ");
+        System.out.print(prompt);
         StringBuffer buf = new StringBuffer();
         int c;
 

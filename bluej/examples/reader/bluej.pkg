@@ -1,14 +1,12 @@
-#BlueJ project file
-#Mon Aug 23 11:56:38 GMT+10:00 1999
-target1.height=50
-package.window.height=451
-target1.y=40
-target1.x=30
-target1.valid=true
-package.numTargets=1
-target1.type=ClassTarget
-package.window.width=513
-target1.name=Reader
-target1.width=80
+#BlueJ package file
+package.editor.height=255
+package.editor.width=377
 package.numDependencies=0
+package.numTargets=1
+target1.height=50
 target1.modifiers=1
+target1.name=Reader
+target1.type=ClassTarget
+target1.width=80
+target1.x=110
+target1.y=70
