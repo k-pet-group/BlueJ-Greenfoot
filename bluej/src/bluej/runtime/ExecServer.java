@@ -20,7 +20,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: ExecServer.java 1826 2003-04-11 06:17:12Z ajp $
  */
 public class ExecServer
 {
@@ -463,8 +463,8 @@ public class ExecServer
 				Object result[] = new Object[2];
 				TestFailure tf = (TestFailure)e.nextElement();
 				
-				result[0] = tf.exceptionMessage();
-				result[1] = tf.trace();
+				result[0] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
+				result[1] = tf.trace() != null ? tf.trace() : "no trace";
 				
 				return result;
 			}
@@ -477,8 +477,8 @@ public class ExecServer
 				Object result[] = new Object[2];
 				TestFailure tf = (TestFailure)e.nextElement();
 				
-				result[0] = tf.exceptionMessage();
-				result[1] = tf.trace();
+				result[0] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
+				result[1] = tf.trace() != null ? tf.trace() : "no trace";
 
 				return result;
 			}
