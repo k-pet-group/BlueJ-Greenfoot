@@ -31,7 +31,7 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 3095 2004-11-15 23:44:35Z davmac $
+ * @version $Id: JdiTests.java 3139 2004-11-23 01:13:47Z davmac $
  */
 public class JdiTests extends TestCase
 {
@@ -42,6 +42,10 @@ public class JdiTests extends TestCase
     private static String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
             "antlr.jar", "MRJ141Stubs.jar" };
     private static String[] bluejUserJars = { "junit.jar" };
+    
+    // various vars useful for testing
+    boolean failed = false;
+    boolean flag1 = false;
     
     private static File calculateBluejLibDir()
     {
@@ -264,7 +268,7 @@ public class JdiTests extends TestCase
      * The purpose of this test is to ensure that when the debugger is reset,
      * the old debugger process is terminated even if it was running in an
      * infinite loop.
-     * (fails in version 2.0.0)
+     * (fails in version 2.0.0)<p>
      * 
      * 21/9/04
      * @author Davin McCall
@@ -342,11 +346,10 @@ public class JdiTests extends TestCase
     /**
      * This tests that restarting the debug vm when an object on the bench
      * goes smoothly.  Previously this caused a VMDisconnectedException.
-     * (fails in version 2.0.1)
-     * 
-     * @throws Exception
+     * (fails in version 2.0.1)<p>
      * 
      * 06/10/04
+     * 
      * @author Davin McCall
      */
     public void test2() throws Exception
@@ -451,11 +454,10 @@ public class JdiTests extends TestCase
     
     /**
      * This tests that stepping into a breakpoint suspends the thread only
-     * once. (fails in version 2.0.1).
+     * once. (fails in version 2.0.1).<p>
      * 
-     * @throws Exception
-     *
      * 12/10/04
+     * 
      * @author Davin McCall
      */
     public void test3() throws Exception
@@ -522,6 +524,15 @@ public class JdiTests extends TestCase
         assertFalse(n.isAlive());
     }
     
+    /**
+     * This tests that throwing an exception at the top level works correctly.
+     * (Ie. throwing an exception directly from the code pad works & doesn't
+     * cause an internal BlueJ error).<p>
+     * 
+     * 19/11/04
+     * 
+     * @author Davin McCall
+     */
     public void test4() throws Exception
     {
         // launch the debugger
@@ -557,18 +568,73 @@ public class JdiTests extends TestCase
         debugger.close(false);
     }
     
+    /**
+     * Test that an exception in a static initializer doesn't cause getClass
+     * to bomb. (Causes hanging on inspection of a class).
+     */
+    public void test5() throws Exception
+    {
+        // launch the debugger
+        File launchDir = new File(bluejLibDir);
+        launchDir = launchDir.getParentFile();
+        launchDir = new File(launchDir, "test");
+        launchDir = new File(launchDir, "testprojects");
+        launchDir = new File(launchDir, "test1");
+        DebuggerTerminal term = new TestTerminal();
+        final JdiDebugger debugger = new JdiDebugger(launchDir,term);
+
+        // wait until it is ready
+        TestDebuggerListener tdl = new TestDebuggerListener(this);
+        debugger.addDebuggerListener(tdl);
+        debugger.launch();
+        tdl.waitReady();
+        
+        Thread n = new Thread() {
+            public void run()
+            {
+                try {
+                    debugger.getClass("initException");
+                }
+                catch (ClassNotFoundException cnfe) {}
+                flag1 = true;
+            }
+        };
+        n.start();
+        
+        // wait at most 3 seconds for the class to be loaded
+        n.join(3000);
+        assertTrue(flag1);
+        flag1 = false;
+    }
+    
     class TestDebuggerListener implements DebuggerListener
     {
         private Object syncObject;  // object used for synchronization
         
         public int breakpointEvents = 0;  // count of breakpoint events
         public int stepEvents = 0;   // count of step events
+        public int currentState = Debugger.NOTREADY;  // current debugger state
         
         public DebuggerEvent lastEvent;
         
         public TestDebuggerListener(Object syncObject)
         {
             this.syncObject = syncObject;
+        }
+        
+        /**
+         * wait until the debugger is in the "idle" state.
+         */
+        public void waitReady()
+        {
+            synchronized (syncObject) {
+                while (currentState != Debugger.IDLE) {
+                    try {
+                        syncObject.wait();
+                    }
+                    catch (InterruptedException ie) { }
+                }
+            }
         }
         
         public void debuggerEvent(DebuggerEvent e)
@@ -579,6 +645,8 @@ public class JdiTests extends TestCase
                     breakpointEvents++;
                 else if(e.getID() == DebuggerEvent.THREAD_HALT)
                     stepEvents++;
+                else if(e.getID() == DebuggerEvent.DEBUGGER_STATECHANGED)
+                    currentState = e.getNewState();
                 
                 lastEvent = e;
                 
