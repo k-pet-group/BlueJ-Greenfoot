@@ -374,7 +374,7 @@ object MainForm: TMainForm
     TabOrder = 5
     OnClick = BrowseButtonClick
   end
-  object BitBtn1: TBitBtn
+  object AdvancedSimpleButton: TBitBtn
     Left = 8
     Top = 168
     Width = 129
@@ -382,7 +382,7 @@ object MainForm: TMainForm
     Caption = 'Advanced'
     TabOrder = 6
     TabStop = False
-    OnClick = BitBtn1ClickToSimple
+    OnClick = AdvancedSimpleButtonClickToSimple
     Style = bsNew
     Spacing = 14
   end

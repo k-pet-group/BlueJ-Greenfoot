@@ -8,86 +8,91 @@
   resources were bound to the produced executable.
 */
 
-#define Consts_SmkcShift 65328
-#define Consts_SmkcCtrl 65329
-#define Consts_SmkcAlt 65330
-#define Consts_SIconToClipboard 65331
-#define Consts_SCannotOpenClipboard 65332
-#define Consts_SDuplicateMenus 65333
-#define Consts_SDockedCtlNeedsName 65334
-#define Consts_SDockTreeRemoveError 65335
-#define Consts_SDockZoneNotFound 65336
-#define Consts_SDockZoneHasNoCtl 65337
-#define HelpIntfs_hNoTableOfContents 65338
-#define HelpIntfs_hNothingFound 65339
-#define HelpIntfs_hNoContext 65340
-#define HelpIntfs_hNoTopics 65341
-#define ComStrs_sInvalidOwner 65342
-#define ComStrs_sInvalidComCtl32 65343
-#define Consts_SMsgDlgYesToAll 65344
-#define Consts_SmkcBkSp 65345
-#define Consts_SmkcTab 65346
-#define Consts_SmkcEsc 65347
-#define Consts_SmkcEnter 65348
-#define Consts_SmkcSpace 65349
-#define Consts_SmkcPgUp 65350
-#define Consts_SmkcPgDn 65351
-#define Consts_SmkcEnd 65352
-#define Consts_SmkcHome 65353
-#define Consts_SmkcLeft 65354
-#define Consts_SmkcUp 65355
-#define Consts_SmkcRight 65356
-#define Consts_SmkcDown 65357
-#define Consts_SmkcIns 65358
-#define Consts_SmkcDel 65359
-#define Consts_SVIcons 65360
-#define Consts_SVBitmaps 65361
-#define Consts_SMsgDlgWarning 65362
-#define Consts_SMsgDlgError 65363
-#define Consts_SMsgDlgInformation 65364
-#define Consts_SMsgDlgConfirm 65365
-#define Consts_SMsgDlgYes 65366
-#define Consts_SMsgDlgNo 65367
-#define Consts_SMsgDlgOK 65368
-#define Consts_SMsgDlgCancel 65369
-#define Consts_SMsgDlgHelp 65370
-#define Consts_SMsgDlgAbort 65371
-#define Consts_SMsgDlgRetry 65372
-#define Consts_SMsgDlgIgnore 65373
-#define Consts_SMsgDlgAll 65374
-#define Consts_SMsgDlgNoToAll 65375
-#define Consts_SGroupIndexTooLow 65376
-#define Consts_SNoMDIForm 65377
-#define Consts_SControlParentSetToSelf 65378
-#define Consts_SOKButton 65379
-#define Consts_SCancelButton 65380
-#define Consts_SYesButton 65381
-#define Consts_SNoButton 65382
-#define Consts_SHelpButton 65383
-#define Consts_SCloseButton 65384
-#define Consts_SIgnoreButton 65385
-#define Consts_SRetryButton 65386
-#define Consts_SAbortButton 65387
-#define Consts_SAllButton 65388
-#define Consts_SCannotDragForm 65389
-#define Consts_SVMetafiles 65390
-#define Consts_SVEnhMetafiles 65391
-#define Consts_SReplaceImage 65392
-#define Consts_SImageIndexError 65393
-#define Consts_SImageReadFail 65394
-#define Consts_SImageWriteFail 65395
-#define Consts_SWindowDCError 65396
-#define Consts_SWindowClass 65397
-#define Consts_SCannotFocus 65398
-#define Consts_SParentRequired 65399
-#define Consts_SParentGivenNotAParent 65400
-#define Consts_SMDIChildNotVisible 65401
-#define Consts_SVisibleChanged 65402
-#define Consts_SCannotShowModal 65403
-#define Consts_SMenuIndexError 65404
-#define Consts_SMenuReinserted 65405
-#define Consts_SMenuNotFound 65406
-#define Consts_SNoTimers 65407
+#define ComStrs_sInvalidOwner 65312
+#define ComStrs_sInvalidComCtl32 65313
+#define JConsts_sChangeJPGSize 65314
+#define JConsts_sJPEGError 65315
+#define JConsts_sJPEGImageFile 65316
+#define Consts_SmkcIns 65328
+#define Consts_SmkcDel 65329
+#define Consts_SmkcShift 65330
+#define Consts_SmkcCtrl 65331
+#define Consts_SmkcAlt 65332
+#define Consts_SIconToClipboard 65333
+#define Consts_SCannotOpenClipboard 65334
+#define Consts_SDuplicateMenus 65335
+#define Consts_SDockedCtlNeedsName 65336
+#define Consts_SDockTreeRemoveError 65337
+#define Consts_SDockZoneNotFound 65338
+#define Consts_SDockZoneHasNoCtl 65339
+#define HelpIntfs_hNoTableOfContents 65340
+#define HelpIntfs_hNothingFound 65341
+#define HelpIntfs_hNoContext 65342
+#define HelpIntfs_hNoTopics 65343
+#define Consts_SMsgDlgAll 65344
+#define Consts_SMsgDlgNoToAll 65345
+#define Consts_SMsgDlgYesToAll 65346
+#define Consts_SmkcBkSp 65347
+#define Consts_SmkcTab 65348
+#define Consts_SmkcEsc 65349
+#define Consts_SmkcEnter 65350
+#define Consts_SmkcSpace 65351
+#define Consts_SmkcPgUp 65352
+#define Consts_SmkcPgDn 65353
+#define Consts_SmkcEnd 65354
+#define Consts_SmkcHome 65355
+#define Consts_SmkcLeft 65356
+#define Consts_SmkcUp 65357
+#define Consts_SmkcRight 65358
+#define Consts_SmkcDown 65359
+#define Consts_SVMetafiles 65360
+#define Consts_SVEnhMetafiles 65361
+#define Consts_SVIcons 65362
+#define Consts_SVBitmaps 65363
+#define Consts_SMsgDlgWarning 65364
+#define Consts_SMsgDlgError 65365
+#define Consts_SMsgDlgInformation 65366
+#define Consts_SMsgDlgConfirm 65367
+#define Consts_SMsgDlgYes 65368
+#define Consts_SMsgDlgNo 65369
+#define Consts_SMsgDlgOK 65370
+#define Consts_SMsgDlgCancel 65371
+#define Consts_SMsgDlgHelp 65372
+#define Consts_SMsgDlgAbort 65373
+#define Consts_SMsgDlgRetry 65374
+#define Consts_SMsgDlgIgnore 65375
+#define Consts_SMenuNotFound 65376
+#define Consts_SNoTimers 65377
+#define Consts_SGroupIndexTooLow 65378
+#define Consts_SNoMDIForm 65379
+#define Consts_SControlParentSetToSelf 65380
+#define Consts_SOKButton 65381
+#define Consts_SCancelButton 65382
+#define Consts_SYesButton 65383
+#define Consts_SNoButton 65384
+#define Consts_SHelpButton 65385
+#define Consts_SCloseButton 65386
+#define Consts_SIgnoreButton 65387
+#define Consts_SRetryButton 65388
+#define Consts_SAbortButton 65389
+#define Consts_SAllButton 65390
+#define Consts_SCannotDragForm 65391
+#define Consts_SInvalidImageSize 65392
+#define Consts_SInvalidImageList 65393
+#define Consts_SReplaceImage 65394
+#define Consts_SImageIndexError 65395
+#define Consts_SImageReadFail 65396
+#define Consts_SImageWriteFail 65397
+#define Consts_SWindowDCError 65398
+#define Consts_SWindowClass 65399
+#define Consts_SCannotFocus 65400
+#define Consts_SParentRequired 65401
+#define Consts_SParentGivenNotAParent 65402
+#define Consts_SMDIChildNotVisible 65403
+#define Consts_SVisibleChanged 65404
+#define Consts_SCannotShowModal 65405
+#define Consts_SMenuIndexError 65406
+#define Consts_SMenuReinserted 65407
 #define RTLConsts_SSeekNotImplemented 65408
 #define RTLConsts_SSortedListError 65409
 #define RTLConsts_SUnknownGroup 65410
@@ -98,12 +103,12 @@
 #define Consts_SInvalidBitmap 65415
 #define Consts_SInvalidIcon 65416
 #define Consts_SInvalidMetafile 65417
-#define Consts_SChangeIconSize 65418
-#define Consts_SUnknownClipboardFormat 65419
-#define Consts_SOutOfResources 65420
-#define Consts_SNoCanvasHandle 65421
-#define Consts_SInvalidImageSize 65422
-#define Consts_SInvalidImageList 65423
+#define Consts_SInvalidPixelFormat 65418
+#define Consts_SScanLine 65419
+#define Consts_SChangeIconSize 65420
+#define Consts_SUnknownClipboardFormat 65421
+#define Consts_SOutOfResources 65422
+#define Consts_SNoCanvasHandle 65423
 #define RTLConsts_SInvalidImage 65424
 #define RTLConsts_SInvalidName 65425
 #define RTLConsts_SInvalidProperty 65426
@@ -218,6 +223,13 @@
 #define SysConst_SInvalidOp 65535
 STRINGTABLE
 BEGIN
+	ComStrs_sInvalidOwner,	"Invalid owner"
+	ComStrs_sInvalidComCtl32,	"This control requires version 4.70 or greater of COMCTL32.DLL"
+	JConsts_sChangeJPGSize,	"Cannot change the size of a JPEG image"
+	JConsts_sJPEGError,	"JPEG error #%d"
+	JConsts_sJPEGImageFile,	"JPEG Image File"
+	Consts_SmkcIns,	"Ins"
+	Consts_SmkcDel,	"Del"
 	Consts_SmkcShift,	"Shift+"
 	Consts_SmkcCtrl,	"Ctrl+"
 	Consts_SmkcAlt,	"Alt+"
@@ -232,8 +244,8 @@ BEGIN
 	HelpIntfs_hNothingFound,	"No help found for %s"
 	HelpIntfs_hNoContext,	"No context-sensitive help installed"
 	HelpIntfs_hNoTopics,	"No topic-based help system installed"
-	ComStrs_sInvalidOwner,	"Invalid owner"
-	ComStrs_sInvalidComCtl32,	"This control requires version 4.70 or greater of COMCTL32.DLL"
+	Consts_SMsgDlgAll,	"&All"
+	Consts_SMsgDlgNoToAll,	"N&o to All"
 	Consts_SMsgDlgYesToAll,	"Yes to &All"
 	Consts_SmkcBkSp,	"BkSp"
 	Consts_SmkcTab,	"Tab"
@@ -248,8 +260,8 @@ BEGIN
 	Consts_SmkcUp,	"Up"
 	Consts_SmkcRight,	"Right"
 	Consts_SmkcDown,	"Down"
-	Consts_SmkcIns,	"Ins"
-	Consts_SmkcDel,	"Del"
+	Consts_SVMetafiles,	"Metafiles"
+	Consts_SVEnhMetafiles,	"Enhanced Metafiles"
 	Consts_SVIcons,	"Icons"
 	Consts_SVBitmaps,	"Bitmaps"
 	Consts_SMsgDlgWarning,	"Warning"
@@ -264,8 +276,8 @@ BEGIN
 	Consts_SMsgDlgAbort,	"&Abort"
 	Consts_SMsgDlgRetry,	"&Retry"
 	Consts_SMsgDlgIgnore,	"&Ignore"
-	Consts_SMsgDlgAll,	"&All"
-	Consts_SMsgDlgNoToAll,	"N&o to All"
+	Consts_SMenuNotFound,	"Sub-menu is not in menu"
+	Consts_SNoTimers,	"Not enough timers available"
 	Consts_SGroupIndexTooLow,	"GroupIndex cannot be less than a previous menu item's GroupIndex"
 	Consts_SNoMDIForm,	"Cannot create form. No MDI forms are currently active"
 	Consts_SControlParentSetToSelf,	"A control cannot have itself as its parent"
@@ -280,8 +292,8 @@ BEGIN
 	Consts_SAbortButton,	"Abort"
 	Consts_SAllButton,	"&All"
 	Consts_SCannotDragForm,	"Cannot drag a form"
-	Consts_SVMetafiles,	"Metafiles"
-	Consts_SVEnhMetafiles,	"Enhanced Metafiles"
+	Consts_SInvalidImageSize,	"Invalid image size"
+	Consts_SInvalidImageList,	"Invalid ImageList"
 	Consts_SReplaceImage,	"Unable to Replace Image"
 	Consts_SImageIndexError,	"Invalid ImageList Index"
 	Consts_SImageReadFail,	"Failed to read ImageList data from stream"
@@ -296,8 +308,6 @@ BEGIN
 	Consts_SCannotShowModal,	"Cannot make a visible window modal"
 	Consts_SMenuIndexError,	"Menu index out of range"
 	Consts_SMenuReinserted,	"Menu inserted twice"
-	Consts_SMenuNotFound,	"Sub-menu is not in menu"
-	Consts_SNoTimers,	"Not enough timers available"
 	RTLConsts_SSeekNotImplemented,	"%s.Seek not implemented"
 	RTLConsts_SSortedListError,	"Operation not allowed on sorted list"
 	RTLConsts_SUnknownGroup,	"%s not in a class registration group"
@@ -308,12 +318,12 @@ BEGIN
 	Consts_SInvalidBitmap,	"Bitmap image is not valid"
 	Consts_SInvalidIcon,	"Icon image is not valid"
 	Consts_SInvalidMetafile,	"Metafile is not valid"
+	Consts_SInvalidPixelFormat,	"Invalid pixel format"
+	Consts_SScanLine,	"Scan line index out of range"
 	Consts_SChangeIconSize,	"Cannot change the size of an icon"
 	Consts_SUnknownClipboardFormat,	"Unsupported clipboard format"
 	Consts_SOutOfResources,	"Out of system resources"
 	Consts_SNoCanvasHandle,	"Canvas does not allow drawing"
-	Consts_SInvalidImageSize,	"Invalid image size"
-	Consts_SInvalidImageList,	"Invalid ImageList"
 	RTLConsts_SInvalidImage,	"Invalid stream format"
 	RTLConsts_SInvalidName,	"''%s'' is not a valid component name"
 	RTLConsts_SInvalidProperty,	"Invalid property value"
