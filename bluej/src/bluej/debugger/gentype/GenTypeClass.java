@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2818 2004-07-26 03:42:35Z davmac $
+ * @version $Id: GenTypeClass.java 2964 2004-08-31 01:14:04Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -235,9 +235,6 @@ public class GenTypeClass extends GenTypeSolid {
     private static void mapGenericParamsToDirectBase(Map tparams,
             Reflective subType, Reflective baseType)
     {
-        
-        HashMap newMapping = new HashMap();
-        
         // Cases where we can return early: the base isn't a generic type,
         // or the super inherits from the "raw" version of the base. Actually
         // only one test is needed for both cases.
@@ -245,7 +242,6 @@ public class GenTypeClass extends GenTypeSolid {
         List baseParams = baseType.getTypeParams();
         if(baseParams.isEmpty())
             return;
-        Iterator baseParamsI = baseParams.iterator();
         
         GenTypeClass baseClass = subType.superTypeByName(baseType.getName());
         baseClass = (GenTypeClass)baseClass.mapTparsToTypes(tparams);
@@ -385,7 +381,7 @@ public class GenTypeClass extends GenTypeSolid {
      * type.
      * @return the map (of String -> GenTypeParameterizable).
      */
-    protected Map getMap()
+    public Map getMap()
     {
         HashMap r = new HashMap();
         if( params == null )

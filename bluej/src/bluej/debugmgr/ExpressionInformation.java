@@ -1,6 +1,7 @@
 package bluej.debugmgr;
 
 import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.views.CallableView;
 import bluej.views.Comment;
 import bluej.views.MethodView;
@@ -12,7 +13,7 @@ import bluej.views.MethodView;
  * information such as the method signature, javadoc, etc...
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ExpressionInformation.java 2664 2004-06-25 13:19:22Z polle $
+ * @version $Id: ExpressionInformation.java 2964 2004-08-31 01:14:04Z davmac $
  */
 public class ExpressionInformation {
 	private Comment comment;
@@ -51,10 +52,10 @@ public class ExpressionInformation {
 
 	}
     
-    public ExpressionInformation(MethodView methodView, String instanceName, GenType instanceType) {
+    public ExpressionInformation(MethodView methodView, String instanceName, GenTypeClass instanceType) {
         this.methodView = methodView;
         comment = methodView.getComment();
-        signature = methodView.getLongDesc();
+        signature = methodView.getLongDesc(instanceType.getMap());
 
         if (methodView.isStatic()) {
             invokedOn = methodView.getClassName();

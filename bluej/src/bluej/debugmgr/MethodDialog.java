@@ -27,7 +27,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2955 2004-08-30 06:15:11Z davmac $
+ * @version $Id: MethodDialog.java 2964 2004-08-31 01:14:04Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -102,7 +102,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2955 2004-08-30 06:15:11Z davmac $
+     * @version $Id: MethodDialog.java 2964 2004-08-31 01:14:04Z davmac $
      */
     public static class ParameterList
     {
@@ -283,8 +283,6 @@ public class MethodDialog extends CallDialog implements FocusListener
      */
     public void doOk()
     {
-        String[] paramNames = getArgs(); // sets "emptyField"
-
         if (dialogType == MD_CREATE) {
             if (!JavaNames.isIdentifier(getNewInstanceName())) {
                 setErrorMessage(illegalNameMsg);
@@ -336,7 +334,6 @@ public class MethodDialog extends CallDialog implements FocusListener
         String[] args = null;
 
         if (parameterList != null) {
-            // Debug.message("params not null");
             args = new String[parameterList.size()];
             for (int i = 0; i < parameterList.size(); i++) {
                 args[i] = (String) parameterList.getParameter(i).getEditor().getItem();    
@@ -909,7 +906,6 @@ public class MethodDialog extends CallDialog implements FocusListener
             constraints.anchor = GridBagConstraints.WEST;
 
             JComponent component = parameterList.getParameterComponent(i);
-            int oldHeight = constraints.gridheight;
             gridBag.setConstraints(component, constraints);
             tmpPanel.add(component);
 

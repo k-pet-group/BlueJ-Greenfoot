@@ -26,7 +26,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2949 2004-08-26 10:37:04Z polle $
+ * @version $Id: ResultInspector.java 2964 2004-08-31 01:14:04Z davmac $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -89,11 +89,9 @@ public class ResultInspector extends Inspector
     }
 
     /**
-     * Constructor Note: private -- Objectviewers can only be created with the
-     * static "getViewer" method. 'pkg' may be null if 'ir' is null.
+     * Constructor Note: private -- Object viewers can only be created with the
+     * static "getInstance" method. 'pkg' may be null if 'ir' is null.
      * 
-     * @param isResult
-     *            false is this is an inspection, true for result displays
      * @param obj
      *            The object displayed by this viewer
      * @param name
@@ -103,6 +101,9 @@ public class ResultInspector extends Inspector
      * @param ir
      *            the InvokerRecord explaining how we created this result/object
      *            if null, the "get" button is permanently disabled
+     * @param info
+     *            The expression used to create the object (ie. the method call
+     *            information)
      * @param parent
      *            The parent frame of this frame
      */
@@ -110,10 +111,8 @@ public class ResultInspector extends Inspector
             final JFrame parent)
     {
         super(pkg, ir);
-        String className = JavaNames.stripPrefix(obj.getClassName());
 
         expressionInformation = info;
-
         this.obj = obj;
         this.objName = name;
 

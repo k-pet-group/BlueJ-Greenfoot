@@ -41,7 +41,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2951 2004-08-27 01:47:46Z davmac $
+ * @version $Id: ObjectWrapper.java 2964 2004-08-31 01:14:04Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -497,15 +497,15 @@ public class ObjectWrapper extends JComponent
             showMenu(evt.getX(), evt. getY());
         }
         else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
-            if(evt.getClickCount() > 1)  // double click
+            if (evt.getClickCount() > 1) // double click
                 inspectObject();
-            else {//single click
+            else { //single click
                 ob.fireObjectEvent(this);
             }
 
         }
         //manage focus
-        if (evt.getID() == MouseEvent.MOUSE_CLICKED || evt.isPopupTrigger()){
+        if (evt.getID() == MouseEvent.MOUSE_CLICKED || evt.isPopupTrigger()) {
             ob.setSelectedObject(this);
             ob.requestFocusInWindow();
         }
