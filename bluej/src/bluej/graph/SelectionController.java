@@ -153,8 +153,15 @@ public class SelectionController
      */
     public void mouseClicked(MouseEvent evt)
     {
-        if (evt.getClickCount() > 1 && isButtonOne(evt)) {
-            selection.doubleClick(evt);
+        if (isButtonOne(evt)) {
+            if (evt.getClickCount() > 1) {
+                selection.doubleClick(evt);
+            }
+            else {
+                SelectableGraphElement clickedElement = graph.findGraphElement(evt.getX(), evt.getY());
+                if(clickedElement != null)
+                    selection.selectOnly(clickedElement);
+            }
         }
     }
 
