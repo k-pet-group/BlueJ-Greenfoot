@@ -22,7 +22,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 601 2000-06-29 05:09:38Z mik $
+ * @version $Id: Project.java 606 2000-06-30 04:23:02Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -279,16 +279,42 @@ public class Project
     }
 
     /**
+     * Get the names of all packages in this project consisting of
+     * rootPackage package and all packages nested below it.
+     *
+     * @param   rootPackage the root package to consider in looking
+     *          for nested packages
+     * @return  an array of String containing the fully qualified names
+     *          of the packages.
+     */
+    private List getPackageNames(Package rootPackage)
+    {
+        List l = new LinkedList(), children;
+
+        l.add(rootPackage.getQualifiedName());
+
+        children = rootPackage.getChildren();
+
+        if(children.size() > 0) {
+            Iterator i = children.iterator();
+
+            while(i.hasNext()) {
+                Package p = (Package) i.next();
+                l.addAll(getPackageNames(p));
+            }
+        }
+
+        return l;
+    }
+
+    /**
      * Get the names of all packages in this project.
      * @return an array of String containing the fully qualified names
      * of the packages in this project.
      */
     public List getPackageNames()
     {
-        // CURRENTLY THIS IMPLEMENTATION JUST RETURNS THE OPENED PACKAGES!
-        // TBD: RETURN ALL PACKAGES
-
-        return new ArrayList(packages.keySet());
+        return getPackageNames(getPackage(""));
     }
 
     /**
