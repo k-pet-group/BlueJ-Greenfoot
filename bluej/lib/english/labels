@@ -222,7 +222,7 @@ editor.find.up=Search up
 editor.find.down=Search down
 editor.find.ignoreCase=Ignore case
 editor.find.wholeWord=Whole word
-editor.fing.backward=backward
+editor.find.backward=backward
 editor.find.forward=forward
 editor.find.wrapAround=wrap around
 
