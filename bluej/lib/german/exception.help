@@ -1,6 +1,6 @@
 NullPointerException*
 You tried to access an object (either a field
-in an object or a message of an object). This
+in an object or a method of an object). This
 did not work because the object reference you
 used to access the object was 'null'. For 
 example: You wrote "thing.print()", and "thing"
