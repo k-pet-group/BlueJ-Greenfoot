@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 928 2001-06-08 02:28:13Z mik $
+  * @version $Id: Installer.java 1069 2002-01-08 11:40:04Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -112,7 +112,7 @@ public class Installer extends JFrame
             RandomAccessFile out = new RandomAccessFile("Installer.class",
                                                         "rw");
             BufferedInputStream in = new BufferedInputStream(
-                                                             new FileInputStream((String)capsule.get("pkgJar")));
+                                            new FileInputStream((String)capsule.get("pkgJar")));
             long totalBytes = 0;
             int bytesRead;
             byte[] cbuf = new byte[BUFFER_SIZE];
@@ -339,16 +339,16 @@ public class Installer extends JFrame
 
                 if(osname == null) {	// if we don't know, write both
                     writeWindows();
-                    writeUnix();
+                    writeUnix(false);
                 }
                 else if(osname.startsWith("Windows")) {
                     writeWindows();
                 }
                 else if(osname.startsWith("Mac")) {
-                    writeMacOS();
+                    writeUnix(true);
                 }
                 else
-                    writeUnix();
+                    writeUnix(false);
             }
 
         } catch (Exception e) {
@@ -671,15 +671,24 @@ public class Installer extends JFrame
      * Write out a Unix, Bourne shell script to start the application
      * For JDK 1.3 and later
      */
-    public void writeUnix() throws IOException 
+    public void writeUnix(boolean isMacOS) 
+        throws IOException 
     {
-
         File outputFile = new File(installationDir, (String)getProperty("exeName"));
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("#!/bin/sh\n");
         out.write("APPBASE=" + installationDir + "\n");
         String commands;
-        commands = getProperty("unixCommands").toString();
+        String javaName;
+        if(isMacOS) {
+            commands = getProperty("commands.mac").toString();
+            javaName = "java";
+        }
+        else {
+            commands = getProperty("commands.unix").toString();
+            javaName = javaPath + "/bin/java";
+        }
+
         if(commands != null) {
             commands = replace(commands, '~', "$APPBASE");
             commands = replace(commands, '!', javaPath);
@@ -687,54 +696,7 @@ public class Installer extends JFrame
             out.write(commands);
             out.write("\n");
         }
-        String classpath;
-        classpath = getProperty("classpath").toString();
-        classpath = classpath.replace(';', ':');
-        classpath = replace(classpath, '~', "$APPBASE");
-        classpath = replace(classpath, '!', javaPath);
-        classpath = replace(classpath, '@', architecture);
-        out.write("CLASSPATH=" + classpath + "\n");
-        out.write("export CLASSPATH\n");
-        out.write(javaPath + "/bin/java " + getProperty("javaOpts") +
-                  " " + getProperty("mainClass") + " $*\n");
-        out.close();
-		
-        try {
-            Runtime.getRuntime().exec("chmod 755 " + outputFile);
-        } catch(Exception e) {
-            // ignore it - might not be Unix
-        }
-    }
-
-    /**
-     * Write out a MacOS X, Bourne shell script to start the application
-     */
-    public void writeMacOS() throws IOException 
-    {
-
-        File outputFile = new File(installationDir, (String)getProperty("exeName"));
-        FileWriter out = new FileWriter(outputFile.toString());
-        out.write("#!/bin/sh\n");
-        out.write("APPBASE=" + installationDir + "\n");
-        String commands;
-        commands = getProperty("unixCommands").toString();
-        if(commands != null) {
-            commands = replace(commands, '~', "$APPBASE");
-            commands = replace(commands, '!', javaPath);
-            commands = replace(commands, '@', architecture);
-            out.write(commands);
-            out.write("\n");
-        }
-        String classpath;
-        classpath = getProperty("classpath.mac").toString();
-        classpath = classpath.replace(';', ':');
-        classpath = replace(classpath, '~', "$APPBASE");
-        classpath = replace(classpath, '!', javaPath);
-        classpath = replace(classpath, '@', architecture);
-        out.write("CLASSPATH=" + classpath + "\n");
-        out.write("export CLASSPATH\n");
-        //out.write(javaPath + "/Commands/java " + getProperty("javaOpts") +
-        out.write("java " + getProperty("javaOpts") + " " +
+        out.write(javaName + " " + getProperty("javaOpts.unix") + " " +
                   getProperty("mainClass") + " $*\n");
         out.close();
 		
@@ -756,9 +718,8 @@ public class Installer extends JFrame
 			
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("@echo off\r\n");
-        out.write("set OLDPATH=%CLASSPATH%\r\n");
         out.write("set APPBASE=" + installationDir + "\r\n");
-        String commands = getProperty("winCommands").toString();
+        String commands = getProperty("commands.win").toString();
         if(commands != null) {
             commands = replace(commands, '~', "%APPBASE%");
             commands = replace(commands, '!', javaPath);
@@ -766,18 +727,10 @@ public class Installer extends JFrame
             out.write(commands);
             out.write("\r\n");
         }
-        String classpath = getProperty("classpath").toString();
-        classpath = classpath.replace('/', '\\');
-        classpath = replace(classpath, '~', "%APPBASE%");
-        classpath = replace(classpath, '!', javaPath);
-        classpath = replace(classpath, '@', architecture);
-        out.write("set CLASSPATH=" + classpath + "\r\n");
         out.write("\"" + javaPath + "\\bin\\java\" " +
-                  getProperty("javaOpts") + " " +
+                  getProperty("javaOpts.win") + " " +
                   getProperty("mainClass") + 
                   " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
-        out.write("set CLASSPATH=%OLDPATH%\r\n");
-
         out.close();
     }
 
