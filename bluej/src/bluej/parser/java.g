@@ -378,22 +378,22 @@ typeSpec returns [JavaToken t]
 //   (which would make it an array type).
 classTypeSpec returns [JavaToken t]
         {t=null;}
-        : t=identifier (LBRACK RBRACK)*
+        : t=identifier (LBRACK RBRACK
 	{
              if(t != null)
                    t.setText(t.getText() + "[]");
-	}
+	} )*
 	;
 
 // A builtin type specification is a builtin type with possible brackets
 // afterwards (which would make it an array type).
 builtInTypeSpec returns [JavaToken t]
         {t=null;}
-	: t=builtInType (LBRACK RBRACK)*
+	: t=builtInType (LBRACK RBRACK
 		{
 		   if(t != null)
                    t.setText(t.getText() + "[]");
-		}
+		} )*
 	;
 
 // A type name. which is either a (possibly qualified) class name or

@@ -813,18 +813,18 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==LBRACK)) {
 				match(LBRACK);
 				match(RBRACK);
+				if ( inputState.guessing==0 ) {
+					
+					if(t != null)
+					t.setText(t.getText() + "[]");
+						
+				}
 			}
 			else {
 				break _loop15;
 			}
 			
 		} while (true);
-		}
-		if ( inputState.guessing==0 ) {
-			
-			if(t != null)
-			t.setText(t.getText() + "[]");
-				
 		}
 		return t;
 	}
@@ -841,18 +841,18 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==LBRACK)) {
 				match(LBRACK);
 				match(RBRACK);
+				if ( inputState.guessing==0 ) {
+					
+							   if(t != null)
+					t.setText(t.getText() + "[]");
+							
+				}
 			}
 			else {
 				break _loop18;
 			}
 			
 		} while (true);
-		}
-		if ( inputState.guessing==0 ) {
-			
-					   if(t != null)
-			t.setText(t.getText() + "[]");
-					
 		}
 		return t;
 	}
