@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3037 2004-10-05 04:29:18Z davmac $
+ * @version $Id: VMReference.java 3038 2004-10-05 05:04:56Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -92,6 +92,7 @@ class VMReference
 
     // the worker thread running inside the ExecServer
     private ThreadReference workerThread = null;
+    private boolean workerThreadReady = false;
 
     // a record of the threads we start up for
     // redirecting ExecServer streams
@@ -532,13 +533,14 @@ class VMReference
         Object args[] = {classPath};
 
         synchronized(workerThread) {
-            breakpointWait(workerThread);
+            workerThreadReadyWait();
             setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.NEW_LOADER));
             
             setStaticFieldObject(serverClass, ExecServer.CLASSPATH_NAME, classPath);
             
+            workerThreadReady = false;
             workerThread.resume();
-            breakpointWait(workerThread);
+            workerThreadReadyWait();
             
             currentLoader = (ClassLoaderReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
             
@@ -560,13 +562,14 @@ class VMReference
         Object args[] = {className};
 
         synchronized(workerThread) {
-            breakpointWait(workerThread);
+            workerThreadReadyWait();
             setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_CLASS));
             
             setStaticFieldObject(serverClass, ExecServer.CLASSNAME_NAME, className);
             
+            workerThreadReady = false;
             workerThread.resume();
-            breakpointWait(workerThread);
+            workerThreadReadyWait();
             
             ReferenceType rt = ((ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME)).reflectedType();
             if (rt == null)
@@ -817,18 +820,20 @@ class VMReference
      */
     private Value safeInvoke(ObjectReference o, Method m, List args)
     {
-        breakpointWait(workerThread);
-        Value v = null;
+        synchronized (workerThread) {
+            workerThreadReadyWait();
+            Value v = null;
 
-        try {
-            v = o.invokeMethod(workerThread, m, args, ObjectReference.INVOKE_SINGLE_THREADED);
+            try {
+                v = o.invokeMethod(workerThread, m, args, ObjectReference.INVOKE_SINGLE_THREADED);
+            }
+            catch (ClassNotLoadedException cnle) {}
+            catch (InvalidTypeException ite) {}
+            catch (IncompatibleThreadStateException itse) {}
+            catch (InvocationException ie) {}
+
+            return v;
         }
-        catch(ClassNotLoadedException cnle) { }
-        catch(InvalidTypeException ite) { }
-        catch(IncompatibleThreadStateException itse) { }
-        catch(InvocationException ie) { }
-
-        return v;
     }
     
     public void exceptionEvent(InvocationException exc)
@@ -905,9 +910,14 @@ class VMReference
         // after completing some work. We want to leave it suspended here until
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
-            // do nothing except signify our change of state
-            //if (serverThread != null && serverThread.equals(event.thread()))
-            //    owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
+            
+            if (workerThread == null)
+                workerThread = event.thread();
+            
+            synchronized (workerThread) {
+                workerThreadReady = true;
+                workerThread.notify();
+            }
         }
         else {
             // breakpoint set by user in user code
@@ -1128,7 +1138,7 @@ class VMReference
         synchronized(serverThreadLock) {
             serverThreadStartWait();
             synchronized(workerThread) {
-                breakpointWait(workerThread);
+                workerThreadReadyWait();
                 
                 // we need to throw away all the breakpoints referring to the old
                 // class loader but then we need to restore our exitMarker and
@@ -1154,28 +1164,6 @@ class VMReference
     // -- support methods --
 
     /**
-     * Wait for the specified thread to hit a breakpoint.
-     * 
-     * There are two threads used by blueJ to run various utility tasks and
-     * to execute user code. These threads continuosly loop and hit a
-     * breakpoint when they finish their task. This method can be used
-     * therefore to wait until the thread has finished its current task.
-     */
-    private void breakpointWait(ThreadReference thr)
-    {
-        final int smallDelay = 50; // milliseconds
-        // wait til the breakpoint is hit
-        while (!thr.isAtBreakpoint()) {
-            synchronized (this) {
-                try {
-                    Thread.sleep(smallDelay);
-                }
-                catch (InterruptedException ie) {}
-            }
-        }
-    }
-    
-    /**
      * Wait for the "server" thread to start. This must be called with the
      * monitor held (ie. from within a synchronized block/method).
      */
@@ -1191,14 +1179,14 @@ class VMReference
     }
     
     /**
-     * Signal the event handler thread, and wait for acknowledgement.
-     * The event handler's monitor must be held.
+     * Wait until the "worker" thread is ready for use. This method should
+     * be called with the workerThread monitor held.
      */
-    private void signalEventHandler()
+    private void workerThreadReadyWait()
     {
-        eventHandler.interrupt();
         try {
-            eventHandler.wait();
+            while (!workerThreadReady)
+                workerThread.wait();
         }
         catch(InterruptedException ie) {}
     }
@@ -1324,13 +1312,14 @@ class VMReference
     void addObject(String instanceName, ObjectReference object)
     {
         synchronized(workerThread) {
-            breakpointWait(workerThread);
+            workerThreadReadyWait();
             setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.ADD_OBJECT));
             
             // parameters
             setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
             setStaticFieldValue(serverClass, ExecServer.OBJECT_NAME, object);
             
+            workerThreadReady = false;
             workerThread.resume();
         }
     }
@@ -1343,12 +1332,13 @@ class VMReference
     {
         synchronized(workerThread) {
             try {
-                breakpointWait(workerThread);
+                workerThreadReadyWait();
                 setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.REMOVE_OBJECT));
         
                 // parameters
                 setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
         
+                workerThreadReady = false;
                 workerThread.resume();
             }
             catch(VMDisconnectedException vmde) { }
