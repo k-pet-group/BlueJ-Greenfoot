@@ -39,7 +39,7 @@ import java.util.*;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1968 2003-05-21 09:59:49Z damiano $
+ * @version $Id: BlueJ.java 1971 2003-05-21 12:30:12Z damiano $
  */
 
 /*
@@ -97,7 +97,9 @@ public class BlueJ
      */
     public BProject openProject (File directory)
     {
-        // Yes somebody may just call it with null, for fun... TODO: Needs error reporting
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+        
+        // Yes somebody may just call it with null, for fun..
         if ( directory == null ) return null;
         
         Project openProj = Project.openProject (directory.getAbsolutePath());
@@ -124,6 +126,8 @@ public class BlueJ
      */
     public BProject newProject (File directory)
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         String pathString = directory.getAbsolutePath();
         if (!pathString.endsWith (File.separator)) pathString += File.separator;
         if  ( ! Project.createNewProject(pathString) ) return null;
@@ -140,6 +144,8 @@ public class BlueJ
         {
         Iterator iter;
         int index;
+
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
         
         // If this extension is not valid return an empty array.
         if (!myWrapper.isValid()) return new BProject[0];
@@ -162,6 +168,8 @@ public class BlueJ
      */
     public BPackage getCurrentPackage()
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         // This is here and NOT into a BProject since it depends on user interface.
         
         PkgMgrFrame pmf = PkgMgrFrame.getMostRecent();
@@ -185,6 +193,8 @@ public class BlueJ
      */
     public Frame getCurrentFrame()
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         return PkgMgrFrame.getMostRecent();
     }
 
@@ -197,6 +207,8 @@ public class BlueJ
      */
     public void setMenuGenerator ( MenuGenerator menuGen )
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         currentMenuGen = menuGen;
         menuManager.menuExtensionRevalidateReq();
     }
@@ -217,6 +229,8 @@ public class BlueJ
      */
     public void setPreferenceGenerator(PreferenceGenerator prefGen)
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         currentPrefGen = prefGen;
         prefManager.panelRevalidate();
     }
@@ -237,6 +251,8 @@ public class BlueJ
      */
     public File getSystemLibDir()
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         return Config.getBlueJLibDir();
     }
 
@@ -247,6 +263,8 @@ public class BlueJ
      */
     public File getUserConfigDir ()
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         return Config.getUserConfigDir();
     }
     
@@ -261,6 +279,8 @@ public class BlueJ
      */
     public String getBlueJPropertyString (String property, String def)
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         return Config.getPropString ( property, def);
     }
 
@@ -275,6 +295,8 @@ public class BlueJ
       */
     public String getExtensionPropertyString (String property, String def)
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         String thisKey = myWrapper.getSettingsString ( property );
         return Config.getPropString (thisKey, def);
     }
@@ -288,6 +310,8 @@ public class BlueJ
       */
     public void setExtensionPropertyString (String property, String value)
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         String thisKey = myWrapper.getSettingsString ( property );
         Config.putPropString (thisKey, value);
     }
@@ -310,6 +334,8 @@ public class BlueJ
      */
     public String getLabel (String key)
     {
+        if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
+
         // If there are no label for this extension I can only return the system ones.
         if ( localLabels == null ) return Config.getString (key, key);
 
@@ -391,8 +417,6 @@ public class BlueJ
         if (listener != null) compileListeners.remove(listener);
     }
 
-
-
     /**
      * Registers a listener for invocation events.
      */
@@ -408,8 +432,6 @@ public class BlueJ
     {
         if (listener != null) invocationListeners.remove(listener);
     }
-
-
 
     /**
      * Dispatch this event to the listeners for the ALL events.
@@ -435,9 +457,6 @@ public class BlueJ
             eventListener.blueJReady(event);
             }
         }
-
-
-
 
 
     /**
