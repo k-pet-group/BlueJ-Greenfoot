@@ -8,12 +8,14 @@
 
 package bluej.editor.moe;
 
+import bluej.Config;
 import bluej.utility.Debug;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.text.*;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 
 /**
  * A customised caret for Moe. It gets most of its bahaviour from
@@ -24,7 +26,10 @@ import javax.swing.text.*;
 
 public class MoeCaret extends DefaultCaret  
 {
-   
+    private static final Color bracketHighlightColour = new Color(196, 196, 196);
+    private static final LayeredHighlighter.LayerPainter bracketPainter = 
+        new DefaultHighlightPainter(bracketHighlightColour);
+
     private MoeEditor editor;
     // matching bracket highlight holder
     private Object matchingBracketHighlight;
@@ -106,7 +111,7 @@ public class MoeCaret extends DefaultCaret
         removeBracket();
         if(matchBracket != -1) {
             try {
-                matchingBracketHighlight = getComponent().getHighlighter().addHighlight(matchBracket, matchBracket + 1, this.getSelectionPainter());
+                matchingBracketHighlight = getComponent().getHighlighter().addHighlight(matchBracket, matchBracket + 1, bracketPainter);
             }
             catch(BadLocationException ble) {
                 Debug.reportError("bad location exception thrown");

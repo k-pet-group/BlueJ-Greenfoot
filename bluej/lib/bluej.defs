@@ -356,7 +356,8 @@ colour.wrapper.shadow=152,152,152
 #text colour for environment specific commands in popup menus
 colour.menu.environOp=152,32,32
 
-colour.inspector.list.selection=249,225,87
+#colour for selections (in text and otherwise)
+colour.selection=249,225,87
 
 #####################################################################
 ## Compiling. Commands used to execute a compiler. The first property

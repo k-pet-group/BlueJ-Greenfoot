@@ -35,7 +35,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: Config.java 2801 2004-07-15 15:43:47Z mik $
  */
 
 public final class Config
@@ -89,6 +89,8 @@ public final class Config
                     new Color(124, 124, 124),
                     new Color(195, 195, 195)));
    
+    private static Color selectionColour;
+
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
      * This method finds and opens the configuration files.
@@ -804,6 +806,16 @@ public final class Config
         return null;
     }
 
+    /**
+     * Return a color value for selections.
+     */
+    public static Color getSelectionColour()
+    {
+        if(selectionColour == null)
+            selectionColour = Config.getItemColour("colour.selection");
+        return selectionColour;
+    }
+    
     /**
      * Store a point in the config files. The config properties
      * are formed by adding ".x" and ".y" to the itemPrefix.

@@ -25,7 +25,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Inspector.java 2799 2004-07-15 03:16:36Z davmac $
+ * @version $Id: Inspector.java 2801 2004-07-15 15:43:47Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -127,7 +127,7 @@ public abstract class Inspector extends JFrame
         fieldList = new FieldList(getMaxDescriptionLength());
         fieldList.setBackground(this.getBackground());
         fieldList.setOpaque(true);
-        fieldList.setSelectionBackground(getSelectionColor());
+        fieldList.setSelectionBackground(Config.getSelectionColour());
         fieldList.getSelectionModel().addListSelectionListener(this);
         // add mouse listener to monitor for double clicks to inspect list
         // objects. assumption is made that valueChanged will have selected
@@ -378,11 +378,6 @@ public abstract class Inspector extends JFrame
     public int getListWidth()
     {
         return LIST_WIDTH;
-    }
-
-    public Color getSelectionColor()
-    {
-        return selectionColor;
     }
 
     protected JButton createCloseButton()

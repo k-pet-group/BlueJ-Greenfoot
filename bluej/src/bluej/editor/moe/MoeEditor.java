@@ -70,7 +70,7 @@ public final class MoeEditor extends JFrame
     static final Color frameBgColor = new Color(196, 196, 196);
     static final Color infoColor = new Color(240, 240, 240);
     static final Color lightGrey = new Color(224, 224, 224);
-    static final Color selectionColour = new Color(204, 204, 204);
+    static final Color selectionColour = Config.getSelectionColour();
     static final Color titleCol = Config.getItemColour("colour.text.fg");
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
