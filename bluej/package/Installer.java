@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 761 2001-02-06 22:56:17Z mik $
+  * @version $Id: Installer.java 822 2001-03-28 05:13:35Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -419,6 +419,9 @@ public class Installer extends JFrame
      */
     public boolean isJDKPath(String path) 
     {
+        if(osname.startsWith("Mac"))
+            return true;   // check disabled for MacOS system
+
         String jdkFilePath = path + jdkFile;
         if(new File(jdkFilePath).exists())
             return true;
@@ -774,7 +777,8 @@ public class Installer extends JFrame
         classpath = replace(classpath, '@', architecture);
         out.write("CLASSPATH=" + classpath + "\n");
         out.write("export CLASSPATH\n");
-        out.write(javaPath + "/Commands/java " + getProperty("javaOpts") +
+        //out.write(javaPath + "/Commands/java " + getProperty("javaOpts") +
+        out.write("java " + getProperty("javaOpts") +
                   " -D" + getProperty("installDirProp") + "=$APPBASE "+ 
                   getProperty("mainClass") + " $*\n");
         out.close();
