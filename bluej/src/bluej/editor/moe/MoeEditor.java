@@ -17,6 +17,8 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.editor.moe.autocomplete.*;
+
 
 import java.util.List;
 import java.util.ArrayList;
@@ -158,6 +160,9 @@ public final class MoeEditor extends JFrame
     private MoePrinter printer;
 
     private TextInsertNotifier doTextInsert = new TextInsertNotifier();
+
+    private MoeAutocompleteManager moeAutocompleteManager = null;
+    private ClassLoader projectClassLoader;
     
     // =========================== NESTED CLASSES ===========================
 
@@ -203,7 +208,8 @@ public final class MoeEditor extends JFrame
      */
 
     public MoeEditor(String title, boolean isCode, EditorWatcher watcher,
-                     boolean showToolbar, boolean showLineNum, Properties resources)
+                     boolean showToolbar, boolean showLineNum, Properties resources,
+                     ClassLoader aProjectClassLoader)
     {
         super("Moe");
         this.watcher = watcher;
@@ -218,11 +224,21 @@ public final class MoeEditor extends JFrame
         currentStepPos = -1;
         mayHaveBreakpoints = false;
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
+        projectClassLoader = aProjectClassLoader;
 
         initWindow(showToolbar);
     }
 
     // --------------------------------------------------------------------
+    /**
+     * Returns the projectClassLoader.
+     * Can return null if no classloader is available.
+     */
+    public ClassLoader getProjectClassLoader ()
+    {
+        return projectClassLoader;
+    }
+    
     /**
      *  Load the file "filename" and show the editor window.
      */
@@ -352,6 +368,19 @@ public final class MoeEditor extends JFrame
     public void setVisible(boolean vis)  // inherited from Editor, redefined
     {
         if(vis) {
+
+            //Use of the singleton pattern so that each MoeEditor
+            //only has one MoeAutoCompleteManager. Damiano
+            if(moeAutocompleteManager==null){
+                moeAutocompleteManager
+                    = new MoeAutocompleteManager(new File(filename),
+                                                 this,
+                                                 sourcePane);    
+            }
+
+
+
+        
             currentTextPane.setFont(PrefMgr.getStandardEditorFont());
             checkSyntaxStatus();
             checkBracketStatus();

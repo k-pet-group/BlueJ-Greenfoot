@@ -32,7 +32,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2181 2003-09-25 10:56:45Z damiano $
+ * @version $Id: ClassTarget.java 2192 2003-10-01 11:28:33Z damiano $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -440,8 +440,13 @@ public class ClassTarget extends EditableTarget
         if(editor == null){
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
-                editor = Package.editorManager.openClass(filename, docFilename, 
-                             getBaseName(), this, isCompiled(), breakpoints);
+                editor = Package.editorManager.openClass(filename, 
+                    docFilename, 
+                    getBaseName(), 
+                    this, 
+                    isCompiled(), 
+                    breakpoints, 
+                    getPackage().getProject().getLocalClassLoader() );
         }
         return editor;
     }

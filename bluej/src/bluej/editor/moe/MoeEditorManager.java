@@ -73,13 +73,16 @@ public final class MoeEditorManager
     ** @returns		the new editor, or null if there was a problem
     **/
 
-    public Editor openClass(String filename, String docFilename,
+    public Editor openClass(String filename, 
+                String docFilename,
     						String windowTitle,
-                            EditorWatcher watcher, boolean compiled,
-                            List breakpoints)	// inherited from EditorManager
+                EditorWatcher watcher, 
+                boolean compiled,
+                List breakpoints,  // inherited from EditorManager
+                ClassLoader projectClassLoader )
     {
         return openEditor (filename, docFilename, true, windowTitle, watcher, compiled,
-                           breakpoints);
+                           breakpoints, projectClassLoader);
     }
 
     // ------------------------------------------------------------------------
@@ -100,7 +103,7 @@ public final class MoeEditorManager
     public Editor openText(String filename, String windowTitle,
                            EditorWatcher watcher)	// inherited from EditorManager
     {
-        return openEditor (filename, null, false, windowTitle, watcher, false, null);
+        return openEditor (filename, null, false, windowTitle, watcher, false, null, null);
     }
 
     public void refreshAll()
@@ -231,12 +234,12 @@ public final class MoeEditorManager
     private Editor openEditor(String filename, String docFilename,
     							boolean isCode, String windowTitle, 
                                 EditorWatcher watcher, boolean compiled, 
-                                List breakpoints)
+                                List breakpoints, ClassLoader projectClassLoader)
     {
         MoeEditor editor;
 
         editor = new MoeEditor(windowTitle, isCode, watcher, showToolBar,
-                               showLineNum, resources);
+                               showLineNum, resources, projectClassLoader);
         editors.add(editor);
         if (watcher!=null && filename==null)	// editor for class interface
             return editor;

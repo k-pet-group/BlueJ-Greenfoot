@@ -20,7 +20,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2148 2003-08-05 08:17:51Z mik $
+ * @version $Id: Project.java 2192 2003-10-01 11:28:33Z damiano $
  */
 public class Project
     implements DebuggerListener
@@ -589,7 +589,7 @@ public class Project
      * Get the ClassLoader for this project.
      * The ClassLoader load classes on the local VM.
      */
-    private synchronized ProjectClassLoader getLocalClassLoader()
+    public synchronized ProjectClassLoader getLocalClassLoader()
     {
         if(loader == null)
             loader = ClassMgr.getProjectLoader(getProjectDir());

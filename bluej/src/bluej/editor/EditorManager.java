@@ -17,7 +17,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 1752 2003-04-04 13:59:55Z fisker $
+ * @version $Id: EditorManager.java 2192 2003-10-01 11:28:33Z damiano $
  */
 public abstract class EditorManager
 {
@@ -49,9 +49,13 @@ public abstract class EditorManager
      * @param breakpoints   vector of Integers: line numbers where bpts are
      * @returns		    the new editor, or null if there was a problem
      */
-    public abstract Editor openClass(String filename, String docFilename, 
-    								 String windowTitle, EditorWatcher watcher, 
-                     				 boolean compiled, List breakpoints);
+    public abstract Editor openClass(String filename, 
+        String docFilename, 
+    		String windowTitle, 
+        EditorWatcher watcher, 
+        boolean compiled, 
+        List breakpoints, 
+        ClassLoader projectClassLoader );
 
 
     /**
