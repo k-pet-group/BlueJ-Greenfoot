@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2066 2003-06-25 13:30:55Z mik $
+ * @version $Id: ExecControls.java 2067 2003-06-25 14:19:24Z mik $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -346,6 +346,10 @@ public class ExecControls extends JFrame
         }
     }
 
+    /**
+     * Display the detail information (current object fields and local var's)
+     * for a specific stack frame.
+     */
     private void setStackFrameDetails(int frameNo)
     {
         currentClass = selectedThread.getCurrentClass(frameNo);
@@ -367,6 +371,9 @@ public class ExecControls extends JFrame
         }
     }
 
+    /**
+     * Display an object inspector for an object in a static field.
+     */
     private void viewStaticField(int index)
     {
         if(currentClass.staticFieldIsObject(index)) {
@@ -376,6 +383,9 @@ public class ExecControls extends JFrame
         }
     }
 
+    /**
+     * Display an object inspector for an object in an instance field.
+     */
     private void viewInstanceField(int index)
     {
         if(currentObject.instanceFieldIsObject(index)) {
@@ -385,6 +395,9 @@ public class ExecControls extends JFrame
         }
     }
 
+    /**
+     * Display an object inspector for an object in a local variable.
+     */
     private void viewLocalVar(int index)
     {
         if(selectedThread.varIsObject(currentFrame, index)) {

@@ -106,8 +106,7 @@ public class MachineIcon extends JLabel
 		menu.add(item);
 
 		item = new JMenuItem("Reset Machine");
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 
-                                InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK));
+		item.setAccelerator(PkgMgrFrame.restartKey);
 		item.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent e) {
 									resetMachine();
