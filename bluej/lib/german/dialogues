@@ -91,6 +91,12 @@ speichern, ist ein Fehler aufgetreten.
 Die Tastenbindungen konnten nicht
 gespeichert werden.
 
+error-no-templates
+The specified template directory (the directory where 
+BlueJ finds the class templates) does not exist. It
+is defined with the property "bluej.templatePath" in
+<bluej-home>/lib/bluej/defs. Check and fix this property.
+
 skeleton-error
 Das Skelett für die Klasse konnte nicht erzeugt
 werden. Mögliche Gründe dafür sind eine

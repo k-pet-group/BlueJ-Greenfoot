@@ -82,6 +82,12 @@ cannot-save-keys
 Ett fel inträffade när tangentbordskommandona
 försökte sparas. Kommandona sparades inte.
 
+error-no-templates
+The specified template directory (the directory where 
+BlueJ finds the class templates) does not exist. It
+is defined with the property "bluej.templatePath" in
+<bluej-home>/lib/bluej/defs. Check and fix this property.
+
 skeleton-error
 Klassens default-mall kunde inte skapas.
 Detta kan bero på ett konfigurationsfel

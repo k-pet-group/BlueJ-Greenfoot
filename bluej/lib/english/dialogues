@@ -83,6 +83,12 @@ An error occurred while trying to save
 the key bindings. The bindings were not
 saved.
 
+error-no-templates
+The specified template directory (the directory where 
+BlueJ finds the class templates) does not exist. It
+is defined with the property "bluej.templatePath" in
+<bluej-home>/lib/bluej/defs. Check and fix this property.
+
 skeleton-error
 The default skeleton for the class could not be
 generated. This may be because of configuration

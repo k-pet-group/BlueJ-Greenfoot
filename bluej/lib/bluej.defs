@@ -136,13 +136,14 @@ appletViewer.command=appletviewer
 ## Class templates for new class generation. When creating a new class
 ## a list of templates is presented to choose from. This property
 ## defines this list. To add additional templates, you should
-##  - choose a name for the template and add it to the list below
+##  - choose a name <template-name> for the template
 ##  - create a file named <template-name>.tmpl in 
 ##    <bluej>/lib/<language>/templates/newclass/ that contains the text
+##  - add <template-name> to the classTemplates list below (optional)
 ##  - add a property named "pkgmgr.newClass.<template-name>" in the 
 ##    language label files for all languages you intend to use 
 ##    (<bluej>/lib/<language>/labels), defining the label to appear in
-##    the dialogue.
+##    the dialogue. (optional)
 ## If the template is for an applet, interface or abstract class, the
 ## name you choose should start with "applet", "interface" or 
 ## "abstract", respectively. Everything else will be treated as a 
@@ -150,11 +151,15 @@ appletViewer.command=appletviewer
 ## More information is in 
 ##      <bluej-home>/lib/<language>/templates/newclass/README
 ## The bluej.templatePath property can be used to choose a different
-## directory to store the templates (the default is <bluej_home>/lib/).
+## directory to store the templates (the default is 
+## <bluej_home>/lib/<language>/templates/newclass).
+## Note: if the path contains backslashes, they must be written as
+## double-backslashes (see example).
 #######################################################################
 
 bluej.classTemplates = stdclass abstract interface applet
-#bluej.templatePath = F:\shared\bluej\templates
+#bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
+#bluej.templatePath = F:\\shared\\bluej\\templates
 
 #######################################################################
 ## Fonts. You can choose a font size for most of the interface 
