@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.*;
+import java.awt.Toolkit;
 import java.awt.datatransfer.*;
 
 
@@ -46,9 +47,12 @@ public final class MoeActions
     // -------- CONSTANTS --------
 
     private static String KEYS_FILE = "editor.keys";
-    private static int SHIFT_CTRL_MASK;
-    private static int META_CTRL_MASK;
-    private static int SHIFT_META_MASK;
+
+    private static int SHORTCUT_MASK;
+    private static int ALT_SHORTCUT_MASK;
+    private static int SHIFT_SHORTCUT_MASK;
+    private static int SHIFT_ALT_SHORTCUT_MASK;
+    private static int DOUBLE_SHORTCUT_MASK;    // two masks (ie. CTRL + META)
 
     private static int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
     private static String spaces = "                        ";
@@ -98,20 +102,31 @@ public final class MoeActions
 
     private MoeActions(JTextComponent textComponent)
     {
-        SHIFT_CTRL_MASK = Event.CTRL_MASK + Event.SHIFT_MASK;
-        META_CTRL_MASK = Event.CTRL_MASK + Event.META_MASK;
-        SHIFT_META_MASK = Event.SHIFT_MASK + Event.META_MASK;
+        // sort out modifier keys...
+        SHORTCUT_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        ALT_SHORTCUT_MASK = 0;
+
+        if(SHORTCUT_MASK == Event.CTRL_MASK) {
+            Debug.message("shortcut is CTRL");
+            ALT_SHORTCUT_MASK = Event.META_MASK;   // alternate (second) modifier
+        }
+        else if(SHORTCUT_MASK == Event.META_MASK) {
+            Debug.message("shortcut is META");
+            ALT_SHORTCUT_MASK = Event.CTRL_MASK;
+        }
+        else
+            Debug.message("shortcut is something else...");
+
+        SHIFT_SHORTCUT_MASK = SHORTCUT_MASK + Event.SHIFT_MASK;
+        SHIFT_ALT_SHORTCUT_MASK = Event.SHIFT_MASK + ALT_SHORTCUT_MASK;
+        DOUBLE_SHORTCUT_MASK = SHORTCUT_MASK + ALT_SHORTCUT_MASK;
 
         undoManager = new UndoManager();
 
-        if(System.getProperty("java.version").startsWith("1.2")) {
-            keymap = JTextComponent.addKeymap("BlueJ map", 
-                                              textComponent.getKeymap());
-            textComponent.setKeymap(keymap);
-        }
-        else {
-            keymap = textComponent.getKeymap();
-        }
+        // install our own keymap, with the existing one as parent
+        keymap = JTextComponent.addKeymap("BlueJ map", 
+                                          textComponent.getKeymap());
+        textComponent.setKeymap(keymap);
 
         createActionTable(textComponent);
         keyCatcher = new KeyCatcher();
@@ -1323,33 +1338,33 @@ public final class MoeActions
         keymap.removeBindings();
 
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_MASK),
                               (Action)(actions.get("save")));
         // "reload" not bound
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK),
                               (Action)(actions.get("print")));
         // "page-setup" not bound
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK),
                               (Action)(actions.get("close")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_Z, SHORTCUT_MASK),
                               (Action)(actions.get("undo")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_Y, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_Y, SHORTCUT_MASK),
                               (Action)(actions.get("redo")));
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0),
                               (Action)(actions.get("insert-spaced-tab")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_MASK),
                               (Action)(actions.get("comment")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_MASK),
                               (Action)(actions.get("uncomment")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_M, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_M, SHORTCUT_MASK),
                               (Action)(actions.get("insert-method")));
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK),
@@ -1358,46 +1373,46 @@ public final class MoeActions
                               KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK),
                               (Action)(actions.get("insert-break-and-indent")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_F, SHORTCUT_MASK),
                               (Action)(actions.get("find")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_F, SHIFT_CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_F, SHIFT_SHORTCUT_MASK),
                               (Action)(actions.get("find-backward")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_G, SHORTCUT_MASK),
                               (Action)(actions.get("find-next")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_SHORTCUT_MASK),
                               (Action)(actions.get("find-next-reverse")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK),
                               (Action)(actions.get("replace")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK),
                               (Action)(actions.get("compile")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_J, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_J, SHORTCUT_MASK),
                               (Action)(actions.get("toggle-interface-view")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_B, SHORTCUT_MASK),
                               (Action)(actions.get("toggle-breakpoint")));
         // "key-bindings" not bound
         // "preferences" not bound
         // "about-editor" not bound
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_MASK),
                               (Action)(actions.get("describe-key")));
         // "help-mouse" not bound
         // "show-manual" not bound
 
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_MASK),
                               (Action)(actions.get(DefaultEditorKit.copyAction)));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_X, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_MASK),
                               (Action)(actions.get(DefaultEditorKit.cutAction)));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_V, Event.CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_MASK),
                               (Action)(actions.get(DefaultEditorKit.pasteAction)));
 
         // F2, F3, F4
@@ -1413,25 +1428,25 @@ public final class MoeActions
 
         // cursor block
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_UP, Event.META_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_UP, ALT_SHORTCUT_MASK),
                               (Action)(actions.get(DefaultEditorKit.pasteAction)));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, Event.META_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, ALT_SHORTCUT_MASK),
                               (Action)(actions.get(DefaultEditorKit.deletePrevCharAction)));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, Event.META_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ALT_SHORTCUT_MASK),
                               (Action)(actions.get(DefaultEditorKit.deleteNextCharAction)));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, SHIFT_META_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, SHIFT_ALT_SHORTCUT_MASK),
                               (Action)(actions.get("cut-line")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, SHIFT_META_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, SHIFT_ALT_SHORTCUT_MASK),
                               (Action)(actions.get("cut-end-of-line")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, META_CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, DOUBLE_SHORTCUT_MASK),
                               (Action)(actions.get("cut-word")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, META_CTRL_MASK),
+                              KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, DOUBLE_SHORTCUT_MASK),
                               (Action)(actions.get("cut-end-of-word")));
     }
 

@@ -35,7 +35,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 919 2001-05-25 06:57:09Z ajp $
+ * @version $Id: PkgMgrFrame.java 986 2001-10-23 14:22:23Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -685,7 +685,7 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case PROJ_QUIT:        // can be executed when isEmptyFrame() is true
-	    handleQuit();
+	    wantToQuit();
             break;
 
             // Edit commands
@@ -974,9 +974,18 @@ public class PkgMgrFrame extends JFrame
      */
     public void handleQuit()
     {
-	// this is an error on MacOS: when run from the MacOS quithandler
+        Debug.message("exiting through MacOS quit handler!");
+        // this is an error on MacOS: when run from the MacOS quithandler
 	// no event handling is possible! showing the dialog breaks everything.
-	// fix: show the dialog from another thread...
+	// fix: show the dialog from another thread... (or don't show dialog)
+        wantToQuit();
+    }
+        
+    /**
+     * Quit menu item was chosen.
+     */
+    public void wantToQuit()
+    {
 	int answer = 0;
 	if(frameCount() > 1)
 	    answer = DialogManager.askQuestion(this, "quit-all");
@@ -1861,6 +1870,12 @@ public class PkgMgrFrame extends JFrame
      */
     Hashtable actions = new Hashtable();	// mapping from event source -> action
 
+    // menu bar definition
+
+    private static int SHORTCUT_MASK = 
+        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        //Event.CTRL_MASK;
+
     static final int PROJ_COMMAND = 1000;
     static final int PROJ_NEW = PROJ_COMMAND;
     static final int PROJ_OPEN = PROJ_NEW + 1;
@@ -1881,16 +1896,16 @@ public class PkgMgrFrame extends JFrame
 
     static final KeyStroke[] ProjKeys = {
         null,
-        KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_MASK),
         null,   // open non bluej
-        KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_MASK),
         null, // save as
         null, // import
         null, // export
         null, // page setup
-        KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK)
+        KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_Q, SHORTCUT_MASK)
     };
 
     static final int[] ProjSeparators = {
@@ -1913,8 +1928,8 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final KeyStroke[] EditKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK),
         null,
         null,
         null,
@@ -1944,12 +1959,12 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final KeyStroke[] ToolsKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.SHIFT_MASK | Event.CTRL_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.SHIFT_MASK | SHORTCUT_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_L, SHORTCUT_MASK),
         null,
         null,
-        // KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
+        // KeyStroke.getKeyStroke(KeyEvent.VK_B, SHORTCUT_MASK),
         null
     };
 
@@ -1969,10 +1984,10 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final KeyStroke[] ViewKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_U, SHORTCUT_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_T, SHORTCUT_MASK),
     };
 
     static final int[] ViewSeparators = {
@@ -2031,7 +2046,7 @@ public class PkgMgrFrame extends JFrame
 
     static final KeyStroke[] HelpKeys = {
         null,
-        KeyStroke.getKeyStroke(KeyEvent.VK_V, Event.CTRL_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_MASK),
         null,
         null,
         null,

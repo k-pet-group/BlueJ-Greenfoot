@@ -1645,11 +1645,29 @@ public final class MoeEditor extends JFrame
                         item.setText(label);
                     KeyStroke[] keys = actions.getKeyStrokesForAction(action);
                     if (keys != null)
-                        item.setAccelerator(keys[0]);
+                        item.setAccelerator(chooseKey(keys));
                 }
             }
         }
         return menu;
+    }
+
+    /*
+     * Choose a key to use in the menu from all defined keys.
+     */
+    private KeyStroke chooseKey(KeyStroke[] keys)
+    {
+        if(keys.length == 1)
+            return keys[0];
+        else {
+            KeyStroke key = keys[0];
+            // give preference to shortcuts using letter keys (CTRL-V, rather than F2)
+            for(int i=1; i < keys.length; i++) {
+                if(keys[i].getKeyCode() >= 'A' && keys[i].getKeyCode() <= 'Z')
+                    key = keys[i];
+            }
+            return key;
+        }
     }
 
     // --------------------------------------------------------------------
