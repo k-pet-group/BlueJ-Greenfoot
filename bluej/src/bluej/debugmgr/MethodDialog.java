@@ -28,7 +28,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2671 2004-06-28 12:12:46Z polle $
+ * @version $Id: MethodDialog.java 2774 2004-07-09 13:13:06Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -46,6 +46,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     static final String sTypeParameters = Config
             .getString("pkgmgr.methodCall.typeParametersPrompt");
     static final String emptyFieldMsg = Config.getString("error.methodCall.emptyField");
+    static final String emptyTypeFieldMsg = Config.getString("error.methodCall.emptyTypeField");
     static final String illegalNameMsg = Config.getString("error.methodCall.illegalName");
     static final String duplicateNameMsg = Config.getString("error.methodCall.duplicateName");
 
@@ -65,7 +66,6 @@ public class MethodDialog extends CallDialog implements FocusListener
     private JLabel callLabel;
 
     private CallHistory history;
-    private boolean emptyField = false;
     private String defaultParamValue = "";
 
     public static class VarArgFactory implements ComponentFactory
@@ -98,7 +98,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2671 2004-06-28 12:12:46Z polle $
+     * @version $Id: MethodDialog.java 2774 2004-07-09 13:13:06Z polle $
      */
     public static class ParameterList
     {
@@ -251,9 +251,10 @@ public class MethodDialog extends CallDialog implements FocusListener
             }
         }
 
-        if (emptyField) {
-            setErrorMessage(emptyFieldMsg);
-            emptyField = false;
+        if (!parameterFieldsOk()) {
+            setErrorMessage(emptyFieldMsg);            
+        } else if(!typeParameterFieldsOk()) {     
+            setErrorMessage(emptyTypeFieldMsg);
         } else {
             setWaitCursor(true);
             callWatcher(OK);
@@ -293,13 +294,49 @@ public class MethodDialog extends CallDialog implements FocusListener
             // Debug.message("params not null");
             args = new String[parameterList.size()];
             for (int i = 0; i < parameterList.size(); i++) {
-                String arg = (String) parameterList.getParameter(i).getEditor().getItem();
-                if (arg == null || arg.trim().equals(""))
-                    emptyField = true;
-                args[i] = arg;
+                args[i] = (String) parameterList.getParameter(i).getEditor().getItem();    
             }
         }
         return args;
+    }
+    
+    /**
+     * Returns false if any of the parameter fields are empty
+     */
+    public boolean parameterFieldsOk()
+    {        
+        if (parameterList != null) {            
+            for (int i = 0; i < parameterList.size(); i++) {
+                String arg = (String) parameterList.getParameter(i).getEditor().getItem();
+                if (arg == null || arg.trim().equals(""))
+                    return false;                
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Returns false if some of the typeParameter fields are empty.
+     * That is: if more than one type parameter, but not all, is typed in
+     */
+    public boolean typeParameterFieldsOk()
+    {        
+        boolean oneIsTypedIn = false;
+        boolean oneIsEmpty = false;
+        if (typeParameterList != null) {            
+            for (int i = 0; i < typeParameterList.size(); i++) {
+                String arg = (String) typeParameterList.getParameter(i).getEditor().getItem();
+                if (arg == null || arg.trim().equals("")) {
+                    oneIsEmpty = true;                     
+                } else {
+                    oneIsTypedIn = true;
+                }
+                if(oneIsEmpty && oneIsTypedIn) {
+                    return false;
+                }                
+            }
+        }
+        return true;
     }
 
     /**
