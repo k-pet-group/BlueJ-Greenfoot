@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 693 2000-09-14 01:28:11Z mik $
+ * @version $Id: ClassTarget.java 727 2000-12-15 06:53:24Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -78,7 +78,6 @@ public class ClassTarget extends EditableTarget
 
     protected int modifiers;
     protected Vector breakpoints = new Vector();
-    protected int displayedView = Editor.IMPLEMENTATION;
     protected SourceInfo sourceInfo = new SourceInfo();
 
     // Fields used in Tarjan's algorithm:
@@ -373,13 +372,6 @@ public class ClassTarget extends EditableTarget
         return editor;
     }
 
-    /**
-     * @return the current view being shown - one of the Editor constants
-     */
-    public int getDisplayedView()
-    {
-        return displayedView;
-    }
 
     // --- EditorWatcher interface ---
 
@@ -419,19 +411,6 @@ public class ClassTarget extends EditableTarget
         else
             return Config.getString("pkgmgr.breakpointMsg");
     }
-
-    /**
-     * Called by Editor to change the view displayed by an editor
-     * @param viewname	the name of the view to display, should be
-     * 		one of bluej.editor.Editor.PUBLIC, etc.
-     * @return a boolean indicating if the change was allowed
-     */
-    public boolean changeView(Editor editor, int viewType)
-    {
-        generateView(editor, viewType);
-        return true;
-    }
-
 
     public void compile(Editor editor)
     {
@@ -803,10 +782,6 @@ public class ClassTarget extends EditableTarget
     	    createClassMenu(menu, cl);
 
     	addMenuItem(menu, editStr, true);
-    	addMenuItem(menu, publicStr, (state == S_NORMAL));
-    	addMenuItem(menu, pkgStr, (state == S_NORMAL));
-    	addMenuItem(menu, inheritedStr, (state == S_NORMAL));
-    	menu.addSeparator();
     	addMenuItem(menu, compileStr, true);
     	addMenuItem(menu, removeStr, true);
 
@@ -1067,16 +1042,7 @@ public class ClassTarget extends EditableTarget
         if(member != null) {
         }
         else if(editStr.equals(cmd)) {
-            showView(Editor.IMPLEMENTATION);
-        }
-        else if(publicStr.equals(cmd)) {
-            showView(Editor.PUBLIC);
-        }
-        else if(pkgStr.equals(cmd)) {
-            showView(Editor.PACKAGE);
-        }
-        else if(inheritedStr.equals(cmd)) {
-            showView(Editor.INHERITED);
+            open();
         }
         else if(compileStr.equals(cmd)) {
             getPackage().compile(this);
@@ -1144,56 +1110,6 @@ public class ClassTarget extends EditableTarget
             super.mouseMoved(evt, x, y, editor);
     }
 
-    /*
-     */
-    public void showView(int viewType)
-    {
-        if(viewType == displayedView)
-            open();
-        else {
-            Editor editor = getEditor();
-            editor.setView(viewType);
-            editor.setVisible(true);
-        }
-    }
-
-    /**
-     * Show a view in the editor. If 'open' is true, the editor needs to be
-     * opened, otherwise it is already open and we only need to create the
-     * content.
-     */
-    private void generateView(Editor editor, int viewType)
-    {
-        if(editor==null)
-            return;
-
-        displayedView = viewType;
-        editor.setReadOnly(false);
-
-        if(viewType == Editor.IMPLEMENTATION)
-            reopen();
-        else {
-            editor.clear();
-            Class cl = getPackage().loadClass(getQualifiedName());
-            if(cl != null) {
-                View view = View.getView(cl);
-                int filterType = 0;
-                if(viewType == Editor.PUBLIC)
-                    filterType = ViewFilter.PUBLIC;
-                else if(viewType == Editor.PACKAGE)
-                    filterType = ViewFilter.PACKAGE;
-                else if(viewType == Editor.INHERITED)
-                    filterType = ViewFilter.PROTECTED;
-
-                ViewFilter filter= (filterType != 0) ? new ViewFilter(filterType) : null;
-                view.print(new EditorPrintWriter(editor), filter);
-            }
-            editor.setReadOnly(true);
-            setState(S_NORMAL);
-            editor.setSelection(1, 1, 0);  // move cursor to top of editor
-        }
-    }
-
     /**
      * Prepares this ClassTarget for removal from a Package.
      * It removes dependency arrows and calls prepareFilesForRemoval()
@@ -1235,9 +1151,6 @@ public class ClassTarget extends EditableTarget
     static String editStr = Config.getString("pkgmgr.classmenu.edit");
     static String openStr = Config.getString("browser.classchooser.classmenu.open");
     static String useStr = Config.getString("browser.classchooser.classmenu.use");
-    static String publicStr = Config.getString("pkgmgr.classmenu.public");
-    static String pkgStr = Config.getString("pkgmgr.classmenu.package");
-    static String inheritedStr = Config.getString("pkgmgr.classmenu.inherited");
     static String compileStr = Config.getString("pkgmgr.classmenu.compile");
     static String removeStr = Config.getString("pkgmgr.classmenu.remove");
 }

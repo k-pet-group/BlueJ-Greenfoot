@@ -9,7 +9,7 @@
 package bluej.editor;
 
 /**
-** @version $Id: EditorWatcher.java 698 2000-10-23 03:34:55Z bquig $
+** @version $Id: EditorWatcher.java 727 2000-12-15 06:53:24Z mik $
 ** @author Michael Cahill
 ** Interface between the editor and the rest of BlueJ
 ** The editor uses this class
@@ -39,14 +39,6 @@ public interface EditorWatcher
      */
     String breakpointToggleEvent(Editor editor, int lineNo, 
                                  boolean set);
-
-    /**
-     * Called by Editor to change the view displayed by an editor
-     * @param viewType	the view to display, should be
-     *			one of bluej.editor.Editor.PUBLIC, etc.
-     * @return a boolean indicating if the change was allowed
-     */
-    boolean changeView(Editor editor, int viewType);
 
     /**
      * Called by Editor when a file is to be compiled

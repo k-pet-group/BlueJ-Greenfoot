@@ -18,8 +18,8 @@ import bluej.classmgr.ClassMgr;
 * A read only (Moe) text editor for showing views of a class selected
 * in the library browser.  Defaults to a public view of a class.
 *
-* @author $Author: ajp $
-* @version $Id: CodeViewer.java 505 2000-05-24 05:44:24Z ajp $
+* @author $Author: mik $
+* @version $Id: CodeViewer.java 727 2000-12-15 06:53:24Z mik $
 */
 public class CodeViewer implements EditorWatcher {
     private MoeEditorManager edMgr = new MoeEditorManager();
@@ -62,8 +62,7 @@ public class CodeViewer implements EditorWatcher {
                                  this,
                                  isCompiled,
                                  null);
-        showView(editor, Editor.PUBLIC);
-
+        showEditor(editor);
     }
 
     /**
@@ -115,17 +114,6 @@ public class CodeViewer implements EditorWatcher {
     { return null; }
 
     /**
-    ** Called by Editor to change the view displayed by an editor
-    ** @arg viewType	the view to display, should be
-    **			one of bluej.editor.Editor.PUBLIC, etc.
-    ** @returns a boolean indicating if the change was allowed
-    **/
-    public boolean changeView(Editor editor, int viewType) {
-        showView(editor, viewType);
-        return true;
-    }
-
-    /**
      * Called by Editor when a file is to be compiled.  Unimplemented because compilation is not allowed in the read only editor.
      * Part of the EditorWatcher interface.
      **/
@@ -138,33 +126,12 @@ public class CodeViewer implements EditorWatcher {
      * @param editor the editor with the file to change the view of
      * @param viewType the type of view requested.
      */
-    private void showView(Editor editor, int viewType) {
+    private void showEditor(Editor editor) {
         editor.setReadOnly(false);
         if (!hasSource)
-            viewType = Editor.PUBLIC;
+            ; // do something to show the interface...
 
-        if (viewType == Editor.IMPLEMENTATION) {
-            editor.showFile(theClass.getSourceFile().getPath(), true, null);
-        } else {
-
-            try {
-                editor.clear();
-                View view = View.getView(ClassMgr.loadBlueJClass(className));
-                int filterType = 0;
-                if(viewType == Editor.PUBLIC)
-                    filterType = ViewFilter.PUBLIC;
-                else if(viewType == Editor.PACKAGE)
-                    filterType = ViewFilter.PACKAGE;
-                else if(viewType == Editor.INHERITED)
-                    filterType = ViewFilter.PROTECTED;
-
-                ViewFilter filter= (filterType != 0) ? new ViewFilter(filterType) : null;
-                view.print(new EditorPrintWriter(editor), filter);
-                editor.setVisible(true);
-            } catch (ClassNotFoundException cnfe) {
-                cnfe.printStackTrace();
-            }
-        }
+        editor.showFile(theClass.getSourceFile().getPath(), true, null);
         editor.setReadOnly(true);
     }
 }

@@ -11,7 +11,7 @@ import bluej.utility.DialogManager;
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 657 2000-07-26 07:39:59Z mik $
+ * @version $Id: EditableTarget.java 727 2000-12-15 06:53:24Z mik $
  */
 public abstract class EditableTarget extends DependentTarget
     implements EditorWatcher
@@ -37,11 +37,6 @@ public abstract class EditableTarget extends DependentTarget
      * @return the editor object associated with this target
      */
     public abstract Editor getEditor();
-
-    /**
-     * @return the current view being shown - one of the Editor constants
-     */
-    public abstract int getDisplayedView();
 
     /**
      * Called to open the editor for this target
@@ -113,14 +108,6 @@ public abstract class EditableTarget extends DependentTarget
      */
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     { return null; }
-
-    /**
-     * Called by Editor to change the view displayed by an editor
-     * @param viewname	the name of the view to display, should be
-     *			one of bluej.editor.Editor.PUBLIC, etc.
-     * @returns a boolean indicating if the change was allowed
-     */
-    public boolean changeView(Editor editor, int viewType) { return false; }
 
     /**
      * The "compile" function was invoked in the editor

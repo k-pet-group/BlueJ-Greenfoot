@@ -16,7 +16,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 648 2000-07-26 00:25:17Z ajp $
+ * @version $Id: ReadmeTarget.java 727 2000-12-15 06:53:24Z mik $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -151,18 +151,6 @@ public class ReadmeTarget extends Target
     {
         return null;
     }
-
-    /**
-     * Called by Editor to change the view displayed by an editor
-     * @param viewname	the name of the view to display, should be
-     * 		one of bluej.editor.Editor.PUBLIC, etc.
-     * @return a boolean indicating if the change was allowed
-     */
-    public boolean changeView(Editor editor, int viewType)
-    {
-        return true;
-    }
-
 
     public void compile(Editor editor)
     {

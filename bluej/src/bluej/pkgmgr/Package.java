@@ -37,7 +37,7 @@ import java.text.DateFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 724 2000-12-13 03:04:01Z ajp $
+ * @version $Id: Package.java 727 2000-12-15 06:53:24Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1719,9 +1719,7 @@ public class Package extends Graph
             t.unsetFlag(Target.F_QUEUED);
         }
 
-        if(t.getDisplayedView() != Editor.IMPLEMENTATION)
-            t.showView(Editor.IMPLEMENTATION);
-        else if(bringToFront || !t.getEditor().isShowing())
+        if(bringToFront || !t.getEditor().isShowing())
             t.open();
         Editor editor = t.getEditor();
         if(editor!=null)

@@ -30,7 +30,7 @@ import java.util.ArrayList;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 657 2000-07-26 07:39:59Z mik $
+ * @version $Id: ObjectWrapper.java 727 2000-12-15 06:53:24Z mik $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -391,7 +391,7 @@ public class ObjectWrapper extends JComponent
             menu.show(this, evt.getX(), evt.getY() - menuOffset);
         }
         else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
-            if(evt.getClickCount() > 1)
+            if(evt.getClickCount() > 1)  // double click
                 inspectObject();
             else {
                 ObjectBench bench = (ObjectBench)getParent();

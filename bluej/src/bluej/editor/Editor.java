@@ -17,24 +17,10 @@ import java.util.Enumeration;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Editor.java 698 2000-10-23 03:34:55Z bquig $
+ * @version $Id: Editor.java 727 2000-12-15 06:53:24Z mik $
  */
 public interface Editor
 {
-    // CONSTANTS:
-    // views supported by the editor
-    int PUBLIC = 0;
-    int PACKAGE = 1;
-    int INHERITED = 2;
-    int IMPLEMENTATION = 3;
-
-    // styles
-    // int StyleNormal = 0;
-    // int StyleBold = 1;
-    // int StyleItalics = 2;
-    // int StyleBoldItalics = 3;
-    // int StyleColourRed = 4;
-
     /**
      *  Read a file into the editor buffer and show the editor. If the
      *  editor already contains text, it is cleared first.
@@ -85,16 +71,6 @@ public interface Editor
      * @param len the number of characters to select
      */
     void setSelection(int lineNumber, int column, int len);
-
-
-    /**
-     *  Make the editor display a given view. Does not show the editor if
-     *  it's not shown, just fills the contents.
-     *
-     *  @param view     the view to be displayed. Must be one of the
-     *                  view constants defined above
-     */
-    void setView(int view);
 
 
     /**
