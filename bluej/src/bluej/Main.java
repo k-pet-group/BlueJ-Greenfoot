@@ -21,7 +21,7 @@ import java.util.StringTokenizer;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1591 2002-12-17 10:41:38Z mik $
+ * @version $Id: Main.java 1616 2003-01-27 15:47:57Z damiano $
  */
 public class Main
 {
@@ -93,22 +93,19 @@ public class Main
 
         // You got to create it here since it is used by the Package manager frame
         ExtensionsManager.initialise(args, bluejLib);
-//        ExtensionsManager.getExtMgr().loadExtensions();
         
         // start the MachineLoader (a separate thread) to load the
         // remote virtual machine in the background
-
         MachineLoader machineLoader = new MachineLoader();
         // lower priority to improve GUI response time
         machineLoader.setPriority(Thread.currentThread().getPriority() - 1);
         machineLoader.start();
 
+        // It is here to have an extension to be ready whan a command line project is summoned
+        ExtensionsManager.getExtMgr().loadExtensions();
+
         processArgs(args);
         splash.remove();
-
-
-        // called here to solve timing problems where the extension starts interact with BlueJ but it is not ready yet.
-        ExtensionsManager.getExtMgr().loadExtensions();
     }
 
     /**
