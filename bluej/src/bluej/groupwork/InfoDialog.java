@@ -12,8 +12,8 @@ import com.ice.jcvsii.*;
 import com.ice.cvsc.*;
 
 /**
- ** @version $Id: InfoDialog.java 401 2000-02-29 01:42:12Z markus $
- ** @author Markus Ostman
+ ** @version $Id: InfoDialog.java 426 2000-04-14 01:11:12Z markus $
+ ** @author Markus Ostman, some code copied from jCVS
  **
  ** Dialog for Group work information purposes
  **/

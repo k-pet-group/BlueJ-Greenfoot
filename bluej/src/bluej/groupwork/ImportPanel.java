@@ -38,7 +38,7 @@ import bluej.utility.Debug;
 import bluej.pkgmgr.*;
 
 /**
- ** @version $Id: ImportPanel.java 401 2000-02-29 01:42:12Z markus $
+ ** @version $Id: ImportPanel.java 426 2000-04-14 01:11:12Z markus $
  ** @author Modifications to jCVS ImportPanel.java by Markus Ostman
  **
  ** Import panel for bluej group support.
@@ -79,8 +79,8 @@ public class ImportPanel extends GroupWorkPanel
 	this.infoPan.loadPreferences( "import" );
 
   	//./temp this overrides the old preferenses by setting 
-	//the import directory and Module. For some reason this messes up Bluej
-	//if called before new package is created
+	//the import directory and Module. For some reason this 
+        //messes up Bluej if called before new package is created
   	PkgMgrFrame parentFrame = (PkgMgrFrame)getGroupWorkDialog().getParent();
   	if(parentFrame.getPackage().getBaseDir() != null){
   	    this.infoPan.setImportDirectory(parentFrame.getPackage().getBaseDir());
@@ -134,9 +134,9 @@ public class ImportPanel extends GroupWorkPanel
 	CVSEntryVector		entries = new CVSEntryVector();
 	CVSEntryVector		binEntries = new CVSEntryVector();
 	
-	CVSArgumentVector arguments =
-	    CVSArgumentVector.parseArgumentString
-	    ( this.infoPan.getArguments() );
+        //Since the infoPan doesn't provide any arguments
+        //we just set them to null
+	CVSArgumentVector arguments=CVSArgumentVector.parseArgumentString("");
 
 	String userName = this.infoPan.getUserName();
 	String passWord = this.infoPan.getPassword();
@@ -161,10 +161,10 @@ public class ImportPanel extends GroupWorkPanel
 
 	String	rootRepository = rootDirectory + "/" + repository;
 	
-	int connMethod =
-	    ( this.infoPan.isInetdSelected()
-	      ? CVSRequest.METHOD_INETD
-	      : CVSRequest.METHOD_RSH );
+	int connMethod = CVSRequest.METHOD_INETD;
+            // ( this.infoPan.isInetdSelected()
+            // ? CVSRequest.METHOD_INETD
+            //: CVSRequest.METHOD_RSH );
 	
 	//
 	// SANITY
@@ -260,7 +260,7 @@ public class ImportPanel extends GroupWorkPanel
 		return;
 	    }
 	
-	boolean isPServer =  this.infoPan.isPasswordSelected();
+	boolean isPServer = true;// this.infoPan.isPasswordSelected();
 	
 	int cvsPort =
 	    CVSUtilities.computePortNum
@@ -738,8 +738,8 @@ public class ImportPanel extends GroupWorkPanel
 		this.tabbed = new JTabbedPane();
 
 		this.infoPan = new ConnectInfoPanel( "import" );
-		this.infoPan.setPServerMode( true );
-		this.infoPan.setUsePassword( true );
+		//this.infoPan.setPServerMode( true );
+		//this.infoPan.setUsePassword( true );
 
 		this.tabbed.addTab
 			( rmgr.getUIString( "import.tab.connection" ),

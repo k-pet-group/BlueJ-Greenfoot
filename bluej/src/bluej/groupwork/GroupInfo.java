@@ -12,7 +12,7 @@ import bluej.pkgmgr.*;
 import com.ice.cvsc.*;
 
 /**
- ** @version $Id: GroupInfo.java 401 2000-02-29 01:42:12Z markus $
+ ** @version $Id: GroupInfo.java 426 2000-04-14 01:11:12Z markus $
  ** @author Markus Ostman
  ** Interface between a group project and a bluej package
  **/
@@ -45,6 +45,15 @@ public interface GroupInfo
     void initializeGroupInfo(String localDirName, 
 			     JFrame currentFrame,
 			     String password);
+
+    /**Method to verify login to group project 
+     ** 
+     **  
+     ** @param 
+     ** @param 
+     ** @returns void  
+     **/
+    void verifyLogin();
     
 
 } // end interface GroupInfo

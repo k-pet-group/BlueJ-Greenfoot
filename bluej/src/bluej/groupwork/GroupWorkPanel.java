@@ -46,7 +46,7 @@ public class GroupWorkPanel extends JPanel
     {
 	String propsFile = Config.getSystemConfigDir() + File.separatorChar + "group.defs";
 	Debug.message("GrpWrkPnl,45 "+propsFile);
-	// if we haven't been given properties to use, load them
+
         if (props == null) {
             // try to load the Properties for the group stuff
             try {
@@ -57,7 +57,6 @@ public class GroupWorkPanel extends JPanel
             } catch(IOException e) {
                 Debug.reportError("Error loading group properties file" + 
                                   propsFile + ": " + e);
-                // if it's not found, let's create a default one
             }
 	}
     }

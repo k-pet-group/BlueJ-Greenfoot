@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.pkgmgr.*;
 
 import com.ice.cvsc.*;
@@ -18,7 +19,8 @@ import com.ice.util.AWTUtilities;
 
 /**
  ** This Class implements the Interface GroupPkgManager using jCVS classes 
- ** @author Markus Ostman
+ ** @author Markus Ostman, with influences from jCVS source code written by 
+ ** Tim Endres.
  **
  **/
 public final class CVSGroupInfo 
@@ -127,13 +129,6 @@ public final class CVSGroupInfo
 		  ( project.getClient().getHostName() ) );
 	    
 	    String title = project.getRepository() + " Project";
-	    Debug.message("CVSGrpInfo,Line128 "+title);
-	    //ProjectFrame frame = new ProjectFrame( title, project );
-	    
-	    //ProjectFrameMgr.addProject( frame, rootDirFile.getPath() );
-	    
-	    //frame.toFront();
-	    //frame.requestFocus();
 	    
 	    if ( password != null )
 		{
@@ -160,6 +155,7 @@ public final class CVSGroupInfo
     
     /*
      *Verifies the login to a CVS project
+     *The method is inherited from GroupInfo
      */ 
     public void verifyLogin()
     {
@@ -186,8 +182,8 @@ public final class CVSGroupInfo
 	String password;
 	String userName = this.project.getUserName();
 	
-	PasswordDialog passDialog = new PasswordDialog( currentFrame, userName );
-	
+	LoginDialog passDialog = new LoginDialog( currentFrame, userName );
+	DialogManager.centreDialog(passDialog);
 	passDialog.show();
 
 	userName = passDialog.getUserName();
