@@ -1,5 +1,6 @@
 package bluej.debugger.jdi;
 
+import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.utility.Debug;
@@ -15,10 +16,11 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiClass.java 1527 2002-11-28 15:36:18Z mik $
+ *@version    $Id: JdiClass.java 2549 2004-05-26 11:16:02Z polle $
  */
 public class JdiClass extends DebuggerClass
 {
+    private static final String nullLabel =	Config.getString("debugger.null");
     ReferenceType remoteClass;  // the remote class represented
     List staticFields;
 
@@ -195,7 +197,7 @@ public class JdiClass extends DebuggerClass
     public static String getValueString(Value val)
     {
         if (val == null) {
-            return "<null>";
+            return nullLabel;
         }
         else if (val instanceof StringReference) {
             return "\"" + ((StringReference) val).value() + "\"";

@@ -12,7 +12,7 @@ import bluej.testmgr.record.InvokerRecord;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2281 2003-11-05 17:43:53Z mik $
+ * @version $Id: AssertPanel.java 2549 2004-05-26 11:16:02Z polle $
  */
 public class AssertPanel extends JPanel
 {
@@ -24,10 +24,12 @@ public class AssertPanel extends JPanel
 		Config.getString("debugger.assert.notSameAs");
 	private static final String notNullLabel =
 		Config.getString("debugger.assert.notNull");
-	private static final String nullLabel =
+	private static final String assertNullLabel =
 		Config.getString("debugger.assert.null");
     private static final String equalToFloatingPointLabel =
             Config.getString("debugger.assert.equalToFloatingPoint");
+    
+    private static final String nullLabel =	Config.getString("debugger.null");
 
 	/**
 	 * The panels and UI elements of this panel.
@@ -56,7 +58,7 @@ public class AssertPanel extends JPanel
 	 * labelAssertStatement arrays.
 	 */
     private String[] labels = new String[]
-    	 { equalToLabel, sameAsLabel, notSameAsLabel, notNullLabel, nullLabel , equalToFloatingPointLabel };
+    	 { equalToLabel, sameAsLabel, notSameAsLabel, notNullLabel, assertNullLabel , equalToFloatingPointLabel };
     	 
     private boolean[] firstLabelFieldNeeded = new boolean[] 
     	{ true, true, true, false, false, true};
@@ -214,9 +216,9 @@ public class AssertPanel extends JPanel
             double delta = Double.parseDouble(tokens[3]);
             deltaData.setText(Double.toString(Math.abs(delta * 0.01)));
         }
-        else if (tokens[3].equals("<null>")) {
+        else if (tokens[3].equals(nullLabel)) {
             // an object reference that is null
-            assertCombo.setSelectedIndex(findItemIndex(nullLabel));
+            assertCombo.setSelectedIndex(findItemIndex(assertNullLabel));
         }
         else if (tokens[3].equals("<object")) {
             // an object reference that is not null

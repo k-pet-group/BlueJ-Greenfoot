@@ -1,5 +1,6 @@
 package bluej.debugger.jdi;
 
+import bluej.Config;
 import bluej.debugger.DebuggerObject;
 
 import java.util.List;
@@ -12,10 +13,11 @@ import com.sun.jdi.*;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 2379 2003-11-24 02:26:07Z ajp $
+ * @version    $Id: JdiArray.java 2549 2004-05-26 11:16:02Z polle $
  */
 public class JdiArray extends JdiObject
 {
+    private static final String nullLabel =	Config.getString("debugger.null");
     protected JdiArray(ArrayReference obj)
     {
         this.obj = obj;
@@ -158,7 +160,7 @@ public class JdiArray extends JdiObject
             String valString;
 
             if (val == null) {
-                valString = "<null>";
+                valString = nullLabel;
             } else if ((val instanceof ObjectReference) &&
                         !(val instanceof StringReference)) {
                 valString = "<object reference>";

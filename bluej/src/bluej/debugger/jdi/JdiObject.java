@@ -3,6 +3,7 @@ package bluej.debugger.jdi;
 import java.util.ArrayList;
 import java.util.List;
 
+import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.utility.Debug;
@@ -14,10 +15,13 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2547 2004-05-26 05:17:29Z davmac $
+ * @version $Id: JdiObject.java 2549 2004-05-26 11:16:02Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
+    private static final String nullLabel =
+		Config.getString("debugger.null");
+    
     // boolean - true if our JVM supports generics
     static boolean jvmSupportsGenerics = System.getProperty("java.vm.version")
                             .substring(0,3).compareTo("1.5") >= 0;
@@ -555,7 +559,7 @@ public class JdiObject extends DebuggerObject
     {
         if (val == null)
         {
-            return "<null>";
+            return nullLabel;
         }
         else if (val instanceof StringReference)
         {
