@@ -1170,7 +1170,8 @@ public final class MoeActions
     {
         int lineIndex = getCurrentLineIndex(textPane);
         if (lineIndex == 0) { // first line
-            insertSpacedTab(textPane);
+            if(!isNewLine)
+                insertSpacedTab(textPane);
             return;
         }
 
@@ -1194,10 +1195,27 @@ public final class MoeActions
 
             // get indentation string from previous line
 
-            Element prevline = getLine(textPane, lineIndex - 1);
-            int prevLineStart = prevline.getStartOffset();
-            int prevLineEnd = prevline.getEndOffset();
-            String prevLineText = doc.getText(prevLineStart, prevLineEnd - prevLineStart);
+            boolean foundLine = false;
+            int lineOffset = 1;
+            String prevLineText = null;
+            while ((lineIndex - lineOffset >= 0) && !foundLine) {
+                Element prevline = getLine(textPane, lineIndex - lineOffset);
+                int prevLineStart = prevline.getStartOffset();
+                int prevLineEnd = prevline.getEndOffset();
+                prevLineText = doc.getText(prevLineStart, prevLineEnd - prevLineStart);
+                if(!isWhiteSpaceOnly(prevLineText)) {
+                    foundLine = true;
+                }
+                else {
+                   lineOffset++; 
+                }
+            }
+            if(!foundLine) {
+                if(!isNewLine)
+                    insertSpacedTab(textPane);
+                return;
+            }
+            
             if (isOpenBrace(prevLineText))
                 isOpenBrace = true;
             else {
@@ -1238,6 +1256,14 @@ public final class MoeActions
         catch (BadLocationException exc) {}
     }
 
+    /**
+     * Return true if s contains only whitespace (or nothing).
+     */
+    private boolean isWhiteSpaceOnly(String s)
+    {
+        return s.trim().length() == 0;
+    }
+    
     /**
      * Do some semi-intelligent de-indentation. That is: indent the current line
      * one indentation level less that the line above, or less than it currently
