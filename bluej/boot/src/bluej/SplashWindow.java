@@ -11,7 +11,7 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2153 2003-08-05 14:50:41Z mik $
+ * @version $Id: SplashWindow.java 2174 2003-08-26 11:28:23Z mik $
  */
 
 public class SplashWindow extends JWindow
@@ -65,8 +65,7 @@ public class SplashWindow extends JWindow
         Graphics2D g = (Graphics2D)getGlassPane().getGraphics();
         g.setColor(new Color(51,102,153));
         g.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        g.drawString("Version " + Boot.BLUEJ_VERSION, 26, 
-                     image.getHeight()-20);
+        g.drawString("Version " + Boot.BLUEJ_VERSION, 26, image.getHeight()-20);
     }
 
     public void windowActivated(WindowEvent e) {}

@@ -262,7 +262,7 @@ public final class MoeActions
                 version = count;
                 count = stream.readInt();
             }
-            if(Config.osname.startsWith("Mac") && (version < 140)) {
+            if(Config.isMacOS() && (version < 140)) {
                 // do not attempt to load old bindings on MacOS when switching to jdk 1.4.1
                 return false;
             }
