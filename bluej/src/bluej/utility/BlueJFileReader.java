@@ -20,7 +20,7 @@ import java.io.*;
  * dictionary.
  *
  * @author  Michael Kolling
- * @version $Id: BlueJFileReader.java 912 2001-05-25 05:05:37Z ajp $
+ * @version $Id: BlueJFileReader.java 1290 2002-07-24 01:52:04Z bquig $
  */
 public class BlueJFileReader
 {
@@ -69,7 +69,7 @@ public class BlueJFileReader
                         helptext += "\n" + line;
                         line = in.readLine();
                     }
-                    return helptext;
+                    return convert(helptext);
                 }
                 else {
                     // skip help text
@@ -180,5 +180,52 @@ public class BlueJFileReader
 
             throw e;
         }
+    }
+    
+    
+    /**
+     * Convert Unicode based characters in \udddd format
+     */
+    private static String convert(String theString) {
+        char aChar;
+        int len = theString.length();
+        StringBuffer outBuffer = new StringBuffer(len);
+        
+        for(int x=0; x<len; ) {
+            aChar = theString.charAt(x++);
+            if (aChar == '\\') {
+                aChar = theString.charAt(x++);
+                if(aChar == 'u') {
+                    // Read the xxxx
+                    int value=0;
+                    for (int i=0; i<4; i++) {
+                        aChar = theString.charAt(x++);
+                        switch (aChar) {
+                            case '0': case '1': case '2': case '3': case '4':
+                            case '5': case '6': case '7': case '8': case '9':
+                                value = (value << 4) + aChar - '0';
+                                break;
+                            case 'a': case 'b': case 'c':
+                            case 'd': case 'e': case 'f':
+                                value = (value << 4) + 10 + aChar - 'a';
+                                break;
+                            case 'A': case 'B': case 'C':
+                            case 'D': case 'E': case 'F':
+                                value = (value << 4) + 10 + aChar - 'A';
+                                break;
+                            default:
+                                //error in encoding - what to do? - nothing
+                        }
+                    }
+                    outBuffer.append((char)value);
+                } else {
+                    //ignore other special characters
+                    outBuffer.append('\\');
+                    outBuffer.append(aChar);
+                }
+            } else
+                outBuffer.append(aChar);
+        }
+        return outBuffer.toString();
     }
 }
