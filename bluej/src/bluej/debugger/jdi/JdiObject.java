@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2626 2004-06-19 11:39:25Z mik $
+ * @version $Id: JdiObject.java 2628 2004-06-19 13:43:11Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -666,6 +666,11 @@ public class JdiObject extends DebuggerObject
         if (val == null)
         {
             return nullLabel;
+        }
+        else if (val instanceof StringReference)
+        {
+            return "\"" + ((StringReference) val).value() + "\"";
+            // toString should be okay for this as well once the bug is out...
         }
         else if (val instanceof ObjectReference)
         {
