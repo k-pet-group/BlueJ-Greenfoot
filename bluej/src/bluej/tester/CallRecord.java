@@ -16,9 +16,9 @@ import bluej.runtime.*;
  * method call mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: CallRecord.java 1002 2001-11-01 04:08:25Z ajp $
+ * @version $Id: CallRecord.java 1003 2001-11-01 06:42:01Z ajp $
  */
-public class CallRecord
+public abstract class CallRecord
 {
     // ======= static (factory) section =======
 
@@ -32,9 +32,9 @@ public class CallRecord
     }
 
     public static CallRecord getCallRecord(String instanceName, CallableView theCall,
-                                            String[] args, Component[] objectBench)
+                                            String[] args)
     {
-        CallRecord newRecord = new CallRecord(instanceName, theCall, args);
+        ConstructorCallRecord newRecord = new ConstructorCallRecord(instanceName, theCall, args);
 
         callRecords.put(instanceName, newRecord);
 
@@ -85,12 +85,16 @@ public class CallRecord
         return name;
     }
 
-    private abstract class CallArg 
+    public abstract String dump(int tablevel, String name, boolean declare);
+
+    protected abstract class CallArg 
     {
         public abstract boolean preConstruct();    
+
+        public abstract String dump(int tablevel, String name, boolean dec);
     }
 
-    private class LiteralCallArg extends CallArg
+    protected class LiteralCallArg extends CallArg
     {
 
         private String literal;
@@ -106,13 +110,18 @@ public class CallRecord
         public String getLiteral() {
             return literal;
         }
+        
+        public String dump(int tablevel, String name, boolean dec)
+        {
+            return "XXX";
+        }
 
         public String toString() {
             return getLiteral();
         }
     }
 
-    private class ReferenceCallArg extends CallArg
+    protected class ReferenceCallArg extends CallArg
     {
         private CallRecord reference;
 
@@ -126,6 +135,11 @@ public class CallRecord
 
         public CallRecord getReference() {
             return reference;
+        }
+
+        public String dump(int tablevel, String name, boolean dec)
+        {
+            return getReference().dump(tablevel, name, dec);
         }
 
         public String toString() {

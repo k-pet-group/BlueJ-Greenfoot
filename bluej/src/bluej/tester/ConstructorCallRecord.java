@@ -15,13 +15,13 @@ import bluej.runtime.*;
  * Records a single user object construction
  *
  * @author  Andrew Patterson
- * @version $Id: ConstructorCallRecord.java 1002 2001-11-01 04:08:25Z ajp $
+ * @version $Id: ConstructorCallRecord.java 1003 2001-11-01 06:42:01Z ajp $
  */
 public class ConstructorCallRecord extends CallRecord
 {
     private List methodCalls = new ArrayList();
 
-    private ConstructorCallRecord(String name, CallableView theCall, String[] args)
+    protected ConstructorCallRecord(String name, CallableView theCall, String[] args)
     {
         super(name, theCall, args);
     }
@@ -31,32 +31,72 @@ public class ConstructorCallRecord extends CallRecord
         methodCalls.add(methodRecord);
     }
 
-	public String toString()
+    private void addTabs(StringBuffer sb, int tabs)
     {
+        for(int i=0; i<tabs; i++)
+            sb.append("\t");
+    }
+
+	public String dump(int tablevel, String newname, boolean includeDeclaration)
+    {
+        List argNames = new ArrayList();
+        int constructArgCount = 0;
 		StringBuffer sb = new StringBuffer();
 
-        sb.append(classType);
-        sb.append(" ");
-        sb.append(name);
-        sb.append(" = new ");
-        sb.append(classType);
-        sb.append("(");
+        
+        if(includeDeclaration) {
+            addTabs(sb, tablevel);
+            sb.append(classType);
+            sb.append(" ");
+            sb.append(newname);
+            sb.append(";\n");
+        }
+
+        addTabs(sb, tablevel);
+        sb.append("{\n");
 
 		Iterator it = callArgs.iterator();
 
 		while(it.hasNext()) {
-			sb.append(it.next().toString());
+			CallArg ca = (CallArg) it.next();
+
+            if (ca.preConstruct()) {
+                sb.append(ca.dump(tablevel+1, "var" + constructArgCount, true));
+                constructArgCount++;
+            }
+		}
+
+        addTabs(sb, tablevel+1);
+        sb.append(newname);
+        sb.append(" = new ");
+        sb.append(classType);
+        sb.append("(");
+
+        it = callArgs.iterator();
+
+        constructArgCount = 0;
+
+		while(it.hasNext()) {
+			CallArg ca = (CallArg) it.next();
+
+            if (ca.preConstruct()) {
+                sb.append("var" + constructArgCount++);
+            } else
+                sb.append(ca.toString());
+
             if (it.hasNext())
                 sb.append(", ");
 		}
 	    sb.append(");\n");
 
-        Iterator mit = methodCalls.iterator();
+        addTabs(sb, tablevel);
+        sb.append("}\n");
+
+/*        Iterator mit = methodCalls.iterator();
 
         while(mit.hasNext()) {
             sb.append(mit.next().toString());
-        }
-
+        } */
 
 		return sb.toString();		
 	}
