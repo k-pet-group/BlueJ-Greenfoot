@@ -17,7 +17,7 @@ import bluej.views.*;
  * Behaviour is similar to the Java reflection API.
  * For all methods the return value is null if the class is not compiled.
  * 
- * @version $Id: BClass.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: BClass.java 1957 2003-05-16 14:20:18Z damiano $
  */
 public class BClass
 {
@@ -26,36 +26,30 @@ public class BClass
     private final Class loadedClass;
     private final View  bluej_view;
 
-    BClass (Package i_bluej_pkg, ClassTarget classTarget)
+    BClass (Package i_bluej_pkg, ClassTarget aClassTarget)
     {
-        bluej_pkg = i_bluej_pkg;
-        this.classTarget = classTarget;
-        this.loadedClass = bluej_pkg.loadClass (classTarget.getQualifiedName());
-        bluej_view = View.getView (loadedClass);
+        bluej_pkg   = i_bluej_pkg;
+        classTarget = aClassTarget;
+        loadedClass = bluej_pkg.loadClass (classTarget.getQualifiedName());
+        bluej_view  = View.getView (loadedClass);
+        System.out.println ("BClass qualifiedName="+classTarget.getQualifiedName());
     }
 
-    BClass (Package i_bluej_pkg, Class systemClass)
-    {
-        bluej_pkg = i_bluej_pkg;
-        this.classTarget = null;
-        this.loadedClass = systemClass;
-        bluej_view = View.getView (loadedClass);
-    }
 
     BClass (Package i_bluej_pkg, String className)
     {
-        bluej_pkg = i_bluej_pkg;
-        this.classTarget = null;
-        this.loadedClass = bluej_pkg.loadClass (transJavaToClass(className));
-        bluej_view = View.getView (loadedClass);
+        bluej_pkg   = i_bluej_pkg;
+        classTarget = (ClassTarget)bluej_pkg.getTarget(transJavaToClass(className));
+        loadedClass = bluej_pkg.loadClass (transJavaToClass(className));
+        bluej_view  = View.getView (loadedClass);
     }
 
     private BClass (Package i_bluej_pkg, View view)
     {
-        bluej_pkg = i_bluej_pkg;
-        this.classTarget = null;
-        this.loadedClass = bluej_pkg.loadClass (view.getQualifiedName());
-        bluej_view = view;
+        bluej_pkg   = i_bluej_pkg;
+        bluej_view  = view;
+        classTarget = (ClassTarget)bluej_pkg.getTarget(view.getQualifiedName());
+        loadedClass = bluej_pkg.loadClass (view.getQualifiedName());
     }
 
 
