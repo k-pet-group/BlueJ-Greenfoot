@@ -1,6 +1,7 @@
 package bluej.debugger;
 
 import bluej.Config;
+import bluej.BlueJEvent;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.runtime.BlueJRuntime;
@@ -11,7 +12,7 @@ import java.util.Vector;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunDebugger.java 53 1999-04-29 23:43:58Z mik $
+ ** @version $Id: SunDebugger.java 56 1999-04-30 01:33:50Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -26,9 +27,6 @@ public class SunDebugger extends Debugger
     static final String RUNTIME_CLASSNAME = "bluej.runtime.BlueJRuntime";
     static final String MAIN_THREADGROUP = "bluej.runtime.BlueJRuntime.main";
 	
-    static final String creatingVM = Config.getString("debugger.creatingVM");
-    static final String creatingVMDone = Config.getString("debugger.creatingVMDone");
-
     private RemoteDebugger remoteDebugger;
     private Hashtable waitqueue = new Hashtable();
     private int exitStatus;
@@ -44,11 +42,11 @@ public class SunDebugger extends Debugger
 	    return;
 
 	try {
-	    //Main.displayMessage(creatingVM);
+	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM, null);
 	    remoteDebugger = new RemoteDebugger("", this, false);
 	    String[] args = { BlueJRuntime.INIT };
 	    runtimeCmd(args, "");		// Initialise
-	    //Main.displayMessage(creatingVMDone);
+	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
 	} catch(Exception e) {
 	    Utility.reportError("Failed to start debugger: " + e);
 	}
@@ -216,9 +214,9 @@ public class SunDebugger extends Debugger
     /**
      * Set/clear a breakpoint at a specified line in a class.
      *
-     * @arg className  The class in which to set the breakpoint.
-     * @arg line       The line number of the breakpoint.
-     * @arg set        True to set, false to clear a breakpoint.
+     * @param className  The class in which to set the breakpoint.
+     * @param line       The line number of the breakpoint.
+     * @param set        True to set, false to clear a breakpoint.
      */
     public String toggleBreakpoint(String className, int line, boolean set,
 				   DebuggerClassLoader loader)

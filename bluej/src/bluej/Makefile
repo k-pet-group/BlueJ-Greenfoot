@@ -19,6 +19,8 @@ JBDOC = jbdoc
 # Top level files
 BLUEJ_CLASSES = \
 		Config \
+		BlueJEvent \
+		BlueJEventListener \
 		Main
 BLUEJ_SRCS = $(BLUEJ_CLASSES:%=%.java)
 BLUEJ_SRCS_OS = $(subst /,$(SL),$(BLUEJ_SRCS))

@@ -15,6 +15,8 @@ import java.util.Enumeration;
 import java.io.File;
 
 import bluej.Config;
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.debugger.ExecControls;
@@ -23,15 +25,20 @@ import bluej.debugger.ObjectBench;
 import bluej.pkgmgr.ClassTarget;
 
 
-public class PkgMgrFrame extends PkgFrame {
+public class PkgMgrFrame extends PkgFrame 
+
+    implements BlueJEventListener
+{
 
     public static String nameUsedError = Config.getString("error.newClass.duplicateName");
 
-    public static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
-    public static String referenceUrl = Config.getPropString("bluej.url.reference");
-    public static String libraryUrl = Config.getPropString("bluej.url.javaStdLib");
-    public static String webBrowserMsg = Config.getString("pkgmgr.webBrowserMsg");
-    public static String webBrowserError = Config.getString("pkgmgr.webBrowserError");
+    private static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
+    private static String referenceUrl = Config.getPropString("bluej.url.reference");
+    private static String libraryUrl = Config.getPropString("bluej.url.javaStdLib");
+    private static String webBrowserMsg = Config.getString("pkgmgr.webBrowserMsg");
+    private static String webBrowserError = Config.getString("pkgmgr.webBrowserError");
+    private static final String creatingVM = Config.getString("pkgmgr.creatingVM");
+    private static final String creatingVMDone = Config.getString("pkgmgr.creatingVMDone");
 
     private static final String importClassTitle = Config.getString("pkgmgr.importClass.title");
     private static final String importLabel = Config.getString("pkgmgr.importClass.buttonLabel");
@@ -90,11 +97,11 @@ public class PkgMgrFrame extends PkgFrame {
 
 	// If only one frame, close should close existing package rather
 	// than remove frame 
-	if(frames.size() == 1) {
+	if(frames.size() == 1) {	// close package, leave frame
 	    frame.doSave();
 	    frame.removePackage();
 	}
-	else {
+	else {				// remove package and frame
 	    frame.doClose();
 	    frames.removeElement(frame);
 	}
@@ -166,8 +173,9 @@ public class PkgMgrFrame extends PkgFrame {
 	    Main.addPackage(pkg);
 	}
 	setWindowTitle();
-
 	setStatus(AppTitle);
+
+	BlueJEvent.addListener(this);
     }
   
     /**
@@ -376,15 +384,16 @@ public class PkgMgrFrame extends PkgFrame {
     }
 
     /**
-     * Close this package. This should be called ONLY through 
-     * Main.removePackage, since that method takes it out of the list of open
-     * frames.
+     * Close this package. This should be called ONLY through the
+     * static functions in this class since it needs to be taken
+     * out of the frame list when closed.
      */
-    public void doClose()
+    private void doClose()
     {
 	doSave();
 	closePackage();
 	setVisible(false);
+	BlueJEvent.removeListener(this);
     }
 
     /**
@@ -667,6 +676,26 @@ public class PkgMgrFrame extends PkgFrame {
 	    execCtrlWindow.updateThreads();
 	showControlsMenuItem.setSelected(show);
     }
+
+    // ---- BlueJEventListener interface ----
+
+    /**
+     * startExecution - indicate in the interface that the machine has 
+     *  started executing.
+     */
+    public void blueJEvent(int eventId, Object arg)
+    {
+	switch(eventId) {
+	    case BlueJEvent.CREATE_VM:
+		setStatus(creatingVM);
+		break;
+	    case BlueJEvent.CREATE_VM_DONE:
+		setStatus(creatingVMDone);
+		break;
+	}
+    }
+
+    // ---- end of BlueJEventListener interface ----
 
     /**
      * startExecution - indicate in the interface that the machine has 

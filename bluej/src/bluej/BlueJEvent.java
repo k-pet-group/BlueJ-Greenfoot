@@ -2,6 +2,8 @@ package bluej;
 
 import bluej.utility.Debug;
 
+import java.util.Vector;
+
 /**
  ** @author Michael Kolling
  **
@@ -9,35 +11,45 @@ import bluej.utility.Debug;
  ** for things that might be caused by low level parts of the system which
  ** other parts of the system might be interested in. Objects can register
  ** themselves as event listeners. They then get notified of events.
+ **
+ ** A BlueJEvent has one argument. The argument passed differs for every 
+ ** event type.
+ **
+ ** Event types and their arguments:
+ **
+ **  type             argument
+ **  -------------------------
+ **  CREATE_VM        (unused)
+ **  CREATE_VM_DONE   (unused)
+ **
+ **
+ **
+ **
  **/
 
 public class BlueJEvent
 {
-    public static final String nl = System.getProperty("line.separator");
+    // BlueJ event types
 
-    private static boolean initialised = false;
+    public static final int CREATE_VM = 0;
+    public static final int CREATE_VM_DONE = CREATE_VM + 1;
 
-    /**
-     * Initialisation of BlueJ event handling. Must be called before first
-     * use.
-     */
-    public static void initialise()
-    {
-	if(initialised)
-	    return;
 
-	initialised = true;
+    // other variables
 
-	// 
-
-    } // initialise
+    private static Vector listeners = new Vector();
 
     /**
-     * 
-     * 
+     * Raise a BlueJ event with an argument. All registered listeners
+     * will be informed of this event.
      */
     public static void raiseEvent(int eventId, Object arg)
     {
+	for(int i = listeners.size() - 1; i >= 0; i--) {
+	    BlueJEventListener listener = 
+		(BlueJEventListener)listeners.elementAt(i);
+	    listener.blueJEvent(eventId, arg);
+	}
     }
 	
     /**
@@ -46,7 +58,15 @@ public class BlueJEvent
      */
     public static void addListener(BlueJEventListener listener)
     {
-	listeners.add(listener);
+	listeners.addElement(listener);
+    }
+	
+    /**
+     * Remove a listener object from the known listener set.
+     */
+    public static void removeListener(BlueJEventListener listener)
+    {
+	listeners.removeElement(listener);
     }
 	
 }

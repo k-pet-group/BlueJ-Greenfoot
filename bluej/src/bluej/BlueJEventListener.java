@@ -8,12 +8,14 @@ package bluej;
 public interface BlueJEventListener
 {
     /**
-     ** Called when any BlueJ event is raised.
-     **
-     ** @arg eventId  A constant identifying the event. One of the event id
-     **               constants defined in BlueJEvent.
-     ** @ ard param   An event specific parameter. See BlueJEvent for 
-     **               definition.
-     **/
-    public void blueJEvent(int eventId, Object arg);
+     * Called when a BlueJ event is raised. The event can be any BlueJEvent
+     * type. The implementation of this method should check first whether
+     * the event type is of interest an return immediately if it isn't.
+     *
+     * @param eventId  A constant identifying the event. One of the event id
+     *                 constants defined in BlueJEvent.
+     * @param arg      An event specific parameter. See BlueJEvent for 
+     *                 definition.
+     */
+    void blueJEvent(int eventId, Object arg);
 }

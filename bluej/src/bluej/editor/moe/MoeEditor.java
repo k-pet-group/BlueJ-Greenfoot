@@ -259,8 +259,8 @@ public final class MoeEditor extends JFrame
      * "clear; [insertText]*; setVisible(true)". If the selection is on,
      * it is replaced by the new text.
      *
-     * @arg text         the text to be inserted
-     * @arg style         the style in which the text is to be displayed
+     * @param text         the text to be inserted
+     * @param style         the style in which the text is to be displayed
      */
 
     public void insertText(String text, boolean bold, boolean italic)
@@ -282,7 +282,7 @@ public final class MoeEditor extends JFrame
      * Show the editor window. This includes whatever is necessary of the
      * following: make visible, de-iconify, bring to front of window stack.
      *
-     * @arg view		the view to be displayed. Must be one of the 
+     * @param view		the view to be displayed. Must be one of the 
      *			view constants defined above
      */
     public void show(int view)	// inherited from Editor, redefined
@@ -357,12 +357,12 @@ public final class MoeEditor extends JFrame
      * must support at least two lines of message text, so the message
      * can contain a newline character.
      *
-     * @arg message	the message to be displayed
-     * @arg line		the line to move the cursor to (the line is 
+     * @param message	the message to be displayed
+     * @param line		the line to move the cursor to (the line is 
      *			also highlighted)
-     * @arg column		the column to move the cursor to
-     * @arg beep		if true, do a system beep
-     * @arg setStepMark	if true, set step mark (for single stepping)
+     * @param column		the column to move the cursor to
+     * @param beep		if true, do a system beep
+     * @param setStepMark	if true, set step mark (for single stepping)
      */
 
     public void displayMessage(String message, int lineNumber, int column, 
@@ -396,8 +396,8 @@ public final class MoeEditor extends JFrame
     /**
      * Change class name.
      *
-     * @arg title	new window title
-     * @arg filename	new file name
+     * @param title	new window title
+     * @param filename	new file name
      */
     public void changeName (String title, String filename)
     // inherited from Editor
@@ -411,7 +411,7 @@ public final class MoeEditor extends JFrame
     /**
      * Set the "compiled" status
      *
-     * @arg compiled	true if the class has been compiled
+     * @param compiled	true if the class has been compiled
      */
     public void setCompiled (boolean compiled)
     {
@@ -1306,7 +1306,7 @@ public final class MoeEditor extends JFrame
      * Sets the editor to contain a view. This is used if the view is set from
      * the outside of the editor (not by the editor function).
      *
-     * @arg view	    the new view. Must be one of the defined view constants.
+     * @param view	    the new view. Must be one of the defined view constants.
      */
     private void setView(int view)
     {
