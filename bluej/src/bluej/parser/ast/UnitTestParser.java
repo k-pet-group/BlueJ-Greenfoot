@@ -2,6 +2,9 @@
 
     package bluej.parser.ast;
     
+    import bluej.parser.SourceSpan;
+    import bluej.parser.SourceLocation;
+    
     import java.util.*;
     import antlr.BaseAST;
 
@@ -18,24 +21,48 @@ import antlr.ASTPair;
 import antlr.collections.impl.ASTArray;
 
 
-/** Java 1.3 AST Recognizer Grammar
- *
+/** 
  * Author: (see java.g preamble)
+ * Author: Andrew Patterson
  *
- * This grammar is in the PUBLIC DOMAIN
+ * This grammar takes a tree constructed using the standard antlr Java
+ * tree creator, and uses it to perform operations needed for constructing
+ * unit tests (i.e. identifying fields of a class, finding methods called 
+ * testXXX etc).
+ *
+ * This parser requires that the nodes of the tree we work on are 
+ * LocatableAST nodes.
  */
 public class UnitTestParser extends antlr.TreeParser       implements UnitTestParserTokenTypes
  {
 
+	/**
+	 * Given an OBJBLOCK (generally from a class definition), we extract
+	 * a list of fields declared in the OBJBLOCK
+	 * ie
+	 *
+	 * class FooBar {
+	 *    private int a = 10;
+	 *    java.util.HashMap h,i,j = null;
+	 *    public String aString;
+	 * }
+	 * gives us a list with SourceSpan objects encompassing
+	 *   p in private to ;
+	 *   j in java to ;
+	 *   p in public to ;
+	 */
     public static List getVariableSelections(AST objBlock)
     {
         if (!(objBlock instanceof LocatableAST))
-            throw new IllegalArgumentException("wrong AST type");
+            throw new IllegalArgumentException("using unit test parser with wrong AST type");
 
+		// we are creating a list of AST nodes
         LinkedList l = new LinkedList();
+
+		// the first AST in this OBJBLOCK
         LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
 
-        // the children on a class' object block are a list of variable definitions
+        // the children in an object block are a list of variable definitions
         // and method definitions
         while(childAST != null) {
             // we are only interested in variable definitions
@@ -47,30 +74,43 @@ public class UnitTestParser extends antlr.TreeParser       implements UnitTestPa
 				// ( VARIABLE_DEF ( . ( . java lang ) String ) ; )
 
             	// find the complete span of nodes for this variable definition
-                LocatableAST firstSib = null, secondSib = null;
+                LocatableAST startSibling = null, endSibling = null;
                 
-                firstSib = (LocatableAST) childAST.getFirstChild();
-                if(firstSib != null) {
+                startSibling = (LocatableAST) childAST.getFirstChild();
+                if(startSibling != null) {
                 	// the semicolon is always the sibling of the first child found
-                    secondSib = (LocatableAST) firstSib.getNextSibling();
+                    endSibling = (LocatableAST) startSibling.getNextSibling();
                     
-                    // however, we need to keep going down with first sib to find left
-                    // most token
-					while (firstSib.getFirstChild() != null)
-						firstSib = (LocatableAST) firstSib.getFirstChild();
+                    // however, we need to keep going down with startSibling to find
+                    // the left most token
+					while (startSibling.getFirstChild() != null)
+						startSibling = (LocatableAST) startSibling.getFirstChild();
 				}
 				                    
-                if (firstSib != null && secondSib != null) {                    
-                    l.addFirst(secondSib);
-                    l.addFirst(firstSib);
+                if (startSibling != null && endSibling != null) {                    
+					l.add(new SourceSpan(new SourceLocation(startSibling.getLine(),
+					                                        startSibling.getColumn()),
+					                     new SourceLocation(endSibling.getLine(),
+					                                        endSibling.getColumn())));
                 }
             }               
             childAST = (LocatableAST) childAST.getNextSibling();            
         }            
-
         return l;
     }
 
+	/**
+	 * Given an OBJBLOCK (generally from a class definition), we extract
+	 * information about a unitTestSetup method in the OBJBLOCK
+	 * ie
+	 *
+	 * class FooBar {
+	 *    private int a = 10;
+	 *    java.util.HashMap h = null;
+	 *    public String aString;
+	 * }
+	 * gives us a list with AST nodes for  -> private , ; , java , ; , public , ; -<
+	 */
     public static List getSetupMethodSelections(AST objBlock)
     {
         if (!(objBlock instanceof LocatableAST))
@@ -105,7 +145,6 @@ public class UnitTestParser extends antlr.TreeParser       implements UnitTestPa
             }               
             childAST = (LocatableAST) childAST.getNextSibling();            
         }            
-
         return l;
     }
 

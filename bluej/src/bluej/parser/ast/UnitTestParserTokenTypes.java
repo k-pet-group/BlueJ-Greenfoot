@@ -2,6 +2,9 @@
 
     package bluej.parser.ast;
     
+    import bluej.parser.SourceSpan;
+    import bluej.parser.SourceLocation;
+    
     import java.util.*;
     import antlr.BaseAST;
 

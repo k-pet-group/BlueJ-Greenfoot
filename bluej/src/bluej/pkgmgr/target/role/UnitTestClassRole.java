@@ -22,7 +22,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2131 2003-07-24 02:22:23Z bquig $
+ * @version $Id: UnitTestClassRole.java 2241 2003-10-31 02:39:38Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -306,6 +306,7 @@ public class UnitTestClassRole extends ClassRole
             return;
                 
         Editor ed = ct.getEditor();
+        ed.save();
 
         try {
             BaseAST ast = (BaseAST) JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));

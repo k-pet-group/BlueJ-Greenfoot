@@ -155,7 +155,7 @@ Adds a file to an AST tree
 
 			// start parsing at the expression rule
 			parser.expression();
-			
+/*			
             TypeInfoAST tia = (TypeInfoAST) parser.getAST();
 
     		ExpressionSemanticParser semparse = new ExpressionSemanticParser();
@@ -177,7 +177,8 @@ Adds a file to an AST tree
 //            pw.flush();
             
             return semtia.getTypeInfoClass();
-            
+  */
+            return null;
 //			return parser.getAST();
 		}
 		catch (Exception e) {
