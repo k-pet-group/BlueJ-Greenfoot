@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
  * to a given path on a given (attached) server.
  * 
  * @author Clive Miller
- * @version $Id: SmtpSession.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: SmtpSession.java 1584 2002-12-13 11:44:28Z damiano $
  */
 
 public class SmtpSession extends TransportSession
@@ -53,16 +53,19 @@ public class SmtpSession extends TransportSession
         if (url.getPort() != -1) port = url.getPort();
         connection = new SocketSession (smtpHost, port);
         setStatus ("Sending message...");
+
         connection.setLogger (log);
+//        try { connection.setLogfile("c:/tmp/smtp.txt"); } catch ( Exception e ) {}
+        
         out = connection.getOutputStream();
         connection.expect ("220 ", "421 ");
         connection.send ("HELO "+connection.getLocalHost());
         connection.expect (new String[] {"250 "},
                            new String[] {"500","501","504","421"});
-        connection.send ("MAIL FROM:"+userAddress);
+        connection.send ("MAIL FROM:<"+userAddress+">");
         connection.expect (new String[] {"250 "},
                            new String[] {"552","451","452","500","501","421"});
-        connection.send ("RCPT TO:"+sendAddress);
+        connection.send ("RCPT TO:<"+sendAddress+">");
         connection.expect (new String[] {"250 ","251 "},
                            new String[] {"550","551","552","553","450","451","452","500","501","503","421"});
         connection.send ("DATA");
