@@ -4,6 +4,8 @@ import javax.swing.tree.*;
 import javax.swing.*;
 import java.awt.*;
 
+import bluej.Config;
+
 /**
  * A DefaultTreeCellRenderer subclass used to render different
  * subclasses of LibraryNode differently to allow visual differentiation.<p>
@@ -14,16 +16,21 @@ import java.awt.*;
  * <li> all lower level nodes are rendered identically
  * </ul>
  * 
- * @author $Author: mik $
- * @version $Id: LibraryTreeCellRenderer.java 36 1999-04-27 04:04:54Z mik $
+ * @author $Author: ajp $
+ * @version $Id: LibraryTreeCellRenderer.java 159 1999-07-06 14:38:56Z ajp $
  */
 public class LibraryTreeCellRenderer extends JLabel implements TreeCellRenderer {
     private LibraryNode node = null;
     private LibraryChooser source = null;
 
-    private static final Font ROOTFONT = new Font("Helvetica", Font.BOLD, 14);
-    private static final Font DEFAULTFONT = new Font("Helvetica", Font.PLAIN, 10);
-    private static final Font TOPLEVELBRANCHFONT = new Font("Helvetica", Font.BOLD, 12);
+	private static final Font fontTreeRoot =
+		new Font(Config.getPropString("browser.fontname.treeroot"), Font.PLAIN,
+			 Config.getPropInteger("browser.fontsize.treeroot", Config.fontsize));
+
+	private static final Font fontTreeLeaf =
+		new Font(Config.getPropString("browser.fontname.treeleaf"), Font.PLAIN,
+			 Config.getPropInteger("browser.fontsize.treeleaf", Config.fontsize));
+
     private static final Color SYSLIBCOLOR = new Color(3289805);	
     private static final Color USERLIBCOLOR = new Color(32767);
 			
@@ -70,25 +77,20 @@ public class LibraryTreeCellRenderer extends JLabel implements TreeCellRenderer 
 	    super.setText(node.getDisplayName());
 
 	    // default values
-	    super.setFont(DEFAULTFONT);
+	    super.setFont(fontTreeLeaf);
 	    super.setForeground(Color.black);
 	    super.setBackground(Color.white);
 
 	    // Large text for the root node
 	    if (source.isRoot(node)) {
-		super.setFont(ROOTFONT);
+		super.setFont(fontTreeRoot);
 		super.setForeground(Color.blue);
 		return this;
 	    }
 
-	    // colour differentiate User and System libraries
-	    if (node instanceof UserLibraryNode) {
-		super.setForeground(USERLIBCOLOR);
-		super.setFont(TOPLEVELBRANCHFONT);
-	    } else if (node instanceof SystemLibraryNode) {
-		super.setForeground(SYSLIBCOLOR);
-		super.setFont(TOPLEVELBRANCHFONT);
-	    }
+		// colour differentiate User and System libraries
+		super.setForeground(Color.blue);
+		super.setFont(fontTreeRoot);
 
 	    // bold and red for currently selected node
 	    if (sel) {

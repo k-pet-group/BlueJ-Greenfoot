@@ -7,58 +7,52 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.event.*;
 
-import bluej.views.View;
-import bluej.views.MemberView;
-import bluej.utility.ClasspathSearcher;
+import bluej.views.*;
 import bluej.utility.Utility;
 import bluej.Config;
+import bluej.classmgr.ClassMgr;
 import bluej.pkgmgr.LibraryBrowserPkgMgrFrame;
 
 import java.lang.reflect.*;
+import java.util.*;
 
 /**
  * A JPanel subclass containing a JTree displaying all the attributes of a
  * class or interface.  Visually similar to the Visual J++ ClassOutline pane,
  * the AttributeChooser categorizes attributes of the class/interface according
  * to access (public, private or protected) and type (field/method or constructor).
- * Uses an AttributeChooserRenderer to handle the visual categorization.
+ * Uses an AttributeChooserRenderer (private class declared below) to handle the
+ * visual categorization.
  * 
  * @see AttributeChooserRenderer
- * @author $Author: mik $
- * @version $Version$
+ * @see AttributeThread
+ * @author Andy Marks
+ * @author Andrew Patterson
+ * @version $Id: AttributeChooser.java 159 1999-07-06 14:38:56Z ajp $
  */
-public class AttributeChooser extends JPanel implements Runnable {
-	private JTree attributes = null;
-	private DefaultTreeModel treeModel = null;
-	private View classView = null;
-	private LibraryBrowserPkgMgrFrame parent = null;
-	private String currentClass = null;
-	
-	private DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-	private DefaultMutableTreeNode inherited = new DefaultMutableTreeNode("Inherited");
+public class AttributeChooser extends JPanel {
+
+	String currentClass;
 
 	/**
 	 * Create a new AttributeChooser.
 	 * 
 	 * @param parent the LibraryBrowserPkgMgrFrame object owning this object.
 	 */
-  public AttributeChooser(LibraryBrowserPkgMgrFrame parent) {
-		this.parent = parent;
+	public AttributeChooser(LibraryBrowserPkgMgrFrame parent) {
+//		this.parent = parent;
 		this.setLayout(new BorderLayout());
-  }
-	
-	private void setupTree() {
-		this.setStatusText("Initializing attribute window...");
-		
-		// show the String version of the selected attribute
-		attributes.addTreeSelectionListener(new TreeSelectionListener() {
-      public void valueChanged(TreeSelectionEvent e) {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)(e.getPath().getLastPathComponent());
-				setStatusText(node.getUserObject().toString());
-      }
-    });		
-		
 	}
+	
+//	private void setupTree() {
+		// show the String version of the selected attribute
+//		attributes.addTreeSelectionListener(new TreeSelectionListener() {
+//      public void valueChanged(TreeSelectionEvent e) {
+ //       DefaultMutableTreeNode node = (DefaultMutableTreeNode)(e.getPath().getLastPathComponent());
+//				setStatusText(node.getUserObject().toString());
+ //     }
+  //  });		
+//	}
 	
 	/**
 	 * Open a new class.  Call this method whenever you wish to update the
@@ -73,21 +67,33 @@ public class AttributeChooser extends JPanel implements Runnable {
 		// don't open current one
 		if (className == currentClass)
 			return;
-		
-		if (attributes == null) {
-			attributes = new JTree(root);
-			attributes.getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
-			attributes.setCellRenderer(new AttributeChooserRenderer(this));
-			treeModel = (DefaultTreeModel)attributes.getModel();
-		} else {
-			inherited.removeAllChildren();
-			root.removeAllChildren();
-		}
-	
-		setupTree();
+
+		AttributeThread athread = new AttributeThread(this, className);
+
+		athread.start();
 
 		currentClass = className;
-		new Thread(this).start();
+	}
+
+	protected synchronized void addAttributeWindow(JScrollPane pane)
+	{
+		removeAll();		
+		add(pane, BorderLayout.CENTER);
+
+		invalidate();
+		validate();
+	}
+}
+
+class AttributeThread extends Thread {
+
+	AttributeChooser parent;
+	String className;
+
+	public AttributeThread(AttributeChooser parent, String className)
+	{
+		this.parent = parent;
+		this.className = className;
 	}
 
 	/**
@@ -96,40 +102,61 @@ public class AttributeChooser extends JPanel implements Runnable {
 	 * UI to show the new class' attributes.
 	 */
 	public void run() {
+
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+
+		JTree attributes = new JTree(root);
+		attributes.getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
+		attributes.setCellRenderer(new AttributeChooserRenderer());
+
+/*		treeModel = (DefaultTreeModel)attributes.getModel();
+		} else {
+			inherited.removeAllChildren();
+			root.removeAllChildren();
+		}
+
+		DefaultMutableTreeNode inherited = new DefaultMutableTreeNode("Inherited");
+		setupTree();
+*/
+		JLabel testlabel = new JLabel();
+
 		try {
-			classView = new View(Class.forName(currentClass), new ClasspathSearcher(System.getProperty("java.class.path")));
-			root.setUserObject((classView.isInterface() ? "Interface " : "Class ") + currentClass);
-	
-			treeModel.reload();
-			sortAttributes();
+			Class cl = ClassMgr.loadBlueJClass(className);
 
-			openTreeToView();
-			
+			if (cl == null) {
+				root.setUserObject(getCantLoadMessage(className));
+			} else {
+				View classView = new View(cl);
+
+				root.setUserObject((classView.isInterface() ? "Interface " : "Class ") + className);
+
+				addAttributes(root, classView);
+
+				Enumeration topnodes = root.children();
+				while (topnodes.hasMoreElements())
+					attributes.expandPath(new TreePath(((DefaultMutableTreeNode)topnodes.nextElement()).getPath()));
+			}
 		} catch (ClassNotFoundException cnfe) {
-			Utility.showError(LibraryBrowserPkgMgrFrame.getFrame(),
-					  Utility.mergeStrings(Config.getString("browser.attributechooser.missingclassdialog.text"),
-							       currentClass));
 
-			return;
+			root.setUserObject(getCantLoadMessage(className));
+
 		} catch (ClassFormatError cfe) {
-			  cfe.printStackTrace();
+
+			root.setUserObject(getCantLoadMessage(className));
 		}
 		
-		JScrollPane scrollPane = new JScrollPane(attributes);
-		add(scrollPane, BorderLayout.CENTER);
-		invalidate();
-		validate();
+		parent.addAttributeWindow(new JScrollPane(attributes));
 	}
 
-	/**
-	 * Make sure the tree is open at the right places when it first appears.
-	 * This cannot be done in #setupDisplay because the tree is empty
-	 * at that stage.
+	/*
+	 *
 	 */
-	private void openTreeToView() {
-		attributes.expandRow(0);
+	private String getCantLoadMessage(String className)
+	{
+		return Utility.mergeStrings(Config.getString("browser.missingclass.text"),
+							className);
 	}
-	
+
 	/**
 	 * Determine if a member of the class was originally declared in that class,
 	 * or inherited from a parent class.
@@ -138,7 +165,7 @@ public class AttributeChooser extends JPanel implements Runnable {
 	 * @return true if the member was originally declared in this class.
 	 */
 	private boolean isMemberDeclaredInThisClass(MemberView member) {
-		return member.getDeclaringView().getName().equals(currentClass);
+		return member.getDeclaringView().getName().equals(className);
 	}
 	
 	/**
@@ -146,55 +173,176 @@ public class AttributeChooser extends JPanel implements Runnable {
 	 * to the corresponding top level node in the tree, based on their
 	 * access (i.e., public, private, protected and package).
 	 */
-	public void sortAttributes () {
-		MemberView currentMember = null;
+	public void addAttributes(DefaultMutableTreeNode topnode, View classView)
+	{
 		String memberName = null;
-		int memberIdx = 0;
 
 		// first the constructors...
-		MemberView[] members = classView.getConstructors();
-		members = classView.getConstructors();
-		for (memberIdx = 0; memberIdx < members.length; memberIdx++) {
-			currentMember = members[memberIdx];
-			root.add(new DefaultMutableTreeNode(members[memberIdx]));
+		DefaultMutableTreeNode constructors = new DefaultMutableTreeNode("Constructors");
+		{
+			ConstructorView[] constructorsview = classView.getConstructors();
+
+			if (constructorsview.length > 0) {
+				for (int memberIdx = 0; memberIdx < constructorsview.length; memberIdx++) {
+					constructors.add(new DefaultMutableTreeNode(constructorsview[memberIdx]));
+				}
+				topnode.add(constructors);
+			}
 		}
-		
+
 		// then the fields...
-		members = classView.getAllFields();
-		for (memberIdx = 0; memberIdx < members.length; memberIdx++) {
-			currentMember = members[memberIdx];
-			if (isMemberDeclaredInThisClass(currentMember))
-				root.add(new DefaultMutableTreeNode(currentMember));
-			else
-				inherited.add(new DefaultMutableTreeNode(currentMember));
+		DefaultMutableTreeNode fields = new DefaultMutableTreeNode("Fields");
+		{
+			FieldView[] fieldsview = classView.getAllFields();
+
+			for (int memberIdx = 0; memberIdx < fieldsview.length; memberIdx++) {
+				if (isMemberDeclaredInThisClass(fieldsview[memberIdx]))
+					fields.add(new DefaultMutableTreeNode(fieldsview[memberIdx]));
+			}
+
+			if (fields.getChildCount() > 0) {
+				topnode.add(fields);
+			}
 		}
 
 		// then the methods...
-		members = classView.getAllMethods();
-		for (memberIdx = 0; memberIdx < members.length; memberIdx++) {
-			currentMember = members[memberIdx];
-			if (isMemberDeclaredInThisClass(currentMember))
-				root.add(new DefaultMutableTreeNode(currentMember));
-			else
-				inherited.add(new DefaultMutableTreeNode(currentMember));
+		DefaultMutableTreeNode methods = new DefaultMutableTreeNode("Methods");
+		{
+			MethodView[] methodsview = classView.getAllMethods();
+
+			for (int memberIdx = 0; memberIdx < methodsview.length; memberIdx++) {
+				if (isMemberDeclaredInThisClass(methodsview[memberIdx]))
+					methods.add(new DefaultMutableTreeNode(methodsview[memberIdx]));
+			}
+
+			if (methods.getChildCount() > 0) {
+				topnode.add(methods);
+			}
 		}
-		
 	}
-	
-	private void setStatusText(String statusText) {
-		if (parent != null)
-			parent.setStatus(statusText);
-	}
+}
+
+/**
+ * A simple TreeCellRenderer implementer for colour-coding entries in
+ * the AttributeChooser based on access and type (i.e., field or method).
+ * Uses a callback to a AttributeChooser to determine whether the root 
+ * node is being rendered or not.  Renders the tree cells as JLabels
+ * containing text and an associated icon.
+ * 
+ * @author Andy Marks
+ * @author Andrew Patterson
+ */
+class AttributeChooserRenderer extends JLabel implements TreeCellRenderer {
+
+	private static final Font fontTreeRoot =
+		new Font(Config.getPropString("browser.fontname.treeroot"), Font.PLAIN,
+			 Config.getPropInteger("browser.fontsize.treeroot", Config.fontsize));
+
+	private static final Font fontTreeLeaf =
+		new Font(Config.getPropString("browser.fontname.treeleaf"), Font.PLAIN,
+			 Config.getPropInteger("browser.fontsize.treeleaf", Config.fontsize));
+
+	private static final ImageIcon CONSTRUCTOR_ICON =
+		new ImageIcon(Config.getImageFilename("browser.image.constructoricon"));
+	private static final ImageIcon PRIVATE_ICON =
+		new ImageIcon(Config.getImageFilename("browser.image.privateicon"));
+	private static final ImageIcon PUBLIC_ICON =
+		new ImageIcon(Config.getImageFilename("browser.image.publicicon"));
+	private static final ImageIcon PROTECTED_ICON =
+		new ImageIcon(Config.getImageFilename("browser.image.protectedicon"));
 
 	/**
-	 * Determine if a node in the tree is the root node.  Called by the
-	 * AttributeChooserRenderer to determine which node to render as the
-	 * root node.
-	 * 
-	 * @param node the node to check.
-	 * @return true if the node is the root node of the tree
+	 * Create a new renderer.  Set the
+	 * opaqueness of the JLabel to tree to allow highlighting of a selected node to function.
 	 */
-	public boolean isRoot(Object node) {
-		return node == root;
+	public AttributeChooserRenderer() {
+		this.setOpaque(true);
+	}
+		
+	/**
+	 * Creates the rendered node.  This method is called for each node prior to
+	 * rendering and should return the rendered node Component.  Renders the root
+	 * node differently than all others.  Set the icon appropriate to the access of
+	 * the MemberView object contained within the node, or null if the node has no 
+	 * MemberView object.
+	 * 
+	 * @return the rendered node.
+	 * @param tree the tree containing the node.
+	 * @param value the node to render.
+	 * @param selected true if the node is currently selected.
+	 * @param expanded true if the node's children are visible.
+	 * @param leaf true if the node has no children.
+	 * @param row the row number of the node in the tree.
+	 * @param hasFocus true if the node is currently receiving input focus.
+	 */
+	public Component getTreeCellRendererComponent(JTree tree,
+							Object value,
+							boolean selected,
+							boolean expanded,
+							boolean leaf,
+							int row,
+							boolean hasFocus)
+	{
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
+		MemberView view = null;
+
+		try {
+			view = (MemberView)node.getUserObject();
+		}
+		catch (ClassCastException cce) {
+		}
+
+		if (view == null) {
+			setFont(fontTreeRoot);
+	 		setForeground(Color.blue);
+			setIcon(null);
+			setText(node.toString());
+		} else {
+			setFont(fontTreeLeaf);
+			setForeground(Color.black);
+			setBackground(selected ? Color.yellow : Color.white);
+
+			String desc = view.getShortDesc();
+			StringBuffer descbuf = new StringBuffer(desc);
+
+			int modifiers = view.getModifiers();
+
+			String mod = Modifier.toString(modifiers);
+
+			setIcon(null);
+
+			int firstbracket = desc.indexOf('(');
+
+			if (firstbracket != -1) {
+
+				String nameHTMLend = "</B>";
+				String nameHTMLstart = "<B>";
+				String paramHTMLend = "</CODE>";
+				String paramHTMLstart = "<CODE>";
+
+				int lastbracket = desc.indexOf(')');
+
+				descbuf.insert(lastbracket, paramHTMLend);
+
+				descbuf.insert(firstbracket + 1, paramHTMLstart);
+				descbuf.insert(firstbracket, nameHTMLend);
+
+				String startbit = descbuf.substring(0,firstbracket);
+
+				int lastspace = startbit.lastIndexOf(' ');
+
+				if(lastspace != -1) {
+					descbuf.insert(lastspace, paramHTMLend + nameHTMLstart);
+					descbuf.insert(0, paramHTMLstart);
+				}
+				else {
+					descbuf.insert(0, nameHTMLstart);
+				}
+			}
+
+			setText("<html>" + mod + " " + descbuf);
+		}
+
+		return this;
 	}
 }

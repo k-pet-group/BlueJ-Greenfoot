@@ -24,6 +24,8 @@ import bluej.pkgmgr.Package;
 import bluej.utility.ModelessMessageBox;
 import bluej.utility.Utility;
 import bluej.utility.Debug;
+import bluej.classmgr.ClassMgr;
+import bluej.classmgr.ClassPathEntry;
 
 /**
  * A JPanel subclass with a JTree containing all the packages specified in the
@@ -32,10 +34,11 @@ import bluej.utility.Debug;
  * information about libraries, such as directory names and children within
  * a package in the library.
  * 
- * @author $Author: ajp $
- * @version $Id: LibraryChooser.java 131 1999-06-16 04:44:03Z ajp $
+ * @author Andy Marks
+ * @author Andrew Patterson
+ * @version $Id: LibraryChooser.java 159 1999-07-06 14:38:56Z ajp $
  */
-public class LibraryChooser extends JPanel implements ActionListener, Runnable {
+public class LibraryChooser extends JPanel implements Runnable {
     // used to build tree
     private LibraryNode root = null;
     private JTree tree = null;
@@ -45,7 +48,6 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
     private boolean configChanged = false; // flags whether save is needed on quit
 
     private static final String ROOTUSEROBJECT = Config.getString("browser.librarychooser.title");
-    private static final String SYSTEMLIBFILE = "syslibs.properties";
     private static final String SHADOWAREAROOT = Config.getString("browser.librarychooser.shadowarea.root");    
     private static final String CURRENTDIR = ".";
     private static final char UNIXSEPARATORCHAR = '/';
@@ -58,43 +60,40 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
     private LibraryNode selectedNode = null;
 
     // popup menus
-    private LibraryPopupMenu libPopup = new LibraryPopupMenu(this);
-    private SystemLibraryPopupMenu sysLibPopup = new SystemLibraryPopupMenu(this);
-    private UserLibraryPopupMenu userLibPopup = new UserLibraryPopupMenu(this);
+  //  private LibraryPopupMenu libPopup = new LibraryPopupMenu(this);
 
-		/**
-		 * Create a new LibraryChooser.  Initialize the tree from the libraries
-		 * specified in the configuration files.  Setup the UI.
-		 * 
-		 * @param parent the LibraryBrowserPkgMgrFrame object containing the LibraryChooser.
-		 */
-    public LibraryChooser(LibraryBrowserPkgMgrFrame parent) {
-	this.parent = parent;
+	/**
+	 * Create a new LibraryChooser.  Initialize the tree from the libraries
+	 * specified in the configuration files.  Setup the UI.
+	 * 
+	 * @param parent the LibraryBrowserPkgMgrFrame object containing the LibraryChooser.
+	 */
+	public LibraryChooser(LibraryBrowserPkgMgrFrame parent) {
+		this.parent = parent;
 
-	setBackground(Color.white);
+		setBackground(Color.white);
 	
-	loadLibraries();
+		loadLibraries();
 
-	this.setLayout(new BorderLayout());
-    }
+		this.setLayout(new BorderLayout());
+	}
 	
-    /**
-     * Use the user and system configuration files to load the libraries
-     * into the tree.  Create a hashtable of all the libraries and their
-     * aliases, and then use the hashtable to build the tree in a separate
-     * thread.
-     **/
-    public void loadLibraries() {
-	libraryAliases = new Hashtable();		
-	boolean systemLoadOK = loadSystemConfigFile();
-	boolean userLoadOK = loadUserConfigFile();
-	// if neither configuration files could be loaded, there's no point going on
+	/**
+	 * Use the user and system configuration files to load the libraries
+	 * into the tree.  Create a hashtable of all the libraries and their
+	 * aliases, and then use the hashtable to build the tree in a separate
+	 * thread.
+	 **/
+	public void loadLibraries() {
 	
 	if (tree == null) {
 		// first time
 		root = new LibraryNode(ROOTUSEROBJECT);
 		tree = new JTree(root); // init tree here so refresh works properly
 		treeModel = (DefaultTreeModel)tree.getModel();
+		tree.setRootVisible(false);
+		tree.setBorder(new EmptyBorder(5,5,5,5));
+
 	} else {
 		// clean tree
 		Enumeration topLevelNodes = root.children();
@@ -107,91 +106,12 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 	new Thread(this).start();
     }
 
-    /**
-     * Open the system configuration file and read in the aliases
-     * and locations of the standard libraries
-     *
-     * @return true if the file loaded successfully, false otherwise
-     */
-    private boolean loadSystemConfigFile() {
-	Properties config = new Properties();
-	try {
-	    config.load(new FileInputStream(getSystemConfigFilename()));
-	} catch (IOException ioe) {
-	    Utility.showError(LibraryBrowserPkgMgrFrame.getFrame(),
-			      Config.getString("browser.librarychooser.missingsysconfdialog.text"));
-	    return false;
-	}
-	
-	int resourceID = 1;
-	try {
-	    SystemLibraryNode newNode = null;
-	    String alias = null;
-	    String location = null;
-	    while (true) {
-		alias = config.getProperty("lib" + resourceID + ".alias");
-		location = config.getProperty("lib" + resourceID + ".location");
-		if (alias == null || location == null)
-		    break;
-				
-		newNode = new SystemLibraryNode(alias, location);
-		libraryAliases.put(alias, newNode);
-		resourceID++;
-	    }
-	} catch (MissingResourceException mre) {
-	    // it is normal that this is exception is thrown, it just means we've come to the end of the file
-	}
-	return true;
-    }
-    
-    /**
-     * Open the user configuration file and read in the aliases
-     * and locations of the standard libraries
-     *
-     * @return true if the file loaded successfully, false otherwise
-     */
-    private boolean loadUserConfigFile() {
-	Properties config = new Properties();
-	try { 
-	    config.load(new FileInputStream(getUserConfigFilename()));
-	} catch (IOException ioe) {
-	    return false;
-	}
-		
-	int resourceID = 1;
-	// this is a bit of a hack, but...
-	// because we cannot easily determine the number of resources
-	// loaded (could do it by working out the size of the enumeration
-	// returned from getKeys() and divide by 2, let's just assume
-	// the file is tightly packed (i.e., resourceIDs are monotonically
-	// increasing) and use the thrown exception to work out when to 
-	// stop looking
-	try {
-	    UserLibraryNode newNode = null;
-	    String alias = null;
-	    String location = null;
-	    while (true) {
-		alias = config.getProperty("lib" + resourceID + ".alias");
-		location = config.getProperty("lib" + resourceID + ".location");
-		if (alias == null || location == null)
-		    break;
-				
-		newNode = new UserLibraryNode(alias, location);
-		libraryAliases.put(alias, newNode);
-		resourceID++;
-	    }
-	} catch (MissingResourceException mre) {
-	    // it is normal that this is exception is thrown, it just means we've come to the end of the file
-	}
-	return true;
-    }
 	
     /**
      * Save the current configuration of the library chooser.
      */
     public void saveConfig() {
 	setStatusText("Saving LibraryChooser configuration...");
-	saveUserConfigFile();
 	setStatusText("Saving LibraryChooser configuration...done");
     }
 	
@@ -209,114 +129,82 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 		saveConfig();
 	}
     }
-	
-    /**
-     * Save the current user configured libraries back to the user configuration file.
-     * Note that any comments originally appearing in this file will be removed.
-     * 
-     * @return true if the configuration could be saved.
-     */
-    private boolean saveUserConfigFile() {
-	Properties userConfig = new Properties();
-		
-	Enumeration libraries = libraryAliases.keys();
-	int current = 1;
-	while (libraries.hasMoreElements()) {
-	    String nextAlias = libraries.nextElement().toString();
-	    if (libraryAliases.get(nextAlias) instanceof UserLibraryNode) {
-		userConfig.put("lib" + current + ".alias", nextAlias);
-		userConfig.put("lib" + current + ".location", ((UserLibraryNode)libraryAliases.get(nextAlias)).getInternalName());
-		current++;
-	    }
-	}
-		
-	try {
-	    userConfig.save(new FileOutputStream(Config.getUserConfigDir() + File.separator + Config.getString("browser.librarychooser.config.user")), "");
-	} catch (IOException ioe) {
-	    ioe.printStackTrace();
-	}
-		
-	return true;
-    }
 
-    /**
-     * Separate process used to load libraries whilst the rest of the browser
-     * inits.  Iterate over the previously created hashtable of libraries,
-     * completing and adding each one to the tree.
-     * 
-     * The methods which are invoked from this method could conceivably
-     * take quite a while to run, so they have been spawned from a separare
-     * thread to allow the rest of the library chooser to begin immediately.
-     * No attempt at thread synchronization is made here, so beware of any
-     * attemps to access the tree's contents before this method has completed.
-     */
-    public void run() {
-	parent.disableControls();
-	this.setStatusText(Config.getString("browser.librarychooser.loading.status"));
-	LibraryNode libNode = null;
-	Enumeration libraries = libraryAliases.keys();
-	String alias = null;
-		
-	while (libraries.hasMoreElements()) {
-	    alias = (String)libraries.nextElement();
-	    libNode = (LibraryNode)libraryAliases.get(alias);
+	/**
+	 * Separate process used to load libraries whilst the rest of the browser
+	 * inits.  Iterate over the previously created hashtable of libraries,
+	 * completing and adding each one to the tree.
+	 * 
+	 * The methods which are invoked from this method could conceivably
+	 * take quite a while to run, so they have been spawned from a separare
+	 * thread to allow the rest of the library chooser to begin immediately.
+	 * No attempt at thread synchronization is made here, so beware of any
+	 * attemps to access the tree's contents before this method has completed.
+	 */
+	public void run() {
+		parent.disableControls();
+
+		this.setStatusText(Config.getString("browser.librarychooser.loading.status"));
+		LibraryNode libNode = null;
+
+
+		Iterator libraries = ClassMgr.getClassMgr().getAllClassPathEntries();
+
+		while (libraries.hasNext()) {
+			ClassPathEntry cpe = (ClassPathEntry)libraries.next();
 			
-	    addLibraryToTree(libNode);
-	}
-	System.out.println("setting up tree");
-	setupTree();
-	
-	// dont' add tree to UI until all it's data has been loaded.
-	JScrollPane scrollPane = new JScrollPane(tree);
-	add(scrollPane, BorderLayout.CENTER);
-	
-	tree.repaint();
-	this.setStatusText(Config.getString("browser.librarychooser.loaded.status"));
-	parent.enableControls();
-    }
-	
-    /**
-     * Perform tree initialization such as setting up
-     * listeners to display information about a selected
-     * tree node on the status line, expanding the tree
-     * to make all the top level nodes visible and setting
-     * the renderer to a LibraryTreeCellRenderer.
-     */
-    private void setupTree() {
-	    tree.addMouseListener( new MouseAdapter() {
-		public void mousePressed(MouseEvent e) {maybeShowPopup(e);}
-		public void mouseReleased(MouseEvent e) {maybeShowPopup(e);}
-		    });
+			libNode = new LibraryNode(cpe.getDescription(), cpe.getCanonicalPathNoException());
 
-	tree.getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
-	//Listen for when the selection changes.
-	tree.addTreeSelectionListener(new TreeSelectionListener() {
-	    public void valueChanged(TreeSelectionEvent e) {
-		LibraryNode node = (LibraryNode)(e.getPath().getLastPathComponent());
-				// show the internal name if the node has one and it's not the same as the alias
-		if (node instanceof UserLibraryNode || node instanceof SystemLibraryNode) {
-			String displayName = node.getDisplayName();
-			String internalName = node.getInternalName();
-		    if (!displayName.equals(internalName))
-			    setStatusText(node instanceof UserLibraryNode ? 
-					  "(User library) " + displayName + " = " + internalName :
-					  "(System library) " + displayName + " = " + internalName);
+			addLibraryToTree(libNode);
 		}
-		openSelectedPackageInClassChooser();
-	    }
-	});		
+
+		setupTree();
+	
+		// dont' add tree to UI until all it's data has been loaded.
+		JScrollPane scrollPane = new JScrollPane(tree);
+		add(scrollPane, BorderLayout.CENTER);
+	
+		tree.repaint();
+		this.setStatusText(Config.getString("browser.librarychooser.loaded.status"));
+		parent.enableControls();
+	}
+	
+	/**
+	 * Perform tree initialization such as setting up
+	 * listeners to display information about a selected
+	 * tree node on the status line, expanding the tree
+	 * to make all the top level nodes visible and setting
+	 * the renderer to a LibraryTreeCellRenderer.
+	 */
+	private void setupTree() {
+		tree.getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+		// listen for when the selection changes.
+
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent e) {
+				LibraryNode node = (LibraryNode)(e.getPath().getLastPathComponent());
+				// show the internal name if the node has one and it's not the same as the alias
+				String displayName = node.getDisplayName();
+				String internalName = node.getInternalName();
+	    			if (!displayName.equals(internalName))
+					setStatusText(displayName + " = " + internalName);
+
+				openSelectedPackageInClassChooser();
+			}
+		});		
 		
-	tree.setEditable(false);
+		tree.setEditable(false);
 		
-	// make sure all the top level libraries are initially visible and expanded
-	Enumeration topLevelNodes = root.children();
-	while (topLevelNodes.hasMoreElements())
-	    tree.expandPath(new TreePath(((DefaultMutableTreeNode)topLevelNodes.nextElement()).getPath()));
+		// make sure all the top level libraries are initially visible and expanded
+
+		Enumeration topLevelNodes = root.children();
+		while (topLevelNodes.hasMoreElements())
+			tree.expandPath(new TreePath(((DefaultMutableTreeNode)topLevelNodes.nextElement()).getPath()));
 		
-	// let's use the same icon for all nodes
-	LibraryTreeCellRenderer renderer = new LibraryTreeCellRenderer(this);
-	tree.setCellRenderer(renderer);
-    }
+		// let's use the same icon for all nodes
+		tree.setCellRenderer(new LibraryTreeCellRenderer(this));
+	}
 	
     /**
      * Display all the nodes of the tree using a depthFirstEnumeration.
@@ -337,9 +225,9 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
      * 
      * @param node the node of the tree from which to start pruning.
      */
-    private void pruneNodeOfClassFiles(LibraryNode node) {
-	boolean prunedOnLastPass = true;
-	while (prunedOnLastPass) {
+	private void pruneNodeOfClassFiles(LibraryNode node) {
+		boolean prunedOnLastPass = true;
+		while (prunedOnLastPass) {
 		prunedOnLastPass = false;
 		Enumeration nodes = node.depthFirstEnumeration();
 		LibraryNode nextNode = null;
@@ -347,7 +235,8 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 			nextNode = (LibraryNode) nodes.nextElement();
 			if (nextNode.isLeaf() && nextNode.getDisplayName().endsWith(".class")) {
 				// store each class file within it's parent directory
-				((LibraryNode)nextNode.getParent()).addFile(nextNode);
+				if (nextNode.getDisplayName().indexOf('$') == -1)
+					((LibraryNode)nextNode.getParent()).addFile(nextNode);
 				nextNode.removeFromParent();
 				prunedOnLastPass = true;
 			}
@@ -355,29 +244,43 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 	}
     }
 	
-    /**
-     * Remove all branches of the tree that do not contain any files
-     * (unless they are .class files).
-     * <strong>Note: should only be done before the class files are
-     * removed.
-     * 
-     * @param node the node of the tree from which to start pruning.
-     */
-    private void pruneNodeOfEmptyDirectories(LibraryNode node) {
-	boolean prunedOnLastPass = true;
-	while (prunedOnLastPass) {
-		prunedOnLastPass = false;
-		Enumeration nodes = node.depthFirstEnumeration();
-		LibraryNode nextNode = null;
-		while (nodes.hasMoreElements()) {
-			nextNode = (LibraryNode) nodes.nextElement();
-			if (nextNode.isLeaf() && !nextNode.getDisplayName().endsWith(".class") && nextNode != root) {
-				nextNode.removeFromParent();
-				prunedOnLastPass = true;
+	/**
+	 * Remove all branches of the tree that do not contain any files
+	 * (unless they are .class files).
+	 * <strong>Note: should only be done before the class files are
+	 * removed.
+	 * 
+	 * @param node the node of the tree from which to start pruning.
+	 */
+	private void pruneNodeOfEmptyDirectories(LibraryNode node) {
+		boolean prunedOnLastPass = true;
+
+		// short circuit the pruning for a completely empty node
+		if(node.getChildCount() == 0) {
+			node.removeFromParent();
+			return;
+		}
+
+		while (prunedOnLastPass) {
+			prunedOnLastPass = false;
+
+			Enumeration nodes = node.depthFirstEnumeration();
+
+			LibraryNode nextNode = null;
+
+			while (nodes.hasMoreElements()) {
+				nextNode = (LibraryNode) nodes.nextElement();
+
+				if (nextNode.isLeaf() && 
+					!nextNode.getDisplayName().endsWith(".class") &&
+					nextNode != root)
+				{
+					nextNode.removeFromParent();
+					prunedOnLastPass = true;
+				}
 			}
 		}
 	}
-    }
     
   /**
    * Invoked when a user wants to add a new library to the tree at runtime.
@@ -387,8 +290,8 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
    * @param alias the alias given to the library
    **/
     public void addNewLibrary(File library, String alias) {
-	UserLibraryNode newNode = new UserLibraryNode(alias, library.getAbsolutePath());
-	libraryAliases.put(alias, newNode);
+	LibraryNode newNode = new LibraryNode(alias, library.getAbsolutePath());
+//	libraryAliases.put(alias, newNode);
 	addLibraryToTree(newNode);
 	configChanged = true;
     }
@@ -574,13 +477,9 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 	String library = libNode.getInternalName();
 	String alias = libNode.getDisplayName();
 		
-	String dialogParams[] = new String[2];
+/*	String dialogParams[] = new String[2];
 	dialogParams[0] = library;
 	if (!new File(library).exists()) {
-		if (libNode instanceof UserLibraryNode)
-			dialogParams[1] = getUserConfigFilename();
-		else
-			dialogParams[1] = getSystemConfigFilename();
 			
 	    new ModelessMessageBox(getParent() instanceof JFrame ? (JFrame)getParent() : null, 
 				   Utility.mergeStrings(Config.getString("browser.librarychooser.missinglibrarydialog.text"),
@@ -588,7 +487,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 				   Config.getString("browser.librarychooser.missinglibrarydialog.title") + " " + library, 
 				   JOptionPane.WARNING_MESSAGE);
 	    return;
-	}
+	} */
 	if (getFirstNodeWithObject(root, library) != null) {
 	    System.err.println(library + " already exists");
 	    return;
@@ -598,21 +497,19 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 	treeModel.insertNodeInto(libNode, root, root.getChildCount());
 		
 	try {
-		setStatusText("Opening " + alias + "...");
-	    if (library.toLowerCase().endsWith(".zip")) {
-		libNode.setArchiveFile(true);
-		openJARLibrary(libNode, new JarFile(library), alias);
-	    } else if (library.toLowerCase().endsWith(".jar")) {
+	    if (library.toLowerCase().endsWith(".zip") || library.toLowerCase().endsWith(".jar")) {
+		setStatusText("Opening jarzip " + alias + " " + library + "...");
 		libNode.setArchiveFile(true);
 		openJARLibrary(libNode, new JarFile(library), alias);
 	    } else {
+		setStatusText("Opening dir " + alias + " " + library + "...");
 		libNode.setArchiveFile(false);
 		openLibrary(libNode, new File(library));
 	    }
 	} catch (IOException ioe) {
-	    ioe.printStackTrace();
+	    // ioe.printStackTrace();
 	}
-	
+
 	// remove class files from this new node
 	// we need to prune with each new node,
 	// rather than the entire tree because when new
@@ -769,24 +666,25 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 			
     }
 
-    /**
-     * This library is a directory, so traverse it, building the tree as you go.
-     * The library is checked to ensure it exists and hasn't already been added
-     * to the tree.  The directory is recursed, with each child directory being
-     * added to the tree.
-     * 
-     * @param top the node of the tree to be the parent of the library.
-     * @param the file representation of the library.
-     **/
-    private void openLibrary(LibraryNode top, File file) {
-	if (!file.exists() && !file.isDirectory()) {
-	    // because of the long startup time, this should probably be in a separate thread
+	/**
+	 * This library is a directory, so traverse it, building the tree as you go.
+	 * The library is checked to ensure it exists and hasn't already been added
+	 * to the tree.  The directory is recursed, with each child directory being
+	 * added to the tree.
+	 * 
+	 * @param top the node of the tree to be the parent of the library.
+	 * @param the file representation of the library.
+	 **/
+	private void openLibrary(LibraryNode top, File file) {
+		if (!file.exists() && !file.isDirectory()) {
+		// because of the long startup time, this should probably be in a separate thread
 	    Utility.showError((JFrame)getParent(),
 			      Config.getString("browser.librarychooser.missingshadowdialog.title") + " " + file.getName());
 	    return;
 	}
 
-	String[] contents = file.list();
+		String[] contents = file.list();
+
 	File newFile = null;
 	LibraryNode newNode = null;
 		
@@ -795,7 +693,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 		
 	String statusText = Config.getString("browser.librarychooser.openingdirectory.status") + " " + file;
 	for (int current = 0; current < contents.length; current++) {
-			
+
 	    // contruct the new file with the path of the parent
 	    newFile = new File(path, contents[current]);
 			
@@ -845,7 +743,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
      * 
      * @param ae the popup menu command to handle.
      */
-    public void actionPerformed(ActionEvent ae) {
+/*    public void actionPerformed(ActionEvent ae) {
 	String command = ae.getActionCommand();
 	Object source = ae.getSource();
 	TreePath pathToUse = new TreePath(this.selectedNode.getPath());
@@ -862,40 +760,11 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 		parent.usePackage(packageName, false);
 	} else if (command == LibraryPopupMenu.OPENCOMMAND) {
 	    openSelectedPackageInClassChooser();
-	} else if (command == LibraryPopupMenu.REMOVECOMMAND) {
-	    int choice = JOptionPane.showConfirmDialog(LibraryBrowserPkgMgrFrame.getFrame(),
-						       Config.getString("browser.librarychooser.deletelibdialog.text") + " " + selectedNode.getDisplayName(),
-						       Config.getString("browser.librarychooser.deletelibdialog.title"),
-						       JOptionPane.YES_NO_OPTION);
-	    if (choice == JOptionPane.YES_OPTION) {
-		this.libraryAliases.remove(selectedNode.getDisplayName());
-		configChanged = true;
-		treeModel.removeNodeFromParent(selectedNode);
-	    }
-	} else if (command == LibraryPopupMenu.RENAMECOMMAND) {
-	    TreePath selectionPath = tree.getSelectionPath(); 
-	    String oldName = ((LibraryNode)selectionPath.getLastPathComponent()).getDisplayName();
-	    String newName = JOptionPane.showInputDialog(LibraryBrowserPkgMgrFrame.getFrame(),
-							 Config.getString("browser.librarychooser.renamelibdialog.text"),
-							 Config.getString("browser.librarychooser.renamelibdialog.title") + " " + oldName,
-							 JOptionPane.QUESTION_MESSAGE);
-			
-	    if (newName != null) {
-		LibraryNode nodeForOldName = (LibraryNode)libraryAliases.get(oldName);
-		if (nodeForOldName != null) {
-		    libraryAliases.remove(oldName);
-		    libraryAliases.put(newName, nodeForOldName);
-		    configChanged = true;
-		    tree.repaint();
-		}
-				
-		((LibraryNode)selectionPath.getLastPathComponent()).setDisplayName(newName);
-	    }
-	} else if (command == LibraryPopupMenu.PROPCOMMAND) {
+	} 
+	else if (command == LibraryPopupMenu.PROPCOMMAND) {
 	}
-					 
     }
-
+*/
     /**
      * Update the text on the status bar.
      * 
@@ -928,31 +797,20 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 	openSelectedPackageInClassChooser();
     }
   
-    /**
-     * Convert a tree path to a dot delimited package name,
-     * based on the current contents of the tree.
-     * 
-     * @return the name of the package in this directory, or null.
-     * @param thePackage the path to the package.
-     */
-    public String pathToPackageName(TreePath thePackage) {
-	    String packageName = "";
+	/**
+	 * Convert a tree path to a dot delimited package name,
+	 * based on the current contents of the tree.
+	 * 
+	 * @return the name of the package in this directory, or null.
+	 * @param thePackage the path to the package.
+	 */
+	public String pathToPackageName(TreePath thePackage) {
 		Object[] nodesInPath = thePackage.getPath();
-		// if there's nothing more to parse (i.e., just top level library), open it
-		if (nodesInPath.length < 3) {
-		    //parent.openPackage(packageName);
-		    return null;
-		}
-					
+		String packageName = "";
+
 		// let's parse the rest of the LibraryNodes
 		for (int current = 2; current < nodesInPath.length; current++) {
-		    if (nodesInPath[current] instanceof LibraryNode) {
 			packageName += ((LibraryNode)nodesInPath[current]).getDisplayName() + ".";
-		    }	else {
-			System.err.println("Non LibraryNode object found in path from selected item in LibraryChooser: " + nodesInPath[current]);
-			return null;
-		    }
-
 		}
 
 		if (!packageName.equals("")) {
@@ -960,8 +818,8 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 			packageName = packageName.substring(0, packageName.length() - 1);
 		}
 		
-	    return packageName;
-    }
+		return packageName;
+	}
     
     /**
      * Return the directory containing a specified package, based on the
@@ -970,7 +828,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
      * @param packageName the package name in java notation (e.g., java.awt.event)
      * @return the directory containing the package, or null if none found
      */
-    public String getDirectoryForPackage(String packageName) {
+ /*   public String getDirectoryForPackage(String packageName) {
 	String packageDirectory = null;
 	    
 	Enumeration allNodes = root.depthFirstEnumeration();
@@ -991,133 +849,85 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 	
 	return null;
     }
-    
-    /**
-     * Generate the full path for a package, based on the current
-     * contents of the tree.
-     *
-     * @param selectedPath a TreePath object representing the package.
-     * @return the directory containing the package.
-     */
-    private String pathToPackageDirectory(TreePath selectedPath) {
-	// Sample returned path [Known Libraries, BlueJ Classes, sun, tools, javadoc]
-	// Algorithm to resolve path->package directory:
-	// (1) Ignore first element (always root node of tree)
-	// (2) translate 2nd node (i.e., map from alias to directory, using shadow area if necessary)
-	// (3) append remainder as directories 
-	// (4) use resultant string to open new package
-	String packageName = "";
-	Object[] nodesInPath = selectedPath.getPath();
-	// if the array is empty or only contains the root node, forget it
-	if (nodesInPath.length < 2)
-	    return null;
+   */ 
+	/**
+	 * Open the currently selected package in the class chooser.
+	 * This is a complex method because of the different states
+	 * the package could be in, and because of the possible
+	 * error conditions arising from creating new packages on the fly.
+	 * 
+	 * This package could be in one of three distinct states:
+	 * (1) a directory with an existing PKG file for it
+	 * - delegate to the LibraryBrowserPkgMgrFrame to open
+	 * (2) a directory with no existing PKG file for it
+	 * (3) an archive file (with no PKG file for the entry)
+	 */
+	public void openSelectedPackageInClassChooser() {
+		TreePath selectedPath = tree.getSelectionPath();
 
-	if (nodesInPath[1] instanceof LibraryNode) {
-	    LibraryNode currentNode = (LibraryNode)nodesInPath[1];
-	    /*
-	    // if an archive doesn't have a shadow area, we cannot generate a directory for it
-	    if (currentNode.isArchiveFile()) // && !currentNode.hasShadowArea())
-		return currentNode.getInternalName();
-	    */
-	    /*
-	    if (currentNode.hasShadowArea())
-		packageName += currentNode.getShadowArea();
-	    else
-	    */
-		packageName += currentNode.getInternalName();
-	} else {
-	    System.err.println("Non LibraryNode object found in path from selected item in LibraryChooser: " + nodesInPath[1]);
-	    return null;
-	}
-						
-	// if there's nothing more to parse (i.e., just top level library), open it
-	if (nodesInPath.length < 3) {
-	    //parent.openPackage(packageName);
-	    return packageName;
-	}
+		System.out.println(selectedPath.toString());
 
-	// add a trailing slash if non present
-	if (!packageName.endsWith(File.separator))
-	    packageName += File.separator;
-		
-	// let's parse the rest of the LibraryNodes
-	for (int current = 2; current < nodesInPath.length; current++) {
-	    if (nodesInPath[current] instanceof LibraryNode) {
-		packageName += ((LibraryNode)nodesInPath[current]).getDisplayName() + File.separator;
-	    }	else {
-		System.err.println("Non LibraryNode object found in path from selected item in LibraryChooser: " + nodesInPath[current]);
-		return null;
-	    }
-
-	}
-	return packageName;
-    }
-
-    /**
-     * Open the currently selected package in the class chooser.
-     * This is a complex method because of the different states
-     * the package could be in, and because of the possible
-     * error conditions arising from creating new packages on the fly.
-     * 
-     * This package could be in one of three distinct states:
-     * (1) a directory with an existing PKG file for it
-     * - delegate to the LibraryBrowserPkgMgrFrame to open
-     * (2) a directory with no existing PKG file for it
-     * (3) an archive file (with no PKG file for the entry)
-     */
-    public void openSelectedPackageInClassChooser() {
-	TreePath selectedPath = tree.getSelectionPath();
-	
-	// if we don't click on a node or we've clicked the root or a top level node, let's bail
-	if (selectedPath == null || selectedPath.getPathCount() < 3)
-		return;
-	
-	String packageName = pathToPackageDirectory(selectedPath);
-
-	if (packageName != null && !packageName.endsWith(".class") && new File(packageName + Package.pkgfileName).exists())
-		// package file exists in this directory
-		parent.openPackage(packageName);
-	else {
-		if (packageName == null) {
+		// if we don't click on a node or we've clicked the root or a top level node, let's bail
+		if (selectedPath == null || selectedPath.getPathCount() < 3)
 			return;
-		} else {
+
+		Object[] nodesInPath = selectedPath.getPath();
+
+		String packageLocation = ((LibraryNode)nodesInPath[1]).getInternalName();
+		String packageName = pathToPackageName(selectedPath);
+
+		System.out.println(packageLocation + "---" + packageName);
+
+/*		if (!packageLocation.endsWith(".class") &&
+			new File(packageLocation, Package.pkgfileName).exists())
+		{
+			// package file exists in this directory
+			parent.openPackage(packageName);
+		}
+		else 
+		{ */
 			// easiest case is a cached package - let's open it straight away
-			if (parent.isPackageInCache(packageName)) {
+/*			if (parent.isPackageInCache(packageName)) {
+				System.out.println(packageName + " was cached");
 				parent.openPackage(packageName);
 				return;
 			}
-		}
-		
-		// because the package file doesn't exist, we need to identify all the 
-		// items that would appear in this package (i.e., classes and sub packages
-		// for the currently selected tree node)
-		Object[] nodesInPath = selectedPath.getPath();
-		String[] foundEntries = findElementsOfPackage(((LibraryNode)nodesInPath[nodesInPath.length - 1]));
-		Properties props = null;
-		Package pkg = null;
-		if (!new File(packageName).isDirectory()) {
-			// the package directory doesn't exist - probably an archive library
-			pkg = new Package(packageName, this.parent);
-			// passing true as the last parameter means we don't try to save the properties
-			try {
-				props = Package.createDefaultPackage(foundEntries, packageName, true);
-				pkg.load(packageName, props, false, true);
-			} catch (IOException ioe) {
-				Debug.reportError(ioe.getMessage());
-			}
+*/		
+			// because the package file doesn't exist, we need to identify all the 
+			// items that would appear in this package (i.e., classes and sub packages
+			// for the currently selected tree node)
+			String[] foundEntries = findElementsOfPackage(((LibraryNode)nodesInPath[nodesInPath.length - 1]));
+			Properties props = null;
+			Package pkg = null;
+
+			if (!new File(packageLocation).isDirectory()) {
+				System.out.println(packageName + " is not dir");
+
+				// the package directory doesn't exist - probably an archive library
+				pkg = new Package(packageName, this.parent);
+				// passing true as the last parameter means we don't try to save the properties
+				try {
+					props = Package.createDefaultPackage(foundEntries, packageLocation, packageName, true);
+					pkg.load(packageName, props, false, true);
+				} catch (IOException ioe) {
+					Debug.reportError(ioe.getMessage());
+				}
 			// show the package
 			parent.addPackageToCache(packageName, pkg);
 			parent.openPackage(packageName, pkg);
 		} else if (!new File(packageName + Package.pkgfileName).exists()) {
+			System.out.println(packageName + " is dir");
+
 			// the package directory exists but the package file doesn't
 			// in other words, a package in a directory but no package file
 			try {
-				props = Package.createDefaultPackage(foundEntries, packageName, false);
+				props = Package.createDefaultPackage(foundEntries, packageLocation, packageName, false);
 				parent.openPackage(packageName);
 			} catch (IOException ioe) {
 				// createDefaultPackage# could not save the package file,
 				// (could be non writable directory like a CD)
 				// we'll have to create our own using the properties we've created
+				System.out.println(packageName + " is dir but not writable");
 				pkg = new Package(packageName);
 				pkg.load(packageName, props, false, true);
 				parent.addPackageToCache(packageName, pkg);
@@ -1125,40 +935,36 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 			}
 		} else 
 			Debug.reportError("Unexpected control flow in openSelectedPackageInClassChooser(LibraryChooser.java) " + packageName);
-	}
+	// }
 					
-    }
+	}
 	
-    /**
-     * Create and return an array of Strings for each directory and file
-     * subordinate to the <code>parent</code> node.  The practical upshot
-     * of this is to identify all the elements that belong to the package
-     * represented by the node (i.e., class files and nested packages).
-     * 
-     * @param parent the node representing the package
-     * @return all files and directories which are immediate children of this node, or
-     * null if no such files/directories exist
-     */
-    private String[] findElementsOfPackage(LibraryNode parent) {
-	LibraryNode files[] = parent.getFiles();
-	int numberFiles = files == null ? 0 : files.length;
-	int numberEntries = this.treeModel.getChildCount(parent);
-	String result[] = new String[numberEntries + numberFiles];
+	/**
+	 * Create and return an array of Strings for each directory and file
+	 * subordinate to the <code>parent</code> node.  The practical upshot
+	 * of this is to identify all the elements that belong to the package
+	 * represented by the node (i.e., class files and nested packages).
+	 * 
+	 * @param parent the node representing the package
+	 * @return all files and directories which are immediate children of this node
+	 */
+	private String[] findElementsOfPackage(LibraryNode parent) {
+		LibraryNode files[] = parent.getFiles();
+		int numberFiles = files == null ? 0 : files.length;
+		int numberEntries = this.treeModel.getChildCount(parent);
+		String result[] = new String[numberEntries + numberFiles];
 	
-	if (result.length == 0)
-	    return null;
-
-	int current = 0;
-	// all node children will be directories (no files stored in tree directly)
-	for (; current < numberEntries; current++)
-	    result[current] = ((LibraryNode)treeModel.getChild(parent, current)).getDisplayName();
+		int current = 0;
+		// all node children will be directories (no files stored in tree directly)
+		for (; current < numberEntries; current++)
+			result[current] = ((LibraryNode)treeModel.getChild(parent, current)).getDisplayName();
 		
-	// all values in files array will be class files in this package's directory
-	for (int filesIndex = 0; current < (numberEntries + numberFiles) && filesIndex < files.length; current++, filesIndex++)
-	    result[current] = files[filesIndex].getDisplayName();
+		// all values in files array will be class files in this package's directory
+		for (int filesIndex = 0; current < (numberEntries + numberFiles) && filesIndex < files.length; current++, filesIndex++)
+			result[current] = files[filesIndex].getDisplayName();
 		
-	return result;
-    }
+		return result;
+	}
 
     /**
      * Determine if we're in a valid position to show a popup menu.  That is,
@@ -1167,7 +973,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
      * 
      * @param e the MouseEvent triggering the request to show a popup menu.
      */
-    private void maybeShowPopup(MouseEvent e) {
+/*    private void maybeShowPopup(MouseEvent e) {
 	if (e.isPopupTrigger()) {
 	    // find which path is under the cursor
 	    TreePath targetPath = tree.getPathForLocation(e.getX(), e.getY());
@@ -1189,7 +995,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 		popup.show(e.getComponent(), e.getX(), e.getY());
 	}
     }
-
+*/
     /**
      * Return the appropriate popup menu for this node and configure it 
      * to match the current state of this node.
@@ -1199,35 +1005,13 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
      * @param isCollapsed true if the node is currently collapsed
      * @return the configured popup menu
      */
-    private LibraryPopupMenu getPopup(LibraryNode node, boolean isExpanded, boolean isCollapsed) {
+/*    private LibraryPopupMenu getPopup(LibraryNode node, boolean isExpanded, boolean isCollapsed) {
 	LibraryPopupMenu popup = null;
-	if (node instanceof UserLibraryNode)
-	    popup = userLibPopup;
-	else if (node instanceof SystemLibraryNode)
-	    popup = sysLibPopup;
-	else
-	    popup = libPopup;
+
+	popup = libPopup;
 		
 	popup.configure(node, isExpanded, isCollapsed);
 		
 	return popup;
-    }
-
-    /**
-     * Create the user configuration file name.
-     * 
-     * @return the name of the user configuration file
-     */
-    private static String getUserConfigFilename() {
-	    return Config.getUserConfigDir() + File.separator + Config.getString("browser.librarychooser.config.user");
-    }
-				       
-    /**
-     * Create the system configuration file name.
-     * 
-     * @return the name of the system configuration file
-     */
-    private static String getSystemConfigFilename() {
-	    return Config.getSystemConfigDir() + File.separator + SYSTEMLIBFILE;
-    }
+    } */
 }

@@ -12,14 +12,14 @@ import bluej.pkgmgr.ClassTarget;
 import bluej.views.View;
 import bluej.views.ViewFilter;
 import bluej.views.EditorPrintWriter;
-import bluej.utility.ClasspathSearcher;
+import bluej.classmgr.ClassMgr;
 
 /**
  * A read only (Moe) text editor for showing views of a class selected
  * in the library browser.  Defaults to a public view of a class.
  * 
- * @author $Author: mik $
- * @version $Id: CodeViewer.java 57 1999-04-30 06:35:26Z mik $
+ * @author $Author: ajp $
+ * @version $Id: CodeViewer.java 159 1999-07-06 14:38:56Z ajp $
  */
 public class CodeViewer implements EditorWatcher {
 	private MoeEditorManager edMgr = new MoeEditorManager();
@@ -142,13 +142,14 @@ public class CodeViewer implements EditorWatcher {
 		editor.setReadOnly(false);
 		if (!hasSource)
 			viewType = Editor.PUBLIC;
-		else if (viewType == Editor.IMPLEMENTATION) {
+
+		if (viewType == Editor.IMPLEMENTATION) {
 			editor.showFile(theClass.sourceFile(), true, null);
 		} else {
 		
 			try {
 				editor.clear();
-				View view = new View(Class.forName(className), new ClasspathSearcher(System.getProperty("java.class.path")));
+				View view = new View(ClassMgr.loadBlueJClass(className));
 				int filterType = 0;
 				if(viewType == Editor.PUBLIC)
 				    filterType = ViewFilter.PUBLIC;
