@@ -16,7 +16,7 @@ import com.sun.jdi.*;
  * From this event you can extract the actual result of the invocation, and access the BlueJ
  * classes and objects involved.
  * 
- * @version $Id: InvocationResultEvent.java 1869 2003-04-21 11:04:44Z damiano $
+ * @version $Id: InvocationResultEvent.java 1878 2003-04-22 14:36:01Z damiano $
  */
 
 /*
@@ -48,7 +48,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
     private String className, objectName, methodName;
     private Class[] signature;
     private String[] parameters;
-    private int eventId;
+    private int invocationStatus;
     private bluej.pkgmgr.Package bluej_pkg;
     private DebuggerObject resultObj;
     
@@ -58,13 +58,13 @@ public class InvocationResultEvent implements BlueJExtensionEvent
      */
     public InvocationResultEvent ( ExecutionEvent exevent )
       {
-      eventId = UNKNOWN_EXIT; // a Preset
+      invocationStatus = UNKNOWN_EXIT; // a Preset
       String resultType = exevent.getResult();
       
-      if ( resultType == ExecutionEvent.NORMAL_EXIT) eventId = NORMAL_EXIT;
-      if ( resultType == ExecutionEvent.FORCED_EXIT) eventId = FORCED_EXIT;
-      if ( resultType == ExecutionEvent.EXCEPTION_EXIT) eventId = EXCEPTION_EXIT;
-      if ( resultType == ExecutionEvent.TERMINATED_EXIT) eventId = TERMINATED_EXIT;
+      if ( resultType == ExecutionEvent.NORMAL_EXIT) invocationStatus = NORMAL_EXIT;
+      if ( resultType == ExecutionEvent.FORCED_EXIT) invocationStatus = FORCED_EXIT;
+      if ( resultType == ExecutionEvent.EXCEPTION_EXIT) invocationStatus = EXCEPTION_EXIT;
+      if ( resultType == ExecutionEvent.TERMINATED_EXIT) invocationStatus = TERMINATED_EXIT;
 
       bluej_pkg   = exevent.getPackage();
       className   = exevent.getClassName();
@@ -76,11 +76,11 @@ public class InvocationResultEvent implements BlueJExtensionEvent
       }
      
     /**
-     * Returns the eventId of this event.
+     * Returns the invocation status.
      */
-    public int getEvent()
+    public int getInvocationStatus()
       {
-      return eventId;
+      return invocationStatus;
       }
 
     /**
@@ -192,10 +192,10 @@ public class InvocationResultEvent implements BlueJExtensionEvent
 
       aRisul.append("ResultEvent:");
 
-      if ( eventId == NORMAL_EXIT ) aRisul.append(" NORMAL_EXIT");
-      if ( eventId == FORCED_EXIT ) aRisul.append(" FORCED_EXIT");
-      if ( eventId == EXCEPTION_EXIT ) aRisul.append(" EXCEPTION_EXIT");
-      if ( eventId == TERMINATED_EXIT ) aRisul.append(" TERMINATED_EXIT");
+      if ( invocationStatus == NORMAL_EXIT ) aRisul.append(" NORMAL_EXIT");
+      if ( invocationStatus == FORCED_EXIT ) aRisul.append(" FORCED_EXIT");
+      if ( invocationStatus == EXCEPTION_EXIT ) aRisul.append(" EXCEPTION_EXIT");
+      if ( invocationStatus == TERMINATED_EXIT ) aRisul.append(" TERMINATED_EXIT");
 
       if ( className != null ) aRisul.append(" BClass="+className);
       if ( objectName != null ) aRisul.append(" objectName="+objectName);

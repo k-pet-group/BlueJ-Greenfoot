@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1873 2003-04-22 12:50:07Z damiano $
+ * @version $Id: BlueJ.java 1878 2003-04-22 14:36:01Z damiano $
  */
 
 /*
@@ -70,6 +70,7 @@ public class BlueJ
     private ArrayList packageOpenedListeners;
     private ArrayList packageClosingListeners;
     private ArrayList compileListeners;
+    private ArrayList invocationResultListeners;
     
     /**
      * Constructor for a BlueJ proxy object.
@@ -86,6 +87,7 @@ public class BlueJ
         packageOpenedListeners = new ArrayList();
         packageClosingListeners = new ArrayList();
         compileListeners = new ArrayList();
+        invocationResultListeners = new ArrayList();
         
         /* I do NOT want lazy initialization otherwise I may try to load it
          * may times just because I cannof find anything.
@@ -438,6 +440,23 @@ public class BlueJ
 
 
 
+    /**
+     * Registers a listener for invocation result events.
+     */
+    public void addInvocationResultEventListener (InvocationResultEventListener listener)
+    {
+        if (listener != null) invocationResultListeners.add(listener);
+    }
+
+    /**
+     * Removes the specified listener so no that it no longer receives events.
+     */
+    public void removeInvocationResultEventListener (InvocationResultEventListener listener)
+    {
+        if (listener != null) invocationResultListeners.remove(listener);
+    }
+
+
 
 
 
@@ -520,6 +539,20 @@ public class BlueJ
             }
         }
 
+
+    /**
+     * Dispatch this event to the listeners for the bluejReady events.
+     */
+    private void delegateInvocationResultEvent ( InvocationResultEvent event )
+        {
+        for (Iterator iter = invocationResultListeners.iterator(); iter.hasNext(); ) 
+            {
+            InvocationResultEventListener eventListener = (InvocationResultEventListener)iter.next();
+            eventListener.invocationFinished(event);
+            }
+        }
+
+
     /**
      * Informs any registered listeners that an event has occurred.
      * This will call the various dispatcher as needed.
@@ -532,7 +565,7 @@ public class BlueJ
       if ( event instanceof BlueJReadyEvent ) delegateBluejReadyEvent ((BlueJReadyEvent)event);
       else if ( event instanceof PackageEvent ) delegatePackageEvent ((PackageEvent)event);
       else if ( event instanceof CompileEvent ) delegateCompileEvent ((CompileEvent)event);
-
+      else if ( event instanceof InvocationResultEvent ) delegateInvocationResultEvent ((InvocationResultEvent)event);
       }
     
 }
