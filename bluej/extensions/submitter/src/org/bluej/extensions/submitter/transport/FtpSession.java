@@ -14,7 +14,7 @@ import java.net.URL;
  * to a given path on a given (attached) server. It uses FTP in passive mode.
  * 
  * @author Clive Miller
- * @version $Id: FtpSession.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: FtpSession.java 1585 2002-12-13 12:17:29Z damiano $
  */
 
 public class FtpSession extends TransportSession
@@ -47,7 +47,10 @@ public class FtpSession extends TransportSession
         int port = 21;
         if (url.getPort() != -1) port = url.getPort();
         connection = new SocketSession (ftpHost, port);
+
         connection.setLogger (log);
+//        try { connection.setLogfile("c:/tmp/ftp.txt"); } catch ( Exception e ) {}
+
         connection.expect ("220 ", "421");
         connection.send ("USER "+username);
         reply = connection.expect (new String[] {"331 ","230 "},
@@ -63,9 +66,12 @@ public class FtpSession extends TransportSession
     public void send (InputStream is, String name, boolean binary) throws IOException
     {
         String sendPath = url.getPath();
+
+/*
         connection.send ("CWD");
         connection.expect (new String[] {"250 "},
                            new String[] {"500","501","502","421","530","550"});
+*/                           
         if (!sendPath.equals ("") && !sendPath.equals ("/")) {
             connection.send ("CWD "+sendPath.substring(1));
             String resp = connection.expect (new String[] {"250 ","550"},
