@@ -1069,7 +1069,8 @@ public final class MoeActions
             int prevLineEnd = prevline.getEndOffset();
             String lineText = doc.getText(prevLineStart, prevLineEnd-prevLineStart);
             boolean commentEnd = lineText.trim().endsWith("*/");
-            int indentPos = findFirstNonIndentChar(lineText);
+            boolean commentEndOnly = lineText.trim().equals("*/");
+            int indentPos = findFirstNonIndentChar(lineText, commentEnd);
 
             // if the cursor is already past the indentation point, insert tab
 
@@ -1085,9 +1086,9 @@ public final class MoeActions
 
             int lineEnd = line.getEndOffset();
             lineText = doc.getText(lineStart, lineEnd-lineStart);
-            indentPos = findFirstNonIndentChar(lineText);
+            indentPos = findFirstNonIndentChar(lineText, true);
             doc.remove(lineStart, indentPos);
-            doc.insertString(lineStart, nextIndent(indent, commentEnd), null);
+            doc.insertString(lineStart, nextIndent(indent, commentEndOnly), null);
         }
         catch (BadLocationException exc) {}
     }
@@ -1096,18 +1097,28 @@ public final class MoeActions
      * Find the position of the first non-indentation character in a string.
      * Indentation characters are <whitespace>, //, *, /*, /**.
      */ 
-    private int findFirstNonIndentChar(String s)
+    private int findFirstNonIndentChar(String s, boolean whitespaceOnly)
     {
         int cnt=0;
         char ch = s.charAt(0);
 
-        while(ch == ' ' || ch == '\t' || ch == '*') {   // SPACE or TAB
-            cnt++;
-            ch = s.charAt(cnt);
-        }
-        if((s.charAt(cnt) == '/') && (s.charAt(cnt+1) == '*'))
-            cnt += 2;
+        // if this line ends a comment, indent whitepace only;
+        // otherwise indent across whitespace, asterisks and comment starts
 
+        if(whitespaceOnly) {
+            while(ch == ' ' || ch == '\t') {   // SPACE or TAB
+                cnt++;
+                ch = s.charAt(cnt);
+            }
+        }
+        else {
+            while(ch == ' ' || ch == '\t' || ch == '*') {   // SPACE, TAB or *
+                cnt++;
+                ch = s.charAt(cnt);
+            }
+            if((s.charAt(cnt) == '/') && (s.charAt(cnt+1) == '*'))
+                cnt += 2;
+        }
         return cnt;
     }
 
@@ -1117,39 +1128,15 @@ public final class MoeActions
      *  after " / * *" follows "  *"
      *  after " * /" follows ""
      */
-    private String nextIndent(String s, boolean commentEnd)
+    private String nextIndent(String s, boolean commentEndOnly)
     {
-        if(commentEnd && s.trim().equals("*")) {
-            int pos = s.indexOf("*");
-            if((pos > 0) && (s.charAt(pos-1)==' '))
-                pos--;
-            return s.substring(0, pos);
-        }
+        if(commentEndOnly)
+            return s.substring(0, s.length() - 1);
 
-        if(commentEnd)
-            return whiteSpaceOf(s);
-
-        int pos = s.indexOf("/*");
-        if(s.endsWith("/*")) {
-            return s.substring(0, s.length()-2) + " * ";
-        }
+        if(s.endsWith("/*"))
+            return s.substring(0, s.length() - 2) + " * ";
 
         return s;
-    }
-
-    /**
-     * Return just the leading whitespace part of s.
-     */
-    private String whiteSpaceOf(String s)
-    {
-        int cnt=0;
-        while(cnt < s.length()) {
-            char ch = s.charAt(cnt);
-            if(!(ch == ' ' || ch == '\t'))    // SPACE or TAB
-                break;
-            cnt++;
-        }
-        return s.substring(0, cnt);
     }
 
     /**

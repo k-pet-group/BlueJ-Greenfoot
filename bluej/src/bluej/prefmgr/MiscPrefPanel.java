@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1096 2002-01-15 11:15:33Z mik $
+ * @version $Id: MiscPrefPanel.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -31,16 +31,13 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
     private JTextField editorFontField;
     private JCheckBox hilightingBox;
+    private JCheckBox autoIndentBox;
     private JCheckBox lineNumbersBox;
     private JCheckBox makeBackupBox;
+    private JCheckBox useJdk14Box;
+
     private JTextField jdkURLField;
     private JCheckBox linkToLibBox;
-
-    ButtonGroup notationStyleGroup;
-    private JRadioButton umlRadioButton;
-    private JRadioButton blueRadioButton;
-
-    //private
 
     /**
      * Registers the misc preference panel with the preferences
@@ -63,7 +60,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         add(Box.createVerticalGlue());
 
-        JPanel editorPanel = new JPanel(new GridLayout(2,2,0,0));
+        JPanel editorPanel = new JPanel(new GridLayout(4,2,0,0));
         {
             String editorTitle = Config.getString("prefmgr.misc.editor.title");
             editorPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -79,6 +76,11 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             }
             editorPanel.add(fontPanel);
 
+            editorPanel.add(new JLabel(" "));
+            editorPanel.add(new JLabel(" "));
+            editorPanel.add(new JLabel(" "));
+            autoIndentBox = new JCheckBox(Config.getString("prefmgr.misc.autoindent"));
+            editorPanel.add(autoIndentBox);
             lineNumbersBox = new JCheckBox(Config.getString("prefmgr.misc.displaylinenumbers"));
             editorPanel.add(lineNumbersBox);
             hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
@@ -87,6 +89,21 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             editorPanel.add(makeBackupBox);
         }
         add(editorPanel);
+
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+
+        JPanel compilerPanel = new JPanel(new GridLayout(1,2,0,0));
+        {
+            compilerPanel.setBorder(BorderFactory.createCompoundBorder(
+                                          BorderFactory.createTitledBorder(
+                                                 Config.getString("prefmgr.misc.compiler.title")),
+                                          Config.generalBorder));
+            compilerPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+            useJdk14Box = new JCheckBox(Config.getString("prefmgr.misc.usejdk14"));
+            compilerPanel.add(useJdk14Box);
+        }
+        add(compilerPanel);
 
         add(Box.createVerticalStrut(Config.generalSpacingWidth));
 
@@ -134,66 +151,18 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         add(Box.createVerticalStrut(Config.generalSpacingWidth));
 
-        JPanel notationPanel = new JPanel();
-        {
-            notationPanel.setLayout(new GridLayout(0,1));
-            String notationTitle = Config.getString("prefmgr.misc.notation.title");
-            notationPanel.setBorder(BorderFactory.createCompoundBorder(
-                                          BorderFactory.createTitledBorder(notationTitle),
-                                          Config.generalBorder));
-            notationPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-            notationStyleGroup = new ButtonGroup();
-            umlRadioButton = 
-                new JRadioButton(Config.getString("prefmgr.misc.notation.uml"));
-            blueRadioButton = 
-                new JRadioButton(Config.getString("prefmgr.misc.notation.blue"));
-            umlRadioButton.setActionCommand(Graph.UML);
-            blueRadioButton.setActionCommand(Graph.BLUE);
-            notationStyleGroup.add(umlRadioButton);
-            notationStyleGroup.add(blueRadioButton);
-
-            notationPanel.add(umlRadioButton);
-            notationPanel.add(blueRadioButton);
-        }
-        add(notationPanel);
-
-        /*        JPanel compilerPanel = new JPanel();
-                  {
-                  compilerPanel.setLayout(new BoxLayout(compilerPanel, BoxLayout.Y_AXIS));
-                  compilerPanel.setBorder(BorderFactory.createCompoundBorder(
-                  BorderFactory.createTitledBorder("Compiler"),
-                  Config.generalBorder));
-                  compilerPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                  compilerPanel.add(new JRadioButton("internal"));
-                  compilerPanel.add(new JRadioButton("javac"));
-                  compilerPanel.add(new JRadioButton("jikes"));
-
-                  JLabel executableTag = new JLabel(Config.getString("Compiler Executable"));
-
-                  compilerPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
-                  compilerPanel.add(executableTag);
-                  compilerPanel.add(new JTextField(8));
-                  }
-        */
-
         add(Box.createVerticalGlue());
     }
 
     public void beginEditing()
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
-        hilightingBox.setSelected(PrefMgr.useSyntaxHilighting());
-        lineNumbersBox.setSelected(PrefMgr.displayLineNumbers());
-        makeBackupBox.setSelected(PrefMgr.makeBackup());
-        linkToLibBox.setSelected(PrefMgr.linkDocToLibrary());
+        hilightingBox.setSelected(PrefMgr.getFlag(PrefMgr.HILIGHTING));
+        autoIndentBox.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_INDENT));
+        lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
+        makeBackupBox.setSelected(PrefMgr.getFlag(PrefMgr.MAKE_BACKUP));
+        linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
-
-        if(!PrefMgr.isUML())
-            blueRadioButton.setSelected(true);
-        else
-            umlRadioButton.setSelected(true);
     }
 
     public void revertEditing()
@@ -210,10 +179,11 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         }
         catch (NumberFormatException nfe) { }
 
-        PrefMgr.setSyntaxHilighting(hilightingBox.isSelected());
-        PrefMgr.setDisplayLineNumbers(lineNumbersBox.isSelected());
-        PrefMgr.setMakeBackup(makeBackupBox.isSelected());
-        PrefMgr.setDocumentationLinking(linkToLibBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.HILIGHTING, hilightingBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.AUTO_INDENT, autoIndentBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
 
         Package.editorManager.refreshAll();
 
@@ -224,8 +194,6 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         else
             Config.putPropString(jdkURLPropertyName, jdkURL);
 
-        String notationStyle = notationStyleGroup.getSelection().getActionCommand();
-        PrefMgr.setNotationStyle(notationStyle);
         PkgMgrFrame.refreshAllFrames();
     }
 }

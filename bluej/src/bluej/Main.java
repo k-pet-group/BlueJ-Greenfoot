@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1148 2002-03-08 08:36:21Z mik $
+ * @version $Id: Main.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class Main
 {
@@ -87,7 +87,6 @@ public class Main
 
         SplashWindow splash = new SplashWindow(bluejLib);
         Config.initialise(bluejLib);
-        PrefMgr.initialise();
 
         MiscPrefPanel.register();
         ClassMgrPrefPanel.register();

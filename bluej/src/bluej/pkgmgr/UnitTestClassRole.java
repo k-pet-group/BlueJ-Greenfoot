@@ -24,7 +24,7 @@ import junit.framework.*;
  * built from Java source code.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1129 2002-02-12 02:51:44Z ajp $
+ * @version $Id: UnitTestClassRole.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -97,7 +97,7 @@ public class UnitTestClassRole extends ClassRole
     public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width,
                      int height)
     {
-        if(!PrefMgr.isUML()) {
+        if(!PrefMgr.getFlag(PrefMgr.USE_UML)) {
             g.setColor(ct.getTextColour());
             Utility.drawCentredText(g, "test",
                                 Target.TEXT_BORDER,

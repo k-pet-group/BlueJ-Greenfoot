@@ -38,7 +38,7 @@ import bluej.tester.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1125 2002-02-07 02:02:29Z ajp $
+ * @version $Id: PkgMgrFrame.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1867,7 +1867,7 @@ public class PkgMgrFrame extends JFrame
         String dependsImage = "image.build.depends";
         String extendsImage = "image.build.extends";
         String umlSuffix = ".uml";
-        if(PrefMgr.isUML()) {
+        if(PrefMgr.getFlag(PrefMgr.USE_UML)) {
             dependsImage += umlSuffix;
             extendsImage += umlSuffix;
         }

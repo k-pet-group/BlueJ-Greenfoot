@@ -23,7 +23,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 961 2001-06-26 05:13:50Z bquig $
+ ** @version $Id: AppletClassRole.java 1149 2002-03-08 11:14:09Z mik $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -317,7 +317,7 @@ public class AppletClassRole extends ClassRole
     public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width,
                      int height)
     {
-        if(!PrefMgr.isUML()) {
+        if(!PrefMgr.getFlag(PrefMgr.USE_UML)) {
         g.setColor(ct.getTextColour());
         Utility.drawCentredText(g, "www",
                                 Target.TEXT_BORDER,

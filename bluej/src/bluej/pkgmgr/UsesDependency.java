@@ -13,7 +13,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: UsesDependency.java 533 2000-06-09 04:24:08Z ajp $
+ * @version $Id: UsesDependency.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class UsesDependency extends Dependency
 {
@@ -71,7 +71,7 @@ public class UsesDependency extends Dependency
         int[] xPoints = { dst_x, dst_x + delta_x, dst_x + delta_x };
         int[] yPoints = { dst_y, dst_y - 3, dst_y + 3 };
 
-        if(PrefMgr.isUML()) {
+        if(PrefMgr.getFlag(PrefMgr.USE_UML)) {
             g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y + 4);
             g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y - 4);
             g.setStroke(dashed);
@@ -114,7 +114,7 @@ public class UsesDependency extends Dependency
 
     public void draw(Graphics2D g)
     {
-        if(PrefMgr.isUML())
+        if(PrefMgr.getFlag(PrefMgr.USE_UML))
             draw(umlColour, g);
         else
             draw(normalColour, g);

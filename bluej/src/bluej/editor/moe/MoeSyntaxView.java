@@ -36,7 +36,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 1085 2002-01-11 22:30:13Z mik $
+ * @version $Id: MoeSyntaxView.java 1149 2002-03-08 11:14:09Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -113,7 +113,7 @@ public class MoeSyntaxView extends PlainView
             document.getText(start,end - (start + 1), line);
 
             g.setColor(def);
-            if(PrefMgr.displayLineNumbers())
+            if(PrefMgr.getFlag(PrefMgr.LINENUMBERS))
                 drawLineNumber(g, lineIndex+1, x, y);
 
             // draw breakpoint and/or step image

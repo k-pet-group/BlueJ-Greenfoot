@@ -22,20 +22,24 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1096 2002-01-15 11:15:33Z mik $
+ * @version $Id: PrefMgr.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class PrefMgr
 {
-    private static final String hilightingPropertyName = "bluej.editor.syntaxHilighting";
-    private static final String lineNumberPropertyName = "bluej.editor.displayLineNumbers";
-    private static final String makeBackupPropertyName = "bluej.editor.makeBackup";
-    private static final String linkingPropertyName = "doctool.linkToStandardLib";
+    // publicly accessible names for flags
+    public static final String HILIGHTING = "bluej.editor.syntaxHilighting";
+    public static final String AUTO_INDENT = "bluej.editor.autoIndent";
+    public static final String LINENUMBERS = "bluej.editor.displayLineNumbers";
+    public static final String MAKE_BACKUP = "bluej.editor.makeBackup";
+    public static final String LINK_LIB = "doctool.linkToStandardLib";
+
+    public static final String USE_UML = "bluej.notation.style";
+    public static final String USE_THEMES = "bluej.useTheme";
+
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
     private static final String terminalFontPropertyName = "bluej.terminal.font";
     private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
-
-    private static final String notationStyle = "bluej.notation.style";
 
     private static int fontSize;
     private static int editFontsize;
@@ -57,13 +61,19 @@ public class PrefMgr
     private static int editorFontSize;
     private static Font editorStandardFont, editorStandoutFont;
 
+    // flags are all boolean preferences
+    private static HashMap flags = new HashMap();
+
     // syntax hilighting
+    /*
     private static boolean isSyntaxHilighting;
+    private static boolean isAutoIndent;
     private static boolean isDisplayLineNumbers;
     private static boolean isMakeBackup;
     private static boolean isLinkDocumentation;
     private static boolean isUML;
     private static boolean hasTheme;
+    */
 
     private static PrefMgr prefmgr = new PrefMgr();
 
@@ -96,26 +106,14 @@ public class PrefMgr
         targetFontSize = Config.getPropInteger("bluej.target.fontsize", 12);
         targetFont = deriveFont(targetFontName, targetFontSize);        
         
-        isSyntaxHilighting = Boolean.valueOf(
-            Config.getPropString(hilightingPropertyName, "true")).booleanValue();
-
-        isDisplayLineNumbers = Boolean.valueOf(
-            Config.getPropString(lineNumberPropertyName, "true")).booleanValue();
-
-        isMakeBackup = Boolean.valueOf(
-            Config.getPropString(makeBackupPropertyName, "true")).booleanValue();
-
-        isLinkDocumentation = Boolean.valueOf(
-            Config.getPropString(linkingPropertyName, "true")).booleanValue();
-
-        isUML = (Config.getDefaultPropString(notationStyle, Graph.UML).equals(Graph.UML));
-        hasTheme = Boolean.valueOf(
-            Config.getPropString("bluej.useTheme", "false")).booleanValue();
-    }
-
-    public static void initialise()
-    {
-
+        flags.put(HILIGHTING, Config.getPropString(HILIGHTING, "true"));
+        flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
+        flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
+        flags.put(MAKE_BACKUP, Config.getPropString(MAKE_BACKUP, "false"));
+        flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
+        flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
+        flags.put(USE_UML, 
+                  String.valueOf(Config.getDefaultPropString(USE_UML, Graph.UML).equals(Graph.UML)));
     }
 
     public static Font getStandardFont()
@@ -153,24 +151,37 @@ public class PrefMgr
         return editorStandardFont;
     }
 
-    public static boolean useSyntaxHilighting()
+    /**
+     * Get the value for a flag. Flags are boolean preferences.
+     * 'flag' must be one of the flag names defined as public
+     * constants in this class.
+     */
+    public static boolean getFlag(String flag)
     {
-        return isSyntaxHilighting;
+        String value = (String)flags.get(flag);
+        if(value == null)
+            return false;
+        else
+            return value.equals("true");
     }
 
-    public static boolean displayLineNumbers()
+    /**
+     * Set a users preference flag (a boolean preference).
+     *
+     * @param flag    The name of the flag to set
+     * @param enabled The new value of the flag
+     */
+    protected static void setFlag(String flag, boolean enabled)
     {
-        return isDisplayLineNumbers;
-    }
+        String value = String.valueOf(enabled);
+        String hs = Config.getDefaultPropString(flag, "true");
 
-    public static boolean makeBackup()
-    {
-        return isMakeBackup;
-    }
+        if (Boolean.valueOf(hs).booleanValue() == enabled)
+            Config.removeProperty(flag);
+        else
+            Config.putPropString(flag, value);
 
-    public static boolean linkDocToLibrary()
-    {
-        return isLinkDocumentation;
+        flags.put(flag, value);
     }
 
     /**
@@ -243,109 +254,5 @@ public class PrefMgr
     protected static int getEditorFontSize()
     {
         return editorFontSize;
-    }
-
-    /**
-     * Set users preference of whether to use syntax hilighting or not
-     *
-     * @param enabled   true if syntax hilighting should be used
-     */
-    protected static void setSyntaxHilighting(boolean enabled)
-    {
-        String hs = Config.getDefaultPropString(hilightingPropertyName, "true");
-
-        if (Boolean.valueOf(hs).booleanValue() == enabled)
-            Config.removeProperty(hilightingPropertyName);
-        else
-            Config.putPropString(hilightingPropertyName,
-                                    new Boolean(enabled).toString());
-
-        isSyntaxHilighting = enabled;
-    }
-
-    /**
-     * Set users preference of whether to display line numbers in the editor
-     *
-     * @param enabled   true if line numbers should be displayed
-     */
-    protected static void setDisplayLineNumbers(boolean enabled)
-    {
-        String hs = Config.getDefaultPropString(lineNumberPropertyName, "true");
-
-        if (Boolean.valueOf(hs).booleanValue() == enabled)
-            Config.removeProperty(lineNumberPropertyName);
-        else
-            Config.putPropString(lineNumberPropertyName,
-                                    new Boolean(enabled).toString());
-
-        isDisplayLineNumbers = enabled;
-    }
-
-    /**
-     * Set users preference of whether the editor should make a backup
-     *
-     * @param enabled   true if backups should be made
-     */
-    protected static void setMakeBackup(boolean enabled)
-    {
-        String hs = Config.getDefaultPropString(makeBackupPropertyName, "true");
-
-        if (Boolean.valueOf(hs).booleanValue() == enabled)
-            Config.removeProperty(makeBackupPropertyName);
-        else
-            Config.putPropString(makeBackupPropertyName,
-                                    new Boolean(enabled).toString());
-
-        isMakeBackup = enabled;
-    }
-
-    /**
-     * Set users preference of whether to link documentation or not
-     *
-     * @param enabled   true if syntax documentation should be linked
-     */
-    protected static void setDocumentationLinking(boolean enabled)
-    {
-        String hs = Config.getDefaultPropString(linkingPropertyName,
-                                                "true");
-
-        if (Boolean.valueOf(hs).booleanValue() == enabled)
-            Config.removeProperty(linkingPropertyName);
-        else
-            Config.putPropString(linkingPropertyName,
-                                    new Boolean(enabled).toString());
-
-        isLinkDocumentation = enabled;
-    }
-
-    /**
-     * Return the notation style for bluej
-     * Two styles available: uml (default) or blue 
-     */
-    public static boolean isUML()
-    {
-        return isUML;
-    }
-    
-      /**
-     * Return whether bluej is using a Theme to allow specification of
-     * UI fonts.  Use can seem to degrade startup performance if Bold fonts
-     * used.
-     */
-    public static boolean hasTheme()
-    {
-        return hasTheme;
-    }
-
-   /**
-     * Set users preference of notation style
-     *
-     * @param style   the name of the style
-     */
-    protected static void setNotationStyle(String style)
-    {
-        // assumes UML is default, ie. if not blue style then is UML
-        isUML = (!Graph.BLUE.equals(style));
-        Config.putPropString(notationStyle, style);
     }
 }

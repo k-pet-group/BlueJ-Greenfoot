@@ -47,7 +47,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1125 2002-02-07 02:02:29Z ajp $
+ * @version $Id: ClassTarget.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -330,7 +330,7 @@ public class ClassTarget extends EditableTarget
 
     Color getDefaultBackground()
     {
-       if(PrefMgr.isUML())
+       if(PrefMgr.getFlag(PrefMgr.USE_UML))
           return umldefaultbg; //bq add def for own colour
         else if(isInterface())
             return interfacebg;
@@ -988,7 +988,7 @@ public class ClassTarget extends EditableTarget
     {
         super.draw(g);
 
-        if(PrefMgr.isUML())
+        if(PrefMgr.getFlag(PrefMgr.USE_UML))
             drawUMLStyle(g);
         else
             drawBlueStyle(g);
@@ -1101,7 +1101,7 @@ public class ClassTarget extends EditableTarget
     {
         g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
         g.fillRect(width, SHAD_SIZE, SHAD_SIZE, height);
-        if(!PrefMgr.isUML())
+        if(!PrefMgr.getFlag(PrefMgr.USE_UML))
             Utility.drawThickLine(g, width - HANDLE_SIZE, height,
                                   width, height - HANDLE_SIZE, 3);
     }
@@ -1115,7 +1115,7 @@ public class ClassTarget extends EditableTarget
 
         int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
         Utility.drawThickRect(g, 0, 0, width, height, thickness);
-        if(PrefMgr.isUML())
+        if(PrefMgr.getFlag(PrefMgr.USE_UML))
             if((flags & F_SELECTED) == 0)
                 return;
         // Draw lines showing resize tag

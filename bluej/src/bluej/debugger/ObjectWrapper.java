@@ -32,7 +32,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1066 2002-01-07 06:24:09Z ajp $
+ * @version $Id: ObjectWrapper.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -296,7 +296,7 @@ public class ObjectWrapper extends JComponent
     {
         Graphics2D g2 = (Graphics2D)g;
 
-        if(PrefMgr.isUML())
+        if(PrefMgr.getFlag(PrefMgr.USE_UML))
             drawUMLStyle(g2);
         else
             drawBlueStyle(g2);

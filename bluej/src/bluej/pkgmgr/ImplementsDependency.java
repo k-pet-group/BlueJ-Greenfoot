@@ -13,7 +13,7 @@ import java.awt.*;
  * An "implements" dependency between two (class) targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: ImplementsDependency.java 533 2000-06-09 04:24:08Z ajp $
+ * @version $Id: ImplementsDependency.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class ImplementsDependency extends Dependency
 {
@@ -59,7 +59,7 @@ public class ImplementsDependency extends Dependency
         pFrom = ((DependentTarget)from).getAttachment(angle + Math.PI);
         pTo = ((DependentTarget)to).getAttachment(angle);
 
-        int arrowSize = PrefMgr.isUML() ? UML_ARROW_SIZE : ARROW_SIZE;
+        int arrowSize = PrefMgr.getFlag(PrefMgr.USE_UML) ? UML_ARROW_SIZE : ARROW_SIZE;
 
         Point pArrow = new Point(pTo.x + (int)((arrowSize - 2) * Math.cos(angle)), pTo.y - (int)((arrowSize - 2) * Math.sin(angle)));
 
@@ -67,7 +67,7 @@ public class ImplementsDependency extends Dependency
         int[] xPoints =  { pTo.x, pTo.x + (int)((arrowSize) * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(arrowSize * Math.cos(angle - ARROW_ANGLE)) };
         int[] yPoints =  { pTo.y, pTo.y - (int)((arrowSize) * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(arrowSize * Math.sin(angle - ARROW_ANGLE)) };
 
-        if(PrefMgr.isUML()) {
+        if(PrefMgr.getFlag(PrefMgr.USE_UML)) {
             g.drawPolygon(xPoints, yPoints, 3);
             g.setStroke(dashed);
             g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
@@ -83,7 +83,7 @@ public class ImplementsDependency extends Dependency
 
 	public void draw(Graphics2D g)
 	{
-        if(PrefMgr.isUML())
+        if(PrefMgr.getFlag(PrefMgr.USE_UML))
             draw(umlColour, g);
         else
             draw(normalColour, g);

@@ -19,7 +19,7 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 925 2001-06-06 04:45:32Z bquig $
+ * @version $Id: PackageTarget.java 1149 2002-03-08 11:14:09Z mik $
  */
 public class PackageTarget extends Target
 {
@@ -104,7 +104,7 @@ public class PackageTarget extends Target
 
     Color getBackgroundColour()
     {
-        if(PrefMgr.isUML())
+        if(PrefMgr.getFlag(PrefMgr.USE_UML))
             return umldefaultbg;
         else
             return defaultbg;
@@ -127,7 +127,7 @@ public class PackageTarget extends Target
 
     public void draw(Graphics2D g)
     {
-        if(PrefMgr.isUML())
+        if(PrefMgr.getFlag(PrefMgr.USE_UML))
             drawUMLStyle(g);
         else
             drawBlueStyle(g);
@@ -197,7 +197,7 @@ public class PackageTarget extends Target
 
     void drawBorders(Graphics2D g)
     {
-        if(PrefMgr.isUML())
+        if(PrefMgr.getFlag(PrefMgr.USE_UML))
             drawUMLBorders(g);
         else
             super.drawBorders(g);

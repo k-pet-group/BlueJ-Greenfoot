@@ -401,7 +401,7 @@ public final class MoeEditor extends JFrame
                 writer.close();
                 setSaved();
 
-                if(PrefMgr.makeBackup()) {
+                if(PrefMgr.getFlag(PrefMgr.MAKE_BACKUP)) {
                     // if all went well, rename the crash file as a normal backup
                     File crashFile = new File(crashFilename);
                     File backupFile = new File(backupFilename);
@@ -1431,7 +1431,7 @@ public final class MoeEditor extends JFrame
 
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
-            if(viewingCode() && PrefMgr.useSyntaxHilighting()) {
+            if(viewingCode() && PrefMgr.getFlag(PrefMgr.HILIGHTING)) {
                 if(sourceDocument.getTokenMarker() == null)
                     sourceDocument.setTokenMarker(new JavaTokenMarker());
             }
