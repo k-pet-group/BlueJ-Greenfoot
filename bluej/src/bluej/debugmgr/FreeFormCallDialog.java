@@ -1,11 +1,12 @@
 package bluej.debugmgr;
 
-import bluej.Config;
-import bluej.debugmgr.*;
-import bluej.pkgmgr.PkgMgrFrame;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.*;
+
 import javax.swing.*;
+
+import bluej.Config;
+import bluej.pkgmgr.PkgMgrFrame;
 
 
 /**
@@ -14,7 +15,7 @@ import javax.swing.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: FreeFormCallDialog.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: FreeFormCallDialog.java 2033 2003-06-12 06:51:21Z ajp $
  */
 public class FreeFormCallDialog extends CallDialog
 {

@@ -33,21 +33,9 @@ import java.util.List;
   *
   *  DOCU_ABORTED   (unused)        documentation generation aborted
   *
-  *  BREAKPOINT     the JdiThread object    a thread hit a breakpoint
-  *          that hit the breakpoint
-  *
-  *  HALT       the JdiThread object    a thread was halted either
-  *          that was halted     interactively or after doing
-  *                      a step
-  *
-  *  CONTINUE       the JdiThread object    a thread has started running
-  *          that was continued  again
-  *
-  *  SHOW_SOURCE    the JdiThread object    a thread wants some of its
-  *          that is selected    source displayed
   * </PRE>
   * @author Michael Kolling
-  * @version $Id: BlueJEvent.java 1700 2003-03-13 03:34:20Z ajp $
+  * @version $Id: BlueJEvent.java 2033 2003-06-12 06:51:21Z ajp $
   *
   */
 
@@ -64,10 +52,6 @@ public class BlueJEvent
     public static final int GENERATING_DOCU     = EXECUTION_RESULT + 1;
     public static final int DOCU_GENERATED      = GENERATING_DOCU + 1;
     public static final int DOCU_ABORTED        = DOCU_GENERATED + 1;
-    public static final int BREAKPOINT          = DOCU_ABORTED + 1;
-    public static final int HALT                = BREAKPOINT + 1;
-    public static final int CONTINUE            = HALT + 1;
-    public static final int SHOW_SOURCE         = CONTINUE + 1;
 
 
     // other variables

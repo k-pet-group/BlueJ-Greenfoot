@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2026 2003-06-11 07:55:32Z ajp $
+ * @version $Id: ExecServer.java 2033 2003-06-12 06:51:21Z ajp $
  */
 public class ExecServer
 {
@@ -38,7 +38,7 @@ public class ExecServer
     public static final String RESTORE_OUTPUT   = "restoreOutput";
     public static final String DISPOSE_WINDOWS  = "disposeWindows";
 
-    /*package*/ static ExitException exitExc = new ExitException("0");
+    static ExitException exitException = new ExitException("0");
 
     private static RemoteClassMgr classmgr;
 	private static ClassLoader currentLoader;	// the current loader
@@ -105,7 +105,7 @@ public class ExecServer
 		int count = 0;
 		
 		// an infinite loop.. 
-		while(count++ < 1000000) {
+		while(count++ < 100000) {
 			vmSuspend();
 		}
 		

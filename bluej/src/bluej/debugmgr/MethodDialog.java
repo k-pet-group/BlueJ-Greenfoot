@@ -1,24 +1,17 @@
 package bluej.debugmgr;
 
-import bluej.*;
-import bluej.Config;
-import bluej.utility.MultiLineLabel;
-import bluej.utility.JavaNames;
-import bluej.debugmgr.*;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.views.ConstructorView;
-import bluej.views.MemberView;
-import bluej.views.CallableView;
-import bluej.views.MethodView;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import bluej.*;
+import bluej.pkgmgr.*;
+import bluej.pkgmgr.Package;
+import bluej.utility.*;
+import bluej.views.*;
 
 
 /**
@@ -29,7 +22,7 @@ import java.util.StringTokenizer;
  * @author  Michael Kolling
  * @author  Bruce Quig
  *
- * @version $Id: MethodDialog.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: MethodDialog.java 2033 2003-06-12 06:51:21Z ajp $
  */
 public class MethodDialog extends CallDialog
 	implements FocusListener

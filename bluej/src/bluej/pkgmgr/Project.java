@@ -19,10 +19,10 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: Project.java 2033 2003-06-12 06:51:21Z ajp $
  */
 public class Project
-    implements BlueJEventListener
+    implements DebuggerListener
 {
     /**
      * Collection of all open projects. the canonical name of the project
@@ -169,9 +169,9 @@ public class Project
             }
         }
 
+		project.getDebugger().removeDebuggerListener(project);
 		project.getDebugger().close();
 		
-        BlueJEvent.removeListener(project);
         PrefMgr.addRecentProject(project.getProjectDir().getAbsolutePath());
         projects.remove(project.getProjectDir());
     }
@@ -348,9 +348,8 @@ public class Project
             Debug.reportError("could not read package file (unnamed package)");
         }
 
-        BlueJEvent.addListener(this);
-
 		debugger = Debugger.getDebuggerImpl(getProjectDir());
+		debugger.addDebuggerListener(this);
 		debugger.launch();
 
         docuGenerator = new DocuGenerator(this);
@@ -600,9 +599,7 @@ public class Project
             // remove views for classes loaded by this classloader
             View.removeAll(loader);
 
-            // remove all open windows created by these objects
-            getDebugger().disposeWindows();
-
+			//TODO: dispose windows for local classes
             loader = null;
         }
     }
@@ -693,69 +690,39 @@ public class Project
                                                     new File(pathname));
     }
 
-    // ---- BlueJEventListener interface ----
+    // ---- DebuggerListener interface ----
 
     /**
-     *  A BlueJEvent was raised. Check whether it is one that we're interested
-     *  in.
      */
-    public void blueJEvent(int eventId, Object arg)
+    public void debuggerEvent(DebuggerEvent de)
     {
         DebuggerThread thread;
 
-        switch(eventId) {
-        case BlueJEvent.BREAKPOINT:
-            thread = (DebuggerThread)arg;
-            if(thread.getParam() == this)
-                hitBreakpoint(thread);
-            break;
-        case BlueJEvent.HALT:
-            thread = (DebuggerThread)arg;
-            if((thread != null) && (thread.getParam() == this))
-                hitHalt(thread);
-            break;
-        case BlueJEvent.SHOW_SOURCE:
-            thread = (DebuggerThread)arg;
-            if(thread.getParam() == this)
-                showSourcePosition(thread, false);
-            break;
-        }
+		if (de.getID() == DebuggerEvent.DEBUGGER_STATE) {
+
+			return;			
+		}
+		
+        DebuggerThread thr = de.getThread();
+		String packageName = JavaNames.getPrefix(thr.getClass(0));
+		Package pkg = getPackage(packageName);
+		if(pkg != null) {
+			switch(de.getID()) {
+			 case DebuggerEvent.THREAD_BREAKPOINT:
+			 	pkg.hitBreakpoint(thr);
+				break;
+			 case DebuggerEvent.THREAD_HALT:
+			    pkg.hitHalt(thr);
+			    break;
+			 case DebuggerEvent.THREAD_CONTINUE:
+				break;
+			 case DebuggerEvent.THREAD_SHOWSOURCE:
+				pkg.showSourcePosition(thr, true);
+				break;
+			}
+		}
+
     }
 
-    // ---- end of BlueJEventListener interface ----
-
-
-    /**
-     * hitBreakpoint - A breakpoint in this package was hit.
-     */
-    private void hitBreakpoint(DebuggerThread thread)
-    {
-        String packageName = JavaNames.getPrefix(thread.getClass(0));
-        Package pkg = getPackage(packageName);
-        if(pkg != null)
-            pkg.hitBreakpoint(thread);
-    }
-
-    /**
-     * hitHalt - execution stopped interactively or after a step.
-     */
-    private void hitHalt(DebuggerThread thread)
-    {
-        String packageName = JavaNames.getPrefix(thread.getClass(0));
-        Package pkg = getPackage(packageName);
-        if(pkg != null)
-            pkg.hitHalt(thread);
-    }
-
-    /**
-     * showSourcePosition - The debugger display needs updating.
-     */
-    private void showSourcePosition(DebuggerThread thread,
-                                    boolean updateDebugger)
-    {
-        String packageName = JavaNames.getPrefix(thread.getClass(0));
-        Package pkg = getPackage(packageName);
-        if(pkg != null)
-            pkg.showSourcePosition(thread, updateDebugger);
-    }
+    // ---- end of DebuggerListener interface ----
 }

@@ -10,17 +10,15 @@ import javax.swing.tree.*;
 
 import bluej.*;
 import bluej.debugger.*;
-import bluej.debugmgr.inspector.*;
+import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
-
-import com.sun.jdi.ThreadReference;
 
 /**
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: ExecControls.java 2033 2003-06-12 06:51:21Z ajp $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -125,40 +123,35 @@ public class ExecControls extends JFrame
 			// dispose();
 			return;
 		}
-
-        if(obj == updateButton) {
-            updateThreads(selectedThread);
-            // ((bluej.debugger.jdi.JdiDebugger)debugger).dumpThreadInfo();
-        }
-        else if(obj == closeButton) {
+        if(obj == closeButton) {
             setVisible(false);
         }
 
-        if(obj == stopButton) {
-			if (selectedThread != null) {
-				if (!selectedThread.isSuspended())
-					selectedThread.halt();
-			}
-            //TODO: debugger.halt(selectedThread);
-            updateThreads(selectedThread);
-        }
-        
-        if(obj == continueButton) {
-			if (selectedThread != null) {
-				if (selectedThread.isSuspended())
-					selectedThread.cont();
+		// All the buttons after this require a selected
+		// thread. If no thread selected, exit now.
+		if (selectedThread == null)
+			return;
+
+        if (obj == stopButton) {
+			if (!selectedThread.isSuspended()) {
+				selectedThread.halt();
 			}
         }
-        else if(selectedThread != null) {
-            if(obj == stepButton) {
-                selectedThread.step();
-            }
-            else if(obj==stepIntoButton) {
-                selectedThread.stepInto();
-            }
+        if (obj == continueButton) {
+			if (selectedThread.isSuspended()) {
+				selectedThread.cont();
+			}
         }
-        else
-            Debug.message("no thread selected...");
+        if (obj == stepButton) {
+			if (selectedThread.isSuspended()) {
+            	selectedThread.step();
+			}
+        }
+		if (obj == stepIntoButton) {
+			if (selectedThread.isSuspended()) {
+	            selectedThread.stepInto();
+			}
+		}
     }
 
     // ----- ListSelectionListener interface -----
@@ -334,28 +327,14 @@ public class ExecControls extends JFrame
 		setThreadDetails();
 	}
 
-    private void selectThread(int index)
-    {
- /*       if (index >= 0 && index < threads.size()) {
-            selectedThread = getThread(index);
-            setThreadDetails();
-        }
-        else
-            selectedThread = null; */
-    }
-
-/*    private synchronized DebuggerThread getThread(int index)
-    {
-        return (DebuggerThread)threads.get(index);
-    } */
-
     private void setThreadDetails()
     {
         stackList.setFixedCellWidth(-1);
         List stack = selectedThread.getStack();
         if(stack.size() > 0) {
             stackList.setListData(stack.toArray(new Object[0]));
-            setStackFrameDetails(0);  // show details of top frame
+			// show details of top frame
+			setStackFrameDetails(0);
         }
     }
 
@@ -372,7 +351,8 @@ public class ExecControls extends JFrame
         if (index >= 0) {
             setStackFrameDetails(index);
             selectedThread.setSelectedFrame(index);
-            //TODO: debugger.showSource(selectedThread);
+
+			project.debuggerEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_SHOWSOURCE, selectedThread));
             currentFrame = index;
         }
     }
@@ -616,29 +596,5 @@ public class ExecControls extends JFrame
         return button;
     }
 
-    private void setButtonsEnabled(int machineStatus)
-    {
-
-        switch(machineStatus) {
-         case Debugger.IDLE:
-            stopButton.setEnabled(false);
-            stepButton.setEnabled(false);
-            stepIntoButton.setEnabled(false);
-            continueButton .setEnabled(false);
-            break;
-         case Debugger.RUNNING:
-            stopButton.setEnabled(true);
-            stepButton.setEnabled(false);
-            stepIntoButton.setEnabled(false);
-            continueButton .setEnabled(false);
-            break;
-         case Debugger.SUSPENDED:
-            stopButton.setEnabled(false);
-            stepButton.setEnabled(true);
-            stepIntoButton.setEnabled(true);
-            continueButton .setEnabled(true);
-            break;
-        }
-    }
 
 }

@@ -1,23 +1,20 @@
 package bluej.pkgmgr;
 
-import bluej.*;
-import bluej.Main;
-import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-
+import java.awt.*;
+import java.awt.event.*;
 import java.io.*;
 import java.net.URL;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
+
+import bluej.*;
+import bluej.utility.*;
 
 /**
  * Dialog implementing version check functionality.
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 2010 2003-06-03 07:07:12Z ajp $
+ * @version $Id: VersionCheckDialog.java 2033 2003-06-12 06:51:21Z ajp $
  */
 
 final class VersionCheckDialog extends JDialog

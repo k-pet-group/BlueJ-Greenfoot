@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: PkgMgrFrame.java 2033 2003-06-12 06:51:21Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1765,15 +1765,6 @@ public class PkgMgrFrame extends JFrame
             break;
         case BlueJEvent.EXECUTION_FINISHED:
             executionFinished();
-            break;
-        case BlueJEvent.BREAKPOINT:
-            executionHalted();
-            break;
-        case BlueJEvent.HALT:
-            executionHalted();
-            break;
-        case BlueJEvent.CONTINUE:
-            executionContinued();
             break;
         case BlueJEvent.GENERATING_DOCU:
             setStatus(Config.getString("pkgmgr.generatingDocu"));

@@ -12,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: Debugger.java 2033 2003-06-12 06:51:21Z ajp $
  */
 public abstract class Debugger
 {
@@ -30,7 +30,7 @@ public abstract class Debugger
 	 * Create an instance of a debugger.
 	 * The constructor for the debugger should not be
 	 * a long process. Actual startup for the debug
-	 * VM should go in startDebugger().
+	 * VM should go in launch().
 	 * 
 	 * @return  a Debugger instance
 	 */
@@ -41,6 +41,9 @@ public abstract class Debugger
 	
 	/**
      * Start debugging.
+     * 
+     * This can be a lengthy process so this should be executed
+     * in a sub thread.
      */
     public abstract void launch();
 
@@ -53,6 +56,20 @@ public abstract class Debugger
 	 * Restart the debugger.
 	 */
 	public abstract void restart();
+
+	/**
+	 * Add a listener for DebuggerEvents
+	 * 
+	 * @param l  the DebuggerListener to add
+	 */
+	public abstract void addDebuggerListener(DebuggerListener l);
+
+	/**
+	 * Remove a listener for DebuggerEvents.
+	 * 
+	 * @param l  the DebuggerListener to remove
+	 */
+	public abstract void removeDebuggerListener(DebuggerListener l);
 	
     /**
      * Create a class loader in the debugger.

@@ -21,7 +21,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: JdiDebugger.java 2033 2003-06-12 06:51:21Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -29,13 +29,16 @@ public class JdiDebugger extends Debugger
 	// See the inner class MachineLoaderThread (at the bottom)
 	volatile private boolean vmReady = false;
 
+	// the reference to the current remote VM handler
 	private VMReference vmRef;
+	
+	// the thread that we spawned to load the current remote VM
 	private MachineLoaderThread machineLoader;
 
 	// a TreeModel exposing all the JdiThreads in the VM
-	private JdiThreadTreeModel treeModel = null;
+	private JdiThreadTreeModel treeModel;
 	
-	// events for changes to the machine state	
+	// listeners for events that occur in the debugger	
 	private EventListenerList listenerList = new EventListenerList();
 
 	// the directory to launch the VM in
@@ -45,18 +48,26 @@ public class JdiDebugger extends Debugger
 	// object bench. We endeavour to not reuse them.
 	private Set usedNames;
 	
-	
+	/**
+	 * Construct an instance of the debugger.
+	 *
+	 * This constructor should not be used by the main part of BlueJ. Access
+	 * should be through Debugger.getDebuggerImpl().
+	 *  
+	 * @param startingDirectory  a File representing the directory
+	 *                           we should launch the debug VM in.
+	 */	
     public JdiDebugger(File startingDirectory)
     {
-        super();
-
 		this.startingDirectory = startingDirectory;
 		
 		treeModel = new JdiThreadTreeModel(new JdiThreadNode());
-			
 		usedNames = new TreeSet();
     }
 
+	/**
+	 * Start debugging.
+	 */
 	public void launch()
 	{
 		if (vmReady)
@@ -70,20 +81,21 @@ public class JdiDebugger extends Debugger
 		machineLoader.start();	
 	}
 	
+	/**
+	 * Finish debugging.
+	 */
 	public void close()
 	{	
 		vmReady = false;
+
+		treeModel.setRoot(new JdiThreadNode());
+		treeModel.reload();
+		usedNames.clear();
+
+		// kill the remote debugger process
 		vmRef.close();
 		vmRef = null;
 
-		usedNames.clear();
-
-		// treeModel is lazily started so we could very well
-		// not have a model yet		
-		if (treeModel != null) {
-			treeModel.setRoot(new JdiThreadNode());
-			treeModel.reload();
-		}
 	}
 
 	public void restart()
@@ -159,8 +171,7 @@ public class JdiDebugger extends Debugger
 
 
     /**
-     * Add an object to a package scope. The object is held in field
-     * 'fieldName' in object 'instanceName'.
+     * Add an object to a package scope.
      */
     public boolean addObject(String newInstanceName, DebuggerObject dob)
     {
@@ -175,8 +186,6 @@ public class JdiDebugger extends Debugger
 
     /**
      * Remove an object from a package scope (when removed from object bench).
-     * This has to be done tolerantly: If the named instance is not in the
-     * scope, we just quietly return.
      */
     public void removeObject(String instanceName)
     {
@@ -346,34 +355,34 @@ public class JdiDebugger extends Debugger
         return getVM().getException();
     }
 
-	public void addChangeListener(ChangeListener l)
+	public void addDebuggerListener(DebuggerListener l)
 	{
-		listenerList.add(ChangeListener.class, l);
+		listenerList.add(DebuggerListener.class, l);
 	}
 
-	public void removeChangeListener(ChangeListener l)
+	public void removeDebuggerListener(DebuggerListener l)
 	{
-		listenerList.remove(ChangeListener.class, l);
+		listenerList.remove(DebuggerListener.class, l);
 	}
 
 	// notify all listeners that have registered interest for
 	// notification on this event type.
-	private void fireTargetEvent(ChangeEvent ce)
+	private void fireTargetEvent(DebuggerEvent ce)
 	{
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerList.getListenerList();
 		// Process the listeners last to first, notifying
 		// those that are interested in this event
 		for (int i = listeners.length-2; i>=0; i-=2) {
-			if (listeners[i] == ChangeListener.class) {
-				((ChangeListener)listeners[i+1]).stateChanged(ce);
+			if (listeners[i] == DebuggerListener.class) {
+				((DebuggerListener)listeners[i+1]).debuggerEvent(ce);
 			}
 		}
 	}
 
 	void raiseStateChangeEvent()
 	{
-		fireTargetEvent(new ChangeEvent(this));
+		fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATE));
 	}
 
     // ==== code for active debugging: setting breakpoints, stepping, etc ===
@@ -408,13 +417,37 @@ public class JdiDebugger extends Debugger
         }
     }
 
+	public void halt(ThreadReference tr)
+	{
+		JdiThreadNode jtn = treeModel.findThreadNode(tr);
+
+		if (jtn != null) {
+			treeModel.nodeChanged(jtn);		
+
+			fireTargetEvent(new DebuggerEvent(this,
+												 DebuggerEvent.THREAD_HALT,
+												 new JdiThread(treeModel, tr)));
+		}
+		else {
+			Debug.message("Received HALT for unknown thread " + tr);
+		}
+	}
+	
 	public void breakpoint(ThreadReference tr)
 	{
 		JdiThreadNode jtn = treeModel.findThreadNode(tr);
 
 		if (jtn != null) {
 			treeModel.nodeChanged(jtn);		
+
+			fireTargetEvent(new DebuggerEvent(this,
+												 DebuggerEvent.THREAD_BREAKPOINT,
+												 new JdiThread(treeModel, tr)));
 		}
+		else {
+			Debug.message("Received breakpoint for unknown thread " + tr);
+		}
+
 		/*JdiThread thread = new JdiThread(null, remoteThread, executionUserParam);
 		if (thread.getClassSourceName(0).startsWith("__SHELL")) {
 			// stepped out into the shell class - resume to finish
@@ -473,7 +506,7 @@ public class JdiDebugger extends Debugger
 		return treeModel; 
 	}
 	
-	public void threadStart(ThreadReference tr)
+	void threadStart(ThreadReference tr)
 	{
 		if (treeModel == null)
 			return;
@@ -490,7 +523,7 @@ public class JdiDebugger extends Debugger
 		}
 	}
 
-	public void threadDeath(ThreadReference tr)
+	void threadDeath(ThreadReference tr)
 	{
 		if (treeModel == null)
 			return;

@@ -2,7 +2,6 @@ package bluej.debugger.jdi;
 
 import java.io.*;
 import java.util.*;
-import javax.swing.event.*;
 
 import bluej.*;
 import bluej.debugger.*;
@@ -23,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: VMReference.java 2033 2003-06-12 06:51:21Z ajp $
  *
  * The startup process is as follows:
  *
@@ -64,7 +63,7 @@ class VMReference
 
     // the field name of the static field within that class that hold the
     // exit exception object
-    static final String EXIT_FIELD_NAME = "exitExc";
+    static final String EXIT_FIELD_NAME = "exitException";
 
     // the field name of the static field within that class
     // the name of the method used to signal a System.exit()
@@ -721,20 +720,20 @@ class VMReference
 	}
 
     /**
-     * An exception was thrown in the remote machine.
+     * An exception has occurred in a thread.
+     * 
      * Analyse the exception and store it in 'lastException'.
      * It will be picked up later.
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
-        String excClass = exc.exception().type().name();
         ObjectReference remoteException = exc.exception();
 
         // get the exception text
         // attention: the following depends on the (undocumented) fact that
         // the internal exception message field is named "detailMessage".
         Field msgField = remoteException.referenceType().fieldByName("detailMessage");
-        StringReference val = (StringReference) remoteException.getValue(msgField);
+        StringReference msgVal = (StringReference) remoteException.getValue(msgField);
 
         //better: get message via method call
         //Method getMessageMethod = findMethodByName(
@@ -749,7 +748,8 @@ class VMReference
         //    Debug.reportError("Problem getting exception message: " + e);
         //}
 
-        String exceptionText = (val == null ? null : val.value());
+        String exceptionText = (msgVal == null ? null : msgVal.value());
+		String excClass = exc.exception().type().name();
 
         System.out.println(exceptionText);
 
@@ -759,19 +759,20 @@ class VMReference
             exitStatus = Debugger.FORCED_EXIT;
 			owner.raiseStateChangeEvent();
             lastException = new ExceptionDescription(exceptionText);
-        } else { // real exception
+        } else {
+        	// real exception
 
             Location loc = exc.location();
             String sourceClass = loc.declaringType().name();
             String fileName;
             try {
                 fileName = loc.sourceName();
-            } catch (Exception e) {
+            } catch (AbsentInformationException e) {
                 fileName = null;
             }
             int lineNumber = loc.lineNumber();
 
-            List stack = new JdiThread(null, exc.thread(), null).getStack();
+            List stack = JdiThread.getStack(exc.thread());
             exitStatus = Debugger.EXCEPTION;
             lastException = new ExceptionDescription(excClass, exceptionText, stack);
         }
@@ -796,7 +797,6 @@ class VMReference
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
 			// do nothing except signify our change of state
-			owner.breakpoint(event.thread());
 			owner.raiseStateChangeEvent();
         }
         // if the breakpoint is marked as "ExitMarker" then this is our
@@ -814,9 +814,8 @@ class VMReference
         } else {
             // breakpoint set by user in user code
 			owner.raiseStateChangeEvent();
-            ThreadReference remoteThread = event.thread();
 
-			owner.breakpoint(remoteThread);
+			owner.breakpoint(event.thread());
         }
     }
 

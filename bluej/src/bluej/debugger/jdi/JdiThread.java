@@ -4,7 +4,6 @@ import java.util.*;
 
 import bluej.Config;
 import bluej.debugger.*;
-import bluej.debugmgr.*;
 import bluej.utility.*;
 
 import com.sun.jdi.*;
@@ -14,9 +13,9 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: JdiThread.java 2033 2003-06-12 06:51:21Z ajp $
  */
-public final class JdiThread extends DebuggerThread
+class JdiThread extends DebuggerThread
 {
 	static final String statusFinished = Config.getString("debugger.threadstatus.finished");
 	static final String statusBreakpoint = Config.getString("debugger.threadstatus.breakpoint");
@@ -59,9 +58,6 @@ public final class JdiThread extends DebuggerThread
 	// the reference to the remote thread
 	ThreadReference rt;
     
-	// an optional user parameter associated with this thread
-	Object userParam;
-	
 	// stores a stack frame that was selected for this
     // thread (selection is done for debugging)
     int selectedFrame;
@@ -74,19 +70,13 @@ public final class JdiThread extends DebuggerThread
 
     // ---- instance: ----
 
-    public JdiThread(JdiThreadTreeModel jttm, ThreadReference rt, Object userParam)
+    public JdiThread(JdiThreadTreeModel jttm, ThreadReference rt)
     {
 		this.jttm = jttm;
         this.rt = rt;
-        this.userParam = userParam;
 
         selectedFrame = 0;      // unless specified otherwise, assume we want
                                 //  to see the top level frame
-    }
-
-    public JdiThread(JdiThreadTreeModel jttm, ThreadReference rt)
-    {
-        this(jttm, rt, null);
     }
 
     public String getName()
@@ -100,16 +90,6 @@ public final class JdiThread extends DebuggerThread
             // ignore it
         }
         return name;
-    }
-
-    public void setParam(Object param)
-    {
-        userParam = param;
-    }
-
-    public Object getParam()
-    {
-        return userParam;
     }
 
     ThreadReference getRemoteThread()
@@ -214,6 +194,19 @@ public final class JdiThread extends DebuggerThread
         return false;
     }
 
+	/**
+	 * Get strings showing the current stack frames. Ignore everything
+	 * including the __SHELL class and below.
+	 *
+	 * The thread must be suspended to do this. Otherwise an empty list
+	 * is returned.
+	 *
+	 * @return  A List of SourceLocations
+	 */
+	public List getStack()
+	{
+		return getStack(rt);
+	}
 
     /**
      * Get strings showing the current stack frames. Ignore everything
@@ -224,12 +217,12 @@ public final class JdiThread extends DebuggerThread
      *
      * @return  A List of SourceLocations
      */
-    public List getStack()
+    public static List getStack(ThreadReference thr)
     {
         try {
-            if(rt.isSuspended()) {
+            if(thr.isSuspended()) {
                 List stack = new ArrayList();
-                List frames = rt.frames();
+                List frames = thr.frames();
 
                 for(int i = 0; i < frames.size(); i++) {
                     StackFrame f = (StackFrame)frames.get(i);
@@ -493,29 +486,3 @@ public final class JdiThread extends DebuggerThread
     	}
     }
 }
-
-
-/**
-
-**
- * Arrange to show the source location for a specific frame number
- * of a specific thread. The currently selected frame is stored in the
- * thread object itself.
- *
-public void showSource(DebuggerThread thread)
-{
-	getVM().showSource(thread);
-	BlueJEvent.raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
-}
-
-
-   **
-     *  Arrange to show the source location for a specific frame number
-     *  of a specific thread. The currently selected frame is stored in the
-     *  thread object itself.
-     *
-    public void showSource(DebuggerThread thread)
-    {
-        thread.setParam(executionUserParam);
-    }
-*/

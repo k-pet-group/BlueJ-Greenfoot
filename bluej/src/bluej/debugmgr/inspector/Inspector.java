@@ -8,9 +8,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import bluej.*;
-import bluej.Config;
 import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.*;
 import bluej.utility.DialogManager;
@@ -20,7 +18,7 @@ import bluej.utility.DialogManager;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version    $Id: Inspector.java 2033 2003-06-12 06:51:21Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
