@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: GenTypeClass.java 2656 2004-06-25 01:44:18Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -48,7 +48,8 @@ public class GenTypeClass extends GenTypeSolid {
     
     /**
      * New GenTypeClass from a reflective and map of type parameter names to
-     * types.
+     * types. For type parameters not in the map, the base type is used (as
+     * a wilcard with "extends" clause).
      * 
      * @param r  The Reflective representing the class.
      * @param mparams  A list of GenTypeParameterizables giving the type
@@ -61,7 +62,10 @@ public class GenTypeClass extends GenTypeSolid {
         Iterator declParmsI = r.getTypeParams().iterator();
         while( declParmsI.hasNext() ) {
             GenTypeDeclTpar next = (GenTypeDeclTpar)declParmsI.next();
-            params.add(mparams.get(next.getTparName()));
+            if(mparams.get(next.getTparName()) == null)
+                params.add(new GenTypeExtends(next.getBound()));
+            else
+                params.add(mparams.get(next.getTparName()));
         }
         if( params.isEmpty() )
             params = null;
@@ -74,11 +78,6 @@ public class GenTypeClass extends GenTypeSolid {
         return false;
     }
     
-    public final String toString()
-    {
-        return toString(false);
-    }
-
     /**
      * Get the raw name of the type.
      * @return the raw name
@@ -263,7 +262,7 @@ public class GenTypeClass extends GenTypeSolid {
      * A may extend B directly, indirectly (A extends C, C extends B) 
      * or by virtue of A == B.<p>
      * 
-     * The returned Map may not contain an entry for every type parameter in
+     * The returned Map might not contain an entry for every type parameter in
      * the supertype. The return is null if A does not extend/implement B.<p>
      * 
      * @param derivedType  the super type; must be a generic type
@@ -347,7 +346,8 @@ public class GenTypeClass extends GenTypeSolid {
                 
                 GenTypeParameterizable argType = (GenTypeParameterizable)baseDeclI.next();
                 GenTypeParameterizable srcType = (GenTypeParameterizable)r.get(i.next());
-                argType.getParamsFromTemplate(newMap, srcType);
+                if( srcType != null )
+                    argType.getParamsFromTemplate(newMap, srcType);
             }
            
             r = newMap;

@@ -7,7 +7,7 @@ import java.util.Map;
  * a component type for a wildcard clause.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSolid.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: GenTypeSolid.java 2656 2004-06-25 01:44:18Z davmac $
  */
 public abstract class GenTypeSolid extends GenTypeParameterizable {
 
@@ -26,5 +26,10 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
      * @see bluej.debugger.gentype.GenType#toString(boolean)
      */
     public abstract String toString(boolean stripPrefix);
+    
+    public String toString()
+    {
+        return toString(false);
+    }
 
 }

@@ -6,13 +6,18 @@ import java.util.Map;
  * "boolean" primitive type
  * 
  * @author Davin McCall
- * @version $Id: GenTypeBool.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: GenTypeBool.java 2656 2004-06-25 01:44:18Z davmac $
  */
 public class GenTypeBool implements GenType
 {
     public GenTypeBool()
     {
         super();
+    }
+    
+    public String toString()
+    {
+        return toString(false);
     }
     
     public String toString(boolean stripPrefix)
