@@ -4,17 +4,14 @@ import greenfoot.Simulation;
 import greenfoot.actions.PauseSimulationAction;
 import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
 
+import java.awt.CardLayout;
 import java.awt.FlowLayout;
 import java.net.URL;
 
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
@@ -23,10 +20,10 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ControlPanel.java 3197 2004-11-29 01:23:16Z davmac $
  */
 public class ControlPanel extends JPanel
-    implements ChangeListener
+    implements ChangeListener, SimulationListener
 {
     private RunSimulationAction runSimulationAction;
     private PauseSimulationAction pauseSimulationAction;
@@ -34,6 +31,9 @@ public class ControlPanel extends JPanel
 
     protected EventListenerList listenerList = new EventListenerList();
     private ChangeEvent changeEvent;
+    
+    private CardLayout runpauseLayout;
+    private JPanel runpauseContainer;
 
     public ControlPanel(Simulation simulation)
     {
@@ -61,15 +61,30 @@ public class ControlPanel extends JPanel
                 "Pauses the simulation, leaving it in the current state.");
         pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Pauses the simulation.");
 
-        AbstractButton runButton = new ToggleActionButton(runSimulationAction, pauseSimulationAction);
-
-        add(runButton);
+        runpauseLayout = new CardLayout();
+        runpauseContainer = new JPanel(runpauseLayout);
+        runpauseContainer.add(new JButton(runSimulationAction), "run");
+        runpauseContainer.add(new JButton(pauseSimulationAction), "pause");
+        add(runpauseContainer);
 
         speedSlider = new JSlider(JSlider.HORIZONTAL, 0, 400, 200);
         speedSlider.addChangeListener(this);
         add(speedSlider);
+        
+        simulation.addSimulationListener(this);
     }
 
+    public void simulationChanged(SimulationEvent e)
+    {
+        int etype = e.getType();
+        if (etype == SimulationEvent.STARTED) {
+            runpauseLayout.show(runpauseContainer, "pause");
+        }
+        else if (etype == SimulationEvent.STOPPED) {
+            runpauseLayout.show(runpauseContainer, "run");
+        }
+    }
+    
     public int getDelay()
     {
         int value = speedSlider.getValue();
