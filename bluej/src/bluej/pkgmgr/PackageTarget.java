@@ -17,7 +17,7 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: PackageTarget.java 1828 2003-04-11 08:40:48Z mik $
  */
 public class PackageTarget extends Target
 {
@@ -162,7 +162,7 @@ public class PackageTarget extends Target
                    getWidth(), getHeight() - HANDLE_SIZE + 2);
     }
 
-    void drawShadow(Graphics2D g)
+    protected void drawShadow(Graphics2D g)
     {
         g.fillRect(SHAD_SIZE, getHeight() , getWidth(), SHAD_SIZE);
         g.fillRect(getWidth(), SHAD_SIZE + TAB_HEIGHT, SHAD_SIZE, getHeight() - TAB_HEIGHT);

@@ -7,7 +7,7 @@ import javax.swing.*;
 
 /**
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: AssertPanel.java 1828 2003-04-11 08:40:48Z mik $
  */
 public class AssertPanel extends JPanel
 	implements ItemListener
@@ -44,7 +44,7 @@ public class AssertPanel extends JPanel
 			}                       
             standardPanel.add(assertCombo);
             
-            standardPanel.add(assertData = new JTextField(20));
+            standardPanel.add(assertData = new JTextField(14));
         }
 
         freeformPanel = new JPanel();
@@ -71,7 +71,7 @@ public class AssertPanel extends JPanel
 			
 			if(index >= 0) {
 				assertData.setEnabled(labelsFieldNeeded[index]);
-				assertData.setBackground(labelsFieldNeeded[index] ? Color.WHITE : Color.GRAY);
+				assertData.setBackground(labelsFieldNeeded[index] ? Color.WHITE : Color.LIGHT_GRAY);
 			}
 		}
 	}

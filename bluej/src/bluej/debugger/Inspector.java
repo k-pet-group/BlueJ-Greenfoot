@@ -17,7 +17,7 @@ import bluej.utility.DialogManager;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1764 2003-04-09 05:54:00Z ajp $
+ * @version    $Id: Inspector.java 1828 2003-04-11 08:40:48Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -444,30 +444,26 @@ public abstract class Inspector extends JFrame
 
 
         // create bottom button pane with "Close" button
-        buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         if (showAssert && isResult && pkg.getProject().inTestMode()) {
-            assertCheckbox = new JCheckBox("Assert that");
+            assertCheckbox = new JCheckBox("Assert that:", true);
             assertCheckbox.setAlignmentX(LEFT_ALIGNMENT);
-            buttonPanel.add(assertCheckbox);
-
-			System.out.println(((ObjectInspector)this).getResult());
+            buttonPanel.add(assertCheckbox, BorderLayout.NORTH);
            
             assertPanel = new AssertPanel();
             {
-                assertPanel.setAlignmentX(LEFT_ALIGNMENT);
-                buttonPanel.add(assertPanel);
+                buttonPanel.add(assertPanel, BorderLayout.CENTER);
             }
             
-            buttonPanel.add(Box.createVerticalStrut(3));
         }
         
         JButton button = new JButton(close);
         {
-            button.setAlignmentX(LEFT_ALIGNMENT);
-            buttonPanel.add(button);
+            JPanel cbPanel = new JPanel();
+            cbPanel.add(button);
+            buttonPanel.add(cbPanel, BorderLayout.SOUTH);
             button.addActionListener(new ActionListener() {
                  public void actionPerformed(ActionEvent e) { doClose(); }
               });

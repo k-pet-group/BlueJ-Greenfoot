@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1824 2003-04-10 21:19:18Z mik $
+ * @version $Id: PkgMgrFrame.java 1828 2003-04-11 08:40:48Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1745,7 +1745,8 @@ public class PkgMgrFrame extends JFrame
     
                 JButton button = createButton(Config.getString("menu.edit.newClass"),
                                               emptyIcon,
-                                              Config.getString("tooltip.newClass"));
+                                              Config.getString("tooltip.newClass"),
+                                              true);
                 button.addActionListener(new ActionListener() {
                                             public void actionPerformed(ActionEvent e) {
                                                 doCreateNewClass(); }
@@ -1756,7 +1757,8 @@ public class PkgMgrFrame extends JFrame
     
                 imgDependsButton = createButton("",
                                           Config.getImageAsIcon("image.build.depends.uml"),
-                                          Config.getString("tooltip.newUses"));
+                                          Config.getString("tooltip.newUses"),
+                                          true);
                 imgDependsButton.addActionListener(new ActionListener() {
                                             public void actionPerformed(ActionEvent e) {
                                                 doNewUses(); }
@@ -1766,7 +1768,8 @@ public class PkgMgrFrame extends JFrame
     
                 imgExtendsButton = createButton("",
                                           Config.getImageAsIcon("image.build.extends.uml"),
-                                          Config.getString("tooltip.newExtends"));
+                                          Config.getString("tooltip.newExtends"),
+                                          true);
                 imgExtendsButton.addActionListener(new ActionListener() {
                                             public void actionPerformed(ActionEvent e) {
                                                 doNewInherits(); }
@@ -1776,7 +1779,8 @@ public class PkgMgrFrame extends JFrame
     
                 button = createButton(Config.getString("menu.tools.compile"),
                                       emptyIcon,
-                                      Config.getString("tooltip.compile"));
+                                      Config.getString("tooltip.compile"),
+                                      true);
                 button.addActionListener(new ActionListener() {
                                             public void actionPerformed(ActionEvent e) {
                                                 pkg.compile(); }
@@ -1797,8 +1801,9 @@ public class PkgMgrFrame extends JFrame
 //                                        Config.getString("pkgmgr.test.label")));
 
 				JButton runButton = createButton(Config.getString("pkgmgr.test.run"),
-									  null,
-									  Config.getString("tooltip.test"));
+									            null,
+									            Config.getString("tooltip.test"),
+                                                true);
 				runButton.addActionListener(new ActionListener() {
 											public void actionPerformed(ActionEvent e) {
 												doTest(); }
@@ -1818,7 +1823,8 @@ public class PkgMgrFrame extends JFrame
 
                 endTestButton = createButton(Config.getString("pkgmgr.test.end"),
                                               null,
-                                              Config.getString("tooltip.test.end"));
+                                              Config.getString("tooltip.test.end"),
+                                              false);
                 endTestButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         doEndTest(); }
@@ -1830,7 +1836,8 @@ public class PkgMgrFrame extends JFrame
 
                 cancelTestButton = createButton(Config.getString("cancel"),
                                               null,
-                                              Config.getString("tooltip.test.cancel"));
+                                              Config.getString("tooltip.test.cancel"),
+                                              false);
                 cancelTestButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         doCancelTest(); }
@@ -1922,7 +1929,8 @@ public class PkgMgrFrame extends JFrame
     /**
      * Set the images on the interface buttons according to preferences.
      */
-    private JButton createButton(String text, ImageIcon icon, String toolTip)
+    private JButton createButton(String text, ImageIcon icon, String toolTip,
+                                 boolean disable)
     {
         JButton button = new JButton();
         //{
@@ -1945,6 +1953,9 @@ public class PkgMgrFrame extends JFrame
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
 //        button.setMargin(new Insets(2, 0, 2, 0));
+
+        if(disable)
+            itemsToDisable.add(button);
 
         return button;
     }
@@ -2230,17 +2241,6 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Register that a menu item that should be disabled when the frame is empty
-     * @param item the menu item to disable whenever the frame is empty
-     */
-    public void disableOnEmpty (JMenuItem item)
-    {
-        itemsToDisable.add (item);
-        item.setEnabled (!isEmptyFrame());
-    }
-     
-
-    /**
      * Add a new menu item to a menu.
      */
     private JCheckBoxMenuItem createCheckboxMenuItem(String itemStr, JMenu menu,
@@ -2315,18 +2315,14 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
-     * Enable/disable functionality
+     * Enable/disable functionality. Enable or disable all the interface elements
+     * that should change when a project is or is not open.
      */
     protected void enableFunctions(boolean enable)
     {
-        // set Button enable status
-        Component[] panelComponents = buttonPanel.getComponents();
-        for(int i = 0; i < panelComponents.length; i++)
-            panelComponents[i].setEnabled(enable);
-
         for (Iterator it = itemsToDisable.iterator(); it.hasNext(); ) {
-            JMenuItem menu = (JMenuItem)it.next();
-            menu.setEnabled(enable);
+            JComponent component = (JComponent)it.next();
+            component.setEnabled(enable);
         }
 
     }
