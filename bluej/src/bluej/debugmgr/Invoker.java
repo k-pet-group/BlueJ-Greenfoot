@@ -25,7 +25,7 @@ import bluej.views.*;
  * then loads the resulting class file and executes a method in a new thread.
  *
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2742 2004-07-05 21:18:44Z mik $
+ * @version $Id: Invoker.java 2780 2004-07-12 03:28:01Z davmac $
  */
 
 public class Invoker extends Thread
@@ -195,7 +195,9 @@ public class Invoker extends Thread
                 executionEvent = ExecutionEvent.createStaticMethod(objName);
             } else {
                 this.objName = objWrapper.getName();
-                this.typeMap = objWrapper.getObject().getGenericParams();
+                this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName());
+                Reflective superRefl = new JavaReflective(member.getDeclaringView().getViewClass());
+                GenTypeClass.addDefaultParamBases(typeMap, superRefl);
                 if(typeMap == null) {
                     typeMap = new HashMap();
                     GenTypeClass objGenType = objWrapper.getObject().getGenType();
@@ -684,7 +686,7 @@ public class Invoker extends Thread
     private void deleteShellFiles()
     {
         File srcFile = new File(pkg.getPath(), shellName + ".java");
-        srcFile.delete();
+        // srcFile.delete();
 
         File classFile = new File(pkg.getPath(), shellName + ".class");
         classFile.delete();
