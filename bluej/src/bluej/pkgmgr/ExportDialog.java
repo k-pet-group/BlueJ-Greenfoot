@@ -19,10 +19,10 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 614 2000-07-03 02:35:00Z mik $
+ * @version $Id: ExportDialog.java 838 2001-04-10 06:07:03Z ajp $
  */
 class ExportDialog extends JDialog
-implements ActionListener
+    implements ActionListener
 {
     // Internationalisation
     private static final String cont = Config.getString("continue");
@@ -155,7 +155,9 @@ implements ActionListener
 						BorderFactory.createEmptyBorder(5, 10, 5, 10)));
 
                 directoryButton = new JRadioButton(directoryLabel, true);
+                directoryButton.setAlignmentX(LEFT_ALIGNMENT);
                 jarButton = new JRadioButton(jarFileLabel, false);
+                jarButton.setAlignmentX(LEFT_ALIGNMENT);
 
                 ButtonGroup bGroup = new ButtonGroup();
                 {
@@ -168,14 +170,17 @@ implements ActionListener
                 inputPanel.add(Box.createVerticalStrut(5));
 
                 JLabel classLabel = new JLabel(classLabelText);
+                classLabel.setAlignmentX(LEFT_ALIGNMENT);
                 inputPanel.add(classLabel);
 
                 classSelect = new JComboBox();
+                classSelect.setAlignmentX(LEFT_ALIGNMENT);
                 makeClassPopup(classSelect);
                 inputPanel.add(classSelect);
                 inputPanel.add(Box.createVerticalStrut(5));
 
                 sourceBox = new JCheckBox(sourceLabel, true);
+                sourceBox.setAlignmentX(LEFT_ALIGNMENT);
                 inputPanel.add(sourceBox);
             }
 
