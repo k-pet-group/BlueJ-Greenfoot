@@ -18,7 +18,7 @@ import java.awt.event.*;
  * Sets up a SecurityManager, initial thread state, etc.
  *
  * This class both holds runtime attibutes and executes commands.
- * Execution is done through a call to the "performTask" method. The 
+ * Execution is done through a call to the "performTask" method. The
  * performTask method is executed on the remote machine; its parameters
  * encode the actual action to be taken. See "performTask" for more detail.
  *

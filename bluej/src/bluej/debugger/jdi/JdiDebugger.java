@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 657 2000-07-26 07:39:59Z mik $
+ * @version $Id: JdiDebugger.java 680 2000-09-01 13:06:00Z ajp $
  *
  * The startup process is as follows:
  *
@@ -217,7 +217,6 @@ public final class JdiDebugger extends Debugger
         try {
             wait();
         } catch(InterruptedException e) {}
-        Terminal.enableTerminal();
         initialised = true;
         notifyAll();
         BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);

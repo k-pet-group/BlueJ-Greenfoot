@@ -22,7 +22,7 @@ import java.io.FileWriter;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Terminal.java 657 2000-07-26 07:39:59Z mik $
+ * @version $Id: Terminal.java 680 2000-09-01 13:06:00Z ajp $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -41,7 +41,7 @@ public final class Terminal extends JFrame
     // -- static singleton factory method --
 
     static Terminal frame = null;
-    static boolean enabled = false;
+    static boolean enabled = true;
 
     public synchronized static Terminal getTerminal()
     {
@@ -50,15 +50,6 @@ public final class Terminal extends JFrame
         return frame;
     }
 
-    // a horrible hack/kludge.. when starting the remote VM
-    // it sometimes prints a message (dependant on JDK version)
-    // about option java.compiler is ignored (not that we set
-    // that option). Until the remote VM starts we use this
-    // to ignore all output attempts..
-    public synchronized static void enableTerminal()
-    {
-        enabled = true;
-    }
 
     // -- instance --
 
@@ -331,7 +322,7 @@ public final class Terminal extends JFrame
      *
      * @param eventId  A constant identifying the event. One of the event id
      *                 constants defined in BlueJEvent.
-     * @param arg      An event specific parameter. See BlueJEvent for 
+     * @param arg      An event specific parameter. See BlueJEvent for
      *                 definition.
      */
     public void blueJEvent(int eventId, Object arg)
@@ -339,7 +330,7 @@ public final class Terminal extends JFrame
         if(eventId == BlueJEvent.METHOD_CALL) {
             if(recordMethodCalls) {
                 try {
-                    if(text.getCaretPosition() != 
+                    if(text.getCaretPosition() !=
                          text.getLineStartOffset(text.getLineCount())) {
                         writeToTerminal("\n");
                     }
