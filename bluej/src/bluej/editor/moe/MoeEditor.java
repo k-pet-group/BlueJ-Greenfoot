@@ -367,6 +367,23 @@ public final class MoeEditor extends JFrame
 	    info.setHelp(help);
     }
 
+    /**
+     *
+     * Set the selection of the editor to be a len characters on the
+     * line lineNumber, starting with column columnNumber
+     *
+     * @param lineNumber the line to select characters on
+     * @param columnNumber the column to start selection at (1st column is 1 - not 0)
+     * @param len the number of characters to select
+     */
+    public void setSelection(int lineNumber, int columnNumber, int len)
+    {
+        Element line = getLine (lineNumber);
+
+        textPane.select(line.getStartOffset()+columnNumber-1,
+                          line.getStartOffset()+columnNumber+len-1);
+    }
+
     // --------------------------------------------------------------------
     /**
      *  Remove the step mark (the mark that shows the current line when

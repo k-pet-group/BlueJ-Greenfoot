@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- ** @version $Id: Editor.java 129 1999-06-15 07:21:23Z mik $
+ ** @version $Id: Editor.java 226 1999-08-11 07:09:24Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface between an editor and the rest of BlueJ
@@ -66,6 +66,15 @@ public interface Editor
      */
     void insertText(String text, boolean bold, boolean italic);
 
+    /**
+     * Set the selection of the editor to be a len characters on the
+     * line lineNumber, starting with column columnNumber
+     *
+     * @param lineNumber the line to select characters on
+     * @param columnNumber the column to start selection at (1st column is 1 - not 0)
+     * @param len the number of characters to select
+     */
+    void setSelection(int lineNumber, int column, int len);
 
     /**
      *  Show the editor window. This includes whatever is necessary of the
