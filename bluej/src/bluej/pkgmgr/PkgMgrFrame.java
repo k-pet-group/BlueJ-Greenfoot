@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 659 2000-07-27 00:47:18Z mik $
+ * @version $Id: PkgMgrFrame.java 676 2000-09-01 12:37:12Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -204,7 +204,7 @@ public class PkgMgrFrame extends JFrame
     public static PkgMgrFrame[] getAllFrames()
     {
         if (frames.size() == 0)
-        return null;
+            return null;
 
         PkgMgrFrame[] openFrames = new PkgMgrFrame[frames.size()];
         frames.toArray(openFrames);
@@ -253,19 +253,19 @@ public class PkgMgrFrame extends JFrame
 
                 String fullName = pmf.getPackage().getQualifiedName();
 
-                // we either match against the package prefix which a
+                // we either match against the package prefix with a
                 // dot added (this stops false matches against similarly
                 // named package ie java.lang and java.language) or we
                 // match the full name against the package prefix
                 if (fullName.startsWith(pkgPrefixWithDot))
                     list.add(pmf);
-                else if (fullName.equals(pkgPrefix))
+                else if (fullName.equals(pkgPrefix) || (pkgPrefix.length()==0))
                     list.add(pmf);
             }
         }
 
         if (list.size() == 0)
-        return null;
+            return null;
 
         return (PkgMgrFrame[])list.toArray(new PkgMgrFrame[list.size()]);
     }
@@ -427,8 +427,15 @@ public class PkgMgrFrame extends JFrame
 
         getPackage().closeAllEditors();
 
+        Project proj = getProject();
+
         editor = null;
         pkg = null;
+
+        // if there are no other frames editing this project, we close
+        // the project
+        if (PkgMgrFrame.getAllProjectFrames(proj) == null)
+            Project.closeProject(proj);
 
         // we have had trouble with BlueJ freezing when
         // the enable/disable GUI code was run off a menu
@@ -1121,7 +1128,7 @@ public class PkgMgrFrame extends JFrame
                             ObjectViewer viewer =
                                 ObjectViewer.getViewer(false, result, name, getPackage(), true,
                                                        outer);
-                            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());  
+                            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                         }
                     };
             }
@@ -1451,6 +1458,18 @@ public class PkgMgrFrame extends JFrame
 
 
     // --- general support functions for user function implementations ---
+
+    public String toString()
+    {
+        String str = "PkgMgrFrame(): ";
+
+        if(isEmptyFrame())
+            str += "empty";
+        else
+            str += getPackage().toString() + " " + getProject().toString();
+
+        return str;
+    }
 
     /**
      * showWebPage - show a page in a web browser and display a message
