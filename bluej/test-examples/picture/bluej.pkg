@@ -1,0 +1,13 @@
+#JavaBlue project file
+#Wed Mar 17 18:37:38 EST 1999
+target1.modifiers=1
+package.window.height=437
+package.numTargets=1
+target1.type=ClassTarget
+target1.width=110
+target1.y=20
+package.numDependencies=0
+target1.x=50
+target1.height=60
+target1.name=PersonDisplay
+package.window.width=608

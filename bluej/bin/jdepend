@@ -1,0 +1,13 @@
+#!/bin/sh
+
+BINDIR=`dirname $0`
+. $BINDIR/config
+
+JAVABLUE_HOME=$BINDIR/.. 
+CLASSROOT=$JAVABLUE_HOME/classes
+
+CLASSPATH=`makepath "$CLASSROOT":$CLASSPATH`
+export CLASSPATH
+
+# Run it twice if necessary
+java jdepend.JDepend $@

@@ -1,0 +1,40 @@
+# Makefile for JavaDepend
+include ../../$(OS).mk
+
+PKGNAME = jdepend
+
+CLASSROOT = ..$(SL)..$(SL)classes
+
+JDEPEND = jdepend
+JAVAC = javac
+JAVAC_OPTS = -g
+
+# Top level files
+JAVADEPEND_CLASSES = \
+		JDepend \
+		Job \
+		ClassTarget
+JAVADEPEND_SRCS = $(JAVADEPEND_CLASSES:%=%.java)
+JAVADEPEND_CLASSFILES = $(JAVADEPEND_CLASSES:%=$(CLASSROOT)$(SL)$(PKGNAME)$(SL)%.class)
+
+JAVAC_CLASSES = \
+		JDependJavacMain \
+		JDependJavacWatcher
+JAVAC_SRCS = $(JAVAC_CLASSES:%=%.java)
+JAVAC_CLASSFILES = $(JAVAC_CLASSES:%=$(CLASSROOT)$(SL)sun$(SL)tools$(SL)javac$(SL)%.class)
+
+SRCS = \
+	$(JAVADEPEND_SRCS) \
+	$(JAVAC_SRCS)
+	
+all depend dep: $(JAVADEPEND_CLASSFILES)
+
+$(JAVADEPEND_CLASSFILES): $(JAVADEPEND_SRCS) $(JAVAC_CLASSFILES)
+	CLASSPATH="$(CLASSROOT)$(SEP)$$CLASSPATH" $(JAVAC) $(JAVAC_OPTS) -d $(CLASSROOT) $(JAVADEPEND_SRCS)
+
+$(JAVAC_CLASSFILES): $(JAVAC_SRCS)
+	CLASSPATH="$(CLASSROOT)$(SEP)$$CLASSPATH" $(JAVAC) $(JAVAC_OPTS) -d $(CLASSROOT) $(JAVAC_SRCS)
+
+clobber clean:
+	$(RM) -r $(JAVADEPEND_CLASSFILES)
+	$(RM) -r $(JAVAC_CLASSFILES)

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+BINDIR=`dirname $0`
+. $BINDIR/config
+
+BLUEJ_HOME=$BINDIR/.. 
+CLASSROOT=$BLUEJ_HOME/classes
+LIB_DIR=$BLUEJ_HOME/lib
+SOURCEROOT=$BLUEJ_HOME/src
+SWING_JARS="$BLUEJ_HOME/lib/swing.jar;$BLUEJ_HOME/lib/windows.jar;$BLUEJ_HOME/lib/mac.jar;$BLUEJ_HOME/lib/motif.jar"
+
+XCLASSPATH=""
+CLASSPATH=`makepath "$CLASSROOT;$SWING_JARS;$LIB_DIR;$CLASSPATH"`
+
+jd -noversioncheck -sourcepath $SOURCEROOT -classpath $CLASSPATH -Dbluej.home=`makepath $BLUEJ_HOME` bluej.Main $@

@@ -1,0 +1,99 @@
+Demonstration:
+
+	draw arrows correctly
+J		fix bugs
+
+	user interface
+M		use different colours for classes / interfaces / abstract classes, etc.
+
+	interactions work correctly (e.g. drawing arrows, choosing objects, etc.)
+J		change button + cursor (visual indication of state)
+J		correct state diagram for AWT events
+
+	create classes + move around
+J		dialog for new class needs more information
+M		skeleton code should be generated
+
+	insert arrows (uses and extends/implements)
+J		drag to place
+
+	open (various views) + edit source
+?		needs views working & editor interaction
+
+	compile (display errors correctly)
+#		fix multiple compilation error
+M		read error stream and parse errors (i.e. ignore warnings)
+?		highlight line in editor in different colour, unrelated to selection
+M		generate dependencies
+
+	package targets
+M		distinguish embedded and imported
+
+	views
+M		integrate existing code
+M		global table for looking up views
+		NOTE: need all four views
+		Choice component in editor to choose the current view
+			Edit
+			Public View
+			Package View
+			Inherited View
+		Menu on class icon:
+			Show Public View, etc.
+		Double click on class the first time opens "default view", which is:
+			* for "red" (imported) classes -> public view
+			* for "blue" (local) classes ->
+				if uncompiled -> implementation
+				else (compiled) -> package view
+		Note: all classes in a red package are red classes
+
+M	menu on classes with class operations
+		edit, remove, compile
+		4 views: 
+	+ static methods on compiled classes.
+
+	creation of objects
+		needs argument passing
+		code generation
+		literals versus objects from the object bench
+		parsing of parameters and translating to initialisers
+
+	inspection of objects
+		split static and instance variables
+		implement "get" (put reference onto object bench).
+
+	menu on objects with methods
+		show package view if object's class is in current package,
+		otherwise show public view.
+
+	see results of method calls
+		make an instance variable in the "shell" class of the return type,
+		then do an inspect on the shell object.
+
+Other desirable things:
+
+	importing classes from libraries (copy / paste)
+
+	debugging
+
+	runtime errors - exceptions - display and highlight with debugger
+
+	output of program into window
+
+	removal of arrows
+
+	compiler:
+		"compiler warnings" window, possibly popping up whenever there is a warning.
+		clicking on a warning highlights the line in the editor.
+		preference choice: every time there is a warning, pop up window
+		_or_ indicate warnings with an icon somewhere (in the editor?),
+		that can pop up the warning window
+
+
+Ideas for later:
+
+	explanations of compiler errors
+
+Key:	M - to be done by Michael
+	J - to be done by Justin
+	# - done

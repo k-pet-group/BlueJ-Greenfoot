@@ -1,0 +1,14 @@
+#!/bin/sh
+
+BINDIR=`dirname $0`
+. $BINDIR/config
+
+JAVABLUE_HOME=$BINDIR/.. 
+CLASSROOT=$JAVABLUE_HOME/classes
+LIB_DIR=$JAVABLUE_HOME/lib
+SWING_JARS=$JAVABLUE_HOME/lib/swing.jar
+CLASSPATH=`makepath "$CLASSROOT;$SWING_JARS;$LIB_DIR"`
+export CLASSPATH
+#echo $CLASSPATH
+
+java -Djavablue.home=$JAVABLUE_HOME javablue.editor.moe.Moe $@

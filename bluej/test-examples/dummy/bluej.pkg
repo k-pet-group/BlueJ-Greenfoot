@@ -1,0 +1,20 @@
+#BlueJ project file
+#Mon Apr 26 22:30:46 EDT 1999
+target2.width=80
+target1.modifiers=1
+target2.height=50
+target2.name=MyClass
+target2.modifiers=1
+target2.y=50
+target2.x=40
+package.window.height=450
+package.numTargets=2
+target1.type=ClassTarget
+target1.width=80
+target2.type=ClassTarget
+target1.y=110
+package.numDependencies=0
+target1.x=190
+target1.height=50
+target1.name=Tester
+package.window.width=512

@@ -1,0 +1,14 @@
+#JavaBlue project file
+#Sun Mar 14 20:15:04 EST 1999
+target1.modifiers=1
+package.window.height=424
+package.numTargets=1
+target1.type=ClassTarget
+package.name=simple
+target1.width=80
+target1.y=50
+package.numDependencies=0
+target1.x=60
+target1.height=50
+target1.name=Person
+package.window.width=512

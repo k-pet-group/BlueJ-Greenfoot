@@ -1,0 +1,13 @@
+#JavaBlue project file
+#Tue Feb 23 20:38:59 EST 1999
+target1.modifiers=0
+package.window.height=450
+package.numTargets=1
+target1.type=ClassTarget
+target1.width=110
+target1.y=65
+package.numDependencies=0
+target1.x=65
+target1.height=50
+target1.name=BasicGraphics
+package.window.width=512

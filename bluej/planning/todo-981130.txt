@@ -1,0 +1,41 @@
+New Functionality needed:
+
+  * support for applets
+  * support for standalone applications
+  - compiler warnings
+  ? support for beans
+  ? support for javadoc
+
+Things left to be done:
+
+  - inspection: public / private
+  - graphical editing updating text
+  - library browsing / semantics of multiple windows
+    -> imported classes and packages
+  - properties: need dialog for editing
+  - printing
+
+Ideas:
+
+  - classes should talk more directly to the editor interface
+  - close of last window should close package and return to inital state
+    -> if only one window is open, close should be disabled
+  - quit should warn if there are multiple windows open
+  - drag and drop between object benches of different packages
+
+Notes:
+
+  - we will change to using Swing for everything
+
+Design decisions:
+
+  * Arrow operations
+                                    graphically         textually
+           / inheritance arrow        known               done*
+     insert
+           \ uses arrow              see below            done*
+
+           / inheritance arrow        known             see below
+     delete
+           \ uses arrow              see below          see below
+

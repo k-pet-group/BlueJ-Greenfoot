@@ -1,0 +1,15 @@
+if [ "$OS" = "win32" ] ; then
+	SL=\\\\
+	DRIVE=
+	COLON=';'
+else
+	SL=/
+	DRIVE=
+	COLON=':'
+fi
+
+makepath () {
+	if [ ! -z "$@" ] ; then
+		echo "$@" | sed "s!/!$SL!g" | sed "s!;!$COLON$DRIVE!g" | sed "s!^!$DRIVE!"
+	fi;
+}

@@ -1,0 +1,110 @@
+
+Changes made in version 0.8.5:
+
+	- allow selection of objects during method calls
+
+	- construct scope when calling methods
+	
+	- collect javadoc-style comments into per-class files (.ctxt files)
+	
+	- update method invocation and menus to display the source information
+		(e.g. variable names in methods, comments, etc.)
+	
+	- debugging
+	
+	- update the views code to load the comments on-demand
+	
+	- write View code to generate (filtered) class views via a 
+	  FormattedPrintFilter
+	
+	- convert all GUI code to use Swing
+
+	- new class dialog enter/return in text field equals okay.  Initial 
+	  focus in text field.
+
+	- clear the parameter field in object call dialogue before next call
+
+	- "create" dialog - focus should be in parameter field 
+	   (or in name field if no params). 
+
+	- type names in Views now show only class name, not full package name.
+
+	- in inspection dialog "Get" and "Inspect" buttons must be
+	  greyed out when not applicable.
+
+	- in inspection dialog show class name of object, show
+	  access modifier of fields.
+
+	- runtime code
+		* redirect System.{in, out}
+		* override exit() calls
+
+	- inspection: public / private
+
+	- editor has been replaced by a new editor (moe) using swing components
+
+	- compile, save, reload implemented in editor
+
+	- main window status bar:
+		- cleared periodically
+		- compile shown
+		- creation shown
+
+	- fixed create uses/extends switch bug
+
+	- added rubberband display for arrow insertion w/o dragging
+
+	- re-arranged package window menu items
+
+	- package compile operation saves classes first, if changed
+
+	- compiler notifies editor of successful compilation
+
+	- editor improvements
+
+	- open "Not Yet Implemented" dialogue for all NYI function
+	  (don't use console output)
+
+	- package selection dialog - open/double click should both open 
+	  directories, open package (double click must be same as "Open" 
+	  button)
+
+	- result of type "string" is shown incorrectly (should show string 
+	  literal)
+
+	- package window: toolbar buttons should never have focus
+	  (keyboard will later be used to operate on classes, not toolbar)
+
+	- execution with parameter does not work
+
+	- graphical edits (arrow addition/removal) must set class state to
+	  "not compiled"
+
+	- after compile, force graph redraw to display new arrows
+
+	- implement "save" menu item
+
+	- save/restore window size
+
+	- removal of arrows (highlight on mouseover, etc.)
+
+	- result dialogue should not use "toString" function 
+		(object should be shown as <object>).
+
+	- package selection - selection of invalid directory throws exception 
+		but canvas changes from greyed out to white (looks like empty
+		project).
+
+	- check/complete/reorganise main window menu items
+
+	- abstract class shows constructor (but shouldn't)
+
+	- added setting/deleting/display of breakpoints to editor
+
+	- checked new class names for valid identifiers
+
+	- object creation generates exceptions
+
+	- write tutorial
+
+	- terminal window bugs fixed

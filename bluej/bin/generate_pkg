@@ -1,0 +1,62 @@
+#!/bin/bash
+
+pkgname=$1
+
+if [ -z "$pkgname" ] ; then
+	echo >&2 Usage $0 \<pkgname\>
+	exit 1
+fi
+
+exec > bluej.pkg
+
+JSRCS=`ls *.java 2> /dev/null`
+JCLASSES=`for f in $JSRCS ; do basename $f .java ; done`
+
+targetnum=0
+
+for c in $JCLASSES ; do
+	t=target$(($targetnum + 1))
+
+	if grep "abstract class $c" $c.java > /dev/null ; then
+		echo $t.modifiers=400
+	elif grep "interface $c" $c.java > /dev/null ; then
+		echo $t.modifiers=200
+	fi
+
+	echo $t.type=ClassTarget
+		
+	echo $t.name=$c
+	echo $t.x=$((20 + 100 * ($targetnum % 5)))
+	echo $t.y=$((20 + 80 * ($targetnum / 5)))
+	echo $t.width=80
+	echo $t.height=50
+
+	targetnum=$((targetnum + 1))
+done
+
+SUBPKGS=`ls */bluej.pkg 2> /dev/null`
+PKGDIRS=`for d in $SUBPKGS ; do dirname $d ; done`
+
+for p in $PKGDIRS ; do
+	t=target$(($targetnum + 1))
+
+	echo $t.type=PackageTarget
+	echo $t.name=$p
+	echo $t.packageDir=$p
+	echo $t.packageName=$pkgname.$p
+	echo $t.x=$((20 + 100 * ($targetnum % 5)))
+	echo $t.y=$((20 + 80 * ($targetnum / 5)))
+	echo $t.width=80
+	echo $t.height=50
+
+	targetnum=$((targetnum + 1))
+done
+
+
+echo package.name=$pkgname
+echo package.numTargets=$targetnum
+echo package.numDependencies=0
+echo package.window.width=690
+height=$((270 + 80 * (($targetnum - 1) / 5)))
+[ $height -lt 240 ] && height=240
+echo package.window.height=$height

@@ -1,0 +1,140 @@
+# BlueJ default values for properties
+#
+# Properties can be added or overridden in bluej.properties
+
+## BlueJ global properties
+bluej.language=english
+bluej.libPath=/home/blue/bluej/lib
+
+#####################################################################
+## Here are the URLs for the BlueJ manuals and documentation. If you
+## have the documents installed locally and want to use your local
+## version, edit these URLs.
+#####################################################################
+
+bluej.url.tutorial=http://www.sd.monash.edu.au/bluej/tutorial/frame/
+bluej.url.reference=http://www.sd.monash.edu.au/bluej/reference/
+bluej.url.javaStdLib=http://java.sun.com/products/jdk/1.2/docs/api/index.html
+
+browser.url.help.index=http://www.sd.monash.edu.au/bluej/html/browser/index.html
+browser.url.help.contents=http://www.sd.monash.edu.au/bluej/html/browser/contents.html
+browser.url.help.topics=http://www.sd.monash.edu.au/bluej/html/browser/topics.html
+
+
+#####################################################################
+## The following are the commands used for opening a web browser. On
+## Windows systems, the winBrowserCmd is used, on all other systems
+## the browserCmd is used. BlueJ tries the first command first, and 
+## if it fails it tries the second command. This gives you a chance
+## to let you first try a command that opens a page in an already 
+## running browser and, if that fails, open a new browser. Or you 
+## could try one browser first and, if that's not found try another.
+## The first dollar sign ($) will be replaced by the URL to be 
+## opened.
+#####################################################################
+
+# first, try to open the URL in a running netscape process
+browserCmd1=netscape -remote openURL($)
+# if that fails, start netscape
+browserCmd2=netscape $
+
+# for Windows, the following should start the default browser 
+# set in the system
+winBrowserCmd1=rundll32 url.dll,FileProtocolHandler $
+winBrowserCmd2=
+
+
+#####################################################################
+## User Interface "Look and Feel"
+## To get the default system look and feel, don't set this property.
+#####################################################################
+
+# For the "Java Look and Feel":
+bluej.lookAndFeel=javax.swing.plaf.metal.MetalLookAndFeel
+
+# For the Windows "Look and Feel":
+#bluej.lookAndFeel=javax.swing.plaf.windows.WindowsLookAndFeel
+
+# For the Macintosh "Look and Feel":
+#bluej.lookAndFeel=javax.swing.plaf.mac.MacLookAndFeel
+
+# For the Motif "Look and Feel":
+#bluej.lookAndFeel=javax.swing.plaf.motif.MotifLookAndFeel
+
+#######################################################################
+## Fonts. With Java, you don't have much choice of font faces, but you
+## can set the size.
+#######################################################################
+
+# font for most of the interface components
+bluej.fontsize=12
+
+# fontsize for the editor
+bluej.fontsize.editor=24
+
+# fonts for printing
+bluej.fontsize.printTitle=14
+bluej.fontsize.printInfo=10
+
+## debugging: when on, debug output goes to console; when off, to log file
+debug=on
+#debug=off
+
+##Log Files
+bluej.debugLog=debug.log
+
+## Templates - skeleton files
+template.stdclass=stdclass.tmpl
+template.abstract=abstract.tmpl
+template.interface=interface.tmpl
+template.shell=shell.tmpl
+
+## Images
+image.icon=bluej-icon.gif
+image.build.depends=arrow_black.gif
+image.build.depends.selected=arrow_red.gif
+image.build.extends=darrow_black.gif
+image.build.extends.selected=darrow_red.gif
+image.logo=bluej-logo.gif
+image.continue=continue.gif
+image.step=step.gif
+image.step_into=step_into.gif
+image.stop=stop.gif
+image.terminate=terminate.gif
+image.working=working.gif
+image.working.disab=working-disab.gif
+image.working.stopped=working-stopped.gif
+image.break=break.gif
+image.packageIcon=packageIcon.gif
+
+## images for navigation buttons above graph editor panel in library browser
+browser.classchooser.backbutton.image=leftarrow.gif
+browser.classchooser.forwardbutton.image=rightarrow.gif
+browser.attributechooser.constructoricon.image=yellow-ball-small.gif
+browser.attributechooser.privateicon.image=red-ball-small.gif
+browser.attributechooser.publicicon.image=blue-ball-small.gif
+browser.attributechooser.protectedicon.image=magenta-ball-small.gif
+
+### Colour Definitions
+colour.background=208,212,208
+colour.graph.background=255,255,255
+colour.text.bg=255,255,255
+colour.text.fg=0,0,0
+
+colour.arrow.uses=136,56,56
+colour.arrow.implements=35,115,15
+colour.arrow.extends=40,40,80
+
+colour.target.border=0,0,0
+colour.target.shadow=192,192,192
+colour.target.bg.compiling=200,150,100
+colour.class.bg.default=119,136,153
+colour.class.bg.abstract=188,196,204
+colour.class.bg.imported=176,48,96
+colour.class.bg.interface=94,147,107
+colour.package.bg.default=180,130,44
+
+colour.wrapper.bg=205,38,38
+colour.wrapper.shadow=152,152,152
+
+colour.menu.environOp=170,32,32

@@ -1,0 +1,16 @@
+Requests / criticisms:
+
+	* UML notation / display
+
+	* Resource usage - measure, reduce (think about a Sun serving
+	  100s of students simultaneously).
+
+	* _Measurement_ of student responses to Blue?
+
+	* Scalability of display
+
+	* Importing of programs
+
+	* Implement class views
+
+	* Testing / stability

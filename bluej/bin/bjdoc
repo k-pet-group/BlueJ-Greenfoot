@@ -1,0 +1,11 @@
+#!/bin/ash
+
+BINDIR=`dirname $0`
+. $BINDIR/config
+
+BLUEJ_HOME=$BINDIR/.. 
+CLASSROOT=$BLUEJ_HOME/classes
+
+export CLASSPATH=`makepath $CLASSROOT`
+
+javadoc -doctype BlueJ -private -version -author $@

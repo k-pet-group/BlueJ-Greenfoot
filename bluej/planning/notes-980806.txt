@@ -1,0 +1,4 @@
+- always save on close in both Red and Blue
+- spacing around main window (6 points?)
+- progress label - when machine completely inactive, greyed out.
+- compiler errors still not parsed correctly.

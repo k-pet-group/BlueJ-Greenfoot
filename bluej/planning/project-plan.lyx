@@ -1,0 +1,161 @@
+#This file was created by <mjc> Thu Apr  2 12:14:31 1998
+#LyX 0.12 (C) 1995-1998 Matthias Ettrich and the LyX Team
+\lyxformat 2.15
+\textclass article
+\begin_preamble
+\usepackage{html}
+\usepackage{url}
+\usepackage{verbatim}
+% \usepackage[light, first]{draftcopy}
+
+\addtolength{\evensidemargin}{-0.25in}
+\addtolength{\oddsidemargin}{-0.25in}
+\addtolength{\textwidth}{0.5in}
+\addtolength{\topmargin}{-0.25in}
+\addtolength{\textheight}{0.5in}
+\end_preamble
+\language default
+\inputencoding default
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Title
+
+Java Blue project outline
+\layout Date
+
+1st April 1998
+\layout Author
+
+Michael Cahill (mjc@softway.com.au)
+\layout Section*
+
+Introduction
+\layout Standard
+
+This document attempts to list the high-level tasks involved in creating
+ the Java Blue prototype.
+ This project is undertaken in cooperation with Monash University on behalf
+ of Emil Sarpa of Sun Microsystems.
+ Design issues will be resolved in cooperation with John Rosenberg and Michael
+ Kölling of the Faculty of Computing and Information Technology (FCIT) at
+ Monash University.
+ All programming for the prototype will be the responsibility of Michael
+ Cahill of Softway (with the exception of the editor, which will be written
+ by an Honours student at Monash).
+\layout Section*
+
+Tasks
+\layout Subsection*
+
+Package Manager
+\layout Description
+
+[2d] fix displasy of classes and dependencies
+\layout Description
+
+[1d] implement imported packages and insertion of packages
+\layout Description
+
+[1d] add class popups
+\layout Description
+
+[0.5d] GUI appearance (icons on buttons, different buttons, etc.)
+\layout Description
+
+[2d] insertion of arrows and associated modification of Java source
+\layout Standard
+
+~= 2 weeks total
+\layout Subsection*
+
+Runtime / Debugger
+\layout Description
+
+[2d] Override "system" classes (System, Runtime, Thread, Frame, ...?)
+\layout Description
+
+[2d] Handle "terminal" I/O
+\layout Description
+
+[2d] deal with concurrency
+\layout Description
+
+[5d] parameter passing + communication with object bench
+\layout Description
+
+[1d] fix inspect (show _object_ fields, separate static fields, etc)
+\layout Description
+
+[3d] breakpoints / stepping
+\layout Description
+
+[2d] activity indicator
+\layout Standard
+
+~= 4 weeks
+\layout Subsection*
+
+Compiler / Parser
+\layout Description
+
+[?] generate dependencies
+\layout Description
+
+[?] generate interfaces (look at javadoc)
+\layout Description
+
+[?] error message display
+\layout Description
+
+[?] use dependencies 
+\layout Description
+
+[?] find imports, extends and implements for graphical operations
+\layout Standard
+
+~= 3 weeks (very fuzzy -> waiting to hear from Sun re: javac source code).
+\layout Subsection*
+
+Editor
+\layout Description
+
+[0.5d] define a Java interface that the editor implements -- urgent
+\layout Description
+
+[?] breakpoints
+\layout Description
+
+[?] integration once Honours student is finished
+\layout Description
+
+-- defer until then
+\layout Standard
+
+~= 1 week
+\layout Subsubsection*
+
+Total: ~10 weeks.
+\layout Standard
+
+Delivery date: end July, i.e.
+ approx 16 weeks away.
+ Plan on trip to U.S.
+ in early August for demonstration.
+\the_end

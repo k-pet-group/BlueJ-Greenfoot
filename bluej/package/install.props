@@ -1,0 +1,49 @@
+#
+# Installer properties
+# This properties-style file completely defines what the installer should do.
+#
+
+# Logo to put at top
+install.gif.logo=bluej-logo.gif
+
+# Title to center under that
+install.title=Installation
+
+# Name the JAR containing the package
+install.pkgJar=bluej.jar
+
+# Name of shell/batch script to create
+install.exeName=bluej
+
+# Name of the installed JAR to be added to the classpath
+install.classpath=~/lib/bluej.jar;~/lib/stdctxt.jar;~/lib/swing.jar;~/lib/mac.jar;~/lib/motif.jar;~/lib/windows.jar;~/lib
+
+# Class that contains the main to execute
+install.mainClass=bluej.Main
+
+# Property to set equal to the install dir on startup
+install.installDirProp=bluej.home
+
+# java command-line options
+install.javaOpts=-noverify
+
+# The big text colors
+install.color.text=0 0 0
+install.color.shadow=220,220,220
+
+# Top color, normal background 
+install.color.background=255,255,255
+
+# Color to fade down to  
+install.color.gradient=255,255,255
+
+# Initial size
+install.width=500
+install.height=340
+
+# Tag line to put at bottom (your web site, copyright, etc.)
+install.tagline=BlueJ \u00a9 1998, 1999 M. Cahill, M. K\u00F6lling and J. Rosenberg
+
+# Required classes to check for
+install.requires=sun.tools.javac.Main
+install.requires.help.sun.tools.javac.Main=BlueJ requires that the JDK is installed.\nIt can be downloaded from http://java.sun.com

@@ -1,0 +1,62 @@
+For demonstration on 7/8/98 (two weeks away):
+
+* correct display of ==> arrows (fix trig)
+	--> done
+
+* spacing and colour of components and targets
+	--> done (colour is now configurable)
+
+* new behaviour:
+	- "Package" menu renamed something ("tools"? "operations"? "commands"?)
+	- File menu renamed "Package"
+	- Package window starts empty - nothing there, greyed out
+	- "New" command prompts for directory
+	- "New" and "Open" will open into current window if empty (grey), but will open a new window if there is already a package open
+	- "Close" always closes the window - never just close the package.
+		--> done
+
+	- [window menu - list of currently open windows + other stuff]
+
+* skeleton code when classes created
+	--> done
+
+* [update code when arrows drawn / deleted]
+
+* compiler:
+	- error messages - filter warnings, [set cursor position]
+
+	- correct display during and after compilation (fix compiler error case)
+		--> done
+
+* menu on classes (static methods, class operations, etc.)
+	--> done
+
+* menu on objects:
+	- move Object methods to submenu
+		--> done
+
+* class creation == method calling:
+	- parameter passing
+		--> done (needs new GUI code to be called).
+
+	- result display
+		--> done (sort of)
+
+* [inspection of objects]
+
+* editing (Red):
+	- show compile errors correctly
+		--> done
+
+	- [update graphical representation]
+
+	- fix Red bugs so that simple editing is possible (move cursor and make changes)
+		--> done
+
+	- notify package window about changes to classes
+		--> done
+
+* [runtime:
+	- Terminal I/O
+	- System.exit()
+	

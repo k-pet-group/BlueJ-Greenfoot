@@ -1,0 +1,749 @@
+package bluej.pkgmgr;
+
+import bluej.Config;
+import bluej.utility.Debug;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerClassLoader;
+import bluej.debugger.Invoker;
+import bluej.debugger.ObjectViewer;
+import bluej.debugger.ResultWatcher;
+import bluej.debugger.ObjectWrapper;
+import bluej.editor.Editor;
+import bluej.graph.GraphEditor;
+import bluej.utility.Utility;
+import bluej.views.ConstructorView;
+import bluej.views.EditorPrintWriter;
+import bluej.views.MemberView;
+import bluej.views.MethodView;
+import bluej.views.View;
+import bluej.views.ViewFilter;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.Vector;
+
+/** 
+ ** @version $Id: ClassTarget.java 36 1999-04-27 04:04:54Z mik $
+ ** @author Michael Cahill
+ ** @author Michael Kolling
+ **
+ ** A class target in a package, i.e. a target that is a class file
+ ** built from Java source code
+ **/
+public class ClassTarget extends EditableTarget 
+
+	implements ActionListener
+{
+    // Define Background Colours
+    static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
+    static final Color librarybg = Config.getItemColour("colour.class.bg.imported");
+    static final Color abstractbg = Config.getItemColour("colour.class.bg.abstract");
+    //	static final Color abstractbg = defaultbg.brighter();
+    static final Color interfacebg = Config.getItemColour("colour.class.bg.interface");
+    static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
+
+    static final Color colBorder = Config.getItemColour("colour.target.border");
+    static final Color graphbg = Config.getItemColour("colour.graph.background");
+    static final Color textfg = Config.getItemColour("colour.text.fg");
+
+    static final Font normalFont = new Font("SansSerif", Font.BOLD, Config.fontsize);
+    static final Font menuFont = new Font("SansSerif", Font.PLAIN, Config.fontsize);
+    static final Font italicMenuFont = new Font("SansSerif", Font.ITALIC, Config.fontsize);
+    static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
+    // variables
+
+    protected int modifiers;
+    protected Vector breakpoints = new Vector();
+    protected int displayedView = Editor.IMPLEMENTATION;
+
+    // Fields used in Tarjan's algorithm:
+    public int dfn, link;
+
+    /**
+     * Create a new class target in package 'pkg'.
+     */
+    public ClassTarget(Package pkg, String name)
+    {
+	super(pkg, name);
+    }
+
+    /**
+     *
+     */
+    public ClassTarget(Package pkg)
+    {
+	super(pkg, null);
+    }
+
+    public void load(Properties props, String prefix) throws NumberFormatException
+    {
+	super.load(props, prefix);
+
+	String modifierStr = props.getProperty(prefix + ".modifiers", "0");
+	modifiers = Integer.parseInt(modifierStr, 16);
+    }
+
+    public void save(Properties props, String prefix)
+    {
+	super.save(props, prefix);
+	props.put(prefix + ".type", "ClassTarget");
+	props.put(prefix + ".modifiers", Integer.toString(modifiers, 16));
+    }
+	
+    /**
+     * Copy all the files belonging to this target to a new location.
+     * For class targets, that is the source file, and possibly (if compiled)
+     * class and context files.
+     *
+     * @arg directory The directory to copy into (ending with "/")
+     */
+    public boolean copyFiles(String directory)
+    {
+	boolean okay = true;
+
+	if (!Utility.copyFile(sourceFile(), directory + name + ".java"))
+	    okay = false;
+
+	if(upToDate()) {
+	    if(!Utility.copyFile(classFile(), directory + name + ".class"))
+		okay = false;
+	    if(!Utility.copyFile(contextFile(), directory + name + ".ctxt"))
+		okay = false;
+	}
+	return okay;
+    }
+
+    public boolean upToDate()
+    {
+	try {	
+	    // Check if the class file is up to date
+	    File src = new File(sourceFile());
+	    File clss = new File(classFile());
+
+	    if(!clss.exists()
+	       || (src.exists() && (src.lastModified() > clss.lastModified())))
+		return false;
+	} catch(Exception e) {
+	    e.printStackTrace();
+	}
+		
+	return true;
+    }
+	
+    /**
+    ** Mark this class as modified, and mark all dependent classes too
+    **/
+    public void invalidate()
+    {
+	setState(S_INVALID);
+		
+	for(Enumeration e = dependents(); e.hasMoreElements(); ) {
+	    Dependency d = (Dependency)e.nextElement();
+	    Target dependent = d.getFrom();
+	    dependent.setState(S_INVALID);
+	}
+    }
+
+    public int getModifiers()
+    {
+	return modifiers;
+    }
+	
+    public void setModifiers(int modifiers)
+    {
+	this.modifiers = modifiers;
+    }
+
+    public boolean isInterface()
+    {
+	return Modifier.isInterface(modifiers);
+    }
+
+    public void setInterface(boolean isInterface)
+    {
+	if(isInterface)
+	    modifiers |= Modifier.INTERFACE;
+	else
+	    modifiers &= ~Modifier.INTERFACE;
+    }
+	
+    public boolean isAbstract()
+    {
+	return Modifier.isAbstract(modifiers);
+    }
+
+    public void setAbstract(boolean isAbstract)
+    {
+	if(isAbstract)
+	    modifiers |= Modifier.ABSTRACT;
+	else
+	    modifiers &= ~Modifier.ABSTRACT;
+    }
+	
+    Color getDefaultBackground()
+    {
+	if(isInterface())
+	    return interfacebg;
+	else if(isAbstract())
+	    return abstractbg;
+	else if(isLibrary())
+		return librarybg;
+	else
+	    return defaultbg;
+    }
+
+    // --- Target interface ---
+
+    Color getBackgroundColour()
+    {
+	if(state == S_COMPILING)
+	    return compbg;
+	else
+	    return getDefaultBackground();
+    }
+
+    Color getBorderColour()
+    {
+	return colBorder;
+    }
+
+    Color getTextColour()
+    {
+	return textfg;
+    }
+
+    Font getFont()
+    {
+	return normalFont;
+    }
+
+    // --- EditableTarget interface ---
+
+    /**
+    ** @returns a boolean indicating whether this target contains source code
+    **/
+    protected boolean isCode()
+    {
+	return true;
+    }
+
+    /**
+    ** @returns the name of the (text) file this target corresponds to.
+    **/
+    public String sourceFile()
+    {
+	return pkg.getFileName(name) + ".java";
+    }
+    
+    /**
+     * @returns the name of the context(.ctxt) file this target corresponds to.
+     */
+    public String contextFile()
+    {
+	return pkg.getFileName(name) + ".ctxt";
+    }	
+    /**
+    ** @return the editor object associated with this target. May be null
+    **  if there was a problem opening this editor.
+    **/
+    public Editor getEditor()
+    {
+	if(editor == null)
+	    editor = pkg.editorManager.openClass(sourceFile(), name, this,
+						 isCompiled(), breakpoints);
+		
+	return editor;
+    }
+	
+    /**
+    ** @return the current view being shown - one of the Editor constants
+    **/
+    public int getDisplayedView()
+    {
+	return displayedView;
+    }
+	
+    /**
+     * Called by Editor when a file is changed
+     */
+    public void modificationEvent(Editor editor)
+    {
+	invalidate();
+    }
+
+    /**
+     * Called by Editor when a breakpoint is been set/cleared
+     * @arg filename	the name of the file that was modified
+     * @arg lineNo	the line number of the breakpoint
+     * @arg set	whether the breakpoint is set (true) or cleared
+     */
+    public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
+    {
+	if(isCompiled()) {
+	    DebuggerClassLoader loader = pkg.getRemoteClassLoader();
+	    return Debugger.debugger.toggleBreakpoint(name, lineNo, set, 
+						      loader);
+	}
+	else
+	    return "Class has to be compiled to set breakpoints.";
+    }
+
+    /**
+     * Called by Editor to change the view displayed by an editor
+     * @arg viewname	the name of the view to display, should be 
+     * 		one of bluej.editor.Editor.PUBLIC, etc.
+     * @returns a boolean indicating if the change was allowed
+     */
+    public boolean changeView(Editor editor, int viewType)
+    {
+	showView(editor, viewType);
+	return true;
+    }
+
+    public void compile(Editor editor)
+    {
+	    pkg.compile(this);
+    }
+
+    // --- end of EditableTarget interface ---
+
+    protected boolean isCompiled()
+    {
+	return (state == S_NORMAL);
+    }
+
+    public String classFile()
+    {
+	return pkg.getClassFileName(name) + ".class";
+    }
+	
+    public void generateSkeleton()
+    {
+	Hashtable translations = new Hashtable();
+	translations.put("CLASSNAME", name);
+		
+	String template = isAbstract() ? "template.abstract" :
+	    isInterface() ? "template.interface" :
+	    "template.stdclass";
+			
+	String pkgname = pkg.getName();
+	if((pkgname == Package.noPackage))
+	    translations.put("PKGLINE", "");
+	else
+	    translations.put("PKGLINE", "package " + pkgname + ";" + Config.nl + Config.nl);
+			
+	String filename = Config.getLibFilename(template);
+		
+	try {
+	    Utility.translateFile(filename, sourceFile(), translations);
+	} catch(IOException e) {
+	    Utility.reportError("Exception during file translation from " + filename + " to " + sourceFile());
+	    e.printStackTrace();
+	}
+		
+	setState(S_INVALID);
+    }
+	
+    private Class last_class = null;
+    private JPopupMenu menu = null;
+    boolean compiledMenu = false;
+
+    public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
+    {
+	if (state == S_NORMAL) {
+	    Class cl = pkg.loadClass(fullname);
+	    if ((cl != null) && (last_class != cl)) {
+		if (menu != null)
+		    editor.remove(menu);
+		menu = createMenu(cl, editor.getFrame());
+		editor.add(menu);
+		compiledMenu = true;
+	    }
+	    last_class = cl;
+	}
+	else {
+	    if (compiledMenu || menu == null) {
+		menu = createMenu(null, editor.getFrame());
+		editor.add(menu);
+		compiledMenu = false;
+	    }
+	}
+	if (menu != null)
+		menu.show(editor, evt.getX(), evt.getY());
+    }
+	
+    private Hashtable actions;
+
+    private JPopupMenu createMenu(Class cl, JFrame editorFrame) {
+	actions = new Hashtable();
+	
+	JPopupMenu menu = new JPopupMenu(getName() + " operations");
+	
+	// the only popup menu option under the Library Browser should be "open"
+	if (editorFrame != null && editorFrame instanceof LibraryBrowserPkgMgrFrame) {
+	    addMenuItem(menu, openStr, true);
+	    // only add "use" option if the class is compiled and we're not running standalone
+	    if (!((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone /*&& isCompiled()*/)
+		addMenuItem(menu, useStr, true);
+	    
+	    return menu;
+	}
+	
+	if ((cl != null) && (!isAbstract()))
+	    createClassMenu(menu, cl);
+	
+	addMenuItem(menu, editStr, true);
+	addMenuItem(menu, publicStr, (state == S_NORMAL));
+	addMenuItem(menu, pkgStr, (state == S_NORMAL));
+	addMenuItem(menu, inheritedStr, (state == S_NORMAL));
+	menu.addSeparator();
+	addMenuItem(menu, compileStr, true);
+	addMenuItem(menu, removeStr, true);
+	
+	return menu;
+    }
+	
+    private void addMenuItem(JPopupMenu menu, String itemString, boolean enabled)
+    {
+	JMenuItem item;
+
+	menu.add(item = new JMenuItem(itemString));
+	item.addActionListener(this);
+	item.setFont(menuFont);
+	item.setForeground(envOpColour);
+	if(!enabled)
+	    item.setEnabled(false);
+    }
+
+    private void createClassMenu(JPopupMenu menu, Class cl)
+    {
+	View view = View.getView(cl, pkg.getSearcher());
+	ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+	ConstructorView[] constructors = view.getConstructors();
+	// Debug.message("Adding constructors for " + cl);
+	if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new "))
+	    menu.addSeparator();
+		
+	filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
+	MethodView[] allMethods = view.getAllMethods();
+	// Debug.message("Adding static methods for " + cl);
+	if(createMenuItems(menu, allMethods, filter, 0, allMethods.length, ""))
+	    menu.addSeparator();
+    }
+	
+    private boolean createMenuItems(JPopupMenu menu,
+				    MemberView[] members, ViewFilter filter, 
+				    int first, int last, String prefix)
+    {
+	boolean hasEntries = false;
+	JMenuItem item;
+		
+	for(int i = first; i < last; i++)
+	    {
+		try {
+		    MemberView m = members[last - i - 1];
+		    // Debug.message("createSubMenu - calling filter.accept");
+		    if(!filter.accept(m))
+			continue;
+		    // Debug.message("createSubMenu - creating MenuItem");
+		    item = new JMenuItem(prefix + m.getShortDesc());
+		    item.addActionListener(this);
+		    item.setFont(menuFont);
+		    actions.put(item, m);
+		    menu.add(item);
+		    hasEntries = true;
+		} catch(Exception e) {
+		    Utility.reportError(methodException + e);
+		    e.printStackTrace();
+		}
+	    }
+	return hasEntries;
+    }
+
+    // -- ActionListener interface --
+
+    public void actionPerformed(ActionEvent e)
+    {
+	MemberView member = (MemberView)actions.get(e.getSource());
+	String cmd = e.getActionCommand();
+		
+	if(member != null) {
+	    if(state != S_NORMAL) {
+		Utility.reportError(instantiateModified);
+		return;
+	    }
+			
+	    ResultWatcher watcher = null;
+
+	    // if we are constructing an object, create a watcher that waits for
+	    // completion of the call and then places the object on the object
+	    // bench
+
+	    if(member instanceof ConstructorView)
+		watcher = new ResultWatcher() {
+		    public void putResult(DebuggerObject result, String name) {
+			if((name == null) || (name.length() == 0))
+			    name = "result";
+			ObjectWrapper wrapper = 
+			    new ObjectWrapper(result.getFieldObject(0),
+					      name, pkg);
+			pkg.getFrame().getObjectBench().add(wrapper);
+		    }
+		};
+
+	    // if we are calling a method that has a result, create a watcher
+	    // that waits for completion of the call and then displays the
+	    // result
+
+	    else if(!((MethodView)member).isVoid())
+		watcher = new ResultWatcher() {
+		public void putResult(DebuggerObject result, String name) {
+		    ObjectViewer viewer = 
+		        ObjectViewer.getViewer(false, result, name, pkg, true,
+					       pkg.getFrame());
+		}
+	    };	
+
+	    // create an Invoker to handle the actual invocation
+
+	    new Invoker(pkg, member, null, watcher);
+	}
+	else if(editStr.equals(cmd)) {
+	    displayedView = Editor.IMPLEMENTATION;
+	    reopen();
+	}
+	else if (useStr.equals(cmd)) {
+		// insert code to do same thing as double click here
+		if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
+			((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
+	}
+	else if (openStr.equals(cmd)) {
+		// insert code to do same thing as double click here
+		if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
+			((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openClass(this);
+	}
+	else if(publicStr.equals(cmd)) {
+	    showView(Editor.PUBLIC);
+	}
+	else if(pkgStr.equals(cmd)) {
+	    showView(Editor.PACKAGE);
+	}
+	else if(inheritedStr.equals(cmd)) {
+	    showView(Editor.INHERITED);
+	}
+	else if(compileStr.equals(cmd)) {
+	    pkg.compile(this);
+	}
+	else if(removeStr.equals(cmd)) {
+		try {
+		    ((MainPkgMgrFrame)pkg.getFrame()).removeClass(this);
+		} catch (ClassCastException cce) {
+			System.err.println("Invalid cast to JFrame in ClassTarget");
+		}
+	}
+    }
+
+    int anchor_x = 0, anchor_y = 0;
+    int last_x = 0, last_y = 0;
+    public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor)
+    {
+	super.mousePressed(evt, x, y, editor);
+
+	anchor_x = last_x = x;
+	anchor_y = last_y = y;
+    }
+    
+    public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor) {
+	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
+	    ((LibraryBrowserPkgMgrFrame)editor.getFrame()).openClassInAttributeChooser(this);
+    }
+	
+    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) {
+	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
+	    browse((LibraryBrowserPkgMgrFrame)editor.getFrame());
+	else
+	    open();
+    }
+
+    private void browse(LibraryBrowserPkgMgrFrame browserFrame) {
+	browserFrame.openClass(this);
+    }
+		
+    public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
+    {	
+	if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
+	    (pkg.getState() == Package.S_CHOOSE_EXT_TO) ) {	
+	    // Draw a line from this Target to the current Cursor position
+	    Graphics g = editor.getGraphics();
+	    g.setColor(colBorder);
+	    g.setXORMode(graphbg);
+	    g.drawLine( anchor_x , anchor_y , last_x , last_y );
+	    g.drawLine( anchor_x , anchor_y , x , y );
+	    last_x = x;
+	    last_y = y;
+	}
+	else
+	    super.mouseDragged(evt, x, y, editor);
+    }
+	
+    public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor)
+    {	
+	if (pkg.getState() != Package.S_IDLE)
+	    {	
+		// Draw a line from this Target to the current Cursor position
+		Graphics g = editor.getGraphics();
+		g.setColor(colBorder);
+		g.setXORMode(graphbg);
+		g.drawLine( anchor_x , anchor_y , last_x , last_y );
+		g.drawLine( anchor_x , anchor_y , x , y );
+		last_x = x;
+		last_y = y;
+	    }
+	else
+	    super.mouseMoved(evt, x, y, editor);
+    }
+	
+    public void showView(int viewType)
+    {
+	if(viewType == displayedView)
+	    open();
+	else {
+	    displayedView = viewType;
+	    showView(getEditor(), viewType);
+	}
+    }
+	
+    public void showView(Editor editor, int viewType)
+    {
+	if(editor==null)
+	    return;
+
+	if(viewType == Editor.IMPLEMENTATION)
+	    reopen();
+	else {
+	    editor.clear();
+	    Class cl = pkg.loadClass(fullname);
+	    if(cl != null) {
+		View view = View.getView(cl, pkg.getSearcher());
+		int filterType = 0;
+		if(viewType == Editor.PUBLIC)
+		    filterType = ViewFilter.PUBLIC;
+		else if(viewType == Editor.PACKAGE)
+		    filterType = ViewFilter.PACKAGE;
+		else if(viewType == Editor.INHERITED)
+		    filterType = ViewFilter.PROTECTED;
+		
+		ViewFilter filter= (filterType != 0) ? new ViewFilter(filterType) : null;
+		view.print(new EditorPrintWriter(editor), filter);
+	    }
+	    editor.show(viewType);
+	}
+    }
+
+    /**
+     * 
+     * Prepares this ClassTarget for removal from a Package.  
+     * It removes dependency arrows and calls prepareFilesForRemoval() 
+     * to remove applicable files.
+     *
+     */
+    public void prepareForRemoval()
+    {
+	// flag dependent Targets as invalid
+	//invalidate();
+
+	// delete outgoing uses dependencies
+	if(!outUses.isEmpty()) {
+	    Dependency[] outUsesArray = new Dependency[ outUses.size() ];
+	    outUses.copyInto(outUsesArray);
+	    for(int i = 0; i < outUsesArray.length ; i++)
+		pkg.removeDependency(outUsesArray[i], true);
+	}
+
+	// delete incoming uses dependencies
+	if(!inUses.isEmpty()) {
+	    Dependency[] inUsesArray = new Dependency[ inUses.size() ];
+	    inUses.copyInto(inUsesArray);
+	    for(int i = 0; i < inUsesArray.length ; i++)
+	    pkg.removeDependency(inUsesArray[i], true);
+	} 
+
+	// delete dependencies to child classes
+	if(!children.isEmpty()) {
+	    Dependency[] childrenArray = new Dependency[ children.size() ];
+	    children.copyInto(childrenArray);
+	    for(int i = 0; i < childrenArray.length ; i++) 
+		pkg.removeDependency(childrenArray[i], true);
+	}
+
+	// delete dependencies to super classes
+	if(!parents.isEmpty()) {
+	    Dependency[] parentsArray = new Dependency[ parents.size() ];
+	    parents.copyInto(parentsArray);
+	    for(int i = 0; i < parentsArray.length ; i++)
+		pkg.removeDependency(parentsArray[i], true);
+	} 
+
+	// remove associated files (.class, .java and .ctxt)
+	prepareFilesForRemoval();
+    }
+
+   /**
+     * 
+     * Removes applicable files (.class, .java and .ctxt) prior to 
+     * this ClassTarget being removed from a Package.
+     *
+     */
+    public void prepareFilesForRemoval()
+    {
+	File sourceFileName = new File(sourceFile());
+	if (sourceFileName.exists())
+	    sourceFileName.delete(); 
+
+	File classFileName = new File(classFile()); 
+	if (classFileName.exists())
+	    classFileName.delete();
+ 	
+	File contextFileName = new File(contextFile());
+	if (contextFileName.exists())
+	    contextFileName.delete(); 
+
+    }
+
+
+
+	
+    // Internal strings
+    static final String instantiationError = Config.getString("pkgmgr.instantiationError");
+    static final String instantiateModified = Config.getString("pkgmgr.instantiateModified");
+    static final String invokeModified = Config.getString("pkgmgr.invokeModified");
+    static String methodException = Config.getString("pkgmgr.methodException");
+	
+    static String editStr = Config.getString("pkgmgr.classmenu.edit");
+    static String openStr = Config.getString("browser.classchooser.classmenu.open");
+    static String useStr = Config.getString("browser.classchooser.classmenu.use");
+    static String publicStr = Config.getString("pkgmgr.classmenu.public");
+    static String pkgStr = Config.getString("pkgmgr.classmenu.package");
+    static String inheritedStr = Config.getString("pkgmgr.classmenu.inherited");
+    static String compileStr = Config.getString("pkgmgr.classmenu.compile");
+    static String removeStr = Config.getString("pkgmgr.classmenu.remove");
+
+    private boolean libraryTarget = false;
+
+    public boolean isLibrary() {
+	    return libraryTarget;
+    }
+    
+    public void setLibraryTarget(boolean libraryTarget) {
+	    this.libraryTarget = libraryTarget;
+    }
+}
