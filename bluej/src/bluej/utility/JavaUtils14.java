@@ -12,7 +12,7 @@ import bluej.debugger.gentype.*;
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils14.java 2635 2004-06-19 16:27:32Z polle $
+ * @version $Id: JavaUtils14.java 2636 2004-06-20 11:03:55Z polle $
  */
 public class JavaUtils14 extends JavaUtils {
 
@@ -25,29 +25,29 @@ public class JavaUtils14 extends JavaUtils {
     public String getShortDesc(Method method, String [] paramnames)
     {
         String name = getTypeName(method.getReturnType()) + " " + method.getName();
-        Class[] params = method.getParameterTypes();
-        return makeDescription(name, params, paramnames, false);
+        String[] paramTypes = getParameterTypes(method);
+        return makeDescription(name, paramTypes, paramnames, false);
     }
     
     public String getLongDesc(Method method, String [] paramnames)
     {
         String name = getTypeName(method.getReturnType()) + " " + method.getName();
-        Class [] params = method.getParameterTypes();
-        return makeDescription(name, params, paramnames, true);
+        String[] paramTypes = getParameterTypes(method);
+        return makeDescription(name, paramTypes, paramnames, true);
     }
 
     public String getLongDesc(Constructor constructor, String [] paramnames)
     {
         String name = constructor.getName();
-        Class [] params = constructor.getParameterTypes();
-        return makeDescription(name, params, paramnames, true);
+        String[] paramTypes = getParameterTypes(constructor);
+        return makeDescription(name, paramTypes, paramnames, true);
     }
     
     public String getShortDesc(Constructor constructor, String [] paramnames)
     {
         String name = constructor.getName();
-        Class[] params = constructor.getParameterTypes();
-        return makeDescription(name, params, paramnames, false);
+        String[] paramTypes = getParameterTypes(constructor);
+        return makeDescription(name, paramTypes, paramnames, false);
     }    
     
     public String getSignature(Constructor cons)
@@ -105,9 +105,34 @@ public class JavaUtils14 extends JavaUtils {
         
         return gentypes;
     }
+    
+    public String[] getParameterTypes(Method method) 
+    {
+        Class [] params = method.getParameterTypes();
+        return getParameterTypes(params);
+    }
+    
+    public String[] getParameterTypes(Constructor constructor) 
+    {        
+        Class [] params = constructor.getParameterTypes();
+        return getParameterTypes(params);
+    }
 
     /* ------------- Internal methods --------------- */
-
+    
+    /**
+     * Gets nicely formatted strings describing the parameter types. 
+     */
+    private String[] getParameterTypes(Class[] params)
+    {
+        String[] parameterTypes = new String[params.length];
+        for (int j = 0; j < params.length; j++) {            
+                String typeName = getTypeName(params[j]);                    
+                parameterTypes[j] = typeName;
+        }
+        return parameterTypes;
+    }
+    
     static public String getTypeName(Class type)
     {
         if(type.isArray())
@@ -144,35 +169,6 @@ public class JavaUtils14 extends JavaUtils {
             sb.append(typeName);
             if (j < (params.length - 1))
                 sb.append(",");
-        }
-        sb.append(")");
-        return sb.toString();
-    }
-
-    protected String makeDescription(String name, Class[] params,
-                                    String[] paramnames, boolean includeTypeNames) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(name);
-        sb.append("(");
-        for (int j = 0; j < params.length; j++) {
-            if (includeTypeNames) {
-                String typeName = getTypeName(params[j]);
-                sb.append(typeName);
-                sb.append(" ");
-            }
-            String paramname = null;
-            if (paramnames != null)
-                paramname = paramnames[j];
-            else if (!includeTypeNames) {
-                //Debug.message("substitute type for name");
-                String typeName = getTypeName(params[j]);
-                paramname = typeName;
-            }
-            if (paramname != null) {
-                sb.append(paramname);
-            }
-            if (j < (params.length - 1))
-                sb.append(", ");
         }
         sb.append(")");
         return sb.toString();

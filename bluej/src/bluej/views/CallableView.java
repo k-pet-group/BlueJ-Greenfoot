@@ -50,4 +50,21 @@ public abstract class CallableView extends MemberView
      * @returns array of Class objects
      */
     public abstract Class[] getParameters();
+
+    /**
+     * Gets an array of strings with the names of the parameters
+     * @return
+     */
+    public String[] getParamNames()
+    {
+        Comment c = getComment();
+        if( c == null )
+            return null;
+        return c.getParamNames();
+    }
+    
+    /**
+     * Gets an array of nicely formatted strings with the types of the parameters 
+     */
+    public abstract String[] getParamTypes();
 }

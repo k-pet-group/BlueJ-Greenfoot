@@ -7,7 +7,7 @@ import bluej.utility.JavaUtils;
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 2635 2004-06-19 16:27:32Z polle $
+ * @version $Id: ConstructorView.java 2636 2004-06-20 11:03:55Z polle $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -68,14 +68,6 @@ public final class ConstructorView extends CallableView
         return JavaUtils.getJavaUtils().getLongDesc(cons, getParamNames());
     }
     
-    private String[] getParamNames() 
-    {
-        Comment c = getComment();
-        if( c == null )
-            return null;
-        return c.getParamNames();
-    }
-
     /**
      * Get an array of Class objects representing constructor's parameters
      * @returns array of Class objects
@@ -83,6 +75,11 @@ public final class ConstructorView extends CallableView
     public Class[] getParameters() {
         return cons.getParameterTypes();
     }
+    
+    public String[] getParamTypes() 
+    {
+        return JavaUtils.getJavaUtils().getParameterTypes(cons);
+    }    
 
     /**
      * Whether this method has a var arg.

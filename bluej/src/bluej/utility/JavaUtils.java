@@ -15,7 +15,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2635 2004-06-19 16:27:32Z polle $
+ * @version $Id: JavaUtils.java 2636 2004-06-20 11:03:55Z polle $
  */
 public abstract class JavaUtils {
 
@@ -123,6 +123,20 @@ public abstract class JavaUtils {
     abstract public GenTypeClass [] getInterfaces(Class cl);
     
     /**
+     * Gets an array of nicely formatted strings with the types of the parameters.
+     * 
+     * @param method The method to get the parameters for.
+     */
+    abstract public String[] getParameterTypes(Method method);
+    
+    /**
+     * Gets an array of nicely formatted strings with the types of the parameters.
+     * 
+     * @param constructor The constructor to get the parameters for.
+     */
+    abstract public String[] getParameterTypes(Constructor constructor);
+    
+    /**
      * Change a list of type parameters (with bounds) into a map, which maps
      * the name of the parameter to its bounding type.
      * 
@@ -137,5 +151,32 @@ public abstract class JavaUtils {
             rmap.put(n.getTparName(), n.getBound());
         }
         return rmap;
+    }
+
+    protected static String makeDescription(String name, String[] paramTypes, String[] paramNames, boolean includeTypeNames)
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append(name);
+        sb.append("(");
+        for (int j = 0; j < paramTypes.length; j++) {
+            if (includeTypeNames) {                              
+                sb.append(paramTypes[j]);
+                sb.append(" ");
+            }
+            String paramname = null;
+            if (paramNames != null)
+                paramname = paramNames[j];
+            else if (!includeTypeNames) {
+                //Debug.message("substitute type for name");                        
+                paramname = paramTypes[j];
+            }
+            if (paramname != null) {
+                sb.append(paramname);
+            }
+            if (j < (paramTypes.length - 1))
+                sb.append(", ");
+        }
+        sb.append(")");
+        return sb.toString();
     }
 }

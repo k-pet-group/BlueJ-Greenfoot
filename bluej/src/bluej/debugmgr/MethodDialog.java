@@ -18,7 +18,7 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -30,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.pkgmgr.Package;
@@ -54,7 +55,7 @@ import bluej.views.View;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2627 2004-06-19 13:33:50Z polle $
+ * @version $Id: MethodDialog.java 2636 2004-06-20 11:03:55Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -126,7 +127,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2627 2004-06-19 13:33:50Z polle $
+     * @version $Id: MethodDialog.java 2636 2004-06-20 11:03:55Z polle $
      */
     public static class ParameterList
     {
@@ -705,14 +706,15 @@ public class MethodDialog extends CallDialog implements FocusListener
     private JPanel createParameterPanel()
     {
         Class[] paramClasses = getArgTypes(false);
-        //parse method signature for param fields, there may be a better way
-        String[] paramNames = null;
-        if (method.hasParameters())
-            paramNames = parseParamNames(method.getLongDesc());
+        String[] paramNames = method.getParamNames();
+        String[] paramTypes = method.getParamTypes();
 
         parameterList = new ParameterList(paramClasses.length, method.isVarArgs());
-        for (int i = 0; i < paramClasses.length; i++) {
-
+        for (int i = 0; i < paramTypes.length; i++) {
+            String paramString = paramTypes[i];
+            if(paramNames!=null) {
+                paramString += " " + paramNames[i];
+            }
             if (method.isVarArgs() && i == (paramClasses.length - 1)) {
                 List historyList = history.getHistory(paramClasses[i].getComponentType());
                 GrowableBox component = new GrowableBox(new VarArgFactory(this, historyList),
@@ -736,11 +738,12 @@ public class MethodDialog extends CallDialog implements FocusListener
                     {
                     }
                 });
-                parameterList.setVarArg((GrowableBox) component, paramNames[i]);
+                parameterList.setVarArg((GrowableBox) component, paramString);
             } else {
                 List historyList = history.getHistory(paramClasses[i]);
                 JComboBox component = createComboBox(historyList);
-                parameterList.addParameter(i, component, paramNames[i]);
+                System.out.println("paramname " + i + ": " + paramString);
+                parameterList.addParameter(i, component, paramString);
             }
         }
 
@@ -859,45 +862,4 @@ public class MethodDialog extends CallDialog implements FocusListener
         ((JTextField) component.getEditor().getEditorComponent()).addFocusListener(this);
         return component;
     }
-
-    /**
-     * parseParamNames - parses a long description of a method and returns
-     * the argument types and names as an array of Strings.
-     *
-     * @return an array of Strings representing method arguments.
-     */
-    public String[] parseParamNames(String longMethodName)
-    {
-        String[] argNames = null;
-        StringTokenizer tokenizer = new StringTokenizer(longMethodName, ",()", true);
-        String arg = "";
-        boolean inArg = false;
-        List args = new ArrayList();
-
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-
-            if (token.equals("(")) {
-                inArg = true;
-                arg = "";
-            } else if (token.equals(",")) {
-                args.add(arg);
-                inArg = true;
-                arg = "";
-            } else if (token.equals(")")) {
-                args.add(arg);
-                inArg = false;
-            } else {
-                if (inArg)
-                    arg += token;
-            }
-        }
-        //Debug.message("params = " + args.toString());
-        argNames = new String[args.size()];
-        for (int i = 0; i < args.size(); i++)
-            argNames[i] = ((String) args.get(i)).trim();
-
-        return argNames;
-    } // parseParamNames
-
 }

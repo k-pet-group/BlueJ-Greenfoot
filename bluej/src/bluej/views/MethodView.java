@@ -9,7 +9,7 @@ import bluej.utility.JavaUtils;
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2623 2004-06-18 07:15:53Z davmac $
+ *  @version $Id: MethodView.java 2636 2004-06-20 11:03:55Z polle $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -65,13 +65,6 @@ public class MethodView extends CallableView implements Comparable
         return JavaUtils.getJavaUtils().getShortDesc(method, getParamNames());
     }
 
-    private String[] getParamNames() {
-        Comment c = getComment();
-        if( c == null )
-            return null;
-        return c.getParamNames();
-    }
-    
     /**
      * Get a long String describing this member. A long description is
      * similar to the short description, but it has type names and parameters
@@ -87,6 +80,11 @@ public class MethodView extends CallableView implements Comparable
      */
     public Class[] getParameters() {
         return method.getParameterTypes();
+    }
+    
+    public String[] getParamTypes() 
+    {
+        return JavaUtils.getJavaUtils().getParameterTypes(method);
     }
 
     /**
