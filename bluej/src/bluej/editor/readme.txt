@@ -1,8 +1,8 @@
-last revised: 13/06/2001
+last revised: 12/02/2002
 
 Notes on the distribution:
 
-This is an initial split of the editor source from the BlueJ 
+This is a split of the editor source from the BlueJ 
 distribution, based on code checked out of the repository on
 on 13/06/2001. This correlates to Version 1.1.4 of BlueJ.
 
@@ -21,8 +21,8 @@ VERSION
 
 The BlueJ editor source has been numbered the same as the relevant
 bluej version from which the editor sourcecode snapshot was taken.
-Bluej editor source version 1.1.4 corresponds to the editor code that
-is found in BlueJ 1.1.4.  It is envisaged that an editor snapshot will
+Bluej editor source version 1.1.6 corresponds to the editor code that
+is found in BlueJ 1.1.6.  It is envisaged that an editor snapshot will
 be released at the same time as each BlueJ version.
  
 
@@ -32,7 +32,7 @@ license.txt - BlueJ editor license (MIT license)
 install.txt - information on how to extend the editor
 readme.txt  - this file
 build.xml   - a simple build file for the ant build tool 
-              (ant version 1.2)
+              
 
 /src
     /bluej -  source for editor and utility classes
