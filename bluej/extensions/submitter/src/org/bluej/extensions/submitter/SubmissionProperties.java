@@ -32,7 +32,7 @@ import javax.swing.event.TreeModelEvent;
  * Manages the properties appropriate to the selected submission scheme.
  *
  * @author Clive Miller
- * @version $Id: SubmissionProperties.java 1498 2002-11-11 10:34:08Z damiano $
+ * @version $Id: SubmissionProperties.java 1564 2002-12-09 12:41:28Z damiano $
  **/
 
 class SubmissionProperties
@@ -46,11 +46,16 @@ class SubmissionProperties
     private DefaultTreeModel treeModel;
     private JTree tree;
     private String selectedScheme;
+    private Stat stat;
     
-    SubmissionProperties (BlueJ bj, BPackage pkg)
+    SubmissionProperties (Stat i_stat, BPackage pkg)
     {
+        stat = i_stat;
+        bj = stat.bluej;
+
+        stat.aDbg.trace(Stat.PROPERTIES,"new SubmissionProperties: CALLED");
+
         this.pkg = pkg;
-        this.bj = bj;
         rootNode = new Node ("Submissions", false);
         treeModel = new DefaultTreeModel (rootNode) {
             public synchronized void insertNodeInto (MutableTreeNode newChild, MutableTreeNode parent, int index) {
@@ -119,6 +124,8 @@ class SubmissionProperties
     
     private void load (File file, boolean isProject)
     {
+        stat.aDbg.trace(Stat.PROPERTIES,"SubmissionProperties.load CALLED");
+
         String filename = null;
         if (file.exists()) {
             FileInputStream fis = null;
