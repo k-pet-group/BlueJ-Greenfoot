@@ -1,6 +1,3 @@
-
-package java.lancs ;
-
 /**
  * Graphics objects for practical classes (Java 1.1 version)
  * @author Roger Garside/Richard Cardoe
