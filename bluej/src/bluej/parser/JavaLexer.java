@@ -1104,9 +1104,8 @@ tryAgain:
 			break;
 		}
 		default:
-		{
-			throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());
-		}
+			{
+			}
 		}
 		}
 		_ttype = Token.SKIP; newline();
