@@ -284,6 +284,7 @@ pkgmgr.classmenu.runApplet=Run Applet
 pkgmgr.classmenu.edit=Open Editor
 pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.remove=Remove
+
 pkgmgr.view.label=View
 pkgmgr.view.usesLabel=Uses
 pkgmgr.view.inheritLabel=Inheritance
