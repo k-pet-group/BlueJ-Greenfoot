@@ -26,7 +26,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2799 2004-07-15 03:16:36Z davmac $
+ * @version $Id: ResultInspector.java 2904 2004-08-18 15:05:48Z polle $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -251,14 +251,6 @@ public class ResultInspector extends Inspector
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
-        JPanel buttonPanel;
-        buttonPanel = new JPanel(new BorderLayout());
-        buttonPanel.setOpaque(false);
-        JButton button = createCloseButton();
-        buttonPanel.add(button, BorderLayout.EAST);
-
-        bottomPanel.add(buttonPanel);
-
         if (pkg.getProject().inTestMode()) {
             assertPanel = new AssertPanel();
             {
@@ -266,7 +258,15 @@ public class ResultInspector extends Inspector
                 bottomPanel.add(assertPanel);
             }
         }
+        
+        JPanel buttonPanel;
+        buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setOpaque(false);
+        JButton button = createCloseButton();
+        buttonPanel.add(button, BorderLayout.EAST);
 
+        bottomPanel.add(buttonPanel);
+        
         // add the components
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
