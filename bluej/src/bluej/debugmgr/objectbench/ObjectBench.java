@@ -16,7 +16,7 @@ import bluej.testmgr.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2088 2003-07-01 09:23:58Z damiano $
+ * @version $Id: ObjectBench.java 2130 2003-07-24 02:20:57Z bquig $
  */
 public class ObjectBench
 {
@@ -347,12 +347,7 @@ public class ObjectBench
     public ObjectWrapper[] getWrappers()
     {
         Component[] components = obp.getComponents();
-        int count = 0;
-        
-        for(int i=0; i<components.length; i++) {
-            if (components[i] instanceof ObjectWrapper)
-                count++;
-        }
+        int count = getObjectWrapperCount();
                         
         ObjectWrapper[] wrappers = new ObjectWrapper[count];
 
@@ -362,6 +357,22 @@ public class ObjectBench
         }
         
         return wrappers;
+    }
+    
+    /**
+     * Count of object bench copmponents that are object wrappers
+     * @return number of ObjectWrappers on the bench
+     */
+    public int getObjectWrapperCount()
+    {
+        Component[] components = obp.getComponents();
+        int count = 0;
+        
+        for(int i=0; i<components.length; i++) {
+            if (components[i] instanceof ObjectWrapper)
+                count++;
+        }
+        return count;
     }
 
     /**
