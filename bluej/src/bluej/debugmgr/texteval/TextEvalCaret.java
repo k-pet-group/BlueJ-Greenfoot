@@ -15,16 +15,12 @@ import javax.swing.text.*;
 
 public class TextEvalCaret extends DefaultCaret  
 {
-   
-    private TextEvalArea textEval;
-
     /**
      * Constructs a Moe Caret
      */
-    public TextEvalCaret(TextEvalArea textEval) 
+    public TextEvalCaret()
     {
         super();
-        this.textEval = textEval;
         setBlinkRate(0);
     }
 
@@ -45,7 +41,7 @@ public class TextEvalCaret extends DefaultCaret
             }
         }
         else {
-            textEval.tagAreaClick(pos, e.getClickCount());
+            ((TextEvalPane)getComponent()).tagAreaClick(pos, e.getClickCount());
         }
     }
 

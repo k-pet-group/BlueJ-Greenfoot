@@ -15,12 +15,11 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2820 2004-07-26 10:48:03Z polle $
+ * @version $Id: ObjectBench.java 2885 2004-08-17 10:37:37Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
 {
-    private static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3);
     private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
 
     private JScrollPane scroll;

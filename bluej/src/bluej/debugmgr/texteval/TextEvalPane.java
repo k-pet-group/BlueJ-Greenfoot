@@ -1,13 +1,27 @@
 package bluej.debugmgr.texteval;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.JEditorPane;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.Element;
+import javax.swing.*;
+import javax.swing.text.*;
 
+import org.gjt.sp.jedit.syntax.JavaTokenMarker;
+
+import bluej.BlueJEvent;
+import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.ExpressionInformation;
+import bluej.debugmgr.IndexHistory;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.editor.moe.BlueJSyntaxView;
+import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.editor.moe.MoeSyntaxEditorKit;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 /**
  * A modified editor pane for the text evaluation area.
@@ -15,10 +29,41 @@ import bluej.editor.moe.BlueJSyntaxView;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 2833 2004-08-04 13:52:47Z mik $
+ * @version $Id: TextEvalPane.java 2885 2004-08-17 10:37:37Z mik $
  */
-public class TextEvalPane extends JEditorPane {
+public class TextEvalPane extends JEditorPane 
+    implements ResultWatcher, MouseMotionListener
+{
+    // The cursor to use while hovering over object icon
+    private static final Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+    private static final Cursor objectCursor = new Cursor(Cursor.HAND_CURSOR);
+    private static final Cursor textCursor = new Cursor(Cursor.TEXT_CURSOR);
+    
+    private PkgMgrFrame frame;
+    private MoeSyntaxDocument doc;  // the text document behind the editor pane
+    private String currentCommand = "";
+    private IndexHistory history;
+    private Invoker invoker = null;
+    private boolean firstTry;
+    private boolean mouseInTag = false;
+    private boolean mouseOverObject = false;
 
+    public TextEvalPane(PkgMgrFrame frame)
+    {
+        super();
+        this.frame = frame;
+        setEditorKit(new MoeSyntaxEditorKit(true));
+        doc = (MoeSyntaxDocument) getDocument();
+        doc.setTokenMarker(new JavaTokenMarker());
+        defineKeymap();
+        clear();
+        history = new IndexHistory(20);
+        addMouseMotionListener(this);
+        setCaret(new TextEvalCaret());
+        setAutoscrolls(false);          // important - dragging objects from this component
+                                        // does not work correctly otherwise
+    }
+    
     public Dimension getPreferredSize() 
     {
         Dimension d = super.getPreferredSize();
@@ -37,12 +82,22 @@ public class TextEvalPane extends JEditorPane {
     }
     
     /**
+     * Clear all text in this text area.
+     */
+    public void clear()
+    {
+        setText(" ");
+        caretToEnd();
+    }
+
+    /**
      * Paste the contents of the clipboard.
      */
     public void paste()
     {
         if(!isLegalCaretPos())
             setCaretPosition(getDocument().getLength());
+        //String[] lines = ;
         super.paste();
     }
 
@@ -62,4 +117,617 @@ public class TextEvalPane extends JEditorPane {
         return pos >= lineStart;
     }
     
+    /**
+     * This is called when we get a 'paste' action (since we are handling 
+     * ordinary key input differently with the InsertCharacterAction in
+     * TextEvalArea.
+     * So: here we assume that we have a potential multi-line paste, and we
+     * want to treat it accordingly (as multi-line input).
+     */
+    public void replaceSelection(String content)
+    {
+        //Action action = new TextEvalArea.ContinueCommandAction();
+        System.out.println("yes!");
+    }
+    
+    //   --- ResultWatcher interface ---
+
+    /**
+     * An invocation has completed - here is the result.
+     * If the invocation has a void result (note that is a void type), result == null.
+     */
+    public void putResult(DebuggerObject result, String name, InvokerRecord ir)
+    {
+        frame.getObjectBench().addInteraction(ir);
+
+        append(" ");
+        if (result != null) {
+            //Debug.message("type:"+result.getFieldValueTypeString(0));
+
+            String resultString = result.getFieldValueString(0);
+            String resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
+            boolean isObject = result.instanceFieldIsObject(0);
+            
+            if(isObject)
+                objectOutput(resultString + "   (" + resultType + ")", 
+                             new ObjectInfo(result.getFieldObject(0), ir));
+            else
+                output(resultString + "   (" + resultType + ")");
+            
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
+        } 
+        else {
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
+        }
+        setEditable(true);    // allow next input
+    }
+    
+    /**
+     * An invocation has failed - here is the error message
+     */
+    public void putError(String message)
+    {
+        if(firstTry) {
+            // append("   --error, first try: " + message + "\n");
+            firstTry = false;
+            invoker.tryAgain();
+        }
+        else {
+            append(" ");
+            error(message);
+            setEditable(true);    // allow next input
+        }
+    }
+    
+    /**
+     * A watcher shuold be able to return information about the result that it
+     * is watching. This may be used to display extra information 
+     * (about the expression that gave the result) when the result is shown.
+     * Unused for text eval expressions.
+     * 
+     * @return An object with information on the expression
+     */
+    public ExpressionInformation getExpressionInformation()
+    {
+        return null;
+    }
+
+    //   --- end of ResultWatcher interface ---
+    
+    /**
+     * We had a click in the tag area. Handle it appropriately.
+     * Specifically: If the click (or double click) is on an object, then
+     * start an object drag (or inspect).
+     * @param pos   The text position where we got the click.
+     * @param clickCount  Number of consecutive clicks
+     */
+    public void tagAreaClick(int pos, int clickCount)
+    {
+        ObjectInfo objInfo = objectAtPosition(pos);
+        if(objInfo != null) {
+            if(clickCount == 1) {
+                DragAndDropHelper dnd = DragAndDropHelper.getInstance();
+                dnd.startDrag(this, frame, objInfo.obj, objInfo.ir);
+            }
+            else if(clickCount == 2) {   // double click
+                inspectObject(objInfo);
+            }
+        }
+    }
+    
+    /**
+     * Inspect the given object.
+     * This is done with a delay, because we are in the middle of a mouse click,
+     * and focus gets weird otherwise.
+     */
+    private void inspectObject(TextEvalPane.ObjectInfo objInfo)
+    {
+        final TextEvalPane.ObjectInfo oi = objInfo;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ObjectInspector.getInstance(oi.obj, null, frame.getPackage(), oi.ir, frame);
+            }
+        });
+    }
+
+    /**
+     * Write a (non-error) message to the text area.
+     * @param s The message
+     */
+    private void output(String s)
+    {
+        try {
+            doc.insertString(doc.getLength(), s, null);
+            markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in terminal operation");
+        }
+    }
+    
+    /**
+     * Write a (non-error) message to the text area.
+     * @param s The message
+     */
+    private void objectOutput(String s, ObjectInfo objInfo)
+    {
+        try {
+            doc.insertString(doc.getLength(), s, null);
+            markAs(TextEvalSyntaxView.OBJECT, objInfo);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in terminal operation");
+        }
+    }
+    
+    /**
+     * Write an error message to the text area.
+     * @param s The message
+     */
+    private void error(String s)
+    {
+        try {
+            doc.insertString(doc.getLength(), "Error: " + s, null);
+            markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in terminal operation");
+        }
+    }
+    
+    /**
+     * Append some text to this area.
+     * @param s The text to append.
+     */
+    private void append(String s)
+    {
+        try {
+            doc.insertString(doc.getLength(), s, null);
+            caretToEnd();
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in terminal operation");
+        }
+    }
+    
+    /**
+     * Insert some text to this area.
+     * @param s The text to insert.
+     */
+    private void insert(String s)
+    {
+        try {
+            doc.insertString(getCaretPosition(), s, null);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in terminal operation");
+        }
+    }
+    
+    /**
+     * Move the caret to the end of the text.
+     */
+    private void caretToEnd() 
+    {
+        setCaretPosition(doc.getLength());
+    }
+
+    /**
+     * Get the text of the current line (the last line) of this area.
+     * @return The text of the last line.
+     */
+    private String getCurrentLine()
+    {
+        Element line = doc.getParagraphElement(doc.getLength());
+        int lineStart = line.getStartOffset() + 1;  // ignore space at front
+        int lineEnd = line.getEndOffset() - 1;      // ignore newline char
+        
+        try {
+            return doc.getText(lineStart, lineEnd-lineStart);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in text eval operation");
+            return "";
+        }
+    }
+    
+    /**
+     * Return the current column number.
+     */
+    private int getCurrentColumn()
+    {
+        Caret caret = getCaret();
+        int pos = Math.min(caret.getMark(), caret.getDot());
+        return getColumnFromPosition(pos);
+    }
+
+    /**
+     * Return tha column for a given position.
+     */
+    private int getColumnFromPosition(int pos)
+    {
+        int lineStart = doc.getParagraphElement(pos).getStartOffset();
+        return (pos - lineStart);       
+    }
+    
+    /**
+     * Mark the last line of the text area as output. and start a new 
+     * line after that one.
+     */
+    private void markAs(String flag, Object value)
+    {
+        append("\n ");          // ensure space at the beginning of every line
+        SimpleAttributeSet a = new SimpleAttributeSet();
+        a.addAttribute(flag, value);
+        doc.setParagraphAttributes(doc.getLength()-2, a);
+        repaint();
+    }
+    
+    /**
+     * Mark the current line of the text area as output.
+     */
+    private void markCurrentAs(String flag, Object value)
+    {
+        SimpleAttributeSet a = new SimpleAttributeSet();
+        a.addAttribute(flag, value);
+        doc.setParagraphAttributes(doc.getLength(), a);
+    }
+    
+     /**
+     * Replace the text of the current line with some new text.
+     * @param s The new text for the line.
+     */
+    private void replaceLine(String s)
+    {
+        Element line = doc.getParagraphElement(doc.getLength());
+        int lineStart = line.getStartOffset() + 1;  // ignore space at front
+        int lineEnd = line.getEndOffset() - 1;      // ignore newline char
+        
+        try {
+                doc.replace(lineStart, lineEnd-lineStart, s, null);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in text eval operation");
+        }
+    }
+    
+    /**
+     * Return the object stored with the line at position 'pos'.
+     * If that line does not have an object, return null.
+     */
+    private ObjectInfo objectAtPosition(int pos)
+    {
+        Element line = getLineAt(pos);
+        return (ObjectInfo) line.getAttributes().getAttribute(TextEvalSyntaxView.OBJECT);
+    }
+
+    /**
+     *  Find and return a line by text position
+     */
+    private Element getLineAt(int pos)
+    {
+        return doc.getParagraphElement(pos);
+    }
+
+    /**
+     * Check whether a given point on screen is over an object icon.
+     */
+    private boolean pointOverObjectIcon(int x, int y)
+    {
+        int pos = getUI().viewToModel(this, new Point(x, y));
+        ObjectInfo objInfo = objectAtPosition(pos);
+        return objInfo != null;        
+    }
+    
+    // ---- MouseMotionListener interface: ----
+    
+    public void mouseDragged(MouseEvent evt) {}
+
+    /**
+     * When the mouse is moved, check whether we should change the 
+     * mouse cursor.
+     */
+    public void mouseMoved(MouseEvent evt) 
+    {
+        int x = evt.getX();
+        int y = evt.getY();
+        
+        if(mouseInTag) {
+            if(x > BlueJSyntaxView.TAG_WIDTH) {    // moved out of tag area
+                setCursor(textCursor);
+                mouseInTag = false;
+            }
+            else 
+                setTagAreaCursor(x, y);
+        }
+        else {
+            if(x <= BlueJSyntaxView.TAG_WIDTH) {   // moved into tag area
+                setCursor(defaultCursor);
+                mouseOverObject = false;
+                setTagAreaCursor(x, y);
+                mouseInTag = true;
+            }
+        }
+    }
+
+    /**
+     * Set the mouse cursor for the tag area. 
+     */
+    private void setTagAreaCursor(int x, int y)
+    {
+        if(pointOverObjectIcon(x, y) != mouseOverObject) {  // entered or left object
+            mouseOverObject = !mouseOverObject;
+            if(mouseOverObject)
+                setCursor(objectCursor);
+            else
+                setCursor(defaultCursor);
+        }        
+    }
+
+    // ---- end of MouseMotionListener interface ----
+
+    /**
+     * Set the keymap for this text area. Especially: take care that cursor 
+     * movement is restricted so that the cursor remains in the last line,
+     * and interpret Return keys to evaluate commands.
+     */
+    private void defineKeymap()
+    {
+        Keymap newmap = JTextComponent.addKeymap("texteval", getKeymap());
+
+        Action action = new InsertCharacterAction();
+        newmap.setDefaultAction(action);
+
+        action = new ExecuteCommandAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), action);
+
+        action = new ContinueCommandAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK), action);
+
+        action = new BackSpaceAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), action);
+        
+        action = new CursorLeftAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, 0), action);
+
+        action = new HistoryBackAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_UP, 0), action);
+
+        action = new HistoryForwardAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, 0), action);
+
+        action = new TransferFocusAction(true);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), action);
+
+        action = new TransferFocusAction(false);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), action);
+
+        setKeymap(newmap);
+    }
+    
+    // ======= Actions =======
+    
+    final class InsertCharacterAction extends AbstractAction {
+
+        /**
+         * Create a new action object. This action executes the current command.
+         */
+        public InsertCharacterAction()
+        {
+            super("InsertCharacter");
+        }
+        
+        /**
+         * Insert a character into the text.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            if(!isEditable())
+                return;
+            
+            String s = event.getActionCommand();  // will always be length 1
+            if(s.charAt(0) != '\n') {             // bug workaround: enter goes through default
+                                                  //  action as well as set action
+                if(isLegalCaretPos())
+                    insert(s);
+                else
+                    append(s);
+            }
+        }
+    }
+
+    final class ExecuteCommandAction extends AbstractAction {
+
+        /**
+         * Create a new action object. This action executes the current command.
+         */
+        public ExecuteCommandAction()
+        {
+            super("ExecuteCommand");
+        }
+        
+        /**
+         * Execute the text of the current line in the text area as a Java command.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            String line = getCurrentLine();
+            currentCommand = (currentCommand + line).trim();
+            if(currentCommand.length() != 0) {
+                       
+                history.add(line);
+                append("\n");      // ensure space at the beginning of every line, because
+                                    // line properties do not work otherwise
+                markCurrentAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
+                firstTry = true;
+                setEditable(false);    // don't allow input while we're thinking
+                invoker = new Invoker(frame, currentCommand, TextEvalPane.this);
+            }
+            else {
+                markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
+            }
+            currentCommand = "";
+        }
+    }
+
+    final class ContinueCommandAction extends AbstractAction {
+
+        /**
+         * Create a new action object. This action reads the current
+         * line as a start for a new command and continues reading the 
+         * command in the next line.
+         */
+        public ContinueCommandAction()
+        {
+            super("ContinueCommand");
+        }
+        
+        /**
+         * Read the text of the current line in the text area as the
+         * start of a Java command and continue reading in the next line.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            String line = getCurrentLine();
+            currentCommand += line + " ";
+            history.add(line);
+            markAs(TextEvalSyntaxView.CONTINUE, Boolean.TRUE);
+        }
+    }
+
+    final class BackSpaceAction extends AbstractAction {
+
+        /**
+         * Create a new action object.
+         */
+        public BackSpaceAction()
+        {
+            super("BackSpace");
+        }
+        
+        /**
+         * Perform a backspace action.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            if(getCurrentColumn() > 1) {
+                try {
+                    doc.remove(getCaretPosition()-1, 1);
+                }
+                catch(BadLocationException exc) {
+                    Debug.reportError("bad location in text eval operation");
+                }
+            }
+        }
+    }
+
+    final class CursorLeftAction extends AbstractAction {
+
+        /**
+         * Create a new action object.
+         */
+        public CursorLeftAction()
+        {
+            super("CursorLeft");
+        }
+
+        /**
+         * Move the cursor left (if allowed).
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            if(getCurrentColumn() > 1) {
+                Caret caret = getCaret();
+                caret.setDot(caret.getDot() - 1);
+            }
+        }
+    }
+
+    final class HistoryBackAction extends AbstractAction {
+
+        /**
+         * Create a new action object.
+         */
+        public HistoryBackAction()
+        {
+            super("HistoryBack");
+        }
+        
+        /**
+         * Set the current line to the previous input history entry.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            String line = history.getPrevious();
+            if(line != null) {
+                replaceLine(line);
+            }
+        }
+
+    }
+
+    final class HistoryForwardAction extends AbstractAction {
+
+        /**
+         * Create a new action object.
+         */
+        public HistoryForwardAction()
+        {
+            super("HistoryForward");
+        }
+        
+        /**
+         * Set the current line to the next input history entry.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            String line = history.getNext();
+            if(line != null) {
+                replaceLine(line);
+            }
+        }
+
+    }
+
+    final class TransferFocusAction extends AbstractAction {
+        private boolean forward;
+        /**
+         * Create a new action object.
+         */
+        public TransferFocusAction(boolean forward)
+        {
+            super("TransferFocus");
+            this.forward = forward;
+        }
+        
+        /**
+         * Transfer the keyboard focus to another component.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            if(forward)
+                transferFocus();
+            else
+                transferFocusBackward();
+        }
+
+    }    
+
+    final class ObjectInfo {
+        DebuggerObject obj;
+        InvokerRecord ir;
+        
+        /**
+         * Create an object holding information about an invocation.
+         */
+        public ObjectInfo(DebuggerObject obj, InvokerRecord ir) {
+            this.obj = obj;
+            this.ir = ir;
+        }
+    }
+    
+
 }
