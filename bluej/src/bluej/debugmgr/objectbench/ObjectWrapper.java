@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2084 2003-06-27 17:50:35Z damiano $
+ * @version $Id: ObjectWrapper.java 2097 2003-07-07 18:50:52Z damiano $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -216,10 +216,6 @@ public class ObjectWrapper extends JComponent
         item.setFont(PrefMgr.getStandoutMenuFont());
         item.setForeground(envOpColour);
 
-
-        // Attach dynamic menu to this menu, Damiano
-        PopupManager popupManager = new PopupManager( this );
-        menu.addPopupMenuListener(popupManager);
 
         add(menu);
     }

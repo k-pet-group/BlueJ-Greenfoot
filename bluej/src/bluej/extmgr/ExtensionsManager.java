@@ -252,6 +252,9 @@ public class ExtensionsManager implements BlueJEventListener
             aWrapper.terminate();
             iter.remove();
         }
+
+        // We need to revalidate possible tools menu.
+        PkgMgrFrame.extensionToolsMenuRevalidate();
     }
 
     /**

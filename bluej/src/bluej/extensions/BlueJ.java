@@ -46,7 +46,7 @@ import bluej.debugmgr.objectbench.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2090 2003-07-03 08:33:04Z damiano $
+ * @version    $Id: BlueJ.java 2097 2003-07-07 18:50:52Z damiano $
  */
 
 /*
@@ -237,7 +237,7 @@ public class BlueJ
 
         currentMenuGen = menuGen;
 
-        PkgMgrFrame.fixMacToolsMenu();
+        PkgMgrFrame.extensionToolsMenuRevalidate();
     }
 
 
@@ -655,33 +655,7 @@ public class BlueJ
         if (currentMenuGen == null)
             return null;
 
-        // Only the tools menu can have a null object, when there is no package open.
-        if (attachedObject == null)
-            return currentMenuGen.getToolsMenuItem(null);
-
-        // This is the normal case of a Tools menu.
-        if (attachedObject instanceof Package) {
-            Package attachedPkg = (Package) attachedObject;
-            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg);
-            return currentMenuGen.getToolsMenuItem(new BPackage(anId));
-        }
-
-        // Looking for Class Target allows to differentiate between the various targets
-        if (attachedObject instanceof ClassTarget) {
-            ClassTarget aTarget = (ClassTarget) attachedObject;
-            String qualifiedClassName = aTarget.getQualifiedName();
-            Package attachedPkg = aTarget.getPackage();
-            Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg, qualifiedClassName);
-            return currentMenuGen.getClassMenuItem(new BClass(anId));
-        }
-
-        // This is the case of a menu bound to an object.
-        if (attachedObject instanceof ObjectWrapper) {
-            ObjectWrapper aWrapper = (ObjectWrapper) attachedObject;
-            return currentMenuGen.getObjectMenuItem(new BObject(aWrapper));
-        }
-
-        return null;
+        return currentMenuGen.getMenuItem();
     }
 
 

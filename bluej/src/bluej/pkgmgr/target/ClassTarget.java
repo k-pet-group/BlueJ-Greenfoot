@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2085 2003-06-30 12:03:30Z fisker $
+ * @version $Id: ClassTarget.java 2097 2003-07-07 18:50:52Z damiano $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -929,10 +929,6 @@ public class ClassTarget extends EditableTarget
 
         // call on role object to add any options needed at bottom
         role.createRoleMenuEnd(menu, this, state);
-
-        // Attach dynamic menu to this menu, Damiano
-        PopupManager popupManager = new PopupManager( this );
-        menu.addPopupMenuListener(popupManager);
 
         return menu;
     }

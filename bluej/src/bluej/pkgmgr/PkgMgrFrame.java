@@ -33,7 +33,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2090 2003-07-03 08:33:04Z damiano $
+ * @version $Id: PkgMgrFrame.java 2097 2003-07-07 18:50:52Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -77,7 +77,7 @@ public class PkgMgrFrame extends JFrame
     private JMenuBar menubar = null;
     private JMenu recentProjectsMenu;
     private JMenu toolsMenu;
-    private PopupManager popupManager;
+    private MenuManager menuManager;
     private JMenu viewMenu;
 
     private JMenuItem showTestResultsItem;
@@ -148,7 +148,7 @@ public class PkgMgrFrame extends JFrame
         PkgMgrFrame frame = new PkgMgrFrame();
         frames.add(frame);
         BlueJEvent.addListener(frame);
-        PkgMgrFrame.fixMacToolsMenu();
+        PkgMgrFrame.extensionToolsMenuRevalidate();
         return frame;
     }
 
@@ -405,36 +405,24 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
-     * This method is used to fix a Mac OS bug when using java 1.4.1
-     * The problem is that whan the menubar is on the screen, events on 
-     * popup menu are not generated correctly. 
-     * What I need to do is to handle all cases of mrnu resync when they 
-     * are most likely to occour. Of course we will post this as a bug to Mac
-     * (It works OK on java 1.3.1 on mac).Damiano
      */
-    public static void fixMacToolsMenu ()
+    public static void extensionToolsMenuRevalidate ()
     {
-        // All is fine if we are not using a mac screen menubar
-        if ( ! Config.usingMacScreenMenubar() ) return;
-
-        // And the problem shows only with jdk 1.4.1
-        if ( ! System.getProperty("java.version").startsWith("1.4.1") ) return;
-
         // What I need to do is to call a resync on all the frames, in swing thread
         EventQueue.invokeLater(new Runnable () 
         {
             public void run ()
             {
-                fixAllMacToolsMenu ();
+                fixAllToolsMenu ();
             }
         });
 
     }
 
     /**
-     * Go trough all frames and fixx al tools menu.
+     * Go trough all frames and fix al tools menu.
      */
-    private static void fixAllMacToolsMenu()
+    private static void fixAllToolsMenu()
     {
         // We have to be extra safe since this may be called any time
         if ( frames == null ) return;
@@ -442,7 +430,7 @@ public class PkgMgrFrame extends JFrame
         for ( Iterator iter=frames.iterator(); iter.hasNext(); )
         {
             PkgMgrFrame aFrame = (PkgMgrFrame)iter.next();
-            aFrame.popupManager.revalidate(aFrame.toolsMenu.getPopupMenu());
+            aFrame.menuManager.revalidate(aFrame.toolsMenu.getPopupMenu());
         }
      
     }
@@ -555,10 +543,7 @@ public class PkgMgrFrame extends JFrame
 
         SwingUtilities.invokeLater(enableUI);
 
-        // Attache new package to the dynamic Menu, Damiano
-        this.popupManager.setAttachedObject ( pkg );
-
-        PkgMgrFrame.fixMacToolsMenu();
+        PkgMgrFrame.extensionToolsMenuRevalidate();
         extMgr.packageOpened (pkg);
     }
 
@@ -587,9 +572,6 @@ public class PkgMgrFrame extends JFrame
         editor = null;
         pkg = null;
 
-        // Signal that package is gone, Damiano
-        this.popupManager.setAttachedObject ( pkg );
-
         // if there are no other frames editing this project, we close
         // the project
         if (PkgMgrFrame.getAllProjectFrames(proj) == null)
@@ -609,7 +591,6 @@ public class PkgMgrFrame extends JFrame
             };
 
         SwingUtilities.invokeLater(disableUI);
-        PkgMgrFrame.fixMacToolsMenu();
     }
 
     /**
@@ -2268,10 +2249,9 @@ public class PkgMgrFrame extends JFrame
                                public void actionPerformed(ActionEvent e) { menuCall(); showPreferences(); }
                            });
 
-            // ATtache dynamic menu to this menu, Damiano
-            JPopupMenu aMenu = menu.getPopupMenu();
-            popupManager = new PopupManager( pkg );
-            aMenu.addPopupMenuListener(popupManager);
+            // Lets get the menu to display, Damiano
+            menuManager = new MenuManager();
+            menuManager.revalidate(menu.getPopupMenu());;
         }
 
 
