@@ -16,7 +16,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiClass.java 2830 2004-08-03 09:26:06Z polle $
+ *@version    $Id: JdiClass.java 2846 2004-08-06 09:13:55Z polle $
  */
 public class JdiClass extends DebuggerClass
 {
@@ -217,12 +217,19 @@ public class JdiClass extends DebuggerClass
      */
     public static String getValueString(Value val)
     {
+        
         if (val == null) {
             return nullLabel;
         }
         else if (val instanceof StringReference) {
             return "\"" + ((StringReference) val).value() + "\"";
             // toString should be okay for this as well once the bug is out...
+        }
+        else if (val.type() instanceof ClassType && JdiUtils.getJdiUtils().isEnum((ClassType) val.type())) {
+            ClassType type =  (ClassType) val.type();
+            Field nameField = type.fieldByName("name");
+            String name = ((StringReference) ((ObjectReference) val).getValue(nameField)).value();
+            return name;
         }
         else if (val instanceof ObjectReference) {
             return "<object reference>";
