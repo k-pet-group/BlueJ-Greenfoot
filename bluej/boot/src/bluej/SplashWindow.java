@@ -2,6 +2,7 @@ package bluej;
 
 import java.awt.*;
 import javax.swing.*;
+
 import java.awt.event.*;
 import java.net.URL;
 
@@ -10,7 +11,7 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2280 2003-11-05 17:42:13Z mik $
+ * @version $Id: SplashWindow.java 2364 2003-11-18 14:29:19Z fisker $
  */
 
 public class SplashWindow extends JWindow
@@ -30,6 +31,7 @@ public class SplashWindow extends JWindow
         // getResource()
 
         image = new JLabel(icon);
+        image.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         getContentPane().add(image);
 
         pack();
@@ -42,7 +44,7 @@ public class SplashWindow extends JWindow
         setVisible(true);
 
         // for testing - if you want to look at it a bit longer...
-        //try { Thread.sleep(4000); } catch (Exception e) {}
+        //try { Thread.sleep(8000); } catch (Exception e) {}
     }
 
     /**
