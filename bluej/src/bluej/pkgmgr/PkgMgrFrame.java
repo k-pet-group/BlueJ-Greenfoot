@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1769 2003-04-09 14:55:30Z mik $
+ * @version $Id: PkgMgrFrame.java 1820 2003-04-10 15:06:22Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -51,6 +51,7 @@ public class PkgMgrFrame extends JFrame
     // instance fields:
 
     private JPanel buttonPanel;
+    private JPanel testPanel;
 
     private JCheckBoxMenuItem showUsesMenuItem;
     private JCheckBoxMenuItem showExtendsMenuItem;
@@ -1757,16 +1758,65 @@ public class PkgMgrFrame extends JFrame
                 buttonPanel.add(button);
 				buttonPanel.add(Box.createVerticalStrut(3));
 
-				button = createButton(Config.getString("menu.tools.test"),
-									  emptyIcon,
+                buttonPanel.setAlignmentX(0.5f);
+            }
+
+            testPanel = new JPanel();
+            {
+                testPanel.setLayout(new BoxLayout(testPanel, BoxLayout.Y_AXIS));
+                //testPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
+                testPanel.setBorder(BorderFactory.createTitledBorder(Config.getString("pkgmgr.test.label")));
+//                testPanel.setBorder(BorderFactory.createCompoundBorder(
+//                                          BorderFactory.createTitledBorder(
+//                                                 Config.getString("pkgmgr.test.label")),
+//                                          Config.generalBorder));
+
+				JButton button = createButton(Config.getString("pkgmgr.test.run"),
+									  null,
 									  Config.getString("tooltip.test"));
 				button.addActionListener(new ActionListener() {
 											public void actionPerformed(ActionEvent e) {
 												doTest(); }
 										 });
-				buttonPanel.add(button);
-            }
+                testPanel.add(button);
+                testPanel.add(Box.createVerticalStrut(5));
+
+                JLabel recordingLabel = new JLabel(Config.getString("pkgmgr.test.record"),
+                                                Config.getImageAsIcon("image.test.recording"),
+                                                SwingConstants.LEADING);
+                recordingLabel.setFont(PkgMgrFont);
+                testPanel.add(recordingLabel);
     
+                endTestButton = createButton(Config.getString("pkgmgr.test.end"),
+                                              null,
+                                              Config.getString("tooltip.test.end"));
+                testPanel.add(endTestButton);
+
+                cancelTestButton = createButton(Config.getString("cancel"),
+                                              null,
+                                              Config.getString("tooltip.test.cancel"));
+                testPanel.add(cancelTestButton);
+
+                endTestButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        doEndTest(); }
+                 });
+                cancelTestButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        doCancelTest(); }
+                 });
+
+                testStatusMessage = new JLabel("");
+                //testPanel.add(testStatusMessage);
+
+                testStatusMessage.setEnabled(false);
+                endTestButton.setEnabled(false);
+                cancelTestButton.setEnabled(false);
+                                         
+                testPanel.setAlignmentX(0.5f);
+            }
+
+
             // Image Button Panel to hold the Progress Image
             //        JPanel progressPanel = new JPanel ();
     
@@ -1783,14 +1833,14 @@ public class PkgMgrFrame extends JFrame
             //        progressPanel.add(progressButton);
     
             progressButton.setAlignmentX(0.5f);
-            buttonPanel.setAlignmentX(0.5f);
         }
     
         toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
         toolPanel.add(buttonPanel);
         toolPanel.add(Box.createVerticalGlue());
-        toolPanel.add(progressButton);
+        toolPanel.add(testPanel);
         toolPanel.add(Box.createVerticalStrut(3));
+        toolPanel.add(progressButton);
 
         // create the bottom object bench and status area
         
@@ -1798,26 +1848,6 @@ public class PkgMgrFrame extends JFrame
         {
             bottomPanel.setLayout(new BorderLayout());
 
-            JPanel testPanel = new JPanel();
-            testPanel.setLayout(new FlowLayout());
-            testPanel.add(testStatusMessage = new JLabel(""));
-            testPanel.add(endTestButton = new JButton("end test"));
-            testPanel.add(cancelTestButton = new JButton("cancel test"));
-
-            endTestButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    doEndTest(); }
-             });
-            cancelTestButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    doCancelTest(); }
-             });
-
-            testStatusMessage.setEnabled(false);
-            endTestButton.setEnabled(false);
-            cancelTestButton.setEnabled(false);
-
-            bottomPanel.add(testPanel, BorderLayout.NORTH);
             objbench = new ObjectBench();
 
             JComponent bench = objbench.getComponent();
@@ -2134,23 +2164,25 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
-     * I need this call so the separator is added when a menu is added.
+     * Add or remove a separator in the tools menu for extensions as needed.
      */
     public void toolsExtensionsCheckSeparator()
     {
-        if ( extMgr.haveMenuItems(null, this, toolsMenu) ) {
-            // I am wishing to add a separator but there is already one.
-            if ( toolsExtensionsSeparatorIndex > 0 ) return;
-            // Yes, this is the right place where to count ....
-              toolsExtensionsSeparatorIndex=toolsMenu.getItemCount();
-              toolsMenu.addSeparator();
-          } else {
-              // I want to remove the separator but there is none...
-              if ( toolsExtensionsSeparatorIndex <= 0 ) return;
-              toolsMenu.remove(toolsExtensionsSeparatorIndex);
-              toolsExtensionsSeparatorIndex=0;
-          }
-      }
+        if(extMgr.haveMenuItems(null, this, toolsMenu)) {   // do we need one?
+            if (toolsExtensionsSeparatorIndex > 0)          // have one already
+                return;
+
+            toolsExtensionsSeparatorIndex = toolsMenu.getItemCount();
+            toolsMenu.addSeparator();
+        } 
+        else {                                            // don't need one
+            if (toolsExtensionsSeparatorIndex <= 0)         // don't have one
+                return;
+
+            toolsMenu.remove(toolsExtensionsSeparatorIndex);
+            toolsExtensionsSeparatorIndex = 0;
+        }
+    }
 
 
 
