@@ -11,6 +11,7 @@ import bluej.utility.JavaNames;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
+import bluej.tester.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -31,7 +32,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 932 2001-06-12 00:05:11Z bquig $
+ * @version $Id: ObjectWrapper.java 1004 2001-11-07 05:37:26Z ajp $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -168,6 +169,11 @@ public class ObjectWrapper extends JComponent
                 item.setFont(PrefMgr.getStandoutMenuFont());
                 item.setForeground(envOpColour);
                 } */
+
+	menu.add(item = new JMenuItem("make test"));
+	item.addActionListener(this);
+	item.setFont(PrefMgr.getStandoutMenuFont());
+	item.setForeground(envOpColour);
 
         menu.add(item = new JMenuItem(remove));
         item.addActionListener(this);
@@ -429,6 +435,15 @@ public class ObjectWrapper extends JComponent
                 bench.remove(this, pkg.getId());
             }
 
+		else if ("make test".equals(cmd)) {
+
+			CallRecord cr = CallRecord.getCallRecord(getName());
+
+			if (cr == null)
+				System.out.println("object was constructed with a get");
+			else
+				System.out.println(cr.dump(1, "wow", false));
+		}
             // serializable support - not yet enabled 12/01/2000 ajp
             /*            else if(serializable.equals(cmd)) {
 

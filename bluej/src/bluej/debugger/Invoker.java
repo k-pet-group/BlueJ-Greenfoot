@@ -15,6 +15,7 @@ import bluej.views.LabelPrintWriter;
 import bluej.views.MemberView;
 import bluej.views.CallableView;
 import bluej.views.MethodView;
+import bluej.tester.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -29,11 +30,11 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 910 2001-05-24 07:24:41Z mik $
+ * @version $Id: Invoker.java 1004 2001-11-07 05:37:26Z ajp $
  */
 
 public class Invoker extends Thread
-	implements CompileObserver, MethodDialogWatcher
+    implements CompileObserver, MethodDialogWatcher
 {
     private static final String creating = Config.getString("pkgmgr.creating");
     private static final String createDone = Config.getString("pkgmgr.createDone");
@@ -210,8 +211,9 @@ public class Invoker extends Thread
      */
     protected void doInvocation(String[] args, Class[] argTypes)
     {
-        Component[] wrappers;
+        Component[] wrappers = pmf.getObjectBench().getComponents();
         boolean dontQualify = false;
+
 
         // PENDING: this should be changed to write directly to file.
         // The hashtable mechanism doesn't make so much sense anymore
@@ -291,12 +293,11 @@ public class Invoker extends Thread
           // a parameter. Then add one line for each parameter setting the
           // parameter value.
 
-        wrappers = pmf.getObjectBench().getComponents();
         buffer = new StringBuffer();
         String scopeId = Utility.quoteSloshes(pkg.getId());
         if(wrappers.length > 0)
             buffer.append("java.util.Map __bluej_runtime_scope = getScope(\""
-        		  + scopeId + "\");" + Config.nl);
+                  + scopeId + "\");" + Config.nl);
         for(int i = 0; i < wrappers.length; i++) {
             ObjectWrapper wrapper = (ObjectWrapper)wrappers[i];
             String type = (dontQualify ?
@@ -329,8 +330,10 @@ public class Invoker extends Thread
             buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
             buffer.append(instanceName);
             buffer.append("\", __bluej_runtime_result.result);");
+
+            CallRecord.getCallRecord(instanceName, member, args);
         }
-        else {	// it's a method call
+        else {  // it's a method call
             MethodView method = (MethodView)member;
             boolean isVoid = method.isVoid();
 
@@ -338,8 +341,12 @@ public class Invoker extends Thread
                 command = (dontQualify ?
                              JavaNames.getBase(className) :
                              className) + "." + method.getName();
-            else
+            else {
                 command = objName + "." + method.getName();
+
+                CallRecord.addMethodCallRecord(objName, method.getName(), 
+                                                member, args);
+            }
 
             if(!isVoid)
                 buffer.append("__bluej_runtime_result = makeObj(");
@@ -349,11 +356,11 @@ public class Invoker extends Thread
             buffer.append(";" + Config.nl);
 
             if(!isVoid) {
-            	// generate and store unique ID for result object
-            	resultId = getResultId();
-            	buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
-            	buffer.append(resultId);
-            	buffer.append("\", __bluej_runtime_result);");
+                // generate and store unique ID for result object
+                resultId = getResultId();
+                buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
+                buffer.append(resultId);
+                buffer.append("\", __bluej_runtime_result);");
             }
         }
         trans.put("INVOCATION", buffer.toString());
@@ -388,9 +395,9 @@ public class Invoker extends Thread
     public void errorMessage(String filename, int lineNo, String message,
                                 boolean invalidate)
     {
-    	if(dialog != null) {
-    	    dialog.setMessage("Error: " + message);
-    	}
+        if(dialog != null) {
+            dialog.setMessage("Error: " + message);
+        }
     }
 
     /**
@@ -400,13 +407,13 @@ public class Invoker extends Thread
      */
     public void endCompile(String[] sources, boolean successful)
     {
-    	if(dialog != null) {
-    	    dialog.setWaitCursor(false);
-    	    if(successful) {
-    		dialog.setVisible(false);
-    		dialog.updateParameters();
-    	    }
-    	}
+        if(dialog != null) {
+            dialog.setWaitCursor(false);
+            if(successful) {
+            dialog.setVisible(false);
+            dialog.updateParameters();
+            }
+        }
 
         pmf.setWaitCursor(false);
 
@@ -467,54 +474,56 @@ public class Invoker extends Thread
      */
     public void handleResult(String shellClassName)
     {
-	try {
-	    // first, check whether we had an unexpected exit
-	    int status = Debugger.debugger.getExitStatus();
-	    switch(status) {
+        try {
+            // first, check whether we had an unexpected exit
+            int status = Debugger.debugger.getExitStatus();
+            switch(status) {
 
-	      case Debugger.NORMAL_EXIT:
-		  if(watcher != null) {
-		      DebuggerObject result = Debugger.debugger.getStaticValue(
-						shellClassName,
-						"__bluej_runtime_result");
-		      if(constructing)
-			  watcher.putResult(result, instanceName);
-		      else
-			  watcher.putResult(result, resultId);
-		  }
-		  break;
+                case Debugger.NORMAL_EXIT:
+                    if(watcher != null) {
+                        DebuggerObject result = Debugger.debugger.getStaticValue(
+                                    shellClassName,
+                                    "__bluej_runtime_result");
+                        if(constructing) {
+                            watcher.putResult(result, instanceName);
+                        }
+                        else {
+                            watcher.putResult(result, resultId);
+                        }
+                    }
+                    break;
 
-	      case Debugger.FORCED_EXIT:  // exit through System.exit()
-                  // possible change: currently, exits don't get reported for
-                  // void methods. maybe: exits should get reported if return
-                  // value != 0
-		  if(watcher != null) {
-		      ExceptionDescription exc =
-			  Debugger.debugger.getException();
-		      pkg.reportExit(exc.getText());
-		  }
-		  break;
+              case Debugger.FORCED_EXIT:  // exit through System.exit()
+                      // possible change: currently, exits don't get reported for
+                      // void methods. maybe: exits should get reported if return
+                      // value != 0
+              if(watcher != null) {
+                  ExceptionDescription exc =
+                  Debugger.debugger.getException();
+                  pkg.reportExit(exc.getText());
+              }
+              break;
 
-	      case Debugger.EXCEPTION:
-		  ExceptionDescription exc = Debugger.debugger.getException();
-		  String text =
-		      JavaNames.stripPrefix(exc.getClassName());
-		  if(exc.getText() != null)
-		      text += ":\n" + exc.getText();
+              case Debugger.EXCEPTION:
+              ExceptionDescription exc = Debugger.debugger.getException();
+              String text =
+                  JavaNames.stripPrefix(exc.getClassName());
+              if(exc.getText() != null)
+                  text += ":\n" + exc.getText();
 
-		  if(exc.getClassName() == null)
-		      pkg.reportException(text);
-		  else
-		      pkg.exceptionMessage(exc.getStack(), text, false);
-		  break;
+              if(exc.getClassName() == null)
+                  pkg.reportException(text);
+          else
+              pkg.exceptionMessage(exc.getStack(), text, false);
+          break;
 
-	      case Debugger.TERMINATED:  // terminated by user
-		  // nothing to do
-		  break;
+          case Debugger.TERMINATED:  // terminated by user
+          // nothing to do
+          break;
 
-	    } // switch
-	} catch(Throwable e) {
-	    e.printStackTrace(System.err);
-	}
+            } // switch
+        } catch(Throwable e) {
+            e.printStackTrace(System.err);
+        }
     }
 }
