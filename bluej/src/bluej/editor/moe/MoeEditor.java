@@ -401,6 +401,7 @@ public final class MoeEditor extends JFrame
     public void save()       // inherited from Editor, redefined
     {
         if (saveState.isChanged()) {
+            BufferedWriter writer = null;
             try {
                 // The crash file is used during writing and will remain in
                 // case of a crash during the write operation. The backup
@@ -411,9 +412,8 @@ public final class MoeEditor extends JFrame
                 // make a backup to the crash file
                 FileUtility.copyFile(filename, crashFilename);
 
-                BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-                sourcePane.write(writer);
-                writer.close();
+                writer = new BufferedWriter(new FileWriter(filename));
+                sourcePane.write(writer);                
                 setSaved();
 
                 if (PrefMgr.getFlag(PrefMgr.MAKE_BACKUP)) {
@@ -430,6 +430,13 @@ public final class MoeEditor extends JFrame
             }
             catch (IOException ex) {
                 info.warning(Config.getString("editor.info.errorSaving"));
+            }
+            finally {
+                try {
+                   if(writer != null)
+                      writer.close();
+                }
+                catch (IOException ex) { }
             }
         }
     }
