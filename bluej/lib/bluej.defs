@@ -84,6 +84,12 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 
 #bluej.userHome=/home/mik/tmp
 
+#####################################################################
+## Allow BlueJ to automatically open any projects that were open when 
+## it was last closed down.   
+#####################################################################
+
+bluej.autoOpenLastProject=true
 
 #####################################################################
 ## Web browser. The following are the commands used for opening a
