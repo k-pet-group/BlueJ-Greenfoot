@@ -14,12 +14,13 @@ import java.net.URL;
  * to a given path on a given (attached) server. It uses FTP in passive mode.
  * 
  * @author Clive Miller
- * @version $Id: FtpSession.java 1585 2002-12-13 12:17:29Z damiano $
+ * @version $Id: FtpSession.java 1586 2002-12-13 13:29:57Z damiano $
  */
 
 public class FtpSession extends TransportSession
 {
     private int fileCounter;
+    private String rootDir;
     
     public FtpSession (URL url, Properties environment)
     {
@@ -67,11 +68,20 @@ public class FtpSession extends TransportSession
     {
         String sendPath = url.getPath();
 
-/*
-        connection.send ("CWD");
+        if ( rootDir == null ) {
+            connection.send("PWD");
+            String aResult = connection.expect (new String[] {"257 "},
+                           new String[] {"500","501","502","421","530","550"});
+
+            int firstQuote = aResult.indexOf ("\"");
+            int lastQuote  = aResult.indexOf("\"",firstQuote+1);
+            rootDir = aResult.substring(firstQuote+1,lastQuote);
+        }
+
+        connection.send ("CWD "+rootDir);
         connection.expect (new String[] {"250 "},
                            new String[] {"500","501","502","421","530","550"});
-*/                           
+                           
         if (!sendPath.equals ("") && !sendPath.equals ("/")) {
             connection.send ("CWD "+sendPath.substring(1));
             String resp = connection.expect (new String[] {"250 ","550"},

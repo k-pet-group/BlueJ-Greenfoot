@@ -14,7 +14,7 @@ import java.net.Socket;
 /**
  * Provide buffering, logging and time-out for sessions through sockets
  * @author Clive Miller
- * @version $Id: SocketSession.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: SocketSession.java 1586 2002-12-13 13:29:57Z damiano $
  */
 class SocketSession
 {
@@ -75,6 +75,7 @@ class SocketSession
         channel.setSoTimeout (TIMEOUT_OPEN);
         getLine = in.readLine();
         log.println ("<<"+getLine);
+        log.flush();
         try {
             while (getLine != null)
             {
@@ -88,6 +89,7 @@ class SocketSession
                 channel.setSoTimeout (TIMEOUT_CONT);
                 getLine = in.readLine();
                 log.println ("<<"+getLine);
+                log.flush();
             }
             throw new IOException();
         } catch (ProtocolException ex) {
@@ -119,6 +121,7 @@ class SocketSession
     {
         out.write ((data+"\n").getBytes());
         log.println (">>"+data);
+        log.flush();
         lastCommand = data;
     }
 
