@@ -162,6 +162,9 @@ tokens {
 
 	// start parsing at the compilationUnit rule
 	parser.compilationUnit();
+	
+	//close the reader to allow class name changes in editor
+	r.close();
     }
 
     // Tell the parser which symbol table to use
