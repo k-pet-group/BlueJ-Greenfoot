@@ -19,6 +19,7 @@ package bluej.extensions;
  * however there are cases when we need the short form, it seems reasonable to store the
  * long form and derive the short one.
  *
+ * Author: Damiano Bolla 2003,2004
  */
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
