@@ -185,14 +185,15 @@ public class MoePrinter
         // get a line, get its length, do some font metrics,
         StyleContext context = new StyleContext();
         FontMetrics fontMetrics = context.getFontMetrics(font);
+        int maxWidth = (int)format.getImageableWidth() - (PADDING * 2);
+        int fontWidth = fontMetrics.charWidth('m');           
+        int chars = maxWidth / fontWidth;
+
         for(ListIterator li = text.listIterator(); li.hasNext(); ) {
             String currentLine = (String)li.next();
             int currentLineLength = currentLine.length();
             int width = fontMetrics.stringWidth(currentLine);
-            int maxWidth = (int)format.getImageableWidth() - (PADDING * 2);
-            int fontWidth = fontMetrics.charWidth('m');           
-            int chars = maxWidth / fontWidth;
-
+         
             // if line needs to be wrapped
             if(width > maxWidth) {
                 int indexOfLine = li.previousIndex();
@@ -203,7 +204,7 @@ public class MoePrinter
                     if(begin + chars < currentLineLength)
                         end = begin + chars;
                     else
-                        end = currentLineLength - 1;
+                        end = currentLineLength;
                     String newSubString = currentLine.substring(begin, end);
                     if(newSubString.length() != 0)
                         li.add(newSubString);
