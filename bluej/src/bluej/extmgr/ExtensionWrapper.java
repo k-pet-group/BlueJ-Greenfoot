@@ -16,6 +16,7 @@ import java.net.URLClassLoader;
 
 import java.text.SimpleDateFormat;
 import java.lang.reflect.Constructor;
+import javax.swing.*;
 
 /**
  * <PRE>
@@ -47,8 +48,8 @@ public class ExtensionWrapper
     // If != null the extension is loaded. do NOT expose this unless REALLY needed
     private Extension extensionInstance;
 
+    private BlueJ  extensionBluej;
     private String extensionStatusString;
-    private BlueJ extensionBluej;
     private MenuManager menuManager;
     private Project project;
     private Collection eventListeners;
@@ -161,14 +162,14 @@ public class ExtensionWrapper
         }
 
         // Let me see if this extension is somewhat compatible...
-        if (!extensionInstance.isCompatible()) {
+        if ( ! safeIsCompatible() ) {
             extensionStatusString = Config.getString("extmgr.status.badversion");
             extensionInstance = null;
             return;
         }
 
         // Ok, time to really start everything... This MUST be here.... after all is initialzed
-        extensionInstance.startup(extensionBluej);
+        safeStartup(extensionBluej);
         extensionStatusString = Config.getString("extmgr.status.loaded");
     }
 
@@ -184,17 +185,6 @@ public class ExtensionWrapper
     public Project getProject()
     {
         return project;
-    }
-
-
-    /**
-     *  Accessor for the bluej that is created
-     *
-     * @return    The blueJ value
-     */
-    public BlueJ getBluej()
-    {
-        return extensionBluej;
     }
 
 
@@ -241,11 +231,7 @@ public class ExtensionWrapper
     {
         Debug.message("Extension.terminate(): class="+getExtensionClassName());
 
-        if ( extensionInstance != null ) {
-            // Give a chance to extension to clear up after itself.
-            String terminateRisul = extensionInstance.terminate();
-            Debug.message("Extension.terminate()="+terminateRisul);
-        }
+        safeTerminate();
 
         // Needed to signal to the revalidate that this instance is no longer here.            
         extensionInstance = null;
@@ -362,32 +348,6 @@ public class ExtensionWrapper
 
 
     /**
-     *  Gets the extension's description.
-     *
-     * @return    the extension's description, or null
-     */
-    public String getExtensionDescription()
-    {
-        if (extensionInstance == null) return null;
-
-        return extensionInstance.getDescription();
-    }
-
-
-    /**
-     *  Gets the extension's 'further information' URL
-     *
-     * @return    the extension's URL, or <CODE>null</CODE>.
-     */
-    public URL getURL()
-    {
-        if (extensionInstance == null) return null;
-
-        return extensionInstance.getURL();
-    }
-
-
-    /**
      *  Gets the timestamp of the jar file.
      *  NOTE: Need to return the date in locale format...
      *  
@@ -397,21 +357,6 @@ public class ExtensionWrapper
     {
         SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         return timeFormat.format(new Date(extensionLastModified));
-    }
-
-
-    /**
-     *  Gets the formal version number of this extension.
-     *
-     * @return    a String containing the major version, followed by a dot,
-     *      followed by the minor version number. or null
-     */
-    public String getExtensionVersion()
-    {
-        if (extensionInstance == null)
-            return Config.getString("extmgr.version.unknown");
-
-        return extensionInstance.getVersion();
     }
 
 
@@ -491,4 +436,231 @@ public class ExtensionWrapper
             el.eventOccurred(event);
         }
     }
+
+
+
+
+
+    /* ====================== ERROR WRAPPED CALLS HERE =========================
+     * I need to wrapp ALL calls from BlueJ to the Extension into a try/catch
+     * Othervise an error in the extension will render BlueJ unusable. Damiano
+     */
+
+
+    /**
+     *  Gets the extension's description.
+     *
+     * @return    the extension's description, or null
+     */
+    String safeGetExtensionDescription()
+    {
+        if (extensionInstance == null) return null;
+
+        try
+          {
+          return extensionInstance.getDescription();
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safeGetExtensionDescription: Exception="+exc.getMessage());
+          return null;
+          }
+    }
+
+
+    /**
+     *  Gets the extension's 'further information' URL
+     *
+     * @return    the extension's URL, or <CODE>null</CODE>.
+     */
+    URL safeGetURL()
+    {
+        if (extensionInstance == null) return null;
+
+        try
+          {
+          return extensionInstance.getURL();
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safeGetURL: Exception="+exc.getMessage());
+          return null;
+          }
+    }
+
+
+    /**
+     *  Gets the formal version of this extension.
+     *
+     * @return  the version of the extension
+     */
+    String safeGetExtensionVersion()
+    {
+        if (extensionInstance == null) return null;
+
+        try
+          {
+          return extensionInstance.getVersion();
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safeGetExtensionVersion: Exception="+exc.getMessage());
+          return null;
+          }
+    }
+
+
+
+    /**
+     *  Ask to the extension if it thinks if it si compatible.
+     *
+     * @return  true if it is, false othervise
+     */
+    private boolean safeIsCompatible()
+    {
+        if (extensionInstance == null) return false;
+
+        try
+          {
+          return extensionInstance.isCompatible();
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safeIsCompatible: Exception="+exc.getMessage());
+          // If one bombs at me it shurely is not compatilbe 
+          return false;
+          }
+    }
+
+    /**
+     *  Call the startup method in a safe way
+     *
+     * @return  true if it is, false othervise
+     */
+    private void safeStartup(BlueJ giveThisBluej )
+    {
+        if (extensionInstance == null) return;
+
+        try
+          {
+          extensionInstance.startup(giveThisBluej);
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safeStartup: Exception="+exc.getMessage());
+          }
+    }
+
+
+    /**
+     *  Call the terminate method in a safe way
+     *
+     * @return  true if it is, false othervise
+     */
+    private void safeTerminate()
+    {
+        if (extensionInstance == null) return;
+
+        try
+          {
+          // Give a chance to extension to clear up after itself.
+          String terminateRisul = extensionInstance.terminate();
+          Debug.message("Extension.terminate()="+terminateRisul);
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safeTerminate: Exception="+exc.getMessage());
+          }
+    }
+
+
+
+    /**
+     *  Calls the EXTENSION preference panel loadValues in a sfe way
+     */
+    void safePrefGenLoadValues()
+    {
+        if (extensionBluej == null) return;
+
+        PrefGen aPrefGen = extensionBluej.getPrefGen();
+        // The above is dafe. An extension may not have a preference panel
+        if ( aPrefGen == null ) return;
+
+        try
+          {
+          aPrefGen.loadValues();
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safePrefGenLoadValues: Exception="+exc.getMessage());
+          }
+    }
+
+    /**
+     *  Calls the EXTENSION preference panel saveValues in a sfe way
+     */
+    void safePrefGenSaveValues()
+    {
+        if (extensionBluej == null) return;
+
+        PrefGen aPrefGen = extensionBluej.getPrefGen();
+        // The above is dafe. An extension may not have a preference panel
+        if ( aPrefGen == null ) return;
+
+        try
+          {
+          aPrefGen.saveValues();
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safePrefGenSaveValues: Exception="+exc.getMessage());
+          }
+    }
+
+    /**
+     *  Calls the EXTENSION preference panel getPanel in a sfe way
+     */
+    JPanel safePrefGenGetPanel()
+    {
+        if (extensionBluej == null) return null;
+
+        PrefGen aPrefGen = extensionBluej.getPrefGen();
+        // The above is dafe. An extension may not have a preference panel
+        if ( aPrefGen == null ) return null;
+
+        try
+          {
+          return aPrefGen.getPanel();
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safePrefGenGetPanel: Exception="+exc.getMessage());
+          return null;
+          }
+    }
+
+
+    /**
+     *  Calls the EXTENSION preference panel getMenuItem in a sfe way
+     */
+    JMenuItem safeMenuGenGetMenuItem()
+    {
+        if (extensionBluej == null) return null;
+
+        MenuGen aMenuGen = extensionBluej.getMenuGen();
+        // The above is dafe. An extension may not have a menu generator
+        if ( aMenuGen == null ) return null;
+
+        try
+          {
+          return aMenuGen.getMenuItem();
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safeMenuGenGetMenuItem: Exception="+exc.getMessage());
+          return null;
+          }
+    }
+
+
 }

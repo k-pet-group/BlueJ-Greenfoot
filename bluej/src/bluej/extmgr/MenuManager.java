@@ -1,15 +1,11 @@
 package bluej.extmgr;
 
 import bluej.pkgmgr.*;
-import bluej.extensions.*;
 import bluej.utility.Debug;
 
 import java.awt.*;
 import javax.swing.*;
 import java.util.*;
-import bluej.extensions.MenuGen;
-
-
 
 /**
  * This manages the menues for a given extension-wrapper
@@ -78,13 +74,7 @@ public class MenuManager
 
     if ( ! myWrapper.isValid() ) return null;
 
-    BlueJ aBluej = myWrapper.getBluej();
-    if ( aBluej == null ) return null;
-
-    MenuGen menuGen = aBluej.getMenuGen();
-    if ( menuGen == null ) return null;
-
-    newMenuItem = menuGen.getMenuItem();
+    newMenuItem = myWrapper.safeMenuGenGetMenuItem();
     if ( newMenuItem == null ) return null;
 
     JMenu toolsMenu = thisFrame.getToolsMenu();
@@ -108,13 +98,7 @@ public class MenuManager
     {
     if ( ! myWrapper.isValid() ) return false;
 
-    BlueJ aBluej = myWrapper.getBluej();
-    if ( aBluej == null ) return false;
-
-    MenuGen menuGen = aBluej.getMenuGen();
-    if ( menuGen == null ) return false;
-
-    JMenuItem newMenuItem = menuGen.getMenuItem();
+    JMenuItem newMenuItem = myWrapper.safeMenuGenGetMenuItem();
     if ( newMenuItem == null ) return false;
 
     // NOTE: I do not really care if the given menu will be destroyed

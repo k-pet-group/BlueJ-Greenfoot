@@ -10,9 +10,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import bluej.extensions.PrefGen;
-import bluej.extensions.BlueJ;
-
 /**
  * This manages the whole preference pane for Extensions
  * It will be loaded in the appropriate tab when the register() is called
@@ -88,26 +85,17 @@ public class PrefManager implements PrefPanelListener
         // This extension is not valid, let me skip it
         if ( ! aWrapper.isValid() ) return;
         String extensionName = aWrapper.getExtensionClassName();
-    
-        BlueJ aBluej = aWrapper.getBluej();
-        // Can a wrapper not have bluej ? ... yes, it happens....
-        if ( aBluej == null ) 
-            return;
-
-        PrefGen aPrefPanel = aBluej.getPrefGen();
-        // An extension may not have a preference panel
-        if ( aPrefPanel == null ) return;
 
         switch (doAction) 
         {
         case DO_loadValues:  
-            aPrefPanel.loadValues();   
+            aWrapper.safePrefGenLoadValues();   
             return;
         case DO_saveValues:  
-            aPrefPanel.saveValues();   
+            aWrapper.safePrefGenSaveValues();   
             return;
         case DO_panelUpdate: 
-            addUserPanel (aPrefPanel, extensionName); 
+            addUserPanel (aWrapper, extensionName); 
             return;
           }
         }
@@ -131,14 +119,10 @@ public class PrefManager implements PrefPanelListener
      * Being here to make code cleaner. 
      * Given an Extension preference panel add it into the main panel
      */
-    private void addUserPanel( PrefGen aPrefPanel, String extensionName ) 
+    private void addUserPanel( ExtensionWrapper aWrapper, String extensionName ) 
     {
-        JPanel aPanel = aPrefPanel.getPanel(); 
-        if ( aPanel == null ) {
-          // The extension coder has a PrefPanel but not a JPanel, BAD, better tell it
-          System.out.println ("BPrefPanel: addUserPanel: getPanel should return a JPanel");
-          return;
-          }
+        JPanel aPanel = aWrapper.safePrefGenGetPanel();
+        if ( aPanel == null ) return;
 
         // The panel that the user gives me goes into a container pane
         JPanel framePanel = new JPanel(new BorderLayout());

@@ -1,11 +1,8 @@
 package bluej.extmgr;
 
 import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.DialogManager;
 import bluej.utility.Utility;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.net.URL;
 import java.awt.event.ActionEvent;
@@ -14,22 +11,12 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.*;
-import javax.swing.ImageIcon;
 import java.awt.*;
 
 /**
@@ -230,10 +217,10 @@ class HelpDetailDialog extends JDialog implements ActionListener
         nameField.setText(wrapper.getExtensionClassName());
         locationField.setText(wrapper.getExtensionFileName());
         typeField.setText((wrapper.getProject() != null) ? projectString : installedString);
-        versionField.setText(wrapper.getExtensionVersion());
+        versionField.setText(wrapper.safeGetExtensionVersion());
         dateField.setText(wrapper.getExtensionModifiedDate());
 
-        url = wrapper.getURL();
+        url = wrapper.safeGetURL();
         if (url == null)
             urlField.setText(null);
         else {
@@ -241,7 +228,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
             urlField.setForeground(Color.blue);
         }
 
-        descriptionField.setText(wrapper.getExtensionDescription());
+        descriptionField.setText(wrapper.safeGetExtensionDescription());
         descriptionField.setCaretPosition(0);
 
         validate();

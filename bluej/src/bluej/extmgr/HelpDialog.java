@@ -3,30 +3,19 @@ package bluej.extmgr;
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.DialogManager;
-import bluej.utility.Utility;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.net.URL;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.*;
 import javax.swing.ImageIcon;
@@ -36,7 +25,7 @@ import java.awt.*;
  *  The Extensions Manager help panel allows the user to view current
  *  extensions.
  *
- * @version    $Id: HelpDialog.java 1504 2002-11-18 08:29:39Z damiano $
+ * @version    $Id: HelpDialog.java 1709 2003-03-20 09:15:51Z damiano $
  */
 public class HelpDialog extends JDialog implements ActionListener
 {
@@ -263,7 +252,7 @@ public class HelpDialog extends JDialog implements ActionListener
                 return (wrapper.getProject() != null) ? projectString : installedString;
 
             if (col == 4)
-                return wrapper.getExtensionVersion();
+                return wrapper.safeGetExtensionVersion();
 
             // If I trow an exception all will stop. This instead keeps going
             return "getValueAt: ERROR at row=" + row + " col=" + col;
