@@ -70,10 +70,10 @@ RootDir=
 [Version Info]
 IncludeVerInfo=1
 AutoIncBuild=1
-MajorVer=1
-MinorVer=4
-Release=0
-Build=12
+MajorVer=2
+MinorVer=0
+Release=3
+Build=13
 Debug=0
 PreRelease=0
 Special=0
@@ -84,13 +84,13 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=www.bluej.org
 FileDescription=BlueJ Launcher
-FileVersion=1.4.0.12
+FileVersion=2.0.3.13
 InternalName=
 LegalCopyright=Michael Kolling and John Rosenberg
 LegalTrademarks=
 OriginalFilename=
 ProductName=BlueJ
-ProductVersion=2.0.2
+ProductVersion=2.0.3
 Comments=
 [HistoryLists\hlUnitAliases]
 Count=1

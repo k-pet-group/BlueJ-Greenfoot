@@ -69,7 +69,7 @@ AutoIncBuild=1
 MajorVer=1
 MinorVer=3
 Release=5
-Build=41
+Build=42
 Debug=0
 PreRelease=0
 Special=0
@@ -80,7 +80,7 @@ CodePage=936
 [Version Info Keys]
 CompanyName=www.bluej.org
 FileDescription=BlueJ Launcher
-FileVersion=1.3.5.41
+FileVersion=1.3.5.42
 InternalName=
 LegalCopyright=Michael Kolling and John Rosenberg
 LegalTrademarks=
