@@ -9,14 +9,14 @@ import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.testmgr.InvokerRecord;
+import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.*;
 
 /**
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectInspector.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: ObjectInspector.java 2229 2003-10-28 02:09:36Z ajp $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener

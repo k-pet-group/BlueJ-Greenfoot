@@ -10,7 +10,7 @@ import javax.swing.event.*;
 import bluej.*;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
-import bluej.testmgr.*;
+import bluej.testmgr.record.*;
 import bluej.utility.DialogManager;
 
 /**
@@ -18,7 +18,7 @@ import bluej.utility.DialogManager;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version    $Id: Inspector.java 2229 2003-10-28 02:09:36Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -326,7 +326,7 @@ public abstract class Inspector extends JFrame
 	protected void handleAssertions()
 	{
 		if (assertPanel != null && assertPanel.isAssertEnabled()) {
-			ir.addAssertion(assertPanel.getAssertStatementStart());
+			ir.addAssertion(assertPanel.getAssertStatement());
 		}
 	}
 

@@ -6,13 +6,13 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import bluej.*;
-import bluej.Config;
+import bluej.testmgr.record.InvokerRecord;
 
 /**
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2142 2003-08-04 10:15:17Z bquig $
+ * @version $Id: AssertPanel.java 2229 2003-10-28 02:09:36Z ajp $
  */
 public class AssertPanel extends JPanel
 {
@@ -43,6 +43,12 @@ public class AssertPanel extends JPanel
 	private JComboBox assertCombo;
 	protected JCheckBox assertCheckbox;
     
+    // a boolean indicating if the user has interacted in
+    // any way with the assertion panel (ie changed the
+    // combo box, typed in the edit control etc.)
+    // if they have not interacted at all, we feel free
+    // to modify the interface
+    private boolean userInput = false;
 	
 	/**
 	 * The data that is displayed in the combo box to the user.
@@ -71,12 +77,13 @@ public class AssertPanel extends JPanel
 
 		// a checkbox which enables/disables all the assertion UI
 		
-		assertCheckbox = new JCheckBox(Config.getString("debugger.assert.assertThat"), true);
+		assertCheckbox = new JCheckBox(Config.getString("debugger.assert.assertThat"), false);
 		{
 			assertCheckbox.setAlignmentX(LEFT_ALIGNMENT);
 			assertCheckbox.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent ie)
 				{
+                    signalUserInput();
 					boolean isSelected = ie.getStateChange() == ItemEvent.SELECTED;
 					assertCombo.setEnabled(isSelected);
 					assertData.setEnabled(isSelected);
@@ -99,6 +106,8 @@ public class AssertPanel extends JPanel
 				assertCombo.addItemListener(new ItemListener() {
 					public void itemStateChanged(ItemEvent ie)
 					{
+                        signalUserInput();
+                        
 						// if the selected assertion does not require an extra parameter,
 						// disable the text field.
 						if (ie.getStateChange() == ItemEvent.SELECTED) {
@@ -114,34 +123,40 @@ public class AssertPanel extends JPanel
 					}
 				});
 			}                       
+
+            assertData = new JTextField(14);
+            {
+                assertData.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        signalUserInput();
+                    }
+                });
+            }
+
+            deltaData = new JTextField(6);
+            {
+                deltaData.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        signalUserInput();
+                    }
+                });
+            }
+            
             standardPanel.add(assertCombo);
 			standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
             
             deltaLabel = new JLabel(Config.getString("debugger.assert.delta"));
-            standardPanel.add(assertData = new JTextField(14));
+            standardPanel.add(assertData);
             standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
             standardPanel.add(deltaLabel);
             standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
-			standardPanel.add(deltaData = new JTextField(6));
+			standardPanel.add(deltaData);
+
             deltaData.setVisible(false);
             deltaLabel.setVisible(false);
-            
         }
-
-/*        freeformPanel = new JPanel();
-        { 
-            freeformPanel.setLayout(new BoxLayout(freeformPanel, BoxLayout.Y_AXIS));
-            freeformPanel.add(new JLabel("Free form assertions use the identifier 'result' to"));
-            freeformPanel.add(new JLabel("refer to rhe method result"));
-            freeformPanel.add(new JLabel("assert that"));
-            freeformPanel.add(new JTextField(20));
-            freeformPanel.add(new JLabel("is true"));
-        } */
-
-//		JTabbedPane assertionTabs;
-//        assertionTabs = new JTabbedPane();
-//        assertionTabs.addTab("Standard Assertions", null, standardPanel);
-//        assertionTabs.addTab("Free Form Assertions", null, freeformPanel);
 
 		add(assertCheckbox);
         add(standardPanel);
@@ -157,35 +172,34 @@ public class AssertPanel extends JPanel
 		return -1;
 	}
 	
+    private void signalUserInput()
+    {
+        if (!userInput) {
+            assertCheckbox.setSelected(true);    
+        }
+        userInput = true;
+    }
+    
 	public boolean isAssertEnabled()
 	{
 		return assertCheckbox != null ? assertCheckbox.isSelected() : false;
 	}
 	
-	/**
-	 * Returns a statement representing this assertion.
-	 * Does not include a trailing variable or bracket! 
-	 * 
-	 * @return a String of the assertion statement.
-	 */
-    public String getAssertStatementStart()
+    public String getAssertStatement()
     {
-        StringBuffer sb = new StringBuffer();
-        
         int index = assertCombo.getSelectedIndex();
         
-        sb.append(labelsAssertStatement[index]);
-        sb.append("(");
-
-		if (firstLabelFieldNeeded[index]) {
-			sb.append(assertData.getText());
-			sb.append(",");
-		}
         if (secondFieldNeeded[index]) {
-            sb.append("," + deltaData.getText());
+            return InvokerRecord.makeAssertionStatement(labelsAssertStatement[index],
+                                                        assertData.getText(),
+                                                        deltaData.getText());
         }
-					
-        return sb.toString();    
+        else if (firstLabelFieldNeeded[index]) {
+            return InvokerRecord.makeAssertionStatement(labelsAssertStatement[index],
+                                                        assertData.getText());
+        }
+        else
+            return InvokerRecord.makeAssertionStatement(labelsAssertStatement[index]);
     }
-
+    
 }
