@@ -5,6 +5,9 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.Properties;
 
+import javax.swing.*;
+import javax.swing.JPopupMenu;
+
 import bluej.Config;
 import bluej.editor.*;
 import bluej.graph.GraphEditor;
@@ -15,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: ReadmeTarget.java 2034 2003-06-12 11:49:52Z fisker $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -27,7 +30,10 @@ public class ReadmeTarget extends Target
     static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
     static final Color colBorder = Config.getItemColour("colour.target.border");
     static final Color textfg = Config.getItemColour("colour.text.fg");
-
+    static String openStr = Config.getString("pkgmgr.packagemenu.open");
+    static String removeStr = Config.getString("pkgmgr.packagemenu.remove");
+    static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    
     public static final String README_ID = "@README";
 
     protected Editor editor;
@@ -196,36 +202,75 @@ public class ReadmeTarget extends Target
             g.drawLine(10, yPos, width - 10, yPos);
     }
 
+    private void openEditor()
+    {
+       // try to open it and if not there, create it
+       if(getEditor() == null) {
+           getPackage().showError("error-open-readme");
+    
+           try {
+               getSourceFile().createNewFile();
+           }
+           catch (IOException ioe) {
+               ioe.printStackTrace();
+           }
+       }
+    
+       // now try again to open it
+       if(getEditor() != null)
+           getEditor().setVisible(true);
+    }
+
     /**
      * Called when a package icon in a GraphEditor is double clicked.
      * Creates a new PkgFrame when a package is drilled down on.
      */
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-        // try to open it and if not there, create it
-        if(getEditor() == null) {
-            getPackage().showError("error-open-readme");
-
-            try {
-                getSourceFile().createNewFile();
-            }
-            catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
-
-        // now try again to open it
-        if(getEditor() != null)
-            getEditor().setVisible(true);
+       openEditor();
     }
 
     public void popupMenu(int x, int y, GraphEditor editor)
     {
+        JPopupMenu menu = createMenu(null);
+        if (menu != null)
+            menu.show(editor, x, y);
     }
+    
+    /**
+     * Construct a popup menu which displays all our parent packages.
+     */
+    private JPopupMenu createMenu(Class cl)
+    {
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem item;
+           
+        Action openAction = new OpenAction(openStr);
+
+        item = menu.add(openAction);
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
+        return menu;
+       }
 
 	/* (non-Javadoc)
 	 * @see bluej.editor.EditorWatcher#generateDoc()
 	 */
-	public void generateDoc() {
+	public void generateDoc() 
+    {
 	}
+    
+    private class OpenAction extends AbstractAction
+    {
+
+        public OpenAction(String menu)
+        {
+            super(menu);
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            openEditor();
+        }
+    }
 }
