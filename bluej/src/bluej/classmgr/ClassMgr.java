@@ -22,7 +22,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 1997 2003-05-30 12:10:30Z damiano $
+ * @version $Id: ClassMgr.java 2001 2003-05-30 14:37:52Z damiano $
  */
 public class ClassMgr
 {
@@ -126,7 +126,7 @@ public class ClassMgr
         }
 
         bootLibraries = new ClassPath(syscp, Config.getString("classmgr.bootclass"));
-
+        systemLibraries = new ClassPath(syscp, "Testing");
         /* XXX we should add here the boot libraries which are in the JDK extension
            directory */
         //System.getProperty("java.ext.dirs");
