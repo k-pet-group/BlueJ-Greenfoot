@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 3024 2004-09-29 11:37:58Z fisker $
+ * @version $Id: ObjectBench.java 3054 2004-10-15 11:32:47Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -236,7 +236,18 @@ public class ObjectBench extends JPanel
         }
     }
     
-
+    /**
+     * Do the usual enabling/disabling, while also removing the focus
+     * border when disabling.
+     */
+    public void setEnabled(boolean enable)
+    {
+        super.setEnabled(enable);
+        if(!enable) {
+            showFocusHiLight(false);
+        }
+    }
+    
     /**
      * Show or hide the focus highlight (an emphasised border around
      * the bench).
