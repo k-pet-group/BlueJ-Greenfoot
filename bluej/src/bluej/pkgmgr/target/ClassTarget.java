@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2349 2003-11-15 16:01:11Z mik $
+ * @version $Id: ClassTarget.java 2351 2003-11-17 03:25:29Z bquig $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -970,9 +970,19 @@ public class ClassTarget extends EditableTarget
 			PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
 			
 			if (pmf != null) {
-				pmf.createNewClass(getIdentifierName() + "Test", "unittest");
-
-                setAssociation(getPackage().getTarget(getIdentifierName() + "Test"));
+                String testClassName = getIdentifierName() + "Test";
+				pmf.createNewClass(testClassName, "unittest");
+                // we want to check that the previous called actually 
+                // created a unit test class as a name clash with an existing
+                // class would not.  This prevents a non unit test becoming
+                // associated with a class unintentionally
+                Target target = getPackage().getTarget(testClassName);
+                ClassTarget ct = null;
+                if(target instanceof ClassTarget) {
+                    ct = (ClassTarget)target;
+                    if(ct != null && ct.isUnitTest())
+                        setAssociation(getPackage().getTarget(getIdentifierName() + "Test"));
+                }
                 endMove();
                 getPackage().getEditor().revalidate();
                 getPackage().getEditor().repaint();
