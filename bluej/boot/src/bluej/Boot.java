@@ -23,15 +23,15 @@ import sun.misc.*;
  *
  * @author	Andrew Patterson
  * @author	Damiano Bolla
- * @author	Michael Kšlling
- * @version $Id: Boot.java 2109 2003-07-14 10:07:36Z mik $
+ * @author	Michael Kolling
+ * @version $Id: Boot.java 2119 2003-07-18 04:46:18Z ajp $
  */
 public class Boot
 {
     public static int BLUEJ_VERSION_MAJOR = 1;
     public static int BLUEJ_VERSION_MINOR = 3;
     public static int BLUEJ_VERSION_RELEASE = 0;
-    public static String BLUEJ_VERSION_SUFFIX = " beta 3";
+    public static String BLUEJ_VERSION_SUFFIX = " beta 4";
 
     public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
                                              BLUEJ_VERSION_MINOR * 100 +
@@ -52,12 +52,12 @@ public class Boot
     // listed in the following array).
     private static final int bluejBuildJars = 3;
     
-	// The jar files we expect in the BlueJ lib directory
-	private static String jars[] = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-									 "antlr.jar", "junit.jar", "MRJ141Stubs.jar",
-									 "MRJToolkitStubs.zip" };
+    // The jar files we expect in the BlueJ lib directory
+    private static String jars[] = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
+                                       "antlr.jar", "junit.jar", "MRJ141Stubs.jar",
+                                       "MRJToolkitStubs.zip" };
     
-	private static boolean useClassesDir = false;
+    private static boolean useClassesDir = false;
 	
     /**
      * Entry point for booting BlueJ
