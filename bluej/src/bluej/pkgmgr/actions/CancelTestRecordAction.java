@@ -8,7 +8,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * were created since recording began.
  * 
  * @author Davin McCall
- * @version $Id: CancelTestRecordAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: CancelTestRecordAction.java 2594 2004-06-11 18:36:53Z fisker $
  */
 final public class CancelTestRecordAction extends PkgMgrAction
 {
@@ -28,7 +28,7 @@ final public class CancelTestRecordAction extends PkgMgrAction
     
     private CancelTestRecordAction()
     {
-        super("cancel");
+        super("menu.tools.cancel");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test.cancel"));
     }
     

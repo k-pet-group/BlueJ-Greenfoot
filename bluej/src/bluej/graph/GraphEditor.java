@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2590 2004-06-11 11:29:14Z fisker $
+ * @version $Id: GraphEditor.java 2594 2004-06-11 18:36:53Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener, FocusListener
@@ -422,7 +422,12 @@ public class GraphEditor extends JComponent
 	public void focusLost(FocusEvent e) {
 		if (!e.isTemporary()){
 			hasFocus = false;
-			repaint();
+			
 		}
+		repaint();
+	}
+	
+	public boolean hasFocus(){
+		return hasFocus;
 	}
 }

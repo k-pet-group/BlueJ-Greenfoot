@@ -17,7 +17,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2584 2004-06-10 13:15:40Z fisker $
+ * @version $Id: ObjectBench.java 2594 2004-06-11 18:36:53Z fisker $
  */
 public class ObjectBench
 {
@@ -130,17 +130,15 @@ public class ObjectBench
 				if (currentObjectWrapperIndex > 0){
 				currentObjectWrapperIndex--;
 				}
-				else {
-					currentObjectWrapperIndex = objectWrappers.size() - 1;
+				else if (currentObjectWrapperIndex < 0 ){
+					//currentObjectWrapperIndex = objectWrappers.size() - 1;
+					currentObjectWrapperIndex = 0;
 				}
 				break;
 			}
 			case KeyEvent.VK_RIGHT: {
 				if (currentObjectWrapperIndex < objectWrappers.size() - 1){
 					currentObjectWrapperIndex++;
-				}
-				else {
-					currentObjectWrapperIndex = 0;
 				}
 				break;
 			}

@@ -47,7 +47,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2584 2004-06-10 13:15:40Z fisker $
+ * @version $Id: PkgMgrFrame.java 2594 2004-06-11 18:36:53Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2055,6 +2055,7 @@ public class PkgMgrFrame extends JFrame
 
 				action = RunTestsAction.getInstance(); 
                 runButton = createButton(action, false);
+                runButton.setText(Config.getString("pkgmgr.test.run"));
                 runButton.setAlignmentX(0.15f);
                 testPanel.add(runButton);
                 testPanel.add(Box.createVerticalStrut(8));
@@ -2070,6 +2071,8 @@ public class PkgMgrFrame extends JFrame
 
                 action = EndTestRecordAction.getInstance(); 
                 endTestButton = createButton(action, false);
+                //make the button use a different label than the one from action
+                endTestButton.setText(Config.getString("pkgmgr.test.end"));
                 endTestButton.setEnabled(false);
 
                 testPanel.add(endTestButton);
@@ -2077,6 +2080,8 @@ public class PkgMgrFrame extends JFrame
 
                 action = CancelTestRecordAction.getInstance();
                 cancelTestButton = createButton(action, false);
+                //make the button use a different label than the one from action
+                cancelTestButton.setText(Config.getString("cancel"));
                 cancelTestButton.setEnabled(false);
 
                 testPanel.add(cancelTestButton);

@@ -9,7 +9,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * recording began.
  * 
  * @author Davin McCall
- * @version $Id: EndTestRecordAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: EndTestRecordAction.java 2594 2004-06-11 18:36:53Z fisker $
  */
 final public class EndTestRecordAction extends PkgMgrAction
 {
@@ -29,7 +29,7 @@ final public class EndTestRecordAction extends PkgMgrAction
     
     private EndTestRecordAction()
     {
-        super("pkgmgr.test.end");
+        super("menu.tools.end");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test.end"));
     }
     

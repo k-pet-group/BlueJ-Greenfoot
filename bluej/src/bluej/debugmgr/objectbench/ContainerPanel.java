@@ -41,10 +41,8 @@ class ContainerPanel extends JPanel implements FocusListener, KeyListener
 	 * @see java.awt.event.FocusListener#focusLost(java.awt.event.FocusEvent)
 	 */
 	public void focusLost(FocusEvent e) {
-		if (!e.isTemporary()){
-			ob.hasFocus = false;
-			repaint();
-		}
+		ob.hasFocus = false;
+		repaint();
 	}
 
 	/* (non-Javadoc)
