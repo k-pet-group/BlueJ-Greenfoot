@@ -138,6 +138,16 @@ doctool.linkToStandardLib=true
 
 appletViewer.command=appletviewer
 
+#######################################################################
+## For Mac OS only: indicate whether to place the menu bar at top of 
+## screen (screenmenubar=true), or top of each window 
+## (screenmenubar=false). Currently, there is a bug in MacOS Java that
+## causes BlueJ to crash frequently on some systems when using the
+## top-of-screen menubar. Therefore, this is by default set to false.
+#######################################################################
+
+bluej.macos.screenmenubar=false
+
 #####################################################################
 ## System libraries which are added to BlueJ's class path
 #####################################################################
