@@ -24,7 +24,7 @@ import bluej.testmgr.record.*;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2486 2004-04-06 08:11:09Z mik $
+ * @version    $Id: Inspector.java 2517 2004-05-03 20:16:48Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -390,6 +390,7 @@ public abstract class Inspector extends JFrame
         fieldList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         fieldList.setSelectionBackground(selectionColor);
         fieldList.setPreferredScrollableViewportSize(new Dimension(LIST_WIDTH, 25));        
+        fieldList.getTableHeader().setVisible(false);
         
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.setOpaque(false);
