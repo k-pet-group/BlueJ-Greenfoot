@@ -109,6 +109,9 @@ public UnitTestParser() {
 			case CLASS_DEF:
 			case INTERFACE_DEF:
 			case IMPORT:
+			case STATIC_IMPORT:
+			case ENUM_DEF:
+			case ANNOTATION_DEF:
 			{
 				break;
 			}
@@ -122,7 +125,7 @@ public UnitTestParser() {
 			_loop4:
 			do {
 				if (_t==null) _t=ASTNULL;
-				if ((_t.getType()==IMPORT)) {
+				if ((_t.getType()==IMPORT||_t.getType()==STATIC_IMPORT)) {
 					importDefinition(_t);
 					_t = _retTree;
 				}
@@ -136,7 +139,7 @@ public UnitTestParser() {
 			_loop6:
 			do {
 				if (_t==null) _t=ASTNULL;
-				if ((_t.getType()==CLASS_DEF||_t.getType()==INTERFACE_DEF)) {
+				if ((_tokenSet_0.member(_t.getType()))) {
 					typeDefinition(_t);
 					_t = _retTree;
 					astFactory.addASTChild(currentAST, returnAST);
@@ -176,6 +179,21 @@ public UnitTestParser() {
 			currentAST.child = null;
 			match(_t,PACKAGE_DEF);
 			_t = _t.getFirstChild();
+			{
+			_loop10:
+			do {
+				if (_t==null) _t=ASTNULL;
+				if ((_t.getType()==ANNOTATION)) {
+					annotation(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+				}
+				else {
+					break _loop10;
+				}
+				
+			} while (true);
+			}
 			identifier(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
@@ -200,24 +218,57 @@ public UnitTestParser() {
 		AST importDefinition_AST = null;
 		
 		try {      // for error handling
-			AST __t10 = _t;
-			AST tmp2_AST = null;
-			AST tmp2_AST_in = null;
-			tmp2_AST = astFactory.create((AST)_t);
-			tmp2_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp2_AST);
-			ASTPair __currentAST10 = currentAST.copy();
-			currentAST.root = currentAST.child;
-			currentAST.child = null;
-			match(_t,IMPORT);
-			_t = _t.getFirstChild();
-			identifierStar(_t);
-			_t = _retTree;
-			astFactory.addASTChild(currentAST, returnAST);
-			currentAST = __currentAST10;
-			_t = __t10;
-			_t = _t.getNextSibling();
-			importDefinition_AST = (AST)currentAST.root;
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case IMPORT:
+			{
+				AST __t12 = _t;
+				AST tmp2_AST = null;
+				AST tmp2_AST_in = null;
+				tmp2_AST = astFactory.create((AST)_t);
+				tmp2_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp2_AST);
+				ASTPair __currentAST12 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,IMPORT);
+				_t = _t.getFirstChild();
+				identifierStar(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST12;
+				_t = __t12;
+				_t = _t.getNextSibling();
+				importDefinition_AST = (AST)currentAST.root;
+				break;
+			}
+			case STATIC_IMPORT:
+			{
+				AST __t13 = _t;
+				AST tmp3_AST = null;
+				AST tmp3_AST_in = null;
+				tmp3_AST = astFactory.create((AST)_t);
+				tmp3_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp3_AST);
+				ASTPair __currentAST13 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,STATIC_IMPORT);
+				_t = _t.getFirstChild();
+				identifierStar(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST13;
+				_t = __t13;
+				_t = _t.getNextSibling();
+				importDefinition_AST = (AST)currentAST.root;
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
@@ -255,12 +306,12 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case CLASS_DEF:
 			{
-				AST __t12 = _t;
-				AST tmp3_AST = null;
-				AST tmp3_AST_in = null;
-				tmp3_AST = astFactory.create((AST)_t);
-				tmp3_AST_in = (AST)_t;
-				ASTPair __currentAST12 = currentAST.copy();
+				AST __t15 = _t;
+				AST tmp4_AST = null;
+				AST tmp4_AST_in = null;
+				tmp4_AST = astFactory.create((AST)_t);
+				tmp4_AST_in = (AST)_t;
+				ASTPair __currentAST15 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,CLASS_DEF);
@@ -274,6 +325,8 @@ public UnitTestParser() {
 				i_AST = astFactory.create(i);
 				match(_t,IDENT);
 				_t = _t.getNextSibling();
+				typeParameters(_t);
+				_t = _retTree;
 				ec = _t==ASTNULL ? null : (AST)_t;
 				extendsClause(_t);
 				_t = _retTree;
@@ -284,8 +337,8 @@ public UnitTestParser() {
 				objBlock(_t);
 				_t = _retTree;
 				ob_AST = (AST)returnAST;
-				currentAST = __currentAST12;
-				_t = __t12;
+				currentAST = __currentAST15;
+				_t = __t15;
 				_t = _t.getNextSibling();
 				typeDefinition_AST = (AST)currentAST.root;
 				
@@ -313,12 +366,12 @@ public UnitTestParser() {
 			}
 			case INTERFACE_DEF:
 			{
-				AST __t13 = _t;
-				AST tmp4_AST = null;
-				AST tmp4_AST_in = null;
-				tmp4_AST = astFactory.create((AST)_t);
-				tmp4_AST_in = (AST)_t;
-				ASTPair __currentAST13 = currentAST.copy();
+				AST __t16 = _t;
+				AST tmp5_AST = null;
+				AST tmp5_AST_in = null;
+				tmp5_AST = astFactory.create((AST)_t);
+				tmp5_AST_in = (AST)_t;
+				ASTPair __currentAST16 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,INTERFACE_DEF);
@@ -332,6 +385,8 @@ public UnitTestParser() {
 				ii_AST = astFactory.create(ii);
 				match(_t,IDENT);
 				_t = _t.getNextSibling();
+				typeParameters(_t);
+				_t = _retTree;
 				iec = _t==ASTNULL ? null : (AST)_t;
 				extendsClause(_t);
 				_t = _retTree;
@@ -340,8 +395,8 @@ public UnitTestParser() {
 				interfaceBlock(_t);
 				_t = _retTree;
 				ib_AST = (AST)returnAST;
-				currentAST = __currentAST13;
-				_t = __t13;
+				currentAST = __currentAST16;
+				_t = __t16;
 				_t = _t.getNextSibling();
 				typeDefinition_AST = (AST)currentAST.root;
 				
@@ -367,6 +422,62 @@ public UnitTestParser() {
 				currentAST.advanceChildToEnd();
 				break;
 			}
+			case ENUM_DEF:
+			{
+				AST __t17 = _t;
+				AST tmp6_AST = null;
+				AST tmp6_AST_in = null;
+				tmp6_AST = astFactory.create((AST)_t);
+				tmp6_AST_in = (AST)_t;
+				ASTPair __currentAST17 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,ENUM_DEF);
+				_t = _t.getFirstChild();
+				modifiers(_t);
+				_t = _retTree;
+				AST tmp7_AST = null;
+				AST tmp7_AST_in = null;
+				tmp7_AST = astFactory.create((AST)_t);
+				tmp7_AST_in = (AST)_t;
+				match(_t,IDENT);
+				_t = _t.getNextSibling();
+				implementsClause(_t);
+				_t = _retTree;
+				enumBlock(_t);
+				_t = _retTree;
+				currentAST = __currentAST17;
+				_t = __t17;
+				_t = _t.getNextSibling();
+				break;
+			}
+			case ANNOTATION_DEF:
+			{
+				AST __t18 = _t;
+				AST tmp8_AST = null;
+				AST tmp8_AST_in = null;
+				tmp8_AST = astFactory.create((AST)_t);
+				tmp8_AST_in = (AST)_t;
+				ASTPair __currentAST18 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,ANNOTATION_DEF);
+				_t = _t.getFirstChild();
+				modifiers(_t);
+				_t = _retTree;
+				AST tmp9_AST = null;
+				AST tmp9_AST_in = null;
+				tmp9_AST = astFactory.create((AST)_t);
+				tmp9_AST_in = (AST)_t;
+				match(_t,IDENT);
+				_t = _t.getNextSibling();
+				annotationBlock(_t);
+				_t = _retTree;
+				currentAST = __currentAST18;
+				_t = __t18;
+				_t = _t.getNextSibling();
+				break;
+			}
 			default:
 			{
 				throw new NoViableAltException(_t);
@@ -378,6 +489,132 @@ public UnitTestParser() {
 			if (_t!=null) {_t = _t.getNextSibling();}
 		}
 		returnAST = typeDefinition_AST;
+		_retTree = _t;
+	}
+	
+	public final void annotation(AST _t) throws RecognitionException {
+		
+		AST annotation_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST annotation_AST = null;
+		
+		try {      // for error handling
+			AST __t63 = _t;
+			AST tmp10_AST = null;
+			AST tmp10_AST_in = null;
+			tmp10_AST = astFactory.create((AST)_t);
+			tmp10_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp10_AST);
+			ASTPair __currentAST63 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,ANNOTATION);
+			_t = _t.getFirstChild();
+			identifier(_t);
+			_t = _retTree;
+			astFactory.addASTChild(currentAST, returnAST);
+			{
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case TYPE:
+			case TYPECAST:
+			case INDEX_OP:
+			case POST_INC:
+			case POST_DEC:
+			case METHOD_CALL:
+			case UNARY_MINUS:
+			case UNARY_PLUS:
+			case SUPER_CTOR_CALL:
+			case CTOR_CALL:
+			case ANNOTATION:
+			case ANNOTATION_ARRAY_INIT:
+			case IDENT:
+			case DOT:
+			case QUESTION:
+			case LITERAL_super:
+			case LT:
+			case GT:
+			case SR:
+			case BSR:
+			case STAR:
+			case BAND:
+			case LITERAL_this:
+			case LOR:
+			case LAND:
+			case BOR:
+			case BXOR:
+			case NOT_EQUAL:
+			case EQUAL:
+			case LE:
+			case GE:
+			case LITERAL_instanceof:
+			case SL:
+			case PLUS:
+			case MINUS:
+			case DIV:
+			case MOD:
+			case INC:
+			case DEC:
+			case BNOT:
+			case LNOT:
+			case LITERAL_true:
+			case LITERAL_false:
+			case LITERAL_null:
+			case LITERAL_new:
+			case NUM_INT:
+			case CHAR_LITERAL:
+			case STRING_LITERAL:
+			case NUM_FLOAT:
+			case NUM_LONG:
+			case NUM_DOUBLE:
+			{
+				annotationMemberValueInitializer(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				break;
+			}
+			case ANNOTATION_MEMBER_VALUE_PAIR:
+			{
+				{
+				int _cnt66=0;
+				_loop66:
+				do {
+					if (_t==null) _t=ASTNULL;
+					if ((_t.getType()==ANNOTATION_MEMBER_VALUE_PAIR)) {
+						anntotationMemberValuePair(_t);
+						_t = _retTree;
+						astFactory.addASTChild(currentAST, returnAST);
+					}
+					else {
+						if ( _cnt66>=1 ) { break _loop66; } else {throw new NoViableAltException(_t);}
+					}
+					
+					_cnt66++;
+				} while (true);
+				}
+				break;
+			}
+			case 3:
+			{
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+			}
+			currentAST = __currentAST63;
+			_t = __t63;
+			_t = _t.getNextSibling();
+			annotation_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = annotation_AST;
 		_retTree = _t;
 	}
 	
@@ -393,11 +630,11 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case IDENT:
 			{
-				AST tmp5_AST = null;
-				AST tmp5_AST_in = null;
-				tmp5_AST = astFactory.create((AST)_t);
-				tmp5_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp5_AST);
+				AST tmp11_AST = null;
+				AST tmp11_AST_in = null;
+				tmp11_AST = astFactory.create((AST)_t);
+				tmp11_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp11_AST);
 				match(_t,IDENT);
 				_t = _t.getNextSibling();
 				identifier_AST = (AST)currentAST.root;
@@ -405,13 +642,13 @@ public UnitTestParser() {
 			}
 			case DOT:
 			{
-				AST __t75 = _t;
-				AST tmp6_AST = null;
-				AST tmp6_AST_in = null;
-				tmp6_AST = astFactory.create((AST)_t);
-				tmp6_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp6_AST);
-				ASTPair __currentAST75 = currentAST.copy();
+				AST __t153 = _t;
+				AST tmp12_AST = null;
+				AST tmp12_AST_in = null;
+				tmp12_AST = astFactory.create((AST)_t);
+				tmp12_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp12_AST);
+				ASTPair __currentAST153 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,DOT);
@@ -419,15 +656,15 @@ public UnitTestParser() {
 				identifier(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				AST tmp7_AST = null;
-				AST tmp7_AST_in = null;
-				tmp7_AST = astFactory.create((AST)_t);
-				tmp7_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp7_AST);
+				AST tmp13_AST = null;
+				AST tmp13_AST_in = null;
+				tmp13_AST = astFactory.create((AST)_t);
+				tmp13_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp13_AST);
 				match(_t,IDENT);
 				_t = _t.getNextSibling();
-				currentAST = __currentAST75;
-				_t = __t75;
+				currentAST = __currentAST153;
+				_t = __t153;
 				_t = _t.getNextSibling();
 				identifier_AST = (AST)currentAST.root;
 				break;
@@ -458,11 +695,11 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case IDENT:
 			{
-				AST tmp8_AST = null;
-				AST tmp8_AST_in = null;
-				tmp8_AST = astFactory.create((AST)_t);
-				tmp8_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp8_AST);
+				AST tmp14_AST = null;
+				AST tmp14_AST_in = null;
+				tmp14_AST = astFactory.create((AST)_t);
+				tmp14_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp14_AST);
 				match(_t,IDENT);
 				_t = _t.getNextSibling();
 				identifierStar_AST = (AST)currentAST.root;
@@ -470,13 +707,13 @@ public UnitTestParser() {
 			}
 			case DOT:
 			{
-				AST __t77 = _t;
-				AST tmp9_AST = null;
-				AST tmp9_AST_in = null;
-				tmp9_AST = astFactory.create((AST)_t);
-				tmp9_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp9_AST);
-				ASTPair __currentAST77 = currentAST.copy();
+				AST __t155 = _t;
+				AST tmp15_AST = null;
+				AST tmp15_AST_in = null;
+				tmp15_AST = astFactory.create((AST)_t);
+				tmp15_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp15_AST);
+				ASTPair __currentAST155 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,DOT);
@@ -489,22 +726,22 @@ public UnitTestParser() {
 				switch ( _t.getType()) {
 				case STAR:
 				{
-					AST tmp10_AST = null;
-					AST tmp10_AST_in = null;
-					tmp10_AST = astFactory.create((AST)_t);
-					tmp10_AST_in = (AST)_t;
-					astFactory.addASTChild(currentAST, tmp10_AST);
+					AST tmp16_AST = null;
+					AST tmp16_AST_in = null;
+					tmp16_AST = astFactory.create((AST)_t);
+					tmp16_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp16_AST);
 					match(_t,STAR);
 					_t = _t.getNextSibling();
 					break;
 				}
 				case IDENT:
 				{
-					AST tmp11_AST = null;
-					AST tmp11_AST_in = null;
-					tmp11_AST = astFactory.create((AST)_t);
-					tmp11_AST_in = (AST)_t;
-					astFactory.addASTChild(currentAST, tmp11_AST);
+					AST tmp17_AST = null;
+					AST tmp17_AST_in = null;
+					tmp17_AST = astFactory.create((AST)_t);
+					tmp17_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp17_AST);
 					match(_t,IDENT);
 					_t = _t.getNextSibling();
 					break;
@@ -515,8 +752,8 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST77;
-				_t = __t77;
+				currentAST = __currentAST155;
+				_t = __t155;
 				_t = _t.getNextSibling();
 				identifierStar_AST = (AST)currentAST.root;
 				break;
@@ -543,34 +780,34 @@ public UnitTestParser() {
 		AST modifiers_AST = null;
 		
 		try {      // for error handling
-			AST __t21 = _t;
-			AST tmp12_AST = null;
-			AST tmp12_AST_in = null;
-			tmp12_AST = astFactory.create((AST)_t);
-			tmp12_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp12_AST);
-			ASTPair __currentAST21 = currentAST.copy();
+			AST __t58 = _t;
+			AST tmp18_AST = null;
+			AST tmp18_AST_in = null;
+			tmp18_AST = astFactory.create((AST)_t);
+			tmp18_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp18_AST);
+			ASTPair __currentAST58 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,MODIFIERS);
 			_t = _t.getFirstChild();
 			{
-			_loop23:
+			_loop60:
 			do {
 				if (_t==null) _t=ASTNULL;
-				if ((_tokenSet_0.member(_t.getType()))) {
+				if ((_tokenSet_1.member(_t.getType()))) {
 					modifier(_t);
 					_t = _retTree;
 					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
-					break _loop23;
+					break _loop60;
 				}
 				
 			} while (true);
 			}
-			currentAST = __currentAST21;
-			_t = __t21;
+			currentAST = __currentAST58;
+			_t = __t58;
 			_t = _t.getNextSibling();
 			modifiers_AST = (AST)currentAST.root;
 		}
@@ -579,6 +816,39 @@ public UnitTestParser() {
 			if (_t!=null) {_t = _t.getNextSibling();}
 		}
 		returnAST = modifiers_AST;
+		_retTree = _t;
+	}
+	
+	public final void typeParameters(AST _t) throws RecognitionException {
+		
+		AST typeParameters_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST typeParameters_AST = null;
+		
+		try {      // for error handling
+			{
+			_loop21:
+			do {
+				if (_t==null) _t=ASTNULL;
+				if ((_t.getType()==TYPE_PARAMETER)) {
+					typeParameter(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+				}
+				else {
+					break _loop21;
+				}
+				
+			} while (true);
+			}
+			typeParameters_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = typeParameters_AST;
 		_retTree = _t;
 	}
 	
@@ -592,19 +862,19 @@ public UnitTestParser() {
 		AST id = null;
 		
 		try {      // for error handling
-			AST __t26 = _t;
-			AST tmp13_AST = null;
-			AST tmp13_AST_in = null;
-			tmp13_AST = astFactory.create((AST)_t);
-			tmp13_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp13_AST);
-			ASTPair __currentAST26 = currentAST.copy();
+			AST __t76 = _t;
+			AST tmp19_AST = null;
+			AST tmp19_AST_in = null;
+			tmp19_AST = astFactory.create((AST)_t);
+			tmp19_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp19_AST);
+			ASTPair __currentAST76 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,EXTENDS_CLAUSE);
 			_t = _t.getFirstChild();
 			{
-			_loop28:
+			_loop78:
 			do {
 				if (_t==null) _t=ASTNULL;
 				if ((_t.getType()==IDENT||_t.getType()==DOT)) {
@@ -615,13 +885,13 @@ public UnitTestParser() {
 					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
-					break _loop28;
+					break _loop78;
 				}
 				
 			} while (true);
 			}
-			currentAST = __currentAST26;
-			_t = __t26;
+			currentAST = __currentAST76;
+			_t = __t76;
 			_t = _t.getNextSibling();
 			extendsClause_AST = (AST)currentAST.root;
 		}
@@ -641,19 +911,19 @@ public UnitTestParser() {
 		AST implementsClause_AST = null;
 		
 		try {      // for error handling
-			AST __t30 = _t;
-			AST tmp14_AST = null;
-			AST tmp14_AST_in = null;
-			tmp14_AST = astFactory.create((AST)_t);
-			tmp14_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp14_AST);
-			ASTPair __currentAST30 = currentAST.copy();
+			AST __t80 = _t;
+			AST tmp20_AST = null;
+			AST tmp20_AST_in = null;
+			tmp20_AST = astFactory.create((AST)_t);
+			tmp20_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp20_AST);
+			ASTPair __currentAST80 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,IMPLEMENTS_CLAUSE);
 			_t = _t.getFirstChild();
 			{
-			_loop32:
+			_loop82:
 			do {
 				if (_t==null) _t=ASTNULL;
 				if ((_t.getType()==IDENT||_t.getType()==DOT)) {
@@ -662,13 +932,13 @@ public UnitTestParser() {
 					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
-					break _loop32;
+					break _loop82;
 				}
 				
 			} while (true);
 			}
-			currentAST = __currentAST30;
-			_t = __t30;
+			currentAST = __currentAST80;
+			_t = __t80;
 			_t = _t.getNextSibling();
 			implementsClause_AST = (AST)currentAST.root;
 		}
@@ -688,19 +958,19 @@ public UnitTestParser() {
 		AST objBlock_AST = null;
 		
 		try {      // for error handling
-			AST __t38 = _t;
-			AST tmp15_AST = null;
-			AST tmp15_AST_in = null;
-			tmp15_AST = astFactory.create((AST)_t);
-			tmp15_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp15_AST);
-			ASTPair __currentAST38 = currentAST.copy();
+			AST __t88 = _t;
+			AST tmp21_AST = null;
+			AST tmp21_AST_in = null;
+			tmp21_AST = astFactory.create((AST)_t);
+			tmp21_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp21_AST);
+			ASTPair __currentAST88 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,OBJBLOCK);
 			_t = _t.getFirstChild();
 			{
-			_loop42:
+			_loop92:
 			do {
 				if (_t==null) _t=ASTNULL;
 				switch ( _t.getType()) {
@@ -726,6 +996,8 @@ public UnitTestParser() {
 				}
 				case CLASS_DEF:
 				case INTERFACE_DEF:
+				case ENUM_DEF:
+				case ANNOTATION_DEF:
 				{
 					typeDefinition(_t);
 					_t = _retTree;
@@ -733,51 +1005,51 @@ public UnitTestParser() {
 				}
 				case STATIC_INIT:
 				{
-					AST __t40 = _t;
-					AST tmp16_AST = null;
-					AST tmp16_AST_in = null;
-					tmp16_AST = astFactory.create((AST)_t);
-					tmp16_AST_in = (AST)_t;
-					ASTPair __currentAST40 = currentAST.copy();
+					AST __t90 = _t;
+					AST tmp22_AST = null;
+					AST tmp22_AST_in = null;
+					tmp22_AST = astFactory.create((AST)_t);
+					tmp22_AST_in = (AST)_t;
+					ASTPair __currentAST90 = currentAST.copy();
 					currentAST.root = currentAST.child;
 					currentAST.child = null;
 					match(_t,STATIC_INIT);
 					_t = _t.getFirstChild();
 					slist(_t);
 					_t = _retTree;
-					currentAST = __currentAST40;
-					_t = __t40;
+					currentAST = __currentAST90;
+					_t = __t90;
 					_t = _t.getNextSibling();
 					break;
 				}
 				case INSTANCE_INIT:
 				{
-					AST __t41 = _t;
-					AST tmp17_AST = null;
-					AST tmp17_AST_in = null;
-					tmp17_AST = astFactory.create((AST)_t);
-					tmp17_AST_in = (AST)_t;
-					ASTPair __currentAST41 = currentAST.copy();
+					AST __t91 = _t;
+					AST tmp23_AST = null;
+					AST tmp23_AST_in = null;
+					tmp23_AST = astFactory.create((AST)_t);
+					tmp23_AST_in = (AST)_t;
+					ASTPair __currentAST91 = currentAST.copy();
 					currentAST.root = currentAST.child;
 					currentAST.child = null;
 					match(_t,INSTANCE_INIT);
 					_t = _t.getFirstChild();
 					slist(_t);
 					_t = _retTree;
-					currentAST = __currentAST41;
-					_t = __t41;
+					currentAST = __currentAST91;
+					_t = __t91;
 					_t = _t.getNextSibling();
 					break;
 				}
 				default:
 				{
-					break _loop42;
+					break _loop92;
 				}
 				}
 			} while (true);
 			}
-			currentAST = __currentAST38;
-			_t = __t38;
+			currentAST = __currentAST88;
+			_t = __t88;
 			_t = _t.getNextSibling();
 			objBlock_AST = (AST)currentAST.root;
 		}
@@ -797,19 +1069,19 @@ public UnitTestParser() {
 		AST interfaceBlock_AST = null;
 		
 		try {      // for error handling
-			AST __t34 = _t;
-			AST tmp18_AST = null;
-			AST tmp18_AST_in = null;
-			tmp18_AST = astFactory.create((AST)_t);
-			tmp18_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp18_AST);
-			ASTPair __currentAST34 = currentAST.copy();
+			AST __t84 = _t;
+			AST tmp24_AST = null;
+			AST tmp24_AST_in = null;
+			tmp24_AST = astFactory.create((AST)_t);
+			tmp24_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp24_AST);
+			ASTPair __currentAST84 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,OBJBLOCK);
 			_t = _t.getFirstChild();
 			{
-			_loop36:
+			_loop86:
 			do {
 				if (_t==null) _t=ASTNULL;
 				switch ( _t.getType()) {
@@ -829,6 +1101,8 @@ public UnitTestParser() {
 				}
 				case CLASS_DEF:
 				case INTERFACE_DEF:
+				case ENUM_DEF:
+				case ANNOTATION_DEF:
 				{
 					typeDefinition(_t);
 					_t = _retTree;
@@ -837,13 +1111,13 @@ public UnitTestParser() {
 				}
 				default:
 				{
-					break _loop36;
+					break _loop86;
 				}
 				}
 			} while (true);
 			}
-			currentAST = __currentAST34;
-			_t = __t34;
+			currentAST = __currentAST84;
+			_t = __t84;
 			_t = _t.getNextSibling();
 			interfaceBlock_AST = (AST)currentAST.root;
 		}
@@ -855,6 +1129,385 @@ public UnitTestParser() {
 		_retTree = _t;
 	}
 	
+	public final void enumBlock(AST _t) throws RecognitionException {
+		
+		AST enumBlock_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST enumBlock_AST = null;
+		
+		try {      // for error handling
+			AST __t98 = _t;
+			AST tmp25_AST = null;
+			AST tmp25_AST_in = null;
+			tmp25_AST = astFactory.create((AST)_t);
+			tmp25_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp25_AST);
+			ASTPair __currentAST98 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,OBJBLOCK);
+			_t = _t.getFirstChild();
+			{
+			_loop100:
+			do {
+				if (_t==null) _t=ASTNULL;
+				if ((_t.getType()==ENUM_CONSTANT_DEF)) {
+					enumConstantDef(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+				}
+				else {
+					break _loop100;
+				}
+				
+			} while (true);
+			}
+			{
+			_loop104:
+			do {
+				if (_t==null) _t=ASTNULL;
+				switch ( _t.getType()) {
+				case CTOR_DEF:
+				{
+					ctorDef(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				case METHOD_DEF:
+				{
+					methodDef(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				case VARIABLE_DEF:
+				{
+					variableDef(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				case CLASS_DEF:
+				case INTERFACE_DEF:
+				case ENUM_DEF:
+				case ANNOTATION_DEF:
+				{
+					typeDefinition(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				case STATIC_INIT:
+				{
+					AST __t102 = _t;
+					AST tmp26_AST = null;
+					AST tmp26_AST_in = null;
+					tmp26_AST = astFactory.create((AST)_t);
+					tmp26_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp26_AST);
+					ASTPair __currentAST102 = currentAST.copy();
+					currentAST.root = currentAST.child;
+					currentAST.child = null;
+					match(_t,STATIC_INIT);
+					_t = _t.getFirstChild();
+					slist(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					currentAST = __currentAST102;
+					_t = __t102;
+					_t = _t.getNextSibling();
+					break;
+				}
+				case INSTANCE_INIT:
+				{
+					AST __t103 = _t;
+					AST tmp27_AST = null;
+					AST tmp27_AST_in = null;
+					tmp27_AST = astFactory.create((AST)_t);
+					tmp27_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp27_AST);
+					ASTPair __currentAST103 = currentAST.copy();
+					currentAST.root = currentAST.child;
+					currentAST.child = null;
+					match(_t,INSTANCE_INIT);
+					_t = _t.getFirstChild();
+					slist(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					currentAST = __currentAST103;
+					_t = __t103;
+					_t = _t.getNextSibling();
+					break;
+				}
+				default:
+				{
+					break _loop104;
+				}
+				}
+			} while (true);
+			}
+			currentAST = __currentAST98;
+			_t = __t98;
+			_t = _t.getNextSibling();
+			enumBlock_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = enumBlock_AST;
+		_retTree = _t;
+	}
+	
+	public final void annotationBlock(AST _t) throws RecognitionException {
+		
+		AST annotationBlock_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST annotationBlock_AST = null;
+		
+		try {      // for error handling
+			AST __t94 = _t;
+			AST tmp28_AST = null;
+			AST tmp28_AST_in = null;
+			tmp28_AST = astFactory.create((AST)_t);
+			tmp28_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp28_AST);
+			ASTPair __currentAST94 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,OBJBLOCK);
+			_t = _t.getFirstChild();
+			{
+			_loop96:
+			do {
+				if (_t==null) _t=ASTNULL;
+				switch ( _t.getType()) {
+				case ANNOTATION_FIELD_DEF:
+				{
+					annotationFieldDecl(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				case VARIABLE_DEF:
+				{
+					variableDef(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				case CLASS_DEF:
+				case INTERFACE_DEF:
+				case ENUM_DEF:
+				case ANNOTATION_DEF:
+				{
+					typeDefinition(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				default:
+				{
+					break _loop96;
+				}
+				}
+			} while (true);
+			}
+			currentAST = __currentAST94;
+			_t = __t94;
+			_t = _t.getNextSibling();
+			annotationBlock_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = annotationBlock_AST;
+		_retTree = _t;
+	}
+	
+	public final void typeParameter(AST _t) throws RecognitionException {
+		
+		AST typeParameter_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST typeParameter_AST = null;
+		
+		try {      // for error handling
+			AST __t23 = _t;
+			AST tmp29_AST = null;
+			AST tmp29_AST_in = null;
+			tmp29_AST = astFactory.create((AST)_t);
+			tmp29_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp29_AST);
+			ASTPair __currentAST23 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,TYPE_PARAMETER);
+			_t = _t.getFirstChild();
+			AST tmp30_AST = null;
+			AST tmp30_AST_in = null;
+			tmp30_AST = astFactory.create((AST)_t);
+			tmp30_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp30_AST);
+			match(_t,IDENT);
+			_t = _t.getNextSibling();
+			{
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case TYPE_UPPER_BOUNDS:
+			{
+				typeUpperBounds(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				break;
+			}
+			case 3:
+			{
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+			}
+			currentAST = __currentAST23;
+			_t = __t23;
+			_t = _t.getNextSibling();
+			typeParameter_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = typeParameter_AST;
+		_retTree = _t;
+	}
+	
+	public final void typeUpperBounds(AST _t) throws RecognitionException {
+		
+		AST typeUpperBounds_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST typeUpperBounds_AST = null;
+		
+		try {      // for error handling
+			AST __t26 = _t;
+			AST tmp31_AST = null;
+			AST tmp31_AST_in = null;
+			tmp31_AST = astFactory.create((AST)_t);
+			tmp31_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp31_AST);
+			ASTPair __currentAST26 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,TYPE_UPPER_BOUNDS);
+			_t = _t.getFirstChild();
+			{
+			int _cnt28=0;
+			_loop28:
+			do {
+				if (_t==null) _t=ASTNULL;
+				if ((_t.getType()==IDENT||_t.getType()==DOT)) {
+					classOrInterfaceType(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+				}
+				else {
+					if ( _cnt28>=1 ) { break _loop28; } else {throw new NoViableAltException(_t);}
+				}
+				
+				_cnt28++;
+			} while (true);
+			}
+			currentAST = __currentAST26;
+			_t = __t26;
+			_t = _t.getNextSibling();
+			typeUpperBounds_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = typeUpperBounds_AST;
+		_retTree = _t;
+	}
+	
+	public final void classOrInterfaceType(AST _t) throws RecognitionException {
+		
+		AST classOrInterfaceType_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST classOrInterfaceType_AST = null;
+		
+		try {      // for error handling
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case IDENT:
+			{
+				AST tmp32_AST = null;
+				AST tmp32_AST_in = null;
+				tmp32_AST = astFactory.create((AST)_t);
+				tmp32_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp32_AST);
+				match(_t,IDENT);
+				_t = _t.getNextSibling();
+				typeArguments(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				classOrInterfaceType_AST = (AST)currentAST.root;
+				break;
+			}
+			case DOT:
+			{
+				AST __t35 = _t;
+				AST tmp33_AST = null;
+				AST tmp33_AST_in = null;
+				tmp33_AST = astFactory.create((AST)_t);
+				tmp33_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp33_AST);
+				ASTPair __currentAST35 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,DOT);
+				_t = _t.getFirstChild();
+				identifier(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp34_AST = null;
+				AST tmp34_AST_in = null;
+				tmp34_AST = astFactory.create((AST)_t);
+				tmp34_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp34_AST);
+				match(_t,IDENT);
+				_t = _t.getNextSibling();
+				typeArguments(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST35;
+				_t = __t35;
+				_t = _t.getNextSibling();
+				classOrInterfaceType_AST = (AST)currentAST.root;
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = classOrInterfaceType_AST;
+		_retTree = _t;
+	}
+	
 	public final void typeSpec(AST _t) throws RecognitionException {
 		
 		AST typeSpec_AST_in = (_t == ASTNULL) ? null : (AST)_t;
@@ -863,13 +1516,13 @@ public UnitTestParser() {
 		AST typeSpec_AST = null;
 		
 		try {      // for error handling
-			AST __t15 = _t;
-			AST tmp19_AST = null;
-			AST tmp19_AST_in = null;
-			tmp19_AST = astFactory.create((AST)_t);
-			tmp19_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp19_AST);
-			ASTPair __currentAST15 = currentAST.copy();
+			AST __t30 = _t;
+			AST tmp35_AST = null;
+			AST tmp35_AST_in = null;
+			tmp35_AST = astFactory.create((AST)_t);
+			tmp35_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp35_AST);
+			ASTPair __currentAST30 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,TYPE);
@@ -877,8 +1530,8 @@ public UnitTestParser() {
 			typeSpecArray(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
-			currentAST = __currentAST15;
-			_t = __t15;
+			currentAST = __currentAST30;
+			_t = __t30;
 			_t = _t.getNextSibling();
 			typeSpec_AST = (AST)currentAST.root;
 		}
@@ -902,13 +1555,13 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case ARRAY_DECLARATOR:
 			{
-				AST __t17 = _t;
-				AST tmp20_AST = null;
-				AST tmp20_AST_in = null;
-				tmp20_AST = astFactory.create((AST)_t);
-				tmp20_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp20_AST);
-				ASTPair __currentAST17 = currentAST.copy();
+				AST __t32 = _t;
+				AST tmp36_AST = null;
+				AST tmp36_AST_in = null;
+				tmp36_AST = astFactory.create((AST)_t);
+				tmp36_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp36_AST);
+				ASTPair __currentAST32 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,ARRAY_DECLARATOR);
@@ -916,12 +1569,14 @@ public UnitTestParser() {
 				typeSpecArray(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST17;
-				_t = __t17;
+				currentAST = __currentAST32;
+				_t = __t32;
 				_t = _t.getNextSibling();
 				typeSpecArray_AST = (AST)currentAST.root;
 				break;
 			}
+			case IDENT:
+			case DOT:
 			case LITERAL_void:
 			case LITERAL_boolean:
 			case LITERAL_byte:
@@ -931,8 +1586,6 @@ public UnitTestParser() {
 			case LITERAL_float:
 			case LITERAL_long:
 			case LITERAL_double:
-			case IDENT:
-			case DOT:
 			{
 				type(_t);
 				_t = _retTree;
@@ -967,7 +1620,7 @@ public UnitTestParser() {
 			case IDENT:
 			case DOT:
 			{
-				identifier(_t);
+				classOrInterfaceType(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
 				type_AST = (AST)currentAST.root;
@@ -1015,11 +1668,11 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case LITERAL_void:
 			{
-				AST tmp21_AST = null;
-				AST tmp21_AST_in = null;
-				tmp21_AST = astFactory.create((AST)_t);
-				tmp21_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp21_AST);
+				AST tmp37_AST = null;
+				AST tmp37_AST_in = null;
+				tmp37_AST = astFactory.create((AST)_t);
+				tmp37_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp37_AST);
 				match(_t,LITERAL_void);
 				_t = _t.getNextSibling();
 				builtInType_AST = (AST)currentAST.root;
@@ -1027,11 +1680,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_boolean:
 			{
-				AST tmp22_AST = null;
-				AST tmp22_AST_in = null;
-				tmp22_AST = astFactory.create((AST)_t);
-				tmp22_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp22_AST);
+				AST tmp38_AST = null;
+				AST tmp38_AST_in = null;
+				tmp38_AST = astFactory.create((AST)_t);
+				tmp38_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp38_AST);
 				match(_t,LITERAL_boolean);
 				_t = _t.getNextSibling();
 				builtInType_AST = (AST)currentAST.root;
@@ -1039,11 +1692,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_byte:
 			{
-				AST tmp23_AST = null;
-				AST tmp23_AST_in = null;
-				tmp23_AST = astFactory.create((AST)_t);
-				tmp23_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp23_AST);
+				AST tmp39_AST = null;
+				AST tmp39_AST_in = null;
+				tmp39_AST = astFactory.create((AST)_t);
+				tmp39_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp39_AST);
 				match(_t,LITERAL_byte);
 				_t = _t.getNextSibling();
 				builtInType_AST = (AST)currentAST.root;
@@ -1051,11 +1704,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_char:
 			{
-				AST tmp24_AST = null;
-				AST tmp24_AST_in = null;
-				tmp24_AST = astFactory.create((AST)_t);
-				tmp24_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp24_AST);
+				AST tmp40_AST = null;
+				AST tmp40_AST_in = null;
+				tmp40_AST = astFactory.create((AST)_t);
+				tmp40_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp40_AST);
 				match(_t,LITERAL_char);
 				_t = _t.getNextSibling();
 				builtInType_AST = (AST)currentAST.root;
@@ -1063,11 +1716,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_short:
 			{
-				AST tmp25_AST = null;
-				AST tmp25_AST_in = null;
-				tmp25_AST = astFactory.create((AST)_t);
-				tmp25_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp25_AST);
+				AST tmp41_AST = null;
+				AST tmp41_AST_in = null;
+				tmp41_AST = astFactory.create((AST)_t);
+				tmp41_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp41_AST);
 				match(_t,LITERAL_short);
 				_t = _t.getNextSibling();
 				builtInType_AST = (AST)currentAST.root;
@@ -1075,11 +1728,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_int:
 			{
-				AST tmp26_AST = null;
-				AST tmp26_AST_in = null;
-				tmp26_AST = astFactory.create((AST)_t);
-				tmp26_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp26_AST);
+				AST tmp42_AST = null;
+				AST tmp42_AST_in = null;
+				tmp42_AST = astFactory.create((AST)_t);
+				tmp42_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp42_AST);
 				match(_t,LITERAL_int);
 				_t = _t.getNextSibling();
 				builtInType_AST = (AST)currentAST.root;
@@ -1087,11 +1740,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_float:
 			{
-				AST tmp27_AST = null;
-				AST tmp27_AST_in = null;
-				tmp27_AST = astFactory.create((AST)_t);
-				tmp27_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp27_AST);
+				AST tmp43_AST = null;
+				AST tmp43_AST_in = null;
+				tmp43_AST = astFactory.create((AST)_t);
+				tmp43_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp43_AST);
 				match(_t,LITERAL_float);
 				_t = _t.getNextSibling();
 				builtInType_AST = (AST)currentAST.root;
@@ -1099,11 +1752,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_long:
 			{
-				AST tmp28_AST = null;
-				AST tmp28_AST_in = null;
-				tmp28_AST = astFactory.create((AST)_t);
-				tmp28_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp28_AST);
+				AST tmp44_AST = null;
+				AST tmp44_AST_in = null;
+				tmp44_AST = astFactory.create((AST)_t);
+				tmp44_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp44_AST);
 				match(_t,LITERAL_long);
 				_t = _t.getNextSibling();
 				builtInType_AST = (AST)currentAST.root;
@@ -1111,11 +1764,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_double:
 			{
-				AST tmp29_AST = null;
-				AST tmp29_AST_in = null;
-				tmp29_AST = astFactory.create((AST)_t);
-				tmp29_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp29_AST);
+				AST tmp45_AST = null;
+				AST tmp45_AST_in = null;
+				tmp45_AST = astFactory.create((AST)_t);
+				tmp45_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp45_AST);
 				match(_t,LITERAL_double);
 				_t = _t.getNextSibling();
 				builtInType_AST = (AST)currentAST.root;
@@ -1135,6 +1788,299 @@ public UnitTestParser() {
 		_retTree = _t;
 	}
 	
+	public final void typeArguments(AST _t) throws RecognitionException {
+		
+		AST typeArguments_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST typeArguments_AST = null;
+		
+		try {      // for error handling
+			{
+			_loop38:
+			do {
+				if (_t==null) _t=ASTNULL;
+				if ((_t.getType()==TYPE_ARGUMENT)) {
+					typeArgument(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+				}
+				else {
+					break _loop38;
+				}
+				
+			} while (true);
+			}
+			typeArguments_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = typeArguments_AST;
+		_retTree = _t;
+	}
+	
+	public final void typeArgument(AST _t) throws RecognitionException {
+		
+		AST typeArgument_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST typeArgument_AST = null;
+		
+		try {      // for error handling
+			AST __t40 = _t;
+			AST tmp46_AST = null;
+			AST tmp46_AST_in = null;
+			tmp46_AST = astFactory.create((AST)_t);
+			tmp46_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp46_AST);
+			ASTPair __currentAST40 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,TYPE_ARGUMENT);
+			_t = _t.getFirstChild();
+			{
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case IDENT:
+			case DOT:
+			{
+				classOrInterfaceType(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				{
+				_loop43:
+				do {
+					if (_t==null) _t=ASTNULL;
+					if ((_t.getType()==ARRAY_DECLARATOR)) {
+						AST tmp47_AST = null;
+						AST tmp47_AST_in = null;
+						tmp47_AST = astFactory.create((AST)_t);
+						tmp47_AST_in = (AST)_t;
+						astFactory.addASTChild(currentAST, tmp47_AST);
+						match(_t,ARRAY_DECLARATOR);
+						_t = _t.getNextSibling();
+					}
+					else {
+						break _loop43;
+					}
+					
+				} while (true);
+				}
+				break;
+			}
+			case LITERAL_void:
+			case LITERAL_boolean:
+			case LITERAL_byte:
+			case LITERAL_char:
+			case LITERAL_short:
+			case LITERAL_int:
+			case LITERAL_float:
+			case LITERAL_long:
+			case LITERAL_double:
+			{
+				builtInType(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				{
+				int _cnt45=0;
+				_loop45:
+				do {
+					if (_t==null) _t=ASTNULL;
+					if ((_t.getType()==ARRAY_DECLARATOR)) {
+						AST tmp48_AST = null;
+						AST tmp48_AST_in = null;
+						tmp48_AST = astFactory.create((AST)_t);
+						tmp48_AST_in = (AST)_t;
+						astFactory.addASTChild(currentAST, tmp48_AST);
+						match(_t,ARRAY_DECLARATOR);
+						_t = _t.getNextSibling();
+					}
+					else {
+						if ( _cnt45>=1 ) { break _loop45; } else {throw new NoViableAltException(_t);}
+					}
+					
+					_cnt45++;
+				} while (true);
+				}
+				break;
+			}
+			case WILDCARD_TYPE:
+			{
+				wildcardType(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+			}
+			currentAST = __currentAST40;
+			_t = __t40;
+			_t = _t.getNextSibling();
+			typeArgument_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = typeArgument_AST;
+		_retTree = _t;
+	}
+	
+	public final void wildcardType(AST _t) throws RecognitionException {
+		
+		AST wildcardType_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST wildcardType_AST = null;
+		
+		try {      // for error handling
+			AST __t47 = _t;
+			AST tmp49_AST = null;
+			AST tmp49_AST_in = null;
+			tmp49_AST = astFactory.create((AST)_t);
+			tmp49_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp49_AST);
+			ASTPair __currentAST47 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,WILDCARD_TYPE);
+			_t = _t.getFirstChild();
+			{
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case TYPE_UPPER_BOUNDS:
+			case TYPE_LOWER_BOUNDS:
+			{
+				typeArgumentBounds(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				break;
+			}
+			case 3:
+			{
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+			}
+			currentAST = __currentAST47;
+			_t = __t47;
+			_t = _t.getNextSibling();
+			wildcardType_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = wildcardType_AST;
+		_retTree = _t;
+	}
+	
+	public final void typeArgumentBounds(AST _t) throws RecognitionException {
+		
+		AST typeArgumentBounds_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST typeArgumentBounds_AST = null;
+		
+		try {      // for error handling
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case TYPE_UPPER_BOUNDS:
+			{
+				AST __t50 = _t;
+				AST tmp50_AST = null;
+				AST tmp50_AST_in = null;
+				tmp50_AST = astFactory.create((AST)_t);
+				tmp50_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp50_AST);
+				ASTPair __currentAST50 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,TYPE_UPPER_BOUNDS);
+				_t = _t.getFirstChild();
+				{
+				int _cnt52=0;
+				_loop52:
+				do {
+					if (_t==null) _t=ASTNULL;
+					if ((_t.getType()==IDENT||_t.getType()==DOT)) {
+						classOrInterfaceType(_t);
+						_t = _retTree;
+						astFactory.addASTChild(currentAST, returnAST);
+					}
+					else {
+						if ( _cnt52>=1 ) { break _loop52; } else {throw new NoViableAltException(_t);}
+					}
+					
+					_cnt52++;
+				} while (true);
+				}
+				currentAST = __currentAST50;
+				_t = __t50;
+				_t = _t.getNextSibling();
+				typeArgumentBounds_AST = (AST)currentAST.root;
+				break;
+			}
+			case TYPE_LOWER_BOUNDS:
+			{
+				AST __t53 = _t;
+				AST tmp51_AST = null;
+				AST tmp51_AST_in = null;
+				tmp51_AST = astFactory.create((AST)_t);
+				tmp51_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp51_AST);
+				ASTPair __currentAST53 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,TYPE_LOWER_BOUNDS);
+				_t = _t.getFirstChild();
+				{
+				int _cnt55=0;
+				_loop55:
+				do {
+					if (_t==null) _t=ASTNULL;
+					if ((_t.getType()==IDENT||_t.getType()==DOT)) {
+						classOrInterfaceType(_t);
+						_t = _retTree;
+						astFactory.addASTChild(currentAST, returnAST);
+					}
+					else {
+						if ( _cnt55>=1 ) { break _loop55; } else {throw new NoViableAltException(_t);}
+					}
+					
+					_cnt55++;
+				} while (true);
+				}
+				currentAST = __currentAST53;
+				_t = __t53;
+				_t = _t.getNextSibling();
+				typeArgumentBounds_AST = (AST)currentAST.root;
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = typeArgumentBounds_AST;
+		_retTree = _t;
+	}
+	
 	public final void modifier(AST _t) throws RecognitionException {
 		
 		AST modifier_AST_in = (_t == ASTNULL) ? null : (AST)_t;
@@ -1147,11 +2093,11 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case LITERAL_private:
 			{
-				AST tmp30_AST = null;
-				AST tmp30_AST_in = null;
-				tmp30_AST = astFactory.create((AST)_t);
-				tmp30_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp30_AST);
+				AST tmp52_AST = null;
+				AST tmp52_AST_in = null;
+				tmp52_AST = astFactory.create((AST)_t);
+				tmp52_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp52_AST);
 				match(_t,LITERAL_private);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1159,11 +2105,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_public:
 			{
-				AST tmp31_AST = null;
-				AST tmp31_AST_in = null;
-				tmp31_AST = astFactory.create((AST)_t);
-				tmp31_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp31_AST);
+				AST tmp53_AST = null;
+				AST tmp53_AST_in = null;
+				tmp53_AST = astFactory.create((AST)_t);
+				tmp53_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp53_AST);
 				match(_t,LITERAL_public);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1171,11 +2117,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_protected:
 			{
-				AST tmp32_AST = null;
-				AST tmp32_AST_in = null;
-				tmp32_AST = astFactory.create((AST)_t);
-				tmp32_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp32_AST);
+				AST tmp54_AST = null;
+				AST tmp54_AST_in = null;
+				tmp54_AST = astFactory.create((AST)_t);
+				tmp54_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp54_AST);
 				match(_t,LITERAL_protected);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1183,11 +2129,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_static:
 			{
-				AST tmp33_AST = null;
-				AST tmp33_AST_in = null;
-				tmp33_AST = astFactory.create((AST)_t);
-				tmp33_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp33_AST);
+				AST tmp55_AST = null;
+				AST tmp55_AST_in = null;
+				tmp55_AST = astFactory.create((AST)_t);
+				tmp55_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp55_AST);
 				match(_t,LITERAL_static);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1195,11 +2141,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_transient:
 			{
-				AST tmp34_AST = null;
-				AST tmp34_AST_in = null;
-				tmp34_AST = astFactory.create((AST)_t);
-				tmp34_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp34_AST);
+				AST tmp56_AST = null;
+				AST tmp56_AST_in = null;
+				tmp56_AST = astFactory.create((AST)_t);
+				tmp56_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp56_AST);
 				match(_t,LITERAL_transient);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1207,11 +2153,11 @@ public UnitTestParser() {
 			}
 			case FINAL:
 			{
-				AST tmp35_AST = null;
-				AST tmp35_AST_in = null;
-				tmp35_AST = astFactory.create((AST)_t);
-				tmp35_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp35_AST);
+				AST tmp57_AST = null;
+				AST tmp57_AST_in = null;
+				tmp57_AST = astFactory.create((AST)_t);
+				tmp57_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp57_AST);
 				match(_t,FINAL);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1219,11 +2165,11 @@ public UnitTestParser() {
 			}
 			case ABSTRACT:
 			{
-				AST tmp36_AST = null;
-				AST tmp36_AST_in = null;
-				tmp36_AST = astFactory.create((AST)_t);
-				tmp36_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp36_AST);
+				AST tmp58_AST = null;
+				AST tmp58_AST_in = null;
+				tmp58_AST = astFactory.create((AST)_t);
+				tmp58_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp58_AST);
 				match(_t,ABSTRACT);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1231,11 +2177,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_native:
 			{
-				AST tmp37_AST = null;
-				AST tmp37_AST_in = null;
-				tmp37_AST = astFactory.create((AST)_t);
-				tmp37_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp37_AST);
+				AST tmp59_AST = null;
+				AST tmp59_AST_in = null;
+				tmp59_AST = astFactory.create((AST)_t);
+				tmp59_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp59_AST);
 				match(_t,LITERAL_native);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1243,11 +2189,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_threadsafe:
 			{
-				AST tmp38_AST = null;
-				AST tmp38_AST_in = null;
-				tmp38_AST = astFactory.create((AST)_t);
-				tmp38_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp38_AST);
+				AST tmp60_AST = null;
+				AST tmp60_AST_in = null;
+				tmp60_AST = astFactory.create((AST)_t);
+				tmp60_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp60_AST);
 				match(_t,LITERAL_threadsafe);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1255,11 +2201,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_synchronized:
 			{
-				AST tmp39_AST = null;
-				AST tmp39_AST_in = null;
-				tmp39_AST = astFactory.create((AST)_t);
-				tmp39_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp39_AST);
+				AST tmp61_AST = null;
+				AST tmp61_AST_in = null;
+				tmp61_AST = astFactory.create((AST)_t);
+				tmp61_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp61_AST);
 				match(_t,LITERAL_synchronized);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1267,11 +2213,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_const:
 			{
-				AST tmp40_AST = null;
-				AST tmp40_AST_in = null;
-				tmp40_AST = astFactory.create((AST)_t);
-				tmp40_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp40_AST);
+				AST tmp62_AST = null;
+				AST tmp62_AST_in = null;
+				tmp62_AST = astFactory.create((AST)_t);
+				tmp62_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp62_AST);
 				match(_t,LITERAL_const);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1279,11 +2225,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_volatile:
 			{
-				AST tmp41_AST = null;
-				AST tmp41_AST_in = null;
-				tmp41_AST = astFactory.create((AST)_t);
-				tmp41_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp41_AST);
+				AST tmp63_AST = null;
+				AST tmp63_AST_in = null;
+				tmp63_AST = astFactory.create((AST)_t);
+				tmp63_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp63_AST);
 				match(_t,LITERAL_volatile);
 				_t = _t.getNextSibling();
 				modifier_AST = (AST)currentAST.root;
@@ -1291,13 +2237,21 @@ public UnitTestParser() {
 			}
 			case STRICTFP:
 			{
-				AST tmp42_AST = null;
-				AST tmp42_AST_in = null;
-				tmp42_AST = astFactory.create((AST)_t);
-				tmp42_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp42_AST);
+				AST tmp64_AST = null;
+				AST tmp64_AST_in = null;
+				tmp64_AST = astFactory.create((AST)_t);
+				tmp64_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp64_AST);
 				match(_t,STRICTFP);
 				_t = _t.getNextSibling();
+				modifier_AST = (AST)currentAST.root;
+				break;
+			}
+			case ANNOTATION:
+			{
+				annotation(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
 				modifier_AST = (AST)currentAST.root;
 				break;
 			}
@@ -1315,6 +2269,1034 @@ public UnitTestParser() {
 		_retTree = _t;
 	}
 	
+	public final void annotationMemberValueInitializer(AST _t) throws RecognitionException {
+		
+		AST annotationMemberValueInitializer_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST annotationMemberValueInitializer_AST = null;
+		
+		try {      // for error handling
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case TYPE:
+			case TYPECAST:
+			case INDEX_OP:
+			case POST_INC:
+			case POST_DEC:
+			case METHOD_CALL:
+			case UNARY_MINUS:
+			case UNARY_PLUS:
+			case SUPER_CTOR_CALL:
+			case CTOR_CALL:
+			case IDENT:
+			case DOT:
+			case QUESTION:
+			case LITERAL_super:
+			case LT:
+			case GT:
+			case SR:
+			case BSR:
+			case STAR:
+			case BAND:
+			case LITERAL_this:
+			case LOR:
+			case LAND:
+			case BOR:
+			case BXOR:
+			case NOT_EQUAL:
+			case EQUAL:
+			case LE:
+			case GE:
+			case LITERAL_instanceof:
+			case SL:
+			case PLUS:
+			case MINUS:
+			case DIV:
+			case MOD:
+			case INC:
+			case DEC:
+			case BNOT:
+			case LNOT:
+			case LITERAL_true:
+			case LITERAL_false:
+			case LITERAL_null:
+			case LITERAL_new:
+			case NUM_INT:
+			case CHAR_LITERAL:
+			case STRING_LITERAL:
+			case NUM_FLOAT:
+			case NUM_LONG:
+			case NUM_DOUBLE:
+			{
+				conditionalExpr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				annotationMemberValueInitializer_AST = (AST)currentAST.root;
+				break;
+			}
+			case ANNOTATION:
+			{
+				annotation(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				annotationMemberValueInitializer_AST = (AST)currentAST.root;
+				break;
+			}
+			case ANNOTATION_ARRAY_INIT:
+			{
+				annotationMemberArrayInitializer(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				annotationMemberValueInitializer_AST = (AST)currentAST.root;
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = annotationMemberValueInitializer_AST;
+		_retTree = _t;
+	}
+	
+	public final void anntotationMemberValuePair(AST _t) throws RecognitionException {
+		
+		AST anntotationMemberValuePair_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST anntotationMemberValuePair_AST = null;
+		
+		try {      // for error handling
+			AST __t69 = _t;
+			AST tmp65_AST = null;
+			AST tmp65_AST_in = null;
+			tmp65_AST = astFactory.create((AST)_t);
+			tmp65_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp65_AST);
+			ASTPair __currentAST69 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,ANNOTATION_MEMBER_VALUE_PAIR);
+			_t = _t.getFirstChild();
+			AST tmp66_AST = null;
+			AST tmp66_AST_in = null;
+			tmp66_AST = astFactory.create((AST)_t);
+			tmp66_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp66_AST);
+			match(_t,IDENT);
+			_t = _t.getNextSibling();
+			annotationMemberValueInitializer(_t);
+			_t = _retTree;
+			astFactory.addASTChild(currentAST, returnAST);
+			currentAST = __currentAST69;
+			_t = __t69;
+			_t = _t.getNextSibling();
+			anntotationMemberValuePair_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = anntotationMemberValuePair_AST;
+		_retTree = _t;
+	}
+	
+	public final void conditionalExpr(AST _t) throws RecognitionException {
+		
+		AST conditionalExpr_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST conditionalExpr_AST = null;
+		
+		try {      // for error handling
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case QUESTION:
+			{
+				AST __t221 = _t;
+				AST tmp67_AST = null;
+				AST tmp67_AST_in = null;
+				tmp67_AST = astFactory.create((AST)_t);
+				tmp67_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp67_AST);
+				ASTPair __currentAST221 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,QUESTION);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST221;
+				_t = __t221;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case LOR:
+			{
+				AST __t222 = _t;
+				AST tmp68_AST = null;
+				AST tmp68_AST_in = null;
+				tmp68_AST = astFactory.create((AST)_t);
+				tmp68_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp68_AST);
+				ASTPair __currentAST222 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,LOR);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST222;
+				_t = __t222;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case LAND:
+			{
+				AST __t223 = _t;
+				AST tmp69_AST = null;
+				AST tmp69_AST_in = null;
+				tmp69_AST = astFactory.create((AST)_t);
+				tmp69_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp69_AST);
+				ASTPair __currentAST223 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,LAND);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST223;
+				_t = __t223;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case BOR:
+			{
+				AST __t224 = _t;
+				AST tmp70_AST = null;
+				AST tmp70_AST_in = null;
+				tmp70_AST = astFactory.create((AST)_t);
+				tmp70_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp70_AST);
+				ASTPair __currentAST224 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,BOR);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST224;
+				_t = __t224;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case BXOR:
+			{
+				AST __t225 = _t;
+				AST tmp71_AST = null;
+				AST tmp71_AST_in = null;
+				tmp71_AST = astFactory.create((AST)_t);
+				tmp71_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp71_AST);
+				ASTPair __currentAST225 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,BXOR);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST225;
+				_t = __t225;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case BAND:
+			{
+				AST __t226 = _t;
+				AST tmp72_AST = null;
+				AST tmp72_AST_in = null;
+				tmp72_AST = astFactory.create((AST)_t);
+				tmp72_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp72_AST);
+				ASTPair __currentAST226 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,BAND);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST226;
+				_t = __t226;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case NOT_EQUAL:
+			{
+				AST __t227 = _t;
+				AST tmp73_AST = null;
+				AST tmp73_AST_in = null;
+				tmp73_AST = astFactory.create((AST)_t);
+				tmp73_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp73_AST);
+				ASTPair __currentAST227 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,NOT_EQUAL);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST227;
+				_t = __t227;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case EQUAL:
+			{
+				AST __t228 = _t;
+				AST tmp74_AST = null;
+				AST tmp74_AST_in = null;
+				tmp74_AST = astFactory.create((AST)_t);
+				tmp74_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp74_AST);
+				ASTPair __currentAST228 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,EQUAL);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST228;
+				_t = __t228;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case LT:
+			{
+				AST __t229 = _t;
+				AST tmp75_AST = null;
+				AST tmp75_AST_in = null;
+				tmp75_AST = astFactory.create((AST)_t);
+				tmp75_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp75_AST);
+				ASTPair __currentAST229 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,LT);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST229;
+				_t = __t229;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case GT:
+			{
+				AST __t230 = _t;
+				AST tmp76_AST = null;
+				AST tmp76_AST_in = null;
+				tmp76_AST = astFactory.create((AST)_t);
+				tmp76_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp76_AST);
+				ASTPair __currentAST230 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,GT);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST230;
+				_t = __t230;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case LE:
+			{
+				AST __t231 = _t;
+				AST tmp77_AST = null;
+				AST tmp77_AST_in = null;
+				tmp77_AST = astFactory.create((AST)_t);
+				tmp77_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp77_AST);
+				ASTPair __currentAST231 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,LE);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST231;
+				_t = __t231;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case GE:
+			{
+				AST __t232 = _t;
+				AST tmp78_AST = null;
+				AST tmp78_AST_in = null;
+				tmp78_AST = astFactory.create((AST)_t);
+				tmp78_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp78_AST);
+				ASTPair __currentAST232 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,GE);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST232;
+				_t = __t232;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case SL:
+			{
+				AST __t233 = _t;
+				AST tmp79_AST = null;
+				AST tmp79_AST_in = null;
+				tmp79_AST = astFactory.create((AST)_t);
+				tmp79_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp79_AST);
+				ASTPair __currentAST233 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,SL);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST233;
+				_t = __t233;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case SR:
+			{
+				AST __t234 = _t;
+				AST tmp80_AST = null;
+				AST tmp80_AST_in = null;
+				tmp80_AST = astFactory.create((AST)_t);
+				tmp80_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp80_AST);
+				ASTPair __currentAST234 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,SR);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST234;
+				_t = __t234;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case BSR:
+			{
+				AST __t235 = _t;
+				AST tmp81_AST = null;
+				AST tmp81_AST_in = null;
+				tmp81_AST = astFactory.create((AST)_t);
+				tmp81_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp81_AST);
+				ASTPair __currentAST235 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,BSR);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST235;
+				_t = __t235;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case PLUS:
+			{
+				AST __t236 = _t;
+				AST tmp82_AST = null;
+				AST tmp82_AST_in = null;
+				tmp82_AST = astFactory.create((AST)_t);
+				tmp82_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp82_AST);
+				ASTPair __currentAST236 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,PLUS);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST236;
+				_t = __t236;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case MINUS:
+			{
+				AST __t237 = _t;
+				AST tmp83_AST = null;
+				AST tmp83_AST_in = null;
+				tmp83_AST = astFactory.create((AST)_t);
+				tmp83_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp83_AST);
+				ASTPair __currentAST237 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,MINUS);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST237;
+				_t = __t237;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case DIV:
+			{
+				AST __t238 = _t;
+				AST tmp84_AST = null;
+				AST tmp84_AST_in = null;
+				tmp84_AST = astFactory.create((AST)_t);
+				tmp84_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp84_AST);
+				ASTPair __currentAST238 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,DIV);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST238;
+				_t = __t238;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case MOD:
+			{
+				AST __t239 = _t;
+				AST tmp85_AST = null;
+				AST tmp85_AST_in = null;
+				tmp85_AST = astFactory.create((AST)_t);
+				tmp85_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp85_AST);
+				ASTPair __currentAST239 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,MOD);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST239;
+				_t = __t239;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case STAR:
+			{
+				AST __t240 = _t;
+				AST tmp86_AST = null;
+				AST tmp86_AST_in = null;
+				tmp86_AST = astFactory.create((AST)_t);
+				tmp86_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp86_AST);
+				ASTPair __currentAST240 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,STAR);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST240;
+				_t = __t240;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case INC:
+			{
+				AST __t241 = _t;
+				AST tmp87_AST = null;
+				AST tmp87_AST_in = null;
+				tmp87_AST = astFactory.create((AST)_t);
+				tmp87_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp87_AST);
+				ASTPair __currentAST241 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,INC);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST241;
+				_t = __t241;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case DEC:
+			{
+				AST __t242 = _t;
+				AST tmp88_AST = null;
+				AST tmp88_AST_in = null;
+				tmp88_AST = astFactory.create((AST)_t);
+				tmp88_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp88_AST);
+				ASTPair __currentAST242 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,DEC);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST242;
+				_t = __t242;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case POST_INC:
+			{
+				AST __t243 = _t;
+				AST tmp89_AST = null;
+				AST tmp89_AST_in = null;
+				tmp89_AST = astFactory.create((AST)_t);
+				tmp89_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp89_AST);
+				ASTPair __currentAST243 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,POST_INC);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST243;
+				_t = __t243;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case POST_DEC:
+			{
+				AST __t244 = _t;
+				AST tmp90_AST = null;
+				AST tmp90_AST_in = null;
+				tmp90_AST = astFactory.create((AST)_t);
+				tmp90_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp90_AST);
+				ASTPair __currentAST244 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,POST_DEC);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST244;
+				_t = __t244;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case BNOT:
+			{
+				AST __t245 = _t;
+				AST tmp91_AST = null;
+				AST tmp91_AST_in = null;
+				tmp91_AST = astFactory.create((AST)_t);
+				tmp91_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp91_AST);
+				ASTPair __currentAST245 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,BNOT);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST245;
+				_t = __t245;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case LNOT:
+			{
+				AST __t246 = _t;
+				AST tmp92_AST = null;
+				AST tmp92_AST_in = null;
+				tmp92_AST = astFactory.create((AST)_t);
+				tmp92_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp92_AST);
+				ASTPair __currentAST246 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,LNOT);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST246;
+				_t = __t246;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case LITERAL_instanceof:
+			{
+				AST __t247 = _t;
+				AST tmp93_AST = null;
+				AST tmp93_AST_in = null;
+				tmp93_AST = astFactory.create((AST)_t);
+				tmp93_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp93_AST);
+				ASTPair __currentAST247 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,LITERAL_instanceof);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST247;
+				_t = __t247;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case UNARY_MINUS:
+			{
+				AST __t248 = _t;
+				AST tmp94_AST = null;
+				AST tmp94_AST_in = null;
+				tmp94_AST = astFactory.create((AST)_t);
+				tmp94_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp94_AST);
+				ASTPair __currentAST248 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,UNARY_MINUS);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST248;
+				_t = __t248;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case UNARY_PLUS:
+			{
+				AST __t249 = _t;
+				AST tmp95_AST = null;
+				AST tmp95_AST_in = null;
+				tmp95_AST = astFactory.create((AST)_t);
+				tmp95_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp95_AST);
+				ASTPair __currentAST249 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,UNARY_PLUS);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST249;
+				_t = __t249;
+				_t = _t.getNextSibling();
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			case TYPE:
+			case TYPECAST:
+			case INDEX_OP:
+			case METHOD_CALL:
+			case SUPER_CTOR_CALL:
+			case CTOR_CALL:
+			case IDENT:
+			case DOT:
+			case LITERAL_super:
+			case LITERAL_this:
+			case LITERAL_true:
+			case LITERAL_false:
+			case LITERAL_null:
+			case LITERAL_new:
+			case NUM_INT:
+			case CHAR_LITERAL:
+			case STRING_LITERAL:
+			case NUM_FLOAT:
+			case NUM_LONG:
+			case NUM_DOUBLE:
+			{
+				primaryExpression(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				conditionalExpr_AST = (AST)currentAST.root;
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = conditionalExpr_AST;
+		_retTree = _t;
+	}
+	
+	public final void annotationMemberArrayInitializer(AST _t) throws RecognitionException {
+		
+		AST annotationMemberArrayInitializer_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST annotationMemberArrayInitializer_AST = null;
+		
+		try {      // for error handling
+			AST __t71 = _t;
+			AST tmp96_AST = null;
+			AST tmp96_AST_in = null;
+			tmp96_AST = astFactory.create((AST)_t);
+			tmp96_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp96_AST);
+			ASTPair __currentAST71 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,ANNOTATION_ARRAY_INIT);
+			_t = _t.getFirstChild();
+			{
+			_loop73:
+			do {
+				if (_t==null) _t=ASTNULL;
+				if ((_tokenSet_2.member(_t.getType()))) {
+					annotationMemberArrayValueInitializer(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+				}
+				else {
+					break _loop73;
+				}
+				
+			} while (true);
+			}
+			currentAST = __currentAST71;
+			_t = __t71;
+			_t = _t.getNextSibling();
+			annotationMemberArrayInitializer_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = annotationMemberArrayInitializer_AST;
+		_retTree = _t;
+	}
+	
+	public final void annotationMemberArrayValueInitializer(AST _t) throws RecognitionException {
+		
+		AST annotationMemberArrayValueInitializer_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST annotationMemberArrayValueInitializer_AST = null;
+		
+		try {      // for error handling
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case TYPE:
+			case TYPECAST:
+			case INDEX_OP:
+			case POST_INC:
+			case POST_DEC:
+			case METHOD_CALL:
+			case UNARY_MINUS:
+			case UNARY_PLUS:
+			case SUPER_CTOR_CALL:
+			case CTOR_CALL:
+			case IDENT:
+			case DOT:
+			case QUESTION:
+			case LITERAL_super:
+			case LT:
+			case GT:
+			case SR:
+			case BSR:
+			case STAR:
+			case BAND:
+			case LITERAL_this:
+			case LOR:
+			case LAND:
+			case BOR:
+			case BXOR:
+			case NOT_EQUAL:
+			case EQUAL:
+			case LE:
+			case GE:
+			case LITERAL_instanceof:
+			case SL:
+			case PLUS:
+			case MINUS:
+			case DIV:
+			case MOD:
+			case INC:
+			case DEC:
+			case BNOT:
+			case LNOT:
+			case LITERAL_true:
+			case LITERAL_false:
+			case LITERAL_null:
+			case LITERAL_new:
+			case NUM_INT:
+			case CHAR_LITERAL:
+			case STRING_LITERAL:
+			case NUM_FLOAT:
+			case NUM_LONG:
+			case NUM_DOUBLE:
+			{
+				conditionalExpr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				annotationMemberArrayValueInitializer_AST = (AST)currentAST.root;
+				break;
+			}
+			case ANNOTATION:
+			{
+				annotation(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				annotationMemberArrayValueInitializer_AST = (AST)currentAST.root;
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = annotationMemberArrayValueInitializer_AST;
+		_retTree = _t;
+	}
+	
 	public final void methodDecl(AST _t) throws RecognitionException {
 		
 		AST methodDecl_AST_in = (_t == ASTNULL) ? null : (AST)_t;
@@ -1323,18 +3305,21 @@ public UnitTestParser() {
 		AST methodDecl_AST = null;
 		
 		try {      // for error handling
-			AST __t47 = _t;
-			AST tmp43_AST = null;
-			AST tmp43_AST_in = null;
-			tmp43_AST = astFactory.create((AST)_t);
-			tmp43_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp43_AST);
-			ASTPair __currentAST47 = currentAST.copy();
+			AST __t109 = _t;
+			AST tmp97_AST = null;
+			AST tmp97_AST_in = null;
+			tmp97_AST = astFactory.create((AST)_t);
+			tmp97_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp97_AST);
+			ASTPair __currentAST109 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,METHOD_DEF);
 			_t = _t.getFirstChild();
 			modifiers(_t);
+			_t = _retTree;
+			astFactory.addASTChild(currentAST, returnAST);
+			typeParameters(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
 			typeSpec(_t);
@@ -1343,8 +3328,8 @@ public UnitTestParser() {
 			methodHead(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
-			currentAST = __currentAST47;
-			_t = __t47;
+			currentAST = __currentAST109;
+			_t = __t109;
 			_t = _t.getNextSibling();
 			methodDecl_AST = (AST)currentAST.root;
 		}
@@ -1368,13 +3353,13 @@ public UnitTestParser() {
 		AST t = null;
 		
 		try {      // for error handling
-			AST __t52 = _t;
-			AST tmp44_AST = null;
-			AST tmp44_AST_in = null;
-			tmp44_AST = astFactory.create((AST)_t);
-			tmp44_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp44_AST);
-			ASTPair __currentAST52 = currentAST.copy();
+			AST __t114 = _t;
+			AST tmp98_AST = null;
+			AST tmp98_AST_in = null;
+			tmp98_AST = astFactory.create((AST)_t);
+			tmp98_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp98_AST);
+			ASTPair __currentAST114 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,VARIABLE_DEF);
@@ -1395,8 +3380,8 @@ public UnitTestParser() {
 			varInitializer(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
-			currentAST = __currentAST52;
-			_t = __t52;
+			currentAST = __currentAST114;
+			_t = __t114;
 			_t = _t.getNextSibling();
 			variableDef_AST = (AST)currentAST.root;
 			
@@ -1405,7 +3390,7 @@ public UnitTestParser() {
 			if (semiholder.getImportantTokenCount() > 0) {
 				            AST semi = new LocatableAST(semiholder.getImportantToken(0));
 			
-			variableDef_AST = (AST)astFactory.make( (new ASTArray(3)).add(tmp44_AST).add(findFirstChild(m_AST,t_AST)).add(semi)); 
+			variableDef_AST = (AST)astFactory.make( (new ASTArray(3)).add(tmp98_AST).add(findFirstChild(m_AST,t_AST)).add(semi)); 
 			}
 			else {
 			// note: we get here when there are multiple declarations of a
@@ -1437,13 +3422,13 @@ public UnitTestParser() {
 		AST ctorDef_AST = null;
 		
 		try {      // for error handling
-			AST __t44 = _t;
-			AST tmp45_AST = null;
-			AST tmp45_AST_in = null;
-			tmp45_AST = astFactory.create((AST)_t);
-			tmp45_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp45_AST);
-			ASTPair __currentAST44 = currentAST.copy();
+			AST __t106 = _t;
+			AST tmp99_AST = null;
+			AST tmp99_AST_in = null;
+			tmp99_AST = astFactory.create((AST)_t);
+			tmp99_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp99_AST);
+			ASTPair __currentAST106 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,CTOR_DEF);
@@ -1474,8 +3459,8 @@ public UnitTestParser() {
 			}
 			}
 			}
-			currentAST = __currentAST44;
-			_t = __t44;
+			currentAST = __currentAST106;
+			_t = __t106;
 			_t = _t.getNextSibling();
 			ctorDef_AST = (AST)currentAST.root;
 		}
@@ -1503,12 +3488,12 @@ public UnitTestParser() {
 		AST sl = null;
 		
 		try {      // for error handling
-			AST __t49 = _t;
-			AST tmp46_AST = null;
-			AST tmp46_AST_in = null;
-			tmp46_AST = astFactory.create((AST)_t);
-			tmp46_AST_in = (AST)_t;
-			ASTPair __currentAST49 = currentAST.copy();
+			AST __t111 = _t;
+			AST tmp100_AST = null;
+			AST tmp100_AST_in = null;
+			tmp100_AST = astFactory.create((AST)_t);
+			tmp100_AST_in = (AST)_t;
+			ASTPair __currentAST111 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,METHOD_DEF);
@@ -1517,6 +3502,8 @@ public UnitTestParser() {
 			modifiers(_t);
 			_t = _retTree;
 			m_AST = (AST)returnAST;
+			typeParameters(_t);
+			_t = _retTree;
 			t = _t==ASTNULL ? null : (AST)_t;
 			typeSpec(_t);
 			_t = _retTree;
@@ -1567,8 +3554,8 @@ public UnitTestParser() {
 			}
 			}
 			}
-			currentAST = __currentAST49;
-			_t = __t49;
+			currentAST = __currentAST111;
+			_t = __t111;
 			_t = _t.getNextSibling();
 		}
 		catch (RecognitionException ex) {
@@ -1587,33 +3574,33 @@ public UnitTestParser() {
 		AST slist_AST = null;
 		
 		try {      // for error handling
-			AST __t80 = _t;
-			AST tmp47_AST = null;
-			AST tmp47_AST_in = null;
-			tmp47_AST = astFactory.create((AST)_t);
-			tmp47_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp47_AST);
-			ASTPair __currentAST80 = currentAST.copy();
+			AST __t158 = _t;
+			AST tmp101_AST = null;
+			AST tmp101_AST_in = null;
+			tmp101_AST = astFactory.create((AST)_t);
+			tmp101_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp101_AST);
+			ASTPair __currentAST158 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,SLIST);
 			_t = _t.getFirstChild();
 			{
-			_loop82:
+			_loop160:
 			do {
 				if (_t==null) _t=ASTNULL;
-				if ((_tokenSet_1.member(_t.getType()))) {
+				if ((_tokenSet_3.member(_t.getType()))) {
 					stat(_t);
 					_t = _retTree;
 				}
 				else {
-					break _loop82;
+					break _loop160;
 				}
 				
 			} while (true);
 			}
-			currentAST = __currentAST80;
-			_t = __t80;
+			currentAST = __currentAST158;
+			_t = __t158;
 			_t = _t.getNextSibling();
 			slist_AST = (AST)currentAST.root;
 		}
@@ -1622,6 +3609,216 @@ public UnitTestParser() {
 			if (_t!=null) {_t = _t.getNextSibling();}
 		}
 		returnAST = slist_AST;
+		_retTree = _t;
+	}
+	
+	public final void annotationFieldDecl(AST _t) throws RecognitionException {
+		
+		AST annotationFieldDecl_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST annotationFieldDecl_AST = null;
+		
+		try {      // for error handling
+			AST __t120 = _t;
+			AST tmp102_AST = null;
+			AST tmp102_AST_in = null;
+			tmp102_AST = astFactory.create((AST)_t);
+			tmp102_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp102_AST);
+			ASTPair __currentAST120 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,ANNOTATION_FIELD_DEF);
+			_t = _t.getFirstChild();
+			modifiers(_t);
+			_t = _retTree;
+			astFactory.addASTChild(currentAST, returnAST);
+			typeSpec(_t);
+			_t = _retTree;
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp103_AST = null;
+			AST tmp103_AST_in = null;
+			tmp103_AST = astFactory.create((AST)_t);
+			tmp103_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp103_AST);
+			match(_t,IDENT);
+			_t = _t.getNextSibling();
+			{
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case TYPE:
+			case TYPECAST:
+			case INDEX_OP:
+			case POST_INC:
+			case POST_DEC:
+			case METHOD_CALL:
+			case UNARY_MINUS:
+			case UNARY_PLUS:
+			case SUPER_CTOR_CALL:
+			case CTOR_CALL:
+			case ANNOTATION:
+			case ANNOTATION_ARRAY_INIT:
+			case IDENT:
+			case DOT:
+			case QUESTION:
+			case LITERAL_super:
+			case LT:
+			case GT:
+			case SR:
+			case BSR:
+			case STAR:
+			case BAND:
+			case LITERAL_this:
+			case LOR:
+			case LAND:
+			case BOR:
+			case BXOR:
+			case NOT_EQUAL:
+			case EQUAL:
+			case LE:
+			case GE:
+			case LITERAL_instanceof:
+			case SL:
+			case PLUS:
+			case MINUS:
+			case DIV:
+			case MOD:
+			case INC:
+			case DEC:
+			case BNOT:
+			case LNOT:
+			case LITERAL_true:
+			case LITERAL_false:
+			case LITERAL_null:
+			case LITERAL_new:
+			case NUM_INT:
+			case CHAR_LITERAL:
+			case STRING_LITERAL:
+			case NUM_FLOAT:
+			case NUM_LONG:
+			case NUM_DOUBLE:
+			{
+				annotationMemberValueInitializer(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				break;
+			}
+			case 3:
+			{
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+			}
+			currentAST = __currentAST120;
+			_t = __t120;
+			_t = _t.getNextSibling();
+			annotationFieldDecl_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = annotationFieldDecl_AST;
+		_retTree = _t;
+	}
+	
+	public final void enumConstantDef(AST _t) throws RecognitionException {
+		
+		AST enumConstantDef_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST enumConstantDef_AST = null;
+		
+		try {      // for error handling
+			AST __t123 = _t;
+			AST tmp104_AST = null;
+			AST tmp104_AST_in = null;
+			tmp104_AST = astFactory.create((AST)_t);
+			tmp104_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp104_AST);
+			ASTPair __currentAST123 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,ENUM_CONSTANT_DEF);
+			_t = _t.getFirstChild();
+			{
+			_loop125:
+			do {
+				if (_t==null) _t=ASTNULL;
+				if ((_t.getType()==ANNOTATION)) {
+					annotation(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+				}
+				else {
+					break _loop125;
+				}
+				
+			} while (true);
+			}
+			AST tmp105_AST = null;
+			AST tmp105_AST_in = null;
+			tmp105_AST = astFactory.create((AST)_t);
+			tmp105_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp105_AST);
+			match(_t,IDENT);
+			_t = _t.getNextSibling();
+			{
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case ELIST:
+			{
+				elist(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				break;
+			}
+			case 3:
+			case OBJBLOCK:
+			{
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+			}
+			{
+			if (_t==null) _t=ASTNULL;
+			switch ( _t.getType()) {
+			case OBJBLOCK:
+			{
+				enumConstantBlock(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				break;
+			}
+			case 3:
+			{
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(_t);
+			}
+			}
+			}
+			currentAST = __currentAST123;
+			_t = __t123;
+			_t = _t.getNextSibling();
+			enumConstantDef_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = enumConstantDef_AST;
 		_retTree = _t;
 	}
 	
@@ -1643,19 +3840,19 @@ public UnitTestParser() {
 			astFactory.makeASTRoot(currentAST, i_AST);
 			match(_t,IDENT);
 			_t = _t.getNextSibling();
-			AST __t66 = _t;
-			AST tmp48_AST = null;
-			AST tmp48_AST_in = null;
-			tmp48_AST = astFactory.create((AST)_t);
-			tmp48_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp48_AST);
-			ASTPair __currentAST66 = currentAST.copy();
+			AST __t144 = _t;
+			AST tmp106_AST = null;
+			AST tmp106_AST_in = null;
+			tmp106_AST = astFactory.create((AST)_t);
+			tmp106_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp106_AST);
+			ASTPair __currentAST144 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,PARAMETERS);
 			_t = _t.getFirstChild();
 			{
-			_loop68:
+			_loop146:
 			do {
 				if (_t==null) _t=ASTNULL;
 				if ((_t.getType()==PARAMETER_DEF)) {
@@ -1666,13 +3863,13 @@ public UnitTestParser() {
 					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
-					break _loop68;
+					break _loop146;
 				}
 				
 			} while (true);
 			}
-			currentAST = __currentAST66;
-			_t = __t66;
+			currentAST = __currentAST144;
+			_t = __t144;
 			_t = _t.getNextSibling();
 			{
 			if (_t==null) _t=ASTNULL;
@@ -1728,10 +3925,10 @@ public UnitTestParser() {
 			}
 			case LBRACK:
 			{
-				AST tmp49_AST = null;
-				AST tmp49_AST_in = null;
-				tmp49_AST = astFactory.create((AST)_t);
-				tmp49_AST_in = (AST)_t;
+				AST tmp107_AST = null;
+				AST tmp107_AST_in = null;
+				tmp107_AST = astFactory.create((AST)_t);
+				tmp107_AST_in = (AST)_t;
 				match(_t,LBRACK);
 				_t = _t.getNextSibling();
 				variableDeclarator(_t);
@@ -1772,13 +3969,13 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case ASSIGN:
 			{
-				AST __t59 = _t;
-				AST tmp50_AST = null;
-				AST tmp50_AST_in = null;
-				tmp50_AST = astFactory.create((AST)_t);
-				tmp50_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp50_AST);
-				ASTPair __currentAST59 = currentAST.copy();
+				AST __t137 = _t;
+				AST tmp108_AST = null;
+				AST tmp108_AST_in = null;
+				tmp108_AST = astFactory.create((AST)_t);
+				tmp108_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp108_AST);
+				ASTPair __currentAST137 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,ASSIGN);
@@ -1786,8 +3983,8 @@ public UnitTestParser() {
 				initializer(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST59;
-				_t = __t59;
+				currentAST = __currentAST137;
+				_t = __t137;
 				_t = _t.getNextSibling();
 				varInitializer_AST = (AST)currentAST.root;
 				break;
@@ -1819,13 +4016,13 @@ public UnitTestParser() {
 		AST parameterDef_AST = null;
 		
 		try {      // for error handling
-			AST __t54 = _t;
-			AST tmp51_AST = null;
-			AST tmp51_AST_in = null;
-			tmp51_AST = astFactory.create((AST)_t);
-			tmp51_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp51_AST);
-			ASTPair __currentAST54 = currentAST.copy();
+			AST __t116 = _t;
+			AST tmp109_AST = null;
+			AST tmp109_AST_in = null;
+			tmp109_AST = astFactory.create((AST)_t);
+			tmp109_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp109_AST);
+			ASTPair __currentAST116 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,PARAMETER_DEF);
@@ -1836,15 +4033,15 @@ public UnitTestParser() {
 			typeSpec(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
-			AST tmp52_AST = null;
-			AST tmp52_AST_in = null;
-			tmp52_AST = astFactory.create((AST)_t);
-			tmp52_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp52_AST);
+			AST tmp110_AST = null;
+			AST tmp110_AST_in = null;
+			tmp110_AST = astFactory.create((AST)_t);
+			tmp110_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp110_AST);
 			match(_t,IDENT);
 			_t = _t.getNextSibling();
-			currentAST = __currentAST54;
-			_t = __t54;
+			currentAST = __currentAST116;
+			_t = __t116;
 			_t = _t.getNextSibling();
 			parameterDef_AST = (AST)currentAST.root;
 		}
@@ -1856,6 +4053,187 @@ public UnitTestParser() {
 		_retTree = _t;
 	}
 	
+	public final void variableLengthParameterDef(AST _t) throws RecognitionException {
+		
+		AST variableLengthParameterDef_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST variableLengthParameterDef_AST = null;
+		
+		try {      // for error handling
+			AST __t118 = _t;
+			AST tmp111_AST = null;
+			AST tmp111_AST_in = null;
+			tmp111_AST = astFactory.create((AST)_t);
+			tmp111_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp111_AST);
+			ASTPair __currentAST118 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,VARIABLE_PARAMETER_DEF);
+			_t = _t.getFirstChild();
+			modifiers(_t);
+			_t = _retTree;
+			astFactory.addASTChild(currentAST, returnAST);
+			typeSpec(_t);
+			_t = _retTree;
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp112_AST = null;
+			AST tmp112_AST_in = null;
+			tmp112_AST = astFactory.create((AST)_t);
+			tmp112_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp112_AST);
+			match(_t,IDENT);
+			_t = _t.getNextSibling();
+			currentAST = __currentAST118;
+			_t = __t118;
+			_t = _t.getNextSibling();
+			variableLengthParameterDef_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = variableLengthParameterDef_AST;
+		_retTree = _t;
+	}
+	
+	public final void elist(AST _t) throws RecognitionException {
+		
+		AST elist_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST elist_AST = null;
+		
+		try {      // for error handling
+			AST __t202 = _t;
+			AST tmp113_AST = null;
+			AST tmp113_AST_in = null;
+			tmp113_AST = astFactory.create((AST)_t);
+			tmp113_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp113_AST);
+			ASTPair __currentAST202 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,ELIST);
+			_t = _t.getFirstChild();
+			{
+			_loop204:
+			do {
+				if (_t==null) _t=ASTNULL;
+				if ((_t.getType()==EXPR)) {
+					expression(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+				}
+				else {
+					break _loop204;
+				}
+				
+			} while (true);
+			}
+			currentAST = __currentAST202;
+			_t = __t202;
+			_t = _t.getNextSibling();
+			elist_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = elist_AST;
+		_retTree = _t;
+	}
+	
+	public final void enumConstantBlock(AST _t) throws RecognitionException {
+		
+		AST enumConstantBlock_AST_in = (_t == ASTNULL) ? null : (AST)_t;
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST enumConstantBlock_AST = null;
+		
+		try {      // for error handling
+			AST __t129 = _t;
+			AST tmp114_AST = null;
+			AST tmp114_AST_in = null;
+			tmp114_AST = astFactory.create((AST)_t);
+			tmp114_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp114_AST);
+			ASTPair __currentAST129 = currentAST.copy();
+			currentAST.root = currentAST.child;
+			currentAST.child = null;
+			match(_t,OBJBLOCK);
+			_t = _t.getFirstChild();
+			{
+			_loop132:
+			do {
+				if (_t==null) _t=ASTNULL;
+				switch ( _t.getType()) {
+				case METHOD_DEF:
+				{
+					methodDef(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				case VARIABLE_DEF:
+				{
+					variableDef(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				case CLASS_DEF:
+				case INTERFACE_DEF:
+				case ENUM_DEF:
+				case ANNOTATION_DEF:
+				{
+					typeDefinition(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					break;
+				}
+				case INSTANCE_INIT:
+				{
+					AST __t131 = _t;
+					AST tmp115_AST = null;
+					AST tmp115_AST_in = null;
+					tmp115_AST = astFactory.create((AST)_t);
+					tmp115_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp115_AST);
+					ASTPair __currentAST131 = currentAST.copy();
+					currentAST.root = currentAST.child;
+					currentAST.child = null;
+					match(_t,INSTANCE_INIT);
+					_t = _t.getFirstChild();
+					slist(_t);
+					_t = _retTree;
+					astFactory.addASTChild(currentAST, returnAST);
+					currentAST = __currentAST131;
+					_t = __t131;
+					_t = _t.getNextSibling();
+					break;
+				}
+				default:
+				{
+					break _loop132;
+				}
+				}
+			} while (true);
+			}
+			currentAST = __currentAST129;
+			_t = __t129;
+			_t = _t.getNextSibling();
+			enumConstantBlock_AST = (AST)currentAST.root;
+		}
+		catch (RecognitionException ex) {
+			reportError(ex);
+			if (_t!=null) {_t = _t.getNextSibling();}
+		}
+		returnAST = enumConstantBlock_AST;
+		_retTree = _t;
+	}
+	
 	public final void objectinitializer(AST _t) throws RecognitionException {
 		
 		AST objectinitializer_AST_in = (_t == ASTNULL) ? null : (AST)_t;
@@ -1864,13 +4242,13 @@ public UnitTestParser() {
 		AST objectinitializer_AST = null;
 		
 		try {      // for error handling
-			AST __t56 = _t;
-			AST tmp53_AST = null;
-			AST tmp53_AST_in = null;
-			tmp53_AST = astFactory.create((AST)_t);
-			tmp53_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp53_AST);
-			ASTPair __currentAST56 = currentAST.copy();
+			AST __t134 = _t;
+			AST tmp116_AST = null;
+			AST tmp116_AST_in = null;
+			tmp116_AST = astFactory.create((AST)_t);
+			tmp116_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp116_AST);
+			ASTPair __currentAST134 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,INSTANCE_INIT);
@@ -1878,8 +4256,8 @@ public UnitTestParser() {
 			slist(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
-			currentAST = __currentAST56;
-			_t = __t56;
+			currentAST = __currentAST134;
+			_t = __t134;
 			_t = _t.getNextSibling();
 			objectinitializer_AST = (AST)currentAST.root;
 		}
@@ -1939,13 +4317,13 @@ public UnitTestParser() {
 		AST expression_AST = null;
 		
 		try {      // for error handling
-			AST __t127 = _t;
-			AST tmp54_AST = null;
-			AST tmp54_AST_in = null;
-			tmp54_AST = astFactory.create((AST)_t);
-			tmp54_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp54_AST);
-			ASTPair __currentAST127 = currentAST.copy();
+			AST __t206 = _t;
+			AST tmp117_AST = null;
+			AST tmp117_AST_in = null;
+			tmp117_AST = astFactory.create((AST)_t);
+			tmp117_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp117_AST);
+			ASTPair __currentAST206 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,EXPR);
@@ -1953,8 +4331,8 @@ public UnitTestParser() {
 			expr(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
-			currentAST = __currentAST127;
-			_t = __t127;
+			currentAST = __currentAST206;
+			_t = __t206;
 			_t = _t.getNextSibling();
 			expression_AST = (AST)currentAST.root;
 		}
@@ -1974,19 +4352,19 @@ public UnitTestParser() {
 		AST arrayInitializer_AST = null;
 		
 		try {      // for error handling
-			AST __t62 = _t;
-			AST tmp55_AST = null;
-			AST tmp55_AST_in = null;
-			tmp55_AST = astFactory.create((AST)_t);
-			tmp55_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp55_AST);
-			ASTPair __currentAST62 = currentAST.copy();
+			AST __t140 = _t;
+			AST tmp118_AST = null;
+			AST tmp118_AST_in = null;
+			tmp118_AST = astFactory.create((AST)_t);
+			tmp118_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp118_AST);
+			ASTPair __currentAST140 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,ARRAY_INIT);
 			_t = _t.getFirstChild();
 			{
-			_loop64:
+			_loop142:
 			do {
 				if (_t==null) _t=ASTNULL;
 				if ((_t.getType()==EXPR||_t.getType()==ARRAY_INIT)) {
@@ -1995,13 +4373,13 @@ public UnitTestParser() {
 					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
-					break _loop64;
+					break _loop142;
 				}
 				
 			} while (true);
 			}
-			currentAST = __currentAST62;
-			_t = __t62;
+			currentAST = __currentAST140;
+			_t = __t140;
 			_t = _t.getNextSibling();
 			arrayInitializer_AST = (AST)currentAST.root;
 		}
@@ -2021,19 +4399,19 @@ public UnitTestParser() {
 		AST throwsClause_AST = null;
 		
 		try {      // for error handling
-			AST __t71 = _t;
-			AST tmp56_AST = null;
-			AST tmp56_AST_in = null;
-			tmp56_AST = astFactory.create((AST)_t);
-			tmp56_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp56_AST);
-			ASTPair __currentAST71 = currentAST.copy();
+			AST __t149 = _t;
+			AST tmp119_AST = null;
+			AST tmp119_AST_in = null;
+			tmp119_AST = astFactory.create((AST)_t);
+			tmp119_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp119_AST);
+			ASTPair __currentAST149 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,LITERAL_throws);
 			_t = _t.getFirstChild();
 			{
-			_loop73:
+			_loop151:
 			do {
 				if (_t==null) _t=ASTNULL;
 				if ((_t.getType()==IDENT||_t.getType()==DOT)) {
@@ -2042,13 +4420,13 @@ public UnitTestParser() {
 					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
-					break _loop73;
+					break _loop151;
 				}
 				
 			} while (true);
 			}
-			currentAST = __currentAST71;
-			_t = __t71;
+			currentAST = __currentAST149;
+			_t = __t149;
 			_t = _t.getNextSibling();
 			throwsClause_AST = (AST)currentAST.root;
 		}
@@ -2072,6 +4450,8 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case CLASS_DEF:
 			case INTERFACE_DEF:
+			case ENUM_DEF:
+			case ANNOTATION_DEF:
 			{
 				typeDefinition(_t);
 				_t = _retTree;
@@ -2097,42 +4477,42 @@ public UnitTestParser() {
 			}
 			case LABELED_STAT:
 			{
-				AST __t84 = _t;
-				AST tmp57_AST = null;
-				AST tmp57_AST_in = null;
-				tmp57_AST = astFactory.create((AST)_t);
-				tmp57_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp57_AST);
-				ASTPair __currentAST84 = currentAST.copy();
+				AST __t162 = _t;
+				AST tmp120_AST = null;
+				AST tmp120_AST_in = null;
+				tmp120_AST = astFactory.create((AST)_t);
+				tmp120_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp120_AST);
+				ASTPair __currentAST162 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LABELED_STAT);
 				_t = _t.getFirstChild();
-				AST tmp58_AST = null;
-				AST tmp58_AST_in = null;
-				tmp58_AST = astFactory.create((AST)_t);
-				tmp58_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp58_AST);
+				AST tmp121_AST = null;
+				AST tmp121_AST_in = null;
+				tmp121_AST = astFactory.create((AST)_t);
+				tmp121_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp121_AST);
 				match(_t,IDENT);
 				_t = _t.getNextSibling();
 				stat(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST84;
-				_t = __t84;
+				currentAST = __currentAST162;
+				_t = __t162;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
 			case LITERAL_if:
 			{
-				AST __t85 = _t;
-				AST tmp59_AST = null;
-				AST tmp59_AST_in = null;
-				tmp59_AST = astFactory.create((AST)_t);
-				tmp59_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp59_AST);
-				ASTPair __currentAST85 = currentAST.copy();
+				AST __t163 = _t;
+				AST tmp122_AST = null;
+				AST tmp122_AST_in = null;
+				tmp122_AST = astFactory.create((AST)_t);
+				tmp122_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp122_AST);
+				ASTPair __currentAST163 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_if);
@@ -2153,9 +4533,12 @@ public UnitTestParser() {
 				case LABELED_STAT:
 				case EXPR:
 				case EMPTY_STAT:
+				case ENUM_DEF:
+				case FOR:
+				case FOR_EACH:
+				case ANNOTATION_DEF:
 				case LITERAL_synchronized:
 				case LITERAL_if:
-				case LITERAL_for:
 				case LITERAL_while:
 				case LITERAL_do:
 				case LITERAL_break:
@@ -2180,32 +4563,32 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST85;
-				_t = __t85;
+				currentAST = __currentAST163;
+				_t = __t163;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
-			case LITERAL_for:
+			case FOR:
 			{
-				AST __t87 = _t;
-				AST tmp60_AST = null;
-				AST tmp60_AST_in = null;
-				tmp60_AST = astFactory.create((AST)_t);
-				tmp60_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp60_AST);
-				ASTPair __currentAST87 = currentAST.copy();
+				AST __t165 = _t;
+				AST tmp123_AST = null;
+				AST tmp123_AST_in = null;
+				tmp123_AST = astFactory.create((AST)_t);
+				tmp123_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp123_AST);
+				ASTPair __currentAST165 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
-				match(_t,LITERAL_for);
+				match(_t,FOR);
 				_t = _t.getFirstChild();
-				AST __t88 = _t;
-				AST tmp61_AST = null;
-				AST tmp61_AST_in = null;
-				tmp61_AST = astFactory.create((AST)_t);
-				tmp61_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp61_AST);
-				ASTPair __currentAST88 = currentAST.copy();
+				AST __t166 = _t;
+				AST tmp124_AST = null;
+				AST tmp124_AST_in = null;
+				tmp124_AST = astFactory.create((AST)_t);
+				tmp124_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp124_AST);
+				ASTPair __currentAST166 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,FOR_INIT);
@@ -2216,8 +4599,8 @@ public UnitTestParser() {
 				case VARIABLE_DEF:
 				{
 					{
-					int _cnt91=0;
-					_loop91:
+					int _cnt169=0;
+					_loop169:
 					do {
 						if (_t==null) _t=ASTNULL;
 						if ((_t.getType()==VARIABLE_DEF)) {
@@ -2226,10 +4609,10 @@ public UnitTestParser() {
 							astFactory.addASTChild(currentAST, returnAST);
 						}
 						else {
-							if ( _cnt91>=1 ) { break _loop91; } else {throw new NoViableAltException(_t);}
+							if ( _cnt169>=1 ) { break _loop169; } else {throw new NoViableAltException(_t);}
 						}
 						
-						_cnt91++;
+						_cnt169++;
 					} while (true);
 					}
 					break;
@@ -2251,16 +4634,16 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST88;
-				_t = __t88;
+				currentAST = __currentAST166;
+				_t = __t166;
 				_t = _t.getNextSibling();
-				AST __t92 = _t;
-				AST tmp62_AST = null;
-				AST tmp62_AST_in = null;
-				tmp62_AST = astFactory.create((AST)_t);
-				tmp62_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp62_AST);
-				ASTPair __currentAST92 = currentAST.copy();
+				AST __t170 = _t;
+				AST tmp125_AST = null;
+				AST tmp125_AST_in = null;
+				tmp125_AST = astFactory.create((AST)_t);
+				tmp125_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp125_AST);
+				ASTPair __currentAST170 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,FOR_CONDITION);
@@ -2285,16 +4668,16 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST92;
-				_t = __t92;
+				currentAST = __currentAST170;
+				_t = __t170;
 				_t = _t.getNextSibling();
-				AST __t94 = _t;
-				AST tmp63_AST = null;
-				AST tmp63_AST_in = null;
-				tmp63_AST = astFactory.create((AST)_t);
-				tmp63_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp63_AST);
-				ASTPair __currentAST94 = currentAST.copy();
+				AST __t172 = _t;
+				AST tmp126_AST = null;
+				AST tmp126_AST_in = null;
+				tmp126_AST = astFactory.create((AST)_t);
+				tmp126_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp126_AST);
+				ASTPair __currentAST172 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,FOR_ITERATOR);
@@ -2319,27 +4702,55 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST94;
-				_t = __t94;
+				currentAST = __currentAST172;
+				_t = __t172;
 				_t = _t.getNextSibling();
 				stat(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST87;
-				_t = __t87;
+				currentAST = __currentAST165;
+				_t = __t165;
+				_t = _t.getNextSibling();
+				stat_AST = (AST)currentAST.root;
+				break;
+			}
+			case FOR_EACH:
+			{
+				AST __t174 = _t;
+				AST tmp127_AST = null;
+				AST tmp127_AST_in = null;
+				tmp127_AST = astFactory.create((AST)_t);
+				tmp127_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp127_AST);
+				ASTPair __currentAST174 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,FOR_EACH);
+				_t = _t.getFirstChild();
+				parameterDef(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expression(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				stat(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST174;
+				_t = __t174;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
 			case LITERAL_while:
 			{
-				AST __t96 = _t;
-				AST tmp64_AST = null;
-				AST tmp64_AST_in = null;
-				tmp64_AST = astFactory.create((AST)_t);
-				tmp64_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp64_AST);
-				ASTPair __currentAST96 = currentAST.copy();
+				AST __t175 = _t;
+				AST tmp128_AST = null;
+				AST tmp128_AST_in = null;
+				tmp128_AST = astFactory.create((AST)_t);
+				tmp128_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp128_AST);
+				ASTPair __currentAST175 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_while);
@@ -2350,21 +4761,21 @@ public UnitTestParser() {
 				stat(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST96;
-				_t = __t96;
+				currentAST = __currentAST175;
+				_t = __t175;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
 			case LITERAL_do:
 			{
-				AST __t97 = _t;
-				AST tmp65_AST = null;
-				AST tmp65_AST_in = null;
-				tmp65_AST = astFactory.create((AST)_t);
-				tmp65_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp65_AST);
-				ASTPair __currentAST97 = currentAST.copy();
+				AST __t176 = _t;
+				AST tmp129_AST = null;
+				AST tmp129_AST_in = null;
+				tmp129_AST = astFactory.create((AST)_t);
+				tmp129_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp129_AST);
+				ASTPair __currentAST176 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_do);
@@ -2375,21 +4786,21 @@ public UnitTestParser() {
 				expression(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST97;
-				_t = __t97;
+				currentAST = __currentAST176;
+				_t = __t176;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
 			case LITERAL_break:
 			{
-				AST __t98 = _t;
-				AST tmp66_AST = null;
-				AST tmp66_AST_in = null;
-				tmp66_AST = astFactory.create((AST)_t);
-				tmp66_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp66_AST);
-				ASTPair __currentAST98 = currentAST.copy();
+				AST __t177 = _t;
+				AST tmp130_AST = null;
+				AST tmp130_AST_in = null;
+				tmp130_AST = astFactory.create((AST)_t);
+				tmp130_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp130_AST);
+				ASTPair __currentAST177 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_break);
@@ -2399,11 +4810,11 @@ public UnitTestParser() {
 				switch ( _t.getType()) {
 				case IDENT:
 				{
-					AST tmp67_AST = null;
-					AST tmp67_AST_in = null;
-					tmp67_AST = astFactory.create((AST)_t);
-					tmp67_AST_in = (AST)_t;
-					astFactory.addASTChild(currentAST, tmp67_AST);
+					AST tmp131_AST = null;
+					AST tmp131_AST_in = null;
+					tmp131_AST = astFactory.create((AST)_t);
+					tmp131_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp131_AST);
 					match(_t,IDENT);
 					_t = _t.getNextSibling();
 					break;
@@ -2418,21 +4829,21 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST98;
-				_t = __t98;
+				currentAST = __currentAST177;
+				_t = __t177;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
 			case LITERAL_continue:
 			{
-				AST __t100 = _t;
-				AST tmp68_AST = null;
-				AST tmp68_AST_in = null;
-				tmp68_AST = astFactory.create((AST)_t);
-				tmp68_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp68_AST);
-				ASTPair __currentAST100 = currentAST.copy();
+				AST __t179 = _t;
+				AST tmp132_AST = null;
+				AST tmp132_AST_in = null;
+				tmp132_AST = astFactory.create((AST)_t);
+				tmp132_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp132_AST);
+				ASTPair __currentAST179 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_continue);
@@ -2442,11 +4853,11 @@ public UnitTestParser() {
 				switch ( _t.getType()) {
 				case IDENT:
 				{
-					AST tmp69_AST = null;
-					AST tmp69_AST_in = null;
-					tmp69_AST = astFactory.create((AST)_t);
-					tmp69_AST_in = (AST)_t;
-					astFactory.addASTChild(currentAST, tmp69_AST);
+					AST tmp133_AST = null;
+					AST tmp133_AST_in = null;
+					tmp133_AST = astFactory.create((AST)_t);
+					tmp133_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp133_AST);
 					match(_t,IDENT);
 					_t = _t.getNextSibling();
 					break;
@@ -2461,21 +4872,21 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST100;
-				_t = __t100;
+				currentAST = __currentAST179;
+				_t = __t179;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
 			case LITERAL_return:
 			{
-				AST __t102 = _t;
-				AST tmp70_AST = null;
-				AST tmp70_AST_in = null;
-				tmp70_AST = astFactory.create((AST)_t);
-				tmp70_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp70_AST);
-				ASTPair __currentAST102 = currentAST.copy();
+				AST __t181 = _t;
+				AST tmp134_AST = null;
+				AST tmp134_AST_in = null;
+				tmp134_AST = astFactory.create((AST)_t);
+				tmp134_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp134_AST);
+				ASTPair __currentAST181 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_return);
@@ -2500,21 +4911,21 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST102;
-				_t = __t102;
+				currentAST = __currentAST181;
+				_t = __t181;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
 			case LITERAL_switch:
 			{
-				AST __t104 = _t;
-				AST tmp71_AST = null;
-				AST tmp71_AST_in = null;
-				tmp71_AST = astFactory.create((AST)_t);
-				tmp71_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp71_AST);
-				ASTPair __currentAST104 = currentAST.copy();
+				AST __t183 = _t;
+				AST tmp135_AST = null;
+				AST tmp135_AST_in = null;
+				tmp135_AST = astFactory.create((AST)_t);
+				tmp135_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp135_AST);
+				ASTPair __currentAST183 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_switch);
@@ -2523,7 +4934,7 @@ public UnitTestParser() {
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
 				{
-				_loop106:
+				_loop185:
 				do {
 					if (_t==null) _t=ASTNULL;
 					if ((_t.getType()==CASE_GROUP)) {
@@ -2532,26 +4943,26 @@ public UnitTestParser() {
 						astFactory.addASTChild(currentAST, returnAST);
 					}
 					else {
-						break _loop106;
+						break _loop185;
 					}
 					
 				} while (true);
 				}
-				currentAST = __currentAST104;
-				_t = __t104;
+				currentAST = __currentAST183;
+				_t = __t183;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
 			case LITERAL_throw:
 			{
-				AST __t107 = _t;
-				AST tmp72_AST = null;
-				AST tmp72_AST_in = null;
-				tmp72_AST = astFactory.create((AST)_t);
-				tmp72_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp72_AST);
-				ASTPair __currentAST107 = currentAST.copy();
+				AST __t186 = _t;
+				AST tmp136_AST = null;
+				AST tmp136_AST_in = null;
+				tmp136_AST = astFactory.create((AST)_t);
+				tmp136_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp136_AST);
+				ASTPair __currentAST186 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_throw);
@@ -2559,21 +4970,21 @@ public UnitTestParser() {
 				expression(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST107;
-				_t = __t107;
+				currentAST = __currentAST186;
+				_t = __t186;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
 			}
 			case LITERAL_synchronized:
 			{
-				AST __t108 = _t;
-				AST tmp73_AST = null;
-				AST tmp73_AST_in = null;
-				tmp73_AST = astFactory.create((AST)_t);
-				tmp73_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp73_AST);
-				ASTPair __currentAST108 = currentAST.copy();
+				AST __t187 = _t;
+				AST tmp137_AST = null;
+				AST tmp137_AST_in = null;
+				tmp137_AST = astFactory.create((AST)_t);
+				tmp137_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp137_AST);
+				ASTPair __currentAST187 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_synchronized);
@@ -2584,8 +4995,8 @@ public UnitTestParser() {
 				stat(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST108;
-				_t = __t108;
+				currentAST = __currentAST187;
+				_t = __t187;
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
 				break;
@@ -2608,11 +5019,11 @@ public UnitTestParser() {
 			}
 			case EMPTY_STAT:
 			{
-				AST tmp74_AST = null;
-				AST tmp74_AST_in = null;
-				tmp74_AST = astFactory.create((AST)_t);
-				tmp74_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp74_AST);
+				AST tmp138_AST = null;
+				AST tmp138_AST_in = null;
+				tmp138_AST = astFactory.create((AST)_t);
+				tmp138_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp138_AST);
 				match(_t,EMPTY_STAT);
 				_t = _t.getNextSibling();
 				stat_AST = (AST)currentAST.root;
@@ -2632,53 +5043,6 @@ public UnitTestParser() {
 		_retTree = _t;
 	}
 	
-	public final void elist(AST _t) throws RecognitionException {
-		
-		AST elist_AST_in = (_t == ASTNULL) ? null : (AST)_t;
-		returnAST = null;
-		ASTPair currentAST = new ASTPair();
-		AST elist_AST = null;
-		
-		try {      // for error handling
-			AST __t123 = _t;
-			AST tmp75_AST = null;
-			AST tmp75_AST_in = null;
-			tmp75_AST = astFactory.create((AST)_t);
-			tmp75_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp75_AST);
-			ASTPair __currentAST123 = currentAST.copy();
-			currentAST.root = currentAST.child;
-			currentAST.child = null;
-			match(_t,ELIST);
-			_t = _t.getFirstChild();
-			{
-			_loop125:
-			do {
-				if (_t==null) _t=ASTNULL;
-				if ((_t.getType()==EXPR)) {
-					expression(_t);
-					_t = _retTree;
-					astFactory.addASTChild(currentAST, returnAST);
-				}
-				else {
-					break _loop125;
-				}
-				
-			} while (true);
-			}
-			currentAST = __currentAST123;
-			_t = __t123;
-			_t = _t.getNextSibling();
-			elist_AST = (AST)currentAST.root;
-		}
-		catch (RecognitionException ex) {
-			reportError(ex);
-			if (_t!=null) {_t = _t.getNextSibling();}
-		}
-		returnAST = elist_AST;
-		_retTree = _t;
-	}
-	
 	public final void caseGroup(AST _t) throws RecognitionException {
 		
 		AST caseGroup_AST_in = (_t == ASTNULL) ? null : (AST)_t;
@@ -2687,32 +5051,32 @@ public UnitTestParser() {
 		AST caseGroup_AST = null;
 		
 		try {      // for error handling
-			AST __t110 = _t;
-			AST tmp76_AST = null;
-			AST tmp76_AST_in = null;
-			tmp76_AST = astFactory.create((AST)_t);
-			tmp76_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp76_AST);
-			ASTPair __currentAST110 = currentAST.copy();
+			AST __t189 = _t;
+			AST tmp139_AST = null;
+			AST tmp139_AST_in = null;
+			tmp139_AST = astFactory.create((AST)_t);
+			tmp139_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp139_AST);
+			ASTPair __currentAST189 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,CASE_GROUP);
 			_t = _t.getFirstChild();
 			{
-			int _cnt113=0;
-			_loop113:
+			int _cnt192=0;
+			_loop192:
 			do {
 				if (_t==null) _t=ASTNULL;
 				switch ( _t.getType()) {
 				case LITERAL_case:
 				{
-					AST __t112 = _t;
-					AST tmp77_AST = null;
-					AST tmp77_AST_in = null;
-					tmp77_AST = astFactory.create((AST)_t);
-					tmp77_AST_in = (AST)_t;
-					astFactory.addASTChild(currentAST, tmp77_AST);
-					ASTPair __currentAST112 = currentAST.copy();
+					AST __t191 = _t;
+					AST tmp140_AST = null;
+					AST tmp140_AST_in = null;
+					tmp140_AST = astFactory.create((AST)_t);
+					tmp140_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp140_AST);
+					ASTPair __currentAST191 = currentAST.copy();
 					currentAST.root = currentAST.child;
 					currentAST.child = null;
 					match(_t,LITERAL_case);
@@ -2720,35 +5084,35 @@ public UnitTestParser() {
 					expression(_t);
 					_t = _retTree;
 					astFactory.addASTChild(currentAST, returnAST);
-					currentAST = __currentAST112;
-					_t = __t112;
+					currentAST = __currentAST191;
+					_t = __t191;
 					_t = _t.getNextSibling();
 					break;
 				}
 				case LITERAL_default:
 				{
-					AST tmp78_AST = null;
-					AST tmp78_AST_in = null;
-					tmp78_AST = astFactory.create((AST)_t);
-					tmp78_AST_in = (AST)_t;
-					astFactory.addASTChild(currentAST, tmp78_AST);
+					AST tmp141_AST = null;
+					AST tmp141_AST_in = null;
+					tmp141_AST = astFactory.create((AST)_t);
+					tmp141_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp141_AST);
 					match(_t,LITERAL_default);
 					_t = _t.getNextSibling();
 					break;
 				}
 				default:
 				{
-					if ( _cnt113>=1 ) { break _loop113; } else {throw new NoViableAltException(_t);}
+					if ( _cnt192>=1 ) { break _loop192; } else {throw new NoViableAltException(_t);}
 				}
 				}
-				_cnt113++;
+				_cnt192++;
 			} while (true);
 			}
 			slist(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
-			currentAST = __currentAST110;
-			_t = __t110;
+			currentAST = __currentAST189;
+			_t = __t189;
 			_t = _t.getNextSibling();
 			caseGroup_AST = (AST)currentAST.root;
 		}
@@ -2768,13 +5132,13 @@ public UnitTestParser() {
 		AST tryBlock_AST = null;
 		
 		try {      // for error handling
-			AST __t115 = _t;
-			AST tmp79_AST = null;
-			AST tmp79_AST_in = null;
-			tmp79_AST = astFactory.create((AST)_t);
-			tmp79_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp79_AST);
-			ASTPair __currentAST115 = currentAST.copy();
+			AST __t194 = _t;
+			AST tmp142_AST = null;
+			AST tmp142_AST_in = null;
+			tmp142_AST = astFactory.create((AST)_t);
+			tmp142_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp142_AST);
+			ASTPair __currentAST194 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,LITERAL_try);
@@ -2783,7 +5147,7 @@ public UnitTestParser() {
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
 			{
-			_loop117:
+			_loop196:
 			do {
 				if (_t==null) _t=ASTNULL;
 				if ((_t.getType()==LITERAL_catch)) {
@@ -2792,7 +5156,7 @@ public UnitTestParser() {
 					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
-					break _loop117;
+					break _loop196;
 				}
 				
 			} while (true);
@@ -2802,13 +5166,13 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case LITERAL_finally:
 			{
-				AST __t119 = _t;
-				AST tmp80_AST = null;
-				AST tmp80_AST_in = null;
-				tmp80_AST = astFactory.create((AST)_t);
-				tmp80_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp80_AST);
-				ASTPair __currentAST119 = currentAST.copy();
+				AST __t198 = _t;
+				AST tmp143_AST = null;
+				AST tmp143_AST_in = null;
+				tmp143_AST = astFactory.create((AST)_t);
+				tmp143_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp143_AST);
+				ASTPair __currentAST198 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,LITERAL_finally);
@@ -2816,8 +5180,8 @@ public UnitTestParser() {
 				slist(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST119;
-				_t = __t119;
+				currentAST = __currentAST198;
+				_t = __t198;
 				_t = _t.getNextSibling();
 				break;
 			}
@@ -2831,8 +5195,8 @@ public UnitTestParser() {
 			}
 			}
 			}
-			currentAST = __currentAST115;
-			_t = __t115;
+			currentAST = __currentAST194;
+			_t = __t194;
 			_t = _t.getNextSibling();
 			tryBlock_AST = (AST)currentAST.root;
 		}
@@ -2852,13 +5216,13 @@ public UnitTestParser() {
 		AST handler_AST = null;
 		
 		try {      // for error handling
-			AST __t121 = _t;
-			AST tmp81_AST = null;
-			AST tmp81_AST_in = null;
-			tmp81_AST = astFactory.create((AST)_t);
-			tmp81_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp81_AST);
-			ASTPair __currentAST121 = currentAST.copy();
+			AST __t200 = _t;
+			AST tmp144_AST = null;
+			AST tmp144_AST_in = null;
+			tmp144_AST = astFactory.create((AST)_t);
+			tmp144_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp144_AST);
+			ASTPair __currentAST200 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,LITERAL_catch);
@@ -2869,8 +5233,8 @@ public UnitTestParser() {
 			slist(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
-			currentAST = __currentAST121;
-			_t = __t121;
+			currentAST = __currentAST200;
+			_t = __t200;
 			_t = _t.getNextSibling();
 			handler_AST = (AST)currentAST.root;
 		}
@@ -2892,1020 +5256,45 @@ public UnitTestParser() {
 		try {      // for error handling
 			if (_t==null) _t=ASTNULL;
 			switch ( _t.getType()) {
-			case QUESTION:
-			{
-				AST __t129 = _t;
-				AST tmp82_AST = null;
-				AST tmp82_AST_in = null;
-				tmp82_AST = astFactory.create((AST)_t);
-				tmp82_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp82_AST);
-				ASTPair __currentAST129 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,QUESTION);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST129;
-				_t = __t129;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case ASSIGN:
-			{
-				AST __t130 = _t;
-				AST tmp83_AST = null;
-				AST tmp83_AST_in = null;
-				tmp83_AST = astFactory.create((AST)_t);
-				tmp83_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp83_AST);
-				ASTPair __currentAST130 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST130;
-				_t = __t130;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case PLUS_ASSIGN:
-			{
-				AST __t131 = _t;
-				AST tmp84_AST = null;
-				AST tmp84_AST_in = null;
-				tmp84_AST = astFactory.create((AST)_t);
-				tmp84_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp84_AST);
-				ASTPair __currentAST131 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,PLUS_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST131;
-				_t = __t131;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case MINUS_ASSIGN:
-			{
-				AST __t132 = _t;
-				AST tmp85_AST = null;
-				AST tmp85_AST_in = null;
-				tmp85_AST = astFactory.create((AST)_t);
-				tmp85_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp85_AST);
-				ASTPair __currentAST132 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,MINUS_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST132;
-				_t = __t132;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case STAR_ASSIGN:
-			{
-				AST __t133 = _t;
-				AST tmp86_AST = null;
-				AST tmp86_AST_in = null;
-				tmp86_AST = astFactory.create((AST)_t);
-				tmp86_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp86_AST);
-				ASTPair __currentAST133 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,STAR_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST133;
-				_t = __t133;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case DIV_ASSIGN:
-			{
-				AST __t134 = _t;
-				AST tmp87_AST = null;
-				AST tmp87_AST_in = null;
-				tmp87_AST = astFactory.create((AST)_t);
-				tmp87_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp87_AST);
-				ASTPair __currentAST134 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,DIV_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST134;
-				_t = __t134;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case MOD_ASSIGN:
-			{
-				AST __t135 = _t;
-				AST tmp88_AST = null;
-				AST tmp88_AST_in = null;
-				tmp88_AST = astFactory.create((AST)_t);
-				tmp88_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp88_AST);
-				ASTPair __currentAST135 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,MOD_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST135;
-				_t = __t135;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case SR_ASSIGN:
-			{
-				AST __t136 = _t;
-				AST tmp89_AST = null;
-				AST tmp89_AST_in = null;
-				tmp89_AST = astFactory.create((AST)_t);
-				tmp89_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp89_AST);
-				ASTPair __currentAST136 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,SR_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST136;
-				_t = __t136;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case BSR_ASSIGN:
-			{
-				AST __t137 = _t;
-				AST tmp90_AST = null;
-				AST tmp90_AST_in = null;
-				tmp90_AST = astFactory.create((AST)_t);
-				tmp90_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp90_AST);
-				ASTPair __currentAST137 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,BSR_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST137;
-				_t = __t137;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case SL_ASSIGN:
-			{
-				AST __t138 = _t;
-				AST tmp91_AST = null;
-				AST tmp91_AST_in = null;
-				tmp91_AST = astFactory.create((AST)_t);
-				tmp91_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp91_AST);
-				ASTPair __currentAST138 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,SL_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST138;
-				_t = __t138;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case BAND_ASSIGN:
-			{
-				AST __t139 = _t;
-				AST tmp92_AST = null;
-				AST tmp92_AST_in = null;
-				tmp92_AST = astFactory.create((AST)_t);
-				tmp92_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp92_AST);
-				ASTPair __currentAST139 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,BAND_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST139;
-				_t = __t139;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case BXOR_ASSIGN:
-			{
-				AST __t140 = _t;
-				AST tmp93_AST = null;
-				AST tmp93_AST_in = null;
-				tmp93_AST = astFactory.create((AST)_t);
-				tmp93_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp93_AST);
-				ASTPair __currentAST140 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,BXOR_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST140;
-				_t = __t140;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case BOR_ASSIGN:
-			{
-				AST __t141 = _t;
-				AST tmp94_AST = null;
-				AST tmp94_AST_in = null;
-				tmp94_AST = astFactory.create((AST)_t);
-				tmp94_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp94_AST);
-				ASTPair __currentAST141 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,BOR_ASSIGN);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST141;
-				_t = __t141;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case LOR:
-			{
-				AST __t142 = _t;
-				AST tmp95_AST = null;
-				AST tmp95_AST_in = null;
-				tmp95_AST = astFactory.create((AST)_t);
-				tmp95_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp95_AST);
-				ASTPair __currentAST142 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,LOR);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST142;
-				_t = __t142;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case LAND:
-			{
-				AST __t143 = _t;
-				AST tmp96_AST = null;
-				AST tmp96_AST_in = null;
-				tmp96_AST = astFactory.create((AST)_t);
-				tmp96_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp96_AST);
-				ASTPair __currentAST143 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,LAND);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST143;
-				_t = __t143;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case BOR:
-			{
-				AST __t144 = _t;
-				AST tmp97_AST = null;
-				AST tmp97_AST_in = null;
-				tmp97_AST = astFactory.create((AST)_t);
-				tmp97_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp97_AST);
-				ASTPair __currentAST144 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,BOR);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST144;
-				_t = __t144;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case BXOR:
-			{
-				AST __t145 = _t;
-				AST tmp98_AST = null;
-				AST tmp98_AST_in = null;
-				tmp98_AST = astFactory.create((AST)_t);
-				tmp98_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp98_AST);
-				ASTPair __currentAST145 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,BXOR);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST145;
-				_t = __t145;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case BAND:
-			{
-				AST __t146 = _t;
-				AST tmp99_AST = null;
-				AST tmp99_AST_in = null;
-				tmp99_AST = astFactory.create((AST)_t);
-				tmp99_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp99_AST);
-				ASTPair __currentAST146 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,BAND);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST146;
-				_t = __t146;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case NOT_EQUAL:
-			{
-				AST __t147 = _t;
-				AST tmp100_AST = null;
-				AST tmp100_AST_in = null;
-				tmp100_AST = astFactory.create((AST)_t);
-				tmp100_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp100_AST);
-				ASTPair __currentAST147 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,NOT_EQUAL);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST147;
-				_t = __t147;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case EQUAL:
-			{
-				AST __t148 = _t;
-				AST tmp101_AST = null;
-				AST tmp101_AST_in = null;
-				tmp101_AST = astFactory.create((AST)_t);
-				tmp101_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp101_AST);
-				ASTPair __currentAST148 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,EQUAL);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST148;
-				_t = __t148;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case LT:
-			{
-				AST __t149 = _t;
-				AST tmp102_AST = null;
-				AST tmp102_AST_in = null;
-				tmp102_AST = astFactory.create((AST)_t);
-				tmp102_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp102_AST);
-				ASTPair __currentAST149 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,LT);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST149;
-				_t = __t149;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case GT:
-			{
-				AST __t150 = _t;
-				AST tmp103_AST = null;
-				AST tmp103_AST_in = null;
-				tmp103_AST = astFactory.create((AST)_t);
-				tmp103_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp103_AST);
-				ASTPair __currentAST150 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,GT);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST150;
-				_t = __t150;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case LE:
-			{
-				AST __t151 = _t;
-				AST tmp104_AST = null;
-				AST tmp104_AST_in = null;
-				tmp104_AST = astFactory.create((AST)_t);
-				tmp104_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp104_AST);
-				ASTPair __currentAST151 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,LE);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST151;
-				_t = __t151;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case GE:
-			{
-				AST __t152 = _t;
-				AST tmp105_AST = null;
-				AST tmp105_AST_in = null;
-				tmp105_AST = astFactory.create((AST)_t);
-				tmp105_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp105_AST);
-				ASTPair __currentAST152 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,GE);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST152;
-				_t = __t152;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case SL:
-			{
-				AST __t153 = _t;
-				AST tmp106_AST = null;
-				AST tmp106_AST_in = null;
-				tmp106_AST = astFactory.create((AST)_t);
-				tmp106_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp106_AST);
-				ASTPair __currentAST153 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,SL);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST153;
-				_t = __t153;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case SR:
-			{
-				AST __t154 = _t;
-				AST tmp107_AST = null;
-				AST tmp107_AST_in = null;
-				tmp107_AST = astFactory.create((AST)_t);
-				tmp107_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp107_AST);
-				ASTPair __currentAST154 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,SR);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST154;
-				_t = __t154;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case BSR:
-			{
-				AST __t155 = _t;
-				AST tmp108_AST = null;
-				AST tmp108_AST_in = null;
-				tmp108_AST = astFactory.create((AST)_t);
-				tmp108_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp108_AST);
-				ASTPair __currentAST155 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,BSR);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST155;
-				_t = __t155;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case PLUS:
-			{
-				AST __t156 = _t;
-				AST tmp109_AST = null;
-				AST tmp109_AST_in = null;
-				tmp109_AST = astFactory.create((AST)_t);
-				tmp109_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp109_AST);
-				ASTPair __currentAST156 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,PLUS);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST156;
-				_t = __t156;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case MINUS:
-			{
-				AST __t157 = _t;
-				AST tmp110_AST = null;
-				AST tmp110_AST_in = null;
-				tmp110_AST = astFactory.create((AST)_t);
-				tmp110_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp110_AST);
-				ASTPair __currentAST157 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,MINUS);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST157;
-				_t = __t157;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case DIV:
-			{
-				AST __t158 = _t;
-				AST tmp111_AST = null;
-				AST tmp111_AST_in = null;
-				tmp111_AST = astFactory.create((AST)_t);
-				tmp111_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp111_AST);
-				ASTPair __currentAST158 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,DIV);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST158;
-				_t = __t158;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case MOD:
-			{
-				AST __t159 = _t;
-				AST tmp112_AST = null;
-				AST tmp112_AST_in = null;
-				tmp112_AST = astFactory.create((AST)_t);
-				tmp112_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp112_AST);
-				ASTPair __currentAST159 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,MOD);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST159;
-				_t = __t159;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case STAR:
-			{
-				AST __t160 = _t;
-				AST tmp113_AST = null;
-				AST tmp113_AST_in = null;
-				tmp113_AST = astFactory.create((AST)_t);
-				tmp113_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp113_AST);
-				ASTPair __currentAST160 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,STAR);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST160;
-				_t = __t160;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case INC:
-			{
-				AST __t161 = _t;
-				AST tmp114_AST = null;
-				AST tmp114_AST_in = null;
-				tmp114_AST = astFactory.create((AST)_t);
-				tmp114_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp114_AST);
-				ASTPair __currentAST161 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,INC);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST161;
-				_t = __t161;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case DEC:
-			{
-				AST __t162 = _t;
-				AST tmp115_AST = null;
-				AST tmp115_AST_in = null;
-				tmp115_AST = astFactory.create((AST)_t);
-				tmp115_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp115_AST);
-				ASTPair __currentAST162 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,DEC);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST162;
-				_t = __t162;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case POST_INC:
-			{
-				AST __t163 = _t;
-				AST tmp116_AST = null;
-				AST tmp116_AST_in = null;
-				tmp116_AST = astFactory.create((AST)_t);
-				tmp116_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp116_AST);
-				ASTPair __currentAST163 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,POST_INC);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST163;
-				_t = __t163;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case POST_DEC:
-			{
-				AST __t164 = _t;
-				AST tmp117_AST = null;
-				AST tmp117_AST_in = null;
-				tmp117_AST = astFactory.create((AST)_t);
-				tmp117_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp117_AST);
-				ASTPair __currentAST164 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,POST_DEC);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST164;
-				_t = __t164;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case BNOT:
-			{
-				AST __t165 = _t;
-				AST tmp118_AST = null;
-				AST tmp118_AST_in = null;
-				tmp118_AST = astFactory.create((AST)_t);
-				tmp118_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp118_AST);
-				ASTPair __currentAST165 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,BNOT);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST165;
-				_t = __t165;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case LNOT:
-			{
-				AST __t166 = _t;
-				AST tmp119_AST = null;
-				AST tmp119_AST_in = null;
-				tmp119_AST = astFactory.create((AST)_t);
-				tmp119_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp119_AST);
-				ASTPair __currentAST166 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,LNOT);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST166;
-				_t = __t166;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case LITERAL_instanceof:
-			{
-				AST __t167 = _t;
-				AST tmp120_AST = null;
-				AST tmp120_AST_in = null;
-				tmp120_AST = astFactory.create((AST)_t);
-				tmp120_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp120_AST);
-				ASTPair __currentAST167 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,LITERAL_instanceof);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST167;
-				_t = __t167;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case UNARY_MINUS:
-			{
-				AST __t168 = _t;
-				AST tmp121_AST = null;
-				AST tmp121_AST_in = null;
-				tmp121_AST = astFactory.create((AST)_t);
-				tmp121_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp121_AST);
-				ASTPair __currentAST168 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,UNARY_MINUS);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST168;
-				_t = __t168;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
-			case UNARY_PLUS:
-			{
-				AST __t169 = _t;
-				AST tmp122_AST = null;
-				AST tmp122_AST_in = null;
-				tmp122_AST = astFactory.create((AST)_t);
-				tmp122_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp122_AST);
-				ASTPair __currentAST169 = currentAST.copy();
-				currentAST.root = currentAST.child;
-				currentAST.child = null;
-				match(_t,UNARY_PLUS);
-				_t = _t.getFirstChild();
-				expr(_t);
-				_t = _retTree;
-				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST169;
-				_t = __t169;
-				_t = _t.getNextSibling();
-				expr_AST = (AST)currentAST.root;
-				break;
-			}
 			case TYPE:
 			case TYPECAST:
 			case INDEX_OP:
+			case POST_INC:
+			case POST_DEC:
 			case METHOD_CALL:
+			case UNARY_MINUS:
+			case UNARY_PLUS:
 			case SUPER_CTOR_CALL:
 			case CTOR_CALL:
 			case IDENT:
 			case DOT:
-			case LITERAL_this:
+			case QUESTION:
 			case LITERAL_super:
+			case LT:
+			case GT:
+			case SR:
+			case BSR:
+			case STAR:
+			case BAND:
+			case LITERAL_this:
+			case LOR:
+			case LAND:
+			case BOR:
+			case BXOR:
+			case NOT_EQUAL:
+			case EQUAL:
+			case LE:
+			case GE:
+			case LITERAL_instanceof:
+			case SL:
+			case PLUS:
+			case MINUS:
+			case DIV:
+			case MOD:
+			case INC:
+			case DEC:
+			case BNOT:
+			case LNOT:
 			case LITERAL_true:
 			case LITERAL_false:
 			case LITERAL_null:
@@ -3917,9 +5306,309 @@ public UnitTestParser() {
 			case NUM_LONG:
 			case NUM_DOUBLE:
 			{
-				primaryExpression(_t);
+				conditionalExpr(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case ASSIGN:
+			{
+				AST __t208 = _t;
+				AST tmp145_AST = null;
+				AST tmp145_AST_in = null;
+				tmp145_AST = astFactory.create((AST)_t);
+				tmp145_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp145_AST);
+				ASTPair __currentAST208 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST208;
+				_t = __t208;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case PLUS_ASSIGN:
+			{
+				AST __t209 = _t;
+				AST tmp146_AST = null;
+				AST tmp146_AST_in = null;
+				tmp146_AST = astFactory.create((AST)_t);
+				tmp146_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp146_AST);
+				ASTPair __currentAST209 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,PLUS_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST209;
+				_t = __t209;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case MINUS_ASSIGN:
+			{
+				AST __t210 = _t;
+				AST tmp147_AST = null;
+				AST tmp147_AST_in = null;
+				tmp147_AST = astFactory.create((AST)_t);
+				tmp147_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp147_AST);
+				ASTPair __currentAST210 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,MINUS_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST210;
+				_t = __t210;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case STAR_ASSIGN:
+			{
+				AST __t211 = _t;
+				AST tmp148_AST = null;
+				AST tmp148_AST_in = null;
+				tmp148_AST = astFactory.create((AST)_t);
+				tmp148_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp148_AST);
+				ASTPair __currentAST211 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,STAR_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST211;
+				_t = __t211;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case DIV_ASSIGN:
+			{
+				AST __t212 = _t;
+				AST tmp149_AST = null;
+				AST tmp149_AST_in = null;
+				tmp149_AST = astFactory.create((AST)_t);
+				tmp149_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp149_AST);
+				ASTPair __currentAST212 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,DIV_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST212;
+				_t = __t212;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case MOD_ASSIGN:
+			{
+				AST __t213 = _t;
+				AST tmp150_AST = null;
+				AST tmp150_AST_in = null;
+				tmp150_AST = astFactory.create((AST)_t);
+				tmp150_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp150_AST);
+				ASTPair __currentAST213 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,MOD_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST213;
+				_t = __t213;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case SR_ASSIGN:
+			{
+				AST __t214 = _t;
+				AST tmp151_AST = null;
+				AST tmp151_AST_in = null;
+				tmp151_AST = astFactory.create((AST)_t);
+				tmp151_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp151_AST);
+				ASTPair __currentAST214 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,SR_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST214;
+				_t = __t214;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case BSR_ASSIGN:
+			{
+				AST __t215 = _t;
+				AST tmp152_AST = null;
+				AST tmp152_AST_in = null;
+				tmp152_AST = astFactory.create((AST)_t);
+				tmp152_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp152_AST);
+				ASTPair __currentAST215 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,BSR_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST215;
+				_t = __t215;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case SL_ASSIGN:
+			{
+				AST __t216 = _t;
+				AST tmp153_AST = null;
+				AST tmp153_AST_in = null;
+				tmp153_AST = astFactory.create((AST)_t);
+				tmp153_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp153_AST);
+				ASTPair __currentAST216 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,SL_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST216;
+				_t = __t216;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case BAND_ASSIGN:
+			{
+				AST __t217 = _t;
+				AST tmp154_AST = null;
+				AST tmp154_AST_in = null;
+				tmp154_AST = astFactory.create((AST)_t);
+				tmp154_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp154_AST);
+				ASTPair __currentAST217 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,BAND_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST217;
+				_t = __t217;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case BXOR_ASSIGN:
+			{
+				AST __t218 = _t;
+				AST tmp155_AST = null;
+				AST tmp155_AST_in = null;
+				tmp155_AST = astFactory.create((AST)_t);
+				tmp155_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp155_AST);
+				ASTPair __currentAST218 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,BXOR_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST218;
+				_t = __t218;
+				_t = _t.getNextSibling();
+				expr_AST = (AST)currentAST.root;
+				break;
+			}
+			case BOR_ASSIGN:
+			{
+				AST __t219 = _t;
+				AST tmp156_AST = null;
+				AST tmp156_AST_in = null;
+				tmp156_AST = astFactory.create((AST)_t);
+				tmp156_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp156_AST);
+				ASTPair __currentAST219 = currentAST.copy();
+				currentAST.root = currentAST.child;
+				currentAST.child = null;
+				match(_t,BOR_ASSIGN);
+				_t = _t.getFirstChild();
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				expr(_t);
+				_t = _retTree;
+				astFactory.addASTChild(currentAST, returnAST);
+				currentAST = __currentAST219;
+				_t = __t219;
+				_t = _t.getNextSibling();
 				expr_AST = (AST)currentAST.root;
 				break;
 			}
@@ -3949,11 +5638,11 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case IDENT:
 			{
-				AST tmp123_AST = null;
-				AST tmp123_AST_in = null;
-				tmp123_AST = astFactory.create((AST)_t);
-				tmp123_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp123_AST);
+				AST tmp157_AST = null;
+				AST tmp157_AST_in = null;
+				tmp157_AST = astFactory.create((AST)_t);
+				tmp157_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp157_AST);
 				match(_t,IDENT);
 				_t = _t.getNextSibling();
 				primaryExpression_AST = (AST)currentAST.root;
@@ -3961,13 +5650,13 @@ public UnitTestParser() {
 			}
 			case DOT:
 			{
-				AST __t171 = _t;
-				AST tmp124_AST = null;
-				AST tmp124_AST_in = null;
-				tmp124_AST = astFactory.create((AST)_t);
-				tmp124_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp124_AST);
-				ASTPair __currentAST171 = currentAST.copy();
+				AST __t251 = _t;
+				AST tmp158_AST = null;
+				AST tmp158_AST_in = null;
+				tmp158_AST = astFactory.create((AST)_t);
+				tmp158_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp158_AST);
+				ASTPair __currentAST251 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,DOT);
@@ -3987,10 +5676,16 @@ public UnitTestParser() {
 				case CTOR_CALL:
 				case IDENT:
 				case DOT:
-				case STAR:
-				case LITERAL_this:
+				case QUESTION:
 				case LITERAL_super:
+				case LT:
+				case GT:
+				case SR:
+				case BSR:
+				case STAR:
 				case ASSIGN:
+				case BAND:
+				case LITERAL_this:
 				case PLUS_ASSIGN:
 				case MINUS_ASSIGN:
 				case STAR_ASSIGN:
@@ -4002,22 +5697,16 @@ public UnitTestParser() {
 				case BAND_ASSIGN:
 				case BXOR_ASSIGN:
 				case BOR_ASSIGN:
-				case QUESTION:
 				case LOR:
 				case LAND:
 				case BOR:
 				case BXOR:
-				case BAND:
 				case NOT_EQUAL:
 				case EQUAL:
-				case LT:
-				case GT:
 				case LE:
 				case GE:
 				case LITERAL_instanceof:
 				case SL:
-				case SR:
-				case BSR:
 				case PLUS:
 				case MINUS:
 				case DIV:
@@ -4045,11 +5734,11 @@ public UnitTestParser() {
 					switch ( _t.getType()) {
 					case IDENT:
 					{
-						AST tmp125_AST = null;
-						AST tmp125_AST_in = null;
-						tmp125_AST = astFactory.create((AST)_t);
-						tmp125_AST_in = (AST)_t;
-						astFactory.addASTChild(currentAST, tmp125_AST);
+						AST tmp159_AST = null;
+						AST tmp159_AST_in = null;
+						tmp159_AST = astFactory.create((AST)_t);
+						tmp159_AST_in = (AST)_t;
+						astFactory.addASTChild(currentAST, tmp159_AST);
 						match(_t,IDENT);
 						_t = _t.getNextSibling();
 						break;
@@ -4063,63 +5752,71 @@ public UnitTestParser() {
 					}
 					case LITERAL_this:
 					{
-						AST tmp126_AST = null;
-						AST tmp126_AST_in = null;
-						tmp126_AST = astFactory.create((AST)_t);
-						tmp126_AST_in = (AST)_t;
-						astFactory.addASTChild(currentAST, tmp126_AST);
+						AST tmp160_AST = null;
+						AST tmp160_AST_in = null;
+						tmp160_AST = astFactory.create((AST)_t);
+						tmp160_AST_in = (AST)_t;
+						astFactory.addASTChild(currentAST, tmp160_AST);
 						match(_t,LITERAL_this);
 						_t = _t.getNextSibling();
 						break;
 					}
 					case LITERAL_class:
 					{
-						AST tmp127_AST = null;
-						AST tmp127_AST_in = null;
-						tmp127_AST = astFactory.create((AST)_t);
-						tmp127_AST_in = (AST)_t;
-						astFactory.addASTChild(currentAST, tmp127_AST);
+						AST tmp161_AST = null;
+						AST tmp161_AST_in = null;
+						tmp161_AST = astFactory.create((AST)_t);
+						tmp161_AST_in = (AST)_t;
+						astFactory.addASTChild(currentAST, tmp161_AST);
 						match(_t,LITERAL_class);
 						_t = _t.getNextSibling();
 						break;
 					}
 					case LITERAL_new:
 					{
-						AST __t174 = _t;
-						AST tmp128_AST = null;
-						AST tmp128_AST_in = null;
-						tmp128_AST = astFactory.create((AST)_t);
-						tmp128_AST_in = (AST)_t;
-						astFactory.addASTChild(currentAST, tmp128_AST);
-						ASTPair __currentAST174 = currentAST.copy();
+						AST __t254 = _t;
+						AST tmp162_AST = null;
+						AST tmp162_AST_in = null;
+						tmp162_AST = astFactory.create((AST)_t);
+						tmp162_AST_in = (AST)_t;
+						astFactory.addASTChild(currentAST, tmp162_AST);
+						ASTPair __currentAST254 = currentAST.copy();
 						currentAST.root = currentAST.child;
 						currentAST.child = null;
 						match(_t,LITERAL_new);
 						_t = _t.getFirstChild();
-						AST tmp129_AST = null;
-						AST tmp129_AST_in = null;
-						tmp129_AST = astFactory.create((AST)_t);
-						tmp129_AST_in = (AST)_t;
-						astFactory.addASTChild(currentAST, tmp129_AST);
+						AST tmp163_AST = null;
+						AST tmp163_AST_in = null;
+						tmp163_AST = astFactory.create((AST)_t);
+						tmp163_AST_in = (AST)_t;
+						astFactory.addASTChild(currentAST, tmp163_AST);
 						match(_t,IDENT);
 						_t = _t.getNextSibling();
 						elist(_t);
 						_t = _retTree;
 						astFactory.addASTChild(currentAST, returnAST);
-						currentAST = __currentAST174;
-						_t = __t174;
+						currentAST = __currentAST254;
+						_t = __t254;
 						_t = _t.getNextSibling();
 						break;
 					}
 					case LITERAL_super:
 					{
-						AST tmp130_AST = null;
-						AST tmp130_AST_in = null;
-						tmp130_AST = astFactory.create((AST)_t);
-						tmp130_AST_in = (AST)_t;
-						astFactory.addASTChild(currentAST, tmp130_AST);
+						AST tmp164_AST = null;
+						AST tmp164_AST_in = null;
+						tmp164_AST = astFactory.create((AST)_t);
+						tmp164_AST_in = (AST)_t;
+						astFactory.addASTChild(currentAST, tmp164_AST);
 						match(_t,LITERAL_super);
 						_t = _t.getNextSibling();
+						break;
+					}
+					case 3:
+					case TYPE_ARGUMENT:
+					{
+						typeArguments(_t);
+						_t = _retTree;
+						astFactory.addASTChild(currentAST, returnAST);
 						break;
 					}
 					default:
@@ -4132,13 +5829,13 @@ public UnitTestParser() {
 				}
 				case ARRAY_DECLARATOR:
 				{
-					AST __t175 = _t;
-					AST tmp131_AST = null;
-					AST tmp131_AST_in = null;
-					tmp131_AST = astFactory.create((AST)_t);
-					tmp131_AST_in = (AST)_t;
-					astFactory.addASTChild(currentAST, tmp131_AST);
-					ASTPair __currentAST175 = currentAST.copy();
+					AST __t255 = _t;
+					AST tmp165_AST = null;
+					AST tmp165_AST_in = null;
+					tmp165_AST = astFactory.create((AST)_t);
+					tmp165_AST_in = (AST)_t;
+					astFactory.addASTChild(currentAST, tmp165_AST);
+					ASTPair __currentAST255 = currentAST.copy();
 					currentAST.root = currentAST.child;
 					currentAST.child = null;
 					match(_t,ARRAY_DECLARATOR);
@@ -4146,8 +5843,8 @@ public UnitTestParser() {
 					typeSpecArray(_t);
 					_t = _retTree;
 					astFactory.addASTChild(currentAST, returnAST);
-					currentAST = __currentAST175;
-					_t = __t175;
+					currentAST = __currentAST255;
+					_t = __t255;
 					_t = _t.getNextSibling();
 					break;
 				}
@@ -4169,11 +5866,11 @@ public UnitTestParser() {
 					switch ( _t.getType()) {
 					case LITERAL_class:
 					{
-						AST tmp132_AST = null;
-						AST tmp132_AST_in = null;
-						tmp132_AST = astFactory.create((AST)_t);
-						tmp132_AST_in = (AST)_t;
-						astFactory.addASTChild(currentAST, tmp132_AST);
+						AST tmp166_AST = null;
+						AST tmp166_AST_in = null;
+						tmp166_AST = astFactory.create((AST)_t);
+						tmp166_AST_in = (AST)_t;
+						astFactory.addASTChild(currentAST, tmp166_AST);
 						match(_t,LITERAL_class);
 						_t = _t.getNextSibling();
 						break;
@@ -4196,8 +5893,8 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST171;
-				_t = __t171;
+				currentAST = __currentAST251;
+				_t = __t251;
 				_t = _t.getNextSibling();
 				primaryExpression_AST = (AST)currentAST.root;
 				break;
@@ -4212,13 +5909,13 @@ public UnitTestParser() {
 			}
 			case METHOD_CALL:
 			{
-				AST __t177 = _t;
-				AST tmp133_AST = null;
-				AST tmp133_AST_in = null;
-				tmp133_AST = astFactory.create((AST)_t);
-				tmp133_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp133_AST);
-				ASTPair __currentAST177 = currentAST.copy();
+				AST __t257 = _t;
+				AST tmp167_AST = null;
+				AST tmp167_AST_in = null;
+				tmp167_AST = astFactory.create((AST)_t);
+				tmp167_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp167_AST);
+				ASTPair __currentAST257 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,METHOD_CALL);
@@ -4229,8 +5926,8 @@ public UnitTestParser() {
 				elist(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST177;
-				_t = __t177;
+				currentAST = __currentAST257;
+				_t = __t257;
 				_t = _t.getNextSibling();
 				primaryExpression_AST = (AST)currentAST.root;
 				break;
@@ -4246,13 +5943,13 @@ public UnitTestParser() {
 			}
 			case TYPECAST:
 			{
-				AST __t178 = _t;
-				AST tmp134_AST = null;
-				AST tmp134_AST_in = null;
-				tmp134_AST = astFactory.create((AST)_t);
-				tmp134_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp134_AST);
-				ASTPair __currentAST178 = currentAST.copy();
+				AST __t258 = _t;
+				AST tmp168_AST = null;
+				AST tmp168_AST_in = null;
+				tmp168_AST = astFactory.create((AST)_t);
+				tmp168_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp168_AST);
+				ASTPair __currentAST258 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,TYPECAST);
@@ -4263,8 +5960,8 @@ public UnitTestParser() {
 				expr(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST178;
-				_t = __t178;
+				currentAST = __currentAST258;
+				_t = __t258;
 				_t = _t.getNextSibling();
 				primaryExpression_AST = (AST)currentAST.root;
 				break;
@@ -4292,11 +5989,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_super:
 			{
-				AST tmp135_AST = null;
-				AST tmp135_AST_in = null;
-				tmp135_AST = astFactory.create((AST)_t);
-				tmp135_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp135_AST);
+				AST tmp169_AST = null;
+				AST tmp169_AST_in = null;
+				tmp169_AST = astFactory.create((AST)_t);
+				tmp169_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp169_AST);
 				match(_t,LITERAL_super);
 				_t = _t.getNextSibling();
 				primaryExpression_AST = (AST)currentAST.root;
@@ -4304,11 +6001,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_true:
 			{
-				AST tmp136_AST = null;
-				AST tmp136_AST_in = null;
-				tmp136_AST = astFactory.create((AST)_t);
-				tmp136_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp136_AST);
+				AST tmp170_AST = null;
+				AST tmp170_AST_in = null;
+				tmp170_AST = astFactory.create((AST)_t);
+				tmp170_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp170_AST);
 				match(_t,LITERAL_true);
 				_t = _t.getNextSibling();
 				primaryExpression_AST = (AST)currentAST.root;
@@ -4316,11 +6013,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_false:
 			{
-				AST tmp137_AST = null;
-				AST tmp137_AST_in = null;
-				tmp137_AST = astFactory.create((AST)_t);
-				tmp137_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp137_AST);
+				AST tmp171_AST = null;
+				AST tmp171_AST_in = null;
+				tmp171_AST = astFactory.create((AST)_t);
+				tmp171_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp171_AST);
 				match(_t,LITERAL_false);
 				_t = _t.getNextSibling();
 				primaryExpression_AST = (AST)currentAST.root;
@@ -4328,11 +6025,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_this:
 			{
-				AST tmp138_AST = null;
-				AST tmp138_AST_in = null;
-				tmp138_AST = astFactory.create((AST)_t);
-				tmp138_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp138_AST);
+				AST tmp172_AST = null;
+				AST tmp172_AST_in = null;
+				tmp172_AST = astFactory.create((AST)_t);
+				tmp172_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp172_AST);
 				match(_t,LITERAL_this);
 				_t = _t.getNextSibling();
 				primaryExpression_AST = (AST)currentAST.root;
@@ -4340,11 +6037,11 @@ public UnitTestParser() {
 			}
 			case LITERAL_null:
 			{
-				AST tmp139_AST = null;
-				AST tmp139_AST_in = null;
-				tmp139_AST = astFactory.create((AST)_t);
-				tmp139_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp139_AST);
+				AST tmp173_AST = null;
+				AST tmp173_AST_in = null;
+				tmp173_AST = astFactory.create((AST)_t);
+				tmp173_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp173_AST);
 				match(_t,LITERAL_null);
 				_t = _t.getNextSibling();
 				primaryExpression_AST = (AST)currentAST.root;
@@ -4380,13 +6077,13 @@ public UnitTestParser() {
 		AST arrayIndex_AST = null;
 		
 		try {      // for error handling
-			AST __t184 = _t;
-			AST tmp140_AST = null;
-			AST tmp140_AST_in = null;
-			tmp140_AST = astFactory.create((AST)_t);
-			tmp140_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp140_AST);
-			ASTPair __currentAST184 = currentAST.copy();
+			AST __t264 = _t;
+			AST tmp174_AST = null;
+			AST tmp174_AST_in = null;
+			tmp174_AST = astFactory.create((AST)_t);
+			tmp174_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp174_AST);
+			ASTPair __currentAST264 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,INDEX_OP);
@@ -4397,8 +6094,8 @@ public UnitTestParser() {
 			expression(_t);
 			_t = _retTree;
 			astFactory.addASTChild(currentAST, returnAST);
-			currentAST = __currentAST184;
-			_t = __t184;
+			currentAST = __currentAST264;
+			_t = __t264;
 			_t = _t.getNextSibling();
 			arrayIndex_AST = (AST)currentAST.root;
 		}
@@ -4422,13 +6119,13 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case CTOR_CALL:
 			{
-				AST __t180 = _t;
-				AST tmp141_AST = null;
-				AST tmp141_AST_in = null;
-				tmp141_AST = astFactory.create((AST)_t);
-				tmp141_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp141_AST);
-				ASTPair __currentAST180 = currentAST.copy();
+				AST __t260 = _t;
+				AST tmp175_AST = null;
+				AST tmp175_AST_in = null;
+				tmp175_AST = astFactory.create((AST)_t);
+				tmp175_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp175_AST);
+				ASTPair __currentAST260 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,CTOR_CALL);
@@ -4436,21 +6133,21 @@ public UnitTestParser() {
 				elist(_t);
 				_t = _retTree;
 				astFactory.addASTChild(currentAST, returnAST);
-				currentAST = __currentAST180;
-				_t = __t180;
+				currentAST = __currentAST260;
+				_t = __t260;
 				_t = _t.getNextSibling();
 				ctorCall_AST = (AST)currentAST.root;
 				break;
 			}
 			case SUPER_CTOR_CALL:
 			{
-				AST __t181 = _t;
-				AST tmp142_AST = null;
-				AST tmp142_AST_in = null;
-				tmp142_AST = astFactory.create((AST)_t);
-				tmp142_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp142_AST);
-				ASTPair __currentAST181 = currentAST.copy();
+				AST __t261 = _t;
+				AST tmp176_AST = null;
+				AST tmp176_AST_in = null;
+				tmp176_AST = astFactory.create((AST)_t);
+				tmp176_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp176_AST);
+				ASTPair __currentAST261 = currentAST.copy();
 				currentAST.root = currentAST.child;
 				currentAST.child = null;
 				match(_t,SUPER_CTOR_CALL);
@@ -4473,8 +6170,8 @@ public UnitTestParser() {
 				case CTOR_CALL:
 				case IDENT:
 				case DOT:
-				case LITERAL_this:
 				case LITERAL_super:
+				case LITERAL_this:
 				case LITERAL_true:
 				case LITERAL_false:
 				case LITERAL_null:
@@ -4500,8 +6197,8 @@ public UnitTestParser() {
 				}
 				}
 				}
-				currentAST = __currentAST181;
-				_t = __t181;
+				currentAST = __currentAST261;
+				_t = __t261;
 				_t = _t.getNextSibling();
 				ctorCall_AST = (AST)currentAST.root;
 				break;
@@ -4528,13 +6225,13 @@ public UnitTestParser() {
 		AST newExpression_AST = null;
 		
 		try {      // for error handling
-			AST __t187 = _t;
-			AST tmp143_AST = null;
-			AST tmp143_AST_in = null;
-			tmp143_AST = astFactory.create((AST)_t);
-			tmp143_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp143_AST);
-			ASTPair __currentAST187 = currentAST.copy();
+			AST __t267 = _t;
+			AST tmp177_AST = null;
+			AST tmp177_AST_in = null;
+			tmp177_AST = astFactory.create((AST)_t);
+			tmp177_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp177_AST);
+			ASTPair __currentAST267 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,LITERAL_new);
@@ -4605,8 +6302,8 @@ public UnitTestParser() {
 			}
 			}
 			}
-			currentAST = __currentAST187;
-			_t = __t187;
+			currentAST = __currentAST267;
+			_t = __t267;
 			_t = _t.getNextSibling();
 			newExpression_AST = (AST)currentAST.root;
 		}
@@ -4630,11 +6327,11 @@ public UnitTestParser() {
 			switch ( _t.getType()) {
 			case NUM_INT:
 			{
-				AST tmp144_AST = null;
-				AST tmp144_AST_in = null;
-				tmp144_AST = astFactory.create((AST)_t);
-				tmp144_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp144_AST);
+				AST tmp178_AST = null;
+				AST tmp178_AST_in = null;
+				tmp178_AST = astFactory.create((AST)_t);
+				tmp178_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp178_AST);
 				match(_t,NUM_INT);
 				_t = _t.getNextSibling();
 				constant_AST = (AST)currentAST.root;
@@ -4642,11 +6339,11 @@ public UnitTestParser() {
 			}
 			case CHAR_LITERAL:
 			{
-				AST tmp145_AST = null;
-				AST tmp145_AST_in = null;
-				tmp145_AST = astFactory.create((AST)_t);
-				tmp145_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp145_AST);
+				AST tmp179_AST = null;
+				AST tmp179_AST_in = null;
+				tmp179_AST = astFactory.create((AST)_t);
+				tmp179_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp179_AST);
 				match(_t,CHAR_LITERAL);
 				_t = _t.getNextSibling();
 				constant_AST = (AST)currentAST.root;
@@ -4654,11 +6351,11 @@ public UnitTestParser() {
 			}
 			case STRING_LITERAL:
 			{
-				AST tmp146_AST = null;
-				AST tmp146_AST_in = null;
-				tmp146_AST = astFactory.create((AST)_t);
-				tmp146_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp146_AST);
+				AST tmp180_AST = null;
+				AST tmp180_AST_in = null;
+				tmp180_AST = astFactory.create((AST)_t);
+				tmp180_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp180_AST);
 				match(_t,STRING_LITERAL);
 				_t = _t.getNextSibling();
 				constant_AST = (AST)currentAST.root;
@@ -4666,11 +6363,11 @@ public UnitTestParser() {
 			}
 			case NUM_FLOAT:
 			{
-				AST tmp147_AST = null;
-				AST tmp147_AST_in = null;
-				tmp147_AST = astFactory.create((AST)_t);
-				tmp147_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp147_AST);
+				AST tmp181_AST = null;
+				AST tmp181_AST_in = null;
+				tmp181_AST = astFactory.create((AST)_t);
+				tmp181_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp181_AST);
 				match(_t,NUM_FLOAT);
 				_t = _t.getNextSibling();
 				constant_AST = (AST)currentAST.root;
@@ -4678,11 +6375,11 @@ public UnitTestParser() {
 			}
 			case NUM_DOUBLE:
 			{
-				AST tmp148_AST = null;
-				AST tmp148_AST_in = null;
-				tmp148_AST = astFactory.create((AST)_t);
-				tmp148_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp148_AST);
+				AST tmp182_AST = null;
+				AST tmp182_AST_in = null;
+				tmp182_AST = astFactory.create((AST)_t);
+				tmp182_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp182_AST);
 				match(_t,NUM_DOUBLE);
 				_t = _t.getNextSibling();
 				constant_AST = (AST)currentAST.root;
@@ -4690,11 +6387,11 @@ public UnitTestParser() {
 			}
 			case NUM_LONG:
 			{
-				AST tmp149_AST = null;
-				AST tmp149_AST_in = null;
-				tmp149_AST = astFactory.create((AST)_t);
-				tmp149_AST_in = (AST)_t;
-				astFactory.addASTChild(currentAST, tmp149_AST);
+				AST tmp183_AST = null;
+				AST tmp183_AST_in = null;
+				tmp183_AST = astFactory.create((AST)_t);
+				tmp183_AST_in = (AST)_t;
+				astFactory.addASTChild(currentAST, tmp183_AST);
 				match(_t,NUM_LONG);
 				_t = _t.getNextSibling();
 				constant_AST = (AST)currentAST.root;
@@ -4722,13 +6419,13 @@ public UnitTestParser() {
 		AST newArrayDeclarator_AST = null;
 		
 		try {      // for error handling
-			AST __t192 = _t;
-			AST tmp150_AST = null;
-			AST tmp150_AST_in = null;
-			tmp150_AST = astFactory.create((AST)_t);
-			tmp150_AST_in = (AST)_t;
-			astFactory.addASTChild(currentAST, tmp150_AST);
-			ASTPair __currentAST192 = currentAST.copy();
+			AST __t272 = _t;
+			AST tmp184_AST = null;
+			AST tmp184_AST_in = null;
+			tmp184_AST = astFactory.create((AST)_t);
+			tmp184_AST_in = (AST)_t;
+			astFactory.addASTChild(currentAST, tmp184_AST);
+			ASTPair __currentAST272 = currentAST.copy();
 			currentAST.root = currentAST.child;
 			currentAST.child = null;
 			match(_t,ARRAY_DECLARATOR);
@@ -4774,8 +6471,8 @@ public UnitTestParser() {
 			}
 			}
 			}
-			currentAST = __currentAST192;
-			_t = __t192;
+			currentAST = __currentAST272;
+			_t = __t272;
 			_t = _t.getNextSibling();
 			newArrayDeclarator_AST = (AST)currentAST.root;
 		}
@@ -4833,12 +6530,39 @@ public UnitTestParser() {
 		"\"strictfp\"",
 		"SUPER_CTOR_CALL",
 		"CTOR_CALL",
+		"VARIABLE_PARAMETER_DEF",
+		"STATIC_IMPORT",
+		"ENUM_DEF",
+		"ENUM_CONSTANT_DEF",
+		"FOR",
+		"FOR_EACH",
+		"ANNOTATION_DEF",
+		"ANNOTATION",
+		"ANNOTATION_MEMBER_VALUE_PAIR",
+		"ANNOTATION_FIELD_DEF",
+		"ANNOTATION_ARRAY_INIT",
+		"TYPE_ARGUMENT",
+		"TYPE_PARAMETER",
+		"WILDCARD_TYPE",
+		"TYPE_UPPER_BOUNDS",
+		"TYPE_LOWER_BOUNDS",
 		"COMMENT_DEF",
 		"\"package\"",
 		"SEMI",
 		"\"import\"",
+		"\"static\"",
 		"LBRACK",
 		"RBRACK",
+		"an identifier",
+		"DOT",
+		"QUESTION",
+		"\"extends\"",
+		"\"super\"",
+		"LT",
+		"COMMA",
+		"GT",
+		"SR",
+		"BSR",
 		"\"void\"",
 		"\"boolean\"",
 		"\"byte\"",
@@ -4848,35 +6572,33 @@ public UnitTestParser() {
 		"\"float\"",
 		"\"long\"",
 		"\"double\"",
-		"an identifier",
-		"DOT",
 		"STAR",
 		"\"private\"",
 		"\"public\"",
 		"\"protected\"",
-		"\"static\"",
 		"\"transient\"",
 		"\"native\"",
 		"\"threadsafe\"",
 		"\"synchronized\"",
 		"\"volatile\"",
-		"\"class\"",
-		"\"extends\"",
-		"\"interface\"",
-		"LCURLY",
-		"RCURLY",
-		"COMMA",
-		"\"implements\"",
+		"AT",
 		"LPAREN",
 		"RPAREN",
-		"\"this\"",
-		"\"super\"",
 		"ASSIGN",
+		"LCURLY",
+		"RCURLY",
+		"\"class\"",
+		"\"interface\"",
+		"\"enum\"",
+		"BAND",
+		"\"default\"",
+		"\"implements\"",
+		"\"this\"",
 		"\"throws\"",
+		"TRIPLE_DOT",
 		"COLON",
 		"\"if\"",
 		"\"else\"",
-		"\"for\"",
 		"\"while\"",
 		"\"do\"",
 		"\"break\"",
@@ -4885,8 +6607,8 @@ public UnitTestParser() {
 		"\"switch\"",
 		"\"throw\"",
 		"\"assert\"",
+		"\"for\"",
 		"\"case\"",
-		"\"default\"",
 		"\"try\"",
 		"\"finally\"",
 		"\"catch\"",
@@ -4901,22 +6623,16 @@ public UnitTestParser() {
 		"BAND_ASSIGN",
 		"BXOR_ASSIGN",
 		"BOR_ASSIGN",
-		"QUESTION",
 		"LOR",
 		"LAND",
 		"BOR",
 		"BXOR",
-		"BAND",
 		"NOT_EQUAL",
 		"EQUAL",
-		"LT",
-		"GT",
 		"LE",
 		"GE",
 		"\"instanceof\"",
 		"SL",
-		"SR",
-		"BSR",
 		"PLUS",
 		"MINUS",
 		"DIV",
@@ -4940,6 +6656,7 @@ public UnitTestParser() {
 		"ML_COMMENT",
 		"ESC",
 		"HEX_DIGIT",
+		"VOCAB",
 		"IDENT_LETTER",
 		"EXPONENT",
 		"FLOAT_SUFFIX",
@@ -4947,14 +6664,24 @@ public UnitTestParser() {
 	};
 	
 	private static final long[] mk_tokenSet_0() {
-		long[] data = { -4611682170136690688L, 127L, 67108864L, 0L, 0L, 0L};
+		long[] data = { 1196268651069440L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_0 = new BitSet(mk_tokenSet_0());
 	private static final long[] mk_tokenSet_1() {
-		long[] data = { 275150587008L, 19321061408L, 0L, 0L};
+		long[] data = { 2255648104382464L, 2139095041L, 70368744177664L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_1 = new BitSet(mk_tokenSet_1());
+	private static final long[] mk_tokenSet_2() {
+		long[] data = { 2265000655724544L, 9895608851896L, 137438952960L, 0L, 0L, 0L};
+		return data;
+	}
+	public static final BitSet _tokenSet_2 = new BitSet(mk_tokenSet_2());
+	private static final long[] mk_tokenSet_3() {
+		long[] data = { 2040968731739264L, 648096134413156352L, 0L, 0L};
+		return data;
+	}
+	public static final BitSet _tokenSet_3 = new BitSet(mk_tokenSet_3());
 	}
 	

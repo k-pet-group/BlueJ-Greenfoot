@@ -85,15 +85,16 @@ compilationUnit
 	;
 
 packageDefinition
-	:	#( PACKAGE_DEF identifier )
+	:	#( PACKAGE_DEF (annotation)* identifier )
 	;
 
 importDefinition
 	:	#( IMPORT identifierStar )
+	|	#( STATIC_IMPORT identifierStar )
 	;
 
 typeDefinition!
-	:	#(CLASS_DEF m:modifiers i:IDENT ec:extendsClause implementsClause ob:objBlock )
+	:	#(CLASS_DEF m:modifiers i:IDENT typeParameters ec:extendsClause implementsClause ob:objBlock )
 	    {
             Token commentToken = helpFindComment(m, i);
             AST comment;
@@ -111,7 +112,7 @@ typeDefinition!
             
             #typeDefinition = #(i, lc, rc, m, ec ,ob, ([COMMENT_DEF, "COMMENT_DEF"], comment) ); 
 	    }
-	|	#(INTERFACE_DEF im:modifiers ii:IDENT iec:extendsClause ib:interfaceBlock )
+	|	#(INTERFACE_DEF im:modifiers ii:IDENT typeParameters iec:extendsClause ib:interfaceBlock )
 	    {
             Token commentToken = helpFindComment(im, ii);
             AST comment;
@@ -129,7 +130,21 @@ typeDefinition!
             
             #typeDefinition = #(ii, lc, rc, im, iec ,ib, ([COMMENT_DEF, "COMMENT_DEF"], comment) ); 
 	    }
+	|	#(ENUM_DEF modifiers IDENT implementsClause enumBlock )
+	|	#(ANNOTATION_DEF modifiers IDENT annotationBlock )
 	;
+
+typeParameters
+    :   (typeParameter)*
+    ;
+
+typeParameter
+    :   #(TYPE_PARAMETER IDENT (typeUpperBounds)?)
+    ;
+
+typeUpperBounds
+    :   #(TYPE_UPPER_BOUNDS (classOrInterfaceType)+)
+    ;
 
 typeSpec
 	:	#(TYPE typeSpecArray)
@@ -140,9 +155,38 @@ typeSpecArray
 	|	type
 	;
 
-type:	identifier
+type
+    :   classOrInterfaceType
 	|	builtInType
 	;
+
+classOrInterfaceType
+	:	IDENT typeArguments
+	|	#( DOT identifier IDENT typeArguments )
+	;
+
+typeArguments
+    :   (typeArgument)*
+    ;
+
+typeArgument
+    :   #(  TYPE_ARGUMENT
+            (   classOrInterfaceType (ARRAY_DECLARATOR)*
+                //built-in types can not be type arguments, only their arrays
+            |   builtInType (ARRAY_DECLARATOR)+
+            |   wildcardType
+            )
+         )
+    ;
+
+wildcardType
+    :   #(WILDCARD_TYPE (typeArgumentBounds)?)
+    ;
+
+typeArgumentBounds
+    :   #(TYPE_UPPER_BOUNDS (classOrInterfaceType)+)
+    |   #(TYPE_LOWER_BOUNDS (classOrInterfaceType)+)
+    ;
 
 builtInType
     :   "void"
@@ -174,6 +218,27 @@ modifier
     |   "const"
     |   "volatile"
 	|	"strictfp"
+	|   annotation
+    ;
+
+annotation
+    :   #(ANNOTATION identifier (annotationMemberValueInitializer | (anntotationMemberValuePair)+)? )
+    ;
+
+annotationMemberValueInitializer
+    :   conditionalExpr | annotation | annotationMemberArrayInitializer
+    ;
+
+anntotationMemberValuePair
+    :   #(ANNOTATION_MEMBER_VALUE_PAIR IDENT annotationMemberValueInitializer)
+    ;
+
+annotationMemberArrayInitializer
+    :   #(ANNOTATION_ARRAY_INIT (annotationMemberArrayValueInitializer)* )
+    ;
+
+annotationMemberArrayValueInitializer
+    :   conditionalExpr | annotation
     ;
 
 extendsClause
@@ -193,7 +258,7 @@ interfaceBlock
 			)*
 		)
 	;
-	
+
 objBlock
 	:	#(	OBJBLOCK
 			(!	ctorDef
@@ -206,16 +271,40 @@ objBlock
 		)
 	;
 
+annotationBlock
+	:	#(	OBJBLOCK
+			(	annotationFieldDecl
+			|	variableDef
+			|	typeDefinition
+			)*
+		)
+	;
+
+enumBlock
+	:	#(	OBJBLOCK
+	        (
+	            enumConstantDef
+	        )*
+			(	ctorDef
+			|	methodDef
+			|	variableDef
+			|	typeDefinition
+			|	#(STATIC_INIT slist)
+			|	#(INSTANCE_INIT slist)
+			)*
+		)
+	;
+
 ctorDef
 	:	#(CTOR_DEF modifiers methodHead (slist)?)
 	;
 
 methodDecl
-	:	#(METHOD_DEF modifiers typeSpec methodHead)
+	:	#(METHOD_DEF modifiers typeParameters typeSpec methodHead)
 	;
 
 methodDef!
-	:	#(METHOD_DEF m:modifiers t:typeSpec mh:methodHead
+	:	#(METHOD_DEF m:modifiers typeParameters t:typeSpec mh:methodHead
 	        ( sl:slist
                 {
             Token commentToken = helpFindComment(m, t);
@@ -261,6 +350,28 @@ variableDef
 parameterDef
 	:	#(PARAMETER_DEF modifiers typeSpec IDENT )
 	;
+
+variableLengthParameterDef
+    :   #(VARIABLE_PARAMETER_DEF modifiers typeSpec IDENT )
+    ;
+
+annotationFieldDecl
+    :   #(ANNOTATION_FIELD_DEF modifiers typeSpec IDENT (annotationMemberValueInitializer)?)
+    ;
+
+enumConstantDef
+    :   #(ENUM_CONSTANT_DEF (annotation)* IDENT (elist)? (enumConstantBlock)?)
+    ;
+
+enumConstantBlock
+	:	#(	OBJBLOCK
+			(   methodDef
+			|	variableDef
+			|	typeDefinition
+			|	#(INSTANCE_INIT slist)
+			)*
+		)
+    ;
 
 objectinitializer
 	:	#(INSTANCE_INIT slist)
@@ -315,10 +426,15 @@ stat:	typeDefinition
 	|	expression
 	|	#(LABELED_STAT IDENT stat)
 	|	#("if" expression stat (stat)? )
-	|	#(	"for"
+	|	#(	FOR
 			#(FOR_INIT ((variableDef)+ | elist)?)
 			#(FOR_CONDITION (expression)?)
 			#(FOR_ITERATOR (elist)?)
+			stat
+		)
+	|	#(	FOR_EACH
+			parameterDef
+			expression
 			stat
 		)
 	|	#("while" expression stat)
@@ -332,7 +448,7 @@ stat:	typeDefinition
 	|	tryBlock
 	|	slist // nested SLIST
     // uncomment to make assert JDK 1.4 stuff work
-    // |   #("assert" expression (expression)?)
+   // |   #("assert" expression (expression)?)
 	|	EMPTY_STAT
 	;
 
@@ -356,7 +472,8 @@ expression
 	:	#(EXPR expr)
 	;
 
-expr:	#(QUESTION expr expr expr)	// trinary operator
+expr
+    :	conditionalExpr
 	|	#(ASSIGN expr expr)			// binary operators...
 	|	#(PLUS_ASSIGN expr expr)
 	|	#(MINUS_ASSIGN expr expr)
@@ -369,6 +486,10 @@ expr:	#(QUESTION expr expr expr)	// trinary operator
 	|	#(BAND_ASSIGN expr expr)
 	|	#(BXOR_ASSIGN expr expr)
 	|	#(BOR_ASSIGN expr expr)
+	;
+
+conditionalExpr
+    :   #(QUESTION expr expr expr)	// trinary operator
 	|	#(LOR expr expr)
 	|	#(LAND expr expr)
 	|	#(BOR expr expr)
@@ -410,6 +531,7 @@ primaryExpression
 				|	"class"
 				|	#( "new" IDENT elist )
 				|   "super"
+    			|   typeArguments // for generic methods calls
 				)
 			|	#(ARRAY_DECLARATOR typeSpecArray)
 			|	builtInType ("class")?
@@ -457,7 +579,7 @@ newExpression
 			|	elist (objBlock)?
 			)
 		)
-			
+
 	;
 
 newArrayDeclarator
