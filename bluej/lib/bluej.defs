@@ -273,8 +273,8 @@ bluej.editor.tabtype=hard
 ## macos and "linux".
 #####################################################################
 
-win9xVmOptions=
-winVmOptions=
+win9xVmOptions=-classic
+winVmOptions=-classic
 linuxVmOptions=-classic
 solarisVmOptions=
 macosVmOptions=
