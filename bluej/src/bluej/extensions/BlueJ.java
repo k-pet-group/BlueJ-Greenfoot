@@ -8,6 +8,7 @@ import bluej.pkgmgr.Package;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import javax.swing.*;
 
 /**
  * A proxy object which provides services to BlueJ extensions. 
@@ -43,7 +44,7 @@ import java.util.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version $Id: BlueJ.java 2068 2003-06-25 14:48:09Z damiano $
+ * @version $Id: BlueJ.java 2079 2003-06-26 15:04:33Z damiano $
  */
 
 /*
@@ -520,5 +521,40 @@ public class BlueJ
       else if ( event instanceof CompileEvent ) delegateCompileEvent ((CompileEvent)event);
       else if ( event instanceof InvocationEvent ) delegateInvocationEvent ((InvocationEvent)event);
       }
+
+
+
+    /**
+     *  Calls the EXTENSION to get the right menu item.
+     *  This is already wrapped for errors in the caller.
+     *  It is right for it to create a new wrapped object each time
+     *  (We do not want extensions to share objects too much, do we ?)
+     */
+    JMenuItem getMenuItem(Object attachedObject)
+      {
+      if ( currentMenuGen == null ) return null;
+
+      if ( attachedObject == null ) 
+        return currentMenuGen.getToolsMenuItem(null);
+
+      if ( attachedObject instanceof Package ) 
+        {
+        Package attachedPkg = (Package)attachedObject;
+        Identifier anId = new Identifier (attachedPkg.getProject(),attachedPkg);
+        return currentMenuGen.getToolsMenuItem(new BPackage(anId));
+        }
+
+/*          
+      if ( attachedObject instanceof BClass ) 
+        return aMenuGen.getClassMenuItem((BClass)attachedObject);
+
+      if ( attachedObject instanceof BObject ) 
+        return aMenuGen.getObjectMenuItem((BObject)attachedObject);
+*/
+
+      return null;
+      }
+
+
     
 }

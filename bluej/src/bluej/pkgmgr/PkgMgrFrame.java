@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2071 2003-06-26 04:49:14Z ajp $
+ * @version $Id: PkgMgrFrame.java 2079 2003-06-26 15:04:33Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -172,8 +172,6 @@ public class PkgMgrFrame extends JFrame
             pmf.openPackage(pkg);
         }
 
-        // Attache new package to the dynamic Menu, Damiano
-        pmf.popupManager.setAttachedObject ( pkg );
         return pmf;
     }
 
@@ -509,6 +507,9 @@ public class PkgMgrFrame extends JFrame
             };
 
         SwingUtilities.invokeLater(enableUI);
+
+        // Attache new package to the dynamic Menu, Damiano
+        this.popupManager.setAttachedObject ( pkg );
 
         extMgr.packageOpened (pkg);
     }

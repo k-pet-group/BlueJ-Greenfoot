@@ -609,19 +609,15 @@ public class ExtensionWrapper
 
 
     /**
-     *  Calls the EXTENSION preference panel getMenuItem in a sfe way
+     *  Calls the EXTENSION preference panel getMenuItem in a safe way
      */
-    JMenuItem safeMenuGenGetMenuItem()
-    {
+    JMenuItem safeGetMenuItem(Object attachedObject)
+        {
         if (extensionBluej == null) return null;
-
-        MenuGenerator aMenuGen = extensionBluej.getMenuGenerator();
-        // The above is safe. An extension may not have a menu generator
-        if ( aMenuGen == null ) return null;
 
         try
           {
-          return aMenuGen.getMenuItem();
+          return ExtensionBridge.getMenuItem(extensionBluej, attachedObject);
           }
         catch ( Exception exc )
           {
@@ -629,7 +625,7 @@ public class ExtensionWrapper
           exc.printStackTrace();
           return null;
           }
-    }
+        }
 
 
 }

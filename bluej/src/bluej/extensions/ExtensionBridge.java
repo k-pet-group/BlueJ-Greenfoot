@@ -7,6 +7,7 @@ import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 
 import com.sun.jdi.Value;
+import javax.swing.*;
 
 /*
  * This class acts as a bridge between the extensions package and other 
@@ -44,6 +45,11 @@ public class ExtensionBridge
     {
     Identifier  anId = new Identifier (bluejPkg.getProject(), bluejPkg);
     return new BPackage (anId);
+    }
+
+  public static JMenuItem getMenuItem ( BlueJ aBluej, Object attachedObject )
+    {
+    return aBluej.getMenuItem(attachedObject);
     }
 
 

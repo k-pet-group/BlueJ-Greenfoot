@@ -254,7 +254,6 @@ public class ExtensionsManager implements BlueJEventListener
         }
     }
 
-
     /**
      * Returns a List of menues currently provided by extensions.
      * NOTE: There is a separator added here ad the beginning of the list
@@ -263,13 +262,14 @@ public class ExtensionsManager implements BlueJEventListener
     LinkedList getMenuItems( Object attachedObject )
         {
         LinkedList menuItems = new LinkedList();
+
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) 
             {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
             if (!aWrapper.isValid()) continue;
 
-            JMenuItem anItem = aWrapper.safeMenuGenGetMenuItem();
+            JMenuItem anItem = aWrapper.safeGetMenuItem(attachedObject);
             if ( anItem == null ) continue;
 
             menuItems.add(anItem);
