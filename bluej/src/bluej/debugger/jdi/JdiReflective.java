@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  *  
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2582 2004-06-10 04:32:41Z davmac $
+ * @version $Id: JdiReflective.java 2589 2004-06-11 02:16:14Z davmac $
  */
 public class JdiReflective extends Reflective {
 
@@ -417,7 +417,7 @@ public class JdiReflective extends Reflective {
         // map the names to the class/interface the field is actually defined
         // in.
         
-        Map tparams = ((JdiObject15)parent).getGenericParams();
+        Map tparams = parent.getGenericParams();
         Reflective r = new JdiReflective(parent.obj.referenceType());
         
         // For any parameters that we don't have explicit information for,

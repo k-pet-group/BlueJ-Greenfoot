@@ -1,11 +1,14 @@
 package bluej.debugger.jdi;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
@@ -15,10 +18,12 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: JdiObject.java 2589 2004-06-11 02:16:14Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
+    private Map genericParams = null; // Map of parameter names to types
+
     private static final String nullLabel =
 		Config.getString("debugger.null");
     
@@ -34,14 +39,10 @@ public class JdiObject extends DebuggerObject
      */
     public static JdiObject getDebuggerObject(ObjectReference obj)
     {
-        if (obj instanceof ArrayReference) {
+        if (obj instanceof ArrayReference)
             return new JdiArray((ArrayReference) obj);
-        } else {
-            if( jvmSupportsGenerics )
-                return JdiObject15.getDebuggerObject(obj);
-            else
-                return new JdiObject(obj);
-        }
+        else
+            return new JdiObject(obj);
     }
 
     /**
@@ -53,14 +54,10 @@ public class JdiObject extends DebuggerObject
      */
     public static JdiObject getDebuggerObject(ObjectReference obj, Field field, JdiObject parent)
     {
-        if (obj instanceof ArrayReference) {
+        if (obj instanceof ArrayReference)
             return new JdiArray((ArrayReference) obj);
-        } else {
-            if( jvmSupportsGenerics )
-                return JdiObject15.getDebuggerObject(obj, field, (JdiObject15)parent);
-            else
-                return new JdiObject(obj);
-        }
+        else
+            return new JdiObject(obj, field, parent);
     }
     
     
@@ -85,6 +82,22 @@ public class JdiObject extends DebuggerObject
         getRemoteFields();
     }
 
+    /**
+     * Private constructor. Construct from a given object reference using the
+     * generic signature of a field and the parent object.
+     * @param obj     The object to represent
+     * @param field   The field to extract the generic signature from
+     * @param parent  The parent object to get type information from
+     */
+    private JdiObject(ObjectReference obj, Field field, JdiObject parent)
+    {
+        this.obj = obj;
+        getRemoteFields();
+        if( JdiUtils.getJdiUtils().hasGenericSig(field) ) {
+            GenTypeClass genericType = (GenTypeClass)JdiReflective.fromField(field, parent);
+            genericParams = genericType.mapToDerived(new JdiReflective(obj.referenceType()));
+        }
+    }
 
     /**
      *  Get the (raw) name of the class of this object.
@@ -108,7 +121,13 @@ public class JdiObject extends DebuggerObject
      */
     public String getGenClassName()
     {
-        return getClassName();
+        if (obj == null)
+            return "";
+        if( genericParams != null )
+            return new GenTypeClass(new JdiReflective(obj.referenceType()),
+                    genericParams).toString();
+        else
+            return getClassName();
     }
     
     /**
@@ -117,9 +136,32 @@ public class JdiObject extends DebuggerObject
      */
     public String getStrippedGenClassName()
     {
-        return JavaNames.stripPrefix(getClassName());
+        if( obj == null )
+            return "";
+        if( genericParams != null )
+            return new GenTypeClass(new JdiReflective(obj.referenceType()),
+                    genericParams).toString(true);
+        else
+            return JavaNames.stripPrefix(getClassName());
     }
     
+    /**
+     * Get a mapping of the type parameter names for this objects class to the
+     * actual type, for all parameters where some information is known. May
+     * return null.
+     * 
+     * @return a Map (String:JdiGenType) of type parameter names to types
+     */
+    public Map getGenericParams()
+    {
+        Map r = null;
+        if( genericParams != null ) {
+            r = new HashMap();
+            r.putAll(genericParams);
+        }
+        return r;
+    }
+
     /**
      *  Get the class of this object.
      *
