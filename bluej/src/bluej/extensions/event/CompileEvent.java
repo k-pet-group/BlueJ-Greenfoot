@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * This class encapsulates compiler events
  * 
- * @version $Id: CompileEvent.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: CompileEvent.java 1767 2003-04-09 08:43:42Z damiano $
  */
 public class CompileEvent extends BluejEvent 
 {
@@ -38,7 +38,7 @@ public class CompileEvent extends BluejEvent
    */
   public static final int COMPILE_FAILED_EVENT=5;
 
-  private int eventId;
+  private int    eventId;
   private File[] fileNames;   // An array of names this event belong to
   private int    errorLineNumber;
   private String errorMessage;
@@ -119,7 +119,7 @@ public class CompileEvent extends BluejEvent
     if ( eventId == COMPILE_DONE_EVENT ) aRisul.append(" COMPILE_DONE_EVENT");
     if ( eventId == COMPILE_FAILED_EVENT ) aRisul.append(" COMPILE_FAILED_EVENT");
 
-    aRisul.append(" fileNames[0]=");
+    aRisul.append(" getFiles()[0]=");
     aRisul.append(fileNames[0]);
 
     if ( eventId == COMPILE_WARNING_EVENT || eventId == COMPILE_ERROR_EVENT )
