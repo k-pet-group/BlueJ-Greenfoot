@@ -23,14 +23,13 @@ debugger.assert.notNull=non nullo
 debugger.assert.null=nullo
 debugger.assert.delta=delta
 
-debugger.inspector.title=BlueJ:  Inspector
+debugger.inspector.title=BlueJ:  Ispettore
+debugger.inspector.object.title=BlueJ:  Ispettore di oggetti
+debugger.inspector.class.title=BlueJ:  Ispettore di classi
 debugger.inspector.result.title=BlueJ:  Risultato del Metodo
-debugger.inspector.staticListTitle=Campi statici
-debugger.inspector.objListTitle=Campi di istanza
 debugger.inspector.showClass=Mostra i campi statici
 debugger.inspector.inspect=Ispeziona
 debugger.inspector.get=Recupera
-debugger.inspector.objectNameLabel=Oggetto di classe
 debugger.inspector.classNameLabel=Classe
 
 debugger.objectwrapper.methodException=Eccezione nell'accesso ai metodi:
@@ -88,8 +87,7 @@ browser.menu.library.close=Chiudi
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Librerie
 classmgr.userlibraries=Librerie dell'utente
-classmgr.systemlibraries=Librerie di sistema
-classmgr.bootlibraries=Librerie d'avvio
+classmgr.userliblibraries=Librerie dell'utente da
 classmgr.add=Aggiungi
 classmgr.delete=Elimina
 classmgr.statuscolumn=Stato
@@ -107,20 +105,27 @@ prefmgr.title=BlueJ:  Preferenze
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=Varie
-prefmgr.misc.editor.title=Preferenze dell'Editor
-prefmgr.misc.editorfontsize=Dimensione dei caratteri
-prefmgr.misc.usesyntaxhilighting=Attiva la colorazione sintattica
-prefmgr.misc.autoindent=Attiva il rientro automatico (con Invio e Tab)
-prefmgr.misc.displaylinenumbers=Mostra i numeri di linea
-prefmgr.misc.makeBackup=Tieni una copia di sicurezza dei file sorgente
-prefmgr.misc.matchBrackets=Mostra le parentesi corrispondenti
-prefmgr.misc.testing.title=Preferenze dell'Unità di Test
-prefmgr.misc.showTesting=Mostra gli strumenti dell'unità di test
-prefmgr.misc.documentation.title=Preferenze della Documentazione
+prefmgr.misc.documentation.title=Preferenze della documentazione
 prefmgr.misc.jdkurlpath=URL della documentazione del JDK
 prefmgr.misc.linkToLib=Utilizza questo URL quando viene generata la documentazione del progetto
 prefmgr.misc.linkToLibNoteLine1=Se per generare la documentazione si utilizza questo URL, è necessario  che sia corretto e accessibile.
 prefmgr.misc.linkToLibNoteLine2=Per lavorare offline, deselezionare questa opzione.
+prefmgr.misc.testing.title=Preferenze dell'unità di test
+prefmgr.misc.showTesting=Mostra gli strumenti dell'unità di test
+prefmgr.misc.vm.title=Preferenze della Virtual Machine
+prefmgr.misc.optimiseVM=Usa l'ottimizzazione (l'esecuzione è più veloce, ma può dare qualche problema nel debug)
+prefmgr.misc.addLibTitle=Scegli la  directory o il file jar/zip
+prefmgr.misc.libFileFilter=File di libreria (*.jar;*.zip) o directory di classe
+
+# Editor Preferences panel
+prefmgr.edit.prefpaneltitle=Editor
+prefmgr.edit.editor.title=Preferenze dell'Editor
+prefmgr.edit.editorfontsize=Dimensione dei caratteri
+prefmgr.edit.usesyntaxhilighting=Attiva la colorazione sintattica
+prefmgr.edit.autoindent=Attiva il rientro automatico (con Invio e Tab)
+prefmgr.edit.displaylinenumbers=Mostra i numeri di linea
+prefmgr.edit.makeBackup=Tieni una copia di sicurezza dei file sorgente
+prefmgr.edit.matchBrackets=Mostra le parentesi corrispondenti
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Estensioni installate
@@ -276,10 +281,11 @@ pkgmgr.packageSaved=Package salvato
 pkgmgr.info.printing = In stampa...
 pkgmgr.info.printed = In stampa... fatto.
 
-utility.packageChooser.previewPane1=anteprima possibile
+utility.packageChooser.previewPane1=Anteprima della
 utility.packageChooser.previewPane2=struttura del package
 
 # dialog titles and texts
+pkgmgr.title=BlueJ:
 
 pkgmgr.newPkg.title=Nuovo progetto
 pkgmgr.newPkg.buttonLabel=Crea
@@ -314,21 +320,21 @@ pkgmgr.classmenu.edit=Apri nell'Editor
 pkgmgr.classmenu.compile=Compila
 pkgmgr.classmenu.inspect=Ispeziona
 pkgmgr.classmenu.remove=Elimina
-pkgmgr.classmenu.createTest=Cra la classe Test
+pkgmgr.classmenu.createTest=Crea la classe di test
 
-pkgmgr.test.label=eseguo il Test
-pkgmgr.test.record=registro
-pkgmgr.test.run=Esegui i Test
+pkgmgr.test.label=eseguo il test
+pkgmgr.test.record=registra
+pkgmgr.test.run=Esegui i test
 pkgmgr.test.end=Fine
 pkgmgr.test.succeeded=riusciti
 pkgmgr.test.noTestName=Specifica un nome per il test
 pkgmgr.test.invalidTestName=Il nome del test deve essere un identificatore Java valido
 pkgmgr.test.recording=registro
 
-pkgmgr.test.popup.testAll=Esegui il Test di tutto
+pkgmgr.test.popup.testAll=Esegui il test di tutto
 pkgmgr.test.popup.noTests=Nessun metodo di test
 pkgmgr.test.popup.testPrefix=Test
-pkgmgr.test.popup.createTest=Crea il metodo Test...
+pkgmgr.test.popup.createTest=Crea il metodo di test...
 pkgmgr.test.popup.benchToFixture=da Object Bench a Test Fixture
 pkgmgr.test.popup.fixtureToBench=da Test Fixture a Object Bench
 
@@ -342,7 +348,7 @@ pkgmgr.newClass.abstract=Classe astratta
 pkgmgr.newClass.interface=Interfaccia
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
-pkgmgr.newClass.unittest=Test di unità
+pkgmgr.newClass.unittest=Test
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Crea un nuovo package
@@ -368,13 +374,13 @@ freeCallDialog.returnsNoResult=una istruzione (non restituisce un risultato)
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Esporta progetto
-pkgmgr.export.helpLine1=L'esportazione conserva una copia dell'attuale progetto in
-pkgmgr.export.helpLine2=formato standard Java (non BlueJ).
-pkgmgr.export.directoryLabel=Conserva come struttura di directory
-pkgmgr.export.jarFileLabel=Conserva come file jar
+pkgmgr.export.helpLine1=L'esportazione genera una copia del progetto
+pkgmgr.export.helpLine2=in formato standard Java (non BlueJ).
+pkgmgr.export.directoryLabel=Genera come struttura di directory
+pkgmgr.export.jarFileLabel=Genera come file jar
 pkgmgr.export.classLabel=classe principale:
 pkgmgr.export.sourceLabel=includi sorgente
-pkgmgr.export.noClassText=nessuno (non può essere eseguito)
+pkgmgr.export.noClassText=nessuna (non può essere eseguito)
 
 # "open-non-bluej" mismatch dialog
 pkgmgr.importmismatch.title=BlueJ:  La linea del package non corrisponde
@@ -396,9 +402,9 @@ pkgmgr.importfailed.helpLine3=tali file sono già presenti nel progetto di destin
 
 # "version check" dialog
 pkgmgr.versionDlg.title=BlueJ:  Verifica se esistono nuove versioni
-pkgmgr.versionDlg.helpLine1=Verifica la disponibilità di nuove versioni
-pkgmgr.versionDlg.helpLine2=di BlueJ. Devi essere online perché funzioni.
-pkgmgr.versionDlg.check=Verifica la versione
+pkgmgr.versionDlg.helpLine1=Verifica la disponibilità di nuove versioni di Bluej.
+pkgmgr.versionDlg.helpLine2=Devi essere online perché funzioni.
+pkgmgr.versionDlg.check=Verifica della versione
 pkgmgr.versionDlg.upToDate=La versione corrente è aggiornata.
 pkgmgr.versionDlg.currentVersion=La tua versione corrente di BlueJ è
 pkgmgr.versionDlg.newVersion=La più recente versione di BlueJ è
@@ -469,8 +475,8 @@ terminal.save.title = Salva il testo del terminale
 terminal.save.buttonText = Salva
 
 #TestDisplay Window
-testdisplay.title = BlueJ:  Risultati di Test
-testdisplay.counter.runs=Esegui:
+testdisplay.title = BlueJ:  Risultati dei test
+testdisplay.counter.runs=Eseguiti:
 testdisplay.counter.errors=Errori:
 testdisplay.counter.failures=Fallimenti:
 
@@ -479,8 +485,8 @@ pkgmgr.compiling=Compilo...
 pkgmgr.compileDone=Compilo... fatto
 pkgmgr.creating=Creo l'oggetto...
 pkgmgr.createDone=Creo l'oggetto... fatto
-pkgmgr.creatingVM=Creo la virtual machine...
-pkgmgr.creatingVMDone=Creo la virtual machine... fatto
+pkgmgr.creatingVM=Inizializzo la virtual machine...
+pkgmgr.creatingVMDone=Inizializzo la virtual machine... fatto
 pkgmgr.generatingDocu=Genero la documentazione...
 pkgmgr.docuGenerated=Genero la documentazione... fatto
 pkgmgr.docuAborted=Genero la documentazione... interrotto
@@ -493,6 +499,7 @@ pkgmgr.appletInBrowser=Eseguo l'applet nel browser web
 pkgmgr.exported=Esportazione completata.
 pkgmgr.exported.jar=Esportazione verso file jar completata.
 pkgmgr.error.open=Il progetto non esiste (non più)
+pkgmgr.checkingVersion=Connessione al server in corso...
 
 properties.heading.bluej=Proprietà di BlueJ. Le configurazioni in questo file hanno la precedenza su quelle in \"bluej.defs\"
 properties.heading.moe=Proprietà dell'Editor Moe. Le configurazioni in questo file hanno la precedenza su quelle in \"moe.defs\"
@@ -537,7 +544,7 @@ menu.view.showUses=Relazioni 'usa'
 menu.view.showInherits=Relazioni 'eredità'
 menu.view.showExecControls=Debugger
 menu.view.showTerminal=Terminale
-menu.view.showTestDisplay=Mostra i risultati di Test
+menu.view.showTestDisplay=Mostra i risultati dei test
 
 menu.group=Lavoro di gruppo
 menu.group.make=Crea un package di gruppo
@@ -554,7 +561,7 @@ menu.group.configuration=Configurazione
 menu.help=Aiuto
 menu.help.about=Informazioni su BlueJ
 menu.help.extensions=Installed Extensions
-menu.help.versionCheck=Verifica la versione
+menu.help.versionCheck=Verifica della versione
 menu.help.extensions=Estensioni installate
 menu.help.copyright=Copyright
 menu.help.website=Sito web di BlueJ
@@ -570,4 +577,29 @@ tooltip.compile=Compila tutte le classi di questo package non compilate
 tooltip.test=Compila tutte le classi test del package
 tooltip.progress=Indicatore di esecuzione: indica quando la virtual machine è in esecuzione
 tooltip.test.end=Termina la registrazione di un metodo di test e lo salva.
-tooltip.test.cancel=Cancella ed elimina la registrazione di un metodo test.
+tooltip.test.cancel=Cancella ed elimina la registrazione di un metodo di test.
+
+#Copyright
+
+menu.help.copyright.title=BlueJ Copyright
+menu.help.copyright.line1=BlueJ è disponibile gratuitamente e può essere
+menu.help.copyright.line2=liberamente redistribuito. Non può essere venduto a
+menu.help.copyright.line3=scopo di lucro o incluso in altri pacchetti venduti
+menu.help.copyright.line4=a scopo di lucro senza una autorizzazione scritta.
+
+# About
+
+about.bluej.version=BlueJ versione
+about.java.version=Java versione
+about.vm=Virtual Machine:
+about.runningOn=Sistema:
+about.javahome=Java Home:
+about.logfile=File di log del debug:
+about.moreInfo=Maggiori informazioni al sito www.bluej.org.
+about.theTeam.deakin=Il team BlueJ alla Deakin University
+about.theTeam.denmark=Il team BlueJ alla University of Southern Denmark
+about.theTeam.kent=Il team BlueJ alla Kent University
+
+# Work Indicator
+workIndicator.showDebugger=Mostra il debugger
+workIndicator.resetMachine=Reset della macchina

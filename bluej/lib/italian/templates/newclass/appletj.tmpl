@@ -1,13 +1,14 @@
-$PKGLINE/**
- * Classe $CLASSNAME - descrivi qui la classe
- * 
- * @author: 
- * date: 
- */
-
+$PKGLINE
 import javax.swing.JApplet;
 import javax.swing.JRootPane;
 import java.awt.Graphics;
+
+/**
+ * Classe $CLASSNAME - descrivi qui la classe
+ * 
+ * @author (il tuo nome)
+ * @version (un numero di versione)
+ */
 
 public class $CLASSNAME extends JApplet
 {
@@ -57,6 +58,23 @@ public class $CLASSNAME extends JApplet
 	}
 
 	/**
+	 * metodo paint dell'applet.
+	 * 
+	 * @param  g   l'oggetto Graphics per questo applet
+	 */
+	public void paint(Graphics g)
+	{
+		// breve testo mostrato dall'applet
+                g.setColor(Color.white);
+                g.fillRect(0, 0, 200, 100);
+                g.setColor(Color.black);
+                g.drawString("Applet d'esempio", 20, 20);
+                g.setColor(Color.blue);
+                g.drawString("creato da BlueJ", 20, 40);
+
+	}
+
+	/**
 	 * Richiamato dal browser o dall'appletviewer per informare il JApplet che
 	 * deve rilasciare qualsiasi risorsa è stata allocata prima di essere
 	 * distrutto. Prima del metodo destroy è sempre richiamato il metodo stop. 
@@ -102,29 +120,5 @@ public class $CLASSNAME extends JApplet
 				 {"images",   "url",	 "descrizione del terzo parametro"}
 		};
 		return paramInfo;
-	}
-
-	/**
-	 * metodo paint dell'applet.
-	 * 
-	 * @param  g   l'oggetto Graphics per questo applet
-	 */
-	public void paint(Graphics g)
-	{
-		// breve testo mostrato dall'applet
-		g.drawString("JApplet di esempio", 20, 20);
-	}
-
-
-	/**
-	 * Un esempio di metodo - aggiungi i tuoi commenti
-	 * 	
-	 * @param  y	un parametro d'esempio per un metodo
-	 * @return	la somma di x e y 
-	 */
-	public int sampleMethod(int y)
-	{
-		// aggiungi qui il tuo codice
-		return x + y;
 	}
 }
