@@ -4,13 +4,7 @@ BINDIR=`dirname $0`
 BLUEJ_HOME=$BINDIR/.. 
 
 OPTIONS='-Dcom.apple.mrj.application.apple.menu.about.name=BlueJ'
-
-#OPTIONS=$OPTIONS' -Dapple.laf.useScreenMenuBar=true' 
-#use bluej.macos.screenmenubar in bluej.defs
-
-#OPTIONS=$OPTIONS' -Dapple.awt.showGrowBox=true'
 #OPTIONS=$OPTIONS' -Dcom.apple.hwaccel=false'
-#OPTIONS=$OPTIONS' -Dapple.awt.window.position.forceSafeCreation=true'
 
 java $OPTIONS -jar $BLUEJ_HOME/lib/bluej.jar $@
 
