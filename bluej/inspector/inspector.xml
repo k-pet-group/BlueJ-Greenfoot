@@ -1,0 +1,53 @@
+<project name="bluej-inspector" default="compile-inspector" basedir=".">
+
+    <!-- set up common directories -->
+    <property name="inspectorsrc" value="." />
+    <property name="inspectorbuild" value="${build}" />
+    <property name="inspectorinstall" value="${bluej_home}/lib/inspector" />
+
+    <!-- set up classpath -->
+    <path id="bluej.class.path">
+        <pathelement location="${bluej_home}/classes" />
+        <pathelement location="${bluej_home}/lib/antlr.jar" />
+        <pathelement location="${java_home}/lib/tools.jar" />
+    </path>
+
+    <target name="prepare-inspector">
+        <!-- Create the time stamp -->
+        <tstamp/>
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${inspectorbuild}" />
+    </target>
+
+    <target name="compile-inspector" depends="prepare-inspector">
+        <!-- Compile the java code for the inspectors -->
+        <javac srcdir="${inspectorsrc}"
+               destdir="${inspectorbuild}" >
+            <classpath refid="bluej.class.path" />
+        </javac>
+    </target>
+
+    <target name="install-inspector" depends="compile-inspector">
+        <!-- Copy the MonashImage inspectors into a project directory -->
+        <copy todir="${bluej_home}/examples/imageviewer/(Inspector)" >
+            <fileset dir="${inspectorbuild}" >
+                <include name="MonashImageInspector*.class"/>
+            </fileset>
+        </copy>
+        <!-- Create the install directory structure -->
+        <mkdir dir="${inspectorinstall}" />
+        <!-- Copy all the other inspectors into that directory -->
+        <copy todir="${inspectorinstall}" >
+            <fileset dir="${inspectorbuild}" >
+                <exclude name="MonashImageInspector*.class"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="clean-inspector">
+        <!-- Delete the ${build} directory tree -->
+        <delete dir="${inspectorbuild}" />
+        <delete dir="${inspectorinstall}" />
+    </target>
+
+</project>
