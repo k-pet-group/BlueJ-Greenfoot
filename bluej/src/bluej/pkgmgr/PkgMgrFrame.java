@@ -47,7 +47,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: PkgMgrFrame.java 2516 2004-05-03 08:20:51Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2250,7 +2250,7 @@ public class PkgMgrFrame extends JFrame
             createCheckboxMenuItem(ShowTerminalAction.getInstance(), menu, false);
             menu.addSeparator();
 
-            createCheckboxMenuItem(ShowTestResultsAction.getInstance(), menu, false);
+            showTestResultsItem = createCheckboxMenuItem(ShowTestResultsAction.getInstance(), menu, false);
         }
         viewMenu = menu;
 
