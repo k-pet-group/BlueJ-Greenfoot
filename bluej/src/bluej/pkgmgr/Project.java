@@ -25,7 +25,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3236 2004-12-14 15:46:33Z mik $
+ * @version $Id: Project.java 3242 2004-12-16 09:41:33Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -755,23 +755,7 @@ public class Project
     private void vmReady()
     {
         PkgMgrFrame.displayMessage(Project.this, Config.getString("pkgmgr.creatingVMDone"));
-        
-        // On MacOS, the main window loses focus as the remote VM process is created.
-        // Use the MacOS 'open' command to get the main process back to front.
-        if(Config.isMacOS()) {
-            try {
-                // first, find the path of BlueJ.app
-                String path = getClass().getResource("PkgMgrFrame.class").getPath();
-                int index = path.indexOf("BlueJ.app");
-                if(index != -1) {
-                    path = path.substring(0, index+9);
-                    // once we found it, call 'open' on it to bring it to front.
-                    String[] openCmd = { "open", path };
-                    Runtime.getRuntime().exec(openCmd);
-                }
-            }
-            catch(IOException exc) {} // just a try, if it fails, don't worry too much
-        }
+        Utility.bringToFront();  // only works on MacOS currently
     }
 
     /**

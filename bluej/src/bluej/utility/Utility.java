@@ -12,7 +12,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 2709 2004-07-01 13:01:21Z polle $
+ * @version $Id: Utility.java 3242 2004-12-16 09:41:33Z mik $
  */
 public class Utility
 {
@@ -222,11 +222,11 @@ public class Utility
             try {
                 // more stupid Windows differences...
                 if(Config.osname.startsWith("Windows 98")) {
-                    Process p = Runtime.getRuntime().exec(
+                    Runtime.getRuntime().exec(
                          new String[] { cmd, "/c", "start", '"' + url + '"' });
                 }
                 else {
-                    Process p = Runtime.getRuntime().exec(
+                    Runtime.getRuntime().exec(
                         new String[] { cmd, "/c", "start", "\"\"", '"' + url + '"' });
                 }
             }
@@ -272,12 +272,47 @@ public class Utility
         return true;
     }
 
-    public static void bringToFront(Frame frame)
+    /**
+     * Bring the current process to the fron in the OS window stacking order.
+     * Curently: only implemented for MacOS.
+     */
+    public static void bringToFront()
     {
-        Debug.message("activate " + frame);
-//        frame.dispatchEvent(new MouseEvent(frame, 1, System.currentTimeMillis(), 
-//                        0, 100, 100, 1, false));
-    }
+        if(Config.isMacOS()) {
+            // The following code executes these calls:
+            //    NSApplication app = NSApplication.sharedApplication();
+            //    app.activateIgnoringOtherApps(true);
+            // but does so by reflection so that this compiles on non-Apple machines.
+            
+            try {
+                Class nsapp = Class.forName("com.apple.cocoa.application.NSApplication");
+                
+                java.lang.reflect.Method sharedApp = nsapp.getMethod("sharedApplication", null);
+                Object obj = sharedApp.invoke(null, null);
+                
+                Class[] param = { boolean.class };
+                java.lang.reflect.Method act = nsapp.getMethod("activateIgnoringOtherApps", param);
+                Object[] args = { Boolean.TRUE };
+                act.invoke(obj, args);
+            }
+            catch(Exception exc) {
+                Debug.reportError("Bringing process to front failed (MacOS).");
+            }
+        }
+
+//            alternative technique: using 'open command. works only for BlueJ.app, not for remote VM            
+//            // first, find the path of BlueJ.app
+//            String path = getClass().getResource("PkgMgrFrame.class").getPath();
+//            int index = path.indexOf("BlueJ.app");
+//            if(index != -1) {
+//                path = path.substring(0, index+9);
+//                // once we found it, call 'open' on it to bring it to front.
+//                String[] openCmd = { "open", path };
+//                Runtime.getRuntime().exec(openCmd);
+//            }
+            
+        
+        }
 
     /**
      * merge s2 into s1 at position of first '$'
