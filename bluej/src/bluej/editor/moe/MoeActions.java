@@ -8,25 +8,29 @@
 
 package bluej.editor.moe;
 
-import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.prefmgr.PrefMgr;
-import bluej.prefmgr.PrefMgrDialog;
-
-import java.util.Hashtable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.*;
+import java.awt.Container;
+import java.awt.Event;
 import java.awt.Toolkit;
 import java.awt.datatransfer.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
 
-import java.awt.Event;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.event.DocumentEvent;
 import javax.swing.text.*;
-import javax.swing.undo.*;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+
+import bluej.Config;
+import bluej.prefmgr.PrefMgr;
+import bluej.prefmgr.PrefMgrDialog;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 
 /**
  * A set of actions supported by the Moe editor. This is a singleton: the
@@ -370,8 +374,26 @@ public final class MoeActions
         /* side effect: clears message in editor! */
         protected final MoeEditor getEditor(ActionEvent e)
         {
-            JTextComponent textComponent = getTextComponent(e);
-            MoeEditor ed = (MoeEditor) textComponent.getTopLevelAncestor();
+            MoeEditor ed = null;
+            
+            // the source of the event is the first place to look
+            Object source = e.getSource();
+            if (source instanceof JComponent) {
+                Container c = ((JComponent) source).getTopLevelAncestor();
+                if (c instanceof MoeEditor)
+                    ed = (MoeEditor) c;
+            }
+            
+            // otherwise use 'getTextComponent'
+            if (ed == null) {
+                JTextComponent textComponent = getTextComponent(e);
+                if (textComponent != null) {
+                    Container c = textComponent.getTopLevelAncestor();
+                    if (c instanceof MoeEditor)
+                        ed = (MoeEditor) c;
+                }
+            }
+            
             if (ed != null)
                 ed.clearMessage();
             return ed;
