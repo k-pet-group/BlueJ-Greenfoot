@@ -2,20 +2,22 @@ package bluej.debugger.jdi;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
+import bluej.debugger.gentype.GenTypeArray;
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaNames;
 
 import com.sun.jdi.*;
 
-/*
+/**
  * A DebuggerObject with support for java 1.5 - generics etc.
  * @author Davin McCall
+ * @version $Id: JdiObject15.java 2581 2004-06-10 01:09:01Z davmac $
  */
 public class JdiObject15 extends JdiObject {
 
-    // private JdiGenType genericType = null; // the generic type, as best as
-                // we can deduce it. This should be null for a raw or non-
-                // generic type.
     private Map genericParams = null; // Map of parameter names to types
     
     /**
@@ -84,9 +86,8 @@ public class JdiObject15 extends JdiObject {
         this.obj = obj;
         getRemoteFields();
         if( field.genericSignature() != null ) {
-            JdiGenType genericType = JdiGenType.fromField(field, parent);
-            ClassLoaderReference cl = obj.referenceType().classLoader();
-            genericParams = genericType.mapToDerived(obj.referenceType(), new JdiClassSource(obj.virtualMachine(), cl));
+            GenTypeClass genericType = (GenTypeClass)JdiReflective.fromField(field, parent);
+            genericParams = genericType.mapToDerived(new JdiReflective(obj.referenceType()));
         }
     }
     
@@ -107,12 +108,43 @@ public class JdiObject15 extends JdiObject {
         return r;
     }
     
+    public GenTypeClass getGenType()
+    {
+        Stack arrays = new Stack();
+        Type rt = obj.referenceType();
+        Reflective r;
+        
+        // Determine the number of array dimensions, if any
+        try {
+            while( rt instanceof ArrayType ) {
+                arrays.push(rt);
+                rt = ((ArrayType)rt).componentType();
+            }
+            r = new JdiReflective(obj.referenceType());
+        }
+        catch(ClassNotLoadedException cnle) {
+            r = new JdiReflective(((ArrayType)rt).componentTypeName(), obj.referenceType());
+        }
+        
+        // get the component type
+        GenTypeClass retval = new GenTypeClass(r, genericParams);
+        
+        // construct GenArrayType (array of...) as necessary
+        while( ! arrays.empty() ) {
+            ArrayType at = (ArrayType)arrays.pop();
+            retval = new GenTypeArray(retval, new JdiReflective(at));
+        }
+        return retval;
+    }
+    
     public String getGenClassName()
     {
         if (obj == null)
             return "";
         if( genericParams != null )
-            return JdiGenType.fromClassSignature((ClassType)obj.referenceType(), genericParams).toString();
+            return new GenTypeClass(new JdiReflective(obj.referenceType()),
+                    genericParams).toString();
+            // return JdiGenType.fromClassSignature((ClassType)obj.referenceType(), genericParams).toString();
         else
             return getClassName();
     }
@@ -122,7 +154,9 @@ public class JdiObject15 extends JdiObject {
         if( obj == null )
             return "";
         if( genericParams != null )
-            return JdiGenType.fromClassSignature((ClassType)obj.referenceType(), genericParams).toString(true);
+            // return JdiGenType.fromClassSignature((ClassType)obj.referenceType(), genericParams).toString(true);
+            return new GenTypeClass(new JdiReflective(obj.referenceType()),
+                    genericParams).toString(true);
         else
             return JavaNames.stripPrefix(getClassName());
     }

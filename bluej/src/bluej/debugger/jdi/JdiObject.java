@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2554 2004-05-27 08:20:56Z polle $
+ * @version $Id: JdiObject.java 2581 2004-06-10 01:09:01Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -474,7 +474,7 @@ public class JdiObject extends DebuggerObject
                 }
 
                 if( jvmSupportsGenerics )
-                    fieldString += JdiGenType.fromField(field,this).toString(true);
+                    fieldString += JdiReflective.fromField(field,this).toString(true);
                 else
                     fieldString += JavaNames.stripPrefix(field.typeName());
 
@@ -561,55 +561,11 @@ public class JdiObject extends DebuggerObject
         {
             return nullLabel;
         }
-        else if (val instanceof StringReference)
-        {
-            return "\"" + ((StringReference) val).value() + "\"";
-            // toString should be okay for this as well once the bug is out...
-        }
         else if (val instanceof ObjectReference)
         {
             return OBJECT_REFERENCE;
         }
-
-        // the following should not be necessary but it seems like
-        // the 1.3 beta jpda has a bug in the toString() method.
-        // revisit this code when 1.3 is released
-        else if (val instanceof BooleanValue)
-        {
-            return String.valueOf(((BooleanValue) val).value());
-        }
-        else if (val instanceof ByteValue)
-        {
-            return String.valueOf(((ByteValue) val).value());
-        }
-        else if (val instanceof CharValue)
-        {
-            return String.valueOf(((CharValue) val).value());
-        }
-        else if (val instanceof DoubleValue)
-        {
-            return String.valueOf(((DoubleValue) val).value());
-        }
-        else if (val instanceof FloatValue)
-        {
-            return String.valueOf(((FloatValue) val).value());
-        }
-        else if (val instanceof IntegerValue)
-        {
-            return String.valueOf(((IntegerValue) val).value());
-        }
-        else if (val instanceof LongValue)
-        {
-            return String.valueOf(((LongValue) val).value());
-        }
-        else if (val instanceof ShortValue)
-        {
-            return String.valueOf(((ShortValue) val).value());
-        }
-        else
-        {
-            return val.toString();
-        }
+        return val.toString();
     }
 
     /**
