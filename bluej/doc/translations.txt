@@ -17,4 +17,4 @@ portuguese      2.0.0                x                         Fred Guedes Perei
 spanish         1.2.x                                                
 swedish         1.3.5                x          later          Markus Östman       <markus@gnistra.se>
 trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>
-catalan         1.3.5                x                         Santiago Manrique   <smanriqu@pie.xtec.es>
+catalan         2.0.0                x          only labels    Santiago Manrique   <smanriqu@pie.xtec.es>

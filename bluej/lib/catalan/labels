@@ -1,45 +1,48 @@
+#Text for labels in BlueJ
+#Thu Sep 02 02:16:37 CEST 2004
 okay=Accepta
-cancel=Cancel·la
+cancel=Cancel\u00B7la
 close=Tanca
 continue=Continua
-
 main.invalidPackage=No s'ha trobat el paquet 
-
-compileException=Excepció durant la compilació
+compileException=Excepci\u00F3 durant la compilaci\u00F3
 compiler.thread.title=Fil del compilador del BlueJ
-compiler.invalidcompiler=bluej.compiler.type no està configurat per a un tipus vàlid de compilador
+compiler.invalidcompiler=bluej.compiler.type no est\u00E0 configurat per a un tipus v\u00E0lid de compilador
 compiler.nocompiler=El compilador no s'ha executat
 compiler.warningDialog.title=Avisos del compilador
-compiler.warningDialog.label=Avisos de la darrera compilació
-compiler.warningDialog.noWarnings=Cap avís
-
-debugger.assert.assertThat=Afirma que:
-debugger.assert.resultIs=el resultat és
+compiler.warningDialog.label=Avisos de la darrera compilaci\u00F3
+compiler.warningDialog.noWarnings=Cap av\u00EDs
+debugger.null=nul
+debugger.assert.assertThat=Afirma que\:
+debugger.assert.resultIs=el resultat \u00E9s
 debugger.assert.equalTo=igual a
-debugger.assert.equalToFloatingPoint= igual a (double or float)
+debugger.assert.equalToFloatingPoint=igual a (double or float)
 debugger.assert.sameAs=igual que
 debugger.assert.notSameAs=diferent de
 debugger.assert.notNull=no nul
 debugger.assert.null=nul
 debugger.assert.delta=delta
-
-debugger.inspector.title=BlueJ:  Inspector
-debugger.inspector.object.title=BlueJ:  Inspector d'objectes
-debugger.inspector.class.title=BlueJ:  Inspector de classes
-debugger.inspector.result.title=BlueJ:  Resultat del mètode
-debugger.inspector.showClass=Mostra camps estàtics
+debugger.inspector.title=BlueJ\:  Inspector
+debugger.inspector.object.title=BlueJ\:  Inspector d'objectes
+debugger.inspector.class.title=BlueJ\:  Inspector de classes
+debugger.inspector.enum.title=BlueJ\: Inspector d\u2019Enum
+debugger.inspector.interface.title=BlueJ\: Inspector de interf\u00EDcies
+debugger.inspector.result.title=BlueJ\:  Resultat del m\u00E8tode
+debugger.inspector.result.returned=retornat\:
+debugger.inspector.showClass=Mostra camps est\u00E0tics
 debugger.inspector.inspect=Inspecciona
-debugger.inspector.get=Obté
+debugger.inspector.get=Obt\u00E9
 debugger.inspector.classNameLabel=Classe
-
-debugger.objectwrapper.methodException=Excepció en accedir a mètodes:
-debugger.objectwrapper.invocationException=Excepció durant la crida:
+debugger.inspector.class.nameLabel=Classe
+debugger.inspector.enum.nameLabel=Enum
+debugger.inspector.interface.nameLabel=Interficie
+debugger.objectwrapper.methodException=Excepci\u00F3 en accedir a m\u00E8todes\:
+debugger.objectwrapper.invocationException=Excepci\u00F3 durant la crida\:
 debugger.objectwrapper.inspect=Inspecciona
 debugger.objectwrapper.remove=Treu
-debugger.objectwrapper.serializable=Seriació
+debugger.objectwrapper.serializable=Seriaci\u00F3
 debugger.objectwrapper.redefined=redefinit en
 debugger.objectwrapper.inherited=heretat de
-
 debugger.threadstatus.finished=finalitzat
 debugger.threadstatus.breakpoint=en el punt d'aturada
 debugger.threadstatus.stopped=detingut
@@ -50,41 +53,29 @@ debugger.threadstatus.sleeping=dormint
 debugger.threadstatus.unknown=estat desconegut
 debugger.threadstatus.waiting=esperant
 debugger.threadstatus.zombie=zombi
-
-#Debugger messages
-debugger.jdiDebugger.noBreakpointMsg=Elimina el punt d'aturada: no s'ha trobat cap punt d'aturada en aquesta línia.
-debugger.jdiDebugger.noLineNumberMsg=Aquesta classe ha estat compilada sense informació\n de nombre de línia. No es poden fixar punts d'aturada.
-debugger.jdiDebugger.noCodeMsg=No es pot fixar un punt d'aturada: no hi ha codi en aquesta línia.
-debugger.jdiDebugger.internalErrorMsg=S'ha produït un error intern mentre s'intentava\nconfigurar aquest punt d'aturada.
-
-#library browser configuration
-browser.title=BlueJ: Navegador de llibreria
+debugger.jdiDebugger.noBreakpointMsg=Elimina el punt d'aturada\: no s'ha trobat cap punt d'aturada en aquesta l\u00EDnia.
+debugger.jdiDebugger.noLineNumberMsg=Aquesta classe ha estat compilada sense informaci\u00F3\n de nombre de l\u00EDnia. No es poden fixar punts d'aturada.
+debugger.jdiDebugger.noCodeMsg=No es pot fixar un punt d'aturada\: no hi ha codi en aquesta l\u00EDnia.
+debugger.jdiDebugger.internalErrorMsg=S'ha produ\u00EFt un error intern mentre s'intentava\nconfigurar aquest punt d'aturada.
+browser.title=BlueJ\: Navegador de llibreria
 browser.version=0.1
 browser.togglemessagebox.toggle.text=no tornis a mostrar aquest missatge
-
 browser.librarychooser.loading.status=Les llibreries s'estan carregant
 browser.librarychooser.loaded.status=Llibreries carregades.
-browser.librarychooser.openingarchive.status=S'està obrint un arxiu de llibreria
+browser.librarychooser.openingarchive.status=S'est\u00E0 obrint un arxiu de llibreria
 browser.librarychooser.config.user=userlibs.properties
-
 browser.classchooser.classmenu.open=Obre
 browser.classchooser.classmenu.use=Usa...
 browser.classchooser.packagemenu.open=Obre
 browser.classchooser.packagemenu.use=Usa...
-
-browser.usepackage.dialog.text=Selecciona un paquet de destinació i clica Acceptar
-
+browser.usepackage.dialog.text=Selecciona un paquet de destinaci\u00F3 i clica Acceptar
 browser.missingclass.text=El navegador no por trobar la classe $
-
-#library browser menus
 browser.menu.library=Llibreria
 browser.menu.library.properties=Propietats...
 browser.menu.library.addlibrary=Afegeix...
 browser.menu.library.addlibrary.title=Afegeix llibreria
 browser.menu.library.refresh=Refresca
 browser.menu.library.close=Tanca
-
-# Class Manager panel user interface elements and 
 classmgr.prefpaneltitle=Llibreries
 classmgr.userlibraries=Llibreries d'usuari
 classmgr.userliblibraries=Llibreries d'usuari de
@@ -94,200 +85,159 @@ classmgr.statuscolumn=Estat
 classmgr.statusgood=Carregat
 classmgr.statusbad=Error
 classmgr.statusnew=No carregat
-classmgr.locationcolumn=Localització
-classmgr.error.unresolvable=Camí no resolt
-classmgr.error.nodescription=Sense descripció
-classmgr.error.missingclasspath=No existeix el classpath del Java. El comportament de la càrrega de classes pot ser imprevisible, ja que es fixen\n en primer lloc les classes de l'actual directori.
+classmgr.locationcolumn=Localitzaci\u00F3
+classmgr.error.unresolvable=Cam\u00ED no resolt
+classmgr.error.nodescription=Sense descripci\u00F3
+classmgr.error.missingclasspath=No existeix el classpath del Java. El comportament de la c\u00E0rrega de classes pot ser imprevisible, ja que es fixen\n en primer lloc les classes de l'actual directori.
 classmgr.error.missingbootclasspath=No existeix el classpath d'arrancada del Sun. El BlueJ no s'ha d'executar en un entorn previ al JDK 1.2.
-
-# Preferences Manager user interface elements and 
-prefmgr.title=BlueJ:  Preferències
-
-# Miscellaneous Preferences panel
-prefmgr.misc.prefpaneltitle=Miscel·lània
-prefmgr.misc.documentation.title=Configuració de la documentació
-prefmgr.misc.jdkurlpath=URL de la documentació del JDK
-prefmgr.misc.linkToLib=Useu aquest URL quan es generi la documentació del projecte
-prefmgr.misc.linkToLibNoteLine1=Si aquesta URL s'usa per generar la documentació, ha de ser correcta i accessible.
-prefmgr.misc.linkToLibNoteLine2=D'una altra manera, la generació de la documentació no funciona. Per treballar desconnectats, desmarque aquesta opció.
-prefmgr.misc.testing.title=Configuració del test de la unitat
+prefmgr.title=BlueJ\:  Prefer\u00E8ncies
+prefmgr.misc.prefpaneltitle=Miscel\u00B7l\u00E0nia
+prefmgr.misc.documentation.title=Configuraci\u00F3 de la documentaci\u00F3
+prefmgr.misc.jdkurlpath=URL de la documentaci\u00F3 del JDK
+prefmgr.misc.linkToLib=Useu aquest URL quan es generi la documentaci\u00F3 del projecte
+prefmgr.misc.linkToLibNoteLine1=Si aquesta URL s'usa per generar la documentaci\u00F3, ha de ser correcta i accessible.
+prefmgr.misc.linkToLibNoteLine2=D'una altra manera, la generaci\u00F3 de la documentaci\u00F3 no funciona. Per treballar desconnectats, desmarque aquesta opci\u00F3.
+prefmgr.misc.testing.title=Configuraci\u00F3 del test de la unitat
 prefmgr.misc.showTesting=Mostra eines de test de la unitat
-prefmgr.misc.vm.title=Configuració de la màquina virtual
-prefmgr.misc.optimiseVM=Utilitza optimització (execució més ràpida, però pot causar problemes amb la depuració)
+prefmgr.misc.vm.title=Configuraci\u00F3 de la m\u00E0quina virtual
+prefmgr.misc.optimiseVM=Utilitza optimitzaci\u00F3 (execuci\u00F3 m\u00E9s r\u00E0pida, per\u00F2 pot causar problemes amb la depuraci\u00F3)
 prefmgr.misc.addLibTitle=Selecciona directori o arxiu jar/zip
 prefmgr.misc.libFileFilter=Arxius de llibreria  (*.jar;*.zip) o directoris de classes
-
-# Editor Preferences panel
 prefmgr.edit.prefpaneltitle=Editor
-prefmgr.edit.editor.title=Configuració de l'editor
-prefmgr.edit.editorfontsize=Grandària de la font
+prefmgr.edit.editor.title=Configuraci\u00F3 de l'editor
+prefmgr.edit.editorfontsize=Grand\u00E0ria de la font
 prefmgr.edit.usesyntaxhilighting=Utilitza sintaxi ressaltada
 prefmgr.edit.autoindent=Autosagnat (Tecles Enter i Tab)
-prefmgr.edit.displaylinenumbers=Mostra números de línia
-prefmgr.edit.makeBackup=Crea còpies dels arxius font
-prefmgr.edit.matchBrackets=Associa parèntesis
-
-
-# Extensions Manager Help panel
-extmgr.title=BlueJ: Extensions instal·lades
+prefmgr.edit.displaylinenumbers=Mostra n\u00FAmeros de l\u00EDnia
+prefmgr.edit.makeBackup=Crea c\u00F2pies dels arxius font
+prefmgr.edit.matchBrackets=Associa par\u00E8ntesis
+extmgr.title=BlueJ\: Extensions instal\u00B7lades
 extmgr.extensions=Extensions
 extmgr.systemExtensionShort=Sistema
 extmgr.systemExtensionLong=Extensions del sistema (actiu per a tots els projectes)
 extmgr.projectExtensionShort=Projecte
-extmgr.projectExtensionLong=Extensió del sistema (només per a aquest projecte)
+extmgr.projectExtensionLong=Extensi\u00F3 del sistema (nom\u00E9s per a aquest projecte)
 extmgr.statuscolumn=Estat
 extmgr.namecolumn=Nom
 extmgr.typecolumn=Tipus
-extmgr.details=Detalls de l'extensió
-extmgr.details.location=Localització:
-extmgr.details.version=versió
-extmgr.details.url=Més informació a:
-
+extmgr.details=Detalls de l'extensi\u00F3
+extmgr.details.location=Localitzaci\u00F3\:
+extmgr.details.version=versi\u00F3
+extmgr.details.url=M\u00E9s informaci\u00F3 a\:
 extmgr.status.notused=no utilitzat
 extmgr.status.loaded=carregat
 extmgr.status.error=error
 extmgr.status.unloaded=descarregat
 extmgr.version.unknown=desconegut
-extensions.nodescription=Cap descripció
-
-# Extension errors
+extensions.nodescription=Cap descripci\u00F3
 extmgr.error.nomanifest=Cap arxiu manifest
-extmgr.error.nomain=El manifest no conté atributs de classe principal
-extmgr.error.notsubclass=La classe principal no és una subclasse d'extensió
-extmgr.error.cannotload=No es pot carregar l'extensió
-
-#---------------
-#Editor labels
-#---------------
-editor.title=BlueJ: Editor
-
-#button lables for toolbar commands
+extmgr.error.nomain=El manifest no cont\u00E9 atributs de classe principal
+extmgr.error.notsubclass=La classe principal no \u00E9s una subclasse d'extensi\u00F3
+extmgr.error.cannotload=No es pot carregar l'extensi\u00F3
+editor.title=BlueJ\: Editor
 editor.compileLabel=Compila
-editor.undoLabel=Desfés
+editor.undoLabel=Desf\u00E9s
 editor.cutLabel=Retalla
 editor.copyLabel=Copia
 editor.pasteLabel=Enganxa
 editor.closeLabel=Tanca
-editor.page-setupLabel=Configura pàgina
-
-# menu labels (MUST be defined)
+editor.page-setupLabel=Configura p\u00E0gina
 editor.classLabel=Classe
 editor.editLabel=Edita
 editor.toolsLabel=Eines
-editor.debugLabel=Depuració
+editor.debugLabel=Depuraci\u00F3
 editor.optionLabel=Opcions
 editor.helpLabel=Ajuda
-
-# item labels (can be omitted if same as action na
 editor.saveLabel=Desa
 editor.reloadLabel=Actualitza
 editor.printLabel=Imprimeix...
-editor.closeLabel=Tanca
-
-editor.redoLabel=Refés
+editor.redoLabel=Ref\u00E9s
 editor.cut-to-clipboardLabel=Retalla
 editor.copy-to-clipboardLabel=Copia
 editor.paste-from-clipboardLabel=Enganxa
-editor.indent-blockLabel=Sagna més
+editor.indent-blockLabel=Sagna m\u00E9s
 editor.deindent-blockLabel=Sagna menys
 editor.comment-blockLabel=Comenta
-editor.uncomment-blockLabel=Desfés comentari
-editor.insert-methodLabel=Insereix mètode
-
+editor.uncomment-blockLabel=Desf\u00E9s comentari
+editor.insert-methodLabel=Insereix m\u00E8tode
 editor.findLabel=Cerca...
-editor.find-nextLabel=Cerca següent
+editor.find-nextLabel=Cerca seg\u00FCent
 editor.find-next-backwardLabel=Cerca anterior
-editor.go-to-lineLabel=Vés a la línia...
-editor.replaceLabel=Reemplaça...
-editor.compileLabel=Compila
+editor.go-to-lineLabel=V\u00E9s a la l\u00EDnia...
+editor.replaceLabel=Reempla\u00E7a...
 editor.toggle-breakpointLabel=Configura/Elimina punt d'aturada
-editor.toggle-interface-viewLabel=Canvia a vista d'interfície
-
-editor.go-to-lineLabel=Vés a la línia...
-editor.gotoline.title=Vés a la línia
-editor.gotoline.label=Teclegeu el número de línia
-editor.gotoline.notNumericMessage=La dada ha de ser numèrica
-
-editor.implementationLabel=Implementació
-editor.interfaceLabel=Interfície
-
-editor.state.readOnly=només lectura
+editor.toggle-interface-viewLabel=Canvia a vista d'interf\u00EDcie
+editor.gotoline.title=V\u00E9s a la l\u00EDnia
+editor.gotoline.label=Teclegeu el n\u00FAmero de l\u00EDnia
+editor.gotoline.notNumericMessage=La dada ha de ser num\u00E8rica
+editor.implementationLabel=Implementaci\u00F3
+editor.interfaceLabel=Interf\u00EDcie
+editor.state.readOnly=nom\u00E9s lectura
 editor.state.saved=desat
 editor.state.changed=canviat
-
-editor.key-bindingsLabel=Enllaços clau...
-editor.preferencesLabel=Preferències...
-
-# Dialog titles and texts
+editor.key-bindingsLabel=Enlla\u00E7os clau...
+editor.preferencesLabel=Prefer\u00E8ncies...
 editor.functions.title=Editor de funcions
 editor.functions.editFunctions=Edita funcions
 editor.functions.moveScroll=Mou & Scroll
 editor.functions.classFunctions=Funcions de classe
-editor.functions.customisation=Personalització
+editor.functions.customisation=Personalitzaci\u00F3
 editor.functions.help=Ajuda
 editor.functions.misc=Misc
 editor.functions.defaults=Per defecte
-editor.functions.categories=Categories:
-editor.functions.keys=Enllaços clau
+editor.functions.categories=Categories\:
+editor.functions.keys=Enlla\u00E7os clau
 editor.functions.addkey=Afegeix clau
 editor.functions.delkey=Elimina clau
-
 editor.find.title=Cerca
-editor.find.find.label=Cerca:
-editor.find.replace.label=Reemplaça:
-editor.find.findNext=Cerca següent
-editor.find.replace=Reemplaça
-editor.find.replaceAll=Reemplaça tot
+editor.find.find.label=Cerca\:
+editor.find.replace.label=Reempla\u00E7a\:
+editor.find.findNext=Cerca seg\u00FCent
+editor.find.replace=Reempla\u00E7a
+editor.find.replaceAll=Reempla\u00E7a tot
 editor.find.up=Cerca endalt
 editor.find.down=Cerca avall
-editor.find.ignoreCase=Ignora majúscules
+editor.find.ignoreCase=Ignora maj\u00FAscules
 editor.find.wholeWord=Paraula completa
-
-#Messages, warnings, etc that is displayed by Info
-editor.info.version=Versió Moe
-editor.info.readingProblem=S'ha produït un problema en llegir aquest arxiu.
-editor.info.regularFile=(És realment un arxiu regular? Teniu accés de lectura?)
+editor.info.version=Versi\u00F3 Moe
+editor.info.readingProblem=S'ha produ\u00EFt un problema en llegir aquest arxiu.
+editor.info.regularFile=(\u00C9s realment un arxiu regular? Teniu acc\u00E9s de lectura?)
 editor.info.newFile=Nou arxiu
-editor.info.errorSaving=Error en desar l'arxiu!
+editor.info.errorSaving=Error en desar l'arxiu\!
 editor.info.compiled=Classe compilada. No hi ha errors de sintaxi
 editor.info.noChanges=No s'ha dessat cap canvi
-editor.info.cannotReload=No  es pot recarregar. Aquest text mai ha estat desat!
-"editor.info.reload= (\""Recarregar\"" recàrrega l'últim estat desat en disc.)"
+editor.info.cannotReload=No  es pot recarregar. Aquest text mai ha estat desat\!
+"editor.info.reload=(""Recarregar"" rec\u00E0rrega l'\u00FAltim estat desat en disc.)"
+editor.info.reload=(\u201CReload\u201D recupera la darrera versi\u00F3 desada al disc.)
 editor.info.emptySearchString=Cadena de recerca buida.
 editor.info.notFound=No s'ha trobat (cerca una altra vegada des del principi).
-editor.info.compiling=S'està compilant...
-editor.info.cannotSetBreak=No es pot configurar el punt d'aturada:\nno hi ha codi associat amb aquest editor.
-editor.info.fileDisappeared=ERROR: L'arxiu sembla haver desaparegut!
-editor.info.fileReadError=ERROR: S'ha produït un error en intentar llegir aquest arxiu.
+editor.info.compiling=S'est\u00E0 compilant...
+editor.info.cannotSetBreak=No es pot configurar el punt d'aturada\:\nno hi ha codi associat amb aquest editor.
+editor.info.fileDisappeared=ERROR\: L'arxiu sembla haver desaparegut\!
+editor.info.fileReadError=ERROR\: S'ha produ\u00EFt un error en intentar llegir aquest arxiu.
 editor.info.saved=Arxiu desat
-editor.info.printing=S'està imprimint...
-editor.info.printed=S'està imprimint... Fet.
-editor.info.cancelled=Cancel·lat
-editor.info.generatingDoc=S'està generant interfície de classe...
-editor.info.loadingDoc=S'està carregant interfície de classe...
-editor.info.docLoaded=S'està carregant interfície de classe... Fet.
-editor.info.docAborted=S'ha produït un problema en generar la interfície \njavadoc. Cancel·lat.
-editor.info.docDisappeared=No s'ha trobat l'arxiu HTML:
-editor.info.docNoFrames=En la vista preliminar de l'editor, està deshabilitat el mostrar marcs.
-editor.info.tabsExpanded=S’han convertit tots els tabuladors a espais. (Esteu treballant \namb  tabuladors tous, l’arxiu conté tabuladors durs.)
+editor.info.printing=S'est\u00E0 imprimint...
+editor.info.printed=S'est\u00E0 imprimint... Fet.
+editor.info.cancelled=Cancel\u00B7lat
+editor.info.generatingDoc=S'est\u00E0 generant interf\u00EDcie de classe...
+editor.info.loadingDoc=S'est\u00E0 carregant interf\u00EDcie de classe...
+editor.info.docLoaded=S'est\u00E0 carregant interf\u00EDcie de classe... Fet.
+editor.info.docAborted=S'ha produ\u00EFt un problema en generar la interf\u00EDcie \njavadoc. Cancel\u00B7lat.
+editor.info.docDisappeared=No s'ha trobat l'arxiu HTML\:
+editor.info.docNoFrames=En la vista preliminar de l'editor, est\u00E0 deshabilitat el mostrar marcs.
+editor.info.tabsExpanded=S\u0092han convertit tots els tabuladors a espais. (Esteu treballant \namb  tabuladors tous, l\u0092arxiu cont\u00E9 tabuladors durs.)
 editor.printer.continued=continuat
-#End Editor labels
-
-pkgmgr.chooseUsesFrom=Seleccioneu la classe de la qual depèn
-pkgmgr.chooseUsesTo=Seleccioneu la classe que depèn d'aquesta
+pkgmgr.chooseUsesFrom=Seleccioneu la classe de la qual dep\u00E8n
+pkgmgr.chooseUsesTo=Seleccioneu la classe que dep\u00E8n d'aquesta
 pkgmgr.chooseInhFrom=Seleccioneu la subclasse
 pkgmgr.chooseInhTo=Seleccioneu la superclasse
 pkgmgr.chooseArrow=Seleccioneu una fletxa per eliminar
 pkgmgr.packageSaved=Paquet desat
-pkgmgr.info.printing=S'està imprimint...
-pkgmgr.info.printed=S'està imprimint... Fet.
-
-utility.packageChooser.previewPane1=Visió preliminar de possible
+pkgmgr.info.printing=S'est\u00E0 imprimint...
+pkgmgr.info.printed=S'est\u00E0 imprimint... Fet.
+utility.packageChooser.previewPane1=Visi\u00F3 preliminar de possible
 utility.packageChooser.previewPane2=estructura del paquet
-
-# dialog titles and texts
-pkgmgr.title=BlueJ:
-
+pkgmgr.title=BlueJ\:
 pkgmgr.newPkg.title=Nou projecte
 pkgmgr.newPkg.buttonLabel=Crea
 pkgmgr.openPkg.title=Projecte obert
@@ -302,216 +252,185 @@ pkgmgr.importPkg.title=Selecciona directori per importar
 pkgmgr.importPkg.buttonLabel=Importa
 pkgmgr.importPkgNew.title=Nou projecte per importar
 pkgmgr.importPkgNew.buttonLabel=Crea
-
-pkgmgr.newClass.msg=Introduïu el nom de la classe
-pkgmgr.newUses=Nova fletxa d'ús
-pkgmgr.newExtends=Nova fletxa d'extensió
-pkgmgr.unimplemented=Ho sento, aquesta característica encara no ha estat implementada 
-pkgmgr.pkgChooseError=Error en seleccionar un nom vàlid de paquet
-pkgmgr.chooseWebPage.title=Seleccioneu pàgina HTML de destí
-
+pkgmgr.newClass.msg=Introdu\u00EFu el nom de la classe
+pkgmgr.newUses=Nova fletxa d'\u00FAs
+pkgmgr.newExtends=Nova fletxa d'extensi\u00F3
+pkgmgr.unimplemented=Ho sento, aquesta caracter\u00EDstica encara no ha estat implementada 
+pkgmgr.pkgChooseError=Error en seleccionar un nom v\u00E0lid de paquet
+pkgmgr.chooseWebPage.title=Seleccioneu p\u00E0gina HTML de dest\u00ED
+pkgmgr.chooseWebPage.buttonLabel=Desa la p\u00E0gina HTML 
 pkgmgr.parentpackagetarget.open=Obre
 pkgmgr.parentpackagetarget.openunamed=Obre paquet sense nom
-
 pkgmgr.packagemenu.open=Obre
 pkgmgr.packagemenu.remove=Elimina
-
 pkgmgr.classmenu.runApplet=Executa applet
 pkgmgr.classmenu.edit=Obre editor
 pkgmgr.classmenu.compile=Compila
 pkgmgr.classmenu.inspect=Inspecciona
 pkgmgr.classmenu.remove=Elimina
 pkgmgr.classmenu.createTest=Crea la classe de test
-
-pkgmgr.test.label=S'està comprovant
-pkgmgr.test.record=S'està enregistrant
+pkgmgr.test.label=S'est\u00E0 comprovant
+pkgmgr.test.record=S'est\u00E0 enregistrant
 pkgmgr.test.run=S'estan executant els tests
 pkgmgr.test.end=Fi
-pkgmgr.test.succeeded=subsegüent
+pkgmgr.test.succeeded=subseg\u00FCent
 pkgmgr.test.noTestName=Heu d'especificar un nom per al test
-pkgmgr.test.invalidTestName=El nom del test ha de ser un identificador vàlid del Java
-pkgmgr.test.recording=s'està enregistrant
-
+pkgmgr.test.invalidTestName=El nom del test ha de ser un identificador v\u00E0lid del Java
+pkgmgr.test.recording=s'est\u00E0 enregistrant
 pkgmgr.test.popup.testAll=Comprova-ho tot
-pkgmgr.test.popup.noTests=No hi ha cap mètode de test
+pkgmgr.test.popup.noTests=No hi ha cap m\u00E8tode de test
 pkgmgr.test.popup.testPrefix=Test
-pkgmgr.test.popup.createTest=Crea un mètode de test...
+pkgmgr.test.popup.createTest=Crea un m\u00E8tode de test...
 pkgmgr.test.popup.benchToFixture=Panell d'objectes de test fix
 pkgmgr.test.popup.fixtureToBench=Test fix a panell d'objectes
-
-
-"# ""new class"" dialog"
-pkgmgr.newClass.title=BlueJ:  Crea nova classe
-pkgmgr.newClass.label=Nom de classe:
+"\#=""version check"" dialog"
+pkgmgr.newClass.title=BlueJ\:  Crea nova classe
+pkgmgr.newClass.label=Nom de classe\:
 pkgmgr.newClass.classType=Tipus de classe
 pkgmgr.newClass.stdclass=Classe
 pkgmgr.newClass.abstract=Classe abstracta
-pkgmgr.newClass.interface=Interfície
+pkgmgr.newClass.interface=Interf\u00EDcie
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
 pkgmgr.newClass.unittest=Unitat de test
-
-"# ""new package"" dialog"
-pkgmgr.newPackage.title=BlueJ: Crea nou paquet
-pkgmgr.newPackage.label=Nom de paquet:
+pkgmgr.newClass.enum=Enum
+pkgmgr.newPackage.title=BlueJ\: Crea nou paquet
+pkgmgr.newPackage.label=Nom de paquet\:
 pkgmgr.newPackage.newPackage=Paquet
-
-"# ""Use Library Class"" dialog"
-callLibraryDialog.title=BlueJ:  Classe de crida a la llibreria
-callLibraryDialog.classLabel=Classe:
-callLibraryDialog.docButton=Documentació
-callLibraryDialog.listHeading=Constructors i mètodes estàtics
-callLibraryDialog.clickHere1=Introduïu el nom complet de la classe i premeu Enter
-callLibraryDialog.clickHere2=per mostrar constructors i mètodes.
+callLibraryDialog.title=BlueJ\:  Classe de crida a la llibreria
+callLibraryDialog.classLabel=Classe\:
+callLibraryDialog.docButton=Documentaci\u00F3
+callLibraryDialog.listHeading=Constructors i m\u00E8todes est\u00E0tics
+callLibraryDialog.clickHere1=Introdu\u00EFu el nom complet de la classe i premeu Enter
+callLibraryDialog.clickHere2=per mostrar constructors i m\u00E8todes.
 callLibraryDialog.classNotFound1=No es pot trobar la classe.
 callLibraryDialog.classNotFound2=(Verifiqueu el nom de la classe i premeu novament Enter.)
-
-"# ""Free Form Call"" dialog"
-freeCallDialog.title=BlueJ:  Evalua
-freeCallDialog.fieldLabel=Evalua:
-freeCallDialog.resultLabel=Això és
-freeCallDialog.returnsResult=una expressió (torna un resultat)
-freeCallDialog.returnsNoResult=una instrucció  (no torna cap resultat)
-
-"# ""export"" dialog"
-pkgmgr.export.title=BlueJ: Exporta projecte
-pkgmgr.export.helpLine1=Exporta emmagatzema una còpia del projecte actual en
-pkgmgr.export.helpLine2=format estàndard del Java (no-BlueJ).
+freeCallDialog.title=BlueJ\:  Evalua
+freeCallDialog.fieldLabel=Evalua\:
+freeCallDialog.resultLabel=Aix\u00F2 \u00E9s
+freeCallDialog.returnsResult=una expressi\u00F3 (torna un resultat)
+freeCallDialog.returnsNoResult=una instrucci\u00F3  (no torna cap resultat)
+pkgmgr.export.title=BlueJ\: Exporta projecte
+pkgmgr.export.helpLine1=Exporta emmagatzema una c\u00F2pia del projecte actual en
+pkgmgr.export.helpLine2=format est\u00E0ndard del Java (no-BlueJ).
 pkgmgr.export.directoryLabel=Emmagatzema com a estructura de directoris
 pkgmgr.export.jarFileLabel=Emmagatzema com a arxiu jar
-pkgmgr.export.classLabel=classe principal:
+pkgmgr.export.classLabel=classe principal\:
+pkgmgr.export.includeLibs=Inclou llibreries d\u2019usuari
 pkgmgr.export.sourceLabel=inclou font
 pkgmgr.export.noClassText=cap (no es pot executar)
-
-"# ""open-non-bluej"" mismatch dialog"
-pkgmgr.importmismatch.title=BlueJ: Línies desaparellades en el paquet
-pkgmgr.importmismatch.helpLine1=ATENCIÓ: No és el directori de nivell superior esperat d’aquest Java
-pkgmgr.importmismatch.helpLine2=projecte tal com està declarat en algun paquet de declaracions de les classes del projecte.
+pkgmgr.export.specifyJar=Especifiqueu un nom pel fitxer jar
+pkgmgr.export.createJarText=Crea
+pkgmgr.importmismatch.title=BlueJ\: L\u00EDnies desaparellades en el paquet
+pkgmgr.importmismatch.helpLine1=ATENCI\u00D3\: No \u00E9s el directori de nivell superior esperat d\u0092aquest Java
+pkgmgr.importmismatch.helpLine2=projecte tal com est\u00E0 declarat en algun paquet de declaracions de les classes del projecte.
 pkgmgr.importmismatch.helpLine3=En obrir aquest directori canviaran totes les declaracions del paquet en els 
-pkgmgr.importmismatch.helpLine4=següents arxius font del projecte.
-pkgmgr.importmismatch.helpLine5=Probablement hauríeu d'obrir el directori anterior al
-pkgmgr.importmismatch.helpLine6=seleccionat. Per exemple, obrir un projecte Java que conté
+pkgmgr.importmismatch.helpLine4=seg\u00FCents arxius font del projecte.
+pkgmgr.importmismatch.helpLine5=Probablement haur\u00EDeu d'obrir el directori anterior al
+pkgmgr.importmismatch.helpLine6=seleccionat. Per exemple, obrir un projecte Java que cont\u00E9
 "pkgmgr.importmismatch.helpLine7=el paquet ""org.bluej"",  heu de seleccionar el directori que"
 "pkgmgr.importmismatch.helpLine8=_contains_ ""org"",  no  ""org"" o ""bluej"" directori ell mateix.
+pkgmgr.importmismatch.helpLine7=el paquet "org.bluej",  heu de seleccionar el directori que
+pkgmgr.importmismatch.helpLine8=_contains_ "org",  no  "org" o "bluej" del mateix directori .
 pkgmgr.importmismatch.helpLine9=Voleu continuar obrint i canviant las declaracions del paquet?
-
-"# ""import"" failure dialog"
-pkgmgr.importfailed.title=BlueJ:  Estat d'importació
-pkgmgr.importfailed.helpLine1=La importació ha fallat en copiar els arxius següents.
-pkgmgr.importfailed.helpLine2=És possible que aquests arxius ja
-pkgmgr.importfailed.helpLine3=estiguessin presents en el projecte de destí.
-
-"# ""version check"" dialog"
-pkgmgr.versionDlg.title=BlueJ: Comproveu-ho per a una nova versió
-pkgmgr.versionDlg.helpLine1=Aquesta funció comprovarà si existeix  una nova versió del BlueJ.
-pkgmgr.versionDlg.helpLine2=Ha d'estar connectat perquè funcioni.
-pkgmgr.versionDlg.check=Comprova versió
-pkgmgr.versionDlg.upToDate=La versió actual està actualitzada.
-pkgmgr.versionDlg.currentVersion=La seva versió del BlueJ és
-pkgmgr.versionDlg.newVersion=La versió més recent del BlueJ és
-
-# run applet dialog
-pkgmgr.runApplet.title=BlueJ:  Executa applet
-pkgmgr.runApplet.webPageLabel=Crea pàgina web
-pkgmgr.runApplet.webPage=Genera només pàgina web
+pkgmgr.importfailed.title=BlueJ\:  Estat d'importaci\u00F3
+pkgmgr.importfailed.helpLine1=La importaci\u00F3 ha fallat en copiar els arxius seg\u00FCents.
+pkgmgr.importfailed.helpLine2=\u00C9s possible que aquests arxius ja
+pkgmgr.importfailed.helpLine3=estiguessin presents en el projecte de dest\u00ED.
+pkgmgr.versionDlg.title=BlueJ\: Comproveu-ho per a una nova versi\u00F3
+pkgmgr.versionDlg.helpLine1=Aquesta funci\u00F3 comprovar\u00E0 si existeix  una nova versi\u00F3 del BlueJ.
+pkgmgr.versionDlg.helpLine2=Ha d'estar connectat perqu\u00E8 funcioni.
+pkgmgr.versionDlg.check=Comprova versi\u00F3
+pkgmgr.versionDlg.upToDate=La versi\u00F3 actual est\u00E0 actualitzada.
+pkgmgr.versionDlg.currentVersion=La seva versi\u00F3 del BlueJ \u00E9s
+pkgmgr.versionDlg.newVersion=La versi\u00F3 m\u00E9s recent del BlueJ \u00E9s
+pkgmgr.runApplet.title=BlueJ\:  Executa applet
+pkgmgr.runApplet.webPageLabel=Crea p\u00E0gina web
+pkgmgr.runApplet.webPage=Genera nom\u00E9s p\u00E0gina web
 pkgmgr.runApplet.appletviewer=Executa applet en el visualitzador d'applets
 pkgmgr.runApplet.webBrowser=Executa applet en un navegador web
-pkgmgr.runApplet.heightLbl=Alçada
+pkgmgr.runApplet.heightLbl=Al\u00E7ada
 pkgmgr.runApplet.widthLbl=Amplada
-pkgmgr.runApplet.newParameterLbl=Afegeix nou paràmetre
-pkgmgr.runApplet.appletParameterLbl=Paràmetres de l'applet
+pkgmgr.runApplet.newParameterLbl=Afegeix nou par\u00E0metre
+pkgmgr.runApplet.appletParameterLbl=Par\u00E0metres de l'applet
 pkgmgr.runApplet.nameLbl=Nom
 pkgmgr.runApplet.valueLbl=Valor
-pkgmgr.runApplet.paramName=NOM DEL PARÀMETRE
+pkgmgr.runApplet.paramName=NOM DEL PAR\u00C0METRE
 pkgmgr.runApplet.value=VALOR
-pkgmgr.runApplet.htmlComment=<!-- Arxiu generat automàticament per l'entorn de desenvolupament -->\n<!-- BlueJ Java. Es regenera automàticament cada vegada que -->\n<!--l'applet s'executa. Qualssevol canvi manual  fet a l'arxiu es perdrà -->\n<!-- quan l'applet s'executi novament des de dins del BlueJ. Deseu-lo -->\n<!-- fora del directori del paquet si voleu   -->\n<!-- conservar aquest arxiu. -->
-pkgmgr.runApplet.htmlExportedComment=<!-- Arxiu generat automàticament per l'entorn de desenvolupament -->\n<!-- BlueJ Java.  La variable codebase s'ha fixat com el camí absolut del -->\n<!-- directori del paquet del BlueJ de l'applet en el moment en que la pàgina s'ha generat. -->\n<!-- Si la situació d'aquest es modifica, necessitareu editar el valor de codebase.  -->
-
-#print project dialog
-pkgmgr.printDialog.title=BlueJ: Imprimeix projecte
+pkgmgr.runApplet.htmlComment=<\!-- Arxiu generat autom\u00E0ticament per l'entorn de desenvolupament -->\n<\!-- BlueJ Java. Es regenera autom\u00E0ticament cada vegada que -->\n<\!--l'applet s'executa. Qualssevol canvi manual  fet a l'arxiu es perdr\u00E0 -->\n<\!-- quan l'applet s'executi novament des de dins del BlueJ. Deseu-lo -->\n<\!-- fora del directori del paquet si voleu   -->\n<\!-- conservar aquest arxiu. -->
+pkgmgr.runApplet.htmlExportedComment=<\!-- Arxiu generat autom\u00E0ticament per l'entorn de desenvolupament -->\n<\!-- BlueJ Java.  La variable codebase s'ha fixat com el cam\u00ED absolut del -->\n<\!-- directori del paquet del BlueJ de l'applet en el moment en que la p\u00E0gina s'ha generat. -->\n<\!-- Si la situaci\u00F3 d'aquest es modifica, necessitareu editar el valor de codebase.  -->
+pkgmgr.printDialog.title=BlueJ\: Imprimeix projecte
 pkgmgr.printDialog.printDiagram=Imprimeix el diagrama de la classe
 pkgmgr.printDialog.printSource=Imprimeix el codi font
 pkgmgr.printDialog.printReadme=Imprimeix el projecte readme
-
-# method call dialog
-pkgmgr.methodCall.titleCreate=BlueJ:  Crea objecte
-pkgmgr.methodCall.titleCall=BlueJ:  Crida a mètode
-pkgmgr.methodCall.namePrompt=Nom d'instància:
-error.methodCall.emptyField=Paràmetre de camp buit
-error.methodCall.illegalName=El nom d'instància ha de ser un identificador Java.
+pkgmgr.methodCall.titleCreate=BlueJ\:  Crea objecte
+pkgmgr.methodCall.titleCall=BlueJ\:  Crida a m\u00E8tode
+pkgmgr.methodCall.namePrompt=Nom d'inst\u00E0ncia\:
+pkgmgr.methodCall.typeParametersPrompt=Tipus de par\u00E0metres\:
+pkgmgr.methodCall.typeParameterPrompt=Tipus de par\u00E0metre\:
+error.methodCall.emptyField=Par\u00E0metre de camp buit
+error.methodCall.emptyTypeField=Error\: camp amb par\u00E0metre de tipus buit. Empleneu tots els tipus de par\u00E0metre o cap
+error.methodCall.illegalName=El nom d'inst\u00E0ncia ha de ser un identificador Java.
 error.methodCall.duplicateName=Un objecte amb aquest nom ja existeix.\nSi us plau, escolliu un nom diferent.
-
-# Debugger dialog (ExecControls.java)
-debugger.execControls.windowTitle=BlueJ:  Depurador
-debugger.execControls.stackTitle=Seqüència de crida
-debugger.execControls.staticTitle=Variables estàtiques
-debugger.execControls.instanceTitle=Variables d'instància
+debugger.execControls.windowTitle=BlueJ\:  Depurador
+debugger.execControls.stackTitle=Seq\u00FC\u00E8ncia de crida
+debugger.execControls.staticTitle=Variables est\u00E0tiques
+debugger.execControls.instanceTitle=Variables d'inst\u00E0ncia
 debugger.execControls.localTitle=Variables locals
 debugger.execControls.threadTitle=Fils
-debugger.execControls.haltButtonText=Interrupció
+debugger.execControls.haltButtonText=Interrupci\u00F3
 debugger.execControls.stepButtonText=Pas
 debugger.execControls.stepIntoButtonText=Pas endins
 debugger.execControls.continueButtonText=Continua
 debugger.execControls.terminateButtonText=Finalitza
-
 debugger.options=Opcions
 debugger.hideSystemThreads=Oculta fils del sistema
-debugger.threadRunning= <html><center>S'està executant un fil.<br>Cal detenir els fils per veure els detalls.</html>
-
-# DialogManager labels
-
-dialogmgr.error=BlueJ:  Error
-dialogmgr.question=BlueJ:  Pregunta
-dialogmgr.message=BlueJ:  Missatge
-
-#Terminal Window
+debugger.threadRunning=<html><center>S'est\u00E0 executant un fil.<br>Cal detenir els fils per veure els detalls.</html>
+dialogmgr.error=BlueJ\:  Error
+dialogmgr.question=BlueJ\:  Pregunta
+dialogmgr.message=BlueJ\:  Missatge
 terminal.options=Opcions
-terminal.title=BlueJ:  Finestra de terminal
+terminal.title=BlueJ\:  Finestra de terminal
 terminal.clear=Neteja
 terminal.copy=Copia
 terminal.save=Desa en arxiu...
 terminal.close=Tanca
-terminal.clearScreen=Neteja la pantalla en cridar el mètode
-terminal.recordCalls=Registre de crida a mètodes
-terminal.buffering=Buffering il·limitat
+terminal.clearScreen=Neteja la pantalla en cridar el m\u00E8tode
+terminal.recordCalls=Registre de crida a m\u00E8todes
+terminal.buffering=Buffering il\u00B7limitat
 terminal.save.title=Desa terminal de text
 terminal.save.buttonText=Desa
-
-#TestDisplay Window
-testdisplay.title=BlueJ: Resultats del test
-testdisplay.counter.runs=Execucions:
-testdisplay.counter.errors=Errors:
-testdisplay.counter.failures=Fallades:
-
-# status messages
-pkgmgr.compiling=S'està compilant...
-pkgmgr.compileDone=S'està compilant... Fet
-pkgmgr.creating=S'està creant un objecte...
-pkgmgr.createDone=S'està creant objecte... Fet
-pkgmgr.creatingVM=S'està creant màquina virtual...
-pkgmgr.creatingVMDone=S'està creant màquina virtual... Fet
-pkgmgr.generatingDocu=S'està generant documentació...
-pkgmgr.docuGenerated=S'està generant documentació... Fet
-pkgmgr.docuAborted=S'està generant documentació... Interrompuda
+testdisplay.title=BlueJ\: Resultats del test
+testdisplay.counter.runs=Execucions\:
+testdisplay.counter.errors=Errors\:
+testdisplay.counter.failures=Fallades\:
+testdisplay.showsource=Mostra la font
+pkgmgr.compiling=S'est\u00E0 compilant...
+pkgmgr.compileDone=S'est\u00E0 compilant... Fet
+pkgmgr.creating=S'est\u00E0 creant un objecte...
+pkgmgr.createDone=S'est\u00E0 creant objecte... Fet
+pkgmgr.creatingVM=S'est\u00E0 creant m\u00E0quina virtual...
+pkgmgr.creatingVMDone=S'est\u00E0 creant m\u00E0quina virtual... Fet
+pkgmgr.generatingDocu=S'est\u00E0 generant documentaci\u00F3...
+pkgmgr.docuGenerated=S'est\u00E0 generant documentaci\u00F3... Fet
+pkgmgr.docuAborted=S'est\u00E0 generant documentaci\u00F3... Interrompuda
 pkgmgr.webBrowserMsg=El navegador web ha estat iniciat.
 pkgmgr.webBrowserError=Error en iniciar el navegador web.
-pkgmgr.usesArrowMsg=Dependència d'ús declarada però mai utilitzada.
+pkgmgr.usesArrowMsg=Depend\u00E8ncia d'\u00FAs declarada per\u00F2 mai utilitzada.
 pkgmgr.breakpointMsg=La classe ha de ser compilada per configurar els punts d'aturada.
-pkgmgr.appletInViewer=S'està executant applet en el visualitzador d'applets
-pkgmgr.appletInBrowser=S'està executant applet en el navegador Web
-pkgmgr.exported=Exportació completada.
-pkgmgr.exported.jar=Exportació a arxiu jar completada.
+pkgmgr.appletInViewer=S'est\u00E0 executant applet en el visualitzador d'applets
+pkgmgr.appletInBrowser=S'est\u00E0 executant applet en el navegador Web
+pkgmgr.exported=Exportaci\u00F3 completada.
+pkgmgr.exported.jar=Exportaci\u00F3 a arxiu jar completada.
 pkgmgr.error.open=El projecte no existeix
-pkgmgr.checkingVersion=S'està connectant al servidor de versions...
-
-"properties.heading.bluej=Propietats de  BlueJ. La configuració en aquest arxiu modifica  \""bluej.defs\"""
-"properties.heading.moe=Propietats de Editor Moe.  La configuració en aquest arxiu modifica \""moe.defs\"""
-
-# menus and menu items
-
+pkgmgr.checkingVersion=S'est\u00E0 connectant al servidor de versions...
+"properties.heading.bluej=Propietats de  BlueJ. La configuraci\u00F3 en aquest arxiu modifica  ""bluej.defs"""
+"properties.heading.moe=Propietats de Editor Moe.  La configuraci\u00F3 en aquest arxiu modifica ""moe.defs"""
+properties.heading.bluej=Propietats de  BlueJ. La configuraci\u00F3 en aquest arxiu modifica  "bluej.defs"
+properties.heading.moe=Propietats de Editor Moe.  La configuraci\u00F3 en aquest arxiu modifica "moe.defs"
 menu.package=Projecte
 menu.package.new=Nou projecte...
-menu.package.open=Obre rojecte...
+menu.package.open=Obre projecte...
 menu.package.openRecent=Obre recents
 menu.package.openNonBlueJ=Obre No BlueJ...
 menu.package.close=Tanca
@@ -519,90 +438,79 @@ menu.package.save=Desa
 menu.package.saveAs=Desa com a...
 menu.package.import=Importa...
 menu.package.export=Exporta...
-menu.package.pageSetup=Configura pàgina...
+menu.package.pageSetup=Configura p\u00E0gina...
 menu.package.print=Imprimeix...
 menu.package.quit=Surt
-
 menu.edit=Edita
 menu.edit.newClass=Nova classe...
 menu.edit.newPackage=Nou paquet...
 menu.edit.addClass=Afegeix classe  des d'arxiu...
 menu.edit.remove=Treu
-menu.edit.newUses=Nova fletxa d'ús
-menu.edit.newInherits=Nova fletxa d'herència
+menu.edit.newUses=Nova fletxa d'\u00FAs
+menu.edit.newInherits=Nova fletxa d'her\u00E8ncia
 menu.edit.removeArrow=Treu fletxa...
-
 menu.tools=Eines
 menu.tools.compile=Compila
 menu.tools.test=Executa test
 menu.tools.compileSelected=Compila seleccionats
 menu.tools.rebuild=Recompilar paquet
 menu.tools.callLibrary=Usa classe de llibreria...
-menu.tools.callFreeForm=Avalua expressió...
-menu.tools.generateDoc=Documentació del projecte
-menu.tools.preferences=Preferències...
-
+menu.tools.callFreeForm=Avalua expressi\u00F3...
+menu.tools.generateDoc=Documentaci\u00F3 del projecte
+menu.tools.testing=_Comprovant
+menu.tools.run=Executa el test
+menu.tools.end=Finalitza enregistrament
+menu.tools.cancel=Cancel\u00B7la enregistrament
+menu.tools.preferences=Prefer\u00E8ncies...
 menu.view=Vegeu
 menu.view.showUses=Mostra usos
-menu.view.showInherits=Mostra herència
+menu.view.showInherits=Mostra her\u00E8ncia
 menu.view.showExecControls=Mostra depurador
 menu.view.showTerminal=Mostra el Terminal
+menu.view.showTextEval=Mostra el quadern de notes
 menu.view.showTestDisplay=Mostra resultats del test
-
 menu.group=Treball amb grups
 menu.group.make=Crea grup de paquets
 menu.group.open=Obre grup de paquets
-menu.group.updateSelected=Actualitza selecció
+menu.group.updateSelected=Actualitza selecci\u00F3
 menu.group.updateAll=Actualitza-ho tot
-menu.group.commitSelected=Desfés Selecció
-menu.group.commitAll=Desfés-ho tot
-menu.group.statusSelection=Estat de selecció
+menu.group.commitSelected=Desf\u00E9s Selecci\u00F3
+menu.group.commitAll=Desf\u00E9s-ho tot
+menu.group.statusSelection=Estat de selecci\u00F3
 menu.group.statusAll=Estat de tot
 menu.group.users=Usuaris
-menu.group.configuration=Configuració
-
+menu.group.configuration=Configuraci\u00F3
 menu.help=Ajuda
 menu.help.about=Quant al BlueJ
-menu.help.extensions=Extensions instal·lades
-menu.help.versionCheck=Comprova versió
-menu.help.extensions=Extensions instal·lades
+menu.help.extensions=Extensions instal\u00B7lades
+menu.help.versionCheck=Comprova versi\u00F3
 menu.help.copyright=Copyright
 menu.help.website=Web oficial del BlueJ
 menu.help.tutorial=Tutorial del BlueJ
 menu.help.standardApi=Llibreries de classes Java
-
-# tool tips
-
 tooltip.newClass=Crea una nova classe en aquest paquet
-tooltip.newUses=Insereix una relació d'ús
-tooltip.newExtends=Insereix una relació d'herència
+tooltip.newUses=Insereix una relaci\u00F3 d'\u00FAs
+tooltip.newExtends=Insereix una relaci\u00F3 d'her\u00E8ncia
 tooltip.compile=Compila totes les classes sense compilar en aquest paquet
 tooltip.test=Executa totes les classes de test compilades en aquest paquet
-tooltip.progress=Indicador de treball: indica quan s'està executant la màquina virtual 
-tooltip.test.end=Finalitza un enregistrament d'un mètode de test i desa'l.
-tooltip.test.cancel=Cancel·la i descarta un enregistrament d'un mètode de test.
-
-#Copyright
-
+tooltip.progress=Indicador de treball\: indica quan s'est\u00E0 executant la m\u00E0quina virtual 
+tooltip.test.end=Finalitza un enregistrament d'un m\u00E8tode de test i desa'l.
+tooltip.test.cancel=Cancel\u00B7la i descarta un enregistrament d'un m\u00E8tode de test.
 menu.help.copyright.title=BlueJ Copyright
-menu.help.copyright.line1=El BlueJ està disponible gratuïtament i pot ser
-menu.help.copyright.line2=redistribuït lliurament. No es pot vendre per
+menu.help.copyright.line1=El BlueJ est\u00E0 disponible gratu\u00EFtament i pot ser
+menu.help.copyright.line2=redistribu\u00EFt lliurament. No es pot vendre per
 menu.help.copyright.line3=obtenir beneficis ni incloure en altres paquets que
-menu.help.copyright.line4=es venen sense autorització escrita.
-
-# About
-
-about.bluej.version=Versió BlueJ
-about.java.version=Versió Java
-about.vm=Màquina virtual:
-about.runningOn=S'està executant en:
-about.javahome=Java Home:
-about.logfile=Arxiu de registre de la depuració:
-about.moreInfo=Més informació a  www.bluej.org.
+menu.help.copyright.line4=es venen sense autoritzaci\u00F3 escrita.
+about.bluej.version=Versi\u00F3 BlueJ
+about.java.version=Versi\u00F3 Java
+about.vm=M\u00E0quina virtual\:
+about.runningOn=S'est\u00E0 executant en\:
+about.javahome=Java Home\:
+about.logfile=Arxiu de registre de la depuraci\u00F3\:
+about.moreInfo=M\u00E9s informaci\u00F3 a  www.bluej.org.
 about.theTeam.deakin=L'equip del BlueJ de la Universitat de Deakin
 about.theTeam.denmark=L'equip del BlueJ de la Universitat de Southern Denmark
 about.theTeam.kent=L'equip del BlueJ de la Universitat de Kent
-
-# Work Indicator
 workIndicator.showDebugger=Mostra depurador
+about.theTeam=L\u2019equip BlueJ
 workIndicator.resetMachine=Arranca novament l'ordinador
