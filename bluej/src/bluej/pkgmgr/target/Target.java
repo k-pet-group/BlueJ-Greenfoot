@@ -16,7 +16,7 @@ import java.awt.geom.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: Target.java 2705 2004-07-01 10:32:22Z polle $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -205,7 +205,10 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         this.resizing = resizing;
     }
 
-    
+    public void setSize(int width, int height) {
+        super.setSize(width, height);
+        oldRect = new Rectangle(getX(), getY(), getWidth(), getHeight() );
+    }
     
     public boolean isQueued() {
         return queued;

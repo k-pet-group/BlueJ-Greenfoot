@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2704 2004-07-01 09:24:22Z polle $
+ * @version $Id: ClassTarget.java 2705 2004-07-01 10:32:22Z polle $
  */
 public class ClassTarget extends EditableTarget implements Moveable
 {	
@@ -742,8 +742,13 @@ public class ClassTarget extends EditableTarget implements Moveable
     
     public void setTypeParameters(ClassInfo info)
     {
-        if(info.hasTypeParameter())
-            typeParameters = info.getTypeParameter().getText();  
+        if(info.hasTypeParameter()) {
+            String newTypeParameters = info.getTypeParameter().getText();
+            if(! newTypeParameters.equals(typeParameters)) {
+                typeParameters = newTypeParameters;
+                updateSize();
+            }
+        }
     }
 
     /**
@@ -859,6 +864,7 @@ public class ClassTarget extends EditableTarget implements Moveable
             // constructed and fix them up for new class name
             setIdentifierName(newName);
             setDisplayName(newName);
+            updateSize();
 
             return true;
         }
@@ -918,6 +924,17 @@ public class ClassTarget extends EditableTarget implements Moveable
         catch(IOException ioe) { }
     }
 
+    /**
+     * Resizes the class so the entire classname + type parameter are visible 
+     *
+     */
+    private void updateSize() {
+        int width = calculateWidth(getDisplayName());
+        setSize(width, getHeight());
+        handleMoveAndResizing();       
+        repaint();
+    }
+    
 	/**
 	 * Construct a popup menu for the class target, including caching
 	 * of results.
