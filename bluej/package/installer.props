@@ -24,10 +24,10 @@ install.exeName=bluej
 install.commands.mac = CP="~/lib/bluej.jar:~/lib/editor.jar:~/lib/antlr.jar:~/lib/junit.jar:~/lib/bluejext.jar"
 
 # additional commands to be added to Unix script before execution
-install.commands.unix = CP="~/lib/bluej.jar:~/lib/editor.jar:~/lib/antlr.jar:~/lib/junit.jar:~/lib/MRJToolkitStubs.zip:!/lib/tools.jar:~/lib/bluejext.jar"
+install.commands.unix = CP="~/lib/bluej.jar:~/lib/editor.jar:~/lib/antlr.jar:~/lib/junit.jar:~/lib/MRJToolkitStubs.zip:~/lib/MRJStubs141.jar:!/lib/tools.jar:~/lib/bluejext.jar"
 
 # additional commands to be added to Windows batch file before execution
-install.commands.win = set CP="~\\lib\\bluej.jar;~\\lib\\editor.jar;~\\lib\\antlr.jar;~\\lib\\junit.jar;~\\lib\\MRJToolkitStubs.zip;!\\lib\\tools.jar;~\\lib\\bluejext.jar"
+install.commands.win = set CP="~\\lib\\bluej.jar;~\\lib\\editor.jar;~\\lib\\antlr.jar;~\\lib\\junit.jar;~\\lib\\MRJToolkitStubs.zip;~\\lib\\MRJStubs141.jar;!\\lib\\tools.jar;~\\lib\\bluejext.jar"
 
 # java command-line options for unix (icluding MacOS)
 install.javaOpts.unix=-cp $CP
