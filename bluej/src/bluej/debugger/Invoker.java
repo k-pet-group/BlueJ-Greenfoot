@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 583 2000-06-26 01:51:17Z mik $
+ * @version $Id: Invoker.java 611 2000-06-30 04:29:36Z ajp $
  */
 
 public class Invoker extends Thread
@@ -38,7 +38,7 @@ public class Invoker extends Thread
     private static final String creating = Config.getString("pkgmgr.creating");
     private static final String createDone = Config.getString("pkgmgr.createDone");
 
-    private static final String SHELLNAME = "__SHELL";
+    public static final String SHELLNAME = "__SHELL";
     private static int shellNumber = 0;
 
     private static final synchronized String getShellName() {
@@ -386,7 +386,7 @@ public class Invoker extends Thread
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, null);
             DebuggerClassLoader loader = pkg.getRemoteClassLoader();
             String shellClassName = pkg.getQualifiedName(shellName);
-            Debugger.debugger.startClass(loader, shellClassName, 
+            Debugger.debugger.startClass(loader, shellClassName,
                                          pkg.getProject());
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
 
