@@ -6,7 +6,7 @@ import bluej.pkgmgr.Target;
 import bluej.pkgmgr.ClassTarget;
 import bluej.debugger.ObjectWrapper;
 
-import java.util.Vector;
+import java.util.List;
 import java.util.ListIterator;
 import java.awt.Component;
 import java.awt.Frame;
@@ -16,7 +16,7 @@ import java.awt.Frame;
  * to that package.
  *
  * @author Clive Miller
- * @version $Id: BPackage.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: BPackage.java 1462 2002-10-23 12:37:49Z jckm $
  *
  * @see bluej.extensions.BProject#getCurrentPackage()
  * @see bluej.extensions.BProject#getPackage(java.lang.String)
@@ -99,7 +99,7 @@ public class BPackage
     public BClass[] getClasses()
     {
         if (isEmptyFrame()) return null;
-        Vector names = pkg.getAllClassnames();
+        List names = pkg.getAllClassnames();
         BClass[] classes = new BClass [names.size()];
         for (ListIterator li=names.listIterator(); li.hasNext();) {
             int i=li.nextIndex();
