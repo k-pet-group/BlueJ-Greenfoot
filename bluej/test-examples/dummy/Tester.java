@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 
 /**
@@ -6,15 +7,18 @@ import java.util.*;
  ** @author: Michael Kolling
  ** @version: 1.3
  **/
-public class Tester       
+public class Tester
 {
-//     // instance variables - replace the example 
+     // instance variables - replace the example 
+    private static int x;
 
-    private int x;
+    { 
+      x = 44;
+	}
     public String name = "Michael";
     private String privname = "Michael";
     Tester t;
-    public static int [] sintArray;
+    public static Object[] sintArray;
     private static String[] sstringArray;
     private static Tester[] stestArray;
     private static Object[] sobjArray;
@@ -23,17 +27,17 @@ public class Tester
     private String[] stringArray;
     private Tester[] testArray;
     public Object[] objArray;
+
     /**
      ** Constructor for objects of class Tester
      **/
     public Tester()
-		throws Exception
     {
         // initialise instance vari ables
         x = 0;
         intArray = new int[4];
         intArray[2] = 42;
-    } 
+   } 
 
     /**
      * An example of a method - replace this comment with your own
@@ -41,35 +45,32 @@ public class Tester
      * @param  y   a sample parameter for a method 
      * @return     the sum of x and y 
      **/
-    public int goodtest()
-		throws Mik
-
+    public void infiniteLoop()
     {
-        return 43;
+		for(int i = 0; i < 10; i--) {
+			int j = i;
+		}
     }
 
     public void makeArrays()
 		throws Exception
     {
-
         stringArray = new String[] {"mik", "koe", null, "home"} ;
         testArray = new Tester[] {new Tester(), null} ;
         objArray = new Object[] {"mik", new Integer(3), null} ;
         sstringArray = new String[] {"mik", "koe", null, "home"} ;
         sobjArray = new Object[] {"mik", new Integer(3), null} ;
-    }
-
+	}
+	
     /**
      ** An example of a method - replace this comment with your own
      ** 	
      ** @param  y   a sample parameter for a method
      ** @return     the sum of x and y 
      **/
-    public int test()
+    public int goodtest()
     {
-        x = t.test();
-	       // create NullpointerException
-	       return x;
+	       return 42;
     }
 
     public void exctest(int i)
@@ -104,3 +105,7 @@ chdjs:
         System.exit(0);
     }
 }
+
+    class Nested {
+	}
+
