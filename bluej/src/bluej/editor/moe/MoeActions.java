@@ -73,7 +73,6 @@ public final class MoeActions
     // undo helpers
     public UndoAction undoAction;
     public RedoAction redoAction;
-    public UndoManager undoManager;
 
     // frequently needed actions
     public Action compileAction;
@@ -118,8 +117,6 @@ public final class MoeActions
         SHIFT_SHORTCUT_MASK = SHORTCUT_MASK + Event.SHIFT_MASK;
         SHIFT_ALT_SHORTCUT_MASK = Event.SHIFT_MASK + ALT_SHORTCUT_MASK;
         DOUBLE_SHORTCUT_MASK = SHORTCUT_MASK + ALT_SHORTCUT_MASK;
-
-        undoManager = new UndoManager();
 
         // install our own keymap, with the existing one as parent
         keymap = JTextComponent.addKeymap("BlueJ map", 
@@ -465,26 +462,15 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
+            MoeEditor editor = getEditor(e);
             try {
-                undoManager.undo();
+                editor.undoManager.undo();
             }
             catch (CannotUndoException ex) {
                 Debug.message("moe: cannot undo...");
             }
-            update();
-            redoAction.update();
-        }
-
-        public void update()
-        {
-            if (undoManager.canUndo()) {
-                this.setEnabled(true);
-                //putValue(Action.NAME, undoManager.getUndoPresentationName());
-            }
-            else {
-                this.setEnabled(false);
-                //putValue(Action.NAME, "Undo");
-            }
+            editor.updateUndoControls();
+            editor.updateRedoControls();
         }
     }
 
@@ -500,26 +486,15 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
+            MoeEditor editor = getEditor(e);
             try {
-                undoManager.redo();
+                editor.undoManager.redo();
             }
             catch (CannotRedoException ex) {
                 Debug.message("moe: cannot redo...");
             }
-            update();
-            undoAction.update();
-        }
-
-        public void update()
-        {
-            if (undoManager.canRedo()) {
-                this.setEnabled(true);
-                //putValue(Action.NAME, undoManager.getRedoPresentationName());
-            }
-            else {
-                this.setEnabled(false);
-                //putValue(Action.NAME, "Redo");
-            }
+            editor.updateUndoControls();
+            editor.updateRedoControls();
         }
     }
 

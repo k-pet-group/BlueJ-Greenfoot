@@ -8,37 +8,37 @@
 
 package bluej.editor.moe;
 
-import bluej.Config;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterJob;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+import java.util.List;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.*;
+import javax.swing.text.*;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.HTMLFrameHyperlinkEvent;
+import javax.swing.undo.UndoManager;
+
+import org.gjt.sp.jedit.syntax.JavaTokenMarker;
+
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
+import bluej.Config;
+import bluej.editor.EditorWatcher;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.editor.EditorWatcher;
-import bluej.pkgmgr.PkgMgrFrame;
-
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.io.*;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-
-import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
-import java.awt.event.*;        // New Event model
-
-
-import javax.swing.*;		// all the GUI components
-import javax.swing.event.*;
-import javax.swing.border.*;
-import javax.swing.text.*;
-import javax.swing.text.html.*;
-import java.net.URL;
-import java.awt.print.*;
-import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 
 
 
@@ -124,7 +124,10 @@ public final class MoeEditor extends JFrame
     private HTMLDocument htmlDocument;
 
     private MoeActions actions;
-
+    public UndoManager undoManager;
+    public List undoComponents;  // components bound to "undo"
+    public List redoComponents;  // components bound to "redo"
+    
     
     JEditorPane currentTextPane;  // text component currently dislayed
     private JEditorPane sourcePane;	// the component holding the source text
@@ -171,9 +174,9 @@ public final class MoeEditor extends JFrame
 
         public void undoableEditHappened(UndoableEditEvent e)
         {
-            actions.undoManager.addEdit(e.getEdit());
-            actions.undoAction.update();
-            actions.redoAction.update();
+            undoManager.addEdit(e.getEdit());
+            updateUndoControls();
+            updateRedoControls();
         }
     }
 
@@ -224,11 +227,39 @@ public final class MoeEditor extends JFrame
         mayHaveBreakpoints = false;
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
         projectClassLoader = aProjectClassLoader;
-
+        undoManager = new UndoManager();
+        undoComponents = new ArrayList(1);
+        redoComponents = new ArrayList(1);
+        
         initWindow(showToolbar);
     }
 
     // --------------------------------------------------------------------
+    
+    /**
+     * Update the state of controls bound to "undo".
+     */
+    public void updateUndoControls()
+    {
+        boolean canUndo = undoManager.canUndo();
+        Iterator i = undoComponents.iterator();
+        while(i.hasNext()) {
+            ((JComponent)i.next()).setEnabled(canUndo);
+        }
+    }
+    
+    /**
+     * Update the state of controls bound to "redo".
+     */
+    public void updateRedoControls()
+    {
+        boolean canRedo = undoManager.canRedo();
+        Iterator i = redoComponents.iterator();
+        while(i.hasNext()) {
+            ((JComponent)i.next()).setEnabled(canRedo);
+        }
+    }
+    
     /**
      * Returns the projectClassLoader.
      * Can return null if no classloader is available.
@@ -613,9 +644,9 @@ public final class MoeEditor extends JFrame
     {
         if (readOnly) {
             saveState.setState(StatusLabel.READONLY);
-            actions.undoManager.discardAllEdits();
-            actions.undoAction.update();
-            actions.redoAction.update();
+            undoManager.discardAllEdits();
+            updateUndoControls();
+            updateRedoControls();
         }
         currentTextPane.setEditable(!readOnly);
     }
@@ -1901,6 +1932,10 @@ public final class MoeEditor extends JFrame
                     Debug.message ("Moe: cannot find action " + itemKeys[i]);
                 else {
                     item = menu.add(action);
+                    if (action == actions.undoAction)
+                        undoComponents.add(item);
+                    if (action == actions.redoAction)
+                        redoComponents.add(item);
                     label = Config.getString("editor."+itemKeys[i] + LabelSuffix);
                     if (label != null)
                         item.setText(label);
@@ -1976,6 +2011,14 @@ public final class MoeEditor extends JFrame
             actionName = key;
         Action action = actions.getActionByName(actionName);
         if (action != null) {	// should never be null...
+            if (action == actions.undoAction) {
+                undoComponents.add(button);
+                button.setEnabled(false);
+            }
+            if (action == actions.redoAction) {
+                redoComponents.add(button);
+                button.setEnabled(false);
+            }
             button.addActionListener(action);
             button.setActionCommand(actionName);
         }
