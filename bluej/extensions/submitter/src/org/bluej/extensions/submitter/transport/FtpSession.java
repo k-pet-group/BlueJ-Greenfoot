@@ -14,7 +14,7 @@ import java.net.URL;
  * to a given path on a given (attached) server. It uses FTP in passive mode.
  * 
  * @author Clive Miller
- * @version $Id: FtpSession.java 1708 2003-03-19 09:39:47Z damiano $
+ * @version $Id: FtpSession.java 1959 2003-05-17 14:23:40Z damiano $
  */
 
 public class FtpSession extends TransportSession
@@ -53,12 +53,12 @@ public class FtpSession extends TransportSession
         connection.setTransportReport(transportReport);
 
         connection.expect ("220 ", "421");
-        connection.send ("USER "+username);
+        connection.sendln ("USER "+username);
         reply = connection.expect (new String[] {"331 ","230 "},
                                    new String[] {"530","500","501","421","332"});
         if (reply.startsWith ("331")) {
             if (password.length() == 0) throw new ProtocolException ("No password provided!");
-            connection.send ("PASS "+password);
+            connection.sendln ("PASS "+password);
               connection.expect (new String[] {"230 ", "202 "},
                                  new String[] {"202","530","500","501","503","421","332"});
         }
@@ -69,7 +69,7 @@ public class FtpSession extends TransportSession
         String sendPath = url.getPath();
 
         if ( rootDir == null ) {
-            connection.send("PWD");
+            connection.sendln("PWD");
             String aResult = connection.expect (new String[] {"257 "},
                            new String[] {"500","501","502","421","530","550"});
 
@@ -78,12 +78,12 @@ public class FtpSession extends TransportSession
             rootDir = aResult.substring(firstQuote+1,lastQuote);
         }
 
-        connection.send ("CWD "+rootDir);
+        connection.sendln ("CWD "+rootDir);
         connection.expect (new String[] {"250 "},
                            new String[] {"500","501","502","421","530","550"});
                            
         if (!sendPath.equals ("") && !sendPath.equals ("/")) {
-            connection.send ("CWD "+sendPath.substring(1));
+            connection.sendln ("CWD "+sendPath.substring(1));
             String resp = connection.expect (new String[] {"250 ","550"},
                                              new String[] {"500","501","502","421","530"});
             if (resp.startsWith("550")) {
@@ -95,28 +95,28 @@ public class FtpSession extends TransportSession
         while ((slash = name.indexOf ('/')) != -1) {
             String dir = name.substring (0,slash);
             name = name.substring (slash+1);
-            connection.send ("CWD "+dir);
+            connection.sendln ("CWD "+dir);
             if (connection.expect (new String[] {"250 ","550 "},
                                    new String[] {"500","501","502","421","530"}).startsWith ("550 ")) {
-                connection.send ("MKD "+dir);
+                connection.sendln ("MKD "+dir);
                 connection.expect (new String[] {"257 "},
                                    new String[] {"500","501","502","421","530","550"});
-                connection.send ("CWD "+dir);
+                connection.sendln ("CWD "+dir);
                 connection.expect (new String[] {"250 "},
                                    new String[] {"500","501","502","421","530","550"});
             }
         }
             
         if (binary) {
-            connection.send ("TYPE I");
+            connection.sendln ("TYPE I");
             connection.expect (new String[] {"200 "},
                                new String[] {"500","501","504","421","530"});
         } else {
-            connection.send ("TYPE A");
+            connection.sendln ("TYPE A");
             connection.expect (new String[] {"200 "},
                                new String[] {"500","501","504","421","530"});
         }
-        connection.send ("PASV");
+        connection.sendln ("PASV");
         String portString = connection.expect (new String[] {"227 "},
                                                new String[] {"500","501","502","421","530"}); 
             // == 227 Entering Passive Mode (129,12,3,176,187,240)
@@ -134,7 +134,7 @@ public class FtpSession extends TransportSession
         String host = param[0]+"."+param[1]+"."+param[2]+"."+param[3];
         int port = (param[4] << 8) + param[5];
         Socket data = new Socket (host, port);
-        connection.send ("STOR "+name);
+        connection.sendln ("STOR "+name);
         connection.expect (new String[] {"150 ","125 "},
                            new String[] {"425","426","451","551","552","532","450","452","553","500","501","421","530"});
         OutputStream out = data.getOutputStream();
@@ -149,7 +149,7 @@ public class FtpSession extends TransportSession
     
     public void disconnect() throws IOException
     {
-        connection.send ("QUIT");
+        connection.sendln ("QUIT");
         connection.expect ("221 ", "500");
         connection.close();
         connection = null;

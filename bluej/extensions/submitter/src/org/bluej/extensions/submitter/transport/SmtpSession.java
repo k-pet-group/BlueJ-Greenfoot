@@ -1,36 +1,31 @@
 package org.bluej.extensions.submitter.transport;
 
-import java.util.Properties;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.io.*;
+import java.net.*;
+import java.text.*;
+import java.util.*;
 
 /**
  * Implements RFC821 to send files via SMTP
  * to a given path on a given (attached) server.
  * 
+ * NOTE: YOU MUST be shure that ALL text lines have a dot prepended 
+ * if the line starts with a dot.
+ * 
  * @author Clive Miller
- * @version $Id: SmtpSession.java 1958 2003-05-16 15:30:56Z iau $
+ * @version $Id: SmtpSession.java 1959 2003-05-17 14:23:40Z damiano $
  */
 
 public class SmtpSession extends TransportSession
 {
-    private final String boundaryString;
-    private OutputStream out;
+    private String boundaryString;
+    private DateFormat rfc822date = new SimpleDateFormat ("EEE, dd MMM yyyy HH:mm:ss z");
     private int fileCounter;
-    private final DateFormat rfc822date = 
-        new SimpleDateFormat ("EEE, dd MMM yyyy HH:mm:ss z");
-    private final byte[] CRLF={'\r','\n'};
 
     public SmtpSession (URL url, Properties environment)
     {
         super (url, environment);
         result = "Not sent";
-        out = null;
         String boundary = "";
         java.util.Random random = new java.util.Random();
         for (int i=0; i<30; i++) boundary += (char)SocketSession.encode((byte)random.nextInt(62));
@@ -59,34 +54,40 @@ public class SmtpSession extends TransportSession
         // WARNING: transportReport MUST be set to take effect here.
         connection.setTransportReport(transportReport);
         
-        out = connection.getOutputStream();
         connection.expect ("220 ", "421 ");
-        connection.send ("HELO "+connection.getLocalHost());
+        connection.sendln ("HELO "+connection.getLocalHost());
         connection.expect (new String[] {"250 "},
                            new String[] {"500","501","504","421"});
-        connection.send ("MAIL FROM:<"+userAddress+">");
+        connection.sendln ("MAIL FROM:<"+userAddress+">");
         connection.expect (new String[] {"250 "},
                            new String[] {"552","451","452","500","501","421"});
-        connection.send ("RCPT TO:<"+sendAddress+">");
+        connection.sendln ("RCPT TO:<"+sendAddress+">");
         connection.expect (new String[] {"250 ","251 "},
                            new String[] {"550","551","552","553","450","451","452","500","501","503","421"});
-        connection.send ("DATA");
+        connection.sendln ("DATA");
         connection.expect (new String[] {"354 "},
                            new String[] {"451","554","500","501","503","421"});
-        out.flush();
-        sendMessage ("Date: "+rfc822date.format (new java.util.Date()));
-        sendMessage ("From: "+userAddress);
-        sendMessage ("To: "+sendAddress);
-        if (subject == null) {
-            sendMessage ("Subject: BlueJ Submission");
-        } else {
-            sendMessage ("Subject: "+subject);
-        }
+        connection.flush();
+        connection.sendln ("Date: "+rfc822date.format (new java.util.Date()));
+        connection.sendln ("From: "+userAddress);
+        connection.sendln ("To: "+sendAddress);
+        if (subject == null) 
+            connection.sendln ("Subject: BlueJ Submission");
+        else 
+            connection.sendln ("Subject: "+subject);
+        
         sendMimeHeaders();
-        if (body != null) {
+
+        if (body != null) 
+            {
             sendBoundary (false);
-            sendMimeText (body);
-        }
+            connection.sendln ("Content-Type: text/plain");
+            connection.sendln ("Content-Transfer-Encoding: 7bit");
+            connection.sendln ("");
+            StringReader aReader = new StringReader(body);
+            sendStreamToServer (aReader);
+            }
+
         reportEvent ("OK");
     }
     
@@ -102,111 +103,94 @@ public class SmtpSession extends TransportSession
     }
 
     public void disconnect() throws IOException
-    {
-        reportEvent ("Disconnecting...");
-        sendBoundary (true);
-        connection.send (".");
-        connection.expect (new String[] {"250 "},
-                           new String[] {"552","554","451","452"});
-        connection.send ("QUIT");
-        connection.expect ("221 ");
-        connection.close();
-        connection = null;
-        reportEvent ("Sent.");
-        result = null;
-    }
-
-    private void sendMimeHeaders() throws IOException
-    {
-        sendMessage ("MIME-Version: 1.0 (produced automatically by BlueJ)");
-        sendMessage ("Content-Type: multipart/mixed; boundary=\""+boundaryString+"\"");
-        sendMessage ("");
-        sendMessage ("This is a multi-part message in MIME format.");
-        sendMessage ("");
-    }
-
-    private void sendMimeText (String theText) throws IOException
-    {
-        sendMessage ("Content-Type: text/plain");
-        sendMessage ("Content-Transfer-Encoding: 7bit");
-        sendMessage ("");
-        sendMessage (theText);
-    }
-            
-  private void sendMimeBinaryFile (InputStream is, String name ) throws IOException
-    {
-    sendMessage ("Content-Type: application/octet-stream; name=\""+name+"\"");
-    sendMessage ("Content-Transfer-Encoding: base64");
-    sendMessage ("Content-Disposition: attachment; filename=\""+name+"\"");
-    sendMessage ("");
-    SocketSession.MIMEEncode (is, out);
-    reportLog ("===> sent binary file "+name);
-    }
-
-
-  private void sendMimeTextFile ( InputStream is, String name ) throws IOException
-    {
-    String oneLine;
-    int lineCount=0;
-
-    BufferedReader aReader = new BufferedReader(new InputStreamReader(is));
-    
-    sendMessage ("Content-Type: text/plain; name=\""+name+"\"");
-    sendMessage ("Content-Transfer-Encoding: 7bit");
-    sendMessage ("Content-Disposition: attachment; filename=\""+name+"\"");
-    sendMessage ("");
-
-    /* Now we have to go line by line, until EOF and spit them out watching
-     * for leading dots
-     */
-    while ( (oneLine=aReader.readLine()) != null )
       {
-      // If the line starts with a dot, prepend a dot (RFC821 section 4.5.2)
-      if ( oneLine.startsWith(".")) out.write('.');
-      out.write(oneLine.getBytes());       // Then we write what we just read
-      out.write(CRLF);       // and terminate with standard CRLF
-      lineCount++;
+      reportEvent ("Disconnecting...");
+      sendBoundary (true);
+      connection.sendln (".");
+      connection.expect (new String[] {"250 "},
+                         new String[] {"552","554","451","452"});
+      connection.sendln ("QUIT");
+      connection.expect ("221 ");
+      connection.close();
+      connection = null;
+      reportEvent ("Sent.");
+      result = null;
       }
 
-    out.flush();
-    reportLog ("===> sent text file "+name+" lineCount="+lineCount);
-    }
+    private void sendMimeHeaders() throws IOException
+      {
+      connection.sendln ("MIME-Version: 1.0 (produced automatically by BlueJ)");
+      connection.sendln ("Content-Type: multipart/mixed; boundary=\""+boundaryString+"\"");
+      connection.sendln ("");
+      connection.sendln ("This is a multi-part message in MIME format.");
+      connection.sendln ("");
+      }
+
+    private void sendMimeText (String theText) throws IOException
+      {
+      connection.sendln ("Content-Type: text/plain");
+      connection.sendln ("Content-Transfer-Encoding: 7bit");
+      connection.sendln ("");
+      StringReader aReader = new StringReader(theText);
+      sendStreamToServer (aReader);
+      }
+            
+    private void sendMimeBinaryFile (InputStream is, String name ) throws IOException
+      {
+      connection.sendln ("Content-Type: application/octet-stream; name=\""+name+"\"");
+      connection.sendln ("Content-Transfer-Encoding: base64");
+      connection.sendln ("Content-Disposition: attachment; filename=\""+name+"\"");
+      connection.sendln ("");
+      connection.sendMimeStream( is );
+      reportLog ("===> sent binary file "+name);
+      }
+
+
+    private void sendMimeTextFile ( InputStream is, String name ) throws IOException
+      {
+      connection.sendln ("Content-Type: text/plain; name=\""+name+"\"");
+      connection.sendln ("Content-Transfer-Encoding: 7bit");
+      connection.sendln ("Content-Disposition: attachment; filename=\""+name+"\"");
+      connection.sendln ("");
+
+      int lineCount = sendStreamToServer ( new InputStreamReader(is) );
+
+      reportLog ("===> sent text file "+name+" lineCount="+lineCount);
+      }
 
     private void sendBoundary (boolean end) throws IOException
     {
-        sendMessage ("--"+boundaryString+ (end ? "--":""));
+        connection.sendln ("--"+boundaryString+ (end ? "--":""));
     }
 
 
-  private void sendMessage (String message) throws IOException
+  /**
+   * Send the given input stream to the remote mailer.
+   * The trick here is that ALL lines beginnig with a dot MUST have a dot prepended.
+   * AND the line is terminated by CRLF
+   * It will nicely return the number of lines sent
+   */
+  private int sendStreamToServer ( Reader inputReader ) throws IOException
     {
-    if ( message == null ) 
-      {
-      reportLog ("sendMessage: ERROR: message==null");
-      return;
-      }
-
-    if ( message.length() == 0 )
-      {
-      // We just want to write a newline
-      reportLog (">>");
-      out.write(CRLF);
-      return;        
-      }
-      
-    BufferedReader aReader = new BufferedReader(new StringReader(message));
+    int lineCount = 0;
+    
+    // You never Know, better be safe
+    if ( inputReader == null ) return 0;
+    
+    BufferedReader aReader = new BufferedReader(inputReader);  
 
     String oneLine;
     while ( (oneLine=aReader.readLine()) != null )
       {
       // If the line starts with a dot, prepend a dot (RFC821 section 4.5.2)
-      if ( oneLine.startsWith(".")) out.write('.');
-      out.write(oneLine.getBytes());
-      out.write(CRLF);
-
-      reportLog (">> "+oneLine);
+      if ( oneLine.startsWith(".")) connection.send(".");
+      connection.nologSendln(oneLine);
+      lineCount++;
       }
 
-    out.flush();
+    connection.flush();
+    return lineCount;
     }
+
+
 }    

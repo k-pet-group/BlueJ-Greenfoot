@@ -15,7 +15,7 @@ import java.net.Socket;
  * This makes logging and messaging quite messy. Damiano
  * 
  * @author Clive Miller
- * @version $Id: SocketSession.java 1708 2003-03-19 09:39:47Z damiano $
+ * @version $Id: SocketSession.java 1959 2003-05-17 14:23:40Z damiano $
  */
 class SocketSession
 {
@@ -26,8 +26,8 @@ class SocketSession
     private Socket channel;
     private BufferedReader in;
     private OutputStream out;
-    private String lastCommand = "";
     private TransportReport transportReport;
+    private byte []crlf={'\r','\n'};
 
     /**
      * Constructor local to this package. At least we know that it is used only here.
@@ -134,17 +134,38 @@ class SocketSession
         return expect (new String[] {response}, new String[0]);
     }
     
+    /**
+     * Just send a string of data as it is.
+     * This does not do logging of what is sent
+     */
     public void send (String data) throws IOException
-    {
-        out.write ((data+"\n").getBytes());
-        reportLog (">>"+data);
-        lastCommand = data;
-    }
+      {
+      out.write (data.getBytes());
+      }
 
-    public OutputStream getOutputStream()
-    {
-        return out;
-    }
+    /**
+     * Sends a line terminated by the end of line sequence.
+     * This is also logged to the logging stream.
+     */
+    void sendln (String data) throws IOException
+      {
+      nologSendln (data);
+      reportLog (">> "+data);
+      }
+
+    /**
+     * Sends a line terminated by the end of line sequence.
+     */
+    void nologSendln (String data) throws IOException
+      {
+      out.write (data.getBytes());
+      out.write (crlf);
+      }
+    
+    void flush() throws IOException
+      {
+      out.flush();
+      }
 
     public void close() throws IOException
     {
@@ -157,43 +178,43 @@ class SocketSession
     /**
      * Utility method to MIME encode a stream
      * @param inputStream the source of the data
-     * @return outputStream the destination for the encoded output
      */
-    public static void MIMEEncode (InputStream inputStream, OutputStream outputStream) throws IOException
-    {
-        // This is a bit nasty, but the problem is that bytes will not always be available,
-        // but unless the stream has actually closed, we MUST wait for them.
-        int in0, in1, in2;
-        byte[] out = new byte[4];
-        int line = 0;
-        int size = 3;
-        do {
-            in0 = inputStream.read();
-            in1 = inputStream.read();
-            in2 = inputStream.read();
-            if (in0 == -1) break;
-            if (in2 == -1) { size = 2; in2 = 0; } // This should only happen the last time
-            if (in1 == -1) { size = 1; in1 = 0; } // This should only happen the last time
-            out[0] = encode ((byte)((in0 & 0xFC) >>> 2));
-            out[1] = encode ((byte)((in0 & 0x03) << 4 | ((in1 & 0xF0) >>> 4)));
-            out[2] = encode ((byte)((in1 & 0x0F) << 2 | ((in2 & 0xC0) >>> 6)));
-            out[3] = encode ((byte)(in2 & 0x3F));
-            if (size < 3) out[3]='=';
-            if (size < 2) out[2]='=';
-            if (line+size > 57) // 76 = 4/3 * 57
-            {
-                outputStream.write ('\r');
-                outputStream.write ('\n');
-                line = 0;
-            }
-            outputStream.write (out);
-            line += size;
-        } while (true);
-        outputStream.write ('\r');
-        outputStream.write ('\n');
-    }
+    void sendMimeStream (InputStream inputStream ) throws IOException
+      {
+      // This is a bit nasty, but the problem is that bytes will not always be available,
+      // but unless the stream has actually closed, we MUST wait for them.
+      int in0, in1, in2;
+      byte[] outBuf = new byte[4];
+      int line = 0;
+      int size = 3;
+      for(;;)
+        {
+        in0 = inputStream.read();
+        in1 = inputStream.read();
+        in2 = inputStream.read();
+        if (in0 == -1) break;
+        if (in2 == -1) { size = 2; in2 = 0; } // This should only happen the last time
+        if (in1 == -1) { size = 1; in1 = 0; } // This should only happen the last time
+        outBuf[0] = encode ((byte)((in0 & 0xFC) >>> 2));
+        outBuf[1] = encode ((byte)((in0 & 0x03) << 4 | ((in1 & 0xF0) >>> 4)));
+        outBuf[2] = encode ((byte)((in1 & 0x0F) << 2 | ((in2 & 0xC0) >>> 6)));
+        outBuf[3] = encode ((byte)(in2 & 0x3F));
+        if (size < 3) outBuf[3]='=';
+        if (size < 2) outBuf[2]='=';
+        if (line+size > 57) // 76 = 4/3 * 57
+          {
+          out.write (crlf);
+          line = 0;
+          }
+        out.write (outBuf);
+        line += size;
+        }
 
-    public static byte encode (byte in)
+      // Good the resulting output is terminated by a crlf
+      out.write (crlf);
+      }
+
+    static byte encode (byte in)
     {
         byte out;
         if (in < 0) throw new Error ("Input < 0! in = "+in);
