@@ -14,7 +14,7 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1973 2003-05-21 13:52:41Z iau $
+ * @version    $Id: Submitter.java 1980 2003-05-22 13:32:32Z iau $
  */
 public class Submitter extends Extension implements MenuGenerator, PackageListener
 {
@@ -165,17 +165,22 @@ public class Submitter extends Extension implements MenuGenerator, PackageListen
      */
     public void actionPerformed(ActionEvent anEvent)
       {
-      final BPackage pkg = stat.bluej.getCurrentPackage();
-
-      // If there is no current package open what am I dong here ?
-      if (pkg == null) return;
-
-      BProject aProject = pkg.getProject();
-      // Strange, but there is no need to core dump for this.
-      if ( aProject == null ) return;
+          /*
+           * If we can't get the details of the current package, just return
+           * The package could still go away later, but we'll cope with that
+           * through "file not found" when we go looking.
+           * It's more likely to have been closed than deleted anyway.
+           */
+          try {
+              BPackage bpkg = stat.bluej.getCurrentPackage();
+              if (bpkg == null) return;     // package has already gone away
+              
+              BProject bproj = bpkg.getProject();
+              bproj.save();
       
-      // Try to submit this project
-      stat.submitDialog.submitThis ( aProject );
+              // Try to submit this project
+              stat.submitDialog.submitThis ( bproj.getDir(), bproj.getName() );
+          } catch (ExtensionException e ) {}
       }
     }
 

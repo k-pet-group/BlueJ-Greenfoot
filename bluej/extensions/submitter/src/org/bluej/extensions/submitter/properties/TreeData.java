@@ -52,7 +52,7 @@ public class TreeData
    * This will load the tree with the right content. This is not in the constructor since
    * we may want to be smart in the future and trow some nice exceptions :-)
    */
-  public void loadTree(BProject curProject)
+  public void loadTree(File projectRoot)
     {
     stat.aDbg.trace(Stat.SVC_PROP, "SubmitTree.loadTree: CALLED");
 
@@ -67,7 +67,7 @@ public class TreeData
     File userConfFile = new File(stat.bluej.getUserConfigDir(),CONFIG_FILENAME);
     loadFile(rootNode,userConfFile);
 
-    File projectConfFile = new File(curProject.getDir(), CONFIG_FILENAME);
+    File projectConfFile = new File(projectRoot, CONFIG_FILENAME);
     loadFile(rootNode,projectConfFile);
     }
 

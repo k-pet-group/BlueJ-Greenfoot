@@ -51,7 +51,8 @@ public class SubmitDialog implements ActionListener
   private SubmitterProgressBar progressBar;
   private ResultDialog resultDialog;
   private TreeDialog   treeDialog;
-  private BProject     curProject;
+  private File         curProjectRootDir;
+  private String       curProjectName;
   private Thread       backgroundThread;
   
   /**
@@ -87,7 +88,7 @@ public class SubmitDialog implements ActionListener
   /**
    * This gets called when someone whants to submit something
    */
-  public void submitThis (BProject aProject )
+  public void submitThis (File pRootDir, String pName )
     {
     mainFrame.pack();             // You need this, othervise it does not resize right, Damiano
     mainFrame.setVisible(true);   // In ANY case I MUST show something to the user
@@ -99,7 +100,8 @@ public class SubmitDialog implements ActionListener
       }
 
     // Only now I can start mesing up with the current status.
-    curProject = aProject;
+    curProjectRootDir = pRootDir;
+    curProjectName = pName;
 
     // Need to clean up things from possible old run
     statusArea.setText("");
@@ -320,7 +322,7 @@ public class SubmitDialog implements ActionListener
     
     try 
       {
-      FileHandler fh = new FileHandler(stat.bluej, curProject, stat.treeData);
+      FileHandler fh = new FileHandler(stat.bluej, curProjectRootDir, stat.treeData);
       if ((files=fh.getFiles()) == null) 
         {
         statusWriteln ("sendFiles: NOTICE: no files to send");
@@ -346,7 +348,7 @@ public class SubmitDialog implements ActionListener
       String projNamePrefix = null;
       String tsProtocol = ts.getProtocol();
       if (tsProtocol.equals("ftp") || tsProtocol.equals("file") || jarName != null)
-          projNamePrefix = curProject.getName();
+          projNamePrefix = curProjectName;
 
       for (int index=0; index < files.length; index++) 
         {
@@ -501,10 +503,7 @@ public class SubmitDialog implements ActionListener
     // Ok, time to retrieve the selected scheme, but first let's set a nice default
     schemeSelectedSet ("");
 
-    // For some misterious reason there is no project open, let's return the default
-    if (curProject == null) return;
-
-    File projectDefsFile = new File(curProject.getDir(), PROPERTIES_FILENAME);
+    File projectDefsFile = new File(curProjectRootDir, PROPERTIES_FILENAME);
     // For some reason (maybe the file is not there, I cannot read it...
     if (!projectDefsFile.canRead()) return;
 
@@ -544,15 +543,12 @@ public class SubmitDialog implements ActionListener
     // Don't save invalid paths
     if (path == null) return;
 
-    // No need to get upset about it, no need to coredump either..
-    if (curProject == null) return;
-
     // Let me put what I need into the properties.
     Properties projProps = new Properties();
     projProps.setProperty(SELECTED_NODE_PROPERTY, curScheme);
 
     // Now let me try to open the file to write the properties on
-    File projectDefsFile = new File(curProject.getDir(), PROPERTIES_FILENAME);
+    File projectDefsFile = new File(curProjectRootDir, PROPERTIES_FILENAME);
 
     FileOutputStream oStream = null;
     try 
@@ -618,7 +614,7 @@ class TreeLoadThread extends Thread
   public void run ()
     {
     progressBar.setIndeterminate(true);
-    stat.treeData.loadTree(curProject);
+    stat.treeData.loadTree(curProjectRootDir);
     loadDefaultScheme();
     statusWriteln("Loading Done");
     progressBar.setIndeterminate(false);    

@@ -16,25 +16,23 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * according to a given String
  * 
  * @author Clive Miller
- * @version $Id: FileHandler.java 1850 2003-04-14 15:01:45Z damiano $
+ * @version $Id: FileHandler.java 1980 2003-05-22 13:32:32Z iau $
  */
 class FileHandler
 {
     private final BlueJ bj;
-    private final BProject thisProject;
     private final TreeData sp;
     private final Collection essentials, include, exclude;
-    private final File projectDir;
+    private File projectDir;
 
-    public FileHandler (BlueJ bj, BProject aProject, TreeData sp) throws AbortOperationException
+    public FileHandler (BlueJ bj, File pDir, TreeData sp) throws AbortOperationException
     {
         this.bj = bj;
-        thisProject = aProject;
         this.sp = sp;
         essentials = sp.getProps (".file.essential");
         include = sp.getProps (".file.include");
         exclude = sp.getProps (".file.exclude");
-        projectDir = aProject.getDir();
+        projectDir = pDir;
     }
 
     /**
@@ -42,7 +40,7 @@ class FileHandler
      */
     public File[] getFiles() throws AbortOperationException
     {
-        thisProject.save();
+
         return (File[])wantedFiles().toArray (new File[0]);
     }
 
