@@ -259,6 +259,7 @@ public final class MoeEditor extends JFrame
                 File crashFile = new File(crashFilename);
                 if (crashFile.exists()) {
                     File backupFile = new File(backupFilename);
+                    backupFile.delete();
                     crashFile.renameTo(backupFile);
                     DialogManager.showMessage(this, "editor-crashed");
                 }
