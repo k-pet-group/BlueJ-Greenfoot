@@ -27,26 +27,6 @@ public abstract class CallableView extends MemberView
     public abstract boolean isVarArgs();
 
     /**
-     * Build the signature string. Format: name(type,type,type)
-     */
-    protected String makeSignature(String name, Class[] params) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(name);
-        sb.append("(");
-        for (int j = 0; j < params.length; j++) {
-            String typeName = View.getTypeName(params[j]);
-            if(isVarArgs() && j==(params.length-1)) {
-                typeName = createVarArg(typeName);
-            }                
-            sb.append(typeName);
-            if (j < (params.length - 1))
-                sb.append(",");
-        }
-        sb.append(")");
-        return sb.toString();
-    }
-
-    /**
      * Make the description string. Format: name(type name, type name, type
      * name) or name(name, name, name)
      */

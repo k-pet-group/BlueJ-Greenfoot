@@ -1,13 +1,14 @@
 package bluej.views;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+
 import bluej.Config;
-import bluej.utility.JavaNames;
+import bluej.utility.JavaUtils;
 
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 2564 2004-06-01 13:07:17Z polle $
+ * @version $Id: ConstructorView.java 2568 2004-06-02 05:38:07Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -46,8 +47,7 @@ public final class ConstructorView extends CallableView
      *  name(type,type,type)
      */
     public String getSignature() {
-        Class[] params = cons.getParameterTypes();
-        return makeSignature(JavaNames.getBase(cons.getName()), params);
+        return JavaUtils.getJavaUtils().getSignature(cons);
     }
 
     /**

@@ -5,7 +5,7 @@ import bluej.utility.Utility;
 import java.util.*;
 
 /**
-** @version $Id: Comment.java 1418 2002-10-18 09:38:56Z mik $
+** @version $Id: Comment.java 2568 2004-06-02 05:38:07Z davmac $
 ** @author Michael Cahill
 **
 ** Comment class - the source information associated with a class or field
@@ -59,6 +59,11 @@ public final class Comment
         if (paramnames != null)
             return paramnames.length;
         return 0;
+    }
+    
+    public String[] getParamNames()
+    {
+        return (String [])paramnames.clone();
     }
 
     /*	public void addReference(String classname, String fieldname)

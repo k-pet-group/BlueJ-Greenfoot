@@ -1,17 +1,17 @@
 package bluej.views;
 
-import bluej.utility.JavaNames;
-
-import java.lang.reflect.*;
 import java.io.InputStream;
+import java.lang.reflect.*;
 import java.util.*;
+
+import bluej.utility.JavaNames;
 
 
 /**
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: View.java 2568 2004-06-02 05:38:07Z davmac $
  */
 public class View
 {

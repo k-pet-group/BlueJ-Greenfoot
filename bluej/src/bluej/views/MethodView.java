@@ -1,13 +1,16 @@
 package bluej.views;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
 import bluej.Config;
+import bluej.utility.JavaUtils;
 
 /**
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2564 2004-06-01 13:07:17Z polle $
+ *  @version $Id: MethodView.java 2568 2004-06-02 05:38:07Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -47,9 +50,7 @@ public class MethodView extends CallableView implements Comparable
      *  name(type,type,type)
      */
     public String getSignature() {
-        String name = View.getTypeName(method.getReturnType()) + " " + method.getName();
-        Class[] params = method.getParameterTypes();
-        return makeSignature(name, params);
+        return JavaUtils.getJavaUtils().getSignature(method);
     }
 
     /**
@@ -57,11 +58,16 @@ public class MethodView extends CallableView implements Comparable
      * to the signature, but it has parameter names in it instead of types.
      */
     public String getShortDesc() {
-        String name = View.getTypeName(method.getReturnType()) + " " + method.getName();
-        Class[] params = method.getParameterTypes();
-        return makeDescription(name, params, false);
+        return JavaUtils.getJavaUtils().getShortDesc(method, getParamNames());
     }
 
+    private String[] getParamNames() {
+        Comment c = getComment();
+        if( c == null )
+            return null;
+        return c.getParamNames();
+    }
+    
     /**
      * Get a long String describing this member. A long description is
      * similar to the short description, but it has type names and parameters
