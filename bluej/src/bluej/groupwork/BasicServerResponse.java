@@ -12,6 +12,12 @@ import org.netbeans.lib.cvsclient.event.ModuleExpansionEvent;
 import org.netbeans.lib.cvsclient.event.TerminationEvent;
 
 /**
+ * This class is used by registering it with the EventManager of the client
+ * which is to execute a command.
+ * client.getEventManager().addCVSListener(updateServerResponse);
+ * The BasicServerResponse will record the messages from the server that the
+ * server wants the user to see in response to the command. It also offers a way
+ * to wait for the command to finish.
  * @author fisker
  *
  */
@@ -26,9 +32,12 @@ public class BasicServerResponse implements CVSListener {
 	private TerminationEvent terminationEvent;
 	private String newline = System.getProperty("line.separator");
 	
-	/* (non-Javadoc)
-	 * @see org.netbeans.lib.cvsclient.event.CVSListener#messageSent(org.netbeans.lib.cvsclient.event.MessageEvent)
-	 */
+	/**
+     * Called when the server wants to send a message to be displayed to
+     * the user. The message is only for information purposes and clients
+     * can choose to ignore these messages if they wish.
+     * @param e the event
+     */
 	public void messageSent(MessageEvent e) {
 		String line = e.getMessage();
         PrintStream stream = e.isError() ? System.err : System.out;
@@ -86,7 +95,10 @@ public class BasicServerResponse implements CVSListener {
     	}
 	}
 
-	
+	/**
+	 * When this method is called, it blocks the caller until the command being
+	 * executed is finished.
+	 */
 	public void waitForExecutionToFinish(){
 		while(!isTerminated){
     		try {
@@ -101,13 +113,18 @@ public class BasicServerResponse implements CVSListener {
 	}
 
 	/**
-	 * @return Returns the terminationEvent.
+	 * Returns whether the command was executed succesfully.
+	 * @return True if the command was executed succesfully
 	 */
 	public boolean isError() {
 		waitForExecutionToFinish();
 		return terminationEvent.isError();
 	}
 	
+	/**
+	 * Get the message from the server.
+	 * @return String contaning the message
+	 */
 	public String getMessage(){
 		return message.toString();
 	}

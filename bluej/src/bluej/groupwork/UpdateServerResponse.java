@@ -104,7 +104,7 @@ public class UpdateServerResponse extends BasicServerResponse{
      */
     public List getConflicts(){
     	waitForExecutionToFinish();
-    	return getUpdateResultsOfType('C');
+    	return getUpdateResultsOfType(UpdateResult.CONFLICT);
     }
     
     /**
@@ -115,7 +115,7 @@ public class UpdateServerResponse extends BasicServerResponse{
      */
     public List getUnknown(){
     	waitForExecutionToFinish();
-    	return getUpdateResultsOfType('?');
+    	return getUpdateResultsOfType(UpdateResult.UNKNOWN);
     }
     
     /**
@@ -126,7 +126,7 @@ public class UpdateServerResponse extends BasicServerResponse{
      */
     public List getUpdated(){
     	waitForExecutionToFinish();
-    	return getUpdateResultsOfType('U');
+    	return getUpdateResultsOfType(UpdateResult.UPDATED);
     }
 
 	/**

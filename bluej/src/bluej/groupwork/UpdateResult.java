@@ -11,6 +11,13 @@ package bluej.groupwork;
 public class UpdateResult {
 	char statusCode = 'X';
 	String filename;
+	public static final char ADDED = 'A';
+	public static final char CONFLICT = 'C';
+	public static final char MODIFIED = 'M';
+	public static final char PATCHED = 'P';
+	public static final char REMOVED = 'R';
+	public static final char UPDATED = 'U';
+	public static final char UNKNOWN = '?';
 	
 	public UpdateResult(char statusCode, String filename){
 		this.statusCode = statusCode;
@@ -26,9 +33,10 @@ public class UpdateResult {
     	boolean messageOk;
     	if (hasRightStructure){
     		statusCode = m.charAt(0);
-    	    hasRightStatusCode = statusCode == 'A' ||
-			statusCode == 'C' || statusCode == 'M' || statusCode == 'P' ||
-			statusCode == 'R' || statusCode == 'U' || statusCode == '?';
+    	    hasRightStatusCode = statusCode == ADDED ||
+			statusCode == CONFLICT || statusCode == MODIFIED ||
+			statusCode == PATCHED || statusCode == REMOVED || 
+			statusCode == UPDATED || statusCode == UNKNOWN;
     	}
     	messageOk = hasRightStructure && hasRightStatusCode;
     	
