@@ -7,6 +7,7 @@ import bluej.editor.EditorWatcher;
 
 import java.util.Properties;
 import java.util.Vector;
+import java.util.Iterator;
 
 import java.awt.*;		// Font
 import java.io.*;		// Object input, ouput streams
@@ -93,6 +94,19 @@ public final class MoeEditorManager
     {
 	return openEditor (filename, false, windowTitle, watcher, false, null);
     }
+
+	public void refreshAll()
+	{
+		Iterator e = editors.iterator();
+
+		while(e.hasNext())
+		{
+			Editor ed = (Editor)e.next();
+
+			if(ed.isShowing())
+				ed.refresh();
+		}
+	}
 
     // ------------------------------------------------------------------------
     /**

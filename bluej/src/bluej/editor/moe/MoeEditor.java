@@ -303,6 +303,13 @@ public final class MoeEditor extends JFrame
         //  ## NYI: de-iconify
     }
 
+    /**
+     *  Refresh the editor window. 
+     */
+    public void refresh()	// inherited from Editor, redefined
+    {
+        textPane.setFont(PrefMgr.getStandardEditorFont());
+    }
 
     // --------------------------------------------------------------------
     /**

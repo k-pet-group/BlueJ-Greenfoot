@@ -3,7 +3,7 @@ package bluej.editor;
 import java.util.Vector;
 
 /**
- ** @version $Id: EditorManager.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: EditorManager.java 356 2000-01-13 02:36:31Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface between the editor manager and the rest of BlueJ
@@ -43,5 +43,11 @@ public interface EditorManager
 	 **/
 	Editor openText(String filename, String windowTitle, 
 				  EditorWatcher watcher);
+
+	/**
+         * Refresh the display of all showing editors (usually because
+	 * an editor property such as font has changed)
+         */
+	void refreshAll();
 
 } // end interface EditorManager

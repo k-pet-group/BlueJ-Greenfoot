@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- ** @version $Id: Editor.java 242 1999-08-19 06:43:31Z mik $
+ ** @version $Id: Editor.java 356 2000-01-13 02:36:31Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface between an editor and the rest of BlueJ
@@ -106,6 +106,10 @@ public interface Editor
      */
     void close();
 
+    /**
+     * Refresh the editor display (needed if font size has changed)
+     */
+    void refresh();
 
     /**
      *  Display a message (used for compile/runtime errors). An editor
