@@ -17,6 +17,8 @@ import java.util.*;
 import java.io.File;
 import bluej.extensions.event.ExtensionEvent;
 import bluej.extensions.event.ExtensionEventListener;
+import bluej.extensions.event.InvocationEvent;
+import bluej.extensions.event.InvocationEventListener;
 
 /**
  * A proxy object which provides services to BlueJ extensions. 
@@ -48,7 +50,7 @@ import bluej.extensions.event.ExtensionEventListener;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1885 2003-04-25 08:53:48Z damiano $
+ * @version $Id: BlueJ.java 1888 2003-04-25 09:09:16Z damiano $
  */
 
 /*
@@ -443,9 +445,9 @@ public class BlueJ
 
 
     /**
-     * Registers a listener for invocation result events.
+     * Registers a listener for invocation events.
      */
-    public void addInvocationResultEventListener (InvocationResultEventListener listener)
+    public void addInvocationEventListener (InvocationEventListener listener)
     {
         if (listener != null) invocationResultListeners.add(listener);
     }
@@ -453,7 +455,7 @@ public class BlueJ
     /**
      * Removes the specified listener so no that it no longer receives events.
      */
-    public void removeInvocationResultEventListener (InvocationResultEventListener listener)
+    public void removeInvocationEventListener (InvocationEventListener listener)
     {
         if (listener != null) invocationResultListeners.remove(listener);
     }
@@ -545,11 +547,11 @@ public class BlueJ
     /**
      * Dispatch this event to the listeners for the bluejReady events.
      */
-    private void delegateInvocationResultEvent ( InvocationResultEvent event )
+    private void delegateInvocationResultEvent ( InvocationEvent event )
         {
         for (Iterator iter = invocationResultListeners.iterator(); iter.hasNext(); ) 
             {
-            InvocationResultEventListener eventListener = (InvocationResultEventListener)iter.next();
+            InvocationEventListener eventListener = (InvocationEventListener)iter.next();
             eventListener.invocationFinished(event);
             }
         }
@@ -567,7 +569,7 @@ public class BlueJ
       if ( event instanceof BlueJReadyEvent ) delegateBluejReadyEvent ((BlueJReadyEvent)event);
       else if ( event instanceof PackageEvent ) delegatePackageEvent ((PackageEvent)event);
       else if ( event instanceof CompileEvent ) delegateCompileEvent ((CompileEvent)event);
-      else if ( event instanceof InvocationResultEvent ) delegateInvocationResultEvent ((InvocationResultEvent)event);
+      else if ( event instanceof InvocationEvent ) delegateInvocationResultEvent ((InvocationEvent)event);
       }
     
 }
