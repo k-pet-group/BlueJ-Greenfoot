@@ -2,6 +2,7 @@ package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.io.FileNotFoundException;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -11,6 +12,7 @@ import antlr.BaseAST;
 import bluej.Config;
 import bluej.debugger.*;
 import bluej.editor.Editor;
+import bluej.editor.moe.MoeEditor;
 import bluej.parser.*;
 import bluej.parser.SourceLocation;
 import bluej.parser.ast.LocatableAST;
@@ -18,13 +20,14 @@ import bluej.pkgmgr.*;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.TestDisplayFrame;
+import bluej.testmgr.record.ExistingFixtureInvokerRecord;
 import bluej.utility.*;
 
 /**
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2290 2003-11-06 05:00:57Z ajp $
+ * @version $Id: UnitTestClassRole.java 2303 2003-11-07 04:49:43Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -286,8 +289,41 @@ public class UnitTestClassRole extends ClassRole
     
     public void doFixtureToBench(PkgMgrFrame pmf, ClassTarget ct)
     {
-        Editor ed = ct.getEditor();
+        MoeEditor ed = (MoeEditor) ct.getEditor();
+        ed.save();
 
+        ExistingFixtureInvokerRecord existing = new ExistingFixtureInvokerRecord();
+        
+        try {
+            UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
+            List fixtureSpans = uta.getFieldSpans();
+
+            ListIterator it = fixtureSpans.listIterator();
+                
+            while(it.hasNext()) {
+                SourceSpan variableSpan = (SourceSpan) it.next();
+                    
+                ed.setSelection(variableSpan.getStartLine(), variableSpan.getStartColumn(),
+                                 variableSpan.getEndLine(), variableSpan.getEndColumn() + 1);
+                existing.addFieldDeclaration(ed.getSelectedText());
+            }
+
+            SourceSpan setUpSpan = uta.getMethodBlockSpan("setUp");
+
+            if (setUpSpan != null) {
+                ed.setSelection(setUpSpan.getStartLine(), setUpSpan.getStartColumn(),
+                                setUpSpan.getEndLine(), setUpSpan.getEndColumn() + 1);
+                String setUpWithBrackets = ed.getSelectedText();
+                // copy everything between the opening { and the final }
+                String setUpWithoutBrackets = 
+                        setUpWithBrackets.substring(setUpWithBrackets.indexOf('{') + 1,
+                                                    setUpWithBrackets.indexOf('}')).trim();
+                existing.setSetupMethod(setUpWithoutBrackets);
+            }
+            
+        }
+        catch (FileNotFoundException fnfe) { fnfe.printStackTrace(); }
+        
         Map dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
 
         Iterator it = dobs.entrySet().iterator();
@@ -297,6 +333,8 @@ public class UnitTestClassRole extends ClassRole
 
             pmf.putObjectOnBench((String) mapent.getKey(), (DebuggerObject)mapent.getValue(), null);
         }
+        
+        pmf.getObjectBench().addInteraction(existing);
     }   
     
     /**
@@ -314,7 +352,7 @@ public class UnitTestClassRole extends ClassRole
             UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
 
             // find all the fields declared in this unit test class
-            List variables = uta.getVariableSpans();
+            List variables = uta.getFieldSpans();
             
             // if we already have fields, ask if we are sure we want to get rid of them
             if (variables != null && variables.size() > 0) {

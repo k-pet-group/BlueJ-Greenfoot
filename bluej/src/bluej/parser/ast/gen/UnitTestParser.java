@@ -343,6 +343,28 @@ public UnitTestParser() {
 				currentAST = __currentAST13;
 				_t = __t13;
 				_t = _t.getNextSibling();
+				typeDefinition_AST = (AST)currentAST.root;
+				
+				Token commentToken = helpFindComment(im, ii);
+				AST comment;
+				
+				if (commentToken != null)
+				comment = new LocatableAST(commentToken);
+				else
+				comment = null;
+				
+							// lc and rc and the left and right curly brackets associated with this
+							// class definition. We have stored them in the LocatableAST as
+							// 'important' tokens (done inside java.g)
+				LocatableAST lc = new LocatableAST(((LocatableAST) ib).getImportantToken(0));
+				LocatableAST rc = new LocatableAST(((LocatableAST) ib).getImportantToken(1));
+				
+				typeDefinition_AST = (AST)astFactory.make( (new ASTArray(7)).add(ii_AST).add(lc).add(rc).add(im_AST).add(iec_AST).add(ib_AST).add((AST)astFactory.make( (new ASTArray(2)).add(astFactory.create(COMMENT_DEF,"COMMENT_DEF")).add(comment)))); 
+					
+				currentAST.root = typeDefinition_AST;
+				currentAST.child = typeDefinition_AST!=null &&typeDefinition_AST.getFirstChild()!=null ?
+					typeDefinition_AST.getFirstChild() : typeDefinition_AST;
+				currentAST.advanceChildToEnd();
 				break;
 			}
 			default:
@@ -4896,14 +4918,13 @@ public UnitTestParser() {
 		"ML_COMMENT",
 		"ESC",
 		"HEX_DIGIT",
-		"VOCAB",
 		"EXPONENT",
 		"FLOAT_SUFFIX",
 		"\"const\""
 	};
 	
 	private static final long[] mk_tokenSet_0() {
-		long[] data = { -4611682170136690688L, 127L, 67108864L, 0L, 0L, 0L};
+		long[] data = { -4611682170136690688L, 127L, 33554432L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_0 = new BitSet(mk_tokenSet_0());

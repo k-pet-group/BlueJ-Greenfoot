@@ -159,8 +159,7 @@ public interface UnitTestParserTokenTypes {
 	int ML_COMMENT = 148;
 	int ESC = 149;
 	int HEX_DIGIT = 150;
-	int VOCAB = 151;
-	int EXPONENT = 152;
-	int FLOAT_SUFFIX = 153;
-	int LITERAL_const = 154;
+	int EXPONENT = 151;
+	int FLOAT_SUFFIX = 152;
+	int LITERAL_const = 153;
 }

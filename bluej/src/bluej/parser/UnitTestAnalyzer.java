@@ -113,8 +113,9 @@ public class UnitTestAnalyzer
     }
 
     /**
-     * Given an OBJBLOCK (generally from a class definition), we extract
-     * a list of fields declared in the OBJBLOCK
+     * Extract from the unit testing source the list of source spans
+     * for the fields declared in the unit test class.
+     * 
      * ie
      *
      * class FooBar {
@@ -127,9 +128,9 @@ public class UnitTestAnalyzer
      *   j in java to ;
      *   p in public to ;
      *
-     * The list will be ordered in the order that the variables appear in the src.
+     * The list will be ordered in the order that the fields appear in the src.
      */
-    public List getVariableSpans()
+    public List getFieldSpans()
     {
         // we are creating a list of AST nodes
         LinkedList l = new LinkedList();
@@ -140,7 +141,7 @@ public class UnitTestAnalyzer
         // the children in an object block are a list of variable definitions
         // and method definitions
         while(childAST != null) {
-            // we are only interested in variable definitions
+            // we are only interested in variable definitions (fields)
             if(childAST.getType() == UnitTestParserTokenTypes.VARIABLE_DEF) {
                 // potentially VARIABLE_DEF could look like this
                 // we need to find the first type token (in this case
@@ -175,7 +176,7 @@ public class UnitTestAnalyzer
     }
 
     /**
-     * Given an OBJBLOCK (generally from a class definition), we extract
+     * Extract from the unit testing source
      * the opening and closing bracket locations for the method 'methodName'.
      * We select only methods that do not have any parameters (all unit test
      * methods take no arguements).
@@ -233,69 +234,30 @@ public class UnitTestAnalyzer
         return null;
     }
 
+    /**
+     * Extract from the unit test source a source location where
+     * we should insert declarations of fields (that will become
+     * the classes fixtures).
+     * 
+     * @return
+     */
     public SourceLocation getFixtureInsertLocation()
     {
         LocatableAST a = findUnitTestOpeningBracket();
         return new SourceLocation(a.getLine(),a.getColumn());
     }
 
+    /**
+     * Extract from the unit test source a source location where
+     * we can insert new methods.
+     * 
+     * @return
+     */
     public SourceLocation getNewMethodInsertLocation()
     {
         LocatableAST a = findUnitTestClosingBracket();
         return new SourceLocation(a.getLine(),a.getColumn());
         
     }
-    
-    {
-/*            java.util.List variables = null;
-            SourceSpan setupSpan = null;
-            LocatableAST openingBracket = null;
-            LocatableAST methodInsert = null;
-
-            openingBracket = (LocatableAST) firstClass.getFirstChild();
-            methodInsert = (LocatableAST) firstClass.getFirstChild().getNextSibling();
-            
-            BaseAST childAST = (BaseAST) methodInsert.getNextSibling();
-
-            while(childAST != null) {
-                if(childAST.getType() == UnitTestParserTokenTypes.OBJBLOCK) {
-                    
-                    variables = UnitTestParser.getVariableSourceSpans(childAST);
-                    setupSpan = UnitTestParser.getMethodBlockSourceSpan(childAST, "setUp");
-                    break;
-                }               
-                childAST = (BaseAST) childAST.getNextSibling();            
-            }   */
-
-        /*
-         *             BaseAST ast = (BaseAST) JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));
-
-            // operate on the first class defined in the source file.
-            // this could be a mistaken assumption but for unit tests its
-            // probably correct
-            BaseAST firstClass = (BaseAST) ast.getFirstChild();
-
-            java.util.List variables = null;
-            SourceSpan setupSpan = null;
-            LocatableAST openingBracket = null;
-            LocatableAST methodInsert = null;
-
-            openingBracket = (LocatableAST) firstClass.getFirstChild();
-            methodInsert = (LocatableAST) firstClass.getFirstChild().getNextSibling();
-            
-            BaseAST childAST = (BaseAST) methodInsert.getNextSibling();
-
-            while(childAST != null) {
-                if(childAST.getType() == UnitTestParserTokenTypes.OBJBLOCK) {
-                    
-                    variables = UnitTestAnalyzer.getVariableSourceSpans(childAST);
-                    setupSpan = UnitTestAnalyzer.getMethodBlockSourceSpan(childAST, "setUp");
-                    break;
-                }               
-                childAST = (BaseAST) childAST.getNextSibling();            
-            }            
-
-
-         */
-    }
+  
 }
