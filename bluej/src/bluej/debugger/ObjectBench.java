@@ -16,11 +16,11 @@ import bluej.utility.Debug;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1567 2002-12-11 12:37:51Z mik $
+ * @version $Id: ObjectBench.java 1569 2002-12-11 13:23:20Z mik $
  */
 public class ObjectBench
 {
-    static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH)/3;
+    static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3) * 2;
 
     private JPanel containerPanel;
     private JButton leftArrowButton, rightArrowButton;
@@ -32,7 +32,6 @@ public class ObjectBench
         containerPanel = new JPanel();
         containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.X_AXIS));
             
-//        leftArrowButton = new JButton("<");
         leftArrowButton = new ObjectBenchArrowButton(SwingConstants.WEST);
         leftArrowButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -40,19 +39,13 @@ public class ObjectBench
                 moveBench(-1);
             }
         });
-//        leftArrowButton.setAlignmentY(0);
-//        leftArrowButton.setMinimumSize(new Dimension(24, ObjectWrapper.HEIGHT));
-//        leftArrowButton.setPreferredSize(new Dimension(24, ObjectWrapper.HEIGHT));
-//        leftArrowButton.setMaximumSize(new Dimension(24, ObjectWrapper.HEIGHT));
-//        leftArrowButton.setBorder(BorderFactory.createEmptyBorder());
-        
+                
         containerPanel.add(leftArrowButton);
 
         obp = new ObjectBenchPanel();
 
         viewPort = new JViewport();
         viewPort.setView(obp);
-//        viewPort.setAlignmentY(0);
 //        viewPort.setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
 
 /*        obp.addComponentListener(new ComponentListener() {
@@ -78,7 +71,6 @@ public class ObjectBench
         
         containerPanel.add(viewPort);
             
-        //rightArrowButton = new JButton(">");
         rightArrowButton = new ObjectBenchArrowButton(SwingConstants.EAST);
         rightArrowButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -86,13 +78,6 @@ public class ObjectBench
                 moveBench(1);
             }
         });
-//         rightArrowButton.setAlignmentY(0);
-//         rightArrowButton.setMinimumSize(new Dimension(44, ObjectWrapper.HEIGHT));
-//         rightArrowButton.setPreferredSize(new Dimension(44, ObjectWrapper.HEIGHT));
-//         rightArrowButton.setMaximumSize(new Dimension(44, ObjectWrapper.HEIGHT));
-//         rightArrowButton.setBorder(BorderFactory.createEmptyBorder());
-
-//        containerPanel.add(Box.createHorizontalGlue());
         
         containerPanel.add(rightArrowButton);
 
@@ -111,15 +96,30 @@ public class ObjectBench
 
     private void moveBench(int xamount)
     {
-        Point pt = viewPort.getViewPosition();
+        final int xoffset = xamount;
+        
+        Thread scrollThread = new Thread() {
+                public void run() {
+                    Point pt = viewPort.getViewPosition();
 
-        pt.x += SCROLL_AMOUNT * xamount;
-        pt.x = Math.max(0, pt.x);
-        pt.x = Math.min(getMaxXExtent(), pt.x);
-
-        viewPort.setViewPosition(pt);
-
-        enableButtons(pt);
+                    int newx = pt.x + (SCROLL_AMOUNT * xoffset);
+                    newx = Math.max(0, newx);
+                    newx = Math.min(getMaxXExtent(), newx);
+            
+                    for(int x = pt.x + xoffset; x != newx ; x += xoffset) {
+                        pt.x = x;
+                        viewPort.setViewPosition(pt);
+                        viewPort.repaint();
+                        try {
+                            Thread.sleep(1); 
+                        } catch (InterruptedException e) {}
+                    }
+                    pt.x = newx;
+                    viewPort.setViewPosition(pt);
+                    enableButtons(pt);
+                }
+        };
+        scrollThread.start();
     }
 
     private void enableButtons(Point pt)
