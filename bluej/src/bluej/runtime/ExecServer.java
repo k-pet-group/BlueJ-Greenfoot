@@ -81,7 +81,7 @@ public class ExecServer
             loadClass("#dummy", "Dummy");
             removeClassLoader("#dummy");
         }
-        catch(ClassNotFoundException cfe) {
+        catch(Exception e) {
             // ignore - we will get a ClassNotFound exception here
         }
 
