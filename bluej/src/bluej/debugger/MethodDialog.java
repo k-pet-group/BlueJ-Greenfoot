@@ -30,7 +30,7 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 398 2000-02-25 03:55:40Z bquig $
+ * @version $Id: MethodDialog.java 399 2000-02-25 03:58:55Z bquig $
  */
 
 public class MethodDialog extends JDialog 
@@ -87,32 +87,6 @@ public class MethodDialog extends JDialog
         history = pkg.getCallHistory();
         bench = pkg.getBench();
 
-
-<<<<<<< MethodDialog.java
-	// set up panel for error message
-	status = new MultiLineLabel("\n\n", LEFT_ALIGNMENT);
-	status.setForeground(new Color(136,56,56));  // dark red
-	JPanel statusPanel = new JPanel();
-	statusPanel.setMinimumSize(new Dimension(120,40));
-
-	//  // Set up Cursor bug workaround to allow a WAIT_CURSOR to be shown
-//  	Component glass = getGlassPane(); 
-//  	glass.setCursor(Cursor.getPredefinedCursor
-//  			(Cursor.WAIT_CURSOR));
-//  	glass.addMouseListener(new MouseAdapter() {
-//  	    public void mousePressed(MouseEvent e) {}
-//  	});
-	// end of Workaround
-
-	// Find out the type of dialog 
-	if( method instanceof MethodView ) {
-	    dialogType = MD_CALL;
-	    methodName = ((MethodView)method).getName();
-	}		
-	else if (method instanceof ConstructorView ) {
-	    dialogType = MD_CREATE;
-	}
-=======
         // set up panel for error message
         status = new MultiLineLabel("\n\n", LEFT_ALIGNMENT);
         status.setForeground(new Color(136,56,56));  // dark red
@@ -127,7 +101,6 @@ public class MethodDialog extends JDialog
         else if (method instanceof ConstructorView ) {
             dialogType = MD_CREATE;
         }
->>>>>>> 1.16
 
         JPanel dialogPanel = new JPanel();
         {
