@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2884 2004-08-17 08:31:20Z mik $
+ * @version $Id: GraphPainterStdImpl.java 2907 2004-08-18 19:00:38Z mik $
  */
 public class GraphPainterStdImpl
     implements GraphPainter
@@ -85,10 +85,8 @@ public class GraphPainterStdImpl
      */
     private void paintVertices(Graphics2D g, Graph graph)
     {
-        Vertex vertex;
-        //Paint the vertices
         for (Iterator it = graph.getVertices(); it.hasNext();) {
-            vertex = (Vertex) it.next();
+            Vertex vertex = (Vertex) it.next();
             paintVertex(g, vertex);
         }
     }

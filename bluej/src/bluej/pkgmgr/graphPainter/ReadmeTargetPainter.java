@@ -4,18 +4,15 @@ import java.awt.*;
 import java.awt.Graphics2D;
 
 import bluej.pkgmgr.target.*;
-import bluej.pkgmgr.target.ReadmeTarget;
 
 /**
  * Paints a ReadmeTarget
  * @author fisker
- * @version $Id: ReadmeTargetPainter.java 2775 2004-07-09 15:07:12Z mik $
+ * @version $Id: ReadmeTargetPainter.java 2907 2004-08-18 19:00:38Z mik $
  */
 public class ReadmeTargetPainter
 {
     private static final int CORNER_SIZE = 11;
-    private ReadmeTarget readmeTarget;
-    private Graphics2D g;
 
     /**
      * Create the painter.
@@ -31,19 +28,12 @@ public class ReadmeTargetPainter
      */
     public void paint(Graphics2D g, Target target, boolean hasFocus)
     {
-        this.readmeTarget = (ReadmeTarget) target;
-        this.g = g;
-        g.translate(readmeTarget.getX(), readmeTarget.getY());
-        drawUMLStyle(hasFocus);
-        g.translate(-readmeTarget.getX(), -readmeTarget.getY());
-    }
-    
-    private void drawUMLStyle(boolean hasFocus)
-    {
-        int width = readmeTarget.getWidth();
-        int height = readmeTarget.getHeight();
+        g.translate(target.getX(), target.getY());
 
-        drawShadow();
+        int width = target.getWidth();
+        int height = target.getHeight();
+
+        drawShadow(g, width, height);
 
         // draw folded paper edge
         int[] xpoints = { 1, width - CORNER_SIZE, width, width, 1 };
@@ -51,7 +41,7 @@ public class ReadmeTargetPainter
 
         Polygon p = new Polygon(xpoints, ypoints, 5);
 
-        boolean isSelected = readmeTarget.isSelected() && hasFocus;
+        boolean isSelected = target.isSelected() && hasFocus;
         int thickness = (isSelected) ? 2 : 1;
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -72,28 +62,27 @@ public class ReadmeTargetPainter
         //draw the lines in the paper
         for(int yPos = CORNER_SIZE+10; yPos <= height-10; yPos += 5)
             g.drawLine(10, yPos, width - 10, yPos);
+        
+        g.translate(-target.getX(), -target.getY());
     }
     
     /**
      * Draw the drop shadow to the right and below the icon.
      */
-    private void drawShadow()
+    private void drawShadow(Graphics2D g, int width, int height)
     {
-	    int height = readmeTarget.getHeight();
-	    int width = readmeTarget.getWidth();
-	
-	    g.setColor(TargetPainterConstants.colours[3]);
+	    g.setColor(GraphPainterStdImpl.shadowColours[3]);
 	    g.drawLine(3, height, width , height); //bottom
 	    
-	    g.setColor(TargetPainterConstants.colours[2]);
+	    g.setColor(GraphPainterStdImpl.shadowColours[2]);
 	    g.drawLine(4, height + 1, width , height + 1); //bottom
 	    g.drawLine(width + 1, height + 2, width + 1, 3 + CORNER_SIZE); //left
 	    
-	    g.setColor(TargetPainterConstants.colours[1]);
+	    g.setColor(GraphPainterStdImpl.shadowColours[1]);
 	    g.drawLine(5, height + 2, width + 1, height + 2); //bottom
 	    g.drawLine(width + 2, height + 3, width + 2, 4 + CORNER_SIZE); //left
 	    
-	    g.setColor(TargetPainterConstants.colours[0]);
+	    g.setColor(GraphPainterStdImpl.shadowColours[0]);
 	    g.drawLine(6, height + 3, width + 2, height + 3 ); //bottom
 	    g.drawLine(width + 3, height + 3, width + 3, 5 + CORNER_SIZE); //left    
     }

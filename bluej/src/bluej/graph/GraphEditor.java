@@ -13,7 +13,7 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 2793 2004-07-13 16:59:39Z mik $
+ * @version $Id: GraphEditor.java 2907 2004-08-18 19:00:38Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener
@@ -94,7 +94,7 @@ public class GraphEditor extends JComponent
         graphPainter.paint(g2D, this);
         marqueePainter.paint(g2D, selectionController.getMarquee());
 
-        super.paint(g); // for border
+//        super.paint(g); // for border
     }
 
     // ---- MouseMotionListener interface: ----
