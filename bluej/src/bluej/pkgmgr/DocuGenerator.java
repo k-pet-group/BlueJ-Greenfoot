@@ -306,18 +306,6 @@ public class DocuGenerator
     /* ---------------------------------------------------------- */
 
 
-    //    instance fields
-
-    // tool-dependent instance fields for javadoc
-    /** javadoc param for the destination directory. */
-    private String destinationParam;
-    /** javadoc param for the root directory of the sources. */
-    private String sourceParam;
-    /** javadoc params for setting window and project title */
-    private String titleParams;
-
-    /* -------------- end of instance field declarations ---------------- */
-
     /**
      * Construct a documentation generator instance for a project.
      * @param project the project this generator belongs to.
@@ -372,10 +360,6 @@ public class DocuGenerator
 //          String javadocCall = docCommand + sourceParam + destinationParam
 //                            + titleParams + linkParam + " " + fixedJavadocParams
 //                            + targets;
-        destinationParam = " -d \"" + docDirPath + "\"";
-        sourceParam = " -sourcepath \"" + projectDirPath + "\"";
-        titleParams = " -doctitle \"" + project.getProjectName()  + "\""
-                    + " -windowtitle \"" + project.getProjectName() + "\"";
 
         ArrayList call = new ArrayList();
         call.add(docCommand);
@@ -383,6 +367,11 @@ public class DocuGenerator
         call.add(projectDirPath);
         call.add("-d");
         call.add(docDirPath);
+        if(! System.getProperty("java.vm.version").startsWith("1.3"))
+            if(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14)) {
+                call.add("-source");
+                call.add("1.4");
+            }
         call.add("-doctitle");
         call.add(project.getProjectName());
         call.add("-windowtitle");
