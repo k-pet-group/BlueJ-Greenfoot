@@ -107,7 +107,6 @@ compile=\n Compile the current class. The class is automatically\n saved before 
 preview-doc= Generate and view documantation for this class, using javadoc.\nNote that this function generates the documentation for preview\npurposes only. If you want to generate and store documentation \npermanently, use the documentation function from the main window.
 toggle-breakpoint=\n Set or clear a breakpoint in the current line.
 
-
 ## help texts for adding key bindings
 
 press-key=\n  Press the key you want to add...

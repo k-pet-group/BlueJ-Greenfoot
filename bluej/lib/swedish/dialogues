@@ -79,13 +79,12 @@ error-no-name
 Du måste ange ett godkänt namn.
 
 error-save-file
-An error occurred when trying to save
-the file. The file was not saved.
+Ett fel inträffade när filen försökte sparas.
+Filen sparades inte.
 
 cannot-save-keys
-An error occurred while trying to save
-the key bindings. The bindings were not 
-saved.
+Ett fel inträffade när tangentbordskommandona
+försökte sparas. Kommandona sparades inte.
 
 skeleton-error
 Klassens default-mall kunde inte skapas.
@@ -94,11 +93,29 @@ i Bluej's "setup", eller på grund av
 tillträdesproblem i filsystemet.
 
 error-open-source
-Det är problem att öppna källfilen till den
+Det gick inte att öppna källfilen till den
 här klassen. Allvarligt problem!
 
-invalid-name
-Icke godkänt klassnamn
+error-open-readme
+Det gick inte att öppna textnoteringarna för det
+här projektet. En ny, tom textnotering
+har skapats.
+
+error-writing-readme
+README filen för det här projektet kunde inte
+uppdateras med information om huvudklassen.
+Ett fel uppstod vid ändring av den här filen.
+
+error-exporting
+Ett fel uppstod vid försök att exportera
+applikationen. Det är möjligt att några eller 
+alla filer inte har blivit korrekt kopierade.
+
+invalid-class-name
+Icke godkänt klassnamn.
+
+invalid-package-name
+Icke godkänt paketnamn.
 
 directory-exists
 En fil eller katalog med det här namnet
@@ -226,6 +243,15 @@ Sök
 Avbryt
 null
 
+import-into-current
+Du har redan ett paket öppet i det här fönstret.
+Vill du importera till det öppna paketet eller 
+vill du skapa ett nytt projekt och importera till
+det.
+Till Öppet
+Nytt Projekt
+null
+
 also-search-subdirs
 Katalogen du valde innehåller underkataloger.
 Vill du att dessa kataloger, och alla deras 
@@ -235,15 +261,6 @@ filer?
 Sök underkataloger
 Avbryt
 null
-
-cannot-search-subdirs
-Katalogen du valde innehåller underkataloger.
-För tillfället kan inte dessa kataloger genomsökas
-efter Java källkodsfiler eftersom den här versionen
-av Bluej inte stödjer namngivna och nästlade paket.
-Stöd för detta kommer att finnas i framtida versioner.
-Om den valda katalogen innehåller Java källkodsfiler
-kommer dessa nu visas i ett Bluejfönster.
 
 ask-index
 Ange arrayelementindex [...]

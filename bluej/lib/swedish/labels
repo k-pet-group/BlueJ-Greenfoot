@@ -1,6 +1,7 @@
 okay=Ok
 cancel=Avbryt
 close=Stäng
+continue=Continue
 
 main.invalidPackage=Paketet kunde inte hittas
 
@@ -45,7 +46,6 @@ debugger.jdiDebugger.internalErrorMsg=Det uppstod ett internt fel vid försök att
 #library browser configuration
 browser.title=Biblioteksläsare
 browser.version=0.1
-browser.tempdir=c:\\temp
 browser.togglemessagebox.toggle.text=visa inte det här meddelandet igen
 
 browser.librarychooser.loading.status=Laddar bibliotek...
@@ -142,6 +142,7 @@ editor.find-backwardLabel = Hitta baklänges...
 editor.replaceLabel = Ersätt...
 editor.goto-lineLabel = Gå till rad...
 editor.compileLabel = Kompilera
+editor.preview-docLabel = Kör Javadoc
 editor.toggle-breakpointLabel = Sätt/Ta bort brytpunkt
 
 editor.state.readOnly = endast läsning
@@ -194,7 +195,6 @@ editor.info.cancelled = Cancelled.
 editor.printer.continued=forts
 #End Editor labels
 
-pkgmgr.noTitle=<ingenTitel>
 pkgmgr.chooseUsesFrom=Välj klass som beroendet kommer ifrån
 pkgmgr.chooseUsesTo=Välj klass som den beror på
 pkgmgr.chooseInhFrom=Välj subklass
@@ -212,15 +212,21 @@ pkgmgr.openPkg.title=Öppna Paket
 pkgmgr.openPkg.buttonLabel=Öppna i BlueJ
 pkgmgr.saveAs.title=Spara Paket
 pkgmgr.saveAs.buttonLabel=Spara
-pkgmgr.importClass.title=Välj Klass för Import
-pkgmgr.importClass.buttonLabel=Importera
+pkgmgr.addClass.title=Välj Java Klass att lägga till
+pkgmgr.addClass.buttonLabel=Lägg Till
 pkgmgr.importPkg.title=Importera Paket
+pkgmgr.importPkg.buttonLabel=Importera
+pkgmgr.importPkgNew.title=Nytt Projekt att importera till
+pkgmgr.importPkgNew.buttonLabel=Skapa
 pkgmgr.newClass.msg=Ange klassens namn
 pkgmgr.newUses=Ny Använder Pil
 pkgmgr.newExtends=Ny Extends Pil
 pkgmgr.unimplemented=Tyvärr - inte implementerat ännu
 pkgmgr.pkgChooseError=Fel vid val av giltigt Paketnamn
 pkgmgr.chooseWebPage.title=Välj destination för HTML sida
+
+pkgmgr.parentpackagetarget.open=Öppna
+pkgmgr.parentpackagetarget.openunamed=Öppna namnlöst paket
 
 pkgmgr.classmenu.runApplet=Kör Applet
 pkgmgr.classmenu.edit=Editera Implementation
@@ -242,14 +248,19 @@ pkgmgr.newClass.newAbstractClass=Abstrakt klass
 pkgmgr.newClass.newInterface=Interface
 pkgmgr.newClass.newApplet=Applet
 
-# "export" dialog ##TO BE TRANSLATED##
-pkgmgr.export.title=BlueJ:  Export Project
-pkgmgr.export.helpLine1=Export stores a copy of the current project in
-pkgmgr.export.helpLine2=standard Java (non-BlueJ) format.
-pkgmgr.export.directoryLabel=Store as directory structure
-pkgmgr.export.jarFileLabel=Store as jar file
-pkgmgr.export.classLabel=main class:
-pkgmgr.export.sourceLabel=include source
+# "new package" dialog
+pkgmgr.newPackage.title=BlueJ:  Skapa Nytt Paket
+pkgmgr.newPackage.label=Paketnamn:
+pkgmgr.newPackage.newPackage=Paket
+
+# "export" dialog
+pkgmgr.export.title=BlueJ:  Exportera Projekt
+pkgmgr.export.helpLine1=Exportera sparar en kopia av det aktuella projektet i
+pkgmgr.export.helpLine2=Standard Java (icke-BlueJ) format.
+pkgmgr.export.directoryLabel=Spara som katalogstruktur
+pkgmgr.export.jarFileLabel=Spara som jar-fil
+pkgmgr.export.classLabel=Huvud klass:
+pkgmgr.export.sourceLabel=Inkludera källkod
 
 # run applet dialog
 pkgmgr.runApplet.title=Kör Applet
@@ -316,6 +327,8 @@ pkgmgr.usesArrowMsg="Använder" beroende har deklarerats men används inte:
 pkgmgr.breakpointMsg=En klass måste vara kompilerad för att brytpunkter ska kunna sättas.
 pkgmgr.appletInViewer=Kör applet i "appletviewer"
 pkgmgr.appletInBrowser=Kör applet i webbläsare
+pkgmgr.exported=Export klar.
+pkgmgr.exported.jar=Export till jar-fil klar.
 
 properties.heading=BlueJ properties. Settings in this file override \"bluej.defs\"
 # menus and menu items
@@ -326,17 +339,17 @@ menu.package.open=Öppna...
 menu.package.close=Stäng
 menu.package.save=Spara
 menu.package.saveAs=Spara som...
-menu.package.importClass=Importera klass...
-menu.package.pageSetup=Page Setup...
+menu.package.import=Importera...
+menu.package.export=Exportera...
+menu.package.pageSetup=Sidinställningar...
 menu.package.print=Skriv ut...
 menu.package.quit=Avsluta
 
 menu.edit=Redigera
 menu.edit.newClass=Ny Klass...
-# to be translated
-menu.edit.newPackage=New Package...
-# to be translated
-menu.edit.remove=Remove...
+menu.edit.newPackage=Nytt Paket...
+menu.edit.addClass=Lägg till en klass från fil...
+menu.edit.remove=Ta bort...
 menu.edit.newUses=Ny "Använder"-pil...
 menu.edit.newInherits=Ny Arvspil...
 menu.edit.removeArrow=Radera pil...

@@ -17,6 +17,7 @@ insert-half-tab=\n Infoga ett halvt tabulatortecken (ett halvt tabulatorteckenår
 insert-method=\n Infoga mall för Java metod.
 comment=\n Kommentera bort markerad kod.\n Koden kan lätt återställas senare (se uncomment).
 uncomment=\n Ta bort kommentarsymboler från markerad text. (se comment)
+
 select-word=\n Markera aktuellt ord (även bundet till vänster musknapp: dubbelklick). 
 select-line=\n Markera aktuell rad (även bundet till vänster musknapp: trippelklick).
 select-paragraph=\n Markera aktuell paragraf.
@@ -99,12 +100,17 @@ find-next-reverse=\n Like find-next, but reverse the search direction.
 
 replace=\n Replace one text string with another.
 
-goto-line=\n Goto a specified line.
+goto-line=\n Gå till den angivna linjen.
 
 compile=\n Compile the current class. The class is automatically\n saved before being compiled.
 
+preview-doc= Generate and view documantation for this class, using javadoc.\nNote that this function generates the documentation for preview\npurposes only. If you want to generate and store documentation \npermanently, use the documentation function from the main window.
 toggle-breakpoint=\n Set or clear a breakpoint in the current line.
 
+## help texts for adding key bindings
+
+press-key=\n Ange önskat tangentkommando genom att trycka ner tangenterna...
+cannot-redefine=\n Tangenter som resulterar i utskrift på skärmen kan inte omdefinieras.
 
 
 
