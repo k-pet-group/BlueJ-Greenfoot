@@ -108,7 +108,7 @@
              whenempty="fail" />
 
         <!-- cleanup (leaving install_tmp for use by window setup installer) -->
-	<delete file="bluej-dist.jar"/>
+	<!-- delete file="bluej-dist.jar"/ -->
 	<delete>
              <fileset dir="." includes="*.class"/>
         </delete>
