@@ -180,6 +180,7 @@ editor.find-backwardLabel = Find Backward...
 editor.replaceLabel = Replace...
 editor.compileLabel = Compile
 editor.toggle-breakpointLabel = Set/Clear Breakpoint
+editor.toggle-interface-viewLabel = Toggle Interface View
 
 editor.implementationLabel = Implementation
 editor.interfaceLabel = Interface
