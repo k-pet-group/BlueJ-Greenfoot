@@ -69,6 +69,17 @@ public class Marquee
         h = Math.abs(h);
         Rectangle newRect = new Rectangle(x, y, w, h);  
         oldRect = newRect;
+        //compute the two rectangles that make op the difference between new and
+        //old
+        int oldWidth = (int) oldRect.getWidth();
+        int oldHeight = (int) oldRect.getHeight();
+        Rectangle horizontalRect = new Rectangle(x, y + oldHeight, 
+                                                 w, h - oldHeight);
+        Rectangle verticalRect = new Rectangle(x + oldWidth, y,
+                                               w - oldWidth, oldHeight);
+                                               
+        //graphEditor.repaint(horizontalRect);
+        //graphEditor.repaint(verticalRect);
         graphEditor.repaint();
         findSelectedVertices(x,y,w,h);
     }
