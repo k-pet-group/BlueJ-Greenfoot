@@ -15,7 +15,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2645 2004-06-22 01:03:12Z davmac $
+ * @version $Id: JavaUtils.java 2647 2004-06-22 02:21:48Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -161,22 +161,18 @@ public abstract class JavaUtils {
         sb.append(name);
         sb.append("(");
         for (int j = 0; j < paramTypes.length; j++) {
-            if (includeTypeNames) {                              
+            if (isVarArgs && j == paramTypes.length - 1) {
+                if (includeTypeNames || paramNames == null || paramNames[j] == null)
+                    sb.append(paramTypes[j].substring(0, paramTypes[j].length() - 2));
+                sb.append("... ");
+            }
+            else if (includeTypeNames || paramNames == null || paramNames[j] == null) {                              
                 sb.append(paramTypes[j]);
                 sb.append(" ");
             }
-            if (isVarArgs && j == paramTypes.length - 1)
-                sb.append("... ");
             
-            String paramname = null;
-            if (paramNames != null)
-                paramname = paramNames[j];
-            else if (!includeTypeNames) {
-                //Debug.message("substitute type for name");                        
-                paramname = paramTypes[j];
-            }
-            if (paramname != null) {
-                sb.append(paramname);
+            if (paramNames != null && paramNames[j] != null) {
+                sb.append(paramNames[j]);
             }
             if (j < (paramTypes.length - 1))
                 sb.append(", ");
