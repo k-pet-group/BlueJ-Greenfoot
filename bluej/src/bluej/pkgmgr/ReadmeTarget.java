@@ -18,7 +18,7 @@ import net.sourceforge.transmogrify.hook.bluej.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 1018 2001-12-04 05:08:03Z ajp $
+ * @version $Id: ReadmeTarget.java 1523 2002-11-28 02:26:05Z bquig $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -31,13 +31,15 @@ public class ReadmeTarget extends Target
     static final Color colBorder = Config.getItemColour("colour.target.border");
     static final Color textfg = Config.getItemColour("colour.text.fg");
 
+    static final String README_ID = "@README";
+
     protected Editor editor;
 
     public ReadmeTarget(Package pkg)
     {
         // create the target with an identifier name that cannot be
         // a valid java name
-        super(pkg, "@README");
+        super(pkg, README_ID);
 
         setPos(10, 10);
         setSize(DEF_WIDTH, DEF_HEIGHT);
