@@ -6,7 +6,7 @@ import com.sun.jdi.*;
  * A wrapper for an array object in BlueJ.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BArray.java 1852 2003-04-15 14:56:38Z iau $
+ * @version $Id: BArray.java 1869 2003-04-21 11:04:44Z damiano $
  */
 
 /*
@@ -37,7 +37,7 @@ public class BArray
     
     Value val = array.getValue(itemIndex);
 
-    return BField.getVal(thisArray.getBluejPackage(), "Array", val);
+    return BField.doGetVal(thisArray.getBluejPackage(), "Array", val);
     }
 
 

@@ -19,6 +19,7 @@ import java.lang.reflect.Constructor;
 import javax.swing.*;
 import bluej.extensions.MenuGenerator;
 import bluej.extensions.PreferenceGenerator;
+import bluej.extensions.ExtensionBridge;
 
 /**
  * <PRE>
@@ -54,7 +55,6 @@ public class ExtensionWrapper
     private BlueJ  extensionBluej;
     private String extensionStatusString;
     private Project project;
-    private Collection eventListeners;
 
     /**
      *  We try to load the given jar, there is nothing wrong if it is NOT a good
@@ -143,15 +143,14 @@ public class ExtensionWrapper
      *
      * @param  project  The project this extensionis linked to, null if none
      */
-    void newExtension(Project project)
+    void newExtension(Project aProject)
     {
         // It may happen
         if (extensionClass == null)  return;
 
-        this.project = project;
+        project = aProject;
 
-        eventListeners = new ArrayList();
-        extensionBluej = new BlueJ(this, prefManager, menuManager);
+        extensionBluej = ExtensionBridge.newBluej(this, prefManager, menuManager);
 
         extensionStatusString = Config.getString("extmgr.status.notused");
 
@@ -386,17 +385,6 @@ public class ExtensionWrapper
         return "extensions." + getExtensionClassName() + ".settings." + key;
     }
 
-    /**
-     *  Registers a package listener for this extension.
-     *
-     * @param  el  The feature to be added to the BJEventListener attribute
-     */
-    public void addBluejEventListener(BlueJExtensionEventListener eventListener)
-    {
-        if (eventListener == null) return;
-
-        eventListeners.add(eventListener);
-    }
 
 
     /* ====================== ERROR WRAPPED CALLS HERE =========================
@@ -407,22 +395,14 @@ public class ExtensionWrapper
 
     /**
      * Informs any registered listeners that an event has occurred.
-     *
-     * @param  event  Description of the Parameter
      */
     void safeEventOccurred(BlueJExtensionEvent event)
     {
         if (!isValid()) return;
 
-        if (eventListeners.isEmpty()) return;
-
         try
           {
-          for (Iterator iter = eventListeners.iterator(); iter.hasNext(); ) 
-            {
-            BlueJExtensionEventListener eventListener = (BlueJExtensionEventListener)iter.next();
-            eventListener.eventOccurred(event);
-            }
+          ExtensionBridge.delegateEvent(extensionBluej,event);
           }
         catch ( Exception exc )
           {
@@ -433,11 +413,8 @@ public class ExtensionWrapper
       }
 
 
-
     /**
-     *  Gets the extension's description.
-     *
-     * @return    the extension's description, or null
+     * Returns the extension's description.
      */
     String safeGetExtensionDescription()
     {

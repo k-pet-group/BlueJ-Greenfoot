@@ -16,7 +16,7 @@ import bluej.debugger.*;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 1852 2003-04-15 14:56:38Z iau $
+ * @version $Id: BObject.java 1869 2003-04-21 11:04:44Z damiano $
  */
 
 /*
@@ -30,7 +30,7 @@ public class BObject
     /**
      * Constructor for BObject.
      */
-    public BObject (ObjectWrapper aWrapper)
+    BObject (ObjectWrapper aWrapper)
     {
         wrapper = aWrapper;
     }

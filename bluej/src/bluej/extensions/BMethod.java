@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1852 2003-04-15 14:56:38Z iau $
+ * @version $Id: BMethod.java 1869 2003-04-21 11:04:44Z damiano $
  */
 
 /*
@@ -132,7 +132,7 @@ public class BMethod
         if ( thisField == null ) return null;
 
         // DOing this is the correct way of returning the right object. Tested 080303, Damiano
-        return BField.getVal(bluej_pkg, resultName, objRef.getValue(thisField));
+        return BField.doGetVal(bluej_pkg, resultName, objRef.getValue(thisField));
         }
     
     /**

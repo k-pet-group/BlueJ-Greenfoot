@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1868 2003-04-21 09:42:26Z damiano $
+ * @version $Id: BField.java 1869 2003-04-21 11:04:44Z damiano $
  */
 
 /*
@@ -138,7 +138,7 @@ public class BField
         return null;
         }
 
-      return getVal(bluej_package, wantFieldName, objRef);
+      return doGetVal(bluej_package, wantFieldName, objRef);
       }
 
 
@@ -158,7 +158,7 @@ public class BField
      * As in the Relection API, in order to get the value of a static field pass 
      * null as the parameter to this method.
      */
-    public Object get ( BObject onThis )
+    public Object getValue ( BObject onThis )
         {
         // If someone gives me a null it means that he wants a static field
         if ( onThis == null ) return getStaticField();
@@ -171,20 +171,16 @@ public class BField
         if ( thisField == null ) return null;
        
         Package bluej_pkg = onThis.getBluejPackage();
-        return getVal(bluej_pkg, bluej_view.getName(), objRef.getValue(thisField));
+        return doGetVal(bluej_pkg, bluej_view.getName(), objRef.getValue(thisField));
         }
 
 
     /**
-     * WARNING: This is COPIED into the extension/event.
-     * if you change something you MUST keep it in sync.
-     * The reason of the copy is simply because javadoc does not (yet) have a way to hide public methods.
-     * Utility to avoid duplicated code. To be used from within the bluej.extensions package
      * Given a Value that comes from th remote debugger machine, converts it into somethig
      * that is usable. The real important thing here is to return a BObject for objects 
      * that can be put into the bench.
      */
-    static Object getVal ( Package bluej_pkg, String instanceName, Value val )
+    static Object doGetVal ( Package bluej_pkg, String instanceName, Value val )
         {
         if ( val == null ) return null;
         

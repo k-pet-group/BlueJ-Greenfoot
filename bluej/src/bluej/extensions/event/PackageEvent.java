@@ -1,12 +1,12 @@
 package bluej.extensions.event;
 
-import bluej.extensions.BPackage;
+import bluej.extensions.*;
 import bluej.pkgmgr.Package;
 
 /**
  * This class encapsulates events on BlueJ packages.
  *
- * @version $Id: PackageEvent.java 1851 2003-04-14 15:52:26Z iau $
+ * @version $Id: PackageEvent.java 1869 2003-04-21 11:04:44Z damiano $
  */
 
 /*
@@ -51,7 +51,7 @@ public class PackageEvent implements BlueJExtensionEvent
      */
     public BPackage getPackage ()
       {
-      return new BPackage (thisPackage);
+      return ExtensionBridge.newBPackage (thisPackage);
       }
 
     /**

@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1868 2003-04-21 09:42:26Z damiano $
+ * @version $Id: BlueJ.java 1869 2003-04-21 11:04:44Z damiano $
  */
 
 /*
@@ -64,14 +64,21 @@ public class BlueJ
     private MenuGenerator          currentMenuGen=null;
     private Properties             localLabels;
 
+
+    private ArrayList eventListeners;   // This is the queue for the whole of them
+
+
     /**
      * Constructor for a BlueJ proxy object.
+     * See the ExtensionBridge class
      */
-    public BlueJ (ExtensionWrapper aWrapper, PrefManager aPrefManager, MenuManager aMenuManager)
+    BlueJ (ExtensionWrapper aWrapper, PrefManager aPrefManager, MenuManager aMenuManager)
     {
         myWrapper   = aWrapper;
         prefManager = aPrefManager;
         menuManager = aMenuManager;
+
+        eventListeners = new ArrayList();
 
         /* I do NOT want lazy initialization otherwise I may try to load it
          * may times just because I cannof find anything.
@@ -271,18 +278,20 @@ public class BlueJ
      */
     public void addBlueJExtensionEventListener (BlueJExtensionEventListener listener)
     {
-        myWrapper.addBluejEventListener (listener);
+        if (listener == null) return;
+
+        eventListeners.add(listener);
     }
 
 
-     /**
-      * Returns a property from BlueJ's properties, 
-      * or the given default value if the property is not currently set.
-      * 
-      * @param property The name of the required global property
-      * @param def The default value to use if the property cannot be found.
-      * @return the value of the property.
-      */
+    /**
+     * Returns a property from BlueJ's properties, 
+     * or the given default value if the property is not currently set.
+     * 
+     * @param property The name of the required global property
+     * @param def The default value to use if the property cannot be found.
+     * @return the value of the property.
+     */
     public String getBlueJPropertyString (String property, String def)
     {
         return Config.getPropString ( property, def);
@@ -346,5 +355,31 @@ public class BlueJ
         // ok, the only hope is to get it from the system
         return Config.getString (key, key);
     }
+
+
+    /**
+     * Dispatch this event to the listeners for the ALL events.
+     */
+    private void delegateExtensionEvent ( BlueJExtensionEvent event )
+        {
+        // I do not bother to check for emptiness, the iterator will fail quick !
+
+        for (Iterator iter = eventListeners.iterator(); iter.hasNext(); ) 
+            {
+            BlueJExtensionEventListener eventListener = (BlueJExtensionEventListener)iter.next();
+            eventListener.eventOccurred(event);
+            }
+        }
+
+
+    /**
+     * Informs any registered listeners that an event has occurred.
+     * This will call the various dispatcher as needed.
+     * Errors will be trapped by the caller.
+     */
+    void delegateEvent (BlueJExtensionEvent event)
+      {
+      delegateExtensionEvent ( event );
+      }
     
 }

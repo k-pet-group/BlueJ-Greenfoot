@@ -18,7 +18,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1852 2003-04-15 14:56:38Z iau $
+ * @version $Id: BPackage.java 1869 2003-04-21 11:04:44Z damiano $
  */
 
 /*
@@ -34,7 +34,7 @@ public class BPackage
     /**
      * Constructor for a BPackage.
      */
-    public BPackage (Package aBlueJpkg)
+     BPackage (Package aBlueJpkg)
     {
         // Unfortunately it must be bublic since it is called by the extension manager
         bluej_pkg = aBlueJpkg;
