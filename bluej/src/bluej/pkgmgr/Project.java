@@ -22,7 +22,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 589 2000-06-28 04:31:40Z mik $
+ * @version $Id: Project.java 590 2000-06-28 04:39:46Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -472,7 +472,7 @@ public class Project
             break;
         case BlueJEvent.HALT:
             thread = (DebuggerThread)arg;
-            if(thread.getParam() == this)
+            if((thread != null) && (thread.getParam() == this))
                 hitHalt(thread);
             break;
         case BlueJEvent.SHOW_SOURCE:
