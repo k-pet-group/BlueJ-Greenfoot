@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -1956,7 +1957,10 @@ public final class MoeEditor extends JFrame
             button = new JButton(label);
 
         button.setRequestFocusEnabled(false);   // never get keyboard focus
-        //button.setMargin(new Insets(2,2,2,2));
+        
+        Insets margin = button.getMargin();
+        button.setMargin(new Insets(margin.top, 3, margin.bottom, 3));
+        
         button.setFont(PrefMgr.getStandardFont());
 
         String actionName = getResource(key + ActionSuffix);
