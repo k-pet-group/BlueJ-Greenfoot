@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class Building extends GreenfootWorld
 {
-    public static final int RESOLUTION = 2;
+    public static final int RESOLUTION = 1;
     public static final int DEFAULT_LIFTS = 3;
     public static final int DEFAULT_STORIES = 6;
     
@@ -38,7 +38,8 @@ public class Building extends GreenfootWorld
      */
     public Building(int stories, int lifts)
     {
-        super(120 + lifts * 28, stories * 36 + 20, 2, 2);
+        //super(120 + lifts * 28, stories * 36 + 20);
+        super(240 + lifts * 56, stories * 72 + 40);
         
         //setBackgroundImage("brick.jpg");
         setBackgroundImage("sandstone.jpg");
@@ -58,7 +59,7 @@ public class Building extends GreenfootWorld
             Button button = new Button();
             addObject(button);
             floors[i] = new Floor(i, button);
-            newObject(floors[i], 10, (numberOfFloors-1-i) * 36 + 10);
+            newObject(floors[i], 20, (numberOfFloors-1-i) * 72 + 20);
         }
     }
     
@@ -72,7 +73,7 @@ public class Building extends GreenfootWorld
 
         for(int i=0; i<numberOfLifts; i++) {
             g.fillRect(218 + i * 56, 18, 54, (numberOfFloors)*72 + 2);
-            newObject(new Lift(), 110 + i * 28, (numberOfFloors-1)*36 + 10);
+            newObject(new Lift(), 220 + i * 56, (numberOfFloors-1)*72 + 20);
         }
     }
     
