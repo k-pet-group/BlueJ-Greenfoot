@@ -1,14 +1,13 @@
-$PKGLINE/**
+$PKGLINE
+import java.awt.*;
+import javax.swing.*;
+
+/**
  * Class $CLASSNAME - Escriviu aquí una descripció de la classe
  * 
- * @author: 
- * date: 
+ * @author (your name) 
+ * @version (a version number)
  */
-
-import javax.swing.JApplet;
-import javax.swing.JRootPane;
-import java.awt.Graphics;
-
 public class $CLASSNAME extends JApplet
 {
 	// instance variables - Reemplaceu l'exemple següent per les vostres variables
@@ -56,6 +55,22 @@ public class $CLASSNAME extends JApplet
 		// Inclou qualsevol codi que sigui necessari executar quan la pàgina sigui
 		// reemplaçada per una altra o immediatament abans que el JApplet sigui destruït.
 	
+	}
+
+	/**
+	 * Paint method for applet.
+	 * 
+	 * @param  g   the Graphics object for this applet
+	 */
+	public void paint(Graphics g)
+	{
+		// simple text displayed on applet
+		g.setColor(Color.white);
+		g.fillRect(0, 0, 200, 100);
+		g.setColor(Color.black);
+		g.drawString("Sample Applet", 20, 20);
+		g.setColor(Color.blue);
+		g.drawString("created by BlueJ", 20, 40);
 	}
 
 	/**
