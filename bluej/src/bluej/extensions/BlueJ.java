@@ -10,6 +10,8 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.Config;
 import bluej.utility.DialogManager;
+import java.awt.Frame;
+
 
 import java.util.*;
 import java.io.File;
@@ -41,7 +43,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1691 2003-03-10 13:42:01Z damiano $
+ * @version $Id: BlueJ.java 1693 2003-03-10 14:03:52Z damiano $
  */
 
 public class BlueJ
@@ -175,6 +177,17 @@ public class BlueJ
         return new BPackage (pkg);
     }
 
+    /**
+     * Gets the current Frame being displayed. 
+     * Used for modal dialog or similar.
+     * Use this one when there are NO packages open
+     *
+     * @return the current Frame
+     */
+    public Frame getCurrentFrame()
+    {
+        return PkgMgrFrame.getMostRecent();
+    }
 
 
     /**
