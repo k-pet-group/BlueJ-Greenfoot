@@ -3,6 +3,8 @@ package bluej.debugger;
 import java.io.File;
 import java.util.*;
 
+import javax.swing.tree.TreeModel;
+
 import bluej.debugger.jdi.JdiDebugger;
 
 /**
@@ -12,7 +14,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2022 2003-06-05 05:04:16Z ajp $
+ * @version $Id: Debugger.java 2030 2003-06-11 07:58:29Z ajp $
  */
 public abstract class Debugger
 {
@@ -36,7 +38,7 @@ public abstract class Debugger
 	 */
 	public static Debugger getDebuggerImpl(File startingDirectory)
 	{
-		return new JdiDebugger(startingDirectory);
+        return new JdiDebugger(startingDirectory);
 	}
 	
 	/**
@@ -69,34 +71,38 @@ public abstract class Debugger
      * Add an object to a package scope. The object is held in field
      * 'fieldName' in object 'instanceName'.
      */
-    public abstract void addObjectToScope(String scopeId, String newObjectName,
-                                            DebuggerObject dob);
-
+    public abstract boolean addObject(String newInstanceName, DebuggerObject dob);
 
     /**
      * Remove an object from a package scope (when removed from object bench)
      */
-    public abstract void removeObjectFromScope(String scopeId,
-                                               String instanceName);
+    public abstract void removeObject(String instanceName);
 
+	/**
+	 * Return the debugger objects that exist in the
+	 * debugger.
+	 * 
+	 * @return			a Map of (String name, DebuggerObject obj) entries
+	 */
+	public abstract Map getObjects();
+	
+	/**
+	 * Guess a suitable name for an object about to be put on the object bench.
+	 * 
+	 * @param	startingName  a fully qualified class name (will be stripped of
+	 *                        qualifying part) or a field name that will be used
+	 *                        as the basis for the new name.
+	 * @return				  a String suitable as a name for an object on the
+	 * 						  object bench. 
+	 */
+	public abstract String guessNewName(String className);
 
     /**
      * Return the machine status; one of the "machine state" constants:
      * (IDLE, RUNNING, SUSPENDED).
      */
     public abstract int getStatus();
-
-
     
-	/**
-	 * Guess a suitable name for an object about to be put on the object bench.
-	 * 
-	 * @param	className	the fully qualified name of the class of object
-	 * @return				a String suitable as a name for an object on the
-	 * 						object bench. 
-	 */
-	public abstract String guessNewName(String className);
-
     /**
      * Set the remote VM classpath
      */
@@ -106,8 +112,6 @@ public abstract class Debugger
 	 * Run the setUp() method of a test class and return the created
 	 * objects.
 	 * 
-	 * @param loadId	the ID representing the classloader on the remote VM
-	 * @param scopeId	the scope ID representing the object bench on the remote VM
 	 * @param className	the fully qualified name of the class
 	 * @return			a Map of (String name, DebuggerObject obj) entries
 	 */
@@ -116,11 +120,9 @@ public abstract class Debugger
 	/**
 	 * Run a single test method in a test class and return the result.
 	 * 
-	 * @param loadId	the ID representing the classloader on the remote VM
-	 * @param scopeId	the scope ID representing the object bench on the remote VM
-	 * @param className	the fully qualified name of the class
-	 * @param methodName the name of the method
-	 * @return			a DebuggerTestResult object
+	 * @param  className  the fully qualified name of the class
+	 * @param  methodName the name of the method
+	 * @return            a DebuggerTestResult object
 	 */
     public abstract DebuggerTestResult runTestMethod(String className, String methodName);
 
@@ -129,13 +131,11 @@ public abstract class Debugger
      */
     public abstract void disposeWindows();
 
-
     /**
      * "Run" a class (i.e. invoke its main method without arguments)
      */
     public abstract void runClassMain(String className, Object eventParam)
     	throws ClassNotFoundException;
-
 
     /**
      * Get a class from the virtual machine.
@@ -171,36 +171,14 @@ public abstract class Debugger
      */
     public abstract ExceptionDescription getException();
 
-
     /**
-     * List all the threads being debugged as a list containing elements
-     * of type DebuggerThread. Filter out threads that belong to system,
-     * returning only user threads. This can be done only if the machine
-     * is currently suspended.
-     *
-     * @return  A list of threads, or null if the machine is currently
-     *		running
+     * A tree model representing the threads running in
+     * the debug VM.
+     *  
+     * @return  a TreeModel with DebuggerThread objects
+     *          as the leaves.
      */
+    public abstract TreeModel getThreadTreeModel();
+    
     public abstract List listThreads();
-
-
-    /**
-     * Stop the machine. It can be restarted later with "cont()".
-     */
-    public abstract void halt(DebuggerThread thread);
-
-
-    /**
-     * A thread has been started again by the user. Make sure that it
-     * is indicated in the interface.
-     */
-    public abstract void cont();
-
-
-    /**
-     * Arrange to show the source location for a specific frame number
-     * of a specific thread. The currently selected frame is stored in the
-     * thread object itself.
-     */
-    public abstract void showSource(DebuggerThread thread);
 }

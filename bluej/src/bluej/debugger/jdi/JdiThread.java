@@ -13,7 +13,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: JdiThread.java 2030 2003-06-11 07:58:29Z ajp $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -55,21 +55,23 @@ public final class JdiThread extends DebuggerThread
         }
     }
 
-	VMReference vmRef;
+	//VMReference vmRef;
 	
     ThreadReference rt; // the reference to the remote thread
     Object userParam;   // an optional user parameter associated with this
     // thread
     int selectedFrame;  // stores a stack frame that was selected for this
     // thread (selection is done for debugging)
-
+	JdiThreadTreeModel jttm;
+	
     EventRequestManager eventReqMgr;
 
     // ---- instance: ----
 
-    public JdiThread(VMReference vmRef, ThreadReference rt, Object userParam)
+    public JdiThread(JdiThreadTreeModel jttm, ThreadReference rt, Object userParam)
     {
-    	this.vmRef = vmRef;
+//    	this.vmRef = vmRef;
+		this.jttm = jttm;
         this.rt = rt;
         this.userParam = userParam;
 
@@ -77,9 +79,9 @@ public final class JdiThread extends DebuggerThread
                                 //  to see the top level frame
     }
 
-    public JdiThread(VMReference vmRef, ThreadReference rt)
+    public JdiThread(JdiThreadTreeModel jttm, ThreadReference rt)
     {
-        this(vmRef, rt, null);
+        this(jttm, rt, null);
     }
 
     public String getName()
@@ -126,26 +128,26 @@ public final class JdiThread extends DebuggerThread
 
             int status = rt.status();
             switch(status) {
-            case ThreadReference.THREAD_STATUS_MONITOR:
+             case ThreadReference.THREAD_STATUS_MONITOR:
                 return statusMonitor;
-            case ThreadReference.THREAD_STATUS_NOT_STARTED:
+             case ThreadReference.THREAD_STATUS_NOT_STARTED:
                 return statusNotStarted;
-            case ThreadReference.THREAD_STATUS_RUNNING:
+             case ThreadReference.THREAD_STATUS_RUNNING:
                 return statusRunning;
-            case ThreadReference.THREAD_STATUS_SLEEPING:
+             case ThreadReference.THREAD_STATUS_SLEEPING:
                 return statusSleeping;
-            case ThreadReference.THREAD_STATUS_UNKNOWN:
+             case ThreadReference.THREAD_STATUS_UNKNOWN:
                 return statusUnknown;
-            case ThreadReference.THREAD_STATUS_WAIT:
+             case ThreadReference.THREAD_STATUS_WAIT:
                 return statusWaiting;
-            case ThreadReference.THREAD_STATUS_ZOMBIE:
+             case ThreadReference.THREAD_STATUS_ZOMBIE:
                 return statusZombie;
             }
         }
         catch(Exception e) {
             return "???";
         }
-        return null; // to shut up compiler
+        return null;
     }
 
     public boolean isSuspended()
@@ -376,6 +378,26 @@ public final class JdiThread extends DebuggerThread
         return selectedFrame;
     }
 
+	public void halt()
+	{
+		rt.suspend();
+		
+		JdiThreadNode jtn = jttm.findThreadNode(rt);
+		
+		if (jtn != null)
+			jttm.nodeChanged(jtn);		
+	}
+
+	public void cont()
+	{
+		rt.resume();		
+
+		JdiThreadNode jtn = jttm.findThreadNode(rt);
+		
+		if (jtn != null)
+			jttm.nodeChanged(jtn);		
+	}
+
     public void step()
     {
         doStep(StepRequest.STEP_OVER);
@@ -399,7 +421,7 @@ public final class JdiThread extends DebuggerThread
 		request.putProperty(VMEventHandler.DONT_RESUME, "yes");
         request.enable();
 
-        vmRef.cont();
+        //TODO: vmRef.cont();
     }
 
     /**
@@ -430,4 +452,80 @@ public final class JdiThread extends DebuggerThread
     {
         eventReqMgr = rt.virtualMachine().eventRequestManager();
     }
+    
+    public String toString()
+    {
+    	try {
+			return getName() + " " + getStatus();
+    	}
+    	catch (ObjectCollectedException oce)
+    	{
+    		return "collected";
+    	}
+    }
 }
+
+
+/**
+ * A thread has been stopped.
+ *
+public void halt(DebuggerThread thread)
+{
+	getVM().halt(thread);
+	BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
+}
+
+**
+ * A thread has been started again by the user. Make sure that it
+ * is indicated in the interface.
+ *
+public void cont()
+{
+	getVM().cont();
+	BlueJEvent.raiseEvent(BlueJEvent.CONTINUE, null);
+}
+
+**
+ * Arrange to show the source location for a specific frame number
+ * of a specific thread. The currently selected frame is stored in the
+ * thread object itself.
+ *
+public void showSource(DebuggerThread thread)
+{
+	getVM().showSource(thread);
+	BlueJEvent.raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
+}
+
+
+
+    **
+     *  A thread has been stopped.
+     *
+    public void halt(DebuggerThread thread)
+    {
+        machine.suspend();
+		owner.raiseStateChangeEvent();
+        if (thread != null)
+            thread.setParam(executionUserParam);
+    }
+
+    **
+    * A thread has been started again by the user. Make sure that it
+     * is indicated in the interface.
+     *
+    public void cont()
+    {
+		owner.raiseStateChangeEvent();
+        machine.resume();
+    }
+
+    **
+     *  Arrange to show the source location for a specific frame number
+     *  of a specific thread. The currently selected frame is stored in the
+     *  thread object itself.
+     *
+    public void showSource(DebuggerThread thread)
+    {
+        thread.setParam(executionUserParam);
+    }
+*/

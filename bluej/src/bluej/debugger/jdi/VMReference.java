@@ -2,6 +2,7 @@ package bluej.debugger.jdi;
 
 import java.io.*;
 import java.util.*;
+import javax.swing.event.*;
 
 import bluej.*;
 import bluej.debugger.*;
@@ -22,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2025 2003-06-06 04:41:46Z ajp $
+ * @version $Id: VMReference.java 2030 2003-06-11 07:58:29Z ajp $
  *
  * The startup process is as follows:
  *
@@ -52,7 +53,7 @@ import com.sun.jdi.request.*;
  * using the server thread (which is suspended at the breakpoint).
  * This is done in the "startServer()" method.
  */
-public class VMReference
+class VMReference
 {
     // the class name of the execution server class running on the remote VM
     static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
@@ -77,6 +78,10 @@ public class VMReference
 
     // ==== instance data ====
 
+	// we have a tight coupling between us and the JdiDebugger
+	// that creates us
+	private JdiDebugger owner = null;
+	
     // The remote virtual machine and process we are referring to
     private VirtualMachine machine = null;
     private Process process = null;
@@ -97,54 +102,68 @@ public class VMReference
     // when simulating a System.exit()
     private ObjectReference exitException = null;
 
-    private Map execServerMethods = null; // map of String names to ExecServer methods
-    // used by JdiDebugger.invokeMethod
-
-    private int machineStatus = Debugger.IDLE;
+	// map of String names to ExecServer methods
+	// used by JdiDebugger.invokeMethod
+    private Map execServerMethods = null;
 
     private int exitStatus;
     private ExceptionDescription lastException;
     private Object executionUserParam; // a user defined parameter set with
     //  each execution
 
-    public VirtualMachine newLaunch(File initDir, VirtualMachineManager mgr)
-    {
-        // launch the VM
-        Boot boot = Boot.get();
-        Process p = null;
 
+    /**
+     * Launch a remote debug VM using a TCP/IP socket.
+     * 
+     * @param initDir	the directory to have as a current directory in
+     * 					the remote VM
+     * @param mgr		the virtual machine manager
+     * @return			an instance of a VirtualMachine or null if there
+     * 					was an error
+     */
+    public VirtualMachine localhostSocketLaunch(File initDir, VirtualMachineManager mgr)
+    {
+    	final int PORT_NUM = 8000;			// use port 8000
+    	final int CONNECT_TRIES = 10;		// try to connect max of 10 times
+    	final int CONNECT_WAIT = 500;		// wait half a sec between each connect
+    	
+        // launch the VM
         try {
         	// the parameters to launch the VM
             String launchParams[] = { Config.getJDKExecutablePath("this.key.must.not.exist", "java"),
             							"-classpath",
-										boot.getRuntimeClassPathString(),
-            							"-Xdebug", "-Xint",
-            							"-Xrunjdwp:transport=dt_socket,server=y,address=8000",
+										Boot.get().getRuntimeClassPathString(),
+            							"-Xdebug",
+            							"-Xint",
+            							"-Xrunjdwp:transport=dt_socket,server=y,address=" + PORT_NUM,
             							SERVER_CLASSNAME };
 
-            p = Runtime.getRuntime().exec(launchParams, null, initDir);
+            Process p = Runtime.getRuntime().exec(launchParams, null, initDir);
+
+			// redirect error stream from process to Terminal
+			redirectIOStream(new InputStreamReader(p.getErrorStream()),
+								Terminal.getTerminal().getErrorWriter(),
+								false);
+
+			// redirect output stream from process to Terminal
+			redirectIOStream(new InputStreamReader(p.getInputStream()),
+								Terminal.getTerminal().getWriter(),
+								false);
+
+			// redirect Terminal input to process output stream
+			redirectIOStream(Terminal.getTerminal().getReader(),
+								new OutputStreamWriter(p.getOutputStream()),
+								false);
+			process = p;
         }
         catch (IOException ioe) {
             ioe.printStackTrace();
+            
+            return null;
         }
 
-        process = p;
-
-        // redirect error stream from process to System.out
-        InputStreamReader processErrorReader = new InputStreamReader(p.getErrorStream());
-        Writer errorWriter = new OutputStreamWriter(System.err);
-        redirectIOStream(processErrorReader, errorWriter, false);
-
-        // redirect output stream from process to Terminal
-        InputStreamReader processInputReader = new InputStreamReader(p.getInputStream());
-        Writer terminalWriter = new OutputStreamWriter(System.err);
-        redirectIOStream(processInputReader, terminalWriter, false);
-
-        // redirect Terminal input to process output stream
-        OutputStreamWriter processWriter = new OutputStreamWriter(p.getOutputStream());
-        Reader terminalReader = new InputStreamReader(System.in);
-        redirectIOStream(terminalReader, processWriter, false);
-
+		// now try to connect to the running VM using a TCP/IP socket
+		
         AttachingConnector connector = null;
         List connectors = mgr.attachingConnectors();
 
@@ -173,22 +192,24 @@ public class VMReference
         }
 
         hostnameArg.setValue("127.0.0.1");
-        portArg.setValue("8000");
+        portArg.setValue(Integer.toString(PORT_NUM));
 
 		// try to connect 10 times, waiting half a sec between each attempt
-		for (int i=0; i<10; i++) {
+		for (int i=0; i<CONNECT_TRIES; i++) {
 			try {
 				VirtualMachine m = connector.attach(arguments);
 
 				return m;
 			}
 			catch (java.net.ConnectException ce) {
-				if (i == 9)
+				// on our last attempt, give a stack trace to give some
+				// reason for the failure
+				if (i == CONNECT_TRIES-1)
 					ce.printStackTrace();
 					
 				try {
 					synchronized (this)
-					{ wait(500); }
+					{ wait(CONNECT_WAIT); }
 				}
 				catch (InterruptedException ie) { }
 			}
@@ -277,18 +298,21 @@ public class VMReference
      * Create the second virtual machine and start
      * the execution server (class ExecServer) on that machine.
      */
-    public VMReference(File initialDirectory)
+    public VMReference(JdiDebugger owner, File initialDirectory)
     {
-        VirtualMachineManager mgr = Bootstrap.virtualMachineManager();
+		this.owner = owner;
+		
+        machine = localhostSocketLaunch(initialDirectory,
+        								Bootstrap.virtualMachineManager());
 
-        machine = newLaunch(initialDirectory, mgr);
+		eventHandler = new VMEventHandler(this, machine);
 
         // want all uncaught exceptions and all class prepare events
         EventRequestManager erm = machine.eventRequestManager();
         erm.createExceptionRequest(null, false, true).enable();
         erm.createClassPrepareRequest().enable();
-
-        eventHandler = new VMEventHandler(this, machine);
+		erm.createThreadStartRequest().enable();
+		erm.createThreadDeathRequest().enable();
     }
 
     /**
@@ -403,7 +427,7 @@ public class VMReference
         BreakpointRequest exitbpreq = erm.createBreakpointRequest(exitMarkerLoc);
         exitbpreq.setSuspendPolicy(EventRequest.SUSPEND_NONE);
         exitbpreq.putProperty(SERVER_EXIT_MARKER_METHOD_NAME, "yes");
-        exitbpreq.enable();
+        exitbpreq.enable();       
     }
 
     /**
@@ -471,7 +495,7 @@ public class VMReference
      */
     public int getStatus()
     {
-        return machineStatus;
+        return serverThread.isAtBreakpoint() ? Debugger.IDLE : Debugger.RUNNING;
     }
 
     /**
@@ -526,9 +550,7 @@ public class VMReference
     public void runShellClass(String className, Object eventParam)
 		throws ClassNotFoundException
     {
-        ClassType shellClass = null;
-
-        shellClass = (ClassType) loadClass(className);
+        ClassType shellClass = (ClassType) loadClass(className);
 
         Method runMethod = findMethodByName(shellClass, "run");
         if (runMethod == null) {
@@ -545,7 +567,7 @@ public class VMReference
             // find classes for breakpoints later (in case several projects
             // are open).
             executionUserParam = eventParam;
-            machineStatus = Debugger.RUNNING;
+			owner.raiseStateChangeEvent();
 
             Value v =
                 invokeStaticRemoteMethod(shellClass, runMethod, Collections.EMPTY_LIST, false);
@@ -561,7 +583,7 @@ public class VMReference
                 new ExceptionDescription(
                     "Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
-        machineStatus = Debugger.IDLE;
+		owner.raiseStateChangeEvent();
         //executionUserParam = null;
     }
 
@@ -596,12 +618,12 @@ public class VMReference
      * or objects that are already mirrored onto the remote VM.
      * 
      * @param cl		    the reference to the class the method exists in
-     * @param methodName    the name of the method
+     * @param m    			the Method we want to call
      * @param args			the List of arguments to the method
      * @param propagateException whether exceptions thrown should be ignored
      * 							 or returned as the return value
      * @return				the return value of the method call
-     * 						as an mirrored object on the VM
+     * 						as a mirrored object on the VM
      */
     private Value invokeStaticRemoteMethod(ClassType cl, Method m,
         									List args, boolean propagateException)
@@ -626,7 +648,6 @@ public class VMReference
             // must be patient
             while (!serverThread.isAtBreakpoint()) {
                 // System.out.print(".");
-                //try { wait(100); } catch (InterruptedException ie) { }
             }
 
             Value v = cl.invokeMethod(serverThread, m, args, 0);
@@ -636,7 +657,7 @@ public class VMReference
             machine.resume();
 
             // our serverThread in the ExecServer will now continue in
-            // an infinite loop and return to a breakpoint. This will then
+            // its infinite loop and return to a breakpoint. This will then
             // suspend it (see VMEventHandler).
             // This is the state we need - all threads running
             // except serverThread (which should be waiting at a breakpoint).
@@ -667,7 +688,7 @@ public class VMReference
             Debug.message("sending command " + m.name() + " to remote VM failed: " + e);
         }
 
-        machine.setDebugTraceMode(VirtualMachine.TRACE_NONE);
+        //machine.setDebugTraceMode(VirtualMachine.TRACE_NONE);
 
         return null;
     }
@@ -689,9 +710,20 @@ public class VMReference
         return lastException;
     }
 
+	public void threadStartEvent(ThreadStartEvent tse)
+	{
+		owner.threadStart(tse.thread());
+	}
+
+	public void threadDeathEvent(ThreadDeathEvent tde)
+	{
+		owner.threadDeath(tde.thread());
+	}
+
     /**
-     *  An exception was thrown in the remote machine. Analyse the exception
-     *  and store it in 'lastException'. It will be picked uplater.
+     * An exception was thrown in the remote machine.
+     * Analyse the exception and store it in 'lastException'.
+     * It will be picked up later.
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
@@ -725,7 +757,7 @@ public class VMReference
 
             // this was a "System.exit()", not a real exception!
             exitStatus = Debugger.FORCED_EXIT;
-            machineStatus = Debugger.IDLE;
+			owner.raiseStateChangeEvent();
             lastException = new ExceptionDescription(exceptionText);
         } else { // real exception
 
@@ -739,7 +771,7 @@ public class VMReference
             }
             int lineNumber = loc.lineNumber();
 
-            List stack = new JdiThread(this, exc.thread(), null).getStack();
+            List stack = new JdiThread(null, exc.thread(), null).getStack();
             exitStatus = Debugger.EXCEPTION;
             lastException = new ExceptionDescription(excClass, exceptionText, stack);
         }
@@ -765,7 +797,8 @@ public class VMReference
         // after completing some work. We want to leave it suspended here until
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
-            // do nothing
+			// do nothing except signify to we are now in a IDLE state
+			owner.raiseStateChangeEvent();
         }
         // if the breakpoint is marked as "ExitMarker" then this is our
         // own breakpoint that the RemoteSecurityManager executes in order
@@ -783,10 +816,10 @@ public class VMReference
             // listBreakpoints();
 
             // breakpoint set by user in user code
-            machineStatus = Debugger.SUSPENDED;
+			owner.raiseStateChangeEvent();
             ThreadReference remoteThread = event.thread();
             System.out.println(remoteThread);
-            JdiThread thread = new JdiThread(this, remoteThread, executionUserParam);
+            JdiThread thread = new JdiThread(null, remoteThread, executionUserParam);
             if (thread.getClassSourceName(0).startsWith("__SHELL")) {
                 // stepped out into the shell class - resume to finish
                 machine.resume();
@@ -799,16 +832,6 @@ public class VMReference
         }
     }
 
-    public void listBreakpoints()
-    {
-        List l = machine.eventRequestManager().breakpointRequests();
-        Iterator it = l.iterator();
-        while (it.hasNext()) {
-            BreakpointRequest bp = (BreakpointRequest) it.next();
-            System.out.println(bp + " " + bp.location().declaringType().classLoader());
-        }
-    }
-
     // ==== code for active debugging: setting breakpoints, stepping, etc ===
 
     /**
@@ -818,7 +841,6 @@ public class VMReference
      * @param   line       The line number of the breakpoint.
      * @return  null if there was no problem, or an error string
      */
-    /*package*/
     String setBreakpoint(String className, int line)
     	throws AbsentInformationException
     {
@@ -850,7 +872,6 @@ public class VMReference
      * @param   line       The line number of the breakpoint.
      * @return  null if there was no problem, or an error string
      */
-    /*package*/
     String clearBreakpoint(String className, int line)
     	throws AbsentInformationException
     {
@@ -949,7 +970,6 @@ public class VMReference
             Location l = (Location) it.next();
 
             try {
-                System.out.println(l.declaringType().name() + " " + l.lineNumber());
                 setBreakpoint(l.declaringType().name(), l.lineNumber());
             } catch (AbsentInformationException aie) {
                 Debug.reportError("breakpoint error: " + aie);
@@ -959,59 +979,32 @@ public class VMReference
         machine.resume();
     }
 
+	public List topThreads()
+	{
+		return machine.topLevelThreadGroups();
+	}
+	
     /**
      * List all the threads being debugged as a list containing elements
-     * of type DebuggerThread. Filter out threads that belong to system,
-     * returning only user threads. This can be done only if the machine
-     * is currently suspended.
+     * of type DebuggerThread. 
      *
-     * @return  A list of threads (type JdiThread), or null if the machine
-     *		is currently running
+     * @return  A list of threads (type JdiThread)
      */
     public List listThreads()
     {
-        List threads = machine.allThreads();
-        int len = threads.size();
+        return machine.allThreads();
+/*        List filteredThreads = new ArrayList();
 
-        List threadList = new ArrayList();
-
-        // reverse order to make display nicer (newer threads first)
-        for (int i = 0; i < len; i++) {
-            ThreadReference thread = (ThreadReference) threads.get(len - i - 1);
-            threadList.add(new JdiThread(this, thread));
+		ListIterator lit = threads.listIterator();
+		
+        while (lit.hasNext()) {
+            ThreadReference thread = (ThreadReference) lit.next();
+            filteredThreads.add(new JdiThread(thread));
         }
-        return threadList;
-    }
 
-    /**
-     *  A thread has been stopped.
-     */
-    public void halt(DebuggerThread thread)
-    {
-        machine.suspend();
-        machineStatus = Debugger.SUSPENDED;
-        if (thread != null)
-            thread.setParam(executionUserParam);
-    }
-
-    /**
-     * A thread has been started again by the user. Make sure that it
-     * is indicated in the interface.
-     */
-    public void cont()
-    {
-        machineStatus = Debugger.RUNNING;
-        machine.resume();
-    }
-
-    /**
-     *  Arrange to show the source location for a specific frame number
-     *  of a specific thread. The currently selected frame is stored in the
-     *  thread object itself.
-     */
-    public void showSource(DebuggerThread thread)
-    {
-        thread.setParam(executionUserParam);
+		// reverse order to make display nicer (newer threads first)
+        Collections.reverse(filteredThreads);
+        return filteredThreads; */
     }
 
     // -- support methods --
@@ -1020,9 +1013,8 @@ public class VMReference
      * Find the mirror of a class/interface/array in the remote VM.
      *
      * The class is expected to exist. We expect only one single
-     * class to exist with this name and return null if more
-     * than one is found. Returns null if the class could not be
-     * found.
+     * class to exist with this name. Throws a ClassNotFoundException
+     * if the class could not be found.
      * 
      * This should only be used for classes that we know exist
      * and are loaded ie ExecServer etc.
@@ -1052,7 +1044,6 @@ public class VMReference
      * method to exist with this name and report an error if more
      * than one is found.
      */
-    /*package*/
     Method findMethodByName(ClassType type, String methodName)
     {
         List list = type.methodsByName(methodName);
@@ -1064,7 +1055,7 @@ public class VMReference
     }
 
     /**
-     *  Find the first location in a given line in a class.
+     * Find the first location in a given line in a class.
      */
     private Location findLocationInLine(ReferenceType cl, int line)
         throws AbsentInformationException
@@ -1077,8 +1068,8 @@ public class VMReference
     }
 
     /**
-     *	Create a thread that will retrieve any output from the remote
-     *  machine and direct it to our terminal (or vice versa).
+     * Create a thread that will retrieve any output from the remote
+     * machine and direct it to our terminal (or vice versa).
      */
     private void redirectIOStream(final Reader reader, final Writer writer, boolean buffered)
     {
@@ -1089,7 +1080,7 @@ public class VMReference
         thr.start();
     }
 
-    class IOHandlerThread extends Thread
+    private class IOHandlerThread extends Thread
     {
         private Reader reader;
         private Writer writer;
@@ -1158,6 +1149,16 @@ public class VMReference
             } catch (InterruptedException e) {}
         }
     }
+
+	public void dumpBreakpoints()
+	{
+		List l = machine.eventRequestManager().breakpointRequests();
+		Iterator it = l.iterator();
+		while (it.hasNext()) {
+			BreakpointRequest bp = (BreakpointRequest) it.next();
+			Debug.message(bp + " " + bp.location().declaringType().classLoader());
+		}
+	}
 
     public void dumpThreadInfo()
     {

@@ -2,25 +2,26 @@ package bluej.debugger;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.tree.*;
 
 import bluej.*;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 
+import com.sun.jdi.ThreadReference;
+
 /**
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2012 2003-06-03 07:09:13Z ajp $
+ * @version $Id: ExecControls.java 2030 2003-06-11 07:58:29Z ajp $
  */
 public class ExecControls extends JFrame
-
-    implements ActionListener, ListSelectionListener
+    implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
 {
     private static final String windowTitle =
         Config.getString("debugger.execControls.windowTitle");
@@ -55,20 +56,28 @@ public class ExecControls extends JFrame
 
     // === instance ===
 
-    private JList threadList;
+	// the display for the list of active threads
+    //private JList threadList;
+	//private List threads;
+	private JTree threadTree; 
+	private DebuggerThreadTreeModel threadModel;
+	
+    
     private JList stackList, staticList, instanceList, localList;
     private JButton stopButton, stepButton, stepIntoButton, continueButton,
         terminateButton;
     private JButton updateButton, closeButton;
     private JCheckBox showSystemThreads;
 
-    private List threads;
-    
+	// the Project that owns this debugger
     private Project project;
-    private Debugger debugger;				// the debug machine this
-    										// control is looking at
-    private DebuggerThread selectedThread;	// the thread currently
-    										//  selected
+
+	//	the debug machine this control is looking at
+    private Debugger debugger = null;				
+
+	// the thread currently selected
+	private DebuggerThread selectedThread;
+	
     private DebuggerClass currentClass;	    // the current class for the
                                             //  selected stack frame
     private DebuggerObject currentObject;	// the "this" object for the
@@ -79,10 +88,13 @@ public class ExecControls extends JFrame
     {
         super(windowTitle);
 
+		if (debugger == null)
+			throw new NullPointerException();
+			
 		this.project = project;
 		this.debugger = debugger;
 
-        threads = new ArrayList();
+        //threads = new ArrayList();
         createWindow();
     }
 
@@ -102,25 +114,18 @@ public class ExecControls extends JFrame
 
     public void actionPerformed(ActionEvent event)
     {
-    	// with no debugger set, we have nothing to do
-		if (debugger == null)
-			return;
-			
         Object obj = event.getSource();
-        int machineStatus = debugger.getStatus();
 
 		if(obj == terminateButton) {
-			project.removeLocalClassLoader();
-			debugger.restart();
-			threadList.clearSelection();
-			updateThreads(null);
-			dispose();
+			project.restartVM();
+			//threadTree.expandRow(0);
+			// dispose();
 			return;
 		}
 
         if(obj == updateButton) {
             updateThreads(selectedThread);
-            //((JdiDebugger)Debugger.debugger).dumpThreadInfo();
+            // ((bluej.debugger.jdi.JdiDebugger)debugger).dumpThreadInfo();
         }
         else if(obj == closeButton) {
             setVisible(false);
@@ -128,20 +133,27 @@ public class ExecControls extends JFrame
         else if(obj == showSystemThreads) {
             updateThreads(selectedThread);
         }
-        else if(obj == stopButton && machineStatus == Debugger.RUNNING) {
-            debugger.halt(selectedThread);
+
+        if(obj == stopButton) {
+			if (selectedThread != null) {
+				if (!selectedThread.isSuspended())
+					selectedThread.halt();
+			}
+            //TODO: debugger.halt(selectedThread);
             updateThreads(selectedThread);
         }
-        else if(obj==continueButton && machineStatus==Debugger.SUSPENDED) {
-            debugger.cont();
-            selectedThread = null;
-            updateThreads(selectedThread);
+        
+        if(obj == continueButton) {
+			if (selectedThread != null) {
+				if (selectedThread.isSuspended())
+					selectedThread.cont();
+			}
         }
         else if(selectedThread != null) {
-            if(obj == stepButton && machineStatus == Debugger.SUSPENDED) {
+            if(obj == stepButton) {
                 selectedThread.step();
             }
-            else if(obj==stepIntoButton && machineStatus==Debugger.SUSPENDED) {
+            else if(obj==stepIntoButton) {
                 selectedThread.stepInto();
             }
         }
@@ -160,16 +172,9 @@ public class ExecControls extends JFrame
         if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
             return;
 
-		if(debugger == null)			// ignore if we have nothing to debug
-			return;
-			
         Object src = event.getSource();
 
-        if(src == threadList) {
-            clearThreadDetails();
-            selectThread(threadList.getSelectedIndex());
-        }
-        else if(src == stackList) {
+        if(src == stackList) {
             selectStackFrame(stackList.getSelectedIndex());
         }
 
@@ -179,6 +184,46 @@ public class ExecControls extends JFrame
 
     // ----- end of ListSelectionListener interface -----
 
+	public void valueChanged(TreeSelectionEvent event)
+	{
+		Object src = event.getSource();
+
+		if(src == threadTree) {
+			clearThreadDetails();
+
+			DefaultMutableTreeNode node =
+			 (DefaultMutableTreeNode) threadTree.getLastSelectedPathComponent();
+
+			if (node == null)
+				return;
+
+			DebuggerThread dt = threadModel.getNodeAsDebuggerThread(node);        
+
+			if (dt != null)
+				selectThread(dt);
+			else
+				unselectThread();
+		}
+	}
+	
+	public void treeNodesChanged(TreeModelEvent e)
+	{
+		Object nodes[] = e.getChildren();
+
+		for(int i=0; i<nodes.length; i++) {
+			if (nodes[i] == null || selectedThread == null)
+				return;
+			
+			if (selectedThread.equals(threadModel.getNodeAsDebuggerThread(nodes[i])))
+				selectThread(selectedThread);
+		}	
+	}
+	
+	public void treeNodesInserted(TreeModelEvent e) { }
+	public void treeNodesRemoved(TreeModelEvent e) { }
+	public void treeStructureChanged(TreeModelEvent e) { }
+	
+		
     public void listDoubleClick(MouseEvent event)
     {
         Component src = event.getComponent();
@@ -194,61 +239,49 @@ public class ExecControls extends JFrame
         }
     }
 
-    public synchronized void updateThreads(final DebuggerThread select)
+    public void updateThreads(final DebuggerThread select)
     {
-		// shouldn't be possible to get here, but best be safe
-		if (debugger == null)
-			return;
-
+    	return;
+    	/*
         // because this is responding to events in a different thread we need
         // to get these graphics updates to be run on the swing thread using
-        // SwingUtilities.runLater()
+        // SwingUtilities.invokeLater()
         Runnable doAllUpdates = new Runnable() {
             public void run() {
                 DefaultListModel listModel = (DefaultListModel)threadList.getModel();
                 listModel.removeAllElements();
 
-                int machineStatus = debugger.getStatus();
+				threads = debugger.listThreads();
 
-                if(machineStatus == Debugger.RUNNING) {
-                    threads.clear();
-                    clearThreadDetails();
-                }
-                else {
+                int selectionIndex = 0;  // default: select first
 
-                    int selectionIndex = 0;  // default: select first
+                threads = selectThreadsForDisplay(threads, select);
 
-                    threads = debugger.listThreads();
-                    if(threads == null) {
-                        Debug.reportError("cannot get thread info!");
-                        listModel.addElement("(error: cannot list threads)");
-                    }
-                    else {
-                        threads = selectThreadsForDisplay(threads, select);
-                        String selectName = (select == null ? "" : select.getName());
-                        for(int i = 0; i < threads.size(); i++) {
-                            DebuggerThread thread = (DebuggerThread)threads.get(i);
-                            if(thread.getName().equals(selectName))
-                                selectionIndex = i;
-                            String status = thread.getStatus();
-                            listModel.addElement(thread.getName() + " [" + status + "]");
-                        }
-                    }
-                    if(listModel.getSize() > 0) {
+                String selectName = (select == null ? "" : select.getName());
+
+				Iterator it = threads.iterator();
+				while(it.hasNext()) {
+					DebuggerThread thread = (DebuggerThread) it.next();
+
+					if(thread.getName().equals(selectName))
+						;					
+
+					String status = thread.getStatus();
+					listModel.addElement(thread.getName() + " [" + status + "]");
+				}
+*/
+/*                    if(listModel.getSize() > 0) {
                         if(selectionIndex != -1) {
                             threadList.setSelectedIndex(selectionIndex);
                             threadList.ensureIndexIsVisible(selectionIndex);
                         }
                     }
                     else    // no threads displayed
-                        clearThreadDetails();
-                }
-                setButtonsEnabled(machineStatus);
-            }
+                        clearThreadDetails(); */
+  /*          }
         };
 
-        SwingUtilities.invokeLater(doAllUpdates);
-
+        SwingUtilities.invokeLater(doAllUpdates); */
     }
 
     /**
@@ -261,7 +294,7 @@ public class ExecControls extends JFrame
      */
     private List selectThreadsForDisplay(List threads, DebuggerThread selected)
     {
-        boolean showSystem = showSystemThreads.isSelected();
+ /*       boolean showSystem = showSystemThreads.isSelected();
 
         List displayThreads = new ArrayList();
         String selectedName = (selected == null? "" : selected.getName());
@@ -273,25 +306,48 @@ public class ExecControls extends JFrame
                                   thread.getName().equals(selectedName));
             if(showThread && !thread.getStatus().equals("finished"))
                displayThreads.add(thread);
-        }
-        return displayThreads;
+        } */
+        return threads;
     }
 
+	private void unselectThread()
+	{
+		selectedThread = null;
+		stopButton.setEnabled(false);
+		stepButton.setEnabled(false);
+		stepIntoButton.setEnabled(false);
+		continueButton.setEnabled(false);
+	}
+	
+	private void selectThread(DebuggerThread dt)
+	{
+		selectedThread = dt;
+
+		boolean isSuspended = selectedThread.isSuspended();
+		
+		stopButton.setEnabled(!isSuspended);
+		stepButton.setEnabled(isSuspended);
+		stepIntoButton.setEnabled(isSuspended);
+		continueButton .setEnabled(isSuspended);
+		terminateButton.setEnabled(true);
+
+		setThreadDetails();
+	}
 
     private void selectThread(int index)
     {
-        if (index >= 0 && index < threads.size()) {
+ /*       if (index >= 0 && index < threads.size()) {
             selectedThread = getThread(index);
             setThreadDetails();
         }
         else
-            selectedThread = null;
+            selectedThread = null; */
     }
 
-    private synchronized DebuggerThread getThread(int index)
+/*    private synchronized DebuggerThread getThread(int index)
     {
         return (DebuggerThread)threads.get(index);
-    }
+    } */
 
     private void setThreadDetails()
     {
@@ -316,7 +372,7 @@ public class ExecControls extends JFrame
         if (index >= 0) {
             setStackFrameDetails(index);
             selectedThread.setSelectedFrame(index);
-            debugger.showSource(selectedThread);
+            //TODO: debugger.showSource(selectedThread);
             currentFrame = index;
         }
     }
@@ -464,11 +520,23 @@ public class ExecControls extends JFrame
 
         // Create thread panel
         JPanel threadPanel = new JPanel(new BorderLayout());
-        threadList = new JList(new DefaultListModel());
+        
+        
+/*        threadList = new JList(new DefaultListModel());
         threadList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         threadList.addListSelectionListener(this);
-        threadList.setVisibleRowCount(4);
-        JScrollPane threadScrollPane = new JScrollPane(threadList);
+        threadList.setVisibleRowCount(4); */
+		threadModel = (DebuggerThreadTreeModel) debugger.getThreadTreeModel();
+		threadModel.addTreeModelListener(this);
+		
+		threadTree = new JTree(threadModel);
+		threadTree.addTreeSelectionListener(this);		       
+		threadTree.getSelectionModel().setSelectionMode
+										(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		threadTree.setVisibleRowCount(8);
+		threadTree.setShowsRootHandles(false);
+										        
+        JScrollPane threadScrollPane = new JScrollPane(threadTree);
         threadScrollPane.setColumnHeaderView(new JLabel(threadTitle));
         threadPanel.add(threadScrollPane, BorderLayout.CENTER);
 
@@ -558,7 +626,6 @@ public class ExecControls extends JFrame
 
     private void setButtonsEnabled(int machineStatus)
     {
-		terminateButton.setEnabled(true);
 
         switch(machineStatus) {
          case Debugger.IDLE:

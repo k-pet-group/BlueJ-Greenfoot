@@ -3,7 +3,10 @@ package bluej.debugger.jdi;
 import java.io.File;
 import java.util.*;
 
-import bluej.*;
+import javax.swing.event.*;
+import javax.swing.tree.TreeModel;
+
+import bluej.Config;
 import bluej.classmgr.ClassMgr;
 import bluej.debugger.*;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -18,7 +21,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2022 2003-06-05 05:04:16Z ajp $
+ * @version $Id: JdiDebugger.java 2030 2003-06-11 07:58:29Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -28,23 +31,36 @@ public class JdiDebugger extends Debugger
 
 	private VMReference vmRef;
 	private MachineLoaderThread machineLoader;
+
+	// a TreeModel exposing all the JdiThreads in the VM
+	private JdiThreadTreeModel treeModel = null;
 	
-	private File startingDirectory; // needed on restart()
+	// events for changes to the machine state	
+	private EventListenerList listenerList = new EventListenerList();
+
+	// the directory to launch the VM in
+	private File startingDirectory;
+	
+	// a Set of strings which have been used as names on the
+	// object bench. We endeavour to not reuse them.
 	private Set usedNames;
+	
 	
     public JdiDebugger(File startingDirectory)
     {
         super();
 
 		this.startingDirectory = startingDirectory;
+		
+		treeModel = new JdiThreadTreeModel(new JdiThreadNode());
+			
 		usedNames = new TreeSet();
     }
 
 	public void launch()
 	{
-//		PkgMgrFrame.displayMessage(p, Config.getString("pkgmgr.creatingVM"));
-//		PkgMgrFrame.displayMessage(p, Config.getString("pkgmgr.creatingVMDone"));
-		vmReady = false;
+		if (vmReady)
+			throw new IllegalStateException("JdiDebugger.launch() was called but the debugger was already loaded");
 
 		// start the MachineLoader (a separate thread) to load the
 		// remote virtual machine in the background
@@ -59,6 +75,15 @@ public class JdiDebugger extends Debugger
 		vmReady = false;
 		vmRef.close();
 		vmRef = null;
+
+		usedNames.clear();
+
+		// treeModel is lazily started so we could very well
+		// not have a model yet		
+		if (treeModel != null) {
+			treeModel.setRoot(new JdiThreadNode());
+			treeModel.reload();
+		}
 	}
 
 	public void restart()
@@ -123,9 +148,9 @@ public class JdiDebugger extends Debugger
 	 */
 	public void newClassLoaderLeavingBreakpoints(String classPath)
 	{
-		List savedBreakpoints;	// a list of Location's representing
-								// a temporarily saved list of breakpoints
-								// we want to keep
+		// a list of Location's representing a temporarily
+		// saved list of breakpoints we want to keep
+		List savedBreakpoints;
 
 		savedBreakpoints = getVM().getBreakpoints();
 		newClassLoader(classPath);
@@ -137,14 +162,15 @@ public class JdiDebugger extends Debugger
      * Add an object to a package scope. The object is held in field
      * 'fieldName' in object 'instanceName'.
      */
-    public void addObjectToScope(String scopeId, String newObjectName,
-                                    DebuggerObject job)
+    public boolean addObject(String newInstanceName, DebuggerObject dob)
     {
-        Object args[] = { scopeId, newObjectName, ((JdiObject)job).getObjectReference() };
+        Object args[] = { newInstanceName, ((JdiObject)dob).getObjectReference() };
 
 		getVM().invokeExecServer( ExecServer.ADD_OBJECT, Arrays.asList(args));
 		
-		usedNames.add(newObjectName);
+		usedNames.add(newInstanceName);
+		
+		return true;
     }
 
     /**
@@ -152,9 +178,9 @@ public class JdiDebugger extends Debugger
      * This has to be done tolerantly: If the named instance is not in the
      * scope, we just quietly return.
      */
-    public void removeObjectFromScope(String scopeId, String instanceName)
+    public void removeObject(String instanceName)
     {
-        Object args[] = { scopeId, instanceName };
+        Object args[] = { instanceName };
 
 		getVM().invokeExecServer( ExecServer.REMOVE_OBJECT, Arrays.asList(args) );
     }
@@ -168,6 +194,20 @@ public class JdiDebugger extends Debugger
 
 		getVM().invokeExecServer( ExecServer.SET_LIBRARIES, Arrays.asList(args));
     }
+
+	public Map getObjects()
+	{
+		// the returned array consists of double the number of objects
+		// they alternate, name, object, name, object
+		// ie.
+		// arrayRef[0] = a field name 0 (StringReference)
+		// arrayRef[1] = a field value 0 (ObjectReference)
+		// arrayRef[2] = a field name 1 (StringReference)
+		// arrayRef[3] = a field value 1 (ObjectReference)
+		//
+
+		return null;
+	}
 
 	/**
 	 */
@@ -306,33 +346,37 @@ public class JdiDebugger extends Debugger
         return getVM().getException();
     }
 
+	public void addChangeListener(ChangeListener l)
+	{
+		listenerList.add(ChangeListener.class, l);
+	}
+
+	public void removeChangeListener(ChangeListener l)
+	{
+		listenerList.remove(ChangeListener.class, l);
+	}
+
+	// notify all listeners that have registered interest for
+	// notification on this event type.
+	private void fireTargetEvent(ChangeEvent ce)
+	{
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length-2; i>=0; i-=2) {
+			if (listeners[i] == ChangeListener.class) {
+				((ChangeListener)listeners[i+1]).stateChanged(ce);
+			}
+		}
+	}
+
+	void raiseStateChangeEvent()
+	{
+		fireTargetEvent(new ChangeEvent(this));
+	}
+
     // ==== code for active debugging: setting breakpoints, stepping, etc ===
-
-    /**
-     * Set a breakpoint at a specified line in a class.
-     *
-     * @param   className  The class in which to set the breakpoint.
-     * @param   line       The line number of the breakpoint.
-     * @return  null if there was no problem, or an error string
-     */
-    private String setBreakpoint(String className, int line)
-        throws AbsentInformationException
-    {
-    	return getVM().setBreakpoint(className, line);
-    }
-
-    /**
-     * Clear all the breakpoints at a specified line in a class.
-     *
-     * @param   className  The class in which to clear the breakpoints.
-     * @param   line       The line number of the breakpoint.
-     * @return  null if there was no problem, or an error string
-     */
-    private String clearBreakpoint(String className, int line)
-        throws AbsentInformationException
-    {
-		return getVM().clearBreakpoint(className, line);
-    }
 
     /**
      * Set/clear a breakpoint at a specified line in a class.
@@ -349,10 +393,10 @@ public class JdiDebugger extends Debugger
 
         try {
             if(set) {
-                return setBreakpoint(className, line);
+                return getVM().setBreakpoint(className, line);
             }
             else {
-                return clearBreakpoint(className, line);
+                return getVM().clearBreakpoint(className, line);
             }
         }
         catch(AbsentInformationException e) {
@@ -366,47 +410,80 @@ public class JdiDebugger extends Debugger
 
     /**
      * List all the threads being debugged as a list containing elements
-     * of type DebuggerThread. Filter out threads that belong to system,
-     * returning only user threads. This can be done only if the machine
-     * is currently suspended.
+     * of type DebuggerThread.
      *
-     * @return  A list of threads (type JdiThread), or null if the machine
-     *		is currently running
+     * @return  A list of DebuggerThread objects (actually type JdiThread)
      */
     public List listThreads()
     {
     	return getVM().listThreads();
     }
 
-    /**
-     *  A thread has been stopped.
-     */
-    public void halt(DebuggerThread thread)
-    {
-    	getVM().halt(thread);
-        BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
-    }
+	private JdiThreadNode populate(JdiThreadNode root, List threadGroups)
+	{
+		Iterator it = threadGroups.iterator();
+		while(it.hasNext()) {
+			ThreadGroupReference tgr = (ThreadGroupReference) it.next();
 
-    /**
-     * A thread has been started again by the user. Make sure that it
-     * is indicated in the interface.
-     */
-    public void cont()
-    {
-		getVM().cont();
-		BlueJEvent.raiseEvent(BlueJEvent.CONTINUE, null);
-    }
+			// add this thread group as a child
+			JdiThreadNode newChild = new JdiThreadNode(tgr);		
+			root.add(newChild);		
 
-    /**
-     * Arrange to show the source location for a specific frame number
-     * of a specific thread. The currently selected frame is stored in the
-     * thread object itself.
-     */
-    public void showSource(DebuggerThread thread)
-    {
-        getVM().showSource(thread);
-        BlueJEvent.raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
-    }
+			// add all the threads in this group as leaves
+			Iterator th = tgr.threads().iterator();
+			while(th.hasNext()) {
+				ThreadReference tr = (ThreadReference) th.next();
+				JdiThreadNode newThreadChild = new JdiThreadNode(new JdiThread(treeModel, tr));
+				newChild.add(newThreadChild);
+			}
+
+			// now add all sub thread groups as children
+			populate(newChild, tgr.threadGroups());
+		}
+		
+		return root;
+	}
+
+	/**
+	 * List all threads being debugged as a TreeModel.
+	 *
+	 * @return  A tree model of all the threads.
+	 */
+	public TreeModel getThreadTreeModel()
+	{
+		return treeModel; 
+	}
+	
+	public void threadStart(ThreadReference tr)
+	{
+		if (treeModel == null)
+			return;
+
+		synchronized(treeModel.getRoot()) {
+			JdiThreadNode root = treeModel.findThreadNode(tr.threadGroup());
+			
+			if (root == null) {
+				// System.out.println("unknown thread group " + tr.threadGroup());
+				root = treeModel.getThreadRoot();
+			}
+						
+			treeModel.insertNodeInto(new JdiThreadNode(new JdiThread(treeModel, tr)), root, 0);
+		}
+	}
+
+	public void threadDeath(ThreadReference tr)
+	{
+		if (treeModel == null)
+			return;
+			
+		synchronized(treeModel.getRoot()) {
+			JdiThreadNode jtn = treeModel.findThreadNode(tr);
+		
+			if (jtn != null) {
+				treeModel.removeNodeFromParent(jtn);
+			}
+		}
+	}
 
     // -- support methods --
 
@@ -451,7 +528,7 @@ public class JdiDebugger extends Debugger
 		 {
 			PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVM"));
 
-			vmRef = new VMReference(startingDirectory); // File projectDir
+			vmRef = new VMReference(JdiDebugger.this, startingDirectory);
 			vmRef.waitForStartup();
 		
 			vmReady = true;
@@ -462,9 +539,7 @@ public class JdiDebugger extends Debugger
 			notifyAll();	// wake any internal getVM() calls that
 							// are waiting for us to finish
 
-
 			PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVMDone"));
-
 		 }
 		 
 		private synchronized VMReference getVM()
@@ -478,5 +553,4 @@ public class JdiDebugger extends Debugger
 			return vmRef;
 		}
 	} 
-
 }

@@ -9,7 +9,7 @@ import java.util.List;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: DebuggerThread.java 1991 2003-05-28 08:53:06Z ajp $
+ ** @version $Id: DebuggerThread.java 2030 2003-06-11 07:58:29Z ajp $
  **/
 
 public abstract class DebuggerThread
@@ -34,6 +34,9 @@ public abstract class DebuggerThread
     public abstract void setSelectedFrame(int frame);
     public abstract int getSelectedFrame();
 
+	public abstract void halt();
+	public abstract void cont();
+	
     public abstract void step();
     public abstract void stepInto();
 }
