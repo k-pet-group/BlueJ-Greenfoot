@@ -1,417 +1,417 @@
 * is abstract; cannot be instantiated
-此类被定义为抽象类。意即它包含一些没有实现的方法（抽象方法）。
-你不能创建抽象类的对象，需要找或写一个继承它的子类实现所有抽象方法，然后
-可以实例化这个类。
+\u6b64\u7c7b\u88ab\u5b9a\u4e49\u4e3a\u62bd\u8c61\u7c7b\u3002\u610f\u5373\u5b83\u5305\u542b\u4e00\u4e9b\u6ca1\u6709\u5b9e\u73b0\u7684\u65b9\u6cd5\uff08\u62bd\u8c61\u65b9\u6cd5\uff09\u3002
+\u4f60\u4e0d\u80fd\u521b\u5efa\u62bd\u8c61\u7c7b\u7684\u5bf9\u8c61\uff0c\u9700\u8981\u627e\u6216\u5199\u4e00\u4e2a\u7ee7\u627f\u5b83\u7684\u5b50\u7c7b\u5b9e\u73b0\u6240\u6709\u62bd\u8c61\u65b9\u6cd5\uff0c\u7136\u540e
+\u53ef\u4ee5\u5b9e\u4f8b\u5316\u8fd9\u4e2a\u7c7b\u3002
 
 abstract methods cannot have a body
-已声明一个abstract的方法，而且写了方法体。但那是矛盾的。
-Abstract和native方法声明都仅有一个后跟分号的方法头。你或者去掉
-"abstract"，或者去掉方法体。
+\u5df2\u58f0\u660e\u4e00\u4e2aabstract\u7684\u65b9\u6cd5\uff0c\u800c\u4e14\u5199\u4e86\u65b9\u6cd5\u4f53\u3002\u4f46\u90a3\u662f\u77db\u76fe\u7684\u3002
+Abstract\u548cnative\u65b9\u6cd5\u58f0\u660e\u90fd\u4ec5\u6709\u4e00\u4e2a\u540e\u8ddf\u5206\u53f7\u7684\u65b9\u6cd5\u5934\u3002\u4f60\u6216\u8005\u53bb\u6389
+"abstract"\uff0c\u6216\u8005\u53bb\u6389\u65b9\u6cd5\u4f53\u3002
 
 * is already defined in *
-方法中有一个变量（或一个参数）有相同的名字，请换一个名字。
-（或者你是要使用同一个变量？那么，去掉此处的类型名，使此语
-句不是一个新的声明）
+\u65b9\u6cd5\u4e2d\u6709\u4e00\u4e2a\u53d8\u91cf\uff08\u6216\u4e00\u4e2a\u53c2\u6570\uff09\u6709\u76f8\u540c\u7684\u540d\u5b57\uff0c\u8bf7\u6362\u4e00\u4e2a\u540d\u5b57\u3002
+\uff08\u6216\u8005\u4f60\u662f\u8981\u4f7f\u7528\u540c\u4e00\u4e2a\u53d8\u91cf\uff1f\u90a3\u4e48\uff0c\u53bb\u6389\u6b64\u5904\u7684\u7c7b\u578b\u540d\uff0c\u4f7f\u6b64\u8bed
+\u53e5\u4e0d\u662f\u4e00\u4e2a\u65b0\u7684\u58f0\u660e\uff09
 
 anonymous class implements interface; cannot have arguments
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 anonymous class implements interface; cannot have qualifier for new
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 array required, but *
-你所使用的语法表明你正在试图访问一个数组元素，但是你所使用的变量
-不是一个数组
+\u4f60\u6240\u4f7f\u7528\u7684\u8bed\u6cd5\u8868\u660e\u4f60\u6b63\u5728\u8bd5\u56fe\u8bbf\u95ee\u4e00\u4e2a\u6570\u7ec4\u5143\u7d20\uff0c\u4f46\u662f\u4f60\u6240\u4f7f\u7528\u7684\u53d8\u91cf
+\u4e0d\u662f\u4e00\u4e2a\u6570\u7ec4
 
 break outside switch or loop
-"break"在块外，例如"switch"语句或循环语句（"for", "while"或
- "do" loop）。它不能在块外使用。
+"break"\u5728\u5757\u5916\uff0c\u4f8b\u5982"switch"\u8bed\u53e5\u6216\u5faa\u73af\u8bed\u53e5\uff08"for", "while"\u6216
+ "do" loop\uff09\u3002\u5b83\u4e0d\u80fd\u5728\u5757\u5916\u4f7f\u7528\u3002
 
 * must be first statement in constructor
-对于每个有超类的类，首先必须做的是调用超类的构造方法，
-可以通过在你的构造方法中的第一行加入如下语句：
+\u5bf9\u4e8e\u6bcf\u4e2a\u6709\u8d85\u7c7b\u7684\u7c7b\uff0c\u9996\u5148\u5fc5\u987b\u505a\u7684\u662f\u8c03\u7528\u8d85\u7c7b\u7684\u6784\u9020\u65b9\u6cd5\uff0c
+\u53ef\u4ee5\u901a\u8fc7\u5728\u4f60\u7684\u6784\u9020\u65b9\u6cd5\u4e2d\u7684\u7b2c\u4e00\u884c\u52a0\u5165\u5982\u4e0b\u8bed\u53e5\uff1a
     super(...);
-（用适当的参数代替省略号）来实现此调用。
-若要在调用超类的构造方法前调用它的成员，一定会遇到麻烦。
+\uff08\u7528\u9002\u5f53\u7684\u53c2\u6570\u4ee3\u66ff\u7701\u7565\u53f7\uff09\u6765\u5b9e\u73b0\u6b64\u8c03\u7528\u3002
+\u82e5\u8981\u5728\u8c03\u7528\u8d85\u7c7b\u7684\u6784\u9020\u65b9\u6cd5\u524d\u8c03\u7528\u5b83\u7684\u6210\u5458\uff0c\u4e00\u5b9a\u4f1a\u9047\u5230\u9ebb\u70e6\u3002
 
 cannot access *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * cannot be applied to *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 cannot assign a value to final variable *
-你要赋值的变量已被声明为"final",意即你不能任意改变其值。
-如果你确实想改变它的值，从变量声明中去掉关键字"final"。
+\u4f60\u8981\u8d4b\u503c\u7684\u53d8\u91cf\u5df2\u88ab\u58f0\u660e\u4e3a"final",\u610f\u5373\u4f60\u4e0d\u80fd\u4efb\u610f\u6539\u53d8\u5176\u503c\u3002
+\u5982\u679c\u4f60\u786e\u5b9e\u60f3\u6539\u53d8\u5b83\u7684\u503c\uff0c\u4ece\u53d8\u91cf\u58f0\u660e\u4e2d\u53bb\u6389\u5173\u952e\u5b57"final"\u3002
 
 * cannot be dereferenced
-你正使用点号访问一个对象中的域或方法，然而你正使用的变量不是对象类型
-的 - 它没有域或方法
+\u4f60\u6b63\u4f7f\u7528\u70b9\u53f7\u8bbf\u95ee\u4e00\u4e2a\u5bf9\u8c61\u4e2d\u7684\u57df\u6216\u65b9\u6cd5\uff0c\u7136\u800c\u4f60\u6b63\u4f7f\u7528\u7684\u53d8\u91cf\u4e0d\u662f\u5bf9\u8c61\u7c7b\u578b
+\u7684 - \u5b83\u6ca1\u6709\u57df\u6216\u65b9\u6cd5
 
 cannot inherit from final *
-父类（在“extend”关键字之后列出的类）被声明为final类型。这意味着
+\u7236\u7c7b\uff08\u5728\u201cextend\u201d\u5173\u952e\u5b57\u4e4b\u540e\u5217\u51fa\u7684\u7c7b\uff09\u88ab\u58f0\u660e\u4e3afinal\u7c7b\u578b\u3002\u8fd9\u610f\u5473\u7740
 
 * before supertype constructor has been called
-对于每个有超类的类，首先必须做的是调用超类的构造方法，
-可以通过在你的构造方法中的第一行加入如下语句：
+\u5bf9\u4e8e\u6bcf\u4e2a\u6709\u8d85\u7c7b\u7684\u7c7b\uff0c\u9996\u5148\u5fc5\u987b\u505a\u7684\u662f\u8c03\u7528\u8d85\u7c7b\u7684\u6784\u9020\u65b9\u6cd5\uff0c
+\u53ef\u4ee5\u901a\u8fc7\u5728\u4f60\u7684\u6784\u9020\u65b9\u6cd5\u4e2d\u7684\u7b2c\u4e00\u884c\u52a0\u5165\u5982\u4e0b\u8bed\u53e5\uff1a
     super(...);
-（用适当的参数代替省略号）来实现此调用。
-若要在调用超类的构造方法前调用它的成员，一定会遇到麻烦。
+\uff08\u7528\u9002\u5f53\u7684\u53c2\u6570\u4ee3\u66ff\u7701\u7565\u53f7\uff09\u6765\u5b9e\u73b0\u6b64\u8c03\u7528\u3002
+\u82e5\u8981\u5728\u8c03\u7528\u8d85\u7c7b\u7684\u6784\u9020\u65b9\u6cd5\u524d\u8c03\u7528\u5b83\u7684\u6210\u5458\uff0c\u4e00\u5b9a\u4f1a\u9047\u5230\u9ebb\u70e6\u3002
 
 cannot return a value from method whose result type is void
-方法中有一条'return'语句，但此方法不应有返回值，
-返回类型在方法的头部声明。在该方法的方法体中不应该有return语句。
+\u65b9\u6cd5\u4e2d\u6709\u4e00\u6761'return'\u8bed\u53e5\uff0c\u4f46\u6b64\u65b9\u6cd5\u4e0d\u5e94\u6709\u8fd4\u56de\u503c\uff0c
+\u8fd4\u56de\u7c7b\u578b\u5728\u65b9\u6cd5\u7684\u5934\u90e8\u58f0\u660e\u3002\u5728\u8be5\u65b9\u6cd5\u7684\u65b9\u6cd5\u4f53\u4e2d\u4e0d\u5e94\u8be5\u6709return\u8bed\u53e5\u3002
 
 cannot select a static class from a parameterized type
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * cannot be inherited with different arguments:*
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 'catch' without 'try'
-"catch"是Java的关键字，它只能出现在"try"语句的后面。正确的格式如下：
+"catch"\u662fJava\u7684\u5173\u952e\u5b57\uff0c\u5b83\u53ea\u80fd\u51fa\u73b0\u5728"try"\u8bed\u53e5\u7684\u540e\u9762\u3002\u6b63\u786e\u7684\u683c\u5f0f\u5982\u4e0b\uff1a
 try {
-      语句；
+      \u8bed\u53e5\uff1b
    }
    catch(Exception e) {
-     语句；
+     \u8bed\u53e5\uff1b
    }
 
 * clashes with package of same name
-确定类和包有不同的名字。通常，类名应以大写字母开头，而包名
-以小写字母开头。
+\u786e\u5b9a\u7c7b\u548c\u5305\u6709\u4e0d\u540c\u7684\u540d\u5b57\u3002\u901a\u5e38\uff0c\u7c7b\u540d\u5e94\u4ee5\u5927\u5199\u5b57\u6bcd\u5f00\u5934\uff0c\u800c\u5305\u540d
+\u4ee5\u5c0f\u5199\u5b57\u6bcd\u5f00\u5934\u3002
 
 code too large for try statement
-在一个try语句块中有太多的代码。把代码放到一个独立的方法中，
-并在这里插入对它的调用。
+\u5728\u4e00\u4e2atry\u8bed\u53e5\u5757\u4e2d\u6709\u592a\u591a\u7684\u4ee3\u7801\u3002\u628a\u4ee3\u7801\u653e\u5230\u4e00\u4e2a\u72ec\u7acb\u7684\u65b9\u6cd5\u4e2d\uff0c
+\u5e76\u5728\u8fd9\u91cc\u63d2\u5165\u5bf9\u5b83\u7684\u8c03\u7528\u3002
 
 constant expression required
-此处使用的变量或表达式不合法。你只能使用常量。常量是数字（比如42）
-或者被声明为"final"的标识符.
+\u6b64\u5904\u4f7f\u7528\u7684\u53d8\u91cf\u6216\u8868\u8fbe\u5f0f\u4e0d\u5408\u6cd5\u3002\u4f60\u53ea\u80fd\u4f7f\u7528\u5e38\u91cf\u3002\u5e38\u91cf\u662f\u6570\u5b57\uff08\u6bd4\u598242\uff09
+\u6216\u8005\u88ab\u58f0\u660e\u4e3a"final"\u7684\u6807\u8bc6\u7b26.
 
 continue outside of loop
-"continue"语句用于立即开始下一次循环。在循环外它没有意义，只能用在
-"for", "while"或"do"循环中。
+"continue"\u8bed\u53e5\u7528\u4e8e\u7acb\u5373\u5f00\u59cb\u4e0b\u4e00\u6b21\u5faa\u73af\u3002\u5728\u5faa\u73af\u5916\u5b83\u6ca1\u6709\u610f\u4e49\uff0c\u53ea\u80fd\u7528\u5728
+"for", "while"\u6216"do"\u5faa\u73af\u4e2d\u3002
 
 cyclic inheritance involving *
-此类所继承的超类继承于此类！不能工作。你必须确定哪个是超类，哪个是子类。
+\u6b64\u7c7b\u6240\u7ee7\u627f\u7684\u8d85\u7c7b\u7ee7\u627f\u4e8e\u6b64\u7c7b\uff01\u4e0d\u80fd\u5de5\u4f5c\u3002\u4f60\u5fc5\u987b\u786e\u5b9a\u54ea\u4e2a\u662f\u8d85\u7c7b\uff0c\u54ea\u4e2a\u662f\u5b50\u7c7b\u3002
 
 * does not exist
-在这里你所使用的名字（可能是用来标识一个变量，一个类或者一个包）不存在。
-它既不是一个变量的名字，也不是一个类或者一个包的名字。
+\u5728\u8fd9\u91cc\u4f60\u6240\u4f7f\u7528\u7684\u540d\u5b57\uff08\u53ef\u80fd\u662f\u7528\u6765\u6807\u8bc6\u4e00\u4e2a\u53d8\u91cf\uff0c\u4e00\u4e2a\u7c7b\u6216\u8005\u4e00\u4e2a\u5305\uff09\u4e0d\u5b58\u5728\u3002
+\u5b83\u65e2\u4e0d\u662f\u4e00\u4e2a\u53d8\u91cf\u7684\u540d\u5b57\uff0c\u4e5f\u4e0d\u662f\u4e00\u4e2a\u7c7b\u6216\u8005\u4e00\u4e2a\u5305\u7684\u540d\u5b57\u3002
 
 duplicate class:*
-已经有一个同名的类了。
+\u5df2\u7ecf\u6709\u4e00\u4e2a\u540c\u540d\u7684\u7c7b\u4e86\u3002
 
 duplicate case label
-在"switch"语句中使用了同一个标号两次。
+\u5728"switch"\u8bed\u53e5\u4e2d\u4f7f\u7528\u4e86\u540c\u4e00\u4e2a\u6807\u53f7\u4e24\u6b21\u3002
 
 duplicate default label
-在switch语句中写了两遍"default"。一个足够了。
+\u5728switch\u8bed\u53e5\u4e2d\u5199\u4e86\u4e24\u904d"default"\u3002\u4e00\u4e2a\u8db3\u591f\u4e86\u3002
 
 'else' without 'if'
-关键字'else'只能出现在'if'语句中，形式如：
-if (条件)
-	语句
+\u5173\u952e\u5b57'else'\u53ea\u80fd\u51fa\u73b0\u5728'if'\u8bed\u53e5\u4e2d\uff0c\u5f62\u5f0f\u5982\uff1a
+if (\u6761\u4ef6)
+	\u8bed\u53e5
 else
-	语句
-也许你丢掉了语句组的括号？如果在if后有不只一条语句，就应把它们括起来，例如：
-if (条件) 
+	\u8bed\u53e5
+\u4e5f\u8bb8\u4f60\u4e22\u6389\u4e86\u8bed\u53e5\u7ec4\u7684\u62ec\u53f7\uff1f\u5982\u679c\u5728if\u540e\u6709\u4e0d\u53ea\u4e00\u6761\u8bed\u53e5\uff0c\u5c31\u5e94\u628a\u5b83\u4eec\u62ec\u8d77\u6765\uff0c\u4f8b\u5982\uff1a
+if (\u6761\u4ef6) 
    {
-	语句一；
-	语句二；
+	\u8bed\u53e5\u4e00\uff1b
+	\u8bed\u53e5\u4e8c\uff1b
    }
    else
    {
-	语句三；
+	\u8bed\u53e5\u4e09\uff1b
      }
 
 empty character literal
-你定义了空的字符。你不能使用''。一个字符常量是一个被一对
-单引号括起来的字符，比如'a'。绝大多数时候，单引号之间只能
-有单个字符。唯一的例外是如果第一个字符是斜杠（所谓的"转义
-符"），用来表示特殊字符，比如，'\n'或者'\t'
+\u4f60\u5b9a\u4e49\u4e86\u7a7a\u7684\u5b57\u7b26\u3002\u4f60\u4e0d\u80fd\u4f7f\u7528''\u3002\u4e00\u4e2a\u5b57\u7b26\u5e38\u91cf\u662f\u4e00\u4e2a\u88ab\u4e00\u5bf9
+\u5355\u5f15\u53f7\u62ec\u8d77\u6765\u7684\u5b57\u7b26\uff0c\u6bd4\u5982'a'\u3002\u7edd\u5927\u591a\u6570\u65f6\u5019\uff0c\u5355\u5f15\u53f7\u4e4b\u95f4\u53ea\u80fd
+\u6709\u5355\u4e2a\u5b57\u7b26\u3002\u552f\u4e00\u7684\u4f8b\u5916\u662f\u5982\u679c\u7b2c\u4e00\u4e2a\u5b57\u7b26\u662f\u659c\u6760\uff08\u6240\u8c13\u7684"\u8f6c\u4e49
+\u7b26"\uff09\uff0c\u7528\u6765\u8868\u793a\u7279\u6b8a\u5b57\u7b26\uff0c\u6bd4\u5982\uff0c'\n'\u6216\u8005'\t'
 
 * has already been caught
-这个catch语句是没有用的。它永远也不会被执行到。因为所有
-它声明的要处理的异常已经被它上面的catch语句处理了。
+\u8fd9\u4e2acatch\u8bed\u53e5\u662f\u6ca1\u6709\u7528\u7684\u3002\u5b83\u6c38\u8fdc\u4e5f\u4e0d\u4f1a\u88ab\u6267\u884c\u5230\u3002\u56e0\u4e3a\u6240\u6709
+\u5b83\u58f0\u660e\u7684\u8981\u5904\u7406\u7684\u5f02\u5e38\u5df2\u7ecf\u88ab\u5b83\u4e0a\u9762\u7684catch\u8bed\u53e5\u5904\u7406\u4e86\u3002
 
 * is never thrown in body of corresponding try statement
-你声明了一个捕获的例外，但是这个例外将永不会被抛弃！
-在"try"的语句块中没有抛弃这个例外。
+\u4f60\u58f0\u660e\u4e86\u4e00\u4e2a\u6355\u83b7\u7684\u4f8b\u5916\uff0c\u4f46\u662f\u8fd9\u4e2a\u4f8b\u5916\u5c06\u6c38\u4e0d\u4f1a\u88ab\u629b\u5f03\uff01
+\u5728"try"\u7684\u8bed\u53e5\u5757\u4e2d\u6ca1\u6709\u629b\u5f03\u8fd9\u4e2a\u4f8b\u5916\u3002
 
 'finally' without 'try'
-"finally""是Java的关键字，它只能出现在"try"语句的后面。正确的格式如下：
+"finally""\u662fJava\u7684\u5173\u952e\u5b57\uff0c\u5b83\u53ea\u80fd\u51fa\u73b0\u5728"try"\u8bed\u53e5\u7684\u540e\u9762\u3002\u6b63\u786e\u7684\u683c\u5f0f\u5982\u4e0b\uff1a
   try {
-      语句；
+      \u8bed\u53e5\uff1b
    }
    catch(Exception e) {
-     语句；
+     \u8bed\u53e5\uff1b
    }
    finally {
-      语句；
+      \u8bed\u53e5\uff1b
    }
 
 floating point number too large
-系统不能处理这么大的单精度浮点数.
+\u7cfb\u7edf\u4e0d\u80fd\u5904\u7406\u8fd9\u4e48\u5927\u7684\u5355\u7cbe\u5ea6\u6d6e\u70b9\u6570.
 
 floating point number too small
-系统不能处理这么小的单精度浮点数.
+\u7cfb\u7edf\u4e0d\u80fd\u5904\u7406\u8fd9\u4e48\u5c0f\u7684\u5355\u7cbe\u5ea6\u6d6e\u70b9\u6570.
 
 inner classes cannot have static declarations
-不能在嵌套类中声明静态类型。如果在此处需要静态类型，只能在外部类中声明。
+\u4e0d\u80fd\u5728\u5d4c\u5957\u7c7b\u4e2d\u58f0\u660e\u9759\u6001\u7c7b\u578b\u3002\u5982\u679c\u5728\u6b64\u5904\u9700\u8981\u9759\u6001\u7c7b\u578b\uff0c\u53ea\u80fd\u5728\u5916\u90e8\u7c7b\u4e2d\u58f0\u660e\u3002
 
 illegal character:*
-源文件的这个地方有一个非法字符。这个字符可能是不可见的。
-如果你不能发现它并删掉它，那么删掉整行重新输入。
+\u6e90\u6587\u4ef6\u7684\u8fd9\u4e2a\u5730\u65b9\u6709\u4e00\u4e2a\u975e\u6cd5\u5b57\u7b26\u3002\u8fd9\u4e2a\u5b57\u7b26\u53ef\u80fd\u662f\u4e0d\u53ef\u89c1\u7684\u3002
+\u5982\u679c\u4f60\u4e0d\u80fd\u53d1\u73b0\u5b83\u5e76\u5220\u6389\u5b83\uff0c\u90a3\u4e48\u5220\u6389\u6574\u884c\u91cd\u65b0\u8f93\u5165\u3002
 
 illegal combination of modifiers: *
-你正在试图一起使用在Java中是非法组合的一对修饰符。很可能它们的
-意思正好是彼此矛盾的。一个例子是定义一个方法为abstract，并且是
-final, private 或者 synchronized的。
+\u4f60\u6b63\u5728\u8bd5\u56fe\u4e00\u8d77\u4f7f\u7528\u5728Java\u4e2d\u662f\u975e\u6cd5\u7ec4\u5408\u7684\u4e00\u5bf9\u4fee\u9970\u7b26\u3002\u5f88\u53ef\u80fd\u5b83\u4eec\u7684
+\u610f\u601d\u6b63\u597d\u662f\u5f7c\u6b64\u77db\u76fe\u7684\u3002\u4e00\u4e2a\u4f8b\u5b50\u662f\u5b9a\u4e49\u4e00\u4e2a\u65b9\u6cd5\u4e3aabstract\uff0c\u5e76\u4e14\u662f
+final, private \u6216\u8005 synchronized\u7684\u3002
 
 illegal escape character
-一个转义字符由一个反斜线和一个字符组成,例如:'\n'.用于标记特殊字符.
-在反斜线后所跟的字符是由限制的,他们只能是\n, \t, \b, \r, \f, \\,
-\', \" 和数字.如果你想写一个\字符本身,要写成"\\"--在你的字符串中会显示
-一个单个的\.
+\u4e00\u4e2a\u8f6c\u4e49\u5b57\u7b26\u7531\u4e00\u4e2a\u53cd\u659c\u7ebf\u548c\u4e00\u4e2a\u5b57\u7b26\u7ec4\u6210,\u4f8b\u5982:'\n'.\u7528\u4e8e\u6807\u8bb0\u7279\u6b8a\u5b57\u7b26.
+\u5728\u53cd\u659c\u7ebf\u540e\u6240\u8ddf\u7684\u5b57\u7b26\u662f\u7531\u9650\u5236\u7684,\u4ed6\u4eec\u53ea\u80fd\u662f\n, \t, \b, \r, \f, \\,
+\', \" \u548c\u6570\u5b57.\u5982\u679c\u4f60\u60f3\u5199\u4e00\u4e2a\\u5b57\u7b26\u672c\u8eab,\u8981\u5199\u6210"\\"--\u5728\u4f60\u7684\u5b57\u7b26\u4e32\u4e2d\u4f1a\u663e\u793a
+\u4e00\u4e2a\u5355\u4e2a\u7684\.
 
 illegal forward reference
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 illegal initializer for *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 illegal line end in character literal
-在字面上需要换行的地方你使用真正的回车符，你不能这么做。
-如果你想输入一个表示换行的字符，可以使用'\n'。
+\u5728\u5b57\u9762\u4e0a\u9700\u8981\u6362\u884c\u7684\u5730\u65b9\u4f60\u4f7f\u7528\u771f\u6b63\u7684\u56de\u8f66\u7b26\uff0c\u4f60\u4e0d\u80fd\u8fd9\u4e48\u505a\u3002
+\u5982\u679c\u4f60\u60f3\u8f93\u5165\u4e00\u4e2a\u8868\u793a\u6362\u884c\u7684\u5b57\u7b26\uff0c\u53ef\u4ee5\u4f7f\u7528'\n'\u3002
 
 * is not an inner class
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 illegal start of expression
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 illegal start of type
-源文件中这个地方需要一个类型说明，但现在却是其他的一些东西
-（很可能是一个Java关键字）。检查该行是不是有错误的类型定义。
+\u6e90\u6587\u4ef6\u4e2d\u8fd9\u4e2a\u5730\u65b9\u9700\u8981\u4e00\u4e2a\u7c7b\u578b\u8bf4\u660e\uff0c\u4f46\u73b0\u5728\u5374\u662f\u5176\u4ed6\u7684\u4e00\u4e9b\u4e1c\u897f
+\uff08\u5f88\u53ef\u80fd\u662f\u4e00\u4e2aJava\u5173\u952e\u5b57\uff09\u3002\u68c0\u67e5\u8be5\u884c\u662f\u4e0d\u662f\u6709\u9519\u8bef\u7684\u7c7b\u578b\u5b9a\u4e49\u3002
 
 illegal unicode escape
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 improperly formed type, some parameters are missing
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 incomparable types: *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 integer number too large: *
-你写了一个太大或太小的数字,他不符合该数据类型的定义,你需要定义
-一个更小或更大的数据类型(例如:用"long"代替"int").
+\u4f60\u5199\u4e86\u4e00\u4e2a\u592a\u5927\u6216\u592a\u5c0f\u7684\u6570\u5b57,\u4ed6\u4e0d\u7b26\u5408\u8be5\u6570\u636e\u7c7b\u578b\u7684\u5b9a\u4e49,\u4f60\u9700\u8981\u5b9a\u4e49
+\u4e00\u4e2a\u66f4\u5c0f\u6216\u66f4\u5927\u7684\u6570\u636e\u7c7b\u578b(\u4f8b\u5982:\u7528"long"\u4ee3\u66ff"int").
 
 internal error; cannot instantiate *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * but with different return type
-你可能试图定义两个除了返回类型之外都一样的方法，这是不允许的。
+\u4f60\u53ef\u80fd\u8bd5\u56fe\u5b9a\u4e49\u4e24\u4e2a\u9664\u4e86\u8fd4\u56de\u7c7b\u578b\u4e4b\u5916\u90fd\u4e00\u6837\u7684\u65b9\u6cd5\uff0c\u8fd9\u662f\u4e0d\u5141\u8bb8\u7684\u3002
 
 interface expected here
-关键字"implements"后必须是接口名。你写的不是接口（它可能是类）。
-如果要继承于类，应用关键字"extends"。
+\u5173\u952e\u5b57"implements"\u540e\u5fc5\u987b\u662f\u63a5\u53e3\u540d\u3002\u4f60\u5199\u7684\u4e0d\u662f\u63a5\u53e3\uff08\u5b83\u53ef\u80fd\u662f\u7c7b\uff09\u3002
+\u5982\u679c\u8981\u7ee7\u627f\u4e8e\u7c7b\uff0c\u5e94\u7528\u5173\u952e\u5b57"extends"\u3002
 
 interface methods cannot have body
-接口中的方法只能被定义。也就是说他们应该由一个头
-和紧跟气候的一个分号组成，不能有方法体。
+\u63a5\u53e3\u4e2d\u7684\u65b9\u6cd5\u53ea\u80fd\u88ab\u5b9a\u4e49\u3002\u4e5f\u5c31\u662f\u8bf4\u4ed6\u4eec\u5e94\u8be5\u7531\u4e00\u4e2a\u5934
+\u548c\u7d27\u8ddf\u6c14\u5019\u7684\u4e00\u4e2a\u5206\u53f7\u7ec4\u6210\uff0c\u4e0d\u80fd\u6709\u65b9\u6cd5\u4f53\u3002
 
 hexadecimal numbers must contain at least one hexadecimal digit
-你定义了一个16进制数,(它以"0X"开头)对于一个16进制数,必须在"X"后至少有
-一个数字.
+\u4f60\u5b9a\u4e49\u4e86\u4e00\u4e2a16\u8fdb\u5236\u6570,(\u5b83\u4ee5"0X"\u5f00\u5934)\u5bf9\u4e8e\u4e00\u4e2a16\u8fdb\u5236\u6570,\u5fc5\u987b\u5728"X"\u540e\u81f3\u5c11\u6709
+\u4e00\u4e2a\u6570\u5b57.
 
 invalid method declaration; return type required
-方法声明中必须有返回类型，例如：如果方法返回一个字符串，则写：
+\u65b9\u6cd5\u58f0\u660e\u4e2d\u5fc5\u987b\u6709\u8fd4\u56de\u7c7b\u578b\uff0c\u4f8b\u5982\uff1a\u5982\u679c\u65b9\u6cd5\u8fd4\u56de\u4e00\u4e2a\u5b57\u7b26\u4e32\uff0c\u5219\u5199\uff1a
     public String myMethod();
-如果你不需要返回值，应使用特殊关键字"void"指明没有返回类型。例：
+\u5982\u679c\u4f60\u4e0d\u9700\u8981\u8fd4\u56de\u503c\uff0c\u5e94\u4f7f\u7528\u7279\u6b8a\u5173\u952e\u5b57"void"\u6307\u660e\u6ca1\u6709\u8fd4\u56de\u7c7b\u578b\u3002\u4f8b\uff1a
     public void myMethod();
 
 * already in use
-在这个方法中已经已经有一个变量（也可能是一个参数）
-使用了同样的名字。为这个变量取一个不同的名字。（也
-可能你就是想在这里使用该变量？那么删除这里的类型名
-字，使它不再是一个声明语句。）
+\u5728\u8fd9\u4e2a\u65b9\u6cd5\u4e2d\u5df2\u7ecf\u5df2\u7ecf\u6709\u4e00\u4e2a\u53d8\u91cf\uff08\u4e5f\u53ef\u80fd\u662f\u4e00\u4e2a\u53c2\u6570\uff09
+\u4f7f\u7528\u4e86\u540c\u6837\u7684\u540d\u5b57\u3002\u4e3a\u8fd9\u4e2a\u53d8\u91cf\u53d6\u4e00\u4e2a\u4e0d\u540c\u7684\u540d\u5b57\u3002\uff08\u4e5f
+\u53ef\u80fd\u4f60\u5c31\u662f\u60f3\u5728\u8fd9\u91cc\u4f7f\u7528\u8be5\u53d8\u91cf\uff1f\u90a3\u4e48\u5220\u9664\u8fd9\u91cc\u7684\u7c7b\u578b\u540d
+\u5b57\uff0c\u4f7f\u5b83\u4e0d\u518d\u662f\u4e00\u4e2a\u58f0\u660e\u8bed\u53e5\u3002\uff09
 
 * is accessed from within inner class; needs to be declared final
-局部变量通常是不能被内部类访问的。但在这里你确实这么做了。
-你有两个选择：你可以去除这个对局部变量的访问，或者你可以把
-这个变量声明为"final" - 这样你就可以访问它了。
+\u5c40\u90e8\u53d8\u91cf\u901a\u5e38\u662f\u4e0d\u80fd\u88ab\u5185\u90e8\u7c7b\u8bbf\u95ee\u7684\u3002\u4f46\u5728\u8fd9\u91cc\u4f60\u786e\u5b9e\u8fd9\u4e48\u505a\u4e86\u3002
+\u4f60\u6709\u4e24\u4e2a\u9009\u62e9\uff1a\u4f60\u53ef\u4ee5\u53bb\u9664\u8fd9\u4e2a\u5bf9\u5c40\u90e8\u53d8\u91cf\u7684\u8bbf\u95ee\uff0c\u6216\u8005\u4f60\u53ef\u4ee5\u628a
+\u8fd9\u4e2a\u53d8\u91cf\u58f0\u660e\u4e3a"final" - \u8fd9\u6837\u4f60\u5c31\u53ef\u4ee5\u8bbf\u95ee\u5b83\u4e86\u3002
 
 malformed floating point literal
-你在写浮点数时犯了一个错误,(浮点数是带小数点的数.)
-正确的浮点数如下所示:
+\u4f60\u5728\u5199\u6d6e\u70b9\u6570\u65f6\u72af\u4e86\u4e00\u4e2a\u9519\u8bef,(\u6d6e\u70b9\u6570\u662f\u5e26\u5c0f\u6570\u70b9\u7684\u6570.)
+\u6b63\u786e\u7684\u6d6e\u70b9\u6570\u5982\u4e0b\u6240\u793a:
 18.0      18.     1.8e1     .18E2
 
 missing method body, or declare abstract
-方法或者是抽象的，或者有方法体。方法体是跟在方法头后面，由{ }括起的块，里边包含一些语句。
-如果方法没有方法体，则必须在方法头部有关键字，例如：
+\u65b9\u6cd5\u6216\u8005\u662f\u62bd\u8c61\u7684\uff0c\u6216\u8005\u6709\u65b9\u6cd5\u4f53\u3002\u65b9\u6cd5\u4f53\u662f\u8ddf\u5728\u65b9\u6cd5\u5934\u540e\u9762\uff0c\u7531{ }\u62ec\u8d77\u7684\u5757\uff0c\u91cc\u8fb9\u5305\u542b\u4e00\u4e9b\u8bed\u53e5\u3002
+\u5982\u679c\u65b9\u6cd5\u6ca1\u6709\u65b9\u6cd5\u4f53\uff0c\u5219\u5fc5\u987b\u5728\u65b9\u6cd5\u5934\u90e8\u6709\u5173\u952e\u5b57\uff0c\u4f8b\u5982\uff1a
 	public abstract int getAnswer();
 
 missing return statement
-你使用了一个有返回值的方法，但是在方法体内没有"return"语句。
-这不合适，应该：
-    - 如果你不需要返回值，声明方法的返回类型为"void"，或
-    - 在方法的结尾写一条带正确返回类型的"return"语句，例：
+\u4f60\u4f7f\u7528\u4e86\u4e00\u4e2a\u6709\u8fd4\u56de\u503c\u7684\u65b9\u6cd5\uff0c\u4f46\u662f\u5728\u65b9\u6cd5\u4f53\u5185\u6ca1\u6709"return"\u8bed\u53e5\u3002
+\u8fd9\u4e0d\u5408\u9002\uff0c\u5e94\u8be5\uff1a
+    - \u5982\u679c\u4f60\u4e0d\u9700\u8981\u8fd4\u56de\u503c\uff0c\u58f0\u660e\u65b9\u6cd5\u7684\u8fd4\u56de\u7c7b\u578b\u4e3a"void"\uff0c\u6216
+    - \u5728\u65b9\u6cd5\u7684\u7ed3\u5c3e\u5199\u4e00\u6761\u5e26\u6b63\u786e\u8fd4\u56de\u7c7b\u578b\u7684"return"\u8bed\u53e5\uff0c\u4f8b\uff1a
       return 42;
-返回的类型必须与方法头部声明的类型一致
+\u8fd4\u56de\u7684\u7c7b\u578b\u5fc5\u987b\u4e0e\u65b9\u6cd5\u5934\u90e8\u58f0\u660e\u7684\u7c7b\u578b\u4e00\u81f4
 
 missing return value
-方法中有一条没有返回值的'return'语句，然而方法的头部声明有返回值。
-你应该声明此方法为有返回值(在方法的头部使用”void”作为返回类型)，
-或者你必须返回一个有正确类型的值，例：
+\u65b9\u6cd5\u4e2d\u6709\u4e00\u6761\u6ca1\u6709\u8fd4\u56de\u503c\u7684'return'\u8bed\u53e5\uff0c\u7136\u800c\u65b9\u6cd5\u7684\u5934\u90e8\u58f0\u660e\u6709\u8fd4\u56de\u503c\u3002
+\u4f60\u5e94\u8be5\u58f0\u660e\u6b64\u65b9\u6cd5\u4e3a\u6709\u8fd4\u56de\u503c(\u5728\u65b9\u6cd5\u7684\u5934\u90e8\u4f7f\u7528\u201dvoid\u201d\u4f5c\u4e3a\u8fd4\u56de\u7c7b\u578b)\uff0c
+\u6216\u8005\u4f60\u5fc5\u987b\u8fd4\u56de\u4e00\u4e2a\u6709\u6b63\u786e\u7c7b\u578b\u7684\u503c\uff0c\u4f8b\uff1a
     return 42;
-或：
+\u6216\uff1a
     return "Marvin";
 
 name clash: *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * is reserved for internal use
-被显示的短语是内部保留使用的，如果它是一个变量或者类的
-名字，你需要改变它。
+\u88ab\u663e\u793a\u7684\u77ed\u8bed\u662f\u5185\u90e8\u4fdd\u7559\u4f7f\u7528\u7684\uff0c\u5982\u679c\u5b83\u662f\u4e00\u4e2a\u53d8\u91cf\u6216\u8005\u7c7b\u7684
+\u540d\u5b57\uff0c\u4f60\u9700\u8981\u6539\u53d8\u5b83\u3002
 
 native methods cannot have a body
-已声明一个native的方法，而且写了方法体。但那是矛盾的。
-native方法声明都仅有一个后跟分号的方法头。你或者去掉
-"native"，或者去掉方法体。
+\u5df2\u58f0\u660e\u4e00\u4e2anative\u7684\u65b9\u6cd5\uff0c\u800c\u4e14\u5199\u4e86\u65b9\u6cd5\u4f53\u3002\u4f46\u90a3\u662f\u77db\u76fe\u7684\u3002
+native\u65b9\u6cd5\u58f0\u660e\u90fd\u4ec5\u6709\u4e00\u4e2a\u540e\u8ddf\u5206\u53f7\u7684\u65b9\u6cd5\u5934\u3002\u4f60\u6216\u8005\u53bb\u6389
+"native"\uff0c\u6216\u8005\u53bb\u6389\u65b9\u6cd5\u4f53\u3002
 
 no enclosing instance of type {0} is in scope
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 no interface expected here
-这里你正在使用一个接口（可能在一个类声明的extends修饰中）
-一个类只能扩展其它的类（不是接口）。如果要继承接口，
-使用关键字"implements"
+\u8fd9\u91cc\u4f60\u6b63\u5728\u4f7f\u7528\u4e00\u4e2a\u63a5\u53e3\uff08\u53ef\u80fd\u5728\u4e00\u4e2a\u7c7b\u58f0\u660e\u7684extends\u4fee\u9970\u4e2d\uff09
+\u4e00\u4e2a\u7c7b\u53ea\u80fd\u6269\u5c55\u5176\u5b83\u7684\u7c7b\uff08\u4e0d\u662f\u63a5\u53e3\uff09\u3002\u5982\u679c\u8981\u7ee7\u627f\u63a5\u53e3\uff0c
+\u4f7f\u7528\u5173\u952e\u5b57"implements"
 
 * has no match in entry in *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * is not defined in a public class or interface; cannot be accessed from outside package
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * cannot be accessed from outside package
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 not a loop label: *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 not a statement
-你写了一行代码但不是一个完整的语句。请重新检查一下你打算做
-什么和你应该如何去做。
+\u4f60\u5199\u4e86\u4e00\u884c\u4ee3\u7801\u4f46\u4e0d\u662f\u4e00\u4e2a\u5b8c\u6574\u7684\u8bed\u53e5\u3002\u8bf7\u91cd\u65b0\u68c0\u67e5\u4e00\u4e0b\u4f60\u6253\u7b97\u505a
+\u4ec0\u4e48\u548c\u4f60\u5e94\u8be5\u5982\u4f55\u53bb\u505a\u3002
 
 not an enclosing class:*
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * cannot be applied to *
-当前你所使用的操作符不能被应用到你正在操作的类型之上。
-你要么使用了错误的类型，要么使用了错误的操作符。
+\u5f53\u524d\u4f60\u6240\u4f7f\u7528\u7684\u64cd\u4f5c\u7b26\u4e0d\u80fd\u88ab\u5e94\u7528\u5230\u4f60\u6b63\u5728\u64cd\u4f5c\u7684\u7c7b\u578b\u4e4b\u4e0a\u3002
+\u4f60\u8981\u4e48\u4f7f\u7528\u4e86\u9519\u8bef\u7684\u7c7b\u578b\uff0c\u8981\u4e48\u4f7f\u7528\u4e86\u9519\u8bef\u7684\u64cd\u4f5c\u7b26\u3002
 
 * clashes with class of same name
-确定类和包有不同的名字。通常，类名应以大写字母开头，而包名义
-小写字母开头。
+\u786e\u5b9a\u7c7b\u548c\u5305\u6709\u4e0d\u540c\u7684\u540d\u5b57\u3002\u901a\u5e38\uff0c\u7c7b\u540d\u5e94\u4ee5\u5927\u5199\u5b57\u6bcd\u5f00\u5934\uff0c\u800c\u5305\u540d\u4e49
+\u5c0f\u5199\u5b57\u6bcd\u5f00\u5934\u3002
 
 possible fall-through into case
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 error reading *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 recursive constructor invocation
-此段代码使构造方法调用它本身，这是不允许的（很可能引起死循环）。
+\u6b64\u6bb5\u4ee3\u7801\u4f7f\u6784\u9020\u65b9\u6cd5\u8c03\u7528\u5b83\u672c\u8eab\uff0c\u8fd9\u662f\u4e0d\u5141\u8bb8\u7684\uff08\u5f88\u53ef\u80fd\u5f15\u8d77\u6b7b\u5faa\u73af\uff09\u3002
 
 * is ambiguous, both *
-这个错误信息中的标识符不能被正确的解析，因为在你import的包中
-使用这个以标识符命名的类或接口不止一个。你可以通过它的完整路
-径名（比如，java.util.List）来进行引用，或者使用它的完整路径
-名来import这个类（比如，java.util.List)。
+\u8fd9\u4e2a\u9519\u8bef\u4fe1\u606f\u4e2d\u7684\u6807\u8bc6\u7b26\u4e0d\u80fd\u88ab\u6b63\u786e\u7684\u89e3\u6790\uff0c\u56e0\u4e3a\u5728\u4f60import\u7684\u5305\u4e2d
+\u4f7f\u7528\u8fd9\u4e2a\u4ee5\u6807\u8bc6\u7b26\u547d\u540d\u7684\u7c7b\u6216\u63a5\u53e3\u4e0d\u6b62\u4e00\u4e2a\u3002\u4f60\u53ef\u4ee5\u901a\u8fc7\u5b83\u7684\u5b8c\u6574\u8def
+\u5f84\u540d\uff08\u6bd4\u5982\uff0cjava.util.List\uff09\u6765\u8fdb\u884c\u5f15\u7528\uff0c\u6216\u8005\u4f7f\u7528\u5b83\u7684\u5b8c\u6574\u8def\u5f84
+\u540d\u6765import\u8fd9\u4e2a\u7c7b\uff08\u6bd4\u5982\uff0cjava.util.List)\u3002
 
 repeated interface
-你在"implements"关键字后面列出了两个相同的接口，
-一个就足够了。我的记忆没有那么差！
+\u4f60\u5728"implements"\u5173\u952e\u5b57\u540e\u9762\u5217\u51fa\u4e86\u4e24\u4e2a\u76f8\u540c\u7684\u63a5\u53e3\uff0c
+\u4e00\u4e2a\u5c31\u8db3\u591f\u4e86\u3002\u6211\u7684\u8bb0\u5fc6\u6ca1\u6709\u90a3\u4e48\u5dee\uff01
 
 repeated modifier
-在这个声明中，你把同一个修饰符使用了两边。一个修饰符是一个关
-键字，比如final, static, public, private, volatile, ...
+\u5728\u8fd9\u4e2a\u58f0\u660e\u4e2d\uff0c\u4f60\u628a\u540c\u4e00\u4e2a\u4fee\u9970\u7b26\u4f7f\u7528\u4e86\u4e24\u8fb9\u3002\u4e00\u4e2a\u4fee\u9970\u7b26\u662f\u4e00\u4e2a\u5173
+\u952e\u5b57\uff0c\u6bd4\u5982final, static, public, private, volatile, ...
 
 {0} has {1} access in {2}
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 return outside method
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 signature does not match *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * should be declared abstract; it does not define *
-当前类继承了一个抽象类或接口。抽象类或接口定义的方法没有实现。
-当前类没有实现所有的方法，因此它本身依然是抽象的（意即还有没有实现的方法），
-你应该声明这个类为抽象类，通过使用
+\u5f53\u524d\u7c7b\u7ee7\u627f\u4e86\u4e00\u4e2a\u62bd\u8c61\u7c7b\u6216\u63a5\u53e3\u3002\u62bd\u8c61\u7c7b\u6216\u63a5\u53e3\u5b9a\u4e49\u7684\u65b9\u6cd5\u6ca1\u6709\u5b9e\u73b0\u3002
+\u5f53\u524d\u7c7b\u6ca1\u6709\u5b9e\u73b0\u6240\u6709\u7684\u65b9\u6cd5\uff0c\u56e0\u6b64\u5b83\u672c\u8eab\u4f9d\u7136\u662f\u62bd\u8c61\u7684\uff08\u610f\u5373\u8fd8\u6709\u6ca1\u6709\u5b9e\u73b0\u7684\u65b9\u6cd5\uff09\uff0c
+\u4f60\u5e94\u8be5\u58f0\u660e\u8fd9\u4e2a\u7c7b\u4e3a\u62bd\u8c61\u7c7b\uff0c\u901a\u8fc7\u4f7f\u7528
    public abstract class ...
-替代
+\u66ff\u4ee3
    public class ...
-否则你必须提供错误信息中给出的方法的一个实现。
+\u5426\u5219\u4f60\u5fc5\u987b\u63d0\u4f9b\u9519\u8bef\u4fe1\u606f\u4e2d\u7ed9\u51fa\u7684\u65b9\u6cd5\u7684\u4e00\u4e2a\u5b9e\u73b0\u3002
 
 error writing source; cannot overwrite input file *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 'try' without 'catch' or 'finally'
-"try"语句块后面必须跟"catch"块或"finally"块（或二者都有），正确的格式如下：
+"try"\u8bed\u53e5\u5757\u540e\u9762\u5fc5\u987b\u8ddf"catch"\u5757\u6216"finally"\u5757\uff08\u6216\u4e8c\u8005\u90fd\u6709\uff09\uff0c\u6b63\u786e\u7684\u683c\u5f0f\u5982\u4e0b\uff1a
 try {
-      语句：
+      \u8bed\u53e5\uff1a
    }
    catch(Exception e) {
-      语句：
+      \u8bed\u53e5\uff1a
    }
    finally {
-      语句：
+      \u8bed\u53e5\uff1a
    }
 
 * does not take parameters
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 type variables cannot be dereferenced
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 type variable {0} occurs more than once in type of {1}; cannot be left uninstantiated
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 unclosed character literal
-可能是因为你声明了一个字符，但是没有加上封闭单引号：'。
+\u53ef\u80fd\u662f\u56e0\u4e3a\u4f60\u58f0\u660e\u4e86\u4e00\u4e2a\u5b57\u7b26\uff0c\u4f46\u662f\u6ca1\u6709\u52a0\u4e0a\u5c01\u95ed\u5355\u5f15\u53f7\uff1a'\u3002
 
 unclosed comment
-可能是因为你写了一段注释，但是忘了加上封闭字符：*/。
+\u53ef\u80fd\u662f\u56e0\u4e3a\u4f60\u5199\u4e86\u4e00\u6bb5\u6ce8\u91ca\uff0c\u4f46\u662f\u5fd8\u4e86\u52a0\u4e0a\u5c01\u95ed\u5b57\u7b26\uff1a*/\u3002
 
 unclosed string literal
-可能是因为你声明了一个字符串，但是没有加上封闭双引号："。
+\u53ef\u80fd\u662f\u56e0\u4e3a\u4f60\u58f0\u660e\u4e86\u4e00\u4e2a\u5b57\u7b26\u4e32\uff0c\u4f46\u662f\u6ca1\u6709\u52a0\u4e0a\u5c01\u95ed\u53cc\u5f15\u53f7\uff1a"\u3002
 
 undefined label: *
-被使用的变量不存在。或者它没有声明，或者它在不可见的地方声明。
-如果变量的拼写有错误，第一种情况很容易出现，检查变量的拼写，
-包括所有的大写字母（"aNumber" 和 "anumber"是不同的!）。
-如果变量声明在块中，第二种情况很容易出现，（块是大括号括起的一组语句，如{ }。）
-比如，如果在循环语句中声明了一个变量，那么此变量就只能在循环语句内有效。
-一个经验之谈是:在块中声明的变量在”}”后就无效了。
+\u88ab\u4f7f\u7528\u7684\u53d8\u91cf\u4e0d\u5b58\u5728\u3002\u6216\u8005\u5b83\u6ca1\u6709\u58f0\u660e\uff0c\u6216\u8005\u5b83\u5728\u4e0d\u53ef\u89c1\u7684\u5730\u65b9\u58f0\u660e\u3002
+\u5982\u679c\u53d8\u91cf\u7684\u62fc\u5199\u6709\u9519\u8bef\uff0c\u7b2c\u4e00\u79cd\u60c5\u51b5\u5f88\u5bb9\u6613\u51fa\u73b0\uff0c\u68c0\u67e5\u53d8\u91cf\u7684\u62fc\u5199\uff0c
+\u5305\u62ec\u6240\u6709\u7684\u5927\u5199\u5b57\u6bcd\uff08"aNumber" \u548c "anumber"\u662f\u4e0d\u540c\u7684!\uff09\u3002
+\u5982\u679c\u53d8\u91cf\u58f0\u660e\u5728\u5757\u4e2d\uff0c\u7b2c\u4e8c\u79cd\u60c5\u51b5\u5f88\u5bb9\u6613\u51fa\u73b0\uff0c\uff08\u5757\u662f\u5927\u62ec\u53f7\u62ec\u8d77\u7684\u4e00\u7ec4\u8bed\u53e5\uff0c\u5982{ }\u3002\uff09
+\u6bd4\u5982\uff0c\u5982\u679c\u5728\u5faa\u73af\u8bed\u53e5\u4e2d\u58f0\u660e\u4e86\u4e00\u4e2a\u53d8\u91cf\uff0c\u90a3\u4e48\u6b64\u53d8\u91cf\u5c31\u53ea\u80fd\u5728\u5faa\u73af\u8bed\u53e5\u5185\u6709\u6548\u3002
+\u4e00\u4e2a\u7ecf\u9a8c\u4e4b\u8c08\u662f:\u5728\u5757\u4e2d\u58f0\u660e\u7684\u53d8\u91cf\u5728\u201d}\u201d\u540e\u5c31\u65e0\u6548\u4e86\u3002
 
 unreachable statement
-语句不能被执行，检查一下你会发现控制流致使此语句不会执行。
-如果不想执行它就删掉它，或者整理你的代码。
+\u8bed\u53e5\u4e0d\u80fd\u88ab\u6267\u884c\uff0c\u68c0\u67e5\u4e00\u4e0b\u4f60\u4f1a\u53d1\u73b0\u63a7\u5236\u6d41\u81f4\u4f7f\u6b64\u8bed\u53e5\u4e0d\u4f1a\u6267\u884c\u3002
+\u5982\u679c\u4e0d\u60f3\u6267\u884c\u5b83\u5c31\u5220\u6389\u5b83\uff0c\u6216\u8005\u6574\u7406\u4f60\u7684\u4ee3\u7801\u3002
 
 initializer must be able to complete normally
-不能抛弃例外，否则会终止静态初始化块，必须让它完全执行。
+\u4e0d\u80fd\u629b\u5f03\u4f8b\u5916\uff0c\u5426\u5219\u4f1a\u7ec8\u6b62\u9759\u6001\u521d\u59cb\u5316\u5757\uff0c\u5fc5\u987b\u8ba9\u5b83\u5b8c\u5168\u6267\u884c\u3002
 
 unreported exception {0}; must be caught or declared to be thrown
-程序调用抛弃例外的方法，有两种选择：捕获例外或声明方法抛弃此例外，
-如果想捕获例外，必须使用如下块：
+\u7a0b\u5e8f\u8c03\u7528\u629b\u5f03\u4f8b\u5916\u7684\u65b9\u6cd5\uff0c\u6709\u4e24\u79cd\u9009\u62e9\uff1a\u6355\u83b7\u4f8b\u5916\u6216\u58f0\u660e\u65b9\u6cd5\u629b\u5f03\u6b64\u4f8b\u5916\uff0c
+\u5982\u679c\u60f3\u6355\u83b7\u4f8b\u5916\uff0c\u5fc5\u987b\u4f7f\u7528\u5982\u4e0b\u5757\uff1a
    try 
    {
       ...
@@ -420,729 +420,155 @@ unreported exception {0}; must be caught or declared to be thrown
    {
       ...
    }
-如果想抛弃此例外，在方法的声明中写上：
+\u5982\u679c\u60f3\u629b\u5f03\u6b64\u4f8b\u5916\uff0c\u5728\u65b9\u6cd5\u7684\u58f0\u660e\u4e2d\u5199\u4e0a\uff1a
    throws <ExceptionName>
 
 'void' type not allowed here
-void类型在这个上下文中不能被使用。它是一个用来表明方法没有返回值
-的一个特殊类型。它不能被用作变量的类型。
+void\u7c7b\u578b\u5728\u8fd9\u4e2a\u4e0a\u4e0b\u6587\u4e2d\u4e0d\u80fd\u88ab\u4f7f\u7528\u3002\u5b83\u662f\u4e00\u4e2a\u7528\u6765\u8868\u660e\u65b9\u6cd5\u6ca1\u6709\u8fd4\u56de\u503c
+\u7684\u4e00\u4e2a\u7279\u6b8a\u7c7b\u578b\u3002\u5b83\u4e0d\u80fd\u88ab\u7528\u4f5c\u53d8\u91cf\u7684\u7c7b\u578b\u3002
 
 * not allowed here
-你使用了一个访问控制修饰符（比如"private", "protected"等等）
-这个修饰符在这个地方是不允许的。
+\u4f60\u4f7f\u7528\u4e86\u4e00\u4e2a\u8bbf\u95ee\u63a7\u5236\u4fee\u9970\u7b26\uff08\u6bd4\u5982"private", "protected"\u7b49\u7b49\uff09
+\u8fd9\u4e2a\u4fee\u9970\u7b26\u5728\u8fd9\u4e2a\u5730\u65b9\u662f\u4e0d\u5141\u8bb8\u7684\u3002
 
 wrong number of type arguments; required *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * might already have been assigned to
-一个final变量只能被赋值一次。（这个问题中你的变量是final类型的）
-你的代码中有两个地方对这个变量进行了赋值，编译器认为这两次赋值
-都会被执行到。
+\u4e00\u4e2afinal\u53d8\u91cf\u53ea\u80fd\u88ab\u8d4b\u503c\u4e00\u6b21\u3002\uff08\u8fd9\u4e2a\u95ee\u9898\u4e2d\u4f60\u7684\u53d8\u91cf\u662ffinal\u7c7b\u578b\u7684\uff09
+\u4f60\u7684\u4ee3\u7801\u4e2d\u6709\u4e24\u4e2a\u5730\u65b9\u5bf9\u8fd9\u4e2a\u53d8\u91cf\u8fdb\u884c\u4e86\u8d4b\u503c\uff0c\u7f16\u8bd1\u5668\u8ba4\u4e3a\u8fd9\u4e24\u6b21\u8d4b\u503c
+\u90fd\u4f1a\u88ab\u6267\u884c\u5230\u3002
 
 * might not have been initialized
-你正在使用一个不能保证被初始化过的局部变量，如果不清楚，在声明
-它的地方进行初始化。
+\u4f60\u6b63\u5728\u4f7f\u7528\u4e00\u4e2a\u4e0d\u80fd\u4fdd\u8bc1\u88ab\u521d\u59cb\u5316\u8fc7\u7684\u5c40\u90e8\u53d8\u91cf\uff0c\u5982\u679c\u4e0d\u6e05\u695a\uff0c\u5728\u58f0\u660e
+\u5b83\u7684\u5730\u65b9\u8fdb\u884c\u521d\u59cb\u5316\u3002
 
 * might be assigned in loop
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 error while writing *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * is public, should be declared in a file named *
-public类要求存放在和类名相同以".java"为扩展名的文件中。比如，
-public class Foo需要存放在文件"Foo.java"中。
+public\u7c7b\u8981\u6c42\u5b58\u653e\u5728\u548c\u7c7b\u540d\u76f8\u540c\u4ee5".java"\u4e3a\u6269\u5c55\u540d\u7684\u6587\u4ef6\u4e2d\u3002\u6bd4\u5982\uff0c
+public class Foo\u9700\u8981\u5b58\u653e\u5728\u6587\u4ef6"Foo.java"\u4e2d\u3002
 
 cannot read: *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 Fatal Error: Unable to locate method *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * uses or overrides a deprecated API.
-你正在使用一个不再推荐的方法。很有可能已经有另一个方法提
-供了相同的功能。参考API文档来获得更多细节信息。
+\u4f60\u6b63\u5728\u4f7f\u7528\u4e00\u4e2a\u4e0d\u518d\u63a8\u8350\u7684\u65b9\u6cd5\u3002\u5f88\u6709\u53ef\u80fd\u5df2\u7ecf\u6709\u53e6\u4e00\u4e2a\u65b9\u6cd5\u63d0
+\u4f9b\u4e86\u76f8\u540c\u7684\u529f\u80fd\u3002\u53c2\u8003API\u6587\u6863\u6765\u83b7\u5f97\u66f4\u591a\u7ec6\u8282\u4fe1\u606f\u3002
 
 Some input files use or override a deprecated API.
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 Recompile with -deprecation for details.
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * uses unchecked operations.
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 Some input files use unchecked operations.
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * has been deprecated
-你正在使用一个不再推荐的方法。很有可能已经有另一个方法提
-供了相同的功能。参考API文档来获得更多细节信息。
+\u4f60\u6b63\u5728\u4f7f\u7528\u4e00\u4e2a\u4e0d\u518d\u63a8\u8350\u7684\u65b9\u6cd5\u3002\u5f88\u6709\u53ef\u80fd\u5df2\u7ecf\u6709\u53e6\u4e00\u4e2a\u65b9\u6cd5\u63d0
+\u4f9b\u4e86\u76f8\u540c\u7684\u529f\u80fd\u3002\u53c2\u8003API\u6587\u6863\u6765\u83b7\u5f97\u66f4\u591a\u7ec6\u8282\u4fe1\u606f\u3002
 
 unchecked assignment: *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 unchecked call to {0} as a member of the raw type {1}
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 unchecked cast to type *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 unchecked generic array creation
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 unchecked method invocation: *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 ';' expected
-行的结尾需要加";"。可能是在编辑器被标记的行或上一行。
+\u884c\u7684\u7ed3\u5c3e\u9700\u8981\u52a0";"\u3002\u53ef\u80fd\u662f\u5728\u7f16\u8f91\u5668\u88ab\u6807\u8bb0\u7684\u884c\u6216\u4e0a\u4e00\u884c\u3002
 
 'case', 'default' or '}' expected
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 'class' or 'interface' expected
-在源文件的前面缺少关键字"class"或"interface",他们被丢掉了,(
-或者在"class"或"interface"之前存在错误)
+\u5728\u6e90\u6587\u4ef6\u7684\u524d\u9762\u7f3a\u5c11\u5173\u952e\u5b57"class"\u6216"interface",\u4ed6\u4eec\u88ab\u4e22\u6389\u4e86,(
+\u6216\u8005\u5728"class"\u6216"interface"\u4e4b\u524d\u5b58\u5728\u9519\u8bef)
 
 '.class' expected
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 '(' or '[' expected
-可能你的代码中括号没有配对，使编译出错。仔细检查你的代码，
-确保每一个起始括号都有对应的封闭括号。
+\u53ef\u80fd\u4f60\u7684\u4ee3\u7801\u4e2d\u62ec\u53f7\u6ca1\u6709\u914d\u5bf9\uff0c\u4f7f\u7f16\u8bd1\u51fa\u9519\u3002\u4ed4\u7ec6\u68c0\u67e5\u4f60\u7684\u4ee3\u7801\uff0c
+\u786e\u4fdd\u6bcf\u4e00\u4e2a\u8d77\u59cb\u62ec\u53f7\u90fd\u6709\u5bf9\u5e94\u7684\u5c01\u95ed\u62ec\u53f7\u3002
 
 * expected
-错误信息中提示的符号名应在此代码处出现，但没有出现，相反存在
-另外一个符号。想想为什么这里应该有提示的那个符号。
+\u9519\u8bef\u4fe1\u606f\u4e2d\u63d0\u793a\u7684\u7b26\u53f7\u540d\u5e94\u5728\u6b64\u4ee3\u7801\u5904\u51fa\u73b0\uff0c\u4f46\u6ca1\u6709\u51fa\u73b0\uff0c\u76f8\u53cd\u5b58\u5728
+\u53e6\u5916\u4e00\u4e2a\u7b26\u53f7\u3002\u60f3\u60f3\u4e3a\u4ec0\u4e48\u8fd9\u91cc\u5e94\u8be5\u6709\u63d0\u793a\u7684\u90a3\u4e2a\u7b26\u53f7\u3002
 
 orphaned *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 cannot access *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 bad class file: *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 type parameter {0} is not within its bound *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 incompatible types*
-这里需要某个特定类型的表达式，但是你提供了一个不同的
-类型不兼容的表达式。（比如，你在需要int类型的地方写
-了一个String）
+\u8fd9\u91cc\u9700\u8981\u67d0\u4e2a\u7279\u5b9a\u7c7b\u578b\u7684\u8868\u8fbe\u5f0f\uff0c\u4f46\u662f\u4f60\u63d0\u4f9b\u4e86\u4e00\u4e2a\u4e0d\u540c\u7684
+\u7c7b\u578b\u4e0d\u517c\u5bb9\u7684\u8868\u8fbe\u5f0f\u3002\uff08\u6bd4\u5982\uff0c\u4f60\u5728\u9700\u8981int\u7c7b\u578b\u7684\u5730\u65b9\u5199
+\u4e86\u4e00\u4e2aString\uff09
 
 inconvertible types*
-这里你使用的类型不能自动的被转换到要求的类型。
+\u8fd9\u91cc\u4f60\u4f7f\u7528\u7684\u7c7b\u578b\u4e0d\u80fd\u81ea\u52a8\u7684\u88ab\u8f6c\u6362\u5230\u8981\u6c42\u7684\u7c7b\u578b\u3002
 
 possible loss of precision
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 unexpected type
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 abstract {0} {1} cannot be accessed directly
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 *An explicit 'this' qualifier must be used to select the desired instance.
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 non-static {0} {1} cannot be referenced from a static context
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 cannot resolve symbol*
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 {0}; {1} and {2} are static
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 {0}; overridden method is {1}
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 attempting to assign weaker access privileges; was *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 overridden method does not throw *
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
 * attempting to use incompatible return type
-没有帮助可用
+\u6ca1\u6709\u5e2e\u52a9\u53ef\u7528
 
-* 是抽象的；不能被实例化
-此类被定义为抽象类。意即它包含一些没有实现的方法（抽象方法）。
-你不能创建抽象类的对象，需要找或写一个继承它的子类实现所有抽象方法，然后
-可以实例化这个类。
-
-抽象方法不能含有程序体
-已声明一个abstract的方法，而且写了方法体。但那是矛盾的。
-Abstract和native方法声明都仅有一个后跟分号的方法头。你或者去掉
-"abstract"，或者去掉方法体。
-
-{0} 已经在 {1} 中被定义
-方法中有一个变量（或一个参数）有相同的名字，请换一个名字。
-（或者你是要使用同一个变量？那么，去掉此处的类型名，使此语
-句不是一个新的声明）
-
-实现接口的匿名类；不能含有参数
-没有帮助可用
-
-实现接口的匿名类；不能有限定符
-没有帮助可用
-
-需要数组，但是发现 *
-你所使用的语法表明你正在试图访问一个数组元素，但是你所使用的变量
-不是一个数组
-
-break 语句在 switch 语句或循环之外
-"break"在块外，例如"switch"语句或循环语句（"for", "while"或
- "do" loop）。它不能在块外使用。
-
-* 的语句必须是在构造函数中的第一条语句
-对于每个有超类的类，首先必须做的是调用超类的构造方法，
-可以通过在你的构造方法中的第一行加入如下语句：
-    super(...);
-（用适当的参数代替省略号）来实现此调用。
-若要在调用超类的构造方法前调用它的成员，一定会遇到麻烦。
-
-不能访问 *
-没有帮助可用
-
-* 不能被应用到 *
-没有帮助可用
-
-不能赋值到一个终态（final〕的变量 *
-你要赋值的变量已被声明为"final",意即你不能任意改变其值。
-如果你确实想改变它的值，从变量声明中去掉关键字"final"。
-
-* 不能被引用
-你正使用点号访问一个对象中的域或方法，然而你正使用的变量不是对象类型
-的 - 它没有域或方法
-
-不能从终态（final〕继承 *
-父类（在“extend”关键字之后列出的类）被声明为final类型。这意味着
-
-* 在父类型的构造函数被调用之前不能引用
-对于每个有超类的类，首先必须做的是调用超类的构造方法，
-可以通过在你的构造方法中的第一行加入如下语句：
-    super(...);
-（用适当的参数代替省略号）来实现此调用。
-若要在调用超类的构造方法前调用它的成员，一定会遇到麻烦。
-
-不能从返回类型是空（null〕的方法中返回一个值
-方法中有一条'return'语句，但此方法不应有返回值，
-返回类型在方法的头部声明。在该方法的方法体中不应该有return语句。
-
-不能从一个已参数化的类型中选择一个静态类
-没有帮助可用
-
-* 不能用不同的参数被继承:*
-没有帮助可用
-
-'catch' 前无 'try'
-"catch"是Java的关键字，它只能出现在"try"语句的后面。正确的格式如下：
-try {
-      语句；
-   }
-   catch(Exception e) {
-     语句；
-   }
-
-* 类有相同名字的包
-确定类和包有不同的名字。通常，类名应以大写字母开头，而包名
-以小写字母开头。
-
-代码对于 try 语句太长
-在一个try语句块中有太多的代码。把代码放到一个独立的方法中，
-并在这里插入对它的调用。
-
-需要常量表达式
-此处使用的变量或表达式不合法。你只能使用常量。常量是数字（比如42）
-或者被声明为"final"的标识符.
-
-continue 语句在循环语句之外
-"continue"语句用于立即开始下一次循环。在循环外它没有意义，只能用在
-"for", "while"或"do"循环中。
-
-包含的循环继承 *
-此类所继承的超类继承于此类！不能工作。你必须确定哪个是超类，哪个是子类。
-
-* 不存在
-在这里你所使用的名字（可能是用来标识一个变量，一个类或者一个包）不存在。
-它既不是一个变量的名字，也不是一个类或者一个包的名字。
-
-复制类:*
-已经有一个同名的类了。
-
-复制 case 标号
-在"switch"语句中使用了同一个标号两次。
-
-复制 default 标号
-在switch语句中写了两遍"default"。一个足够了。
-
-'else' 没有 'if'
-关键字'else'只能出现在'if'语句中，形式如：
-if (条件)
-	语句
-else
-	语句
-也许你丢掉了语句组的括号？如果在if后有不只一条语句，就应把它们括起来，例如：
-if (条件) 
-   {
-	语句一；
-	语句二；
-   }
-   else
-   {
-	语句三；
-     }
-
-空的字符文字
-你定义了空的字符。你不能使用''。一个字符常量是一个被一对
-单引号括起来的字符，比如'a'。绝大多数时候，单引号之间只能
-有单个字符。唯一的例外是如果第一个字符是斜杠（所谓的"转义
-符"），用来表示特殊字符，比如，'\n'或者'\t'
-
-* 已经被捕获
-这个catch语句是没有用的。它永远也不会被执行到。因为所有
-它声明的要处理的异常已经被它上面的catch语句处理了。
-
-* 在相应的 try 语句体中永远也不会被抛出
-你声明了一个捕获的例外，但是这个例外将永不会被抛弃！
-在"try"的语句块中没有抛弃这个例外。
-
-'finally' 前无 'try'
-"finally""是Java的关键字，它只能出现在"try"语句的后面。正确的格式如下：
-  try {
-      语句；
-   }
-   catch(Exception e) {
-     语句；
-   }
-   finally {
-      语句；
-   }
-
-浮点数太大
-系统不能处理这么大的单精度浮点数.
-
-浮点数太小
-系统不能处理这么小的单精度浮点数.
-
-内嵌类不能有静态的声明
-不能在嵌套类中声明静态类型。如果在此处需要静态类型，只能在外部类中声明。
-
-不合法的字符:*
-源文件的这个地方有一个非法字符。这个字符可能是不可见的。
-如果你不能发现它并删掉它，那么删掉整行重新输入。
-
-不合法的修饰符连接: *
-你正在试图一起使用在Java中是非法组合的一对修饰符。很可能它们的
-意思正好是彼此矛盾的。一个例子是定义一个方法为abstract，并且是
-final, private 或者 synchronized的。
-
-不合法的转义字符
-一个转义字符由一个反斜线和一个字符组成,例如:'\n'.用于标记特殊字符.
-在反斜线后所跟的字符是由限制的,他们只能是\n, \t, \b, \r, \f, \\,
-\', \" 和数字.如果你想写一个\字符本身,要写成"\\"--在你的字符串中会显示
-一个单个的\.
-
-不合法的向前引用
-没有帮助可用
-
-的不合法的初始化 *
-没有帮助可用
-
-在字符原意上不合法的行结束
-在字面上需要换行的地方你使用真正的回车符，你不能这么做。
-如果你想输入一个表示换行的字符，可以使用'\n'。
-
-* 不是一个内嵌类
-没有帮助可用
-
-不合法的表达式开始
-没有帮助可用
-
-不合法的类型开始
-源文件中这个地方需要一个类型说明，但现在却是其他的一些东西
-（很可能是一个Java关键字）。检查该行是不是有错误的类型定义。
-
-不合法的 unicode 转义
-没有帮助可用
-
-不恰当地组成类型，一些参数被丢失
-没有帮助可用
-
-不兼容的类型: *
-没有帮助可用
-
-整型数太大: *
-你写了一个太大或太小的数字,他不符合该数据类型的定义,你需要定义
-一个更小或更大的数据类型(例如:用"long"代替"int").
-
-内部错误：不能实例化  *
-没有帮助可用
-
-* 但是返回类型不一样
-你可能试图定义两个除了返回类型之外都一样的方法，这是不允许的。
-
-此处应为接口
-关键字"implements"后必须是接口名。你写的不是接口（它可能是类）。
-如果要继承于类，应用关键字"extends"。
-
-接口方法不能有程序体
-接口中的方法只能被定义。也就是说他们应该由一个头
-和紧跟气候的一个分号组成，不能有方法体。
-
-十六进制数必须包含至少一个十六进制数字
-你定义了一个16进制数,(它以"0X"开头)对于一个16进制数,必须在"X"后至少有
-一个数字.
-
-无效的方法声明；需要有返回类型
-方法声明中必须有返回类型，例如：如果方法返回一个字符串，则写：
-    public String myMethod();
-如果你不需要返回值，应使用特殊关键字"void"指明没有返回类型。例：
-    public void myMethod();
-
-* 已经使用
-在这个方法中已经已经有一个变量（也可能是一个参数）
-使用了同样的名字。为这个变量取一个不同的名字。（也
-可能你就是想在这里使用该变量？那么删除这里的类型名
-字，使它不再是一个声明语句。）
-
-* 在内嵌类中被访问；必须被声明为 final
-局部变量通常是不能被内部类访问的。但在这里你确实这么做了。
-你有两个选择：你可以去除这个对局部变量的访问，或者你可以把
-这个变量声明为"final" - 这样你就可以访问它了。
-
-浮点数的小数点字面上不正确
-你在写浮点数时犯了一个错误,(浮点数是带小数点的数.)
-正确的浮点数如下所示:
-18.0      18.     1.8e1     .18E2
-
-缺少方法体，或者声明为抽象的(abstract)
-方法或者是抽象的，或者有方法体。方法体是跟在方法头后面，由{ }括起的块，里边包含一些语句。
-如果方法没有方法体，则必须在方法头部有关键字，例如：
-	public abstract int getAnswer();
-
-缺少返回语句
-你使用了一个有返回值的方法，但是在方法体内没有"return"语句。
-这不合适，应该：
-    - 如果你不需要返回值，声明方法的返回类型为"void"，或
-    - 在方法的结尾写一条带正确返回类型的"return"语句，例：
-      return 42;
-返回的类型必须与方法头部声明的类型一致
-
-缺少返回值
-方法中有一条没有返回值的'return'语句，然而方法的头部声明有返回值。
-你应该声明此方法为有返回值(在方法的头部使用”void”作为返回类型)，
-或者你必须返回一个有正确类型的值，例：
-    return 42;
-或：
-    return "Marvin";
-
-name clash: *
-没有帮助可用
-
-* 修饰符在这儿不允许
-被显示的短语是内部保留使用的，如果它是一个变量或者类的
-名字，你需要改变它。
-
-平台相关代码不能有程序体
-已声明一个native的方法，而且写了方法体。但那是矛盾的。
-native方法声明都仅有一个后跟分号的方法头。你或者去掉
-"native"，或者去掉方法体。
-
-作用域没有类型{0}的闭合实例
-没有帮助可用
-
-没有所需的接口
-这里你正在使用一个接口（可能在一个类声明的extends修饰中）
-一个类只能扩展其它的类（不是接口）。如果要继承接口，
-使用关键字"implements"
-
-* 没有可匹配的项；需要 *
-没有帮助可用
-
-* 没有在公有的类或接口中定义; 不能被外部访问
-没有帮助可用
-
-* 不是公有的; 不能被外部包访问
-没有帮助可用
-
-不是一个循环标记: *
-没有帮助可用
-
-不是一条语句
-你写了一行代码但不是一个完整的语句。请重新检查一下你打算做
-什么和你应该如何去做。
-
-不是一个闭合类:*
-没有帮助可用
-
-* 和具有相同名字的类相冲突 *
-当前你所使用的操作符不能被应用到你正在操作的类型之上。
-你要么使用了错误的类型，要么使用了错误的操作符。
-
-* 和具有相同名字的类相冲突
-确定类和包有不同的名字。通常，类名应以大写字母开头，而包名义
-小写字母开头。
-
-可能在case语句中失败
-没有帮助可用
-
-读取 {0} 错误 *
-没有帮助可用
-
-递归构造函数调用
-此段代码使构造方法调用它本身，这是不允许的（很可能引起死循环）。
-
-*的引用不明确*
-* is ambiguous, both *
-这个错误信息中的标识符不能被正确的解析，因为在你import的包中
-使用这个以标识符命名的类或接口不止一个。你可以通过它的完整路
-径名（比如，java.util.List）来进行引用，或者使用它的完整路径
-名来import这个类（比如，java.util.List)。
-
-重复的接口
-你在"implements"关键字后面列出了两个相同的接口，
-一个就足够了。我的记忆没有那么差！
-
-重复的修饰符
-在这个声明中，你把同一个修饰符使用了两边。一个修饰符是一个关
-键字，比如final, static, public, private, volatile, ...
-
-{0} has {1} access in {2}
-没有帮助可用
-
-返回外部方法 
-没有帮助可用
-
-签名和 {0} 不匹配; 不兼容的接口
-没有帮助可用
-
-*必须声明为 abstract; 它没有在*
-当前类继承了一个抽象类或接口。抽象类或接口定义的方法没有实现。
-当前类没有实现所有的方法，因此它本身依然是抽象的（意即还有没有实现的方法），
-你应该声明这个类为抽象类，通过使用
-   public abstract class ...
-替代
-   public class ...
-否则你必须提供错误信息中给出的方法的一个实现。
-
-写入源文件错误；不能覆盖输入文件*
-没有帮助可用
-
-'try' 缺少 'catch' 或 'finally'
-"try"语句块后面必须跟"catch"块或"finally"块（或二者都有），正确的格式如下：
-try {
-      语句：
-   }
-   catch(Exception e) {
-      语句：
-   }
-   finally {
-      语句：
-   }
-   
-*不能带参数
-没有帮助可用
-
-类型变量不能被间接引用
-没有帮助可用
-
-类型 {0} 在 {1} 的结果类型中不止出现一次; 
-没有帮助可用
-
-类型变量 {0} 以 {1} 类型出现不只一次；不能被遗留为未实例化
-没有帮助可用
-
-未封闭的字符字面
-可能是因为你声明了一个字符，但是没有加上封闭单引号：'。
-
-未封闭的注释
-可能是因为你写了一段注释，但是忘了加上封闭字符：*/。
-
-未封闭的文字字符串
-可能是因为你声明了一个字符串，但是没有加上封闭双引号："。
-
-未定义的标号：*
-被使用的变量不存在。或者它没有声明，或者它在不可见的地方声明。
-如果变量的拼写有错误，第一种情况很容易出现，检查变量的拼写，
-包括所有的大写字母（"aNumber" 和 "anumber"是不同的!）。
-如果变量声明在块中，第二种情况很容易出现，（块是大括号括起的一组语句，如{ }。）
-比如，如果在循环语句中声明了一个变量，那么此变量就只能在循环语句内有效。
-一个经验之谈是:在块中声明的变量在”}”后就无效了。
-
-不能达到的语句
-语句不能被执行，检查一下你会发现控制流致使此语句不会执行。
-如果不想执行它就删掉它，或者整理你的代码。
-
-initializer must be able to complete normally
-不能抛弃例外，否则会终止静态初始化块，必须让它完全执行。
-
-未报告的异常 {0} ；必须被捕获或被声明抛出
-程序调用抛弃例外的方法，有两种选择：捕获例外或声明方法抛弃此例外，
-如果想捕获例外，必须使用如下块：
-   try 
-   {
-      ...
-   }
-   catch(...)
-   {
-      ...
-   }
-如果想抛弃此例外，在方法的声明中写上：
-   throws <ExceptionName>
-
-此处不允许 'void' 类型
-void类型在这个上下文中不能被使用。它是一个用来表明方法没有返回值
-的一个特殊类型。它不能被用作变量的类型。
-
-* not allowed here
-你使用了一个访问控制修饰符（比如"private", "protected"等等）
-这个修饰符在这个地方是不允许的。
-
-类型参数个数错误；需要*
-没有帮助可用
-
-*可能已经被赋值为
-一个final变量只能被赋值一次。（这个问题中你的变量是final类型的）
-你的代码中有两个地方对这个变量进行了赋值，编译器认为这两次赋值
-都会被执行到。
-
-*可能还未被初始化
-你正在使用一个不能保证被初始化过的局部变量，如果不清楚，在声明
-它的地方进行初始化。
-
-*可能在循环中被赋值
-没有帮助可用
-
-在写 {0} 时发生错误：{1}
-没有帮助可用
-
-*是 公共的（public〕，应该在名为*
-* is public, should be declared in a file named *
-public类要求存放在和类名相同以".java"为扩展名的文件中。比如，
-public class Foo需要存放在文件"Foo.java"中。
-
-不能读：*
-没有帮助可用
-
-Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
-没有帮助可用
-
-Fatal Error: Unable to locate method *
-没有帮助可用
-
-*使用或覆盖一个不鼓励使用的API。
-你正在使用一个不再推荐的方法。很有可能已经有另一个方法提
-供了相同的功能。参考API文档来获得更多细节信息。
-
-某些输入文件使用或覆盖一个不鼓励使用的API。
-没有帮助可用
-
-使用-deprecation重新编译，以得到详细信息。
-没有帮助可用
-
-*使用未受检的操作。
-没有帮助可用
-
-某些输入文件使用未受检的操作。
-没有帮助可用
-
-*已经不提倡使用
-你正在使用一个不再推荐的方法。很有可能已经有另一个方法提
-供了相同的功能。参考API文档来获得更多细节信息。
-
-未受检的赋值：*
-没有帮助可用
-
-对原始类型{1}的成员{0}的未受检的调用
-没有帮助可用
-
-到类型*的未受检的强制类型转换
-没有帮助可用
-
-未受检的通用数组创建
-没有帮助可用
-
-未受检的方法调用：*
-没有帮助可用
-
-期望 ';'
-行的结尾需要加";"。可能是在编辑器被标记的行或上一行。
-
-期望'case', 'default'或'}'
-没有帮助可用
-
-期望class或interface
-在源文件的前面缺少关键字"class"或"interface",他们被丢掉了,(
-或者在"class"或"interface"之前存在错误)
-
-期望'.class'
-没有帮助可用
-
-期望'('或'['
-可能你的代码中括号没有配对，使编译出错。仔细检查你的代码，
-确保每一个起始括号都有对应的封闭括号。
-
-期望*
-错误信息中提示的符号名应在此代码处出现，但没有出现，相反存在
-另外一个符号。想想为什么这里应该有提示的那个符号。
-
-孤立的*
-没有帮助可用
-
-不能访问*
-没有帮助可用
-
-坏的类文件：*
-没有帮助可用
-
-类型参数{0}不在它的边界内*
-没有帮助可用
-
-不兼容的类型*
-这里需要某个特定类型的表达式，但是你提供了一个不同的
-类型不兼容的表达式。（比如，你在需要int类型的地方写
-了一个String）
-
-不可转换的类型*
-这里你使用的类型不能自动的被转换到要求的类型。
-
-可能存在的精度损失
-没有帮助可用
-
-类型错误
-没有帮助可用
-
-抽象 {0} {1} 不能直接访问
-没有帮助可用
-
-*为选择所要的实例，应显示使用''this''限定词. 
-没有帮助可用
-
-在静态上下文中不能引用非静态{0} {1} 
-没有帮助可用
-
-不能解析符号*
-没有帮助可用
-
-{0}；{1} 和 {2} 是静态的(static)
-没有帮助可用
-
-{0}; 覆盖的方法没有抛出{1}
-没有帮助可用
-
-{0}; 试图指定更弱的访问权限; 是{1}
-没有帮助可用
-
-{0}; 覆盖的方法没有抛出{1}
-没有帮助可用
-
-{0}; 返回类型不兼容
-没有帮助可用
 
