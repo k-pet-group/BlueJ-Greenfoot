@@ -9,9 +9,6 @@ import java.util.*;
 public class Tester 
 {
 //     // instance variables - replace the example 
-    below 
-    with 
-    your own
     public static int st = 33;
     
     private int x;

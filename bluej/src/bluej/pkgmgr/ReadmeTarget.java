@@ -16,13 +16,14 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 538 2000-06-12 10:20:59Z ajp $
+ * @version $Id: ReadmeTarget.java 547 2000-06-13 23:47:56Z mik $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
 {
-    static final int DEF_WIDTH = 60;
-    static final int DEF_HEIGHT = 60;
+    static final int DEF_WIDTH = 40;
+    static final int DEF_HEIGHT = 50;
+    static final int CORNER_SIZE = 10;
 
     static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
     static final Color colBorder = Config.getItemColour("colour.target.border");
@@ -174,11 +175,11 @@ public class ReadmeTarget extends Target
         // draw the shadow
         g.setColor(shadowCol);
         g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
-        g.fillRect(width, HANDLE_SIZE + SHAD_SIZE, SHAD_SIZE, height - HANDLE_SIZE);
+        g.fillRect(width, CORNER_SIZE + SHAD_SIZE, SHAD_SIZE, height - CORNER_SIZE);
 
         // draw folded paper edge
-        int xpoints[] = { 1, width - HANDLE_SIZE, width, width, 1 };
-        int ypoints[] = { 1, 1, HANDLE_SIZE + 1, height, height };
+        int xpoints[] = { 1, width - CORNER_SIZE, width, width, 1 };
+        int ypoints[] = { 1, 1, CORNER_SIZE + 1, height, height };
 
         Polygon p = new Polygon(xpoints, ypoints, 5);
 
@@ -190,18 +191,14 @@ public class ReadmeTarget extends Target
         g.setStroke(new BasicStroke(thickness));
         g.draw(p);
 
-        g.drawLine(width - HANDLE_SIZE, 1,
-                   width - HANDLE_SIZE, HANDLE_SIZE);
-        g.drawLine(width - HANDLE_SIZE, HANDLE_SIZE,
-                   width - 2, HANDLE_SIZE);
+        g.drawLine(width - CORNER_SIZE, 1,
+                   width - CORNER_SIZE, CORNER_SIZE);
+        g.drawLine(width - CORNER_SIZE, CORNER_SIZE,
+                   width - 2, CORNER_SIZE);
 
         g.setStroke(new BasicStroke(1));
-        g.drawLine(10, HANDLE_SIZE*2 - 10, width - 10, HANDLE_SIZE*2 - 10);
-        g.drawLine(10, HANDLE_SIZE*2 - 5, width - 10, HANDLE_SIZE*2 - 5);
-        g.drawLine(10, HANDLE_SIZE*2, width - 10, HANDLE_SIZE*2);
-        g.drawLine(10, HANDLE_SIZE*2 + 5, width - 10, HANDLE_SIZE*2 + 5);
-        g.drawLine(10, HANDLE_SIZE*2 + 10, width - 10, HANDLE_SIZE*2 + 10);
-
+        for(int yPos = CORNER_SIZE+10; yPos <= height-10; yPos += 5)
+            g.drawLine(10, yPos, width - 10, yPos);
     }
 
     /**

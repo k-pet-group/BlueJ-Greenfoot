@@ -7,9 +7,6 @@ import java.util.Random;
 /**
  * This class is clased MyClass.
  */
-  "this is a string"
-this is null 
-public int methifd
  
 
 public class MyClass
