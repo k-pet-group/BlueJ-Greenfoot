@@ -34,10 +34,9 @@ public class ExecServer
 
 
     static ExecServer server = null;
+    static TerminateException terminateExc = new TerminateException("term");
+
     private Hashtable loaders;
-
-    // ==
-
     private static Hashtable scopes = new Hashtable();
 	
     /**

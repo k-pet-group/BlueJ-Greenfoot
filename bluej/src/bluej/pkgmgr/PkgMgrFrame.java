@@ -761,8 +761,6 @@ public class PkgMgrFrame extends PkgFrame
     public void executionStarted()
     {
 	progressButton.setEnabled(true);
-	if((execCtrlWindow != null) && (execCtrlWindow.isVisible()))
-	    execCtrlWindow.updateThreads();
     }
 
     /**

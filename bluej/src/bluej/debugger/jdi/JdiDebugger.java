@@ -58,18 +58,28 @@ public final class JdiDebugger extends Debugger
     // the class name of the execution server class running on the remote VM
     static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
 
+    // options for the remote virtual machine
+    static final String VM_OPTIONS = "-native";
+
     // the field name of the static field within that class that hold the
     // server object
     static final String SERVER_FIELD_NAME = "server";
 
+    // the field name of the static field within that class that hold the
+    // terminate exception object
+    static final String TERMINATE_FIELD_NAME = "terminateExc";
+
     // the name of the method used to suspend the ExecServer
     static final String SERVER_SUSPEND_METHOD_NAME = "suspendExecution";
 
-    // the name of the method called to signal the ExecServer to start a new task
+    // the name of the method called to signal the ExecServer to start a new 
+    // task
     static final String SERVER_PERFORM_METHOD_NAME = "performTask";
 
     // name of the threadgroup that contains user threads
     static final String MAIN_THREADGROUP = "main";
+
+
 
     private Process process = null;
     private VMEventHandler eventHandler = null;
@@ -140,13 +150,16 @@ public final class JdiDebugger extends Debugger
 	// "main" is the command line: main class and arguments
         Connector.Argument mainArg = 
 	    (Connector.Argument)arguments.get("main");
+        Connector.Argument optionsArg = 
+	    (Connector.Argument)arguments.get("options");
 
-        if (mainArg == null) {
+        if (mainArg == null || optionsArg == null) {
 	    Debug.reportError("Cannot start virtual machine.");
 	    Debug.reportError("(Incompatible launch connector)");
 	    return;
         }
         mainArg.setValue(SERVER_CLASSNAME);
+        optionsArg.setValue(VM_OPTIONS);
 
         try {
             machine = connector.launch(arguments);
@@ -428,6 +441,11 @@ public final class JdiDebugger extends Debugger
 	    return false;
 	}
 
+	Field excField = serverClass.fieldByName(TERMINATE_FIELD_NAME);
+	ObjectReference terminateException = 
+	    (ObjectReference)serverClass.getValue(excField);
+	JdiThread.setTerminateException(terminateException);
+
 	// okay, we have the server object; now get the perform method
 
 	performTaskMethod = findMethodByName(serverClass, 
@@ -485,7 +503,7 @@ public final class JdiDebugger extends Debugger
 
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
-     * FORCED_EXIT, EXCEPTION).
+     * FORCED_EXIT, EXCEPTION, TERMINATED).
      */ 
     public int getExitStatus()
     {
@@ -512,6 +530,14 @@ public final class JdiDebugger extends Debugger
 	String excClass = exc.exception().type().name();
 	ObjectReference remoteException = exc.exception();
 
+	if(excClass.equals("bluej.runtime.TerminateException")) {
+	    // this was an explicit "terminate" by the user
+	    exitStatus = TERMINATED;
+	    lastException = null;
+	    return;
+	}
+
+	// get the exception text
 	// attention: the following depends on the (undocumented) fact that 
 	// the internal exception message field is named "detailMessage".
   	Field msgField = 
@@ -668,9 +694,6 @@ public final class JdiDebugger extends Debugger
      */
     public Vector listThreads()
     {
-	//	if(machineIsRunning)
-	//  return null;
-
 	List threads = getVM().allThreads();
 	int len = threads.size();
 
@@ -691,11 +714,8 @@ public final class JdiDebugger extends Debugger
 	return threadVec;
     }
 	
-    //====
-
-
     /**
-     *  Stop all (non-system) threads in the remote VM.
+     *  A thread has been stopped.
      */
     public void threadStopped(DebuggerThread thread)
     {
@@ -800,13 +820,15 @@ public final class JdiDebugger extends Debugger
 	    return (Location)list.get(0);
     }
 
+    /**
+     *  Set up event requests - this indicated of which events from the
+     *  remote VM we want ot be informed.
+     */
     private void setEventRequests(VirtualMachine vm) 
     {
         EventRequestManager erm = vm.eventRequestManager();
         // want all uncaught exceptions
-        ExceptionRequest excReq = erm.createExceptionRequest(null, 
-                                                             false, true); 
-        excReq.enable();
+        erm.createExceptionRequest(null, false, true).enable();
         erm.createClassPrepareRequest().enable();
     }
 

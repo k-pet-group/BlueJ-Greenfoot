@@ -27,6 +27,16 @@ public final class JdiThread extends DebuggerThread
 
     EventRequestManager eventReqMgr;
 
+    static ObjectReference terminateException;	// The exception object to use
+						//   to terminate a thread
+
+    public static void setTerminateException(ObjectReference terminateExc)
+    {
+	terminateException = terminateExc;
+    }
+
+    // ---- instance: ----
+
     public JdiThread(ThreadReference rt, Object userParam)
     {
 	this.rt = rt;
@@ -97,7 +107,7 @@ public final class JdiThread extends DebuggerThread
 		    return "waiting";
 	    }
   	} catch(Exception e) {
-  	    return "(???)";
+  	    return "???";
   	}
 	return null; // to shut up compiler
     }
@@ -228,7 +238,8 @@ public final class JdiThread extends DebuggerThread
 
     public void stop()
     {
-	rt.suspend();
+	if(!rt.isSuspended())
+	    rt.suspend();
     }
 
     public void step()
@@ -259,13 +270,14 @@ public final class JdiThread extends DebuggerThread
 
     public void terminate()
     {
-	Debug.message("[JdiThread] terminate - NYI");
-//  	try {
-//  	    //rt.stop();
-//  	    Debug.message("terminate nyi");
-//  	} catch(Exception e) {
-//  	    e.printStackTrace(System.err);
-//  	}
+	try {
+	    rt.stop(terminateException);
+	    if(rt.isSuspended())
+		rt.resume();
+	}
+	catch(Exception e) {
+	    Debug.reportError("cannot terminate thread: " + e);
+	}
     }
 
     /**

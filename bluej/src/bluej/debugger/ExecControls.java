@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 135 1999-06-21 03:39:47Z mik $
+ ** @version $Id: ExecControls.java 136 1999-06-21 06:35:48Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -20,7 +20,7 @@ public class ExecControls extends JFrame
 
     implements ActionListener, ListSelectionListener
 {
-    private static final String windowTitle = "Execution Controls";
+    private static final String windowTitle = "BlueJ Debugger";
     private static final String stackTitle = "Call Sequence";
     private static final String instanceTitle = "Instance Variables";
     private static final String localTitle = "Local Variables";
@@ -62,42 +62,32 @@ public class ExecControls extends JFrame
 	else if(obj == closeButton) {
 	    setVisible(false);
 	}
-	else if(obj == stopButton) {
-	    if(selectedThread != null) {
+	else if(selectedThread != null) {
+	    if(obj == stopButton) {
 		selectedThread.stop();
 		Debugger.debugger.threadStopped(selectedThread);
 		updateThreads();
 	    }
-	    else
-		Debug.message("no thread...");
-	}
-	else if(obj == stepButton) {
-	    if(selectedThread != null) {
+	    else if(obj == stepButton) {
 		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.step();
 	    }
-	}
-	else if(obj == stepIntoButton) {
-	    if(selectedThread != null) {
+	    else if(obj == stepIntoButton) {
 		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.stepInto();
 	    }
-	}
-	else if(obj == continueButton) {
-	    if(selectedThread != null) {
+	    else if(obj == continueButton) {
 		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.cont();
 		updateThreads();
 	    }
-	    else
-		Debug.message("no thread...");
-	}
-	else if(obj == terminateButton) {
-	    if(selectedThread != null)
+	    else if(obj == terminateButton) {
+		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.terminate();
+	    }
 	}
-		
-	// Debug.message("Obj[" + obj.toString() + "]" );
+	else
+	    Debug.message("no thread selected...");
     }
 	
     // ----- ListSelectionListener interface -----

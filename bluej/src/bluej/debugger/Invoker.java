@@ -20,7 +20,7 @@ import java.io.StringWriter;
 import java.util.Hashtable;
 
 /**
- ** @version $Id: Invoker.java 129 1999-06-15 07:21:23Z mik $
+ ** @version $Id: Invoker.java 136 1999-06-21 06:35:48Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -445,6 +445,10 @@ public class Invoker extends Thread
 		      pkg.exceptionMessage(
 			   pkg.getFileName(exc.getSourceFile()),
 			   exc.getLineNumber(), text, false);
+		  break;
+
+	      case Debugger.TERMINATED:  // terminated by user
+		  // nothing to do
 		  break;
 
 	    } // switch

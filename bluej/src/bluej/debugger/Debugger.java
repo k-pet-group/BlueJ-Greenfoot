@@ -13,7 +13,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Debugger.java 135 1999-06-21 03:39:47Z mik $
+ ** @version $Id: Debugger.java 136 1999-06-21 06:35:48Z mik $
  **/
 
 public abstract class Debugger
@@ -21,6 +21,7 @@ public abstract class Debugger
     public static final int NORMAL_EXIT = 0;
     public static final int FORCED_EXIT = 1;
     public static final int EXCEPTION = 2;
+    public static final int TERMINATED = 3;
 
     /** Creation of the real debugger used **/
     // the following line needs to be changed when the debugger 
@@ -110,7 +111,7 @@ public abstract class Debugger
 
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
-     * FORCED_EXIT, EXCEPTION, BREAKPOINT).
+     * FORCED_EXIT, EXCEPTION, BREAKPOINT, TERMINATED).
      */ 
     public abstract int getExitStatus();
 

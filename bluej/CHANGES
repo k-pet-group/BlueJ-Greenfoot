@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00083
+@bug#  : 00087
 @short : 
 @prio  : 
 @source: 
@@ -83,20 +83,6 @@ in the template for the next one):
 @cause : new feature
 
 @-------
-@bug#  : 00042
-@short : debugging must be implemented
-@prio  : 1
-@source: mik
-@date  : 1999-03-13
-@status: in process (mik)
-@fixrel: 
-@descr : in SunDebugger:
-	       - breakpoint handling
-	       - exception handling
-	       - single stepping
-@cause : new feature
-
-@-------
 @bug#  : 00045
 @short : library browser
 @prio  : 1
@@ -106,6 +92,17 @@ in the template for the next one):
 @fixrel: 
 @descr : create browser (browse libraries, import standard package,
 	 import class)
+@cause : new feature
+
+@-------
+@bug#  : 00084
+@short : inspect for local variables in debugger not implemented
+@prio  : 2
+@source: mik
+@date  : 1999-06-21
+@status: in process (mik)
+@fixrel: 
+@descr : double click on locals in debugger should open object viewer
 @cause : new feature
 
 @-------
@@ -156,19 +153,6 @@ in the template for the next one):
 @cause : buggy original implementation
 
 @-------
-@bug#  : 00076
-@short : remote operations often do not work before machine creation
-@prio  : 2
-@source: mik
-@date  : 1999-05-05
-@status: open
-@fixrel: 
-@descr : operation working on the remote machine (create object, show
-	 terminal) often do not work when started before the remote
-	 machine has been created. After that, nothing remote works.
-@cause : ?
-
-@-------
 @bug#  : 00069
 @short : __SHELL files are not (always) deleted.
 @prio  : 3
@@ -193,18 +177,6 @@ in the template for the next one):
 @cause : ?
 
 @-------
-@bug#  : 00081
-@short : parser errors not shown
-@prio  : 3
-@source: mik
-@date  : 1999-06-10
-@status: open
-@fixrel: 
-@descr : when the class parser fails because of a syntax error, the class
-	 should be marked in some way indicating that parsing failed.
-@cause : new feature
-
-@-------
 @bug#  : 00021
 @short : state of read-only package must be shown
 @prio  : 3
@@ -216,18 +188,6 @@ in the template for the next one):
 	 this should be indicated by an info dialog and visual hints
 	 (eg all classes grey)
 @cause : new feature
-
-@-------
-@bug#  : 00001
-@short : inspect fails before machine creation
-@prio  : 3
-@source: mik
-@date  : 1999-02-23
-@status: open
-@fixrel: 
-@descr : When "Inspect" is invoked before the virtual machine is fully
-	 created, the system hangs. 
-@cause : feature was not fully implemented
 
 @-------
 @bug#  : 00039
@@ -266,7 +226,7 @@ in the template for the next one):
 
 @-------
 @bug#  : 00067
-@short : indicate read-onle package access
+@short : indicate read-only package access
 @prio  : 3
 @source: mik
 @date  : 1999-04-26
@@ -275,6 +235,19 @@ in the template for the next one):
 @descr : when a package is accessed that has only read access, the 
 	 interface should indicate this.
 @cause : incomplete original implementation
+
+@-------
+@bug#  : 00086
+@short : more compiler message explanations needed
+@prio  : 4
+@source: mik
+@date  : 1999-06-21
+@status: open
+@fixrel: 
+@descr : there are not many help texts available for compiler messages yet.
+	 they should be added in the files "javac.english.help" and 
+	 "jikes.english.help"
+@cause : new feature
 
 @-------
 @bug#  : 00062
@@ -286,17 +259,6 @@ in the template for the next one):
 @fixrel: 
 @descr : when the "bluej.pkg" file is corrupt or missing, bluej should offer
 	 to rebuild it from directory contents
-@cause : new feature
-
-@-------
-@bug#  : 00040
-@short : "clear terminal" missing
-@prio  : 4
-@source: tutor
-@date  : 1999-03-13
-@status: open
-@fixrel: 
-@descr : there has to be an option to clear the text terminal
 @cause : new feature
 
 @-------
@@ -345,17 +307,6 @@ in the template for the next one):
 @fixrel: 
 @descr : a package must be locked (eg. with a lock file) when being edited
 	 by a user to avoid multi-user conflicts
-@cause : new feature
-
-@-------
-@bug#  : 00047
-@short : use animated gif for machine creation
-@prio  : 4
-@source: mik
-@date  : 1999-02-01
-@status: open
-@fixrel: 
-@descr : use animated gif for machine creation
 @cause : new feature
 
 @-------
@@ -510,6 +461,102 @@ in the template for the next one):
 =======================================================================
 
 ============================ version 0.9.3 ============================
+
+@-------
+@bug#  : 00083
+@short : "terminate" in debugger not implemented
+@prio  : 2
+@source: mik
+@date  : 1999-06-21
+@status: closed, fixed (mik, 1999-06-21)
+@fixrel: 0.9.3
+@descr : terminate button in debugger does not work
+@cause : new feature
+
+@-------
+@bug#  : 00001
+@short : inspect fails before machine creation
+@prio  : 3
+@source: mik
+@date  : 1999-02-23
+@status: closed, fixed (mik, 1999-06-01)
+@fixrel: 0.9.3
+@descr : When "Inspect" is invoked before the virtual machine is fully
+	 created, the system hangs. 
+@cause : feature was not fully implemented
+
+@-------
+@bug#  : 00047
+@short : use animated gif for machine creation
+@prio  : 4
+@source: mik
+@date  : 1999-02-01
+@status: closed, dropped
+@fixrel: -
+@descr : use animated gif for machine creation
+@cause : new feature
+
+@-------
+@bug#  : 00040
+@short : "clear terminal" missing
+@prio  : 4
+@source: tutor
+@date  : 1999-03-13
+@status: closed, fixed (mik, 1999-06-01)
+@fixrel: 0.9.3
+@descr : there has to be an option to clear the text terminal
+@cause : new feature
+
+@-------
+@bug#  : 00085
+@short : help for compiler errors would be good
+@prio  : 3
+@source: students
+@date  : 1999-05-13
+@status: closed, fixed (mik, 1999-06-21)
+@fixrel: 0.9.3
+@descr : there should be a function offering explanations for compiler error
+	 messages
+@cause : new feature
+
+@-------
+@bug#  : 00081
+@short : parser errors not shown
+@prio  : 3
+@source: mik
+@date  : 1999-06-10
+@status: open
+@fixrel: 0.9.3
+@descr : when the class parser fails because of a syntax error, the class
+	 should be marked in some way indicating that parsing failed.
+@cause : new feature
+
+@-------
+@bug#  : 00076
+@short : remote operations often do not work before machine creation
+@prio  : 2
+@source: mik
+@date  : 1999-05-05
+@status: closed, fixed (mik, 1999-06-21)
+@fixrel: 0.9.3
+@descr : operation working on the remote machine (create object, show
+	 terminal) often do not work when started before the remote
+	 machine has been created. After that, nothing remote works.
+@cause : ?
+
+@-------
+@bug#  : 00042
+@short : debugging must be implemented
+@prio  : 1
+@source: mik
+@date  : 1999-03-13
+@status: closed, fixed (mik, 1999-06-21)
+@fixrel: 0.9.3
+@descr : in SunDebugger:
+	       - breakpoint handling
+	       - exception handling
+	       - single stepping
+@cause : new feature
 
 @-------
 @bug#  : 00082
