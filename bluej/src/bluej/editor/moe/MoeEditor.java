@@ -370,6 +370,7 @@ public final class MoeEditor extends JFrame
             textPane.setFont(PrefMgr.getStandardEditorFont());
             checkSyntaxStatus();
             setState(Frame.NORMAL);  // de-iconify
+            toFront();
         }
         super.setVisible(vis);		// show the window
     }

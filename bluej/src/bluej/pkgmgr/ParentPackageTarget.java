@@ -14,7 +14,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 538 2000-06-12 10:20:59Z ajp $
+ * @version $Id: ParentPackageTarget.java 545 2000-06-13 07:19:12Z mik $
  */
 public class ParentPackageTarget extends PackageTarget implements ActionListener
 {
@@ -59,44 +59,44 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
 
     public void draw(Graphics2D g)
     {
-	super.draw(g);
-    //     g.setColor(getBackgroundColour());
-//         g.fillRect(0, 0, width, height);
+        super.draw(g);
+        //     g.setColor(getBackgroundColour());
+        //         g.fillRect(0, 0, width, height);
 
-//         // draw "ribbon"
-//         g.setColor(ribboncolour);
-//         int rx = 2 * TEXT_BORDER;
-//         int ry = height - HANDLE_SIZE + 5;
-//         g.drawLine(rx, 0, rx, height);
-//         g.drawLine(0, ry, width, ry);
+        //         // draw "ribbon"
+        //         g.setColor(ribboncolour);
+        //         int rx = 2 * TEXT_BORDER;
+        //         int ry = height - HANDLE_SIZE + 5;
+        //         g.drawLine(rx, 0, rx, height);
+        //         g.drawLine(0, ry, width, ry);
 
-//         g.drawLine(rx - 5, ry, rx - 5, ry - 1);
-//         g.drawLine(rx - 5, ry - 1, rx - 4, ry - 2);
-//         g.drawLine(rx - 4, ry - 2, rx - 2, ry - 2);
-//         g.drawLine(rx - 2, ry - 2, rx, ry);
-//         g.drawLine(rx, ry, rx + 5, ry + 5);
+        //         g.drawLine(rx - 5, ry, rx - 5, ry - 1);
+        //         g.drawLine(rx - 5, ry - 1, rx - 4, ry - 2);
+        //         g.drawLine(rx - 4, ry - 2, rx - 2, ry - 2);
+        //         g.drawLine(rx - 2, ry - 2, rx, ry);
+        //         g.drawLine(rx, ry, rx + 5, ry + 5);
 
-//         g.drawLine(rx + 5, ry, rx + 5, ry - 1);
-//         g.drawLine(rx + 5, ry - 1, rx + 4, ry - 2);
-//         g.drawLine(rx + 4, ry - 2, rx + 2, ry - 2);
-//         g.drawLine(rx + 2, ry - 2, rx, ry);
-//         g.drawLine(rx, ry, rx - 5, ry + 5);
+        //         g.drawLine(rx + 5, ry, rx + 5, ry - 1);
+        //         g.drawLine(rx + 5, ry - 1, rx + 4, ry - 2);
+        //         g.drawLine(rx + 4, ry - 2, rx + 2, ry - 2);
+        //         g.drawLine(rx + 2, ry - 2, rx, ry);
+        //         g.drawLine(rx, ry, rx - 5, ry + 5);
 
-//         g.setColor(textbg);
-//         g.fillRect(TEXT_BORDER, TEXT_BORDER,
-//         	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
+        //         g.setColor(textbg);
+        //         g.fillRect(TEXT_BORDER, TEXT_BORDER,
+        //         	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
 
-//         g.setColor(shadowCol);
-//         drawShadow(g);
+        //         g.setColor(shadowCol);
+        //         drawShadow(g);
 
-//         g.setColor(getBorderColour());
-//         g.setFont(getFont());
-//         Utility.drawCentredText(g, getDisplayName(),
-//         			TEXT_BORDER, TEXT_BORDER,
-//         			width - 2*TEXT_BORDER, TEXT_HEIGHT);
-//         g.drawRect(TEXT_BORDER, TEXT_BORDER,
-//         	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
-//         drawBorders(g);
+        //         g.setColor(getBorderColour());
+        //         g.setFont(getFont());
+        //         Utility.drawCentredText(g, getDisplayName(),
+        //         			TEXT_BORDER, TEXT_BORDER,
+        //         			width - 2*TEXT_BORDER, TEXT_HEIGHT);
+        //         g.drawRect(TEXT_BORDER, TEXT_BORDER,
+        //         	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
+        //         drawBorders(g);
 
     }
 

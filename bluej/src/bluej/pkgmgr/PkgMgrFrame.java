@@ -26,7 +26,7 @@ import bluej.browser.LibraryBrowser;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 544 2000-06-13 05:01:00Z ajp $
+ * @version $Id: PkgMgrFrame.java 545 2000-06-13 07:19:12Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -387,6 +387,16 @@ public class PkgMgrFrame extends JFrame
         };
 
         SwingUtilities.invokeLater(disableUI);
+    }
+
+    /**
+     * Override standard show to add de-iconify and bring-to-front.
+     */
+    public void show()
+    {
+        super.show();
+        setState(Frame.NORMAL);
+        toFront();
     }
 
     /**
