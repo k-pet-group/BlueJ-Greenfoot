@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 698 2000-10-23 03:34:55Z bquig $
+ * @version $Id: Package.java 716 2000-12-07 00:18:50Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -460,6 +460,10 @@ public class Package extends Graph
             File subDirs[] = getPath().listFiles(new SubPackageFilter());
 
             for(int i=0; i<subDirs.length; i++) {
+                // first check if the directory name would be a valid package name
+                if (!JavaNames.isIdentifier(subDirs[i].getName()))
+                    continue;
+
                 Target target = (Target) propTargets.get(subDirs[i].getName());
 
                 if(target == null || !(target instanceof PackageTarget)) {
@@ -497,6 +501,10 @@ public class Package extends Graph
 
             while(it.hasNext()) {
                 String targetName = (String) it.next();
+
+                // first check if the target name would be a valid class name
+                if (!JavaNames.isIdentifier(targetName))
+                    continue;
 
                 Target target = (Target) propTargets.get(targetName);
                 if(target == null || !(target instanceof ClassTarget)) {
@@ -576,6 +584,10 @@ public class Package extends Graph
         File subDirs[] = getPath().listFiles(new SubPackageFilter());
 
         for(int i=0; i<subDirs.length; i++) {
+            // first check if the directory name would be a valid package name
+            if (!JavaNames.isIdentifier(subDirs[i].getName()))
+                   continue;
+
             Target target = (Target) targets.get(subDirs[i].getName());
 
             if(target == null) {
@@ -607,6 +619,10 @@ public class Package extends Graph
 
         while(it.hasNext()) {
             String targetName = (String) it.next();
+
+            // first check if the target name would be a valid class name
+            if (!JavaNames.isIdentifier(targetName))
+                continue;
 
             Target target = (Target) targets.get(targetName);
 
