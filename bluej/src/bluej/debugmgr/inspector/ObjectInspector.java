@@ -2,6 +2,8 @@ package bluej.debugmgr.inspector;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,7 +35,7 @@ import bluej.utility.JavaNames;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ObjectInspector.java 2552 2004-05-26 12:53:33Z polle $
+ * @version $Id: ObjectInspector.java 2663 2004-06-25 10:37:01Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -166,10 +168,19 @@ public class ObjectInspector extends Inspector
         
         //Create a header
         JComponent header = createHeader();
-        String className = JavaNames.stripPrefix(obj.getClassName());        
-        String fullTitle = objName + " : " + className;    
-        String underlinedNameLabel = "<html><u>"+fullTitle+ "</u></font>";
-        header.add(new JLabel(underlinedNameLabel, JLabel.CENTER));        
+        String className = JavaNames.stripPrefix(obj.getGenClassName());        
+        final String fullTitle = objName + " : " + className;    
+        JLabel headerLabel = new JLabel(fullTitle, JLabel.CENTER) {
+            public void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+                int ascent = g.getFontMetrics().getAscent() + 1;
+                g.drawLine(0, ascent, this.getWidth(), ascent);
+            }
+        };
+        
+        
+        header.add(headerLabel);        
         
         //     add the components
         Container contentPane = getContentPane();
