@@ -1,0 +1,894 @@
+// some source from
+// Chris Rathman / ChrisRath@aol.com
+
+
+/************************************************************************
+ *                                                                      *
+ * Reserved Words:                                                      *
+ *                                                                      *
+ *    Java:                                                             *
+ *       abstract        else            long            switch         *
+ *       boolean         extends         native          synchronized   *
+ *       break           final           new             this           *
+ *       byte            finally         null            throw          *
+ *       case            float           package         throws         *
+ *       catch           for             private         transient      *
+ *       char            if              protected       try            *
+ *       class           implements      public          void           *
+ *       continue        import          return          volatile       *
+ *       default         instanceof      short           while          *
+ *       do              int             static                         *
+ *       double          interface       super                          *
+ *                                                                      *
+ *    Reserved but not supported:                                       *
+ *       const           goto                                           *
+ *                                                                      *
+ *    C Not Used:                                                       *
+ *       auto            extern          sizeof          union          *
+ *       entry           register        struct          unsigned       *
+ *       enum            signed          typedef                        *
+ *                                                                      *
+ *    C++ Not Used:                                                     *
+ *       delete          friend          inline          operator       *
+ *                                                                      *
+ ************************************************************************/
+
+/************************************************************************
+ *                                                                      *
+ * Core Java Classes:                                                   *
+ *                                                                      *
+ *       java.applet                     java.rmi                       *
+ *       java.awt                        java.rmi.dgc                   *
+ *       java.awt.datatransfer           java.rmi.registry              *
+ *       java.awt.event                  java.rmi.server                *
+ *       java.awt.image                  java.security                  *
+ *       java.beans                      java.security.acl              *
+ *       java.io                         java.security.interfaces       *
+ *       java.lang                       java.sql                       *
+ *       java.lang.reflect               java.text                      *
+ *       java.math                       java.util                      *
+ *       java.net                        java.util.zip                  *
+ *                                                                      *
+ *      #java.awt.color                 #java.beans.beancontext         *
+ *      #java.awt.dnd                   #java.lang.ref                  *
+ *      #java.awt.font                  #java.rmi.activation            *
+ *      #java.awt.geom                  #java.security.cert             *
+ *      #java.awt.im                    #java.security.spec             *
+ *      #java.awt.image.renderable      #java.util.jar                  *
+ *      #java.awt.print                                                 *
+ *                                                                      *
+ *      #javax.accessibility            #javax.swing.plaf.multi         *
+ *      #javax.swing                    #javax.swing.table              *
+ *      #javax.swing.border             #javax.swing.text               *
+ *      #javax.swing.colorchooser       #javax.swing.text.html          *
+ *      #javax.swing.event              #javax.swing.html.parser        *
+ *      #javax.swing.filechooser        #javax.swing.text.rtf           *
+ *      #javax.swing.plaf               #javax.swing.tree               *
+ *      #javax.swing.plaf.basic         #javax.swing.undo               *
+ *      #javax.swing.plaf.metal                                         *
+ *                                                                      *
+ *      #org.omg.CORBA                  #org.omg.CORBA.portable         *
+ *      #org.omg.CORBA.DynAnyPackage    #org.omg.CORBA.TypeCodePackage  *
+ *      #org.omg.CORBA.ORBPackage       #org.omg.CosNaming              *
+ *      #org.omg.CosNaming.NamingContextPackage                         *
+ *                                                                      *
+ ************************************************************************/
+
+// pointer, struct, enum, and union not supported in java
+// global variables and functions not supported in java
+
+/************************************************************************
+ *                                                                      *
+ * Documentation Comments:                                              *
+ *                                                                      *
+ ************************************************************************/
+ /**
+  *
+  * @author          document the author of the code
+  * @deprecated      indicates the class/method has been superceeded with a new form
+  * @exception       document the exceptions that can be thrown and the circumstances
+  * (@link)          insert an inline link
+  * @param           describes the parameters for a method
+  * @return          describes the value returned for a method
+  * @see             cross reference another part of code or url address
+  * @serial          comment for default serializable field
+  * @serialData      description for sequences and types of data
+  * @serialField     description for serial fields
+  * @since           add a since heading to docs
+  * @throws          same as @exception
+  * @version         document the current version of the code
+  *
+  * HTML tags can be interspersed in the comments, except H1 and H2
+  * Use javadoc to extract the documentation comments
+  *
+  */
+
+/************************************************************************
+ *                                                                      *
+ * Package Definition:                                                  *
+ *                                                                      *
+ ************************************************************************/
+package Test.Chris;                     // SET ClassPath=e:\java  (package is in e:\java\Test\Chris\*.java)
+
+/************************************************************************
+ *                                                                      *
+ * Import References:                                                   *
+ *                                                                      *
+ ************************************************************************/
+import java.awt.event.*;                // allow simple access to classes within package without full name
+
+/************************************************************************
+ *                                                                      *
+ * Classes:                                                             *
+ *                                                                      *
+ ************************************************************************/
+public class Syntax {
+
+   /*********************************************************************
+    *                                                                   *
+    * Properties:                                                       *
+    *                                                                   *
+    *********************************************************************/
+                                        // instance variables (properties) default to 0, false, or null
+   static final double PI = 3.14;       // constant - final means var can't be modified
+   static int objcount = 0;             // one variable shared by all instances of the class
+   int xpack;                           // visible to any class in same package (no access attribute)
+   public int xpub;                     // visible to any class anywhere
+   private int xpriv;                   // not visible outside of current class
+   protected int xprot;                 // visible to any class in same package or from any subclass anywhere
+   // private protected int xprivprot;  // visible only to subclass
+   Square xd = new Square(2.0);         // objects can be allocated outside of methods
+
+   {                                    // initialization code block - after super constructor
+      xpack = 1;
+      System.out.println("init");
+   }
+
+   static {                             // static initialization block - at time the class is first loaded
+      objcount = 0;
+      System.out.println("Static init");
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Application Entry Point:                                          *
+    *                                                                   *
+    *********************************************************************/
+   public static void main(String[] args) {
+
+      // stream io
+      System.out.println("Hello World!");
+      for (int i = 0; i < args.length; i++) {
+         System.out.println(args[i]);
+      }
+
+      // make an instance of this class
+      Syntax syntax_obj = new Syntax();
+
+      syntax_obj = null;
+
+      // try a different constructor
+      syntax_obj = new Syntax("Hello");
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Constructors:                                                     *
+    *                                                                   *
+    *********************************************************************/
+   Syntax() {
+      // constructors do not return a value and have the same name as the class
+      // exercise();
+
+      Java_lang x0 = new Java_lang();
+      x0.exercise();
+
+      Java_lang_reflect x1 = new Java_lang_reflect();
+      x1.exercise();
+
+      Java_math x2 = new Java_math();
+      x2.exercise();
+
+      Test.Chris.Java_io x3 = new Test.Chris.Java_io();
+      x3.exercise();
+
+      Test.Chris.Java_util x4 = new Test.Chris.Java_util();
+      x4.exercise();
+
+      Test.Chris.Java_util_zip x5 = new Test.Chris.Java_util_zip();
+      x5.exercise();
+
+      Test.Chris.Java_text x6 = new Test.Chris.Java_text();
+      x6.exercise();
+
+      //Test.Chris.Java_sql x7 = new Test.Chris.Java_sql();
+      //x7.exercise();
+
+      //Test.Chris.Java_net x8 = new Test.Chris.Java_net();
+      //x8.exercise();
+
+      //Test.Chris.Java_security x9 = new Test.Chris.Java_security();
+      //x9.exercise();
+
+      InnerClass x10 = new InnerClass();
+
+      OuterClass x11 = new OuterClass();
+   }
+
+   Syntax(String s) {
+      Java_awt x12 = new Java_awt();
+      x12.exercise();
+      System.exit(0);                   // awt leaves some stranded threads
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Finalize:                                                         *
+    *                                                                   *
+    *********************************************************************/
+   protected void finalize() {
+      // finalize called after object goes out of scope and the garbage collection is performed (useless!)
+      System.out.println("finalize");
+      try {
+         super.finalize();              // should call super finalize since it is not chained like constructors
+      } catch(Throwable e) {
+      }
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Exercise:                                                         *
+    *                                                                   *
+    *********************************************************************/
+   public void exercise() {
+      int i;
+      double x;
+
+      types();
+      operators();
+      flow();
+      arrays();
+      i = factorial(5);
+      i = max(5, 3);
+      x = max(5.0, 3.0);
+      exceptions();
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Primitive Variable Types:                                         *
+    *                                                                   *
+    *********************************************************************/
+   private void types() {               // local variables are not automatically initialized
+      byte a;                           //  8-bit signed
+      short b;                          // 16-bit signed
+      int c;                            // 32-bit signed
+      long d;                           // 64-bit signed
+      char e;                           // 16-bit unicode
+      boolean f;                        // true|false
+      float x;                          // 32-bit ieee
+      double y;                         // 64-bit ieee
+
+      {
+         int z = 3;                     // variable scope is limited to block in which it is declared
+      }
+
+      int i = 0;                        // initialize when declared
+      int j = i - 1;                    // autoinit may contain expressions
+
+      a = 1;                            // int constant
+      b = 07;                           // octal notation
+      c = 0xF;                          // hex notation
+      d = 2L;                           // long constant
+      e = 'a';                          // character constant
+      f = true;                         // boolean constant
+      x = 3;
+      x = 4.0F;                         // float constant
+      y = 4.0E2;                        // scientific notation
+
+      x = 9.99F;
+      x = -9.99F;
+      y = 1.0;
+      y = 2.0;
+      y = 3.0;
+      y = 4.0;
+      y = 5.0;
+      y = 6.0;
+      y = 7.0;
+      y = 8.0;
+      y = 9.0;
+      y = 10.0;
+      y = 20.0;
+      y = 100.0;
+      y = 9.99;
+
+      e = '\001';                       // octal ascii code
+      e = '\u0001';                     // hex unicode character (www.unicode.com)
+      e = '\b';                         // backspace
+      e = '\f';                         // form feed
+      e = '\n';                         // new line
+      e = '\r';                         // carriage return
+      e = '\t';                         // tab
+      e = '\'';                         // single quote
+      e = '\"';                         // double qoute
+      e = '\\';                         // backslash
+
+      // java does less auto-casting than C++
+      a += 1;                           // combined operators not require cast
+      a = (byte)(a + 1);                // all byte/short math is done in int - plus (+) autocasts to int
+      a = (byte)b;
+      a = (byte)c;
+      a = (byte)d;
+      a = (byte)e;
+      a = (byte)x;
+      a = (byte)y;
+
+      b = a;
+      b = (short)(b + 1);
+      b = (short)c;
+      b = (short)d;
+      b = (short)e;
+      b = (short)x;
+      b = (short)y;
+
+      c = a;
+      c = b;
+      c = (c + 1);
+      c = (int)d;
+      c = e;
+      c = (int)x;                       // truncation on the floating point numbers
+      c = (int)y;
+
+      d = a;
+      d = b;
+      d = c;
+      d = d;
+      d = e;
+      d = (long)x;
+      d = (long)y;
+
+      e = (char)a;
+      e = (char)b;
+      e = (char)c;
+      e = (char)d;
+      e = (char)(e + 1);
+      e = (char)x;
+      e = (char)y;
+
+      f = !false;                       // can't cast other types to or from boolean type
+
+      x = a;
+      x = b;
+      x = c;
+      x = d;
+      x = e;
+      x = (x + 1);
+      x = (float)y;
+
+      y = a;
+      y = b;
+      y = c;
+      y = d;
+      y = e;
+      y = x;
+      y = y + 1;
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Operators:                                                        *
+    *         []  array subscript          >=  greater than or equal    *
+    *          .  class member             ==  equal                    *
+    *          !  logical not              !=  not equal                *
+    *          ~  one's complement          &  bitwise and / logical and*
+    *          +  unary plus                ^  bitwise xor              *
+    *          -  unary minus               |  bitwise or               *
+    *         ++  increment                &&  logical and              *
+    *         --  decrement                ||  logical or               *
+    *     (type)  type cast                ?:  conditional if?then:else *
+    *        new  new                       =  assign                   *
+    *          *  multiply                 *=  compound assign          *
+    *          /  divide                   /=                           *
+    *          %  modulus                  %=                           *
+    *          +  add                      +=                           *
+    *          -  subtract                 -=                           *
+    *         <<  left shift               &=                           *
+    *         >>  right shift              ^=                           *
+    *        >>>                           |=                           *
+    * instanceof                          <<=                           *
+    *          <  less than               >>=                           *
+    *         <=  less than or equal     >>>=                           *
+    *          >  greater than              ,  comma                    *
+    *                                                                   *
+    *********************************************************************/
+   private void operators() {
+      boolean b;
+      int i;
+      int j;
+      byte k = 10;
+      float x;
+      String s = "Test";
+
+      i = 1;                            // simple asignment: i = 1;
+      i = j = 3;                        // compound assignment: j = 3; i = j;
+      i = (j = 1) + 2;                  // parenthesis precedence: j = 1; i = j + 2;
+
+      i = 3 + 2;                        // add: i = 5;
+      i = (3) % (2);                    // mod: i = 2;
+
+      x = (int)3.14;                    // cast operator: i = 3;
+      x = 2 / 3;                        // integer divide: x = 0
+      k = (byte)-k;                     // unary plus/minus always converts byte/short/char to an int
+
+      i = ++j;                          // pre-increment: j = j + 1; i = j;
+      i = --j;                          // pre-decrement: j = j - 1; i = j;
+      i = j++;                          // post-increment: i = j; j = j + 1;
+      i = j--;                          // post-increment: i = j; j = j - 1;
+
+                                        // compound assignment operators - always does autocast
+      i += j;                           // i = i + j;
+      i -= j;                           // i = i - j;
+      i *= j;                           // i = i * j;
+      i /= j;                           // i = i / j;
+      i %= j;                           // i = i % j;
+      i <<= j;                          // i = i << j;
+      i >>= j;                          // i = i >> j;
+      i >>>= j;                         // i = i >>> j;
+      i &= j;                           // i = i & j;
+      i ^= j;                           // i = i ^ j;
+      i |= j;                           // i = i | j;
+
+                                        // only boolean var may receive boolean op result
+      b = (i == 0);                     // equal
+      b = (i < j);                      // less than
+      b = (i <= j);                     // less than or equal
+      b = (i > j);                      // greater than
+      b = (i >= j);                     // greater than or equal
+      b = (i != j);                     // not equal
+
+      b = !b;                           // not operator
+      b = ((i > 0) && (i < j));         // logical and
+      b = ((i > 0) || (i < j));         // logical or
+      b = ((i > 0) & (i < j));          // logical and - always perform both tests
+      b = ((i > 0) | (i < j));          // logical or - always perform both tests
+
+      i = j & 1;                        // bitwise and
+      i = j ^ 1;                        // bitwise xor
+      i = j | 1;                        // bitwise or
+
+      b = (s instanceof String);        // test if object is an instance of a class (null returns false)
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Flow Control:                                                     *
+    *                                                                   *
+    *********************************************************************/
+   private boolean flow() {
+      int i = 10;
+      int j = 10;
+      boolean b = true;
+
+      if (b) {                          // if then else
+         j = 1;
+      } else {
+         j = 2;
+      }
+
+      while (i != 0) {                  // while loop
+         i = i - 1;
+         if (b) continue;
+         break;
+      }
+
+      do {                              // do while loop
+         i = i + 1;
+         if (b) continue;
+         break;
+      } while (i < 10);
+
+      for (i = 0; i < 4; i++) {         // for loop  - comma operator allowed in initialize and increment
+         j = j + 1;                     // variables can be scoped within loop
+         if (b) continue;               // if conditional expression omitted evaluates to true
+         break;
+      }
+
+      switch (i) {                      // switch case - expression type must be byte/char/short/int
+         case 0:
+            j = 1;
+            break;
+         default:
+            j = 3;
+            break;
+      }
+
+Outer:                                 // break outer
+      {
+         i = i - 1;
+         if (b) {
+            break Outer;
+         }
+         j = j - 1;
+      }
+
+      return(true);                    // exit function with return value
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Arrays:                                                           *
+    *                                                                   *
+    *********************************************************************/
+   private void arrays() {
+      int i;
+      int[] a;                          // can also be declared as: int a[];
+      int[] b = new int[20];
+      int[][] c;
+      int[][] d = new int[10][20];
+      int[] primes = {2, 3, 5, 7, 11, 13, 17,};
+
+      a = new int[10];
+      System.arraycopy(primes, 0, a, 0, 2);
+
+      for (i = 0; i < a.length; i++) a[i] = i;
+
+      d = new int[10][];                // multidimensional arrays do not have to be rectangular
+      for (i = 0; i < d.length; i++) d[i] = new int[i+1];
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Methods:                                                          *
+    *                                                                   *
+    *********************************************************************/
+   private int factorial(int n) {       // methods must always specify a return value (can be void)
+      if (n == 1) {
+         return (1);
+      } else {
+         return (n * factorial(n-1));
+      }
+   }
+
+   static int sfactorial(int n) {       // static methods belong to class - can be called with no instance
+      if (n == 1) {                     // i = Syntax.sfactorial(n);
+         return (1);                    // static methods are implicitly final - no override allowed
+      } else {
+         return (n * sfactorial(n-1));
+      }
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Method Overloading:                                               *
+    *                                                                   *
+    *********************************************************************/
+   private int max(int a, int b) {      // method overloading is resolved at compile time
+      if (a >= b) {                     // method of derived class always overrides - no matter how accessed
+         return a;                      // all function parameters are passed by value
+      } else {
+         return b;
+      }
+   }
+
+   private double max(double a, double b) {
+      if (a >= b) {
+         return a;
+      } else {
+         return b;
+      }
+   }
+
+   /*********************************************************************
+    *                                                                   *
+    * Exceptions:                                                       *
+    *                                                                   *
+    *********************************************************************/
+   private void exceptions(){
+      int i = 10;
+      int[] a = new int[10];
+
+      // all standard exceptions are covered by two direct subclasses of Throwable
+      //    - Error:      catastrophic errors that usually have no recovery
+      //    - Exception:  must catch or register throws (except for subclasses of RuntimeException)
+
+      try {
+         a[i] = i;
+      } catch (IndexOutOfBoundsException e) {
+      } catch (Exception e) {           // catch order should be from lowest subclass to highest superclass
+         //System.out.println(e.toString());
+      } finally {                       // this block will always be executed even when no exception
+      }
+
+      try {                             // methods that register throws require catch or register
+         throwMe();
+      } catch (Exception e) {
+         //System.out.println(e.toString());
+      } catch (Throwable e) {
+         //System.out.println(e.toString());
+      }
+
+      try {                             // can also be used to perform operations if return executed
+         return;
+      } finally {                       // break/continue/return/throw statement will cause forget of branch
+      }
+   }
+
+   // if registered exceptions are not caught they must be registered as throws
+   private void throwMe() throws java.io.FileNotFoundException, ChrisException {
+      try {
+         java.io.InputStream ios = new java.io.FileInputStream("Syntax.java");
+      } catch (java.io.FileNotFoundException e) {
+         throw e;                       // exception can be rethrown - pass it up to calling method
+      }
+      throw new ChrisException("User Defined Exception");
+   }
+
+   // user defined exception
+   class ChrisException extends Throwable {
+      ChrisException() {
+      }
+
+      ChrisException(String s) {
+         super(s);
+      }
+   }
+
+
+   /*********************************************************************
+    *                                                                   *
+    * Inner Classes:                                                    *
+    *                                                                   *
+    *********************************************************************/
+   public class InnerClass {
+      int a;                            // static vars not allowed in inner classes
+      public int b;
+      private int c;
+
+      InnerClass() {
+         InnerInnerClass xa = new InnerInnerClass();
+
+         // anonymous class - extends class - no constructors allowed
+         Object xb = new Object() {
+            public String toString() {
+               System.out.println("Hello Anonynomous");
+               return super.toString();
+            }
+         };
+
+         xb.toString();
+      }
+
+      public class InnerInnerClass {
+         int a;
+         public int b;
+         private int c;
+
+         InnerInnerClass() {
+            a = 0;
+         }
+      }
+   }
+}
+
+/************************************************************************
+ *                                                                      *
+ * Outer Classes:                                                       *
+ *                                                                      *
+ ************************************************************************/
+class OuterClass {                      // outer class can not be declared public
+   static final double PI = 3.14;
+   static int objcount = 0;
+   int xpack;
+   public int xpub;
+   private int xpriv;
+   protected int xprot;
+
+   OuterClass() {
+      int i;
+      double x;
+      String s;
+
+      XShape x1;
+      XShape x2;
+      XShape x3;
+      XShape x4;
+      XShape x5;
+      XRectangle xa;
+      Convert xb;
+
+      x1 = new XRectangle(3.0, 4.0);
+      x2 = new Square(3.0);
+      x3 = new Triangle(1.0, 2.0, 3.0);
+      x4 = new Circle(4.0);
+      x5 = new EquilateralTriangle(5.0);
+
+      xa = (XRectangle)x2;              // polymorphism - base class object can point to any derived class
+      x2 = xa;                          // assigning object to super class does not require casting
+
+      x = x1.area();                    // appropriate method for the subclass instance is called
+      i = x2.sides;                     // superclass variables can only access variables and methods
+      s = x3.toString();                //    that exist at the superclass level of the variable
+
+      xb = (Convert)x4;                 // polymorphism - interface var can point to any class that implements
+      x = xb.inchToMM();
+
+      //System.out.println(x1.toString() + " " + x2.toString() + " " + x3.toString() + " " +
+      //  x4.toString() + " " + x5.toString());
+   }
+
+   // inner class objects outside of class can be created only in context of the top level class
+   OuterClass(String s) {
+      Syntax xa = new Syntax();
+      Syntax.InnerClass xb = xa.new InnerClass();
+      Syntax.InnerClass.InnerInnerClass xc = xb.new InnerInnerClass();
+   }
+}
+
+/************************************************************************
+ *                                                                      *
+ * SubClasses:                                                          *
+ *                                                                      *
+ ************************************************************************/
+abstract class XShape {                 // abstract class can not be alocated - serves as subclass template
+   String name;
+   int sides = 0;                       // subclasses inherit all fields and methods not defined as private
+
+   XShape(int sides) {
+      this.sides = sides;
+   }
+
+   abstract double area();              // abstract requires all subclasses to define this method
+
+   abstract double perimeter();
+
+   public String toString() {           // override the inherited Object method
+      return name;
+   }
+}
+
+class XRectangle extends XShape {       // extends identifies this as a subclass of the specified superclass
+   double length = 1.0;                 // subclass inherits all members of superclass that are not private
+   double width = 1.0;
+
+   XRectangle(double length, double width) {
+      super(4);                         // constructors of base class not inherited - but can be called
+      name = "XRectangle";
+      this.length = length;
+      this.width = width;
+   }
+
+   XRectangle() {
+      this(2, 4);                       // this or super constructor must be first statement in constructor
+   }
+
+   double area() {                      // define abstract method
+      return length * width;
+   }
+
+   double perimeter() {
+      return 2 * length * width;
+   }
+}
+
+final class Square extends XRectangle {  // final class prevents any further subclassing
+   double length;
+
+   Square(double length) {
+      super(length, length);
+      name = "Square";
+      this.length = length;
+      super.length = length;              // accessing shadowed variables allowed through super
+      ((XRectangle)this).length = length; // accessing shadowed variables allowed through casting
+      double x = super.area();            // accessing overridden method allowed through super
+      x = ((XRectangle)this).area();      // casting does not provide access to the overridden method
+   }
+
+   double area() {                      // override base class method - perimeter function is inherited
+      return super.area();              // overriding method cannot be less accessible than overridden method
+   }                                    // throws clause of overriding method must match overridden method
+}
+
+class Triangle extends XShape {
+   double[] side = new double[3];
+   double base;
+   double height;
+
+   Triangle(double a, double b, double c) {
+      super(3);
+      name = "Triangle";
+      side[0] = a;
+      side[1] = b;
+      side[2] = c;
+      base = a;
+      height = 1.0;
+   }
+
+   double area() {
+      return 0.5 * base * height;
+   }
+
+   double perimeter() {
+      return (side[0] + side[1] + side[2]);
+   }
+}
+
+/************************************************************************
+ *                                                                      *
+ * Interfaces:                                                          *
+ *                                                                      *
+ ************************************************************************/
+interface Factors {                     // an interface is a collection of constants and abstract methods
+   double PI = 3.14;                    // constants in interface are always public, static and final
+   double PISQUARE = Math.pow(PI, 2);
+   double INCH_TO_MM = 25.4;
+}
+
+interface Convert {                     // access can be specified as public or package (not specified)
+   double inchToMM();                   // methods in interface are always abstract and public
+}
+
+interface MoreConvert extends Convert { // interfaces can be extended similar to classes
+   double MMToInch();
+}
+
+class Circle extends XShape implements Factors, MoreConvert {  // multiple interfaces may be implemented
+   double radius;
+
+   Circle(double radius) {
+      super(0);
+      name = "Circle";
+      this.radius = radius;
+   }
+
+   double area() {                      // abstract methods required from superclass
+      return PI * PI * radius;
+   }
+
+   public double perimeter() {          // override superclass method
+      return 2 * PI * radius;
+   }
+
+   public double inchToMM() {           // abstract method for interface
+      return (perimeter() * INCH_TO_MM);
+   }
+
+   public double MMToInch() {
+      return radius * (1 / INCH_TO_MM);
+   }
+}
+
+class EquilateralTriangle extends Triangle implements Factors, Convert {
+   EquilateralTriangle(double a) {
+      super(a, a, a);
+      name = "EquilateralTriangle";
+   }
+
+   double area() {
+      return 0.5;
+   }
+
+   public double inchToMM() {           // abstract method for interface
+      return 3 * side[0] * INCH_TO_MM;
+   }
+}
+
+/************************************************************************
+ *                                                                      *
+ * Link Lists:                                                          *
+ *                                                                      *
+ ************************************************************************/
+class LinkList {
+   LinkList prev;
+   LinkList next;
+
+   LinkList() {
+      prev = null;
+      next = null;
+   }
+
+   LinkList(LinkList x) {
+      x.prev = x;
+      x.next = null;
+      x.prev.next = this;
+   }
+}

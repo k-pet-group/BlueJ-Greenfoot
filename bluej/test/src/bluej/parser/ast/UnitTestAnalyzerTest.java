@@ -70,7 +70,7 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
      */
     public void testFindingVariables()
     {
-       java.util.List variables = uta.getVariableSpans();
+       java.util.List variables = uta.getFieldSpans();
 
        SourceSpan xSpan = (SourceSpan) variables.get(0);
        assertEquals(5, xSpan.getStartLine());
