@@ -308,10 +308,10 @@ callLibraryDialog.title=BlueJ:  Library-Klasse aufrufen
 callLibraryDialog.classLabel=Klasse:
 callLibraryDialog.docButton=Dokumentation
 callLibraryDialog.listHeading=Konstruktoren und statische Methoden
-callLibraryDialog.clickHere1=Bitte vollen Klassennamen eingeben, dann hier
-callLibraryDialog.clickHere2=klicken um Konstruktoren und Methoden zu laden.
+callLibraryDialog.clickHere1=Bitte vollen Klassennamen eingeben, dann "Enter"
+callLibraryDialog.clickHere2=drücken um Konstruktoren und Methoden zu laden.
 callLibraryDialog.classNotFound1=Klasse konnte nicht gefunden werden.
-callLibraryDialog.classNotFound2=(Bitte Klassennamen prüfen und nochmal hier klicken.)
+callLibraryDialog.classNotFound2=(Bitte Klassennamen prüfen und nochmal "Enter" drücken.)
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Projekt exportieren

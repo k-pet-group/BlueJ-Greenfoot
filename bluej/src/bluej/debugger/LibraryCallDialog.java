@@ -24,7 +24,7 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 823 2001-03-28 06:27:58Z mik $
+ * @version $Id: LibraryCallDialog.java 824 2001-03-28 07:04:24Z mik $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
@@ -174,6 +174,7 @@ public class LibraryCallDialog extends JDialog
 
         methodList.setListData(list);
         methodList.clearSelection();
+        methodList.setEnabled(true);
         docButton.setEnabled(true);
     }
 
@@ -183,6 +184,7 @@ public class LibraryCallDialog extends JDialog
     private void displayTextInClassList(String[] text)
     {
         methodList.setListData(text);
+        methodList.setEnabled(false);
         docButton.setEnabled(false);
     }
 
