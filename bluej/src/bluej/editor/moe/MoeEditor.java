@@ -98,9 +98,6 @@ public final class MoeEditor extends JFrame
     static final String CRASHFILE_SUFFIX = "#";
     static final String BACKUP_SUFFIX = "~";
 
-    //  width of tag area for setting breakpoints
-    static final short TAG_WIDTH = 14;
-
     static final String spaces = "    ";
 
     static final String COMPILED = "compiled";

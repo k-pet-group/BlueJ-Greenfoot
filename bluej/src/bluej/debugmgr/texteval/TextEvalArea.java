@@ -9,7 +9,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import javax.swing.text.*;
 
 import bluej.BlueJEvent;
@@ -22,7 +21,6 @@ import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.editor.moe.*;
@@ -33,7 +31,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2716 2004-07-01 21:53:37Z mik $
+ * @version $Id: TextEvalArea.java 2717 2004-07-02 09:14:57Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -233,7 +231,7 @@ public final class TextEvalArea extends JScrollPane
     {
         try {
             doc.insertString(doc.getLength(), s, null);
-            markAs(MoeSyntaxView.OUTPUT);
+            markAs(TextEvalSyntaxView.OUTPUT);
         }
         catch(BadLocationException exc) {
             Debug.reportError("bad location in terminal operation");
@@ -244,7 +242,7 @@ public final class TextEvalArea extends JScrollPane
     {
         try {
             doc.insertString(doc.getLength(), "Error: " + s, null);
-            markAs(MoeSyntaxView.ERROR);
+            markAs(TextEvalSyntaxView.ERROR);
         }
         catch(BadLocationException exc) {
             Debug.reportError("bad location in terminal operation");
@@ -419,7 +417,7 @@ public final class TextEvalArea extends JScrollPane
                 }
             }
             else {
-                markAs(MoeSyntaxView.OUTPUT);
+                markAs(TextEvalSyntaxView.OUTPUT);
             }
             currentCommand = "";
         }
@@ -446,7 +444,7 @@ public final class TextEvalArea extends JScrollPane
             String line = getCurrentLine();
             currentCommand += line + " ";
             history.add(line);
-            markAs(MoeSyntaxView.CONTINUE);
+            markAs(TextEvalSyntaxView.CONTINUE);
         }
     }
 

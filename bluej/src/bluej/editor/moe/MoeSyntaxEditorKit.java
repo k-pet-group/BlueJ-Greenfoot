@@ -71,7 +71,10 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      */
     public View create(Element elem)
     {
-        return new MoeSyntaxView(elem, isTextEval);
+        if(isTextEval)
+            return new bluej.debugmgr.texteval.TextEvalSyntaxView(elem);
+        else
+            return new MoeSyntaxView(elem);
     }
 
     /**

@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2716 2004-07-01 21:53:37Z mik $
+ * @version $Id: PkgMgrFrame.java 2717 2004-07-02 09:14:57Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2134,6 +2134,7 @@ public class PkgMgrFrame extends JFrame
                                    mainPanel, objbench);
         splitPane.setBorder(null);
         splitPane.setResizeWeight(1.0);
+        splitPane.setDividerSize(5);
         contentPane.add(splitPane, BorderLayout.CENTER);
         
         
@@ -2189,6 +2190,7 @@ public class PkgMgrFrame extends JFrame
                     objbench, textEvaluator);
             objectBenchSplitPane.setBorder(null);
             objectBenchSplitPane.setResizeWeight(1.0);
+            objectBenchSplitPane.setDividerSize(5);
         }
         else {
             objectBenchSplitPane.setLeftComponent(objbench);
