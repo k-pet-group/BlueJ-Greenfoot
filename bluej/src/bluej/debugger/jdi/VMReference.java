@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3040 2004-10-06 03:33:59Z davmac $
+ * @version $Id: VMReference.java 3043 2004-10-12 00:10:37Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -342,8 +342,11 @@ class VMReference
         if (machine != null) {
             closeIO();
             // cause the debug VM to exit when disposed
-            setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.EXIT_VM));
-            machine.dispose();
+            try {
+                setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.EXIT_VM));
+                machine.dispose();
+            }
+            catch(VMDisconnectedException vmde) {}
         }
     }
 

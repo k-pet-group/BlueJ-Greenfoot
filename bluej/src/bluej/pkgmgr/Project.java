@@ -24,7 +24,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2986 2004-09-06 00:58:01Z davmac $
+ * @version $Id: Project.java 3043 2004-10-12 00:10:37Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -813,12 +813,7 @@ public class Project
 	 */
 	public synchronized void newRemoteClassLoader()
 	{
-	    new Thread() {
-	        public void run()
-	        {
-	            getDebugger().newClassLoader(getProjectDir().getPath());
-	        }
-	    }.start();
+	    getDebugger().newClassLoader(getProjectDir().getPath());
 	}
 
     /**
@@ -827,12 +822,7 @@ public class Project
      */
     public synchronized void newRemoteClassLoaderLeavingBreakpoints()
     {
-        new Thread() {
-            public void run()
-            {
-                getDebugger().newClassLoaderLeavingBreakpoints(getProjectDir().getPath());
-            }
-        }.start();
+        getDebugger().newClassLoaderLeavingBreakpoints(getProjectDir().getPath());
     }
 
 	public Debugger getDebugger()

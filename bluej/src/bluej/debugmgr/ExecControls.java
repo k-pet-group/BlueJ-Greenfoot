@@ -2,7 +2,6 @@ package bluej.debugmgr;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.swing.*;
@@ -23,7 +22,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 3011 2004-09-22 02:56:00Z davmac $
+ * @version $Id: ExecControls.java 3043 2004-10-12 00:10:37Z davmac $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -558,14 +557,10 @@ public class ExecControls extends JFrame
         threadModel.setSyncMechanism(new SyncMechanism() {
             public void invokeLater(Runnable r)
             {
-                try {
                 if(EventQueue.isDispatchThread())
                     r.run();
                 else
-                    EventQueue.invokeAndWait(r);
-                }
-                catch(InterruptedException ie) { }
-                catch(InvocationTargetException ite) { }
+                    EventQueue.invokeLater(r);
             }
         });
 		threadModel.addTreeModelListener(this);

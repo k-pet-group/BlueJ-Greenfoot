@@ -33,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3041 2004-10-07 00:40:19Z davmac $
+ * @version $Id: JdiDebugger.java 3043 2004-10-12 00:10:37Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -275,10 +275,13 @@ public class JdiDebugger extends Debugger
 
             vmr = getVM();
         }
-        try {
-            vmr.newClassLoader(classPath);
+        // May have a null vm reference if the project is closed
+        if (vmr != null) {
+            try {
+                vmr.newClassLoader(classPath);
+            }
+            catch (VMDisconnectedException vmde) {}
         }
-        catch (VMDisconnectedException vmde) {}
     }
 
     /**
@@ -890,13 +893,17 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Get the VM, waiting for it to finish loading first (if necessary).
+     * Get the VM, waiting for it to finish loading first (if necessary). In
+     * rare cases, when the project has been closed, this may return null.
      * 
      * @return the VM reference.
      */
     private VMReference getVM()
     {
-        return machineLoader.getVM();
+        if (machineLoader == null)
+            return null;
+        else
+            return machineLoader.getVM();
     }
 
     /**

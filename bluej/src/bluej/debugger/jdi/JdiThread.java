@@ -16,7 +16,7 @@ import com.sun.jdi.request.StepRequest;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 3041 2004-10-07 00:40:19Z davmac $
+ * @version $Id: JdiThread.java 3043 2004-10-12 00:10:37Z davmac $
  */
 class JdiThread extends DebuggerThread
 {
@@ -217,7 +217,9 @@ class JdiThread extends DebuggerThread
 
     public boolean isKnownSystemThread()
     {
-        if(! rt.threadGroup().name().equals(MAIN_THREADGROUP))
+        // A finished thread will have a null thread group.
+        ThreadGroupReference tgr = rt.threadGroup();
+        if(tgr == null || ! tgr.name().equals(MAIN_THREADGROUP))
             return true;
 
         String name = rt.name();
