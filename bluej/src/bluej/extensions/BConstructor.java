@@ -71,7 +71,7 @@ public class BConstructor
   public BObject newInstance ( String[] initargs )
     {
     DirectInvoker invoker = new DirectInvoker (bluej_pkg, bluej_view, instanceName);
-    DebuggerObject result = invoker.invoke (initargs);
+    DebuggerObject result = invoker.invokeConstructor (initargs);
 
     if (result == null) return null;
 
