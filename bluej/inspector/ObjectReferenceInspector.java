@@ -10,9 +10,18 @@ import bluej.debugger.*;
 import bluej.debugger.jdi.*;
 import bluej.Config;
 
+/**
+ *  An Inspector plugin that displays the an object and its references (within
+ *  an "Inspect window") and also allows method calls on those objects.
+ *
+ *@author     Duane Buck
+ */
+
 public class ObjectReferenceInspector extends Inspector
          implements Runnable, MouseListener, MouseMotionListener
 {
+    boolean initialized = false;
+    boolean refreshFlag = true;
     DebuggerObject[] objGot = new DebuggerObject[10];
     int objGotCnt = 0;
 
@@ -24,9 +33,6 @@ public class ObjectReferenceInspector extends Inspector
 
     JPanel panel;
 
-    private static final int MAX_IDX=11;
-
-    Dimension initialDimension;
     JButton inspectBtn, getBtn;
     JTextField primitiveText = null;
     JComboBox primitiveType = null;
@@ -62,6 +68,8 @@ public class ObjectReferenceInspector extends Inspector
     final Color arcColor2 = Color.pink;
     final Color arcColor3 = Color.red;
     static Value copiedObjectReference = null;
+
+    private final static int MAX_IDX = 11;
 
     private static String inspectLabel = Config.getString("debugger.objectviewer.inspect");
     private static String getLabel = Config.getString("debugger.objectviewer.get");
@@ -130,6 +138,23 @@ public class ObjectReferenceInspector extends Inspector
                 public void paint(Graphics g)
                 {
                     super.paint(g);
+                    if (!initialized)
+                    {
+                        initialized = true;
+                        GNode root = addNode(
+                                ObjectReferenceInspector.this.obj.getObjectReference());
+                        extend(root);
+                        Dimension initialDimension = initializeGraph();
+                        panel.setPreferredSize(initialDimension);
+                        panel.revalidate();
+                        select = root;
+                        refreshFlag = false;
+                    }
+                    else if (refreshFlag)
+                    {
+                        refreshFlag = false;
+                        doRefresh();
+                    }
                     updateGraphics(g, false);
                 }
             };
@@ -304,15 +329,15 @@ public class ObjectReferenceInspector extends Inspector
         scrollPanel.getHorizontalScrollBar().setUnitIncrement(12);
         mainPanel.add(scrollPanel, BorderLayout.CENTER);
         add(mainPanel, BorderLayout.CENTER);
-        clear();
-        GNode root = addNode(obj.getObjectReference());
-        extend(root);
-        initialDimension = initializeGraph();
-        select = root;
         return true;
     }
 
     public void refresh()
+    {
+        refreshFlag = true;
+    }
+
+    public void doRefresh()
     {
         for (int i = 0; i < nnodes; i++)
         {
@@ -368,12 +393,6 @@ public class ObjectReferenceInspector extends Inspector
             nodes[i] = null;
         }
         nnodes -= j;
-        if (initialDimension != null)
-        {
-            panel.setPreferredSize(initialDimension);
-            panel.revalidate();
-            initialDimension = null;
-        }
     }
 
     public void clear()
@@ -388,6 +407,7 @@ public class ObjectReferenceInspector extends Inspector
             edges[i] = null;
         }
         nedges = 0;
+        initialized = false;
     }
 
     public GNode addNode(Value obj)
@@ -1649,8 +1669,16 @@ public class ObjectReferenceInspector extends Inspector
             {
                 root.group = root;
                 root.groupCnt = 0;
-                Value[] valuearray = ((Value[]) ((ArrayReference) root.obj).
-                        getValues().toArray(new Value[0]));
+                Value[] valuearray;
+                if (((ArrayReference) root.obj).length() == 0)
+                {
+                    valuearray = new Value[0];
+                }
+                else
+                {
+                    valuearray = ((Value[]) ((ArrayReference) root.obj).
+                            getValues().toArray(new Value[0]));
+                }
                 int i;
                 for (i = 0; i < Math.min(MAX_IDX, valuearray.length); i++)
                 {

@@ -1,6 +1,6 @@
 @ECHO OFF
-set JDK=D:\Java\JDK1.3
-set BLUEJ=D:\Java\bluejtree\bluej
+rem set JDK=D:\Java\JDK1.3
+rem set BLUEJ=D:\Java\BlueJ_20010101\bluej
 
 set PATH=%BLUEJ%\lib\win32;%PATH%
 

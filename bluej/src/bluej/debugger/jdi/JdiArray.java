@@ -14,7 +14,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiArray.java 739 2000-12-27 08:11:41Z dbuck $
+ *@version    $Id: JdiArray.java 757 2001-01-27 03:03:32Z dbuck $
  */
 public class JdiArray extends JdiObject
 {
@@ -144,7 +144,15 @@ public class JdiArray extends JdiObject
      */
     public List getInstanceFields(boolean includeModifiers)
     {
-        List values = obj.getValues();
+        List values;
+        if (obj.length() > 0)
+        {
+            values = obj.getValues();
+        }
+        else
+        {
+            values = new ArrayList();
+        }
         List fields = new ArrayList(values.size());
 
         String typeName = null;

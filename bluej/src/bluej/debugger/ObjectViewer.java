@@ -19,137 +19,95 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.border.Border;
 
-
 /**
- * A window that displays the fields in an object (also know as an
- * "Inspect window") and method call results.
+ *  A window that displays the fields in an object (also know as an
+ *  "Inspect window") and method call results.
  *
- * @author  Michael Cahill
- * @author  Michael Kolling
- * @author  Duane Buck
- * @version $Id: ObjectViewer.java 746 2001-01-04 11:54:42Z ajp $
+ *@author     Michael Cahill
+ *@author     Michael Kolling
+ *@author     Duane Buck
+ *@version    $Id: ObjectViewer.java 757 2001-01-27 03:03:32Z dbuck $
  */
 public final class ObjectViewer extends JFrame
-    implements ActionListener, ListSelectionListener, InspectorListener
+         implements ActionListener, ListSelectionListener, InspectorListener
 {
-      private static final Image iconImage =
-      new ImageIcon(Config.getImageFilename("image.icon")).getImage();
 
-      private static final Color bgColor = new Color(208, 212, 208);
+    private boolean isInspection;  // true if inspecting object, false if
+    //  displaying result
+    private JList staticFieldList = null;
+    private JList objFieldList = null;
 
-      private static String inspectTitle = Config.getString("debugger.objectviewer.title");
-      private static String resultTitle = Config.getString("debugger.resultviewer.title");
-      private static String staticListTitle = Config.getString("debugger.objectviewer.staticListTitle");
-      private static String objListTitle = Config.getString("debugger.objectviewer.objListTitle");
-      private static String inspectLabel = Config.getString("debugger.objectviewer.inspect");
-      private static String getLabel = Config.getString("debugger.objectviewer.get");
-      private static String close = Config.getString("close");
-      private static String objectClassName = Config.getString("debugger.objectviewer.objectClassName");
+    private TreeSet arraySet = null;  // array of Integers representing the array indexes from
+    // a large array that have been selected for viewing
 
-      private static final int VISIBLE_ARRAY_START = 40;    // show at least the first 40 elements
-      private static final int VISIBLE_ARRAY_TAIL = 5;      // and the last five elements
+    private List indexToSlotList = null;  // list which is built when viewing an array
+    // that records the object slot corresponding to each
+    // array index
 
-      private static final int ARRAY_QUERY_SLOT_VALUE = -2; // signal marker of the [...] slot in our
-                                                            // array
+    private JButton inspectBtn;
+    private JButton getBtn;
+    private DebuggerObject obj;
+    private DebuggerObject selectedObject;
+    private String selectedObjectName;
+    private Package pkg;
+    private String pkgScopeId;
+    private boolean getEnabled;
+    private boolean isInScope;
+    private boolean queryArrayElementSelected;
 
-      private static Class [] insp=new Class [10];
-      private static int inspCnt=0;
+    // DGB
+    private JTabbedPane inspectorTabs;
 
-      private boolean isInspection;   // true if inspecting object, false if
-                                    //  displaying result
-      private JList staticFieldList = null;
-      private JList objFieldList = null;
-
-    private TreeSet arraySet = null;    // array of Integers representing the array indexes from
-                                        // a large array that have been selected for viewing
-
-    private List indexToSlotList = null;    // list which is built when viewing an array
-                                            // that records the object slot corresponding to each
-                                            // array index
-
-      private JButton inspectBtn;
-      private JButton getBtn;
-      private DebuggerObject obj;
-      private DebuggerObject selectedObject;
-      private String selectedObjectName;
-      private Package pkg;
-      private String pkgScopeId;
-      private boolean getEnabled;
-      private boolean isInScope;
-      private boolean queryArrayElementSelected;
-
-   // DGB
-      private JTabbedPane inspectorTabs;
-
-      private String viewerId;		// a unique ID used to enter the
+    private String viewerId;  // a unique ID used to enter the
     // viewer's object into the package
     // scope
 
     // === static methods ===
 
-      protected static int count = 0;
-      protected static Hashtable viewers = new Hashtable();
+    protected static int count = 0;
+    protected static Hashtable viewers = new Hashtable();
+    private final static Image iconImage =
+            new ImageIcon(Config.getImageFilename("image.icon")).getImage();
 
-    /**
-     * Return a ObjectViewer for an object. The viewer is visible.
-     * This is the only way to get access to viewers - they cannot be
-     * directly created.
-     *
-     * @param inspection  True is this is an inspection, false for result
-     *			displays
-     * @param obj		The object displayed by this viewer
-     * @param name	The name of this object or "null" if it is not on the
-     *			object bench
-     * @param pkg		The package all this belongs to
-     * @param getEnabled	if false, the "get" button is permanently disabled
-     * @param parent	The parent frame of this frame
-     */
-    public static ObjectViewer getViewer(boolean inspection,
-                                         DebuggerObject obj, String name,
-                                         Package pkg, boolean getEnabled,
-                                         JFrame parent)
-    {
-        ObjectViewer viewer = (ObjectViewer)viewers.get(obj);
+    private final static Color bgColor = new Color(208, 212, 208);
 
-        if(viewer == null) {
-            String id;
-            if(name==null) {
-                id = "#viewer" + count; // # marks viewer for internal object
-                count++;		//  which is not on bench
-            }
-            else
-                id = name;
-            viewer = new ObjectViewer(inspection, obj, pkg, id, getEnabled, parent);
-            viewers.put(obj, viewer);
-        }
-        viewer.update();
-        viewer.bringToFront();
+    private static String inspectTitle = Config.getString("debugger.objectviewer.title");
+    private static String resultTitle = Config.getString("debugger.resultviewer.title");
+    private static String staticListTitle = Config.getString("debugger.objectviewer.staticListTitle");
+    private static String objListTitle = Config.getString("debugger.objectviewer.objListTitle");
+    private static String inspectLabel = Config.getString("debugger.objectviewer.inspect");
+    private static String getLabel = Config.getString("debugger.objectviewer.get");
+    private static String close = Config.getString("close");
+    private static String objectClassName = Config.getString("debugger.objectviewer.objectClassName");
 
-        return viewer;
-    }
+    private final static int VISIBLE_ARRAY_START = 40;  // show at least the first 40 elements
+    private final static int VISIBLE_ARRAY_TAIL = 5;  // and the last five elements
 
-    /**
-     * Update all open viewers to show up-to-date values.
-     */
-    public static void updateViewers()
-    {
-        for (Enumeration e = viewers.elements(); e.hasMoreElements(); ) {
-            ObjectViewer viewer = (ObjectViewer)e.nextElement();
-            viewer.update();
-        }
-    }
+    private final static int ARRAY_QUERY_SLOT_VALUE = -2;  // signal marker of the [...] slot in our
+    // array
+
+    private static Class[] insp = new Class[10];
+    private static int inspCnt = 0;
+    private static Set loadedProjects = new HashSet();
 
 
     // === object methods ===
 
     /**
-     * Constructor
-     * Note: protected -- Objectviewers can only be created with the static
-     * "getViewer" method. 'pkg' may be null if getEnabled is false.
+     *  Constructor
+     *  Note: protected -- Objectviewers can only be created with the static
+     *  "getViewer" method. 'pkg' may be null if getEnabled is false.
+     *
+     *@param  inspect     Description of Parameter
+     *@param  obj         Description of Parameter
+     *@param  pkg         Description of Parameter
+     *@param  id          Description of Parameter
+     *@param  getEnabled  Description of Parameter
+     *@param  parent      Description of Parameter
      */
     private ObjectViewer(boolean inspect, DebuggerObject obj,
-                         Package pkg, String id, boolean getEnabled,
-                         JFrame parent)
+            Package pkg, String id, boolean getEnabled,
+            JFrame parent)
     {
         super();
 
@@ -161,58 +119,26 @@ public final class ObjectViewer extends JFrame
         viewerId = id;
         this.getEnabled = getEnabled;
         isInScope = false;
-        if(pkg == null) {
-            if(getEnabled)
+        if (pkg == null)
+        {
+            if (getEnabled)
+            {
                 Debug.reportError("cannot enable 'get' with null package");
+            }
             pkgScopeId = "";
         }
         else
+        {
             pkgScopeId = pkg.getId();
+        }
 
         makeFrame(parent, isInspection, obj);
     }
 
     /**
-     * Update the field values shown in this viewer to show current
-     * object values.
-     */
-    public void bringToFront()
-    {
-        setState(Frame.NORMAL);  // de-iconify
-        toFront();               // window to front
-    }
-
-
-    /**
-     * Update the field values shown in this viewer to show current
-     * object values.
-     */
-    public void update()
-    {
-        // if is an array (we potentially will compress the array if it is large)
-        if(obj.isArray()) {
-            objFieldList.setListData(
-                compressArrayList(
-                    obj.getInstanceFields(isInspection)).toArray(new Object[0]));
-        }
-        else {
-            objFieldList.setListData(
-                    obj.getInstanceFields(isInspection).toArray(new Object[0]));
-        }
-
-        // static fields only applicable if not an array and list not null
-        if(isInspection && !obj.isArray() && staticFieldList != null)
-            staticFieldList.setListData(
-                    obj.getStaticFields(true).toArray(new Object[0]));
-
-        for(int i=1;i<inspectorTabs.getTabCount();i++) {
-            ((Inspector)inspectorTabs.getComponentAt(i)).refresh();
-        }
-        repaint();
-    }
-
-    /**
-     * Return this viewer's ID.
+     *  Return this viewer's ID.
+     *
+     *@return    The Id value
      */
     public String getId()
     {
@@ -220,38 +146,97 @@ public final class ObjectViewer extends JFrame
     }
 
     /**
-     * If this is the display of a method call result, return a String with
-     * the result.
+     *  If this is the display of a method call result, return a String with
+     *  the result.
+     *
+     *@return    The Result value
      */
     public String getResult()
     {
-        if(isInspection)
+        if (isInspection)
+        {
             return "";
+        }
         else
-            return (String)obj.getInstanceFields(false).get(0);
+        {
+            return (String) obj.getInstanceFields(false).get(0);
+        }
+    }
+
+    public void getEvent(InspectorEvent e)
+    {
+    }
+
+    /**
+     *  Update the field values shown in this viewer to show current
+     *  object values.
+     */
+    public void bringToFront()
+    {
+        setState(Frame.NORMAL);  // de-iconify
+        toFront();  // window to front
     }
 
 
     /**
-     * actionPerformed - something was done in the viewer dialog.
+     *  Update the field values shown in this viewer to show current
+     *  object values.
+     */
+    public void update()
+    {
+        // if is an array (we potentially will compress the array if it is large)
+        if (obj.isArray())
+        {
+            objFieldList.setListData(
+                    compressArrayList(
+                    obj.getInstanceFields(isInspection)).toArray(new Object[0]));
+        }
+        else
+        {
+            objFieldList.setListData(
+                    obj.getInstanceFields(isInspection).toArray(new Object[0]));
+        }
+
+        // static fields only applicable if not an array and list not null
+        if (isInspection && !obj.isArray() && staticFieldList != null)
+        {
+            staticFieldList.setListData(
+                    obj.getStaticFields(true).toArray(new Object[0]));
+        }
+
+        for (int i = 1; i < inspectorTabs.getTabCount(); i++)
+        {
+            ((Inspector) inspectorTabs.getComponentAt(i)).refresh();
+        }
+        repaint();
+    }
+
+
+    /**
+     *  actionPerformed - something was done in the viewer dialog.
      *  Find out what it was and act.
+     *
+     *@param  evt  Description of Parameter
      */
     public void actionPerformed(ActionEvent evt)
     {
         String cmd = evt.getActionCommand();
 
         // "Inspect" button
-        if(inspectLabel.equals(cmd)) { // null objects checked for inside doInspect
+        if (inspectLabel.equals(cmd))
+        {  // null objects checked for inside doInspect
             doInspect();
         }
 
         // "Get" button
-        else if(getLabel.equals(cmd) && (selectedObject != null)) {
+        else if (getLabel.equals(cmd) && (selectedObject != null))
+        {
             doGet();
         }
 
         // "Close" button
-        else if(close.equals(cmd)) {
+        else if (close.equals(cmd))
+        {
             doClose();
         }
     }
@@ -259,90 +244,158 @@ public final class ObjectViewer extends JFrame
     // ----- ListSelectionListener interface -----
 
     /**
-     * The value of the list selection has changed. Update the selected
-     * object. This needs some synchronisation, since we have two lists,
-     * and we only want one selection.
+     *  The value of the list selection has changed. Update the selected
+     *  object. This needs some synchronisation, since we have two lists,
+     *  and we only want one selection.
+     *
+     *@param  e  Description of Parameter
      */
     public void valueChanged(ListSelectionEvent e)
     {
-        if(e.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
+        if (e.getValueIsAdjusting())
+        {  // ignore mouse down, dragging, etc.
             return;
+        }
 
-        if(e.getSource() == staticFieldList) {		// click in static list
+        if (e.getSource() == staticFieldList)
+        {  // click in static list
             int slot = staticFieldList.getSelectedIndex();
 
-            if(slot == -1)
+            if (slot == -1)
+            {
                 return;
+            }
 
-            if(obj.staticFieldIsObject(slot)) {
+            if (obj.staticFieldIsObject(slot))
+            {
 
                 setCurrentObj(obj.getStaticFieldObject(slot),
-                              obj.getStaticFieldName(slot));
+                        obj.getStaticFieldName(slot));
 
-                if(obj.staticFieldIsPublic(slot) && !selectedObject.isArray())
+                if (obj.staticFieldIsPublic(slot) && !selectedObject.isArray())
+                {
                     setButtonsEnabled(true, true);
+                }
                 else
+                {
                     setButtonsEnabled(true, false);
+                }
 
             }
-            else {
+            else
+            {
                 setCurrentObj(null, null);
                 setButtonsEnabled(false, false);
             }
 
             objFieldList.clearSelection();
         }
-        else if(e.getSource() == objFieldList) {	// click in object list
+        else if (e.getSource() == objFieldList)
+        {  // click in object list
 
             int slot = objFieldList.getSelectedIndex();
 
             // occurs if valueChanged picked up a clearSelection event from
             // the list
-            if(slot == -1)
+            if (slot == -1)
+            {
                 return;
+            }
 
             // add index to slot method for truncated arrays
-            if(obj.isArray())
+            if (obj.isArray())
+            {
                 slot = indexToSlot(slot);
+            }
 
             queryArrayElementSelected = (slot == ARRAY_QUERY_SLOT_VALUE);
 
             // for array compression..
-            if(queryArrayElementSelected) {	  // "..." in Array inspector
-                setCurrentObj(null, null);	  //  selected
+            if (queryArrayElementSelected)
+            {  // "..." in Array inspector
+                setCurrentObj(null, null);  //  selected
                 // check to see if elements are objects,
                 // using the first item in the array
-                if(obj.instanceFieldIsObject(0))
+                if (obj.instanceFieldIsObject(0))
+                {
                     setButtonsEnabled(true, false);
+                }
                 else
+                {
                     setButtonsEnabled(false, false);
+                }
             }
-            else if(obj.instanceFieldIsObject(slot)) {
+            else if (obj.instanceFieldIsObject(slot))
+            {
                 setCurrentObj(obj.getInstanceFieldObject(slot),
-                              obj.getInstanceFieldName(slot));
-                if(obj.instanceFieldIsPublic(slot) && !selectedObject.isArray())
+                        obj.getInstanceFieldName(slot));
+                if (obj.instanceFieldIsPublic(slot) && !selectedObject.isArray())
+                {
                     setButtonsEnabled(true, true);
+                }
                 else
+                {
                     setButtonsEnabled(true, false);
+                }
             }
-            else {
+            else
+            {
                 setCurrentObj(null, null);
                 setButtonsEnabled(false, false);
             }
 
-            if(staticFieldList != null)
+            if (staticFieldList != null)
+            {
                 staticFieldList.clearSelection();
+            }
+        }
+    }
+
+    public void inspectEvent(InspectorEvent e)
+    {
+        getViewer(true,
+                e.getDebuggerObject(), null,
+                pkg, false,
+                this);
+    }
+
+
+    /**
+     *  Store the object currently selected in the list.
+     *
+     *@param  object  The new CurrentObj value
+     *@param  name    The new CurrentObj value
+     */
+    private void setCurrentObj(DebuggerObject object, String name)
+    {
+        selectedObject = object;
+        selectedObjectName = name;
+    }
+
+
+    /**
+     *  Enable or disable the Inspect and Get buttons.
+     *
+     *@param  inspect  The new ButtonsEnabled value
+     *@param  get      The new ButtonsEnabled value
+     */
+    private void setButtonsEnabled(boolean inspect, boolean get)
+    {
+        inspectBtn.setEnabled(inspect);
+        if (getEnabled)
+        {
+            getBtn.setEnabled(get);
         }
     }
 
     // ----- end of ListSelectionListener interface -----
 
     /**
-     * Converts list index position to that of array element position in arrays.
-     * Uses the List built in compressArrayList to do the mapping.
+     *  Converts list index position to that of array element position in arrays.
+     *  Uses the List built in compressArrayList to do the mapping.
      *
-     * @param  listIndexPosition  the position selected in the list
-     * @return the translated index of field array element
+     *@param  listIndexPosition  the position selected in the list
+     *@return                    the translated index of field array element
      */
     private int indexToSlot(int listIndexPosition)
     {
@@ -352,19 +405,20 @@ public final class ObjectViewer extends JFrame
     }
 
     /**
-     * Compresses an array field name list to a maximum of VISIBLE_ARRAY_START
-     * which are guaranteed to be displayed at the start, then some [..] expansion
-     * slots, followed by VISIBLE_ARRAY_TAIL elements from the end of the array.
-     * When a selected element is chosen
-     * indexToSlot allows the selection to be converted to the original
-     * array element position.
+     *  Compresses an array field name list to a maximum of VISIBLE_ARRAY_START
+     *  which are guaranteed to be displayed at the start, then some [..] expansion
+     *  slots, followed by VISIBLE_ARRAY_TAIL elements from the end of the array.
+     *  When a selected element is chosen
+     *  indexToSlot allows the selection to be converted to the original
+     *  array element position.
      *
-     * @param  fullArrayFieldList the full field list for an array
-     * @return the compressed array
+     *@param  fullArrayFieldList  the full field list for an array
+     *@return                     the compressed array
      */
     private List compressArrayList(List fullArrayFieldList)
     {
-        if (arraySet == null) {
+        if (arraySet == null)
+        {
             arraySet = new TreeSet();
         }
 
@@ -373,7 +427,8 @@ public final class ObjectViewer extends JFrame
         // the +1 here is due to the fact that if we do not have at least one more than
         // the sum of start elements and tail elements, then there is no point in displaying
         // the ... elements because there would be no elements for them to reveal
-        if(fullArrayFieldList.size() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 1)) {
+        if (fullArrayFieldList.size() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 1))
+        {
 
             // the destination list
             List newArray = new ArrayList();
@@ -381,7 +436,8 @@ public final class ObjectViewer extends JFrame
             // make a copy which we gradually destroy
             LinkedList arraySetAsList = new LinkedList(arraySet);
 
-            for(int i = 0; i < VISIBLE_ARRAY_START; i++) {
+            for (int i = 0; i < VISIBLE_ARRAY_START; i++)
+            {
                 // first 40 elements are displayed as per normal
                 newArray.add(fullArrayFieldList.get(i));
                 indexToSlotList.add(new Integer(i));
@@ -391,9 +447,11 @@ public final class ObjectViewer extends JFrame
             newArray.add("[...]");
             indexToSlotList.add(new Integer(ARRAY_QUERY_SLOT_VALUE));
 
-            if (arraySetAsList.size() > 0) {
+            if (arraySetAsList.size() > 0)
+            {
                 // add all the elements which they have previously indicated they want to show
-                while (arraySetAsList.size() > 0) {
+                while (arraySetAsList.size() > 0)
+                {
                     Integer first = (Integer) arraySetAsList.removeFirst();
 
                     newArray.add(fullArrayFieldList.get(first.intValue()));
@@ -405,17 +463,20 @@ public final class ObjectViewer extends JFrame
                 indexToSlotList.add(new Integer(ARRAY_QUERY_SLOT_VALUE));
             }
 
-            for(int i = VISIBLE_ARRAY_TAIL; i > 0; i--) {
+            for (int i = VISIBLE_ARRAY_TAIL; i > 0; i--)
+            {
                 // last 5 elements are displayed
                 newArray.add(fullArrayFieldList.get(
-                          fullArrayFieldList.size() - i));
+                        fullArrayFieldList.size() - i));
                 indexToSlotList.add(new Integer(
-                          fullArrayFieldList.size() - i));
+                        fullArrayFieldList.size() - i));
             }
             return newArray;
         }
-        else {
-            for(int i = 0; i < fullArrayFieldList.size(); i++) {
+        else
+        {
+            for (int i = 0; i < fullArrayFieldList.size(); i++)
+            {
                 indexToSlotList.add(new Integer(i));
             }
             return fullArrayFieldList;
@@ -423,25 +484,30 @@ public final class ObjectViewer extends JFrame
     }
 
     /**
-     * Shows a dialog to select array element for inspection
+     *  Shows a dialog to select array element for inspection
      */
     private void selectArrayElement()
     {
         String response = DialogManager.askString(this, "ask-index");
-        if(response != null) {
-            try {
+        if (response != null)
+        {
+            try
+            {
                 int slot = Integer.parseInt(response);
 
                 // check if within bounds of array
-                if(slot >= 0 && slot < obj.getInstanceFieldCount()) {
+                if (slot >= 0 && slot < obj.getInstanceFieldCount())
+                {
 
                     // if its an object set as current object
-                    if(obj.instanceFieldIsObject(slot) ) {
+                    if (obj.instanceFieldIsObject(slot))
+                    {
                         setCurrentObj(obj.getInstanceFieldObject(slot),
-                                      obj.getInstanceFieldName(slot));
+                                obj.getInstanceFieldName(slot));
                         setButtonsEnabled(true, false);
                     }
-                    else {
+                    else
+                    {
                         // it is not an object - a primitive, so lets
                         // just display it in the array list display
                         setButtonsEnabled(false, false);
@@ -449,17 +515,21 @@ public final class ObjectViewer extends JFrame
                         update();
                     }
                 }
-                else // not within array bounds
+                else
+                {  // not within array bounds
                     DialogManager.showError(this, "out-of-bounds");
+                }
 
             }
-            catch(NumberFormatException e) {
+            catch (NumberFormatException e)
+            {
                 // input could not be parsed, eg. non integer value
                 setCurrentObj(null, null);
                 DialogManager.showError(this, "cannot-access-element");
             }
         }
-        else {
+        else
+        {
             // set current object to null to avoid re-inspection of
             // previously selected wildcard
             setCurrentObj(null, null);
@@ -468,55 +538,59 @@ public final class ObjectViewer extends JFrame
 
 
     /**
-     * The "Inspect" button was pressed. Inspect the
-     * selected object.
+     *  The "Inspect" button was pressed. Inspect the
+     *  selected object.
      */
     private void doInspect()
     {
         // if need to query array element
-        if(queryArrayElementSelected) {
+        if (queryArrayElementSelected)
+        {
             selectArrayElement();
         }
 
-        if(selectedObject != null) {
+        if (selectedObject != null)
+        {
 
             boolean isPublic = getBtn.isEnabled();
             ObjectViewer viewer = getViewer(true, selectedObject, null, pkg,
-                                            isPublic, this);
+                    isPublic, this);
 
             // If the newly opened object is public, enter it into the
             // package scope, so that we can perform "Get" operations on it.
-            if(isPublic)
+            if (isPublic)
+            {
                 viewer.addToScope(viewerId, selectedObjectName);
+            }
         }
     }
 
     /**
-     * The "Get" button was pressed. Get the selected object on the
-     * object bench.
+     *  The "Get" button was pressed. Get the selected object on the
+     *  object bench.
      */
     private void doGet()
     {
         pkg.getEditor().raisePutOnBenchEvent(selectedObject, viewerId,
-                                             selectedObjectName);
+                selectedObjectName);
     }
 
 
     /**
-     *
-     *
+     *@param  parentViewerId  The feature to be added to the ToScope attribute
+     *@param  objectName      The feature to be added to the ToScope attribute
      */
     private void addToScope(String parentViewerId, String objectName)
     {
         Debugger.debugger.addObjectToScope(pkgScopeId, parentViewerId,
-                                           objectName, viewerId);
+                objectName, viewerId);
         isInScope = true;
     }
 
 
     /**
-     * Close this viewer. Don't forget to remove it from the list of open
-     * viewers.
+     *  Close this viewer. Don't forget to remove it from the list of open
+     *  viewers.
      */
     private void doClose()
     {
@@ -527,59 +601,49 @@ public final class ObjectViewer extends JFrame
         // if the object shown here is not on the object bench, also
         // remove it from the package scope
 
-        if(isInScope && (viewerId.charAt(0) == '#'))
+        if (isInScope && (viewerId.charAt(0) == '#'))
+        {
             Debugger.debugger.removeObjectFromScope(pkgScopeId, viewerId);
+        }
     }
 
 
     /**
-     * Store the object currently selected in the list.
-     */
-    private void setCurrentObj(DebuggerObject object, String name)
-    {
-        selectedObject = object;
-        selectedObjectName = name;
-    }
-
-
-    /**
-     * Enable or disable the Inspect and Get buttons.
-     */
-    private void setButtonsEnabled(boolean inspect, boolean get)
-    {
-        inspectBtn.setEnabled(inspect);
-        if(getEnabled)
-            getBtn.setEnabled(get);
-    }
-
-
-    /**
-     * Build the GUI interface.
+     *  Build the GUI interface.
+     *
+     *@param  parent        Description of Parameter
+     *@param  isInspection  Description of Parameter
+     *@param  obj           Description of Parameter
      */
     private void makeFrame(JFrame parent, boolean isInspection,
-                           DebuggerObject obj)
+            DebuggerObject obj)
     {
         JScrollPane staticScrollPane = null;
         JScrollPane objectScrollPane = null;
         String className = "";
 
-        if(isInspection) {
+        if (isInspection)
+        {
             className = JavaNames.stripPrefix(obj.getClassName());
             //className = obj.getClassName();
             setTitle(inspectTitle + " " + className);
         }
         else
+        {
             setTitle(resultTitle);
+        }
 
         //	setFont(font);
         setBackground(bgColor);
 
         addWindowListener(
-                          new WindowAdapter() {
-                                  public void windowClosing(WindowEvent E) {
-                                      doClose();
-                                  }
-                              });
+            new WindowAdapter()
+            {
+                public void windowClosing(WindowEvent E)
+                {
+                    doClose();
+                }
+            });
 
         //JPanel mainPanel = (JPanel)getContentPane();
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -588,14 +652,16 @@ public final class ObjectViewer extends JFrame
         int maxRows = 8;
         int rows;
 
-        if(isInspection) {
+        if (isInspection)
+        {
             JPanel titlePanel = new JPanel();
-            titlePanel.setBorder(BorderFactory.createEmptyBorder(0,0,10,0));
+            titlePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             JLabel classNameLabel = new JLabel(objectClassName + " " + className);
             titlePanel.add(classNameLabel, BorderLayout.CENTER);
             mainPanel.add(titlePanel, BorderLayout.NORTH);
 
-            if(!obj.isArray()) {
+            if (!obj.isArray())
+            {
                 staticFieldList = new JList(new DefaultListModel());
                 staticFieldList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 staticFieldList.addListSelectionListener(this);
@@ -604,8 +670,10 @@ public final class ObjectViewer extends JFrame
 
                 // set the list sizes according to number of fields in object
                 rows = obj.getStaticFieldCount() + 2;
-                if(rows > maxRows)
+                if (rows > maxRows)
+                {
                     rows = maxRows;
+                }
                 staticFieldList.setVisibleRowCount(rows);
             }
         }
@@ -615,18 +683,24 @@ public final class ObjectViewer extends JFrame
         objFieldList.addListSelectionListener(this);
         objectScrollPane = new JScrollPane(objFieldList);
 
-        if(isInspection) {
+        if (isInspection)
+        {
             objectScrollPane.setColumnHeaderView(new JLabel(objListTitle));
             rows = obj.getInstanceFieldCount() + 2;
-            if(rows > maxRows)
+            if (rows > maxRows)
+            {
                 rows = maxRows;
+            }
         }
         else
+        {
             rows = 3;
+        }
 
         objFieldList.setVisibleRowCount(rows);
 
-        if(isInspection && !obj.isArray()) {
+        if (isInspection && !obj.isArray())
+        {
             JSplitPane listPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
             listPane.setTopComponent(staticScrollPane);
             listPane.setBottomComponent(objectScrollPane);
@@ -634,25 +708,31 @@ public final class ObjectViewer extends JFrame
             mainPanel.add(listPane, BorderLayout.CENTER);
         }
         else
+        {
             mainPanel.add(objectScrollPane);
+        }
 
         // add mouse listener to monitor for double clicks to inspect list
         // objects. assumption is made that valueChanged will have selected
         // object on first click
         MouseListener mouseListener =
-            new MouseAdapter() {
-                    public void mouseClicked(MouseEvent e) {
-                        // monitor for double clicks
-                        if (e.getClickCount() == 2) {
-                            doInspect();
-                        }
+            new MouseAdapter()
+            {
+                public void mouseClicked(MouseEvent e)
+                {
+                    // monitor for double clicks
+                    if (e.getClickCount() == 2)
+                    {
+                        doInspect();
                     }
-                };
+                }
+            };
         objFieldList.addMouseListener(mouseListener);
 
-        if(staticFieldList != null)
+        if (staticFieldList != null)
+        {
             staticFieldList.addMouseListener(mouseListener);
-
+        }
 
         // Create panel with "inspect" and "get" buttons
         JPanel buttonPanel = new JPanel();
@@ -669,108 +749,176 @@ public final class ObjectViewer extends JFrame
         buttonPanel.add(getBtn);
 
         JPanel buttonFramePanel = new JPanel();
-        buttonFramePanel.setLayout(new BorderLayout(0,0));
-        buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0,10,0,0));
+        buttonFramePanel.setLayout(new BorderLayout(0, 0));
+        buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(buttonFramePanel, BorderLayout.EAST);
 
-        inspectorTabs=new JTabbedPane();
-        inspectorTabs.add("Standard",mainPanel);
-        if (inspCnt==0) {
+        inspectorTabs = new JTabbedPane();
+        inspectorTabs.add("Standard", mainPanel);
+        if (inspCnt == 0)
+        {
             loadInspectors(Config.getSystemInspectorDir());
-            //loadInspectors(new File(pkg.getProject().getProjectDir(),"inspector"));
-            loadInspectors(new File (pkg.getProject().getProjectDir(),"(inspector)"));
+        }
+        if (!loadedProjects.contains(pkg.getProject().getProjectDir()))
+        {
+            loadedProjects.add(pkg.getProject().getProjectDir());
+            loadInspectors(new File(pkg.getProject().getProjectDir(), "(Inspector)"));
         }
         addInspectors(inspectorTabs);
 
-        ((JPanel)getContentPane()).add(inspectorTabs,BorderLayout.CENTER);
+        ((JPanel) getContentPane()).add(inspectorTabs, BorderLayout.CENTER);
 
         // create bottom button pane with "Close" button
 
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         JButton button = new JButton(close);
         buttonPanel.add(button);
         button.addActionListener(this);
-        ((JPanel)getContentPane()).add(buttonPanel, BorderLayout.SOUTH);
-
+        ((JPanel) getContentPane()).add(buttonPanel, BorderLayout.SOUTH);
 
         pack();
-        if(isInspection)
+        if (isInspection)
+        {
             DialogManager.tileWindow(this, parent);
+        }
         else
+        {
             DialogManager.centreWindow(this, parent);
+        }
 
         setVisible(true);
         button.requestFocus();
     }
 
-    private void loadInspectors(File inspectorDir) {
-       ClassLoader loader = new InspectorClassLoader(inspectorDir);
-       String[]inspName=inspectorDir.list();
-       if (inspName!=null) {
-           for (int i=0;i<inspName.length;i++) {  // Add inspectors (if any)
-               if (inspName[i].endsWith(".class")) {
-                   try {
-                       Class theInspClass = loader.loadClass(inspName[i].substring(0,inspName[i].length()-6));
-                       Inspector theInsp=((Inspector)theInspClass.newInstance());
-                       // If control gets here, the class implements Inspector!
-                       int inspIdx=inspCnt;
-                       inspCnt++;
-                       if (inspCnt>=insp.length) {
-                           Class [] temp=new Class[insp.length*2];
-                           System.arraycopy(insp,0,temp,0,insp.length);
-                           insp=temp;
-                       }
-                       insp[inspIdx]=theInspClass;
-                       //System.out.println(""+inspIdx+": "+theInspClass);
-                   }
-                   catch (ClassNotFoundException e) {
-                   }
-                   catch (InstantiationException e) {
-                   }
-                   catch (IllegalAccessException e) {
-                   }
-                   catch (ClassCastException e) {
-                   }
-               }
-           }
-       }
-   }
-
-   private void addInspectors(JTabbedPane inspectorTabs) {
-       for (int i=0;i<inspCnt;i++) {  // Add inspectors (if any)
-           try {
-               bluej.debugger.Inspector theInsp=((Inspector)insp[i].newInstance());
-               String[] ic=theInsp.getInspectedClassnames();
-               for (int j=0;j<ic.length;j++) {
-                   if (obj.isAssignableTo(ic[j])) {
-                       boolean initOK=theInsp.initialize(ObjectViewer.this.obj);
-                       if (initOK) { //Inspector makes final decision
-                           theInsp.addInspectorListener(this);
-                           inspectorTabs.add(theInsp.getInspectorTitle(),theInsp);
-                       }
-                   break;
-                   }
-               }
-           }
-           catch (InstantiationException e) {
-           }
-           catch (IllegalAccessException e) {
-           }
+    private void loadInspectors(File inspectorDir)
+    {
+        ClassLoader loader = new InspectorClassLoader(inspectorDir);
+        String[] inspName = inspectorDir.list();
+        if (inspName != null)
+        {
+            for (int i = 0; i < inspName.length; i++)
+            {  // Add inspectors (if any)
+                if (inspName[i].endsWith(".class"))
+                {
+                    try
+                    {
+                        Class theInspClass = loader.loadClass(inspName[i].substring(0, inspName[i].length() - 6));
+                        Inspector theInsp = ((Inspector) theInspClass.newInstance());
+                        // If control gets here, the class implements Inspector!
+                        int inspIdx = inspCnt;
+                        inspCnt++;
+                        if (inspCnt >= insp.length)
+                        {
+                            Class[] temp = new Class[insp.length * 2];
+                            System.arraycopy(insp, 0, temp, 0, insp.length);
+                            insp = temp;
+                        }
+                        insp[inspIdx] = theInspClass;
+                        //System.out.println(""+inspIdx+": "+theInspClass);
+                    }
+                    catch (ClassNotFoundException e)
+                    {
+                    }
+                    catch (InstantiationException e)
+                    {
+                    }
+                    catch (IllegalAccessException e)
+                    {
+                    }
+                    catch (ClassCastException e)
+                    {
+                    }
+                }
+            }
         }
     }
 
-    public void inspectEvent(InspectorEvent e)
+    private void addInspectors(JTabbedPane inspectorTabs)
     {
-        getViewer(true,
-                  e.getDebuggerObject(), null,
-                  pkg, false,
-                  this);
+        for (int i = 0; i < inspCnt; i++)
+        {  // Add inspectors (if any)
+            try
+            {
+                bluej.debugger.Inspector theInsp = ((Inspector) insp[i].newInstance());
+                String[] ic = theInsp.getInspectedClassnames();
+                for (int j = 0; j < ic.length; j++)
+                {
+                    if (obj.isAssignableTo(ic[j]))
+                    {
+                        boolean initOK = theInsp.initialize(ObjectViewer.this.obj);
+                        if (initOK)
+                        {  //Inspector makes final decision
+                            theInsp.addInspectorListener(this);
+                            inspectorTabs.add(theInsp.getInspectorTitle(), theInsp);
+                        }
+                        break;
+                    }
+                }
+            }
+            catch (InstantiationException e)
+            {
+            }
+            catch (IllegalAccessException e)
+            {
+            }
+        }
     }
 
-    public void getEvent(InspectorEvent e)
+    /**
+     *  Return a ObjectViewer for an object. The viewer is visible.
+     *  This is the only way to get access to viewers - they cannot be
+     *  directly created.
+     *
+     *@param  inspection  True is this is an inspection, false for result
+     *  displays
+     *@param  obj         The object displayed by this viewer
+     *@param  name        The name of this object or "null" if it is not on the
+     *  object bench
+     *@param  pkg         The package all this belongs to
+     *@param  getEnabled  if false, the "get" button is permanently disabled
+     *@param  parent      The parent frame of this frame
+     *@return             The Viewer value
+     */
+    public static ObjectViewer getViewer(boolean inspection,
+            DebuggerObject obj, String name,
+            Package pkg, boolean getEnabled,
+            JFrame parent)
     {
+        ObjectViewer viewer = (ObjectViewer) viewers.get(obj);
+
+        if (viewer == null)
+        {
+            String id;
+            if (name == null)
+            {
+                id = "#viewer" + count;  // # marks viewer for internal object
+                count++;  //  which is not on bench
+            }
+            else
+            {
+                id = name;
+            }
+            viewer = new ObjectViewer(inspection, obj, pkg, id, getEnabled, parent);
+            viewers.put(obj, viewer);
+        }
+        viewer.update();
+        viewer.bringToFront();
+
+        return viewer;
+    }
+
+    /**
+     *  Update all open viewers to show up-to-date values.
+     */
+    public static void updateViewers()
+    {
+        for (Enumeration e = viewers.elements(); e.hasMoreElements(); )
+        {
+            ObjectViewer viewer = (ObjectViewer) e.nextElement();
+            viewer.update();
+        }
     }
 }
