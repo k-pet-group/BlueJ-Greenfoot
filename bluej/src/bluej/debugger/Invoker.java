@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 611 2000-06-30 04:29:36Z ajp $
+ * @version $Id: Invoker.java 627 2000-07-06 02:37:20Z bquig $
  */
 
 public class Invoker extends Thread
@@ -38,8 +38,10 @@ public class Invoker extends Thread
     private static final String creating = Config.getString("pkgmgr.creating");
     private static final String createDone = Config.getString("pkgmgr.createDone");
 
+    public static final int OBJ_NAME_LENGTH = 8;
     public static final String SHELLNAME = "__SHELL";
     private static int shellNumber = 0;
+
 
     private static final synchronized String getShellName() {
         return SHELLNAME + (shellNumber++);
@@ -97,9 +99,16 @@ public class Invoker extends Thread
             if(dot_index >= 0)
                 baseName = baseName.substring(dot_index + 1);
 
-            this.objName = Character.toLowerCase(baseName.charAt(0)) +
-                                    baseName.substring(1) + "_" +
+            // truncate long names to  OBJ_NAME_LENGTH plus _instanceNum
+            int stringEndIndex = 
+                baseName.length() > OBJ_NAME_LENGTH ? OBJ_NAME_LENGTH : baseName.length();
+            
+            String instanceName = Character.toLowerCase(baseName.charAt(0)) +
+                baseName.substring(1, stringEndIndex);
+
+            this.objName = instanceName + "_" +
                                     member.getDeclaringView().getInstanceNum();
+
 
              constructing = true;
         }
