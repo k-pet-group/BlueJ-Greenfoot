@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1730 2003-04-01 03:55:19Z ajp $
+ * @version $Id: PkgMgrFrame.java 1741 2003-04-04 08:41:09Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1867,9 +1867,10 @@ public class PkgMgrFrame extends JFrame
      */
     private JButton createButton(String text, ImageIcon icon, String toolTip)
     {
-        JButton button = new JButton() {
-            public boolean isFocusTraversable() { return false; }           
-        };
+        JButton button = new JButton();
+        //{
+        //    public boolean isFocusTraversable() { return false; }           
+        //};
         button.setText(text);
         button.setFont(PkgMgrFont);
         if (icon != null)
@@ -1879,7 +1880,7 @@ public class PkgMgrFrame extends JFrame
         button.putClientProperty("JButton.buttonType", "toolbar");  // "icon"
 
         button.setToolTipText(toolTip);
-//       button.setRequestFocusEnabled(false);   // never get keyboard focus
+        button.setRequestFocusEnabled(false);   // never get keyboard focus
 
         // make the button infinitately extendable width-wise, but never
         // grow in height

@@ -18,14 +18,14 @@ import bluej.utility.Debug;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: Main.java 1741 2003-04-04 08:41:09Z mik $
  */
 public class Main
 {
     public static int BLUEJ_VERSION_MAJOR = 1;
     public static int BLUEJ_VERSION_MINOR = 3;
     public static int BLUEJ_VERSION_RELEASE = 0;
-    public static String BLUEJ_VERSION_SUFFIX = " beta";
+    public static String BLUEJ_VERSION_SUFFIX = " beta 2";
 
     public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
                                              BLUEJ_VERSION_MINOR * 100 +

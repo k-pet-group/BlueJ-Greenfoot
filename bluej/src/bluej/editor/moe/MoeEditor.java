@@ -1938,7 +1938,8 @@ public final class MoeEditor extends JFrame
             button = new JButton(label);
 
         button.setRequestFocusEnabled(false);   // never get keyboard focus
-        button.setMargin(new Insets(2,2,2,2));
+        //button.setMargin(new Insets(2,2,2,2));
+        button.setFont(PrefMgr.getStandardFont());
 
         String actionName = getResource(key + ActionSuffix);
         if (actionName == null)
@@ -1970,6 +1971,7 @@ public final class MoeEditor extends JFrame
         interfaceToggle = new JComboBox(choiceStrings);
 
         interfaceToggle.setRequestFocusEnabled(false);
+        interfaceToggle.setFont(PrefMgr.getStandardFont());
         interfaceToggle.setBorder(new EmptyBorder(2,2,2,2));
         interfaceToggle.setForeground(envOpColour);
 
