@@ -79,11 +79,6 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 ## dollar sign ($) will be replaced by the URL to be opened.
 #####################################################################
 
-# Unix and others: First, try to open the URL in a running netscape
-# process. If that fails, start netscape.
-browserCmd1=netscape -remote openURL($)
-browserCmd2=netscape $
-
 # For Windows95/98, the following should start the default browser
 # set in the system.
 win9xBrowserCmd1=command.com /c start $
@@ -94,9 +89,14 @@ win9xBrowserCmd2=
 winBrowserCmd1=cmd.exe /c start $
 winBrowserCmd2=
 
-# For MacOS X, the following should start the default browser.
-macBrowserCmd1=/Applications/OmniWeb/Contents/MacOS/OmniWeb $
-macBrowserCmd2=/Applications/Internet Explorer/Internet Explorer/Contents/MacOS/Internet Explorer $
+# For MacOS X: no command defenition is necessary here. The call is 
+# handled internally. The browser can be specified in the Mac OS X
+# System Preferences -> Internet -> Web settings.
+
+# Unix and others: First, try to open the URL in a running netscape
+# process. If that fails, start netscape.
+browserCmd1=netscape -remote openURL($)
+browserCmd2=netscape $
 
 
 #######################################################################
