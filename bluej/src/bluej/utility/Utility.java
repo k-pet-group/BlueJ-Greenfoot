@@ -15,7 +15,7 @@ import javax.swing.*;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 762 2001-02-07 04:21:14Z mik $
+ * @version $Id: Utility.java 801 2001-03-13 05:19:49Z ajp $
  */
 public class Utility
 {
@@ -210,6 +210,23 @@ public class Utility
     }
 
     /**
+     * Return a string in which all the ' ' characters of the
+     * original string are quoted with a passed in string.
+     */
+    public static String quoteSpaces(String src, String quote)
+    {
+        StringBuffer buf = new StringBuffer();
+
+        for(int i=0; i < src.length(); i++) {
+            if(src.charAt(i) == ' ')
+                buf.append(quote);
+            buf.append(src.charAt(i));
+        }
+
+        return buf.toString();
+    }
+
+    /**
      * Let the given URL be shown in a browser window.
      * @param url the URL to be shown.
      * @return true if the web browser could be started, false otherwise.
@@ -223,10 +240,10 @@ public class Utility
             // try first command, eg "netscape -remote"
 
             if(osname != null && osname.startsWith("Windows 9"))    // win95/98
-                cmd = mergeStrings(Config.getPropString("win9xBrowserCmd1"), 
+                cmd = mergeStrings(Config.getPropString("win9xBrowserCmd1"),
                                    url);
             else if(osname != null && osname.startsWith("Windows"))  // NT/2000
-                cmd = mergeStrings(Config.getPropString("winBrowserCmd1"), 
+                cmd = mergeStrings(Config.getPropString("winBrowserCmd1"),
                                    url);
             else
                 cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
@@ -237,7 +254,6 @@ public class Utility
                 // wait for exit code. 0 indicates success, otherwise
                 // we try second command
                 int exitCode = p.waitFor();
-                //Debug.message("browser command exit code: " + exitCode);
 
                 if(osname != null && osname.startsWith("Windows 9"))
                     cmd = Config.getPropString("win9xBrowserCmd2");
