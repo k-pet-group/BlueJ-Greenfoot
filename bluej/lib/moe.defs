@@ -52,7 +52,7 @@ option = key-bindings preferences
 # Each colour should be given a six digit hexidecimal value of the from rrggbb where
 # the pairs of digits refer to the red, green and blue values respectively.
 
-comment = 003399
+comment = 999999
 javadoc = 000099
 stand-out = ee00bb
 keyword1 = 660033
