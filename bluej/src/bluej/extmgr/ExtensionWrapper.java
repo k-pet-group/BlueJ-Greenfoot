@@ -354,7 +354,7 @@ public class ExtensionWrapper
      *  Gets a String representation of the path to the <CODE>.jar</CODE> file
      *  containing the extension.
      *
-     * @return    a String like <CODE>C:/bluej/lib/extensions/fun.jar</CODE>
+     * @return    String like <CODE>C:/bluej/lib/extensions/fun.jar</CODE> or null 
      */
     public String getExtensionFileName()
     {

@@ -123,32 +123,26 @@ public class ExtensionsManager implements BlueJEventListener
      */
     private void loadAllExtensions(File directory, Project project)
     {
-        if (directory == null)
-            return;
+        if (directory == null) return;
 
         File[] files = directory.listFiles();
-        if (files == null)
-            return;
+        if (files == null) return;
 
         for (int index = 0; index < files.length; index++) {
             File thisFile = files[index];
 
-            if (thisFile.isDirectory())
-                continue;
+            if (thisFile.isDirectory()) continue;
 
-            if (!thisFile.getName().endsWith(".jar"))
-                continue;
+            if (!thisFile.getName().endsWith(".jar")) continue;
 
             // Ok, lets try to get a wrapper up and running
             ExtensionWrapper aWrapper = new ExtensionWrapper(this, prefManager, thisFile);
 
             // Loading this warpper failed miserably, too bad...
-            if (!aWrapper.isJarValid())
-                continue;
+            if (!aWrapper.isJarValid()) continue;
 
             // Let me see if I already have this extension loaded
-            if (isWrapperAlreadyLoaded(aWrapper))
-                continue;
+            if (isWrapperAlreadyLoaded(aWrapper)) continue;
 
             // This MUST be here in ANY case since othervise this wrapper is NOT on the list..
             extensions.add(aWrapper);
@@ -170,24 +164,22 @@ public class ExtensionsManager implements BlueJEventListener
      */
     private boolean isWrapperAlreadyLoaded(ExtensionWrapper thisWrapper)
     {
-        if (thisWrapper == null)
-            return false;
+        if (thisWrapper == null) return false;
 
-        if (!thisWrapper.isJarValid())
-            return false;
+        if (!thisWrapper.isJarValid()) return false;
 
         String thisClassName = thisWrapper.getExtensionClassName();
+        String thisJarName   = thisWrapper.getExtensionFileName();
 
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
             String aClassName = aWrapper.getExtensionClassName();
-            if (aClassName == null)
-                continue;
+            if (aClassName == null) continue;
 
             // Found it, this wrapper is already loaded...
             if (thisClassName.equals(aClassName)) {
-                Debug.message("isWrapperAlreadyLoaded==true: className=" + thisClassName);
+                Debug.message("isWrapperAlreadyLoaded==true: className=" +thisClassName+" jarName="+thisJarName);
                 return true;
             }
         }
