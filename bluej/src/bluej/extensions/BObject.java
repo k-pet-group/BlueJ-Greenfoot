@@ -16,7 +16,7 @@ import java.util.*;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 1962 2003-05-20 13:47:15Z damiano $
+ * @version $Id: BObject.java 1964 2003-05-20 16:08:43Z damiano $
  */
 
 /*
@@ -59,10 +59,7 @@ public class BObject
 
         Package aPkg = wrapper.getPackage();
         Project bluejProject = aPkg.getProject();
-        
-        Identifier anId = new Identifier(bluejProject, aPkg );
-
-        return new BPackage(anId);
+        return new BPackage(new Identifier(bluejProject, aPkg ));
     }
         
     /**
@@ -135,6 +132,7 @@ public class BObject
      * Return the class of this object.
      * Similar to Reflection API.
      * It can return null if the object is invalid.
+     * ================== NEEDS TESTING ========================
      */
     public BClass getBClass()
     {

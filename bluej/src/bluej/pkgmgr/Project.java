@@ -18,7 +18,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: Project.java 1964 2003-05-20 16:08:43Z damiano $
  */
 public class Project
     implements BlueJEventListener
@@ -224,12 +224,11 @@ public class Project
 
     /**
      * Gets the set of currently open projects. It is an accessor only
-     * 
-     * @return a Set containing the keys of all open projects.
+     * @return a Set containing all open projects.
      */
-    public static Set getProjectKeySet ()
+    public static Collection getProjects ()
     {
-        return projects.keySet();
+        return projects.values();
     }
 
     /**

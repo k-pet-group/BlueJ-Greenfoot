@@ -40,7 +40,7 @@ import java.util.*;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1961 2003-05-20 10:41:24Z damiano $
+ * @version $Id: BlueJ.java 1964 2003-05-20 16:08:43Z damiano $
  */
 
 /*
@@ -159,20 +159,17 @@ public class BlueJ
      */
     public BProject[] getOpenProjects()
         {
+        Iterator iter;
+        int index;
+        
         // If this extension is not valid return an empty array.
         if (!myWrapper.isValid()) return new BProject[0];
 
-        Set projSet = Project.getProjectKeySet();
-        BProject [] result = new BProject[projSet.size()];
-        Iterator iter = projSet.iterator();
-        int insIndex = 0;
+        Collection projects = Project.getProjects();
+        BProject [] result = new BProject[projects.size()];
         
-        while ( iter.hasNext() )
-            {
-            File projId = (File)iter.next();
-            Project aProject = Project.getProject(projId);
-            result[insIndex++] = new BProject (new Identifier(aProject));
-            }
+        for ( iter=projects.iterator(), index=0; iter.hasNext(); index++ )
+            result[index] = new BProject (new Identifier((Project)iter.next()));
 
         return result;
         }

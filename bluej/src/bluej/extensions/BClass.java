@@ -14,7 +14,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1962 2003-05-20 13:47:15Z damiano $
+ * @version $Id: BClass.java 1964 2003-05-20 16:08:43Z damiano $
  */
 
 public class BClass
@@ -97,6 +97,7 @@ public class BClass
     /**
      * Returns the superclass of this class.
      * Similar to reflection API.
+     * ============ NEEDS TESTING ======================
      */
     public BClass getSuperclass()
     {
