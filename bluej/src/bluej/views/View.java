@@ -11,7 +11,7 @@ import java.util.*;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: View.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class View
 {
@@ -28,7 +28,6 @@ public class View
     protected MethodView[] allMethods;
 
     protected Comment comment;
-    private int instanceNum = 0;
 
     private static Map views = new HashMap();
 
@@ -66,7 +65,6 @@ public class View
             View v = (View) it.next();
 
             if (v.getClassLoader() == loader) {
-            	System.out.println("removing" + v.getLongDesc());
                 it.remove();
             }
         }
@@ -445,11 +443,6 @@ public class View
                 }
             }
         return JavaNames.stripPrefix(type.getName());
-    }
-
-    public int getInstanceNum()
-    {
-        return ++instanceNum;
     }
 
     /**

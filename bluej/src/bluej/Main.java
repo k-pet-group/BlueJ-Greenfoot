@@ -6,7 +6,6 @@ import java.io.File;
 import java.util.StringTokenizer;
 
 import bluej.classmgr.ClassMgrPrefPanel;
-import bluej.debugger.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
@@ -18,7 +17,7 @@ import bluej.utility.Debug;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1976 2003-05-22 10:05:14Z damiano $
+ * @version $Id: Main.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class Main
 {
@@ -91,13 +90,6 @@ public class Main
         // You got to create it here since it is used by the Package manager frame
         ExtensionsManager extManager = ExtensionsManager.initialise();
         
-        // start the MachineLoader (a separate thread) to load the
-        // remote virtual machine in the background
-        MachineLoader machineLoader = new MachineLoader(Project.getInitialDebugger());
-        // lower priority to improve GUI response time
-        machineLoader.setPriority(Thread.currentThread().getPriority() - 1);
-        machineLoader.start();
-
         // It is here to have an extension to be ready whan a command line project is summoned
         extManager.loadExtensions();
 

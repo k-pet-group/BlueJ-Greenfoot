@@ -1,17 +1,10 @@
 package bluej.debugger.jdi;
 
-import bluej.debugger.DebuggerThread;
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.DebuggerClass;
-import bluej.debugger.SourceLocation;
-import bluej.utility.Debug;
-import bluej.utility.JavaNames;
-import bluej.Config;
+import java.util.*;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.StringTokenizer;
+import bluej.Config;
+import bluej.debugger.*;
+import bluej.utility.*;
 
 import com.sun.jdi.*;
 import com.sun.jdi.request.*;
@@ -20,7 +13,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 1962 2003-05-20 13:47:15Z damiano $
+ * @version $Id: JdiThread.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -62,7 +55,8 @@ public final class JdiThread extends DebuggerThread
         }
     }
 
-
+	VMReference vmRef;
+	
     ThreadReference rt; // the reference to the remote thread
     Object userParam;   // an optional user parameter associated with this
     // thread
@@ -71,18 +65,11 @@ public final class JdiThread extends DebuggerThread
 
     EventRequestManager eventReqMgr;
 
-    static ObjectReference terminateException;  // The exception object to use
-    //   to terminate a thread
-
-    public static void setTerminateException(ObjectReference terminateExc)
-    {
-        terminateException = terminateExc;
-    }
-
     // ---- instance: ----
 
-    public JdiThread(ThreadReference rt, Object userParam)
+    public JdiThread(VMReference vmRef, ThreadReference rt, Object userParam)
     {
+    	this.vmRef = vmRef;
         this.rt = rt;
         this.userParam = userParam;
 
@@ -90,9 +77,9 @@ public final class JdiThread extends DebuggerThread
                                 //  to see the top level frame
     }
 
-    public JdiThread(ThreadReference rt)
+    public JdiThread(VMReference vmRef, ThreadReference rt)
     {
-        this(rt, null);
+        this(vmRef, rt, null);
     }
 
     public String getName()
@@ -409,22 +396,10 @@ public final class JdiThread extends DebuggerThread
 
         // Make sure the step event is done only once
         request.addCountFilter(1);
+		request.putProperty(VMEventHandler.DONT_RESUME, "yes");
         request.enable();
-        // TODO: Debugger.debugger.cont();
-    }
 
-    public void terminate()
-    {
-        //if(! isKnownSystemThread()) {
-        try {
-            if(rt.isSuspended())
-                // TODO: Debugger.debugger.cont();
-            rt.stop(terminateException);
-        }
-        catch(Exception e) {
-            Debug.reportError("cannot terminate thread: " + e);
-        }
-        //}
+        vmRef.cont();
     }
 
     /**
@@ -455,5 +430,4 @@ public final class JdiThread extends DebuggerThread
     {
         eventReqMgr = rt.virtualMachine().eventRequestManager();
     }
-
 }

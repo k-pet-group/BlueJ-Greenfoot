@@ -8,26 +8,19 @@ import com.sun.jdi.ClassLoaderReference;
  * Holds a handle for a ClassLoader in a remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: JdiClassLoader.java 329 2000-01-02 13:22:01Z ajp $
+ * @version $Id: JdiClassLoader.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class JdiClassLoader extends DebuggerClassLoader
 {
-    String id;
-    ClassLoaderReference loader;
-
-    public JdiClassLoader(String id, ClassLoaderReference loader)
+	ClassLoaderReference loader;
+	
+    public JdiClassLoader(ClassLoaderReference clr)
     {
-        this.id = id;
-        this.loader = loader;
+    	loader = clr;
     }
 
     public String getId()
     {
-        return id;
-    }
-
-    public ClassLoaderReference getLoader()
-    {
-        return loader;
+        return Long.toString(loader.uniqueID());
     }
 }

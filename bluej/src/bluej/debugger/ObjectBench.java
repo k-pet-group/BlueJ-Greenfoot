@@ -16,7 +16,7 @@ import bluej.testmgr.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: ObjectBench.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class ObjectBench
 {
@@ -292,8 +292,23 @@ public class ObjectBench
 
         // add to bench
 
-        //wrapper.setAlignmentY(0);
-        obp.add(wrapper);
+/*
+		Experimental code to add == signs between equal objects on the object bench
+		
+		ObjectWrapper[] wrappers = getWrappers();
+		int addPosition = -1;
+		
+		for(int i=wrappers.length-1; i>=0; i--)
+			if(wrappers[i].getObject().equals(wrapper.getObject()))
+				addPosition = i;
+
+		if (addPosition != -1) {
+			obp.add(wrapper, addPosition+1);
+			obp.add(new JLabel(" =="), addPosition+1);
+		}
+		else
+*/
+		obp.add(wrapper);
 
         obp.setPreferredSize(new Dimension(obp.getLayoutWidthMin(), ObjectWrapper.HEIGHT));
         enableButtons(viewPort.getViewPosition());

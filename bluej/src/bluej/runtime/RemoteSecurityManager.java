@@ -8,7 +8,7 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: RemoteSecurityManager.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
@@ -86,7 +86,7 @@ public class RemoteSecurityManager extends SecurityManager
             // thread handler will print
             ExecServer.supressOutput();
 
-            Toolkit.getDefaultToolkit().getSystemEventQueue().
+            EventQueue.
                 invokeLater(new Runnable() {
                         public void run() {
                             ExecServer.restoreOutput();

@@ -9,7 +9,7 @@ import java.util.List;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: DebuggerThread.java 1059 2001-12-20 13:49:55Z mik $
+ ** @version $Id: DebuggerThread.java 1991 2003-05-28 08:53:06Z ajp $
  **/
 
 public abstract class DebuggerThread
@@ -36,5 +36,4 @@ public abstract class DebuggerThread
 
     public abstract void step();
     public abstract void stepInto();
-    public abstract void terminate();
 }

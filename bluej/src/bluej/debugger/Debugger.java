@@ -1,7 +1,7 @@
 package bluej.debugger;
 
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 
 import bluej.debugger.jdi.JdiDebugger;
 
@@ -11,8 +11,8 @@ import bluej.debugger.jdi.JdiDebugger;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- *
- * @version $Id: Debugger.java 1954 2003-05-15 06:06:01Z ajp $
+ * @author  Andrew Patterson
+ * @version $Id: Debugger.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public abstract class Debugger
 {
@@ -34,34 +34,36 @@ public abstract class Debugger
 	 * 
 	 * @return  a Debugger instance
 	 */
-	public static Debugger getDebuggerImpl()
+	public static Debugger getDebuggerImpl(File startingDirectory)
 	{
-		return new JdiDebugger();
+		return new JdiDebugger(startingDirectory);
 	}
 	
 	/**
      * Start debugging
      */
-    public abstract void startDebugger();
-
+    public abstract void launch();
 
     /**
      * Finish debugging
      */
-    public abstract void endDebugger();
+    public abstract void close();
 
-
+	/**
+	 * Restart the debugger
+	 */
+	public abstract void restart();
+	
     /**
-     * Create a class loader
+     * Create a class loader in the debugger.
      */
-    public abstract DebuggerClassLoader createClassLoader(String scopeId,
-                                                          String classpath);
+    public abstract void newClassLoader(String classPath);
 
-    /**
-     * Remove a class loader
-     */
-    public abstract void removeClassLoader(DebuggerClassLoader loader);
-
+	/**
+     * Create a class loader in the debugger but retain
+     * any user created breakpoints.
+	 */
+	public abstract void newClassLoaderLeavingBreakpoints(String classPath);
 
     /**
      * Add an object to a package scope. The object is held in field
@@ -85,10 +87,20 @@ public abstract class Debugger
     public abstract int getStatus();
 
 
+    
+	/**
+	 * Guess a suitable name for an object about to be put on the object bench.
+	 * 
+	 * @param	className	the fully qualified name of the class of object
+	 * @return				a String suitable as a name for an object on the
+	 * 						object bench. 
+	 */
+	public abstract String guessNewName(String className);
+
     /**
      * Set the remote VM classpath
      */
-    public abstract void setLibraries(String classpath);
+    public abstract void setLibraries(String classPath);
 
 	/**
 	 * Run the setUp() method of a test class and return the created
@@ -99,7 +111,7 @@ public abstract class Debugger
 	 * @param className	the fully qualified name of the class
 	 * @return			a Map of (String name, DebuggerObject obj) entries
 	 */
-    public abstract Map runTestSetUp(String loadId, String scopeId, String className);
+    public abstract Map runTestSetUp(String className);
 
 	/**
 	 * Run a single test method in a test class and return the result.
@@ -110,7 +122,7 @@ public abstract class Debugger
 	 * @param methodName the name of the method
 	 * @return			a DebuggerTestResult object
 	 */
-    public abstract DebuggerTestResult runTestMethod(String loadId, String scopeId, String className, String methodName);
+    public abstract DebuggerTestResult runTestMethod(String className, String methodName);
 
     /**
      * Dispose all top level windows in the remote machine.
@@ -119,16 +131,15 @@ public abstract class Debugger
 
 
     /**
-     * "Start" a class (i.e. invoke its main method without arguments)
+     * "Run" a class (i.e. invoke its main method without arguments)
      */
-    public abstract void startClass(DebuggerClassLoader loader,
-                                    String classname, Object eventParam);
+    public abstract void runClassMain(String className, Object eventParam);
 
 
     /**
      * Get a class from the virtual machine.
      */
-    public abstract DebuggerClass getClass(String className, DebuggerClassLoader loader);
+    public abstract DebuggerClass getClass(String className);
 
     /**
      * Get the value of a static field in a class
@@ -143,18 +154,7 @@ public abstract class Debugger
      * @param set        True to set, false to clear a breakpoint.
      */
     public abstract String toggleBreakpoint(String className, int line,
-                                            boolean set,
-                                            DebuggerClassLoader loader);
-
-    /**
-     * Save the breakpoints which have been setup in the debugger
-     */
-    public abstract void saveBreakpoints();
-
-    /**
-     * Restore the previously saved breakpoints using the new class loader
-     */
-    public abstract void restoreBreakpoints(DebuggerClassLoader loader);
+                                            boolean set);
 
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
@@ -192,12 +192,6 @@ public abstract class Debugger
      * is indicated in the interface.
      */
     public abstract void cont();
-
-
-    /**
-     * Terminate a thread in the machine.
-     */
-    public abstract void terminate(DebuggerThread thread);
 
 
     /**

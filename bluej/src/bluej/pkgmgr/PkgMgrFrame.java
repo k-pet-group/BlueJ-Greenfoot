@@ -28,7 +28,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1982 2003-05-23 08:08:34Z damiano $
+ * @version $Id: PkgMgrFrame.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -230,7 +230,6 @@ public class PkgMgrFrame extends JFrame
         return openFrames;
     }
 
-    
     /**
      * Find all PkgMgrFrames which are currently editing a particular
      * project
@@ -348,7 +347,6 @@ public class PkgMgrFrame extends JFrame
             frame.setStatus(message);
         }
     }
-
     
     /**
      * Display a short text message in the frame of the specified package.
@@ -360,6 +358,21 @@ public class PkgMgrFrame extends JFrame
         if(pmf != null)
             pmf.setStatus(message);
     }
+
+	/**
+	 * Display a short text message in the frames of the specified project.
+	 */
+	public static void displayMessage(Project sourceProj, String message)
+	{
+		PkgMgrFrame pmf[] = getAllProjectFrames(sourceProj);
+
+		if (pmf != null) {
+			for(int i=0; i<pmf.length; i++) {
+				if(pmf[i] != null)
+					pmf[i].setStatus(message);
+			}
+		}
+	}
 
     public static void showError(Package sourcePkg, String msgId)
     {
@@ -699,7 +712,11 @@ public class PkgMgrFrame extends JFrame
 
          case PackageEditorEvent.OBJECT_PUTONBENCH:
             // "Get" object from object inspector
-            String newObjectName = DialogManager.askString((Component) e.getSource(), "getobject-new-name");
+            DebuggerObject gotObj = e.getDebuggerObject();
+            
+            String newObjectName = DialogManager.askString((Component) e.getSource(),
+            												 "getobject-new-name",
+            												 getProject().getDebugger().guessNewName(gotObj.getClassRef().getName()));
 
             if (newObjectName != null && JavaNames.isIdentifier(newObjectName)) {
                 putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getInvokerRecord());
@@ -1206,7 +1223,7 @@ public class PkgMgrFrame extends JFrame
             // reinitialised because the class hangs around from a previous call)
             if(mv.isMain()) {
                 getProject().removeLocalClassLoader();
-                getProject().removeRemoteClassLoaderLeavingBreakpoints();
+                getProject().newRemoteClassLoaderLeavingBreakpoints();
             }
 
             // create a watcher
@@ -1532,7 +1549,7 @@ public class PkgMgrFrame extends JFrame
 
 		// remove objects from object bench
 		getProject().removeLocalClassLoader();
-		getProject().removeRemoteClassLoader();
+		getProject().newRemoteClassLoader();
 
 		// try to compile the test class we have just changed
 		getPackage().compileQuiet(testTarget);	
@@ -1550,7 +1567,7 @@ public class PkgMgrFrame extends JFrame
         // remove objects from object bench (may have been put there
         // when testing was started)
 		getProject().removeLocalClassLoader();
-		getProject().removeRemoteClassLoader();
+		getProject().newRemoteClassLoader();
 		
 		testTarget = null;
     }
@@ -1688,7 +1705,7 @@ public class PkgMgrFrame extends JFrame
 	public void restartDebugger()
 	{
 		if (!isEmptyFrame())
-			getProject().restartDebugger();
+			getProject().getDebugger().restart();
 	}
 	
     /**
@@ -1787,8 +1804,9 @@ public class PkgMgrFrame extends JFrame
     private void executionFinished()
     {
         progressButton.setEnabled(false);
-        //TODO: if(ExecControls.execControlsShown())
-        //  TODO:  getProject().getExecControls().updateThreads(null);
+        if(getProject().getExecControls().isVisible())
+        	getProject().getExecControls().updateThreads(null);
+        	
         Terminal.getTerminal().activate(false);
         pkg.removeStepMarks();
     }
@@ -1851,16 +1869,17 @@ public class PkgMgrFrame extends JFrame
 
         JPanel mainPanel = new JPanel();
 
-		mainPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"),
-									"doEscape");
-		mainPanel.getActionMap().put("doEscape",
-									 new AbstractAction() {
-										public void actionPerformed(ActionEvent ae)
-										{
-											restartDebugger();
-										}
-									 	
-									 });
+		mainPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+								KeyStroke.getKeyStroke("ESCAPE"),"restartVM");
+								
+		mainPanel.getActionMap().put("restartVM",
+			 new AbstractAction() {
+				public void actionPerformed(ActionEvent ae)
+				{
+					restartDebugger();
+				}
+			 	
+			 });
 		
         mainPanel.setLayout(new BorderLayout(5, 5));
         mainPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
@@ -1966,7 +1985,7 @@ public class PkgMgrFrame extends JFrame
                 testPanel.add(endTestButton);
                 testPanel.add(Box.createVerticalStrut(3));
 
-                cancelTestButton = createButton(Config.getString("cancel"),
+                cancelTestButton = createButton(BlueJTheme.getCancelLabel(),
                                               null,
                                               Config.getString("tooltip.test.cancel"),
                                               false);
@@ -2268,8 +2287,10 @@ public class PkgMgrFrame extends JFrame
             menu.addSeparator();
 
             JCheckBoxMenuItem item = createCheckboxMenuItem("menu.view.showExecControls", menu,
-                           KeyEvent.VK_D, SHORTCUT_MASK, false, false, null);
-            item.setModel(new ExecControlButtonModel());
+                           KeyEvent.VK_D, SHORTCUT_MASK, false, true, null);
+            item.setModel(new ExecControlButtonModel(this));
+
+			menu.addSeparator();
 
             item = createCheckboxMenuItem("menu.view.showTerminal", menu,
                            KeyEvent.VK_T, SHORTCUT_MASK, false, false, null);

@@ -8,7 +8,6 @@ import java.util.*;
 import java.util.List;
 
 import junit.framework.*;
-
 import bluej.utility.Debug;
 
 /**
@@ -20,7 +19,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 1905 2003-04-28 05:21:24Z ajp $
+ * @version $Id: ExecServer.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class ExecServer
 {
@@ -28,8 +27,7 @@ public class ExecServer
     // corresponding methods in this ExecServer source). Methods to call are
     // obtained using reflection by JdiDebugger (using these strings).
 
-    public static final String CREATE_LOADER    = "createLoader";
-    public static final String REMOVE_LOADER    = "removeLoader";
+    public static final String NEW_LOADER       = "newLoader";
     public static final String LOAD_CLASS       = "loadClass";
     public static final String ADD_OBJECT       = "addObject";
     public static final String REMOVE_OBJECT    = "removeObject";
@@ -40,12 +38,11 @@ public class ExecServer
     public static final String RESTORE_OUTPUT   = "restoreOutput";
     public static final String DISPOSE_WINDOWS  = "disposeWindows";
 
-    /*package*/ static ExecServer server = null;
-    /*package*/ static TerminateException terminateExc = new TerminateException("term");
     /*package*/ static ExitException exitExc = new ExitException("0");
 
-    private RemoteClassMgr classmgr;
-    private Map loaders;
+    private static RemoteClassMgr classmgr;
+	private static ClassLoader currentLoader;	// the current loader
+	
     private static Map scopes = new HashMap();
 
     /**
@@ -65,8 +62,52 @@ public class ExecServer
     public static void main(String[] args)
         throws Throwable
     {
-        server = new ExecServer();
-        server.suspendExecution();
+    	int count = 0;
+    	
+		//Debug.message("[VM] creating server object");
+
+		classmgr = new RemoteClassMgr();
+
+		// the following causes the class loader mechanism to be initialised:
+		// we attempt to load a (non-existent) class
+		try {
+			newLoader(".");
+			loadClass("Dummy");
+			currentLoader = null;
+		}
+		catch(Exception e) {
+			// ignore - we will get a ClassNotFound exception here
+		}
+
+		// register a listener to record all window opens and closes
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+
+		AWTEventListener listener = new AWTEventListener()
+		{
+			public void eventDispatched(AWTEvent event)
+			{
+				if(event.getID() == WindowEvent.WINDOW_OPENED) {
+					addWindow(event.getSource());
+				} else if(event.getID() == WindowEvent.WINDOW_CLOSED) {
+					removeWindow(event.getSource());
+				}
+			}
+		};
+
+		toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
+
+		// we create the security manager last so that hopefully, all the system/AWT
+		// threads will have been created and we can then rig our security manager
+		// to make all user-created threads go into a single thread group
+		System.setSecurityManager(new RemoteSecurityManager());
+
+		// signal with a breakpoint that we have performed out VM initialisation
+		vmStarted();
+		
+		// an infinite loop.. 
+		while(true) {
+			vmSuspend();
+		}
     }
 
     /**
@@ -80,6 +121,25 @@ public class ExecServer
         // <NON SUSPENDING BREAKPOINT!>
     }
 
+	/**
+	 * This method is used to suspend the execution of the
+	 * machine to indicate that everything is up and running.
+	 */
+	public static void vmStarted()
+	{
+		// <SUSPENDING BREAKPOINT!>
+	}
+
+	/**
+	 * This method is used to suspend the execution of this server thread.
+	 * This is done via a breakpoint: a breakpoint is set in this method
+	 * so calling this method suspends execution.
+	 */
+	public static void vmSuspend()
+	{
+		// <SUSPENDING BREAKPOINT!>
+	}
+
     /**
      * Add the object to our list of open windows
      *
@@ -88,15 +148,6 @@ public class ExecServer
     private static void addWindow(final Object o)
     {
         openWindows.add(o);
-        // experiment to try to fix windows bug where window
-        // is hidden behind bluej window
-        /*if (o instanceof Window) {
-            SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        ((Window)o).toFront();
-                    }
-                });
-        } */
     }
 
     /**
@@ -125,67 +176,6 @@ public class ExecServer
         return scope;
     }
 
-
-    // -- instance methods --
-
-    /**
-     * Initialise the execution server.
-     */
-    private ExecServer()
-    {
-        //Debug.message("[VM] creating server object");
-
-        loaders = new HashMap();
-        classmgr = new RemoteClassMgr();
-
-        // the following causes the class loader mechanism to be initialised:
-        // we attempt to load a (non-existent) class
-
-        try {
-            createLoader("#dummy", ".");
-            loadClass("#dummy", "Dummy");
-            removeLoader("#dummy");
-        }
-        catch(Exception e) {
-            // ignore - we will get a ClassNotFound exception here
-        }
-
-        // register a listener to record all window opens and closes
-
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-
-        AWTEventListener listener = new AWTEventListener()
-        {
-            public void eventDispatched(AWTEvent event)
-            {
-                if(event.getID() == WindowEvent.WINDOW_OPENED) {
-                    addWindow(event.getSource());
-                } else if(event.getID() == WindowEvent.WINDOW_CLOSED) {
-                    removeWindow(event.getSource());
-                }
-            }
-        };
-
-        toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
-
-        // we create the security manager last so that hopefully, all the system/AWT
-        // threads will have been created and we can then rig our security manager
-        // to make all user-created threads go into a single thread group
-
-        System.setSecurityManager(new RemoteSecurityManager());
-    }
-
-    /**
-     *  This method is used to suspend the execution of this server thread.
-     *  This is done via a breakpoint: a breakpoint is set in this method
-     *  so calling this method suspends execution.
-     */
-    public void suspendExecution()
-    {
-        // <BREAKPOINT!>
-//        Debug.message("[VM] woke up from suspend");
-    }
-
     // -- methods called by reflection from JdiDebugger --
     // --
     // -- methods that can be made private have been, as
@@ -196,84 +186,64 @@ public class ExecServer
     /**
      * Create a new class loader for a given classpath.
      */
-    private ClassLoader createLoader(String loaderId,
-                                            String classPath)
+    private static ClassLoader newLoader(String classPath)
     {
-        //Debug.reportError("[VM] createLoader " + loaderId);
-        ClassLoader loader = classmgr.getLoader(classPath);
-        loaders.put(loaderId, loader);
-        return loader;
+        //Debug.message("[VM] newLoader " + classPath);
+    	currentLoader = classmgr.getLoader(classPath);
+
+		return currentLoader;
     }
 
     /**
-     * Remove a known loader from the table of class loaders.
+     * Load (and prepare) a class in the remote runtime.
      */
-    private void removeLoader(String loaderId)
-    {
-        //Debug.reportError("[VM] removeLoader " + loaderId);
-        loaders.remove(loaderId);
-    }
-
-    /**
-     * Load a class in the remote runtime.
-     */
-    private Class loadClass(String loaderId, String classname)
+    private static Class loadClass(String className)
         throws ClassNotFoundException
     {
-        Class cl = null;
+    	// Debug.message("[VM] loadClass: " + className);
+		Class cl = null;
+		
+		if (currentLoader == null) {
+			cl = classmgr.getLoader().loadClass(className);	
+		}
+		else {
+			cl = currentLoader.loadClass(className);	
+		}
 
-        if(loaderId == null)
-            cl = classmgr.getLoader().loadClass(classname);
-        else {
-            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
-            if(loader != null)
-                cl = loader.loadClass(classname);
-    	}
-
-        //Debug.reportError("   loaded.");
-        if(cl == null)
-            Debug.reportError("Could not load class for execution");
-        else {
-            // run the initialisation ("prepare" method) of the new shell class.
-            // This guarantees that the class is properly prepared, as well as
-            // executing some init code in that shell method.
-        try {
-            Method m = cl.getMethod("prepare", null);
-            m.invoke(null, null);
-        } catch(Exception e) {
-            // ignore - some classes don't have prepare method. attempt to
-            // call will still prepare the class
-        }
-    }
+        // run the initialisation ("prepare" method) of the class.
+        // For our SHELL clasees, this is important.
+        // This guarantees that the class is properly prepared, as well as
+        // executing some init code in that shell method.
+	    try {
+	        Method m = cl.getMethod("prepare", null);
+	        m.invoke(null, null);
+	    } catch(Exception e) {
+	        // ignore - some classes don't have prepare method. attempt to
+	        // call will still prepare the class
+	    }
 
         return cl;
     }
 
     /**
-     *  Add an object into a package scope (for possible use as parameter
-     *  later). Used after object creation to add the newly created object
-     *  to the scope.
+     * Add an object into a package scope (for possible use as parameter
+     * later). Used after object creation to add the newly created object
+     * to the scope.
      *
-     *  Must be static because it is used by Shell without a execServer reference
+     * Must be static because it is used by Shell without a execServer reference
      */
     /*package*/ static void addObject(String scopeId, String instanceName, Object value)
     {
-        //Debug.message("[VM] addObject: " + instanceName);
+        // Debug.message("[VM] addObject: " + instanceName + " " + value);
         Map scope = getScope(scopeId);
         scope.put(instanceName, value);
-
-        // debugging
-        // 	for (Iterator it = scope.keys(); it.hasNext(); ) {
-        //  	    String s = (String)it.next();
-        //  	    System.out.println("key: " + s);
-        //  	}
     }
 
     /**
      * Update the remote VM with the list of user/system libraries
      * which the user has created using the ClassMgr.
      */
-    private void setLibraries(String libraries)
+    private static void setLibraries(String libraries)
     {
         classmgr.setLibraries(libraries);
     }
@@ -287,20 +257,11 @@ public class ExecServer
      *          calling virtual machine. Once the calling VM gets this array it can
      *          put it into a more suitable data structure itself.
      */
-    private Object[] runTestSetUp(String loaderId, String scopeId, String className)
+    private static Object[] runTestSetUp(String className)
         throws ClassNotFoundException
     {
-        //System.out.println("runTestSetUp(" + loaderId + "," + className + ")");
-        Class cl = null;
+		Class cl = loadClass(className);
         
-        if(loaderId == null)
-            cl = classmgr.getLoader().loadClass(className);
-        else {
-            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
-            if(loader != null)
-                cl = loader.loadClass(className);
-    	}
-
         try {
             // construct an instance of the test case (firstly trying the
             // String argument constructor - then the no-arg constructor)
@@ -368,20 +329,11 @@ public class ExecServer
 	 * @return  an array in case of failure or error, and null if
 	 *          the test ran successfully.
 	 */
-    private Object[] runTestMethod(String loaderId, String scopeId, String className, String methodName)
+    private static Object[] runTestMethod(String className, String methodName)
         throws ClassNotFoundException
     {
-        Class cl = null;
+		Class cl = loadClass(className);
         
-		// load the class we are going to test
-        if(loaderId == null)
-            cl = classmgr.getLoader().loadClass(className);
-        else {
-            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
-            if(loader != null)
-                cl = loader.loadClass(className);
-    	}
-
         TestCase testCase = null;
         
         // construct a testcase using
@@ -460,7 +412,7 @@ public class ExecServer
      * This has to be done tolerantly: (why? ajp 22/5)
      *  If the named instance is not in the scope, we just quetly return.
      */
-    private void removeObject(String scopeId, String instanceName)
+    private static void removeObject(String scopeId, String instanceName)
     {
         //Debug.message("[VM] removeObject: " + instanceName);
         Map scope = getScope(scopeId);

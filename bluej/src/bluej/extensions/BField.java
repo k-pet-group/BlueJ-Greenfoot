@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1981 2003-05-22 16:35:43Z iau $
+ * @version $Id: BField.java 1991 2003-05-28 08:53:06Z ajp $
  */
 
 /*
@@ -96,17 +96,7 @@ public class BField
       View parentView = bluej_view.getDeclaringView();
       String className = parentView.getQualifiedName();
 
-      // UFF, there seems to be no way to get the package from the view...
-      // Maybe should ask Michael, when he has time...
-      DebuggerClassLoader loader = bluejPkg.getRemoteClassLoader();
-      if ( loader == null ) 
-        {
-        // This is really an error
-        Debug.message("BField.getStatucField: Class="+className+" Field="+wantFieldName+" ERROR: cannod get DebuggerClassLoader");
-        return null;
-        }
-      
-      DebuggerClass debuggerClass = bluejPkg.getDebugger().getClass(className, loader);
+      DebuggerClass debuggerClass = bluejPkg.getDebugger().getClass(className);
       if ( debuggerClass == null ) 
         {
         // This may not be an error, the class name may be wrong...

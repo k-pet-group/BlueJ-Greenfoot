@@ -6,7 +6,7 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 1572 2002-12-11 16:23:16Z mik $
+ *@version    $Id: DebuggerObject.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public abstract class DebuggerObject
 {
@@ -191,32 +191,4 @@ public abstract class DebuggerObject
      *@return       Description of the Returned Value
      */
     public abstract boolean fieldIsObject(int slot);
-
-    /**
-     *  Invoke the method on the server thread. This exposes the jdi to Inspectors.
-     *  Signature codes are as follows (JNI signatures are used):
-     *  Z -boolean
-     *  B -byte
-     *  C -char
-     *  S -short
-     *  I -int
-     *  J -long
-     *  F -float
-     *  D -double
-     *  L fully-qualified-class ; -fully-qualified-class
-     *  [ type -type[]
-     *  ( arg-types ) ret-type -method type
-     *  Example: ()[Ljava/lang/Object;
-     *  -an empty parameter list method returning an array of objects
-     *
-     *@param  methodName  Description of Parameter
-     *@param  signature   Description of Parameter
-     *@param  arguments   Description of Parameter
-     *@return             Description of the Returned Value
-     */
-    public Object invokeMethod(String methodName, String signature, java.util.List arguments)
-    {
-        return null;
-    }
-
 }

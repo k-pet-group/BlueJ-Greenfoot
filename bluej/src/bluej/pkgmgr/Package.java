@@ -26,7 +26,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1990 2003-05-27 09:54:17Z damiano $
+ * @version $Id: Package.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -821,16 +821,6 @@ public final class Package extends Graph
         addTarget(target);
 
         return target;
-    }
-
-    /**
-     * Get the DebuggerClassLoader for this package.
-     * The DebuggerClassLoader load classes on the remote VM
-     * (the machine used for user code execution).
-     */
-    public DebuggerClassLoader getRemoteClassLoader()
-    {
-        return getProject().getRemoteClassLoader();
     }
 
 	public Debugger getDebugger()
@@ -1927,7 +1917,7 @@ public final class Package extends Graph
 	
 	        if (sources.length > 0) {
 	            getProject().removeLocalClassLoader();
-	            getProject().removeRemoteClassLoader();
+	            getProject().newRemoteClassLoader();
 	        }
 
 			markAsCompiling(sources);

@@ -10,21 +10,33 @@ package bluej.debugger;
 
 import javax.swing.JToggleButton;
 
+import bluej.pkgmgr.PkgMgrFrame;
+
 public class ExecControlButtonModel extends JToggleButton.ToggleButtonModel
 {
-    public ExecControlButtonModel()
+	private PkgMgrFrame pmf;
+	
+    public ExecControlButtonModel(PkgMgrFrame pmf)
     {
         super();
+        this.pmf = pmf;
     }
 
     public boolean isSelected()
     {
-        return true; //ExecControls.execControlsShown();
+    	if (pmf.isEmptyFrame())
+    		return false;
+    	else
+        	return pmf.getProject().getExecControls().isVisible();
+        //ExecControls.execControlsShown();
     }
 
     public void setSelected(boolean b)
     {
-        super.setSelected(b);
+		if (!pmf.isEmptyFrame()) {
+			super.setSelected(b);
+			pmf.getProject().getExecControls().showHide(b, true, null);
+		}
 //        ExecControls.showHide(b, true, null);
     }
 }

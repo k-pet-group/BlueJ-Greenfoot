@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1970 2003-05-21 10:59:26Z damiano $
+ * @version $Id: Invoker.java 1991 2003-05-28 08:53:06Z ajp $
  */
 
 public class Invoker extends Thread
@@ -125,20 +125,7 @@ public class Invoker extends Thread
         // in the case of a constructor, we need to construct an object name
         if(member instanceof ConstructorView) {
 
-            String baseName = member.getClassName();
-            int dot_index = baseName.lastIndexOf('.');
-            if(dot_index >= 0)
-                baseName = baseName.substring(dot_index + 1);
-
-            // truncate long names to  OBJ_NAME_LENGTH plus _instanceNum
-            int stringEndIndex =
-                baseName.length() > OBJ_NAME_LENGTH ? OBJ_NAME_LENGTH : baseName.length();
-
-            String instanceName = Character.toLowerCase(baseName.charAt(0)) +
-                baseName.substring(1, stringEndIndex);
-
-            this.objName = instanceName + "_" +
-                member.getDeclaringView().getInstanceNum();
+            this.objName = pmf.getProject().getDebugger().guessNewName(member.getClassName());
 
             constructing = true;
             executionEvent = ExecutionEvent.createConstructor(member.getClassName());
@@ -578,10 +565,11 @@ public class Invoker extends Thread
         BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandAsString);
         try {
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, executionEvent);
-            DebuggerClassLoader loader = pkg.getRemoteClassLoader();
             String shellClassName = pkg.getQualifiedName(shellName);
-            pkg.getProject().getDebugger().startClass(loader, shellClassName,
+            
+            pkg.getProject().getDebugger().runClassMain(shellClassName,
                                          pkg.getProject());
+                                         
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, executionEvent);
 
             // the execution is completed, get the result if there was one
@@ -612,6 +600,12 @@ public class Invoker extends Thread
                 DebuggerObject result = pkg.getDebugger().getStaticValue(
                                             shellClassName,"__bluej_runtime_result");
 
+				if (result == null) {
+					watcher.putError("Terminated");
+					executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
+					return;
+				}
+				
                 watcher.putResult(result, instanceName, ir);
 
                 executionEvent.setResultObject(result);                    

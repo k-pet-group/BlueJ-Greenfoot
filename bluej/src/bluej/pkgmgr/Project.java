@@ -18,7 +18,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1976 2003-05-22 10:05:14Z damiano $
+ * @version $Id: Project.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -168,7 +168,7 @@ public class Project
             }
         }
 
-		project.getDebugger().endDebugger();
+		project.getDebugger().close();
 		
         BlueJEvent.removeListener(project);
         PrefMgr.addRecentProject(project.getProjectDir().getAbsolutePath());
@@ -288,14 +288,6 @@ public class Project
         return null;
     }
 
-	public static Debugger getInitialDebugger()
-	{
-		if (initialDebugger == null) {
-			initialDebugger = Debugger.getDebuggerImpl();
-		}
-		return initialDebugger;
-	}
-
     /* ------------------- end of static declarations ------------------ */
 
     // instance fields
@@ -312,9 +304,6 @@ public class Project
     /** a ClassLoader for the local virtual machine */
     private ProjectClassLoader loader;
 
-    /** a ClassLoader for the remote virtual machine */
-    private DebuggerClassLoader debuggerLoader;
-    
     /** the debugger for this project */
     private Debugger debugger;
     
@@ -360,11 +349,10 @@ public class Project
 
         BlueJEvent.addListener(this);
 
-		debugger = getInitialDebugger();
-		
-		execControls = new ExecControls();
-		execControls.setDebugger(debugger);
-		
+		debugger = Debugger.getDebuggerImpl(getProjectDir());
+		debugger.launch();
+
+		execControls = new ExecControls(this, debugger);	
         docuGenerator = new DocuGenerator(this);
     }
 
@@ -389,7 +377,7 @@ public class Project
      */
     public String getUniqueId()
     {
-        return "BJID" + getProjectDir().getPath();
+        return String.valueOf(new String("BJID" + getProjectDir().getPath()).hashCode());
     }
 
     /**
@@ -605,78 +593,32 @@ public class Project
 
             // remove all open windows created by these objects
             getDebugger().disposeWindows();
-            // Note that this is slightly wrong: ideally, we would want to remove windows
-            // created by this project only. Currently, we remove all windows (including
-            // windows from other projects, even though the objects stay around there).
 
             loader = null;
         }
     }
 
-    /**
-     * Get the DebuggerClassLoader for this package.
-     * The DebuggerClassLoader load classes on the remote VM
-     * (the machine used for user code execution).
-     */
-    public synchronized DebuggerClassLoader getRemoteClassLoader()
-    {
-        if(debuggerLoader == null)
-            debuggerLoader = getDebugger().createClassLoader
-                                                (getUniqueId(), getProjectDir().getPath());
-        return debuggerLoader;
-    }
+	/**
+	 * Removes the remote VM classloader.
+	 * Should be run whenever a source file changes.
+	 */
+	public synchronized void newRemoteClassLoader()
+	{
+		getDebugger().newClassLoader(getProjectDir().getPath());
+	}
 
     /**
      * Removes the remote VM classloader.
      * Should be run whenever a source file changes.
      */
-    public synchronized void removeRemoteClassLoader()
+    public synchronized void newRemoteClassLoaderLeavingBreakpoints()
     {
-        if(debuggerLoader != null) {
-            getDebugger().removeClassLoader(debuggerLoader);
-            debuggerLoader = null;
-        }
-    }
-
-    /**
-     * Removes the remote VM classloader.
-     * Should be run whenever a source file changes.
-     */
-    public synchronized void removeRemoteClassLoaderLeavingBreakpoints()
-    {
-        if(debuggerLoader != null) {
-            getDebugger().saveBreakpoints();
-            getDebugger().removeClassLoader(debuggerLoader);
-
-            // blank out the current loader then cause a new loader
-            // to be created
-            debuggerLoader = null;
-            getRemoteClassLoader();
-
-            getDebugger().restoreBreakpoints(debuggerLoader);
-        }
+        getDebugger().newClassLoaderLeavingBreakpoints(getProjectDir().getPath());
     }
 
 	public Debugger getDebugger()
 	{
 		return debugger;
-	}
-	
-	public void restartDebugger()
-	{
-		loader = null;
-		debuggerLoader = null;
-
-		getDebugger().endDebugger();
-		
-		debugger = Debugger.getDebuggerImpl();
-		
-		// start the MachineLoader (a separate thread) to load the
-		// remote virtual machine in the background
-		MachineLoader machineLoader = new MachineLoader(debugger);
-		// lower priority to improve GUI response time
-		machineLoader.setPriority(Thread.currentThread().getPriority() - 1);
-		machineLoader.start();
 	}
 
 	public ExecControls getExecControls()

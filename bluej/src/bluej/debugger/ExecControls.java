@@ -9,10 +9,11 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import bluej.*;
+import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: ExecControls.java 1954 2003-05-15 06:06:01Z ajp $
+ ** @version $Id: ExecControls.java 1991 2003-05-28 08:53:06Z ajp $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -62,6 +63,8 @@ public class ExecControls extends JFrame
     private JCheckBox showSystemThreads;
 
     private List threads;
+    
+    private Project project;
     private Debugger debugger;				// the debug machine this
     										// control is looking at
     private DebuggerThread selectedThread;	// the thread currently
@@ -72,23 +75,16 @@ public class ExecControls extends JFrame
                                             //  selected stack frame
     private int currentFrame = 0;		// currently selected frame
 
-    public ExecControls()
+    public ExecControls(Project project, Debugger debugger)
     {
         super(windowTitle);
+
+		this.project = project;
+		this.debugger = debugger;
 
         threads = new ArrayList();
         createWindow();
     }
-
-	public void setDebugger(Debugger d)
-	{
-		debugger = d;
-	}
-	
-	public void clearDebugger()
-	{
-		debugger = null;
-	}
 
 	/**
 	 * Show or hide the exec control window.
@@ -112,6 +108,15 @@ public class ExecControls extends JFrame
 			
         Object obj = event.getSource();
         int machineStatus = debugger.getStatus();
+
+		if(obj == terminateButton) {
+			project.removeLocalClassLoader();
+			debugger.restart();
+			threadList.clearSelection();
+			updateThreads(null);
+			dispose();
+			return;
+		}
 
         if(obj == updateButton) {
             updateThreads(selectedThread);
@@ -138,11 +143,6 @@ public class ExecControls extends JFrame
             }
             else if(obj==stepIntoButton && machineStatus==Debugger.SUSPENDED) {
                 selectedThread.stepInto();
-            }
-            else if(obj == terminateButton && machineStatus != Debugger.IDLE) {
-                debugger.terminate(selectedThread);
-                threadList.clearSelection();
-                updateThreads(null);
             }
         }
         else
@@ -374,6 +374,8 @@ public class ExecControls extends JFrame
      */
     private void createWindow()
     {
+    	setIconImage(BlueJTheme.getIconImage());
+    	
         JPanel contentPane = (JPanel)getContentPane();  // has BorderLayout by default
         contentPane.setLayout(new BorderLayout(6,6));
         contentPane.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
@@ -556,27 +558,26 @@ public class ExecControls extends JFrame
 
     private void setButtonsEnabled(int machineStatus)
     {
+		terminateButton.setEnabled(true);
+
         switch(machineStatus) {
-        case Debugger.IDLE:
+         case Debugger.IDLE:
             stopButton.setEnabled(false);
             stepButton.setEnabled(false);
             stepIntoButton.setEnabled(false);
             continueButton .setEnabled(false);
-            terminateButton.setEnabled(false);
             break;
-        case Debugger.RUNNING:
+         case Debugger.RUNNING:
             stopButton.setEnabled(true);
             stepButton.setEnabled(false);
             stepIntoButton.setEnabled(false);
             continueButton .setEnabled(false);
-            terminateButton.setEnabled(false);
             break;
-        case Debugger.SUSPENDED:
+         case Debugger.SUSPENDED:
             stopButton.setEnabled(false);
             stepButton.setEnabled(true);
             stepIntoButton.setEnabled(true);
             continueButton .setEnabled(true);
-            terminateButton.setEnabled(true);
             break;
         }
     }

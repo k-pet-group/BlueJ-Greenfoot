@@ -30,7 +30,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1989 2003-05-27 09:44:23Z damiano $
+ * @version $Id: ClassTarget.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -437,8 +437,7 @@ public class ClassTarget extends EditableTarget
      */
     private void inspect()
     {
-        DebuggerClassLoader loader = getPackage().getRemoteClassLoader();
-        DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName(), loader);
+        DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName());
         ClassInspector insp = 
             ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
     }
@@ -475,9 +474,7 @@ public class ClassTarget extends EditableTarget
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     {
         if(isCompiled()) {
-            DebuggerClassLoader loader = getPackage().getRemoteClassLoader();
-            return getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set,
-                                                      loader);
+            return getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set);
         }
         else
             return Config.getString("pkgmgr.breakpointMsg");

@@ -146,6 +146,29 @@ public class DialogManager
         return response;
     }
 
+	/**
+	 *
+	 */
+	public static String askString(Component parent, String msgID, String defaultText)
+	{
+		String response = "";
+		String message = getMessage(msgID);
+		if(message != null) {
+			int defaultTextIndex = message.lastIndexOf("\n");
+			int titleIndex = message.lastIndexOf("\n", defaultTextIndex-1);
+			String title = message.substring(titleIndex+1, defaultTextIndex);
+			message = message.substring(0, titleIndex);
+			response = (String)JOptionPane.showInputDialog(parent,
+														   message,
+														   title,
+														   JOptionPane.PLAIN_MESSAGE,
+														   null,
+														   null,
+														   defaultText);
+		}
+		return response;
+	}
+
     /**
      * Support routine for dialogues. Read the message text out of the
      * dialogue text file (language dependent).

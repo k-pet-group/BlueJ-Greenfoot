@@ -24,7 +24,7 @@ import bluej.utility.DialogManager;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: UnitTestClassRole.java 1991 2003-05-28 08:53:06Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -149,8 +149,7 @@ public class UnitTestClassRole extends ClassRole
 
         if (param != null) {
             // Test a single method
-            dtr = pmf.getProject().getDebugger().runTestMethod(pmf.getProject().getRemoteClassLoader().getId(),
-                        pmf.getProject().getUniqueId(), ct.getQualifiedName(), param);
+            dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), param);
 
             TestDisplayFrame.getTestDisplay().startTest(1);
 
@@ -186,8 +185,7 @@ public class UnitTestClassRole extends ClassRole
 				if (!isJUnitTestMethod(m))
 					continue;
 					
-				dtr = pmf.getProject().getDebugger().runTestMethod(pmf.getProject().getRemoteClassLoader().getId(),
-								pmf.getProject().getUniqueId(), ct.getQualifiedName(), m.getName());
+				dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), m.getName());
 
 				TestDisplayFrame.getTestDisplay().addResult(dtr);			
 			}
@@ -221,10 +219,7 @@ public class UnitTestClassRole extends ClassRole
  
         Editor ed = ct.getEditor();
 
-        Map dobs = pmf.getProject().getDebugger().runTestSetUp(
-                            pmf.getProject().getRemoteClassLoader().getId(),
-                            pmf.getProject().getUniqueId(),
-                            ct.getQualifiedName());
+        Map dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
 
         Iterator it = dobs.entrySet().iterator();
         
@@ -268,10 +263,7 @@ public class UnitTestClassRole extends ClassRole
     {
         Editor ed = ct.getEditor();
 
-        Map dobs = pmf.getProject().getDebugger().runTestSetUp(
-                            pmf.getProject().getRemoteClassLoader().getId(),
-                            pmf.getProject().getUniqueId(),
-                            ct.getQualifiedName());
+        Map dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
 
         Iterator it = dobs.entrySet().iterator();
         
@@ -357,7 +349,7 @@ public class UnitTestClassRole extends ClassRole
         }
 
 		pmf.getProject().removeLocalClassLoader();
-		pmf.getProject().removeRemoteClassLoader();
+		pmf.getProject().newRemoteClassLoader();
 
 		pmf.getPackage().compileQuiet(ct);	
     }
