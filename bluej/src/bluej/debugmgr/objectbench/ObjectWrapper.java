@@ -27,7 +27,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2177 2003-09-15 11:02:55Z damiano $
+ * @version $Id: ObjectWrapper.java 2181 2003-09-25 10:56:45Z damiano $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -212,7 +212,7 @@ public class ObjectWrapper extends JComponent
 
         MenuManager menuManager = new MenuManager (menu); 
         menuManager.setAttachedObject(this);
-        menuManager.addExtensionMenu();
+        menuManager.addExtensionMenu(pkg.getProject());
 
         add(menu);
     }

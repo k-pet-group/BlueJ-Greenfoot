@@ -32,7 +32,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2177 2003-09-15 11:02:55Z damiano $
+ * @version $Id: ClassTarget.java 2181 2003-09-25 10:56:45Z damiano $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -931,7 +931,7 @@ public class ClassTarget extends EditableTarget
 
         MenuManager menuManager = new MenuManager( menu );
         menuManager.setAttachedObject(this);
-        menuManager.addExtensionMenu();
+        menuManager.addExtensionMenu(getPackage().getProject());
         
         return menu;
     }

@@ -1,40 +1,35 @@
 package bluej.pkgmgr;
 
+import bluej.*;
+import bluej.debugger.*;
+import bluej.debugmgr.*;
+import bluej.debugmgr.inspector.*;
+import bluej.debugmgr.objectbench.*;
+import bluej.extmgr.*;
+import bluej.graph.*;
+import bluej.parser.*;
+import bluej.parser.symtab.*;
+import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.role.*;
+import bluej.prefmgr.*;
+import bluej.terminal.*;
+import bluej.testmgr.*;
+import bluej.utility.*;
+import bluej.views.*;
+import com.apple.eawt.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
-
 import javax.swing.*;
-//import javax.swing.border.BeveFlBorder;
-import javax.swing.border.BevelBorder;
-
-import bluej.*;
-import bluej.debugger.*;
-import bluej.debugmgr.*;
-import bluej.debugmgr.inspector.*;
-import bluej.debugmgr.objectbench.*;
-import bluej.extmgr.ExtensionsManager;
-import bluej.graph.GraphElement;
-import bluej.extmgr.*;
-import bluej.parser.ClassParser;
-import bluej.parser.symtab.ClassInfo;
-import bluej.pkgmgr.target.*;
-import bluej.pkgmgr.target.role.UnitTestClassRole;
-import bluej.prefmgr.*;
-import bluej.terminal.*;
-import bluej.testmgr.*;
-import bluej.utility.*;
-import bluej.views.*;
-
-import com.apple.eawt.*;
+import javax.swing.border.*;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2177 2003-09-15 11:02:55Z damiano $
+ * @version $Id: PkgMgrFrame.java 2181 2003-09-25 10:56:45Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -63,7 +58,7 @@ public class PkgMgrFrame extends JFrame
 
     private JButton imgExtendsButton;
     private JButton imgDependsButton;
-	private JButton runButton;
+    private JButton runButton;
     private JTextField executorField;
     
     private JLabel statusbar;
@@ -150,7 +145,6 @@ public class PkgMgrFrame extends JFrame
         PkgMgrFrame frame = new PkgMgrFrame();
         frames.add(frame);
         BlueJEvent.addListener(frame);
-//        PkgMgrFrame.extensionToolsMenuRevalidate();
         return frame;
     }
 
@@ -416,35 +410,6 @@ public class PkgMgrFrame extends JFrame
     }
 
 
-    /** Damiano
-    public static void extensionToolsMenuRevalidate ()
-    {
-        // What I need to do is to call a resync on all the frames, in swing thread
-        EventQueue.invokeLater(new Runnable ()  {
-            public void run ()
-            {
-                fixAllToolsMenu ();
-            }
-        });
-    }
-
-    /**
-     * Go trough all frames and fix al tools menu.
-    private static void fixAllToolsMenu()
-    {
-        // We have to be extra safe since this may be called any time
-        if (frames == null) 
-            return;
-
-        for (Iterator iter=frames.iterator(); iter.hasNext(); )  {
-            PkgMgrFrame aFrame = (PkgMgrFrame)iter.next();
-            aFrame.menuManager.revalidate(aFrame.toolsMenu.getPopupMenu());
-        }
-     
-    }
-     */
-
-
     // ================ (end of static part) ==========================
 
     /**
@@ -553,6 +518,7 @@ public class PkgMgrFrame extends JFrame
         SwingUtilities.invokeLater(enableUI);
 
         this.menuManager.setAttachedObject(pkg);
+        this.menuManager.addExtensionMenu(pkg.getProject());
         
         extMgr.packageOpened (pkg);
     }
@@ -2283,9 +2249,12 @@ public class PkgMgrFrame extends JFrame
                                public void actionPerformed(ActionEvent e) { menuCall(); showPreferences(); }
                            });
 
-            // Lets get the menu to display, Damiano
+            // This will attache the general handling of extension menu
             menuManager = new MenuManager(menu.getPopupMenu());
-            menuManager.addExtensionMenu();;
+
+            // If this is the first frame I have to attach the extension menu, no project openend here.
+            if ( frames.size() <= 1 )
+                menuManager.addExtensionMenu(null);
         }
 
 

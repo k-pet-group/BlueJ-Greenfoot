@@ -50,7 +50,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2179 2003-09-16 10:06:44Z damiano $
+ * @version    $Id: BlueJ.java 2181 2003-09-25 10:56:45Z damiano $
  */
 
 /*
@@ -700,14 +700,14 @@ public class BlueJ
 
         if (attachedObject == null) {
             // Only BPackages can be null when a menu is invoked
-            currentMenuGen.notifyPostMenu((BPackage)null,onThisItem);
+            currentMenuGen.notifyPostToolsMenu(null,onThisItem);
             return;
             }
 
         if (attachedObject instanceof Package) {
             Package attachedPkg = (Package) attachedObject;
             Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg);
-            currentMenuGen.notifyPostMenu(new BPackage(anId),onThisItem);
+            currentMenuGen.notifyPostToolsMenu(new BPackage(anId),onThisItem);
         }
 
         if (attachedObject instanceof ClassTarget) {
@@ -715,12 +715,12 @@ public class BlueJ
             String qualifiedClassName = aTarget.getQualifiedName();
             Package attachedPkg = aTarget.getPackage();
             Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg, qualifiedClassName);
-            currentMenuGen.notifyPostMenu(new BClass(anId),onThisItem);
+            currentMenuGen.notifyPostClassMenu(new BClass(anId),onThisItem);
         }
 
         if (attachedObject instanceof ObjectWrapper) {
             ObjectWrapper aWrapper = (ObjectWrapper) attachedObject;
-            currentMenuGen.notifyPostMenu(new BObject(aWrapper),onThisItem);
+            currentMenuGen.notifyPostObjectMenu(new BObject(aWrapper),onThisItem);
         }
     }
 

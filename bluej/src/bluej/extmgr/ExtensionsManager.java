@@ -254,12 +254,32 @@ public class ExtensionsManager implements BlueJEventListener
         }
     }
 
+
+    /**
+     * Returns true if I should not ask for a menu to this extensions
+     */
+    private boolean skipThisMenu ( Project onThisProject, Project extensionProject )
+      {
+      // I want menus if nothing it is a sys loaded extension on an empty frame
+      if ( onThisProject == null && extensionProject == null ) return false;
+
+      // Menu should not be generated if an extension belongs to a project
+      if ( onThisProject == null && extensionProject != null ) return true;
+
+      // Menu should be generated if we are openieng a project and an extension is not boukd to any
+      if ( onThisProject != null && extensionProject == null ) return false;
+
+      // now both are not null, generate a menu if they are the same.
+      if ( onThisProject == extensionProject ) return false;
+
+      // None of the above cases, do not generate a menu
+      return true;
+      }
+      
     /**
      * Returns a List of menues currently provided by extensions.
-     * NOTE: There is a separator added here ad the beginning of the list
-     * if there is something to display.
      */
-    LinkedList getMenuItems( Object attachedObject )
+    LinkedList getMenuItems( Object attachedObject, Project onThisProject )
     {
         LinkedList menuItems = new LinkedList();
 
@@ -268,6 +288,8 @@ public class ExtensionsManager implements BlueJEventListener
 
             if (!aWrapper.isValid()) continue;
 
+            if ( skipThisMenu(onThisProject, aWrapper.getProject() )) continue;
+            
             JMenuItem anItem = aWrapper.safeGetMenuItem(attachedObject);
             if ( anItem == null ) continue;
 
@@ -276,12 +298,6 @@ public class ExtensionsManager implements BlueJEventListener
             menuItems.add(anItem);
             }
 
-        // If the list is empty there is nothing else to do.
-        if ( menuItems.isEmpty() ) return menuItems;
-
-        // I need to add a separator to the beginning of the list
-        menuItems.addFirst(new JPopupMenu.Separator());
-        
         return menuItems;
     }
 

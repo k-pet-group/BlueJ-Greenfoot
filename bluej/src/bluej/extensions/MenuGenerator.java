@@ -76,7 +76,7 @@ import javax.swing.JMenuItem;
  *  
  * </PRE>
  *
- * @version $Id: MenuGenerator.java 2146 2003-08-04 14:20:45Z iau $
+ * @version $Id: MenuGenerator.java 2181 2003-09-25 10:56:45Z damiano $
  */
 
  /*
@@ -147,7 +147,7 @@ public class MenuGenerator
    * @param jmi the menu item which will be displayed (as provided by the
    * extension in a previous call to getToolsMenuItem)
    */
-  public void notifyPostMenu(BPackage bp, JMenuItem jmi) 
+  public void notifyPostToolsMenu(BPackage bp, JMenuItem jmi) 
   {
       return;
   }
@@ -163,7 +163,7 @@ public class MenuGenerator
    * @param jmi the menu item which will be displayed (as provided by the
    * extension in a previous call to getToolsMenuItem)
    */
-  public void notifyPostMenu(BClass bc, JMenuItem jmi) 
+  public void notifyPostClassMenu(BClass bc, JMenuItem jmi) 
   {
       return;
   }
@@ -179,7 +179,7 @@ public class MenuGenerator
    * @param jmi the menu item which will be displayed (as provided by the
    * extension in a previous call to getToolsMenuItem)
    */
-  public void notifyPostMenu(BObject bo, JMenuItem jmi) 
+  public void notifyPostObjectMenu(BObject bo, JMenuItem jmi) 
   {
       return;
   }
