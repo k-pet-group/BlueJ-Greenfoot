@@ -2,6 +2,7 @@
 package bluej.parser.symtab;
 
 import java.util.Enumeration;
+import java.util.Vector;
 
 /*****************************************************************************
  * Definition of a Java class OR interface
@@ -33,6 +34,9 @@ class ClassDef extends HasImports
     /** indicating whether we have an abstract class */
     private boolean isAbstract=false;
 
+    /** indicating whether we have a public class */
+    private boolean isPublic=false;
+
     /** The class from which this class was extended
      *  (This only applies if this represents a CLASS)
      */
@@ -56,6 +60,12 @@ class ClassDef extends HasImports
     /** The comment attached to this method definition */
     private String comment;
 
+    /**
+     */
+     private Vector interfaceSelections;
+     private Selection extendsInsert, implementsInsert,
+                        extendsReplace, superReplace;
+
     //==========================================================================
     //==  Methods
     //==========================================================================
@@ -77,23 +87,25 @@ class ClassDef extends HasImports
 
 
     /** Constructor to set up a class */
-    ClassDef(String name,               // thhe name of the class
-             boolean isAbstract,	// is this class abstract?
-	     Occurrence occ,            // where it was defined
-             ClassDef superClass,       // its superclass (if applicable)
-             JavaVector interfaces,     // interfaces that it implements
-             ScopedDef parentScope) {   // which scope owns it
+    ClassDef(String name,               // the name of the class
+                boolean isAbstract,     // is this class abstract?
+                boolean isPublic,       // is this class public?
+                Occurrence occ,            // where it was defined
+                ClassDef superClass,       // its superclass (if applicable)
+                JavaVector interfaces,     // interfaces that it implements
+                ScopedDef parentScope)   // which scope owns it
+    {
         super(name, occ, parentScope);
 
-	this.isAbstract = isAbstract;
+        this.isAbstract = isAbstract;
+        this.isPublic = isPublic;
+
         // if a superclass was specified, set it
         if (superClass != null)
             this.superClass = superClass;
 
         // keep track of implemented interfaces
         this.interfaces = interfaces;
-
-
     }
 
 
@@ -158,6 +170,30 @@ class ClassDef extends HasImports
         return classOrInterface == INTERFACE;
     }
 
+    void setExtendsInsert(Selection extendsInsert)
+    {
+        this.extendsInsert = extendsInsert;
+    }
+
+    void setImplementsInsert(Selection implementsInsert)
+    {
+        this.implementsInsert = implementsInsert;
+    }
+
+    void setExtendsReplace(Selection extendsReplace)
+    {
+        this.extendsReplace = extendsReplace;
+    }
+
+    void setSuperReplace(Selection superReplace)
+    {
+        this.superReplace = superReplace;
+    }
+
+    void setInterfaceSelections(Vector interfaceSelections)
+    {
+        this.interfaceSelections = interfaceSelections;
+    }
 
     /** Lookup a method in the class or its superclasses */
     Definition lookup(String name, int numParams) {
@@ -184,37 +220,52 @@ class ClassDef extends HasImports
 
 
     /** Collect information about the class */
-    public void getInfo(ClassInfo info, SymbolTable symbolTable) {
+    public void getInfo(ClassInfo info, SymbolTable symbolTable)
+    {
+        // only interested in top-level classes
+        if (getParentScope() instanceof PackageDef)
+        {
+            StringBuffer target = new StringBuffer();  // the method signature
 
-        StringBuffer target = new StringBuffer();  // the method signature
+            // we are interested in either the first defined or the first
+            // public class which should override that
+            if ((isPublic && !info.foundPublicClass()) || !info.foundClass())
+            {
+        	    info.setName(getName(), isPublic);
 
-	    if(info.setName(getName())) {
-        	// get info about the superclass
-            if (getSuperClass() != null)
-        	    info.setSuperclass(getSuperClass().getQualifiedName());
+            	// get info about the superclass
+                if (getSuperClass() != null)
+            	    info.setSuperclass(getSuperClass().getQualifiedName());
 
-        	if(isInterface()) {
-        	    info.setInterface(true);
-        	    target.append("interface ");
+            	if(isInterface()) {
+            	    info.setInterface(true);
+            	    target.append("interface ");
+                }
+                else {
+            	    target.append("class ");
+                }
+
+                target.append(getName());
+
+            	if(isAbstract)
+            	    info.setAbstract(true);
+
+            	// get info about the interfaces which are implemented or extended
+            	// by this class/interface
+                if(interfaces != null) {
+            	    Enumeration e = interfaces.elements();
+            	    while(e.hasMoreElements())
+                		info.addImplements(((ClassDef)e.nextElement()).getName());
+                }
+
+                info.addComment(target.toString(), comment, null);
+
+                info.setExtendsInsertSelection(extendsInsert);
+                info.setImplementsInsertSelection(implementsInsert);
+                info.setExtendsReplaceSelection(extendsReplace);
+                info.setSuperReplaceSelection(superReplace);
+                info.setInterfaceSelections(interfaceSelections);
             }
-            else {
-        	    target.append("class ");
-            }
-
-            target.append(getName());
-
-        	if(isAbstract)
-        	    info.setAbstract(true);
-
-        	// get info about the interfaces which are implemented or extended
-        	// by this class/interface
-            if(interfaces != null) {
-        	    Enumeration e = interfaces.elements();
-        	    while(e.hasMoreElements())
-            		info.addImplements(((ClassDef)e.nextElement()).getName());
-            }
-
-            info.addComment(target.toString(), comment, null);
         }
 
         // get info about imported classes/packages

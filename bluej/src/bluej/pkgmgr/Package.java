@@ -41,7 +41,7 @@ import java.awt.print.PageFormat;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 490 2000-05-19 04:40:31Z mik $
+ * @version $Id: Package.java 491 2000-05-19 14:28:26Z ajp $
  * @author Michael Cahill
  *
  */
@@ -1230,15 +1230,15 @@ implements CompileObserver, MouseListener, MouseMotionListener
         try {
             ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
 
-            Selection s1 = info.getClassImplementsInsertSelection();
+            Selection s1 = info.getImplementsInsertSelection();
             ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
 
-            if (info.hasClassImplementsSelections()) {
+            if (info.hasInterfaceSelections()) {
                 // if we already have an implements clause then we need to put a
                 // comma and the interface name but not before checking that we don't
                 // already have it
 
-                Vector exists = info.getClassImplementsTexts();
+                Vector exists = info.getInterfaceTexts();
 
                 // XXX make this equality check against full package name
                 if(!exists.contains(to.getName()))
@@ -1274,15 +1274,15 @@ implements CompileObserver, MouseListener, MouseMotionListener
         try {
             ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
 
-            Selection s1 = info.getInterfaceExtendsInsertSelection();
+            Selection s1 = info.getExtendsInsertSelection();
             ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
 
-            if (info.hasInterfaceExtendsSelections()) {
+            if (info.hasInterfaceSelections()) {
                 // if we already have an extends clause then we need to put a
                 // comma and the interface name but not before checking that we don't
                 // already have it
 
-                Vector exists = info.getInterfaceExtendsTexts();
+                Vector exists = info.getInterfaceTexts();
 
                 // XXX make this equality check against full package name
                 if(!exists.contains(to.getName()))
@@ -1317,12 +1317,12 @@ implements CompileObserver, MouseListener, MouseMotionListener
             ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
 
             if (info.getSuperclass() == null) {
-                Selection s1 = info.getClassExtendsInsertSelection();
+                Selection s1 = info.getExtendsInsertSelection();
 
                 ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
                 ed.insertText(" extends " + to.getName(), false, false);
             } else {
-                Selection s1 = info.getClassSuperClassReplaceSelection();
+                Selection s1 = info.getSuperReplaceSelection();
 
                 ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
                 ed.insertText(to.getName(), false, false);
@@ -1365,12 +1365,12 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
                     if(info.isInterface())
                         {
-                            vsels = info.getInterfaceExtendsSelections();
-                            vtexts = info.getInterfaceExtendsTexts();
+                            vsels = info.getInterfaceSelections();
+                            vtexts = info.getInterfaceTexts();
                             sinserttext = "extends ";
                         } else {
-                            vsels = info.getClassImplementsSelections();
-                            vtexts = info.getClassImplementsTexts();
+                            vsels = info.getInterfaceSelections();
+                            vtexts = info.getInterfaceTexts();
                             sinserttext = "implements ";
                         }
 
@@ -1392,8 +1392,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
             else if(d instanceof ExtendsDependency)
                 {
                     // a class extends
-                    s1 = info.getClassExtendsReplaceSelection();
-                    s2 = info.getClassSuperClassReplaceSelection();
+                    s1 = info.getExtendsReplaceSelection();
+                    s2 = info.getSuperReplaceSelection();
                 }
 
             // delete (maybe insert) text from end backwards so that our line/col positions
@@ -2007,9 +2007,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
     {
         FontMetrics tfm = frame.getFontMetrics(printTitleFont);
         FontMetrics ifm = frame.getFontMetrics(printInfoFont);
-        Rectangle printArea = new Rectangle((int)pageFormat.getImageableX(), 
+        Rectangle printArea = new Rectangle((int)pageFormat.getImageableX(),
                                             (int)pageFormat.getImageableY(),
-                                            (int)pageFormat.getImageableWidth(), 
+                                            (int)pageFormat.getImageableWidth(),
                                             (int)pageFormat.getImageableHeight());
 
         // frame header area

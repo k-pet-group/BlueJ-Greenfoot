@@ -31,6 +31,11 @@ import antlr.*;
 import java.util.Vector;
 import java.io.*;
 
+class JavaBitSet extends java.util.BitSet
+{
+}
+
+
 public class ClassParser extends antlr.LLkParser
        implements ClassParserTokenTypes
  {
@@ -42,6 +47,13 @@ public class ClassParser extends antlr.LLkParser
     static final int INSTANCE_INIT = 3;
     static final int NEW_SCOPE     = 4;
 
+    // these static variables are used as indices into a BitSet which
+    // shows the modifiers of a class
+    static final int PRIVATE	= 0;
+    static final int PUBLIC	= 1;
+    static final int PROTECTED	= 2;
+    static final int STATIC	= 3;
+    static final int ABSTRACT	= 4;
 
     // We need a symbol table to track definitions
     private SymbolTable symbolTable;
@@ -125,12 +137,6 @@ public class ClassParser extends antlr.LLkParser
 	parser.compilationUnit();
     }
 
-	class CommaClauses {
-		public JavaVector classes = new JavaVector();
-		public Vector positions = new Vector();		// a vector of Selections
-		public Vector texts = new Vector();		// a vector of Strings
-	}
-
     // Tell the parser which symbol table to use
     public void setSymbolTable(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
@@ -203,27 +209,27 @@ public class ClassParser extends antlr.LLkParser
     public void defineClass(JavaToken theClass,
                             JavaToken superClass,
                             JavaVector interfaces,
-			    boolean isAbstract,
-			    JavaToken comment) {
-
-	// if the class we are constructing has the same name as the src file it
-	// is in then we indicate that we have found the main class for this file
-	if (symbolTable.getFile().getName().compareToIgnoreCase(theClass.getText() + ".java") == 0) {
-	    info.setParsedFileHeader(theClass.getText());
-	}
-        symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, comment);
+                            boolean isAbstract,
+			    boolean isPublic,
+			    JavaToken comment,
+			    Selection extendsInsert, Selection implementsInsert,
+			    Selection extendsReplace, Selection superReplace,
+			    Vector interfaceSelections)
+    {
+        symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, isPublic,
+        			comment, extendsInsert, implementsInsert,
+        			extendsReplace, superReplace, interfaceSelections);
     }
 
     public void defineInterface(JavaToken theInterface,
-                                JavaVector subInterfaces,
-                                JavaToken comment) {
-
-	// if the class we are constructing has the same name as the src file it
-        // is in then we indicate that we have found the main class for this file
-	if (symbolTable.getFile().getName().compareToIgnoreCase(theInterface.getText() + ".java") == 0) {
-	    info.setParsedFileHeader(theInterface.getText());
-	}
-        symbolTable.defineInterface(theInterface, subInterfaces, comment);
+                                JavaVector superInterfaces,
+                                boolean isPublic,
+                                JavaToken comment,
+                                Selection extendsInsert,
+                                Vector superInterfaceSelections)
+    {
+        symbolTable.defineInterface(theInterface, superInterfaces, isPublic, comment,
+                                    extendsInsert, superInterfaceSelections);
     }
 
     public void defineVar(JavaToken theVariable, JavaToken type, JavaToken comment) {
@@ -240,9 +246,10 @@ public class ClassParser extends antlr.LLkParser
 
     // create a selection which consists of the location just after the token passed
     // in
-    public Selection selectionAfterToken(JavaToken id) {
+    public Selection selectionAfterToken(JavaToken id)
+    {
 	return new Selection(id.getFile(), id.getLine(),
-                              id.getColumn() + id.getText().length(),0);
+                              id.getColumn() + id.getText().length());
     }
 
 protected ClassParser(TokenBuffer tokenBuf, int k) {
@@ -390,7 +397,7 @@ public ClassParser(ParserSharedInputState state) {
 	
 	public final void typeDefinition() throws ParserException, IOException {
 		
-		boolean isAbstract;
+		JavaBitSet mods;
 		JavaToken commentToken = null;
 		
 		try {      // for error handling
@@ -412,17 +419,17 @@ public ClassParser(ParserSharedInputState state) {
 				if ( inputState.guessing==0 ) {
 					commentToken = findAttachedComment((JavaToken)LT(1));
 				}
-				isAbstract=modifiers();
+				mods=modifiers();
 				{
 				switch ( LA(1)) {
 				case LITERAL_class:
 				{
-					classDefinition(isAbstract, commentToken);
+					classDefinition(mods, commentToken);
 					break;
 				}
 				case LITERAL_interface:
 				{
-					interfaceDefinition(commentToken);
+					interfaceDefinition(mods, commentToken);
 					break;
 				}
 				default:
@@ -552,20 +559,16 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final boolean  modifiers() throws ParserException, IOException {
-		boolean isAbstract;
+	public final JavaBitSet  modifiers() throws ParserException, IOException {
+		JavaBitSet mods;
 		
-		isAbstract = false;
-		boolean abs;
+		mods = new JavaBitSet();
 		
 		{
 		_loop14:
 		do {
 			if ((_tokenSet_3.member(LA(1)))) {
-				abs=modifier();
-				if ( inputState.guessing==0 ) {
-					isAbstract|=abs;
-				}
+				modifier(mods);
 			}
 			else {
 				break _loop14;
@@ -573,30 +576,34 @@ public ClassParser(ParserSharedInputState state) {
 			
 		} while (true);
 		}
-		return isAbstract;
+		return mods;
 	}
 	
 	public final void classDefinition(
-		boolean isAbstract, JavaToken commentToken
+		JavaBitSet mods, JavaToken commentToken
 	) throws ParserException, IOException {
 		
 		Token  id = null;
 		Token  ex = null;
-		JavaToken superClass=null; CommaClauses interfaces=null;
+		
+		JavaToken superClass=null;
+		JavaVector interfaces = new JavaVector();
+		Vector interfaceSelections = new Vector();
+		Selection extendsInsert=null, implementsInsert=null,
+		extendsReplace=null, superReplace=null;
+		
 		
 		match(LITERAL_class);
 		id = LT(1);
 		match(IDENT);
 		if ( inputState.guessing==0 ) {
 			
-					// the place which we would want to insert an "extends" is at the
-					// character just after the classname identifier
-					// it is also potentially the place where we would insert a
-					// "implements" so we will set that here and allow it to be overridden
-					// later on if need be
-					Selection sel = selectionAfterToken((JavaToken)id);
-				info.setClassExtendsInsertSelection(sel);
-					info.setClassImplementsInsertSelection(sel);
+			// the place which we would want to insert an "extends" is at the
+			// character just after the classname identifier
+			// it is also potentially the place where we would insert a
+			// "implements" so we will set that here and allow it to be overridden
+			// later on if need be
+			extendsInsert = implementsInsert = selectionAfterToken((JavaToken)id);
 			
 		}
 		{
@@ -608,12 +615,12 @@ public ClassParser(ParserSharedInputState state) {
 			superClass=identifier();
 			if ( inputState.guessing==0 ) {
 				
-				info.setClassExtendsReplaceSelection(new Selection((JavaToken)ex));
-				info.setClassSuperClassReplaceSelection(new Selection(superClass));
+				extendsReplace = new Selection((JavaToken)ex);
+				superReplace = new Selection(superClass);
 				
-						// maybe we need to place "implements" lines after this superClass..
-						// set it here
-						info.setClassImplementsInsertSelection(selectionAfterToken((JavaToken)superClass));
+				// maybe we need to place "implements" lines after this superClass..
+				// set it here
+				implementsInsert = selectionAfterToken((JavaToken)superClass);
 				
 			}
 			break;
@@ -633,13 +640,7 @@ public ClassParser(ParserSharedInputState state) {
 		switch ( LA(1)) {
 		case LITERAL_implements:
 		{
-			interfaces=implementsClause();
-			if ( inputState.guessing==0 ) {
-				
-					info.setClassImplementsSelections(interfaces.positions,
-					                                   interfaces.texts);
-				
-			}
+			implementsInsert=implementsClause(interfaces, interfaceSelections);
 			break;
 		}
 		case LCURLY:
@@ -653,9 +654,13 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		}
 		if ( inputState.guessing==0 ) {
-			defineClass((JavaToken)id, superClass,
-					 (interfaces!=null?interfaces.classes : null),
-					  isAbstract, commentToken);
+			defineClass( (JavaToken)id, superClass,
+					  interfaces,
+					  mods.get(ABSTRACT), mods.get(PUBLIC),
+					  commentToken,
+					  extendsInsert, implementsInsert,
+					  extendsReplace, superReplace,
+					  interfaceSelections);
 		}
 		classBlock();
 		if ( inputState.guessing==0 ) {
@@ -664,33 +669,31 @@ public ClassParser(ParserSharedInputState state) {
 	}
 	
 	public final void interfaceDefinition(
-		JavaToken commentToken
+		JavaBitSet mods, JavaToken commentToken
 	) throws ParserException, IOException {
 		
 		Token  id = null;
-		CommaClauses superInterfaces = null;
+		
+		JavaVector superInterfaces = new JavaVector();
+		Vector superInterfaceSelections = new Vector();
+		Selection extendsInsert = null;
+		
 		
 		match(LITERAL_interface);
 		id = LT(1);
 		match(IDENT);
 		if ( inputState.guessing==0 ) {
 			
-					// the place which we would want to insert an "extends" is at the
-					// character just after the interfacename identifier
-					info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
+				    // the place which we would want to insert an "extends" is at the
+				    // character just after the interfacename identifier
+				    extendsInsert = selectionAfterToken((JavaToken)id);
 			
 		}
 		{
 		switch ( LA(1)) {
 		case LITERAL_extends:
 		{
-			superInterfaces=interfaceExtends();
-			if ( inputState.guessing==0 ) {
-				
-				info.setInterfaceExtendsSelections(superInterfaces.positions,
-								    superInterfaces.texts);
-				
-			}
+			extendsInsert=interfaceExtends(superInterfaces, superInterfaceSelections);
 			break;
 		}
 		case LCURLY:
@@ -705,8 +708,9 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		if ( inputState.guessing==0 ) {
 			defineInterface((JavaToken)id,
-						(superInterfaces!=null?superInterfaces.classes : null),
-						 commentToken);
+					            superInterfaces,
+					            mods.get(PUBLIC), commentToken,
+					            extendsInsert, superInterfaceSelections);
 		}
 		classBlock();
 		if ( inputState.guessing==0 ) {
@@ -771,25 +775,34 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final boolean  modifier() throws ParserException, IOException {
-		boolean isAbstract;
+	public final void modifier(
+		JavaBitSet mods
+	) throws ParserException, IOException {
 		
-		isAbstract = false;
 		
 		switch ( LA(1)) {
 		case LITERAL_private:
 		{
 			match(LITERAL_private);
+			if ( inputState.guessing==0 ) {
+				mods.set(PRIVATE);
+			}
 			break;
 		}
 		case LITERAL_public:
 		{
 			match(LITERAL_public);
+			if ( inputState.guessing==0 ) {
+				mods.set(PUBLIC);
+			}
 			break;
 		}
 		case LITERAL_protected:
 		{
 			match(LITERAL_protected);
+			if ( inputState.guessing==0 ) {
+				mods.set(PROTECTED);
+			}
 			break;
 		}
 		case LITERAL_static:
@@ -811,7 +824,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			match(LITERAL_abstract);
 			if ( inputState.guessing==0 ) {
-				isAbstract = true;
+				mods.set(ABSTRACT);
 			}
 			break;
 		}
@@ -840,7 +853,6 @@ public ClassParser(ParserSharedInputState state) {
 			throw new NoViableAltException(LT(1));
 		}
 		}
-		return isAbstract;
 	}
 	
 	public final JavaToken  type() throws ParserException, IOException {
@@ -979,26 +991,27 @@ public ClassParser(ParserSharedInputState state) {
 		return t;
 	}
 	
-	public final CommaClauses  implementsClause() throws ParserException, IOException {
-		CommaClauses inters;
+	public final Selection  implementsClause(
+		JavaVector interfaces, Vector interfaceSelections
+	) throws ParserException, IOException {
+		Selection implementsInsert;
 		
 		Token  im = null;
 		Token  co = null;
-		JavaToken id; inters = new CommaClauses();
+		JavaToken id;
+		implementsInsert = null;
+		
 		
 		im = LT(1);
 		match(LITERAL_implements);
 		id=identifier();
 		if ( inputState.guessing==0 ) {
 			
-			info.setClassImplementsInsertSelection(selectionAfterToken((JavaToken)id));
-				  inters.positions.add(new Selection((JavaToken)im));
-				  inters.texts.add(new String(im.getText()));
+			implementsInsert = selectionAfterToken((JavaToken)id);
 			
-			inters.classes.addElement(dummyClass(id));
-			
-				  inters.positions.add(new Selection((JavaToken)id));
-				  inters.texts.add(new String(id.getText()));
+				  interfaceSelections.addElement(new Selection((JavaToken)im));
+			interfaces.addElement(dummyClass(id));
+				  interfaceSelections.addElement(new Selection((JavaToken)id));
 			
 		}
 		{
@@ -1010,14 +1023,11 @@ public ClassParser(ParserSharedInputState state) {
 				id=identifier();
 				if ( inputState.guessing==0 ) {
 					
-					info.setClassImplementsInsertSelection(selectionAfterToken((JavaToken)id));
-					inters.positions.add(new Selection((JavaToken)co));
-						  inters.texts.add(new String(co.getText()));
+					implementsInsert = selectionAfterToken((JavaToken)id);
 					
-					inters.classes.addElement(dummyClass(id));
-					
-					inters.positions.add(new Selection((JavaToken)id));
-						  inters.texts.add(new String(id.getText()));
+					interfaceSelections.addElement(new Selection((JavaToken)co));
+					interfaces.addElement(dummyClass(id));
+					interfaceSelections.addElement(new Selection((JavaToken)id));
 					
 				}
 			}
@@ -1027,7 +1037,7 @@ public ClassParser(ParserSharedInputState state) {
 			
 		} while (true);
 		}
-		return inters;
+		return implementsInsert;
 	}
 	
 	public final void classBlock() throws ParserException, IOException {
@@ -1081,26 +1091,27 @@ public ClassParser(ParserSharedInputState state) {
 		match(RCURLY);
 	}
 	
-	public final CommaClauses  interfaceExtends() throws ParserException, IOException {
-		CommaClauses supers;
+	public final Selection  interfaceExtends(
+		JavaVector interfaces, Vector interfaceSelections
+	) throws ParserException, IOException {
+		Selection extendsInsert;
 		
 		Token  ex = null;
 		Token  co = null;
-		JavaToken id; supers = new CommaClauses();
+		JavaToken id;
+		extendsInsert = null;
+		
 		
 		ex = LT(1);
 		match(LITERAL_extends);
 		id=identifier();
 		if ( inputState.guessing==0 ) {
 			
-			info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
-			supers.positions.add(new Selection((JavaToken)ex));
-			supers.texts.add(new String(ex.getText()));
+			extendsInsert = selectionAfterToken((JavaToken)id);
 			
-				  supers.classes.addElement(dummyClass(id));
-			
-				  supers.positions.add(new Selection((JavaToken)id));
-			supers.texts.add(new String(id.getText()));
+			interfaceSelections.addElement(new Selection((JavaToken)ex));
+				  interfaces.addElement(dummyClass(id));
+				  interfaceSelections.addElement(new Selection((JavaToken)id));
 			
 		}
 		{
@@ -1112,14 +1123,11 @@ public ClassParser(ParserSharedInputState state) {
 				id=identifier();
 				if ( inputState.guessing==0 ) {
 					
-					info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
-					supers.positions.add(new Selection((JavaToken)co));
-					supers.texts.add(new String(co.getText()));
+					extendsInsert = selectionAfterToken((JavaToken)id);
 					
-					supers.classes.addElement(dummyClass(id));
-					
-					supers.positions.add(new Selection((JavaToken)id));
-					supers.texts.add(new String(id.getText()));
+					interfaceSelections.addElement(new Selection((JavaToken)co));
+					interfaces.addElement(dummyClass(id));
+					interfaceSelections.addElement(new Selection((JavaToken)id));
 					
 				}
 			}
@@ -1129,7 +1137,7 @@ public ClassParser(ParserSharedInputState state) {
 			
 		} while (true);
 		}
-		return supers;
+		return extendsInsert;
 	}
 	
 	public final void field() throws ParserException, IOException {
@@ -1146,12 +1154,12 @@ public ClassParser(ParserSharedInputState state) {
 			switch ( LA(1)) {
 			case LITERAL_class:
 			{
-				classDefinition(false, null);
+				classDefinition(new JavaBitSet(), null);
 				break;
 			}
 			case LITERAL_interface:
 			{
-				interfaceDefinition(null);
+				interfaceDefinition(new JavaBitSet(), null);
 				break;
 			}
 			default:

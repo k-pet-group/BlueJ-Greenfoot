@@ -249,25 +249,36 @@ public class SymbolTable
 
     /** Define a class object */
     public void defineClass(JavaToken theClass,      // class being created
-			    JavaToken superClass,    // its superclass
-			    JavaVector interfaces,   // implemented interfaces
-			    boolean isAbstract,
-			    JavaToken comment)
+                            JavaToken superClass,    // its superclass
+                            JavaVector interfaces,   // implemented interfaces
+                            boolean isAbstract,
+                            boolean isPublic,
+                            JavaToken comment,
+                            Selection extendsInsert, Selection implementsInsert,
+                            Selection extendsReplace, Selection superReplace,
+                            Vector interfaceSelections)
     {
         // note -- we leave interfaces as a vector of JavaTokens for now
         //         we'll resolve them in pass 2.
 
         // create a new class definition for the class
         ClassDef def = new ClassDef(getUniqueName(theClass),
-				    isAbstract,
-				    getOccurrence(theClass),
-				    superClass==null ?
-				                null :
-				                getDummyClass(superClass),
-				    interfaces,
-				    getCurrentScope());
+                                    isAbstract, isPublic,
+                                    getOccurrence(theClass),
+                                    superClass==null ?
+                                                null :
+                                                getDummyClass(superClass),
+                                    interfaces,
+                                    getCurrentScope());
 
         def.setType(ClassDef.CLASS);
+
+        // add the postions of the keywords and identifiers
+        def.setExtendsInsert(extendsInsert);
+        def.setImplementsInsert(implementsInsert);
+        def.setExtendsReplace(extendsReplace);
+        def.setSuperReplace(superReplace);
+        def.setInterfaceSelections(interfaceSelections);
 
         // add the imported classes/packages to the class
         def.setImports(importedClasses);
@@ -285,20 +296,28 @@ public class SymbolTable
 
     /** Define an interface object */
     public void defineInterface(JavaToken theInterface,
-                                      JavaVector superInterfaces,
-                                      JavaToken comment) {
+                                JavaVector superInterfaces,
+                                boolean isPublic,
+                                JavaToken comment,
+                                Selection extendsInsert,
+                                Vector superInterfaceSelections)
+    {
         // note -- we leave superInterfaces as a vector of JavaTokens for now.
         //         we'll resolve in pass 2.
 
         // create the new interface object
         ClassDef def = new ClassDef(getUniqueName(theInterface),
-				    false,
+                                    false, true,
                                     getOccurrence(theInterface),
-                                    null, // no super class...
+                                    null,       // no super class...
                                     superInterfaces,
                                     getCurrentScope());
 
         def.setType(ClassDef.INTERFACE);
+
+        // add the postions of the keywords and identifiers
+        def.setExtendsInsert(extendsInsert);
+        def.setInterfaceSelections(superInterfaceSelections);
 
         if (comment != null)
             def.setComment(comment.getText());
@@ -361,7 +380,8 @@ public class SymbolTable
 
 
     /** Define a new package object */
-    PackageDef definePackage(String name) {
+    PackageDef definePackage(String name)
+    {
         // try to find thew package
         PackageDef pkg = (PackageDef)packages.get(name);
 

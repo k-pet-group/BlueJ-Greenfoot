@@ -41,6 +41,11 @@ import antlr.*;
 
 import java.util.Vector;
 import java.io.*;
+
+class JavaBitSet extends java.util.BitSet
+{
+}
+
 }
 
 
@@ -67,6 +72,13 @@ options {
     static final int INSTANCE_INIT = 3;
     static final int NEW_SCOPE     = 4;
 
+    // these static variables are used as indices into a BitSet which
+    // shows the modifiers of a class
+    static final int PRIVATE	= 0;
+    static final int PUBLIC	= 1;
+    static final int PROTECTED	= 2;
+    static final int STATIC	= 3;
+    static final int ABSTRACT	= 4;
 
     // We need a symbol table to track definitions
     private SymbolTable symbolTable;
@@ -150,12 +162,6 @@ options {
 	parser.compilationUnit();
     }
 
-	class CommaClauses {
-		public JavaVector classes = new JavaVector();
-		public Vector positions = new Vector();		// a vector of Selections
-		public Vector texts = new Vector();		// a vector of Strings
-	}
-
     // Tell the parser which symbol table to use
     public void setSymbolTable(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
@@ -228,27 +234,27 @@ options {
     public void defineClass(JavaToken theClass,
                             JavaToken superClass,
                             JavaVector interfaces,
-			    boolean isAbstract,
-			    JavaToken comment) {
-
-	// if the class we are constructing has the same name as the src file it
-	// is in then we indicate that we have found the main class for this file
-	if (symbolTable.getFile().getName().compareToIgnoreCase(theClass.getText() + ".java") == 0) {
-	    info.setParsedFileHeader(theClass.getText());
-	}
-        symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, comment);
+                            boolean isAbstract,
+			    boolean isPublic,
+			    JavaToken comment,
+			    Selection extendsInsert, Selection implementsInsert,
+			    Selection extendsReplace, Selection superReplace,
+			    Vector interfaceSelections)
+    {
+        symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, isPublic,
+        			comment, extendsInsert, implementsInsert,
+        			extendsReplace, superReplace, interfaceSelections);
     }
 
     public void defineInterface(JavaToken theInterface,
-                                JavaVector subInterfaces,
-                                JavaToken comment) {
-
-	// if the class we are constructing has the same name as the src file it
-        // is in then we indicate that we have found the main class for this file
-	if (symbolTable.getFile().getName().compareToIgnoreCase(theInterface.getText() + ".java") == 0) {
-	    info.setParsedFileHeader(theInterface.getText());
-	}
-        symbolTable.defineInterface(theInterface, subInterfaces, comment);
+                                JavaVector superInterfaces,
+                                boolean isPublic,
+                                JavaToken comment,
+                                Selection extendsInsert,
+                                Vector superInterfaceSelections)
+    {
+        symbolTable.defineInterface(theInterface, superInterfaces, isPublic, comment,
+                                    extendsInsert, superInterfaceSelections);
     }
 
     public void defineVar(JavaToken theVariable, JavaToken type, JavaToken comment) {
@@ -265,9 +271,10 @@ options {
 
     // create a selection which consists of the location just after the token passed
     // in
-    public Selection selectionAfterToken(JavaToken id) {
+    public Selection selectionAfterToken(JavaToken id)
+    {
 	return new Selection(id.getFile(), id.getLine(),
-                              id.getColumn() + id.getText().length(),0);
+                              id.getColumn() + id.getText().length());
     }
 }
 
@@ -330,12 +337,12 @@ importDefinition
 //   to be associated with the class or interface definition
 typeDefinition
     options {defaultErrorHandler = true;}
-    {boolean isAbstract;
+    {JavaBitSet mods;
      JavaToken commentToken = null; }
     : { commentToken = findAttachedComment((JavaToken)LT(1)); }
-       isAbstract=modifiers
-        ( classDefinition[isAbstract, commentToken]
-        | interfaceDefinition[commentToken]
+       mods=modifiers
+        ( classDefinition[mods, commentToken]
+        | interfaceDefinition[mods, commentToken]
         )
     |   SEMI
     ;
@@ -359,12 +366,9 @@ declaration
 //   place of a call to modifiers, but I thought it was a good idea to keep
 //   this rule separate so they can easily be collected in a Vector if
 //   someone so desires
-modifiers returns [boolean isAbstract]
-    {isAbstract = false;
-     boolean abs;}
-    :   ( abs=modifier
-	  {isAbstract|=abs;}
-	)*
+modifiers returns [JavaBitSet mods]
+    { mods = new JavaBitSet(); }
+    :   ( modifier[mods] )*
     ;
 
 
@@ -459,16 +463,18 @@ identifierStar
 
 // modifiers for Java classes, interfaces, class/instance vars and methods
 // For this version of the cross reference tool we ignore them...
-modifier returns [boolean isAbstract]
-    {isAbstract = false;}
+modifier[JavaBitSet mods]
     :   "private"
+	{ mods.set(PRIVATE); }
     |   "public"
+	{ mods.set(PUBLIC); }
     |   "protected"
+	{ mods.set(PROTECTED); }
     |   "static"
     |   "transient"
     |   "final"
     |   "abstract"
-	{isAbstract = true;}
+	{ mods.set(ABSTRACT); }
     |   "native"
     |   "threadsafe"
     |   "synchronized"
@@ -478,87 +484,95 @@ modifier returns [boolean isAbstract]
 
 
 // Definition of a Java class
-classDefinition[boolean isAbstract, JavaToken commentToken]
-    { JavaToken superClass=null; CommaClauses interfaces=null;}
-    :   "class" id:IDENT // aha! a class!
-            {
-		// the place which we would want to insert an "extends" is at the
-		// character just after the classname identifier
-		// it is also potentially the place where we would insert a
-		// "implements" so we will set that here and allow it to be overridden
-		// later on if need be
-		Selection sel = selectionAfterToken((JavaToken)id);
-            	info.setClassExtendsInsertSelection(sel);
-		info.setClassImplementsInsertSelection(sel);
-            }
+classDefinition[JavaBitSet mods, JavaToken commentToken]
+    {
+        JavaToken superClass=null;
+        JavaVector interfaces = new JavaVector();
+        Vector interfaceSelections = new Vector();
+        Selection extendsInsert=null, implementsInsert=null,
+                    extendsReplace=null, superReplace=null;
+    }
+    : "class" id:IDENT    // aha! a class!
+        {
+            // the place which we would want to insert an "extends" is at the
+            // character just after the classname identifier
+            // it is also potentially the place where we would insert a
+            // "implements" so we will set that here and allow it to be overridden
+            // later on if need be
+            extendsInsert = implementsInsert = selectionAfterToken((JavaToken)id);
+        }
 
-            // it _might_ have a superclass...
-            ( ex:"extends" superClass=identifier
-            {
-                info.setClassExtendsReplaceSelection(new Selection((JavaToken)ex));
-                info.setClassSuperClassReplaceSelection(new Selection(superClass));
+    // it might have a superclass...
+    (
+     ex:"extends" superClass=identifier
+        {
+            extendsReplace = new Selection((JavaToken)ex);
+            superReplace = new Selection(superClass);
 
-		// maybe we need to place "implements" lines after this superClass..
-		// set it here
-		info.setClassImplementsInsertSelection(selectionAfterToken((JavaToken)superClass));
-            }
-            )?
+            // maybe we need to place "implements" lines after this superClass..
+            // set it here
+            implementsInsert = selectionAfterToken((JavaToken)superClass);
+        }
+    )?
 
-            // it might implement some interfaces...
-            ( interfaces=implementsClause
-            {
-            	info.setClassImplementsSelections(interfaces.positions,
-            	                                   interfaces.texts);
-            }
-            )?
+    // it might implement some interfaces...
+    (
+     implementsInsert=implementsClause[interfaces, interfaceSelections]
+    )?
 
-            // tell the symbol table about it
-            // Note that defineClass pushes tyhe class' scope,
-            //   so we'll have to pop...
-            { defineClass((JavaToken)id, superClass,
-            		 (interfaces!=null?interfaces.classes : null),
-            		  isAbstract, commentToken); }
+        // tell the symbol table about it
+        // Note that defineClass pushes the class' scope,
+        // so we'll have to pop...
+        { defineClass( (JavaToken)id, superClass,
+            		  interfaces,
+            		  mods.get(ABSTRACT), mods.get(PUBLIC),
+            		  commentToken,
+            		  extendsInsert, implementsInsert,
+            		  extendsReplace, superReplace,
+            		  interfaceSelections); }
 
-            // now parse the body of the class
-            classBlock
+    // now parse the body of the class
+    classBlock
 
         // tell the symbol table that we are exiting a scope
-        {popScope();}
+        { popScope(); }
     ;
 
 
 
 // Definition of a Java Interface
-interfaceDefinition[JavaToken commentToken]
-    {CommaClauses superInterfaces = null;}
-    :   "interface" id:IDENT // aha! an interface!
+interfaceDefinition[JavaBitSet mods, JavaToken commentToken]
+    {
+        JavaVector superInterfaces = new JavaVector();
+        Vector superInterfaceSelections = new Vector();
+        Selection extendsInsert = null;
+    }
+    : "interface" id:IDENT   // aha! an interface!
 
-            {
-		// the place which we would want to insert an "extends" is at the
-		// character just after the interfacename identifier
-		info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
-            }
+        {
+	    // the place which we would want to insert an "extends" is at the
+	    // character just after the interfacename identifier
+	    extendsInsert = selectionAfterToken((JavaToken)id);
+        }
 
-            // it might extend some other interfaces
-            (superInterfaces=interfaceExtends
-            {
-                info.setInterfaceExtendsSelections(superInterfaces.positions,
-                				    superInterfaces.texts);
-            }
-            )?
+    // it might extend some other interfaces
+    (
+     extendsInsert=interfaceExtends[superInterfaces, superInterfaceSelections]
+    )?
 
-            // tell the symbol table about it!
-            // Note that defineInterface pushes the interface scope, so
-            //   we'll have to pop it...
-            { defineInterface((JavaToken)id,
-            			(superInterfaces!=null?superInterfaces.classes : null),
-            			 commentToken);}
+        // tell the symbol table about it!
+        // Note that defineInterface pushes the interface scope, so
+        //   we'll have to pop it...
+        { defineInterface((JavaToken)id,
+		            superInterfaces,
+		            mods.get(PUBLIC), commentToken,
+		            extendsInsert, superInterfaceSelections); }
 
-            // now parse the body of the interface (looks like a class...)
-            classBlock
+    // now parse the body of the interface (looks like a class...)
+    classBlock
 
         // tell the symboltable that we are done in that scope
-        {popScope();}
+        { popScope(); }
     ;
 
 
@@ -577,29 +591,25 @@ classBlock
 //   add and remove them from the source
 // We also collect a vector of all the text of the tokens so that we can find
 // a particular name for deletion
-interfaceExtends returns [CommaClauses supers]
-    { JavaToken id; supers = new CommaClauses();}
-    :   ex:"extends" id=identifier
-    	{
-          info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
-          supers.positions.add(new Selection((JavaToken)ex));
-          supers.texts.add(new String(ex.getText()));
+interfaceExtends[JavaVector interfaces, Vector interfaceSelections] returns [Selection extendsInsert]
+    { JavaToken id;
+      extendsInsert = null;
+    }
+    : ex:"extends" id=identifier
+       {
+          extendsInsert = selectionAfterToken((JavaToken)id);
 
-    	  supers.classes.addElement(dummyClass(id));
-
-    	  supers.positions.add(new Selection((JavaToken)id));
-          supers.texts.add(new String(id.getText()));
-        }
+          interfaceSelections.addElement(new Selection((JavaToken)ex));
+    	  interfaces.addElement(dummyClass(id));
+    	  interfaceSelections.addElement(new Selection((JavaToken)id));
+       }
         ( co:COMMA id=identifier
         {
-          info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
-          supers.positions.add(new Selection((JavaToken)co));
-          supers.texts.add(new String(co.getText()));
+          extendsInsert = selectionAfterToken((JavaToken)id);
 
-          supers.classes.addElement(dummyClass(id));
-
-          supers.positions.add(new Selection((JavaToken)id));
-          supers.texts.add(new String(id.getText()));
+          interfaceSelections.addElement(new Selection((JavaToken)co));
+          interfaces.addElement(dummyClass(id));
+          interfaceSelections.addElement(new Selection((JavaToken)id));
         }
         )*
     ;
@@ -609,33 +619,30 @@ interfaceExtends returns [CommaClauses supers]
 //   all the implemented interfaces and return it
 // We also collect a vector of all the positions of the tokens so we can
 //   add and remove them from the source
-// We also collect a vector of all the text of the tokens so that we can find
-// a particular name for deletion
-implementsClause returns [CommaClauses inters]
-    { JavaToken id; inters = new CommaClauses(); }
-    :   im:"implements" id=identifier
+// We return the position where should insert a new implements clause
+//  in the source
+implementsClause[JavaVector interfaces, Vector interfaceSelections] returns [Selection implementsInsert]
+    { JavaToken id;
+      implementsInsert = null;
+    }
+    : im:"implements" id=identifier
         {
-          info.setClassImplementsInsertSelection(selectionAfterToken((JavaToken)id));
-    	  inters.positions.add(new Selection((JavaToken)im));
-    	  inters.texts.add(new String(im.getText()));
+          implementsInsert = selectionAfterToken((JavaToken)id);
 
-          inters.classes.addElement(dummyClass(id));
-
-    	  inters.positions.add(new Selection((JavaToken)id));
-    	  inters.texts.add(new String(id.getText()));
+    	  interfaceSelections.addElement(new Selection((JavaToken)im));
+          interfaces.addElement(dummyClass(id));
+    	  interfaceSelections.addElement(new Selection((JavaToken)id));
         }
-        ( co:COMMA id=identifier
+    ( co:COMMA id=identifier
         {
-          info.setClassImplementsInsertSelection(selectionAfterToken((JavaToken)id));
-          inters.positions.add(new Selection((JavaToken)co));
-    	  inters.texts.add(new String(co.getText()));
+          implementsInsert = selectionAfterToken((JavaToken)id);
 
-          inters.classes.addElement(dummyClass(id));
-
-          inters.positions.add(new Selection((JavaToken)id));
-    	  inters.texts.add(new String(id.getText()));
+          interfaceSelections.addElement(new Selection((JavaToken)co));
+          interfaces.addElement(dummyClass(id));
+          interfaceSelections.addElement(new Selection((JavaToken)id));
         }
-        )*
+    )*
+
     ;
 
 
@@ -654,8 +661,8 @@ field
         (   methodHead[null, commentToken]            // no type to pass...
                 compoundStatement[BODY] // constructor
 
-        |   classDefinition[false, null]      // inner class
-        |   interfaceDefinition[null]         // inner interface
+        |   classDefinition[new JavaBitSet(), null]      // inner class
+        |   interfaceDefinition[new JavaBitSet(), null]         // inner interface
 
         |   type=typeSpec  // method or variable declaration(s)
             (   methodHead[type, commentToken]

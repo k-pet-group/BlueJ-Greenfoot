@@ -8,9 +8,10 @@ public final class ClassInfo
 {
     private static final String[] appletClasses = { "Applet", "JApplet" };
 
+    private boolean foundClass = false, foundPublicClass = false;
+
     private String name;
     private String superclass;
-    private String packageName = "";
 
     private Vector implemented = new Vector();
     private Vector imported = new Vector();
@@ -54,19 +55,27 @@ public final class ClassInfo
     private boolean isAbstract = false;
     private boolean isApplet = false;
 
-    /**
-     * Returns true if this setName succeeded (this means that the name
-     * we set it to was the same as the name of the .java file we were
-     * processing and therefore this means that this class is the main
-     * class for the file ie not a inner class)
-     */
-    public boolean setName(String name)
+    public boolean foundClass()
     {
-        if(parsedname == name) {
-            this.name = name;
-            return true;
-        }
-        return false;
+        return foundClass;
+    }
+
+    public boolean foundPublicClass()
+    {
+        return foundPublicClass;
+    }
+
+    /**
+     * Set the name of the class.
+     */
+    public void setName(String name, boolean pub)
+    {
+        this.name = name;
+
+        foundClass = true;
+
+        if(pub)
+            foundPublicClass = true;
     }
 
     public void setSuperclass(String name)
@@ -164,44 +173,45 @@ public final class ClassInfo
     }
 
     /**
-     * If we have parsed the definition of the main class or
-     * interface for this file then we switch off processing of
-     * any more src locations in the file.. this protects us from
-     * picking up inner class, private classes etc defined
-     * later on in the file
+     * Where we would insert the string "extends" in a class/interface
      */
-    private boolean parsedfileheader = false;
-    private String parsedname;
-
-    public void setParsedFileHeader(String parsedName)
-    {
-        this.parsedfileheader = true;
-        this.parsedname = parsedName;
-    }
+    private Selection extendsInsertSelection;
 
     /**
-     * Record where we would insert the string "extends" in a class
+     * Record where we would insert the string "extends" in a class/interface
      *
      * @param s the Selection object which records a location to
      *          insert the "extends" keyword
      */
-    public void setClassExtendsInsertSelection(Selection s)
+    public void setExtendsInsertSelection(Selection s)
     {
-        if(!parsedfileheader)
-            classExtendsInsertSelection = s;
+        extendsInsertSelection = s;
     }
 
     /**
-     * Returns where we would insert the string "extends" in a class
+     * Returns where we would insert the string "extends" in a class/interface
      *
      * @returns s the Selection object which records a location to
      *          insert the "extends" keyword
      */
-    public Selection getClassExtendsInsertSelection() {
-        return classExtendsInsertSelection;
+    public Selection getExtendsInsertSelection() {
+        return extendsInsertSelection;
     }
 
-    private Selection classExtendsInsertSelection;
+    /*
+     * Where we would insert the string "implements" in a class
+     */
+    private Selection implementsInsertSelection;
+
+    public void setImplementsInsertSelection(Selection s)
+    {
+        implementsInsertSelection = s;
+    }
+
+    public Selection getImplementsInsertSelection()
+    {
+        return implementsInsertSelection;
+    }
 
     /**
      * Record how we would replace the string "extends" in a class
@@ -209,105 +219,69 @@ public final class ClassInfo
      * @param s the Section object which records the location of
      *          the "extends" keyword for a class
      */
-    public void setClassExtendsReplaceSelection(Selection s) {
-        if(!parsedfileheader)
-            classextendsreplaceselection = s;
+    public void setExtendsReplaceSelection(Selection s)
+    {
+        extendsReplaceSelection = s;
     }
 
-    public Selection getClassExtendsReplaceSelection() {
-        return classextendsreplaceselection;
+    public Selection getExtendsReplaceSelection()
+    {
+        return extendsReplaceSelection;
     }
 
-    private Selection classextendsreplaceselection;
-
+    private Selection extendsReplaceSelection;
 
 
     // how we would replace the superclass name in a class
-    private Selection classsuperclassreplaceselection;
-    // where we would insert the string "implements" in a class
-    private Selection classimplementsinsertselection;
+    private Selection superReplaceSelection;
 
-    // where we would insert the string "extends" in an interface
-    private Selection interfaceextendsinsertselection;
+    public void setSuperReplaceSelection(Selection s)
+    {
+        superReplaceSelection = s;
+    }
 
-    // a vector of Selections (and texts) of all the elements in a classes
+    public Selection getSuperReplaceSelection()
+    {
+        return superReplaceSelection;
+    }
+
+    // a vector of Selections of all the elements in a classes
     // "implements" clause
     // ie "implements" "InterfaceA" "," "InterfaceB"
-    // or null if there is no "implements" clause
-    private Vector classimplementsselections;
-    private Vector classimplementstexts;
-
-    // a vector of Selections (and texts) of all the elements in an interfaces
-    // "extends" clause
+    // or a interfaces "extends" clause
     // ie "extends" "InterfaceA" "," "InterfaceB"
-    // or null if there is no "extends" clause
-    private Vector interfaceextendsselections;
-    private Vector interfaceextendstexts;
+    // or null if there is no clause
+    private Vector interfaceSelections;
+    private Vector interfaceTexts;
 
-    public void setClassSuperClassReplaceSelection(Selection s)
+    public void setInterfaceSelections(Vector selections)
     {
-        if(!parsedfileheader)
-            classsuperclassreplaceselection = s;
-    }
+        interfaceSelections = selections;
 
-    public Selection getClassSuperClassReplaceSelection() {
-        return classsuperclassreplaceselection;
-    }
+        interfaceTexts = new Vector();
 
-    public void setClassImplementsInsertSelection(Selection s) {
-        if(!parsedfileheader)
-            classimplementsinsertselection = s;
-    }
+        Enumeration e = interfaceSelections.elements();
+        while(e.hasMoreElements()) {
+            Selection s = (Selection)e.nextElement();
 
-    public Selection getClassImplementsInsertSelection() {
-        return classimplementsinsertselection;
-    }
-
-    public void setInterfaceExtendsInsertSelection(Selection s) {
-        if(!parsedfileheader)
-            interfaceextendsinsertselection = s;
-    }
-
-    public Selection getInterfaceExtendsInsertSelection() {
-        return interfaceextendsinsertselection;
-    }
-
-    public void setClassImplementsSelections(Vector sels, Vector texts) {
-        if(!parsedfileheader) {
-            classimplementsselections = sels;
-            classimplementstexts = texts;
+            interfaceTexts.add(s.getText());
         }
     }
 
-    public Vector getClassImplementsSelections() {
-        return classimplementsselections;
+    public Vector getInterfaceSelections()
+    {
+        return interfaceSelections;
     }
 
-    public Vector getClassImplementsTexts() {
-        return classimplementstexts;
+    public Vector getInterfaceTexts()
+    {
+        return interfaceTexts;
     }
 
-    public boolean hasClassImplementsSelections() {
-        return classimplementsselections != null;
-    }
-
-    public void setInterfaceExtendsSelections(Vector sels, Vector texts) {
-        if(!parsedfileheader) {
-            interfaceextendsselections = sels;
-            interfaceextendstexts = texts;
-        }
-    }
-
-    public Vector getInterfaceExtendsSelections() {
-        return interfaceextendsselections;
-    }
-
-    public Vector getInterfaceExtendsTexts() {
-        return interfaceextendstexts;
-    }
-
-    public boolean hasInterfaceExtendsSelections() {
-        return interfaceextendsselections != null;
+    public boolean hasInterfaceSelections()
+    {
+        return (interfaceSelections != null) &&
+                (interfaceSelections.size() > 0);
     }
 
     /**
@@ -319,9 +293,10 @@ public final class ClassInfo
      * want to insert a package line if we were to add one)
      */
     private boolean packageStatementExists = false;
-    private Selection packageStatementSelection = new Selection(null,1,1,0);
-    private Selection packageNameSelection = new Selection(null,1,1,0);
-    private Selection packageSemiSelection = new Selection(null,1,1,0);
+    private Selection packageStatementSelection = new Selection(null,1,1);
+    private Selection packageNameSelection = new Selection(null,1,1);
+    private Selection packageSemiSelection = new Selection(null,1,1);
+    private String packageName = "";
 
     public void setPackageSelections(Selection pkgStatement, Selection pkgName, String pkgNameText,
                                         Selection pkgSemi)
@@ -354,6 +329,10 @@ public final class ClassInfo
         return packageSemiSelection;
     }
 
+    public String getPackage()
+    {
+        return packageName;
+    }
 
 
 
@@ -364,10 +343,6 @@ public final class ClassInfo
         return superclass;
     }
 
-    public String getPackage()
-    {
-        return packageName;
-    }
 
     public String getName()
     {

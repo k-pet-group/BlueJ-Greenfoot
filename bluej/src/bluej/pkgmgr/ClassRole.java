@@ -15,16 +15,14 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 /**
- ** A class role in a class target, providing behaviour specific to
- ** particular class types
- **
- ** @author Bruce Quig
- ** @version $Id: ClassRole.java 427 2000-04-18 04:33:04Z ajp $
- **
- **/
+ * A class role in a class target, providing behaviour specific to
+ * particular class types
+ *
+ * @author  Bruce Quig
+ * @version $Id: ClassRole.java 491 2000-05-19 14:28:26Z ajp $
+ */
 public abstract class ClassRole
 {
-
     /**
      * save details about the class target variant this
      * role represents.

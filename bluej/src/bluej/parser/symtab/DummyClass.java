@@ -9,7 +9,7 @@ public class DummyClass extends ClassDef {
     //==========================================================================
     //==  Class Variables
     //==========================================================================
-    
+
     /** The name of the package containing the class */
     private String pkg;
 
@@ -17,9 +17,9 @@ public class DummyClass extends ClassDef {
     //==========================================================================
     //==  Methods
     //==========================================================================
-    
 
-    /** Constructor to create a placeholder class object 
+
+    /** Constructor to create a placeholder class object
      *  This version provides a means to set the package containing the class
      */
     public DummyClass() {
@@ -30,15 +30,15 @@ public class DummyClass extends ClassDef {
 
     /** Constructor to create a placeholder class object */
     public DummyClass(String name, Occurrence occ) {
-        super(name, false, occ, null, null, null);
+        super(name, false, false, occ, null, null, null);
     }
 
 
-    /** Constructor to create a placeholder class object 
+    /** Constructor to create a placeholder class object
      *  This version provides a means to set the package containing the class
      */
     public DummyClass(String name, Occurrence occ, String pkg) {
-        super(name, false, occ, null, null, null);
+        super(name, false, false, occ, null, null, null);
         this.pkg = pkg;
     }
 
@@ -46,6 +46,6 @@ public class DummyClass extends ClassDef {
     /** Get the name of the package in which this class is defined */
     public String getPackage() {
         return pkg;
-    }   
+    }
 
 }
