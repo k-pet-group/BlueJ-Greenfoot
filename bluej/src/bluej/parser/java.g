@@ -1462,10 +1462,10 @@ HEX_DIGIT
 
 // a dummy rule to force vocabulary to be all characters (except special
 //   ones that ANTLR uses internally (0 to 2)
-//protected
-//VOCAB
-//    :   '\3'..'\377'
-//    ;
+protected
+VOCAB
+    :   '\3'..'\377'
+    ;
 
 
 // an identifier.  Note that testLiterals is set to true!  This means
