@@ -22,7 +22,7 @@
 
 include $(OS).mk
 
-PKG_VERSION = 111
+PKG_VERSION = 111sme
 
 SUBDIRS = \
 	src
@@ -102,7 +102,7 @@ package/bluej-$(PKG_VERSION).jar: distcompile
 
 	# jar editor
 	( cd classes ; \
-	  jar cv0Mf ../install_tmp/lib/editor.jar bluej/editor bluej/utility org && rm -rf bluej/editor org )
+	  jar cv0Mf ../install_tmp/lib/editor.jar bluej/editor org && rm -rf bluej/editor org )
 
 	# jar bluej class files into lib/bluej.jar
 	( cd classes ; \
