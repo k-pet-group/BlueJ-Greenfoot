@@ -1,6 +1,6 @@
 package bluej.extensions;
 
-import bluej.extensions.event.ExtEventListener;
+import bluej.extensions.event.*;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.extmgr.PrefManager;
 import bluej.extmgr.MenuManager;
@@ -41,7 +41,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1686 2003-03-10 13:02:09Z damiano $
+ * @version $Id: BlueJ.java 1691 2003-03-10 13:42:01Z damiano $
  */
 
 public class BlueJ
@@ -255,9 +255,9 @@ public class BlueJ
      * Opening and Closing events will be passed to the listener.
      * @param listener an instance of a class that implements the ExtEventListener interface
      */
-    public void addExtEventListener (ExtEventListener listener)
+    public void addBluejEventListener (BluejEventListener listener)
     {
-        myWrapper.addExtEventListener (listener);
+        myWrapper.addBluejEventListener (listener);
     }
 
 
