@@ -1,24 +1,12 @@
 done
-  fixed empty-comment-bug
 
 done recently
-  added menu stacking (works only in 1.3!)
-  "new class" works with no package open (changed manu enable/disable)
-  fixed export directory bug
+  invocation without bluej.home
+  "up" button in open file dlg
+  display of key bindings fixed in editor
+  changed help menu
 
 to do
-  investigate strange menu post bug!
-  investigate export dialog alignment
-
-other
-  default text for README
-  labels update for non-english
-  see Test: "import subpackage" does not work!
-  default button works again!?
-
-do before release:
-  remove "maze" example
-  remove simple
-  add shapes
-  add picture
-  add bluej.ico to lib
+  move "images" in cvs rep
+  test installer
+  add VersionChecker to CVS
