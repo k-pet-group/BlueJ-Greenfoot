@@ -14,7 +14,7 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1854 2003-04-15 14:58:53Z iau $
+ * @version    $Id: Submitter.java 1876 2003-04-22 13:31:25Z damiano $
  */
 public class Submitter extends Extension implements MenuGenerator, BlueJExtensionEventListener
 {
@@ -113,6 +113,15 @@ public class Submitter extends Extension implements MenuGenerator, BlueJExtensio
     {
         return "3.5";
     }
+
+    public String getName()
+    {
+        if ( stat != null && stat.bluej != null ) 
+          return stat.bluej.getLabel("Submitter");
+          
+        return "Submitter";
+    }
+
 
     /**
      * Gets the description
