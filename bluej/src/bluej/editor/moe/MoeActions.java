@@ -4,7 +4,7 @@
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
 // http://www.opensource.org/licenses/mit-license.html
-// Any queries should be directed to Michael Kolling mik@monash.edu.au
+// Any queries should be directed to Michael Kolling mik@mip.sdu.dk
 
 package bluej.editor.moe;
 
@@ -104,18 +104,11 @@ public final class MoeActions
     {
         // sort out modifier keys...
         SHORTCUT_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        ALT_SHORTCUT_MASK = 0;
 
-        if(SHORTCUT_MASK == Event.CTRL_MASK) {
-            Debug.message("shortcut is CTRL");
+        if(SHORTCUT_MASK == Event.CTRL_MASK)
             ALT_SHORTCUT_MASK = Event.META_MASK;   // alternate (second) modifier
-        }
-        else if(SHORTCUT_MASK == Event.META_MASK) {
-            Debug.message("shortcut is META");
-            ALT_SHORTCUT_MASK = Event.CTRL_MASK;
-        }
         else
-            Debug.message("shortcut is something else...");
+            ALT_SHORTCUT_MASK = Event.CTRL_MASK;
 
         SHIFT_SHORTCUT_MASK = SHORTCUT_MASK + Event.SHIFT_MASK;
         SHIFT_ALT_SHORTCUT_MASK = Event.SHIFT_MASK + ALT_SHORTCUT_MASK;
@@ -953,7 +946,7 @@ public final class MoeActions
                     "Version " + MoeEditor.versionString,
                     " ",
                     "Moe is the editor of the BlueJ programming environment.",
-                    "Written by Michael K\u00F6lling (mik@monash.edu.au)."
+                    "Written by Michael K\u00F6lling (mik@mip.sdu.dk)."
                     },
                 "About Moe", JOptionPane.INFORMATION_MESSAGE);
         }

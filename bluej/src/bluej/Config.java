@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 983 2001-10-18 06:26:15Z bquig $
+ * @version $Id: Config.java 999 2001-10-24 15:31:05Z mik $
  */
 
 public class Config
@@ -86,6 +86,8 @@ public class Config
     public static final int componentSpacingLarge = 11;
 
     public static final int dialogCommandButtonsVertical = 17;
+    
+    public static final String osname = System.getProperty("os.name");
 
     private static boolean initialised = false;
 
@@ -320,8 +322,6 @@ public class Config
      */
     public static String getSystemPropString(String propName)
     {
-        String osname = System.getProperty("os.name");
-        //Debug.message(osname);
         String sysID;
 
         if(osname != null && osname.startsWith("Windows 9"))     // win95/98

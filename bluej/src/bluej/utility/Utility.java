@@ -9,13 +9,15 @@ import java.util.Vector;
 import java.awt.event.*;
 import javax.swing.*;
 
+import com.apple.mrj.MRJFileUtils;
+
 /**
  * Some generally useful utility methods available to all of bluej.
  *
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 849 2001-04-18 09:16:26Z mik $
+ * @version $Id: Utility.java 999 2001-10-24 15:31:05Z mik $
  */
 public class Utility
 {
@@ -251,36 +253,40 @@ public class Utility
     public static boolean openWebBrowser(String url) {
 
         String cmd;
-        String osname = System.getProperty("os.name");
 
-        try {
+        if(Config.osname.startsWith("Mac")) {
+            try {
+                MRJFileUtils.openURL(url);
+            }
+            catch(IOException e) {
+                Debug.reportError("could not start web browser");
+                Debug.reportError("caught exc " + e);
+                return false;
+            }
+        }
+        else {
             // try first command, eg "netscape -remote"
 
-            if(osname != null && osname.startsWith("Windows 9"))    // win95/98
+            if(Config.osname != null && Config.osname.startsWith("Windows 9"))    // win95/98
                 cmd = mergeStrings(Config.getPropString("win9xBrowserCmd1"),
                                    url);
-            else if(osname != null && osname.startsWith("Windows")) // NT/2000
+            else if(Config.osname != null && Config.osname.startsWith("Windows")) // NT/2000
                 cmd = mergeStrings(Config.getPropString("winBrowserCmd1"),
-                                   url);
-            else if(osname != null && osname.startsWith("Mac"))     // MacOS
-                cmd = mergeStrings(Config.getPropString("macBrowserCmd1"),
                                    url);
             else
                 cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
 
-            Process p = Runtime.getRuntime().exec(cmd);
-
             try {
+                Process p = Runtime.getRuntime().exec(cmd);
+
                 // wait for exit code. 0 indicates success, otherwise
                 // we try second command
                 int exitCode = p.waitFor();
 
-                if(osname != null && osname.startsWith("Windows 9"))
+                if(Config.osname != null && Config.osname.startsWith("Windows 9"))
                     cmd = Config.getPropString("win9xBrowserCmd2");
-                else if(osname != null && osname.startsWith("Windows"))
+                else if(Config.osname != null && Config.osname.startsWith("Windows"))
                     cmd = Config.getPropString("winBrowserCmd2");
-                else if(osname != null && osname.startsWith("Mac"))
-                    cmd = Config.getPropString("macBrowserCmd2");
                 else
                     cmd = Config.getPropString("browserCmd2");
 
@@ -295,11 +301,11 @@ public class Utility
                 Debug.reportError("caught exc " + e);
                 return false;
             }
-        }
-        catch(IOException e) {
-            Debug.reportError("could not start web browser");
-            Debug.reportError("caught exc " + e);
-            return false;
+            catch(IOException e) {
+                Debug.reportError("could not start web browser");
+                Debug.reportError("caught exc " + e);
+                return false;
+            }
         }
         return true;
     }

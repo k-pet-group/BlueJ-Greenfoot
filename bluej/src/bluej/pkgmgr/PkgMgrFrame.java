@@ -35,7 +35,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 987 2001-10-23 14:35:38Z mik $
+ * @version $Id: PkgMgrFrame.java 999 2001-10-24 15:31:05Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1778,7 +1778,6 @@ public class PkgMgrFrame extends JFrame
             String menuId = "menu." + CmdTypeNames[menuType];
             String menuStr = Config.getString(menuId);
 
-            //Debug.message("MenuType[" + menuType + "]" + menuId + "[" + menuStr + "]" );
             if (CmdTypes[menuType] == GRP_COMMAND)
                 continue;
 
@@ -1835,18 +1834,20 @@ public class PkgMgrFrame extends JFrame
                 if (itemIcon != null)
                     item.setIcon(itemIcon);
 
-                // Add new Item to the Menu & associate Action to it.
-                if(CmdTypes[menuType] != GRP_COMMAND) {
-                    menu.add(item);
-                    actions.put(item, new Integer(actionId));
-                }
-
+                // if there is a separator before this item, add it now
                 if(sep < CmdSeparators[menuType].length
                    && CmdSeparators[menuType][sep] == actionId)
                     {
                         menu.addSeparator();
                         ++sep;
                     }
+
+                // Add new Item to the Menu & associate Action to it.
+                if(CmdTypes[menuType] != GRP_COMMAND) {
+                    menu.add(item);
+                    actions.put(item, new Integer(actionId));
+                }
+
             }
             // Hack while "setHelpMenu" does not work...
             if(CmdTypes[menuType] == HELP_COMMAND)
@@ -1871,9 +1872,8 @@ public class PkgMgrFrame extends JFrame
 
     // menu bar definition
 
-    private static int SHORTCUT_MASK = 
+    private static final int SHORTCUT_MASK = 
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        //Event.CTRL_MASK;
 
     static final int PROJ_COMMAND = 1000;
     static final int PROJ_NEW = PROJ_COMMAND;
@@ -1888,10 +1888,7 @@ public class PkgMgrFrame extends JFrame
     static final int PROJ_PRINT = PROJ_PAGESETUP + 1;
     static final int PROJ_QUIT = PROJ_PRINT + 1;
 
-    static final String[] ProjCmds = {
-        "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
-        "pageSetup", "print", "quit"
-    };
+    static String[] ProjCmds;  // definition: see below
 
     static final KeyStroke[] ProjKeys = {
         null,
@@ -1908,7 +1905,7 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final int[] ProjSeparators = {
-        PROJ_SAVEAS, PROJ_EXPORT, PROJ_PRINT
+        PROJ_IMPORT, PROJ_PAGESETUP, PROJ_QUIT
     };
 
     static final int EDIT_COMMAND = PROJ_COMMAND + 100;
@@ -1938,7 +1935,7 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final int[] EditSeparators = {
-        EDIT_REMOVE  //, EDIT_REMOVEARROW
+        EDIT_NEWUSES
     };
 
     static final int TOOLS_COMMAND = EDIT_COMMAND + 100;
@@ -1947,8 +1944,6 @@ public class PkgMgrFrame extends JFrame
     static final int TOOLS_CALLLIBRARY = TOOLS_COMPILESELECTED + 1;
     static final int TOOLS_REBUILD = TOOLS_CALLLIBRARY + 1;
     static final int TOOLS_GENERATEDOC = TOOLS_REBUILD + 1;
-    //static final int TOOLS_BROWSE = TOOLS_GENERATEDOC + 1;
-    //static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
     static final int TOOLS_PREFERENCES = TOOLS_GENERATEDOC + 1;
 
     static final String[] ToolsCmds = {
@@ -1968,8 +1963,7 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final int[] ToolsSeparators = {
-        TOOLS_REBUILD,
-        TOOLS_GENERATEDOC,
+        TOOLS_GENERATEDOC, TOOLS_PREFERENCES,
     };
 
     static final int VIEW_COMMAND = TOOLS_COMMAND + 100;
@@ -1990,7 +1984,7 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final int[] ViewSeparators = {
-        VIEW_SHOWINHERITS,
+        VIEW_SHOWCONTROLS,
     };
 
     static final int GRP_COMMAND = VIEW_COMMAND + 100;
@@ -2028,7 +2022,7 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final int[] GrpSeparators = {
-        GRP_OPEN, GRP_COMMITALL, GRP_USERS
+        GRP_UPDATESELECTED, GRP_STATUSSELECTED, GRP_CONFIG
     };
 
     static final int HELP_COMMAND = GRP_COMMAND + 100;
@@ -2053,7 +2047,7 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final int[] HelpSeparators = {
-        HELP_COPYRIGHT
+        HELP_WEBSITE
     };
 
     static final int[] CmdTypes = {
@@ -2065,9 +2059,7 @@ public class PkgMgrFrame extends JFrame
         "package", "edit", "tools", "view", "group", "help"
     };
 
-    static final String[][] CmdStrings = {
-        ProjCmds, EditCmds, ToolsCmds, ViewCmds, GrpCmds, HelpCmds
-    };
+    static String[][] CmdStrings;  // definition: see below
 
     static final KeyStroke[][] CmdKeys = {
         ProjKeys, EditKeys, ToolsKeys, ViewKeys, GrpKeys, HelpKeys
@@ -2077,6 +2069,26 @@ public class PkgMgrFrame extends JFrame
         ProjSeparators, EditSeparators, ToolsSeparators, ViewSeparators,
         GrpSeparators, HelpSeparators
     };
+
+    // definitions for project commands are not final, since they are different on a Mac 
+    // system
+    {
+        if(Config.osname.startsWith("Mac")) {   // no "Quit" here for Mac
+            ProjCmds = new String[] {
+                "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
+                "pageSetup", "print"
+            };
+        }
+        else {
+            ProjCmds = new String[] {
+                "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
+                "pageSetup", "print", "quit"
+            };
+        }
+        CmdStrings = new String[][] {
+            ProjCmds, EditCmds, ToolsCmds, ViewCmds, GrpCmds, HelpCmds
+        };
+    }
 
     /**
      * Enable/disable functionality

@@ -4,7 +4,7 @@
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
 // http://www.opensource.org/licenses/mit-license.html 
-// Any queries should be directed to Michael Kolling mik@monash.edu.au
+// Any queries should be directed to Michael Kolling mik@mip.sdu.dk
 
 package bluej.editor.moe;
 
@@ -28,7 +28,7 @@ import bluej.prefmgr.*;
 * archive) with an associated description.
 * 
 * @author Andrew Patterson
-* @version $Id: MoeEditorPrefPanel.java 779 2001-02-12 01:50:21Z bquig $
+* @version $Id: MoeEditorPrefPanel.java 999 2001-10-24 15:31:05Z mik $
 */
 public class MoeEditorPrefPanel extends JPanel implements PrefPanelListener {
 

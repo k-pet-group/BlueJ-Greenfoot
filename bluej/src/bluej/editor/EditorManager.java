@@ -4,7 +4,7 @@
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
 // http://www.opensource.org/licenses/mit-license.html 
-// Any queries should be directed to Michael Kolling mik@monash.edu.au
+// Any queries should be directed to Michael Kolling mik@mip.sdu.dk
 
 package bluej.editor;
 
@@ -17,7 +17,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 698 2000-10-23 03:34:55Z bquig $
+ * @version $Id: EditorManager.java 999 2001-10-24 15:31:05Z mik $
  */
 public abstract class EditorManager
 {
