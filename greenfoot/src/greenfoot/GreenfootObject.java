@@ -15,7 +15,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3158 2004-11-24 15:29:21Z polle $
+ * @version $Id: GreenfootObject.java 3173 2004-11-25 14:01:20Z polle $
  */
 public class GreenfootObject
 {
@@ -67,6 +67,32 @@ public class GreenfootObject
     {
         return y;
     }
+    
+    /**
+     * Get the width of object (based on the width of the image)
+     * 
+     */
+    public int getWidth()
+    {
+        if(image != null) {
+            return image.getIconWidth();
+        }
+        return 0;
+    }
+
+
+    /**
+     * Get the height of object (based on the width of the image)
+     * 
+     */
+    public int getHeight()
+    {
+        if(image != null) {
+            return image.getIconHeight();
+        }
+        return 0;
+    }    
+    
 
     /**
      * Gets the rotation in degrees.
