@@ -184,14 +184,15 @@ In questo package esiste già una classe
 con questo nome. Non puoi usare lo stesso
 nome per due classi.
 
-duplicate-package-name
-In questo progetto esiste già un
-package con questo nome.
-
 error-in-import
 Si è verificato un errore durante il
 tentativo di importazione del file.
 Verifica i diritti d'accesso e lo spazio disco.
+
+no-class-selected-compile
+Non è stata scelta nessuna classe da
+compilare. Prima di provare a compilare
+scegli una classe facendo click su essa.
 
 no-class-selected
 Non sono stati selezionati classi o package
@@ -302,6 +303,14 @@ devi prima creare il package di destinazione.
 L'istruzione di package è stata riportata
 alla forma originale.
 
+package-name-clash
+Hai modificato l'istruzione di package usando
+un nome già utilizzato per una classe o un
+altro package. Spostando la classe, la classe
+o il package originario sarebbero sovrascritti, 
+per cui l'istruzione di package è stata
+riportata alla sua forma originale.
+
 package-name-changed
 Hai modificato l'istruzione di package che
 specifica in quale package si trova la classe.
@@ -323,8 +332,26 @@ I cambiamenti che hai fatto alle librerie di
 classe non avranno effetto sino al successivo
 riavvio di BlueJ.
 
-# editor:
-#########
+unittest-new-test-method
+Indica un nome per questo test,
+poi comincerà la registrazione.
+Nuovo metodo Test
+null
+
+getobject-new-name
+Specifica il nome del nuovo oggetto
+nella barra degli oggetti
+Nuovo nome dell'oggetto
+null
+
+unittest-fixture-present
+Questa classe unità di test contiene già una
+fixture, la cui definizione sarà sostituita,
+se continui.
+Vuoi continuare?
+Sostituisci
+Annulla
+null
 
 no-search-string
 Non è definita alcuna stringa di ricerca.

@@ -1,3 +1,12 @@
+as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
+La parola 'assert' è diventata parte del linguaggio
+Java, e quindi ha un significato speciale: è una
+parola chiave. Non è quindi più utilizzabile come
+nome di variabile o di metodo. Scegli un altro nome.
+
+qualified new of static class
+Non è disponibile nessun aiuto
+
 * is abstract; cannot be instantiated
 La classe è stata dichiarata "abstract", per cui
 contiene alcuni metodi per i quali non è fornita
@@ -55,15 +64,16 @@ richiamare il costruttore può portare a problemi.
 cannot access *
 Non è disponibile nessun aiuto
 
-* cannot be applied to *
-Non è disponibile nessun aiuto
-
 cannot assign a value to final variable *
 La variabile a cui stai tentando di assegnare un
 valore è stata dichiarata "final"; ciò implica che
 non puoi cambiarne il valore. Se hai davvero
 bisogno di cambiarne il valore, elimina la parola
 chiave "final" dalla dichiarazione della variabile.
+
+type variables cannot be dereferenced
+La notazione col punto non può essere usata per
+accedere a campi o metodi membri di un tipo di variabile.
 
 * cannot be dereferenced
 Stai usando la notazione con il punto per accedere ad
@@ -257,7 +267,7 @@ Hai dichiarato la fine di una linea ma dovrebbe esserci
 ancora un carattere letterale. Se vuoi specificare il
 carattere di fine linea, usa il carattere di escape '\n'.
 
-* is not an inner class
+illegal qualifier; {0} is not an inner class
 Non è disponibile nessun aiuto
 
 illegal start of expression
@@ -288,9 +298,14 @@ internal error; cannot instantiate *
 Non è disponibile nessun aiuto
 
 * but with different return type
-Probabilmente hai tentato di scrivere due metodi che hanno
-identica dichiarazione eccetto che per il tipo ritornato.
-Ciò non è consentito.
+Probabilmente hai tentato di scrivere due metodi le
+cui firme si differenziano solo per il tipo ritornato.
+Ciò non è consentito. Probabilmente la tua classe
+implementa due interfacce, entrambe con un metodo con
+lo stesso nome e parametri, ma differente tipo ritornato.
+Non è possibile implementare le due interfacce in questa
+situazione: rinomina il metodo, oppure rendi il tipo
+ritornato uguale nelle due interfacce.
 
 interface expected here
 Una interfaccia può estendere solo un'altra interfaccia.
@@ -374,7 +389,9 @@ oppure:
     return "Marvin";
 
 name clash: *
-Non è disponibile nessun aiuto
+Hai definito due metodi con lo stesso nome. Ciò è
+consentito solo se uno dei due ridefinisce l'altro, e non
+è questo il caso. Uno dei due nomi deve essere cambiato.
 
 * is reserved for internal use
 Il termine mostrato è riservato per usi interni. Se è
@@ -397,17 +414,27 @@ Una classe può solo estendere altre classi, non
 interfacce. Se vuoi implementare questa interfaccia,
 devi usare la parola chiave "implements".
 
-* has no match in entry in *
+{0} has no match in entry in {1}; required {2}
 Non è disponibile nessun aiuto
 
 * is not defined in a public class or interface; cannot be accessed from outside package
 Non è disponibile nessun aiuto
 
 * cannot be accessed from outside package
-Non è disponibile nessun aiuto
+Stai cercando di usare una classe che non è pubblica.
+Cioè, la sua definizione non inizia con:
+   public class ... 
+Se una classe non è pubblica, non può essere usata al
+di fuori del suo package. Se devi effettivamente usare
+la classe, devi rendere la sua definizione pubblica.
 
 not a loop label: *
-Non è disponibile nessun aiuto
+L'etichetta che usi per il ciclo:
+   continue <etichetta>;
+deve essere definita per contrassegnare un ciclo,
+quindi deve essere messa immediatamente prima
+dell'inizio del ciclo. L'etichetta in questione non
+è al posto giusto, e non contrassegna un ciclo.
 
 not a statement
 Hai scritto una linea di codice che non è una
@@ -415,7 +442,11 @@ istruzione completa. Verifica ciò che volevi
 fare e come l'hai fatto.
 
 not an enclosing class:*
-Non è disponibile nessun aiuto
+Stai cercando di accedere al puntatore dell'oggetto ('this')
+di una classe al di fuori della tua. Ciò è permesso solo se
+l'altra classe incorpora la tua. In altre parole, da una
+classe più interna puoi accedere a quella esterna, ma
+non ad altre.
 
 * cannot be applied to *
 L'operatore non può essere usato con questo tipo.
@@ -464,9 +495,14 @@ private, volatile, ...
 Non è disponibile nessun aiuto
 
 return outside method
+Puoi usare l'istruzione 'return' solo in un
+metodo, non in un blocco di inizializzazione
+o in altri segmenti di codice.
+
+signature does not match {0}; incompatible interfaces
 Non è disponibile nessun aiuto
 
-signature does not match *
+signature does not match {0}; incompatible supertype
 Non è disponibile nessun aiuto
 
 * should be declared abstract; it does not define *
@@ -502,7 +538,8 @@ seguito o da un blocco "catch" o da un blocco
    }
 
 * does not take parameters
-Non è disponibile nessun aiuto
+Il tipo che hai usato non è parametrizzato:
+non puoi usare un parametro.
 
 type variables cannot be dereferenced
 Non è disponibile nessun aiuto
@@ -524,6 +561,8 @@ delimitato con i corretti caratteri di chiusura: */
 unclosed string literal
 Probabilmente hai dichiarato una String letterale
 ma non hai messo il doppio apice di chiusura: ".
+La stringa deve iniziare e terminare con doppio
+apice ", e sulla stessa riga.
 
 undefined label: *
 Non riesco a trovare la variabile che stai
@@ -555,7 +594,7 @@ Non puoi generare una eccezione o fermare in
 altro modo i blocchi dell'inizializzatore
 statico. Devi attendere la fine dell'esecuzione.
 
-unreported exception {0}; must be caught or declared to be thrown
+* must be caught or declared to be thrown
 Il codice esegue una chiamata a metodo che può
 generare una eccezione. Devi catturare l'eccezione,
 oppure devi dichiarare che il tuo metodo la
@@ -585,9 +624,6 @@ Hai usato un modificatore d'accesso (quale "private",
 "protected", etc.) che non può essere usato in questa
 posizione.
 
-wrong number of type arguments; required *
-Non è disponibile nessun aiuto
-
 * might already have been assigned to
 Si tratta di una variabile dichiarata final. E' possibile
 assegnare il valore ad una variabile final solo una volta,
@@ -614,50 +650,17 @@ Foo deve essere in un file di nome "Foo.java".
 cannot read: *
 Non è disponibile nessun aiuto
 
-Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
-Non è disponibile nessun aiuto
-
-Fatal Error: Unable to locate method *
-Non è disponibile nessun aiuto
-
 * uses or overrides a deprecated API.
 Stai usando un metodo che è ormai sconsigliato.
 Molto probabilmente esiste un altro metodo o classe
 che fornisce la funzionalità di cui hai bisogno:
 consulta la documentazione delle API.
 
-Some input files use or override a deprecated API.
-Non è disponibile nessun aiuto
-
-Recompile with -deprecation for details.
-Non è disponibile nessun aiuto
-
-* uses unchecked operations.
-Non è disponibile nessun aiuto
-
-Some input files use unchecked operations.
-Non è disponibile nessun aiuto
-
 * has been deprecated
 Stai usando un metodo che è ormai sconsigliato.
 Molto probabilmente esiste un altro metodo o classe
 che fornisce la funzionalità di cui hai bisogno:
 consulta la documentazione delle API.
-
-unchecked assignment: *
-Non è disponibile nessun aiuto
-
-unchecked call to {0} as a member of the raw type {1}
-Non è disponibile nessun aiuto
-
-unchecked cast to type *
-Non è disponibile nessun aiuto
-
-unchecked generic array creation
-Non è disponibile nessun aiuto
-
-unchecked method invocation: *
-Non è disponibile nessun aiuto
 
 ';' expected
 Alla fine della riga manca un punto e virgola.
@@ -694,10 +697,10 @@ Non è disponibile nessun aiuto
 cannot access *
 Non è disponibile nessun aiuto
 
-bad class file: *
+type parameter {0} is not within its bound *
 Non è disponibile nessun aiuto
 
-type parameter {0} is not within its bound *
+type parameters of {0} cannot be determined
 Non è disponibile nessun aiuto
 
 incompatible types*
@@ -713,8 +716,11 @@ automaticamente al tipo richiesto.
 possible loss of precision
 Non è disponibile nessun aiuto
 
-unexpected type
-Non è disponibile nessun aiuto
+unexpected type 
+Qui è richiesta una espressione di un certo tipo,
+ma hai messo una espressione di un altro tipo non
+compatibile (ad esempio c'è una String dove
+invece è richiesto un int)
 
 abstract {0} {1} cannot be accessed directly
 Non è disponibile nessun aiuto
@@ -722,11 +728,21 @@ Non è disponibile nessun aiuto
 *An explicit 'this' qualifier must be used to select the desired instance.
 Non è disponibile nessun aiuto
 
-non-static {0} {1} cannot be referenced from a static context
-Non è disponibile nessun aiuto
+* cannot be referenced from a static context
+Stai cercando di accedere ad un campo o metodo di una
+istanza da un metodo statico, e ciò non è consentito.
+I campi e i metodi di istanza appartengono ad un oggetto,
+mentre invece nel caso di metodi statici non hai nessun
+oggetto attivo. I metodi statici possono richiamare solo
+altri metodi statici nella loro classe, oppure devono
+usare esplicitamente un oggetto per la chiamata.
 
 cannot resolve symbol*
-Non è disponibile nessun aiuto
+Qui stai usando un simbolo (un nome di variabile, di
+metodo o di classe) che sembra non sia stato dichiarato.
+Verifica se hai scritto correttamente il nome. O forse
+hai dimenticato di dichiararlo? Oppure l'hai dichiarato
+ma non ha visibilità qui?
 
 {0}; {1} and {2} are static
 Non è disponibile nessun aiuto
@@ -734,11 +750,30 @@ Non è disponibile nessun aiuto
 {0}; overridden method is {1}
 Non è disponibile nessun aiuto
 
-attempting to assign weaker access privileges; was *
-Non è disponibile nessun aiuto
+* attempting to assign weaker access privileges; was *
+Hai ridefinito un metodo e cambiato il modificatore di
+accesso (private, protected, public), ma puoi cambiare il
+modificatore di accesso solo in modo da permettere accesso
+più ampio (ad esempio da private a public), ma non più
+ristretto (ad esempio da public a private). Ovviamente puoi
+anche mantenere lo stesso modificatore.
 
-overridden method does not throw *
-Non è disponibile nessun aiuto
+* overridden method does not throw *
+Hai ridefinito un metodo e generato una eccezione, ma ciò
+è possibile solo se l'eccezione è generata anche dalla
+classe ridefinita (la superclasse). Il metodo nella
+sottoclasse può generare un numero minore di eccezioni,
+ma non maggiore.
 
 * attempting to use incompatible return type
+Non è disponibile nessun aiuto
+
+* is already defined in this compilation unit
+Hai già usato questo nome. Scegline un altro per
+questo identificatore.
+
+{0} is already defined in a single-type import
+Non è disponibile nessun aiuto
+
+* conflicts with a compiler-synthesized symbol in *
 Non è disponibile nessun aiuto

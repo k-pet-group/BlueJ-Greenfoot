@@ -59,6 +59,28 @@ La sola modifica consentita durante una iterazione è la
 rimozione di elementi con il metodo remove di Iterator 
 (NON col metodo remove della collezione stessa).
 
+AssertionError*
+Una asserzione è fallita, il che significa che
+l'espressione nella istruzione di asserzione
+	assert(assertion-expression)
+è valutata falso. L'espressione molto probabilmente
+dovrebbe essere vera in questo punto, per cui forse
+c'è un errore di qualche genere, la cui esatta natura
+dipende dal programma. Forse dovresti cercare di
+capire perchè l'espressione risulta falsa.
+
+ClassNotFoundException*
+Non è possibile trovare una classe necessaria
+all'esecuzione di questa applicazione, anche se pare
+fosse presente alla compilazione. Forse l'ambiente
+Java non è configurato correttamente (se la classe
+in questione è una classe di sistema), oppure il tuo
+progetto è danneggiato (alcuni file di classe sono
+in qualche modo persi o corrotti). Prova a
+ricostruire l'intero progetto, e se il problema
+persiste prova con altri progetti: se continui ad
+avere problemi potresti dover reinstallare JDK.
+
 ArrayStoreException*
 Spiacente: non è disponibile nessun aiuto.
 

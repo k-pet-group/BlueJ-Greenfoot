@@ -9,59 +9,34 @@ compileException=Eccezione durante la compilazione
 compiler.thread.title=Thread del compilatore di BlueJ
 compiler.invalidcompiler=bluej.compiler.type non è configurato con un compilatore valido
 compiler.nocompiler=Il compilatore non può essere eseguito
+compiler.warningDialog.title=Warning del compilatore
+compiler.warningDialog.label=Warning dall'ultima compilazione
+compiler.warningDialog.noWarnings=Nessun warning
 
-debugger.objectviewer.title=BlueJ:  Object Inspector della classe
-debugger.resultviewer.title=BlueJ:  Risultato del Metodo
-debugger.objectviewer.staticListTitle=Campi statici
-debugger.objectviewer.objListTitle=Campi dell'oggetto
-debugger.objectviewer.inspect=Ispeziona
-debugger.objectviewer.get=Recupera
-debugger.objectviewer.objectClassName=Oggetto di classe
+debugger.assert.assertThat=Asserisce che:
+debugger.assert.resultIs=il risultato è
+debugger.assert.equalTo=uguale a
+debugger.assert.equalToFloatingPoint= uguale a (double o float)
+debugger.assert.sameAs=lo stesso di
+debugger.assert.notSameAs=non lo stesso di
+debugger.assert.notNull=non nullo
+debugger.assert.null=nullo
+debugger.assert.delta=delta
 
-debugger.objectviewer.ori.reference=riferimento
-debugger.objectviewer.ori.copy=Copia
-debugger.objectviewer.ori.paste=Incolla
-debugger.objectviewer.ori.method=Metodo
-debugger.objectviewer.ori.methodDialog=Menù di Metodo
-debugger.objectviewer.ori.assignDialog=Menù di assegnazione
-debugger.objectviewer.ori.dialog=Menù
-debugger.objectviewer.ori.selected=Selezionato
-debugger.objectviewer.ori.primitive=Primitiva
-debugger.objectviewer.ori.invoke=Invoca
-debugger.objectviewer.ori.invokeMethod=Invoca il metodo
-debugger.objectviewer.ori.assign=Assegna
-debugger.objectviewer.ori.primitiveOrString=Primitiva/Stringa
-debugger.objectviewer.ori.error=Errore:
-debugger.objectviewer.ori.primInspectError=Hai selezionato un valore primitivo.\nNon puoi ispezionare un valore primitivo!
-debugger.objectviewer.ori.nothingInspectedError=Non hai selezionato nulla:\nRiferimento non ispezionato!
-debugger.objectviewer.ori.print=Stampa
-debugger.objectviewer.ori.printScale.1=Scegli il fattore percentuale di scala (predefinito
-debugger.objectviewer.ori.printScale.2=\nIl valore predefinito si adatterà al diagramma di flusso sulla pagina.
-debugger.objectviewer.ori.printScale.3=\nSe scegli Annulla e Stampa con un altro orientamento\npotresti ottenere un fattore percentuale di scala maggiore (
-debugger.objectviewer.ori.numberError=Devi inserire un numero.
-debugger.objectviewer.ori.datatypeError=Valore non corretto per il tipo di dati
-debugger.objectviewer.ori.noSelectionError=Non è stato scelto nessun valore
-debugger.objectviewer.ori.noAssignmentError=Assegnamento non eseguito
-debugger.objectviewer.ori.noInvokeError=Il metodo non è stato invocato
-debugger.objectviewer.ori.more=<<ancora>>
-debugger.objectviewer.ori.top=Alto
-debugger.objectviewer.ori.bottom=Basso
-debugger.objectviewer.ori.next=Successivo
-debugger.objectviewer.ori.entry=Immissione
-debugger.objectviewer.ori.element=Elemento
-debugger.objectviewer.ori.key=Chiave
-debugger.objectviewer.ori.value=Valore
-debugger.objectviewer.ori.alreadyShown=L'oggetto è già mostrato nel diagramma.
-debugger.objectviewer.ori.cannotPastePrim=Non è possibile mostrare nel diagramma un tipo primitivo.
-debugger.objectviewer.ori.parmToolTip=Fai click qui per scegliere il parametro
-debugger.objectviewer.ori.assignToolTip=Fai click qui per scegliere il sorgente
-debugger.objectviewer.ori.close=Chiudi
-debugger.objectviewer.ori.methodResult=Risultato Ritornato
+debugger.inspector.title=BlueJ:  Inspector
+debugger.inspector.result.title=BlueJ:  Risultato del Metodo
+debugger.inspector.staticListTitle=Campi statici
+debugger.inspector.objListTitle=Campi di istanza
+debugger.inspector.showClass=Mostra i campi statici
+debugger.inspector.inspect=Ispeziona
+debugger.inspector.get=Recupera
+debugger.inspector.objectNameLabel=Oggetto di classe
+debugger.inspector.classNameLabel=Classe
 
-debugger.objectwrapper.methodException=Eccezione nell'accesso al metodo:
-debugger.objectwrapper.invocationException=Eccezione durante l'invocazione:
+debugger.objectwrapper.methodException=Eccezione nell'accesso ai metodi:
+debugger.objectwrapper.invocationException=Eccezione all'invocazione:
 debugger.objectwrapper.inspect=Ispeziona
-debugger.objectwrapper.remove=Elimina
+debugger.objectwrapper.remove=Rimuovi
 debugger.objectwrapper.serializable=Serializza
 debugger.objectwrapper.redefined=ridefinito in
 debugger.objectwrapper.inherited=ereditato da
@@ -110,9 +85,6 @@ browser.menu.library.addlibrary.title=Aggiungi una libreria
 browser.menu.library.refresh=Aggiorna
 browser.menu.library.close=Chiudi
 
-# Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Preferenze
-
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Librerie
 classmgr.userlibraries=Librerie dell'utente
@@ -123,14 +95,15 @@ classmgr.delete=Elimina
 classmgr.statuscolumn=Stato
 classmgr.statusgood=Caricato
 classmgr.statusbad=Errore
-classmgr.locationcolumn=Localizzazione
-classmgr.descriptioncolumn=Descrizione
-classmgr.bootclass=Libreria della classe d'avvio
-classmgr.bluejclass=Libreria della classe BlueJ
+classmgr.statusnew=Non caricato
+classmgr.locationcolumn=Posizione
 classmgr.error.unresolvable=Path errato
 classmgr.error.nodescription=Nessuna descrizione
 classmgr.error.missingclasspath=Manca il classpath dell'ambiente Java. Il caricamento della classe potrebbe non avvenire normalmente,\nin quanto saranno risolte prima le classi nella directory corrente.
 classmgr.error.missingbootclasspath=Manca il classpath di avvio di Sun. BlueJ non dovrebbe essere utilizzato con un ambiente Java anteriore al JDK 1.2.
+
+# Preferences Manager user interface elements and error messages
+prefmgr.title=BlueJ:  Preferenze
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=Varie
@@ -141,14 +114,41 @@ prefmgr.misc.autoindent=Attiva il rientro automatico (con Invio e Tab)
 prefmgr.misc.displaylinenumbers=Mostra i numeri di linea
 prefmgr.misc.makeBackup=Tieni una copia di sicurezza dei file sorgente
 prefmgr.misc.matchBrackets=Mostra le parentesi corrispondenti
-prefmgr.misc.compiler.title=Preferenze del Compilatore
-prefmgr.misc.usejdk14=Attiva le caratteristiche del JDK 1.4 (asserzioni)
+prefmgr.misc.testing.title=Preferenze dell'Unità di Test
+prefmgr.misc.showTesting=Mostra gli strumenti dell'unità di test
 prefmgr.misc.documentation.title=Preferenze della Documentazione
 prefmgr.misc.jdkurlpath=URL della documentazione del JDK
 prefmgr.misc.linkToLib=Utilizza questo URL quando viene generata la documentazione del progetto
 prefmgr.misc.linkToLibNoteLine1=Se per generare la documentazione si utilizza questo URL, è necessario  che sia corretto e accessibile.
 prefmgr.misc.linkToLibNoteLine2=Per lavorare offline, deselezionare questa opzione.
 
+# Extensions Manager Help panel
+extmgr.title=BlueJ:  Estensioni installate
+extmgr.extensions=Estensioni
+extmgr.systemExtensionShort=Sistema
+extmgr.systemExtensionLong=Estensione di sistema (attiva per tutti i progetti)
+extmgr.projectExtensionShort=Progetto
+extmgr.projectExtensionLong=Estensione di progetto (attiva solo per il progetto corrente)
+extmgr.statuscolumn=Stato
+extmgr.namecolumn=Nome
+extmgr.typecolumn=Tipo
+extmgr.details=Dettagli dell'estensione
+extmgr.details.location=Posizione:
+extmgr.details.version=versione
+extmgr.details.url=Maggiori informazioni a:
+
+extmgr.status.notused=non usato
+extmgr.status.loaded=caricato
+extmgr.status.error=errore
+extmgr.status.unloaded=scaricato
+extmgr.version.unknown=sconosciuto
+extensions.nodescription=Non specificato.
+
+# Extension errors
+extmgr.error.nomanifest=Nessun file Manifesto
+extmgr.error.nomain=il Manifesto non contiene l'attributo Main-Class
+extmgr.error.notsubclass=Main class non è una sottoclasse di Extension
+extmgr.error.cannotload=Extension non può essere caricata
 
 #---------------
 #Editor labels
@@ -191,10 +191,16 @@ editor.insert-methodLabel = Inserisci metodo
 editor.findLabel = Trova...
 editor.find-nextLabel = Trova successivo
 editor.find-next-backwardLabel = Trova precedente
+editor.go-to-lineLabel = Vai alla linea...
 editor.replaceLabel = Sostituisci...
 editor.compileLabel = Compila
 editor.toggle-breakpointLabel = Metti/Togli Breakpoint
 editor.toggle-interface-viewLabel = Implementazione/Specifiche
+
+editor.go-to-lineLabel = Vai alla linea...
+editor.gotoline.title = Vai alla linea
+editor.gotoline.label = Specifica la linea 
+editor.gotoline.notNumericMessage = Il valore deve essere numerico
 
 editor.implementationLabel = Implementazione
 editor.interfaceLabel = Specifiche
@@ -306,11 +312,26 @@ pkgmgr.packagemenu.remove=Elimina
 pkgmgr.classmenu.runApplet=Esegui l'applet
 pkgmgr.classmenu.edit=Apri nell'Editor
 pkgmgr.classmenu.compile=Compila
+pkgmgr.classmenu.inspect=Ispeziona
 pkgmgr.classmenu.remove=Elimina
+pkgmgr.classmenu.createTest=Cra la classe Test
 
-pkgmgr.view.label=Visualizza
-pkgmgr.view.usesLabel=Usa
-pkgmgr.view.inheritLabel=Eredità
+pkgmgr.test.label=eseguo il Test
+pkgmgr.test.record=registro
+pkgmgr.test.run=Esegui i Test
+pkgmgr.test.end=Fine
+pkgmgr.test.succeeded=riusciti
+pkgmgr.test.noTestName=Specifica un nome per il test
+pkgmgr.test.invalidTestName=Il nome del test deve essere un identificatore Java valido
+pkgmgr.test.recording=registro
+
+pkgmgr.test.popup.testAll=Esegui il Test di tutto
+pkgmgr.test.popup.noTests=Nessun metodo di test
+pkgmgr.test.popup.testPrefix=Test
+pkgmgr.test.popup.createTest=Crea il metodo Test...
+pkgmgr.test.popup.benchToFixture=da Object Bench a Test Fixture
+pkgmgr.test.popup.fixtureToBench=da Test Fixture a Object Bench
+
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Crea un nuova classe
@@ -337,6 +358,13 @@ callLibraryDialog.clickHere1=Scegli il nome completo della classe e premi Invio
 callLibraryDialog.clickHere2=per mostrare metodi e costruttori.
 callLibraryDialog.classNotFound1=Non riesco a trovare la classe.
 callLibraryDialog.classNotFound2=Controlla il nome della classe e premi nuovamente Invio.
+
+# "Free Form Call" dialog
+freeCallDialog.title=BlueJ:  Valuta
+freeCallDialog.fieldLabel=Valuta:
+freeCallDialog.resultLabel=Questa è
+freeCallDialog.returnsResult=una espressione (restituisce un risultato)
+freeCallDialog.returnsNoResult=una istruzione (non restituisce un risultato)
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Esporta progetto
@@ -392,12 +420,16 @@ pkgmgr.runApplet.value=VALORE
 pkgmgr.runApplet.htmlComment=<!-- ****** Generato da BlueJ Java Development Environment ****** -->\n<!-- Questo file viene rigenerato automaticamente ogni volta che  -->\n<!-- l'applet è avviato. Ogni variazione manuale al file viene    -->\n<!-- persa quando l'applet è riavviata in BlueJ. Salvalo in una   -->\n<!-- directory al di fuori di quella del package se non vuoi      -->\n<!-- perdere le variazioni che apporti.                           -->
 pkgmgr.runApplet.htmlExportedComment=<!-- ************ Generato da BlueJ Java Development Environment ************ -->\n<!-- Quando questa pagina è stata generata, la variabile codebase puntava al  -->\n<!-- path assoluto della directory del package BlueJ dell'applet. Se muovi    -->\n<!-- altrove il package, devi anche modificare il valore di questa variabile. -->
 
+#print project dialog
+pkgmgr.printDialog.title=BlueJ:  Stampa il progetto
+pkgmgr.printDialog.printDiagram=Stampa il diagramma delle classi
+pkgmgr.printDialog.printSource=Stampa il codice sorgente
+pkgmgr.printDialog.printReadme=Stampa il readme del progetto
 
 # method call dialog
 pkgmgr.methodCall.titleCreate=BlueJ:  Crea oggetto
 pkgmgr.methodCall.titleCall=BlueJ:  Chiama un metodo
 pkgmgr.methodCall.namePrompt=Nome dell'istanza:
-pkgmgr.methodCall.=Interfaccia
 error.methodCall.emptyField=Campo di parametro vuoto
 error.methodCall.illegalName=Il nome dell'istanza deve essere un identificatore Java.
 error.methodCall.duplicateName=Un oggetto con questo nome esiste già.\nScegli un altro nome non ancora utilizzato.
@@ -409,14 +441,15 @@ debugger.execControls.staticTitle = Variabili statiche
 debugger.execControls.instanceTitle = Variabili di istanza
 debugger.execControls.localTitle = Variabili locali
 debugger.execControls.threadTitle = Thread
-debugger.execControls.updateText = Aggiorna
-debugger.execControls.systemThreads = Mostra thread di sistema
 debugger.execControls.haltButtonText = Blocca
 debugger.execControls.stepButtonText = A passi
 debugger.execControls.stepIntoButtonText = A passi in
 debugger.execControls.continueButtonText = Continua
 debugger.execControls.terminateButtonText = Termina
 
+debugger.options = Opzioni
+debugger.hideSystemThreads = Nascondi i thread di sistema
+debugger.threadRunning = <html><center>Thread in esecuzione.<br>I thread devono essere fermati per vedere i dettagli.</html>
 # DialogManager labels
 dialogmgr.error = BlueJ:  Errore
 dialogmgr.question = BlueJ:  Domanda
@@ -434,6 +467,12 @@ terminal.recordCalls = Registra le chiamate a metodo
 terminal.buffering = Buffer illimitato
 terminal.save.title = Salva il testo del terminale
 terminal.save.buttonText = Salva
+
+#TestDisplay Window
+testdisplay.title = BlueJ:  Risultati di Test
+testdisplay.counter.runs=Esegui:
+testdisplay.counter.errors=Errori:
+testdisplay.counter.failures=Fallimenti:
 
 # status messages
 pkgmgr.compiling=Compilo...
@@ -453,6 +492,7 @@ pkgmgr.appletInViewer=Eseguo l'applet nell'appletviewer
 pkgmgr.appletInBrowser=Eseguo l'applet nel browser web
 pkgmgr.exported=Esportazione completata.
 pkgmgr.exported.jar=Esportazione verso file jar completata.
+pkgmgr.error.open=Il progetto non esiste (non più)
 
 properties.heading.bluej=Proprietà di BlueJ. Le configurazioni in questo file hanno la precedenza su quelle in \"bluej.defs\"
 properties.heading.moe=Proprietà dell'Editor Moe. Le configurazioni in questo file hanno la precedenza su quelle in \"moe.defs\"
@@ -462,6 +502,7 @@ properties.heading.moe=Proprietà dell'Editor Moe. Le configurazioni in questo fi
 menu.package=Progetto
 menu.package.new=Nuovo progetto
 menu.package.open=Apri un progetto...
+menu.package.openRecent=Apri un progetto recente
 menu.package.openNonBlueJ=Apri un progetto non BlueJ...
 menu.package.close=Chiudi
 menu.package.save=Salva
@@ -482,19 +523,21 @@ menu.edit.newInherits=Nuova relazione 'eredità'
 menu.edit.removeArrow=Elimina relazione
 
 menu.tools=Strumenti
-menu.tools.compile=Compila tutto 
+menu.tools.compile=Compila tutto
+menu.tools.test=Esegui Test
 menu.tools.compileSelected=Compila solo selezionati
-menu.tools.callLibrary=Usa la libreria di classe...
 menu.tools.rebuild=Ricostruisci il package
+menu.tools.callLibrary=Usa la libreria di classe...
+menu.tools.callFreeForm=Valuta l'espressione...
 menu.tools.generateDoc=Documentazione di progetto
-menu.tools.browse=Esplora le librerie...
-menu.tools.preferences=Preferenze
+menu.tools.preferences=Preferenze...
 
 menu.view=Visualizza
 menu.view.showUses=Relazioni 'usa'
 menu.view.showInherits=Relazioni 'eredità'
 menu.view.showExecControls=Debugger
 menu.view.showTerminal=Terminale
+menu.view.showTestDisplay=Mostra i risultati di Test
 
 menu.group=Lavoro di gruppo
 menu.group.make=Crea un package di gruppo
@@ -510,7 +553,9 @@ menu.group.configuration=Configurazione
 
 menu.help=Aiuto
 menu.help.about=Informazioni su BlueJ
-menu.help.versionCheck=Versione
+menu.help.extensions=Installed Extensions
+menu.help.versionCheck=Verifica la versione
+menu.help.extensions=Estensioni installate
 menu.help.copyright=Copyright
 menu.help.website=Sito web di BlueJ
 menu.help.tutorial=Tutorial per BlueJ
@@ -522,6 +567,7 @@ tooltip.newClass=Crea una nuova classe in questo package
 tooltip.newUses=Inserisci una relazione 'usa'
 tooltip.newExtends=Inserisci una relazione 'eredità'
 tooltip.compile=Compila tutte le classi di questo package non compilate
-tooltip.showUses=Vista delle relazioni 'usa'
-tooltip.showExtends=Vista delle relazioni 'eredità'
-tooltip.progress=Indicatore d'attività: indica quando la virtual machine è in esecuzione
+tooltip.test=Compila tutte le classi test del package
+tooltip.progress=Indicatore di esecuzione: indica quando la virtual machine è in esecuzione
+tooltip.test.end=Termina la registrazione di un metodo di test e lo salva.
+tooltip.test.cancel=Cancella ed elimina la registrazione di un metodo test.
