@@ -14,7 +14,7 @@ import org.bluej.utility.*;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1620 2003-02-04 10:15:22Z damiano $
+ * @version    $Id: Submitter.java 1643 2003-03-05 11:15:06Z damiano $
  */
 public class Submitter extends Extension implements MenuGen, BJEventListener
 {
@@ -171,13 +171,13 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
     /**
      *  Gets the compatibleWith attribute of the Submitter object
      *
-     * @param  majorVersion  Description of the Parameter
-     * @param  minorVersion  Description of the Parameter
      * @return               The compatibleWith value
      */
-    public boolean isCompatibleWith(int majorVersion, int minorVersion)
+    public boolean isCompatible()
     {
-        return (majorVersion == BUILT_FOR_MAJOR && minorVersion >= BUILD_FOR_MINOR);
+        if ( Extension.VERSION_MAJOR != 2 ) return false;
+        if ( Extension.VERSION_MINOR != 1 ) return false;
+        return (true);
     }
 
 
