@@ -33,11 +33,12 @@ import java.awt.event.*;
 import javax.swing.JFrame;
 import java.io.*;
 import java.util.*;
+import java.text.DateFormat;
 
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 375 2000-01-24 22:56:25Z mik $
+ * @version $Id: Package.java 391 2000-02-15 03:47:53Z bquig $
  * @author Michael Cahill
  *
  */
@@ -1991,7 +1992,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
         // write footer
         g.setFont(printInfoFont);
-        Utility.drawRightText(g, (new Date()) + ", page " + pageNum,
+        DateFormat dateFormat = DateFormat.getDateTimeInstance();
+        Utility.drawRightText(g, dateFormat.format(new Date()) + ", page " + pageNum,
                               printArea.x, printArea.y + printArea.height,
                               printArea.width, ifm.getHeight());
     }
