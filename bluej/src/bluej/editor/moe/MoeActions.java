@@ -597,14 +597,14 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
-    class PreviewDocAction extends MoeAbstractAction {
+    class ToggleInterfaceAction extends MoeAbstractAction {
 
-        public PreviewDocAction() {
-            super("preview-doc");
+        public ToggleInterfaceAction() {
+            super("toggle-interface-view");
         }
 
         public void actionPerformed(ActionEvent e) {
-            getEditor(e).generateDoc();
+            getEditor(e).toggleInterface();
         }
     }
 
@@ -883,7 +883,7 @@ public final class MoeActions
             new FindNextReverseAction(),
             new ReplaceAction(),
             compileAction,
-            new PreviewDocAction(),
+            new ToggleInterfaceAction(),
             new ToggleBreakPointAction(),
 
             new KeyBindingsAction(),
@@ -996,7 +996,7 @@ public final class MoeActions
             (Action)(actions.get("find-next-reverse")),
             (Action)(actions.get("replace")),
             (Action)(actions.get("compile")),
-            (Action)(actions.get("preview-doc")),
+            (Action)(actions.get("toggle-interface-view")),
             (Action)(actions.get("toggle-breakpoint")),
         };                                                      // 70
 
@@ -1068,7 +1068,7 @@ public final class MoeActions
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK), 
                               (Action)(actions.get("compile")));
-        // "preview-doc" not bound
+        // "toggle-interface-view" not bound
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK), 
                               (Action)(actions.get("toggle-breakpoint")));

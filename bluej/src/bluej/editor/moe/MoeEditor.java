@@ -1,6 +1,8 @@
 package bluej.editor.moe;
 
 import bluej.Config;
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -43,13 +45,13 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 // cuurently, editors never get removed from editor manager!
 
 public final class MoeEditor extends JFrame
-    implements bluej.editor.Editor
+    implements bluej.editor.Editor, BlueJEventListener
 {
     // -------- CONSTANTS --------
 
     // version number
-    static final int version = 040;
-    static final String versionString = "0.4";
+    static final int version = 110;
+    static final String versionString = "1.1";
 
     // colours
     static final Color textColor = new Color(0,0,0);		// normal text
@@ -101,24 +103,27 @@ public final class MoeEditor extends JFrame
 
     private MoeActions actions;
 
-    private JEditorPane textPane;	// the component holding the text
-    private JEditorPane sourcePane;	// the component holding the text
-    private JEditorPane htmlPane;	// the component holding the text
+    private JEditorPane currentTextPane;  // text component currently dislayed
+    private JEditorPane sourcePane;	// the component holding the source text
+    private JEditorPane htmlPane;	// the component holding the javadoc html
 
-    private Info info;			// the info number label
-    private JPanel statusArea;		// the status area
+    private Info info;	            // the info number label
+    private JPanel statusArea;	    // the status area
     private LineNumberLabel lineCounter;	// the line number label
-    private StatusLabel saveState;	// the status label
+    private StatusLabel saveState;  // the status label
 
-    private JComponent toolbar;		// The toolbar
+    private JScrollPane scrollPane;
+    private JComponent toolbar;	    // The toolbar
 
-    private String filename;            // name of file or null
-    private String windowTitle;		// title of editor window
-    private boolean firstSave;          // true if never been saved
-    private boolean isCompiled;		// true when source has been compiled
+    private String filename;        // name of file or null
+    private String windowTitle;	    // title of editor window
+    private boolean firstSave;      // true if never been saved
+    private boolean isCompiled;	    // true when source has been compiled
+    private String docpath;         // path to javadoc html file
 
-    private String newline;		// the line break character used
-    private boolean isCode;		// true if current buffer is code
+    private String newline;	        // the line break character used
+    private boolean sourceIsCode;   // true if current buffer is code
+    private boolean viewingHTML;
 
     private int currentStepPos;         // position of step mark (or -1)
     private boolean mayHaveBreakpoints;	// true if there were BP here
@@ -181,7 +186,8 @@ public final class MoeEditor extends JFrame
         firstSave = true;
         isCompiled = false;
         newline = System.getProperty("line.separator");
-        this.isCode = isCode;
+        sourceIsCode = isCode;
+        viewingHTML = false;
         currentStepPos = -1;
         mayHaveBreakpoints = false;
 
@@ -212,18 +218,14 @@ public final class MoeEditor extends JFrame
                 sourcePane.read(reader, null);
                 reader.close();
 
-//                 reader = new FileReader(filename+".html");
-//                 htmlPane.read(reader, null);
-//                 reader.close();
-
                 sourceDocument = (MoeSyntaxDocument)sourcePane.getDocument();
-//                htmlDocument = (HTMLDocument)htmlPane.getDocument();
 
                 // set TokenMarker for syntax highlighting if desired
                 checkSyntaxStatus();
 
                 sourceDocument.addDocumentListener(saveState);
                 sourceDocument.addUndoableEditListener(new MoeUndoableEditListener());
+                document = sourceDocument;
                 loaded = true;
             }
             catch (FileNotFoundException ex) {
@@ -251,21 +253,22 @@ public final class MoeEditor extends JFrame
         //       save_state = Saved;
 
         if (loaded)
-            info.message (Config.getString("editor.info.version"));
+            info.message (Config.getString("editor.info.version") + 
+                          versionString);
         else if (readError)
             info.warning (Config.getString("editor.info.readingProblem"),
                           Config.getString("editor.info.regularFile"));
         else
-            info.message (Config.getString("editor.info.version"),
+            info.message (Config.getString("editor.info.version" + 
+                                           versionString),
                           Config.getString("editor.info.newFile"));
 
         setWindowTitle();
-        textPane.setFont(PrefMgr.getStandardEditorFont());
-        textPane.setSelectionColor(selectionColour);
+        sourcePane.setFont(PrefMgr.getStandardEditorFont());
+        sourcePane.setSelectionColor(selectionColour);
 
         setCompileStatus(compiled);
-        if (!isCode)
-            actions.compileAction.setEnabled(false);
+
         return true;
     } // showFile
 
@@ -284,7 +287,7 @@ public final class MoeEditor extends JFrame
     public void clear()	// inherited from Editor, redefined
     {
         ignoreChanges = true;
-        textPane.setText("");
+        sourcePane.setText("");
         ignoreChanges = false;
     }
 
@@ -302,79 +305,8 @@ public final class MoeEditor extends JFrame
     public void insertText(String text, boolean bold, boolean italic)
     // inherited from Editor, redefined
     {
-
-	//PENDING: further work to provide italic or bold formatting to views (bq)
-        //=====original version=====
-
-  //       MoeSyntaxEditorKit kit = (MoeSyntaxEditorKit)textPane.getEditorKit();
-//         MutableAttributeSet attr = kit.getInputAttributes();
-//         StyleConstants.setBold(attr, bold);
-//         StyleConstants.setItalic(attr, italic);
-
-//         attr.addAttributes(attr);
-
-
-        //=====alternative 1
-
- //        int currentLine = getLineNumberAt(textPane.getCaretPosition());
-//         Debug.message("Current line = " + currentLine);
-//         Element currentElement = document.getParagraphElement(currentLine);
-//         //AttributeSet attr = currentElement.getAttributes();
-//         //getLineNumberAt(textPane.getCaretPosition());
-//         Debug.message("Element start offset = " + currentElement.getStartOffset());
-//         SimpleAttributeSet attr = new SimpleAttributeSet();
-
-//         StyleConstants.setBold(attr, bold);
-//         StyleConstants.setItalic(attr, italic);
-//         int start = currentElement.getStartOffset();
-//         int end = currentElement.getEndOffset();
-//         int length = end - start;
-//         document.setParagraphAttributes(start, 0, attr, false);
-
-        //======alternative 2
-
-//         int currentLine = getLineNumberAt(textPane.getCaretPosition());
-//         Debug.message("Current line = " + currentLine);
-//         Element currentElement = document.getParagraphElement(currentLine);
-//         //AttributeSet attr = currentElement.getAttributes();
-//         //getLineNumberAt(textPane.getCaretPosition());
-//         Debug.message("Element start offset = " + currentElement.getStartOffset());
-//         SimpleAttributeSet attr = new SimpleAttributeSet();
-
-//         StyleConstants.setBold(attr, bold);
-//         StyleConstants.setItalic(attr, italic);
-        //((MutableAttributeSet)currentElement.getAttributes()).addAttributes(attr);
-        // StateInvariantError
-
-
-
-        textPane.replaceSelection(text);
+        sourcePane.replaceSelection(text);
     }
-
-    // --------------------------------------------------------------------
-//     /**
-//      *  Make the editor display a given view.
-//      *
-//      *  @param view     the view to be displayed. Must be one of the
-//      *                  view constants defined above
-//      */
-//     public void setView(int view)
-//     {
-//         int newIndex = 0;   // bluej.editor.Editor.IMPLEMENTATION
-
-//         if (view == bluej.editor.Editor.PUBLIC)
-//             newIndex = 1;
-//         else if (view == bluej.editor.Editor.PACKAGE)
-//             newIndex = 2;
-//         else if (view == bluej.editor.Editor.INHERITED)
-//             newIndex = 3;
-
-//         if(newIndex != viewSelector.getSelectedIndex()) {
-//             viewSelector.setSelectedIndex(newIndex);
-//             // this will cause an itemStateChanged event for the selector.
-//             // the event handler does all the rest.
-//         }
-//     }
 
     // --------------------------------------------------------------------
     /**
@@ -384,7 +316,7 @@ public final class MoeEditor extends JFrame
     public void setVisible(boolean vis)  // inherited from Editor, redefined
     {
         if(vis) {
-            textPane.setFont(PrefMgr.getStandardEditorFont());
+            currentTextPane.setFont(PrefMgr.getStandardEditorFont());
             checkSyntaxStatus();
             setState(Frame.NORMAL);  // de-iconify
             toFront();               // window to front
@@ -398,9 +330,9 @@ public final class MoeEditor extends JFrame
      */
     public void refresh()	// inherited from Editor, redefined
     {
-        textPane.setFont(PrefMgr.getStandardEditorFont());
+        currentTextPane.setFont(PrefMgr.getStandardEditorFont());
         checkSyntaxStatus();
-        textPane.repaint();
+        currentTextPane.repaint();
     }
 
     // --------------------------------------------------------------------
@@ -429,18 +361,15 @@ public final class MoeEditor extends JFrame
 
             Debug.assert(filename != null);
 
-            // missing: ## NYI
-            // check for first save -> make backup
-
-                  try {
-                      FileWriter writer = new FileWriter(filename);
-                      textPane.write(writer);
-                      writer.close();
-                      setSaved();
-                  }
-                  catch (IOException ex) {
-                      info.warning (Config.getString("editor.info.errorSaving"));
-                  }
+            try {
+                FileWriter writer = new FileWriter(filename);
+                sourcePane.write(writer);
+                writer.close();
+                setSaved();
+            }
+            catch (IOException ex) {
+                info.warning (Config.getString("editor.info.errorSaving"));
+            }
         }
     }
 
@@ -476,6 +405,8 @@ public final class MoeEditor extends JFrame
                                String help)
                                // inherited from Editor
     {
+        switchToSourceView();
+
         Element line = getLine(lineNumber);
         int pos = line.getStartOffset();
 
@@ -484,8 +415,8 @@ public final class MoeEditor extends JFrame
 
         // highlight the line
 
-        textPane.setCaretPosition(pos);
-        textPane.moveCaretPosition(line.getEndOffset());
+        currentTextPane.setCaretPosition(pos);
+        currentTextPane.moveCaretPosition(line.getEndOffset());
 
         // display the message
 
@@ -510,7 +441,7 @@ public final class MoeEditor extends JFrame
     {
         Element line = getLine (lineNumber);
 
-        textPane.select(line.getStartOffset()+columnNumber-1,
+        currentTextPane.select(line.getStartOffset()+columnNumber-1,
                         line.getStartOffset()+columnNumber+len-1);
     }
 
@@ -532,7 +463,7 @@ public final class MoeEditor extends JFrame
             repaint();
         }
         // remove highlight as well
-        sourcePane.setCaretPosition(textPane.getCaretPosition());
+        sourcePane.setCaretPosition(sourcePane.getCaretPosition());
     }
 
     // --------------------------------------------------------------------
@@ -593,12 +524,33 @@ public final class MoeEditor extends JFrame
             actions.undoAction.update();
             actions.redoAction.update();
         }
-        textPane.setEditable(!readOnlyStatus);
+        currentTextPane.setEditable(!readOnlyStatus);
     }
 
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
     // --------------------------------------------------------------------
+
+    // ---- BlueJEventListener interface ----
+
+    /**
+     *  A BlueJEvent was raised. Check whether it is one that we're interested
+     *  in.
+     */
+    public void blueJEvent(int eventId, Object arg)
+    {
+        switch(eventId) {
+        case BlueJEvent.DOCU_GENERATED:
+            BlueJEvent.removeListener(this);
+            displayInterface(true);
+            break;
+        case BlueJEvent.DOCU_ABORTED:
+            BlueJEvent.removeListener(this);
+            info.message("There was a serious problem generating the javadoc",
+                         "interface. Aborted.");   // fix
+            break;
+        }
+    }
 
     // --------------------------------------------------------------------
     /**
@@ -723,7 +675,7 @@ public final class MoeEditor extends JFrame
     public void findNext()
     {
         Finder finder = MoeEditorManager.editorManager.getFinder();
-        String s = textPane.getSelectedText();
+        String s = currentTextPane.getSelectedText();
         if (s == null) {
             s = finder.getLastSearchString();
             if (s == null) {
@@ -742,7 +694,7 @@ public final class MoeEditor extends JFrame
     public void findNextReverse()
     {
         Finder finder = MoeEditorManager.editorManager.getFinder();
-        String s = textPane.getSelectedText();
+        String s = currentTextPane.getSelectedText();
         if (s == null) {
             s = finder.getLastSearchString();
             if (s == null) {
@@ -789,7 +741,7 @@ public final class MoeEditor extends JFrame
     private boolean doFind(String s, boolean wrap)
     {
         int docLength = document.getLength();
-        int startPosition = textPane.getCaretPosition();
+        int startPosition = currentTextPane.getCaretPosition();
         int endPos = docLength;
 
         boolean found = false;
@@ -805,7 +757,7 @@ public final class MoeEditor extends JFrame
                 if(lineText != null && lineText.length() > 0) {
                     int foundPos = lineText.indexOf(s);
                     if (foundPos != -1) {
-                        textPane.select(start+foundPos, start+foundPos+s.length());
+                        currentTextPane.select(start+foundPos, start+foundPos+s.length());
                         found = true;
                     }
                 }
@@ -842,7 +794,7 @@ public final class MoeEditor extends JFrame
     private boolean doFindBackward(String s, boolean wrap)
     {
         int docLength = document.getLength();
-        int startPosition = textPane.getCaretPosition() - 1;
+        int startPosition = currentTextPane.getCaretPosition() - 1;
         if(startPosition < 0)
             startPosition = docLength;
         int endPos = 0;		// where the search ends
@@ -860,7 +812,7 @@ public final class MoeEditor extends JFrame
                 if(lineText != null && lineText.length() > 0) {
                     int foundPos = lineText.lastIndexOf(s);
                     if (foundPos != -1) {
-                        textPane.select(lineStart+foundPos,
+                        currentTextPane.select(lineStart+foundPos,
                                         lineStart+foundPos+s.length());
                         found = true;
                     }
@@ -912,8 +864,10 @@ public final class MoeEditor extends JFrame
     {
         if (watcher == null)
             return;
-        if (!isCode)
+        if (!viewingCode()) {
+            info.warning(" ");
             return;
+        }
 
         info.message (Config.getString("editor.info.compiling"));
         watcher.compile(this);
@@ -921,13 +875,110 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Implementation of "preview documentation" user function.
+     *  Implementation of "toggle-interface-view" user function.
      */
-
-    public void generateDoc()
+    public void toggleInterface()
     {
+        if(viewingHTML)
+            switchToSourceView();
+        else
+            switchToInterfaceView();
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Switch on the source view (it it isn't showing already).
+     */
+    private void switchToSourceView()
+    {
+        if(!viewingHTML)
+            return;
+
+        document = sourceDocument;
+        currentTextPane = sourcePane;
+        viewingHTML = false;
+        scrollPane.setViewportView(currentTextPane);
+        currentTextPane.requestFocus();
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Switch on the javadoc interface view (it it isn't showing already).
+     *  If necessary, generate it first.
+     */
+    private void switchToInterfaceView()
+    {
+        if(viewingHTML)
+            return;
+
         save();
-        DocuGenerator.generateClassDocu(filename);
+        if(docUpToDate()) {
+            displayInterface(false);
+        }
+        else {  // interface needs to be re-generated
+            info.message("Generating class interface...");  //fix
+            BlueJEvent.addListener(this);
+            DocuGenerator.generateClassDocu(filename);
+        }
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Check whether javadoc file is up to date.
+     */
+    private boolean docUpToDate()
+    {
+        try {
+            File src = new File(filename);
+            File doc = new File(getDocPath());
+
+            if(!doc.exists()
+               || (src.exists() && (src.lastModified() > doc.lastModified())))
+                return false;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * We want to display the interface view. We have checked (or waited)
+     * that the html file is available. It is there now, ready to be displayed.
+     * Display it.
+     *
+     * Don't call this directly to switch to the interface view. Call
+     * switchToInterfaceView() instead.
+     */
+    private void displayInterface(boolean reload)
+    {
+        if(htmlDocument == null) {
+            htmlPane = new JEditorPane();
+            htmlPane.setEditorKit(new HTMLEditorKit());
+            htmlPane.setEditable(false);
+            reload = true;
+        }
+
+        if(reload) {
+            info.message("Loading class interface...");  //fix
+            try {
+                FileReader reader = new FileReader(getDocPath());
+                htmlPane.read(reader, null);
+                reader.close();
+                htmlDocument = (HTMLDocument)htmlPane.getDocument();
+                info.message("Loading class interface... Done.");  //fix
+            }
+            catch (Exception exc) {
+                info.warning("Cannot find HTML file", getDocPath());
+                //Config.getString("editor.info.fileDisappeared"));
+            }
+        }
+        document = htmlDocument;
+        currentTextPane = htmlPane;
+        viewingHTML = true;
+        scrollPane.setViewportView(currentTextPane);
+        currentTextPane.requestFocus();
     }
 
     // --------------------------------------------------------------------
@@ -935,20 +986,20 @@ public final class MoeEditor extends JFrame
      *  Implementation of "toggle-breakpoint" user function.
      */
 
-    void toggleBreakpoint()
+    public void toggleBreakpoint()
     {
-        if (!isCode)
-            return;     // PENDING: add dialog:
-                        // "can only set bp in implementation view"
-        toggleBreakpoint(textPane.getCaretPosition());
+        if (!viewingCode()) {
+            info.warning (" ");  // cause a beep
+            return;
+        }
+        toggleBreakpoint(sourcePane.getCaretPosition());
     }
 
     // --------------------------------------------------------------------
     /**
      *  Toggle a breakpoint at a given position.
      */
-
-    void toggleBreakpoint(int pos)
+    public void toggleBreakpoint(int pos)
     {
         if (positionHasBreakpoint(pos))
             setUnsetBreakpoint(pos, false);  // remove
@@ -961,7 +1012,6 @@ public final class MoeEditor extends JFrame
     /**
      *   Clear all known breakpoints.
      */
-
     private void clearAllBreakpoints()
     {
         if(mayHaveBreakpoints) {
@@ -1070,6 +1120,16 @@ public final class MoeEditor extends JFrame
      *  Return the number of lines in the documant.
      */
 
+    private boolean viewingCode()
+    {
+        return sourceIsCode && (!viewingHTML);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Return the number of lines in the documant.
+     */
+
     private int numberOfLines()
     {
         return document.getDefaultRootElement().getElementCount();
@@ -1082,7 +1142,7 @@ public final class MoeEditor extends JFrame
 
     private Element getCurrentLine()
     {
-        return document.getParagraphElement(textPane.getCaretPosition());
+        return document.getParagraphElement(currentTextPane.getCaretPosition());
     }
 
     // --------------------------------------------------------------------
@@ -1123,7 +1183,7 @@ public final class MoeEditor extends JFrame
     private int getCurrentLineNo()
     {
         return document.getDefaultRootElement().getElementIndex(
-                                         textPane.getCaretPosition()) + 1;
+                                   currentTextPane.getCaretPosition()) + 1;
     }
 
     // --------------------------------------------------------------------
@@ -1150,12 +1210,7 @@ public final class MoeEditor extends JFrame
             sourcePane.read(reader, null);
             reader.close();
 
-//             reader = new FileReader(filename+".html");
-//             htmlPane.read(reader, null);
-//             reader.close();
-
             sourceDocument = (MoeSyntaxDocument)sourcePane.getDocument();
-//             htmlDocument = (HTMLDocument)htmlPane.getDocument();
 
             // flag document type as a java file by associating a JavaTokenMarker
             // for syntax colouring if specified
@@ -1184,7 +1239,7 @@ public final class MoeEditor extends JFrame
 
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
-            if(isCode && PrefMgr.useSyntaxHilighting()) {
+            if(viewingCode() && PrefMgr.useSyntaxHilighting()) {
                 if(sourceDocument.getTokenMarker() == null)
                     sourceDocument.setTokenMarker(new JavaTokenMarker());
             }
@@ -1198,19 +1253,19 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
     /**
      * Toggle the editor's 'compiled' status. If compiled, enable the
-     * view selector and breakpoint function.
+     * breakpoint function.
      */
     private void setCompileStatus(boolean compiled)
     {
         actions.getActionByName("toggle-breakpoint").setEnabled(
-                                                        compiled && isCode);
+                                                compiled && viewingCode());
         isCompiled = compiled;
 
         if(compiled)
             document.putProperty(COMPILED, Boolean.TRUE);
         else
             document.putProperty(COMPILED, Boolean.FALSE);
-        textPane.repaint();
+        currentTextPane.repaint();
     }
 
     // --------------------------------------------------------------------
@@ -1251,6 +1306,17 @@ public final class MoeEditor extends JFrame
                 title = "Moe:  " + filename;
         }
         setTitle(title);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Return the path to the class documentation.
+     */
+    private String getDocPath()
+    {
+        if(docpath == null)
+            docpath = DocuGenerator.getDocuPath(filename);
+        return docpath;
     }
 
     // --------------------------------------------------------------------
@@ -1354,33 +1420,23 @@ public final class MoeEditor extends JFrame
         sourcePane.setSelectionColor(selectionColor);
         sourcePane.setCaretColor(cursorColor);
 
-//         htmlDocument = new HTMLDocument();
-//         HTMLEditorKit htmlKit = new HTMLEditorKit();
-//         htmlPane = new JEditorPane();
-
-//         htmlPane.setDocument(htmlDocument);
-//         htmlPane.setEditorKit(htmlKit);
-
         // default showing:
         document = sourceDocument;
-        textPane = sourcePane;
-        //document = htmlDocument;
-        //textPane = htmlPane;
+        currentTextPane = sourcePane;
 
-
-        JScrollPane scrollPane = new JScrollPane(textPane);
+        scrollPane = new JScrollPane(currentTextPane);
         scrollPane.setPreferredSize(new Dimension(598,400));
 
         contentPane.add(scrollPane, BorderLayout.CENTER);
 
         // get table of edit actions
 
-        actions = MoeActions.getActions(textPane);
+        actions = MoeActions.getActions(sourcePane);
 
         // **** temporary: disable all unimplemented actions ****
 
         actions.getActionByName("replace").setEnabled(false);
-        actions.getActionByName("describe-key").setEnabled(false);
+        //actions.getActionByName("describe-key").setEnabled(false);
         actions.getActionByName("show-manual").setEnabled(false);
 
         // ****
@@ -1402,7 +1458,7 @@ public final class MoeEditor extends JFrame
                     close();
                 }
                 public void windowActivated(WindowEvent e) {
-                    textPane.requestFocus();
+                    currentTextPane.requestFocus();
                 }
             });
 
@@ -1493,23 +1549,34 @@ public final class MoeEditor extends JFrame
     private JComponent createToolbar()
     {
         JPanel toolbar = new JPanel();
-        //    toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
-        ((FlowLayout)toolbar.getLayout()).setAlignment (FlowLayout.LEFT);
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
+        //((FlowLayout)toolbar.getLayout()).setAlignment(FlowLayout.LEFT);
 
         String[] toolKeys = tokenize(getResource("toolbar"));
         for (int i=0; i<toolKeys.length; i++) {
-            toolbar.add(createToolbarButton(toolKeys[i]));
+            toolbar.add(createToolbarButton(toolKeys[i], false));
+            toolbar.add(Box.createHorizontalStrut(4));
         }
+        toolbar.add(Box.createHorizontalGlue());
+        toolbar.add(createToolbarButton("toggle-interface-view", true));
 
         return toolbar;
     }
 
     // --------------------------------------------------------------------
 
-    private JButton createToolbarButton(String key)
+    /**
+     * Create a button on the toolbar.
+     */
+    private AbstractButton createToolbarButton(String key, boolean isToggle)
     {
-        String label = Config.getString("editor."+key + LabelSuffix);
-        JButton button = new JButton(label);
+        String label = Config.getString("editor." + key + LabelSuffix);
+        AbstractButton button;
+
+        if(isToggle)
+            button = new JToggleButton(label);
+        else
+            button = new JButton(label);
 
         button.setRequestFocusEnabled(false);   // never get keyboard focus
         button.setMargin(new Insets(2,2,2,2));
@@ -1521,7 +1588,7 @@ public final class MoeEditor extends JFrame
         if (action != null) {	// should never be null...
             button.addActionListener(action);
             button.setActionCommand(actionName);
-            action.addPropertyChangeListener(new ActionChangeListener(button));
+            //action.addPropertyChangeListener(new ActionChangeListener(button));
         }
         else {
             button.setEnabled(false);
