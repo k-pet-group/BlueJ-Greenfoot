@@ -6,11 +6,10 @@ import bluej.Config;
 import bluej.utility.Debug;
 
 /**
- * Reasonably generic interface between the BlueJ IDE and the Java
- * compiler.
- *
- * @author  Michael Cahill
- * @version $Id: JobQueue.java 2691 2004-06-30 05:23:41Z davmac $
+ * Reasonably generic interface between the BlueJ IDE and the Java compiler.
+ * 
+ * @author Michael Cahill
+ * @version $Id: JobQueue.java 2812 2004-07-22 06:41:02Z davmac $
  */
 public class JobQueue
 {
@@ -18,7 +17,7 @@ public class JobQueue
 
     public static synchronized JobQueue getJobQueue()
     {
-        if(queue == null)
+        if (queue == null)
             queue = new JobQueue();
         return queue;
     }
@@ -29,7 +28,7 @@ public class JobQueue
     private Compiler compiler = null;
 
     /**
-     *
+     *  
      */
     private JobQueue()
     {
@@ -41,34 +40,38 @@ public class JobQueue
 
             compiler = new JavacCompilerInternal();
 
-        } else if (compilertype.equals("javac")) {
+        }
+        else if (compilertype.equals("javac")) {
 
-            compiler = new JavacCompiler(
-						Config.getJDKExecutablePath("bluej.compiler.executable","javac"));
+            compiler = new JavacCompiler(Config.getJDKExecutablePath("bluej.compiler.executable", "javac"));
 
-        } else if (compilertype.equals("jikes")) {
+        }
+        else if (compilertype.equals("jikes")) {
 
-            compiler = new JikesCompiler(
-                        Config.getPropString("bluej.compiler.executable","jikes"));
+            compiler = new JikesCompiler(Config.getPropString("bluej.compiler.executable", "jikes"));
 
-        } else {
+        }
+        else {
             Debug.message(Config.getString("compiler.invalidcompiler"));
         }
 
         thread = new CompilerThread();
+
         // Lower priority to improve GUI response time during compilation
+        int priority = Thread.currentThread().getPriority() - 1;
+        if (priority < Thread.MIN_PRIORITY)
+            priority = Thread.MIN_PRIORITY;
         thread.setPriority(Thread.currentThread().getPriority() - 1);
+
         thread.start();
     }
 
     /**
      * Adds a job to the compile queue.
      */
-    public void addJob(File[] sources, CompileObserver observer,
-                       String classPath, File destDir, boolean internal)
+    public void addJob(File[] sources, CompileObserver observer, String classPath, File destDir, boolean internal)
     {
-        thread.addJob(new Job(sources, compiler, observer,
-                              classPath, destDir, internal));
+        thread.addJob(new Job(sources, compiler, observer, classPath, destDir, internal));
     }
 
     /**
@@ -76,11 +79,12 @@ public class JobQueue
      */
     public void waitForEmptyQueue()
     {
-        while (thread.isBusy()) {
-            synchronized (thread) {
+        synchronized (thread) {
+            while (thread.isBusy()) {
                 try {
                     thread.wait();
-                } catch (InterruptedException ex) {}
+                }
+                catch (InterruptedException ex) {}
             }
         }
     }
