@@ -11,9 +11,10 @@ import java.util.Vector;
 import java.util.StringTokenizer;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
+import java.net.*;
 
 /**
- ** @version $Id: ClassPathEntry.java 161 1999-07-06 14:40:53Z ajp $
+ ** @version $Id: ClassPathEntry.java 189 1999-07-17 02:35:32Z ajp $
  ** @author Andrew Patterson
  ** Class to maintain a single file location in a classpath
  **/
@@ -63,6 +64,9 @@ public class ClassPathEntry implements Cloneable
 		return file.getCanonicalPath();
 	}
 
+    public URL getURL() throws MalformedURLException {
+        return file.toURL();   
+    }
 	/* Note that the Config.getString in this method was changed from a
 	 * static class string to a local variable because we need to instantiate
 	 * ClassPathEntries on the remote VM, and it has no access to the Config

@@ -6,11 +6,12 @@ import bluej.Config;
 import java.io.*;
 import java.util.*;
 import java.util.jar.*;
+import java.net.*;
 
 import javax.swing.table.*;
 
 /**
- ** @version $Id: ClassPath.java 161 1999-07-06 14:40:53Z ajp $
+ ** @version $Id: ClassPath.java 189 1999-07-17 02:35:32Z ajp $
  ** @author Andrew Patterson
  ** Class to maintain a list of ClassPathEntry's.
  **/
@@ -187,11 +188,35 @@ public class ClassPath
 		}
 	}
 
+    public URL[] getURLs()
+    {
+		Iterator it = entries.iterator();
+        URL u[] = new URL[entries.size()];
+        int current = 0;
+
+		while (it.hasNext()) {
+			ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+	    
+            try {
+                u[current] = nextEntry.getURL();
+                Debug.message(u[current].toString());
+            } catch(MalformedURLException mue) {
+            
+            }
+
+            current++;
+        }
+        
+        return u;
+    }
+    
 	/**
 	 * Find a file in the classpath
 	 *
 	 * @param	filename	a string which specifies a file to look
 	 *				for throughout the class path
+	 *          this filename is in native slash seperated form
+	 *          ie foo/bar for UNIX and foo\bar for Windows
 	 */
 	public InputStream getFile(String filename) throws IOException
 	{

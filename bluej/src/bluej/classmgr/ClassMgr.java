@@ -5,9 +5,10 @@ import bluej.Config;
 
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 /**
- ** @version $Id: ClassMgr.java 179 1999-07-09 06:33:25Z ajp $
+ ** @version $Id: ClassMgr.java 189 1999-07-17 02:35:32Z ajp $
  ** @author Andrew Patterson
  **
  ** Class to maintain a global class loading environment.
@@ -241,21 +242,21 @@ public class ClassMgr
 	}
 }
 
-class ClassPathLoader extends ClassLoader
+class ClassPathLoader extends URLClassLoader
 {
-	ClassPath classpath;
+//	ClassPath classpath;
 
 	ClassPathLoader(ClassPath classpath, ClassLoader parent)
 	{
-		super(parent);
+		super(classpath.getURLs(), parent);
 
-		this.classpath = classpath;
+//		this.classpath = classpath;
 	}
 
 	/**
 	 * Read in a class file from disk. Return a class object.
 	 */
-	protected Class findClass(String name) throws ClassNotFoundException
+/*	protected Class findClass(String name) throws ClassNotFoundException
 	{
 		// Debug.message("classpathloader: finding " + name);
 
@@ -269,7 +270,7 @@ class ClassPathLoader extends ClassLoader
 			throw new ClassNotFoundException("ClassPathLoader");
 		}
 	}
-
+*/
 	/**
 	 * Read in a class file from disk. Return the class code as a byte
 	 * array. The JDK class loader delegation model means that we are
@@ -278,7 +279,7 @@ class ClassPathLoader extends ClassLoader
 	 * as our parent class loader has taken care of the user and
 	 * system libraries.
 	 */
-	protected byte[] loadClassData(String name)
+/*	protected byte[] loadClassData(String name)
 	{
 		ByteArrayOutputStream classdata = new ByteArrayOutputStream();
 
@@ -307,5 +308,5 @@ class ClassPathLoader extends ClassLoader
 			return null;
 		else
 			return classdata.toByteArray();
-	}
+	}  */
 }
