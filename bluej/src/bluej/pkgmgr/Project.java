@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 526 2000-06-01 04:54:49Z mik $
+ * @version $Id: Project.java 532 2000-06-08 07:46:08Z ajp $
  */
 public class Project
 {
@@ -64,7 +64,7 @@ public class Project
 
             while(curDir != null && Package.isBlueJPackage(curDir)) {
                 if(lastDir != null)
-                    startingPackageName = "." + lastDir.getName() + 
+                    startingPackageName = "." + lastDir.getName() +
                                           startingPackageName;
 
                 lastDir = curDir;
@@ -337,5 +337,46 @@ public class Project
         c.append(getProjectDir().getPath());    // for classes in current project
 
         return c.toString();
+    }
+
+    /**
+     * Convert a filename into a fully qualified Java name.
+     * Returns null if the file is outside the project
+     * directory.
+     *
+     * The behaviour of this function is not guaranteed if
+     * you pass in a directory name. It is meant for filenames
+     * like /foo/bar/p1/s1/TestName.java
+     */
+    public String convertPathToPackageName(String pathname)
+    {
+        try {
+            File pathfile = new File(pathname).getCanonicalFile();
+            File parent = null;
+            String name = "";
+            int firstDot;
+
+            while((parent = pathfile.getParentFile()) != null) {
+                if(pathfile.equals(getProjectDir())) {
+                    return name;
+                }
+
+                if (name == "") {
+                    name = pathfile.getName();
+
+                    if((firstDot = name.indexOf('.')) >= 0) {
+                        name = name.substring(0, firstDot);
+                    }
+                }
+                else {
+                    name = pathfile.getName() + "." + name;
+                }
+
+                pathfile = parent;
+            }
+        }
+        catch(IOException ioe) { }
+
+        return null;
     }
 }

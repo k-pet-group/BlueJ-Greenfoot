@@ -12,7 +12,7 @@ import bluej.utility.Debug;
  * The panel that displays objects at the bottom of the package manager
  *
  * @author  Michael Cahill
- * @version $Id: ObjectBench.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: ObjectBench.java 532 2000-06-08 07:46:08Z ajp $
  */
 public class ObjectBench extends JPanel
 {
@@ -114,7 +114,7 @@ public class ObjectBench extends JPanel
 	// add to bench
 
 	super.add(wrapper);
-	validate();
+	revalidate();
 	repaint();
     }
 

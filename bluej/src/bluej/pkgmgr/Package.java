@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 520 2000-05-31 06:49:05Z bquig $
+ * @version $Id: Package.java 532 2000-06-08 07:46:08Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -69,11 +69,6 @@ public class Package extends Graph
     /** layout constant */ private static final int DEFAULTTARGETHEIGHT = 50;
     /** layout constant */ private static final int TARGETGAP = 20;
     /** layout constant */ private static final int RIGHT_LAYOUT_BOUND = 500;
-
-    /** used to size frame when no existing size information can be found */
-    private static final int DEFAULTFRAMEHEIGHT = 600;
-    /** used to size frame when no existing size information can be found */
-    private static final int DEFAULTFRAMEWIDTH = 800;
 
     /** Interface to editor */
     public static EditorManager editorManager = new MoeEditorManager();
@@ -143,6 +138,8 @@ public class Package extends Graph
     /** the state a package can be in (one of the S_* values) */
     private int state = S_IDLE;
 
+    protected PackageEditor editor;
+
 
 
     /* ------------------- end of field declarations ------------------- */
@@ -161,7 +158,7 @@ public class Package extends Graph
             throw new IllegalArgumentException("unnamedPackage must be created using Package(project)");
 
         if (!JavaNames.isIdentifier(baseName))
-            throw new IllegalArgumentException(baseName + " is not a valid baseName for Package");
+            throw new IllegalArgumentException(baseName + " is not a valid name for a Package");
 
         this.project = project;
         this.baseName = baseName;
@@ -398,8 +395,8 @@ public class Package extends Graph
         }
 
         // specify the dimensions large enough to see the entire package
-        props.put("package.window.width", "" + DEFAULTFRAMEWIDTH);
-        props.put("package.window.height", "" + DEFAULTFRAMEHEIGHT);
+//        props.put("package.window.width", "" + DEFAULTFRAMEWIDTH);
+//        props.put("package.window.height", "" + DEFAULTFRAMEHEIGHT);
 
         if (fromArchive == false) {
             // throw an exception if we cannot save
@@ -1324,6 +1321,8 @@ public class Package extends Graph
      */
     public ClassTarget getTargetFromFilename(String filename)
     {
+        getProject().convertPathToPackageName(filename);
+
         for(Enumeration e = targets.elements(); e.hasMoreElements(); )
             {
                 Target t = (Target)e.nextElement();
@@ -1575,7 +1574,29 @@ public class Package extends Graph
                                       boolean beep, boolean bringToFront,
                                       boolean setStepMark, String help)
     {
-        ClassTarget t = getTargetFromFilename(filename);
+        String fullName = getProject().
+                                convertPathToPackageName(filename);
+        String packageName = JavaNames.getPrefix(fullName);
+        String className = JavaNames.getBase(fullName);
+
+        ClassTarget t;
+
+        // check if the error is from a file belonging to another package
+        if (packageName != getQualifiedName()) {
+
+                Package pkg = getProject().getPackage(packageName);
+                PkgMgrFrame pmf;
+
+                if ((pmf = PkgMgrFrame.findFrame(pkg)) == null) {
+                    pmf = PkgMgrFrame.createFrame(pkg);
+                }
+
+                pmf.show();
+
+                t = (ClassTarget) pkg.targets.get(className);
+        }
+        else
+            t = (ClassTarget) targets.get(className);
 
         if(t == null)
             return false;
@@ -1605,10 +1626,14 @@ public class Package extends Graph
     public void startCompile(String[] sources)
     {
         setStatus(compiling);
+
         for(int i = 0; i < sources.length; i++) {
             String filename = sources[i];
 
-            ClassTarget t = getTargetFromFilename(filename);
+            String fullName = getProject().convertPathToPackageName(filename);
+
+            Target t = (Target) targets.get(JavaNames.getBase(fullName));
+
             if(t != null)
                 t.setState(ClassTarget.S_COMPILING);
         }
@@ -1627,6 +1652,11 @@ public class Package extends Graph
             showMessageWithText("error-in-file",
                                               filename + ":" + lineNo +
                                               "\n" + message);
+    }
+
+    public void checkTarget(String qualifiedName)
+    {
+
     }
 
     /**
@@ -1652,7 +1682,9 @@ public class Package extends Graph
         for(int i = 0; i < sources.length; i++) {
             String filename = sources[i];
 
-            ClassTarget t = getTargetFromFilename(filename);
+            String fullName = getProject().convertPathToPackageName(filename);
+
+            ClassTarget t = (ClassTarget) targets.get(JavaNames.getBase(fullName));
 
             if (t == null)
                 continue;
@@ -1661,7 +1693,7 @@ public class Package extends Graph
 
                 /* compute ctxt files (files with comments and parameters names) */
                 try {
-                    ClassInfo info = ClassParser.parse(t.getSourceFile().getPath(), getAllClassnames());
+                    ClassInfo info = ClassParser.parse(t.getSourceFile(), getAllClassnames());
 
                     OutputStream out = new FileOutputStream(t.getContextFile());
                     info.getComments().store(out, "BlueJ class context");

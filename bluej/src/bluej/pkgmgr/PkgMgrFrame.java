@@ -25,11 +25,12 @@ import bluej.terminal.Terminal;
 import bluej.terminal.TerminalButtonModel;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.prefmgr.PrefMgr;
+import bluej.browser.LibraryBrowser;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 531 2000-06-01 07:18:40Z bquig $
+ * @version $Id: PkgMgrFrame.java 532 2000-06-08 07:46:08Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -93,7 +94,7 @@ public class PkgMgrFrame extends JFrame
         there is no package current being edited (isEmptyFrame() == true) */
     private PackageEditor editor = null;
 
-    
+
     private PkgMgrFrame outer;
 
     private JLabel statusbar = new JLabel(" ");
@@ -222,7 +223,7 @@ public class PkgMgrFrame extends JFrame
      * Find a frame which is editing a particular Package and return
      * it or return null if it is not being edited
      */
-    private static PkgMgrFrame findFrame(Package pkg)
+    public static PkgMgrFrame findFrame(Package pkg)
     {
         for(Iterator i = frames.iterator(); i.hasNext(); ) {
             PkgMgrFrame pmf = (PkgMgrFrame)i.next();
@@ -264,32 +265,26 @@ public class PkgMgrFrame extends JFrame
 
     public static void showError(Package sourcePkg, String msgId)
     {
-        for(Iterator i = frames.iterator(); i.hasNext(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
+        PkgMgrFrame pmf = findFrame(sourcePkg);
 
-            if(!pmf.isEmptyFrame() && pmf.getPackage() == sourcePkg)
-                DialogManager.showError(pmf, msgId);
-        }
+        if(pmf != null)
+            DialogManager.showError(pmf, msgId);
     }
 
     public static void showMessage(Package sourcePkg, String msgId)
     {
-        for(Iterator i = frames.iterator(); i.hasNext(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
+        PkgMgrFrame pmf = findFrame(sourcePkg);
 
-            if(!pmf.isEmptyFrame() && pmf.getPackage() == sourcePkg)
-                DialogManager.showMessage(pmf, msgId);
-        }
+        if(pmf != null)
+            DialogManager.showMessage(pmf, msgId);
     }
 
     public static void showMessageWithText(Package sourcePkg, String msgId, String text)
     {
-        for(Iterator i = frames.iterator(); i.hasNext(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
+        PkgMgrFrame pmf = findFrame(sourcePkg);
 
-            if(!pmf.isEmptyFrame() && pmf.getPackage() == sourcePkg)
-                DialogManager.showMessageWithText(pmf, msgId, text);
-        }
+        if(pmf != null)
+            DialogManager.showMessageWithText(pmf, msgId, text);
     }
 
 
@@ -313,7 +308,9 @@ public class PkgMgrFrame extends JFrame
         setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
     }
 
-
+    /**
+     *  Displays the package in the frame for editing
+     */
     public void openPackage(Package pkg)
     {
         if(pkg == null)
@@ -327,6 +324,7 @@ public class PkgMgrFrame extends JFrame
 
         this.pkg = pkg;
         this.editor = new PackageEditor(pkg, this);
+        this.pkg.editor = this.editor;
 
         classScroller.setViewportView(editor);
         editor.addPackageEditorListener(this);
@@ -336,7 +334,8 @@ public class PkgMgrFrame extends JFrame
         String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
         String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
 
-        classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
+        classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str),
+                                                     Integer.parseInt(height_str)));
 
         pack();
         editor.revalidate();
@@ -355,54 +354,6 @@ public class PkgMgrFrame extends JFrame
 
         SwingUtilities.invokeLater(enableUI);
     }
-
- //    /**
-//      *  Displays the package in the frame ready for editing
-//      */
-//     public void openPackage(Package pkg)
-//     {
-//         if(pkg == null)
-//             throw new NullPointerException();
-
-//         // if we are already editing a package, close it and
-//         // open the new one
-//         if(this.pkg != null) {
-//             closePackage();
-//         }
-
-//         this.pkg = pkg;
-//         this.editor = new PackageEditor(pkg, this);
-
-//         classScroller = new JScrollPane(editor);
-//         mainPanel.add(classScroller, "Center");
-
-//         classScroller.setViewportView(editor);
-//         editor.addPackageEditorListener(this);
-
-//         Properties p = pkg.getLastSavedProperties();
-
-//         String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
-//         String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
-
-//         classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
-
-//         pack();
-//         editor.revalidate();
-
-//         // we have had trouble with BlueJ freezing when
-//         // the enable/disable GUI code was run off a menu
-//         // item. This code will delay the menu disable
-//         // until after menu processing has finished
-//         Runnable enableUI = new Runnable() {
-//             public void run() {
-//                 enableFunctions(true);
-//                 updateWindowTitle();
-//                 show();
-//             }
-//         };
-
-//         SwingUtilities.invokeLater(enableUI);
-//     }
 
     /**
      * Closes the current package.
@@ -700,12 +651,11 @@ public class PkgMgrFrame extends JFrame
             setStatus(packageSaved);
             break;
 
-         case PROJ_SAVEAS:
-            doSaveAs();
+         case PROJ_IMPORT:
+            importClass();
             break;
 
-         case PROJ_IMPORTCLASS:
-            importClass();
+         case PROJ_EXPORT:
             break;
 
         case PROJ_PAGESETUP:
@@ -767,6 +717,8 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case TOOLS_BROWSE:
+            LibraryBrowser lb = new LibraryBrowser();
+
         /*
             DialogManager.showText(this,
         	"The library browser is not implemented in this version.\n" +
@@ -1008,7 +960,7 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * importClass - implementation of the "Import Class" user function
+     * implementation of the "Import Class" user function
      */
     private void importClass()
     {
@@ -1084,12 +1036,12 @@ public class PkgMgrFrame extends JFrame
                 setStatus(Config.getString("pkgmgr.info.printing"));
                 try {
                     // call the Printable interface to do the actual printing
-                    printerJob.print();  
+                    printerJob.print();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
                 setStatus(Config.getString("pkgmgr.info.printed"));
-            }     
+            }
         }
 
         private int pageColumns = 0;
@@ -1101,7 +1053,7 @@ public class PkgMgrFrame extends JFrame
         final static int a4Height = 840;
 
         /**
-         * Method that implements Printable interface and does that actual printing of 
+         * Method that implements Printable interface and does that actual printing of
          * class diagram.
          */
         public int print(Graphics g, PageFormat pageFormat, int pageIndex)
@@ -1109,8 +1061,8 @@ public class PkgMgrFrame extends JFrame
             // temporary solution that only prints one page
             if(pageIndex >= 1)
                 return Printable.NO_SUCH_PAGE;
-            
-            Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(), 
+
+            Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(),
                                                (int)pageFormat.getImageableHeight());
             Dimension graphSize = pkg.getMinimumSize();
             Rectangle printArea = getPrintArea(pageFormat);
@@ -1126,8 +1078,8 @@ public class PkgMgrFrame extends JFrame
                     g.setClip(j * printArea.width, i * printArea.height,
                               printArea.width, printArea.height);
                     editor.paint(g);
-                } 
-            }              
+                }
+            }
             return Printable.PAGE_EXISTS;
         }
     } // end of nested class PrinterThread
@@ -1183,7 +1135,7 @@ public class PkgMgrFrame extends JFrame
 
         //XXX        g.setColor(titleCol);
         g.drawRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
-        
+
         // frame print area
         g.drawRect(printArea.x, printArea.y, printArea.width,
                    printArea.height - PRINT_VMARGIN);
@@ -1692,7 +1644,7 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
-     * 
+     *
      */
     private void setButtonImages()
     {
@@ -1813,14 +1765,14 @@ public class PkgMgrFrame extends JFrame
     static final int PROJ_OPEN = PROJ_NEW + 1;
     static final int PROJ_CLOSE = PROJ_OPEN + 1;
     static final int PROJ_SAVE = PROJ_CLOSE + 1;
-    static final int PROJ_SAVEAS = PROJ_SAVE + 1;
-    static final int PROJ_IMPORTCLASS = PROJ_SAVEAS + 1;
-    static final int PROJ_PAGESETUP = PROJ_IMPORTCLASS + 1;
+    static final int PROJ_IMPORT = PROJ_SAVE + 1;
+    static final int PROJ_EXPORT = PROJ_IMPORT + 1;
+    static final int PROJ_PAGESETUP = PROJ_EXPORT + 1;
     static final int PROJ_PRINT = PROJ_PAGESETUP + 1;
     static final int PROJ_QUIT = PROJ_PRINT + 1;
 
     static final String[] ProjCmds = {
-        "new", "open", "close", "save", "saveAs", "importClass",
+        "new", "open", "close", "save", "import", "export",
         "pageSetup", "print", "quit"
     };
 
@@ -1837,7 +1789,7 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final int[] ProjSeparators = {
-        PROJ_SAVEAS, PROJ_IMPORTCLASS, PROJ_PRINT
+        PROJ_SAVE, PROJ_EXPORT, PROJ_PRINT
     };
 
     static final int EDIT_COMMAND = PROJ_COMMAND + 100;

@@ -7,6 +7,7 @@ import bluej.graph.GraphEditor;
 import bluej.utility.MultiEnumeration;
 import bluej.utility.SortableVector;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 
@@ -18,7 +19,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: ClassTarget.java 505 2000-05-24 05:44:24Z ajp $
+ ** @version $Id: ClassTarget.java 532 2000-06-08 07:46:08Z ajp $
  ** @author Michael Cahill
  **
  ** A general target for the browser
@@ -33,7 +34,7 @@ public class ClassTarget extends Target
 
     public ClassTarget(Class cl)
     {
-        super(Utility.stripPackagePrefix(cl.getName()));
+        super(JavaNames.stripPrefix(cl.getName()));
 
         this.cl = cl;
 
@@ -61,7 +62,7 @@ public class ClassTarget extends Target
     {
         JPopupMenu menu = new JPopupMenu();
 
-        PkgMgrFrame[] openFrames = PkgMgrFrame.getAllOpenPackageFrames();
+        PkgMgrFrame[] openFrames = PkgMgrFrame.getAllFrames();
 
         if(openFrames != null) {
             for(int i=0; i<openFrames.length; i++) {

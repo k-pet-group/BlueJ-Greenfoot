@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 517 2000-05-25 07:58:59Z ajp $
+ * @version $Id: Invoker.java 532 2000-06-08 07:46:08Z ajp $
  */
 
 public class Invoker extends Thread
@@ -322,6 +322,7 @@ public class Invoker extends Thread
     // -- CompileObserver interface --
 
     public void startCompile(String[] sources) {}
+    public void checkTarget(String sources) {}
 
     /**
      * An error was detected during compilation of the shell

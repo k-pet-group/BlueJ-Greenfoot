@@ -15,7 +15,7 @@ import bluej.utility.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: JavacCompilerInternal.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: JavacCompilerInternal.java 532 2000-06-08 07:46:08Z ajp $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -68,6 +68,8 @@ public class JavacCompilerInternal extends Compiler
 
 		if(deprecation)
 			args.addElement("-deprecation");
+
+//        args.addElement("-verbose");
 
 		for(int i = 0; i < sources.length; i++)
 			args.addElement(sources[i]);

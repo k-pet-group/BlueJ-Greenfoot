@@ -21,6 +21,7 @@ import java.io.*;
 import bluej.Config;
 import bluej.utility.ModelessMessageBox;
 import bluej.utility.Utility;
+import bluej.utility.JavaNames;
 import bluej.utility.Debug;
 import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPathEntry;
@@ -34,7 +35,7 @@ import bluej.pkgmgr.Package;
  *
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: ClassChooser.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: ClassChooser.java 532 2000-06-08 07:46:08Z ajp $
  */
 public class ClassChooser extends JPanel {
 
@@ -290,7 +291,7 @@ class QuickCellRenderer extends DefaultTreeCellRenderer {
         Class cl = (Class)node.getUserObject();
 
         return super.getTreeCellRendererComponent(tree,
-                        Utility.stripPackagePrefix(cl.getName()),
+                        JavaNames.stripPrefix(cl.getName()),
                         sel, expanded, leaf, row, hasFocus);
     }
 

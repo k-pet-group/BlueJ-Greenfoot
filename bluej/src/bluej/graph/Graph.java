@@ -10,15 +10,12 @@ import java.util.Vector;
  * General graph
  *
  * @author  Michael Cahill
- * @version $Id: Graph.java 520 2000-05-31 06:49:05Z bquig $
+ * @version $Id: Graph.java 532 2000-06-08 07:46:08Z ajp $
  */
 public abstract class Graph
 {
-    protected GraphEditor editor;
-
     public final static String UML="uml";
     public final static String BLUE="blue";
-
 
     public abstract Enumeration getVertices();
     public abstract Enumeration getEdges();
@@ -40,30 +37,20 @@ public abstract class Graph
     {
     }
 
-/*    public void setEditor(GraphEditor editor)
-    {
-        this.editor = editor;
-    }
-
-    public GraphEditor getEditor()
-    {
-        return editor;
-    } */
-
     public Dimension getMinimumSize()
     {
-	int minWidth = 1;
-	int minHeight = 1;
+        int minWidth = 1;
+        int minHeight = 1;
 
-	for(Enumeration e = getVertices(); e.hasMoreElements(); ) {
-	    Vertex v = (Vertex)e.nextElement();
+        for(Enumeration e = getVertices(); e.hasMoreElements(); ) {
+            Vertex v = (Vertex)e.nextElement();
 
-	    if(v.x + v.width > minWidth)
-		minWidth = v.x + v.width;
-	    if(v.y + v.height > minHeight)
-		minHeight = v.y + v.height;
-	}
+            if(v.x + v.width > minWidth)
+        	minWidth = v.x + v.width;
+            if(v.y + v.height > minHeight)
+        	minHeight = v.y + v.height;
+        }
 
-	return new Dimension(minWidth, minHeight);
+        return new Dimension(minWidth, minHeight);
     }
 }
