@@ -9,8 +9,11 @@ import javax.swing.JPanel;
  *  What you do is to implement getPanel(), loadValues() and saveValues() and
  *  put all your swing Components into a JPanel that will be taken for drawing.
  *  After having allocated this class you can simply call bluej.setPrefGen (
- *  myPrefGen ); </P> This is a simple example of how a preference panel can be
- *  implemented. <pre>
+ *  myPrefGen ); </P> 
+ *  This is a simple example of how a preference panel can be implemented. <P>
+ *  Damiano
+ *  
+ *  <PRE>
  * public class JsPreferences implements PrefGen
  * {
  * private JPanel myPanel;
@@ -55,7 +58,8 @@ public interface PrefGen
     /**
      *  Called by the host when it's time for the subclass to load or revert its
      *  value What it should do is loading values from somewhere and putting
-     *  them into the panel objects
+     *  them into the panel objects.
+     *  This is called from a swing thread, so be ALWAYS quick in doing your job
      */
     public void loadValues();
 
@@ -63,6 +67,7 @@ public interface PrefGen
     /**
      *  Called by the host when it's time for the subclass to save its value
      *  What it should do is to get the values from the components and save them
+     *  This is called from a swing thread, so be ALWAYS quick in doing your job
      */
     public void saveValues();
 }

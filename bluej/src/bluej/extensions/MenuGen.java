@@ -11,7 +11,9 @@ import javax.swing.JMenuItem;
  *  down or up depending on your needs. <P>
  *
  *  This example will provide you with TWO active menues. You can istantiate
- *  ExtensionMenu and then just do bluej.setMenuGen(myNewClass); <PRE>
+ *  ExtensionMenu and then just do bluej.setMenuGen(myNewClass); <P>
+ *  Damiano
+ *  <PRE>
  * import bluej.extensions.*;
  * import javax.swing.*;
  * import java.awt.event.*;
