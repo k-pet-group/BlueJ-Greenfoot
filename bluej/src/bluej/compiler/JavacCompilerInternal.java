@@ -4,92 +4,194 @@ import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import sun.tools.javac.BlueJJavacMain;
+import sun.tools.javac.Main;
 
-import bluej.utility.Debug;
+import bluej.utility.*;
 
 /**
- ** @version $Id: JavacCompilerInternal.java 97 1999-05-31 05:48:06Z ajp $
+ ** @version $Id: JavacCompilerInternal.java 112 1999-06-07 01:38:00Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** JavacCompiler class - an implementation for the BlueJ "Compiler"
+ ** JavacCompilerInternal class - an implementation for the BlueJ "Compiler"
  ** class. This implementation provides an interface to Sun's javac
- ** compiler.
+ ** compiler by executing the sun.tools methods directly.
  **/
 
-public class JavacCompiler extends Compiler
+public class JavacCompilerInternal extends Compiler
 {
-    PrintStream output;
-    String destdir;
-    String classpath;
-    boolean debug;
-    boolean deprecation;
+	String destdir;
+	String classpath;
+	boolean debug;
+	boolean deprecation;
 
-    public JavacCompiler(PrintStream output)
-    {
-	this.output = output;
-	setDebug(true);
-    }
-	
-    public void setDestDir(String destdir)
-    {
-	this.destdir = destdir;
-    }
-	
-    public void setClassPath(String classpath)
-    {
-	this.classpath = classpath;
-    }
-
-    public void setDebug(boolean debug)
-    {
-	this.debug = debug;
-    }
-
-    public void setDeprecation(boolean deprecation)
-    {
-	this.deprecation = deprecation;
-    }
-
-    public boolean compile(String[] sources, CompileObserver watcher)
-    {
-	Vector args = new Vector();
-		
-	if(destdir != null) {
-	    args.addElement("-d");
-	    args.addElement(destdir);
+	public JavacCompilerInternal()
+	{
+		setDebug(true);
 	}
-		
-	if(classpath != null) {
-	    args.addElement("-classpath");
-	    args.addElement(classpath);
+	
+	public void setDestDir(String destdir)
+	{
+		this.destdir = destdir;
 	}
+	
+	public void setClassPath(String classpath)
+	{
+		this.classpath = classpath;
+	}
+
+	public void setDebug(boolean debug)
+	{
+		this.debug = debug;
+	}
+
+	public void setDeprecation(boolean deprecation)
+	{
+		this.deprecation = deprecation;
+	}
+
+	public boolean compile(String[] sources, CompileObserver watcher)
+	{
+		Vector args = new Vector();
 		
-	if(debug)
-	    args.addElement("-g");
+		if(destdir != null) {
+			args.addElement("-d");
+			args.addElement(destdir);
+		}
 		
-	if(deprecation)
-	    args.addElement("-deprecation");
+		if(classpath != null) {
+			args.addElement("-classpath");
+			args.addElement(classpath);
+		}
 		
-	for(int i = 0; i < sources.length; i++)
-	    args.addElement(sources[i]);
+		if(debug)
+			args.addElement("-g");
+		
+		if(deprecation)
+			args.addElement("-deprecation");
+		
+		for(int i = 0; i < sources.length; i++)
+			args.addElement(sources[i]);
 			
-	int length = args.size();
-	String[] params = new String[length];
-	args.copyInto(params);
+		int length = args.size();
+		String[] params = new String[length];
+		args.copyInto(params);
 		
-	BlueJJavacMain javac = new BlueJJavacMain(output);
+		ErrorStream output = new ErrorStream();
+
+		Main javac = new Main(output, "javac");
 		
-	boolean result = false;
+		boolean result = javac.compile(params);
+
+		if (output.hasError()) {
+			watcher.errorMessage(output.getFilename(),
+						output.getLineNo(),
+						output.getMessage(),true);
+		}
 		
-	try {
-	    result = javac.compile(params, watcher);
-	} catch(CompilerMessageError e) {
-	    watcher.errorMessage(e.getFilename(), e.getLineNo(), 
-				 e.getMessage(), true);
+		return result;
 	}
+}
+
+/**
+ ** @version $Id: JavacCompilerInternal.java 112 1999-06-07 01:38:00Z ajp $
+ ** @author Michael Cahill
+ ** ErrorStream - OutputStream that parses javac output.
+ **/
+
+class ErrorStream extends PrintStream
+{
+	private boolean haserror = false;
+	private String filename, message;
+	private int lineno;
+
+	public ErrorStream()
+	{
+		// we do not actually intend to use an actual OutputStream from
+		// within this class yet our superclass requires us to pass a
+		// non-null OutputStream
+		// we pass it the system error stream
+        	super(System.err);
+	}
+	
+	public boolean hasError()
+	{
+		return haserror;
+	}
+
+	public String getFilename()
+	{
+		Debug.assert(haserror);
+		return filename;
+	}
+
+	public int getLineNo()
+	{
+		Debug.assert(haserror);
+		return lineno;
+	}
+
+	public String getMessage() 
+	{
+		Debug.assert(haserror);
+		return message;
+	}
+
+	/**
+	 ** Note: this class "cheats" by assuming that all output will be written by
+	 ** a call to println. It happens that this is true for the current version 
+	 ** of javac but this could change in the future.
+	 **
+	 ** We assume a certain error message format here:
+	 **   filename:line-number:message
+	 **
+	 ** We find the components by searching for the colons. Careful: MS Windows
+	 ** systems might have a colon in the file name (if it is an absolute path
+	 ** with a drive name included). In that case we have to ignore the first
+	 ** colon.
+	 **/
+	public void println(String msg)
+	{
+		if (haserror)
+			return;
+
+		Debug.message("Compiler message: " + msg);
 		
-	return result;
-    }
+		int first_colon = msg.indexOf(':', 0);
+		if(first_colon == -1) {
+			// cannot read format of error message
+			Utility.showError(null, "Compiler error:\n" + msg);
+			return;
+		}
+
+		filename = msg.substring(0, first_colon);
+
+		// Windows might have a colon after drive name. If so, ignore it
+		if(! filename.endsWith(".java")) {
+			first_colon = msg.indexOf(':', first_colon + 1);
+			if(first_colon == -1) {
+				// cannot read format of error message
+				Utility.showError(null, "Compiler error:\n" + msg);
+				return;
+			}
+			filename = msg.substring(0, first_colon);
+		}
+		int second_colon = msg.indexOf(':', first_colon + 1);
+		if(second_colon == -1) {
+			// cannot read format of error message
+			Utility.showError(null, "Compiler error:\n" + msg);
+			return;
+		}
+
+		lineno = 0;
+		try {
+			lineno = Integer.parseInt(msg.substring(first_colon + 1, second_colon));
+		} catch(NumberFormatException e) {
+			// ignore it
+		}
+
+		message = msg.substring(second_colon + 1);
+
+		haserror = true;
+	}
 }

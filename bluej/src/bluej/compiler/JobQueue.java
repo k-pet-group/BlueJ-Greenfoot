@@ -4,7 +4,7 @@ import bluej.utility.Debug;
 import bluej.Config;
 
 /**
- ** @version $Id: JobQueue.java 101 1999-06-01 05:56:29Z mik $
+ ** @version $Id: JobQueue.java 112 1999-06-07 01:38:00Z ajp $
  ** @author Michael Cahill
  ** Reasonably generic interface between the BlueJ IDE and the Java
  ** compiler.
@@ -37,7 +37,7 @@ public class JobQueue
 
 	if (compilertype.equals("internal")) {
 
-		System.out.println("internal not implemented yet");
+		compiler = new JavacCompilerInternal();
 
 	} else if (compilertype.equals("javac")) {
 
@@ -49,6 +49,8 @@ public class JobQueue
 		compiler = new JikesCompiler(
 		   Config.getPropString("bluej.compiler.executable","jikes"));
 
+	} else {
+		Debug.message(Config.getString("compiler.invalidcompiler"));
 	}
 
 	thread = new CompilerThread();
