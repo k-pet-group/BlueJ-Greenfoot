@@ -9,10 +9,10 @@ DEFAULT_COMPILER=jikes
 # compiler for building distribution; can be either "javac" or "jikes"
 DIST_COMPILER=javac
 
-JIKES_CLASSPATH = /usr/java/jdk1.3/jre/lib/rt.jar:/usr/java/jdk1.3/jre/lib/i18n.jar:/usr/java/jdk1.3/lib/tools.jar:$(TOP)/lib/jpda.jar:$(TOP)/src:$(TOP)/lib/antlr.jar
+JIKES_CLASSPATH = /usr/java/jre/lib/rt.jar:/usr/java/jre/lib/i18n.jar:/usr/java/lib/tools.jar:$(TOP)/lib/jpda.jar:$(TOP)/src:$(TOP)/lib/antlr.jar
 JIKES_OPTS = +F -O
 
-JAVAC_CLASSPATH = .:$(TOP)/lib/jpda.jar:$(TOP)/lib/antlr.jar:/usr/java/jdk1.3/lib/tools.jar
+JAVAC_CLASSPATH = .:$(TOP)/lib/jpda.jar:$(TOP)/lib/antlr.jar:/usr/java/lib/tools.jar
 JAVAC_OPTS = -deprecation -O -g:none
 
 ANTLR_CLASSPATH=../../antlr
