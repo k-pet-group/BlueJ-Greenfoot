@@ -2,11 +2,11 @@ package bluej.debugger;
 
 /**
  ** The panel that displays objects at the bottom of the package manager
- ** @version $Id: ObjectBenchWatcher.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: ObjectBenchWatcher.java 49 1999-04-28 03:01:02Z ajp $
  ** @author Michael Cahill
  **/
 
 public interface ObjectBenchWatcher
 {
-	public void objectSelected(ObjectWrapper wrapper);
+	void objectSelected(ObjectWrapper wrapper);
 }

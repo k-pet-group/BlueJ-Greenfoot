@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- ** @version $Id: Editor.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Editor.java 49 1999-04-28 03:01:02Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface between an editor and the rest of BlueJ
@@ -13,19 +13,17 @@ public interface Editor
 {
     // CONSTANTS:
 	// views supported by the editor
-	public static final int PUBLIC = 0;
-	public static final int PACKAGE = 1;
-	public static final int INHERITED = 2;
-	public static final int IMPLEMENTATION = 3;
+	int PUBLIC = 0;
+	int PACKAGE = 1;
+	int INHERITED = 2;
+	int IMPLEMENTATION = 3;
 	
 	// styles
-    //	public static final int StyleNormal = 0;
-    //public static final int StyleBold = 1;
-    //public static final int StyleItalics = 2;
-    //public static final int StyleBoldItalics = 3;
-    //public static final int StyleColourRed = 4;
-
-    // public methods
+    // int StyleNormal = 0;
+    // int StyleBold = 1;
+    // int StyleItalics = 2;
+    // int StyleBoldItalics = 3;
+    // int StyleColourRed = 4;
 
 	/**
 	 ** Read a file into the editor buffer and show the editor. If the
@@ -38,14 +36,14 @@ public interface Editor
 	 **			'breakpoints' must be null).
 	 ** @returns		false is there was a problem, true otherwise
 	 **/
-	public boolean showFile(String filename, boolean compiled,
+	boolean showFile(String filename, boolean compiled,
 				      Vector breakpoints);
 
 
 	/**
 	 ** Reload and display the same file that was displayed before.
 	 **/
-	public void reloadFile();
+	void reloadFile();
 
 
 	/**
@@ -53,7 +51,7 @@ public interface Editor
 	 ** call to this function. It is typically used in a sequence
 	 ** "clear; [insertText]*; show".
 	 **/
-	public void clear();
+	void clear();
 
 
 	/**
@@ -66,7 +64,7 @@ public interface Editor
 	 **			(one of the style constants defined in this 
 	 **			class)
 	 **/
-	public void insertText(String text, boolean bold, boolean italic);
+	void insertText(String text, boolean bold, boolean italic);
 
 
 	/**
@@ -77,7 +75,7 @@ public interface Editor
 	 ** @arg view		the view to be displayed. Must be one of the 
 	 **			view constants defined above
 	 **/
-	public void show(int view);
+	void show(int view);
 
 
 	/**
@@ -85,13 +83,13 @@ public interface Editor
 	 ** error if the editor has not been given a file name (ie. if
 	 ** readFile was not executed).
 	 **/
-	public void save();
+	void save();
 
 	
 	/**
 	 ** Close the editor window.
 	 **/
-	public void close();
+	void close();
 
 
 	/**
@@ -106,7 +104,7 @@ public interface Editor
 	 ** @arg beep		if true, do a system beep
 	 ** @arg setStepMark	if true, set step mark (for single stepping)
 	 **/
-	public void displayMessage(String message, int lineNumber, 
+	void displayMessage(String message, int lineNumber, 
 					int column, boolean beep, 
 					boolean setStepMark);
 
@@ -116,7 +114,7 @@ public interface Editor
 	 ** single-stepping through code). If it is not currently displayed,
 	 ** do nothing.
 	 **/
-	public void removeStepMark();
+	void removeStepMark();
 
 
 	/**
@@ -125,7 +123,7 @@ public interface Editor
 	 ** @arg title		new window title
 	 ** @arg filename	new file name
 	 **/
-	public void changeName (String title, String filename);
+	void changeName (String title, String filename);
 
 
 
@@ -134,7 +132,7 @@ public interface Editor
 	 **
 	 ** @arg compiled	true if the class has been compiled
 	 **/
-	public void setCompiled (boolean compiled);
+	void setCompiled (boolean compiled);
 
 
 	/**
@@ -142,11 +140,11 @@ public interface Editor
 	 ** version on disk
 	 ** @returns	a boolean indicating whether the file is modified
 	 **/
-	public boolean isModified();
+	boolean isModified();
 
 
-	public boolean isReadOnly();
+	boolean isReadOnly();
     
-	public void setReadOnly(boolean readOnlyStatus);
+	void setReadOnly(boolean readOnlyStatus);
 
 } // end interface Editor

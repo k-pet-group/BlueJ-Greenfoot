@@ -29,7 +29,7 @@ public class JBPackageFileView extends FileView {
      */
     public String getDescription(File f) {
 	return "Unknown file";
-    };
+    }
 
     /**
      * A human readable description of the type of the file.
@@ -58,6 +58,6 @@ public class JBPackageFileView extends FileView {
 	} else {
 	    return Boolean.FALSE;
 	}
-    };
+    }
 
 }

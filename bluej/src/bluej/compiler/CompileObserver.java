@@ -3,7 +3,7 @@ package bluej.compiler;
 import sun.tools.javac.JavacWatcher;
 
 /**
- ** @version $Id: CompileObserver.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: CompileObserver.java 49 1999-04-28 03:01:02Z ajp $
  ** @author Michael Cahill
  ** CompileObserver interface - classes that are interested in compilation
  ** can implement this interface
@@ -11,9 +11,9 @@ import sun.tools.javac.JavacWatcher;
 
 public interface CompileObserver extends JavacWatcher
 {
-	public void startCompile(String[] sources);
-	public void errorMessage(String filename, int lineNo, String message,
+	void startCompile(String[] sources);
+	void errorMessage(String filename, int lineNo, String message,
 				 boolean invalidate);
-	public void endCompile(String[] sources, boolean succesful);
+	void endCompile(String[] sources, boolean succesful);
 }
 

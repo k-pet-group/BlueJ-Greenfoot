@@ -3,7 +3,7 @@ package bluej.editor;
 import java.util.Vector;
 
 /**
- ** @version $Id: EditorManager.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: EditorManager.java 49 1999-04-28 03:01:02Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface between the editor manager and the rest of BlueJ
@@ -23,7 +23,7 @@ public interface EditorManager
 	 ** @arg breakpoints	vector of Integers: line numbers where bpts are
 	 ** @returns		the new editor, or null if there was a problem
 	 **/
-	public Editor openClass(String filename, String windowTitle, 
+	Editor openClass(String filename, String windowTitle, 
 				  EditorWatcher watcher, boolean compiled,
 				  Vector breakpoints);
 
@@ -41,7 +41,7 @@ public interface EditorManager
 	 ** @arg watcher	an object interested in editing events
 	 ** @returns		the new editor, or null if there was a problem
 	 **/
-	public Editor openText(String filename, String windowTitle, 
+	Editor openText(String filename, String windowTitle, 
 				  EditorWatcher watcher);
 
 } // end interface EditorManager
