@@ -14,7 +14,6 @@ import bluej.editor.Editor;
 import bluej.graph.GraphEditor;
 import bluej.utility.*;
 import bluej.views.ConstructorView;
-import bluej.views.EditorPrintWriter;
 import bluej.views.MemberView;
 import bluej.views.CallableView;
 import bluej.views.MethodView;
@@ -47,7 +46,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1018 2001-12-04 05:08:03Z ajp $
+ * @version $Id: ClassTarget.java 1045 2001-12-11 11:41:50Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener

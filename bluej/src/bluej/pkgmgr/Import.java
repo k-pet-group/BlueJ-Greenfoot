@@ -14,8 +14,6 @@ import bluej.graph.Graph;
 import bluej.graph.Vertex;
 import bluej.utility.*;
 import bluej.utility.filefilter.*;
-import bluej.views.Comment;
-import bluej.views.CommentList;
 import bluej.classmgr.*;
 
 import java.awt.FlowLayout;
@@ -27,7 +25,7 @@ import java.text.DateFormat;
 
 /**
  *
- * @version $Id: Import.java 653 2000-07-26 01:46:35Z ajp $
+ * @version $Id: Import.java 1045 2001-12-11 11:41:50Z mik $
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Axel Schmolitzky

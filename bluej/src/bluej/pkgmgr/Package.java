@@ -14,8 +14,6 @@ import bluej.graph.Graph;
 import bluej.graph.Vertex;
 import bluej.utility.*;
 import bluej.utility.filefilter.*;
-import bluej.views.Comment;
-import bluej.views.CommentList;
 import bluej.classmgr.*;
 
 import java.util.List;
@@ -37,7 +35,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1033 2001-12-07 16:11:10Z mik $
+ * @version $Id: Package.java 1045 2001-12-11 11:41:50Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
