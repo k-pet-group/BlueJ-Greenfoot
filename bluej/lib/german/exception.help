@@ -90,6 +90,22 @@ Sie es mit anderen Projekten. Falls diese auch nicht
 funktionieren, muss möglicherweise das JDK neu installiert
 werden.
 
+StackOverflowError*
+Der Fehler zeigt an, dass Sie den gesamten Stapelspeicher
+aufgebraucht haben. Das passiert typischerweise, wenn Ihr
+Programm eine bestimmte Art von Programmierfehler enthält,
+der "Endlosrekursion" genannt wird. Rekursion bedeutet,
+dass sich eine Methode selbst aufruft. Endlosrekursion 
+bedeutet, dass Sie dies endlos tun, wodurch der Stapelspeicher
+aufgebraucht wird.
+Sehen Sie in Ihre Quelltexte und stellen Sie fest, ob eine 
+Methode einen Selbstsaufruf enthält. Dies ist noch kein 
+Problem, sondern nur, wenn sich die Methode wieder und wieder
+ohne Ende aufruft.
+Das gleiche Problem taucht auf, wenn Sie einen Konstruktor
+programmiert haben, der ein weiteres Objekt derselben Klasse
+erzeugt. Dann ruft sich der Konstruktor immer wieder selbst auf.
+
 ArrayStoreException*
 Leider ist keine Hilfe verfügbar.
 

@@ -117,7 +117,7 @@ rechte und freien Plattenspeicherplatz.)
 
 error-jar-exists
 Die gewünschte jar-Datei ist bereits vorhanden.
-Wollen Sie fortsetzen?
+Wollen Sie sie überschreiben?
 Überschreiben
 Abbrechen
 null
@@ -127,6 +127,10 @@ Ungültiger Klassenname.
 
 invalid-package-name
 Ungültiger Paket-Name.
+
+must-be-identifier
+Der Name ist nicht erlaubt. Er
+muss ein Java-Bezeichner sein.
 
 directory-exists
 Eine Datei oder ein Verzeichnis mit diesem

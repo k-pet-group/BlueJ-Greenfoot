@@ -8,7 +8,7 @@ chinese         1.3.5     				x		Gu Zhifeng			<gu_zhifeng@263.net>
 czech           1.3.5     				x		Petr Skoda      	<petr.skoda@vslib.cz>
 english         1.3.5     				x      
 french          2.0.0     				x		Patrice Moreaux 	<patrice.moreaux@univ-reims.fr>
-german          1.3.5           		x		Thomas R?fer    	<roefer@tzi.de>
+german          2.0.0           		x		Thomas R?fer    	<roefer@tzi.de>
 italian         1.3.5     				x		Angelo Papadia  	<angelo.papadia@libero.it>
 japanese        1.3.5(partially)		x		Runrun (Asano Sei) 	<asano_sei@yahoo.co.jp>
 korean          1.2.x           				Suk-Hyung Hwang 	<shwang@sunmoon.ac.kr>

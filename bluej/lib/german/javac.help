@@ -473,7 +473,7 @@ signature does not match *
 Leider kein Hilfetext verfügbar.
 
 * should be declared abstract; it does not define *
-Die gegewärtige Klasse ist von einer abstrakten Klasse oder einem Interface
+Die aktuelle Klasse ist von einer abstrakten Klasse oder einem Interface
 abgeleitet. Abstrakte Klassen und Interfaces definieren Methoden, ohne deren
 Implementation anzugeben. Diese Klasse definiert Implementationen nicht für 
 alle Methoden, die noch welche benötigen. Daher ist diese Klasse selbst noch
@@ -484,6 +484,22 @@ anstatt von bloss
    public class ...
 beginnen lassen, oder Sie müssen für die in der Fehlermeldung genannte Methode
 eine Implementation zur Verfügung stellen.
+
+* is not abstract and does not override abstract method *
+Die aktuelle Klasse erbt von einer abstrakten Klasse
+oder einem Interface. Abstrakte Klassen und Interfaces
+definieren Methoden ohne eine Implementierung anzugeben.
+Diese Klasse definiert nicht für alle Methoden eine
+Implementierung, denen diese noch fehlt, wodurch diese
+Klasse selbst noch abstrakt ist (d.h. sie hat immer noch
+Methoden ohne Implementierung).
+Sie müssen diese Klasse entweder als abstrakt deklarieren,
+indem Sie sie so anfangen lassen
+   public abstract class ...
+anstatt nur mit
+   public class ...
+oder Sie müssen für die in der Fehlermeldung genannte
+Methode eine Implementierung einfügen.
 
 error writing source; cannot overwrite input file *
 Leider kein Hilfetext verfügbar.

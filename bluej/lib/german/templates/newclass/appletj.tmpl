@@ -20,9 +20,10 @@ public class $CLASSNAME extends JApplet
 	 */
 	public void init()
 	{
-		// Workaround für einen Sicherheitskonflikt mit aktuellen Browsern wie
-		// Netscape & Internet Explorer, die keinen Zugriff auf die AWT-Systemevent-Queue
-		// erlauben, wie ihn JApplets beim Starten vornehmen
+		// Workaround für einen Sicherheitskonflikt mit einigen Browsern wie
+		// einige Versionen von Netscape & Internet Explorer, die keinen Zugriff
+		// auf die AWT-Systemevent-Queue erlauben, wie ihn JApplets beim Starten
+		// vornehmen. Ist für Ihren Browser möglicherweise unnötig.
 		JRootPane rootPane = this.getRootPane();	
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 	
