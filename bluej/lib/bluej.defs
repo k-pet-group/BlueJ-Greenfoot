@@ -50,6 +50,17 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 
 
 #####################################################################
+## 
+##
+#####################################################################
+
+bluej.help.items=myCustomLib courseInfo
+bluej.help.myCustomLib.label=CS1 libraries
+bluej.help.myCustomLib.url=http://www.google.com/
+bluej.help.courseInfo.label=CS1 course info
+bluej.help.courseInfo.url=http://www.bluej.org/
+
+#####################################################################
 ## User's home directory. This is also defined by Java, and if that's
 ## fine for you, don't specify this property. This property, if
 ## specified, will override Java's user.home property.

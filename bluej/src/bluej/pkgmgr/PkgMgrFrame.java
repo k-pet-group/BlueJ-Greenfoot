@@ -38,7 +38,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1070 2002-01-08 11:45:42Z mik $
+ * @version $Id: PkgMgrFrame.java 1075 2002-01-08 15:47:55Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1905,8 +1905,10 @@ public class PkgMgrFrame extends JFrame
 
             }
             // Hack while "setHelpMenu" does not work...
-            if(CmdTypes[menuType] == HELP_COMMAND)
+            if(CmdTypes[menuType] == HELP_COMMAND) {
                 menubar.add(Box.createHorizontalGlue());
+                addUserHelpItems(menu);
+            }
 
             // Add the menu to the MenuBar
             menubar.add(menu);
@@ -1918,6 +1920,32 @@ public class PkgMgrFrame extends JFrame
         }
 
         setJMenuBar(menubar);
+    }
+
+    /**
+     * Add user defined help menus. Users can add help menus via the
+     * bluej.help.items property. See comment in bluej.defs.
+     */
+    private void addUserHelpItems(JMenu menu)
+    {
+        String helpItems = Config.getPropString("bluej.help.items", "");
+
+        if(helpItems != null && helpItems.length() > 0) {
+            menu.addSeparator();
+            URLDisplayer urlDisplayer = new URLDisplayer();
+
+            StringTokenizer t = new StringTokenizer(helpItems);
+
+            while (t.hasMoreTokens()) {
+                String itemID = (String)t.nextToken();
+                String itemName = Config.getPropString("bluej.help." + itemID + ".label");
+                String itemURL = Config.getPropString("bluej.help." + itemID + ".url");
+                JMenuItem item = new JMenuItem(itemName);
+                item.setActionCommand(itemURL);
+                item.addActionListener(urlDisplayer);
+                menu.add(item);
+            }
+        }
     }
 
     /**
@@ -2196,6 +2224,16 @@ public class PkgMgrFrame extends JFrame
                     }
                 }
             }
+        }
+    }
+
+    class URLDisplayer implements ActionListener {
+        public URLDisplayer() {}
+        
+        public void actionPerformed(ActionEvent evt)
+        {
+            String url = evt.getActionCommand();
+            showWebPage(url);
         }
     }
 }
