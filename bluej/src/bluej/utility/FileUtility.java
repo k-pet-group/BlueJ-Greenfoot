@@ -16,7 +16,7 @@ import java.lang.reflect.Array;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 624 2000-07-05 07:34:37Z mik $
+ * @version $Id: FileUtility.java 629 2000-07-07 01:28:58Z mik $
  */
 public class FileUtility
 {
@@ -340,6 +340,27 @@ public class FileUtility
             }
         }
         return null;
+    }
+
+
+    /**
+     * Check whether a given directory contains a file with a given suffix.
+     * The search is NOT recursive.
+     *
+     * @return  true if a file with the given suffix exists in the given
+     *          directory.
+     */
+    public static boolean containsFile(File dir, String suffix)
+    {
+        File[] files = dir.listFiles();
+
+        for (int i=0; i < files.length; i++) {
+            if(files[i].isFile() && files[i].getName().endsWith(suffix))
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
