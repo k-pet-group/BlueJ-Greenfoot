@@ -20,7 +20,6 @@ import java.rmi.RemoteException;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
@@ -41,14 +40,14 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: ClassView.java 3263 2005-01-12 04:22:40Z davmac $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
     private RClass remoteClass;
-    private Class realClass;
+    private Class realClass; // null if not compiled
     private ClassRole role;
     private final static int SHADOW = 2;
     private final static int SELECTED_BORDER = 3;
@@ -161,21 +160,23 @@ public class ClassView extends JToggleButton
             View view = View.getView(realClass);
             WorldInvokeListener invocListener = new WorldInvokeListener(realClass);
 
-            if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
-                filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
-                ConstructorView[] constructors = view.getConstructors();
-
-                if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, constructors, filter, "new ", invocListener))
+            if (realClass != null) {
+                if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
+                    filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+                    ConstructorView[] constructors = view.getConstructors();
+                    
+                    if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, constructors, filter, "new ", invocListener))
+                        popupMenu.addSeparator();
+                }
+                
+                filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
+                MethodView[] allMethods = view.getAllMethods();
+                if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, "", invocListener))
                     popupMenu.addSeparator();
             }
-
-            filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
-            MethodView[] allMethods = view.getAllMethods();
-            bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, "", invocListener);
             
             popupMenu.setInvoker(this);
 
-            popupMenu.add(new JPopupMenu.Separator());
             popupMenu.add(new NewSubclassAction("New subclass", this, classBrowser));
             //popupMenu.insert( JPopupMenu.);
             add(popupMenu);
