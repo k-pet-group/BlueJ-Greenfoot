@@ -41,6 +41,45 @@ bluej.language=english
 #bluej.language=swedish
 
 #####################################################################
+## The JVM language and region. 
+## This is different to the value above which sets the language for 
+## BlueJ's labels.
+## In most cases the values below can be left commented out.
+## Its intended usage is for the scenario where you want the Java VM that
+## BlueJ runs on to use a different language than its default Locale.
+## For instance, you are using a machine that has its region set to 
+## China and you want to run BlueJ in English. Default UI elements
+## in Java such as File Choosers and dialogs
+## will show the local language for the Region as set in the OS. This 
+## allows you to override that value. To get the desired language of
+## interface for your OS's Regional Settings it may be necessary to
+## set both vm.language and vm.region. These map to Java's environment
+## variables user.language and user.country.
+## 
+## The two letter language code that is required is the ISO-639 code, see:
+## http://www.unicode.org/unicode/onlinedat/languages.html
+## The two letter country code that is required is the ISO-3166 code, see:
+## http://www.unicode.org/unicode/onlinedat/countries.html
+##
+## By default these are commented out, you can specify either or both
+## to get the desired combination for your system.
+## Note: these settings are used for the VM that runs BlueJ and also
+## for the Debug VM that is used to run code, create objects etc. 
+#####################################################################
+
+#vm.language=en
+#vm.language=zh
+#vm.language=fr
+#vm.language=cz
+#vm.language=dk
+
+#vm.country=US
+#vm.country=CN
+#vm.country=FR
+#vm.country=CZ
+#vm.country=DK
+
+#####################################################################
 ## URLs for the BlueJ manuals and documentation. If you have the
 ## documents installed locally and want to use your local version,
 ## edit these URLs.
@@ -49,7 +88,7 @@ bluej.language=english
 bluej.url.bluej=http://www.bluej.org
 bluej.url.tutorial=http://www.bluej.org/tutorial/tutorial.pdf
 bluej.url.reference=http://www.bluej.org/reference/manual.pdf
-bluej.url.javaStdLib=http://java.sun.com/j2se/1.4/docs/api/index.html
+bluej.url.javaStdLib=http://java.sun.com/j2se/1.5/docs/api/index.html
 
 # do not change the following:
 bluej.url.versionCheck=http://www.bluej.org/version.info
@@ -395,7 +434,7 @@ bluej.compiler.type=internal
 ##
 #####################################################################
 
-##bluej.compiler.options=-source 1.4
+#bluej.compiler.options=-source 1.4
 
 #####################################################################
 ## Options for starting the internal virtual machine.
