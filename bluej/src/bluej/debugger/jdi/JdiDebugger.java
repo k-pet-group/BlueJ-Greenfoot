@@ -345,7 +345,8 @@ public final class JdiDebugger extends Debugger
 
 	    // invokeMethod leaves everything suspended, so restart the 
 	    // system threads... 
-	    resumeSystemThreads();
+	    resumeMachine();
+	    //dumpThreadInfo();
 	}
   	catch(InvocationException e) {
 	    // exception thrown in remote machine - ignored here. The
@@ -441,7 +442,7 @@ public final class JdiDebugger extends Debugger
 						      arguments, 0);
 	    // invokeMethod leaves everything suspended, so restart the 
 	    // system threads... 
-	    resumeSystemThreads();
+	    resumeMachine();
 	    return (ClassLoaderReference)returnVal;
 	}
   	catch(Exception e) {
@@ -494,7 +495,7 @@ public final class JdiDebugger extends Debugger
 	List list = vm.allThreads();
 	for (int i=0 ; i<list.size() ; i++) {
 	    ThreadReference threadRef = (ThreadReference)list.get(i);
-	    if("BlueJ-Execution-Server".equals(threadRef.name()))
+	    if("main".equals(threadRef.name()))
 		serverThread = threadRef;
 	}
 
@@ -561,7 +562,6 @@ public final class JdiDebugger extends Debugger
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
-	//Debug.message("[exceptionEvent] ");
 	String excClass = exc.exception().type().name();
 	ObjectReference remoteException = exc.exception();
 
@@ -581,17 +581,17 @@ public final class JdiDebugger extends Debugger
   	    (StringReference)remoteException.getValue(msgField);
 
 	//better: get message via method call
-	//  	Method getMessageMethod = findMethodByName(
-	//  					   remoteException.referenceType(),
-	//  					   "getMessage");
-	//  	StringReference val = null;
-	//    	try {
-	//  	    val = (StringReference)execServer.invokeMethod(serverThread, 
+	//Method getMessageMethod = findMethodByName(
+	//				   remoteException.referenceType(),
+	//				   "getMessage");
+	//StringReference val = null;
+	//try {
+	//    val = (StringReference)execServer.invokeMethod(serverThread, 
 	//  						getMessageMethod, 
 	//  						null, 0);
-	//  	} catch(Exception e) {
-	//  	    Debug.reportError("Problem getting exception message: " + e);
-	//  	}
+	//} catch(Exception e) {
+	//    Debug.reportError("Problem getting exception message: " + e);
+	//}
 
 	String exceptionText = 
 	    (val == null ? null : val.value());
@@ -625,14 +625,10 @@ public final class JdiDebugger extends Debugger
      */
     public void breakEvent(LocatableEvent event, boolean breakpoint)
     {
-	// if we hit a breakpoint before the VM is initialised, then it is
-	// our own breakpoint that we have been waiting for at startup
+	// if the breakpoint is marked as "BluejBreak" then this is our
+	// own breakpoint that we have been waiting for at startup
 
-	if("true".equals(event.request().getProperty("isBluejBreak")))
-	    Debug.message("  found bluej break...");
-
-	if(!initialised) {
-	    Debug.message("  initial break reached...");
+	if("true".equals(event.request().getProperty("isBluejBreak"))) {
 	    synchronized(this) {
 		notifyAll();
 	    }
@@ -937,7 +933,20 @@ public final class JdiDebugger extends Debugger
 	}
     }
 
-    public void dumpThreadInfo()
+    /**
+     * Resume all threads in the VM excpet for the execution server thread.
+     * (This is necessary because after an interactive invocation using
+     * "invokeMethod" all threads in the machine get suspended - we don't
+     * want that.)
+     */
+    private void resumeMachine()
+    {
+	serverThread.suspend();
+	getVM().resume();
+    }
+
+
+    private void dumpThreadInfo()
     {
 	Debug.message("threads:");
 	Debug.message("--------");
@@ -964,16 +973,5 @@ public final class JdiDebugger extends Debugger
 	}
     }
 
-    private void resumeSystemThreads()
-    {
-	List threads = getVM().allThreads();
-
-	for(int i = 0; i < threads.size(); i++) {
-	    ThreadReference thread = (ThreadReference)threads.get(i);
-	    if(thread.isSuspended())
-		if(! thread.name().equals("BlueJ-Execution-Server"))
-		    thread.resume();
-	}
-    }
 }
 

@@ -19,10 +19,10 @@ import bluej.utility.Utility;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: TerminalCanvas.java 95 1999-05-28 06:08:18Z mik $
+ ** @version $Id: TerminalCanvas.java 216 1999-08-04 05:39:54Z mik $
  **/
 
-public class TerminalCanvas extends JComponent 
+class TerminalCanvas extends JComponent 
 
     implements ComponentListener, KeyListener
 {

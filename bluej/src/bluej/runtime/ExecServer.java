@@ -42,7 +42,7 @@ public class ExecServer
     private Hashtable loaders;
     private static Hashtable scopes = new Hashtable();
 
-    private ServerThread servThread;
+    //private ServerThread servThread;
 
     /**
      * Main method.
@@ -52,7 +52,7 @@ public class ExecServer
 	throws Throwable
     {
 	server = new ExecServer();
-	server.waitForever();
+	server.suspendExecution();
     }
 
     // -- instance methods --
@@ -80,33 +80,33 @@ public class ExecServer
 	    // ignore - we will get a ClassNotFound exception here
 	}
 
-	servThread = new ServerThread();
-	servThread.start();
+	//	servThread = new ServerThread();
+	//servThread.start();
     }
 
 
-    class ServerThread extends Thread {
-	ServerThread() {
-	    super("BlueJ-Execution-Server");
-	}
-	public void run() {
-	    while(true)
-		suspendExecution();
-	}
-    }
+//      class ServerThread extends Thread {
+//  	ServerThread() {
+//  	    super("BlueJ-Execution-Server");
+//  	}
+//  	public void run() {
+//  	    while(true)
+//  		suspendExecution();
+//  	}
+//      }
 
-    /**
-     *  
-     */
-    public synchronized void waitForever()
-    {
-	try {
-	    wait();
-	} catch(InterruptedException e) {
-	    // this should never happen!
-  	    System.out.println(" server main thread woke up!");
-	}
-    }
+//      /**
+//       *  
+//       */
+//      public synchronized void waitForever()
+//      {
+//  	try {
+//  	    wait();
+//  	} catch(InterruptedException e) {
+//  	    // this should never happen!
+//    	    System.out.println(" server main thread woke up!");
+//  	}
+//      }
 
     /**
      *  This method is used to suspend the execution of this server thread.
@@ -116,7 +116,7 @@ public class ExecServer
     public void suspendExecution()
     {
 	// <BREAKPOINT!>
-	Debug.message("[VM] in suspend");
+	Debug.message("[VM] woke up from suspend");
     }
 
 

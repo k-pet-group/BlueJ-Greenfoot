@@ -94,6 +94,7 @@ public class VMEventHandler implements Runnable {
     private boolean vmDied = false;
     private boolean handleExitEvent(Event event) 
     {
+        Debug.message("[VM Event] exiting..!?");
         if (event instanceof VMDeathEvent) {
             vmDied = true;
             return vmDeathEvent(event);

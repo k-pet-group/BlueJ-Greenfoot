@@ -21,8 +21,7 @@ public class RemoteSecurityManager extends SecurityManager
      */
     public void checkExit(int status)
     {
-	if(currentClassLoader() != null)
-	    throw new ExitException("" + status);
+	throw new ExitException("" + status);
     }
 
     /**
@@ -75,7 +74,7 @@ public class RemoteSecurityManager extends SecurityManager
      * 
      * @param perm The permission object to ignore.
      */
-    public void checkPermission(Permission perm)  {}
+    public void checkPermission(Permission perm) {}
      
     /**
      * With the exception of checkExit(int) we want to
