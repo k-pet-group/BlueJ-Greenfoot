@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 836 2001-04-04 12:25:30Z ajp $
+ * @version $Id: MethodDialog.java 1064 2002-01-07 04:45:00Z ajp $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchListener
@@ -427,11 +427,11 @@ public class MethodDialog extends JDialog
      */
     public void setVisible(boolean show)
     {
-    	super.setVisible(show);
     	// reset status label message
     	setMessage("");
 
     	if (show) {
+	    show();
     	    // clear params from any JComboBoxes
     	    clearParameters();
 
@@ -449,8 +449,11 @@ public class MethodDialog extends JDialog
                 bOk.requestFocus();
     	}
     	else {
+	    hide();
+
             // bug fix added in ver. 1.0.2 to fix refresh problem under Win NT.
-    	    getOwner().repaint();
+	    // removed ajp 7/1/02
+    	    //getOwner().repaint();
             bench.removeObjectBenchListener(this);
         }
     }
