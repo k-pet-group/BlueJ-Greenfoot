@@ -17,7 +17,7 @@ import sun.misc.*;
  * @author  Andrew Patterson
  * @author  Damiano Bolla
  * @author  Michael Kolling
- * @version $Id: Boot.java 2184 2003-09-28 15:04:26Z mik $
+ * @version $Id: Boot.java 2217 2003-10-21 10:30:50Z polle $
  */
 public class Boot
 {
@@ -236,24 +236,27 @@ public class Boot
      *
      * @return    the path of the BlueJ lib directory
      */
-    private File calculateBluejLibDir()
-    {
-        String bootFullName = getClass().getResource("Boot.class").getFile();
+	private File calculateBluejLibDir() {
+		String bootFullName = getClass().getResource("Boot.class").getFile();
 
-        // Assuming the class is in a jar file, '!' separates the jar file name from the class name.
-        // Cut of the class name.
-        int classIndex = bootFullName.indexOf("!");
-        if(classIndex < 0)
-            throw new IllegalStateException("The class Boot.class must be packaged in a jar file for execution");
+		// Assuming the class is in a jar file, '!' separates the jar file name from the class name.		
+		int classIndex = bootFullName.indexOf("!");
+		String bootName = null;
+		if (classIndex < 0) {
+			//Boot.class is not in a jar-file. Use the DIR containing Boot.class
+			bootName = (new File(bootFullName).getParent());			
+		} else {
+			//It was in a jar. Cut of the class name
+			bootName = bootFullName.substring(0, classIndex);
+			bootName = getURLPath(bootName);
+		}	
+		
+		File finalFile = new File(bootName);
+		File bluejDir = finalFile.getParentFile();
+		return bluejDir;
+	}
 
-        String bootName = bootFullName.substring(0, classIndex);
 
-        bootName = getURLPath(bootName);
-
-        File finalFile = new File(bootName);
-        File bluejDir = finalFile.getParentFile();
-        return bluejDir;
-    }
 
     /**
      * Return the path element of a URL, properly decoded - that is: replace 
