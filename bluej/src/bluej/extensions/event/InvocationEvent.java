@@ -16,7 +16,7 @@ import com.sun.jdi.*;
  * From this event you can extract the actual result of the invocation, and access the BlueJ
  * classes and objects involved.
  * 
- * @version $Id: InvocationEvent.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: InvocationEvent.java 2147 2003-08-04 20:36:21Z iau $
  */
 
 /*
@@ -85,9 +85,9 @@ public class InvocationEvent implements ExtensionEvent
 
     /**
      * Returns the package in which this invocation took place.
-     * Using this BPackage you can retrieve further information about this Event.
+     * Further information about the context of the event can be retrieved via the package object.
      */
-    public BPackage getBPackage()
+    public BPackage getPackage()
       {
       return ExtensionBridge.newBPackage (bluej_pkg);
       }

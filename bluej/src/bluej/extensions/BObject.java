@@ -16,7 +16,7 @@ import com.sun.jdi.ObjectReference;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: BObject.java 2147 2003-08-04 20:36:21Z iau $
  */
 
 /*
@@ -123,7 +123,8 @@ public class BObject
     
     /**
      * Return the class of this object.
-     * Similar to Reflection API.
+     * Similar to Reflection API. Note the naming inconsistency, which
+     * avoids a clash with <code>java.lang.Object.getClass()</code>
      * @throws ProjectNotOpenException if the project to which this object belongs has been closed by the user.
      * @throws ClassNotFoundException if the class has been deleted by the user.
      */

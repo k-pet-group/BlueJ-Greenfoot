@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2088 2003-07-01 09:23:58Z damiano $
+ * @version $Id: BPackage.java 2147 2003-08-04 20:36:21Z iau $
  */
 
 /*
@@ -79,7 +79,9 @@ public class BPackage
     
     /**
      * Returns the class with the given name in this package.
-     * Returns null if the class name does not exist.
+     * Returns null if the class name does not exist. Note the naming
+     * inconsistency, which avoids a clash with
+     * <code>java.lang.Object.getClass()</code>
      * 
      * @param name the simple name of the required class.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
@@ -107,7 +109,7 @@ public class BPackage
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
-    public BClass[] getBClasses() 
+    public BClass[] getClasses() 
         throws ProjectNotOpenException, PackageNotFoundException
         {
         Project bluejPrj = packageId.getBluejProject();
@@ -243,7 +245,7 @@ public class BPackage
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
-    public BClass getCurrentBClass ()
+    public BClass getCurrentClass ()
         throws ProjectNotOpenException, PackageNotFoundException
     {
         Target aTarget = packageId.getCurrentBluejTarget();
