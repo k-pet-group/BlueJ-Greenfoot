@@ -26,10 +26,10 @@ import java.util.Vector;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 326 2000-01-02 13:14:15Z ajp $
+ * @version $Id: ObjectWrapper.java 347 2000-01-12 03:54:04Z ajp $
  */
 public class ObjectWrapper extends JComponent
-    implements ActionListener, DragGestureListener, DragSourceListener
+    implements ActionListener
 {
     static final Color shadow = Config.getItemColour("colour.wrapper.shadow");
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
@@ -46,8 +46,6 @@ public class ObjectWrapper extends JComponent
 
     private Hashtable methodsUsed;
     private Hashtable actions;
-
-    private DragSource dragSource;
 
     public static final int WIDTH = 100;
     public static final int HEIGHT = 70;
@@ -69,35 +67,12 @@ public class ObjectWrapper extends JComponent
 
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
         setSize(WIDTH, HEIGHT);
-
-        // DragSource dragSource = DragSource.getDefaultDragSource();
-
-        // creating the recognizer is all that’s necessary - it
-        // does not need to be manipulated after creation
-        //dragSource.createDefaultDragGestureRecognizer(
-        //                this,       // component where drag originates
-        //                DnDConstants.ACTION_COPY_OR_MOVE, // actions
-        //                this);      // drag gesture listener
     }
 
     public Package getPackage()
     {
         return pkg;
     }
-
-
-    public void dragGestureRecognized(DragGestureEvent e)
-    {
-        // drag anything ...
-        e.startDrag(DragSource.DefaultCopyDrop, // cursor
-                new StringSelection("hello"), // transferable
-                this); // drag source listener
-      }
-    public void dragDropEnd(DragSourceDropEvent e) {}
-    public void dragEnter(DragSourceDragEvent e) {}
-    public void dragExit(DragSourceEvent e) {}
-    public void dragOver(DragSourceDragEvent e) {}
-    public void dropActionChanged(DragSourceDragEvent e) {}
 
     /**
      * Creates the popup mene structure by parsing the object's
@@ -153,13 +128,14 @@ public class ObjectWrapper extends JComponent
         item.setFont(PrefMgr.getStandoutMenuFont());
         item.setForeground(envOpColour);
 
-        if (Serializable.class.isAssignableFrom(cl))
+        // serializable support - not yet enabled 12/01/2000 ajp
+/*      if (Serializable.class.isAssignableFrom(cl))
         {
             menu.add(item = new JMenuItem(serializable));
             item.addActionListener(this);
             item.setFont(PrefMgr.getStandoutMenuFont());
             item.setForeground(envOpColour);
-        }
+        } */
 
         menu.add(item = new JMenuItem(remove));
         item.addActionListener(this);
@@ -331,8 +307,20 @@ public class ObjectWrapper extends JComponent
         else {
             String cmd = e.getActionCommand();
             if(inspect.equals(cmd)) {			// inspect
+                // load the object into runtime scope
                 inspectObject();
+            }
+            else if(remove.equals(cmd))	{		// remove
+                ObjectBench bench = (ObjectBench)getParent();
+                bench.remove(this, pkg.getId());
+            }
 
+            // serializable support - not yet enabled 12/01/2000 ajp
+/*            else if(serializable.equals(cmd)) {
+
+                Debugger.debugger.serializeObject(pkg.getId(),
+                                                   instanceName, "test.obj");
+ */
 /*                DebuggerObject debObj =
                     Debugger.debugger.deserializeObject(pkg.getRemoteClassLoader().getId(),
                                                          pkg.getId(),
@@ -344,19 +332,8 @@ public class ObjectWrapper extends JComponent
                                                             pkg);
 
                 pkg.getFrame().getObjectBench().add(wrapper);  // might change name
+            }
 */
-                // load the object into runtime scope
-            }
-            else if(serializable.equals(cmd)) {
-
-                Debugger.debugger.serializeObject(pkg.getId(),
-                                                    instanceName, "test.obj");
-
-            }
-            else if(remove.equals(cmd))	{		// remove
-                ObjectBench bench = (ObjectBench)getParent();
-                bench.remove(this, pkg.getId());
-            }
         }
     }
 
