@@ -337,7 +337,7 @@ packageDefinition
 //   assume it's an import.)
 importDefinition
     options {defaultErrorHandler = true;}
-    :   "import" identifierStar SEMI
+    :   "import" ("static")? identifierStar SEMI
     ;
 
 // A type definition in a file is either a class or interface definition.
@@ -952,9 +952,11 @@ statement
     // For statement
     |   "for"
             LPAREN
-                (forInit)?        SEMI    // initializer
-                (expression)?     SEMI    // condition test
-                (count=expressionList)?   // updater
+(
+                ( parameterDeclaration COLON ) => enhancedForClause
+                |   forClause
+                )
+            
             RPAREN
             statement                     // statement to loop over
 
@@ -1018,6 +1020,19 @@ aCase
 caseSList
 	:	(statement)*
 	;
+
+protected forClause
+    :
+        (forInit)?        SEMI    // initializer
+        (expression)?     SEMI    // condition test
+        (expressionList)?   // updater
+    ;
+protected enhancedForClause
+    :
+        parameterDeclaration
+        COLON
+        expression
+    ;
 
 // The initializer for a for loop
 forInit
