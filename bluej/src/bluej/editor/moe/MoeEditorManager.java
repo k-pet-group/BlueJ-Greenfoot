@@ -75,11 +75,12 @@ public final class MoeEditorManager
     ** @returns		the new editor, or null if there was a problem
     **/
 
-    public Editor openClass(String filename, String windowTitle,
+    public Editor openClass(String filename, String docFilename,
+    						String windowTitle,
                             EditorWatcher watcher, boolean compiled,
                             List breakpoints)	// inherited from EditorManager
     {
-        return openEditor (filename, true, windowTitle, watcher, compiled,
+        return openEditor (filename, docFilename, true, windowTitle, watcher, compiled,
                            breakpoints);
     }
 
@@ -101,7 +102,7 @@ public final class MoeEditorManager
     public Editor openText(String filename, String windowTitle,
                            EditorWatcher watcher)	// inherited from EditorManager
     {
-        return openEditor (filename, false, windowTitle, watcher, false, null);
+        return openEditor (filename, null, false, windowTitle, watcher, false, null);
     }
 
     public void refreshAll()
@@ -222,6 +223,7 @@ public final class MoeEditorManager
     ** is visible after opening it.
     **
     ** @param filename	name of the source file to open (may be null)
+    ** @param docFilename	name of the documentation based on filename
     ** @param windowTitle	title of window (usually class name)
     ** @param watcher	an object interested in editing events
     ** @param compiled	true, if the class has been compiled
@@ -229,9 +231,10 @@ public final class MoeEditorManager
     ** @returns		the new editor, or null if there was a problem
     **/
 
-    private Editor openEditor(String filename, boolean isCode,
-                              String windowTitle, EditorWatcher watcher,
-                              boolean compiled, List breakpoints)
+    private Editor openEditor(String filename, String docFilename,
+    							boolean isCode, String windowTitle, 
+                                EditorWatcher watcher, boolean compiled, 
+                                List breakpoints)
     {
         MoeEditor editor;
 
@@ -240,7 +243,7 @@ public final class MoeEditorManager
         editors.add(editor);
         if (watcher!=null && filename==null)	// editor for class interface
             return editor;
-        if (editor.showFile(filename, compiled))
+        if (editor.showFile(filename, compiled, docFilename))
             return editor;
         else {
             editor.doClose();			// editor will remove itself
