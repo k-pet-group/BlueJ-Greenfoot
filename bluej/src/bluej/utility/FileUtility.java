@@ -16,7 +16,7 @@ import java.lang.reflect.Array;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 631 2000-07-07 02:05:15Z mik $
+ * @version $Id: FileUtility.java 734 2000-12-19 04:49:28Z ajp $
  */
 public class FileUtility
 {
@@ -159,8 +159,9 @@ public class FileUtility
     public static boolean copyFile(File srcFile, File destFile)
     {
         // check whether source and dest are the same
-        if(srcFile.getAbsolutePath().equals(destFile.getAbsolutePath()))
+        if(srcFile.equals(destFile)) {
             return true;  // don't bother - they are the same
+        }
 
         InputStream in = null;
         OutputStream out = null;
@@ -367,7 +368,7 @@ public class FileUtility
      * Delete a directory recursively.
      * This method will delete all files and subdirectories in any
      * directory without asking questions. Use with care.
-     * 
+     *
      * @param directory   The directory that will be deleted.
      *
      */
