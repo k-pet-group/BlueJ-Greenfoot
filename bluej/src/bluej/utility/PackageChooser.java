@@ -1,13 +1,15 @@
 package bluej.utility;
 
-import bluej.Config;
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.event.MouseEvent;
 import java.beans.*;
 import java.io.File;
+import java.util.*;
 import java.util.List;
-import java.util.ArrayList;
+
+import javax.swing.*;
+
+import bluej.Config;
 import bluej.utility.filefilter.*;
 
 /**
@@ -17,10 +19,10 @@ import bluej.utility.filefilter.*;
  * Only directories (either BlueJ packages or plain ones) are displayed. <BR>
  * BlueJ packages are displayed with a different icon. <BR>
  *
- * @author Michael Kolling
- * @author Axel Schmolitzky
- * @author Markus Ostman
- * @version $Id: PackageChooser.java 1819 2003-04-10 13:47:50Z fisker $
+ * @author  Michael Kolling
+ * @author  Axel Schmolitzky
+ * @author  Markus Ostman
+ * @version $Id: PackageChooser.java 1925 2003-04-30 06:29:35Z ajp $
  */
 class PackageChooser extends JFileChooser
 {
@@ -39,7 +41,9 @@ class PackageChooser extends JFileChooser
 
     /**
      * Create a new PackageChooser.
-     * @param startDirectory the directory to start the package selection in.
+     * 
+     * @param startDirectory 	the directory to start the package selection in.
+     * @param preview           whether to show the package structure preview pane
      */
     public PackageChooser(File startDirectory, boolean preview)
     {
@@ -68,10 +72,8 @@ class PackageChooser extends JFileChooser
 
                     displayPanel.setDisplayDirectory(dir.getAbsoluteFile());
 
-                    if (e.getPropertyName().equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) {
-                    }
-                    if (e.getPropertyName().equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
-                    }
+                    if (e.getPropertyName().equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) { }
+                    if (e.getPropertyName().equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) { }
                 }
             });
         }
@@ -85,7 +87,6 @@ class PackageChooser extends JFileChooser
 
         // index of the last class displayed (after this all list items are packages
         // and hence will have a different icon)
-
         int lastClass = 0;
 
         PackageDisplay(File displayDir)
@@ -172,10 +173,6 @@ class PackageChooser extends JFileChooser
 
                 return s;
             }
-
-
         }
-
     }
 }
-
