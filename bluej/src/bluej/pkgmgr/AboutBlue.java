@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 2724 2004-07-02 18:51:36Z mik $
+ * @version $Id: AboutBlue.java 2765 2004-07-08 15:15:28Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -50,7 +50,7 @@ class AboutBlue extends JDialog
         bottomtext.addText(" ");
         bottomtext.addText(Config.getString("about.bluej.version") + " "+ version +
                 "  (" + Config.getString("about.java.version") + " " + System.getProperty("java.version") +
-                ")", 14);
+                ")", true, false);
         bottomtext.addText(" ");
         bottomtext.addText(Config.getString("about.vm") + " " +
                 System.getProperty("java.vm.name") + " " +

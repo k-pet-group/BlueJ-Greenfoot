@@ -140,11 +140,8 @@ public final class MoeEditor extends JFrame
 
     private String filename;        // name of file or null
     private String windowTitle;	    // title of editor window
-    private boolean firstSave;      // true if never been saved
-    private boolean isCompiled;	    // true when source has been compiled
     private String docFilename;     // path to javadoc html file
 
-    private String newline;	        // the line break character used
     private boolean sourceIsCode;   // true if current buffer is code
     private boolean viewingHTML;
 
@@ -175,28 +172,6 @@ public final class MoeEditor extends JFrame
     }
 
 
-    /**
-     *  Inner class listening for disabling actions - if an action is
-     *  disabled (enabled), the connected button is disabled (enabled)
-     *  as well.
-     */
-    private class ActionChangeListener implements PropertyChangeListener {
-        JButton button;
-
-        ActionChangeListener(JButton b) {
-            super();
-            button = b;
-        }
-
-        public void propertyChange(PropertyChangeEvent e)
-        {
-            if (e.getPropertyName().equals("enabled")) {
-                Boolean enabledState = (Boolean) e.getNewValue();
-                button.setEnabled(enabledState.booleanValue());
-            }
-        }
-    }
-
     // =========================== PUBLIC METHODS ===========================
 
     /**
@@ -212,9 +187,6 @@ public final class MoeEditor extends JFrame
         this.resources = resources;
         filename = null;
         windowTitle = title;
-        firstSave = true;
-        isCompiled = false;
-        newline = System.getProperty("line.separator");
         sourceIsCode = isCode;
         viewingHTML = false;
         currentStepPos = -1;
@@ -225,7 +197,7 @@ public final class MoeEditor extends JFrame
         undoComponents = new ArrayList(1);
         redoComponents = new ArrayList(1);
         
-        initWindow(showToolbar);
+        initWindow();
     }
 
     // --------------------------------------------------------------------
@@ -1145,19 +1117,6 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *
-     */
-    public void setFontSize(int size)
-    {
-        MutableAttributeSet attr = new SimpleAttributeSet();
-        //bq StyleConstants.setFontSize(attr, size);
-        int start = document.getStartPosition().getOffset();
-        int length = document.getEndPosition().getOffset() - start;
-        //bq document.setCharacterAttributes(start, length, attr, false);
-    }
-
-    // --------------------------------------------------------------------
-    /**
      *  Implementation of "compile" user function.
      */
     public void compile()
@@ -1494,10 +1453,10 @@ public final class MoeEditor extends JFrame
     /**
      *  Return the current line.
      */
-    private Element getCurrentLine()
-    {
-        return document.getParagraphElement(currentTextPane.getCaretPosition());
-    }
+//    private Element getCurrentLine()
+//    {
+//        return document.getParagraphElement(currentTextPane.getCaretPosition());
+//    }
 
     // --------------------------------------------------------------------
     /**
@@ -1530,11 +1489,11 @@ public final class MoeEditor extends JFrame
     /**
      *  Return the number of the current line.
      */
-    private int getCurrentLineNo()
-    {
-        return document.getDefaultRootElement().getElementIndex(
-                                   currentTextPane.getCaretPosition()) + 1;
-    }
+//    private int getCurrentLineNo()
+//    {
+//        return document.getDefaultRootElement().getElementIndex(
+//                                   currentTextPane.getCaretPosition()) + 1;
+//    }
 
     // --------------------------------------------------------------------
     /**
@@ -1633,8 +1592,6 @@ public final class MoeEditor extends JFrame
     {
         actions.getActionByName("toggle-breakpoint").setEnabled(
                                                                 compiled && viewingCode());
-        isCompiled = compiled;
-
         if(compiled)
             document.putProperty(COMPILED, Boolean.TRUE);
         else
@@ -1765,10 +1722,10 @@ public final class MoeEditor extends JFrame
      *  Create all the Window components
      */
 
-    private void initWindow(boolean showTool)
+    private void initWindow()
     {
         setIconImage(iconImage);
-        setBackground(frameBgColor);
+        //setBackground(frameBgColor);  // should not be done, at least on Mac...
 
         // prepare the content pane
 
