@@ -32,13 +32,16 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 685 2000-09-12 06:29:49Z mik $
+ * @version $Id: MethodDialog.java 695 2000-09-15 05:32:44Z mik $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchWatcher
 {
     static final int MD_CREATE = 0;
     static final int MD_CALL = 1;
+
+    static final String CMD_OKAY = "okay";
+    static final String CMD_CANCEL = "cancel";
 
     static final int OK = 0;
     static final int CANCEL = 1;
@@ -150,10 +153,13 @@ public class MethodDialog extends JDialog
                 butPanel.setAlignmentX(LEFT_ALIGNMENT);
 
                 butPanel.add(bOk = new JButton(Config.getString("okay")));
+                bOk.setActionCommand(CMD_OKAY);
                 bOk.addActionListener(this);
 
             	butPanel.add(bCancel = new JButton(Config.getString("cancel")));
+                bCancel.setActionCommand(CMD_CANCEL);
             	bCancel.addActionListener(this);
+
                 getRootPane().setDefaultButton(bOk);
 
 				// try to make the OK and cancel buttons have equal width
@@ -466,11 +472,11 @@ public class MethodDialog extends JDialog
      */
     public void actionPerformed(ActionEvent event)
     {
-        Object obj = event.getSource();
+        String command = event.getActionCommand();
 
-        if (obj == bOk)
+        if (CMD_OKAY.equals(command)) 
             doOk();
-        else if (obj == bCancel)
+        else if (CMD_CANCEL.equals(command))
             doCancel();
     }
 
