@@ -254,6 +254,7 @@ bluej.terminal.fontsize=12
 # size is specified in the BlueJ preference dialogue. Some examples:
 
 bluej.editor.font=Monospaced
+bluej.editor.MacOS.font=Monaco
 # bluej.editor.font=Monospaced-bold
 # bluej.editor.font=SansSerif
 # bluej.editor.font=SansSerif-bold
