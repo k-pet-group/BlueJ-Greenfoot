@@ -15,7 +15,7 @@ import javax.swing.*;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 664 2000-08-04 07:14:04Z mik $
+ * @version $Id: Utility.java 672 2000-08-30 04:08:18Z mik $
  */
 public class Utility
 {
@@ -231,9 +231,6 @@ public class Utility
             else
                 cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
 
-            Debug.message(Config.getPropString("browserCmd1"));
-            Debug.message(url);
-            Debug.message(cmd);
             Process p = Runtime.getRuntime().exec(cmd);
 
             try {
@@ -241,16 +238,12 @@ public class Utility
                 // we try second command
                 int exitCode = p.waitFor();
 
-                Debug.message("exoit code: " + exitCode);
-
                 if(osname != null && osname.startsWith("Windows 9"))
                     cmd = Config.getPropString("win9xBrowserCmd2");
                 else if(osname != null && osname.startsWith("Windows"))
                     cmd = Config.getPropString("winBrowserCmd2");
                 else
                     cmd = Config.getPropString("browserCmd2");
-
-            Debug.message(cmd);
 
                 if(exitCode != 0 && cmd != null && cmd.length() > 0) {
                     cmd = mergeStrings(cmd, url);
