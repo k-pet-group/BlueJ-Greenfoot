@@ -16,7 +16,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 552 2000-06-14 22:24:17Z ajp $
+ * @version $Id: ReadmeTarget.java 558 2000-06-19 02:23:50Z ajp $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -207,6 +207,7 @@ public class ReadmeTarget extends Target
      */
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
     {
+        // try to open it and if not there, create it
         if(getEditor() == null) {
             getPackage().showError("error-open-readme");
 
@@ -217,7 +218,9 @@ public class ReadmeTarget extends Target
                 ioe.printStackTrace();
             }
         }
-        else
+
+        // now try again to open it
+        if(getEditor() != null)
             getEditor().setVisible(true);
     }
 
