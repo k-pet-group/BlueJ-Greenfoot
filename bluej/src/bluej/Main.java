@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: Main.java 1154 2002-03-08 13:31:02Z mik $
  */
 public class Main
 {
@@ -34,10 +34,10 @@ public class Main
                                              BLUEJ_VERSION_MINOR * 100 +
                                              BLUEJ_VERSION_RELEASE;
 
-    public static String BLUEJ_VERSION = "" + BLUEJ_VERSION_MAJOR + "." +
-                                         BLUEJ_VERSION_MINOR + "." +
-                                         BLUEJ_VERSION_RELEASE +
-                                         BLUEJ_VERSION_SUFFIX;
+    public static String BLUEJ_VERSION = BLUEJ_VERSION_MAJOR
+                                         + "." + BLUEJ_VERSION_MINOR
+                                         // + "." + BLUEJ_VERSION_RELEASE
+                                         + BLUEJ_VERSION_SUFFIX;
 
 
     public static String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;

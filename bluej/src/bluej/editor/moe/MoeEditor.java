@@ -62,8 +62,8 @@ public final class MoeEditor extends JFrame
     // -------- CONSTANTS --------
 
     // version number
-    static final int version = 120;
-    static final String versionString = "1.2";
+    static final int version = 130;
+    static final String versionString = "1.3";
 
     // colours
     static final Color textColor = new Color(0,0,0);		// normal text

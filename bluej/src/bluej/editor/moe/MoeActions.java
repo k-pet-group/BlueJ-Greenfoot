@@ -8,6 +8,7 @@
 
 package bluej.editor.moe;
 
+import bluej.Main;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -229,6 +230,7 @@ public final class MoeActions
             FileOutputStream ostream = new FileOutputStream(file);
             ObjectOutputStream stream = new ObjectOutputStream(ostream);
             KeyStroke[] keys = keymap.getBoundKeyStrokes();
+            stream.writeInt(MoeEditor.version);
             stream.writeInt(keys.length);
             for(int i=0; i<keys.length; i++) {
                 stream.writeObject(keys[i]);
@@ -255,7 +257,12 @@ public final class MoeActions
             FileInputStream istream = new FileInputStream(file);
             ObjectInputStream stream = new ObjectInputStream(istream);
             KeyStroke[] keys = keymap.getBoundKeyStrokes();
+            int version = 0;
             int count = stream.readInt();
+            if(count > 100) {  // it was new format: version number stored first
+                version = count;
+                count = stream.readInt();
+            }
             for(int i=0; i<count; i++) {
                 KeyStroke key = (KeyStroke)stream.readObject();
                 String actionName = (String)stream.readObject();
@@ -265,6 +272,23 @@ public final class MoeActions
                 }
             }
             istream.close();
+
+            // set up bindings for new actions in this release
+
+            if(version < 130) {
+                keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0),
+                              (Action)(actions.get("indent")));
+                keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK),
+                              (Action)(actions.get("insert-tab")));
+                keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+                              (Action)(actions.get("new-line")));
+                keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK),
+                              (Action)(actions.get("insert-break")));
+            }
             return true;
         }
         catch(Exception exc) {
