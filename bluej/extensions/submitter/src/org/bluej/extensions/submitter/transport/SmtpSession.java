@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
  * to a given path on a given (attached) server.
  * 
  * @author Clive Miller
- * @version $Id: SmtpSession.java 1584 2002-12-13 11:44:28Z damiano $
+ * @version $Id: SmtpSession.java 1588 2002-12-14 19:23:46Z iau $
  */
 
 public class SmtpSession extends TransportSession
@@ -22,7 +22,7 @@ public class SmtpSession extends TransportSession
     private OutputStream out;
     private int fileCounter;
     private static final DateFormat rfc822date = 
-        new SimpleDateFormat ("EEE, dd MMM yyyy hh:mm:ss z");
+        new SimpleDateFormat ("EEE, dd MMM yyyy HH:mm:ss z");
 
     public SmtpSession (URL url, Properties environment)
     {
