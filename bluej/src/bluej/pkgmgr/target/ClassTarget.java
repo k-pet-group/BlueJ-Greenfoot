@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2642 2004-06-21 14:53:23Z polle $
+ * @version $Id: ClassTarget.java 2680 2004-06-29 05:24:00Z bquig $
  */
 public class ClassTarget extends EditableTarget implements Moveable
 {	
@@ -100,6 +100,8 @@ public class ClassTarget extends EditableTarget implements Moveable
     private int ghostY;
     private boolean isMoving = false;
     private boolean isMoveable = true;
+    
+    private String typeParameters = "";
 
     /**
      * Create a new class target in package 'pkg'.
@@ -166,11 +168,11 @@ public class ClassTarget extends EditableTarget implements Moveable
     }
     
     /**
-     * Returns the type parameters for a genric class as declared in the source file.  
+     * Returns the type parameters for a generic class as declared in the source file.  
      */
     private String getTypeParameters() {
-        //TODO When the parser supports generics this should return something usefull
-        return "";
+        
+        return typeParameters;
     }
 
     /**
@@ -714,6 +716,7 @@ public class ClassTarget extends EditableTarget implements Moveable
             // the following may update the package display but it
             // will not modify the classes source code
             determineRole(null);
+            setTypeParameters(info);
             analyseDependencies(info);
 
             // these two however will potentially modify the source
@@ -735,6 +738,12 @@ public class ClassTarget extends EditableTarget implements Moveable
         getPackage().repaint();
 
         analysing = false;
+    }
+    
+    public void setTypeParameters(ClassInfo info)
+    {
+        if(info.hasTypeParameter())
+            typeParameters = info.getTypeParameter().getText();  
     }
 
     /**
@@ -775,6 +784,7 @@ public class ClassTarget extends EditableTarget implements Moveable
 
         // handle superclass dependency
         if(info.getSuperclass() != null) {
+            String s = info.getSuperclass();
             DependentTarget superclass = getPackage().getDependentTarget(info.getSuperclass());
             
             if (superclass != null) {
@@ -789,7 +799,7 @@ public class ClassTarget extends EditableTarget implements Moveable
         for(Iterator it = vect.iterator(); it.hasNext(); ) {
             String name = (String)it.next();
             DependentTarget interfce = getPackage().getDependentTarget(name);
-            // Debug.message("Implements " + name);
+            
             if (interfce != null) {
                 getPackage().addDependency(
                                   new ImplementsDependency(getPackage(), this, interfce),
