@@ -21,7 +21,6 @@ public class $CLASSNAME extends Applet
 	public void init()
 	{
 		// tragen Sie hier die Initialisierungen ein, die Ihr Applet benötigt
-
 	}
 
 	/**
@@ -34,7 +33,6 @@ public class $CLASSNAME extends Applet
 	{
 		// tragen Sie hier den Code ein, der jedes Mal ablaufen soll, wenn die Webseite
 		// (wieder) besucht wird
-
 	}
 
 
@@ -48,13 +46,13 @@ public class $CLASSNAME extends Applet
 	 */
 	public void paint(Graphics g)
 	{
-		// im Applet wird einfacher Text dargestellt
+		// einfacher Text wird im Applet angezeigt 
 		g.setColor(Color.white);
 		g.fillRect(0, 0, 200, 100);
 		g.setColor(Color.black);
 		g.drawString("Beispiel-Applet", 20, 20);
 		g.setColor(Color.blue);
-		g.drawString("erstellt von BlueJ", 20, 40);
+		g.drawString("erzeugt von BlueJ", 20, 40);
 	}
 
 
@@ -77,13 +75,11 @@ public class $CLASSNAME extends Applet
 	 * Wird vom Browser oder Applet-Viewer aufgerufen, um dieses Applet darüber 
 	 * zu informieren, dass es zurückgefordert wird und dass es jegliche 
 	 * Ressourcen zerstören soll, die es angelegt hat. Die stop-Methode wird
-	 * stets vor der destroy-Methode aufgerufen. Wenn es keine Ressourcen gibt,
-	 * die Sie freigeben müssen, können Sie diese Methode entfernen.
+	 * stets vor der destroy-Methode aufgerufen.
 	 */
 	public void destroy()
 	{
 		// tragen Sie hier den Code ein, der ablaufen soll, wenn das Applet zerstört wird
-
 	}
 
 
@@ -97,9 +93,9 @@ public class $CLASSNAME extends Applet
 	public String getAppletInfo()
 	{
 		// ersetzten Sie dies mit Ihren eigenen Informationen
-		return "Titel: BlueJ Applet Demo\n" + 
-			   "Autor: Bruce Quig\n" +
-			   "Ein simples Applet, das zwei Strings darstellt.";
+		return "Titel: BlueJ Applet-Demo\n" +
+			   "Author: Bruce Quig\n" +
+			   "Ein einfaches Applet, das zwei Zeichenketten zeichnet.";
 	}
 
 
@@ -122,3 +118,4 @@ public class $CLASSNAME extends Applet
 		return paramInfo;
 	}
 }
+
