@@ -9,7 +9,7 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 1941 2003-05-05 06:07:49Z ajp $
+ * @version $Id: MethodInvokerRecord.java 2140 2003-08-04 07:58:49Z bquig $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
@@ -107,15 +107,13 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 		if (getAssertionCount() == 1) {		
 			if (benchName == null) {
 				sb.append(secondIndent);
-				sb.append(getAssertion(0));
-				sb.append(command);
+                sb.append(insertCommand(getAssertion(0), command));
 				sb.append(")");
 				sb.append(statementEnd);
 			}
 			else {
 				sb.append(secondIndent);
-				sb.append(getAssertion(0));
-				sb.append(benchName);
+                sb.append(insertCommand(getAssertion(0), benchName));
 				sb.append(")");
 				sb.append(statementEnd);
 			}
@@ -151,8 +149,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 			// here are all the assertions
 			for(int i=0; i<getAssertionCount(); i++) {
 				sb.append(indentLevel);
-				sb.append(getAssertion(i));
-				sb.append(assertAgainstName);
+                sb.append(insertCommand(getAssertion(i), assertAgainstName));
 				sb.append(")");
 				sb.append(statementEnd);
 			}
@@ -166,6 +163,24 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 
 		return sb.toString();
 	}
+    
+    /**
+     * insert the command into the assertion.  The position may alter if using
+     * a floating point assertion for "assertEquals" which uses a second parameter
+     * to specify delta range. 
+     * @return the combined string representing original assertion with the 
+     * insertion of the command or reference to bench object. 
+     */
+    private String insertCommand(String assertion, String command)
+    {
+        StringBuffer assertCommand = new StringBuffer(assertion);
+        int firstComma = assertion.indexOf(',');
+        if(firstComma!= -1)
+            assertCommand.insert(firstComma + 1, command);
+        else
+            assertCommand.append(command);
+        return assertCommand.toString();
+    }
 
 	private String benchDeclaration()
 	{
