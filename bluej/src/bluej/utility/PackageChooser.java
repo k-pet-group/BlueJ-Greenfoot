@@ -6,65 +6,161 @@ import bluej.pkgmgr.Package;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.beans.*;
 import java.io.File;
+import java.util.Vector;
 import bluej.utility.DialogManager;
+import bluej.utility.filefilter.*;
 
 /**
- * A file chooser for opening packages. Extends the behaviour of JFileChooser
- * in the following ways: <BR><BR>
+ * A file chooser for opening packages.
+ *
+ * Extends the behaviour of JFileChooser in the following ways: <BR><BR>
  * Only directories (either BlueJ packages or plain ones) are displayed. <BR>
  * BlueJ packages are displayed with a different icon. <BR>
- * A double-click on a BlueJ package returns it rather than showing it's
- * content. <BR>
  *
- * @version $ $
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
+ * @version $Id: PackageChooser.java 899 2001-05-23 04:27:53Z ajp $
  */
-
 class PackageChooser extends JFileChooser
 {
+    static final Icon classIcon = Config.getImageAsIcon("image.classIcon");
+    static final Icon packageIcon = Config.getImageAsIcon("image.packageIcon");
+
+    PackageDisplay displayPanel;
+
+    public PackageChooser(File startDirectory)
+    {
+        this(startDirectory, true);
+    }
+
     /**
      * Create a new PackageChooser.
      * @param startDirectory the directory to start the package selection in.
-     **/
-    public PackageChooser(String startDirectory)
+     */
+    public PackageChooser(File startDirectory, boolean preview)
     {
         super(startDirectory);
+
         setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         setFileView(new PackageFileView());
-        setDialogTitle(Config.getString("pkgmgr.openPkg.title"));
-//        setApproveButtonText(Config.getString("pkgmgr.openPkg.buttonLabel"));
+
+        if (preview) {
+            displayPanel = new PackageDisplay(startDirectory);
+
+            setAccessory(displayPanel);
+
+            addPropertyChangeListener(new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent e) {
+                    if (!(e.getNewValue() instanceof File)) {
+                        return;
+                    }
+                    File dir = (File)e.getNewValue();
+                    if (dir == null) {
+                        return;
+                    }
+                    if (dir.getName().equals("")) {
+                        return;
+                    }
+
+                    displayPanel.setDisplayDirectory(dir.getAbsoluteFile());
+
+                    if (e.getPropertyName().equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) {
+                    }
+                    if (e.getPropertyName().equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
+                    }
+                }
+            });
+        }
     }
 
-    /**
-     *  Selection approved by button-click. Check whether the selected
-     *  directory is a BlueJ package. If so, let it be opened. Otherwise ask
-     *  the user whether to import the java source files in the selected
-     *  directory into a new package.
-     */
-    public void approveSelection()   // redefined
+    class PackageDisplay extends JList
     {
-    	if (Package.isBlueJPackage(getSelectedFile()))
-    	    super.approveSelection();
-    }
+        // index of the last class displayed (after this all list items are packages
+        // and hence will have a different icon)
 
-    /**
-     *  A directory was double-clicked. If this is a BlueJ package, consider
-     *  this a package selection and accept it as the "Open" action, otherwise
-     *  just traverse into the directory.
-     */
-    public void setCurrentDirectory(File dir)
-    {    // redefined
-        if (Package.isBlueJPackage(dir)) {
-            setSelectedFile(dir);
-            super.approveSelection();
+        int lastClass = 0;
+
+        PackageDisplay(File displayDir)
+        {
+            this.setPreferredSize(new Dimension(150,200));
+            this.setCellRenderer(new MyListRenderer());
+
+            setDisplayDirectory(displayDir);
         }
-        else{
-            setSelectedFile(new File(""));
-            super.setCurrentDirectory(dir);
+
+        void setDisplayDirectory(File displayDir)
+        {
+            if (displayDir == null)
+                return;
+
+            int maxDisplay = 3;
+            File subDirs[] = displayDir.listFiles(new DirectoryFilter());
+            File srcFiles[] = displayDir.listFiles(new JavaSourceFilter());
+            Vector listVec = new Vector();
+
+            if(subDirs != null) {
+                for(lastClass=0; lastClass<srcFiles.length && lastClass<maxDisplay; lastClass++) {
+                    String javaFileName =
+                       JavaNames.stripSuffix(srcFiles[lastClass].getName(), ".java");
+
+                    // check if the name would be a valid java name
+                    if (!JavaNames.isIdentifier(javaFileName))
+                        continue;
+
+                    // files with a $ in them signify inner classes (which we want to ignore)
+                    if (javaFileName.indexOf('$') == -1)
+                        listVec.add(javaFileName);
+                }
+            }
+
+            if(srcFiles != null) {
+                for(int i=0; i<subDirs.length && i<maxDisplay; i++) {
+                    // first check if the directory name would be a valid package name
+                    if (!JavaNames.isIdentifier(subDirs[i].getName()))
+                        continue;
+
+                    listVec.add(subDirs[i].getName());
+
+                    // now display sub sub dirs
+                    File subSubDirs[] = subDirs[i].listFiles(new DirectoryFilter());
+
+                    if (subSubDirs != null) {
+                        for(int j=0; j<subSubDirs.length; j++) {
+                            // first check if the directory name would be a valid package name
+                            if (!JavaNames.isIdentifier(subSubDirs[j].getName()))
+                                continue;
+
+                            listVec.add(subDirs[i].getName() + "." + subSubDirs[j].getName());
+                        }
+                    }
+                }
+            }
+
+            setListData(listVec);
         }
+
+        class MyListRenderer extends DefaultListCellRenderer
+        {
+            public Component getListCellRendererComponent(JList list, Object value, int index,
+                                                    boolean isSelected, boolean cellHasFocus)
+            {
+                Component s = super.getListCellRendererComponent(list, value, index,
+                                                                    isSelected, cellHasFocus);
+
+                if (index < lastClass)
+                    ((JLabel)s).setIcon(classIcon);
+                else
+                    ((JLabel)s).setIcon(packageIcon);
+
+                return s;
+            }
+
+
+        }
+
     }
 }
 
