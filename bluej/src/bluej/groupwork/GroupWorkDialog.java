@@ -11,22 +11,18 @@ import javax.swing.*;
 
 
 /**
-** @version $Id: GroupWorkDialog.java 604 2000-06-29 06:41:26Z markus $
-** @author Markus Ostman
-**
-** Dialog for Group work purposes
-**/
-
+ * Dialog for Group work purposes
+ *
+ * @version $Id: GroupWorkDialog.java 904 2001-05-23 05:31:35Z ajp $
+ * @author  Markus Ostman
+ */
 public class GroupWorkDialog extends JDialog
-implements ActionListener
+    implements ActionListener
 {
     // Internationalisation
     static final String close = Config.getString("close");
-    static final String GroupWorkDialogTitle = Config.getString
-    ("groupwork.groupworkdialog.title");
-    static final String checkOutTitle = Config.getString
-    ("groupwork.checkout.title");
-
+    static final String groupWorkDialogTitle = Config.getString("groupwork.groupworkdialog.title");
+    static final String checkOutTitle = Config.getString("groupwork.checkout.title");
 
     //private JList parameterList;
     private JFrame          parent;
@@ -36,7 +32,7 @@ implements ActionListener
 
     public GroupWorkDialog(JFrame parent)
     {
-        super(parent, GroupWorkDialogTitle, true);
+        super(parent, groupWorkDialogTitle, true);
         this.parent = parent;
 
         //Initialize jCVS components
@@ -52,8 +48,8 @@ implements ActionListener
     }
 
     /**
-     * Show this dialog 
-     * 
+     * Show this dialog
+     *
      */
     public boolean display()
     {
@@ -72,8 +68,8 @@ implements ActionListener
         ok = false;
         //this.mainGrpPanel.displayCheckout();
         this.coPanel = new CheckOutPanel( this );
-	this.coPanel.loadPreferences();
-	this.getContentPane().add("Center", this.coPanel );
+        this.coPanel.loadPreferences();
+        this.getContentPane().add("Center", this.coPanel );
         //this.getContentPane().add("Center",mainGrpPanel);
         this.setTitle(checkOutTitle);
         pack();
@@ -94,7 +90,7 @@ implements ActionListener
     public CheckOutPanel getCheckOutPanel()
     {
         this.coPanel = new CheckOutPanel( this );
-	this.coPanel.loadPreferences();
+        this.coPanel.loadPreferences();
         return this.coPanel;
     }
 
@@ -115,7 +111,7 @@ implements ActionListener
 //     public void doOK()
 //     {
 //         if(!true) {
-//             DialogManager.showError(parent, 
+//             DialogManager.showError(parent,
 //                                     "This error message must be specified");
 //         }
 //         else { // collect information from fields

@@ -20,12 +20,11 @@ import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
 /**
- ** This Class implements the Interface GroupPkgManager using jCVS classes 
- ** @author Markus Ostman, with influences from jCVS source code written by 
- ** Tim Endres.
- **
- **/
-public final class CVSGroupInfo 
+ * This Class implements the Interface GroupPkgManager using jCVS classes
+ * @author Markus Ostman, with influences from jCVS source code written by
+ * Tim Endres.
+ */
+public class CVSGroupInfo
     implements GroupInfo, CVSUserInterface
 {
     // public static variables
@@ -44,97 +43,95 @@ public final class CVSGroupInfo
     // =========================== PUBLIC METHODS ===========================
 
     public CVSGroupInfo()
-    {	
-	//Initialize jCVS components
-	//This is necessary because of weird design in jCVS code
-	JcvsInit.doInitialize();
+    {
+        //Initialize jCVS components
+        //This is necessary because of weird design in jCVS code
+        JcvsInit.doInitialize();
         addedOffLine = new CVSEntryVector();
         removedOffLine = new CVSEntryVector();
     }
 
-    /** 
-     * The Method is inherited from GroupInfo 
+    /**
+     * The Method is inherited from GroupInfo
      * @param pkgDir The directory name of a Package
-     * @param 
-     * @returns Group information or null if something went wrong  
+     * @param
+     * @returns Group information or null if something went wrong
      */
-    public GroupInfo getGroupInfo(String pkgDir) 
+    public GroupInfo getGroupInfo(String pkgDir)
     {
 	groupInfo.project = new CVSProject();
 	return groupInfo;
     }
 
-    
-    /*
-     * 
-     * @param 
-     * @returns CVSProject  
-     */
-    public CVSProject getProject() 
-    {
-	return this.project;
-    }
-    
-    /**Method 
-     ** 
-     **The method is inherited from GroupInfo  
-     ** @param localDirName The path to the local directory
-     ** @param currentFrame The current Bluej Frame
-     ** @param password The project password
-     ** @returns void  
-     **/
-    public void initializeGroupInfo(String localDirName, 
-				    JFrame currentFrame,
-				    String password)
-    {
-	this.currentFrame=currentFrame;
-        //Create path to the CVS directory for the project
-	String rootDirPath = createRootPath(localDirName);
-	File rootDirFile = new File(rootDirPath);
-        //File rootDirFile = new File(localDirName);
-	Debug.message("CVSGrpInfo, line88:"+localDirName);
-        Debug.message("CVSGrpInfo, line93:"+rootDirFile.getPath());
-	Config cfg = Config.getInstance();
-	UserPrefs prefs = cfg.getPreferences();
-	this.traceReq = prefs.getBoolean(Config.GLOBAL_CVS_TRACE_ALL, false );
 
-	CVSClient client = new CVSClient();
-	this.project = new CVSProject( client );
-	Debug.message("CVSGrpInfo, line96:"+cfg.getTemporaryDirectory());
-	project.setTempDirectory( cfg.getTemporaryDirectory() );
-	
+    /*
+     *
+     * @param
+     * @returns CVSProject
+     */
+    public CVSProject getProject()
+    {
+        return this.project;
+    }
+
+    /**
+     *
+     * The method is inherited from GroupInfo
+     * @param localDirName The path to the local directory
+     * @param currentFrame The current Bluej Frame
+     * @param password The project password
+     * @returns void
+     */
+    public void initializeGroupInfo(String localDirName,
+                                        JFrame currentFrame,
+                                        String password)
+    {
+        this.currentFrame=currentFrame;
+        //Create path to the CVS directory for the project
+        String rootDirPath = createRootPath(localDirName);
+        File rootDirFile = new File(rootDirPath);
+        //File rootDirFile = new File(localDirName);
+        Config cfg = Config.getInstance();
+        UserPrefs prefs = cfg.getPreferences();
+        this.traceReq = prefs.getBoolean(Config.GLOBAL_CVS_TRACE_ALL, false );
+
+        CVSClient client = new CVSClient();
+        this.project = new CVSProject( client );
+        Debug.message("CVSGrpInfo, line96:"+cfg.getTemporaryDirectory());
+        project.setTempDirectory( cfg.getTemporaryDirectory() );
+
 	project.setAllowsGzipFileMode(prefs.getBoolean
                                       (Config.GLOBAL_ALLOWS_FILE_GZIP, true));
 	project.setGzipStreamLevel(prefs.getInteger
                                    (Config.GLOBAL_GZIP_STREAM_LEVEL, 0));
-	
+
 	try {
 	    project.openProject( rootDirFile );
-	    
-	    int cvsPort = 
+
+	    int cvsPort =
 		CVSUtilities.computePortNum(project.getClient().getHostName(),
-					    CVSRequest.METHOD_INETD, 
+					    CVSRequest.METHOD_INETD,
 					    project.isPServer() );
-	    
+
 	    project.getClient().setPort( cvsPort );
-	    
+
 	    if ( project.getConnectionMethod()== CVSRequest.METHOD_RSH )
 		{
 		    CVSUtilities.establishRSHProcess( project );
 		}
-	    
+
 	    project.setServerCommand(
 				     CVSUtilities.establishServerCommand
 				     ( project.getClient().getHostName(),
 				       project.getConnectionMethod(),
 				       project.isPServer() ) );
-	    
+
 	    project.setSetVariables
 		( CVSUtilities.getUserSetVariables
 		  ( project.getClient().getHostName() ) );
-	    
+
 	    String title = project.getRepository() + " Project";
-	    
+
 	    if ( password != null )
 		{
 		    this.project.setPassword( password );
@@ -158,18 +155,18 @@ public final class CVSGroupInfo
 	    }
     }
 
-    
-    /*
+
+    /**
      * Verifies the login to a CVS project
      * The method is inherited from GroupInfo
-     */ 
+     */
     public boolean verifyLogin()
     {
 	if ( ! this.project.isPServer() )
 	    return false;
-	
+
 	String password = this.project.getPassword();
-	
+
 	if ( password == null )
 	    {
 		return this.performLogin();
@@ -179,32 +176,32 @@ public final class CVSGroupInfo
     }
 
     /*
-     * Given the path to a Bluej group package it returns the path to 
+     * Given the path to a Bluej group package it returns the path to
      * the CVS directory.
-     */ 
+     */
     public String createRootPath(String projectPath)
     {
-	String cvsDir = "CVS";
-	StringBuffer buff = new StringBuffer(projectPath);
-	int i = buff.length()-1;
+        String cvsDir = "CVS";
+        StringBuffer buff = new StringBuffer(projectPath);
+        int i = buff.length()-1;
 
-	//If the path ends with "slash" or "backslash 
-	//remove it.
-	if(projectPath.endsWith("/") || projectPath.endsWith("\\"))
+        //If the path ends with "slash" or "backslash
+        //remove it.
+        if(projectPath.endsWith("/") || projectPath.endsWith("\\"))
+        {
+            buff.deleteCharAt(i);
+            i--;
+        }
+
+        //If it is not a unix path look for "\"
+	if(projectPath.indexOf('/') == -1)
 	    {
-		buff.deleteCharAt(i);
-		i--;
-	    }
-	
-	//If it is not a unix path look for "\"
-	if(projectPath.indexOf('/') == -1) 
-	    { 
 		while(buff.charAt(i) != '\\')
 		    {
 			buff.deleteCharAt(i);
 			i--;
 		    }
-		
+
 		//buff.append(cvsDir);
 		return buff.toString();
 	    }
@@ -215,18 +212,18 @@ public final class CVSGroupInfo
 			buff.deleteCharAt(i);
 			i--;
 		    }
-		
+
 		//buff.append(cvsDir);
-		return buff.toString(); 
+		return buff.toString();
 	    }
     }//End createRootPath
 
     /**
-     * Method to add classes when working OffLine 
-     *  
-     * @param 
-     * @param 
-     * @returns void  
+     * Method to add classes when working OffLine
+     *
+     * @param
+     * @param
+     * @returns void
      */
     public void offLineAdd(CVSEntry add)
     {
@@ -235,33 +232,33 @@ public final class CVSGroupInfo
         }
 
         //Try to remove entry from removedOffLine. It is enough to remove
-        //it from there, if it is in there, othervise we need to go all 
+        //it from there, if it is in there, othervise we need to go all
         //the way. (the method removeEntry in CVSEntryVector was for some
         //stupid reason private, I changed that.)
-        if(!removedOffLine.removeEntry(add.getName())){
-            addedOffLine.appendEntry(add);
-        }
+//XXX        if(!removedOffLine.removeEntry(add.getName())){
+//            addedOffLine.appendEntry(add);
+//        }
     }
 
     /**
-     * Get Entries added off line  
-     *  
-     * @param 
-     * @param 
-     * @returns CVSEntryVector  
+     * Get Entries added off line
+     *
+     * @param
+     * @param
+     * @returns CVSEntryVector
      */
     public CVSEntryVector getAddedOffLine()
     {
         return addedOffLine;
     }
 
-    /** 
-     * Clear Entries added off line 
+    /**
+     * Clear Entries added off line
      *
-     * If it is empty we want it to be null 
-     * @param 
-     * @param 
-     * @returns CVSEntryVector  
+     * If it is empty we want it to be null
+     * @param
+     * @param
+     * @returns CVSEntryVector
      */
     public void clearAddedOffLine()
     {
@@ -269,11 +266,11 @@ public final class CVSGroupInfo
     }
 
     /**
-     * Method to remove classes when working OffLine 
-     *  
-     * @param 
-     * @param 
-     * @returns void  
+     * Method to remove classes when working OffLine
+     *
+     * @param
+     * @param
+     * @returns void
      */
     public void offLineRemove(CVSEntry remove)
     {
@@ -282,16 +279,16 @@ public final class CVSGroupInfo
         }
 
         //Try to remove entry from addedOffLine, it is enough to remove
-        //it from there, if it is in there, othervise we need to go all 
+        //it from there, if it is in there, othervise we need to go all
         //the way.
-        if(!addedOffLine.removeEntry(remove.getName())){
-            removedOffLine.appendEntry(remove);
-        }
+//XXX        if(!addedOffLine.removeEntry(remove.getName())){
+//            removedOffLine.appendEntry(remove);
+//        }
 
-        //If the entry is in addedOffLine, it is enough to remove it 
+        //If the entry is in addedOffLine, it is enough to remove it
         //from there.
 //         if(addedOffLine.locateEntry(remove.getName()) == null){
-//             removedOffLine.appendEntry(remove); 
+//             removedOffLine.appendEntry(remove);
 //         }
 //         else{
 //             addedOffLine.removeEntry(remove.getName());
@@ -299,13 +296,13 @@ public final class CVSGroupInfo
 
 
     }
-    
+
     /**
-     * Get Entries removed offline 
-     *  
-     * @param 
-     * @param 
-     * @returns CVSEntryVector  
+     * Get Entries removed offline
+     *
+     * @param
+     * @param
+     * @returns CVSEntryVector
      */
     public CVSEntryVector getRemovedOffLine()
     {
@@ -313,11 +310,11 @@ public final class CVSGroupInfo
     }
 
     /**
-     * Clear Entries removed offline 
-     *  
-     * @param 
-     * @param 
-     * @returns CVSEntryVector  
+     * Clear Entries removed offline
+     *
+     * @param
+     * @param
+     * @returns CVSEntryVector
      */
     public void clearRemovedOffLine()
     {
@@ -325,18 +322,18 @@ public final class CVSGroupInfo
     }
 
     /**
-     * Method to save group info to the bluej.pkg file 
-     *  
-     * @param 
-     * @param 
-     * @returns void  
+     * Method to save group info to the bluej.pkg file
+     *
+     * @param
+     * @param
+     * @returns void
      */
     public void save(SortedProperties props)
     {
         StringBuffer added = new StringBuffer();
         StringBuffer removed = new StringBuffer();
         CVSEntry tmpEntry;
-        
+
         //Create a comma separated string with all added entries.
         for(Iterator itr = addedOffLine.iterator();itr.hasNext();){
             tmpEntry = (CVSEntry)itr.next();
@@ -351,31 +348,31 @@ public final class CVSGroupInfo
 
         props.setProperty("package.removedTargets", removed.toString());
         props.setProperty("package.addedTargets", added.toString());
-        
+
     }
 
     /**
-     * Method to load info from the bluej.pkg file 
-     * 
+     * Method to load info from the bluej.pkg file
+     *
      * The bluej.pkg file is given as a parameter.
      * For now only two properties are loaded:
      * package.addedTargets and package.removedTargets
      * Those are then used to recreate removedOffLine and addedOffLine.
      *
-     * @param 
+     * @param
      * @param File pkgFile
-     * @returns void  
+     * @returns void
      */
     public void load(File pkgFile)
     {
         SortedProperties props = null;
 
         // try to load the package file for this package
-        // This is now done in several places, should maybe be a metod in 
+        // This is now done in several places, should maybe be a metod in
         // FileUtility?
         try {
             FileInputStream input = new FileInputStream(pkgFile);
-            
+
             props = new SortedProperties();
             props.load(input);
         } catch(IOException e) {
@@ -404,7 +401,7 @@ public final class CVSGroupInfo
 
     /*
      *Displays a login dialog and performs the login
-     */ 
+     */
     private boolean performLogin()
     {
 	// if ( ! this.project.isPServer() )
@@ -412,25 +409,25 @@ public final class CVSGroupInfo
 	boolean valid = false;
 	String password;
 	String userName = this.project.getUserName();
-	
+
 	LoginDialog passDialog = new LoginDialog( currentFrame, userName );
 	DialogManager.centreDialog(passDialog);
 	passDialog.show();
-        
+
 	userName = passDialog.getUserName();
 	password = passDialog.getPassword();
-        
+
 	if ( userName != null && password != null )
 	    {
 		//currentFrame.setWaitCursor();
-		
-		valid = this.project.verifyPassword(this, 
-                                                    userName, 
-                                                    password, 
+
+		valid = this.project.verifyPassword(this,
+                                                    userName,
+                                                    password,
                                                     traceReq );
-                
+
 		//currentFrame.resetCursor();
-                
+
 		if ( ! valid )
 		    {
 			String[] fmtArgs = { userName };
@@ -438,15 +435,15 @@ public final class CVSGroupInfo
 			    ( "project.login.failed.msg", fmtArgs );
 			String title = ResourceMgr.getInstance().getUIString
 			    ( "project.login.failed.title" );
-			JOptionPane.showMessageDialog(currentFrame, 
-						      msg, 
-						      title, 
+			JOptionPane.showMessageDialog(currentFrame,
+						      msg,
+						      title,
 						      JOptionPane.ERROR_MESSAGE );
 		    }
 	    }
         return valid;
     }//end performLogin
-    
+
     /*
      * Recreate addedOffLine
      *
@@ -471,9 +468,9 @@ public final class CVSGroupInfo
             entry.setVersion( "0" );
             //Add it to the entry vector
             offLineAdd(entry);
-        } 
+        }
     }
-    
+
     /*
      * Recreate removedOffLine
      *
@@ -492,7 +489,7 @@ public final class CVSGroupInfo
             //all entries in the project
             this.project.getRootEntry().addAllSubTreeEntries
                 (entries = new CVSEntryVector());
-            
+
             if (!entries.isEmpty()){
                 for(Iterator i = entries.iterator();i.hasNext();){
                     entry = (CVSEntry)i.next();
@@ -506,9 +503,9 @@ public final class CVSGroupInfo
                 Debug.reportError("Grpinfo,481: "+
                                   "No entries assoc. with project");
             }
-        } 
+        }
     }
-    
+
     /******************************
      ** CVS USER INTERFACE METHODS
      *******************************/
@@ -535,7 +532,7 @@ public final class CVSGroupInfo
 
     /*************************************
      ** END OF CVS USER INTERFACE METHODS
-     ************************************/ 
+     ************************************/
 
 }
 

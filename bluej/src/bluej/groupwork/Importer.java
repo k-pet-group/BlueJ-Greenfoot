@@ -1,4 +1,3 @@
-
 package bluej.groupwork;
 
 import java.awt.*;
@@ -14,38 +13,36 @@ import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 import com.ice.jcvsii.*;
 
+import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.pkgmgr.*;
 
 /**
- ** @version $Id: Importer.java 604 2000-06-29 06:41:26Z markus $
- ** @author Markus Ostman, some parts are copied from jCVS ImportPanel
- **
- ** Import class for bluej group support.
- **/
-
-
-public class Importer 
-implements CVSUserInterface
+ * Import class for bluej group support.
+ *
+ * @version $Id: Importer.java 904 2001-05-23 05:31:35Z ajp $
+ * @author  Markus Ostman, some parts are copied from jCVS ImportPanel
+ */
+public class Importer
+    implements CVSUserInterface
 {
-    protected CVSClient			client;
-    private PkgFrame                    currentFrame;
-    private String                      password;
-    private String                      userName;
-    private String                      module;
-    private String                      groupName;
-    protected Properties                props;
+    protected CVSClient         client;
+    private PkgMgrFrame         currentFrame;
+    private String              password;
+    private String              userName;
+    private String              module;
+    private String              groupName;
     protected StringBuffer		scanText;
     protected String			ignoreName;
     private LoginDialog                 passDialog;
     private InfoDialog                  info;
- 
-    public Importer(PkgFrame currentFrame)
+
+    public Importer(PkgMgrFrame currentFrame)
     {
         this.currentFrame = currentFrame;
-	this.scanText = new StringBuffer();
-	this.establishContents();
+	    this.scanText = new StringBuffer();
+	    this.establishContents();
         this.password = null;
         this.userName = null;
         this.module = null;
@@ -53,31 +50,6 @@ implements CVSUserInterface
         this.info = new InfoDialog(currentFrame);
     }
 
-    /*
-     * Load Defaults from group.defs
-     */
-    public void loadPreferences()
-    {
-        String propsFile = bluej.Config.sys_confdir + File.separatorChar + "group.defs";
-        
-        if (props == null) {
-            // try to load the Properties for the group stuff
-            try {
-                FileInputStream input = new FileInputStream(propsFile);
-		
-                this.props = new Properties();
-                this.props.load(input);
-            } catch(IOException e) {
-                Debug.reportError("Error loading group properties file" + 
-                                  propsFile + ": " + e);
-            }
-	}
-    }
-    
-    public void savePreferences()
-    {
-	//this.infoPan.savePreferences( "import" );
-    }
 
  //    private void cancelImport()
 //     {
@@ -90,7 +62,7 @@ implements CVSUserInterface
      */
     public String getImportDirectory()
     {
-        //If we could trust dirName to be a complete path 
+        //If we could trust dirName to be a complete path
         //then these String exercises wouldn't be necessary
         String baseDir = currentFrame.getPackage().getBaseDir();
         Debug.message("importer,line116 "+baseDir);
@@ -105,9 +77,9 @@ implements CVSUserInterface
             return JOptionPane.showInputDialog(this.currentFrame,
                                                "Give Import Directory");
     }
-    
+
     /*
-     * Name of directory in repository. This needs to be arranged 
+     * Name of directory in repository. This needs to be arranged
      * so that it is guaranteed to be unique
      */
     public String getModule()
@@ -116,13 +88,13 @@ implements CVSUserInterface
             this.module = currentFrame.getPackage().getDirName();
             Debug.message("importer,line129 "+module.substring(module.lastIndexOf(File.separator)+1));
         }
-        
+
         if(this.module != null)
             return this.module.substring(module.lastIndexOf(File.separator)+1);
         else
             return JOptionPane.showInputDialog(this.currentFrame,
-                                               "Give Module name"); 
-    }  
+                                               "Give Module name");
+    }
 
     /*
      * Get name of user.
@@ -130,12 +102,12 @@ implements CVSUserInterface
     public String getUserName()
     {
         if(this.userName == null){
-//             LoginDialog passDialog = new LoginDialog(this.currentFrame, 
+//             LoginDialog passDialog = new LoginDialog(this.currentFrame,
 //                                                      userName );
 //             passDialog.setTitle(bluej.Config.getString("groupwork.login.title"));
 //             DialogManager.centreDialog(passDialog);
             passDialog.show();
-            
+
             this.groupName = passDialog.getgroupName();
             this.userName = passDialog.getUserName();
             this.password = passDialog.getPassword();
@@ -151,7 +123,7 @@ implements CVSUserInterface
     public String getPassword()
     {
         if(this.password == null){
-//             LoginDialog passDialog = new LoginDialog(this.currentFrame, 
+//             LoginDialog passDialog = new LoginDialog(this.currentFrame,
 //                                                            userName );
 //             passDialog.setTitle(bluej.Config.getString("groupwork.login.title"));
 //             DialogManager.centreDialog(passDialog);
@@ -172,12 +144,12 @@ implements CVSUserInterface
     public String getGroupName()
     {
         if(this.password == null || this.userName == null ){
-//             LoginDialog passDialog = new LoginDialog(this.currentFrame, 
+//             LoginDialog passDialog = new LoginDialog(this.currentFrame,
 //                                                      userName );
 //             passDialog.setTitle(bluej.Config.getString("groupwork.login.title"));
 //             DialogManager.centreDialog(passDialog);
             passDialog.show();
-            
+
             this.groupName = passDialog.getgroupName();
             this.userName = passDialog.getUserName();
             this.password = passDialog.getPassword();
@@ -194,61 +166,62 @@ implements CVSUserInterface
 
     public void performImport()
     {
-	Config cfg = Config.getInstance();
-	UserPrefs prefs = cfg.getPreferences();
-	ResourceMgr rmgr = ResourceMgr.getInstance();
-	
-	CVSRequest		request;
-	boolean			allok = true;
-	
-	CVSEntryVector		entries = new CVSEntryVector();
-	CVSEntryVector		binEntries = new CVSEntryVector();
-	
+        com.ice.jcvsii.Config cfg = com.ice.jcvsii.Config.getInstance();
+        UserPrefs prefs = cfg.getPreferences();
+        ResourceMgr rmgr = ResourceMgr.getInstance();
+
+        CVSRequest		request;
+        boolean			allok = true;
+
+        CVSEntryVector		entries = new CVSEntryVector();
+        CVSEntryVector		binEntries = new CVSEntryVector();
+
         //Since the infoPan doesn't provide any arguments
         //we just set them to null
-	CVSArgumentVector arguments=CVSArgumentVector.parseArgumentString("");
+        CVSArgumentVector arguments=CVSArgumentVector.parseArgumentString("");
 
-	String userName = this.getUserName();
-        //here we must check if the user have choosen to cancel import
-        if(this.passDialog.getCancel())
-            return;
-	String passWord = this.getPassword();
-        
+        String userName = this.getUserName();
         //here we must check if the user have choosen to cancel import
         if(this.passDialog.getCancel())
             return;
 
-	String hostname = props.getProperty("group.server", null);
+        String passWord = this.getPassword();
+
+        //here we must check if the user have choosen to cancel import
+        if(this.passDialog.getCancel())
+            return;
+
+        String hostname = Config.getPropString("group.server", null);
         //Name of dir in repos
-	String repository = this.getGroupName()+"/"+this.getModule();
-        String studentDir = props.getProperty("group.studentDir.path", null);
+        String repository = this.getGroupName()+"/"+this.getModule();
+        String studentDir = Config.getPropString("group.studentDir.path", null);
         if(studentDir != null){
             repository = studentDir+"/"+repository;
         }
-	String rootDirectory = props.getProperty("group.repository.path",
+	String rootDirectory = Config.getPropString("group.repository.path",
                                                  null);
 	String importDirectory = this.getImportDirectory();
-	
-	String vendorTag = props.getProperty("group.import.vendor");
-	String releaseTag = props.getProperty("group.import.release");
-	String messageStr = this.getLogMessage(this.getModule());
-	
-        //Should it be File.separator here?
-	if ( repository.startsWith("/"))
-	    repository = repository.substring( 1 );
-	
-	if ( repository.endsWith( "/" ) )
-	    repository = repository.substring( 0, repository.length()-1 );
-	
-	if ( rootDirectory.endsWith( "/" ) )
-	    rootDirectory =
-		rootDirectory.substring( 0, rootDirectory.length()-1 );
 
-	String	rootRepository = rootDirectory + "/" + repository;
-	
+        String vendorTag = Config.getPropString("group.import.vendor");
+        String releaseTag = Config.getPropString("group.import.release");
+        String messageStr = this.getLogMessage(this.getModule());
+
+            //Should it be File.separator here?
+        if ( repository.startsWith("/"))
+            repository = repository.substring( 1 );
+
+        if ( repository.endsWith( "/" ) )
+            repository = repository.substring( 0, repository.length()-1 );
+
+        if ( rootDirectory.endsWith( "/" ) )
+            rootDirectory =
+        	rootDirectory.substring( 0, rootDirectory.length()-1 );
+
+        String	rootRepository = rootDirectory + "/" + repository;
+
         //./temp This could also be rsh, not sure?
 	int connMethod = CVSRequest.METHOD_INETD; //CVSRequest.METHOD_RSH
-	
+
 	//
 	// SANITY
 	//
@@ -272,7 +245,7 @@ implements CVSUserInterface
 			      ( releaseTag.length() < 1
 				? rmgr.getUIString( "name.for.releasetag" )
 				: rmgr.getUIString( "name.for.logmsg" ) ))))));
-		
+
 		String msg = rmgr.getUIFormat("import.needs.input.msg", fmtArgs );
 		String title = rmgr.getUIString("import.needs.input.title");
 		JOptionPane.showMessageDialog
@@ -280,7 +253,7 @@ implements CVSUserInterface
 		      msg, title, JOptionPane.ERROR_MESSAGE );
 		return;
 	    }
-	
+
 	if ( connMethod == CVSRequest.METHOD_RSH
 	     && userName.length() < 1 )
 	    {
@@ -291,49 +264,49 @@ implements CVSUserInterface
 		      msg, title, JOptionPane.ERROR_MESSAGE );
 		return;
 	    }
-	
+
 	this.scanText.setLength( 0 );
-	
+
 	this.ignoreName =
-	    prefs.getProperty( Config.GLOBAL_IGNORE_FILENAME, null );
-	
+	    prefs.getProperty( com.ice.jcvsii.Config.GLOBAL_IGNORE_FILENAME, null );
+
 	CVSIgnore ignore = new CVSIgnore();
-	
+
 	//Ignore some file types
-	String userIgnores = props.getProperty("group.import.ignores", null );
-	
+	String userIgnores = Config.getPropString("group.import.ignores", null );
+
 	Debug.message("ImportPnl,line220 ignore: "+userIgnores);
-	
+
 	if ( userIgnores != null )
 	    {
 		ignore.addIgnoreSpec( userIgnores );
 	    }
 
 	//./temp this is not necessary, because the user will never do this
-        //user choice/hard coded/admin choice? 
-	String ignoreStr = "";//this.getIgnores(); 
+        //user choice/hard coded/admin choice?
+	String ignoreStr = "";//this.getIgnores();
 	if ( ignoreStr.length() > 0 )
 	    {
 		ignore.addIgnoreSpec( ignoreStr );
 	    }
-	
+
 	// We leverage the ignores mechanism to indicate binaries!
 	CVSIgnore binaries = new CVSIgnore( "" );
-	
+
 	String binariesStr = "";//Do we want ignore binaries getBinaries()
 	if ( binariesStr.length() > 0 )
 	    {
 		binaries.addIgnoreSpec( binariesStr );
 	    }
-	
-        //./temp import subdir or not, user choice/hard coded/admin choice? 
+
+        //./temp import subdir or not, user choice/hard coded/admin choice?
 	boolean descend = true;
-	
+
 	allok =
 	    this.importScan
 	    ( rootDirectory, repository, importDirectory,
 	      descend, entries, ignore, binEntries, binaries );
-	
+
 	if ( ! allok )
 	    {
 		String msg = rmgr.getUIString( "import.scan.error.msg" );
@@ -343,157 +316,155 @@ implements CVSUserInterface
                 Debug.message(this.scanText.toString());
 		return;
 	    }
-	
+
         //./temp user choice/hard coded/admin choice?
 	boolean isPServer = true;//this.isPasswordSelected();
-	
+
 	int cvsPort = CVSUtilities.computePortNum(hostname,
                                                   connMethod,
                                                   isPServer );
-	
-	String serverCommand = 
+
+	String serverCommand =
             CVSUtilities.establishServerCommand
 	    ( hostname, connMethod, isPServer );
-	
+
 	this.client = new CVSClient( hostname, cvsPort );
-	
+
 	this.client.setTempDirectory( cfg.getTemporaryDirectory() );
-	
+
 	request = new CVSRequest();
-	
+
 	request.setPServer( isPServer );
 	request.setUserName( userName );
-	
+
 	if ( isPServer )
 	    {
 		String scrambled =
 		    CVSScramble.scramblePassword( passWord, 'A' );
-		
+
 		request.setPassword( scrambled );
 	    }
-	
+
 	request.setConnectionMethod( connMethod );
 	request.setServerCommand( serverCommand );
-	
+
 	if ( connMethod == CVSRequest.METHOD_RSH )
 	    CVSUtilities.establishRSHProcess( request );
-	
+
 	request.setPort( this.client.getPort() );
 	request.setHostName( this.client.getHostName() );
-	
+
 	request.setRepository( repository );
 	request.setRootDirectory( rootDirectory );
 	request.setRootRepository( rootRepository );
-	
+
 	request.setLocalDirectory( importDirectory );
-	
+
 	request.setSetVariables
 	    ( CVSUtilities.getUserSetVariables( this.client.getHostName() ) );
-	
+
 	request.setCommand( "import" );
 	// NOTE DO NOT use 'sendModule' here!
 	request.sendModifieds = true;
 	request.sendArguments = true;
 	request.includeNotifies = false;
-	
+
 	request.traceRequest = CVSProject.overTraceRequest;
 	request.traceResponse = CVSProject.overTraceResponse;
 	request.traceTCPData = CVSProject.overTraceTCP;
 	request.traceProcessing = CVSProject.overTraceProcessing;
-	
+
 	request.allowGzipFileMode =
-	    ( prefs.getBoolean( Config.GLOBAL_ALLOWS_FILE_GZIP, false ) );
-	
+	    ( prefs.getBoolean( com.ice.jcvsii.Config.GLOBAL_ALLOWS_FILE_GZIP, false ) );
+
 	request.setGzipStreamLevel
-	    ( prefs.getInteger( Config.GLOBAL_GZIP_STREAM_LEVEL, 0 ) );
-	
+	    ( prefs.getInteger( com.ice.jcvsii.Config.GLOBAL_GZIP_STREAM_LEVEL, 0 ) );
+
 	arguments.appendArgument( "-m" );
 	arguments.appendArgument( messageStr );
-	
+
 	arguments.appendArgument( repository );
-	
+
 	arguments.appendArgument( vendorTag );
-	
+
 	arguments.appendArgument( releaseTag );
-	
+
 	request.setEntries( entries );
-	
+
 	request.setArguments( arguments );
-	
+
 	request.setUserInterface( this );
-	
+
 	CVSResponse response = new CVSResponse();
-	
+
         GroupJobQueue.getJobQueue().addJob("Import",
                                          this.new MyRunner(this.client,
-                                                           request, 
+                                                           request,
                                                            response,
                                                            binEntries),
                                          this.new MyMonitor(request,
                                                             response));
-        
+
         Debug.message("GrpPkgMgr line 456 Add "+request.getCommand()
                       +" (import) to the Job queue");
     }
 
-    
+
     private class MyRunner implements Runnable
     {
-	private CVSClient client;
-	private CVSProject project;
-	private CVSRequest request;
-	private CVSResponse response;
-	private CVSEntryVector binEntries;
-	
-	
-	public
-        MyRunner( CVSClient client, CVSRequest request,
-                  CVSResponse response, CVSEntryVector binEntries )
-	{
-	    this.client = client;
-	    this.request = request;
-	    this.response = response;
-	    this.binEntries = binEntries;
-	}
-	
-	public void
-        run()
-	{
+        private CVSClient client;
+        private CVSProject project;
+        private CVSRequest request;
+        private CVSResponse response;
+        private CVSEntryVector binEntries;
+
+
+        public MyRunner( CVSClient client, CVSRequest request,
+                            CVSResponse response, CVSEntryVector binEntries )
+        {
+            this.client = client;
+            this.request = request;
+            this.response = response;
+            this.binEntries = binEntries;
+        }
+
+        public void run()
+        {
 	    this.client.processCVSRequest( this.request, this.response );
-	    
+
 	    this.response.appendStderr( scanText.toString() );
-	    
+
 	    boolean success =
 		( response.getStatus() == CVSResponse.OK );
-	    
+
 	    if ( this.binEntries.size() >  0 )
 		{
 		    CVSResponse binResponse = new CVSResponse();
-		    
+
 		    this.request.setEntries( this.binEntries );
-		    
+
 		    this.request.getArguments().insertElementAt( "-kb", 0 );
-		    
+
 		    client.processCVSRequest( this.request, binResponse );
-		    
+
 		    if ( binResponse.getStatus() != CVSResponse.OK )
 			success = false;
-		    
+
 		    this.response.appendStdout
-			( "\n\n--------- "+ 
+			( "\n\n--------- "+
                           ResourceMgr.getInstance().getUIString
                           ( "name.for.binary.files" )
                           + " ---------\n" );
-		    
+
 		    this.response.appendStdout
 			( binResponse.getDisplayResults() );
-		    
+
 		    if ( ! this.request.saveTempFiles )
 			{
 			    binResponse.deleteTempFiles();
 			}
 		}
-	    
+
 	    if ( success )
 		{
 		    uiDisplayProgressMsg
@@ -506,7 +477,7 @@ implements CVSUserInterface
 			( ResourceMgr.getInstance().getUIString
 			  ( "import.status.failure" ) );
 		}
-	    
+
 	    if ( ! this.request.saveTempFiles )
 		{
 		    this.response.deleteTempFiles();
@@ -519,30 +490,30 @@ implements CVSUserInterface
     {
         private CVSRequest request;
         private CVSResponse response;
-        
+
         public
         MyMonitor( CVSRequest request, CVSResponse response )
         {
             this.request = request;
             this.response = response;
         }
-        
+
         public void
         threadStarted()
         {
             Debug.message("thread started");
         }
-        
+
         public void
         threadCanceled()
         {
         }
-        
+
         public void
         threadFinished()
         {
             String resultStr = this.response.getDisplayResults();
-            
+
             if ( this.response.getStatus() == CVSResponse.OK ){
                 uiDisplayProgressMsg
                     ( ResourceMgr.getInstance().getUIString
@@ -551,11 +522,11 @@ implements CVSUserInterface
                     (bluej.Config.getString("groupwork.importingDone"));
             }
             else{
-                                
+
                 uiDisplayProgressMsg
                     ( ResourceMgr.getInstance().getUIString
                       ( "import.status.failure" ) );
-                //If import encounter an error we need to wait a while 
+                //If import encounter an error we need to wait a while
                 //before we notify the others.
                 //this is now done in the clear queue method.
                 // synchronized(this) {
@@ -571,16 +542,16 @@ implements CVSUserInterface
                 info.setText(resultStr);
                 info.display(bluej.Config.getString("groupwork.error.title"));
             }
-            
+
             Debug.message(resultStr);
-            
+
             if ( this.response != null
                  && ! this.request.saveTempFiles ){
                 this.response.deleteTempFiles();
             }
-        }    
+        }
     }
-    
+
     public boolean
     importScan(
                String repository, String module, String importPath,
@@ -588,9 +559,9 @@ implements CVSUserInterface
                CVSEntryVector binEntries, CVSIgnore binaries )
     {
         boolean result = true;
-        
+
         File dirFile = new File( importPath );
-        
+
         if ( ! dirFile.exists() )
             {
                 result = false;
@@ -621,11 +592,11 @@ implements CVSUserInterface
                     ( repository, module, "", dirFile,
                       descend, entries, ignore, binEntries, binaries );
             }
-        
+
         return result;
     }
 
-    
+
     /**
      * Descends a local source tree looking for files to
      * be imported in this command.
@@ -643,9 +614,8 @@ implements CVSUserInterface
      * @param entries The CVSEntryVector in which to place the imported entries.
      * @param ignore The globals ignores.
      */
-    
-    private boolean
-    importScanDescend(
+
+    private boolean importScanDescend(
                       String repository, String module,
                       String localDirectory, File dirFile, boolean descend,
                       CVSEntryVector entries, CVSIgnore ignore,
@@ -703,8 +673,8 @@ implements CVSUserInterface
                 File file = new File( dirFile, fileName );
 
                 CVSTracer.traceIf( false,
-                                   "ImportDescend["+i+"] fileName '"+ 
-                                   fileName + "' isDir '"+ 
+                                   "ImportDescend["+i+"] fileName '"+
+                                   fileName + "' isDir '"+
                                    file.isDirectory() + "' filePath '"+
                                    file.getPath() + "'" );
 
@@ -800,7 +770,7 @@ implements CVSUserInterface
     {
         return project+" "+bluej.Config.getString("groupwork.log.importmsg");
     }
-        
+
     //
     // CVS USER INTERFACE METHODS
     //
@@ -829,8 +799,8 @@ implements CVSUserInterface
     establishContents()
     {
         ResourceMgr rmgr = ResourceMgr.getInstance();
-        loadPreferences();
-        this.passDialog = new LoginDialog(this.currentFrame, 
+
+        this.passDialog = new LoginDialog(this.currentFrame,
                                           userName );
         this.passDialog.setTitle(bluej.Config.getString
                                  ("groupwork.login.title"));
