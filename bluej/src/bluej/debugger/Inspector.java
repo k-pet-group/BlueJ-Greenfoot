@@ -17,7 +17,7 @@ import bluej.utility.DialogManager;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version    $Id: Inspector.java 1728 2003-03-28 02:01:36Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -421,7 +421,7 @@ public abstract class Inspector extends JFrame
         getButton.addActionListener(new ActionListener() {
                          public void actionPerformed(ActionEvent e) { doGet(); }
                       });
-        buttonPanel.add(getButton);
+//        buttonPanel.add(getButton);
 
         JPanel buttonFramePanel = new JPanel();
         buttonFramePanel.setLayout(new BorderLayout(0, 0));
@@ -446,12 +446,14 @@ public abstract class Inspector extends JFrame
         // create bottom button pane with "Close" button
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         if (showAssert && isResult && pkg.getProject().inTestMode()) {
             assertCheckbox = new JCheckBox("Assert that");
             assertCheckbox.setAlignmentX(LEFT_ALIGNMENT);
             buttonPanel.add(assertCheckbox);
+
+			System.out.println(((ObjectInspector)this).getResult());
            
             assertPanel = new AssertPanel();
             {

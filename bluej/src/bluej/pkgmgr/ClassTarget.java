@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: ClassTarget.java 1728 2003-03-28 02:01:36Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -812,8 +812,8 @@ public class ClassTarget extends EditableTarget
 
         // check that the class loading hasn't changed out state
         if (state == S_NORMAL) {
-            if ((cl != null) && (last_class != cl)) {
-                if (menu != null)
+            if (true) { //(cl != null) && (last_class != cl)) {
+               if (menu != null)
                     editor.remove(menu);
                 menu = createMenu(cl);
                 editor.add(menu);
@@ -860,7 +860,12 @@ public class ClassTarget extends EditableTarget
 
         if (getRole() instanceof StdClassRole) {
             menu.addSeparator();
-            role.addMenuItem(menu, new CreateTestAction(), true);
+			if (getAssociation() == null) {
+				role.addMenuItem(menu, new CreateTestAction(), true);
+				role.addMenuItem(menu, new AssociateTestAction(), true);
+			}
+			else
+            	role.addMenuItem(menu, new DisassociateTestAction(), true);
         }
 
         return menu;
@@ -870,13 +875,73 @@ public class ClassTarget extends EditableTarget
     {
         public CreateTestAction()
         {
-            putValue(NAME, "Create Test Class");
+            putValue(NAME, "Create New Test Class");
         }
 
         public void actionPerformed(ActionEvent e)
         {
+			PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+			
+			if (pmf != null) {
+				pmf.createNewClass(getIdentifierName() + "Test", "unittest");
+
+                setAssociation(getPackage().getTarget(getIdentifierName() + "Test"));
+                endMove();
+                getPackage().getEditor().revalidate();
+                getPackage().getEditor().repaint();
+
+			}
         }
     }
+
+	private class AssociateTestAction extends AbstractAction
+	{
+		public AssociateTestAction()
+		{
+			putValue(NAME, "Associate With Existing Test Class");
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			List unittests = getPackage().getTestTargets();
+
+			SelectTestClassDialog stcd = new SelectTestClassDialog(PkgMgrFrame.findFrame(getPackage()), unittests.toArray());
+			
+			stcd.show();			
+
+			String assocName = stcd.getResult();
+			
+			if(assocName != null && getPackage().getTarget(assocName) != null) {
+				setAssociation(getPackage().getTarget(assocName));
+				endMove();
+                getPackage().getEditor().revalidate();
+                getPackage().getEditor().repaint();
+			}
+		}
+	}
+
+	private class DisassociateTestAction extends AbstractAction
+	{
+		public DisassociateTestAction()
+		{
+			putValue(NAME, "Disassociate Test Class");
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			Target t = getAssociation();
+    	
+			if (t != null) {
+				t.setPos(t.getX() + 80, t.getY());
+
+                getPackage().getEditor().revalidate();
+                getPackage().getEditor().repaint();
+			}
+
+			setAssociation(null);
+		}
+	}
+
 
     private class EditAction extends AbstractAction
     {
@@ -1038,8 +1103,8 @@ public class ClassTarget extends EditableTarget
 
     public void endMove()
     {
-        Target t = getPackage().getTarget(getBaseName() + "Test");
-
+    	Target t = getAssociation();
+    	
         if (t != null)
             t.setPos(getX() + 30, getY() - 35);
     }

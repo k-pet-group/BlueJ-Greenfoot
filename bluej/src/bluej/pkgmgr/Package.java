@@ -22,7 +22,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: Package.java 1728 2003-03-28 02:01:36Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -481,115 +481,139 @@ public class Package extends Graph
         input.close();
 
         // read in all the targets contained in this package
+        // into this temporary map
         Map propTargets = new HashMap();
 
-        try {
-            int numTargets = Integer.parseInt(lastSavedProps.getProperty("package.numTargets", "0"));
-            int numDependencies = Integer.parseInt(lastSavedProps.getProperty("package.numDependencies", "0"));
+		int numTargets = 0, numDependencies = 0;
+		
+		try {
+			numTargets = Integer.parseInt(lastSavedProps.getProperty("package.numTargets", "0"));
+			numDependencies = Integer.parseInt(lastSavedProps.getProperty("package.numDependencies", "0"));
+		}
+		catch(Exception e) {
+			Debug.reportError("Error loading from bluej.pkg file " +
+						  pkgFile + ": " + e);
+			e.printStackTrace();
+			return;
+		}
 
-            for(int i = 0; i < numTargets; i++) {
-                Target target = null;
-                String type = lastSavedProps.getProperty("target" + (i + 1) + ".type");
-                String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
+        for(int i = 0; i < numTargets; i++) {
+            Target target = null;
+            String type = lastSavedProps.getProperty("target" + (i + 1) + ".type");
+            String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
 
-                if("PackageTarget".equals(type))
-                    target = new PackageTarget(this, identifierName);
-                else {
-                    target = new ClassTarget(this, identifierName);
-                }
-
-                if(target != null) {
-                    //Debug.message("Load target " + target);
-                    target.load(lastSavedProps, "target" + (i + 1));
-                    //Debug.message("Putting " + identifierName);
-                    propTargets.put(identifierName, target);
-                }
-            }
-
-            // add our immovable targets (either a text note or a package
-            // which goes to the parent package)
-            if (!isUnnamedPackage()) {
-                Target t = new ParentPackageTarget(this);
-                t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
-                addTarget(t);
-            }
+            if("PackageTarget".equals(type))
+                target = new PackageTarget(this, identifierName);
             else {
-                Target t = new ReadmeTarget(this);
-                t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
-                addTarget(t);
+                target = new ClassTarget(this, identifierName);
             }
 
-            // make our Package targets reflect what is actually on disk
-            // note that we consider this on-disk version the master
-            // version so if we have a class target called Foo but we
-            // discover a directory call Foo, a PackageTarget will be
-            // inserted to replace the ClassTarget
-            File subDirs[] = getPath().listFiles(new SubPackageFilter());
-
-            for(int i=0; i<subDirs.length; i++) {
-                // first check if the directory name would be a valid package name
-                if (!JavaNames.isIdentifier(subDirs[i].getName()))
-                    continue;
-
-                Target target = (Target) propTargets.get(subDirs[i].getName());
-
-                if(target == null || !(target instanceof PackageTarget)) {
-                    target = new PackageTarget(this, subDirs[i].getName());
-                    findSpaceForVertex(target);
-                }
-
-                addTarget(target);
+            if(target != null) {
+                //Debug.message("Load target " + target);
+                target.load(lastSavedProps, "target" + (i + 1));
+                //Debug.message("Putting " + identifierName);
+                propTargets.put(identifierName, target);
             }
-
-            Set interestingSet = findTargets(getPath());
-
-            Iterator it = interestingSet.iterator();
-
-            while(it.hasNext()) {
-                String targetName = (String) it.next();
-
-                Target target = (Target) propTargets.get(targetName);
-                if(target == null || !(target instanceof ClassTarget)) {
-                    target = new ClassTarget(this, targetName);
-                    findSpaceForVertex(target);
-                }
-
-                try {
-                    ((ClassTarget)target).enforcePackage(getQualifiedName());
-                }
-                catch(IOException ioe) {
-                    Debug.message(ioe.getLocalizedMessage());
-                }
-                catch(ClassCastException cce) { }
-
-                addTarget(target);
-            }
-
-            for(int i = 0; i < numDependencies; i++) {
-                Dependency dep = null;
-                String type = lastSavedProps.getProperty("dependency" + (i+1) + ".type");
-
-                if("UsesDependency".equals(type))
-                    dep = new UsesDependency(this);
-                //		else if("ExtendsDependency".equals(type))
-                //		    dep = new ExtendsDependency(this);
-                //		else if("ImplementsDependency".equals(type))
-                //		    dep = new ImplementsDependency(this);
-
-                if(dep != null) {
-                    dep.load(lastSavedProps, "dependency" + (i + 1));
-                    addDependency(dep, false);
-                }
-            }
-            recalcArrows();
-        } catch(Exception e) {
-            Debug.reportError("Error loading from bluej.pkg file " +
-                              pkgFile + ": " + e);
-            e.printStackTrace();
-            return;
         }
 
-        for(Iterator it = targets.iterator(); it.hasNext(); ) {
+        // add our immovable targets (either a text note or a package
+        // which goes to the parent package)
+        if (!isUnnamedPackage()) {
+            Target t = new ParentPackageTarget(this);
+            t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
+            addTarget(t);
+        }
+        else {
+            Target t = new ReadmeTarget(this);
+            t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
+            addTarget(t);
+        }
+
+        // make our Package targets reflect what is actually on disk
+        // note that we consider this on-disk version the master
+        // version so if we have a class target called Foo but we
+        // discover a directory call Foo, a PackageTarget will be
+        // inserted to replace the ClassTarget
+        File subDirs[] = getPath().listFiles(new SubPackageFilter());
+
+        for(int i=0; i<subDirs.length; i++) {
+            // first check if the directory name would be a valid package name
+            if (!JavaNames.isIdentifier(subDirs[i].getName()))
+                continue;
+
+            Target target = (Target) propTargets.get(subDirs[i].getName());
+
+            if(target == null || !(target instanceof PackageTarget)) {
+                target = new PackageTarget(this, subDirs[i].getName());
+                findSpaceForVertex(target);
+            }
+
+            addTarget(target);
+        }
+
+		// now look for Java sorce files that may have been
+		// added to the directory
+        Set interestingSet = findTargets(getPath());
+
+		// also we migrate targets from propTargets across
+		// to our real list of targets in this loop.
+        Iterator it = interestingSet.iterator();
+
+        while(it.hasNext()) {
+            String targetName = (String) it.next();
+
+            Target target = (Target) propTargets.get(targetName);
+            if(target == null || !(target instanceof ClassTarget)) {
+                target = new ClassTarget(this, targetName);
+                findSpaceForVertex(target);
+            }
+
+            try {
+                ((ClassTarget)target).enforcePackage(getQualifiedName());
+            }
+            catch(IOException ioe) {
+                Debug.message(ioe.getLocalizedMessage());
+            }
+            catch(ClassCastException cce) { }
+
+            addTarget(target);
+        }
+
+        for(int i = 0; i < numDependencies; i++) {
+            Dependency dep = null;
+            String type = lastSavedProps.getProperty("dependency" + (i+1) + ".type");
+
+            if("UsesDependency".equals(type))
+                dep = new UsesDependency(this);
+            //		else if("ExtendsDependency".equals(type))
+            //		    dep = new ExtendsDependency(this);
+            //		else if("ImplementsDependency".equals(type))
+            //		    dep = new ImplementsDependency(this);
+
+            if(dep != null) {
+                dep.load(lastSavedProps, "dependency" + (i + 1));
+                addDependency(dep, false);
+            }
+        }
+        recalcArrows();
+
+		// our associations are based on name so we mustn't deal with
+		// them till all classes/packages have been loaded
+		for(int i = 0; i < numTargets; i++) {
+			String assoc = lastSavedProps.getProperty("target" + (i + 1) + ".association");
+			String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
+			
+			if (assoc != null) {
+				Target t1 = getTarget(identifierName), t2 = getTarget(assoc);
+				
+				if(t1 != null && t2 != null && t1 instanceof DependentTarget) {
+					DependentTarget dt = (DependentTarget) t1;
+					dt.setAssociation(t2);
+				}
+			}
+		}
+
+        for(it = targets.iterator(); it.hasNext(); ) {
             Target target = (Target)it.next();
 
             if(target instanceof ClassTarget) {
@@ -598,7 +622,8 @@ public class Package extends Graph
             }
         }
 
-        for(Iterator it = targets.iterator(); it.hasNext(); ) {
+
+        for(it = targets.iterator(); it.hasNext(); ) {
             Target t = (Target)it.next();
             if((t instanceof ClassTarget)
                && ((ClassTarget)t).upToDate()) {

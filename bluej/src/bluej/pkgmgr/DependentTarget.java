@@ -9,10 +9,10 @@ import bluej.graph.GraphEditor;
 import bluej.utility.MultiIterator;
 
 /**
- * A general target in a package
+ * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version	$Id: DependentTarget.java 1728 2003-03-28 02:01:36Z ajp $
  */
 public abstract class DependentTarget extends Target
 {
@@ -20,20 +20,49 @@ public abstract class DependentTarget extends Target
     protected List outUses;
     protected List parents;
     protected List children;
+
+	protected Target assoc;
+	
     /**
      * Create a new target at a specified position.
      */
     public DependentTarget(Package pkg, String identifierName)
     {
         super(pkg, identifierName);
-		// calculateWidth(identifierName), DEF_HEIGHT);
 
         inUses = new ArrayList();
         outUses = new ArrayList();
         parents = new ArrayList();
         children = new ArrayList();
+        
+        assoc = null;
     }
 
+	/**
+	 * Save association information about this class target
+	 * @param props the properties object to save to
+	 * @param prefix an internal name used for this target to identify
+	 */
+	public void save(Properties props, String prefix)
+	{
+		super.save(props, prefix);
+
+		if (getAssociation() != null) {
+			String assocName = getAssociation().getIdentifierName(); 
+			props.put(prefix + ".association", assocName);
+		}
+	}
+
+	public void setAssociation(Target t)
+	{
+		assoc = t;
+	}
+	
+	public Target getAssociation()
+	{
+		return assoc;
+	}
+	
     public void addDependencyOut(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
@@ -107,7 +136,6 @@ public abstract class DependentTarget extends Target
         v.add(inUses.iterator());
         return new MultiIterator(v);
     }
-
 
     /**
      *  Remove all outgoing dependencies. Also updates the package. (Don't

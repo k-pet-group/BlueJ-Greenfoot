@@ -34,7 +34,7 @@ import bluej.testmgr.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: PkgMgrFrame.java 1728 2003-03-28 02:01:36Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1230,33 +1230,39 @@ public class PkgMgrFrame extends JFrame
     /**
      * Implementation of the "New Class" user function.
      */
-    private void createNewClass()
+    private void doCreateNewClass()
     {
         NewClassDialog dlg = new NewClassDialog(this);
         boolean okay = dlg.display();
 
         if(okay) {
             String name = dlg.getClassName();
-            if (name.length() > 0) {
-                // check whether name is already used
-                if(pkg.getTarget(name) != null) {
-                    DialogManager.showError(this, "duplicate-name");
-                    return;
-                }
+            String template = dlg.getTemplateName();
 
-                ClassTarget target =  null;
-                String template = dlg.getTemplateName();
-                target = new ClassTarget(pkg, name, template);
-
-                target.generateSkeleton(template);
-
-                pkg.findSpaceForVertex(target);
-                pkg.addTarget(target);
-
-                editor.revalidate();
-                editor.scrollRectToVisible(target.getRectangle());
-                editor.repaint();
+            createNewClass(name, template);
+        }        
+    }
+    
+    public void createNewClass(String name, String template)
+    {
+        if (name.length() > 0) {
+            // check whether name is already used
+            if(pkg.getTarget(name) != null) {
+                DialogManager.showError(this, "duplicate-name");
+                return;
             }
+
+            ClassTarget target =  null;
+            target = new ClassTarget(pkg, name, template);
+
+            target.generateSkeleton(template);
+
+            pkg.findSpaceForVertex(target);
+            pkg.addTarget(target);
+
+            editor.revalidate();
+            editor.scrollRectToVisible(target.getRectangle());
+            editor.repaint();
         }
     }
 
@@ -1720,7 +1726,7 @@ public class PkgMgrFrame extends JFrame
                                               Config.getString("tooltip.newClass"));
                 button.addActionListener(new ActionListener() {
                                             public void actionPerformed(ActionEvent e) {
-                                                createNewClass(); }
+                                                doCreateNewClass(); }
                                          });
                 buttonPanel.add(button);
                 buttonPanel.add(Box.createVerticalStrut(3));
@@ -1965,7 +1971,7 @@ public class PkgMgrFrame extends JFrame
         {
             createMenuItem("menu.edit.newClass", menu, KeyEvent.VK_N, SHORTCUT_MASK, true,
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); createNewClass(); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); doCreateNewClass(); }
                            });
             createMenuItem("menu.edit.newPackage", menu, KeyEvent.VK_R, SHORTCUT_MASK, true,
                            new ActionListener() {
