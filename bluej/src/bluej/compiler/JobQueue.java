@@ -10,13 +10,13 @@ import bluej.utility.Debug;
  * compiler.
  *
  * @author  Michael Cahill
- * @version $Id: JobQueue.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: JobQueue.java 2096 2003-07-04 14:52:01Z mik $
  */
 public class JobQueue
 {
     private static JobQueue queue = null;
 
-    public static JobQueue getJobQueue()
+    public static synchronized JobQueue getJobQueue()
     {
         if(queue == null)
             queue = new JobQueue();

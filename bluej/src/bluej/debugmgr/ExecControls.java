@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2078 2003-06-26 14:16:40Z mik $
+ * @version $Id: ExecControls.java 2096 2003-07-04 14:52:01Z mik $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -333,7 +333,7 @@ public class ExecControls extends JFrame
 
     /**
      * Display the details for the currently selected thread.
-     * These details include showing the therads stack, and displaying 
+     * These details include showing the threads stack, and displaying 
      * the details for the top stack frome.
      */
     private void setThreadDetails()

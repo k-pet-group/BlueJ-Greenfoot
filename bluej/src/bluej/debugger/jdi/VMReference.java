@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2081 2003-06-26 15:26:56Z mik $
+ * @version $Id: VMReference.java 2096 2003-07-04 14:52:01Z mik $
  *
  * The startup process is as follows:
  *
@@ -570,6 +570,7 @@ class VMReference
             return;
         }
 
+		// Debug.message("[VMRef] starting " + className);
         // ** call Shell.run() **
         try {
             exitStatus = Debugger.NORMAL_EXIT;
@@ -638,7 +639,7 @@ class VMReference
                 return null;
         }
 
-		Debug.message("[VMRefMain] Invoking " + methodName);
+		//Debug.message("[VMRefMain] Invoking " + methodName);
         Method m = (Method) execServerMethods.get(methodName);
 
         if (m == null)
@@ -719,8 +720,6 @@ class VMReference
 
         String exceptionText = (msgVal == null ? null : msgVal.value());
 		String excClass = exc.exception().type().name();
-
-        System.out.println("Exception text: " + exceptionText);
 
         if (excClass.equals("bluej.runtime.ExitException")) {
 
@@ -1016,7 +1015,7 @@ class VMReference
 											boolean propagateException,
 											boolean dontSuspendAll)
 	{
-		int smallDelay = 50;	// milliseconds
+		final int smallDelay = 50;	// milliseconds
     	
 		// go through the args and if any aren't VM reference types
 		// then fail (unless they are strings in which case we

@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2085 2003-06-30 12:03:30Z fisker $
+ * @version $Id: Package.java 2096 2003-07-04 14:52:01Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1049,12 +1049,13 @@ public final class Package extends Graph
 
 
     /**
-     * Returns true if the debugger is IDLE.
-     * If the debugger is executing something then the compilation is not possible.
+     * Returns true if the debugger is not busy. This is true if it is either
+     * IDLE, or has not been completely constructed (NOTREADY).
      */
     public boolean isDebuggerIdle ()
     {
-        return getDebugger().getStatus() == Debugger.IDLE;
+        int status = getDebugger().getStatus();
+        return (status == Debugger.IDLE) || (status == Debugger.NOTREADY);
     }
 
 

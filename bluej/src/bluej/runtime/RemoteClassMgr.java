@@ -19,7 +19,7 @@ import java.net.*;
  *              (one for each project)
  *
  * @author  Andrew Patterson
- * @version $Id: RemoteClassMgr.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: RemoteClassMgr.java 2096 2003-07-04 14:52:01Z mik $
  */
 public class RemoteClassMgr
 {
@@ -71,11 +71,11 @@ public class RemoteClassMgr
         }
 
 		protected Class findClass(String name)
-		throws ClassNotFoundException
+		    throws ClassNotFoundException
 		{
-			System.out.println("BlueJ loader looking for " + name);
+			//System.out.println("BlueJ loader looking for " + name);
 			Class cl = super.findClass(name);
-			System.out.println("BlueJ loader classloader for it is" + cl.getClassLoader());
+			//System.out.println("BlueJ loader classloader for it is" + cl.getClassLoader());
 			return cl;
 		}
 

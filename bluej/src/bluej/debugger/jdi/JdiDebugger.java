@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2077 2003-06-26 14:09:27Z mik $
+ * @version $Id: JdiDebugger.java 2096 2003-07-04 14:52:01Z mik $
  */
 public class JdiDebugger extends Debugger
 {
@@ -97,7 +97,7 @@ public class JdiDebugger extends Debugger
 		// remote virtual machine in the background
 		machineLoader = new MachineLoaderThread();
 		// lower priority to improve GUI response time
-		machineLoader.setPriority(Thread.currentThread().getPriority() - 1);
+		machineLoader.setPriority(Thread.currentThread().getPriority() - 2);
 		machineLoader.start();	
 	}
 	
@@ -521,7 +521,6 @@ public class JdiDebugger extends Debugger
 	{
         JdiThread breakThread = allThreads.find(tr);
 		JdiThreadNode jtn = treeModel.findThreadNode(tr);
-
         // if the thread at the breakpoint is not currently displayed, display it now.
 		if (jtn == null) {
             JdiThreadNode root = treeModel.getThreadRoot();
@@ -607,7 +606,7 @@ public class JdiDebugger extends Debugger
      */
     private void displayThread(JdiThread newThread)
     {
-        if(! (hideSystemThreads && newThread.isKnownSystemThread())) {
+        if(! (hideSystemThreads && (newThread.isKnownSystemThread() || newThread.isFinished()))) {
             JdiThreadNode root = treeModel.getThreadRoot();
             treeModel.insertNodeInto(new JdiThreadNode(newThread), root, 0);
         }

@@ -13,7 +13,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2074 2003-06-26 10:26:09Z mik $
+ * @version $Id: JdiThread.java 2096 2003-07-04 14:52:01Z mik $
  */
 class JdiThread extends DebuggerThread
 {
@@ -266,7 +266,11 @@ class JdiThread extends DebuggerThread
                     StackFrame f = (StackFrame)frames.get(i);
                     Location loc = f.location();
                     String className = loc.declaringType().name();
-
+                    
+                    // ensure that the bluej.runtime.ExecServer frames are not shown
+                    if(className.startsWith("bluej.runtime"))
+                        break;
+                    
                     // must getBase on classname so that we find __SHELL
                     // classes in other packages ie a.b.__SHELL
 					// if it is a __SHELL class, stop processing the stack
