@@ -18,10 +18,10 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 885 2001-05-09 00:41:53Z bquig $
- * @author Michael Cahill
- *
  * A general target in a package
+ *
+ * @author  Michael Cahill
+ * @version $Id: Target.java 1010 2001-11-19 02:45:21Z ajp $
  */
 public abstract class Target extends Vertex
 {
@@ -101,7 +101,7 @@ public abstract class Target extends Vertex
         if ((width+20) <= DEF_WIDTH)
             return DEF_WIDTH;
         else
-            return (width+29)/10 * 10;
+            return (width+29)/GRID_SIZE * GRID_SIZE;
     }
 
     /**
@@ -148,13 +148,16 @@ public abstract class Target extends Vertex
     }
 
     /**
-     *
+     * Change the text which the target displays for its label
      */
     public void setDisplayName(String name)
     {
         displayName = name;
     }
 
+    /**
+     * Returns the text which the target is displaying as its label
+     */
     public String getDisplayName()
     {
         return displayName;
