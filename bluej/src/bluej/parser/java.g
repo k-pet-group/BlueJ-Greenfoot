@@ -289,10 +289,17 @@ compilationUnit
 
 // Package statement: "package" followed by an identifier.
 packageDefinition
-    options {defaultErrorHandler = true;} // let ANTLR handle errors
-    {JavaToken id;} // define an id for the package name
-    :   "package" id=identifier SEMI
-        {definePackage(id); }  // tell the symbol table about the package
+    options { defaultErrorHandler = true; } // let ANTLR handle errors
+
+    { JavaToken id; }           // define an id for the package name
+    :   pkg:"package" id=identifier sem:SEMI
+        {
+            info.setPackageSelections(new Selection((JavaToken)pkg),
+                                        new Selection(id),
+                                        new Selection((JavaToken)sem));
+
+            definePackage(id);  // tell the symbol table about the package
+        } 
     ;
 
 
@@ -453,7 +460,8 @@ modifier returns [boolean isAbstract]
     |   "native"
     |   "threadsafe"
     |   "synchronized"
-    |   "const"
+//  |   "const"                    // reserved word; leave out
+    |   "volatile"
     ;
 
 
@@ -1191,6 +1199,7 @@ constant
 // The Java scanner
 //----------------------------------------------------------------------------
 class JavaLexer extends Lexer;
+
 options {
     importVocab=Java;		// call the vocabulary "Java"
     testLiterals=false;		// don't automatically test for literals
@@ -1288,8 +1297,7 @@ SEMI            :   ';'     ;
 
 
 // Whitespace -- ignored
-WS
-    :   (   ' '
+WS  :   (   ' '
         |   '\t'
         |   '\f'
         // handle newlines
@@ -1302,25 +1310,37 @@ WS
         { $setType(Token.SKIP); }
     ;
 
-
 // Single-line comments
 SL_COMMENT
-    :   "//" (~('\n'|'\r'))* ('\n'|'\r'('\n')?)
+    :       "//"
+            (~('\n'|'\r'))* ('\n'|'\r'('\n')?)
             { $setType(Token.SKIP); newline(); }
     ;
-
 
 // multiple-line comments
 // we are using a filter stream so these are not set to be
 // Token.SKIP, rather they are redirected with the filter stream
 ML_COMMENT
-    :   '/'! '*'
-        (   { LA(2)!='/' }? '*'
+	:	"/*"
+		(	/*	'\r' '\n' can be matched in one alternative or by matching
+				'\r' in one iteration and '\n' in another.  I am trying to
+				handle any flavor of newline that comes in, but the language
+				that allows both "\r\n" and "\r" and "\n" to all be valid
+				newline is ambiguous.  Consequently, the resulting grammar
+				must be ambiguous.  I'm shutting this warning off.
+			 */
+			options {
+				generateAmbigWarnings=false;
+			}
+		:
+			{ LA(2)!='/' }? '*'
+		|	'\r' '\n'		{newline();}
+		|	'\r'			{newline();}
         |   '\n' { newline(); }
-        |   ~('*'|'\n')
+		|	~('*'|'\n'|'\r')
         )*
-        '*' '/'!
-            { }
+		"*/"
+		{ }
     ;
 
 
@@ -1331,13 +1351,18 @@ CHAR_LITERAL
 
 // string literals
 STRING_LITERAL
-    :   '"' (ESC|~'"')* '"'
+	:	'"' (ESC|~('"'|'\\'))* '"'
     ;
 
 
 // escape sequence -- note that this is protected; it can only be called
 //   from another lexer rule -- it will not ever directly return a token to
 //   the parser
+// There are various ambiguities hushed in this rule.  The optional
+// '0'...'9' digit matches should be matched here rather than letting
+// them go back to STRING_LITERAL to be matched.  ANTLR does the
+// right thing by matching immediately; hence, it's ok to shut off
+// the FOLLOW ambig warnings.
 protected
 ESC
     :   '\\'                             
@@ -1350,8 +1375,26 @@ ESC
         |   '\''
         |   '\\'
         |   ('u')+ HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT 
-        |   ('0'..'3') ( ('0'..'9') ('0'..'9')? )?
-        |   ('4'..'7') ('0'..'9')?
+		|	('0'..'3')
+			(
+				options {
+					warnWhenFollowAmbig = false;
+				}
+			:	('0'..'9')
+				(	
+					options {
+						warnWhenFollowAmbig = false;
+					}
+				:	'0'..'9'
+				)?
+			)?
+		|	('4'..'7')
+			(
+				options {
+					warnWhenFollowAmbig = false;
+				}
+			:	('0'..'9')
+			)?
         )
     ;
 
@@ -1386,8 +1429,19 @@ NUM_INT
     :   '.' {_ttype = DOT;}
             (('0'..'9')+ (EXPONENT)? (FLOAT_SUFFIX)? { _ttype = NUM_FLOAT; })?
     |   (   '0' {isDecimal = true;} // special case for just '0'
-            (   ('x'|'X') (HEX_DIGIT)+                      // hex
-            |   ('0'..'8')+                                 // octal
+			(	('x'|'X')
+				(											// hex
+					// the 'e'|'E' and float suffix stuff look
+					// like hex digits, hence the (...)+ doesn't
+					// know when to stop: ambig.  ANTLR resolves
+					// it correctly by matching immediately.  It
+					// is therefor ok to hush warning.
+					options {
+						warnWhenFollowAmbig=false;
+					}
+				:	HEX_DIGIT
+				)+
+			|	('0'..'7')+									// octal
             )?
         |   ('1'..'9') ('0'..'9')*  {isDecimal=true;}       // non-zero decimal
         )

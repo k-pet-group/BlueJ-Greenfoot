@@ -16,7 +16,8 @@ public class Selection extends Occurrence
     
 
     /** Constructor to define a new selection */
-    public Selection(File file, int line, int column, int len) {
+    public Selection(File file, int line, int column, int len)
+    {
         super(file, line, column);
 
         this.len = len;

@@ -165,10 +165,42 @@ public final class ClassInfo {
         this.parsedfileheader = status;
     }
 
-    // where we would insert the string "extends" in a class
-    private Selection classextendsinsertselection;
-    // how we would replace the string "extends" in a class
+    /**
+     * Record where we would insert the string "extends" in a class
+     *
+     * @param s the Selection object which records a location to
+     *          insert the "extends" keyword
+     */
+    public void setClassExtendsInsertSelection(Selection s) {
+        if(!parsedfileheader)
+            classExtendsInsertSelection = s;
+    }
+
+    public Selection getClassExtendsInsertSelection() {
+        return classExtendsInsertSelection;
+    }
+    
+    private Selection classExtendsInsertSelection;
+
+    /**
+     * Record how we would replace the string "extends" in a class
+     *
+     * @param s the Section object which records the location of
+     *          the "extends" keyword for a class
+     */
+    public void setClassExtendsReplaceSelection(Selection s) {
+        if(!parsedfileheader)
+            classextendsreplaceselection = s;
+    }
+
+    public Selection getClassExtendsReplaceSelection() {
+        return classextendsreplaceselection;
+    }
+
     private Selection classextendsreplaceselection; 
+
+
+
     // how we would replace the superclass name in a class
     private Selection classsuperclassreplaceselection;
     // where we would insert the string "implements" in a class
@@ -190,24 +222,6 @@ public final class ClassInfo {
     // or null if there is no "extends" clause
     private Vector interfaceextendsselections;
     private Vector interfaceextendstexts;
-
-    public void setClassExtendsInsertSelection(Selection s) {
-        if(!parsedfileheader)
-            classextendsinsertselection = s;
-    }
-
-    public Selection getClassExtendsInsertSelection() {
-        return classextendsinsertselection;
-    }
-    
-    public void setClassExtendsReplaceSelection(Selection s) {
-        if(!parsedfileheader)
-            classextendsreplaceselection = s;
-    }
-
-    public Selection getClassExtendsReplaceSelection() {
-        return classextendsreplaceselection;
-    }
 
     public void setClassSuperClassReplaceSelection(Selection s)
     {
@@ -274,6 +288,52 @@ public final class ClassInfo {
     public boolean hasInterfaceExtendsSelections() {
         return interfaceextendsselections != null;
     }
+
+    /**
+     * Record the locations of the tokens in a source files "package" statement.
+     *
+     * These locations start off at the first line and column of a file.
+     * If a package line exists, they are updated, otherwise they are
+     * left pointing the very start of the file (which is where we would
+     * want to insert a package line if we were to add one)
+     */    
+    private boolean packageStatementExists = false;
+    private Selection packageStatementSelection = new Selection(null,1,1,0);
+    private Selection packageNameSelection = new Selection(null,1,1,0);
+    private Selection packageSemiSelection = new Selection(null,1,1,0);
+
+    public void setPackageSelections(Selection pkgStatement, Selection pkgName,
+                                        Selection pkgSemi)
+    {
+        packageStatementSelection = pkgStatement;
+        packageNameSelection = pkgName;
+        packageSemiSelection = pkgSemi;    
+
+        packageStatementExists = true;   
+    }
+
+    public boolean hasPackageStatement()
+    {
+        return packageStatementExists;
+    }
+    
+    public Selection getPackageStatementSelection()
+    {
+        return packageStatementSelection;
+    }
+
+    public Selection getPackageNameSelection()
+    {
+        return packageNameSelection;
+    }
+
+    public Selection getPackageSemiSelection()
+    {
+        return packageSemiSelection;
+    }
+
+
+
         
     // accessors:
 
