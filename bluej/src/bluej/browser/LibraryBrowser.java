@@ -16,6 +16,7 @@ import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.Debug;
 import bluej.editor.Editor;
+
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageCacheMgr;
 
@@ -29,7 +30,7 @@ import java.net.MalformedURLException;
  *
  * @author	Andy Marks
  *		    Andrew Patterson
- * @version	$Id: LibraryBrowser.java 269 1999-11-10 05:36:05Z mik $
+ * @version	$Id: LibraryBrowser.java 277 1999-11-16 00:57:17Z ajp $
  **/
 public class LibraryBrowser extends JFrame implements ActionListener
 {
@@ -80,44 +81,66 @@ public class LibraryBrowser extends JFrame implements ActionListener
     /**
      * Initialize and display a new Library Browser.  Currently singleton.
      */
-    public LibraryBrowser() {
+    public LibraryBrowser()
+    {
 
         // hack way of making class singleton
-	if (frame != null) {
-	    DialogManager.showMessage(this, "one-browser-only");
-	    return;
-	}
+    	if (frame != null) {
+    	    DialogManager.showMessage(this, "one-browser-only");
+    	    return;
+    	}
 
-	setIconImage(iconImage);
-	setSize(new Dimension(780,580));
+    	setIconImage(iconImage);
+    	setSize(new Dimension(780,580));
+    	
+    	// don't create these during declaration or they'll be 
+    	// instantiated before we even know if we want to/can
+    	// create another Library Browser
+        classChooser = new ClassChooser();
+    	libraryChooser = new LibraryChooser();
+    	attributeChooser = new AttributeChooser();
+    	codeViewer = new CodeViewer();
+    	
+    	frame = this;
+    	setTitle(Config.getString("browser.title"));
+    	
+    	setupUI();
+    	
+    //	pack();
+    	show();
+    	
+    	addWindowListener(new WindowAdapter() {
+    		public void windowClosing(WindowEvent e) {
+    			close();
+    		}
+    	});
 	
-	// don't create these during declaration or they'll be 
-	// instantiated before we even know if we want to/can
-	// create another Library Browser
-    classChooser = new ClassChooser();
-	libraryChooser = new LibraryChooser(this);
-	attributeChooser = new AttributeChooser();
-	codeViewer = new CodeViewer();
-	
-	frame = this;
-	setTitle(Config.getString("browser.title"));
-	
-	setupUI();
-	
-	pack();
-	setVisible(false);
-	
-	addWindowListener(new WindowAdapter() {
-		public void windowClosing(WindowEvent e) {
-			close();
-		}
-	});
-	
-	classChooser.addActionListener(new ActionListener() {
-	    public void actionPerformed(ActionEvent e) {
-	        openClass(e.getActionCommand());
-	    }
-        });
+//	classChooser.addActionListener(new ActionListener() {
+//	    public void actionPerformed(ActionEvent e) {
+//	        openClass(e.getActionCommand());
+//	    }
+//       });
+
+        /**
+         * Register a listener for when the user selects a node in the
+         * library chooser. When they do, give the package selected to
+         * the class chooser.
+         */
+        libraryChooser.addLibraryChooserListener(
+            new LibraryChooserListener()
+            {
+                public void nodeEvent(LibraryChooserEvent e) {
+
+                    String packageName = libraryChooser.pathToPackageName(
+                                                new TreePath(e.getNode().getPath()));
+
+                    String classes[] = libraryChooser.findClassesOfPackage(e.getNode());
+                    String packages[] = libraryChooser.findNestedPackagesOfPackage(e.getNode());
+
+                    classChooser.openPackage(packageName, classes, packages);
+                }
+            }            
+        );
     }
 
     /**
@@ -126,7 +149,6 @@ public class LibraryBrowser extends JFrame implements ActionListener
      */
     public void close() {
 	if (libraryChooser != null)
-		libraryChooser.close();
 	
 		if (frame != null) {
 			setVisible(false);
@@ -142,15 +164,15 @@ public class LibraryBrowser extends JFrame implements ActionListener
 	private void setupUI() {
 		setupMenus();
 
-		libraryChooser.setPreferredSize(new Dimension(250, 200));
+//		libraryChooser.setPreferredSize(new Dimension(250, 200));
 //		attributeChooser.setPreferredSize(CHOOSERPANELSIZE);
 
 		JPanel fullPane = new JPanel();
 		{
-			JSplitPane splitPaneOne = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-			{
-				JPanel chooserPanel = new JPanel();
-				{
+//			JSplitPane splitPaneOne = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+//			{
+//				JPanel chooserPanel = new JPanel();
+//				{
 					/* Choose the layout manager, add the components to the panel
 					   and layout the panel for the class panel.  It's two main
 					   components are the libraryChooser and classChooser. */
@@ -159,34 +181,34 @@ public class LibraryBrowser extends JFrame implements ActionListener
 					{
 						splitPaneTwo.setLeftComponent(libraryChooser);
 						splitPaneTwo.setDividerSize(Config.splitPaneDividerWidth);
-						splitPaneTwo.setRightComponent(attributeChooser);
+						splitPaneTwo.setRightComponent(classChooser);
 						splitPaneTwo.setOneTouchExpandable(false);
 			         
 						// set the initial location and size of the divider
-//						splitPaneTwo.setDividerLocation(250);
+						splitPaneTwo.setDividerLocation(getWidth()/3);
 					}
 
-					chooserPanel.setLayout(new BorderLayout());
-					chooserPanel.add(splitPaneTwo, BorderLayout.CENTER);
-				}
+//					chooserPanel.setLayout(new BorderLayout());
+//					chooserPanel.add(splitPaneTwo, BorderLayout.CENTER);
+//				}
 
 				// classChooser is a global variable
-				{
-					classChooser.setPreferredSize(new Dimension(700, 400));
-				}
+//				{
+//					classChooser.setPreferredSize(new Dimension(700, 400));
+//				}
 
-				splitPaneOne.setDividerSize(Config.splitPaneDividerWidth);
-				splitPaneOne.setTopComponent(chooserPanel);
-				splitPaneOne.setBottomComponent(classChooser);
-				splitPaneOne.setOneTouchExpandable(false);
+//				splitPaneOne.setDividerSize(Config.splitPaneDividerWidth);
+//				splitPaneOne.setTopComponent(chooserPanel);
+//				splitPaneOne.setBottomComponent(classChooser);
+//				splitPaneOne.setOneTouchExpandable(false);
 			        
 				// set the initial location and size of the divider
 //				splitPaneOne.setDividerLocation(200);
-			}
+//			}
 
 			fullPane.setBorder(Config.generalBorder);
 			fullPane.setLayout(new BorderLayout());
-			fullPane.add(splitPaneOne, BorderLayout.CENTER);
+			fullPane.add(splitPaneTwo, BorderLayout.CENTER);
 //			fullPane.add(statusbar, BorderLayout.SOUTH);
 		}
 
@@ -253,7 +275,6 @@ public class LibraryBrowser extends JFrame implements ActionListener
 	Object source = ae.getSource();
 	if (source == closeMI) {
 	    // we're about to exit - make sure everything is saved
-	    libraryChooser.saveConfig();
 				
 	    close();
 	} else if (source == findMI) {
@@ -263,16 +284,6 @@ public class LibraryBrowser extends JFrame implements ActionListener
 	}
     }
 
-    /**
-     * A class or package has been marked for use in the BlueJ environment.
-     * Give the user a list of all current packages (destinations) so they can
-     * choose which one to import the package or class into.
-     * 
-     * @param thePackage the package to be used 
-     */
-//    public void usePackage(Target thePackage) {
-//	usePackage(thePackage.getName(), thePackage instanceof ClassTarget);
-//   }
 
     /**
      * A package has been chosen to be used, now we need to identify where
@@ -285,12 +296,13 @@ public class LibraryBrowser extends JFrame implements ActionListener
      */
     public void usePackage(String thePackage, boolean isClass) {
     
-	Package[] possibleTargets = bluej.pkgmgr.Main.getAllOpenPackages();
-	if (possibleTargets == null || possibleTargets.length == 0) {
+        Package[] possibleTargets = bluej.pkgmgr.Main.getAllOpenPackages();
+
+        if (possibleTargets == null || possibleTargets.length == 0) {
 //	    DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(),
 //			      "no-target-dialog");
-	    return;
-	}
+            return;
+        }
 
 	if (possibleTargets.length > 1) {
 //	    ChooseUseDestinationDIalog chooser = new ChooseUseDestinationDIalog(this, thePackage, isClass);
@@ -316,10 +328,6 @@ public class LibraryBrowser extends JFrame implements ActionListener
 		thePackage.insertLibPackage(lib);
     }
 
-	public void openPackage(DefaultTreeModel dtm)
-	{
-        classChooser.openPackage(dtm);
-    }
     
     /**
      * This is the main method to create a graphical display of a package
@@ -335,7 +343,6 @@ public class LibraryBrowser extends JFrame implements ActionListener
      */
 	public void openPackage(String[] packageName)
 	{
-        classChooser.openPackage(packageName);
 
 /*		boolean packageLoaded = true;
 
@@ -396,16 +403,6 @@ public class LibraryBrowser extends JFrame implements ActionListener
 	libraryChooser.selectPackageInTree(packageName);
    }
 	
-    /**
-     * Ask the library chooser to open the specified package.  The library
-     * chooser will take care of opening the appropriate graph editor.
-     * Called by the FindLibraryDialog class when a found library is to be opened.
-     * 
-     * @param thePackage the path to the package to open in the library chooser
-     */
-    public void openPackage(TreePath thePackage) {
-	libraryChooser.openPackage(thePackage);
-    }
 
     /**
      * Update the class chooser and library chooser to reflect a new package.  
