@@ -14,7 +14,7 @@ import com.sun.jdi.*;
 /**
  * A DebuggerObject with support for java 1.5 - generics etc.
  * @author Davin McCall
- * @version $Id: JdiObject15.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: JdiObject15.java 2582 2004-06-10 04:32:41Z davmac $
  */
 public class JdiObject15 extends JdiObject {
 
@@ -85,7 +85,7 @@ public class JdiObject15 extends JdiObject {
     {
         this.obj = obj;
         getRemoteFields();
-        if( field.genericSignature() != null ) {
+        if( JdiUtils.getJdiUtils().hasGenericSig(field) ) {
             GenTypeClass genericType = (GenTypeClass)JdiReflective.fromField(field, parent);
             genericParams = genericType.mapToDerived(new JdiReflective(obj.referenceType()));
         }
@@ -144,7 +144,6 @@ public class JdiObject15 extends JdiObject {
         if( genericParams != null )
             return new GenTypeClass(new JdiReflective(obj.referenceType()),
                     genericParams).toString();
-            // return JdiGenType.fromClassSignature((ClassType)obj.referenceType(), genericParams).toString();
         else
             return getClassName();
     }
@@ -154,7 +153,6 @@ public class JdiObject15 extends JdiObject {
         if( obj == null )
             return "";
         if( genericParams != null )
-            // return JdiGenType.fromClassSignature((ClassType)obj.referenceType(), genericParams).toString(true);
             return new GenTypeClass(new JdiReflective(obj.referenceType()),
                     genericParams).toString(true);
         else

@@ -10,7 +10,7 @@ import bluej.utility.JavaUtils;
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2568 2004-06-02 05:38:07Z davmac $
+ *  @version $Id: MethodView.java 2582 2004-06-10 04:32:41Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -126,7 +126,7 @@ public class MethodView extends CallableView implements Comparable
      *
      */
     public boolean isVarArgs() {
-        return (Config.isJava15() && method.isVarArgs());
+        return JavaUtils.getJavaUtils().isVarArgs(method);
     }
 
     /**

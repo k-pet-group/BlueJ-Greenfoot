@@ -6,19 +6,21 @@ import java.lang.reflect.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2569 2004-06-02 06:21:02Z davmac $
+ * @version $Id: JavaUtils15.java 2582 2004-06-10 04:32:41Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
     public String getSignature(Method method) {
-        String name = getTypeName(method.getGenericReturnType()) + " " + method.getName();
+        String name = getTypeParameters(method);
+        name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
         Type[] params = method.getGenericParameterTypes();
         return makeSignature(name, params, method.isVarArgs());
     }
 
     public String getShortDesc(Method method, String [] paramnames)
     {
-        String name = getTypeName(method.getGenericReturnType()) + " " + method.getName();
+        String name = getTypeParameters(method);
+        name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
         Type[] params = method.getGenericParameterTypes();
         return makeDescription(name, params, paramnames, method.isVarArgs(), false);
     }
@@ -28,6 +30,16 @@ public class JavaUtils15 extends JavaUtils {
         String name = JavaNames.getBase(cons.getName());
         Type[] params = cons.getGenericParameterTypes();
         return makeSignature(name, params, cons.isVarArgs());
+    }
+
+    public boolean isVarArgs(Constructor cons)
+    {
+        return cons.isVarArgs();
+    }
+    
+    public boolean isVarArgs(Method method)
+    {
+        return method.isVarArgs();
     }
 
     /* Internal methods */
@@ -174,4 +186,27 @@ public class JavaUtils15 extends JavaUtils {
         return sb.toString();
     }
 
+    /**
+     * Get the type parameters for a generic method. For example, for the
+     * method:   <code>&lt;T&gt; addAll(List&lt;T&gt;</code>
+     * this would return "&lt;T&gt;".
+     * Returns the empty string for a non-generic method.
+     * @param method  The method to retrieve the parameters of
+     * @return the parameters
+     */
+    private String getTypeParameters(Method method)
+    {
+        TypeVariable[] tparams = method.getTypeParameters();
+        if( tparams.length != 0 ) {
+            String name = "<";
+            for( int i = 0; i < tparams.length; i++ ) {
+                name += getTypeName(tparams[i]);
+                if( i != tparams.length - 1 )
+                    name += ',';
+            }
+            return name + "> ";
+        }
+        else
+            return "";
+    }
 }

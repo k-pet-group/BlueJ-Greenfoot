@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils14.java 2568 2004-06-02 05:38:07Z davmac $
+ * @version $Id: JavaUtils14.java 2582 2004-06-10 04:32:41Z davmac $
  */
 public class JavaUtils14 extends JavaUtils {
 
@@ -30,6 +30,16 @@ public class JavaUtils14 extends JavaUtils {
         String name = JavaNames.getBase(cons.getName());
         Class[] params = cons.getParameterTypes();
         return makeSignature(name, params);
+    }
+
+    public boolean isVarArgs(Constructor cons)
+    {
+        return false;
+    }
+    
+    public boolean isVarArgs(Method method)
+    {
+        return false;
     }
 
 

@@ -2,13 +2,12 @@ package bluej.views;
 
 import java.lang.reflect.Constructor;
 
-import bluej.Config;
 import bluej.utility.JavaUtils;
 
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 2568 2004-06-02 05:38:07Z davmac $
+ * @version $Id: ConstructorView.java 2582 2004-06-10 04:32:41Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -36,7 +35,7 @@ public final class ConstructorView extends CallableView
     }
 
     /**
-     * @returns a boolean indicating whether this method has parameters
+     * Returns a boolean indicating whether this method has parameters
      */
     public boolean hasParameters() {
         return (cons.getParameterTypes().length > 0);
@@ -81,6 +80,6 @@ public final class ConstructorView extends CallableView
      * Whether this method has a var arg.
      */
     public boolean isVarArgs() {
-        return (Config.isJava15() && cons.isVarArgs());
+        return JavaUtils.getJavaUtils().isVarArgs(cons);
     }
 }

@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  *  
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: JdiReflective.java 2582 2004-06-10 04:32:41Z davmac $
  */
 public class JdiReflective extends Reflective {
 
@@ -72,9 +72,10 @@ public class JdiReflective extends Reflective {
     {
         checkLoaded();
         List rlist = new ArrayList();
-        if( rclass.genericSignature() == null )
+        String gensig = JdiUtils.getJdiUtils().genericSignature(rclass);
+        if( gensig == null )
             return rlist;
-        StringIterator s = new StringIterator(rclass.genericSignature());
+        StringIterator s = new StringIterator(gensig);
         
         char c = s.next();
         if( c != '<' ) {
@@ -133,7 +134,7 @@ public class JdiReflective extends Reflective {
         //    <..type params..>Lbase/class<...>;...interfaces...
         // First, skip over the type params in the supertype:
         
-        StringIterator s = new StringIterator(rclass.genericSignature());        
+        StringIterator s = new StringIterator(JdiUtils.getJdiUtils().genericSignature(rclass));        
         if( s.next() != '<' ) {
             Debug.message("mapGenericParamsToBase: didn't see '<' ??");
             return rlist;
@@ -379,7 +380,7 @@ public class JdiReflective extends Reflective {
                 t = v.type();
         }
         
-        final String gensig = f.genericSignature();
+        final String gensig = JdiUtils.getJdiUtils().genericSignature(f);
         
         if( gensig == null ) {
             if( t instanceof BooleanType )

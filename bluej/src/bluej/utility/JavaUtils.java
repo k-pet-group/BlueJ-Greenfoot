@@ -11,7 +11,7 @@ import bluej.Config;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2568 2004-06-02 05:38:07Z davmac $
+ * @version $Id: JavaUtils.java 2582 2004-06-10 04:32:41Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -25,8 +25,15 @@ public abstract class JavaUtils {
     {
         if( jutils != null )
             return jutils;
-        if( Config.isJava15() )
-            jutils = new JavaUtils15();
+        if( Config.isJava15() ) {
+            try {
+                Class J15Class = Class.forName("bluej.utility.JavaUtils15");
+                jutils = (JavaUtils)J15Class.newInstance();
+            }
+            catch(ClassNotFoundException cnfe) { }
+            catch(IllegalAccessException iae) { }
+            catch(InstantiationException ie) { }
+        }
         else
             jutils = new JavaUtils14();
         return jutils;
@@ -58,4 +65,8 @@ public abstract class JavaUtils {
      * @return The description.
      */
     abstract public String getShortDesc(Method method, String [] paramnames);
+    
+    abstract public boolean isVarArgs(Constructor cons);
+    
+    abstract public boolean isVarArgs(Method method);
 }
