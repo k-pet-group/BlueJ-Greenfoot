@@ -14,20 +14,19 @@ public class JavaToken extends antlr.CommonHiddenStreamToken {
     //==========================================================================
     //==  Class Variables
     //==========================================================================
-    
+
     /** A count of the parameters used to call a method.
      *  -1 means the symbol is not a method invocation
      */
     private int paramCount = -1;
-    
+
     /** A reference to the File that was scanned to create this symbol */
     private File file = null;
-    protected int column = 0;
- 
+
     //==========================================================================
     //==  Methods
     //==========================================================================
-    
+
 
     public void setText(String s)
     {
@@ -35,39 +34,29 @@ public class JavaToken extends antlr.CommonHiddenStreamToken {
         //System.out.println("token " + s + " line " + getLine() + " col " + getColumn());
     }
 
-    public void setColumn(int c) 
-    {
-        column = c;
-    }
-
-    public int getColumn() 
-    {
-        return column;
-    }
-
     /** get the File that contained the text scanned for this token */
-    public File getFile() 
+    public File getFile()
     {
         return file;
-    }       
+    }
 
-    /** 
-     *  get the number of parameters for this token (if it represents a 
-     *  method invocation 
+    /**
+     *  get the number of parameters for this token (if it represents a
+     *  method invocation
      */
-    public int getParamCount() 
+    public int getParamCount()
     {
         return paramCount;
     }
 
     /** Sets the file property of this token */
-    public void setFile(File file) 
+    public void setFile(File file)
     {
         this.file = file;
     }
 
     /** Sets the parameter count property of this token */
-    public void setParamCount(int count) 
+    public void setParamCount(int count)
     {
         paramCount = count;
     }

@@ -1,4 +1,4 @@
-// $ANTLR 2.7.0: "java.g" -> "ClassParser.java"$
+// $ANTLR 2.7.1: "java.g" -> "ClassParser.java"$
 
 package bluej.parser;
 
@@ -170,7 +170,6 @@ public class ClassParser extends antlr.LLkParser
 	public JavaToken findAttachedComment(JavaToken startToken)
 	{
 		CommonHiddenStreamToken ctok = null;
-
 		if (startToken != null) {
 			ctok = filter.getHiddenBefore(startToken);
 
@@ -182,8 +181,13 @@ public class ClassParser extends antlr.LLkParser
 				// says that comments and their method have to
 				// be right next to each other but I could be
 				// wrong
-				if (ctok.getLine() < startToken.getLine()-2)
-					ctok = null;
+				/* disabled by ajp. AS of antlr 2.7.1, getLine()
+				   refers to the start line of the comment, not
+				   the end line so the following logic doesn't work.
+				   I don't think its important enough to bother
+				   reimplementing */
+				/* if (ctok.getLine() < startToken.getLine()-2)
+					ctok = null; */
 			}
 		}
 
