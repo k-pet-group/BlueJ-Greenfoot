@@ -23,7 +23,7 @@ import bluej.views.View;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: RPackageImpl.java 3306 2005-01-28 04:47:22Z davmac $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage
@@ -290,7 +290,6 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
      */
     public static String invokeCallable(PkgMgrFrame pmf, CallableView cv, ObjectWrapper ow, String [] argVals)
     {
-        // TODO change the name of RObjectResultWatcher class, it's now
         // also used by RPackage
         InvocationResultWatcher watcher = new InvocationResultWatcher();
         Invoker invoker;
