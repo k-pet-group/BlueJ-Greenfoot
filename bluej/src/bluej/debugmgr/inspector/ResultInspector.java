@@ -1,40 +1,31 @@
 package bluej.debugmgr.inspector;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Insets;
+import java.awt.*;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.DialogManager;
-import bluej.utility.JavaNames;
-import bluej.utility.MultiLineLabel;
+import bluej.utility.*;
 import bluej.views.Comment;
 import bluej.views.LabelPrintWriter;
+import bluej.views.MethodView;
 
 /**
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2613 2004-06-15 11:28:22Z mik $
+ * @version $Id: ResultInspector.java 2617 2004-06-17 01:07:36Z davmac $
  */
 public class ResultInspector extends Inspector implements InspectorListener {
 
@@ -52,6 +43,7 @@ public class ResultInspector extends Inspector implements InspectorListener {
 	protected String objName; 	// name on the object bench
 
 	private ExpressionInformation expressionInformation;
+    private GenType resultType; // static result type
 
 	/**
 	 * Return an ObjectInspector for an object. The inspector is visible. This
@@ -121,17 +113,57 @@ public class ResultInspector extends Inspector implements InspectorListener {
 
 		this.obj = obj;
 		this.objName = name;
+        
+        calcResultType();
 
 		makeFrame();
 		DialogManager.centreWindow(this, parent);
 	}
+    
+    /**
+     * Determine the expected static type of the result.
+     */
+    private void calcResultType()
+    {
+        GenType instanceType = expressionInformation.getInstanceType();
+        // We know it's a MethodView, as we don't inspect the result of a
+        // constructor!
+        MethodView methodView = (MethodView)expressionInformation.getMethodView();
+        
+        // Find the expected return type
+        Method m = methodView.getMethod();
+        GenType methodReturnType = JavaUtils.getJavaUtils().getReturnType(m);
+        
+        // TODO: infer type of generic parameters based on the actual
+        // arguments passed to the method.
+        // For now, use the base type of the any generic type parameters
+        if( methodReturnType instanceof GenTypeParameterizable) {
+            List tpars = JavaUtils.getJavaUtils().getTypeParams(m);
+            Map tparmap = JavaUtils.TParamsToMap(tpars);
+            methodReturnType = ((GenTypeParameterizable)methodReturnType).mapTparsToTypes(tparmap);
+        
+            // Pull in parameters from declaring type
+            tparmap = obj.getGenType().mapToSuper(m.getDeclaringClass().getName());
+            methodReturnType = ((GenTypeParameterizable)methodReturnType).mapTparsToTypes(tparmap);
+        }
 
-	/**
+        resultType = methodReturnType;
+    }
+    
+    /**
 	 * Returns a single string representing the return value.
 	 */
-	protected Object[] getListData() {		
-		String fieldString =  JavaNames.stripPrefix(obj.getFieldValueTypeString(0))        
-        + " = " + obj.getFieldValueString(0);
+	protected Object[] getListData()
+    {		
+        String fieldString;
+        if( ! resultType.isPrimitive() ) {
+            DebuggerObject resultObject = obj.getFieldObject(0, resultType);
+            fieldString = resultObject.getGenType().toString(true);
+        }
+        else
+            fieldString =  JavaNames.stripPrefix(obj.getFieldValueTypeString(0));        
+        fieldString += " = " + obj.getFieldValueString(0);        
+
 		return new Object[]{fieldString};
 	}
 
@@ -236,7 +268,7 @@ public class ResultInspector extends Inspector implements InspectorListener {
 				newInspectedName = obj.getInstanceFieldName(slot);
 			}
 
-			setCurrentObj(obj.getInstanceFieldObject(slot), newInspectedName);
+			setCurrentObj(obj.getInstanceFieldObject(slot, resultType), newInspectedName);
 
 			if (obj.instanceFieldIsPublic(slot)) {
 				setButtonsEnabled(true, true);

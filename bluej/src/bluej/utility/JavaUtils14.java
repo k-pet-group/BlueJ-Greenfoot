@@ -2,13 +2,17 @@ package bluej.utility;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
+
+import bluej.debugger.gentype.*;
 
 
 /*
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils14.java 2583 2004-06-10 07:27:17Z polle $
+ * @version $Id: JavaUtils14.java 2617 2004-06-17 01:07:36Z davmac $
  */
 public class JavaUtils14 extends JavaUtils {
 
@@ -46,8 +50,43 @@ public class JavaUtils14 extends JavaUtils {
         return false;
     }
 
-    /* Internal methods */
+    public GenType getReturnType(Method method)
+    {
+        Class retType = method.getReturnType();
+        return genTypeFromClass(retType);
+    }
     
+    public List getTypeParams(Method method)
+    {
+        return Collections.EMPTY_LIST;
+    }
+    
+    public List getTypeParams(Class cl)
+    {
+        return Collections.EMPTY_LIST;
+    }
+
+    public GenTypeClass getSuperclass(Class cl)
+    {
+        Class sc = cl.getSuperclass();
+        if( sc == null )
+            return null;
+        return (GenTypeClass)genTypeFromClass(sc);
+    }
+
+    public GenTypeClass [] getInterfaces(Class cl)
+    {
+        Class [] classes = cl.getInterfaces();
+        GenTypeClass [] gentypes = new GenTypeClass[classes.length];
+        
+        for( int i = 0; i < classes.length; i++ )
+            gentypes[i] = (GenTypeClass)genTypeFromClass(classes[i]);
+        
+        return gentypes;
+    }
+
+    /* ------------- Internal methods --------------- */
+
     static public String getTypeName(Class type)
     {
         if(type.isArray())
@@ -116,6 +155,34 @@ public class JavaUtils14 extends JavaUtils {
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    static public GenType genTypeFromClass(Class c)
+    {
+        if( c.isPrimitive()) {
+            if( c == boolean.class )
+                return new GenTypeBool();
+            if( c == char.class )
+                return new GenTypeChar();
+            if( c == byte.class )
+                return new GenTypeByte();
+            if( c == short.class )
+                return new GenTypeShort();
+            if( c == int.class )
+                return new GenTypeInt();
+            if( c == long.class )
+                return new GenTypeLong();
+            if( c == float.class )
+                return new GenTypeFloat();
+            if( c == void.class )
+                return new GenTypeVoid();
+            Debug.message("getReturnType: Unknown primitive type");
+        }
+        if( c.isArray() ) {
+            GenType componentT = genTypeFromClass(c.getComponentType());
+            return new GenTypeArray(componentT, new JavaReflective(c));
+        }
+        return new GenTypeClass(new JavaReflective(c));
     }
 
 }

@@ -9,7 +9,7 @@ import bluej.utility.JavaUtils;
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2599 2004-06-13 07:56:04Z mik $
+ *  @version $Id: MethodView.java 2617 2004-06-17 01:07:36Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -26,6 +26,11 @@ public class MethodView extends CallableView implements Comparable
         this.method = method;
     }
 
+    public Method getMethod()
+    {
+        return method;
+    }
+    
     /**
      * Returns a string describing this Method.
      */

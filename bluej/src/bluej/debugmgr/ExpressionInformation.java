@@ -1,5 +1,6 @@
 package bluej.debugmgr;
 
+import bluej.debugger.gentype.GenType;
 import bluej.views.CallableView;
 import bluej.views.Comment;
 import bluej.views.MethodView;
@@ -11,7 +12,7 @@ import bluej.views.MethodView;
  * information such as the method signature, javadoc, etc...
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ExpressionInformation.java 2548 2004-05-26 07:14:21Z polle $
+ * @version $Id: ExpressionInformation.java 2617 2004-06-17 01:07:36Z davmac $
  */
 public class ExpressionInformation {
 	private Comment comment;
@@ -19,6 +20,10 @@ public class ExpressionInformation {
 	private String expression;
 	private String dynamicType;
 	private CallableView methodView;
+    
+	// if expression is a call of an instance method, this is the type of the instance.
+    private GenType instanceType;
+    
     private static final Comment emptyComment = new Comment();;
 
 	/**
@@ -44,6 +49,22 @@ public class ExpressionInformation {
 
 		expression = invokedOn + "." + methodView.getName();
 	}
+    
+    public ExpressionInformation(MethodView methodView, String instanceName, GenType instanceType) {
+        this.methodView = methodView;
+        comment = methodView.getComment();
+        signature = methodView.getLongDesc();
+
+        String invokedOn = null;
+        if (methodView.isStatic()) {
+            invokedOn = methodView.getClassName();
+        } else {
+            invokedOn = instanceName;
+            this.instanceType = instanceType;
+        }
+
+        expression = invokedOn + "." + methodView.getName();
+    }
 
 	/**
 	 * Generates the expression information from an expression. This just copies
@@ -108,8 +129,25 @@ public class ExpressionInformation {
 		return signature;
 	}
 	
+    /**
+     * Get the type of the object on which the method was called.
+     * 
+     * @return The type of the object, or null.
+     */
+    public GenType getInstanceType()
+    {
+        return instanceType;
+    }
 	
-
+    /**
+     * Get the method view assosciated with this expression.
+     * 
+     * @return the method view.
+     */
+    public CallableView getMethodView()
+    {
+        return methodView;
+    }
 	
 	public String toString() {
 		String newline = System.getProperty("line.separator");

@@ -2,11 +2,14 @@ package bluej.debugger;
 
 import java.util.List;
 
+import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.GenTypeClass;
+
 /**
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 2547 2004-05-26 05:17:29Z davmac $
+ *@version    $Id: DebuggerObject.java 2617 2004-06-17 01:07:36Z davmac $
  */
 public abstract class DebuggerObject
 {
@@ -40,6 +43,13 @@ public abstract class DebuggerObject
      *  @return    The class object.
      */
     public abstract DebuggerClass getClassRef();
+    
+    /**
+     *  Get the complete generic type of this object.
+     * 
+     *  @return    The object type.
+     */
+    public abstract GenTypeClass getGenType();
 
     /**
      *  Is an object of this class assignable to the given fully qualified type?
@@ -109,6 +119,16 @@ public abstract class DebuggerObject
     public abstract DebuggerObject getInstanceFieldObject(int slot);
 
     /**
+     * Return the object, about which some static type information is known,
+     * in object field 'slot'.
+     * 
+     * @param slot          The slot number to be returned
+     * @param expectedType  The static type of the value in the field
+     * @return   The value in the field, as a DebuggerObject.
+     */
+    public abstract DebuggerObject getInstanceFieldObject(int slot, GenType expectedType);
+    
+    /**
      *  Return the object in field 'slot' (counting static and object fields).
      *
      *@param  slot  The slot number to be returned
@@ -116,6 +136,15 @@ public abstract class DebuggerObject
      */
     public abstract DebuggerObject getFieldObject(int slot);
 
+    /**
+     * Return the object, about which some static type information is known,
+     * in the field 'slot' (counting static and instance fields).
+     * 
+     * @param slot          The slot number to be returned
+     * @param expectedType  The static type of the value in the field
+     * @return              The field object value (as a DebuggerObject)
+     */
+    public abstract DebuggerObject getFieldObject(int slot, GenType expectedType);
 
     /**
      *  Return the object in field 'slot' (counting static and object fields).

@@ -1,14 +1,13 @@
 package bluej.debugger.jdi;
 
 import java.util.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenType;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.Reflective;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
@@ -18,12 +17,10 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2589 2004-06-11 02:16:14Z davmac $
+ * @version $Id: JdiObject.java 2617 2004-06-17 01:07:36Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
-    private Map genericParams = null; // Map of parameter names to types
-
     private static final String nullLabel =
 		Config.getString("debugger.null");
     
@@ -43,6 +40,18 @@ public class JdiObject extends DebuggerObject
             return new JdiArray((ArrayReference) obj);
         else
             return new JdiObject(obj);
+    }
+    
+    public static JdiObject getDebuggerObject(ObjectReference obj, GenType expectedType)
+    {
+        if( obj instanceof ArrayReference )
+            return new JdiArray((ArrayReference) obj);
+        else {
+            if( expectedType instanceof GenTypeClass )
+                return new JdiObject(obj, (GenTypeClass)expectedType);
+            else
+                return new JdiObject(obj);
+        }
     }
 
     /**
@@ -64,8 +73,10 @@ public class JdiObject extends DebuggerObject
     // -- instance methods --
 
     ObjectReference obj;  // the remote object represented
+    private Map genericParams = null; // Map of parameter names to types
     List fields;
 
+    // used by JdiArray.
     protected JdiObject()
     {
     }
@@ -82,6 +93,13 @@ public class JdiObject extends DebuggerObject
         getRemoteFields();
     }
 
+    private JdiObject(ObjectReference obj, GenTypeClass expectedType)
+    {
+        this.obj = obj;
+        genericParams = expectedType.mapToDerived(expectedType.getReflective());
+        getRemoteFields();
+    }
+    
     /**
      * Private constructor. Construct from a given object reference using the
      * generic signature of a field and the parent object.
@@ -173,6 +191,12 @@ public class JdiObject extends DebuggerObject
             return null;
         else
             return new JdiClass(obj.referenceType());
+    }
+    
+    public GenTypeClass getGenType()
+    {
+        Reflective r = new JdiReflective(obj.referenceType());
+        return new GenTypeClass(r, genericParams);
     }
 
     /**
@@ -308,6 +332,25 @@ public class JdiObject extends DebuggerObject
         ObjectReference val = (ObjectReference) obj.getValue(field);
         return getDebuggerObject(val, field, this);
     }
+    
+    /**
+     * Return the object, about which some static type information is known,
+     * in object field 'slot'.
+     * 
+     * @param slot          The slot number to be returned
+     * @param expectedType  The static type of the value in the field
+     * @return   The value in the field, as a DebuggerObject.
+     */
+    public DebuggerObject getInstanceFieldObject(int slot, GenType expectedType)
+    {
+        Field field = getField(false, slot);
+        ObjectReference val = (ObjectReference) obj.getValue(field);
+        if( expectedType instanceof GenTypeClass )
+            return new JdiObject(val, (GenTypeClass)expectedType);
+        else
+            return new JdiObject(val, field, this);
+    }
+
 
     /**
      *  Return the object in field 'slot'. Slot must exist and
@@ -321,6 +364,24 @@ public class JdiObject extends DebuggerObject
         Field field = (Field) fields.get(slot);
         ObjectReference val = (ObjectReference) obj.getValue(field);
         return getDebuggerObject(val, field, this);
+    }
+    
+    /**
+     * Return the object, about which some static type information is known,
+     * in the field 'slot'.
+     * 
+     * @param slot          The slot number to be returned
+     * @param expectedType  The static type of the value in the field
+     * @return              The field object value (as a DebuggerObject)
+     */
+    public DebuggerObject getFieldObject(int slot, GenType expectedType)
+    {
+        Field field = (Field) fields.get(slot);
+        ObjectReference val = (ObjectReference) obj.getValue(field);
+        if( expectedType instanceof GenTypeClass )
+            return new JdiObject(val, (GenTypeClass)expectedType);
+        else
+            return new JdiObject(val, field, this);
     }
 
     public DebuggerObject getFieldObject(String name)

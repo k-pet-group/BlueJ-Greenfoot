@@ -2,8 +2,12 @@ package bluej.utility;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.*;
 
 import bluej.Config;
+import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeDeclTpar;
 
 /*
  * Utilities for dealing with reflection, which must behave differently for
@@ -11,7 +15,7 @@ import bluej.Config;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2583 2004-06-10 07:27:17Z polle $
+ * @version $Id: JavaUtils.java 2617 2004-06-17 01:07:36Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -60,6 +64,7 @@ public abstract class JavaUtils {
     /**
      * Get a "short description" of a method. This is like the signature,
      * but substitutes the parameter names for their types.
+     * 
      * @param method   The method to get the description of
      * @param paramnames  The parameter names of the method
      * @return The description.
@@ -71,4 +76,43 @@ public abstract class JavaUtils {
     abstract public boolean isVarArgs(Method method);    
    
     abstract public boolean isEnum(Class cl);
+    
+    abstract public GenType getReturnType(Method method);
+    
+    /**
+     * Get a list of the type parameters for a generic method.
+     * (return an empty list if the method is not generic).
+     * 
+     * @param method   The method fro which to find the type parameters
+     * @return  A list of GenTypeDeclTpar
+     */
+    abstract public List getTypeParams(Method method);
+    
+    abstract public List getTypeParams(Class cl);
+    
+    abstract public GenTypeClass getSuperclass(Class cl);
+    
+    /**
+     * Get a list of the interfaces directly implemented by the given class.
+     * @param cl  The class for which to find the interfaces
+     * @return    An array of interfaces
+     */
+    abstract public GenTypeClass [] getInterfaces(Class cl);
+    
+    /**
+     * Change a list of type parameters (with bounds) into a map, which maps
+     * the name of the parameter to its bounding type.
+     * 
+     * @param tparams   A list of GenTypeDeclTpar
+     * @return          A map (String -> GenTypeSolid)
+     */
+    public static Map TParamsToMap(List tparams)
+    {
+        Map rmap = new HashMap();
+        for( Iterator i = tparams.iterator(); i.hasNext(); ) {
+            GenTypeDeclTpar n = (GenTypeDeclTpar)i.next();
+            rmap.put(n.getTparName(), n.getBound());
+        }
+        return rmap;
+    }
 }

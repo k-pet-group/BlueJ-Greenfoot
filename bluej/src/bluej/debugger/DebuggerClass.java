@@ -6,7 +6,7 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerClass.java 1527 2002-11-28 15:36:18Z mik $
+ *@version    $Id: DebuggerClass.java 2617 2004-06-17 01:07:36Z davmac $
  */
 public abstract class DebuggerClass
 {
@@ -44,7 +44,7 @@ public abstract class DebuggerClass
      *  Return a list of strings with the description of each static field
      *  in the format "<modifier> <type> <name> = <value>".
      *
-     *@param  includeModifiers  Description of Parameter
+     *@param  includeModifiers  Whether to include modifiers (private,etc.)
      *@return                   The StaticFields value
      */
     public abstract List getStaticFields(boolean includeModifiers);
