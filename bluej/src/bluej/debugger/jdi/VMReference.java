@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2814 2004-07-23 04:22:20Z bquig $
+ * @version $Id: VMReference.java 2816 2004-07-26 00:10:16Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -311,7 +311,7 @@ class VMReference
 
         setupServerConnection(machine);
 
-        EventRequestManager erm = machine.eventRequestManager();
+        //EventRequestManager erm = machine.eventRequestManager();
         //StepRequest sr = erm.createStepRequest(serverThread,
         // StepRequest.STEP_LINE, StepRequest.STEP_INTO);
         //sr.putProperty("s","s");
@@ -329,8 +329,6 @@ class VMReference
      */
     public synchronized void close()
     {
-        // can cause deadlock - why bother
-        // lets just nuke it
         //machine.dispose();
         if (remoteVMprocess != null) {
             remoteVMprocess.destroy();
@@ -343,6 +341,11 @@ class VMReference
      */
     public void closeIO()
     {
+        try {
+            remoteVMprocess.getOutputStream().close();
+        }
+        catch(IOException ioe) { }
+        
         // close our IO redirectors
         if (inputStreamRedirector != null) {
             inputStreamRedirector.close();
@@ -723,7 +726,16 @@ class VMReference
      */
     public void threadDeathEvent(ThreadDeathEvent tde)
     {
-        owner.threadDeath(tde.thread());
+        ThreadReference tr = tde.thread();
+        owner.threadDeath(tr);
+        
+        // There appears to be a VM bug related to system.exit() being called
+        // in an invocation thread. The event is only seen as a thread death.
+        // Only affects some platforms/vm versions some of the time.
+        if(tr == serverThread || tr == workerThread) {
+            closeIO();
+            machine.dispose();
+        }
     }
 
     /**
@@ -1346,15 +1358,19 @@ class VMReference
                     String line;
                     while (keepRunning && (line = in.readLine()) != null) {
                         line += '\n';
-                        writer.write(line.toCharArray(), 0, line.length());
-                        writer.flush();
+                        if(keepRunning) {
+                            writer.write(line.toCharArray(), 0, line.length());
+                            writer.flush();
+                        }
                     }
                 }
                 else {
                     int ch;
                     while (keepRunning && (ch = reader.read()) != -1) {
-                        writer.write(ch);
-                        writer.flush();
+                        if(keepRunning) {
+                            writer.write(ch);
+                            writer.flush();
+                        }
                     }
                 }
             }

@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2790 2004-07-13 06:39:17Z davmac $
+ * @version $Id: JdiReflective.java 2816 2004-07-26 00:10:16Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -632,9 +632,6 @@ public class JdiReflective extends Reflective
             this.s = s;
             if (s == null)
                 Debug.message("StringIterator with null string??");
-            // DAV !
-            if (s == null)
-                throw new NullPointerException();
         }
 
         public char current()
