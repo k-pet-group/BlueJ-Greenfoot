@@ -1,0 +1,20 @@
+#BlueJ package file
+package.editor.height=408
+package.editor.width=556
+package.editor.x=203
+package.editor.y=192
+package.numDependencies=0
+package.numTargets=1
+package.showExtends=true
+package.showUses=true
+target1.editor.height=513
+target1.editor.width=622
+target1.editor.x=0
+target1.editor.y=0
+target1.height=50
+target1.name=blek
+target1.showInterface=false
+target1.type=ClassTarget
+target1.width=80
+target1.x=60
+target1.y=10
