@@ -10,7 +10,7 @@ public interface Selectable {
     public void setSelected(boolean selected);
     public boolean isSelected();
     
-    //resizeing
+    //resizing
     public boolean isHandle(int x, int y);
     public boolean isResizing();
     public void setResizing(boolean resizeing);

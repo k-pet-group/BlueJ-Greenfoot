@@ -5,10 +5,8 @@
 package bluej.graph;
 
 import java.awt.*;
-import java.awt.Graphics2D;
 import java.util.Iterator;
 
-import bluej.Config;
 
 /**
  * @author fisker
@@ -16,15 +14,11 @@ import bluej.Config;
  */
 public class Marquee
 {
-    static final Color graphbg = Config.getItemColour("colour.graph.background");
-    static final float alpha = (float)0.2;
     private Graph graph;
     private GraphEditor graphEditor;
     private int drag_start_x, drag_start_y;
     private Rectangle oldRect;
     private GraphElementManager graphElementManger;
-    private AlphaComposite alphaComposite;
-    private Composite oldComposite;
     
     /**
      * Create a Marquee
@@ -35,8 +29,6 @@ public class Marquee
         this.graph = graph;
         this.graphEditor = graphEditor;
         this.graphElementManger = new GraphElementManager(graphEditor);
-        this.alphaComposite = 
-                AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
     }
     
     /**
@@ -107,19 +99,6 @@ public class Marquee
         return graphElementManger;
     }
     
-    public void draw(Graphics g){
-        Graphics2D g2D = (Graphics2D) g.create();
-        oldComposite = g2D.getComposite();
-                
-        if(oldRect != null){
-            g2D.setColor(Color.black);
-            g2D.draw(oldRect);
-            g2D.setComposite(alphaComposite);
-            g2D.setColor(Color.gray);
-            g2D.fill(oldRect);
-            g2D.setComposite(oldComposite);     
-        }
-    }
     
     /**
      * Get the GraphElementManger
@@ -128,5 +107,9 @@ public class Marquee
     public GraphElementManager getGraphElementManger()
     {
         return graphElementManger;
+    }
+    
+    public Rectangle getRectangle(){
+        return oldRect;
     }
 }

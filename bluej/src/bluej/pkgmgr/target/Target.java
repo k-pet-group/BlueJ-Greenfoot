@@ -19,7 +19,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2381 2003-11-24 02:26:45Z ajp $
+ * @version $Id: Target.java 2465 2004-01-29 13:33:46Z fisker $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -55,7 +55,10 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     protected boolean resizing;
     protected boolean disabled;
     protected static int drag_start_x; 
-    protected static int drag_start_y; 
+    protected static int drag_start_y;
+    private int ghost_x;
+    private int ghost_y;
+    private boolean isMoving;
 
     protected int state = S_INVALID;
 
@@ -66,6 +69,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     // a target in dependence of its name and the font used to display it
     static FontRenderContext FRC= new FontRenderContext(new AffineTransform(),
                                                         false, false);
+    
 
     /**
      * Create a new target with default size.
@@ -213,7 +217,10 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         this.resizing = resizing;
     }
 
-    
+    /** returns whether */
+    public boolean isMoving(){
+        return isMoveable() && isMoving;
+    }
     
     public boolean isQueued() {
         return queued;
@@ -278,7 +285,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
 
     public void endMove()
     {
-
+        isMoving = false;
     }
 
     abstract Color getBackgroundColour();
@@ -289,49 +296,8 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     public void repaint()
     {
         if (pkg.getEditor() != null) {
-            //pkg.getEditor().repaint();
-            // the following would be preferred, but causes a clipping bug on MacOS
-            pkg.getEditor().repaint(getX(), getY(), getWidth() + SHAD_SIZE, getHeight() + SHAD_SIZE);
+            pkg.getEditor().repaint();
         }
-    }
-
-    /**
-     *  Draw this target, including its box, border, shadow and text.
-     */
-    public void draw(Graphics2D g)
-    {
-        g.setColor(getBackgroundColour());
-        g.fillRect(0, 0, getWidth(), getHeight());
-
-        g.setColor(shadowCol);
-        drawShadow(g);
-
-        g.setColor(getBorderColour());
-        drawBorders(g);
-    }
-
-    /**
-     * Draw a 'shadow' appearance under and to the right of the target.
-     */
-    protected void drawShadow(Graphics2D g)
-    {
-        g.fillRect(SHAD_SIZE, getHeight(), getWidth(), SHAD_SIZE);
-        g.fillRect(getWidth(), SHAD_SIZE, SHAD_SIZE, getHeight());
-    }
-
-    /**
-     * Draw the borders of this target.
-     */
-    protected void drawBorders(Graphics2D g)
-    {
-        int thickness = isSelected() ? 4 : 1;
-        Utility.drawThickRect(g, 0, 0, getWidth(), getHeight(), thickness);
-
-        // Draw lines showing resize tag
-        g.drawLine(getWidth() - HANDLE_SIZE - 2, getHeight(),
-                   getWidth(), getHeight() - HANDLE_SIZE - 2);
-        g.drawLine(getWidth() - HANDLE_SIZE + 2, getHeight(),
-                   getWidth(), getHeight() - HANDLE_SIZE + 2);
     }
 
     /* Mouse interaction handling */
@@ -351,8 +317,9 @@ public abstract class Target extends Vertex implements Comparable, Selectable
 
     public void mouseReleased(MouseEvent evt, GraphEditor editor)
     {
-        Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
-
+        Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), 
+                						  getHeight());
+        //are we adding a dependency arrow
         if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
             (pkg.getState() == Package.S_CHOOSE_EXT_TO)) {
             // What target is this pointing at now?
@@ -369,67 +336,64 @@ public abstract class Target extends Vertex implements Comparable, Selectable
                 pkg.setState(Package.S_IDLE);
             }
         }
-
+        
+        if (isMoving()) {
+            setPos( (ghost_x >= 0 ? ghost_x : 0), (ghost_y >= 0 ? ghost_y : 0));
+            endMove();
+        }
+        
         if(!newRect.equals(oldRect)) {
             editor.revalidate();
             editor.repaint();
         }
-
-        if (!resizing)
-            endMove();
     }
 
     /**
-     * The mouse is dragged while being clicked in this target. Move or
+     * The mouse is dragged and the initial click was on this target. Move or
      * resize the target.
      */
     public void mouseDragged(MouseEvent evt, GraphEditor editor)
     {
-        int x = evt.getX();
-        int y = evt.getY();
-        Graphics2D g = (Graphics2D) editor.getGraphics();
-
-        // this shouldn't happen (oldRect shouldn't be null if we have got
-        // here but on Windows it has happened to me (ajp))
-
-        if (oldRect == null)
-            return;
-
-        int orig_x = (resizing ? oldRect.width : oldRect.x);
-        int orig_y = (resizing ? oldRect.height : oldRect.y);
-        int current_x = (resizing ? getWidth() : this.getX());
-        int current_y = (resizing ? getHeight() : this.getY());
-
-        int x_steps = (orig_x + x - drag_start_x) / GRID_SIZE;
-        int new_x = x_steps * GRID_SIZE;
-
-        int y_steps = (orig_y + y - drag_start_y) / GRID_SIZE;
-        int new_y = y_steps * GRID_SIZE;
-
-        if(new_x != current_x || new_y != current_y) {
-
-            if (!isResizable() && resizing)
-                return;
-            if (!isMoveable() && !resizing)
-                return;
-
-            g.setColor(getBorderColour());
-            g.setXORMode(graphbg);
-            g.translate(this.getX(),this.getY());
-            drawBorders(g);		// remove current border
-            g.translate(-this.getX(),-this.getY());
-            if (resizing) {
-                setSize( Math.max(new_x, MIN_WIDTH),Math.max(new_y, MIN_HEIGHT));
-            }
-            else {
-                setPos( (new_x >= 0 ? new_x : 0), (new_y >= 0 ? new_y : 0)); 
-            }
-            g.translate(this.getX(),this.getY());
-            drawBorders(g);		// draw new border
-            g.translate(-this.getX(),-this.getY());
+        int current_x = evt.getX();
+        int current_y = evt.getY();
+        
+        int deltaX = current_x - drag_start_x;
+        int deltaY = current_y - drag_start_y;
+        
+        isMoving = !isResizing(); // if this class is clicked and dragged
+        						  // and isn't resizing, it must be moving.
+        
+        if (isMoving()) {
+	        int orig_x = (int) oldRect.getX();
+	        int orig_y = (int) oldRect.getY();
+	        
+	        int x_steps = (orig_x + deltaX) / GRID_SIZE;
+	        int new_x = x_steps * GRID_SIZE;//new x-coor w/ respect to grid
+	        
+	        int y_steps = (orig_y + deltaY) / GRID_SIZE;
+	        int new_y = y_steps * GRID_SIZE;//new y-coor w/ respect to grid
+	        
+	        ghost_x = (new_x >= 0 ? new_x : 0);
+	        ghost_y = (new_y >= 0 ? new_y : 0);
         }
+        else if(isResizable()) {// Then we're resizing
+	        int origWidth = (int) oldRect.getWidth();
+	        int origHeight = (int) oldRect.getHeight();
+	
+	        int x_steps = (origWidth + deltaX) / GRID_SIZE;
+	        int new_width = x_steps * GRID_SIZE;// new width w/ respect to grid
+	
+	        int y_steps = (origHeight + deltaY) / GRID_SIZE;
+	        int new_height = y_steps * GRID_SIZE;//new height w/ respect to grid
+        
+	        setSize( Math.max(new_width, MIN_WIDTH), 
+	                 Math.max(new_height, MIN_HEIGHT));
+	        
+        }
+        repaint();
     }
 
+    
     /**
      * We have a notion of equality that relates solely to the
      * identifierName. If the identifierNames's are equal then
@@ -449,33 +413,53 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         return identifierName.hashCode();
         }
 
-/**
-*
-*
-*
-*/
-public int compareTo(Object o)
-{
-   if (equals(o))
-       return 0;
-
-   Target t = (Target) o;
-
-   if (this.getY() < t.getY())
-       return -1;
-   else if (this.getY() > t.getY())
-       return 1;
-
-   if (this.getX() < t.getX())
-       return -1;
-   else if (this.getX() > t.getX())
-       return 1;
-
-   return this.identifierName.compareTo(t.getIdentifierName()); 
-    }
-
+	public int compareTo(Object o)
+	{
+	   if (equals(o))
+	       return 0;
+	
+	   Target t = (Target) o;
+	
+	   if (this.getY() < t.getY())
+	       return -1;
+	   else if (this.getY() > t.getY())
+	       return 1;
+	
+	   if (this.getX() < t.getX())
+	       return -1;
+	   else if (this.getX() > t.getX())
+	       return 1;
+	
+	   return this.identifierName.compareTo(t.getIdentifierName()); 
+	    }
+	
     public String toString()
     {
         return getDisplayName();
     }
+	    
+    /**
+     * @return Returns the ghost_x.
+     */
+    public int getGhostX() {
+        return ghost_x;
+    }
+    
+    /**
+     * @return Returns the ghost_x.
+     */
+    public int getGhostY() {
+        return ghost_y;
+    }
+    
+    /**
+     * Compares the position of the ghost of this class and the position of
+     * the class itself. If the ghost is positioned on top of it's class, false
+     * is returned, true otherwise.
+     * @return
+     */
+    public boolean hasMoved(){
+        return getX() != getGhostX() || getY() != getGhostY();
+    }
+	    
 }

@@ -9,7 +9,7 @@ import java.awt.geom.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 2291 2003-11-06 09:39:02Z fisker $
+ * @version $Id: Graph.java 2465 2004-01-29 13:33:46Z fisker $
  */
 public abstract class Graph
 {
@@ -22,19 +22,6 @@ public abstract class Graph
 
     public abstract Iterator getVertices();
     public abstract Iterator getEdges();
-
-    public void draw(Graphics g)
-    {
-        for(Iterator it = getEdges(); it.hasNext(); ) {
-            Edge edge = (Edge)it.next();
-            edge.draw((Graphics2D) g.create());
-        }
-
-        for(Iterator it = getVertices(); it.hasNext(); ) {
-            Vertex vertex = (Vertex)it.next();
-            vertex.drawUntranslated((Graphics2D) g.create());
-        }
-    }
 
     
     public void setActiveGraphElement(GraphElement ge)

@@ -15,7 +15,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 2216 2003-10-15 11:53:31Z fisker $
+ * @version	$Id: DependentTarget.java 2465 2004-01-29 13:33:46Z fisker $
  */
 public abstract class DependentTarget extends Target
 {
@@ -327,9 +327,9 @@ public abstract class DependentTarget extends Target
 
     public void mouseReleased(MouseEvent evt, GraphEditor editor)
     {
-        Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
-
         super.mouseReleased(evt, editor);
+        Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), 
+                						  getHeight());
 
         if(!newRect.equals(oldRect)) {
             // Recalculate arrows

@@ -11,7 +11,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: UsesDependency.java 2198 2003-10-02 04:13:48Z ajp $
+ * @version $Id: UsesDependency.java 2465 2004-01-29 13:33:46Z fisker $
  */
 public class UsesDependency extends Dependency
 {
@@ -221,7 +221,6 @@ public class UsesDependency extends Dependency
     }
     
     public void remove(){
-        //TODO implement remove
         pkg.removeArrow(this);
     }
 }

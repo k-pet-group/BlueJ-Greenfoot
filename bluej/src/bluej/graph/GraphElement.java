@@ -1,6 +1,5 @@
 package bluej.graph;
 
-import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 
 /**
@@ -22,7 +21,6 @@ public abstract class GraphElement {
         return false;
     }
     
-    public abstract void draw(Graphics2D g);
 
     public void mousePressed(MouseEvent evt, GraphEditor editor) {}
     public void mouseReleased(MouseEvent evt, GraphEditor editor) {}

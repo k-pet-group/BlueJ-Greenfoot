@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2397 2003-11-28 08:37:31Z mik $
+ * @version $Id: GraphEditor.java 2465 2004-01-29 13:33:46Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -29,7 +29,8 @@ public class GraphEditor extends JComponent
     // Contains the elements that have been selected
     private GraphElementManager graphElementManager;
     private int lastClickX, lastClickY; //coordinates for the last left clicked position
-    
+    private GraphPainter graphPainter = new GraphPainter();
+    private MarqueePainter marqueePainter = new MarqueePainter();
     
     public GraphEditor(Graph graph)
     {
@@ -52,14 +53,19 @@ public class GraphEditor extends JComponent
 
     public void paint(Graphics g)
     {
-        if(!(g instanceof PrintGraphics)) {
+        Graphics2D g2D = (Graphics2D) g;
+        //draw background
+        if(!(g2D instanceof PrintGraphics)) {
             Dimension d = getSize();
-            g.setColor(background);
-            g.fillRect(0, 0, d.width, d.height);
+            g2D.setColor(background);
+            g2D.fillRect(0, 0, d.width, d.height);
         }
 
-        graph.draw(g);
-        marquee.draw(g);
+        graphPainter.paint(g2D, graph);
+        //graph.draw(g2D);     
+        marqueePainter.paint(g2D, marquee);
+
+        //marquee.draw(g2D);
     }
 
 
@@ -188,7 +194,6 @@ public class GraphEditor extends JComponent
                 graphElementManager.clear();
                 graphElementManager.add(activeGraphElement);
             }
-            
         }
     }
     
@@ -231,18 +236,19 @@ public class GraphEditor extends JComponent
             
         }
         
-      
-        // Signal the graphElement that it was pressed
-        if((activeGraphElement != null) && !evt.isPopupTrigger() &&
-            ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-                graphElementManager.mousePressed(evt);
-        }
         //if the graphElement is selectable and it got clicked on a handle,
         //then it is resizing.
         if(activeGraphElement instanceof Selectable) {
             Selectable selectable = (Selectable) activeGraphElement;
             selectable.setResizing(selectable.isHandle(lastClickX, lastClickY));
         }
+        
+        // Signal the graphElement that it was pressed
+        if((activeGraphElement != null) && !evt.isPopupTrigger() &&
+            ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
+                graphElementManager.mousePressed(evt);
+        }
+
     }
     
 

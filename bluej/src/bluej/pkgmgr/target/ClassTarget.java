@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2433 2003-12-09 12:18:54Z mik $
+ * @version $Id: ClassTarget.java 2465 2004-01-29 13:33:46Z fisker $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -142,6 +142,10 @@ public class ClassTarget extends EditableTarget
         return getIdentifierName();
     }
 
+    public SourceInfo getSourceInfo(){
+        return sourceInfo;
+    }
+    
     /**
      * Change the state of this target. The target will be repainted to show
      * the new state.
@@ -1036,86 +1040,7 @@ public class ClassTarget extends EditableTarget
         }
     }
 
-    /**
-     *  Draw this target, redefined from Target.
-     */
-    public void draw(Graphics2D g)
-    {
-        super.draw(g);
-
-        drawUMLStyle(g);
-
-        g.setColor(getBorderColour());
-        drawBorders(g);
-
-        if(!hasSourceCode()) {
-            g.setColor(getTextColour());
-            g.setFont(getFont().deriveFont((float)(getFont().getSize() - 2)));
-            Utility.drawCentredText(g, "(no source)", TEXT_BORDER, getHeight() - 18,
-                                getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
-        }
-        else if(!sourceInfo.isValid()) {
-            g.drawImage(brokenImage, TEXT_BORDER, getHeight() - 22, null);
-        }
-        
-        // delegate extra functionality to role object
-        getRole().draw(g, this, getX(), getY(), getWidth(), getHeight());
-    }
-
-    /**
-     * Draws UML specific parts of the representation of this ClassTarget.
-     */
-    private void drawUMLStyle(Graphics2D g)
-    {
-        // call to getStereotype
-        String stereotype = getRole().getStereotypeLabel();
-
-        if(state != S_NORMAL) {
-            g.setColor(stripeCol);
-            int divider = (stereotype == null) ? 18 : 32;
-            Utility.stripeRect(g, 0, divider, getWidth(), getHeight() - divider, 8, 3);
-        }
-
-        g.setColor(getTextColour());
-
-        int currentY = 2;
-        Font original = getFont();
-
-        // draw stereotype if applicable
-        if(stereotype != null) {
-            String stereotypeLabel = STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE;
-            Font stereotypeFont = original.deriveFont((float)(original.getSize() - 2));
-            g.setFont(stereotypeFont);
-            Utility.drawCentredText(g, stereotypeLabel, TEXT_BORDER, currentY,
-                                    getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
-            currentY += TEXT_HEIGHT - 2;
-        }
-        g.setFont(original);
-
-        Utility.drawCentredText(g, getIdentifierName(), TEXT_BORDER, currentY,
-                                getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
-        currentY += TEXT_HEIGHT;
-        g.drawLine(0, currentY, getWidth(), currentY);
-    }
-
-    /**
-     * Redefinition of the method found in Target.
-     * It draws a border around the ClassTarget
-     */
-    protected void drawBorders(Graphics2D g)
-    {
-        int thickness = (isSelected()) ? 4 : 1;
-        Utility.drawThickRect(g, 0, 0, getWidth(), getHeight(), thickness);
-
-        if(!isSelected())
-            return;
-        // Draw lines showing resize tag
-        g.drawLine(getWidth() - HANDLE_SIZE - 2, getHeight(),
-                getWidth(), getHeight() - HANDLE_SIZE - 2);
-        g.drawLine(getWidth() - HANDLE_SIZE + 2, getHeight(),
-                getWidth(), getHeight() - HANDLE_SIZE + 2);
-    }
-
+   
     int anchor_x = 0, anchor_y = 0;
     int last_x = 0, last_y = 0;
 
@@ -1138,10 +1063,13 @@ public class ClassTarget extends EditableTarget
 
     public void endMove()
     {
+        super.endMove();
     	Target t = getAssociation();
     	
-        if (t != null)
-            t.setPos(getX() + 30, getY() - 35);
+        if (t != null) {
+            //TODO magic numbers. Should also take grid size in to account.
+            t.setPos(getX() + 30, getY() - 30);
+        }
     }
 
     public void mouseDragged(MouseEvent evt, GraphEditor editor)
@@ -1159,8 +1087,9 @@ public class ClassTarget extends EditableTarget
             last_x = x;
             last_y = y;
         }
-        else
+        else{
             super.mouseDragged(evt, editor);
+        }
     }
 
     public void mouseMoved(MouseEvent evt, GraphEditor editor)

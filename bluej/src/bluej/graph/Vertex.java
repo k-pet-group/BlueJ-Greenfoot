@@ -2,12 +2,13 @@ package bluej.graph;
 
 import java.awt.*;
 
+
 /**
  * General graph vertices
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Vertex.java 2044 2003-06-23 11:52:54Z fisker $
+ * @version $Id: Vertex.java 2465 2004-01-29 13:33:46Z fisker $
  */
 public abstract class Vertex extends GraphElement
 {
@@ -58,19 +59,6 @@ public abstract class Vertex extends GraphElement
     public int getHeight()
     {
         return this.height;
-    }
-
-    /*package*/ void drawUntranslated(Graphics g)
-    {
-        /* the shadows of the targets is rendered outside their actual
-           bounding box. Most of the rendering code is not designed with
-           clipping regions in mind and hence unless we artificially
-           extend our clipping region, we chop of the shadows.. no big
-           deal but if we ever redesign the drawing code we should look at
-           it again */
-        Graphics2D newg = (Graphics2D) g.create(x,y,width+16,height+16);
-
-        draw(newg);
     }
     
     /**
