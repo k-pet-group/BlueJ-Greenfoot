@@ -47,7 +47,7 @@
             deprecation = "yes"
             debug = "yes">
             <classpath>
-                <pathelement location="${bluej_home}/lib/bluejext.jar"/>
+                <pathelement location="${bluej_home}/lib/ext/bluejext.jar"/>
             </classpath>
         </javac>
         <copy file="${src}/org/bluej/extensions/submitter/World.gif" tofile="${build}/org/bluej/extensions/submitter/World.gif"/>
