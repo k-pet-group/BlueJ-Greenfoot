@@ -5,7 +5,7 @@ import bluej.utility.Utility;
 import java.util.*;
 
 /**
-** @version $Id: Comment.java 583 2000-06-26 01:51:17Z mik $
+** @version $Id: Comment.java 1083 2002-01-11 16:54:51Z mik $
 ** @author Michael Cahill
 **
 ** Comment class - the source information associated with a class or field
@@ -104,4 +104,9 @@ public final class Comment
             } 
         } 
     } 
+    
+    public String toString()   // simply for testing
+    {
+        return text;
+    }
 }

@@ -17,7 +17,7 @@ import java.util.*;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 1061 2001-12-21 01:34:24Z ajp $
+ * @version $Id: View.java 1083 2002-01-11 16:54:51Z mik $
  */
 public class View
 {
@@ -123,30 +123,29 @@ public class View
     }
 
     /**
-    ** Walk superclasses + interfaces for methods.
-    ** All methods are inherited (+ overridden) from everywhere.
-    **/
+     * Return views of all methods of this class (including inherited ones).
+     * Walk superclasses + interfaces for methods. Method definitions higher
+     * up in the inheritance hierarchy are first in the array, with the latest 
+     * redefinition last.
+     */
     public MethodView[] getAllMethods()
     {
-        if(allMethods == null)
-            {
-                Hashtable hashtable = new Hashtable();
-                getAllMethods(hashtable, 0);
-                SortableVector v = new SortableVector();
-                for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
-                    v.addElement(e.nextElement());
-                v.sort(new ElementComparer());
+        if(allMethods == null) {
+            Hashtable hashtable = new Hashtable();
+            getAllMethods(hashtable, 0);
+            SortableVector v = new SortableVector();
+            for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
+                v.addElement(e.nextElement());
+            v.sort(new ElementComparer());
 
-                int numMethods = v.size();
-                allMethods = new MethodView[numMethods];
-                for(int i = 0; i < numMethods; i++)
-                    {
-                        MemberElement elem = (MemberElement)v.elementAt(i);
-                        allMethods[i] = (MethodView)elem.member;
-                        // if(allMethods[i] == null)
-                        //Debug.message("Warning: getAllMethods - entry == null");
-                    }
+            int numMethods = v.size();
+            allMethods = new MethodView[numMethods];
+            for(int i = 0; i < numMethods; i++) {
+                MemberElement elem = (MemberElement)v.elementAt(i);
+                allMethods[i] = (MethodView)elem.member;
+                //Debug.message(":: adding : " + allMethods[i].toString());
             }
+        }
 
         return allMethods;
     }
@@ -234,12 +233,11 @@ public class View
 
     protected int getAllFields(Hashtable h, int fieldnum)
     {
-        if(allFields != null)
-            {
-                // carefully copy from allFields into h
-                fieldnum = addMembers(h, allFields, fieldnum);
-                return fieldnum;
-            }
+        if(allFields != null) {
+            // carefully copy from allFields into h
+            fieldnum = addMembers(h, allFields, fieldnum);
+            return fieldnum;
+        }
 
         // otherwise, do the real work
         // carefully copy local fields into v
@@ -354,66 +352,65 @@ public class View
         addMembers(table, getConstructors());
         addMembers(table, getAllMethods());
 
-        // curview records the view we are looking for comments in as we
-        // traverse up through the class and its superclasses
-        View curview = this;
+        loadClassComments(this, table);
+    }
 
-        while(curview != null) {
+    protected void loadClassComments(View curview, Hashtable table)
+    {
+        // move up to the superclass first, so that redefinied comments override
+        if(curview.getSuper() != null)
+            loadClassComments(curview.getSuper(), table);
 
-            CommentList comments = null;
-            String filename = curview.getQualifiedName().replace('.', '/') + ".ctxt";
+        CommentList comments = null;
+        String filename = curview.getQualifiedName().replace('.', '/') + ".ctxt";
 
-            try {
-                InputStream in = null;
+        try {
+            InputStream in = null;
 
-                if (curview.cl.getClassLoader() == null) {
-                    in = ClassLoader.getSystemResourceAsStream(filename);
+            if (curview.cl.getClassLoader() == null) {
+                in = ClassLoader.getSystemResourceAsStream(filename);
+            }
+            else {
+                in = curview.cl.getClassLoader().getResourceAsStream(filename);
+            }
+
+            if(in != null) {
+                comments = new CommentList();
+                comments.load(in);
+                in.close();
+            }
+            //else
+            //    Debug.message("Failed to load .ctxt file " + filename);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        if(comments != null) {
+            // match up the comments read from the file with the members of this view
+            for(Enumeration e = comments.getComments(); e.hasMoreElements(); ) {
+                Comment c = (Comment)e.nextElement();
+                
+                if(c.getTarget().startsWith("class ") ||
+                   c.getTarget().startsWith("interface ")) {
+                    // we only want to set a class comment on our base class, not for
+                    // our supers
+                    if (curview == this)
+                        setComment(c);
+                    continue;
+                }
+
+                MemberView m = (MemberView)table.get(c.getTarget());
+
+                if(m == null) {
+                    //Debug.message("No member found for " + c.getTarget() + " in file " + filename);
+                    continue;
                 }
                 else {
-                    in = curview.cl.getClassLoader().getResourceAsStream(filename);
-                }
-
-                if(in != null) {
-                    comments = new CommentList();
-                    comments.load(in);
-                    in.close();
-                }
-                //else
-                //    Debug.message("Failed to load .ctxt file " + filename);
-
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-
-            if(comments != null) {
-                // match up the comments read from the file with the members of this view
-                for(Enumeration e = comments.getComments(); e.hasMoreElements(); ) {
-                    Comment c = (Comment)e.nextElement();
-
-                    if(c.getTarget().startsWith("class ") ||
-                       c.getTarget().startsWith("interface ")) {
-                        // we only want to set a class comment on our base class, not for our
-                        // supers
-                        if (curview == this)
-                            setComment(c);
-                        continue;
-                    }
-
-                    MemberView m = (MemberView)table.get(c.getTarget());
-
-                    if(m == null) {
-                        //Debug.message("No member found for " + c.getTarget() + " in file " + filename);
-                        continue;
-                    }
-                    else {
-                        //Debug.message("Found member for " + c.getTarget() + " in file " + filename);
-                        m.setComment(c);
-                    }
+                    //Debug.message("Found member for " + c.getTarget() + " in file " + filename);
+                    m.setComment(c);
                 }
             }
-
-            // move up to the superclass
-            curview = curview.getSuper();
         }
     }
 

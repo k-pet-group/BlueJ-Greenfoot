@@ -4,7 +4,7 @@ import java.lang.reflect.Modifier;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: MemberView.java 505 2000-05-24 05:44:24Z ajp $
+ ** @version $Id: MemberView.java 1083 2002-01-11 16:54:51Z mik $
  ** @author Michael Cahill
  **
  ** A representation of a Java class member in BlueJ
@@ -16,10 +16,10 @@ public abstract class MemberView
 
     protected MemberView(View view)
     {
-	if (view == null)
-	    throw new NullPointerException();
+        if (view == null)
+            throw new NullPointerException();
 
-	this.view = view;
+        this.view = view;
     }
 
     /**
@@ -27,7 +27,7 @@ public abstract class MemberView
      **/
     public View getDeclaringView()
     {
-	return view;
+        return view;
     }
 
     /**
@@ -57,7 +57,7 @@ public abstract class MemberView
      **/
     void setComment(Comment comment)
     {
-	this.comment = comment;
+        this.comment = comment;
     }
 
     /**
@@ -66,9 +66,9 @@ public abstract class MemberView
     public Comment getComment()
     {
         if (view != null)
-	    view.loadComments();
+            view.loadComments();
 
-	return comment;
+        return comment;
     }
 
     /**
@@ -86,24 +86,29 @@ public abstract class MemberView
      **/
     public boolean isStatic()
     {
-	return Modifier.isStatic(getModifiers());
+        return Modifier.isStatic(getModifiers());
     }
 
     public void print(FormattedPrintWriter out)
     {
-	print(out, 0);
+        print(out, 0);
     }
 
     public void print(FormattedPrintWriter out, int indents)
     {
-	Comment comment = getComment();
-	if(comment != null)
-	    comment.print(out, indents);
+        Comment comment = getComment();
+        if(comment != null)
+            comment.print(out, indents);
 
-	out.setItalic(false);
-	out.setBold(true);
-	for(int i=0; i<indents; i++)
-	    out.indentLine();
-	out.println(getLongDesc());
+        out.setItalic(false);
+        out.setBold(true);
+        for(int i=0; i<indents; i++)
+            out.indentLine();
+        out.println(getLongDesc());
+    }
+
+    public String toString()
+    {
+        return view.toString();
     }
 }
