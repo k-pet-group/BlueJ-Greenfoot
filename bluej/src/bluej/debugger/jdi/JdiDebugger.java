@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 589 2000-06-28 04:31:40Z mik $
+ * @version $Id: JdiDebugger.java 599 2000-06-28 05:43:18Z mik $
  *
  * The startup process is as follows:
  *
@@ -798,7 +798,9 @@ public final class JdiDebugger extends Debugger
      */
     public void halt(DebuggerThread thread)
     {
+        Debug.message("about to suspend...");
         machine.suspend();
+        Debug.message("suspended...");
         machineStatus = SUSPENDED;
         if(thread != null)
             thread.setParam(executionUserParam);

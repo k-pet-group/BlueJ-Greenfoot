@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 589 2000-06-28 04:31:40Z mik $
+ ** @version $Id: ExecControls.java 599 2000-06-28 05:43:18Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -490,7 +490,7 @@ public class ExecControls extends JFrame
             stepButton.setEnabled(false);
             stepIntoButton.setEnabled(false);
             continueButton .setEnabled(false);
-            terminateButton.setEnabled(true);
+            terminateButton.setEnabled(false);
             break;
         case Debugger.SUSPENDED:
             stopButton.setEnabled(false);
