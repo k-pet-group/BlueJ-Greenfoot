@@ -7,7 +7,7 @@ import com.sun.jdi.event.*;
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 2126 2003-07-21 03:24:34Z ajp $
+ * @version $Id: VMEventHandler.java 2275 2003-11-05 13:38:49Z mik $
  */
 class VMEventHandler implements Runnable
 {
@@ -70,8 +70,6 @@ class VMEventHandler implements Runnable
                 while (it.hasNext()) {
                 	Event ev = (Event) it.nextEvent();
                 	
-                	// System.out.println(ev);
-
 					// do some processing with this event
 					// this calls back into VMReference
                     handleEvent(ev);

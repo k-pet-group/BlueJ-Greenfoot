@@ -16,7 +16,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 2148 2003-08-05 08:17:51Z mik $
+ * @version $Id: Terminal.java 2275 2003-11-05 13:38:49Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -124,7 +124,6 @@ public final class Terminal extends JFrame
     {
         if(active != isActive) {
             text.setEditable(active);
-            //System.out.println("activate: " + active);
             //text.setEnabled(active);
             //text.setBackground(active ? activeBgColour : inactiveBgColour);
             isActive = active;
