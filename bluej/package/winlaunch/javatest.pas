@@ -144,14 +144,14 @@ begin
                         reason := 'java.exe could not be run to determine version'
 		else
                 begin
-                	if StrLIComp(PChar(reason), '"1.3', 4) >= 0 then
+                	if StrLIComp(PChar(reason), '"1.4', 4) >= 0 then
                         begin
 	                	result := true;
 	                        path := newpath;
                         end
                         else
                         begin
-				reason := 'BlueJ needs JDK > 1.2';
+				reason := 'BlueJ needs JDK >= 1.4';
                         end;
                 end;
 	end
