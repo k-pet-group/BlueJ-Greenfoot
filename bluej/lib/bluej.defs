@@ -27,8 +27,8 @@
 ## a new language, please send it to bluej@bluej.org
 #####################################################################
 
-#bluej.language=english
-bluej.language=chinese
+bluej.language=english
+#bluej.language=chinese
 #bluej.language=german
 #bluej.language=swedish
 
