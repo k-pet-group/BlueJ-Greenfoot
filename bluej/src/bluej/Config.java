@@ -25,7 +25,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1868 2003-04-21 09:42:26Z damiano $
+ * @version $Id: Config.java 1921 2003-04-30 06:07:04Z ajp $
  */
 
 public class Config
@@ -49,29 +49,6 @@ public class Config
 
     private static boolean usingMacOSScreenMenubar;
 
-    // Image to be used for setting the frames icon
-    public static Image frameImage = null;
-
-    // Swing JSplitPane divider width constant for uniform look and feel
-    public static final int splitPaneDividerWidth = 3;
-    // Other general spacing constants. We should try to use these for consistency
-    public static final int generalSpacingWidth = 5;
-    public static final Border generalBorder =
-        BorderFactory.createEmptyBorder(10,10,10,10);
-    public static final Border generalBorderWithStatusBar =
-        BorderFactory.createEmptyBorder(10,10,0,10);
-
-    public static final Border dialogBorder =
-        BorderFactory.createEmptyBorder(12,12,11,11);
-
-    public static final int commandButtonSpacing = 5;
-    public static final int commandButtonPadding = 12;
-
-    public static final int componentSpacingSmall = 5;
-    public static final int componentSpacingLarge = 11;
-
-    public static final int dialogCommandButtonsVertical = 17;
-    
     public static final String osname = System.getProperty("os.name", "");
     public static final String DEFAULT_LANGUAGE = "english";
 
@@ -120,10 +97,6 @@ public class Config
         moe_props = loadDefs("moe.defs", true);
         loadProperties("moe", moe_props);  // add user specific editor definitions
         
-        ImageIcon ii = Config.getImageAsIcon("image.icon");
-        if(ii != null)
-            frameImage = ii.getImage();
-
         checkDebug(user_conf_dir);
 
         compilertype = Config.getPropString("bluej.compiler.type");
@@ -138,6 +111,11 @@ public class Config
             Config.getPropString("bluej.useTheme", "false")).booleanValue();
         if(themed)    
             MetalLookAndFeel.setCurrentTheme(new BlueJTheme());
+            
+//        try {
+//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//        }
+//        catch (Exception e) { }
     } // initialise
 
     
