@@ -30,7 +30,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1628 2003-02-13 00:21:54Z ajp $
+ * @version $Id: Project.java 1632 2003-02-26 10:22:00Z damiano $
  */
 public class Project
     implements BlueJEventListener
@@ -232,6 +232,44 @@ public class Project
     }
 
     /**
+     * Gets the set of currently open projects. It is an accessor only
+     * 
+     * @return a Set containing the keys of all open projects.
+     */
+    public static Set getProjectSet ()
+    {
+        return projects.entrySet();
+    }
+
+    /**
+     * Given a Projects key returns the Project objects descrbing this projects.
+     */
+    public static Project getProject ( Object projectKey )
+    {
+        return (Project)projects.get(projectKey);
+    }
+
+    /**
+     * workaround method to get a project from the project list.
+     * Added so that if only one project is open you could call this
+     * to access that project.  This was added to allow an inspector window
+     * created from within the debugger to access custom inspectors for a
+     * project.
+     * @return an open project (may return null if no projects open)
+     *
+     */
+    public static Project getProject()
+    {
+        if(projects.size() == 1) {
+            Collection projectColl = projects.values();
+            Iterator it = projectColl.iterator();
+            if(it.hasNext())
+                return (Project)it.next();
+        }
+        return null;
+    }
+
+    /**
      * Helper function to take a path (either a directory or a file)
      * and return either the canonical path to the directory
      * (in the case of a bluej.pkg file passed in, return the directory containing
@@ -260,25 +298,6 @@ public class Project
         return null;
     }
 
-    /**
-     * workaround method to get a project from the project list.
-     * Added so that if only one project is open you could call this
-     * to access that project.  This was added to allow an inspector window
-     * created from within the debugger to access custom inspectors for a
-     * project.
-     * @return an open project (may return null if no projects open)
-     *
-     */
-    public static Project getProject()
-    {
-        if(projects.size() == 1) {
-            Collection projectColl = projects.values();
-            Iterator it = projectColl.iterator();
-            if(it.hasNext())
-                return (Project)it.next();
-        }
-        return null;
-    }
 
     /* ------------------- end of static declarations ------------------ */
 
