@@ -256,6 +256,19 @@ bluej.classTemplates = stdclass abstract interface appletj unittest enum
 #bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
+#######################################################################
+## BlueJ Look and Feel.
+## By default no option is specified, this means that BlueJ decides.
+## At present this means:
+## Windows: System look and feel
+## Linux: CrossPlatform look and feel (Metal)
+## Solaris: CrossPlatform look and feel (Metal)
+## Where a crossplatform look and feel has been specified, font 
+## customisation can be done through the use of the BlueJ theme option
+#######################################################################
+
+#bluej.lookAndFeel=system
+#bluej.lookAndFeel=crossplatform
 
 #######################################################################
 ## Fonts. You can choose a font size for most of the interface
@@ -265,9 +278,12 @@ bluej.classTemplates = stdclass abstract interface appletj unittest enum
 
 #######################################################################
 # Theme fonts for User Interface components
-# These specify font and font sizes for most of the interface components.
+# These specify font and font sizes for most of the interface components
+# if using a crossplatform setting for bluej.lookandfeel. When using a
+# system lookandfeel UI fonts are derived from the OS settings.
 # This is the name of a font face with an optional "-bold" at the end.
-# The theme fonts are only used if bluej.useTheme flag is true.
+# The theme fonts are only used if bluej.useTheme flag is true and the 
+# bluej.lookandfeel property has been uncommented and set to crossplatform.
 # Note: the use of theme flag and specification and non-standard fonts
 # may affect bluej startup time (not confirmed for all systems)
 

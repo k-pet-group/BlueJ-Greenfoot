@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2954 2004-08-27 11:04:58Z fisker $
+ * @version $Id: Config.java 2976 2004-09-02 05:46:47Z bquig $
  */
 
 public final class Config
@@ -173,21 +173,10 @@ public final class Config
             MetalLookAndFeel.setCurrentTheme(new BlueJTheme());
         }
 
-		try {
-			if (isWinOS()){
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			}
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
-        
-		Config.setVMLocale();
+        String laf = Config.getPropString("bluej.lookAndFeel", "default");
+        setLookAndFeel(laf);
+
+        Config.setVMLocale();
     } // initialise
 
     
@@ -205,6 +194,22 @@ public final class Config
     public static boolean isWinOS()
     {
         return osname.startsWith("Windows");
+    }
+    
+    /**
+     * Tell us whether we are running on Linux
+     */
+    public static boolean isLinux()
+    {
+        return osname.startsWith("Linux");
+    }
+    
+    /**
+     * Tell us whether we are running on Solaris
+     */
+    public static boolean isSolaris()
+    {
+        return osname.startsWith("Solaris");
     }
     
     /**
@@ -925,6 +930,46 @@ public final class Config
         Locale loc = new Locale(lang, region);
         Locale.setDefault(loc);
     }
+    
+    /**
+     * Set Look and Feel for BlueJ interface
+     * @param laf the l&f specified. Should be one of 3 options:
+     * "system", "crossplatform" or "default"
+     */
+    private static void setLookAndFeel(String laf)
+    {
+        try {
+            // if system specified
+            if(laf.equals("system")) {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }
+            else if(laf.equals("crossplatform")) {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            }
+            
+            // do the "default, ie. let BlueJ decide
+            // Windows - System l&F, Linux & Solaris - cross-platform
+            else {
+                if (isWinOS()){
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                }
+                // treat Linux and Solaris the same at the moment
+                else if(isLinux() || isSolaris()) {
+                    UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
     
     public static List getDebugVMArgs()
     {
