@@ -16,7 +16,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1571 2002-12-11 14:45:40Z mik $
+ * @version $Id: ObjectBench.java 1572 2002-12-11 16:23:16Z mik $
  */
 public class ObjectBench
 {
@@ -151,7 +151,6 @@ public class ObjectBench
         public ObjectBenchPanel()
         {
             setLayout(lm = new BoxLayout(this, BoxLayout.X_AXIS));
-//            setBackground(Color.blue);
             setAlignmentY(0);
 
             setMinimumSize(new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT));

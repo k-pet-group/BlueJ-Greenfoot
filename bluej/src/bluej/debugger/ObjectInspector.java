@@ -18,7 +18,7 @@ import bluej.pkgmgr.Project;
  * A window that displays the fields in an object or a method return value.
  *
  * @author     Michael Kolling
- * @version    $Id: ObjectInspector.java 1560 2002-12-06 03:47:59Z ajp $
+ * @version    $Id: ObjectInspector.java 1572 2002-12-11 16:23:16Z mik $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -116,7 +116,7 @@ public class ObjectInspector extends Inspector
         this.isResult = isResult;
         this.obj = obj;
 
-        makeFrame(parent, isResult, 
+        makeFrame(parent, isResult, true,
                   objectNameLabel + " " + JavaNames.stripPrefix(obj.getClassName()) + " " + name);
     }
 
@@ -188,6 +188,15 @@ public class ObjectInspector extends Inspector
             setCurrentObj(null, null);
             setButtonsEnabled(false, false);
         }
+    }
+
+    /**
+     * Show the inspector for the class of an object.
+     */
+    protected void showClass()
+    {
+        ClassInspector insp =
+   	       ClassInspector.getInstance(obj.getClassRef(), pkg, this);
     }
 
     /**

@@ -1,6 +1,7 @@
 package bluej.debugger.jdi;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerClass;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.JavaNames;
@@ -15,16 +16,16 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiObject.java 1562 2002-12-06 05:09:08Z ajp $
+ *@version    $Id: JdiObject.java 1572 2002-12-11 16:23:16Z mik $
  */
 public class JdiObject extends DebuggerObject
 {
     /**
      *  Factory method that returns instances of JdiObjects.
      *
-     *@param  obj  the remote object this encapsulates.
-     *@return      a new JdiObject or a new JdiArray object if
-     *  remote object is an array
+     *  @param  obj  the remote object this encapsulates.
+     *  @return      a new JdiObject or a new JdiArray object if
+     *               remote object is an array
      */
     public static JdiObject getDebuggerObject(ObjectReference obj)
     {
@@ -48,7 +49,7 @@ public class JdiObject extends DebuggerObject
      *  Constructor is private so that instances need to use getJdiObject
      *  factory method.
      *
-     *@param  obj  the remote debugger object (Jdi code) this encapsulates.
+     *  @param  obj  the remote debugger object (Jdi code) this encapsulates.
      */
     private JdiObject(ObjectReference obj)
     {
@@ -60,7 +61,7 @@ public class JdiObject extends DebuggerObject
     /**
      *  Get the name of the class of this object.
      *
-     *@return    The ClassName value
+     *  @return    The ClassName value
      */
     public String getClassName()
     {
@@ -68,6 +69,19 @@ public class JdiObject extends DebuggerObject
             return "";
         else
         return obj.referenceType().name();
+    }
+
+    /**
+     *  Get the class of this object.
+     *
+     *  @return    The class object.
+     */
+    public DebuggerClass getClassRef()
+    {
+        if (obj == null)
+            return null;
+        else
+            return new JdiClass(obj.referenceType());
     }
 
     /**

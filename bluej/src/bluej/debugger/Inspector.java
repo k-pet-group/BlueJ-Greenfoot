@@ -20,7 +20,7 @@ import javax.swing.border.Border;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1560 2002-12-06 03:47:59Z ajp $
+ * @version    $Id: Inspector.java 1572 2002-12-11 16:23:16Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -33,6 +33,8 @@ public abstract class Inspector extends JFrame
 
     protected final static String inspectorDirectoryName = "+inspector";
 
+    protected final static String showClassLabel =
+        Config.getString("debugger.inspector.showClass");
     protected final static String inspectLabel =
         Config.getString("debugger.inspector.inspect");
     protected final static String getLabel =
@@ -130,6 +132,11 @@ public abstract class Inspector extends JFrame
      * An element in the field list was selected.
      */
     abstract protected void listElementSelected(int slot);
+
+    /**
+     * Show the inspector for the class of an object.
+     */
+    abstract protected void showClass();
 
     /**
      * We are about to inspect an object - prepare.
@@ -293,7 +300,7 @@ public abstract class Inspector extends JFrame
      *@param  isResult      Indicates if this is a result window or an inspector window
      *@param  obj           The debugger object we want to look at
      */
-    protected void makeFrame(JFrame parent, boolean isResult,
+    protected void makeFrame(JFrame parent, boolean isResult, boolean isObject,
                             String nameLabel)
     {
         //	setFont(font);
@@ -314,7 +321,20 @@ public abstract class Inspector extends JFrame
         // if we are doing an inspection, we add a label at the top
         if (!isResult) {
             JLabel classNameLabel = new JLabel(nameLabel, SwingConstants.CENTER);
-            mainPanel.add(classNameLabel, BorderLayout.NORTH);
+            if(isObject) {
+                JPanel topPanel = new JPanel();
+//                topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+                topPanel.add(classNameLabel);
+                JButton classButton = new JButton(showClassLabel);
+                classButton.addActionListener(new ActionListener() {
+                         public void actionPerformed(ActionEvent e) { showClass(); }
+                      });
+                topPanel.add(classButton);
+                mainPanel.add(topPanel, BorderLayout.NORTH);
+            }
+            else {
+                mainPanel.add(classNameLabel, BorderLayout.NORTH);
+            }
         }
 
         // the field list is either the fields of an object or class, the elements
@@ -323,6 +343,7 @@ public abstract class Inspector extends JFrame
         fieldList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         fieldList.addListSelectionListener(this);
         JScrollPane scrollPane = new JScrollPane(fieldList);
+        fieldList.requestDefaultFocus();
 
         // if we are inspecting, we need a header
         if (!isResult) {
@@ -367,7 +388,6 @@ public abstract class Inspector extends JFrame
 
         JPanel buttonFramePanel = new JPanel();
         buttonFramePanel.setLayout(new BorderLayout(0, 0));
-        //buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(buttonFramePanel, BorderLayout.EAST);
 
@@ -403,7 +423,5 @@ public abstract class Inspector extends JFrame
         } else {
             DialogManager.tileWindow(this, parent);
         }
-
-        button.requestFocus();
     }
 }

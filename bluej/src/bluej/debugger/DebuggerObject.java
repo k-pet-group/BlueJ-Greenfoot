@@ -6,7 +6,7 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 1537 2002-11-29 13:40:19Z ajp $
+ *@version    $Id: DebuggerObject.java 1572 2002-12-11 16:23:16Z mik $
  */
 public abstract class DebuggerObject
 {
@@ -17,6 +17,12 @@ public abstract class DebuggerObject
      */
     public abstract String getClassName();
 
+    /**
+     *  Get the class of this object.
+     *
+     *  @return    The class object.
+     */
+    public abstract DebuggerClass getClassRef();
 
     /**
      *  Is an object of this class assignable to the given fully qualified type?
