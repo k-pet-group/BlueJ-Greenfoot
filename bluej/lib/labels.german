@@ -22,6 +22,17 @@ debugger.objectwrapper.invocationException=Exception während Ausführung:
 debugger.objectwrapper.inspect=Inspect
 debugger.objectwrapper.remove=Entfernen
 
+debugger.threadstatus.finished=finished
+debugger.threadstatus.breakpoint=at breakpoint
+debugger.threadstatus.stopped=stopped
+debugger.threadstatus.monitor=at monitor
+debugger.threadstatus.notstarted=not started
+debugger.threadstatus.running=running
+debugger.threadstatus.sleeping=sleeping
+debugger.threadstatus.unknown=unknown status
+debugger.threadstatus.waiting=waiting
+debugger.threadstatus.zombie=zombie
+
 #library browser configuration
 browser.title=Library Browser
 browser.version=0.1
