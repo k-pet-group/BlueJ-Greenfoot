@@ -34,7 +34,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 2926 2004-08-23 02:48:40Z davmac $
+ * @version $Id: JdiDebugger.java 2938 2004-08-24 02:11:19Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -477,6 +477,9 @@ public class JdiDebugger extends Debugger
         catch (InvocationException ie) {
             // what to do here??
             return null;
+        }
+        catch (VMDisconnectedException vmde) {
+            return new JdiTestResultError(className, methodName, "VM restarted", "", null);
         }
 
         if (arrayRef != null && arrayRef.length() > 5) {

@@ -12,6 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerTestResult;
+import bluej.debugger.SourceLocation;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.utility.JavaNames;
@@ -20,7 +21,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 2937 2004-08-24 01:38:16Z davmac $
+ * @version $Id: TestDisplayFrame.java 2938 2004-08-24 02:11:19Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -294,12 +295,12 @@ public class TestDisplayFrame
         try {
         EventQueue.invokeAndWait(new Runnable() {
             public void run() {
+                testEntries.addElement(dtr);
+                pb.step(testEntries.getSize(), dtr.isSuccess());
+
                 cp.setFailureValue(failureCount);
                 cp.setErrorValue(errorCount);
                 cp.setRunValue(testEntries.getSize());
-                
-                testEntries.addElement(dtr);
-                pb.step(testEntries.getSize(), dtr.isSuccess());
                 
                 if (!doingMultiple && pb.getValue() == pb.getMaximum())
                     setResultLabel();
@@ -345,6 +346,8 @@ public class TestDisplayFrame
                     if (dtr.isError()) {
                         String text = dtr.getTrace();
                         int index = text.indexOf('\n');
+                        if (index == -1)
+                            index = text.length();
                         exceptionMessageField.setText(text.substring(0, index));
                     }
                     else
@@ -353,7 +356,8 @@ public class TestDisplayFrame
                     //exceptionMessageField.setText(exceptionMessageField.getText()
                     //        + "\n---\n" + dtr.getTrace());
                     exceptionMessageField.setCaretPosition(0);
-                    showSourceButton.setEnabled(true);
+                    if (dtr.getExceptionLocation() != null)
+                        showSourceButton.setEnabled(true);
 				} else {
                     exceptionMessageField.setText("");
                     showSourceButton.setEnabled(false);
@@ -381,7 +385,8 @@ public class TestDisplayFrame
         {
             DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
             if (dtr != null && (dtr.isError() || dtr.isFailure())) {
-                String packageName = JavaNames.getPrefix(dtr.getExceptionLocation().getClassName());
+                SourceLocation exceptionLocation = dtr.getExceptionLocation();
+                String packageName = JavaNames.getPrefix(exceptionLocation.getClassName());
 
                 Package spackage = lastProject.getExistingPackage(packageName);
                 if (spackage == null)
@@ -389,8 +394,8 @@ public class TestDisplayFrame
 
                 // We have the package name. Now get the source name and
                 // line number.
-                String sourceName = dtr.getExceptionLocation().getFileName();
-                int lineno = dtr.getExceptionLocation().getLineNumber();
+                String sourceName = exceptionLocation.getFileName();
+                int lineno = exceptionLocation.getLineNumber();
 
                 spackage.showSource(sourceName, lineno, "", false);
             }
