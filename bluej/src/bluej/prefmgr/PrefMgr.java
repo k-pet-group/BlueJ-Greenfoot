@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 352 2000-01-12 05:53:41Z ajp $
+ * @version $Id: PrefMgr.java 359 2000-01-13 13:50:31Z ajp $
  */
 public class PrefMgr
 {
@@ -149,5 +149,7 @@ public class PrefMgr
         else
             Config.putPropString(hilightingPropertyName,
                                     new Boolean(enabled).toString());
+
+        isSyntaxHilighting = enabled;
     }
 }

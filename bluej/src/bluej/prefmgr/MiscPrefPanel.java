@@ -20,7 +20,7 @@ import bluej.pkgmgr.Package;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 357 2000-01-13 03:57:25Z ajp $
+ * @version $Id: MiscPrefPanel.java 359 2000-01-13 13:50:31Z ajp $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -132,7 +132,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         PrefMgr.setSyntaxHilighting(hilightingBox.isSelected());
 
-	Package.editorManager.refreshAll();
+        Package.editorManager.refreshAll();
 
         String jdkURL = jdkURLField.getText();
 
