@@ -115,6 +115,10 @@ Invalid Class Name.
 invalid-package-name
 Invalid Package Name.
 
+must-be-identifier
+The name is not valid. It
+must be a Java identifier.
+
 directory-exists
 A file or directory with this
 name already exists.

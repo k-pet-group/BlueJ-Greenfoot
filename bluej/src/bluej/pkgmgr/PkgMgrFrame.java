@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2689 2004-06-30 00:57:40Z davmac $
+ * @version $Id: PkgMgrFrame.java 2695 2004-06-30 10:20:43Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -736,16 +736,26 @@ public class PkgMgrFrame extends JFrame
             break;
 
          case PackageEditorEvent.OBJECT_PUTONBENCH:
-            // "Get" object from object inspector
-            DebuggerObject gotObj = e.getDebuggerObject();
-            
-            String newObjectName = DialogManager.askString((Component) e.getSource(),
-            												 "getobject-new-name",
-            												 getProject().getDebugger().guessNewName(gotObj.getClassRef().getName()));
+             // "Get" object from object inspector
+             DebuggerObject gotObj = e.getDebuggerObject();
+             
+             boolean tryAgain = true;
+             do {
+                String newObjectName = DialogManager.askString((Component) e.getSource(),
+                        "getobject-new-name",
+                        getProject().getDebugger().guessNewName(gotObj.getClassRef().getName()));
 
-            if (newObjectName != null && JavaNames.isIdentifier(newObjectName)) {
-                putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getInvokerRecord());
-            }
+                if(newObjectName == null) {
+                    tryAgain = false; // cancelled
+                }
+                else if(JavaNames.isIdentifier(newObjectName)) {
+                    putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getInvokerRecord());
+                    tryAgain = false;
+                }
+                else {
+                    DialogManager.showError((Component) e.getSource(), "must-be-identifier");
+                }
+            } while(tryAgain);
             break;
         }
     }
