@@ -18,7 +18,7 @@ import com.sun.jdi.ThreadReference;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2030 2003-06-11 07:58:29Z ajp $
+ * @version $Id: ExecControls.java 2031 2003-06-11 08:43:09Z ajp $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -51,6 +51,8 @@ public class ExecControls extends JFrame
         Config.getString("debugger.execControls.continueButtonText");
     private static final String terminateButtonText =
         Config.getString("debugger.execControls.terminateButtonText");
+
+
 
     private static String[] empty = new String[0];
 
@@ -535,6 +537,7 @@ public class ExecControls extends JFrame
 										(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		threadTree.setVisibleRowCount(8);
 		threadTree.setShowsRootHandles(false);
+		threadTree.setRootVisible(false);
 										        
         JScrollPane threadScrollPane = new JScrollPane(threadTree);
         threadScrollPane.setColumnHeaderView(new JLabel(threadTitle));

@@ -13,20 +13,20 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2030 2003-06-11 07:58:29Z ajp $
+ * @version $Id: JdiThread.java 2031 2003-06-11 08:43:09Z ajp $
  */
 public final class JdiThread extends DebuggerThread
 {
-    static final String statusFinished = Config.getString("debugger.threadstatus.finished");
-    static final String statusBreakpoint = Config.getString("debugger.threadstatus.breakpoint");
-    static final String statusStopped = Config.getString("debugger.threadstatus.stopped");
-    static final String statusMonitor = Config.getString("debugger.threadstatus.monitor");
-    static final String statusNotStarted = Config.getString("debugger.threadstatus.notstarted");
-    static final String statusRunning = Config.getString("debugger.threadstatus.running");
-    static final String statusSleeping = Config.getString("debugger.threadstatus.sleeping");
-    static final String statusUnknown = Config.getString("debugger.threadstatus.unknown");
-    static final String statusWaiting = Config.getString("debugger.threadstatus.waiting");
-    static final String statusZombie = Config.getString("debugger.threadstatus.zombie");
+	static final String statusFinished = Config.getString("debugger.threadstatus.finished");
+	static final String statusBreakpoint = Config.getString("debugger.threadstatus.breakpoint");
+	static final String statusStopped = Config.getString("debugger.threadstatus.stopped");
+	static final String statusMonitor = Config.getString("debugger.threadstatus.monitor");
+	static final String statusNotStarted = Config.getString("debugger.threadstatus.notstarted");
+	static final String statusRunning = Config.getString("debugger.threadstatus.running");
+	static final String statusSleeping = Config.getString("debugger.threadstatus.sleeping");
+	static final String statusUnknown = Config.getString("debugger.threadstatus.unknown");
+	static final String statusWaiting = Config.getString("debugger.threadstatus.waiting");
+	static final String statusZombie = Config.getString("debugger.threadstatus.zombie");
 
     /** a list of classes to exclude from source display */
     private static List excludes;
@@ -55,13 +55,18 @@ public final class JdiThread extends DebuggerThread
         }
     }
 
-	//VMReference vmRef;
+	// the reference to the remote thread
+	ThreadReference rt;
+    
+	// an optional user parameter associated with this thread
+	Object userParam;
 	
-    ThreadReference rt; // the reference to the remote thread
-    Object userParam;   // an optional user parameter associated with this
-    // thread
-    int selectedFrame;  // stores a stack frame that was selected for this
+	// stores a stack frame that was selected for this
     // thread (selection is done for debugging)
+    int selectedFrame;
+   
+    // the TreeModel that we are being stored in. This reference
+    // lets us propogate changes to our state into the TreeModel.
 	JdiThreadTreeModel jttm;
 	
     EventRequestManager eventReqMgr;
@@ -70,7 +75,6 @@ public final class JdiThread extends DebuggerThread
 
     public JdiThread(JdiThreadTreeModel jttm, ThreadReference rt, Object userParam)
     {
-//    	this.vmRef = vmRef;
 		this.jttm = jttm;
         this.rt = rt;
         this.userParam = userParam;
@@ -107,7 +111,7 @@ public final class JdiThread extends DebuggerThread
         return userParam;
     }
 
-    public ThreadReference getRemoteThread()
+    ThreadReference getRemoteThread()
     {
         return rt;
     }
@@ -154,6 +158,11 @@ public final class JdiThread extends DebuggerThread
     {
         return rt.isSuspended();
     }
+
+	public boolean isAtBreakpoint()
+	{
+		return rt.isAtBreakpoint();
+	}
 
     public String getClass(int frameNo)
     {
@@ -378,6 +387,9 @@ public final class JdiThread extends DebuggerThread
         return selectedFrame;
     }
 
+	/**
+	 * Halt this thread.
+	 */
 	public void halt()
 	{
 		rt.suspend();
@@ -388,6 +400,9 @@ public final class JdiThread extends DebuggerThread
 			jttm.nodeChanged(jtn);		
 	}
 
+	/**
+	 * Continue a previously halted thread.
+	 */
 	public void cont()
 	{
 		rt.resume();		
@@ -398,6 +413,9 @@ public final class JdiThread extends DebuggerThread
 			jttm.nodeChanged(jtn);		
 	}
 
+	/**
+	 * Make this thread step a single line.
+	 */
     public void step()
     {
         doStep(StepRequest.STEP_OVER);
@@ -413,7 +431,6 @@ public final class JdiThread extends DebuggerThread
         clearPreviousStep(rt);
         StepRequest request = eventReqMgr.createStepRequest(rt,
                                              StepRequest.STEP_LINE, depth);
-        //if(depth == StepRequest.STEP_INTO)
         addExcludesToRequest(request);
 
         // Make sure the step event is done only once
@@ -421,7 +438,12 @@ public final class JdiThread extends DebuggerThread
 		request.putProperty(VMEventHandler.DONT_RESUME, "yes");
         request.enable();
 
-        //TODO: vmRef.cont();
+		rt.resume();
+
+		JdiThreadNode jtn = jttm.findThreadNode(rt);
+		
+		if (jtn != null)
+			jttm.nodeChanged(jtn);		
     }
 
     /**
@@ -442,7 +464,13 @@ public final class JdiThread extends DebuggerThread
             if (request != null && request.thread() != null) {
                 if (request.thread().equals(thread)) {
                     eventReqMgr.deleteEventRequest(request);
-                    break;
+					// we must break here because now we
+					// have deleted the step event, the
+					// list iterator is invalid
+					// our assumption is that we can have at
+					// most one other step event for this thread
+					// in the system.
+					break;
                 }
             }
         }
@@ -467,23 +495,6 @@ public final class JdiThread extends DebuggerThread
 
 
 /**
- * A thread has been stopped.
- *
-public void halt(DebuggerThread thread)
-{
-	getVM().halt(thread);
-	BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
-}
-
-**
- * A thread has been started again by the user. Make sure that it
- * is indicated in the interface.
- *
-public void cont()
-{
-	getVM().cont();
-	BlueJEvent.raiseEvent(BlueJEvent.CONTINUE, null);
-}
 
 **
  * Arrange to show the source location for a specific frame number
@@ -497,29 +508,7 @@ public void showSource(DebuggerThread thread)
 }
 
 
-
-    **
-     *  A thread has been stopped.
-     *
-    public void halt(DebuggerThread thread)
-    {
-        machine.suspend();
-		owner.raiseStateChangeEvent();
-        if (thread != null)
-            thread.setParam(executionUserParam);
-    }
-
-    **
-    * A thread has been started again by the user. Make sure that it
-     * is indicated in the interface.
-     *
-    public void cont()
-    {
-		owner.raiseStateChangeEvent();
-        machine.resume();
-    }
-
-    **
+   **
      *  Arrange to show the source location for a specific frame number
      *  of a specific thread. The currently selected frame is stored in the
      *  thread object itself.

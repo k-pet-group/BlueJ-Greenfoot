@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2030 2003-06-11 07:58:29Z ajp $
+ * @version $Id: VMReference.java 2031 2003-06-11 08:43:09Z ajp $
  *
  * The startup process is as follows:
  *
@@ -813,22 +813,11 @@ class VMReference
                 } catch (com.sun.jdi.InvalidTypeException ite) {}
             }
         } else {
-            // listBreakpoints();
-
             // breakpoint set by user in user code
 			owner.raiseStateChangeEvent();
             ThreadReference remoteThread = event.thread();
-            System.out.println(remoteThread);
-            JdiThread thread = new JdiThread(null, remoteThread, executionUserParam);
-            if (thread.getClassSourceName(0).startsWith("__SHELL")) {
-                // stepped out into the shell class - resume to finish
-                machine.resume();
-            } else {
-                if (breakpoint)
-                    BlueJEvent.raiseEvent(BlueJEvent.BREAKPOINT, thread);
-                else
-                    BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
-            }
+
+			owner.breakpoint(remoteThread);
         }
     }
 

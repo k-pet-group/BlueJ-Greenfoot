@@ -21,7 +21,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2030 2003-06-11 07:58:29Z ajp $
+ * @version $Id: JdiDebugger.java 2031 2003-06-11 08:43:09Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -408,6 +408,25 @@ public class JdiDebugger extends Debugger
         }
     }
 
+	public void breakpoint(ThreadReference tr)
+	{
+		JdiThreadNode jtn = treeModel.findThreadNode(tr);
+
+		if (jtn != null) {
+			treeModel.nodeChanged(jtn);		
+		}
+		/*JdiThread thread = new JdiThread(null, remoteThread, executionUserParam);
+		if (thread.getClassSourceName(0).startsWith("__SHELL")) {
+			// stepped out into the shell class - resume to finish
+			machine.resume();
+		} else {
+			if (breakpoint)
+				BlueJEvent.raiseEvent(BlueJEvent.BREAKPOINT, thread);
+			else
+				BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
+		} */
+	}
+	
     /**
      * List all the threads being debugged as a list containing elements
      * of type DebuggerThread.
