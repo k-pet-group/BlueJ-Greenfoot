@@ -13,9 +13,8 @@ import com.apple.mrj.MRJFileUtils;
  * Some generally useful utility methods available to all of bluej.
  *
  * @author  Michael Cahill
- * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1897 2003-04-25 15:19:10Z mik $
+ * @version $Id: Utility.java 2042 2003-06-23 11:44:53Z mik $
  */
 public class Utility
 {

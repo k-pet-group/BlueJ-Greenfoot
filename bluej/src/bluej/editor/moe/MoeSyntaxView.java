@@ -32,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: MoeSyntaxView.java 2042 2003-06-23 11:44:53Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -156,6 +156,8 @@ public class MoeSyntaxView extends PlainView
      */
     private void drawLineNumber(Graphics g, int lineNumber, int x, int y)
     {
+        g.setColor(Color.DARK_GRAY);
+
         String number = Integer.toString(lineNumber);
         int stringWidth = lineNumberMetrics.stringWidth(number);
         int xoffset = BREAKPOINT_OFFSET - stringWidth - 4;
