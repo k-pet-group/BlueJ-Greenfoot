@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  *  
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2688 2004-06-30 00:07:50Z davmac $
+ * @version $Id: JdiReflective.java 2734 2004-07-05 05:32:09Z davmac $
  */
 public class JdiReflective extends Reflective {
 
@@ -105,14 +105,24 @@ public class JdiReflective extends Reflective {
             String paramName = readClassName(s);
             if( s.current() != ':' ) {
                 Debug.message("getTypeParams : no ':' following type parameter name in super signature?? got "+s.current());
+                Debug.message("signature was: " + gensig);
                 return null;
             }
             // '::' indicates lower bound is an interface. Ignore.
             if( s.peek() == ':' )
                 s.next();
-            GenTypeSolid bound = (GenTypeSolid)fromSignature(s, null, rclass);
-            rlist.add(new GenTypeDeclTpar(paramName, bound));
-            c = s.next();
+            // multiple bounds appear as T:bound1;:bound2; ... etc
+            boolean firstBound = true;
+            while(s.current() == ':') {
+                GenTypeSolid bound = (GenTypeSolid)fromSignature(s, null, rclass);
+                // TODO properly support multiple bounds. At the moment we'll
+                // just throw the subsequent bounds away.
+                if(firstBound) {
+                    rlist.add(new GenTypeDeclTpar(paramName, bound));
+                    firstBound = false;
+                }
+                c = s.next();
+            }
         }
         return rlist;
     }
@@ -512,24 +522,7 @@ public class JdiReflective extends Reflective {
             }
         }
         
-        // generic version.
-        // Get the mapping of type parameter names to actual types. Then,
-        // map the names to the class/interface the field is actually defined
-        // in.
-        
-        //Map tparams; // = parent.getGenericParams();
-        // Reflective r = new JdiReflective(parent.obj.referenceType());
-        
-        // For any parameters that we don't have explicit information for,
-        // substitute an appropriate wildcard type.
-        //if( tparams == null )
-        //    tparams = new HashMap();
-        // GenTypeClass.addDefaultParamBases(tparams, r);
-        // GenTypeClass genType = new GenTypeClass(r, tparams);
-        
-        // genType is now the actual type of the parent object. Map the
-        // parameters to the declaring type:
-        // tparams = genType.mapToSuper(f.declaringType().name());
+        // if the generic signature wasn't null, get the type from it.
         StringIterator iterator = new StringIterator(gensig);
         return fromSignature(iterator, null, parent);
     }
