@@ -6,14 +6,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.utility.JavaNames;
+import bluej.utility.JavaUtils;
 
 
 /**
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 2623 2004-06-18 07:15:53Z davmac $
+ * @version $Id: View.java 2624 2004-06-18 14:31:46Z polle $
  */
 public class View
 {
@@ -28,6 +30,7 @@ public class View
     protected ConstructorView[] constructors;
     protected MethodView[] methods;
     protected MethodView[] allMethods;
+    protected TypeParamView[] typeParams;
 
     protected Comment comment;
 
@@ -122,6 +125,28 @@ public class View
     {
         return cl.isInterface();
     }
+    
+    public final boolean isGeneric()
+    {
+        return getTypeParams().length>0;
+    }
+    
+    /**
+     * Returns all the formal type parameters.
+     * 
+     * @return Type parameters. Empty array if none exist.
+     */
+    public  TypeParamView[] getTypeParams() {
+        if(typeParams == null) {            
+            List genTypeParams = JavaUtils.getJavaUtils().getTypeParams(this.cl);            
+            typeParams = new TypeParamView[genTypeParams.size()];
+        	for (int i = 0; i < typeParams.length; i++) {
+                typeParams[i] = new TypeParamView(this, (GenTypeDeclTpar) genTypeParams.get(i));                
+            }            
+        }
+        return typeParams;
+    }
+    
 
     /**
      * Return views of all methods of this class (including inherited ones).

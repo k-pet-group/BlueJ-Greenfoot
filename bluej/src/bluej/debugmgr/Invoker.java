@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2613 2004-06-15 11:28:22Z mik $
+ * @version $Id: Invoker.java 2624 2004-06-18 14:31:46Z polle $
  */
 
 public class Invoker extends Thread
@@ -202,7 +202,7 @@ public class Invoker extends Thread
         // if so, just do it
         if(!constructing && !member.hasParameters()) {
             dialog = null;
-            doInvocation(null, null);
+            doInvocation(null, null, null);
         }
         else {
             MethodDialog mDialog = (MethodDialog)methods.get(member);
@@ -270,8 +270,8 @@ public class Invoker extends Thread
 
             if(dlg instanceof MethodDialog) {
                 MethodDialog mDialog = (MethodDialog)dlg;
-                instanceName = mDialog.getNewInstanceName();
-                doInvocation(mDialog.getArgs(), mDialog.getArgTypes(true));
+                instanceName = mDialog.getNewInstanceName();                
+                doInvocation(mDialog.getArgs(), mDialog.getArgTypes(true), mDialog.getTypeParams());
                 pmf.setWaitCursor(true);
                 if(constructing)
                     pkg.setStatus(creating);
@@ -297,7 +297,7 @@ public class Invoker extends Thread
         if (instanceName == null) 
         		instanceName = objName;
 
-        doInvocation(params, member.getParameters());
+        doInvocation(params, member.getParameters(), null);
     }
     
     /**
@@ -312,13 +312,18 @@ public class Invoker extends Thread
      *
      * This method is still executed in the interface thread,
      * while "endCompile" will be executed by the CompilerThread.
+     * 
      */
-    protected void doInvocation(String[] args, Class[] argTypes)
+    protected void doInvocation(String[] args, Class[] argTypes, String[] typeParams)
     {
+        //TODO support type parameters when constructing.
+        //check all calls to doInvocation to see where it makes sense to add typeParams
+        
     	//Store the arguments in order to show them in the result inspetor later
 		ExpressionInformation info = watcher.getExpressionInformation();
 		if (info != null) {
 			info.setArgumentValues(args);
+			//TODO also set type parameters?
 		}
     	
     	// if here with null, null then no arguments, no constructor
@@ -371,7 +376,17 @@ public class Invoker extends Thread
         
         if(constructing) {
             command = "new " + cleverQualifyTypeName(pkg, className);
-
+            if(typeParams!=null && typeParams.length>0) {
+                command+="<";
+                for (int i = 0; i < typeParams.length; i++) {
+                    String typeParam = typeParams[i];
+                    command+=typeParam;
+                    if(i<(typeParams.length-1)) {
+                        command+=",";
+                    }
+                }
+                command+=">";
+            }
             ir = new ConstructionInvokerRecord(className, instanceName, command + actualArgString);
 
 //          BeanShell

@@ -1,0 +1,73 @@
+package bluej.views;
+
+import bluej.debugger.gentype.GenTypeDeclTpar;
+
+/**
+ * Represents a formal type parameter for a generic class
+ * 
+ * @author Poul Henriksen <polle@mip.sdu.dk>
+ * @version $Id: TypeParamView.java 2624 2004-06-18 14:31:46Z polle $
+ */
+public class TypeParamView
+{
+    protected GenTypeDeclTpar paramType;
+    protected View view;
+
+    /**
+     * Constructor.
+     * 
+     * @param view The view of the generic class to which this type parameter belongs
+     * @param paramType The type parameter
+     */
+    protected TypeParamView(View view, GenTypeDeclTpar paramType) {
+        if (view == null) {
+            throw new NullPointerException();
+        }
+        if (paramType == null) {
+            throw new NullPointerException();
+        }
+        this.view = view;
+        this.paramType = paramType;
+    }
+
+    /**
+     * Returns the name of this formal type parameter as a String
+     */
+    public String getName() {
+        return paramType.getTparName();
+    }
+
+    /**
+     * Returns the bound for this type parameter. 
+     * 
+     * @return the bound, or null if no bound
+     */
+    public String getBound() {
+        String bound = paramType.getBound().toString(false);
+        //TODO maybe move this check to GenTypeXXX or somewhere else
+        if (bound.equals("java.lang.Object")) {
+            return null;
+        } else {
+            return paramType.getBound().toString(true);
+        }
+    }
+
+    /**
+     * @return the View of the class or interface that declares this member.
+     */
+    public View getDeclaringView() {
+        return view;
+    }
+
+    /**
+     * Returns a string describing this type parameter. This includes name and bound as written in Java. <br>
+     * Eaxample: T extends Integer
+     */
+    public String toString() {
+        if (getBound() != null) {
+            return getName() + " extends " + getBound();
+        } else {
+            return getName();
+        }
+    }
+}

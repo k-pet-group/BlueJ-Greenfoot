@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.*;
 
 import bluej.*;
+import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.utility.*;
@@ -24,7 +25,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2620 2004-06-17 16:00:29Z polle $
+ * @version $Id: MethodDialog.java 2624 2004-06-18 14:31:46Z polle $
  */
 public class MethodDialog extends CallDialog
 	implements FocusListener
@@ -53,6 +54,8 @@ public class MethodDialog extends CallDialog
     private JPanel descPanel;
 
     private ParameterList parameterList;
+    
+    private List typeParamsList;
     
     private JTextField instanceNameText;
     private JTextField focusedTextField;
@@ -495,8 +498,7 @@ public class MethodDialog extends CallDialog
      */
     private void makeCreateDialog(String className, String instanceName, CallableView method,
             JPanel panel)
-    {
-        JPanel tmpPanel;
+    {        
         setTitle(wCreateTitle);
 
         JLabel instName = new JLabel(sNameOfInstance);
@@ -515,35 +517,57 @@ public class MethodDialog extends CallDialog
                 public void focusLost(FocusEvent fe) { }
             });
         
-        ConstructorView constructor = (ConstructorView) method;
+        JPanel tmpPanel  = new JPanel();
         
-        if(method.hasParameters()) {            
-            tmpPanel = new JPanel();
-            GridBagLayout gridBag = new GridBagLayout();
-            tmpPanel.setLayout(gridBag);
-            GridBagConstraints constraints = new GridBagConstraints();
-            constraints.insets = INSETS;
-
-            gridBag.setConstraints(instName, constraints);
-            tmpPanel.add(instName);
-
-            constraints.gridx = 1;
-            constraints.gridwidth = 1;
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            gridBag.setConstraints(instanceNameText, constraints);
-            tmpPanel.add(instanceNameText);
-
-            JLabel name = new JLabel("new " + className , JLabel.RIGHT);
+        
+        GridBagLayout gridBag = new GridBagLayout();
+        tmpPanel.setLayout(gridBag);
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = INSETS;
+        gridBag.setConstraints(instName, constraints);
+        tmpPanel.add(instName);
+        constraints.gridx = 1;
+        constraints.gridwidth = 1;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBag.setConstraints(instanceNameText, constraints);
+        tmpPanel.add(instanceNameText);
+        
+//      TODO support generic classes. need to be able to type in the type parameters
+        //TODO History for type parameters
+        //TODO Check bounds if any
+        View clazz = method.getDeclaringView();
+        if(clazz.isGeneric()) {
+            JLabel name = new JLabel("Type parameters: " , JLabel.RIGHT);
             constraints.gridwidth = 1;
             constraints.gridx = 0;
+            constraints.gridy = 3;
             constraints.anchor = GridBagConstraints.NORTHEAST;
             constraints.fill = GridBagConstraints.NONE;
             setPreferredHeight(name, getComboBoxHeight());
             gridBag.setConstraints(name,constraints);
             tmpPanel.add(name);            
             
-            constraints.gridy = 1;
+            JPanel typeParameterPanel = createTypeParameterPanel(clazz);
+            constraints.gridwidth = 1;
+            constraints.gridx = 1;
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.fill = GridBagConstraints.NONE;
+            tmpPanel.add(typeParameterPanel,constraints);            
+        }
+        
+        if(method.hasParameters()) {   
+            JLabel name = new JLabel("new " + className , JLabel.RIGHT);
+            constraints.gridwidth = 1;
+            constraints.gridx = 0;
+            constraints.gridy = 4;
+            constraints.anchor = GridBagConstraints.NORTHEAST;
+            constraints.fill = GridBagConstraints.NONE;
+            setPreferredHeight(name, getComboBoxHeight());
+            gridBag.setConstraints(name,constraints);
+            tmpPanel.add(name);            
+            
+           // constraints.gridy = 1;
             constraints.anchor = GridBagConstraints.WEST;
 
             constraints.gridx = 1;
@@ -559,11 +583,7 @@ public class MethodDialog extends CallDialog
             gridBag.setConstraints(filler, constraints);
             tmpPanel.add(filler);
         }
-        else {
-            tmpPanel = new JPanel();
-            tmpPanel.add(instName);
-            tmpPanel.add(instanceNameText);
-        }
+        
         tmpPanel.setBorder(BorderFactory.createEmptyBorder(BlueJTheme.generalSpacingWidth,
                                                            0,
                                                            BlueJTheme.generalSpacingWidth,
@@ -572,6 +592,77 @@ public class MethodDialog extends CallDialog
     } // makeCreateDialog
     
     
+    /**
+     * @param clazz
+     */
+    private JPanel createTypeParameterPanel(View clazz) {
+        JPanel tmpPanel = new JPanel();
+        GridBagLayout gridBag = new GridBagLayout();
+        tmpPanel.setLayout(gridBag);
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = INSETS;
+        
+        JLabel startParenthesis = new JLabel(" <");
+        
+        double comboHeight = getComboBoxHeight();
+        
+        //we want a large parenthesis
+        double parenthesisHeight = startParenthesis.getPreferredSize().getHeight();
+        double parenthesisScale = comboHeight/parenthesisHeight;        
+        Font f = startParenthesis.getFont();
+        Font parenthesisFont = f.deriveFont(AffineTransform.getScaleInstance(parenthesisScale,parenthesisScale));
+        
+        startParenthesis.setFont(parenthesisFont);
+        
+        constraints.gridx = 0;
+        constraints.anchor = GridBagConstraints.NORTHEAST;
+        tmpPanel.add(startParenthesis, constraints);      
+       
+        
+        TypeParamView typeParams[] = clazz.getTypeParams();        
+        
+        typeParamsList = new ArrayList();
+        for (int i=0; i<typeParams.length; i++) {
+            constraints.gridx = 1;
+            constraints.gridy = i;
+            constraints.anchor = GridBagConstraints.WEST;
+            TypeParamView typeParam = typeParams[i];           
+            
+            
+            //TODO support history
+            JComboBox component = createComboBox(new ArrayList());
+            typeParamsList.add(component);
+            
+            int oldHeight = constraints.gridheight;
+            gridBag.setConstraints(component, constraints);
+            tmpPanel.add(component);
+            
+           
+            constraints.gridx = 2;
+            
+            JLabel eol = new JLabel(",  " + commentSlash + typeParam, JLabel.LEFT);
+            if (i == (typeParams.length - 1)) {
+                if(typeParams.length == 1) {
+                    eol.setText(">");
+                } else {
+                    JLabel lastType =  new JLabel(commentSlash + typeParam);
+                    setPreferredHeight(lastType, comboHeight);
+                   
+                    constraints.anchor=GridBagConstraints.NORTH;
+                    tmpPanel.add(lastType, constraints);
+                    eol.setText(">  ");                    
+                }
+                eol.setFont(parenthesisFont);
+            }            
+            setPreferredHeight(eol, comboHeight);
+            constraints.anchor=GridBagConstraints.SOUTHWEST;
+            gridBag.setConstraints(eol,constraints);
+            tmpPanel.add(eol);
+            
+        }
+        return tmpPanel;
+    }
+
     private JPanel createParameterPanel() {
     	Class[] paramClasses = getArgTypes(false);
         JPanel tmpPanel = new JPanel();
@@ -748,4 +839,29 @@ public class MethodDialog extends CallDialog
 
         return argNames;
     } // parseParamNames
+
+    /**
+     * For a generic class this will return the type parameters if any has been typed in.
+     * Otherwise it will just return an empty array.
+     * 
+     * TODO would it make more sense to return a Class[] ?
+     * @return
+     */
+    public String[] getTypeParams() {
+        if(typeParamsList==null) {
+            return new String[0];
+        }        
+        String[] typeParams = new String[typeParamsList.size()];
+        
+        Iterator iter = typeParamsList.iterator();
+        for (int i=0; i<typeParams.length; i++) {
+            JComboBox element = (JComboBox) iter.next();
+            typeParams[i] = (String)element.getEditor().getItem();
+            if(typeParams[i].equals("") ){
+                //TODO do some proper handling of illegal types.                
+                return new String[0];
+            }
+        }
+        return typeParams;
+    }
 }
