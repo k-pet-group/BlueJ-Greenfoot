@@ -22,7 +22,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 429 2000-04-21 00:52:00Z mik $
+ ** @version $Id: PkgFrame.java 437 2000-05-04 05:47:02Z ajp $
  **/
 public abstract class PkgFrame extends JFrame
 
@@ -67,14 +67,7 @@ implements ActionListener, ItemListener
         return null;
     }
 
-    /**
-     * Return the package shown by this frame.
-     */
-    public Package getPackage()
-    {
-        return pkg;
-    }
-
+    public abstract Package getPackage();
 
     public void itemStateChanged(ItemEvent evt)
     {
@@ -112,10 +105,36 @@ implements ActionListener, ItemListener
 	}
     }
 
-    protected void doNewProject()
+    protected void doNewPackage()
     {
         String newname = getFileNameDialog(newpkgTitle, createLabel);
-        Project.createNewProject(newname);
+
+        if (newname != null) {
+
+	    // check whether name is already in use
+	    File dir = new File(newname);
+	    if(dir.exists()) {
+		DialogManager.showError(this, "directory-exists");
+		return;
+	    }
+
+	    Package newPkg;
+
+	    // Open Here if current window is empty
+	    if (pkg.getDirName() == noTitle || pkg.getDirName() == null) {
+		newPkg = new Package(newname, this);
+		newPkg.save();
+		doOpenPackage(newname);
+	    }
+	    else {
+		// Otherwise open it in a new window
+		PkgFrame frame = PkgMgrFrame.createFrame(null);
+		newPkg = new Package(newname, frame);
+		newPkg.save();
+		frame.doOpenPackage(newname);
+		frame.setVisible(true);
+	    }
+	}
     }
 
     /**
@@ -182,7 +201,7 @@ implements ActionListener, ItemListener
         }
 
         pkg.load(pkgname);
-        //mik:Main.addPackage(pkg);
+        Main.addPackage(pkg);
         setWindowTitle();
         enableFunctions(true);
         editor.setGraph(pkg);
@@ -228,8 +247,7 @@ implements ActionListener, ItemListener
      */
     public void removePackage() {
         closePackage();
-        //mik: remove pkg from project and add new package
-        pkg = new Package(pkg.getProject(), noTitle, this);
+        pkg = new Package(noTitle,this);
         editor = new GraphEditor(pkg,this);
         enableFunctions(false);
         repaint();
@@ -248,7 +266,7 @@ implements ActionListener, ItemListener
             editor = null;
 
             // remove package from list of open packages
-            //mik:Main.removePackage(pkg);
+            Main.removePackage(pkg);
 
             pkg = null;
 
@@ -260,22 +278,22 @@ implements ActionListener, ItemListener
      */
     Hashtable actions = new Hashtable();	// mapping from event source -> action
 
-    static final int PROJ_COMMAND = 1000;
-    static final int PROJ_NEW = PROJ_COMMAND;
-    static final int PROJ_OPEN = PROJ_NEW + 1;
-    static final int PROJ_CLOSE = PROJ_OPEN + 1;
-    static final int PROJ_SAVE = PROJ_CLOSE + 1;
-    static final int PROJ_SAVEAS = PROJ_SAVE + 1;
-    static final int PROJ_IMPORTCLASS = PROJ_SAVEAS + 1;
-    static final int PROJ_PRINT = PROJ_IMPORTCLASS + 1;
-    static final int PROJ_QUIT = PROJ_PRINT + 1;
+    static final int PKG_COMMAND = 1000;
+    static final int PKG_NEW = PKG_COMMAND;
+    static final int PKG_OPEN = PKG_NEW + 1;
+    static final int PKG_CLOSE = PKG_OPEN + 1;
+    static final int PKG_SAVE = PKG_CLOSE + 1;
+    static final int PKG_SAVEAS = PKG_SAVE + 1;
+    static final int PKG_IMPORTCLASS = PKG_SAVEAS + 1;
+    static final int PKG_PRINT = PKG_IMPORTCLASS + 1;
+    static final int PKG_QUIT = PKG_PRINT + 1;
 
-    static final String[] ProjCmds = {
+    static final String[] PkgCmds = {
         "new", "open", "close", "save", "saveAs", "importClass",
         "print", "quit"
     };
 
-    static final KeyStroke[] ProjKeys = {
+    static final KeyStroke[] PkgKeys = {
         null,
         KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK),
@@ -286,22 +304,20 @@ implements ActionListener, ItemListener
         KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK)
     };
 
-    static final int[] ProjSeparators = {
-        PROJ_SAVEAS, PROJ_IMPORTCLASS, PROJ_PRINT
+    static final int[] PkgSeparators = {
+        PKG_SAVEAS, PKG_IMPORTCLASS, PKG_PRINT
     };
 
-    static final int EDIT_COMMAND = PROJ_COMMAND + 100;
+    static final int EDIT_COMMAND = PKG_COMMAND + 100;
     static final int EDIT_NEWCLASS = EDIT_COMMAND;
-    static final int EDIT_NEWPACKAGE = EDIT_NEWCLASS + 1;
-    static final int EDIT_REMOVE = EDIT_NEWPACKAGE + 1;
-    static final int EDIT_NEWUSES = EDIT_REMOVE + 1;
+    static final int EDIT_REMOVECLASS = EDIT_NEWCLASS + 1;
+    static final int EDIT_NEWUSES = EDIT_REMOVECLASS + 1;
     static final int EDIT_NEWINHERITS = EDIT_NEWUSES + 1;
     static final int EDIT_REMOVEARROW = EDIT_NEWINHERITS + 1;
 
 
     static final String[] EditCmds = {
-        "newClass", "newPackage", "remove", "newUses", "newInherits", 
-        "removeArrow"
+        "newClass", "removeClass", "newUses", "newInherits", "removeArrow"
     };
 
     static final KeyStroke[] EditKeys = {
@@ -310,24 +326,23 @@ implements ActionListener, ItemListener
         null,
         null,
         null,
-        null,
         null
     };
 
     static final int[] EditSeparators = {
-        EDIT_REMOVE  //, EDIT_REMOVEARROW
+        EDIT_REMOVECLASS //, EDIT_REMOVEARROW
     };
 
     static final int TOOLS_COMMAND = EDIT_COMMAND + 100;
     static final int TOOLS_COMPILE = TOOLS_COMMAND;
     static final int TOOLS_COMPILESELECTED = TOOLS_COMPILE + 1;
     static final int TOOLS_REBUILD = TOOLS_COMPILESELECTED + 1;
-    static final int TOOLS_BROWSE = TOOLS_REBUILD + 1;
-    static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
-//    static final int TOOLS_PREFERENCES = TOOLS_REBUILD + 1;
+//    static final int TOOLS_BROWSE = TOOLS_REBUILD + 1;
+//    static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
+    static final int TOOLS_PREFERENCES = TOOLS_REBUILD + 1;
 
     static final String[] ToolsCmds = {
-	"compile", "compileSelected", "rebuild", "browse", "preferences",
+	"compile", "compileSelected", "rebuild", "preferences" //"browse",
     };
 
     static final KeyStroke[] ToolsKeys = {
@@ -340,7 +355,7 @@ implements ActionListener, ItemListener
 
     static final int[] ToolsSeparators = {
 	TOOLS_REBUILD,
-	TOOLS_BROWSE
+//	TOOLS_BROWSE
     };
 
     static final int VIEW_COMMAND = TOOLS_COMMAND + 100;
@@ -429,7 +444,7 @@ implements ActionListener, ItemListener
     };
 
     static final int[] CmdTypes = {
-        PROJ_COMMAND, EDIT_COMMAND, TOOLS_COMMAND, VIEW_COMMAND,
+        PKG_COMMAND, EDIT_COMMAND, TOOLS_COMMAND, VIEW_COMMAND,
         /* GRP_COMMAND, */ HELP_COMMAND
     };
 
@@ -438,15 +453,15 @@ implements ActionListener, ItemListener
     };
 
     static final String[][] CmdStrings = {
-        ProjCmds, EditCmds, ToolsCmds, ViewCmds, /* GrpCmds, */ HelpCmds
+        PkgCmds, EditCmds, ToolsCmds, ViewCmds, /* GrpCmds, */ HelpCmds
     };
 
     static final KeyStroke[][] CmdKeys = {
-        ProjKeys, EditKeys, ToolsKeys, ViewKeys, /* GrpKeys, */ HelpKeys
+        PkgKeys, EditKeys, ToolsKeys, ViewKeys, /* GrpKeys, */ HelpKeys
     };
 
     static final int[][] CmdSeparators = {
-        ProjSeparators, EditSeparators, ToolsSeparators, ViewSeparators,
+        PkgSeparators, EditSeparators, ToolsSeparators, ViewSeparators,
         /* GrpSeparators, */ HelpSeparators
     };
 

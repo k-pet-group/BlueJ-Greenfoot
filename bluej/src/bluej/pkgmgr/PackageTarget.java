@@ -3,7 +3,6 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.graph.GraphEditor;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import java.util.Properties;
@@ -13,7 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: PackageTarget.java 429 2000-04-21 00:52:00Z mik $
+ ** @version $Id: PackageTarget.java 437 2000-05-04 05:47:02Z ajp $
  ** @author Michael Cahill
  **
  ** A link to a package embedded in another package.
@@ -149,15 +148,11 @@ public class PackageTarget extends Target implements ActionListener
      * Andy - needs to use the current frame for the new package if
      * the GraphEditor is within a LibraryBrowser.
      */
-    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) 
-    {
-        Debug.reportError("package double click: NYI");
-        /* mik:
-          Package newpkg = Main.openPackage(pkg.getBaseDir(), packageName);
-          // open a new Frame for the new package
-          PkgFrame frame = newpkg.getFrame();
-          frame.setVisible(true);
-        */
+    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) {
+	    Package newpkg = Main.openPackage(pkg.getBaseDir(), packageName);
+	    // open a new Frame for the new package
+	    PkgFrame frame = newpkg.getFrame();
+	    frame.setVisible(true);
     }
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
     {
