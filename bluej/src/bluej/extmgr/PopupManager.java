@@ -37,7 +37,7 @@ public class PopupManager implements PopupMenuListener
 
   public PopupManager(Object attachedTo )
     {
-//    System.out.println ("PopupManager attachedTo="+attachedTo);
+    System.out.println ("PopupManager attachedTo="+attachedTo);
     extMgr = ExtensionsManager.get();
     attachedObject  = attachedTo;
     }

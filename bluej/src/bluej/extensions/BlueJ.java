@@ -9,6 +9,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
+import bluej.pkgmgr.target.*;
 
 /**
  * A proxy object which provides services to BlueJ extensions. 
@@ -44,7 +45,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version $Id: BlueJ.java 2079 2003-06-26 15:04:33Z damiano $
+ * @version $Id: BlueJ.java 2082 2003-06-26 16:05:15Z damiano $
  */
 
 /*
@@ -525,18 +526,21 @@ public class BlueJ
 
 
     /**
-     *  Calls the EXTENSION to get the right menu item.
-     *  This is already wrapped for errors in the caller.
-     *  It is right for it to create a new wrapped object each time
-     *  (We do not want extensions to share objects too much, do we ?)
+     * Calls the extension to get the right menu item.
+     * This is already wrapped for errors in the caller.
+     * It is right for it to create a new wrapped object each time
+     * (We do not want extensions to share objects too much, do we ?)
      */
     JMenuItem getMenuItem(Object attachedObject)
       {
+      // If the extension has no menuGenerator there is nothing to do
       if ( currentMenuGen == null ) return null;
 
+      // Only the tools menu can have a null object, when there is no package open.
       if ( attachedObject == null ) 
         return currentMenuGen.getToolsMenuItem(null);
 
+      // This is the normal case of a Tools menu.
       if ( attachedObject instanceof Package ) 
         {
         Package attachedPkg = (Package)attachedObject;
@@ -544,13 +548,16 @@ public class BlueJ
         return currentMenuGen.getToolsMenuItem(new BPackage(anId));
         }
 
-/*          
-      if ( attachedObject instanceof BClass ) 
-        return aMenuGen.getClassMenuItem((BClass)attachedObject);
+      // Looking for Class Target allows to differentiate between the various targets
+      if ( attachedObject instanceof ClassTarget ) 
+        {
+        ClassTarget aTarget = (ClassTarget)attachedObject;
+        String qualifiedClassName = aTarget.getQualifiedName();
+        Package attachedPkg = aTarget.getPackage();
+        Identifier anId = new Identifier (attachedPkg.getProject(),attachedPkg, qualifiedClassName);
+        return currentMenuGen.getClassMenuItem(new BClass(anId));
+        }
 
-      if ( attachedObject instanceof BObject ) 
-        return aMenuGen.getObjectMenuItem((BObject)attachedObject);
-*/
 
       return null;
       }
