@@ -59,7 +59,7 @@ import javax.swing.JPopupMenu;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3007 2004-09-15 14:45:33Z mik $
+ * @version $Id: ClassTarget.java 3308 2005-01-31 04:37:13Z bquig $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -1220,7 +1220,7 @@ public class ClassTarget extends EditableTarget
                 menu.addSeparator();
             }
         }
-        role.addMenuItem(menu, new EditAction(), true);
+        role.addMenuItem(menu, new EditAction(), hasSourceCode());
         role.addMenuItem(menu, new CompileAction(), hasSourceCode());
         role.addMenuItem(menu, new InspectAction(), cl != null);
         role.addMenuItem(menu, new RemoveAction(), true);
