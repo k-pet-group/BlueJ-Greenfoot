@@ -1,14 +1,12 @@
 package bluej.graph;
 
-import java.awt.Graphics2D;
-
 /**
- ** @version $Id: Edge.java 427 2000-04-18 04:33:04Z ajp $
+ ** @version $Id: Edge.java 2045 2003-06-23 11:53:23Z fisker $
  ** @author Michael Cahill
  **
  ** General graph edge
  **/
-public abstract class Edge
+public abstract class Edge extends GraphElement
 {
 	public Vertex from, to;
 
@@ -18,5 +16,4 @@ public abstract class Edge
 		this.to = to;
 	}
 
-	public abstract void draw(Graphics2D g);
 }
