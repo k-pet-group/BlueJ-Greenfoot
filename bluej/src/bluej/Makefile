@@ -12,7 +12,7 @@ CTXTROOT = $(TOP)/ctxt
 XCLASSPATH = $$CLASSPATH
 #CLASSPATH = $(subst ;,$(SEP),$(CLASSROOT);$(subst /,$(SL),$(XCLASSPATH)))
 
-CLASSPATH = ..:$(TOP)/lib/jpda.jar:$(TOP)/lib/antlr.jar:/usr/local/jdk1.2/lib/tools.jar
+CLASSPATH = ..:$(TOP)/lib/jpda.jar:$(TOP)/lib/antlr.jar:/usr/jdk1.2/lib/tools.jar
 
 LIB = $(TOP)/lib
 JDEPEND = CLASSPATH="$(CLASSPATH)" jdepend
@@ -44,13 +44,18 @@ BLUEJ_CLASSFILES = $(BLUEJ_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/%.class)
 # Browser files
 BROWSER_CLASSES = \
 		AttributeChooser \
-		ChooseUseDestinationDIalog \
+		ClassChooser \
+		ClassPathEntryNode \
+		ClassTarget \
 		CodeViewer \
-		FindLibraryDialog \
+		LibraryBrowser \
 		LibraryChooser \
-		LibraryNode \
-		LibraryTreeCellRenderer \
-		StatusBarOwner
+		LibraryChooserEvent \
+		LibraryChooserListener \
+		LibraryChooserNode \
+		PackageNode \
+		PackageTarget \
+		Target 
 BROWSER_SRCS = $(BROWSER_CLASSES:%=browser/%.java)
 BROWSER_SRCS_OS = $(subst /,$(SL),$(BROWSER_SRCS))
 BROWSER_CLASSFILES = $(BROWSER_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/browser/%.class)
@@ -59,7 +64,7 @@ BROWSER_CLASSFILES = $(BROWSER_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/browser/%.class
 # Class Manager files
 CLASSMGR_CLASSES = \
 		ClassMgr \
-		ClassMgrDialog \
+		ClassMgrPrefPanel \
 		ClassPath \
 		ClassPathEntry \
 		ClassPathTableModel
@@ -146,7 +151,6 @@ MOE_CLASSES = \
 		MoeEditorManager \
 		MoeSyntaxView \
 		MoeSyntaxDocument \
-		Preferences \
 		StatusLabel
 MOE_SRCS = $(MOE_CLASSES:%=editor/moe/%.java)
 MOE_SRCS_OS = $(subst /,$(SL),$(MOE_SRCS))
@@ -168,8 +172,7 @@ GRAPH_CLASSFILES = $(GRAPH_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/graph/%.class)
 PARSER_CLASSES = \
 		ClassParser \
 		JavaLexer \
-		JavaToken \
-		JavaTokenTypes
+		JavaToken 
 PARSER_SRCS = $(PARSER_CLASSES:%=parser/%.java)
 PARSER_SRCS_OS = $(subst /,$(SL),$(PARSER_SRCS))
 PARSER_CLASSFILES = $(PARSER_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/parser/%.class)
@@ -218,14 +221,13 @@ PKGMGR_CLASSES = \
 		ImplementsDependency \
 		ImportedClassTarget \
 		JavaSourceFilter \
-		JBPackageChooser \
-		JBPackageFileView \
 		LayoutComparer \
-		LibraryBrowserPkgMgrFrame \
 		Main \
 		NewClassDialog \
 		Package \
 		PackageCacheMgr \
+		PackageChooser \
+		PackageFileView \
 		PackageTarget \
 		PkgFrame \
 		PkgMgrFrame \
@@ -241,7 +243,6 @@ PKGMGR_CLASSFILES = $(PKGMGR_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/pkgmgr/%.class)
 
 # Runtime files
 RUNTIME_CLASSES = \
-		BlueJSecurityManager \
 		BooleanResultWrapper \
 		ByteResultWrapper \
 		CharResultWrapper \
@@ -252,6 +253,8 @@ RUNTIME_CLASSES = \
 		IntResultWrapper \
 		LongResultWrapper \
 		ObjectResultWrapper \
+		RemoteClassMgr \
+		RemoteSecurityManager \
 		Shell \
 		ShortResultWrapper \
 		StringResultWrapper \
