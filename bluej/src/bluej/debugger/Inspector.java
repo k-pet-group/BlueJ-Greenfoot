@@ -20,7 +20,7 @@ import javax.swing.border.Border;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1527 2002-11-28 15:36:18Z mik $
+ * @version    $Id: Inspector.java 1528 2002-11-28 15:38:40Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
