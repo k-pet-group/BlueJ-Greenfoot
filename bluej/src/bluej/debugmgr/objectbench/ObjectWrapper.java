@@ -14,6 +14,7 @@ import bluej.debugmgr.*;
 import bluej.debugmgr.inspector.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.*;
 import bluej.utility.*;
@@ -27,7 +28,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2590 2004-06-11 11:29:14Z fisker $
+ * @version $Id: ObjectWrapper.java 2592 2004-06-11 12:53:08Z fisker $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -360,16 +361,41 @@ public class ObjectWrapper extends JComponent
     
     protected void drawUMLObjectShape(Graphics2D g, int x, int y, int w, int h, int shad, int corner)
     {
-        g.setColor(shadow);
-        g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
+    	boolean isSelected = isSelected() && ob.getComponent().hasFocus();
+    	//draw shadow
+        drawShadow(g, x, y, w, h, shad, corner);
+        // draw red round rectangle
         g.setColor(bg);
         g.fillRoundRect(x,y,w-shad,h-shad,corner,corner);
+        //draw outline
         g.setColor( Color.BLACK );
-        g.setStroke((isSelected && ob.getComponent().hasFocus() ? selectedStroke : unselectedStroke));
+        g.setStroke(isSelected ? selectedStroke : unselectedStroke);
         g.drawRoundRect(x,y,w-shad, h-shad,corner,corner);
     }
 
-    protected void drawUMLObjectText(Graphics2D g, int x, int y, int w, int h, int shad, String a, String b)
+    /**
+	 * @param g
+	 * @param x
+	 * @param y
+	 * @param w
+	 * @param h
+	 * @param shad
+	 * @param corner
+	 */
+	private void drawShadow(Graphics2D g, int x, int y, int w, int h, int shad, int corner) {
+		//g.setColor(shadow);
+		//g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
+		g.setColor(GraphPainterStdImpl.colours[0]);
+		g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
+		g.setColor(GraphPainterStdImpl.colours[1]);
+		g.fillRoundRect(x+shad,y+shad,w-shad-1,h-shad-1,corner,corner);
+		g.setColor(GraphPainterStdImpl.colours[2]);
+		g.fillRoundRect(x+shad,y+shad,w-shad-2,h-shad-2,corner,corner);
+		g.setColor(GraphPainterStdImpl.colours[3]);
+		g.fillRoundRect(x+shad,y+shad,w-shad-3,h-shad-3,corner,corner);
+	}
+
+	protected void drawUMLObjectText(Graphics2D g, int x, int y, int w, int h, int shad, String a, String b)
     {
     	
         g.setColor(textColour);
