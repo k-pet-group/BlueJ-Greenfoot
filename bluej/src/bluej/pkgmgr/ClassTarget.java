@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 666 2000-08-10 03:28:53Z ajp $
+ * @version $Id: ClassTarget.java 681 2000-09-06 06:08:12Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -84,7 +84,6 @@ public class ClassTarget extends EditableTarget
     // Fields used in Tarjan's algorithm:
     public int dfn, link;
 
-    private String stereotype;
     private boolean analysing = false;	// flag to prevent recursive
                                         // calls to analyseDependancies()
 
@@ -105,7 +104,6 @@ public class ClassTarget extends EditableTarget
 
         if(isApplet) {
             role = new AppletClassRole();
-            stereotype = APPLET_LABEL;
         }
         else
             role = new StdClassRole();
@@ -247,12 +245,9 @@ public class ClassTarget extends EditableTarget
     {
         if(isInterface) {
             modifiers |= Modifier.INTERFACE;
-            setStereotypeName(INTERFACE_LABEL);
         }
         else {
             modifiers &= ~Modifier.INTERFACE;
-            //if(INTERFACE_LABEL.equals(stereotype))
-            //   stereotype = null;
         }
     }
 
@@ -274,7 +269,6 @@ public class ClassTarget extends EditableTarget
     {
         if(isAbstract) {
             modifiers |= Modifier.ABSTRACT;
-            setStereotypeName(ABSTRACT_CLASS_LABEL);
         }
         else
             modifiers &= ~Modifier.ABSTRACT;
@@ -465,12 +459,11 @@ public class ClassTarget extends EditableTarget
             if (Applet.class.isAssignableFrom(cl)) {
                 if( ! (role instanceof AppletClassRole))
                     role = new AppletClassRole();
-                stereotype = APPLET_LABEL;
             }
             else {
-                if( ! (role instanceof StdClassRole))
+                if( ! (role instanceof StdClassRole)) {
                     role = new StdClassRole();
-                stereotype = null;
+                }
             }
         }
     }
@@ -932,14 +925,40 @@ public class ClassTarget extends EditableTarget
 
 
     /**
+     * creates a stereotype name as a Strinbg if it is an interface, 
+     * abstract class or Applet.
+     * @return String representing the type of stereotype or null if not applicable
+     */
+    public String getStereotype()
+    {
+        String type = null;
+
+        if(isAbstract())
+            type = ABSTRACT_CLASS_LABEL;
+        else if(isInterface())
+            type = INTERFACE_LABEL;
+        else if(role instanceof AppletClassRole)
+            type = APPLET_LABEL;
+
+        if(type != null)
+            type = STEREOTYPE_OPEN + type + STEREOTYPE_CLOSE;
+
+        return type;
+    }
+
+    /**
      * Draws UML specific parts of the representation of this ClassTarget.
      *
      */
     private void drawUMLStyle(Graphics2D g)
     {
+        // call to getStereotype
+        String stereotype = getStereotype();
+        
         if(state != S_NORMAL) {
             g.setColor(umlShadowCol);
             // set divider if UML, different position if stereotype is present
+           
             int divider = (stereotype == null) ? 18 : 32;
             Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
         }
@@ -947,8 +966,9 @@ public class ClassTarget extends EditableTarget
         g.setColor(getTextColour());
 
         int currentY = 2;
-        // draw stereotype if applicable
         Font original = getFont();
+
+        // draw stereotype if applicable
         if(stereotype != null) {
             String stereotypeLabel = STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE;
             Font stereotypeFont = original.deriveFont((float)(original.getSize() - 2));
@@ -1024,14 +1044,6 @@ public class ClassTarget extends EditableTarget
                    width, height - HANDLE_SIZE - 2);
         g.drawLine(width - HANDLE_SIZE + 2, height,
                    width, height - HANDLE_SIZE + 2);
-    }
-
-    /**
-     * Set a sterotype name eg. applet or Interface
-     */
-    public void setStereotypeName(String stereotypeName)
-    {
-        stereotype = stereotypeName;
     }
 
 
