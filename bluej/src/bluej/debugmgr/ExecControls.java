@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2077 2003-06-26 14:09:27Z mik $
+ * @version $Id: ExecControls.java 2078 2003-06-26 14:16:40Z mik $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -588,7 +588,7 @@ public class ExecControls extends JFrame
    
 			flipPanel.add(splitPane, "split");
 			JPanel tempPanel = new JPanel();
-            JLabel infoLabel = new JLabel("<html><center>Thread is running.<br>Threads must be stopped to view details.</html>");
+            JLabel infoLabel = new JLabel(Config.getString("debugger.threadRunning"));
             infoLabel.setForeground(Color.gray);
 			tempPanel.add(infoLabel);
 			flipPanel.add(tempPanel, "blank");

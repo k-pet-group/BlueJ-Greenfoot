@@ -450,7 +450,7 @@ debugger.execControls.terminateButtonText = Terminate
 
 debugger.options = Options
 debugger.hideSystemThreads = Hide system threads
-
+debugger.threadRunning = <html><center>Thread is running.<br>Threads must be stopped to view details.</html>
 # DialogManager labels
 dialogmgr.error = BlueJ:  Error
 dialogmgr.question = BlueJ:  Question
