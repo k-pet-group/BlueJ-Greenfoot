@@ -32,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 2717 2004-07-02 09:14:57Z mik $
+ * @version $Id: MoeSyntaxView.java 2721 2004-07-02 11:30:40Z mik $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -60,33 +60,28 @@ public class MoeSyntaxView extends BlueJSyntaxView
     /**
      * Draw a line for the moe editor.
 	 */
-	public void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
-            SyntaxDocument document, TokenMarker tokenMarker, Color def, Element lineElement) 
+	public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
+            SyntaxDocument document, TokenMarker tokenMarker, Color def, Element line) 
     {
 		if(PrefMgr.getFlag(PrefMgr.LINENUMBERS))
 		    drawLineNumber(g, lineIndex+1, x, y);
    
 		// draw breakpoint and/or step image
    
-		if (Boolean.TRUE.equals
-		    (lineElement.getAttributes().getAttribute(BREAKPOINT))) {
-		    if (Boolean.TRUE.equals
-		        (lineElement.getAttributes().getAttribute(STEPMARK))) {
-		        g.drawImage(breakStepImage, x-1,
-		                    y+3-breakStepImage.getHeight(null), null);
+		if(hasTag(line, BREAKPOINT)) {
+		    if(hasTag(line, STEPMARK)) {
+		        g.drawImage(breakStepImage, x-1, y+3-breakStepImage.getHeight(null), 
+                            null);
 		    }
 		    else {  // break only
-		        g.drawImage(breakImage, x-1,
-		                    y+3-breakImage.getHeight(null), null);
+		        g.drawImage(breakImage, x-1, y+3-breakImage.getHeight(null), null);
 		    }
 		}
-		else if (Boolean.TRUE.equals
-		    (lineElement.getAttributes().getAttribute(STEPMARK))) {
-		    g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null),
-		                null);
+		else if(hasTag(line, STEPMARK)) {
+		    g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null), null);
 		}
 
-		paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+		paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
 		                document, tokenMarker, def);
 	}
 

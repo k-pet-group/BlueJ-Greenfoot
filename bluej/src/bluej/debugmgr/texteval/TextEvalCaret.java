@@ -6,9 +6,10 @@
 // http://www.opensource.org/licenses/mit-license.html 
 // Any queries should be directed to Michael Kolling mik@mip.sdu.dk
 
-package bluej.editor.moe;
+package bluej.debugmgr.texteval;
 
 import bluej.utility.Debug;
+import bluej.editor.moe.BlueJSyntaxView;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -21,20 +22,20 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  */
 
-public class MoeCaret extends DefaultCaret  
+public class TextEvalCaret extends DefaultCaret  
 {
    
-    private MoeEditor editor;
+    private TextEvalArea textEval;
     // matching bracket highlight holder
     private Object matchingBracketHighlight;
 
     /**
      * Constructs a Moe Caret
      */
-    public MoeCaret(MoeEditor editor) 
+    public TextEvalCaret(TextEvalArea textEval) 
     {
         super();
-        this.editor = editor;
+        this.textEval = textEval;
         setBlinkRate(0);
     }
 
@@ -48,7 +49,6 @@ public class MoeCaret extends DefaultCaret
         if(e.getID() != MouseEvent.MOUSE_PRESSED)
             return;
 
-        editor.caretMoved();
         Point pt = new Point(e.getX(), e.getY());
         Position.Bias[] biasRet = new Position.Bias[1];
         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
@@ -57,16 +57,15 @@ public class MoeCaret extends DefaultCaret
             if(biasRet[0] == null)
                 biasRet[0] = Position.Bias.Forward;
             if (pos >= 0) {
-                setDot(pos); 
-                
+                setDot(pos);
+
                 // clear the preferred caret position
                 // see: JCaret's UpAction/DownAction
                 setMagicCaretPosition(null);
-            
             }
         }
         else {
-            editor.toggleBreakpoint(pos);
+            textEval.tagAreaClick(pos, (e.getModifiers() & Event.CTRL_MASK) != 0);
         }
     }
 
@@ -89,44 +88,6 @@ public class MoeCaret extends DefaultCaret
              moveDot(pos);
          }
      }
-
-    protected void fireStateChanged()
-    {
-        editor.caretMoved();
-        super.fireStateChanged();
-    }
-     
-    /**
-     * paint matching bracket if caret is directly after a bracket  
-     *
-     */
-    public void paintMatchingBracket()
-    {
-        int matchBracket = editor.getBracketMatch();
-        // remove existing bracket if needed
-        removeBracket();
-        if(matchBracket != -1) {
-            try {
-                matchingBracketHighlight = getComponent().getHighlighter().addHighlight(matchBracket, matchBracket + 1, this.getSelectionPainter());
-            }
-            catch(BadLocationException ble) {
-                Debug.reportError("bad location exception thrown");
-                ble.printStackTrace();
-            }
-        }      
-    }
-    
-    /**
-     * remove the existing matching bracket if it exists
-     */
-    public void removeBracket()
-    {
-        if(matchingBracketHighlight != null) {
-            getComponent().getHighlighter().removeHighlight(matchingBracketHighlight);
-            matchingBracketHighlight = null;        
-        }  
-    }
-    
 }
 
 

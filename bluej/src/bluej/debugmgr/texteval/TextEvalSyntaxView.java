@@ -32,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: TextEvalSyntaxView.java 2717 2004-07-02 09:14:57Z mik $
+ * @version $Id: TextEvalSyntaxView.java 2721 2004-07-02 11:30:40Z mik $
  */
 
 public class TextEvalSyntaxView extends BlueJSyntaxView
@@ -41,11 +41,14 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
     public static final String OUTPUT = "output";
     public static final String ERROR = "error";
     public static final String CONTINUE = "continue";
+    public static final String OBJECT = "object-ref";
 
     static final Image promptImage =
         Config.getImageAsIcon("image.eval.prompt").getImage();
     static final Image continueImage =
         Config.getImageAsIcon("image.eval.continue").getImage();
+    static final Image objectImage =
+        Config.getImageAsIcon("image.eval.object").getImage();
 
     static final Color outputColor = new Color(0, 120, 0);
     static final Color errorColor = new Color(200, 0, 20);
@@ -62,30 +65,30 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
  	/**
      * Draw a line for the text eval area.
 	 */
-	public void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
-            SyntaxDocument document, TokenMarker tokenMarker, Color def, Element lineElement) 
+	public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
+            SyntaxDocument document, TokenMarker tokenMarker, Color def, Element line) 
     {
-		if (Boolean.TRUE.equals
-		        (lineElement.getAttributes().getAttribute(OUTPUT))) {
+		if(hasTag(line, OUTPUT)) {
 		    g.setColor(outputColor);
-		    Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
-		            0);
+		    Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);
 		}
-		else if (Boolean.TRUE.equals
-		        (lineElement.getAttributes().getAttribute(ERROR))) {
+		else if(hasTag(line, ERROR)) {
 		    g.setColor(errorColor);
-		    Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
-		            0);
+		    Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);
 		}
-        else if (Boolean.TRUE.equals
-                (lineElement.getAttributes().getAttribute(CONTINUE))) {
-            g.drawImage(continueImage, x-1, y+3-promptImage.getHeight(null), null);
-            paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+        else if(hasTag(line, OBJECT)) {
+            g.drawImage(objectImage, x-1, y+3-objectImage.getHeight(null), null);
+            g.setColor(outputColor);
+            Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);
+        }
+        else if(hasTag(line, CONTINUE)) {
+            g.drawImage(continueImage, x-1, y+3-continueImage.getHeight(null), null);
+            paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
                     document, tokenMarker, def);   
         }
 		else {
             g.drawImage(promptImage, x-1, y+3-promptImage.getHeight(null), null);
-		    paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+		    paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
 		            document, tokenMarker, def);   
 		}
 	}

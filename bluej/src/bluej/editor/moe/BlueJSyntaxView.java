@@ -15,6 +15,7 @@ package bluej.editor.moe;
  */
 
 import javax.swing.text.*;
+
 import java.awt.*;
 import org.gjt.sp.jedit.syntax.*;
 
@@ -29,13 +30,13 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 2717 2004-07-02 09:14:57Z mik $
+ * @version $Id: BlueJSyntaxView.java 2721 2004-07-02 11:30:40Z mik $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
 {
     //  width of tag area for setting breakpoints
-    protected static final short TAG_WIDTH = 14;
+    public static final short TAG_WIDTH = 14;
     protected static final int BREAKPOINT_OFFSET = TAG_WIDTH + 2;
 
     // private members
@@ -174,7 +175,19 @@ public abstract class BlueJSyntaxView extends PlainView
         }
     }
 
-
+    
+    /**
+     * Check whether a given line is tagged with a given tag.
+     * @param line The line to check
+     * @param tag  The name of the tag
+     * @return     True, if the tag is set
+     */
+    protected final boolean hasTag(Element line, String tag)
+    {
+        return Boolean.TRUE.equals(line.getAttributes().getAttribute(tag)); 
+    }
+    
+    
     /**
      * Initialise some fields after we get a graphics context for the first time
      */

@@ -1,10 +1,10 @@
 package bluej.debugmgr.texteval;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Font;
 import java.awt.Insets;
-//import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
@@ -31,13 +31,13 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2717 2004-07-02 09:14:57Z mik $
+ * @version $Id: TextEvalArea.java 2721 2004-07-02 11:30:40Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
 {
     private static final int BUFFER_LINES = 40;
-    
+
     //    private JTextArea text;
     private JEditorPane text;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
@@ -60,26 +60,7 @@ public final class TextEvalArea extends JScrollPane
     public TextEvalArea(PkgMgrFrame frame, Font font)
     {
         this.frame = frame;
-//        setBorder(BorderFactory.createCompoundBorder(
-//                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
-//                BorderFactory.createEmptyBorder(5,0,5,0)));
-
-        text = new JEditorPane();
-        text.setMargin(new Insets(2,2,2,2));
-        text.setEditorKit(new MoeSyntaxEditorKit(true));
-//        text.addKeyListener(this);
-        
-        doc = (MoeSyntaxDocument) text.getDocument();
-        doc.setTokenMarker(new JavaTokenMarker());
-
-        setViewportView(text);
-        text.setFont(font);
-        text.setText(" ");      // ensure space at the beginning of every line
-
-        defineKeymap();
-        
-        setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
-        setPreferredSize(new Dimension(300,100));
+        createComponent(font);
         
         history = new IndexHistory(20);
         commands = TextCommands.getInstance();
@@ -137,6 +118,32 @@ public final class TextEvalArea extends JScrollPane
         }
     }
     
+    public void tagAreaClick(int pos, boolean shift)
+    {
+        if(positionHasObject(pos)) {
+            if(shift)
+                inspectObject(null);
+            else
+                getObjectToBench();
+        }
+    }
+    
+    /**
+     *  Check weather a position has a breakpoint set
+     */
+    private boolean positionHasObject(int pos)
+    {
+        Element line = getLineAt(pos);
+        return Boolean.TRUE.equals(line.getAttributes().getAttribute(TextEvalSyntaxView.OBJECT));
+    }
+
+    /**
+     *  Find and return a line by text position
+     */
+    private Element getLineAt(int pos)
+    {
+        return doc.getParagraphElement(pos);
+    }
 
     /**
      * List the objects on the object bench.
@@ -161,8 +168,12 @@ public final class TextEvalArea extends JScrollPane
 
             String resultString = result.getFieldValueString(0);
             String resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
+            boolean isObject = result.instanceFieldIsObject(0);
             
-            output(resultString + "   (" + resultType + ")");
+            if(isObject)
+                objectOutput(resultString + "   (" + resultType + ")");
+            else
+                output(resultString + "   (" + resultType + ")");
             
             lastInvokerRecord = ir;
             if(result.instanceFieldIsObject(0)) {
@@ -211,22 +222,10 @@ public final class TextEvalArea extends JScrollPane
 
     //   --- end of ResultWatcher interface ---
 
-    //   --- KeyListener interface ---
-
-//    public void keyPressed(KeyEvent e) {
-//        if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-//            System.out.println("back");
-//            e.consume();
-//        }
-//    
-//    }
-//
-//    public void keyReleased(KeyEvent e) {}
-//    
-//    public void keyTyped(KeyEvent e) {}
-//    
-    //   --- end of KeyListener interface ---
-
+    /**
+     * Write a (non-error) message to the text area.
+     * @param s The message
+     */
     public void output(String s)
     {
         try {
@@ -238,6 +237,25 @@ public final class TextEvalArea extends JScrollPane
         }
     }
     
+    /**
+     * Write a (non-error) message to the text area.
+     * @param s The message
+     */
+    public void objectOutput(String s)
+    {
+        try {
+            doc.insertString(doc.getLength(), s, null);
+            markAs(TextEvalSyntaxView.OBJECT);
+        }
+        catch(BadLocationException exc) {
+            Debug.reportError("bad location in terminal operation");
+        }
+    }
+    
+    /**
+     * Write an error message to the text area.
+     * @param s The message
+     */
     public void error(String s)
     {
         try {
@@ -300,6 +318,9 @@ public final class TextEvalArea extends JScrollPane
         }
     }
     
+    /**
+     * Move the caret to the end of the text area.
+     */
     private void caretToEnd() {
         text.setCaretPosition(doc.getLength());
     }
@@ -332,6 +353,31 @@ public final class TextEvalArea extends JScrollPane
         int pos = Math.min(caret.getMark(), caret.getDot());
         int lineStart = doc.getParagraphElement(pos).getStartOffset();
         return (pos - lineStart);
+    }
+
+    /**
+     * Create the Swing component representing the text area.
+     */
+    private void createComponent(Font font)
+    {
+        text = new JEditorPane();
+        text.setMargin(new Insets(2,2,2,2));
+        text.setEditorKit(new MoeSyntaxEditorKit(true));
+        text.setCaret(new TextEvalCaret(this));
+//        text.setCaretColor(caretColor);
+
+        doc = (MoeSyntaxDocument) text.getDocument();
+        doc.setTokenMarker(new JavaTokenMarker());
+
+        setViewportView(text);
+        text.setFont(font);
+        text.setText(" ");      // ensure space at the beginning of every line
+        caretToEnd();
+        
+        defineKeymap();
+
+        setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
+        setPreferredSize(new Dimension(300,100));
     }
 
     /**
