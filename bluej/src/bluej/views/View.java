@@ -14,7 +14,7 @@ import java.util.Vector;
 
 
 /**
- ** @version $Id: View.java 197 1999-07-22 00:48:02Z ajp $
+ ** @version $Id: View.java 208 1999-07-23 06:19:40Z ajp $
  ** @author Michael Cahill
  **
  ** View class - a representation of a Java class in BlueJ
@@ -436,7 +436,6 @@ public class View
         for(int i = 0; i < fields.length; i++)
             if((filter == null) || filter.accept(fields[i]))
             {
-                out.indentLine();
                 fields[i].print(out, 1);
                 out.println("");
             }
