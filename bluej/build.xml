@@ -23,8 +23,8 @@
     <!-- do not edit below here for local customisation -->
 
     <!-- Set up common directories -->
-    <property name="doc" value="doc/all"/>
-    <property name="extdoc" value="doc/extensions"/>
+    <property name="core.doc" value="doc/all"/>
+    <property name="extension.doc" value="doc/extensions"/>
 
     <property name="core.src" value="src"/>
     <property name="core.build" value="classes"/>
@@ -214,10 +214,10 @@
         </junit>
     </target>
 
-    <target name="doc">
-        <!-- Doc the java code from ${src} into ${doc} -->
-        <mkdir dir="${doc}"/>
-        <javadoc destdir="${doc}"
+    <target name="doc-core">
+        <!-- doc the java code from ${core.src} into ${core.doc} -->
+        <mkdir dir="${core.doc}"/>
+        <javadoc destdir="${core.doc}"
             packagenames="bluej.*, org.gjt.sp.jedit.syntax.*, javax.swing.beaninfo.*"
             excludepackagenames=
                "bluej.guibuilder.*,
@@ -227,10 +227,17 @@
             Windowtitle="BlueJ API"
             Doctitle="BlueJ API"
             bottom="&lt;a href=//www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;">
-            <classpath refid="bluej.class.path"/>
-       </javadoc>
-        <mkdir dir="${extdoc}"/>
-        <javadoc destdir="${extdoc}"
+            <classpath>
+                <path refid="bluej.class.path"/>
+                <pathelement location="${boot.jar}"/>
+                <pathelement location="${build_java_home}/lib/tools.jar"/>
+            </classpath>
+        </javadoc>
+    </target>
+
+    <target name="doc-extension">
+        <mkdir dir="${extension.doc}"/>
+        <javadoc destdir="${extension.doc}"
             packagenames="bluej.extensions.event"
             sourcepath="${core.src}"
 
@@ -242,8 +249,12 @@
               <include name="bluej/extensions/*.java" />
               <exclude name="bluej/extensions/ExtensionBridge.java"/>
             </fileset>
-            <classpath refid="bluej.class.path"/>
-       </javadoc>
+            <classpath>
+                <path refid="bluej.class.path"/>
+                <pathelement location="${boot.jar}"/>
+                <pathelement location="${build_java_home}/lib/tools.jar"/>
+            </classpath>
+        </javadoc>
     </target>
 
     <target name="clean-boot">
