@@ -27,7 +27,7 @@ import bluej.debugger.ExecControls;
 import bluej.debugger.ExecControlButtonModel;
 import bluej.terminal.Terminal;
 import bluej.terminal.TerminalButtonModel;
-// import bluej.prefmgr.PrefMgrDialog;
+import bluej.prefmgr.PrefMgrDialog;
 
 public class PkgMgrFrame extends PkgFrame 
 
@@ -303,21 +303,21 @@ public class PkgMgrFrame extends PkgFrame
 	    break;
 
 	case TOOLS_BROWSE:
-	    Utility.showMessage(this, 
+/*	    Utility.showMessage(this, 
 		"The library browser is not implemented in this version.\n" +
 		"To browse the Java standard libraries, select \"Java\n" +
-		"Class Libraries...\" from the Help menu.");
-//  	    getBrowser().setVisible(true);
-//  	    // offset browser from this window
-//  	    getBrowser().setLocation(this.getLocation().x + 100, 
-// 				     this.getLocation().y + 100);
-//  	    getBrowser().invalidate();
-// 	    getBrowser().validate();
+		"Class Libraries...\" from the Help menu."); */
+  	    getBrowser().setVisible(true);
+  	    // offset browser from this window
+  	    getBrowser().setLocation(this.getLocation().x + 100, 
+ 				     this.getLocation().y + 100);
+  	    getBrowser().invalidate();
+ 	    getBrowser().validate();
 	    break;
 
-//	case TOOLS_PREFERENCES:
-//		PrefMgrDialog.showDialog(null);
-//		break;
+	case TOOLS_PREFERENCES:
+		PrefMgrDialog.showDialog(null);
+		break;
 
 	    // View commands
 	case VIEW_SHOWUSES:

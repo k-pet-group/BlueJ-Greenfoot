@@ -4,9 +4,11 @@ import bluej.debugger.Debugger;
 import bluej.utility.Debug;
 
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.classmgr.ClassMgr;
+
 
 /**
- ** @version $Id: Main.java 243 1999-08-19 07:38:42Z mik $
+ ** @version $Id: Main.java 263 1999-09-28 10:47:49Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -77,6 +79,8 @@ public class Main
 	}
 		
 	Config.initialise(home);
+    ClassMgr.initialise();
+
 	bluej.pkgmgr.Main.main(args);
     }
 		

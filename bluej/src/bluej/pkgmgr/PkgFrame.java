@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 233 1999-08-12 23:53:28Z mik $
+ ** @version $Id: PkgFrame.java 263 1999-09-28 10:47:49Z ajp $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -349,7 +349,7 @@ public abstract class PkgFrame extends JFrame
     static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
     
     static final String[] ToolsCmds = {
-	"compile", "compileSelected", "rebuild", "browse" //, "preferences"
+	"compile", "compileSelected", "rebuild", "browse", "preferences"
     };
 
     static final KeyStroke[] ToolsKeys = {
@@ -362,7 +362,7 @@ public abstract class PkgFrame extends JFrame
 
     static final int[] ToolsSeparators = {
 	TOOLS_REBUILD,
-//	TOOLS_BROWSE
+	TOOLS_BROWSE
     };
 
     static final int VIEW_COMMAND = TOOLS_COMMAND + 100;
