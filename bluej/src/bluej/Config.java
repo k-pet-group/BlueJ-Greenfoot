@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3103 2004-11-18 04:59:24Z davmac $
+ * @version $Id: Config.java 3240 2004-12-16 00:04:59Z davmac $
  */
 
 public final class Config
@@ -222,6 +222,18 @@ public final class Config
     public static boolean isJava15()
     {
         return System.getProperty("java.vm.version").substring(0,3).compareTo("1.5") >= 0;
+    }
+    
+    /**
+     * Tell use whether java 1.5 features are to be used. This allows
+     * suppressing 1.5 features when running on a 1.5 VM (for instance to
+     * suppress the "unchecked" warnings which occur when compiling legacy
+     * code). 
+     */
+    public static boolean usingJava15()
+    {
+        // for now, always use 1.5 features where available
+        return isJava15();
     }
     
     /**

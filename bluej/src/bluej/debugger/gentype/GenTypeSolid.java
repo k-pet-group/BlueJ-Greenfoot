@@ -1,6 +1,5 @@
 package bluej.debugger.gentype;
 
-import java.util.ArrayList;
 
 /**
  * A "solid" type is a non-primitive, non-wildcard type. This includes arrays,
@@ -8,7 +7,7 @@ import java.util.ArrayList;
  * a component type for a wildcard clause.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSolid.java 3102 2004-11-18 01:39:18Z davmac $
+ * @version $Id: GenTypeSolid.java 3240 2004-12-16 00:04:59Z davmac $
  */
 public abstract class GenTypeSolid extends GenTypeParameterizable {
 
@@ -39,35 +38,5 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
     public GenTypeSolid [] getUpperBounds()
     {
         return getUpperBoundsC();
-    }
-    
-    public static GenTypeClass gcd(GenTypeSolid a, GenTypeSolid b)
-    {
-        return commonBases(a,b)[0];
-    }
-    
-    /**
-     * Find the common super type(s).<p>
-     * 
-     * For two classes which extend a common base class, this should return
-     * the base class. If the two classes implement the same interface, the
-     * returned array will also contain the interface (unless the interface
-     * is indirectly implemented via the common base class).
-     */
-    public static GenTypeClass [] commonBases(GenTypeSolid a, GenTypeSolid b)
-    {
-        GenTypeClass [] aUpper = a.getUpperBoundsC();
-        GenTypeClass [] bUpper = b.getUpperBoundsC();
-        ArrayList r = new ArrayList();
-        // Return any bases which are common to any two upper bounds
-        
-        for (int i = 0; i < aUpper.length; i++) {
-            for (int j = 0; j < bUpper.length; j++) {
-                GenTypeClass.getCommonBases(aUpper[i], bUpper[j], r);
-            }
-        }
-        
-        // TODO duplicates can be combined via precisification
-        return (GenTypeClass []) r.toArray(new GenTypeClass[0]);
     }
 }

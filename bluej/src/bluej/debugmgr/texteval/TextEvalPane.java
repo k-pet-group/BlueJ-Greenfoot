@@ -27,7 +27,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: TextEvalPane.java 3240 2004-12-16 00:04:59Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
@@ -48,6 +48,7 @@ public class TextEvalPane extends JEditorPane
     private boolean wrappedResult;
     private boolean mouseInTag = false;
     private boolean mouseOverObject = false;
+    private boolean busy = false;
     private Action softReturnAction;
 
     public TextEvalPane(PkgMgrFrame frame)
@@ -160,6 +161,7 @@ public class TextEvalPane extends JEditorPane
                     BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
                 }
                 setEditable(true);    // allow next input
+                busy = false;
             }
         });
     }
@@ -167,17 +169,32 @@ public class TextEvalPane extends JEditorPane
     /**
      * An invocation has failed - here is the error message
      */
-    public void putError(String message)
+    public void putError(final String message)
     {
         if(firstTry) {
             // append("   --error, first try: " + message + "\n");
-            firstTry = false;
-            invoker.tryAgain();
+            if (wrappedResult) {
+                // We thought we knew what the result type should be, but there
+                // was a compile time error. So try again, assuming that we
+                // got it wrong.
+                wrappedResult = false;
+                invoker = new Invoker(frame, currentCommand, TextEvalPane.this, "");
+            }
+            else {
+                firstTry = false;
+                invoker.tryAgain();
+            }
         }
         else {
-            append(" ");
-            error(message);
-            setEditable(true);    // allow next input
+            EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    append(" ");
+                    error(message);
+                    setEditable(true);    // allow next input
+                    busy = false;
+                }
+            });
         }
     }
     
@@ -587,6 +604,9 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            if (busy)
+                return;
+            
             String line = getCurrentLine();
             currentCommand = (currentCommand + line).trim();
             if(currentCommand.length() != 0) {
@@ -597,6 +617,7 @@ public class TextEvalPane extends JEditorPane
                 markCurrentAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
                 firstTry = true;
                 setEditable(false);    // don't allow input while we're thinking
+                busy = true;
                 TextParser tp = new TextParser(frame.getProject().getLocalClassLoader(), frame.getPackage().getQualifiedName(), frame.getObjectBench());
                 String retType = tp.parseCommand(currentCommand);
                 wrappedResult = (retType != null && retType.length() != 0);
@@ -627,6 +648,9 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            if (busy)
+                return;
+            
             String line = getCurrentLine();
             currentCommand += line + " ";
             history.add(line);
@@ -649,6 +673,9 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            if (busy)
+                return;
+            
             if(getCurrentColumn() > 1) {
                 try {
                     if(getSelectionEnd() == getSelectionStart()) { // no selection
@@ -680,6 +707,9 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            if (busy)
+                return;
+            
             if(getCurrentColumn() > 1) {
                 Caret caret = getCaret();
                 caret.setDot(caret.getDot() - 1);
@@ -702,6 +732,9 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            if (busy)
+                return;
+            
             String line = history.getPrevious();
             if(line != null) {
                 replaceLine(line);
@@ -725,6 +758,9 @@ public class TextEvalPane extends JEditorPane
          */
         final public void actionPerformed(ActionEvent event)
         {
+            if (busy)
+                return;
+            
             String line = history.getNext();
             if(line != null) {
                 replaceLine(line);

@@ -9,7 +9,7 @@ import java.util.Map;
  * methods are provided.
  * 
  * @author Davin McCall
- * @version $Id: GenType.java 3102 2004-11-18 01:39:18Z davmac $
+ * @version $Id: GenType.java 3240 2004-12-16 00:04:59Z davmac $
  */
 
 public abstract class GenType
@@ -73,32 +73,27 @@ public abstract class GenType
     abstract public boolean isPrimitive();
     
     /**
-     * Determine whether the type is a numeric type (char, byte, int, long,
-     * float, double, also including numeric literals)
+     * Determine whether the type is a numeric type (char, byte, short, int,
+     * long, float, double)
      */
     public boolean isNumeric()
     {
         return false;
     }
     
-    public boolean isIntegerLiteral()
+    /**
+     * Determine whether the type is a primitive integral type: char, byte,
+     * short, int or long (specifically excluding float and double)
+     */
+    public boolean isIntegralType()
     {
         return false;
     }
     
     /**
-     * Check whether this type "fits into" the given numeric primitive type.
-     * This is mainly useful for numeric literals. For instance the value 4,
-     * while nominally an int value, can be assigned to a byte or char
-     * variable.<p>
-     * 
-     * Java's handling of numeric literals is quite bizarre in some respects.
-     * For instance it is possible to cast a number to char, then assign it to
-     * a byte variable, even though it is not normally possible to assign a
-     * char to a byte. On the other hand casting the same number to a long and
-     * then assigning to a byte causes a compile-time error.
+     * Determine whether the type could hold the given integer value
      */
-    public boolean fitsType(int type)
+    public boolean couldHold(int n)
     {
         return false;
     }
@@ -165,5 +160,4 @@ public abstract class GenType
     {
         return null;
     }
-
 }

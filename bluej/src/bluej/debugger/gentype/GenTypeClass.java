@@ -12,7 +12,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 3102 2004-11-18 01:39:18Z davmac $
+ * @version $Id: GenTypeClass.java 3240 2004-12-16 00:04:59Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -655,63 +655,5 @@ public class GenTypeClass extends GenTypeSolid {
     public GenTypeSolid[] getLowerBounds()
     {
         return new GenTypeSolid [] {this};
-    }
-
-    /**
-     * Find the common bases between two classes, and add them into the given
-     * list. 
-     */
-    protected static void getCommonBases(GenTypeClass a, GenTypeClass b, List r)
-    {
-        Reflective [] ra = new Reflective [] {a.reflective};
-        Reflective [] rb = new Reflective [] {b.reflective};
-        Set checked = new HashSet(); // keep track of type already added
-        
-        while (ra.length != 0 && rb.length != 0) {
-            
-            ArrayList newRa = new ArrayList();
-            ArrayList newRb = new ArrayList();
-
-            for (int i = 0; i < ra.length; i++) {
-                
-                if (checked.contains(ra[i]))
-                    continue;
-                
-                for (int j = 0; j < rb.length; j++) {
-                    // skip already checked elements
-                    if (checked.contains(rb[i]))
-                        continue;
-                    
-                    if (ra[i].isAssignableFrom(rb[i])) {
-                        // TODO are they really common bases? must find the
-                        // tpar gcd, but beware of infinite recursion!
-                        Map m = a.mapToSuper(ra[i].getName());
-                        r.add(new GenTypeClass(ra[i], m));
-                        checked.add(ra[i]);
-
-                        if (! rb[i].equals(ra[i]))
-                            newRb.addAll(rb[i].getSuperTypesR());
-                    }
-                    else if (rb[i].isAssignableFrom(ra[i])) {
-                        if (! checked.contains(rb[i])) {
-                            Map m = a.mapToSuper(rb[i].getName());
-                            r.add(new GenTypeClass(rb[i], m));
-                            checked.add(rb[i]);
-                        }
-                        if (! ra[i].equals(rb[i]))
-                            newRa.addAll(ra[i].getSuperTypesR());
-                    }
-                    else {
-                        // Add the supertypes of ra[i] into newRa, and the
-                        // supertypes of rb[i] into newRb
-                        newRa.addAll(ra[i].getSuperTypesR());
-                        newRb.addAll(rb[i].getSuperTypesR());
-                    }
-                }
-            }
-            
-            ra = (Reflective []) newRa.toArray(new Reflective[0]);
-            rb = (Reflective []) newRb.toArray(new Reflective[0]);
-        }
     }
 }

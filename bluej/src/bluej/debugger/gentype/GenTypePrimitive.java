@@ -118,7 +118,22 @@ public class GenTypePrimitive
             if (o.typeIs(assignables[i]))
                 return true;
         }
-        return o.fitsType(myIndex);
+        return false;
+    }
+    
+    public boolean couldHold(int n)
+    {
+        if (myIndex >= GT_INT)
+            return true;
+        
+        if (myIndex == GT_BYTE)
+            return n >= -128 && n <= 127;
+        else if (myIndex == GT_CHAR)
+            return n >=0 && n <= 65535;
+        else if (myIndex == GT_SHORT)
+            return n >= -32768 && n <= 32767;
+
+        return false;
     }
     
     public boolean fitsType(int gtype)
@@ -148,6 +163,11 @@ public class GenTypePrimitive
         return myIndex >= GT_LOWEST_NUMERIC;
     }
     
+    public boolean isIntegralType()
+    {
+        return myIndex >= GT_CHAR && myIndex <= GT_LONG;
+    }
+    
     public boolean typeIs(int v)
     {
         return myIndex == v;
@@ -173,59 +193,12 @@ public class GenTypePrimitive
         return myIndex;
     }
     
-    /**
-     * Represent a numeric range, either floating point or integer.
-     * 
-     * @author Davin McCall
-     */
-    protected static class NumericRange
+    public GenType opBNot()
     {
-        long imin;
-        long imax;
-        double fmin;
-        double fmax;
-        boolean isFloat;
+        // binary-not is defined for integer types
+        if (myIndex >= GT_CHAR && myIndex <= GT_LONG)
+            return this;
         
-        NumericRange(long min, long max)
-        {
-            imin = min; fmin = min;
-            imax = max; fmax = max;
-            isFloat = false;
-        }
-        
-        NumericRange(double min, double max)
-        {
-            fmin = min;
-            fmax = max;
-            isFloat = true;
-        }
-        
-        /**
-         * Is this a floating point range?
-         */
-        boolean isFloatRange()
-        {
-            return isFloat;
-        }
-        
-        long getImin()
-        {
-            return imin;
-        }
-        
-        long getImax()
-        {
-            return imax;
-        }
-        
-        double getFmin()
-        {
-            return fmin;
-        }
-        
-        double getFmax()
-        {
-            return fmax;
-        }
+        return null;
     }
 }
