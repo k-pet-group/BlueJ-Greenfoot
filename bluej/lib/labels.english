@@ -24,7 +24,7 @@ debugger.objectwrapper.inspect=Inspect
 debugger.objectwrapper.remove=Remove
 
 #library browser configuration
-browser.title=BlueJ Library Browser
+browser.title=Library Browser
 browser.version=0.1
 browser.tempdir=c:\\temp
 browser.usepackage.selecttargetdialog.text=Do you want to use this package\n in the window named\n
@@ -107,7 +107,7 @@ browser.menu.help.about.title=About BlueJ Library Browser 0.1
 
 # Class Manager user interface elements and error messages
 #
-classmgr.title=BlueJ Preferences
+classmgr.prefpaneltitle=Libraries
 classmgr.userlibraries=User Libraries
 classmgr.systemlibraries=System Libraries
 classmgr.bootlibraries=Boot Libraries
@@ -123,6 +123,9 @@ classmgr.error.loadingconfig=Missing configuration file. This file is used to sp
 classmgr.error.savingconfig=Saving configuration file.
 classmgr.error.missingclasspath=No java classpath. Class loading behaviour may be strange because\nclasses in the current directory will be resolved first.
 classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be run on a pre JDK 1.2 environment.
+
+# Preferences Manager user interface elements and error messages
+prefmgr.title=Preferences
 
 editor.saveError=Error saving to file 
 editor.openError=Error opening file 
@@ -253,7 +256,7 @@ menu.tools.compile=Compile
 menu.tools.compileSelected=Compile Selected
 menu.tools.rebuild=Rebuild Package
 menu.tools.browse=Browse Libraries...
-menu.tools.preferences=Class Manager...
+menu.tools.preferences=Preferences...
 
 menu.view=View
 menu.view.showUses=Show Uses
