@@ -14,9 +14,9 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1721 2003-03-21 09:29:52Z damiano $
+ * @version    $Id: Submitter.java 1783 2003-04-10 08:22:40Z damiano $
  */
-public class Submitter extends Extension implements MenuGen, BluejEventListener
+public class Submitter extends Extension implements MenuGenerator, BluejEventListener
 {
     private MenuAction anAction;
     private int numPackagesOpen = 0;       // Counter for menu en/disable
@@ -40,7 +40,7 @@ public class Submitter extends Extension implements MenuGen, BluejEventListener
 
         // Properties panel creation
         stat.globalProp = new GlobalProp();
-        stat.bluej.setPrefGen(new PrefPanel(stat));
+        stat.bluej.setPreferenceGenerator(new PrefPanel(stat));
 
         stat.treeData     = new TreeData(stat);
         stat.submitDialog = new SubmitDialog(stat);
@@ -49,7 +49,7 @@ public class Submitter extends Extension implements MenuGen, BluejEventListener
         String aLabel = stat.bluej.getLabel("menu.submit");
         anAction = new MenuAction(aLabel);
         anAction.setEnabled(false);
-        stat.bluej.setMenuGen(this);
+        stat.bluej.setMenuGenerator(this);
 
         stat.bluej.addBluejEventListener(this);
     }

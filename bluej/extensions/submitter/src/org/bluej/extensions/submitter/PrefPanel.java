@@ -5,7 +5,7 @@ import bluej.extensions.*;
 import javax.swing.*;
 import java.awt.*;
 
-public class PrefPanel implements PrefGen 
+public class PrefPanel implements PreferenceGenerator
     {
     private Stat stat;
     private JPanel myPanel;
