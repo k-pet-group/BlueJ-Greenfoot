@@ -19,6 +19,7 @@ import bluej.views.CommentList;
 import bluej.classmgr.*;
 
 import java.util.List;
+import java.lang.reflect.*;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
@@ -36,7 +37,7 @@ import java.text.DateFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 723 2000-12-12 04:43:19Z mik $
+ * @version $Id: Package.java 724 2000-12-13 03:04:01Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -397,6 +398,68 @@ public class Package extends Graph
         return selected;
     }
 
+
+    /**
+     * Search a directory for Java source and class files and add their
+     * names to a set which is returned.
+     * Will delete any __SHELL files which are found in the directory
+     * and will ignore any single .class files which do not contain
+     * public classes.
+     */
+    private Set findTargets(File path)
+    {
+        File srcFiles[] = path.listFiles(new JavaSourceFilter());
+        File classFiles[] = path.listFiles(new JavaClassFilter());
+
+        Set interestingSet = new HashSet();
+
+        for(int i=0; i<srcFiles.length; i++) {
+            if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
+                srcFiles[i].delete();
+                continue;
+            }
+            String javaFileName =
+               JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
+
+            // check if the name would be a valid java name
+            if (!JavaNames.isIdentifier(javaFileName))
+                continue;
+
+            // files with a $ in them signify inner classes (which we want to ignore)
+            if (javaFileName.indexOf('$') == -1)
+                interestingSet.add(javaFileName);
+        }
+
+        for(int i=0; i<classFiles.length; i++) {
+            if (classFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
+                classFiles[i].delete();
+                continue;
+            }
+            String classFileName =
+                JavaNames.stripSuffix(classFiles[i].getName(), ".class");
+
+            // check if the name would be a valid java name
+            if (!JavaNames.isIdentifier(classFileName))
+                continue;
+
+            if (classFileName.indexOf('$') == -1) {
+                // add only if there is no corresponding .java file
+                if (!interestingSet.contains(classFileName)) {
+                    // fix for bug 152
+                    // check that this class is a public class which means that
+                    // private and package .class files generated because there are
+                    // multiple classes defined in a single file will not add a target
+                    Class c = loadClass(getQualifiedName(classFileName));
+
+                    if (Modifier.isPublic(c.getModifiers()))
+                        interestingSet.add(classFileName);
+                }
+            }
+        }
+
+        return interestingSet;
+    }
+
     /**
      * Load the elements of a package from a specified directory.
      * If the package file (bluej.pkg) is not found, an IOException is thrown.
@@ -472,28 +535,7 @@ public class Package extends Graph
                 addTarget(target);
             }
 
-            File srcFiles[] = getPath().listFiles(new JavaSourceFilter());
-            File classFiles[] = getPath().listFiles(new JavaClassFilter());
-
-            Set interestingSet = new HashSet();
-
-            for(int i=0; i<srcFiles.length; i++) {
-                if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
-                    srcFiles[i].delete();
-                    continue;
-                }
-                if (srcFiles[i].getName().indexOf('$') == -1)
-                    interestingSet.add(JavaNames.stripSuffix(srcFiles[i].getName(), ".java"));
-            }
-
-            for(int i=0; i<classFiles.length; i++) {
-                if (classFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
-                    classFiles[i].delete();
-                    continue;
-                }
-                if (classFiles[i].getName().indexOf('$') == -1)
-                    interestingSet.add(JavaNames.stripSuffix(classFiles[i].getName(), ".class"));
-            }
+            Set interestingSet = findTargets(getPath());
 
             Iterator it = interestingSet.iterator();
 
@@ -594,24 +636,7 @@ public class Package extends Graph
             }
         }
 
-        File srcFiles[] = getPath().listFiles(new JavaSourceFilter());
-        File classFiles[] = getPath().listFiles(new JavaClassFilter());
-
-        Set interestingSet = new HashSet();
-
-        for(int i=0; i<srcFiles.length; i++) {
-            if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
-                srcFiles[i].delete();
-                continue;
-            }
-            if (srcFiles[i].getName().indexOf('$') == -1)
-                interestingSet.add(JavaNames.stripSuffix(srcFiles[i].getName(), ".java"));
-        }
-
-        for(int i=0; i<classFiles.length; i++) {
-            if (classFiles[i].getName().indexOf('$') == -1)
-                interestingSet.add(JavaNames.stripSuffix(classFiles[i].getName(), ".class"));
-        }
+        Set interestingSet = findTargets(getPath());
 
         Iterator it = interestingSet.iterator();
 
@@ -1703,7 +1728,7 @@ public class Package extends Graph
             editor.displayMessage(message, lineNo, 0, beep, setStepMark,
                                   help);
         else
-            Debug.message(t.getDisplayName() + ", line" + lineNo + ": " + 
+            Debug.message(t.getDisplayName() + ", line" + lineNo + ": " +
                           message);
         return true;
     }
