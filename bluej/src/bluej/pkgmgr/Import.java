@@ -24,12 +24,14 @@ import java.util.*;
 import java.text.DateFormat;
 
 /**
+ * Utility functions to help in the process of importing directory
+ * structures into BlueJ
  *
- * @version $Id: Import.java 1045 2001-12-11 11:41:50Z mik $
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
+ * @version $Id: Import.java 1088 2002-01-12 13:31:47Z ajp $
  */
 class Import
 {
@@ -39,8 +41,12 @@ class Import
      * An interesting directory is one which either contains
      * a java source file or contains a directory which in
      * turn contains a java source file.
+     *
+     * @param   dir     the directory to look in
+     * @returns         a list of File's representing the
+     *                  interesting directories
      */
-    private static List findInterestingDirectories(File dir)
+    public static List findInterestingDirectories(File dir)
     {
         List interesting = new LinkedList();
 
@@ -52,7 +58,6 @@ class Import
         boolean imInteresting = false;
 
         for (int i=0; i<files.length; i++) {
-
             if (files[i].isDirectory()) {
                 // if any of our sub directories are interesting
                 // then we are interesting
@@ -60,7 +65,6 @@ class Import
                 // a valid java package name before considering
                 // anything in it
                 if(JavaNames.isIdentifier(files[i].getName())) {
-
                     List subInteresting = findInterestingDirectories(files[i]);
 
                     if (subInteresting.size() > 0) {
@@ -85,17 +89,43 @@ class Import
     }
 
     /**
+     * Find all Java files contained in a list of
+     * directory paths.
+     */
+    public static List findJavaFiles(List dirs)
+    {
+        List interesting = new LinkedList();
+
+        Iterator it = dirs.iterator();
+
+        while(it.hasNext()) {
+            File dir = (File) it.next();
+
+            File[] files = dir.listFiles();
+
+            if (files == null)
+                continue;
+
+            for (int i=0; i<files.length; i++) {
+                if (files[i].isFile() && files[i].getName().endsWith(".java")) {
+                    interesting.add(files[i]);
+                }
+            }
+        }
+
+        return interesting;
+    }
+
+    /**
      * Convert an existing directory structure to one
      * that BlueJ can open as a project.
      */
-    public static void convertDirectory(File dir)
+    public static void convertDirectory(List dirs)
     {
-        List l = findInterestingDirectories(dir);
-
         // create a bluej.pkg file in every directory that
         // we have determined to be interesting
 
-        Iterator i = l.iterator();
+        Iterator i = dirs.iterator();
 
         while(i.hasNext()) {
             File f = (File) i.next();

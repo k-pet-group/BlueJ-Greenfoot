@@ -13,7 +13,7 @@ import javax.swing.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 568 2000-06-19 05:41:42Z ajp $
+ * @version $Id: JavaNames.java 1088 2002-01-12 13:31:47Z ajp $
  */
 public class JavaNames
 {
@@ -80,6 +80,8 @@ public class JavaNames
     }
 
     /**
+     * Return the base item from a fully qualified Java name.
+     *
      * java.util.ArrayList --> ArrayList
      * java.util           --> util
      * ""                  --> ""
@@ -97,6 +99,9 @@ public class JavaNames
     }
 
     /**
+     * Return the prefix (all but the base name) from a
+     * fully qualified Java name.
+     *
      * java.util.ArrayList --> java.util
      * ""                  --> ""
      * ArrayList           --> ""
@@ -114,16 +119,70 @@ public class JavaNames
     }
 
     /**
-     * typeName - a utility function to fix up Java class names. Class names
-     *  as returned by the Class.getName() functions are okay for non-array
-     *  classes (we don't need to do anything for them), but are in a funny
-     *  format for arrays. "String[]", for example, is shown as
-     *  "[Ljava.lang.String;". See the Class.getName() documentation for
-     *  details. Here, we transform the array names into standard Java syntax.
+     * Convert a filename into a fully qualified Java name
+     * by considering the filename relative to a base directory.
+     * Returns null if the file is outside the base
+     * directory.
+     *
+     * The behaviour of this function is not guaranteed if
+     * you pass in a directory name. It is meant for filenames
+     * like /foo/bar/p1/s1/TestName.java
+     *
+     * An example of its use is if your baseDir was the
+     * directory /foo/bar and you passed in
+     * /foo/bar/p1/s1/TestName.java the function would
+     * return p1.s1.TestName
+     *
+     * Makes no guarantee that the returned name is a valid
+     * Java identifier (ie. some of the directory names used
+     * may not be valid java identifiers but no check is made
+     * for this).
+     */
+    public static String convertFileToQualifiedName(File baseDir, File f)
+    {
+        try {
+            File pathFile = f.getCanonicalFile();
+            File parent = null;
+            String name = "";
+
+            while((parent = pathFile.getParentFile()) != null) {
+                if(pathFile.equals(baseDir)) {
+                    return name;
+                }
+
+                if (name == "") {
+                    name = pathFile.getName();
+
+                    int firstDot;
+
+                    if((firstDot = name.indexOf('.')) >= 0) {
+                        name = name.substring(0, firstDot);
+                    }
+                }
+                else {
+                    name = pathFile.getName() + "." + name;
+                }
+
+                pathFile = parent;
+            }
+        }
+        catch(IOException ioe) { }
+
+        return null;
+    }
+
+    /**
+     * Fix up Java class names as returned by Class.getName()
+     *
+     * The Class.getName() functions are okay for non-array
+     * classes (we don't need to do anything for them), but are in a funny
+     * format for arrays. "String[]", for example, is shown as
+     * "[Ljava.lang.String;". See the Class.getName() documentation for
+     * details. Here, we transform the array names into standard Java syntax.
      */
     public static String typeName(String className)
     {
-        if( !(className.charAt(0) == '['))
+        if(!(className.charAt(0) == '['))
             return className;
 
         String name = "";

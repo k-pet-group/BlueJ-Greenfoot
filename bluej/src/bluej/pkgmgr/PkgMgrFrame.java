@@ -38,7 +38,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1077 2002-01-09 09:08:21Z mik $
+ * @version $Id: PkgMgrFrame.java 1088 2002-01-12 13:31:47Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -356,8 +356,9 @@ public class PkgMgrFrame extends JFrame
         makeFrame();
 
         updateWindowTitle();
-	MRJApplicationUtils.registerQuitHandler(this);
-	MRJApplicationUtils.registerAboutHandler(this);
+
+        MRJApplicationUtils.registerQuitHandler(this);
+        MRJApplicationUtils.registerAboutHandler(this);
 
         setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
     }
@@ -470,7 +471,8 @@ public class PkgMgrFrame extends JFrame
         // item. This code will delay the menu disable
         // until after menu processing has finished
         Runnable disableUI = new Runnable() {
-                public void run() {
+                public void run()
+                {
                     enableFunctions(false);  // changes menu items
                     updateWindowTitle();
                 }
@@ -751,11 +753,6 @@ public class PkgMgrFrame extends JFrame
                 DialogManager.showText(this,message);
             break;
 
-            //         case TOOLS_BROWSE:
-            //             DialogManager.NYI(this);
-            //             //            LibraryBrowser lb = new LibraryBrowser();
-            //             break;
-
         case TOOLS_PREFERENCES:         // can be executed when isEmptyFrame() is true
             PrefMgrDialog.showDialog(this);
             break;
@@ -790,7 +787,7 @@ public class PkgMgrFrame extends JFrame
 
             // Help commands
         case HELP_ABOUT:                    // can be executed when isEmptyFrame() is true
-	    handleAbout();
+        handleAbout();
             break;
 
         case HELP_VERSIONCHECK:             // can be executed when isEmptyFrame() is true
@@ -798,7 +795,7 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case HELP_COPYRIGHT:
-        	JOptionPane.showMessageDialog(this,
+            JOptionPane.showMessageDialog(this,
                   new String[] {
                       "BlueJ \u00a9 2000-2002 Michael K\u00F6lling, John Rosenberg.",
                       " ",
@@ -891,7 +888,9 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Open a dialog that lets the user choose a project.
+     * Open a dialog that lets a user convert existing Java
+     * source into a BlueJ project.
+     *
      * The project selected is opened in a frame.
      */
     private void doOpenNonBlueJ()
@@ -902,30 +901,76 @@ public class PkgMgrFrame extends JFrame
             return;
 
         if (dirName != null) {
-            if (Project.openProject(dirName.getAbsolutePath()) != null) {
+            File absDirName = dirName.getAbsoluteFile();
+
+            if (Project.isProject(absDirName.getPath())) {
                 DialogManager.showError(this, "open-non-bluej-already-bluej");
                 return;
             }
 
-            /*            File aFile = FileUtility.findFile(dirName, ".java");
+            // find all sub directories with Java files in them
+            // then find all the Java files in those directories
+            List interestingDirs = Import.findInterestingDirectories(absDirName);
 
-                          if (aFile != null) {
-                          ClassInfo info = ClassParser.parse(aFile);
+            if (interestingDirs.size() == 0) {
+                DialogManager.showError(this, "open-non-bluej-no-java");
+                return;
+            }
 
-                          DialogManager.showError(this, "open-non-bluej-invalid");
-                          }
-            */
-            // add bluej.pkg files through the directory structure
-            Import.convertDirectory(dirName);
+            List javaFiles = Import.findJavaFiles(interestingDirs);
 
-            Project openProj = Project.openProject(dirName.getAbsolutePath());
+            // for each Java file, lets check its package line against the
+            // package line we think that it should have
+            // for each mismatch we collect the file, the package line it had,
+            // and what we want to convert it to
+            List mismatchFiles = new ArrayList();
+            List mismatchPackagesOriginal = new ArrayList();
+            List mismatchPackagesChanged = new ArrayList();
+
+            Iterator it = javaFiles.iterator();
+
+            while(it.hasNext()) {
+                File f = (File) it.next();
+
+                try {
+                    ClassInfo info = ClassParser.parse(f);
+
+                    String qf = JavaNames.convertFileToQualifiedName(absDirName, f);
+
+                    if(!JavaNames.getPrefix(qf).equals(info.getPackage())) {
+                        mismatchFiles.add(f);
+                        mismatchPackagesOriginal.add(info.getPackage());
+                        mismatchPackagesChanged.add(qf);
+                    }
+                }
+                catch (Exception e) { }
+            }
+
+            // now ask if they want to continue if we have detected mismatches
+            if (mismatchFiles.size() > 0) {
+                ImportMismatchDialog imd = new ImportMismatchDialog(this,
+                                                         mismatchFiles,
+                                                         mismatchPackagesOriginal,
+                                                         mismatchPackagesChanged);
+                imd.show();
+
+                if (!imd.getResult())
+                    return;
+            }
+
+            // now add bluej.pkg files through the directory structure
+            Import.convertDirectory(interestingDirs);
+
+            // then construct it as a project
+            Project openProj = Project.openProject(absDirName.getPath());
 
             // if after converting the directory, the project still doesn't open
-            // then there was no java source in the directories
+            // then who knows what has gone wrong
             if (openProj == null) {
                 return;
             }
 
+            // now lets display the new project in a frame
             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
@@ -984,7 +1029,7 @@ public class PkgMgrFrame extends JFrame
     {
         // On MacOS, no event handling is possible in the quithandler. That's why
         // we don't show the dialog here (wantToQuit), but exit straight out.
-	// possible fix: show the dialog from another thread.
+    // possible fix: show the dialog from another thread.
         doQuit();
     }
 
@@ -993,11 +1038,11 @@ public class PkgMgrFrame extends JFrame
      */
     public void wantToQuit()
     {
-	int answer = 0;
-	if(frameCount() > 1)
-	    answer = DialogManager.askQuestion(this, "quit-all");
-	if(answer == 0)
-	    doQuit();
+    int answer = 0;
+    if(frameCount() > 1)
+        answer = DialogManager.askQuestion(this, "quit-all");
+    if(answer == 0)
+        doQuit();
     }
 
     private void doQuit()
@@ -1078,7 +1123,8 @@ public class PkgMgrFrame extends JFrame
         }
 
         // add bluej.pkg files through the imported directory structure
-        Import.convertDirectory(getPackage().getPath());
+        List dirsToConvert = Import.findInterestingDirectories(getPackage().getPath());
+        Import.convertDirectory(dirsToConvert);
 
         // reload all the packages (which discovers classes which may have
         // been added by the import)
@@ -1847,7 +1893,7 @@ public class PkgMgrFrame extends JFrame
                 JMenuItem item;
 
                 switch (actionId) {
-                case VIEW_SHOWUSES:		// Add these as CheckBoxMenuItems
+                case VIEW_SHOWUSES:     // Add these as CheckBoxMenuItems
                     item = showUsesMenuItem = new JCheckBoxMenuItem(itemStr,true);
                     item.addActionListener(this);
                     if (accelerator != null)
@@ -1875,7 +1921,7 @@ public class PkgMgrFrame extends JFrame
                         item.setAccelerator(accelerator);
                     break;
 
-                default:						// Otherwise
+                default:                        // Otherwise
                     item = new JMenuItem(itemStr);
                     item.addActionListener(this);
                     if (accelerator != null)
@@ -1951,7 +1997,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Commands - for lookup from events
      */
-    Hashtable actions = new Hashtable();	// mapping from event source -> action
+    Hashtable actions = new Hashtable();    // mapping from event source -> action
 
     // menu bar definition
 
@@ -2229,7 +2275,7 @@ public class PkgMgrFrame extends JFrame
 
     class URLDisplayer implements ActionListener {
         public URLDisplayer() {}
-        
+
         public void actionPerformed(ActionEvent evt)
         {
             String url = evt.getActionCommand();

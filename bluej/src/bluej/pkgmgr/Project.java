@@ -29,7 +29,7 @@ import java.io.IOException;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1073 2002-01-08 14:48:14Z mik $
+ * @version $Id: Project.java 1088 2002-01-12 13:31:47Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -42,10 +42,34 @@ public class Project
         Config.getString("pkgmgr.saveAs.buttonLabel");
 
     /**
-     * collection of all open projects. the canonical name of the project
+     * Collection of all open projects. the canonical name of the project
      * directory is used as the key.
      */
     private static Map projects = new HashMap();
+
+    /**
+     * Check if the path given is either a directory with a bluej pkg file
+     * or the name of a bluej pkg file.
+     *
+     * @param   A string representing the path to check. This can either
+     *          be a directory name or the filename of a bluej.pkg file.
+     */
+    public static boolean isProject(String projectPath)
+    {
+        File startingDir;
+
+        try {
+            startingDir = pathIntoStartingDirectory(projectPath);
+        }
+        catch(IOException ioe) {
+            return false;
+        }
+
+        if (startingDir == null)
+            return false;
+
+        return (Package.isBlueJPackage(startingDir));
+    }
 
     /**
      * Open a BlueJ project.
@@ -63,25 +87,18 @@ public class Project
         File projectDir, startingDir;
 
         try {
-            startingDir = new File(projectPath).getCanonicalFile();
-
-            /* allow a bluej.pkg file to be specified. In this case,
-               we immediately find the parent directory and use that as the
-               starting directory */
-            if (startingDir.isFile()) {
-                if (startingDir.getName().equals("bluej.pkg")) {
-                    startingDir = startingDir.getParentFile();
-                }
-                else {
-                    return null;
-                }
-            }
+            startingDir = pathIntoStartingDirectory(projectPath);
         }
         catch(IOException ioe)
         {
             Debug.message("could not resolve directory " + projectPath);
             ioe.printStackTrace();
             // give a proper user message here
+            return null;
+        }
+
+        if (startingDir == null) {
+            Debug.message("attempt to open " + projectPath + " as a project failed");
             return null;
         }
 
@@ -164,7 +181,14 @@ public class Project
         projects.remove(project.getProjectDir());
     }
 
-
+    /**
+     * Create a new project in the directory specified by projectPath.
+     * This name must be a directory that does not already exist
+     *
+     * @param   projectPath     a string representing the path in which
+     *                          to make the new project
+     * @return                  a boolean indicating success or failure
+     */
     public static boolean createNewProject(String projectPath)
     {
         if (projectPath != null) {
@@ -190,9 +214,7 @@ public class Project
                             Debug.message("could not copy readme template");
                     }
                 }
-                catch(IOException ioe)
-                {
-                }
+                catch(IOException ioe) { }
             }
         }
         return false;
@@ -204,6 +226,35 @@ public class Project
     public static int getOpenProjectCount()
     {
         return projects.size();
+    }
+
+    /**
+     * Helper function to take a path (either a directory or a file)
+     * and return either the canonical path to the directory
+     * (in the case of a bluej.pkg file passed in, return the directory containing
+     * the file. Returns null if file is not a bluej.pkg file or if the
+     * directory/file does not exist.
+     */
+    private static File pathIntoStartingDirectory(String projectPath)
+        throws IOException
+    {
+        File startingDir;
+
+        startingDir = new File(projectPath).getCanonicalFile();
+
+        if (startingDir.isDirectory())
+            return startingDir;
+
+        /* allow a bluej.pkg file to be specified. In this case,
+           we immediately find the parent directory and use that as the
+           starting directory */
+        if (startingDir.isFile()) {
+            if (startingDir.getName().equals(Package.pkgfileName)) {
+                return startingDir.getParentFile();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -503,7 +554,7 @@ public class Project
             // remove all open windows created by these objects
             Debugger.debugger.disposeWindows();
             // Note that this is slightly wrong: ideally, we would want to remove windows
-            // created by this project only. Currently, we remove all windows (including 
+            // created by this project only. Currently, we remove all windows (including
             // windows from other projects, even though the objects stay around there).
 
             loader = null;
@@ -587,42 +638,11 @@ public class Project
      * The behaviour of this function is not guaranteed if
      * you pass in a directory name. It is meant for filenames
      * like /foo/bar/p1/s1/TestName.java
-     *
-     * An example of its use is if your project was in the
-     * directory /foo/bar and you passed in
-     * /foo/bar/p1/s1/TestName.java the function would
-     * return p1.s1.TestName
      */
     public String convertPathToPackageName(String pathname)
     {
-        try {
-            File pathfile = new File(pathname).getCanonicalFile();
-            File parent = null;
-            String name = "";
-            int firstDot;
-
-            while((parent = pathfile.getParentFile()) != null) {
-                if(pathfile.equals(getProjectDir())) {
-                    return name;
-                }
-
-                if (name == "") {
-                    name = pathfile.getName();
-
-                    if((firstDot = name.indexOf('.')) >= 0) {
-                        name = name.substring(0, firstDot);
-                    }
-                }
-                else {
-                    name = pathfile.getName() + "." + name;
-                }
-
-                pathfile = parent;
-            }
-        }
-        catch(IOException ioe) { }
-
-        return null;
+        return JavaNames.convertFileToQualifiedName(getProjectDir(),
+                                                    new File(pathname));
     }
 
     // ---- BlueJEventListener interface ----
