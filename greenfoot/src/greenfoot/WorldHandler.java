@@ -7,6 +7,7 @@ import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
+import greenfoot.localdebugger.LocalObject;
 
 import java.awt.Component;
 import java.awt.Point;
@@ -16,21 +17,19 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import rmiextension.ObjectTracker;
 import rmiextension.wrappers.RObject;
+import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.inspector.ObjectInspector;
 
 /**
  * The worldhandler handles the connection between the GreenfootWorld and the
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3213 2004-12-03 02:57:27Z davmac $
+ * @version $Id: WorldHandler.java 3218 2004-12-06 03:43:52Z davmac $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -162,15 +161,30 @@ public class WorldHandler
     
     private JPopupMenu makePopupMenu(final GreenfootObject obj)
     {
-        //JPopupMenu menu = new JPopupMenu();
-        //MethodView [] methods = new MethodView[0];
-        //ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj));
-        // add "inspect"
-        // add "remove"
+//        JPopupMenu menu = new JPopupMenu();
+//        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj));
+//        // add "inspect"
+//        // add "remove"
         JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(obj);
         int cc = menu.getComponentCount();
         menu.remove(cc - 1);
-        JMenuItem m = new JMenuItem("remove");
+        menu.remove(cc - 2);
+        menu.addSeparator();
+        
+        // inspect - change to local version
+        JMenuItem m = new JMenuItem("Inspect");
+        m.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                JFrame parent = (JFrame) worldCanvas.getTopLevelAncestor();
+                DebuggerObject dObj = new LocalObject(obj);
+                ObjectInspector.getInstance(dObj, "", null, null, parent);
+            }
+        });
+        menu.add(m);
+        
+        // remove - change to local version
+        m = new JMenuItem("Remove");
         m.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
