@@ -46,7 +46,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1066 2002-01-07 06:24:09Z ajp $
+ * @version $Id: ClassTarget.java 1091 2002-01-14 04:49:34Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -394,11 +394,27 @@ public class ClassTarget extends EditableTarget
         return new File(getPackage().getPath(), getBaseName() + ".class");
     }
 
+    /**
+     * @return a FileFilter for all inner class files of this target
+     */
+    public FileFilter getInnerClassFiles()
+    {
+       return new InnerClassFileFilter();
+
+    }
+
+    class InnerClassFileFilter implements FileFilter
+    {
+        public boolean accept(File pathname) 
+        {
+            return pathname.getName().startsWith(getBaseName() + "$");    
+        }
+    }
 
     /**
-     ** @return the editor object associated with this target. May be null
-     **  if there was a problem opening this editor.
-     **/
+     * @return the editor object associated with this target. May be null
+     *  if there was a problem opening this editor.
+     */
     public Editor getEditor()
     {
         if(editor == null)
@@ -1206,7 +1222,18 @@ public class ClassTarget extends EditableTarget
      */
     public void prepareFilesForRemoval()
     {
-        // delegated to role object
+        if (getSourceFile().exists()) {
+            // remove all inner class files starting with the same name as
+            // sourceFile$
+            File[] files = getPackage().getPath().listFiles(getInnerClassFiles());
+
+            if (files != null) {
+                for(int i=0; i<files.length; i++) {
+                   files[i].delete();
+                }
+            }
+        }
+ 
         role.prepareFilesForRemoval(getSourceFile().getPath(),
                                     getClassFile().getPath(),
                                     getContextFile().getPath());
