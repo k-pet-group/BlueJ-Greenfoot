@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2483 2004-03-31 09:13:31Z fisker $
+ * @version $Id: GraphEditor.java 2484 2004-04-06 06:58:05Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -369,5 +369,9 @@ public class GraphEditor extends JComponent
         int y_steps = (int)point.getY() / GraphEditor.GRID_SIZE;
         int new_y = y_steps * GraphEditor.GRID_SIZE;//new y-coor w/ respect to grid
         return new Point(new_x, new_y);
+    }
+    
+    public void clearSelection(){
+        graphElementManager.clear();
     }
 }

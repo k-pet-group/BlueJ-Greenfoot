@@ -4,13 +4,14 @@ import java.awt.*;
 import java.awt.Graphics2D;
 
 import bluej.Config;
+import bluej.graph.GraphElementController;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.DependentTarget;
 
 /**
  * Paints usesDependencies
  * @author fisker
- * @version $Id: UsesDependencyPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ * @version $Id: UsesDependencyPainter.java 2484 2004-04-06 06:58:05Z fisker $
  */
 public class UsesDependencyPainter
 {
@@ -113,7 +114,8 @@ public class UsesDependencyPainter
 
         // Start from the centre of the src class
         Point pFrom = new Point(d.getX() + (int)d.getWidth()/2, d.getY() + (int)d.getHeight()/2);
-        Point pTo = new Point(d.getDependencyArrowX(), d.getDependencyArrowY());
+        Point pTo = new Point(GraphElementController.dependencyArrowX, 
+  			  				  GraphElementController.dependencyArrowY);
 
         // Get the angle of the line from src to dst.
         double angle = Math.atan2(-(pFrom.getY() - pTo.getY()), pFrom.getX() - pTo.getX());

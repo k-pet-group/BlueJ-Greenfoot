@@ -3,13 +3,14 @@ package bluej.pkgmgr.graphPainter;
 import java.awt.*;
 
 import bluej.Config;
+import bluej.graph.GraphElementController;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.target.DependentTarget;
 
 /**
  * Paints a ClassTarget
  * @author fisker
- * @version $Id: ExtendsDependencyPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ * @version $Id: ExtendsDependencyPainter.java 2484 2004-04-06 06:58:05Z fisker $
  */
 public class ExtendsDependencyPainter
 {
@@ -51,7 +52,8 @@ public class ExtendsDependencyPainter
 
         Point pFrom = new Point(d.getX() + d.getWidth()/2,
                 				d.getY() + d.getHeight()/2);
-        Point pTo = new Point(d.getDependencyArrowX(), d.getDependencyArrowY());
+        Point pTo = new Point(GraphElementController.dependencyArrowX, 
+                			  GraphElementController.dependencyArrowY);
         paintArrow(g, pFrom, pTo);
     }
 

@@ -1,5 +1,6 @@
 package bluej.graph;
 
+import java.awt.Point;
 import java.util.*;
 
 
@@ -12,6 +13,8 @@ class GraphElementManager
 {
     private GraphEditor graphEditor;
     private List graphElements = new LinkedList();
+    private int minX = Integer.MAX_VALUE;
+    private int minY = Integer.MAX_VALUE;
     
     
     /**
@@ -34,7 +37,16 @@ class GraphElementManager
     public void add(GraphElement graphElement){
         if (graphElement instanceof Selectable && !((Selectable)graphElement).isSelected()){
             ((Selectable)graphElement).setSelected(true);
-            graphElements.add(graphElement);            
+            graphElements.add(graphElement);
+        }
+        if ( graphElement instanceof Vertex){
+            Vertex vertex = (Vertex) graphElement;
+            if (vertex.getX() < minX){
+                minX = vertex.getX();
+            }
+            if (vertex.getY() < minY){
+                minY = vertex.getY();
+            }
         }
     }
     
@@ -49,6 +61,7 @@ class GraphElementManager
             i.remove();
             graphElements.add(graphElement);
         }
+        findMin();
     }
     
     /**
@@ -60,6 +73,7 @@ class GraphElementManager
             ((Selectable)graphElement).setSelected(false);
         }
         graphElements.remove(graphElement);
+        findMin();
     }
     
     /**
@@ -76,6 +90,8 @@ class GraphElementManager
             } 
             i.remove();
         }
+        minX = Integer.MAX_VALUE;
+        minY = Integer.MAX_VALUE;
     }
     
     public Iterator iterator(){
@@ -89,5 +105,27 @@ class GraphElementManager
      */
     public int getSize(){
         return graphElements.size();
+    }
+    
+    public Point getMinPosition(){
+        return new Point(minX, minY);
+    }
+    
+    private void findMin(){
+        GraphElement graphElement;
+        Vertex vertex;
+        
+        for(Iterator i=graphElements.iterator();i.hasNext();){
+            graphElement = (GraphElement) i.next();
+            if(graphElement instanceof Vertex){
+                vertex = (Vertex) graphElement;
+                if (vertex.getX() < minX){
+                    minX = vertex.getX();
+                }
+                if (vertex.getY() < minY){
+                    minY = vertex.getY();
+                }
+            } 
+        }
     }
 }

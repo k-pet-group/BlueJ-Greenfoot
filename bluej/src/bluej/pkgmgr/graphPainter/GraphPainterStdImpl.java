@@ -15,7 +15,7 @@ import bluej.pkgmgr.Package;
 /**
  * Paints a Graph using TargetPainters
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2475 2004-02-10 09:53:59Z fisker $
+ * @version $Id: GraphPainterStdImpl.java 2484 2004-04-06 06:58:05Z fisker $
  */
 public class GraphPainterStdImpl implements GraphPainter
 {
@@ -52,16 +52,11 @@ public class GraphPainterStdImpl implements GraphPainter
         Edge edge;
         Vertex vertex;
         Target target;
-        DependentTarget dependentTarget = null;
         
         paintEdges(g, graph);
-        dependentTarget = paintVertices(g, graph, dependentTarget);
+        paintVertices(g, graph);
         paintGhosts(g, graph);
-        
-        //Paint the intermediate dependencies
-        if (dependentTarget != null) {
-            paintIntermediateDependency(g, dependentTarget);
-        }
+        paintIntermediateDependency(g);
     }
     
     
@@ -81,7 +76,7 @@ public class GraphPainterStdImpl implements GraphPainter
     
     
     /**
-     * Paint the vertices in 'graph' on 'g'. If one of the targets to be paintet
+     * Paint the vertices in 'graph' on 'g'. If one of the targets to be painted
      * is in the process of drawing a dependency to another class, assign
      * that class to 'dependency'
      * @param g
@@ -89,21 +84,13 @@ public class GraphPainterStdImpl implements GraphPainter
      * @param dependentTarget
      * @return the class from which a dependency is being drawn. Null if none.
      */
-    private DependentTarget paintVertices(Graphics2D g, Graph graph, DependentTarget dependentTarget) {
+    private void paintVertices(Graphics2D g, Graph graph) {
         Vertex vertex;
         //Paint the vertices
         for(Iterator it = graph.getVertices(); it.hasNext(); ) {
             vertex = (Vertex)it.next();
-            //Check if a dependency is being drawn from the current target.
-            if (vertex instanceof DependentTarget && dependentTarget==null) { 
-                dependentTarget = (DependentTarget) vertex;
-                if (!dependentTarget.isDrawingDependency()) {
-                    dependentTarget = null;
-                }
-            }
             paintVertex(g, vertex);
         }
-        return dependentTarget;
     }
     
     
@@ -116,12 +103,15 @@ public class GraphPainterStdImpl implements GraphPainter
     private void paintGhosts(Graphics2D g, Graph graph) {
         Vertex vertex;
         Target target;
+        boolean isTargetAtStartingPoint;
         //Paint the ghosts
         for(Iterator it = graph.getVertices(); it.hasNext(); ) {
             vertex = (Vertex)it.next();
             if( vertex instanceof Target){
                 target = (Target) vertex;
-                if (target.isMoving() && target.hasMoved()){
+                isTargetAtStartingPoint = target.getX() != target.getGhostX() || 
+                                          target.getY() != target.getGhostY();
+                if (target.isMoving() && isTargetAtStartingPoint){
                     paintGhostVertex(g, vertex);
                 }
             }
@@ -197,8 +187,11 @@ public class GraphPainterStdImpl implements GraphPainter
      * @param g
      * @param d
      */
-    private void paintIntermediateDependency(Graphics2D g, DependentTarget d){
-        
+    private void paintIntermediateDependency(Graphics2D g){
+       DependentTarget d = GraphElementController.dependTarget;
+       if (d==null){
+           return;
+       }
        if (d.getPackage().getState() == Package.S_CHOOSE_EXT_TO) {
            extendsDependencyPainter.paintIntermediateDependency(g, d);
        } else if (d.getPackage().getState() == Package.S_CHOOSE_USES_TO){

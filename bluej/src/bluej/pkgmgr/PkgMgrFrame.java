@@ -32,7 +32,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2483 2004-03-31 09:13:31Z fisker $
+ * @version $Id: PkgMgrFrame.java 2484 2004-04-06 06:58:05Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1549,6 +1549,7 @@ public class PkgMgrFrame extends JFrame
     {
         pkg.setState(Package.S_CHOOSE_USES_FROM);
         setStatus(Config.getString("pkgmgr.chooseUsesFrom"));
+        pkg.getEditor().clearSelection();
     }
 
     /**
@@ -1558,6 +1559,7 @@ public class PkgMgrFrame extends JFrame
     {
         pkg.setState(Package.S_CHOOSE_EXT_FROM);
         setStatus(Config.getString("pkgmgr.chooseInhFrom"));
+        pkg.getEditor().clearSelection();
     }
 
     /**

@@ -11,13 +11,13 @@ import java.util.Properties;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
-import java.awt.event.*;
+
 
 /**
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2483 2004-03-31 09:13:31Z fisker $
+ * @version $Id: Target.java 2484 2004-04-06 06:58:05Z fisker $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -30,10 +30,6 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     static final int TEXT_BORDER = 4;
     static final int SHAD_SIZE = 4;
 
-    static final Color shadowCol = Config.getItemColour("colour.target.shadow");
-    static final Color graphbg = Config.getItemColour("colour.graph.background");
-
-    
     
     /** States **/
     public static final int S_NORMAL = 0;
@@ -48,11 +44,11 @@ public abstract class Target extends Vertex implements Comparable, Selectable
 
     protected boolean resizing;
     protected boolean disabled;
-    private static int dragStartX; 
-    private static int dragStartY;
-    private int ghostX;
-    private int ghostY;
+    
+    public int ghostX;
+    public int ghostY;
     private boolean isMoving;
+    public Rectangle oldRect; //TODO incapsulate field
 
     protected int state = S_INVALID;
 
@@ -216,6 +212,10 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         return isMoveable() && isMoving;
     }
     
+    public void setIsMoving(boolean isMoving){
+        this.isMoving = isMoving;
+    }
+    
     public boolean isQueued() {
         return queued;
     }
@@ -282,86 +282,14 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         isMoving = false;
     }
 
-    abstract Color getBackgroundColour();
-    abstract Color getBorderColour();
-    abstract Color getTextColour();
-    abstract Font getFont();
-
+   
     public void repaint()
     {
         if (pkg.getEditor() != null) {
             pkg.getEditor().repaint();
         }
     }
-
-    /* Mouse interaction handling */
-
-    Rectangle oldRect;
-
-    public void mousePressed(MouseEvent evt, GraphEditor editor)
-    {
-        if(pkg.getState() != Package.S_IDLE) {
-            pkg.targetSelected(this);
-        }
-        dragStartX = evt.getX();
-        dragStartY = evt.getY();
-        oldRect = new Rectangle(getX(), getY(), getWidth(), getHeight());
-    }
-
-    public void mouseReleased(MouseEvent evt, GraphEditor editor)
-    {
-        if (isMoving()) {
-            setPos(ghostX, ghostY);
-            endMove();
-        }
-        
-        Rectangle newRect = new Rectangle(getX(), getY(), getWidth(), 
-                						  getHeight());  
-        
-        if(!newRect.equals(oldRect)) {
-            editor.revalidate();
-            editor.repaint();
-            
-        }
-
-    }
-
-    /**
-     * The mouse is dragged and the initial click was on this target. Move or
-     * resize the target.
-     */
-    public void mouseDragged(MouseEvent evt, GraphEditor editor)
-    {   
-        int deltaX = evt.getX() - getDragStartX();
-        int deltaY = evt.getY() - getDragStartY();
-        Point p = GraphEditor.snapToGrid( new Point(deltaX, deltaY) );
-        deltaX = (int) p.getX();
-        deltaY = (int) p.getY();
-        
-        handleDelta(deltaX, deltaY);
-        
-        editor.repaint();
-    }
-    
    
-    /**
-     * @param deltaX
-     * @param deltaY
-     * @param editor
-     */
-    public void handleDelta(int deltaX, int deltaY) {
-        isMoving = !isResizing(); // if this class is clicked and dragged
-        						  // and isn't resizing, it must be moving.
-        if (isMoving()) {	        
-	        ghostX = getX() + deltaX;
-	        ghostY = getY() + deltaY;
-        }
-        else if(isResizable()) {// Then we're resizing
-	        int origWidth = (int) oldRect.getWidth();
-	        int origHeight = (int) oldRect.getHeight();
-	        setSize(origWidth + deltaX, origHeight + deltaY);
-        }
-    }
 
     /**
      * We have a notion of equality that relates solely to the
@@ -419,24 +347,5 @@ public abstract class Target extends Vertex implements Comparable, Selectable
      */
     public int getGhostY() {
         return ghostY;
-    }
-    
-    /**
-     * Compares the position of the ghost of this class and the position of
-     * the class itself. If the ghost is positioned on top of it's class, false
-     * is returned, true otherwise.
-     * @return
-     */
-    public boolean hasMoved(){
-        return getX() != getGhostX() || getY() != getGhostY();
-    }
-
-    public int getDragStartX() {
-        return dragStartX;
-    }
-
-    public int getDragStartY() {
-        return dragStartY;
-    }
-        
+    }   
 }

@@ -15,7 +15,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 2483 2004-03-31 09:13:31Z fisker $
+ * @version	$Id: DependentTarget.java 2484 2004-04-06 06:58:05Z fisker $
  */
 public abstract class DependentTarget extends Target
 {
@@ -314,72 +314,14 @@ public abstract class DependentTarget extends Target
 
         return p;
     }
-
-    abstract Color getBackgroundColour();
-    abstract Color getBorderColour();
-    abstract Color getTextColour();
-    abstract Font getFont();
     
-    private int dependencyArrowX;
-    private int dependencyArrowY;
-    private boolean isDrawingDependency;
-    
-    public void mousePressed(MouseEvent evt, GraphEditor editor)
-    {
-        super.mousePressed(evt, editor);
-        dependencyArrowX = evt.getX();
-        dependencyArrowY = evt.getY();
-    }
-
-    
-    public void mouseDragged(MouseEvent evt, GraphEditor editor) {
-        if (isStateDrawingDependency()) {
-            isDrawingDependency = true;
-            // Draw a line from this Target to the current Cursor position
-            dependencyArrowX = evt.getX();
-            dependencyArrowY = evt.getY();
-            editor.repaint(); //TODO add parameters
-        }
-        else {
-            super.mouseDragged(evt, editor);
-        }
-    }
-
-    public void mouseMoved(MouseEvent evt, GraphEditor editor) {
-        if (isStateDrawingDependency()) {
-            isDrawingDependency = true;
-            dependencyArrowX = evt.getX();
-            dependencyArrowY = evt.getY();
-            editor.repaint();
-        }
-    }
-    
-    public void mouseReleased(MouseEvent evt, GraphEditor editor)
-    {
-        super.mouseReleased(evt, editor);
-        handleMoveAndResizing();
-        if (isStateDrawingDependency()){
-            if (!this.contains(evt.getX(), evt.getY())) {
-	            handleNewDependencies(evt);
-	            dependencyArrowX = 0;
-	            dependencyArrowY = 0;
-		        getPackage().setState(Package.S_IDLE); 
-		        editor.repaint();
-            } 
-        }
-    }
-    
-    private boolean isStateDrawingDependency() {
-        return (getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
-        	   (getPackage().getState() == Package.S_CHOOSE_EXT_TO);
-    }
     
     /**
      * The user may have moved or resized the target. If so, recalculate the
      * dependency arrows associated with this target.
      * @param editor
      */
-    private void handleMoveAndResizing() {
+    public void handleMoveAndResizing() {
         Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), 
                 						  getHeight());
         //If the target moved or changed size, the depend arrows must be updated
@@ -400,52 +342,10 @@ public abstract class DependentTarget extends Target
         }
     }
 
-    /**
-     * If the user release the mouse over a target, it may mean that a new
-     * dependency should be created.
-     * @param evt
-     */
-    private void handleNewDependencies(MouseEvent evt) {
-        //are we adding a dependency arrow
-        if (isStateDrawingDependency()) {
-            // What target is this pointing at now?
-            Target overClass = null;
-            for(Iterator it = getPackage().getVertices(); overClass == null && it.hasNext(); ) {
-                Target v = (Target)it.next();
-
-                if (v.contains(evt.getX(), evt.getY())){
-                    overClass = v;
-                }
-            }
-            if (overClass != null && overClass != this) {
-                getPackage().targetSelected(overClass);
-            }
-        }
-    }
 
     public String toString()
     {
         return getDisplayName();
     }
 
-
-
-    /**
-     * @return Returns the isDrawingDependency.
-     */
-    public boolean isDrawingDependency() {
-        return isDrawingDependency;
-    }
-    /**
-     * @return Returns the dependencyArrowX.
-     */
-    public int getDependencyArrowX() {
-        return dependencyArrowX;
-    }
-    /**
-     * @return Returns the dependencyArrowY.
-     */
-    public int getDependencyArrowY() {
-        return dependencyArrowY;
-    }
 }
