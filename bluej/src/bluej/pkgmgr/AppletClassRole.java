@@ -21,7 +21,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 284 1999-11-25 02:34:37Z ajp $
+ ** @version $Id: AppletClassRole.java 392 2000-02-15 03:56:03Z bquig $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -31,10 +31,11 @@ public class AppletClassRole extends ClassRole
     static final String htmlComment = Config.getString("pkgmgr.runApplet.htmlComment");
     static final String htmlType = Config.getPropString("bluej.applet.jvm");
     static final String appletType = Config.getPropString("bluej.applet.type");
+	static final String APPLETVIEWER_COMMAND = Config.getPropString("appletViewer.command");
 
     static final String HTML_EXTENSION = ".html";
     static final String THIS_DIRECTORY = ".";
-    static final String APPLETVIEWER_COMMAND = "appletviewer"; // move to bluej.defs
+    //static final String APPLETVIEWER_COMMAND = "appletviewer"; // move to bluej.defs
     static final String URL_PREFIX = "file://localhost/";
     static final int DEFAULT_APPLET_WIDTH = 200;
     static final int DEFAULT_APPLET_HEIGHT = 100;
@@ -205,8 +206,8 @@ public class AppletClassRole extends ClassRole
 
 		if(execOption == RunAppletDialog.EXEC_APPLETVIEWER) {
 		    try {
-			String[] execCommand = {APPLETVIEWER_COMMAND, url};
-			((PkgMgrFrame)pkg.getFrame()).displayMessage("Executing Applet in appletviewer");
+				String[] execCommand = {APPLETVIEWER_COMMAND, url};
+				((PkgMgrFrame)pkg.getFrame()).displayMessage("Executing Applet in appletviewer");
 			Process applet = 
 			    Runtime.getRuntime().exec(execCommand);
 		    } catch (Exception e) {
