@@ -21,11 +21,8 @@ import java.awt.Window;
 /**
  * The BlueJ proxy Package object. 
  * This represents an open package, and functions relating to that package.
- * NOTA: The same reasoning apply here as for the BProject. I am storing as little as
- * possible and try to get all info dynamically. I need this to be in sync with BlueJ
- * This MAY NOT be ENOUGH so, check it with Andrew.
  *
- * @version $Id: BPackage.java 1712 2003-03-20 10:39:46Z damiano $
+ * @version $Id: BPackage.java 1722 2003-03-21 09:39:02Z damiano $
  */
 public class BPackage
 {
@@ -182,9 +179,9 @@ public class BPackage
    
         ObjectWrapper[] objectWrappers = pmf.getObjectBench().getWrappers();
         BObject[] objects = new BObject [objectWrappers.length];
-        for (int i=0; i<objectWrappers.length; i++) {
-            ObjectWrapper wrapper = (ObjectWrapper)objectWrappers[i];
-            objects[i] = new BObject (wrapper);
+        for (int index=0; index<objectWrappers.length; index++) {
+            ObjectWrapper wrapper = (ObjectWrapper)objectWrappers[index];
+            objects[index] = new BObject (wrapper);
         }
         return objects;
     }
