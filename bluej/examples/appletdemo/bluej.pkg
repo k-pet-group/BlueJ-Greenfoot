@@ -3,14 +3,12 @@ package.numDependencies=0
 package.numTargets=1
 package.window.height=450
 package.window.width=512
-target1.appletHeight=100
-target1.appletParameter1=<PARAM\ NAME\ \=\ hoehe\ \ \ VALUE\ \=\ 100>
-target1.appletParameter2=<PARAM\ NAME\ \=\ breite\ \ \ VALUE\ \=\ 200>
+target1.appletHeight=250
 target1.appletWidth=250
 target1.height=50
 target1.modifiers=0
 target1.name=CaseConverter
-target1.numberAppletParameters=2
+target1.numberAppletParameters=0
 target1.type=AppletTarget
 target1.valid=true
 target1.width=110
