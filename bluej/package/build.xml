@@ -13,6 +13,7 @@
         <include name="lib/MRJToolkitStubs.zip" />
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
+        <include name="lib/userlib/README.TXT" />
     </patternset>
 
     <patternset id="bluej.libdirs">
@@ -32,7 +33,6 @@
         <include name="lib/spanish/" />
         <include name="lib/swedish/" />
         <include name="lib/extensions/" />
-        <include name="lib/userlib" />
     </patternset>
 
     <patternset id="bluej.examples">
