@@ -16,7 +16,7 @@ import java.util.*;
 public class MenuManager 
   {
   // To get the JMenuItem from the extension I need to know this so I store it away
-  private ExtensionWrapper myWrapper;
+  private final ExtensionWrapper myWrapper;
 
   /** 
    * I need to remembar what JMenuItem is associated with PkgMgrFrame
