@@ -8,17 +8,17 @@ import bluej.utility.DialogManager;
 import java.io.*;
 import java.net.URL;
 
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 /**
- * Dialog for choosing options when exporting
+ * Dialog implementing version check functionality.
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 848 2001-04-12 05:43:30Z mik $
+ * @version $Id: VersionCheckDialog.java 851 2001-04-19 01:53:36Z mik $
  */
+
 final class VersionCheckDialog extends JDialog
      implements ActionListener
 {
@@ -35,7 +35,12 @@ final class VersionCheckDialog extends JDialog
     private JButton closeButton;
 
     private String newVersion = null;
+    private Thread versionThread = null;
+    private boolean isClosed = false;
 
+    /**
+     * Create a new version check dialogue and make it visible.
+     */
     public VersionCheckDialog(PkgMgrFrame parent)
     {
         super(parent, dialogTitle, true);
@@ -43,6 +48,9 @@ final class VersionCheckDialog extends JDialog
         setVisible(true);
     }
 
+    /**
+     * A button was pressed. Check which one and do the right thing.
+     */
     public void actionPerformed(ActionEvent evt)
     {
         String cmd = evt.getActionCommand();
@@ -59,78 +67,20 @@ final class VersionCheckDialog extends JDialog
      */
     private void doClose()
     {
+        isClosed = true;
         setVisible(false);
     }
 
     /**
-     *
+     * Perform a version check. 
      */
     private void doVersionCheck()
     {
-        try {
-            InputStream is = new URL(versionURL).openStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-            if(isOutOfDate(reader))
-                displayNewVersionInfo(reader);
-            else
-                textArea.setText(Config.getString("pkgmgr.versionDlg.upToDate"));
-        }
-        catch(IOException exc) {
-            textArea.setText("Error: could not access remote version information");
-            Debug.reportError("IO error when trying to access URL\n" + exc);
-        }
+        versionThread = new VersionChecker();
+        //versionThread.setPriority(Thread.MIN_PRIORITY);
+        versionThread.start();
     }
 
-    /**
-     * Given a reader for the (remote) version file, check whether this
-     * version is out of date. We know that the first line of the version
-     * file contains the up-to-date version number.
-     */
-    private boolean isOutOfDate(BufferedReader versionReader)
-    {
-        try {
-            newVersion = versionReader.readLine();
-            if(newVersion != null)
-                newVersion = newVersion.trim();
-        }
-        catch(IOException exc) {
-            textArea.setText("Error: could not read remote version information");
-            Debug.reportError("IO error when reading remote version info\n" + exc);
-        }
-        return ! Main.BLUEJ_VERSION.equals(newVersion);
-    }
-
-    /**
-     * Given a reader for the (remote) version file, read the version
-     * info text out of it and display it in the text area.
-     */
-    private void displayNewVersionInfo(BufferedReader versionReader)
-    {
-        if(newVersion == null)
-            textArea.setText("Error: could not read remote version info");
-        else {
-            textArea.setText(Config.getString("pkgmgr.versionDlg.currentVersion"));
-            textArea.append(Main.BLUEJ_VERSION);
-            textArea.append("\n");
-            textArea.append(Config.getString("pkgmgr.versionDlg.newVersion"));
-            textArea.append(newVersion);
-            textArea.append("\n");
-
-            try {
-                String line = versionReader.readLine();
-                while(line != null) {
-                    textArea.append(line);
-                    textArea.append("\n");
-                    line = versionReader.readLine();
-                }
-            }
-            catch(IOException exc) {
-                Debug.reportError("IO error when reading from version file");
-            }
-            textArea.setCaretPosition(0);
-        }
-    }
 
 
     /**
@@ -182,8 +132,8 @@ final class VersionCheckDialog extends JDialog
 
                 // try to make the OK and cancel buttons have equal width
                 closeButton.setPreferredSize(
-                       new Dimension(checkButton.getPreferredSize().width,
-                                     closeButton.getPreferredSize().height));
+                                             new Dimension(checkButton.getPreferredSize().width,
+                                                           closeButton.getPreferredSize().height));
             }
 
             mainPanel.add(buttonPanel);
@@ -194,4 +144,94 @@ final class VersionCheckDialog extends JDialog
 
         DialogManager.centreDialog(this);
     }
+
+
+    /**
+     * Private class to run the actual version checking in separate thread.
+     */
+    private class VersionChecker extends Thread
+    {
+        public VersionChecker()
+        {
+        }
+
+        /**
+         * Do a version check. That is: open a URL connection to the remote 
+         * version file and read it. Display version info as appropriate.
+         */
+        public void run()
+        {
+            textArea.setText("Making connection to version server...");
+            try {
+                InputStream is = new URL(versionURL).openStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                
+                if(isOutOfDate(reader)) {
+                    if(!isClosed)
+                        displayNewVersionInfo(reader);
+                }
+                else {
+                    if(!isClosed)
+                        textArea.setText(Config.getString("pkgmgr.versionDlg.upToDate"));
+                }
+            }
+            catch(IOException exc) {
+                if(!isClosed)
+                    textArea.setText("Error: could not access remote version information");
+                Debug.reportError("IO error when trying to access URL\n" + exc);
+            }
+        }
+
+        /**
+         * Given a reader for the (remote) version file, check whether this
+         * version is out of date. We know that the first line of the version
+         * file contains the up-to-date version number.
+         */
+        private boolean isOutOfDate(BufferedReader versionReader)
+        {
+            try {
+                newVersion = versionReader.readLine();
+                if(newVersion != null)
+                    newVersion = newVersion.trim();
+            }
+            catch(IOException exc) {
+                textArea.setText("Error: could not read remote version information");
+                Debug.reportError("IO error when reading remote version info\n" + exc);
+            }
+            return ! Main.BLUEJ_VERSION.equals(newVersion);
+        }
+
+        /**
+         * Given a reader for the (remote) version file, read the version
+         * info text out of it and display it in the text area.
+         */
+        private void displayNewVersionInfo(BufferedReader versionReader)
+        {
+            if(newVersion == null)
+                textArea.setText("Error: could not read remote version info");
+            else {
+                textArea.setText(Config.getString("pkgmgr.versionDlg.currentVersion"));
+                textArea.append(Main.BLUEJ_VERSION);
+                textArea.append("\n");
+                textArea.append(Config.getString("pkgmgr.versionDlg.newVersion"));
+                textArea.append(newVersion);
+                textArea.append("\n");
+
+                try {
+                    String line = versionReader.readLine();
+                    while(line != null) {
+                        textArea.append(line);
+                        textArea.append("\n");
+                        line = versionReader.readLine();
+                    }
+                }
+                catch(IOException exc) {
+                    Debug.reportError("IO error when reading from version file");
+                }
+                textArea.setCaretPosition(0);
+            }
+        }
+
+    } // end class VersionChecker
+
 }

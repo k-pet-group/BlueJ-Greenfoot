@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 839 2001-04-12 04:55:46Z mik $
+ * @version $Id: PkgMgrFrame.java 851 2001-04-19 01:53:36Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -790,7 +790,7 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case HELP_VERSIONCHECK:             // can be executed when isEmptyFrame() is true
-            VersionChecker.getVersionChecker().checkVersion(this);
+            VersionCheckDialog dialog = new VersionCheckDialog(this);
             break;
 
         case HELP_COPYRIGHT:

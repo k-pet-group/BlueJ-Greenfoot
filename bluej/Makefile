@@ -22,14 +22,14 @@
 
 include $(OS).mk
 
-PKG_VERSION = 113pre3
+PKG_VERSION = 113mac
 
 SUBDIRS = \
 	src
 
 INSTALL_IMAGES = \
-	images/*.gif \
-	images/*.jpg
+	lib/images/*.gif \
+	lib/images/*.jpg
 
 INSTALL_LIB_FILES = \
 	lib/abstract.tmpl \
@@ -83,16 +83,16 @@ dist: $(PACKAGES)
 package/bluej-$(PKG_VERSION).jar: distcompile
 	rm -rf install_tmp
 	mkdir install_tmp
-	mkdir install_tmp/images
 	mkdir install_tmp/lib
+	mkdir install_tmp/lib/images
 	mkdir install_tmp/examples
-	chmod -R a+rx images
-
-	# install images
-	cp -p $(INSTALL_IMAGES) install_tmp/images
+	chmod -R a+rx lib/images
 
 	# install lib files
 	cp -p $(INSTALL_LIB_FILES) install_tmp/lib
+
+	# install images
+	cp -p $(INSTALL_IMAGES) install_tmp/lib/images
 
 	# install lib directories (and remove CVS directories)
 	cp -rp $(INSTALL_LIB_DIRS) install_tmp/lib
