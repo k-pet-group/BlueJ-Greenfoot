@@ -112,6 +112,11 @@ An error occurred while trying to export the
 application. Some or all files may not have 
 been correctly copied.
 
+error-writing-jar
+The jar file could not be written correctly.
+(Check the file system for access rights and
+disk space availability.)
+
 invalid-class-name
 Invalid Class Name.
 

@@ -8,5 +8,5 @@ target1.modifiers=0
 target1.name=Hello
 target1.type=ClassTarget
 target1.width=80
-target1.x=70
-target1.y=60
+target1.x=100
+target1.y=80

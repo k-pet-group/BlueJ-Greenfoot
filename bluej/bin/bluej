@@ -3,8 +3,8 @@
 BINDIR=`dirname $0`
 . $BINDIR/config
 
-JAVA_BIN=`which java 2>/dev/null`
-SUNTOOLS=`dirname $JAVA_BIN`/../lib/tools.jar
+JAVA_BIN=/usr/java
+SUNTOOLS=$JAVA_BIN/lib/tools.jar
 BLUEJ_HOME=$BINDIR/.. 
 CLASSROOT=$BLUEJ_HOME/classes
 JPDA=$BLUEJ_HOME/lib/jpda.jar

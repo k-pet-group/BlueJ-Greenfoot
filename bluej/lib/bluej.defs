@@ -108,9 +108,9 @@ bluej.fontsize=12
 # fonts for screen projections are SansSerif-bold, 14pt, or Courier-bold, 18pt.
 # Some examples:
 #
-# bluej.editor.font=Courier
-# bluej.editor.font=Courier-bold
-bluej.editor.font=SansSerif
+bluej.editor.font=Monospaced
+# bluej.editor.font=Monospaced-bold
+# bluej.editor.font=SansSerif
 # bluej.editor.font=SansSerif-bold
 # bluej.editor.font=Verdana
 # bluej.editor.font=Verdana-bold

@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 580 2000-06-22 07:17:42Z mik $
+ * @version $Id: ExportManager.java 582 2000-06-23 06:55:35Z mik $
  */
 final class ExportManager
 {
@@ -28,8 +28,9 @@ final class ExportManager
     }
 
     /**
-     * 
-     * 
+     * Envoke the "export" user function. This starts by displaying the
+     * export dialog, then it calls the appropriate export implementation
+     * function (jar or directory).
      */
     public void export()
     {
@@ -61,6 +62,9 @@ final class ExportManager
                       dialog.includeSource());
     }
 
+    /**
+     * Export this project to a jar file.
+     */
     private void exportJar(String sourceDir, String fileName, 
                            String mainClass, boolean includeSource)
     {
@@ -108,7 +112,8 @@ final class ExportManager
             frame.setStatus(Config.getString("pkgmgr.exported.jar"));
         }
         catch(IOException exc) {
-            Debug.reportError("problem: " + exc);
+            DialogManager.showError(frame, "error-writing-jar");
+            Debug.reportError("problen writing jar file: " + exc);
         } finally {
             try {
                 if(jStream != null)
@@ -117,6 +122,9 @@ final class ExportManager
         }
     }
 
+    /**
+     * Write a jar file entry to the jar output stream.
+     */
     private void writeJarEntry(File file, JarOutputStream jStream, 
                                   String entryName)
         throws IOException
@@ -134,6 +142,9 @@ final class ExportManager
         }
     }
 
+    /**
+     * Export this project to a directory.
+     */
     private void exportDir(String sourceDir, String destDir, String mainClass, 
                            boolean includeSource)
     {

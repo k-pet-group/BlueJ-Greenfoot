@@ -3,14 +3,10 @@ done
   export
 
 done recently
-  export dir
-  export jar
-  status message to indicate success/failure
-  dialog: make drop menu for classes
-
-to do
   error dialog for jar export error
   comments in exportmanager
+
+to do
 
 other
   default text for README

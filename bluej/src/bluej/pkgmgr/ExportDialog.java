@@ -1,6 +1,7 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.JavaNames;
@@ -15,11 +16,11 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
-* Dialog for choosing options when exporting
-*
-* @author  Andrew Patterson
-* @version $Id: ExportDialog.java 580 2000-06-22 07:17:42Z mik $
-*/
+ * Dialog for choosing options when exporting
+ *
+ * @author  Michael Kolling
+ * @version $Id: ExportDialog.java 582 2000-06-23 06:55:35Z mik $
+ */
 class ExportDialog extends JDialog
 implements ActionListener
 {
@@ -36,7 +37,7 @@ implements ActionListener
     private static final String noClassText = Config.getString("pkgmgr.export.noClassText");
     private static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
-    private String mainClassName = "";
+    private String mainClassName = null;
 
     private JRadioButton directoryButton;
     private JRadioButton jarButton;
@@ -105,7 +106,7 @@ implements ActionListener
     {
         mainClassName = (String)classSelect.getSelectedItem();
         if(mainClassName.equals(noClassText))
-            mainClassName = "";
+            mainClassName = null;
         ok = true;
         setVisible(false);
     }
@@ -224,6 +225,7 @@ implements ActionListener
      */
     private void makeClassPopup(JComboBox popup)
     {
+    	popup.setFont(PrefMgr.getStandardMenuFont());
         popup.addItem(noClassText);
 
         List packageNames = project.getPackageNames();

@@ -5,7 +5,7 @@
  ** Test program to demonstrate BlueJ
  **/
 
-public class hello
+public class Hello
 {
     static final int cons = 42;
     static int stats = 0;
@@ -24,7 +24,7 @@ public class hello
      */
     public static void main(String[] args)
     {
-	       hello h = new hello();
+	       Hello h = new Hello();
 	       h.go();
         for(int i = 0; i < args.length; i++) 
             System.out.println("Hello " + args[i]);
