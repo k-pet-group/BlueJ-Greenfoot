@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1741 2003-04-04 08:41:09Z mik $
+ * @version $Id: PkgMgrFrame.java 1769 2003-04-09 14:55:30Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -128,7 +128,7 @@ public class PkgMgrFrame extends JFrame
     {
         PkgMgrFrame pmf = findFrame(pkg);
 
-        if (pmf == null) {
+        if(pmf == null) {
             // check whether we've got an empty frame
 
             if(frames.size() == 1)
@@ -140,7 +140,7 @@ public class PkgMgrFrame extends JFrame
             pmf.openPackage(pkg);
         }
 
-        extMgr.addMenuItems (pmf.getProject(), pmf, pmf.toolsMenu);
+        extMgr.addMenuItems(pmf.getProject(), pmf);
         return pmf;
     }
 
@@ -2037,11 +2037,8 @@ public class PkgMgrFrame extends JFrame
                                public void actionPerformed(ActionEvent e) { menuCall(); PrefMgrDialog.showDialog(frame); }
                            });
 
-
-
-
             toolsExtensionsCheckSeparator();
-            extMgr.addMenuItems (null, this, toolsMenu);
+            extMgr.addMenuItems (null, this);
         }
 
 
@@ -2128,23 +2125,23 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
-    * just returns the menu tool bar
-    */
+     *  Return the menu tool bar.
+     */
     public JMenu getToolsMenu()
-      {
-          return toolsMenu;
-      }
+    {
+        return toolsMenu;
+    }
 
 
     /**
      * I need this call so the separator is added when a menu is added.
      */
     public void toolsExtensionsCheckSeparator()
-      {
-          if ( extMgr.haveMenuItems(null, this, toolsMenu) ) {
-              // I am wishing to add a separator but there is already one.
-              if ( toolsExtensionsSeparatorIndex > 0 ) return;
-              // Yes, this is the right place where to count ....
+    {
+        if ( extMgr.haveMenuItems(null, this, toolsMenu) ) {
+            // I am wishing to add a separator but there is already one.
+            if ( toolsExtensionsSeparatorIndex > 0 ) return;
+            // Yes, this is the right place where to count ....
               toolsExtensionsSeparatorIndex=toolsMenu.getItemCount();
               toolsMenu.addSeparator();
           } else {

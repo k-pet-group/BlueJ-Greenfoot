@@ -270,7 +270,7 @@ public class ExtensionsManager implements BlueJEventListener
      *      swing thread...
      * @param  pmf      The feature to be added to the MenuItems attribute
      */
-    public void addMenuItems(Project project, PkgMgrFrame pmf, JMenu menu)
+    public void addMenuItems(Project project, PkgMgrFrame pmf)
     {
         pmf.toolsExtensionsCheckSeparator();
 
