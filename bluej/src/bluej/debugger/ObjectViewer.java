@@ -21,7 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 346 2000-01-12 03:53:37Z ajp $
+ ** @version $Id: ObjectViewer.java 353 2000-01-12 06:51:38Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -33,6 +33,9 @@ public final class ObjectViewer extends JFrame
 
 	implements ActionListener, ListSelectionListener
 {
+    private static final Image iconImage = new ImageIcon(
+                                            Config.getImageFilename("image.icon")).getImage();
+
     private static final Color bgColor = new Color(208, 212, 208);
 
     private static String inspectTitle = Config.getString("debugger.objectviewer.title");
@@ -133,6 +136,9 @@ public final class ObjectViewer extends JFrame
 			   JFrame parent)
     {
 	super();
+
+    setIconImage(iconImage);
+
 	isInspection = inspect;
 	this.obj = obj;
 	this.pkg = pkg;
