@@ -1,4 +1,7 @@
-# Makefile for BlueJ
+##
+## Makefile for BlueJ sources (part of BlueJ system)
+##
+
 TOP = ../..
 include $(TOP)/$(OS).mk
 
@@ -6,25 +9,56 @@ PKGNAME = bluej
 CLASSROOT = $(subst /,$(SL),$(TOP)/classes)
 SRCROOT = $(subst /,$(SL),$(TOP)/src)
 CTXTROOT = $(TOP)/ctxt
-XCLASSPATH = $(TOP)/lib/swing.jar;$$CLASSPATH
-CLASSPATH = $(subst ;,$(SEP),$(CLASSROOT);$(subst /,$(SL),$(XCLASSPATH)))
+XCLASSPATH = $$CLASSPATH
+#CLASSPATH = $(subst ;,$(SEP),$(CLASSROOT);$(subst /,$(SL),$(XCLASSPATH)))
+
+CLASSPATH = ..:$(TOP)/lib/jpda.jar:$(TOP)/lib/antlr.jar:/usr/local/jdk1.2/lib/tools.jar
+
 LIB = $(TOP)/lib
 JDEPEND = CLASSPATH="$(CLASSPATH)" jdepend
 JAVAC = CLASSPATH="$(CLASSPATH)" javac
-JAVAC_OPTS = -g -deprecation
-#JAVAC_OPTS = -deprecation
+JAVAC_OPTS = -deprecation
 # The BlueJ documentation generator (javadoc with right CLASSPATH + opts)
 JBDOC = jbdoc
 
+
 # Top level files
 BLUEJ_CLASSES = \
-		Config \
 		BlueJEvent \
 		BlueJEventListener \
+		Config \
 		Main
 BLUEJ_SRCS = $(BLUEJ_CLASSES:%=%.java)
 BLUEJ_SRCS_OS = $(subst /,$(SL),$(BLUEJ_SRCS))
 BLUEJ_CLASSFILES = $(BLUEJ_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/%.class)
+
+
+# Browser files
+BROWSER_CLASSES = \
+		AttributeChooser \
+		ChooseUseDestinationDIalog \
+		CodeViewer \
+		FindLibraryDialog \
+		LibraryChooser \
+		LibraryNode \
+		LibraryTreeCellRenderer \
+		StatusBarOwner
+BROWSER_SRCS = $(BROWSER_CLASSES:%=browser/%.java)
+BROWSER_SRCS_OS = $(subst /,$(SL),$(BROWSER_SRCS))
+BROWSER_CLASSFILES = $(BROWSER_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/browser/%.class)
+
+
+# Class Manager files
+CLASSMGR_CLASSES = \
+		ClassMgr \
+		ClassMgrDialog \
+		ClassPath \
+		ClassPathEntry \
+		ClassPathTableModel
+CLASSMGR_SRCS = $(CLASSMGR_CLASSES:%=classmgr/%.java)
+CLASSMGR_SRCS_OS = $(subst /,$(SL),$(CLASSMGR_SRCS))
+CLASSMGR_CLASSFILES = $(CLASSMGR_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/classmgr/%.class)
+
 
 # Compiler files
 COMPILER_CLASSES = \
@@ -32,34 +66,25 @@ COMPILER_CLASSES = \
 		Compiler \
 		CompilerMessageError \
 		CompilerThread \
-		ErrorStream \
 		JavacCompiler \
+		JavacCompilerInternal \
+		JikesCompiler \
 		Job \
-		JobQueue \
-		Queue
+		JobQueue
 COMPILER_SRCS = $(COMPILER_CLASSES:%=compiler/%.java)
 COMPILER_SRCS_OS = $(subst /,$(SL),$(COMPILER_SRCS))
 COMPILER_CLASSFILES = $(COMPILER_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/compiler/%.class)
 
-JAVAC_CLASSES = \
-		BlueJJavacMain \
-		JavacWatcher
-JAVAC_SRCS = $(JAVAC_CLASSES:%=$(SRCROOT)/sun/tools/javac/%.java)
-JAVAC_SRCS_OS = $(subst /,$(SL),$(JAVAC_SRCS))
-JAVAC_CLASSFILES = $(JAVAC_CLASSES:%=$(CLASSROOT)/sun/tools/javac/%.class)
-
-JAVADOC_CLASSES = \
-		BlueJDocumentationGenerator
-JAVADOC_SRCS = $(JAVADOC_CLASSES:%=$(SRCROOT)/sun/tools/javadoc/%.java)
-JAVADOC_SRCS_OS = $(subst /,$(SL),$(JAVADOC_SRCS))
-JAVADOC_CLASSFILES = $(JAVADOC_CLASSES:%=$(CLASSROOT)/sun/tools/javadoc/%.class)
 
 # Debugger files
 DEBUGGER_CLASSES = \
+		CallHistory \
 		Debugger \
 		DebuggerClassLoader \
 		DebuggerObject \
 		DebuggerThread \
+		ExceptionDescription \
+		ExecControlButtonModel \
 		ExecControls \
 		Invoker \
 		MachineLoader \
@@ -69,98 +94,26 @@ DEBUGGER_CLASSES = \
 		ObjectBenchWatcher \
 		ObjectViewer \
 		ObjectWrapper \
-		ResultWatcher \
-		CallHistory
+		ResultWatcher
+DEBUGGER_SRCS = $(DEBUGGER_CLASSES:%=debugger/%.java)
+DEBUGGER_SRCS_OS = $(subst /,$(SL),$(DEBUGGER_SRCS))
+DEBUGGER_CLASSFILES = $(DEBUGGER_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/debugger/%.class)
 
-LOCAL_DEBUG_CLASSES = \
-		LocalDebugger
-
-LOCAL_DEBUG_SRCS = $(LOCAL_DEBUG_CLASSES:%=debugger/local/%.java)
-LOCAL_DEBUG_SRCS_OS = $(subst /,$(SL),$(LOCAL_DEBUG_SRCS))
-LOCAL_DEBUG_CLASSFILES = $(LOCAL_DEBUG_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/debugger/local/%.class)
 
 # classes for JDI (Java Debug Interface) debugger implementation
 JDI_DEBUG_CLASSES = \
-		Array \
-		ClassLoader \
-		Debugger \
-		Object \
-		Thread
-
+		JdiArray \
+		JdiClassLoader \
+		JdiDebugger \
+		JdiObject \
+		JdiThread \
+		VMEventHandler
 JDI_DEBUG_SRCS = $(JDI_DEBUG_CLASSES:%=debugger/jdi/%.java)
 JDI_DEBUG_SRCS_OS = $(subst /,$(SL),$(JDI_DEBUG_SRCS))
 JDI_DEBUG_CLASSFILES = $(JDI_DEBUG_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/debugger/jdi/%.class)
 
 
-# classes for sun.tools debugger implementation
-SUNTOOLS_DEBUG_CLASSES = \
-		SunArray \
-		SunClassLoader \
-		SunDebugger \
-		SunObject \
-		SunThread
-
-SUNTOOLS_DEBUG_SRCS = $(SUNTOOLS_DEBUG_CLASSES:%=debugger/suntools/%.java)
-SUNTOOLS_DEBUG_SRCS_OS = $(subst /,$(SL),$(SUNTOOLS_DEBUG_SRCS))
-SUNTOOLS_DEBUG_CLASSFILES = $(SUNTOOLS_DEBUG_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/debugger/suntools/%.class)
-
-SUN_DEBUG_CLASSES = \
-	SunHooks
-SUN_DEBUG_SRCS = $(SUN_DEBUG_CLASSES:%=$(SRCROOT)/sun/tools/debug/%.java)
-SUN_DEBUG_SRCS_OS = $(subst /,$(SL),$(SUN_DEBUG_SRCS))
-SUN_DEBUG_CLASSFILES = $(SUN_DEBUG_CLASSES:%=$(CLASSROOT)/sun/tools/debug/%.class)
-
-
-# Browser files
-BROWSER_CLASSES = \
-		AddLibraryDialog \
-		AttributeChooser \
-		AttributeChooserRenderer \
-		ChooseUseDestinationDIalog \
-		CodeViewer \
-		FindLibraryDialog \
-		LibraryChooser \
-		LibraryFileFilter \
-		LibraryNode \
-		LibraryPopupMenu \
-		LibraryTreeCellRenderer \
-		SystemLibraryNode \
-		SystemLibraryPopupMenu \
-		UserLibraryNode \
-		UserLibraryPopupMenu
-
-BROWSER_SRCS = $(BROWSER_CLASSES:%=browser/%.java)
-BROWSER_SRCS_OS = $(subst /,$(SL),$(BROWSER_SRCS))
-BROWSER_CLASSFILES = $(BROWSER_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/browser/%.class)
-
-# RED_CLASSES = \
-# 		Action \
-# 		ActionStack \
-# 		Buffer \
-# 		BufferPos \
-# 		Function \
-# 		Info \
-# 		Keymap \
-# 		Line \
-# 		LineFragment \
-# 		Messages \
-# 		MultiLineLabel \
-# 		PrefDialog \
-# 		Question \
-# 		QuestionDialog \
-# 		Red \
-# 		RedEditor \
-# 		RedEditorManager \
-# 		RedVersion \
-# 		Screen \
-# 		Status \
-# 		TextRegion \
-# 		UserFunc \
-# 		UserFuncID
-# RED_SRCS = $(RED_CLASSES:%=editor/red/%.java)
-# RED_SRCS_OS = $(subst /,$(SL),$(RED_SRCS))
-# RED_CLASSFILES = $(RED_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/editor/red/%.class)
-
+# editor files
 EDITOR_CLASSES = \
 		Editor \
 		EditorManager \
@@ -170,71 +123,120 @@ EDITOR_SRCS = $(EDITOR_CLASSES:%=editor/%.java)
 EDITOR_SRCS_OS = $(subst /,$(SL),$(EDITOR_SRCS))
 EDITOR_CLASSFILES = $(EDITOR_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/editor/%.class)
 
+
+# moe files
 MOE_CLASSES = \
 		Finder \
 		FunctionDialog \
 		Info \
 		LineNumberLabel \
 		MoeActions \
+		MoeBoxView \
 		MoeCaret \
 		MoeEditor \
 		MoeEditorKit \
 		MoeEditorManager \
 		MoeParagraphView \
+		Preferences \
 		StatusLabel
-
 MOE_SRCS = $(MOE_CLASSES:%=editor/moe/%.java)
 MOE_SRCS_OS = $(subst /,$(SL),$(MOE_SRCS))
 MOE_CLASSFILES = $(MOE_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/editor/moe/%.class)
+
 
 # Graph files
 GRAPH_CLASSES = \
 		Edge \
 		Graph \
 		GraphEditor \
-		Main \
-		TestEdge \
-		TestGraph \
-		TestVertex \
 		Vertex
 GRAPH_SRCS = $(GRAPH_CLASSES:%=graph/%.java)
 GRAPH_SRCS_OS = $(subst /,$(SL),$(GRAPH_SRCS))
 GRAPH_CLASSFILES = $(GRAPH_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/graph/%.class)
 
+
+# Parser files
+PARSER_CLASSES = \
+		ClassParser \
+		JavaLexer \
+		JavaToken \
+		JavaTokenTypes
+PARSER_SRCS = $(PARSER_CLASSES:%=parser/%.java)
+PARSER_SRCS_OS = $(subst /,$(SL),$(PARSER_SRCS))
+PARSER_CLASSFILES = $(PARSER_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/parser/%.class)
+
+
+# Symtab files
+SYMTAB_CLASSES = \
+		ArrayDef \
+		BlockDef \
+		ClassDef \
+		ClassInfo \
+		Definition \
+		DummyClass \
+		HasImports \
+		IndentingPrintWriter \
+		JavaHashtable \
+		JavaStack \
+		JavaVector \
+		LabelDef \
+		MethodDef \
+		MultiDef \
+		Occurrence \
+		PackageDef \
+		PrimitiveDef \
+		Reportable \
+		ScopedDef \
+		StringTable \
+		SymbolTable \
+		TypedDef \
+		VariableDef
+SYMTAB_SRCS = $(SYMTAB_CLASSES:%=parser/symtab/%.java)
+SYMTAB_SRCS_OS = $(subst /,$(SL),$(SYMTAB_SRCS))
+SYMTAB_CLASSFILES = $(SYMTAB_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/parser/symtab/%.class)
+
+
 # Package manager files
 PKGMGR_CLASSES = \
 		AboutBlue \
+		AppletClassRole \
+		ClassRole \
 		ClassTarget \
 		Dependency \
 		EditableTarget \
 		ExtendsDependency \
 		ImplementsDependency \
 		ImportedClassTarget \
+		JBPackageChooser \
+		JBPackageFileView \
 		LayoutComparer \
 		LibraryBrowserPkgMgrFrame \
 		Main \
 		NewClassDialog \
 		Package \
+		PackageCacheMgr \
 		PackageTarget \
 		PkgFrame \
 		PkgMgrFrame \
-		PackageCacheMgr \
+		RunAppletDialog \
+		SourceInfo \
+		StdClassRole \
 		Target \
-		UsesDependency \
-		JBPackageChooser \
-		JBPackageFileView
+		UsesDependency
 PKGMGR_SRCS = $(PKGMGR_CLASSES:%=pkgmgr/%.java)
 PKGMGR_SRCS_OS = $(subst /,$(SL),$(PKGMGR_SRCS))
 PKGMGR_CLASSFILES = $(PKGMGR_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/pkgmgr/%.class)
 
+
+# Runtime files
 RUNTIME_CLASSES = \
-		BlueJClassLoader \
-		BlueJRuntime \
 		BlueJSecurityManager \
 		BooleanResultWrapper \
 		ByteResultWrapper \
 		CharResultWrapper \
 		DoubleResultWrapper \
+		ExecServer \
+		ExitException \
 		FloatResultWrapper \
 		IntResultWrapper \
 		LongResultWrapper \
@@ -242,41 +244,48 @@ RUNTIME_CLASSES = \
 		Shell \
 		ShortResultWrapper \
 		StringResultWrapper \
-		Terminal \
-		TerminalCanvas \
-		TerminalFrame
+		TerminateException
 RUNTIME_SRCS = $(RUNTIME_CLASSES:%=runtime/%.java)
 RUNTIME_SRCS_OS = $(subst /,$(SL),$(RUNTIME_SRCS))
 RUNTIME_CLASSFILES = $(RUNTIME_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/runtime/%.class)
 
+
+# Terminal files
+TERMINAL_CLASSES = \
+		Terminal \
+		TerminalButtonModel \
+		TerminalCanvas
+TERMINAL_SRCS = $(TERMINAL_CLASSES:%=terminal/%.java)
+TERMINAL_SRCS_OS = $(subst /,$(SL),$(TERMINAL_SRCS))
+TERMINAL_CLASSFILES = $(TERMINAL_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/terminal/%.class)
+
+
 # Utility files
 UTILITY_CLASSES = \
 		AssertionViolationError \
-		ClasspathSearcher \
 		Comparer \
 		Debug \
 		FixedMultiLineLabel \
-		MultiEnumeration \
 		ModelessMessageBox \
+		MultiEnumeration \
+		MultiLineLabel \
+		Queue \
+		SortableVector \
 		ToggleMessageBox \
 		ToggleMessageBoxOwner \
-		MultiLineLabel \
-		OkayDialog \
-		PackageFileFilter \
-		SimpleClassLoader \
-		SortableVector \
 		Utility
 UTILITY_SRCS = $(UTILITY_CLASSES:%=utility/%.java)
 UTILITY_SRCS_OS = $(subst /,$(SL),$(UTILITY_SRCS))
 UTILITY_CLASSFILES = $(UTILITY_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/utility/%.class)
+
 
 # "Views" files
 VIEWS_CLASSES = \
 		Comment \
 		CommentList \
 		ConstructorView \
-		FieldView \
 		EditorPrintWriter \
+		FieldView \
 		FormattedPrintWriter \
 		LabelPrintWriter \
 		MemberView \
@@ -288,74 +297,61 @@ VIEWS_SRCS = $(VIEWS_CLASSES:%=views/%.java)
 VIEWS_SRCS_OS = $(subst /,$(SL),$(VIEWS_SRCS))
 VIEWS_CLASSFILES = $(VIEWS_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/views/%.class)
 
+
 SRCS_OS = \
-	$(COMPILER_SRCS_OS) \
-	$(DEBUGGER_SRCS_OS) \
-	$(SUN_DEBUG_SRCS_OS) \
-	$(EDITOR_SRCS_OS) \
-	$(GRAPH_SRCS_OS) \
 	$(BLUEJ_SRCS_OS) \
 	$(BROWSER_SRCS_OS) \
-	$(JAVAC_SRCS_OS) \
-	$(JAVADOC_SRCS_OS) \
-	$(PKGMGR_SRCS_OS) \
+	$(CLASSMGR_SRCS_OS) \
+	$(COMPILER_SRCS_OS) \
+	$(DEBUGGER_SRCS_OS) \
+	$(JDI_DEBUG_SRCS_OS) \
+	$(EDITOR_SRCS_OS) \
 	$(MOE_SRCS_OS) \
+	$(GRAPH_SRCS_OS) \
+	$(PARSER_SRCS_OS) \
+	$(SYMTAB_SRCS_OS) \
+	$(PKGMGR_SRCS_OS) \
 	$(RUNTIME_SRCS_OS) \
+	$(TERMINAL_SRCS_OS) \
 	$(UTILITY_SRCS_OS) \
 	$(VIEWS_SRCS_OS)
 
 CLASSFILES = \
-	$(COMPILER_CLASSFILES) \
-	$(DEBUGGER_CLASSFILES) \
-	$(SUN_DEBUG_CLASSFILES) \
-	$(EDITOR_CLASSFILES) \
-	$(GRAPH_CLASSFILES) \
 	$(BLUEJ_CLASSFILES) \
 	$(BROWSER_CLASSFILES) \
-	$(JAVAC_CLASSFILES) \
-	$(JAVADOC_CLASSFILES) \
-	$(PKGMGR_CLASSFILES) \
+	$(CLASSMGR_CLASSFILES) \
+	$(COMPILER_CLASSFILES) \
+	$(DEBUGGER_CLASSFILES) \
+	$(JDI_DEBUG_CLASSFILES) \
+	$(EDITOR_CLASSFILES) \
 	$(MOE_CLASSFILES) \
+	$(GRAPH_CLASSFILES) \
+	$(PARSER_CLASSFILES) \
+	$(SYMTAB_CLASSFILES) \
+	$(PKGMGR_CLASSFILES) \
 	$(RUNTIME_CLASSFILES) \
+	$(TERMINAL_CLASSFILES) \
 	$(UTILITY_CLASSFILES) \
 	$(VIEWS_CLASSFILES)
 
 #
 # include a dependency file if one exists
 #
-ifeq (.depend,$(wildcard .depend))
-all: $(CLASSFILES)
-include .depend
-else
-all: dep
-endif
+#ifeq (.depend,$(wildcard .depend))
+#all: $(CLASSFILES)
+#include .depend
+#else
+#all: dep
+#endif
+
+all allclasses::
+	$(JAVAC) $(JAVAC_OPTS) -d ../../classes $(SRCS_OS)
+
 
 moe: $(MOE_CLASSFILES)
 
 ctxt:
 	$(JBDOC) -d $(CTXTROOT) $(SRCS_OS)
 
-.depend depend dep:
-	$(JDEPEND) -d $(CLASSROOT) $(JAVAC_OPTS) $(SRCS_OS) > .depend \
-	|| $(JDEPEND) -d $(CLASSROOT) $(JAVAC_OPTS) $(SRCS_OS) > .depend 
-
-dep1:
-	$(JDEPEND) -d $(CLASSROOT) $(JAVAC_OPTS) $(SRCS_OS) > .depend
-
 clean:
 	$(RM) -r $(CLASSROOT)/$(PKGNAME)
-	$(RM) -r $(JAVAC_CLASSFILES) $(JAVADOC_CLASSFILES)
-
-clobber: clean
-	$(RM) .depend
-
-
-
-
-
-
-
-
-
-
-

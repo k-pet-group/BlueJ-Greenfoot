@@ -5,7 +5,7 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 101 1999-06-01 05:56:29Z mik $
+ ** @version $Id: Terminal.java 163 1999-07-08 00:50:23Z mik $
  **/
 
 package bluej.terminal;
@@ -67,13 +67,13 @@ public class Terminal extends JFrame
 	super.processWindowEvent(e);
 		
 	if (e.getID() == WindowEvent.WINDOW_CLOSING)
-	    show(false);
+	    setVisible(false);
     }
 
 
     public void showTerminal(boolean doShow)
     {
-	show(doShow);
+	setVisible(doShow);
     }
 
     public boolean isShown()

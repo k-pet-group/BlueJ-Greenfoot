@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 144 1999-06-26 02:05:43Z ajp $
+ ** @version $Id: Config.java 163 1999-07-08 00:50:23Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -219,7 +219,7 @@ public class Config
 	String fullname = user_confdir + slash + filename + ".properties";
 	try {
 	    FileOutputStream output = new FileOutputStream(fullname);
-	    props.save(output, getString("properties.heading"));
+	    props.store(output, getString("properties.heading"));
 	} catch(Exception e) {
 	    Debug.reportError("Warning: could not save properties file " + 
 				fullname);

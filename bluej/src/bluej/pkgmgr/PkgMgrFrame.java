@@ -298,8 +298,8 @@ public class PkgMgrFrame extends PkgFrame
 	    Utility.NYI(this);
 	    break;
 
-	case TOOLS_COMPILEALL:
-	    pkg.compileAll();
+	case TOOLS_REBUILD:
+	    pkg.rebuild();
 	    break;
 
 	case TOOLS_BROWSE:

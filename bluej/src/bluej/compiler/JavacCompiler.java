@@ -9,7 +9,7 @@ import bluej.utility.Utility;
 import bluej.Config;
 
 /**
- ** @version $Id: JavacCompiler.java 98 1999-05-31 06:25:17Z ajp $
+ ** @version $Id: JavacCompiler.java 163 1999-07-08 00:50:23Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -20,160 +20,160 @@ import bluej.Config;
 
 public class JavacCompiler extends Compiler
 {
-	String executable;
-	String destdir;
-	String classpath;
-	boolean debug;
-	boolean deprecation;
+    String executable;
+    String destdir;
+    String classpath;
+    boolean debug;
+    boolean deprecation;
 
-	public JavacCompiler(String executable)
-	{
-		this.executable = executable;
-		setDebug(true);
-	}
+    public JavacCompiler(String executable)
+    {
+	this.executable = executable;
+	setDebug(true);
+    }
 	
-	public void setDestDir(String destdir)
-	{
-		this.destdir = destdir;
-	}
+    public void setDestDir(String destdir)
+    {
+	this.destdir = destdir;
+    }
 	
-	public void setClassPath(String classpath)
-	{
+    public void setClassPath(String classpath)
+    {
 	this.classpath = classpath;
+    }
+
+    public void setDebug(boolean debug)
+    {
+	this.debug = debug;
+    }
+
+    public void setDeprecation(boolean deprecation)
+    {
+	this.deprecation = deprecation;
+    }
+
+    public boolean compile(String[] sources, CompileObserver watcher)
+    {
+	Vector args = new Vector();
+		
+	args.addElement(executable);
+
+	if(destdir != null) {
+	    args.addElement("-d");
+	    args.addElement(destdir);
 	}
-
-	public void setDebug(boolean debug)
-	{
-		this.debug = debug;
+		
+	if(classpath != null) {
+	    args.addElement("-classpath");
+	    args.addElement(classpath);
 	}
-
-	public void setDeprecation(boolean deprecation)
-	{
-		this.deprecation = deprecation;
-	}
-
-	public boolean compile(String[] sources, CompileObserver watcher)
-	{
-		Vector args = new Vector();
 		
-		args.addElement(executable);
-
-		if(destdir != null) {
-			args.addElement("-d");
-			args.addElement(destdir);
-		}
+	if(debug)
+	    args.addElement("-g");
 		
-		if(classpath != null) {
-			args.addElement("-classpath");
-			args.addElement(classpath);
-		}
+	if(deprecation)
+	    args.addElement("-deprecation");
 		
-		if(debug)
-			args.addElement("-g");
-		
-		if(deprecation)
-			args.addElement("-deprecation");
-		
-		for(int i = 0; i < sources.length; i++)
-			args.addElement(sources[i]);
+	for(int i = 0; i < sources.length; i++)
+	    args.addElement(sources[i]);
 			
-		int length = args.size();
-		String[] params = new String[length];
-		args.copyInto(params);
+	int length = args.size();
+	String[] params = new String[length];
+	args.copyInto(params);
 		
-		boolean result = false;
+	boolean result = false;
 
-		try {
-			result = executeCompiler(params, watcher);
-		}
-		catch (Exception ioe) {
-			Utility.showError(null, "Compiler error running " + executable + " (is the program in your path)\n");
-		}
-
-		return result;	
+	try {
+	    result = executeCompiler(params, watcher);
+	}
+	catch (Exception ioe) {
+	    Utility.showError(null, "Compiler error running " + executable + " (is the program in your path)\n");
 	}
 
-	private boolean executeCompiler(String[] params, CompileObserver watcher) throws IOException, InterruptedException
-	{
-		int processresult = 0;		// default to fail in case we don't even start compiler process
-		boolean readerror = false;
-			
-		Process compiler = Runtime.getRuntime().exec(params);
-	
-		BufferedReader d = new BufferedReader(
-					new InputStreamReader(compiler.getErrorStream()));
-		String line;
-	
-		while((line = d.readLine()) != null) {
-	
-			Debug.message("Compiler message: " + line);
-	
-			// javac produces error messages in the format
-			// /home/ajp/sample/Tester.java:10: description of error.
-			// line of source code
-			//              ^
-	
-			int first_colon = line.indexOf(':', 0);
-	
-			if(first_colon == -1) {
-				// cannot read format of error message
-				Utility.showError(null, "Compiler error:\n" + line);
-				break;
-			}
+	return result;	
+    }
 
-			String filename = line.substring(0, first_colon);
+    private boolean executeCompiler(String[] params, CompileObserver watcher) throws IOException, InterruptedException
+    {
+	int processresult = 0;		// default to fail in case we don't even start compiler process
+	boolean readerror = false;
+			
+	Process compiler = Runtime.getRuntime().exec(params);
 	
-			// Windows might have a colon after drive name. If so, ignore it
-			if(! filename.endsWith(".java")) {
-				first_colon = line.indexOf(':', first_colon + 1);
+	BufferedReader d = new BufferedReader(
+					      new InputStreamReader(compiler.getErrorStream()));
+	String line;
 	
-				if(first_colon == -1) {
-					// cannot read format of error message
-					Utility.showError(null, "Compiler error:\n" + line);
-					break;
-				}
-				filename = line.substring(0, first_colon);
-			}
+	while((line = d.readLine()) != null) {
 	
-			int second_colon = line.indexOf(':', first_colon + 1);
-			if(second_colon == -1) {
+	    // Debug.message("Compiler message: " + line);
+	
+	    // javac produces error messages in the format
+	    // /home/ajp/sample/Tester.java:10: description of error.
+	    // line of source code
+	    //              ^
+	
+	    int first_colon = line.indexOf(':', 0);
+	
+	    if(first_colon == -1) {
 				// cannot read format of error message
-				Utility.showError(null, "Compiler error:\n" + line);
-				break;
-			}
+		Utility.showError(null, "Compiler error:\n" + line);
+		break;
+	    }
+
+	    String filename = line.substring(0, first_colon);
 	
-			int lineNo = 0;
+	    // Windows might have a colon after drive name. If so, ignore it
+	    if(! filename.endsWith(".java")) {
+		first_colon = line.indexOf(':', first_colon + 1);
 	
-			try {
-				lineNo = Integer.parseInt(line.substring(first_colon + 1, second_colon));
-			} catch(NumberFormatException e) {
+		if(first_colon == -1) {
+		    // cannot read format of error message
+		    Utility.showError(null, "Compiler error:\n" + line);
+		    break;
+		}
+		filename = line.substring(0, first_colon);
+	    }
+	
+	    int second_colon = line.indexOf(':', first_colon + 1);
+	    if(second_colon == -1) {
+				// cannot read format of error message
+		Utility.showError(null, "Compiler error:\n" + line);
+		break;
+	    }
+	
+	    int lineNo = 0;
+	
+	    try {
+		lineNo = Integer.parseInt(line.substring(first_colon + 1, second_colon));
+	    } catch(NumberFormatException e) {
 				// ignore it
-			}
+	    }
 
-			String error = line.substring(second_colon + 1);
+	    String error = line.substring(second_colon + 1);
 	
-			// read and ignore the following two lines (these contain
-			// the faulty source line and an up arrow ^)
+	    // read and ignore the following two lines (these contain
+	    // the faulty source line and an up arrow ^)
 
-			if((d.readLine() == null) || (d.readLine() == null)) {
+	    if((d.readLine() == null) || (d.readLine() == null)) {
 				// we are missing part of the normal error report
-				Utility.showError(null, "Compiler error. Error stream incomplete.\n");
-			}
-			else {
-				Debug.message("Indicating error " + filename + " " + lineNo);
-				readerror = true;
+		Utility.showError(null, "Compiler error. Error stream incomplete.\n");
+	    }
+	    else {
+		Debug.message("Indicating error " + filename + " " + lineNo);
+		readerror = true;
 	
-				watcher.errorMessage(filename, lineNo, error, true);
-				break;
-			}
-		}
-
-		processresult = compiler.waitFor();
-
-		// we consider ourselves successful if we got no error messages and the process 
-		// gave a 0 result
-	
-		return (processresult == 0 && !readerror);
+		watcher.errorMessage(filename, lineNo, error, true);
+		break;
+	    }
 	}
+
+	processresult = compiler.waitFor();
+
+	// we consider ourselves successful if we got no error messages and the process 
+	// gave a 0 result
+	
+	return (processresult == 0 && !readerror);
+    }
 }
 

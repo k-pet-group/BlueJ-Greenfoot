@@ -10,7 +10,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /**
- ** @version $Id: CommentList.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: CommentList.java 163 1999-07-08 00:50:23Z mik $
  ** @author Michael Cahill
  **
  ** CommentList class - maintains a list of BlueJ comments
@@ -72,7 +72,7 @@ public final class CommentList
 		comment.save(props, "comment" + i);
 	    }
 		
-	props.save(out, "BlueJ class context");
+	props.store(out, "BlueJ class context");
     }
 	
     public void load(String filename) throws IOException

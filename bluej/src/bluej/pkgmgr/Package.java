@@ -16,7 +16,6 @@ import bluej.graph.Vertex;
 import bluej.utility.Debug;
 import bluej.utility.MultiEnumeration;
 import bluej.utility.Utility;
-import bluej.utility.PackageFileFilter;
 import bluej.views.Comment;
 import bluej.views.CommentList;
 import bluej.classmgr.*;
@@ -29,7 +28,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 161 1999-07-06 14:40:53Z ajp $
+ ** @version $Id: Package.java 163 1999-07-08 00:50:23Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -372,8 +371,16 @@ public class Package extends Graph
 	
 	if (fromArchive == false) {
 	    // throw an exception if we cannot save
-	    props.save(new FileOutputStream(new File(packageLocation, pkgfileName)), 
-		       fromArchive == true ? "Default layout for archive library" : "Default package layout");
+	    File file = new File(packageLocation, pkgfileName);
+	    try {
+		props.store(new FileOutputStream(file), 
+			    fromArchive == true ? 
+			    "Default layout for archive library" : 
+			    "Default package layout");
+	    } catch(Exception e) {
+		Debug.reportError("could not save properties file: " + 
+				  file.getName());
+	    }
 	}
 	
 	return props;
@@ -497,12 +504,7 @@ public class Package extends Graph
 	    Target t = (Target)e.nextElement();
 	    if((t instanceof ClassTarget)
 	       && ((ClassTarget)t).upToDate()) {
-		// ClassTarget ct = null;
-// 		if(t instanceof AppletTarget)
-// 		    ct = (AppletTarget)t;
-// 		else
-	      //	    ct = (ClassTarget)t;
-	      ClassTarget ct = (ClassTarget)t;
+		ClassTarget ct = (ClassTarget)t;
 		if (readyToPaint)
 		    ct.setState(Target.S_NORMAL);
 		// XXX: Need to invalidate things dependent on t
@@ -562,7 +564,7 @@ public class Package extends Graph
 
 	try {
 	    FileOutputStream output = new FileOutputStream(file);
-	    props.save(output, "BlueJ project file");
+	    props.store(output, "BlueJ project file");
 	} catch(IOException e) {
 	    Debug.reportError(pkgSaveError + file + ": " + e);
 	    return false;
@@ -839,7 +841,7 @@ public class Package extends Graph
     /**
      * Force compile of all classes. Called by user function "rebuild".
      */
-    public void compileAll()
+    public void rebuild()
     {
 	if(!checkCompile())
 	    return;
@@ -854,6 +856,7 @@ public class Package extends Graph
 		if (ct.editorOpen())
 		    ct.getEditor().save();
 		ct.setState(Target.S_INVALID);
+		ct.analyseDependencies();
 		v.addElement(ct);
 	    }
 	}

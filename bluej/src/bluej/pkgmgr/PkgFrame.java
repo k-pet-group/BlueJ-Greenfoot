@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 124 1999-06-14 07:26:17Z mik $
+ ** @version $Id: PkgFrame.java 163 1999-07-08 00:50:23Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -337,8 +337,8 @@ public abstract class PkgFrame extends JFrame
     static final int TOOLS_COMMAND = EDIT_COMMAND + 100;
     static final int TOOLS_COMPILE = TOOLS_COMMAND;
     static final int TOOLS_COMPILESELECTED = TOOLS_COMPILE + 1;
-    static final int TOOLS_COMPILEALL = TOOLS_COMPILESELECTED + 1;
-    static final int TOOLS_BROWSE = TOOLS_COMPILEALL + 1;
+    static final int TOOLS_REBUILD = TOOLS_COMPILESELECTED + 1;
+    static final int TOOLS_BROWSE = TOOLS_REBUILD + 1;
     static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
 
     static final String[] ToolsCmds = {
@@ -354,7 +354,7 @@ public abstract class PkgFrame extends JFrame
     };
 
     static final int[] ToolsSeparators = {
-	TOOLS_COMPILEALL
+	TOOLS_REBUILD
     };
 
     static final int VIEW_COMMAND = TOOLS_COMMAND + 100;
@@ -427,7 +427,7 @@ public abstract class PkgFrame extends JFrame
     static final int HELP_STANDARDAPI = HELP_REFERENCE + 1;
 
     static final String[] HelpCmds = {
-	 "about", "copyright", "tutorial", "reference", "standardApi",
+	"about", "copyright", "tutorial", "reference", "standardApi",
     };
 
     static final KeyStroke[] HelpKeys = {
@@ -444,37 +444,37 @@ public abstract class PkgFrame extends JFrame
 
     static final int[] CmdTypes = {
 	PKG_COMMAND, EDIT_COMMAND, TOOLS_COMMAND, VIEW_COMMAND,
-	GRP_COMMAND, HELP_COMMAND
+	/* GRP_COMMAND, */ HELP_COMMAND
     };
 
     static final String[] CmdTypeNames = {
-	"package", "edit", "tools", "view", "group", "help"
+	"package", "edit", "tools", "view", /* "group", */ "help"
     };
 
     static final String[][] CmdStrings = {
-	PkgCmds, EditCmds, ToolsCmds, ViewCmds, GrpCmds, HelpCmds
+	PkgCmds, EditCmds, ToolsCmds, ViewCmds, /* GrpCmds, */ HelpCmds
     };
 
     static final KeyStroke[][] CmdKeys = {
-	PkgKeys, EditKeys, ToolsKeys, ViewKeys, GrpKeys, HelpKeys
+	PkgKeys, EditKeys, ToolsKeys, ViewKeys, /* GrpKeys, */ HelpKeys
     };
 
     static final int[][] CmdSeparators = {
 	PkgSeparators, EditSeparators, ToolsSeparators, ViewSeparators, 
-	GrpSeparators, HelpSeparators
+	/* GrpSeparators, */ HelpSeparators
     };
 
-	/**
-	 * Return the width of this frame without considering the width
-	 * of the contained GraphEditor.  Invoked by Package to resize
-	 * the frame once a new package has been opened in the GraphEditor.
-	 */
-	//public abstract int getWidthWithoutGraphEditor();
+    /**
+     * Return the width of this frame without considering the width
+     * of the contained GraphEditor.  Invoked by Package to resize
+     * the frame once a new package has been opened in the GraphEditor.
+     */
+    //public abstract int getWidthWithoutGraphEditor();
 
-	/**
-	 * Return the height of this frame without considering the height
-	 * of the contained GraphEditor.  Invoked by Package to resize
-	 * the frame once a new package has been opened in the GraphEditor.
-	 */
-	//public abstract int getHeightWithoutGraphEditor();
+    /**
+     * Return the height of this frame without considering the height
+     * of the contained GraphEditor.  Invoked by Package to resize
+     * the frame once a new package has been opened in the GraphEditor.
+     */
+    //public abstract int getHeightWithoutGraphEditor();
 }

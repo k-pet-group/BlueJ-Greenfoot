@@ -3,25 +3,37 @@
 TOP = ..
 include $(TOP)/$(OS).mk
 
+# DEFAULT_COMPILER can be either "javac" or "jikes"
+DEFAULT_COMPILER=jikes
+
 JIKES_CLASSPATH = /usr/local/jdk1.2/jre/lib/rt.jar:/usr/local/jdk1.2/jre/lib/i18n.jar:/usr/local/jdk1.2/lib/tools.jar:$(TOP)/lib/jpda.jar:$(TOP)/src:$(TOP)/lib/antlr.jar
+JIKES_OPTS = +F
+
+JAVAC_CLASSPATH = .:$(TOP)/lib/jpda.jar:$(TOP)/lib/antlr.jar:/usr/local/jdk1.2/lib/tools.jar
+JAVAC_OPTS = -deprecation
 
 ANTLR_CLASSPATH=../../antlr
 
-#JIKES_CLASSPATH = $(TOP)/lib/swing.jar:$(CLASSPATH)
-JIKES_OPTS = +P +F
-# JIKES_OPTS = +P +F -deprecation	# -deprecation not supported by jikes yet
+
 
 SUBDIRS = \
-	jdepend \
 	bluej
 
-all dep depend clean clobber::
+
+default: $(DEFAULT_COMPILER)
+
+clean clobber allclasses::
 	for dir in $(SUBDIRS) ; do \
 		$(MAKE) -C $$dir $@ || break ; \
 	done
 
+all: grammar antlr allclasses
+
 jikes:
-	jikes -nowarn -classpath $(JIKES_CLASSPATH) -d $(TOP)/classes $(JIKES_OPTS) bluej/Main.java
+	jikes -classpath $(JIKES_CLASSPATH) $(JIKES_OPTS) -d $(TOP)/classes bluej/Main.java
+
+javac:
+	javac -classpath $(JAVAC_CLASSPATH) $(JAVAC_OPTS) -d $(TOP)/classes bluej/Main.java
 
 grammar:
 	(cd bluej/parser && \
