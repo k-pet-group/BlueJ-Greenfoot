@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1187 2002-03-15 15:10:23Z mik $
+ * @version $Id: PrefMgr.java 1286 2002-07-15 23:56:52Z bquig $
  */
 public class PrefMgr
 {
@@ -31,9 +31,10 @@ public class PrefMgr
     public static final String AUTO_INDENT = "bluej.editor.autoIndent";
     public static final String LINENUMBERS = "bluej.editor.displayLineNumbers";
     public static final String MAKE_BACKUP = "bluej.editor.makeBackup";
+    public static final String MATCH_BRACKETS = "bluej.editor.matchBrackets";
     public static final String ENABLE_JDK14 = "bluej.compiler.source14";
     public static final String LINK_LIB = "doctool.linkToStandardLib";
-
+    
     public static final String USE_UML = "bluej.notation.style";
     public static final String USE_THEMES = "bluej.useTheme";
 
@@ -105,6 +106,7 @@ public class PrefMgr
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
         flags.put(MAKE_BACKUP, Config.getPropString(MAKE_BACKUP, "false"));
+        flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
         flags.put(ENABLE_JDK14, Config.getPropString(ENABLE_JDK14, "false"));
         flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
         flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));

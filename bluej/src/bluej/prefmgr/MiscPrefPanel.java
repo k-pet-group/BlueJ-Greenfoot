@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1176 2002-03-13 13:43:30Z mik $
+ * @version $Id: MiscPrefPanel.java 1286 2002-07-15 23:56:52Z bquig $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -35,6 +35,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     private JCheckBox lineNumbersBox;
     private JCheckBox makeBackupBox;
     private JCheckBox useJdk14Box;
+    private JCheckBox matchBracketsBox;
 
     private JTextField jdkURLField;
     private JCheckBox linkToLibBox;
@@ -75,9 +76,6 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
                 fontPanel.add(editorFontField);
             }
             editorPanel.add(fontPanel);
-
-            editorPanel.add(new JLabel(" "));
-            editorPanel.add(new JLabel(" "));
             editorPanel.add(new JLabel(" "));
             autoIndentBox = new JCheckBox(Config.getString("prefmgr.misc.autoindent"));
             editorPanel.add(autoIndentBox);
@@ -87,6 +85,8 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             editorPanel.add(hilightingBox);
             makeBackupBox = new JCheckBox(Config.getString("prefmgr.misc.makeBackup"));
             editorPanel.add(makeBackupBox);
+            matchBracketsBox= new JCheckBox(Config.getString("prefmgr.misc.matchBrackets"));
+            editorPanel.add(matchBracketsBox);
         }
         add(editorPanel);
 
@@ -163,6 +163,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         autoIndentBox.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_INDENT));
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
         makeBackupBox.setSelected(PrefMgr.getFlag(PrefMgr.MAKE_BACKUP));
+        matchBracketsBox.setSelected(PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS));
         useJdk14Box.setSelected(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14));
         linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
@@ -186,6 +187,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.AUTO_INDENT, autoIndentBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
         PrefMgr.setFlag(PrefMgr.ENABLE_JDK14, useJdk14Box.isSelected());
 
