@@ -1,25 +1,7 @@
-// BlueJ Java Grammar
-//
-// A note about conflicts.  There are four points in this grammar where
-//   two tokens of lookahead cannot predict which alternative to select.  These
-//   points are:
-//   1) standard "else" ambiguity
-//   2) index reference after array creation:
-//        new int[1][2][3]  // is the "3" an index or dim spec?
-//   3) {1,2,3,}    // does the last comma start a new init or is it garbage?
-//   4) ((caseLabel|"default")+ (statement)* )*
-//      nasty conflict, but proper code is generated
-//
-// Each of these conflicts are noted in the grammar where they occur, and
-// these are no worry as long as these are the only conflicts reported by
-// ANTLR
-//
-
-
 // include an ANTLR "header" so all generated code will be in
 // package bluej.parser
 header {
-package bluej.parser;
+    package bluej.parser;
 }
 
 // tell ANTLR that we want to generate Java source code
@@ -27,24 +9,23 @@ options {
     language="Java";
 }
 
-
 // Import the necessary classes
 {
-import bluej.utility.Debug;
-import bluej.parser.symtab.SymbolTable;
-import bluej.parser.symtab.JavaVector;
-import bluej.parser.symtab.DummyClass;
-import bluej.parser.symtab.ClassInfo;
-import bluej.parser.symtab.Selection;
+    import bluej.utility.Debug;
+    import bluej.parser.symtab.SymbolTable;
+    import bluej.parser.symtab.JavaVector;
+    import bluej.parser.symtab.DummyClass;
+    import bluej.parser.symtab.ClassInfo;
+    import bluej.parser.symtab.Selection;
 
-import antlr.*;
+    import antlr.*;
 
-import java.util.Vector;
-import java.io.*;
+    import java.util.Vector;
+    import java.io.*;
 
-class JavaBitSet extends java.util.BitSet
-{
-}
+    class JavaBitSet extends java.util.BitSet
+    {
+    }
 
 }
 
@@ -56,12 +37,22 @@ class JavaBitSet extends java.util.BitSet
 class ClassParser extends Parser;
 options {
     k = 2;                           // two token lookahead
-    importVocab=Java;            // Call its vocabulary "Java"
+    exportVocab=Java;            // Call its vocabulary "Java"
     codeGenMakeSwitchThreshold = 2;  // Some optimizations
     codeGenBitsetTestThreshold = 3;
     defaultErrorHandler = false;     // Don't generate parser error handlers
 }
 
+tokens {
+    BLOCK; MODIFIERS; OBJBLOCK; SLIST; CTOR_DEF; METHOD_DEF; VARIABLE_DEF; 
+    INSTANCE_INIT; STATIC_INIT; TYPE; CLASS_DEF; INTERFACE_DEF; 
+    PACKAGE_DEF; ARRAY_DECLARATOR; EXTENDS_CLAUSE; IMPLEMENTS_CLAUSE;
+    PARAMETERS; PARAMETER_DEF; LABELED_STAT; TYPECAST; INDEX_OP; 
+    POST_INC; POST_DEC; METHOD_CALL; EXPR; ARRAY_INIT; 
+    IMPORT; UNARY_MINUS; UNARY_PLUS; CASE_GROUP; ELIST; FOR_INIT; FOR_CONDITION; 
+    FOR_ITERATOR; EMPTY_STAT; FINAL="final"; ABSTRACT="abstract";
+    STRICTFP="strictfp"; SUPER_CTOR_CALL; CTOR_CALL;
+}
 
 // Define some methods and variables to use in the generated parser.
 {
@@ -228,9 +219,11 @@ options {
     //   few have special function.
     //------------------------------------------------------------------------
 
-    public void popScope()                 {symbolTable.popScope();}
+    public void popScope()                 {//System.out.println("pop");
+                                            symbolTable.popScope();}
     public void endFile()                  {symbolTable.popAllScopes();}
-    public void defineBlock(JavaToken tok) {symbolTable.defineBlock(tok);}
+    public void defineBlock(JavaToken tok) {//System.out.println("entering block" + tok);
+                                            symbolTable.defineBlock(tok);}
     public void definePackage(JavaToken t) {symbolTable.definePackage(t);}
     public void defineLabel(JavaToken t)   {symbolTable.defineLabel(t);}
     public void useDefaultPackage()        {symbolTable.useDefaultPackage();}
@@ -276,7 +269,9 @@ options {
         symbolTable.defineVar(theVariable, type, comment);
     }
 
+
     public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment) {
+        //System.out.println("entering method" + theMethod);
         symbolTable.defineMethod(theMethod, type, comment);
     }
 
@@ -299,8 +294,6 @@ options {
 //   rule for this parser
 compilationUnit
     :   // A compilation unit starts with an optional package definition
-        //   If there is no package definition, any classes are in the
-        //   "default" package
         (   packageDefinition
         |   /* nothing */     {useDefaultPackage();}
         )
@@ -313,7 +306,7 @@ compilationUnit
         ( typeDefinition )*
 
         // When we reach end-of-file, tell the symboltable
-        EOF
+        EOF!
         {endFile();} // if a package were defined, pop its scope
     ;
 
@@ -344,7 +337,6 @@ importDefinition
     :   "import" identifierStar SEMI
     ;
 
-
 // A type definition in a file is either a class or interface definition.
 // Note that modifiers are essentially thrown out.  If you want to handle
 //   them, collect them in a Vector (returned from the modifiers rule)
@@ -362,8 +354,6 @@ typeDefinition
     |   SEMI
     ;
 
-
-
 // A declaration is the creation of a reference or primitive-type variable
 // Because we'll be doing the actual definition action inside
 //   variableDefinitions, we need to _pass_ the type down to it.  This is
@@ -376,28 +366,35 @@ declaration
     :   modifiers type=typeSpec variableDefinitions[type, null]
     ;
 
-
-// A list of zero or more modifiers.  We could have used (modifier)* in
-//   place of a call to modifiers, but I thought it was a good idea to keep
-//   this rule separate so they can easily be collected in a Vector if
-//   someone so desires
-modifiers returns [JavaBitSet mods]
-    { mods = new JavaBitSet(); }
-    :   ( modifier[mods] )*
-    ;
-
-
 // A type specification is a type name with possible brackets afterwards
-//   (which would make it an array type).  Currently we ignore arrays to
-//   give the "interested reader" something simple to try to add.
+//   (which would make it an array type). 
 typeSpec returns [JavaToken t]
     {t=null;}
-    :   t=type (LBRACK RBRACK
-    		{ if(t != null)
-			t.setText(t.getText() + "[]");
-    		} )*
+    :   t=classTypeSpec
+    |   t=builtInTypeSpec
     ;
 
+// A class type specification is a class type with possible brackets afterwards
+//   (which would make it an array type).
+classTypeSpec returns [JavaToken t]
+        {t=null;}
+        : t=identifier (LBRACK RBRACK)*
+	{
+             if(t != null)
+                   t.setText(t.getText() + "[]");
+	}
+	;
+
+// A builtin type specification is a builtin type with possible brackets
+// afterwards (which would make it an array type).
+builtInTypeSpec returns [JavaToken t]
+        {t=null;}
+	: t=builtInType (LBRACK RBRACK)*
+		{
+		   if(t != null)
+                   t.setText(t.getText() + "[]");
+		}
+	;
 
 // A type name. which is either a (possibly qualified) class name or
 //   a primitive (builtin) type
@@ -408,9 +405,7 @@ type returns [JavaToken t]
     ;
 
 
-// The primitive types.  In this version of the cross reference tool we
-//   just pass the token that contained the name on up for later lookup
-//   in the symbol table
+// The primitive types. 
 builtInType returns [JavaToken t]
     {t=null;}
     :   bVoid:"void"       {t = (JavaToken)bVoid;}
@@ -424,7 +419,6 @@ builtInType returns [JavaToken t]
     |   bDouble:"double"   {t = (JavaToken)bDouble;}
     ;
 
-
 // A (possibly-qualified) java identifier.  We start with the first IDENT
 //   and expand its name by adding dots and following IDENTS
 identifier returns [JavaToken t]
@@ -434,7 +428,6 @@ identifier returns [JavaToken t]
             id2:IDENT      {t.setText(t.getText() + "." + id2.getText());}
         )*
     ;
-
 
 // This is the special identifer rule used by package statements.  We will
 //   keep track of the name in two parts: packageName and className
@@ -475,9 +468,16 @@ identifierStar
         }
     ;
 
+// A list of zero or more modifiers.  We could have used (modifier)* in
+//   place of a call to modifiers, but I thought it was a good idea to keep
+//   this rule separate so they can easily be collected in a Vector if
+//   someone so desires
+modifiers returns [JavaBitSet mods]
+    { mods = new JavaBitSet(); }
+    :   ( modifier[mods] )*
+    ;
 
 // modifiers for Java classes, interfaces, class/instance vars and methods
-// For this version of the cross reference tool we ignore them...
 modifier[JavaBitSet mods]
     :   "private"
 	{ mods.set(PRIVATE); }
@@ -486,6 +486,7 @@ modifier[JavaBitSet mods]
     |   "protected"
 	{ mods.set(PROTECTED); }
     |   "static"
+	{ mods.set(STATIC); }
     |   "transient"
     |   "final"
     |   "abstract"
@@ -493,10 +494,10 @@ modifier[JavaBitSet mods]
     |   "native"
     |   "threadsafe"
     |   "synchronized"
-//  |   "const"                    // reserved word; leave out
+//  |   "const"                    // reserved word, but not valid
     |   "volatile"
+    |	"strictfp"
     ;
-
 
 // Definition of a Java class
 classDefinition[JavaBitSet mods, JavaToken commentToken]
@@ -666,24 +667,49 @@ implementsClause[JavaVector interfaces, Vector interfaceSelections] returns [Sel
 //   for example), and if this grammar were used for a compiler there would
 //   need to be some semantic checks to make sure we're doing the right thing...
 field
-    {JavaToken type;
-     JavaToken commentToken = null; }
+    {
+        JavaToken  type, commentToken = null; 
+        JavaVector exceptions = null;           // track thrown exceptions
+        JavaBitSet mods = null;
+    }
     :   // method, constructor, or variable declaration
 	{ commentToken = findAttachedComment((JavaToken)LT(1)); }
 
-        modifiers
+        mods=modifiers
 
-        (   methodHead[null, commentToken]            // no type to pass...
-                compoundStatement[BODY] // constructor
+        (
+            ctorHead[null, commentToken] constructorBody    // constructor
+        |
+            classDefinition[new JavaBitSet(), null]         // inner class
+        |
+            interfaceDefinition[new JavaBitSet(), null]     // inner interface
+        |
+            type=typeSpec  // method or variable declaration(s)
+            (
+                    method:IDENT  // the name of the method
 
-        |   classDefinition[new JavaBitSet(), null]      // inner class
-        |   interfaceDefinition[new JavaBitSet(), null]         // inner interface
+                    {
+		        // tell the symbol table about it.  Note that this signals that
+        	        // we are in a method header so we handle parameters appropriately
+        	        defineMethod((JavaToken)method, type, commentToken);
+                    }
 
-        |   type=typeSpec  // method or variable declaration(s)
-            (   methodHead[type, commentToken]
-                    ( compoundStatement[BODY] | SEMI {popScope();})
+                    // parse the formal parameter declarations.
+                    LPAREN parameterDeclarationList RPAREN
 
-            |   variableDefinitions[type, commentToken] SEMI
+                    (LBRACK RBRACK )*
+
+                    // get the list of exceptions that this method is
+                    // declared to throw
+                    (exceptions=throwsClause)?
+
+                    // tell the symbol table we are done with the method header. Note that
+                    // this will tell the symbol table to handle variables normally
+                    {endMethodHead(exceptions);}
+
+		    ( compoundStatement[BODY] | SEMI {popScope();} )
+		|
+                    variableDefinitions[type,commentToken] SEMI
             )
         )
 
@@ -695,12 +721,41 @@ field
     |   compoundStatement[INSTANCE_INIT]
     ;
 
+constructorBody
+    :   LCURLY 
+        // Predicate might be slow but only checked once per constructor def
+        // not for general methods.
+        ( (explicitConstructorInvocation) => explicitConstructorInvocation
+        |
+        )
+        (statement)*
+        // tell the symbol table we're leaving a scope
+        {popScope();}
+        RCURLY
+    ;
+
+explicitConstructorInvocation
+    :   (	options {
+				// this/super can begin a primaryExpression too; with finite
+				// lookahead ANTLR will think the 3rd alternative conflicts
+				// with 1, 2.  I am shutting off warning since ANTLR resolves
+				// the nondeterminism by correctly matching alts 1 or 2 when
+				// it sees this( or super(
+				generateAmbigWarnings=false;
+			}
+		:	"this" LPAREN argList RPAREN SEMI
+
+	    |   "super" LPAREN argList RPAREN SEMI
+
+			// (new Outer()).super()  (create enclosing instance)
+		|	primaryExpression DOT "super" LPAREN argList RPAREN SEMI
+		)
+    ;
 
 variableDefinitions[JavaToken type, JavaToken commentToken]
     :   variableDeclarator[type, commentToken]
         (COMMA variableDeclarator[type, commentToken] )*
     ;
-
 
 // Declaration of a variable.  This can be a class/instance variable,
 //   or a local variable in a method
@@ -709,19 +764,29 @@ variableDefinitions[JavaToken type, JavaToken commentToken]
 variableDeclarator[JavaToken type, JavaToken commentToken]
     :   id:IDENT (LBRACK RBRACK  { if(type != null)
     					type.setText(type.getText() + "[]");
-    				   } )* ( ASSIGN initializer )?
+    				   } )* varInitializer
         {defineVar((JavaToken)id, type, commentToken);}
     ;
 
+varInitializer
+	:	( ASSIGN initializer )?
+	;
 
-// This is an initializer used to set up an array.  For our
-//   purposes, it is simply ignored...
-// CONFLICT: does a COMMA after an initializer start a new
-//           (...)* or start the (...)?
-//           ANTLR generates proper code due to LA(2)
+// This is an initializer used to set up an array.  
 arrayInitializer
     :   LCURLY
-            (   initializer ( COMMA initializer )*
+            (   initializer 
+                (
+		    // CONFLICT: does a COMMA after an initializer start a new
+		    //           initializer or start the option ',' at end?
+		    //           ANTLR generates proper code by matching
+		    //			 the comma as soon as possible.
+		    options {
+			warnWhenFollowAmbig = false;
+			}
+		   :
+			COMMA! initializer
+		)*
                 (COMMA)?
             )?
         RCURLY
@@ -735,14 +800,17 @@ initializer
     |   arrayInitializer
     ;
 
+// This is the header of a constructor.  It includes the name and parameters
+//   for the method.
 
-// This is the header of a method.  It includes the name and parameters
-//   for the method.  Note that the type is passed into this method.  This
+//  Note that the type is passed into this method.  This
 //   was necessary to resolve a conflict that several types of fields in a
 //   class started with a type and/or modifier, so they had to be left-factored
 //   This also watches for a list of exception classes in a "throws" clause.
-methodHead[JavaToken type, JavaToken commentToken]
-    {JavaVector exceptions=null;} // to keep track of thrown exceptions
+ctorHead[JavaToken type, JavaToken commentToken]
+    {
+        JavaVector exceptions=null;
+    }
     :   method:IDENT  // the name of the method
 
         {
@@ -755,22 +823,19 @@ methodHead[JavaToken type, JavaToken commentToken]
         // symbol table as _variables_.  Because the symbol table knows we
         // are in a method header, it collects these definitions as parameters
         // for the method.
-        LPAREN (parameterDeclarationList)? RPAREN
-
-        // again, the array specification is skipped...
-        (LBRACK RBRACK)*
+        LPAREN parameterDeclarationList RPAREN
 
         // get the list of exceptions that this method is declared to throw
         (exceptions=throwsClause)?
 
         // tell the symbol table we are done with the method header. Note that
         // this will tell the symbol table to handle variables normally
-        {endMethodHead(exceptions);}
+        {
+            endMethodHead(exceptions);
+        }
     ;
 
-
 // This is a list of exception classes that the method is declared to throw
-// We just collect them in a vector and pass them back to the method header
 throwsClause returns [JavaVector exceptions]
     {JavaToken id; exceptions = new JavaVector();}
     :   "throws" id=identifier   {exceptions.addElement(dummyClass(id));}
@@ -780,22 +845,24 @@ throwsClause returns [JavaVector exceptions]
 
 // A list of formal parameters
 parameterDeclarationList
-    :   parameterDeclaration ( COMMA parameterDeclaration )*
+    :   ( parameterDeclaration ( COMMA! parameterDeclaration )* )?
     ;
-
 
 // A formal parameter.  We pass this to the symbol table as a variable, and
 //   the symbol table adds it to the parameter list of the current method
 //   header.
 parameterDeclaration
     {JavaToken type; }
-    :   ("final")? type=typeSpec id:IDENT (LBRACK RBRACK
+    :   parameterModifier type=typeSpec id:IDENT 
+                      (LBRACK RBRACK
          		{ if(type != null)
 			       type.setText(type.getText() + "[]"); } )*
         {defineVar((JavaToken)id, type, null);}
     ;
 
-
+parameterModifier
+	:	(f:"final")?
+	;
 
 // Compound statement.  This is used in many contexts:
 //   Inside a class definition prefixed with "static":
@@ -842,38 +909,42 @@ compoundStatement[int scopeType]
     ;
 
 
-// Here are all the wonderful Java statements...
 statement
-    {int count = -1;} // used for parameter counts in method calls
+    {int count = -1; // used for parameter counts in method calls
+     JavaBitSet mods; }
 
     // A list of statements in curly braces -- start a new scope!
     :   compoundStatement[NEW_SCOPE]
 
-    // If it _looks_ like a decl, it's a decl...
-    |   (declaration)=> declaration SEMI
+	// declarations are ambiguous with "ID DOT" relative to expression
+	// statements.  Must backtrack to be sure.  Could use a semantic
+	// predicate to test symbol table to see what the type was coming
+	// up, but that's pretty hard without a symbol table ;)
+	|	(declaration)=> declaration SEMI
+
+        // An expression statement.  This could be a method call,
+	// assignment statement, or any other expression evaluated for
+	// side-effects.
+	|	expression SEMI
+
+	// class definition
+	|	mods=modifiers classDefinition[mods, null]
 
     // Attach a label to the front of a statement
     |   id:IDENT COLON statement  {defineLabel((JavaToken)id);}
-
-    // An expression statement.  This could be a method call, assignment
-    //   statement, or any other expression evaluated for side-effects.
-    |   expression SEMI
-
+    
     // If-else statement
-    // CONFLICT: the old "dangling-else" problem...
-    //           ANTLR generates proper code by just making the "else"
-    //           optional!
     |   "if" LPAREN expression RPAREN statement
-        ( "else" statement )?
-
-        // the "else" part above is ambiguous.  The intent
-        // is to keep it as close to the corresponding "if"
-        // as possible.  The generated code will do this,
-        // so we can live with the ambiguity.  We could do
-        //      (   ("else")=> "else" statement
-        //      |   // no else clause
-        //      )
-        // instead, but that's less efficient...
+        (
+			// CONFLICT: the old "dangling-else" problem...
+			//           ANTLR generates proper code matching
+			//			 as soon as possible.  Hush warning.
+			options {
+				warnWhenFollowAmbig = false;
+			}
+        :
+                 "else" statement
+        )?
 
     // For statement
     |   "for"
@@ -902,16 +973,9 @@ statement
     |   "return" (expression)? SEMI
 
     // switch/case statement
-    // CONFLICT: to which "cases" does the statement bind?
-    //           ANTLR generates proper code as it groups as
-    //           many "case"/"default" labels together then
-    //           follows them with the statements
-    |   "switch" LPAREN expression RPAREN
-            LCURLY
-                (   (("case" expression | "default") COLON)+ (statement)*
-                    // ambiguous but proper code will be generated...
-                )*
-            RCURLY
+	|	"switch"^ LPAREN! expression RPAREN! LCURLY!
+			( casesGroup )*
+		RCURLY!
 
     // exception try-catch block
     |   tryBlock
@@ -929,6 +993,28 @@ statement
     |   SEMI
     ;
 
+
+casesGroup
+	:	(	// CONFLICT: to which case group do the statements bind?
+			//           ANTLR generates proper code: it groups the
+			//           many "case"/"default" labels together then
+			//           follows them with the statements
+			options {
+				warnWhenFollowAmbig = false;
+			}
+			:
+			aCase
+		)+
+		caseSList
+	;
+
+aCase
+	:	("case" expression | "default") COLON
+	;
+
+caseSList
+	:	(statement)*
+	;
 
 // The initializer for a for loop
 forInit
@@ -958,7 +1044,7 @@ handler
     ;
 
 
-// expressions -- the FUN stuff!
+// expressions 
 // Note that most of these expressions follow the pattern
 //   thisLevelExpression :
 //       nextHigherPrecedenceExpression
@@ -1030,7 +1116,7 @@ assignmentExpression
 // conditional test (level 12)
 conditionalExpression
     :   logicalOrExpression
-        ( QUESTION conditionalExpression COLON conditionalExpression )?
+        ( QUESTION assignmentExpression COLON conditionalExpression )?
     ;
 
 
@@ -1073,13 +1159,15 @@ equalityExpression
 // boolean relational expressions (level 5)
 relationalExpression
     :   shiftExpression
-        (   (   LT
-            |   GT
-            |   LE
-            |   GE
-            )
-            shiftExpression
-        )*
+        (   (   (   LT
+                |   GT
+                |   LE
+                |   GE
+                )
+                shiftExpression
+            )*
+        | "instanceof" typeSpec
+        )		
     ;
 
 
@@ -1097,30 +1185,55 @@ additiveExpression
 
 // multiplication/division/modulo (level 2)
 multiplicativeExpression
-    :   castExpression ((STAR | DIV | MOD ) castExpression)*
+    :   unaryExpression ((STAR | DIV | MOD ) unaryExpression)*
     ;
 
+unaryExpression
+	:	INC^ unaryExpression
+	|	DEC^ unaryExpression
+	|	MINUS^ unaryExpression
+	|	PLUS^  unaryExpression
+	|	unaryExpressionNotPlusMinus
+	;
 
-// cast/unary (level 1)
+/*// cast/unary (level 1)
 castExpression
     {JavaToken t;}
     // if it _looks_ like a cast, it _is_ a cast
     :   ( LPAREN t=typeSpec RPAREN castExpression )=>
             LPAREN t=typeSpec RPAREN c:castExpression
-            {reference(t);}
+            {reference(t);} */
 
-    // otherwise it's a unary expression
-    |   INC castExpression
-    |   DEC castExpression
-    |   MINUS castExpression
-    |   PLUS castExpression
-    |   BNOT castExpression
-    |   LNOT castExpression
-    |   postfixExpression ( "instanceof" t=typeSpec {reference(t);})?
-        // instanceof should not allow just primitives (x instanceof int)
-        // need a semantic check if we're compiling...
-    ;
+unaryExpressionNotPlusMinus
+    {JavaToken t;}
+    :	BNOT^ unaryExpression
+    |	LNOT^ unaryExpression
 
+    |   (   // subrule allows option to shut off warnings
+		options {
+			// "(int" ambig with postfixExpr due to lack of sequence
+			// info in linear approximate LL(k).  It's ok.  Shut up.
+			generateAmbigWarnings=false;
+		}
+	:	// If typecast is built in type, must be numeric operand
+		// Also, no reason to backtrack if type keyword like int, float...
+		LPAREN t=builtInTypeSpec RPAREN unaryExpression
+                {
+                    reference(t);
+                }
+
+		// Have to backtrack to see if operator follows.  If no operator
+		// follows, it's a typecast.  No semantic checking needed to parse.
+		// if it _looks_ like a cast, it _is_ a cast; else it's a "(expr)"
+	|	(LPAREN t=classTypeSpec RPAREN unaryExpressionNotPlusMinus)
+		   => LPAREN t=classTypeSpec RPAREN unaryExpressionNotPlusMinus
+                {
+                    reference(t);
+                }
+
+	|	postfixExpression
+        )
+        ;
 
 // qualified names, array expressions, method invocation, post inc/dec
 postfixExpression
@@ -1128,13 +1241,12 @@ postfixExpression
 
     :   t=primaryExpression // start with a primary
 
-
 	        (   // qualified id (id.id.id.id...) -- build the name
 	            DOT ( id:IDENT {if (t!=null) t.setText(t.getText()+"."+id.getText());}
 	                | "this"   {if (t!=null) t.setText(t.getText()+".this");}
 	                | "class"  {if (t!=null) t.setText(t.getText()+".class");}
 	                | newExpression
-	                | "super" LPAREN ( expressionList )? RPAREN
+	                | "super"
 	                )
 	            // the above line needs a semantic check to make sure "class"
 	            //   is the _last_ qualifier.  Could also add it as a dummy
@@ -1143,7 +1255,7 @@ postfixExpression
 			// allow ClassName[].class
 		|  ( LBRACK RBRACK )+ DOT "class"
 
-	        // an array indexing operation (not handled)
+	        // an array indexing operation 
 	        |   LBRACK expression RBRACK
 
 	        // method invocation - keep number of parameters
@@ -1158,9 +1270,7 @@ postfixExpression
 	        //   to validate a Java program a semantic check would be needed, or
 	        //   this rule would get really ugly...
 	        |   LPAREN
-	                ( count=expressionList
-	                | /*nothing*/ {count=0;}
-	                )
+                        count=argList
 	            RPAREN
 	            {
 	                if (t!=null)
@@ -1172,43 +1282,84 @@ postfixExpression
 	        {if (t != null) reference(t);}
 
 	        // possibly add on a post-increment or post-decrement
-	        (   INC
-	        |   DEC
+		// allows INC/DEC on too much, but semantics can check
+	        (   INC^
+	        |   DEC^
 	        |   // nothing
 	        )
-
-		// look for int.class and int[].class
-	|
-	builtInType
-	( LBRACK RBRACK )* DOT "class"
     ;
 
 
 // the basic element of an expression
 primaryExpression returns [JavaToken t]
     {t=null;}
-    :   id:IDENT {t = (JavaToken)id;}
-//    |   t=builtInType DOT "class" {t.setText(t.getText()+".class");}
-    |   t=newExpression
+    :   id:IDENT        {t = (JavaToken)id;}
     |   constant
-    |   s:"super"        {t = (JavaToken)s;}
     |   "true"
     |   "false"
-    |   th:"this"        {t = (JavaToken)th; setNearestClassScope();}
+    |   th:"this"       {t = (JavaToken)th; setNearestClassScope();}
     |   "null"
+    |   t=newExpression
     |   LPAREN expression RPAREN
+    |   s:"super"       {t = (JavaToken)s;}
+        // look for int.class and int[].class
+    |	builtInType ( LBRACK RBRACK )* DOT "class"
     ;
 
+/** object instantiation.
+ *  Trees are built as illustrated by the following input/tree pairs:
+ *  
+ *  new T()
+ *  
+ *  new
+ *   |
+ *   T --  ELIST
+ *           |
+ *          arg1 -- arg2 -- .. -- argn
+ *  
+ *  new int[]
+ *
+ *  new
+ *   |
+ *  int -- ARRAY_DECLARATOR
+ *  
+ *  new int[] {1,2}
+ *
+ *  new
+ *   |
+ *  int -- ARRAY_DECLARATOR -- ARRAY_INIT
+ *                                  |
+ *                                EXPR -- EXPR
+ *                                  |      |
+ *                                  1      2
+ *  
+ *  new int[3]
+ *  new
+ *   |
+ *  int -- ARRAY_DECLARATOR
+ *                |
+ *              EXPR
+ *                |
+ *                3
+ *  
+ *  new int[1][2]
+ *  
+ *  new
+ *   |
+ *  int -- ARRAY_DECLARATOR
+ *               |
+ *         ARRAY_DECLARATOR -- EXPR
+ *               |              |
+ *             EXPR             1
+ *               |
+ *               2
+ *  
+ */
 
-// object instantiation.
 newExpression returns [JavaToken t]
     {t=null; int count=-1;}
     :   "new" t=type
-        (   LPAREN
-                ( count=expressionList
-                | /*nothing*/ {count=0;}
-                )
-            RPAREN
+        (   LPAREN count=argList RPAREN
                 {
                     t.setText(t.getText()+".~constructor~");
                     t.setParamCount(count);
@@ -1223,27 +1374,43 @@ newExpression returns [JavaToken t]
         // to make sure:
         //   a) [ expr ] and [ ] are not mixed
         //   b) [ expr ] and an init are not used together
-        |   (
+
+		|	newArrayDeclarator (arrayInitializer)?
+		)
+	;
+
+argList returns [int count]
+	{count=0;}
+	:	(	count=expressionList
+		|	/*nothing*/
+			{count=0;}
+		)
+	;
+
+newArrayDeclarator
+	:	(
                 // CONFLICT:
                 // newExpression is a primaryExpression which can be
                 // followed by an array index reference.  This is ok,
                 // as the generated code will stay in this loop as
                 // long as it sees an LBRACK (proper behavior)
-                LBRACK
-                    (expression)?
-                RBRACK
+                options {
+				warnWhenFollowAmbig = false;
+			}
+                : 
+                     LBRACK
+                         (expression)?
+                     RBRACK
             )+
-            (arrayInitializer)?
-
-        )
     ;
-
 
 constant
     :   NUM_INT
     |   CHAR_LITERAL
     |   STRING_LITERAL
     |   NUM_FLOAT
+    |   NUM_LONG
+    |   NUM_DOUBLE
     ;
 
 
@@ -1253,18 +1420,18 @@ constant
 class JavaLexer extends Lexer;
 
 options {
-    importVocab=Java;		// call the vocabulary "Java"
+    exportVocab=Java;		// call the vocabulary "Java"
     testLiterals=false;		// don't automatically test for literals
+    k=4;			// four characters of lookahead
     charVocabulary = '\3'..'\377';	// all of useful 8 bit ASCII
                                         // once the main code is redone to use
                                         // Readers and the ANTLR unicode support
                                         // fully works we can change this to support
                                         // full unicode
-    k=4;			// four characters of lookahead
 }
 
 {
-	protected int tokColumn = 1;
+/*	protected int tokColumn = 1;
 	protected int column = 1;
 
 	public void consume() throws CharStreamException
@@ -1287,7 +1454,7 @@ options {
 		tok.setColumn(tokColumn);
 		return tok;
 	}
-
+*/
 	public void reportError(RecognitionException ex)
 	{
 		// do nothing
@@ -1358,19 +1525,20 @@ WS  :   (   ' '
         |   '\t'
         |   '\f'
         // handle newlines
-        |   (   "\r\n"  // Evil DOS
+        |	(	options {generateAmbigWarnings=false;}
+            :   "\r\n"  // Evil DOS
             |   '\r'    // Macintosh
             |   '\n'    // Unix (the right way)
             )
             { newline(); }
-        )
+        )+
         { $setType(Token.SKIP); }
     ;
 
 // Single-line comments
 SL_COMMENT
     :       "//"
-            (~('\n'|'\r'))* ('\n'|'\r'('\n')?)?
+            (~('\n'|'\r'))* ('\n'|'\r'('\n')?)
             { $setType(Token.SKIP); newline(); }
     ;
 
@@ -1437,12 +1605,12 @@ ESC
 				options {
 					warnWhenFollowAmbig = false;
 				}
-			:	('0'..'9')
+			:	('0'..'7')
 				(
 					options {
 						warnWhenFollowAmbig = false;
 					}
-				:	'0'..'9'
+				:	'0'..'7'
 				)?
 			)?
 		|	('4'..'7')
@@ -1483,9 +1651,19 @@ IDENT
 
 // a numeric literal
 NUM_INT
-    {boolean isDecimal=false;}
+    {boolean isDecimal=false; Token t=null;}
     :   '.' {_ttype = DOT;}
-            (('0'..'9')+ (EXPONENT)? (FLOAT_SUFFIX)? { _ttype = NUM_FLOAT; })?
+            (	('0'..'9')+ (EXPONENT)? (f1:FLOAT_SUFFIX {t=f1;})?
+                {
+				if (t != null && t.getText().toUpperCase().indexOf('D')>=0) {
+                	_ttype = NUM_DOUBLE;
+				}
+				else {
+                	_ttype = NUM_FLOAT;
+				}
+				}
+            )?
+
     |   (   '0' {isDecimal = true;} // special case for just '0'
 			(	('x'|'X')
 				(											// hex
@@ -1503,15 +1681,22 @@ NUM_INT
             )?
         |   ('1'..'9') ('0'..'9')*  {isDecimal=true;}       // non-zero decimal
         )
-        (   ('l'|'L')
+		(	('l'|'L') { _ttype = NUM_LONG; }
 
         // only check to see if it's a float if looks like decimal so far
         |   {isDecimal}?
-            (   '.' ('0'..'9')* (EXPONENT)? (FLOAT_SUFFIX)?
-            |   EXPONENT (FLOAT_SUFFIX)?
-            |   FLOAT_SUFFIX
+            (   '.' ('0'..'9')* (EXPONENT)? (f2:FLOAT_SUFFIX {t=f2;})?
+            |   EXPONENT (f3:FLOAT_SUFFIX {t=f3;})?
+            |   f4:FLOAT_SUFFIX {t=f4;}
             )
-            { _ttype = NUM_FLOAT; }
+            {
+			if (t != null && t.getText().toUpperCase() .indexOf('D') >= 0) {
+                _ttype = NUM_DOUBLE;
+			}
+            else {
+                _ttype = NUM_FLOAT;
+			}
+			}
         )?
     ;
 
