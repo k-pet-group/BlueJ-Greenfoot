@@ -22,7 +22,7 @@ import java.beans.*;
  *
  * @author Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 1542 2002-11-29 13:49:35Z ajp $
+ * @version $Id: ExecServer.java 1563 2002-12-09 05:25:37Z ajp $
  */
 public class ExecServer
 {
@@ -434,6 +434,14 @@ public class ExecServer
     {
         throwawayErr = new ByteArrayOutputStream();
         System.setErr(new PrintStream(throwawayErr));
+        
+        Toolkit.getDefaultToolkit().getSystemEventQueue().
+            invokeLater(new Runnable() {
+                    public void run() {
+                        restoreOutput();
+                        disposeWindows();
+                    }
+                });       
     }
 
     /**
