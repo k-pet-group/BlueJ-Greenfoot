@@ -6,11 +6,13 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 
 import javax.swing.JPanel;
 
-class ContainerPanel extends JPanel implements FocusListener, KeyListener
+class ContainerPanel extends JPanel implements FocusListener, KeyListener, MouseListener
 {
 	private ObjectBench ob;
 
@@ -19,6 +21,7 @@ class ContainerPanel extends JPanel implements FocusListener, KeyListener
 		this.ob = objectBench;
 		addFocusListener(this);
 		addKeyListener(this);
+		addMouseListener(this);
 	}
 	
 	public void paint(Graphics g){
@@ -65,5 +68,36 @@ class ContainerPanel extends JPanel implements FocusListener, KeyListener
 	 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
 	 */
 	public void keyTyped(KeyEvent e) {
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	 */
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	 */
+	public void mouseExited(MouseEvent e) {
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	 */
+	public void mousePressed(MouseEvent e) {
+		requestFocusInWindow();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent e) {
 	}
 }
