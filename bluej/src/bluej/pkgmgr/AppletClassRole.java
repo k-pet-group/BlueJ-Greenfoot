@@ -22,7 +22,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 602 2000-06-29 05:28:10Z markus $
+ ** @version $Id: AppletClassRole.java 603 2000-06-29 06:38:01Z ajp $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -238,16 +238,11 @@ public class AppletClassRole extends ClassRole
      */
     private String chooseWebPage(JFrame frame)
     {
-	JFileChooser newChooser = FileUtility.getFileChooser(false);
-	newChooser.setDialogTitle(Config.getString
-                                  ("pkgmgr.chooseWebPage.title"));
+        String fullFileName = FileUtility.getFileName(frame,
+                                Config.getString("pkgmgr.chooseWebPage.title"),
+                                Config.getString("pkgmgr.chooseWebPage.buttonLabel"), false);
 
-        int result = newChooser.showSaveDialog(frame);
-        String fullFileName = null;
-        if (result == JFileChooser.APPROVE_OPTION) {
-            fullFileName = newChooser.getSelectedFile().getPath();
-        }
-        else if (result != JFileChooser.CANCEL_OPTION)
+        if (fullFileName == null)
             DialogManager.showError(frame, "error-no-name");
 
         return fullFileName;
