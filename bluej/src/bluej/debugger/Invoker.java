@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1470 2002-10-24 13:12:07Z jckm $
+ * @version $Id: Invoker.java 1520 2002-11-27 11:34:25Z mik $
  */
 
 public class Invoker extends Thread
@@ -77,7 +77,7 @@ public class Invoker extends Thread
      */
     public Invoker(PkgMgrFrame pmf, FreeFormCallDialog callDialog, ResultWatcher watcher)
     {
-        if (pmf.isEmptyFrame())
+        if(pmf.isEmptyFrame())
             throw new IllegalArgumentException();
 
         this.pmf = pmf;
@@ -89,7 +89,7 @@ public class Invoker extends Thread
         this.instanceName = null;
 
         constructing = false;
-        executionEvent = ExecutionEvent.createFreeForm (this.pkg);
+        executionEvent = ExecutionEvent.createFreeForm(this.pkg);
         doFreeForm(callDialog);
     }
         
@@ -106,7 +106,7 @@ public class Invoker extends Thread
     public Invoker(PkgMgrFrame pmf, CallableView member, String objName,
                    ResultWatcher watcher)
     {
-        if (pmf.isEmptyFrame())
+        if(pmf.isEmptyFrame())
             throw new IllegalArgumentException();
 
         this.pmf = pmf;
@@ -118,7 +118,7 @@ public class Invoker extends Thread
         this.shellName = getShellName();
 
         // in the case of a constructor, we need to construct an object name
-        if (member instanceof ConstructorView) {
+        if(member instanceof ConstructorView) {
 
             String baseName = member.getClassName();
             int dot_index = baseName.lastIndexOf('.');
@@ -136,7 +136,7 @@ public class Invoker extends Thread
                 member.getDeclaringView().getInstanceNum();
 
             constructing = true;
-            executionEvent = ExecutionEvent.createConstructor (member.getClassName());
+            executionEvent = ExecutionEvent.createConstructor(member.getClassName());
         }
         else if(member instanceof MethodView) {
 
@@ -144,18 +144,17 @@ public class Invoker extends Thread
             // object name
             if(((MethodView)member).isStatic()) {
                 this.objName = JavaNames.stripPrefix(member.getClassName());
-                executionEvent = ExecutionEvent.createStaticMethod (objName);
+                executionEvent = ExecutionEvent.createStaticMethod(objName);
             } else {
                 this.objName = objName;
-                executionEvent = ExecutionEvent.createObjectMethod (objName);
+                executionEvent = ExecutionEvent.createObjectMethod(objName);
             }
 
             constructing = false;
         }
         else
             Debug.reportError("illegal member type in invocation");
-        executionEvent.setPackage (pkg);
-
+        executionEvent.setPackage(pkg);
    }
 
     /**
@@ -181,7 +180,7 @@ public class Invoker extends Thread
                 methods.put(member, mDialog);
             }
             else {
-                if (constructing)
+                if(constructing)
                     mDialog.setNewInstanceName(objName);
                 else
                     mDialog.setInstanceName(objName);
@@ -227,7 +226,7 @@ public class Invoker extends Thread
                 instanceName = mDialog.getNewInstanceName();
                 doInvocation(mDialog.getArgs(), mDialog.getArgTypes());
                 pmf.setWaitCursor(true);
-                if (constructing)
+                if(constructing)
                     pkg.setStatus(creating);
             }
             else if(dlg instanceof FreeFormCallDialog) {
@@ -245,21 +244,21 @@ public class Invoker extends Thread
     /**
      * Invokes a constructor or method by supplying the required parameters
      */
-    public void invokeDirect (String instanceName, String[] params)
+    public void invokeDirect(String instanceName, String[] params)
     {
         this.instanceName = instanceName;
         Class[] paramClasses = member.getParameters();
-        if (params == null) {
-            if (member.hasParameters()) {
-                System.out.println ("Parameters expected");
+        if(params == null) {
+            if(member.hasParameters()) {
+                System.out.println("Parameters expected");
                 return;
             }
-        } else if (params.length != paramClasses.length) {
-            System.out.println ("Parameter numbers does not match");
+        } else if(params.length != paramClasses.length) {
+            System.out.println("Parameter numbers does not match");
             return;
         }
         
-        doInvocation (params, paramClasses);
+        doInvocation(params, paramClasses);
     }
     
     /**
@@ -277,11 +276,11 @@ public class Invoker extends Thread
      */
     protected void doInvocation(String[] args, Class[] argTypes)
     {
-        executionEvent.setParameters (argTypes, args);
-        if (constructing) {
-            executionEvent.setObjectName (instanceName);
+        executionEvent.setParameters(argTypes, args);
+        if(constructing) {
+            executionEvent.setObjectName(instanceName);
         } else {
-            executionEvent.setMethodName (((MethodView)member).getName());
+            executionEvent.setMethodName(((MethodView)member).getName());
         }
 
         int numArgs = (args==null ? 0 : args.length);
@@ -375,7 +374,7 @@ public class Invoker extends Thread
                                          //constructing, isVoid);
 
         commandAsString = executionString;
-        executionEvent.setCommand (executionString);
+        executionEvent.setCommand(executionString);
         compileInvocationFile(shell);
     }
 
@@ -524,7 +523,7 @@ public class Invoker extends Thread
         if(dialog != null) {
             dialog.setErrorMessage("Error: " + message);
         }
-        watcher.putError (message);
+        watcher.putError(message);
     }
 
     /**
@@ -611,10 +610,11 @@ public class Invoker extends Thread
             case Debugger.NORMAL_EXIT:
                 if(expectResult) {
                     DebuggerObject result = null;
-                    if (member instanceof MethodView && ((MethodView)member).isVoid());
+                    if(member instanceof MethodView && ((MethodView)member).isVoid()) {
+                    }
                     else result = Debugger.debugger.getStaticValue(shellClassName,
                                                                    "__bluej_runtime_result");
-                    if (watcher != null) {
+                    if(watcher != null) {
                         if(constructing) {
                             watcher.putResult(result, instanceName);
                         }
@@ -623,46 +623,50 @@ public class Invoker extends Thread
                         }
                     }
                 }
-                executionEvent.setResult (ExecutionEvent.NORMAL_EXIT);
-
+                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                 break;
 
             case Debugger.FORCED_EXIT:  // exit through System.exit()
-                // possible change: currently, exits don't get reported for
-                // void methods. maybe: exits should get reported if return
-                // value != 0
-                {
-                    ExceptionDescription exc = Debugger.debugger.getException();
-                    pkg.reportExit(exc.getText());
-                    if (watcher != null) watcher.putError (exc.getText());
-                    executionEvent.setResult (ExecutionEvent.FORCED_EXIT);
+                String excMsg = Debugger.debugger.getException().getText();
+                if(watcher != null) {
+                    // always report System.exit for non-void calls
+                    pkg.reportExit(excMsg);
+                    watcher.putError(excMsg);
                 }
+                else {
+                    // for void calls, only report non-zero exits
+                    if(! "0".equals(excMsg))
+                        pkg.reportExit(excMsg);
+                }
+                executionEvent.setResult(ExecutionEvent.FORCED_EXIT);
                 break;
 
             case Debugger.EXCEPTION:
-                {
-                    ExceptionDescription exc = Debugger.debugger.getException();
-                    String text = exc.getClassName();
-                    if(text != null) {
-                        text = JavaNames.stripPrefix(text) + ":\n" + exc.getText();
-                        pkg.exceptionMessage(exc.getStack(), text, false);
-                        if (watcher != null) watcher.putError (text);
-                    } else {
-                        pkg.reportException(exc.getText());
-                        if (watcher != null) watcher.putError (exc.getText());
-                    }
-                    executionEvent.setResult (ExecutionEvent.EXCEPTION_EXIT);
+                ExceptionDescription exc = Debugger.debugger.getException();
+                String msg = exc.getText();
+                String text = exc.getClassName();
+                if(text != null) {
+                    text = JavaNames.stripPrefix(text) + ":\n" + msg;
+                    pkg.exceptionMessage(exc.getStack(), text, false);
+                    if(watcher != null) 
+                        watcher.putError(text);
+                } else {
+                    pkg.reportException(msg);
+                    if(watcher != null) 
+                        watcher.putError(msg);
                 }
+                executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
                 break;
 
             case Debugger.TERMINATED:  // terminated by user
                 // nothing to do
-                if (watcher != null) watcher.putError ("Terminated");
-                executionEvent.setResult (ExecutionEvent.TERMINATED_EXIT);
+                if(watcher != null)
+                    watcher.putError("Terminated");
+                executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                 break;
 
             } // switch
-            BlueJEvent.raiseEvent (BlueJEvent.EXECUTION_RESULT, executionEvent);
+            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
         } catch(Throwable e) {
             e.printStackTrace(System.err);
         }
@@ -683,16 +687,16 @@ public class Invoker extends Thread
         // we add library classes etc which may involve constructing
         // objects of types which are not in the current package
 
-        if (!p.isUnnamedPackage()) {
+        if(!p.isUnnamedPackage()) {
             String pkgName = p.getQualifiedName();
             int lastDot = pkgName.indexOf(".");
 
-            if (lastDot >= 0)
+            if(lastDot >= 0)
                 pkgName = pkgName.substring(0, lastDot);
 
             // if the first part of the package name exists as a target
             // lets unqualify the typeName
-            if (p.getTarget(pkgName) != null)
+            if(p.getTarget(pkgName) != null)
                 typeName = JavaNames.getBase(typeName);
         }
 
@@ -712,7 +716,7 @@ public class Invoker extends Thread
 
         int firstDollar;
 
-        if ((firstDollar = typeName.indexOf('$')) != -1) {
+        if((firstDollar = typeName.indexOf('$')) != -1) {
             StringBuffer sb = new StringBuffer(typeName);
 
             // go to length - 1 only so we always have an i+1 character
@@ -721,7 +725,7 @@ public class Invoker extends Thread
             // think a type name with a $ as the last character is valid
             // anyway
             for(int i=firstDollar; i<sb.length()-1; i++) {
-                if (sb.charAt(i) == '$' &&
+                if(sb.charAt(i) == '$' &&
                     !Character.isDigit(sb.charAt(i+1)))
                     sb.setCharAt(i, '.');
             }

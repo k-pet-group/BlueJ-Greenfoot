@@ -18,7 +18,7 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 1502 2002-11-12 01:51:57Z ajp $
+ * @version $Id: JavacCompilerInternal.java 1520 2002-11-27 11:34:25Z mik $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -286,7 +286,7 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
             return;          
         }
 
-        Debug.message("Compiler message: " + msg);
+        //Debug.message("Compiler message: " + msg);
 
         int first_colon = msg.indexOf(':', 0);
         if(first_colon == -1) {
