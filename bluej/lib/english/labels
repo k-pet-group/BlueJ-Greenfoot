@@ -544,6 +544,7 @@ menu.tools.rebuild=_Rebuild Package
 menu.tools.callLibrary=Use Library Class...@L
 menu.tools.callFreeForm=Evaluate Expression...@E
 menu.tools.generateDoc=Project Documentation@J
+menu.tools.testing=_Testing
 menu.tools.preferences=_Preferences...
 
 menu.view=_View
