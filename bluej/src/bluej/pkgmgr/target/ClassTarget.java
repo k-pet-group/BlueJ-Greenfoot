@@ -35,15 +35,13 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2747 2004-07-06 21:57:23Z mik $
+ * @version $Id: ClassTarget.java 2771 2004-07-09 09:27:41Z mik $
  */
 public class ClassTarget extends EditableTarget implements Moveable
 {	
-    static final int MIN_WIDTH = 80;
-	static final int MIN_HEIGHT = 50;
+    static final int MIN_WIDTH = 60;
+	static final int MIN_HEIGHT = 30;
     private static final String editStr = Config.getString("pkgmgr.classmenu.edit");
-    private static final String openStr = Config.getString("browser.classchooser.classmenu.open");
-    private static final String useStr = Config.getString("browser.classchooser.classmenu.use");
     private static final String compileStr = Config.getString("pkgmgr.classmenu.compile");
     private static final String inspectStr = Config.getString("pkgmgr.classmenu.inspect");
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
@@ -52,22 +50,11 @@ public class ClassTarget extends EditableTarget implements Moveable
     // Define Background Colours
     private static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
 
-    private static final Color shadowCol = Config.getItemColour("colour.target.shadow");
-    private static final Color stripeCol = Config.getItemColour("colour.target.stripes");
-
     private static final Color colBorder = Config.getItemColour("colour.target.border");
-    private static final Color graphbg = Config.getItemColour("colour.graph.background");
     private static final Color textfg = Config.getItemColour("colour.text.fg");
-
-    private static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     private static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
-    private static final Image brokenImage =
-        Config.getImageAsIcon("image.class.broken").getImage();
-
-    private static final String STEREOTYPE_OPEN = "<<";
-    private static final String STEREOTYPE_CLOSE = ">>";
     // temporary file name extension to trick windows if changing case only in class name
     private static String TEMP_FILE_EXTENSION = "-temp";
 
@@ -799,9 +786,7 @@ public class ClassTarget extends EditableTarget implements Moveable
 
         // handle superclass dependency
         if(info.getSuperclass() != null) {
-            String s = info.getSuperclass();
-            DependentTarget superclass = getPackage().getDependentTarget(info.getSuperclass());
-            
+            DependentTarget superclass = getPackage().getDependentTarget(info.getSuperclass());            
             if (superclass != null) {
                 getPackage().addDependency(
                                   new ExtendsDependency(getPackage(), this, superclass),

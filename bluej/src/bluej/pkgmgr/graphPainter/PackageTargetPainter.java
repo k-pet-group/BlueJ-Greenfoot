@@ -11,18 +11,16 @@ import bluej.utility.Utility;
 
 /**
  * Paints a packageTarget
+ * 
  * @author fisker
- * @version $Id: PackageTargetPainter.java 2590 2004-06-11 11:29:14Z fisker $
+ * @version $Id: PackageTargetPainter.java 2771 2004-07-09 09:27:41Z mik $
  */
 public class PackageTargetPainter
 {
     private static final int TAB_HEIGHT = 12;
     private static final int HANDLE_SIZE = 20;
-    private static final BasicStroke normalStroke = new BasicStroke(1);
-    private static final BasicStroke selectedStroke = new BasicStroke(2);
-    
+
     private static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
-    private static final Color shadowCol = Config.getItemColour("colour.target.shadow");
     private static final Color bordercolour = Config.getItemColour("colour.target.border");
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
@@ -31,112 +29,111 @@ public class PackageTargetPainter
     private static final AlphaComposite alphaComposite = GraphPainterStdImpl.alphaComposite;
     private static Composite oldComposite;
     private int tabWidth;
-    
+
     private GraphPainterStdImpl graphPainterStdImpl;
-    
+
     /**
-     * 
+     *  
      */
-    public PackageTargetPainter(GraphPainterStdImpl graphPainterStdImpl){
-    	this.graphPainterStdImpl = graphPainterStdImpl;
+    public PackageTargetPainter(GraphPainterStdImpl graphPainterStdImpl)
+    {
+        this.graphPainterStdImpl = graphPainterStdImpl;
     }
-    
-    public void paint(Graphics2D g, Target target){
+
+    public void paint(Graphics2D g, Target target)
+    {
         PackageTarget packageTarget = (PackageTarget) target;
         g.translate(packageTarget.getX(), packageTarget.getY());
         drawUMLStyle(g, packageTarget);
         g.translate(-packageTarget.getX(), -packageTarget.getY());
     }
-    
-    public void paintGhost(Graphics2D g, Target target){
+
+    public void paintGhost(Graphics2D g, Target target)
+    {
         PackageTarget packageTarget = (PackageTarget) target;
         oldComposite = g.getComposite();
         g.translate(packageTarget.getGhostX(), packageTarget.getGhostY());
         g.setComposite(alphaComposite);
         drawUMLStyle(g, packageTarget);
-        g.setComposite(oldComposite); 
+        g.setComposite(oldComposite);
         g.translate(-packageTarget.getGhostX(), -packageTarget.getGhostY());
     }
 
+    /**
+     * Draw the package icon.
+     */
     private void drawUMLStyle(Graphics2D g, PackageTarget packageTarget)
     {
         tabWidth = packageTarget.getWidth() / 3;
 
-        g.setColor(getBackgroundColour());
+        g.setColor(defaultbg);
         g.fillRect(0, 0, tabWidth, TAB_HEIGHT);
-        g.fillRect(0, TAB_HEIGHT, packageTarget.getWidth(), 
-                	packageTarget.getHeight() - TAB_HEIGHT);
+        g.fillRect(0, TAB_HEIGHT, packageTarget.getWidth(), packageTarget.getHeight() - TAB_HEIGHT);
 
-        g.setColor(shadowCol);
         drawShadow(g, packageTarget);
 
-        g.setColor(getBorderColour());
+        g.setColor(bordercolour);
         g.setFont(getFont(packageTarget));
-        Utility.drawCentredText(g, packageTarget.getDisplayName(),
-                TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT,
-                packageTarget.getWidth() - 2*TEXT_BORDER, TEXT_HEIGHT);
+        Utility.drawCentredText(g, packageTarget.getDisplayName(), TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT, packageTarget
+                .getWidth()
+                - 2 * TEXT_BORDER, TEXT_HEIGHT);
         drawUMLBorders(g, packageTarget);
     }
 
+    /**
+     * Draw the borders of the package icon.
+     */
     private void drawUMLBorders(Graphics2D g, PackageTarget packageTarget)
     {
+        int thickness = 1;  // default
         boolean isSelected = packageTarget.isSelected() && graphPainterStdImpl.isGraphEditorInFocus();
-        g.setStroke((isSelected ? selectedStroke : normalStroke));
+        if(isSelected)
+            thickness = 2;
+        
+        Utility.drawThickRect(g, 0, 0, tabWidth, TAB_HEIGHT, thickness);
+        Utility.drawThickRect(g, 0, TAB_HEIGHT, packageTarget.getWidth(), packageTarget.getHeight() - TAB_HEIGHT, thickness);
 
-        g.drawRect(0, 0, tabWidth, TAB_HEIGHT); //draw the tab
-        g.drawRect(0, TAB_HEIGHT, packageTarget.getWidth(), 
-                   packageTarget.getHeight() - TAB_HEIGHT); // draw Package
-
-        if(!isSelected)
+        if (!isSelected)
             return;
 
-        g.setStroke(normalStroke);
         // Draw lines showing resize tag
-        g.drawLine(packageTarget.getWidth() - HANDLE_SIZE - 2, packageTarget.getHeight(),
-                packageTarget.getWidth(), packageTarget.getHeight() - HANDLE_SIZE - 2);
-        g.drawLine(packageTarget.getWidth() - HANDLE_SIZE + 2, packageTarget.getHeight(),
-                packageTarget.getWidth(), packageTarget.getHeight() - HANDLE_SIZE + 2);
+        g.drawLine(packageTarget.getWidth() - HANDLE_SIZE - 2, packageTarget.getHeight(), packageTarget.getWidth(),
+                packageTarget.getHeight() - HANDLE_SIZE - 2);
+        g.drawLine(packageTarget.getWidth() - HANDLE_SIZE + 2, packageTarget.getHeight(), packageTarget.getWidth(),
+                packageTarget.getHeight() - HANDLE_SIZE + 2);
     }
 
-    
+    /**
+     * Draw the shadow.
+     */
     private void drawShadow(Graphics2D g, PackageTarget packageTarget)
     {
         int height = packageTarget.getHeight();
         int width = packageTarget.getWidth();
 
         g.setColor(colours[3]);
-        g.drawLine(3, height + 1, width , height + 1);//bottom
-        
+        g.drawLine(3, height + 1, width, height + 1);                   //bottom
+
         g.setColor(colours[2]);
-        g.drawLine(4, height + 2, width , height + 2);//bottom
-        g.drawLine(width + 1, height + 2, width + 1, 3 + TAB_HEIGHT);//left
-        g.drawLine(tabWidth + 1, 3, tabWidth + 1, TAB_HEIGHT);//tab
-        
+        g.drawLine(4, height + 2, width, height + 2);                   //bottom
+        g.drawLine(width + 1, height + 2, width + 1, 3 + TAB_HEIGHT);   //right
+        g.drawLine(tabWidth + 1, 3, tabWidth + 1, TAB_HEIGHT);          //tab
+
         g.setColor(colours[1]);
-        g.drawLine(5, height + 3, width + 1, height + 3);//bottom
-        g.drawLine(width + 2, height + 3, width + 2, 4 + TAB_HEIGHT);//left
+        g.drawLine(5, height + 3, width + 1, height + 3);               // bottom
+        g.drawLine(width + 2, height + 3, width + 2, 4 + TAB_HEIGHT);   // right
         g.drawLine(tabWidth + 2, 4, tabWidth + 2, TAB_HEIGHT);//tab
-        
+
         g.setColor(colours[0]);
-        g.drawLine(6, height + 4, width + 2, height + 4 ); //bottom
-        g.drawLine(width + 3, height + 3, width + 3, 5 + TAB_HEIGHT); // left
-        g.drawLine(tabWidth + 3, 5, tabWidth + 3, TAB_HEIGHT); // tab
-    } 
-    
-    Color getBackgroundColour()
-    {
-        return defaultbg;
+        g.drawLine(6, height + 4, width + 2, height + 4);               // bottom
+        g.drawLine(width + 3, height + 3, width + 3, 5 + TAB_HEIGHT);   // right
+        g.drawLine(tabWidth + 3, 5, tabWidth + 3, TAB_HEIGHT);          // tab
     }
-    
-    Color getBorderColour()
+
+    private Font getFont(PackageTarget packageTarget)
     {
-        return bordercolour;
+        return (packageTarget.getState() == PackageTarget.S_INVALID) ? PrefMgr.getStandoutFont() : PrefMgr
+                .getStandardFont();
     }
-    
-    Font getFont(PackageTarget packageTarget)
-    {
-        return (packageTarget.getState() == PackageTarget.S_INVALID) ? PrefMgr.getStandoutFont() : PrefMgr.getStandardFont();
-    }
-    
-    
+
 }

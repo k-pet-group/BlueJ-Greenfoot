@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
 
@@ -40,7 +39,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2755 2004-07-07 15:52:12Z mik $
+ * @version $Id: ObjectWrapper.java 2771 2004-07-09 09:27:41Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -58,8 +57,8 @@ public class ObjectWrapper extends JComponent
     static final Color textColour = Color.white;
     
     // Strokes
-    static final Stroke selectedStroke = new BasicStroke(2.5f);
-    static final Stroke unselectedStroke = new BasicStroke(1.0f);
+    static final Stroke selectedStroke = new BasicStroke(2.0f);
+    static final Stroke normalStroke = new BasicStroke(1.0f);
     
     protected static final int HGAP = 5;    // horiz. gap between objects (left of each object)
     protected static final int VGAP = 6;    // vert. gap between objects (above and below of each object)
@@ -87,7 +86,6 @@ public class ObjectWrapper extends JComponent
     private PkgMgrFrame pmf;
     private ObjectBench ob;
 
-    private Method[] methods;
     private Hashtable methodsUsed;
     private Hashtable actions;
     private boolean isSelected = false;
@@ -163,7 +161,7 @@ public class ObjectWrapper extends JComponent
 
     public GenTypeClass getGenType()
     {
-        return (GenTypeClass)obj.getGenType();
+        return obj.getGenType();
     }
     
     /**
@@ -384,6 +382,9 @@ public class ObjectWrapper extends JComponent
         drawUMLStyle(g2);
     }
     
+    /**
+     * Draw the body of an object wrapper (everything, except the text).
+     */
     protected void drawUMLObjectShape(Graphics2D g, int x, int y, int w, int h, int shad, int corner)
     {
         boolean isSelected = isSelected() && ob.hasFocus();
@@ -392,21 +393,19 @@ public class ObjectWrapper extends JComponent
         g.setColor(bg);
         g.fillRoundRect(x, y, w-shad, h-shad, corner, corner);
         //draw outline
-        g.setColor( Color.BLACK );
-        g.setStroke(isSelected ? selectedStroke : unselectedStroke);
+        g.setColor(Color.BLACK);
+        if(isSelected)
+            g.setStroke(selectedStroke);
         g.drawRoundRect(x, y, w-shad, h-shad, corner, corner);
+        if(isSelected)
+            g.setStroke(normalStroke);
     }
 
     /**
-	 * @param g
-	 * @param x
-	 * @param y
-	 * @param w
-	 * @param h
-	 * @param shad
-	 * @param corner
+	 * Draw the shadow of an object wrapper.
 	 */
-	private void drawShadow(Graphics2D g, int x, int y, int w, int h, int shad, int corner) {
+	private void drawShadow(Graphics2D g, int x, int y, int w, int h, int shad, int corner) 
+    {
 		g.setColor(colours[0]);
 		g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
 		g.setColor(colours[1]);
@@ -417,7 +416,11 @@ public class ObjectWrapper extends JComponent
 		g.fillRoundRect(x+shad,y+shad,w-shad-3,h-shad-3,corner,corner);
 	}
 
-	protected void drawUMLObjectText(Graphics2D g, int x, int y, int w, int h, int shad, String a, String b)
+    /**
+     * Draw the text onto an object wrapper (objectname: classname).
+     */
+	protected void drawUMLObjectText(Graphics2D g, int x, int y, int w, int shad, 
+                                     String objName, String className)
     {
     	
         g.setColor(textColour);
@@ -430,24 +433,24 @@ public class ObjectWrapper extends JComponent
                                         // we leave 2 pixels of space either side of shape
 
         // draw top string (normally instance name)
-        int aWidth = fm.stringWidth(a);
+        int aWidth = fm.stringWidth(objName);
         if(aWidth > maxWidth)
             aWidth = maxWidth;
 
-        Utility.drawCentredText(g, a, x+2, y+5, maxWidth, fontHeight);
+        Utility.drawCentredText(g, objName, x+2, y+5, maxWidth, fontHeight);
 
-        int lineX = x + 2 + ((int)(maxWidth - aWidth)/2);
+        int lineX = x + 2 + ((maxWidth - aWidth)/2);
         int lineY = y + 5 + fontHeight;
 
         g.drawLine(lineX, lineY, lineX + aWidth, lineY);
 
         // draw bottom string (normally class name)
-        int bWidth = fm.stringWidth(b);
+        int bWidth = fm.stringWidth(className);
         if(bWidth > maxWidth)
             bWidth = maxWidth;
 
-        Utility.drawCentredText(g, b, x+2, y+25, maxWidth, fontHeight);
-        lineX = x + 2 + ((int)(maxWidth - bWidth)/2);
+        Utility.drawCentredText(g, className, x+2, y+25, maxWidth, fontHeight);
+        lineX = x + 2 + ((maxWidth - bWidth)/2);
         lineY = y + 25 + fontHeight;
         g.drawLine(lineX, lineY, lineX + bWidth, lineY);
     }
@@ -458,8 +461,7 @@ public class ObjectWrapper extends JComponent
     protected void drawUMLStyle(Graphics2D g)
     {
         drawUMLObjectShape(g, HGAP, (VGAP / 2), WIDTH-HGAP, HEIGHT-VGAP, SHADOW_SIZE, 8);
-
-        drawUMLObjectText(g, HGAP, (VGAP / 2), WIDTH-HGAP, HEIGHT-VGAP, SHADOW_SIZE,
+        drawUMLObjectText(g, HGAP, (VGAP / 2), WIDTH-HGAP, SHADOW_SIZE,
                             getName() + ":", displayClassName);
     }
 
@@ -470,7 +472,6 @@ public class ObjectWrapper extends JComponent
      */
     protected void processMouseEvent(MouseEvent evt)
     {
-        int menuOffset;
         super.processMouseEvent(evt);
         if(evt.isPopupTrigger()) {
             showMenu(evt.getX(), evt. getY());
@@ -551,9 +552,7 @@ public class ObjectWrapper extends JComponent
     protected void inspectObject()
     {
         InvokerRecord ir = new ObjectInspectInvokerRecord(getTypeName(), getName());
-        
-        ObjectInspector viewer =
-      	    ObjectInspector.getInstance(obj, getName(), pkg, ir, pmf);
+      	ObjectInspector.getInstance(obj, getName(), pkg, ir, pmf);  // shows the inspector
     }
 
     protected void removeObject()

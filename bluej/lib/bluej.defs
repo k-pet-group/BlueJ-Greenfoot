@@ -334,7 +334,6 @@ colour.arrow.extends=0,0,0
 
 colour.target.border=0,0,0
 colour.target.bg.compiling=200,150,100
-colour.target.shadow=192,192,192
 colour.target.stripes=152,152,152
 
 # colours for different types of classes (by default we make most

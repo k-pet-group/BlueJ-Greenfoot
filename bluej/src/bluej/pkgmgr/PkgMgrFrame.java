@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2755 2004-07-07 15:52:12Z mik $
+ * @version $Id: PkgMgrFrame.java 2771 2004-07-09 09:27:41Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2164,6 +2164,8 @@ public class PkgMgrFrame extends JFrame
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         classScroller.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         classScroller.setFocusable(false);
+        classScroller.getVerticalScrollBar().setUnitIncrement(10);
+        classScroller.getHorizontalScrollBar().setUnitIncrement(20);
         mainPanel.add(classScroller, BorderLayout.CENTER);
         
 

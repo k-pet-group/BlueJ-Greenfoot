@@ -19,22 +19,15 @@ import bluej.utility.*;
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 2770 2004-07-09 08:18:49Z mik $
+ * @version $Id: PackageTarget.java 2771 2004-07-09 09:27:41Z mik $
  */
 public class PackageTarget extends Target
     implements Moveable
 {
-    static final int MIN_WIDTH = 80;
-    static final int MIN_HEIGHT = 60;
+    static final int MIN_WIDTH = 60;
+    static final int MIN_HEIGHT = 40;
 
-    static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
-
-    static final Color ribboncolour = defaultbg.darker().darker();
-    static final Color bordercolour = Config.getItemColour("colour.target.border");
-    static final Color textfg = Config.getItemColour("colour.text.fg");
-
-    static final int TAB_HEIGHT = 12;
-    private int tabWidth;
+    private static final int TAB_HEIGHT = 12;
 
     static String openStr = Config.getString("pkgmgr.packagemenu.open");
     static String removeStr = Config.getString("pkgmgr.packagemenu.remove");
@@ -107,26 +100,6 @@ public class PackageTarget extends Target
         return true;
     }
 
-    Color getBackgroundColour()
-    {
-        return defaultbg;
-    }
-
-    Color getBorderColour()
-    {
-        return bordercolour;
-    }
-
-    Color getTextColour()
-    {
-        return textfg;
-    }
-
-    Font getFont()
-    {
-        return (state == S_INVALID) ? PrefMgr.getStandoutFont() : PrefMgr.getStandardFont();
-    }
-
     /**
      * Called when a package icon in a GraphEditor is double clicked. Creates a
      * new PkgFrame when a package is drilled down on.
@@ -140,7 +113,7 @@ public class PackageTarget extends Target
 
     public void popupMenu(int x, int y, GraphEditor editor)
     {
-        JPopupMenu menu = createMenu(null);
+        JPopupMenu menu = createMenu();
         if (menu != null)
             menu.show(editor, x, y);
     }
@@ -148,33 +121,22 @@ public class PackageTarget extends Target
     /**
      * Construct a popup menu which displays all our parent packages.
      */
-    private JPopupMenu createMenu(Class cl)
+    private JPopupMenu createMenu()
     {
         JPopupMenu menu = new JPopupMenu(getBaseName());
-        JMenuItem item;
 
         Action openAction = new OpenAction(openStr, this, getPackage().getQualifiedName(getBaseName()));
-
-        item = menu.add(openAction);
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-
+        addMenuItem(menu, openAction);
+        
         Action removeAction = new RemoveAction(removeStr, this);
-
-        item = menu.add(removeAction);
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
+        addMenuItem(menu, removeAction);
 
         return menu;
     }
 
-    private void addMenuItem(JPopupMenu menu, String itemString, String pkgName)
+    private void addMenuItem(JPopupMenu menu, Action action)
     {
-        JMenuItem item;
-
-        Action openAction = new OpenAction(itemString, this, pkgName);
-
-        item = menu.add(openAction);
+        JMenuItem item = menu.add(action);
         item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
     }
