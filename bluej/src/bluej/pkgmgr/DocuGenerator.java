@@ -261,11 +261,14 @@ public class DocuGenerator
                     BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED, null);
                     if (!showFile.exists()) {
                         Debug.message("showfile does not exist - searching");
-                        showFile=FileUtility.findFile(showFile.getParentFile(),
-                                                      showFile.getName());
+                        showFile = FileUtility.findFile(showFile.getParentFile(),
+                                                        showFile.getName());
                     }
-                    if(openBrowser)
+                    if(openBrowser) {
+                        logWriter.println("<---- attempting to open browser ---->");
+                        logWriter.println("URL:  file://" + showFile.getPath());
                         Utility.openWebBrowser("file://" + showFile.getPath());
+                    }
                 }
                 else {
                     BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);

@@ -25,7 +25,7 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 1008 2001-11-16 06:58:07Z ajp $
+ * @version $Id: LibraryCallDialog.java 1351 2002-10-07 12:07:59Z mik $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
@@ -145,13 +145,24 @@ public class LibraryCallDialog extends JDialog
             return;
         }
 
+        boolean loaded;
         try {
             cl = Class.forName(className, true,
                                ClassMgr.getBlueJLoader());
+            loaded = true;
         }
         catch(Exception exc) {
-            displayTextInClassList(classNotFound);
-            return;
+            loaded = false;
+        }
+        if (!loaded) {   // try for unqualified names in java.lang
+            try {
+               cl = Class.forName("java.lang." + className, true,
+                                  ClassMgr.getBlueJLoader());
+            }
+            catch(Exception exc) {
+                displayTextInClassList(classNotFound);
+                return;
+            }
         }
         displayMethodsForClass(cl);
     }

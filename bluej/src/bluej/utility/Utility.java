@@ -17,7 +17,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 999 2001-10-24 15:31:05Z mik $
+ * @version $Id: Utility.java 1351 2002-10-07 12:07:59Z mik $
  */
 public class Utility
 {
@@ -252,29 +252,36 @@ public class Utility
      */
     public static boolean openWebBrowser(String url) {
 
-        String cmd;
-
-        if(Config.osname.startsWith("Mac")) {
+        if(Config.osname.startsWith("Mac")) {                           // Mac
             try {
                 MRJFileUtils.openURL(url);
             }
             catch(IOException e) {
-                Debug.reportError("could not start web browser");
-                Debug.reportError("caught exc " + e);
+                Debug.reportError("could not start web browser. exc: " + e);
                 return false;
             }
         }
-        else {
-            // try first command, eg "netscape -remote"
+        else if(Config.osname.startsWith("Windows")) {                 // Windows
 
-            if(Config.osname != null && Config.osname.startsWith("Windows 9"))    // win95/98
-                cmd = mergeStrings(Config.getPropString("win9xBrowserCmd1"),
-                                   url);
-            else if(Config.osname != null && Config.osname.startsWith("Windows")) // NT/2000
-                cmd = mergeStrings(Config.getPropString("winBrowserCmd1"),
-                                   url);
-            else
-                cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
+            String [] cmd = new String[2];
+            if(Config.osname.startsWith("Windows 9"))                   // win95/98
+                cmd[0] = Config.getPropString("win9xBrowserCmd");
+            else                                                        // other
+                cmd[0] = Config.getPropString("winBrowserCmd");
+                
+            cmd[1] = url;
+
+            try {
+                Process p = Runtime.getRuntime().exec(cmd);
+            }
+            catch(IOException e) {
+                Debug.reportError("could not start web browser. exc: " + e);
+                return false;
+            }
+        }
+        else {                                                      // Unix and other
+        
+            String cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
 
             try {
                 Process p = Runtime.getRuntime().exec(cmd);
@@ -283,12 +290,7 @@ public class Utility
                 // we try second command
                 int exitCode = p.waitFor();
 
-                if(Config.osname != null && Config.osname.startsWith("Windows 9"))
-                    cmd = Config.getPropString("win9xBrowserCmd2");
-                else if(Config.osname != null && Config.osname.startsWith("Windows"))
-                    cmd = Config.getPropString("winBrowserCmd2");
-                else
-                    cmd = Config.getPropString("browserCmd2");
+                cmd = Config.getPropString("browserCmd2");
 
                 if(exitCode != 0 && cmd != null && cmd.length() > 0) {
                     cmd = mergeStrings(cmd, url);
@@ -302,8 +304,7 @@ public class Utility
                 return false;
             }
             catch(IOException e) {
-                Debug.reportError("could not start web browser");
-                Debug.reportError("caught exc " + e);
+                Debug.reportError("could not start web browser.  exc: " + e);
                 return false;
             }
         }

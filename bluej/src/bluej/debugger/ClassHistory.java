@@ -32,8 +32,10 @@ public class ClassHistory
         this.maxLength = maxLength;
         history = new Vector(maxLength);
         history.add("");
-        history.add("java.lang.String");
-        history.add("java.lang.Math");
+        history.add("String");
+        history.add("Math");
+        history.add("java.util.ArrayList");
+        history.add("java.util.Random");
         history.add("java.util.");
         history.add("java.awt.");
         history.add("javax.swing.");

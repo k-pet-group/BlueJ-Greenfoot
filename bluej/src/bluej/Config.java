@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1262 2002-06-26 07:05:23Z ajp $
+ * @version $Id: Config.java 1351 2002-10-07 12:07:59Z mik $
  */
 
 public class Config
@@ -87,7 +87,7 @@ public class Config
 
     public static final int dialogCommandButtonsVertical = 17;
     
-    public static final String osname = System.getProperty("os.name");
+    public static final String osname = System.getProperty("os.name", "");
     public static final String DEFAULT_LANGUAGE = "english";
 
     private static boolean initialised = false;
