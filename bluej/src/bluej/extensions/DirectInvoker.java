@@ -6,13 +6,15 @@ import bluej.debugger.ResultWatcher;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.CallableView;
+import bluej.views.ConstructorView;
+import bluej.testmgr.*;
 
 /**
  * Provides a gateway to invoke methods on objects using a specified
  * set of parameters.
  *
  * @author Clive Miller
- * @version $Id: DirectInvoker.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: DirectInvoker.java 1626 2003-02-11 01:46:35Z ajp $
  */
 class DirectInvoker
 {
@@ -28,7 +30,7 @@ class DirectInvoker
         this.instanceName = instanceName;
     }
     
-    /*
+    /**
      * @param methodName <CODE>null</CODE> implies a constructor.
      */
     DebuggerObject invoke (String[] args)
@@ -37,9 +39,20 @@ class DirectInvoker
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker = new Invoker (pmf, callable, instanceName, watcher);
         invoker.invokeDirect (null, args);
+
+        // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
-        if (result == null) error = watcher.getError();
-        else resultName = watcher.getResultName();
+
+        // constructors place the result as the first field on the returned object
+        if (result != null && callable instanceof ConstructorView) {
+            result = result.getInstanceFieldObject(0);
+        }
+        
+        if (result == null)
+            error = watcher.getError();
+        else
+            resultName = watcher.getResultName();
+            
         return result;
     }
     
@@ -77,7 +90,7 @@ class DirectInvoker
             return result;
         }
             
-        public synchronized void putResult(DebuggerObject result, String name) 
+        public synchronized void putResult(DebuggerObject result, String name, InvokerRecord ir) 
         {
             this.result = result;
             this.resultName = name;

@@ -1,10 +1,12 @@
 package bluej.parser.ast;
 
+import java.util.List;
 import java.io.*;
 import antlr.*;
 import antlr.collections.*;
 import antlr.debug.misc.*;
 import java.awt.event.*;
+import java.util.*;
 
 public class JavaParser
 {
@@ -238,6 +240,42 @@ Adds a file to an AST tree
 		
 		return null;
 	}
+  
+    public static List getVariableSelections(AST objBlock)
+    {
+        if (!(objBlock instanceof LocatableAST))
+            throw new IllegalArgumentException("wrong AST type");
+
+        LinkedList l = new LinkedList();
+        LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
+
+        // the children on a class' object block are a list of variable definitions
+        // and class definitions
+        while(childAST != null) {
+            // we are only interested in variable definitions
+            if(childAST.getType() == UnitTestParserTokenTypes.VARIABLE_DEF) {
+                LocatableAST firstSib = null, secondSib = null;
+                
+                firstSib = (LocatableAST) childAST.getFirstChild();
+                if(firstSib != null)
+                    secondSib = (LocatableAST) firstSib.getNextSibling();
+                    
+                if (firstSib != null && secondSib != null) {                    
+//                    System.out.println(firstSib);
+//                    System.out.println(secondSib);
+//                   System.out.println(firstSib.getLine() + firstSib.getColumn() + firstSib.getText());
+//                   System.out.println(secondSib.getLine() + secondSib.getColumn() + secondSib.getText());
+                    
+
+                    l.addFirst(secondSib);
+                    l.addFirst(firstSib);
+                }
+            }               
+            childAST = (LocatableAST) childAST.getNextSibling();            
+        }            
+
+        return l;
+    }
 	
 	public static void doTreeAction(AST t, String[] tokenNames)
     {

@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 1527 2002-11-28 15:36:18Z mik $
+ ** @version $Id: ExecControls.java 1626 2003-02-11 01:46:35Z ajp $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -348,7 +348,7 @@ public class ExecControls extends JFrame
         if(currentClass.staticFieldIsObject(index)) {
             ObjectInspector viewer = ObjectInspector.getInstance(false,
                                           currentClass.getStaticFieldObject(index),
-                                          null, null, false, this);
+                                          null, null, null, this);
         }
     }
 
@@ -357,7 +357,7 @@ public class ExecControls extends JFrame
         if(currentObject.instanceFieldIsObject(index)) {
             ObjectInspector viewer = ObjectInspector.getInstance(false,
                                           currentObject.getInstanceFieldObject(index),
-                                          null, null, false, this);
+                                          null, null, null, this);
         }
     }
 
@@ -366,7 +366,7 @@ public class ExecControls extends JFrame
         if(selectedThread.varIsObject(currentFrame, index)) {
             ObjectInspector viewer = ObjectInspector.getInstance(false,
                            selectedThread.getStackObject(currentFrame, index),
-                           null, null, false, this);
+                           null, null, null, this);
         }
     }
 

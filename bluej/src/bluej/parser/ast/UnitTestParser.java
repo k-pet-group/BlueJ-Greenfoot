@@ -1,4 +1,4 @@
-// $ANTLR 2.7.1: "java.tree.g" -> "UnitTestParser.java"$
+// $ANTLR 2.7.1: "unittest.tree.g" -> "UnitTestParser.java"$
 
     package bluej.parser.ast;
 
@@ -48,6 +48,7 @@ public class UnitTestParser extends antlr.TreeParser
     {
         if (mods.getFirstChild() != null) {
             LocatableAST modchild = (LocatableAST) mods.getFirstChild();
+            modchild.setNextSibling(null);
             return modchild;
         } else if (type.getFirstChild() != null) {
             return (LocatableAST) type.getFirstChild();
@@ -261,8 +262,6 @@ public UnitTestParser() {
 				_t = _t.getNextSibling();
 				typeDefinition_AST = (AST)currentAST.root;
 				
-				//            System.out.println(((LocatableAST) ob).getImportantToken(0));
-				//            System.out.println(((LocatableAST) ob).getImportantToken(1));
 				Token commentToken = helpFindComment(m, i);
 				AST comment;
 				
@@ -271,7 +270,10 @@ public UnitTestParser() {
 				else
 				comment = null;
 				
-				typeDefinition_AST = (AST)astFactory.make( (new ASTArray(5)).add(i_AST).add(m_AST).add(ec_AST).add(ob_AST).add((AST)astFactory.make( (new ASTArray(2)).add((AST)astFactory.create(COMMENT_DEF,"COMMENT_DEF")).add(comment)))); 
+				LocatableAST lc = new LocatableAST(((LocatableAST) ob).getImportantToken(0));
+				LocatableAST rc = new LocatableAST(((LocatableAST) ob).getImportantToken(1));
+				
+				typeDefinition_AST = (AST)astFactory.make( (new ASTArray(7)).add(i_AST).add(lc).add(rc).add(m_AST).add(ec_AST).add(ob_AST).add((AST)astFactory.make( (new ASTArray(2)).add((AST)astFactory.create(COMMENT_DEF,"COMMENT_DEF")).add(comment)))); 
 					
 				currentAST.root = typeDefinition_AST;
 				currentAST.child = typeDefinition_AST!=null &&typeDefinition_AST.getFirstChild()!=null ?
@@ -562,7 +564,7 @@ public UnitTestParser() {
 					LocatableAST locid = (LocatableAST) id;
 					
 					if (locid.getImportantTokenCount() > 0)
-						            System.out.println(locid.getImportantToken(0));
+						           ; // System.out.println(locid.getImportantToken(0));
 						
 				}
 				else {
@@ -1351,7 +1353,7 @@ public UnitTestParser() {
 			variableDef_AST = (AST)astFactory.make( (new ASTArray(3)).add(tmp44_AST).add(findFirstChild(m_AST,t_AST)).add(semi)); 
 			}
 			else {
-			variableDef_AST = (AST)astFactory.make( (new ASTArray(1)).add(tmp44_AST));
+			variableDef_AST = null; // #(VARIABLE_DEF);
 			}
 				
 			currentAST.root = variableDef_AST;
@@ -4825,7 +4827,7 @@ public UnitTestParser() {
 		"\"float\"",
 		"\"long\"",
 		"\"double\"",
-		"IDENT",
+		"an identifier",
 		"DOT",
 		"STAR",
 		"\"private\"",
@@ -4905,7 +4907,7 @@ public UnitTestParser() {
 		"\"false\"",
 		"\"null\"",
 		"\"new\"",
-		"NUM_INT",
+		"a number",
 		"CHAR_LITERAL",
 		"STRING_LITERAL",
 		"NUM_FLOAT",

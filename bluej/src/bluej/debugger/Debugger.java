@@ -14,7 +14,7 @@ import java.util.List;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 1559 2002-12-06 03:46:43Z ajp $
+ * @version $Id: Debugger.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public abstract class Debugger
 {
@@ -103,9 +103,9 @@ public abstract class Debugger
 
     public abstract Map runTestSetUp(String loadId, String scopeId, String className);
 
-    public abstract void runTestClass(String loadId, String scopeId, String className);
+    public abstract DebuggerTestResult runTestClass(String loadId, String scopeId, String className);
 
-    public abstract void runTestMethod(String loadId, String scopeId, String className, String methodName);
+    public abstract DebuggerTestResult runTestMethod(String loadId, String scopeId, String className, String methodName);
 
     /**
      * Serialize an object in the debugger to a file

@@ -51,7 +51,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1577 2002-12-11 23:42:14Z ajp $
+ * @version $Id: ClassTarget.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -130,8 +130,8 @@ public class ClassTarget extends EditableTarget
         if (template != null) {
             if (template.startsWith("applet"))
             role = new AppletClassRole();
-//            else if (template.startsWith("unittest"))
-//                role = new UnitTestClassRole();
+            else if (template.startsWith("unittest"))
+                role = new UnitTestClassRole();
             else if (template.startsWith("abstract"))
                 role = new AbstractClassRole();
             else if (template.startsWith("interface"))
@@ -202,8 +202,8 @@ public class ClassTarget extends EditableTarget
             // with it.
             if (Applet.class.isAssignableFrom(cl))
                 setRole(new AppletClassRole());
-//            else if (junit.framework.TestCase.class.isAssignableFrom(cl))
-//                setRole(new UnitTestClassRole());
+            else if (junit.framework.TestCase.class.isAssignableFrom(cl))
+                setRole(new UnitTestClassRole());
             else if (Modifier.isInterface(cl.getModifiers()))
                 setRole(new InterfaceClassRole());
             else if (Modifier.isAbstract(cl.getModifiers())) 
@@ -218,8 +218,8 @@ public class ClassTarget extends EditableTarget
             if (classInfo != null) {
                 if (classInfo.isApplet())
                     setRole(new AppletClassRole());
-//                if (classInfo.isUnitTest())
-//                    setRole(new UnitTestClassRole());
+                if (classInfo.isUnitTest())
+                    setRole(new UnitTestClassRole());
                 if (classInfo.isInterface())
                     setRole(new InterfaceClassRole());
                 if (classInfo.isAbstract())
@@ -247,8 +247,8 @@ public class ClassTarget extends EditableTarget
 
         if (AppletClassRole.APPLET_ROLE_NAME.equals(type))
             setRole(new AppletClassRole());
-//        else if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type))
-//            setRole(new UnitTestClassRole());
+        else if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type))
+            setRole(new UnitTestClassRole());
         else if (AbstractClassRole.ABSTRACT_ROLE_NAME.equals(type))
             setRole(new AbstractClassRole());
         else if (InterfaceClassRole.INTERFACE_ROLE_NAME.equals(type))

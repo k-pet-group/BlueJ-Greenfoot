@@ -13,12 +13,13 @@ import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
+import bluej.testmgr.*;
 
 /**
  * A window that displays the fields in an object or a method return value.
  *
- * @author     Michael Kolling
- * @version    $Id: ObjectInspector.java 1572 2002-12-11 16:23:16Z mik $
+ * @author  Michael Kolling
+ * @version $Id: ObjectInspector.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -38,10 +39,47 @@ public class ObjectInspector extends Inspector
     protected static int inspectorCount = 0;
     protected static Set loadedProjects = new HashSet();
 
+   /**
+     * Return an ObjectInspector for an object. The inspector is visible.
+     * This is the only way to get access to viewers - they cannot be
+     * directly created.
+     *
+     * @param  isResult    false is this is an inspection, true for result
+     *                     displays
+     * @param  obj         The object displayed by this viewer
+     * @param  name        The name of this object or "null" if the name is unobtainable
+     * @param  pkg         The package all this belongs to
+     * @param  ir          the InvokerRecord explaining how we got this result/object
+     *                     if null, the "get" button is permanently disabled
+     * @param  parent      The parent frame of this frame
+     * @return             The Viewer value
+     */
+    public static ObjectInspector getInstance(boolean isResult,
+                                                DebuggerObject obj, String name,
+                                                Package pkg, InvokerRecord ir,
+                                                JFrame parent)
+    {
+        ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
+
+        if (inspector == null) {
+            inspector = new ObjectInspector(isResult, obj, name, pkg, ir, parent);
+            inspectors.put(obj, inspector);
+        }
+        inspector.update();
+
+        inspector.setVisible(true);
+        inspector.bringToFront();
+
+        return inspector;
+    }
+
 
     // === instance variables ===
 
     protected DebuggerObject obj;
+    protected String objName;           // a String for display that contains this objects
+                                        // name on the object bench
+                                            
     protected boolean isResult;         // true if displaying result, false if
                                         //  inspecting object
     protected boolean queryArrayElementSelected = false;
@@ -54,70 +92,39 @@ public class ObjectInspector extends Inspector
 
 
 
-   /**
-     *  Return an ObjectInspector for an object. The inspector is visible.
-     *  This is the only way to get access to viewers - they cannot be
-     *  directly created.
-     *
-     * @param  inspection  True is this is an inspection, false for result
-     *                     displays
-     * @param  obj         The object displayed by this viewer
-     * @param  name        The name of this object or "null" if it is not on the
-     *                     object bench
-     * @param  pkg         The package all this belongs to
-     * @param  getEnabled  if false, the "get" button is permanently disabled
-     * @param  parent      The parent frame of this frame
-     * @return             The Viewer value
-     */
-    public static ObjectInspector getInstance(boolean isResult,
-            DebuggerObject obj, String name,
-            Package pkg, boolean getEnabled,
-            JFrame parent)
-    {
-        ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
-
-        if (inspector == null) {
-            if (name == null) {
-                name = "";
-            } else {
-                name = "(" + name + ")";
-            }
-            inspector = new ObjectInspector(isResult, obj, pkg, name, getEnabled, parent);
-            inspectors.put(obj, inspector);
-        }
-        inspector.update();
-
-        inspector.setVisible(true);
-        inspector.bringToFront();
-
-        return inspector;
-    }
 
     /**
      *  Constructor
      *  Note: private -- Objectviewers can only be created with the static
-     *  "getViewer" method. 'pkg' may be null if getEnabled is false.
+     *  "getViewer" method. 'pkg' may be null if 'ir' is null.
      *
-     *@param  inspect     Description of Parameter
-     *@param  obj         Description of Parameter
-     *@param  pkg         Description of Parameter
-     *@param  id          Description of Parameter
-     *@param  getEnabled  Description of Parameter
-     *@param  parent      Description of Parameter
+     * @param  isResult    false is this is an inspection, true for result
+     *                     displays
+     * @param  obj         The object displayed by this viewer
+     * @param  name        The name of this object or "null" if the name is unobtainable
+     * @param  pkg         The package all this belongs to
+     * @param  ir          the InvokerRecord explaining how we created this result/object
+     *                     if null, the "get" button is permanently disabled
+     * @param  parent      The parent frame of this frame
      */
     private ObjectInspector(boolean isResult, DebuggerObject obj,
-            Package pkg, String name, boolean getEnabled,
-            JFrame parent)
+                            String name, Package pkg, InvokerRecord ir,
+                            JFrame parent)
     {
-        super(pkg, getEnabled);
+        super(pkg, ir);
 
         setTitle(isResult ? resultTitle : inspectTitle);
 
         this.isResult = isResult;
         this.obj = obj;
+        this.objName = name;
+                
+        String fullTitle = objectNameLabel + " " + JavaNames.stripPrefix(obj.getClassName());
+        
+        if (name != null)
+            fullTitle += " (" + name + ")";
 
-        makeFrame(parent, isResult, true,
-                  objectNameLabel + " " + JavaNames.stripPrefix(obj.getClassName()) + " " + name);
+        makeFrame(parent, isResult, true, fullTitle);
     }
 
     /**
@@ -175,8 +182,20 @@ public class ObjectInspector extends Inspector
         }
         else if (obj.instanceFieldIsObject(slot))
         {
+            String newInspectedName;
+            
+            if (objName != null && !obj.isArray()) {
+                newInspectedName = objName + "." + obj.getInstanceFieldName(slot);
+            }
+            else if (objName != null && obj.isArray()) {
+                newInspectedName = objName + obj.getInstanceFieldName(slot);
+            }
+            else {
+                newInspectedName = obj.getInstanceFieldName(slot);
+            }
+            
             setCurrentObj(obj.getInstanceFieldObject(slot),
-                          obj.getInstanceFieldName(slot));
+                          newInspectedName);
 
             if (obj.instanceFieldIsPublic(slot)) {
                 setButtonsEnabled(true, true);
@@ -468,6 +487,6 @@ public class ObjectInspector extends Inspector
 
     public void inspectEvent(InspectorEvent e)
     {
-        getInstance(false, e.getDebuggerObject(), null, pkg, false, this);
+        getInstance(false, e.getDebuggerObject(), null, pkg, null, this);
     }
 }

@@ -4,6 +4,7 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
 import bluej.utility.DialogManager;
+import bluej.testmgr.*;
 
 import java.util.List;
 import java.awt.*;
@@ -20,7 +21,7 @@ import javax.swing.border.Border;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1575 2002-12-11 20:51:32Z mik $
+ * @version    $Id: Inspector.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -28,8 +29,6 @@ public abstract class Inspector extends JFrame
     // === static variables ===
 
     protected static HashMap inspectors = new HashMap();
-
-    protected final static Color bgColor = new Color(208, 212, 208);
 
     protected final static String inspectorDirectoryName = "+inspector";
 
@@ -49,10 +48,15 @@ public abstract class Inspector extends JFrame
 
     protected JButton inspectButton;
     protected JButton getButton;
+
     protected DebuggerObject selectedObject;    // the object currently selected in the list
+    protected String selectedObjectName;        // the name of the field of the
+                                                // currently selected object
+    protected InvokerRecord selectedInvokerRecord;  // an InvokerRecord for the selected
+                                                    // object (if possible, else null)
+
     protected Package pkg;
-    protected String pkgScopeId;
-    protected boolean getEnabled;
+    protected InvokerRecord ir;
 
     // either a tabbed pane or null if there is only the standard inspector
     protected JTabbedPane inspectorTabs = null;
@@ -88,27 +92,28 @@ public abstract class Inspector extends JFrame
     /**
      *  Constructor.
      *
-     * @param   pkg         Description of Parameter
-     * @param   getEnabled  Description of Parameter
+     * @param   pkg         the package this inspector belongs to (or null)
+     * @param   ir          the InvokerRecord for this inspector (or null)
      */
-    protected Inspector(Package pkg, boolean getEnabled)
+    protected Inspector(Package pkg, InvokerRecord ir)
     {
         super();
 
         setIconImage(Config.frameImage);
 
         this.pkg = pkg;
-        this.getEnabled = getEnabled;
-        if (pkg == null) {
-            if (getEnabled) {
-                Debug.reportError("cannot enable 'get' with null package");
-            }
-            pkgScopeId = "";
-        } else {
-            pkgScopeId = pkg.getId();
+        this.ir = ir;
+
+        if (pkg == null && ir != null) {
+            throw new IllegalArgumentException("Get button cannot be enabled when pkg==null");
         }
     }
 
+    protected boolean isGetEnabled()
+    {
+        return ir != null;    
+    }
+    
     public void setVisible(boolean visible)
     {
         super.setVisible(visible);
@@ -253,12 +258,13 @@ public abstract class Inspector extends JFrame
     /**
      *  Store the object currently selected in the list.
      *
-     *@param  object  The new CurrentObj value
-     *@param  name    The new CurrentObj value
+     * @param  object  The new CurrentObj value
+     * @param  name    The new CurrentObj value
      */
     protected void setCurrentObj(DebuggerObject object, String name)
     {
         selectedObject = object;
+        selectedObjectName = name;
     }
 
 
@@ -271,7 +277,7 @@ public abstract class Inspector extends JFrame
     protected void setButtonsEnabled(boolean inspect, boolean get)
     {
         inspectButton.setEnabled(inspect);
-        if (getEnabled) {
+        if (isGetEnabled()) {
             getButton.setEnabled(get);
         }
     }
@@ -286,8 +292,12 @@ public abstract class Inspector extends JFrame
 
         if (selectedObject != null) {
             boolean isPublic = getButton.isEnabled();
-            ObjectInspector viewer = ObjectInspector.getInstance(false, selectedObject, 
-                    null, pkg, isPublic, this);
+
+            InvokerRecord newIr =
+                new ObjectInspectInvokerRecord("Math", selectedObjectName, ir);
+                
+            ObjectInspector.getInstance(false, selectedObject, 
+                                        selectedObjectName, pkg, isPublic ? newIr:null, this);
         }
     }
 
@@ -324,7 +334,7 @@ public abstract class Inspector extends JFrame
                             String nameLabel)
     {
         //	setFont(font);
-        setBackground(bgColor);
+        // setBackground(bgColor);
 
         addWindowListener(
             new WindowAdapter()

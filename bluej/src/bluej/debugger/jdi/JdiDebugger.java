@@ -18,6 +18,8 @@ import com.sun.jdi.request.*;
 import com.sun.jdi.event.LocatableEvent;
 import com.sun.jdi.event.ExceptionEvent;
 
+import junit.framework.*;
+
 /**
  * A class implementing the execution and debugging primitives needed by
  * BlueJ.
@@ -26,7 +28,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1582 2002-12-13 06:32:37Z ajp $
+ * @version $Id: JdiDebugger.java 1626 2003-02-11 01:46:35Z ajp $
  *
  * The startup process is as follows:
  *
@@ -491,15 +493,48 @@ public final class JdiDebugger extends Debugger
 
     public Map runTestSetUp(String loaderId, String scopeId, String className)
     {
-        return null;
+        Object args[] = { loaderId, scopeId, className };
+
+        ArrayReference arrayRef = (ArrayReference) invokeExecServer(ExecServer.RUN_TEST_SETUP, Arrays.asList(args));
+       
+        // the returned array consists of double the number of fields created by running test setup
+        // they alternate, fieldname, fieldvalue, fieldname, fieldvalue
+        // ie.
+        // arrayRef[0] = a field name 0 (StringReference)
+        // arrayRef[1] = a field value 0 (ObjectReference)
+        // arrayRef[2] = a field name 1 (StringReference)
+        // arrayRef[3] = a field value 1 (ObjectReference)
+        //
+        // we could return a Map from RUN_TEST_SETUP but then we'd have to use JDI
+        // reflection to make method calls on Map in order to extract the values
+        Map returnMap = new HashMap();
+
+        if (arrayRef != null) {
+            for(int i=0; i<arrayRef.length(); i+=2)
+                returnMap.put(((StringReference) arrayRef.getValue(i)).value(),
+                                JdiObject.getDebuggerObject((ObjectReference)arrayRef.getValue(i+1)));
+        }
+
+        // the resulting map consists of entries (String fieldName, JdiObject obj)
+        return returnMap;
     }
 
-    public void runTestClass(String loaderId, String scopeId, String className)
+    public DebuggerTestResult runTestClass(String loaderId, String scopeId, String className)
     {
+        Object args[] = { loaderId, scopeId, className };
+
+        ArrayReference arrayRef = (ArrayReference) invokeExecServer(ExecServer.RUN_TEST_CLASS, Arrays.asList(args));
+
+        return new JdiTestResult(arrayRef);        
     }
 
-    public void runTestMethod(String loaderId, String scopeId, String className, String methodName)
+    public DebuggerTestResult runTestMethod(String loaderId, String scopeId, String className, String methodName)
     {
+        Object args[] = { loaderId, scopeId, className, methodName };
+
+        ArrayReference arrayRef = (ArrayReference) invokeExecServer(ExecServer.RUN_TEST_METHOD, Arrays.asList(args));
+        
+        return new JdiTestResult(arrayRef);        
     }    
 
 
@@ -1000,9 +1035,9 @@ public final class JdiDebugger extends Debugger
         catch(AbsentInformationException e) {
             return Config.getString("debugger.jdiDebugger.noLineNumberMsg");
         }
-        catch(InvalidLineNumberException e) {
-            return Config.getString("debugger.jdiDebugger.noCodeMsg");
-        }
+//        catch(InvalidLineNumberException e) {
+//            return Config.getString("debugger.jdiDebugger.noCodeMsg");
+//        }
         catch(Exception e) {
             Debug.reportError("breakpoint error: " + e);
             return Config.getString("debugger.jdiDebugger.internalErrorMsg");

@@ -1,20 +1,3 @@
-/*
-Copyright (C) 2001  ThoughtWorks, Inc
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
 package bluej.parser.ast;
 
 import java.io.File;
@@ -24,18 +7,8 @@ import antlr.collections.*;
 import antlr.*;
 
 /**
- * an extension of <code>antlr.CommonAST</code> that includes
- * extra information about the AST's location.  This information
- * is the file and line number where the AST was created.
- *
- * To use this AST node in your tree structure, assuming your
- * antlr.TreeParser is called parser, use
- *
- * parser.setASTNOdeCLass(SymTabAST.class.getName());
- *
- * make sure you also call setTokenObjectClass for the lexer as well
- *
- * @see SymTabToken
+ * An AST type that keeps track of line and columns, as well
+ * as maintaining a list of "important" tokens.
  */
 public class LocatableAST extends antlr.CommonASTWithHiddenTokens
 {
@@ -44,8 +17,7 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
   protected ArrayList importantTokens;
   
   /**
-   * sets the line where this node reside
-   * @return <code>void</code>
+   * Sets the line number of this node
    */
     public void setLine(int line)
     {
@@ -53,8 +25,7 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
     }
 
   /**
-   * gets the line where this node reside
-   * @return <code>int</code>
+   * Gets the line number of this node
    */
     public int getLine()
     {

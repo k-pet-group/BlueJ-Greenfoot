@@ -501,6 +501,22 @@ public final class MoeEditor extends JFrame
                                line.getStartOffset()+columnNumber+len-1);
     }
 
+    public void setSelection(int lineNumber1, int columnNumber1,
+                                 int lineNumber2, int columnNumber2)
+    {
+/*        if (lineNumber2 < lineNumber1)
+            return;
+        if (lineNumber2 == lineNumber1 && (columnNumber2 < columnNumber1))
+            return;*/
+
+        Element line1 = getLine (lineNumber1);
+        Element line2 = getLine (lineNumber2);
+
+        currentTextPane.select(line1.getStartOffset()+columnNumber1-1,
+                               line2.getStartOffset()+columnNumber2-1);
+    }
+
+
     /**
      * Get the text currently selected. (currently not needed)
      */

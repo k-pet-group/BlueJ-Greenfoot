@@ -9,6 +9,7 @@ import javax.swing.plaf.basic.*;
 import java.util.*;
 
 import bluej.utility.Debug;
+import bluej.testmgr.*;
 
 /**
  * The object responsible for the panel that displays objects
@@ -16,7 +17,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1574 2002-12-11 20:36:07Z mik $
+ * @version $Id: ObjectBench.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class ObjectBench
 {
@@ -91,7 +92,7 @@ public class ObjectBench
         obpholder.setPreferredSize(new Dimension(WIDTH,HEIGHT));
         obpholder.setMaximumSize(new Dimension(WIDTH*1000,HEIGHT)); */
 
-        startRecordingInteractions();
+        resetRecordingInteractions();
     }
 
     private void moveBench(int xamount)
@@ -356,9 +357,8 @@ public class ObjectBench
             Debugger.debugger.removeObjectFromScope(scopeId, wrappers[i].getName());
         }
 
-        fixtureDeclare = "";
-        fixtureInitialise = "";
-        
+        resetRecordingInteractions();
+                      
         enableButtons(viewPort.getViewPosition());
     	obp.revalidate();
         obp.repaint();
@@ -380,68 +380,37 @@ public class ObjectBench
     	obp.repaint();
     }
 
-    boolean recordingTest = false;
+    private List invokerRecords;
+          
+    public void resetRecordingInteractions()
+    {
+        invokerRecords = new LinkedList();
+    }
+
+    public void addInteraction(InvokerRecord ir)
+    {
+        if (invokerRecords == null)
+            resetRecordingInteractions();
+            
+        invokerRecords.add(ir);    
+    }
     
-    String fixtureDeclare = "";
-    String fixtureInitialise = "";
-    String testStatements = "";
+    public String getFixtureDeclare()
+    {
+        StringBuffer sb = new StringBuffer();
+        Iterator it = invokerRecords.iterator();
         
-    public void startRecordingInteractions()
-    {
-        recordingTest = false;
+        while(it.hasNext()) {
+            InvokerRecord ir = (InvokerRecord) it.next();
+            
+            sb.append(ir);
+        }                    
 
-        fixtureDeclare = "";
-        fixtureInitialise = "";
-    }
-
-    public void startRecordingTest()
-    {
-        recordingTest = true;
-        
-        testStatements = "";
-    }
-
-    public void addConstructorStatement(String instanceName, String typeName, String command)
-    {
-        if (!recordingTest) {
-            fixtureDeclare += "\t" + typeName + " " + instanceName + ";\n";            
-
-            fixtureInitialise += "\t\t" + instanceName + " = " + command + ";\n";
-        }
-        else {
-            testStatements += "\t\t" + typeName + " " + instanceName + " = " + command + ";\n";
-        }
-    }
-
-    public void addMethodStatement(String command)
-    {
-        if (!recordingTest) {
-            fixtureInitialise += "\t\t" + command + ";\n";
-        }
-        else {
-            testStatements += "\t\t{\n\t\t\tresult = " + command + ";\n";
-        }
-    }
-
-    public void addAssertStatement(String res)
-    {
-
+        return sb.toString();
     }
     
     public String getFixtureInitialise()
     {
-        return fixtureInitialise;
-
+        return ""; 
     }
-
-    public String getFixtureDeclare()
-    {
-        return fixtureDeclare;
-    }
-
-    public String getTestStatements()
-    {
-        return testStatements;
-    }
-
 }

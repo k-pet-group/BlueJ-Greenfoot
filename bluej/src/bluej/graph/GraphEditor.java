@@ -13,7 +13,7 @@ import javax.swing.*;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 1541 2002-11-29 13:48:00Z ajp $
+ * @version $Id: GraphEditor.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -64,7 +64,7 @@ public class GraphEditor extends JComponent
 
 	public boolean isFocusTraversable()
 	{
-		return true;
+		return false;
 	}
 	
 	// ---- KeyListener interface ----

@@ -13,7 +13,7 @@ import java.awt.print.PrinterJob;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 1524 2002-11-28 02:37:34Z bquig $
+ * @version $Id: Editor.java 1626 2003-02-11 01:46:35Z ajp $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -61,6 +61,18 @@ public interface Editor
      * @param len the number of characters to select
      */
     void setSelection(int lineNumber, int column, int len);
+
+    /**
+     * Set the selection of the editor to be a len characters on the line
+     * lineNumber, starting with column columnNumber
+     * 
+     * @param lineNumber the line to select characters on
+     * @param column the column to start selection at (1st column is 1 - not 0)
+     * @param len the number of characters to select
+     */
+    void setSelection(int firstlineNumber, int firstColumn,
+                        int secondLineNumber, int SecondColumn );
+
 
     /**
      * Show the editor window. This includes whatever is necessary of the

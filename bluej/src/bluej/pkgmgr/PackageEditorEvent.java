@@ -12,7 +12,7 @@ import bluej.debugger.DebuggerObject;
  * The event which occurs while editing a package
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditorEvent.java 1550 2002-12-02 05:58:30Z ajp $
+ * @version $Id: PackageEditorEvent.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class PackageEditorEvent extends EventObject
 {
@@ -20,10 +20,11 @@ public class PackageEditorEvent extends EventObject
     public final static int TARGET_REMOVE = 2;
     public final static int TARGET_OPEN = 3;
     public final static int TARGET_RUN = 4;
-    public final static int TARGET_BENCHTOFIXTURES = 5; // only for unit tests
-    public final static int TARGET_MAKETESTCASE = 6;    // only for unit tests
+    public final static int TARGET_BENCHTOFIXTURE = 5; // only for unit tests
+    public final static int TARGET_FIXTURETOBENCH = 6; // only for unit tests
+    public final static int TARGET_MAKETESTCASE = 7;    // only for unit tests
 
-    public final static int OBJECT_PUTONBENCH = 7;
+    public final static int OBJECT_PUTONBENCH = 8;
 
     protected int id;
     protected CallableView cv;

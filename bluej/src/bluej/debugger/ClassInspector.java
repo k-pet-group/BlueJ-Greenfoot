@@ -10,12 +10,13 @@ import bluej.Config;
 import bluej.utility.JavaNames;
 import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
+import bluej.testmgr.*;
 
 /**
  * A window that displays the static fields in an class.
  *
  * @author     Michael Kolling
- * @version    $Id: ClassInspector.java 1574 2002-12-11 20:36:07Z mik $
+ * @version    $Id: ClassInspector.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class ClassInspector extends Inspector
 {
@@ -52,7 +53,8 @@ public class ClassInspector extends Inspector
         ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
 
         if (inspector == null) {
-            inspector = new ClassInspector(clss, pkg, true, parent);
+            // XXX
+            inspector = new ClassInspector(clss, pkg, null, parent);
             inspectors.put(clss.getName(), inspector);
         }
         inspector.update();
@@ -65,8 +67,8 @@ public class ClassInspector extends Inspector
 
     /**
      *  Constructor
-     *  Note: private -- Objectviewers can only be created with the static
-     *  "getViewer" method. 'pkg' may be null if getEnabled is false.
+     *  Note: private -- ClassInspectors can only be created with the static
+     *  "getInstance" method. 'pkg' may be null if getEnabled is false.
      *
      *@param  inspect     Description of Parameter
      *@param  obj         Description of Parameter
@@ -76,9 +78,9 @@ public class ClassInspector extends Inspector
      *@param  parent      Description of Parameter
      */
     private ClassInspector(DebuggerClass clss, Package pkg,
-                           boolean getEnabled, JFrame parent)
+                           InvokerRecord ir, JFrame parent)
     {
-        super(pkg, getEnabled);
+        super(pkg, ir);
         setTitle(inspectTitle);
 
         myClass = clss;

@@ -53,7 +53,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1524 2002-11-28 02:37:34Z bquig $
+ * @version $Id: Package.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1488,16 +1488,14 @@ public class Package extends Graph
         return null;
     }
 
-    public boolean toggleShowUses()
+    public void setShowUses(boolean state)
     {
-        showUses = !showUses;
-        return showUses;
+        showUses = state;
     }
 
-    public boolean toggleShowExtends()
+    public void setShowExtends(boolean state)
     {
-        showExtends = !showExtends;
-        return showExtends;
+        showExtends = state;
     }
 
     public void setState(int state)

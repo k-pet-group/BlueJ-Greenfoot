@@ -1189,7 +1189,8 @@ VOCAB
 // if it's a literal or really an identifer
 IDENT
 	options {testLiterals=true; paraphrase = "an identifier";}
-	:	('a'..'z'|'A'..'Z'|'_'|'$') ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'$')*
+    :   ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00c0'..'\u00ff')
+        ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00c0'..'\ufffe'|'0'..'9')*
 	;
 
 

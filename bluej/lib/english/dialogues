@@ -344,6 +344,13 @@ The changes you have made to the class libraries
 will not take effect until the next time you
 start BlueJ.
 
+unittest-new-test-method
+Enter the name of the new test method you
+wish to create using the BlueJ object
+interaction.
+New Test Method
+null
+
 getobject-new-name
 Enter the name for the new object on the
 object bench.

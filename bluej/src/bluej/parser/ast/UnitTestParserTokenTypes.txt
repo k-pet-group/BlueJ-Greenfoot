@@ -1,4 +1,4 @@
-// $ANTLR 2.7.1: java.tree.g -> UnitTestParserTokenTypes.txt$
+// $ANTLR 2.7.1: unittest.tree.g -> UnitTestParserTokenTypes.txt$
 UnitTestParser    // output token vocab name
 BLOCK=4
 MODIFIERS=5
@@ -55,7 +55,7 @@ LITERAL_int="int"=55
 LITERAL_float="float"=56
 LITERAL_long="long"=57
 LITERAL_double="double"=58
-IDENT=59
+IDENT("an identifier")=59
 DOT=60
 STAR=61
 LITERAL_private="private"=62
@@ -135,7 +135,7 @@ LITERAL_true="true"=135
 LITERAL_false="false"=136
 LITERAL_null="null"=137
 LITERAL_new="new"=138
-NUM_INT=139
+NUM_INT("a number")=139
 CHAR_LITERAL=140
 STRING_LITERAL=141
 NUM_FLOAT=142

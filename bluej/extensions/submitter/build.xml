@@ -1,33 +1,33 @@
-<project name="myextensions" default="jarred" basedir=".">
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="submitter" default="jarred">
 
-    <!-- set global properties for this build -->
-    <!-- the first four are the only values you should need to change -->
-    <property name="bluej_home" value="D:\bluejdev\bluej" />
-    <property name="java_home" value="D:\jdk131" />
-    <property name="test_home" value="D:\bluejtest" />
-    <property name="output_jar" value="submission24.jar" />
+    <!-- ************************************************************ -->
+    <!-- set global properties for this extensions build -->
 
-    <property name="build.compiler" value="modern" />
-    <!-- property name="build.compiler" value="jikes" /-->
-    <!-- property name="build.compiler.fulldepend" value="yes" /-->
-    <!-- property name="build.compiler.emacs" value="yes" /-->
+
+    <!-- the build_java_home is used to find the compiler to fork and the
+         tools.jar file to use with it. Note that in general all
+         compilation should be done on the minimum supported JDK for
+         BlueJ (which is currently 1.3) -->
+    <property name="build_java_home" value="o:\programming\jdk1.3"/>
+
+    <!-- set to the location of the test bluej installation
+         the extension jar will be installed into this installations extension
+         directory -->
+    <property name="bluej_home" value="${basedir}/../.."/>
+
+    <!-- set to the name of the extensions jar file -->
+    <property name="output_jar" value="submission24.jar"/>
+
+
+    <!-- ********************************************** -->
+    <!-- do not edit below here for local customisation -->
 
     <!-- set up common directories -->
     <property name="src" value="src" />
     <property name="build" value="classes" />
     <property name="lib" value="lib" />
     <property name="doc" value="doc" />
-
-    <!-- set up classpath -->
-    <path id="bluej.class.path">
-        <pathelement location="${bluej_home}/lib/antlrall.jar"/>
-        <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
-        <pathelement location="${bluej_home}/lib/junit.jar" />
-        <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip"/>
-        <pathelement location="${bluej_home}/lib/bluejext.jar"/>
-        <pathelement location="${java_home}/lib/tools.jar"/>
-    </path>
-
 
     <target name="prepare">
         <!-- Create the time stamp -->
@@ -46,7 +46,9 @@
             destdir="${build}"
             deprecation = "yes"
             debug = "yes">
-            <classpath refid="bluej.class.path" />
+            <classpath>
+                <pathelement location="${bluej_home}/lib/bluejext.jar"/>
+            </classpath>
         </javac>
     </target>
 

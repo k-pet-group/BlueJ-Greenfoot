@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
-// import bluej.tester.*;
+import bluej.testmgr.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -33,7 +33,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1574 2002-12-11 20:36:07Z mik $
+ * @version $Id: ObjectWrapper.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -459,8 +459,10 @@ public class ObjectWrapper extends JComponent
      */
     protected void inspectObject()
     {
+        InvokerRecord ir = new ObjectInspectInvokerRecord(getClassName(), getName());
+        
         ObjectInspector viewer =
-      	    ObjectInspector.getInstance(false, obj, instanceName, pkg, true, pmf);
+      	    ObjectInspector.getInstance(false, obj, instanceName, pkg, ir, pmf);
     }
 
     protected void removeObject()
@@ -478,19 +480,24 @@ public class ObjectWrapper extends JComponent
         ResultWatcher watcher = null;
 
         pkg.forgetLastSource();
-        if(!method.isVoid()) {
-            watcher = new ResultWatcher() {
-                    public void putResult(DebuggerObject result, String name)
-                    {
-                        ObjectInspector viewer =
-                            ObjectInspector.getInstance(true, result, name,
-                                                   pkg, true, pmf);
-                        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
-                                              viewer.getResult());
-                    }
-                    public void putError (String message) {}
-                };
-        }
+
+        watcher = new ResultWatcher() {
+            public void putResult(DebuggerObject result, String name, InvokerRecord ir)
+            {
+                ob.addInteraction(ir);
+                
+                // a void result returns a name of null
+                if (name == null)
+                    return;
+                                    
+                ObjectInspector viewer =
+                    ObjectInspector.getInstance(true, result, name,
+                                           pkg, ir, pmf);
+                BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
+                                      viewer.getResult());
+            }
+            public void putError(String msg) { }
+        };
 
         Invoker invoker = new Invoker(pmf, method, instanceName, watcher);
         invoker.invokeInteractive();

@@ -15,7 +15,7 @@ import bluej.views.LabelPrintWriter;
 import bluej.views.MemberView;
 import bluej.views.CallableView;
 import bluej.views.MethodView;
-// import bluej.tester.*;
+import bluej.testmgr.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1557 2002-12-04 10:06:55Z damiano $
+ * @version $Id: Invoker.java 1626 2003-02-11 01:46:35Z ajp $
  */
 
 public class Invoker extends Thread
@@ -47,10 +47,6 @@ public class Invoker extends Thread
         return SHELLNAME + (shellNumber++);
     }
 
-    private static final synchronized String getUniqueResultName() {
-        return "#result" + shellNumber;
-    }
-
     /**
      * To allow each method/constructor dialog to have a call history we need
      * to cache the dialogs we create. We store the mapping from method to
@@ -64,13 +60,21 @@ public class Invoker extends Thread
     private CallableView member;
     private String shellName;
     private String objName;
+
+    /**
+     * The instance name for any object we create.
+     * For a constructed object the user sets it in the dialog.
+     * For a method call with result we set this to "result".
+     * For a void method we set this to null.
+     */
     private String instanceName;
+
     private CallDialog dialog;
     private boolean constructing;
-    private boolean expectResult;
-    private String resultName;
+
     private String commandAsString;
     private ExecutionEvent executionEvent;
+    private InvokerRecord ir;
 
     /**
      * Create an invoker for a free form statement or expression.
@@ -80,6 +84,9 @@ public class Invoker extends Thread
         if(pmf.isEmptyFrame())
             throw new IllegalArgumentException();
 
+        if(watcher == null)
+            throw new NullPointerException("Invoker: watcher == null");
+            
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
         this.watcher = watcher;
@@ -109,11 +116,13 @@ public class Invoker extends Thread
         if(pmf.isEmptyFrame())
             throw new IllegalArgumentException();
 
+        if(watcher == null)
+            throw new NullPointerException("Invoker: watcher == null");
+            
         this.pmf = pmf;
         this.pkg = pmf.getPackage();
         this.member = member;
         this.watcher = watcher;
-        this.expectResult = (watcher != null);
 
         this.shellName = getShellName();
 
@@ -330,8 +339,8 @@ public class Invoker extends Thread
         
         if(constructing) {
             command = "new " + cleverQualifyTypeName(pkg, className);
-            resultName = instanceName;
-            //             CallRecord.getCallRecord(instanceName, member, args);
+
+            ir = new ConstructionInvokerRecord(className, instanceName, command + actualArgString);
         }
         else {  // it's a method call
             MethodView method = (MethodView)member;
@@ -341,17 +350,22 @@ public class Invoker extends Thread
                 command = cleverQualifyTypeName(pkg, className) + "." + method.getName();
             else {
                 command = objName + "." + method.getName();
-
-                //                CallRecord.addMethodCallRecord(objName, method.getName(),
-                //                                                member, args);
             }
 
-            // generate and store unique ID for result object
-            resultName = getUniqueResultName();
+            if (isVoid) {
+                ir = new VoidMethodInvokerRecord(command + actualArgString);
+                instanceName = null;
+            }
+            else {
+                String returnClassName = method.getReturnType().getQualifiedName();
+                
+                ir = new MethodInvokerRecord(returnClassName, command + actualArgString);
+                instanceName = "result";
+            }                
         }
 
         File shell = writeInvocationFile(pkg, paramInit, 
-                            command + argString, resultName, constructing, isVoid);
+                            command + argString, constructing, isVoid);
 
         commandAsString = command + actualArgString;
         compileInvocationFile(shell);
@@ -370,13 +384,13 @@ public class Invoker extends Thread
      */
     protected void doFreeFormInvocation(String executionString, boolean hasResult)
     {
-        expectResult = hasResult;
-        // generate and store unique ID for result object
-        resultName = getUniqueResultName();
-        
+        if (hasResult)
+            instanceName = "result";
+        else
+            instanceName = null;
+                
         File shell = writeInvocationFile(pkg, "", executionString, 
-                                         resultName, false, !hasResult);
-                                         //constructing, isVoid);
+                                          false, !hasResult);
 
         commandAsString = executionString;
         executionEvent.setCommand(executionString);
@@ -402,7 +416,7 @@ public class Invoker extends Thread
      *
      */
     private File writeInvocationFile(Package pkg, 
-                                     String paramInit, String callString, String resultName,
+                                     String paramInit, String callString,
                                      boolean constructing, boolean isVoid)
     {
         // Create package specification line ("package xyz")
@@ -416,12 +430,14 @@ public class Invoker extends Thread
         // add variable declaration for a (possible) result
 
         StringBuffer buffer = new StringBuffer();
-        if(constructing)
-            buffer.append("public static bluej.runtime.ObjectResultWrapper");
-        else
-            buffer.append("public static Object");
-        buffer.append(" __bluej_runtime_result;");
-
+        if (!isVoid) {
+            if(constructing)
+                buffer.append("public static bluej.runtime.ObjectResultWrapper");
+            else
+                buffer.append("public static Object");
+            buffer.append(" __bluej_runtime_result;");
+        }
+        
         String vardecl = buffer.toString();
 
         // Build scope, ie. add one line for every object on the object
@@ -458,18 +474,13 @@ public class Invoker extends Thread
         if(constructing) {
             // A sample of the code generated (for a constructor)
             //  __bluej_runtime_result = makeObj((Object) new SomeType(2,"adb"));
-            //  putObject("BJIDC:\\aproject", instname, __bluej_runtime_result.result);
 
             buffer.append("__bluej_runtime_result = makeObj((Object)");
             buffer.append(callString + ");" + Config.nl);
-            buffer.append("putObject(\"" + scopeId + "\", \"");
-            buffer.append(resultName);
-            buffer.append("\", __bluej_runtime_result.result);");
         }
         else {
             // A sample of the code generated (for a method call)
             //  __bluej_runtime_result = makeObj(2+new String("ap").length());
-            //  putObject("BJIDC:\\aproject", instname, __bluej_runtime_result);
             
             if(!isVoid)
                 buffer.append("__bluej_runtime_result = makeObj(");
@@ -477,12 +488,6 @@ public class Invoker extends Thread
             if(!isVoid)
                 buffer.append(")");
             buffer.append(";" + Config.nl);
-
-            if(!isVoid) {
-                buffer.append("putObject(\"" + scopeId + "\", \"");
-                buffer.append(resultName);
-                buffer.append("\", __bluej_runtime_result);");
-            }
         }
         String invocation = buffer.toString();
 
@@ -623,29 +628,18 @@ public class Invoker extends Thread
             // first, check whether we had an unexpected exit
             int status = Debugger.debugger.getExitStatus();
             switch(status) {
+             case Debugger.NORMAL_EXIT:
+                DebuggerObject result = Debugger.debugger.getStaticValue(
+                                            shellClassName,"__bluej_runtime_result");
 
-            case Debugger.NORMAL_EXIT:
-                if(expectResult) {
-                    DebuggerObject result = null;
-                    if(member instanceof MethodView && ((MethodView)member).isVoid()) {
-                    }
-                    else result = Debugger.debugger.getStaticValue(shellClassName,
-                                                                   "__bluej_runtime_result");
-                    if(watcher != null) {
-                        if(constructing) {
-                            watcher.putResult(result, instanceName);
-                        }
-                        else {
-                            watcher.putResult(result, resultName);
-                        }
-                    }
-                }
+                watcher.putResult(result, instanceName, ir);
+                    
                 executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                 break;
 
-            case Debugger.FORCED_EXIT:  // exit through System.exit()
+             case Debugger.FORCED_EXIT:  // exit through System.exit()
                 String excMsg = Debugger.debugger.getException().getText();
-                if(watcher != null) {
+                if(instanceName != null) {
                     // always report System.exit for non-void calls
                     pkg.reportExit(excMsg);
                     watcher.putError(excMsg);
@@ -665,20 +659,17 @@ public class Invoker extends Thread
                 if(text != null) {
                     text = JavaNames.stripPrefix(text) + ":\n" + msg;
                     pkg.exceptionMessage(exc.getStack(), text, false);
-                    if(watcher != null) 
-                        watcher.putError(text);
+                    watcher.putError(text);
                 } else {
                     pkg.reportException(msg);
-                    if(watcher != null) 
-                        watcher.putError(msg);
+                    watcher.putError(msg);
                 }
                 executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
                 break;
 
             case Debugger.TERMINATED:  // terminated by user
                 // nothing to do
-                if(watcher != null)
-                    watcher.putError("Terminated");
+                watcher.putError("Terminated");
                 executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                 break;
 

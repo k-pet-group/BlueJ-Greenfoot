@@ -13,6 +13,9 @@ import java.awt.event.*;
 import javax.swing.SwingUtilities;
 import java.beans.*;
 
+import junit.framework.*;
+import junit.runner.*;
+
 /**
  * Class that controls the runtime of code executed within BlueJ.
  * Sets up a SecurityManager, initial thread state, etc.
@@ -22,7 +25,7 @@ import java.beans.*;
  *
  * @author Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 1595 2002-12-20 12:30:50Z mik $
+ * @version $Id: ExecServer.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class ExecServer
 {
@@ -347,7 +350,7 @@ public class ExecServer
         return obj;
     }
 
-/**
+    /**
      * Execute a JUnit test case setUp method.
      * 
      * @return  an array consisting of String, Object pairs. For n fixture objects
@@ -359,59 +362,185 @@ public class ExecServer
     private Object[] runTestSetUp(String loaderId, String scopeId, String className)
         throws ClassNotFoundException
     {
-         return null; 
+        //System.out.println("runTestSetUp(" + loaderId + "," + className + ")");
+        Class cl = null;
+        
+        if(loaderId == null)
+            cl = classmgr.getLoader().loadClass(className);
+        else {
+            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
+            if(loader != null)
+                cl = loader.loadClass(className);
+    	}
+
+        try {
+            // construct an instance of the test case (firstly trying the
+            // String argument constructor - then the no-arg constructor)
+            Object testCase = null;
+
+            Class partypes[] = new Class[1];
+            partypes[0] = String.class;
+            try {
+                Constructor ct = cl.getConstructor(partypes);
+
+                Object arglist[] = new Object[1];
+                arglist[0] = "TestCase " + className;
+                testCase = ct.newInstance(arglist);
+            }
+            catch(NoSuchMethodException nsme) {
+                testCase = null;                
+            }
+
+            if (testCase == null) {
+                testCase = cl.newInstance();
+            }
+                        
+            // cannot execute setUp directly because it is protected
+            // we can however use reflection to call it because this VM
+            // has access protection disabled
+            // this will not execute inherited setUp methods!!!
+            try {
+                Method setUpMethod = cl.getDeclaredMethod("setUp", null);
+
+                if (setUpMethod != null) {
+                    setUpMethod.setAccessible(true);
+                    setUpMethod.invoke(testCase, null);
+                }
+            }
+            catch(NoSuchMethodException nsme) {
+            }
+
+            // pick up all declared fields
+            // this will not get inherited fields!! (would need to deal
+            // with them some other way)            
+            Field fields[] = cl.getDeclaredFields();
+            Object obs[] = new Object[fields.length*2];
+
+            for(int i=0; i<fields.length; i++) {
+                // make sure we can access the field regardless of protection
+                fields[i].setAccessible(true);
+                // fill in the return array in the format
+                // name, object, name, object
+                obs[i*2] = fields[i].getName();
+                obs[i*2+1] = fields[i].get(testCase);
+            }
+
+            return obs;
+        }
+        catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return new Object[0];
     }
 
     /**
      * Execute a JUnit test case and return the results.
      * 
-     * @return  an array of TestFailure items
+     * @return  an array consisting of Strings.
+     *          The first three Strings are respectively, the runCount, errorCount,
+     *          and failureCount, represented as strings.
+     *          The remaining String's are the toString() values of all errors and
+     *          failures.
      */
     private Object[] runTestClass(String loaderId, String scopeId, String className)
         throws ClassNotFoundException
     {
-        return null;
+        Class cl = null;
+        
+        if(loaderId == null)
+            cl = classmgr.getLoader().loadClass(className);
+        else {
+            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
+            if(loader != null)
+                cl = loader.loadClass(className);
+    	}
+
+        TestResult tr = RemoteTestRunner.run(cl);
+        
+        String results[] = new String[3 + tr.errorCount() + tr.failureCount()];
+
+        results[0] = String.valueOf(tr.runCount());
+        results[1] = String.valueOf(tr.errorCount());
+        results[2] = String.valueOf(tr.failureCount());
+
+        int i = 3;
+        Enumeration e;
+                
+        for (e = tr.errors(); e.hasMoreElements(); ) {
+			TestFailure tf = ((TestFailure)e.nextElement());
+			results[i++] = tf.failedTest() + "\n" + tf.trace() + "\n" + tf.exceptionMessage();
+		}
+		
+        for (e = tr.failures(); e.hasMoreElements(); ) {
+			TestFailure tf = ((TestFailure)e.nextElement());
+			results[i++] = tf.failedTest() + "\n" + tf.trace() + "\n" + tf.exceptionMessage();
+		}
+        
+        return results;
     }
 
     private Object[] runTestMethod(String loaderId, String scopeId, String className, String methodName)
         throws ClassNotFoundException
     {
-        return null;
-    }
+        Class cl = null;
+        
+        if(loaderId == null)
+            cl = classmgr.getLoader().loadClass(className);
+        else {
+            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
+            if(loader != null)
+                cl = loader.loadClass(className);
+    	}
 
-    /**
-     * 
-     *
-     * The object to be added is held
-     *  in the object 'instance', in field 'field'. (This is used when
-     *  "Get" is selected in the object inspection to pull out the requested
-     *  object and add it to the scope.)
-     */
-    public void addXXXObject(String scopeId, String newName, Object o)
-    {
-        //Debug.message("[VM] addObject: " + instance + ", " + fieldName + ", " + newName);
-
-/*        Map scope = getScope(scopeId);
-        Object wrapObject = scope.get(instance);
+        TestCase testCase = null;
+            
         try {
-            Object obj;
+            Class partypes[] = new Class[1];
+            partypes[0] = String.class;
+            Constructor ct = cl.getConstructor(partypes);
 
-            if (wrapObject.getClass().isArray()) {
-                int slot = Integer.valueOf(fieldName.substring(5)).intValue();
-                obj = Array.get(wrapObject, slot);
-            } else {
-                Field field = wrapObject.getClass().getField(fieldName);
-                obj = field.get(wrapObject);
-            }
-
-            scope.put(newName, obj);
+            Object arglist[] = new Object[1];
+            arglist[0] = methodName;
+            testCase = (TestCase) ct.newInstance(arglist);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            Debug.reportError("object field not found: " + fieldName +
-                              " in " + instance);
-            Debug.reportError("exception: " + e);
-        } */
+        catch (NoSuchMethodException nsme) { }
+        catch (InstantiationException ie) { }
+        catch (IllegalAccessException iae) { }
+        catch (InvocationTargetException ite) { }
+
+        if (testCase == null) {
+            try {
+                testCase = (TestCase) cl.newInstance();
+                testCase.setName(methodName);
+            }
+            catch (InstantiationException ie) { }
+            catch (IllegalAccessException iae) { }
+        }
+        
+        TestSuite suite = new TestSuite("bluej");
+        suite.addTest(testCase);
+
+        TestResult tr = RemoteTestRunner.run(suite);
+
+        String results[] = new String[3 + tr.errorCount() + tr.failureCount()];
+
+        results[0] = String.valueOf(tr.runCount());
+        results[1] = String.valueOf(tr.errorCount());
+        results[2] = String.valueOf(tr.failureCount());
+
+        int i = 3;
+        Enumeration e;
+                
+        for (e = tr.errors(); e.hasMoreElements(); ) {
+			results[i++] = ((TestFailure)e.nextElement()).toString();
+		}
+		
+        for (e = tr.failures(); e.hasMoreElements(); ) {
+			results[i++] = ((TestFailure)e.nextElement()).toString();
+		}
+        
+        return results;
     }
 
     /**

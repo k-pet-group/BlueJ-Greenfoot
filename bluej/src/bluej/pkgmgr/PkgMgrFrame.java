@@ -36,13 +36,14 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.groupwork.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.HelpDialog;
+import bluej.testmgr.*;
 
 import antlr.*;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1623 2003-02-05 15:31:43Z mik $
+ * @version $Id: PkgMgrFrame.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -67,25 +68,24 @@ public class PkgMgrFrame extends JFrame
     // instance fields:
 
     private JPanel buttonPanel;
-    private JPanel viewPanel;
-    private JPanel showPanel;
+
+    private JCheckBoxMenuItem showUsesMenuItem;
+    private JCheckBoxMenuItem showExtendsMenuItem;
+
     private JButton imgExtendsButton;
     private JButton imgDependsButton;
+    private JTextField executorField;
+    
     private JMenu recentProjectsMenu;
     private int toolsExtensionsSeparatorIndex;
 
-    private JLabel statusbar = new JLabel(" ");
+    private JLabel statusbar;
 
     private JMenuBar menubar = null;
     private JMenu toolsMenu;
     private List itemsToDisable;
     private JButton progressButton;
 
-    private JCheckBoxMenuItem showUsesMenuItem;
-    private JCheckBoxMenuItem showExtendsMenuItem;
-
-    private JCheckBox showUsesCheckbox;
-    private JCheckBox showExtendsCheckbox;
 
     /* The scroller which holds the PackageEditor we use to edit packages */
     private JScrollPane classScroller = null;
@@ -98,6 +98,9 @@ public class PkgMgrFrame extends JFrame
        there is no package current being edited (isEmptyFrame() == true) */
     private PackageEditor editor = null;
 
+    private ClassTarget testTarget = null;
+    private String testTargetMethod;
+    
     private ObjectBench objbench;
 
     private LibraryCallDialog libraryCallDialog = null;
@@ -413,6 +416,15 @@ public class PkgMgrFrame extends JFrame
         }
         catch (Exception e) { }
 
+        String uses_str = p.getProperty("package.showUses", "true");
+        String extends_str = p.getProperty("package.showExtends", "true");
+
+        showUsesMenuItem.setSelected(uses_str.equals("true"));
+        showExtendsMenuItem.setSelected(extends_str.equals("true"));
+
+        updateShowUsesInPackage();
+        updateShowExtendsInPackage();
+
         pack();
         editor.revalidate();
 
@@ -597,39 +609,74 @@ public class PkgMgrFrame extends JFrame
         int evtId = e.getID();
 
         switch(evtId) {
-        case PackageEditorEvent.TARGET_CALLABLE:   // user has initiated method
-            //  call or constructor
+         case PackageEditorEvent.TARGET_CALLABLE:
+            // user has initiated method call or constructor
             callMethod(e.getCallable());
             break;
 
-        case PackageEditorEvent.TARGET_REMOVE:     // user has initiated target
-            //   "remove" option
+         case PackageEditorEvent.TARGET_REMOVE:
+            // user has initiated target "remove" option
             doRemove((Target) e.getSource());
             break;
 
-        case PackageEditorEvent.TARGET_OPEN:       // user has initiated a
-            //   package open operation
+         case PackageEditorEvent.TARGET_OPEN:
+            // user has initiated a package open operation
             openPackageTarget(e.getName());
             break;
 
-        case PackageEditorEvent.TARGET_RUN:       // user has initiated a
-            //   run operation
+         case PackageEditorEvent.TARGET_RUN:
+            // user has initiated a run operation
             ClassTarget ct = (ClassTarget) e.getSource();
             ct.getRole().run(this, ct, e.getName());
             break;
 
-        case PackageEditorEvent.OBJECT_PUTONBENCH: // "Get" object from
-            //   object inspector
-                String newObjectName = DialogManager.askString((Component) e.getSource(), "getobject-new-name");
+         case PackageEditorEvent.TARGET_BENCHTOFIXTURE:
+            {
+                // put objects on object bench into fixtures
+                ClassTarget bct = (ClassTarget) e.getSource();
 
-                if (newObjectName != null) {
-//                    getObjectBench().addCallAssignment(newObjectName, "\t\t" + newObjectName + " = ");
-                    
-                    putObjectOnBench(e.getDebuggerObject(), newObjectName);
+                if (bct.getRole() instanceof UnitTestClassRole) {
+                    UnitTestClassRole utcr = (UnitTestClassRole) bct.getRole();
+
+                    utcr.doBenchToFixture(this, bct);
                 }
+            }
             break;
 
+         case PackageEditorEvent.TARGET_FIXTURETOBENCH:
+            {
+                // put objects on object bench into fixtures
+                ClassTarget bct = (ClassTarget) e.getSource();
 
+                if (bct.getRole() instanceof UnitTestClassRole) {
+                    UnitTestClassRole utcr = (UnitTestClassRole) bct.getRole();
+
+                    utcr.doFixtureToBench(this, bct);
+                }
+            }
+            break;
+
+        case PackageEditorEvent.TARGET_MAKETESTCASE:
+            {
+                // start recording a new test case
+                ClassTarget bct = (ClassTarget) e.getSource();
+
+                if (bct.getRole() instanceof UnitTestClassRole) {
+                    UnitTestClassRole utcr = (UnitTestClassRole) bct.getRole();
+
+                    utcr.doMakeTestCase(this, bct);
+                }
+            }
+            break;
+
+         case PackageEditorEvent.OBJECT_PUTONBENCH:
+            // "Get" object from object inspector
+            String newObjectName = DialogManager.askString((Component) e.getSource(), "getobject-new-name");
+
+            if (newObjectName != null && JavaNames.isIdentifier(newObjectName)) {
+                putObjectOnBench(e.getDebuggerObject(), newObjectName);
+            }
+            break;
         }
     }
 
@@ -907,6 +954,9 @@ public class PkgMgrFrame extends JFrame
         p.put("package.editor.x", Integer.toString(point.x));
         p.put("package.editor.y", Integer.toString(point.y));
 
+        p.put("package.showUses", new Boolean(isShowUses()).toString());
+        p.put("package.showExtends", new Boolean(isShowExtends()).toString());
+
         pkg.save(p);
 
         setStatus(Config.getString("pkgmgr.packageSaved"));
@@ -1076,7 +1126,7 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Interactively call a method or a constructor
+     * Interactively call a class (ie static) method or a class constructor
      */
     private void callMethod(CallableView cv)
     {
@@ -1087,21 +1137,31 @@ public class PkgMgrFrame extends JFrame
             // completion of the call and then places the object on the object
             // bench
             watcher = new ResultWatcher() {
-                    public void putResult(DebuggerObject result, String name) {
-                        if((name == null) || (name.length() == 0))
-                            name = "result";
-                        if(result != null) {
-                            ObjectWrapper wrapper = ObjectWrapper.getWrapper(
-                                                           PkgMgrFrame.this, getObjectBench(),
-                                                           result.getInstanceFieldObject(0),
-                                                  name);
-                            getObjectBench().add(wrapper);
-                        }
-                        else
-                            Debug.reportError("cannot get execution result");
+                public void putResult(DebuggerObject result, String name, InvokerRecord ir)
+                {
+                    // this shouldn't ever happen!! (ajp 5/12/02)
+                    if((name == null) || (name.length() == 0))
+                        name = "result";
+                        
+                    if(result != null) {
+                        DebuggerObject realResult = result.getInstanceFieldObject(0);
+
+                        ObjectWrapper wrapper = ObjectWrapper.getWrapper(
+                                                       PkgMgrFrame.this, getObjectBench(),
+                                                       realResult,
+                                                       name);
+                        getObjectBench().add(wrapper);
+
+                        Debugger.debugger.addObjectToScope(getPackage().getId(),
+                                                wrapper.getName(), realResult);
+                                                
+                        getObjectBench().addInteraction(ir);
                     }
-                    public void putError (String message) {}
-                };
+                    else
+                        Debug.reportError("cannot get execution result");
+                }
+                public void putError(String msg) { }
+            };
         }
         else if(cv instanceof MethodView) {
             MethodView mv = (MethodView) cv;
@@ -1115,20 +1175,25 @@ public class PkgMgrFrame extends JFrame
                 getProject().removeRemoteClassLoaderLeavingBreakpoints();
             }
 
-            // if we are calling a method that has a result, create a watcher
+            // create a watcher
             // that waits for completion of the call and then displays the
-            // result
-            if(!mv.isVoid()) {
-                watcher = new ResultWatcher() {
-                        public void putResult(DebuggerObject result, String name) {
-                            ObjectInspector viewer =
-                                ObjectInspector.getInstance(true, result, name, getPackage(), true,
-                                                       PkgMgrFrame.this);
-                            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
-                        }
-                        public void putError (String message) {}
-                    };
-            }
+            // result (or does nothing if void)
+            watcher = new ResultWatcher() {
+                public void putResult(DebuggerObject result, String name, InvokerRecord ir)
+                {
+                    getObjectBench().addInteraction(ir);
+                    
+                    // a void result returns a name of null
+                    if (name == null)
+                        return;
+                        
+                    ObjectInspector viewer =
+                        ObjectInspector.getInstance(true, result, name, getPackage(), ir,
+                                               PkgMgrFrame.this);
+                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
+                }
+                public void putError(String msg) { }
+            };
         }
 
         // create an Invoker to handle the actual invocation
@@ -1158,9 +1223,9 @@ public class PkgMgrFrame extends JFrame
     {
         if (!object.isNullObject()) {
             ObjectWrapper wrapper = ObjectWrapper.getWrapper(this, getObjectBench(), object, newInstanceName);
-        getObjectBench().add(wrapper);  // might change name
+            getObjectBench().add(wrapper);  // might change name
 
-        // load the object into runtime scope
+            // load the object into runtime scope
             Debugger.debugger.addObjectToScope(getPackage().getId(),
                                                 wrapper.getName(), object);
         }
@@ -1387,6 +1452,51 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+/*    public void doStartTest(ClassTarget ct, String testName)
+    {
+        testTarget = ct;
+        testTargetMethod = testName;        
+
+        System.out.println("In " + ct.getQualifiedName() + " adding a test" + testName);
+
+        System.out.println("Clearing objects on object bench");
+
+        getProject().removeLocalClassLoader();
+
+        System.out.println("Placing fixture objects on object bench");
+
+        Map dobs = Debugger.debugger.runTestSetUp(
+                            getProject().getRemoteClassLoader().getId(),
+                            getProject().getUniqueId(),
+                            ct.getQualifiedName());
+
+        Iterator it = dobs.entrySet().iterator();
+        
+        while(it.hasNext()) {
+            Map.Entry mapent = (Map.Entry) it.next();
+
+            putObjectOnBench((DebuggerObject)mapent.getValue(),(String) mapent.getKey());
+        }
+        
+        getProject().enterTestMode();               
+        getObjectBench().startRecordingTest();
+        compileButtonModel.setEnabled(false);
+        enableTestButton(true);
+    }
+  */  
+    /**
+     *
+     */
+    public void doEndTest()
+    {
+  /*      System.out.println(getObjectBench().getTestStatements());        
+        
+        getProject().endTestMode();
+        getObjectBench().startRecordingInteractions();
+        enableTestButton(false);       
+        getProject().removeLocalClassLoader(); */
+    }
+    
     /**
      * User function "Free Form Call...". Pop up the dialog that allows
      * users to make that call.
@@ -1408,13 +1518,16 @@ public class PkgMgrFrame extends JFrame
             freeFormCallDialog = new FreeFormCallDialog(this);
         }
         ResultWatcher watcher = new ResultWatcher() {
-               public void putResult(DebuggerObject result, String name) {
-                   ObjectInspector viewer =
-                        ObjectInspector.getInstance(true, result, name, getPackage(), true,
-                                               PkgMgrFrame.this);
-                   BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
-               }
-               public void putError (String error) {}
+           public void putResult(DebuggerObject result, String name, InvokerRecord ir)
+           {
+                getObjectBench().addInteraction(ir);
+
+               ObjectInspector viewer =
+                    ObjectInspector.getInstance(true, result, name, getPackage(), ir,
+                                           PkgMgrFrame.this);
+               BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
+           }
+           public void putError(String msg) { }
         };
         new Invoker(this, freeFormCallDialog, watcher);
     }
@@ -1432,32 +1545,28 @@ public class PkgMgrFrame extends JFrame
     /**
      * Toggle the state of the "show uses arrows" switch.
      */
-    public void toggleShowUses(boolean fromButton)
+    public void updateShowUsesInPackage()
     {
-        if(showUsesCheckbox.isSelected() != showUsesMenuItem.isSelected()) {
-            if(fromButton)
-                showUsesMenuItem.setSelected(showUsesCheckbox.isSelected());
-            else
-                showUsesCheckbox.setSelected(showUsesMenuItem.isSelected());
-
-            pkg.toggleShowUses();
-            editor.repaint();
-        }
+        pkg.setShowUses(isShowUses());
+        editor.repaint();
     }
 
-    public void toggleShowExtends(boolean fromButton)
+    public void updateShowExtendsInPackage()
     {
-        if(showExtendsCheckbox.isSelected() != showExtendsMenuItem.isSelected()) {
-            if(fromButton)
-                showExtendsMenuItem.setSelected(showExtendsCheckbox.isSelected());
-            else
-                showExtendsCheckbox.setSelected(showExtendsMenuItem.isSelected());
-
-            boolean result = pkg.toggleShowExtends();
-            editor.repaint();
-        }
+        pkg.setShowExtends(isShowExtends());
+        editor.repaint();
     }
 
+    public boolean isShowUses()
+    {
+        return showUsesMenuItem.isSelected();
+    }
+
+    public boolean isShowExtends()
+    {
+        return showExtendsMenuItem.isSelected();       
+    }
+    
     /**
      * Clear the terminal window.
      */
@@ -1595,131 +1704,84 @@ public class PkgMgrFrame extends JFrame
         mainPanel.setLayout(new BorderLayout(5, 5));
         mainPanel.setBorder(Config.generalBorderWithStatusBar);
 
-        // create toolbar
-
+        // create the left hand side toolbar
         JPanel toolPanel = new JPanel();
-
-        buttonPanel = new JPanel();
         {
-            buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-            buttonPanel.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));
-
-
-            //ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
-
-            JButton button = createButton(Config.getString("menu.edit.newClass"),
-                                          null, //emptyIcon,
-                                          Config.getString("tooltip.newClass"));
-            button.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) {
-                                            createNewClass(); }
-                                     });
-            buttonPanel.add(button);
-            buttonPanel.add(Box.createVerticalStrut(3));
-
-
-            imgDependsButton = createButton("",
-                                      Config.getImageAsIcon("image.build.depends.uml"),
-                                      Config.getString("tooltip.newUses"));
-            imgDependsButton.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) {
-                                            doNewUses(); }
-                                     });
-            buttonPanel.add(imgDependsButton);
-            buttonPanel.add(Box.createVerticalStrut(3));
-
-
-            imgExtendsButton = createButton("",
-                                      Config.getImageAsIcon("image.build.extends.uml"),
-                                      Config.getString("tooltip.newExtends"));
-            imgExtendsButton.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) {
-                                            doNewInherits(); }
-                                     });
-            buttonPanel.add(imgExtendsButton);
-            buttonPanel.add(Box.createVerticalStrut(3));
-
-
-            button = createButton(Config.getString("menu.tools.compile"),
-                                  null, // emptyIcon,
-                                  Config.getString("tooltip.compile"));
-            button.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) {
-                                            pkg.compile(); }
-                                     });
-            buttonPanel.add(button);
+            buttonPanel = new JPanel();
+            {
+                buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+                buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
+    
+                ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
+    
+                JButton button = createButton(Config.getString("menu.edit.newClass"),
+                                              emptyIcon,
+                                              Config.getString("tooltip.newClass"));
+                button.addActionListener(new ActionListener() {
+                                            public void actionPerformed(ActionEvent e) {
+                                                createNewClass(); }
+                                         });
+                buttonPanel.add(button);
+                buttonPanel.add(Box.createVerticalStrut(3));
+    
+    
+                imgDependsButton = createButton("",
+                                          Config.getImageAsIcon("image.build.depends.uml"),
+                                          Config.getString("tooltip.newUses"));
+                imgDependsButton.addActionListener(new ActionListener() {
+                                            public void actionPerformed(ActionEvent e) {
+                                                doNewUses(); }
+                                         });
+                buttonPanel.add(imgDependsButton);
+                buttonPanel.add(Box.createVerticalStrut(3));
+    
+                imgExtendsButton = createButton("",
+                                          Config.getImageAsIcon("image.build.extends.uml"),
+                                          Config.getString("tooltip.newExtends"));
+                imgExtendsButton.addActionListener(new ActionListener() {
+                                            public void actionPerformed(ActionEvent e) {
+                                                doNewInherits(); }
+                                         });
+                buttonPanel.add(imgExtendsButton);
+                buttonPanel.add(Box.createVerticalStrut(3));
+    
+                button = createButton(Config.getString("menu.tools.compile"),
+                                      emptyIcon,
+                                      Config.getString("tooltip.compile"));
+                button.addActionListener(new ActionListener() {
+                                            public void actionPerformed(ActionEvent e) {
+                                                pkg.compile(); }
+                                         });
+                buttonPanel.add(button);
+            }
+    
+            // Image Button Panel to hold the Progress Image
+            //        JPanel progressPanel = new JPanel ();
+    
+            progressButton = new JButton(workingIcon);
+            progressButton.setDisabledIcon(notWorkingIcon);
+            progressButton.setMargin(new Insets(0, 0, 0, 0));
+            progressButton.setToolTipText(Config.getString("tooltip.progress"));
+            progressButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    ExecControls.showHide(true, true, null);
+                                }
+                           });
+            progressButton.setEnabled(false);
+            //        progressPanel.add(progressButton);
+    
+            progressButton.setAlignmentX(0.5f);
+            buttonPanel.setAlignmentX(0.5f);
         }
-
-        viewPanel = new JPanel();
-        viewPanel.setLayout(new BorderLayout());
-
-        TitledBorder border =
-            BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.darkGray),
-                                             Config.getString("pkgmgr.view.label"),
-                                             TitledBorder.CENTER,
-                                             TitledBorder.BELOW_TOP,
-                                             PkgMgrFont);
-
-        showPanel = new JPanel();
-        showPanel.setLayout(new GridLayout(0, 1));
-        showPanel.setBorder(border);
-
-        // Add the Checkbox to ShowUses Arrows (this must also control
-        // the Menu's Checkbox Items)
-
-        showUsesCheckbox = new JCheckBox(Config.getString("pkgmgr.view.usesLabel"),
-                                         null, true);
-        showUsesCheckbox.addItemListener(new ItemListener() {
-                                public void itemStateChanged(ItemEvent evt) { toggleShowUses(true); }
-                              });
-        showUsesCheckbox.setFont(PkgMgrFont);
-        showUsesCheckbox.setToolTipText(Config.getString("tooltip.showUses"));
-
-        showPanel.add(showUsesCheckbox);
-        // Add the Checkbox to ShowExtends Arrows (this must also control
-        // the Menu's Checkbox Items)
-
-        showExtendsCheckbox = new JCheckBox(Config.getString("pkgmgr.view.inheritLabel"),
-                                            null, true);
-        showExtendsCheckbox.addItemListener(new ItemListener() {
-                                public void itemStateChanged(ItemEvent evt) { toggleShowExtends(true); }
-                              });
-        showExtendsCheckbox.setFont(PkgMgrFont);
-        showExtendsCheckbox.setToolTipText(Config.getString(
-                                                            "tooltip.showExtends"));
-        showPanel.add(showExtendsCheckbox);
-        viewPanel.add("Center",showPanel);
-
-        // Image Button Panel to hold the Progress Image
-        //        JPanel progressPanel = new JPanel ();
-
-        progressButton = new JButton(workingIcon);
-        progressButton.setDisabledIcon(notWorkingIcon);
-        progressButton.setMargin(new Insets(0, 0, 0, 0));
-        progressButton.setToolTipText(Config.getString("tooltip.progress"));
-        progressButton.addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent e) {
-                                ExecControls.showHide(true, true, null);
-                            }
-                       });
-        progressButton.setEnabled(false);
-        //        progressPanel.add(progressButton);
-        //        viewPanel.add("South",progressPanel);
-
-        progressButton.setAlignmentX(0.5f);
-        buttonPanel.setAlignmentX(0.5f);
-        viewPanel.setAlignmentX(0.5f);
-
-        viewPanel.setMaximumSize(viewPanel.getMinimumSize());
-
+    
         toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
         toolPanel.add(buttonPanel);
         toolPanel.add(Box.createVerticalGlue());
-        toolPanel.add(viewPanel);
-        toolPanel.add(Box.createVerticalStrut(4));
         toolPanel.add(progressButton);
         toolPanel.add(Box.createVerticalStrut(3));
 
+        // create the bottom object bench and status area
+        
         JPanel bottomPanel = new JPanel();
         {
             bottomPanel.setLayout(new BorderLayout());
@@ -1730,14 +1792,15 @@ public class PkgMgrFrame extends JFrame
                                 BorderFactory.createBevelBorder(BevelBorder.LOWERED),
                                 BorderFactory.createEmptyBorder(5,0,5,0)));
             bottomPanel.add(bench, BorderLayout.NORTH);
+            statusbar = new JLabel(" ");
+            statusbar.setAlignmentX(0.0f);
             
-            JPanel bottom = new JPanel(new BorderLayout());
 //  experiment with expression eval entry field layout
 //             bottom.setBorder(BorderFactory.createEmptyBorder(2,2,4,2));
 //             bottom.add(statusbar, BorderLayout.CENTER);
 //             bottom.add(new JTextField(30), BorderLayout.EAST);
 //             bottomPanel.add(bottom, BorderLayout.SOUTH);
-            bottomPanel.add(statusbar, BorderLayout.SOUTH);
+            bottomPanel.add(statusbar);
         }
 
         mainPanel.add(toolPanel, BorderLayout.WEST);
@@ -1771,7 +1834,10 @@ public class PkgMgrFrame extends JFrame
      */
     private JButton createButton(String text, ImageIcon icon, String toolTip)
     {
-        JButton button = new JButton(text);
+        JButton button = new JButton() {
+            public boolean isFocusTraversable() { return false; }           
+        };
+        button.setText(text);
         button.setFont(PkgMgrFont);
         if (icon != null)
             button.setIcon(icon);
@@ -1780,7 +1846,7 @@ public class PkgMgrFrame extends JFrame
         button.putClientProperty("JButton.buttonType", "toolbar");  // "icon"
 
         button.setToolTipText(toolTip);
-        button.setRequestFocusEnabled(false);   // never get keyboard focus
+//       button.setRequestFocusEnabled(false);   // never get keyboard focus
 
         // make the button infinitately extendable width-wise, but never
         // grow in height
@@ -1951,12 +2017,12 @@ public class PkgMgrFrame extends JFrame
             showUsesMenuItem = createCheckboxMenuItem("menu.view.showUses", menu,
                            KeyEvent.VK_U, SHORTCUT_MASK, true, true,
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); toggleShowUses(false); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); updateShowUsesInPackage(); }
                            });
             showExtendsMenuItem = createCheckboxMenuItem("menu.view.showInherits", menu,
                            KeyEvent.VK_I, SHORTCUT_MASK, true, true,
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); toggleShowExtends(false); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); updateShowExtendsInPackage(); }
                            });
             menu.addSeparator();
 
@@ -2159,16 +2225,17 @@ public class PkgMgrFrame extends JFrame
      */
     protected void enableFunctions(boolean enable)
     {
+//        if (enable) {
+//            executorField.setBackground(Color.white);
+//            executorField.setFocus();
+//       }
+//        else
+//            executorField.setBackground(Color.lightgrey);
+        
+//        executorField.setEnabled(enable);
+        
         // set Button enable status
         Component[] panelComponents = buttonPanel.getComponents();
-        for(int i = 0; i < panelComponents.length; i++)
-            panelComponents[i].setEnabled(enable);
-
-        panelComponents = viewPanel.getComponents();
-        for(int i = 0; i < panelComponents.length; i++)
-            panelComponents[i].setEnabled(enable);
-
-        panelComponents = showPanel.getComponents();
         for(int i = 0; i < panelComponents.length; i++)
             panelComponents[i].setEnabled(enable);
 

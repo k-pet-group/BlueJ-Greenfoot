@@ -13,7 +13,7 @@ import javax.swing.*;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 1550 2002-12-02 05:58:30Z ajp $
+ * @version $Id: PackageEditor.java 1626 2003-02-11 01:46:35Z ajp $
  */
 public class PackageEditor extends GraphEditor
 {
@@ -63,10 +63,16 @@ public class PackageEditor extends GraphEditor
             new PackageEditorEvent(t, PackageEditorEvent.TARGET_REMOVE));
     }
 
-    public void raiseBenchToFixturesEvent(Target t)
+    public void raiseBenchToFixtureEvent(Target t)
     {
         fireTargetEvent(
-            new PackageEditorEvent(t, PackageEditorEvent.TARGET_BENCHTOFIXTURES));
+            new PackageEditorEvent(t, PackageEditorEvent.TARGET_BENCHTOFIXTURE));
+    }
+
+    public void raiseFixtureToBenchEvent(Target t)
+    {
+        fireTargetEvent(
+            new PackageEditorEvent(t, PackageEditorEvent.TARGET_FIXTURETOBENCH));
     }
 
     public void raiseMakeTestCaseEvent(Target t)
