@@ -70,19 +70,6 @@ in the template for the next one):
 
 ============ open bugs: ============
 
-@-------
-@bug#  : 00100
-@short : editor can lose unsaved changes
-@prio  : ?
-@source: bq
-@date  : 16/09/1999
-@status: open
-@fixrel: 
-@descr : if an editor window is open and contains unsaved work and is 
-	 then minimised, any unsaved changes are lost if you right 
-	 click class target and choose edit implementation.  The same 
-	 does not seem to happen if double clicking on classtarget.
-@cause : implementation bug
 
 @-------
 @bug#  : 00093
@@ -513,11 +500,26 @@ in the template for the next one):
 ============================ closed bugs: =============================
 =======================================================================
 
+
 ============================ version 1.0.1 ============================
+@-------
+@bug#  : 00100
+@short : editor can lose unsaved changes
+@prio  : 2
+@source: bq
+@date  : 16/09/1999
+@status: closed
+@fixrel: 
+@descr : if an editor window is open and contains unsaved work and is 
+	 then minimised, any unsaved changes are lost if you right 
+	 click class target and choose edit implementation.  The same 
+	 does not seem to happen if double clicking on classtarget.
+@cause : implementation bug
+
 @-------
 @bug#  : 00099
 @short : array index out of bounds when inspecting large arrays
-@prio  : 
+@prio  : 2
 @source: bruce
 @date  : 1999-08-25
 @status: closed, fixed (bruce, 1999-08-25) 
