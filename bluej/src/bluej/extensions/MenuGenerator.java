@@ -3,7 +3,7 @@ package bluej.extensions;
 import javax.swing.JMenuItem;
 
 /**
- * Extensions which wish to add a menu item to the BlueJ Tools menu should register an
+ * Extensions which wish to add a menu item to BlueJ should register an
  * instance of MenuGenerator with the BlueJ proxy object.
  *
  * To activate the menus you instantiate an object of the ExtensionMenu class
@@ -12,8 +12,12 @@ import javax.swing.JMenuItem;
  *        ExtensionMenu myMenu = new ExtensionMenu();
  *        bluej.setMenuGenerator(myMenu);
  * </pre>
+ * 
+ * When implementing a class that extends MenuGenerator you need to be awayre of.
+ * - getXXXXMenuItem( ... ) can be called at any time before being displayed.
+ * - the returned JMenuItem must not be stored anywhere in the extension code.
  *
- * @version    $Id: MenuGenerator.java 2079 2003-06-26 15:04:33Z damiano $
+ * @version    $Id: MenuGenerator.java 2087 2003-06-30 12:55:15Z damiano $
  */
 
 /*

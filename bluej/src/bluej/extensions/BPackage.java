@@ -12,6 +12,7 @@ import bluej.compiler.JobQueue;
 import java.util.List; 
 import java.util.ListIterator;
 import java.awt.Frame;
+import java.io.*;
 
 
 
@@ -19,7 +20,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: BPackage.java 2087 2003-06-30 12:55:15Z damiano $
  */
 
 /*
@@ -238,6 +239,42 @@ public class BPackage
 
         bluejPkg.reload();
         }
+
+
+    /** 
+     * Returns the currently selected Class in a Package.
+     * If no Class is being selected null is returned.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
+     */
+    public BClass getCurrentBClass ()
+        throws ProjectNotOpenException, PackageNotFoundException
+    {
+        Target aTarget = packageId.getCurrentBluejTarget();
+
+        // Nothing to do if it is not a class target.
+        if ( !(aTarget instanceof ClassTarget )) return null; 
+        
+        ClassTarget aClass = (ClassTarget)aTarget;
+        String qualifiedClassName = aClass.getQualifiedName();
+        Package attachedPkg = aClass.getPackage();
+        Identifier anId = new Identifier (attachedPkg.getProject(),attachedPkg, qualifiedClassName);
+
+        return new BClass(anId);
+    }
+
+    /**
+     * Returns the directory where this package is stored.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
+     */
+    public File getDir ()
+        throws ProjectNotOpenException, PackageNotFoundException
+    {
+        Package aPkg = packageId.getBluejPackage();
+
+        return aPkg.getPath();
+    }
 
     /**
      * Returns a string representation of the Object
