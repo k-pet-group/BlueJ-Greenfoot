@@ -346,7 +346,7 @@ public class DocuGenerator
         if(documentationExists(logFile)) {
             int result = DialogManager.askQuestion(null, "show-or-generate");
             if(result == 0) {  // show only
-                Utility.openWebBrowser(startPage.getPath());
+                Utility.openWebBrowser("file://" + startPage.getPath());
                 return "";
             }
             if(result == 2) {  // cancel

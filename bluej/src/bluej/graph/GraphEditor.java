@@ -13,10 +13,10 @@ import javax.swing.*;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 1246 2002-05-28 09:43:13Z mik $
+ * @version $Id: GraphEditor.java 1359 2002-10-07 19:52:18Z mik $
  */
 public class GraphEditor extends JComponent
-    implements MouseListener, MouseMotionListener
+    implements MouseListener, MouseMotionListener, KeyListener
 {
     static final long DBL_CLICK_TIME = 300;		// milliseconds
     static final Color background = Config.getItemColour("colour.background");
@@ -63,6 +63,35 @@ public class GraphEditor extends JComponent
         return (Graphics2D) super.getGraphics();
     }
 
+	public boolean isFocusTraversable()
+	{
+		return true;
+	}
+	
+	// ---- KeyListener interface ----
+	
+    public void keyPressed(KeyEvent evt)
+    {
+/**  kay activation of popup menu -no ready
+    	char key = evt.getKeyChar();
+    	switch(key) {
+    	case 'm': 
+            if(activeVertex != null)
+                activeVertex.popupMenu(10, 10, this);
+        }
+ */
+    }
+    
+    public void keyReleased(KeyEvent evt)
+    {
+    }
+    
+    public void keyTyped(KeyEvent evt)
+    {
+    }
+    
+	// ---- MouseListener interface ----
+	
     public void mousePressed(MouseEvent evt)
     {
         int x = evt.getX();
@@ -111,13 +140,8 @@ public class GraphEditor extends JComponent
         if(activeVertex != null && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
             activeVertex.mouseReleased(evt, evt.getX(), evt.getY(), this);
 
-/* XXX            if ((frame.getPackage().getState() != Package.S_CHOOSE_USES_TO) &&
-                (frame.getPackage().getState() != Package.S_CHOOSE_EXT_TO)) { */
-
             if (motionListening) {
                 stopMotionListening();
-/*XXX                frame.getPackage().setState(Package.S_IDLE);
-                repaint(); */
             }
         }
     }
@@ -157,15 +181,8 @@ public class GraphEditor extends JComponent
 
         if (evt.isPopupTrigger())
             if((activeVertex != null))
-                activeVertex.popupMenu(evt, evt.getX(), evt.getY(), this);
+                activeVertex.popupMenu(evt.getX(), evt.getY(), this);
     }
-
-    // not needed anymore - was fix for old Mac system
-//      private boolean isPopupEvent(MouseEvent evt)
-//      {
-//          return evt.isPopupTrigger()
-//                  || ((evt.getID() == MouseEvent.MOUSE_PRESSED) && evt.isControlDown());
-//      }
 
     public void setReadOnly(boolean state)
     {

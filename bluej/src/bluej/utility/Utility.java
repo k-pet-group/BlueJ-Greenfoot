@@ -17,7 +17,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1351 2002-10-07 12:07:59Z mik $
+ * @version $Id: Utility.java 1359 2002-10-07 19:52:18Z mik $
  */
 public class Utility
 {
@@ -254,12 +254,16 @@ public class Utility
 
         if(Config.osname.startsWith("Mac")) {                           // Mac
             try {
-                MRJFileUtils.openURL(url);
+                MRJFileUtils.openURL(encodeURLSpaces(url));
             }
             catch(IOException e) {
                 Debug.reportError("could not start web browser. exc: " + e);
                 return false;
             }
+//             catch(UnsupportedEncodingException e) {
+//                 Debug.reportError("encoding UTF-8 not supported!? " + e);
+//                 return false;
+//             }
         }
         else if(Config.osname.startsWith("Windows")) {                 // Windows
 
@@ -281,6 +285,7 @@ public class Utility
         }
         else {                                                      // Unix and other
         
+            url = encodeURLSpaces(url);
             String cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
 
             try {
@@ -335,6 +340,27 @@ public class Utility
     }
 
     /**
+     * Remove spaces in a URL - that is: replace each space with the
+     * string "%20".
+     */
+    public static String encodeURLSpaces(String url)
+    {
+        // if there are any spaces...
+        if(url.indexOf(' ') != -1) {
+            StringBuffer buffer = new StringBuffer(url);
+            for(int i = 0; i < buffer.length(); i++) {
+                if(buffer.charAt(i) == ' ') {
+                    buffer.deleteCharAt(i);
+                    buffer.insert(i, "%20");
+                }
+            }
+            return buffer.toString();
+        }
+        else
+            return url;
+    }
+
+    /**
      * Converts tabs in a String into a specified number of spaces.  It assumes
      * that beginning of String is the starting point of tab offsets.
      *
@@ -344,7 +370,7 @@ public class Utility
      */
     public static String convertTabsToSpaces(String originalString, int tabSize)
     {
-        // if there is are tab(s) in the String
+        // if there are tab(s) in the String
         if(originalString.indexOf('\t') != -1) {
             StringBuffer buffer = new StringBuffer(originalString);
             for(int i = 0; i < buffer.length(); i++) {

@@ -39,10 +39,10 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1337 2002-09-18 12:04:07Z mik $
+ * @version $Id: PkgMgrFrame.java 1359 2002-10-07 19:52:18Z mik $
  */
 public class PkgMgrFrame extends JFrame
-    implements BlueJEventListener, MouseListener,
+    implements BlueJEventListener, MouseListener, 
                PackageEditorListener, MRJQuitHandler, MRJAboutHandler
 {
     // static final Color bgColor = Config.getItemColour("colour.background");
@@ -344,9 +344,12 @@ public class PkgMgrFrame extends JFrame
 
         this.pkg = pkg;
         this.editor = new PackageEditor(pkg);
+        //editor.setFocusable(true);  // since 1.4 - after 1.3 is phased out, use this and remove isFocusTraversable from GraphEditor
         editor.addMouseListener(this);        // This listener MUST be before
         editor.addMouseListener(editor);      //  the editor itself!
+        editor.addKeyListener(editor);
         this.pkg.editor = this.editor;
+        editor.requestFocus();
 
         classScroller.setViewportView(editor);
         editor.addPackageEditorListener(this);
@@ -415,6 +418,7 @@ public class PkgMgrFrame extends JFrame
 
         editor.removePackageEditorListener(this);
         editor.removeMouseListener(this);
+        editor.removeKeyListener(editor);
 
         getObjectBench().removeAll(getProject().getUniqueId());
 

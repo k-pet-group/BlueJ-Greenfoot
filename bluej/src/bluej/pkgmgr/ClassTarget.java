@@ -47,7 +47,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: ClassTarget.java 1359 2002-10-07 19:52:18Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -826,7 +826,7 @@ public class ClassTarget extends EditableTarget
     protected JPopupMenu menu = null;
     boolean compiledMenu = false;
 
-    public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void popupMenu(int x, int y, GraphEditor editor)
     {
         if (state == S_NORMAL) {
             Class cl = getPackage().loadClass(getQualifiedName());
@@ -847,7 +847,7 @@ public class ClassTarget extends EditableTarget
             }
         }
         if (menu != null)
-            menu.show(editor, evt.getX(), evt.getY());
+            menu.show(editor, x, y);
     }
 
 

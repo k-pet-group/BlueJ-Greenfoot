@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Vertex.java 653 2000-07-26 01:46:35Z ajp $
+ * @version $Id: Vertex.java 1359 2002-10-07 19:52:18Z mik $
  */
 public abstract class Vertex
 {
@@ -71,5 +71,5 @@ public abstract class Vertex
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) {}
     public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor) {}
 
-    public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor) {}
+    public void popupMenu(int x, int y, GraphEditor editor) {}
 }
