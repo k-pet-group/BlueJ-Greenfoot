@@ -99,10 +99,8 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
         }
 
         // otherwise, if this is a java file, parse it!
-        else if (f.getName().endsWith(".java")) {
-            symbolTable.setFile(f);
-            parseFile(new BufferedReader(new FileReader(f)), symbolTable, info);
-        }
+        symbolTable.setFile(f);
+        parseFile(new BufferedReader(new FileReader(f)), symbolTable, info);
     }
 
     // Here's where we do the real work...

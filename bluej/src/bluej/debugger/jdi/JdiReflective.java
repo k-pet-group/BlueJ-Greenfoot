@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 3102 2004-11-18 01:39:18Z davmac $
+ * @version $Id: JdiReflective.java 3324 2005-02-25 01:30:38Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -73,6 +73,14 @@ public class JdiReflective extends Reflective
         this.sourceLoader = classLoader;
         this.sourceVM = vm;
     }
+    
+    public Reflective getRelativeClass(String name)
+    {
+        if (rclass != null)
+            return new JdiReflective(name, rclass);
+        else
+            return new JdiReflective(name, sourceLoader, sourceVM);
+    }
 
     /**
      * Try to make sure we have a valid reference to the actual type
@@ -100,6 +108,12 @@ public class JdiReflective extends Reflective
     {
         checkLoaded();
         return rclass instanceof InterfaceType;
+    }
+    
+    public boolean isStatic()
+    {
+        checkLoaded();
+        return rclass.isStatic();
     }
 
     public Reflective getArrayOf()
@@ -266,8 +280,11 @@ public class JdiReflective extends Reflective
                 }
 
                 s.next(); // read terminating '>'
-                s.next(); // read ';'
-                rlist.add(new GenTypeClass(bReflective, bParams));
+                c = s.next(); // read ';'
+                GenTypeClass n = new GenTypeClass(bReflective, bParams);
+                if (c == '.')
+                    n = innerFromSignature(s, bName, n, null, bType);
+                rlist.add(n);
             }
         }
         return rlist;
@@ -513,12 +530,12 @@ public class JdiReflective extends Reflective
         if (c == ';')
             return new GenTypeClass(reflective, (List) null);
 
-        List params = new ArrayList();
         if (c != '<') {
             Debug.message("Generic signature: expected '<', got '" + c + "' ??");
             return null;
         }
 
+        List params = new ArrayList();
         do {
             GenType ptype = fromSignature(i, tparams, parent);
             if (ptype == null)
@@ -526,9 +543,51 @@ public class JdiReflective extends Reflective
             params.add(ptype);
         } while (i.peek() != '>');
         i.next(); // fetch the '>'
-        i.next(); // fetch the trailing ';'
+        c = i.next(); // fetch the trailing ';' or '.'
+        
+        GenTypeClass result = new GenTypeClass(reflective, params);
 
-        return new GenTypeClass(reflective, params);
+        // if c is now '.', we have an inner class
+        if (c == '.')
+            return innerFromSignature(i, basename, result, tparams, parent);
+        
+        // otherwise assume we have ';'
+        return result;
+    }
+    
+    private static GenTypeClass innerFromSignature(StringIterator i, String outerName, GenTypeClass outer, Map tparams, ReferenceType parent)
+    {
+        String basename = readClassName(i);
+        String innerName = outerName + '$' + basename;
+        Reflective reflective = new JdiReflective(innerName, parent);
+            
+        char c = i.current();
+        if (c == ';')
+            return new GenTypeClass(reflective, (List) null, outer);
+        
+        if (c == '<') {
+            List params = new ArrayList();
+            do {
+                GenType ptype = fromSignature(i, tparams, parent);
+                if (ptype == null)
+                    return null;
+                params.add(ptype);
+            } while (i.peek() != '>');
+            i.next(); // fetch the '>'
+            c = i.next(); // fetch the trailing ';' or '.'
+            
+            GenTypeClass result = new GenTypeClass(reflective, params, outer);
+            
+            // if c is now '.', we have an inner class
+            if (c == '.')
+                return innerFromSignature(i, innerName, result, tparams, parent);
+
+            return result;
+        }
+        else {
+            Debug.message("Generic signature: expected '<', got '" + c + "' ??");
+            return null;
+        }
     }
 
     private static GenType getNonGenericType(String typeName, Type t, ClassLoaderReference clr, VirtualMachine vm)
@@ -586,7 +645,7 @@ public class JdiReflective extends Reflective
         // to the type. Perhaps it's a VM bug.
 
         Value v = parent.obj.getValue(f); // cheap way to make sure class is
-                                          // loaded
+                                          // loaded (if value not null)
         try {
             t = f.type();
         }
@@ -599,29 +658,24 @@ public class JdiReflective extends Reflective
 
         final String gensig = JdiUtils.getJdiUtils().genericSignature(f);
 
+        ReferenceType rt = null;
+        if (t instanceof ReferenceType)
+            rt = (ReferenceType) t;
+        // check for primitive type, or raw type
+        //if (gensig == null && (rt == null || rt.genericSignature() != null))
         if (gensig == null)
             return getNonGenericType(f.typeName(), t, parent.obj.referenceType().classLoader(), parent.obj
                     .virtualMachine());
 
         // generic version.
-        // Get the mapping of type parameter names to actual types. Then,
-        // map the names to the class/interface the field is actually defined
-        // in.
-
-        Map tparams = parent.getGenericParams();
-        Reflective r = new JdiReflective(parent.obj.referenceType());
-
-        // For any parameters that we don't have explicit information for,
-        // substitute an appropriate wildcard type.
-        if (tparams == null)
-            tparams = new HashMap();
-        GenTypeClass.addDefaultParamBases(tparams, r);
-        GenTypeClass genType = new GenTypeClass(r, tparams);
-
-        // genType is now the actual type of the parent object. Map the
-        // parameters to the declaring type:
-        tparams = genType.mapToSuper(f.declaringType().name());
+        GenTypeClass genType = parent.getGenType();
+        
+        // Map from containing object type to the type in which the field was
+        // declared. Then extract the type parameter mappings.
+        Map tparams = genType.mapToSuper2(f.declaringType().name()).getMap();
         StringIterator iterator = new StringIterator(gensig);
+
+        // Parse the signature, using the determined tpar mappings.
         return fromSignature(iterator, tparams, parent.obj.referenceType());
     }
 

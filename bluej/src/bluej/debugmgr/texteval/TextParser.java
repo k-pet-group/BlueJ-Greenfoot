@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3310 2005-02-04 05:12:08Z davmac $
+ * @version $Id: TextParser.java 3324 2005-02-25 01:30:38Z davmac $
  */
 public class TextParser
 {
@@ -78,12 +78,10 @@ public class TextParser
             try {
                 parser.expression();
                 rootAST = parser.getAST();
-                parsedOk = true;
-                // Debug.message("It seems to be an expression:");
-                // bluej.utility.Debug.message(rootAST.toStringTree());
-                // root type always == 28, which is EXPR
-                // AST childAst = rootAST.getFirstChild();
-                GenType t = getExpressionType(rootAST).getType();
+                parsedOk = true; // it parses as an expression.
+                
+                ExprValue ev = getExpressionType(rootAST);
+                GenType t = ev != null ? ev.getType() : null;
                 // Debug.message("got type = " + t);
                 if (t == null)
                     return "";
@@ -507,8 +505,7 @@ public class TextParser
     {
         GenTypeClass [] rlist = new GenTypeClass[ubounds.length];
         for (int i = 0; i < ubounds.length; i++) {
-            Map m = ubounds[i].mapToSuper(r.getName());
-            rlist[i] = new GenTypeClass(r, m);
+            rlist[i] = ubounds[i].mapToSuper2(r.getName());
         }
         
         return rlist;
@@ -1183,7 +1180,7 @@ public class TextParser
                         if (methods[i].getName().equals(methodName)) {
                             // map target type to declaring type
                             Class declClass = methods[i].getDeclaringClass();
-                            Map m = targetClass.mapToSuper(declClass.getName());
+                            //Map m = targetClass.mapToSuper(declClass.getName());
                             
                             // check that the method is applicable (and under
                             // what constraints)
@@ -1996,7 +1993,7 @@ public class TextParser
                 f = c.getField(name);
                 // Map type parameters to declaring class
                 Class declarer = f.getDeclaringClass();
-                Map tparMap = thisClass.mapToSuper(declarer.getName());
+                Map tparMap = thisClass.mapToSuper2(declarer.getName()).getMap();
 
                 GenType fieldType;
                 if (tparMap != null) {

@@ -17,7 +17,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version    $Id: JdiArray.java 3324 2005-02-25 01:30:38Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -71,21 +71,19 @@ public class JdiArray extends JdiObject
                 if (upperBounds.length != 0)
                     genericType = ((GenTypeWildcard)genericType).getUpperBounds()[0];
             }
-            else if(genericType instanceof GenTypeClass) {
-                // the sig looks like "Lpackage/package/class;". Strip the 'L' and
-                // the ';'
+            else if (genericType instanceof GenTypeClass) {
+                // the sig looks like "Lpackage/package/class;". Strip the 'L'
+                // and the ';'
                 String compName = ctypestr.substring(1, ctypestr.length() - 1);
-                compName = compName.replace('/','.');
-                
+                compName = compName.replace('/', '.');
+
                 Reflective compReflective = new JdiReflective(compName, obj.referenceType());
-                
-                Map genericParams = ((GenTypeClass)genericType).
-                mapToDerived(compReflective);
+
+                Map genericParams = ((GenTypeClass) genericType).mapToDerived(compReflective);
                 component = new GenTypeClass(compReflective, genericParams);
-                
-                while(level > 1) {
-                    component = new GenTypeArray(component,
-                            new JdiArrayReflective(component, obj.referenceType()));
+
+                while (level > 1) {
+                    component = new GenTypeArray(component, new JdiArrayReflective(component, obj.referenceType()));
                     level--;
                 }
                 componentType = component;
@@ -94,9 +92,9 @@ public class JdiArray extends JdiObject
     }
 
     /**
-     *  Get the name of the class of this object.
-     *
-     *@return    String representing the Class name.
+     * Get the name of the class of this object.
+     * 
+     * @return String representing the Class name.
      */
     public String getClassName()
     {

@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: JdiObject.java 3324 2005-02-25 01:30:38Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -79,9 +79,9 @@ public class JdiObject extends DebuggerObject
     // -- instance methods --
 
     ObjectReference obj;  // the remote object represented
-    private Map genericParams = null; // Map of parameter names to types
+    GenTypeClass genType = null; // the generic type, if known
     List fields;
-
+    
     // used by JdiArray.
     protected JdiObject()
     {
@@ -106,10 +106,7 @@ public class JdiObject extends DebuggerObject
         if( obj != null ) {
             Reflective reflective = new JdiReflective(obj.referenceType());
             if( expectedType.isGeneric() ) {
-                genericParams = expectedType.mapToDerived(reflective);
-                GenTypeClass.addDefaultParamBases(genericParams, reflective);
-                if( genericParams.isEmpty() )
-                    genericParams = null;
+                genType = (GenTypeClass) expectedType.mapToDerived2(reflective);
             }
         }
     }
@@ -143,9 +140,8 @@ public class JdiObject extends DebuggerObject
     {
         if (obj == null)
             return "";
-        if(genericParams != null)
-            return new GenTypeClass(new JdiReflective(obj.referenceType()),
-                    genericParams).toString();
+        if(genType != null)
+            return genType.toString();
         else
             return getClassName();
     }
@@ -158,9 +154,8 @@ public class JdiObject extends DebuggerObject
     {
         if(obj == null)
             return "";
-        if(genericParams != null)
-            return new GenTypeClass(new JdiReflective(obj.referenceType()),
-                    genericParams).toString(true);
+        if(genType != null)
+            return genType.toString(true);
         else
             return JavaNames.stripPrefix(getClassName());
     }
@@ -175,9 +170,8 @@ public class JdiObject extends DebuggerObject
     public Map getGenericParams()
     {
         Map r = null;
-        if( genericParams != null ) {
-            r = new HashMap();
-            r.putAll(genericParams);
+        if( genType != null ) {
+            return genType.getMap();
         }
         else if (! isRaw())
             r = new HashMap();
@@ -192,8 +186,12 @@ public class JdiObject extends DebuggerObject
      */
     private boolean isRaw()
     {
-        if(JdiUtils.getJdiUtils().hasGenericSig(obj) && genericParams == null)
-            return true;
+        if(JdiUtils.getJdiUtils().hasGenericSig(obj)) {
+            if (genType == null)
+                return true;
+            else
+                return genType.isRaw();
+        }
         else
             return false;
     }
@@ -213,11 +211,12 @@ public class JdiObject extends DebuggerObject
     
     public GenTypeClass getGenType()
     {
-        Reflective r = new JdiReflective(obj.referenceType());
-        if(genericParams != null)
-            return new GenTypeClass(r, genericParams);
-        else
+        if(genType != null)
+            return genType;
+        else {
+            Reflective r = new JdiReflective(obj.referenceType());
             return new GenTypeClass(r);
+        }
     }
 
     /**

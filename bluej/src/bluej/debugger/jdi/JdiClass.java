@@ -3,7 +3,6 @@ package bluej.debugger.jdi;
 import java.util.ArrayList;
 import java.util.List;
 
-import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
@@ -16,7 +15,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiClass.java 2961 2004-08-30 12:54:12Z polle $
+ *@version    $Id: JdiClass.java 3324 2005-02-25 01:30:38Z davmac $
  */
 public class JdiClass extends DebuggerClass
 {
