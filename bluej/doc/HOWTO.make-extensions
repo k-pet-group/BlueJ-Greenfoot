@@ -1,0 +1,13 @@
+How to compile extensions               (last update 23.10.2002, jckm)
+-------------------------
+
+ 1. cd to directory extensions
+ 
+ 2. build
+ 
+ 3. The extensions will all build, and place their .jar files
+    in the lib/extensions directory ready for distribution
+    
+ This is automatically done when an ant dist is done, but not for a
+ standard ant.
+ 
