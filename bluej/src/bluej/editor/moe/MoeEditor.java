@@ -1724,20 +1724,11 @@ public final class MoeEditor extends JFrame
 
             if(reload) {
                 try {
-                    String fileName = getDocPath();
-                    Debug.message("doc path: " + fileName);
-                    // if(fileName.charAt(1) == ':')  // has Windows drive letter
-                    //       fileName = fileName.substring(2);
-
-                    //  htmlPane.setPage("file://" + fileName);
-                    htmlPane.setPage("file://localhost/" + fileName);
-
+                    File urlFile = new File(getDocPath());
+                    URL myURL = urlFile.toURL();
+                    htmlPane.setPage(myURL);
                     htmlDocument = (HTMLDocument)htmlPane.getDocument();
-                    Debug.message("after htmlDocument.getDocument");
-           
-                    htmlDocument.setBase(new URL("file://" + getDocPath()));
-                    Debug.message("after htmlDocument.setBase");
-
+                    htmlDocument.setBase(myURL);
                     info.message(Config.getString("editor.info.docLoaded"));
                 }
                 catch (Exception exc) {
