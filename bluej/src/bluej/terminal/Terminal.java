@@ -5,7 +5,7 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 217 1999-08-08 05:23:20Z mik $
+ ** @version $Id: Terminal.java 219 1999-08-10 04:22:08Z mik $
  **/
 
 package bluej.terminal;
@@ -115,7 +115,8 @@ public final class Terminal extends JFrame
     public void activate(boolean active)
     {
 	if(active != isActive) {
-	    text.setEnabled(active);
+	    text.setEditable(active);
+	    //text.setEnabled(active);
 	    //text.setBackground(active ? activeBgColour : inactiveBgColour);
 	    isActive = active;
 	}
@@ -128,6 +129,16 @@ public final class Terminal extends JFrame
     public void clear()
     {
 	text.setText("");
+    }
+
+
+    /**
+     * Write some text to the terminal.
+     */
+    private void writeToTerminal(String s)
+    {
+	text.append(s);
+	text.setCaretPosition(text.getDocument().getLength());
     }
 
 
@@ -196,13 +207,13 @@ public final class Terminal extends JFrame
 	public void write(int b) throws IOException
 	{
 	    prepare();
-	    text.append("" + (char)b);
+	    writeToTerminal("" + (char)b);
 	}
 
 	public void write(byte[] b, int off, int len) throws IOException
 	{
 	    prepare();
-	    text.append(new String(b, off, len));
+	    writeToTerminal(new String(b, off, len));
 	}
     };
 
@@ -230,41 +241,42 @@ public final class Terminal extends JFrame
 
     public void keyTyped(KeyEvent event)
     {
-	char ch = event.getKeyChar();
+	if(isActive) {
 
-	switch(ch) {
+	    char ch = event.getKeyChar();
+
+	    switch(ch) {
 	    
-	case '\b':	// backspace
-	    if(buffer.backSpace()) {
-		try {
-		    int line = text.getLineCount();
-		    text.replaceRange("", 
-				text.getLineEndOffset(line-1)-2,
-				text.getLineEndOffset(line-1)-1);
+	    case '\b':	// backspace
+		if(buffer.backSpace()) {
+		    try {
+			int length = text.getDocument().getLength();
+			text.replaceRange("", length-2, length-1);
+		    }
+		    catch (Exception exc) { 
+			Debug.reportError("bad location " + exc);
+		    }
 		}
-		catch (Exception exc) { 
-		    Debug.reportError("bad location for backspace " + exc);
-		}
-	    }			
-	    break;
-
-	case '\r':	// carriage return
-	case '\n':	// newline
-	    if(buffer.putChar('\n')) {
-		text.append("" + ch);
-		buffer.notifyReaders();
-	    }
-	    break;
-
-	default:
-	    if(Character.isISOControl(ch)) {
-		// control character - ignore
-		// later: bind to functions!
-	    }
-	    else {
-		if(buffer.putChar(ch))
-		    text.append("" + ch);
 		break;
+
+	    case '\r':	// carriage return
+	    case '\n':	// newline
+		if(buffer.putChar('\n')) {
+		    writeToTerminal("" + ch);
+		    buffer.notifyReaders();
+		}
+		break;
+
+	    default:
+		if(Character.isISOControl(ch)) {
+		    // control character - ignore
+		    // later: bind to functions!
+		}
+		else {
+		    if(buffer.putChar(ch))
+			writeToTerminal("" + ch);
+		    break;
+		}
 	    }
 	}
 	event.consume();	// make sure the text area doesn't handle this

@@ -68,10 +68,10 @@ public class Tester
 	       return x;
     }
 
-    public void exctest()
-    throws Exception
+    public void exctest(int i)
+    throws Throwable
     {
-        throw new IllegalCountException(43);
+        throw new Throwable("my error");
     }
 
     public void DivExc()
