@@ -1,9 +1,12 @@
 package bluej.debugger.jdi;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import bluej.debugger.*;
-import bluej.utility.*;
+import bluej.debugger.DebuggerClass;
+import bluej.debugger.DebuggerObject;
+import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 import com.sun.jdi.*;
 
@@ -11,10 +14,14 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2541 2004-05-24 08:42:48Z polle $
+ * @version $Id: JdiObject.java 2547 2004-05-26 05:17:29Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
+    // boolean - true if our JVM supports generics
+    static boolean jvmSupportsGenerics = System.getProperty("java.vm.version")
+                            .substring(0,3).compareTo("1.5") >= 0;
+    
     /**
      *  Factory method that returns instances of JdiObjects.
      *
@@ -27,10 +34,33 @@ public class JdiObject extends DebuggerObject
         if (obj instanceof ArrayReference) {
             return new JdiArray((ArrayReference) obj);
         } else {
-            return new JdiObject(obj);
+            if( jvmSupportsGenerics )
+                return JdiObject15.getDebuggerObject(obj);
+            else
+                return new JdiObject(obj);
         }
     }
 
+    /**
+     * Get a JdiObject from a field. 
+     * @param obj    Represents the value of the field.
+     * @param field  The field.
+     * @param parent The parent object containing the field.
+     * @return
+     */
+    public static JdiObject getDebuggerObject(ObjectReference obj, Field field, JdiObject parent)
+    {
+        if (obj instanceof ArrayReference) {
+            return new JdiArray((ArrayReference) obj);
+        } else {
+            if( jvmSupportsGenerics )
+                return JdiObject15.getDebuggerObject(obj, field, (JdiObject15)parent);
+            else
+                return new JdiObject(obj);
+        }
+    }
+    
+    
     // -- instance methods --
 
     ObjectReference obj;  // the remote object represented
@@ -54,7 +84,7 @@ public class JdiObject extends DebuggerObject
 
 
     /**
-     *  Get the name of the class of this object.
+     *  Get the (raw) name of the class of this object.
      *
      *  @return    The ClassName value
      */
@@ -66,6 +96,27 @@ public class JdiObject extends DebuggerObject
         return obj.referenceType().name();
     }
 
+    /**
+     * Get the generic name of the class of the object. All names are fully
+     * qualified
+     *  (eg. java.util.List&lt;java.lang.Integer&gt;).
+     * 
+     *  @return    The generic class name
+     */
+    public String getGenClassName()
+    {
+        return getClassName();
+    }
+    
+    /**
+     * Get the generic name of the class of the object. The base names of types
+     * are returned. (eg. List&lt;Integer&gt;).
+     */
+    public String getStrippedGenClassName()
+    {
+        return JavaNames.stripPrefix(getClassName());
+    }
+    
     /**
      *  Get the class of this object.
      *
@@ -85,7 +136,7 @@ public class JdiObject extends DebuggerObject
      *@param  type  Description of Parameter
      *@return       The AssignableTo value
      */
-    public boolean isAssignableTo(String type)
+/*    public boolean isAssignableTo(String type)
     {
         if (obj == null) {
             return false;
@@ -123,7 +174,8 @@ public class JdiObject extends DebuggerObject
         }
         return false;
     }
-
+*/
+    
     /**
      *  Return true if this object is an array. This is always false, since
      *  arrays are wropped in the subclass "JdiArray".
@@ -195,7 +247,7 @@ public class JdiObject extends DebuggerObject
     {
         Field field = getField(true, slot);
         ObjectReference val = (ObjectReference) obj.getValue(field);
-        return getDebuggerObject(val);
+        return getDebuggerObject(val, field, this);
     }
 
     /**
@@ -209,7 +261,7 @@ public class JdiObject extends DebuggerObject
     {
         Field field = getField(false, slot);
         ObjectReference val = (ObjectReference) obj.getValue(field);
-        return getDebuggerObject(val);
+        return getDebuggerObject(val, field, this);
     }
 
     /**
@@ -223,14 +275,14 @@ public class JdiObject extends DebuggerObject
     {
         Field field = (Field) fields.get(slot);
         ObjectReference val = (ObjectReference) obj.getValue(field);
-        return getDebuggerObject(val);
+        return getDebuggerObject(val, field, this);
     }
 
     public DebuggerObject getFieldObject(String name)
     {
         Field field = obj.referenceType().fieldByName(name);
         ObjectReference val = (ObjectReference) obj.getValue(field);
-        return getDebuggerObject(val);
+        return getDebuggerObject(val, field, this);
     }
     
     public String getFieldValueString(int slot) {
@@ -418,9 +470,12 @@ public class JdiObject extends DebuggerObject
                     }
                 }
 
-                fieldString += JavaNames.stripPrefix(field.typeName())
-                         + " " + field.name()
-                         + " = " + valString;
+                if( jvmSupportsGenerics )
+                    fieldString += JdiGenType.fromField(field,this).toString(true)
+                           + " " + field.name()
+                           + " = " +valString;
+                else
+                    fieldString += JavaNames.stripPrefix(field.typeName());
 
                 if (!visible.contains(field)) {
                     fieldString += " (hidden)";
@@ -468,7 +523,7 @@ public class JdiObject extends DebuggerObject
     /**
      *  Get the list of fields for this object.
      */
-    private void getRemoteFields()
+    protected void getRemoteFields()
     {
         if (obj != null) {
         ReferenceType cls = obj.referenceType();

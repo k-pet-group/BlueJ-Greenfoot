@@ -6,7 +6,7 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 2541 2004-05-24 08:42:48Z polle $
+ *@version    $Id: DebuggerObject.java 2547 2004-05-26 05:17:29Z davmac $
  */
 public abstract class DebuggerObject
 {
@@ -18,7 +18,22 @@ public abstract class DebuggerObject
      * @return  the fully qualified class name
      */
     public abstract String getClassName();
+    
+    /**
+     *  Get the name of the class of this object, including generic parameters
+     * 
+     * @return  the fully qualified class name
+     */
+    public abstract String getGenClassName();
 
+    /**
+     *  Get the name of the class, including generic parameters, with package
+     *  prefixes stripped in both the raw name and parameter names.
+     * 
+     * @return  the stripped class name
+     */
+    public abstract String getStrippedGenClassName();
+    
     /**
      *  Get the class of this object.
      *
@@ -32,7 +47,7 @@ public abstract class DebuggerObject
      *@param  type  Description of Parameter
      *@return       The AssignableTo value
      */
-    public abstract boolean isAssignableTo(String type);
+    // public abstract boolean isAssignableTo(String type);
 
     /**
      *  Return true if this object is an array.
