@@ -70,9 +70,9 @@ public class ClassDiagramPrinter implements Printable
      */
     private void calculatePages()
     {
-        Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(),
-                                           (int)pageFormat.getImageableHeight());
         Dimension graphSize = pkg.getMinimumSize();
+        graphSize.setSize(graphSize.getWidth() * scaleFactor, 
+                          graphSize.getHeight() * scaleFactor);
         Rectangle printArea = getPrintArea(pageFormat);
         
         pageColumns = (graphSize.width + printArea.width - 1) / printArea.width;
