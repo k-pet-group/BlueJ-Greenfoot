@@ -23,7 +23,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 641 2000-07-11 04:31:27Z ajp $
+ * @version $Id: Project.java 649 2000-07-26 00:29:24Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -94,7 +94,7 @@ public class Project
             projectDir = lastDir;
         }
         else {
-            Debug.message("no BlueJ package file found in directory " + startingDir);
+            // Debug.message("no BlueJ package file found in directory " + startingDir);
             return null;
         }
 
