@@ -4,7 +4,7 @@ also a bug in your code, but the compiler cannot figure it
 out. You may need to get help from someone else...
 
 Comment not terminated at end of input.
-You have a comment (with the comment symbol "/*"
+You have a comment (with the comment symbol "/*")
 in your program that starts somewhere and does not
 end before the end of your file. The end-of-comment
 symbol "*/" is missing. You need to find that comment 
@@ -26,7 +26,7 @@ the end of the string, or you put them on another
 line.
 
 Invalid character constant.
-You have written a character constant that it not valid.
+You have written a character constant that is not valid.
 A character constant is a single character enclosed in 
 single quotes, for example 'a'. Most of the time, there
 can be only one single character between the quotes. The

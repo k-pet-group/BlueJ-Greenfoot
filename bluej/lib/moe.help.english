@@ -9,7 +9,7 @@
 delete-previous=\n Delete the character before the caret.
 delete-next=\n Delete the character after the caret.
 copy-to-clipboard=\n Copy the selected text to the clipboard. From there, it can be\n pasted somewhere else later (see paste-from-clipboard).
-cut-to-clipboard= Cut the selecttion from the text and move it to the clipboard.\n From there, it can be pasted somewhere else later (see\n paste-from-clipboard).
+cut-to-clipboard= Cut the selection from the text and move it to the clipboard.\n From there, it can be pasted somewhere else later (see\n paste-from-clipboard).
 paste-from-clipboard=\n Paste the text currently on the clipboard into the text at\n the current caret position.
 insert-tab=\n Insert a TAB character.
 insert-break=\n Insert a line break at the caret position.

@@ -78,5 +78,21 @@ replaceLabel = Ersetzen...
 compileLabel = Übersetzen
 toggle-breakpointLabel = Breakpoint setzen/entfernen
 
+state.readOnly = read-only 
+state.saved = saved 
+state.changed = changed
+
 key-bindingsLabel = Tastendefinitionen...
 preferencesLabel = Einstellungen...
+
+# Dialog titles and texts
+functions.title = Editor Functions
+functions.categories.editFunctions = Edit Functions
+functions.categories.moveScroll = Move & Scroll
+functions.categories.classFunctions = Class Functions
+functions.categories.customisation = Customisation
+functions.categories.help = Help
+functions.categories.misc = Misc
+
+finder.title = Find
+finder.textfield.label = Find:

@@ -8,12 +8,12 @@
 
 delete-previous=\n Radera tecknet närmast föregående markören.
 delete-next=\n Radera tecknet närmast efter markören.
-copy-to-clipboard=\n Kopiera markerad text till klippboken. Därifrån kan den\nsedan klistras in någon annanstans (se paste-from-clipboard).
-cut-to-clipboard= Cut the selecttion from the text and move it to the clipboard.\n From there, it can be pasted somewhere else later (see\n paste-from-clipboard).
-paste-from-clipboard=\n Paste the text currently on the clipboard into the text at\n the current caret position.
+copy-to-clipboard=\n Kopiera markerad text till klippboken. Därifrån kan den\n sedan klistras in någon annanstans (se paste-from-clipboard).
+cut-to-clipboard=\n Klipp ut markerad text till klippboken. Därifrån kan den\n sedan klistras in någon annanstans (se paste-from-clipboard). 
+paste-from-clipboard=\n Klistra in den text som för närvarande finns i klippboken.\n Inklippet kommer hamna där markören befinner sig.
 insert-tab=\n Infoga ett tabulatortecken.
-insert-break=\n Insert a line break at the caret position.
-insert-half-tab=\n Insert a half-TAB (a half-TAB is four characters wide).
+insert-break=\n Infoga ett radslutstecken där markören befinner sig.
+insert-half-tab=\n Infoga ett halvt tabulatortecken (ett halvt tabulatorteckenär fyra tecken långt).
 insert-method=\n Insert a skeleton for a Java method into the text.
 comment=\n Comment out the current selection. This can easily be removed\n later (see uncomment).
 uncomment=\n Remove comment symbols from the start of lines in the current\n selection. See comment.

@@ -25,13 +25,13 @@ tecknet som avslutar strängen eller så har det hamnat
 på en annan rad.
 
 Invalid character constant.
-You have written a character constant that it not valid.
-A character constant is a single character enclosed in 
-single quotes, for example 'a'. Most of the time, there
-can be only one single character between the quotes. The
-only exception is if the first character is the backslash
-(called the "escape character") for specifying special
-characters, eg. '\n' or '\t'.
+Du har skrivit en ogiltig teckenkonstant.
+En teckenkonstant är ett tecken inom enkla situations-
+tecken, tex 'a'. I de flesta fall kan man bara ha ett
+tecken inom enkla situationstecken. Det enda undantaget 
+är om det första tecknet är en "backslash" (även kallad 
+"escape character") som används för att representera 
+specialtecken, tex '\n' or '\t'.
 
 Unbalanced parentheses.
 Somewhere your paranthesis (that's the round braces as

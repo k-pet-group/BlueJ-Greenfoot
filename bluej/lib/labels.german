@@ -165,6 +165,17 @@ error.methodCall.emptyField=Leeres Parameterfeld
 error.methodCall.illegalName=Der Instanzname muss ein Java "Identifier" sein.
 error.methodCall.duplicateName=Es existiert schon ein Objekt mit diesem Namen.\nBitte wählen Sie einen anderen Namen.
 
+# Debugger dialog (ExecControls.java)
+debugger.execControls.windowTitle = BlueJ Debugger
+debugger.execControls.stackTitle = Call Sequence
+debugger.execControls.instanceTitle = Instance Variables
+debugger.execControls.localTitle = Local Variables
+debugger.execControls.threadTitle = Threads
+debugger.execControls.updateText = Update
+
+#Terminal Window
+terminal.title = BlueJ Terminal Window
+
 # status messages
 pkgmgr.compiling=Übersetzen...
 pkgmgr.compileDone=Übersetzen... Fertig
