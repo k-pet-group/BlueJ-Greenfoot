@@ -11,11 +11,12 @@ import org.bluej.utility.*;
  *
  * @author     Clive Miller, University of Kent at Canterbury 2002
  * @author     Damiano Bolla, University of Kent at Canterbury 2003
- * @version    $Id: Submitter.java 2377 2003-11-21 11:53:50Z iau $
+ * @version    $Id: Submitter.java 2398 2003-11-28 12:05:30Z damiano $
  */
-public class Submitter extends Extension 
+public class Submitter extends Extension
 {
     private Stat stat;
+
 
     /**
      * This is where the submitter starts to work. It is called by the BlueJ
@@ -37,7 +38,7 @@ public class Submitter extends Extension
         stat.globalProp = new GlobalProp();
         stat.bluej.setPreferenceGenerator(new PrefPanel(stat));
 
-        stat.treeData     = new TreeData(stat);
+        stat.treeData = new TreeData(stat);
         stat.submitDialog = new SubmitDialog(stat);
 
         stat.bluej.setMenuGenerator(new MenuBuilder(stat));
@@ -48,11 +49,12 @@ public class Submitter extends Extension
     /**
      *  Gets the compatibleWith attribute of the Submitter object
      *
-     * @return               The compatibleWith value
+     * @return    The compatibleWith value
      */
     public boolean isCompatible()
     {
-        if ( VERSION_MAJOR < 2 ) return false;
+        if (VERSION_MAJOR < 2)
+            return false;
         return (true);
     }
 
@@ -65,11 +67,17 @@ public class Submitter extends Extension
         return "3.9";
     }
 
+
+    /**
+     *  Gets the name attribute of the Submitter object
+     *
+     * @return    The name value
+     */
     public String getName()
     {
-        if ( stat != null && stat.bluej != null ) 
-          return stat.bluej.getLabel("Submitter");
-          
+        if (stat != null && stat.bluej != null)
+            return stat.bluej.getLabel("Submitter");
+
         return "Submitter";
     }
 
@@ -92,14 +100,11 @@ public class Submitter extends Extension
      */
     public URL getURL()
     {
-        try 
-          {
-          return new URL("http://www.bluej.org/extensions/submitter.html");
-          } 
-        catch (Exception exc) 
-          {
-          return null;
-          }
+        try {
+            return new URL("http://www.bluej.org/extensions/submitter.html");
+        } catch (Exception exc) {
+            return null;
+        }
     }
 
 }

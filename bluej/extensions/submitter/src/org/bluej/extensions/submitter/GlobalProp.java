@@ -15,38 +15,67 @@ import java.text.SimpleDateFormat;
  */
 
 public class GlobalProp extends Properties
-  {
-  public static final String SMTPHOST_VAR="smtphost";
-  public static final String USERADDR_VAR="useraddr";
-  public static final String USERNAME_VAR="username";
-  public static final String DATE_VAR="date";
-  public static final String TITLE_VAR="title";
-  public static final String SIMPLETITLE_VAR="simpletitle";
-  
+{
+    /**
+     *  Description of the Field
+     */
+    public final static String SMTPHOST_VAR = "smtphost";
+    /**
+     *  Description of the Field
+     */
+    public final static String USERADDR_VAR = "useraddr";
+    /**
+     *  Description of the Field
+     */
+    public final static String USERNAME_VAR = "username";
+    /**
+     *  Description of the Field
+     */
+    public final static String DATE_VAR = "date";
+    /**
+     *  Description of the Field
+     */
+    public final static String TITLE_VAR = "title";
+    /**
+     *  Description of the Field
+     */
+    public final static String SIMPLETITLE_VAR = "simpletitle";
 
-  /**
-   * As from the Properties manual, with the addition of the special key DATE_VAR
-   */
-  public String getProperty ( String propKey )
+
+    /**
+     * As from the Properties manual, with the addition of the special key DATE_VAR
+     *
+     * @param  propKey  Description of the Parameter
+     * @return          The property value
+     */
+    public String getProperty(String propKey)
     {
-    if ( propKey == null ) return null;
+        if (propKey == null)
+            return null;
 
-    // If I am looking for a date return the current one.
-    if ( propKey.equals(DATE_VAR) ) return new SimpleDateFormat ("dd MMMM yyyy HH:mm:ss").format (new Date());
+        // If I am looking for a date return the current one.
+        if (propKey.equals(DATE_VAR))
+            return new SimpleDateFormat("dd MMMM yyyy HH:mm:ss").format(new Date());
 
-    return super.getProperty(propKey);
+        return super.getProperty(propKey);
     }
 
-  /**
-   * As from the Properties manual + special key DATE_VAR
-   */
-  public String getProperty (String propKey, String propDefault )
+
+    /**
+     * As from the Properties manual + special key DATE_VAR
+     *
+     * @param  propKey      Description of the Parameter
+     * @param  propDefault  Description of the Parameter
+     * @return              The property value
+     */
+    public String getProperty(String propKey, String propDefault)
     {
-    String propRisul = getProperty ( propKey );
+        String propRisul = getProperty(propKey);
 
-    if ( propRisul == null ) return propDefault;
+        if (propRisul == null)
+            return propDefault;
 
-    return propRisul;
+        return propRisul;
     }
-  
-  }
+
+}
