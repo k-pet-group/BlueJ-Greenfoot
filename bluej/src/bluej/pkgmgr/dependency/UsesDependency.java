@@ -10,7 +10,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 2755 2004-07-07 15:52:12Z mik $
+ * @version $Id: UsesDependency.java 2792 2004-07-13 10:17:25Z mik $
  */
 public class UsesDependency extends Dependency
 {
@@ -137,9 +137,11 @@ public class UsesDependency extends Dependency
         return flag;
     }
     
-    public void remove(){
+    public void remove()
+    {
         pkg.removeArrow(this);
     }
+    
     /**
      * @return Returns the sourceX.
      */

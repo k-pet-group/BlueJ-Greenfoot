@@ -13,7 +13,7 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 2789 2004-07-12 18:08:11Z mik $
+ * @version $Id: GraphEditor.java 2792 2004-07-13 10:17:25Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener
@@ -139,6 +139,15 @@ public class GraphEditor extends JComponent
         selectionController.clearSelection();
     }
 
+    /**
+     * Clear the current selection.
+     */
+    public void removeFromSelection(SelectableGraphElement element)
+    {
+        selectionController.removeFromSelection(element);
+    }
+
+   
     /**
      * Return the rubber band information.
      */

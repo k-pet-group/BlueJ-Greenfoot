@@ -26,7 +26,7 @@ import bluej.utility.filefilter.*;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: Package.java 2792 2004-07-13 10:17:25Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1176,6 +1176,7 @@ public final class Package extends Graph
     public void removeTarget(Target t)
     {
         targets.remove(t.getIdentifierName());
+        getEditor().removeFromSelection(t);
     }
 
     /**
@@ -1214,6 +1215,20 @@ public final class Package extends Graph
     public void removePackage(PackageTarget removableTarget)
     {
         removeTarget(removableTarget);
+        getEditor().repaint();
+    }
+
+    /**
+     * remove the arrow representing the dependency d
+     * 
+     * @param d  the dependency to remove
+     */
+    public void removeArrow(Dependency d)
+    {
+        if (!(d instanceof UsesDependency)) {
+            userRemoveDependency(d);
+        }
+        removeDependency(d, true);
         getEditor().repaint();
     }
 
@@ -1489,6 +1504,8 @@ public final class Package extends Graph
 
         DependentTarget to = d.getTo();
         to.removeDependencyIn(d, recalc);
+
+        getEditor().removeFromSelection(d);
     }
 
     public void recalcArrows()
@@ -2136,21 +2153,6 @@ public final class Package extends Graph
     }
 
     // MouseListener interface - only used while deleting arrow
-
-    /**
-     * remove the arrow representing the dependency d
-     * 
-     * @param d
-     *            the dependency to remove
-     */
-    public void removeArrow(Dependency d)
-    {
-        if (!(d instanceof UsesDependency)) {
-            userRemoveDependency(d);
-        }
-        removeDependency(d, true);
-        getEditor().repaint();
-    }
 
     public void mousePressed(MouseEvent evt)
     {}

@@ -20,12 +20,10 @@ import bluej.debugmgr.objectbench.*;
 import bluej.debugmgr.texteval.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
-import bluej.graph.SelectionController;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.actions.*;
 import bluej.pkgmgr.dependency.Dependency;
-import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.Target;
@@ -46,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: PkgMgrFrame.java 2792 2004-07-13 10:17:25Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -89,10 +87,8 @@ public class PkgMgrFrame extends JFrame
     
     private JMenuBar menubar = null;
     private JMenu recentProjectsMenu;
-    private JMenu toolsMenu;
     private JMenu testingMenu;
     private MenuManager menuManager;
-    private JMenu viewMenu;
 
     private JMenuItem showTestResultsItem;
     private List itemsToDisable;
@@ -1609,7 +1605,7 @@ public class PkgMgrFrame extends JFrame
     public void doRemove()
     {
         if(editor.isFocusOwner()) {         // focus in diagram
-            if (! (doRemoveTargets() || doRemoveDependency() )) {
+            if (! (doRemoveTargets() || doRemoveDependency()) ) {
                 DialogManager.showError(this, "no-class-selected");
             }
         }
@@ -1961,8 +1957,6 @@ public class PkgMgrFrame extends JFrame
      */
     public void blueJEvent(int eventId, Object arg)
     {
-        DebuggerThread thread;
-
         switch(eventId) {
         case BlueJEvent.CREATE_VM:
             setStatus(Config.getString("pkgmgr.creatingVM"));
@@ -2074,8 +2068,6 @@ public class PkgMgrFrame extends JFrame
             {
                 buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
                 buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
-    
-                ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
     
                 action = NewClassAction.getInstance(); 
                 AbstractButton button = createButton(action, false, false, 4, 4);
@@ -2294,7 +2286,6 @@ public class PkgMgrFrame extends JFrame
     {
         menubar = new JMenuBar();
         JMenu menu;
-        final PkgMgrFrame frame = this;
         itemsToDisable = new ArrayList();
         
         menu = new JMenu(Config.getString("menu.package"));
@@ -2342,7 +2333,6 @@ public class PkgMgrFrame extends JFrame
 
 
         menu = new JMenu(Config.getString("menu.tools"));
-        toolsMenu = menu;
         menu.setMnemonic(Config.getMnemonicKey("menu.tools"));
         menubar.add(menu);
         {
@@ -2389,7 +2379,6 @@ public class PkgMgrFrame extends JFrame
                                                         menu, true);
             menu.addSeparator();
 
-            JCheckBoxMenuItem item;
             createCheckboxMenuItem(ShowDebuggerAction.getInstance(), menu, false);
             createCheckboxMenuItem(ShowTerminalAction.getInstance(), menu, false);
             createCheckboxMenuItem(ShowTextEvalAction.getInstance(), menu, false);
@@ -2400,8 +2389,6 @@ public class PkgMgrFrame extends JFrame
             showTestResultsItem = createCheckboxMenuItem(ShowTestResultsAction.getInstance(), menu, false);
             testItems.add(showTestResultsItem);
         }
-        viewMenu = menu;
-
 
 
         menu = new JMenu(Config.getString("menu.help"));
@@ -2542,7 +2529,7 @@ public class PkgMgrFrame extends JFrame
             StringTokenizer t = new StringTokenizer(helpItems);
 
             while (t.hasMoreTokens()) {
-                String itemID = (String)t.nextToken();
+                String itemID = t.nextToken();
                 String itemName = Config.getPropString("bluej.help." + itemID + ".label");
                 String itemURL = Config.getPropString("bluej.help." + itemID + ".url");
                 JMenuItem item = new JMenuItem(itemName);

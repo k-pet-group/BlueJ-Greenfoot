@@ -491,6 +491,15 @@ public class SelectionController
 
    
     /**
+     * Clear the current selection.
+     */
+    public void removeFromSelection(SelectableGraphElement element)
+    {
+        selection.remove(element);
+    }
+
+   
+    /**
      * Check whether this mouse event was from button one.
      * (Ctrl-button one on MacOS does not count - that posts the menu
      * se we consider that button two.)
