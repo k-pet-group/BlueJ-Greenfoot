@@ -28,7 +28,11 @@
         <include name="examples/appletdemo/" />
         <include name="examples/debugdemo/" />
         <include name="examples/hello/" />
-        <include name="examples/people/" />
+        <include name="examples/people/*.java" />
+        <include name="examples/people/README.TXT" />
+        <include name="examples/people/bluej.pkg" />
+        <include name="examples/people/*.ctxt" />
+        <include name="examples/people/*.class" />
         <include name="examples/people2/" />
         <include name="examples/picture/" />
         <include name="examples/file-reader/" />
