@@ -350,10 +350,11 @@ colour.package.bg.default=180,130,44
 
 
 # object bench
-colour.objectbench.background=255,255,255
+colour.objectbench.background=250,250,250
 colour.wrapper.bg=205,38,38
 colour.wrapper.shadow=152,152,152
 
+#text colour for environment specific commands in popup menus
 colour.menu.environOp=152,32,32
 
 colour.inspector.list.selection=249,225,87
