@@ -14,7 +14,7 @@ import java.lang.reflect.Modifier;
  * This could be a method, or constructor.
  *
  * @author Clive Miller
- * @version $Id: BMethod.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: BMethod.java 1640 2003-03-04 20:26:52Z damiano $
  * @see bluej.extensions.BObject#getMethod(java.lang.String,java.lang.Class[])
  * @see bluej.extensions.BObject#getMethods(boolean)
  * @see bluej.extensions.BClass#getConstructor(java.lang.Class[])
@@ -144,14 +144,14 @@ public class BMethod
      */
     public BField invoke (String[] args, String newObjectName)
     {
-        invoker = new DirectInvoker (pkg.getRealPackage(), view, instanceName);
+        invoker = new DirectInvoker (pkg.bluej_pkg, view, instanceName);
         DebuggerObject result = invoker.invoke (args);
 
         if (result == null) return null;
 
         String resultName = invoker.getResultName();
         if ( view instanceof ConstructorView) {
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.getRealPackage());
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.bluej_pkg);
 
             if (!result.isNullObject()) {
                 ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);

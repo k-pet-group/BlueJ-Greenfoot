@@ -19,9 +19,9 @@ import java.awt.Point;
 /**
  * The BlueJ proxy Object object. This represents an object on the Object Bench. It can be 
  * got from {@link bluej.extensions.BPackage#getObject(java.lang.String) getObject}.
+ * The Idea is that this behaves much as the normal Java Object but with added properties.
  *
- * @author Clive Miller
- * @version $Id: BObject.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: BObject.java 1640 2003-03-04 20:26:52Z damiano $
  */
 public class BObject
 {
@@ -52,7 +52,7 @@ public class BObject
     public void remove()
     {
         if (wrapper != null) {
-            PkgMgrFrame.findFrame (pkg.getRealPackage()).getObjectBench().remove (wrapper, pkg.getRealPackage().getId());
+            PkgMgrFrame.findFrame (pkg.bluej_pkg).getObjectBench().remove (wrapper, pkg.bluej_pkg.getId());
             wrapper = null;
         }
     }
@@ -67,10 +67,12 @@ public class BObject
     }
     
     /**
-     * Gets the proxy class of this object
-     * @return the proxy class of this object
+     * Similar to Reflection API this gets the object BClass and from that you get
+     * what you need from it.
+     * 
+     * @return the proxy BClass of this object
      */
-    public BClass getType()
+    public BClass getBClass()
     {
         return new BClass (pkg, wrapper.getClassName());
     } 
@@ -80,7 +82,7 @@ public class BObject
      * @param includeSuper if <code>true</code> the methods from all superclasses will
      * also be included
      * @return the methods of this object, or an empty array if none exist
-     */
+     
     public BMethod[] getMethods (boolean includeSuper)
     {
         String className = wrapper.getClassName();
@@ -100,7 +102,7 @@ public class BObject
      * @param name the name of the method
      * @param signature the signature, given as an array of classes of the parameters
      * @return a method of this object, or <code>null</code> if none matched
-     */
+     
     public BMethod getMethod (String name, Class[] signature)
     {
         Class cl = pkg.getRealPackage().loadClass (wrapper.getClassName());
@@ -117,7 +119,7 @@ public class BObject
      * @param includeSuper if <code>true</code> the fields from all superclasses will
      * also be included
      * @return the fields belonging to this object, or an empty array if none exist
-     */
+     
     public BField[] getFields (boolean includeSuper)
     {
         DebuggerObject obj = wrapper.getObject();
@@ -149,7 +151,7 @@ public class BObject
      * Gets the field in this object of a given name
      * @param name the name of the field to get
      * @return the field belonging to this object, or an empty array if none exist
-     */
+     
     public BField getField (String name)
     {
         DebuggerObject obj = wrapper.getObject();
@@ -163,7 +165,7 @@ public class BObject
     /**
      * Checks if this object is an array
      * @return <code>true</code> if this object is an array
-     */
+     
     public boolean isArray()
     {
         return wrapper.getObject().isArray();
@@ -177,7 +179,7 @@ public class BObject
      * a standard Java language integer. If this object
      * represents an array, this value will probably
      * be meaningless.
-     */
+     
     public int getModifiers()
     {
         return wrapper.getObject().getObjectReference().referenceType().modifiers();
@@ -196,11 +198,12 @@ public class BObject
     /**
      * Gets a description of this object
      * @return the classname and instance name of this object
-     */
+     
     public String toString()
     {
         String mod = Modifier.toString (getModifiers());
         if (mod.length() > 0) mod += " ";
         return mod+getType().getName() + ": " + getName();
     }
+    */
 }   

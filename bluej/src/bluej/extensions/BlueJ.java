@@ -48,7 +48,7 @@ import java.awt.event.ActionListener;
  *                                         +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1631 2003-02-25 11:33:16Z damiano $
+ * @version $Id: BlueJ.java 1640 2003-03-04 20:26:52Z damiano $
  */
 
 public class BlueJ
@@ -77,10 +77,89 @@ public class BlueJ
         localLabels = myWrapper.getLabelProperties();
     }
     
+    
+
+    /**
+     * Opens a project
+     * 
+     * @return the BProject that describes the newly opened or null if it cannot be opened
+     */
+    public BProject openProject (File directory)
+    {
+        // Yes somebody may just call it with null, for fun... TODO: Needs error reporting
+        if ( directory == null ) return null;
+        
+        PkgMgrFrame currentFrame = PkgMgrFrame.getMostRecent();
+        if (currentFrame == null) return null;
+        
+        Project openProj = Project.openProject (directory.getAbsolutePath());
+        if(openProj == null) return null;
+        
+        Package pkg = openProj.getPackage(openProj.getInitialPackageName());
+        if ( pkg == null ) return null;
+
+        PkgMgrFrame pmf = currentFrame.findFrame(pkg);
+        
+        if (pmf == null) 
+            {
+            if (currentFrame.isEmptyFrame()) 
+                {
+                pmf = currentFrame;
+                currentFrame.openPackage(pkg);
+                }
+            else 
+                {
+                pmf = currentFrame.createFrame(pkg);
+                DialogManager.tileWindow(pmf, currentFrame);
+                }
+            }
+
+        pmf.show();
+        return new BProject (openProj);
+    }
+        
+    /**
+     * Create new project.
+     * 
+     * @return the newly created BProject if successful. null otherwise.
+     */
+    public BProject newProject (File directory)
+    {
+        String pathString = directory.getAbsolutePath();
+        if (!pathString.endsWith (File.separator)) pathString += File.separator;
+        if  ( ! Project.createNewProject(pathString) ) return null;
+        return openProject ( directory );
+    }
+
+
+
+    /**
+     * Gets all the currently open projects.
+     * 
+     * @return an array of the currently open project objects. It can be an empty array
+     */
+    public List getOpenProjects()
+        {
+        ArrayList projectList = new ArrayList();
+
+        // If this extension is not valid return an empty list.
+        if (!myWrapper.isValid()) return projectList;
+
+        Set projSet = Project.getProjectKeySet();
+        for ( Iterator iter = projSet.iterator(); iter.hasNext(); )
+            {
+            Object projKey = iter.next();
+            projectList.add(new BProject((File)projKey));
+            }
+        return projectList;
+        }
+
+
     /**
      * Gets the current package. That is, the most recently accessed package.
      * It can return null if this information is not available.
      * This is here and NOT into a BProject since it depends on user interface.
+     *
      * @return the current package
      */
     public BPackage getCurrentPackage()
@@ -94,44 +173,10 @@ public class BlueJ
         // I do NOT want to create what is NOT there
         if ( pkg == null ) return null;
 
-        return new BPackage (pkg, pmf);
-    }
-    
-    /**
-     * Gets all the currently open projects.
-     * @return an array of the currently open project objects. This could be an
-     * empty array, but will only be <code>null</code> if the extension has been
-     * invalidated.
-     */
-    public synchronized BProject[] getOpenProjects()
-    {
-        if (!myWrapper.isValid()) return null;
-        Set projectSet = new TreeSet();
-        PkgMgrFrame[] pmfs = PkgMgrFrame.getAllFrames();
-        for (int i=0; i<pmfs.length; i++) projectSet.add (pmfs[i].getProject());
-        BProject[] projects = new BProject [projectSet.size()];
-        { // reduce scope of i
-            int i=0;
-            for (Iterator it=projectSet.iterator(); it.hasNext(); i++) {
-                PkgMgrFrame pmf = (PkgMgrFrame)it.next();
-                projects[i] = new BProject (pmf.getProject());
-            }
-        }
-        return projects;
+        return new BPackage (pkg);
     }
 
-    /**
-     * Gets a project that contains the given package
-     * @param pkg the package to look for
-     * @return the project that contains this package, or <code>null</code> if none do (!)
-     */
-    public BProject getProject (BPackage pkg)
-    {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.getRealPackage());
-        if (pmf == null) return null;
-        return new BProject (pmf.getProject());
-    }
-    
+
 
     /**
      * Install a new menu generator for this extension
@@ -147,8 +192,7 @@ public class BlueJ
     }
 
     /**
-     * Accessor for the bMenu. 
-     * It just returns what you have set with the setMenuGen
+     * @return What you have set with the setMenuGen
      */
     public MenuGen getMenuGen ()
     {
@@ -157,40 +201,31 @@ public class BlueJ
 
     /**
      * Install a new preference panel for this extension
-     * If you want to delete it just set prefPanel to null
+     * If you want to delete it just set prefGen to null
      */
     public void setPrefGen(PrefGen prefGen)
     {
-      currentPrefGen = prefGen;
-      prefManager.panelRevalidate();
+        currentPrefGen = prefGen;
+        prefManager.panelRevalidate();
     }
     
     /**
-     * Accessor for the preference panel. It returns what you have set 
-     * with setBPrefPanel
+     * @return what you have set with setBPrefPanel
      */
     public PrefGen getPrefGen()
     {
-      return currentPrefGen;
+        return currentPrefGen;
     }
 
 
     /**
-     * Returns the array of arguments with which BlueJ was started.
+     * Returns the arguments with which BlueJ was started.
+     * 
      * @return args
      */
     public List getArgs()
     {
         return myWrapper.getArgs();
-    }
-    
-    /**
-     * Shows a message box, with this text and an OK button
-     * @param message the text to be displayed in the box.
-     */
-    public void showMessage (String message)
-    {
-        DialogManager.showText (PkgMgrFrame.getMostRecent(), message);
     }
     
     /**
@@ -202,7 +237,7 @@ public class BlueJ
     {
         return myWrapper.getBlueJLib();
     }
-    
+
     /**
      * Returns the path to a file contained in the
      * user's bluej settings <CODE>&lt;user&gt;/bluej/<I>file</I></CODE>
@@ -224,6 +259,15 @@ public class BlueJ
         myWrapper.addBJEventListener (el);
     }
 
+    /**
+     * Shows a message box, with this text and an OK button
+     * @param message the text to be displayed in the box.
+     */
+    public void showMessage (String message)
+    {
+        DialogManager.showText (PkgMgrFrame.getMostRecent(), message);
+    }
+   
     /**
      * Gets the bluej default dialog border
      * @return a blank border of 5 pixels
@@ -415,45 +459,6 @@ public class BlueJ
     }
 
     
-    /**
-     * Open a project
-     */
-    public BProject openProject (File dir)
-    {
-        PkgMgrFrame currentFrame = PkgMgrFrame.getMostRecent();
-        if (currentFrame == null) return null;
-        Project openProj = Project.openProject (dir.getAbsolutePath());
-        if(openProj != null) {
-            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
-            PkgMgrFrame pmf;
-            if ((pmf = currentFrame.findFrame(pkg)) == null) {
-                if (currentFrame.isEmptyFrame()) {
-                    pmf = currentFrame;
-                    currentFrame.openPackage(pkg);
-                }
-                else {
-                    pmf = currentFrame.createFrame(pkg);
-
-                    DialogManager.tileWindow(pmf, currentFrame);
-                }
-            }
-
-            pmf.show();
-            return new BProject (openProj);
-        } else {
-            return null;
-        }
-    }
-        
-    /**
-     * Create new project
-     */
-    public void createProject (File projectPath)
-    {
-        String pathString = projectPath.getAbsolutePath();
-        if (!pathString.endsWith (File.separator)) pathString += File.separator;
-        Project.createNewProject(pathString);
-    }
     
     /**
      * Close BlueJ

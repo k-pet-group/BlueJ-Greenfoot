@@ -24,7 +24,7 @@ import java.lang.reflect.Modifier;
  * The BlueJ proxy Field object. This represents a field of a class or object.
  *
  * @author Clive Miller
- * @version $Id: BField.java 1543 2002-11-29 13:49:49Z ajp $
+ * @version $Id: BField.java 1640 2003-03-04 20:26:52Z damiano $
  * @see bluej.extensions.BObject#getField(java.lang.String)
  * @see bluej.extensions.BObject#getFields(boolean)
  * @see bluej.extensions.BClass#getStaticField(java.lang.String)
@@ -69,7 +69,7 @@ public class BField
      *    <li>int
      *    <li>float
      * </bl>
-     */
+     
     public String getTypeName()
     {
         String type = field == null ? obj.getType().getArrayType().getName()
@@ -77,7 +77,7 @@ public class BField
         if (type.equals("java.lang.String")) type = "String"; // don't ask me why!
         return type;
     }
-
+*/
     /**
      * Gets the name of the field
      * @return a String containing the fully-qualified type name
@@ -114,7 +114,7 @@ public class BField
         }
         else if (val instanceof ObjectReference)
         {
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.getRealPackage());
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.bluej_pkg);
             return new BObject (pkg, new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val), getName()), getName());
         }
         else if (val instanceof BooleanValue)
@@ -163,21 +163,22 @@ public class BField
      * a standard Java language integer. If this field
      * is an array element, this value will probably
      * be meaningless.
-     */
+     
     public int getModifiers()
     {
         return array ? obj.getType().getModifiers()
                      : field.modifiers();
     }
-
+*/
     /**
      * Gets a description of this field
      * @return the type, name and value of the field
-     */
+     
     public String toString()
     {
         String mod = Modifier.toString (getModifiers());
         if (mod.length() > 0) mod += " ";
         return mod + getTypeName()+": "+getName()+"="+getValue();
     }
+    */
 }

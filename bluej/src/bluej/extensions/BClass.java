@@ -14,15 +14,12 @@ import java.lang.reflect.Modifier;
 import java.awt.Point;
 
 /**
- * The BlueJ proxy Class object. This represents a Class within a package, and functions relating
- * to that class. It can be got from {@link bluej.extensions.BPackage#getClass(java.lang.String) getClass}.
- * It can also represent System classes.
- * <p>
- * A 'virtual' class is one that is not represented by an actual class in the class browser. This
- * could be a result of creating a system class or getting the superclass of an actual one.
- *
- * @author Clive Miller
- * @version $Id: BClass.java 1459 2002-10-23 12:13:12Z jckm $
+ * This should behave as much as possible like the Java reflection API.
+ * It will not be the same thing but every effort is made to avoid differences.
+ * The reasoning behind it is that is is no good to create a new standard when there 
+ * is already one that can be used.
+ * 
+ * @version $Id: BClass.java 1640 2003-03-04 20:26:52Z damiano $
  */
 public class BClass
 {
@@ -68,7 +65,7 @@ public class BClass
     {
         this.pkg = pkg;
         this.classTarget = classTarget;
-        this.loadedClass = pkg.getRealPackage().loadClass (classTarget.getQualifiedName());
+        this.loadedClass = pkg.bluej_pkg.loadClass (classTarget.getQualifiedName());
         this.view = View.getView (loadedClass);
     }
     
@@ -84,7 +81,7 @@ public class BClass
     {
         this.pkg = pkg;
         this.classTarget = null;
-        this.loadedClass = pkg.getRealPackage().loadClass (view.getQualifiedName());
+        this.loadedClass = pkg.bluej_pkg.loadClass (view.getQualifiedName());
         this.view = view;
     }
 
@@ -95,7 +92,7 @@ public class BClass
     {
         this.pkg = pkg;
         this.classTarget = null;
-        this.loadedClass = pkg.getRealPackage().loadClass (transJavaToClass (className));
+        this.loadedClass = pkg.bluej_pkg.loadClass (transJavaToClass (className));
         this.view = View.getView (loadedClass);
     }
     
@@ -203,6 +200,7 @@ public class BClass
         for (int i=0; i<constructorViews.length; i++) {
             methods[i] = new BMethod (pkg, constructorViews[i], null);
         }
+        Class a;
         return methods;
     }
     
