@@ -4,17 +4,21 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.GenTypeDeclTpar;
-import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
@@ -41,7 +45,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3318 2005-02-17 05:04:12Z davmac $
+ * @version $Id: ObjectWrapper.java 3337 2005-03-22 04:00:51Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -214,22 +218,10 @@ public class ObjectWrapper extends JComponent
             // get declared methods for the class
             MethodView[] declaredMethods = view.getDeclaredMethods();
             
-            // get the generic parameter map & reflective
-            Map tparTypes = obj.getGenericParams();
-            Reflective reflective = obj.getGenType().getReflective();
-            if (tparTypes != null) {
-                for (Iterator i = reflective.getTypeParams().iterator(); i.hasNext();) {
-                    GenTypeDeclTpar tpar = (GenTypeDeclTpar) i.next();
-                    String paramName = tpar.getTparName();
-                    if (!tparTypes.containsKey(paramName)) {
-                        tparTypes.put(paramName, tpar.getBound());
-                    }
-                }
-            }
-
             // create method entries for locally declared methods
+            GenTypeClass curType = (GenTypeClass) obj.getGenType();
             int itemLimit = itemsOnScreen - 8 - classes.size();
-            createMenuItems(menu, declaredMethods, filter, itemLimit, tparTypes);
+            createMenuItems(menu, declaredMethods, filter, itemLimit, curType.getMap());
 
             // create submenus for superclasses
             for(int i = 1; i < classes.size(); i++ ) {
@@ -243,15 +235,13 @@ public class ObjectWrapper extends JComponent
                     filter = otherPackageFilter;
                 
                 // map generic type paramaters to the current superclass
-                GenTypeClass c = new GenTypeClass(reflective, tparTypes);
-                tparTypes = c.mapToSuper(currentClass.getName());
-                reflective = reflective.superTypeByName(currentClass.getName()).getReflective();
+                curType = curType.mapToSuper2(currentClass.getName());
                 
                 declaredMethods = view.getDeclaredMethods();
                 JMenu subMenu = new JMenu(inheritedFrom + " "
                                + JavaNames.stripPrefix(currentClass.getName()));
                 subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                createMenuItems(subMenu, declaredMethods, filter, (itemsOnScreen / 2), tparTypes);
+                createMenuItems(subMenu, declaredMethods, filter, (itemsOnScreen / 2), curType.getMap());
                 menu.insert(subMenu, 0);
             }
 
@@ -282,8 +272,7 @@ public class ObjectWrapper extends JComponent
 
         add(menu);
     }
-
-
+    
     /**
      * creates the individual menu items for an object's popup menu.
      * The method checks for previously defined methods with the same signature

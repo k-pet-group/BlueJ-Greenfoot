@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 3324 2005-02-25 01:30:38Z davmac $
+ * @version $Id: JdiObject.java 3337 2005-03-22 04:00:51Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -61,10 +61,11 @@ public class JdiObject extends DebuggerObject
      */
     public static JdiObject getDebuggerObject(ObjectReference obj, Field field, JdiObject parent)
     {
-        // A raw object contains only raw objects.
-        if (parent.isRaw())
+        // Optimize the java 1.4 case - no generics.
+        if (! jvmSupportsGenerics)
             return getDebuggerObject(obj);
         
+        // Handle all cases.
         GenType expectedType = JdiReflective.fromField(field, parent);
         if (obj instanceof ArrayReference)
             return new JdiArray((ArrayReference) obj, expectedType);
@@ -158,24 +159,6 @@ public class JdiObject extends DebuggerObject
             return genType.toString(true);
         else
             return JavaNames.stripPrefix(getClassName());
-    }
-    
-    /**
-     * Get a mapping of the type parameter names for this objects class to the
-     * actual type, for all parameters where some information is known.
-     * Returns null for a raw object.
-     * 
-     * @return a Map (String:JdiGenType) of type parameter names to types
-     */
-    public Map getGenericParams()
-    {
-        Map r = null;
-        if( genType != null ) {
-            return genType.getMap();
-        }
-        else if (! isRaw())
-            r = new HashMap();
-        return r;
     }
     
     /**
@@ -589,7 +572,7 @@ public class JdiObject extends DebuggerObject
                     }
                 }
 
-                if (jvmSupportsGenerics && !isRaw())
+                if (jvmSupportsGenerics)
                     fieldString += JdiReflective.fromField(field, this).toString(true);
                 else
                     fieldString += JavaNames.stripPrefix(field.typeName());

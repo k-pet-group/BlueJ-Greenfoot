@@ -1,7 +1,6 @@
 package bluej.debugger;
 
 import java.util.List;
-import java.util.Map;
 
 import bluej.debugger.gentype.GenType;
 import bluej.debugger.gentype.GenTypeClass;
@@ -10,7 +9,7 @@ import bluej.debugger.gentype.GenTypeClass;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 2965 2004-08-31 05:58:15Z davmac $
+ *@version    $Id: DebuggerObject.java 3337 2005-03-22 04:00:51Z davmac $
  */
 public abstract class DebuggerObject
 {
@@ -51,23 +50,6 @@ public abstract class DebuggerObject
      *  @return    The object type.
      */
     public abstract GenTypeClass getGenType();
-
-    /**
-     * Get a mapping of the type parameter names for this objects class to the
-     * actual type, for all parameters where some information is known.
-     * Returns null for a raw object.
-     * 
-     * @return a Map (String:JdiGenType) of type parameter names to types
-     */
-    public abstract Map getGenericParams();
-
-    /**
-     *  Is an object of this class assignable to the given fully qualified type?
-     *
-     *@param  type  Description of Parameter
-     *@return       The AssignableTo value
-     */
-    // public abstract boolean isAssignableTo(String type);
 
     /**
      *  Return true if this object is an array.
