@@ -20,15 +20,16 @@ debugger.assert.sameAs=identisch mit
 debugger.assert.notSameAs=verschieden von
 debugger.assert.notNull=Nicht null
 debugger.assert.null=null
+debugger.assert.delta=+/-
+debugger.assert.equalToFloatingPoint=gleich (double oder float)
 
 debugger.inspector.title=BlueJ:  Inspektor
 debugger.inspector.result.title=BlueJ:  Methodenergebnis
-debugger.inspector.staticListTitle=Statische Variablen
-debugger.inspector.objListTitle=Instanzvariablen
+debugger.inspector.class.title=BlueJ:  Klasseninspektor
+debugger.inspector.object.title=BlueJ:  Objektinspektor
 debugger.inspector.showClass=Zeige statische Variablen
 debugger.inspector.inspect=Inspiziere
 debugger.inspector.get=Hole
-debugger.inspector.objectNameLabel=Objekt der Klasse
 debugger.inspector.classNameLabel=Klasse
 
 debugger.objectwrapper.methodException=Ausnahme während Methodenzugriffs:
@@ -86,8 +87,7 @@ browser.menu.library.close=Schließen
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Bibliotheken
 classmgr.userlibraries=Benutzerbibliotheken
-classmgr.systemlibraries=Systembibliotheken
-classmgr.bootlibraries=Boot-Bibliotheken
+classmgr.userliblibraries=Benutzerbibliotheken aus
 classmgr.add=Hinzufügen
 classmgr.delete=Löschen
 classmgr.statuscolumn=Status
@@ -95,9 +95,6 @@ classmgr.statusgood=Geladen
 classmgr.statusbad=Fehler
 classmgr.statusnew=Nicht geladen
 classmgr.locationcolumn=Pfad
-classmgr.descriptioncolumn=Beschreibung
-classmgr.bootclass=Boot-Klassenbibliothek
-classmgr.bluejclass=BlueJ-Klassenbibliothek
 classmgr.error.unresolvable=Pfad nicht auflösbar
 classmgr.error.nodescription=Keine Beschreibung
 classmgr.error.missingclasspath=Kein Java CLASSPATH. Eigenartiges Verhalten beim Laden von Klassen möglich,\nda Klassen im aktuellen Verzeichnis zuerst aufgelöst werden.
@@ -108,20 +105,26 @@ prefmgr.title=BlueJ:  Einstellungen
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=Diverses
-prefmgr.misc.editor.title=Editoreinstellungen
-prefmgr.misc.editorfontsize=Schriftgrösse
-prefmgr.misc.usesyntaxhilighting=Syntaxhervorhebung verwenden
-prefmgr.misc.autoindent=Auto-Einrücken (Eingabe- und Tab-Tasten)
-prefmgr.misc.displaylinenumbers=Zeilennummern anzeigen
-prefmgr.misc.makeBackup=Backup von Sourcedateien machen
-prefmgr.misc.matchBrackets=Zusammengehörende Klammern
+prefmgr.edit.prefpaneltitle=Editor
+prefmgr.edit.editor.title=Editoreinstellungen
+prefmgr.edit.editorfontsize=Schriftgrösse
+prefmgr.edit.usesyntaxhilighting=Syntaxhervorhebung verwenden
+prefmgr.edit.autoindent=Auto-Einrücken (Eingabe- und Tab-Tasten)
+prefmgr.edit.displaylinenumbers=Zeilennummern anzeigen
+prefmgr.edit.makeBackup=Backup von Sourcedateien machen
+prefmgr.edit.matchBrackets=Zusammengehörende Klammern
 prefmgr.misc.testing.title=Testeinstellungen
 prefmgr.misc.showTesting=Testwerkzeuge anzeigen
+prefmgr.misc.vm.title=Einstellungen der virtuellen Maschine
+prefmgr.misc.optimiseVM=Verwende Optimierungen (schnellere Ausführung, kann aber Probleme beim Debugging verursachen)
+prefmgr.misc.addLibTitle=Verzeichnis oder jar/zip-Datei auswählen
+prefmgr.misc.libFileFilter=Bibliotheksdateien (*.jar;*.zip) oder Klassenverzeichnisse
+
 prefmgr.misc.documentation.title=Dokumentationseinstellungen
 prefmgr.misc.jdkurlpath=URL der JDK-Dokumentation
 prefmgr.misc.linkToLib=Diesen URL für die Erstellung der Interface-Doku benutzen
 prefmgr.misc.linkToLibNoteLine1=Wenn dieser URL für die Erstellung der Interface-Doku benutzt wird, muss er korrekt und erreichbar sein.
-prefmgr.misc.linkToLibNoteLine2=Andernfalls wird die Erstellung der Interface-Doku fehlschlagen. Deaktivieren Sie diese Option für Offline-Betrieb.
+prefmgr.misc.linkToLibNoteLine2=Andernfalls wird die Erstellung der Interface-Doku fehlschlagen. Deaktivieren Sie diese Option für den Offline-Betrieb.
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installierte Erweiterungen
@@ -276,25 +279,28 @@ pkgmgr.chooseArrow=Wählen Sie einen Pfeil zum Löschen aus
 pkgmgr.packageSaved=Paket gespeichert
 pkgmgr.info.printing=Drucken...
 pkgmgr.info.printed=Drucken... Fertig.
+pkgmgr.checkingVersion=Verbinde mit Versions-Server...
 
 utility.packageChooser.previewPane1=Ansicht der möglichen
 utility.packageChooser.previewPane2=Paketstruktur
 
 # dialog titles and texts
 
-pkgmgr.newPkg.title=BlueJ:  Neues Projekt
+pkgmgr.title=BlueJ:  
+
+pkgmgr.newPkg.title=Neues Projekt
 pkgmgr.newPkg.buttonLabel=Erzeugen
-pkgmgr.openPkg.title=BlueJ:  Projekt öffnen
+pkgmgr.openPkg.title=Projekt öffnen
 pkgmgr.openPkg.buttonLabel=Öffnen
-pkgmgr.openNonBlueJPkg.title=BlueJ:  Fremdprojekt öffnen
+pkgmgr.openNonBlueJPkg.title=Fremdprojekt öffnen
 pkgmgr.openNonBlueJPkg.buttonLabel=In BlueJ öffnen
-pkgmgr.saveAs.title=BlueJ:  Projekt speichern
+pkgmgr.saveAs.title=Projekt speichern
 pkgmgr.saveAs.buttonLabel=Speichern
-pkgmgr.addClass.title=BlueJ:  Klasse aus Datei hinzufügen
+pkgmgr.addClass.title=Klasse aus Datei hinzufügen
 pkgmgr.addClass.buttonLabel=Hinzufügen
-pkgmgr.importPkg.title=BlueJ:  Importieren
+pkgmgr.importPkg.title=Importieren
 pkgmgr.importPkg.buttonLabel=Importieren
-pkgmgr.importPkgNew.title=BlueJ:  Neues Projekt, in das importiert werden soll
+pkgmgr.importPkgNew.title=Neues Projekt, in das importiert werden soll
 pkgmgr.importPkgNew.buttonLabel=Erzeugen
 
 pkgmgr.newClass.msg=Name der Klasse
@@ -302,7 +308,7 @@ pkgmgr.newUses=Neuer Verwendungspfeil
 pkgmgr.newExtends=Neuer Vererbungspfeil
 pkgmgr.unimplemented=Diese Funktion ist leider noch nicht implementiert
 pkgmgr.pkgChooseError=Fehler bei Auswahl eines zulässigen Paketnamens
-pkgmgr.chooseWebPage.title=BlueJ:  Zielort für HTML-Seite wählen
+pkgmgr.chooseWebPage.title=Zielort für HTML-Seite wählen
 
 pkgmgr.parentpackagetarget.open=Öffnen
 pkgmgr.parentpackagetarget.openunamed=Unbenanntes Paket öffnen
@@ -335,7 +341,7 @@ pkgmgr.test.popup.fixtureToBench=Objektzustand wiederherstellen
 
 
 # "new class" dialog
-pkgmgr.newClass.title=BlueJ:  Neue Klasse erzeugen
+pkgmgr.newClass.title=Neue Klasse erzeugen
 pkgmgr.newClass.label=Klassenname:
 pkgmgr.newClass.classType=Art der Klasse
 pkgmgr.newClass.stdclass=Klasse
@@ -346,7 +352,7 @@ pkgmgr.newClass.appletj=Applet
 pkgmgr.newClass.unittest=Unit-Test
 
 # "new package" dialog
-pkgmgr.newPackage.title=BlueJ:  Neues Paket erzeugen
+pkgmgr.newPackage.title=Neues Paket erzeugen
 pkgmgr.newPackage.label=Paketname:
 pkgmgr.newPackage.newPackage=Paket
 
@@ -438,9 +444,9 @@ error.methodCall.duplicateName=Es gibt bereits ein Objekt mit diesem Namen.\nBit
 # Debugger dialog (ExecControls.java)
 debugger.execControls.windowTitle=BlueJ:  Debugger
 debugger.execControls.stackTitle=Aufruffolge
-debugger.execControls.staticTitle=Statische Variable
-debugger.execControls.instanceTitle=Instanzvariable
-debugger.execControls.localTitle=Lokale Variable
+debugger.execControls.staticTitle=Statische Variablen
+debugger.execControls.instanceTitle=Instanzvariablen
+debugger.execControls.localTitle=Lokale Variablen
 debugger.execControls.threadTitle=Threads
 debugger.execControls.haltButtonText = Anhalten
 debugger.execControls.stepButtonText = Schritt über
@@ -568,8 +574,31 @@ tooltip.newUses=Verwendungs-Beziehung einfügen
 tooltip.newExtends=Vererbungs-Beziehung einfügen
 tooltip.compile=Alle nicht übersetzten Klassen in diesem Paket übersetzen
 tooltip.test=Starte alle übersetzten Testklassen in diesem Paket
-tooltip.showUses=Anzeige der Verwendungs-Beziehungen ein/aus
-tooltip.showExtends=Anzeige der Vererbungs-Beziehungen ein/aus
 tooltip.progress=Ablaufindikator: zeigt an, wenn die Java-VM arbeitet
 tooltip.test.end=Aufzeichnen einer Testmethode beenden und speichern.
 tooltip.test.cancel=Aufzeichnen einer Testmethode abbrechen (nicht speichern).
+
+#Copyright
+
+menu.help.copyright.title=BlueJ-Copyright
+menu.help.copyright.line1=BlueJ ist gratis verfügbar und kann uneingeschränkt
+menu.help.copyright.line2=verteilt werden. Ohne schriftliche Genehmigung darf
+menu.help.copyright.line3=es jedoch weder direkt oder als Teil anderer Pakete 
+menu.help.copyright.line4=kommerziell vertrieben werden.
+
+# About
+
+about.bluej.version=BlueJ-Version
+about.java.version=Java-Version
+about.vm=Virtuelle Maschine:
+about.runningOn=Läuft unter:
+about.javahome=Java-Heimverzeichnis:
+about.logfile=Debug-Protokolldatei:
+about.moreInfo=Mehr Informationen gibt es unter www.bluej.org.
+about.theTeam.deakin=Das BlueJ-Team an der Universität Deakin
+about.theTeam.denmark=Das BlueJ-Team an der Universität von Süd-Dänemark
+about.theTeam.kent=Das BlueJ-Team an der Universität Kent
+
+# Work Indicator
+workIndicator.showDebugger=Zeige Debugger
+workIndicator.resetMachine=Virtuelle Maschine zurücksetzen

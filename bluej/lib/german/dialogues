@@ -100,10 +100,6 @@ von BlueJ sein oder ein Dateizugriffsproblem.
 error-open-source
 Die Sourcedatei dieser Klasse kann nicht geöffnet werden.
 
-error-open-readme
-Es gibt ein Problem beim Öffnen der Textnotiz zu diesem
-Projekt. Eine neue leere Textnotiz wurde erzeugt.
-
 error-writing-readme
 Die README-Datei zu diesem Projekt konnte nicht mit den
 Informationen zur Hauptklasse aktualisiert werden. Beim
@@ -209,7 +205,7 @@ Wählen Sie eine Klasse oder ein Paket durch
 Anklicken, bevor Sie versuchen, diese zu entfernen.
 
 really-remove-class
-Beim Entfernen dieser Klasse wird auch die Sourcedatei
+Beim Entfernen von Klassen werden auch ihre Sourcedateien
 unwiderruflich gelöscht.
 Wollen Sie fortfahren?
 Entfernen
@@ -341,6 +337,12 @@ classmgr-changes-no-effect
 Ihre Änderungen an den Klassenbibliotheken werden
 erst beim nächsten Starten von BlueJ wirksam.
 
+pref-optimise-no-effect
+Änderungen an den Einstellungen der virtuellen Maschine
+werden erst bei Projekten wirksam, die Sie nach der 
+jeweiligen Änderung geöffnet haben (Oder Sie starten
+die virtuelle Maschine neu).
+
 unittest-new-test-method
 Benennen Sie den Test.
 Die Aufzeichnung wird im Anschluss gestartet.
@@ -361,8 +363,14 @@ Ersetzen
 Abbrechen
 null
 
-# editor:
-#########
+unittest-method-present
+Diese Testklasse hat bereits eine Testmethode mit diesem 
+Namen deklariert. Falls Sie weitermachen, wird die 
+Definition dieser Methode ersetzt.
+Möchten Sie weitermachen?
+Ersetzen
+Abbrechen
+null
 
 no-search-string
 Es ist kein Suchtext angegeben.
@@ -375,3 +383,36 @@ setzen?
 Default setzen
 Abbrechen
 null
+
+error-create-vm
+BlueJ war nicht in der Lage, eine virtuelle Maschine (VM) zu erzeugen,
+um Projekte auszuführen. Dies ist ein ernstes Problem - Sie werden
+nicht in der Lage sein, Objekte zu erzeugen oder Methoden aufzurufen,
+ohne das Problem zu lösen.
+Normalerweise wird dieses Problem durch spezielle Netzwerkeinstellungen
+auf Ihrer Maschine verursacht. BlueJ nutzt TCP/IP und Sockets, um die
+Erzeugung einer VM zu erreichen. Die häufigste Ursache ist eine zu 
+restriktive Firewall, die keine Verbindungen von 'localhost' erlaubt.
+Andere Ursachen können ungültige Netzwerkeinstellungen sein. Überprüfen
+Sie, dass TCP/IP korrekt eingerichtet ist. Überprüfen sie auch andere
+Netzwerkparameter.
+
+project-is-readonly
+Das Projekt ist schreibgeschützt. Sie werden nicht in der Lage sein,
+Objekte zu erzeugen oder Methoden aufzurufen.
+Entweder sind die Zugriffrechte im Projektverzeichnis auf 
+'schreibgeschützt' für Sie gesetzt, oder das gesamte Dateisystem ist
+nicht beschreibbar (ist es eine CD?).
+Um dieses Projekt vollständig nutzen zu können, müssen Sie dafür
+sorgen, dass es sich auf einem beschreibbaren Dateisystem
+(normalerweise eine Festplatte) befindet und dass Sie Schreibrechte
+für das Projektverzeichnis und alle darin enthaltenen Dateien haben.
+
+could-not-write-shell-file
+Die Ausführung hat versagt, weil das Projektverzeichnis nicht
+beschreibbar ist. Um Objekte erzeugen und Methoden aufrufen zu können,
+muss BlueJ in der Lage sein, in das Projektverzeichnis zu schreiben.
+Stellen Sie sicher, dass Ihr Projekt auf einem beschreibbaren 
+Dateisystem (keine CD!) abgelegt ist und dass Sie die 
+Schreibrechte für das Projektverzeichnis und die darin enthaltenen
+Dateien besitzen.
