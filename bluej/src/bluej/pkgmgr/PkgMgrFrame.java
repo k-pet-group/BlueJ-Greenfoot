@@ -11,9 +11,6 @@ import java.awt.image.BufferedImage;
 import java.awt.print.*;
 import java.text.DateFormat;
 
-//import junit.swingui.TestRunner;
-//import junit.framework.*;
-
 import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
 import com.apple.mrj.MRJQuitHandler;
 import com.apple.mrj.MRJAboutHandler;
@@ -43,7 +40,7 @@ import antlr.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1628 2003-02-13 00:21:54Z ajp $
+ * @version $Id: PkgMgrFrame.java 1638 2003-03-04 04:04:27Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -2046,6 +2043,10 @@ public class PkgMgrFrame extends JFrame
             item = createCheckboxMenuItem("menu.view.showTerminal", menu,
                            KeyEvent.VK_T, SHORTCUT_MASK, false, false, null);
             item.setModel(new TerminalButtonModel());
+
+            item = createCheckboxMenuItem("menu.view.showTestDisplay", menu,
+                           0, 0, false, false, null);
+            item.setModel(new TestDisplayButtonModel());
         }
 
 

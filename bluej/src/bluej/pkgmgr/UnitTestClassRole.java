@@ -31,7 +31,7 @@ import antlr.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1629 2003-02-13 02:03:35Z ajp $
+ * @version $Id: UnitTestClassRole.java 1638 2003-03-04 04:04:27Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -141,7 +141,7 @@ public class UnitTestClassRole extends ClassRole
             if (dtr.errorCount() == 0 && dtr.failureCount() == 0)
                 pmf.setStatus(param + " succeeded");
             else
-                new TestDisplayFrame().setResult(dtr);
+                TestDisplayFrame.getTestDisplay().setResult(dtr);
 
         }
         else {
@@ -149,7 +149,7 @@ public class UnitTestClassRole extends ClassRole
             dtr = Debugger.debugger.runTestClass(pmf.getProject().getRemoteClassLoader().getId(),
                             pmf.getProject().getUniqueId(), ct.getQualifiedName());
 
-            new TestDisplayFrame().setResult(dtr);
+            TestDisplayFrame.getTestDisplay().setResult(dtr);
 
         }            
     }

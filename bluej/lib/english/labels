@@ -443,6 +443,9 @@ terminal.buffering = Unlimited buffering
 terminal.save.title = Save terminal text
 terminal.save.buttonText = Save
 
+#TestDisplay Window
+testdisplay.title = BlueJ:  Test Display
+
 # status messages
 pkgmgr.compiling=Compiling...
 pkgmgr.compileDone=Compiling... Done
@@ -505,6 +508,7 @@ menu.view.showUses=Show Uses
 menu.view.showInherits=Show Inheritance
 menu.view.showExecControls=Show Debugger
 menu.view.showTerminal=Show Terminal
+menu.view.showTestDisplay=Show Test Results
 
 menu.group=Group Work
 menu.group.make=Make Group Package

@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import junit.framework.*;
 
+import bluej.Config;
 import bluej.debugger.*;
 
 /**
@@ -23,6 +24,25 @@ import bluej.debugger.*;
  */
 public class TestDisplayFrame
 {
+    static final String windowTitle = Config.getString("terminal.title");
+    static final int windowHeight = Config.getPropInteger("bluej.terminal.height", 22);
+    static final int windowWidth = Config.getPropInteger("bluej.terminal.width", 80);
+
+    private static final Color fgColour = Color.black;
+    private static final Color errorColour = Color.red;
+    private static final Image iconImage = Config.getImageAsIcon("image.icon.terminal").getImage();
+
+    // -- static singleton factory method --
+
+    static TestDisplayFrame singleton = null;
+
+    public synchronized static TestDisplayFrame getTestDisplay()
+    {
+        if(singleton == null)
+            singleton = new TestDisplayFrame();
+        return singleton;
+    }
+
     private JFrame frame;
     private ProgressBar pb;
     private CounterPanel cp;
@@ -32,12 +52,34 @@ public class TestDisplayFrame
     {
         createUI();
     }
+
+    /**
+     * Show or hide the test display window.
+     */
+    public void showTestDisplay(boolean doShow)
+    {
+	frame.setVisible(doShow);
+	if(doShow) {
+//	    text.requestFocus();
+	}
+    }
+
+
+    /**
+     * Return true if the window is currently displayed.
+     */
+    public boolean isShown()
+    {
+        return frame.isShowing();
+    }
+
+
     
     public void createUI()
     {
-		frame= new JFrame("BlueJ - JUnit");
+	frame = new JFrame(Config.getString("testdisplay.title"));
 
-		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(),BoxLayout.Y_AXIS));
+	frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(),BoxLayout.Y_AXIS));
 
         frame.getContentPane().add(pb=new ProgressBar());
         frame.getContentPane().add(cp=new CounterPanel());
@@ -47,8 +89,6 @@ public class TestDisplayFrame
         frame.getContentPane().add(new JScrollPane(fdv.getComponent()));
 
         frame.pack();
-        
-        frame.show();
     }
 
     public void setResult(DebuggerTestResult dtr)
