@@ -12,7 +12,7 @@ import javax.swing.*;
 
 /**
  ** Some generally useful utility methods available to all of bluej.
- ** $Id: Utility.java 60 1999-05-03 02:22:57Z mik $
+ ** $Id: Utility.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  ** @author Justin Tan
  ** @author Michael Kolling
@@ -299,7 +299,7 @@ public class Utility
      **/
     public static String[] splitLines(String str)
     {
-	return split(str, "\n");
+	return (str == null ? null : split(str, "\n"));
     }
 
     /**

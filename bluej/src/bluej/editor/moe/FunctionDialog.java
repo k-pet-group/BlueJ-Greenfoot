@@ -10,10 +10,13 @@ import javax.swing.event.ListSelectionEvent;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
+import java.util.ResourceBundle;
+import java.util.Locale;
+import java.util.MissingResourceException;
 
 import bluej.Config;
 import bluej.utility.Debug;
-import bluej.utility.MultiLineLabel;
+import bluej.utility.FixedMultiLineLabel;
 
 /**
  ** Dialog to display user functions. The dialog displays function names,
@@ -36,24 +39,23 @@ public final class FunctionDialog extends JDialog
     static final String addKeyLabel = Config.getString("editor.functions.addkey");
     static final String delKeyLabel = Config.getString("editor.functions.delkey");
 
-
-  
   // -------- INSTANCE VARIABLES --------
 
-    JButton defaultsButton;
-    JButton closeButton;
-    JButton addKeyButton;
-    JButton delKeyButton;
-    JComboBox categoryMenu;
-    JList functionList;
-    JList keyList;
-    MultiLineLabel helpLabel;
+    private JButton defaultsButton;
+    private JButton closeButton;
+    private JButton addKeyButton;
+    private JButton delKeyButton;
+    private JComboBox categoryMenu;
+    private JList functionList;
+    private JList keyList;
+    private FixedMultiLineLabel helpLabel;
 
-    MoeActions actions;		// The Moe action manager
+    private MoeActions actions;		// The Moe action manager
 
-    Action[] functions;		// all user functions
-    int[] categoryIndex;	// an array of indecees into "functions"
-    int firstDisplayedFunc;	// index of first function in function list
+    private Action[] functions;		// all user functions
+    private int[] categoryIndex;	// an array of indexes into "functions"
+    private int firstDisplayedFunc;	// index of first function in list
+    private ResourceBundle help;
 
   // ------------- METHODS --------------
 
@@ -65,14 +67,8 @@ public final class FunctionDialog extends JDialog
   	functions = actiontable;
 	this.categoryIndex = categoryIndex;
 	makeDialog(categories);
+	openHelpFile();
     }
-
-    /**
-     * 
-     */
-    //public void xx(String s)
-    //{
-    //}
 
     /**
      * Handle click on Close button.
@@ -98,7 +94,12 @@ public final class FunctionDialog extends JDialog
 	if(index == -1)
 	    return;	// deselection event - ignore
 
+	// find selected action
+
 	Action action = functions[firstDisplayedFunc + index];
+
+	// display key bindings
+
 	KeyStroke[] keys = actions.getKeyStrokesForAction(action);
 	if(keys == null)
 	    clearKeyList();
@@ -108,6 +109,11 @@ public final class FunctionDialog extends JDialog
 	    addKeyButton.setEnabled(false); // should be true once implemented
 	    delKeyButton.setEnabled(false);
 	}
+
+	// display help text
+	
+	String helpText = getHelpText((String)action.getValue(Action.NAME));
+	helpLabel.setText(helpText);
     }
 
     /**
@@ -151,6 +157,29 @@ public final class FunctionDialog extends JDialog
     private void clearKeyList()
     {
 	keyList.setListData(new String[0]);
+    }
+
+    private void openHelpFile()
+    {
+	try {
+	    help = ResourceBundle.getBundle("moehelp", Locale.getDefault());
+	}
+	catch (MissingResourceException ex) {
+	    Debug.reportError("moe function help (lib/moehelp.properties) not found");
+	    help = null;
+	}
+    }
+
+    private String getHelpText(String function)
+    {
+	String value;
+	try {
+	    value = help.getString(function);
+	}
+	catch (MissingResourceException ex) {
+	    value = null;
+	}
+	return value;
     }
 
     // ======== EVENT HANDLING INTERFACES =========
@@ -223,7 +252,7 @@ public final class FunctionDialog extends JDialog
 	helpPanel.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createEmptyBorder(10,0,0,0),
 				BorderFactory.createLineBorder(Color.black)));
-	helpLabel = new MultiLineLabel("\nTest text\n\n  ", JLabel.LEFT);
+	helpLabel = new FixedMultiLineLabel(4);
 	helpLabel.setBackground(MoeEditor.infoColor);
 	helpPanel.add(helpLabel);
 	mainPanel.add(helpPanel, BorderLayout.SOUTH);
@@ -296,7 +325,6 @@ public final class FunctionDialog extends JDialog
 	    functionList.addListSelectionListener(this);
 	    functionList.setVisibleRowCount(12);
 	    scrollPane = new JScrollPane(functionList);
-	    //scrollPane.setColumnHeaderView(new JLabel(localTitle));
 	    
 	    funcPanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -324,4 +352,4 @@ public final class FunctionDialog extends JDialog
 	pack();
     }
 
-}  // end class Finder
+}  // end class FunctionDialog

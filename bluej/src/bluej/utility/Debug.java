@@ -1,26 +1,27 @@
 package bluej.utility;
 
 /**
- ** @version $Id: Debug.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Debug.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  ** Class to handle debugging message
  **/
 
 public class Debug
 {
-    static final boolean debug = true;
-	
     public static final void message(String msg)
     {
-	if(debug) {
-	    System.out.println(msg);
-	    System.out.flush();
-	}
+	System.out.println(msg);
+	System.out.flush();
     }
 	
+    public static void reportError(String error)
+    {
+	System.err.println("Internal BlueJ error: " + error);
+    }
+
     public static final void assert(boolean condition)
     {
-	if(debug && !condition)
+	if(!condition)
 	    throw new AssertionViolationError();
     }
 }

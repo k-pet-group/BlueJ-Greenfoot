@@ -3,7 +3,6 @@ package bluej.debugger;
 import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.runtime.BlueJRuntime;
 import bluej.pkgmgr.Package;
 
@@ -12,7 +11,7 @@ import java.util.Vector;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunDebugger.java 56 1999-04-30 01:33:50Z mik $
+ ** @version $Id: SunDebugger.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -48,7 +47,7 @@ public class SunDebugger extends Debugger
 	    runtimeCmd(args, "");		// Initialise
 	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
 	} catch(Exception e) {
-	    Utility.reportError("Failed to start debugger: " + e);
+	    Debug.reportError("Failed to start debugger: " + e);
 	}
     }
 	
@@ -194,7 +193,7 @@ public class SunDebugger extends Debugger
 		//Debug.message("runtimeCmd(" + args[0] + ") finished");
 	    }
 	} catch(Exception e) {
-	    Utility.reportError("exception executing runtime command " + e);
+	    Debug.reportError("exception executing runtime command " + e);
 	}
     }
 
@@ -318,7 +317,7 @@ public class SunDebugger extends Debugger
 				     ((SunThread)thread).getRemoteThread());
 
 	if(pkg == null)
-	    Utility.reportError("cannot find class for stopped thread");
+	    Debug.reportError("cannot find class for stopped thread");
 	else {
 	    pkg.hitBreakpoint(thread.getClassSourceName(0),
 			      thread.getLineNumber(0), 
@@ -380,7 +379,7 @@ public class SunDebugger extends Debugger
 	Package pkg = (Package)waitqueue.get(rt);
 
 	if(pkg == null)
-	    Utility.reportError("cannot find thread for breakpoint");
+	    Debug.reportError("cannot find thread for breakpoint");
 	else {
 	    SunThread thread = new SunThread(rt);
 	    pkg.hitBreakpoint(thread.getClassSourceName(0), 

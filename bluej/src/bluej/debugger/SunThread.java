@@ -1,13 +1,12 @@
 package bluej.debugger;
 
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 
 import java.util.Vector;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunThread.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: SunThread.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  ** A class implementing the debugger primitives needed by BlueJ
  ** Implemented in a remote VM (via sun.tools.debug)
@@ -117,7 +116,7 @@ public class SunThread extends DebuggerThread
 		    return new Vector();
 	    }
 	} catch(Exception e) {
-	    Utility.reportError("error while getting stack info");
+	    Debug.reportError("error while getting stack info");
 	}
 	return new Vector();
     }
@@ -155,7 +154,7 @@ public class SunThread extends DebuggerThread
 	    }
 	} catch(Exception e) {
 	    // nothing can be done...
-	    Utility.reportError("could not get instance variable info: " + e);
+	    Debug.reportError("could not get instance variable info: " + e);
 	}
 	return new Vector();
     }
@@ -190,7 +189,7 @@ public class SunThread extends DebuggerThread
 	    }
 	} catch(Exception e) {
 	    // nothing can be done...
-	    Utility.reportError("could not get local variable info: " + e);
+	    Debug.reportError("could not get local variable info: " + e);
 	}
 	return new Vector();
     }
@@ -281,7 +280,7 @@ public class SunThread extends DebuggerThread
 	    if(frames == null)
 		frames = rt.dumpStack();
 	} catch(Exception e) {
-	    Utility.reportError("could not read stack info: " + e);
+	    Debug.reportError("could not read stack info: " + e);
 	}
     }
 }

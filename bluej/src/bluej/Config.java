@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 60 1999-05-03 02:22:57Z mik $
+ ** @version $Id: Config.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -139,7 +139,7 @@ public class Config
 		System.setErr(outStream);
 		Debug.message("BlueJ " + Version);
 	    } catch (IOException e) {
-		Utility.reportError("Warning: Unable to create debug log file.");
+		Debug.reportError("Warning: Unable to create debug log file.");
 	    } 
 	}
     }
@@ -166,7 +166,7 @@ public class Config
 
 	    defs.load(input);
 	} catch(Exception e) {
-	    Utility.reportError("Unable to load definitions file: "+fullname);
+	    Debug.reportError("Unable to load definitions file: "+fullname);
 	}
 		
 	return new Properties(defs); // empty props with defs as defaults
@@ -198,7 +198,7 @@ public class Config
 	    FileOutputStream output = new FileOutputStream(fullname);
 	    props.save(output, getString("properties.heading"));
 	} catch(Exception e) {
-	    Utility.reportError("Warning: could not save properties file " + 
+	    Debug.reportError("Warning: could not save properties file " + 
 				fullname);
 	}
     }
@@ -268,7 +268,7 @@ public class Config
 	    String rgbVal[] = Utility.split(rgbStr, ",");
 	
 	    if (rgbVal.length < 3)
-		Utility.reportError("Error reading colour ["+itemname+"]");
+		Debug.reportError("Error reading colour ["+itemname+"]");
 	    else {
 		int r = Integer.parseInt(rgbVal[0].trim());
 		int g = Integer.parseInt(rgbVal[1].trim());

@@ -32,7 +32,7 @@ import bluej.utility.Debug;
  * a package in the library.
  * 
  * @author $Author: mik $
- * @version $Id: LibraryChooser.java 36 1999-04-27 04:04:54Z mik $
+ * @version $Id: LibraryChooser.java 63 1999-05-04 00:03:10Z mik $
  */
 public class LibraryChooser extends JPanel implements ActionListener, Runnable {
     // used to build tree
@@ -1121,7 +1121,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 				props = Package.createDefaultPackage(foundEntries, packageName, true);
 				pkg.load(packageName, props, false, true);
 			} catch (IOException ioe) {
-				Utility.reportError(ioe.getMessage());
+				Debug.reportError(ioe.getMessage());
 			}
 			// show the package
 			parent.addPackageToCache(packageName, pkg);
@@ -1142,7 +1142,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 				parent.openPackage(packageName, pkg);
 			}
 		} else 
-			Utility.reportError("Unexpected control flow in openSelectedPackageInClassChooser(LibraryChooser.java) " + packageName);
+			Debug.reportError("Unexpected control flow in openSelectedPackageInClassChooser(LibraryChooser.java) " + packageName);
 	}
 					
     }

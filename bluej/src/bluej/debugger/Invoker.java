@@ -22,7 +22,7 @@ import sun.tools.javac.SourceClass;
 import sun.tools.javac.BatchEnvironment;
 
 /**
- ** @version $Id: Invoker.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Invoker.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -82,7 +82,7 @@ public class Invoker extends Thread
 	else if(member instanceof MethodView)
 	    constructing = false;
 	else
-	    Utility.reportError("illegal member type in invokation");
+	    Debug.reportError("illegal member type in invokation");
 	invoke();
     }
 	
@@ -181,7 +181,7 @@ public class Invoker extends Thread
 		pkg.getFrame().setStatus(creating);
 	}
 	else
-	    Utility.reportError("Invoker: Unknown MethodDialog event");
+	    Debug.reportError("Invoker: Unknown MethodDialog event");
     }
 
     // -- end of MethodDialogWatcher interface --
@@ -355,7 +355,7 @@ public class Invoker extends Thread
 	if(successful)
 	    startClass();
 	else
-	    Utility.reportError("compiler error in shell class");
+	    Debug.reportError("compiler error in shell class");
 
 	File srcFile = new File(pkg.getFileName(shellName) + ".java");
 	srcFile.delete();

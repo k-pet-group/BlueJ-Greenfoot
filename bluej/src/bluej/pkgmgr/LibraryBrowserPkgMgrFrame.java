@@ -33,7 +33,7 @@ import java.net.MalformedURLException;
  * the BlueJ environment
  *
  * @author $Author: mik $
- * @date $Date: 1999-04-30 00:43:58 +0100 (Fri, 30 Apr 1999) $
+ * @date $Date: 1999-05-04 01:03:10 +0100 (Tue, 04 May 1999) $
  * $Header$
  **/
 public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListener, ToggleMessageBoxOwner {
@@ -706,7 +706,7 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 	    if (dialogID < showDialog.length)
 		showDialog[dialogID] = showAgain;
 	    else
-		Utility.reportError("Invalid showAgain index in LibraryBrowserPkgMgrFrame");
+		Debug.reportError("Invalid showAgain index in LibraryBrowserPkgMgrFrame");
     }
     
     public boolean isPackageInCache(String packageName) {

@@ -10,7 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 /**
- ** @version $Id: SimpleFrame.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: SimpleFrame.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  ** Frame to edit a single file.
  **/
@@ -18,7 +18,7 @@ import java.io.FileOutputStream;
 public class SimpleFrame extends BlueFrame implements ActionListener
 {
 	private static String noTitle = Config.getString("editor.noTitle");
-	private static String CVSVersion = "$Revision: 36 $";
+	private static String CVSVersion = "$Revision: 63 $";
 	private static String AppVersion = CVSVersion.substring(11, CVSVersion.length() - 2);
 	static String AppTitle = Config.getString("editor.title") + AppVersion;
 
@@ -60,7 +60,7 @@ public class SimpleFrame extends BlueFrame implements ActionListener
 				initial_text = new String(buffer, 0, 0, bufsize);
 				input.close();
 			} catch(Exception e) {
-				Utility.reportError(openError + filename + ": " + e);
+				Debug.reportError(openError + filename + ": " + e);
 			}
 		}
 
@@ -177,7 +177,7 @@ public class SimpleFrame extends BlueFrame implements ActionListener
 
 	void Unimplemented()
 	{
-		Utility.reportError(unimplemented);
+		Debug.reportError(unimplemented);
 	}
 
 	/** Is a close allowed? **/
@@ -207,7 +207,7 @@ public class SimpleFrame extends BlueFrame implements ActionListener
 			output.close();
 			setModified(false);
 		} catch(Exception e) {
-			Utility.reportError(saveError + filename + ": " + e);
+			Debug.reportError(saveError + filename + ": " + e);
 		}
 	}
 

@@ -33,7 +33,7 @@ import sun.tools.javac.BlueJJavacMain;
 import sun.tools.javadoc.BlueJDocumentationGenerator;
 
 /**
- ** @version $Id: Package.java 57 1999-04-30 06:35:26Z mik $
+ ** @version $Id: Package.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -405,7 +405,7 @@ public class Package extends Graph
 		props = new Properties();
 		props.load(input);
 	    } catch(IOException e) {
-		Utility.reportError(iniLoadError + fullpkgfile + ": " + e);
+		Debug.reportError(iniLoadError + fullpkgfile + ": " + e);
 		// if it's not found, let's create a default one
 	    }
 
@@ -485,7 +485,7 @@ public class Package extends Graph
 	    }
 	    recalcArrows();
 	} catch(Exception e) {
-	    Utility.reportError(loadError + fullpkgfile + ": " + e);
+	    Debug.reportError(loadError + fullpkgfile + ": " + e);
 	    e.printStackTrace();
 	    return;
 	}
@@ -511,7 +511,7 @@ public class Package extends Graph
 	File dir = new File(dirname);
 	if(!dir.exists())
 	    if(!dir.mkdir()) {
-		Utility.reportError(mkdirError + dirname);
+		Debug.reportError(mkdirError + dirname);
 		return false;
 	    }
 
@@ -558,7 +558,7 @@ public class Package extends Graph
 	    FileOutputStream output = new FileOutputStream(fullpkgfile);
 	    props.save(output, "BlueJ project file");
 	} catch(IOException e) {
-	    Utility.reportError(pkgSaveError + fullpkgfile + ": " + e);
+	    Debug.reportError(pkgSaveError + fullpkgfile + ": " + e);
 	    return false;
 	}
 	
@@ -1290,7 +1290,7 @@ public class Package extends Graph
 	try {
 	    comments.save(ctxtFilename);
 	} catch (IOException ex) {
-	    Utility.reportError(docSaveError + ctxtFilename);
+	    Debug.reportError(docSaveError + ctxtFilename);
 	}
     }
 	

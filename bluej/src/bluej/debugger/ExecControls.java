@@ -2,7 +2,6 @@ package bluej.debugger;
 
 import bluej.Config;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -13,7 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 60 1999-05-03 02:22:57Z mik $
+ ** @version $Id: ExecControls.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -134,7 +133,7 @@ public class ExecControls extends JFrame
 		    threads[i].setHalted(true);
 
 	} catch(Exception e) {
-	    Utility.reportError("could not get thread information");
+	    Debug.reportError("could not get thread information");
 	    return;
 	}
 

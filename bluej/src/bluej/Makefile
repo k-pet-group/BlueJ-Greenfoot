@@ -233,6 +233,7 @@ UTILITY_CLASSES = \
 		ClasspathSearcher \
 		Comparer \
 		Debug \
+		FixedMultiLineLabel \
 		MultiEnumeration \
 		ModelessMessageBox \
 		ToggleMessageBox \

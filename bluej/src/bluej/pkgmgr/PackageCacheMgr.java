@@ -2,14 +2,14 @@ package bluej.pkgmgr;
 
 import java.util.Hashtable;
 
-import bluej.utility.Utility;
+import bluej.utility.Debug;
 
 /**
  * A simple hashtable-based cache for storing Package objects with
  * their location on disk as keys.
  * 
  * @author $Author: mik $
- * @version $Id: PackageCacheMgr.java 36 1999-04-27 04:04:54Z mik $
+ * @version $Id: PackageCacheMgr.java 63 1999-05-04 00:03:10Z mik $
  */
 public class PackageCacheMgr {
     // cache of previously viewed Package objects
@@ -38,7 +38,7 @@ public class PackageCacheMgr {
 	    try {
 		pkg = (Package)cache.get(key);
 	    } catch (ClassCastException cce) {
-		    Utility.reportError(cce.getMessage());
+		    Debug.reportError(cce.getMessage());
 	    }
 	    
 	    return pkg;

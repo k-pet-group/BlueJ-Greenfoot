@@ -1,6 +1,5 @@
 package bluej.runtime;
 
-import bluej.utility.Utility;
 import bluej.utility.Debug;
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
@@ -213,7 +212,7 @@ public class BlueJRuntime
 	    Throwable t = e.getTargetException();
 	    throw t;
 	} catch(Exception e) {
-	    Utility.reportError("Exception " + e + 
+	    Debug.reportError("Exception " + e + 
 				" while trying to start class " + classname);
 	}
     }
@@ -240,12 +239,12 @@ public class BlueJRuntime
 	    }
 
 	    if(cl == null)
-		Utility.reportError("Could not load class for execution");
+		Debug.reportError("Could not load class for execution");
 	    //else 
 		//System.out.println("class loaded");
 
 	} catch(Exception e) {
-	   Utility.reportError ("Exception while trying to load class " + 
+	   Debug.reportError ("Exception while trying to load class " + 
 				classname + ": " + e);
 	}
 	return cl;

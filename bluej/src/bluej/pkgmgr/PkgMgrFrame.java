@@ -360,7 +360,7 @@ public class PkgMgrFrame extends PkgFrame
 	    break;
 		
 	default:
-	    Utility.reportError("unknown command ID");
+	    Debug.reportError("unknown command ID");
 	    break;
 	}
     }
@@ -497,7 +497,7 @@ public class PkgMgrFrame extends PkgFrame
 			
 //  	    File pkgfile = new File(dirname, Package.pkgfileName);
 //  	    if(pkgfile.exists())
-//  		Utility.reportError("Package " + dirname + " already exists");
+//  		Debug.reportError("Package " + dirname + " already exists");
 //  	    else {
 //  		String pkgname = Utility.askString(this, 
 //  							 "Package name:", "");

@@ -7,11 +7,10 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 
 /**
  ** The panel that displays objects at the bottom of the package manager
- ** @version $Id: ObjectBench.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: ObjectBench.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  **/
 
@@ -111,7 +110,7 @@ public class ObjectBench extends JPanel
      */
     public void remove(ObjectWrapper wrapper)
     {
-	Utility.reportError("attempt to incorrectly remove object from bench");
+	Debug.reportError("attempt to incorrectly remove object from bench");
     }
 
     /**

@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: ClassTarget.java 53 1999-04-29 23:43:58Z mik $
+ ** @version $Id: ClassTarget.java 63 1999-05-04 00:03:10Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -346,7 +346,7 @@ public class ClassTarget extends EditableTarget
 	try {
 	    Utility.translateFile(filename, sourceFile(), translations);
 	} catch(IOException e) {
-	    Utility.reportError("Exception during file translation from " + filename + " to " + sourceFile());
+	    Debug.reportError("Exception during file translation from " + filename + " to " + sourceFile());
 	    e.printStackTrace();
 	}
 		
@@ -462,7 +462,7 @@ public class ClassTarget extends EditableTarget
 		    menu.add(item);
 		    hasEntries = true;
 		} catch(Exception e) {
-		    Utility.reportError(methodException + e);
+		    Debug.reportError(methodException + e);
 		    e.printStackTrace();
 		}
 	    }
@@ -478,7 +478,7 @@ public class ClassTarget extends EditableTarget
 		
 	if(member != null) {
 	    if(state != S_NORMAL) {
-		Utility.reportError(instantiateModified);
+		Debug.reportError(instantiateModified);
 		return;
 	    }
 			
