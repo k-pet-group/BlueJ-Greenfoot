@@ -14,8 +14,8 @@
 
     <!-- set up classpath -->
     <path id="bluej.class.path">
-        <pathelement location="${bluej_home}\lib\antlr.jar" />
-        <pathelement location="${java_home}\lib\tools.jar" />
+        <pathelement location="${bluej_home}/lib/antlr.jar" />
+        <pathelement location="${java_home}/lib/tools.jar" />
     </path>
 
     <target name="prepare">
@@ -29,11 +29,11 @@
         <!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${src}"
             destdir="${build}"
-            excludes="de\**, archiver\**, gnu\**, javax\**, kopi\**,
-                        bluej\groupwork\**,
-                        bluej\browser\**,
-                        bluej\guibuilder\**,
-                        bluej\editor\moe\Moe.java" >
+            excludes="de/**, archiver/**, gnu/**, javax/**, kopi/**,
+                        bluej/groupwork/**,
+                        bluej/browser/**,
+                        bluej/guibuilder/**,
+                        bluej/editor/moe/Moe.java" >
             <classpath refid="bluej.class.path" />
         </javac>
     </target>
@@ -42,20 +42,20 @@
     </target>
 
     <target name="inspector">
-        <ant antfile="inspector.xml" dir="inspector" target="install-inspector"/>
+        <ant antfile="inspector.xml" dir="inspector" target="compile-inspector"/>
     </target>
 
     <target name="parser">
         <!-- Generate the parser Java code -->
         <antlr
             fork="yes"
-            target="src\bluej\parser\java.g"
+            target="src/bluej/parser/java.g"
         />
     </target>
 
     <target name="run">
         <!-- Run the java code in ${build} -->
-        <java classname="bluej.Main" fork="yes" jvm="${java_home}\bin\java">
+        <java classname="bluej.Main" fork="yes" jvm="${java_home}/bin/java">
             <sysproperty key="bluej.home" value="${bluej_home}"/>
             <classpath>
                  <pathelement location="${build}"/>
@@ -65,9 +65,11 @@
     </target>
 
     <target name="clean">
-        <!-- Delete the ${build} and ${dist} directory trees -->
-        <delete dir="${build}" />
-        <delete dir="${dist}" />
+        <!-- Delete the ${build} directory trees -->
+        <delete dir="${build}/bluej" />
+        <delete dir="${build}/org" />
+        <!-- Clean inspectors -->
+	<ant antfile="inspector.xml" dir="inspector" target="clean-inspector"/>
     </target>
 
 </project>
