@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2695 2004-06-30 10:20:43Z mik $
+ * @version $Id: PkgMgrFrame.java 2707 2004-07-01 11:06:58Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -76,8 +76,6 @@ public class PkgMgrFrame extends JFrame
     private AbstractButton imgExtendsButton;
     private AbstractButton imgDependsButton;
     private AbstractButton runButton;
-    private AbstractButton objBenchButton;
-    private AbstractButton textEvalButton;
     
     private JLabel statusbar;
     
@@ -115,7 +113,9 @@ public class PkgMgrFrame extends JFrame
 
     private ObjectBench objbench;
     private TextEvalArea textEvaluator;
-    private JPanel objectBenchPanel;
+    private JComponent objectBenchPanel;
+    private JSplitPane splitPane;
+    private JSplitPane objectBenchSplitPane;
     private boolean showingTextEvaluator = false;
     
 	// lazy initialised dialogs
@@ -449,6 +449,7 @@ public class PkgMgrFrame extends JFrame
         this.pkg = null;
         this.editor = null;
 
+        setupActionDisableSet();
         makeFrame();
         updateWindowTitle();
         setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
@@ -1893,44 +1894,30 @@ public class PkgMgrFrame extends JFrame
         }
     }
     
-    /**
-     * Show the text evaluation component.
+    /** 
+     * Tell whether we are currently showing the text evaluation pane.
+     * @return  true if the text eval pane is visible.
      */
-    public void showTextEvaluator()
+    public boolean isTextEvalVisible()
     {
-        showHideTextEval(true);
+        return showingTextEvaluator;
     }
-
-    /**
-     * Show the object bench.
-     */
-    public void showObjectBench()
-    {
-        showHideTextEval(false);
-    }
-
+    
     /**
      * Show or hide the text evaluation component.
      */
-    private void showHideTextEval(boolean show)
+    public void showHideTextEval(boolean show)
     {
-        objBenchButton.setSelected(!show);
-        textEvalButton.setSelected(show);
-
         if(showingTextEvaluator == show)    // already showing the right thing?
             return;
 
         if(show) {
-            objectBenchPanel.remove(objbench.getComponent());
-            objectBenchPanel.add(textEvaluator, BorderLayout.CENTER);
+            addTextEvaluatorPane();
             textEvaluator.requestFocus();
         }
         else {
-            objectBenchPanel.remove(textEvaluator);
-            objectBenchPanel.add(objbench.getComponent(), BorderLayout.CENTER);
-            objbench.getComponent().requestFocus();
+            removeTextEvaluatorPane();
         }
-        objectBenchPanel.validate();
         pack();
         showingTextEvaluator = show;
     }
@@ -2033,7 +2020,12 @@ public class PkgMgrFrame extends JFrame
         
         setupMenus();
 
-        JPanel mainPanel = new JPanel();
+        Container contentPane = getContentPane();
+        ((JPanel)contentPane).setBorder(BlueJTheme.generalBorderWithStatusBar);
+        
+        // create the main panel holding the diagram and toolbar on the left
+        
+        JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 
 		// Install keystroke to restart the VM
         Action action = RestartVMAction.getInstance(); 
@@ -2041,37 +2033,7 @@ public class PkgMgrFrame extends JFrame
                             (KeyStroke)action.getValue(Action.ACCELERATOR_KEY), "restartVM");
 		mainPanel.getActionMap().put("restartVM", action);
 		
-        mainPanel.setLayout(new BorderLayout(5, 5));
-        mainPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
 
-        // define which actions are to be disabled when no project is open
-        actionsToDisable = new ArrayList();
-        actionsToDisable.add(CloseProjectAction.getInstance());
-        actionsToDisable.add(SaveProjectAction.getInstance());
-        actionsToDisable.add(SaveProjectAsAction.getInstance());
-        actionsToDisable.add(ImportProjectAction.getInstance());
-        actionsToDisable.add(ExportProjectAction.getInstance());
-        actionsToDisable.add(PageSetupAction.getInstance());
-        actionsToDisable.add(PrintAction.getInstance());
-        actionsToDisable.add(NewClassAction.getInstance());
-        actionsToDisable.add(NewPackageAction.getInstance());
-        actionsToDisable.add(AddClassAction.getInstance());
-        actionsToDisable.add(RemoveAction.getInstance());
-        actionsToDisable.add(NewUsesAction.getInstance());
-        actionsToDisable.add(NewInheritsAction.getInstance());
-        actionsToDisable.add(CompileAction.getInstance());
-        actionsToDisable.add(CompileSelectedAction.getInstance());
-        actionsToDisable.add(RebuildAction.getInstance());
-        actionsToDisable.add(UseLibraryAction.getInstance());
-        actionsToDisable.add(EvalExpressionAction.getInstance());
-        actionsToDisable.add(GenerateDocsAction.getInstance());
-        actionsToDisable.add(ShowUsesAction.getInstance());
-        actionsToDisable.add(ShowInheritsAction.getInstance());
-        actionsToDisable.add(ShowDebuggerAction.getInstance());
-        actionsToDisable.add(ShowTerminalAction.getInstance());
-        actionsToDisable.add(RunTestsAction.getInstance());
-        
-        
         // create the left hand side toolbar
         JPanel toolPanel = new JPanel();
         {
@@ -2151,69 +2113,52 @@ public class PkgMgrFrame extends JFrame
             machineIcon = new MachineIcon(this);
             machineIcon.setAlignmentX(0.5f);
             itemsToDisable.add(machineIcon);
+
+            toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
+            toolPanel.add(buttonPanel);
+            toolPanel.add(Box.createVerticalGlue());
+            toolPanel.add(testPanel);
+            toolPanel.add(machineIcon);
         }
-    
-        toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
-        toolPanel.add(buttonPanel);
-        toolPanel.add(Box.createVerticalGlue());
-        toolPanel.add(testPanel);
-        toolPanel.add(machineIcon);
-
-        // create the bottom object bench and status area
-        
-        objectBenchPanel = new JPanel();
-        {
-            objectBenchPanel.setLayout(new BorderLayout());
-
-            objbench = new ObjectBench();
-
-            JComponent bench = objbench.getComponent();
-            textEvaluator = new TextEvalArea(this, PkgMgrFont);
-
-            if(PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
-                objectBenchPanel.add(textEvaluator, BorderLayout.CENTER);
-                showingTextEvaluator = true;
-            }
-            else {
-                objectBenchPanel.add(bench, BorderLayout.CENTER);
-                showingTextEvaluator = false;
-            }
-            statusbar = new JLabel(" ");
-            testStatusMessage = new JLabel(" ");
-
-            // bottom area for status labels and object bench buttons
-            JPanel bottom = new JPanel(new BorderLayout());
-            bottom.setBorder(BorderFactory.createEmptyBorder(2,0,4,6));
-            bottom.add(statusbar, BorderLayout.CENTER);
-            bottom.add(testStatusMessage, BorderLayout.WEST);
-
-            // area for 'Object Bench' / 'Text Eval' buttons
-            JPanel buttons = new JPanel(new GridLayout(1,0));
-            
-            objBenchButton = createButton(ShowObjectBenchAction.getInstance(), false, true, 6, 2);
-            objBenchButton.setSelected(!showingTextEvaluator);
-            buttons.add(objBenchButton);
-
-            textEvalButton = createButton(ShowTextEvalAction.getInstance(), false, true, 6, 2);
-            textEvalButton.setSelected(showingTextEvaluator);
-            buttons.add(textEvalButton);
-            
-            bottom.add(buttons, BorderLayout.EAST);
-            objectBenchPanel.add(bottom, BorderLayout.SOUTH);
-        }
-
         mainPanel.add(toolPanel, BorderLayout.WEST);
-        mainPanel.add(objectBenchPanel, BorderLayout.SOUTH);
-
         classScroller = new JScrollPane();
         mainPanel.add(classScroller, BorderLayout.CENTER);
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
-        getContentPane().add(mainPanel);
+
+        // create the object bench
+        
+        objbench = new ObjectBench();
+        objectBenchPanel = objbench.getComponent();
+
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                   mainPanel, objectBenchPanel);
+        splitPane.setBorder(null);
+        contentPane.add(splitPane, BorderLayout.CENTER);
+        
+        
+        // create the bottom status area
+        
+        JPanel statusArea = new JPanel(new BorderLayout());
+        {
+            statusArea.setBorder(BorderFactory.createEmptyBorder(2,0,4,6));
+
+            statusbar = new JLabel(" ");
+            statusArea.add(statusbar, BorderLayout.CENTER);
+
+            testStatusMessage = new JLabel(" ");
+            statusArea.add(testStatusMessage, BorderLayout.WEST);
+        }
+        contentPane.add(statusArea, BorderLayout.SOUTH);
         
         // hide testing tools if not wanted
         if(! testToolsShown)
             showTestingTools(false);
+
+        // show the text evaluation pane if needed
+        if(PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
+            addTextEvaluatorPane();
+        }
 
         pack();
 
@@ -2231,7 +2176,26 @@ public class PkgMgrFrame extends JFrame
             enableFunctions(false);
     }
 
+    private void addTextEvaluatorPane()
+    {
+        if(textEvaluator == null) {
+            textEvaluator = new TextEvalArea(this, PkgMgrFont);
+            objectBenchSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                                                  objectBenchPanel, textEvaluator);
+        }
+        else {
+            objectBenchSplitPane.setLeftComponent(objectBenchPanel);
+        }
+        splitPane.setBottomComponent(objectBenchSplitPane);
+        showingTextEvaluator = true;
+    }
 
+    private void removeTextEvaluatorPane()
+    {
+        splitPane.setBottomComponent(objectBenchPanel);
+        showingTextEvaluator = false;
+    }
+    
     /**
      * Create a button for the interface.
      * @param action  the Action abstraction dictating text, icon, tooltip, action.
@@ -2372,6 +2336,7 @@ public class PkgMgrFrame extends JFrame
             JCheckBoxMenuItem item;
             createCheckboxMenuItem(ShowDebuggerAction.getInstance(), menu, false);
             createCheckboxMenuItem(ShowTerminalAction.getInstance(), menu, false);
+            createCheckboxMenuItem(ShowTextEvalAction.getInstance(), menu, false);
             JSeparator testSeparator = new JSeparator();
             testItems.add(testSeparator);
             menu.add(testSeparator);
@@ -2472,7 +2437,39 @@ public class PkgMgrFrame extends JFrame
         clearStatus();
     }
 
-    
+    /**
+     * Define which actions are to be disabled when no project is open
+     */
+    private void setupActionDisableSet()
+    {
+        actionsToDisable = new ArrayList();
+        actionsToDisable.add(CloseProjectAction.getInstance());
+        actionsToDisable.add(SaveProjectAction.getInstance());
+        actionsToDisable.add(SaveProjectAsAction.getInstance());
+        actionsToDisable.add(ImportProjectAction.getInstance());
+        actionsToDisable.add(ExportProjectAction.getInstance());
+        actionsToDisable.add(PageSetupAction.getInstance());
+        actionsToDisable.add(PrintAction.getInstance());
+        actionsToDisable.add(NewClassAction.getInstance());
+        actionsToDisable.add(NewPackageAction.getInstance());
+        actionsToDisable.add(AddClassAction.getInstance());
+        actionsToDisable.add(RemoveAction.getInstance());
+        actionsToDisable.add(NewUsesAction.getInstance());
+        actionsToDisable.add(NewInheritsAction.getInstance());
+        actionsToDisable.add(CompileAction.getInstance());
+        actionsToDisable.add(CompileSelectedAction.getInstance());
+        actionsToDisable.add(RebuildAction.getInstance());
+        actionsToDisable.add(UseLibraryAction.getInstance());
+        actionsToDisable.add(EvalExpressionAction.getInstance());
+        actionsToDisable.add(GenerateDocsAction.getInstance());
+        actionsToDisable.add(ShowUsesAction.getInstance());
+        actionsToDisable.add(ShowInheritsAction.getInstance());
+        actionsToDisable.add(ShowDebuggerAction.getInstance());
+        actionsToDisable.add(ShowTerminalAction.getInstance());
+        actionsToDisable.add(ShowTextEvalAction.getInstance());
+        actionsToDisable.add(RunTestsAction.getInstance());
+    }    
+
     /**
      * Add user defined help menus. Users can add help menus via the
      * bluej.help.items property. See comment in bluej.defs.

@@ -1,5 +1,7 @@
 package bluej.pkgmgr.actions;
 
+import javax.swing.ButtonModel;
+
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -27,8 +29,8 @@ final public class ShowTextEvalAction extends PkgMgrAction {
         super("menu.view.showTextEval");
     }
     
-    public void actionPerformed(PkgMgrFrame pmf)
+    public ButtonModel getToggleModel(PkgMgrFrame pmf)
     {
-        pmf.showTextEvaluator();
+        return new bluej.debugmgr.texteval.TextEvalButtonModel(pmf);
     }
 }

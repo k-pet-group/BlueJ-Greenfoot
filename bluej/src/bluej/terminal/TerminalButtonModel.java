@@ -28,12 +28,10 @@ public class TerminalButtonModel extends JToggleButton.ToggleButtonModel
             return false;
         }
         else if (!pmf.getProject().hasTerminal()) {
-            // we don't want to create the ExecControls frame unless we
-            // have to, so if its not made yet, default to off
             return false;
         }
         else {
-            // otherwise, ask the ExecControls if they're visible
+            // otherwise, ask the Terminal if it is visible
             return pmf.getProject().getTerminal().isVisible();
         }
     }
