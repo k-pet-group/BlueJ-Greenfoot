@@ -79,12 +79,8 @@ public class SelectionController
             if (isButtonOne(evt))
                 marquee.start(clickX, clickY);
         }
-        else {                                                  // clicked on something
-            if (evt.isPopupTrigger()) {
-                selection.selectOnly(clickedElement);
-                postMenu(clickedElement, clickX, clickY);
-            }
-            else if (isMultiselectionKeyDown(evt)) {
+        else if (isButtonOne(evt)) {                            // clicked on something
+            if (isMultiselectionKeyDown(evt)) {
                 // a class was clicked, while multiselectionKey was down.
                 if (clickedElement.isSelected()) {
                     selection.remove(clickedElement);
@@ -107,20 +103,16 @@ public class SelectionController
                     dragStartX = clickX;
                     dragStartY = clickY;
 
-                    // if the graphElement is selectable and it got clicked on a handle,
-                    // then it is resizing.
                     if(clickedElement.isHandle(clickX, clickY)) {
                         resizing = true;
                     }
                     else {
                         moving = true;                        
                     }
-                    
                 }
             }
         }
     }
-
 
     /**
      * The mouse was released.
@@ -424,6 +416,19 @@ public class SelectionController
         }
     }
 
+    /**
+     * A menu popup trigger has been detected. Handle it.
+     */
+    public void handlePopupTrigger(MouseEvent evt)
+    {
+        int clickX = evt.getX();
+        int clickY = evt.getY();
+
+        SelectableGraphElement clickedElement = graph.findGraphElement(clickX, clickY);
+        selection.selectOnly(clickedElement);
+        postMenu(clickedElement, clickX, clickY);
+    }
+    
     /**
      * Post the context menu of one selected element of the current selection.
      * If any dependencies are selected, show the menu for one of those. Otherwise

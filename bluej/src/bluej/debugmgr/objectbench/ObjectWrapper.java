@@ -39,7 +39,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2779 2004-07-12 03:18:05Z davmac $
+ * @version $Id: ObjectWrapper.java 2793 2004-07-13 16:59:39Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -66,8 +66,8 @@ public class ObjectWrapper extends JComponent
     public static final int HEIGHT = 66;   // height including gap
 
     // vertical offset between instance and class name
-    public static int WORD_GAP = 20;
-    public static int SHADOW_SIZE = 5;
+    public static final int WORD_GAP = 20;
+    public static final int SHADOW_SIZE = 5;
 
     private static int itemHeight = 19;   // wild guess until we find out
     private static boolean itemHeightKnown = false;

@@ -13,7 +13,7 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 2792 2004-07-13 10:17:25Z mik $
+ * @version $Id: GraphEditor.java 2793 2004-07-13 16:59:39Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener
@@ -130,6 +130,23 @@ public class GraphEditor extends JComponent
     }
 
     // ---- end of MouseMotionListener interface ----
+
+    /**
+     * Process mouse events. This is a bug work-around: we prefer to handle the 
+     * mouse events in the mouse listener methods in the selection controller, 
+     * but on Windows the isPopupTrigger flag is not correctly set in the 
+     * mousePressed event. This method seems to be the only place to reliably get 
+     * it. So unfortunately, we need to process the popup trigger here.
+     * 
+     * This method is called after the corresponding mousePressed method.
+     */
+    protected void processMouseEvent(MouseEvent evt)
+    {
+        super.processMouseEvent(evt);
+        if (evt.isPopupTrigger())
+            selectionController.handlePopupTrigger(evt);
+    }
+
 
     /**
      * Clear the set of selected classes. (Nothing will be selected after this.)
