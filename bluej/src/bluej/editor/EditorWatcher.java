@@ -9,7 +9,7 @@
 package bluej.editor;
 
 /**
-** @version $Id: EditorWatcher.java 999 2001-10-24 15:31:05Z mik $
+** @version $Id: EditorWatcher.java 1749 2003-04-04 13:52:46Z fisker $
 ** @author Michael Cahill
 ** Interface between the editor and the rest of BlueJ
 ** The editor uses this class
@@ -44,5 +44,10 @@ public interface EditorWatcher
      * Called by Editor when a file is to be compiled
      */
     void compile(Editor editor);
+    
+    /**
+     * Called by Editor when documentation is to be compiled
+     */
+    void generateDoc();
 
 } // end class EditorWatcher
