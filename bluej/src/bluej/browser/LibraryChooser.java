@@ -36,7 +36,7 @@ import bluej.classmgr.ClassPathEntry;
  * 
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: LibraryChooser.java 163 1999-07-08 00:50:23Z mik $
+ * @version $Id: LibraryChooser.java 170 1999-07-08 02:12:42Z ajp $
  */
 public class LibraryChooser extends JPanel implements Runnable {
     // used to build tree
@@ -130,35 +130,6 @@ public class LibraryChooser extends JPanel implements Runnable {
 	}
     }
 	
-    /**
-     * Save the current user configured libraries back to the user configuration file.
-     * Note that any comments originally appearing in this file will be removed.
-     * 
-     * @return true if the configuration could be saved.
-     */
-    private boolean saveUserConfigFile() {
-	Properties userConfig = new Properties();
-		
-	Enumeration libraries = libraryAliases.keys();
-	int current = 1;
-	while (libraries.hasMoreElements()) {
-	    String nextAlias = libraries.nextElement().toString();
-	    if (libraryAliases.get(nextAlias) instanceof LibraryNode) {
-		userConfig.put("lib" + current + ".alias", nextAlias);
-		userConfig.put("lib" + current + ".location", ((LibraryNode)libraryAliases.get(nextAlias)).getInternalName());
-		current++;
-	    }
-	}
-		
-	try {
-	    userConfig.store(new FileOutputStream(Config.getUserConfigDir() + File.separator + Config.getString("browser.librarychooser.config.user")), "");
-	} catch (IOException ioe) {
-	    ioe.printStackTrace();
-	}
-		
-	return true;
-    }
-
     /**
      * Separate process used to load libraries whilst the rest of the browser
      * inits.  Iterate over the previously created hashtable of libraries,
@@ -894,8 +865,6 @@ public class LibraryChooser extends JPanel implements Runnable {
     public void openSelectedPackageInClassChooser() {
 	TreePath selectedPath = tree.getSelectionPath();
 
-	System.out.println(selectedPath.toString());
-
 	// if we don't click on a node or we've clicked the root or a top level node, let's bail
 	if (selectedPath == null || selectedPath.getPathCount() < 3)
 	    return;
@@ -904,8 +873,6 @@ public class LibraryChooser extends JPanel implements Runnable {
 
 	String packageLocation = ((LibraryNode)nodesInPath[1]).getInternalName();
 	String packageName = pathToPackageName(selectedPath);
-
-	System.out.println(packageLocation + "---" + packageName);
 
 	/*		if (!packageLocation.endsWith(".class") &&
 			new File(packageLocation, Package.pkgfileName).exists())
@@ -930,11 +897,10 @@ public class LibraryChooser extends JPanel implements Runnable {
 	Package pkg = null;
 
 	if (!new File(packageLocation).isDirectory()) {
-	    System.out.println(packageName + " is not dir");
-
-				// the package directory doesn't exist - probably an archive library
+	    
+		// the package directory doesn't exist - probably an archive library
 	    pkg = new Package(packageName, this.parent);
-				// passing true as the last parameter means we don't try to save the properties
+		// passing true as the last parameter means we don't try to save the properties
 	    try {
 		props = Package.createDefaultPackage(foundEntries, packageLocation, packageName, true);
 		pkg.load(packageName, props, false, true);
@@ -945,18 +911,16 @@ public class LibraryChooser extends JPanel implements Runnable {
 	    parent.addPackageToCache(packageName, pkg);
 	    parent.openPackage(packageName, pkg);
 	} else if (!new File(packageName + Package.pkgfileName).exists()) {
-	    System.out.println(packageName + " is dir");
-
+	    
 	    // the package directory exists but the package file doesn't
 	    // in other words, a package in a directory but no package file
 	    try {
 		props = Package.createDefaultPackage(foundEntries, packageLocation, packageName, false);
 		parent.openPackage(packageName);
 	    } catch (IOException ioe) {
-				// createDefaultPackage# could not save the package file,
-				// (could be non writable directory like a CD)
-				// we'll have to create our own using the properties we've created
-		System.out.println(packageName + " is dir but not writable");
+		// createDefaultPackage# could not save the package file,
+		// (could be non writable directory like a CD)
+		// we'll have to create our own using the properties we've created
 		pkg = new Package(packageName);
 		pkg.load(packageName, props, false, true);
 		parent.addPackageToCache(packageName, pkg);

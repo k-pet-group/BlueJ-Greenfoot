@@ -232,11 +232,11 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 		JMenu libraryM = new JMenu(Config.getString("browser.menu.library"));
 
 		refreshMI = new JMenuItem(Config.getString("browser.menu.library.refresh"));
-		refreshMI.addActionListener(this);
-		libraryM.add(refreshMI);
-		refreshMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getKeyText(KeyEvent.VK_F5)));
+//		refreshMI.addActionListener(this);
+//		libraryM.add(refreshMI);
+//		refreshMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getKeyText(KeyEvent.VK_F5)));
 	
-		libraryM.addSeparator();
+//		libraryM.addSeparator();
 		closeMI = new JMenuItem(Config.getString("browser.menu.library.close"));
 		closeMI.addActionListener(this);
 		libraryM.add(closeMI);
@@ -245,34 +245,34 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 		libraryM.setEnabled(false);
 		menuBar.add(libraryM);
 	
-		JMenu editM = new JMenu(Config.getString("browser.menu.edit"));
-		findMI = new JMenuItem(Config.getString("browser.menu.edit.find"));
-		findMI.addActionListener(this);
-		editM.add(findMI);
-		findMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
+//		JMenu editM = new JMenu(Config.getString("browser.menu.edit"));
+//		findMI = new JMenuItem(Config.getString("browser.menu.edit.find"));
+//		findMI.addActionListener(this);
+//		editM.add(findMI);
+//		findMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
 
-		editM.setEnabled(false);
-		menuBar.add(editM);
+//		editM.setEnabled(false);
+//		menuBar.add(editM);
 			
-		JMenu packageM = new JMenu(Config.getString("browser.menu.package"));
+//		JMenu packageM = new JMenu(Config.getString("browser.menu.package"));
 	
-		if (!isStandalone) {
-			editPackageMI = new JMenuItem(Config.getString("browser.menu.package.edit"));
-			editPackageMI.addActionListener( new ActionListener() {
-				public void actionPerformed(ActionEvent ae) {
-					if (editor == null) 
-						return;
+//		if (!isStandalone) {
+//			editPackageMI = new JMenuItem(Config.getString("browser.menu.package.edit"));
+//			editPackageMI.addActionListener( new ActionListener() {
+//				public void actionPerformed(ActionEvent ae) {
+//					if (editor == null) 
+//						return;
 				
-				Utility.NYI(LibraryBrowserPkgMgrFrame.getFrame());
+//				Utility.NYI(LibraryBrowserPkgMgrFrame.getFrame());
 				// open a new PkgMgrFrame with this package in it
 				//bluej.pkgmgr.Main.openPackage(currentPackageDir);
-			}});
+//			}});
 
-		packageM.add(editPackageMI);
-		}
+//		packageM.add(editPackageMI);
+//		}
 	
-		packageM.setEnabled(false);
-		menuBar.add(packageM);
+//		packageM.setEnabled(false);
+//		menuBar.add(packageM);
 	
 		setJMenuBar(menuBar);
 	}
@@ -367,8 +367,6 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 
 		boolean packageLoaded = true;
 
-		System.out.println("libraybrowserpkgmgrframe opening pkg " + packageName);
-
 		if (pkg == null) {
 			packageLoaded = false;
 			pkg = new Package(packageName, this);
@@ -377,8 +375,8 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 	
 		// create a GraphEditor for this package
 		// and enable the package menu if this is the first package to open
-		if (editor == null)
-			menuBar.getMenu(2).setEnabled(true);
+//		if (editor == null)
+//			menuBar.getMenu(2).setEnabled(true);
 	
 		editor = new GraphEditor(pkg, this);
 		editor.setReadOnly(true);
@@ -474,8 +472,6 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
     private void openClassInCodeViewer(ClassTarget theClass) {
 	String className = theClass.sourceFile();
 
-	System.out.println("opening in code viewer " + theClass.fullname);
-
 	codeViewer.openClassWithNoSource(theClass, theClass.fullname, theClass.isCompiled());
 
 /*	if (!new File(className).exists()) {
@@ -533,8 +529,8 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 	if (menuBar != null) {
 		if (menuBar.getMenu(0) != null)
 			menuBar.getMenu(0).setEnabled(false);
-		if (menuBar.getMenu(1) != null)
-			menuBar.getMenu(1).setEnabled(false);
+//		if (menuBar.getMenu(1) != null)
+//			menuBar.getMenu(1).setEnabled(false);
 	}
     }
 		
@@ -545,7 +541,7 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
     public void enableControls() {
 	if (menuBar != null) {
 	    menuBar.getMenu(0).setEnabled(true);
-	    menuBar.getMenu(1).setEnabled(true);
+//	    menuBar.getMenu(1).setEnabled(true);
 	}
     }
 

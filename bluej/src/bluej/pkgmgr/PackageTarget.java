@@ -10,7 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /** 
- ** @version $Id: PackageTarget.java 53 1999-04-29 23:43:58Z mik $
+ ** @version $Id: PackageTarget.java 170 1999-07-08 02:12:42Z ajp $
  ** @author Michael Cahill
  **
  ** A link to a package embedded in another package.
@@ -154,7 +154,7 @@ public class PackageTarget extends Target implements ActionListener
 	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame) {
 	    LibraryBrowserPkgMgrFrame browserFrame = (LibraryBrowserPkgMgrFrame)editor.getFrame();
 	    // use the current Frame for the new package
-	    browserFrame.openPackage(this);
+//	    browserFrame.openPackage(this);
 	} else {
 	    Package newpkg = Main.openPackage(pkg.getBaseDir(), packageName);
 	    // open a new Frame for the new package
@@ -174,10 +174,10 @@ public class PackageTarget extends Target implements ActionListener
 
 	// the only popup menu option under the Library Browser should be "use"
 	if (editorFrame != null && editorFrame instanceof LibraryBrowserPkgMgrFrame) {
-	    addMenuItem(menu, openStr, true);
+//	    addMenuItem(menu, openStr, true);
 				// only add the use option if the browser has been spawned by BlueJ
-	    if (((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone == false)
-		addMenuItem(menu, useStr, true);
+//	    if (((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone == false)
+//		addMenuItem(menu, useStr, true);
 				
 	    return menu;
 	}

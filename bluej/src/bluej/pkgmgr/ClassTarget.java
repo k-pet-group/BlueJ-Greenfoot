@@ -40,7 +40,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 161 1999-07-06 14:40:53Z ajp $
+ ** @version $Id: ClassTarget.java 170 1999-07-08 02:12:42Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -533,12 +533,12 @@ public class ClassTarget extends EditableTarget
 	// "open"
 	if (editorFrame != null && 
 	    (editorFrame instanceof LibraryBrowserPkgMgrFrame)) {
-	    addMenuItem(menu, openStr, true);
+//	    addMenuItem(menu, openStr, true);
 	    // only add "use" option if the class is compiled and we're not 
 	    // running standalone
-	    if (!((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone 
-		/*&& isCompiled()*/)
-		addMenuItem(menu, useStr, true);
+//	    if (!((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone 
+//		/*&& isCompiled()*/)
+//		addMenuItem(menu, useStr, true);
 	    
 	    return menu;
 	}

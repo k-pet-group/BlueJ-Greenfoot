@@ -28,7 +28,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 163 1999-07-08 00:50:23Z mik $
+ ** @version $Id: Package.java 170 1999-07-08 02:12:42Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -238,7 +238,7 @@ public class Package extends Graph
      * 
      * @return the package name in . delimited format, or null if none can be created
      */
-    private static String getPackageName(String packageDir) {
+/*    private static String getPackageName(String packageDir) {
 	System.out.println("Getting packagename for " + packageDir);
 
 	String classPath = System.getProperty("java.class.path");
@@ -283,7 +283,7 @@ public class Package extends Graph
 	packageName = packageName.replace('\\', '.');
 	return packageName;
     }
-
+*/
     /**
      * Create a set of properties for a specified set of classfiles
      * residing in a specified directory.  Invoked when no package
@@ -1421,7 +1421,7 @@ public class Package extends Graph
 
     /**
      * getLocalClassLoader - get the ClassLoader for this package.
-     *  The SimpleClassLoader load classes on the local VM.
+     *  The ClassLoader load classes on the local VM.
      */
     private synchronized ClassLoader getLocalClassLoader()
     {
@@ -1486,9 +1486,7 @@ public class Package extends Graph
     {
 	try {
 	    Class c = ClassMgr.getLoader(getClassDir()).loadClass(className);
-
-		System.out.println(c);
-		return c;
+	    return c;
 	} catch(ClassNotFoundException e) {
 	    e.printStackTrace();
 	    return null;
