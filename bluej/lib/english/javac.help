@@ -222,7 +222,11 @@ illegal character:*
 No help available
 
 illegal combination of modifiers: *
-No help available
+You have tried to combine two Java modifiers which
+are considered an illegal pairing.  It is likely 
+that the meaning of each is contradictory to each other.
+An example of this would be defining a method as abstract
+and native, final, private or synchronized.
 
 illegal escape character
 An escape character is written with a backslash
@@ -404,7 +408,10 @@ error reading *
 No help available
 
 recursive constructor invocation
-No help available
+You have written code that causes this
+constructor to call itself. That is not
+allowed (and would most likely lead to
+an infinite loop).
 
 reference to {0} is ambiguous, both {1} {2} in {3} and {4} {5} in {6} match
 No help available
@@ -475,13 +482,16 @@ type variable {0} occurs more than once in type of {1}; cannot be left uninstant
 No help available
 
 unclosed character literal
-No help available
+It is likely that you have declared a character literal and
+not added the closing single quote: '.
 
 unclosed comment
-No help available
+It is likely that you have written a comment and not
+closed it with the comment close characters: */
 
 unclosed string literal
-No help available
+It is likely that you have declared a String literal and
+not added the closing double quotes: ".
 
 undefined label: *
 The variable you are trying to use here cannot be
@@ -500,7 +510,12 @@ a variable becomes invisible after the curly brace (})
 that closes the block in which it is declared.
 
 unreachable statement
-No help available
+This statement will never be executed. If
+you examine the code carefully you will
+notice that the control flow is such that 
+it can never reach this statement. Delete
+it if you really don't want it executed, 
+or fix your code.
 
 initializer must be able to complete normally
 You cannot throw exceptions or otherwise
@@ -613,13 +628,19 @@ editor, or the line above.
 No help available
 
 'class' or 'interface' expected
-No help available
+The word "class" or "interface" is expected to
+appear somewhere near the top of a source file.
+This is missing here (or there is stuff in front
+of it that doesn't belong there).
 
 '.class' expected
 No help available
 
 '(' or '[' expected
-No help available
+It looks like there is an uneven number of brackets
+in your code that is confusing the compiler.  Carefully
+check through your code that three are matching opening 
+and closing brackets.
 
 * expected
 The symbol named in the error message was 
