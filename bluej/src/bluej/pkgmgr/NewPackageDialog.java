@@ -15,7 +15,7 @@ import javax.swing.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewPackageDialog.java 517 2000-05-25 07:58:59Z ajp $
+ * @version $Id: NewPackageDialog.java 1009 2001-11-19 02:41:10Z ajp $
  */
 class NewPackageDialog extends JDialog
     implements ActionListener
@@ -132,7 +132,7 @@ class NewPackageDialog extends JDialog
     {
         newPackageName = textFld.getText().trim();
 
-        if (JavaNames.isIdentifier(newPackageName)) {
+        if (JavaNames.isQualifiedIdentifier(newPackageName)) {
             ok = true;
             setVisible(false);
         }

@@ -28,6 +28,7 @@ import javax.swing.JFrame;
 import java.io.*;
 import java.util.*;
 import java.text.DateFormat;
+import javax.swing.text.*;
 
 
 /**
@@ -36,7 +37,7 @@ import java.text.DateFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 918 2001-05-25 05:33:33Z mik $
+ * @version $Id: Package.java 1009 2001-11-19 02:41:10Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -485,11 +486,11 @@ public class Package extends Graph
                 String type = lastSavedProps.getProperty("target" + (i + 1) + ".type");
                 String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
 
-                if("ClassTarget".equals(type) || "AppletTarget".equals(type)) {
+                if("PackageTarget".equals(type))
+                    target = new PackageTarget(this, identifierName);
+                else {
                     target = new ClassTarget(this, identifierName);
                 }
-                else if("PackageTarget".equals(type))
-                    target = new PackageTarget(this, identifierName);
 
                 if(target != null) {
                     //Debug.message("Load target " + target);
@@ -1812,7 +1813,7 @@ public class Package extends Graph
      * Display an exception message. This is almost the same as "errorMessage"
      * except for different help texts.
      */
-    public void exceptionMessage(List stack, String message, 
+    public void exceptionMessage(List stack, String message,
                                  boolean invalidate)
     {
         if(stack.size() == 0) {
@@ -1828,7 +1829,7 @@ public class Package extends Graph
             SourceLocation loc = (SourceLocation)iter.next();
             String filename = new File(getPath(), loc.getFileName()).getPath();
             int lineNo = loc.getLineNumber();
-            done = showEditorMessage(filename, lineNo, message, invalidate, 
+            done = showEditorMessage(filename, lineNo, message, invalidate,
                                      true, true, false, "exception");
             if(firstTime && !done) {
                 message += " (in " + loc.getClassName() + ")";
@@ -1838,7 +1839,7 @@ public class Package extends Graph
         if(!done) {
             SourceLocation loc = (SourceLocation)stack.get(0);
             showMessageWithText("error-in-file",
-                                loc.getClassName() + ":" + 
+                                loc.getClassName() + ":" +
                                 loc.getLineNumber() + "\n" + message);
         }
     }
