@@ -98,19 +98,19 @@ public class MoePrinter
 
 
     /**
-     * Remove newline and carriage return characters from the end of this 
-     * string. This is needed because of what appears to be a bug in the
-     * document classes: sometimes the lines appear to include NL or CR
-     * characters.
+     * Remove double newline and carriage return characters from the end 
+     * of this string. This is needed because of what appears to be a
+     * bug in the document classes: sometimes the lines appear to include
+     * double NL or CR characters, and those get printed.
      */
     private String removeNewLines(String line)
     {
         int length = line.length();
-        char lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
-        while((lastChar == '\n') || (lastChar == '\r')) {
-            line = line.substring(0, line.length()-1);
+        char secondLastChar = (length > 1 ? line.charAt(line.length()-2) : ' ');
+        while((secondLastChar == '\n') || (secondLastChar == '\r')) {
+            line = line.substring(0, line.length()-2) + '\n';
             length = line.length();
-            lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
+            secondLastChar = (length > 1 ? line.charAt(line.length()-2) : ' ');
         }
         return line;
     }
