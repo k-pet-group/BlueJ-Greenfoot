@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2209 2003-10-10 14:02:43Z damiano $
+ * @version $Id: BPackage.java 2212 2003-10-13 08:41:47Z damiano $
  */
 
 /*
@@ -36,6 +36,20 @@ public class BPackage
         packageId=aPackageId;
     }
 
+    /**
+     * Removes this package from BlueJ
+     *
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
+     */
+    public void remove() 
+        throws ProjectNotOpenException, PackageNotFoundException
+    {
+        Package bluejPkg = packageId.getBluejPackage();
+        Project bluejProject = packageId.getBluejProject();
+
+        bluejProject.removePackage(bluejPkg.getQualifiedName());
+    }
 
     /**
      * Returns the package's project.

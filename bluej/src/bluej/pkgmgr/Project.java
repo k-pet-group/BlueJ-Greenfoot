@@ -20,7 +20,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2192 2003-10-01 11:28:33Z damiano $
+ * @version $Id: Project.java 2212 2003-10-13 08:41:47Z damiano $
  */
 public class Project
     implements DebuggerListener
@@ -775,11 +775,11 @@ public class Project
     // ---- end of DebuggerListener interface ----
     /**
      * Removes a packageTarget from the map of packages in the project.
-     * @param packageTarget the packageTarget to be removed.
+     * @param packageQualifiedName The qualified name of the package.
      * 
      */
-    public void removePackage(PackageTarget packageTarget)
+    public void removePackage(String packageQualifiedName)
     {
-        packages.remove(packageTarget.getQualifiedName());
+        packages.remove(packageQualifiedName);
     }
 }
