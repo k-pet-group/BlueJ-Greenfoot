@@ -84,31 +84,28 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 #####################################################################
 ## Web browser. The following are the commands used for opening a
 ## web browser. On Windows systems, the win9xBrowserCmd (Win 95/98)
-## or the winBrowserCmd (Win Nt/2000) is used. On all other systems
-## the browserCmd is used. BlueJ tries "Cmd1" first, and if it
-## fails it tries "Cmd2". This gives you a chance to let you first
-## try a command that opens a page in an already running browser
-## and, if that fails, open a new browser. Or you could try one
-## browser first and, if that's not found try another. The first
-## dollar sign ($) will be replaced by the URL to be opened.
+## or the winBrowserCmd (Win Nt/2000/XP) is used. On MacOS, these
+## settings are ignored - the browser invocation is handled 
+## internally. The browser can be specified in the Mac OS X
+## System Preferences -> Internet -> Web. On all other systems the
+## browserCmd is used.  
 #####################################################################
 
 # For Windows95/98, the following should start the default browser
 # set in the system.
-win9xBrowserCmd1=command.com /c start $
-win9xBrowserCmd2=
+win9xBrowserCmd=command.com /c start
 
 # For Windows NT/2000, the following should start the default browser
 # set in the system.
-winBrowserCmd1=cmd.exe /c start $
-winBrowserCmd2=
+winBrowserCmd=cmd.exe /c start
 
-# For MacOS X: no command defenition is necessary here. The call is
-# handled internally. The browser can be specified in the Mac OS X
-# System Preferences -> Internet -> Web settings.
+# For MacOS X: no command definition is necessary here. The call is
+# handled internally. 
 
 # Unix and others: First, try to open the URL in a running netscape
-# process. If that fails, start netscape.
+# process. If that fails, start netscape. BlueJ tries "Cmd1" first, 
+# and if it fails it tries "Cmd2". The first dollar sign ($) will be 
+# replaced by the URL to be opened.
 browserCmd1=netscape -remote openURL($)
 browserCmd2=netscape $
 
@@ -341,14 +338,15 @@ bluej.compiler.source14=false
 ## macos and "linux".
 #####################################################################
 
-win9xVmOptions=-classic
-winVmOptions=-classic
-linuxVmOptions=-classic
+#win9xVmOptions=-classic
+win9xVmOptions=
+winVmOptions=
+linuxVmOptions=
 solarisVmOptions=
 macosVmOptions=
 
 #default:
-VmOptions=-classic
+VmOptions=
 
 
 #####################################################################
