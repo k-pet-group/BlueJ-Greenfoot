@@ -45,7 +45,7 @@ import javax.swing.event.TreeSelectionEvent;
  * processing of that scheme
  * 
  * @author Clive Miller
- * @version $Id: SubmissionDialog.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: SubmissionDialog.java 1597 2003-01-13 17:04:09Z damiano $
  */
 class SubmissionDialog extends JDialog implements ActionListener
 {
@@ -194,133 +194,7 @@ class SubmissionDialog extends JDialog implements ActionListener
         cancelButton.setText (bj.getLabel ("button.stop"));
         setStatus (bj.getLabel ("message.started"));
         running = true;
-        submitThread = new Thread() {
-            public void run() {
-                TransportSession ts = null;
-                String result = null;
-                try {
-                    URLProperties urlProps = new URLProperties (bj, sp);
-                    if (!urlProps.process (SubmissionDialog.this)) {
-                        reset();
-                        running = false;
-                        return;
-                    }
-
-                    if (urlProps.isMessage()) {
-                        ts = TransportSession.createTransportSession (urlProps.getURL(), sp.getGlobalProps());
-                        ts.connect();
-                        result = ts.getResult();
-                    } else {
-
-                        FileHandler fh = new FileHandler (bj, pkg, sp);
-                        File[] files = fh.getFiles();
-                        if (files == null) return;
-
-                        try {
-                            Collection jarNames = sp.getProps (".file.jar");
-                            if (!jarNames.isEmpty()) {
-                                String jarName = (String)jarNames.iterator().next();
-                                ts = TransportSession.createJarTransportSession (urlProps.getURL(), sp.getGlobalProps(), jarName);
-                            } else {
-                                ts = TransportSession.createTransportSession (urlProps.getURL(), sp.getGlobalProps());
-                            }
-                            ts.addStatusListener (new StatusListener() {
-                                public void statusChanged (String status) {
-                                    setStatus (status);
-                                }
-                            });
-                            
-                            ts.connect();
-                            for (int i=0,n=files.length; i<n; i++) {
-                                boolean binary = FileHandler.isBinary (files[i]);
-                                FileInputStream fis = new FileInputStream (files[i]);
-                                String name = fh.getSubName (files[i]);
-                                name = name.replace (File.separatorChar,'/');
-                                setStatus (bj.getLabel ("message.sending")+" "+name);
-                                ts.send (fis, name, binary);
-                            }
-                            ts.disconnect();
-                        } catch (IOException ex) {
-if (ts != null) System.err.println (ts.getLog());
-ex.printStackTrace();
-                            throw new AbortOperationException (ex);
-                        }
-                        result = ts.getResult();
-                        if (result == null) result = files.length + " "+bj.getLabel ("message.filessent");
-                    }                    
-                    cancelButton.setText (bj.getLabel ("button.done"));
-                    cancelButton.requestFocus();
-                    setStatus (bj.getLabel ("message.complete"));
-                    browseButton.setEnabled (false);
-                    schemeField.removeActionListener (SubmissionDialog.this); 
-                    validate();
-                    if (running) {
-                        setStatus (result);
-                        if (statusLabel.getMaximumSize().getHeight() > statusLabel.getSize().getHeight()) { // It doesn't fit!
-                            statusLabel.setText (null);
-                            JPanel panel = new JPanel();
-                            JLabel label = new JLabel (result);
-                            panel.setBorder(bj.getDialogBorder());
-                            panel.add (label);
-                            resultFrame = bj.showGeneralDialog (bj.getLabel ("title.results"), new JScrollPane (panel), SubmissionDialog.this);
-                            dispose();
-                        }
-                    }
-                }
-                catch (Throwable ex)
-                {
-                    if (running)
-                    {
-                        cancelButton.setText (bj.getLabel ("cancel"));
-                        updateDialog = true;
-                        updateDialog();
-                        String message = translateException (ex);
-                        boolean inhibitDialog = false;
-                        if (message == null) {
-                            if (ex instanceof AbortOperationException) {
-                                message = ex.getMessage();
-                            } else {
-                                message = ex.getMessage();
-                                if (message == null || message.indexOf(':')==-1) message = ex.toString();
-                            }
-                        } else {
-                            inhibitDialog = true;
-                        }
-                        if (inhibitDialog || ts == null || ts.getLog() == null) {
-                            setStatus (message, true);
-                        } else {
-                            int press;
-                            do
-                            {
-                                setStatus (bj.getLabel ("message.error"), true);
-                                Object[] options = (ts==null || ts.getLog()==null) ? new Object[]{bj.getLabel("close")} : new Object[]{bj.getLabel("close"),bj.getLabel("button.showlog")};
-                                press = JOptionPane.showOptionDialog 
-                                   (SubmissionDialog.this,              // parentComponent
-                                    message,                            // message
-                                    bj.getLabel ("message.error"),      // title
-                                    JOptionPane.DEFAULT_OPTION,         // optionType
-                                    JOptionPane.ERROR_MESSAGE,          // messageType
-                                    null,                               // icon
-                                    options,                            // options
-                                    bj.getLabel("close"));              // initialValue
-                                if (press == 1)
-                                {
-                                    JPanel panel = new JPanel();
-                                    JTextArea label = new JTextArea (ts.getLog());
-                                    label.setEditable(false);
-                                    label.setBorder(bj.getDialogBorder());
-                                    panel.add (new JScrollPane (label));
-                                    bj.showGeneralDialog (bj.getLabel("title.log"), panel, SubmissionDialog.this);
-                                }
-                            } while (press != 0);
-                            setStatus (" ");
-                        }
-//                                hide();
-                    }
-                }
-                running = false;
-            }
-        };
+        submitThread = new SubmitThread ();
         submitThread.start();
     }
     
@@ -440,4 +314,161 @@ ex.printStackTrace();
         if (ex instanceof IllegalArgumentException && ex.getMessage().equals ("User Email address invalid")) message = bj.getLabel ("exception.addrnotset");
         return message;
     }
+
+
+
+    /**
+     * This is a split from the inline that was before
+     * What it does is submitting a project. This happens when somebody press the submit button.
+     */
+    class SubmitThread extends Thread
+    {
+        File projNamePrefix;
+        String jarName=null;
+
+        public void run() 
+        {
+            TransportSession ts = null;
+            String result = null;
+            try {
+                URLProperties urlProps = new URLProperties (bj, sp);
+                if (!urlProps.process (SubmissionDialog.this)) {
+                    reset();
+                    running = false;
+                    return;
+                }
+
+                if (urlProps.isMessage()) {
+                    ts = TransportSession.createTransportSession (urlProps.getURL(), sp.getGlobalProps());
+                    ts.connect();
+                    result = ts.getResult();
+                } else {
+                    FileHandler fh = new FileHandler (bj, pkg, sp);
+                    File[] files = fh.getFiles();
+                    if (files == null) return;
+
+                    try {
+                        Collection jarNames = sp.getProps (".file.jar");
+                        if (!jarNames.isEmpty()) {
+                            jarName = (String)jarNames.iterator().next();
+                            ts = TransportSession.createJarTransportSession (urlProps.getURL(), sp.getGlobalProps(), jarName);
+                        } else {
+                            ts = TransportSession.createTransportSession (urlProps.getURL(), sp.getGlobalProps());
+                        }
+                        ts.addStatusListener (new StatusListener() {
+                            public void statusChanged (String status) {
+                                setStatus (status);
+                            }
+                        });
+                            
+                        ts.connect();
+                        // Damiano, here we are sending files, the issue here is to put the prefix
+                        // as wanted by Michael
+
+                        String projNamePrefix = null;
+                        String tsProtocol = ts.getProtocol();
+                        if ( tsProtocol.equals("ftp") || 
+                             tsProtocol.equals("file") || 
+                             jarName != null )
+                          projNamePrefix = pkg.getProject().getName();
+
+                        for (int i=0,n=files.length; i<n; i++) {
+                            boolean binary = FileHandler.isBinary (files[i]);
+                            FileInputStream fis = new FileInputStream (files[i]);
+                            
+                            String name = fh.getSubName (files[i]);
+
+                            if ( projNamePrefix != null )
+                                name = projNamePrefix+File.separator+name;
+                            
+                            name = name.replace (File.separatorChar,'/');
+                            setStatus (bj.getLabel ("message.sending")+" "+name);
+                            ts.send (fis, name, binary);
+                        }
+                        ts.disconnect();
+                    } catch (IOException ex) {
+                        if (ts != null) System.err.println (ts.getLog());
+                        ex.printStackTrace();
+                        throw new AbortOperationException (ex);
+                    }
+                    result = ts.getResult();
+                    if (result == null) result = files.length + " "+bj.getLabel ("message.filessent");
+                }                    
+                cancelButton.setText (bj.getLabel ("button.done"));
+                cancelButton.requestFocus();
+                setStatus (bj.getLabel ("message.complete"));
+                browseButton.setEnabled (false);
+                schemeField.removeActionListener (SubmissionDialog.this); 
+                validate();
+                if (running) {
+                    setStatus (result);
+                    if (statusLabel.getMaximumSize().getHeight() > statusLabel.getSize().getHeight()) { // It doesn't fit!
+                        statusLabel.setText (null);
+                        JPanel panel = new JPanel();
+                        JLabel label = new JLabel (result);
+                        panel.setBorder(bj.getDialogBorder());
+                        panel.add (label);
+                        resultFrame = bj.showGeneralDialog (bj.getLabel ("title.results"), new JScrollPane (panel), SubmissionDialog.this);
+                        dispose();
+                    }
+                }
+            }
+            catch (Throwable ex)
+            {
+                if (running)
+                {
+                    cancelButton.setText (bj.getLabel ("cancel"));
+                    updateDialog = true;
+                    updateDialog();
+                    String message = translateException (ex);
+                    boolean inhibitDialog = false;
+                    if (message == null) {
+                        if (ex instanceof AbortOperationException) {
+                            message = ex.getMessage();
+                        } else {
+                            message = ex.getMessage();
+                            if (message == null || message.indexOf(':')==-1) message = ex.toString();
+                        }
+                    } else {
+                        inhibitDialog = true;
+                    }
+                    if (inhibitDialog || ts == null || ts.getLog() == null) {
+                        setStatus (message, true);
+                    } else {
+                        int press;
+                        do
+                        {
+                            setStatus (bj.getLabel ("message.error"), true);
+                            Object[] options = (ts==null || ts.getLog()==null) ? new Object[]{bj.getLabel("close")} : new Object[]{bj.getLabel("close"),bj.getLabel("button.showlog")};
+                            press = JOptionPane.showOptionDialog 
+                               (SubmissionDialog.this,              // parentComponent
+                                message,                            // message
+                                bj.getLabel ("message.error"),      // title
+                                JOptionPane.DEFAULT_OPTION,         // optionType
+                                JOptionPane.ERROR_MESSAGE,          // messageType
+                                null,                               // icon
+                                options,                            // options
+                                bj.getLabel("close"));              // initialValue
+                            if (press == 1)
+                            {
+                                JPanel panel = new JPanel();
+                                JTextArea label = new JTextArea (ts.getLog());
+                                label.setEditable(false);
+                                label.setBorder(bj.getDialogBorder());
+                                panel.add (new JScrollPane (label));
+                                bj.showGeneralDialog (bj.getLabel("title.log"), panel, SubmissionDialog.this);
+                            }
+                        } while (press != 0);
+                        setStatus (" ");
+                    }
+//                                hide();
+                }
+            }
+            running = false;
+        }
+    } 
+
+
+
+    
 }   

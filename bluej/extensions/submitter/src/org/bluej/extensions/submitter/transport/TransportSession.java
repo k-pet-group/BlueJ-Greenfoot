@@ -16,7 +16,7 @@ import java.net.URLDecoder;
 /**
  * Superclass and manager of transport implementations.
  * @author Clive Miller
- * @version $Id: TransportSession.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: TransportSession.java 1597 2003-01-13 17:04:09Z damiano $
  */
 
 public abstract class TransportSession
@@ -176,6 +176,15 @@ public abstract class TransportSession
     public String getResult()
     {
         return result;
+    }
+
+
+    /**
+     * Gets the delivery method. basically it just returns url.getProtocol();
+     */
+    public String getProtocol ()
+    {
+        return url.getProtocol();
     }
         
     /**
