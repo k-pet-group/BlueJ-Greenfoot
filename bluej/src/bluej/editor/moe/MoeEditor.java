@@ -933,6 +933,7 @@ public final class MoeEditor extends JFrame
         currentTextPane = sourcePane;
         viewingHTML = false;
         scrollPane.setViewportView(currentTextPane);
+        checkSyntaxStatus();
         currentTextPane.requestFocus();
     }
 
