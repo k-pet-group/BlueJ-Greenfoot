@@ -1,6 +1,7 @@
 okay=Ok
 cancel=Abbrechen
 close=Schließen
+continue=Continue
 
 main.invalidPackage=Package konnte nicht gefunden werden.
 
@@ -83,9 +84,8 @@ debugger.jdiDebugger.noCodeMsg=Cannot set breakpoint: no code in this line
 debugger.jdiDebugger.internalErrorMsg=There was an internal error while attempting to\nset this breakpoint
 
 #library browser configuration
-browser.title=Library Browser
+browser.title=BlueJ:  Library Browser
 browser.version=0.1
-browser.tempdir=c:\\temp
 browser.togglemessagebox.toggle.text=Ich möchte diese Nachricht in Zukunft nicht sehen
 
 browser.librarychooser.loading.status=Libraries werden geladen...
@@ -110,8 +110,10 @@ browser.menu.library.addlibrary.title=Library einfügen
 browser.menu.library.refresh=Darstellung erneuern
 browser.menu.library.close=Schließen
 
-# Class Manager user interface elements and error messages
-#
+# Preferences Manager user interface elements and error messages
+prefmgr.title=BlueJ:  Preferences
+
+# Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Libraries
 classmgr.userlibraries=Benutzerlibraries
 classmgr.systemlibraries=Systemlibraries
@@ -124,36 +126,33 @@ classmgr.unresolvable=Unauflösbarer Pfad
 classmgr.bootclass=Boot-Klassen-Library
 classmgr.bluejclass=BlueJ-Klassen-Library
 classmgr.error.unresolvable=Unauflösbarer Pfad
-classmgr.error.loadingconfig=Missing configuration file. This file is used to specify libraries\nin addition to the standard boot libraries.
-classmgr.error.savingconfig=Saving configuration file.
 classmgr.error.missingclasspath=No java classpath. Class loading behaviour may be strange because\nclasses in the current directory will be resolved first.
 classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be run on a pre JDK 1.2 environment.
 
-# Preferences Manager user interface elements and error messages
-prefmgr.title=Einstellungen
-prefmgr.misc.prefpaneltitle=Vermischtes
+# Miscellaneous Preferences panel
+prefmgr.misc.prefpaneltitle=Einstellungen
 prefmgr.misc.editorfontsize=Editor Fontgröße
 prefmgr.misc.usesyntaxhilighting=Syntax hervorheben
 prefmgr.misc.jdkurlpath=JDK Dokumentation URL
+prefmgr.misc.linkToLib=Use this URL when generating project documentation
+prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation, it must be correct and accessible.
+prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
 
 #---------------
 #Editor labels
 #---------------
-editor.title=BlueJ editor
+editor.title=BlueJ: Editor
 
 #button lables for toolbar commands
-editor.viewLabel1 = Implementierung
-editor.viewLabel2 = Public-Sicht
-editor.viewLabel3 = Package-Sicht
-editor.viewLabel4 = Protected-Sicht
-editor.compileLabel = Übersetzen
-editor.undoLabel = Rückgängig
-editor.cutLabel = Ausschneiden
-editor.copyLabel = Kopieren
-editor.pasteLabel = Einfügen
-editor.findLabel = Suchen...
-editor.find-nextLabel = Nochmal suchen
-editor.closeLabel = Schließen
+editor.compileLabel = Compile
+editor.undoLabel = Undo
+editor.cutLabel = Cut
+editor.copyLabel = Copy
+editor.pasteLabel = Paste
+editor.findLabel = Find...
+editor.find-nextLabel = Find Next
+editor.closeLabel = Close
+editor.page-setupLabel = Page Setup...
 
 # menu labels (MUST be defined)
 editor.classLabel = Klasse
@@ -168,9 +167,8 @@ editor.saveLabel = Speichern
 editor.reloadLabel = Nochmal laden
 editor.printLabel = Drucken...
 editor.closeLabel = Schließen
-editor.page-setupLabel = Page Setup...
 
-editor.redoLabel = Nochmal
+editor.redoLabel = Redo
 editor.cut-to-clipboardLabel = Ausschneiden
 editor.copy-to-clipboardLabel = Kopieren
 editor.paste-from-clipboardLabel = Einfügen
@@ -182,6 +180,9 @@ editor.find-backwardLabel = Rückwärts suchen...
 editor.replaceLabel = Ersetzen...
 editor.compileLabel = Übersetzen
 editor.toggle-breakpointLabel = Breakpoint setzen/entfernen
+
+editor.implementationLabel = Implementation
+editor.interfaceLabel = Interfaceeditor.state.readOnly = read-only
 
 editor.state.readOnly = read-only
 editor.state.saved = saved
@@ -229,11 +230,16 @@ editor.info.saved = File saved
 editor.info.printing = Printing...
 editor.info.printed = Printing... Done.
 editor.info.cancelled = Cancelled.
+editor.info.generatingDoc = Generating class interface...
+editor.info.loadingDoc = Loading class interface...
+editor.info.docLoaded = Loading class interface... Done.
+editor.info.docAborted = There was a serious problem generating the javadoc\ninterface. Aborted.
+editor.info.docDisappeared = Cannot find HTML file:
+editor.info.docNoFrames = Frame display is disabled in editor preview.
 
 editor.printer.continued=continued
 #End Editor labels
 
-pkgmgr.noTitle=<noTitle>
 pkgmgr.chooseUsesFrom=Klicken Sie auf die Klasse von der der Pfeil ausgeht
 pkgmgr.chooseUsesTo=Klicken Sie auf die Klasse auf die der Pfeil zeigt
 pkgmgr.chooseInhFrom=Klicken Sie auf die Unterklasse
@@ -249,11 +255,17 @@ pkgmgr.newPkg.title=Neues Package
 pkgmgr.newPkg.buttonLabel=Erzeugen
 pkgmgr.openPkg.title=Package öffnen
 pkgmgr.openPkg.buttonLabel=In BlueJ öffnen
+pkgmgr.openNonBlueJPkg.title=Open Non-BlueJ Project
+pkgmgr.openNonBlueJPkg.buttonLabel=Open in BlueJ
 pkgmgr.saveAs.title=Package speichern
 pkgmgr.saveAs.buttonLabel=Speichern
-pkgmgr.importClass.title=Klassenselektion für Import
-pkgmgr.importClass.buttonLabel=Importieren
+pkgmgr.addClass.title=Klassenselektion für Import
+pkgmgr.addClass.buttonLabel=Importieren
 pkgmgr.importPkg.title=Package Importieren
+pkgmgr.importPkg.buttonLabel=Import
+pkgmgr.importPkgNew.title=New Project to Import Into
+pkgmgr.importPkgNew.buttonLabel=Create
+
 pkgmgr.newClass.msg=Name der Klasse
 pkgmgr.newUses=Neuer Benutzt-Pfeil
 pkgmgr.newExtends=Neuer Vererbungspfeil
@@ -261,26 +273,33 @@ pkgmgr.unimplemented=Sorry - that feature is not yet implemented
 pkgmgr.pkgChooseError=Error selecting valid package name
 pkgmgr.chooseWebPage.title=Select HTML page destination
 
-pkgmgr.classmenu.runApplet=Applet ausführen
-pkgmgr.classmenu.edit=Editieren
-pkgmgr.classmenu.public=Public-Sicht
-pkgmgr.classmenu.package=Package-Sicht
-pkgmgr.classmenu.inherited=Protected-Sicht
-pkgmgr.classmenu.compile=Übersetzen
-pkgmgr.classmenu.remove=Löschen
+pkgmgr.parentpackagetarget.open=Open
+pkgmgr.parentpackagetarget.openunamed=Open unamed package
 
-pkgmgr.view.label=Sicht
-pkgmgr.view.usesLabel=benutzt
-pkgmgr.view.inheritLabel=erbt von
+pkgmgr.packagemenu.open=Open
+pkgmgr.packagemenu.remove=Remove
+
+pkgmgr.classmenu.runApplet=Applet ausführen
+pkgmgr.classmenu.edit=Open Editor
+pkgmgr.classmenu.compile=Compile
+pkgmgr.classmenu.remove=Remove
+pkgmgr.view.label=View
+pkgmgr.view.usesLabel=Uses
+pkgmgr.view.inheritLabel=Inheritance
 
 # "new class" dialog
-pkgmgr.newClass.title=Neue Klasse erzeugen
+pkgmgr.newClass.title=BlueJ:  Neue Klasse erzeugen
 pkgmgr.newClass.label=Klassenname:
 pkgmgr.newClass.classType=Typ der Klasse
 pkgmgr.newClass.newClass=Klasse
 pkgmgr.newClass.newAbstractClass=Abstrakte Klasse
 pkgmgr.newClass.newInterface=Interface
 pkgmgr.newClass.newApplet=Applet
+
+# "new package" dialog
+pkgmgr.newPackage.title=BlueJ:  Create New Package
+pkgmgr.newPackage.label=Package Name:
+pkgmgr.newPackage.newPackage=Package
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Projekt exportieren
@@ -290,6 +309,13 @@ pkgmgr.export.directoryLabel=Als Verzeichnisstruktur speichern
 pkgmgr.export.jarFileLabel=Als jar-Datei speichern
 pkgmgr.export.classLabel=Klasse mit "main"-Methode:
 pkgmgr.export.sourceLabel=Quelltext mitspeichern
+pkgmgr.export.noClassText=none (cannot be executed)
+
+# "import" failure dialog
+pkgmgr.importfailed.title=BlueJ:  Import Status
+pkgmgr.importfailed.helpLine1=The import has failed to copy the following files.
+pkgmgr.importfailed.helpLine2=This is most likely due to these files already
+pkgmgr.importfailed.helpLine3=being present in the destination project.
 
 # run applet dialog
 pkgmgr.runApplet.title=Applet ausführen
@@ -306,7 +332,6 @@ pkgmgr.runApplet.valueLbl=Value =
 pkgmgr.runApplet.paramName=PARAM NAME
 pkgmgr.runApplet.value=VALUE
 pkgmgr.runApplet.htmlComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  It is regenerated automatically each time the  -->\n<!-- applet is run.  Any manual changes made to file will be lost -->\n<!-- when the applet is next run inside BlueJ.  Save into a       -->\n<!-- directory outside of the package directory if you want to    -->\n<!-- preserve this file. -->
-
 pkgmgr.runApplet.htmlExportedComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej package directory of the applet at the time of this page being generated. -->\n<!-- If the location of that package alters you will nedd to edit the codebase value.       -->
 
 
@@ -326,6 +351,7 @@ debugger.execControls.instanceTitle = Instance Variables
 debugger.execControls.localTitle = Local Variables
 debugger.execControls.threadTitle = Threads
 debugger.execControls.updateText = Update
+debugger.execControls.systemThreads = Show system threads
 
 # DialogManager labels
 dialogmgr.error = Error
@@ -352,6 +378,7 @@ pkgmgr.creatingVM=Virtuelle Maschine wird erzeugt...
 pkgmgr.creatingVMDone=Virtuelle Maschine wird erzeugt... Fertig
 pkgmgr.generatingDocu=Dokumentation wird generiert...
 pkgmgr.docuGenerated=Dokumentation wird generiert... Fertig
+pkgmgr.docuAborted=Generating documentation... Aborted
 pkgmgr.webBrowserMsg=Web Browser ist gestartet worden.
 pkgmgr.webBrowserError=Web Browser konnte nicht gestartet werden.
 pkgmgr.usesArrowMsg=Benutzt-Beziehung deklariert, aber nicht implementiert:
@@ -362,16 +389,17 @@ pkgmgr.exported=Export erfolgreich beended.
 pkgmgr.exported.jar=Jar-Export erfolgreich beended.
 
 properties.heading=BlueJ Einstellungen. Die Werte in dieser Datei überschreiben \"bluej.defs\"
-
 # menus and menu items
 
-menu.package=Package
+menu.package=Project
 menu.package.new=Neu...
 menu.package.open=Öffnen...
+menu.package.openNonBlueJ=Open Non BlueJ...
 menu.package.close=Schließen
 menu.package.save=Speichern
 menu.package.saveAs=Speichern als...
-menu.package.importClass=Klasse importieren...
+menu.package.import=Import...
+menu.package.export=Export...
 menu.package.pageSetup=Page Setup...
 menu.package.print=Drucken...
 menu.package.quit=Beenden
@@ -379,6 +407,7 @@ menu.package.quit=Beenden
 menu.edit=Bearbeiten
 menu.edit.newClass=Neue Klasse...
 menu.edit.newPackage=Neues Package...
+menu.edit.addClass=Add Class from File...
 menu.edit.remove=Löschen...
 menu.edit.newUses=Neuer Benutzt-Pfeil...
 menu.edit.newInherits=Neuer Vererbungspfeil...
@@ -411,11 +440,11 @@ menu.group.users=Users
 menu.group.configuration=Configuration
 
 menu.help=Hilfe
-menu.help.about=Über BlueJ...
-menu.help.copyright=Copyright...
 menu.help.tutorial=BlueJ-Tutorial...
 menu.help.reference=BlueJ Referenzhandbuch...
 menu.help.standardApi=Java Klassen-Libraries...
+menu.help.about=Über BlueJ...
+menu.help.copyright=Copyright...
 
 # tool tips
 
