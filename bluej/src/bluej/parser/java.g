@@ -20,7 +20,7 @@ options {
 
     import antlr.*;
 
-    import java.util.Vector;
+    import java.util.*;
     import java.io.*;
 
     class JavaBitSet extends java.util.BitSet
@@ -259,12 +259,14 @@ tokens {
 			    JavaToken comment,
 			    Selection extendsInsert, Selection implementsInsert,
 			    Selection extendsReplace, Selection superReplace,
-			    Selection typeParamInsert,
+			    Selection typeParameterTextSelection,
+			    Vector typeParameterSelections,
 			    Vector interfaceSelections)
     {
         symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, isPublic,
         			isEnum, comment, extendsInsert, implementsInsert,
-        			extendsReplace, superReplace, typeParamInsert,
+        			extendsReplace, superReplace, typeParameterTextSelection,
+        			typeParameterSelections,
         			interfaceSelections);
     }
 
@@ -273,11 +275,13 @@ tokens {
                                 boolean isPublic,
                                 JavaToken comment,
                                 Selection extendsInsert,
-                                Selection typeParamInsert,
+                                Selection typeParameterTextSelection,
+                                Vector typeParameterSelections,
                                 Vector superInterfaceSelections)
     {
         symbolTable.defineInterface(theInterface, superInterfaces, isPublic, comment,
-                                    extendsInsert, typeParamInsert,
+                                    extendsInsert, typeParameterTextSelection,
+                                    typeParameterSelections,
                                     superInterfaceSelections);
     }
 
@@ -286,9 +290,9 @@ tokens {
     }
 
 
-    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment, Selection typeParameters) {
+    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment, Selection typeParameterText) {
         //System.out.println("entering method" + theMethod);
-        symbolTable.defineMethod(theMethod, type, comment, typeParameters);
+        symbolTable.defineMethod(theMethod, type, comment, typeParameterText);
     }
 
     public void addImport(JavaToken id, String className, String packageName) {
@@ -299,8 +303,16 @@ tokens {
     // in
     public Selection selectionAfterToken(JavaToken id)
     {
-	return new Selection(id.getFile(), id.getLine(),
+	    return new Selection(id.getFile(), id.getLine(),
                               id.getColumn() + id.getText().length());
+    }
+    
+    // create a selection which consists of the location just after the token passed
+    // in
+    public Selection nextSelection(Selection sel)
+    {
+	    return new Selection(sel.getFile(), sel.getLine(),
+                              sel.getColumn() + sel.getText().length());
     }
 }
 
@@ -407,21 +419,31 @@ arraySpecOpt:
 // - generic type arguments after
 classTypeSpec returns [JavaToken t]
         {t=null;}
-        : t=classOrInterfaceType[true] (LBRACK RBRACK
+        : t=classOrInterfaceType[true, null] (LBRACK RBRACK
 	{
              if(t != null)
                    t.setText(t.getText() + "[]");
 	} )*
 	;
 
-classOrInterfaceType[boolean includeTypeArgs] returns [JavaToken t]
+// Represents a class or interface type
+// Type arguments may or not be desired depending on the usage.
+// Token returned is a formatted text representation of the type
+// boolean flag adds type args, List captures all actual tokens as selections
+// which can be used if need to do any calculating on actual tokens
+classOrInterfaceType[boolean includeTypeArgs, Vector typeArgTokens] returns [JavaToken t]
      {
      	t=null;
         JavaToken typeArg = null;
+        
      }
-	:   id1:IDENT {t=(JavaToken)id1;}
-	    (typeArg = typeArguments
+	:   id1:IDENT 
+	        {   
+	        	t=(JavaToken)id1;
+	        }
+	    (typeArg = typeArguments[typeArgTokens]
 	        {
+	        	
 	        	if(includeTypeArgs)
 	    	    t.setText(t.getText() + typeArg.getText());	
 	        }
@@ -430,7 +452,7 @@ classOrInterfaceType[boolean includeTypeArgs] returns [JavaToken t]
         (options{greedy=true;}: // match as many as possible
             DOT
             id2:IDENT {t.setText(t.getText() + "." + id2.getText());}
-            (typeArg = typeArguments
+            (typeArg = typeArguments[typeArgTokens]
 	            {
 	            	if(includeTypeArgs)
 	    	        t.setText(t.getText() + typeArg.getText());
@@ -440,8 +462,8 @@ classOrInterfaceType[boolean includeTypeArgs] returns [JavaToken t]
     ;
 
 
-
-typeArguments returns [JavaToken t]
+// typeArgTokens may be null if not required by caller
+typeArguments[Vector typeArgTokens] returns [JavaToken t]
     {   t = null;
     	JavaToken st = null;
     	JavaToken st1 = null;
@@ -450,14 +472,19 @@ typeArguments returns [JavaToken t]
     }
     :
         {currentLtLevel = ltCounter;}
-        lt:LT {ltCounter++;t = (JavaToken)lt;
-        }
-        st=singleTypeArgument
+        lt:LT 
+            {
+            	ltCounter++;
+            	t = (JavaToken)lt;
+            	if(typeArgTokens != null)
+        	       typeArgTokens.add(t);
+            }
+        st=singleTypeArgument[typeArgTokens]
         {
-        	t.setText(t.getText() + ((JavaToken)st).getText());
+        	t.setText(t.getText() + st.getText());
         }
         (options{greedy=true;}: // match as many as possible
-            co:COMMA st1=singleTypeArgument
+            co:COMMA st1=singleTypeArgument[typeArgTokens]
             {
                 t.setText(t.getText() + ((JavaToken)co).getText() + ((JavaToken)st1).getText());
             }
@@ -468,6 +495,8 @@ typeArguments returns [JavaToken t]
             options{generateAmbigWarnings=false;}:
             te=typeArgumentsEnd
             {
+            	if(typeArgTokens != null)
+            	    typeArgTokens.add(te);
                 t.setText(t.getText() + ((JavaToken)te).getText());
             }
         )?
@@ -477,7 +506,7 @@ typeArguments returns [JavaToken t]
         {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
     ;
 
-singleTypeArgument returns [JavaToken t]
+singleTypeArgument[Vector typeArgTokens] returns [JavaToken t]
     {t=null;
      JavaToken t1 = null;
      JavaToken t2 = null;
@@ -487,25 +516,29 @@ singleTypeArgument returns [JavaToken t]
     }
     :
         (
-            t3=classTypeSpec {t = t3;}
-            | t4=builtInTypeSpec {t = t4;}
-            | qu:QUESTION {if(qu != null) t = (JavaToken)qu;}          
+            t3=classTypeSpec {t = t3; if(typeArgTokens != null) typeArgTokens.add(t);}
+            | t4=builtInTypeSpec {t = t4; if(typeArgTokens != null) typeArgTokens.add(t);}
+            | qu:QUESTION {if(qu != null) t = (JavaToken)qu; if(typeArgTokens != null) typeArgTokens.add(t);}          
         )
+           
         
         (   // I'm pretty sure Antlr generates the right thing here:
             options{generateAmbigWarnings=false;}:
             (id1:"extends"|id2:"super")
                 {
-                    if(id1 != null) 
+                    if(id1 != null){ 
                         t.setText(t.getText() + " " + ((JavaToken)id1).getText());
+                        if(typeArgTokens != null) typeArgTokens.add(id1);
+                    }
                     else if(id2 != null) 
                         t.setText(t.getText() + " " + ((JavaToken)id2).getText());
+                        if(typeArgTokens != null) typeArgTokens.add(id2);
                 }
              
             
-            ( t1=classTypeSpec {t.setText(t.getText() + " " + t1.getText());}
-              | t2=builtInTypeSpec {t.setText(t.getText() + " " + t2.getText());}
-              | qu1:QUESTION {t.setText(t.getText() + ((JavaToken)qu1).getText());}
+            ( t1=classTypeSpec {t.setText(t.getText() + " " + t1.getText()); if(typeArgTokens != null) typeArgTokens.add(t1);}
+              | t2=builtInTypeSpec {t.setText(t.getText() + " " + t2.getText()); if(typeArgTokens != null) typeArgTokens.add(t2);}
+              | qu1:QUESTION {t.setText(t.getText() + ((JavaToken)qu1).getText()); if(typeArgTokens != null) typeArgTokens.add(t3);}
             )
         )?
     ;
@@ -535,7 +568,7 @@ builtInTypeSpec returns [JavaToken t]
 //   a primitive (builtin) type
 type returns [JavaToken t]
     {t=null;}
-    :   t=classOrInterfaceType[false]
+    :   t=classOrInterfaceType[false, null]
     |   t=builtInType
     ;
 
@@ -639,16 +672,19 @@ modifier[JavaBitSet mods]
 classDefinition[JavaBitSet mods, JavaToken commentToken]
     {
     	JavaToken superClass=null;
-        JavaVector interfaces = new JavaVector();
+    	JavaVector interfaces = new JavaVector();
         Vector interfaceSelections = new Vector();
+        Vector typeParameterSelections = new Vector();
         Selection extendsInsert=null, implementsInsert=null,
                     extendsReplace=null, superReplace=null,
-                    typeParamsInsert=null;
+                    typeParameterTextSelection=null;
+        // JavaTokens for type args
+        Vector typeArguments = new Vector();
+        
                     
     }
     : "class" id:IDENT    // aha! a class!
-    (typeParamsInsert = typeParameters
-    	//TODO BQ need to allow for typeparams when setting extends insert token below
+    (typeParameterTextSelection = typeParameters[typeParameterSelections]
     )?
         {
             // the place which we would want to insert an "extends" is at the
@@ -656,19 +692,42 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
             // it is also potentially the place where we would insert a
             // "implements" so we will set that here and allow it to be overridden
             // later on if need be
-            extendsInsert = implementsInsert = selectionAfterToken((JavaToken)id);
+            
+            // Need to also allow for type parameters with java 1.5 generic types
+            Selection lastTypeParamSelection = null;
+            if(!typeParameterSelections.isEmpty()) {
+            	lastTypeParamSelection = (Selection)typeParameterSelections.lastElement();
+            	extendsInsert = implementsInsert = nextSelection(lastTypeParamSelection);
+            }
+            else
+                extendsInsert = implementsInsert = selectionAfterToken((JavaToken)id);
         }
 
     // it might have a superclass...
     (
-     ex:"extends" superClass=classOrInterfaceType[false]
+     ex:"extends" superClass=classOrInterfaceType[false, typeArguments]
         {
             extendsReplace = new Selection((JavaToken)ex);
+            
             superReplace = new Selection(superClass);
+            
+             // may be more than just the superclasses name if there is a generic
+             // type argument involved
+            if(!typeArguments.isEmpty()){
+                Iterator it = typeArguments.iterator();
+                while(it.hasNext()){
+                	superReplace.addToken((JavaToken)it.next());
+                }	
+            }
 
             // maybe we need to place "implements" lines after this superClass..
-            // set it here
-            implementsInsert = selectionAfterToken((JavaToken)superClass);
+            // set it here. Factor in type arguments as well...
+            if(!typeArguments.isEmpty()) {
+            	JavaToken lastArg = (JavaToken)typeArguments.lastElement();
+            	implementsInsert = selectionAfterToken((JavaToken)lastArg);
+            }
+            else
+                implementsInsert = selectionAfterToken((JavaToken)superClass);
         }
     )?
 
@@ -680,14 +739,16 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
         // tell the symbol table about it
         // Note that defineClass pushes the class' scope,
         // so we'll have to pop...
-        { defineClass( (JavaToken)id, superClass,
+        { 
+        	defineClass( (JavaToken)id, superClass,
             		  interfaces,
             		  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
             		  false, //not an enum
             		  commentToken,
             		  extendsInsert, implementsInsert,
             		  extendsReplace, superReplace,
-            		  typeParamsInsert,
+            		  typeParameterTextSelection,
+            		  typeParameterSelections,
             		  interfaceSelections); }
 
     // now parse the body of the class
@@ -703,16 +764,25 @@ interfaceDefinition[JavaBitSet mods, JavaToken commentToken]
     {
         JavaVector superInterfaces = new JavaVector();
         Vector superInterfaceSelections = new Vector();
+        Vector typeParameterSelections = new Vector();
         Selection extendsInsert = null;
-        Selection typeParamsInsert = null;
+        //Selection typeParamsInsert = null;
+        Selection typeParameterTextSelection = null;
+        //JavaToken typeParameterText = null;
     }
     : "interface" id:IDENT   // aha! an interface!
         // it _might_ have type paramaters
-        (typeParamsInsert = typeParameters)?
+        (typeParameterTextSelection = typeParameters[typeParameterSelections])?
         {
-	    // the place which we would want to insert an "extends" is at the
-	    // character just after the interfacename identifier
-	    extendsInsert = selectionAfterToken((JavaToken)id);
+	        // the place which we would want to insert an "extends" is at the
+	        // character just after the interfacename identifier
+	        Selection lastTypeParamSelection = null;
+            if(!typeParameterSelections.isEmpty()) {
+            	lastTypeParamSelection = (Selection)typeParameterSelections.lastElement();
+            	extendsInsert = nextSelection(lastTypeParamSelection);
+            }
+            else
+               extendsInsert = selectionAfterToken((JavaToken)id);
         }
 
     // it might extend some other interfaces
@@ -723,11 +793,13 @@ interfaceDefinition[JavaBitSet mods, JavaToken commentToken]
         // tell the symbol table about it!
         // Note that defineInterface pushes the interface scope, so
         //   we'll have to pop it...
-        { defineInterface((JavaToken)id,
+        { 
+        	defineInterface((JavaToken)id,
 		            superInterfaces,
 		            mods.get(MOD_PUBLIC), commentToken,
 		            extendsInsert,
-		            typeParamsInsert,
+		            typeParameterTextSelection,
+		            typeParameterSelections,
             		superInterfaceSelections); }
 
     // now parse the body of the interface (looks like a class...)
@@ -767,7 +839,7 @@ enumDefinition[JavaBitSet mods, JavaToken commentToken]
             		  commentToken,
             		  null, implementsInsert,
             		  null, null,
-            		  null,
+            		  null, null,
             		  interfaceSelections); }
 
     // now parse the body of the class
@@ -782,37 +854,50 @@ annotationTypeDeclaration
         AT "interface" IDENT annotationTypeBody
     ;
 
-typeParameters returns [Selection typeParamInsert]
+typeParameters[Vector typeParameterSelections] returns [Selection typeParamInsert]
     {    int currentLtLevel = 0;
          typeParamInsert = null;
+         JavaToken typeParameterText = null;
          JavaToken typeParam = null;
          JavaToken paramEnd = null;
          // the full token for the type parameter selection
-         JavaToken typeParameters = null;     
+         //JavaToken typeParameters = null;     
     }
     :
         {currentLtLevel = ltCounter;}
         id:LT 
             {ltCounter++;
-                typeParameters = (JavaToken)id;
-                typeParamInsert = new Selection(typeParameters);                
+                typeParameterText = (JavaToken)id;
+                //build up selection to be returned at the end
+                typeParamInsert = new Selection(typeParameterText);
+                // add this as first selection
+                typeParameterSelections.add(typeParamInsert);
+                                
             }
-        typeParam = typeParameter
+        typeParam = typeParameter[typeParameterSelections]
             {
-            	typeParameters.setText(typeParameters.getText() + typeParam.getText());
-            	typeParamInsert = new Selection(typeParameters);     	    
+            	Selection s = new Selection(typeParam);
+            	typeParameterSelections.add(s);
+            	typeParameterText.setText(typeParameterText.getText() + typeParam.getText());
+            	typeParamInsert = new Selection(typeParameterText);     	    
             } 
-        (co:COMMA typeParam = typeParameter
+        (co:COMMA typeParam = typeParameter[typeParameterSelections]
             {
-            	typeParameters.setText(typeParameters.getText() + ((JavaToken)co).getText() + typeParam.getText());
-            	typeParamInsert = new Selection(typeParameters);     	    
+            	Selection s = new Selection((JavaToken)co);
+            	typeParameterSelections.add(s);
+            	s = new Selection((JavaToken)typeParam);
+            	typeParameterSelections.add(s);
+            	typeParameterText.setText(typeParameterText.getText() + ((JavaToken)co).getText() + typeParam.getText());
+            	typeParamInsert = new Selection(typeParameterText);     	    
             }         
         )*
         (paramEnd = typeArgumentsEnd
             {
             	if(paramEnd != null) {
-            		typeParameters.setText(typeParameters.getText() + paramEnd.getText());
-            		typeParamInsert = new Selection(typeParameters);
+            		Selection s = new Selection((JavaToken)paramEnd);
+            		typeParameterSelections.add(s);
+            		typeParameterText.setText(typeParameterText.getText() + paramEnd.getText());
+            		typeParamInsert = new Selection(typeParameterText);
             	}
             }
         )?
@@ -821,7 +906,7 @@ typeParameters returns [Selection typeParamInsert]
         {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
     ;
 
-typeParameter returns [JavaToken paramInsert]
+typeParameter[Vector typeParameterSelections] returns [JavaToken paramInsert]
 	{   paramInsert = null;
 		JavaToken id = null;
 		JavaToken xtend = null;
@@ -832,18 +917,23 @@ typeParameter returns [JavaToken paramInsert]
         	if(id2 != null)
         	    paramInsert = (JavaToken)id2;
         	else if(id3 != null)
-        	    paramInsert = (JavaToken)id3;    
+        	    paramInsert = (JavaToken)id3;
+        	typeParameterSelections.add(new Selection(paramInsert));    
         }
         (   // I'm pretty sure Antlr generates the right thing here:
             options{generateAmbigWarnings=false;}:
-            ex:"extends" id=classOrInterfaceType[false] 
+            ex:"extends" id=classOrInterfaceType[false, null] 
             { 
+            	typeParameterSelections.add(new Selection((JavaToken)ex));
+            	typeParameterSelections.add(new Selection((JavaToken)id));
             	paramInsert.setText(paramInsert.getText() + " " + ex.getText());
             	paramInsert.setText(paramInsert.getText() + " " + id.getText());
             	Selection s = new Selection((JavaToken)paramInsert);
             }
-            (band:BAND id=classOrInterfaceType[false] 
+            (band:BAND id=classOrInterfaceType[false, null] 
             { 
+            	typeParameterSelections.add(new Selection((JavaToken)band));
+            	typeParameterSelections.add(new Selection((JavaToken)id));
             	paramInsert.setText(paramInsert.getText() + " " + band.getText());
             	paramInsert.setText(paramInsert.getText() + " " + id.getText());
             	Selection s = new Selection((JavaToken)paramInsert);
@@ -918,22 +1008,47 @@ annDefaultValue:
 // a particular name for deletion
 interfaceExtends[JavaVector interfaces, Vector interfaceSelections] returns [Selection extendsInsert]
     { JavaToken id;
+      Vector typeArgs = new Vector();
       extendsInsert = null;
     }
-    : ex:"extends" id=classOrInterfaceType[false]
+    : ex:"extends" id=classOrInterfaceType[false, typeArgs]
        {
-          extendsInsert = selectionAfterToken((JavaToken)id);
+       	  if(!typeArgs.isEmpty()) {
+          	  JavaToken lastArg = (JavaToken)typeArgs.lastElement();
+          	  extendsInsert = selectionAfterToken(lastArg);
+          }
+          else	
+              extendsInsert = selectionAfterToken((JavaToken)id);
 
           interfaceSelections.addElement(new Selection((JavaToken)ex));
     	  interfaces.addElement(dummyClass(id));
-    	  interfaceSelections.addElement(new Selection((JavaToken)id));
+    	  //deal with type args if they exist
+    	  Selection s = new Selection((JavaToken)id);
+          if(!typeArgs.isEmpty()) {
+          	  Iterator it = typeArgs.iterator();
+              while(it.hasNext()){
+                  s.addToken((JavaToken)it.next());
+              }	
+          }
+    	  interfaceSelections.addElement(s);
+    	  //clear typeArgs in case it is re-used in optional section below
+    	  typeArgs.removeAllElements();
        }
-        ( co:COMMA id=classOrInterfaceType[false]
+        ( co:COMMA id=classOrInterfaceType[false, typeArgs]
         {
           extendsInsert = selectionAfterToken((JavaToken)id);
 
           interfaceSelections.addElement(new Selection((JavaToken)co));
           interfaces.addElement(dummyClass(id));
+          Selection s = new Selection((JavaToken)id);
+          if(!typeArgs.isEmpty()) {
+          	  Iterator it = typeArgs.iterator();
+              while(it.hasNext()){
+                  s.addToken((JavaToken)it.next());
+              }
+          }
+    	  interfaceSelections.addElement(s);
+    	  typeArgs.removeAllElements();
           interfaceSelections.addElement(new Selection((JavaToken)id));
         }
         )*
@@ -948,23 +1063,51 @@ interfaceExtends[JavaVector interfaces, Vector interfaceSelections] returns [Sel
 //  in the source
 implementsClause[JavaVector interfaces, Vector interfaceSelections] returns [Selection implementsInsert]
     { JavaToken id;
+      Vector typeArgs = new Vector();
       implementsInsert = null;
     }
-    : im:"implements" id=classOrInterfaceType[false]
+    : im:"implements" id=classOrInterfaceType[false, typeArgs]
         {
-          implementsInsert = selectionAfterToken((JavaToken)id);
+          if(!typeArgs.isEmpty()) {
+          	  JavaToken lastArg = (JavaToken)typeArgs.lastElement();
+          	  implementsInsert = selectionAfterToken(lastArg);
+          }	
+          else
+              implementsInsert = selectionAfterToken((JavaToken)id);
 
     	  interfaceSelections.addElement(new Selection((JavaToken)im));
           interfaces.addElement(dummyClass(id));
-    	  interfaceSelections.addElement(new Selection((JavaToken)id));
+          Selection s = new Selection((JavaToken)id);
+          if(!typeArgs.isEmpty()) {
+          	  Iterator it = typeArgs.iterator();
+              while(it.hasNext()){
+                  s.addToken((JavaToken)it.next());
+              }	
+          }
+    	  interfaceSelections.addElement(s);
+    	  //clear typeArgs in case it is re-used in optional section below
+    	  typeArgs.removeAllElements();
         }
-    ( co:COMMA id=classOrInterfaceType[false]
+    ( co:COMMA id=classOrInterfaceType[false, typeArgs]
         {
-          implementsInsert = selectionAfterToken((JavaToken)id);
+           if(!typeArgs.isEmpty()) {
+          	  JavaToken lastArg = (JavaToken)typeArgs.lastElement();
+          	  implementsInsert = selectionAfterToken(lastArg);
+          }	
+          else
+              implementsInsert = selectionAfterToken((JavaToken)id);
 
           interfaceSelections.addElement(new Selection((JavaToken)co));
           interfaces.addElement(dummyClass(id));
-          interfaceSelections.addElement(new Selection((JavaToken)id));
+          Selection s = new Selection((JavaToken)id);
+          if(!typeArgs.isEmpty()) {
+          	  Iterator it = typeArgs.iterator();
+              while(it.hasNext()){
+                  s.addToken((JavaToken)it.next());
+              }
+          }
+    	  interfaceSelections.addElement(s);
+    	  typeArgs.removeAllElements();
         }
     )*
 
@@ -979,7 +1122,10 @@ field
         JavaToken  type, commentToken = null;
         JavaVector exceptions = null;           // track thrown exceptions
         JavaBitSet mods = null;
-        Selection typeParameterSelection = null;
+        //Selection typeParameterSelection = null;
+        Vector typeParameterSelections = new Vector();
+        Selection typeParameterTextSelection = null;
+        //JavaToken typeParameterText = null;
     }
     :   // method, constructor, or variable declaration
 	{ commentToken = findAttachedComment((JavaToken)LT(1)); }
@@ -998,14 +1144,15 @@ field
             // A generic method has the typeParameters before the return type.
             // This is not allowed for variable definitions, but this production
             // allows it, a semantic check could be used if you wanted.
-            (typeParameterSelection = typeParameters)?
+            (typeParameterTextSelection = typeParameters[typeParameterSelections])?
             type=typeSpec  // method or variable declaration(s)
             (
                 method:IDENT  // the name of the method
                 {
                     // tell the symbol table about it.  Note that this signals that
         	        // we are in a method header so we handle parameters appropriately
-        	        defineMethod((JavaToken)method, type, commentToken, typeParameterSelection);
+        	        
+        	        defineMethod((JavaToken)method, type, commentToken, typeParameterTextSelection);
                 }
 
                 // parse the formal parameter declarations.
