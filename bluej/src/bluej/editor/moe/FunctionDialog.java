@@ -94,6 +94,11 @@ implements ActionListener, ListSelectionListener, ItemListener
      */
     private void handleDefaults()
     {
+        int answer = DialogManager.askQuestion(this, "default-keys");
+        if(answer == 0) {
+            actions.setDefaultKeyBindings();
+            handleFuncListSelect();
+        }
     }
 
     /**

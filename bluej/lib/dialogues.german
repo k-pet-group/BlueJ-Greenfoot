@@ -250,3 +250,11 @@ null
 no-search-string
 Es ist kein Suchtext definiert.
 (Zuerst Text selektieren oder 'Suchen' benutzen.)
+
+default-keys
+Sollen wirklich alle definierten
+Tastenbindungen gelöscht werden und
+Standarddefinitionen gesetzt werden?
+Standard setzen
+Abbrechen
+null

@@ -229,7 +229,6 @@ Ange arrayelementindex [...]
 Inspektera Array
 null
 
-
 # editor:
 #########
 
@@ -237,8 +236,10 @@ no-search-string
 Ingen söksträng är angiven.
 (Markera en text eller använd 'Hitta' först.)
 
-
-
-
-
-
+default-keys
+Do you really want to discard all your
+key bindings and set the default
+bindings?
+Set defaults
+Cancel
+null

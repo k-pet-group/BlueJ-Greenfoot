@@ -242,3 +242,11 @@ null
 no-search-string
 No search string is defined.
 (Highlight some text or use 'Find' first.)
+
+default-keys
+Do you really want to discard all your
+key bindings and set the default
+bindings?
+Set defaults
+Cancel
+null
