@@ -18,7 +18,7 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 53 1999-04-29 23:43:58Z mik $
+ ** @version $Id: MethodDialog.java 59 1999-05-01 01:45:21Z mik $
  ** @author Justin Tan
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -125,7 +125,7 @@ public class MethodDialog extends JDialog
 
 	getContentPane().add("South", butPanel);
 	getContentPane().add("North", descPanel);
-
+	getRootPane().setDefaultButton(bOk);
 
 	// parse method signature for param fields, there may be a better way
 	String[] paramNames = null;	
