@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2053 2003-06-24 10:30:59Z damiano $
+ * @version $Id: PkgMgrFrame.java 2055 2003-06-24 14:51:00Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -40,10 +40,6 @@ public class PkgMgrFrame extends JFrame
 
     static final int DEFAULT_WIDTH = 420;
     static final int DEFAULT_HEIGHT = 300;
-
-    private static final Icon workingIcon = Config.getImageAsIcon("image.working");
-    private static final Icon notWorkingIcon = Config.getImageAsIcon("image.working.disab");
-    private static final Icon stoppedIcon = Config.getImageAsIcon("image.working.stopped");
 
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -84,7 +80,7 @@ public class PkgMgrFrame extends JFrame
     private JMenuItem showTestResultsItem;
     private List itemsToDisable;
     private List testItems;
-    private JButton progressButton;
+    private MachineIcon machineIcon;
 
     /* The scroller which holds the PackageEditor we use to edit packages */
     private JScrollPane classScroller = null;
@@ -1788,23 +1784,20 @@ public class PkgMgrFrame extends JFrame
     {
 		switch (state) {
 		 case Debugger.NOTREADY:
-		 	progressButton.setText("NOTREADY");
 		 	break;
+
 		 case Debugger.IDLE:
-		 progressButton.setText("IDLE");
-		 	//progressButton.setIcon(stoppedIcon);
+		 	machineIcon.setIdle();
 			// TODO: pkg.removeStepMarks();
         	break;
 		 
 		 case Debugger.RUNNING:
-		    progressButton.setText("RUNNING");
-		 	//progressButton.setIcon(workingIcon);
+            machineIcon.setRunning();
 		 	break;
 	 
 		 case Debugger.SUSPENDED:
-			 progressButton.setText("SUSPENDED");
-			 break;
-
+		 	machineIcon.setStopped();
+            break;
 		}
     }
 
@@ -1834,31 +1827,6 @@ public class PkgMgrFrame extends JFrame
             setStatus(Config.getString("pkgmgr.webBrowserError"));
     }
 
-	private void createMachinePopup()
-	{
-		JPopupMenu p = new JPopupMenu();
-		JMenuItem item;
-		
-		item = new JMenuItem("Show Debugger");
-		item.addActionListener(new ActionListener() {
-								public void actionPerformed(ActionEvent e) {
-									getProject().getExecControls().showHide(true);
-								}
-							 });
-		p.add(item);
-
-		item = new JMenuItem("Reset Machine");
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, InputEvent.SHIFT_MASK));
-		item.addActionListener(new ActionListener() {
-								public void actionPerformed(ActionEvent e) {
-									restartDebugger();
-								}
-							 });
-		p.add(item);
-
-		p.show(progressButton, 10,10);
-	}
-
     // --- the following methods set up the GUI frame ---
 
     private void makeFrame()
@@ -1872,7 +1840,8 @@ public class PkgMgrFrame extends JFrame
         JPanel mainPanel = new JPanel();
 
 		mainPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-								KeyStroke.getKeyStroke("ESCAPE"),"restartVM");
+                              KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, InputEvent.SHIFT_MASK), 
+                              "restartVM");
 								
 		mainPanel.getActionMap().put("restartVM",
 			 new AbstractAction() {
@@ -2003,32 +1972,16 @@ public class PkgMgrFrame extends JFrame
             }
             testItems.add(testPanel);
 
-            // Image Button Panel to hold the Progress Image
-            //        JPanel progressPanel = new JPanel ();
-    
-//            progressButton = new JButton(stoppedIcon);
-//            progressButton.setDisabledIcon(notWorkingIcon);
-            progressButton = new JButton("NOTREADY");
-            progressButton.setMargin(new Insets(0, 0, 0, 0));
-            progressButton.setToolTipText(Config.getString("tooltip.progress"));
-            progressButton.addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent e)
-                            {
-                            	createMachinePopup();                               	
-                            }
-                       });
-			itemsToDisable.add(progressButton);
-            progressButton.setEnabled(false);
-            //        progressPanel.add(progressButton);
-    
-            progressButton.setAlignmentX(0.5f);
+            machineIcon = new MachineIcon(this);
+
+            machineIcon.setAlignmentX(0.5f);
         }
     
         toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
         toolPanel.add(buttonPanel);
         toolPanel.add(Box.createVerticalGlue());
         toolPanel.add(testPanel);
-        toolPanel.add(progressButton);
+        toolPanel.add(machineIcon);
 
         // create the bottom object bench and status area
         
