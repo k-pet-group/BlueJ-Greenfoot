@@ -5,7 +5,7 @@ import javax.swing.JToggleButton;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
- * ButtonModel for the "Show Execution Controls" checkBoxItem in the menu.
+ * ButtonModel for the "Show Debugger" checkBoxItem in the menu.
  * This model takes care that the right things happen when the checkbox
  * is shown or changed.
  *

@@ -27,7 +27,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2303 2003-11-07 04:49:43Z ajp $
+ * @version $Id: UnitTestClassRole.java 2329 2003-11-13 04:09:50Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -287,17 +287,29 @@ public class UnitTestClassRole extends ClassRole
         }
     }
     
+    /**
+     * Turn the fixture declared in a unit test class into a set of
+     * objects on the object bench.
+     * 
+     * @param pmf  the PkgMgrFrame that will hold the object bench
+     * @param ct   the ClassTarget of the unit test class
+     */
     public void doFixtureToBench(PkgMgrFrame pmf, ClassTarget ct)
     {
         MoeEditor ed = (MoeEditor) ct.getEditor();
         ed.save();
 
+        // our first step is to save all the existing code that creates the
+        // fixture into a special invoker record
+        // this can then be used to recreate this fixture from the object
+        // bench if needed
         ExistingFixtureInvokerRecord existing = new ExistingFixtureInvokerRecord();
         
         try {
             UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
-            List fixtureSpans = uta.getFieldSpans();
 
+            // iterate through all the declarations of fields (fixture items) in the class
+            List fixtureSpans = uta.getFieldSpans();
             ListIterator it = fixtureSpans.listIterator();
                 
             while(it.hasNext()) {
@@ -308,6 +320,7 @@ public class UnitTestClassRole extends ClassRole
                 existing.addFieldDeclaration(ed.getSelectedText());
             }
 
+            // find the source code of the "setUp" method
             SourceSpan setUpSpan = uta.getMethodBlockSpan("setUp");
 
             if (setUpSpan != null) {
