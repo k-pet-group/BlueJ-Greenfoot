@@ -14,10 +14,10 @@ import bluej.utility.*;
  * Dialog implementing version check functionality.
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 2282 2003-11-05 19:46:22Z polle $
+ * @version $Id: VersionCheckDialog.java 2506 2004-04-21 01:51:31Z davmac $
  */
 
-final class VersionCheckDialog extends JDialog
+final public class VersionCheckDialog extends JDialog
      implements ActionListener
 {
     // Internationalisation
