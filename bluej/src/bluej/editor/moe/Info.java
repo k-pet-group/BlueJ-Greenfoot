@@ -3,6 +3,8 @@ package bluej.editor.moe;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
+import bluej.utility.BlueJFileReader;
 
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
 import java.awt.event.*;        // New Event model    
@@ -143,60 +145,19 @@ public final class Info extends JPanel
 
     private void displayHelp(String helpGroup)
     {
-	String fileName = Config.getHelpFilename(helpGroup);
-	BufferedReader in = null; 
-	boolean found = false;
 
-	try {
-	    in = new BufferedReader(new FileReader(fileName));
-	    String displayMsg = line1.getText().trim();  // message displayed
-	    String msg;
-	    String line;
-	    String helptext = "";
-	    while ((msg = in.readLine()) != null) {
-		msg = msg.trim();
-		if(helpTextMatch(displayMsg, msg)) {
-		    // found it - read help text
-		    line = in.readLine();
-		    while ((line != null) && (line.length() > 0)) {
-			helptext += line + "\n";
-			line = in.readLine();
-		    }
-		    Utility.showMessage(null, helptext);
-		    found = true;
-		    break;
-		}
-		else {
-		    // skip help text
-		    line = in.readLine();
-		    while ((line != null) && (line.length() > 0))
-			line = in.readLine();
-		}
-	    }
-	    in.close();
-	    if(! found)
-		Utility.showMessage(null, 
-			    "No help available for this message.\n\n" +
-			    "Please mail the text of the error message\n" +
-			    "to mik@csse.monash.edu.au - we will then\n" +
-			    "add a help text to our help database. Thanks.");
-	}
-	catch(IOException e) {
-	    Utility.showError(null, "Cannot read help file:\n" + fileName);
-	}
-    }
+	String displayMsg = line1.getText().trim();  // message displayed
+	String helpText = BlueJFileReader.readHelpText(helpGroup, displayMsg,
+						       false);
 
-    private boolean helpTextMatch(String message, String pattern)
-    {
-	if(pattern.length() == 0)
-	    return false;
-	if(pattern.charAt(0) == '*')
-	    return message.endsWith(pattern.substring(1));
-	if(pattern.charAt(pattern.length()-1) == '*')
-	    return message.startsWith(
-				pattern.substring(0, pattern.length()-2));
+	if(helpText == null)
+	    DialogManager.showMessage(null, 
+			"No help available for this message.\n\n" +
+			"Please mail the text of the error message\n" +
+			"to mik@csse.monash.edu.au - we will then\n" +
+			"add a help text to our help database. Thanks.");
 	else
-	    return pattern.equals(message);
+	    DialogManager.showMessage(null, helpText);
     }
 
 }  // end class Info

@@ -9,7 +9,7 @@ import sun.tools.javac.Main;
 import bluej.utility.*;
 
 /**
- ** @version $Id: JavacCompilerInternal.java 163 1999-07-08 00:50:23Z mik $
+ ** @version $Id: JavacCompilerInternal.java 267 1999-11-10 02:53:02Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -94,7 +94,7 @@ public class JavacCompilerInternal extends Compiler
 }
 
 /**
- ** @version $Id: JavacCompilerInternal.java 163 1999-07-08 00:50:23Z mik $
+ ** @version $Id: JavacCompilerInternal.java 267 1999-11-10 02:53:02Z mik $
  ** @author Michael Cahill
  ** ErrorStream - OutputStream that parses javac output.
  **/
@@ -160,7 +160,7 @@ class ErrorStream extends PrintStream
 	int first_colon = msg.indexOf(':', 0);
 	if(first_colon == -1) {
 	    // cannot read format of error message
-	    Utility.showError(null, "Compiler error:\n" + msg);
+	    DialogManager.showError(null, "Compiler error:\n" + msg);
 	    return;
 	}
 
@@ -171,7 +171,7 @@ class ErrorStream extends PrintStream
 	    first_colon = msg.indexOf(':', first_colon + 1);
 	    if(first_colon == -1) {
 				// cannot read format of error message
-		Utility.showError(null, "Compiler error:\n" + msg);
+		DialogManager.showError(null, "Compiler error:\n" + msg);
 		return;
 	    }
 	    filename = msg.substring(0, first_colon);
@@ -179,7 +179,7 @@ class ErrorStream extends PrintStream
 	int second_colon = msg.indexOf(':', first_colon + 1);
 	if(second_colon == -1) {
 	    // cannot read format of error message
-	    Utility.showError(null, "Compiler error:\n" + msg);
+	    DialogManager.showError(null, "Compiler error:\n" + msg);
 	    return;
 	}
 

@@ -4,6 +4,7 @@ import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.BlueJFileReader;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
@@ -21,7 +22,7 @@ import java.io.StringWriter;
 import java.util.Hashtable;
 
 /**
- ** @version $Id: Invoker.java 244 1999-08-20 06:42:33Z mik $
+ ** @version $Id: Invoker.java 267 1999-11-10 02:53:02Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -302,7 +303,8 @@ public class Invoker extends Thread
 	String shellFileName = pkg.getFileName(shellName) + ".java";
 		
 	try {
-	    Utility.translateFile(templateFileName, shellFileName, trans);
+	    BlueJFileReader.translateFile(templateFileName, shellFileName, 
+					  trans);
 	} catch(IOException e) {
 	    e.printStackTrace();
 	    return;

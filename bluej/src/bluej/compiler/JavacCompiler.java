@@ -6,10 +6,11 @@ import java.util.Vector;
 
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 import bluej.Config;
 
 /**
- ** @version $Id: JavacCompiler.java 176 1999-07-09 04:13:10Z mik $
+ ** @version $Id: JavacCompiler.java 267 1999-11-10 02:53:02Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -87,7 +88,7 @@ public class JavacCompiler extends Compiler
 	    result = executeCompiler(params, watcher);
 	}
 	catch (Exception ioe) {
-	    Utility.showError(null, "Compiler error running " + executable + " (is the program in your path)\n");
+	    DialogManager.showError(null, "Compiler error running " + executable + " (is the program in your path)\n");
 	}
 
 	return result;	
@@ -117,7 +118,7 @@ public class JavacCompiler extends Compiler
 	
 	    if(first_colon == -1) {
 				// cannot read format of error message
-		Utility.showError(null, "Compiler error:\n" + line);
+		DialogManager.showError(null, "Compiler error:\n" + line);
 		break;
 	    }
 
@@ -129,7 +130,7 @@ public class JavacCompiler extends Compiler
 	
 		if(first_colon == -1) {
 		    // cannot read format of error message
-		    Utility.showError(null, "Compiler error:\n" + line);
+		    DialogManager.showError(null, "Compiler error:\n" + line);
 		    break;
 		}
 		filename = line.substring(0, first_colon);
@@ -138,7 +139,7 @@ public class JavacCompiler extends Compiler
 	    int second_colon = line.indexOf(':', first_colon + 1);
 	    if(second_colon == -1) {
 				// cannot read format of error message
-		Utility.showError(null, "Compiler error:\n" + line);
+		DialogManager.showError(null, "Compiler error:\n" + line);
 		break;
 	    }
 	
@@ -157,7 +158,7 @@ public class JavacCompiler extends Compiler
 
 	    if((d.readLine() == null) || (d.readLine() == null)) {
 				// we are missing part of the normal error report
-		Utility.showError(null, "Compiler error. Error stream incomplete.\n");
+		DialogManager.showError(null, "Compiler error. Error stream incomplete.\n");
 	    }
 	    else {
 		//Debug.message("Indicating error " + filename + " " + lineNo);

@@ -2,6 +2,7 @@ package bluej.editor.moe;
 
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 
 import java.util.Hashtable;
 
@@ -279,7 +280,7 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    DialogManager.NYI(getEditor(e));
 	}
     }
 
@@ -293,7 +294,7 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    DialogManager.NYI(getEditor(e));
 	}
     }
 
@@ -414,7 +415,7 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    DialogManager.NYI(getEditor(e));
 	}
     }
 
@@ -531,7 +532,7 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    DialogManager.NYI(getEditor(e));
 	}
     }
 
@@ -570,7 +571,7 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    DialogManager.NYI(getEditor(e));
 	}
     }
 
@@ -583,7 +584,7 @@ public final class MoeActions
     //       }
     // 
     //       public void actionPerformed(ActionEvent e) {
-    // 	  Utility.NYI(editor);
+    // 	  DialogManager.NYI(editor);
     //       }
     //     }
 

@@ -19,6 +19,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 import bluej.graph.GraphEditor;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerThread;
@@ -258,7 +259,7 @@ public class PkgMgrFrame extends PkgFrame
 	case PKG_QUIT:
 	    int answer = 0;
 	    if(frameCount() > 1)
-		answer = Utility.askQuestion(this, "Quit all open packages?", 
+		answer = DialogManager.askQuestion(this, "Quit all open packages?", 
 					     "Quit All", "Cancel", null);
 	    if(answer == 0) {
 		bluej.Main.exit();
@@ -296,7 +297,7 @@ public class PkgMgrFrame extends PkgFrame
 	    break;
 
 	case TOOLS_COMPILESELECTED:
-	    Utility.NYI(this);
+	    DialogManager.NYI(this);
 	    break;
 
 	case TOOLS_REBUILD:
@@ -305,7 +306,7 @@ public class PkgMgrFrame extends PkgFrame
 
 	case TOOLS_BROWSE:
 /*
-	    Utility.showMessage(this, 
+	    DialogManager.showMessage(this, 
 		"The library browser is not implemented in this version.\n" +
 		"To browse the Java standard libraries, select \"Java\n" +
 		"Class Libraries...\" from the Help menu."); 
@@ -351,7 +352,7 @@ public class PkgMgrFrame extends PkgFrame
 	case GRP_STATUSALL:
 	case GRP_USERS:
 	case GRP_CONFIG:
-	    Utility.NYI(this);
+	    DialogManager.NYI(this);
 	    break;
 
 	    // Help commands
@@ -445,7 +446,7 @@ public class PkgMgrFrame extends PkgFrame
 	    // check whether name is already in use
 	    File dir = new File(newname);
 	    if(dir.exists()) {
-		Utility.showError(this, 
+		DialogManager.showError(this, 
 				  "A file or directory with this\n" +
 				  "name already exists.");
 		return;
@@ -458,12 +459,12 @@ public class PkgMgrFrame extends PkgFrame
 	    Main.addPackage(pkg);	// add under new name
 
 	    if(result == Package.CREATE_ERROR)
-		Utility.showError(this, 
+		DialogManager.showError(this, 
 				  "Could not write package to new\n" +
 				  "location. Please check the name\n" +
 				  "and access rights.");
 	    else if(result == Package.COPY_ERROR)
-		Utility.showError(this, 
+		DialogManager.showError(this, 
 				  "There was a problem copying some\n" +
 				  "of the package files. The package\n" +
 				  "may be incomplete.");
@@ -486,23 +487,23 @@ public class PkgMgrFrame extends PkgFrame
 		    editor.repaint();
 		    break;
 	        case Package.FILE_NOT_FOUND: 
-		    Utility.showError(this, 
+		    DialogManager.showError(this, 
 			      "The specified file\ndoes not exist.");
 		    break;
 	        case Package.ILLEGAL_FORMAT: 
-		    Utility.showError(this, 
+		    DialogManager.showError(this, 
 			      "Cannot import file. The file must\n" +
 			      "be a Java source file (it's name\n" +
 			      "must end in \".java\").");
 		    break;
 	        case Package.CLASS_EXISTS: 
-		    Utility.showError(this, 
+		    DialogManager.showError(this, 
 			      "A class with this name already exists\n" +
 			      "in this package. You cannot have two\n" +
 			      "classes with the same name.");
 		    break;
 	        case Package.COPY_ERROR: 
-		    Utility.showError(this, 
+		    DialogManager.showError(this, 
 			      "An error occured during the attempt to\n" +
 			      "import the file. Check access rights and\n" +
 			      "disk space.");
@@ -516,7 +517,7 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void importPackage()
     {
-	Utility.NYI(this);
+	DialogManager.NYI(this);
 //  	    String dirname = openPackageDialog(false);
 //  	    if(dirname == null)
 //  		break;
@@ -525,7 +526,7 @@ public class PkgMgrFrame extends PkgFrame
 //  	    if(pkgfile.exists())
 //  		Debug.reportError("Package " + dirname + " already exists");
 //  	    else {
-//  		String pkgname = Utility.askString(this, 
+//  		String pkgname = DialogManager.askString(this, 
 //  							 "Package name:", "");
 //  		if((pkgname == null) || (pkgname.length() == 0))
 //  		    pkgname = Package.noPackage;
@@ -540,7 +541,7 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void exportPackage()
     {
-	Utility.NYI(this);
+	DialogManager.NYI(this);
     }
 
     /**
@@ -605,7 +606,7 @@ public class PkgMgrFrame extends PkgFrame
 
 		// check whether name is already used
 		if(pkg.getTarget(name) != null) {
-		    Utility.showError(this, nameUsedError);
+		    DialogManager.showError(this, nameUsedError);
 		    return;
 		}
 
@@ -631,7 +632,7 @@ public class PkgMgrFrame extends PkgFrame
     {
 	ClassTarget target = (ClassTarget) pkg.getSelectedTarget();
 	if(target == null)
-	    Utility.showError(this, "No Class selected for removal.\n" 
+	    DialogManager.showError(this, "No Class selected for removal.\n" 
 			      + "Select Class by clicking on it before\n"
 			      + "trying to remove..");
 	else
@@ -646,7 +647,7 @@ public class PkgMgrFrame extends PkgFrame
     public void removeClass(ClassTarget removableTarget)
     {
 	// Check they realise that this will delete the files.
-	int response = Utility.askQuestion(this, "Removing this class will permanently\ndelete the source file.\nDo you want to continue?", "Ok", "Cancel", null);
+	int response = DialogManager.askQuestion(this, "Removing this class will permanently\ndelete the source file.\nDo you want to continue?", "Ok", "Cancel", null);
 
 	// if they agree
 	if(response == 0)
@@ -694,11 +695,7 @@ public class PkgMgrFrame extends PkgFrame
     {
 	if(execCtrlWindow == null) {
 	    execCtrlWindow = new ExecControls();
-	    Utility.centreWindow(execCtrlWindow, this);
-//  	    Utility.showMessage(this, 
-//  				"ATTENTION: The debugger is not yet\n" +
-//  				"fully functional and it known to cause\n" +
-//  				"problems. It should not be used.");
+	    DialogManager.centreWindow(execCtrlWindow, this);
 	}
 	execCtrlWindow.setVisible(show);
 	if(show && update)
@@ -870,7 +867,7 @@ public class PkgMgrFrame extends PkgFrame
 	// check whether path exists
 
 	if (!packageFile.exists()) {
-	    Utility.showError (this, 
+	    DialogManager.showError (this, 
 	       "Error in opening package.\nThe package \"" +
 	       path + "\"\ndoes not exist.");
 	    return false;
@@ -879,7 +876,7 @@ public class PkgMgrFrame extends PkgFrame
 	// check whether path is a valid BlueJ package
 
 	if (!Utility.isJBPackage(packageFile, Package.pkgfileName)) {
-	    Utility.showError (this, 
+	    DialogManager.showError (this, 
 	       "Error in opening package.\nThe file/directory \"" +
 	       path + "\"\nis not a BlueJ package.");
 	    return false;

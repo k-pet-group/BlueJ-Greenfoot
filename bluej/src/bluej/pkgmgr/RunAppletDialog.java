@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 
 import java.util.Vector;
 import java.awt.*;
@@ -12,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: RunAppletDialog.java 168 1999-07-08 01:42:33Z bruce $
+ ** @version $Id: RunAppletDialog.java 267 1999-11-10 02:53:02Z mik $
  ** @author Bruce Quig
  **
  ** Dialog for generating HTML and running applets.
@@ -161,7 +162,7 @@ public class RunAppletDialog extends JDialog
 
  	getContentPane().add("Center", webPanel);
 		
-	Utility.centreDialog(this);
+	DialogManager.centreDialog(this);
     }
   
     
@@ -259,7 +260,7 @@ public class RunAppletDialog extends JDialog
     public void doOK()
     {
 	if(!checkFieldsAreValid()) {
-	    Utility.showError(parent, "Applet Height and Width must be specified");
+	    DialogManager.showError(parent, "Applet Height and Width must be specified");
 	}
 	else { // collect information from fields
 	    ok = true;

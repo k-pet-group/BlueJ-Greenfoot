@@ -3,6 +3,8 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
+import bluej.utility.BlueJFileReader;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,7 +21,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 234 1999-08-13 01:48:05Z bruce $
+ ** @version $Id: AppletClassRole.java 267 1999-11-10 02:53:02Z mik $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -208,7 +210,7 @@ public class AppletClassRole extends ClassRole
 			Process applet = 
 			    Runtime.getRuntime().exec(execCommand);
 		    } catch (Exception e) {
-			Utility.showError(pkg.getFrame(), "Error executing applet in appletviewer.");	
+			DialogManager.showError(pkg.getFrame(), "Error executing applet in appletviewer.");	
 			Debug.reportError("Exception thrown in execution of appletviewer");
 			e.printStackTrace();
 		    }
@@ -243,7 +245,7 @@ public class AppletClassRole extends ClassRole
 	    fullFileName = newChooser.getSelectedFile().getPath();
 	}
 	else if (result != JFileChooser.CANCEL_OPTION)
-	    Utility.showError(frame, "You must specify a valid name.");
+	    DialogManager.showError(frame, "You must specify a valid name.");
 	
  	return fullFileName;
     }
@@ -326,7 +328,8 @@ public class AppletClassRole extends ClassRole
 	String filename = Config.getLibFilename(template);
 		
 	try {
-	    Utility.translateFile(filename, outputFileName, translations);
+	    BlueJFileReader.translateFile(filename, outputFileName, 
+					  translations);
 	} catch(IOException e) {
 	    Debug.reportError("Exception during file translation from " + 
 			      filename + " to " + outputFileName);

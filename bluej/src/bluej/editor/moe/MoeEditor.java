@@ -3,6 +3,7 @@ package bluej.editor.moe;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 import bluej.editor.EditorWatcher;
 
 import java.util.Hashtable;
@@ -511,7 +512,7 @@ public final class MoeEditor extends JFrame
 			  "(\"Reload\" reloads the last saved state from disk.)");
 	}
 	else if (saveState.isChanged()) {
-	    int answer = Utility.askQuestion(this,
+	    int answer = DialogManager.askQuestion(this,
 					     "Reload discards all changes since the last edit.\nAre you sure?",
 					     "Reload", "Cancel", null);
 	    if (answer == 0)
@@ -559,7 +560,7 @@ public final class MoeEditor extends JFrame
 
 	int answer;
 	if(printArea.width < textSize.width-8) {
-	    answer = Utility.askQuestion(this,
+	    answer = DialogManager.askQuestion(this,
 					 "The text is wider than the paper. Long lines\n" +
 					 "will be cut off. You can avoid this by resizing\n" +
 					 "the editor window to make it narrower. Do you\n" +
@@ -682,7 +683,7 @@ public final class MoeEditor extends JFrame
     public void find()
     {
 	Finder finder = MoeEditorManager.editorManager.getFinder();
-	Utility.centreWindow(finder, this);
+	DialogManager.centreWindow(finder, this);
 	String s = finder.getNewSearchString(this, Finder.FORWARD);
 	if(s != null)
 	    findString(finder, s, finder.getDirection() == Finder.BACKWARD);

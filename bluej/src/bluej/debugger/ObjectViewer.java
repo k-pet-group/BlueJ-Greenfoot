@@ -5,6 +5,7 @@ import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -20,7 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 254 1999-08-25 07:31:54Z bruce $
+ ** @version $Id: ObjectViewer.java 267 1999-11-10 02:53:02Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -348,7 +349,7 @@ public final class ObjectViewer extends JFrame
      */
     private void selectArrayElement()
     {
-	    String response = Utility.askString(this, 
+	    String response = DialogManager.askString(this, 
 					"Enter array element index [...]", 
 					"Array Inspection", 
 					null);
@@ -369,14 +370,14 @@ public final class ObjectViewer extends JFrame
 			    setButtonsEnabled(false, false);
 		    }
 		    else // not within array bounds
-			Utility.showError(this, 
+			DialogManager.showError(this, 
 			   "Element specified is not within array bounds");
 		    
 		} 
 		catch(NumberFormatException e) {
 		    // input could not be parsed, eg. non integer value
 		    setCurrentObj(null, null);
-		    Utility.showError(this, 
+		    DialogManager.showError(this, 
 			   "Unable to access the array element specified");
 		}
 	
@@ -613,10 +614,10 @@ public final class ObjectViewer extends JFrame
 		
 	pack();
 	if(isInspection || pkg == null) {
-	    Utility.tileWindow(this, parent);
+	    DialogManager.tileWindow(this, parent);
 	}
 	else
-	    Utility.centreWindow(this, pkg.getFrame());
+	    DialogManager.centreWindow(this, pkg.getFrame());
 
 	setVisible(true);
 	button.requestFocus();

@@ -14,6 +14,7 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.editor.Editor;
 import bluej.graph.GraphEditor;
 import bluej.utility.Utility;
+import bluej.utility.BlueJFileReader;
 import bluej.views.ConstructorView;
 import bluej.views.EditorPrintWriter;
 import bluej.views.MemberView;
@@ -41,7 +42,7 @@ import java.util.Vector;
  ** @author Michael Kolling
  ** @author Bruce Quig
  **
- ** @version $Id: ClassTarget.java 265 1999-11-05 04:31:07Z ajp $
+ ** @version $Id: ClassTarget.java 267 1999-11-10 02:53:02Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -149,13 +150,16 @@ public class ClassTarget extends EditableTarget
     {
 	boolean okay = true;
 
-	if (!Utility.copyFile(sourceFile(), directory + name + ".java"))
+	if (!BlueJFileReader.copyFile(sourceFile(), 
+				      directory + name + ".java"))
 	    okay = false;
 
 	if(upToDate()) {
-	    if(!Utility.copyFile(classFile(), directory + name + ".class"))
+	    if(!BlueJFileReader.copyFile(classFile(), 
+					 directory + name + ".class"))
 		okay = false;
-	    if(!Utility.copyFile(contextFile(), directory + name + ".ctxt"))
+	    if(!BlueJFileReader.copyFile(contextFile(), 
+					 directory + name + ".ctxt"))
 		okay = false;
 	}
 	return okay;

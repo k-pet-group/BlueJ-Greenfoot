@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.graph.GraphEditor;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 import java.util.Properties;
 import java.awt.*;
 import java.awt.event.*;
@@ -10,7 +11,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /** 
- ** @version $Id: PackageTarget.java 265 1999-11-05 04:31:07Z ajp $
+ ** @version $Id: PackageTarget.java 267 1999-11-10 02:53:02Z mik $
  ** @author Michael Cahill
  **
  ** A link to a package embedded in another package.
@@ -79,7 +80,7 @@ public class PackageTarget extends Target implements ActionListener
      */
     public boolean copyFiles(String directory)
     {
-	Utility.showError(pkg.getFrame(),
+	DialogManager.showError(pkg.getFrame(),
 			  "\"Save As\" does not yet work for nested packages.");
 	return true;
     }

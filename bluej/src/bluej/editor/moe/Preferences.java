@@ -3,6 +3,7 @@ package bluej.editor.moe;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -55,7 +56,7 @@ public final class Preferences extends JDialog
     public boolean showDialog(JFrame parent)
     {
 	if(parent != null)
-	    Utility.centreWindow(this, parent);
+	    DialogManager.centreWindow(this, parent);
 
 	sizeField.setText("" + fontSize);
 	sizeField.selectAll();

@@ -3,13 +3,14 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: AboutBlue.java 213 1999-07-29 04:16:54Z mik $
+ ** @version $Id: AboutBlue.java 267 1999-11-10 02:53:02Z mik $
  ** @author Justin Tan
  **
  ** General graph edge
@@ -61,7 +62,7 @@ public class AboutBlue extends JDialog
 	getContentPane().add(aboutPanel);
 		
 	// Set some attributes for this DialogBox
-	Utility.centreDialog(this);
+	DialogManager.centreDialog(this);
 	setResizable(false);
 		
 	// Close Action when OK is pressed

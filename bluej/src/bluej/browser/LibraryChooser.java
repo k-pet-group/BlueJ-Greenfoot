@@ -22,6 +22,7 @@ import bluej.pkgmgr.PackageTarget;
 import bluej.pkgmgr.Package;
 import bluej.utility.ModelessMessageBox;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 import bluej.utility.Debug;
 import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPathEntry;
@@ -32,7 +33,7 @@ import bluej.classmgr.ClassPathEntry;
  * 
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: LibraryChooser.java 265 1999-11-05 04:31:07Z ajp $
+ * @version $Id: LibraryChooser.java 267 1999-11-10 02:53:02Z mik $
  */
 public class LibraryChooser extends JPanel implements Runnable {
 
@@ -410,7 +411,7 @@ public class LibraryChooser extends JPanel implements Runnable {
     //    LibraryChooserNode topLevelNode = getFirstNodeContainingDir(thePackage);
       //  if (topLevelNode == null) {
             // we couldn't find the top level node containing the package
-       //     Utility.showError(LibraryBrowserPkgMgrFrame.getFrame(), 
+       //     DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(), 
         //                      Config.getString("browser.librarychooser.classchooserresyncdialog.title") + " '" + thePackage + "'");
          //   return false;
         //}
@@ -441,7 +442,7 @@ public class LibraryChooser extends JPanel implements Runnable {
             if (foundNode == true)
                 nextPosInPath++;
             else {
-                Utility.showError(LibraryBrowserPkgMgrFrame.getFrame(), 
+                DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(), 
                                   Config.getString("browser.librarychooser.classchooserresyncdialog.title") + " '" + nextBitInPath + "'");
                 return false;
             }
@@ -677,7 +678,7 @@ public class LibraryChooser extends JPanel implements Runnable {
     private void openDirectoryLibrary(LibraryChooserNode top, File file) {
         if (!file.exists() && !file.isDirectory()) {
             // because of the long startup time, this should probably be in a separate thread
-            Utility.showError((JFrame)getParent(),
+            DialogManager.showError((JFrame)getParent(),
                       Config.getString("browser.librarychooser.missingshadowdialog.title") + " " + file.getName());
             return;
         }

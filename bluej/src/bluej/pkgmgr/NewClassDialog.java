@@ -3,13 +3,14 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: NewClassDialog.java 161 1999-07-06 14:40:53Z ajp $
+ ** @version $Id: NewClassDialog.java 267 1999-11-10 02:53:02Z mik $
  ** @author Justin Tan
  ** @author Michael Kolling
  **
@@ -149,7 +150,7 @@ public class NewClassDialog extends JDialog
 		getContentPane().add(mainPanel);
 		pack();
 		
-		Utility.centreDialog(this);
+		DialogManager.centreDialog(this);
 	}
 
     /**
@@ -201,7 +202,7 @@ public class NewClassDialog extends JDialog
 	    setVisible(false);
 	}
 	else {
-	    Utility.showError((JFrame)this.getParent(), invalidNameStr);
+	    DialogManager.showError((JFrame)this.getParent(), invalidNameStr);
 	    textFld.selectAll();
 	    textFld.requestFocus();
 	}

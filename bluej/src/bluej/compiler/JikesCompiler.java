@@ -7,10 +7,11 @@ import java.lang.Runtime;
 
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 import bluej.Config;
 
 /**
- ** @version $Id: JikesCompiler.java 176 1999-07-09 04:13:10Z mik $
+ ** @version $Id: JikesCompiler.java 267 1999-11-10 02:53:02Z mik $
  ** @author Andrew Patterson
  **
  ** JikesCompiler class - an implementation for the BlueJ "Compiler"
@@ -94,7 +95,7 @@ public class JikesCompiler extends Compiler
 	    result = executeCompiler(params, watcher);
 	}
 	catch (Exception ioe) {
-	    Utility.showError(null, "Compiler error running " + executable + " (is the program in your path)\n");
+	    DialogManager.showError(null, "Compiler error running " + executable + " (is the program in your path)\n");
 	}
 
 	return result;
@@ -122,7 +123,7 @@ public class JikesCompiler extends Compiler
 
 	    if(first_colon == -1) {
 				// cannot read format of error message
-		Utility.showError(null, "Compiler error:\n" + line);
+		DialogManager.showError(null, "Compiler error:\n" + line);
 		break;
 	    }
 	
@@ -134,7 +135,7 @@ public class JikesCompiler extends Compiler
 	
 		if(first_colon == -1) {
 		    // cannot read format of error message
-		    Utility.showError(null, "Compiler error:\n" + line);
+		    DialogManager.showError(null, "Compiler error:\n" + line);
 		    break;
 		}
 		filename = line.substring(0, first_colon);
@@ -143,7 +144,7 @@ public class JikesCompiler extends Compiler
 	    int second_colon = line.indexOf(':', first_colon + 1);
 	    if(second_colon == -1) {
 				// cannot read format of error message
-		Utility.showError(null, "Compiler error:\n" + line);
+		DialogManager.showError(null, "Compiler error:\n" + line);
 		break;
 	    }
 	
@@ -171,7 +172,7 @@ public class JikesCompiler extends Compiler
 	    }
 	    else {
 				// missing explanation part of error message
-		Utility.showError(null, "Compiler error\n");
+		DialogManager.showError(null, "Compiler error\n");
 	    }
 	}
 	

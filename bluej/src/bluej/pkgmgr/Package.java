@@ -18,6 +18,8 @@ import bluej.graph.Vertex;
 import bluej.utility.Debug;
 import bluej.utility.MultiEnumeration;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
+import bluej.utility.BlueJFileReader;
 import bluej.views.Comment;
 import bluej.views.CommentList;
 import bluej.classmgr.*;
@@ -30,7 +32,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 266 1999-11-09 05:00:13Z mik $
+ ** @version $Id: Package.java 267 1999-11-10 02:53:02Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -664,7 +666,7 @@ public class Package extends Graph
 	// copy class source into package
 
 	String destPath = dirname + Config.slash + fileName;
-	if(!Utility.copyFile(sourcePath, destPath))
+	if(!BlueJFileReader.copyFile(sourcePath, destPath))
 	    return COPY_ERROR;
 
 	// create class icon (ClassTarget) for new class
@@ -959,7 +961,7 @@ public class Package extends Graph
     private boolean checkCompile()
     {
 	if(Debugger.debugger.getStatus() != Debugger.IDLE) {
-	    Utility.showMessage(frame, 
+	    DialogManager.showMessage(frame, 
 				"You cannot compile while the machine\n" +
 				"is executing. This could cause strange\n" +
 				"problems!");
@@ -1526,7 +1528,7 @@ public class Package extends Graph
      */
     public void reportException(String text)
     {
-	Utility.showMessage(frame,
+	DialogManager.showMessage(frame,
 			    "An exception was thrown:\n" + text);
     }
 
@@ -1555,7 +1557,7 @@ public class Package extends Graph
 
 	if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
 			       false, false, bringToFront, true, null))
-	    Utility.showMessage(frame, "Breakpoint hit in file: " + 
+	    DialogManager.showMessage(frame, "Breakpoint hit in file: " + 
 				sourcename + "\nCannot find file!");
 	return bringToFront;
     }
@@ -1617,7 +1619,7 @@ public class Package extends Graph
     {
 	if(! showEditorMessage(filename, lineNo, message, invalidate, true,
 			       true, false, Config.compilertype))
-	    Utility.showMessage(frame, "Error in file: " + filename + 
+	    DialogManager.showMessage(frame, "Error in file: " + filename + 
 				":" + lineNo + "\n" + message);
     }
 	
@@ -1630,7 +1632,7 @@ public class Package extends Graph
     {
 	if(! showEditorMessage(filename, lineNo, message, invalidate, true, 
 			       true, false, "exception"))
-	    Utility.showMessage(frame, "Error in file: " + filename + 
+	    DialogManager.showMessage(frame, "Error in file: " + filename + 
 				":" + lineNo + "\n" + message);
     }
 	
@@ -1679,7 +1681,7 @@ public class Package extends Graph
      */
     public void reportExit(String exitCode)
     {
-	Utility.showMessage(frame,
+	DialogManager.showMessage(frame,
 			    "The method finished through an explicit\n" +
 			    "\"exit\" instruction. No result was\n" +
 			    "returned. The exit code is " + exitCode + ".");

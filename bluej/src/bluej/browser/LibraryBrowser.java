@@ -13,6 +13,7 @@ import bluej.Config;
 import bluej.utility.ToggleMessageBox;
 import bluej.utility.ToggleMessageBoxOwner;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 import bluej.utility.Debug;
 import bluej.editor.Editor;
 import bluej.pkgmgr.Package;
@@ -28,7 +29,7 @@ import java.net.MalformedURLException;
  *
  * @author	Andy Marks
  *		    Andrew Patterson
- * @version	$Id: LibraryBrowser.java 264 1999-10-31 06:24:52Z ajp $
+ * @version	$Id: LibraryBrowser.java 267 1999-11-10 02:53:02Z mik $
  **/
 public class LibraryBrowser extends JFrame implements ActionListener
 {
@@ -83,7 +84,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 
         // hack way of making class singleton
 	if (frame != null) {
-	    Utility.showMessage(this,
+	    DialogManager.showMessage(this,
 				"Sorry - you can only start one copy\nof this version of the Library Browser");
 	    return;
 	}
@@ -287,7 +288,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
     
 	Package[] possibleTargets = bluej.pkgmgr.Main.getAllOpenPackages();
 	if (possibleTargets == null || possibleTargets.length == 0) {
-//	    Utility.showError(LibraryBrowserPkgMgrFrame.getFrame(),
+//	    DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(),
 //			      Config.getString("browser.usepackage.notargetdialog.text"));
 																		
 	    return;

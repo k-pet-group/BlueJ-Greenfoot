@@ -3,6 +3,8 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
+import bluej.utility.BlueJFileReader;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -17,7 +19,7 @@ import java.util.Properties;
  ** particular class types 
  ** 
  ** @author Bruce Quig
- ** @version $Id: ClassRole.java 149 1999-06-30 01:22:09Z bruce $
+ ** @version $Id: ClassRole.java 267 1999-11-10 02:53:02Z mik $
  **
  **/
 public abstract class ClassRole
@@ -86,9 +88,9 @@ public abstract class ClassRole
 	String filename = Config.getLibFilename(template);
 		
 	try {
-	    Utility.translateFile(filename, sourceFile, translations);
+	    BlueJFileReader.translateFile(filename, sourceFile, translations);
 	} catch(IOException e) {
-	    Utility.showError(pkg.getFrame(), 
+	    DialogManager.showError(pkg.getFrame(), 
 			      "The default skeleton for the class could not be\n" +
 			      "generated. This may be because of configuration\n" +
 			      "error in the setup of BlueJ, or because of file\n" +

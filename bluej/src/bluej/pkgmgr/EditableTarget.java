@@ -3,9 +3,10 @@ package bluej.pkgmgr;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 
 /** 
- * @version $Id: EditableTarget.java 239 1999-08-17 07:55:00Z mik $
+ * @version $Id: EditableTarget.java 267 1999-11-10 02:53:02Z mik $
  * @author Michael Cahill
  *
  * A target in a package that can be edited as text
@@ -50,7 +51,7 @@ public abstract class EditableTarget extends Target
 	getEditor().show(getDisplayedView());
 
 	if(editor == null)
-	    Utility.showError(pkg.getFrame(),
+	    DialogManager.showError(pkg.getFrame(),
 			      "There is a problem opening the source of\n" +
 			      "this class.  Serious trouble!");
     }

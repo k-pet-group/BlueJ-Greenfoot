@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 163 1999-07-08 00:50:23Z mik $
+ ** @version $Id: Config.java 267 1999-11-10 02:53:02Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -108,13 +108,13 @@ public class Config
 
 	checkUserDir(user_confdir);
 
-	bluej_props = loadDefs("bluej", true);	// system definitions
+	bluej_props = loadDefs("bluej.defs", true);	// system definitions
 	loadProperties("bluej", bluej_props);	// user specific definitions
 
 	language = bluej_props.getProperty("bluej.language");
-	lang_props = loadDefs(language, false);
+	lang_props = loadDefs("labels." + language, false);
 
-	moe_props = loadDefs("moe", false);
+	moe_props = loadDefs("moe.defs", false);
 
 	fontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize","12"));
 	editFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.editor","12"));
@@ -179,7 +179,7 @@ public class Config
      */
     private static Properties loadDefs(String filename, boolean asDefault)
     {
-	String fullname = sys_confdir + slash + filename + ".defs";
+	String fullname = sys_confdir + slash + filename;
 	Properties defs = new Properties();
 		
 	try {
@@ -231,7 +231,7 @@ public class Config
      */
     public static Properties getMoeHelp()
     {
-	return loadDefs("moehelp", false);
+	return loadDefs("moe.help." + language, false);
     }
 
     /**
@@ -318,13 +318,22 @@ public class Config
 	
     /**
      * Find and return the file name for a help file (eg.
-     * "bluej/lib/javac.english.help")
+     * "bluej/lib/javac.help.english")
      */
     public static String getHelpFilename(String base)
     {
-	return sys_confdir + slash + base + "." + language + ".help";
+	return sys_confdir + slash + base + ".help." + language;
     }
-	
+
+    /**
+     * Return the file name for a file with language specific text (eg.
+     * "bluej/lib/dialogs.english")
+     */
+    public static String getLanguageFilename(String base)
+    {
+	return sys_confdir + slash + base + language;
+    }
+
     public static Color getItemColour(String itemname)
     {
 	try {

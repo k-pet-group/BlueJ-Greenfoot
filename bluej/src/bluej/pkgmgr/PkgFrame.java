@@ -6,6 +6,7 @@ import bluej.debugger.ObjectBench;
 import bluej.graph.Graph;
 import bluej.graph.GraphEditor;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -20,7 +21,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 263 1999-09-28 10:47:49Z ajp $
+ ** @version $Id: PkgFrame.java 267 1999-11-10 02:53:02Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -102,7 +103,7 @@ public abstract class PkgFrame extends JFrame
 	else if (result == JFileChooser.CANCEL_OPTION)
 	    return null;
 	else {
-	    Utility.showError(this, "You must specify a valid name.");
+	    DialogManager.showError(this, "You must specify a valid name.");
 	    return null;
 	}
     }
@@ -116,7 +117,7 @@ public abstract class PkgFrame extends JFrame
 	    // check whether name is already in use
 	    File dir = new File(newname);
 	    if(dir.exists()) {
-		Utility.showError(this, 
+		DialogManager.showError(this, 
 				  "A file or directory with this\n" +
 				  "name already exists.");
 		return;

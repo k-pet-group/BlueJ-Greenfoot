@@ -4,7 +4,6 @@ import bluej.Config;
 
 import java.awt.*;
 import java.io.*;
-import java.util.Dictionary;
 import java.util.Random;
 import java.util.Vector;
 import java.awt.event.*;
@@ -12,7 +11,7 @@ import javax.swing.*;
 
 /**
  ** Some generally useful utility methods available to all of bluej.
- ** $Id: Utility.java 129 1999-06-15 07:21:23Z mik $
+ ** $Id: Utility.java 267 1999-11-10 02:53:02Z mik $
  ** @author Michael Cahill
  ** @author Justin Tan
  ** @author Michael Kolling
@@ -23,11 +22,6 @@ public class Utility
     static final String browserCmd2 = Config.getPropString("browserCmd2");
     static final String winBrowserCmd1 = Config.getPropString("winBrowserCmd1");
     static final String winBrowserCmd2 = Config.getPropString("winBrowserCmd2");
-
-    public static void NYI(JFrame frame)
-    {
-	JOptionPane.showMessageDialog(frame, "Not Yet Implemented - sorry.");
-    }
 
     private static Random random = new Random();
     public static int getRandom(int min, int max)
@@ -96,40 +90,6 @@ public class Utility
 	    }
     }
 	
-    /**
-     * centreWindow - try to center a window within a parent window
-     */
-    public static void centreWindow(Window child, Window parent)
-    {
-	child.pack();
-		
-	Point p_topleft = parent.getLocationOnScreen();
-	Dimension p_size = parent.getSize();
-	Dimension d_size = child.getSize();
-		
-	child.setLocation(p_topleft.x + (p_size.width - d_size.width) / 2, 
-			  p_topleft.y + (p_size.height - d_size.height) / 2);
-    }
-	
-    /**
-     * centreDialog - try to center a dialog within its parent frame
-     */
-    public static void centreDialog(JDialog dialog)
-    {
-	centreWindow(dialog, (Window)dialog.getParent());
-    }
-	
-    /**
-     * tileWindow - position the child at 20, 20 offset of parent
-     *  location
-     */
-    public static void tileWindow(Window child, Window parent)
-    {
-	Point p_topleft = parent.getLocationOnScreen();
-	child.setLocation(p_topleft.x + 20, p_topleft.y + 20);
-    }
-
-	
     public static void drawCentredText(Graphics g, String str, int x, int y, int width, int height)
     {
 	FontMetrics fm = g.getFontMetrics();
@@ -151,60 +111,6 @@ public class Utility
 		     y + (height + fm.getAscent()) / 2);
 	g.setClip(oldClip);
     }
-
-    // -------- dialogs --------
-
-    /**
-     ** Show an information dialog with message and "OK" button.
-     **/
-    public static void showMessage(JFrame parent, String text)
-    {
-	JOptionPane.showMessageDialog(parent, text);
-    }
-
-    /**
-     ** Show an error dialog with message and "OK" button.
-     **/
-    public static void showError(JFrame parent, String text)
-    {
-	JOptionPane.showMessageDialog(parent, text, "Error",
-				      JOptionPane.ERROR_MESSAGE);
-    }
-
-    /**
-     ** Brings up a two or three button question dialog. If button3 is null
-     ** only the first two buttons are shown. Returns the button index that
-     ** was selected (0..2).
-     **/
-    public static int askQuestion(JFrame parent, String text, 
-				  String button1, String button2, String button3)
-    {
-	Object[] options;
-	if (button3 == null)
-	    options = new Object[] { button1, button2 };
-	else
-	    options = new Object[] { button1, button2, button3 };
-
-	return JOptionPane.showOptionDialog(parent, text, "Question", 
-					    JOptionPane.DEFAULT_OPTION, 
-					    JOptionPane.WARNING_MESSAGE, 
-					    null, options, options[0]);
-    }
-
-    public static String askString(JFrame parent, String prompt, String title,
-				   String defaultText)
-    {
-	String response = (String)JOptionPane.showInputDialog(parent, 
-						prompt, 
-						title, 
-						JOptionPane.PLAIN_MESSAGE, 
-						null, 
-						null,
-						defaultText);
-	return response;
-    }
-
-    // -------- end of dialogs --------
 
     protected static void swap(Object[] arr, int i, int j)
     {
@@ -305,90 +211,6 @@ public class Utility
 	return true;
     }
 
-    /**
-     * translateFile - copy a file while replacing special keywords
-     *  within the file by definitions. Keywords are marked with a dollar
-     *  sign and a name ($KEYWORD). 'translations' contains definitions
-     *  to be used as replacements.
-     *  This is used to create shell files from the shell file template.
-     */
-    public static void translateFile(String template, String dest, 
-				     Dictionary translations)
-	throws IOException
-    {
-	FileReader in = null;
-	FileWriter out = null;
-		
-	try {
-	    in = new FileReader(template);
-	    out = new FileWriter(dest);
-			
-	    for(int c; (c = in.read()) != -1; ) {
-		if(c == '$') {
-		    StringBuffer buf = new StringBuffer();
-		    while(((c = in.read()) != -1) && Character.isLetter((char)c))
-			buf.append((char)c);
-						
-		    String key = buf.toString();
-		    String value = (String)translations.get(key);
-					
-		    if(value == null) {
-			out.write('$');
-			value = key;
-		    }
-					
-		    out.write(value);
-		    if(c != -1)
-			out.write(c);
-		}
-		else
-		    out.write(c);
-	    }
-			
-	    in.close();
-	    out.close();
-	} catch(IOException e) {
-	    if(in != null)
-		in.close();
-	    if(out != null) {
-		out.close();
-		// File destFile = new File(dest);
-		// destFile.delete();
-	    }
-			
-	    throw e;
-	}
-    }
-	
-    /**
-     * copyFile - copy a file
-     */
-    public static boolean copyFile(String source, String dest)
-    {
-	// check whether source and dest are the same
-	File srcFile = new File(source);
-	File destFile = new File(dest);
-
-	if(srcFile.getAbsolutePath().equals(destFile.getAbsolutePath()))
-	    return true;  // don't bother - they are the same
-
-	FileReader in = null;
-	FileWriter out = null;
-	try {
-	    in = new FileReader(srcFile);
-	    out = new FileWriter(destFile);
-
-		for(int c; (c = in.read()) != -1; )
-		    out.write(c);
-
-	    in.close();
-	    out.close();
-	    return true;
-	} catch(IOException e) {
-	    return false;
-	}
-    }
-	
     /**
      * return a string in which all the '\' characters of the
      * original string are quoted ('\\').

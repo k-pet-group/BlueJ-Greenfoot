@@ -11,6 +11,7 @@ import javax.swing.border.TitledBorder;
 import bluej.pkgmgr.LibraryBrowserPkgMgrFrame;
 import bluej.Config;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 
 /**
  * A JDialog subclass for specifying a search on the set of libraries.
@@ -20,7 +21,7 @@ import bluej.utility.Utility;
  * is delegated to a LibraryBrowserPkgMgrFrame object.
  * 
  * @author $Author: mik $
- * @version $Id: FindLibraryDialog.java 36 1999-04-27 04:04:54Z mik $
+ * @version $Id: FindLibraryDialog.java 267 1999-11-10 02:53:02Z mik $
  */
 public class FindLibraryDialog extends JDialog 
 
@@ -168,7 +169,7 @@ public class FindLibraryDialog extends JDialog
 	    if (chosenPackage != null)
 		searcher.openPackage(chosenPackage);
 	    else
-		Utility.showError(searcher,
+		DialogManager.showError(searcher,
 				  Config.getString("browser.findlibrarydialog.nolibselected.text"));
 																				  
 	}

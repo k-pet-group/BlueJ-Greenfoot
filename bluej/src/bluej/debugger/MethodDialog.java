@@ -4,6 +4,7 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.Utility;
+import bluej.utility.DialogManager;
 import bluej.pkgmgr.Package;
 import bluej.views.ConstructorView;
 import bluej.views.MemberView;
@@ -21,7 +22,7 @@ import java.util.StringTokenizer;
 
 
 /**
- ** @version $Id: MethodDialog.java 266 1999-11-09 05:00:13Z mik $
+ ** @version $Id: MethodDialog.java 267 1999-11-10 02:53:02Z mik $
  **
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -189,7 +190,7 @@ public class MethodDialog extends JDialog
 	pack();
 		
         // Set some attributes for this DialogBox
-        Utility.centreDialog(this);
+        DialogManager.centreDialog(this);
 
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
