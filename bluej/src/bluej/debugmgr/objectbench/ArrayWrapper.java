@@ -17,7 +17,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 2629 2004-06-19 14:24:17Z polle $
+ * @version $Id: ArrayWrapper.java 2716 2004-07-01 21:53:37Z mik $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
@@ -73,11 +73,11 @@ public class ArrayWrapper extends ObjectWrapper
         g.setFont(PrefMgr.getStandardFont());
         FontMetrics fm = g.getFontMetrics();
 
-        drawUMLObjectShape(g,GAP+10,10,WIDTH-10,HEIGHT-10,3,5);
-        drawUMLObjectShape(g,GAP+5,5,WIDTH-10,HEIGHT-10,3,5);
-        drawUMLObjectShape(g,GAP,0,WIDTH-10,HEIGHT-10,3,5);
+        drawUMLObjectShape(g,HGAP+10,(VGAP/2)+10,WIDTH-10,HEIGHT-10,3,5);
+        drawUMLObjectShape(g,HGAP+5,(VGAP/2)+5,WIDTH-10,HEIGHT-10,3,5);
+        drawUMLObjectShape(g,HGAP,(VGAP/2),WIDTH-10,HEIGHT-10,3,5);
 
-        drawUMLObjectText(g,GAP,0,WIDTH-10,HEIGHT-10,3,
+        drawUMLObjectText(g,HGAP,(VGAP/2),WIDTH-10,HEIGHT-10,3,
                             getName() + ":", displayClassName);
         
     }

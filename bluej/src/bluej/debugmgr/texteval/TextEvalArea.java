@@ -33,7 +33,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2714 2004-07-01 15:55:03Z mik $
+ * @version $Id: TextEvalArea.java 2716 2004-07-01 21:53:37Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -62,9 +62,9 @@ public final class TextEvalArea extends JScrollPane
     public TextEvalArea(PkgMgrFrame frame, Font font)
     {
         this.frame = frame;
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
-                BorderFactory.createEmptyBorder(5,0,5,0)));
+//        setBorder(BorderFactory.createCompoundBorder(
+//                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
+//                BorderFactory.createEmptyBorder(5,0,5,0)));
 
         text = new JEditorPane();
         text.setMargin(new Insets(2,2,2,2));
@@ -81,7 +81,7 @@ public final class TextEvalArea extends JScrollPane
         defineKeymap();
         
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
-        setPreferredSize(new Dimension(200,100));
+        setPreferredSize(new Dimension(300,100));
         
         history = new IndexHistory(20);
         commands = TextCommands.getInstance();
@@ -146,22 +146,6 @@ public final class TextEvalArea extends JScrollPane
      */
     public void listObjectBench()
     {
-        StringBuffer out = new StringBuffer(100);
-        out.append("object bench:");
-        ObjectWrapper[] objects = frame.getObjectBench().getObjects();
-        if(objects.length == 0) {
-            out.append("   empty");
-        }
-        else {
-            for(int i=0; i < objects.length; i++) {
-                out.append("   (");
-                out.append(JavaNames.stripPrefix(objects[i].getTypeName()));
-                out.append(" ");
-                out.append(objects[i].getName());
-                out.append(")");
-            }
-        }
-        output(out.toString());
     }
 
     //   --- ResultWatcher interface ---

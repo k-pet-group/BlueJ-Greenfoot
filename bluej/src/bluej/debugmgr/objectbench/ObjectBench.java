@@ -16,7 +16,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2715 2004-07-01 16:28:21Z mik $
+ * @version $Id: ObjectBench.java 2716 2004-07-01 21:53:37Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -56,6 +56,7 @@ public class ObjectBench extends JPanel
             g.drawRect(0, 0, getWidth() - 2, getHeight() - 3);
         }
     }
+
     /**
      * Add an object (in the form of an ObjectWrapper) to this bench.
      */
@@ -82,21 +83,11 @@ public class ObjectBench extends JPanel
     /**
      * Return all the wrappers stored in this object bench in an array
      */
-    public ObjectWrapper[] getObjects()
+    public List getObjects()
     {
-        Component[] components = obp.getComponents();
-        int count = getObjectCount();
-                        
-        ObjectWrapper[] wrappers = new ObjectWrapper[count];
-
-        for(int i=0, j=0; i<components.length; i++) {
-            if (components[i] instanceof ObjectWrapper)
-                wrappers[j++] = (ObjectWrapper) components[i];
-        }
-        
-        return wrappers;
+        return Collections.unmodifiableList(objectWrappers);
     }
-    
+
     /**
      * Get the object with name 'name', or null, if it does not
      * exist.
@@ -106,12 +97,11 @@ public class ObjectBench extends JPanel
      */
     public ObjectWrapper getObject(String name)
     {
-        ObjectWrapper[] wrappers = getObjects();
-
-        for(int i=0; i<wrappers.length; i++)
-            if(wrappers[i].getName().equals(name))
-                return wrappers[i];
-
+        for(Iterator i=objectWrappers.iterator(); i.hasNext(); ) {
+            ObjectWrapper wrapper = (ObjectWrapper)i.next();
+            if(wrapper.getName().equals(name))
+                return wrapper;
+        }
         return null;
     }
 
@@ -131,14 +121,7 @@ public class ObjectBench extends JPanel
      */
     public int getObjectCount()
     {
-        Component[] components = obp.getComponents();
-        int count = 0;
-        
-        for(int i=0; i<components.length; i++) {
-            if (components[i] instanceof ObjectWrapper)
-                count++;
-        }
-        return count;
+        return objectWrappers.size();
     }
 
     /**
@@ -146,20 +129,15 @@ public class ObjectBench extends JPanel
      */
     public void removeAllObjects(String scopeId)
     {
-        ObjectWrapper[] wrappers = getObjects();
+        setSelectedObject (null);
 
-        for(int i=0; i<wrappers.length; i++) {
-            ObjectWrapper aWrapper = wrappers[i];
-
-            if ( aWrapper == selectedObjectWrapper )
-                setSelectedObject ( null );
-            
-            aWrapper.prepareRemove();
-            aWrapper.getPackage().getDebugger().removeObject(aWrapper.getName());
-
-            obp.remove(aWrapper);
+        for(Iterator i = objectWrappers.iterator(); i.hasNext(); ) {
+            ObjectWrapper wrapper = (ObjectWrapper) i.next();
+            wrapper.prepareRemove();
+            wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
+            obp.remove(wrapper);
         }
-
+        objectWrappers.clear();
         resetRecordingInteractions();
         obp.revalidate();
         obp.repaint();
@@ -172,8 +150,8 @@ public class ObjectBench extends JPanel
      */
     public void removeObject(ObjectWrapper wrapper, String scopeId)
     {
-        if ( wrapper == selectedObjectWrapper )
-            setSelectedObject ( null );
+        if(wrapper == selectedObjectWrapper)
+            setSelectedObject(null);
             
         wrapper.prepareRemove();
         wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
@@ -189,9 +167,9 @@ public class ObjectBench extends JPanel
      * Sets what is the currently selected ObjectWrapper, null can be given to 
      * signal that no wrapper is selected.
      */
-    public void setSelectedObject (ObjectWrapper aWrapper)
+    public void setSelectedObject(ObjectWrapper aWrapper)
     {
-        if (selectedObjectWrapper != null){
+        if (selectedObjectWrapper != null) {
             selectedObjectWrapper.setSelected(false);
         }
         selectedObjectWrapper = aWrapper;
@@ -201,6 +179,7 @@ public class ObjectBench extends JPanel
             currentObjectWrapperIndex = objectWrappers.indexOf(aWrapper);
             selectedObjectWrapper.requestFocusInWindow();
         }
+        obp.repaint();
         // TODO: make sure this object is in view; if necessary repaint bench
     }
 
@@ -447,14 +426,24 @@ public class ObjectBench extends JPanel
      */
     private void createComponent()
     {
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
-                BorderFactory.createEmptyBorder(5,0,5,0)));
+        setLayout(new BorderLayout());
+//        setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+                
+//                BorderFactory.createCompoundBorder(
+//                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
+//                BorderFactory.createEmptyBorder(5,0,5,0)));
 
         // a panel holding the actual object components
         obp = new ObjectBenchPanel();
-        add(obp);
+        JScrollPane scroll = new JScrollPane(obp);
+        Dimension sz = obp.getMinimumSize();
+        Insets in = scroll.getInsets();
+        sz.setSize(sz.getWidth()+in.left+in.right, sz.getHeight()+in.top+in.bottom);
+        scroll.setMinimumSize(sz);
+        scroll.setPreferredSize(sz);
+        scroll.getVerticalScrollBar().setUnitIncrement(20);
+        
+        add(scroll, BorderLayout.CENTER);
 
         // start with a clean slate recording invocations
         resetRecordingInteractions();
@@ -478,18 +467,40 @@ public class ObjectBench extends JPanel
      */
     private class ObjectBenchPanel extends JPanel
     {
-        LayoutManager lm;
-        
         public ObjectBenchPanel()
         {
-            setLayout(lm = new BoxLayout(this, BoxLayout.X_AXIS));
-            setAlignmentY(0);
-
+            setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
             setMinimumSize(new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT));
-            setPreferredSize(new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT));
-            setMaximumSize(new Dimension(ObjectWrapper.WIDTH * 1000, ObjectWrapper.HEIGHT));
         }
 
+        /**
+         * Add the component (like any other JPanel) and then set our preferred size
+         * so that all components would be visible.
+         */
+        public Component add(Component comp)
+        {
+            super.add(comp);
+            
+            return comp;
+        }
+
+        /**
+         * Return the preferred size of this component.
+         */
+        public Dimension getPreferredSize()
+        {
+            int objects = getComponentCount();
+            int rows;
+            if(objects == 0) {
+                rows = 1;
+            }
+            else {
+                int objectsPerRow = getWidth() / ObjectWrapper.WIDTH;
+                rows = (objects + objectsPerRow - 1) / objectsPerRow;
+            }
+            return new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT * rows);                
+        }
+        
         /**
          * This component will raise ObjectBenchEvents when nodes are
          * selected in the bench. The following functions manage this.

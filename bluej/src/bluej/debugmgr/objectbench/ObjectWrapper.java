@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2715 2004-07-01 16:28:21Z mik $
+ * @version $Id: ObjectWrapper.java 2716 2004-07-01 21:53:37Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -62,9 +62,10 @@ public class ObjectWrapper extends JComponent
     static final Stroke selectedStroke = new BasicStroke(2.5f);
     static final Stroke unselectedStroke = new BasicStroke(1.0f);
     
-    public static final int GAP = 5;    // gap between objects (left of each object)
-    public static final int WIDTH = 90;
-    public static final int HEIGHT = 60;
+    protected static final int HGAP = 5;    // horiz. gap between objects (left of each object)
+    protected static final int VGAP = 6;    // vert. gap between objects (above and below of each object)
+    public static final int WIDTH = 95;    // width including gap
+    public static final int HEIGHT = 66;   // height including gap
 
     // vertical offset between instance and class name
     public static int WORD_GAP = 20;
@@ -134,10 +135,10 @@ public class ObjectWrapper extends JComponent
                 
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
         
-        setMinimumSize(new Dimension(WIDTH+GAP, HEIGHT));
-        setSize(WIDTH + GAP, HEIGHT);
-    	setFocusable(false);
-    	setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        setMinimumSize(new Dimension(WIDTH, HEIGHT));
+        setSize(WIDTH, HEIGHT);
+        setFocusable(false);
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
     
@@ -347,17 +348,17 @@ public class ObjectWrapper extends JComponent
 
     public Dimension getMinimumSize()
     {
-        return new Dimension(WIDTH+GAP, HEIGHT);
+        return new Dimension(WIDTH, HEIGHT);
     }
 
     public Dimension getPreferredSize()
     {
-        return new Dimension(WIDTH+GAP, HEIGHT);
+        return new Dimension(WIDTH, HEIGHT);
     }
 
     public Dimension getMaximumSize()
     {
-        return new Dimension(WIDTH+GAP, HEIGHT);
+        return new Dimension(WIDTH, HEIGHT);
     }
 
     public String getName()
@@ -460,9 +461,9 @@ public class ObjectWrapper extends JComponent
      */
     protected void drawUMLStyle(Graphics2D g)
     {
-        drawUMLObjectShape(g, GAP, 0, WIDTH, HEIGHT, SHADOW_SIZE, 8);
+        drawUMLObjectShape(g, HGAP, (VGAP / 2), WIDTH-HGAP, HEIGHT-VGAP, SHADOW_SIZE, 8);
 
-        drawUMLObjectText(g, GAP, 0, WIDTH, HEIGHT, SHADOW_SIZE,
+        drawUMLObjectText(g, HGAP, (VGAP / 2), WIDTH-HGAP, HEIGHT-VGAP, SHADOW_SIZE,
                             getName() + ":", displayClassName);
     }
 
@@ -535,7 +536,7 @@ public class ObjectWrapper extends JComponent
 	}
 	
 	public void showMenu(){
-		showMenu(getWidth()/2, getHeight()/2);
+		showMenu(WIDTH/2, HEIGHT/2);
 	}
 
 	/**

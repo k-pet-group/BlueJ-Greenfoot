@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2714 2004-07-01 15:55:03Z mik $
+ * @version $Id: BPackage.java 2716 2004-07-01 21:53:37Z mik $
  */
 
 /*
@@ -190,19 +190,20 @@ public class BPackage
      */
     public BObject getObject (String instanceName) 
         throws ProjectNotOpenException, PackageNotFoundException
-        {
+    {
         // The usual check to avoid silly stack trace
-        if ( instanceName == null ) return null;
+        if(instanceName == null) 
+            return null;
 
         Package bluejPkg = packageId.getBluejPackage();
         PkgMgrFrame pmf = packageId.getPackageFrame();
         
-        ObjectWrapper[] objects = pmf.getObjectBench().getObjects();
-        for (int index=0; index<objects.length; index++) 
-            {
-            ObjectWrapper wrapper = objects[index];
-            if (instanceName.equals(wrapper.getName())) return new BObject (wrapper);
-            }
+        List objects = pmf.getObjectBench().getObjects();
+        for(Iterator i=objects.iterator(); i.hasNext(); ) {
+            ObjectWrapper wrapper = (ObjectWrapper)i.next();
+            if (instanceName.equals(wrapper.getName())) 
+                return new BObject(wrapper);
+        }
         return null;
     }    
 
@@ -214,15 +215,17 @@ public class BPackage
      */
     public BObject[] getObjects() 
         throws ProjectNotOpenException, PackageNotFoundException
-        {
+    {
         Package bluejPkg = packageId.getBluejPackage();
         PkgMgrFrame pmf = packageId.getPackageFrame();
    
-        ObjectWrapper[] objectWrappers = pmf.getObjectBench().getObjects();
-        BObject[] objects = new BObject [objectWrappers.length];
-        for (int index=0; index<objectWrappers.length; index++) {
-            ObjectWrapper wrapper = (ObjectWrapper)objectWrappers[index];
-            objects[index] = new BObject (wrapper);
+        List objectWrappers = pmf.getObjectBench().getObjects();
+        BObject[] objects = new BObject [objectWrappers.size()];
+        int index = 0;
+        for(Iterator i=objectWrappers.iterator(); i.hasNext(); ) {
+            ObjectWrapper wrapper = (ObjectWrapper)i.next();
+            objects[index] = new BObject(wrapper);
+            index++;
         }
         return objects;
     }

@@ -1,8 +1,7 @@
 package bluej.debugmgr;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -25,9 +24,8 @@ import bluej.views.*;
  * This class constructs a "shell" java source file, compiles it,
  * then loads the resulting class file and executes a method in a new thread.
  *
- * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2714 2004-07-01 15:55:03Z mik $
+ * @version $Id: Invoker.java 2716 2004-07-01 21:53:37Z mik $
  */
 
 public class Invoker extends Thread
@@ -580,17 +578,18 @@ public class Invoker extends Thread
 
         buffer = new StringBuffer();
         String scopeId = Utility.quoteSloshes(pkg.getId());
-        ObjectWrapper[] wrappers = pmf.getObjectBench().getObjects();
+        List wrappers = pmf.getObjectBench().getObjects();
 
-        if(wrappers.length > 0)
+        if(wrappers.size() > 0)
             buffer.append("java.util.Map __bluej_runtime_scope = getScope(\""
                           + scopeId + "\");" + Config.nl);
-        for(int i = 0; i < wrappers.length; i++) {
-            String type = cleverQualifyTypeName(pkg, wrappers[i].getClassName());
-            String instname = wrappers[i].getName();
+        for(Iterator i = wrappers.iterator(); i.hasNext(); ) {
+            ObjectWrapper wrapper = (ObjectWrapper) i.next();
+            String type = cleverQualifyTypeName(pkg, wrapper.getClassName());
+            String instname = wrapper.getName();
 
             buffer.append(type);
-            GenTypeClass gtype = wrappers[i].getGenType();
+            GenTypeClass gtype = wrapper.getGenType();
             buffer.append(gtype.getParamString());
             
             buffer.append( " " + instname + " = ");

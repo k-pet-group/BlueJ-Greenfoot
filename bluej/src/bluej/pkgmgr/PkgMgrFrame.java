@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2714 2004-07-01 15:55:03Z mik $
+ * @version $Id: PkgMgrFrame.java 2716 2004-07-01 21:53:37Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -56,8 +56,8 @@ public class PkgMgrFrame extends JFrame
     public static final KeyStroke restartKey = KeyStroke.getKeyStroke(KeyEvent.VK_R, 
                                                 InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK);
 
-    static final int DEFAULT_WIDTH = 420;
-    static final int DEFAULT_HEIGHT = 300;
+    static final int DEFAULT_WIDTH = 560;
+    static final int DEFAULT_HEIGHT = 400;
 
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -113,7 +113,6 @@ public class PkgMgrFrame extends JFrame
 
     private ObjectBench objbench;
     private TextEvalArea textEvaluator;
-    private JComponent objectBenchPanel;
     private JSplitPane splitPane;
     private JSplitPane objectBenchSplitPane;
     private boolean showingTextEvaluator = false;
@@ -2124,16 +2123,17 @@ public class PkgMgrFrame extends JFrame
         classScroller = new JScrollPane();
         mainPanel.add(classScroller, BorderLayout.CENTER);
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+        classScroller.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
 
         // create the object bench
         
         objbench = new ObjectBench();
-        objectBenchPanel = objbench;
 
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                   mainPanel, objectBenchPanel);
+                                   mainPanel, objbench);
         splitPane.setBorder(null);
+        splitPane.setResizeWeight(1.0);
         contentPane.add(splitPane, BorderLayout.CENTER);
         
         
@@ -2176,23 +2176,35 @@ public class PkgMgrFrame extends JFrame
             enableFunctions(false);
     }
 
+    /**
+     * Add the text evaluation pane in the lower area of the frame.
+     */
     private void addTextEvaluatorPane()
     {
+        classScroller.setPreferredSize(classScroller.getSize()); // memorize current size
         if(textEvaluator == null) {
             textEvaluator = new TextEvalArea(this, PkgMgrFont);
+//            textEvaluator.setSize(300, 10);
             objectBenchSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                                                  objectBenchPanel, textEvaluator);
+                    objbench, textEvaluator);
+            objectBenchSplitPane.setBorder(null);
+            objectBenchSplitPane.setResizeWeight(1.0);
         }
         else {
-            objectBenchSplitPane.setLeftComponent(objectBenchPanel);
+            objectBenchSplitPane.setLeftComponent(objbench);
         }
         splitPane.setBottomComponent(objectBenchSplitPane);
         showingTextEvaluator = true;
     }
 
+    /**
+     * Remove the text evaluation pane from the frame.
+     */
     private void removeTextEvaluatorPane()
     {
-        splitPane.setBottomComponent(objectBenchPanel);
+        textEvaluator.setPreferredSize(textEvaluator.getSize());  // memorize current sizes
+        classScroller.setPreferredSize(classScroller.getSize());
+        splitPane.setBottomComponent(objbench);
         showingTextEvaluator = false;
     }
     
