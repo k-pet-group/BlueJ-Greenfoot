@@ -17,10 +17,14 @@ import bluej.Config;
 import bluej.utility.Debug;
 
 /**
- ** @author Michael Kolling
- ** @author Bruce Quig
- **
- **/
+ * The Finder class implements the find and replace functionality of the Moe editor.
+ * It provides both the user interface dialogue and the high level implementation
+ * of the find and replace functionality.
+ *
+ * @author Michael Kolling
+ * @author Bruce Quig
+ *
+ */
 
 public class Finder extends JDialog
     implements ActionListener, DocumentListener
@@ -32,8 +36,6 @@ public class Finder extends JDialog
     // -------- CONSTANTS --------
 
     // search direction for the finder
-    static final int FORWARD = 0; 
-    static final int BACKWARD = 1;
     static final String UP = "up"; 
     static final String DOWN = "down";
   
@@ -48,6 +50,8 @@ public class Finder extends JDialog
     private JButton cancelButton;
     private JTextField searchField;
     private JTextField replaceField;
+    private JCheckBox wholeWord;
+    private JCheckBox ignoreCase;
     private ButtonGroup directionButtons;
 
     private MoeEditor editor;
@@ -63,10 +67,8 @@ public class Finder extends JDialog
 
     /**
      * Ask the user for input of search details via a dialogue.
-     *  Returns null if operation was cancelled.
      *
      * @param
-     * @param direction  either FORWARD or BACKWARD
      */
     public void show(MoeEditor currentEditor, String selection, boolean replace)
     {
@@ -95,7 +97,8 @@ public class Finder extends JDialog
      */
     private void find()
     {
-        searchFound = editor.findString(getSearchString(), getSearchBack(), !searchFound);
+        searchFound = editor.findString(getSearchString(), getSearchBack(), 
+                                        getIgnoreCase(), getWholeWord(), !searchFound);
         replaceButton.setEnabled(searchFound);
         if(searchFound && replacing)
             getRootPane().setDefaultButton(replaceButton);
@@ -107,7 +110,8 @@ public class Finder extends JDialog
      */
     private void replace()
     {
-        editor.insertText(replaceField.getText(), getSearchBack());
+        String replaceText = smartFormat(editor.getSelectedText(), replaceField.getText());
+        editor.insertText(replaceText, getSearchBack());
         find();
     }
 
@@ -128,14 +132,14 @@ public class Finder extends JDialog
 
         int count = 0;
         if(getSearchBack()) {
-            while(editor.doFindBackward(searchString, false)) {
-                editor.insertText(replaceString, true);
+            while(editor.doFindBackward(searchString, getIgnoreCase(), getWholeWord(), false)) {
+                editor.insertText(smartFormat(editor.getSelectedText(), replaceString), true);
                 count++;
             }
         }
         else {
-            while(editor.doFind(searchString, false)) {
-                editor.insertText(replaceString, false);
+            while(editor.doFind(searchString, getIgnoreCase(), getWholeWord(), false)) {
+                editor.insertText(smartFormat(editor.getSelectedText(), replaceString), false);
                 count++;
             }
         }
@@ -143,6 +147,65 @@ public class Finder extends JDialog
             editor.writeMessage("Replaced " + count + " instances of " + searchString);
         else
             editor.writeMessage("String " + searchString + " not found. Nothing replaced.");
+    }
+
+    /**
+     * Replace the text currently selected in the editor with
+     */
+    private String smartFormat(String original, String replacement)
+    {
+        if(original == null || replacement == null)
+            return replacement;
+
+        // only do smart stuff if search and replace strings were entered in lowercase.
+        // check here. if not lowercase, just return.
+
+        String search = getSearchString();
+        if( !isLowerCase(replacement) || !isLowerCase(search))
+            return replacement;
+
+        if(isUpperCase(original))
+            return replacement.toUpperCase();
+        if(isTitleCase(original))
+            return Character.toTitleCase(replacement.charAt(0)) + 
+                replacement.substring(1);
+        else
+            return replacement;
+    }
+       
+    /**
+     * True if the string is in lower case.
+     */
+    public boolean isLowerCase(String s)
+    {
+        for(int i=0; i<s.length(); i++) {
+            if(! Character.isLowerCase(s.charAt(i)))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * True if the string is in Upper case.
+     */
+    public boolean isUpperCase(String s)
+    {
+        for(int i=0; i<s.length(); i++) {
+            if(! Character.isUpperCase(s.charAt(i)))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * True if the string is in title case.
+     */
+    public boolean isTitleCase(String s)
+    {
+        if(s.length() < 2)
+            return false;
+        return Character.isUpperCase(s.charAt(0)) &&
+            Character.isLowerCase(s.charAt(1));
     }
 
     /**
@@ -167,6 +230,22 @@ public class Finder extends JDialog
     private boolean getSearchBack()
     {
         return directionButtons.getSelection().getActionCommand() == UP;
+    }
+
+    /**
+     * return true if "Ignore case" search is selected
+     */
+    public boolean getIgnoreCase()
+    {
+        return ignoreCase.isSelected();
+    }
+
+    /**
+     * return true if "whole word" search is selected
+     */
+    public boolean getWholeWord()
+    {
+        return wholeWord.isSelected();
     }
 
     /**
@@ -258,10 +337,10 @@ public class Finder extends JDialog
             {
                 Box optionBox = new Box(BoxLayout.Y_AXIS);
                 {
-                    JCheckBox ignoreCase = new JCheckBox("Ignore case");
+                    ignoreCase = new JCheckBox("Ignore case");
                     optionBox.add(ignoreCase);
                     optionBox.add(Box.createVerticalStrut(6));
-                    JCheckBox wholeWord = new JCheckBox("Whole word");
+                    wholeWord = new JCheckBox("Whole word");
                     optionBox.add(wholeWord);
                 }
                 togglesBox.add(optionBox);

@@ -464,10 +464,10 @@ public final class MoeEditor extends JFrame
     /**
      * Get the text currently selected. (currently not needed)
      */
-//      public String getSelectedText()
-//      {
-//          return currentTextPane.getSelectedText();
-//      }
+     public String getSelectedText()
+     {
+         return currentTextPane.getSelectedText();
+     }
 
     // --------------------------------------------------------------------
     /**
@@ -785,7 +785,8 @@ public final class MoeEditor extends JFrame
      */
     private void findNextString(Finder finder, String s, boolean backward)
     {
-        boolean found = findString(s, backward, (!finder.getSearchFound()));
+        boolean found = findString(s, backward, finder.getIgnoreCase(),
+                                   finder.getWholeWord(), (!finder.getSearchFound()));
 
         finder.setSearchString(s);
         finder.setSearchFound(found);
@@ -795,7 +796,8 @@ public final class MoeEditor extends JFrame
     /**
      *   Do a find with info in the info area.
      */
-    boolean findString(String s, boolean backward, boolean wrap)
+    boolean findString(String s, boolean backward, boolean ignoreCase, 
+                       boolean wholeWord, boolean wrap)
     {
         if (s.length()==0) {
             info.warning(Config.getString("editor.info.emptySearchString"));
@@ -803,15 +805,29 @@ public final class MoeEditor extends JFrame
         }
         boolean found;
         if(backward)
-            found = doFindBackward(s, wrap);
+            found = doFindBackward(s, ignoreCase, wholeWord, wrap);
         else
-            found = doFind(s, wrap);
-        String msg = "Find " + (backward ? "backward" : "forward") +
-            (wrap ? " (wrap around): " : ": ") + s;
-        if (found)
-            info.message(msg);
+            found = doFind(s, ignoreCase, wholeWord, wrap);
+        StringBuffer msg = new StringBuffer("Find ");
+        msg.append((backward ? "backward" : "forward"));
+        if(ignoreCase || wholeWord || wrap)
+            msg.append(" (");
+        if(ignoreCase)
+            msg.append("ignore case, ");
+        if(wholeWord)
+            msg.append("whole word, ");
+        if(wrap)
+            msg.append("wrap around, ");
+        if(ignoreCase || wholeWord || wrap)
+            msg.replace(msg.length()-2, msg.length(), "): ");
         else
-            info.warning(msg, Config.getString("editor.info.notFound"));
+            msg.append(": ");
+        msg.append(s);
+
+        if(found)
+            info.message(msg.toString());
+        else
+            info.warning(msg.toString(), Config.getString("editor.info.notFound"));
         return found;
     }
 
@@ -819,7 +835,7 @@ public final class MoeEditor extends JFrame
     /**
      *  doFind - do a find without visible feedback. Returns false if not found.
      */
-    boolean doFind(String s, boolean wrap)
+    boolean doFind(String s, boolean ignoreCase, boolean wholeWord, boolean wrap)
     {
         int docLength = document.getLength();
         int startPosition = currentTextPane.getCaretPosition();
@@ -838,7 +854,7 @@ public final class MoeEditor extends JFrame
             while (!found && !finished) {
                 String lineText = document.getText(start, lineEnd - start);
                 if(lineText != null && lineText.length() > 0) {
-                    int foundPos = lineText.indexOf(s);
+                    int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false);
                     if (foundPos != -1) {
                         currentTextPane.select(start+foundPos, start+foundPos+s.length());
                         found = true;
@@ -873,7 +889,8 @@ public final class MoeEditor extends JFrame
      *  doFindBackward - do a find backwards without visible feedback.
      *   Returns false if not found.
      */
-    boolean doFindBackward(String s, boolean wrap)
+    boolean doFindBackward(String s, boolean ignoreCase, boolean wholeWord, 
+                           boolean wrap)
     {
         int docLength = document.getLength();
         int startPosition = currentTextPane.getCaretPosition() - 1;
@@ -892,7 +909,7 @@ public final class MoeEditor extends JFrame
             while (!found && !finished) {
                 String lineText = document.getText(lineStart, start-lineStart);
                 if(lineText != null && lineText.length() > 0) {
-                    int foundPos = lineText.lastIndexOf(s);
+                    int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, true);
                     if (foundPos != -1) {
                         currentTextPane.select(lineStart+foundPos,
                                                lineStart+foundPos+s.length());
@@ -921,6 +938,54 @@ public final class MoeEditor extends JFrame
             Debug.message("error in editor find operation");
         }
         return found;
+    }
+
+    /**
+     * Find the position of a substring in a given string, ignoring case or searching for
+     * whole words if desired. Return the position of the substring or -1.
+     *
+     * @param text  the full string to be searched
+     * @param sub   the substring that we're looking for
+     * @param ignoreCase  if true, case is ignored
+     * @param wholeWord   if true, and the search string resembles something like a word,
+     *                    find only whole-word ocurrences
+     * @returns     the index of the substring, or -1 if not found
+     */
+    private int findSubstring(String text, String sub, boolean ignoreCase, 
+                              boolean wholeWord, boolean backwards)
+    {
+        int strlen = text.length();
+        int sublen = sub.length();
+
+        if(sublen == 0)
+            return -1;
+
+        // 'wholeWord' search does not make much sense when the search string is not a word
+        // (ar at least the first and last character is a letter). Check that.
+        if(!Character.isJavaIdentifierPart(sub.charAt(0)) 
+               || !Character.isJavaIdentifierPart(sub.charAt(sublen-1)))
+            wholeWord = false;
+
+        boolean found = false;
+        int pos = (backwards ? strlen-sublen : 0);
+        boolean itsOver = (backwards ? (pos < 0) : (pos+sublen > strlen));
+
+        while(!found && !itsOver) {
+            found = text.regionMatches(ignoreCase, pos, sub, 0, sublen);
+            if(found && wholeWord) {
+                found = ((pos == 0) || !Character.isJavaIdentifierPart(text.charAt(pos-1))) &&
+                        ((pos+sublen >= strlen) || 
+                           !Character.isJavaIdentifierPart(text.charAt(pos+sublen)));
+            }
+            if(!found) {
+                pos = (backwards ? pos-1 : pos+1 );
+                itsOver = (backwards ? (pos < 0) : (pos+sublen > strlen));
+            }
+        }
+        if(found)
+            return pos;
+        else
+            return -1;
     }
 
     // --------------------------------------------------------------------
