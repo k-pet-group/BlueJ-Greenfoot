@@ -17,7 +17,6 @@ import java.io.*;
 import bluej.Config;
 import bluej.pkgmgr.PackageTarget;
 import bluej.pkgmgr.Package;
-import bluej.utility.ModelessMessageBox;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.Debug;
@@ -29,17 +28,17 @@ import bluej.classmgr.ClassPathEntry;
  *
  * A JPanel subclass with a JTree containing all the packages specified in the
  * class manager.
- * 
+ *
  * @author  Andy Marks
  * @author  Andrew Patterson
- * @cvs     $Id: LibraryChooser.java 282 1999-11-18 10:36:00Z ajp $
+ * @cvs     $Id: LibraryChooser.java 596 2000-06-28 05:07:31Z ajp $
  */
 public class LibraryChooser extends JPanel implements Runnable
 {
     private LibraryChooserNode root = null;
     private JTree tree = null;
     private DefaultTreeModel treeModel = null;
-    
+
     /**
      * Create a new LibraryChooser.
      *
@@ -49,7 +48,7 @@ public class LibraryChooser extends JPanel implements Runnable
     {
         setBackground(Color.white);
         setLayout(new BorderLayout());
-    
+
         loadLibraries();
     }
 
@@ -57,7 +56,7 @@ public class LibraryChooser extends JPanel implements Runnable
      * This component will raise LibraryChooserEvents when nodes are
      * selected in the tree. The following functions manage this.
      */
-         
+
     public void addLibraryChooserListener(LibraryChooserListener l) {
         listenerList.add(LibraryChooserListener.class, l);
     }
@@ -78,9 +77,9 @@ public class LibraryChooser extends JPanel implements Runnable
                 ((LibraryChooserListener)listeners[i+1]).nodeEvent(
                         new LibraryChooserEvent(this,
                                 LibraryChooserEvent.NODE_CLICKED, node));
-            }	       
+            }
         }
-    }	
+    }
 
     protected void fireFinishedEvent() {
         // huaranteed to return a non-null array
@@ -92,18 +91,18 @@ public class LibraryChooser extends JPanel implements Runnable
                 ((LibraryChooserListener)listeners[i+1]).nodeEvent(
                         new LibraryChooserEvent(this,
                                 LibraryChooserEvent.FINISHED_LOADING, null));
-            }	       
+            }
         }
-    }	
+    }
 
     /**
      * Find all classes belong to a package in our tree.
      *
-     * Create and return an array of Strings to identify all the 
+     * Create and return an array of Strings to identify all the
      * classes that belong to the package represented by the node
      * ie if the node represented the package java.lang, the returned
      * array would contains values such as { "Integer", "Float" etc }.
-     * 
+     *
      * @param node  the node representing the package
      * @return the base names of classes in this package
      */
@@ -112,7 +111,7 @@ public class LibraryChooser extends JPanel implements Runnable
         Object files[] = node.getFiles();
         int numberFiles = files == null ? 0 : files.length;
         String result[] = new String[numberFiles];
-    
+
         // all values in files array will be class files in this package's directory
         for (int current = 0; current < numberFiles; current++)
             result[current] = (String)files[current];
@@ -121,11 +120,11 @@ public class LibraryChooser extends JPanel implements Runnable
     }
 
     /**
-     * Create and return an array of Strings to identify all the 
+     * Create and return an array of Strings to identify all the
      * packages which are nested in the package represented by the node
      * ie if the node represented the package java.lang, the returned
      * array would contain { "reflect", etc }
-     * 
+     *
      * @param node  the node representing the package
      * @return the base names of nested packages in this package
      */
@@ -142,7 +141,7 @@ public class LibraryChooser extends JPanel implements Runnable
     }
 
     /**
-     * Use the class manager to load the libraries into the tree. 
+     * Use the class manager to load the libraries into the tree.
      */
     public void loadLibraries()
     {
@@ -162,14 +161,14 @@ public class LibraryChooser extends JPanel implements Runnable
             root.removeAllChildren();
             treeModel.reload();
         }
-    
+
         new Thread(this).start();
     }
-    
+
     /**
      * Separate process used to load libraries whilst the rest of the browser
      * inits.  Iterate through the libraries adding each one to the tree.
-     * 
+     *
      * The methods which are invoked from this method could conceivably
      * take quite a while to run, so they have been spawned from a separare
      * thread to allow the rest of the library chooser to begin immediately.
@@ -180,13 +179,13 @@ public class LibraryChooser extends JPanel implements Runnable
     {
         // iterate through all the libraries the class manager knows about
         Iterator libraries = ClassMgr.getClassMgr().getAllClassPathEntries();
-    
+
         while (libraries.hasNext()) {
             ClassPathEntry cpe = (ClassPathEntry)libraries.next();
-                
+
             addLibraryToTree(new ClassPathEntryNode(cpe));
         }
-                               
+
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         // listen for when the selection changes.
@@ -201,62 +200,62 @@ public class LibraryChooser extends JPanel implements Runnable
                     fireNodeEvent(node);
                 }
             }
-        );     
-        
+        );
+
         tree.setEditable(false);
-        
+
         // make sure all the top level libraries are initially visible and expanded
-    
+
         Enumeration topLevelNodes = root.children();
         while (topLevelNodes.hasMoreElements())
             tree.expandPath(new TreePath(((DefaultMutableTreeNode)
                                             topLevelNodes.nextElement()).getPath()));
-            
+
         // make it so it doesn't show any leaf icons
         DefaultTreeCellRenderer rend = new DefaultTreeCellRenderer();
         rend.setLeafIcon(null);
         rend.setClosedIcon(null);
         rend.setOpenIcon(null);
-        
+
         tree.setCellRenderer(rend);
-    
+
         // now add the tree to the scroller
         JScrollPane scrollPane = new JScrollPane(tree);
 
         add(scrollPane, BorderLayout.CENTER);
-    
+
         revalidate();
 
         fireFinishedEvent();
     }
-    
+
     /**
      * Remove all branches of the tree that do not contain any files
      * (unless they are .class files).
-     * 
+     *
      * @param node the node of the tree from which to start pruning.
      */
     private void pruneNodeOfEmptyDirectories(LibraryChooserNode node)
     {
         boolean prunedOnLastPass = true;
-        
+
         // short circuit the pruning for a completely empty node
         if(node.getChildCount() == 0) {
             node.removeFromParent();
             return;
         }
-        
+
         while (prunedOnLastPass) {
             prunedOnLastPass = false;
-            
+
             Enumeration nodes = node.depthFirstEnumeration();
-            
+
             LibraryChooserNode nextNode = null;
 
             while (nodes.hasMoreElements()) {
                 nextNode = (LibraryChooserNode) nodes.nextElement();
-                
-                if (nextNode.isLeaf() && 
+
+                if (nextNode.isLeaf() &&
                     nextNode.getFiles() == null &&
                     nextNode != root)
                     {
@@ -271,7 +270,7 @@ public class LibraryChooser extends JPanel implements Runnable
      * Return an array of TreePath objects containing all nodes in the tree
      * that contain the <code>pattern</code>.  Called (originally) by the
      * FindLibraryDialog once a search term has been entered.
-     * 
+     *
      * @return all paths in the tree matching the pattern, given the criteria, or null
      * @param pattern the string to find within the paths in the tree
      * @param caseSensitive true if the match must be case sensitive
@@ -287,7 +286,7 @@ public class LibraryChooser extends JPanel implements Runnable
         }
         if (results.size() == 0)
             return null;
-        
+
         TreePath[] matches = new TreePath[results.size()];
         results.copyInto(matches);
         return matches;
@@ -295,7 +294,7 @@ public class LibraryChooser extends JPanel implements Runnable
 
     /**
      * Given a particular TreePath, try to match it against a pattern.
-     * 
+     *
      * @param library the library to search
      * @param pattern the pattern to look for in the library
      * @param caseSensitive true if a case sensitive match is required
@@ -306,13 +305,13 @@ public class LibraryChooser extends JPanel implements Runnable
         if (!caseSensitive) {
             pattern = pattern.toLowerCase();
         }
-        
+
         String node = null;
         for (int current = 0; current < library.getPathCount(); current++) {
             node = ((LibraryChooserNode)library.getPathComponent(current)).toString();
             if (!caseSensitive)
                 node = node.toLowerCase();
-            
+
             if (substringSearch) {
                 if (node.indexOf(pattern) != -1) {
                     return true;
@@ -325,12 +324,12 @@ public class LibraryChooser extends JPanel implements Runnable
         }
         return false;
     }
-    
+
     /**
      * Return the first top level tree node containing a substring of <code>dir</code>
      * at the start of it's user object.
      * <strong>Note: assumes case insensitivity of directory names (BAD!)</strong>
-     * 
+     *
      * @param dir the directory to try and match in the top level nodes
      * @return the first top level node with a user object matching <code>dir</code>
      */
@@ -346,7 +345,7 @@ public class LibraryChooser extends JPanel implements Runnable
         }
         return null; // no matching top level node found
     }
-    
+
     /**
      * Add a new library to the tree.
      *
@@ -356,14 +355,14 @@ public class LibraryChooser extends JPanel implements Runnable
      * Responsibility for adding the library is delegated
      * to a function specialized for adding this type of
      * library (i.e., ZIP/JAR or directory)
-     * 
+     *
      * @param cpeNode the ClassPathEntryNode object to add to the tree
      */
     private void addLibraryToTree(ClassPathEntryNode cpeNode)
-    {     
+    {
         // add the new node to the root
         treeModel.insertNodeInto(cpeNode, root, root.getChildCount());
-        
+
         if (cpeNode.isJar()) {
             openArchiveLibrary(cpeNode);
         } else if (cpeNode.isClassRoot()) {
@@ -373,13 +372,13 @@ public class LibraryChooser extends JPanel implements Runnable
         // prune the node of empty branches
         pruneNodeOfEmptyDirectories(cpeNode);
     }
-    
+
     /**
      * Add an archive library (i.e., ZIP or JAR file) to the tree.
      * Because the archive could (very likely) be stored with directories,
-     * We need to parse each entry, extract the paths contained within, 
+     * We need to parse each entry, extract the paths contained within,
      * and see if part/all/none of the tree has been created yet.
-     * 
+     *
      * @param top the node of the tree to be the parent of the library
      * @param file the file representation of the library
      * @param alias the display name for the library
@@ -394,7 +393,7 @@ public class LibraryChooser extends JPanel implements Runnable
             String statusString = Config.getString("browser.librarychooser.openingarchive.status") + " " + archiveFile.getName();
 
             while (files.hasMoreElements()) {
-                    
+
                 entryName = ((JarEntry) files.nextElement()).getName();
 
                 if (entryName.endsWith(".class") &&
@@ -402,21 +401,21 @@ public class LibraryChooser extends JPanel implements Runnable
                     addArchiveEntry(cpe, entryName);
                 }
             }
-        
+
             archiveFile.close();
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
     }
-    
+
     /**
      * Add a single entry from an archive file to the tree.
      * We have a single entry from an archive file, which could be a file
      * (with or without a preceeding directory), or simply a directory.
      * We need to add this file (with directory structure, if any) to
      * the appropriate place in the tree.
-     * 
+     *
      * @param top the node to be the parent of the new entry.
      * @param entry the new entry to add to the tree.
      */
@@ -427,7 +426,7 @@ public class LibraryChooser extends JPanel implements Runnable
 
         // find first slash to see whether entry contains directories or not
         int slashPos = entry.indexOf("/");
-    
+
         // simplest case - no directories in entry,
         // so we just have a .class file.  This can be thrown
         // away as we can assume it's parent directory structure
@@ -436,34 +435,34 @@ public class LibraryChooser extends JPanel implements Runnable
 
             int ind = entry.indexOf(".class");
             if(ind >= 0)        // must be true but better safe than sorry
-                entry = entry.substring(0, ind);                                                              
-            
+                entry = entry.substring(0, ind);
+
             top.addFile(entry);
             return;
         }
-    
+
         // entry starts with a slash - remove it and continue
         if (slashPos == 0)
             entry = entry.substring(1, entry.length());
-    
+
         // normal case - slash found not at start
         int nextSlashPos = entry.indexOf("/", slashPos);
         if (nextSlashPos == -1) {
             // we have something like /dirname or /file.class
             return;
         }
-    
+
         LibraryChooserNode newNode = new PackageNode(entry.substring(0, slashPos));
         LibraryChooserNode foundNode = getFirstNodeWithObject(top, newNode.getUserObject().toString());
         if (foundNode != null) {
             // recurse
-            addArchiveEntry(foundNode, entry.substring(slashPos + 1, entry.length()));    
+            addArchiveEntry(foundNode, entry.substring(slashPos + 1, entry.length()));
         } else {
             top.add(newNode);
             // recurse
-            addArchiveEntry(newNode, entry.substring(slashPos + 1, entry.length()));    
+            addArchiveEntry(newNode, entry.substring(slashPos + 1, entry.length()));
         }
-            
+
     }
 
     private void openDirectoryLibrary(ClassPathEntryNode cpe) {
@@ -475,7 +474,7 @@ public class LibraryChooser extends JPanel implements Runnable
      * The library is checked to ensure it exists and hasn't already been added
      * to the tree.  The directory is recursed, with each child directory being
      * added to the tree.
-     * 
+     *
      * @param top the node of the tree to be the parent of the library.
      * @param the file representation of the library.
      **/
@@ -483,7 +482,7 @@ public class LibraryChooser extends JPanel implements Runnable
     {
         if (!file.exists() && !file.isDirectory()) {
             // because of the long startup time, this should probably be in a separate thread
-            DialogManager.showErrorWithText((JFrame)getParent(), 
+            DialogManager.showErrorWithText((JFrame)getParent(),
 					    "missing-shadow", file.getName());
             return;
         }
@@ -492,19 +491,19 @@ public class LibraryChooser extends JPanel implements Runnable
 
         File newFile = null;
         LibraryChooserNode newNode = null;
-            
+
         // needed to allow correct identification of file type
-        String path = file.getPath(); 
-            
+        String path = file.getPath();
+
         for (int current = 0; current < contents.length; current++) {
 
             // contruct the new file with the path of the parent
             newFile = new File(path, contents[current]);
-            
+
             // we're only interested in class files
             if (!newFile.isFile() && !newFile.isDirectory())
                 continue;
-            
+
             if (newFile.isFile())
             {
                 if (newFile.getName().endsWith(".class") &&
@@ -513,15 +512,15 @@ public class LibraryChooser extends JPanel implements Runnable
                     String entry = newFile.getName();
                     int ind = entry.indexOf(".class");
                     if(ind >= 0)        // must be true but better safe than sorry
-                        entry = entry.substring(0, ind);                                                              
+                        entry = entry.substring(0, ind);
 
                     top.addFile(entry);
                 }
             } else {
-            
+
                 newNode = new LibraryChooserNode(contents[current]);
                 top.add(newNode);
-            
+
                 // recurse if directory (implied from isFile() test above I
                 // guess but its best to be safe)
                 if (newFile.isDirectory())
@@ -533,9 +532,9 @@ public class LibraryChooser extends JPanel implements Runnable
     /**
      * Helper method to find the first child node of a node
      * containing the user object matching <code>object</code>.
-     * Examine the children of a specified parent node for a 
+     * Examine the children of a specified parent node for a
      * matching user object.
-     * 
+     *
      * @param node the parent node of the children to examine
      * @param object the user object to search for.
      * @return the found node, or null if no node found
@@ -552,14 +551,14 @@ public class LibraryChooser extends JPanel implements Runnable
                     return child;
             }
         }
-        
+
         return null;
     }
-  
+
     /**
      * Convert a tree path to a dot delimited package name,
      * based on the current contents of the tree.
-     * 
+     *
      * @return the name of the package in this directory, or null.
      * @param thePackage the path to the package.
      */
@@ -577,7 +576,7 @@ public class LibraryChooser extends JPanel implements Runnable
             // remove the last character, which will be the last decimal point added
             packageName = packageName.substring(0, packageName.length() - 1);
         }
-        
+
         return packageName;
     }
 }

@@ -19,7 +19,6 @@ import java.util.jar.*;
 import java.io.*;
 
 import bluej.Config;
-import bluej.utility.ModelessMessageBox;
 import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 import bluej.utility.Debug;
@@ -35,7 +34,7 @@ import bluej.pkgmgr.Package;
  *
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: ClassChooser.java 532 2000-06-08 07:46:08Z ajp $
+ * @version $Id: ClassChooser.java 596 2000-06-28 05:07:31Z ajp $
  */
 public class ClassChooser extends JPanel {
 
