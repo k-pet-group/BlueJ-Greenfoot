@@ -12,23 +12,28 @@ import bluej.debugger.*;
 import bluej.utility.Debug;
 
 /**
- * A Wrapper for a Field of a BlueJ Class of Objects.
+ * A wrapper for a field of a BlueJ class.
+ * Similar to Reflection API.
  * The main reason to have a field coming from a Class and not from an Object is that
  * logically we should be able to get static Field without having objects.
  * Reflection states that to get a static field we can use a Field and pass null as the object to work on.
- * NOTE: the get method returns an Object, in most cases it is a String, Integer, Long and so on BUT
- * when a real Object is actually returned it is encapsulated into a BObject. You MUST look for this.
+ * The get method returns an Object, in most cases it is a String, Integer, Long and so on but
+ * when a real Object is actually returned it is encapsulated into a BObject. 
+ * You must look for this.
  * 
- * @version $Id: BField.java 1802 2003-04-10 09:55:18Z damiano $
+ * @version $Id: BField.java 1817 2003-04-10 11:28:14Z damiano $
  */
+
+/*
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ * Previous attempt by Clive Miller, University of Kent at Canterbury, 2002
+ */
+ 
 public class BField
 {
     private FieldView bluej_view;
     private Package   bluej_package;
     
-    /**
-     * From use only by bluej.extensions.
-     */
     BField (Package i_bluej_package, FieldView i_bluej_view )
     {
         bluej_package = i_bluej_package;
@@ -50,27 +55,28 @@ public class BField
 
 
     /**
-     * The name of the Field, as from reflection.
-     * Tested ok, 070303 Damiano
+     * The name of the Field
+     * Similar to reflection API.
      */
     public String getName()
         {
+        // Tested ok, 070303 Damiano
         return bluej_view.getName();
         }
 
     /**
-     * The type of the field, as from reflection
-     * Tested ok, 070303 Damiano
+     * The type of the field.
+     * Similar to Reflection API.
      */
     public Class getType()
         {
+        // Tested ok, 070303 Damiano
         return bluej_view.getType().getViewClass();
         }
 
 
     /**
      * When you are inspecting a static Field use this one.
-     * NOTE: The behaviour is NOT similar to reflection. See the code and the further comments.
      */
     private Object getStaticField ()
       {
@@ -134,7 +140,8 @@ public class BField
 
 
     /**
-     * Gets this Filed Value on the given BObject
+     * Gets this filed value on the given object.
+     * This is similar to Reflection API.
      */
     public Object get ( BObject onThis )
         {
