@@ -264,6 +264,7 @@ bluej.terminal.width=80
 ## users in their preferences dialogue. (values: true / false)
 #######################################################################
 
+bluej.editor.autoIndent=false
 bluej.editor.syntaxHilighting=true
 bluej.editor.displayLineNumbers=false
 bluej.editor.makeBackup=false
