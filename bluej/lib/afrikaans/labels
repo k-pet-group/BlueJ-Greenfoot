@@ -12,6 +12,16 @@ compiler.thread.title=BlueJ kompileerder uitvoerdraad
 compiler.invalidcompiler=bluej.compiler.type is nie as geldige kompileerdertipe ingestel nie
 compiler.nocompiler=Kompileerder kon nie uitgevoer word nie
 
+debugger.inspector.inspect=Inspekteer
+debugger.inspector.classNameLabel=Klas
+debugger.inspector.get=Kry
+debugger.inspector.objectNameLabel=Objek van Klas
+debugger.inspector.objListTitle=Eksemplaar velde
+debugger.inspector.result.title=BlueJ:  Metode Resultaat
+debugger.inspector.showClass=Wys statiese velde
+debugger.inspector.staticListTitle=Statiese velde
+debugger.inspector.title=BlueJ:  Inspekteur
+
 debugger.objectviewer.title=BlueJ:  Objekbekyker van klas
 debugger.resultviewer.title=BlueJ:  Resultaat van metode
 debugger.objectviewer.staticListTitle=Statiese velde
@@ -74,6 +84,43 @@ browser.menu.library.close=Maak toe
 
 # Preferences Manager user interface elements and error messages
 prefmgr.title=BlueJ:  Voorkeure
+prefmgr.misc.matchBrackets=Sorg dat hakies pas { ... } 
+
+
+# Extensions Manager Help panel
+extmgr.title=BlueJ:  Geïnstalleerde Uitbreidings
+extmgr.extensions=Uitbreidings
+extmgr.installed=Geïnstalleer
+extmgr.project=Projek
+extmgr.statuscolumn=Status
+extmgr.namecolumn=Naam
+extmgr.typecolumn=Tipe
+extmgr.versioncolumn=Weergawe
+extmgr.details=Besonderhede
+extmgr.details.status=Status
+extmgr.details.name=Naam
+extmgr.details.location=Plek
+extmgr.details.type=Tipe
+extmgr.details.version=Weergawe
+extmgr.details.date=Bou-datum
+extmgr.details.url=URL
+extmgr.details.menus=Keuselyste
+extmgr.details.preferences=Voorkeure
+extmgr.details.description=Beskrywing
+
+extmgr.status.notused=Nie gebruik nie
+extmgr.status.loaded=Gelaai
+extmgr.status.error=Fout
+extmgr.status.unloaded=Uitgelaai
+extmgr.version.unknown=Onbekend
+extensions.nodescription=Geen
+
+# Extension errors
+extmgr.error.nomanifest=Geen manifest lêer
+extmgr.error.nomain=Manifest bevat geen Main-Class attribuut nie
+extmgr.error.notsubclass=Hoofklas is nie 'n subklas van die uitbreiding nie
+extmgr.error.cannotload=Uitbreding kon nie gelaai word nie.
+
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Biblioteke
@@ -86,6 +133,7 @@ classmgr.locationcolumn=Stoorgids
 classmgr.statuscolumn=Status
 classmgr.statusgood=Gelaai
 classmgr.statusbad=Fout
+classmgr.statusnew=Nie gelaai nie
 classmgr.descriptioncolumn=Beskrywing
 classmgr.bootclass=Selflaai klasbiblioteek
 classmgr.bluejclass=BlueJ klasbiblioteek
@@ -231,6 +279,12 @@ pkgmgr.chooseArrow=Kies 'n pyl om te verwyder
 pkgmgr.packageSaved=Pakket gestoor
 pkgmgr.info.printing = Besig met drukwerk...
 pkgmgr.info.printed = Drukwerk... Klaar.
+pkgmgr.error.open=Die projek bestaan nie (meer nie)
+pkgmgr.printDialog.printDiagram=Druk die klasdiagram
+pkgmgr.printDialog.printReadme=Druk die projek se README lêer 
+pkgmgr.printDialog.printSource=Druk die bronkode
+pkgmgr.printDialog.title=Druk die projek
+
 
 utility.packageChooser.previewPane1=Voorskou van moontlike
 utility.packageChooser.previewPane2=pakketstruktuur
@@ -269,6 +323,7 @@ pkgmgr.classmenu.runApplet=Loop miniprogram
 pkgmgr.classmenu.edit=Open Redigeerder
 pkgmgr.classmenu.compile=Kompileer
 pkgmgr.classmenu.remove=Verwyder
+pkgmgr.classmenu.inspect=Inspekteer
 
 pkgmgr.view.label=Wys
 pkgmgr.view.usesLabel=Komposisie
@@ -299,6 +354,13 @@ callLibraryDialog.clickHere1=Tik volledige klasnaam en druk dan Enter
 callLibraryDialog.clickHere2=om konstruktors en metodes te vertoon.
 callLibraryDialog.classNotFound1=Klas nie gevind.
 callLibraryDialog.classNotFound2=(Korrigeer klasnaam en druk weer Enter.)
+
+# "Free Form Call" dialog
+freeCallDialog.title=BlueJ:  Evalueer
+freeCallDialog.fieldLabel=Evalueer:
+freeCallDialog.resultLabel=Dit is
+freeCallDialog.returnsResult='n uitdrukking (lewer 'n resultaat)
+freeCallDialog.returnsNoResult='n stelling  (lewer geen resultaat)
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Skryf uit
@@ -391,6 +453,7 @@ terminal.clear = Maak skoon
 terminal.copy = Kopieer
 terminal.save = Stoor na lêer...
 terminal.close = Maak toe
+terminal.clearScreen = Maak skerm skoon by metoderoep
 terminal.recordCalls = Teken metoderoepe aan
 terminal.buffering = Buffer onbeperk
 terminal.save.title = Stoor terminaalteks
@@ -415,7 +478,7 @@ pkgmgr.appletInBrowser=Minitoepassing word in webleser vertoon
 pkgmgr.exported=Uitskryfproses is voltooi.
 pkgmgr.exported.jar=Uitskryf na jar-lêer is voltooi.
 
-properties.heading=BlueJ eienskappe. Opstellings in hierdie lêer oorheers \"bluej.defs\"
+properties.heading.bluej=BlueJ eienskappe. Opstellings in hierdie lêer oorheers \"bluej.defs\"
 properties.heading.moe=Moe-redigeerder eienskappe. Opstellingsgs in hierdie lêer oorheers \"moe.defs\"
 
 # menus and menu items
@@ -423,6 +486,7 @@ properties.heading.moe=Moe-redigeerder eienskappe. Opstellingsgs in hierdie lêer
 menu.package=Projek
 menu.package.new=Nuwe...
 menu.package.open=Open...
+menu.package.openRecent=Open onlangse...
 menu.package.openNonBlueJ=Open nie-BlueJ...
 menu.package.close=Sluit
 menu.package.save=Stoor
@@ -450,6 +514,7 @@ menu.tools.rebuild=Herbou pakket
 menu.tools.generateDoc=Genereer Dokumentasie
 menu.tools.browse=Blaai deur biblioteke...
 menu.tools.preferences=Voorkeure...
+menu.tools.callFreeForm=Evalueer Uitdrukking...
 
 menu.view=Aansig
 menu.view.showUses=Vertoon Gebruikverwantskappe
@@ -476,6 +541,7 @@ menu.help.copyright=Kopiereg...
 menu.help.tutorial=BlueJ Tutoriaal...
 menu.help.website=BlueJ Webwerf
 menu.help.standardApi=Java klasbiblioteke...
+menu.help.extensions=Geïnstalleerde Uitbreidings
 
 # tool tips
 

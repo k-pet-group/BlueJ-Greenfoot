@@ -423,15 +423,15 @@ dialogmgr.message=BlueJ:  Hinweis
 
 #Terminal Window
 terminal.options=Optionen
-terminal.title=BlueJ:  Terminalfenster
-terminal.clear=Terminalfenster löschen
+terminal.title=BlueJ:  Konsole
+terminal.clear=Konsole löschen
 terminal.copy=Kopieren
 terminal.save=In Datei speichern...
 terminal.close = Schließen
-terminal.clearScreen=Terminalfenster löschen bei Methodenaufruf
+terminal.clearScreen=Konsole löschen bei Methodenaufruf
 terminal.recordCalls=Methodenaufrufe protokollieren
 terminal.buffering=Unbegrenzter Textspeicher
-terminal.save.title=Terminaltext speichern
+terminal.save.title=Konsolentext speichern
 terminal.save.buttonText=Speichern
 
 # status messages
@@ -493,7 +493,7 @@ menu.view=Sicht
 menu.view.showUses=Verwendungs-Beziehungen anzeigen
 menu.view.showInherits=Vererbungs-Beziehungen anzeigen
 menu.view.showExecControls=Debugger zeigen
-menu.view.showTerminal=Terminalfenster zeigen
+menu.view.showTerminal=Konsole zeigen
 
 menu.group=Gruppenarbeit
 menu.group.make=Gruppen-Paket erstellen
