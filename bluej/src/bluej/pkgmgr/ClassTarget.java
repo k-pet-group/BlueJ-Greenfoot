@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 727 2000-12-15 06:53:24Z mik $
+ * @version $Id: ClassTarget.java 732 2000-12-18 12:34:49Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -604,6 +604,9 @@ public class ClassTarget extends EditableTarget
     {
         String newName = info.getName();
 
+        if ((newName == null) || (newName.length() == 0))
+            return false;
+
         return (!getBaseName().equals(newName));
     }
 
@@ -911,7 +914,7 @@ public class ClassTarget extends EditableTarget
 
 
     /**
-     * creates a stereotype name as a Strinbg if it is an interface, 
+     * creates a stereotype name as a Strinbg if it is an interface,
      * abstract class or Applet.
      * @return String representing the type of stereotype or null if not applicable
      */
@@ -937,11 +940,11 @@ public class ClassTarget extends EditableTarget
     {
         // call to getStereotype
         String stereotype = getStereotype();
-        
+
         if(state != S_NORMAL) {
             g.setColor(umlShadowCol);
             // set divider if UML, different position if stereotype is present
-           
+
             int divider = (stereotype == null) ? 18 : 32;
             Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
         }
@@ -1120,7 +1123,7 @@ public class ClassTarget extends EditableTarget
     {
         // flag dependent Targets as invalid
         //invalidate();
-        
+
         Editor ed = getEditor();
         if(ed != null)
             ed.close();
