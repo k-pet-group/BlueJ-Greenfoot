@@ -85,6 +85,7 @@ var
   MainForm: TMainForm;
 
   forcedialog : boolean = false;
+  usejavaw : boolean = false;
   simplewinheight : integer = 10;
   advancedwinheight : integer = 10;
 
@@ -214,7 +215,10 @@ begin
 
 	// vmfilename is automatically wrapped in quotes by ExecConsoleApp so
 	// there is no need for us to do it
-	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\javaw.exe';
+        if usejavaw then
+        	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\javaw.exe'
+        else
+        	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\java.exe';
 
         appdirlib := '"' + appdir + 'lib\';
 
@@ -223,7 +227,7 @@ begin
         extjarfilename := appdirlib + 'bluejext.jar' + '"';
         antlrjarfilename := appdirlib + 'antlr.jar' + '"';
         junitjarfilename := appdirlib + 'junit.jar' + '"';
-        mrjjarfilename := appdirlib + 'MRJToolkitStubs.zip' + '"';
+        mrjjarfilename := appdirlib + 'MRJ141Stubs.jar' + '"';
 
         tooljarfilename := '"' + ExcludeTrailingPathDelimiter(jdkpath) + '\lib\tools.jar' + '"';
 
@@ -318,6 +322,8 @@ begin
         begin
                 if LowerCase(ParamStr(i)) = '/select' then
                         forcedialog := true
+                else if LowerCase(ParamStr(i)) = '/javaw' then
+                        usejavaw := true
                 else
                 	goodparams.Add(ParamStr(i));
         end;
