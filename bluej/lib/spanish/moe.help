@@ -10,8 +10,14 @@ delete-previous=\n Delete the character before the caret.
 delete-next=\n Delete the character after the caret.
 copy-to-clipboard=\n Copy the selected text to the clipboard. From there, it can be\n pasted somewhere else later (see paste-from-clipboard).
 cut-to-clipboard= Cut the selection from the text and move it to the clipboard.\n From there, it can be pasted somewhere else later (see\n paste-from-clipboard).
+copy-line=\n Copy the current line to the clipboard. Successive \n copy operations add to the clipbord.
+cut-line=\n Cut the current line to the clipboard. Successive \n cut operations add to the clipbord.
+cut-end-of-line=\n Cut the end of the current line to the clipboard.\n Successive cut operations add to the clipbord.
+cut-word=\n Cut the current word to the clipboard. Successive \n cut operations add to the clipbord.
+cut-end-of-word=\n Cut the end of the current word to the clipboard.\n Successive cut operations add to the clipbord.
 paste-from-clipboard=\n Paste the text currently on the clipboard into the text at\n the current caret position.
 insert-tab=\n Insert a TAB character.
+insert-spaced-tab=\n Insert spaces to the next TAB position. (That is: perform\n a TAB operation using spaces instead of a real TAB character).
 insert-break=\n Insert a line break at the caret position.
 insert-break-and-indent=\n Insert a line break at the caret position\n and indent as the line above.
 indent=\n Adjust the indentation of the current line to be the same as that\n of the line above.
@@ -23,7 +29,6 @@ select-word=\n Select the current word (also bound to\n left-mouse-button: doubl
 select-line=\n Select the current line (also bound to\n left-mouse-button: triple-click).
 select-paragraph=\n Select the current paragraph.
 select-all=\n Select the whole text.
-unselect=\n Remove the selection (not the selected text!).
 selection-backward=\n Move the end of the selection one character backwards.
 selection-forward=\n Move the end of the selection one character forward.
 selection-up=\n Move the end of the selection one line up.
@@ -40,6 +45,7 @@ selection-page-up=\n Move the end of the selection one page up.
 selection-page-down=\n Move the end of the selection one page down.
 selection-begin=\n Move the end of the selection to the beginning of the text.
 selection-end=\n Move the end of the selection to the end of the text.
+unselect=\n Remove the selection (not the selected text!).
 
 ## move and scroll functions
 
@@ -71,19 +77,15 @@ page-setup=\n Open a page-setup dialog to specify page layout.
 
 ## customisation functions
 
-preferences=\n Specify some preference settings for the editor.
-
 key-bindings=\n View and change the key bindings for Moe's user functions.
+preferences=\n Specify some preference settings for the editor.
 
 
 ## help functions
 
 describe-key=\n After invoking this function, type a key. The name of the\n function bound to this key is displayed.
-
 help-mouse=\n Display mouse button bindings.
-
 show-manual=\n Open a web browser to show the Moe User Manual.
-
 about-editor=\n Display a brief note about Moe.
 
 
@@ -93,21 +95,16 @@ undo=\n Undo the last edit operation. (This can then be re-done with 'redo'.)
 redo=\n Redo the last operation that was undone.
 
 find=\n Open a dialog to start a search for a string in the text. The dialog\n allows to start searches backward or forward.
-
 find-backward=\n Like find, but the make 'Backward' the default button.
-
 find-next= If a selection is on, find the next occurrence of the selected text. If no\n selection is on, search again for the same string that was used in the\n last search. Stop at the end of the text. If called again after the end\n of the text was reached, wrap around and continue search from the top.
+find-next-reverse=\n Like find-next, but reverse the search direction.
+replace=\n Replace one text string with another.
 
-find-next-reverse=\n Como encontrar-siguiente, pero invierte la dirección de la búsqueda.
+compile=\n Compile the current class. The class is automatically\n saved before being compiled.
+toggle-interface-view=\n Toggle the display between interface and source view.\n The interface view shpws the class interface in Javadoc format.
+toggle-breakpoint=\n Set or clear a breakpoint in the current line.
 
-replace=\n Reemplace una cadena de caracteres de texto con otra.
+## help texts for adding key bindings
 
-compile=\n Compila la clase actual. La clase es automáticamente\n guardada antes de ser compilada.
-
-preview-doc= Genera y ve documentación para esta clase, using javadoc.\nNote that this function generates the documentation for preview\npurposes only. If you want to generate and store documentation \npermanently, use the documentation function from the main window.
-toggle-breakpoint=\n Configura o limpia un breakpoint en la línea actual.
-
-## textos de ayuda para agregar enlaces de teclas
-
-press-key=\n  Presione la tecla que usted desee agregar...
-cannot-redefine=\n  Teclas imprimibles no pueden ser redefinidas.
+press-key=\n  Press the key you want to add...
+cannot-redefine=\n  Printable keys cannot be redefined.
