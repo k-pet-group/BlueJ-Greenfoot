@@ -4,8 +4,6 @@ import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
-import javax.swing.JPopupMenu;
-
 import rmiextension.wrappers.RObject;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
@@ -17,7 +15,7 @@ import bluej.runtime.ExecServer;
  * and BlueJ-VM Has both a representation in greenfoot and bluej VM.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ObjectTracker.java 3213 2004-12-03 02:57:27Z davmac $
+ * @version $Id: ObjectTracker.java 3234 2004-12-12 23:59:56Z davmac $
  */
 public class ObjectTracker
 {
@@ -103,16 +101,17 @@ public class ObjectTracker
         return null;
     }
 
-    public JPopupMenu getJPopupMenu(Object obj)
-    {
-        try {
-            return getRObject(obj).getMenu().getPopupMenu();
-        }
-        catch (RemoteException e1) {
-            e1.printStackTrace();
-        }
-        return null;
-    }
+    // no longer needed method
+//    public JPopupMenu getJPopupMenu(Object obj)
+//    {
+//        try {
+//            return getRObject(obj).getMenu().getPopupMenu();
+//        }
+//        catch (RemoteException e1) {
+//            e1.printStackTrace();
+//        }
+//        return null;
+//    }
 
     /**
      * @param remoteObj

@@ -5,9 +5,6 @@ import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import javax.swing.JPopupMenu;
-
-import rmiextension.MenuSerializer;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.*;
@@ -18,7 +15,7 @@ import bluej.views.View;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObjectImpl.java 3227 2004-12-08 04:04:58Z davmac $
+ * @version $Id: RObjectImpl.java 3234 2004-12-12 23:59:56Z davmac $
  */
 public class RObjectImpl extends UnicastRemoteObject
     implements RObject
@@ -101,12 +98,13 @@ public class RObjectImpl extends UnicastRemoteObject
         bObject.removeFromBench();
     }
 
-    public MenuSerializer getMenu()
-        throws RemoteException
-    {
-        JPopupMenu menu = (JPopupMenu) bObject.getMenu();
-        return new MenuSerializer(menu);
-    }
+    // no longer needed
+//    public MenuSerializer getMenu()
+//        throws RemoteException
+//    {
+//        JPopupMenu menu = (JPopupMenu) bObject.getMenu();
+//        return new MenuSerializer(menu);
+//    }
     
     public String invokeMethod(String method, String [] argTypes, String [] argVals)
         throws RemoteException

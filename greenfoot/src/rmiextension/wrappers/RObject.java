@@ -2,14 +2,13 @@ package rmiextension.wrappers;
 
 import java.rmi.RemoteException;
 
-import rmiextension.MenuSerializer;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObject.java 3227 2004-12-08 04:04:58Z davmac $
+ * @version $Id: RObject.java 3234 2004-12-12 23:59:56Z davmac $
  */
 public interface RObject
     extends java.rmi.Remote
@@ -51,8 +50,10 @@ public interface RObject
     public abstract void removeFromBench()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
-    public MenuSerializer getMenu()
-        throws RemoteException;
+    
+    // no longer needed
+//    public MenuSerializer getMenu()
+//        throws RemoteException;
     
     /**
      * Allow an arbitrary method to be invoked with arbitrary parameters.

@@ -30,7 +30,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3227 2004-12-08 04:04:58Z davmac $
+ * @version $Id: WorldHandler.java 3234 2004-12-12 23:59:56Z davmac $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -160,31 +160,21 @@ public class WorldHandler
         return false;
     }
     
+    /**
+     * Make a popup menu suitable for calling methods on, inspecting and
+     * removing an object in the world.
+     */
     private JPopupMenu makePopupMenu(final GreenfootObject obj)
     {
         JPopupMenu menu = new JPopupMenu();
         ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj));
-        // add "inspect"
-        // add "remove"
-//        JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(obj);
-//        int cc = menu.getComponentCount();
-//        menu.remove(cc - 1);
-//        menu.remove(cc - 2);
         menu.addSeparator();
         
-        // inspect - change to local version
-        JMenuItem m = new JMenuItem("Inspect");
-        m.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                JFrame parent = (JFrame) worldCanvas.getTopLevelAncestor();
-                DebuggerObject dObj = new LocalObject(obj);
-                ObjectInspector.getInstance(dObj, "", null, null, parent);
-            }
-        });
+        // "inspect" menu item
+        JMenuItem m = getInspectMenuItem(obj);
         menu.add(m);
         
-        // remove - change to local version
+        // "remove" menu item
         m = new JMenuItem("Remove");
         m.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -194,6 +184,23 @@ public class WorldHandler
         });
         menu.add(m);
         return menu;
+    }
+    
+    /**
+     * Create a menu item to inspect an object.
+     */
+    private JMenuItem getInspectMenuItem(final Object obj)
+    {
+        JMenuItem m = new JMenuItem("Inspect");
+        m.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                JFrame parent = (JFrame) worldCanvas.getTopLevelAncestor();
+                DebuggerObject dObj = new LocalObject(obj);
+                ObjectInspector.getInstance(dObj, "", null, null, parent);
+            }
+        });
+        return m;
     }
     
     /**
@@ -352,17 +359,21 @@ public class WorldHandler
         worldTitle.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e)
             {
-                if (e.isPopupTrigger()) {
-                    JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(WorldHandler.this.world);
-                    menu.setVisible(true);
-                }
+                maybeShowPopup(e);
             }
 
             public void mousePressed(MouseEvent e)
             {
+                maybeShowPopup(e);
+            }
+            
+            private void maybeShowPopup(MouseEvent e)
+            {
                 if (e.isPopupTrigger()) {
-                    JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(WorldHandler.this.world);
-                    menu.setVisible(true);
+                    JPopupMenu menu = new JPopupMenu();
+                    Object world = WorldHandler.this.world;
+                    ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world));
+                    menu.show(worldTitle, e.getX(), e.getY());
                 }
             }
         });

@@ -26,16 +26,17 @@ import bluej.views.MethodView;
  * A listener for method invocations
  * 
  * @author Davin McCall
- * @version $Id: WorldInvokeListener.java 3227 2004-12-08 04:04:58Z davmac $
+ * @version $Id: WorldInvokeListener.java 3234 2004-12-12 23:59:56Z davmac $
  */
 public class WorldInvokeListener
     implements InvokeListener, CallDialogWatcher
 {
-    private GreenfootObject obj;
+    //private GreenfootObject obj;
+    private Object obj;
     private RObject rObj;
     private MethodView mv;
     
-    public WorldInvokeListener(GreenfootObject obj)
+    public WorldInvokeListener(Object obj)
     {
         this.obj = obj;
     }
