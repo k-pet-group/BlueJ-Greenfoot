@@ -17,7 +17,7 @@ import java.util.zip.*;
   *
   *   java Installer
   *
-  * @version $Id: Installer.java 1202 2002-04-01 07:45:04Z ajp $
+  * @version $Id: Installer.java 2123 2003-07-18 05:42:03Z ajp $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -701,7 +701,8 @@ public class Installer extends JFrame
         out.close();
 
         try {
-            Runtime.getRuntime().exec("chmod 755 " + outputFile);
+        	String cmdArray[] = { "chmod", "755", outputFile.toString() };
+            Runtime.getRuntime().exec(cmdArray);
         } catch(Exception e) {
             // ignore it - might not be Unix
         }
