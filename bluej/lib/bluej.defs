@@ -288,7 +288,7 @@ bluej.testing.showTools=false
 
 colour.background=208,212,208
 colour.graph.background=255,255,255
-colour.text.bg=255,255,255
+colour.text.bg=255,255,4
 colour.text.fg=0,0,0
 
 colour.arrow.uses=0,0,0
@@ -397,6 +397,7 @@ image.build.extends=darrow_black_uml.gif
 
 # the machine indicator
 image.working=working.gif
+image.working.idle=working-idle.gif
 image.working.disab=working-disab.gif
 image.working.stopped=working-stopped.gif
 
