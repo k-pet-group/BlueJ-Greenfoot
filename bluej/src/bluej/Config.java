@@ -35,7 +35,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2801 2004-07-15 15:43:47Z mik $
+ * @version $Id: Config.java 2814 2004-07-23 04:22:20Z bquig $
  */
 
 public final class Config
@@ -90,6 +90,7 @@ public final class Config
                     new Color(195, 195, 195)));
    
     private static Color selectionColour;
+    private static List debugVMArgs = new ArrayList();
 
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
@@ -182,7 +183,8 @@ public final class Config
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-
+        
+		Config.setVMLocale();
     } // initialise
 
     
@@ -889,5 +891,40 @@ public final class Config
     public static String getBlueJIconPath()
     {
         return bluejLibDir.getPath() + "/images";
+    }
+    
+    /**
+     * Checks for optional bluej.defs settings for vm language and
+     * country. If either are specified, a Locale object is created
+     * and it becomes the default locale for BlueJ. 
+     *
+     */
+    private static void setVMLocale()
+    {
+        String lang = Config.getPropString("vm.language", null);
+        String region = Config.getPropString("vm.country", null);
+        
+        // nothing specified, its either commented out or no value 
+        if((lang == null || "".equals(lang)) && (region == null || "".equals(region)))
+            return;
+        
+        // something has been be specified...
+        // if only one of region or language is specified only, make the other
+        // use the existing default to create the Locale object
+        // This gets rid of any dependencies in bluej.defs between the two
+        // which is a possible cause of config errors for users
+        if(lang == null || lang.equals(""))
+            lang = System.getProperty("user.language");
+        if(region == null || region.equals(""))
+            region = System.getProperty("user.country");
+        debugVMArgs.add("-Duser.language=" + lang);
+        debugVMArgs.add("-Duser.country=" + region);
+        Locale loc = new Locale(lang, region);
+        Locale.setDefault(loc);
+    }
+    
+    public static List getDebugVMArgs()
+    {
+        return debugVMArgs;
     }
 }

@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2770 2004-07-09 08:18:49Z mik $
+ * @version $Id: VMReference.java 2814 2004-07-23 04:22:20Z bquig $
  * 
  * The startup process is as follows:
  * 
@@ -124,6 +124,15 @@ class VMReference
 
             ArrayList paramList = new ArrayList(10);
             paramList.add(Config.getJDKExecutablePath("this.key.must.not.exist", "java"));
+            
+            //check if any vm args are specified in Config, at the moment these 
+            //are only Locale options: user.language and user.country
+            
+            List configArgs = Config.getDebugVMArgs();
+            if(!configArgs.isEmpty()) {
+                paramList.addAll(configArgs);
+            }
+            
             paramList.add("-classpath");
             paramList.add(allClassPath);
             paramList.add("-Xdebug");
