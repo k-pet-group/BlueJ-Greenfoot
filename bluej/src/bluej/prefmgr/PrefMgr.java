@@ -23,7 +23,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: PrefMgr.java 1308 2002-08-15 18:25:25Z mik $
  */
 public class PrefMgr
 {
@@ -283,7 +283,7 @@ public class PrefMgr
      *
      * @param size  the size of the font
      */
-    private static Font getTerminalFont()
+    public static Font getTerminalFont()
     {
         int size = Config.getPropInteger(terminalFontSizePropertyName, 12);
         String fontName = Config.getPropString(terminalFontPropertyName, "Monospaced");
