@@ -90,7 +90,9 @@
                srcdir="."
                destdir="."
                includes="Installer.java"
-        />
+        >
+    		<compilerarg line="-source 1.4"/>
+    	</javac>
 
         <java
                classname="Installer"

@@ -80,7 +80,9 @@
                 srcdir="${boot.src}"
                 destdir="${boot.build}"
                 deprecation="yes"
-        />
+        >
+        	<compilerarg line="-source 1.4"/>        	
+        </javac>
     </target>
 
     <!--
