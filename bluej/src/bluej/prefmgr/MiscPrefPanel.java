@@ -19,7 +19,7 @@ import bluej.prefmgr.*;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 352 2000-01-12 05:53:41Z ajp $
+ * @version $Id: MiscPrefPanel.java 355 2000-01-13 02:36:10Z ajp $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -48,7 +48,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 	private MiscPrefPanel()
 	{
 
-		JLabel editorFontTag = new JLabel(Config.getString("Editor font size"));
+		JLabel editorFontTag = new JLabel(Config.getString("prefmgr.misc.editorfontsize"));
 		{
 			editorFontTag.setAlignmentX(LEFT_ALIGNMENT);
 		}
@@ -58,9 +58,9 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             editorFontField.setAlignmentX(LEFT_ALIGNMENT);
         }
 
-	    hilightingBox = new JCheckBox(Config.getString("Use syntax hilighting in editor"));
+	    hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
 
-		JLabel jdkURLTag = new JLabel(Config.getString("JDK documentation URL"));
+		JLabel jdkURLTag = new JLabel(Config.getString("prefmgr.misc.jdkurlpath"));
 		{
 			jdkURLTag.setAlignmentX(LEFT_ALIGNMENT);
 		}
