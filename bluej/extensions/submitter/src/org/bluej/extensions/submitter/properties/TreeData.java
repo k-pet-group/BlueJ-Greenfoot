@@ -56,10 +56,12 @@ public class TreeData
     {
     stat.aDbg.trace(Stat.SVC_PROP, "SubmitTree.loadTree: CALLED");
 
-    if ( curPkg == null ) return;
-
-    // We need to remove all children before going on...
+    // We need to remove all children AND revalidate the tree...
+    // We NEED to do this in any case, even if the package is null.
     rootNode.removeAllChildren();
+    treeModel.nodeStructureChanged(rootNode);
+
+    if ( curPkg == null ) return;
         
     File systemConfFile = new File(stat.bluej.getSystemLib(), CONFIG_FILENAME);
     loadFile(rootNode,systemConfFile);
