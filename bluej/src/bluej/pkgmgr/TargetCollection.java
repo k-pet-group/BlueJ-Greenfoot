@@ -2,11 +2,13 @@ package bluej.pkgmgr;
 
 import java.util.*;
 
+import bluej.pkgmgr.target.*;
+
 /**
  * 
  *
  * @author  Andrew Patterson
- * @version $Id: TargetCollection.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: TargetCollection.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class TargetCollection
 {

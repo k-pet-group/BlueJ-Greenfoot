@@ -4,13 +4,14 @@ import java.awt.Graphics2D;
 import java.util.Properties;
 
 import bluej.graph.Edge;
+import bluej.pkgmgr.target.*;
 import bluej.utility.Debug;
 
 /**
  * A dependency between two targets in a package.
  *
  * @author  Michael Cahill
- * @version $Id: Dependency.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: Dependency.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public abstract class Dependency extends Edge
 {

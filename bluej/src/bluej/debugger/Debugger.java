@@ -1,7 +1,5 @@
 package bluej.debugger;
 
-// -- select debugger implementation to use: --
-//import bluej.debugger.suntools.SunDebugger;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: Debugger.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public abstract class Debugger
 {
@@ -28,32 +26,29 @@ public abstract class Debugger
     public static final int RUNNING = 1;
     public static final int SUSPENDED = 2;
 
-    /** Creation of the real debugger used **/
-    // the following line needs to be changed when the debugger
-    // implementation changes (this and the import statement above are the
-    // only two lines that need to be changed).
-
-    public static Debugger debugger = new JdiDebugger();
-    //public static Debugger debugger = new SunDebugger();
-
-    public static void handleExit()
-    {
-        if(debugger != null) {
-            debugger.endDebugger();
-            debugger = null;
-        }
-    }
-
-    /**
+	/**
+	 * Create an instance of a debugger.
+	 * The constructor for the debugger should not be
+	 * a long process. Actual startup for the debug
+	 * VM should go in startDebugger().
+	 * 
+	 * @return  a Debugger instance
+	 */
+	public static Debugger getDebuggerImpl()
+	{
+		return new JdiDebugger();
+	}
+	
+	/**
      * Start debugging
      */
-    protected abstract void startDebugger();
+    public abstract void startDebugger();
 
 
     /**
      * Finish debugging
      */
-    protected abstract void endDebugger();
+    public abstract void endDebugger();
 
 
     /**
@@ -211,14 +206,4 @@ public abstract class Debugger
      * thread object itself.
      */
     public abstract void showSource(DebuggerThread thread);
-
-    /**
-     * Return the jdi thread. This exposes the jdi to Inspectors.
-     * If jdi is not being used, it should return null, which is
-     * the default implementation.
-     */
-    public com.sun.jdi.ThreadReference getServerThread() {
-        return null;
-    }
-
 }

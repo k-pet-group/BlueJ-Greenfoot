@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.Config;
 
 import bluej.editor.Editor;
+import bluej.pkgmgr.target.*;
 
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;

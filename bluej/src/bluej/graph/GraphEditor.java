@@ -1,23 +1,24 @@
 package bluej.graph;
 
-import bluej.Config;
-import bluej.utility.Debug;
-import java.util.Iterator;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
+import java.util.Iterator;
+
+import javax.swing.JComponent;
+
+import bluej.Config;
 
 /**
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 1938 2003-05-02 13:40:01Z mik $
+ * @version $Id: GraphEditor.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
 {
-    static final Color background = Config.getItemColour("colour.background");
-    static final Color realBackground = Config.getItemColour("colour.graph.background");
+    protected static final Color background = Config.getItemColour("colour.graph.background");
+
     private Graph graph;
     private Vertex activeVertex;
     private boolean motionListening;
@@ -30,8 +31,6 @@ public class GraphEditor extends JComponent
 
         activeVertex = null;
         motionListening = false;
-
-        //setBackground(background);
     }
 
     public Dimension getPreferredSize()
@@ -48,7 +47,7 @@ public class GraphEditor extends JComponent
     {
         if(!(g instanceof PrintGraphics)) {
             Dimension d = getSize();
-            g.setColor(realBackground);
+            g.setColor(background);
             g.fillRect(0, 0, d.width, d.height);
         }
 

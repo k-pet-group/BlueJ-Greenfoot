@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1904 2003-04-27 17:12:42Z iau $
+ * @version $Id: BField.java 1954 2003-05-15 06:06:01Z ajp $
  */
 
 /*
@@ -101,7 +101,7 @@ public class BField
         return null;
         }
       
-      DebuggerClass debuggerClass = Debugger.debugger.getClass(className, loader);
+      DebuggerClass debuggerClass = bluej_package.getDebugger().getClass(className, loader);
       if ( debuggerClass == null ) 
         {
         // This may not be an error, the class name may be wrong...

@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1905 2003-04-28 05:21:24Z ajp $
+ * @version $Id: JdiDebugger.java 1954 2003-05-15 06:06:01Z ajp $
  *
  * The startup process is as follows:
  *
@@ -242,8 +242,9 @@ public final class JdiDebugger extends Debugger
     /**
      * Finish debugging
      */
-    protected synchronized void endDebugger()
+    public synchronized void endDebugger()
     {
+    	System.out.println("ending debugger");
         try {
             if (machine != null) {
 
@@ -261,6 +262,7 @@ public final class JdiDebugger extends Debugger
                 process = null;
             }
         }
+		System.out.println("Destroyed");
     }
 
     /**

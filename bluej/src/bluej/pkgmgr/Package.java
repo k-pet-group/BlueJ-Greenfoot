@@ -9,14 +9,15 @@ import bluej.Config;
 import bluej.compiler.*;
 import bluej.debugger.*;
 import bluej.editor.*;
-import bluej.terminal.*;
+import bluej.extensions.event.CompileEvent;
+import bluej.extmgr.ExtensionsManager;
 import bluej.graph.*;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.*;
+import bluej.pkgmgr.target.*;
+import bluej.terminal.Terminal;
 import bluej.utility.*;
 import bluej.utility.filefilter.*;
-import bluej.extensions.event.*;
-import bluej.extmgr.*;
 
 
 /**
@@ -25,7 +26,7 @@ import bluej.extmgr.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: Package.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -832,6 +833,11 @@ public final class Package extends Graph
         return getProject().getRemoteClassLoader();
     }
 
+	public Debugger getDebugger()
+	{
+		return getProject().getDebugger();
+	}
+	
     /**
      * Loads a class using the current project class loader.
      */
@@ -898,7 +904,7 @@ public final class Package extends Graph
                 ClassTarget ct = (ClassTarget)target;
                 if (ct.editorOpen())
                     ct.getEditor().save();
-                if(ct.getState() == Target.S_INVALID)
+                if(ct.isInvalidState())
                     toCompile.add(ct);
             }
         }
@@ -918,14 +924,14 @@ public final class Package extends Graph
 
         if (ct.editorOpen())
             ct.getEditor().save();
-        ct.setState(Target.S_INVALID);		// to force compile
+        ct.setInvalidState();		// to force compile
 
         searchCompile(ct, 1, new Stack(), new PackageCompileObserver());
 
 		if (ct.getAssociation() != null) {
 			ClassTarget assocTarget = (ClassTarget) ct.getAssociation();
 
-			assocTarget.setState(Target.S_INVALID);		// to force compile
+			assocTarget.setInvalidState();		// to force compile
 			searchCompile(assocTarget, 1, new Stack(), new QuietPackageCompileObserver());
 		}
     }
@@ -941,7 +947,7 @@ public final class Package extends Graph
         
         if (ct.editorOpen())
             ct.getEditor().save();
-        ct.setState(Target.S_INVALID);		// to force compile
+        ct.setInvalidState();		// to force compile
         
         searchCompile(ct, 1, new Stack(), new QuietPackageCompileObserver());
     }
@@ -1044,7 +1050,7 @@ public final class Package extends Graph
      */
     private boolean checkCompile()
     {
-        if(Debugger.debugger.getStatus() != Debugger.IDLE) {
+        if(getDebugger().getStatus() != Debugger.IDLE) {
             showMessage("compile-while-executing");
             return false;
         }
@@ -1604,7 +1610,7 @@ public final class Package extends Graph
      * Called when in an interesting state (e.g. adding a new dependency)
      * and a target is selected.
      */
-    void targetSelected(Target t)
+    public void targetSelected(Target t)
     {
         switch(getState()) {
         case S_CHOOSE_USES_FROM:
@@ -1811,7 +1817,8 @@ public final class Package extends Graph
         showSource(thread.getClassSourceName(0),
                    thread.getLineNumber(0),
                    thread.getName(), true);
-        ExecControls.showHide(true, true, thread);
+                   
+        getProject().getExecControls().showHide(true, true, thread);
     }
 
     /**
@@ -1832,10 +1839,10 @@ public final class Package extends Graph
         if(showSource(thread.getClassSourceName(frame),
                       thread.getLineNumber(frame),
                       thread.getName(), false))
-            ExecControls.getExecControls().setVisible(true);
+            getProject().getExecControls().setVisible(true);
 
         if(updateDebugger)
-            ExecControls.getExecControls().updateThreads(thread);
+            getProject().getExecControls().updateThreads(thread);
     }
 
 	/**

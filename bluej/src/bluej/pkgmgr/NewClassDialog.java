@@ -11,15 +11,14 @@ import javax.swing.border.Border;
 
 import bluej.*;
 import bluej.Config;
-import
-bluej.utility.*;
+import bluej.utility.*;
 
 /**
  * Dialog for creating a new class
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: NewClassDialog.java 1954 2003-05-15 06:06:01Z ajp $
  */
 class NewClassDialog extends JDialog
 {

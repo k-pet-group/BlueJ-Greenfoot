@@ -19,12 +19,12 @@ public class ExecControlButtonModel extends JToggleButton.ToggleButtonModel
 
     public boolean isSelected()
     {
-        return ExecControls.execControlsShown();
+        return true; //ExecControls.execControlsShown();
     }
 
     public void setSelected(boolean b)
     {
         super.setSelected(b);
-        ExecControls.showHide(b, true, null);
+//        ExecControls.showHide(b, true, null);
     }
 }

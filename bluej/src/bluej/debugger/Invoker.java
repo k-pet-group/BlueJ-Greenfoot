@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1949 2003-05-13 14:37:36Z damiano $
+ * @version $Id: Invoker.java 1954 2003-05-15 06:06:01Z ajp $
  */
 
 public class Invoker extends Thread
@@ -577,7 +577,7 @@ public class Invoker extends Thread
             startClass();
 
         File srcFile = new File(pkg.getPath(), shellName + ".java");
-        srcFile.delete();
+//        srcFile.delete();
 
         File classFile = new File(pkg.getPath(), shellName + ".class");
         classFile.delete();
@@ -607,7 +607,7 @@ public class Invoker extends Thread
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, executionEvent);
             DebuggerClassLoader loader = pkg.getRemoteClassLoader();
             String shellClassName = pkg.getQualifiedName(shellName);
-            Debugger.debugger.startClass(loader, shellClassName,
+            pkg.getProject().getDebugger().startClass(loader, shellClassName,
                                          pkg.getProject());
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, executionEvent);
 
@@ -633,10 +633,10 @@ public class Invoker extends Thread
     {
         try {
             // first, check whether we had an unexpected exit
-            int status = Debugger.debugger.getExitStatus();
+            int status = pkg.getDebugger().getExitStatus();
             switch(status) {
              case Debugger.NORMAL_EXIT:
-                DebuggerObject result = Debugger.debugger.getStaticValue(
+                DebuggerObject result = pkg.getDebugger().getStaticValue(
                                             shellClassName,"__bluej_runtime_result");
 
                 watcher.putResult(result, instanceName, ir);
@@ -646,7 +646,7 @@ public class Invoker extends Thread
                 break;
 
              case Debugger.FORCED_EXIT:  // exit through System.exit()
-                String excMsg = Debugger.debugger.getException().getText();
+                String excMsg = pkg.getDebugger().getException().getText();
                 if(instanceName != null) {
                     // always report System.exit for non-void calls
                     pkg.reportExit(excMsg);
@@ -661,7 +661,7 @@ public class Invoker extends Thread
                 break;
 
             case Debugger.EXCEPTION:
-                ExceptionDescription exc = Debugger.debugger.getException();
+                ExceptionDescription exc = pkg.getDebugger().getException();
                 String msg = exc.getText();
                 String text = exc.getClassName();
                 if(text != null) {

@@ -11,7 +11,7 @@ import java.util.*;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: View.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class View
 {
@@ -66,6 +66,7 @@ public class View
             View v = (View) it.next();
 
             if (v.getClassLoader() == loader) {
+            	System.out.println("removing" + v.getLongDesc());
                 it.remove();
             }
         }

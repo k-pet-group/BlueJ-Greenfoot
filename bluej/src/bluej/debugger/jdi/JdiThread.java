@@ -21,7 +21,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: JdiThread.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -411,7 +411,7 @@ public final class JdiThread extends DebuggerThread
         // Make sure the step event is done only once
         request.addCountFilter(1);
         request.enable();
-        Debugger.debugger.cont();
+        // TODO: Debugger.debugger.cont();
     }
 
     public void terminate()
@@ -419,7 +419,7 @@ public final class JdiThread extends DebuggerThread
         //if(! isKnownSystemThread()) {
         try {
             if(rt.isSuspended())
-                Debugger.debugger.cont();
+                // TODO: Debugger.debugger.cont();
             rt.stop(terminateException);
         }
         catch(Exception e) {

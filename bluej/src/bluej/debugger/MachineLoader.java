@@ -8,16 +8,19 @@ import bluej.classmgr.ClassMgr;
  * time, and we would like to do it in the background.
  *
  * @author  Michael Kolling
- * @version $Id: MachineLoader.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: MachineLoader.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class MachineLoader extends Thread
 {
+	private Debugger d;
+	
     /**
      * Create the machine loader thread.
      */
-    public MachineLoader()
+    public MachineLoader(Debugger d)
     {
         super("MachineLoader");
+        this.d = d;
     }
 
     /**
@@ -27,8 +30,7 @@ public class MachineLoader extends Thread
      */
     public void run()
     {
-        Debugger.debugger.startDebugger();
-
-        Debugger.debugger.setLibraries(ClassMgr.getClassMgr().getAllClassPath().toString());
+        d.startDebugger();
+        d.setLibraries(ClassMgr.getClassMgr().getAllClassPath().toString());
     }
 }

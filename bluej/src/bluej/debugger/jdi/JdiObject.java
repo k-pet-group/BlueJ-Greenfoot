@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiObject.java 1818 2003-04-10 13:31:55Z fisker $
+ *@version    $Id: JdiObject.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -340,22 +340,6 @@ public class JdiObject extends DebuggerObject
         Field field = (Field) fields.get(slot);
         Value val = obj.getValue(field);
         return (val instanceof ObjectReference);
-    }
-
-    public Object invokeMethod(String methodName, String signature, java.util.List arguments)
-    {
-        try
-        {
-            return obj.invokeMethod(
-                    bluej.debugger.Debugger.debugger.getServerThread(),
-                    ((ClassType) obj.referenceType()).concreteMethodByName(
-                    methodName, signature), arguments,
-                    ClassType.INVOKE_SINGLE_THREADED);
-        }
-        catch (java.lang.Exception e)
-        {
-            return e.toString();
-        }
     }
 
     private int getFieldCount(boolean getStatic)

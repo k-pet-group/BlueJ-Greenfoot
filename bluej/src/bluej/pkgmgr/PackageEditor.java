@@ -4,6 +4,7 @@ import java.awt.Component;
 
 import bluej.debugger.DebuggerObject;
 import bluej.graph.GraphEditor;
+import bluej.pkgmgr.target.*;
 import bluej.testmgr.InvokerRecord;
 import bluej.views.CallableView;
 
@@ -11,7 +12,7 @@ import bluej.views.CallableView;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 1941 2003-05-05 06:07:49Z ajp $
+ * @version $Id: PackageEditor.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public final class PackageEditor extends GraphEditor
 {

@@ -18,24 +18,23 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1871 2003-04-22 11:55:38Z mik $
+ * @version $Id: Project.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class Project
     implements BlueJEventListener
 {
-    // static fields
-
-    private static final String saveAsTitle =
-        Config.getString("pkgmgr.saveAs.title");
-    private static final String saveLabel =
-        Config.getString("pkgmgr.saveAs.buttonLabel");
-
     /**
      * Collection of all open projects. the canonical name of the project
      * directory is used as the key.
      */
     private static Map projects = new HashMap();
 
+	/**
+	 * An initial debugger instance that we start immediately. This will be
+	 * used by the first project opened.
+	 */
+	private static Debugger initialDebugger = null;
+	
     /**
      * Check if the path given is either a directory with a bluej pkg file
      * or the name of a bluej pkg file.
@@ -169,6 +168,8 @@ public class Project
             }
         }
 
+		project.getDebugger().endDebugger();
+		
         BlueJEvent.removeListener(project);
         PrefMgr.addRecentProject(project.getProjectDir().getAbsolutePath());
         projects.remove(project.getProjectDir());
@@ -288,6 +289,13 @@ public class Project
         return null;
     }
 
+	public static Debugger getInitialDebugger()
+	{
+		if (initialDebugger == null) {
+			initialDebugger = Debugger.getDebuggerImpl();
+		}
+		return initialDebugger;
+	}
 
     /* ------------------- end of static declarations ------------------ */
 
@@ -307,7 +315,16 @@ public class Project
 
     /** a ClassLoader for the remote virtual machine */
     private DebuggerClassLoader debuggerLoader;
+    
+    /** the debugger for this project */
+    private Debugger debugger;
+    
+    /** the ExecControls for this project */
+	private ExecControls execControls;
 
+	/** the documentation generator for this project. */
+	private DocuGenerator docuGenerator;
+	
     /** when a project is opened, the user may specify a
        directory deep into the projects directory structure.
        BlueJ will correctly find the top of this package
@@ -318,12 +335,7 @@ public class Project
        will be set to com.sun */
     private String initialPackageName = "";
 
-    /** the documentation generator for this project. */
-    private DocuGenerator docuGenerator;
-
     private boolean inTestMode = false;
-    /** the test runner for this project. */
-    //public TestRunner testRunner;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -349,8 +361,12 @@ public class Project
 
         BlueJEvent.addListener(this);
 
+		debugger = getInitialDebugger();
+		
+		execControls = new ExecControls();
+		execControls.setDebugger(debugger);
+		
         docuGenerator = new DocuGenerator(this);
-        //testRunner = new UnitTestRunnerDialog(new UnitTestTestSuiteLoader(this));
     }
 
     /**
@@ -478,7 +494,8 @@ public class Project
         return docuGenerator.generateProjectDocu();
     }
 
-	public String getDocumentationFile(String filename){
+	public String getDocumentationFile(String filename)
+	{
 		return docuGenerator.getDocuPath(filename);
 	}
 
@@ -486,7 +503,8 @@ public class Project
      * Generate the documentation for the file in 'filename'
 	 * @param filename
 	 */
-	public void generateDocumentation(String filename) {
+	public void generateDocumentation(String filename)
+	{
 		docuGenerator.generateClassDocu(filename);
 	}
 
@@ -529,8 +547,10 @@ public class Project
     public void saveAs(PkgMgrFrame frame)
     {
         // get a file name to save under
-        String newName = FileUtility.getFileName(frame, saveAsTitle,
-                                                 saveLabel, false, null, true);
+        String newName = FileUtility.getFileName(frame,
+        										 Config.getString("pkgmgr.saveAs.title"),
+												 Config.getString("pkgmgr.saveAs.buttonLabel"),
+												 false, null, true);
 
         if (newName != null) {
 
@@ -572,7 +592,7 @@ public class Project
      * the objects from all object benches of this project).
      * Should be run whenever a source file changes
      */
-    synchronized void removeLocalClassLoader()
+    public synchronized void removeLocalClassLoader()
     {
        if(loader != null) {
             // remove bench objects for all frames in this project
@@ -585,7 +605,7 @@ public class Project
             View.removeAll(loader);
 
             // remove all open windows created by these objects
-            Debugger.debugger.disposeWindows();
+            getDebugger().disposeWindows();
             // Note that this is slightly wrong: ideally, we would want to remove windows
             // created by this project only. Currently, we remove all windows (including
             // windows from other projects, even though the objects stay around there).
@@ -602,7 +622,7 @@ public class Project
     public synchronized DebuggerClassLoader getRemoteClassLoader()
     {
         if(debuggerLoader == null)
-            debuggerLoader = Debugger.debugger.createClassLoader
+            debuggerLoader = getDebugger().createClassLoader
                                                 (getUniqueId(), getProjectDir().getPath());
         return debuggerLoader;
     }
@@ -611,10 +631,10 @@ public class Project
      * Removes the remote VM classloader.
      * Should be run whenever a source file changes.
      */
-    synchronized void removeRemoteClassLoader()
+    public synchronized void removeRemoteClassLoader()
     {
         if(debuggerLoader != null) {
-            Debugger.debugger.removeClassLoader(debuggerLoader);
+            getDebugger().removeClassLoader(debuggerLoader);
             debuggerLoader = null;
         }
     }
@@ -623,21 +643,48 @@ public class Project
      * Removes the remote VM classloader.
      * Should be run whenever a source file changes.
      */
-    synchronized void removeRemoteClassLoaderLeavingBreakpoints()
+    public synchronized void removeRemoteClassLoaderLeavingBreakpoints()
     {
         if(debuggerLoader != null) {
-            Debugger.debugger.saveBreakpoints();
-            Debugger.debugger.removeClassLoader(debuggerLoader);
+            getDebugger().saveBreakpoints();
+            getDebugger().removeClassLoader(debuggerLoader);
 
             // blank out the current loader then cause a new loader
             // to be created
             debuggerLoader = null;
             getRemoteClassLoader();
 
-            Debugger.debugger.restoreBreakpoints(debuggerLoader);
+            getDebugger().restoreBreakpoints(debuggerLoader);
         }
     }
 
+	public Debugger getDebugger()
+	{
+		return debugger;
+	}
+	
+	public void restartDebugger()
+	{
+		loader = null;
+		debuggerLoader = null;
+
+		getDebugger().endDebugger();
+		
+		debugger = Debugger.getDebuggerImpl();
+		
+		// start the MachineLoader (a separate thread) to load the
+		// remote virtual machine in the background
+		MachineLoader machineLoader = new MachineLoader(debugger);
+		// lower priority to improve GUI response time
+		machineLoader.setPriority(Thread.currentThread().getPriority() - 1);
+		machineLoader.start();
+	}
+
+	public ExecControls getExecControls()
+	{
+		return execControls;
+	}
+	
     /**
      * Loads a class using the current classLoader
      */
@@ -668,7 +715,7 @@ public class Project
     {
         ClassPath allcp = ClassMgr.getClassMgr().getAllClassPath();
 
-	allcp.addClassPath(getLocalClassLoader().getAsClassPath());
+		allcp.addClassPath(getLocalClassLoader().getAsClassPath());
 
         return allcp.toString();
     }
@@ -753,5 +800,4 @@ public class Project
         if(pkg != null)
             pkg.showSourcePosition(thread, updateDebugger);
     }
-
 }

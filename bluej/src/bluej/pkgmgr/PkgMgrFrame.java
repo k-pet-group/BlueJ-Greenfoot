@@ -8,25 +8,27 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.border.*;
-
-import com.apple.eawt.*;
+import javax.swing.border.BevelBorder;
 
 import bluej.*;
 import bluej.debugger.*;
-import bluej.extmgr.*;
+import bluej.extmgr.ExtensionsManager;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
+import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.*;
 import bluej.terminal.*;
 import bluej.testmgr.*;
 import bluej.utility.*;
 import bluej.views.*;
 
+import com.apple.eawt.*;
+
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1941 2003-05-05 06:07:49Z ajp $
+ * @version $Id: PkgMgrFrame.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1168,7 +1170,7 @@ public class PkgMgrFrame extends JFrame
                                                        name);
                         getObjectBench().add(wrapper);
 
-                        Debugger.debugger.addObjectToScope(getPackage().getId(),
+                        getPackage().getDebugger().addObjectToScope(getPackage().getId(),
                                                 wrapper.getName(), realResult);
                                                 
                         getObjectBench().addInteraction(ir);
@@ -1278,7 +1280,7 @@ public class PkgMgrFrame extends JFrame
             getObjectBench().add(wrapper);  // might change name
 
             // load the object into runtime scope
-            Debugger.debugger.addObjectToScope(getPackage().getId(),
+            getPackage().getDebugger().addObjectToScope(getPackage().getId(),
                                                 wrapper.getName(), object);
                                                 
             if (ir instanceof MethodInvokerRecord) {
@@ -1667,6 +1669,11 @@ public class PkgMgrFrame extends JFrame
             DialogManager.showText(this,message);
     }
 
+	public void restartDebugger()
+	{
+		getProject().restartDebugger();
+	}
+	
     /**
      * Toggle the state of the "show uses arrows" switch.
      */
@@ -1763,8 +1770,8 @@ public class PkgMgrFrame extends JFrame
     private void executionFinished()
     {
         progressButton.setEnabled(false);
-        if(ExecControls.execControlsShown())
-            ExecControls.getExecControls().updateThreads(null);
+        //TODO: if(ExecControls.execControlsShown())
+        //  TODO:  getProject().getExecControls().updateThreads(null);
         Terminal.getTerminal().activate(false);
         pkg.removeStepMarks();
     }
@@ -1827,6 +1834,18 @@ public class PkgMgrFrame extends JFrame
 
         JPanel mainPanel = new JPanel();
 
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F1"),
+									"doEscape");
+		getRootPane().getActionMap().put("doEscape",
+									 new AbstractAction() {
+										public void actionPerformed(ActionEvent ae)
+										{
+											System.out.println("escape!");
+										}
+									 	
+									 });
+		getRootPane().setEnabled(true);
+		
         mainPanel.setLayout(new BorderLayout(5, 5));
         mainPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
 
@@ -1956,7 +1975,7 @@ public class PkgMgrFrame extends JFrame
             progressButton.setToolTipText(Config.getString("tooltip.progress"));
             progressButton.addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
-                                    ExecControls.showHide(true, true, null);
+                                    getProject().getExecControls().showHide(true, true, null);
                                 }
                            });
             progressButton.setEnabled(false);
@@ -2185,6 +2204,10 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); pkg.rebuild(); }
                            });
+			createMenuItem("menu.tools.restart", menu, KeyEvent.VK_ESCAPE, 0, true,
+						   new ActionListener() {
+							   public void actionPerformed(ActionEvent e) { menuCall(); restartDebugger(); }
+						   });
             menu.addSeparator();
 
             createMenuItem("menu.tools.callLibrary", menu, KeyEvent.VK_L, SHORTCUT_MASK, true,

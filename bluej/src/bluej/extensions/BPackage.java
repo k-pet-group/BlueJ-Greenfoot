@@ -2,8 +2,8 @@ package bluej.extensions;
 
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Target;
-import bluej.pkgmgr.ClassTarget;
+import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.Target;
 import bluej.debugger.ObjectWrapper;
 
 
@@ -18,7 +18,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1869 2003-04-21 11:04:44Z damiano $
+ * @version $Id: BPackage.java 1954 2003-05-15 06:06:01Z ajp $
  */
 
 /*

@@ -1,19 +1,18 @@
 package bluej.debugger;
 
-import bluej.Config;
-import bluej.utility.Debug;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.*;
+
+import bluej.*;
+import bluej.utility.Debug;
 
 /**
- ** @version $Id: ExecControls.java 1626 2003-02-11 01:46:35Z ajp $
+ ** @version $Id: ExecControls.java 1954 2003-05-15 06:06:01Z ajp $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -51,41 +50,7 @@ public class ExecControls extends JFrame
     private static final String terminateButtonText =
         Config.getString("debugger.execControls.terminateButtonText");
 
-
     private static String[] empty = new String[0];
-
-    // === static factory ===
-
-    /** the debugger control window */
-    private static ExecControls execCtrlWindow = null;
-
-    /**
-     * getExecControls - return the Execution Control window.
-     */
-    public static ExecControls getExecControls()
-    {
-        if(execCtrlWindow == null) {
-            execCtrlWindow = new ExecControls();
-            //DialogManager.centreWindow(execCtrlWindow, this);
-        }
-        return execCtrlWindow;
-    }
-
-    public static boolean execControlsShown()
-    {
-        return (execCtrlWindow != null && execCtrlWindow.isShowing());
-    }
-
-    /**
-     * Show or hide the exec control window.
-     */
-    public static void showHide(boolean show, boolean update,
-                                DebuggerThread thread)
-    {
-        getExecControls().setVisible(show);
-        if(show && update)
-            getExecControls().updateThreads(thread);
-    }
 
     // === instance ===
 
@@ -97,15 +62,17 @@ public class ExecControls extends JFrame
     private JCheckBox showSystemThreads;
 
     private List threads;
+    private Debugger debugger;				// the debug machine this
+    										// control is looking at
     private DebuggerThread selectedThread;	// the thread currently
-    //  selected
+    										//  selected
     private DebuggerClass currentClass;	    // the current class for the
                                             //  selected stack frame
     private DebuggerObject currentObject;	// the "this" object for the
                                             //  selected stack frame
     private int currentFrame = 0;		// currently selected frame
 
-    private ExecControls()
+    public ExecControls()
     {
         super(windowTitle);
 
@@ -113,12 +80,38 @@ public class ExecControls extends JFrame
         createWindow();
     }
 
+	public void setDebugger(Debugger d)
+	{
+		debugger = d;
+	}
+	
+	public void clearDebugger()
+	{
+		debugger = null;
+	}
+
+	/**
+	 * Show or hide the exec control window.
+	 */
+	public void showHide(boolean show, boolean update,
+								DebuggerThread thread)
+	{
+		setVisible(show);
+		if(show && update)
+			updateThreads(thread);
+	}
+
+	
     // ----- ActionListener interface -----
 
     public void actionPerformed(ActionEvent event)
     {
+    	// with no debugger set, we have nothing to do
+		if (debugger == null)
+			return;
+			
         Object obj = event.getSource();
-        int machineStatus = Debugger.debugger.getStatus();
+        int machineStatus = debugger.getStatus();
 
         if(obj == updateButton) {
             updateThreads(selectedThread);
@@ -131,11 +124,11 @@ public class ExecControls extends JFrame
             updateThreads(selectedThread);
         }
         else if(obj == stopButton && machineStatus == Debugger.RUNNING) {
-            Debugger.debugger.halt(selectedThread);
+            debugger.halt(selectedThread);
             updateThreads(selectedThread);
         }
         else if(obj==continueButton && machineStatus==Debugger.SUSPENDED) {
-            Debugger.debugger.cont();
+            debugger.cont();
             selectedThread = null;
             updateThreads(selectedThread);
         }
@@ -147,7 +140,7 @@ public class ExecControls extends JFrame
                 selectedThread.stepInto();
             }
             else if(obj == terminateButton && machineStatus != Debugger.IDLE) {
-                Debugger.debugger.terminate(selectedThread);
+                debugger.terminate(selectedThread);
                 threadList.clearSelection();
                 updateThreads(null);
             }
@@ -167,6 +160,9 @@ public class ExecControls extends JFrame
         if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
             return;
 
+		if(debugger == null)			// ignore if we have nothing to debug
+			return;
+			
         Object src = event.getSource();
 
         if(src == threadList) {
@@ -200,16 +196,19 @@ public class ExecControls extends JFrame
 
     public synchronized void updateThreads(final DebuggerThread select)
     {
+		// shouldn't be possible to get here, but best be safe
+		if (debugger == null)
+			return;
+
         // because this is responding to events in a different thread we need
         // to get these graphics updates to be run on the swing thread using
         // SwingUtilities.runLater()
-
         Runnable doAllUpdates = new Runnable() {
             public void run() {
                 DefaultListModel listModel = (DefaultListModel)threadList.getModel();
                 listModel.removeAllElements();
 
-                int machineStatus = Debugger.debugger.getStatus();
+                int machineStatus = debugger.getStatus();
 
                 if(machineStatus == Debugger.RUNNING) {
                     threads.clear();
@@ -219,7 +218,7 @@ public class ExecControls extends JFrame
 
                     int selectionIndex = 0;  // default: select first
 
-                    threads = Debugger.debugger.listThreads();
+                    threads = debugger.listThreads();
                     if(threads == null) {
                         Debug.reportError("cannot get thread info!");
                         listModel.addElement("(error: cannot list threads)");
@@ -317,7 +316,7 @@ public class ExecControls extends JFrame
         if (index >= 0) {
             setStackFrameDetails(index);
             selectedThread.setSelectedFrame(index);
-            Debugger.debugger.showSource(selectedThread);
+            debugger.showSource(selectedThread);
             currentFrame = index;
         }
     }

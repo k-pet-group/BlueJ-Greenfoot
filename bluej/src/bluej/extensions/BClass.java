@@ -1,7 +1,6 @@
 package bluej.extensions;
 
 import bluej.compiler.JobQueue;
-import bluej.pkgmgr.ClassTarget;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
@@ -9,6 +8,7 @@ import bluej.views.View;
 import java.util.Map;
 import java.util.HashMap;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.ClassTarget;
 import bluej.views.*;
 
 /**
@@ -17,7 +17,7 @@ import bluej.views.*;
  * Behaviour is similar to the Java reflection API.
  * For all methods the return value is null if the class is not compiled.
  * 
- * @version $Id: BClass.java 1856 2003-04-16 10:14:46Z damiano $
+ * @version $Id: BClass.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class BClass
 {

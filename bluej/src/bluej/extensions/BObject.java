@@ -16,7 +16,7 @@ import bluej.debugger.*;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 1869 2003-04-21 11:04:44Z damiano $
+ * @version $Id: BObject.java 1954 2003-05-15 06:06:01Z ajp $
  */
 
 /*
@@ -91,7 +91,7 @@ public class BObject
      * @param instanceName  The name you want this object to have on the bench.
      */
     public void addToBench(String instanceName)
-        {
+    {
         if ( ! isValid() ) return;
 
         // No reational to add a null object, isn't it ?
@@ -111,8 +111,8 @@ public class BObject
         aBench.add(wrapper);
 
         // load the object into runtime scope
-        Debugger.debugger.addObjectToScope(aPackage.getId(),wrapper.getName(), wrapper.getObject());
-        }
+        aPackage.getDebugger().addObjectToScope(aPackage.getId(),wrapper.getName(), wrapper.getObject());
+    }
 
 
     /**

@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1868 2003-04-21 09:42:26Z damiano $
+ * @version $Id: Main.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class Main
 {
@@ -48,8 +48,8 @@ public class Main
      * Entry point to starting up the system. Initialise the
      * system and start the first package manager frame.
      */
-    public static void main(String[] args) {
-
+    public static void main(String[] args)
+    {
         if((args.length >= 1) && "-version".equals(args[0])) {
             System.out.println("BlueJ version " + BLUEJ_VERSION
                                + " (Java version "
@@ -93,7 +93,7 @@ public class Main
         
         // start the MachineLoader (a separate thread) to load the
         // remote virtual machine in the background
-        MachineLoader machineLoader = new MachineLoader();
+        MachineLoader machineLoader = new MachineLoader(Project.getInitialDebugger());
         // lower priority to improve GUI response time
         machineLoader.setPriority(Thread.currentThread().getPriority() - 1);
         machineLoader.start();
@@ -183,8 +183,6 @@ public class Main
 
         // save configuration properties
         Config.handleExit();
-        // free resources for debugger
-        Debugger.handleExit();
         // exit with success status
         System.exit(0);
     }

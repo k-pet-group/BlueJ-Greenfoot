@@ -1,24 +1,24 @@
 package bluej.pkgmgr;
 
-import bluej.*;
-import bluej.Config;
-import bluej.utility.DialogManager;
-
-import java.util.Enumeration;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Enumeration;
+
 import javax.swing.*;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.*;
+
+import bluej.*;
+import bluej.pkgmgr.target.role.AppletClassRole;
+import bluej.utility.DialogManager;
 
 /**
  * Dialog for generating HTML and running applets.
  *
  * @author  Bruce Quig
- * @version $Id: RunAppletDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: RunAppletDialog.java 1954 2003-05-15 06:06:01Z ajp $
  */
 
-class RunAppletDialog extends JDialog
+public class RunAppletDialog extends JDialog
 	implements ListSelectionListener 
 {
     // Internationalisation
@@ -33,9 +33,9 @@ class RunAppletDialog extends JDialog
     static final String nameLbl = Config.getString("pkgmgr.runApplet.nameLbl");
     static final String valueLbl = Config.getString("pkgmgr.runApplet.valueLbl");
     
-    static final int EXEC_APPLETVIEWER = 0;
-    static final int EXEC_WEBBROWSER = 1;
-    static final int GENERATE_PAGE_ONLY = 2;
+    public static final int EXEC_APPLETVIEWER = 0;
+    public static final int EXEC_WEBBROWSER = 1;
+    public static final int GENERATE_PAGE_ONLY = 2;
     
     private String webPageName;
     
@@ -68,7 +68,7 @@ class RunAppletDialog extends JDialog
         mainPanel.setBorder(BlueJTheme.dialogBorder);
         
         appletParameters = new DefaultListModel();
-        webPageName = appletClassName + ClassTarget.HTML_EXTENSION;
+        webPageName = appletClassName + AppletClassRole.HTML_EXTENSION;
         
         // button panel at bottom of dialog
         JPanel buttonPanel = new JPanel();

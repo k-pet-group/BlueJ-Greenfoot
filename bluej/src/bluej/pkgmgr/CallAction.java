@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.pkgmgr.target.*;
 import bluej.views.CallableView;
 
 import java.awt.event.*;

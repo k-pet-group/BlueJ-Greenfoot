@@ -15,7 +15,7 @@ import bluej.prefmgr.PrefMgr;
  * components for i18n purposes.
  *
  * @author  Bruce Quig
- * @version $Id: BlueJTheme.java 1921 2003-04-30 06:07:04Z ajp $
+ * @version $Id: BlueJTheme.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class BlueJTheme extends DefaultMetalTheme
 {
@@ -92,7 +92,9 @@ public class BlueJTheme extends DefaultMetalTheme
     }
       
 	/**
-	 * @return
+	 * Get the icon for most BlueJ frames.
+	 * 
+	 * @return	an icon to be used as the frame icon for most BlueJ windows
 	 */
 	public static Image getIconImage()
 	{
@@ -126,6 +128,55 @@ public class BlueJTheme extends DefaultMetalTheme
 		return continueLabel;
 	}
 
+	/**
+	 * Get a standard BlueJ "ok" button.
+	 * 
+	 * @return	A JButton that says "ok"
+	 */
+	public static JButton getOkButton()
+	{
+		computeButtonWidths();
+		
+		JButton okButton = new JButton(getOkLabel());
+		// try to make the OK, cancel and continue buttons have equal size
+		okButton.setPreferredSize(okCancelDimension);
+		return okButton;
+	}
+	
+	/**
+	 * Get a standard BlueJ "cancel" button.
+	 * 
+	 * @return	A JButton that says "cancel"
+	 */
+	public static JButton getCancelButton()
+	{
+		computeButtonWidths();
+
+		JButton cancelButton = new JButton(getCancelLabel());
+		// try to make the OK, cancel and continue  buttons have equal size
+		cancelButton.setPreferredSize(okCancelDimension);
+		return cancelButton;	
+	}
+
+	/**
+	 * Get a standard BlueJ "continue" button.
+	 * 
+	 * @return	A JButton that says "Continue"
+	 */
+	public static JButton getContinueButton()
+	{
+		computeButtonWidths();
+
+		JButton continueButton = new JButton(getContinueLabel());
+		// try to make the OK, cancel and continue  buttons have equal size
+		continueButton.setPreferredSize(okCancelDimension);
+		return continueButton;	
+	}
+
+	/**
+	 * Computer the maximum width of the ok, cancel and continue buttons
+	 * and set the okCancelDimension to be representative of that size.
+	 */
 	private static void computeButtonWidths()
 	{
 		if (okCancelDimension != null)
@@ -142,35 +193,4 @@ public class BlueJTheme extends DefaultMetalTheme
 									
 		okCancelDimension = new Dimension(maxWidth, okButton.getPreferredSize().height);
 	}
-	
-	public static JButton getOkButton()
-	{
-		computeButtonWidths();
-		
-		JButton okButton = new JButton(getOkLabel());
-		// try to make the OK and cancel buttons have equal size
-		okButton.setPreferredSize(okCancelDimension);
-		return okButton;
-	}
-	
-	public static JButton getCancelButton()
-	{
-		computeButtonWidths();
-
-		JButton cancelButton = new JButton(getCancelLabel());
-		// try to make the OK and cancel buttons have equal size
-		cancelButton.setPreferredSize(okCancelDimension);
-		return cancelButton;	
-	}
-
-	public static JButton getContinueButton()
-	{
-		computeButtonWidths();
-
-		JButton continueButton = new JButton(getContinueLabel());
-		// try to make the OK and cancel buttons have equal size
-		continueButton.setPreferredSize(okCancelDimension);
-		return continueButton;	
-	}
-
 }

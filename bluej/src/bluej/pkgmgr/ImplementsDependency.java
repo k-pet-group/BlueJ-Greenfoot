@@ -4,12 +4,13 @@ import java.awt.*;
 import java.util.Properties;
 
 import bluej.Config;
+import bluej.pkgmgr.target.*;
 
 /**
  * An "implements" dependency between two (class) targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: ImplementsDependency.java 1730 2003-04-01 03:55:19Z ajp $
+ * @version $Id: ImplementsDependency.java 1954 2003-05-15 06:06:01Z ajp $
  */
 public class ImplementsDependency extends Dependency
 {
