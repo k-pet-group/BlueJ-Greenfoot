@@ -144,7 +144,8 @@ public class GraphElementController
             if(target.getPackage().getState() != Package.S_IDLE) {
                 target.getPackage().targetSelected(target);
             }
-            
+            target.oldRect = new Rectangle(target.getX(), target.getY(), 
+                    target.getWidth(), target.getHeight() );            
         }
         if(graphElement instanceof ClassTarget){
             dependencyArrowX = evt.getX();
