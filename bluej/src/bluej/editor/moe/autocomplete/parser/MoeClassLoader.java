@@ -1,13 +1,9 @@
 package bluej.editor.moe.autocomplete.parser;
 
-import bluej.classmgr.*;
-import bluej.editor.moe.autocomplete.*;
-import java.io.*;
 
 /**
- * This class extends the ProjectClassLoader in order
- * to expose the protected getPackages method.  This
- * is bad practive but we had no other way of
+ * This class extends ClassLoader in order to expose the protected getPackages method.  
+ * This is bad practive but we had no other way of
  * retrieving the packages.  Unfortuantely
  * getPackages() only retrieves the packages for
  * all the classes that have been loaded.  This means
