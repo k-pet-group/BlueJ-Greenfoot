@@ -148,7 +148,6 @@ public final class Info extends JPanel
 	boolean found = false;
 
 	try {
-	    //Debug.message("message: #"+line1.getText()+"#");
 	    in = new BufferedReader(new FileReader(fileName));
 	    String displayMsg = line1.getText().trim();  // message displayed
 	    String msg;
@@ -156,11 +155,11 @@ public final class Info extends JPanel
 	    String helptext = "";
 	    while ((msg = in.readLine()) != null) {
 		msg = msg.trim();
-		if((msg.length() > 0) && (displayMsg.startsWith(msg))) {
+		if(helpTextMatch(displayMsg, msg)) {
 		    // found it - read help text
 		    line = in.readLine();
 		    while ((line != null) && (line.length() > 0)) {
-			helptext += "\n" + line;
+			helptext += line + "\n";
 			line = in.readLine();
 		    }
 		    Utility.showMessage(null, helptext);
@@ -187,5 +186,17 @@ public final class Info extends JPanel
 	}
     }
 
+    private boolean helpTextMatch(String message, String pattern)
+    {
+	if(pattern.length() == 0)
+	    return false;
+	if(pattern.charAt(0) == '*')
+	    return message.endsWith(pattern.substring(1));
+	if(pattern.charAt(pattern.length()-1) == '*')
+	    return message.startsWith(
+				pattern.substring(0, pattern.length()-2));
+	else
+	    return pattern.equals(message);
+    }
 
 }  // end class Info

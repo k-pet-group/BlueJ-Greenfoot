@@ -1,4 +1,4 @@
-// Java Class Analysis Tool Grammar
+// BlueJ Java Grammar
 //
 // A note about conflicts.  There are four points in this grammar where
 //   two tokens of lookahead cannot predict which alternative to select.  These

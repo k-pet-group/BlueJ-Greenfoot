@@ -16,6 +16,11 @@ public final class ClassInfo {
     private boolean isAbstract = false;
     private boolean isApplet = false;
 
+    // source positions
+    int superClassLine;
+    int superClassCol;
+
+
     public void setName(String name)
     {
 	this.name = name;
@@ -82,6 +87,14 @@ public final class ClassInfo {
 	isAbstract = b;
     }
 
+    public void setSuperPos(int line, int col)
+    {
+	superClassLine = line;
+	superClassCol = col;
+    }
+
+
+    // accessors:
 
     public String getSuperclass()
     {

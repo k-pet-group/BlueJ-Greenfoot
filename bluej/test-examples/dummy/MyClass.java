@@ -1,11 +1,11 @@
-/**
+ /**
  **/
 import java.util.Random;
 
 public class MyClass
 {
     // instance variables - replace the example below with your own - replace the example below with your own - repla
-    private int x;
+    private int x = 22222;
     private String name;
     public Tester tst;
     private static String sname;

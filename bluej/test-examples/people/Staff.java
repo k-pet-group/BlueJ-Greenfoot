@@ -42,9 +42,7 @@ class Staff extends Person
 	 **/
 	public String getRoom()
 	{
-	    room = "my";
-	    room = room + " room";
-	    return room;
+	     return room;
 	}
 
 	/**

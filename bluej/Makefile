@@ -8,39 +8,42 @@ SUBDIRS = \
 INSTALL_FILES = \
 	images/arrow_black.gif \
 	images/arrow_red.gif \
+	images/bluej-icon.gif \
+	images/bluej-logo.gif \
+	images/break.gif \
+	images/broken-arrow.gif \
 	images/continue.gif \
 	images/darrow_black.gif \
 	images/darrow_red.gif \
-	images/bluej-logo.gif \
-	images/bluej-icon.gif \
+	images/help.gif \
+	images/leftarrow.gif \
+	images/packageIcon.gif \
+	images/rightarrow.gif \
 	images/step.gif \
 	images/step_into.gif \
 	images/stop.gif \
 	images/terminate.gif \
-	images/working.gif \
 	images/working-disab.gif \
 	images/working-stopped.gif \
-	images/break.gif \
-	images/packageIcon.gif \
-	images/leftarrow.gif \
-	images/rightarrow.gif \
-	lib/bluej.jar \
+	images/working.gif \
+	lib/abstract.tmpl \
+	lib/antlr.jar \
+	lib/applet.tmpl \
 	lib/bluej.defs \
-	lib/syslibs.properties \
+	lib/bluej.jar \
+	lib/english.defs \
+	lib/exception.english.help \
+	lib/html.tmpl \
+	lib/interface.tmpl \
+	lib/javac.english.help \
+	lib/jbug.jar \
+	lib/jikes.english.help \
 	lib/moe.defs \
 	lib/moehelp.defs \
-	lib/interface.tmpl \
-	lib/abstract.tmpl \
-	lib/interface.tmpl \
 	lib/shell.tmpl \
 	lib/stdclass.tmpl \
 	lib/stdctxt.jar \
-	lib/jcvs.jar \
-	lib/swing.jar \
-	lib/mac.jar \
-	lib/motif.jar \
-	lib/windows.jar \
-	lib/english.defs \
+	lib/syslibs.properties \
 	examples
 
 PACKAGES = \
@@ -49,7 +52,7 @@ PACKAGES = \
 FINDALL = find . -follow \( -name CVS -a -prune \) -o \( -type f -a -print \)
 FINDCVS = find . -name CVS
 
-all dep depend clean clobber jikes grammar::
+all dep depend clean clobber jikes grammar antlr::
 	for f in $(SUBDIRS) ; do \
 		$(MAKE) -C $$f $@ ; \
 	done

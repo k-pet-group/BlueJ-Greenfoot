@@ -22,6 +22,7 @@ public class JavaToken extends antlr.CommonToken {
     
     /** A reference to the File that was scanned to create this symbol */
     private File file = null;
+    int column;
 
 
     //==========================================================================
@@ -29,28 +30,46 @@ public class JavaToken extends antlr.CommonToken {
     //==========================================================================
     
 
+    public void setText(String s)
+    {
+	super.setText(s);
+	//System.out.println("token " + s + " line " + getLine() + " col " + getColumn());
+    }
+
+    public void setColumn(int c) 
+    {
+	column = c;
+    }
+
+    public int getColumn() 
+    {
+	return column;
+    }
+
     /** get the File that contained the text scanned for this token */
-    public File getFile() {
+    public File getFile() 
+    {
         return file;
     }       
 
-
-    /** get the number of parameters for this token (if it represents a 
+    /** 
+     *  get the number of parameters for this token (if it represents a 
      *  method invocation 
      */
-    public int getParamCount() {
+    public int getParamCount() 
+    {
         return paramCount;
     }
 
-
     /** Sets the file property of this token */
-    public void setFile(File file) {
+    public void setFile(File file) 
+    {
         this.file = file;
     }
 
-
     /** Sets the parameter count property of this token */
-    public void setParamCount(int count) {
+    public void setParamCount(int count) 
+    {
         paramCount = count;
     }
 }

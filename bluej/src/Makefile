@@ -26,3 +26,6 @@ jikes:
 grammar:
 	(cd bluej/parser && \
 	java -classpath $(ANTLR_CLASSPATH) antlr.Tool java.g )
+
+antlr::
+	$(MAKE) -C antlr $@;

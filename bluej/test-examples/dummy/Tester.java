@@ -48,7 +48,7 @@ public class Tester
     {
 
         stringArray = new String[] {"mik", "koe", null, "home"} ;
-        testArray = new Tester[] {new Tester(), null, new SubTester()} ;
+        testArray = new Tester[] {new Tester(), null} ;
         objArray = new Object[] {"mik", new Integer(3), null} ;
         sstringArray = new String[] {"mik", "koe", null, "home"} ;
         stestArray = new Tester[] {new Tester(), null, new SubTester()} ;
