@@ -279,6 +279,8 @@
             <fileset dir="src" defaultexcludes="yes">
               <include name="bluej/extensions/*.java" />
               <exclude name="bluej/extensions/ExtensionBridge.java"/>
+              <include name="bluej/extensions/editor/*.java"/>
+              <exclude name="bluej/extensions/editor/EditorBridge.java"/>
             </fileset>
             <classpath>
                 <path refid="bluej.class.path"/>
