@@ -8,6 +8,7 @@ import bluej.utility.DialogManager;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClassLoader;
 import bluej.debugger.DebuggerClass;
+import bluej.debugger.ClassInspector;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
@@ -49,7 +50,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1527 2002-11-28 15:36:18Z mik $
+ * @version $Id: ClassTarget.java 1529 2002-11-28 15:59:21Z mik $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -446,7 +447,8 @@ public class ClassTarget extends EditableTarget
     {
         DebuggerClassLoader loader = getPackage().getRemoteClassLoader();
         DebuggerClass clss = Debugger.debugger.getClass(getQualifiedName(), loader);
-        System.out.println("class " + getQualifiedName() + ": " + clss);
+        ClassInspector insp =
+   	       ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
     }
     
     /**

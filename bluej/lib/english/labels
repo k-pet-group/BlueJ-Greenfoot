@@ -10,13 +10,14 @@ compiler.thread.title=BlueJ compiler thread
 compiler.invalidcompiler=bluej.compiler.type is not set to a valid compiler type
 compiler.nocompiler=Compiler could not be executed
 
-debugger.objectviewer.title=BlueJ:  Object Inspector of class
-debugger.resultviewer.title=BlueJ:  Method Result
-debugger.objectviewer.staticListTitle=Static fields
-debugger.objectviewer.objListTitle=Object fields
-debugger.objectviewer.inspect=Inspect
-debugger.objectviewer.get=Get
-debugger.objectviewer.objectClassName=Object of class
+debugger.inspector.title=BlueJ:  Inspector
+debugger.inspector.result.title=BlueJ:  Method Result
+debugger.inspector.staticListTitle=Static fields
+debugger.inspector.objListTitle=Instance fields
+debugger.inspector.inspect=Inspect
+debugger.inspector.get=Get
+debugger.inspector.objectNameLabel=Object of class
+debugger.inspector.classNameLabel=Class
 
 debugger.objectwrapper.methodException=Exception accessing methods:
 debugger.objectwrapper.invocationException=Exception during invocation:
@@ -300,6 +301,7 @@ pkgmgr.packagemenu.remove=Remove
 pkgmgr.classmenu.runApplet=Run Applet
 pkgmgr.classmenu.edit=Open Editor
 pkgmgr.classmenu.compile=Compile
+pkgmgr.classmenu.inspect=Inspect
 pkgmgr.classmenu.remove=Remove
 
 pkgmgr.view.label=View

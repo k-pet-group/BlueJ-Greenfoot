@@ -14,7 +14,7 @@ import bluej.pkgmgr.Package;
  * A window that displays the static fields in an class.
  *
  * @author     Michael Kolling
- * @version    $Id: ClassInspector.java 1528 2002-11-28 15:38:40Z mik $
+ * @version    $Id: ClassInspector.java 1529 2002-11-28 15:59:21Z mik $
  */
 public class ClassInspector extends Inspector
 {
@@ -45,22 +45,16 @@ public class ClassInspector extends Inspector
      * @param  parent      The parent frame of this frame
      * @return             The Viewer value
      */
-    public static ClassInspector getInstance(boolean inspection,
-            DebuggerClass clss, String name,
-            Package pkg, boolean getEnabled,
+    public static ClassInspector getInstance(DebuggerClass clss, Package pkg,
             JFrame parent)
     {
         ClassInspector inspector = (ClassInspector) inspectors.get(clss);
 
         if (inspector == null) {
-            String id;
-            if (name == null) {
-                id = "#viewer" + count;  // # marks viewer for internal object
-                count++;  //  which is not on bench
-            } else {
-                id = name;
-            }
-            inspector = new ClassInspector(clss, pkg, id, getEnabled, parent);
+            String id = "#viewer" + count;  // # marks viewer for internal object
+            count++;  //  which is not on bench
+
+            inspector = new ClassInspector(clss, pkg, id, true, parent);
             inspectors.put(clss, inspector);
         }
         inspector.update();
