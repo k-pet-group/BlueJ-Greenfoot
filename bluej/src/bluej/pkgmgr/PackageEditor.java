@@ -14,7 +14,7 @@ import javax.swing.*;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 634 2000-07-07 02:38:22Z ajp $
+ * @version $Id: PackageEditor.java 811 2001-03-25 23:11:51Z mik $
  */
 public class PackageEditor extends GraphEditor
 {
@@ -52,10 +52,10 @@ public class PackageEditor extends GraphEditor
         }
     }
 
-    public void raiseMethodCallEvent(Target t, CallableView cv)
+    public void raiseMethodCallEvent(Object src, CallableView cv)
     {
         fireTargetEvent(
-            new PackageEditorEvent(t, PackageEditorEvent.TARGET_CALLABLE, cv));
+            new PackageEditorEvent(src, PackageEditorEvent.TARGET_CALLABLE, cv));
     }
 
     public void raiseRemoveTargetEvent(Target t)

@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 718 2000-12-07 01:09:25Z ajp $
+ * @version $Id: MethodDialog.java 811 2001-03-25 23:11:51Z mik $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchWatcher
@@ -56,8 +56,6 @@ public class MethodDialog extends JDialog
     static final String emptyFieldMsg = Config.getString("error.methodCall.emptyField");
     static final String illegalNameMsg = Config.getString("error.methodCall.illegalName");
     static final String duplicateNameMsg = Config.getString("error.methodCall.duplicateName");
-
-    static final String okayCommand = Config.getString("okay");
 
     static final String commentSlash = "   ";
 

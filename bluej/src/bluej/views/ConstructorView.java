@@ -6,7 +6,7 @@ import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
 /**
- ** @version $Id: ConstructorView.java 505 2000-05-24 05:44:24Z ajp $
+ ** @version $Id: ConstructorView.java 811 2001-03-25 23:11:51Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -21,8 +21,8 @@ public final class ConstructorView extends CallableView
      */
     public ConstructorView(View view, Constructor cons)
     {
-	super(view);
-	this.cons = cons;
+        super(view);
+        this.cons = cons;
     }
 
     /**
@@ -30,12 +30,12 @@ public final class ConstructorView extends CallableView
      */
     public String toString()
     {
-	return cons.toString();
+        return cons.toString();
     }
 
     public int getModifiers()
     {
-	return cons.getModifiers();
+        return cons.getModifiers();
     }
 
     /**
@@ -43,7 +43,7 @@ public final class ConstructorView extends CallableView
      */
     public boolean hasParameters()
     {
-	return (cons.getParameterTypes().length > 0);
+        return (cons.getParameterTypes().length > 0);
     }
 
     /**
@@ -52,8 +52,8 @@ public final class ConstructorView extends CallableView
      */
     public String getSignature()
     {
-	Class[] params = cons.getParameterTypes();
-	return makeSignature(JavaNames.getBase(cons.getName()), params);
+        Class[] params = cons.getParameterTypes();
+        return makeSignature(JavaNames.getBase(cons.getName()), params);
     }
 
     /**
@@ -62,8 +62,8 @@ public final class ConstructorView extends CallableView
      */
     public String getShortDesc()
     {
-	Class[] params = cons.getParameterTypes();
-	return makeDescription(cons.getName(), params, false);
+        Class[] params = cons.getParameterTypes();
+        return makeDescription(cons.getName(), params, false);
     }
 
     /**
@@ -73,8 +73,8 @@ public final class ConstructorView extends CallableView
      */
     public String getLongDesc()
     {
-	Class[] params = cons.getParameterTypes();
-	return makeDescription(cons.getName(), params, true);
+        Class[] params = cons.getParameterTypes();
+        return makeDescription(cons.getName(), params, true);
     }
 
     /**
@@ -83,7 +83,7 @@ public final class ConstructorView extends CallableView
      */
     public Class[] getParameters()
     {
-	return cons.getParameterTypes();
+        return cons.getParameterTypes();
     }
 
 

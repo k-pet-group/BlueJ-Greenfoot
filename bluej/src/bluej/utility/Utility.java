@@ -15,7 +15,7 @@ import javax.swing.*;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 801 2001-03-13 05:19:49Z ajp $
+ * @version $Id: Utility.java 811 2001-03-25 23:11:51Z mik $
  */
 public class Utility
 {
@@ -224,6 +224,23 @@ public class Utility
         }
 
         return buf.toString();
+    }
+
+    /**
+     * Translate a given, qualified class name into a URL where we believe
+     * its documentation to be, and display that URL in a web browser.
+     */
+    public static void showClassDocumentation(String classname, String suffix)
+    {
+        classname = classname.replace('.', '/');
+        String docURL = Config.getPropString("bluej.url.javaStdLib");
+        if(docURL.endsWith(".html")) {
+            int lastSlash = docURL.lastIndexOf('/');
+            if(lastSlash != -1)
+                docURL = docURL.substring(0, lastSlash+1);
+        }
+        //Debug.message(docURL + classname + ".html" + suffix);
+        openWebBrowser(docURL + classname + ".html" + suffix);
     }
 
     /**

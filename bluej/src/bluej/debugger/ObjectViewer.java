@@ -27,7 +27,7 @@ import javax.swing.border.Border;
  *@author     Michael Cahill
  *@author     Michael Kolling
  *@author     Duane Buck
- *@version    $Id: ObjectViewer.java 787 2001-03-02 04:03:22Z bquig $
+ *@version    $Id: ObjectViewer.java 811 2001-03-25 23:11:51Z mik $
  */
 public final class ObjectViewer extends JFrame
          implements ActionListener, ListSelectionListener, InspectorListener
@@ -887,21 +887,16 @@ public final class ObjectViewer extends JFrame
     {
         ClassLoader loader = new InspectorClassLoader(inspectorDir);
         String[] inspName = inspectorDir.list();
-        if (inspName != null)
-        {
-            for (int i = 0; i < inspName.length; i++)
-            {  // Add inspectors (if any)
-                if (inspName[i].endsWith(".class"))
-                {
-                    try
-                    {
+        if (inspName != null) {
+            for (int i = 0; i < inspName.length; i++) {  // Add inspectors (if any)
+                if (inspName[i].endsWith(".class")) {
+                    try {
                         Class theInspClass = loader.loadClass(inspName[i].substring(0, inspName[i].length() - 6));
                         Inspector theInsp = ((Inspector) theInspClass.newInstance());
                         // If control gets here, the class implements Inspector!
                         int inspIdx = inspCnt;
                         inspCnt++;
-                        if (inspCnt >= insp.length)
-                        {
+                        if (inspCnt >= insp.length) {
                             Class[] temp = new Class[insp.length * 2];
                             System.arraycopy(insp, 0, temp, 0, insp.length);
                             insp = temp;
@@ -909,17 +904,13 @@ public final class ObjectViewer extends JFrame
                         insp[inspIdx] = theInspClass;
                         //System.out.println(""+inspIdx+": "+theInspClass);
                     }
-                    catch (ClassNotFoundException e)
-                    {
+                    catch (ClassNotFoundException e) {
                     }
-                    catch (InstantiationException e)
-                    {
+                    catch (InstantiationException e) {
                     }
-                    catch (IllegalAccessException e)
-                    {
+                    catch (IllegalAccessException e) {
                     }
-                    catch (ClassCastException e)
-                    {
+                    catch (ClassCastException e) {
                     }
                 }
             }
@@ -928,19 +919,14 @@ public final class ObjectViewer extends JFrame
 
     private void addInspectors(JTabbedPane inspectorTabs)
     {
-        for (int i = 0; i < inspCnt; i++)
-        {  // Add inspectors (if any)
-            try
-            {
-                bluej.debugger.Inspector theInsp = ((Inspector) insp[i].newInstance());
+        for (int i = 0; i < inspCnt; i++) {  // Add inspectors (if any)
+            try {
+                bluej.debugger.Inspector theInsp = ((Inspector)insp[i].newInstance());
                 String[] ic = theInsp.getInspectedClassnames();
-                for (int j = 0; j < ic.length; j++)
-                {
-                    if (obj.isAssignableTo(ic[j]))
-                    {
+                for (int j = 0; j < ic.length; j++) {
+                    if (obj.isAssignableTo(ic[j])) {
                         boolean initOK = theInsp.initialize(ObjectViewer.this.obj);
-                        if (initOK)
-                        {  //Inspector makes final decision
+                        if (initOK) {  //Inspector makes final decision
                             theInsp.addInspectorListener(this);
                             inspectorTabs.add(theInsp.getInspectorTitle(), theInsp);
                         }

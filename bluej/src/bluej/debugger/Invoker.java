@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 738 2000-12-20 04:13:39Z ajp $
+ * @version $Id: Invoker.java 811 2001-03-25 23:11:51Z mik $
  */
 
 public class Invoker extends Thread
@@ -414,7 +414,7 @@ public class Invoker extends Thread
             startClass();
 
         File srcFile = new File(pkg.getPath(), shellName + ".java");
-        srcFile.delete();
+        //srcFile.delete();
 
         File classFile = new File(pkg.getPath(), shellName + ".class");
         classFile.delete();

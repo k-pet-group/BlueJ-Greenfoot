@@ -37,23 +37,23 @@ public class CallHistory
 
     public CallHistory()
     {
-	this(DEFAULT_LENGTH);
+        this(DEFAULT_LENGTH);
     }
 
 
     public CallHistory(int length)
     {
-	historyLength = length;
-	objectTypes = new HashMap(8);
-	objectTypes.put(INT_NAME, new ArrayList(length));
-	objectTypes.put(LONG_NAME, new ArrayList(length));
-	objectTypes.put(BOOLEAN_NAME, new ArrayList(length)); 
-	objectTypes.put(FLOAT_NAME, new ArrayList(length));
-	objectTypes.put(DOUBLE_NAME, new ArrayList(length));
-	objectTypes.put(SHORT_NAME, new ArrayList(length));
-	objectTypes.put(STRING_NAME, new ArrayList(length));
-	objectClasses = new ArrayList();
-	objectParams = new ArrayList();
+        historyLength = length;
+        objectTypes = new HashMap(8);
+        objectTypes.put(INT_NAME, new ArrayList(length));
+        objectTypes.put(LONG_NAME, new ArrayList(length));
+        objectTypes.put(BOOLEAN_NAME, new ArrayList(length)); 
+        objectTypes.put(FLOAT_NAME, new ArrayList(length));
+        objectTypes.put(DOUBLE_NAME, new ArrayList(length));
+        objectTypes.put(SHORT_NAME, new ArrayList(length));
+        objectTypes.put(STRING_NAME, new ArrayList(length));
+        objectClasses = new ArrayList();
+        objectParams = new ArrayList();
 
     }
 
@@ -66,22 +66,22 @@ public class CallHistory
      **/	
     public List getHistory(Class objectClass)
     {
-	List history = null;
-	// if listed in hashtable ie primitive or String
-	if( objectTypes.containsKey(objectClass.getName())) {
-	    history = (List)objectTypes.get(objectClass.getName());
-	}
-	// otherwise get general object history
-	else {
-	    history = new ArrayList();
-	    for(int i = 0; i < objectClasses.size(); i++) {
-		// if object parameter can be assigned from element in Class 
-		// vector add to history
-		if (objectClass.isAssignableFrom((Class)objectClasses.get(i)))
-		    history.add(objectParams.get(i));
-	    }
-	}
-	return history;
+        List history = null;
+        // if listed in hashtable ie primitive or String
+        if( objectTypes.containsKey(objectClass.getName())) {
+            history = (List)objectTypes.get(objectClass.getName());
+        }
+        // otherwise get general object history
+        else {
+            history = new ArrayList();
+            for(int i = 0; i < objectClasses.size(); i++) {
+                // if object parameter can be assigned from element in Class 
+                // vector add to history
+                if (objectClass.isAssignableFrom((Class)objectClasses.get(i)))
+                    history.add(objectParams.get(i));
+            }
+        }
+        return history;
     }
 
 
@@ -94,39 +94,39 @@ public class CallHistory
      **/
     public void addCall(Class objectType, String argument)
     {
-	if(argument != null) {
-	    // if a primitive or String
-	    if(objectTypes.containsKey(objectType.getName())) {
+        if(argument != null) {
+            // if a primitive or String
+            if(objectTypes.containsKey(objectType.getName())) {
 
-		List history = getHistory(objectType);
-		int index = history.indexOf(argument);
+                List history = getHistory(objectType);
+                int index = history.indexOf(argument);
 	
-		// if first no change
-		if( index != 0) {
-		    // if already there remove
-		    if(index > 0)
-			history.remove(index);
-		    history.add(0, argument);
-		}
-		// trim to size if necessary
-		if(history.size() > historyLength)
-		    history.remove(historyLength);
-	    }
-	    //else add to other object's class and param vectors
-	    else {
-		int index = objectParams.indexOf(argument);
+                // if first no change
+                if( index != 0) {
+                    // if already there remove
+                    if(index > 0)
+                        history.remove(index);
+                    history.add(0, argument);
+                }
+                // trim to size if necessary
+                if(history.size() > historyLength)
+                    history.remove(historyLength);
+            }
+            //else add to other object's class and param vectors
+            else {
+                int index = objectParams.indexOf(argument);
 		
-		// if first no change
-		if( index != 0) {
-		    // if already there remove
-		    if(index > 0) {
-			objectParams.remove(index);
-			objectClasses.remove(index);
-		    }
-		    objectClasses.add(0, objectType);
-		    objectParams.add(0, argument);
-		}
-	    }
-	}
+                // if first no change
+                if( index != 0) {
+                    // if already there remove
+                    if(index > 0) {
+                        objectParams.remove(index);
+                        objectClasses.remove(index);
+                    }
+                    objectClasses.add(0, objectType);
+                    objectParams.add(0, argument);
+                }
+            }
+        }
     }
 }

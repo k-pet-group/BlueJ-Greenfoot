@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 791 2001-03-06 03:27:51Z mik $
+ * @version $Id: PkgMgrFrame.java 811 2001-03-25 23:11:51Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -731,6 +731,10 @@ public class PkgMgrFrame extends JFrame
             compileSelected();
             break;
 
+        case TOOLS_CALLLIBRARY:
+            callLibraryClass();
+            break;
+
         case TOOLS_REBUILD:
             pkg.rebuild();
             break;
@@ -1370,6 +1374,13 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+    /**
+     *
+     */
+    public void callLibraryClass()
+    {
+        LibraryCallDialog.showLibraryCallDialog(this);
+    }
 
     public void toggleShowUses(Object src)
     {
@@ -1892,20 +1903,23 @@ public class PkgMgrFrame extends JFrame
     static final int TOOLS_COMMAND = EDIT_COMMAND + 100;
     static final int TOOLS_COMPILE = TOOLS_COMMAND;
     static final int TOOLS_COMPILESELECTED = TOOLS_COMPILE + 1;
-    static final int TOOLS_REBUILD = TOOLS_COMPILESELECTED + 1;
+    static final int TOOLS_CALLLIBRARY = TOOLS_COMPILESELECTED + 1;
+    static final int TOOLS_REBUILD = TOOLS_CALLLIBRARY + 1;
     static final int TOOLS_GENERATEDOC = TOOLS_REBUILD + 1;
     //static final int TOOLS_BROWSE = TOOLS_GENERATEDOC + 1;
     //static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
     static final int TOOLS_PREFERENCES = TOOLS_GENERATEDOC + 1;
 
     static final String[] ToolsCmds = {
-        "compile", "compileSelected", "rebuild", "generateDoc", // "browse",
+        "compile", "compileSelected", "callLibrary", "rebuild", "generateDoc",
+        // "browse",
         "preferences",
     };
 
     static final KeyStroke[] ToolsKeys = {
         KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.SHIFT_MASK | Event.CTRL_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK),
         null,
         null,
         // KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
