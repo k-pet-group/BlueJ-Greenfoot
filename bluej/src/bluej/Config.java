@@ -40,7 +40,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: Config.java 857 2001-04-20 05:50:29Z ajp $
  */
 
 public class Config
@@ -419,14 +419,13 @@ public class Config
      */
     private static File getImageFile(String propname)
     {
-        try {
-            String filename = bluej_props.getProperty(propname);
+        String filename = bluej_props.getProperty(propname);
+
+        if (filename != null) {
             return new File(bluej_lib_dir, "images" + File.separator + filename);
         }
-        catch(Exception e) {
-            Debug.reportError("Could not find image: " + propname);
-            return null;
-        }
+
+        return null;
     }
 
     /**
