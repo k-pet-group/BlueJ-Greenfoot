@@ -7,13 +7,14 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.io.*;
 
 /**
  * Implements RFC821 to send files via SMTP
  * to a given path on a given (attached) server.
  * 
  * @author Clive Miller
- * @version $Id: SmtpSession.java 1708 2003-03-19 09:39:47Z damiano $
+ * @version $Id: SmtpSession.java 1955 2003-05-15 18:48:07Z damiano $
  */
 
 public class SmtpSession extends TransportSession
@@ -92,7 +93,10 @@ public class SmtpSession extends TransportSession
     {
         String packageName = name.replace ('/','_');
         sendBoundary (false);
-        sendMimeFile (is, packageName, binary);
+        if ( binary )
+          sendMimeBinaryFile (is, packageName );
+        else
+          sendMimeTextFile (is, packageName );
         fileCounter++;
     }
 
@@ -129,42 +133,50 @@ public class SmtpSession extends TransportSession
         sendMessage (theText);
     }
             
-    private void sendMimeFile (InputStream is, String name, boolean binary) throws IOException
+  private void sendMimeBinaryFile (InputStream is, String name ) throws IOException
     {
-        if (binary)
-        {
-            sendMessage ("Content-Type: application/octet-stream;");
-            sendMessage ("        name=\""+name+"\"");
-            sendMessage ("Content-Transfer-Encoding: base64");
-            sendMessage ("Content-Disposition: attachment;");
-            sendMessage ("        filename=\""+name+"\"");
-            sendMessage (null);
-            SocketSession.MIMEEncode (is, out);
-            reportLog ("[sent binary file "+name+"]");
-        }
-        else
-        {
-            int state = 0;
-            sendMessage ("Content-Type: text/plain;");
-            sendMessage ("        name=\""+name+"\"");
-            sendMessage ("Content-Transfer-Encoding: 7bit");
-            sendMessage ("Content-Disposition: attachment;");
-            sendMessage ("        filename=\""+name+"\"");
-            sendMessage (null);
-            for(int c; (c = is.read()) != -1; ) {
-                if (c == '\n' || c == '\r') {
-                    if (state == 0) state = 1;
-                    else if (state == 2) {
-                        state = 1;
-                        out.write ('.');
-                    }
-                }
-                else if (c == '.' && state == 1) state = 2;
-                out.write(c);
-            }
-            out.write ('\n');
-            reportLog ("[sent text file "+name+"]");
-        }
+    sendMessage ("Content-Type: application/octet-stream;");
+    sendMessage ("        name=\""+name+"\"");
+    sendMessage ("Content-Transfer-Encoding: base64");
+    sendMessage ("Content-Disposition: attachment;");
+    sendMessage ("        filename=\""+name+"\"");
+    sendMessage (null);
+    SocketSession.MIMEEncode (is, out);
+    reportLog ("===> sent binary file "+name);
+    }
+
+
+  private void sendMimeTextFile ( InputStream is, String name ) throws IOException
+    {
+    BufferedReader aReader = new BufferedReader(new InputStreamReader(is));
+    
+    sendMessage ("Content-Type: text/plain;");
+    sendMessage ("        name=\""+name+"\"");
+    sendMessage ("Content-Transfer-Encoding: 7bit");
+    sendMessage ("Content-Disposition: attachment;");
+    sendMessage ("        filename=\""+name+"\"");
+    sendMessage (null);
+
+    /* Now we have to go line by line, until EOF and spit them out watching
+     * For the infamous single dot :-)
+     */
+    String oneLine;
+    int lineCount=0;
+    while ( (oneLine=aReader.readLine()) != null )
+      {
+      lineCount++;
+
+      // If the line has a single dot in it we add an extra dot to it !
+      if ( oneLine.equals(".")) out.write('.');
+
+      // Then we write what we just read
+      out.write(oneLine.getBytes());
+      // and terminate with a goot string termination...
+      out.write("\r\n".getBytes());
+      }
+
+    out.flush();
+    reportLog ("===> sent text file "+name+" lineCount="+lineCount);
     }
 
     private void sendBoundary (boolean end) throws IOException
