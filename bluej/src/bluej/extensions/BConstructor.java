@@ -11,13 +11,13 @@ import java.lang.reflect.Modifier;
 
 /**
  * This should behave as much as possible as a reflection COnstructor
- * 
  */
 public class BConstructor 
   {
   private bluej.pkgmgr.Package bluej_pkg;
   private ConstructorView bluej_view;
-  private String instanceName;
+//  private String instanceName;
+  private DirectInvoker invoker;
 
   /**
    * NOT for public use: to be used from within the xtension package
@@ -31,11 +31,13 @@ public class BConstructor
   /**
    * If you want to name the object that appears in the object bench with something
    * you like, you can do it using this method BEFORE you call the newInstance.
-   */
   public String setInstanceName ( String i_instanceName )
     {
     return instanceName = i_instanceName;
     }
+   */
+
+
     
   /**
    * Tests if this constructor matches against the given param.
@@ -62,35 +64,47 @@ public class BConstructor
 
     return true;
     }
-    
 
-
-  /**
-   * Creates a new instance of the object described by this constructor
-   */
-  public BObject newInstance ( String[] initargs )
-    {
-    DirectInvoker invoker = new DirectInvoker (bluej_pkg, bluej_view, instanceName);
-    DebuggerObject result = invoker.invokeConstructor (initargs);
-
-    if (result == null) return null;
-
-    if (result.isNullObject()) 
+    /**
+     * As From reflection API
+     */
+    public Class[] getParameterTypes ()
       {
-      System.out.println ("BConstructor.newInstance: ERROR isNulObject == true");
-      return null;
+      return bluej_view.getParameters();
       }
 
-    String resultName = invoker.getResultName();
-    PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluej_pkg);
+    /**
+     * Creates a new instance of the object described by this constructor
+     */
+    public BObject newInstance ( String[] initargs )
+      {
+      invoker = new DirectInvoker (bluej_pkg, bluej_view );
+      DebuggerObject result = invoker.invokeConstructor (initargs);
 
-    ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
+      if (result == null) return null;
 
-    // This adds the object to the bench, mandatory for constructors.
-    pmf.getObjectBench().add(wrapper);
-    // load the object into runtime scope. This is needed
-    Debugger.debugger.addObjectToScope(pmf.getPackage().getId(), wrapper.getName(), result);
+      if (result.isNullObject()) 
+        {
+        System.out.println ("BConstructor.newInstance: ERROR isNulObject == true");
+        return null;
+        }
 
-    return new BObject(wrapper);
+      String resultName = invoker.getResultName();
+      PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluej_pkg);
+
+      ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
+
+      return new BObject(wrapper);
+      }
+
+    /**
+     * Gets the last error that occurred<P>
+     * This should be called after receiving a <code>null</code> back from an invoke
+     * @return any error as a String
+     */
+    public String getLastError()
+    {
+        if (invoker == null) return null;
+        return invoker.getError();
     }
-  }
+}

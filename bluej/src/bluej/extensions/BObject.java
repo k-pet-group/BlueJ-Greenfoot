@@ -2,6 +2,7 @@ package bluej.extensions;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ObjectWrapper;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.View;
 import bluej.views.MethodView;
@@ -20,7 +21,7 @@ import bluej.debugger.*;
 /**
  * The BlueJ proxy Object object. 
  *
- * @version $Id: BObject.java 1660 2003-03-06 09:44:15Z damiano $
+ * @version $Id: BObject.java 1661 2003-03-06 15:36:08Z damiano $
  */
 public class BObject
 {
@@ -66,7 +67,7 @@ public class BObject
         if ( ! isValid() ) return;
 
         // This should really always exists, no need to check
-        bluej.pkgmgr.Package aPackage = wrapper.getPackage();
+        Package aPackage = wrapper.getPackage();
 
         // This may reasonably fail
         PkgMgrFrame aFrame = PkgMgrFrame.findFrame ( aPackage );
@@ -81,12 +82,18 @@ public class BObject
     /**
      * puts this object on the Object Bench
      */
-    public void putIntoBench()
+    public void putIntoBench(String instanceName)
         {
         if ( ! isValid() ) return;
 
+        // No reational to add a null object, isn't it ?
+        if (wrapper.getObject().isNullObject()) return;
+
+        // If you want you may set the instance name here. Othervise accept default
+        if ( instanceName != null ) wrapper.setName(instanceName);
+        
         // This should really always exists, no need to check
-        bluej.pkgmgr.Package aPackage = wrapper.getPackage();
+        Package aPackage = wrapper.getPackage();
 
         // This may reasonably fail
         PkgMgrFrame aFrame = PkgMgrFrame.findFrame ( aPackage );
@@ -94,6 +101,9 @@ public class BObject
 
         ObjectBench aBench = aFrame.getObjectBench();
         aBench.add(wrapper);
+
+        // load the object into runtime scope
+        Debugger.debugger.addObjectToScope(aPackage.getId(),wrapper.getName(), wrapper.getObject());
         }
 
 
@@ -118,7 +128,7 @@ public class BObject
     public BClass getBClass()
     {
         if ( ! isValid() ) return null;
-        
+
         return new BClass (wrapper.getPackage(), wrapper.getClassName());
     } 
     

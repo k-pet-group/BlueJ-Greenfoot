@@ -21,7 +21,7 @@ import bluej.views.*;
  * The reasoning behind it is that is is no good to create a new standard when there 
  * is already one that can be used.
  * 
- * @version $Id: BClass.java 1660 2003-03-06 09:44:15Z damiano $
+ * @version $Id: BClass.java 1661 2003-03-06 15:36:08Z damiano $
  */
 public class BClass
 {
@@ -111,7 +111,15 @@ public class BClass
       {
       return true;
       }
-    
+
+    /**
+     * As From Reflection API
+     */
+    public boolean isArray ()
+      {
+      return loadedClass.isArray();
+      }
+      
     /**
      * Gets the owning Package of this class
      * @return the originator
@@ -284,7 +292,6 @@ public class BClass
 
         FieldView[] fieldView = bluej_view.getAllFields();
         BField[] bFields = new BField [fieldView.length];
-        
         for ( int index=0; index<fieldView.length; index++)
             bFields[index] = new BField (bluej_pkg, fieldView[index]);
             
@@ -301,18 +308,14 @@ public class BClass
         if ( fieldName == null ) return null;
         
         FieldView[] fieldView = bluej_view.getAllFields();
-        BField result;
-        
         for ( int index=0; index<fieldView.length; index++)
             {
-            result = new BField (bluej_pkg, fieldView[index]);
+            BField result = new BField (bluej_pkg, fieldView[index]);
             if ( result.matches(fieldName) ) return result;
             }
             
         return null;
         }
-
-
 
     /**
      * See Reflection API

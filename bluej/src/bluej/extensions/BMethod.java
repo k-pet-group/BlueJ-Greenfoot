@@ -19,7 +19,6 @@ public class BMethod
     private final Package    bluej_pkg;
     private final MethodView bluej_view;
     private       DirectInvoker invoker;
-    private       String instanceName;     // The name you may want on the banch for the new instance.
     
     /**
      * A new method. you can get it from the BClass
@@ -28,16 +27,6 @@ public class BMethod
     {
         bluej_pkg  = i_bluej_pkg;
         bluej_view = i_bluej_view;
-    }
-
-
-    /**
-     * If you want to name the object that appears in the object bench with something
-     * you like, you can do it using this method BEFORE you call the newInstance.
-     */
-    public String setInstanceName ( String i_instanceName )
-    {
-        return instanceName = i_instanceName;
     }
 
     /**
@@ -74,40 +63,45 @@ public class BMethod
       }
 
     /**
-     * Gets the name of this method
-     * @return the name of the method
+     * @return the parameters of this method. See Reflection API
+     */
+    public Class[] getParameterTypes()
+      {
+      return bluej_view.getParameters();
+      }
+      
+    /**
+     * @return name of the method. See Reflection API
      */
     public String getName()
-      {
-      return bluej_view.getName();
-      }
-    
-    /**
-     * Gets the signature of this method
-     * @return the signature of this method
-     */
-    public Class[] getSignature()
     {
-        return bluej_view.getParameters();
+      return bluej_view.getName();
     }
-
+    
     /**
      * Gets the return type of this method
      * @return a string describing the return type, eg <code>int</code>, <code>Object</code>
      */
     public Class getReturnType()
     {
-        View aView = bluej_view.getDeclaringView();
+        View aView = bluej_view.getReturnType();
         return aView.getViewClass();
     }
     
     /**
-     * Invokes the method and places the result on the object bench, with
-     * the given name. It is performed synchronously, so this method
-     * blocks until the invocation is complete.
-     * <P>The returning value is returned as a BField. If this is a constructor,
-     * the new object can be extracted from BField and placed on the object
-     * bench, or have further methods called on it.
+     * @return The modifiers of this method. See Reflection API
+     */
+    public int getModifiers()
+    {
+        return bluej_view.getModifiers();
+    }
+
+    /**
+     * invoke a method on the given Object.<P>
+     * The real problem is how to manipulate the result that come out. The BLueJ behaviour is:<P>
+     * - If the result is a primitive then you can vet the value but NOT put it into the bench<P>
+     * - If the result is an OBject you can put it into the bench <P>
+     * 
      * @param args an array containing the arguments which are parsed in the same way that BlueJ
      * parses input from the user. These should be exactly
      * as they would appear in Java code, for example <BL>
@@ -117,12 +111,12 @@ public class BMethod
      * <LI><CODE>person1</CODE>
      * </BL>They can refer to other objects on the object bench too. If there are no parameters,
      * this should be set to <CODE>null</CODE>.
-     * @return the resulting BField
+     * @return the resulting OBJect
      */
-    public BObject invoke (BObject onThisObject, String[] params)
-    {
-        invoker = new DirectInvoker (bluej_pkg, bluej_view, instanceName);
-        DebuggerObject result = invoker.invokeMethod (onThisObject.getInstanceName(), params);
+    public BObject invoke (BObject onThis, String[] params)
+        {
+        invoker = new DirectInvoker (bluej_pkg, bluej_view );
+        DebuggerObject result = invoker.invokeMethod (onThis.getInstanceName(), params);
 
         // Result can be null if the method returns void. It is Reflection standard
         if (result == null) return null;
@@ -131,14 +125,12 @@ public class BMethod
         PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluej_pkg);
         ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
 
-        // WARNING: Do I need to add it to the Debugger ?? like this
-        Debugger.debugger.addObjectToScope(pmf.getPackage().getId(), wrapper.getName(), result);
         return new BObject(wrapper);
-    }
+        }
     
     /**
-     * Gets the last error that occurred. This should be called after receiving a <code>null</code> back from an
-     * invoke
+     * Gets the last error that occurred<P>
+     * This should be called after receiving a <code>null</code> back from an invoke
      * @return any error as a String
      */
     public String getLastError()
@@ -148,24 +140,11 @@ public class BMethod
     }
     
     /**
-     * Determines the modifiers for this method.
-     * Use <code>java.lang.reflect.Modifiers</code> to
-     * decode the meaning of this integer
-     * @return The modifiers of this method, encoded in
-     * a standard Java language integer.
-     */
-    public int getModifiers()
-    {
-        return bluej_view.getModifiers();
-    }
-
-    /**
-     * Gets a description of this method
      * @return the return type, name and signature of the method
      */
     public String toString()
     {
-        Class[] signature = getSignature();
+        Class[] signature = getParameterTypes();
         String sig = "";
         for (int i=0; i<signature.length; i++) {
             sig += signature[i].getName() + (i==signature.length-1?"":", ");

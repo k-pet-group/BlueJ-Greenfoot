@@ -13,24 +13,21 @@ import bluej.testmgr.*;
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
  *
  * @author Clive Miller, Damiano Bolla
- * @version $Id: DirectInvoker.java 1655 2003-03-06 09:39:14Z damiano $
+ * @version $Id: DirectInvoker.java 1661 2003-03-06 15:36:08Z damiano $
  */
 class DirectInvoker
 {
     private final Package pkg;
     private final CallableView callable;
-    private final String instanceName;
     private String error, resultName;
 
     /**
      * For use by the beluj.extensions
-     * The instanceName IS used when an object is created.
      */
-    DirectInvoker (Package pkg, CallableView callable, String instanceName)
+    DirectInvoker (Package pkg, CallableView callable )
     {
         this.pkg = pkg;
         this.callable = callable;
-        this.instanceName = instanceName;
     }
     
     /**
@@ -43,7 +40,9 @@ class DirectInvoker
         
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker = new Invoker (pmf, callable, null, watcher);
-        invoker.invokeDirect (instanceName, args);
+        // Setting the instanceName here works but it is simpler to do it when we
+        // put it into the bench
+        invoker.invokeDirect (null, args);
 
         // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
@@ -71,7 +70,8 @@ class DirectInvoker
         
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker = new Invoker (pmf, callable, onThisObjectInstance, watcher);
-        invoker.invokeDirect (instanceName, args);
+        // Setting the instanceName here does NOT work at all.
+        invoker.invokeDirect (null, args);
 
         // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
