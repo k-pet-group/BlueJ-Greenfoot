@@ -453,6 +453,7 @@ pkgmgr.appletInViewer=Executing Applet in appletviewer
 pkgmgr.appletInBrowser=Executing Applet in web browser
 pkgmgr.exported=Export complete.
 pkgmgr.exported.jar=Export to jar file complete.
+pkgmgr.error.open=The project does not exist (anymore)
 
 properties.heading.bluej=BlueJ properties. Settings in this file override \"bluej.defs\"
 properties.heading.moe=Moe Editor properties. Settings in this file override \"moe.defs\"
@@ -460,8 +461,9 @@ properties.heading.moe=Moe Editor properties. Settings in this file override \"m
 # menus and menu items
 
 menu.package=Project
-menu.package.new=New Project
+menu.package.new=New Project...
 menu.package.open=Open Project...
+menu.package.openRecent=Open Recent
 menu.package.openNonBlueJ=Open Non BlueJ...
 menu.package.close=Close
 menu.package.save=Save
@@ -473,13 +475,13 @@ menu.package.print=Print...
 menu.package.quit=Quit
 
 menu.edit=Edit
-menu.edit.newClass=New Class
-menu.edit.newPackage=New Package
-menu.edit.addClass=Add Class from File
+menu.edit.newClass=New Class...
+menu.edit.newPackage=New Package...
+menu.edit.addClass=Add Class from File...
 menu.edit.remove=Remove
-menu.edit.newUses=New Uses Arrow
-menu.edit.newInherits=New Inheritance Arrow
-menu.edit.removeArrow=Remove Arrow
+menu.edit.newUses=New Uses Arrow...
+menu.edit.newInherits=New Inheritance Arrow...
+menu.edit.removeArrow=Remove Arrow...
 
 menu.tools=Tools
 menu.tools.compile=Compile
@@ -487,8 +489,7 @@ menu.tools.compileSelected=Compile Selected
 menu.tools.callLibrary=Use Library Class...
 menu.tools.rebuild=Rebuild Package
 menu.tools.generateDoc=Project Documentation
-menu.tools.browse=Browse Libraries...
-menu.tools.preferences=Preferences
+menu.tools.preferences=Preferences...
 
 menu.view=View
 menu.view.showUses=Show Uses
@@ -510,7 +511,7 @@ menu.group.configuration=Configuration
 
 menu.help=Help
 menu.help.about=About BlueJ
-menu.help.versionCheck=Check Version
+menu.help.versionCheck=Check Version...
 menu.help.copyright=Copyright
 menu.help.website=BlueJ Web Site
 menu.help.tutorial=BlueJ Tutorial

@@ -28,12 +28,13 @@
 #####################################################################
 
 bluej.language=english
+#bluej.language=afrikaans
 #bluej.language=chinese
-#bluej.language=german
-#bluej.language=swedish
-#bluej.language=spanish
-#bluej.language=japanese
 #bluej.language=czech
+#bluej.language=german
+#bluej.language=japanese
+#bluej.language=spanish
+#bluej.language=swedish
 
 #####################################################################
 ## URLs for the BlueJ manuals and documentation. If you have the
@@ -44,7 +45,7 @@ bluej.language=english
 bluej.url.bluej=http://www.bluej.org
 bluej.url.tutorial=http://www.bluej.org/tutorial/tutorial.pdf
 bluej.url.reference=http://www.bluej.org/reference/manual.pdf
-bluej.url.javaStdLib=http://java.sun.com/j2se/1.3/docs/api/index.html
+bluej.url.javaStdLib=http://java.sun.com/j2se/1.4/docs/api/index.html
 
 # do not change the following:
 bluej.url.versionCheck=http://www.bluej.org/version.info
@@ -275,13 +276,6 @@ bluej.editor.displayLineNumbers=false
 bluej.editor.makeBackup=false
 bluej.editor.matchBrackets=true
 
-#######################################################################
-## Class diagram notation style. One of uml or blue.
-#######################################################################
-
-bluej.notation.style=uml
-#bluej.notation.style=blue
-
 
 #######################################################################
 ### Colours. All are specified as RGB values.
@@ -292,37 +286,24 @@ colour.graph.background=255,255,255
 colour.text.bg=255,255,255
 colour.text.fg=0,0,0
 
-# Blue look
-colour.arrow.uses=136,56,56
-colour.arrow.implements=35,115,15
-colour.arrow.extends=40,40,80
+colour.arrow.uses=0,0,0
+colour.arrow.implements=0,0,0
+colour.arrow.extends=0,0,0
 
 colour.target.border=0,0,0
-colour.target.shadow=192,192,192
 colour.target.bg.compiling=200,150,100
-colour.class.bg.default=119,136,153
-colour.class.bg.abstract=188,196,204
-colour.class.bg.imported=176,48,96
-colour.class.bg.interface=94,147,107
+colour.target.shadow=192,192,192
+colour.target.stripes=152,152,152
+
+colour.class.bg.default=255,221,153
+colour.class.bg.abstract=255,221,153
+colour.class.bg.interface=255,221,153
 colour.package.bg.default=180,130,44
-
-# UML look
-colour.uml.arrow.uses=0,0,0
-colour.uml.arrow.implements=0,0,0
-colour.uml.arrow.extends=0,0,0
-
-colour.class.bg.uml.default=255,221,153
-colour.package.bg.uml.default=180,130,44
-colour.target.bg.uml.compiling=255,153,102
-colour.target.uml.shadow=153,153,153
 
 
 # object bench
 colour.wrapper.bg=205,38,38
 colour.wrapper.shadow=152,152,152
-
-colour.uml.wrapper.bg=205,38,38
-colour.uml.wrapper.shadow=152,152,152
 
 colour.menu.environOp=152,32,32
 
