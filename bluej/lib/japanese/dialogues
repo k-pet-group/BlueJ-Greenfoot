@@ -2,259 +2,269 @@
 #########
 
 compile-while-executing
-ƒ}ƒVƒ“‚ªÀ?s’†‚ÌŠÔ?A
-‚ ‚È‚½‚ÍƒRƒ“ƒpƒCƒ‹‚Å‚«‚Ü‚¹‚ñ?B
-‚±‚ê‚ÍˆÓŠO‚È–â‘è‚ğ‹N‚±‚·‚©‚à‚µ‚ê‚Ü‚¹‚ñ?I
+ƒ}ƒVƒ“‚ªÀs’†‚ÌŠÔ,
+‚ ‚È‚½‚ÍƒRƒ“ƒpƒCƒ‹‚Å‚«‚Ü‚¹‚ñ.
+‚±‚ê‚ÍˆÓŠO‚È–â‘è‚ğ‹N‚±‚·‚©‚à‚µ‚ê‚Ü‚¹‚ñI
 
 exception-thrown
-—áŠO‚ª“Š‚°‚ç‚ê‚Ü‚µ‚½?F
+—áŠO‚ª“Š‚°‚ç‚ê‚Ü‚µ‚½:
 
 break-no-source
-ƒuƒŒ?[ƒNƒ|ƒCƒ“ƒg‚Í?Aƒ\?[ƒX‚ªŒ©‚Â‚¯‚ç‚ê‚È‚¢
-ƒtƒ@ƒCƒ‹‚É‚¨‚¢‚Äƒqƒbƒg‚µ‚Ü‚µ‚½?Bƒtƒ@ƒCƒ‹–¼?F
+ƒuƒŒ[ƒNƒ|ƒCƒ“ƒg‚Í,ƒ\[ƒX‚ªŒ©‚Â‚¯‚ç‚ê‚È‚¢
+ƒtƒ@ƒCƒ‹‚É‚¨‚¢‚Äƒqƒbƒg‚µ‚Ü‚µ‚½.ƒtƒ@ƒCƒ‹–¼:
 
 error-in-file
-ƒ\?[ƒX‚ªŒ©‚Â‚¯‚ç‚ê‚È‚¢ƒtƒ@ƒCƒ‹‚É
-ƒGƒ‰?[‚ª‘¶?İ‚µ‚Ü‚µ‚½?B
-ƒNƒ‰ƒX?F ƒ\?[ƒX?s”Ô?†?F
+ƒ\[ƒX‚ªŒ©‚Â‚¯‚ç‚ê‚È‚¢ƒtƒ@ƒCƒ‹‚É
+ƒGƒ‰[‚ª‘¶İ‚µ‚Ü‚µ‚½.
+ƒNƒ‰ƒX: ƒ\[ƒXs”Ô†:
 
 system-exit
-ƒ?ƒ\ƒbƒh‚Í–¾¦“I‚È "exit" ‚Ìw¦‚É‚æ‚Á‚Ä
-?I‚í‚è‚Ü‚µ‚½?BŒ‹‰Ê‚Í‘S‘R–ß‚³‚ê‚Ü‚¹‚ñ‚Å‚µ‚½?B
-?I—¹ƒR?[ƒh?F
+ƒƒ\ƒbƒh‚Í–¾¦“I‚È "exit" ‚Ìw¦‚É‚æ‚Á‚Ä
+I‚í‚è‚Ü‚µ‚½.Œ‹‰Ê‚Í‘S‘R–ß‚³‚ê‚Ü‚¹‚ñ‚Å‚µ‚½.
+I—¹ƒR[ƒh:
 
 no-help
-‚±‚Ìƒ?ƒbƒZ?[ƒW‚ÉŠÖ‚·‚é—˜—p‰Â”\‚Èƒwƒ‹ƒv‚Í‚ ‚è‚Ü‚¹‚ñ?B
-‚Ç‚¤‚¼?AƒGƒ‰?[ƒ?ƒbƒZ?[ƒW‚ÌƒeƒLƒXƒg‚ğ
-mik@monash.edu.au ‚Éƒ??[ƒ‹‚µ‚Ä‚­‚¾‚³‚¢
-‚»‚¤‚·‚ê‚Î„’B‚Íƒwƒ‹ƒvƒeƒLƒXƒg‚ğ
-„’B‚Ìƒwƒ‹ƒvƒf?[ƒ^ƒx?[ƒX‚É•t‰Á‚µ‚Ü‚·?B
-‚ ‚è‚ª‚Æ‚¤?B
+‚±‚ÌƒƒbƒZ[ƒW‚ÉŠÖ‚·‚é—˜—p‰Â”\‚Èƒwƒ‹ƒv‚Í‚ ‚è‚Ü‚¹‚ñ.
+‚Ç‚¤‚¼,ƒGƒ‰[ƒƒbƒZ[ƒW‚ÌƒeƒLƒXƒg‚ğ
+mik@mip.sdu.dk ‚Éƒ[ƒ‹‚µ‚Ä‚­‚¾‚³‚¢
+‚»‚¤‚·‚ê‚Î„’B‚Íƒwƒ‹ƒvƒeƒLƒXƒg‚ğ„’B‚Ì
+ƒwƒ‹ƒvƒf[ƒ^ƒx[ƒX‚É•t‰Á‚µ‚Ü‚·.‚ ‚è‚ª‚Æ‚¤.
+
+editor-crashed
+‘O‰ñ‚±‚ÌƒNƒ‰ƒX‚ğƒfƒBƒXƒN‚É‘‚«‚ñ‚¾Û,BlueJ‚ª‰ó‚µ‚½‚Æv‚í‚ê‚Ü‚·.
+ƒ\[ƒXƒR[ƒh‚ÍŒ©‚Â‚©‚ç‚È‚¢‚©,•sŠ®‘S‚©‚à‚µ‚ê‚Ü‚¹‚ñ.
+‚à‚µ‚±‚ÌƒNƒ‰ƒX‚ª‘¹‚È‚í‚ê‚Ä‚¢‚é‚È‚ç,
+ƒvƒƒWƒFƒNƒgƒtƒHƒ‹ƒ_‚ÉƒoƒbƒNƒAƒbƒv‚ª‚ ‚é‚Í‚¸‚Å‚·.
+   1 - BlueJ‚ğI—¹‚µ‚Ü‚·
+   2 - ‚ ‚È‚½‚ÌƒvƒƒWƒFƒNƒgƒtƒHƒ‹ƒ_‚ğ (–œ‚ªˆê‚É”õ‚¦‚Ä) ‘Ş”ğ
+   3 - ‚±‚ÌJavaƒtƒ@ƒCƒ‹‚ÌƒoƒbƒNƒAƒbƒv‚Ì‚½‚ß‚ÌƒvƒƒWƒFƒNƒg
+       ƒtƒHƒ‹ƒ_‚ğŒ©‚Ä‚­‚¾‚³‚¢.Œ³‚Ìƒtƒ@ƒCƒ‹‚ÉV‚µ‚­–¼‘O‚ğ
+       ‚Â‚¯‚Ä‚­‚¾‚³‚¢ (Šg’£q '.java') 
 
 cannot-run-compiler
-ƒRƒ“ƒpƒCƒ‰‚ğÀ?s‚Å‚«‚Ü‚¹‚ñ?B
-ƒvƒ?ƒOƒ‰ƒ€‚Í‚ ‚È‚½‚ÌƒpƒX‚É‚ ‚è‚Ü‚·‚©?H
-ƒRƒ“ƒpƒCƒ‰‚Ì–¼‘O?F
+ƒRƒ“ƒpƒCƒ‰‚ğÀs‚Å‚«‚Ü‚¹‚ñ.
+ƒvƒƒOƒ‰ƒ€‚Í‚ ‚È‚½‚ÌƒpƒX‚É‚ ‚è‚Ü‚·‚©?
+ƒRƒ“ƒpƒCƒ‰‚Ì–¼‘O:
 
 compiler-error
-ƒRƒ“ƒpƒCƒ‰‚ÌƒGƒ‰?[?F
+ƒRƒ“ƒpƒCƒ‰‚ÌƒGƒ‰[:
 
 stream-incomplete
-ƒRƒ“ƒpƒCƒ‰‚ÌƒGƒ‰?[?B
-•sŠ®‘S‚ÈƒGƒ‰?[ƒXƒgƒŠ?[ƒ€?B
+ƒRƒ“ƒpƒCƒ‰‚ÌƒGƒ‰[.•sŠ®‘S‚ÈƒGƒ‰[ƒXƒgƒŠ[ƒ€.
 
 out-of-bounds
-w’è‚³‚ê‚½—v‘f‚Í?A
-”z—ñ‚Ì”ÍˆÍ“à‚É‚ ‚è‚Ü‚¹‚ñ?B
+w’è‚³‚ê‚½—v‘f‚Í,”z—ñ‚Ì”ÍˆÍ“à‚É‚ ‚è‚Ü‚¹‚ñ.
 
 cannot-access-element
-w’è‚³‚ê‚½”z—ñ‚Ì—v‘f‚É
-ƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ?B
+w’è‚³‚ê‚½”z—ñ‚Ì—v‘f‚ÉƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñ.
 
 appletviewer-error
-ƒAƒvƒŒƒbƒgƒrƒ…?[ƒA‚Å‚Ì
-ƒAƒvƒŒƒbƒg‚ÌÀ?s‚É‚¨‚¯‚éƒGƒ‰?[?B
+ƒAƒvƒŒƒbƒgƒrƒ…[ƒA‚Å‚Ì
+ƒAƒvƒŒƒbƒg‚ÌÀs‚É‚¨‚¯‚éƒGƒ‰[.
 
 error-no-name
-—LŒø‚È–¼‘O‚ğw’è‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ?B
+—LŒø‚È–¼‘O‚ğw’è‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ.
 
 error-save-file
-ƒtƒ@ƒCƒ‹‚Ì•Û‘¶‚ÉƒGƒ‰?[‚ª‹N‚±‚è‚Ü‚µ‚½?B
-ƒtƒ@ƒCƒ‹‚Í•Û‘¶‚³‚ê‚Ü‚¹‚ñ‚Å‚µ‚½?B
+ƒtƒ@ƒCƒ‹‚Ì•Û‘¶‚ÉƒGƒ‰[‚ª‹N‚±‚è‚Ü‚µ‚½.
+ƒtƒ@ƒCƒ‹‚Í•Û‘¶‚³‚ê‚Ü‚¹‚ñ‚Å‚µ‚½.
 
 cannot-save-keys
-ƒL?[ƒoƒCƒ“ƒfƒBƒ“ƒO‚Ì•Û‘¶‚É
-ƒGƒ‰?[‚ª‹N‚±‚è‚Ü‚µ‚½?BƒoƒCƒ“ƒfƒBƒ“ƒO‚Í
-•Û‘¶‚³‚ê‚Ü‚¹‚ñ‚Å‚µ‚½?B
+ƒL[ƒoƒCƒ“ƒfƒBƒ“ƒO‚Ì•Û‘¶‚É
+ƒGƒ‰[‚ª‹N‚±‚è‚Ü‚µ‚½.ƒoƒCƒ“ƒfƒBƒ“ƒO‚Í
+•Û‘¶‚³‚ê‚Ü‚¹‚ñ‚Å‚µ‚½.
 
 error-no-templates
-w’è‚³‚ê‚½ƒeƒ“ƒvƒŒ?[ƒgƒfƒBƒŒƒNƒgƒŠ (BlueJ‚ªƒNƒ‰ƒX‚Ì
-ƒeƒ“ƒvƒŒ?[ƒg‚ğŒ©‚Â‚¯‚éƒfƒBƒŒƒNƒgƒŠ) ‚ª‘¶?İ‚µ‚Ü‚¹‚ñ?B
+w’è‚³‚ê‚½ƒeƒ“ƒvƒŒ[ƒgƒfƒBƒŒƒNƒgƒŠ (BlueJ‚ªƒNƒ‰ƒX‚Ì
+ƒeƒ“ƒvƒŒ[ƒg‚ğŒ©‚Â‚¯‚éƒfƒBƒŒƒNƒgƒŠ) ‚ª‘¶İ‚µ‚Ü‚¹‚ñ.
 ‚»‚ê‚Í <bluej-home>/lib/bluej/defs ‚Ì
-?ubluej.templatePath?vƒvƒ?ƒpƒeƒB‚Å’è‹`‚³‚ê‚Ü‚·?B
-‚±‚Ìƒvƒ?ƒpƒeƒB‚ğƒ`ƒFƒbƒN‚µ?A?C?³‚µ‚Ä‚­‚¾‚³‚¢?B
+ubluej.templatePathvƒvƒƒpƒeƒB‚Å’è‹`‚³‚ê‚Ü‚·.
+‚±‚ÌƒvƒƒpƒeƒB‚ğƒ`ƒFƒbƒN‚µ,C³‚µ‚Ä‚­‚¾‚³‚¢.
 
 skeleton-error
-ƒNƒ‰ƒX‚ÌƒfƒtƒHƒ‹ƒgƒXƒPƒ‹ƒgƒ“‚ğ?¶?¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½?B
-‚±‚ê‚Í?ABlueJ‚ÌƒZƒbƒgƒAƒbƒv‚Ì
-ƒRƒ“ƒtƒBƒMƒ…ƒŒ?[ƒVƒ‡ƒ“ƒGƒ‰?[‚Ü‚½‚Í
-ƒtƒ@ƒCƒ‹ƒVƒXƒeƒ€‚ÌƒAƒNƒZƒX‚Ì–â‘è‚©‚à‚µ‚ê‚Ü‚¹‚ñ?B
+ƒNƒ‰ƒX‚ÌƒfƒtƒHƒ‹ƒgƒXƒPƒ‹ƒgƒ“‚ğ¶¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.
+‚±‚ê‚Í,BlueJ‚ÌƒZƒbƒgƒAƒbƒv‚Ì
+ƒRƒ“ƒtƒBƒMƒ…ƒŒ[ƒVƒ‡ƒ“ƒGƒ‰[‚Ü‚½‚Í
+ƒtƒ@ƒCƒ‹ƒVƒXƒeƒ€‚ÌƒAƒNƒZƒX‚Ì–â‘è‚©‚à‚µ‚ê‚Ü‚¹‚ñ.
 
 error-open-source
-‚±‚ÌƒNƒ‰ƒX‚Ìƒ\?[ƒX‚ğŠJ‚¯‚Ü‚¹‚ñ?B
-
-error-open-readme
-‚±‚Ìƒvƒ?ƒWƒFƒNƒg‚ÌƒeƒLƒXƒg’?ß‚ğ
-ŠJ‚­‚Ì‚É–â‘è‚ª‚ ‚è‚Ü‚·?B
-?V‚µ‚¢ƒeƒLƒXƒg’?ß‚Í‹ó‚Å?ì?¬‚³‚ê‚Ü‚µ‚½?B
+‚±‚ÌƒNƒ‰ƒX‚Ìƒ\[ƒX‚ğŠJ‚¯‚Ü‚¹‚ñ.
 
 error-writing-readme
-‚±‚Ìƒvƒ?ƒWƒFƒNƒg‚Ì‚½‚ß‚ÌREADMEƒtƒ@ƒCƒ‹‚Í?A
-å—v‚ÈƒNƒ‰ƒX?î•ñ‚ğ•t‰Á‚·‚é‚½‚ß‚Ì?X?V‚ª‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½?B
-‚±‚Ìƒtƒ@ƒCƒ‹‚Ì•Ï?X‚É‚¨‚¢‚ÄƒGƒ‰?[‚ª‚ ‚è‚Ü‚µ‚½?B
+‚±‚ÌƒvƒƒWƒFƒNƒg‚Ì‚½‚ß‚ÌREADMEƒtƒ@ƒCƒ‹‚Í,
+å—v‚ÈƒNƒ‰ƒXî•ñ‚ğ•t‰Á‚·‚é‚½‚ß‚ÌXV‚ª‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.
+‚±‚Ìƒtƒ@ƒCƒ‹‚Ì•ÏX‚É‚¨‚¢‚ÄƒGƒ‰[‚ª‚ ‚è‚Ü‚µ‚½.
 
 error-exporting
-ƒAƒvƒŠƒP?[ƒVƒ‡ƒ“‚ÌƒGƒNƒXƒ|?[ƒg‚É
-ƒGƒ‰?[‚ª‹N‚±‚è‚Ü‚µ‚½?B‚¢‚­‚Â‚©‚Ü‚½‚Í‚·‚×‚Ä‚Ì
-ƒtƒ@ƒCƒ‹‚Í?³‚µ‚­ƒRƒs?[‚³‚ê‚Ä‚¢‚È‚¢‚©‚à‚µ‚ê‚Ü‚¹‚ñ?B
+ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌƒGƒNƒXƒ|[ƒg‚É
+ƒGƒ‰[‚ª‹N‚±‚è‚Ü‚µ‚½.‚¢‚­‚Â‚©‚Ü‚½‚Í‚·‚×‚Ä‚Ì
+ƒtƒ@ƒCƒ‹‚Í³‚µ‚­ƒRƒs[‚³‚ê‚Ä‚¢‚È‚¢‚©‚à‚µ‚ê‚Ü‚¹‚ñ.
 
 error-writing-jar
-jar ƒtƒ@ƒCƒ‹‚Í?³‚µ‚­?‘‚©‚ê‚Ü‚¹‚ñ‚Å‚µ‚½?B
+jar ƒtƒ@ƒCƒ‹‚Í³‚µ‚­‘‚©‚ê‚Ü‚¹‚ñ‚Å‚µ‚½.
 (ƒAƒNƒZƒXŒ ‚âƒfƒBƒXƒN‚Ì‹ó‚«—e—Ê‚É‚Â‚¢‚Ä
 ƒtƒ@ƒCƒ‹ƒVƒXƒeƒ€‚ğƒ`ƒFƒbƒN‚µ‚Ä‚­‚¾‚³‚¢)
 
 error-jar-exists
-‘I‘ğ‚³‚ê‚½ jar ƒtƒ@ƒCƒ‹‚ÍŠù‚É‘¶?İ‚µ‚Ü‚·?B
-‘±?s‚µ‚Ü‚·‚©?H
-?ã?‘‚«
-æ?Á‚µ
+‘I‘ğ‚³‚ê‚½ jar ƒtƒ@ƒCƒ‹‚ÍŠù‚É‘¶İ‚µ‚Ü‚·.
+‘±s‚µ‚Ü‚·‚©?
+ã‘‚«
+æÁ‚µ
 null
 
 invalid-class-name
-•s?³‚ÈƒNƒ‰ƒX–¼‚Å‚·?B
+•s³‚ÈƒNƒ‰ƒX–¼‚Å‚·.
 
 invalid-package-name
-•s?³‚ÈƒpƒbƒP?[ƒW–¼‚Å‚·?B
+•s³‚ÈƒpƒbƒP[ƒW–¼‚Å‚·.
 
 directory-exists
-‚±‚Ì–¼‘O‚Ìƒtƒ@ƒCƒ‹‚Ü‚½‚ÍƒfƒBƒŒƒNƒgƒŠ‚Í?A
-‚·‚Å‚É‘¶?İ‚µ‚Ä‚¢‚Ü‚·?B
+‚±‚Ì–¼‘O‚Ìƒtƒ@ƒCƒ‹‚Ü‚½‚ÍƒfƒBƒŒƒNƒgƒŠ‚Í,
+‚·‚Å‚É‘¶İ‚µ‚Ä‚¢‚Ü‚·.
 
 cannot-copy-package
-ƒpƒbƒP?[ƒWƒtƒ@ƒCƒ‹‚ÌƒRƒs?[‚É‚¨‚¢‚Ä–â‘è‚ª‚ ‚è‚Ü‚µ‚½?B
-ƒpƒbƒP?[ƒWƒtƒ@ƒCƒ‹‚ª?‘‚©‚ê‚È‚©‚Á‚½‚©?A
-‚Ü‚½‚Í•sŠ®‘S‚Å‚ ‚é‚©‚à‚µ‚ê‚Ü‚¹‚ñ?B
+ƒpƒbƒP[ƒWƒtƒ@ƒCƒ‹‚ÌƒRƒs[‚É‚¨‚¢‚Ä–â‘è‚ª‚ ‚è‚Ü‚µ‚½.
+ƒpƒbƒP[ƒWƒtƒ@ƒCƒ‹‚ª‘‚©‚ê‚È‚©‚Á‚½‚©,
+‚Ü‚½‚Í•sŠ®‘S‚Å‚ ‚é‚©‚à‚µ‚ê‚Ü‚¹‚ñ.
 
 file-does-not-exist
-w’è‚³‚ê‚½ƒtƒ@ƒCƒ‹‚Í‘¶?İ‚µ‚Ü‚¹‚ñ?B
+w’è‚³‚ê‚½ƒtƒ@ƒCƒ‹‚Í‘¶İ‚µ‚Ü‚¹‚ñ.
 
 cannot-import
-ƒtƒ@ƒCƒ‹‚ğƒCƒ“ƒ|?[ƒg‚Å‚«‚Ü‚¹‚ñ?B
-ƒtƒ@ƒCƒ‹‚ÍJavaƒ\?[ƒXƒtƒ@ƒCƒ‹‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ?B
-(".java" ‚Å?I‚í‚é–¼‘O‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ)
+ƒtƒ@ƒCƒ‹‚ğƒCƒ“ƒ|[ƒg‚Å‚«‚Ü‚¹‚ñ.
+ƒtƒ@ƒCƒ‹‚ÍJavaƒ\[ƒXƒtƒ@ƒCƒ‹‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ.
+(".java" ‚ÅI‚í‚é–¼‘O‚Å‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ)
 
 docdir-blocked-by-file
-•¶?‘‰»‚Ì‚½‚ß‚ÌƒfƒBƒŒƒNƒgƒŠ‚Í?A
-“¯–¼ƒtƒ@ƒCƒ‹‚ª‚ ‚é‚½‚ß?Aƒvƒ?ƒWƒFƒNƒg
-ƒfƒBƒŒƒNƒgƒŠ‚É‚¨‚¢‚Ä?ì?¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½?B
+•¶‘‰»‚Ì‚½‚ß‚ÌƒfƒBƒŒƒNƒgƒŠ‚Í,
+“¯–¼ƒtƒ@ƒCƒ‹‚ª‚ ‚é‚½‚ß,ƒvƒƒWƒFƒNƒg
+ƒfƒBƒŒƒNƒgƒŠ‚É‚¨‚¢‚Äì¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.
 
 docdir-not-created
-•¶?‘‰»‚Ì‚½‚ß‚ÌƒfƒBƒŒƒNƒgƒŠ‚Í
-ƒvƒ?ƒWƒFƒNƒgƒfƒBƒŒƒNƒgƒŠ‚É‚¨‚¢‚Ä
-?ì?¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½?B
+•¶‘‰»‚Ì‚½‚ß‚ÌƒfƒBƒŒƒNƒgƒŠ‚Í
+ƒvƒƒWƒFƒNƒgƒfƒBƒŒƒNƒgƒŠ‚É‚¨‚¢‚Ä
+ì¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.
 
 no-permission-for-docdir
-•¶?‘‰»‚Ì‚½‚ß‚ÌƒfƒBƒŒƒNƒgƒŠ‚Í
-•s?\•ª‚ÈŒ ŒÀ‚Ì‚½‚ß‚É?Aƒvƒ?ƒWƒFƒNƒg
-ƒfƒBƒŒƒNƒgƒŠ‚É‚¨‚¢‚Ä?ì?¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½?B
+•¶‘‰»‚Ì‚½‚ß‚ÌƒfƒBƒŒƒNƒgƒŠ‚Í
+•s\•ª‚ÈŒ ŒÀ‚Ì‚½‚ß‚É,ƒvƒƒWƒFƒNƒg
+ƒfƒBƒŒƒNƒgƒŠ‚É‚¨‚¢‚Äì¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½.
 
 show-or-generate
-‘O‚à‚Á‚Ä?¶?¬‚³‚ê‚Ä‚¢‚é•¶?‘‚ğ•\¦‚µ‚Ü‚·‚©?H
-‚»‚ê‚Æ‚à•¶?‘‘S‘Ì‚ğ?¶?¬‚µ‚È‚¨‚µ‚Ü‚·‚©?H
+‘O‚à‚Á‚Ä¶¬‚³‚ê‚Ä‚¢‚é•¶‘‚ğ•\¦‚µ‚Ü‚·‚©,
+‚»‚ê‚Æ‚à•¶‘‘S‘Ì‚ğ¶¬‚µ‚È‚¨‚µ‚Ü‚·‚©?
 •\¦‚Ì‚İ
-?Ä?¶?¬‚·‚é
-æ?Á‚µ
+Ä¶¬‚·‚é
+æÁ‚µ
 
 doctool-error
-Javadoc ‚ªƒGƒ‰?[‚ğ•ñ??‚µ‚Ü‚µ‚½?B•¶?‘‚ğ?¶?¬‚·‚é‚½‚ß‚É
-‚ ‚È‚½‚ª‚µ‚½ƒtƒ@ƒCƒ‹‚Ì‚Ğ‚Æ‚Â‚É•¶–@ƒGƒ‰?[‚ª
-‚ ‚é‚Ì‚©‚à‚µ‚ê‚Ü‚¹‚ñ?B—D?æ‚µ‚Äw’è‚³‚ê‚½JDK•¶?‘URL‚ª
-•s?³Šm‚Å‚ ‚é‚Ì‚©‚à‚µ‚ê‚Ü‚¹‚ñ?B‚·‚×‚Ä‚ÌJavaƒtƒ@ƒCƒ‹‚ª
-ƒRƒ“ƒpƒCƒ‹‚³‚ê‚Ä‚¨‚è?A•¶?‘‰»URL‚ªƒAƒNƒZƒX‰Â”\‚©?A
-‚ ‚é‚¢‚Í•s‰Â”\‚©‚ğŠm‚©‚ß‚Ä‚­‚¾‚³‚¢?B‚»‚µ‚Ä?Ä‚Ñ
-À?s‚µ‚Ä‚­‚¾‚³‚¢?B‚à‚µ?Ä‚Ñ‚±‚Ìƒ?ƒbƒZ?[ƒW‚ª•\¦‚³‚ê‚é‚È‚ç?A
-Javadoc‚©‚ç‚ÌƒGƒ‰?[ƒ?ƒbƒZ?[ƒW‚Æ
-ƒ?ƒOƒtƒ@ƒCƒ‹‚ğƒ`ƒFƒbƒN‚µ‚Ä‚­‚¾‚³‚¢?F
+Javadoc ‚ªƒGƒ‰[‚ğ•ñ‚µ‚Ü‚µ‚½.•¶‘‚ğ¶¬‚·‚é‚½‚ß‚É
+‚ ‚È‚½‚ª‚µ‚½ƒtƒ@ƒCƒ‹‚Ì‚Ğ‚Æ‚Â‚É•¶–@ƒGƒ‰[‚ª
+‚ ‚é‚Ì‚©‚à‚µ‚ê‚Ü‚¹‚ñ.—Dæ‚µ‚Äw’è‚³‚ê‚½JDK•¶‘URL‚ª
+•s³Šm‚Å‚ ‚é‚Ì‚©‚à‚µ‚ê‚Ü‚¹‚ñ.‚·‚×‚Ä‚ÌJavaƒtƒ@ƒCƒ‹‚ª
+ƒRƒ“ƒpƒCƒ‹‚³‚ê‚Ä‚¨‚è,•¶‘‰»URL‚ªƒAƒNƒZƒX‰Â”\‚©,
+‚ ‚é‚¢‚Í•s‰Â”\‚©‚ğŠm‚©‚ß‚Ä‚­‚¾‚³‚¢.‚»‚µ‚ÄÄ‚Ñ
+Às‚µ‚Ä‚­‚¾‚³‚¢.‚à‚µÄ‚Ñ‚±‚ÌƒƒbƒZ[ƒW‚ª•\¦‚³‚ê‚é‚È‚ç,
+Javadoc‚©‚ç‚ÌƒGƒ‰[ƒƒbƒZ[ƒW‚Æ
+ƒƒOƒtƒ@ƒCƒ‹‚ğƒ`ƒFƒbƒN‚µ‚Ä‚­‚¾‚³‚¢:
 
 severe-doc-trouble
-ŠO•”‚Ì•¶?‘‰»ƒc?[ƒ‹‚ğŒÄ‚Ñ?o‚µ’†‚É
-—áŠO‚ª‹N‚±‚è‚Ü‚µ‚½?B
+ŠO•”‚Ì•¶‘‰»ƒc[ƒ‹‚ğŒÄ‚Ño‚µ’†‚É
+—áŠO‚ª‹N‚±‚è‚Ü‚µ‚½.
 
 no-java-sources-found
 ‚±‚ÌƒfƒBƒŒƒNƒgƒŠ“à‚É
-Javaƒ\?[ƒXƒtƒ@ƒCƒ‹‚ğŒ©‚Â‚¯‚ç‚ê‚Ü‚¹‚ñ‚Å‚µ‚½?B
+Javaƒ\[ƒXƒtƒ@ƒCƒ‹‚ğŒ©‚Â‚¯‚ç‚ê‚Ü‚¹‚ñ‚Å‚µ‚½.
 
 duplicate-name
-“¯–¼‚ÌƒNƒ‰ƒX‚ª?AŠù‚É‚±‚ÌƒpƒbƒP?[ƒW‚É‘¶?İ‚µ‚Ü‚·?B
-“¯‚¶–¼‘O‚Å‚Ó‚½‚Â‚ÌƒNƒ‰ƒX‚ğ?‚Â‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñ?B
+“¯–¼‚ÌƒNƒ‰ƒX‚ª,Šù‚É‚±‚ÌƒpƒbƒP[ƒW‚É‘¶İ‚µ‚Ü‚·.
+“¯‚¶–¼‘O‚Å‚Ó‚½‚Â‚ÌƒNƒ‰ƒX‚ğ‚Â‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñ.
 
 error-in-import
-ƒtƒ@ƒCƒ‹‚ÌƒCƒ“ƒ|?[ƒg’†‚ÉƒGƒ‰?[‚ª”­?¶‚µ‚Ü‚µ‚½?B
+ƒtƒ@ƒCƒ‹‚ÌƒCƒ“ƒ|[ƒg’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½.
 ƒAƒNƒZƒXŒ ‚ÆƒfƒBƒXƒN‚Ì‹ó‚«—e—Ê‚ğ
-ƒ`ƒFƒbƒN‚µ‚Ä‚­‚¾‚³‚¢?B
+ƒ`ƒFƒbƒN‚µ‚Ä‚­‚¾‚³‚¢.
+
+no-class-selected-compile
+ƒRƒ“ƒpƒCƒ‹‚·‚é‚æ‚¤‘I‘ğ‚³‚ê‚½ƒNƒ‰ƒX‚Í‚ ‚è‚Ü‚¹‚ñ.
+ƒRƒ“ƒpƒCƒ‹‚µ‚æ‚¤‚Æ‚·‚é‘O‚É,
+ƒNƒŠƒbƒN‚µ‚ÄƒNƒ‰ƒX‚ğ‘I‚ñ‚Å‚­‚¾‚³‚¢.
 
 no-class-selected
-?í?œ‚·‚é‚æ‚¤‘I‘ğ‚³‚ê‚½ƒNƒ‰ƒX‚Ü‚½‚ÍƒpƒbƒP?[ƒW‚ª
-‚ ‚è‚Ü‚¹‚ñ?B?í?œ‚·‚é‘O‚É?AƒNƒ‰ƒX‚Ü‚½‚Í
-ƒpƒbƒP?[ƒW‚ğƒNƒŠƒbƒN‚µ‚Ä‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢?B
+íœ‚·‚é‚æ‚¤‘I‘ğ‚³‚ê‚½ƒNƒ‰ƒX‚Ü‚½‚ÍƒpƒbƒP[ƒW‚ª
+‚ ‚è‚Ü‚¹‚ñ.íœ‚·‚é‘O‚É,ƒNƒ‰ƒX‚Ü‚½‚Í
+ƒpƒbƒP[ƒW‚ğƒNƒŠƒbƒN‚µ‚Ä‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢.
 
 really-remove-class
-ƒNƒ‰ƒX‚ğ?í?œ‚·‚é‚Æ?A
-‚»‚Ìƒ\?[ƒXƒtƒ@ƒCƒ‹‚à?í?œ‚³‚ê‚Ü‚·?B
-?ˆ—?‚ğ‘±?s‚µ‚Ü‚·‚©?H
-?í?œ
-æ‚è?Á‚µ
+ƒNƒ‰ƒX‚ğíœ‚·‚é‚Æ,
+‚»‚Ìƒ\[ƒXƒtƒ@ƒCƒ‹‚àíœ‚³‚ê‚Ü‚·.
+ˆ—‚ğ‘±s‚µ‚Ü‚·‚©?
+íœ
+æ‚èÁ‚µ
 null
 
 really-remove-package
-ƒpƒbƒP?[ƒW‚ğ?í?œ‚·‚é‚Æ?AƒpƒbƒP?[ƒWƒfƒBƒŒƒNƒgƒŠ‚²‚Æ
-?í?œ‚³‚ê‚Ü‚· (ƒfƒBƒŒƒNƒgƒŠ‚Ì’†?g‚ğ‚·‚×‚ÄŠÜ‚İ‚Ü‚·)?B
-?ˆ—?‚ğ‘±?s‚µ‚Ü‚·‚©?H
-?í?œ
-æ‚è?Á‚µ
+ƒpƒbƒP[ƒW‚ğíœ‚·‚é‚Æ,ƒpƒbƒP[ƒWƒfƒBƒŒƒNƒgƒŠ‚²‚Æ
+íœ‚³‚ê‚Ü‚· (ƒfƒBƒŒƒNƒgƒŠ‚Ì’†g‚ğ‚·‚×‚ÄŠÜ‚İ‚Ü‚·).
+ˆ—‚ğ‘±s‚µ‚Ü‚·‚©?
+íœ
+æ‚èÁ‚µ
 null
 
 remove-package-open
-?í?œ‚·‚é‚½‚ß‚É‚ ‚È‚½‚ª‘I‚ñ‚¾ƒpƒbƒP?[ƒW‚Í?A
-BlueJ“à‚ÅŠJ‚©‚ê‚Ä‚¢‚é‚¢‚­‚Â‚©‚ÌƒTƒuƒpƒbƒP?[ƒW‚ğ
-?‚Á‚Ä‚¢‚Ü‚·?BƒpƒbƒP?[ƒW‚ğ?í?œ‚·‚é‘O‚É?A
-‚±‚ê‚ç‚ÌƒTƒuƒpƒbƒP?[ƒW‚ğ•Â‚¶‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ?B
+íœ‚·‚é‚½‚ß‚É‚ ‚È‚½‚ª‘I‚ñ‚¾ƒpƒbƒP[ƒW‚Í,
+BlueJ“à‚ÅŠJ‚©‚ê‚Ä‚¢‚é‚¢‚­‚Â‚©‚ÌƒTƒuƒpƒbƒP[ƒW‚ğ
+‚Á‚Ä‚¢‚Ü‚·.ƒpƒbƒP[ƒW‚ğíœ‚·‚é‘O‚É,
+‚±‚ê‚ç‚ÌƒTƒuƒpƒbƒP[ƒW‚ğ•Â‚¶‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ.
 
 package-does-not-exist
-ƒpƒbƒP?[ƒW‚ÌƒI?[ƒvƒ“ƒGƒ‰?[?B
-ƒpƒbƒP?[ƒW‚ª‘¶?İ‚µ‚Ü‚¹‚ñ?F
+ƒpƒbƒP[ƒW‚ÌƒI[ƒvƒ“ƒGƒ‰[.
+ƒpƒbƒP[ƒW‚ª‘¶İ‚µ‚Ü‚¹‚ñ:
 
 no-bluej-package
-ƒpƒbƒP?[ƒW‚ÌƒI?[ƒvƒ“ƒGƒ‰?[?B
-ƒtƒ@ƒCƒ‹?^ƒfƒBƒŒƒNƒgƒŠ‚Í
-BlueJƒpƒbƒP?[ƒW‚Å‚Í‚ ‚è‚Ü‚¹‚ñ?F
+ƒpƒbƒP[ƒW‚ÌƒI[ƒvƒ“ƒGƒ‰[.
+‚±‚Ìƒtƒ@ƒCƒ‹^ƒfƒBƒŒƒNƒgƒŠ‚Í
+BlueJƒpƒbƒP[ƒW‚Å‚Í‚ ‚è‚Ü‚¹‚ñ:
 
 applet-height-width
-ƒAƒvƒŒƒbƒg‚Ì?‚‚³‚Æ•?‚ğ
-w’è‚·‚é•K—v‚ª‚ ‚è‚Ü‚·?B
+ƒAƒvƒŒƒbƒg‚Ì‚‚³‚Æ•‚ğ
+w’è‚·‚é•K—v‚ª‚ ‚è‚Ü‚·.
 
 cannot-read-help
-ƒwƒ‹ƒvƒtƒ@ƒCƒ‹‚ğ“Ç‚İ?‚ß‚Ü‚¹‚ñ?F
+ƒwƒ‹ƒvƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚ß‚Ü‚¹‚ñ:
 
 not-yet-implemented
-‚Ü‚¾À‘•‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ - c”O‚Å‚·?B
+‚Ü‚¾À‘•‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ - ‚²‚ß‚ñ‚Ë.
 
 quit-all
-ŠJ‚¢‚Ä‚¢‚éƒvƒ?ƒWƒFƒNƒg‚ğ‚·‚×‚Ä?I—¹‚µ‚Ü‚·‚©?H
-‚·‚×‚Ä?I—¹
-æ‚è?Á‚µ
+ŠJ‚¢‚Ä‚¢‚éƒvƒƒWƒFƒNƒg‚ğ‚·‚×‚ÄI—¹‚µ‚Ü‚·‚©?
+‚·‚×‚ÄI—¹
+æ‚èÁ‚µ
 null
 
 really-reload
-?ÅŒã‚É•Ò?W‚µ‚Ä‚©‚ç‚Ì‘S•Ï?X‚ğ
-”jŠü‚µ‚Ä?Ä“Ç‚İ?‚İ‚µ‚Ü‚·?B
-‚æ‚ë‚µ‚¢‚Å‚·‚Ë?H
-?Ä“Ç‚İ?‚İ
-æ‚è?Á‚µ
+ÅŒã‚É•ÒW‚µ‚Ä‚©‚ç‚Ì‘S•ÏX‚ğ”jŠü‚µ‚ÄÄ“Ç‚İ‚İ‚µ‚Ü‚·.
+‚æ‚ë‚µ‚¢‚Å‚·‚Ë?
+Ä“Ç‚İ‚İ
+æ‚èÁ‚µ
 null
 
 really-print
-‚»‚ÌƒeƒLƒXƒg‚Í—p†‚æ‚è?L‚­‚È‚Á‚Ä‚¢‚Ü‚·?B’·‚¢?s‚Í
-?Ø‚è—£‚³‚ê‚Ü‚·?BƒGƒfƒBƒ^ƒEƒBƒ“ƒhƒE‚ÌƒTƒCƒY‚ğ
-‹·‚­‚·‚ê‚Î?A‚»‚ê‚ğ”ğ‚¯‚é‚±‚Æ‚ª‚Å‚«‚Ü‚·?B
-‚ ‚È‚½‚Í‚Æ‚É‚©‚­ˆó?ü‚µ‚½‚¢‚Å‚·‚©?H
-ˆó?ü
-æ‚è?Á‚µ
+‚»‚ÌƒeƒLƒXƒg‚Í—p†‚æ‚èL‚­‚È‚Á‚Ä‚¢‚Ü‚·.’·‚¢s‚Í
+Ø‚è—£‚³‚ê‚Ü‚·.ƒGƒfƒBƒ^ƒEƒBƒ“ƒhƒE‚ÌƒTƒCƒY‚ğ
+‹·‚­‚·‚ê‚Î,‚»‚ê‚ğ”ğ‚¯‚é‚±‚Æ‚ª‚Å‚«‚Ü‚·.
+‚ ‚È‚½‚Í‚Æ‚É‚©‚­ˆóü‚µ‚½‚¢‚Å‚·‚©?
+ˆóü
+æ‚èÁ‚µ
 null
 
 open-non-bluej-already-bluej
-‘I‘ğ‚³‚ê‚½ƒfƒBƒŒƒNƒgƒŠ‚Í?A
-Šù‚ÉBlueJƒvƒ?ƒWƒFƒNƒg‚Å‚·?B
+‘I‘ğ‚³‚ê‚½ƒfƒBƒŒƒNƒgƒŠ‚Í,
+Šù‚ÉBlueJƒvƒƒWƒFƒNƒg‚Å‚·.
+
+open-non-bluej-no-java
+‚±‚ÌƒfƒBƒŒƒNƒgƒŠ‚É,
+Javaƒ\[ƒXƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ.
 
 open-non-bluej-invalid
 You have indicated you wish to open this
@@ -270,31 +280,36 @@ which is the directory you should point BlueJ
 to when attempting to open it).
 
 import-into-current
-Œ»?İ‚±‚ÌƒEƒBƒ“ƒhƒE‚ÅŠJ‚©‚ê‚Ä‚¢‚éƒpƒbƒP?[ƒW‚ª‚ ‚è‚Ü‚·?B
-‚±‚ÌŒ»?İ‚ÌƒpƒbƒP?[ƒW‚ÉƒCƒ“ƒ|?[ƒg‚µ‚Ü‚·‚©?H
-‚»‚ê‚Æ‚à?V‚µ‚¢ƒvƒ?ƒWƒFƒNƒg‚ğ?ì?¬‚µ?A‚»‚±‚É
-ƒCƒ“ƒ|?[ƒg‚µ‚Ü‚·‚©?H
-Œ»?İ‚Ìƒvƒ?ƒWƒFƒNƒg
-?V‚µ‚¢ƒvƒ?ƒWƒFƒNƒg
-æ‚è?Á‚µ
+Œ»İ‚±‚ÌƒEƒBƒ“ƒhƒE‚ÅŠJ‚©‚ê‚Ä‚¢‚éƒpƒbƒP[ƒW‚ª‚ ‚è‚Ü‚·.
+‚±‚ÌŒ»İ‚ÌƒpƒbƒP[ƒW‚ÉƒCƒ“ƒ|[ƒg‚µ‚Ü‚·‚©.
+‚»‚ê‚Æ‚àV‚µ‚¢ƒvƒƒWƒFƒNƒg‚ğì¬‚µ,
+‚»‚±‚ÉƒCƒ“ƒ|[ƒg‚µ‚Ü‚·‚©?
+Œ»İ‚ÌƒvƒƒWƒFƒNƒg
+V‚µ‚¢ƒvƒƒWƒFƒNƒg
+æ‚èÁ‚µ
 
 package-name-invalid
-‚ ‚È‚½‚Í?AƒpƒbƒP?[ƒW‚ÌƒXƒe?[ƒgƒ?ƒ“ƒg‚ğ?A‚±‚Ì
-ƒvƒ?ƒWƒFƒNƒg‚Ì’†‚É‘¶?İ‚µ‚È‚¢ƒpƒbƒP?[ƒW‚É•Ï?X‚µ‚Ü‚µ‚½?B
-‚à‚µ‚±‚ÌƒNƒ‰ƒX‚ğ•Ê‚ÌƒpƒbƒP?[ƒW‚ÉˆÚ“®‚³‚¹‚½‚¢‚È‚ç?A
-?Å?‰‚ÉˆÚ“®?æ‚ÌƒpƒbƒP?[ƒW‚ğ?ì?¬‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ?B
-ƒpƒbƒP?[ƒWƒXƒe?[ƒgƒ?ƒ“ƒg‚Í?A
-ƒIƒŠƒWƒiƒ‹‚ÌŒ`®‚É–ß‚è‚Ü‚µ‚½?B
+‚ ‚È‚½‚Í,ƒpƒbƒP[ƒW‚ÌƒXƒe[ƒgƒƒ“ƒg‚ğ,‚±‚Ì
+ƒvƒƒWƒFƒNƒg‚Ì’†‚É‘¶İ‚µ‚È‚¢ƒpƒbƒP[ƒW‚É•ÏX‚µ‚Ü‚µ‚½.
+‚à‚µ‚±‚ÌƒNƒ‰ƒX‚ğ•Ê‚ÌƒpƒbƒP[ƒW‚ÉˆÚ“®‚³‚¹‚½‚¢‚È‚ç,
+Å‰‚ÉˆÚ“®æ‚ÌƒpƒbƒP[ƒW‚ğì¬‚µ‚È‚¯‚ê‚Î‚È‚è‚Ü‚¹‚ñ.
+ƒpƒbƒP[ƒWƒXƒe[ƒgƒƒ“ƒg‚Í,
+ƒIƒŠƒWƒiƒ‹‚ÌŒ`®‚É–ß‚è‚Ü‚µ‚½.
+
+package-name-clash
+‚ ‚È‚½‚Ípackage•¶‚ğ,Šù‚É‚±‚Ì–¼‘O‚ÌƒNƒ‰ƒX‚Ü‚½‚Í
+ƒpƒbƒP[ƒW‚ğ‚Á‚Ä‚¢‚éƒpƒbƒP[ƒW‚É•ÏX‚µ‚Ü‚µ‚½.
+‚à‚µƒNƒ‰ƒX‚ª“®‚©‚³‚ê‚½‚ç,Šù‘¶‚ÌƒNƒ‰ƒX‚Ü‚½‚Í
+ƒpƒbƒP[ƒW‚Íã‘‚«‚³‚ê‚é‚½‚ß,
+package•¶‚ÍŒ³‚ÌŒ`®‚É–ß‚è‚Ü‚µ‚½.
 
 package-name-changed
-You have changed the package statement which
-tells Java the package this class is in. Do you
-want to move this class to the indicated package
-or do you want to leave the class where it is
-(the package statement will be reverted back to
-its original form)?
-Move
-Revert
+‚ ‚È‚½‚Í,‚±‚ÌƒNƒ‰ƒX‚ª‘®‚·ƒpƒbƒP[ƒW‚ğJava‚É¦‚·
+package•¶‚ğ•ÏX‚µ‚Ü‚µ‚½.w’è‚ÌƒpƒbƒP[ƒW‚É‚±‚ÌƒNƒ‰ƒX‚ğ
+ˆÚ“®‚³‚¹‚Ü‚·‚©,‚»‚ê‚Æ‚àƒNƒ‰ƒX‚ğ‚±‚±‚Éc‚µ‚Ü‚·
+(package•¶‚ğŒ³‚ÌŒ`®‚É–ß‚µ‚Ü‚·) ‚©?
+ˆÚ“®‚·‚é
+–ß‚·
 null
 
 ask-index
@@ -303,21 +318,84 @@ ask-index
 null
 
 classmgr-changes-no-effect
-‚ ‚È‚½‚ªƒNƒ‰ƒXƒ‰ƒCƒuƒ‰ƒŠ‚É?s‚È‚Á‚½•Ï?X‚Í?A
-‚ ‚È‚½‚ªŸ‚ÉBlueJ‚ğ‹N“®‚·‚é‚Ü‚ÅŒø‰Ê‚ğ?¶‚¶‚Ü‚¹‚ñ?B
+‚ ‚È‚½‚ªƒNƒ‰ƒXƒ‰ƒCƒuƒ‰ƒŠ‚És‚È‚Á‚½•ÏX‚Í,
+‚ ‚È‚½‚ªŸ‚ÉBlueJ‚ğ‹N“®‚·‚é‚Ü‚ÅŒø‰Ê‚ğ¶‚¶‚Ü‚¹‚ñ.
 
-# editor:
-#########
+pref-optimise-no-effect
+‰¼‘zƒ}ƒVƒ“‚Ìİ’è‚Ì•ÏX‚Í,‚±‚Ì•ÏX‚ÌŒã‚Å
+(‚ ‚é‚¢‚Í‰¼‘zƒ}ƒVƒ“‚ğÄ‹N“®‚µ‚½Œã‚Å)
+ŠJ‚­ƒvƒƒWƒFƒNƒg‚ÉŒø‰Ê‚ğ‹y‚Ú‚·‚¾‚¯‚Å‚·.
+
+unittest-new-test-method
+‚±‚ÌƒeƒXƒg‚Ì–¼‘O‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢.
+‹L˜^‚Í‚»‚Ìn‚Ü‚è‚Ü‚·.
+V‚µ‚¢ƒeƒXƒgƒƒ\ƒbƒh
+null
+
+getobject-new-name
+ƒIƒuƒWƒFƒNƒgƒxƒ“ƒ`‚ÌV‚µ‚¢ƒIƒuƒWƒFƒNƒg‚Ì
+–¼‘O‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢.
+V‚µ‚¢ƒIƒuƒWƒFƒNƒg–¼
+null
+
+unittest-fixture-present
+This unit test class already has a fixture declared
+in it. If you proceed, the definition of this
+fixture will be replaced.
+Do you want to continue?
+Replace
+Cancel
+null
+
+unittest-method-present
+This unit test class already has a test method declared
+within it of the same name. If you proceed, the
+definition of the method will be replaced.
+Do you want to continue?
+Replace
+Cancel
+null
 
 no-search-string
-ŒŸ?õ•¶š—ñ‚ª’è‹`‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ?B
-(”CˆÓ‚ÌƒeƒLƒXƒg‚ğƒnƒCƒ‰ƒCƒg‚³‚¹‚é‚©?A
-‚à‚µ‚­‚Í‚Ü‚¸?uŒŸ?õ?v‚ğg—p‚µ‚Ü‚·)
+ŒŸõ•¶š—ñ‚ª’è‹`‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ.
+(”CˆÓ‚ÌƒeƒLƒXƒg‚ğƒnƒCƒ‰ƒCƒg‚³‚¹‚é‚©,
+‚à‚µ‚­‚Í‚Ü‚¸uŒŸõv‚ğg—p‚µ‚Ü‚·)
 
 default-keys
-–{“–‚É‚·‚×‚Ä‚Ì‚ ‚È‚½‚ÌƒL?[ƒoƒCƒ“ƒfƒBƒ“ƒO‚ğ
-”jŠü‚µ‚Ä?AƒfƒtƒHƒ‹ƒg‚ÌƒoƒCƒ“ƒfƒBƒ“ƒO‚É
-?İ’è‚µ‚Ü‚·‚©?H
-ƒfƒtƒHƒ‹ƒg‚É?İ’è‚·‚é
-æ‚è?Á‚µ
+–{“–‚É‚·‚×‚Ä‚Ì‚ ‚È‚½‚ÌƒL[ƒoƒCƒ“ƒfƒBƒ“ƒO‚ğ
+”jŠü‚µ‚Ä,ƒfƒtƒHƒ‹ƒg‚ÌƒoƒCƒ“ƒfƒBƒ“ƒO‚É
+İ’è‚µ‚Ü‚·‚©?
+ƒfƒtƒHƒ‹ƒg‚Éİ’è‚·‚é
+æ‚èÁ‚µ
 null
+
+error-create-vm
+BlueJ was unable to create a virtual machine (VM) to execute projects.
+This is a serious problem - you will not be able to create objects 
+or execute methods without solving it.
+Usually, this problem is caused by specific network settings on your
+machine. BlueJ uses TCP/IP and sockets to achieve the creation of the 
+VM. The most common cause for this is an overly restrictive firewall that
+does not allow connections from your local host. Switch off the firewall
+(if you have one) to test this. If this solves it, try to find a firewall 
+setting that allows connections from localhost.
+Other possible causes are incorrect network settings. Check that TCP/IP
+is set up correctly check other networking parameters.
+If problems persist, ask for help (see http://www.bluej.org/help/ask-help.html).
+
+project-is-readonly
+‚±‚ÌƒvƒƒWƒFƒNƒg‚Í“Çê—p‚Å‚·.
+You will not be able to create objects or execute methods.
+Either the access rights of the project directory are set as 
+'read only' for you, or the whole file system is not writable (is 
+it a CD?).
+To fully use this project, you must ensure that it is on a writable
+file system (usually your hard disk), and that you have write 
+permission in the project directory and each file within it.
+
+could-not-write-shell-file
+Execution failed because the project directory is not writable.
+To create opjects or execute methods, we must be able to write
+to the project directory. Make sure your project is on a writable 
+file system (not a CD!) and that you have write permission in
+the project directory and all files in it.

@@ -6,24 +6,26 @@
 
 ## edit functions
 
-delete-previous=\n Delete the character before the caret.
-delete-next=\n Delete the character after the caret.
-copy-to-clipboard=\n Copy the selected text to the clipboard. From there, it can be\n pasted somewhere else later (see paste-from-clipboard).
-cut-to-clipboard= Cut the selection from the text and move it to the clipboard.\n From there, it can be pasted somewhere else later (see\n paste-from-clipboard).
-copy-line=\n Copy the current line to the clipboard. Successive \n copy operations add to the clipbord.
-cut-line=\n Cut the current line to the clipboard. Successive \n cut operations add to the clipbord.
+delete-previous=\n \u30ad\u30e3\u30ec\u30c3\u30c8\u306e\u524d\u306e\u6587\u5b57\u3092\u524a\u9664\u3002
+delete-next=\n \u30ad\u30e3\u30ec\u30c3\u30c8\u306e\u5f8c\u308d\u306e\u6587\u5b57\u3092\u524a\u9664\u3002
+copy-to-clipboard=\n \u9078\u629e\u3055\u308c\u305f\u30c6\u30ad\u30b9\u30c8\u3092\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u306b\u30b3\u30d4\u30fc\u3057\u307e\u3059\u3002\n\u305d\u3053\u304b\u3089\u3001\u3042\u3068\u3067\u3069\u3053\u304b\u306b\u8cbc\u308a\u3064\u3051\u308b\u3053\u3068\u304c\u3067\u304d\u307e\u3059\u3002\n(paste-from-clipboard\u53c2\u7167)\u3002
+cut-to-clipboard=\n \u9078\u629e\u3055\u308c\u305f\u30c6\u30ad\u30b9\u30c8\u3092\u5207\u308a\u53d6\u3063\u3066\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u306b\u4fdd\u5b58\u3057\u307e\u3059\u3002\n\u305d\u3053\u304b\u3089\u3001\u3042\u3068\u3067\u3069\u3053\u304b\u306b\u8cbc\u308a\u3064\u3051\u308b\u3053\u3068\u304c\u3067\u304d\u307e\u3059\u3002\n(paste-from-clipboard\u53c2\u7167).
+copy-line=\n \u73fe\u5728\u884c\u3092\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u306b\u30b3\u30d4\u30fc\u3057\u307e\u3059\u3002\n Successive copy operations add to the clipbord.
+cut-line=\n \u73fe\u5728\u884c\u3092\u5207\u308a\u53d6\u3063\u3066\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u306b\u4fdd\u5b58\u3057\u307e\u3059\u3002\n Successive cut operations add to the clipbord.
 cut-end-of-line=\n Cut the end of the current line to the clipboard.\n Successive cut operations add to the clipbord.
 cut-word=\n Cut the current word to the clipboard. Successive \n cut operations add to the clipbord.
 cut-end-of-word=\n Cut the end of the current word to the clipboard.\n Successive cut operations add to the clipbord.
-paste-from-clipboard=\n Paste the text currently on the clipboard into the text at\n the current caret position.
-insert-tab=\n Insert a TAB character.
-insert-spaced-tab=\n Insert spaces to the next TAB position. (That is: perform\n a TAB operation using spaces instead of a real TAB character).
-insert-break=\n Insert a line break at the caret position.
-insert-break-and-indent=\n Insert a line break at the caret position\n and indent as the line above.
-indent=\n Adjust the indentation of the current line to be the same as that\n of the line above.
+paste-from-clipboard=\n \u73fe\u5728\u306e\u30ad\u30e3\u30ec\u30c3\u30c8\u306e\u4f4d\u7f6e\u306b\u3001\n\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u306b\u3042\u308b\u30c6\u30ad\u30b9\u30c8\u3092\u8cbc\u308a\u3064\u3051\u307e\u3059\u3002
+indent=\n If 'indent' is selected in the editor preferences, indent as the\n line above. Otherwise insert a soft (spaced) tab. 
+insert-tab=\n \u30bf\u30d6\u6587\u5b57\u3092\u633f\u5165\u3057\u307e\u3059\u3002
+new-line=\n Insert a line break. If 'indent' is selected in the editor\n preferences, also indent as the line above.
+insert-break=\n \u30ad\u30e3\u30ec\u30c3\u30c8\u306e\u4f4d\u7f6e\u306b\u30d6\u30ec\u30fc\u30af\u884c\u3092\u633f\u5165\u3057\u307e\u3059\u3002
 insert-method=\n Insert a skeleton for a Java method into the text.
-comment=\n Comment out the current selection. This can easily be removed\n later (see uncomment).
-uncomment=\n Remove comment symbols from the start of lines in the current\n selection. See comment.
+comment=\n \u9078\u629e\u884c\u3092\u30b3\u30e1\u30f3\u30c8\u30a2\u30a6\u30c8\u3057\u307e\u3059\u3002\n\u3053\u308c\u306f\u3042\u3068\u3067\u7c21\u5358\u306b\u524a\u9664\u3067\u304d\u307e\u3059\u3002(uncomment\u53c2\u7167).
+uncomment=\n \u9078\u629e\u4e2d\u306e\u5404\u884c\u306e\u982d\u306b\u3042\u308b\u3001\u30b3\u30e1\u30f3\u30c8\u7528\u306e\n\u30b7\u30f3\u30dc\u30eb\u3092\u524a\u9664\u3057\u307e\u3059\u3002comment\u53c2\u7167\u3002
+uncomment-block=\n Remove comment symbols from the start of currently selected lines.\n See also comment-block.
+indent-block=\n Add one level of indentation to each line in the current selection\n (or the current line if there is no selection).
+deindent-block=\n Remove one level of indentation from each line in the current selection\n (or the current line if there is no selection).
 
 select-word=\n Select the current word (also bound to\n left-mouse-button: double-click).
 select-line=\n Select the current line (also bound to\n left-mouse-button: triple-click).
@@ -84,27 +86,26 @@ preferences=\n Specify some preference settings for the editor.
 ## help functions
 
 describe-key=\n After invoking this function, type a key. The name of the\n function bound to this key is displayed.
-help-mouse=\n Display mouse button bindings.
-show-manual=\n Open a web browser to show the Moe User Manual.
-about-editor=\n Display a brief note about Moe.
+help-mouse=\n \u30de\u30a6\u30b9\u30dc\u30bf\u30f3\u306e\u5272\u308a\u5f53\u3066\u3092\u8868\u793a\u3057\u307e\u3059\u3002
+show-manual=\n Moe\u30e6\u30fc\u30b6\u30fc\u30de\u30cb\u30e5\u30a2\u30eb\u3092\u8868\u793a\u3059\u308b\u305f\u3081\u306b\u3001\n Web\u30d6\u30e9\u30a6\u30b6\u3092\u958b\u304d\u307e\u3059\u3002
+about-editor=\n Moe\u306b\u3064\u3044\u3066\u306e\u77ed\u3044\u6ce8\u91c8\u3092\u8868\u793a\u3057\u307e\u3059\u3002
 
 
 ## misc functions
 
-undo=\n Undo the last edit operation. (This can then be re-done with 'redo'.)
-redo=\n Redo the last operation that was undone.
+undo=\n \u6700\u5f8c\u306e\u7de8\u96c6\u64cd\u4f5c\u306e\u53d6\u308a\u6d88\u3057\u3002\n (\u3053\u308c\u306f\u300c\u3084\u308a\u76f4\u3057\u300d\u3067\u3084\u308a\u76f4\u3059\u3053\u3068\u304c\u3067\u304d\u307e\u3059)
+redo=\n \u53d6\u308a\u6d88\u3055\u308c\u305f\u6700\u5f8c\u306e\u64cd\u4f5c\u306e\u3084\u308a\u76f4\u3057\u3002
 
-find=\n Open a dialog to start a search for a string in the text. The dialog\n allows to start searches backward or forward.
-find-backward=\n Like find, but the make 'Backward' the default button.
+find=\n \u30c6\u30ad\u30b9\u30c8\u306e\u6587\u5b57\u5217\u306e\u305f\u3081\u306e\u691c\u7d22\u30c0\u30a4\u30a2\u30ed\u30b0\u3092\u958b\u304d\u307e\u3059\u3002\n\u30c0\u30a4\u30a2\u30ed\u30b0\u306f\u4e0a\u65b9\u5411\u307e\u305f\u306f\u4e0b\u65b9\u5411\u3078\u306e\u691c\u7d22\u3092\u884c\u306a\u3048\u307e\u3059\u3002
 find-next= If a selection is on, find the next occurrence of the selected text. If no\n selection is on, search again for the same string that was used in the\n last search. Stop at the end of the text. If called again after the end\n of the text was reached, wrap around and continue search from the top.
 find-next-reverse=\n Like find-next, but reverse the search direction.
-replace=\n Replace one text string with another.
+replace=\n \u6587\u5b57\u5217\u3092\u4ed6\u306e\u6587\u5b57\u5217\u306b\u7f6e\u63db\u3057\u307e\u3059\u3002
 
-compile=\n Compile the current class. The class is automatically\n saved before being compiled.
+compile=\n \u73fe\u5728\u306e\u30af\u30e9\u30b9\u3092\u30b3\u30f3\u30d1\u30a4\u30eb\u3057\u307e\u3059\u3002\n\u30b3\u30f3\u30d1\u30a4\u30eb\u306e\u524d\u306b\u3001\u30af\u30e9\u30b9\u306f\u81ea\u52d5\u7684\u306b\u4fdd\u5b58\u3055\u308c\u307e\u3059\u3002
 toggle-interface-view=\n Toggle the display between interface and source view.\n The interface view shpws the class interface in Javadoc format.
-toggle-breakpoint=\n Set or clear a breakpoint in the current line.
+toggle-breakpoint=\n \u73fe\u5728\u884c\u306b\u30d6\u30ec\u30fc\u30af\u30dd\u30a4\u30f3\u30c8\u3092\u8a2d\u5b9a\uff0f\u89e3\u9664\u3057\u307e\u3059\u3002
 
 ## help texts for adding key bindings
 
-press-key=\n  Press the key you want to add...
-cannot-redefine=\n  Printable keys cannot be redefined.
+press-key=\n \u8ffd\u52a0\u3057\u305f\u3044\u30ad\u30fc\u3092\u62bc\u3057\u3066\u304f\u3060\u3055\u3044...
+cannot-redefine=\n \u6587\u5b57\u30ad\u30fc\u306f\u518d\u5b9a\u7fa9\u3067\u304d\u307e\u305b\u3093\u3002

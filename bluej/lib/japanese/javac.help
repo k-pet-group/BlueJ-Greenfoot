@@ -1,3 +1,12 @@
+as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
+The word 'assert' is now part of the Java language
+and carries a special meaning (it is a keyword).
+You cannot use it to name you variables or methods.
+Please choose another name.
+
+qualified new of static class
+No help available.
+
 * is abstract; cannot be instantiated
 The class is declared "abstract". That means that
 it contains some methods for which it does not
@@ -54,15 +63,16 @@ calling it's constructor is bound to be trouble!
 cannot access *
 No help available
 
-* cannot be applied to *
-No help available
-
 cannot assign a value to final variable *
 The variable you are trying to assign to here has
 been declared "final". That means that you are not 
 allowed to change its value later on. If you really
 need to change the value, remove the "final" keyword
 from the variable declaration.
+
+type variables cannot be dereferenced
+You cannot use dot notation to try to access
+member fields or methods for type variables.
 
 * cannot be dereferenced
 You are using dot notation to access a field or method
@@ -90,7 +100,7 @@ calling it's constructor is bound to be trouble!
 cannot return a value from method whose result type is void
 A void result type in a method signature means that this
 method will not return any result.  The method body 
-should not have a return statement within it.
+should not have a statement within it that returns a value.
 
 cannot select a static class from a parameterized type
 No help available
@@ -259,7 +269,7 @@ You have a line break where a character literal should
 be specified. You cannot do that. If you want to specify
 the character for a line break ("newline") write it as '\n'.
 
-* is not an inner class
+illegal qualifier; {0} is not an inner class
 No help available
 
 illegal start of expression
@@ -290,8 +300,14 @@ internal error; cannot instantiate *
 No help available
 
 * but with different return type
-You may be trying to write two methods that have the same
+You may be trying to combine two methods that have the same
 signature except for return type.  This is not allowed.
+Most likely, this is happening because your class implements
+two interfaces. Each interface has a method with the same
+name and parameters, but different return type. You cannot 
+implement both these interfaces unless you change one to 
+avoid this. Either rename that method, or make the return 
+type the same.
 
 interface expected here
 An interface can only extend another interface. The name
@@ -374,7 +390,9 @@ or
     return "Marvin";
 
 name clash: *
-No help available
+You have defined two methods with the same name. This 
+is ony allowed if one overrides the other (which is
+not the case here). One of the names needs to be changed.
 
 * is reserved for internal use
 The term shown is reserved for internal use, if it is
@@ -396,17 +414,27 @@ extend other classes (not interfaces). If you want to
 implement this interface, use the "implements" keyword
 instead.
 
-* has no match in entry in *
+{0} has no match in entry in {1}; required {2}
 No help available
 
 * is not defined in a public class or interface; cannot be accessed from outside package
 No help available
 
 * cannot be accessed from outside package
-No help available
+The class you are trying to use here is not a pubic class.
+That is: it's definition does not start with
+   public class ...
+If a class is not public, it cannot be used outside
+its own package. If you really need to use the class, you
+must change its definition to make it public.
 
 not a loop label: *
-No help available
+The labels you use for loop operations such as
+   continue <label>;
+must be defined to mark a loop (that is: they
+must be set immediately before the start of the
+loop). The label you named here is not at the right
+location - it does not mark a loop.
 
 not a statement
 You have written a line of code here that is not
@@ -414,7 +442,11 @@ a complete statement. Please check again what you
 intended to do and how you should do it.
 
 not an enclosing class:*
-No help available
+You have tried to access the current object ('this') pointer
+of another class outside your own. This is only allowed
+if that other class is an enclosing class of the current one
+(in other words: in an inner class you can access the outer
+class, but no others).
 
 * cannot be applied to *
 The operator that you use here cannot be used for the
@@ -462,9 +494,14 @@ as final, static, public, private, volatile, ...
 No help available
 
 return outside method
+You can use a 'return' statement only in methods
+(not in initializer blocks or other non-method
+code segments).
+
+signature does not match {0}; incompatible interfaces
 No help available
 
-signature does not match *
+signature does not match {0}; incompatible supertype
 No help available
 
 * should be declared abstract; it does not define *
@@ -501,9 +538,10 @@ both).  The correct pattern is
    }
 
 * does not take parameters
-No help available
+The type you used is not a parameterized type.
+You cannot supply a parameter here.
 
-type variables cannot be dereferenced
+wrong number of type arguments; required *
 No help available
 
 type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
@@ -521,8 +559,10 @@ It is likely that you have written a comment and not
 closed it with the comment close characters: */
 
 unclosed string literal
-It is likely that you have declared a String literal and
-not added the closing double quotes: ".
+It is likely that you have declared a String literal 
+(starting with double quotes) and forgotten the closing 
+double quotes: ". The string must close on the same
+line it started on.
 
 undefined label: *
 The variable you are trying to use here cannot be
@@ -553,7 +593,7 @@ You cannot throw exceptions or otherwise
 terminate static initialiser blocks. You
 have to let it complete executing.
 
-unreported exception {0}; must be caught or declared to be thrown
+* must be caught or declared to be thrown
 Your code makes a call to a method that may throw 
 an exception. You have two choices: You can either 
 catch that exception or you can declare that your 
@@ -583,9 +623,6 @@ You have used an access modifier (such as "private",
 "protected", etc.). This modifier is not allowed
 at this location.
 
-wrong number of type arguments; required *
-No help available
-
 * might already have been assigned to
 A final variable can only be assigned once. (Your variable
 in question here is final.) You have two assignments to this
@@ -597,7 +634,7 @@ You are using a local variable that is not guaranteed
 to be initialised before it is used here. If in doubt,
 initialise it at its declaration.
 
-* might be assigned in loop
+variable {0} might be assigned in loop
 No help available
 
 error while writing *
@@ -612,50 +649,17 @@ needs to be located in a file named "Foo.java".
 cannot read: *
 No help available
 
-Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
-No help available
-
-Fatal Error: Unable to locate method *
-No help available
-
 * uses or overrides a deprecated API.
 You are using a method that is no longer recommended.
 It is quite likely that there is another method or class 
 that provides this functionality.  Consult the API 
 documentation for more details
 
-Some input files use or override a deprecated API.
-No help available
-
-Recompile with -deprecation for details.
-No help available
-
-* uses unchecked operations.
-No help available
-
-Some input files use unchecked operations.
-No help available
-
 * has been deprecated
 You are using a method that is no longer recommended.
 It is quite likely that there is another method or class 
 that provides this functionality.  Consult the API 
 documentation for more details
-
-unchecked assignment: *
-No help available
-
-unchecked call to {0} as a member of the raw type {1}
-No help available
-
-unchecked cast to type *
-No help available
-
-unchecked generic array creation
-No help available
-
-unchecked method invocation: *
-No help available
 
 ';' expected
 There is a semicolon missing at the end of 
@@ -693,10 +697,10 @@ No help available
 cannot access *
 No help available
 
-bad class file: *
+type parameter {0} is not within its bound *
 No help available
 
-type parameter {0} is not within its bound *
+type parameters of {0} cannot be determined
 No help available
 
 incompatible types*
@@ -713,7 +717,10 @@ possible loss of precision
 No help available
 
 unexpected type
-No help available
+There was an expression of a certain type required
+here. You provided an expression of a different
+type that is not compatible. (E.g. you wrote a
+String where an int was expected.)
 
 abstract {0} {1} cannot be accessed directly
 No help available
@@ -721,11 +728,22 @@ No help available
 *An explicit 'this' qualifier must be used to select the desired instance.
 No help available
 
-non-static {0} {1} cannot be referenced from a static context
-No help available
+*cannot be referenced from a static context
+You are trying to access an instance field or instance
+method from a static method. That is not allowed. The
+instance fields and methods belong to an object, while
+you have no active object in static methods.
+Static methods can only call other static methods in 
+their class (or they need to use an explicit object
+for the call).
 
 cannot resolve symbol*
-No help available
+You are using a symbol here (a name for a variable,
+a method, or a class) that has not been declared in
+any visible scope. Check the spelling of that name -
+did you mistype it? Or did you forget to declare it?
+Or maybe you did declare it, but it is not visible
+from here.
 
 {0}; {1} and {2} are static
 No help available
@@ -733,11 +751,29 @@ No help available
 {0}; overridden method is {1}
 No help available
 
-attempting to assign weaker access privileges; was *
-No help available
+* attempting to assign weaker access privileges; was *
+You are overiding a method here and you are changing the access
+modifier (private, protected, public). You can change the access 
+modifier only to allow wider access (e.g. from private to public)
+but you are not allowed to narrow it (e.g. from public to
+private). Of course, you can leave it as it was.
 
-overridden method does not throw *
-No help available
+* overridden method does not throw *
+You are overiding a method here and you are throwing an
+exception. Overriding methods may not throw exceptions
+that the overriden (superclass) method does not throw
+as well. The method in the subclass can throw fewer
+exceptions, but not more.
 
 * attempting to use incompatible return type
+No help available
+
+* is already defined in this compilation unit
+You have used this name twice here. Choose a different
+name for this identifier.
+
+{0} is already defined in a single-type import
+No help available
+
+* conflicts with a compiler-synthesized symbol in *
 No help available

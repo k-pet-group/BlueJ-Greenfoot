@@ -18,8 +18,8 @@ in that string. For example, you may have tried to
 access the fifth character in a string that is only
 three characters long.
 For the substring operation, remember that the second
-parameter is the length of the substring, not the
-end index.
+parameter is the end index of the substring, not the
+lentgh.
 
 ClassCastException*
 You used a "cast" - that is an instruction assigning
@@ -56,6 +56,29 @@ modifying the collection. The only modification
 allowed during an iteration is removing elements with
 the Iterator's remove method (NOT the remove in the
 collection itself).
+
+AssertionError*
+An assertion has failed. This means that the expression
+inside the assert statement
+    assert(assertion-expression)
+evaluated to false. The assertion was put there most
+likely to ensure that the assertion is true at this
+point, and it being false indicates some sort of error.
+The exact nature of this error depends on the program.
+You should investigate why this expression was false.
+
+ClassNotFoundException*
+A class that was needed to execute this application
+could not be found. It seems that it was found at the
+time the application was compiled, but now it's gone.
+Possible causes could be that your Java system is not
+configured properly (if the class in question is a 
+system class) or that your project is damaged (some
+class files somehow got lost or corrupted).
+Try rebuilding your whole project. If the problem 
+persists, chack with other projects. If this happens
+with more than one project, you may need to reinstall
+JDK.
 
 ArrayStoreException*
 No help available - sorry.
