@@ -6,6 +6,7 @@ import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.FileUtility;
+import bluej.prefmgr.PrefMgr;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -22,7 +23,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 634 2000-07-07 02:38:22Z ajp $
+ ** @version $Id: AppletClassRole.java 635 2000-07-07 05:02:13Z bquig $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -355,12 +356,14 @@ public class AppletClassRole extends ClassRole
     public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width,
                      int height)
     {
+        if(!PrefMgr.isUML()) {
         g.setColor(ct.getTextColour());
         Utility.drawCentredText(g, "www",
-                                x + Target.TEXT_BORDER,
-                                y + height - (Target.TEXT_HEIGHT + Target.TEXT_BORDER),
-                                width - (2 * Target.TEXT_BORDER), Target.TEXT_HEIGHT);
-
+                                Target.TEXT_BORDER,
+                                (Target.TEXT_HEIGHT + Target.TEXT_BORDER),
+                                width - (2 * Target.TEXT_BORDER), 
+                                height - (Target.TEXT_BORDER +Target.TEXT_HEIGHT));
+        }
     }
 
 }
