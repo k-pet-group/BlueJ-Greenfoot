@@ -118,6 +118,7 @@ public final class MoeEditor extends JFrame
     private JPanel statusArea;	    // the status area
     private LineNumberLabel lineCounter;	// the line number label
     private StatusLabel saveState;  // the status label
+    private JComboBox interfaceToggle; 
 
     private JScrollPane scrollPane;
     private JComponent toolbar;	    // The toolbar
@@ -881,13 +882,30 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Implementation of "toggle-interface-view" user function.
+     *  Toggle the interface popup menu. This is used when using keys
+     *  to toggle the interface view. Toggling the menu will result in
+     *  invoking the action.
      */
-    public void toggleInterface(JComboBox comboBox)
+    public void toggleInterfaceMenu()
     {
         if(!sourceIsCode)
             return;
-        boolean wantHTML = (comboBox.getSelectedItem() == interfaceString);
+        if(interfaceToggle.getSelectedIndex() == 0)
+            interfaceToggle.setSelectedIndex(1);
+        else
+            interfaceToggle.setSelectedIndex(0);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Implementation of "toggle-interface-view" user function. The menu
+     *  has already been changed - now see what it is and do it.
+     */
+    public void toggleInterface()
+    {
+        if(!sourceIsCode)
+            return;
+        boolean wantHTML = (interfaceToggle.getSelectedItem() == interfaceString);
         if(wantHTML && !viewingHTML)
             switchToInterfaceView();
         else if(!wantHTML && viewingHTML)
@@ -1631,7 +1649,7 @@ public final class MoeEditor extends JFrame
     private JComponent createInterfaceSelector()
     {
         String[] choiceStrings = { implementationString, interfaceString };
-        JComboBox interfaceToggle = new JComboBox(choiceStrings);
+        interfaceToggle = new JComboBox(choiceStrings);
 
         interfaceToggle.setRequestFocusEnabled(false);
         interfaceToggle.setBorder(new EmptyBorder(2,2,2,2));

@@ -22,7 +22,7 @@
 
 include $(OS).mk
 
-PKG_VERSION = 112pre
+PKG_VERSION = 112rc2
 
 SUBDIRS = \
 	src
@@ -47,6 +47,7 @@ INSTALL_LIB_FILES = \
 	lib/stdclass.tmpl
 
 INSTALL_LIB_DIRS = \
+	lib/inspector \
 	lib/english \
 	lib/german \
 	lib/swedish \
@@ -118,7 +119,7 @@ package/bluej-$(PKG_VERSION).jar: distcompile
 	( cd package && \
 	  javac Installer.java ; \
 	  java Installer build installer.props ; \
-	  jar cv0mf manifest bluej-$(PKG_VERSION).jar editor.jar *.class )
+	  jar cv0mf manifest bluej-$(PKG_VERSION).jar *.class )
 
 	# clean up
 	rm -f package/bluej-dist.jar

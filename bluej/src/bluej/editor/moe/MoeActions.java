@@ -600,7 +600,11 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
-            getEditor(e).toggleInterface((JComboBox)e.getSource());
+            Object source = e.getSource();
+            if(source instanceof JComboBox)
+                getEditor(e).toggleInterface();
+            else
+                getEditor(e).toggleInterfaceMenu();
         }
     }
 
@@ -1064,7 +1068,9 @@ public final class MoeActions
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK), 
                               (Action)(actions.get("compile")));
-        // "toggle-interface-view" not bound
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_J, Event.CTRL_MASK), 
+                              (Action)(actions.get("toggle-interface-view")));
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK), 
                               (Action)(actions.get("toggle-breakpoint")));
