@@ -3,8 +3,7 @@ package bluej.debugmgr;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
@@ -28,15 +27,15 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2953 2004-08-27 10:47:09Z polle $
+ * @version $Id: MethodDialog.java 2955 2004-08-30 06:15:11Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
     private static final Insets INSETS = new Insets(2, 2, 2, 2);
-    static final int MD_CREATE = 0;
-    static final int MD_CALL = 1;
+    private static final int MD_CREATE = 0;
+    private static final int MD_CALL = 1;
 
-    int dialogType;
+    private int dialogType;
 
     // Window Titles
     static final String wCreateTitle = Config.getString("pkgmgr.methodCall.titleCreate");
@@ -54,6 +53,7 @@ public class MethodDialog extends CallDialog implements FocusListener
 
     private String methodName;
     private CallableView method;
+    private Map typeParameterMap;
 
     // Text Area
     private JPanel descPanel;
@@ -102,7 +102,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2953 2004-08-27 10:47:09Z polle $
+     * @version $Id: MethodDialog.java 2955 2004-08-30 06:15:11Z davmac $
      */
     public static class ParameterList
     {
@@ -216,7 +216,17 @@ public class MethodDialog extends CallDialog implements FocusListener
         }
     }
 
-    public MethodDialog(PkgMgrFrame pmf, String className, String instanceName, CallableView method) {
+    /**
+     * MethodDialog constructor.
+     * 
+     * @param pmf          The assosciated PkgMgrFrame instance
+     * @param instanceName The initial instance name (for a constructor dialog)
+     *                     or the object instance on which the method is being called
+     * @param method       The constructor or method being used
+     * @param typeMap      The mapping of type parameter names to runtime types
+     *                     (a Map of String -> GenType).
+     */
+    public MethodDialog(PkgMgrFrame pmf, String instanceName, CallableView method, Map typeMap) {
         super(pmf, "");
 
         Package pkg = pmf.getPackage();
@@ -227,11 +237,14 @@ public class MethodDialog extends CallDialog implements FocusListener
         if (method instanceof MethodView) {
             dialogType = MD_CALL;
             methodName = ((MethodView) method).getName();
-        } else if (method instanceof ConstructorView) {
+        }
+        else if (method instanceof ConstructorView) {
             dialogType = MD_CREATE;
         }
 
-        makeDialog(className, instanceName, method);
+        typeParameterMap = typeMap;
+        makeDialog(method.getClassName(), instanceName, method);
+        setInstanceName(instanceName);
     }
 
     /**
@@ -305,7 +318,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     /**
      * setDescription - display a new description in the dialog
      */
-    public void setDescription(MultiLineLabel label)
+    private void setDescription(MultiLineLabel label)
     {
         label.setAlignmentX(LEFT_ALIGNMENT);
         descPanel.removeAll();
@@ -375,10 +388,8 @@ public class MethodDialog extends CallDialog implements FocusListener
      * For a generic class this will return the type parameters if any has been
      * typed in. Otherwise it will just return an empty array.
      * 
-     * TODO would it make more sense to return a Class[] ? It depends on the
-     * mechanism used to type in classes...
-     * 
-     * @return
+     * @return A String array containing the type parameters as typed by the
+     *         user
      */
     public String[] getTypeParams()
     {
@@ -389,7 +400,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         for (int i = 0; i < typeParameterList.size(); i++) {
             typeParams[i] = (String) typeParameterList.getParameter(i).getEditor().getItem();
             if (typeParams[i].equals("")) {
-                //TODO do some proper handling of illegal types.
+                // more complete checking of parameters is done elsewhere
                 return new String[0];
             }
         }
@@ -412,20 +423,31 @@ public class MethodDialog extends CallDialog implements FocusListener
 
     /**
      * setInstanceName - set the name of the instance shown in the label
-     *  for method call dialogs.
+     *  for method call dialogs, or in the text field for construction dialogs.
      */
     public void setInstanceName(String instanceName)
     {
-        setCallLabel(instanceName, methodName);
+        if(dialogType == MD_CALL)
+            setCallLabel(instanceName, methodName);
+        else
+            instanceNameText.setText(instanceName);
+        createDescription();
     }
-
+    
     /**
-     * setNewInstanceName - set the field for the new instance name for
-     *  contruction dialogs.
+     * Create the description. This includes the comments for the method
+     * or constructor, together with its signature, and appears at the top
+     * of the dialog.
      */
-    public void setNewInstanceName(String name)
+    private void createDescription()
     {
-        instanceNameText.setText(name);
+        LabelPrintWriter writer = new LabelPrintWriter();
+        if (dialogType == MD_CALL)
+            ((MethodView) method).print(writer, typeParameterMap, 0);
+        else
+            method.print(writer);
+        setDescription(writer.getLabel());
+        setVisible(true);
     }
 
     /**
@@ -838,7 +860,7 @@ public class MethodDialog extends CallDialog implements FocusListener
                     {
                     }
                 });
-                parameterList.setVarArg((GrowableBox) component, paramString);
+                parameterList.setVarArg(component, paramString);
             } else {
                 List historyList = history.getHistory(paramClasses[i]);
                 JComboBox component = createComboBox(historyList);

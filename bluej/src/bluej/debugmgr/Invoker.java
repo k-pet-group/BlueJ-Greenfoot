@@ -25,10 +25,10 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 2952 2004-08-27 07:51:49Z polle $
+ * @version $Id: Invoker.java 2955 2004-08-30 06:15:11Z davmac $
  */
 
-public class Invoker extends Thread
+public class Invoker
     implements CompileObserver, CallDialogWatcher
 {
     private static final String creating = Config.getString("pkgmgr.creating");
@@ -166,7 +166,7 @@ public class Invoker extends Thread
      * @param watcher
      *            an object interested in the result of the invocation
      */
-    public Invoker(PkgMgrFrame pmf, CallableView member, ObjectWrapper objWrapper, ResultWatcher watcher)
+    public Invoker(PkgMgrFrame pmf, MethodView member, ObjectWrapper objWrapper, ResultWatcher watcher)
     {
         if (pmf.isEmptyFrame())
             throw new IllegalArgumentException();
@@ -181,42 +181,21 @@ public class Invoker extends Thread
 
         this.shellName = getShellName();
 
-        // in the case of a constructor, we need to construct an object name
-        if (member instanceof ConstructorView) {
-
-            this.objName = pmf.getProject().getDebugger().guessNewName(member.getClassName());
-
-            constructing = true;
-            executionEvent = ExecutionEvent.createConstructor(member.getClassName());
+        this.objName = objWrapper.getName();
+        this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName());
+        Reflective superRefl = new JavaReflective(member.getDeclaringView().getViewClass());
+        GenTypeClass.addDefaultParamBases(typeMap, superRefl);
+        if (typeMap == null) {
+            typeMap = new HashMap();
+            GenTypeClass objGenType = objWrapper.getObject().getGenType();
+            Reflective objRefl = objGenType.getReflective();
+            GenTypeClass.addDefaultParamBases(typeMap, objRefl);
+            if (typeMap.isEmpty())
+                typeMap = null;
         }
-        else if (member instanceof MethodView) {
-
-            // in the case of a static method call, we use the class name as an
-            // object name
-            if (((MethodView) member).isStatic()) {
-                this.objName = JavaNames.stripPrefix(member.getClassName());
-                executionEvent = ExecutionEvent.createStaticMethod(objName);
-            }
-            else {
-                this.objName = objWrapper.getName();
-                this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName());
-                Reflective superRefl = new JavaReflective(member.getDeclaringView().getViewClass());
-                GenTypeClass.addDefaultParamBases(typeMap, superRefl);
-                if (typeMap == null) {
-                    typeMap = new HashMap();
-                    GenTypeClass objGenType = objWrapper.getObject().getGenType();
-                    Reflective objRefl = objGenType.getReflective();
-                    GenTypeClass.addDefaultParamBases(typeMap, objRefl);
-                    if (typeMap.isEmpty())
-                        typeMap = null;
-                }
-                executionEvent = ExecutionEvent.createObjectMethod(objName);
-            }
-
-            constructing = false;
-        }
-        else
-            Debug.reportError("illegal member type in invocation");
+        executionEvent = ExecutionEvent.createObjectMethod(objName);
+        
+        constructing = false;
         executionEvent.setPackage(pkg);
     }
 
@@ -236,22 +215,15 @@ public class Invoker extends Thread
             MethodDialog mDialog = (MethodDialog) methods.get(member);
 
             if (mDialog == null) {
-                mDialog = new MethodDialog(pmf, member.getClassName(), objName, member);
+                mDialog = new MethodDialog(pmf, objName, member, typeMap);
                 methods.put(member, mDialog);
+                mDialog.setVisible(true);
             }
             else {
-                if (constructing)
-                    mDialog.setNewInstanceName(objName);
-                else
-                    mDialog.setInstanceName(objName);
+                mDialog.setInstanceName(objName);
             }
 
-            LabelPrintWriter writer = new LabelPrintWriter();
-            member.print(writer);
-            mDialog.setDescription(writer.getLabel());
             mDialog.setWatcher(this);
-            mDialog.setVisible(true);
-
             dialog = mDialog;
         }
     }

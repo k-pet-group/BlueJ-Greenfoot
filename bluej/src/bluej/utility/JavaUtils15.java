@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2951 2004-08-27 01:47:46Z davmac $
+ * @version $Id: JavaUtils15.java 2955 2004-08-30 06:15:11Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -20,6 +20,7 @@ public class JavaUtils15 extends JavaUtils {
         return makeSignature(name, params, method.isVarArgs());
     }
     
+    // TODO refactor getShortDesc/getLongDesc variants.
     public String getShortDesc(Method method, String [] paramnames)
     {
         String name = getTypeParameters(method);
@@ -69,6 +70,33 @@ public class JavaUtils15 extends JavaUtils {
         String[] paramTypeNames = getParameterTypes(paramTypes, false);
 
         // String[] paramTypes = getParameterTypes(method);
+        return makeDescription(name, paramTypeNames, paramnames, true, method.isVarArgs());
+    }
+    
+    public String getLongDesc(Method method, String [] paramnames, Map tparams)
+    {
+        // Don't want to modify the map which was passed in, so make a copy
+        // of it:
+        Map newMap = new HashMap();
+        if (tparams != null)
+            newMap.putAll(tparams);
+        
+        // add any method type parameters into the map, replacing existing
+        // map entries.
+        List myParams = getTypeParams(method);
+        for(Iterator i = myParams.iterator(); i.hasNext(); ) {
+            GenTypeDeclTpar tpar = (GenTypeDeclTpar)i.next();
+            newMap.put(tpar.getTparName(), tpar);
+        }
+        
+        String name = getTypeParameters(method);
+        GenType rtype = getReturnType(method);
+        name += rtype.mapTparsToTypes(newMap).toString(true) + " " + method.getName();
+        GenType[] paramTypes = getParamGenTypes(method);
+        String[] paramTypeNames = new String[paramTypes.length];
+        for(int i = 0; i < paramTypes.length; i++)
+            paramTypeNames[i] = paramTypes[i].mapTparsToTypes(newMap).toString(true);
+        
         return makeDescription(name, paramTypeNames, paramnames, true, method.isVarArgs());
     }
     

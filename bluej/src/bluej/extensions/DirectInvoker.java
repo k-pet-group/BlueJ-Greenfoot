@@ -13,7 +13,7 @@ import bluej.views.*;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 2807 2004-07-19 05:47:15Z davmac $
+ * @version    $Id: DirectInvoker.java 2955 2004-08-30 06:15:11Z davmac $
  */
 
 class DirectInvoker
@@ -90,7 +90,11 @@ class DirectInvoker
         }
 
         DirectResultWatcher watcher = new DirectResultWatcher();
-        Invoker invoker = new Invoker(pkgFrame, callable, onThisObjectInstance, watcher);
+        Invoker invoker;
+        if (((MethodView) callable).isStatic())
+            invoker = new Invoker(pkgFrame, callable, watcher);
+        else
+            invoker = new Invoker(pkgFrame, (MethodView) callable, onThisObjectInstance, watcher);
         invoker.invokeDirect(convObjToString(args));
 
         // this will wait() on the invoke to finish

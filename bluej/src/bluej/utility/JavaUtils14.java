@@ -13,7 +13,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 2951 2004-08-27 01:47:46Z davmac $
+ * @version $Id: JavaUtils14.java 2955 2004-08-30 06:15:11Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -42,6 +42,11 @@ public class JavaUtils14 extends JavaUtils
         String name = getTypeName(method.getReturnType()) + " " + method.getName();
         String[] paramTypes = getParameterTypes(method);
         return makeDescription(name, paramTypes, paramnames, true, false);
+    }
+
+    public String getLongDesc(Method method, String[] paramnames, Map tparams)
+    {
+        return getLongDesc(method, paramnames);
     }
 
     public String getLongDesc(Constructor constructor, String[] paramnames)

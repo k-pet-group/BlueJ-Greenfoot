@@ -12,7 +12,7 @@ import bluej.utility.JavaUtils;
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2951 2004-08-27 01:47:46Z davmac $
+ *  @version $Id: MethodView.java 2955 2004-08-30 06:15:11Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -90,7 +90,7 @@ public class MethodView extends CallableView implements Comparable
     }
 
     /**
-     * Return a short description string, mapping type parameters from the
+     * Get a short description string, mapping type parameters from the
      * class to the corresponding instantiation type. Type parameters not
      * contained in the map are mapped to their erasure type; type parameters
      * from a generic method are left unmapped.
@@ -110,6 +110,20 @@ public class MethodView extends CallableView implements Comparable
      */
     public String getLongDesc() {
         return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames());
+    }
+    
+    /**
+     * Get a long String describing this member, with type parameters from the
+     * class mapped to the corresponding instantiation type. Type parameters
+     * not contained in the map are mapped to their erasure type; type
+     * parameters from a generic method are left unmapped.
+     * 
+     * @param genericParams  The map of String -> GenType
+     * @return  the signature string with type parameters mapped
+     */
+    public String getLongDesc(Map genericParams)
+    {
+        return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames(), genericParams);
     }
 
     /**
@@ -191,7 +205,18 @@ public class MethodView extends CallableView implements Comparable
         return returnType;
     }
     
-    
+    public void print(FormattedPrintWriter out, Map typeParams, int indents)
+    {
+        Comment comment = getComment();
+        if(comment != null)
+            comment.print(out, indents);
+
+        out.setItalic(false);
+        out.setBold(true);
+        for(int i=0; i<indents; i++)
+            out.indentLine();
+        out.println(getLongDesc(typeParams));
+    }
 
     // ==== Comparable interface ====
     /**

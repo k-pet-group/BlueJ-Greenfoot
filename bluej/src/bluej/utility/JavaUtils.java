@@ -15,7 +15,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2951 2004-08-27 01:47:46Z davmac $
+ * @version $Id: JavaUtils.java 2955 2004-08-30 06:15:11Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -90,6 +90,18 @@ public abstract class JavaUtils {
      * included.
      */
     abstract public String getLongDesc(Method method, String [] paramnames);
+    
+    /**
+     * Get a long String describing the method, with class type parameters
+     * mapped to their instantiation types. A long description is similar to a
+     * short description, but it has type names of parameters included.
+     * 
+     * @param method   The method to get the description of
+     * @param paramnames  The parameters names of the method
+     * @param tparams  The map (String -> GenType) for class type parameters
+     * @return The long description string.
+     */
+    abstract public String getLongDesc(Method method, String [] paramnames, Map tparams);
     
     /**
      * Get a "short description" of a constructor. This is like the signature,

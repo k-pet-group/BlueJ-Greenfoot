@@ -6,7 +6,7 @@ import java.lang.reflect.Modifier;
  * A representation of a Java class member in BlueJ.
  *
  * @author  Michael Cahill
- * @version $Id: MemberView.java 2016 2003-06-04 05:55:54Z ajp $
+ * @version $Id: MemberView.java 2955 2004-08-30 06:15:11Z davmac $
  */
 public abstract class MemberView
 {
@@ -86,24 +86,6 @@ public abstract class MemberView
     public boolean isStatic()
     {
         return Modifier.isStatic(getModifiers());
-    }
-
-    public void print(FormattedPrintWriter out)
-    {
-        print(out, 0);
-    }
-
-    public void print(FormattedPrintWriter out, int indents)
-    {
-        Comment comment = getComment();
-        if(comment != null)
-            comment.print(out, indents);
-
-        out.setItalic(false);
-        out.setBold(true);
-        for(int i=0; i<indents; i++)
-            out.indentLine();
-        out.println(getLongDesc());
     }
 
     public String toString()

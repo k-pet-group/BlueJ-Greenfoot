@@ -82,4 +82,23 @@ public abstract class CallableView extends MemberView
      * Gets an array of nicely formatted strings with the types of the parameters 
      */
     public abstract String[] getParamTypeStrings();
+    
+    public void print(FormattedPrintWriter out)
+    {
+        print(out, 0);
+    }
+
+    public void print(FormattedPrintWriter out, int indents)
+    {
+        Comment comment = getComment();
+        if(comment != null)
+            comment.print(out, indents);
+
+        out.setItalic(false);
+        out.setBold(true);
+        for(int i=0; i<indents; i++)
+            out.indentLine();
+        out.println(getLongDesc());
+    }
+
 }
