@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2825 2004-07-28 01:33:39Z davmac $
+ * @version $Id: ExecControls.java 2863 2004-08-12 00:45:01Z davmac $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -451,7 +451,9 @@ public class ExecControls extends JFrame
 				staticList.addMouseListener(mouseListener);
 			}
 			staticScrollPane.setViewportView(staticList);
-			staticScrollPane.setColumnHeaderView(new JLabel(staticTitle));
+			JLabel lbl = new JLabel(staticTitle);
+            lbl.setOpaque(true);
+            staticScrollPane.setColumnHeaderView(lbl);
 		}
 
         // create instance variable panel
@@ -466,7 +468,9 @@ public class ExecControls extends JFrame
 				instanceList.addMouseListener(mouseListener);
     		}
 			instanceScrollPane.setViewportView(instanceList);
-			instanceScrollPane.setColumnHeaderView(new JLabel(instanceTitle));
+            JLabel lbl = new JLabel(instanceTitle);
+            lbl.setOpaque(true);
+			instanceScrollPane.setColumnHeaderView(lbl);
     	}
 
         // create local variable panel
@@ -481,7 +485,9 @@ public class ExecControls extends JFrame
 				localList.addMouseListener(mouseListener);
 			}
 			localScrollPane.setViewportView(localList);
-			localScrollPane.setColumnHeaderView(new JLabel(localTitle));
+            JLabel lbl = new JLabel(localTitle);
+            lbl.setOpaque(true);
+			localScrollPane.setColumnHeaderView(lbl);
     	}
 
         // Create variable display area
@@ -489,10 +495,12 @@ public class ExecControls extends JFrame
         JSplitPane innerVarPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                                  staticScrollPane, instanceScrollPane);
         innerVarPane.setDividerSize(6);
+        innerVarPane.setBorder(null);
 
         JSplitPane varPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                             innerVarPane, localScrollPane);
         varPane.setDividerSize(6);
+        varPane.setBorder(null);
 
         // Create stack listing panel
 
@@ -501,11 +509,14 @@ public class ExecControls extends JFrame
         stackList.addListSelectionListener(this);
         stackList.setFixedCellWidth(150);
         JScrollPane stackScrollPane = new JScrollPane(stackList);
-        stackScrollPane.setColumnHeaderView(new JLabel(stackTitle));
+        JLabel lbl = new JLabel(stackTitle);
+        lbl.setOpaque(true);
+        stackScrollPane.setColumnHeaderView(lbl);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                                               stackScrollPane, varPane);
         splitPane.setDividerSize(6);
+        splitPane.setBorder(null);
 
         // Create thread panel
         JPanel threadPanel = new JPanel(new BorderLayout());
@@ -552,7 +563,9 @@ public class ExecControls extends JFrame
 		}
 										        
         JScrollPane threadScrollPane = new JScrollPane(threadTree);
-        threadScrollPane.setColumnHeaderView(new JLabel(threadTitle));
+        lbl = new JLabel(threadTitle);
+        lbl.setOpaque(true);
+        threadScrollPane.setColumnHeaderView(lbl);
         threadPanel.add(threadScrollPane, BorderLayout.CENTER);
 
 		flipPanel = new JPanel();
