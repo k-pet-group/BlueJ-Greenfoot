@@ -17,7 +17,7 @@ import bluej.testmgr.record.InvokerRecord;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2333 2003-11-14 04:53:35Z ajp $
+ * @version $Id: ObjectBench.java 2496 2004-04-15 01:32:32Z davmac $
  */
 public class ObjectBench
 {
@@ -28,7 +28,7 @@ public class ObjectBench
     private JViewport viewPort;
     private ObjectBenchPanel obp;
     private ObjectWrapper selectedObjectWrapper;
-
+    
     /**
      * Construct an object bench which is used to hold
      * a bunch of object reference Components.
@@ -129,35 +129,58 @@ public class ObjectBench
      */
     private void enableButtons(Point pt)
     {
-        boolean buttonsNeeded = false;
+        boolean buttonsNeeded = true;
         
-        if (pt.x == 0)
-            leftArrowButton.setEnabled(false);
-        else {
-            leftArrowButton.setEnabled(true);
-            buttonsNeeded = true;
+        int maxExtent = getMaxXExtent();
+        int currentLWidth = leftArrowButton.isVisible() ? leftArrowButton.getWidth() : 0;
+        int currentRWidth = rightArrowButton.isVisible() ? rightArrowButton.getWidth() : 0;
+        
+        // check if we need the buttons at all
+        int allowedWidth = viewPort.getWidth() + currentLWidth + currentRWidth;
+        if (allowedWidth >= obp.getLayoutWidthMin() ) {
+            if (pt.x != 0) {
+                viewPort.setViewPosition(new Point(0,0));
+            }
+            buttonsNeeded = false;
         }
+        
+        if (buttonsNeeded) {
+            if (pt.x == 0)
+                leftArrowButton.setEnabled(false);
+            else
+                leftArrowButton.setEnabled(true);
 
-        if (pt.x >= getMaxXExtent())
-            rightArrowButton.setEnabled(false);
-        else {
-            rightArrowButton.setEnabled(true);
-            buttonsNeeded = true;
+            if (pt.x >= maxExtent)
+                rightArrowButton.setEnabled(false);
+            else
+                rightArrowButton.setEnabled(true);
         }
-        
-        if(buttonsNeeded) {
+                
+        if (buttonsNeeded) {
             rightArrowButton.setVisible(true);
             leftArrowButton.setVisible(true);
         }
-       else {
+        else {
             rightArrowButton.setVisible(false);
             leftArrowButton.setVisible(false);
         }
+
+        // validating now could cause re-entrancy, which seems to cause
+        // some minor problems.
+        Runnable refreshUI = new Runnable()
+        {
+            public void run()
+            {
+                containerPanel.revalidate();
+                containerPanel.repaint();
+            }
+        };
+        SwingUtilities.invokeLater(refreshUI);
     }
 
     protected int getMaxXExtent()
     {
-        return obp.getLayoutWidthMin() - viewPort.getWidth();
+        return Math.max(obp.getLayoutWidthMin() - viewPort.getWidth(), 0);
     }
     
  
@@ -433,7 +456,14 @@ public class ObjectBench
 		wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
         obp.remove(wrapper);
 
+        // check whether we still need navigation arrows with the reduced
+        // number of objects on the bench.
         enableButtons(viewPort.getViewPosition());
+
+        // pull objects to the right if there is empty space on the right-
+        // hand side 
+        moveBench(0);
+
     	obp.revalidate();
     	obp.repaint();
     }
