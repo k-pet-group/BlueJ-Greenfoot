@@ -578,8 +578,7 @@ public class ExtensionWrapper
         try
           {
           // Give a chance to extension to clear up after itself.
-          String terminateRisul = extensionInstance.terminate();
-          Debug.message("Extension.terminate()="+terminateRisul);
+          extensionInstance.terminate();
           }
         catch ( Exception exc )
           {

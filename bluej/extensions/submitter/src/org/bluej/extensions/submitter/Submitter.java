@@ -14,7 +14,7 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1850 2003-04-14 15:01:45Z damiano $
+ * @version    $Id: Submitter.java 1854 2003-04-15 14:58:53Z iau $
  */
 public class Submitter extends Extension implements MenuGenerator, BlueJExtensionEventListener
 {
@@ -52,19 +52,6 @@ public class Submitter extends Extension implements MenuGenerator, BlueJExtensio
         stat.bluej.setMenuGenerator(this);
 
         stat.bluej.addBlueJExtensionEventListener(this);
-    }
-
-
-    /**
-     * This method is called when BLueJ decides  (for whatever reason) that this extensions
-     * should terminate. 
-     *
-     * @return    Description of the Return Value
-     */
-    public String terminate()
-    {
-        // WARNINIG: TODO it should clean up possibly running tasks...
-        return "";
     }
 
 
