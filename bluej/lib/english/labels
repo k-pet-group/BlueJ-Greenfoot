@@ -134,6 +134,9 @@ prefmgr.misc.prefpaneltitle=Miscellaneous
 prefmgr.misc.editorfontsize=Editor font size
 prefmgr.misc.usesyntaxhilighting=Use syntax hilighting
 prefmgr.misc.jdkurlpath=JDK documentation URL
+prefmgr.misc.linkToLib=Use this URL when generating project documentation
+prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation, it must be correct and accessible.
+prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
 
 #---------------
 #Editor labels
@@ -229,6 +232,8 @@ editor.info.generatingDoc = Generating class interface...
 editor.info.loadingDoc = Loading class interface...
 editor.info.docLoaded = Loading class interface... Done.
 editor.info.docAborted = There was a serious problem generating the javadoc\ninterface. Aborted.
+editor.info.docDisappeared = Cannot find HTML file:
+editor.info.docNoFrames = Frame display is disabled in editor preview.
 
 editor.printer.continued=continued
 #End Editor labels
@@ -273,7 +278,7 @@ pkgmgr.packagemenu.open=Open
 pkgmgr.packagemenu.remove=Remove
 
 pkgmgr.classmenu.runApplet=Run Applet
-pkgmgr.classmenu.edit=Show Source Code
+pkgmgr.classmenu.edit=Open Editor
 pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.remove=Remove
 pkgmgr.view.label=View

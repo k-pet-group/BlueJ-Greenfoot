@@ -43,7 +43,6 @@ bluej.url.tutorial=http://bluej.monash.edu/tutorial/tutorial.pdf
 bluej.url.reference=http://bluej.monash.edu/reference/manual.pdf
 bluej.url.javaStdLib=http://java.sun.com/j2se/1.3/docs/api/index.html
 
-
 #####################################################################
 ## Project directory. This is the directory that the file chooser
 ## will initially display when opening a project. If commented out,
@@ -84,11 +83,16 @@ winBrowserCmd2=
 #######################################################################
 ## Documentation generation. This specifies the command used for 
 ## generating documentation and the directory name within the project 
-## directory where the documentation is stored.
+## directory where the documentation is stored. 
+## If "linkToStandardLib" is true, we will try to use the URL specified
+## above as "bluej.url.javaStdLib" to create links. If that URL is 
+## not accessible, documentation generation will fail. Therefore, if
+## you want to work offline, set "linkToStandardLib" to false.
 #######################################################################
 
 doctool.command=javadoc
 doctool.outputdir=doc
+doctool.linkToStandardLib=true
 
 
 #######################################################################
@@ -245,8 +249,8 @@ bluej.compiler.type=internal
 #####################################################################
 ## Options for starting the internal virtual machine.
 ## This is a system specific option: It can be prefixed with an
-## OS identifier. Known identifiers are "win9x", "win", "solaris"
-## and "linux".
+## OS identifier. Known identifiers are "win9x", "win", "solaris",
+## macos and "linux".
 #####################################################################
 
 win9xVmOptions=-classic
