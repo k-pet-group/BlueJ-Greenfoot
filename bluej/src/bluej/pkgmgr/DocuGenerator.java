@@ -66,6 +66,17 @@ public class DocuGenerator
      */
     private static String tmpJavadocParams = " -noindex -notree -nohelp";
 
+    /** The project this generator belongs to. */
+    private static Project project;
+    /** The project directory. */
+    private static File projectDir;
+    /** the path of the project directory, the root for all sources. */
+    private static String projectDirPath;
+    /** the directory where documentation is written to. */
+    private static File docDir;
+    /** the path of the directory where documentation is written to. */
+    private static String docDirPath;
+
     /* -------------- end of static field declarations ----------------- */
 
     /**
@@ -74,30 +85,43 @@ public class DocuGenerator
      * generation was successful the result will be displayed in a web browser.
      * @param filename the fully qualified filename of the class to be
      * documented.
+     * @return the path of the HTML file that will be generated
      */
     public static void generateClassDocu(String filename)
     {
-        File docDir = getDocTempDir();
-        if (docDir == null) {
+        //File docDir = getDocTempDir();  use project docDir instead
+        if (docDir == null)
                 BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
-        }
+
+        // test whether the documentation directory is accessible.
+        String docDirStatus = testDocDir();
+        if (docDirStatus != "")
+                BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
 
         // build the call string
         String javadocCall = docCommand + fixedJavadocParams + tmpJavadocParams
             + " -d " + docDir.getPath() + " " + filename;
 
-        // build the URL for the result to be shown
-        String className = new File(filename).getName();
-        if (className.endsWith(".java"))
-            className = className.substring(0,className.indexOf(".java"));
-        File htmlFile = new File(docDir,className + ".html");
-        File logFile = new File(docDir,"logfile");
+        // build the path for the result to be shown
+        File htmlFile = new File(getDocuPath(filename));
+        File logFile = new File(docDir, "logfile");
 
-        doCallThenBrowse(javadocCall,htmlFile,logFile);
+        generateDoc(javadocCall, htmlFile, logFile, false);
     }
 
+    /**
+     * For a given filename, return the path where the html documentation
+     * file for that file would be generated.
+     */
+    public static String getDocuPath(String filename)
+    {
+        if(filename.startsWith(projectDirPath))
+            filename = filename.substring(projectDirPath.length());
+        if (filename.endsWith(".java"))
+            filename = filename.substring(0, filename.indexOf(".java"));
+        return docDirPath + filename + ".html";
+    }
 
-        
     /**
      * Create a temporary directory. The name of the directory is unique for
      * every BlueJ instantiation.
@@ -131,10 +155,12 @@ public class DocuGenerator
      * @param call the call to the documentation generating tool.
      * @param url the URL to be shown after successful completion.
      */
-    private static void doCallThenBrowse(String call, File result, File log)
+    private static void generateDoc(String call, File result, 
+                                    File log, boolean openBrowser)
     {
         // start the call in a separate thread to allow fast return to GUI.
-        Thread starterThread = new Thread(new docuRunStarter(call,result,log));
+        Thread starterThread = new Thread(
+                        new docuRunStarter(call, result, log, openBrowser));
         starterThread.setPriority(Thread.MIN_PRIORITY);
         starterThread.start();
         BlueJEvent.raiseEvent(BlueJEvent.GENERATING_DOCU, null);
@@ -154,12 +180,15 @@ public class DocuGenerator
         private String docuCall;
         private File showFile;
         private File logFile;
+        private boolean openBrowser;
 
-        public docuRunStarter(String call, File result, File log)
+        public docuRunStarter(String call, File result, File log, 
+                              boolean browse)
         {
             docuCall = call;
             showFile = result;
             logFile = log;
+            openBrowser = browse;
         }
 
         /**
@@ -198,12 +227,14 @@ public class DocuGenerator
                 }
 
                 if (docuRun.exitValue() == 0) {
-                    BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED,null);
+                    BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED, null);
                     if (!showFile.exists()) {
+                        Debug.message("showfile does not exist - searching");
                         showFile=FileUtility.findFile(showFile.getParentFile(),
                                                       showFile.getName());
                     }
-                    Utility.openWebBrowser(showFile.getPath());
+                    if(openBrowser)
+                        Utility.openWebBrowser(showFile.getPath());
                 }
                 else {
                     BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
@@ -247,19 +278,6 @@ public class DocuGenerator
 
     //    instance fields
 
-    // tool-independent instance fields
-    /** The project this generator belongs to. */
-    private Project project;
-    /** The project directory. */
-    private File projectDir;
-    /** the directory where documentation is written to. */
-    private File docDir;
-    /** the path of the directory where documentation is written to. */
-    private String docDirPath;
-    /** the path of the project directory, the root for all sources. */
-    private String sourceDirPath;
-
-
     // tool-dependent instance fields for javadoc
     /** javadoc param for the destination directory. */
     private String destinationParam;
@@ -279,13 +297,13 @@ public class DocuGenerator
         // setup tool-independent instance information
         this.project = project;
         projectDir = project.getProjectDir();
+        projectDirPath = projectDir.getPath();
         docDir = new File(projectDir, docDirName);
         docDirPath = docDir.getPath();
-        sourceDirPath = projectDir.getPath();
 
         // tool-dependent instance information for javadoc
         destinationParam = " -d " + docDirPath;
-        sourceParam = " -sourcepath " + sourceDirPath;
+        sourceParam = " -sourcepath " + projectDirPath;
         titleParams = " -doctitle " + project.getProjectName()
                     + " -windowtitle " + project.getProjectName();
     }
@@ -342,7 +360,7 @@ public class DocuGenerator
         File startPage = new File(docDir,"index.html");
         File logFile = new File(docDir,"logfile");
 
-        doCallThenBrowse(javadocCall,startPage,logFile);
+        generateDoc(javadocCall, startPage, logFile, true);
         return "";
     }
 
@@ -353,7 +371,7 @@ public class DocuGenerator
      * @return "" if directory exists and is accessible, an error message
      * otherwise.
      */
-    private String testDocDir()
+    private static String testDocDir()
     {
         if (docDir.exists()) {
             if (!docDir.isDirectory())
