@@ -4,7 +4,8 @@ import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import sun.tools.javac.Main;
+import com.sun.tools.javac.Main;    // newer version
+//import sun.tools.javac.Main;    // old (working) version
 
 import bluej.utility.*;
 
@@ -15,7 +16,7 @@ import bluej.utility.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: JavacCompilerInternal.java 532 2000-06-08 07:46:08Z ajp $
+ * @version $Id: JavacCompilerInternal.java 921 2001-06-04 07:26:13Z mik $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -78,19 +79,25 @@ public class JavacCompilerInternal extends Compiler
 		String[] params = new String[length];
 		args.copyInto(params);
 
+                PrintStream systemErr = System.err;
+
 		ErrorStream output = new ErrorStream();
+		System.setErr(output);      // redirect errors to our stream
 
-		Main javac = new Main(output, "javac");
+		//Main javac = new Main(output, "javac"); // old version
+		Main javac = new Main();
 
-		boolean result = javac.compile(params);
+		int result = javac.compile(params);
 
 		if (output.hasError()) {
 			watcher.errorMessage(output.getFilename(),
 						output.getLineNo(),
 						output.getMessage(),true);
 		}
+                System.setErr(systemErr);   // restore
 
-		return result;
+		//return result;
+		return result==0;
 	}
 }
 
@@ -139,8 +146,8 @@ class ErrorStream extends PrintStream
 
     /**
      * Note: this class "cheats" by assuming that all output will be written by
-     * a call to println. It happens that this is true for the current version
-     * of javac but this could change in the future.
+     * a call to print or println. It happens that this is true for the 
+     * current version of javac but this could change in the future.
      *
      * We assume a certain error message format here:
      *   filename:line-number:message
@@ -150,7 +157,7 @@ class ErrorStream extends PrintStream
      * with a drive name included). In that case we have to ignore the first
      * colon.
      */
-    public void println(String msg)
+    public void print(String msg)
     {
 	if (haserror)
 	    return;
@@ -193,5 +200,13 @@ class ErrorStream extends PrintStream
 	message = msg.substring(second_colon + 1);
 
 	haserror = true;
+    }
+
+    /**
+     * Map println tp print - we are not interested in the line break anyway. 
+     */
+    public void println(String msg)
+    {
+        print(msg);
     }
 }

@@ -21,7 +21,7 @@ import java.io.File;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 875 2001-04-26 06:34:39Z mik $
+ * @version $Id: NewClassDialog.java 921 2001-06-04 07:26:13Z mik $
  */
 class NewClassDialog extends JDialog
     implements ActionListener
@@ -39,11 +39,11 @@ class NewClassDialog extends JDialog
     private String newClassName = "";
     private boolean ok;		// result: which button?
 
-	public NewClassDialog(JFrame parent)
-	{
-		super(parent, newClassTitle, true);
+    public NewClassDialog(JFrame parent)
+    {
+        super(parent, newClassTitle, true);
 
-		addWindowListener(new WindowAdapter() {
+        addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent E)
                 {
                     ok = false;
@@ -51,78 +51,78 @@ class NewClassDialog extends JDialog
                 }
             });
 
-		JPanel mainPanel = new JPanel();
-		{
-			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-			mainPanel.setBorder(Config.dialogBorder);
+        JPanel mainPanel = new JPanel();
+        {
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            mainPanel.setBorder(Config.dialogBorder);
 
-			JLabel newclassTag = new JLabel(newClassLabel);
-			{
-				newclassTag.setAlignmentX(LEFT_ALIGNMENT);
-			}
+            JLabel newclassTag = new JLabel(newClassLabel);
+            {
+                newclassTag.setAlignmentX(LEFT_ALIGNMENT);
+            }
 
-			textFld = new JTextField(24);
-			{
-				textFld.setAlignmentX(LEFT_ALIGNMENT);
-			}
+            textFld = new JTextField(24);
+            {
+                textFld.setAlignmentX(LEFT_ALIGNMENT);
+            }
 
-			mainPanel.add(newclassTag);
-			mainPanel.add(textFld);
-			mainPanel.add(Box.createVerticalStrut(5));
+            mainPanel.add(newclassTag);
+            mainPanel.add(textFld);
+            mainPanel.add(Box.createVerticalStrut(5));
 
-			JPanel choicePanel = new JPanel();
-			{
-				choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
-				choicePanel.setAlignmentX(LEFT_ALIGNMENT);
+            JPanel choicePanel = new JPanel();
+            {
+                choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
+                choicePanel.setAlignmentX(LEFT_ALIGNMENT);
 
 				//create compound border empty border outside of a titled border
-				choicePanel.setBorder(BorderFactory.createCompoundBorder(
-                                                                         BorderFactory.createTitledBorder(classTypeStr),
-                                                                         BorderFactory.createEmptyBorder(0, 10, 0, 10)));
+                choicePanel.setBorder(BorderFactory.createCompoundBorder(
+                                            BorderFactory.createTitledBorder(classTypeStr),
+                                            BorderFactory.createEmptyBorder(0, 10, 0, 10)));
 
                 addClassTypeButtons(choicePanel);
-			}
+            }
 
-			choicePanel.setMaximumSize(new Dimension(textFld.getMaximumSize().width,
+            choicePanel.setMaximumSize(new Dimension(textFld.getMaximumSize().width,
                                                      choicePanel.getMaximumSize().height));
-			choicePanel.setPreferredSize(new Dimension(textFld.getPreferredSize().width,
+            choicePanel.setPreferredSize(new Dimension(textFld.getPreferredSize().width,
                                                        choicePanel.getPreferredSize().height));
 
-			mainPanel.add(choicePanel);
-			mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
+            mainPanel.add(choicePanel);
+            mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
 
-			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-			{
-				buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            {
+                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-				JButton okButton = new JButton(okay);
-				{
-					okButton.addActionListener(this);
-				}
+                JButton okButton = new JButton(okay);
+                {
+                    okButton.addActionListener(this);
+                }
 
-				JButton cancelButton = new JButton(cancel);
-				{
-					cancelButton.addActionListener(this);
-				}
+                JButton cancelButton = new JButton(cancel);
+                {
+                    cancelButton.addActionListener(this);
+                }
 
-				buttonPanel.add(okButton);
-				buttonPanel.add(cancelButton);
+                buttonPanel.add(okButton);
+                buttonPanel.add(cancelButton);
 
-				getRootPane().setDefaultButton(okButton);
+                getRootPane().setDefaultButton(okButton);
 
 				// try to make the OK and cancel buttons have equal width
-				okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
+                okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
                                                         okButton.getPreferredSize().height));
-			}
+            }
 
-			mainPanel.add(buttonPanel);
-		}
+            mainPanel.add(buttonPanel);
+        }
 
-		getContentPane().add(mainPanel);
-		pack();
+        getContentPane().add(mainPanel);
+        pack();
 
-		DialogManager.centreDialog(this);
-	}
+        DialogManager.centreDialog(this);
+    }
 
     /**
      * Add the class type buttons (defining the class template to be used

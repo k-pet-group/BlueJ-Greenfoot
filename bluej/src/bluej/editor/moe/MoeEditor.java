@@ -789,10 +789,12 @@ public final class MoeEditor extends JFrame
         boolean found = false;
         boolean finished = false;
 
+        // first line searched starts from current caret position
         int start = startPosition;
         Element line = getLineAt(start);
         int lineEnd = Math.min(line.getEndOffset(), endPos);
 
+        // following lines search from start of line
         try {
             while (!found && !finished) {
                 String lineText = document.getText(start, lineEnd - start);
