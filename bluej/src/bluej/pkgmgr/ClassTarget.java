@@ -40,7 +40,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 140 1999-06-22 06:44:42Z mik $
+ ** @version $Id: ClassTarget.java 149 1999-06-30 01:22:09Z bruce $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -50,7 +50,6 @@ public class ClassTarget extends EditableTarget
     static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
     static final Color librarybg = Config.getItemColour("colour.class.bg.imported");
     static final Color abstractbg = Config.getItemColour("colour.class.bg.abstract");
-    //	static final Color abstractbg = defaultbg.brighter();
     static final Color interfacebg = Config.getItemColour("colour.class.bg.interface");
     static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
 
@@ -117,7 +116,7 @@ public class ClassTarget extends EditableTarget
     public void load(Properties props, String prefix) throws NumberFormatException
     {
 	super.load(props, prefix);
-
+	role.load(props, prefix);
 	String modifierStr = props.getProperty(prefix + ".modifiers", "0");
 	modifiers = Integer.parseInt(modifierStr, 16);
 	sourceInfo.load(props, prefix);

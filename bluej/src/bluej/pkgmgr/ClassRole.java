@@ -17,14 +17,14 @@ import java.util.Properties;
  ** particular class types 
  ** 
  ** @author Bruce Quig
- ** @version $Id: ClassRole.java 134 1999-06-21 02:34:23Z bruce $
+ ** @version $Id: ClassRole.java 149 1999-06-30 01:22:09Z bruce $
  **
  **/
 public abstract class ClassRole
 {
 
     /**
-     * abstract method to save details about the class target variant this
+     * save details about the class target variant this
      * role represents.
      *
      * @param props the properties object associated with this target and role 
@@ -36,6 +36,17 @@ public abstract class ClassRole
     {
 	props.put(prefix + ".modifiers", Integer.toString(modifiers, 16));
     }
+
+
+    /**
+     * load existing information about this class role
+     * @param props the properties object to read
+     * @param prefix an internal name used for this target to identify 
+     * its properties in a properties file used by multiple targets.
+     */
+    public abstract void load(Properties props, String prefix) throws NumberFormatException;
+
+
 
 
     /**

@@ -19,7 +19,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 140 1999-06-22 06:44:42Z mik $
+ ** @version $Id: AppletClassRole.java 149 1999-06-30 01:22:09Z bruce $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -27,12 +27,17 @@ public class AppletClassRole extends ClassRole
 
     static final String runAppletStr = Config.getString("pkgmgr.classmenu.runApplet");
     static final String htmlComment = Config.getString("pkgmgr.runApplet.htmlComment");
+    static final String htmlType = Config.getPropString("bluej.applet.jvm");
+    static final String appletType = Config.getPropString("bluej.applet.type");
+
     static final String HTML_EXTENSION = ".html";
     static final String THIS_DIRECTORY = ".";
     static final String APPLETVIEWER_COMMAND = "appletviewer"; // move to bluej.defs
     static final String URL_PREFIX = "file:";
     
-
+    private String[] appletParams;
+    private int appletHeight;
+    private int appletWidth;
 
 
    /**
@@ -44,10 +49,45 @@ public class AppletClassRole extends ClassRole
     {
 	super.save(props, modifiers, prefix);
 	props.put(prefix + ".type", "AppletTarget");
+	if(dialog != null) {
+	    appletParams = dialog.getAppletParameters();
+	    props.put(prefix + ".numberAppletParameters", String.valueOf(appletParams.length));
+	    for(int i = 0; i < appletParams.length; i++) {
+		props.put(prefix + ".appletParameter" + (i + 1), appletParams[i]);
+	    }
+
+	}
+	else
+	    props.put(prefix + ".numberAppletParameters", String.valueOf(0));
+
+	props.put(prefix + ".appletHeight", String.valueOf(appletHeight));
+	props.put(prefix + ".appletWidth", String.valueOf(appletWidth));
     }
 	
 
- /**
+    /**
+     * load existing information about this applet class role
+     * @param props the properties object to read
+     * @param prefix an internal name used for this target to identify 
+     * its properties in a properties file used by multiple targets.
+     */
+    public void load(Properties props, String prefix) throws NumberFormatException
+    {
+	int numberParameters = 
+	    Integer.parseInt(props.getProperty(prefix + ".numberAppletParameters"));
+	if(numberParameters > 0) {
+	    appletParams = new String[numberParameters];
+	    for(int i = 0; i < numberParameters; i++) 
+		appletParams[i] = props.getProperty(prefix + ".appletParameter" + (i + 1));
+	}
+	appletHeight = Integer.parseInt(props.getProperty(prefix + ".appletHeight"));
+	appletWidth = Integer.parseInt(props.getProperty(prefix + ".appletWidth"));
+
+    }
+
+
+
+    /**
      * generates a source code skeleton for this class	
      *
      * @param template the name of the particular class template
@@ -58,7 +98,13 @@ public class AppletClassRole extends ClassRole
     public void generateSkeleton(Package pkg, String name, String sourceFile,
 				 boolean isAbstract, boolean isInterface)
     {
-	String template = "template.applet";
+	String template;
+	Debug.message("applet type = " + appletType);
+
+	if(appletType.equals("japplet"))
+	    template = "template.japplet";
+	else
+	    template = "template.applet";
 
 	// inherited method from ClassRole
 	generateSkeleton(template, pkg, name, sourceFile);
@@ -75,7 +121,6 @@ public class AppletClassRole extends ClassRole
 	// add run applet option
 	ct.addMenuItem(menu, runAppletStr, (state == Target.S_NORMAL));
 	menu.addSeparator();
-
     }
 	
 
@@ -87,12 +132,11 @@ public class AppletClassRole extends ClassRole
     {
 	String cmd = e.getActionCommand();
 
-	if(runAppletStr.equals(cmd)) {
+	if(runAppletStr.equals(cmd))
 	    runApplet(ct);
-	}
+	
     }
     
-
 
     /**
      * Runs the applet using options provided by user RunAppletDialog dialog
@@ -109,9 +153,16 @@ public class AppletClassRole extends ClassRole
 	String name = ct.getName();
 	Package pkg = ct.getPackage();
 
-	if(dialog == null)
+	if(dialog == null) {
 	    dialog = new RunAppletDialog(ct.getPackage().getFrame(), name);
-
+	    // add params that originated from pkg properties
+	    if(appletParams != null)
+		dialog.setAppletParameters(appletParams);
+	    if(appletHeight != 0)
+		dialog.setAppletHeight(appletHeight);
+	    if(appletWidth !=0)
+		dialog.setAppletWidth(appletWidth);
+	}
 	if(dialog.display()) {
 	    int execOption = dialog.getAppletExecutionOption();
 	    if(execOption == RunAppletDialog.GENERATE_PAGE_ONLY) {
@@ -179,6 +230,25 @@ public class AppletClassRole extends ClassRole
 
 
 
+  /**
+     * Create a HTML page that contains this JApplet using
+     * parameters input by user in RunAppletDialog class.
+     *
+     * @param fileName fileName for HTML file to house Applet
+     */
+    private void updateAppletProperties()
+    {
+	try{
+	    appletHeight = Integer.parseInt(dialog.getAppletHeight());
+	    appletWidth = Integer.parseInt(dialog.getAppletWidth());
+	} catch (NumberFormatException nfe) {
+	    // add exception handling 
+	}
+	appletParams = dialog.getAppletParameters();
+    }
+
+
+
    /**
      * Create a HTML page that contains this JApplet using
      * parameters input by user in RunAppletDialog class.
@@ -187,10 +257,8 @@ public class AppletClassRole extends ClassRole
      */
     private void createWebPage(String appletName, String codeBase, String fileName)
     {
-	String appletHeight = dialog.getAppletHeight();
-	String appletWidth = dialog.getAppletWidth();
-	String[] appletParameters = dialog.getAppletParameters();
-	generateHTMLSkeleton(appletName, fileName, codeBase, appletWidth, appletHeight, appletParameters);
+	updateAppletProperties();
+	generateHTMLSkeleton(appletName, fileName, codeBase, dialog.getAppletWidth(), dialog.getAppletHeight(), appletParams);
     }
 
 
@@ -226,8 +294,16 @@ public class AppletClassRole extends ClassRole
 	    allParameters.append("\t" + parameters[index] + "\n");
 	
 	translations.put("PARAMETERS", allParameters.toString());
- 			
-	String filename = Config.getLibFilename("template.html");
+	
+	String template = "template.html";
+
+	// commented out plugin code until fully implemented
+	// if(htmlType.equals("plugin"))
+	//     template = "template.htmlplugin";
+	// else
+	//    template = "template.html";
+	   
+	String filename = Config.getLibFilename(template);
 		
 	try {
 	    Utility.translateFile(filename, outputFileName, translations);

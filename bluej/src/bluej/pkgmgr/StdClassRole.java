@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.util.Properties;
 
 /** 
- ** @version $Id: StdClassRole.java 140 1999-06-22 06:44:42Z mik $
+ ** @version $Id: StdClassRole.java 149 1999-06-30 01:22:09Z bruce $
  ** @author Bruce Quig
  **
  ** A role object which a class target uses to delegate behaviour to.
@@ -23,6 +23,20 @@ public class StdClassRole extends ClassRole
 	super.save(props, modifiers, prefix);
 	props.put(prefix + ".type", "ClassTarget");
     }
+
+
+    /**
+     * load existing information about this class role
+     * @param props the properties object to read
+     * @param prefix an internal name used for this target to identify 
+     * its properties in a properties file used by multiple targets.
+     */
+    public void load(Properties props, String prefix) throws NumberFormatException
+    {
+	// no implementation needed as yet
+    }
+
+
 
     /**
      * generates a source code skeleton for this class	

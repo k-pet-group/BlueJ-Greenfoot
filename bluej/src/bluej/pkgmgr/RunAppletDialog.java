@@ -12,7 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: RunAppletDialog.java 139 1999-06-22 06:25:37Z bruce $
+ ** @version $Id: RunAppletDialog.java 149 1999-06-30 01:22:09Z bruce $
  ** @author Bruce Quig
  **
  ** Dialog for generating HTML and running applets.
@@ -309,6 +309,26 @@ public class RunAppletDialog extends JDialog
     }
 
 
+   /**
+     * sets value of height text field.
+     * @param height value to set  in field
+     */
+    public void setAppletHeight(int height)
+    {
+	heightField.setText(String.valueOf(height));
+    }
+
+
+    /**
+     * sets value of width text field.
+     * @param width value to set in field
+     */
+    public void setAppletWidth(int width)
+    {
+	widthField.setText(String.valueOf(width));
+    }
+
+
     /**
      * Returns applet parameters.
      * @return applet parameters as an array of Strings or null if no parameters
@@ -323,10 +343,22 @@ public class RunAppletDialog extends JDialog
 	return paramStringArray;
     }
 
+  /**
+     * Returns applet parameters.
+     * @return applet parameters as an array of Strings or null if no parameters
+     */
+    public void setAppletParameters(String[] parameters)
+    {
+	for(int i = 0; i < parameters.length; i++)
+	    appletParameters.addElement(parameters[i]);
+
+    }
+
 
     /**
-     * Returns an int representinindex of value of width text field.
-     * @return width of Applet as a String
+     * Returns an int representing the radio button chosen 
+     * for execution option.
+     * @return int representing index of radio button selected
      */
     public int getAppletExecutionOption()
     {
