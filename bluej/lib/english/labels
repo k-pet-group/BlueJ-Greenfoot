@@ -461,6 +461,7 @@ testdisplay.title = BlueJ:  Test Results
 testdisplay.counter.runs=Runs:
 testdisplay.counter.errors=Errors:
 testdisplay.counter.failures=Failures:
+testdisplay.showsource=Show Source
 
 # status messages
 pkgmgr.compiling=Compiling...
@@ -583,5 +584,4 @@ about.moreInfo=More information is at www.bluej.org.
 about.theTeam=The BlueJ team:
 
 # Work Indicator
-workIndicator.showDebugger=Show Debugger
 workIndicator.resetMachine=Reset Machine@^R
