@@ -20,54 +20,115 @@ import java.awt.*;
  * @author  David Geary
  * @see     Util
  */
-public class ImageCanvas extends Component {
-    private Image image;
+public class ImageCanvas extends Component
+{
+	public static int CENTER = 0;
+	public static int LEFT = -1;
+	public static int RIGHT = +1;
+	public static int TOP = -1;
+	public static int BOTTOM = +1;
+	
+	private Image image;
+	private int valign;
+	private int halign;
 
-	public ImageCanvas() {
+	public ImageCanvas(Image image, int halign, int valign)
+	{
+		this.image = image;
+		this.halign = halign;
+		this.valign = valign;
+		
+		if(image != null)
+			setImage(image);
 	}
-    public ImageCanvas(Image image) {
-		Assert.notNull(image);
-		setImage(image);
-    }
-    public void paint(Graphics g) {
-		if(image != null) {
-        	g.drawImage(image, 0, 0, this);
+	
+	public ImageCanvas(Image image)
+	{
+		this(image, CENTER, CENTER);
+	}
+	
+	public ImageCanvas()
+	{
+		this(null, CENTER, CENTER);
+	}
+	
+	public void paint(Graphics g)
+	{
+		if(image != null)
+		{
+			Dimension d = getSize();
+			int x, y;
+			
+			if(halign == LEFT)
+				x = 0;
+			else if(halign == RIGHT)
+				x = d.width - image.getWidth(null);
+			else	// CENTER
+				x = (d.width - image.getWidth(null)) / 2;
+			
+			if(valign == TOP)
+				y = 0;
+			else if(valign == BOTTOM)
+				y = d.height - image.getHeight(null);
+			else	// CENTER
+				y = (d.height - image.getHeight(null)) / 2;
+			
+			g.drawImage(image, x, y, this);
 		}
-    }
-    public void update(Graphics g) {
-        paint(g);
-    }
-	public void setImage(Image image) {
-        Util.waitForImage(this, image);
+	}
+	
+	public void update(Graphics g)
+	{
+		paint(g);
+	}
+	
+	public void setImage(Image image)
+	{
+		Util.waitForImage(this, image);
 		this.image = image;
 
-        setSize(image.getWidth(this), image.getHeight(this));
+		setSize(image.getWidth(this), image.getHeight(this));
 
-		if(isShowing()) {
+		if(isShowing())
 			repaint();
-		}
 	}
+	
+	public void setAlignment(int halign, int valign)
+	{
+		this.halign = halign;
+		this.valign = valign;
+
+		if(isShowing())
+			repaint();
+	}
+	
 	/**
 	 * @deprecated as of JDK1.1
 	 */
-	public Dimension minimumSize() {
-		if(image != null) {
+	public Dimension minimumSize()
+	{
+		if(image != null)
 			return new Dimension(image.getWidth(this),
-		                     	image.getHeight(this));
-		}
+ image.getHeight(this));
 		else 
-			return new Dimension(0,0);
+			return new Dimension(0, 0);
 	}
-	public Dimension getMinimumSize() {
+	
+	public Dimension getMinimumSize()
+	{
 		return minimumSize();
 	}
+	
 	/**
 	 * @deprecated as of JDK1.1
 	 */
-	public Dimension preferredSize() {
+	public Dimension preferredSize()
+	{
 		return minimumSize();
 	}
-	public Dimension getPreferredSize() {
+	
+	public Dimension getPreferredSize()
+	{
 		return preferredSize();
 	}
 }
