@@ -224,6 +224,11 @@ colour.class.bg.imported=176,48,96
 colour.class.bg.interface=94,147,107
 colour.package.bg.default=180,130,44
 
+colour.package.bg.uml.default=180,130,44
+#colour.class.bg.uml.default=188,196,204
+#colour.target.bg.uml.compiling=119,136,153
+#colour.target.uml.shadow=119,136,153
+
 colour.class.bg.uml.default=255,221,153
 colour.target.bg.uml.compiling=255,153,102
 colour.target.uml.shadow=153,153,153
