@@ -1,13 +1,10 @@
 package bluej.debugmgr.inspector;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.Container;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +33,7 @@ import bluej.utility.JavaNames;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ObjectInspector.java 2534 2004-05-19 15:03:04Z polle $
+ * @version $Id: ObjectInspector.java 2543 2004-05-24 08:53:48Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -46,20 +43,38 @@ public class ObjectInspector extends Inspector
     protected final static String inspectTitle =
         Config.getString("debugger.inspector.object.title");  
    
+    
+    // === instance variables ===
+
+    protected DebuggerObject obj;
+	protected String objName; // name on the object bench
+	protected boolean queryArrayElementSelected = false;
+	protected TreeSet arraySet = null; // array of Integers representing the
+									   // array indexes from
+	// a large array that have been selected for viewing
+	protected List indexToSlotList = null; // list which is built when viewing
+										   // an array
+	// that records the object slot corresponding to each
+	// array index
+
 
    /**
-     * Return an ObjectInspector for an object. The inspector is visible.
-     * This is the only way to get access to viewers - they cannot be
-     * directly created.
-     *
-     * @param  obj         The object displayed by this viewer
-     * @param  name        The name of this object or "null" if the name is unobtainable
-     * @param  pkg         The package all this belongs to
-     * @param  ir          the InvokerRecord explaining how we got this result/object
-     *                     if null, the "get" button is permanently disabled
-     * @param  parent      The parent frame of this frame
-     * @return             The Viewer value
-     */
+    * Return an ObjectInspector for an object. The inspector is visible. This is
+    * the only way to get access to viewers - they cannot be directly created.
+    * 
+    * @param obj
+    *            The object displayed by this viewer
+    * @param name
+    *            The name of this object or "null" if the name is unobtainable
+    * @param pkg
+    *            The package all this belongs to
+    * @param ir
+    *            the InvokerRecord explaining how we got this result/object if
+    *            null, the "get" button is permanently disabled
+    * @param parent
+    *            The parent frame of this frame
+    * @return The Viewer value
+    */
     public static ObjectInspector getInstance(DebuggerObject obj,
                                                 String name, Package pkg,
                                                 InvokerRecord ir, JFrame parent)
@@ -79,21 +94,7 @@ public class ObjectInspector extends Inspector
     }
 
 
-    // === instance variables ===
-
-    protected DebuggerObject obj;
-    protected String objName;           // a String for display that contains this objects
-                                        // name on the object bench
-                                            
-    protected boolean queryArrayElementSelected = false;
-
-    protected TreeSet arraySet = null;  // array of Integers representing the array indexes from
-                                        // a large array that have been selected for viewing
-    protected List indexToSlotList = null;  // list which is built when viewing an array
-                                            // that records the object slot corresponding to each
-                                            // array index
-
-
+   
 
 
     /**
@@ -119,7 +120,7 @@ public class ObjectInspector extends Inspector
         this.obj = obj;
         this.objName = name;        
         
-        makeFrame(true, true);
+        makeFrame();
        	DialogManager.tileWindow(this, parent);
     }
 
@@ -127,17 +128,12 @@ public class ObjectInspector extends Inspector
     /**
      * Build the GUI
      *
-     * @param  parent        The parent frame
-     * @param  isResult      Indicates if this is a result window or an inspector window
-     * @param  isObject      Indicates if this is a object inspector window
-     * @param  showAssert    Indicates if assertions should be shown.
      */
-    protected void makeFrame(boolean isObject, boolean showAssert)
+    protected void makeFrame()
     {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setOpaque(false);   
-        getContentPane().add(mainPanel, BorderLayout.CENTER);
-      
+                     
         JScrollPane scrollPane = createFieldListScrollPane();
         mainPanel.add(scrollPane, BorderLayout.CENTER);     
 
@@ -173,15 +169,15 @@ public class ObjectInspector extends Inspector
         String fullTitle = objName + " : " + className;    
         String underlinedNameLabel = "<html><u>"+fullTitle+ "</u></font>";
         header.add(new JLabel(underlinedNameLabel, JLabel.CENTER));        
-        mainPanel.add(header, BorderLayout.NORTH);
         
-        
-        //because the class inspector header needs to draw a line
-        //from left to right border we can't have an empty border
-        //Instead we put these borders on the sub-components        
+        //     add the components
+        Container contentPane = getContentPane();
+        contentPane.setLayout(new BorderLayout());        
+        contentPane.add(header, BorderLayout.NORTH);        
+        contentPane.add(mainPanel, BorderLayout.CENTER);
+               
         Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
-        inspectAndGetButtons.setBorder(new EmptyBorder(0, 0, 0, insets.right));
-        fieldList.setBorder(BorderFactory.createEmptyBorder(0,insets.left,0,0));        
+        mainPanel.setBorder(new EmptyBorder(insets));        
         
         getRootPane().setDefaultButton(button);
         pack();

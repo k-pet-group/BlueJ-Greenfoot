@@ -60,13 +60,12 @@ public class FieldList extends JTable
         removeHeader();
     }
 
-    	/**
-    	 * Ensures that the header of the table is not shown at all!
-    	 *
-    	 */
+    /**
+     * Ensures that the header of the table is not shown at all!
+     *
+     */
     private void removeHeader() {
-        this.unconfigureEnclosingScrollPane();
-        this.getTableHeader().setVisible(false);
+        this.unconfigureEnclosingScrollPane();        
     }
     
     static class ListTableModel extends DefaultTableModel {

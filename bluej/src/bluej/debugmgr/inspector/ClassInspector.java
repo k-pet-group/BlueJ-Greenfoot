@@ -1,11 +1,8 @@
 package bluej.debugmgr.inspector;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.Container;
 import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -24,7 +21,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: ClassInspector.java 2534 2004-05-19 15:03:04Z polle $
+ * @version    $Id: ClassInspector.java 2543 2004-05-24 08:53:48Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -85,10 +82,9 @@ public class ClassInspector extends Inspector
         setTitle(inspectTitle);
 
         myClass = clss;
-        setBorder(BlueJTheme.shadowBorder);
-        
+        setBorder(BlueJTheme.shadowBorder);        
        
-        makeFrame(false, false);
+        makeFrame();
        	DialogManager.tileWindow(this, parent);
     }
     
@@ -97,12 +93,9 @@ public class ClassInspector extends Inspector
     /**
      * Build the GUI
      *
-     * @param  parent        The parent frame
-     * @param  isResult      Indicates if this is a result window or an inspector window
-     * @param  isObject      Indicates if this is a object inspector window
      * @param  showAssert    Indicates if assertions should be shown.
      */
-    protected void makeFrame(boolean isObject, boolean showAssert)
+    protected void makeFrame()
     {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setOpaque(false);
@@ -117,8 +110,7 @@ public class ClassInspector extends Inspector
         //Create a header
         JComponent header = createHeader();
         String className = JavaNames.stripPrefix(myClass.getName());        
-        header.add(new JLabel(classNameLabel + " " + className));  
-        mainPanel.add(header, BorderLayout.NORTH);
+        header.add(new JLabel(classNameLabel + " " + className));         
         
         // create bottom button pane with "Close" button
         JPanel bottomPanel = new JPanel();
@@ -133,22 +125,20 @@ public class ClassInspector extends Inspector
         buttonPanel.add(button,BorderLayout.EAST);
         
         bottomPanel.add(buttonPanel);
-        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
         
-
-        //because the class inspector header needs to draw a line
-        //from left to right border we can't have an empty border
-        //Instead we put these borders on the sub-components        
+        // add the components
+        Container contentPane = getContentPane();
+        contentPane.setLayout(new BorderLayout());        
+        contentPane.add(header, BorderLayout.NORTH);        
+        contentPane.add(mainPanel, BorderLayout.CENTER);
+        contentPane.add(bottomPanel, BorderLayout.SOUTH);
+        
         Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
-        inspectAndGetButtons.setBorder(new EmptyBorder(0, 0, 0, insets.right));
-        fieldList.setBorder(BorderFactory.createEmptyBorder(0,insets.left,0,0));        
+        mainPanel.setBorder(new EmptyBorder(insets));
         
         getRootPane().setDefaultButton(button);
         pack();
     }
-    
-    
-  
    
     
     /**
