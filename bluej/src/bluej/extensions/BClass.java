@@ -15,7 +15,7 @@ import java.util.*;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1982 2003-05-23 08:08:34Z damiano $
+ * @version $Id: BClass.java 1984 2003-05-23 09:24:49Z damiano $
  */
 
 public class BClass
@@ -70,10 +70,9 @@ public class BClass
      * @return true if it is compiled false othervise.
      * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
      * @throws PackageNotFoundException if the package to which this class belongs has been deleted by the user.
-     * @throws ClassNotInteractiveException if the class is not compileable, i.e. it is a non-interactive (source only) class.
      */
     public boolean isCompiled() 
-        throws ProjectNotOpenException, PackageNotFoundException, ClassNotInteractiveException
+        throws ProjectNotOpenException, PackageNotFoundException
         {
         ClassTarget aTarget = classId.getClassTarget();
 
@@ -85,10 +84,9 @@ public class BClass
      * @return true if the compilation was successful, false otherwise.
      * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
      * @throws PackageNotFoundException if the package to which this class belongs has been deleted by the user.
-     * @throws ClassNotInteractiveException if an attempt is made to compile a non-interactive (source only) class.
      */
     public boolean compile() 
-        throws ProjectNotOpenException, PackageNotFoundException, ClassNotInteractiveException
+        throws ProjectNotOpenException, PackageNotFoundException
         {
         ClassTarget aTarget = classId.getClassTarget();
     

@@ -19,7 +19,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1981 2003-05-22 16:35:43Z iau $
+ * @version $Id: BPackage.java 1984 2003-05-23 09:24:49Z damiano $
  */
 
 /*
@@ -116,7 +116,7 @@ public class BPackage
         Project bluejPrj = packageId.getBluejProject();
         Package bluejPkg = packageId.getBluejPackage();
 
-        String pkgBasename = bluejPkg.getBaseName();
+        String pkgBasename = bluejPkg.getQualifiedName();
         if ( pkgBasename.length() > 1 ) pkgBasename = pkgBasename+".";
         
         List names = bluejPkg.getAllClassnames();

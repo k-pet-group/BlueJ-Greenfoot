@@ -134,7 +134,7 @@ class Identifier
    * Returns the class target of this java class by checking its existence
    */
   ClassTarget getClassTarget ()
-    throws ProjectNotOpenException, PackageNotFoundException, ClassNotInteractiveException
+    throws ProjectNotOpenException, PackageNotFoundException
     {
     Package bluejPkg = getBluejPackage();
 
@@ -144,10 +144,10 @@ class Identifier
     Target aTarget = bluejPkg.getTarget(className);
 
     if ( aTarget == null ) 
-      throw new ClassNotInteractiveException ("Class "+qualifiedClassName+" not Interactive");
+      throw new NullPointerException ("Class "+qualifiedClassName+" has NO ClassTarget");
     
     if ( ! (aTarget instanceof ClassTarget) ) 
-      throw new ClassNotInteractiveException ("Class "+qualifiedClassName+" not of type Interactive");
+      throw new NullPointerException ("Class "+qualifiedClassName+" is not of type ClassTarget");
 
     return (ClassTarget)aTarget;
     }
