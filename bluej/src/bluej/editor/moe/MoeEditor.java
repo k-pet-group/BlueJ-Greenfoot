@@ -608,16 +608,44 @@ public final class MoeEditor extends JFrame
     /**
      *  Set this editor to read-only.
      */
-    public void setReadOnly(boolean readOnlyStatus) {
-        if (readOnlyStatus) {
+    public void setReadOnly(boolean readOnly) 
+    {
+        if (readOnly) {
             saveState.setState(StatusLabel.READONLY);
             actions.undoManager.discardAllEdits();
             actions.undoAction.update();
             actions.redoAction.update();
         }
-        currentTextPane.setEditable(!readOnlyStatus);
+        currentTextPane.setEditable(!readOnly);
     }
 
+    // --------------------------------------------------------------------
+    /**
+     *  Set this editor to display either the interface or the source code 
+     *  of this class
+     *  @param interfaceStatus If true, display class interface, otherwise source.
+     */
+    public void showInterface(boolean interfaceStatus) 
+    {
+        if(interfaceStatus) {
+            switchToInterfaceView();
+        }
+        else {
+            switchToSourceView();
+        }
+    }
+    
+    // --------------------------------------------------------------------
+    /**
+     *  Tell whether the editor is currently displaying the interface or the
+     *  source of the class.
+     *  @return  True, if interface is currently shown, false otherwise.
+     */
+    public boolean isShowingInterface() 
+    {
+        return viewingHTML;
+    }
+    
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
     // --------------------------------------------------------------------

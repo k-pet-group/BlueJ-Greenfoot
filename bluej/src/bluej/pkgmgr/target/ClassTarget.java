@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2323 2003-11-12 12:48:38Z fisker $
+ * @version $Id: ClassTarget.java 2349 2003-11-15 16:01:11Z mik $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -77,6 +77,10 @@ public class ClassTarget extends EditableTarget
     // setRole(). A role should not contain important state information
     // because role objects are thrown away at a whim.
     private ClassRole role = new StdClassRole();
+    
+    // a flag indicating whether an editor, when opened for the first
+    // time, should display the interface of this class
+    private boolean openWithInterface = false;
 
     // the set of breakpoints set in this class
     protected List breakpoints = new ArrayList();
@@ -240,11 +244,14 @@ public class ClassTarget extends EditableTarget
     {
         super.load(props, prefix);
 
-        // XXX try to determine if any role was set when we saved
+        // try to determine if any role was set when we saved
         // the class target. Be careful here as if you add role types
         // you need to add them here as well.
         String type = props.getProperty(prefix + ".type");
 
+        String intf = props.getProperty(prefix + ".showInterface");
+        openWithInterface = Boolean.valueOf(intf).booleanValue();
+        
         if (AppletClassRole.APPLET_ROLE_NAME.equals(type))
             setRole(new AppletClassRole());
         else if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type))
@@ -269,6 +276,12 @@ public class ClassTarget extends EditableTarget
 
         if (getRole().getRoleName() != null) 
             props.put(prefix + ".type", getRole().getRoleName());
+
+        if (editorOpen()) {
+            openWithInterface = getEditor().isShowingInterface();
+        }
+        props.put(prefix + ".showInterface", 
+                    Boolean.toString(openWithInterface));
 
         getRole().save(props, 0, prefix);
     }
@@ -441,13 +454,15 @@ public class ClassTarget extends EditableTarget
         if(editor == null){
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
-                editor = Package.editorManager.openClass(filename, 
+            editor = Package.editorManager.openClass(filename, 
                     docFilename, 
                     getBaseName(), 
                     this, 
                     isCompiled(), 
                     breakpoints, 
                     getPackage().getProject().getLocalClassLoader() );
+            if(openWithInterface)
+                editor.showInterface(true);
         }
         return editor;
     }

@@ -17,7 +17,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 2192 2003-10-01 11:28:33Z damiano $
+ * @version $Id: EditorManager.java 2349 2003-11-15 16:01:11Z mik $
  */
 public abstract class EditorManager
 {
@@ -51,7 +51,7 @@ public abstract class EditorManager
      */
     public abstract Editor openClass(String filename, 
         String docFilename, 
-    		String windowTitle, 
+        String windowTitle, 
         EditorWatcher watcher, 
         boolean compiled, 
         List breakpoints, 

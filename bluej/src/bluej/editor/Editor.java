@@ -13,7 +13,7 @@ import java.awt.print.PrinterJob;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 1753 2003-04-04 14:04:57Z fisker $
+ * @version $Id: Editor.java 2349 2003-11-15 16:01:11Z mik $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -71,7 +71,7 @@ public interface Editor
      * @param len the number of characters to select
      */
     void setSelection(int firstlineNumber, int firstColumn,
-                        int secondLineNumber, int SecondColumn );
+                      int secondLineNumber, int SecondColumn);
 
 
     /**
@@ -161,5 +161,24 @@ public interface Editor
      */
     void print(PrinterJob printerJob);
 
-    void setReadOnly(boolean readOnlyStatus);
+    /**
+     * Set the 'read-only' property of this editor.
+     * @param readOnlyStatus  If true, editor is non-editable.
+     */
+    void setReadOnly(boolean readOnly);
+    
+    /**
+     * Set the view of this editor to display either the source or the interface
+     * of the class.
+     * @param interfaceStatus If true, display class interface, otherwise source.
+     */
+    void showInterface(boolean interfaceStatus);
+
+    /**
+     *  Tell whether the editor is currently displaying the interface or the
+     *  source of the class.
+     *  @return  True, if interface is currently shown, false otherwise.
+     */
+    boolean isShowingInterface();
+
 } // end interface Editor
