@@ -47,7 +47,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2602 2004-06-13 18:16:54Z fisker $
+ * @version $Id: PkgMgrFrame.java 2608 2004-06-14 09:46:31Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2021,22 +2021,22 @@ public class PkgMgrFrame extends JFrame
                 ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
     
                 action = NewClassAction.getInstance(); 
-                JButton button = createButton(action, false);
+                JButton button = createButton(action, false, 2, 4);
                 buttonPanel.add(button);
                 buttonPanel.add(Box.createVerticalStrut(3));
         
                 action = NewUsesAction.getInstance(); 
-                imgDependsButton = createButton(action, true);
+                imgDependsButton = createButton(action, true, 2, 4);
                 buttonPanel.add(imgDependsButton);
                 buttonPanel.add(Box.createVerticalStrut(3));
     
                 action = NewInheritsAction.getInstance(); 
-                imgExtendsButton = createButton(action, true);
+                imgExtendsButton = createButton(action, true, 2, 4);
                 buttonPanel.add(imgExtendsButton);
                 buttonPanel.add(Box.createVerticalStrut(3));
     
                 action = CompileAction.getInstance(); 
-                button = createButton(action, false);
+                button = createButton(action, false, 2, 4);
                 buttonPanel.add(button);
 				buttonPanel.add(Box.createVerticalStrut(3));
 
@@ -2053,7 +2053,7 @@ public class PkgMgrFrame extends JFrame
 //                                        Config.getString("pkgmgr.test.label")));
 
 				action = RunTestsAction.getInstance(); 
-                runButton = createButton(action, false);
+                runButton = createButton(action, false, 2, 4);
                 runButton.setText(Config.getString("pkgmgr.test.run"));
                 runButton.setAlignmentX(0.15f);
                 testPanel.add(runButton);
@@ -2069,7 +2069,7 @@ public class PkgMgrFrame extends JFrame
                 testPanel.add(Box.createVerticalStrut(3));
 
                 action = EndTestRecordAction.getInstance(); 
-                endTestButton = createButton(action, false);
+                endTestButton = createButton(action, false, 2, 4);
                 //make the button use a different label than the one from action
                 endTestButton.setText(Config.getString("pkgmgr.test.end"));
                 endTestButton.setEnabled(false);
@@ -2078,7 +2078,7 @@ public class PkgMgrFrame extends JFrame
                 testPanel.add(Box.createVerticalStrut(3));
 
                 action = CancelTestRecordAction.getInstance();
-                cancelTestButton = createButton(action, false);
+                cancelTestButton = createButton(action, false, 2, 4);
                 //make the button use a different label than the one from action
                 cancelTestButton.setText(Config.getString("cancel"));
                 cancelTestButton.setEnabled(false);
@@ -2119,10 +2119,19 @@ public class PkgMgrFrame extends JFrame
             testStatusMessage = new JLabel("");
 
             JPanel bottom = new JPanel(new BorderLayout());
-//             bottom.setBorder(BorderFactory.createEmptyBorder(2,2,4,2));
+            bottom.setBorder(BorderFactory.createEmptyBorder(2,0,4,6));
             bottom.add(statusbar, BorderLayout.CENTER);
             bottom.add(testStatusMessage, BorderLayout.WEST);
-//             bottom.add(new JTextField(30), BorderLayout.EAST);
+
+            JPanel buttons = new JPanel(new GridLayout(1,0));
+            JButton objBenchButton = createButton(ShowObjectBenchAction.getInstance(), false, 6, 2);
+            objBenchButton.setSelected(true);
+            buttons.add(objBenchButton);
+
+            JButton textEvalButton = createButton(ShowTextEvalAction.getInstance(), false, 6, 2);
+            buttons.add(textEvalButton);
+            
+            bottom.add(buttons, BorderLayout.EAST);
             bottomPanel.add(bottom, BorderLayout.SOUTH);
         }
 
@@ -2160,9 +2169,10 @@ public class PkgMgrFrame extends JFrame
      * Create a button for the interface.
      * @param action : the Action abstraction dictating text, icon, tooltip, action.
      * @param notext : set true if the action text should not appear (icon only).
+     * @param vSpacing TODO
      * @return
      */
-    private JButton createButton(Action action, boolean notext)
+    private JButton createButton(Action action, boolean notext, int hSpacing, int vSpacing)
     {
         JButton button = new JButton(action);
         button.setFont(PkgMgrFont);
@@ -2176,7 +2186,7 @@ public class PkgMgrFrame extends JFrame
         Dimension pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
-        button.setMargin(new Insets(4, 2, 4, 2));
+        button.setMargin(new Insets(vSpacing, hSpacing, vSpacing, hSpacing));
 
         return button;
     }

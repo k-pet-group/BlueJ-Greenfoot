@@ -556,6 +556,8 @@ menu.view.showInherits=Show Inheritance@I
 menu.view.showExecControls=Show Debugger@D
 menu.view.showTerminal=Show Terminal@T
 menu.view.showTestDisplay=Show Test _Results
+menu.view.showObjectBench=Object Bench
+menu.view.showTextEval=Text Eval
 
 menu.group=_Group Work
 menu.group.make=Make Group Package
