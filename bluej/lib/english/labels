@@ -24,6 +24,8 @@ debugger.assert.null=null
 debugger.assert.delta=delta
 
 debugger.inspector.title=BlueJ:  Inspector
+debugger.inspector.object.title=BlueJ:  Object Inspector
+debugger.inspector.class.title=BlueJ:  Class Inspector
 debugger.inspector.result.title=BlueJ:  Method Result
 debugger.inspector.staticListTitle=Static fields
 debugger.inspector.objListTitle=Instance fields
@@ -286,7 +288,6 @@ utility.packageChooser.previewPane1=Preview of possible
 utility.packageChooser.previewPane2=package structure
 
 # dialog titles and texts
-
 pkgmgr.newPkg.title=New Project
 pkgmgr.newPkg.buttonLabel=Create
 pkgmgr.openPkg.title=Open Project
