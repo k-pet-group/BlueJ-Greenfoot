@@ -105,10 +105,9 @@ public class DocuGenerator
         ArrayList call = new ArrayList();
         call.add(docCommand);
         addParams(call, fixedJavadocParams);
-        if(! System.getProperty("java.vm.version").startsWith("1.3")) {
-            call.add("-source");
-            call.add("1.4");
-        }
+        String majorVersion = System.getProperty("java.vm.version").substring(0,3);        
+        call.add("-source");
+        call.add(majorVersion);
         addParams(call, tmpJavadocParams);
         call.add("-d");
         call.add(docDir.getPath());
@@ -339,10 +338,9 @@ public class DocuGenerator
         call.add(junitFile.getAbsolutePath());
         call.add("-d");
         call.add(docDirPath);
-        if(! System.getProperty("java.vm.version").startsWith("1.3")) {
-            call.add("-source");
-            call.add("1.4");
-        }
+        String majorVersion = System.getProperty("java.vm.version").substring(0,3);        
+        call.add("-source");
+        call.add(majorVersion);
         call.add("-doctitle");
         call.add(project.getProjectName());
         call.add("-windowtitle");
