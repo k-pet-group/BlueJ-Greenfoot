@@ -610,11 +610,14 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
+            JTextComponent textPane = getTextComponent(e);
+            int column = getCurrentColumn(textPane);
+
             Action action = (Action)(actions.get("insert-break"));
             action.actionPerformed(e);
 
-            JTextComponent textPane = getTextComponent(e);
-            doIndent(textPane);
+            if(column > 0)
+                doIndent(textPane);
         }
     }
 
@@ -1065,6 +1068,7 @@ public final class MoeActions
             int prevLineStart = prevline.getStartOffset();
             int prevLineEnd = prevline.getEndOffset();
             String lineText = doc.getText(prevLineStart, prevLineEnd-prevLineStart);
+            boolean commentEnd = lineText.trim().endsWith("*/");
             int indentPos = findFirstNonIndentChar(lineText);
 
             // if the cursor is already past the indentation point, insert tab
@@ -1081,12 +1085,9 @@ public final class MoeActions
 
             int lineEnd = line.getEndOffset();
             lineText = doc.getText(lineStart, lineEnd-lineStart);
-            boolean commentEnd = lineText.trim().endsWith("*/");
             indentPos = findFirstNonIndentChar(lineText);
             doc.remove(lineStart, indentPos);
             doc.insertString(lineStart, nextIndent(indent, commentEnd), null);
-
-            //textPane.setCaretPosition(lineStart + indent.length());
         }
         catch (BadLocationException exc) {}
     }
@@ -1100,10 +1101,13 @@ public final class MoeActions
         int cnt=0;
         char ch = s.charAt(0);
 
-        while(ch == ' ' || ch == '\t' || ch == '*' || ch == '/') {   // SPACE or TAB
+        while(ch == ' ' || ch == '\t' || ch == '*') {   // SPACE or TAB
             cnt++;
             ch = s.charAt(cnt);
         }
+        if((s.charAt(cnt) == '/') && (s.charAt(cnt+1) == '*'))
+            cnt += 2;
+
         return cnt;
     }
 
@@ -1115,22 +1119,19 @@ public final class MoeActions
      */
     private String nextIndent(String s, boolean commentEnd)
     {
-        if(s.trim().equals("*/")) {
-            int pos = s.indexOf("*/");
+        if(commentEnd && s.trim().equals("*")) {
+            int pos = s.indexOf("*");
             if((pos > 0) && (s.charAt(pos-1)==' '))
                 pos--;
             return s.substring(0, pos);
         }
 
-        if(s.indexOf("//") >= 0)
-            return s;
-
         if(commentEnd)
-            return(whiteSpaceOf(s));
+            return whiteSpaceOf(s);
 
         int pos = s.indexOf("/*");
-        if(pos >= 0) {
-            return s.substring(0, pos) + " * ";
+        if(s.endsWith("/*")) {
+            return s.substring(0, s.length()-2) + " * ";
         }
 
         return s;
@@ -1141,7 +1142,14 @@ public final class MoeActions
      */
     private String whiteSpaceOf(String s)
     {
-        return s;
+        int cnt=0;
+        while(cnt < s.length()) {
+            char ch = s.charAt(cnt);
+            if(!(ch == ' ' || ch == '\t'))    // SPACE or TAB
+                break;
+            cnt++;
+        }
+        return s.substring(0, cnt);
     }
 
     /**
