@@ -110,9 +110,6 @@ browser.menu.library.addlibrary.title=Add Library
 browser.menu.library.refresh=Refresh
 browser.menu.library.close=Close
 
-# Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Preferences
-
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Libraries
 classmgr.userlibraries=User Libraries
@@ -132,6 +129,9 @@ classmgr.error.nodescription=No Description
 classmgr.error.missingclasspath=No Java classpath. Class loading behaviour may be strange because\nclasses in the current directory will be resolved first.
 classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be run on a pre JDK 1.2 environment.
 
+# Preferences Manager user interface elements and error messages
+prefmgr.title=BlueJ:  Preferences
+
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=Miscellaneous
 prefmgr.misc.editor.title=Editor settings
@@ -149,6 +149,33 @@ prefmgr.misc.linkToLib=Use this URL when generating project documentation
 prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation, it must be correct and accessible.
 prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
 
+# Features Panel
+prefmgr.features.title=Features
+
+# Extensions Manager Help panel
+extmgr.extensions=Extensions
+extmgr.installed=Installed
+extmgr.project=Project
+extmgr.statuscolumn=Status
+extmgr.namecolumn=Name
+extmgr.typecolumn=Type
+extmgr.versioncolumn=Version
+extmgr.details=Details
+extmgr.details.status=Status
+extmgr.details.name=Name
+extmgr.details.location=Location
+extmgr.details.type=Type
+extmgr.details.version=Version
+extmgr.details.date=Date
+extmgr.details.url=URL
+extmgr.details.description=Description
+
+extmgr.status.notused=Not used
+extmgr.status.loaded=Loaded
+extmgr.status.error=Error
+extmgr.status.unloaded=Unloaded
+extmgr.version.unknown=Unknown
+extensions.nodescription=None given.
 
 #---------------
 #Editor labels
@@ -511,6 +538,7 @@ menu.group.configuration=Configuration
 
 menu.help=Help
 menu.help.about=About BlueJ
+menu.help.extensions=Installed Extensions
 menu.help.versionCheck=Check Version...
 menu.help.copyright=Copyright
 menu.help.website=BlueJ Web Site
