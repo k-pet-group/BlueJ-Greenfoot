@@ -1,124 +1,132 @@
 NullPointerException*
-You tried to access an object (either a field
-in an object or a method of an object). This
-did not work because the object reference you
-used to access the object was 'null'. For 
-example: You wrote "thing.print()", and "thing"
-was null at the time.
+Sie haben versucht, auf ein Objekt zuzugreifen
+(entweder auf eine Variable oder auf eine Methode
+eines Objekts). Dies ist fehlgeschlagen, weil
+die Objektreferenz, die Sie für den Zugriff 
+verwendet haben, "null" war. Zum Beispiel:
+Sie haben geschrieben "einObjekt.print()", und 
+"einObjekt" war zu diesem Zeitpunkt "null".
 
 ArithmeticException*
-Something went wrong during an arithmetic
-calculation, such as a division by 0 or
-something similar.
+Eine arithmetische Berechnung ist fehlgeschlagen,
+z.B. wegen Division durch 0 oder Ähnlichem.
 
 StringIndexOutOfBoundsException*
-You have tried to access a character or a substring 
-in a string , and the index you used does not exist
-in that string. For example, you may have tried to
-access the fifth character in a string that is only
-three characters long.
-For the substring operation, remember that the second
-parameter is the length of the substring, not the
-end index.
+Sie haben versucht, auf ein Zeichen oder auf einen 
+Teilstring eines Strings zuzugreifen, und zwar an
+einer Stelle, die es in diesem String nicht gibt.
+Sie wollten z.B. auf das fünfte Zeichen in einem
+String zugreifen, der nur drei Zeichen lang ist.
+Bitte beachten Sie, dass der zweite Parameter 
+der Teilstring-Operation die Länge des Teilstrings
+bedeutet, und nicht die Position seines letzten 
+Zeichens.
 
-ClassCastException* 
-You used a "cast" - that is an instruction assigning
-a different static type to an object, such as in this
-example:
-       (String)someObject
-Here, "someObject" is cast to "String". This is legal
-only if the object stored in someObject really is of 
-type String.
-In other words: you can cast to type T only if the 
-object you are casting is of type T or one of its
-subtypes. In your case it wasn't.
+ClassCastException*
+Sie haben ein Typumwandlung benutzt -- eine Anweisung, 
+einem Objekt einen anderen Typ zuzuweisen, wie in
+diesem Beispiel:
+       (String)einObjekt
+Hier soll "einObjekt" in ein String-Objekt umgewandelt
+werden. Das ist nur dann zulässig, wenn das in 
+"einObjekt" aktuell gespeicherte Objekt tatsächlich 
+den Typ String aufweist.
+Mit anderen Worten: Sie können nur dann in einen Typ T
+umwandeln, wenn das umzuwandelnde Objekt den Typ T oder
+einen von T abgeleiteten Typ aufweist. Im vorliegenden
+Fall traf das nicht zu.
 
-IndexOutOfBoundsException* 
-An index of some sort (such as to an array, to a string, 
-or to a vector) is out of range. "Out of range" means 
-that the index does not exist in the array or other 
-collection (e.g. you tried to access element 5, but only
-three elements exist).
+IndexOutOfBoundsException*
+Eine Art von Index (eines Arrays, eines Strings, eines
+Vektors) befindet sich ausserhalb seines zulässigen 
+Bereichs. Das bedeutet, dass es die durch den Index 
+angesprochene Position im Array etc. nicht gibt 
+(z.B. haben Sie versucht, das fünfte Element 
+anzusprechen, aber es gibt nur drei Elemente).
 
-ArrayIndexOutOfBoundsException* 
-An array index is out of range. "Out of range" means 
-that the index does not exist in the array (e.g. you 
-tried to access element 5, but only three elements 
-exist). The legal index range is 0..arraylength-1.  
+ArrayIndexOutOfBoundsException*
+Ein Arrayindex befindet sich ausserhalb seines 
+zulässigen Bereichs. Das bedeutet, dass es die durch 
+den Index angesprochene Position im Array nicht 
+gibt (z.B. haben Sie versucht, das fünfte Element 
+anzusprechen, aber es gibt nur drei Elemente).
+Der zulässige Indexbereich umfasst 0..Arraylänge-1.
 
-ConcurrentModificationException* 
-You are doing an iteration over a collection here. 
-While you are doing this, the collection was modified.
-That's a problem. You are not allowed to modify the
-collection during an iteration. Or the other way
-around: you cannot continue the iteration after 
-modifying the collection. The only modification 
-allowed during an iteration is removing elements with 
-the Iterator's remove method (NOT the remove in the 
-collection itself).
+ConcurrentModificationException*
+Sie iterieren über einer Sammlung (collection).
+Während Sie das tun, wurde die Sammlung verändert.
+Das bedeutet ein Problem: während der Iteration
+dürfen Sie die Sammlung nicht verändern. Oder,
+anders herum gesagt: sobald Sie die Sammlung
+verändert haben, dürfen Sie die Iteration nicht
+fortführen. Die einzige Änderung, die während 
+einer Iteration zulässig ist, besteht im Entfernen
+von Elementen mit der "remove"-Methode des Iterators
+(NICHT mit der "remove"-Methode der Sammlung selbst).
 
 ArrayStoreException*
-No help available - sorry.
+Leider ist keine Hilfe verfügbar.
 
-CannotRedoException*     
-No help available - sorry.
+CannotRedoException*
+Leider ist keine Hilfe verfügbar.
 
-CannotUndoException* 
-No help available - sorry.
+CannotUndoException*
+Leider ist keine Hilfe verfügbar.
 
 CMMException*
-No help available - sorry.
+Leider ist keine Hilfe verfügbar.
 
 EmptyStackException*
-No help available - sorry.
-     
-IllegalArgumentException* 
-No help available - sorry.
+Leider ist keine Hilfe verfügbar.
+
+IllegalArgumentException*
+Leider ist keine Hilfe verfügbar.
 
 IllegalMonitorStateException*
-No help available - sorry.
+Leider ist keine Hilfe verfügbar.
 
-IllegalPathStateException* 
-No help available - sorry.
+IllegalPathStateException*
+Leider ist keine Hilfe verfügbar.
 
-IllegalStateException* 
-No help available - sorry.
+IllegalStateException*
+Leider ist keine Hilfe verfügbar.
 
 ImagingOpException*
-No help available - sorry.
-     
+Leider ist keine Hilfe verfügbar.
+
 MissingResourceException*
-No help available - sorry.
-     
-NegativeArraySizeException* 
-No help available - sorry.
+Leider ist keine Hilfe verfügbar.
 
-NoSuchElementException* 
-No help available - sorry.
+NegativeArraySizeException*
+Leider ist keine Hilfe verfügbar.
 
-ProfileDataException* 
-No help available - sorry.
+NoSuchElementException*
+Leider ist keine Hilfe verfügbar.
 
-ProviderException* 
-No help available - sorry.
+ProfileDataException*
+Leider ist keine Hilfe verfügbar.
+
+ProviderException*
+Leider ist keine Hilfe verfügbar.
 
 RasterFormatException*
-No help available - sorry.
-     
-SecurityException* 
-No help available - sorry.
+Leider ist keine Hilfe verfügbar.
 
-SystemException* 
-No help available - sorry.
+SecurityException*
+Leider ist keine Hilfe verfügbar.
+
+SystemException*
+Leider ist keine Hilfe verfügbar.
 
 UndeclaredThrowableException*
-No help available - sorry.
+Leider ist keine Hilfe verfügbar.
 
 UnsupportedOperationException*
-No help available - sorry.
+Leider ist keine Hilfe verfügbar.
 
 Exception
-This is a general exception that only says 
-that something went wrong. I have no idea 
-what it is...
+Dies ist eine allgemeine Exception,
+die nur bedeutet, dass irgendetwas fehl-
+geschlagen ist. Ich habe aber keine Ahnung,
+was das ist ...
 
