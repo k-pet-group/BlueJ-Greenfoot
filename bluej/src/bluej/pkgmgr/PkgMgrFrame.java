@@ -41,10 +41,10 @@ import bluej.extmgr.HelpDialog;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: PkgMgrFrame.java 1487 2002-10-28 12:05:02Z ajp $
  */
 public class PkgMgrFrame extends JFrame
-    implements BlueJEventListener, MouseListener, 
+    implements BlueJEventListener, MouseListener,
                PackageEditorListener, MRJQuitHandler, MRJAboutHandler
 {
     // static final Color bgColor = Config.getItemColour("colour.background");
@@ -637,8 +637,8 @@ public class PkgMgrFrame extends JFrame
      */
     protected boolean doNewProject()
     {
-        String newname = FileUtility.getFileName(this, Config.getString("pkgmgr.newPkg.title"), 
-                                                 Config.getString("pkgmgr.newPkg.buttonLabel"), 
+        String newname = FileUtility.getFileName(this, Config.getString("pkgmgr.newPkg.title"),
+                                                 Config.getString("pkgmgr.newPkg.buttonLabel"),
                                                  false, null, true);
 
         if (newname == null)
@@ -681,7 +681,7 @@ public class PkgMgrFrame extends JFrame
         Project openProj = Project.openProject(projectPath);
 
         if(openProj == null)
-            return false; 
+            return false;
         else {
             extMgr.projectOpening (openProj, this, isEmptyFrame()?toolsMenu:null);
             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
@@ -701,7 +701,7 @@ public class PkgMgrFrame extends JFrame
             }
 
             pmf.show();
-            
+
             return true;
         }
     }
@@ -958,8 +958,8 @@ public class PkgMgrFrame extends JFrame
     private void doAddFromFile()
     {
         String className = FileUtility.getFileName(this,
-                                                   Config.getString("pkgmgr.addClass.title"), 
-                                                   Config.getString("pkgmgr.addClass.buttonLabel"), 
+                                                   Config.getString("pkgmgr.addClass.title"),
+                                                   Config.getString("pkgmgr.addClass.buttonLabel"),
                                                    false,
                                                    FileUtility.getJavaSourceFilter(),
                                                    false);
@@ -1044,7 +1044,7 @@ public class PkgMgrFrame extends JFrame
               },
               "BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
     }
-    
+
     /**
      * Interactively call a method or a constructor
      */
@@ -1234,7 +1234,7 @@ public class PkgMgrFrame extends JFrame
 
         // now actually construct the directories and add the bluej
         // package marker files
-        if (newPkgDir.mkdirs()) {
+        if (newPkgDir.isDirectory() || newPkgDir.mkdirs()) {
             st = new StringTokenizer(fullName, ".");
             newPkgDir = getProject().getProjectDir();
             File newPkgFile = new File(newPkgDir, Package.pkgfileName);
@@ -1305,7 +1305,7 @@ public class PkgMgrFrame extends JFrame
         pkg.setState(Package.S_CHOOSE_USES_FROM);
         setStatus(Config.getString("pkgmgr.chooseUsesFrom"));
     }
-    
+
     /**
      * The user function to add an inherits arrow to the dagram was invoked.
      */
@@ -1314,7 +1314,7 @@ public class PkgMgrFrame extends JFrame
         pkg.setState(Package.S_CHOOSE_EXT_FROM);
         setStatus(Config.getString("pkgmgr.chooseInhFrom"));
     }
-    
+
     /**
      * The user function to remove an arrow from the dagram was invoked.
      */
@@ -1605,10 +1605,10 @@ public class PkgMgrFrame extends JFrame
             ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
 
             JButton button = createButton(Config.getString("menu.edit.newClass"),
-                                          emptyIcon, 
+                                          emptyIcon,
                                           Config.getString("tooltip.newClass"));
             button.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) { 
+                                        public void actionPerformed(ActionEvent e) {
                                             createNewClass(); }
                                      });
             buttonPanel.add(button);
@@ -1616,10 +1616,10 @@ public class PkgMgrFrame extends JFrame
 
 
             imgDependsButton = createButton("",
-                                      Config.getImageAsIcon("image.build.depends.uml"), 
+                                      Config.getImageAsIcon("image.build.depends.uml"),
                                       Config.getString("tooltip.newUses"));
             imgDependsButton.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) { 
+                                        public void actionPerformed(ActionEvent e) {
                                             doNewUses(); }
                                      });
             buttonPanel.add(imgDependsButton);
@@ -1627,10 +1627,10 @@ public class PkgMgrFrame extends JFrame
 
 
             imgExtendsButton = createButton("",
-                                      Config.getImageAsIcon("image.build.extends.uml"), 
+                                      Config.getImageAsIcon("image.build.extends.uml"),
                                       Config.getString("tooltip.newExtends"));
             imgExtendsButton.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) { 
+                                        public void actionPerformed(ActionEvent e) {
                                             doNewInherits(); }
                                      });
             buttonPanel.add(imgExtendsButton);
@@ -1638,10 +1638,10 @@ public class PkgMgrFrame extends JFrame
 
 
             button = createButton(Config.getString("menu.tools.compile"),
-                                  emptyIcon, 
+                                  emptyIcon,
                                   Config.getString("tooltip.compile"));
             button.addActionListener(new ActionListener() {
-                                        public void actionPerformed(ActionEvent e) { 
+                                        public void actionPerformed(ActionEvent e) {
                                             pkg.compile(); }
                                      });
             buttonPanel.add(button);
@@ -1695,8 +1695,8 @@ public class PkgMgrFrame extends JFrame
         progressButton.setMargin(new Insets(0, 0, 0, 0));
         progressButton.setToolTipText(Config.getString("tooltip.progress"));
         progressButton.addActionListener(new ActionListener() {
-                            public void actionPerformed(ActionEvent e) { 
-                                ExecControls.showHide(true, true, null); 
+                            public void actionPerformed(ActionEvent e) {
+                                ExecControls.showHide(true, true, null);
                             }
                        });
         progressButton.setEnabled(false);
@@ -1721,7 +1721,7 @@ public class PkgMgrFrame extends JFrame
         {
             bottomPanel.setLayout(new BorderLayout());
             objbench = new ObjectBench();
-            
+
             JScrollPane objScroller = new JScrollPane(objbench);
             {
                 objScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -1767,74 +1767,74 @@ public class PkgMgrFrame extends JFrame
         button.setToolTipText(toolTip);
         button.setRequestFocusEnabled(false);   // never get keyboard focus
         makeButtonNotGrow(button);
-        
+
         return button;
     }
 
 
     /**
      * setupMenus - Create the menu bar
-     */     
+     */
     private void setupMenus()
     {
         menubar = new JMenuBar();
         JMenu menu;
         final PkgMgrFrame frame = this;
         itemsToDisable = new ArrayList();
-        
+
         menu = new JMenu(Config.getString("menu.package"));
         menubar.add(menu);
-        {    
-            createMenuItem("menu.package.new", menu, 0, 0, false, 
+        {
+            createMenuItem("menu.package.new", menu, 0, 0, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doNewProject(); }
                            });
-            createMenuItem("menu.package.open", menu, KeyEvent.VK_O, SHORTCUT_MASK, false, 
+            createMenuItem("menu.package.open", menu, KeyEvent.VK_O, SHORTCUT_MASK, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doOpen(); }
                            });
             recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
             menu.add(recentProjectsMenu);
-            createMenuItem("menu.package.openNonBlueJ", menu, 0, 0, false, 
+            createMenuItem("menu.package.openNonBlueJ", menu, 0, 0, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doOpenNonBlueJ(); }
                            });
-            createMenuItem("menu.package.close", menu, KeyEvent.VK_W, SHORTCUT_MASK, true, 
+            createMenuItem("menu.package.close", menu, KeyEvent.VK_W, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doClose(true); }
                            });
-            createMenuItem("menu.package.save", menu, KeyEvent.VK_S, SHORTCUT_MASK, true, 
+            createMenuItem("menu.package.save", menu, KeyEvent.VK_S, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); getProject().saveAll(); }
                            });
-            createMenuItem("menu.package.saveAs", menu, 0, 0, true, 
+            createMenuItem("menu.package.saveAs", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); getProject().saveAs(frame); }
                            });
             menu.addSeparator();
 
-            createMenuItem("menu.package.import", menu, 0, 0, true, 
+            createMenuItem("menu.package.import", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doImport(); }
                            });
-            createMenuItem("menu.package.export", menu, 0, 0, true, 
+            createMenuItem("menu.package.export", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doExport(); }
                            });
             menu.addSeparator();
 
-            createMenuItem("menu.package.pageSetup", menu, 0, 0, true, 
+            createMenuItem("menu.package.pageSetup", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); pageSetup(); }
                            });
-            createMenuItem("menu.package.print", menu, KeyEvent.VK_P, SHORTCUT_MASK, true, 
+            createMenuItem("menu.package.print", menu, KeyEvent.VK_P, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); print(); }
                            });
             menu.addSeparator();
 
 //          if(Config.osname.startsWith("Mac")) {...}   // no "Quit" here for Mac
-            createMenuItem("menu.package.quit", menu, KeyEvent.VK_Q, SHORTCUT_MASK, false, 
+            createMenuItem("menu.package.quit", menu, KeyEvent.VK_Q, SHORTCUT_MASK, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); wantToQuit(); }
                            });
@@ -1843,34 +1843,34 @@ public class PkgMgrFrame extends JFrame
 
         menu = new JMenu(Config.getString("menu.edit"));
         menubar.add(menu);
-        {    
-            createMenuItem("menu.edit.newClass", menu, KeyEvent.VK_N, SHORTCUT_MASK, true, 
+        {
+            createMenuItem("menu.edit.newClass", menu, KeyEvent.VK_N, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); createNewClass(); }
                            });
-            createMenuItem("menu.edit.newPackage", menu, KeyEvent.VK_R, SHORTCUT_MASK, true, 
+            createMenuItem("menu.edit.newPackage", menu, KeyEvent.VK_R, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); createNewPackage(); }
                            });
-            createMenuItem("menu.edit.addClass", menu, 0, 0, true, 
+            createMenuItem("menu.edit.addClass", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doAddFromFile(); }
                            });
-            createMenuItem("menu.edit.remove", menu, 0, 0, true, 
+            createMenuItem("menu.edit.remove", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doRemove(); }
                            });
             menu.addSeparator();
 
-            createMenuItem("menu.edit.newUses", menu, 0, 0, true, 
+            createMenuItem("menu.edit.newUses", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { clearStatus(); doNewUses(); }
                            });
-            createMenuItem("menu.edit.newInherits", menu, 0, 0, true, 
+            createMenuItem("menu.edit.newInherits", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { clearStatus(); doNewInherits(); }
                            });
-            createMenuItem("menu.edit.removeArrow", menu, 0, 0, true, 
+            createMenuItem("menu.edit.removeArrow", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doRemoveArrow(); }
                            });
@@ -1880,38 +1880,38 @@ public class PkgMgrFrame extends JFrame
         menu = new JMenu(Config.getString("menu.tools"));
         toolsMenu = menu;
         menubar.add(menu);
-        {    
-            createMenuItem("menu.tools.compile", menu, KeyEvent.VK_K, SHORTCUT_MASK, true, 
+        {
+            createMenuItem("menu.tools.compile", menu, KeyEvent.VK_K, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); pkg.compile(); }
                            });
-            createMenuItem("menu.tools.compileSelected", menu, KeyEvent.VK_K, Event.SHIFT_MASK | SHORTCUT_MASK, true, 
+            createMenuItem("menu.tools.compileSelected", menu, KeyEvent.VK_K, Event.SHIFT_MASK | SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); compileSelected(); }
                            });
-            createMenuItem("menu.tools.rebuild", menu, 0, 0, true, 
+            createMenuItem("menu.tools.rebuild", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); pkg.rebuild(); }
                            });
             menu.addSeparator();
 
-            createMenuItem("menu.tools.callLibrary", menu, KeyEvent.VK_L, SHORTCUT_MASK, true, 
+            createMenuItem("menu.tools.callLibrary", menu, KeyEvent.VK_L, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); callLibraryClass(); }
                            });
-            createMenuItem("menu.tools.callFreeForm", menu, KeyEvent.VK_E, SHORTCUT_MASK, true, 
+            createMenuItem("menu.tools.callFreeForm", menu, KeyEvent.VK_E, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); callFreeForm(); }
                            });
             menu.addSeparator();
 
-            createMenuItem("menu.tools.generateDoc", menu, 0, 0, true, 
+            createMenuItem("menu.tools.generateDoc", menu, 0, 0, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); generateProjectDocumentation(); }
                            });
             menu.addSeparator();
 
-            createMenuItem("menu.tools.preferences", menu, 0, 0, false, 
+            createMenuItem("menu.tools.preferences", menu, 0, 0, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); PrefMgrDialog.showDialog(frame); }
                            });
@@ -1925,23 +1925,23 @@ public class PkgMgrFrame extends JFrame
         menu = new JMenu(Config.getString("menu.view"));
         menubar.add(menu);
         {
-            showUsesMenuItem = createCheckboxMenuItem("menu.view.showUses", menu, 
+            showUsesMenuItem = createCheckboxMenuItem("menu.view.showUses", menu,
                            KeyEvent.VK_U, SHORTCUT_MASK, true, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); toggleShowUses(false); }
                            });
-            showExtendsMenuItem = createCheckboxMenuItem("menu.view.showInherits", menu, 
+            showExtendsMenuItem = createCheckboxMenuItem("menu.view.showInherits", menu,
                            KeyEvent.VK_I, SHORTCUT_MASK, true, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); toggleShowExtends(false); }
                            });
             menu.addSeparator();
 
-            JCheckBoxMenuItem item = createCheckboxMenuItem("menu.view.showExecControls", menu, 
+            JCheckBoxMenuItem item = createCheckboxMenuItem("menu.view.showExecControls", menu,
                            KeyEvent.VK_D, SHORTCUT_MASK, false, false, null);
             item.setModel(new ExecControlButtonModel());
-            
-            item = createCheckboxMenuItem("menu.view.showTerminal", menu, 
+
+            item = createCheckboxMenuItem("menu.view.showTerminal", menu,
                            KeyEvent.VK_T, SHORTCUT_MASK, false, false, null);
             item.setModel(new TerminalButtonModel());
         }
@@ -1962,12 +1962,12 @@ public class PkgMgrFrame extends JFrame
         menubar.add(Box.createHorizontalGlue());  // Hack while "setHelpMenu" does not work...
         menubar.add(menu);
 //        menubar.setHelpMenu(menu);  // not implemented in Swing 1.2
-        {    
-            createMenuItem("menu.help.about", menu, 0, 0, false, 
+        {
+            createMenuItem("menu.help.about", menu, 0, 0, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); handleAbout(); }
                            });
-            createMenuItem("menu.help.versionCheck", menu, KeyEvent.VK_V, SHORTCUT_MASK, false, 
+            createMenuItem("menu.help.versionCheck", menu, KeyEvent.VK_V, SHORTCUT_MASK, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); VersionCheckDialog dialog = new VersionCheckDialog(frame); }
                            });
@@ -1981,22 +1981,22 @@ public class PkgMgrFrame extends JFrame
                            });
             menu.addSeparator();
 
-            createMenuItem("menu.help.website", menu, 0, 0, false, 
+            createMenuItem("menu.help.website", menu, 0, 0, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(Config.getPropString("bluej.url.bluej")); }
                            });
-            createMenuItem("menu.help.tutorial", menu, 0, 0, false, 
+            createMenuItem("menu.help.tutorial", menu, 0, 0, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(Config.getPropString("bluej.url.tutorial")); }
                            });
-            createMenuItem("menu.help.standardApi", menu, 0, 0, false, 
+            createMenuItem("menu.help.standardApi", menu, 0, 0, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(Config.getPropString("bluej.url.javaStdLib")); }
                            });
         }
         addUserHelpItems(menu);
         updateRecentProjects();
-        
+
         setJMenuBar(menubar);
     }
 
@@ -2039,7 +2039,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Add a new menu item to a menu.
      */
-    private JCheckBoxMenuItem createCheckboxMenuItem(String itemStr, JMenu menu, 
+    private JCheckBoxMenuItem createCheckboxMenuItem(String itemStr, JMenu menu,
                                                     int key, int modifiers, boolean selected,
                                                     boolean disable, ActionListener listener)
     {
@@ -2051,7 +2051,7 @@ public class PkgMgrFrame extends JFrame
         menu.add(item);
         if(disable)
             itemsToDisable.add(item);
-        
+
         return item;
     }
 
@@ -2101,14 +2101,14 @@ public class PkgMgrFrame extends JFrame
     {
         ProjectOpener opener = new ProjectOpener();
         recentProjectsMenu.removeAll();
-        
+
         List projects = PrefMgr.getRecentProjects();
         for(Iterator it = projects.iterator(); it.hasNext(); ) {
             JMenuItem item = recentProjectsMenu.add((String)it.next());
             item.addActionListener(opener);
         }
     }
-    
+
 
     /**
      * Enable/disable functionality
