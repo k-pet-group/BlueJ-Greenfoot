@@ -30,7 +30,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * A class implementing the execution and debugging primitives needed by
  * BlueJ.
  *
- * Execution and debugging is implemented here on a second ("remote") 
+ * Execution and debugging is implemented here on a second ("remote")
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author Michael Kolling
@@ -51,7 +51,7 @@ import com.sun.jdi.event.ExceptionEvent;
  *    set break in remote VM
  *    continue remote VM
  *    wait
- *      .                        .                       
+ *      .                        .
  *      .  ------------------------------------------> continue
  *      .                        .                       .
  *      .                        .                     hit breakpoint
@@ -83,7 +83,7 @@ public final class JdiDebugger extends Debugger
     // the name of the method used to suspend the ExecServer
     static final String SERVER_SUSPEND_METHOD_NAME = "suspendExecution";
 
-    // the name of the method called to signal the ExecServer to start a new 
+    // the name of the method called to signal the ExecServer to start a new
     // task
     static final String SERVER_PERFORM_METHOD_NAME = "performTask";
 
@@ -120,7 +120,7 @@ public final class JdiDebugger extends Debugger
 		wait();
 	    } catch(InterruptedException e) {
 	    }
-	    
+
 	return machine;
     }
 
@@ -157,11 +157,11 @@ public final class JdiDebugger extends Debugger
 	//  	}
 
 	// "main" is the command line: main class and arguments
-        Connector.Argument mainArg = 
+        Connector.Argument mainArg =
 	    (Connector.Argument)arguments.get("main");
-        Connector.Argument optionsArg = 
+        Connector.Argument optionsArg =
 	    (Connector.Argument)arguments.get("options");
-        //Connector.Argument suspendArg = 
+        //Connector.Argument suspendArg =
 	//    (Connector.Argument)arguments.get("suspend");
 
         if (mainArg == null || optionsArg == null) {
@@ -181,7 +181,7 @@ public final class JdiDebugger extends Debugger
 			     Terminal.getTerminal().getOutputStream(), false);
             redirectIOStream(Terminal.getTerminal().getInputStream(),
 			     process.getOutputStream(), false);
-			   
+
 	} catch (VMStartException vmse) {
             Debug.reportError("Target VM did not initialise.");
             Debug.reportError(vmse.getMessage() + "\n");
@@ -203,7 +203,7 @@ public final class JdiDebugger extends Debugger
         notifyAll();
         BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
     }
-	
+
     /**
      * Finish debugging
      */
@@ -232,38 +232,38 @@ public final class JdiDebugger extends Debugger
      * This method is called by the VMEventHandler when the execution server
      * class (ExecServer) has been loaded into the VM. We use this to set
      * a breakpoint in the server class. This is really still part of the
-     * initialisation process. This breakpoint is used to stop the server 
-     * process to make it wait for our task signals. (We later use the 
+     * initialisation process. This breakpoint is used to stop the server
+     * process to make it wait for our task signals. (We later use the
      * suspended process to perform our task requests.)
      */
     void serverClassPrepared()
     {
-	serverClass = findClassByName(machine, SERVER_CLASSNAME, null);
-	Method suspendMethod = findMethodByName(serverClass, 
-						SERVER_SUSPEND_METHOD_NAME);
-	if(suspendMethod == null) {
-	    Debug.reportError("invalid VM server object");
-	    Debug.reportError("Fatal: User code execution will not work");
-	    return;
-	}
+        serverClass = findClassByName(machine, SERVER_CLASSNAME, null);
+        Method suspendMethod = findMethodByName(serverClass,
+                                                SERVER_SUSPEND_METHOD_NAME);
+        if(suspendMethod == null) {
+            Debug.reportError("invalid VM server object");
+            Debug.reportError("Fatal: User code execution will not work");
+            return;
+        }
 
-	// ** set a breakpoint in the suspend method **
+        // ** set a breakpoint in the suspend method **
 
-	Location loc = suspendMethod.location();
-	EventRequestManager erm = machine.eventRequestManager();
-	BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
-	bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-	bpreq.putProperty("isBluejBreak", "true");
-	//bpreq.setSuspendPolicy(EventRequest.SUSPEND_NONE);
-	bpreq.enable();
+        Location loc = suspendMethod.location();
+        EventRequestManager erm = machine.eventRequestManager();
+        BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
+        bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+        bpreq.putProperty("isBluejBreak", "true");
+        //bpreq.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+        bpreq.enable();
 
-	// ** remove the "class prepare" event request (not needed anymore) **
+        // ** remove the "class prepare" event request (not needed anymore) **
 
-	List list = erm.classPrepareRequests();
-	if(list.size() != 1)
-	    Debug.reportError("oops - found more than one prepare request!");
-	ClassPrepareRequest cpreq = (ClassPrepareRequest)list.get(0);
-	erm.deleteEventRequest(cpreq);
+        List list = erm.classPrepareRequests();
+        if(list.size() != 1)
+            Debug.reportError("oops - found more than one prepare request!");
+        ClassPrepareRequest cpreq = (ClassPrepareRequest)list.get(0);
+        erm.deleteEventRequest(cpreq);
     }
 
 
@@ -272,19 +272,19 @@ public final class JdiDebugger extends Debugger
      *  loader objects: a DebuggerClassLoader (more specifically, in this
      *  case, a JdiClassLoader) which is handed back to the caller and a
      *  BlueJClassLoader on the remote VM.
-     *  The DebuggerClassLoader serves as a handle to the BlueJClassLoader. 
-     *  The connection is made by an ID (a String), stored in the 
+     *  The DebuggerClassLoader serves as a handle to the BlueJClassLoader.
+     *  The connection is made by an ID (a String), stored in the
      *  DebuggerClassLoader, with which the BlueJClassLoader can be looked up.
      */
-    public DebuggerClassLoader createClassLoader(String scopeId, 
+    public DebuggerClassLoader createClassLoader(String scopeId,
                                                     String classpath)
     {
-        ClassLoaderReference loader = 
+        ClassLoaderReference loader = (ClassLoaderReference)
             startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "");
 
         return new JdiClassLoader(scopeId, loader);
     }
-	
+
     /**
      * Remove a class loader
      */
@@ -313,21 +313,21 @@ public final class JdiDebugger extends Debugger
      *				breakpoint, this parameter is passed as the
      *				event parameter
      */
-    public void startClass(DebuggerClassLoader loader, String classname, 
-			   Object eventParam)
+    public void startClass(DebuggerClassLoader loader, String classname,
+                            Object eventParam)
     {
-	loadClass(loader, classname);
-	ClassType shellClass = findClassByName(machine, classname, loader);
+        loadClass(loader, classname);
+        ClassType shellClass = findClassByName(machine, classname, loader);
 
-	Method runMethod = findMethodByName(shellClass, "run");
-	if(runMethod == null) {
-	    Debug.reportError("Could not find shell run method");
-	    return;
-	}
+        Method runMethod = findMethodByName(shellClass, "run");
+        if(runMethod == null) {
+            Debug.reportError("Could not find shell run method");
+            return;
+        }
 
-	// ** call Shell.run() **
+        // ** call Shell.run() **
 
-	List arguments = new ArrayList();	// empty argument list
+        List arguments = new ArrayList();	// empty argument list
   	try {
 	    exitStatus = NORMAL_EXIT;
 	    // the following is in preparation for running several threads
@@ -337,15 +337,15 @@ public final class JdiDebugger extends Debugger
 	    activeThreads.put(serverThread, eventParam);
 	    machineStatus = RUNNING;
 
-  	    Value returnVal = shellClass.invokeMethod(serverThread, 
-						      runMethod, 
+  	    Value returnVal = shellClass.invokeMethod(serverThread,
+						      runMethod,
 						      arguments, 0);
 	    // returnVal is type void
 	    // 'invokeMethod' is synchronous - when we get here it has
 	    // finished
 
-	    // invokeMethod leaves everything suspended, so restart the 
-	    // system threads... 
+	    // invokeMethod leaves everything suspended, so restart the
+	    // system threads...
 	    resumeMachine();
 	    //dumpThreadInfo();
 	}
@@ -362,8 +362,8 @@ public final class JdiDebugger extends Debugger
 					"Cannot execute remote command",
 					null, 0);
   	}
-	machineStatus = IDLE;
-	activeThreads.remove(serverThread);
+        machineStatus = IDLE;
+        activeThreads.remove(serverThread);
     }
 
 
@@ -372,7 +372,7 @@ public final class JdiDebugger extends Debugger
      */
     private void loadClass(DebuggerClassLoader loader, String classname)
     {
-	startServer(ExecServer.LOAD_CLASS, loader.getId(), classname, "", "");
+        startServer(ExecServer.LOAD_CLASS, loader.getId(), classname, "", "");
     }
 
 
@@ -380,32 +380,58 @@ public final class JdiDebugger extends Debugger
      * Add an object to a package scope. The object is held in field
      * 'fieldName' in object 'instanceName'.
      */
-    public void addObjectToScope(String scopeId, String instanceName, 
-				 String fieldName, String newObjectName)
+    public void addObjectToScope(String scopeId, String instanceName,
+                                     String fieldName, String newObjectName)
     {
-	//Debug.message("[addObjectToScope]: " + newObjectName);
-	startServer(ExecServer.ADD_OBJECT, scopeId, instanceName, 
-		    fieldName, newObjectName);
-    }
-	
-    /**
-     * Remove an object from a package scope (when removed from object bench).
-     * This has to be done tolerantly: If the named instance is not in the
-     * scope, we just quetly return. 
-     */
-    public void removeObjectFromScope(String scopeId, String instanceName)
-    {
-	//Debug.message("[removeObjectFromScope]: " + instanceName);
-	startServer(ExecServer.REMOVE_OBJECT, scopeId, instanceName, "", "");
+        //Debug.message("[addObjectToScope]: " + newObjectName);
+        startServer(ExecServer.ADD_OBJECT, scopeId, instanceName,
+                    fieldName, newObjectName);
     }
 
     /**
-     * Set the class path of the remote VM 
+     * Remove an object from a package scope (when removed from object bench).
+     * This has to be done tolerantly: If the named instance is not in the
+     * scope, we just quetly return.
+     */
+    public void removeObjectFromScope(String scopeId, String instanceName)
+    {
+        //Debug.message("[removeObjectFromScope]: " + instanceName);
+        startServer(ExecServer.REMOVE_OBJECT, scopeId, instanceName, "", "");
+    }
+
+    /**
+     * Set the class path of the remote VM
      */
     public void setLibraries(String classpath)
     {
-	//Debug.message("[setLibraries]: " + classpath);
-	startServer(ExecServer.SET_LIBRARIES, classpath, "", "", "");
+        //Debug.message("[setLibraries]: " + classpath);
+        startServer(ExecServer.SET_LIBRARIES, classpath, "", "", "");
+    }
+
+    /**
+     * Serialize an object in the debugger to a file
+     */
+    public void serializeObject(String scopeId, String instanceName,
+                                 String fileName)
+    {
+        //Debug.message("[serializeObject]: " + instanceName);
+        startServer(ExecServer.SERIALIZE_OBJECT, scopeId, instanceName, fileName, "");
+    }
+
+    /**
+     * Deserialize an object in the debugger from a file
+     */
+    public DebuggerObject deserializeObject(String loaderId, String scopeId,
+                                            String newInstanceName, String fileName)
+    {
+        //Debug.message("[deserializeObject]: " + newInstanceName);
+        ObjectReference objRef = (ObjectReference)
+           startServer(ExecServer.DESERIALIZE_OBJECT, loaderId, scopeId, newInstanceName, fileName);
+
+        if (objRef == null)
+            return null;
+
+        return JdiObject.getDebuggerObject(objRef);
     }
 
     /**
@@ -415,13 +441,14 @@ public final class JdiDebugger extends Debugger
      * be null. The task ID is one of the constants defined in
      * runtime.ExecServer.
      *
-     * Returns the class loader if the task is CREATE_LOADER, null otherwise.
+     * Returns the class loader if the task is CREATE_LOADER, the new object
+     * if the task is DESERIALIZE_OBJECT, null otherwise.
      *
      * This is done synchronously: we return once the remote execution
      * has completed.
      */
-    private ClassLoaderReference startServer(int task, String arg1, 
-                                        String arg2, String arg3, String arg4)
+    private Value startServer(int task, String arg1,
+                               String arg2, String arg3, String arg4)
     {
         VirtualMachine vm = getVM();
 
@@ -434,7 +461,7 @@ public final class JdiDebugger extends Debugger
         // catch all exception will grab them all allowing our local
         // VM to struggle on without the remote VM (previously, we could
         // not quit the local VM once the remote VM had crashed)
-        
+
      	try {
             List arguments = new ArrayList(5);
             arguments.add(vm.mirrorOf(task));
@@ -443,13 +470,13 @@ public final class JdiDebugger extends Debugger
             arguments.add(vm.mirrorOf(arg3));
             arguments.add(vm.mirrorOf(arg4));
 
-      	    Value returnVal = execServer.invokeMethod(serverThread, 
-                                                        performTaskMethod, 
+      	    Value returnVal = execServer.invokeMethod(serverThread,
+                                                        performTaskMethod,
                                                         arguments, 0);
-            // invokeMethod leaves everything suspended, so restart the 
-            // system threads... 
+            // invokeMethod leaves everything suspended, so restart the
+            // system threads...
             resumeMachine();
-            return (ClassLoaderReference)returnVal;
+            return returnVal;
         }
         catch(com.sun.jdi.InternalException e) {
             // we regularly get an exception here when trying to load a class
@@ -489,13 +516,13 @@ public final class JdiDebugger extends Debugger
 	}
 
 	Field excField = serverClass.fieldByName(TERMINATE_FIELD_NAME);
-	ObjectReference terminateException = 
+	ObjectReference terminateException =
 	    (ObjectReference)serverClass.getValue(excField);
 	JdiThread.setTerminateException(terminateException);
 
 	// okay, we have the server object; now get the perform method
 
-	performTaskMethod = findMethodByName(serverClass, 
+	performTaskMethod = findMethodByName(serverClass,
 					     SERVER_PERFORM_METHOD_NAME);
 	if(performTaskMethod == null) {
 	    Debug.reportError("invalid VM server object");
@@ -539,7 +566,7 @@ public final class JdiDebugger extends Debugger
 	}
 	else {
 	    Field resultField = classMirror.fieldByName(fieldName);
-	    ObjectReference obj = 
+	    ObjectReference obj =
 		(ObjectReference)classMirror.getValue(resultField);
 	    object = JdiObject.getDebuggerObject(obj);
 	}
@@ -551,10 +578,10 @@ public final class JdiDebugger extends Debugger
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
      * FORCED_EXIT, EXCEPTION, TERMINATED).
-     */ 
+     */
     public int getExitStatus()
     {
-	return exitStatus;
+        return exitStatus;
     }
 
 
@@ -563,7 +590,7 @@ public final class JdiDebugger extends Debugger
      */
     public ExceptionDescription getException()
     {
-	return lastException;
+        return lastException;
     }
 
 
@@ -584,11 +611,11 @@ public final class JdiDebugger extends Debugger
 	}
 
 	// get the exception text
-	// attention: the following depends on the (undocumented) fact that 
+	// attention: the following depends on the (undocumented) fact that
 	// the internal exception message field is named "detailMessage".
-  	Field msgField = 
+  	Field msgField =
   	    remoteException.referenceType().fieldByName("detailMessage");
-  	StringReference val = 
+  	StringReference val =
   	    (StringReference)remoteException.getValue(msgField);
 
 	//better: get message via method call
@@ -597,14 +624,14 @@ public final class JdiDebugger extends Debugger
 	//				   "getMessage");
 	//StringReference val = null;
 	//try {
-	//    val = (StringReference)execServer.invokeMethod(serverThread, 
-	//  						getMessageMethod, 
+	//    val = (StringReference)execServer.invokeMethod(serverThread,
+	//  						getMessageMethod,
 	//  						null, 0);
 	//} catch(Exception e) {
 	//    Debug.reportError("Problem getting exception message: " + e);
 	//}
 
-	String exceptionText = 
+	String exceptionText =
 	    (val == null ? null : val.value());
 
 	if(excClass.equals("bluej.runtime.ExitException")) {
@@ -754,14 +781,14 @@ public final class JdiDebugger extends Debugger
 
 		String name = thread.name();
 		if(! name.startsWith("AWT-") &&	       // known system threads
-		   ! name.startsWith("SunToolkit.") && 
+		   ! name.startsWith("SunToolkit.") &&
 		   ! name.equals("TimerQueue"))
 		    threadVec.addElement(new JdiThread(thread));
 	    }
 	}
 	return threadVec;
     }
-	
+
     /**
      *  A thread has been stopped.
      */
@@ -772,7 +799,7 @@ public final class JdiDebugger extends Debugger
     }
 
     /**
-     * A thread has been started again by the user. Make sure that it 
+     * A thread has been started again by the user. Make sure that it
      * is indicated in the interface.
      */
     public void threadContinued(DebuggerThread thread)
@@ -807,20 +834,20 @@ public final class JdiDebugger extends Debugger
 
     // -- support methods --
 
-    /** 
+    /**
      *  Find the mirror of a class in the remote VM. The class is expected
      *  to exist. We expect only one single class to exist with this name
      *  and report an error if more than one is found.
      */
     private ClassType findClassByName(VirtualMachine vm, String classname,
-				      DebuggerClassLoader loader) 
+				      DebuggerClassLoader loader)
     {
 	JdiClassLoader jdiLoader = (JdiClassLoader)loader;
 
 	List list = vm.classesByName(classname);
 	if(list.size() == 1) {
 	    return (ClassType)list.get(0);
-	} 
+	}
 	else if(list.size() > 1) {
 	    if(loader == null) {
 		Debug.reportError("found more than one class: " + classname);
@@ -842,12 +869,12 @@ public final class JdiDebugger extends Debugger
 	}
     }
 
-    /** 
+    /**
      *  Find the mirror of a method in the remote VM. The method is expected
      *  to exist. We expect only one single method to exist with this name
      *  and report an error if more than one is found.
      */
-    private Method findMethodByName(ReferenceType type, String methodName) 
+    private Method findMethodByName(ReferenceType type, String methodName)
     {
 	List list = type.methodsByName(methodName);
 	if(list.size() != 1) {
@@ -857,10 +884,10 @@ public final class JdiDebugger extends Debugger
 	return (Method)list.get(0);
     }
 
-    /** 
+    /**
      *  Find the first location in a given line in a class.
      */
-    private Location findLocationInLine(ClassType cl, int line) 
+    private Location findLocationInLine(ClassType cl, int line)
       throws Exception
     {
 	List list = cl.locationsOfLine(line);
@@ -874,7 +901,7 @@ public final class JdiDebugger extends Debugger
      *  Set up event requests - this indicated of which events from the
      *  remote VM we want ot be informed.
      */
-    private void setEventRequests(VirtualMachine vm) 
+    private void setEventRequests(VirtualMachine vm)
     {
         EventRequestManager erm = vm.eventRequestManager();
         // want all uncaught exceptions
@@ -883,18 +910,18 @@ public final class JdiDebugger extends Debugger
     }
 
 
-    /**	
+    /**
      *	Create a thread that will retrieve any output from the remote
      *  machine and direct it to our terminal (or vice versa).
      */
     private void redirectIOStream(final InputStream inStream,
 				  final OutputStream outStream,
-				  boolean buffered) 
+				  boolean buffered)
     {
 	Thread thr;
 
 	if(buffered) {
-	    thr = new Thread("I/O reader") { 
+	    thr = new Thread("I/O reader") {
 		public void run() {
 		    try {
 			dumpStreamBuffered(inStream, outStream);
@@ -905,7 +932,7 @@ public final class JdiDebugger extends Debugger
 	    };
 	}
 	else {
-	    thr = new Thread("I/O reader") { 
+	    thr = new Thread("I/O reader") {
 		public void run() {
 		    try {
 			dumpStream(inStream, outStream);
@@ -919,8 +946,8 @@ public final class JdiDebugger extends Debugger
 	thr.start();
     }
 
-    private void dumpStream(InputStream inStream, OutputStream outStream) 
-	throws IOException 
+    private void dumpStream(InputStream inStream, OutputStream outStream)
+	throws IOException
     {
         int ch;
         while ((ch = inStream.read()) != -1) {
@@ -929,11 +956,11 @@ public final class JdiDebugger extends Debugger
         }
     }
 
-    private void dumpStreamBuffered(InputStream inStream, 
-				    OutputStream outStream) 
-	throws IOException 
+    private void dumpStreamBuffered(InputStream inStream,
+				    OutputStream outStream)
+	throws IOException
     {
-        BufferedReader in = 
+        BufferedReader in =
             new BufferedReader(new InputStreamReader(inStream));
 	OutputStreamWriter out =
 	    new OutputStreamWriter(outStream);
@@ -991,14 +1018,14 @@ public final class JdiDebugger extends Debugger
 		String status = thread.getStatus();
 		Debug.message(thread.getName() + " [" + status + "]");
 		try{
-		    Debug.message("  group: " + 
+		    Debug.message("  group: " +
 				  ((JdiThread)thread).getRemoteThread().
 				  threadGroup());
-		    Debug.message("  monitor: " + 
+		    Debug.message("  monitor: " +
 				  ((JdiThread)thread).getRemoteThread().
 				  currentContendedMonitor());
 		}
-		catch (Exception e) { 
+		catch (Exception e) {
 		    Debug.message("  monitor: exc: " + e); }
 		}
 	}
