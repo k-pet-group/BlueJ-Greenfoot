@@ -180,9 +180,10 @@ editor.find-backwardLabel = Rückwärts suchen...
 editor.replaceLabel = Ersetzen...
 editor.compileLabel = Übersetzen
 editor.toggle-breakpointLabel = Breakpoint setzen/entfernen
+editor.toggle-interface-viewLabel = Interface an/abschalten
 
-editor.implementationLabel = Implementation
-editor.interfaceLabel = Interfaceeditor.state.readOnly = read-only
+editor.implementationLabel = Implementierung
+editor.interfaceLabel = Interface
 
 editor.state.readOnly = read-only
 editor.state.saved = saved
@@ -211,8 +212,8 @@ editor.find.forward=Vorwärts
 editor.find.backward=Rückwärts
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe version 0.4
-editor.info.readingProblem = There was a problem reading this file.
+editor.info.version = Moe version
+editor.info.readingProblem = Diese Datei konnte nicht gelesen werden.
 editor.info.regularFile = (Is it really a regular file? Do you have read access?)
 editor.info.newFile = New file
 editor.info.errorSaving = Error in saving file!
@@ -226,18 +227,18 @@ editor.info.compiling = Compiling...
 editor.info.cannotSetBreak = Cannot set breakpoint:\nNo code associated with this editor.
 editor.info.fileDisappeared = ERROR: The file seems to have disappeared!
 editor.info.fileReadError = ERROR: There was an error while trying to read this file.
-editor.info.saved = File saved
-editor.info.printing = Printing...
-editor.info.printed = Printing... Done.
-editor.info.cancelled = Cancelled.
-editor.info.generatingDoc = Generating class interface...
-editor.info.loadingDoc = Loading class interface...
-editor.info.docLoaded = Loading class interface... Done.
-editor.info.docAborted = There was a serious problem generating the javadoc\ninterface. Aborted.
-editor.info.docDisappeared = Cannot find HTML file:
-editor.info.docNoFrames = Frame display is disabled in editor preview.
+editor.info.saved = Datei gespeichert.
+editor.info.printing = Drucken...
+editor.info.printed = Drucken... Fertig.
+editor.info.cancelled = Abgebrochen.
+editor.info.generatingDoc = Klasseninterface wird generiert...
+editor.info.loadingDoc = Klasseninterface wird geladen...
+editor.info.docLoaded = Klasseninterface wird geladen... Fertig.
+editor.info.docAborted = Das javadoc-Interface konnte nicht generiert werden.\n Abgebrochen.
+editor.info.docDisappeared = HTML-Datei konnte nicht gefunden werden:
+editor.info.docNoFrames = Frames werden im Editor-Preview nicht unterstuetzt.
 
-editor.printer.continued=continued
+editor.printer.continued=fortgesetzt
 #End Editor labels
 
 pkgmgr.chooseUsesFrom=Klicken Sie auf die Klasse von der der Pfeil ausgeht
@@ -259,12 +260,12 @@ pkgmgr.openNonBlueJPkg.title=Open Non-BlueJ Project
 pkgmgr.openNonBlueJPkg.buttonLabel=Open in BlueJ
 pkgmgr.saveAs.title=Package speichern
 pkgmgr.saveAs.buttonLabel=Speichern
-pkgmgr.addClass.title=Klassenselektion für Import
-pkgmgr.addClass.buttonLabel=Importieren
+pkgmgr.addClass.title=Javaklasse auswählen
+pkgmgr.addClass.buttonLabel=Einfügen
 pkgmgr.importPkg.title=Package Importieren
 pkgmgr.importPkg.buttonLabel=Import
-pkgmgr.importPkgNew.title=New Project to Import Into
-pkgmgr.importPkgNew.buttonLabel=Create
+pkgmgr.importPkgNew.title=Neues Projekt zum Importieren
+pkgmgr.importPkgNew.buttonLabel=Erzeugen
 
 pkgmgr.newClass.msg=Name der Klasse
 pkgmgr.newUses=Neuer Benutzt-Pfeil
@@ -273,19 +274,20 @@ pkgmgr.unimplemented=Sorry - that feature is not yet implemented
 pkgmgr.pkgChooseError=Error selecting valid package name
 pkgmgr.chooseWebPage.title=Select HTML page destination
 
-pkgmgr.parentpackagetarget.open=Open
-pkgmgr.parentpackagetarget.openunamed=Open unamed package
+pkgmgr.parentpackagetarget.open=Öffnen
+pkgmgr.parentpackagetarget.openunamed=Unamed Package öffnen
 
-pkgmgr.packagemenu.open=Open
-pkgmgr.packagemenu.remove=Remove
+pkgmgr.packagemenu.open=Öffnen
+pkgmgr.packagemenu.remove=Löschen
 
 pkgmgr.classmenu.runApplet=Applet ausführen
-pkgmgr.classmenu.edit=Open Editor
-pkgmgr.classmenu.compile=Compile
-pkgmgr.classmenu.remove=Remove
-pkgmgr.view.label=View
-pkgmgr.view.usesLabel=Uses
-pkgmgr.view.inheritLabel=Inheritance
+pkgmgr.classmenu.edit=Editieren
+pkgmgr.classmenu.compile=Übersetzen
+pkgmgr.classmenu.remove=Löschen
+
+pkgmgr.view.label=Sicht
+pkgmgr.view.usesLabel=benutzt
+pkgmgr.view.inheritLabel=erbt von
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Neue Klasse erzeugen
@@ -407,7 +409,7 @@ menu.package.quit=Beenden
 menu.edit=Bearbeiten
 menu.edit.newClass=Neue Klasse...
 menu.edit.newPackage=Neues Package...
-menu.edit.addClass=Add Class from File...
+menu.edit.addClass=Klasse aus Datei einfügen...
 menu.edit.remove=Löschen...
 menu.edit.newUses=Neuer Benutzt-Pfeil...
 menu.edit.newInherits=Neuer Vererbungspfeil...
