@@ -24,7 +24,7 @@ import java.io.IOException;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 871 2001-04-26 00:56:38Z mik $
+ * @version $Id: Project.java 902 2001-05-23 05:30:16Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -44,7 +44,10 @@ public class Project
 
     /**
      * Open a BlueJ project.
-     * @return The Project representing the BlueJ project
+     *
+     * @param   A string representing the path to open. This can either
+     *          be a directory name or the filename of a bluej.pkg file.
+     * @return  The Project representing the BlueJ project
      *          that has this directory within it or
      *          null if there were no bluej.pkg files in the
      *          specified directory.
@@ -55,7 +58,19 @@ public class Project
         File projectDir, startingDir;
 
         try {
-             startingDir = new File(projectPath).getCanonicalFile();
+            startingDir = new File(projectPath).getCanonicalFile();
+
+            /* allow a bluej.pkg file to be specified. In this case,
+               we immediately find the parent directory and use that as the
+               starting directory */
+            if (startingDir.isFile()) {
+                if (startingDir.getName().equals("bluej.pkg")) {
+                    startingDir = startingDir.getParentFile();
+                }
+                else {
+                    return null;
+                }
+            }
         }
         catch(IOException ioe)
         {
@@ -68,7 +83,7 @@ public class Project
         // if there is an existing bluej package file here we
         // need to find the root directory of the project
         // (and while we are at it we will construct the qualified
-        //  package name to let us open the PkgMgrFrame at the
+        //  package name that lets us open the PkgMgrFrame at the
         //  right point)
         if (Package.isBlueJPackage(startingDir)) {
             File curDir = startingDir;
@@ -179,7 +194,7 @@ public class Project
     }
 
     /**
-     * returns the number of open projects
+     * Returns the number of open projects
      */
     public static int getOpenProjectCount()
     {
@@ -197,7 +212,6 @@ public class Project
      */
     public static Project getProject()
     {
-
         if(projects.size() == 1) {
             Collection projectColl = projects.values();
             Iterator it = projectColl.iterator();
