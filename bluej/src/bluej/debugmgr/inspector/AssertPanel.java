@@ -12,7 +12,7 @@ import bluej.Config;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2076 2003-06-26 12:14:56Z mik $
+ * @version $Id: AssertPanel.java 2139 2003-08-04 07:54:56Z bquig $
  */
 public class AssertPanel extends JPanel
 {
@@ -26,6 +26,8 @@ public class AssertPanel extends JPanel
 		Config.getString("debugger.assert.notNull");
 	private static final String nullLabel =
 		Config.getString("debugger.assert.null");
+    private static final String equalToFloatingPointLabel =
+            Config.getString("debugger.assert.equalToFloatingPoint");
 
 	/**
 	 * The panels and UI elements of this panel.
@@ -34,9 +36,13 @@ public class AssertPanel extends JPanel
 	private JPanel freeformPanel;
 
     private JLabel assertLabel;
+    private JLabel deltaLabel;
     private JTextField assertData;
+	//	used for delta in float and double comparison
+    private JTextField deltaData; 
 	private JComboBox assertCombo;
 	protected JCheckBox assertCheckbox;
+    
 	
 	/**
 	 * The data that is displayed in the combo box to the user.
@@ -44,13 +50,16 @@ public class AssertPanel extends JPanel
 	 * labelAssertStatement arrays.
 	 */
     private String[] labels = new String[]
-    	 { equalToLabel, sameAsLabel, notSameAsLabel, notNullLabel, nullLabel };
+    	 { equalToLabel, sameAsLabel, notSameAsLabel, notNullLabel, nullLabel , equalToFloatingPointLabel };
     	 
-    private boolean[] labelsFieldNeeded = new boolean[] 
-    	{ true, true, true, false, false };
+    private boolean[] firstLabelFieldNeeded = new boolean[] 
+    	{ true, true, true, false, false, true};
+    	
+	private boolean[] secondFieldNeeded = new boolean[] 
+		   { false, false, false, false, false, true };
 
 	private String[] labelsAssertStatement = new String[]
-		 { "assertEquals", "assertSame", "assertNotSame", "assertNotNull", "assertNull"  };
+		 { "assertEquals", "assertSame", "assertNotSame", "assertNotNull", "assertNull", "assertEquals"};
 
 	/**
 	 * A panel which presents an interface for making a single
@@ -96,9 +105,11 @@ public class AssertPanel extends JPanel
 							int index = findItemIndex((String)ie.getItem());
 			
 							if(index >= 0) {
-								assertData.setEnabled(labelsFieldNeeded[index]);
-								assertData.setBackground(labelsFieldNeeded[index] ? Color.white : Color.lightGray);
-							}
+								assertData.setEnabled(firstLabelFieldNeeded[index]);
+								assertData.setBackground(firstLabelFieldNeeded[index] ? Color.white : Color.lightGray);
+								deltaData.setVisible(secondFieldNeeded[index]);
+                                deltaLabel.setVisible(secondFieldNeeded[index]);
+                            }
 						}
 					}
 				});
@@ -106,7 +117,15 @@ public class AssertPanel extends JPanel
             standardPanel.add(assertCombo);
 			standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
             
+            deltaLabel = new JLabel("delta");
             standardPanel.add(assertData = new JTextField(14));
+            standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
+            standardPanel.add(deltaLabel);
+            standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
+			standardPanel.add(deltaData = new JTextField(6));
+            deltaData.setVisible(false);
+            deltaLabel.setVisible(false);
+            
         }
 
 /*        freeformPanel = new JPanel();
@@ -158,11 +177,15 @@ public class AssertPanel extends JPanel
         sb.append(labelsAssertStatement[index]);
         sb.append("(");
 
-		if (labelsFieldNeeded[index]) {
+		if (firstLabelFieldNeeded[index]) {
 			sb.append(assertData.getText());
-			sb.append(", ");
+			sb.append(",");
 		}
+        if (secondFieldNeeded[index]) {
+            sb.append("," + deltaData.getText());
+        }
 					
         return sb.toString();    
     }
+
 }
