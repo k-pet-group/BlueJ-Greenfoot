@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 520 2000-05-31 06:49:05Z bquig $
+ * @version $Id: Target.java 522 2000-06-01 02:34:58Z bquig $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -529,14 +529,8 @@ public abstract class Target extends Vertex
         g.setColor(getBackgroundColour());
         g.fillRect(0, 0, width, height);
 
-        if(state != S_NORMAL) {
-            g.setColor(shadowCol);      // Color.lightGray
-            Utility.stripeRect(g, 0, 0, width, height, 8, 3);
-        }
 
         //        if(state != S_NORMAL) {
-        //             // Debug.message("Target: drawing invalid target " + this);
-        //             g.
         //             g.setColor(shadowCol); // Color.lightGray
         //             Utility.stripeRect(g, 0, 0, width, height, 8, 3);
         //         }

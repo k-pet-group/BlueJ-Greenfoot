@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 520 2000-05-31 06:49:05Z bquig $
+ * @version $Id: ClassTarget.java 522 2000-06-01 02:34:58Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -57,6 +57,7 @@ public class ClassTarget extends EditableTarget
     static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
     static final Color umldefaultbg = Config.getItemColour("colour.class.bg.uml.default");
     static final Color umlcompbg = Config.getItemColour("colour.target.bg.uml.compiling");
+    static final Color umlShadowCol = Config.getItemColour("colour.target.uml.shadow");
 
     static final Color colBorder = Config.getItemColour("colour.target.border");
     static final Color graphbg = Config.getItemColour("colour.graph.background");
@@ -294,7 +295,7 @@ public class ClassTarget extends EditableTarget
     Color getBackgroundColour()
     {
         if(state == S_COMPILING) {
-            return PrefMgr.isUML()? umlcompbg: compbg;
+            return compbg;
         }
         else
             return getDefaultBackground();
@@ -576,6 +577,7 @@ public class ClassTarget extends EditableTarget
         else {
             if( ! (role instanceof StdClassRole))
                 role = new StdClassRole();
+            stereotype = null;
         }
 
         setInterface(info.isInterface());
@@ -839,26 +841,28 @@ public class ClassTarget extends EditableTarget
     {
         super.draw(g);
 
-        if(state != S_NORMAL) {
-            // Debug.message("Target: drawing invalid target " + this);
-            g.setColor(umlcompbg); 
+      //   if(state != S_NORMAL) {
+//             // Debug.message("Target: drawing invalid target " + this);
+//             g.setColor(compbg); 
 
-            int divider = 0;
+//             int divider = 0;
 
-            // set divider if UML, different position if stereotype is present
-            if(PrefMgr.isUML())
-                divider = (stereotype == null) ? 18 : 32; 
+//             // set divider if UML, different position if stereotype is present
+//             if(PrefMgr.isUML())
+//                 divider = (stereotype == null) ? 18 : 32; 
 
-            Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
-        }
+//             Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
+//         }
 
-        g.setColor(getBorderColour());
-        drawBorders(g);
+
 
         if(PrefMgr.isUML())
             drawUMLStyle(g);
         else
             drawBlueStyle(g);
+
+        g.setColor(getBorderColour());
+        drawBorders(g);
         
         if(!sourceInfo.isValid())
             g.drawImage(brokenImage, x + TEXT_BORDER, y + height - 22, null);
@@ -869,6 +873,13 @@ public class ClassTarget extends EditableTarget
 
     private void drawUMLStyle(Graphics2D g)
     {
+        if(state != S_NORMAL) {
+            g.setColor(umlShadowCol); 
+            // set divider if UML, different position if stereotype is present
+            int divider = (stereotype == null) ? 18 : 32; 
+            Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
+        }
+
         g.setColor(getTextColour());
         
         int currentY = 2;
@@ -894,6 +905,11 @@ public class ClassTarget extends EditableTarget
 
     private void drawBlueStyle(Graphics2D g)
     {
+        if(state != S_NORMAL) {
+            g.setColor(shadowCol); 
+            Utility.stripeRect(g, 0, 0, width, height, 8, 3);
+        }
+
         g.setColor(textbg);
         g.fillRect(TEXT_BORDER, TEXT_BORDER,
                    width - 2 * TEXT_BORDER, TEXT_HEIGHT);
