@@ -10,14 +10,17 @@
          compilation should be done on the minimum supported JDK for
          BlueJ (which is currently 1.4) -->
     <property name="build_java_home" value="C:\program files\j2sdk_1.4.2_01"/>
+    <!-- property name="build_java_home" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK"/ -->
 
     <!-- the run_java_home is used to find the jvm to run and the
          corresponding tools.jar file -->
     <property name="run_java_home" value="C:\program files\j2sdk_1.4.2_01"/>
+    <!-- property name="run_java_home" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK"/ -->
 
     <!-- Pass this property down to lower build files to find various jars etc -->
     <!-- Makes it easier if the current directory is not bluej_home -->
     <property name="bluej_home" value="H:\home\ajp\bluej\main"/>
+    <!-- property name="bluej_home" value="/Users/mik/bluej"/ -->
 
     <!-- ********************************************** -->
     <!-- do not edit below here for local customisation -->
