@@ -25,16 +25,16 @@ import java.io.StringWriter;
 import java.util.*;
 
 /**
- * Debugger class that constructs a "shell" java source file, compiles it,
+ * Debugger class that arranges invocation of constructors or methods.
+ * This class constructs a "shell" java source file, compiles it,
  * then loads the resulting class file and executes a method in a new thread.
  *
- * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1295 2002-08-01 10:58:17Z mik $
+ * @version $Id: Invoker.java 1371 2002-10-14 08:26:48Z mik $
  */
 
 public class Invoker extends Thread
-    implements CompileObserver, MethodDialogWatcher
+    implements CompileObserver, CallDialogWatcher
 {
     private static final String creating = Config.getString("pkgmgr.creating");
     private static final String createDone = Config.getString("pkgmgr.createDone");
@@ -48,7 +48,7 @@ public class Invoker extends Thread
         return SHELLNAME + (shellNumber++);
     }
 
-    private static final synchronized String getResultId() {
+    private static final synchronized String getUniqueResultName() {
         return "#result" + shellNumber;
     }
 
@@ -66,10 +66,30 @@ public class Invoker extends Thread
     private String shellName;
     private String objName;
     private String instanceName;
-    private MethodDialog dialog;
+    private CallDialog dialog;
     private boolean constructing;
-    private String resultId;
+    private String resultName;
 
+    /**
+     * Create an invoker for a free form statement or expression.
+     */
+    public Invoker(PkgMgrFrame pmf, FreeFormCallDialog callDialog, ResultWatcher watcher)
+    {
+        if (pmf.isEmptyFrame())
+            throw new IllegalArgumentException();
+
+        this.pmf = pmf;
+        this.pkg = pmf.getPackage();
+        this.watcher = watcher;
+        this.member = null;
+        this.shellName = getShellName();
+        this.objName = null;
+        this.instanceName = null;
+
+        constructing = false;
+        doFreeForm(callDialog);
+    }
+        
     /**
      * Call a class's constructor, then create an ObjectWrapper for the
      * resulting object
@@ -126,139 +146,96 @@ public class Invoker extends Thread
             constructing = false;
         }
         else
-            Debug.reportError("illegal member type in invokation");
+            Debug.reportError("illegal member type in invocation");
 
         invoke();
     }
 
     /**
-     * Execute the invokation. The details of the invokation
+     * Execute the invocation. The details of the invocation
      * (object, method, etc) have been defined on creation of
      * this invoker object.
      */
     private void invoke()
     {
+        MethodDialog mDialog = null;
+ 
         // check for a method call with no parameter
         // if so, just do it
         if(!constructing && !member.hasParameters()) {
             doInvocation(null, null);
         }
         else {
-            dialog = (MethodDialog)methods.get(member);
+            mDialog = (MethodDialog)methods.get(member);
 
-            if(dialog == null) {
-                dialog = new MethodDialog(pmf,
+            if(mDialog == null) {
+                mDialog = new MethodDialog(pmf,
                                           member.getClassName(),
                                           objName,
                                           member);
-                methods.put(member, dialog);
+                methods.put(member, mDialog);
             }
             else {
                 if (constructing)
-                    dialog.setNewInstanceName(objName);
+                    mDialog.setNewInstanceName(objName);
                 else
-                    dialog.setInstanceName(objName);
+                    mDialog.setInstanceName(objName);
             }
         }
 
-        if(dialog != null) {
+        if(mDialog != null) {
             LabelPrintWriter writer = new LabelPrintWriter();
             member.print(writer);
-            dialog.setDescription(writer.getLabel());
-            dialog.addWatcher(this);
-            dialog.setVisible(true);
+            mDialog.setDescription(writer.getLabel());
+            mDialog.setWatcher(this);
+            mDialog.setVisible(true);
         }
+        dialog = mDialog;
     }
 
-    // -- MethodDialogWatcher interface --
+    /* Start a free form invocation. That is: Show the free form
+     * evaluation dialog, then sit back and wait for a callback.
+     */
+    private void doFreeForm(FreeFormCallDialog callDialog)
+    {
+        dialog = callDialog;
+        dialog.setWatcher(this);
+        dialog.setVisible(true);
+        // after this, wait for callDialogEvent
+    }
+
+    // -- CallDialogWatcher interface --
 
     /**
-     * The method call dialog notified of an event. If it
+     * The call dialog notified of an event. If it
      * is an OK, start doing the call.
      */
-    public void methodDialogEvent(MethodDialog dlg, int event)
+    public void callDialogEvent(CallDialog dlg, int event)
     {
-        if(event == MethodDialog.CANCEL) {
+        if(event == CallDialog.CANCEL) {
 
             dialog.setVisible(false);
         }
-        else if(event == MethodDialog.OK) {
+        else if(event == CallDialog.OK) {
 
-            instanceName = dlg.getNewInstanceName();
-            doInvocation(dlg.getArgs(), dlg.getArgTypes());
-            pmf.setWaitCursor(true);
-            if (constructing)
-                pkg.setStatus(creating);
+            if(dlg instanceof MethodDialog) {
+                MethodDialog mDialog = (MethodDialog)dlg;
+                instanceName = mDialog.getNewInstanceName();
+                doInvocation(mDialog.getArgs(), mDialog.getArgTypes());
+                pmf.setWaitCursor(true);
+                if (constructing)
+                    pkg.setStatus(creating);
+            }
+            else if(dlg instanceof FreeFormCallDialog) {
+                FreeFormCallDialog ffDialog = (FreeFormCallDialog)dlg;
+                doFreeFormInvocation(ffDialog.getExpression(), ffDialog.getHasResult());
+            }
         }
         else
-            Debug.reportError("Invoker: Unknown MethodDialog event");
+            Debug.reportError("Invoker: Unknown CallDialog event");
     }
 
-    // -- end of MethodDialogWatcher interface --
-
-    private String cleverQualifyTypeName(Package p, String typeName)
-    {
-        // if we happen to have a class in this package with the
-        // same name as the start of the package, then fully qualifying names
-        // does not work ie if the package is Test.Sub and we have
-        // a class called Test, then all fully qualified names
-        // fail ie new Test.Sub.Test() and new Test.Sub.Foo()
-        // in the package where the class Test exists.
-        // so in this case we need to use the unqualified name
-        // ie new Test() and new Foo()
-
-        // note we need to retain the fully qualified case for when
-        // we add library classes etc which may involve constructing
-        // objects of types which are not in the current package
-
-        if (!p.isUnnamedPackage()) {
-            String pkgName = p.getQualifiedName();
-            int lastDot = pkgName.indexOf(".");
-
-            if (lastDot >= 0)
-                pkgName = pkgName.substring(0, lastDot);
-
-            // if the first part of the package name exists as a target
-            // lets unqualify the typeName
-            if (p.getTarget(pkgName) != null)
-                typeName = JavaNames.getBase(typeName);
-        }
-
-        // now we need to deal with nested types
-        // these types will have a $ in them but depending on whether
-        // they are anonymous classes or member classes will change how
-        // we want to refer to them
-        // an anonymous class we can refer to as MyClass$1 and the
-        // compiler is ok with that
-        // a member class, despite being given a type name of
-        // MyClass$MemberClass, must be referred to as MyClass.MemberClass
-        // in the source code. Here we make this change to the typeName
-        // based entirely on whether the character following the $ is
-        // a numeral or not (which just happens to be the way it is at
-        // the moment but I don't think its written down in the JLS or
-        // anything so this may break)
-
-        int firstDollar;
-
-        if ((firstDollar = typeName.indexOf('$')) != -1) {
-            StringBuffer sb = new StringBuffer(typeName);
-
-            // go to length - 1 only so we always have an i+1 character
-            // to check. What this means is that if the last character
-            // in the typeName is a $, it won't be converted but I don't
-            // think a type name with a $ as the last character is valid
-            // anyway
-            for(int i=firstDollar; i<sb.length()-1; i++) {
-                if (sb.charAt(i) == '$' &&
-                    !Character.isDigit(sb.charAt(i+1)))
-                    sb.setCharAt(i, '.');
-            }
-
-            typeName = sb.toString();
-        }
-
-        return JavaNames.typeName(typeName);
-    }
+    // -- end of CallDialogWatcher interface --
 
     /**
      * After all the interactive stuff is finished, finally do
@@ -275,40 +252,23 @@ public class Invoker extends Thread
      */
     protected void doInvocation(String[] args, Class[] argTypes)
     {
-        Component[] wrappers = pmf.getObjectBench().getComponents();
-
-        // PENDING: this should be changed to write directly to file.
-        // The hashtable mechanism doesn't make so much sense anymore
-        // since most of it gets constructed here anyway.
-
         int numArgs = (args==null ? 0 : args.length);
         String className = member.getClassName();
 
-        // Create package specification line ("package xyz")
-
-        Hashtable trans = new Hashtable();
-
-        if(pkg.isUnnamedPackage())
-            trans.put("PKGLINE", "");
-        else
-            trans.put("PKGLINE", "package " + pkg.getQualifiedName() + ";");
-
-        // Create class name
-
-        trans.put("CLASSNAME", shellName);
-
-        // add variable declarations: one for a (possible) result, and one
-        // for each parameter
-
+        // prepare variables (assigned with actual values) for each parameter
+        
         StringBuffer buffer = new StringBuffer();
-        if(constructing)
-            buffer.append("public static bluej.runtime.ObjectResultWrapper");
-        else
-            buffer.append("public static Object");
-        buffer.append(" __bluej_runtime_result;" + Config.nl);
-        trans.put("VARDECL", buffer.toString());
+        for(int i = 0; i < numArgs; i++) {
+            buffer.append("\t\t" + cleverQualifyTypeName(pkg, argTypes[i].getName()));
+            buffer.append(" __bluej_param" + i);
+            buffer.append(" = " + args[i]);
+            buffer.append(";" + Config.nl);
+        }
+        String paramInit = buffer.toString();
 
-        // Build a string with parameter list: "(param0,param1,...)"
+        // Build two strings with  parameter lists: one using the variable names
+        // "(__bluej_param0,__bluej_param1,...)" for internal use, one using the 
+        // actual values for interface display.
 
         buffer = new StringBuffer("(");
         StringBuffer argBuffer = new StringBuffer("(");
@@ -326,6 +286,100 @@ public class Invoker extends Thread
         String argString = buffer.toString();
         String actualArgString = argBuffer.toString();
 
+        // build the invocation string
+
+        buffer = new StringBuffer();
+        String command;             // the interactive command in text form
+        boolean isVoid = false;
+        
+        if(constructing) {
+            command = "new " + cleverQualifyTypeName(pkg, className);
+            resultName = instanceName;
+            //             CallRecord.getCallRecord(instanceName, member, args);
+        }
+        else {  // it's a method call
+            MethodView method = (MethodView)member;
+            isVoid = method.isVoid();
+
+            if(method.isStatic())
+                command = cleverQualifyTypeName(pkg, className) + "." + method.getName();
+            else {
+                command = objName + "." + method.getName();
+
+                //                CallRecord.addMethodCallRecord(objName, method.getName(),
+                //                                                member, args);
+            }
+
+            // generate and store unique ID for result object
+            resultName = getUniqueResultName();
+        }
+
+        File shell = writeInvocationFile(pkg, paramInit, 
+                            command + argString, resultName, constructing, isVoid);
+
+        compileInvocationFile(shell);
+        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, command + actualArgString);
+    }
+
+    /**
+     * Arrange to execute a free form (text) invocation.
+     *
+     * Invocation here means: construct shell class and compile.
+     * The execution is done once we return from compilation (in
+     * method "endCompile").
+     * Compilation is done asynchronously by the CompilerThread.
+     *
+     * This method is still executed in the interface thread,
+     * while "endCompile" will be executed by the CompilerThread.
+     */
+    protected void doFreeFormInvocation(String executionString, boolean hasResult)
+    {
+        // generate and store unique ID for result object
+        resultName = getUniqueResultName();
+        
+        File shell = writeInvocationFile(pkg, "", executionString, 
+                                         resultName, false, !hasResult);
+                                         //constructing, isVoid);
+
+        compileInvocationFile(shell);
+        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, executionString);
+    }
+
+    /**
+     * Write a source file for a class to do the interactive invocation.
+     */
+    private File writeInvocationFile(Package pkg, 
+                                     String paramInit, String callString, String resultName,
+                                     boolean constructing, boolean isVoid)
+    {
+        // PENDING: this should be changed to write directly to file.
+        // The hashtable mechanism doesn't make so much sense anymore
+        // since most of it gets constructed here anyway.
+
+        Hashtable trans = new Hashtable();
+
+        // Create package specification line ("package xyz")
+
+        String packageLine;
+        if(pkg.isUnnamedPackage())
+            packageLine = "";
+        else
+            packageLine = "package " + pkg.getQualifiedName() + ";";
+
+        trans.put("PKGLINE", packageLine);
+        trans.put("CLASSNAME", shellName);
+        
+        // add variable declaration for a (possible) result
+
+        StringBuffer buffer = new StringBuffer();
+        if(constructing)
+            buffer.append("public static bluej.runtime.ObjectResultWrapper");
+        else
+            buffer.append("public static Object");
+        buffer.append(" __bluej_runtime_result;" + Config.nl);
+
+        trans.put("VARDECL", buffer.toString());
+
         // Build scope, ie. add one line for every object on the object
         // bench that gets the object and makes it available for use as
         // a parameter. Then add one line for each parameter setting the
@@ -333,6 +387,8 @@ public class Invoker extends Thread
 
         buffer = new StringBuffer();
         String scopeId = Utility.quoteSloshes(pkg.getId());
+        Component[] wrappers = pmf.getObjectBench().getComponents();
+
         if(wrappers.length > 0)
             buffer.append("java.util.Map __bluej_runtime_scope = getScope(\""
                           + scopeId + "\");" + Config.nl);
@@ -345,53 +401,32 @@ public class Invoker extends Thread
             buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
             buffer.append(instname + "\");" + Config.nl);
         }
-        for(int i = 0; i < numArgs; i++) {
-            buffer.append("\t\t" + cleverQualifyTypeName(pkg, argTypes[i].getName()));
-            buffer.append(" __bluej_param" + i);
-            buffer.append(" = " + args[i]);
-            buffer.append(";" + Config.nl);
-        }
+        
         trans.put("SCOPEINIT", buffer.toString());
+        trans.put("PARAMINIT", paramInit);
+
+        // build the invocation string
 
         buffer = new StringBuffer();
-        String command;  // the interactive command in text form
 
         if(constructing) {
-            command = "new " + cleverQualifyTypeName(pkg, className);
-
             buffer.append("__bluej_runtime_result = makeObj((Object)");
-            buffer.append(command + argString + ");" + Config.nl);
+            buffer.append(callString + ");" + Config.nl);
             buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
-            buffer.append(instanceName);
+            buffer.append(resultName);
             buffer.append("\", __bluej_runtime_result.result);");
-
-            //             CallRecord.getCallRecord(instanceName, member, args);
         }
         else {  // it's a method call
-            MethodView method = (MethodView)member;
-            boolean isVoid = method.isVoid();
-
-            if(method.isStatic())
-                command = cleverQualifyTypeName(pkg, className) + "." + method.getName();
-            else {
-                command = objName + "." + method.getName();
-
-                //                CallRecord.addMethodCallRecord(objName, method.getName(),
-                //                                                member, args);
-            }
-
             if(!isVoid)
                 buffer.append("__bluej_runtime_result = makeObj(");
-            buffer.append(command + argString);
+            buffer.append(callString);
             if(!isVoid)
                 buffer.append(")");
             buffer.append(";" + Config.nl);
 
             if(!isVoid) {
-                // generate and store unique ID for result object
-                resultId = getResultId();
                 buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
-                buffer.append(resultId);
+                buffer.append(resultName);
                 buffer.append("\", __bluej_runtime_result);");
             }
         }
@@ -405,11 +440,16 @@ public class Invoker extends Thread
                                           trans);
         } catch(IOException e) {
             e.printStackTrace();
-            return;
         }
+        return shellFile;
+    }
 
-        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, command + actualArgString);
-
+    /**
+     * Start the compilation of a shell fine and register us as a watcher.
+     * After this, we just wait for the callback from the compiler.
+     */    
+    private void compileInvocationFile(File shellFile)
+    {
         String[] files = { shellFile.getPath() };
         JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(),
                                       pkg.getProject().getProjectDir().getPath());
@@ -417,6 +457,7 @@ public class Invoker extends Thread
 
     // -- CompileObserver interface --
 
+    // not interested in these events:
     public void startCompile(String[] sources) {}
     public void checkTarget(String sources) {}
 
@@ -428,7 +469,7 @@ public class Invoker extends Thread
                              boolean invalidate)
     {
         if(dialog != null) {
-            dialog.setMessage("Error: " + message);
+            dialog.setErrorMessage("Error: " + message);
         }
     }
 
@@ -443,7 +484,8 @@ public class Invoker extends Thread
             dialog.setWaitCursor(false);
             if(successful) {
                 dialog.setVisible(false);
-                dialog.updateParameters();
+                if(dialog instanceof MethodDialog)
+                    ((MethodDialog)dialog).updateParameters();
             }
         }
 
@@ -514,14 +556,9 @@ public class Invoker extends Thread
             case Debugger.NORMAL_EXIT:
                 if(watcher != null) {
                     DebuggerObject result = Debugger.debugger.getStaticValue(
-                                                                             shellClassName,
-                                                                             "__bluej_runtime_result");
-                    if(constructing) {
-                        watcher.putResult(result, instanceName);
-                    }
-                    else {
-                        watcher.putResult(result, resultId);
-                    }
+                                                shellClassName,
+                                                "__bluej_runtime_result");
+                    watcher.putResult(result, resultName);
                 }
                 break;
 
@@ -555,5 +592,69 @@ public class Invoker extends Thread
         } catch(Throwable e) {
             e.printStackTrace(System.err);
         }
+    }
+    
+    private String cleverQualifyTypeName(Package p, String typeName)
+    {
+        // if we happen to have a class in this package with the
+        // same name as the start of the package, then fully qualifying names
+        // does not work ie if the package is Test.Sub and we have
+        // a class called Test, then all fully qualified names
+        // fail ie new Test.Sub.Test() and new Test.Sub.Foo()
+        // in the package where the class Test exists.
+        // so in this case we need to use the unqualified name
+        // ie new Test() and new Foo()
+
+        // note we need to retain the fully qualified case for when
+        // we add library classes etc which may involve constructing
+        // objects of types which are not in the current package
+
+        if (!p.isUnnamedPackage()) {
+            String pkgName = p.getQualifiedName();
+            int lastDot = pkgName.indexOf(".");
+
+            if (lastDot >= 0)
+                pkgName = pkgName.substring(0, lastDot);
+
+            // if the first part of the package name exists as a target
+            // lets unqualify the typeName
+            if (p.getTarget(pkgName) != null)
+                typeName = JavaNames.getBase(typeName);
+        }
+
+        // now we need to deal with nested types
+        // these types will have a $ in them but depending on whether
+        // they are anonymous classes or member classes will change how
+        // we want to refer to them
+        // an anonymous class we can refer to as MyClass$1 and the
+        // compiler is ok with that
+        // a member class, despite being given a type name of
+        // MyClass$MemberClass, must be referred to as MyClass.MemberClass
+        // in the source code. Here we make this change to the typeName
+        // based entirely on whether the character following the $ is
+        // a numeral or not (which just happens to be the way it is at
+        // the moment but I don't think its written down in the JLS or
+        // anything so this may break)
+
+        int firstDollar;
+
+        if ((firstDollar = typeName.indexOf('$')) != -1) {
+            StringBuffer sb = new StringBuffer(typeName);
+
+            // go to length - 1 only so we always have an i+1 character
+            // to check. What this means is that if the last character
+            // in the typeName is a $, it won't be converted but I don't
+            // think a type name with a $ as the last character is valid
+            // anyway
+            for(int i=firstDollar; i<sb.length()-1; i++) {
+                if (sb.charAt(i) == '$' &&
+                    !Character.isDigit(sb.charAt(i+1)))
+                    sb.setCharAt(i, '.');
+            }
+
+            typeName = sb.toString();
+        }
+
+        return JavaNames.typeName(typeName);
     }
 }

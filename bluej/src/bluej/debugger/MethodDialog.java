@@ -5,7 +5,6 @@ import bluej.utility.Debug;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.Utility;
 import bluej.utility.JavaNames;
-import bluej.utility.DialogManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.ConstructorView;
@@ -31,19 +30,13 @@ import java.util.StringTokenizer;
  * @author  Michael Kolling
  * @author  Bruce Quig
  *
- * @version $Id: MethodDialog.java 1168 2002-03-13 11:22:45Z mik $
+ * @version $Id: MethodDialog.java 1371 2002-10-14 08:26:48Z mik $
  */
-public class MethodDialog extends JDialog
-	implements ActionListener, FocusListener, ObjectBenchListener
+public class MethodDialog extends CallDialog
+	implements FocusListener
 {
     static final int MD_CREATE = 0;
     static final int MD_CALL = 1;
-
-    static final String CMD_OKAY = "okay";
-    static final String CMD_CANCEL = "cancel";
-
-    static final int OK = 0;
-    static final int CANCEL = 1;
 
     int dialogType;
 
@@ -58,17 +51,12 @@ public class MethodDialog extends JDialog
 
     static final String commentSlash = "   ";
 
-    // Buttons
-    private JButton bOk, bCancel;
-
     private String methodName;
 
     // Text Area
     private JPanel descPanel;
 
     private JComboBox[] params;
-    private MultiLineLabel status;
-    private MethodDialogWatcher watcher;
     private JTextField instanceNameText;
     private JTextField focusedTextField;
     private JLabel callLabel;
@@ -83,28 +71,32 @@ public class MethodDialog extends JDialog
     public MethodDialog(PkgMgrFrame pmf, String className,
                         String instanceName, CallableView method)
     {
-        super(pmf, false);
+        super(pmf, "");
 
         Package pkg = pmf.getPackage();
 
         history = pkg.getCallHistory();
         bench = pmf.getObjectBench();
 
-        // set up panel for error message
-        status = new MultiLineLabel("\n\n", LEFT_ALIGNMENT);
-        status.setForeground(new Color(136,56,56));  // dark red
-        JPanel statusPanel = new JPanel();
-        statusPanel.setMinimumSize(new Dimension(120,40));
-
         // Find out the type of dialog
-        if( method instanceof MethodView ) {
+        if(method instanceof MethodView) {
             dialogType = MD_CALL;
             methodName = ((MethodView)method).getName();
         }
-        else if (method instanceof ConstructorView ) {
+        else if (method instanceof ConstructorView) {
             dialogType = MD_CREATE;
         }
 
+        makeDialog();
+    }
+    
+    protected JComponent createTopComponent()
+    {
+        return null;
+    }
+
+    protected JComponent createCenterComponent()
+    {
         JPanel dialogPanel = new JPanel();
         {
             descPanel = new JPanel();
@@ -143,31 +135,6 @@ public class MethodDialog extends JDialog
             	}
             }
 
-            // create the Button Panel
-            JPanel butPanel = new JPanel();
-            {
-                butPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-                butPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                butPanel.add(bOk = new JButton(Config.getString("okay")));
-                bOk.setActionCommand(CMD_OKAY);
-                bOk.addActionListener(this);
-
-            	butPanel.add(bCancel = new JButton(Config.getString("cancel")));
-                bCancel.setActionCommand(CMD_CANCEL);
-            	bCancel.addActionListener(this);
-
-                getRootPane().setDefaultButton(bOk);
-
-				// try to make the OK and cancel buttons have equal width
-                bOk.setPreferredSize(new Dimension(bCancel.getPreferredSize().width,
-                                                   bOk.getPreferredSize().height));
-
-            }
-
-            //          	statusPanel.add(status);
-            //            statusPanel.setAlignmentX(LEFT_ALIGNMENT);
-
             dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
             dialogPanel.setBorder(Config.generalBorder);
 
@@ -176,24 +143,13 @@ public class MethodDialog extends JDialog
             dialogPanel.add(new JSeparator());
             dialogPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
             dialogPanel.add(centerPanel);
-            dialogPanel.add(status);
+            dialogPanel.add(getErrorLabel());
             dialogPanel.add(new JSeparator());
             dialogPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
             dialogPanel.add(butPanel);
         }
 
-        getContentPane().add(dialogPanel);
-        pack();
-
-        // Set some attributes for this DialogBox
-        DialogManager.centreDialog(this);
-
-        // Close Action when close button is pressed
-        addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent event) {
-                    setVisible(false);
-                }
-            });
+        return dialogPanel;
     }
 
 
@@ -271,7 +227,6 @@ public class MethodDialog extends JDialog
             panel.add(tmpPanel);
         }
     } // makeCallDialog
-
 
     /**
      * Set the text of the label showing the call to be made.
@@ -441,8 +396,8 @@ public class MethodDialog extends JDialog
      */
     public void setVisible(boolean show)
     {
-    	// reset status label message
-    	setMessage("");
+    	// reset error label message
+    	setErrorMessage("");
 
     	if (show) {
             show();
@@ -468,19 +423,6 @@ public class MethodDialog extends JDialog
     	    //getOwner().repaint();
             bench.removeObjectBenchListener(this);
         }
-    }
-
-    /**
-     * Process action events
-     */
-    public void actionPerformed(ActionEvent event)
-    {
-        String command = event.getActionCommand();
-
-        if (CMD_OKAY.equals(command))
-            doOk();
-        else if (CMD_CANCEL.equals(command))
-            doCancel();
     }
 
     /**
@@ -522,24 +464,6 @@ public class MethodDialog extends JDialog
     }
 
     /**
-     * addWatcher - Set a Watcher
-     */
-    public void addWatcher(MethodDialogWatcher w)
-    {
-        if (w != null)
-            watcher = w;
-    }
-
-    /**
-     * callWatcher - notify watcher of dialog events.
-     */
-    public void callWatcher(int event)
-    {
-        if (watcher != null)
-            watcher.methodDialogEvent(this, event);
-    }
-
-    /**
      * setDescription - display a new description in the dialog
      */
     public void setDescription(MultiLineLabel label)
@@ -573,9 +497,7 @@ public class MethodDialog extends JDialog
     }
 
     /**
-     * Inserts text into edit field (JComboBox) that has focus.
-     * Has problems at present (09/02/99) finding focused component.
-     * Swing bug?
+     * Insert text into edit field (JComboBox) that has focus.
      */
     public void insertText(String text)
     {
@@ -586,18 +508,6 @@ public class MethodDialog extends JDialog
                 this.show();
             }
         }
-    }
-
-    /**
-     * setMessage - Sets a status bar style message for the dialog mainly
-     *  for reporting back compiler errors upon method calls.
-     */
-    public void setMessage(String message)
-    {
-        status.setText(message);
-        pack();
-        invalidate();
-        validate();
     }
 
     /**
@@ -647,7 +557,6 @@ public class MethodDialog extends JDialog
         return paramClasses;
     }
 
-
     /**
      * Workaround for udating model problems with JComboBox.
      * Updates CallHistory and resets model to updated Vectors.  Ugly and
@@ -678,31 +587,6 @@ public class MethodDialog extends JDialog
         }
     }
 
-    /**
-     * setWaitCursor - Sets the cursor to "wait" style cursor, using swing
-     *  bug workaround at present
-     */
-    public void setWaitCursor(boolean wait)
-    {
-        if(wait)
-            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        else
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }
-
-    // -- ObjectBenchListener interface --
-
-    /**
-     * The object was selected interactively (by clicking
-     * on it with the mouse pointer).
-     */
-    public void objectEvent(ObjectBenchEvent obe)
-    {
-        ObjectWrapper wrapper = obe.getWrapper();
-
-        insertText(wrapper.instanceName);
-    }
-
     // --- FocusListener interface methods ---
 
     /**
@@ -725,5 +609,4 @@ public class MethodDialog extends JDialog
     {
         // Debug.message(" Focus Lost: " + fe.paramString());
     }
-
 }

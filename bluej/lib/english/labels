@@ -366,6 +366,10 @@ callLibraryDialog.clickHere2=to display constructors and methods.
 callLibraryDialog.classNotFound1=Could not find the class.
 callLibraryDialog.classNotFound2=(Check the class name and press Enter again.)
 
+# "Free Form Call" dialog
+freeCallDialog.title=BlueJ:  Evaluate
+freeCallDialog.fieldLabel=Evaluate:
+
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Export Project
 pkgmgr.export.helpLine1=Export stores a copy of the current project in
@@ -515,6 +519,7 @@ menu.tools=Tools
 menu.tools.compile=Compile
 menu.tools.compileSelected=Compile Selected
 menu.tools.callLibrary=Use Library Class...
+menu.tools.callFreeForm=Free Form Call...
 menu.tools.rebuild=Rebuild Package
 menu.tools.generateDoc=Project Documentation
 menu.tools.preferences=Preferences...

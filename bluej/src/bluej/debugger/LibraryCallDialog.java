@@ -21,11 +21,13 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 /**
- *
+ * This dialog allows selection of classes and their static methods from
+ * available libraries. When a constructor or static method is selected
+ * it can be invoked.
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 1351 2002-10-07 12:07:59Z mik $
+ * @version $Id: LibraryCallDialog.java 1371 2002-10-14 08:26:48Z mik $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener

@@ -39,7 +39,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1369 2002-10-11 14:57:48Z mik $
+ * @version $Id: PkgMgrFrame.java 1371 2002-10-14 08:26:48Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, 
@@ -95,6 +95,7 @@ public class PkgMgrFrame extends JFrame
     private ObjectBench objbench;
 
     private LibraryCallDialog libraryCallDialog = null;
+    private FreeFormCallDialog freeFormCallDialog = null;
 
     // ============================================================
     // static methods to create and remove frames
@@ -1349,14 +1350,34 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * User function "Use Library Class...". Pop up the dialog that allows
-     * users to invoke library classes.
+     * User function "Free Form Call...". Pop up the dialog that allows
+     * users to make that call.
      */
     public void callLibraryClass()
     {
         if(libraryCallDialog == null)
             libraryCallDialog = new LibraryCallDialog(this);
         libraryCallDialog.setVisible(true);
+    }
+
+    /**
+     * User function "Use Library Class...". Pop up the dialog that allows
+     * users to invoke library classes.
+     */
+    public void callFreeForm()
+    {
+        if(freeFormCallDialog == null) {
+            freeFormCallDialog = new FreeFormCallDialog(this);
+        }
+        ResultWatcher watcher = new ResultWatcher() {
+               public void putResult(DebuggerObject result, String name) {
+                   ObjectViewer viewer =
+                        ObjectViewer.getViewer(false, result, name, getPackage(), true,
+                                               PkgMgrFrame.this);
+                   BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
+               }
+        };
+        new Invoker(this, freeFormCallDialog, watcher);
     }
 
     /**
@@ -1842,6 +1863,10 @@ public class PkgMgrFrame extends JFrame
             createMenuItem("menu.tools.callLibrary", menu, KeyEvent.VK_L, SHORTCUT_MASK, true, 
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); callLibraryClass(); }
+                           });
+            createMenuItem("menu.tools.callFreeForm", menu, 0, 0, true, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); callFreeForm(); }
                            });
             createMenuItem("menu.tools.rebuild", menu, 0, 0, true, 
                            new ActionListener() {
