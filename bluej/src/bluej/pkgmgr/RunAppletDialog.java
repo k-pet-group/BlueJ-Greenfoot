@@ -12,7 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: RunAppletDialog.java 134 1999-06-21 02:34:23Z bruce $
+ ** @version $Id: RunAppletDialog.java 139 1999-06-22 06:25:37Z bruce $
  ** @author Bruce Quig
  **
  ** Dialog for generating HTML and running applets.
@@ -219,7 +219,6 @@ public class RunAppletDialog extends JDialog
     public void actionPerformed(ActionEvent evt)
     {
 	String cmd = evt.getActionCommand();
-	Debug.message("command: " + cmd);
 
 	if(okay.equals(cmd))
 	    doOK();
@@ -259,7 +258,6 @@ public class RunAppletDialog extends JDialog
      */
     public void doOK()
     {
-	Debug.message("DoOK");
 	if(!checkFieldsAreValid()) {
 	    Utility.showError(parent, "Applet Height and Width must be specified");
 	}
@@ -281,7 +279,9 @@ public class RunAppletDialog extends JDialog
 
 
     /**
-     * Check that required fields have entries.
+     * Check that required fields have entries.  
+     * There is no checking the validity of what is entered.
+     * @return true if both width and height fields are not empty
      */
     public boolean checkFieldsAreValid()
     {
@@ -308,13 +308,19 @@ public class RunAppletDialog extends JDialog
 	return widthField.getText();
     }
 
+
     /**
-     * Returns value of width text field.
-     * @return applet parameters as an array of objects
+     * Returns applet parameters.
+     * @return applet parameters as an array of Strings or null if no parameters
      */
-    public Object[] getAppletParameters()
+    public String[] getAppletParameters()
     {
-	return appletParameters.toArray();
+	Object[] objectArray = appletParameters.toArray();
+	String[] paramStringArray = new String[objectArray.length];
+	for(int i = 0; i < objectArray.length; i++)
+	    paramStringArray[i] = (String)objectArray[i];
+
+	return paramStringArray;
     }
 
 
@@ -333,7 +339,6 @@ public class RunAppletDialog extends JDialog
     }
 
 
-
     // ----- ListSelectionListener interface -----
 
     /**
@@ -345,8 +350,7 @@ public class RunAppletDialog extends JDialog
 	//    return;
 	if(!parameterList.isSelectionEmpty())
 	    deleteButton.setEnabled(true);
-	
-	// int slot = staticFieldList.getSelectedIndex();
+
     }
 
     // ----- end of ListSelectionListener interface -----

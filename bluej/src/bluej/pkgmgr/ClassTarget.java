@@ -40,7 +40,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 134 1999-06-21 02:34:23Z bruce $
+ ** @version $Id: ClassTarget.java 139 1999-06-22 06:25:37Z bruce $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -83,7 +83,7 @@ public class ClassTarget extends EditableTarget
      */
     public ClassTarget(Package pkg, String name)
     {
-	super(pkg, name);
+	this(pkg, name, false);
     }
 
     /**
