@@ -27,7 +27,7 @@ import javax.swing.border.Border;
  *@author     Michael Cahill
  *@author     Michael Kolling
  *@author     Duane Buck
- *@version    $Id: ObjectViewer.java 830 2001-03-29 00:53:04Z mik $
+ *@version    $Id: ObjectViewer.java 834 2001-04-03 04:43:04Z ajp $
  */
 public final class ObjectViewer extends JFrame
          implements ActionListener, ListSelectionListener, InspectorListener
@@ -231,7 +231,7 @@ public final class ObjectViewer extends JFrame
     }
 
     /**
-     *  De-iconify the window (if necessary) and bring it to the front. 
+     *  De-iconify the window (if necessary) and bring it to the front.
      */
     public void bringToFront()
     {
@@ -915,29 +915,34 @@ public final class ObjectViewer extends JFrame
         String[] inspName = inspectorDir.list();
         if (inspName != null) {
             for (int i=0; i < inspName.length; i++) {  // Add inspectors (if any)
-                if (inspName[i].endsWith(".class")) {
-                    try {
-                        Class theInspClass = loader.loadClass(inspName[i].substring(0, inspName[i].length() - 6));
-                        Inspector theInsp = ((Inspector) theInspClass.newInstance());
-                        // If control gets here, the class implements Inspector!
-                        int inspIdx = inspCnt;
-                        inspCnt++;
-                        if (inspCnt >= insp.length) {
-                            Class[] temp = new Class[insp.length * 2];
-                            System.arraycopy(insp, 0, temp, 0, insp.length);
-                            insp = temp;
+                try {
+                    if (inspName[i].endsWith(".class")) {
+                        try {
+                            Class theInspClass = loader.loadClass(inspName[i].substring(0, inspName[i].length() - 6));
+                            Inspector theInsp = ((Inspector) theInspClass.newInstance());
+                            // If control gets here, the class implements Inspector!
+                            int inspIdx = inspCnt;
+                            inspCnt++;
+                            if (inspCnt >= insp.length) {
+                                Class[] temp = new Class[insp.length * 2];
+                                System.arraycopy(insp, 0, temp, 0, insp.length);
+                                insp = temp;
+                            }
+                            insp[inspIdx] = theInspClass;
+                            //System.out.println(""+inspIdx+": "+theInspClass);
                         }
-                        insp[inspIdx] = theInspClass;
-                        //System.out.println(""+inspIdx+": "+theInspClass);
+                        catch (ClassNotFoundException e) {
+                        }
+                        catch (InstantiationException e) {
+                        }
+                        catch (IllegalAccessException e) {
+                        }
+                        catch (ClassCastException e) {
+                        }
                     }
-                    catch (ClassNotFoundException e) {
-                    }
-                    catch (InstantiationException e) {
-                    }
-                    catch (IllegalAccessException e) {
-                    }
-                    catch (ClassCastException e) {
-                    }
+                }
+                catch (Exception catchalle) {
+                    catchalle.printStackTrace();
                 }
             }
         }
@@ -961,8 +966,10 @@ public final class ObjectViewer extends JFrame
                     }
                 }
             }
-            catch (InstantiationException e) { }
-            catch (IllegalAccessException e) { }
+            // we catch all exceptions silently.. if there is buggy
+            // code in an inspector, it won't affect the rest of blueJ
+            // (the main inspector panel will always come up)
+            catch (Exception e) { }
         }
     }
 }
