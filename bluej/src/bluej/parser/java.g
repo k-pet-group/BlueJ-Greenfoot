@@ -1728,7 +1728,8 @@ postfixExpression
     :   t=primaryExpression // start with a primary
 
 	        (   // qualified id (id.id.id.id...) -- build the name
-	            DOT ( id:IDENT {if (t!=null) t.setText(t.getText()+"."+id.getText());}
+	            DOT (typeArguments[null])?
+	                ( id:IDENT {if (t!=null) t.setText(t.getText()+"."+id.getText());}
 	                | "this"   {if (t!=null) t.setText(t.getText()+".this");}
 	                | "class"  {if (t!=null) t.setText(t.getText()+".class");}
 	                | newExpression
