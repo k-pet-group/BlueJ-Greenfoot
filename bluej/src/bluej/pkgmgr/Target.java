@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 648 2000-07-26 00:25:17Z ajp $
+ * @version $Id: Target.java 885 2001-05-09 00:41:53Z bquig $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -97,7 +97,7 @@ public abstract class Target extends Vertex
     {
         int width = 0;
         if (name != null)
-            width = (int)PrefMgr.getStandardFont().getStringBounds(name,FRC).getWidth();
+            width = (int)PrefMgr.getTargetFont().getStringBounds(name,FRC).getWidth();
         if ((width+20) <= DEF_WIDTH)
             return DEF_WIDTH;
         else
