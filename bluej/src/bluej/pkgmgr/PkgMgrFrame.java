@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2067 2003-06-25 14:19:24Z mik $
+ * @version $Id: PkgMgrFrame.java 2069 2003-06-25 15:00:01Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -75,11 +75,9 @@ public class PkgMgrFrame extends JFrame
     private JMenuBar menubar = null;
     private JMenu recentProjectsMenu;
     private JMenu toolsMenu;
-
-//    private int toolsExtensionsSeparatorIndex;
     private PopupManager popupManager;
-    
     private JMenu viewMenu;
+
     private JMenuItem showTestResultsItem;
     private List itemsToDisable;
     private List testItems;
@@ -174,8 +172,8 @@ public class PkgMgrFrame extends JFrame
             pmf.openPackage(pkg);
         }
 
+        // Attache new package to the dynamic Menu, Damiano
         pmf.popupManager.setAttachedObject ( pkg );
-//        extMgr.addMenuItems( pmf); Damiano, needs to know exactly why it is here
         return pmf;
     }
 
@@ -2234,9 +2232,7 @@ public class PkgMgrFrame extends JFrame
                                public void actionPerformed(ActionEvent e) { menuCall(); showPreferences(); }
                            });
 
-//            toolsExtensionsCheckSeparator();
-//            extMgr.addMenuItems ( this ); Damiano
-
+            // ATtache dynamic menu to this menu, Damiano
             JPopupMenu aMenu = menu.getPopupMenu();
             popupManager = new PopupManager( pkg );
             aMenu.addPopupMenuListener(popupManager);
@@ -2366,36 +2362,12 @@ public class PkgMgrFrame extends JFrame
 
     
     /**
-     *  Return the menu tool bar.
-     */
+     *  Return the menu tool bar. 
+     *
     public JMenu getToolsMenu()
     {
         return toolsMenu;
-    }
-
-    
-    /**
-     * Add or remove a separator in the tools menu for extensions as needed.
-     * To be deleted, Damiano
-    public void toolsExtensionsCheckSeparator()
-    {
-        if(extMgr.haveMenuItems( )) {   // do we need one?
-            if (toolsExtensionsSeparatorIndex > 0)          // have one already
-                return;
-
-            toolsExtensionsSeparatorIndex = toolsMenu.getItemCount();
-            toolsMenu.addSeparator();
-        } 
-        else {                                            // don't need one
-            if (toolsExtensionsSeparatorIndex <= 0)         // don't have one
-                return;
-
-            toolsMenu.remove(toolsExtensionsSeparatorIndex);
-            toolsExtensionsSeparatorIndex = 0;
-        }
-    }
-     */
-    
+    }    
 
     /**
      * Called on (almost) every menu invocation to clean up.
