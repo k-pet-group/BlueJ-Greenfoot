@@ -1,0 +1,25 @@
+How to make a BlueJ release for Windows               (last update 14.03.2002, ajp)
+---------------------------------------
+
+ 1. Build a BlueJ release (see HOWTO.make-release)
+
+ 2. Building the BlueJ release should have left a install_tmp
+    directory in the package directory. This is needed.
+
+ 3. Load the winlaunch/vmselect project in Delphi.
+    Change the version string at the top of the file to the new
+    BlueJ version so that each bluej version uses a different registry
+    key for storing VM information.
+
+ 4. Do a build all of the project. Delphi will automatically
+    incremement the projects build number. Quit Delphi.
+
+ 5. Run the Innosetup Compiler Frontend. Select the winsetup/bluej.iss
+    project.
+
+ 6. Change the version numbers in the Innosetup file.
+ 
+ 7. Build a new bluej setup.exe by clicking on build. The new installer
+    will appear in the Output directory.
+
+Done.
