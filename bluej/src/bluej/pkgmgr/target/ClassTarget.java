@@ -33,10 +33,12 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: ClassTarget.java 2483 2004-03-31 09:13:31Z fisker $
  */
 public class ClassTarget extends EditableTarget
-{
+{	
+    static final int MIN_WIDTH = 80;
+	static final int MIN_HEIGHT = 50;
     private static final String editStr = Config.getString("pkgmgr.classmenu.edit");
     private static final String openStr = Config.getString("browser.classchooser.classmenu.open");
     private static final String useStr = Config.getString("browser.classchooser.classmenu.use");
@@ -1132,14 +1134,13 @@ public class ClassTarget extends EditableTarget
 	}
     
     public void remove(){
-//        PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-//        if ( pmf.askRemoveClass() ){
-//            prepareForRemoval();
-//            getPackage().removeClass(this);   
-//        }
         prepareForRemoval();
         getPackage().removeClass(this);   
     }
     
+    public void setSize(int width, int height)
+    {
+        super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
+    }
     
 }

@@ -8,7 +8,7 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Vertex.java 2465 2004-01-29 13:33:46Z fisker $
+ * @version $Id: Vertex.java 2483 2004-03-31 09:13:31Z fisker $
  */
 public abstract class Vertex extends GraphElement
 {
@@ -31,8 +31,8 @@ public abstract class Vertex extends GraphElement
 
     public void setSize(int width, int height)
     {
-        this.width = width;
-        this.height = height;
+        this.width = (width > 0 ? width : 10);
+        this.height = (height > 0 ? height : 10);
     }
 
     public Rectangle getRectangle()

@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2480 2004-03-08 13:57:18Z fisker $
+ * @version $Id: GraphEditor.java 2483 2004-03-31 09:13:31Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -31,6 +31,8 @@ public class GraphEditor extends JComponent
     private int lastClickX, lastClickY; //coordinates for the last left clicked position
     private GraphPainter graphPainter;
     private MarqueePainter marqueePainter = new MarqueePainter();
+    private GraphElementController graphElementController;
+    public static final int GRID_SIZE = 10;
     
     public GraphEditor(Graph graph)
     {
@@ -203,7 +205,7 @@ public class GraphEditor extends JComponent
             if(isMultiselectionKeyDown(evt)) {
                 //a class was clicked, while multiselectionKey was down.
                 if(((Selectable)activeGraphElement).isSelected()) {
-                    // the clicked class was selected
+                    // the clicked class was already selected
                     graphElementManager.remove(activeGraphElement);
                 }
                 else {
@@ -227,12 +229,16 @@ public class GraphEditor extends JComponent
         if(activeGraphElement instanceof Selectable) {
             Selectable selectable = (Selectable) activeGraphElement;
             selectable.setResizing(selectable.isHandle(lastClickX, lastClickY));
+            if(selectable.isResizing()){
+                graphElementManager.clear();
+                graphElementManager.add(activeGraphElement);
+            }
         }
         
-        // Signal the graphElement that it was pressed
+        // Signal the graphElementController that the mouse was pressed
         if((activeGraphElement != null) && !evt.isPopupTrigger() &&
             ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-                graphElementManager.mousePressed(evt);
+                graphElementController.mousePressed(evt);
         }
 
     }
@@ -247,7 +253,7 @@ public class GraphEditor extends JComponent
             ((Selectable) activeGraphElement).setResizing(false);
         }
         if(activeGraphElement != null && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-            graphElementManager.mouseReleased(evt);
+            graphElementController.mouseReleased(evt);
         }
     }
 
@@ -266,7 +272,7 @@ public class GraphEditor extends JComponent
                 marquee.move(evt.getX(), evt.getY());          
             }
             else {
-                graphElementManager.mouseDragged(evt);
+                graphElementController.mouseDragged(evt);
             }
         }
     }
@@ -292,7 +298,7 @@ public class GraphEditor extends JComponent
             //make the mousecursor normal
             setCursor(defaultCursor);
         }
-        graphElementManager.mouseMoved(evt);
+        graphElementController.mouseMoved(evt);
     }
 
     // ---- end of MouseMotionListener interface ----
@@ -337,5 +343,31 @@ public class GraphEditor extends JComponent
      */
     public void setGraphPainter(GraphPainter graphPainter) {
         this.graphPainter = graphPainter;
+    }
+    
+    /**
+     * @return Returns the graphElementController.
+     */
+    public GraphElementController getGraphElementController() {
+        return graphElementController;
+    }
+    /**
+     * @param graphElementController The graphElementController to set.
+     */
+    public void setGraphElementController(GraphElementController graphElementController) {
+        this.graphElementController = graphElementController;
+    }
+    
+    public GraphElementManager getGraphElementManager(){
+        return graphElementManager;
+    }
+    
+    public static Point snapToGrid(Point point){
+        int x_steps = (int)point.getX() / GraphEditor.GRID_SIZE;
+        int new_x = x_steps * GraphEditor.GRID_SIZE;//new x-coor w/ respect to grid
+        
+        int y_steps = (int)point.getY() / GraphEditor.GRID_SIZE;
+        int new_y = y_steps * GraphEditor.GRID_SIZE;//new y-coor w/ respect to grid
+        return new Point(new_x, new_y);
     }
 }

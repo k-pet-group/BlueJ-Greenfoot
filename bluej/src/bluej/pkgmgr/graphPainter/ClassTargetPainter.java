@@ -10,7 +10,7 @@ import bluej.utility.Utility;
 /**
  * Paints a ClassTarget
  * @author fisker
- * @version $Id: ClassTargetPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ * @version $Id: ClassTargetPainter.java 2483 2004-03-31 09:13:31Z fisker $
  */
 
 public class ClassTargetPainter
@@ -42,10 +42,18 @@ public class ClassTargetPainter
         g.translate(classTarget.getX(), classTarget.getY());
         
         // draw the stationary class
+        if (classTarget.getBaseName().equalsIgnoreCase("fish")){
+            //1th april
+            try{
+            javax.swing.ImageIcon im = new javax.swing.ImageIcon(new java.net.URL("http://www.mip.sdu.dk/~fisker/sillyFish.png"));
+            im.paintIcon(null, g, -5, -10);
+            }catch(Exception e){}
+        }else{
         drawSkeleton(g, classTarget);
         drawUMLStyle(g, classTarget);
         drawWarnings(g, classTarget);
         drawRole(g, classTarget);
+        }
         g.translate(-classTarget.getX(), -classTarget.getY());
     }
     

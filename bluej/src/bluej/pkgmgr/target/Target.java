@@ -17,19 +17,14 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2480 2004-03-08 13:57:18Z fisker $
+ * @version $Id: Target.java 2483 2004-03-31 09:13:31Z fisker $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
-    static final int MIN_WIDTH = 60;
-    static final int MIN_HEIGHT = 40;
     static final int DEF_WIDTH = 80;
     static final int DEF_HEIGHT = 50;
     static final int ARR_HORIZ_DIST = 5;
     static final int ARR_VERT_DIST = 10;
-    static final int GRID_SIZE = 10;
-
-    // move me!
     static final int HANDLE_SIZE = 20;
     static final int TEXT_HEIGHT = 16;
     static final int TEXT_BORDER = 4;
@@ -38,6 +33,8 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     static final Color shadowCol = Config.getItemColour("colour.target.shadow");
     static final Color graphbg = Config.getItemColour("colour.graph.background");
 
+    
+    
     /** States **/
     public static final int S_NORMAL = 0;
     public static final int S_INVALID = 1;
@@ -53,8 +50,8 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     protected boolean disabled;
     private static int dragStartX; 
     private static int dragStartY;
-    private int ghost_x;
-    private int ghost_y;
+    private int ghostX;
+    private int ghostY;
     private boolean isMoving;
 
     protected int state = S_INVALID;
@@ -98,7 +95,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         if ((width+20) <= DEF_WIDTH)
             return DEF_WIDTH;
         else
-            return (width+29)/GRID_SIZE * GRID_SIZE;
+            return (width+29)/GraphEditor.GRID_SIZE * GraphEditor.GRID_SIZE;
     }
 
     /**
@@ -314,7 +311,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     public void mouseReleased(MouseEvent evt, GraphEditor editor)
     {
         if (isMoving()) {
-            setPos( (ghost_x >= 0 ? ghost_x : 0), (ghost_y >= 0 ? ghost_y : 0));
+            setPos(ghostX, ghostY);
             endMove();
         }
         
@@ -324,6 +321,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
         if(!newRect.equals(oldRect)) {
             editor.revalidate();
             editor.repaint();
+            
         }
 
     }
@@ -333,47 +331,38 @@ public abstract class Target extends Vertex implements Comparable, Selectable
      * resize the target.
      */
     public void mouseDragged(MouseEvent evt, GraphEditor editor)
-    {
-        int current_x = evt.getX();
-        int current_y = evt.getY();
+    {   
+        int deltaX = evt.getX() - getDragStartX();
+        int deltaY = evt.getY() - getDragStartY();
+        Point p = GraphEditor.snapToGrid( new Point(deltaX, deltaY) );
+        deltaX = (int) p.getX();
+        deltaY = (int) p.getY();
         
-        int deltaX = current_x - getDragStartX();
-        int deltaY = current_y - getDragStartY();
+        handleDelta(deltaX, deltaY);
         
+        editor.repaint();
+    }
+    
+   
+    /**
+     * @param deltaX
+     * @param deltaY
+     * @param editor
+     */
+    public void handleDelta(int deltaX, int deltaY) {
         isMoving = !isResizing(); // if this class is clicked and dragged
         						  // and isn't resizing, it must be moving.
-        
-        if (isMoving()) {
-	        int orig_x = (int) oldRect.getX();
-	        int orig_y = (int) oldRect.getY();
-	        
-	        int x_steps = (orig_x + deltaX) / GRID_SIZE;
-	        int new_x = x_steps * GRID_SIZE;//new x-coor w/ respect to grid
-	        
-	        int y_steps = (orig_y + deltaY) / GRID_SIZE;
-	        int new_y = y_steps * GRID_SIZE;//new y-coor w/ respect to grid
-	        
-	        ghost_x = (new_x >= 0 ? new_x : 0);
-	        ghost_y = (new_y >= 0 ? new_y : 0);
+        if (isMoving()) {	        
+	        ghostX = getX() + deltaX;
+	        ghostY = getY() + deltaY;
         }
         else if(isResizable()) {// Then we're resizing
 	        int origWidth = (int) oldRect.getWidth();
 	        int origHeight = (int) oldRect.getHeight();
-	
-	        int x_steps = (origWidth + deltaX) / GRID_SIZE;
-	        int new_width = x_steps * GRID_SIZE;// new width w/ respect to grid
-	
-	        int y_steps = (origHeight + deltaY) / GRID_SIZE;
-	        int new_height = y_steps * GRID_SIZE;//new height w/ respect to grid
-        
-	        setSize( Math.max(new_width, MIN_WIDTH), 
-	                 Math.max(new_height, MIN_HEIGHT));
-	        
+	        setSize(origWidth + deltaX, origHeight + deltaY);
         }
-        editor.repaint();
     }
 
-    
     /**
      * We have a notion of equality that relates solely to the
      * identifierName. If the identifierNames's are equal then
@@ -419,17 +408,17 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     }
 	    
     /**
-     * @return Returns the ghost_x.
+     * @return Returns the ghostX.
      */
     public int getGhostX() {
-        return ghost_x;
+        return ghostX;
     }
     
     /**
-     * @return Returns the ghost_x.
+     * @return Returns the ghostX.
      */
     public int getGhostY() {
-        return ghost_y;
+        return ghostY;
     }
     
     /**
@@ -449,7 +438,5 @@ public abstract class Target extends Vertex implements Comparable, Selectable
     public int getDragStartY() {
         return dragStartY;
     }
-    
-    
-	    
+        
 }

@@ -18,10 +18,13 @@ import bluej.utility.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: PackageTarget.java 2483 2004-03-31 09:13:31Z fisker $
  */
 public class PackageTarget extends Target
 {
+    static final int MIN_WIDTH = 80;
+	static final int MIN_HEIGHT = 60;
+	
     static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
 
     static final Color ribboncolour = defaultbg.darker().darker();
@@ -225,4 +228,8 @@ public class PackageTarget extends Target
         getPackage().getProject().removePackage(getQualifiedName());  
     }
 
+    public void setSize(int width, int height)
+    {
+        super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
+    }
 }

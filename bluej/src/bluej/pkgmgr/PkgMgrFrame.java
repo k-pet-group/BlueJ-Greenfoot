@@ -6,6 +6,7 @@ import bluej.debugmgr.*;
 import bluej.debugmgr.inspector.*;
 import bluej.debugmgr.objectbench.*;
 import bluej.extmgr.*;
+import bluej.graph.GraphElementController;
 import bluej.parser.*;
 import bluej.parser.symtab.*;
 import bluej.pkgmgr.dependency.Dependency;
@@ -31,7 +32,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2481 2004-03-09 12:16:51Z fisker $
+ * @version $Id: PkgMgrFrame.java 2483 2004-03-31 09:13:31Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -450,6 +451,7 @@ public class PkgMgrFrame extends JFrame
         this.pkg = pkg;
         this.editor = new PackageEditor(pkg);
         editor.setGraphPainter(GraphPainterStdImpl.getInstance());
+        editor.setGraphElementController(new GraphElementController(editor));
         editor.setFocusable(true);
         editor.addMouseListener(this);        // This listener MUST be before
         editor.addMouseListener(editor);      //  the editor itself!

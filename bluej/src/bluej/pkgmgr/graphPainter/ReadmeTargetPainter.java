@@ -9,7 +9,7 @@ import bluej.pkgmgr.target.ReadmeTarget;
 /**
  * Paints a ReadmeTarget
  * @author fisker
- * @version $Id: ReadmeTargetPainter.java 2475 2004-02-10 09:53:59Z fisker $
+ * @version $Id: ReadmeTargetPainter.java 2483 2004-03-31 09:13:31Z fisker $
  */
 public class ReadmeTargetPainter
 {
@@ -25,6 +25,7 @@ public class ReadmeTargetPainter
     
     public void paint(Graphics2D g, Target target)
     {
+
         this.readmeTarget = (ReadmeTarget) target;
         this.g = g;
         g.translate(readmeTarget.getX(), readmeTarget.getY());
@@ -82,5 +83,4 @@ public class ReadmeTargetPainter
 	    g.drawLine(6, height + 4, width + 2, height + 4 ); //bottom
 	    g.drawLine(width + 3, height + 3, width + 3, 5 + CORNER_SIZE);//left    
     }
-    
 }

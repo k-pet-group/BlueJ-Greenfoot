@@ -18,15 +18,13 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: ReadmeTarget.java 2483 2004-03-31 09:13:31Z fisker $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
 {
-    static final int DEF_WIDTH = 40;
-    static final int DEF_HEIGHT = 50;
-    static final int CORNER_SIZE = 10;
-
+    static final int WIDTH = 40;
+    static final int HEIGHT = 50;
     static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
     static final Color colBorder = Config.getItemColour("colour.target.border");
     static final Color textfg = Config.getItemColour("colour.text.fg");
@@ -38,14 +36,15 @@ public class ReadmeTarget extends Target
 
     protected Editor editor;
 
+
     public ReadmeTarget(Package pkg)
     {
         // create the target with an identifier name that cannot be
         // a valid java name
         super(pkg, README_ID);
-
+        
         setPos(10, 10);
-        setSize(DEF_WIDTH, DEF_HEIGHT);
+        setSize(WIDTH, HEIGHT);
     }
 
     public void load(Properties props, String prefix) throws NumberFormatException

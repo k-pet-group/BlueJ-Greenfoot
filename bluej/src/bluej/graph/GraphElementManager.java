@@ -1,6 +1,5 @@
 package bluej.graph;
 
-import java.awt.event.MouseEvent;
 import java.util.*;
 
 
@@ -79,62 +78,10 @@ class GraphElementManager
         }
     }
     
-    /**
-     * Invoke 'mouseDragged' on all the GraphElements in the list
-     * @param evt
-     */
-    public void mouseDragged(MouseEvent evt){
-        GraphElement graphElement = null;
-        int x = evt.getX();
-        int y = evt.getY();
-        for(Iterator i=graphElements.iterator(); i.hasNext();){
-            graphElement = (GraphElement) i.next();
-            graphElement.mouseDragged(evt, graphEditor);
-        }
+    public Iterator iterator(){
+        return graphElements.iterator();
     }
     
-    
-    /**
-     * Invoke 'mouseMoved' on all the GraphElements in the list
-     * @param evt the mouseEvent
-     */
-    public void mouseMoved(MouseEvent evt){
-        GraphElement graphElement;
-        int x = evt.getX();
-        int y = evt.getY();
-        for(Iterator i=graphElements.iterator(); i.hasNext();){
-            graphElement = (GraphElement) i.next();
-            graphElement.mouseMoved(evt, graphEditor);
-        }
-    }
-    
-    /**
-     * Invoke 'mousePressed' on all the GraphElements in the list
-     * @param evt the mouseEvent
-     */
-    public void mousePressed(MouseEvent evt){
-        GraphElement graphElement;
-        int x = evt.getX();
-        int y = evt.getY();
-        for(Iterator i=graphElements.iterator(); i.hasNext();){
-            graphElement = (GraphElement) i.next();
-            graphElement.mousePressed(evt, graphEditor);
-        }
-    }
-
-    /**
-     * Invoke 'mouseReleased' on all the GraphElements in the list
-     * @param evt the mouseEvent
-     */
-    public void mouseReleased(MouseEvent evt){
-        GraphElement graphElement;
-        int x = evt.getX();
-        int y = evt.getY();
-        for(Iterator i=graphElements.iterator(); i.hasNext();){
-            graphElement = (GraphElement) i.next();
-            graphElement.mouseReleased(evt, graphEditor);
-        }
-    }
     
     /**
      * Get the number of graphElements in this graphElementManager

@@ -15,7 +15,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 2480 2004-03-08 13:57:18Z fisker $
+ * @version	$Id: DependentTarget.java 2483 2004-03-31 09:13:31Z fisker $
  */
 public abstract class DependentTarget extends Target
 {
@@ -352,24 +352,20 @@ public abstract class DependentTarget extends Target
             dependencyArrowY = evt.getY();
             editor.repaint();
         }
-        else {
-            super.mouseMoved(evt, editor);
-        }
     }
     
     public void mouseReleased(MouseEvent evt, GraphEditor editor)
     {
+        super.mouseReleased(evt, editor);
+        handleMoveAndResizing();
         if (isStateDrawingDependency()){
             if (!this.contains(evt.getX(), evt.getY())) {
 	            handleNewDependencies(evt);
-		        handleMoveAndResizing();
 	            dependencyArrowX = 0;
 	            dependencyArrowY = 0;
 		        getPackage().setState(Package.S_IDLE); 
 		        editor.repaint();
             } 
-        }else {
-            super.mouseReleased(evt, editor);
         }
     }
     
@@ -386,7 +382,6 @@ public abstract class DependentTarget extends Target
     private void handleMoveAndResizing() {
         Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), 
                 						  getHeight());
-
         //If the target moved or changed size, the depend arrows must be updated
         if(!newRect.equals(oldRect)) {
             // Recalculate arrows
