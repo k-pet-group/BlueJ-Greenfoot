@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 760 2001-02-05 03:11:05Z bquig $
+  * @version $Id: Installer.java 761 2001-02-06 22:56:17Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -337,6 +337,9 @@ public class Installer extends JFrame
                         writeWindows12();
                     else
                         writeWindows();
+                }
+                else if(osname.startsWith("Mac")) {
+                        writeMacOS();
                 }
                 else if( ! isJDK12)
                     writeUnix();      // for 1.3 and later
@@ -683,7 +686,7 @@ public class Installer extends JFrame
         classpath = replace(classpath, '~', "$APPBASE");
         classpath = replace(classpath, '!', javaPath);
         classpath = replace(classpath, '@', architecture);
-        out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
+        out.write("CLASSPATH=" + classpath + "\n");
         out.write("export CLASSPATH\n");
         out.write(javaPath + "/bin/java " + getProperty("javaOpts") +
                   " -D" + getProperty("installDirProp") + "=$APPBASE "+ 
@@ -729,7 +732,7 @@ public class Installer extends JFrame
         classpath = replace(classpath, '~', "$APPBASE");
         classpath = replace(classpath, '!', javaPath);
         classpath = replace(classpath, '@', architecture);
-        out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
+        out.write("CLASSPATH=" + classpath + "\n");
         out.write("export CLASSPATH\n");
         out.write(javaPath + "/bin/java " + 
                   getProperty("javaOpts.1.2") + " -D" + 
@@ -769,7 +772,7 @@ public class Installer extends JFrame
         classpath = replace(classpath, '~', "$APPBASE");
         classpath = replace(classpath, '!', javaPath);
         classpath = replace(classpath, '@', architecture);
-        out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
+        out.write("CLASSPATH=" + classpath + "\n");
         out.write("export CLASSPATH\n");
         out.write(javaPath + "/Commands/java " + getProperty("javaOpts") +
                   " -D" + getProperty("installDirProp") + "=$APPBASE "+ 
@@ -809,7 +812,7 @@ public class Installer extends JFrame
         classpath = replace(classpath, '~', "%APPBASE%");
         classpath = replace(classpath, '!', javaPath);
         classpath = replace(classpath, '@', architecture);
-        out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
+        out.write("set CLASSPATH=" + classpath + "\r\n");
         out.write(javaPath + "\\bin\\java " +
                   getProperty("javaOpts") + " -D" + 
                   getProperty("installDirProp") + "=%APPBASE% "+ 
@@ -845,7 +848,7 @@ public class Installer extends JFrame
         classpath = replace(classpath, '~', "%APPBASE%");
         classpath = replace(classpath, '!', javaPath);
         classpath = replace(classpath, '@', architecture);
-        out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
+        out.write("set CLASSPATH=" + classpath + "\r\n");
         out.write(javaPath + "\\bin\\java " + 
                   getProperty("javaOpts.1.2") + " -D" + 
                   getProperty("installDirProp") + "=%APPBASE% "+ 
