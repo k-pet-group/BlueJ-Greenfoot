@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2561 2004-05-28 10:25:03Z polle $
+ * @version $Id: ClassTarget.java 2562 2004-05-28 10:42:04Z polle $
  */
 public class ClassTarget extends EditableTarget
 {	
@@ -150,6 +150,23 @@ public class ClassTarget extends EditableTarget
         return sourceInfo;
     }
     
+    /**
+     * Returns the text which the target is displaying as its label. For normal
+     * classes this is just the identifier name. For generic classes the generic
+     * parameters are shown as well
+     */
+    public String getDisplayName() {
+        return super.getDisplayName() + getTypeParameters();
+    }
+    
+    /**
+     * Returns the type parameters for a genric class as declared in the source file.  
+     */
+    private String getTypeParameters() {
+        //TODO When the parser supports generics this should return something usefull
+        return "";
+    }
+
     /**
      * Change the state of this target. The target will be repainted to show
      * the new state.
