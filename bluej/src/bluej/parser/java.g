@@ -68,39 +68,33 @@ options {
     // We need a symbol table to track definitions
     private SymbolTable symbolTable;
 
-    // Define a main
-    public static ClassInfo parse(String filename, Vector classes) {
-        // Use a try/catch block for parser exceptions
-        try {
-            // create a new symbol table
-            SymbolTable symbolTable = new SymbolTable();
-            doFile(new File(filename), symbolTable); // parse it
+    // the main entry point to parse a file
+    public static ClassInfo parse(String filename, Vector classes)
+        throws Exception 
+    {
+	// create a new symbol table
+	SymbolTable symbolTable = new SymbolTable();
+	doFile(new File(filename), symbolTable); // parse it
 
-            // resolve the types of all symbols in the symbol table
-	    //  -- we don't need this for BlueJ
-            //symbolTable.resolveTypes();
+	// resolve the types of all symbols in the symbol table
+	//  -- we don't need this for BlueJ
+	//symbolTable.resolveTypes();
 
-	    ClassInfo info = new ClassInfo();
+	ClassInfo info = new ClassInfo();
 
-	    // add existing classes to the symbol table
-	    symbolTable.addClasses(classes);
- 
-            symbolTable.getInfo(info);
-	    info.print();
-            return info;
-        }
-        catch(Exception e) {
-            Debug.reportError("Could not parse: " + e);
-            e.printStackTrace(System.err);   // so we can get stack trace
-        }
-	return null;
+	// add existing classes to the symbol table
+	symbolTable.addClasses(classes);
+
+	symbolTable.getInfo(info);
+	return info;
     }
 
 
     // This method decides what action to take based on the type of
     //   file we are looking at
     public static void doFile(File f, SymbolTable symbolTable)
-                              throws Exception {
+	throws Exception 
+    {
         // If this is a directory, walk each file/dir in that directory
         if (f.isDirectory()) {
             String files[] = f.list();
@@ -118,27 +112,22 @@ options {
     // Here's where we do the real work...
     public static void parseFile(InputStream s,
                                  SymbolTable symbolTable)
-                                 throws Exception {
-        try {
-            // Create a scanner that reads from the input stream passed to us
-            JavaLexer lexer = new JavaLexer(s);
+	throws Exception 
+    {
+	// Create a scanner that reads from the input stream passed to us
+	JavaLexer lexer = new JavaLexer(s);
 
-            // Tell the scanner to create tokens of class JavaToken
-            lexer.setTokenObjectClass("bluej.parser.JavaToken");
+	// Tell the scanner to create tokens of class JavaToken
+	lexer.setTokenObjectClass("bluej.parser.JavaToken");
 
-            // Create a parser that reads from the scanner
-            ClassParser parser = new ClassParser(lexer);
+	// Create a parser that reads from the scanner
+	ClassParser parser = new ClassParser(lexer);
 
-            // Tell the parser to use the symbol table passed to us
-            parser.setSymbolTable(symbolTable);
+	// Tell the parser to use the symbol table passed to us
+	parser.setSymbolTable(symbolTable);
 
-            // start parsing at the compilationUnit rule
-            parser.compilationUnit();
-        }
-        catch (Exception e) {
-            System.err.println("parser exception: "+e);
-            e.printStackTrace();   // so we can get stack trace     
-        }
+	// start parsing at the compilationUnit rule
+	parser.compilationUnit();
     }
 
     // Tell the parser which symbol table to use

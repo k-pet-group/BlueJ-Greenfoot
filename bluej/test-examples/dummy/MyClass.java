@@ -10,6 +10,7 @@ public class MyClass
     public Tester tst;
     private static String sname;
     public static Tester stst;
+   
     private Random rand;
     /**
      ** Constructor for objects of class MyClass
@@ -29,7 +30,7 @@ public class MyClass
 
     public int shortloop(int count)
     {
-        	int sum = 0;
+        	int sum = 44;
         Tester t;
 
         	for (int i=0; i<10; i++) {

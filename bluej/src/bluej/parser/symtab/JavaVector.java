@@ -3,7 +3,6 @@ package bluej.parser.symtab;
 
 import java.util.Enumeration;
 import bluej.parser.JavaToken;
-import bluej.utility.Utility;
 
 /*******************************************************************************
  * An extended Vector class to provide simple lookup and type resolution
@@ -84,13 +83,19 @@ public class JavaVector extends java.util.Vector {
 
 		// the token name can be something like "package.class.field"
 		// split it into separate names
-		String[] names = Utility.split(t.getText(), ".");
-		for (int i = 0; i < names.length; i++) {
-		    // check whether any of those names is a known class
-		    Definition d = symbolTable.lookup(names[i]);
+		String name = t.getText();
+		int dotPos = name.indexOf(".");
+		while(dotPos != -1) {
+		    String partName = name.substring(0, dotPos);
+		    // check whether the name is a known class
+		    Definition d = symbolTable.lookup(partName);
 		    if ((d != null) && (d instanceof ClassDef))
 			info.addUsed(d.getQualifiedName());
+		    dotPos = name.indexOf(".", dotPos+1);
 		}
+		Definition d = symbolTable.lookup(name);  // try full name
+		if ((d != null) && (d instanceof ClassDef))
+		    info.addUsed(d.getQualifiedName());
             } 
         }   
     }

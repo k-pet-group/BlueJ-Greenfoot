@@ -33,7 +33,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: ClassTarget.java 118 1999-06-08 05:35:11Z bruce $
+ ** @version $Id: ClassTarget.java 122 1999-06-08 06:36:42Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -142,8 +142,8 @@ public class ClassTarget extends EditableTarget
     }
 	
     /**
-    ** Mark this class as modified, and mark all dependent classes too
-    **/
+     ** Mark this class as modified, and mark all dependent classes too
+     **/
     public void invalidate()
     {
 	setState(S_INVALID);
@@ -193,7 +193,7 @@ public class ClassTarget extends EditableTarget
 	else if(isAbstract())
 	    return abstractbg;
 	else if(isLibrary())
-		return librarybg;
+	    return librarybg;
 	else
 	    return defaultbg;
     }
@@ -226,16 +226,16 @@ public class ClassTarget extends EditableTarget
     // --- EditableTarget interface ---
 
     /**
-    ** @return a boolean indicating whether this target contains source code
-    **/
+     ** @return a boolean indicating whether this target contains source code
+     **/
     protected boolean isCode()
     {
 	return true;
     }
 
     /**
-    ** @return the name of the (text) file this target corresponds to.
-    **/
+     ** @return the name of the (text) file this target corresponds to.
+     **/
     public String sourceFile()
     {
 	return pkg.getFileName(name) + ".java";
@@ -249,9 +249,9 @@ public class ClassTarget extends EditableTarget
 	return pkg.getFileName(name) + ".ctxt";
     }	
     /**
-    ** @return the editor object associated with this target. May be null
-    **  if there was a problem opening this editor.
-    **/
+     ** @return the editor object associated with this target. May be null
+     **  if there was a problem opening this editor.
+     **/
     public Editor getEditor()
     {
 	if(editor == null)
@@ -261,8 +261,8 @@ public class ClassTarget extends EditableTarget
     }
 	
     /**
-    ** @return the current view being shown - one of the Editor constants
-    **/
+     ** @return the current view being shown - one of the Editor constants
+     **/
     public int getDisplayedView()
     {
 	return displayedView;
@@ -320,7 +320,7 @@ public class ClassTarget extends EditableTarget
 
     public void compile(Editor editor)
     {
-	    pkg.compile(this);
+	pkg.compile(this);
     }
 
     // --- end of EditorWatcher interface ---
@@ -372,53 +372,58 @@ public class ClassTarget extends EditableTarget
     {
 	removeAllOutDependencies();
 
-	ClassInfo info = ClassParser.parse(sourceFile(), null);
-	// FIX: pass vector of classes instead of null
-	
-	if(info.isApplet()) {
-	    //if( ! this instanceof AppletTarget)
-	    //Debug.message(" convert class to applet");
-	    // FIX: convert
+	try {
+	    ClassInfo info = ClassParser.parse(sourceFile(), 
+					       pkg.getAllClassnames());
+	    if(info.isApplet()) {
+		//if( ! this instanceof AppletTarget)
+		//Debug.message(" convert class to applet");
+		// FIX: convert
+	    }
+	    else {
+		//if(this instanceof AppletTarget)
+		//Debug.message(" convert applet to class");
+		// FIX: convert
+	    }
+
+	    setInterface(info.isInterface());
+	    setAbstract(info.isAbstract());
+
+	    // handle superclass
+
+	    if(info.getSuperclass() != null) {
+		Target superclass = pkg.getTarget(info.getSuperclass());
+		if (superclass != null)
+		    pkg.addDependency(
+				      new ExtendsDependency(pkg, this, superclass), 
+				      false);
+	    }
+
+	    // handle implemented interfaces
+
+	    Vector vect = info.getImplements();
+	    for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
+		String name = (String)e.nextElement();
+		Target interfce = pkg.getTarget(name);
+		if (interfce != null)
+		    pkg.addDependency(
+				      new ImplementsDependency(pkg, this, interfce), 
+				      false);
+	    }
+
+	    // handle used classes
+
+	    vect = info.getUsed();
+	    for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
+		String name = (String)e.nextElement();
+		Target used = pkg.getTarget(name);
+		if (used != null)
+		    pkg.addDependency(new UsesDependency(pkg, this, used), true);
+	    }
+
 	}
-	else {
-	    //if(this instanceof AppletTarget)
-	    //Debug.message(" convert applet to class");
-	    // FIX: convert
-	}
-
-	setInterface(info.isInterface());
-	setAbstract(info.isAbstract());
-
-	// handle superclass
-
-	if(info.getSuperclass() != null) {
-	    Target superclass = pkg.getTarget(info.getSuperclass());
-	    if (superclass != null)
-		pkg.addDependency(
-			new ExtendsDependency(pkg, this, superclass), 
-			false);
-	}
-
-	// handle implemented interfaces
-
-	Vector vect = info.getImplements();
-	for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-	    String name = (String)e.nextElement();
-	    Target interfce = pkg.getTarget(name);
-	    if (interfce != null)
-		pkg.addDependency(
-			new ImplementsDependency(pkg, this, interfce), 
-			false);
-	}
-
-	// handle used classes
-
-	vect = info.getUsed();
-	for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-	    String name = (String)e.nextElement();
-	    Target used = pkg.getTarget(name);
-	    if (used != null)
-		pkg.addDependency(new UsesDependency(pkg, this, used), true);
+	catch(Exception e) {
+	    // parse exception
 	}
 
 	pkg.repaint();
@@ -449,7 +454,7 @@ public class ClassTarget extends EditableTarget
 	    }
 	}
 	if (menu != null)
-		menu.show(editor, evt.getX(), evt.getY());
+	    menu.show(editor, evt.getX(), evt.getY());
     }
 	
     protected Hashtable actions;
@@ -514,8 +519,8 @@ public class ClassTarget extends EditableTarget
     }
 	
     protected boolean createMenuItems(JPopupMenu menu,
-				    MemberView[] members, ViewFilter filter, 
-				    int first, int last, String prefix)
+				      MemberView[] members, ViewFilter filter, 
+				      int first, int last, String prefix)
     {
 	Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
 	boolean hasEntries = false;
@@ -565,15 +570,15 @@ public class ClassTarget extends EditableTarget
 		watcher = new ResultWatcher() {
 		    public void putResult(DebuggerObject result, String name) {
 			if((name == null) || (name.length() == 0))
-			    name = "result";
+			name = "result";
 			if(result != null) {
 			    ObjectWrapper wrapper = 
-			      new ObjectWrapper(result.getInstanceFieldObject(0),
-						name, pkg);
+			    new ObjectWrapper(result.getInstanceFieldObject(0),
+					      name, pkg);
 			    pkg.getFrame().getObjectBench().add(wrapper);
 			}
 			else
-			  Debug.reportError("cannot get execution result");
+			Debug.reportError("cannot get execution result");
 		    }
 		};
 
@@ -583,12 +588,12 @@ public class ClassTarget extends EditableTarget
 
 	    else if(!((MethodView)member).isVoid())
 		watcher = new ResultWatcher() {
-		public void putResult(DebuggerObject result, String name) {
-		    ObjectViewer viewer = 
+		    public void putResult(DebuggerObject result, String name) {
+			ObjectViewer viewer = 
 		        ObjectViewer.getViewer(false, result, name, pkg, true,
 					       pkg.getFrame());
-		}
-	    };	
+		    }
+		};	
 
 	    // create an Invoker to handle the actual invocation
 
@@ -599,12 +604,12 @@ public class ClassTarget extends EditableTarget
 	    reopen();
 	}
 	else if (useStr.equals(cmd)) {
-		if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-			((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
+	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
+		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
 	}
 	else if (openStr.equals(cmd)) {
-		if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-			((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openClass(this);
+	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
+		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openClass(this);
 	}
 	else if(publicStr.equals(cmd)) {
 	    showView(Editor.PUBLIC);
@@ -619,11 +624,11 @@ public class ClassTarget extends EditableTarget
 	    pkg.compile(this);
 	}
 	else if(removeStr.equals(cmd)) {
-		try {
-		    ((PkgMgrFrame)pkg.getFrame()).removeClass(this);
-		} catch (ClassCastException cce) {
-			System.err.println("Invalid cast to JFrame in ClassTarget");
-		}
+	    try {
+		((PkgMgrFrame)pkg.getFrame()).removeClass(this);
+	    } catch (ClassCastException cce) {
+		System.err.println("Invalid cast to JFrame in ClassTarget");
+	    }
 	}
     }
 
@@ -746,7 +751,7 @@ public class ClassTarget extends EditableTarget
 	prepareFilesForRemoval();
     }
 
-   /**
+    /**
      * 
      * Removes applicable files (.class, .java and .ctxt) prior to 
      * this ClassTarget being removed from a Package.
@@ -789,10 +794,10 @@ public class ClassTarget extends EditableTarget
     private boolean libraryTarget = false;
 
     public boolean isLibrary() {
-	    return libraryTarget;
+	return libraryTarget;
     }
     
     public void setLibraryTarget(boolean libraryTarget) {
-	    this.libraryTarget = libraryTarget;
+	this.libraryTarget = libraryTarget;
     }
 }

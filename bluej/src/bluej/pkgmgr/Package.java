@@ -34,7 +34,7 @@ import sun.tools.javac.BlueJJavacMain;
 // import sun.tools.javadoc.BlueJDocumentationGenerator;
 
 /**
- ** @version $Id: Package.java 118 1999-06-08 05:35:11Z bruce $
+ ** @version $Id: Package.java 122 1999-06-08 06:36:42Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -1018,6 +1018,22 @@ public class Package extends Graph
     }
 
     /**
+     * Return a vector of Strings with names of all classes and packages
+     * in this package.
+     */
+    public Vector getAllClassnames()
+    {
+	Vector names = new Vector();
+
+	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+	    Target t = (Target)e.nextElement();
+	    if(t instanceof ClassTarget || t instanceof PackageTarget)
+		names.add(t.getName());
+	}
+	return names;
+    }
+
+    /**
      * Given a file name, find the target that represents that file.
      *
      * @return The target with the given file name or <null> if not found.
@@ -1462,9 +1478,9 @@ public class Package extends Graph
 	
 
     /**
-     ** closeAllEditors - closes all currently open editors within package
-     ** Should be run whenever a package is removed from PkgFrame.
-     **/
+     * closeAllEditors - closes all currently open editors within package
+     * Should be run whenever a package is removed from PkgFrame.
+     */
     public void closeAllEditors()
     {
 	for(Enumeration e = targets.elements(); e.hasMoreElements(); )
@@ -1481,9 +1497,9 @@ public class Package extends Graph
 
 
     /**
-     ** get history of invocation calls
-     ** @return CallHistory object
-     **/
+     * get history of invocation calls
+     * @return CallHistory object
+     */
     public CallHistory getCallHistory()
     {
 	return callHistory;
@@ -1553,8 +1569,8 @@ public class Package extends Graph
     }
 	
     /**
-     ** Called after a change to a Target
-     **/
+     * Called after a change to a Target
+     */
     public void invalidate(Target t)
     {
 	if(t instanceof ClassTarget) {
@@ -1578,8 +1594,8 @@ public class Package extends Graph
     }
 	
     /**
-     ** find an arrow, given a point on the screen
-     **/
+     * find an arrow, given a point on the screen
+     */
     Dependency findArrow(int x, int y)
     {
 	// FIXME: check if translation necessary (scrolling, etc.)
