@@ -1,9 +1,6 @@
 package bluej.debugmgr;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,24 +11,14 @@ import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.testmgr.record.ConstructionInvokerRecord;
-import bluej.testmgr.record.ExpressionInvokerRecord;
-import bluej.testmgr.record.InvokerRecord;
-import bluej.testmgr.record.MethodInvokerRecord;
-import bluej.testmgr.record.StaticVoidMainMethodInvokerRecord;
-import bluej.testmgr.record.VoidMethodInvokerRecord;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.JavaNames;
-import bluej.utility.Utility;
-import bluej.views.CallableView;
-import bluej.views.ConstructorView;
-import bluej.views.LabelPrintWriter;
-import bluej.views.MethodView;
+import bluej.testmgr.record.*;
+import bluej.utility.*;
+import bluej.views.*;
 
 /**
  * Debugger class that arranges invocation of constructors or methods.
@@ -40,7 +27,7 @@ import bluej.views.MethodView;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2629 2004-06-19 14:24:17Z polle $
+ * @version $Id: Invoker.java 2651 2004-06-22 05:24:56Z davmac $
  */
 
 public class Invoker extends Thread
@@ -522,7 +509,11 @@ public class Invoker extends Thread
             String type = cleverQualifyTypeName(pkg, wrappers[i].getClassName());
             String instname = wrappers[i].getName();
 
-            buffer.append(type + " " + instname + " = ");
+            buffer.append(type);
+            GenTypeClass gtype = wrappers[i].getGenType();
+            buffer.append(gtype.getParamString());
+            
+            buffer.append( " " + instname + " = ");
             buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
             buffer.append(instname + "\");" + Config.nl);
         }

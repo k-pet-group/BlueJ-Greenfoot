@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2640 2004-06-21 05:08:18Z davmac $
+ * @version $Id: GenTypeClass.java 2651 2004-06-22 05:24:56Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -88,7 +88,33 @@ public class GenTypeClass extends GenTypeSolid {
         return reflective.getName();
     }
     
-    protected boolean isGeneric()
+    /**
+     * Get the type parameters as a string, for instance:<p>
+     *    &lt;? extends java.lang.Object, java.lang.Thread&gt;
+     * @return The type parameter string including angle brackets
+     *         (empty string if no parameters)
+     */
+    public String getParamString()
+    {
+        if( params == null )
+            return "";
+        
+        StringBuffer sb = new StringBuffer();
+        sb.append("<");
+        
+        Iterator i = params.iterator();
+        while( i.hasNext() ) {
+            GenType next = (GenType)i.next();
+            sb.append(next.toString());
+            if( i.hasNext() )
+                sb.append(",");
+        }
+        
+        sb.append(">");
+        return sb.toString();
+    }
+    
+    public boolean isGeneric()
     {
         return (params == null);
     }

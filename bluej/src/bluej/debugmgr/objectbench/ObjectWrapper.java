@@ -13,6 +13,7 @@ import javax.swing.*;
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
@@ -39,7 +40,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2640 2004-06-21 05:08:18Z davmac $
+ * @version $Id: ObjectWrapper.java 2651 2004-06-22 05:24:56Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -157,9 +158,19 @@ public class ObjectWrapper extends JComponent
     
     public String getClassName()
     {
+        return obj.getClassName();
+    }
+    
+    public String getTypeName()
+    {
         return className;
     }
 
+    public GenTypeClass getGenType()
+    {
+        return (GenTypeClass)obj.getGenType();
+    }
+    
     /**
      * Open this object for inspection.
      */
@@ -555,7 +566,7 @@ public class ObjectWrapper extends JComponent
      */
     protected void inspectObject()
     {
-        InvokerRecord ir = new ObjectInspectInvokerRecord(getClassName(), getName());
+        InvokerRecord ir = new ObjectInspectInvokerRecord(getTypeName(), getName());
         
         ObjectInspector viewer =
       	    ObjectInspector.getInstance(obj, getName(), pkg, ir, pmf);
