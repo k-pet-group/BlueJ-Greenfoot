@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2577 2004-06-08 13:08:42Z fisker $
+ * @version $Id: GraphEditor.java 2588 2004-06-10 15:13:43Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener, FocusListener
@@ -164,13 +164,15 @@ public class GraphEditor extends JComponent
     public Vertex findSingleVertex() {
         Iterator selection = graphElementManager.iterator();
         Vertex currentVertex = null;
-        
+        GraphElement graphElement;
         // if there is a selection we pick a vertex from that
-        if (selection.hasNext()){
-            currentVertex = (Vertex) selection.next();
-            
-            //if there is no selection we select an existing vertex
-        }else{
+        while (selection.hasNext()){
+        	if ((graphElement = (GraphElement) selection.next()) instanceof Vertex){
+        		currentVertex = (Vertex) graphElement;
+        	}
+        }
+//      if there is no selection we select an existing vertex
+        if (currentVertex == null){
             Iterator i = graph.getVertices();
             currentVertex = (Vertex) i.next();
         }
