@@ -31,8 +31,8 @@ install.winCommands.12=set PATH=~\\lib\\win32;%PATH%
 install.winCommands=
 
 # Name of the classpath to be added to existing classpath
-install.classpath.localJPDA=~/lib/bluej.jar;~/lib/jpda.jar;~/lib/antlr.jar;!/lib/tools.jar
-install.classpath.systemJPDA=~/lib/bluej.jar;~/lib/antlr.jar;!/lib/tools.jar;!/lib/jpda.jar
+install.classpath.localJPDA=~/lib/bluej.jar;~/lib/editor.jar;~/lib/jpda.jar;~/lib/antlr.jar;!/lib/tools.jar
+install.classpath.systemJPDA=~/lib/bluej.jar;~/lib/editor.jar;~/lib/antlr.jar;!/lib/tools.jar;!/lib/jpda.jar
 # for jdk 1.3 and later
 install.classpath=~/lib/bluej.jar;~/lib/editor.jar;~/lib/antlr.jar;!/lib/tools.jar
 
