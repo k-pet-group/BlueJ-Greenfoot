@@ -37,7 +37,7 @@ implements BlueJEventListener
 {
     private static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
     private static String referenceUrl = Config.getPropString("bluej.url.reference");
-    private static String libraryUrl = Config.getPropString("bluej.url.javaStdLib");
+
     private static String webBrowserMsg = Config.getString("pkgmgr.webBrowserMsg");
     private static String webBrowserError = Config.getString("pkgmgr.webBrowserError");
     private static final String creatingVM = Config.getString("pkgmgr.creatingVM");
@@ -354,8 +354,8 @@ implements BlueJEventListener
 	    break;
 
 	case HELP_STANDARDAPI:
-	    showWebPage(libraryUrl);
-	    break;
+	    showWebPage(Config.getPropString("bluej.url.javaStdLib"));
+ 	    break;
 
 	case HELP_ABOUT:
 	    AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
