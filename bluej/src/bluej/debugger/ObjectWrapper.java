@@ -30,7 +30,7 @@ import java.util.ArrayList;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 727 2000-12-15 06:53:24Z mik $
+ * @version $Id: ObjectWrapper.java 783 2001-02-27 01:42:22Z bquig $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -204,16 +204,16 @@ public class ObjectWrapper extends JComponent
                     continue;
                 
                 // check if method signature has already been added to a menu
-                if(methodsUsed.containsKey(m.getShortDesc())) {
-                    methodSignature = ( m.getShortDesc()
+                if(methodsUsed.containsKey(m.getSignature())) {
+                    methodSignature = ( m.getSignature()
                              + "   [ " + redefinedIn + " "
                              + JavaNames.stripPrefix(
-                                   ((String)methodsUsed.get(m.getShortDesc())))
+                                   ((String)methodsUsed.get(m.getSignature())))
                              + " ]");
                 }
                 else {
-                    methodSignature = m.getShortDesc();
-                    methodsUsed.put(m.getShortDesc(), m.getClassName());
+                    methodSignature = m.getSignature();
+                    methodsUsed.put(m.getSignature(), m.getClassName());
                 }
                 item = new JMenuItem(methodSignature);
                 item.addActionListener(this);
