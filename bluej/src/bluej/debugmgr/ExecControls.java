@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2073 2003-06-26 08:49:35Z mik $
+ * @version $Id: ExecControls.java 2074 2003-06-26 10:26:09Z mik $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -35,12 +35,7 @@ public class ExecControls extends JFrame
         Config.getString("debugger.execControls.localTitle");
     private static final String threadTitle =
         Config.getString("debugger.execControls.threadTitle");
-    private static final String updateText =
-        Config.getString("debugger.execControls.updateText");
-    //private static final String closeText =
-    //    Config.getString("close");
-    private static final String systemThreadText =
-        Config.getString("debugger.execControls.systemThreads");
+
     private static final String haltButtonText =
         Config.getString("debugger.execControls.haltButtonText");
     private static final String stepButtonText =
@@ -73,6 +68,7 @@ public class ExecControls extends JFrame
     //private JButton closeButton;
 	private CardLayout cardLayout;
 	private JPanel flipPanel;
+    private JCheckBoxMenuItem systemThreadItem;
 	
 	// the Project that owns this debugger
     private Project project;
@@ -87,7 +83,9 @@ public class ExecControls extends JFrame
                                             //  selected stack frame
     private DebuggerObject currentObject;	// the "this" object for the
                                             //  selected stack frame
-    private int currentFrame = 0;		// currently selected frame
+    private int currentFrame = 0;		    // currently selected frame
+    
+    private boolean hideSystemThreads;      // true if we don't want to see system threads
 
 	/**
 	 * Create a window to view and interact with a debug VM.
@@ -104,6 +102,7 @@ public class ExecControls extends JFrame
 			
 		this.project = project;
 		this.debugger = debugger;
+        hideSystemThreads = true;
 
         createWindow();
     }
@@ -567,7 +566,7 @@ public class ExecControls extends JFrame
 			 }
 		 };
 		 
-		threadModel = (DebuggerThreadTreeModel) debugger.getThreadTreeModel();
+		threadModel = debugger.getThreadTreeModel();
 		threadModel.addTreeModelListener(this);
 		
 		threadTree = new JTree(threadModel);
@@ -576,7 +575,7 @@ public class ExecControls extends JFrame
 			threadTree.addMouseListener(treeMouseListener);
 			threadTree.getSelectionModel().
 						setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-			threadTree.setVisibleRowCount(8);
+			threadTree.setVisibleRowCount(5);
 			threadTree.setShowsRootHandles(false);
 			threadTree.setRootVisible(false);
 		}
@@ -584,20 +583,6 @@ public class ExecControls extends JFrame
         JScrollPane threadScrollPane = new JScrollPane(threadTree);
         threadScrollPane.setColumnHeaderView(new JLabel(threadTitle));
         threadPanel.add(threadScrollPane, BorderLayout.CENTER);
-
-
-        //JPanel buttonPanel = new JPanel();
-        //buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-        //buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-
-        //closeButton = new JButton(closeText);
-        //closeButton.addActionListener(this);
-        //buttonPanel.add(closeButton);
-        //makeButtonNotGrow(closeButton);
-
-        //buttonPanel.add(Box.createVerticalGlue());
-
-        //threadPanel.add(buttonPanel, BorderLayout.EAST);
 
 		flipPanel = new JPanel();
 		{
@@ -636,11 +621,10 @@ public class ExecControls extends JFrame
         setLocation(Config.getLocation("bluej.debugger"));
 
         pack();
-
     }
 
 	/**
-	 * Create the terminal's menubar, all menus and items.
+	 * Create the debugger's menubar, all menus and items.
 	 */
 	private JMenuBar makeMenuBar()
 	{
@@ -648,44 +632,19 @@ public class ExecControls extends JFrame
 		JMenu menu = new JMenu(Config.getString("terminal.options"));
 		JMenuItem item;
 
-		JCheckBoxMenuItem autoClear = new JCheckBoxMenuItem("Hide system threads");
-		autoClear.setSelected(true);
-		menu.add(autoClear);
+		systemThreadItem = new JCheckBoxMenuItem(new HideSystemThreadAction());
+        systemThreadItem.setSelected(hideSystemThreads);
+		menu.add(systemThreadItem);
 
 		menu.add(new JSeparator());
 
 		item = menu.add(new CloseAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
-												   SHORTCUT_MASK));
-
-
-/*
-		item = menu.add(new ClearAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,
-												   SHORTCUT_MASK));
-		item = menu.add(getCopyAction());
-		item.setText(Config.getString("terminal.copy"));
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
-												   SHORTCUT_MASK));
-		item = menu.add(new SaveAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-												   SHORTCUT_MASK));
-		menu.add(new JSeparator());
-
-		autoClear = new JCheckBoxMenuItem(new AutoClearAction());
-		menu.add(autoClear); */
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK));
 
 		menubar.add(menu);
 		return menubar;
 	}
     
-    private void makeButtonNotGrow(JButton button)
-    {
-        Dimension pref = button.getMinimumSize();
-        pref.width = Integer.MAX_VALUE;
-        button.setMaximumSize(pref);
-    }
-
     /**
      * Create a text & image button and add it to a panel.
      *
@@ -706,6 +665,9 @@ public class ExecControls extends JFrame
         return button;
     }
     
+    /**
+     * Action to close the debugger window.
+     */
 	private class CloseAction extends AbstractAction
 	{
 		public CloseAction()
@@ -717,4 +679,20 @@ public class ExecControls extends JFrame
 			setVisible(false);
 		}
 	}
+    
+    /**
+     * Action to enable/disable hiding of system threads. All this action
+     * actually does is toggle an internal flag.
+     */
+    private class HideSystemThreadAction extends AbstractAction
+    {
+        public HideSystemThreadAction()
+        {
+            super(Config.getString("debugger.hideSystemThreads"));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            hideSystemThreads = systemThreadItem.isSelected();
+        }
+    }
 }

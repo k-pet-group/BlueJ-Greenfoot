@@ -1,12 +1,10 @@
 package bluej.debugger.jdi;
 
 import java.util.Enumeration;
-
 import javax.swing.tree.*;
+import com.sun.jdi.*;
 
 import bluej.debugger.*;
-
-import com.sun.jdi.*;
 
 /**
  * A wrapper around DefaultTreeModel that helps us
@@ -20,7 +18,7 @@ import com.sun.jdi.*;
  * threads).
  * 
  * @author  Andrew Patterson
- * @version $Id: JdiThreadTreeModel.java 2037 2003-06-17 05:54:51Z ajp $
+ * @version $Id: JdiThreadTreeModel.java 2074 2003-06-26 10:26:09Z mik $
  */
 public class JdiThreadTreeModel extends DefaultTreeModel
 	implements DebuggerThreadTreeModel

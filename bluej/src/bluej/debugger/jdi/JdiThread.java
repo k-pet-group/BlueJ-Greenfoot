@@ -13,7 +13,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2072 2003-06-26 04:49:58Z ajp $
+ * @version $Id: JdiThread.java 2074 2003-06-26 10:26:09Z mik $
  */
 class JdiThread extends DebuggerThread
 {
@@ -56,7 +56,7 @@ class JdiThread extends DebuggerThread
     }
 
 	// the reference to the remote thread
-	ThreadReference rt;
+	private ThreadReference rt;
     
 	// stores a stack frame that was selected for this
     // thread (selection is done for debugging)
@@ -79,10 +79,12 @@ class JdiThread extends DebuggerThread
                                 //  to see the top level frame
     }
 
+    /** 
+     * Return the name of this thread.
+     */
     public String getName()
     {
         String name = null;
-
         try {
             name = rt.name();
         }
@@ -92,11 +94,17 @@ class JdiThread extends DebuggerThread
         return name;
     }
 
+    /** 
+     * Return the reference to the thread object in the remote machine.
+     */
     ThreadReference getRemoteThread()
     {
         return rt;
     }
 
+    /** 
+     * Return the current status of this thread.
+     */
     public String getStatus()
     {
         try {
@@ -134,16 +142,35 @@ class JdiThread extends DebuggerThread
         return null;
     }
 
+    /**
+     * Return true if this is a user thread that is in idle state
+     * (finished).
+     */
+    public boolean isFinished()
+    {
+        return  rt.isAtBreakpoint() && VMReference.isAtMainBreakpoint(rt);
+    }
+
+    /**
+     * Return true if this thread is currently suspended.
+     */
     public boolean isSuspended()
     {
         return rt.isSuspended();
     }
 
+    /** 
+     * Return true if this thread is currently at a breakpoint.
+     */
 	public boolean isAtBreakpoint()
 	{
 		return rt.isAtBreakpoint();
 	}
 
+    /** 
+     * Return the class this thread was executing in when the
+     * specified stack frame was active.
+     */
     public String getClass(int frameNo)
     {
         try {
@@ -154,6 +181,10 @@ class JdiThread extends DebuggerThread
         }
     }
 
+    /** 
+     * Return the source name of the class this thread was 
+     * executing in when the specified stack frame was active.
+     */
     public String getClassSourceName(int frameNo)
     {
         try {
@@ -164,6 +195,10 @@ class JdiThread extends DebuggerThread
         }
     }
 
+    /** 
+     * Return the line number in the source where this thread was 
+     * executing when the specified stack frame was active.
+     */
     public int getLineNumber(int frameNo)
     {
         try {
@@ -184,6 +219,7 @@ class JdiThread extends DebuggerThread
 
         String name = rt.name();
         if(name.startsWith("AWT-") ||
+           name.equals("BlueJ worker thread") ||
            name.equals("Timer Queue") ||
            name.equals("Screen Updater") ||
            name.startsWith("SunToolkit.") ||
@@ -377,12 +413,17 @@ class JdiThread extends DebuggerThread
         return null;
     }
 
-
+    /** 
+     * Specify a frame as the currently selected frame in this thread.
+     */
     public void setSelectedFrame(int frame)
     {
         selectedFrame = frame;
     }
 
+    /** 
+     * Return the selected frame in this thread.
+     */
     public int getSelectedFrame()
     {
         return selectedFrame;
@@ -486,6 +527,7 @@ class JdiThread extends DebuggerThread
     {
     	try {
 			return getName() + " (" + getStatus() + ")";
+			//return getName() + " (" + getStatus() + ") " + rt.threadGroup().name();  // for debugging
     	}
     	catch (ObjectCollectedException oce)
     	{
