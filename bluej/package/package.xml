@@ -4,7 +4,7 @@
         <exclude name="**/.#*" />
         <include name="lib/antlr.jar" />
         <include name="lib/junit.jar" />
-        <include name="lib/MRJToolkitStubs.zip" />
+        <include name="lib/MRJ141Stubs.jar" />
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
     </patternset>
@@ -17,9 +17,11 @@
         <include name="lib/chinese/" />
         <include name="lib/czech/" />
         <include name="lib/english/" />
+        <include name="lib/french/" />
         <include name="lib/german/" />
         <include name="lib/italian/" />
         <include name="lib/japanese/" />
+        <include name="lib/portuguese/" />
         <include name="lib/spanish/" />
         <include name="lib/swedish/" />
         <include name="lib/extensions/" />
