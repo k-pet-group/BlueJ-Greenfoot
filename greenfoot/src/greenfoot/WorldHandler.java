@@ -33,7 +33,7 @@ import rmiextension.wrappers.RObject;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3182 2004-11-26 01:14:21Z davmac $
+ * @version $Id: WorldHandler.java 3186 2004-11-26 10:07:24Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -255,6 +255,8 @@ public class WorldHandler
                     int dragOffsetX = -go.getImage().getIconWidth() / 2;
                     int dragOffsetY = -go.getImage().getIconHeight() / 2;
                     DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
+                    worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
+                    worldCanvas.addMouseListener(DragGlassPane.getInstance());
                 }
             }
         }
