@@ -272,7 +272,7 @@ bluej.editor.autoIndent=true
 bluej.editor.syntaxHilighting=true
 bluej.editor.displayLineNumbers=false
 bluej.editor.makeBackup=false
-
+bluej.editor.matchBrackets=true
 
 #######################################################################
 ## Class diagram notation style. One of uml or blue.
