@@ -13,6 +13,10 @@ public class Stat
   public Flexdbg aDbg=null;
   public BlueJ   bluej=null;
 
+  // It is OK to have it here since there are really ONE properties running per thread...
+  // You MUST be carefull with threading, however....
+  public SubmissionProperties submiProp=null;
+
 
   public static final int SVC_PROP=0x00000001;
   public static final int SVC_BUTTON=0x00000002;
