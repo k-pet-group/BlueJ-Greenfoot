@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 941 2001-06-12 05:22:36Z mik $
+ * @version $Id: Config.java 983 2001-10-18 06:26:15Z bquig $
  */
 
 public class Config
@@ -126,8 +126,9 @@ public class Config
         language = bluej_props.getProperty("bluej.language", "english");
         lang_props = loadDefs(language + File.separator + "labels", false);
 
-        moe_props = loadDefs("moe.defs", false);
-
+        moe_props = loadDefs("moe.defs", true);
+        loadProperties("moe", moe_props);  // add user specific editor definitions
+        
         ImageIcon ii = Config.getImageAsIcon("image.icon");
         if(ii != null)
             frameImage = ii.getImage();
@@ -202,7 +203,8 @@ public class Config
      */
     public static void handleExit()
     {
-        saveProperties("bluej", bluej_props);
+        saveProperties("bluej", "properties.heading.bluej", bluej_props);
+        saveProperties("moe", "properties.heading.moe", moe_props);
     }
 
     /**
@@ -254,13 +256,13 @@ public class Config
     /**
      * Save user specific (local) BlueJ properties.
      */
-    private static void saveProperties(String filename, DefaultProperties props)
+    private static void saveProperties(String filename, String comment, DefaultProperties props)
     {
         File propsFile = new File(user_conf_dir, filename + ".properties");
 
         try {
             props.store(new FileOutputStream(propsFile),
-                        getString("properties.heading"));
+                        getString(comment));
 
         }
         catch(Exception e) {
