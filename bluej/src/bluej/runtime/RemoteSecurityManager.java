@@ -10,7 +10,7 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 1582 2002-12-13 06:32:37Z ajp $
+ * @version $Id: RemoteSecurityManager.java 1602 2003-01-24 09:15:14Z mik $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
@@ -59,9 +59,19 @@ public class RemoteSecurityManager extends SecurityManager
          * will break the main user thread started in the
          * virtual machine (to simulate quitting the application).
          */
+        
+        if(! System.getProperty("java.version").startsWith("1.3")) {
+            // it is important that we don't make this call on anything 
+            // before jdk 1.4, since this class uses 1.4 methods
+            
+            // It is possible that checkExit gets called elsewhere
+            // than Runtime.exit(). Check whether we really have a 
+            // Runtime.exit() call.
+            if(! ExitChecker.isSystemExit())
+                return;
+        }
 
-        if (EventQueue.isDispatchThread())
-        {
+        if (EventQueue.isDispatchThread()) {
             // no matter what, we have to throw an exception and
             // no matter what that exception will be printed to
             // System.err by the AWT thread.. we play some
