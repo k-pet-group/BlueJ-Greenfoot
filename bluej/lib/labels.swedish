@@ -186,6 +186,9 @@ editor.info.cannotSetBreak = Kan inte sätta brytpunkt:\nIngen kod associerad med
 editor.info.fileDisappeared = ERROR: Filen verkar ha försvunnit!
 editor.info.fileReadError = ERROR: Ett fel uppstod vid läsning av den här filen.
 editor.info.saved = Fil sparad
+editor.info.printing = Printing...
+editor.info.printed = Printing... Done.
+editor.info.cancelled = Cancelled.
 
 editor.printer.continued=forts
 #End Editor labels

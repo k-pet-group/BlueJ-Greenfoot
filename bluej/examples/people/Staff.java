@@ -1,5 +1,5 @@
 /**
- * A class representing staff members for a simple JavaBlue demo program.
+ * A class representing staff members for a simple BlueJ demo program.
  *
  * Author:  Michael Kölling
  * Version: 1.0

@@ -1551,7 +1551,12 @@ public final class MoeEditor extends JFrame
 
             //printer.printDocument(document, windowTitle, printFont, pageFormat);  
             // print document, using new pageformat object at present
-            printer.printDocument(document, windowTitle, printFont, new PageFormat());        
+            info.message (Config.getString("editor.info.printing"));
+            if(printer.printDocument(document, windowTitle, printFont, 
+                                  new PageFormat()))
+                info.message (Config.getString("editor.info.printed"));
+            else
+                info.message (Config.getString("editor.info.cancelled"));
         }
         
     }

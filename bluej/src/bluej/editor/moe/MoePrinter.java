@@ -50,9 +50,12 @@ public class MoePrinter
 
     /**
      * Prints the document.  This method produces a copy of the document 
-     * as a List of Strings and delegates the printing to a printText method. 
+     * as a List of Strings and delegates the printing to a printText method.
+     *
+     * @returns   true if it was not cancelled.
      */
-    public void printDocument(PlainDocument document, String className, Font font, PageFormat format) 
+    public boolean printDocument(PlainDocument document, String className, 
+                                 Font font, PageFormat format) 
     {
         List lines = new ArrayList();
 
@@ -90,15 +93,17 @@ public class MoePrinter
             document.readUnlock();
         }
 
-        printText(lines, font, format);
+        return printText(lines, font, format);
     }
 
 
     /**
      * Prints the text.  It sets paper size (at present) and paginates text
      * into a pageable Book for printing.
+     *
+     * @returns   true if it was not cancelled.
      */
-    private void printText(List text, Font font, PageFormat format) 
+    private boolean printText(List text, Font font, PageFormat format) 
     {
         try {
             // create a printjob
@@ -134,12 +139,16 @@ public class MoePrinter
 
             if (job.printDialog()) {
                 // print.  This calls each MoePage object's print method
-                job.print();         
+                job.print();
+                return true;
             }
+            else
+                return false;
         }
         catch (Exception e) {
             // should it be an error dialog?
             Debug.reportError("Exception thrown during printing: " + e);
+            return false;
         }
     }
     

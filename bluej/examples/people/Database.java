@@ -5,7 +5,7 @@ import java.util.Enumeration;
  * A very simple database of people in a university. This class simply stores
  * persons and, at request, lists them on standard output.
  *
- * Written as a first demo program for JavaBlue.
+ * Written as a first demo program for BlueJ.
  *
  * Author:  Michael Kölling
  * Version: 1.0
@@ -14,12 +14,12 @@ import java.util.Enumeration;
 
 public class Database {
 
-    private Vector personVector;
+	private Vector personVector;
 
-    /**
-     * Create a new, empty person database.
+ 	/**
+	 * Create a new, empty person database.
      */
-    public Database() 
+  	public Database() 
 	{
         personVector = new Vector ();
     }

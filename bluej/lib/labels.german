@@ -185,6 +185,9 @@ editor.info.cannotSetBreak = Cannot set breakpoint:\nNo code associated with thi
 editor.info.fileDisappeared = ERROR: The file seems to have disappeared!
 editor.info.fileReadError = ERROR: There was an error while trying to read this file.
 editor.info.saved = File saved
+editor.info.printing = Printing...
+editor.info.printed = Printing... Done.
+editor.info.cancelled = Cancelled.
 
 editor.printer.continued=continued
 #End Editor labels
