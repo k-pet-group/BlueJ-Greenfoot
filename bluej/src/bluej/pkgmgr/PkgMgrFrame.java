@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 594 2000-06-28 05:05:32Z ajp $
+ * @version $Id: PkgMgrFrame.java 610 2000-06-30 04:24:58Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -974,39 +974,41 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * implementation of the "Import Class" user function
+     * Implementation of the "Add Class from File" user function
      */
     private void doAddFromFile()
     {
         String className = FileUtility.getFileName(this,
                             addClassTitle, addLabel, false,
                             FileUtility.getJavaSourceFilter());
+
+        if(className == null)
+            return;
+
         File classFile = new File(className);
 
-        if(className != null) {
-            int result = pkg.importFile(classFile);
-            switch (result) {
-	        case Package.NO_ERROR:
-                editor.repaint();
-                break;
-	        case Package.FILE_NOT_FOUND:
-                DialogManager.showError(this, "file-does-not-exist");
-                break;
-	        case Package.ILLEGAL_FORMAT:
-                DialogManager.showError(this, "cannot-import");
-                break;
-	        case Package.CLASS_EXISTS:
-                DialogManager.showError(this, "duplicate-name");
-                break;
-	        case Package.COPY_ERROR:
-                DialogManager.showError(this, "error-in-import");
-                break;
-            }
+        int result = pkg.importFile(classFile);
+        switch (result) {
+         case Package.NO_ERROR:
+            editor.repaint();
+            break;
+         case Package.FILE_NOT_FOUND:
+            DialogManager.showError(this, "file-does-not-exist");
+            break;
+         case Package.ILLEGAL_FORMAT:
+            DialogManager.showError(this, "cannot-import");
+            break;
+         case Package.CLASS_EXISTS:
+            DialogManager.showError(this, "duplicate-name");
+            break;
+         case Package.COPY_ERROR:
+            DialogManager.showError(this, "error-in-import");
+            break;
         }
     }
 
     /**
-     * implementation if the "Export" user function
+     * Implementation of the "Export" user function
      */
     private void doExport()
     {
