@@ -28,12 +28,11 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: PkgMgrFrame.java 1960 2003-05-19 05:27:36Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
 {
-    // static final Color bgColor = Config.getItemColour("colour.background");
     public Font PkgMgrFont = PrefMgr.getStandardFont();
 
     static final int DEFAULT_WIDTH = 420;
@@ -42,9 +41,6 @@ public class PkgMgrFrame extends JFrame
     private static final Icon workingIcon = Config.getImageAsIcon("image.working");
     private static final Icon notWorkingIcon = Config.getImageAsIcon("image.working.disab");
     private static final Icon stoppedIcon = Config.getImageAsIcon("image.working.stopped");
-
-    // set PageFormat for default page for default printer
-    private static PageFormat pageFormat = PrinterJob.getPrinterJob().defaultPage();
 
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -97,9 +93,15 @@ public class PkgMgrFrame extends JFrame
 
     private ObjectBench objbench;
 
+	// lazy initialised dialogs
     private LibraryCallDialog libraryCallDialog = null;
     private FreeFormCallDialog freeFormCallDialog = null;
     private ProjectPrintDialog projectPrintDialog = null;
+
+	// set PageFormat for default page for default printer
+	// this variable is lazy initialised
+	private static PageFormat pageFormat = null;
+
 
     // ============================================================
     // static methods to create and remove frames
@@ -1066,10 +1068,10 @@ public class PkgMgrFrame extends JFrame
      * Creates a page setup dialog to alter page dimensions.
      *
      */
-    public void pageSetup()
+    public void doPageSetup()
     {
         PrinterJob job = PrinterJob.getPrinterJob();
-        pageFormat = job.validatePage(job.pageDialog(pageFormat));
+        setPageFormat(job.validatePage(job.pageDialog(getPageFormat())));
     }
     
     /**
@@ -1079,7 +1081,10 @@ public class PkgMgrFrame extends JFrame
      */
     public static PageFormat getPageFormat()
     {
-        return pageFormat;   
+		if (pageFormat == null)
+			pageFormat = PrinterJob.getPrinterJob().defaultPage();
+
+		return pageFormat;   
     }
     
     /**
@@ -1096,15 +1101,15 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * print - implementation of the "print" user function
+     * Implementation of the "print" user function
      */
-    private void print() 
+    private void doPrint() 
     {
         if (projectPrintDialog == null)
             projectPrintDialog = new ProjectPrintDialog(this);
 
         if (projectPrintDialog.display()) {
-            PackagePrintManager printManager = new PackagePrintManager(this.getPackage(), pageFormat, projectPrintDialog);
+            PackagePrintManager printManager = new PackagePrintManager(this.getPackage(), getPageFormat(), projectPrintDialog);
             printManager.start();
         }  
     }
@@ -1671,7 +1676,8 @@ public class PkgMgrFrame extends JFrame
 
 	public void restartDebugger()
 	{
-		getProject().restartDebugger();
+		if (!isEmptyFrame())
+			getProject().restartDebugger();
 	}
 	
     /**
@@ -1834,17 +1840,16 @@ public class PkgMgrFrame extends JFrame
 
         JPanel mainPanel = new JPanel();
 
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F1"),
+		mainPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"),
 									"doEscape");
-		getRootPane().getActionMap().put("doEscape",
+		mainPanel.getActionMap().put("doEscape",
 									 new AbstractAction() {
 										public void actionPerformed(ActionEvent ae)
 										{
-											System.out.println("escape!");
+											restartDebugger();
 										}
 									 	
 									 });
-		getRootPane().setEnabled(true);
 		
         mainPanel.setLayout(new BorderLayout(5, 5));
         mainPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
@@ -2134,11 +2139,11 @@ public class PkgMgrFrame extends JFrame
 
             createMenuItem("menu.package.pageSetup", menu, 0, 0, true,
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); pageSetup(); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); doPageSetup(); }
                            });
             createMenuItem("menu.package.print", menu, KeyEvent.VK_P, SHORTCUT_MASK, true,
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); print(); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); doPrint(); }
                            });
 
             if(!Config.usingMacScreenMenubar()) {   // no "Quit" here for Mac
@@ -2204,10 +2209,10 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); pkg.rebuild(); }
                            });
-			createMenuItem("menu.tools.restart", menu, KeyEvent.VK_ESCAPE, 0, true,
-						   new ActionListener() {
-							   public void actionPerformed(ActionEvent e) { menuCall(); restartDebugger(); }
-						   });
+//			createMenuItem("menu.tools.restart", menu, KeyEvent.VK_ESCAPE, 0, true,
+//						   new ActionListener() {
+//							   public void actionPerformed(ActionEvent e) { menuCall(); restartDebugger(); }
+//						   });
             menu.addSeparator();
 
             createMenuItem("menu.tools.callLibrary", menu, KeyEvent.VK_L, SHORTCUT_MASK, true,
