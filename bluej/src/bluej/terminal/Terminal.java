@@ -18,7 +18,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 2330 2003-11-13 04:10:34Z ajp $
+ * @version $Id: Terminal.java 2342 2003-11-14 11:29:56Z polle $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -251,9 +251,11 @@ public final class Terminal extends JFrame
             catch(BadLocationException exc) {
                 writeToTerminal('\n');
             }
-            writeToTerminal("[ ");
-            writeToTerminal(callString);
-            writeToTerminal(" ]\n");
+            if(callString != null) {
+                writeToTerminal("[ ");
+                writeToTerminal(callString);
+                writeToTerminal(" ]\n");
+            }
         }
         newMethodCall = true;
     }
