@@ -17,7 +17,7 @@ import bluej.views.*;
  * Behaviour is similar to the Java reflection API.
  * For all methods the return value is null if the class is not compiled.
  * 
- * @version $Id: BClass.java 1855 2003-04-16 10:07:36Z damiano $
+ * @version $Id: BClass.java 1856 2003-04-16 10:14:46Z damiano $
  */
 public class BClass
 {
@@ -77,6 +77,7 @@ public class BClass
 
     /**
      * Returns the package this class belongs to.
+     * Similar to reflection API.
      */
     public BPackage getPackage()
     {
