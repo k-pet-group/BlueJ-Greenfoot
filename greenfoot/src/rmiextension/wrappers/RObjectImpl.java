@@ -5,7 +5,6 @@ import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import bluej.debugmgr.Invoker;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
@@ -15,7 +14,7 @@ import bluej.views.View;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObjectImpl.java 3234 2004-12-12 23:59:56Z davmac $
+ * @version $Id: RObjectImpl.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public class RObjectImpl extends UnicastRemoteObject
     implements RObject
@@ -131,7 +130,6 @@ public class RObjectImpl extends UnicastRemoteObject
             // can't just use getMethods() as that doesn't give us package-private
             // methods, sigh...
             View mClassView = View.getView(oClass);
-            MethodView theMethod = null;
             
             classLoop:
             while (mClassView != null) {
@@ -156,58 +154,22 @@ public class RObjectImpl extends UnicastRemoteObject
                     }
                     
                     // we've found the right method
-                    theMethod = methods[i];
-                    break classLoop;
+                    // theMethod = methods[i];
+                    return RPackageImpl.invokeCallable(pmf, methods[i], ow, argVals);
                 }
                 
                 // try the super class
                 mClassView = mClassView.getSuper();
             }
-            
-            //if (theMethod == null)
-            //    Debug.message("method not found.");
-            
-            if (theMethod != null) {
-                
-                // invoke the located method 
-                RObjectResultWatcher watcher = new RObjectResultWatcher();
-                Invoker invoker = new Invoker(pmf, theMethod, ow, watcher);
-                synchronized (watcher) {
-                    invoker.invokeDirect(argVals);
-                    try {
-                        watcher.wait();
-                    }
-                    catch (InterruptedException ie) {}
-                }
-                
-                if (watcher.errorMsg != null) {
-                    // some error occurred
-                    return "!" + watcher.errorMsg;
-                }
-                else {
-                    if (watcher.resultObj == null)
-                        return null;
-                    
-                    ObjectWrapper newOw = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), watcher.resultObj, "result");
-                    pmf.getObjectBench().addObject(newOw);
-                    pmf.getPackage().getDebugger().addObject(newOw.getName(), newOw.getObject());
-                    //BObject newBObject = bObject.getPackage().getObject(newOw.getName());
-                    //WrapperPool.instance().getWrapper(newBObject);
-                    //new RObjectImpl(newBObject);
-                    return newOw.getName();
-                }
-            }
-            
         }
-        //catch (PackageNotFoundException pnfe) {}
-        //catch (ProjectNotOpenException pnoe) {}
         catch (NoSuchFieldException nsfe) {
             nsfe.printStackTrace();
         }
         catch (IllegalAccessException iae) {
             iae.printStackTrace();
         }
-        return "Internal error.";
+        
+        throw new IllegalArgumentException("method not found.");
     }
 
 }

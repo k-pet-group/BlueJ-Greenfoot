@@ -9,9 +9,9 @@ import bluej.testmgr.record.InvokerRecord;
  * A result watcher used by the RObjectImpl class.
  * 
  * @author Davin McCall
- * @version $Id: RObjectResultWatcher.java 3227 2004-12-08 04:04:58Z davmac $
+ * @version $Id: InvocationResultWatcher.java 3262 2005-01-12 03:30:49Z davmac $
  */
-class RObjectResultWatcher implements ResultWatcher
+class InvocationResultWatcher implements ResultWatcher
 {
     public String errorMsg = null;
     public DebuggerObject resultObj = null;

@@ -1,15 +1,21 @@
 package rmiextension.wrappers;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
 
-import bluej.extensions.BClass;
-import bluej.extensions.BObject;
-import bluej.extensions.BPackage;
-import bluej.extensions.CompilationNotStartedException;
-import bluej.extensions.MissingJavaFileException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.*;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.views.CallableView;
+import bluej.views.ConstructorView;
+import bluej.views.MethodView;
+import bluej.views.View;
 
 /**
  * This class is a wrapper for a BlueJ package
@@ -17,7 +23,7 @@ import bluej.extensions.ProjectNotOpenException;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RPackageImpl.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage
@@ -170,5 +176,178 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         bPackage.reload();
         return wrapper;
     }
+    
+    /**
+     * Invoke a static method.
+     * 
+     * Return is the compiler error message preceded by '!' in the case of
+     * a compile time error, or the name of the constructed object, or null
+     * if a run-time error occurred.
+     * 
+     * @param className  The class for which to invoke the method
+     * @param methodName The name of the method
+     * @param argTypes   The argument types of the method (class names)
+     * @param args       The argument strings to use
+     * @return   The name of the returned object (see notes above).
+     */
+    public String invokeMethod(String className, String methodName, String [] argTypes, String [] args)
+    {
+        Package pkg = getPackage();
+        Class cl = pkg.loadClass(className);
+        View mClassView = View.getView(cl);
+        
+        MethodView theMethod = null;
+        
+        // do we really need to search super classes?
+        classLoop:
+        while (mClassView != null) {
+            MethodView [] methods = mClassView.getDeclaredMethods();
+            findMethod:
+            for (int i = 0; i < methods.length; i++) {
+                // This method is not the one we're looking for if it's
+                // private, has a different name, or a different number
+                // of parameters
+                if ((methods[i].getModifiers() & Modifier.PRIVATE) != 0)
+                    continue;
+                if ((methods[i].getModifiers() & Modifier.STATIC) == 0)
+                    continue;
+                if (! methods[i].getName().equals(methodName))
+                    continue;
+                if (methods[i].getParameterCount() != argTypes.length)
+                    continue;
+                
+                // ... or if any of the parameters are different
+                Class [] params = methods[i].getParameters();
+                for (int j = 0; j < params.length; j++) {
+                    if (! params[j].getName().equals(argTypes[j]))
+                        continue findMethod;
+                }
+                
+                // we've found the right method
+                return invokeCallable(PkgMgrFrame.findFrame(pkg), methods[i], null, args);
+            }
+            
+            // try the super class
+            mClassView = mClassView.getSuper();
+        }
 
+        throw new IllegalArgumentException("method not found");
+    }
+    
+    /**
+     * Invoke a constructor. Put the resulting object on the bench.<p>
+     * 
+     * Return is the compiler error message preceded by '!' in the case of
+     * a compile time error, or the name of the constructed object, or null
+     * if a run-time error occurred.
+     * 
+     * @param className   The fully qualified name of the class to instantiate
+     * @param argTypes    The (raw) argument types of the constructor
+     * @param args        The argument strings to use
+     * @return   The name of the constructed object (see notes).
+     */
+    public String invokeConstructor(String className, String [] argTypes, String [] args)
+    {
+        // TODO support generics
+        
+        Package pkg = getPackage();
+        Class cl = pkg.loadClass(className);
+        View mClassView = View.getView(cl);
+
+        // Search through the constructors for the one we want.
+        ConstructorView [] constructors = mClassView.getConstructors();
+        consLoop:
+        for (int i = 0; i < constructors.length; i++) {
+            // check the parameter count and types match
+            if (constructors[i].getParameterCount() != argTypes.length)
+                continue;
+            Class [] params = constructors[i].getParameters();
+            for (int j = 0; j < params.length; j++) {
+                if (! params[j].getName().equals(argTypes[j]))
+                    continue consLoop;
+            }
+            
+            // we have a match
+            return invokeCallable(PkgMgrFrame.findFrame(pkg), constructors[i], null, args);
+        }
+        
+        // Couldn't find the requested constructor
+        throw new IllegalArgumentException("constructor not found");
+    }
+    
+    /**
+     * Invoke a callable (a constructor, static method or instance method).<p>
+     * 
+     * Return is the compiler error message preceded by '!' in the case of
+     * a compile time error, or the name of the constructed object, or null
+     * if a run-time error occurred.
+     * 
+     * @param pkg     The package from which to perform the invocation
+     * @param cv      The constructor or method to invoke
+     * @param ow      The object to invoke against (null for static method
+     *                or constructor)
+     * @param argVals The arguments to apply to the call
+     */
+    public static String invokeCallable(PkgMgrFrame pmf, CallableView cv, ObjectWrapper ow, String [] argVals)
+    {
+        // TODO change the name of RObjectResultWatcher class, it's now
+        // also used by RPackage
+        InvocationResultWatcher watcher = new InvocationResultWatcher();
+        Invoker invoker;
+        if (ow == null)
+            invoker = new Invoker(pmf, cv, watcher);
+        else
+            invoker = new Invoker(pmf, (MethodView) cv, ow, watcher);
+
+        synchronized (watcher) {
+            invoker.invokeDirect(argVals);
+            try {
+                watcher.wait();
+            }
+            catch (InterruptedException ie) {}
+        }
+        
+        if (watcher.errorMsg != null) {
+            // some error occurred
+            return "!" + watcher.errorMsg;
+        }
+        else {
+            if (watcher.resultObj == null)
+                return null;
+            
+            ObjectWrapper newOw = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), watcher.resultObj, "result");
+            pmf.getObjectBench().addObject(newOw);
+            pmf.getPackage().getDebugger().addObject(newOw.getName(), newOw.getObject());
+            //BObject newBObject = bObject.getPackage().getObject(newOw.getName());
+            //WrapperPool.instance().getWrapper(newBObject);
+            //new RObjectImpl(newBObject);
+            return newOw.getName();
+        }
+    }
+    
+    /**
+     * Helper routine. Extract the actual Bluej package (bluej.pkgmgr.Package)
+     * from the extension interface (BPackage) using reflection.
+     */
+    private Package getPackage()
+    {
+        try {
+            Class bPackageClass = bPackage.getClass();
+            Field packageId = bPackageClass.getDeclaredField("packageId");
+            packageId.setAccessible(true);
+            Object identifier = packageId.get(bPackage);
+            
+            Class identifierClass = identifier.getClass();
+            Method getBluejPackage = identifierClass.getDeclaredMethod("getBluejPackage", new Class[0]);
+            getBluejPackage.setAccessible(true);
+            Package pkg = (bluej.pkgmgr.Package) getBluejPackage.invoke(identifier, null);
+            
+            return pkg;
+        }
+        catch (NoSuchFieldException nsfe) { nsfe.printStackTrace(); }
+        catch (IllegalAccessException iae) { iae.printStackTrace(); }
+        catch (NoSuchMethodException nsme) { nsme.printStackTrace(); }
+        catch (InvocationTargetException ite) { ite.printStackTrace(); }
+        return null;
+    }
 }

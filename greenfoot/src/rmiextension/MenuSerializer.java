@@ -1,9 +1,7 @@
 package rmiextension;
 
 import java.awt.Component;
-import java.awt.Point;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -13,12 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
-import javax.swing.MenuElement;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import rmiextension.wrappers.event.RActionListenerImpl;
 import rmiextension.wrappers.event.RActionListenerWrapper;
@@ -32,7 +25,9 @@ import rmiextension.wrappers.event.RActionListenerWrapper;
  * Maximum Solutions for more information.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: MenuSerializer.java 3213 2004-12-03 02:57:27Z davmac $
+ * @version $Id: MenuSerializer.java 3262 2005-01-12 03:30:49Z davmac $
+ * 
+ * TODO this class is no longer needed and can be removed
  */
 public class MenuSerializer
     implements Serializable

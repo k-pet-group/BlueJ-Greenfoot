@@ -1,5 +1,6 @@
 package greenfoot.gui.classbrowser;
 
+import greenfoot.WorldInvokeListener;
 import greenfoot.actions.NewSubclassAction;
 import greenfoot.event.CompileListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
@@ -20,13 +21,11 @@ import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import rmiextension.MenuSerializer;
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.event.RCompileEvent;
@@ -35,10 +34,14 @@ import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.runtime.ExecServer;
 import bluej.utility.Utility;
+import bluej.views.ConstructorView;
+import bluej.views.MethodView;
+import bluej.views.View;
+import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: ClassView.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -141,17 +144,35 @@ public class ClassView extends JToggleButton
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        try {
-            MenuSerializer serializableMenu = getRClass().getMenu();
-            if (serializableMenu == null) {
-                return;
-            }
-            JMenu menu = serializableMenu.getMenu();
+        //try {
+            //MenuSerializer serializableMenu = getRClass().getMenu();
+            //if (serializableMenu == null) {
+            //    return;
+            //}
+            //JMenu menu = serializableMenu.getMenu();
 
             if (popupMenu != null) {
                 remove(popupMenu);
             }
-            popupMenu = menu.getPopupMenu();
+            //popupMenu = menu.getPopupMenu();
+            popupMenu = new JPopupMenu();
+            
+            ViewFilter filter;
+            View view = View.getView(realClass);
+            WorldInvokeListener invocListener = new WorldInvokeListener(realClass);
+
+            if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
+                filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+                ConstructorView[] constructors = view.getConstructors();
+
+                if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, constructors, filter, "new ", invocListener))
+                    popupMenu.addSeparator();
+            }
+
+            filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
+            MethodView[] allMethods = view.getAllMethods();
+            bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, "", invocListener);
+            
             popupMenu.setInvoker(this);
 
             popupMenu.add(new JPopupMenu.Separator());
@@ -177,11 +198,11 @@ public class ClassView extends JToggleButton
                 }
             });
 
-        }
-        catch (RemoteException e) {
+        //}
+        //catch (RemoteException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        //    e.printStackTrace();
+        //}
 
     }
 
@@ -530,7 +551,6 @@ public class ClassView extends JToggleButton
      */
     public void mouseClicked(MouseEvent e)
     {
-        // TODO Auto-generated method stub
         //int clicks = e.getClickCount();
         if (e.getClickCount() > 1 && ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
             try {
@@ -558,7 +578,6 @@ public class ClassView extends JToggleButton
      */
     public void mouseEntered(MouseEvent e)
     {
-    // TODO Auto-generated method stub
 
     }
 
@@ -569,7 +588,6 @@ public class ClassView extends JToggleButton
      */
     public void mouseExited(MouseEvent e)
     {
-    // TODO Auto-generated method stub
 
     }
 
@@ -580,7 +598,6 @@ public class ClassView extends JToggleButton
      */
     public void mousePressed(MouseEvent e)
     {
-    // TODO Auto-generated method stub
 
     }
 
@@ -591,8 +608,6 @@ public class ClassView extends JToggleButton
      */
     public void mouseReleased(MouseEvent e)
     {
-    // TODO Auto-generated method stub
 
     }
-
 }

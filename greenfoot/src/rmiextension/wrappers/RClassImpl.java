@@ -2,24 +2,15 @@ package rmiextension.wrappers;
 
 import java.rmi.RemoteException;
 
-import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
-import rmiextension.MenuSerializer;
-import bluej.extensions.BClass;
-import bluej.extensions.BConstructor;
-import bluej.extensions.BField;
-import bluej.extensions.BMethod;
-import bluej.extensions.BPackage;
+import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.CompilationNotStartedException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RClassImpl.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -265,28 +256,26 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         return false;
     }
 
-    public MenuSerializer getMenu()
-        throws RemoteException
-    {
-
-        try {
-            JPopupMenu menu = (JPopupMenu) bClass.getMenu();
-            return new MenuSerializer(menu);
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            //e.printStackTrace();
-            //to be expected
-        }
-        return null;
-    }
+    // No longer needed. TODO: remove.
+//    public MenuSerializer getMenu()
+//        throws RemoteException
+//    {
+//
+//        try {
+//            JPopupMenu menu = (JPopupMenu) bClass.getMenu();
+//            return new MenuSerializer(menu);
+//        }
+//        catch (ProjectNotOpenException e) {
+//            e.printStackTrace();
+//        }
+//        catch (PackageNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        catch (ClassNotFoundException e) {
+//            //e.printStackTrace();
+//            //to be expected
+//        }
+//        return null;
+//    }
 
 }

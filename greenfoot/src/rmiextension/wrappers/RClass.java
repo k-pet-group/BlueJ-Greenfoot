@@ -2,17 +2,12 @@ package rmiextension.wrappers;
 
 import java.rmi.RemoteException;
 
-import rmiextension.MenuSerializer;
-import bluej.extensions.BField;
-import bluej.extensions.BMethod;
+import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.CompilationNotStartedException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RClass.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public interface RClass
     extends java.rmi.Remote
@@ -141,6 +136,6 @@ public interface RClass
     public boolean isSubclassOf(String className)
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
-    public MenuSerializer getMenu()
-        throws RemoteException;
+    //public MenuSerializer getMenu()
+    //    throws RemoteException;
 }

@@ -46,6 +46,15 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
         }
 
         Object realObject = ObjectTracker.instance().getRealObject(remoteObj);
+        localObjectCreated(realObject);
+    }
+    
+    /**
+     * Second entry point, for when an object has been created locally.
+     * @param realObject  The newly instantiated object
+     */
+    public void localObjectCreated(Object realObject)
+    {
         if (realObject instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) realObject;
             int xoffset = -go.getImage().getWidth() / 2;

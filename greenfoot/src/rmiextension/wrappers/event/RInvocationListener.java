@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RInvocationListener.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RInvocationListener.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public interface RInvocationListener
     extends java.rmi.Remote
@@ -15,5 +15,4 @@ public interface RInvocationListener
      */
     public void invocationFinished(RInvocationEvent event)
         throws RemoteException;
-
 }

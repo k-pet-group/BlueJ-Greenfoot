@@ -32,7 +32,7 @@ import bluej.utility.FileUtility;
  * The main class for greenfoot. This is a singelton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Greenfoot.java 3225 2004-12-08 03:41:32Z davmac $
+ * @version $Id: Greenfoot.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public class Greenfoot
 {
@@ -287,6 +287,22 @@ public class Greenfoot
     public CallHistory getCallHistory()
     {
         return callHistory;
+    }
+    
+    /**
+     * Get a reference to the invocation listener.
+     */
+    public GreenfootObjectInstantiationListener getInvocationListener()
+    {
+        return instantiationListener;
+    }
+    
+    /**
+     * Get a reference to the greenfoot frame.
+     */
+    public GreenfootFrame getFrame()
+    {
+        return frame;
     }
 
     /**

@@ -8,7 +8,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObject.java 3234 2004-12-12 23:59:56Z davmac $
+ * @version $Id: RObject.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public interface RObject
     extends java.rmi.Remote
@@ -57,8 +57,14 @@ public interface RObject
     
     /**
      * Allow an arbitrary method to be invoked with arbitrary parameters.
-     * Returns the compiler error message generated, or null if everything
-     * went ok.
+     * 
+     * If a compilation error occurs, returns the generated error message
+     * preceded by an exclamation mark (!).<p>
+     * 
+     * If successful and a return value exists, put the return value on the
+     * bench and return its name.<p>
+     * 
+     * Otherwise (no error, no return value) return null. 
      * 
      * @param method    The name of the method to invoke
      * @param argTypes  The classnames of the argument types of the method

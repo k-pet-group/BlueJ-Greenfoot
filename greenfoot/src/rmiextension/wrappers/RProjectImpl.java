@@ -11,7 +11,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProjectImpl.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RProjectImpl.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
@@ -109,5 +109,4 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     {
         bProject.save();
     }
-
 }

@@ -12,7 +12,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The interface for a package.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackage.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RPackage.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public interface RPackage
     extends java.rmi.Remote
@@ -106,5 +106,36 @@ public interface RPackage
      */
     public abstract RClass newClass(String className)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException;
+
+    /**
+     * Invoke a constructor. Put the resulting object on the bench.<p>
+     * 
+     * Return is the compiler error message preceded by '!' in the case of
+     * a compile time error, or the name of the constructed object, or null
+     * if a run-time error occurred.
+     * 
+     * @param className   The fully qualified name of the class to instantiate
+     * @param argTypes    The (raw) argument types of the constructor
+     * @param args        The argument strings to use
+     * @return   The name of the constructed object (see notes).
+     */
+    public String invokeConstructor(String className, String [] argTypes, String [] args)
+        throws RemoteException;
+    
+    /**
+     * Invoke a static method.
+     * 
+     * Return is the compiler error message preceded by '!' in the case of
+     * a compile time error, or the name of the constructed object, or null
+     * if a run-time error occurred.
+     * 
+     * @param className  The class for which to invoke the method
+     * @param methodName The name of the method
+     * @param argTypes   The argument types of the method (class names)
+     * @param args       The argument strings to use
+     * @return   The name of the returned object (see notes above).
+     */
+    public String invokeMethod(String className, String methodName, String [] argTypes, String [] args)
+        throws RemoteException;
 
 }

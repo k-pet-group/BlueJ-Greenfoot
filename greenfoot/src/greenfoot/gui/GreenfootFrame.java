@@ -24,20 +24,7 @@ import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 import javax.swing.border.Border;
 
 import rmiextension.wrappers.RBlueJ;
@@ -54,7 +41,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: GreenfootFrame.java 3262 2005-01-12 03:30:49Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
