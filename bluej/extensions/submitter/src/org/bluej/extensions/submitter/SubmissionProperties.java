@@ -34,7 +34,7 @@ import javax.swing.event.TreeSelectionEvent;
  * Manages the properties appropriate to the selected submission scheme.
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: SubmissionProperties.java 1620 2003-02-04 10:15:22Z damiano $
+ * @version    $Id: SubmissionProperties.java 1625 2003-02-06 21:40:33Z iau $
  */
 
 class SubmissionProperties
@@ -165,8 +165,7 @@ class SubmissionProperties
          */
         public synchronized void insertNodeInto(MutableTreeNode newChild, MutableTreeNode parent, int index)
         {
-            Node aChild = (Node) newChild;
-            stat.aDbg.debug(Stat.SVC_PROP, "insertNodeInto: child.getTitle=" + aChild.getTitle());
+            stat.aDbg.debug(Stat.SVC_PROP, "insertNodeInto: child=" + ((newChild instanceof Node)?((Node)newChild).getTitle():newChild.toString()));
 
             // Forces insert to go at the end of the parent's list
             index = getChildCount(parent);
@@ -238,7 +237,7 @@ class SubmissionProperties
     public JTree getTree()
     {
         TreePath path = getPathFromString(selectedScheme);
-        stat.aDbg.trace(Stat.SVC_PROP, "getTree: path=" + path.toString());
+        stat.aDbg.trace(Stat.SVC_PROP, "getTree: path=" + ((path == null)?"(path == null)":path.toString()));
 
         // You MUST leave it, othervise the root node is NOT expanded AND
         // the subnodes are not visible !
