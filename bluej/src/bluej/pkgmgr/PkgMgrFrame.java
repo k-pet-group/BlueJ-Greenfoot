@@ -10,8 +10,8 @@ import java.awt.*;
 import java.awt.print.*;
 import java.text.DateFormat;
 
-import junit.swingui.TestRunner;
-import junit.framework.*;
+//import junit.swingui.TestRunner;
+//import junit.framework.*;
 
 import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
 import com.apple.mrj.MRJQuitHandler;
@@ -33,12 +33,12 @@ import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.groupwork.*;
-import bluej.tester.*;
+// import bluej.tester.*;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1065 2002-01-07 06:08:42Z ajp $
+ * @version $Id: PkgMgrFrame.java 1066 2002-01-07 06:24:09Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -617,8 +617,6 @@ public class PkgMgrFrame extends JFrame
 
             if(ct.isApplet())
                 runAppletTarget(ct);
-            else if(ct.isUnitTest())
-                runUnitTest(ct);
 
             break;
 
@@ -1243,18 +1241,6 @@ public class PkgMgrFrame extends JFrame
 
             ct.runApplet(this);
         }
-    }
-
-    /**
-     * Run a target (currently only applets)
-     */
-    private void runUnitTest(ClassTarget ct)
-    {
-        String args[]= { ct.getQualifiedName() };
-
-        getProject().testRunner.start( args );
-        getProject().testRunner.setSuite( ct.getQualifiedName() );
-        getProject().testRunner.runSuite();
     }
 
     /**

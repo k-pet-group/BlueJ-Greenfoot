@@ -31,12 +31,12 @@ import java.util.Properties;
 import java.util.Vector;
 import java.applet.Applet;
 
-import net.sourceforge.transmogrify.hook.bluej.BlueJHook;
+/*import net.sourceforge.transmogrify.hook.bluej.BlueJHook;
 import net.sourceforge.transmogrify.hook.Hook;
 import net.sourceforge.transmogrify.hook.Transmogrifier;
 import net.sourceforge.transmogrify.refactorer.*;
 import net.sourceforge.transmogrify.symtab.*;
-import net.sourceforge.transmogrify.symtab.parser.*;
+import net.sourceforge.transmogrify.symtab.parser.*;*/
 
 /**
  * A class target in a package, i.e. a target that is a class file
@@ -46,7 +46,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1045 2001-12-11 11:41:50Z mik $
+ * @version $Id: ClassTarget.java 1066 2002-01-07 06:24:09Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -111,7 +111,6 @@ public class ClassTarget extends EditableTarget
         super(pkg, baseName);
 
         boolean isApplet = (template!=null) && (template.startsWith("applet"));
-        boolean isUnitTest = (template!=null) && (template.startsWith("unittest"));
 
         boolean isAbstract = (template!=null) &&
                              (template.startsWith("abstract"));
@@ -119,8 +118,6 @@ public class ClassTarget extends EditableTarget
                               (template.startsWith("interface"));
         if(isApplet)
             role = new AppletClassRole();
-        else if (isUnitTest)
-            role = new UnitTestClassRole();
         else
             role = new StdClassRole();
 
@@ -163,8 +160,6 @@ public class ClassTarget extends EditableTarget
         String type = props.getProperty(prefix + ".type");
         if("AppletTarget".equals(type) && (!(role instanceof AppletClassRole)))
             role = new AppletClassRole();
-        if("UnitTestTarget".equals(type) && (!(role instanceof UnitTestClassRole)))
-            role = new UnitTestClassRole();
 
         role.load(props, prefix);
         String modifierStr = props.getProperty(prefix + ".modifiers", "0");
@@ -319,13 +314,13 @@ public class ClassTarget extends EditableTarget
      * Verify whether this class target is a UnitTest
      * @return true if class target is a UnitTest (or subclass), else returns false
      */
-    public boolean isUnitTest()
+/*    public boolean isUnitTest()
     {
         ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
         if(!(role instanceof UnitTestClassRole) && ((classInfo != null) && classInfo.isUnitTest()))
             role = new UnitTestClassRole();
         return (role instanceof UnitTestClassRole);
-    }
+    } */
 
     Color getDefaultBackground()
     {
@@ -515,10 +510,6 @@ public class ClassTarget extends EditableTarget
             if (Applet.class.isAssignableFrom(cl)) {
                 if( ! (role instanceof AppletClassRole))
                     role = new AppletClassRole();
-            }
-            else if (junit.framework.TestCase.class.isAssignableFrom(cl)) {
-                if( ! (role instanceof UnitTestClassRole))
-                    role = new UnitTestClassRole();
             }
             else {
                 if( ! (role instanceof StdClassRole)) {
@@ -1002,8 +993,6 @@ public class ClassTarget extends EditableTarget
             type = INTERFACE_LABEL;
         else if(isApplet())
             type = APPLET_LABEL;
-        else if(isUnitTest())
-            type = UNITTEST_LABEL;
 
         return type;
     }
