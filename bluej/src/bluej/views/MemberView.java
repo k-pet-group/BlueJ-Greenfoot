@@ -3,7 +3,7 @@ package bluej.views;
 import java.lang.reflect.Modifier;
 
 /**
- ** @version $Id: MemberView.java 156 1999-07-06 14:37:16Z ajp $
+ ** @version $Id: MemberView.java 187 1999-07-17 02:32:38Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java class member in BlueJ
@@ -15,6 +15,9 @@ public abstract class MemberView
 	
 	protected MemberView(View view)
 	{
+	    if (view == null)
+	        throw new NullPointerException();
+
 		this.view = view;
 	}
 	
@@ -61,7 +64,7 @@ public abstract class MemberView
 	 **/
 	public Comment getComment()
 	{
-//		view.loadComments();
+		view.loadComments();
 		
 		return comment;
 	}
@@ -71,16 +74,7 @@ public abstract class MemberView
 	 **/
 	public String getShortDesc()
 	{
-		String desc = null;
-
-		Comment comment = getComment();
-		if(comment != null)
-			desc = getComment().getShortDesc();
-
-		if(desc == null)
-			desc = getSignature();
-
-		return desc;
+		return getSignature();
 	}
 	
 	/**
@@ -88,16 +82,7 @@ public abstract class MemberView
 	 **/
 	public String getLongDesc()
 	{
-		String desc = null;
-
-		Comment comment = getComment();
-		if(comment != null)
-			desc = getComment().getLongDesc();
-
-		if(desc == null)
-			desc = getShortDesc();
-
-		return desc;
+		return getSignature();
 	}
 	
 	/**
@@ -110,17 +95,19 @@ public abstract class MemberView
 	
 	public void print(FormattedPrintWriter out)
 	{
-		print(out, "");
+		print(out, 0);
 	}
 
-	public void print(FormattedPrintWriter out, String prefix)
+	public void print(FormattedPrintWriter out, int indents)
 	{
 		Comment comment = getComment();
 		if(comment != null)
-			comment.print(out, prefix);
+			comment.print(out, indents);
 
 		out.setItalic(false);
 		out.setBold(true);
-		out.println(prefix + getLongDesc());
+		for(int i=0; i<indents; i++)
+		    out.indentLine();
+		out.println(getLongDesc());
 	}
 }

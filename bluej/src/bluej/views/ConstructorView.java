@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 import bluej.utility.Utility;
 
 /**
- ** @version $Id: ConstructorView.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: ConstructorView.java 187 1999-07-17 02:32:38Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java constructor in BlueJ
@@ -30,8 +30,8 @@ public final class ConstructorView extends MemberView
 	{
 		return cons.toString();
 	}
-	
-	public int getModifiers()
+
+    public int getModifiers()
 	{
 		return cons.getModifiers();
 	}
@@ -47,7 +47,7 @@ public final class ConstructorView extends MemberView
 	/**
 	 ** Returns a string describing this Method in a different format
 	 **/
-	public String getSignature()
+	public String getSignature(boolean includeparamnames)
 	{
 		StringBuffer sb = new StringBuffer();
 		sb.append(cons.getName());
@@ -56,11 +56,39 @@ public final class ConstructorView extends MemberView
 		for(int j = 0; j < params.length; j++)
 		{
 			sb.append(View.getTypeName(params[j]));
+			if(comment != null && includeparamnames) {
+			    String paramname = comment.getParamName(j);
+
+                if(paramname != null) {
+                    sb.append(" ");
+                    sb.append(paramname);
+                }
+            }
 			if (j < (params.length - 1))
-				sb.append(", ");
+				sb.append(",");
 		}
 		sb.append(")");
 		return sb.toString();
+	}
+
+	public String getSignature()
+	{
+	    return getSignature(true);
+	}
+	/**
+	 ** Get a short String describing this member
+	 **/
+	public String getShortDesc()
+	{
+        return getSignature(true);
+	}
+	
+	/**
+	 ** Get a longer String describing this member
+	 **/
+	public String getLongDesc()
+	{
+		return getSignature(true);
 	}
 
 	/**

@@ -6,7 +6,7 @@ import bluej.utility.Utility;
 import java.awt.Label;
 
 /**
- ** @version $Id: EditorPrintWriter.java 156 1999-07-06 14:37:16Z ajp $
+ ** @version $Id: EditorPrintWriter.java 187 1999-07-17 02:32:38Z ajp $
  ** @author Michael Cahill
  **
  ** EditorPrintWriter - ignore any formatting in a FormattedPrintWriter
@@ -49,7 +49,7 @@ public class EditorPrintWriter extends FormattedPrintWriter
 
 	protected void indentLine()
 	{
-		editor.insertText("\t", bold, italic);
+		editor.insertText("    ", bold, italic);
 	}
 	
 	public void println(String str)

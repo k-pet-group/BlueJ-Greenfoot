@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 import bluej.utility.Utility;
 
 /**
- ** @version $Id: FieldView.java 156 1999-07-06 14:37:16Z ajp $
+ ** @version $Id: FieldView.java 187 1999-07-17 02:32:38Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java field in BlueJ
@@ -57,14 +57,28 @@ public final class FieldView extends MemberView
 		return field.getModifiers();
 	}
 	
-	/**
+	public String getShortDesc()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append(View.getTypeName(field.getType()));
+		sb.append(" ");
+		sb.append(field.getName());
+		return sb.toString();
+    }
+
+	public String getLongDesc()
+    {
+        return getShortDesc();        
+    }
+    
+    /**
 	 ** Returns a string describing this Field in a human-readable format
 	 **/
 	public String getSignature()
 	{
 		StringBuffer sb = new StringBuffer();
-		sb.append(View.getTypeName(field.getType()));
-		sb.append(" ");
+//		sb.append(View.getTypeName(field.getType()));
+//		sb.append(" ");
 		sb.append(field.getName());
 		return sb.toString();
 	}

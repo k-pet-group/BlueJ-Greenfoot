@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 import bluej.utility.Utility;
 
 /**
- ** @version $Id: MethodView.java 156 1999-07-06 14:37:16Z ajp $
+ ** @version $Id: MethodView.java 187 1999-07-17 02:32:38Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java method in BlueJ
@@ -74,13 +74,15 @@ public final class MethodView extends MemberView
 	{
 		return (method.getParameterTypes().length > 0);
 	}
-	
+
 	/**
 	 ** Returns a string describing this Method in a human-readable format
 	 **/
-	public String getSignature()
+	public String getSignature(boolean includeparamnames)
 	{
 		StringBuffer sb = new StringBuffer();
+		Comment comment = getComment();
+
 		sb.append(View.getTypeName(method.getReturnType()));
 		sb.append(" ");
 		sb.append(method.getName());
@@ -89,6 +91,15 @@ public final class MethodView extends MemberView
 		for(int j = 0; j < params.length; j++)
 		{
 			sb.append(View.getTypeName(params[j]));
+			
+			if(comment != null && includeparamnames) {
+			    String paramname = comment.getParamName(j);
+
+                if(paramname != null) {
+                    sb.append(" ");
+                    sb.append(paramname);
+                }
+			}
 			if (j < (params.length - 1))
 				sb.append(", ");
 		}
@@ -96,6 +107,26 @@ public final class MethodView extends MemberView
 		return sb.toString();
 	}
 
+	public String getSignature()
+    {
+        return getSignature(false);        
+    }
+	/**
+	 ** Get a short String describing this member
+	 **/
+	public String getShortDesc()
+	{
+        return getSignature(true);
+	}
+	
+	/**
+	 ** Get a longer String describing this member
+	 **/
+	public String getLongDesc()
+	{
+		return getSignature(true);
+	}
+		
 	/**
 	 ** @returns the number of parameters
 	 **/
