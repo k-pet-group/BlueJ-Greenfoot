@@ -225,9 +225,13 @@ colour.package.bg.uml.default=180,130,44
 colour.target.bg.uml.compiling=255,153,102
 colour.target.uml.shadow=153,153,153
 
+
 # object bench
 colour.wrapper.bg=205,38,38
 colour.wrapper.shadow=152,152,152
+
+colour.uml.wrapper.bg=205,38,38
+colour.uml.wrapper.shadow=152,152,152
 
 colour.menu.environOp=170,32,32
 
