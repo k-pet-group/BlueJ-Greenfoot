@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
  * @author fisker
  * @author Michael Kolling
  * 
- * @version $Id: SelectionSet.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: SelectionSet.java 2789 2004-07-12 18:08:11Z mik $
  */
 public final class SelectionSet
 {
@@ -259,6 +259,11 @@ public final class SelectionSet
         }
     }
     
+    /**
+     * Return an iterator over the selected elements.
+     * 
+     * @return  The iterator for the selection elements.
+     */
     public Iterator iterator()
     {
         return elements.iterator();
@@ -272,27 +277,5 @@ public final class SelectionSet
     public int getSize()
     {
         return elements.size();
-    }
-
-    public Point getMinGhostPosition()
-    {
-        GraphElement graphElement;
-        Moveable moveable;
-        int minGhostX = Integer.MAX_VALUE;
-        int minGhostY = Integer.MAX_VALUE;
-
-        for (Iterator i = elements.iterator(); i.hasNext();) {
-            graphElement = (GraphElement) i.next();
-            if (graphElement instanceof Moveable) {
-                moveable = (Moveable) graphElement;
-                if (moveable.getGhostX() < minGhostX) {
-                    minGhostX = moveable.getGhostX();
-                }
-                if (moveable.getGhostY() < minGhostY) {
-                    minGhostY = moveable.getGhostY();
-                }
-            }
-        }
-        return new Point(minGhostX, minGhostY);
     }
 }

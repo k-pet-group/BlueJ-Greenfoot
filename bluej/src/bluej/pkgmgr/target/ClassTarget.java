@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  * 
- * @version $Id: ClassTarget.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: ClassTarget.java 2789 2004-07-12 18:08:11Z mik $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -79,7 +79,7 @@ public class ClassTarget extends EditableTarget
     // edited
     private SourceInfo sourceInfo = new SourceInfo();
 
-    // fields used in Tarjan's algorithm:
+    /** fields used in Tarjan's algorithm: */
     public int dfn, link;
 
     // flag to prevent recursive calls to analyseDependancies()
@@ -125,6 +125,8 @@ public class ClassTarget extends EditableTarget
             else if (template.startsWith("enum"))
                 role = new EnumClassRole();
         }
+        setGhostPosition(0, 0);
+        setGhostSize(0, 0);
     }
 
     /**
@@ -145,6 +147,10 @@ public class ClassTarget extends EditableTarget
         return getIdentifierName();
     }
 
+    /**
+     * Return information about the source of this class.
+     * @return  The source info object.
+     */
     public SourceInfo getSourceInfo()
     {
         return sourceInfo;
@@ -430,6 +436,9 @@ public class ClassTarget extends EditableTarget
 
     // --- EditableTarget interface ---
 
+    /**
+     * Tell whether we have access to the source for this class.
+     */
     public boolean hasSourceCode()
     {
         return getSourceFile().canRead();
@@ -941,9 +950,13 @@ public class ClassTarget extends EditableTarget
     protected JPopupMenu menu = null;
     boolean compiledMenu = false;
 
-    public void popupMenu(int x, int y, GraphEditor editor)
+    /**
+     * Post the context menu for this target.
+     */
+    public void popupMenu(int x, int y)
     {
         Class cl = null;
+        GraphEditor editor = getPackage().getEditor();
 
         if (state == S_NORMAL) {
             // handle error causes when loading 1.4 compiled classes
@@ -1107,11 +1120,9 @@ public class ClassTarget extends EditableTarget
         }
     }
 
-    public void mousePressed(MouseEvent evt, GraphEditor editor)
-    {
-        super.mousePressed(evt, editor);
-    }
-
+    /**
+     * Process a double click on this target. That is: open its editor.
+     */
     public void doubleClick(MouseEvent evt)
     {
         open();

@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: GraphPainterStdImpl.java 2789 2004-07-12 18:08:11Z mik $
  */
 public class GraphPainterStdImpl
     implements GraphPainter
@@ -132,6 +132,12 @@ public class GraphPainterStdImpl
         getDependencyPainter(dependency).paint(g, dependency, isGraphEditorInFocus());
     }
 
+    /**
+     * Return the appropriate painter for a given dependency.
+     * 
+     * @param edge  The dependency we want to paint
+     * @return  A painter that can paint the given dependency.
+     */
     public DependencyPainter getDependencyPainter(Edge edge)
     {
         if (edge instanceof ImplementsDependency) {
@@ -210,6 +216,9 @@ public class GraphPainterStdImpl
         }
     }
 
+    /**
+     * Tell whether the graph editor has key focus.
+     */
     public boolean isGraphEditorInFocus()
     {
         return graphEditor.hasFocus();

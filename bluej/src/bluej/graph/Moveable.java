@@ -42,10 +42,19 @@ public interface Moveable
      */
     public void setDragging(boolean isDragging);
     
+    /**
+     * Tell whether this element is indeed currently moveable.
+     */
     public boolean isMoveable();
     
+    /**
+     * Specify whether this element is indeed currently moveable.
+     */
     public void setIsMoveable(boolean isMoveable);
 
+    /**
+     * Tell whether this element is resizable.
+     */
     public boolean isResizable();
 
 }

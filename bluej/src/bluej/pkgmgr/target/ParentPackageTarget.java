@@ -16,7 +16,7 @@ import bluej.utility.JavaNames;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: ParentPackageTarget.java 2789 2004-07-12 18:08:11Z mik $
  */
 public class ParentPackageTarget extends PackageTarget
 {
@@ -82,11 +82,14 @@ public class ParentPackageTarget extends PackageTarget
                 JavaNames.getPrefix(getPackage().getQualifiedName()));
     }
 
-    public void popupMenu(int x, int y, GraphEditor editor)
+    /**
+     * Disply the context menu.
+     */
+    public void popupMenu(int x, int y)
     {
         JPopupMenu menu = createMenu(null);
         if (menu != null)
-            menu.show(editor, x, y);
+            menu.show(getPackage().getEditor(), x, y);
     }
 
     /**

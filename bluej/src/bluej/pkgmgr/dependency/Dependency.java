@@ -17,18 +17,18 @@ import bluej.utility.Debug;
 
 /**
  * A dependency between two targets in a package.
- *
- * @author  Michael Cahill
- * @author  Michael Kolling
- * @version $Id: Dependency.java 2787 2004-07-12 14:12:42Z mik $
+ * 
+ * @author Michael Cahill
+ * @author Michael Kolling
+ * @version $Id: Dependency.java 2789 2004-07-12 18:08:11Z mik $
  */
 public abstract class Dependency extends Edge
 {
     Package pkg;
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
     protected boolean selected = false;
-//    protected static final float strokeWithDefault = 1.0f;
-//    protected static final float strokeWithSelected = 2.0f;
+    //    protected static final float strokeWithDefault = 1.0f;
+    //    protected static final float strokeWithSelected = 2.0f;
 
     static final int SELECT_DIST = 4;
 
@@ -45,9 +45,9 @@ public abstract class Dependency extends Edge
 
     public boolean equals(Object other)
     {
-        if(!(other instanceof Dependency))
+        if (!(other instanceof Dependency))
             return false;
-        Dependency d = (Dependency)other;
+        Dependency d = (Dependency) other;
         return (d != null) && (d.from == from) && (d.to == to);
     }
 
@@ -63,43 +63,46 @@ public abstract class Dependency extends Edge
         }
     }
 
-
     public DependentTarget getFrom()
     {
-        return (DependentTarget)from;
+        return (DependentTarget) from;
     }
 
     public DependentTarget getTo()
     {
-        return (DependentTarget)to;
+        return (DependentTarget) to;
     }
 
     public void load(Properties props, String prefix)
     {
         String fromName = props.getProperty(prefix + ".from");
         this.from = pkg.getTarget(fromName);
-        if(this.from == null)
+        if (this.from == null)
             Debug.reportError("Failed to find 'from' target " + fromName);
         String toName = props.getProperty(prefix + ".to");
         this.to = pkg.getTarget(toName);
-        if(this.to == null)
+        if (this.to == null)
             Debug.reportError("Failed to find 'to' target " + toName);
     }
 
     public void save(Properties props, String prefix)
     {
-        props.put(prefix + ".from", ((DependentTarget)from).getIdentifierName());
-        props.put(prefix + ".to", ((DependentTarget)to).getIdentifierName());
+        props.put(prefix + ".from", ((DependentTarget) from).getIdentifierName());
+        props.put(prefix + ".to", ((DependentTarget) to).getIdentifierName());
     }
 
-
-    public void popupMenu(int x, int y, GraphEditor editor) {
+    /**
+     * Disply the context menu.
+     */
+    public void popupMenu(int x, int y)
+    {
         JPopupMenu menu = new JPopupMenu();
         menu.add(new RemoveAction());
+        GraphEditor editor = pkg.getEditor();
         editor.add(menu);
         menu.show(editor, x, y);
     }
-    
+
     private class RemoveAction extends AbstractAction
     {
         public RemoveAction()
@@ -107,41 +110,48 @@ public abstract class Dependency extends Edge
             putValue(NAME, removeStr);
         }
 
-		public void actionPerformed(ActionEvent e) {
-           remove();
-			
-		}
+        public void actionPerformed(ActionEvent e)
+        {
+            remove();
+
+        }
     }
 
     public String toString()
     {
-        return getFrom().getIdentifierName() +
-                " --> " + getTo().getIdentifierName();
+        return getFrom().getIdentifierName() + " --> " + getTo().getIdentifierName();
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see bluej.graph.Selectable#setSelected(boolean)
      */
-    public void setSelected(boolean selected) {
+    public void setSelected(boolean selected)
+    {
         this.selected = selected;
         repaint();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see bluej.graph.Selectable#isSelected()
      */
-    public boolean isSelected() {
+    public boolean isSelected()
+    {
         return selected;
     }
-    
-    
-    
-	/* (non-Javadoc)
-	 * @see bluej.graph.Selectable#isHandle(int, int)
-	 */
-	public boolean isHandle(int x, int y) {
-		return false;
-	}
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see bluej.graph.Selectable#isHandle(int, int)
+     */
+    public boolean isHandle(int x, int y)
+    {
+        return false;
+    }
 
     /**
      * Return a bounding box for this dependency.
@@ -153,9 +163,9 @@ public abstract class Dependency extends Edge
     }
 
     /**
-     * Contains method for dependencies that are drawn as more or less
-     * straight lines (e.g. extends). Should be overwritten for dependencies
-     * with different shape.
+     * Contains method for dependencies that are drawn as more or less straight
+     * lines (e.g. extends). Should be overwritten for dependencies with
+     * different shape.
      */
     public boolean contains(int x, int y)
     {
@@ -163,7 +173,7 @@ public abstract class Dependency extends Edge
         Rectangle bounds = getBoxFromLine(line);
 
         // Now check if <p> is in the rectangle
-        if(! bounds.contains(x, y)) {
+        if (!bounds.contains(x, y)) {
             return false;
         }
 
@@ -180,8 +190,8 @@ public abstract class Dependency extends Edge
     }
 
     /**
-     * Given the line describing start and end points of this dependency,
-     * return its bounding box.
+     * Given the line describing start and end points of this dependency, return
+     * its bounding box.
      */
     protected Rectangle getBoxFromLine(Line line)
     {
@@ -189,47 +199,48 @@ public abstract class Dependency extends Edge
         int y = Math.min(line.from.y, line.to.y);
         int width = Math.max(line.from.x, line.to.x) - x;
         int height = Math.max(line.from.y, line.to.y) - y;
-        
+
         return new Rectangle(x, y, width, height);
     }
 
     /**
-     * Compute line information (start point, end point, angle)
-     * for the current state of this dependency.
-     * This is accurate for dependencis that are drawn as straight lines
-     * from and to the target border (such as extends dependencies)
-     * and should be redefined for different shaped dependencies.
+     * Compute line information (start point, end point, angle) for the current
+     * state of this dependency. This is accurate for dependencis that are drawn
+     * as straight lines from and to the target border (such as extends
+     * dependencies) and should be redefined for different shaped dependencies.
      */
     public Line computeLine()
     {
         // Compute centre points of source and dest target
-        Point pFrom = new Point(from.getX() + from.getWidth()/2, from.getY() + from.getHeight()/2);
-        Point pTo = new Point(to.getX() + to.getWidth()/2, to.getY() + to.getHeight()/2);
+        Point pFrom = new Point(from.getX() + from.getWidth() / 2, from.getY() + from.getHeight() / 2);
+        Point pTo = new Point(to.getX() + to.getWidth() / 2, to.getY() + to.getHeight() / 2);
 
         // Get the angle of the line from pFrom to pTo.
         double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
 
         // Compute intersection points with target border
-        pFrom = ((DependentTarget)from).getAttachment(angle + Math.PI);
-        pTo = ((DependentTarget)to).getAttachment(angle);
+        pFrom = ((DependentTarget) from).getAttachment(angle + Math.PI);
+        pTo = ((DependentTarget) to).getAttachment(angle);
 
         return new Line(pFrom, pTo, angle);
     }
-    
 
     /**
      * Inner class to describe the most important state of this dependency
      * (start point, end point, angle) concisely.
      */
-    public class Line {
+    public class Line
+    {
         public Point from;
         public Point to;
         double angle;
-        Line(Point from, Point to, double angle) {
+
+        Line(Point from, Point to, double angle)
+        {
             this.from = from;
             this.to = to;
             this.angle = angle;
         }
     }
-    
+
 }

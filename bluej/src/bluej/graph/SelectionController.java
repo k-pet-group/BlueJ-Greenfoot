@@ -12,7 +12,6 @@ import bluej.Config;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
 import bluej.pkgmgr.target.*;
-import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.Package;
 
 /**
@@ -61,6 +60,9 @@ public class SelectionController
 
     // ======= MouseListener interface =======
 
+    /**
+     * A mouse-pressed event. Analyse what we should do with it.
+     */
     public void mousePressed(MouseEvent evt)
     {
         graphEditor.requestFocus();
@@ -145,7 +147,10 @@ public class SelectionController
         graphEditor.repaint();
     }
     
-
+    /**
+     * A mouse-clicked event. This is only interesting if it was a double
+     * click. If so, inform every element in the current selection.
+     */
     public void mouseClicked(MouseEvent evt)
     {
         if (evt.getClickCount() > 1 && isButtonOne(evt)) {
@@ -444,7 +449,7 @@ public class SelectionController
      */
     private void postMenu(SelectableGraphElement element, int x, int y)
     {
-        element.popupMenu(x, y, graphEditor);
+        element.popupMenu(x, y);
     }
 
 
@@ -539,6 +544,10 @@ public class SelectionController
 
 */
     
+    /**
+     * Return the rubber band of this graph.
+     * @return  The rubber band instance, or null if no rubber band is currently in use.
+     */
     public RubberBand getRubberBand()
     {
         return rubberBand;

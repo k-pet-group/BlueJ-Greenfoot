@@ -4,9 +4,9 @@ import java.awt.event.KeyEvent;
 import java.util.Iterator;
 
 /**
- * @author fisker
+ * A strategy to move graph selections with keyboard input.
  * 
- *  
+ * @author fisker
  */
 public class TraverseStragegyImpl
     implements TraverseStragegy
@@ -25,6 +25,15 @@ public class TraverseStragegyImpl
         return d;
     }
 
+    /**
+     * Given a currently selected vertex and a key press, decide which vertex 
+     * should be selected next.
+     * 
+     * @param graph  The graph we're looking at.
+     * @param currentVertex  The currently selected vertex.
+     * @param key  The key that was pressed.
+     * @return     A vertex that should be selected now.
+     */
     public Vertex findNextVertex(Graph graph, Vertex currentVertex, int key)
     {
         int currentVertexCenterX = currentVertex.getX() + currentVertex.getWidth() / 2;

@@ -13,7 +13,7 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: GraphEditor.java 2789 2004-07-12 18:08:11Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener
@@ -24,6 +24,7 @@ public class GraphEditor extends JComponent
     private final static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
     private final static Cursor resizeCursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
 
+    /**  The grid resolution for graph layout. */
     public static final int GRID_SIZE = 10;
 
     private Graph graph;
@@ -58,16 +59,28 @@ public class GraphEditor extends JComponent
         addKeyListener(selectionController);
     }
     
+    
+    /**
+     * Tell how big we would like to be. The preferred size of the graph editor
+     * the the size of the edited graph.
+     */
     public Dimension getPreferredSize()
     {
         return graph.getMinimumSize();
     }
 
+    /**
+     * Tell how big we would like to be. The minimum size of the graph editor
+     * the the size of the edited graph.
+     */
     public Dimension getMinimumSize()
     {
         return graph.getMinimumSize();
     }
 
+    /**
+     * Paint this graph editor (this may be on screen or on a printer).
+     */
     public void paint(Graphics g)
     {
         Graphics2D g2D = (Graphics2D) g;
@@ -118,16 +131,25 @@ public class GraphEditor extends JComponent
 
     // ---- end of MouseMotionListener interface ----
 
+    /**
+     * Clear the set of selected classes. (Nothing will be selected after this.)
+     */
     public void clearSelection()
     {
         selectionController.clearSelection();
     }
 
+    /**
+     * Return the rubber band information.
+     */
     public RubberBand getRubberBand()
     {
         return selectionController.getRubberBand();
     }
 
+    /**
+     * Return the graph currently being edited.
+     */
     public Graph getGraph()
     {
         return graph;

@@ -9,6 +9,9 @@ import java.awt.event.MouseEvent;
  */
 public abstract class GraphElement {
     
+    /**
+     * Remove this element from the graph.
+     */
     abstract public void remove();
     
     /**
@@ -19,11 +22,13 @@ public abstract class GraphElement {
      */
     abstract public boolean contains(int x, int y);
     
-
-    public void mousePressed(MouseEvent evt, GraphEditor editor) {}
-    public void mouseReleased(MouseEvent evt, GraphEditor editor) {}
-    public void mouseDragged(MouseEvent evt, GraphEditor editor) {}
-    public void mouseMoved(MouseEvent evt, GraphEditor editor) {}
+    /**
+     * A double click was done on this element.
+     */
     public void doubleClick(MouseEvent evt) {}
-    public void popupMenu(int x, int y, GraphEditor editor) {}   
+
+    /**
+     * Post the context menu for this target.
+     */
+    abstract public void popupMenu(int x, int y);
 }

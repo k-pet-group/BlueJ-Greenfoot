@@ -19,7 +19,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: PackageTarget.java 2789 2004-07-12 18:08:11Z mik $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -111,11 +111,14 @@ public class PackageTarget extends Target
         getPackage().getEditor().raiseOpenPackageEvent(this, getPackage().getQualifiedName(getBaseName()));
     }
 
-    public void popupMenu(int x, int y, GraphEditor editor)
+    /**
+     * Disply the context menu.
+     */
+    public void popupMenu(int x, int y)
     {
         JPopupMenu menu = createMenu();
         if (menu != null)
-            menu.show(editor, x, y);
+            menu.show(getPackage().getEditor(), x, y);
     }
 
     /**

@@ -5,27 +5,33 @@ import java.util.Iterator;
 import java.awt.geom.*;
 
 /**
- * A superclass representing a general graph structure. The graph consists of vertices
- * and edges. All three classes (Graph, Vertex, Edge) should be subclassed to create
- * a specific graph implementation. 
- *
- * @author  Michael Cahill
- * @author  Michael Kolling
- * @version $Id: Graph.java 2788 2004-07-12 17:04:24Z mik $
+ * A superclass representing a general graph structure. The graph consists of
+ * vertices and edges. All three classes (Graph, Vertex, Edge) should be
+ * subclassed to create a specific graph implementation.
+ * 
+ * @author Michael Cahill
+ * @author Michael Kolling
+ * @version $Id: Graph.java 2789 2004-07-12 18:08:11Z mik $
  */
 public abstract class Graph
 {
     private static final int RIGHT_PLACEMENT_MIN = 300;
     private static final int WHITESPACE_SIZE = 10;
-    
+
+    /**
+     * Return an iterator over the vertices in this graph.
+     */
     public abstract Iterator getVertices();
+
+    /**
+     * Return an iterator over the edges in this graph.
+     */
     public abstract Iterator getEdges();
-    
-    
+
     /**
      * Return the minimum size of this graph. The minimum size depends on the
-     * position of the elements in this graph. It is calculated
-     * so that all graph elements are visible within it.
+     * position of the elements in this graph. It is calculated so that all
+     * graph elements are visible within it.
      * 
      * @return The minimum size.
      */
@@ -34,38 +40,38 @@ public abstract class Graph
         int minWidth = 1;
         int minHeight = 1;
 
-        for(Iterator it = getVertices(); it.hasNext(); ) {
-            Vertex v = (Vertex)it.next();
+        for (Iterator it = getVertices(); it.hasNext();) {
+            Vertex v = (Vertex) it.next();
 
-            if(v.getX() + v.getWidth() > minWidth)
+            if (v.getX() + v.getWidth() > minWidth)
                 minWidth = v.getX() + v.getWidth();
-            if(v.getY() + v.getHeight() > minHeight)
+            if (v.getY() + v.getHeight() > minHeight)
                 minHeight = v.getY() + v.getHeight();
         }
 
-        return new Dimension(minWidth + 20, minHeight + 20);  // add some space for looks
+        return new Dimension(minWidth + 20, minHeight + 20); // add some space
+                                                             // for looks
     }
 
-    
     /**
-     * Position the given vertex nicely in the graph. Thsi usually means
-     * that it will be placed somewhere near the top where it does not
-     * overlap with existing vertices.
+     * Position the given vertex nicely in the graph. Thsi usually means that it
+     * will be placed somewhere near the top where it does not overlap with
+     * existing vertices.
      * 
-     * @param t The vertex to place.
+     * @param t
+     *            The vertex to place.
      */
     public void findSpaceForVertex(Vertex t)
     {
         Area a = new Area();
 
-        for(Iterator it = getVertices(); it.hasNext(); ) {
-            Vertex vertex = (Vertex)it.next();
+        for (Iterator it = getVertices(); it.hasNext();) {
+            Vertex vertex = (Vertex) it.next();
 
             // lets discount the vertex we are adding from the space
             // calculations
             if (vertex != t) {
-                Rectangle vr = new Rectangle(vertex.getX(), vertex.getY(),
-                                                vertex.getWidth(), vertex.getHeight());
+                Rectangle vr = new Rectangle(vertex.getX(), vertex.getY(), vertex.getWidth(), vertex.getHeight());
                 a.add(new Area(vr));
             }
         }
@@ -75,31 +81,31 @@ public abstract class Graph
         if (RIGHT_PLACEMENT_MIN > min.width)
             min.width = RIGHT_PLACEMENT_MIN;
 
-        Rectangle targetRect = new Rectangle(t.getWidth() + WHITESPACE_SIZE*2,
-                                                t.getHeight() + WHITESPACE_SIZE*2);
+        Rectangle targetRect = new Rectangle(t.getWidth() + WHITESPACE_SIZE * 2, t.getHeight() + WHITESPACE_SIZE * 2);
 
-        for(int y=0; y<(2*min.height); y+=10) {
-            for(int x=0; x<(min.width-t.getWidth()-2*WHITESPACE_SIZE); x+=10) {
-                targetRect.setLocation(x,y);
+        for (int y = 0; y < (2 * min.height); y += 10) {
+            for (int x = 0; x < (min.width - t.getWidth() - 2 * WHITESPACE_SIZE); x += 10) {
+                targetRect.setLocation(x, y);
                 if (!a.intersects(targetRect)) {
-                    t.setPos(x+10,y+10);
+                    t.setPos(x + 10, y + 10);
                     return;
                 }
             }
         }
 
-        t.setPos(10,min.height+10);
+        t.setPos(10, min.height + 10);
     }
-    
-    
+
     /**
      * Finds the graphElement that covers the coordinate x,y. If no element is
      * found, null is returned. If a Vertex and an Edge both cover (x,y) the
      * Vertex will be returned.
      * 
-     * @param x  The x coordinate of the point to check
-     * @param y  The x coordinate of the point to check
-     * @return  A graph element at this point, or null.
+     * @param x
+     *            The x coordinate of the point to check
+     * @param y
+     *            The x coordinate of the point to check
+     * @return A graph element at this point, or null.
      */
     public SelectableGraphElement findGraphElement(int x, int y)
     {
@@ -111,14 +117,15 @@ public abstract class Graph
         return element;
     }
 
-    
     /**
      * Finds the Edge that covers the coordinate x,y. If no edge is found, null
      * is returned.
      * 
-     * @param x     the x coordinate
-     * @param y     the y coordinate
-     * @return  an edge at that position, or null
+     * @param x
+     *            the x coordinate
+     * @param y
+     *            the y coordinate
+     * @return an edge at that position, or null
      */
     private Edge findEdge(int x, int y)
     {
@@ -136,9 +143,11 @@ public abstract class Graph
      * Finds the Vertex that covers the coordinate x,y. If no vertex is found,
      * null is returned.
      * 
-     * @param x     the x coordinate
-     * @param y     the y coordinate
-     * @return  a vertex at that position, or null
+     * @param x
+     *            the x coordinate
+     * @param y
+     *            the y coordinate
+     * @return a vertex at that position, or null
      */
     private Vertex findVertex(int x, int y)
     {
