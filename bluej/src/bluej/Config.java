@@ -40,7 +40,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 796 2001-03-13 04:37:47Z mik $
+ * @version $Id: Config.java 821 2001-03-28 04:32:41Z mik $
  */
 
 public class Config
@@ -134,6 +134,14 @@ public class Config
         compilertype = Config.getPropString("bluej.compiler.type");
         if(compilertype.equals("internal"))
             compilertype = "javac";
+
+        // set system look and feel. experimental at this stage.
+//         try {
+//             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//         }
+//         catch (Exception exc) {
+//             Debug.reportError("Could not set system look-and-feel");
+//         }
 
     } // initialise
 

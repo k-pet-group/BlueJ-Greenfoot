@@ -16,13 +16,13 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Main.java 796 2001-03-13 04:37:47Z mik $
+ * @version $Id: Main.java 821 2001-03-28 04:32:41Z mik $
  */
 public class Main
 {
     public static int BLUEJ_VERSION_MAJOR = 1;
     public static int BLUEJ_VERSION_MINOR = 1;
-    public static int BLUEJ_VERSION_RELEASE = 2;
+    public static int BLUEJ_VERSION_RELEASE = 3;
     public static String BLUEJ_VERSION_SUFFIX = "";
 
 

@@ -22,13 +22,14 @@
 
 include $(OS).mk
 
-PKG_VERSION = 112
+PKG_VERSION = 113pre3
 
 SUBDIRS = \
 	src
 
 INSTALL_IMAGES = \
-	images/*.gif
+	images/*.gif \
+	images/*.jpg
 
 INSTALL_LIB_FILES = \
 	lib/abstract.tmpl \
