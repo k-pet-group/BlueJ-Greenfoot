@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import bluej.pkgmgr.target.*;
+import bluej.debugmgr.objectbench.*;
 
 /**
  * A proxy object which provides services to BlueJ extensions. 
@@ -45,7 +46,7 @@ import bluej.pkgmgr.target.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version $Id: BlueJ.java 2082 2003-06-26 16:05:15Z damiano $
+ * @version $Id: BlueJ.java 2084 2003-06-27 17:50:35Z damiano $
  */
 
 /*
@@ -528,8 +529,9 @@ public class BlueJ
     /**
      * Calls the extension to get the right menu item.
      * This is already wrapped for errors in the caller.
-     * It is right for it to create a new wrapped object each time
-     * (We do not want extensions to share objects too much, do we ?)
+     * It is right for it to create a new wrapped object each time.
+     * We do not want extensions to share objects.
+     * It is here since it can access all constructors directly.
      */
     JMenuItem getMenuItem(Object attachedObject)
       {
@@ -558,6 +560,13 @@ public class BlueJ
         return currentMenuGen.getClassMenuItem(new BClass(anId));
         }
 
+
+      // This is the case of a menu bound to an object.
+      if ( attachedObject instanceof ObjectWrapper ) 
+        {
+        ObjectWrapper aWrapper = (ObjectWrapper)attachedObject;
+        return currentMenuGen.getObjectMenuItem(new BObject(aWrapper));
+        }
 
       return null;
       }

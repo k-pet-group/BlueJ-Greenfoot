@@ -24,6 +24,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import bluej.extmgr.*;
 
 /**
  * A wrapper around a Java object that handles calling methods, inspecting, etc.
@@ -32,7 +33,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2053 2003-06-24 10:30:59Z damiano $
+ * @version $Id: ObjectWrapper.java 2084 2003-06-27 17:50:35Z damiano $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -214,6 +215,11 @@ public class ObjectWrapper extends JComponent
             });
         item.setFont(PrefMgr.getStandoutMenuFont());
         item.setForeground(envOpColour);
+
+
+        // Attach dynamic menu to this menu, Damiano
+        PopupManager popupManager = new PopupManager( this );
+        menu.addPopupMenuListener(popupManager);
 
         add(menu);
     }
