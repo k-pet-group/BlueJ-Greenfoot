@@ -28,7 +28,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2200 2003-10-02 04:15:04Z ajp $
+ * @version $Id: Package.java 2214 2003-10-15 03:18:49Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1814,7 +1814,7 @@ public final class Package extends Graph
                    thread.getName(), true);
 
 		getProject().getExecControls().showHide(true);
-		getProject().getExecControls().selectThread(thread);                   
+		getProject().getExecControls().makeSureThreadIsSelected(thread);                   
     }
 
     /**
@@ -1826,7 +1826,7 @@ public final class Package extends Graph
         showSourcePosition(thread);
 
 		getProject().getExecControls().showHide(true);
-		getProject().getExecControls().selectThread(thread);                   
+		getProject().getExecControls().makeSureThreadIsSelected(thread);                   
     }
 
     /**
@@ -1840,7 +1840,7 @@ public final class Package extends Graph
                       thread.getName(), false))
         {
 			getProject().getExecControls().setVisible(true);
-			getProject().getExecControls().selectThread(thread);
+			//getProject().getExecControls().makeSureThreadIsSelected(thread);
         }
     }
 

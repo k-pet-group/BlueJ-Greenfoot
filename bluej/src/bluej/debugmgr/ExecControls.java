@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2115 2003-07-16 05:02:43Z ajp $
+ * @version $Id: ExecControls.java 2214 2003-10-15 03:18:49Z ajp $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -258,7 +258,7 @@ public class ExecControls extends JFrame
      * This will be in one of the variable lists. We try to
      * view the relevant object that was double clicked on.
 	 */
-    public void listDoubleClick(MouseEvent event)
+    private void listDoubleClick(MouseEvent event)
     {
         Component src = event.getComponent();
 
@@ -274,7 +274,11 @@ public class ExecControls extends JFrame
     }
 
 	/**
-	 * Selects a thread for display of its details.
+	 * Checks to make sure that a particular thread is
+     * selected in the thread tree. Often when we get to this,
+     * the thread in question should already be selected so
+     * in that case we should not cause any more events, or
+     * we'll end in a cycle.
 	 * 
 	 * If the thread is already selected, this method
 	 * will ensure that the status details are up to date.
@@ -282,13 +286,15 @@ public class ExecControls extends JFrame
 	 * @param  dt  the thread to hilight in the thread
 	 *             tree and whose status we want to display.
 	 */
-	public void selectThread(DebuggerThread dt)
+	public void makeSureThreadIsSelected(DebuggerThread dt)
 	{
 		TreePath tp = threadModel.findNodeForThread(dt);
 		
 		if (tp != null) {
-			threadTree.clearSelection();
-			threadTree.addSelectionPath(tp);
+            if (!tp.equals(threadTree.getSelectionPath())) {
+			   threadTree.clearSelection();
+			   threadTree.addSelectionPath(tp);
+            }
 		}
 		else {
 			Debug.message("Thread " + dt + " no longer available for selection");
@@ -310,9 +316,9 @@ public class ExecControls extends JFrame
 	 */
 	private void setSelectedThread(DebuggerThread dt)
 	{
-		selectedThread = dt;
+        selectedThread = dt;
 
-		if (selectedThread == null) {
+		if (dt == null) {
 			stopButton.setEnabled(false);
 			stepButton.setEnabled(false);
 			stepIntoButton.setEnabled(false);
@@ -330,7 +336,7 @@ public class ExecControls extends JFrame
 
 			cardLayout.show(flipPanel, isSuspended ? "split" : "blank");
 
-			setThreadDetails();		
+            setThreadDetails();
 		}
 	}
 
@@ -371,7 +377,12 @@ public class ExecControls extends JFrame
         if (index >= 0) {
             setStackFrameDetails(index);
             selectedThread.setSelectedFrame(index);
-
+            
+            // if the UI isn't up to date, make sure the correct frame is
+            // selected in the list
+            if (stackList.getSelectedIndex() != index)
+                stackList.setSelectedIndex(index);
+                
 			project.debuggerEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_SHOWSOURCE, selectedThread));
             currentFrame = index;
         }
