@@ -18,7 +18,7 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: JavacCompilerInternal.java 1502 2002-11-12 01:51:57Z ajp $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -71,8 +71,9 @@ public class JavacCompilerInternal extends Compiler
 		if(debug)
 			args.add("-g");
 
-		if(deprecation)
-			args.add("-deprecation");
+		//if(deprecation)
+        // always use -deprecation option
+		args.add("-deprecation");
 
         if(! System.getProperty("java.vm.version").startsWith("1.3"))
             if(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14)) {
@@ -135,8 +136,7 @@ public class JavacCompilerInternal extends Compiler
            seems to cache the creation of this, so on subsequent compiles,
            the original output stream is still being used. To cope with
            both 1.3 and 1.4, we check the results of both the first stream
-           and the newly created stream - need to check this is true with
-           1.4 release version */
+           and the newly created stream */
 
         if (firstStream == null)
             firstStream = output;
@@ -187,7 +187,9 @@ public class JavacCompilerInternal extends Compiler
  */
 class ErrorStream extends PrintStream
 {
-    private boolean haserror = false;
+    private boolean haserror = false, hasfollowup = false;
+    private int ignoreCount = 0;    // when > 0, indicates number of lines to ignore
+
     private String filename, message;
     private int lineno;
 
@@ -203,6 +205,8 @@ class ErrorStream extends PrintStream
     public void reset()
     {
         haserror = false;
+        hasfollowup = false;
+        ignoreCount = 0;
     }
 
     public boolean hasError()
@@ -233,6 +237,17 @@ class ErrorStream extends PrintStream
      * We assume a certain error message format here:
      *   filename:line-number:message
      *
+     * Some examples
+
+o:\bj122\examples\appletdemo\Uncompile.java:19: cannot resolve symbol
+symbol  : variable xxx
+location: class Uncompile
+                xxx = 0;
+                ^
+o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String) in java.lang.System has been deprecated
+                System.getenv("aa");
+                      ^
+     *                      
      * We find the components by searching for the colons. Careful: MS Windows
      * systems might have a colon in the file name (if it is an absolute path
      * with a drive name included). In that case we have to ignore the first
@@ -242,12 +257,47 @@ class ErrorStream extends PrintStream
     {
         if (haserror)
             return;
+            
+        if (ignoreCount > 0) {
+            ignoreCount--;
+            return;
+        }
 
-        // Debug.message("Compiler message: " + msg);
+        // there are some error messages that give important information in the
+        // following lines. Try to munge it into a better message by utilising the
+        // second/third line of the error
+        if (hasfollowup) {
+            int colonPoint = 9;
+            String label = msg.substring(0, colonPoint);
+            String info = msg.substring(colonPoint).trim();
+            
+            if(label.equals("found   :")) {             // incompatible types
+                message += " - found " + info;
+            } else if (label.equals("required:")) {
+                message += " but expected " + info;
+                haserror = true;  
+            } else if (label.equals("symbol  :")) {     // unresolved symbol
+                message += " - " + info;                             
+                haserror = true;  
+            }
+            else                        // if not what we were expecting, bail out
+                haserror = true;  
+            
+            return;          
+        }
+
+        Debug.message("Compiler message: " + msg);
 
         int first_colon = msg.indexOf(':', 0);
         if(first_colon == -1) {
-            // cannot read format of error message
+            // no colon may mean we are processing the end of compile msgs
+            // of the form
+            // x warning(s)
+
+            if (msg.trim().endsWith("warnings") || msg.trim().endsWith("warning"))
+                return;
+
+            // otherwise, cannot read format of error message
             DialogManager.showErrorWithText(null, "compiler-error", msg);
             return;
         }
@@ -258,9 +308,9 @@ class ErrorStream extends PrintStream
         if(! filename.endsWith(".java")) {
             first_colon = msg.indexOf(':', first_colon + 1);
             if(first_colon == -1) {
-                    // cannot read format of error message
-            DialogManager.showErrorWithText(null, "compiler-error", msg);
-            return;
+                // cannot read format of error message
+                DialogManager.showErrorWithText(null, "compiler-error", msg);
+                return;
             }
             filename = msg.substring(0, first_colon);
         }
@@ -278,9 +328,19 @@ class ErrorStream extends PrintStream
             // ignore it
         }
 
-        message = msg.substring(second_colon + 1);
+        message = msg.substring(second_colon + 1).trim();
 
-        haserror = true;
+        if (message.startsWith("warning:")) {
+            // record the warnings and display them to users!!!
+            // System.out.println(lineno + " " + message.substring(8));
+            ignoreCount = 2;           
+            return;
+        }
+
+        if (message.equals("cannot resolve symbol") || message.equals("incompatible types"))
+            hasfollowup = true;
+        else
+            haserror = true;
     }
 
     /**
