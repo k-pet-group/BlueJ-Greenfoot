@@ -14,7 +14,7 @@ import bluej.debugger.*;
  * This wraps an object so you can put and remove it from the bench.
  * You get Bobjects from BConstructor or BMethods and from BField.
  *
- * @version $Id: BObject.java 1770 2003-04-09 16:24:27Z damiano $
+ * @version $Id: BObject.java 1801 2003-04-10 09:46:35Z damiano $
  */
 public class BObject
 {
@@ -74,27 +74,12 @@ public class BObject
     
 
     /**
-     * Test if this object is a null one, if so you will not be able to put it into the bench.
-     * The reasoning is that you may have a representation of a null object and this BObject may
-     * be just that.
-     */
-    public boolean isNullObject()
-        {
-        // Kind of cheating, but really we can think of it as a null object.
-        if ( ! isValid() ) return true;
-
-        return wrapper.getObject().isNullObject();
-        }
-
-
-    /**
-     * Puts this object on the Object Bench.
-     * If it is a null object you will not be able to put it.
+     * Adds this object on the Object Bench.
      * If you pass null as instanceName the object will have a predefined name.
      * 
      * @param instanceName  The name you want this object to have on the bench.
      */
-    public void putIntoBench(String instanceName)
+    public void addToBench(String instanceName)
         {
         if ( ! isValid() ) return;
 
