@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2389 2003-11-26 10:27:27Z mik $
+ * @version $Id: Package.java 2395 2003-11-27 13:32:44Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -332,7 +332,7 @@ public final class Package extends Graph
         if (pt == null) return null;
 
         // it is a getPackage 311003 Damiano
-        return getProject().getPackage(pt.getQualifiedName());
+        return getProject().getOrCreatePackageTree(pt.getQualifiedName());
     }
 
     /**
