@@ -14,9 +14,9 @@ import org.bluej.utility.*;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1662 2003-03-07 09:57:11Z damiano $
+ * @version    $Id: Submitter.java 1678 2003-03-10 10:27:58Z damiano $
  */
-public class Submitter extends Extension implements MenuGen, BJEventListener
+public class Submitter extends Extension implements MenuGen, ExtEventListener
 {
     private SubmissionDialog sd;
     private Thread submitterThread;
@@ -55,7 +55,7 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
         anAction.setEnabled(false);
         stat.bluej.setMenuGen(this);
 
-        stat.bluej.addBJEventListener(this);
+        stat.bluej.addExtEventListener(this);
     }
 
 
@@ -78,12 +78,14 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
      *
      * @param  ev  Description of the Parameter
      */
-    public void eventOccurred(BJEvent ev)
+    public void eventOccurred(ExtEvent ev)
     {
-        int evType = ev.getEvent();
 
         // nothing to do if it is not a package event.
         if (!(ev instanceof bluej.extensions.event.PackageEvent)) return;
+
+        PackageEvent pkgEvent = (PackageEvent)ev;
+        int evType = pkgEvent.getEvent();
 
         if (evType == PackageEvent.PACKAGE_OPENED) {
             if ((++numPackagesOpen) > 0)
