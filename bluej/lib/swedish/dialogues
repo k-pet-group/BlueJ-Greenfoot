@@ -118,6 +118,13 @@ The jar file could not be written correctly.
 (Check the file system for access rights and
 disk space availability.)
 
+error-jar-exists
+The jar file you have selected already exists.
+Do you want to continue?
+Overwrite
+Cancel
+null
+
 invalid-class-name
 Icke godkänt klassnamn.
 

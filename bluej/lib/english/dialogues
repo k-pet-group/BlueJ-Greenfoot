@@ -84,7 +84,7 @@ the key bindings. The bindings were not
 saved.
 
 error-no-templates
-The specified template directory (the directory where 
+The specified template directory (the directory where
 BlueJ finds the class templates) does not exist. It
 is defined with the property "bluej.templatePath" in
 <bluej-home>/lib/bluej/defs. Check and fix this property.
@@ -118,6 +118,13 @@ error-writing-jar
 The jar file could not be written correctly.
 (Check the file system for access rights and
 disk space availability.)
+
+error-jar-exists
+The jar file you have selected already exists.
+Do you want to continue?
+Overwrite
+Cancel
+null
 
 invalid-class-name
 Invalid Class Name.
@@ -166,13 +173,13 @@ Regenerate
 Cancel
 
 doctool-error
-Javadoc reported an error. It could be that there is a 
-syntax error in one of the files you tried to generate 
-a documentation for. It could also be that the JDK 
+Javadoc reported an error. It could be that there is a
+syntax error in one of the files you tried to generate
+a documentation for. It could also be that the JDK
 documentation URL specified in the preferences is incorrect.
-Make sure that all your Java files are compiled and the 
-documentation URL is accessible or disabled. Then try again. 
-If this message appears again you should check the log file 
+Make sure that all your Java files are compiled and the
+documentation URL is accessible or disabled. Then try again.
+If this message appears again you should check the log file
 with the error messages from Javadoc:
 
 severe-doc-trouble

@@ -128,6 +128,13 @@ Die "jar"-Datei konnte nicht geschrieben
 werden. (Zugriffsrechte fehlen? Dateisystem
 voll?)
 
+error-jar-exists
+The jar file you have selected already exists.
+Do you want to continue?
+Overwrite
+Cancel
+null
+
 invalid-class-name
 Ungültiger Klassenname.
 
