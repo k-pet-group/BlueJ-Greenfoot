@@ -19,7 +19,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 149 1999-06-30 01:22:09Z bruce $
+ ** @version $Id: AppletClassRole.java 168 1999-07-08 01:42:33Z bruce $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -73,15 +73,24 @@ public class AppletClassRole extends ClassRole
      */
     public void load(Properties props, String prefix) throws NumberFormatException
     {
-	int numberParameters = 
-	    Integer.parseInt(props.getProperty(prefix + ".numberAppletParameters"));
+	String value = props.getProperty(prefix + ".numberAppletParameters");
+
+	int numberParameters = 0;
+	if(value != null)
+	    numberParameters = Integer.parseInt(value);
 	if(numberParameters > 0) {
 	    appletParams = new String[numberParameters];
 	    for(int i = 0; i < numberParameters; i++) 
 		appletParams[i] = props.getProperty(prefix + ".appletParameter" + (i + 1));
 	}
-	appletHeight = Integer.parseInt(props.getProperty(prefix + ".appletHeight"));
-	appletWidth = Integer.parseInt(props.getProperty(prefix + ".appletWidth"));
+
+	value = props.getProperty(prefix + ".appletHeight");
+	if(value != null)
+	    appletHeight = Integer.parseInt(value);
+
+	value = props.getProperty(prefix + ".appletWidth");
+	if(value != null)
+	    appletWidth = Integer.parseInt(value);
 
     }
 

@@ -12,7 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: RunAppletDialog.java 149 1999-06-30 01:22:09Z bruce $
+ ** @version $Id: RunAppletDialog.java 168 1999-07-08 01:42:33Z bruce $
  ** @author Bruce Quig
  **
  ** Dialog for generating HTML and running applets.
@@ -122,7 +122,7 @@ public class RunAppletDialog extends JDialog
 			    3, 1, 1, 1, GridBagConstraints.WEST);
 	
 	addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel("Add new parameter"), 
-			    4, 1, 2, 1, GridBagConstraints.WEST); 
+			    4, 2, 2, 1, GridBagConstraints.CENTER); 
 
 	parameterList = new JList(appletParameters);
 	parameterList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -131,32 +131,32 @@ public class RunAppletDialog extends JDialog
 	JScrollPane parameterScroller = new JScrollPane(parameterList);
 	parameterScroller.setColumnHeaderView(new JLabel("Applet parameters", JLabel.CENTER));
 	addGridBagComponent(webPanel, gridBag, gridConstraints, parameterScroller, 
-			    0, 2, 4, 3, GridBagConstraints.CENTER);
+			    0, 2, 4, 4, GridBagConstraints.CENTER);
 
 	addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel("Name = "), 
-			    4, 2, 1, 1, GridBagConstraints.WEST);
+			    4, 3, 1, 1, GridBagConstraints.WEST);
 
 	paramNameField = new JTextField(16);
 	addGridBagComponent(webPanel, gridBag, gridConstraints, paramNameField, 
-			    5, 2, 1, 1, GridBagConstraints.WEST);
+			    5, 3, 1, 1, GridBagConstraints.WEST);
 
 	addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel("Value = "), 
-			    4, 3, 1, 1, GridBagConstraints.WEST);
+			    4, 4, 1, 1, GridBagConstraints.WEST);
 
 	paramValueField = new JTextField(16);
 	addGridBagComponent(webPanel, gridBag, gridConstraints, paramValueField, 
-			    5, 3, 1, 1, GridBagConstraints.WEST);
+			    5, 4, 1, 1, GridBagConstraints.WEST);
 
 	deleteButton = new JButton(DELETE_BUTTON);
 	deleteButton.addActionListener(this);
 	addGridBagComponent(webPanel, gridBag, gridConstraints, deleteButton, 
-			    4, 4, 1, 1, GridBagConstraints.EAST);
+			    4, 5, 1, 1, GridBagConstraints.EAST);
  	deleteButton.setEnabled(false);
 
 	addButton = new JButton(ADD_BUTTON);
 	addButton.addActionListener(this);
 	addGridBagComponent(webPanel, gridBag, gridConstraints, addButton, 
-			    5, 4, 1, 1, GridBagConstraints.WEST);
+			    5, 5, 1, 1, GridBagConstraints.WEST);
 	addButton.setEnabled(true);
 
  	getContentPane().add("Center", webPanel);

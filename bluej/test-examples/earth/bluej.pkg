@@ -1,5 +1,5 @@
 #BlueJ project file
-#Thu May 27 13:48:04 GMT+10:00 1999
+#Thu Jul 08 11:00:18 GMT+10:00 1999
 target4.name=World
 target5.type=ClassTarget
 target1.height=50
@@ -16,6 +16,7 @@ dependency2.type=UsesDependency
 dependency5.to=World
 dependency6.to=Simulator
 dependency3.type=UsesDependency
+target5.valid=true
 dependency7.to=World
 dependency4.type=UsesDependency
 dependency8.to=Creature
@@ -23,9 +24,11 @@ dependency9.to=Creature
 dependency5.type=UsesDependency
 dependency1.from=World
 target5.y=150
+target2.valid=true
 target5.modifiers=1
 target5.x=230
 dependency6.type=UsesDependency
+target4.valid=true
 target3.y=60
 target3.x=290
 dependency2.from=Creature
@@ -37,7 +40,9 @@ target5.width=80
 dependency3.from=Fish
 dependency8.type=ExtendsDependency
 target5.height=50
+target1.valid=true
 dependency4.from=Fish
+target3.valid=true
 target2.modifiers=1
 dependency9.type=ExtendsDependency
 package.numTargets=5
