@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 881 2001-05-07 03:53:36Z ajp $
+ ** @version $Id: ExecControls.java 980 2001-09-28 04:57:54Z bquig $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -38,7 +38,18 @@ public class ExecControls extends JFrame
         Config.getString("close");
     private static final String systemThreadText =
         Config.getString("debugger.execControls.systemThreads");
-
+    private static final String haltButtonText =
+        Config.getString("debugger.execControls.haltButtonText");
+    private static final String stepButtonText =
+        Config.getString("debugger.execControls.stepButtonText");
+    private static final String stepIntoButtonText =
+        Config.getString("debugger.execControls.stepIntoButtonText");
+    private static final String continueButtonText =
+        Config.getString("debugger.execControls.continueButtonText");
+    private static final String terminateButtonText =
+        Config.getString("debugger.execControls.terminateButtonText");
+        
+        
     private static String[] empty = new String[0];
 
     // === static factory ===
@@ -340,46 +351,46 @@ public class ExecControls extends JFrame
         buttonBox.setLayout(new GridLayout(1,0));
 
         Insets margin = new Insets(0, 0, 0, 0);
-        stopButton = addButton("image.stop", buttonBox, margin);
-        stepButton = addButton("image.step", buttonBox, margin);
-        stepIntoButton = addButton("image.step_into", buttonBox, margin);
-        continueButton = addButton("image.continue", buttonBox, margin);
-        terminateButton = addButton("image.terminate", buttonBox, margin);
+        stopButton = addButton("image.stop", haltButtonText, buttonBox, margin);
+        stepButton = addButton("image.step", stepButtonText, buttonBox, margin);
+        stepIntoButton = addButton("image.step_into", stepIntoButtonText, buttonBox, margin);
+        continueButton = addButton("image.continue", continueButtonText, buttonBox, margin);
+        terminateButton = addButton("image.terminate", terminateButtonText, buttonBox, margin);
 
         contentPane.add(buttonBox, BorderLayout.SOUTH);
 
         // Create instance variable panel
 
         instanceList = new JList(new DefaultListModel());
-            instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            instanceList.addListSelectionListener(this);
-            instanceList.setVisibleRowCount(5);
-            instanceList.setFixedCellWidth(150);
+        instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        instanceList.addListSelectionListener(this);
+        instanceList.setVisibleRowCount(5);
+        instanceList.setFixedCellWidth(150);
         JScrollPane instanceScrollPane = new JScrollPane(instanceList);
-            instanceScrollPane.setColumnHeaderView(new JLabel(instanceTitle));
+        instanceScrollPane.setColumnHeaderView(new JLabel(instanceTitle));
 
 
         // Create local variable panel
 
         localList = new JList(new DefaultListModel());
-            localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            localList.addListSelectionListener(this);
-            localList.setVisibleRowCount(5);
-            localList.setFixedCellWidth(150);
+        localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        localList.addListSelectionListener(this);
+        localList.setVisibleRowCount(5);
+        localList.setFixedCellWidth(150);
         JScrollPane localScrollPane = new JScrollPane(localList);
-            localScrollPane.setColumnHeaderView(new JLabel(localTitle));
+        localScrollPane.setColumnHeaderView(new JLabel(localTitle));
 
-            // add mouse listener to monitor for double clicks
+        // add mouse listener to monitor for double clicks
 
-            MouseListener mouseListener = new MouseAdapter() {
-                    public void mouseClicked(MouseEvent e) {
-                        if (e.getClickCount() == 2) {
-                            listDoubleClick(e);
-                        }
-                    }
-                };
-            instanceList.addMouseListener(mouseListener);
-            localList.addMouseListener(mouseListener);
+        MouseListener mouseListener = new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    listDoubleClick(e);
+                }
+            }
+        };
+        instanceList.addMouseListener(mouseListener);
+        localList.addMouseListener(mouseListener);
 
         // Create variable display area
 
@@ -390,11 +401,11 @@ public class ExecControls extends JFrame
         // Create stack listing panel
 
         stackList = new JList(new DefaultListModel());
-            stackList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            stackList.addListSelectionListener(this);
-            stackList.setFixedCellWidth(150);
+        stackList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        stackList.addListSelectionListener(this);
+        stackList.setFixedCellWidth(150);
         JScrollPane stackScrollPane = new JScrollPane(stackList);
-            stackScrollPane.setColumnHeaderView(new JLabel(stackTitle));
+        stackScrollPane.setColumnHeaderView(new JLabel(stackTitle));
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                                               stackScrollPane, varPane);
@@ -402,41 +413,41 @@ public class ExecControls extends JFrame
 
         // Create thread panel
         JPanel threadPanel = new JPanel(new BorderLayout());
-            threadList = new JList(new DefaultListModel());
-            threadList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            threadList.addListSelectionListener(this);
-            threadList.setVisibleRowCount(4);
+        threadList = new JList(new DefaultListModel());
+        threadList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        threadList.addListSelectionListener(this);
+        threadList.setVisibleRowCount(4);
         JScrollPane threadScrollPane = new JScrollPane(threadList);
-            threadScrollPane.setColumnHeaderView(new JLabel(threadTitle));
-            threadPanel.add(threadScrollPane, BorderLayout.CENTER);
+        threadScrollPane.setColumnHeaderView(new JLabel(threadTitle));
+        threadPanel.add(threadScrollPane, BorderLayout.CENTER);
 
 
         JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new BoxLayout(buttonPanel,
+        buttonPanel.setLayout(new BoxLayout(buttonPanel,
                                                 BoxLayout.Y_AXIS));
-            buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
-            updateButton = new JButton(updateText);
-            updateButton.addActionListener(this);
-            buttonPanel.add(updateButton);
-            makeButtonNotGrow(updateButton);
+        updateButton = new JButton(updateText);
+        updateButton.addActionListener(this);
+        buttonPanel.add(updateButton);
+        makeButtonNotGrow(updateButton);
 
-            closeButton = new JButton(closeText);
-            closeButton.addActionListener(this);
-            buttonPanel.add(closeButton);
-            makeButtonNotGrow(closeButton);
+        closeButton = new JButton(closeText);
+        closeButton.addActionListener(this);
+        buttonPanel.add(closeButton);
+        makeButtonNotGrow(closeButton);
 
-            buttonPanel.add(Box.createVerticalGlue());
+        buttonPanel.add(Box.createVerticalGlue());
 
         threadPanel.add(buttonPanel, BorderLayout.EAST);
 
         showSystemThreads = new JCheckBox(systemThreadText);
-            Font smallFont = showSystemThreads.getFont().deriveFont(10);
-            showSystemThreads.setFont(smallFont);
-            showSystemThreads.addActionListener(this);
+        Font smallFont = showSystemThreads.getFont().deriveFont(10);
+        showSystemThreads.setFont(smallFont);
+        showSystemThreads.addActionListener(this);
         JPanel checkBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,5,0));
         //checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(0,5,5,0));
-            checkBoxPanel.add(showSystemThreads);
+        checkBoxPanel.add(showSystemThreads);
         threadPanel.add(checkBoxPanel, BorderLayout.SOUTH);
 
         JSplitPane mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
@@ -447,21 +458,19 @@ public class ExecControls extends JFrame
 
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent event)
-                {
-                    Window win = (Window)event.getSource();
-                    win.setVisible(false);
-                    // Main.execWindowHidden();  // inform all frames that exec win is gone
-                }
-            });
+            public void windowClosing(WindowEvent event){
+                Window win = (Window)event.getSource();
+                win.setVisible(false);
+                // Main.execWindowHidden();  // inform all frames that exec win is gone
+            }
+        });
 
         // save position when window is moved
         addComponentListener(new ComponentAdapter() {
-                public void componentMoved(ComponentEvent event)
-                {
-                    Config.putLocation("bluej.debugger", getLocation());
-                }
-            });
+            public void componentMoved(ComponentEvent event){
+                Config.putLocation("bluej.debugger", getLocation());
+            }
+        });
 
         setLocation(Config.getLocation("bluej.debugger"));
 
@@ -477,16 +486,19 @@ public class ExecControls extends JFrame
     }
 
     /**
-     * Create a button and add it to a panel.
+     * Create a text & image button and add it to a panel.
      *
      * @param imgRsrcName    The name of the image resource for the button.
      * @param panel          The panel to add the button to.
      * @param margin         The margin around the button.
      */
-    private JButton addButton(String imgRsrcName, JPanel panel, Insets margin)
+    private JButton addButton(String imgRsrcName, String buttonText, JPanel panel, Insets margin)
     {
         JButton button;
-        button = new JButton(Config.getImageAsIcon(imgRsrcName));
+        button = new JButton(buttonText, Config.getImageAsIcon(imgRsrcName));
+        button.setVerticalTextPosition(AbstractButton.BOTTOM);
+        button.setHorizontalTextPosition(AbstractButton.CENTER);
+
         button.setMargin(margin);
         button.addActionListener(this);
         panel.add(button);
