@@ -9,21 +9,16 @@ import java.awt.geom.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: Graph.java 2598 2004-06-12 20:08:18Z mik $
  */
 public abstract class Graph
 {
-    public final static String UML="uml";
-    public final static String BLUE="blue";
-
     private static final int RIGHT_PLACEMENT_MIN = 300;
     private static final int WHITESPACE_SIZE = 10;
     
-
     public abstract Iterator getVertices();
     public abstract Iterator getEdges();
     
-
     
     public void setActiveGraphElement(GraphElement ge)
     {
