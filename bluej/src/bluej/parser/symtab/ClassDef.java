@@ -20,7 +20,6 @@ class ClassDef extends HasImports
     static final int CLASS = 0;
     static final int INTERFACE = 1;
     static final int EITHER = 2;
-    //static final int ENUM = 3;
 
     /** The type of object this represents
      *  We may not initially know, as a statement like
@@ -296,7 +295,7 @@ class ClassDef extends HasImports
 
     /** resolve referenced symbols */
     void resolveTypes(SymbolTable symbolTable) {
-        System.err.println("resolving: "+getQualifiedName());
+        //System.err.println("resolving: "+getQualifiedName());
         // resolve superclass laundry
         super.resolveTypes(symbolTable);
 

@@ -787,8 +787,7 @@ public class SymbolTable
      */
     void setScope(JavaToken t) {
         Definition def = lookup(t.getText());
-	System.out.println("   using class (scope): " + def.getName());
-
+		//Debug.message("   using class (scope): " + def.getName());
         if (def != null) {
             def.addReference(getOccurrence(t));
             setScope(def);
@@ -812,8 +811,8 @@ public class SymbolTable
      *  the definition to set based on its name...
      */
     void setScope(String name) {
-	System.out.println("   setting scope: " + name);
-        Definition def = lookup(name);
+	    //Debug.message.println("   setting scope: " + name);
+	    Definition def = lookup(name);
         if (def != null)
             setScope(def);
     }
