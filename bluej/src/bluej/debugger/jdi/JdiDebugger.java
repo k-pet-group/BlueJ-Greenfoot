@@ -4,7 +4,7 @@
 
    import bluej.Config;
    import bluej.BlueJEvent;
-   import bluej.utility.Debug;
+import bluej.utility.*;
    import bluej.runtime.ExecServer;
    import bluej.terminal.Terminal;
 
@@ -31,7 +31,7 @@
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 719 2000-12-12 04:15:18Z ajp $
+ * @version $Id: JdiDebugger.java 802 2001-03-13 05:20:37Z ajp $
  *
  * The startup process is as follows:
  *
@@ -171,6 +171,8 @@
          (Connector.Argument)arguments.get("main");
          Connector.Argument optionsArg =
          (Connector.Argument)arguments.get("options");
+        Connector.Argument quoteArg =
+            (Connector.Argument)arguments.get("quote");
       //Connector.Argument suspendArg =
       //    (Connector.Argument)arguments.get("suspend");
 
@@ -181,10 +183,22 @@
          }
          mainArg.setValue(SERVER_CLASSNAME);
       //suspendArg.setValue("false");
+        System.out.println("Quote arg = ->" + quoteArg.value());
+        System.out.println("Launching with local VM classpath = " + System.getProperty("java.class.path"));
 
          try {
             String vmOptions = Config.getSystemPropString("VmOptions");
-            optionsArg.setValue(vmOptions);
+            String localVMClassPath = System.getProperty("java.class.path");
+
+            if (quoteArg.value().equals("\"")) {
+                localVMClassPath = "\"" + localVMClassPath + "\"";
+            }
+            if (quoteArg.value().equals("\\")) {
+                localVMClassPath = Utility.quoteSpaces(localVMClassPath, "\\");
+            }
+
+            System.out.println("quoted launch classpath is " + localVMClassPath);
+            optionsArg.setValue(vmOptions + " -classpath " + localVMClassPath);
             machine = connector.launch(arguments);
 
             process = machine.process();
