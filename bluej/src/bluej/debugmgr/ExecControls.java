@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2504 2004-04-21 01:48:45Z davmac $
+ * @version $Id: ExecControls.java 2644 2004-06-21 20:37:08Z polle $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -661,6 +661,7 @@ public class ExecControls extends JFrame
             if (selectedThread.isSuspended()) {
                 selectedThread.step();
             }
+            ObjectInspector.updateInspectors();
         }
     }
     
