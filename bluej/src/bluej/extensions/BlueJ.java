@@ -21,6 +21,7 @@ import bluej.extensions.event.InvocationEvent;
 import bluej.extensions.event.InvocationEventListener;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extensions.event.ApplicationEventListener;
+import bluej.extensions.event.CompileListener;
 
 /**
  * A proxy object which provides services to BlueJ extensions. 
@@ -52,7 +53,7 @@ import bluej.extensions.event.ApplicationEventListener;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1891 2003-04-25 09:32:30Z damiano $
+ * @version $Id: BlueJ.java 1892 2003-04-25 09:35:41Z damiano $
  */
 
 /*
@@ -431,7 +432,7 @@ public class BlueJ
     /**
      * Registers a listener for compile events.
      */
-    public void addCompileEventListener (CompileEventListener listener)
+    public void addCompileListener (CompileListener listener)
     {
         if (listener != null) compileListeners.add(listener);
     }
@@ -439,7 +440,7 @@ public class BlueJ
     /**
      * Removes the specified listener so no that it no longer receives events when a package is closing.
      */
-    public void removeCompileEventListener (CompileEventListener listener)
+    public void removeCompileListener (CompileListener listener)
     {
         if (listener != null) compileListeners.remove(listener);
     }
@@ -531,7 +532,7 @@ public class BlueJ
         
         for (Iterator iter = compileListeners.iterator(); iter.hasNext(); ) 
             {
-            CompileEventListener eventListener = (CompileEventListener)iter.next();
+            CompileListener eventListener = (CompileListener)iter.next();
             if ( thisEvent == CompileEvent.COMPILE_START_EVENT )    
               eventListener.compileStarted(event);
             if ( thisEvent == CompileEvent.COMPILE_ERROR_EVENT )    
