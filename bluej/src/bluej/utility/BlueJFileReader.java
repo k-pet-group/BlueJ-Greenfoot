@@ -4,23 +4,30 @@ import java.util.*;
 import java.io.*;
 
 /**
- * BlueJFileReader - a (static) class grouping all functions to read and
- * write BlueJ specific files.
- *
+ * BlueJFileReader - a (static) class grouping all functions to read and write
+ * BlueJ specific files.
+ * 
  * The BlueJ files are help files (used for compiler help, exception help,
- * editor help), dialogue files (for message and error dialogues) and
- * templates (for class skeletons).
- *
- * Help texts and dialogue texts are handled through the "readHelpText"
- * method. The files consist of text IDs (a short string) followed by
- * the full text.
- *
- * Class skeletons (handled by the "translateFile" method) are text files
- * with place holders (variables) in them that will be replaced using a
- * dictionary.
- *
- * @author  Michael Kolling
- * @version $Id: BlueJFileReader.java 1290 2002-07-24 01:52:04Z bquig $
+ * editor help), dialogue files (for message and error dialogues) and templates
+ * (for class skeletons).
+ * 
+ * Help texts and dialogue texts are handled through the "readHelpText" method.
+ * The files consist of text IDs (a short string) followed by the full text.
+ * 
+ * Class skeletons (handled by the "translateFile" method) are text files with
+ * place holders (variables) in them that will be replaced using a dictionary.
+ * 
+ * <br>
+ * 
+ * The files are expected to be in ISO 8859-1 character encoding. For characters
+ * that cannot be directly represented in this encoding, <a
+ * href="http://java.sun.com/docs/books/jls/html/3.doc.html#100850">Unicode
+ * escapes </a> are used; however, only a single 'u' character is allowed in an
+ * escape sequence. The native2ascii tool can be used to convert property files
+ * to and from other character encodings.
+ * 
+ * @author Michael Kolling
+ * @version $Id: BlueJFileReader.java 2831 2004-08-04 10:50:20Z polle $
  */
 public class BlueJFileReader
 {
@@ -30,6 +37,8 @@ public class BlueJFileReader
      * Help files are named <language>/<baseFileName>.help (for example
      * "english/moe.help"). Help texts inside the file are identified by
      * a help ID (a string).
+     *
+     * The files are expected to be in ISO 8859-1 character encoding.
      *
      * @param baseFileName  Base name of the help file
      * @param textID        ID string for the help message
@@ -45,7 +54,7 @@ public class BlueJFileReader
         boolean found = false;
 
         try {
-            in = new BufferedReader(new FileReader(file));
+            in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "8859_1"));
             String msg;
             String line;
             String helptext = "";
