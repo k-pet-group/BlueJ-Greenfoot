@@ -11,7 +11,7 @@ import javax.swing.*;
 
 /**
  ** Some generally useful utility methods available to all of bluej.
- ** $Id: Utility.java 417 2000-04-04 02:57:53Z bquig $
+ ** $Id: Utility.java 472 2000-05-12 06:54:15Z bquig $
  ** @author Michael Cahill
  ** @author Justin Tan
  ** @author Michael Kolling
@@ -372,12 +372,12 @@ public class Utility
         // if there is are tab(s) in the String
         if(originalString.indexOf('\t') != -1) {
             StringBuffer buffer = new StringBuffer(originalString);
-            for(int i = 0; i < originalString.length(); i++) {
+            for(int i = 0; i < buffer.length(); i++) {
                 if(buffer.charAt(i) == '\t') {
                     buffer.deleteCharAt(i);
                     // calculate how many spaces to add
                     int numberOfSpaces = tabSize - (i % tabSize);
-                    for(int j = 0; j < numberOfSpaces; j++) 
+                    for(int j = 0; j < numberOfSpaces; j++)  
                         buffer.insert(i, ' ');
                 }
             }
