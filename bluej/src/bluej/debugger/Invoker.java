@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: Invoker.java 1470 2002-10-24 13:12:07Z jckm $
  */
 
 public class Invoker extends Thread
@@ -612,14 +612,15 @@ public class Invoker extends Thread
                 if(expectResult) {
                     DebuggerObject result = null;
                     if (member instanceof MethodView && ((MethodView)member).isVoid());
-                    else result = Debugger.debugger.getStaticValue(
-                                                                   shellClassName,
+                    else result = Debugger.debugger.getStaticValue(shellClassName,
                                                                    "__bluej_runtime_result");
-                    if(constructing) {
-                        watcher.putResult(result, instanceName);
-                    }
-                    else {
-                        watcher.putResult(result, resultName);
+                    if (watcher != null) {
+                        if(constructing) {
+                            watcher.putResult(result, instanceName);
+                        }
+                        else {
+                            watcher.putResult(result, resultName);
+                        }
                     }
                 }
                 executionEvent.setResult (ExecutionEvent.NORMAL_EXIT);
@@ -630,32 +631,33 @@ public class Invoker extends Thread
                 // possible change: currently, exits don't get reported for
                 // void methods. maybe: exits should get reported if return
                 // value != 0
-                if(watcher != null) {
-                    ExceptionDescription exc =
-                        Debugger.debugger.getException();
+                {
+                    ExceptionDescription exc = Debugger.debugger.getException();
                     pkg.reportExit(exc.getText());
-                    watcher.putError (exc.getText());
+                    if (watcher != null) watcher.putError (exc.getText());
+                    executionEvent.setResult (ExecutionEvent.FORCED_EXIT);
                 }
-                executionEvent.setResult (ExecutionEvent.FORCED_EXIT);
                 break;
 
             case Debugger.EXCEPTION:
-                ExceptionDescription exc = Debugger.debugger.getException();
-                String text = exc.getClassName();
-                if(text != null) {
-                    text = JavaNames.stripPrefix(text) + ":\n" + exc.getText();
-                    pkg.exceptionMessage(exc.getStack(), text, false);
-                    watcher.putError (text);
-                } else {
-                    pkg.reportException(exc.getText());
-                    watcher.putError (exc.getText());
+                {
+                    ExceptionDescription exc = Debugger.debugger.getException();
+                    String text = exc.getClassName();
+                    if(text != null) {
+                        text = JavaNames.stripPrefix(text) + ":\n" + exc.getText();
+                        pkg.exceptionMessage(exc.getStack(), text, false);
+                        if (watcher != null) watcher.putError (text);
+                    } else {
+                        pkg.reportException(exc.getText());
+                        if (watcher != null) watcher.putError (exc.getText());
+                    }
+                    executionEvent.setResult (ExecutionEvent.EXCEPTION_EXIT);
                 }
-                executionEvent.setResult (ExecutionEvent.EXCEPTION_EXIT);
                 break;
 
             case Debugger.TERMINATED:  // terminated by user
                 // nothing to do
-                watcher.putError ("Terminated");
+                if (watcher != null) watcher.putError ("Terminated");
                 executionEvent.setResult (ExecutionEvent.TERMINATED_EXIT);
                 break;
 
