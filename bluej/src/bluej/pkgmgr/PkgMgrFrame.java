@@ -7,7 +7,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.*;
-import java.awt.PrintJob;
+import java.awt.print.*;
 import java.awt.AWTEvent;
 
 import java.util.Vector;
@@ -30,10 +30,11 @@ import bluej.terminal.Terminal;
 import bluej.terminal.TerminalButtonModel;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.browser.LibraryBrowser;
+import bluej.graph.Graph;
 
 public class PkgMgrFrame extends PkgFrame
 
-implements BlueJEventListener
+    implements BlueJEventListener, Printable
 {
     private static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
     private static String referenceUrl = Config.getPropString("bluej.url.reference");
@@ -56,6 +57,9 @@ implements BlueJEventListener
 
     private static LibraryBrowser browser = null;
     private static ExecControls execCtrlWindow = null;
+
+    private PageFormat pageFormat;
+    // private static final String notationStyle = Config.getDefaultPropString("bluej.notation.style", Graph.UML);
 
     // instance fields:
 
@@ -202,183 +206,183 @@ implements BlueJEventListener
      */
     protected void handleAction(AWTEvent evt)
     {
-	Object src = evt.getSource();
-	Integer evtIdObj = (Integer)actions.get(src);
-	int evtId = (evtIdObj != null) ? evtIdObj.intValue() : -1;
-	String name;
-	int tmp;
+        Object src = evt.getSource();
+        Integer evtIdObj = (Integer)actions.get(src);
+        int evtId = (evtIdObj != null) ? evtIdObj.intValue() : -1;
+        String name;
+        int tmp;
 
-	// Always reset unless one of these buttons are pressed
-	if (evtId != EDIT_NEWUSES && evtId != EDIT_NEWINHERITS) {
-	    resetDependencyButtons();
-	    pkg.setState(Package.S_IDLE);
-	}
-	clearStatus();
+        // Always reset unless one of these buttons are pressed
+        if (evtId != EDIT_NEWUSES && evtId != EDIT_NEWINHERITS) {
+            resetDependencyButtons();
+            pkg.setState(Package.S_IDLE);
+        }
+        clearStatus();
 
-	switch(evtId) {
-	    // Package commands
-	case PKG_NEW:
-	    doNewPackage();
-	    break;
+        switch(evtId) {
+            // Package commands
+        case PKG_NEW:
+            doNewPackage();
+            break;
 
-	case PKG_OPEN:
-	    doOpen();
-	    break;
+        case PKG_OPEN:
+            doOpen();
+            break;
 
-	case PKG_CLOSE:
-	    closeFrame(this);
-	    break;
+        case PKG_CLOSE:
+            closeFrame(this);
+            break;
 
-	case PKG_SAVE:
-	    doSave();
-	    setStatus(packageSaved);
-	    break;
+        case PKG_SAVE:
+            doSave();
+            setStatus(packageSaved);
+            break;
 
-	case PKG_SAVEAS:
-	    doSaveAs();
-	    break;
+        case PKG_SAVEAS:
+            doSaveAs();
+            break;
 
-	case PKG_IMPORTCLASS:
-	    importClass();
-	    break;
+        case PKG_IMPORTCLASS:
+            importClass();
+            break;
 
-	case PKG_PRINT:
-	    print();
-	    break;
+        case PKG_PRINT:
+            print();
+            break;
 
-	case PKG_QUIT:
-	    int answer = 0;
-	    if(frameCount() > 1)
-		answer = DialogManager.askQuestion(this, "quit-all");
-	    if(answer == 0) {
-		bluej.Main.exit();
-	    }
-	    break;
+        case PKG_QUIT:
+            int answer = 0;
+            if(frameCount() > 1)
+                answer = DialogManager.askQuestion(this, "quit-all");
+            if(answer == 0) {
+                bluej.Main.exit();
+            }
+            break;
 
 
-	    // Edit commands
-	case EDIT_NEWCLASS:
-	    createNewClass();
-	    break;
+            // Edit commands
+        case EDIT_NEWCLASS:
+            createNewClass();
+            break;
 
-	case EDIT_REMOVECLASS:
-	    removeClass();
-	    break;
+        case EDIT_REMOVECLASS:
+            removeClass();
+            break;
 
-	case EDIT_NEWUSES:
-	    pkg.setState(Package.S_CHOOSE_USES_FROM);
-	    setStatus(chooseUsesFrom);
-	    break;
+        case EDIT_NEWUSES:
+            pkg.setState(Package.S_CHOOSE_USES_FROM);
+            setStatus(chooseUsesFrom);
+            break;
 
-	case EDIT_NEWINHERITS:
-	    pkg.setState(Package.S_CHOOSE_EXT_FROM);
-	    setStatus(chooseInhFrom);
-	    break;
+        case EDIT_NEWINHERITS:
+            pkg.setState(Package.S_CHOOSE_EXT_FROM);
+            setStatus(chooseInhFrom);
+            break;
 
-	case EDIT_REMOVEARROW:
-	    pkg.setState(Package.S_DELARROW);
-	    setStatus(chooseArrow);
-	    break;
+        case EDIT_REMOVEARROW:
+            pkg.setState(Package.S_DELARROW);
+            setStatus(chooseArrow);
+            break;
 
-	    // Tools commands
-	case TOOLS_COMPILE:
-	    pkg.compile();
-	    break;
+            // Tools commands
+        case TOOLS_COMPILE:
+            pkg.compile();
+            break;
 
-	case TOOLS_COMPILESELECTED:
-	    DialogManager.NYI(this);
-	    break;
+        case TOOLS_COMPILESELECTED:
+            DialogManager.NYI(this);
+            break;
 
-	case TOOLS_REBUILD:
-	    pkg.rebuild();
-	    break;
+        case TOOLS_REBUILD:
+            pkg.rebuild();
+            break;
 
-//	case TOOLS_BROWSE:
-/*
-	    DialogManager.showText(this,
-		"The library browser is not implemented in this version.\n" +
-		"To browse the Java standard libraries, select \"Java\n" +
-		"Class Libraries...\" from the Help menu.");
-*/
-/*
-  	    // offset browser from this window
-  	    getBrowser().setLocation(this.getLocation().x + 100,
- 				     this.getLocation().y + 100);
-  	    getBrowser().invalidate();
- 	    getBrowser().validate();
-  	    getBrowser().setVisible(true);
-	    break;
-*/
-	case TOOLS_PREFERENCES:
-		PrefMgrDialog.showDialog(this);
-		break;
+            //	case TOOLS_BROWSE:
+            /*
+              DialogManager.showText(this,
+              "The library browser is not implemented in this version.\n" +
+              "To browse the Java standard libraries, select \"Java\n" +
+              "Class Libraries...\" from the Help menu.");
+            */
+            /*
+              // offset browser from this window
+              getBrowser().setLocation(this.getLocation().x + 100,
+              this.getLocation().y + 100);
+              getBrowser().invalidate();
+              getBrowser().validate();
+              getBrowser().setVisible(true);
+              break;
+            */
+        case TOOLS_PREFERENCES:
+            PrefMgrDialog.showDialog(this);
+            break;
 
-	    // View commands
-	case VIEW_SHOWUSES:
-	    toggleShowUses(src);
-	    break;
+            // View commands
+        case VIEW_SHOWUSES:
+            toggleShowUses(src);
+            break;
 
-	case VIEW_SHOWINHERITS:
-	    toggleShowExtends(src);
-	    break;
+        case VIEW_SHOWINHERITS:
+            toggleShowExtends(src);
+            break;
 
-	case VIEW_SHOWCONTROLS:
-	    showHideExecControls(true, true);
-	    break;
+        case VIEW_SHOWCONTROLS:
+            showHideExecControls(true, true);
+            break;
 
-	case VIEW_CLEARTERMINAL:
-	    clearTerminal();
-	    break;
+        case VIEW_CLEARTERMINAL:
+            clearTerminal();
+            break;
 
-	    // Group work commands
-	case GRP_CREATE:
-	case GRP_OPEN:
-	case GRP_UPDATESELECTED:
-	case GRP_UPDATEALL:
-	case GRP_COMMITSELECTED:
-	case GRP_COMMITALL:
-	case GRP_STATUSSELECTED:
-	case GRP_STATUSALL:
-	case GRP_USERS:
-	case GRP_CONFIG:
-	    DialogManager.NYI(this);
-	    break;
+            // Group work commands
+        case GRP_CREATE:
+        case GRP_OPEN:
+        case GRP_UPDATESELECTED:
+        case GRP_UPDATEALL:
+        case GRP_COMMITSELECTED:
+        case GRP_COMMITALL:
+        case GRP_STATUSSELECTED:
+        case GRP_STATUSALL:
+        case GRP_USERS:
+        case GRP_CONFIG:
+            DialogManager.NYI(this);
+            break;
 
-	    // Help commands
-	case HELP_TUTORIAL:
-	    showWebPage(tutorialUrl);
-	    break;
+            // Help commands
+        case HELP_TUTORIAL:
+            showWebPage(tutorialUrl);
+            break;
 
-	case HELP_REFERENCE:
-	    showWebPage(referenceUrl);
-	    break;
+        case HELP_REFERENCE:
+            showWebPage(referenceUrl);
+            break;
 
-	case HELP_STANDARDAPI:
-	    showWebPage(Config.getPropString("bluej.url.javaStdLib"));
- 	    break;
+        case HELP_STANDARDAPI:
+            showWebPage(Config.getPropString("bluej.url.javaStdLib"));
+            break;
 
-	case HELP_ABOUT:
-	    AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
-	    about.setVisible(true);
-	    break;
+        case HELP_ABOUT:
+            AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
+            about.setVisible(true);
+            break;
 
-	case HELP_COPYRIGHT:
-		JOptionPane.showMessageDialog(this,
-		new String[] {
-		    "BlueJ \u00a9 1999 Michael K\u00F6lling, John Rosenberg.",
-		    " ",
-		    "BlueJ is available free of charge and may be",
-		    "redistributed freely. It may not be sold for",
-		    "profit or included in other packages which",
-		    "are sold for profit without written authorisation."
-		    },
-		"BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
-	    break;
+        case HELP_COPYRIGHT:
+            JOptionPane.showMessageDialog(this,
+                                          new String[] {
+                                              "BlueJ \u00a9 1999 Michael K\u00F6lling, John Rosenberg.",
+                                              " ",
+                                              "BlueJ is available free of charge and may be",
+                                              "redistributed freely. It may not be sold for",
+                                              "profit or included in other packages which",
+                                              "are sold for profit without written authorisation."
+                                          },
+                                          "BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
+            break;
 
-	default:
-	    Debug.reportError("unknown command ID");
-	    break;
-	}
+        default:
+            Debug.reportError("unknown command ID");
+            break;
+        }
     }
 
     // --- below are implementations of particular user actions ---
@@ -441,28 +445,28 @@ implements BlueJEventListener
      */
     private void doSaveAs()
     {
-	// get a file name to save under
-	String newname = getFileNameDialog(saveAsTitle, saveLabel);
+        // get a file name to save under
+        String newname = getFileNameDialog(saveAsTitle, saveLabel);
 
-	if (newname != null) {
+        if (newname != null) {
 
-	    // check whether name is already in use
-	    File dir = new File(newname);
-	    if(dir.exists()) {
-		DialogManager.showError(this, "directory-exists");
-		return;
-	    }
+            // check whether name is already in use
+            File dir = new File(newname);
+            if(dir.exists()) {
+                DialogManager.showError(this, "directory-exists");
+                return;
+            }
 
-	    // save package under new name
+            // save package under new name
 
-	    Main.removePackage(pkg);	// remove under old name
-	    int result = pkg.saveAs(newname);
-	    Main.addPackage(pkg);	// add under new name
+            Main.removePackage(pkg);	// remove under old name
+            int result = pkg.saveAs(newname);
+            Main.addPackage(pkg);	// add under new name
 
-	    if(result == Package.CREATE_ERROR)
-		DialogManager.showError(this, "cannot-write-package");
-	    else if(result == Package.COPY_ERROR)
-		DialogManager.showError(this, "cannot-copy-package");
+            if(result == Package.CREATE_ERROR)
+                DialogManager.showError(this, "cannot-write-package");
+            else if(result == Package.COPY_ERROR)
+                DialogManager.showError(this, "cannot-copy-package");
 
             setWindowTitle();
         }
@@ -475,26 +479,26 @@ implements BlueJEventListener
     {
         String className = getFileNameDialog(importClassTitle, importLabel);
 
-	if(className != null) {
-	    int result = pkg.importFile(className);
-	    switch (result) {
+        if(className != null) {
+            int result = pkg.importFile(className);
+            switch (result) {
 	        case Package.NO_ERROR:
-		    editor.repaint();
-		    break;
+                editor.repaint();
+                break;
 	        case Package.FILE_NOT_FOUND:
-		    DialogManager.showError(this, "file-does-not-exist");
-		    break;
+                DialogManager.showError(this, "file-does-not-exist");
+                break;
 	        case Package.ILLEGAL_FORMAT:
-		    DialogManager.showError(this, "cannot-import");
-		    break;
+                DialogManager.showError(this, "cannot-import");
+                break;
 	        case Package.CLASS_EXISTS:
-		    DialogManager.showError(this, "duplicate-name");
-		    break;
+                DialogManager.showError(this, "duplicate-name");
+                break;
 	        case Package.COPY_ERROR:
-		    DialogManager.showError(this, "error-in-import");
-		    break;
-	    }
-	}
+                DialogManager.showError(this, "error-in-import");
+                break;
+            }
+        }
     }
 
     /**
@@ -502,22 +506,22 @@ implements BlueJEventListener
      */
     private void importPackage()
     {
-	DialogManager.NYI(this);
-//  	    String dirname = openPackageDialog(false);
-//  	    if(dirname == null)
-//  		break;
+        DialogManager.NYI(this);
+        //  	    String dirname = openPackageDialog(false);
+        //  	    if(dirname == null)
+        //  		break;
 
-//  	    File pkgfile = new File(dirname, Package.pkgfileName);
-//  	    if(pkgfile.exists())
-//  		Debug.reportError("Package " + dirname + " already exists");
-//  	    else {
-//  		String pkgname = DialogManager.askString(this, "ask-package");
-//  		if((pkgname == null) || (pkgname.length() == 0))
-//  		    pkgname = Package.noPackage;
+        //  	    File pkgfile = new File(dirname, Package.pkgfileName);
+        //  	    if(pkgfile.exists())
+        //  		Debug.reportError("Package " + dirname + " already exists");
+        //  	    else {
+        //  		String pkgname = DialogManager.askString(this, "ask-package");
+        //  		if((pkgname == null) || (pkgname.length() == 0))
+        //  		    pkgname = Package.noPackage;
 
-//  		if(Package.importDir(dirname, pkgname))
-//  		    doOpenPackage(dirname);
-//  	    }
+        //  		if(Package.importDir(dirname, pkgname))
+        //  		    doOpenPackage(dirname);
+        //  	    }
     }
 
     /**
@@ -525,46 +529,89 @@ implements BlueJEventListener
      */
     private void exportPackage()
     {
-	DialogManager.NYI(this);
+        DialogManager.NYI(this);
     }
 
+
     /**
-     * print - implementation if the "print" user function
+     * print - implementation of the "print" user function
      */
     private void print()
     {
-        PrintJob printjob = getToolkit().getPrintJob(this,
-                                                     "BlueJ package: " + pkg.getDirName(),
-                                                     System.getProperties());
-        if(printjob != null) {
-            printGraph(printjob);
-            printjob.end();
-        }
+        PrinterJob printerJob = PrinterJob.getPrinterJob();
+        if(pageFormat == null)
+            pageFormat = new PageFormat();
+
+        Paper paper = pageFormat.getPaper();
+            
+        // make it A4 roughly
+	// this gives a one size fit all approach adopted at present due to
+	// inconsistent page size handling in the 2D printing framework.
+	// This should be unified with printing also done in the editor (moe)
+        paper.setSize(a4Width, a4Height);
+        
+        // manipulate borders for a reasonable size print area
+        double leftSideMargin = 36;
+        double rightSideMargin = 72;
+        double topMargin = 36;
+        double bottomMargin = 72;
+        
+        paper.setImageableArea(leftSideMargin, 
+                               topMargin, 
+                               paper.getWidth() - (leftSideMargin + rightSideMargin), 
+                               paper.getHeight() - (topMargin + bottomMargin));
+            
+        //pageFormat.setPaper(paper);
+        pageFormat = printerJob.validatePage(pageFormat); 
+        printerJob.setPrintable(this, pageFormat);
+
+        if (printerJob.printDialog()) {
+            try {
+                // call the Printable interface to do the actual printing
+                printerJob.print();  
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }     
     }
 
+    private int pageColumns = 0;
+    private int pageRows = 0;
+    private int currentColumn = 0;
+    private int currentRow = 0;
+
+    final static int a4Width = 595;
+    final static int a4Height = 840;
+
     /**
-     * printGraph - part of the print function. Pring out the package graph
+     * Method that implements Printable interface and does that actual printing of 
+     * class diagram.
      */
-    private void printGraph(PrintJob printjob)
+    public int print(Graphics g, PageFormat pageFormat, int pageIndex)
     {
-        Dimension pageSize = printjob.getPageDimension();
-        Rectangle printArea = pkg.getPrintArea(pageSize);
+        // temporary solution that only prints one page
+        if(pageIndex >= 1)
+            return Printable.NO_SUCH_PAGE;
+            
+        Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(), 
+                                           (int)pageFormat.getImageableHeight());
+        Rectangle printArea = pkg.getPrintArea(pageFormat);
         Dimension graphSize = pkg.getMinimumSize();
-        int cols = (graphSize.width + printArea.width - 1) / printArea.width;
-        int rows = (graphSize.height + printArea.height - 1) / printArea.height;
+        pageColumns = (graphSize.width + printArea.width - 1) / printArea.width;
+        pageRows = (graphSize.height + printArea.height - 1) / printArea.height;
 
-        for(int i = 0; i < rows; i++)
-            for(int j = 0; j < cols; j++) {
-                Graphics g = printjob.getGraphics();
-                pkg.printTitle(g, pageSize, i * cols + j + 1);
-
+	// loop does not do much at present, only first page printed
+        for(int i = 0; i < pageRows; i++) {
+            for(int j = 0; j < 1; j++) {
+                pkg.printTitle(g, pageFormat, i * pageColumns + j + 1);
                 g.translate(printArea.x - j * printArea.width,
                             printArea.y - i * printArea.height);
                 g.setClip(j * printArea.width, i * printArea.height,
                           printArea.width, printArea.height);
-                editor.print(g);
-                g.dispose();
-            }
+                editor.paint(g);
+            } 
+        }              
+        return Printable.PAGE_EXISTS;
     }
 
     public void resetDependencyButtons()
@@ -584,28 +631,28 @@ implements BlueJEventListener
         NewClassDialog dlg = new NewClassDialog(this);
         boolean okay = dlg.display();
 
-	if(okay) {
-	    String name = dlg.getClassName();
-	    if (name.length() > 0) {
+        if(okay) {
+            String name = dlg.getClassName();
+            if (name.length() > 0) {
 
-		// check whether name is already used
-		if(pkg.getTarget(name) != null) {
-		    DialogManager.showError(this, "duplicate-name");
-		    return;
-		}
+                // check whether name is already used
+                if(pkg.getTarget(name) != null) {
+                    DialogManager.showError(this, "duplicate-name");
+                    return;
+                }
 
-		ClassTarget target =  null;
-		int classType = dlg.getClassType();
-		target = new ClassTarget(pkg, name, classType == NewClassDialog.NC_APPLET);
+                ClassTarget target =  null;
+                int classType = dlg.getClassType();
+                target = new ClassTarget(pkg, name, classType == NewClassDialog.NC_APPLET);
 
-		target.setAbstract(classType == NewClassDialog.NC_ABSTRACT);
-		target.setInterface(classType == NewClassDialog.NC_INTERFACE);
-		target.generateSkeleton();
+                target.setAbstract(classType == NewClassDialog.NC_ABSTRACT);
+                target.setInterface(classType == NewClassDialog.NC_INTERFACE);
+                target.generateSkeleton();
 
-		pkg.addTarget(target);
-		editor.repaint();
-	    }
-	}
+                pkg.addTarget(target);
+                editor.repaint();
+            }
+        }
     }
 
     /**
@@ -614,11 +661,11 @@ implements BlueJEventListener
      */
     public void removeClass()
     {
-	ClassTarget target = (ClassTarget) pkg.getSelectedTarget();
-	if(target == null)
-	    DialogManager.showError(this, "no-class-selected");
-	else
-	    removeClass(target);
+        ClassTarget target = (ClassTarget) pkg.getSelectedTarget();
+        if(target == null)
+            DialogManager.showError(this, "no-class-selected");
+        else
+            removeClass(target);
     }
 
     /**
@@ -673,13 +720,13 @@ implements BlueJEventListener
      */
     public void showHideExecControls(boolean show, boolean update)
     {
-	if(execCtrlWindow == null) {
-	    execCtrlWindow = new ExecControls();
-	    DialogManager.centreWindow(execCtrlWindow, this);
-	}
-	execCtrlWindow.setVisible(show);
-	if(show && update)
-	    execCtrlWindow.updateThreads();
+        if(execCtrlWindow == null) {
+            execCtrlWindow = new ExecControls();
+            DialogManager.centreWindow(execCtrlWindow, this);
+        }
+        execCtrlWindow.setVisible(show);
+        if(show && update)
+            execCtrlWindow.updateThreads();
     }
 
     /**
@@ -846,20 +893,20 @@ implements BlueJEventListener
 
         // check whether path exists
 
-	if (!packageFile.exists()) {
-	    DialogManager.showErrorWithText(this, "package-does-not-exist",
-					    path);
-	    return false;
-	}
+        if (!packageFile.exists()) {
+            DialogManager.showErrorWithText(this, "package-does-not-exist",
+                                            path);
+            return false;
+        }
 
-	// check whether path is a valid BlueJ package
+        // check whether path is a valid BlueJ package
 
         if (!Package.isBlueJPackage(packageFile)) {
-	    DialogManager.showErrorWithText(this, "no-bluej-package", path);
-	    return false;
-	}
+            DialogManager.showErrorWithText(this, "no-bluej-package", path);
+            return false;
+        }
 
-	return true;
+        return true;
     }
 
     // --- the following methods set up the GUI frame ---
@@ -902,7 +949,16 @@ implements BlueJEventListener
         buttonPanel.add(button);
         actions.put(button, new Integer(EDIT_NEWCLASS));
 
-        ImageIcon usesIcon = new ImageIcon(Config.getImageFilename("image.build.depends"));
+        String dependsImageName ="image.build.depends";
+        String usesImageName = "image.build.extends";
+       //  if(Graph.UML.equals(notationStyle)) {
+//             String suffix = ".uml";
+//             dependsImageName += suffix; 
+//             usesImageName += suffix; 
+//         }
+
+        ImageIcon usesIcon = new ImageIcon(Config.getImageFilename(dependsImageName));
+        //        ImageIcon usesIcon = new ImageIcon(Config.getImageFilename("image.build.depends"));
         button = imgUsesButton = new JButton(usesIcon);
         button.setMargin(new Insets(2,2,2,2));
         button.addActionListener(this);
@@ -910,7 +966,8 @@ implements BlueJEventListener
         buttonPanel.add(button);
         actions.put(button, new Integer(EDIT_NEWUSES));
 
-        ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename("image.build.extends"));
+        ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename(usesImageName));
+        //        ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename("image.build.extends"));
         button = imgExtendButton = new JButton(extendsIcon);
         button.setMargin(new Insets(2,2,2,2));
         button.addActionListener(this);
@@ -1000,7 +1057,7 @@ implements BlueJEventListener
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
         addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent E)
+                public void windowClosing(WindowEvent E)
                 {
                     if(frameCount() == 1)
                         bluej.Main.exit();
@@ -1008,7 +1065,7 @@ implements BlueJEventListener
                         PkgMgrFrame.closeFrame((PkgMgrFrame)E.getWindow());
 
                 }
-        });
+            });
 
 
         // grey out certain functions if package not open.
@@ -1111,53 +1168,53 @@ implements BlueJEventListener
      **/
     protected void enableFunctions(boolean enable)
     {
-	// set Button enable status
-	Component[] panelComponents = buttonPanel.getComponents();
-	for(int i = 0; i < panelComponents.length; i++)
-	    panelComponents[i].setEnabled(enable);
+        // set Button enable status
+        Component[] panelComponents = buttonPanel.getComponents();
+        for(int i = 0; i < panelComponents.length; i++)
+            panelComponents[i].setEnabled(enable);
 
-	panelComponents = viewPanel.getComponents();
-	for(int i = 0; i < panelComponents.length; i++)
-	    panelComponents[i].setEnabled(enable);
+        panelComponents = viewPanel.getComponents();
+        for(int i = 0; i < panelComponents.length; i++)
+            panelComponents[i].setEnabled(enable);
 
-	panelComponents = showPanel.getComponents();
-	for(int i = 0; i < panelComponents.length; i++)
-	    panelComponents[i].setEnabled(enable);
+        panelComponents = showPanel.getComponents();
+        for(int i = 0; i < panelComponents.length; i++)
+            panelComponents[i].setEnabled(enable);
 
-	MenuElement[] menus = menubar.getSubElements();
-	JMenu menu = null;
+        MenuElement[] menus = menubar.getSubElements();
+        JMenu menu = null;
 
-	for (int i = 0; i < menus.length; i++) {
-	    if(menus[i] != null) {
-		menu = (JMenu)menus[i];
+        for (int i = 0; i < menus.length; i++) {
+            if(menus[i] != null) {
+                menu = (JMenu)menus[i];
 
-		if(menu.getText().equals(Config.getString("menu.package")) ||
-		   menu.getText().equals(Config.getString("menu.tools"))) {
-		    for (int j = 0; j < menu.getItemCount(); j++) {
-			JMenuItem item = menu.getItem(j);
-			if(item != null) {  // separators are returned as null
-			    String label = item.getText();
-			    if(!label.equals(Config.getString("menu.package.new"))
-			       && !label.equals(Config.getString("menu.package.open"))
-			       && !label.equals(Config.getString("menu.package.quit"))
-			       && !label.equals(Config.getString("menu.package"))
-			       && !label.equals(Config.getString("menu.tools"))
-			       && !label.equals(Config.getString("menu.tools.browse"))
-			       && !label.equals(Config.getString("menu.tools.preferences")))
-				item.setEnabled(enable);
-			}
-		    }
-		}
-		else if(!menu.getText().equals(Config.getString("menu.help")))
-		    menu.setEnabled(enable);
-	    }
-	}
+                if(menu.getText().equals(Config.getString("menu.package")) ||
+                   menu.getText().equals(Config.getString("menu.tools"))) {
+                    for (int j = 0; j < menu.getItemCount(); j++) {
+                        JMenuItem item = menu.getItem(j);
+                        if(item != null) {  // separators are returned as null
+                            String label = item.getText();
+                            if(!label.equals(Config.getString("menu.package.new"))
+                               && !label.equals(Config.getString("menu.package.open"))
+                               && !label.equals(Config.getString("menu.package.quit"))
+                               && !label.equals(Config.getString("menu.package"))
+                               && !label.equals(Config.getString("menu.tools"))
+                               && !label.equals(Config.getString("menu.tools.browse"))
+                               && !label.equals(Config.getString("menu.tools.preferences")))
+                                item.setEnabled(enable);
+                        }
+                    }
+                }
+                else if(!menu.getText().equals(Config.getString("menu.help")))
+                    menu.setEnabled(enable);
+            }
+        }
     }
 
     public LibraryBrowser getBrowser() {
-	if (browser == null)
-	    browser = new LibraryBrowser();
+        if (browser == null)
+            browser = new LibraryBrowser();
 
-	return browser;
+        return browser;
     }
 }

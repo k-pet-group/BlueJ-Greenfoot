@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.awt.*;
 
 /**
- ** @version $Id: UsesDependency.java 486 2000-05-18 03:17:26Z ajp $
+ ** @version $Id: UsesDependency.java 487 2000-05-18 05:21:45Z bquig $
  ** @author Michael Cahill
  **
  ** A dependency between two targets in a package
@@ -60,7 +60,7 @@ public class UsesDependency extends Dependency
 	int dst_y = this.dst_y;
 
 	g.setColor(colour);
-//    g.setStroke(dashed);
+	//g.setStroke(dashed);
 
 	// Draw the start
 	int corner_y = src_y + (start_top ? -15 : 15);

@@ -34,11 +34,14 @@ import javax.swing.JFrame;
 import java.io.*;
 import java.util.*;
 import java.text.DateFormat;
+import java.awt.print.Paper;
+import java.awt.print.PageFormat;
+
 
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 485 2000-05-18 03:00:38Z mik $
+ * @version $Id: Package.java 487 2000-05-18 05:21:45Z bquig $
  * @author Michael Cahill
  *
  */
@@ -157,6 +160,10 @@ implements CompileObserver, MouseListener, MouseMotionListener
     /** the state a package can be in (one of the S_* values) */
     private int state = S_IDLE;
 
+    /** is uml notation used */
+    // static final String notationStyle = Config.getDefaultPropString("bluej.notation.style", Graph.UML);
+    // private boolean isUML =  true;
+
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -174,6 +181,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
         extendsArrows = new Vector();
         selected = null;
         callHistory = new CallHistory(HISTORY_LENGTH);
+        //if(Graph.BLUE.equals(notationStyle))
+        //    isUML = false;
     }
 
     /**
@@ -265,6 +274,12 @@ implements CompileObserver, MouseListener, MouseMotionListener
         return bench;
     }
 
+
+  //   public boolean isUML()
+//     {
+//         return isUML;
+//     }
+
     public void repaint()
     {
         if(editor != null) {
@@ -297,9 +312,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
      * @exception IOException if the package file could not be saved
      */
     public static SortedProperties createDefaultPackage(String[] classFiles,
-                                                  String packageLocation,
-                                                  String packageName,
-                                                  boolean fromArchive)
+                                                        String packageLocation,
+                                                        String packageName,
+                                                        boolean fromArchive)
         throws IOException
     {
         SortedProperties props = new SortedProperties();
@@ -309,14 +324,14 @@ implements CompileObserver, MouseListener, MouseMotionListener
         props.put("package.numTargets", "" + numberOfTargets);
 
         /*	if (packageName == null)
-                packageName = "unknown";
-                else if (packageName != "") {
-                // only write the package name if it has a value,
-                // then append the "." for later when using the
-                // package name as the root for sub package names
-                props.put("package.name", packageName);
-                packageName += ".";
-                }
+            packageName = "unknown";
+            else if (packageName != "") {
+            // only write the package name if it has a value,
+            // then append the "." for later when using the
+            // package name as the root for sub package names
+            props.put("package.name", packageName);
+            packageName += ".";
+            }
         */
         props.put("package.name", packageName);
 
@@ -346,7 +361,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
             String fullname = props.get("target" + (current + 1) + ".name").toString();
 
             int targetWidth = 40 + (int)PrefMgr.getStandardFont().getStringBounds(fullname,
-                                                                               new FontRenderContext(new AffineTransform(), false, false)).getWidth();
+                                                                                  new FontRenderContext(new AffineTransform(), false, false)).getWidth();
 
             // make width roughly the length of the name
             // = DEFAULTTARGETCHARWIDTH * .length();
@@ -659,9 +674,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
             ClassTarget.enforcePackage(destPath, "");
         }
         catch(IOException ioe)
-        {
-            Debug.message(ioe.getLocalizedMessage());
-        }
+            {
+                Debug.message(ioe.getLocalizedMessage());
+            }
 
         // create class icon (ClassTarget) for new class
 
@@ -693,7 +708,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
         Package newPkg = new Package();
         newPkg.dirname = dir.getPath();
-//          newPkg.packageName = dir.getName();
+        //          newPkg.packageName = dir.getName();
 
         // try to find sources in the directory itself
         boolean found = importJavaSources(dir, newPkg);
@@ -704,12 +719,12 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
             DialogManager.showMessage(frame,"cannot-search-subdirs");
 
-//              int answer = DialogManager.askQuestion(frame,
-//                                                     "also-search-subdirs");
+            //              int answer = DialogManager.askQuestion(frame,
+            //                                                     "also-search-subdirs");
 
-//              if (answer == 0) { // yes, search subdirs
-//                  found = (importSubPackages(subdirs, newPkg) || found);
-//              }
+            //              if (answer == 0) { // yes, search subdirs
+            //                  found = (importSubPackages(subdirs, newPkg) || found);
+            //              }
         }
 
         if (found) {
@@ -1131,7 +1146,11 @@ implements CompileObserver, MouseListener, MouseMotionListener
         targets.remove(t.getBaseName());
     }
 
-
+    /**
+     * Changes the Target identifier. Targets are stored in a hashtable
+     * with their name as the key.  If class name changes we need to
+     * remove the target and add again with the new key.
+     */
     public void updateTargetIdentifier(Target t, String newIdentifier)
     {
         if(t == null || newIdentifier == null) {
@@ -1142,7 +1161,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
         targets.remove(t.getBaseName());
         targets.put(newIdentifier, t);
     }
-
 
 
     /**
@@ -1960,64 +1978,63 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
 
     // Add a title to printouts
-    static final int PRINT_HMARGIN = 16;
-    static final int PRINT_VMARGIN = 16;
+    static final int PRINT_HMARGIN = 6;
+    static final int PRINT_VMARGIN = 24;
     static final Font printTitleFont = new Font("SansSerif", Font.PLAIN,
                                                 12); //Config.printTitleFontsize);
     static final Font printInfoFont = new Font("SansSerif", Font.ITALIC,
-                                               12); //Config.printInfoFontsize);
+                                               10); //Config.printInfoFontsize);
 
     /**
      * Return the rectangle on the page in which to draw the class diagram.
      * The rectangle is the page minus margins minus space for header and
      * footer text.
      */
-    public Rectangle getPrintArea(Dimension pageSize)
+    public Rectangle getPrintArea(PageFormat pageFormat)
     {
         FontMetrics tfm = frame.getFontMetrics(printTitleFont);
         FontMetrics ifm = frame.getFontMetrics(printInfoFont);
-
-        return new Rectangle(PRINT_HMARGIN,
-                             PRINT_VMARGIN + tfm.getHeight() + 4,
-                             pageSize.width - 2 * PRINT_HMARGIN,
-                             pageSize.height - 2 * PRINT_VMARGIN -
-                             tfm.getHeight() - ifm.getHeight() - 4 );
+        return new Rectangle((int)pageFormat.getImageableX() + PRINT_HMARGIN,
+                             (int)pageFormat.getImageableY() + 2 * PRINT_VMARGIN + 2 ,
+                             (int)pageFormat.getImageableWidth() - (2 * PRINT_HMARGIN),
+                             (int)pageFormat.getImageableHeight() - (2 * PRINT_VMARGIN));
     }
+
 
     /**
      * Print the page title and other page decorations (frame, footer).
      */
-    public void printTitle(Graphics g, Dimension pageSize, int pageNum)
+    public void printTitle(Graphics g, PageFormat pageFormat, int pageNum)
     {
         FontMetrics tfm = frame.getFontMetrics(printTitleFont);
         FontMetrics ifm = frame.getFontMetrics(printInfoFont);
-        Rectangle printArea = getPrintArea(pageSize);
+        Rectangle printArea = new Rectangle((int)pageFormat.getImageableX(), 
+                                            (int)pageFormat.getImageableY(),
+                                            (int)pageFormat.getImageableWidth(), 
+                                            (int)pageFormat.getImageableHeight());
 
         // frame header area
         g.setColor(lightGrey);
-        g.fillRect(printArea.x, PRINT_VMARGIN, printArea.width,
-                   printArea.y - PRINT_VMARGIN);
+        g.fillRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
 
         g.setColor(titleCol);
-        g.drawRect(printArea.x, PRINT_VMARGIN, printArea.width,
-                   printArea.y - PRINT_VMARGIN);
+        g.drawRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
 
         // frame print area
         g.drawRect(printArea.x, printArea.y, printArea.width,
-                   printArea.height);
+                   printArea.height - PRINT_VMARGIN);
 
         // write header
         String title = (packageName == noPackage) ? dirname : packageName;
         g.setFont(printTitleFont);
         Utility.drawCentredText(g, "BlueJ package - " + title,
-                                printArea.x, PRINT_VMARGIN,
+                                printArea.x, printArea.y,
                                 printArea.width, tfm.getHeight());
-
         // write footer
         g.setFont(printInfoFont);
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
         Utility.drawRightText(g, dateFormat.format(new Date()) + ", page " + pageNum,
-                              printArea.x, printArea.y + printArea.height,
+                              printArea.x, printArea.y + printArea.height - PRINT_VMARGIN,
                               printArea.width, ifm.getHeight());
     }
 
