@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.graph.GraphEditor;
 import bluej.graph.Graph;
 import bluej.views.CallableView;
+import bluej.debugger.DebuggerObject;
 
 import java.util.Enumeration;
 import java.awt.*;
@@ -13,7 +14,7 @@ import javax.swing.*;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: PackageEditor.java 544 2000-06-13 05:01:00Z ajp $
  */
 public class PackageEditor extends GraphEditor
 {
@@ -66,24 +67,16 @@ public class PackageEditor extends GraphEditor
     public void raiseOpenPackageEvent(Target t, String packageName)
     {
         fireTargetEvent(
-            new PackageEditorEvent(t, PackageEditorEvent.TARGET_OPEN, packageName));
+            new PackageEditorEvent(t, PackageEditorEvent.TARGET_OPEN,
+                                    packageName));
     }
 
-
-    public void raiseMessageEvent(String msgId)
+    public void raisePutOnBenchEvent(DebuggerObject obj, String instanceName,
+                                        String fieldName)
     {
-
+        fireTargetEvent(
+            new PackageEditorEvent(obj, PackageEditorEvent.OBJECT_PUTONBENCH,
+                                    obj, instanceName, fieldName));
     }
-
-    public void raiseMessageTextEvent(String msgId, String text)
-    {
-
-    }
-
-   public void raiseErrorEvent(String msgId)
-   {
-
-   }
-
 
 }

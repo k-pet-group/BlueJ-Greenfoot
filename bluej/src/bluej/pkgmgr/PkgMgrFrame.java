@@ -26,7 +26,7 @@ import bluej.browser.LibraryBrowser;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 541 2000-06-13 03:45:00Z ajp $
+ * @version $Id: PkgMgrFrame.java 544 2000-06-13 05:01:00Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -566,6 +566,20 @@ public class PkgMgrFrame extends JFrame
             PkgMgrFrame newframe = createFrame(p);
 
             newframe.show();
+            break;
+
+         case PackageEditorEvent.OBJECT_PUTONBENCH:
+            ObjectWrapper wrapper = new ObjectWrapper(this,
+                                                       e.getDebuggerObject(),
+                                                       e.getFieldName());
+            getObjectBench().add(wrapper);  // might change name
+
+            // load the object into runtime scope
+            Debugger.debugger.addObjectToScope(getPackage().getId(),
+                                                e.getInstanceName(),
+                                                e.getFieldName(),
+                                                wrapper.getName());
+
             break;
         }
     }

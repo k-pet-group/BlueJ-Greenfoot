@@ -22,17 +22,15 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 517 2000-05-25 07:58:59Z ajp $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** A window that displays the fields in an object (also know as an
- ** "Inspect window") and method call results.
- **/
-
+ * A window that displays the fields in an object (also know as an
+ * "Inspect window") and method call results.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: ObjectViewer.java 544 2000-06-13 05:01:00Z ajp $
+ */
 public final class ObjectViewer extends JFrame
-
-	implements ActionListener, ListSelectionListener
+    implements ActionListener, ListSelectionListener
 {
     private static final Image iconImage = new ImageIcon(
                                             Config.getImageFilename("image.icon")).getImage();
@@ -52,8 +50,8 @@ public final class ObjectViewer extends JFrame
     private static final int ARRAY_QUERY_INDEX = 40;
     private static final int ARRAY_QUERY_SLOT_VALUE = -2;
 
-    private boolean isInspection;	// true if inspecting object, false if
-					//  displaying result
+    private boolean isInspection;   // true if inspecting object, false if
+                                    //  displaying result
     private JList staticFieldList = null;
     private JList objFieldList = null;
     private JButton inspectBtn;
@@ -68,8 +66,8 @@ public final class ObjectViewer extends JFrame
     private boolean queryArrayElementSelected;
 
     private String viewerId;		// a unique ID used to enter the
-					// viewer's object into the package
-					// scope
+                                    // viewer's object into the package
+                                    // scope
 
     // === static methods ===
 
@@ -136,25 +134,25 @@ public final class ObjectViewer extends JFrame
 			   Package pkg, String id, boolean getEnabled,
 			   JFrame parent)
     {
-	super();
+        super();
 
-    setIconImage(iconImage);
+        setIconImage(iconImage);
 
-	isInspection = inspect;
-	this.obj = obj;
-	this.pkg = pkg;
-	viewerId = id;
-	this.getEnabled = getEnabled;
-	isInScope = false;
-	if(pkg == null) {
-	    if(getEnabled)
-		Debug.reportError("cannot enable 'get' with null package");
-	    pkgScopeId = "";
-	}
-	else
-	    pkgScopeId = pkg.getId();
+        isInspection = inspect;
+        this.obj = obj;
+        this.pkg = pkg;
+        viewerId = id;
+        this.getEnabled = getEnabled;
+        isInScope = false;
+        if(pkg == null) {
+            if(getEnabled)
+        	Debug.reportError("cannot enable 'get' with null package");
+            pkgScopeId = "";
+        }
+        else
+            pkgScopeId = pkg.getId();
 
-	makeFrame(parent, isInspection, obj);
+        makeFrame(parent, isInspection, obj);
     }
 
     /**
@@ -427,15 +425,8 @@ public final class ObjectViewer extends JFrame
      */
     private void doGet()
     {
-/*        ObjectWrapper wrapper = new ObjectWrapper(pmf, selectedObject,
-                                                    selectedObjectName);
-        pmf.getObjectBench().add(wrapper);  // might change name
-
-        // load the object into runtime scope
-        Debugger.debugger.addObjectToScope(pkgScopeId, viewerId,
-                                            selectedObjectName,
-                                            wrapper.getName());
-*/
+        pkg.getEditor().raisePutOnBenchEvent(selectedObject, viewerId,
+                                                selectedObjectName);
     }
 
 
@@ -494,7 +485,7 @@ public final class ObjectViewer extends JFrame
      * Build the GUI interface.
      */
     private void makeFrame(JFrame parent, boolean isInspection,
-			   DebuggerObject obj)
+                            DebuggerObject obj)
     {
 	JScrollPane staticScrollPane = null;
 	JScrollPane objectScrollPane = null;

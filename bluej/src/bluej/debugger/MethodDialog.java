@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 517 2000-05-25 07:58:59Z ajp $
+ * @version $Id: MethodDialog.java 544 2000-06-13 05:01:00Z ajp $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchWatcher
@@ -285,8 +285,6 @@ public class MethodDialog extends JDialog
         JPanel tmpPanel;
 
         setTitle(wCreateTitle);
-
-        System.out.println("creating " + className + " into " + instanceName);
 
         JLabel instName = new JLabel(sNameOfInstance);
         instanceNameText = new JTextField(instanceName, 16);
