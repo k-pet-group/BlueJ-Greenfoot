@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1932 2003-05-01 14:04:46Z mik $
+ * @version $Id: PkgMgrFrame.java 1933 2003-05-02 09:06:52Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2052,7 +2052,7 @@ public class PkgMgrFrame extends JFrame
         Dimension pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
-//        button.setMargin(new Insets(2, 0, 2, 0));
+        button.setMargin(new Insets(4, 0, 4, 2));
 
         if(disable)
             itemsToDisable.add(button);

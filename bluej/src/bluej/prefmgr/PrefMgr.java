@@ -14,7 +14,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1909 2003-04-28 18:04:45Z mik $
+ * @version $Id: PrefMgr.java 1933 2003-05-02 09:06:52Z mik $
  */
 public class PrefMgr
 {
@@ -212,10 +212,11 @@ public class PrefMgr
     public static void setFlag(String flag, boolean enabled)
     {
         String value = String.valueOf(enabled);
-        String hs = Config.getDefaultPropString(flag, "true");
+        String systemDefault = Config.getDefaultPropString(flag, "");
 
-        if (Boolean.valueOf(hs).booleanValue() == enabled)
-            Config.removeProperty(flag);
+        if ((systemDefault.length() > 0) &&
+                (Boolean.valueOf(systemDefault).booleanValue() == enabled))
+            Config.removeProperty(flag);  // remove from user defaults
         else
             Config.putPropString(flag, value);
 

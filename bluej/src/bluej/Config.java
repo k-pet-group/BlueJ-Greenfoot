@@ -24,7 +24,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1932 2003-05-01 14:04:46Z mik $
+ * @version $Id: Config.java 1933 2003-05-02 09:06:52Z mik $
  */
 
 public class Config
@@ -192,7 +192,6 @@ public class Config
 
         try {
             defs.load(new FileInputStream(propsFile));
-
         }
         catch(Exception e) {
             Debug.reportError("Unable to load definitions file: " + propsFile);
@@ -204,6 +203,11 @@ public class Config
             return defs;
     }
     
+    /**
+     * Load the label property file for the currently defined language.
+     * Install the default language (English) as the default properties
+     * as a fallback.
+     */
     private static DefaultProperties loadLanguageLabels(String language)
     {
         // add the defaults (English)
@@ -246,18 +250,15 @@ public class Config
         File propsFile = new File(user_conf_dir, filename + ".properties");
 
         try {
-            props.store(new FileOutputStream(propsFile),
-                        getString(comment));
-
+            props.store(new FileOutputStream(propsFile), getString(comment));
         }
         catch(Exception e) {
-            Debug.reportError("Warning: could not save properties file " +
-                              propsFile);
+            Debug.reportError("Warning: could not save properties file " + propsFile);
         }
     }
 
     /**
-     * find and return the moe help definitions
+     * Find and return the moe help definitions
      */
     public static DefaultProperties getMoeHelp()
     {
@@ -265,7 +266,7 @@ public class Config
     }
 
     /**
-     * get a string from the language dependent definitions file
+     * Get a string from the language dependent definitions file
      * (eg. "english/labels").
      */
     public static String getString(String strname)
@@ -392,6 +393,9 @@ public class Config
         return value;
     }
 
+    /**
+     * remove a property value from the BlueJ properties.
+     */
     public static String removeProperty(String propertyName)
     {
         return (String)(bluej_props.remove(propertyName));
@@ -549,8 +553,9 @@ public class Config
         return user_conf_dir;
     }
 
-
-
+    /**
+     * Return a color value from the bluej properties.
+     */
     public static Color getItemColour(String itemname)
     {
         try {
