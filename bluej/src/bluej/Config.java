@@ -24,7 +24,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 2010 2003-06-03 07:07:12Z ajp $
+ * @version $Id: Config.java 2024 2003-06-05 06:52:21Z ajp $
  */
 
 public class Config
@@ -464,9 +464,14 @@ public class Config
                 File jdkPath = new File(jdkPathName);
                 File binPath = new File(jdkPath, "bin");
 
+				// try to find normal (unix??) executable
                 File potentialExe = new File(binPath, executableName);
                 if(potentialExe.exists())
                     return potentialExe.getAbsolutePath();
+                // try to find windows executable
+				potentialExe = new File(binPath, executableName + ".exe");
+				if(potentialExe.exists())
+					return potentialExe.getAbsolutePath();
 
                 // we could be in a JRE directory INSIDE a JDK directory
                 // so lets go up one level and try again
@@ -474,9 +479,14 @@ public class Config
                 if (jdkPath != null) {
                     binPath = new File(jdkPath, "bin");
 
+					// try to find normal (unix??) executable
                     potentialExe = new File(binPath, executableName);
                     if(potentialExe.exists())
                         return potentialExe.getAbsolutePath();
+					// try to find windows executable
+					potentialExe = new File(binPath, executableName + ".exe");
+					if(potentialExe.exists())
+						return potentialExe.getAbsolutePath();
                 }
             }
 
