@@ -106,6 +106,15 @@ browser.menu.help.topics=Help Topics...
 browser.menu.help.about.text=<html><center><strong><font color="#DBDB70">BlueJ Library Browser 0.1\n\nWritten by Andy Marks, January 1999</font></strong></center></html>
 browser.menu.help.about.title=About BlueJ Library Browser 0.1
 
+classmgr.title=BlueJ Class Manager
+classmgr.add=Add
+classmgr.delete=Delete
+classmgr.locationcolumn=Location
+classmgr.descriptioncolumn=Description
+classmgr.unresolvable=Unresolvable Path
+classmgr.missinguserconfdialog.text=The user configuration file could not be located\n\nThis file is used to specify libraries\nin addition to the standard system files.
+classmgr.missingsysconfdialog.text=The system configuration file could not be located\n\nThis file is used to specify standard libraries\nwhich are installed on your system.
+
 editor.saveError=Error saving to file 
 editor.openError=Error opening file 
 editor.unimplemented=Sorry - that feature is not yet implemented
@@ -223,6 +232,7 @@ menu.tools.compile=Compile
 menu.tools.compileSelected=Compile Selected
 menu.tools.rebuild=Rebuild Package
 menu.tools.browse=Browse Libraries...
+menu.tools.preferences=Class Manager...
 
 menu.view=View
 menu.view.showUses=Show Uses
