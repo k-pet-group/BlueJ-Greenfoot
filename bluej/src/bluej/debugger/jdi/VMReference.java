@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3029 2004-09-30 23:57:43Z davmac $
+ * @version $Id: VMReference.java 3031 2004-10-01 03:23:58Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -85,6 +85,10 @@ class VMReference
     // the thread running inside the ExecServer
     private ThreadReference serverThread = null;
     private boolean serverThreadStarted = false;
+    private Object serverThreadLock = new Object();
+    // note, can't use the server thread object itself as a lock because
+    // the server thread changes! A new thread is spawned after every
+    // invocation.
 
     // the worker thread running inside the ExecServer
     private ThreadReference workerThread = null;
@@ -1121,36 +1125,43 @@ class VMReference
 
         // to stop our server thread getting away from us, lets halt the
         // VM temporarily
-        synchronized(eventHandler.requestLock) {
-            synchronized(eventHandler) {
-                eventHandler.interrupt();
-                try {
-                    eventHandler.wait();
+        synchronized(serverThreadLock) {
+            serverThreadStartWait();
+            synchronized(workerThread) {
+                breakpointWait(workerThread);
+        
+                synchronized(eventHandler.requestLock) {
+                    synchronized(eventHandler) {
+                        eventHandler.interrupt();
+                        try {
+                            eventHandler.wait();
+                        }
+                        catch(InterruptedException ie) {}
+                        //machine.suspend();
+                        
+                        // we need to throw away all the breakpoints referring to the old
+                        // class loader but then we need to restore our exitMarker and
+                        // suspendMethod breakpoints
+                        erm.deleteAllBreakpoints();
+                        serverClassAddBreakpoints();
+                        
+                        // add all the new breakpoints we have created
+                        Iterator it = newSaved.iterator();
+                        
+                        while (it.hasNext()) {
+                            Location l = (Location) it.next();
+                            
+                            BreakpointRequest bpreq = erm.createBreakpointRequest(l);
+                            bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+                            bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
+                            bpreq.enable();
+                        }
+                        
+                        // start the machine back up
+                        //machine.resume();
+                        eventHandler.notify();
+                    }
                 }
-                catch(InterruptedException ie) {}
-                machine.suspend();
-                
-                // we need to throw away all the breakpoints referring to the old
-                // class loader but then we need to restore our exitMarker and
-                // suspendMethod breakpoints
-                erm.deleteAllBreakpoints();
-                serverClassAddBreakpoints();
-                
-                // add all the new breakpoints we have created
-                Iterator it = newSaved.iterator();
-                
-                while (it.hasNext()) {
-                    Location l = (Location) it.next();
-                    
-                    BreakpointRequest bpreq = erm.createBreakpointRequest(l);
-                    bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-                    bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
-                    bpreq.enable();
-                }
-                
-                // start the machine back up
-                machine.resume();
-                eventHandler.notify();
             }
         }
     }
@@ -1258,7 +1269,7 @@ class VMReference
     public Value invokeTestSetup(String cl)
             throws InvocationException
     {
-        synchronized(serverThread) {
+        synchronized(serverThreadLock) {
             // Make sure the server thread has started
             serverThreadStartWait();
             
@@ -1289,7 +1300,7 @@ class VMReference
     public Value invokeRunTest(String cl, String method)
         throws InvocationException
     {
-        synchronized(serverThread) {
+        synchronized(serverThreadLock) {
             serverThreadStartWait();
             
             // Store the class and method to call
@@ -1321,7 +1332,7 @@ class VMReference
      */
     void disposeWindows()
     {
-        synchronized(serverThread) {
+        synchronized(serverThreadLock) {
             serverThreadStartWait();
             
             // set the action to "dispose windows"
