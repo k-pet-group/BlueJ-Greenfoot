@@ -18,7 +18,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 2442 2003-12-17 09:34:26Z mik $
+ * @version $Id: Terminal.java 2526 2004-05-10 09:15:28Z polle $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -134,8 +134,10 @@ public final class Terminal extends JFrame
     public void clear()
     {
         text.setText("");
-        if(errorShown)
+        if(errorText!=null) {
             errorText.setText("");
+        }
+        hideErrorPane();
     }
 
 
@@ -190,11 +192,8 @@ public final class Terminal extends JFrame
      * Write some text to error output.
      */
     private void writeToErrorOut(String s)
-    {
-        if(!errorShown) {
-            addErrorPane();
-            errorShown = true;
-        }
+    {       
+        showErrorPane();
         errorText.append(s);
         errorText.setCaretPosition(errorText.getDocument().getLength());
     }
@@ -212,11 +211,8 @@ public final class Terminal extends JFrame
             // TEMPORARY: filter out known annoying but harmless error messages
             // from MacOS Java v. 1.4.1
             if(erroutBuffer.indexOf("Java_apple_awt_") == -1) {
-
-                if(!errorShown) {
-                    addErrorPane();
-                    errorShown = true;
-                }
+                showErrorPane();
+                
                 errorText.append(erroutBuffer.toString());
                 errorText.setCaretPosition(errorText.getDocument().getLength());
             }
@@ -427,9 +423,9 @@ public final class Terminal extends JFrame
     }
 
     /**
-     * Add a second scrollled text area to the window, for error output.
+     * Create a second scrollled text area to the window, for error output.
      */
-    private void addErrorPane()
+    private void createErrorPane()
     {
         errorText = new JTextArea(5, text.getColumns());
         errorScrollPane = new JScrollPane(errorText);
@@ -439,12 +435,56 @@ public final class Terminal extends JFrame
         errorText.setForeground(errorColour);
         errorText.setMargin(new Insets(6, 6, 6, 6));
 
-        getContentPane().remove(scrollPane);
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                   scrollPane, errorScrollPane);
- 
-        getContentPane().add(splitPane, BorderLayout.CENTER);
-        pack();
+                                   scrollPane, errorScrollPane); 
+        
+        
+        
+        
+    }
+    
+    /**
+     * Show the errorPane for error ouput
+     *
+     */
+    private void showErrorPane() {
+        if(errorShown) {
+            return;
+        }
+        
+        //the first time the errortext is shown we need to pack() it
+        //to make it have the right size.
+        boolean doPack = false; 
+        if(errorText == null) {
+            doPack = true;
+            createErrorPane();
+        }
+     
+        getContentPane().remove(scrollPane);
+        getContentPane().add(splitPane, BorderLayout.CENTER);       
+        splitPane.resetToPreferredSizes();
+            
+        if(doPack) {
+            pack();
+        } else {
+            validate();
+        }
+        
+        errorShown = true;
+    }
+    
+    /**
+     * Hide the pane with the error output.
+     *
+     */
+    private void hideErrorPane() {
+        if(!errorShown) {
+            return;
+        }
+        getContentPane().remove(splitPane);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);        
+        errorShown = false; 
+        validate();
     }
     
     /**
