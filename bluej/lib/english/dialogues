@@ -344,6 +344,12 @@ The changes you have made to the class libraries
 will not take effect until the next time you
 start BlueJ.
 
+getobject-new-name
+Enter the name for the new object on the
+object bench.
+New Object Name
+null
+
 # editor:
 #########
 
