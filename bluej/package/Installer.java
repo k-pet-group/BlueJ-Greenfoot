@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 490 2000-05-19 04:40:31Z mik $
+  * @version $Id: Installer.java 493 2000-05-22 04:45:21Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -38,6 +38,10 @@ public class Installer extends JFrame
     private static final String nl = System.getProperty("line.separator");
     private static final char slash = File.separatorChar;
     private static final String colon = File.pathSeparator;
+
+
+    // File to test for JDK (relative to javaHome):
+    static private String jdkFile = "/../lib/tools.jar";
 
     static final int BUFFER_SIZE=8192;
 
@@ -145,8 +149,8 @@ public class Installer extends JFrame
 
 
     /**
-     ** Helper function to read a GIF off the disk.
-     **/
+     * Helper function to read a GIF off the disk.
+     */
     public static byte[] readGIF(String name)
     {
 	int len = (int)(new File((String)name)).length();
@@ -164,9 +168,9 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Load the properties file and create a capsule to be used at install
-     ** time.
-     **/
+     * Load the properties file and create a capsule to be used at install
+     * time.
+     */
     public static Hashtable loadProperties(String fileName) {
 
 	Hashtable capsule = new Hashtable();
@@ -221,47 +225,29 @@ public class Installer extends JFrame
 
 	unpackTo(false);
 	makeWindow();
+        checkJDK();
     }
 
 
     /**
-     ** Check for any required classes, show a help message if not found.
-     ** Return false if not found.
-     **/
-    public boolean checkDepends() {
-	String dep = (String)getProperty("requires");
-	if (dep != null) {
-	    StringTokenizer tok = new StringTokenizer(dep," \t,:;",false);
-	    while (tok.hasMoreTokens()) {
-		String name = tok.nextToken();
-		try {
-		    Class.forName(name);
-		} catch (ClassNotFoundException e) {
-		    String help = (String)getProperty("requires.help." + name);
-		    if (help == null) help = "";
-		    notifyError("Required class " + name + " not found.\n" + 
-				help, "Required class missing.");
-		}
-	    }
-	}
-	String fileName = (String)getProperty("requiresFile");
-	if (fileName != null) {
-	    fileName = replace(fileName, '~', currentDirectory);
-	    fileName = replace(fileName, '!', javaHome);
-	    fileName = replace(fileName, '@', architecture);
-	    if(! (new File(fileName).exists())) {
-		String help = (String)getProperty("requiresFile.help");
-		if (help == null) help = "required file not found";
-		notifyProblem(help);
-                return false;
-	    }
-	}
-        return true;
+     * Check that the current Java version is a full JDK. Warn if not.
+     */
+    public void checkJDK() {
+        String jdkFilePath = javaHome + jdkFile;
+        if(! (new File(jdkFilePath).exists())) {
+            notifyProblem("The current Java version you are using to run\n" +
+                        "this installer is not a full Java JDK (it is \n" +
+                        "probably a JRE version). Please start this\n" +
+                        "installer with a full path name to your JDK \n" +
+                        "Java command. (On Windows, it usually is similar\n" +
+                        "to \"C:\\jdk1.3\\bin\\java\")");
+            finish("Installation aborted.", "(JDK Java version required.)");
+        }
     }
 
     /**
-     ** Internal GUI event dispatch.	We can't use listeners.
-     **/
+     * Handle button press.
+     */
     public void actionPerformed(ActionEvent evt) {
 	Object src = evt.getSource();
 	if(src == installButton) {
@@ -282,8 +268,8 @@ public class Installer extends JFrame
        
 
     /**
-     ** Install button action
-     **/
+     * Install button action
+     */
     public void doInstall() {
 
 	try {
@@ -294,31 +280,6 @@ public class Installer extends JFrame
                     "Please check the path and enter again.");
                 return;
             }
-
-	    setJavaPath(javaField.getText());
-            //if(getJavaPath().indexOf(" ") > -1) {
-            //  notifyProblem(
-            //     "Java cannot cope well with paths that contain spaces.\n" +
-            //     "Please install Java in a path without spaces.");
-            //  return;
-            //}
-
-            File exec = new File(getJavaPath());
-            if(!exec.exists())
-                setJavaPath(getJavaPath()+".exe");  // try Windows
-
-            exec = new File(getJavaPath());
-            if(!exec.exists()) {
-                notifyProblem(
-                      "The Java executable specified does not exist.\n" +
-                      "Please check the path and enter again.");
-                return;
-            }
-            javaHome = exec.getParent();
-            if(!checkDepends())
-                return;
-
-	    // Make sure installDir is accessible (make it if need be)
 
 	    unpackTo(true);
 
@@ -361,16 +322,16 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Cancel button action
-     **/
+     * Cancel button action
+     */
     public void doCancel() {
 	System.exit(1);
     }
 
 
     /**
-     ** Update the status dialog
-     **/
+     * Update the status dialog
+     */
     public void setStatus(String text)
     {
 	textLabel1.setText(text);
@@ -378,8 +339,8 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Show message in main window and finish.
-     **/
+     * Show message in main window and finish.
+     */
     public void finish(String msg1, String msg2) {
 	textLabel1.setText(msg1);
 	textLabel2.setText(msg2);
@@ -389,9 +350,9 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Pop up a dialog box with the error message. After an error,
-     ** installation cannot proceed.
-     **/
+     * Pop up a dialog box with the error message. After an error,
+     * installation cannot proceed.
+     */
     public void notifyError(String error, String msg) {
 	JOptionPane.showMessageDialog(this, error);
 	finish(msg, "Installation aborted."); 
@@ -399,17 +360,17 @@ public class Installer extends JFrame
 
 
     /**
-     ** Pop up a dialog box with the message. After a problem,
-     ** installation can proceed.
-     **/
+     * Pop up a dialog box with the message. After a problem,
+     * installation can proceed.
+     */
     public void notifyProblem(String problem) {
 	JOptionPane.showMessageDialog(this, problem);
     }
 
 
     /**
-     ** Create and show the main window
-     **/
+     * Create and show the main window
+     */
     public void makeWindow() 
     {
 	backgroundColour = (Color)getProperty("color.background");
@@ -451,21 +412,19 @@ public class Installer extends JFrame
 	    directoryField = new JTextField(20);
 	    directoryField.setText(currentDirectory);
 
-	    javaField = new JTextField(20);
+	    javaField = new JTextField();
             String javaBase;
             if(javaHome.endsWith("jre"))
                 javaBase = javaHome.substring(0, javaHome.length()-4);
             else
                 javaBase = javaHome;
-            javaField.setText(javaBase +
-                              File.separatorChar +
-                              "bin" +
-                              File.separatorChar +
-                              "java");
+            javaPath = javaBase + File.separatorChar + "bin" +
+                       File.separatorChar + "java";
+            javaField.setText(javaPath);
 
 	    optionPanel.add(new Label("Directory to install to:"));
 	    optionPanel.add(directoryField);
-	    optionPanel.add(new Label("Name of Java executable:"));
+	    optionPanel.add(new Label("Java executable:"));
 	    optionPanel.add(javaField);
 
 	centrePanel.add(optionPanel, BorderLayout.CENTER);
@@ -494,8 +453,6 @@ public class Installer extends JFrame
 	setLocation(100,100);
 	setVisible(true);
 
-	checkDepends();
-
         //Create a timer to update progress
         timer = new Timer(50, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -518,9 +475,9 @@ public class Installer extends JFrame
     // ===========================================================
 
     /**
-     ** Write out a Unix, Bourne shell script to start the application
-     ** For JDK 1.3 and later
-     **/
+     * Write out a Unix, Bourne shell script to start the application
+     * For JDK 1.3 and later
+     */
     public void writeUnix() throws IOException 
     {
 
@@ -545,8 +502,8 @@ public class Installer extends JFrame
         classpath = replace(classpath, '@', architecture);
 	out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
 	out.write("export CLASSPATH\n");
-	out.write(getJavaPath() + " " + getProperty("javaOpts") + " -D" + 
-		  getProperty("installDirProp") + "=$APPBASE "+ 
+	out.write(javaPath + " " + getProperty("javaOpts") +
+		   " -D" + getProperty("installDirProp") + "=$APPBASE "+ 
 		  getProperty("mainClass") + " $*\n");
 	out.close();
 		
@@ -558,9 +515,9 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Write out a Unix, Bourne shell script to start the application
-     ** For JDK 1.2.2
-     **/
+     * Write out a Unix, Bourne shell script to start the application
+     * For JDK 1.2.2
+     */
     public void writeUnix12(boolean localJPDA) throws IOException 
     {
 
@@ -591,7 +548,8 @@ public class Installer extends JFrame
         classpath = replace(classpath, '@', architecture);
 	out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
 	out.write("export CLASSPATH\n");
-	out.write(getJavaPath() + " " + getProperty("javaOpts.1.2") + " -D" + 
+	out.write(javaPath + " " + 
+                  getProperty("javaOpts.1.2") + " -D" + 
 		  getProperty("installDirProp") + "=$APPBASE "+ 
 		  getProperty("mainClass") + " $*\n");
 	out.close();
@@ -604,9 +562,9 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Write out an MSDOS style batch file to start the application.
-     ** (JDK 1.3 and later)
-     **/
+     * Write out an MSDOS style batch file to start the application.
+     * (JDK 1.3 and later)
+     */
     public void writeWindows() throws IOException 
     {
 	File outputFile = new File(installDir(),
@@ -630,7 +588,8 @@ public class Installer extends JFrame
 	classpath = replace(classpath, '!', javaHome);
 	classpath = replace(classpath, '@', architecture);
 	out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
-	out.write(getJavaPath() + " " + getProperty("javaOpts") + " -D" + 
+	out.write(javaPath + " " +
+                  getProperty("javaOpts") + " -D" + 
 		  getProperty("installDirProp") + "=%APPBASE% "+ 
 		  getProperty("mainClass") + 
 		  " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
@@ -640,8 +599,8 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Write out an MSDOS style batch file to start the application.
-     **/
+     * Write out an MSDOS style batch file to start the application.
+     */
     public void writeWindows12() throws IOException 
     {
 	File outputFile = new File(installDir(),
@@ -665,7 +624,8 @@ public class Installer extends JFrame
 	classpath = replace(classpath, '!', javaHome);
 	classpath = replace(classpath, '@', architecture);
 	out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
-	out.write(getJavaPath() + " " + getProperty("javaOpts.1.2") + " -D" + 
+	out.write(javaPath + " " + 
+                  getProperty("javaOpts.1.2") + " -D" + 
 		  getProperty("installDirProp") + "=%APPBASE% "+ 
 		  getProperty("mainClass") + 
 		  " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
@@ -680,8 +640,8 @@ public class Installer extends JFrame
     // ===========================================================
 
     /**
-     ** Find a classfile in the classpath
-     **/
+     * Find a classfile in the classpath
+     */
     InputStream getFileFromClasspath(String filename) throws IOException
     {
 	for(int i = 0; i < classpath.length; i++) {
@@ -743,9 +703,9 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Grab the jar data from the class file and unjar it into the 
-     ** install directory.
-     **/
+     * Grab the jar data from the class file and unjar it into the 
+     * install directory.
+     */
     public void unpackTo(boolean doJar) {
 	try {
 	    InputStream cpin = getFileFromClasspath("Installer.class");
@@ -782,8 +742,8 @@ public class Installer extends JFrame
 
 
     /**
-     ** Recusrively make directories needed for a file.
-     **/
+     * Recusrively make directories needed for a file.
+     */
     public void makeDirsFor(String start, String path) {
 	String sofar = null;
 	StringTokenizer tok = new StringTokenizer(path,"/",false);
@@ -800,8 +760,8 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Extract a JAR from a file stream to the given directory on disk.
-     **/
+     * Extract a JAR from a file stream to the given directory on disk.
+     */
     public void dumpJar(String dir, FileInputStream in) 
 	throws IOException, ZipException
     {
@@ -857,8 +817,8 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Find and return the full path to an archive in CLASSPATH
-     **/
+     * Find and return the full path to an archive in CLASSPATH
+     */
     private String getFullPath(String archiveName)
     {
 	for(int i = 0; i < classpath.length; i++) {
@@ -869,9 +829,9 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Constructs a new string by replacing the character in
-     ** pattern found in src by the string subst
-     **/
+     * Constructs a new string by replacing the character in
+     * pattern found in src by the string subst
+     */
     String replace(String src, char pattern, String subst)
     {
 	char[] patterns = { pattern };
@@ -904,13 +864,6 @@ public class Installer extends JFrame
 	installationDir = dir;
     }
 
-    public String getJavaPath() {
-	return javaPath;
-    }
-
-    public void setJavaPath(String p) {
-	javaPath = p;
-    }
 
 } // End class install
 

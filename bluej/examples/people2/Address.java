@@ -2,7 +2,7 @@
  * Class Address - used to store address details for a post address
  * 
  * Author: Michael Kolling
- * Date: 
+ * Date:   January 1999
  */
 public class Address
 {

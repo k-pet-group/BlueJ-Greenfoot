@@ -57,12 +57,4 @@ install.width=500
 install.height=340
 
 # Tag line to put at bottom (your web site, copyright, etc.)
-install.tagline=BlueJ Installer version 1.3 - Monash University
-
-# Required classes to check for
-install.requires=java.lang.Integer
-install.requires.help.java.lang.Integer=BlueJ requires that JDK 1.2.x is installed.\nIt can be downloaded from http://java.sun.com
-
-# Required files to check for
-install.requiresFile=!/../lib/tools.jar
-install.requiresFile.help=Cannot find the file "tools.jar", which usually\nis in <JDK_HOME>/lib/tools.jar. The path to \nthe executable you specified may be incorrect \nor the executable you have specified may be a \n"JRE" version (without the JDK tools). Please \ncorrect the path to your Java executable (for \nWindows typically C:\\jdk1.3\\bin\\java). For \ndetails read\nhttp://bluej.monash.edu/html/install_details.html
+install.tagline=BlueJ Installer version 1.4 - Monash University
