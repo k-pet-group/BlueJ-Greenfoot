@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2096 2003-07-04 14:52:01Z mik $
+ * @version $Id: VMReference.java 2101 2003-07-08 14:00:26Z mik $
  *
  * The startup process is as follows:
  *
@@ -125,7 +125,7 @@ class VMReference
         	// the parameters to launch the VM
             String launchParams[] = { Config.getJDKExecutablePath("this.key.must.not.exist", "java"),
             							"-classpath",
-										Boot.get().getRuntimeClassPathString(),
+										Boot.getInstance().getRuntimeClassPathString(),
             							"-Xdebug",
             							"-Xint",
             							"-Xrunjdwp:transport=dt_socket,server=y,address=" + PORT_NUM,

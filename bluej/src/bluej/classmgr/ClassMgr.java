@@ -22,7 +22,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2001 2003-05-30 14:37:52Z damiano $
+ * @version $Id: ClassMgr.java 2101 2003-07-08 14:00:26Z mik $
  */
 public class ClassMgr
 {
@@ -114,7 +114,7 @@ public class ClassMgr
         addConfigEntries(userLibraries, userlibPrefix);
 
 //        String syscp = System.getProperty("sun.boot.class.path");
-        String syscp = Boot.get().getRuntimeClassPathString();
+        String syscp = Boot.getInstance().getRuntimeClassPathString();
         String envcp = System.getProperty("java.class.path");
 
         if (syscp == null) {        // pre JDK1.2

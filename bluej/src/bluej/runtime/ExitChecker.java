@@ -5,7 +5,7 @@ package bluej.runtime;
  * ATTENTION: The class needs jdk 1.4 to be compiled!
  *
  * @author  Michael Kolling
- * @version $Id: ExitChecker.java 1603 2003-01-24 09:18:26Z mik $
+ * @version $Id: ExitChecker.java 2101 2003-07-08 14:00:26Z mik $
  */
 public class ExitChecker
 {
