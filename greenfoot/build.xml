@@ -1,0 +1,94 @@
+<project name="greenfoot" default="dist" basedir=".">
+	<description>
+    	greenfoot build file
+    </description>
+    
+    <!-- ********************************************** -->
+    <!-- it should not be necessary to edit any properties to build -->
+
+    <!-- user specific properties that are edited to match local build environment-->
+    <!--property file="build.properties"/--> 
+	<property name="bluej.projectdir"  location="/home/polle/workspace/BlueJGreenfoot"/>
+		
+  
+	<!-- Location of the bluej lib dir -->  
+	<property name="bluej.lib"  location="${bluej.projectdir}/lib"/>	
+	<!-- Location of the where the greenfoot.jar should be placed-->  
+	<property name="bluej.extensions.lib"  location="${bluej.projectdir}/lib/extensions"/>
+	<!-- The classpath to the bluej classes-->
+    <path id="bluej.class.path">
+        <pathelement location="${bluej.projectdir}/classes"/>        
+    </path>
+
+  	<!-- **** greenfoot related properties **** --> 
+	<!-- Location of the source files for greenfoot -->
+	<property name="src" location="src"/>
+	<!-- Location of the image files for greenfoot -->
+	<property name="images" location="images"/>
+		
+	<!-- Location of the build-dir where the class files will be stored -->
+	<property name="build" location="bin"/>
+    <!-- Files that are used in the skeleton project. These are the user-visible framework files   -->
+	<patternset id="skeleton.files">
+		<include name="greenfoot/GreenfootWorld.*"/>
+		<include name="greenfoot/GreenfootObject.*"/>
+		<include name="greenfoot/greenfoot-logo.png"/>
+	</patternset>
+
+	<target name="init">
+    	<!-- Create the time stamp -->
+	    <tstamp/>
+    	<!-- Create the build directory structure used by compile -->
+	    <mkdir dir="${build}"/>
+	    <mkdir dir="${bluej.extensions.lib}"/>
+	</target>
+
+	<target name="compile" depends="init" description="Compile the source and run rmic" >
+    	<!-- Compile the java code from ${src} into ${build} -->
+	    <javac srcdir="${src}" destdir="${build}"/>
+	    <javac srcdir="${images}" destdir="${build}"/>
+	    <!-- Compile the RMI-classes -->
+    	<rmic base="${build}" includes="**/*Impl.class">
+        	<classpath>
+               <path refid="bluej.class.path"/>
+           	</classpath>
+		</rmic>
+	</target>
+
+
+	<target name="ready-to-run" depends="compile, copy-projects" description="Builds everything so it is ready to run" >    	
+	</target>
+
+
+	<target name="skeleton" depends="compile"  description="Copy the framework files from the build-dir to the skeletonproject." > 
+    	<copy todir="projects/skeletonProject">
+    		<fileset dir="${src}">
+    			<patternset refid="skeleton.files"/>
+	    	</fileset>	
+		</copy>	
+	</target>
+	
+	<target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject and startupProject to bluej" > 
+    	<copy todir="${bluej.lib}">
+    		<fileset dir="projects"/>
+        </copy>	
+	</target>
+
+	<target name="dist" depends="ready-to-run" description="Generate the distribution. Also runs the bluej-dist" >
+	    <!-- Put everything in ${build} into the the jar file-->
+    	<jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
+	    	<manifest>
+				<attribute name="Main-Class" value="rmiextension.RMIExtension"/>
+			 	<attribute name="Class-Path" value="."/>
+			</manifest>
+		</jar>
+		<!-- Run the BlueJ dist-->
+    	<ant dir="${bluej.projectdir}" target="dist-no-win"/>
+	</target>
+
+	<target name="clean" description="clean up" >
+    	<!-- Delete the ${build} and ${bluej.extensions.lib} directory trees -->
+	    <delete dir="${build}"/>
+    	<delete dir="${bluej.extensions.lib}"/>
+	</target>
+</project>
