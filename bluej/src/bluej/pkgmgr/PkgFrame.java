@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 201 1999-07-22 03:54:27Z ajp $
+ ** @version $Id: PkgFrame.java 210 1999-07-23 06:43:19Z ajp $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -320,7 +320,7 @@ public abstract class PkgFrame extends JFrame
     static final int EDIT_PREFERENCES = EDIT_REMOVEARROW + 1;
     
     static final String[] EditCmds = {
-	"newClass", "removeClass", "newUses", "newInherits", "removeArrow", "preferences"
+	"newClass", "removeClass", "newUses", "newInherits", "removeArrow" //, "preferences"
     };
 
     static final KeyStroke[] EditKeys = {
@@ -333,7 +333,7 @@ public abstract class PkgFrame extends JFrame
     };
 
     static final int[] EditSeparators = {
-	EDIT_REMOVECLASS, EDIT_REMOVEARROW
+	EDIT_REMOVECLASS //, EDIT_REMOVEARROW
     };
 
     static final int TOOLS_COMMAND = EDIT_COMMAND + 100;
