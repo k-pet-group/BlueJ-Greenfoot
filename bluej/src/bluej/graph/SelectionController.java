@@ -458,6 +458,18 @@ public class SelectionController
             selection.selectOnly(clickedElement);
             postMenu(clickedElement, clickX, clickY);
         }
+        else {
+            postMenu(clickX, clickY);
+        }
+    }
+    
+    /**
+     * Post the context menu on the diagram at the specified location
+     * @param x
+     * @param y
+     */
+    private void postMenu(int x, int y){
+        graphEditor.popupMenu(x,y);
     }
     
     /**

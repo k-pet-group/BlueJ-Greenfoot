@@ -3,23 +3,30 @@ package bluej.graph;
 import java.awt.*;
 import java.awt.event.*;
 
+import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import bluej.Config;
+import bluej.pkgmgr.actions.NewClassAction;
+import bluej.pkgmgr.actions.NewPackageAction;
 import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
+import bluej.prefmgr.PrefMgr;
 
 /**
  * Component to allow editing of general graphs.
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 2907 2004-08-18 19:00:38Z mik $
+ * @version $Id: GraphEditor.java 3170 2004-11-25 12:31:58Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener
 {
     protected static final Color background = Config.getItemColour("colour.graph.background");
-
+    protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+    
     private final static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
     private final static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
     private final static Cursor resizeCursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
@@ -179,5 +186,37 @@ public class GraphEditor extends JComponent
     public Graph getGraph()
     {
         return graph;
+    }
+
+    /**
+     * @param x
+     * @param y
+     */
+    public void popupMenu(int x, int y)
+    {
+        JPopupMenu menu = createMenu();
+        if (menu != null)
+            menu.show(this, x, y);
+        
+    }
+
+    /**
+     * @return
+     */
+    private JPopupMenu createMenu()
+    {
+       JPopupMenu menu = new JPopupMenu();
+       Action newClassAction = NewClassAction.getInstance();
+       addMenuItem(menu, newClassAction);
+       Action newPackageAction = NewPackageAction.getInstance();
+       addMenuItem(menu, newPackageAction);
+       return menu;
+    }
+    
+    private void addMenuItem(JPopupMenu menu, Action action)
+    {
+        JMenuItem item = menu.add(action);
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
     }
 }
