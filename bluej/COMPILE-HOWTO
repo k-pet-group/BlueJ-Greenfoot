@@ -1,15 +1,20 @@
-Instructions on compiling and running JavaBlue from source.
+Instructions on compiling and running BlueJ from source.
 
 After obtaining a complete source tree (either from the CVS repository or
-by other means), do the following to build JavaBlue:
+by other means), do the following to build BlueJ:
 
 On a Unix machine (with Bourne shell and GNU make):
 
-	add the directory javablue/bin to your PATH
+	add the directory bluej/bin to your PATH
 
 	export OS=unix
 	make dep
 	make
+
+or to build with the IBM Jikes compiler, make sure jikes is in your
+path and type:
+
+	make jikes
 
 On Windows, you will need the Cygnus GNU-Win32 tools, version b19 with
 the updated version of cygwinb19.dll or later. Then create a /bin and
@@ -20,9 +25,9 @@ a /tmp directory, and do:
 
 substituting the path for the bash executable on your system in the above
 
-To build JavaBlue, you then do:
+To build BlueJ, you then do:
 
-	add the directory javablue/bin to your PATH
+	add the directory bluej/bin to your PATH
 
 	export OS=win32
 	make dep
@@ -30,6 +35,6 @@ To build JavaBlue, you then do:
 
 Expect some error messages when you run "make dep", but the
 make itself should complete successfully. Then you should be
-able to run JavaBlue by typing
+able to run BlueJ by typing
 
-	bin/javablue
+	bin/bluej
