@@ -1,33 +1,22 @@
-						/**
- * A class representing students for a simple JavaBlue demo program.
+/**
+ * A class representing students for a simple BlueJ demo program.
  *
- * Author:  Michael KöllingeeEj
- * Version: 1.0rrtwwue5WaAAau
+ * Author:  Michael Kölling
+ * Version: 1.0
  * Date:    January 1999
  */
 	
 class Student extends Person  
 {
 	private String SID;    // student ID number
-/	vnfvndfkjvfd
-	
 
-	
-	  bhbbh
-	  vmfdklvfd
-	  	ncfdvncfd
-	  	vnfjdkvnjdkfv
-	 
     /**
-    * Create a st  udent with default settings for detailsettings for detail information.!
-    */
+     * Create a student with default settings for detail information.
+     */
     Student()
     {
-    super("(unknown name)", 0000);
-    SID = "(unknown ID)";
-    cvmfdkvmd
-    vcmfkdvmdl
-    
+    	super("(unknown name)", 0000);
+    	SID = "(unknown ID)";
     }
  
 
@@ -35,18 +24,9 @@ class Student extends Person
      * Create a student with given name, year of birth and student ID
      */
     Student(String name, int yearOfBirth, String studentID)
-{
-      super(name, yearOfBirth);
+	{
+		super(name, yearOfBirth);
         SID = studentID;
-        cnjfcvd
-        	vfjdvbnjkd
-        	nbcjkvhdf
-        cnjkscnjksd
-        cndskcnbkjsd
-        	bcvfdhvbhfdj
-        	cnjdscksd
-        nvfdnvjkfd
-        
     }
 
     /**

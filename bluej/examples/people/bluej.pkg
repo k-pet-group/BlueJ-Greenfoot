@@ -2,7 +2,7 @@
 dependency1.from=Database
 dependency1.to=Person
 dependency1.type=UsesDependency
-package.numDependencies=2
+package.numDependencies=3
 package.numTargets=4
 package.window.height=518
 package.window.width=585
@@ -10,7 +10,7 @@ target1.height=50
 target1.modifiers=0
 target1.name=Student
 target1.type=ClassTarget
-target1.valid=false
+target1.valid=true
 target1.width=80
 target1.x=210
 target1.y=180
