@@ -7,7 +7,7 @@ package bluej.testmgr;
  * This record is for method calls with no result.
  *
  * @author  Andrew Patterson
- * @version $Id: VoidMethodInvokerRecord.java 1882 2003-04-24 06:28:11Z ajp $
+ * @version $Id: VoidMethodInvokerRecord.java 2137 2003-08-01 03:35:33Z bquig $
  */
 public class VoidMethodInvokerRecord extends InvokerRecord
 {
@@ -26,12 +26,12 @@ public class VoidMethodInvokerRecord extends InvokerRecord
     public String toFixtureSetup()
     {
     	// code for the fixture setup involves just inserting the method call
-        return firstIndent + command + statementEnd;
+        return secondIndent + command + statementEnd;
     }
 
 	public String toTestMethod()
 	{
 		// code for the test method involves just inserting the method call
-		return firstIndent + command + statementEnd;
+		return secondIndent + command + statementEnd;
 	}
 }
