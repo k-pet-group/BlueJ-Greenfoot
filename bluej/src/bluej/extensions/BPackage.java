@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2298 2003-11-06 19:06:33Z damiano $
+ * @version $Id: BPackage.java 2365 2003-11-18 16:11:56Z iau $
  */
 
 /*
@@ -37,7 +37,7 @@ public class BPackage
     }
 
     /**
-     * Removes this package from BlueJ
+     * Removes this package from BlueJ, including the underlying files.
      *
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
@@ -96,7 +96,10 @@ public class BPackage
 
     /**
      * Creates a new Class with the given name.
-     * The class name must not be a fully qualified name.
+     * The class name must not be a fully qualified name, and the .java file must already exist.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
+     * @throws MissingJavaFileException if the .java file for the new class does not exist.
      */
     public BClass newClass ( String className )
         throws ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
@@ -180,7 +183,7 @@ public class BPackage
     
     /**
      * Returns a wrapper for the object with the given name on BlueJ's object bench.
-     * @param name the name of the object as shown on the object bench
+     * @param instanceName the name of the object as shown on the object bench
      * @return the object, or null if no such object exists.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
@@ -273,8 +276,8 @@ public class BPackage
         }
 
     /** 
-     * Returns the currently selected Classes in a Package.
-     * If no Class is being selected an empty array is returned.
+     * Returns the currently selected classes in this Package.
+     * If no class is selected an empty array is returned.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -300,8 +303,8 @@ public class BPackage
     }
 
     /** 
-     * Returns the currently selected Objects in the Object Bench.
-     * If no Object is being selected an empty array is returned.
+     * Returns the currently selected objects in the Object Bench.
+     * If no object is selected an empty array is returned.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -336,7 +339,7 @@ public class BPackage
     }
 
     /**
-     * Returns a string representation of the Object
+     * Returns a string representation of the package object
      */
     public String toString () 
       {

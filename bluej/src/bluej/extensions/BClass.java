@@ -17,7 +17,7 @@ import bluej.editor.*;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 2298 2003-11-06 19:06:33Z damiano $
+ * @version    $Id: BClass.java 2365 2003-11-18 16:11:56Z iau $
  */
 
 public class BClass
@@ -37,7 +37,7 @@ public class BClass
     }
 
     /**
-     * Removes this Class from BlueJ
+     * Removes this class from BlueJ, including the underlying files.
      *
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
@@ -290,7 +290,7 @@ public class BClass
 
 
     /**
-     * Returns the declared method of this class with the given signature.
+     * Returns the declared method of this class which has the given signature.
      * Similar to reflection API.
      *
      * @param  methodName                Description of the Parameter
@@ -368,7 +368,7 @@ public class BClass
 
 
     /**
-     * Returns this Class .class file.
+     * Returns this class's .class file.
      *
      * @return                            the class .class file.
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
@@ -384,8 +384,8 @@ public class BClass
 
 
     /**
-     * Returns this Class .java file.
-     * If the file is currently being edited it will be saved at this method call.
+     * Returns this class's .java file.
+     * If the file is currently being edited, calling this method will cause it to be saved.
      *
      * @return                            the class .java file.
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
@@ -403,8 +403,8 @@ public class BClass
 
 
     /**
-     * Signal to BlueJ that an extension is willing to begin changing the source file of this class.
-     * The file containing the source for this Class can be found using getJavaFile();
+     * Signal to BlueJ that an extension is about to begin changing the source file of this class.
+     * The file containing the source for this class can be found using getJavaFile();
      * If the file is currently being edited it will be saved and the editor will be set read-only.
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
@@ -422,6 +422,7 @@ public class BClass
 
     /**
      * Signal to BlueJ that an extension has finished changing the source file of this class.
+     * If the file is currently being edited, this will cause it to be re-loaded and the editor to be set read/write.
      * 
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.

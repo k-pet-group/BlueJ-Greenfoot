@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 2266 2003-11-05 11:20:26Z damiano $
+ * @version $Id: BProject.java 2365 2003-11-18 16:11:56Z iau $
  */
 
 /*
@@ -79,7 +79,8 @@ public class BProject
 
     
     /**
-     * Returns a new Package with the given fully qualified name.
+     * Create and return a new package with the given fully qualified name.
+     * The necessary directories and files will be created.
      * 
      * @return the requested package, or null if it wasn't found
      * @throws ProjectNotOpenException if the project has been closed by the user.
@@ -102,7 +103,7 @@ public class BProject
             throw new IllegalStateException("newPackage: Package '"+fullyQualifiedName+"' has no parent package");
 
         if ( risul != Project.NEW_PACKAGE_DONE )
-            throw new IllegalStateException("newPackage: Unknown risult code="+risul);
+            throw new IllegalStateException("newPackage: Unknown result code="+risul);
 
         Package pkg = bluejProject.getPackage (fullyQualifiedName);
 
@@ -123,7 +124,7 @@ public class BProject
     /**
      * Get a package belonging to this project.
      * 
-     * @param the fully-qualified name of the package
+     * @param name the fully-qualified name of the package
      * @return the requested package, or null if it wasn't found
     * 
      * @throws ProjectNotOpenException if the project has been closed by the user.
@@ -140,7 +141,7 @@ public class BProject
     
     /**
      * Returns all packages belonging to this project.
-     * @return The array of this project packages, if none exist an empty array is returned.
+     * @return The array of this project's packages, if none exist an empty array is returned.
      * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public BPackage[] getPackages() throws ProjectNotOpenException
@@ -158,7 +159,7 @@ public class BProject
     }
 
     /**
-     * Returns a string representation of the Object
+     * Returns a string representation of this package object
      */
     public String toString ()
       {
