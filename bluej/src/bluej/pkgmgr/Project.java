@@ -21,7 +21,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2897 2004-08-18 08:54:17Z mik $
+ * @version $Id: Project.java 2900 2004-08-18 11:52:28Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -156,7 +156,6 @@ public class Project
      */
     public static void closeProject(Project project)
     {
-        System.out.println("closing project");
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(project);
 
         if (frames != null) {
@@ -173,7 +172,6 @@ public class Project
      */
     public static void cleanUp(Project project)
     {
-        System.out.println("cleanUp");
 		if (project.hasExecControls())
 			project.getExecControls().dispose();
         if (project.terminal != null)

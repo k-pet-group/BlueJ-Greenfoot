@@ -8,6 +8,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Collections;
 import java.io.File;
@@ -20,7 +21,7 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 2895 2004-08-18 08:42:23Z mik $
+ * @version $Id: ExportDialog.java 2900 2004-08-18 11:52:28Z mik $
  */
 class ExportDialog extends JDialog
 {
@@ -29,6 +30,7 @@ class ExportDialog extends JDialog
     private static final String helpLine1 = Config.getString("pkgmgr.export.helpLine1");
     private static final String helpLine2 = Config.getString("pkgmgr.export.helpLine2");
     private static final String classLabelText = Config.getString("pkgmgr.export.classLabel");
+    private static final String libsLabel = Config.getString("pkgmgr.export.includeLibs");
     private static final String sourceLabel = Config.getString("pkgmgr.export.sourceLabel");
     private static final String noClassText = Config.getString("pkgmgr.export.noClassText");
 
@@ -53,7 +55,7 @@ class ExportDialog extends JDialog
     public boolean display()
     {
         ok = false;
-        setVisible(true);
+        setVisible(true);  // returns after OK or Cancel, which set 'ok'
         return ok;
     }
 
@@ -63,6 +65,22 @@ class ExportDialog extends JDialog
     public String getMainClass()
     {
         return mainClassName;
+    }
+
+    /**
+     * Return userlibs selected in the dialogue.
+     * @return  A list of File objects.
+     */
+    public List getSelectedLibs()
+    {
+        List selected = new ArrayList();
+        
+        for(int i = 0; i < userLibs.length; i++) {
+            if(userLibs[i].isSelected())
+                selected.add(userLibs[i].getFile());
+        }
+        
+        return selected;
     }
 
     /**
@@ -118,29 +136,34 @@ class ExportDialog extends JDialog
 
             mainPanel.add(Box.createVerticalStrut(5));
 
+            mainPanel.add(new JSeparator());
+            mainPanel.add(Box.createVerticalStrut(5));
+
             JPanel inputPanel = new JPanel();
             {
                 inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
                 inputPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-				inputPanel.setBorder(BorderFactory.createCompoundBorder(
-						BorderFactory.createEtchedBorder(),
-						BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+                JPanel mainClassPanel = new JPanel();
+                {
+                    JLabel classLabel = new JLabel(classLabelText);
+                    mainClassPanel.add(classLabel);
 
-                JLabel classLabel = new JLabel(classLabelText);
-                classLabel.setAlignmentX(LEFT_ALIGNMENT);
-                inputPanel.add(classLabel);
-
-                classSelect = new JComboBox();
-                classSelect.setAlignmentX(LEFT_ALIGNMENT);
-                makeClassPopup(project, classSelect);
-                inputPanel.add(classSelect);
+                    classSelect = makeClassPopup(project);
+                    mainClassPanel.add(classSelect);
+                    
+                }
+                mainClassPanel.setAlignmentX(LEFT_ALIGNMENT);
+                inputPanel.add(mainClassPanel);
                 inputPanel.add(Box.createVerticalStrut(5));
                 
                 JPanel userLibPanel = createUserLibPanel();
-                inputPanel.add(userLibPanel);
-                inputPanel.add(Box.createVerticalStrut(5));
-
+                if(userLibPanel != null) {
+                    userLibPanel.setAlignmentX(LEFT_ALIGNMENT);
+                    inputPanel.add(userLibPanel);
+                    inputPanel.add(Box.createVerticalStrut(5));
+                }
+                
                 sourceBox = new JCheckBox(sourceLabel, false);
                 sourceBox.setAlignmentX(LEFT_ALIGNMENT);
                 inputPanel.add(sourceBox);
@@ -181,8 +204,10 @@ class ExportDialog extends JDialog
     /**
      * Fill the class name popup selector with all classes of the project
      */
-    private void makeClassPopup(Project project, JComboBox popup)
+    private JComboBox makeClassPopup(Project project)
     {
+        JComboBox popup = new JComboBox();
+
         popup.setFont(PrefMgr.getPopupMenuFont());
         popup.addItem(noClassText);
 
@@ -201,23 +226,37 @@ class ExportDialog extends JDialog
                 for (Iterator classes = classNames.iterator(); classes.hasNext();)
                     popup.addItem(classes.next());
         }
+        
+        return popup;
     }
     
+    /**
+     * Return a prepared panel listing the user libraries with check boxes,
+     * or null if there are no user libraries.
+     */
     private JPanel createUserLibPanel()
     {
         // collect info about jar files from lib/userlib and Preferences
+        
         List libs = ClassMgr.getClassMgr().getUserClassPath().getPathEntries();
-        UserLibInfo[] userLibs = new UserLibInfo[libs.size()];
+        if(libs.size() == 0)
+            return null;
+        
+        userLibs = new UserLibInfo[libs.size()];
         int idx = 0;
         for(Iterator it = libs.iterator(); it.hasNext(); ) {
             ClassPathEntry cpe = (ClassPathEntry) it.next();
             userLibs[idx++] = new UserLibInfo(cpe.getFile());
         }
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setAlignmentX(LEFT_ALIGNMENT);
+        // Create the panel with the user libs listed
         
+        JPanel panel = new JPanel(new GridLayout(0,2));
+
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(libsLabel),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+
         for(int i = 0; i < userLibs.length; i++) {
             panel.add(userLibs[i].getCheckBox());
         }
@@ -240,6 +279,14 @@ class ExportDialog extends JDialog
         public JCheckBox getCheckBox()
         {
             return checkBox;
+        }
+        
+        /**
+         * Return the file of this lib.
+         */
+        public File getFile()
+        {
+            return sourceFile;
         }
         
         /**
