@@ -386,6 +386,10 @@ pkgmgr.export.jarFileLabel=Store as jar file
 pkgmgr.export.classLabel=main class:
 pkgmgr.export.sourceLabel=include source
 pkgmgr.export.noClassText=none (cannot be executed)
+pkgmgr.export.specifyJar=Specify name for jar file
+pkgmgr.export.specifyDir=Specify name for export directory
+pkgmgr.export.createJarText=Create
+pkgmgr.export.createDirText=Create
 
 # "open-non-bluej" mismatch dialog
 pkgmgr.importmismatch.title=BlueJ:  Package Line Mismatches

@@ -16,10 +16,15 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 1168 2002-03-13 11:22:45Z mik $
+ * @version $Id: ExportManager.java 2654 2004-06-23 15:11:42Z polle $
  */
 final class ExportManager
 {
+    private static final String specifyJar = Config.getString("pkgmgr.export.specifyJar");
+    private static final String specifyDir = Config.getString("pkgmgr.export.specifyDir");
+    private static final String createJarText = Config.getString("pkgmgr.export.createJarText");
+    private static final String createDirText = Config.getString("pkgmgr.export.createDirText");
+    
     private PkgMgrFrame frame;
 
     public ExportManager(PkgMgrFrame frame)
@@ -41,16 +46,10 @@ final class ExportManager
             return;
 
         String newName;
-        if(dialog.saveAsJar())
-            newName = FileUtility.getFileName(frame,
-                                        "Specify name for jar file",
-                                        "Create",
-                                        false, null, false);
+        if (dialog.saveAsJar())
+            newName = FileUtility.getFileName(frame, specifyJar, createJarText, false, null, false);
         else
-            newName = FileUtility.getFileName(frame,
-                                        "Specify name for export directory",
-                                        "Create",
-                                        false, null, false);
+            newName = FileUtility.getFileName(frame, specifyDir, createDirText, false, null, false);
         if(newName == null)
             return;
 
