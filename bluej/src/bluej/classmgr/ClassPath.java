@@ -10,7 +10,7 @@ import java.util.jar.*;
 import javax.swing.table.*;
 
 /**
- ** @version $Id: ClassPath.java 132 1999-06-16 04:44:24Z ajp $
+ ** @version $Id: ClassPath.java 161 1999-07-06 14:40:53Z ajp $
  ** @author Andrew Patterson
  ** Class to maintain a list of ClassPathEntry's.
  **/
@@ -106,7 +106,8 @@ public class ClassPath
 
 			while(st.hasMoreTokens()) {
 				String entry = st.nextToken();
-				ClassPathEntry cpentry = new ClassPathEntry(entry, genericdescription);
+				String name = (new File(entry)).getName();
+				ClassPathEntry cpentry = new ClassPathEntry(entry, genericdescription + " - " + name);
 
 				if(!entries.contains(cpentry))
 					entries.add(cpentry);
@@ -235,17 +236,32 @@ public class ClassPath
 		// separator character we have to first fix the filename up
 
 		if(File.separatorChar != '/')
-			filename = filename.replace('/', File.separatorChar);
+			filename = filename.replace(File.separatorChar, '/');
 
 		JarEntry entry = jarf.getJarEntry(filename);
 
-		if(entry == null)
+		if(entry == null) {
 			return null;
+		}
 
 		InputStream is = jarf.getInputStream(entry);
 
-		jarf.close();
-
 		return is;
+	}
+
+	public String toString()
+	{
+		StringBuffer buf = new StringBuffer();
+
+		Iterator it = entries.iterator();
+
+		while (it.hasNext()) {
+			ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+
+			buf.append(nextEntry.getPath());
+			buf.append(Config.colon);
+		}
+
+		return buf.toString();
 	}
 }

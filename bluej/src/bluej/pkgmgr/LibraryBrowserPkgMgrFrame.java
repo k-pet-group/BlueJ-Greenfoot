@@ -4,8 +4,8 @@ import javax.swing.*;
 import javax.swing.filechooser.*;
 import javax.swing.tree.TreePath;
 
-import java.awt.event.*; // WindowAdapter, ActionListener, etc.
-import java.awt.*; // Dimension, etc.
+import java.awt.event.*;
+import java.awt.*;
 import javax.swing.border.TitledBorder;
 
 import bluej.graph.GraphEditor;
@@ -31,17 +31,22 @@ import java.net.MalformedURLException;
  * Runs as either a standalone application, or spawned from
  * the BlueJ environment
  *
- * @author $Author: ajp $
- * @date $Date: 1999-06-03 03:15:30 +0100 (Thu, 03 Jun 1999) $
- * $Header$
+ * @author	Andy Marks
+ *		Andrew Patterson
+ * @version	$Id $
  **/
 public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListener, ToggleMessageBoxOwner {
-	// top level UI containers
-    private JPanel chooserPanel = new JPanel();
-    private JPanel classPanel = new JPanel(new BorderLayout());
-    private AttributeChooser attributeChooser = null;
+
+	// panel which holds display of the list of classes
+	private JPanel classPanel = new JPanel(new BorderLayout());
+	// panel which holds display of methods/fields of current class
+	private AttributeChooser attributeChooser = null;
+	// panel which holds tree listing class heirarchy
+	private LibraryChooser libraryChooser = null;
+
+
+
     private CodeViewer codeViewer = null;
-    private LibraryChooser libraryChooser = null;
     
     private JMenuItem closeMI = null;
     private JMenuItem refreshMI = null;
@@ -55,33 +60,19 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
     private JMenuItem editPackageMI = null;
     private JMenuBar menuBar = null;
   
-    private JScrollPane scroller = null;
 
     private static final Dimension CHOOSERPANELSIZE = new Dimension(200, 250);
-
+	private static final Dimension classPanelSize = new Dimension(700, 450);
     /* 
-    Package caching and history attributes
-    Package cache and history are maintained by 2 separate objects:
-    Package cache: Hashtable mapping package dir -> Package object
-    Package history: Hashtable mapping package name -> package dir
+	Package cache: Hashtable mapping package dir -> Package object
     */
-    private JComboBox packageHistory = null;
     private PackageCacheMgr packageCache = new PackageCacheMgr();
-    // list of items in history 
-    // keys = package name, objects = path to package
-    private Hashtable packageHistoryModel = new Hashtable();
-    private JPanel classPanelControls = new JPanel(new BorderLayout());
-    private static ImageIcon BACKBUTTONIMG = null;
-    private static ImageIcon FORWARDBUTTONIMG = null;
-    private JButton previousPackage = null;
-    private JButton nextPackage = null;
 
     private String currentPackageName = null;
     private String currentPackageDir = null;
     private Package currentPackage = null;
     private static LibraryBrowserPkgMgrFrame frame = null;
     public static boolean isStandalone = false;
-    public static String TEMPDIR = null;
 
 	private static final char INNERCLASSINDICATOR = '$';
 	private static final String JAVASOURCEEXTENSION = ".java";
@@ -125,31 +116,24 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
     public LibraryBrowserPkgMgrFrame(boolean isStandalone) {
 	    this.isStandalone = isStandalone;
 	    
-	TEMPDIR = Config.getString("browser.tempdir");
-	
 	// hack way of making class singleton
 	if (frame != null) {
 	    Utility.showMessage(this,
 				"Sorry - you can only start one copy\nof this version of the Library Browser");
 	    return;
 	}
-	
-	BACKBUTTONIMG = new ImageIcon(Config.getImageFilename("browser.classchooser.backbutton.image"));
-	previousPackage = new JButton(BACKBUTTONIMG);
-	previousPackage.setToolTipText("go to previous package in history list");
-	FORWARDBUTTONIMG = new ImageIcon(Config.getImageFilename("browser.classchooser.forwardbutton.image"));
-	nextPackage = new JButton(FORWARDBUTTONIMG);
-	nextPackage.setToolTipText("go to next package in history list");
+
+	setSize(new Dimension(780,580));
 	
 	// don't create these during declaration or they'll be 
 	// instantiated before we even know if we want to/can
 	// create another Library Browser
+	libraryChooser = new LibraryChooser(this);
 	attributeChooser = new AttributeChooser(this);
 	codeViewer = new CodeViewer();
-	libraryChooser = new LibraryChooser(this);
 	
 	frame = this;
-	setTitle(Config.getString("browser.title") + " " + Config.getString("browser.version"));
+	setTitle(Config.getString("browser.title"));
 	
 	setupUI();
 	
@@ -157,9 +141,9 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 	setVisible(false);
 	
 	addWindowListener(new WindowAdapter() {
-	    public void windowClosing(WindowEvent e) {
-		close();
-	    }
+		public void windowClosing(WindowEvent e) {
+			close();
+		}
 	});
     }
     
@@ -174,7 +158,6 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 	if (isStandalone)
 		System.exit(0);
 	else {
-		System.out.println("|" + frame + "|");
 		if (frame != null) {
 			setVisible(false);
 			frame = null; // so that next browser start wont short circuit and quit
@@ -183,67 +166,102 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 	}
     }
     
-    /**
-     * Choose the layout manager, add the components to the frame
-     * and layout the frame.
-     **/
-    private void setupUI() {
-	setupClassPanel();
-	setupChooserPanel();
-	setupMenus();
+	/**
+	 * Choose the layout manager, add the components to the frame
+	 * and layout the frame.
+	 **/
+	private void setupUI() {
+		setupMenus();
 
-	JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-	splitPane.setDividerSize(5);
-	splitPane.setLeftComponent(chooserPanel);
-	splitPane.setRightComponent(classPanel);
-	splitPane.setOneTouchExpandable(false);
+		libraryChooser.setPreferredSize(new Dimension(250, 200));
+//		attributeChooser.setPreferredSize(CHOOSERPANELSIZE);
+
+		JPanel fullPane = new JPanel();
+		{
+			JSplitPane splitPaneOne = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+			{
+				JPanel chooserPanel = new JPanel();
+				{
+					/* Choose the layout manager, add the components to the panel
+					   and layout the panel for the class panel.  It's two main
+					   components are the libraryChooser and classChooser. */
+
+					JSplitPane splitPaneTwo = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+					{
+						splitPaneTwo.setLeftComponent(libraryChooser);
+						splitPaneTwo.setDividerSize(Config.splitPaneDividerWidth);
+						splitPaneTwo.setRightComponent(attributeChooser);
+						splitPaneTwo.setOneTouchExpandable(false);
 			         
-	//Set the initial location and size of the divider
-	splitPane.setDividerLocation(250);
-	
-	getContentPane().setLayout(new BorderLayout());
-	getContentPane().add(statusbar, BorderLayout.SOUTH);
-	getContentPane().add(splitPane, BorderLayout.CENTER);
-    }
+						// set the initial location and size of the divider
+//						splitPaneTwo.setDividerLocation(250);
+					}
 
-    /**
-     * Create menu bar, menus and menuitems.  Setup listeners for menu items.
-     **/
-    protected void setupMenus() {
-	menuBar = new JMenuBar();
-	JMenu libraryM = new JMenu(Config.getString("browser.menu.library"));
+					chooserPanel.setLayout(new BorderLayout());
+					chooserPanel.add(splitPaneTwo, BorderLayout.CENTER);
+				}
 
-	refreshMI = new JMenuItem(Config.getString("browser.menu.library.refresh"));
-	refreshMI.addActionListener(this);
-	libraryM.add(refreshMI);
-	refreshMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getKeyText(KeyEvent.VK_F5)));
-	
-	libraryM.addSeparator();
-	closeMI = new JMenuItem(Config.getString("browser.menu.library.close"));
-	closeMI.addActionListener(this);
-	libraryM.add(closeMI);
-	closeMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK));
-	
-	libraryM.setEnabled(false);
-	menuBar.add(libraryM);
-	
-	JMenu editM = new JMenu(Config.getString("browser.menu.edit"));
-	findMI = new JMenuItem(Config.getString("browser.menu.edit.find"));
-	findMI.addActionListener(this);
-	editM.add(findMI);
-	findMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
+				// classPanel is a global variable
+				{
+					classPanel.setPreferredSize(new Dimension(700, 400));
+				}
 
-	editM.setEnabled(false);
-	menuBar.add(editM);
+				splitPaneOne.setDividerSize(Config.splitPaneDividerWidth);
+				splitPaneOne.setTopComponent(chooserPanel);
+				splitPaneOne.setBottomComponent(classPanel);
+				splitPaneOne.setOneTouchExpandable(false);
+			        
+				// set the initial location and size of the divider
+//				splitPaneOne.setDividerLocation(200);
+			}
+
+			fullPane.setBorder(Config.generalBorderWithStatusBar);
+			fullPane.setLayout(new BorderLayout());
+			fullPane.add(splitPaneOne, BorderLayout.CENTER);
+			fullPane.add(statusbar, BorderLayout.SOUTH);
+		}
+
+		getContentPane().add(fullPane);
+	}
+
+	/**
+	 * Create menu bar, menus and menuitems.  Setup listeners for menu items.
+	 **/
+	protected void setupMenus() {
+		menuBar = new JMenuBar();
+		JMenu libraryM = new JMenu(Config.getString("browser.menu.library"));
+
+		refreshMI = new JMenuItem(Config.getString("browser.menu.library.refresh"));
+		refreshMI.addActionListener(this);
+		libraryM.add(refreshMI);
+		refreshMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getKeyText(KeyEvent.VK_F5)));
+	
+		libraryM.addSeparator();
+		closeMI = new JMenuItem(Config.getString("browser.menu.library.close"));
+		closeMI.addActionListener(this);
+		libraryM.add(closeMI);
+		closeMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK));
+	
+		libraryM.setEnabled(false);
+		menuBar.add(libraryM);
+	
+		JMenu editM = new JMenu(Config.getString("browser.menu.edit"));
+		findMI = new JMenuItem(Config.getString("browser.menu.edit.find"));
+		findMI.addActionListener(this);
+		editM.add(findMI);
+		findMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
+
+		editM.setEnabled(false);
+		menuBar.add(editM);
 			
-	JMenu packageM = new JMenu(Config.getString("browser.menu.package"));
+		JMenu packageM = new JMenu(Config.getString("browser.menu.package"));
 	
-	if (!isStandalone) {
-		editPackageMI = new JMenuItem(Config.getString("browser.menu.package.edit"));
-		editPackageMI.addActionListener( new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				if (editor == null) 
-					return;
+		if (!isStandalone) {
+			editPackageMI = new JMenuItem(Config.getString("browser.menu.package.edit"));
+			editPackageMI.addActionListener( new ActionListener() {
+				public void actionPerformed(ActionEvent ae) {
+					if (editor == null) 
+						return;
 				
 				Utility.NYI(LibraryBrowserPkgMgrFrame.getFrame());
 				// open a new PkgMgrFrame with this package in it
@@ -251,154 +269,31 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 			}});
 
 		packageM.add(editPackageMI);
+		}
+	
+		packageM.setEnabled(false);
+		menuBar.add(packageM);
+	
+		setJMenuBar(menuBar);
 	}
-	
-	packageM.setEnabled(false);
-	menuBar.add(packageM);
-	
-	JMenu helpM = new JMenu(Config.getString("browser.menu.help"));
-	aboutMI = new JMenuItem(Config.getString("browser.menu.help.about"));
-	helpM.add(aboutMI);
-	aboutMI.addActionListener(this);
-	contentsMI = new JMenuItem(Config.getString("browser.menu.help.contents"));
-	helpM.add(contentsMI);
-	contentsMI.addActionListener(this);
-	topicsMI = new JMenuItem(Config.getString("browser.menu.help.topics"));
-	helpM.add(topicsMI);
-	topicsMI.addActionListener(this);
-	indexMI = new JMenuItem(Config.getString("browser.menu.help.index"));
-	helpM.add(indexMI);
-	indexMI.addActionListener(this);
-		
-	menuBar.add(Box.createHorizontalGlue());
-	menuBar.add(helpM);
-
-	setJMenuBar(menuBar);
-    }
     
-    /**
-     * Choose the layout manager, add the components to the panel
-     * and layout the panel for the class panel.  It's two main
-     * components are the attributeChooser and codeViewer.
-     **/
-    private void setupClassPanel() {
-	    JPanel buttonPanel = new JPanel(new BorderLayout());
-	    buttonPanel.add(previousPackage, BorderLayout.WEST);
-	    buttonPanel.add(nextPackage, BorderLayout.EAST);
-	classPanelControls.add(buttonPanel, BorderLayout.WEST);
-	classPanel.setPreferredSize(new Dimension(400, 500));
-	previousPackage.addActionListener(this);
-	previousPackage.setEnabled(false);
-	nextPackage.addActionListener(this);
-	nextPackage.setEnabled(false);
-	JPanel packageHistoryPanel = new JPanel(new BorderLayout());
-	packageHistory = new JComboBox();
-	packageHistory.setEditable(false);
-	packageHistoryPanel.add(new JLabel("History:", JLabel.RIGHT), BorderLayout.WEST);
-	packageHistoryPanel.add(packageHistory, BorderLayout.CENTER);
-	classPanelControls.add(packageHistoryPanel, BorderLayout.CENTER);
-	packageHistory.addActionListener(this);
-		
-	classPanel.add(classPanelControls, BorderLayout.NORTH);
-    }
-
-    /**
-     * Choose the layout manager, add the components to the panel
-     * and layout the panel for the class panel.  It's two main
-     * components are the libraryChooser and classChooser.
-     **/
-    private void setupChooserPanel() {
-	JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-	splitPane.setTopComponent(libraryChooser);
-	splitPane.setDividerSize(5);
-	libraryChooser.setPreferredSize(CHOOSERPANELSIZE);
-	splitPane.setBottomComponent(attributeChooser);
-	attributeChooser.setPreferredSize(CHOOSERPANELSIZE);
-	splitPane.setOneTouchExpandable(false);
-			         
-	//Set the initial location and size of the divider
-	splitPane.setDividerLocation(300);
-	chooserPanel.setLayout(new BorderLayout());
-	chooserPanel.add(splitPane, BorderLayout.CENTER);
-    }
-
     /**
      * Handle events originated from menus, 
      **/
-    public void actionPerformed(ActionEvent ae) {
+	public void actionPerformed(ActionEvent ae) {
 	Object source = ae.getSource();
 	if (source == closeMI) {
 	    // we're about to exit - make sure everything is saved
 	    libraryChooser.saveConfig();
 				
 	    close();
-	} else if (source == aboutMI) {
-	    Utility.showMessage(this,
-				Config.getString("browser.menu.help.about.text"));
-	} else if (source == topicsMI) {
-		showDocument(Config.getPropString("browser.url.help.topics"));
-	} else if (source == contentsMI) {
-		showDocument(Config.getPropString("browser.url.help.contents"));
-	} else if (source == indexMI) {
-		showDocument(Config.getPropString("browser.url.help.index"));
 	} else if (source == findMI) {
 	    new FindLibraryDialog(this).display();
 	} else if (source == refreshMI) {
 	    libraryChooser.loadLibraries();
-	} else if (source == this.packageHistory) {
-	    // direct access of history entry for GraphEditor window
-	    String selectedPackage = packageHistory.getSelectedItem().toString();
-	    
-	    if (!selectedPackage.equals(currentPackageName)) {
-		// we have a package name - let's get the path    
-		String packageToOpen = packageHistoryModel.get(selectedPackage).toString();
-		if (packageToOpen != null) {
-			openPackage(packageToOpen);
-		}
-	    }
-	} else if (source == nextPackage) {
-	    // back button for GraphEditor window
-	    // make sure there's somewhere to go back to
-	    if (packageHistory.getItemCount() > 1) {
-		int newSelectedIndex = packageHistory.getSelectedIndex() + 1;
-		if (newSelectedIndex < packageHistory.getItemCount()) {
-			String packageToOpen = packageHistoryModel.get(packageHistory.getItemAt(newSelectedIndex).toString()).toString();
-			if (packageToOpen != null)
-				openPackage(packageToOpen);
-		}
-		// disable the back button if we're on the first option
-		if (newSelectedIndex == packageHistory.getItemCount() - 1)
-		    nextPackage.setEnabled(false);
-		else 
-		    nextPackage.setEnabled(true);
-	    }
-	} else if (source == previousPackage) {
-	    // back button for GraphEditor window
-	    // make sure there's somewhere to go back to
-	    if (packageHistory.getItemCount() > 1) {
-		int newSelectedIndex = packageHistory.getSelectedIndex() - 1;
-		if (newSelectedIndex >= 0) {
-			String packageToOpen = packageHistoryModel.get(packageHistory.getItemAt(newSelectedIndex).toString()).toString();
-			if (packageToOpen != null)
-				openPackage(packageToOpen);
-		}
-		// disable the back button if we're on the first option
-		if (newSelectedIndex == 0)
-		    previousPackage.setEnabled(false);
-		else 
-		    previousPackage.setEnabled(true);
-	    }
 	}
     }
 
-    private boolean showDocument(String document) {
-	    if (Utility.openWebBrowser(document)) {
-		return true;
-	    } else {
-		return false;
-	    }
-    }
-    
     /**
      * A class or package has been marked for use in the BlueJ environment.
      * Give the user a list of all current packages (destinations) so they can
@@ -469,80 +364,56 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
      * @param pkg the package to open, or null if the package needs to be loaded
      */
 	public void openPackage(String packageName, Package pkg) {
-	boolean packageLoaded = true;
-	if (pkg == null) {
-		packageLoaded = false;
-		pkg = new Package(packageName, this);
-		packageCache.addPackageToCache(packageName, pkg);
-	}
-	
-	// create a GraphEditor for this package
-	// and enable the package menu if this is the first package to open
-	if (editor == null)
-		menuBar.getMenu(2).setEnabled(true);
-	
-	editor = new GraphEditor(pkg, this);
-	editor.setReadOnly(true);
-	// create a JScrollPane to hold the editor
-	scroller = new JScrollPane(editor);
-	scroller.setBorder(new TitledBorder("Current Package"));
-	// remove previous components so new GraphEditor will show
-	classPanel.removeAll();
-		
-	// add newly created components back to panel
-	classPanel.add(scroller, BorderLayout.CENTER);
-	classPanel.add(classPanelControls, BorderLayout.NORTH);
 
-	// load the package details - must do after setting up UI or NPE will occur
-	if (packageLoaded == false) {
-	    pkg.load(packageName, null, true, true);
-	    editor.setGraph(pkg);
-	} else {
-	    invalidate();
-	    validate();
-	}
+		boolean packageLoaded = true;
 
-	// store attributes of currently displayed package
-	currentPackageName = packageName;
-	currentPackage = pkg;
-	currentPackageDir = pkg.getDirName();
+		System.out.println("libraybrowserpkgmgrframe opening pkg " + packageName);
+
+		if (pkg == null) {
+			packageLoaded = false;
+			pkg = new Package(packageName, this);
+			packageCache.addPackageToCache(packageName, pkg);
+		}
 	
-	// make sure the scrollbar resizes to the current package dimensions
-	scroller.invalidate();
-	scroller.validate();
+		// create a GraphEditor for this package
+		// and enable the package menu if this is the first package to open
+		if (editor == null)
+			menuBar.getMenu(2).setEnabled(true);
+	
+		editor = new GraphEditor(pkg, this);
+		editor.setReadOnly(true);
+
+		// create a JScrollPane to hold the editor
+		JScrollPane scroller = new JScrollPane(editor);
+		// remove previous components so new GraphEditor will show
+		classPanel.removeAll();
 		
-	// don't allow duplicates in history
-	String historyItem = pkg.getName();
-	if (this.packageHistoryModel.get(historyItem) == null) {
-		this.packageHistoryModel.put(historyItem, packageName);
-		// temporarily remove action listener so that open is not called 
-		// again from actionPerformed()
-		packageHistory.removeActionListener(this);
-		packageHistory.addItem(historyItem);
-		packageHistory.addActionListener(this);
-		if (packageHistoryModel.size() > 1)
-			previousPackage.setEnabled(true);
+		// add newly created components back to panel
+		classPanel.add(scroller, BorderLayout.CENTER);
+
+		// load the package details - must do after setting up UI or NPE will occur
+
+		Dimension d = this.getSize();
+
+		if (packageLoaded == false) {
+		    pkg.load(packageName, null, true, true);
+		    editor.setGraph(pkg);
+		} else {
+		    invalidate();
+		    validate();
+		}
+
+		this.setSize(d);
+
+		// store attributes of currently displayed package
+		currentPackageName = packageName;
+		currentPackage = pkg;
+		currentPackageDir = pkg.getDirName();
+	
+		// make sure the scrollbar resizes to the current package dimensions
+		scroller.invalidate();
+		scroller.validate();
 	}
-		
-	// temporarily remove action listener so that open is not called 
-	// again from actionPerformed()
-	packageHistory.removeActionListener(this);
-	this.packageHistory.setSelectedItem(historyItem);
-	packageHistory.addActionListener(this);
-	    
-	// we're jumping around in the history here, 
-	// so we may need to toggle the enabled state of
-	// the back button at times
-	if (packageHistory.getSelectedIndex() > 0)
-	        previousPackage.setEnabled(true);
-	else
-	        previousPackage.setEnabled(false);
-	if (packageHistory.getSelectedIndex() < packageHistory.getItemCount() - 1)
-	        nextPackage.setEnabled(true);
-	else
-	        nextPackage.setEnabled(false);
-	
-    }
 
 	/**
      * @param packageName the absolute path to the directory containing the package
@@ -602,8 +473,12 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
      */
     private void openClassInCodeViewer(ClassTarget theClass) {
 	String className = theClass.sourceFile();
-	if (!new File(className).exists()) {
-		codeViewer.openClassWithNoSource(theClass, theClass.fullname, theClass.isCompiled());
+
+	System.out.println("opening in code viewer " + theClass.fullname);
+
+	codeViewer.openClassWithNoSource(theClass, theClass.fullname, theClass.isCompiled());
+
+/*	if (!new File(className).exists()) {
 		if (showDialog[NOSOURCEFORCLASSDIALOG])
 			new ToggleMessageBox(this, 
 					     Utility.mergeStrings(Config.getString("browser.openclassineditor.nosourceforclassdialog.text"), theClass.sourceFile()),
@@ -622,9 +497,9 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 						     Config.getString("browser.openclassineditor.innerclassdialog.title"),
 						     JOptionPane.INFORMATION_MESSAGE,
 						     INNERCLASSDIALOG).display();
-						     
+   
 		}
-	}
+	} */
     }
 		
     /**
@@ -736,8 +611,8 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
      * @param the package name in java notation (e.g., java.awt.event)
      * @return the directory containing the package, or null if none found
      */
-    public String getDirectoryForPackage(String packageName) {
-	    return libraryChooser.getDirectoryForPackage(packageName);
-    }
+//    public String getDirectoryForPackage(String packageName) {
+//	    return libraryChooser.getDirectoryForPackage(packageName);
+//  }
 }
 

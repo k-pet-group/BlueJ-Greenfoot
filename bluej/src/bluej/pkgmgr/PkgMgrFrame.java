@@ -895,6 +895,7 @@ public class PkgMgrFrame extends PkgFrame
 
 	mainPanel = new JPanel();
 	mainPanel.setLayout(new BorderLayout(5, 5));
+	mainPanel.setBorder(Config.generalBorderWithStatusBar);
 
 	if(pkg.getDirName() != noTitle) {
 	    classScroller = new JScrollPane(editor);
@@ -1008,13 +1009,13 @@ public class PkgMgrFrame extends PkgFrame
 	mainPanel.add("West", toolPanel);
 	mainPanel.add("South", bottomPanel);
 
-	getContentPane().setLayout(new GridBagLayout());
-	GridBagConstraints constraints = new GridBagConstraints();
-	constraints.insets = new Insets(5, 5, 0, 5);
-	constraints.fill = GridBagConstraints.BOTH;
-	constraints.weightx = 1;
-	constraints.weighty = 1;
-	getContentPane().add(mainPanel, constraints);
+//	getContentPane().setLayout(new GridBagLayout());
+//	GridBagConstraints constraints = new GridBagConstraints();
+//	constraints.insets = new Insets(10, 10, 10, 10);
+//	constraints.fill = GridBagConstraints.BOTH;
+//	constraints.weightx = 1;
+//	constraints.weighty = 1;
+	getContentPane().add(mainPanel);
 
 	setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 

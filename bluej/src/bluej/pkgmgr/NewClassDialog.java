@@ -9,7 +9,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: NewClassDialog.java 134 1999-06-21 02:34:23Z bruce $
+ ** @version $Id: NewClassDialog.java 161 1999-07-06 14:40:53Z ajp $
  ** @author Justin Tan
  ** @author Michael Kolling
  **
@@ -49,65 +49,108 @@ public class NewClassDialog extends JDialog
 
     private boolean ok;		// result: which button?
 
-    public NewClassDialog(JFrame parent)
-    {
-	super(parent, newClassTitle, true);
+	public NewClassDialog(JFrame parent)
+	{
+		super(parent, newClassTitle, true);
 
-	addWindowListener(new WindowAdapter() {
-	    public void windowClosing(WindowEvent E)
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent E)
+			{
+				ok = false;
+				setVisible(false);
+			}
+		});
+
+		JPanel mainPanel = new JPanel();
 		{
-		    ok = false;
-		    setVisible(false);
-		}
-	});
-	JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout
-	mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));		
-	JPanel buttonPanel = new JPanel();
-	buttonPanel.setLayout(new FlowLayout());
-	JButton button;
-	buttonPanel.add(button = new JButton(okay));
-	button.addActionListener(this);
-	buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-	getRootPane().setDefaultButton(button);
+			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+			mainPanel.setBorder(Config.generalBorder);
 
-	buttonPanel.add(button = new JButton(cancel));
-	button.addActionListener(this);
-	getContentPane().add("South", buttonPanel);
+			JLabel newclassTag = new JLabel(newClassLabel);
+			{
+				newclassTag.setAlignmentX(LEFT_ALIGNMENT);
+			}
 
-	JPanel compPanel = new JPanel();
-	compPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-	compPanel.setLayout(new GridLayout(0,1,20,2));
+			textFld = new JTextField(24);
+			{
+				textFld.setAlignmentX(LEFT_ALIGNMENT);
+			}
 
-	compPanel.add(new JLabel(newClassLabel));
-	compPanel.add(textFld = new JTextField(16));
-	getContentPane().add("North", compPanel);
+			mainPanel.add(newclassTag);
+			mainPanel.add(textFld);
+			mainPanel.add(Box.createVerticalStrut(5));
 
-	compPanel = new JPanel();
-	compPanel.setLayout(new BoxLayout(compPanel, BoxLayout.Y_AXIS));
+			JPanel choicePanel = new JPanel();
+			{
+				choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
+				choicePanel.setAlignmentX(LEFT_ALIGNMENT);
 	
-	//compPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-	//create compound border empty border outside of a titled border
-	compPanel.setBorder(BorderFactory.createCompoundBorder(
-			        BorderFactory.createTitledBorder(classTypeStr),
-			        BorderFactory.createEmptyBorder(0, 20, 0, 20)));
-	//compPanel.add(new JLabel(classTypeStr));
-	ButtonGroup bGroup = new ButtonGroup();
-	typeNormal = new JRadioButton(newClassStr, true);
-	compPanel.add(typeNormal);
-	bGroup.add(typeNormal);
-	typeAbstract = new JRadioButton(newAbstractClassStr, false);
-	compPanel.add(typeAbstract);
-	bGroup.add(typeAbstract);
-	typeInterface = new JRadioButton(newInterfaceStr, false);
-	compPanel.add(typeInterface);
-	bGroup.add(typeInterface);
-	typeApplet = new JRadioButton(newAppletStr, false);
-	compPanel.add(typeApplet);
-	bGroup.add(typeApplet);	
-	getContentPane().add("Center", compPanel);
+				//create compound border empty border outside of a titled border
+				choicePanel.setBorder(BorderFactory.createCompoundBorder(
+						BorderFactory.createTitledBorder(classTypeStr),
+						BorderFactory.createEmptyBorder(0, 10, 0, 10)));
+
+				typeNormal = new JRadioButton(newClassStr, true);
+				typeAbstract = new JRadioButton(newAbstractClassStr, false);
+				typeInterface = new JRadioButton(newInterfaceStr, false);
+				typeApplet = new JRadioButton(newAppletStr, false);
+
+				ButtonGroup bGroup = new ButtonGroup();
+				{
+					bGroup.add(typeNormal);
+					bGroup.add(typeAbstract);
+					bGroup.add(typeInterface);
+					bGroup.add(typeApplet);	
+				}
+
+				choicePanel.add(typeNormal);
+				choicePanel.add(typeAbstract);
+				choicePanel.add(typeInterface);
+				choicePanel.add(typeApplet);
+			}
+
+			choicePanel.setMaximumSize(new Dimension(textFld.getMaximumSize().width,
+						choicePanel.getMaximumSize().height));
+			choicePanel.setPreferredSize(new Dimension(textFld.getPreferredSize().width,
+						choicePanel.getPreferredSize().height));
+
+			mainPanel.add(choicePanel);
+			mainPanel.add(Box.createVerticalStrut(5));
+
+			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+			{
+				buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+				//buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+				JButton okButton = new JButton(okay);
+				{
+					okButton.addActionListener(this);
+				}
+
+				JButton cancelButton = new JButton(cancel);
+				{
+					cancelButton.addActionListener(this);
+				}
+
+				buttonPanel.add(okButton);
+				buttonPanel.add(cancelButton);
+
+				getRootPane().setDefaultButton(okButton);
+
+				// try to make the OK and cancel buttons have equal width
+				okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
+						okButton.getPreferredSize().height));
+			}
+
+			mainPanel.add(buttonPanel);
+		}
+
+		getContentPane().add(mainPanel);
+		pack();
 		
-	Utility.centreDialog(this);
-    }
+		Utility.centreDialog(this);
+	}
 
     /**
      * Show this dialog and return true if "OK" was pressed, false if

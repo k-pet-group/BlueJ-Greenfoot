@@ -7,11 +7,11 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
 
-import java.io.IOException;
-import java.io.File;
+import java.io.*;
 import java.util.Vector;
 
 import bluej.Config;
+import bluej.utility.Debug;
 
 /**
  * A JDialog subclass to allow the user to interactively add a new library
@@ -19,7 +19,7 @@ import bluej.Config;
  * archive) or directory, with an associated alias in either case.
  * 
  * @author Andrew Patterson
- * @version $Id: ClassMgrDialog.java 132 1999-06-16 04:44:24Z ajp $
+ * @version $Id: ClassMgrDialog.java 161 1999-07-06 14:40:53Z ajp $
  */
 public class ClassMgrDialog extends JDialog {
 
@@ -44,7 +44,7 @@ public class ClassMgrDialog extends JDialog {
 		{
 			// Construct a user editable table of user libraries and add/remove buttons
 
-			JLabel userLibrariesTag = new JLabel("User libraries");
+			JLabel userLibrariesTag = new JLabel(Config.getString("classmgr.userlibraries"));
 			{
 				userLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
 			}
@@ -71,7 +71,7 @@ public class ClassMgrDialog extends JDialog {
 					toptobottomPane.setLayout(new BoxLayout(toptobottomPane, BoxLayout.Y_AXIS));
 					toptobottomPane.setAlignmentY(TOP_ALIGNMENT);
 
-					JButton addButton = new JButton("Add");
+					JButton addButton = new JButton(Config.getString("classmgr.add"));
 					{
 						addButton.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
@@ -79,7 +79,7 @@ public class ClassMgrDialog extends JDialog {
 	    					}
 						});
 					}
-					JButton deleteButton = new JButton("Delete");
+					JButton deleteButton = new JButton(Config.getString("classmgr.delete"));
 					{
 						deleteButton.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
@@ -89,6 +89,7 @@ public class ClassMgrDialog extends JDialog {
 					}
 
 					toptobottomPane.add(addButton);
+					toptobottomPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
 					toptobottomPane.add(deleteButton);
 
 					// allow the Add and Delete buttons to be resized to equal width
@@ -102,7 +103,7 @@ public class ClassMgrDialog extends JDialog {
 				lefttorightPane.setAlignmentX(LEFT_ALIGNMENT);
 
 				lefttorightPane.add(scrollPane);
-				lefttorightPane.add(Box.createRigidArea(new Dimension(5,0)));
+				lefttorightPane.add(Box.createHorizontalStrut(Config.generalSpacingWidth));
 				lefttorightPane.add(toptobottomPane);
 			}
 
@@ -121,7 +122,7 @@ public class ClassMgrDialog extends JDialog {
 				systemLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
 			}
 
-			JLabel systemLibrariesTag = new JLabel("System libraries");
+			JLabel systemLibrariesTag = new JLabel(Config.getString("classmgr.systemlibraries"));
 			{
 				systemLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
 				systemLibrariesTag.setLabelFor(systemLibrariesScrollPane);
@@ -142,7 +143,7 @@ public class ClassMgrDialog extends JDialog {
 				bootLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
 			}
 
-			JLabel bootLibrariesTag = new JLabel("Boot libraries");
+			JLabel bootLibrariesTag = new JLabel(Config.getString("classmgr.bootlibraries"));
 			{
 				bootLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
 				bootLibrariesTag.setLabelFor(bootLibrariesScrollPane);
@@ -157,7 +158,7 @@ public class ClassMgrDialog extends JDialog {
 					okButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
 							userLibrariesModel.commitEntries();
-							ClassMgr.getClassMgr().userLibraries.putConfigFile(System.out);
+							saveUserLibraries();
 							setVisible(false);
 						}
 					});
@@ -184,17 +185,17 @@ public class ClassMgrDialog extends JDialog {
 			}
 
 			dialogPane.setLayout(new BoxLayout(dialogPane, BoxLayout.Y_AXIS));
-			dialogPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+			dialogPane.setBorder(Config.generalBorder);
 
 			dialogPane.add(userLibrariesTag);
 			dialogPane.add(lefttorightPane);
-			dialogPane.add(Box.createRigidArea(new Dimension(0,5)));
+			dialogPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
 			dialogPane.add(systemLibrariesTag);
 			dialogPane.add(systemLibrariesScrollPane);
-			dialogPane.add(Box.createRigidArea(new Dimension(0,5)));
+			dialogPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
 			dialogPane.add(bootLibrariesTag);
 			dialogPane.add(bootLibrariesScrollPane);
-			dialogPane.add(Box.createRigidArea(new Dimension(0,5)));
+			dialogPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
 			dialogPane.add(buttonPanel);
 
 		}	// end dialogPane
@@ -244,6 +245,19 @@ public class ClassMgrDialog extends JDialog {
 			userLibrariesModel.deleteEntry(which);
 	}
 
+	private void saveUserLibraries() {
+		try {
+			FileOutputStream o =
+				new FileOutputStream(ClassMgr.getClassMgr().getUserConfigFile());
+
+			ClassMgr.getClassMgr().userLibraries.putConfigFile(o);
+		}
+		catch (IOException ioe) {
+			Debug.message(Config.getString("classmgr.error.savingconfig") +
+							"\n" + ioe.getLocalizedMessage());
+		}
+	}
+
 	/**
 	 * Show the initialized dialog.  The first argument should
 	 * be null if you want the dialog to come up in the center
@@ -280,7 +294,7 @@ class ClassMgrCellRenderer implements ListCellRenderer {
 	{
 		Component sup = 
 			new DefaultListCellRenderer().getListCellRendererComponent(list,
-												value,index,isSelected,cellHasFocus);
+							value,index,isSelected,cellHasFocus);
 
 		ClassPathEntry cpe = (ClassPathEntry)value;
 	

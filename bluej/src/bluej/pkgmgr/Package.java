@@ -3,7 +3,6 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.JobQueue;
-import bluej.utility.SimpleClassLoader;
 import bluej.debugger.ObjectBench;
 import bluej.debugger.ObjectWrapper;
 import bluej.debugger.Debugger;
@@ -15,20 +14,22 @@ import bluej.editor.moe.MoeEditorManager;
 import bluej.graph.Graph;
 import bluej.graph.Vertex;
 import bluej.utility.Debug;
-import bluej.utility.ClasspathSearcher;
 import bluej.utility.MultiEnumeration;
 import bluej.utility.Utility;
 import bluej.utility.PackageFileFilter;
 import bluej.views.Comment;
 import bluej.views.CommentList;
+import bluej.classmgr.*;
 
 import java.awt.*;
+import java.awt.font.*;
+import java.awt.geom.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 134 1999-06-21 02:34:23Z bruce $
+ ** @version $Id: Package.java 161 1999-07-06 14:40:53Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -57,7 +58,7 @@ public class Package extends Graph
 
     private static final int STARTROWPOS = 20;
     private static final int STARTCOLUMNPOS = 20;
-    private static final int DEFAULTTARGETCHARWIDTH = 9;
+    private static final int DEFAULTTARGETCHARWIDTH = 12;
     private static final int DEFAULTTARGETHEIGHT = 50;
     private static final int TARGETGAP = 20;
     // used to size frame when no existing size information can be found
@@ -81,7 +82,6 @@ public class Package extends Graph
     protected String relclassdir;		// the classdir relative to package
 						//  directory
 
-    protected String classpath = null;
     protected Hashtable targets;
     protected Vector usesArrows;
     protected Vector extendsArrows;
@@ -91,8 +91,7 @@ public class Package extends Graph
     PkgFrame frame;
     Dependency currentArrow;	// used during arrow deletion
 	
-    private ClasspathSearcher searcher;
-    private SimpleClassLoader loader;
+    private ClassLoader loader;
     private DebuggerClassLoader debuggerLoader;
     private CallHistory callHistory; 	
     protected boolean showExtends = true;
@@ -173,14 +172,6 @@ public class Package extends Graph
     }
 
     /**
-     * Return the current CLASSPATH.
-     */
-    public String getClasspath()
-    {
-	return classpath;
-    }
-
-    /**
      * Return the name of the directory used to store the class files (in the
      * current implementation equal to the package directory, but may be different
      * in the future.
@@ -189,7 +180,26 @@ public class Package extends Graph
     {
 	return (classdir != null) ? classdir : getBaseDir();
     }
-		
+
+    public String getClassPath()
+    {		
+	// construct a class path out of all our class path entries and
+	// our current class directory
+	StringBuffer c = new StringBuffer();
+
+	Iterator i = ClassMgr.getClassMgr().getAllClassPathEntries();
+
+	while(i.hasNext()) {
+		ClassPathEntry cpe = (ClassPathEntry)i.next();
+
+		c.append(cpe.getPath());
+		c.append(Config.colon);
+	}
+	c.append(getClassDir());
+
+	return c.toString();
+    }
+
     public ObjectBench getBench() 
     { 
 	ObjectBench bench = null;
@@ -230,6 +240,8 @@ public class Package extends Graph
      * @return the package name in . delimited format, or null if none can be created
      */
     private static String getPackageName(String packageDir) {
+	System.out.println("Getting packagename for " + packageDir);
+
 	String classPath = System.getProperty("java.class.path");
 	if (classPath == null)
 	    return null;
@@ -286,18 +298,18 @@ public class Package extends Graph
      * @exception IOException if the package file could not be saved
      */
     public static Properties createDefaultPackage(String[] classFiles, 
-						  String packageDir, 
+						  String packageLocation,
+						  String packageName,
 						  boolean fromArchive) 
 	throws IOException 
-    {	
-	Properties props = new Properties();
-	int numberOfTargets = classFiles.length;
-	// every file returned by the filter is considered valid, so the array
-	// size if the number of targets in the package
-	props.put("package.numTargets", "" + numberOfTargets);
+	{	
+		Properties props = new Properties();
+		int numberOfTargets = classFiles.length;
+		// every file returned by the filter is considered valid, so the array
+		// size if the number of targets in the package
+		props.put("package.numTargets", "" + numberOfTargets);
 
-	String packageName = getPackageName(packageDir);
-	if (packageName == null)
+/*	if (packageName == null)
 	    packageName = "unknown";
 	else if (packageName != "") {
 	    // only write the package name if it has a value, 
@@ -306,70 +318,61 @@ public class Package extends Graph
 	    props.put("package.name", packageName);
 	    packageName += ".";
 	}
-	
-		
-	// not too sure about this one, let's make it the current directory
-	// for now
-	// classdir is used to locate the class files for the corresponding java files
-	// classdir is added to the classpath for this package
-	props.put("package.classdir", ".");
+*/	
+		props.put("package.name", packageName);
 
-	int nbrColumns = (int) Math.sqrt(new Double("" + numberOfTargets).doubleValue());
-	int rowPos = STARTROWPOS;
-	int columnPos = STARTCOLUMNPOS;
-	// try and layout the targets in a grid, one row at a time
-	for (int current = 0; current < classFiles.length; current++) {
-	    String currentFile = classFiles[current];
-	    if (fromArchive == true) {
-		// with archive files, don't check for valid filenames on disk
-		if (currentFile.endsWith(".class")) {
-		    props.put("target" + (current + 1) + ".type", "ClassTarget");
-		    // trim the .class off the filename for class targets	
-		    props.put("target" + (current + 1) + ".name", currentFile.substring(0, currentFile.indexOf(".class")));
-		} else {
-		    props.put("target" + (current + 1) + ".type", "PackageTarget");
-		    props.put("target" + (current + 1) + ".name", currentFile);
-		    props.put("target" + (current + 1) + ".packageName", packageName + currentFile);
-		}
-	    } 
-	    else {
-				// let's assume if it's a directory, it's a package, otherwise it's a class
-		if (new File(packageDir + File.separator + currentFile).isDirectory()) {
-		    props.put("target" + (current + 1) + ".type", "PackageTarget");
-		    props.put("target" + (current + 1) + ".name", currentFile);
-		    props.put("target" + (current + 1) + ".packageName", packageName + currentFile);
-		} 
-		else {
-		    props.put("target" + (current + 1) + ".type", "ClassTarget");
-		    // trim the .class off the filename for class targets	
-		    props.put("target" + (current + 1) + ".name", currentFile.substring(0, currentFile.indexOf(".class")));
-		}
-	    }
-			
-	    // make width roughly the length of the name
-	    int targetWidth = DEFAULTTARGETCHARWIDTH * props.get("target" + (current + 1) + ".name").toString().length();
-	    // add extra width for package targets (default equation leaves them too narrow)
-	    targetWidth += props.get("target" + (current + 1) + ".type").toString().equals("PackageTarget") ? 20 : 0;
+		// not too sure about this one, let's make it the current directory
+		// for now
+		// classdir is used to locate the class files for the corresponding java files
+		// classdir is added to the classpath for this package
+		props.put("package.classdir", ".");
+
+		int nbrColumns = (int) Math.sqrt(new Double("" + numberOfTargets).doubleValue());
+		int rowPos = STARTROWPOS;
+		int columnPos = STARTCOLUMNPOS;
+		// try and layout the targets in a grid, one row at a time
+		for (int current = 0; current < classFiles.length; current++) {
+			String currentFile = classFiles[current];
+
+			if (currentFile.endsWith(".class")) {
+				props.put("target" + (current + 1) + ".type", "ClassTarget");
+				// trim the .class off the filename for class targets	
+				props.put("target" + (current + 1) + ".name", currentFile.substring(0, currentFile.indexOf(".class")));
+			} else {
+				props.put("target" + (current + 1) + ".type", "PackageTarget");
+				props.put("target" + (current + 1) + ".name", currentFile);
+				props.put("target" + (current + 1) + ".packageName", packageName + currentFile);
+			}
+
+			String fullname = props.get("target" + (current + 1) + ".name").toString();
+
+			int targetWidth = 40 + (int)ClassTarget.normalFont.getStringBounds(fullname,
+				 new FontRenderContext(new AffineTransform(), false, false)).getWidth();
+	
+	    		// make width roughly the length of the name
+	    		// = DEFAULTTARGETCHARWIDTH * .length();
+	    		// add extra width for package targets (default equation leaves them too narrow)
+	    		targetWidth += props.get("target" + (current + 1) + ".type").toString().equals("PackageTarget") ? 20 : 0;
 	    
-	    props.put("target" + (current + 1) + ".width", "" + targetWidth);
-	    props.put("target" + (current + 1) + ".height", "" + DEFAULTTARGETHEIGHT);
-	    props.put("target" + (current + 1) + ".x", "" + rowPos);
-	    props.put("target" + (current + 1) + ".y", "" + columnPos);
-	    if ((current + 1) % nbrColumns == 0) {
-		columnPos += DEFAULTTARGETHEIGHT + TARGETGAP;
-		rowPos = STARTROWPOS;
-	    } 
-	    else
-		rowPos += targetWidth + TARGETGAP;
+			props.put("target" + (current + 1) + ".width", "" + targetWidth);
+			props.put("target" + (current + 1) + ".height", "" + DEFAULTTARGETHEIGHT);
+			props.put("target" + (current + 1) + ".x", "" + rowPos);
+			props.put("target" + (current + 1) + ".y", "" + columnPos);
+			if ((current + 1) % nbrColumns == 0) {
+				columnPos += DEFAULTTARGETHEIGHT + TARGETGAP;
+				rowPos = STARTROWPOS;
+			} 
+			else
+				rowPos += targetWidth + TARGETGAP;
+		}
 				
-	}
 	// specify the dimensions large enough to see the entire package
 	props.put("package.window.width", "" + DEFAULTFRAMEWIDTH);
 	props.put("package.window.height", "" + DEFAULTFRAMEHEIGHT);
 	
 	if (fromArchive == false) {
 	    // throw an exception if we cannot save
-	    props.save(new FileOutputStream(packageDir + File.separator + pkgfileName), 
+	    props.save(new FileOutputStream(new File(packageLocation, pkgfileName)), 
 		       fromArchive == true ? "Default layout for archive library" : "Default package layout");
 	}
 	
@@ -434,8 +437,6 @@ public class Package extends Graph
 	    else
 		classdir = dirname + Config.slash + relclassdir;
 	}
-
-	setClasspath();
 
 	// read in all the targets contained in this package
 
@@ -523,12 +524,10 @@ public class Package extends Graph
 	    }
 
 	Properties props = new Properties();
-	String fullpkgfile = dirname + Config.slash + pkgfileName;
 
-	File file = new File(fullpkgfile);
+	File file = new File(dir, pkgfileName);
 	if(file.exists()) {			// make backup of original
-	    String backupName = dirname + Config.slash + pkgfileBackup;
-	    file.renameTo(new File(backupName));
+	    file.renameTo(new File(dir, pkgfileBackup));
 	}
 
 	if(packageName != noPackage)
@@ -562,10 +561,10 @@ public class Package extends Graph
 	}
 
 	try {
-	    FileOutputStream output = new FileOutputStream(fullpkgfile);
+	    FileOutputStream output = new FileOutputStream(file);
 	    props.save(output, "BlueJ project file");
 	} catch(IOException e) {
-	    Debug.reportError(pkgSaveError + fullpkgfile + ": " + e);
+	    Debug.reportError(pkgSaveError + file + ": " + e);
 	    return false;
 	}
 	
@@ -598,7 +597,6 @@ public class Package extends Graph
 
 	dirname = newname;
 	baseDir = null;		// will be recomputed
-	setClasspath();
 
 	if(okay)
 	    return NO_ERROR;
@@ -714,7 +712,7 @@ public class Package extends Graph
 
 	if (getFrame() instanceof PkgMgrFrame) {
 	    String packagePath;
-	    packagePath = ((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
+	    packagePath = "/"; //((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
 	    Debug.message("Package lives in directory: " + packagePath);
 
 	    // create class icon (ClassTarget) for new class
@@ -743,19 +741,13 @@ public class Package extends Graph
 
 	String packagePath = "";
 	if (getFrame() instanceof PkgMgrFrame) {
-	    packagePath = ((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
+//	    packagePath = ((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
 	    Debug.message("Package lives in directory: " + packagePath);
 	}
 
 	return NO_ERROR;
     }
     
-    private void setClasspath()
-    {
-	classpath = System.getProperty("java.class.path");
-	classpath += Config.colon;
-	classpath += getClassDir();
-    }
 
     public Enumeration getVertices()
     {
@@ -936,7 +928,8 @@ public class Package extends Graph
 	    files[i] = ct.sourceFile();
 	}
 	removeBreakpoints();
-	JobQueue.getJobQueue().addJob(files, this, classpath, getClassDir());
+
+	JobQueue.getJobQueue().addJob(files, this, getClassPath(), getClassDir());
     }
 
 
@@ -1424,24 +1417,13 @@ public class Package extends Graph
 	
 
     /**
-     * getSearcher - get the ClasspathSearcher for this package
-     */
-    public synchronized ClasspathSearcher getSearcher()
-    {
-	if(searcher == null)
-	    searcher = new ClasspathSearcher(getClassDir());
-		
-	return searcher;
-    }
-	
-    /**
      * getLocalClassLoader - get the ClassLoader for this package.
      *  The SimpleClassLoader load classes on the local VM.
      */
-    private synchronized SimpleClassLoader getLocalClassLoader()
+    private synchronized ClassLoader getLocalClassLoader()
     {
 	if(loader == null)
-	    loader = new SimpleClassLoader(getSearcher());
+	    loader = ClassMgr.getLoader(getClassDir());
 		
 	return loader;
     }
@@ -1499,10 +1481,11 @@ public class Package extends Graph
      */
     public Class loadClass(String className)
     {
-	SimpleClassLoader loader = getLocalClassLoader();
-
 	try {
-	    return loader.loadClass(className);
+	    Class c = ClassMgr.getLoader(getClassDir()).loadClass(className);
+
+		System.out.println(c);
+		return c;
 	} catch(ClassNotFoundException e) {
 	    e.printStackTrace();
 	    return null;
@@ -1609,7 +1592,7 @@ public class Package extends Graph
 	if(t instanceof ClassTarget) {
 	    ClassTarget ct = (ClassTarget)t;
 
-	    if((loader != null) && loader.hasClass(ct.getName())) {
+	    if((loader != null) /*&& loader.hasClass(ct.getName())*/) {
 		removeLocalClassLoader();
 		removeRemoteClassLoader();
 	    }

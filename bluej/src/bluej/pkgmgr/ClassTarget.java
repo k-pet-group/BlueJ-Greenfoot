@@ -40,7 +40,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 149 1999-06-30 01:22:09Z bruce $
+ ** @version $Id: ClassTarget.java 161 1999-07-06 14:40:53Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -57,8 +57,8 @@ public class ClassTarget extends EditableTarget
     static final Color graphbg = Config.getItemColour("colour.graph.background");
     static final Color textfg = Config.getItemColour("colour.text.fg");
 
-    static final Font normalFont = new Font("SansSerif", Font.BOLD, Config.fontsize);
-    static final Font menuFont = new Font("SansSerif", Font.PLAIN, Config.fontsize);
+    static public final Font normalFont = new Font("SansSerif", Font.BOLD, Config.fontsize);
+    static public final Font menuFont = new Font("SansSerif", Font.PLAIN, Config.fontsize);
     static final Font italicMenuFont = new Font("SansSerif", Font.ITALIC, Config.fontsize);
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
@@ -591,7 +591,7 @@ public class ClassTarget extends EditableTarget
      */
     protected void createClassMenu(JPopupMenu menu, Class cl)
     {
-	View view = View.getView(cl, pkg.getSearcher());
+	View view = View.getView(cl);
 	ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
 	ConstructorView[] constructors = view.getConstructors();
 	
@@ -600,7 +600,7 @@ public class ClassTarget extends EditableTarget
 		
 	filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
 	MethodView[] allMethods = view.getAllMethods();
-	//Debug.message("Adding static methods for " + cl);
+	// Debug.message("Adding static methods for " + cl);
 	if(createMenuItems(menu, allMethods, filter, 0, allMethods.length, ""))
 	    menu.addSeparator();
     }
@@ -610,7 +610,7 @@ public class ClassTarget extends EditableTarget
 				      MemberView[] members, ViewFilter filter, 
 				      int first, int last, String prefix)
     {
-	//Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
+	// Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
 	boolean hasEntries = false;
 	JMenuItem item;
 		
@@ -619,7 +619,7 @@ public class ClassTarget extends EditableTarget
 		MemberView m = members[last - i - 1];
 		if(!filter.accept(m))
 		    continue;
-		//Debug.message("createSubMenu - creating MenuItem");
+		// Debug.message("createSubMenu - creating MenuItem");
 		item = new JMenuItem(prefix + m.getShortDesc());
 		item.addActionListener(this);
 		item.setFont(menuFont);
@@ -822,7 +822,7 @@ public class ClassTarget extends EditableTarget
 	    editor.clear();
 	    Class cl = pkg.loadClass(fullname);
 	    if(cl != null) {
-		View view = View.getView(cl, pkg.getSearcher());
+		View view = View.getView(cl);
 		int filterType = 0;
 		if(viewType == Editor.PUBLIC)
 		    filterType = ViewFilter.PUBLIC;
