@@ -285,6 +285,7 @@ colour.target.stripes=152,152,152
 colour.class.bg.default=255,221,153
 colour.class.bg.abstract=255,221,153
 colour.class.bg.interface=255,221,153
+colour.class.bg.unittest=160,65,13
 colour.package.bg.default=180,130,44
 
 
