@@ -27,7 +27,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2329 2003-11-13 04:09:50Z ajp $
+ * @version $Id: UnitTestClassRole.java 2360 2003-11-18 03:43:39Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -151,12 +151,14 @@ public class UnitTestClassRole extends ClassRole
      */
     public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class cl)
     {
+        boolean enable = !ct.getPackage().getProject().inTestMode();
+            
         addMenuItem(menu, new MakeTestCaseAction(createTest,
-                                                    ct.getPackage().getEditor(), ct), true);
+                                                    ct.getPackage().getEditor(), ct), enable);
         addMenuItem(menu, new BenchToFixtureAction(benchToFixture,
-                                                    ct.getPackage().getEditor(), ct), true);
+                                                    ct.getPackage().getEditor(), ct), enable);
         addMenuItem(menu, new FixtureToBenchAction(fixtureToBench,
-                                                    ct.getPackage().getEditor(), ct), true);
+                                                    ct.getPackage().getEditor(), ct), enable);
 
         return true;
     }
@@ -220,8 +222,19 @@ public class UnitTestClassRole extends ClassRole
 			}
 		}            
 	}
+    
+    /**
+     * Start the construction of a test method.
+     * 
+     * This method prompts the user for a test method name and then sets up
+     * all the variables for constructing a new test method.
+     * 
+     * @param pmf  the PkgMgrFrame this is all occurring in
+     * @param ct   the ClassTarget of the unit test class
+     */
     public void doMakeTestCase(PkgMgrFrame pmf, ClassTarget ct)
     {
+        // prompt for a new test name
         String newTestName = DialogManager.askString(pmf, "unittest-new-test-method");
 
         if (newTestName == null)
@@ -232,14 +245,29 @@ public class UnitTestClassRole extends ClassRole
             return;
         }
 
-        if(! newTestName.startsWith("test")) {
+        // test methods must start with the word "test"
+        if(!newTestName.startsWith("test")) {
             newTestName = "test" + Character.toTitleCase(newTestName.charAt(0)) + newTestName.substring(1);
         }
 
-		if (!JavaNames.isIdentifier(newTestName)) {
+        // and they must be a valid Java identifier
+        if (!JavaNames.isIdentifier(newTestName)) {
 			pmf.setStatus(Config.getString("pkgmgr.test.invalidTestName"));
 			return;
 		}
+
+        // find out if the method already exists in the unit test src
+        try {
+            UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
+
+            SourceSpan existingSpan = uta.getMethodBlockSpan(newTestName);
+
+            if (existingSpan != null) {
+                if (DialogManager.askQuestion(null, "unittest-method-present") == 1)
+                    return;
+            }
+        }
+        catch (FileNotFoundException fnfe) { fnfe.printStackTrace(); }
 
         pmf.getProject().removeLocalClassLoader();
         pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
@@ -262,11 +290,22 @@ public class UnitTestClassRole extends ClassRole
         pmf.setTestInfo(newTestName, ct);
      }
 
+    /**
+     * End the construction of a test method.
+     * 
+     * This method is responsible for actually created the source code for a
+     * just recorded test method.
+     * 
+     * @param pmf   the PkgMgrFrame this is all occurring in
+     * @param ct    the ClassTarget of the unit test class
+     * @param name  the name of the test method we are writing out
+     */
     public void doEndMakeTestCase(PkgMgrFrame pmf, ClassTarget ct, String name)
     {
         Editor ed = ct.getEditor();
 
         try {
+            // conver to use UnitTestAnalyzer
             BaseAST ast = (BaseAST) bluej.parser.ast.JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));
             BaseAST firstClass = (BaseAST) ast.getFirstChild();
 
