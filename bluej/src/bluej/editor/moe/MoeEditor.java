@@ -15,6 +15,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.DocuGenerator;
 
@@ -92,6 +93,10 @@ public final class MoeEditor extends JFrame
     static final String ActionSuffix = "Action";
     static final String TooltipSuffix = "Tooltip";
     static final String AcceleratorSuffix = "Accelerator";
+
+    // file suffixes
+    static final String CRASHFILE_SUFFIX = "#";
+    static final String BACKUP_SUFFIX = "~";
 
     //  width of tag area for setting breakpoints
     static final short TAG_WIDTH = 14;
@@ -212,11 +217,9 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Load the file "fname" and show the editor window.
+     *  Load the file "filename" and show the editor window.
      */
-
-    public boolean showFile(String filename, boolean compiled,
-                            Vector breakpoints)
+    public boolean showFile(String filename, boolean compiled)
                             // inherited from Editor, redefined
     {
         this.filename = filename;
@@ -224,12 +227,19 @@ public final class MoeEditor extends JFrame
         boolean loaded = false;
         boolean readError = false;
 
-        if(breakpoints != null)
-            Debug.reportError("breakpoints in showfile not supported.");
-
         if (filename != null) {
 
             try {
+                // check for crash file
+                String crashFilename = filename + CRASHFILE_SUFFIX;
+                String backupFilename = crashFilename + "backup";
+                File crashFile = new File(crashFilename);
+                if (crashFile.exists()) {
+                    File backupFile = new File(backupFilename);
+                    crashFile.renameTo(backupFile);
+                    DialogManager.showMessage(this, "editor-crashed");
+                }
+
                 FileReader reader = new FileReader(filename);
                 sourcePane.read(reader, null);
                 reader.close();
@@ -376,13 +386,31 @@ public final class MoeEditor extends JFrame
     {
         if (saveState.isChanged()) {
 
-//            Debug.assert(filename != null);
-
             try {
+                // The crash file is used during writing and will remain in
+                // case of a crash during the write operation. The backup
+                // file always contains the last version.
+                String crashFilename = filename + CRASHFILE_SUFFIX;
+                String backupFilename = filename + BACKUP_SUFFIX;
+
+                // make a backup to the crash file
+                FileUtility.copyFile(filename, crashFilename);
+
                 FileWriter writer = new FileWriter(filename);
                 sourcePane.write(writer);
                 writer.close();
                 setSaved();
+
+                if(PrefMgr.makeBackup()) {
+                    // if all went well, rename the crash file as a normal backup
+                    File crashFile = new File(crashFilename);
+                    File backupFile = new File(backupFilename);
+                    crashFile.renameTo(backupFile);
+                }
+                else {
+                    File crashFile = new File(crashFilename);
+                    crashFile.delete();
+                }
             }
             catch (IOException ex) {
                 info.warning (Config.getString("editor.info.errorSaving"));
@@ -720,7 +748,6 @@ public final class MoeEditor extends JFrame
     public void find()
     {
         Finder finder = MoeEditorManager.editorManager.getFinder();
-        //DialogManager.centreWindow(finder, this);
         finder.show(this, currentTextPane.getSelectedText(), false);
     }
 
@@ -733,11 +760,7 @@ public final class MoeEditor extends JFrame
      */
     public void replace()
     {
-//          Replacer replacer = MoeEditorManager.editorManager.getReplacer();
-//          DialogManager.centreWindow(replacer, this);
-//          replacer.doReplace(this);
         Finder finder = MoeEditorManager.editorManager.getFinder();
-        //        DialogManager.centreWindow(finder, this);
         finder.show(this, currentTextPane.getSelectedText(), true);
     }
 

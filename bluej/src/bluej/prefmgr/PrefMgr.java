@@ -22,12 +22,13 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1040 2001-12-10 16:35:56Z mik $
+ * @version $Id: PrefMgr.java 1096 2002-01-15 11:15:33Z mik $
  */
 public class PrefMgr
 {
     private static final String hilightingPropertyName = "bluej.editor.syntaxHilighting";
     private static final String lineNumberPropertyName = "bluej.editor.displayLineNumbers";
+    private static final String makeBackupPropertyName = "bluej.editor.makeBackup";
     private static final String linkingPropertyName = "doctool.linkToStandardLib";
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
@@ -59,6 +60,7 @@ public class PrefMgr
     // syntax hilighting
     private static boolean isSyntaxHilighting;
     private static boolean isDisplayLineNumbers;
+    private static boolean isMakeBackup;
     private static boolean isLinkDocumentation;
     private static boolean isUML;
     private static boolean hasTheme;
@@ -99,6 +101,9 @@ public class PrefMgr
 
         isDisplayLineNumbers = Boolean.valueOf(
             Config.getPropString(lineNumberPropertyName, "true")).booleanValue();
+
+        isMakeBackup = Boolean.valueOf(
+            Config.getPropString(makeBackupPropertyName, "true")).booleanValue();
 
         isLinkDocumentation = Boolean.valueOf(
             Config.getPropString(linkingPropertyName, "true")).booleanValue();
@@ -156,6 +161,11 @@ public class PrefMgr
     public static boolean displayLineNumbers()
     {
         return isDisplayLineNumbers;
+    }
+
+    public static boolean makeBackup()
+    {
+        return isMakeBackup;
     }
 
     public static boolean linkDocToLibrary()
@@ -269,6 +279,24 @@ public class PrefMgr
                                     new Boolean(enabled).toString());
 
         isDisplayLineNumbers = enabled;
+    }
+
+    /**
+     * Set users preference of whether the editor should make a backup
+     *
+     * @param enabled   true if backups should be made
+     */
+    protected static void setMakeBackup(boolean enabled)
+    {
+        String hs = Config.getDefaultPropString(makeBackupPropertyName, "true");
+
+        if (Boolean.valueOf(hs).booleanValue() == enabled)
+            Config.removeProperty(makeBackupPropertyName);
+        else
+            Config.putPropString(makeBackupPropertyName,
+                                    new Boolean(enabled).toString());
+
+        isMakeBackup = enabled;
     }
 
     /**

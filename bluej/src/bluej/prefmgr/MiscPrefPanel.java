@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1050 2001-12-11 19:37:46Z mik $
+ * @version $Id: MiscPrefPanel.java 1096 2002-01-15 11:15:33Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -32,6 +32,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     private JTextField editorFontField;
     private JCheckBox hilightingBox;
     private JCheckBox lineNumbersBox;
+    private JCheckBox makeBackupBox;
     private JTextField jdkURLField;
     private JCheckBox linkToLibBox;
 
@@ -78,11 +79,12 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             }
             editorPanel.add(fontPanel);
 
-            hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
-            editorPanel.add(hilightingBox);
-            editorPanel.add(new JLabel(" "));
             lineNumbersBox = new JCheckBox(Config.getString("prefmgr.misc.displaylinenumbers"));
             editorPanel.add(lineNumbersBox);
+            hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
+            editorPanel.add(hilightingBox);
+            makeBackupBox = new JCheckBox(Config.getString("prefmgr.misc.makeBackup"));
+            editorPanel.add(makeBackupBox);
         }
         add(editorPanel);
 
@@ -184,6 +186,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
         hilightingBox.setSelected(PrefMgr.useSyntaxHilighting());
         lineNumbersBox.setSelected(PrefMgr.displayLineNumbers());
+        makeBackupBox.setSelected(PrefMgr.makeBackup());
         linkToLibBox.setSelected(PrefMgr.linkDocToLibrary());
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
 
@@ -209,6 +212,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         PrefMgr.setSyntaxHilighting(hilightingBox.isSelected());
         PrefMgr.setDisplayLineNumbers(lineNumbersBox.isSelected());
+        PrefMgr.setMakeBackup(makeBackupBox.isSelected());
         PrefMgr.setDocumentationLinking(linkToLibBox.isSelected());
 
         Package.editorManager.refreshAll();
