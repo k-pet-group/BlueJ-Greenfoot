@@ -17,7 +17,7 @@ import java.lang.reflect.Array;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 1168 2002-03-13 11:22:45Z mik $
+ * @version $Id: FileUtility.java 1302 2002-08-13 14:55:52Z mik $
  */
 public class FileUtility
 {
@@ -40,7 +40,8 @@ public class FileUtility
         }
         PrefMgr.setProjectDirectory(
                          chooser.getSelectedFile().getParentFile().getPath());
-
+        PrefMgr.addRecentProject(chooser.getSelectedFile().getPath());
+        
         return chooser.getSelectedFile();
     }
 
@@ -79,9 +80,12 @@ public class FileUtility
         int result = newChooser.showDialog(parent, buttonLabel);
 
         if (result == JFileChooser.APPROVE_OPTION) {
-            if(rememberDir)
+            if(rememberDir) {
                 PrefMgr.setProjectDirectory(
                       newChooser.getSelectedFile().getParentFile().getPath());
+                PrefMgr.addRecentProject(newChooser.getSelectedFile().getPath());
+
+            }
             return newChooser.getSelectedFile().getPath();
         }
         else if (result == JFileChooser.CANCEL_OPTION)

@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import java.io.*;
+import java.util.List;
 import java.util.*;
 
 import bluej.Config;
@@ -22,7 +23,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1286 2002-07-15 23:56:52Z bquig $
+ * @version $Id: PrefMgr.java 1302 2002-08-13 14:55:52Z mik $
  */
 public class PrefMgr
 {
@@ -38,11 +39,16 @@ public class PrefMgr
     public static final String USE_UML = "bluej.notation.style";
     public static final String USE_THEMES = "bluej.useTheme";
 
+	// font property names
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
     private static final String terminalFontPropertyName = "bluej.terminal.font";
     private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
 
+    // other constants
+    private static final int NUM_RECENT_PROJECTS = 6;
+    
+	// preference variables: FONTS
     private static int fontSize;
     private static int editFontsize;
     private static int printFontsize;
@@ -63,15 +69,23 @@ public class PrefMgr
     private static int editorFontSize;
     private static Font editorStandardFont, editorStandoutFont;
 
+	// preference variables: (other than fonts)
+	
     // the current project directory
     private static String projectDirectory;
 
+    // list of recently used projects
+	private static List recentProjects;
+	
     // flags are all boolean preferences
     private static HashMap flags = new HashMap();
 
+	// the pref-mgr object
     private static PrefMgr prefmgr = new PrefMgr();
 
-	/**
+    /**
+     * Initialise the preference manager. Font information is loaded from bluej.defs,
+     * defaults for other prefs are loaded from bluej.defs.
 	 */
     private PrefMgr()
     {
@@ -100,8 +114,11 @@ public class PrefMgr
         targetFontSize = Config.getPropInteger("bluej.target.fontsize", 12);
         targetFont = deriveFont(targetFontName, targetFontSize);        
         
+        // preferences other than fonts:
+        
         projectDirectory = Config.getPropString("bluej.projectPath");
-
+        recentProjects = readRecentProjects();
+        
         flags.put(HILIGHTING, Config.getPropString(HILIGHTING, "true"));
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
@@ -114,6 +131,8 @@ public class PrefMgr
                   String.valueOf(Config.getDefaultPropString(USE_UML, Graph.UML).equals(Graph.UML)));
     }
 
+    // ----- system interface to read or set prefences: -----
+    
     public static String getProjectDirectory()
     {
         return projectDirectory;
@@ -125,6 +144,26 @@ public class PrefMgr
         Config.putPropString("bluej.projectPath", newDir);
     }
 
+    public static List getRecentProjects()
+    {
+        return recentProjects;
+    }
+    
+    public static void addRecentProject(String projectName)
+    {
+        if(projectName == null)
+            return;
+            
+        if(recentProjects.size() == NUM_RECENT_PROJECTS)
+            recentProjects.remove(0);
+        
+        recentProjects.add(projectName);
+        
+        for(int i = 0; i < recentProjects.size(); i++) {
+            Config.putPropString("bluej.recentProject" + i, (String)recentProjects.get(i));
+        }
+    }
+    
     public static Font getStandardFont()
     {
         return normalFont;
@@ -174,13 +213,27 @@ public class PrefMgr
             return value.equals("true");
     }
 
+    // ----- end of system preference interface -----
+    
+    private static List readRecentProjects()
+    {
+        List projects = new ArrayList(NUM_RECENT_PROJECTS);
+        
+        for(int i = 0; i < NUM_RECENT_PROJECTS; i++) {
+            String projectName = Config.getPropString("bluej.recentProject" + i, "");
+            if(projectName.length() > 0)
+                projects.add(projectName);
+        }
+        return projects;
+    }
+    
     /**
      * Set a users preference flag (a boolean preference).
      *
      * @param flag    The name of the flag to set
      * @param enabled The new value of the flag
      */
-    protected static void setFlag(String flag, boolean enabled)
+    private static void setFlag(String flag, boolean enabled)
     {
         String value = String.valueOf(enabled);
         String hs = Config.getDefaultPropString(flag, "true");
@@ -203,7 +256,7 @@ public class PrefMgr
      *
      * @param size  the size of the font
      */
-    protected static void setEditorFontSize(int size)
+    private static void setEditorFontSize(int size)
     {
         if (size > 0 && size != editorFontSize) {
             editorFontSize = size;
@@ -231,7 +284,7 @@ public class PrefMgr
      *
      * @param size  the size of the font
      */
-    public static Font getTerminalFont()
+    private static Font getTerminalFont()
     {
         int size = Config.getPropInteger(terminalFontSizePropertyName, 12);
         String fontName = Config.getPropString(terminalFontPropertyName, "Monospaced");
@@ -260,7 +313,7 @@ public class PrefMgr
      * Return the editor font size as an integer size
      * (use getStandardEditorFont() if access to the actual font is required)
      */
-    protected static int getEditorFontSize()
+    private static int getEditorFontSize()
     {
         return editorFontSize;
     }

@@ -39,7 +39,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1246 2002-05-28 09:43:13Z mik $
+ * @version $Id: PkgMgrFrame.java 1302 2002-08-13 14:55:52Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -640,7 +640,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Handle the invocation of a user action.
      */
-    protected void handleAction(AWTEvent evt)
+    private void handleAction(AWTEvent evt)
     {
         Object src = evt.getSource();
         Integer evtIdObj = (Integer)actions.get(src);
@@ -1678,6 +1678,7 @@ public class PkgMgrFrame extends JFrame
     {
         handleAction(evt);
     }
+    
     public void actionPerformed(ActionEvent evt)
     {
         handleAction(evt);
@@ -1888,21 +1889,95 @@ public class PkgMgrFrame extends JFrame
     /**
      * setupMenus - Create the menu bar
      */
+     
+     
+    static final String[] CmdTypeNames = {
+        "package", "edit", "tools", "view", "group", "help"
+    };
+    static final int[] CmdTypes = {
+        PROJ_COMMAND, EDIT_COMMAND, TOOLS_COMMAND, VIEW_COMMAND,
+        GRP_COMMAND, HELP_COMMAND
+    };
+
+    static String[][] CmdStrings;  // definition: see below
+
+    static final KeyStroke[][] CmdKeys = {
+        ProjKeys, EditKeys, ToolsKeys, ViewKeys, GrpKeys, HelpKeys
+    };
+
+    static final int[][] CmdSeparators = {
+        ProjSeparators, EditSeparators, ToolsSeparators, ViewSeparators,
+        GrpSeparators, HelpSeparators
+    };
+
+        CmdStrings = new String[][] {
+            ProjCmds, EditCmds, ToolsCmds, ViewCmds, GrpCmds, HelpCmds
+        };
+
+    ProjCmds = new String[] {
+        "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
+        "pageSetup", "print", "quit"
+;
+    static final String[] EditCmds = {
+        "newClass", "newPackage", "addClass", "remove", "newUses", "newInherits",
+        "removeArrow"
+    };
+    static final String[] ToolsCmds = {
+        "compile", "compileSelected", "callLibrary", "rebuild", "generateDoc",
+        // "browse",
+        "preferences",
+    };
+    static final String[] ViewCmds = {
+        "showUses", "showInherits", "showExecControls", "showTerminal",
+    };
+    static final String[] GrpCmds = {
+        "make", "open",
+        "updateSelected", "updateAll",
+        "commitSelected", "commitAll",
+        "statusSelection", "statusAll",
+        "users",
+        "configuration"
+    };
+    static final String[] HelpCmds = {
+        "about", "versionCheck", "copyright", "website", "tutorial", "standardApi",
+    };
+
+     
     private void setupMenus()
     {
         menubar = new JMenuBar();
         JMenu menu = null;
 
+
+        int sep = 0;
+        
+        String itemId;
+        
+        String menuStr = Config.getString("menu.package");
+        menu = new JMenu(menuStr);
+
+        String itemStr = Config.getString("menu.package.new");
+        
+        itemId = "menu.package.open";
+        itemId = "menu.package.openNonBlueJ";
+        itemId = "menu.package.close";
+        itemId = "menu.package.save";
+        itemId = "menu.package.saveAs";
+        itemId = "menu.package.import";
+        itemId = "menu.package.export";
+        itemId = "menu.package.pageSetup";
+        itemId = "menu.package.print";
+        itemId = "menu.package.quit";
+
+
+
+        menuId = "menu.edit";
+        menuId = "menu.tools";
+        menuId = "menu.view";
+        menuId = "menu.help";
+        
         for(int menuType = 0; menuType < CmdTypes.length; menuType++) {
             int sep = 0;
-
-            String menuId = "menu." + CmdTypeNames[menuType];
-            String menuStr = Config.getString(menuId);
-
-            if (CmdTypes[menuType] == GRP_COMMAND)
-                continue;
-
-            menu = new JMenu(menuStr);
 
             for(int i = 0; i < CmdStrings[menuType].length; i++) {
                 int actionId = CmdTypes[menuType] + i;
@@ -1957,7 +2032,7 @@ public class PkgMgrFrame extends JFrame
 
                 // if there is a separator before this item, add it now
                 if(sep < CmdSeparators[menuType].length
-                   && CmdSeparators[menuType][sep] == actionId)
+                   && CmdSeparators[menuType][sep] == )
                     {
                         menu.addSeparator();
                         ++sep;
@@ -1986,32 +2061,6 @@ public class PkgMgrFrame extends JFrame
         }
 
         setJMenuBar(menubar);
-    }
-
-    /**
-     * Add user defined help menus. Users can add help menus via the
-     * bluej.help.items property. See comment in bluej.defs.
-     */
-    private void addUserHelpItems(JMenu menu)
-    {
-        String helpItems = Config.getPropString("bluej.help.items", "");
-
-        if(helpItems != null && helpItems.length() > 0) {
-            menu.addSeparator();
-            URLDisplayer urlDisplayer = new URLDisplayer();
-
-            StringTokenizer t = new StringTokenizer(helpItems);
-
-            while (t.hasMoreTokens()) {
-                String itemID = (String)t.nextToken();
-                String itemName = Config.getPropString("bluej.help." + itemID + ".label");
-                String itemURL = Config.getPropString("bluej.help." + itemID + ".url");
-                JMenuItem item = new JMenuItem(itemName);
-                item.setActionCommand(itemURL);
-                item.addActionListener(urlDisplayer);
-                menu.add(item);
-            }
-        }
     }
 
     /**
@@ -2199,26 +2248,6 @@ public class PkgMgrFrame extends JFrame
         HELP_WEBSITE
     };
 
-    static final int[] CmdTypes = {
-        PROJ_COMMAND, EDIT_COMMAND, TOOLS_COMMAND, VIEW_COMMAND,
-        GRP_COMMAND, HELP_COMMAND
-    };
-
-    static final String[] CmdTypeNames = {
-        "package", "edit", "tools", "view", "group", "help"
-    };
-
-    static String[][] CmdStrings;  // definition: see below
-
-    static final KeyStroke[][] CmdKeys = {
-        ProjKeys, EditKeys, ToolsKeys, ViewKeys, GrpKeys, HelpKeys
-    };
-
-    static final int[][] CmdSeparators = {
-        ProjSeparators, EditSeparators, ToolsSeparators, ViewSeparators,
-        GrpSeparators, HelpSeparators
-    };
-
     // definitions for project commands are not final, since they are different on a Mac
     // system
     {
@@ -2229,14 +2258,35 @@ public class PkgMgrFrame extends JFrame
 //              };
 //          }
 //          else {
-            ProjCmds = new String[] {
-                "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
-                "pageSetup", "print", "quit"
-            };
 //          }
-        CmdStrings = new String[][] {
-            ProjCmds, EditCmds, ToolsCmds, ViewCmds, GrpCmds, HelpCmds
-        };
+    }
+
+
+
+    /**
+     * Add user defined help menus. Users can add help menus via the
+     * bluej.help.items property. See comment in bluej.defs.
+     */
+    private void addUserHelpItems(JMenu menu)
+    {
+        String helpItems = Config.getPropString("bluej.help.items", "");
+
+        if(helpItems != null && helpItems.length() > 0) {
+            menu.addSeparator();
+            URLDisplayer urlDisplayer = new URLDisplayer();
+
+            StringTokenizer t = new StringTokenizer(helpItems);
+
+            while (t.hasMoreTokens()) {
+                String itemID = (String)t.nextToken();
+                String itemName = Config.getPropString("bluej.help." + itemID + ".label");
+                String itemURL = Config.getPropString("bluej.help." + itemID + ".url");
+                JMenuItem item = new JMenuItem(itemName);
+                item.setActionCommand(itemURL);
+                item.addActionListener(urlDisplayer);
+                menu.add(item);
+            }
+        }
     }
 
     /**

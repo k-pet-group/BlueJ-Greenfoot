@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 1259 2002-06-26 07:01:54Z ajp $
+ * @version $Id: AboutBlue.java 1302 2002-08-13 14:55:52Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -64,8 +64,6 @@ class AboutBlue extends JDialog
         // footer text
         MultiLineLabel bottomtext = new MultiLineLabel(LEFT_ALIGNMENT);
         bottomtext.setBackground(Color.white);
-        bottomtext.addText(" ");
-        bottomtext.addText("Code was contributed to this version by Dave Musicant, Carleton College.");
         bottomtext.addText(" ");
         bottomtext.addText("For more information contact Michael " +
                            "K\u00F6lling (mik@mip.sdu.dk).");
