@@ -13,7 +13,7 @@ import java.awt.print.PrinterJob;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: Editor.java 1753 2003-04-04 14:04:57Z fisker $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -28,7 +28,7 @@ public interface Editor
      * 
      * @return false is there was a problem, true otherwise
      */
-    boolean showFile(String filename, boolean compiled);
+    boolean showFile(String filename, boolean compiled, String docFilename);
 
     /**
      * Reload and display the same file that was displayed before.
