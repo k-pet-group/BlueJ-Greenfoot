@@ -1,3 +1,5 @@
+import java.util.*;
+
 /**
  ** Class Tester - write a description of the class here
  ** 
@@ -41,6 +43,11 @@ public class Tester
      **/
     public int goodtest()
     {
+		double pi = 3.1415;
+		double smallpi = Math.round(pi * 1000) / 1000.0;
+
+		System.out.println("result: " + smallpi);
+
         return 43;
     }
 
@@ -51,7 +58,6 @@ public class Tester
         testArray = new Tester[] {new Tester(), null} ;
         objArray = new Object[] {"mik", new Integer(3), null} ;
         sstringArray = new String[] {"mik", "koe", null, "home"} ;
-        stestArray = new Tester[] {new Tester(), null, new SubTester()} ;
         sobjArray = new Object[] {"mik", new Integer(3), null} ;
     }
 
@@ -92,9 +98,8 @@ chdjs:
         // put your code here
         System.out.println("about to exit...");
         System.exit(3);
-        System.out.println("after exit!"); null 
+        System.out.println("after exit!"); 
         return 33;
-	66m * xxa + cds. ds
     }
     public void voidexit()
     {

@@ -38,8 +38,10 @@ import java.text.DateFormat;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 427 2000-04-18 04:33:04Z ajp $
+ * @version $Id: Package.java 429 2000-04-21 00:52:00Z mik $
  * @author Michael Cahill
+ * @author Michael Kolling
+ * @author Axel Schmolitzky
  *
  */
 public class Package extends Graph
@@ -116,6 +118,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
     /** Holds the choice of "from" target for a new dependency */
     protected Target fromChoice;
 
+    /** the Project this package is in */
+    private Project myProject;
+
     /** the PkgFrame of a package */
     PkgFrame frame;
 
@@ -164,8 +169,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
     /**
      * Create a new package from a given directory in a given frame.
      */
-    public Package(String dirname, PkgFrame frame)
+    public Package(Project project, String dirname, PkgFrame frame)
     {
+        this.myProject = project;
         this.dirname = dirname;
         this.frame = frame;
 
@@ -176,20 +182,17 @@ implements CompileObserver, MouseListener, MouseMotionListener
         callHistory = new CallHistory(HISTORY_LENGTH);
     }
 
-    /**
-     * Create a package not associated to a frame.
-     */
-    public Package(String dirname)
+    public Package()
     {
-        this(dirname, null);
+        this(null, null, null);
     }
 
     /**
-     * Create a new package not associated to a directory or frame.
+     * Return the project this package belongs to.
      */
-    public Package()
+    public Project getProject()
     {
-        this(null, null);
+        return myProject;
     }
 
     /**

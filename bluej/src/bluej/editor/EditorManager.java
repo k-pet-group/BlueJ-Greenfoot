@@ -3,7 +3,7 @@ package bluej.editor;
 import java.util.Vector;
 
 /**
-** @version $Id: EditorManager.java 361 2000-01-14 00:59:47Z mik $
+** @version $Id: EditorManager.java 429 2000-04-21 00:52:00Z mik $
 ** @author Michael Cahill
 ** @author Michael Kolling
 ** Interface between the editor manager and the rest of BlueJ
@@ -16,12 +16,12 @@ public interface EditorManager
      * is initially hidden. A call to "Editor::show" is needed to make 
      * is visible after opening it.
      *
-     * @param filename	name of the source file to open (may be null)
-     * @param windowTitle	title of window (usually class name)
-     * @param watcher	an object interested in editing events
-     * @param compiled	true, if the class has been compiled
-     * @param breakpoints	vector of Integers: line numbers where bpts are
-     * @returns		the new editor, or null if there was a problem
+     * @param filename      name of the source file to open (may be null)
+     * @param windowTitle   title of window (usually class name)
+     * @param watcher       an object interested in editing events
+     * @param compiled      true, if the class has been compiled
+     * @param breakpoints   vector of Integers: line numbers where bpts are
+     * @returns		    the new editor, or null if there was a problem
      */
     Editor openClass(String filename, String windowTitle, 
                      EditorWatcher watcher, boolean compiled,

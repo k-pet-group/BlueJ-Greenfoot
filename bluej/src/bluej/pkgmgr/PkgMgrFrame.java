@@ -85,8 +85,9 @@ implements BlueJEventListener
      * Open a PkgMgrFrame for a new package. This is the only way
      * PkgMgrFrames can be created.
      */
-    public static PkgMgrFrame createFrame(String packagePath) {
-        PkgMgrFrame frame = new PkgMgrFrame(packagePath);
+    public static PkgMgrFrame createFrame(Project project, File packageDir) 
+    {
+        PkgMgrFrame frame = new PkgMgrFrame(project, packageDir);
         frames.addElement(frame);
         return frame;
     }
@@ -119,9 +120,24 @@ implements BlueJEventListener
     }
 
     /**
+     * @return an array of current Package objects, or null if none exist
+     */
+    public static PkgFrame[] getAllOpenPackageFrames() 
+    {
+        if (frames.size() == 0)
+            return null;
+
+        PkgFrame[] openFrames = new PkgFrame[frames.size()];
+        frames.toArray(openFrames);
+
+        return openFrames;
+    }
+
+    /**
      * About to exit - close all open frames.
      */
-    public static void handleExit() {
+    public static void handleExit() 
+    {
         for(int i = frames.size() - 1; i >= 0; i--) {
             PkgMgrFrame frame = (PkgMgrFrame)frames.elementAt(i);
             frame.doClose();
@@ -145,35 +161,35 @@ implements BlueJEventListener
 
 
     /**
-     * Create a new PkgMgrFrame which may or may not show a
-     * package. If the parameter is null, the frame is opened
+     * Create a new PkgMgrFrame which may or may not show a package.
+     * If the parameter has an empty file name, the frame is opened
      * without referring to a package. If the parameter refers
      * to a valid package, it is opened and displayed.
      *
      * This constructor can only be called via createFrame().
      */
-    private PkgMgrFrame(String packagePath) {
+    private PkgMgrFrame(Project project, File packageDir) {
         String pkgdir;
 
-        if(packagePath == null)
+        if(packageDir == null || packageDir.getPath().length() == 0)
             pkgdir = noTitle;
         else {
-            if(checkPackage(packagePath))
-                pkgdir = packagePath;
+            if(checkPackage(packageDir))
+                pkgdir = packageDir.getPath();
             else
                 pkgdir = noTitle;
         }
         if(pkgdir.endsWith(File.separator))
             pkgdir = pkgdir.substring(0, pkgdir.length()-1);
 
-        pkg = new Package(pkgdir, this);
+        pkg = new Package(project, pkgdir, this);
         editor = new GraphEditor(pkg, this);
 
         makeFrame();
 
         if(pkgdir != noTitle) {
             pkg.load(pkgdir);
-            Main.addPackage(pkg);
+            //mik:Main.addPackage(pkg);
         }
         setWindowTitle();
         setStatus(AppTitle);
@@ -187,14 +203,6 @@ implements BlueJEventListener
     public ObjectBench getObjectBench()
     {
         return objbench;
-    }
-
-    /**
-     * Return the package shown by this frame.
-     */
-    public Package getPackage()
-    {
-        return pkg;
     }
 
     /**
@@ -216,37 +224,37 @@ implements BlueJEventListener
 	clearStatus();
 
 	switch(evtId) {
-	    // Package commands
-	case PKG_NEW:
-	    doNewPackage();
+	    // Project commands
+	case PROJ_NEW:
+	    doNewProject();
 	    break;
 
-	case PKG_OPEN:
+	case PROJ_OPEN:
 	    doOpen();
 	    break;
 
-	case PKG_CLOSE:
+	case PROJ_CLOSE:
 	    closeFrame(this);
 	    break;
 
-	case PKG_SAVE:
+	case PROJ_SAVE:
 	    doSave();
 	    setStatus(packageSaved);
 	    break;
 
-	case PKG_SAVEAS:
+	case PROJ_SAVEAS:
 	    doSaveAs();
 	    break;
 
-	case PKG_IMPORTCLASS:
+	case PROJ_IMPORTCLASS:
 	    importClass();
 	    break;
 
-	case PKG_PRINT:
+	case PROJ_PRINT:
 	    print();
 	    break;
 
-	case PKG_QUIT:
+	case PROJ_QUIT:
 	    int answer = 0;
 	    if(frameCount() > 1)
 		answer = DialogManager.askQuestion(this, "quit-all");
@@ -261,7 +269,11 @@ implements BlueJEventListener
 	    createNewClass();
 	    break;
 
-	case EDIT_REMOVECLASS:
+	case EDIT_NEWPACKAGE:
+	    createNewPackage();
+	    break;
+
+	case EDIT_REMOVE:
 	    removeClass();
 	    break;
 
@@ -293,14 +305,14 @@ implements BlueJEventListener
 	    pkg.rebuild();
 	    break;
 
-//	case TOOLS_BROWSE:
+	case TOOLS_BROWSE:
 /*
 	    DialogManager.showText(this,
 		"The library browser is not implemented in this version.\n" +
 		"To browse the Java standard libraries, select \"Java\n" +
 		"Class Libraries...\" from the Help menu.");
 */
-/*
+
   	    // offset browser from this window
   	    getBrowser().setLocation(this.getLocation().x + 100,
  				     this.getLocation().y + 100);
@@ -308,7 +320,7 @@ implements BlueJEventListener
  	    getBrowser().validate();
   	    getBrowser().setVisible(true);
 	    break;
-*/
+
 	case TOOLS_PREFERENCES:
 		PrefMgrDialog.showDialog(this);
 		break;
@@ -407,8 +419,8 @@ implements BlueJEventListener
                 doOpenPackage(pkgPath);
             else {
                 // Otherwise open it in a new window
-                PkgMgrFrame frame = createFrame(pkgPath);
-                frame.setVisible(true);
+                //mik:PkgMgrFrame frame = createFrame(pkgPath);
+                //mik:frame.setVisible(true);
             }
         }
     }
@@ -455,9 +467,9 @@ implements BlueJEventListener
 
 	    // save package under new name
 
-	    Main.removePackage(pkg);	// remove under old name
+	    //mik:Main.removePackage(pkg);	// remove under old name
 	    int result = pkg.saveAs(newname);
-	    Main.addPackage(pkg);	// add under new name
+	    //mik:Main.addPackage(pkg);	// add under new name
 
 	    if(result == Package.CREATE_ERROR)
 		DialogManager.showError(this, "cannot-write-package");
@@ -497,28 +509,6 @@ implements BlueJEventListener
 	}
     }
 
-    /**
-     * importPackage - implementation if the "Import Package" user function
-     */
-    private void importPackage()
-    {
-	DialogManager.NYI(this);
-//  	    String dirname = openPackageDialog(false);
-//  	    if(dirname == null)
-//  		break;
-
-//  	    File pkgfile = new File(dirname, Package.pkgfileName);
-//  	    if(pkgfile.exists())
-//  		Debug.reportError("Package " + dirname + " already exists");
-//  	    else {
-//  		String pkgname = DialogManager.askString(this, "ask-package");
-//  		if((pkgname == null) || (pkgname.length() == 0))
-//  		    pkgname = Package.noPackage;
-
-//  		if(Package.importDir(dirname, pkgname))
-//  		    doOpenPackage(dirname);
-//  	    }
-    }
 
     /**
      * exportPackage - implementation if the "Export Package" user function
@@ -577,7 +567,7 @@ implements BlueJEventListener
     }
 
     /**
-     * createNewClass - implementation if the "New Class" user function
+     * createNewClass - implementation of the "New Class" user function
      */
     private void createNewClass()
     {
@@ -606,6 +596,14 @@ implements BlueJEventListener
 		editor.repaint();
 	    }
 	}
+    }
+
+    /**
+     * createNewPackage - implementation of the "New Package" user function
+     */
+    private void createNewPackage()
+    {
+	DialogManager.NYI(this);
     }
 
     /**
@@ -840,22 +838,19 @@ implements BlueJEventListener
      *  BlueJ package directory. If not, show an appropriate
      *  error message.
      */
-    private boolean checkPackage(String path)
+    private boolean checkPackage(File packageDir)
     {
-        File packageFile = new File(path);
-
-        // check whether path exists
-
-	if (!packageFile.exists()) {
+	if (!packageDir.exists()) {
 	    DialogManager.showErrorWithText(this, "package-does-not-exist",
-					    path);
+					    packageDir.getPath());
 	    return false;
 	}
 
 	// check whether path is a valid BlueJ package
 
-        if (!Package.isBlueJPackage(packageFile)) {
-	    DialogManager.showErrorWithText(this, "no-bluej-package", path);
+        if (!Package.isBlueJPackage(packageDir)) {
+	    DialogManager.showErrorWithText(this, "no-bluej-package", 
+                                            packageDir.getPath());
 	    return false;
 	}
 
@@ -893,7 +888,7 @@ implements BlueJEventListener
         buttonPanel.setLayout(buttonGridLayout);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
         String newClassString = Config.getString("menu.edit." +
-                                                 EditCmds[EDIT_NEWCLASS - EDIT_COMMAND]);
+                                    EditCmds[EDIT_NEWCLASS - EDIT_COMMAND]);
         JButton button = new JButton(newClassString);
         button.setFont(PkgMgrFont);
         button.setMargin(new Insets(2,2,2,2));
@@ -918,7 +913,8 @@ implements BlueJEventListener
         buttonPanel.add(button);
         actions.put(button, new Integer(EDIT_NEWINHERITS));
 
-        String compileString = Config.getString("menu.tools." + ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
+        String compileString = Config.getString("menu.tools." + 
+                                    ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
         button = new JButton(compileString);
         button.setFont(PkgMgrFont);
         button.setMargin(new Insets(2,2,2,2));

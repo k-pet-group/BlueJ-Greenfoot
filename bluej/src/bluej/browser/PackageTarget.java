@@ -8,7 +8,8 @@ import bluej.utility.MultiEnumeration;
 import bluej.utility.SortableVector;
 import bluej.utility.Utility;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Main;
+import bluej.pkgmgr.PkgFrame;
+import bluej.pkgmgr.PkgMgrFrame;
 
 import java.util.Vector;
 import java.util.Properties;
@@ -18,7 +19,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: PackageTarget.java 276 1999-11-16 00:55:47Z ajp $
+ ** @version $Id: PackageTarget.java 429 2000-04-21 00:52:00Z mik $
  ** @author Michael Cahill
  **
  ** A general target for the browser
@@ -106,16 +107,15 @@ public class PackageTarget extends Target
     {
         JPopupMenu menu = new JPopupMenu();
 
-        Package[] openpackages = bluej.pkgmgr.Main.getAllOpenPackages();
+        PkgFrame[] openFrames = PkgMgrFrame.getAllOpenPackageFrames();
             
-        if(openpackages != null) {
-            for(int i=0; i<openpackages.length; i++) {
+        if(openFrames != null) {
+            for(int i=0; i<openFrames.length; i++) {
 
-                Action useAction = new UseAction("Use in package " + openpackages[i].getId(),
-                                                openpackages[i]); 
-
+                Action useAction = new UseAction("Use in package " + 
+                                          openFrames[i].getPackage().getId(),
+                                          openFrames[i].getPackage()); 
             	useAction.setEnabled(true);
-
                 menu.add(useAction);
             }
 

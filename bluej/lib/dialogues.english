@@ -132,9 +132,9 @@ import the file. Check access rights and
 disk space.
 
 no-class-selected
-No Class selected for removal.
-Select Class by clicking on it 
-before trying to remove.
+No class or package selected for removal.
+Select a class or package by clicking on 
+it before trying to remove.
 
 package-does-not-exist
 Error in opening package.
