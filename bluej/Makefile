@@ -22,7 +22,7 @@
 
 include $(OS).mk
 
-PKG_VERSION = 112rc2
+PKG_VERSION = 112
 
 SUBDIRS = \
 	src

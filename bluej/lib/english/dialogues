@@ -157,7 +157,7 @@ generated previously, or do you want
 to regenerate the whole documentation?
 Just Show
 Regenerate
-null
+Cancel
 
 doctool-error
 Javadoc reported an error. It could be that there is a 

@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Main.java 766 2001-02-07 23:55:57Z mik $
+ * @version $Id: Main.java 796 2001-03-13 04:37:47Z mik $
  */
 public class Main
 {
@@ -76,8 +76,7 @@ public class Main
             System.arraycopy(args, 2, newArgs, 0, args.length - 2);
             args = newArgs;
         } else {
-            String install = System.getProperty("install.root");
-            home = System.getProperty("bluej.home", install);
+            home = System.getProperty("bluej.home");
         }
 
         if(home == null) {
@@ -85,6 +84,7 @@ public class Main
             System.exit(-1);
         }
 
+        SplashWindow splash = new SplashWindow(home);
         Config.initialise(home);
         PrefMgr.initialise();
 
@@ -100,6 +100,7 @@ public class Main
         machineLoader.start();
 
         processArgs(args);
+        splash.remove();
     }
 
     /**
