@@ -23,7 +23,7 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1269 2002-07-02 12:22:30Z mik $
+ * @version $Id: Terminal.java 1338 2002-09-21 17:08:59Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -63,10 +63,13 @@ public final class Terminal extends JFrame
     private TermTextArea text;
     private JTextArea errorText;
     private JScrollPane errorScrollPane;
+    private JScrollPane scrollPane;
+    private JSplitPane splitPane;
     private boolean isActive = false;
     private boolean recordMethodCalls = false;
     private boolean clearOnMethodCall = false;
     private boolean newMethodCall = false;
+    private boolean errorShown = false;
     private InputBuffer buffer;
 
     private JCheckBoxMenuItem autoClear;
@@ -141,6 +144,8 @@ public final class Terminal extends JFrame
     public void clear()
     {
         text.setText("");
+        if(errorShown)
+            errorText.setText("");
     }
 
 
@@ -191,9 +196,9 @@ public final class Terminal extends JFrame
      */
     private void writeToErrorOut(String s)
     {
-        if(!errorScrollPane.isVisible()) {
-            errorScrollPane.setVisible(true);
-            pack();
+        if(!errorShown) {
+            addErrorPane();
+            errorShown = true;
         }
         errorText.append(s);
         errorText.setCaretPosition(errorText.getDocument().getLength());
@@ -205,9 +210,9 @@ public final class Terminal extends JFrame
      */
     private void writeToErrorOut(char ch)
     {
-        if(!errorScrollPane.isVisible()) {
-            errorScrollPane.setVisible(true);
-            pack();
+        if(!errorShown) {
+            addErrorPane();
+            errorShown = true;
         }
         errorText.append(String.valueOf(ch));
         errorText.setCaretPosition(errorText.getDocument().getLength());
@@ -365,17 +370,46 @@ public final class Terminal extends JFrame
         setIconImage(iconImage);
 
         text = new TermTextArea(rows, columns);
-        JScrollPane scrollPane = new JScrollPane(text);
+        scrollPane = new JScrollPane(text);
         text.setFont(PrefMgr.getTerminalFont());
         text.setEditable(false);
         text.setLineWrap(false);
         text.setForeground(fgColour);
         text.setMargin(new Insets(6, 6, 6, 6));
         //text.setBackground(inactiveBgColour);
+        text.addKeyListener(this);
 
         getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-        errorText = new JTextArea(4, columns);
+        setJMenuBar(makeMenuBar());
+
+        // Close Action when close button is pressed
+        addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent event) {
+                    Window win = (Window)event.getSource();
+                    win.setVisible(false);
+                }
+            });
+
+        // save position when window is moved
+        addComponentListener(new ComponentAdapter() {
+                public void componentMoved(ComponentEvent event)
+                {
+                    Config.putLocation("bluej.terminal", getLocation());
+                }
+            });
+
+        setLocation(Config.getLocation("bluej.terminal"));
+
+        pack();
+    }
+
+    /**
+     * Add a second scrollled text area to the window, for error output.
+     */
+    private void addErrorPane()
+    {
+        errorText = new JTextArea(5, text.getColumns());
         errorScrollPane = new JScrollPane(errorText);
         errorText.setFont(PrefMgr.getTerminalFont());
         errorText.setEditable(false);
@@ -383,11 +417,19 @@ public final class Terminal extends JFrame
         errorText.setForeground(errorColour);
         errorText.setMargin(new Insets(6, 6, 6, 6));
 
-        getContentPane().add(errorScrollPane, BorderLayout.SOUTH);
-        errorScrollPane.setVisible(false);
-
-        text.addKeyListener(this);
-
+        getContentPane().remove(scrollPane);
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                   scrollPane, errorScrollPane);
+ 
+        getContentPane().add(splitPane, BorderLayout.CENTER);
+        pack();
+    }
+    
+    /**
+     * Create the terminal's menubar, all menus and items.
+     */
+    private JMenuBar makeMenuBar()
+    {
         JMenuBar menubar = new JMenuBar();
         JMenu menu = new JMenu(Config.getString("terminal.options"));
         JMenuItem item;
@@ -418,29 +460,9 @@ public final class Terminal extends JFrame
                                                    SHORTCUT_MASK));
 
         menubar.add(menu);
-        setJMenuBar(menubar);
-
-        // Close Action when close button is pressed
-        addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent event) {
-                    Window win = (Window)event.getSource();
-                    win.setVisible(false);
-                }
-            });
-
-        // save position when window is moved
-        addComponentListener(new ComponentAdapter() {
-                public void componentMoved(ComponentEvent event)
-                {
-                    Config.putLocation("bluej.terminal", getLocation());
-                }
-            });
-
-        setLocation(Config.getLocation("bluej.terminal"));
-
-        pack();
+        return menubar;
     }
-
+    
 
     private class ClearAction extends AbstractAction
     {
