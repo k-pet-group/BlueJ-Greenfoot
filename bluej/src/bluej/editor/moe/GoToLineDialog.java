@@ -157,6 +157,7 @@ public class GoToLineDialog extends JDialog implements ActionListener
     private void doOK()
     {
         lineNumber = validateInput();
+        clear();
         setVisible(false);   
     }
     
