@@ -6,7 +6,8 @@
 
 public class Hello
 {
-    static final int cons = 42;
+    static final int cons = 42;    
+    	
     static int stats = 0;
     private String name = "mik";
 
@@ -15,7 +16,7 @@ public class Hello
     {
         int nummer;
         nummer = 42;
-        System.out.println("hello, world");		
+        System.out.println("hello, world");
     }
 	
     	/**
@@ -23,9 +24,10 @@ public class Hello
      */
     public static void main(String[] args)
     {
-	       Hello h = new Hello();
-	       h.go();
-        for(int i = 0; i < args.length; i++) 
-            System.out.println("Hello " + args[i]);
+        Hello h = new Hello();
+        h.go();
+        if (args != null)
+			for(int i = 0; i < args.length; i++) 
+            	System.out.println("Hello " + args[i]);
     }
 }

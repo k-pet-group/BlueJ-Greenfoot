@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 675 2000-09-01 12:36:32Z ajp $
+ * @version $Id: Package.java 684 2000-09-12 06:24:16Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1683,6 +1683,9 @@ public class Package extends Graph
         if(editor!=null)
             editor.displayMessage(message, lineNo, 0, beep, setStepMark,
                                   help);
+        else
+            Debug.message(t.getDisplayName() + ", line" + lineNo + ": " + 
+                          message);
         return true;
     }
 

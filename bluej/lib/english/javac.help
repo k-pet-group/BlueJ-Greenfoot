@@ -1152,8 +1152,25 @@ No help available.
 Support for inner classes has been disabled.
 No help available.
 
-Exception {0} must be caught, or it must be declared in the throws clause of this method.
-No help available.
+* must be caught, or it must be declared in the throws clause of this method.
+Your code makes a call to a method that may throw 
+an exception. You have two choices: You can either 
+catch that exception or you can declare that your 
+method passes it on. If you want to catch the
+exception, you have to use a 
+   try 
+   {
+      ...
+   }
+   catch(...)
+   {
+      ...
+   }
+block.
+If you want to pass it on, you must write the 
+declaration
+   throws <ExceptionName>
+into the signature of your method.
 
 Exception {0} must be caught, or it must be declared in the throws clause of this constructor.
 No help available.

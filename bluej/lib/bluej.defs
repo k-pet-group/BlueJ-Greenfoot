@@ -80,26 +80,6 @@ winBrowserCmd1=cmd.exe /c start $
 winBrowserCmd2=
 
 
-#####################################################################
-## Compiling. Commands used to execute a compiler. The first property
-## sets the type of the compiler. Currently it can be one of 
-## internal, javac or jikes. The second property if it exists,
-## specifies the name of the executable to run as the compiler. This
-## can be a fully qualified path or the name of an executable in the
-## path. If it is not specified then BlueJ defaults to the standard
-## name of the specified compiler type (ie javac for type javac and
-## jikes for type jikes).
-#####################################################################
-
-bluej.compiler.type=internal
-
-#bluej.compiler.type=jikes
-#bluej.compiler.executable=jikes
-
-#bluej.compiler.type=javac
-#bluej.compiler.executable=javac
-
-
 #######################################################################
 ## Documentation generation. This specifies the command used for 
 ## generating documentation and the directory name within the project 
@@ -242,6 +222,42 @@ colour.menu.environOp=170,32,32
 
 
 #####################################################################
+## Compiling. Commands used to execute a compiler. The first property
+## sets the type of the compiler. Currently it can be one of 
+## internal, javac or jikes. The second property if it exists,
+## specifies the name of the executable to run as the compiler. This
+## can be a fully qualified path or the name of an executable in the
+## path. If it is not specified then BlueJ defaults to the standard
+## name of the specified compiler type (ie javac for type javac and
+## jikes for type jikes).
+#####################################################################
+
+bluej.compiler.type=internal
+
+#bluej.compiler.type=jikes
+#bluej.compiler.executable=jikes
+
+#bluej.compiler.type=javac
+#bluej.compiler.executable=javac
+
+
+#####################################################################
+## Options for starting the internal virtual machine.
+## This is a system specific option: It can be prefixed with an
+## OS identifier. Known identifiers are "win9x", "win", "solaris"
+## and "linux".
+#####################################################################
+
+win9xVmOptions=
+winVmOptions=
+linuxVmOptions=-classic
+solarisVmOptions=
+
+#default:
+VmOptions=-classic
+
+
+#####################################################################
 ## User Interface "Look and Feel"
 ## To get the default system look and feel, don't set this property.
 #####################################################################
@@ -289,6 +305,8 @@ template.readme.export=readmeexp.tmpl
 #######################################################################
 
 image.icon=bluej-icon.gif
+image.icon.terminal=bluej-icon-terminal.gif
+image.icon.editor=bluej-icon-edit.gif
 image.logo=bluej-logo.gif
 
 # arrow buttons

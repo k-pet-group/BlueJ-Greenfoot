@@ -176,7 +176,9 @@ public final class MoeActions
                 KeyStroke key = (KeyStroke)stream.readObject();
                 String actionName = (String)stream.readObject();
                 Action action = (Action)(actions.get(actionName));
-                keymap.addActionForKeyStroke(key, action);
+                if(action != null) {
+                    keymap.addActionForKeyStroke(key, action);
+                }
             }
             istream.close();
             return true;

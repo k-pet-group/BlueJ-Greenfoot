@@ -68,7 +68,10 @@ implements ActionListener
     {
         int newline = msg.indexOf('\n');
         if (newline == -1)
-            message (msg, "");
+            if(msg.length() <= 81)
+                message (msg, "");
+            else
+                message (msg.substring(0, 80), msg.substring(80));
         else
             message (msg.substring(0, newline), msg.substring(newline+1));
     }
@@ -146,15 +149,22 @@ implements ActionListener
     private void displayHelp(String helpGroup)
     {
         String fileName = Config.getHelpFilename(helpGroup);
-        String displayMsg = line1.getText().trim();  // message displayed
+        String displayMsg = (line1.getText() + line2.getText()).trim();
 
         String helpText = BlueJFileReader.readHelpText(fileName, displayMsg,
                                                        false);
 
+        if(displayMsg.length() > 40) {
+            int half = displayMsg.length() / 2;
+            displayMsg = displayMsg.substring(0, half) + "\n" + 
+                         displayMsg.substring(half);
+        }
+
         if(helpText == null)
-            DialogManager.showMessage(null, "no-help");
+            DialogManager.showMessageWithText(null, "no-help", 
+                                              "\n" + displayMsg);
         else
-            DialogManager.showText(null, helpText);
+            DialogManager.showText(null, displayMsg + "\n\n" + helpText);
     }
 
 }  // end class Info

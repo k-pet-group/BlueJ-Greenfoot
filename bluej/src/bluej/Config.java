@@ -40,7 +40,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 615 2000-07-03 04:12:37Z mik $
+ * @version $Id: Config.java 684 2000-09-12 06:24:16Z mik $
  */
 
 public class Config
@@ -290,17 +290,42 @@ public class Config
     }
 
     /**
+     * Get a system-dependent string from the BlueJ properties
+     * ("bluej.defs" or "bluej.properties"). System-dependent strings 
+     * start with an OS ID prefix.
+     */
+    public static String getSystemPropString(String propName)
+    {
+        String osname = System.getProperty("os.name");
+        //Debug.message(osname);
+        String sysID;
+
+        if(osname != null && osname.startsWith("Windows 9"))     // win95/98
+            sysID = "win9x";
+        else if(osname != null && osname.startsWith("Windows"))  // NT/2000
+            sysID = "win";
+        else if(osname != null && osname.startsWith("Linux"))    // Linux
+            sysID = "linux";
+        else if(osname != null && osname.startsWith("SunOS"))  // Solaris
+            sysID = "solaris";
+        else
+            sysID = "";
+
+        String value = bluej_props.getProperty(sysID + propName);
+        if(value == null)
+            value = bluej_props.getProperty(propName, "");
+
+        return value;
+    }
+
+
+    /**
      * Get a non-language-dependent string from the BlueJ properties
      * ("bluej.defs" or "bluej.properties") with a default value
      */
     public static String getPropString(String strname, String def)
     {
-        try {
-            return bluej_props.getProperty(strname, def);
-        } catch(Exception e) {
-            Debug.reportError("Could not get string for " + strname);
-            return def;
-        }
+        return bluej_props.getProperty(strname, def);
     }
 
     /**

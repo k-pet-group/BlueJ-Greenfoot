@@ -1,16 +1,25 @@
-#BlueJ project file
+#BlueJ package file
+package.editor.height=320
+package.editor.width=460
 package.numDependencies=0
-package.numTargets=1
-package.window.height=498
-package.window.width=572
-target1.appletHeight=200
-target1.appletWidth=300
-target1.height=50
+package.numTargets=2
+target1.appletHeight=100
+target1.appletWidth=200
+target1.height=70
 target1.modifiers=0
-target1.name=Clock
+target1.name=Inherit
 target1.numberAppletParameters=0
 target1.type=AppletTarget
-target1.valid=true
-target1.width=100
-target1.x=40
-target1.y=50
+target1.width=80
+target1.x=60
+target1.y=140
+target2.appletHeight=200
+target2.appletWidth=300
+target2.height=50
+target2.modifiers=0
+target2.name=Clock
+target2.numberAppletParameters=0
+target2.type=AppletTarget
+target2.width=100
+target2.x=110
+target2.y=50

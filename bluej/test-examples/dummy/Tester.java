@@ -9,8 +9,7 @@ import java.util.*;
 public class Tester       
 {
 //     // instance variables - replace the example 
-    public static int st = 33;
-    
+
     private int x;
     public String name = "Michael";
     private String privname = "Michael";
@@ -28,6 +27,7 @@ public class Tester
      ** Constructor for objects of class Tester
      **/
     public Tester()
+		throws Exception
     {
         // initialise instance vari ables
         x = 0;
@@ -42,11 +42,14 @@ public class Tester
      * @return     the sum of x and y 
      **/
     public int goodtest()
+		throws Mik
+
     {
         return 43;
     }
 
     public void makeArrays()
+		throws Exception
     {
 
         stringArray = new String[] {"mik", "koe", null, "home"} ;
@@ -70,7 +73,7 @@ public class Tester
     }
 
     public void exctest(int i)
-    throws Throwable
+		throws Throwable
     {
         throw new Throwable("my error");
     }

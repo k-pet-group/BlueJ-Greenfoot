@@ -22,7 +22,7 @@
 
 include $(OS).mk
 
-PKG_VERSION = 110
+PKG_VERSION = 111beta
 
 SUBDIRS = \
 	src
@@ -71,14 +71,14 @@ PACKAGES = \
 FINDALL = find . -follow \( -name CVS -a -prune \) -o \( -type f -a -print \)
 FINDCVS = find . -name CVS
 
-default all allclasses clean jikes javac grammar antlr doc::
+default all allclasses clean jikes javac grammar antlr doc distcompile::
 	for f in $(SUBDIRS) ; do \
 		$(MAKE) -C $$f $@ ; \
 	done
 
 dist: $(PACKAGES)
 
-package/bluej-$(PKG_VERSION).jar: default
+package/bluej-$(PKG_VERSION).jar: distcompile
 	rm -rf install_tmp
 	mkdir install_tmp
 	mkdir install_tmp/images

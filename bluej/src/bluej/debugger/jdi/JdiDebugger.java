@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 680 2000-09-01 13:06:00Z ajp $
+ * @version $Id: JdiDebugger.java 684 2000-09-12 06:24:16Z mik $
  *
  * The startup process is as follows:
  *
@@ -70,9 +70,6 @@ public final class JdiDebugger extends Debugger
 {
     // the class name of the execution server class running on the remote VM
     static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
-
-    // options for the remote virtual machine
-    static final String VM_OPTIONS = "-classic";
 
     // the field name of the static field within that class that hold the
     // server object
@@ -178,20 +175,9 @@ public final class JdiDebugger extends Debugger
         //suspendArg.setValue("false");
 
         try {
-            machine = null;
-
-            try {
-                machine = connector.launch(arguments);
-            }
-            catch (VMStartException vmse) {
-                Debug.reportError("Target VM failed to initialise with default arguments");
-                Debug.reportError("Now trying to initialise VM with -classic option");
-            }
-
-            if (machine == null) {
-                optionsArg.setValue(VM_OPTIONS);
-                machine = connector.launch(arguments);
-            }
+            String vmOptions = Config.getSystemPropString("VmOptions");
+            optionsArg.setValue(vmOptions);
+            machine = connector.launch(arguments);
 
             process = machine.process();
             redirectIOStream(process.getErrorStream(), System.out, false);
@@ -202,6 +188,7 @@ public final class JdiDebugger extends Debugger
 
         } catch (VMStartException vmse) {
             Debug.reportError("Target VM did not initialise.");
+            Debug.reportError("(check the 'VmOptions' setting in 'bluej.defs'.)");
             Debug.reportError(vmse.getMessage() + "\n");
             dumpFailedLaunchInfo(vmse.process());
         } catch (Exception e) {

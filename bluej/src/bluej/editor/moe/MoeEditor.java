@@ -62,6 +62,10 @@ public final class MoeEditor extends JFrame
     static final Color selectionColour = new Color(204, 204, 204);
     static final Color titleCol = Config.getItemColour("colour.text.fg");
 
+    // Icons
+    static final Image iconImage = 
+        new ImageIcon(Config.getImageFilename("image.icon.editor")).getImage();
+
     // Fonts
     public static Font printFont = new Font("Monospaced", Font.PLAIN,
                                             10);
@@ -1314,6 +1318,7 @@ public final class MoeEditor extends JFrame
 
     private void initWindow(boolean showTool, boolean showLine)
     {
+        setIconImage(iconImage);
         setBackground(frameBgColor);
 
         // prepare the content pane
