@@ -18,7 +18,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 2085 2003-06-30 12:03:30Z fisker $
+ * @version $Id: PackageTarget.java 2093 2003-07-04 06:53:26Z fisker $
  */
 public class PackageTarget extends Target
 {
@@ -260,7 +260,8 @@ public class PackageTarget extends Target
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
         if ( pmf.askRemovePackage(this) ){
             deleteFiles();
-            getPackage().removePackage(this);   
+            getPackage().removePackage(this); 
+            getPackage().getProject().removePackage(this);  
         }
     }
 
