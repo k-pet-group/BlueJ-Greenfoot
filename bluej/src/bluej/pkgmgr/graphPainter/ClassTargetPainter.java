@@ -123,8 +123,8 @@ public class ClassTargetPainter
         String stereotype = classTarget.getRole().getStereotypeLabel();
         if(classTarget.getState() != ClassTarget.S_NORMAL) {
             g.setColor(stripeCol);
-            int divider = (stereotype == null) ? 18 : 32;
-            Utility.stripeRect(g, 0, divider, classTarget.getWidth(), classTarget.getHeight() - divider, 8, 3);
+            int divider = (stereotype == null) ? 19 : 33;
+            Utility.stripeRect(g, 0, divider  , classTarget.getWidth(), classTarget.getHeight() - divider, 8, 3);
         }
         
         g.setColor(getBorderColour());
