@@ -12,7 +12,5 @@ OPTIONS='-Dcom.apple.mrj.application.apple.menu.about.name=BlueJ'
 #OPTIONS=$OPTIONS' -Dcom.apple.hwaccel=false'
 #OPTIONS=$OPTIONS' -Dapple.awt.window.position.forceSafeCreation=true'
 
-CP=$BLUEJ_HOME/lib/bluej.jar:$BLUEJ_HOME/classes:$BLUEJ_HOME/lib/antlr.jar:$BLUEJ_HOME/lib/junit.jar
-
-java -cp $CP $OPTIONS bluej.Main $@
+java $OPTIONS -jar $BLUEJ_HOME/lib/bluej.jar $@
 
