@@ -1,12 +1,13 @@
 package bluej.debugmgr.texteval;
 
-import org.gjt.sp.jedit.syntax.*;
+import org.syntax.jedit.KeywordMap;
+import org.syntax.jedit.tokenmarker.CTokenMarker;
 
 /**
  * Text Evaluator token marker.
  *
  * @author Michael Kolling
- * @version $Id: TextEvalTokenMarker.java 2630 2004-06-19 14:26:37Z polle $
+ * @version $Id: TextEvalTokenMarker.java 3070 2004-11-08 04:14:32Z bquig $
  */
 public class TextEvalTokenMarker extends CTokenMarker
 {
@@ -14,7 +15,7 @@ public class TextEvalTokenMarker extends CTokenMarker
 
     public TextEvalTokenMarker()
     {
-        super(getKeywords());
+        super(false, getKeywords());
     }
 
     public static KeywordMap getKeywords()

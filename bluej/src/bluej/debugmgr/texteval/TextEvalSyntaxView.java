@@ -20,7 +20,9 @@ import java.awt.*;
 
 import bluej.Config;
 import bluej.editor.moe.BlueJSyntaxView;
-import org.gjt.sp.jedit.syntax.*;
+
+import org.syntax.jedit.*;
+import org.syntax.jedit.tokenmarker.*;
 
 /**
  * A Swing view implementation that colorizes lines of a
@@ -33,7 +35,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: TextEvalSyntaxView.java 2729 2004-07-04 18:50:27Z mik $
+ * @version $Id: TextEvalSyntaxView.java 3070 2004-11-08 04:14:32Z bquig $
  */
 
 public class TextEvalSyntaxView extends BlueJSyntaxView

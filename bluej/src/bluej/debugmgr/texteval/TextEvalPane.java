@@ -6,7 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import org.gjt.sp.jedit.syntax.JavaTokenMarker;
+import org.syntax.jedit.tokenmarker.JavaTokenMarker;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -30,7 +30,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 2992 2004-09-06 12:35:03Z mik $
+ * @version $Id: TextEvalPane.java 3070 2004-11-08 04:14:32Z bquig $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
