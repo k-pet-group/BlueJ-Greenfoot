@@ -1,13 +1,13 @@
 package bluej.browser;
 
-import javax.swing.filechooser.*;
+import javax.swing.filechooser.FileFilter;
 import java.io.*;
 
 /**
  * A simple FileFilter subclass to accept on valid library files (i.e., ZIP or JAR extension)
  * Used by the AddLibraryDialog to only allow selection of valid library archive files.
  * 
- * @author $Author: mik $
+ * @author $Author: ajp $
  * @version 0.1
  */
 public class LibraryFileFilter extends FileFilter {
