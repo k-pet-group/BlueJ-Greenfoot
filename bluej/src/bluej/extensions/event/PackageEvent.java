@@ -4,9 +4,9 @@ import bluej.extensions.BPackage;
 import bluej.pkgmgr.Package;
 
 /**
- * Package events, like package OPEN/CLOSE are delivered using this event Class.
+ * This class encapsulates events on BlueJ packages.
  *
- * @version $Id: PackageEvent.java 1848 2003-04-14 10:24:47Z damiano $
+ * @version $Id: PackageEvent.java 1851 2003-04-14 15:52:26Z iau $
  */
 
 /*
@@ -17,12 +17,12 @@ import bluej.pkgmgr.Package;
 public class PackageEvent implements BlueJExtensionEvent
 {
     /**
-     * Thie event occurs when a package has just been opened
+     * This event occurs when a package has just been opened.
      */
     public static final int PACKAGE_OPENED = 1;
 
     /**
-     * Occurs when a package is just about to be closed so that the extension can take any necessary action before being voided.
+     * This event occurs when a package is just about to be closed.
      */ 
     public static final int PACKAGE_CLOSING = 2;
 
@@ -39,7 +39,7 @@ public class PackageEvent implements BlueJExtensionEvent
     }
 
     /**
-     * Return the eventId of this Event.
+     * Returns the eventId of this event.
      */
     public int getEvent ()
       {
@@ -47,7 +47,7 @@ public class PackageEvent implements BlueJExtensionEvent
       }
 
     /**
-     * Return the package associated with this event.
+     * Returns the package associated with this event.
      */
     public BPackage getPackage ()
       {
@@ -55,7 +55,7 @@ public class PackageEvent implements BlueJExtensionEvent
       }
 
     /**
-     * Return a meaningful description of this event.
+     * Returns a meaningful description of this event.
      */
     public String toString()
       {

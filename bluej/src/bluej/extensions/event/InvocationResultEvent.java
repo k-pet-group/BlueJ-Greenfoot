@@ -15,11 +15,13 @@ import bluej.pkgmgr.Package;
 
 
 /**
- * This Class represent a Result event, an event generated when the invocation finished.
+ * This class encapsulates events generated when the construction or invocation 
+ * of a BlueJ object finishes.
  * An invocation may finish in a normal way or it may be interrupted.
- * From this event you can extract the actual result of the invocation.
+ * From this event you can extract the actual result of the invocation, and access the BlueJ
+ * classes and objects involved.
  * 
- * @version $Id: InvocationResultEvent.java 1848 2003-04-14 10:24:47Z damiano $
+ * @version $Id: InvocationResultEvent.java 1851 2003-04-14 15:52:26Z iau $
  */
 
 /*
@@ -36,7 +38,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
      */
     public static final int NORMAL_EXIT = 1;
     /**
-     * The execution finished through a call to System.exit();
+     * The execution finished through a call to <code>System.exit()</code>
      */
     public static final int FORCED_EXIT = 2;
     /**
@@ -44,7 +46,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
      */ 
     public static final int EXCEPTION_EXIT = 3;
     /**
-     * The execution finished because the user has forcefully terminated it
+     * The execution finished because the user forcefully terminated it
      */
     public static final int TERMINATED_EXIT = 4;
 
@@ -79,7 +81,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
       }
      
     /**
-     * Return the eventId of this event.
+     * Returns the eventId of this event.
      */
     public int getEvent()
       {
@@ -87,8 +89,8 @@ public class InvocationResultEvent implements BlueJExtensionEvent
       }
 
     /**
-     * Returns the pachage of this invocation.
-     * Using a BPackage you can retrieve further information on this Event.
+     * Returns the package in which this invocation took place.
+     * Using this BPackage you can retrieve further information about this Event.
      */
     public BPackage getBPackage()
       {
@@ -96,9 +98,9 @@ public class InvocationResultEvent implements BlueJExtensionEvent
       }
 
     /**
-     * Returns the class name on which the event happened.
-     * If you need to have further information about this Class you can obtain a 
-     * BClass from BPackage using this name as a reference.
+     * Returns the class name on which this invocation took place.
+     * If you need further information about this class you can obtain a 
+     * BClass from <code>BPackage.getBClass()</code> using this name as a reference.
      */
     public String getClassName()
     {
@@ -106,13 +108,13 @@ public class InvocationResultEvent implements BlueJExtensionEvent
     }
     
     /**
-     * Returns the instanceName, that is the name of the object on the object bench.
-     * If you need the BObject you can use the getObject(instanceName) in the BPackage using
-     * this name as a key.
+     * Returns the instance name of the invoked object on the object bench.
+     * If you need further information about this object you can obtain a BObject using
+     * <code>BPackage.getObject()</code> using this name as a reference.
      * 
-     * In case of a static method this will be null.
-     * If it is a constructor call it will be the new instance name of the opbject.
-     * For methods call it will be the name of the object where the operation occourred.
+     * For a static method invocation, this method will return <code>null</code>.
+     * For a constructor call it will return the new instance name of the object on the object bench.
+     * For a method call it will return the name of the object on which the operation was invoked.
      */
     public String getObjectName()
     {
@@ -121,7 +123,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
     
     /**
      * Returns the method name being called.
-     * It can be null if this is an invocation of a constructor.
+     * Returns <code>null</code> if this is an invocation of a constructor.
      */
     public String getMethodName()
     {
@@ -129,7 +131,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
     }
     
     /**
-     * Returns the signature of the called method or the one of the constructor.
+     * Returns the signature of the invoked method or constructor.
      */
     public Class[] getSignature()
     {
@@ -137,9 +139,9 @@ public class InvocationResultEvent implements BlueJExtensionEvent
     }
     
     /**
-     * Returns the parameters in string form. 
-     * If a parameter really is a string, this should be either the
-     * name of a string instance, or a literal string enclosed by double quotes.
+     * Returns the parameters of the invocation in string form. 
+     * If a parameter really is a string, this will be either the
+     * name of the string instance, or a literal string enclosed in double quotes.
      */
     public String[] getParameters()
     {
@@ -147,10 +149,10 @@ public class InvocationResultEvent implements BlueJExtensionEvent
     } 
 
     /**
-     * Returns the newly created Object (if any).
-     * If the object is one that you can put in the bench it will be a BObject.
+     * Returns the newly created object (if any).
+     * If the object is one that can be put on the object bench it will be an instance of BObject.
      * 
-     * @return an Object of various types. It can return null if the result is void.
+     * @return an Object of various types or <code>null</code> if the result type is <code>void</code>.
      */
     public Object getResult ()
       {
@@ -170,7 +172,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
       }
 
     /**
-     * Manage the return of a result from a amethod call
+     * Manage the return of a result from a method call
      */
     private Object getMethodResult()
       {
@@ -187,7 +189,7 @@ public class InvocationResultEvent implements BlueJExtensionEvent
 
 
     /**
-     * Return a meaningful description of this Event.
+     * Returns a meaningful description of this Event.
      */
     public String toString() 
       {
