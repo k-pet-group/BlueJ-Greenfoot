@@ -14,21 +14,20 @@ import javax.swing.*;
 
 public class FixedMultiLineLabel extends MultiLineLabel
 {
-    int fontAttributes = Font.PLAIN;
-    int alignment;
-    JLabel[] labels;
-    int rows;
+    protected JLabel[] labels;
+    protected int rows;
 
     /**
      ** Constructor - make a multiline label
      **/
-    public FixedMultiLineLabel(String text, int alignment, int numRows)
+    public FixedMultiLineLabel(String text, float alignment, int numRows)
     {
 	super(null, alignment);
 	rows = numRows;
 	labels = new JLabel[rows];
 	for(int i=0; i<rows; i++) {
-	    labels[i] = new JLabel(" ", alignment);
+	    labels[i] = new JLabel(" ");
+            labels[i].setAlignmentX(alignment);
 	    add(labels[i]);
 	}
 	addText(text);
@@ -39,13 +38,13 @@ public class FixedMultiLineLabel extends MultiLineLabel
      **/
     public FixedMultiLineLabel(String text, int numRows)
     {
-	this(text, JLabel.LEFT, numRows);
+	this(text, LEFT_ALIGNMENT, numRows);
     }
 
     /**
      ** Constructor, empty with the given alignment
      **/
-    public FixedMultiLineLabel(int alignment, int numRows)
+    public FixedMultiLineLabel(float alignment, int numRows)
     {
 	this(null, alignment, numRows);
     }
@@ -55,7 +54,7 @@ public class FixedMultiLineLabel extends MultiLineLabel
      **/
     public FixedMultiLineLabel(int numRows)
     {
-	this(null, JLabel.LEFT, numRows);
+	this(null, LEFT_ALIGNMENT, numRows);
     }
 	
     public void setText(String text)
@@ -74,7 +73,7 @@ public class FixedMultiLineLabel extends MultiLineLabel
 	    Font font = new Font("SansSerif", fontAttributes, Config.fontsize);
 
 	    for (int i = 0; i < lines; i++) {
-		labels[i].setText(strs[i]);
+		labels[i].setText((strs[i].length() == 0 ? " " : strs[i]));
 		labels[i].setFont(font);
 	    }
 	}

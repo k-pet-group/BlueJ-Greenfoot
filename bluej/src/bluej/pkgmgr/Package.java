@@ -29,7 +29,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 206 1999-07-23 05:37:36Z ajp $
+ ** @version $Id: Package.java 213 1999-07-29 04:16:54Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -885,16 +885,13 @@ public class Package extends Graph
 		
 	stack.push(t);
 		
-	Vector enumerations = new Vector();
-	enumerations.addElement(usesArrows.elements());
-	enumerations.addElement(extendsArrows.elements());
-		
-	for(Enumeration e = new MultiEnumeration(enumerations); 
-	    e.hasMoreElements();  ) {
-	    Dependency d = (Dependency)e.nextElement();
+	Enumeration dependencies = t.dependencies();
+
+	while(dependencies.hasMoreElements()) {
+	    Dependency d = (Dependency)dependencies.nextElement();
 	    if(!(d.getTo() instanceof ClassTarget))
 		continue;
-			
+
 	    ClassTarget to = (ClassTarget)d.getTo();
 			
 	    if(to.isFlagSet(Target.F_QUEUED)) {

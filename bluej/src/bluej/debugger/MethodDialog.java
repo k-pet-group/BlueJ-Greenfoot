@@ -18,7 +18,7 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 209 1999-07-23 06:42:55Z ajp $
+ ** @version $Id: MethodDialog.java 213 1999-07-29 04:16:54Z mik $
  **
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -82,9 +82,8 @@ public class MethodDialog extends JDialog
 	boolean hasArgs = false;
 	history = pkg.getCallHistory();
 	bench = pkg.getBench();
-	status = new MultiLineLabel("\n\n",JLabel.LEFT);
+	status = new MultiLineLabel("\n\n", LEFT_ALIGNMENT);
 	status.setForeground(Color.red);
-	status.setAlignmentX(LEFT_ALIGNMENT);
 	JPanel statusPanel = new JPanel();
 	statusPanel.setMinimumSize(new Dimension(120,40));
 

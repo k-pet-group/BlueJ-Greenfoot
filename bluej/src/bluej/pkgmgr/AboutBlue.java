@@ -9,7 +9,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: AboutBlue.java 138 1999-06-22 01:05:50Z mik $
+ ** @version $Id: AboutBlue.java 213 1999-07-29 04:16:54Z mik $
  ** @author Justin Tan
  **
  ** General graph edge
@@ -27,7 +27,7 @@ public class AboutBlue extends JDialog
 	aboutPanel.setBackground(Color.white);
 
 	// Create Text Panel
-  	MultiLineLabel text = new MultiLineLabel(JLabel.LEFT);
+  	MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT);
 	text.setBackground(Color.white);
 	    text.addText("BlueJ version " + version, true, false);
 	    text.addText("\nThe BlueJ development environment was\n" +

@@ -6,15 +6,15 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: MultiLineLabel.java 202 1999-07-22 07:45:35Z mik $
+ ** @version $Id: MultiLineLabel.java 213 1999-07-29 04:16:54Z mik $
  ** @author Justin Tan
  ** A multi-line Label-like AWT component.
  **/
 public class MultiLineLabel extends JPanel
 {
-    int fontAttributes = Font.PLAIN;
-    float alignment;
-    Color col = null;
+    protected int fontAttributes = Font.PLAIN;
+    protected float alignment;
+    protected Color col = null;
 	
     /**
      ** Constructor - make a multiline label
