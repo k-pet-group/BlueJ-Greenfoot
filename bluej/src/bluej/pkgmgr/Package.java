@@ -7,6 +7,8 @@ import bluej.debugger.ObjectWrapper;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClassLoader;
 import bluej.debugger.CallHistory;
+import bluej.parser.ClassParser;
+import bluej.parser.symtab.ClassInfo;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.editor.moe.MoeEditorManager;
@@ -27,7 +29,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 201 1999-07-22 03:54:27Z ajp $
+ ** @version $Id: Package.java 206 1999-07-23 05:37:36Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -1356,10 +1358,26 @@ public class Package extends Graph
      */
     public void endCompile(String[] sources, boolean successful)
     {
+
+
 	for(int i = 0; i < sources.length; i++) {
 	    String filename = sources[i];
-			
+
 	    ClassTarget t = getTargetFromFilename(filename);
+
+        if (successful) {
+
+            try {
+                ClassInfo info = ClassParser.parse(t.sourceFile(), getAllClassnames());
+
+                OutputStream out = new FileOutputStream(t.contextFile());
+                info.getComments().store(out, "BlueJ class context for " + filename);
+                out.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }    
+        }
+
 	    t.setState(successful ? Target.S_NORMAL : Target.S_INVALID);
 	    t.unsetFlag(Target.F_QUEUED);
 	    if(successful && t.editorOpen())
