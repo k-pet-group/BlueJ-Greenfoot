@@ -35,7 +35,7 @@ import java.util.List;
   *
   * </PRE>
   * @author Michael Kolling
-  * @version $Id: BlueJEvent.java 2039 2003-06-19 06:03:24Z ajp $
+  * @version $Id: BlueJEvent.java 2304 2003-11-07 12:52:25Z fisker $
   *
   */
 
@@ -44,12 +44,14 @@ public class BlueJEvent
     // BlueJ event types
 
     public static final int CREATE_VM           = 0;
-    public static final int CREATE_VM_DONE      = CREATE_VM + 1;
+    public static final int CREATE_VM_FAILED    = CREATE_VM + 1;
+    public static final int CREATE_VM_DONE      = CREATE_VM_FAILED + 1;
     public static final int METHOD_CALL         = CREATE_VM_DONE + 1;
     public static final int EXECUTION_RESULT    = METHOD_CALL + 1;
     public static final int GENERATING_DOCU     = EXECUTION_RESULT + 1;
     public static final int DOCU_GENERATED      = GENERATING_DOCU + 1;
     public static final int DOCU_ABORTED        = DOCU_GENERATED + 1;
+    
 
 
     // other variables

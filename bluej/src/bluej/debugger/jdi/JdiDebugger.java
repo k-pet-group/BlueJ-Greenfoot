@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.swing.event.EventListenerList;
 
+import bluej.*;
 import bluej.Config;
 import bluej.debugger.*;
 import bluej.debugmgr.Invoker;
@@ -28,7 +29,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2255 2003-11-04 14:52:59Z mik $
+ * @version $Id: JdiDebugger.java 2304 2003-11-07 12:52:25Z fisker $
  */
 public class JdiDebugger extends Debugger
 {
@@ -687,21 +688,25 @@ public class JdiDebugger extends Debugger
  
 		 public synchronized void run()
 		 {
-		 	// System.out.println("machine loader is running " + vmRunning);
-			vmRef = new VMReference(JdiDebugger.this, startingDirectory);
-			vmRef.waitForStartup();
-
-			vmRunning = true;
-
-			// System.out.println("machine loader is started " + vmRunning);
-
-			newClassLoader(startingDirectory.getAbsolutePath());
-
-			// wake any internal getVM() calls that
-			// are waiting for us to finish				
-			notifyAll();	
-
-			raiseStateChangeEvent(Debugger.NOTREADY, Debugger.IDLE);
+             try{
+    		 	// System.out.println("machine loader is running " + vmRunning);
+    			vmRef = new VMReference(JdiDebugger.this, startingDirectory);
+    			vmRef.waitForStartup();
+    
+    			vmRunning = true;
+    
+    			// System.out.println("machine loader is started " + vmRunning);
+    
+    			newClassLoader(startingDirectory.getAbsolutePath());
+    
+    			// wake any internal getVM() calls that
+    			// are waiting for us to finish				
+    			notifyAll();	
+    
+    			raiseStateChangeEvent(Debugger.NOTREADY, Debugger.IDLE);
+             } catch(JdiVmCreationException e){
+                 BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_FAILED, null);
+             }
 		 }
 		 
 		private synchronized VMReference getVM()

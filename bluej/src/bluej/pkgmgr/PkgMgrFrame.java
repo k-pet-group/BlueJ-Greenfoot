@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2293 2003-11-06 10:40:47Z mik $
+ * @version $Id: PkgMgrFrame.java 2304 2003-11-07 12:52:25Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1834,6 +1834,10 @@ public class PkgMgrFrame extends JFrame
             break;
         case BlueJEvent.DOCU_ABORTED:
             setStatus(Config.getString("pkgmgr.docuAborted"));
+            break;
+        case BlueJEvent.CREATE_VM_FAILED:
+            DialogManager.showError(this,"error-create-vm");
+            doQuit();
             break;
         }
     }

@@ -24,7 +24,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2253 2003-11-04 13:49:11Z mik $
+ * @version $Id: VMReference.java 2304 2003-11-07 12:52:25Z fisker $
  *
  * The startup process is as follows:
  *
@@ -278,14 +278,17 @@ class VMReference
      * Create the second virtual machine and start
      * the execution server (class ExecServer) on that machine.
      */
-    public VMReference(JdiDebugger owner, File initialDirectory)
+    public VMReference(JdiDebugger owner, File initialDirectory) throws JdiVmCreationException
     {
 		this.owner = owner;
 		
 		// machine will be suspended at startup
         machine = localhostSocketLaunch(initialDirectory,
         								Bootstrap.virtualMachineManager());
-
+        //machine = null; //uncomment to simulate inabilty to create debug VM
+        if (machine == null) {
+            throw new JdiVmCreationException();
+        }
 		// indicate the events we want to receive
 		EventRequestManager erm = machine.eventRequestManager();
 		erm.createExceptionRequest(null, false, true).enable();
