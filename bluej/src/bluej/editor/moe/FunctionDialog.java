@@ -1,5 +1,6 @@
 package bluej.editor.moe;
 
+import javax.swing.FocusManager;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;		// all the GUI components
@@ -41,6 +42,7 @@ implements ActionListener, ListSelectionListener, ItemListener
 
     // -------- INSTANCE VARIABLES --------
 
+    private FocusManager focusMgr;
     private JButton defaultsButton;
     private JButton closeButton;
     private JButton addKeyButton;
@@ -52,12 +54,12 @@ implements ActionListener, ListSelectionListener, ItemListener
 
     private MoeActions actions;		// The Moe action manager
     private Action currentAction;       // the action currently selected
+    private KeyStroke[] currentKeys;    // key strokes currently displayed
 
     private Action[] functions;		// all user functions
     private int[] categoryIndex;	// an array of indexes into "functions"
     private int firstDisplayedFunc;	// index of first function in list
     private Properties help;
-    private KeyCatcher keyCatcher;
 
     // ------------- METHODS --------------
 
@@ -65,9 +67,10 @@ implements ActionListener, ListSelectionListener, ItemListener
                           String[] categories, int[] categoryIndex)
     {
         super(parent, "Editor Functions", true);
-        keyCatcher = new KeyCatcher();
+        focusMgr = FocusManager.getCurrentManager();
         actions = MoeActions.getActions(null);
         currentAction = null;
+        currentKeys = null;
         functions = actiontable;
         this.categoryIndex = categoryIndex;
         makeDialog(categories);
@@ -79,6 +82,7 @@ implements ActionListener, ListSelectionListener, ItemListener
      */
     private void handleClose()
     {
+        removeKeyListener();
         setVisible(false);
     }
 
@@ -102,20 +106,9 @@ implements ActionListener, ListSelectionListener, ItemListener
 
         currentAction = functions[firstDisplayedFunc + index];
 
-        // display key bindings
+        // display keys and help text
 
-        KeyStroke[] keys = actions.getKeyStrokesForAction(currentAction);
-        if(keys == null)
-            clearKeyList();
-        else {
-            String[] keyStrings = getKeyStrings(keys);
-            keyList.setListData(keyStrings);
-            //addKeyButton.setEnabled(false);
-            //delKeyButton.setEnabled(false);
-        }
-
-        // display help text
-
+        updateKeyList(currentAction);
         String helpText = 
             getHelpText((String)currentAction.getValue(Action.NAME));
         helpLabel.setText(helpText);
@@ -134,8 +127,8 @@ implements ActionListener, ListSelectionListener, ItemListener
      */
     private void handleAddKey()
     {
-        helpLabel.setText("  Press the key you want to add...");
-        this.addKeyListener(keyCatcher);
+        helpLabel.setText(getHelpText("press-key"));
+        addKeyListener();
     }
 
     /**
@@ -143,7 +136,31 @@ implements ActionListener, ListSelectionListener, ItemListener
      */
     private void handleDelKey()
     {
-        Debug.message("not yet implemented");
+        if(currentKeys == null)
+            return;             // something went wrong here...
+
+        int index = keyList.getSelectedIndex();
+        if(index == -1)
+            return;             // deselection event - ignore
+
+        actions.removeKeyStrokeBinding(currentKeys[index]);
+        updateKeyList(currentAction);
+    }
+
+    /**
+     * Display key bindings in the key list
+     */
+    private void updateKeyList(Action action)
+    {
+        currentKeys = actions.getKeyStrokesForAction(action);
+        if(currentKeys == null)
+            clearKeyList();
+        else {
+            String[] keyStrings = getKeyStrings(currentKeys);
+            keyList.setListData(keyStrings);
+            delKeyButton.setEnabled(false);
+        }
+        addKeyButton.setEnabled(true);
     }
 
     /**
@@ -184,9 +201,19 @@ implements ActionListener, ListSelectionListener, ItemListener
         return help.getProperty(function);
     }
 
+    private void addKeyListener()
+    {
+        FocusManager.setCurrentManager(new KeyCatcher());
+    }
+
     private void removeKeyListener()
     {
-        this.removeKeyListener(keyCatcher);
+        FocusManager.setCurrentManager(focusMgr);
+    }
+
+    public boolean isFocusTraversable()
+    {
+        return true;
     }
 
     // ======== EVENT HANDLING INTERFACES =========
@@ -232,7 +259,10 @@ implements ActionListener, ListSelectionListener, ItemListener
         functionList.setListData(names);
         clearKeyList();
         clearHelpText();
+        addKeyButton.setEnabled(false);
+        delKeyButton.setEnabled(false);
         currentAction = null;
+        currentKeys = null;
     }
 
     // ----- ListSelectionListener interface -----
@@ -264,8 +294,8 @@ implements ActionListener, ListSelectionListener, ItemListener
 
         JPanel helpPanel = new JPanel(new GridLayout());
         helpPanel.setBorder(BorderFactory.createCompoundBorder(
-                                                               BorderFactory.createEmptyBorder(10,0,0,0),
-                                                               BorderFactory.createLineBorder(Color.black)));
+                               BorderFactory.createEmptyBorder(10,0,0,0),
+                               BorderFactory.createLineBorder(Color.black)));
         helpLabel = new FixedMultiLineLabel(4);
         helpLabel.setBackground(MoeEditor.infoColor);
         helpPanel.add(helpLabel);
@@ -368,10 +398,14 @@ implements ActionListener, ListSelectionListener, ItemListener
     }
 
 
-    class KeyCatcher extends KeyAdapter
-    {
-        public void keyPressed(KeyEvent e)
-        {
+    class KeyCatcher extends FocusManager {
+
+        public void processKeyEvent(Component focusedComponent,
+                                    KeyEvent e) 
+        { 
+            if(e.getID() != KeyEvent.KEY_PRESSED)
+                return;
+
             int keyCode = e.getKeyCode();
 
             if(keyCode == KeyEvent.VK_CAPS_LOCK ||    // the keys we want to ignore...
@@ -388,26 +422,46 @@ implements ActionListener, ListSelectionListener, ItemListener
                 return;
 
             if(currentAction == null)
-                Debug.message("action is null - problem...");
+                Debug.message("FunctionDialog: currentAction is null...");
             else {
                 KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
                 if(isPrintable(key, e))
-                    helpLabel.setText("\n  Printable keys cannot be redefined.");
+                    helpLabel.setText(getHelpText("cannot-redefine"));
                 else {
                     actions.addActionForKeyStroke(key, currentAction);
                     handleFuncListSelect();
                 }
             }
+            e.consume();
             removeKeyListener();
         }
 
         private boolean isPrintable(KeyStroke key, KeyEvent e)
         {
+            // all control and alt keys are non-printable
             int modifiers = key.getModifiers();
             if(modifiers != 0 && modifiers != Event.SHIFT_MASK)
                 return false;
-            return ! e.isActionKey();
+
+            // action keys are non-printable
+            if(e.isActionKey())
+                return false;
+
+            // some action keys that the above function not recognises
+            int keyCode = e.getKeyCode();
+            if(keyCode == KeyEvent.VK_BACK_SPACE ||
+               keyCode == KeyEvent.VK_DELETE ||
+               keyCode == KeyEvent.VK_ENTER ||
+               keyCode == KeyEvent.VK_TAB ||
+               keyCode == KeyEvent.VK_ESCAPE)
+                return false;
+
+            // otherwise it's printable
+            return true;
         }
+
+        public void focusNextComponent(Component c) {}
+        public void focusPreviousComponent(Component c) {}
     }
 
 }  // end class FunctionDialog

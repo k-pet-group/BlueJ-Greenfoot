@@ -25,7 +25,7 @@ bluej.url.javaStdLib=http://java.sun.com/products/jdk/1.2/docs/api/index.html
 ## where BlueJ was started will be used.
 #####################################################################
 
-#bluej.defaultSourcePath=/home/mik/bluej/test-examples
+#bluej.defaultProjectPath=/home/mik/bluej/test-examples
 
 #####################################################################
 ## The following are the commands used for opening a web browser. On

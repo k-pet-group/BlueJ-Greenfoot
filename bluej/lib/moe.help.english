@@ -105,3 +105,8 @@ compile=\n Compile the current class. The class is automatically\n saved before 
 
 toggle-breakpoint=\n Set or clear a breakpoint in the current line.
 
+
+## help texts for adding key bindings
+
+press-key=\n  Press the key you want to add...
+cannot-redefine=\n  Printable keys cannot be redefined.

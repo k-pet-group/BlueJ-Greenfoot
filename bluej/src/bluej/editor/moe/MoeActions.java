@@ -89,7 +89,7 @@ public final class MoeActions
     }
 
     /**
-     * Return an action with a given name.
+     *  Return an action with a given name.
      */
     public Action getActionByName(String name)
     {
@@ -97,7 +97,7 @@ public final class MoeActions
     }
 
     /**
-     * Get a keystroke for an action. Return null is there is none.
+     *  Get a keystroke for an action. Return null is there is none.
      */
     public KeyStroke[] getKeyStrokesForAction(Action action)
     {
@@ -109,7 +109,7 @@ public final class MoeActions
     }
 
     /**
-     * Add a new key binding into the action table.
+     *  Add a new key binding into the action table.
      */
     public void addActionForKeyStroke(KeyStroke key, Action a)
     {
@@ -117,8 +117,16 @@ public final class MoeActions
     }
 
     /**
-     * Get a keystroke for an action by action name. Return null is there
-     * is none.
+     *  Remove a key binding from the action table.
+     */
+    public void removeKeyStrokeBinding(KeyStroke key)
+    {
+        keymap.removeKeyStrokeBinding(key);
+    }
+
+    /**
+     *  Get a keystroke for an action by action name. Return null is there
+     *  is none.
      */
     //      public KeyStroke[] getKeyStrokesForName(String actionName)
     //      {

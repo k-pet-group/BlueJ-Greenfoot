@@ -22,7 +22,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 386 2000-02-04 01:13:56Z mik $
+ ** @version $Id: PkgFrame.java 387 2000-02-04 06:16:32Z mik $
  **/
 public abstract class PkgFrame extends JFrame
 
@@ -144,7 +144,7 @@ implements ActionListener, ItemListener
     {
         if(fileChooser == null) {
             fileChooser = new JFileChooser(
-                           Config.getPropString("bluej.defaultSourcePath",
+                           Config.getPropString("bluej.defaultProjectPath",
                                                 "."));
             fileChooser.setFileView(new PackageFileView());
         }
@@ -162,7 +162,7 @@ implements ActionListener, ItemListener
     private PackageChooser getPackageChooser() {
         if(pkgChooser == null)
             pkgChooser = new PackageChooser(
-                           Config.getPropString("bluej.defaultSourcePath",
+                           Config.getPropString("bluej.defaultProjectPath",
                                                 "."));
         return pkgChooser;
     }

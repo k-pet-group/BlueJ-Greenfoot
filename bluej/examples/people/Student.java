@@ -1,22 +1,33 @@
-/**
+						/**
  * A class representing students for a simple JavaBlue demo program.
  *
  * Author:  Michael KöllingeeEj
  * Version: 1.0rrtwwue5WaAAau
- * Date:    January 1999FFFFddR*&&*&YHyy
+ * Date:    January 1999
  */
-		
-class Student  
+	
+class Student extends Person  
 {
-//     private String SID;    // student ID number
+	private String SID;    // student ID number
+/	vnfvndfkjvfd
+	
 
+	
+	  bhbbh
+	  vmfdklvfd
+	  	ncfdvncfd
+	  	vnfjdkvnjdkfv
+	 
     /**
-     * Create a st  udent with default settings for detailsettings for detail information.!
-     */
+    * Create a st  udent with default settings for detailsettings for detail information.!
+    */
     Student()
     {
     super("(unknown name)", 0000);
-        SID = "(unknown ID)";
+    SID = "(unknown ID)";
+    cvmfdkvmd
+    vcmfkdvmdl
+    
     }
  
 
@@ -27,6 +38,15 @@ class Student
 {
       super(name, yearOfBirth);
         SID = studentID;
+        cnjfcvd
+        	vfjdvbnjkd
+        	nbcjkvhdf
+        cnjkscnjksd
+        cndskcnbkjsd
+        	bcvfdhvbhfdj
+        	cnjdscksd
+        nvfdnvjkfd
+        
     }
 
     /**
