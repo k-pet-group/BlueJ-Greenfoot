@@ -49,13 +49,13 @@ replace the dots with the appropriate parameters).
 Trying to use members of the superclass before
 calling it's constructor is bound to be trouble!
 
-cannot access {0}; {1}
+cannot access *
 No help available
 
-{0} in {1} cannot be applied to ({2})
+* cannot be applied to *
 No help available
 
-cannot assign a value to final variable {0}
+cannot assign a value to final variable *
 The variable you are trying to assign to here has
 been declared "final". That means that you are not 
 allowed to change its value later on. If you really
@@ -93,7 +93,7 @@ No help available
 * cannot be inherited with different arguments:*
 No help available
 
-catch'' without ''try''
+'catch' without 'try'
 "catch" is a Java keyword that can only appear after a
 "try" block. The correct pattern is
    try {
@@ -150,7 +150,7 @@ duplicate default label
 You have written "default" twice inthe same switch 
 statement. You cannot do that - once is enough.
 
-'else'' without ''if''
+'else' without 'if'
 An 'else' keyword can only appear as part of an 'if'
 statement, in the form
    if (condition)
@@ -192,7 +192,7 @@ that this exception will never be thrown
 here! There is no statement in the "try"
 block that throws this exception.
 
-''finally'' without ''try''
+'finally' without 'try'
 "finally" is a Java keyword that can only appear after a
 "try" block. The correct pattern is
    try {
@@ -270,8 +270,9 @@ to use a larger data type
 internal error; cannot instantiate *
 No help available
 
-interfaces {0} and {1} are incompatible; both define {2}, but with different return type
-No help available
+* but with different return type
+You may be trying to write two methods that have the same
+signature except for return type.  This is not allowed.
 
 interface expected here
 No help available
@@ -350,10 +351,7 @@ or
 modifier {0} not allowed here
 No help available
 
-name clash: {0} and {1} have the same erasure
-No help available
-
-name clash: {0} in {1} and {2} in {3} have the same erasure, yet none overrides the other
+name clash: *
 No help available
 
 * is reserved for internal use
@@ -372,13 +370,13 @@ No help available
 no interface expected here
 No help available
 
-{0} has no match in entry in {1}; required {2}
+* has no match in entry in *
 No help available
 
 * is not defined in a public class or interface; cannot be accessed from outside package
 No help available
 
-{0} is not public in {1}; cannot be accessed from outside package
+* cannot be accessed from outside package
 No help available
 
 not a loop label: *
@@ -390,10 +388,10 @@ No help available
 not an enclosing class:*
 No help available
 
-operator {0} cannot be applied to {1}
+* cannot be applied to *
 No help available
 
-package {0} clashes with class of same name
+* clashes with class of same name
 Make sure that the class and the package
 have different names. Usually, classes 
 should start with a capital letter, while
@@ -428,10 +426,7 @@ No help available
 return outside method
 No help available
 
-signature does not match {0}; incompatible supertype
-No help available
-
-signature does not match {0}; incompatible interfaces
+signature does not match *
 No help available
 
 * should be declared abstract; it does not define *
@@ -453,7 +448,7 @@ method named in the error message.
 error writing source; cannot overwrite input file *
 No help available
 
-''try'' without ''catch'' or ''finally''
+'try' without 'catch' or 'finally'
 If you use a "try" block, then it must be followed
 by either a "catch" block or a "finally" block (or
 both).  The correct pattern is
@@ -467,7 +462,7 @@ both).  The correct pattern is
       statements;
    }
 
-type {0} does not take parameters
+* does not take parameters
 No help available
 
 type variables cannot be dereferenced
@@ -532,7 +527,7 @@ declaration
    throws <ExceptionName>
 into the signature of your method.
 
-''void'' type not allowed here
+'void' type not allowed here
 The void type cannot be used in this context.  it is
 a special type that is used to indicate no return type 
 for methods.  It cannot be used as a variable type.
@@ -570,17 +565,11 @@ No help available
 Fatal Error: Unable to locate method *
 No help available
 
-(source unavailable)
-No help available
-
-too many constants
-No help available
-
-Note:\u0020
-No help available
-
 * uses or overrides a deprecated API.
-No help available
+You are using a method that is no longer recommended.
+It is quite likely that there is another method or class 
+that provides this functionality.  Consult the API 
+documentation for more details
 
 Some input files use or override a deprecated API.
 No help available
@@ -594,40 +583,25 @@ No help available
 Some input files use unchecked operations.
 No help available
 
-Recompile with -warnunchecked for details.
-No help available
+* has been deprecated
+You are using a method that is no longer recommended.
+It is quite likely that there is another method or class 
+that provides this functionality.  Consult the API 
+documentation for more details
 
-{0} error
-No help available
-
-{0} errors
-No help available
-
-{0} warning
-No help available
-
-{0} warnings
-No help available
-
-{0} in {1} has been deprecated
-No help available
-
-unchecked assignment: {0} to {1}
-No help available
-
-unchecked assignment to variable {0} of raw type class {1}
+unchecked assignment: *
 No help available
 
 unchecked call to {0} as a member of the raw type {1}
 No help available
 
-unchecked cast to type {0}
+unchecked cast to type *
 No help available
 
 unchecked generic array creation
 No help available
 
-unchecked method invocation: {0} in {1} is applied to ({2})
+unchecked method invocation: *
 No help available
 
 ';' expected
@@ -635,16 +609,16 @@ There is a semicolon missing at the end of
 a line. This could be the line marked in the
 editor, or the line above.
 
-''case'', ''default'' or ''}'' expected
+'case', 'default' or '}' expected
 No help available
 
-''class'' or ''interface'' expected
+'class' or 'interface' expected
 No help available
 
-''.class'' expected
+'.class' expected
 No help available
 
-''('' or ''['' expected
+'(' or '[' expected
 No help available
 
 * expected
@@ -654,75 +628,40 @@ It was not there; instead, there was some
 other symbol. Try to think about why this 
 symbol may be expected here.
 
-orphaned {0}
+orphaned *
 No help available
 
-<anonymous {0}>
+cannot access *
 No help available
 
-cannot access {0}\n{1}
+bad class file: *
 No help available
 
-bad class file: {0}\n{1}\nPlease remove or make sure it appears in the correct subdirectory of the classpath.
+type parameter {0} is not within its bound *
 No help available
 
-type parameter {0} is not within its bound
+incompatible types
 No help available
 
-type parameter {0} is not within its bound; {1}
+inconvertible types
 No help available
 
-incompatible types\n\
-found   : {1}\n\
-required: {2}
+possible loss of precision
 No help available
 
-inconvertible types\n\
-found   : {1}\n\
-required: {2}
-No help available
-
-possible loss of precision\n\
-found   : {1}\n\
-required: {2}
-No help available
-
-unexpected type\n\
-found   : class\n\
-required: {1}
-No help available
-
-unexpected type\n\
-found   : class or array\n\
-required: {1}
-No help available
-
-unexpected type\n\
-found   : reference\n\
-required: {1}
+unexpected type
 No help available
 
 abstract {0} {1} cannot be accessed directly
 No help available
 
-{0} is inherited from {1} and hides {2} in outer class {3}.  An explicit ''this'' qualifier must be used to select the desired instance.
+*An explicit 'this' qualifier must be used to select the desired instance.
 No help available
 
 non-static {0} {1} cannot be referenced from a static context
 No help available
 
-unexpected type\n\
-required: {0}\n\
-found   : {1}
-No help available
-
-cannot resolve symbol\n\
-symbol: {0} {1} {2} {3}
-No help available
-
-cannot resolve symbol\n\
-symbol  : {0} {1} {2} {3}\n\
-location: {4} {5}
+cannot resolve symbol
 No help available
 
 {0}; {1} and {2} are static
@@ -731,18 +670,11 @@ No help available
 {0}; overridden method is {1}
 No help available
 
-# In the following string {1} is a space separated list of Java Keywords, as
-# they would have been declared in the source code
-compiler.err.override.weaker.access=\
-    {0}; attempting to assign weaker access privileges; was {1}
-compiler.err.override.meth.doesnt.throw=\
-    {0}; overridden method does not throw {1}
+attempting to assign weaker access privileges; was *
+No help available
 
-{0} in {1} cannot override {2} in {3}; attempting to use incompatible return type
-No help...
+overridden method does not throw *
+No help available
 
-{0} in {1} cannot implement {2} in {3}; attempting to use incompatible return type
-No help...
-
-{0} in {1} clashes with {2} in {3}; attempting to use incompatible return type
-No help...
+* attempting to use incompatible return type
+No help available
