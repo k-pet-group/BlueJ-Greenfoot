@@ -1,11 +1,13 @@
 package bluej.pkgmgr;
 
 import java.awt.AWTEvent;
-import java.awt.event.*;
+import java.awt.event.MouseEvent;
 
 import javax.swing.*;
 
 import bluej.Config;
+import bluej.pkgmgr.actions.RestartVMAction;
+import bluej.pkgmgr.actions.ShowDebuggerAction;
 
 public class MachineIcon extends JLabel
 {
@@ -51,23 +53,6 @@ public class MachineIcon extends JLabel
     {
         setIcon(stoppedIcon);
     }
-
-    /**
-     * Indicate that the machine is stopped.
-     */
-    private void showDebugger()
-    {
-        frame.showDebugger();
-    }
-
-    /**
-     * Indicate that the machine is stopped.
-     */
-    private void resetMachine()
-    {
-        frame.restartDebugger();
-    }
-
     
     /**
      * Process a mouse click into this object. If it was a popup event, show the object's
@@ -94,24 +79,12 @@ public class MachineIcon extends JLabel
 	private JPopupMenu createMachinePopup()
 	{
 		JPopupMenu menu = new JPopupMenu();
-		JMenuItem item;
-		
-		//TODO: internationalization
-		item = new JMenuItem(Config.getString("workIndicator.showDebugger"));
-		item.addActionListener(new ActionListener() {
-								public void actionPerformed(ActionEvent e) {
-									showDebugger();
-								}
-							 });
+        JMenuItem item;
+        
+        item = new JMenuItem(ShowDebuggerAction.getInstance());
 		menu.add(item);
 
-		item = new JMenuItem(Config.getString("workIndicator.resetMachine"));
-		item.setAccelerator(PkgMgrFrame.restartKey);
-		item.addActionListener(new ActionListener() {
-								public void actionPerformed(ActionEvent e) {
-									resetMachine();
-								}
-							 });
+		item = new JMenuItem(RestartVMAction.getInstance());
 		menu.add(item);
         
         return menu;
