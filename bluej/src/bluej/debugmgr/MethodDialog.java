@@ -2,6 +2,7 @@ package bluej.debugmgr;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.util.*;
 import java.util.List;
 
@@ -23,11 +24,12 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2586 2004-06-10 13:33:02Z polle $
+ * @version $Id: MethodDialog.java 2616 2004-06-16 11:42:10Z polle $
  */
 public class MethodDialog extends CallDialog
 	implements FocusListener
 {
+    private static final Insets INSETS = new Insets(2,2,2,2);
     static final int MD_CREATE = 0;
     static final int MD_CALL = 1;
 
@@ -78,7 +80,7 @@ public class MethodDialog extends CallDialog
             container.add(addButton);
             container.add(Box.createHorizontalStrut(5));
             container.add(removeButton);
-            container.setBorder(BorderFactory.createEmptyBorder(2,0,2,0));
+            container.setBorder(BorderFactory.createEmptyBorder(INSETS.top,INSETS.left,INSETS.bottom,INSETS.right));            
             return container;
         }        
     }
@@ -462,7 +464,7 @@ public class MethodDialog extends CallDialog
         GridBagLayout gridBag = new GridBagLayout();
         tmpPanel.setLayout(gridBag);
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(2, 2, 2, 2);
+        constraints.insets = INSETS;
         callLabel = new JLabel("", JLabel.RIGHT);
         
         if (method.isStatic())
@@ -471,6 +473,8 @@ public class MethodDialog extends CallDialog
             setCallLabel(instanceName, methodName);
         if (methView.isMain())
             defaultParamValue = "{ }";
+                
+        setPreferredHeight(callLabel, getComboBoxHeight());
         
         constraints.anchor = GridBagConstraints.NORTHWEST;
         gridBag.setConstraints(callLabel, constraints);
@@ -516,7 +520,7 @@ public class MethodDialog extends CallDialog
             GridBagLayout gridBag = new GridBagLayout();
             tmpPanel.setLayout(gridBag);
             GridBagConstraints constraints = new GridBagConstraints();
-            constraints.insets = new Insets(2,2,2,2);
+            constraints.insets = INSETS;
 
             gridBag.setConstraints(instName, constraints);
             tmpPanel.add(instName);
@@ -533,6 +537,7 @@ public class MethodDialog extends CallDialog
             constraints.gridx = 0;
             constraints.anchor = GridBagConstraints.NORTHEAST;
             constraints.fill = GridBagConstraints.NONE;
+            setPreferredHeight(name, getComboBoxHeight());
             gridBag.setConstraints(name,constraints);
             tmpPanel.add(name);            
             
@@ -571,12 +576,23 @@ public class MethodDialog extends CallDialog
         GridBagLayout gridBag = new GridBagLayout();
         tmpPanel.setLayout(gridBag);
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(2,2,2,2);        
+        constraints.insets = INSETS;
         JLabel startParenthesis = new JLabel(" (");
+        
+        double comboHeight = getComboBoxHeight();
+        
+        //we want a large parenthesis
+        double parenthesisHeight = startParenthesis.getPreferredSize().getHeight();
+        double parenthesisScale = comboHeight/parenthesisHeight;        
+        Font f = startParenthesis.getFont();
+        Font parenthesisFont = f.deriveFont(AffineTransform.getScaleInstance(parenthesisScale,parenthesisScale));
+        
+        startParenthesis.setFont(parenthesisFont);
+        
         constraints.gridx = 0;
         constraints.anchor = GridBagConstraints.NORTHEAST;
-        tmpPanel.add(startParenthesis, constraints);
-        
+        tmpPanel.add(startParenthesis, constraints);      
+       
         parameterList = new ParameterList(paramClasses.length, method.isVarArgs());
 
         for (int i = 0; i < paramClasses.length; i++) {
@@ -601,9 +617,10 @@ public class MethodDialog extends CallDialog
                     public void componentHidden(ComponentEvent e) {
                     }});
                 parameterList.setVarArg((GrowableBox)component);
+                constraints.insets = new Insets(0,0,0,0);
                 gridBag.setConstraints(component, constraints);
                 tmpPanel.add(component);
-                constraints.gridheight=1;
+                constraints.insets = INSETS;
             } else {
                 List historyList = history.getHistory(paramClasses[i]);
                 JComboBox component = createComboBox(historyList);
@@ -624,22 +641,42 @@ public class MethodDialog extends CallDialog
                 if(paramClasses.length == 1) {
                     eol.setText(")");
                 } else {
-                    JLabel lastType =  new JLabel(commentSlash + paramNames[i]);   
-                    //HACK this border should be calculated properly
-                    lastType.setBorder(BorderFactory.createEmptyBorder(7,0,0,0));
+                    JLabel lastType =  new JLabel(commentSlash + paramNames[i]);
+                    setPreferredHeight(lastType, comboHeight);
+                   
                     constraints.anchor=GridBagConstraints.NORTH;
                     tmpPanel.add(lastType, constraints);
-                    //HACK and this border should be calculated properly too
-                    eol.setBorder(BorderFactory.createEmptyBorder(0,0,7,0));
-                    eol.setText(")  ");
-                    
+                    eol.setText(")  ");                    
                 }
-            }
+                eol.setFont(parenthesisFont);
+            }            
+            setPreferredHeight(eol, comboHeight);
             constraints.anchor=GridBagConstraints.SOUTHWEST;
             gridBag.setConstraints(eol,constraints);
             tmpPanel.add(eol);
         }
         return tmpPanel;
+    }
+
+    /**
+     * Sets the preferred height of the component.
+     * @param c The component for which to change the preferred height
+     * @param height the new height
+     */
+    private void setPreferredHeight(Component c, double height) {
+        int lastTypeWidth = (int) c.getPreferredSize().getWidth();
+        c.setPreferredSize(new Dimension(lastTypeWidth,(int)height));
+    }
+
+    /**
+     * Calculates and returns the preferred height of a combobox.
+     * 
+     * @return Preferred height of a normal JComboBox
+     */
+    private double getComboBoxHeight() {
+        JComboBox comboBox = createComboBox(new ArrayList());        
+        double comboHeight = comboBox.getPreferredSize().getHeight();
+        return comboHeight;
     }
 
     /**
