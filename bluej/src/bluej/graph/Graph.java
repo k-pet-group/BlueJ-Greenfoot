@@ -10,7 +10,7 @@ import java.awt.geom.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 1417 2002-10-18 07:56:39Z mik $
+ * @version $Id: Graph.java 1541 2002-11-29 13:48:00Z ajp $
  */
 public abstract class Graph
 {
@@ -49,10 +49,10 @@ public abstract class Graph
         for(Iterator it = getVertices(); it.hasNext(); ) {
             Vertex v = (Vertex)it.next();
 
-            if(v.x + v.width > minWidth)
-        	minWidth = v.x + v.width;
-            if(v.y + v.height > minHeight)
-        	minHeight = v.y + v.height;
+            if(v.getX() + v.getWidth() > minWidth)
+        	minWidth = v.getX() + v.getWidth();
+            if(v.getY() + v.getHeight() > minHeight)
+        	minHeight = v.getY() + v.getHeight();
         }
 
         return new Dimension(minWidth, minHeight);
@@ -68,8 +68,8 @@ public abstract class Graph
             // lets discount the vertex we are adding from the space
             // calculations
             if (vertex != t) {
-                Rectangle vr = new Rectangle(vertex.x, vertex.y,
-                                                vertex.width, vertex.height);
+                Rectangle vr = new Rectangle(vertex.getX(), vertex.getY(),
+                                                vertex.getWidth(), vertex.getHeight());
                 a.add(new Area(vr));
             }
         }
@@ -79,11 +79,11 @@ public abstract class Graph
         if (RIGHT_PLACEMENT_MIN > min.width)
             min.width = RIGHT_PLACEMENT_MIN;
 
-        Rectangle targetRect = new Rectangle(t.width + WHITESPACE_SIZE*2,
-                                                t.height + WHITESPACE_SIZE*2);
+        Rectangle targetRect = new Rectangle(t.getWidth() + WHITESPACE_SIZE*2,
+                                                t.getHeight() + WHITESPACE_SIZE*2);
 
         for(int y=0; y<(2*min.height); y+=10) {
-            for(int x=0; x<(min.width-t.width-2*WHITESPACE_SIZE); x+=10) {
+            for(int x=0; x<(min.width-t.getWidth()-2*WHITESPACE_SIZE); x+=10) {
                 targetRect.setLocation(x,y);
                 if (!a.intersects(targetRect)) {
                     t.setPos(x+10,y+10);

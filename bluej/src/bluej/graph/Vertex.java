@@ -8,12 +8,12 @@ import java.awt.event.MouseEvent;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Vertex.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: Vertex.java 1541 2002-11-29 13:48:00Z ajp $
  */
 public abstract class Vertex
 {
-    public int x, y;            // position
-    public int width, height;   // size
+    private int x, y;            // position
+    private int width, height;   // size
 
     public Vertex(int x, int y, int width, int height)
     {
@@ -45,7 +45,23 @@ public abstract class Vertex
         return this.width;
     }
 
-    void drawUntranslated(Graphics g)
+    public int getX()
+    {
+        return this.x;
+    }
+
+    public int getY()
+    {
+        return this.y;
+    }
+   
+
+    public int getHeight()
+    {
+        return this.height;
+    }
+
+    /*package*/ void drawUntranslated(Graphics g)
     {
         /* the shadows of the targets is rendered outside their actual
            bounding box. Most of the rendering code is not designed with
