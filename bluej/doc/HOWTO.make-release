@@ -14,11 +14,11 @@ How to make a BlueJ release                    (last update 31.08.2001, mik)
 
  5. Make an editor source release (how? ask bruce).
 
- 6. Move the distribution jar file and the editor sourceto the public 
+ 6. Move the distribution jar file and the editor source to the public 
     ftp server (currently ftp.bluej.org:/pub/bluej/  alias
     dodo.infotech.monash.edu.au:/home/ftp/pub/bluej/).
 
- 7. Make a Mac version (I will write a separate HOWTO about this one day...)
+ 7. Make a Mac version (see separate file HOWTO.make-mac-version)
     Move the Mac version to the public ftp server.
 
  8. Update the BlueJ web site to announce the new version. At least:
@@ -34,4 +34,6 @@ How to make a BlueJ release                    (last update 31.08.2001, mik)
 
 11. Send a mail message to bluej-announce@bluej.org, announcing the
     release.
+
+12. More public announcements. See HOWTO.announce-release.
 

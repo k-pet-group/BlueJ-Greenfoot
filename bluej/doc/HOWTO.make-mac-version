@@ -13,12 +13,14 @@ How to make a BlueJ release for MacOS X               (last update 24.10.2001, m
 
 Start MRJAppBuilder
 
-Set main classname to bluej.Main
-Specify output file
-Add all necessary bluej/lib files to "Merge files" section
-Add bluej.icns to merged files.
-Fix classpath in "Application" tab (remove unnecessary paths)
-Set the following MacOS X settings:
+- Set main classname to bluej.Main
+- Specify output file
+- Add all necessary bluej/lib files to "Merge files" section (all 
+  files and folders from Resources/Java)
+- Add bluej.icns to merged files.
+- Fix classpath in "Application" tab (remove unnecessary paths, leaving just 
+  the .jar files)
+- Set the following MacOS X settings:
 
         CFBundleDevelopmentRegion       English
         CFBundleExecutable              JavaApplicationStub
@@ -34,10 +36,16 @@ Set the following MacOS X settings:
 Set/add the following Java Properties:
 
    growbox.intrudes                                     true
-   com.apple.macos.useScreenMenuBar                     true
+   com.apple.macos.useScreenMenuBar                     false  (true)
    com.apple.mrj.application.apple.menu.about.name      BlueJ
 
 Build the application (will fail)
 Copy the icon file ("BlueJ-icon/bluej.icns") to "Contents/Resources"
 Copy all necessary bluej/lib files to "Contents/Resources/Java"
-Fix the icon (via "Show Info")
+Fix the icon (via "Show Info", copy from older version)
+(NOTE: last time I had to copy all the lib files in again, they had
+disappeared!)
+
+Now stuff it and you're...
+
+Done.
