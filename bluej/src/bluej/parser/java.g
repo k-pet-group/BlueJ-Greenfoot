@@ -76,6 +76,14 @@ tokens {
     private TokenStreamHiddenTokenFilter filter;
     private ClassInfo info;
 
+    /**
+     * Counts the number of LT seen in the typeArguments production.
+     * It is used in semantic predicates to ensure we have seen
+     * enough closing '>' characters; which actually may have been
+     * either GT, SR or BSR tokens.
+     */
+    private int ltCounter = 0;
+
     public static ClassInfo parse(String filename)
         throws Exception
     {
@@ -297,7 +305,9 @@ tokens {
 //   rule for this parser
 compilationUnit
     :   // A compilation unit starts with an optional package definition
-        (   packageDefinition
+        (   (packageDefinition)=> packageDefinition
+            // need above syntactic predicate to dis-amb the 'annotation' leading both
+            // packageDefinition and typeDefinition
         |   /* nothing */     {useDefaultPackage();}
         )
 
@@ -319,7 +329,7 @@ packageDefinition
     options { defaultErrorHandler = true; } // let ANTLR handle errors
 
     { JavaToken id; }           // define an id for the package name
-    :   pkg:"package" id=identifier sem:SEMI
+    :  (annotation)*  pkg:"package" id=identifier sem:SEMI
         {
             info.setPackageSelections(new Selection((JavaToken)pkg),
                                         new Selection(id), id.getText(),
@@ -355,6 +365,7 @@ typeDefinition
         ( classDefinition[mods, commentToken]
           | interfaceDefinition[mods, commentToken]
           | enumDefinition[mods, commentToken]
+          | annotationTypeDeclaration
         )
     |   SEMI
     ;
@@ -479,7 +490,8 @@ identifierStar
 //   someone so desires
 modifiers returns [JavaBitSet mods]
     { mods = new JavaBitSet(); }
-    :   ( modifier[mods] )*
+       :( options{warnWhenFollowAmbig = false;}
+       : modifier[mods] | annotation)*
     ;
 
 // modifiers for Java classes, interfaces, class/instance vars and methods
@@ -633,6 +645,10 @@ enumDefinition[JavaBitSet mods, JavaToken commentToken]
         { popScope(); }
     ;
     
+annotationTypeDeclaration
+    :
+        AT "interface" IDENT annotationTypeBody
+    ;
 
 // This is the body of a class.  You can have fields and extra semicolons,
 // That's about it (until you see what a field is...)
@@ -664,12 +680,31 @@ enumBlock
 
 enumConstant
     :
-        //(annotation)*
+        (annotation)*
         IDENT ( LPAREN argList RPAREN )? (classBlock)?
         
     ;
 
+annotationTypeBody
+    :
+        LCURLY
+        (annotationTypeMemberDeclaration)*
+        RCURLY
+    ;
+annotationTypeMemberDeclaration
+    :
+        m:modifiers
+        (
+            typeSpec IDENT LPAREN RPAREN (annDefaultValue)?  SEMI
+        |   typeDefinition
+        )
+        
+    ;
 
+protected
+annDefaultValue:
+        "default" annMemberValue
+    ;
 
 // An interface can extend several other interfaces, so we collect a vector
 //   of all the superinterfaces and return it
@@ -933,7 +968,8 @@ parameterDeclaration
     ;
 
 parameterModifier
-	:	(f:"final")?
+	:    (annotation)*
+             (f:"final" (annotation)* )?
 	;
 
 // Compound statement.  This is used in many contexts:
@@ -1505,6 +1541,49 @@ constant
     |   NUM_DOUBLE
     ;
 
+// annotations (JSR-175: Metadata facility)
+protected
+annotation
+    :
+        AT annTypeName
+        (
+            LPAREN RPAREN // normalAnnotationRest
+        |   (LPAREN IDENT ASSIGN )=> LPAREN annMemberValuePair (COMMA annMemberValuePair)* RPAREN // normalAnnotation
+        |   LPAREN annMemberValue RPAREN // singleMemberAnnotation
+           // none means just a markerAnnotation
+        )?
+    ;
+
+protected annTypeName
+    :
+        IDENT (DOT IDENT)*
+    ;
+
+protected
+annMemberValuePair
+    :
+        IDENT ASSIGN annMemberValue
+    ;
+
+protected
+annMemberValue
+    :
+        conditionalExpression
+    |   annotation
+    |   annMemberValueArrayInitializer
+    ;
+
+protected
+annMemberValueArrayInitializer
+    :
+        LCURLY (annMemberValues)? (COMMA)? RCURLY
+    ;
+
+protected
+annMemberValues
+    :
+        annMemberValue (COMMA annMemberValue)*
+    ;
 
 //----------------------------------------------------------------------------
 // The Java scanner
@@ -1587,6 +1666,8 @@ BAND_ASSIGN     :   "&="    ;
 LAND            :   "&&"    ;
 SEMI            :   ';'     ;
 
+// annotation token
+AT : '@' ;
 
 // Whitespace -- ignored
 WS  :   (   ' '

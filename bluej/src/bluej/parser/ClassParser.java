@@ -56,6 +56,14 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
     private TokenStreamHiddenTokenFilter filter;
     private ClassInfo info;
 
+    /**
+     * Counts the number of LT seen in the typeArguments production.
+     * It is used in semantic predicates to ensure we have seen
+     * enough closing '>' characters; which actually may have been
+     * either GT, SR or BSR tokens.
+     */
+    private int ltCounter = 0;
+
     public static ClassInfo parse(String filename)
         throws Exception
     {
@@ -297,62 +305,55 @@ public ClassParser(ParserSharedInputState state) {
 		
 		
 		{
-		switch ( LA(1)) {
-		case LITERAL_package:
-		{
-			packageDefinition();
-			break;
+		boolean synPredMatched4 = false;
+		if (((LA(1)==LITERAL_package||LA(1)==AT) && (LA(2)==IDENT))) {
+			int _m4 = mark();
+			synPredMatched4 = true;
+			inputState.guessing++;
+			try {
+				{
+				packageDefinition();
+				}
+			}
+			catch (RecognitionException pe) {
+				synPredMatched4 = false;
+			}
+			rewind(_m4);
+			inputState.guessing--;
 		}
-		case EOF:
-		case FINAL:
-		case ABSTRACT:
-		case STRICTFP:
-		case SEMI:
-		case LITERAL_import:
-		case LITERAL_static:
-		case LITERAL_private:
-		case LITERAL_public:
-		case LITERAL_protected:
-		case LITERAL_transient:
-		case LITERAL_native:
-		case LITERAL_threadsafe:
-		case LITERAL_synchronized:
-		case LITERAL_volatile:
-		case LITERAL_class:
-		case LITERAL_interface:
-		case LITERAL_enum:
-		{
+		if ( synPredMatched4 ) {
+			packageDefinition();
+		}
+		else if ((_tokenSet_0.member(LA(1))) && (_tokenSet_1.member(LA(2)))) {
 			if ( inputState.guessing==0 ) {
 				useDefaultPackage();
 			}
-			break;
 		}
-		default:
-		{
+		else {
 			throw new NoViableAltException(LT(1), getFilename());
 		}
-		}
+		
 		}
 		{
-		_loop4:
+		_loop6:
 		do {
 			if ((LA(1)==LITERAL_import)) {
 				importDefinition();
 			}
 			else {
-				break _loop4;
+				break _loop6;
 			}
 			
 		} while (true);
 		}
 		{
-		_loop6:
+		_loop8:
 		do {
-			if ((_tokenSet_0.member(LA(1)))) {
+			if ((_tokenSet_2.member(LA(1)))) {
 				typeDefinition();
 			}
 			else {
-				break _loop6;
+				break _loop8;
 			}
 			
 		} while (true);
@@ -370,6 +371,18 @@ public ClassParser(ParserSharedInputState state) {
 		JavaToken id;
 		
 		try {      // for error handling
+			{
+			_loop11:
+			do {
+				if ((LA(1)==AT)) {
+					annotation();
+				}
+				else {
+					break _loop11;
+				}
+				
+			} while (true);
+			}
 			pkg = LT(1);
 			match(LITERAL_package);
 			id=identifier();
@@ -389,7 +402,7 @@ public ClassParser(ParserSharedInputState state) {
 			if (inputState.guessing==0) {
 				reportError(ex);
 				consume();
-				consumeUntil(_tokenSet_1);
+				consumeUntil(_tokenSet_0);
 			} else {
 			  throw ex;
 			}
@@ -425,7 +438,7 @@ public ClassParser(ParserSharedInputState state) {
 			if (inputState.guessing==0) {
 				reportError(ex);
 				consume();
-				consumeUntil(_tokenSet_1);
+				consumeUntil(_tokenSet_0);
 			} else {
 			  throw ex;
 			}
@@ -454,6 +467,7 @@ public ClassParser(ParserSharedInputState state) {
 			case LITERAL_class:
 			case LITERAL_interface:
 			case LITERAL_enum:
+			case AT:
 			{
 				if ( inputState.guessing==0 ) {
 					commentToken = findAttachedComment((JavaToken)LT(1));
@@ -474,6 +488,11 @@ public ClassParser(ParserSharedInputState state) {
 				case LITERAL_enum:
 				{
 					enumDefinition(mods, commentToken);
+					break;
+				}
+				case AT:
+				{
+					annotationTypeDeclaration();
 					break;
 				}
 				default:
@@ -499,13 +518,74 @@ public ClassParser(ParserSharedInputState state) {
 			if (inputState.guessing==0) {
 				reportError(ex);
 				consume();
-				consumeUntil(_tokenSet_2);
+				consumeUntil(_tokenSet_3);
 			} else {
 			  throw ex;
 			}
 		}
 	}
 	
+	protected final void annotation() throws RecognitionException, TokenStreamException {
+		
+		
+		match(AT);
+		annTypeName();
+		{
+		if ((LA(1)==LPAREN) && (LA(2)==RPAREN)) {
+			match(LPAREN);
+			match(RPAREN);
+		}
+		else {
+			boolean synPredMatched234 = false;
+			if (((LA(1)==LPAREN) && (LA(2)==IDENT))) {
+				int _m234 = mark();
+				synPredMatched234 = true;
+				inputState.guessing++;
+				try {
+					{
+					match(LPAREN);
+					match(IDENT);
+					match(ASSIGN);
+					}
+				}
+				catch (RecognitionException pe) {
+					synPredMatched234 = false;
+				}
+				rewind(_m234);
+				inputState.guessing--;
+			}
+			if ( synPredMatched234 ) {
+				match(LPAREN);
+				annMemberValuePair();
+				{
+				_loop236:
+				do {
+					if ((LA(1)==COMMA)) {
+						match(COMMA);
+						annMemberValuePair();
+					}
+					else {
+						break _loop236;
+					}
+					
+				} while (true);
+				}
+				match(RPAREN);
+			}
+			else if ((LA(1)==LPAREN) && (_tokenSet_4.member(LA(2)))) {
+				match(LPAREN);
+				annMemberValue();
+				match(RPAREN);
+			}
+			else if ((_tokenSet_5.member(LA(1)))) {
+			}
+			else {
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+			}
+		}
+		
 	public final JavaToken  identifier() throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
@@ -519,7 +599,7 @@ public ClassParser(ParserSharedInputState state) {
 			t=(JavaToken)id1;
 		}
 		{
-		_loop24:
+		_loop28:
 		do {
 			if ((LA(1)==DOT)) {
 				match(DOT);
@@ -530,7 +610,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop24;
+				break _loop28;
 			}
 			
 		} while (true);
@@ -550,7 +630,7 @@ public ClassParser(ParserSharedInputState state) {
 			className=id.getText();
 		}
 		{
-		_loop27:
+		_loop31:
 		do {
 			if ((LA(1)==DOT) && (LA(2)==IDENT)) {
 				match(DOT);
@@ -561,7 +641,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop27;
+				break _loop31;
 			}
 			
 		} while (true);
@@ -609,13 +689,16 @@ public ClassParser(ParserSharedInputState state) {
 		mods = new JavaBitSet();
 		
 		{
-		_loop31:
+		_loop35:
 		do {
-			if ((_tokenSet_3.member(LA(1)))) {
+			if ((_tokenSet_6.member(LA(1))) && (_tokenSet_7.member(LA(2)))) {
 				modifier(mods);
 			}
+			else if ((LA(1)==AT) && (LA(2)==IDENT)) {
+				annotation();
+			}
 			else {
-				break _loop31;
+				break _loop35;
 			}
 			
 		} while (true);
@@ -816,6 +899,15 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
+	public final void annotationTypeDeclaration() throws RecognitionException, TokenStreamException {
+		
+		
+		match(AT);
+		match(LITERAL_interface);
+		match(IDENT);
+		annotationTypeBody();
+	}
+	
 	public final void declaration() throws RecognitionException, TokenStreamException {
 		
 		JavaToken type;
@@ -864,14 +956,14 @@ public ClassParser(ParserSharedInputState state) {
 		
 		variableDeclarator(type, commentToken);
 		{
-		_loop76:
+		_loop90:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
 				variableDeclarator(type, commentToken);
 			}
 			else {
-				break _loop76;
+				break _loop90;
 			}
 			
 		} while (true);
@@ -885,7 +977,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		t=identifier();
 		{
-		_loop16:
+		_loop20:
 		do {
 			if ((LA(1)==LBRACK)) {
 				match(LBRACK);
@@ -898,7 +990,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop16;
+				break _loop20;
 			}
 			
 		} while (true);
@@ -913,7 +1005,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		t=builtInType();
 		{
-		_loop19:
+		_loop23:
 		do {
 			if ((LA(1)==LBRACK)) {
 				match(LBRACK);
@@ -926,7 +1018,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop19;
+				break _loop23;
 			}
 			
 		} while (true);
@@ -1182,7 +1274,7 @@ public ClassParser(ParserSharedInputState state) {
 			
 		}
 		{
-		_loop58:
+		_loop72:
 		do {
 			if ((LA(1)==COMMA)) {
 				co = LT(1);
@@ -1199,7 +1291,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop58;
+				break _loop72;
 			}
 			
 		} while (true);
@@ -1212,7 +1304,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		match(LCURLY);
 		{
-		_loop42:
+		_loop47:
 		do {
 			switch ( LA(1)) {
 			case FINAL:
@@ -1240,6 +1332,7 @@ public ClassParser(ParserSharedInputState state) {
 			case LITERAL_class:
 			case LITERAL_interface:
 			case LITERAL_enum:
+			case AT:
 			case LCURLY:
 			{
 				field();
@@ -1252,7 +1345,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				break _loop42;
+				break _loop47;
 			}
 			}
 		} while (true);
@@ -1284,7 +1377,7 @@ public ClassParser(ParserSharedInputState state) {
 			
 		}
 		{
-		_loop55:
+		_loop69:
 		do {
 			if ((LA(1)==COMMA)) {
 				co = LT(1);
@@ -1301,7 +1394,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop55;
+				break _loop69;
 			}
 			
 		} while (true);
@@ -1315,14 +1408,14 @@ public ClassParser(ParserSharedInputState state) {
 		match(LCURLY);
 		enumConstant();
 		{
-		_loop45:
+		_loop50:
 		do {
-			if ((LA(1)==COMMA) && (LA(2)==IDENT)) {
+			if ((LA(1)==COMMA) && (LA(2)==IDENT||LA(2)==AT)) {
 				match(COMMA);
 				enumConstant();
 			}
 			else {
-				break _loop45;
+				break _loop50;
 			}
 			
 		} while (true);
@@ -1351,7 +1444,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			match(SEMI);
 			{
-			_loop49:
+			_loop54:
 			do {
 				switch ( LA(1)) {
 				case FINAL:
@@ -1379,6 +1472,7 @@ public ClassParser(ParserSharedInputState state) {
 				case LITERAL_class:
 				case LITERAL_interface:
 				case LITERAL_enum:
+				case AT:
 				case LCURLY:
 				{
 					field();
@@ -1391,7 +1485,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					break _loop49;
+					break _loop54;
 				}
 				}
 			} while (true);
@@ -1411,6 +1505,25 @@ public ClassParser(ParserSharedInputState state) {
 		match(RCURLY);
 	}
 	
+	public final void annotationTypeBody() throws RecognitionException, TokenStreamException {
+		
+		
+		match(LCURLY);
+		{
+		_loop62:
+		do {
+			if ((_tokenSet_7.member(LA(1)))) {
+				annotationTypeMemberDeclaration();
+			}
+			else {
+				break _loop62;
+			}
+			
+		} while (true);
+		}
+		match(RCURLY);
+	}
+	
 	public final void field() throws RecognitionException, TokenStreamException {
 		
 		Token  method = null;
@@ -1420,7 +1533,7 @@ public ClassParser(ParserSharedInputState state) {
 		JavaBitSet mods = null;
 		
 		
-		if ((_tokenSet_4.member(LA(1))) && (_tokenSet_5.member(LA(2)))) {
+		if ((_tokenSet_8.member(LA(1))) && (_tokenSet_9.member(LA(2)))) {
 			if ( inputState.guessing==0 ) {
 				commentToken = findAttachedComment((JavaToken)LT(1));
 			}
@@ -1447,7 +1560,7 @@ public ClassParser(ParserSharedInputState state) {
 					ctorHead(null, commentToken);
 					constructorBody();
 				}
-				else if (((LA(1) >= LITERAL_void && LA(1) <= IDENT)) && (_tokenSet_6.member(LA(2)))) {
+				else if (((LA(1) >= LITERAL_void && LA(1) <= IDENT)) && (_tokenSet_10.member(LA(2)))) {
 					type=typeSpec();
 					{
 					if ((LA(1)==IDENT) && (LA(2)==LPAREN)) {
@@ -1464,14 +1577,14 @@ public ClassParser(ParserSharedInputState state) {
 						parameterDeclarationList();
 						match(RPAREN);
 						{
-						_loop63:
+						_loop77:
 						do {
 							if ((LA(1)==LBRACK)) {
 								match(LBRACK);
 								match(RBRACK);
 							}
 							else {
-								break _loop63;
+								break _loop77;
 							}
 							
 						} while (true);
@@ -1519,7 +1632,7 @@ public ClassParser(ParserSharedInputState state) {
 						}
 						}
 					}
-					else if ((LA(1)==IDENT) && (_tokenSet_7.member(LA(2)))) {
+					else if ((LA(1)==IDENT) && (_tokenSet_11.member(LA(2)))) {
 						variableDefinitions(type,commentToken);
 						match(SEMI);
 					}
@@ -1551,6 +1664,18 @@ public ClassParser(ParserSharedInputState state) {
 	public final void enumConstant() throws RecognitionException, TokenStreamException {
 		
 		
+		{
+		_loop57:
+		do {
+			if ((LA(1)==AT)) {
+				annotation();
+			}
+			else {
+				break _loop57;
+			}
+			
+		} while (true);
+		}
 		match(IDENT);
 		{
 		switch ( LA(1)) {
@@ -1651,6 +1776,137 @@ public ClassParser(ParserSharedInputState state) {
 		return count;
 	}
 	
+	public final void annotationTypeMemberDeclaration() throws RecognitionException, TokenStreamException {
+		
+		
+		modifiers();
+		{
+		switch ( LA(1)) {
+		case LITERAL_void:
+		case LITERAL_boolean:
+		case LITERAL_byte:
+		case LITERAL_char:
+		case LITERAL_short:
+		case LITERAL_int:
+		case LITERAL_float:
+		case LITERAL_long:
+		case LITERAL_double:
+		case IDENT:
+		{
+			typeSpec();
+			match(IDENT);
+			match(LPAREN);
+			match(RPAREN);
+			{
+			switch ( LA(1)) {
+			case LITERAL_default:
+			{
+				annDefaultValue();
+				break;
+			}
+			case SEMI:
+			{
+				break;
+			}
+			default:
+			{
+				throw new NoViableAltException(LT(1), getFilename());
+			}
+			}
+			}
+			match(SEMI);
+			break;
+		}
+		case FINAL:
+		case ABSTRACT:
+		case STRICTFP:
+		case SEMI:
+		case LITERAL_static:
+		case LITERAL_private:
+		case LITERAL_public:
+		case LITERAL_protected:
+		case LITERAL_transient:
+		case LITERAL_native:
+		case LITERAL_threadsafe:
+		case LITERAL_synchronized:
+		case LITERAL_volatile:
+		case LITERAL_class:
+		case LITERAL_interface:
+		case LITERAL_enum:
+		case AT:
+		{
+			typeDefinition();
+			break;
+		}
+		default:
+		{
+			throw new NoViableAltException(LT(1), getFilename());
+		}
+		}
+		}
+	}
+	
+	protected final void annDefaultValue() throws RecognitionException, TokenStreamException {
+		
+		
+		match(LITERAL_default);
+		annMemberValue();
+	}
+	
+	protected final void annMemberValue() throws RecognitionException, TokenStreamException {
+		
+		
+		switch ( LA(1)) {
+		case LITERAL_void:
+		case LITERAL_boolean:
+		case LITERAL_byte:
+		case LITERAL_char:
+		case LITERAL_short:
+		case LITERAL_int:
+		case LITERAL_float:
+		case LITERAL_long:
+		case LITERAL_double:
+		case IDENT:
+		case LPAREN:
+		case LITERAL_this:
+		case LITERAL_super:
+		case PLUS:
+		case MINUS:
+		case INC:
+		case DEC:
+		case BNOT:
+		case LNOT:
+		case LITERAL_true:
+		case LITERAL_false:
+		case LITERAL_null:
+		case LITERAL_new:
+		case NUM_INT:
+		case CHAR_LITERAL:
+		case STRING_LITERAL:
+		case NUM_FLOAT:
+		case NUM_LONG:
+		case NUM_DOUBLE:
+		{
+			conditionalExpression();
+			break;
+		}
+		case AT:
+		{
+			annotation();
+			break;
+		}
+		case LCURLY:
+		{
+			annMemberValueArrayInitializer();
+			break;
+		}
+		default:
+		{
+			throw new NoViableAltException(LT(1), getFilename());
+		}
+		}
+	}
+	
 	public final void ctorHead(
 		JavaToken type, JavaToken commentToken
 	) throws RecognitionException, TokenStreamException {
@@ -1701,10 +1957,10 @@ public ClassParser(ParserSharedInputState state) {
 		
 		match(LCURLY);
 		{
-		boolean synPredMatched69 = false;
-		if (((_tokenSet_8.member(LA(1))) && (_tokenSet_9.member(LA(2))))) {
-			int _m69 = mark();
-			synPredMatched69 = true;
+		boolean synPredMatched83 = false;
+		if (((_tokenSet_12.member(LA(1))) && (_tokenSet_13.member(LA(2))))) {
+			int _m83 = mark();
+			synPredMatched83 = true;
 			inputState.guessing++;
 			try {
 				{
@@ -1712,15 +1968,15 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			catch (RecognitionException pe) {
-				synPredMatched69 = false;
+				synPredMatched83 = false;
 			}
-			rewind(_m69);
+			rewind(_m83);
 			inputState.guessing--;
 		}
-		if ( synPredMatched69 ) {
+		if ( synPredMatched83 ) {
 			explicitConstructorInvocation();
 		}
-		else if ((_tokenSet_10.member(LA(1))) && (_tokenSet_11.member(LA(2)))) {
+		else if ((_tokenSet_14.member(LA(1))) && (_tokenSet_15.member(LA(2)))) {
 		}
 		else {
 			throw new NoViableAltException(LT(1), getFilename());
@@ -1728,13 +1984,13 @@ public ClassParser(ParserSharedInputState state) {
 		
 		}
 		{
-		_loop71:
+		_loop85:
 		do {
-			if ((_tokenSet_12.member(LA(1)))) {
+			if ((_tokenSet_16.member(LA(1)))) {
 				statement();
 			}
 			else {
-				break _loop71;
+				break _loop85;
 			}
 			
 		} while (true);
@@ -1761,17 +2017,18 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_long:
 		case LITERAL_double:
 		case IDENT:
+		case AT:
 		{
 			parameterDeclaration();
 			{
-			_loop96:
+			_loop110:
 			do {
 				if ((LA(1)==COMMA)) {
 					match(COMMA);
 					parameterDeclaration();
 				}
 				else {
-					break _loop96;
+					break _loop110;
 				}
 				
 			} while (true);
@@ -1801,7 +2058,7 @@ public ClassParser(ParserSharedInputState state) {
 			exceptions.addElement(dummyClass(id));
 		}
 		{
-		_loop92:
+		_loop106:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
@@ -1811,7 +2068,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop92;
+				break _loop106;
 			}
 			
 		} while (true);
@@ -1853,13 +2110,13 @@ public ClassParser(ParserSharedInputState state) {
 			
 		}
 		{
-		_loop105:
+		_loop123:
 		do {
-			if ((_tokenSet_12.member(LA(1)))) {
+			if ((_tokenSet_16.member(LA(1)))) {
 				statement();
 			}
 			else {
-				break _loop105;
+				break _loop123;
 			}
 			
 		} while (true);
@@ -1888,7 +2145,7 @@ public ClassParser(ParserSharedInputState state) {
 			match(RPAREN);
 			match(SEMI);
 		}
-		else if ((_tokenSet_8.member(LA(1))) && (_tokenSet_9.member(LA(2)))) {
+		else if ((_tokenSet_12.member(LA(1))) && (_tokenSet_13.member(LA(2)))) {
 			primaryExpression();
 			match(DOT);
 			match(LITERAL_super);
@@ -1926,11 +2183,11 @@ public ClassParser(ParserSharedInputState state) {
 			match(RPAREN);
 			statement();
 			{
-			if ((LA(1)==LITERAL_else) && (_tokenSet_12.member(LA(2)))) {
+			if ((LA(1)==LITERAL_else) && (_tokenSet_16.member(LA(2)))) {
 				match(LITERAL_else);
 				statement();
 			}
-			else if ((_tokenSet_13.member(LA(1))) && (_tokenSet_14.member(LA(2)))) {
+			else if ((_tokenSet_17.member(LA(1))) && (_tokenSet_18.member(LA(2)))) {
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -1944,10 +2201,10 @@ public ClassParser(ParserSharedInputState state) {
 			match(LITERAL_for);
 			match(LPAREN);
 			{
-			boolean synPredMatched114 = false;
-			if (((_tokenSet_15.member(LA(1))) && (_tokenSet_16.member(LA(2))))) {
-				int _m114 = mark();
-				synPredMatched114 = true;
+			boolean synPredMatched132 = false;
+			if (((_tokenSet_19.member(LA(1))) && (_tokenSet_20.member(LA(2))))) {
+				int _m132 = mark();
+				synPredMatched132 = true;
 				inputState.guessing++;
 				try {
 					{
@@ -1956,15 +2213,15 @@ public ClassParser(ParserSharedInputState state) {
 					}
 				}
 				catch (RecognitionException pe) {
-					synPredMatched114 = false;
+					synPredMatched132 = false;
 				}
-				rewind(_m114);
+				rewind(_m132);
 				inputState.guessing--;
 			}
-			if ( synPredMatched114 ) {
+			if ( synPredMatched132 ) {
 				enhancedForClause();
 			}
-			else if ((_tokenSet_17.member(LA(1))) && (_tokenSet_18.member(LA(2)))) {
+			else if ((_tokenSet_21.member(LA(1))) && (_tokenSet_22.member(LA(2)))) {
 				forClause();
 			}
 			else {
@@ -2109,13 +2366,13 @@ public ClassParser(ParserSharedInputState state) {
 			match(RPAREN);
 			match(LCURLY);
 			{
-			_loop119:
+			_loop137:
 			do {
-				if ((LA(1)==LITERAL_case||LA(1)==LITERAL_default)) {
+				if ((LA(1)==LITERAL_default||LA(1)==LITERAL_case)) {
 					casesGroup();
 				}
 				else {
-					break _loop119;
+					break _loop137;
 				}
 				
 			} while (true);
@@ -2166,10 +2423,10 @@ public ClassParser(ParserSharedInputState state) {
 			break;
 		}
 		default:
-			boolean synPredMatched108 = false;
-			if (((_tokenSet_19.member(LA(1))) && (_tokenSet_20.member(LA(2))))) {
-				int _m108 = mark();
-				synPredMatched108 = true;
+			boolean synPredMatched126 = false;
+			if (((_tokenSet_23.member(LA(1))) && (_tokenSet_24.member(LA(2))))) {
+				int _m126 = mark();
+				synPredMatched126 = true;
 				inputState.guessing++;
 				try {
 					{
@@ -2177,24 +2434,24 @@ public ClassParser(ParserSharedInputState state) {
 					}
 				}
 				catch (RecognitionException pe) {
-					synPredMatched108 = false;
+					synPredMatched126 = false;
 				}
-				rewind(_m108);
+				rewind(_m126);
 				inputState.guessing--;
 			}
-			if ( synPredMatched108 ) {
+			if ( synPredMatched126 ) {
 				declaration();
 				match(SEMI);
 			}
-			else if ((_tokenSet_21.member(LA(1))) && (_tokenSet_22.member(LA(2)))) {
+			else if ((_tokenSet_25.member(LA(1))) && (_tokenSet_26.member(LA(2)))) {
 				expression();
 				match(SEMI);
 			}
 			else {
-				boolean synPredMatched110 = false;
-				if (((_tokenSet_23.member(LA(1))) && (_tokenSet_24.member(LA(2))))) {
-					int _m110 = mark();
-					synPredMatched110 = true;
+				boolean synPredMatched128 = false;
+				if (((_tokenSet_27.member(LA(1))) && (_tokenSet_28.member(LA(2))))) {
+					int _m128 = mark();
+					synPredMatched128 = true;
 					inputState.guessing++;
 					try {
 						{
@@ -2203,16 +2460,16 @@ public ClassParser(ParserSharedInputState state) {
 						}
 					}
 					catch (RecognitionException pe) {
-						synPredMatched110 = false;
+						synPredMatched128 = false;
 					}
-					rewind(_m110);
+					rewind(_m128);
 					inputState.guessing--;
 				}
-				if ( synPredMatched110 ) {
+				if ( synPredMatched128 ) {
 					mods=modifiers();
 					classDefinition(mods, null);
 				}
-				else if ((_tokenSet_25.member(LA(1))) && (_tokenSet_26.member(LA(2)))) {
+				else if ((_tokenSet_29.member(LA(1))) && (_tokenSet_30.member(LA(2)))) {
 					mods=modifiers();
 					enumDefinition(mods, null);
 				}
@@ -2323,14 +2580,14 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			builtInType();
 			{
-			_loop201:
+			_loop219:
 			do {
 				if ((LA(1)==LBRACK)) {
 					match(LBRACK);
 					match(RBRACK);
 				}
 				else {
-					break _loop201;
+					break _loop219;
 				}
 				
 			} while (true);
@@ -2356,7 +2613,7 @@ public ClassParser(ParserSharedInputState state) {
 		id = LT(1);
 		match(IDENT);
 		{
-		_loop79:
+		_loop93:
 		do {
 			if ((LA(1)==LBRACK)) {
 				match(LBRACK);
@@ -2368,7 +2625,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop79;
+				break _loop93;
 			}
 			
 		} while (true);
@@ -2491,14 +2748,14 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			initializer();
 			{
-			_loop85:
+			_loop99:
 			do {
-				if ((LA(1)==COMMA) && (_tokenSet_27.member(LA(2)))) {
+				if ((LA(1)==COMMA) && (_tokenSet_31.member(LA(2)))) {
 					match(COMMA);
 					initializer();
 				}
 				else {
-					break _loop85;
+					break _loop99;
 				}
 				
 			} while (true);
@@ -2568,7 +2825,7 @@ public ClassParser(ParserSharedInputState state) {
 		id = LT(1);
 		match(IDENT);
 		{
-		_loop100:
+		_loop114:
 		do {
 			if ((LA(1)==LBRACK)) {
 				match(LBRACK);
@@ -2579,7 +2836,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop100;
+				break _loop114;
 			}
 			
 		} while (true);
@@ -2594,11 +2851,35 @@ public ClassParser(ParserSharedInputState state) {
 		Token  f = null;
 		
 		{
+		_loop117:
+		do {
+			if ((LA(1)==AT)) {
+				annotation();
+			}
+			else {
+				break _loop117;
+			}
+			
+		} while (true);
+		}
+		{
 		switch ( LA(1)) {
 		case FINAL:
 		{
 			f = LT(1);
 			match(FINAL);
+			{
+			_loop120:
+			do {
+				if ((LA(1)==AT)) {
+					annotation();
+				}
+				else {
+					break _loop120;
+				}
+				
+			} while (true);
+			}
 			break;
 		}
 		case LITERAL_void:
@@ -2657,6 +2938,7 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_threadsafe:
 		case LITERAL_synchronized:
 		case LITERAL_volatile:
+		case AT:
 		case LPAREN:
 		case LITERAL_this:
 		case LITERAL_super:
@@ -2788,17 +3070,17 @@ public ClassParser(ParserSharedInputState state) {
 		
 		
 		{
-		int _cnt123=0;
-		_loop123:
+		int _cnt141=0;
+		_loop141:
 		do {
-			if ((LA(1)==LITERAL_case||LA(1)==LITERAL_default) && (_tokenSet_28.member(LA(2)))) {
+			if ((LA(1)==LITERAL_default||LA(1)==LITERAL_case) && (_tokenSet_32.member(LA(2)))) {
 				aCase();
 			}
 			else {
-				if ( _cnt123>=1 ) { break _loop123; } else {throw new NoViableAltException(LT(1), getFilename());}
+				if ( _cnt141>=1 ) { break _loop141; } else {throw new NoViableAltException(LT(1), getFilename());}
 			}
 			
-			_cnt123++;
+			_cnt141++;
 		} while (true);
 		}
 		caseSList();
@@ -2810,13 +3092,13 @@ public ClassParser(ParserSharedInputState state) {
 		match(LITERAL_try);
 		compoundStatement(NEW_SCOPE);
 		{
-		_loop139:
+		_loop157:
 		do {
 			if ((LA(1)==LITERAL_catch)) {
 				handler();
 			}
 			else {
-				break _loop139;
+				break _loop157;
 			}
 			
 		} while (true);
@@ -2854,9 +3136,11 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_volatile:
 		case LITERAL_class:
 		case LITERAL_enum:
+		case AT:
 		case LCURLY:
 		case RCURLY:
 		case LPAREN:
+		case LITERAL_default:
 		case LITERAL_this:
 		case LITERAL_super:
 		case LITERAL_if:
@@ -2871,7 +3155,6 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_throw:
 		case LITERAL_assert:
 		case LITERAL_case:
-		case LITERAL_default:
 		case LITERAL_try:
 		case PLUS:
 		case MINUS:
@@ -2929,13 +3212,13 @@ public ClassParser(ParserSharedInputState state) {
 		
 		
 		{
-		_loop128:
+		_loop146:
 		do {
-			if ((_tokenSet_12.member(LA(1)))) {
+			if ((_tokenSet_16.member(LA(1)))) {
 				statement();
 			}
 			else {
-				break _loop128;
+				break _loop146;
 			}
 			
 		} while (true);
@@ -2946,10 +3229,10 @@ public ClassParser(ParserSharedInputState state) {
 		
 		int count = -1;
 		
-		boolean synPredMatched136 = false;
-		if (((_tokenSet_19.member(LA(1))) && (_tokenSet_20.member(LA(2))))) {
-			int _m136 = mark();
-			synPredMatched136 = true;
+		boolean synPredMatched154 = false;
+		if (((_tokenSet_23.member(LA(1))) && (_tokenSet_24.member(LA(2))))) {
+			int _m154 = mark();
+			synPredMatched154 = true;
 			inputState.guessing++;
 			try {
 				{
@@ -2957,15 +3240,15 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			catch (RecognitionException pe) {
-				synPredMatched136 = false;
+				synPredMatched154 = false;
 			}
-			rewind(_m136);
+			rewind(_m154);
 			inputState.guessing--;
 		}
-		if ( synPredMatched136 ) {
+		if ( synPredMatched154 ) {
 			declaration();
 		}
-		else if ((_tokenSet_21.member(LA(1))) && (_tokenSet_29.member(LA(2)))) {
+		else if ((_tokenSet_25.member(LA(1))) && (_tokenSet_33.member(LA(2)))) {
 			count=expressionList();
 		}
 		else {
@@ -2981,7 +3264,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		expression();
 		{
-		_loop145:
+		_loop163:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
@@ -2991,7 +3274,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				break _loop145;
+				break _loop163;
 			}
 			
 		} while (true);
@@ -3164,14 +3447,14 @@ public ClassParser(ParserSharedInputState state) {
 		
 		logicalAndExpression();
 		{
-		_loop153:
+		_loop171:
 		do {
 			if ((LA(1)==LOR)) {
 				match(LOR);
 				logicalAndExpression();
 			}
 			else {
-				break _loop153;
+				break _loop171;
 			}
 			
 		} while (true);
@@ -3183,14 +3466,14 @@ public ClassParser(ParserSharedInputState state) {
 		
 		inclusiveOrExpression();
 		{
-		_loop156:
+		_loop174:
 		do {
 			if ((LA(1)==LAND)) {
 				match(LAND);
 				inclusiveOrExpression();
 			}
 			else {
-				break _loop156;
+				break _loop174;
 			}
 			
 		} while (true);
@@ -3202,14 +3485,14 @@ public ClassParser(ParserSharedInputState state) {
 		
 		exclusiveOrExpression();
 		{
-		_loop159:
+		_loop177:
 		do {
 			if ((LA(1)==BOR)) {
 				match(BOR);
 				exclusiveOrExpression();
 			}
 			else {
-				break _loop159;
+				break _loop177;
 			}
 			
 		} while (true);
@@ -3221,14 +3504,14 @@ public ClassParser(ParserSharedInputState state) {
 		
 		andExpression();
 		{
-		_loop162:
+		_loop180:
 		do {
 			if ((LA(1)==BXOR)) {
 				match(BXOR);
 				andExpression();
 			}
 			else {
-				break _loop162;
+				break _loop180;
 			}
 			
 		} while (true);
@@ -3240,14 +3523,14 @@ public ClassParser(ParserSharedInputState state) {
 		
 		equalityExpression();
 		{
-		_loop165:
+		_loop183:
 		do {
 			if ((LA(1)==BAND)) {
 				match(BAND);
 				equalityExpression();
 			}
 			else {
-				break _loop165;
+				break _loop183;
 			}
 			
 		} while (true);
@@ -3259,7 +3542,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		relationalExpression();
 		{
-		_loop169:
+		_loop187:
 		do {
 			if ((LA(1)==NOT_EQUAL||LA(1)==EQUAL)) {
 				{
@@ -3283,7 +3566,7 @@ public ClassParser(ParserSharedInputState state) {
 				relationalExpression();
 			}
 			else {
-				break _loop169;
+				break _loop187;
 			}
 			
 		} while (true);
@@ -3328,7 +3611,7 @@ public ClassParser(ParserSharedInputState state) {
 		case GE:
 		{
 			{
-			_loop174:
+			_loop192:
 			do {
 				if (((LA(1) >= LT && LA(1) <= GE))) {
 					{
@@ -3362,7 +3645,7 @@ public ClassParser(ParserSharedInputState state) {
 					shiftExpression();
 				}
 				else {
-					break _loop174;
+					break _loop192;
 				}
 				
 			} while (true);
@@ -3388,7 +3671,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		additiveExpression();
 		{
-		_loop178:
+		_loop196:
 		do {
 			if (((LA(1) >= SL && LA(1) <= BSR))) {
 				{
@@ -3417,7 +3700,7 @@ public ClassParser(ParserSharedInputState state) {
 				additiveExpression();
 			}
 			else {
-				break _loop178;
+				break _loop196;
 			}
 			
 		} while (true);
@@ -3429,7 +3712,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		multiplicativeExpression();
 		{
-		_loop182:
+		_loop200:
 		do {
 			if ((LA(1)==PLUS||LA(1)==MINUS)) {
 				{
@@ -3453,7 +3736,7 @@ public ClassParser(ParserSharedInputState state) {
 				multiplicativeExpression();
 			}
 			else {
-				break _loop182;
+				break _loop200;
 			}
 			
 		} while (true);
@@ -3465,9 +3748,9 @@ public ClassParser(ParserSharedInputState state) {
 		
 		unaryExpression();
 		{
-		_loop186:
+		_loop204:
 		do {
-			if ((_tokenSet_30.member(LA(1)))) {
+			if ((_tokenSet_34.member(LA(1)))) {
 				{
 				switch ( LA(1)) {
 				case STAR:
@@ -3494,7 +3777,7 @@ public ClassParser(ParserSharedInputState state) {
 				unaryExpression();
 			}
 			else {
-				break _loop186;
+				break _loop204;
 			}
 			
 		} while (true);
@@ -3619,10 +3902,10 @@ public ClassParser(ParserSharedInputState state) {
 				}
 			}
 			else {
-				boolean synPredMatched191 = false;
+				boolean synPredMatched209 = false;
 				if (((LA(1)==LPAREN) && (LA(2)==IDENT))) {
-					int _m191 = mark();
-					synPredMatched191 = true;
+					int _m209 = mark();
+					synPredMatched209 = true;
 					inputState.guessing++;
 					try {
 						{
@@ -3633,12 +3916,12 @@ public ClassParser(ParserSharedInputState state) {
 						}
 					}
 					catch (RecognitionException pe) {
-						synPredMatched191 = false;
+						synPredMatched209 = false;
 					}
-					rewind(_m191);
+					rewind(_m209);
 					inputState.guessing--;
 				}
-				if ( synPredMatched191 ) {
+				if ( synPredMatched209 ) {
 					match(LPAREN);
 					t=classTypeSpec();
 					match(RPAREN);
@@ -3649,7 +3932,7 @@ public ClassParser(ParserSharedInputState state) {
 						
 					}
 				}
-				else if ((_tokenSet_8.member(LA(1))) && (_tokenSet_31.member(LA(2)))) {
+				else if ((_tokenSet_12.member(LA(1))) && (_tokenSet_35.member(LA(2)))) {
 					postfixExpression();
 				}
 				else {
@@ -3673,7 +3956,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		t=primaryExpression();
 		{
-		_loop197:
+		_loop215:
 		do {
 			switch ( LA(1)) {
 			case DOT:
@@ -3740,30 +4023,30 @@ public ClassParser(ParserSharedInputState state) {
 			default:
 				if ((LA(1)==LBRACK) && (LA(2)==RBRACK)) {
 					{
-					int _cnt196=0;
-					_loop196:
+					int _cnt214=0;
+					_loop214:
 					do {
 						if ((LA(1)==LBRACK)) {
 							match(LBRACK);
 							match(RBRACK);
 						}
 						else {
-							if ( _cnt196>=1 ) { break _loop196; } else {throw new NoViableAltException(LT(1), getFilename());}
+							if ( _cnt214>=1 ) { break _loop214; } else {throw new NoViableAltException(LT(1), getFilename());}
 						}
 						
-						_cnt196++;
+						_cnt214++;
 					} while (true);
 					}
 					match(DOT);
 					match(LITERAL_class);
 				}
-				else if ((LA(1)==LBRACK) && (_tokenSet_21.member(LA(2)))) {
+				else if ((LA(1)==LBRACK) && (_tokenSet_25.member(LA(2)))) {
 					match(LBRACK);
 					expression();
 					match(RBRACK);
 				}
 			else {
-				break _loop197;
+				break _loop215;
 			}
 			}
 		} while (true);
@@ -4083,10 +4366,10 @@ public ClassParser(ParserSharedInputState state) {
 		
 		
 		{
-		int _cnt211=0;
-		_loop211:
+		int _cnt229=0;
+		_loop229:
 		do {
-			if ((LA(1)==LBRACK) && (_tokenSet_32.member(LA(2)))) {
+			if ((LA(1)==LBRACK) && (_tokenSet_36.member(LA(2)))) {
 				match(LBRACK);
 				{
 				switch ( LA(1)) {
@@ -4136,10 +4419,128 @@ public ClassParser(ParserSharedInputState state) {
 				match(RBRACK);
 			}
 			else {
-				if ( _cnt211>=1 ) { break _loop211; } else {throw new NoViableAltException(LT(1), getFilename());}
+				if ( _cnt229>=1 ) { break _loop229; } else {throw new NoViableAltException(LT(1), getFilename());}
 			}
 			
-			_cnt211++;
+			_cnt229++;
+		} while (true);
+		}
+	}
+	
+	protected final void annTypeName() throws RecognitionException, TokenStreamException {
+		
+		
+		match(IDENT);
+		{
+		_loop239:
+		do {
+			if ((LA(1)==DOT)) {
+				match(DOT);
+				match(IDENT);
+			}
+			else {
+				break _loop239;
+			}
+			
+		} while (true);
+		}
+	}
+	
+	protected final void annMemberValuePair() throws RecognitionException, TokenStreamException {
+		
+		
+		match(IDENT);
+		match(ASSIGN);
+		annMemberValue();
+	}
+	
+	protected final void annMemberValueArrayInitializer() throws RecognitionException, TokenStreamException {
+		
+		
+		match(LCURLY);
+		{
+		switch ( LA(1)) {
+		case LITERAL_void:
+		case LITERAL_boolean:
+		case LITERAL_byte:
+		case LITERAL_char:
+		case LITERAL_short:
+		case LITERAL_int:
+		case LITERAL_float:
+		case LITERAL_long:
+		case LITERAL_double:
+		case IDENT:
+		case AT:
+		case LCURLY:
+		case LPAREN:
+		case LITERAL_this:
+		case LITERAL_super:
+		case PLUS:
+		case MINUS:
+		case INC:
+		case DEC:
+		case BNOT:
+		case LNOT:
+		case LITERAL_true:
+		case LITERAL_false:
+		case LITERAL_null:
+		case LITERAL_new:
+		case NUM_INT:
+		case CHAR_LITERAL:
+		case STRING_LITERAL:
+		case NUM_FLOAT:
+		case NUM_LONG:
+		case NUM_DOUBLE:
+		{
+			annMemberValues();
+			break;
+		}
+		case RCURLY:
+		case COMMA:
+		{
+			break;
+		}
+		default:
+		{
+			throw new NoViableAltException(LT(1), getFilename());
+		}
+		}
+		}
+		{
+		switch ( LA(1)) {
+		case COMMA:
+		{
+			match(COMMA);
+			break;
+		}
+		case RCURLY:
+		{
+			break;
+		}
+		default:
+		{
+			throw new NoViableAltException(LT(1), getFilename());
+		}
+		}
+		}
+		match(RCURLY);
+	}
+	
+	protected final void annMemberValues() throws RecognitionException, TokenStreamException {
+		
+		
+		annMemberValue();
+		{
+		_loop247:
+		do {
+			if ((LA(1)==COMMA) && (_tokenSet_4.member(LA(2)))) {
+				match(COMMA);
+				annMemberValue();
+			}
+			else {
+				break _loop247;
+			}
+			
 		} while (true);
 		}
 	}
@@ -4220,11 +4621,13 @@ public ClassParser(ParserSharedInputState state) {
 		"\"extends\"",
 		"\"interface\"",
 		"\"enum\"",
+		"AT",
 		"LCURLY",
 		"RCURLY",
 		"COMMA",
 		"LPAREN",
 		"RPAREN",
+		"\"default\"",
 		"\"implements\"",
 		"\"this\"",
 		"\"super\"",
@@ -4244,7 +4647,6 @@ public ClassParser(ParserSharedInputState state) {
 		"\"throw\"",
 		"\"assert\"",
 		"\"case\"",
-		"\"default\"",
 		"\"try\"",
 		"\"finally\"",
 		"\"catch\"",
@@ -4303,169 +4705,189 @@ public ClassParser(ParserSharedInputState state) {
 	};
 	
 	private static final long[] mk_tokenSet_0() {
-		long[] data = { -4611506248276246528L, 895L, 0L, 0L};
+		long[] data = { -4611435879532068862L, 1919L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_0 = new BitSet(mk_tokenSet_0());
 	private static final long[] mk_tokenSet_1() {
-		long[] data = { -4611435879532068862L, 895L, 0L, 0L};
+		long[] data = { -4035045495972823038L, 1919L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_1 = new BitSet(mk_tokenSet_1());
 	private static final long[] mk_tokenSet_2() {
-		long[] data = { -4611506248276246526L, 895L, 0L, 0L};
+		long[] data = { -4611506248276246528L, 1919L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_2 = new BitSet(mk_tokenSet_2());
 	private static final long[] mk_tokenSet_3() {
-		long[] data = { -4611541432648335360L, 63L, 0L, 0L};
+		long[] data = { -3459710643576242174L, 6015L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_3 = new BitSet(mk_tokenSet_3());
 	private static final long[] mk_tokenSet_4() {
-		long[] data = { -3459745827948331008L, 895L, 0L, 0L};
+		long[] data = { 1151795604700004352L, 805888L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_4 = new BitSet(mk_tokenSet_4());
 	private static final long[] mk_tokenSet_5() {
-		long[] data = { -2306542848364773376L, 9087L, 0L, 0L};
+		long[] data = { -3459693051390197760L, 46975L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_5 = new BitSet(mk_tokenSet_5());
 	private static final long[] mk_tokenSet_6() {
-		long[] data = { 1729663731886981120L, 0L, 0L};
+		long[] data = { -4611541432648335360L, 63L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_6 = new BitSet(mk_tokenSet_6());
 	private static final long[] mk_tokenSet_7() {
-		long[] data = { 316659348799488L, 266240L, 0L, 0L};
+		long[] data = { -3459710643576242176L, 1919L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_7 = new BitSet(mk_tokenSet_7());
 	private static final long[] mk_tokenSet_8() {
-		long[] data = { 1151795604700004352L, 204800L, 523776L, 0L, 0L, 0L};
+		long[] data = { -3459745827948331008L, 1919L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_8 = new BitSet(mk_tokenSet_8());
 	private static final long[] mk_tokenSet_9() {
-		long[] data = { 2304998584283561984L, 204800L, 524262L, 0L, 0L, 0L};
+		long[] data = { -2306542848364773376L, 18303L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_9 = new BitSet(mk_tokenSet_9());
 	private static final long[] mk_tokenSet_10() {
-		long[] data = { -3459710643576242176L, 42937298559L, 524262L, 0L, 0L, 0L};
+		long[] data = { 1729663731886981120L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_10 = new BitSet(mk_tokenSet_10());
 	private static final long[] mk_tokenSet_11() {
-		long[] data = { -664654778990592L, -231938248833L, 524287L, 0L, 0L, 0L};
+		long[] data = { 316659348799488L, 1056768L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_11 = new BitSet(mk_tokenSet_11());
 	private static final long[] mk_tokenSet_12() {
-		long[] data = { -3459710643576242176L, 42937296511L, 524262L, 0L, 0L, 0L};
+		long[] data = { 1151795604700004352L, 802816L, 1047552L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_12 = new BitSet(mk_tokenSet_12());
 	private static final long[] mk_tokenSet_13() {
-		long[] data = { -3459710643576242176L, 68715490943L, 524262L, 0L, 0L, 0L};
+		long[] data = { 2304998584283561984L, 802816L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_13 = new BitSet(mk_tokenSet_13());
 	private static final long[] mk_tokenSet_14() {
-		long[] data = { -664654778990592L, -1626241L, 524287L, 0L, 0L, 0L};
+		long[] data = { -3459710643576242176L, 103029694079L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_14 = new BitSet(mk_tokenSet_14());
 	private static final long[] mk_tokenSet_15() {
-		long[] data = { 1151796154455818240L, 0L, 0L};
+		long[] data = { -664654778990592L, -446716682369L, 1048575L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_15 = new BitSet(mk_tokenSet_15());
 	private static final long[] mk_tokenSet_16() {
-		long[] data = { 2304998584283561984L, 1048576L, 0L, 0L};
+		long[] data = { -3459710643576242176L, 103029689983L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_16 = new BitSet(mk_tokenSet_16());
 	private static final long[] mk_tokenSet_17() {
-		long[] data = { -3459710643576242176L, 204863L, 524262L, 0L, 0L, 0L};
+		long[] data = { -3459710643576242176L, 137423052415L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_17 = new BitSet(mk_tokenSet_17());
 	private static final long[] mk_tokenSet_18() {
-		long[] data = { -664654778990592L, -274877435841L, 524287L, 0L, 0L, 0L};
+		long[] data = { -664654778990592L, -6463617L, 1048575L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_18 = new BitSet(mk_tokenSet_18());
 	private static final long[] mk_tokenSet_19() {
-		long[] data = { -3459745827948331008L, 63L, 0L, 0L};
+		long[] data = { 1151796154455818240L, 1024L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_19 = new BitSet(mk_tokenSet_19());
 	private static final long[] mk_tokenSet_20() {
-		long[] data = { -2306542848364773376L, 63L, 0L, 0L};
+		long[] data = { 2304998584283561984L, 4195328L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_20 = new BitSet(mk_tokenSet_20());
 	private static final long[] mk_tokenSet_21() {
-		long[] data = { 1151795604700004352L, 204800L, 524262L, 0L, 0L, 0L};
+		long[] data = { -3459710643576242176L, 803903L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_21 = new BitSet(mk_tokenSet_21());
 	private static final long[] mk_tokenSet_22() {
-		long[] data = { 4610876777869344768L, -274877440000L, 524287L, 0L, 0L, 0L};
+		long[] data = { -664654778990592L, -549753953217L, 1048575L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_22 = new BitSet(mk_tokenSet_22());
 	private static final long[] mk_tokenSet_23() {
-		long[] data = { -4611541432648335360L, 127L, 0L, 0L};
+		long[] data = { -3459745827948331008L, 1087L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_23 = new BitSet(mk_tokenSet_23());
 	private static final long[] mk_tokenSet_24() {
-		long[] data = { -4035080680344911872L, 127L, 0L, 0L};
+		long[] data = { -2306542848364773376L, 1087L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_24 = new BitSet(mk_tokenSet_24());
 	private static final long[] mk_tokenSet_25() {
-		long[] data = { -4611541432648335360L, 575L, 0L, 0L};
+		long[] data = { 1151795604700004352L, 802816L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_25 = new BitSet(mk_tokenSet_25());
 	private static final long[] mk_tokenSet_26() {
-		long[] data = { -4035080680344911872L, 575L, 0L, 0L};
+		long[] data = { 4610876777869344768L, -549753962496L, 1048575L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_26 = new BitSet(mk_tokenSet_26());
 	private static final long[] mk_tokenSet_27() {
-		long[] data = { 1151795604700004352L, 205824L, 524262L, 0L, 0L, 0L};
+		long[] data = { -4611541432648335360L, 1151L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_27 = new BitSet(mk_tokenSet_27());
 	private static final long[] mk_tokenSet_28() {
-		long[] data = { 1151795604700004352L, 2301952L, 524262L, 0L, 0L, 0L};
+		long[] data = { -4035080680344911872L, 1151L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_28 = new BitSet(mk_tokenSet_28());
 	private static final long[] mk_tokenSet_29() {
-		long[] data = { 4610876777869344768L, -274877435904L, 524287L, 0L, 0L, 0L};
+		long[] data = { -4611541432648335360L, 1599L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_29 = new BitSet(mk_tokenSet_29());
 	private static final long[] mk_tokenSet_30() {
-		long[] data = { 2305843009213693952L, 0L, 24L, 0L, 0L, 0L};
+		long[] data = { -4035080680344911872L, 1599L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_30 = new BitSet(mk_tokenSet_30());
 	private static final long[] mk_tokenSet_31() {
-		long[] data = { 4611439727822766080L, -274875320320L, 524287L, 0L, 0L, 0L};
+		long[] data = { 1151795604700004352L, 804864L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_31 = new BitSet(mk_tokenSet_31());
 	private static final long[] mk_tokenSet_32() {
-		long[] data = { 1152358554653425664L, 204800L, 524262L, 0L, 0L, 0L};
+		long[] data = { 1151795604700004352L, 9191424L, 1048524L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_32 = new BitSet(mk_tokenSet_32());
+	private static final long[] mk_tokenSet_33() {
+		long[] data = { 4610876777869344768L, -549753954304L, 1048575L, 0L, 0L, 0L};
+		return data;
+	}
+	public static final BitSet _tokenSet_33 = new BitSet(mk_tokenSet_33());
+	private static final long[] mk_tokenSet_34() {
+		long[] data = { 2305843009213693952L, 0L, 48L, 0L, 0L, 0L};
+		return data;
+	}
+	public static final BitSet _tokenSet_34 = new BitSet(mk_tokenSet_34());
+	private static final long[] mk_tokenSet_35() {
+		long[] data = { 4611439727822766080L, -549745528832L, 1048575L, 0L, 0L, 0L};
+		return data;
+	}
+	public static final BitSet _tokenSet_35 = new BitSet(mk_tokenSet_35());
+	private static final long[] mk_tokenSet_36() {
+		long[] data = { 1152358554653425664L, 802816L, 1048524L, 0L, 0L, 0L};
+		return data;
+	}
+	public static final BitSet _tokenSet_36 = new BitSet(mk_tokenSet_36());
 	
 	}
