@@ -10,7 +10,7 @@ import bluej.utility.Utility;
 import bluej.Config;
 
 /**
- ** @version $Id: JikesCompiler.java 163 1999-07-08 00:50:23Z mik $
+ ** @version $Id: JikesCompiler.java 173 1999-07-08 02:37:12Z ajp $
  ** @author Andrew Patterson
  **
  ** JikesCompiler class - an implementation for the BlueJ "Compiler"
@@ -156,17 +156,17 @@ public class JikesCompiler extends Compiler
 	    }
 	
 	    if((line = d.readLine()) != null) {
-		Debug.message("Compiler message: " + line);
+//		Debug.message("Compiler message: " + line);
 
 		if(line.indexOf("arning:") == -1) {
-		    System.out.println("Indicating error " + filename + " " + lineNo);
+//		    System.out.println("Indicating error " + filename + " " + lineNo);
 		    readerror = true;
 	
 		    watcher.errorMessage(filename, lineNo, line, true);
 		    break;
 		}
 		else {
-		    System.out.println("Ignored warning");
+//		    System.out.println("Ignored warning");
 		}
 	    }
 	    else {
