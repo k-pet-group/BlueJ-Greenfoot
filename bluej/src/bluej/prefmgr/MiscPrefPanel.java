@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1040 2001-12-10 16:35:56Z mik $
+ * @version $Id: MiscPrefPanel.java 1049 2001-12-11 16:17:05Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -48,7 +48,6 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     public static void register()
     {
         MiscPrefPanel p = new MiscPrefPanel();
-
         PrefMgrDialog.add(p, prefpaneltitle, p);
     }
 
@@ -58,47 +57,97 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     private MiscPrefPanel()
     {
 
-        JLabel editorFontTag = new JLabel(Config.getString("prefmgr.misc.editorfontsize"));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBorder(Config.generalBorder);
+
+        add(Box.createGlue());
+
+        JPanel editorPanel = new JPanel(new GridLayout(2,2));
         {
-            editorFontTag.setAlignmentX(LEFT_ALIGNMENT);
+            String editorTitle = Config.getString("prefmgr.misc.editor.title");
+            editorPanel.setBorder(BorderFactory.createCompoundBorder(
+                                        BorderFactory.createTitledBorder(editorTitle),
+                                        Config.generalBorder));
+            //editorPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+            JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+            {
+                fontPanel.add(new JLabel(Config.getString("prefmgr.misc.editorfontsize")));
+                editorFontField = new JTextField(4);
+                fontPanel.add(editorFontField);
+            }
+            editorPanel.add(fontPanel);
+
+            hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
+            editorPanel.add(hilightingBox);
+            editorPanel.add(new JLabel(" "));
+            lineNumbersBox = new JCheckBox(Config.getString("prefmgr.misc.displaylinenumbers"));
+            editorPanel.add(lineNumbersBox);
         }
+        add(editorPanel);
 
-        editorFontField = new SingleLineTextField(8);
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+
+        JPanel docPanel = new JPanel();
         {
-            editorFontField.setAlignmentX(LEFT_ALIGNMENT);
-        }
+            docPanel.setLayout(new BoxLayout(docPanel, BoxLayout.Y_AXIS));
+            String docTitle = Config.getString("prefmgr.misc.documentation.title");
+            docPanel.setBorder(BorderFactory.createCompoundBorder(
+                                        BorderFactory.createTitledBorder(docTitle),
+                                        Config.generalBorder));
+            //docPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-        hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
-        lineNumbersBox = new JCheckBox(Config.getString("prefmgr.misc.displaylinenumbers"));
+            JLabel jdkURLTag = new JLabel(Config.getString("prefmgr.misc.jdkurlpath"));
+            docPanel.add(jdkURLTag);
 
-        JLabel jdkURLTag = new JLabel(Config.getString("prefmgr.misc.jdkurlpath"));
-        {
-            jdkURLTag.setAlignmentX(LEFT_ALIGNMENT);
-        }
+            jdkURLField = new SingleLineTextField(8);
+            docPanel.add(jdkURLField);
 
-        jdkURLField = new SingleLineTextField(8);
-        {
-            jdkURLField.setAlignmentX(LEFT_ALIGNMENT);
-        }
+            docPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
 
-        linkToLibBox = new JCheckBox(Config.getString("prefmgr.misc.linkToLib"));
+            linkToLibBox = new JCheckBox(Config.getString("prefmgr.misc.linkToLib"));
+            docPanel.add(linkToLibBox);
 
-        JLabel linkToLibNoteLine1 = new JLabel(
-                            Config.getString("prefmgr.misc.linkToLibNoteLine1"));
-        Font smallFont = linkToLibNoteLine1.getFont().deriveFont(10);
-        {
-            //linkToLibNote.setAlignmentX(LEFT_ALIGNMENT);
+            docPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+
+            JLabel linkToLibNoteLine1 = new JLabel(
+                              Config.getString("prefmgr.misc.linkToLibNoteLine1"));
+            Font smallFont = linkToLibNoteLine1.getFont().deriveFont(10);
             linkToLibNoteLine1.setFont(smallFont);
-        }
+            //docPanel.add(linkToLibNoteLine1);
 
-        JLabel linkToLibNoteLine2 = new JLabel(
-                            Config.getString("prefmgr.misc.linkToLibNoteLine2"));
-        {
-            //linkToLibNote.setAlignmentX(LEFT_ALIGNMENT);
+            JLabel linkToLibNoteLine2 = new JLabel(
+                              Config.getString("prefmgr.misc.linkToLibNoteLine2"));
             linkToLibNoteLine2.setFont(smallFont);
+            //docPanel.add(linkToLibNoteLine2);
         }
+        add(docPanel);
 
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
 
+        JPanel notationPanel = new JPanel();
+        {
+            notationPanel.setLayout(new GridLayout(0,1));
+            String notationTitle = Config.getString("prefmgr.misc.notation.title");
+            notationPanel.setBorder(BorderFactory.createCompoundBorder(
+                                          BorderFactory.createTitledBorder(notationTitle),
+                                          Config.generalBorder));
+            //notationPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+            notationStyleGroup = new ButtonGroup();
+            umlRadioButton = 
+                new JRadioButton(Config.getString("prefmgr.misc.notation.uml"));
+            blueRadioButton = 
+                new JRadioButton(Config.getString("prefmgr.misc.notation.blue"));
+            umlRadioButton.setActionCommand(Graph.UML);
+            blueRadioButton.setActionCommand(Graph.BLUE);
+            notationStyleGroup.add(umlRadioButton);
+            notationStyleGroup.add(blueRadioButton);
+
+            notationPanel.add(umlRadioButton);
+            notationPanel.add(blueRadioButton);
+        }
+        add(notationPanel);
 
         /*        JPanel compilerPanel = new JPanel();
                   {
@@ -119,52 +168,6 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
                   compilerPanel.add(new SingleLineTextField(8));
                   }
         */
-
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(Config.generalBorder);
-
-        add(editorFontTag);
-        add(editorFontField);
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
-        add(hilightingBox);
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
-        add(lineNumbersBox);
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
-        add(jdkURLTag);
-        add(jdkURLField);
-        add(linkToLibBox);
-        add(linkToLibNoteLine1);
-        add(linkToLibNoteLine2);
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
-
-        JPanel notationPanel = new JPanel();
-        {
-            notationPanel.setLayout(new BoxLayout(notationPanel, BoxLayout.Y_AXIS));
-            String notationTitle = Config.getString("prefmgr.notation.title");
-            notationPanel.setBorder(BorderFactory.createCompoundBorder(
-                                                                       BorderFactory.createTitledBorder(notationTitle),
-                                                                       Config.generalBorder));
-            notationPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-            notationStyleGroup = new ButtonGroup();
-            umlRadioButton = 
-                new JRadioButton(Config.getString("prefmgr.notation.uml"));
-            blueRadioButton = 
-                new JRadioButton(Config.getString("prefmgr.notation.blue"));
-            umlRadioButton.setActionCommand(Graph.UML);
-            blueRadioButton.setActionCommand(Graph.BLUE);
-            notationStyleGroup.add(umlRadioButton);
-            notationStyleGroup.add(blueRadioButton);
-
-            notationPanel.add(umlRadioButton);
-            notationPanel.add(blueRadioButton);
-        }
-
-        add(notationPanel);
-
 
         add(Box.createGlue());
     }

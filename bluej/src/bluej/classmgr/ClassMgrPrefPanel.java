@@ -21,15 +21,15 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 682 2000-09-06 07:12:15Z ajp $
+ * @version $Id: ClassMgrPrefPanel.java 1049 2001-12-11 16:17:05Z mik $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
 {
     static final String prefpaneltitle = Config.getString("classmgr.prefpaneltitle");
 
-	private JTable userLibrariesTable = null;
-	private ClassPathTableModel userLibrariesModel = null;
+    private JTable userLibrariesTable = null;
+    private ClassPathTableModel userLibrariesModel = null;
 
     /**
      * Registers the class manager preference panel with the preferences
@@ -38,138 +38,135 @@ public class ClassMgrPrefPanel extends JPanel
     public static void register()
     {
         ClassMgrPrefPanel p = new ClassMgrPrefPanel();
-
-        PrefMgrDialog.add(p, prefpaneltitle, p);
+        //PrefMgrDialog.add(p, prefpaneltitle, p);
     }
 
-	/**
-	 * Setup the UI for the dialog and event handlers for the dialog's buttons.
-	 *
-	 * @param title the title of the dialog
-	 */
-	private ClassMgrPrefPanel()
-	{
-		Vector bootLibrariesList = new Vector(ClassMgr.getClassMgr().bootLibraries.getEntries());
-		Vector systemLibrariesList = new Vector(ClassMgr.getClassMgr().systemLibraries.getEntries());
+    /**
+     * Setup the UI for the dialog and event handlers for the dialog's buttons.
+     *
+     * @param title the title of the dialog
+     */
+    private ClassMgrPrefPanel()
+    {
+        Vector bootLibrariesList = new Vector(ClassMgr.getClassMgr().bootLibraries.getEntries());
+        Vector systemLibrariesList = new Vector(ClassMgr.getClassMgr().systemLibraries.getEntries());
 
-		// Construct a user editable table of user libraries and add/remove buttons
+        // Construct a user editable table of user libraries and add/remove buttons
 
-		JLabel userLibrariesTag = new JLabel(Config.getString("classmgr.userlibraries"));
-		{
-			userLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
-		}
+        JLabel userLibrariesTag = new JLabel(Config.getString("classmgr.userlibraries"));
+        {
+            userLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
+        }
 
-		// hold the scrolling table and the column of add/remove buttons in a row
-		JPanel lefttorightPane = new JPanel();
-		{
-			JScrollPane scrollPane = new JScrollPane();
-			{
+        // hold the scrolling table and the column of add/remove buttons in a row
+        JPanel userLibPane = new JPanel(new BorderLayout());
+        {
+            JScrollPane scrollPane = new JScrollPane();
+            {
 				// table of user library classpath entries
-				userLibrariesModel = new ClassPathTableModel(ClassMgr.getClassMgr().userLibraries);
-				userLibrariesTable = new JTable(userLibrariesModel);
-				{
-					userLibrariesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				}
+                userLibrariesModel = new ClassPathTableModel(ClassMgr.getClassMgr().userLibraries);
+                userLibrariesTable = new JTable(userLibrariesModel);
+                String locationColumnName = userLibrariesTable.getColumnName(0);
+                TableColumn locationColumn = userLibrariesTable.getColumn(locationColumnName);
+                locationColumn.setPreferredWidth(280);
+                {
+                    userLibrariesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    userLibrariesTable.setPreferredScrollableViewportSize(new Dimension(400, 100));
+                }
 
-				scrollPane.setAlignmentY(TOP_ALIGNMENT);
-				scrollPane.setViewportView(userLibrariesTable);
-			}
+                scrollPane.setAlignmentY(TOP_ALIGNMENT);
+                scrollPane.setViewportView(userLibrariesTable);
+            }
 
-			// hold the two Add and Delete buttons in a column
-			JPanel toptobottomPane = new JPanel();
-			{
-				toptobottomPane.setLayout(new BoxLayout(toptobottomPane, BoxLayout.Y_AXIS));
-				toptobottomPane.setAlignmentY(TOP_ALIGNMENT);
+            // hold the two Add and Delete buttons in a column
+            JPanel buttonPane = new JPanel();
+            {
+                buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.Y_AXIS));
+                buttonPane.setAlignmentY(TOP_ALIGNMENT);
 
-				JButton addButton = new JButton(Config.getString("classmgr.add"));
-				{
-					addButton.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							addUserLibrary();
-    					}
-					});
-				}
-				JButton deleteButton = new JButton(Config.getString("classmgr.delete"));
-				{
-					deleteButton.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							deleteUserLibrary();
-						}
-					});
-				}
+                JButton addButton = new JButton(Config.getString("classmgr.add"));
+                {
+                    addButton.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                addUserLibrary();
+                            }
+                        });
+                }
+                JButton deleteButton = new JButton(Config.getString("classmgr.delete"));
+                {
+                    deleteButton.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                deleteUserLibrary();
+                            }
+                        });
+                }
 
-				toptobottomPane.add(addButton);
-				toptobottomPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
-				toptobottomPane.add(deleteButton);
+                buttonPane.add(addButton);
+                buttonPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+                buttonPane.add(deleteButton);
+            }
 
-				// allow the Add and Delete buttons to be resized to equal width
-				addButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-								addButton.getPreferredSize().height));
-				deleteButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-								deleteButton.getPreferredSize().height));
-			}
+            userLibPane.setAlignmentX(LEFT_ALIGNMENT);
 
-			lefttorightPane.setLayout(new BoxLayout(lefttorightPane, BoxLayout.X_AXIS));
-			lefttorightPane.setAlignmentX(LEFT_ALIGNMENT);
+            userLibPane.add(scrollPane, BorderLayout.CENTER);
+            userLibPane.add(buttonPane, BorderLayout.EAST);
+        }
 
-			lefttorightPane.add(scrollPane);
-			lefttorightPane.add(Box.createHorizontalStrut(Config.generalSpacingWidth));
-			lefttorightPane.add(toptobottomPane);
-		}
+        // Construct a list of system libraries
 
-		// Construct a list of system libraries
+        JScrollPane systemLibrariesScrollPane = new JScrollPane();
+        {
+            JList list = new JList();
+            {
+                list.setListData(systemLibrariesList);
+                list.setCellRenderer(new ClassMgrCellRenderer());
+                list.setEnabled(false);
+                list.setVisibleRowCount(3);
+            }
 
-		JScrollPane systemLibrariesScrollPane = new JScrollPane();
-		{
-			JList list = new JList();
-			{
-				list.setListData(systemLibrariesList);
-				list.setCellRenderer(new ClassMgrCellRenderer());
-				list.setEnabled(false);
-			}
+            systemLibrariesScrollPane.setViewportView(list);
+            systemLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
+        }
 
-			systemLibrariesScrollPane.setViewportView(list);
-			systemLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
-		}
+        JLabel systemLibrariesTag = new JLabel(Config.getString("classmgr.systemlibraries"));
+        {
+            systemLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
+            systemLibrariesTag.setLabelFor(systemLibrariesScrollPane);
+        }
 
-		JLabel systemLibrariesTag = new JLabel(Config.getString("classmgr.systemlibraries"));
-		{
-			systemLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
-			systemLibrariesTag.setLabelFor(systemLibrariesScrollPane);
-		}
+        // Construct a list of boot libraries
 
-		// Construct a list of boot libraries
+        JScrollPane bootLibrariesScrollPane = new JScrollPane();
+        {
+            JList list = new JList();
+            {
+                list.setListData(bootLibrariesList);
+                list.setCellRenderer(new ClassMgrCellRenderer());
+                list.setEnabled(false);
+                list.setVisibleRowCount(4);
+            }
 
-		JScrollPane bootLibrariesScrollPane = new JScrollPane();
-		{
-			JList list = new JList();
-			{
-				list.setListData(bootLibrariesList);
-				list.setCellRenderer(new ClassMgrCellRenderer());
-				list.setEnabled(false);
-			}
+            bootLibrariesScrollPane.setViewportView(list);
+            bootLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
+        }
 
-			bootLibrariesScrollPane.setViewportView(list);
-			bootLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
-		}
+        JLabel bootLibrariesTag = new JLabel(Config.getString("classmgr.bootlibraries"));
+        {
+            bootLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
+            bootLibrariesTag.setLabelFor(bootLibrariesScrollPane);
+        }
 
-		JLabel bootLibrariesTag = new JLabel(Config.getString("classmgr.bootlibraries"));
-		{
-			bootLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
-			bootLibrariesTag.setLabelFor(bootLibrariesScrollPane);
-		}
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBorder(Config.generalBorder);
 
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		setBorder(Config.generalBorder);
-
-		add(userLibrariesTag);
-		add(lefttorightPane);
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
-		add(systemLibrariesTag);
-		add(systemLibrariesScrollPane);
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
-		add(bootLibrariesTag);
-		add(bootLibrariesScrollPane);
+        add(userLibrariesTag);
+        add(userLibPane);
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(systemLibrariesTag);
+        add(systemLibrariesScrollPane);
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(bootLibrariesTag);
+        add(bootLibrariesScrollPane);
     }
 
     public void beginEditing()
@@ -178,54 +175,54 @@ public class ClassMgrPrefPanel extends JPanel
 
     public void revertEditing()
     {
-		userLibrariesModel.revertEntries();
+        userLibrariesModel.revertEntries();
     }
 
     public void commitEditing()
     {
-		userLibrariesModel.commitEntries();
+        userLibrariesModel.commitEntries();
 
-		ClassMgr.getClassMgr().saveUserLibraries();
+        ClassMgr.getClassMgr().saveUserLibraries();
     }
 
-	/**
-	 * Pop up a dialog to allow the user to add a library
-	 * to their user library classpath.
-	 **/
-	private void addUserLibrary()
-	{
-		// when adding a new library,
-		// ask the user to select the file or directory
-		JFileChooser chooser = new JFileChooser();
-		{
-			// LibraryFileFilter is a private class defined below
-			chooser.setFileFilter(new LibraryFileFilter());
-			// files for archive libraries, directories for library trees
-			chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-			chooser.setDialogTitle("Select directory or jar/zip file");
-			int returnVal = chooser.showOpenDialog(getParent());
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				String librarylocation = chooser.getSelectedFile().getAbsolutePath();
+    /**
+     * Pop up a dialog to allow the user to add a library
+     * to their user library classpath.
+     **/
+    private void addUserLibrary()
+    {
+        // when adding a new library,
+        // ask the user to select the file or directory
+        JFileChooser chooser = new JFileChooser();
+        {
+            // LibraryFileFilter is a private class defined below
+            chooser.setFileFilter(new LibraryFileFilter());
+            // files for archive libraries, directories for library trees
+            chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            chooser.setDialogTitle("Select directory or jar/zip file");
+            int returnVal = chooser.showOpenDialog(getParent());
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                String librarylocation = chooser.getSelectedFile().getAbsolutePath();
 
-				userLibrariesModel.addEntry(new ClassPathEntry(librarylocation,""));
+                userLibrariesModel.addEntry(new ClassPathEntry(librarylocation,""));
 
-				DialogManager.showMessage(null, "classmgr-changes-no-effect");
-			}
-		}
-	}
+                DialogManager.showMessage(null, "classmgr-changes-no-effect");
+            }
+        }
+    }
 
-	/**
-	 * Delete the currently selected row (if there is one)
-	 * of the user library table from the user library
-	 * classpath.
-	 */
-	private void deleteUserLibrary()
-	{
-		int which = userLibrariesTable.getSelectedRow();
+    /**
+     * Delete the currently selected row (if there is one)
+     * of the user library table from the user library
+     * classpath.
+     */
+    private void deleteUserLibrary()
+    {
+        int which = userLibrariesTable.getSelectedRow();
 
-		if(which != -1)
-			userLibrariesModel.deleteEntry(which);
-	}
+        if(which != -1)
+            userLibrariesModel.deleteEntry(which);
+    }
 }
 
 /**
