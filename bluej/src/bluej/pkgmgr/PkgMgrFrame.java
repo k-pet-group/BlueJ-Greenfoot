@@ -1011,12 +1011,6 @@ implements BlueJEventListener
                 }
         });
 
-        // workaround for AWT cursor bug to show WAIT_CURSOR with Swing components
-        //Component glass = getGlassPane();
-        //glass.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        //glass.addMouseListener(new MouseAdapter() {
-        //    public void mousePressed(MouseEvent e) {}
-        //});
 
         // grey out certain functions if package not open.
         if(pkg.getDirName() == noTitle)

@@ -22,7 +22,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 387 2000-02-04 06:16:32Z mik $
+ ** @version $Id: PkgFrame.java 397 2000-02-24 03:40:40Z bquig $
  **/
 public abstract class PkgFrame extends JFrame
 
@@ -239,7 +239,6 @@ implements ActionListener, ItemListener
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         else
             setCursor(Cursor.getDefaultCursor());
-        //        getGlassPane().setVisible(wait);
     }
 
     /**
