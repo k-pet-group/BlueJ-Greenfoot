@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2670 2004-06-28 11:54:13Z polle $
+ * @version $Id: PkgMgrFrame.java 2683 2004-06-29 10:54:34Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2073,22 +2073,22 @@ public class PkgMgrFrame extends JFrame
                 ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
     
                 action = NewClassAction.getInstance(); 
-                AbstractButton button = createButton(action, false, false, 2, 4);
+                AbstractButton button = createButton(action, false, false, 4, 4);
                 buttonPanel.add(button);
                 buttonPanel.add(Box.createVerticalStrut(3));
         
                 action = NewUsesAction.getInstance(); 
-                imgDependsButton = createButton(action, true, false, 2, 4);
+                imgDependsButton = createButton(action, true, false, 4, 4);
                 buttonPanel.add(imgDependsButton);
                 buttonPanel.add(Box.createVerticalStrut(3));
     
                 action = NewInheritsAction.getInstance(); 
-                imgExtendsButton = createButton(action, true, false, 2, 4);
+                imgExtendsButton = createButton(action, true, false, 4, 4);
                 buttonPanel.add(imgExtendsButton);
                 buttonPanel.add(Box.createVerticalStrut(3));
     
                 action = CompileAction.getInstance(); 
-                button = createButton(action, false, false, 2, 4);
+                button = createButton(action, false, false, 4, 4);
                 buttonPanel.add(button);
 				buttonPanel.add(Box.createVerticalStrut(3));
 

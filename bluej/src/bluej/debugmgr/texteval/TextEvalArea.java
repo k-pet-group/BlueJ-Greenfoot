@@ -29,7 +29,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2676 2004-06-28 19:28:38Z mik $
+ * @version $Id: TextEvalArea.java 2683 2004-06-29 10:54:34Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -44,6 +44,7 @@ public final class TextEvalArea extends JScrollPane
     private Invoker invoker = null;
     private boolean firstTry;
     private IndexHistory history;
+    private TextCommands commands;
     
     /**
      * Create a new text area with given size.
@@ -72,6 +73,7 @@ public final class TextEvalArea extends JScrollPane
         setPreferredSize(new Dimension(200,100));
         
         history = new IndexHistory(20);
+        commands = TextCommands.getInstance();
     }
 
     /**
@@ -139,7 +141,7 @@ public final class TextEvalArea extends JScrollPane
     //   --- end of ResultWatcher interface ---
 
 
-    private void output(String s)
+    public void output(String s)
     {
         try {
             doc.insertString(doc.getLength(), s, null);
@@ -150,7 +152,7 @@ public final class TextEvalArea extends JScrollPane
         }
     }
     
-    private void error(String s)
+    public void error(String s)
     {
         try {
             doc.insertString(doc.getLength(), "Error: " + s, null);
@@ -319,10 +321,12 @@ public final class TextEvalArea extends JScrollPane
             if(currentCommand.trim().length() != 0) {
                        
                 history.add(line);
-                firstTry = true;
-                invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
                 append("\n ");      // ensure space at the beginning of every line, because
                                     // line properties do not work otherwise
+                if(! commands.evalMetaCommand(line, TextEvalArea.this)) {
+                    firstTry = true;
+                    invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
+                }
             }
             else {
                 markAs(MoeSyntaxView.OUTPUT);
