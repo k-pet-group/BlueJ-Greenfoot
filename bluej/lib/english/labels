@@ -314,9 +314,10 @@ pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.inspect=Inspect
 pkgmgr.classmenu.remove=Remove
 
-pkgmgr.view.label=View
-pkgmgr.view.usesLabel=Uses
-pkgmgr.view.inheritLabel=Inheritance
+pkgmgr.test.label=Testing
+pkgmgr.test.record=recording:
+pkgmgr.test.run=Run Tests
+pkgmgr.test.end=End
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Create New Class
@@ -505,7 +506,7 @@ menu.edit.removeArrow=Remove Arrow...
 
 menu.tools=Tools
 menu.tools.compile=Compile
-menu.tools.test=Test
+menu.tools.test=Run Tests
 menu.tools.compileSelected=Compile Selected
 menu.tools.rebuild=Rebuild Package
 menu.tools.callLibrary=Use Library Class...

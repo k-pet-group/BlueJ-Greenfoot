@@ -382,13 +382,15 @@ image.build.extends=darrow_black.gif
 image.build.extends.uml=darrow_black_uml.gif
 image.build.extends.selected=darrow_red.gif
 
-image.objectviewer.object=objectIcon.gif
-image.objectviewer.blank=objectIcon_blank.gif
+image.test.recording=record.gif
 
 # the machine indicator
 image.working=working.gif
 image.working.disab=working-disab.gif
 image.working.stopped=working-stopped.gif
+
+image.objectviewer.object=objectIcon.gif
+image.objectviewer.blank=objectIcon_blank.gif
 
 # editor breakpoint and step mark
 image.breakmark=break.gif
