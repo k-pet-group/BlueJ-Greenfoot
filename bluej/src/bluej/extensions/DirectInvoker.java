@@ -1,12 +1,11 @@
 package bluej.extensions;
 
-import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.ExpressionInformation;
-import bluej.debugmgr.Invoker;
-import bluej.debugmgr.ResultWatcher;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.testmgr.record.InvokerRecord;
-import bluej.views.CallableView;
+import bluej.debugger.*;
+import bluej.debugmgr.*;
+import bluej.debugmgr.objectbench.*;
+import bluej.pkgmgr.*;
+import bluej.testmgr.record.*;
+import bluej.views.*;
 
 /**
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
@@ -14,7 +13,7 @@ import bluej.views.CallableView;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 2776 2004-07-09 19:02:19Z damiano $
+ * @version    $Id: DirectInvoker.java 2783 2004-07-12 09:56:31Z damiano $
  */
 
 class DirectInvoker
@@ -83,7 +82,7 @@ class DirectInvoker
      * @exception  InvocationArgumentException  Thrown if the arglist is not consistent with the signature
      * @exception  InvocationErrorException     Thrown if there is a system error
      */
-    DebuggerObject invokeMethod(String onThisObjectInstance, Object[] args)
+    DebuggerObject invokeMethod(ObjectWrapper onThisObjectInstance, Object[] args)
              throws InvocationArgumentException, InvocationErrorException
     {
         if (!paramsAlmostMatch(args, callable.getParameters())) {

@@ -1,12 +1,14 @@
 package bluej.extensions;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.MethodView;
+import bluej.views.View;
+import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ReferenceType;
 import java.lang.reflect.Modifier;
-import bluej.views.*;
-
-import com.sun.jdi.*;
-import bluej.pkgmgr.*;
 
 /**
  * A wrapper for a method of a BlueJ class.
@@ -17,7 +19,7 @@ import bluej.pkgmgr.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1985 2003-05-23 09:39:10Z damiano $
+ * @version $Id: BMethod.java 2783 2004-07-12 09:56:31Z damiano $
  */
 
 /*
@@ -126,13 +128,13 @@ public class BMethod
         throws ProjectNotOpenException, PackageNotFoundException, 
                InvocationArgumentException, InvocationErrorException
         {
-        String instanceName=null;
+        ObjectWrapper instanceWrapper=null;
         // If it is a method call on a live object get the identifier for it.
-        if ( onThis != null ) instanceName = onThis.getInstanceName();
+        if ( onThis != null ) instanceWrapper = onThis.getObjectWrapper();
         
         PkgMgrFrame  pkgFrame = parentId.getPackageFrame();
         DirectInvoker invoker = new DirectInvoker (pkgFrame, bluej_view );
-        DebuggerObject result = invoker.invokeMethod (instanceName, params);
+        DebuggerObject result = invoker.invokeMethod (instanceWrapper, params);
 
         // Result can be null if the method returns void. It is Reflection standard
         if (result == null) return null;
