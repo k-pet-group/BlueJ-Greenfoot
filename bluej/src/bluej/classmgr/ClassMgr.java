@@ -22,7 +22,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2156 2003-08-06 10:31:25Z mik $
+ * @version $Id: ClassMgr.java 2160 2003-08-06 10:50:19Z mik $
  */
 public class ClassMgr
 {
@@ -114,18 +114,21 @@ public class ClassMgr
 
 //        String syscp = System.getProperty("sun.boot.class.path");
         String bootcp = Boot.getInstance().getRuntimeClassPathString();
-        String syscp = Boot.getInstance().getRuntimeClassPathString();
         String envcp = System.getProperty("java.class.path");
 
-        if (syscp == null) {        // pre JDK1.2
+        if (bootcp == null) {        // pre JDK1.2
             Debug.message(errormissingbootclasspath);
         } 
         else if (envcp == null) {    // no classpath
             Debug.message(errormissingclasspath);
         }
 
+        // The following should be fixed: we enter all jars as boot and system class paths.
+        // Really they should be either one (most boot, but junit needs to be system, it seems... 
+        // investigate!
         bootLibraries = new ClassPath(bootcp, "");
-        //systemLibraries = new ClassPath(syscp, "");
+        systemLibraries = new ClassPath(bootcp, "");
+
         /* XXX we should add here the boot libraries which are in the JDK extension
            directory */
         //System.getProperty("java.ext.dirs");
