@@ -34,7 +34,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 2843 2004-08-06 00:01:41Z davmac $
+ * @version $Id: JdiDebugger.java 2914 2004-08-20 00:40:01Z bquig $
  */
 public class JdiDebugger extends Debugger
 {
@@ -422,23 +422,34 @@ public class JdiDebugger extends Debugger
         }
 
         // the returned array consists of double the number of fields created by
-        // running test setup
+        // running test setup plus one extra slot
         // they alternate, fieldname, fieldvalue, fieldname, fieldvalue
         // ie.
         // arrayRef[0] = a field name 0 (StringReference)
         // arrayRef[1] = a field value 0 (ObjectReference)
         // arrayRef[2] = a field name 1 (StringReference)
         // arrayRef[3] = a field value 1 (ObjectReference)
-        //
+        // with the last slot being reserved for the ObjectReference of the actual 
+        // test object. This is used to extract (potentially generic) fields.
         // we could return a Map from RUN_TEST_SETUP but then we'd have to use
         // JDI
         // reflection to make method calls on Map in order to extract the values
         Map returnMap = new HashMap();
-
+        // The test case object
+        ObjectReference testObject = (ObjectReference)arrayRef.getValue(arrayRef.length()-1);
+        // get the associated JdiObject so that we can get potentially generic fields 
+        // from the test case.
+        JdiObject jdiTestObject = JdiObject.getDebuggerObject(testObject);
+         
         if (arrayRef != null) {
-            for (int i = 0; i < arrayRef.length(); i += 2)
-                returnMap.put(((StringReference) arrayRef.getValue(i)).value(), JdiObject
-                        .getDebuggerObject((ObjectReference) arrayRef.getValue(i + 1)));
+        	// last slot in array is test case object so it does not get touched here
+        	// our iteration boundary is therefore one less than array length
+            for (int i = 0; i < arrayRef.length() - 1; i += 2) {
+                String fieldName = ((StringReference) arrayRef.getValue(i)).value();
+                Field testField = testObject.referenceType().fieldByName(fieldName);            
+                returnMap.put(fieldName, JdiObject
+                        .getDebuggerObject((ObjectReference) arrayRef.getValue(i + 1), testField, jdiTestObject));
+            }
         }
 
         // the resulting map consists of entries (String fieldName, JdiObject
