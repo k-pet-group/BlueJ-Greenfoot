@@ -27,6 +27,7 @@ import java.awt.datatransfer.*;
 import java.awt.Event;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
@@ -308,6 +309,44 @@ public final class MoeActions
 
 
     /**
+     * Called at every insertion of text into the document.
+     */
+    public void textInsertAction(DocumentEvent evt)
+    {
+        try {
+            if(evt.getLength() == 1) {  // single character inserted
+                Document doc = evt.getDocument();
+                int offset = evt.getOffset();
+                char ch = doc.getText(offset, 1).charAt(0);
+                
+                // 'ch' is the character that was just typed
+                // currently, the only character upon which we act is the closing brace ('}')
+                
+                if(ch == '}' ) {
+                    closingBrace(doc, offset);
+                }
+            }
+        }
+        catch(BadLocationException e) {}
+    }
+
+    private void closingBrace(Document doc, int offset)
+        throws BadLocationException
+    {
+        if(offset < tabSize)
+            return;
+        
+        String text = doc.getText(offset-tabSize, tabSize);
+
+        int spaceCount = 0;
+        int i = text.length() -1;
+        while((i >= 0) && (text.charAt(i--) == ' '))
+            spaceCount++;
+    
+        doc.remove(offset-spaceCount, spaceCount);
+    }
+    
+    /**
      *  Get a keystroke for an action by action name. Return null is there
      *  is none.
      */
@@ -320,7 +359,9 @@ public final class MoeActions
     //  	else
     //  	    return null;
     //      }
+
     // ============================ USER ACTIONS =============================
+
 
     abstract class MoeAbstractAction extends TextAction {
 
@@ -1027,6 +1068,8 @@ public final class MoeActions
         int pos = textPane.getCaretPosition();
  
         try {
+            boolean isOpenBrace=false;
+            boolean isCommentEnd=false, isCommentEndOnly=false;
 
             // if there is any text before the cursor, just insert a tab
 
@@ -1042,9 +1085,14 @@ public final class MoeActions
             int prevLineStart = prevline.getStartOffset();
             int prevLineEnd = prevline.getEndOffset();
             String lineText = doc.getText(prevLineStart, prevLineEnd-prevLineStart);
-            boolean commentEnd = lineText.trim().endsWith("*/");
-            boolean commentEndOnly = lineText.trim().equals("*/");
-            int indentPos = findFirstNonIndentChar(lineText, commentEnd);
+            if(isOpenBrace(lineText))
+                isOpenBrace = true;
+            else {
+                isCommentEnd = lineText.trim().endsWith("*/");
+                isCommentEndOnly = lineText.trim().equals("*/");
+            }
+            
+            int indentPos = findFirstNonIndentChar(lineText, isCommentEnd);
 
             // if the cursor is already past the indentation point, insert tab
             // (unless we just did a line break, then we just stop)
@@ -1064,11 +1112,26 @@ public final class MoeActions
             lineText = doc.getText(lineStart, lineEnd-lineStart);
             indentPos = findFirstNonIndentChar(lineText, true);
             doc.remove(lineStart, indentPos);
-            doc.insertString(lineStart, nextIndent(indent, commentEndOnly), null);
+            doc.insertString(lineStart, 
+                             nextIndent(indent, isOpenBrace, isCommentEndOnly), 
+                             null);
         }
         catch (BadLocationException exc) {}
     }
 
+
+    /**
+     * Check whether the given line ends with an opening brace.
+     */ 
+    private boolean isOpenBrace(String s)
+    {
+        int index = s.lastIndexOf('{');
+        if(index == -1)
+            return false;
+        
+        return s.indexOf('}', index+1) == -1;
+    }
+    
     /**
      * Find the position of the first non-indentation character in a string.
      * Indentation characters are <whitespace>, //, *, /*, /**.
@@ -1104,8 +1167,12 @@ public final class MoeActions
      *  after " / * *" follows "  *"
      *  after " * /" follows ""
      */
-    private String nextIndent(String s, boolean commentEndOnly)
+    private String nextIndent(String s, boolean openBrace, boolean commentEndOnly)
     {
+        // after an opening brace, add some spaces to the indentation
+        if(openBrace)
+            return s + spaces.substring(0, tabSize);
+
         if(commentEndOnly)
             return s.substring(0, s.length() - 1);
 

@@ -160,6 +160,8 @@ public final class MoeEditor extends JFrame
    
     private MoePrinter printer;
 
+    private TextInsertNotifier doTextInsert = new TextInsertNotifier();
+    
     // =========================== NESTED CLASSES ===========================
 
     // inner class for listening for undoable edits in text
@@ -622,6 +624,8 @@ public final class MoeEditor extends JFrame
             setChanged();
         }
         actions.userAction();
+        doTextInsert.setEvent(e);
+        SwingUtilities.invokeLater(doTextInsert);
     }
 
     // remove from document
@@ -1982,6 +1986,8 @@ public final class MoeEditor extends JFrame
 
     }
 
+    // --------------------------------------------------------------------
+
     /**
      * inner class for loading HTML documentation
      */
@@ -2033,5 +2039,16 @@ public final class MoeEditor extends JFrame
 
     }
 
+    // --------------------------------------------------------------------
+
+    class TextInsertNotifier implements Runnable {
+        private DocumentEvent evt;
+        public void setEvent(DocumentEvent e) {
+            evt = e;
+        }
+        public void run() {
+            actions.textInsertAction(evt);
+        }
+    }
 
 } // end class MoeEditor
