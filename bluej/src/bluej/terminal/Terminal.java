@@ -23,7 +23,7 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1229 2002-04-19 14:17:18Z mik $
+ * @version $Id: Terminal.java 1269 2002-07-02 12:22:30Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -65,8 +65,11 @@ public final class Terminal extends JFrame
     private JScrollPane errorScrollPane;
     private boolean isActive = false;
     private boolean recordMethodCalls = false;
+    private boolean clearOnMethodCall = false;
+    private boolean newMethodCall = false;
     private InputBuffer buffer;
 
+    private JCheckBoxMenuItem autoClear;
     private JCheckBoxMenuItem recordCalls;
     private JCheckBoxMenuItem unlimitedBuffering;
 
@@ -104,7 +107,6 @@ public final class Terminal extends JFrame
     {
         setVisible(doShow);
         if(doShow) {
-            setState(Frame.NORMAL);  // de-iconify / de-minimize
             text.requestFocus();
         }
     }
@@ -185,18 +187,21 @@ public final class Terminal extends JFrame
 
 
     /**
-     * Write some text to the terminal.
+     * Write some text to error output.
      */
     private void writeToErrorOut(String s)
     {
-        // FIX
-        text.append(s);
-        text.setCaretPosition(text.getDocument().getLength());
+        if(!errorScrollPane.isVisible()) {
+            errorScrollPane.setVisible(true);
+            pack();
+        }
+        errorText.append(s);
+        errorText.setCaretPosition(errorText.getDocument().getLength());
     }
 
 
     /**
-     * Write a character to the terminal.
+     * Write a character to error output.
      */
     private void writeToErrorOut(char ch)
     {
@@ -225,8 +230,36 @@ public final class Terminal extends JFrame
      */
     private void prepare()
     {
-        if(!isShown())
+        if(newMethodCall) {   // prepare only once per method call
             showTerminal(true);
+            newMethodCall = false;
+        }
+    }
+
+    /**
+     * An interactive method call has been made by a user.
+     */
+    private void methodCall(String callString)
+    {
+        newMethodCall = false;
+        if(clearOnMethodCall) {
+            clear();
+        }
+        if(recordMethodCalls) {
+            try {
+                if(text.getCaretPosition() !=
+                   text.getLineStartOffset(text.getLineCount())) {
+                    writeToTerminal("\n");
+                }
+            }
+            catch(BadLocationException exc) {
+                writeToTerminal("\n");
+            }
+            writeToTerminal("[ ");
+            writeToTerminal(callString);
+            writeToTerminal(" ]\n");
+        }
+        newMethodCall = true;
     }
 
 
@@ -321,20 +354,7 @@ public final class Terminal extends JFrame
     public void blueJEvent(int eventId, Object arg)
     {
         if(eventId == BlueJEvent.METHOD_CALL) {
-            if(recordMethodCalls) {
-                try {
-                    if(text.getCaretPosition() !=
-                         text.getLineStartOffset(text.getLineCount())) {
-                        writeToTerminal("\n");
-                    }
-                }
-                catch(BadLocationException exc) {
-                    writeToTerminal("\n");
-                }
-                writeToTerminal("[ ");
-                writeToTerminal((String)arg);
-                writeToTerminal(" ]\n");
-            }
+            methodCall((String)arg);
         }
     }
 
@@ -383,17 +403,13 @@ public final class Terminal extends JFrame
                                                    SHORTCUT_MASK));
         menu.add(new JSeparator());
 
-      // the following should be replaced once jdk 1.2.x goes out of fashion.
-      // as of 1.3, the JCheckBoxMenuItem can be created with an action
-      // parameter directly
-        recordCalls = new JCheckBoxMenuItem(
-                                     Config.getString("terminal.recordCalls"));
-        recordCalls.addActionListener(new RecordCallAction());
+        autoClear = new JCheckBoxMenuItem(new AutoClearAction());
+        menu.add(autoClear);
+
+        recordCalls = new JCheckBoxMenuItem(new RecordCallAction());
         menu.add(recordCalls);
 
-        unlimitedBuffering = new JCheckBoxMenuItem(
-                                     Config.getString("terminal.buffering"));
-        unlimitedBuffering.addActionListener(new BufferAction());
+        unlimitedBuffering = new JCheckBoxMenuItem(new BufferAction());
         menu.add(unlimitedBuffering);
 
         menu.add(new JSeparator());
@@ -470,6 +486,18 @@ public final class Terminal extends JFrame
                 return textActions[i];
 
         return null;
+    }
+
+    private class AutoClearAction extends AbstractAction
+    {
+        public AutoClearAction()
+        {
+            super(Config.getString("terminal.clearScreen"));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            clearOnMethodCall = autoClear.isSelected();
+        }
     }
 
     private class RecordCallAction extends AbstractAction
