@@ -5,7 +5,8 @@ import bluej.Config;
 import java.awt.*;
 import java.io.*;
 import java.util.Random;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -17,7 +18,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1367 2002-10-11 14:19:56Z mik $
+ * @version $Id: Utility.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class Utility
 {
@@ -111,32 +112,6 @@ public class Utility
         g.setClip(oldClip);
     }
 
-    protected static void swap(Object[] arr, int i, int j)
-    {
-        Object tmp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp;
-    }
-
-    public static void quicksort(Comparer c, Object[] arr, int left, int right)
-    {
-        int i, last;
-
-        if(left >= right)	// we're done here
-            return;
-
-        swap(arr, left, (left + right) / 2);
-        last = left;
-        for(i = left + 1; i <= right; i++) {
-            if(c.cmp(arr[i], arr[left]) < 0)
-                swap(arr, ++last, i);
-        }
-        swap(arr, left, last);
-
-        quicksort(c, arr, left, last - 1);
-        quicksort(c, arr, last + 1, right);
-    }
-
     /**
      ** Splits "string" by "Delimiter"
      ** @param str - the string to be split
@@ -145,7 +120,7 @@ public class Utility
      **/
     public static String[] split(String str, String delimiter)
     {
-        Vector strings = new Vector();
+        List strings = new ArrayList();
         int	start = 0;
         int len = str.length();
         int dlen = delimiter.length();
@@ -171,15 +146,15 @@ public class Utility
         do {
             // Get the new Offset
             offset = str.indexOf(delimiter,start);
-            strings.addElement(str.substring(start,offset));
+            strings.add(str.substring(start,offset));
 
             // Get the new Start position
             start = offset + dlen;
         } while ((start < len) && (offset != -1));
 
-        // Convert the Vector into an Array of Strings
+        // Convert the list into an Array of Strings
         String result[] = new String[strings.size()];
-        strings.copyInto(result);
+        strings.toArray(result);
         return result;
     }
 

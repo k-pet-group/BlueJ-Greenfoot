@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 import java.io.*;
-import java.util.Vector;
 
 import bluej.Config;
 import bluej.utility.Debug;
@@ -16,7 +15,7 @@ import bluej.utility.Debug;
 /**
  * 
  * @author Andrew Patterson
- * @version $Id: PrefPanelListener.java 262 1999-09-28 10:45:36Z ajp $
+ * @version $Id: PrefPanelListener.java 1418 2002-10-18 09:38:56Z mik $
  */
 public interface PrefPanelListener
 {

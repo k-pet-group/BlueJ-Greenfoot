@@ -8,7 +8,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.beans.*;
 import java.io.File;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import bluej.utility.DialogManager;
 import bluej.utility.filefilter.*;
 
@@ -22,7 +23,7 @@ import bluej.utility.filefilter.*;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooser.java 964 2001-07-05 04:00:51Z ajp $
+ * @version $Id: PackageChooser.java 1418 2002-10-18 09:38:56Z mik $
  */
 class PackageChooser extends JFileChooser
 {
@@ -109,7 +110,7 @@ class PackageChooser extends JFileChooser
             int maxDisplay = 3;
             File subDirs[] = displayDir.listFiles(new DirectoryFilter());
             File srcFiles[] = displayDir.listFiles(new JavaSourceFilter());
-            Vector listVec = new Vector();
+            List listVec = new ArrayList();
 
             // headerLines is 3
             listVec.add(previewLine1);
@@ -154,7 +155,7 @@ class PackageChooser extends JFileChooser
                 }
             }
 
-            setListData(listVec);
+            setListData(listVec.toArray());
         }
 
         class MyListRenderer extends DefaultListCellRenderer

@@ -9,15 +9,12 @@
 
 package bluej.editor;
 
-import java.util.Vector;
-import java.util.Enumeration;
-
 /**
  * Interface between an editor and the rest of BlueJ
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Editor.java 1094 2002-01-15 11:14:19Z mik $
+ * @version $Id: Editor.java 1418 2002-10-18 09:38:56Z mik $
  */
 public interface Editor
 {

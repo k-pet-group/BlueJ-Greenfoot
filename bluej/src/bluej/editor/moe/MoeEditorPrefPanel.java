@@ -16,7 +16,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 import java.io.*;
-import java.util.Vector;
 
 import bluej.Config;
 import bluej.utility.Debug;
@@ -28,7 +27,7 @@ import bluej.prefmgr.*;
 * archive) with an associated description.
 * 
 * @author Andrew Patterson
-* @version $Id: MoeEditorPrefPanel.java 999 2001-10-24 15:31:05Z mik $
+* @version $Id: MoeEditorPrefPanel.java 1418 2002-10-18 09:38:56Z mik $
 */
 public class MoeEditorPrefPanel extends JPanel implements PrefPanelListener {
 

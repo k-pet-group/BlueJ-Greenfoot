@@ -16,9 +16,6 @@ import javax.swing.*;		// all the GUI components
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.Enumeration;
 import java.util.Properties;
 
 import bluej.Config;

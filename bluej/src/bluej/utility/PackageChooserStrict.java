@@ -8,7 +8,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.beans.*;
 import java.io.File;
-import java.util.Vector;
 import bluej.utility.DialogManager;
 import bluej.utility.filefilter.*;
 
@@ -24,7 +23,7 @@ import bluej.utility.filefilter.*;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooserStrict.java 899 2001-05-23 04:27:53Z ajp $
+ * @version $Id: PackageChooserStrict.java 1418 2002-10-18 09:38:56Z mik $
  */
 class PackageChooserStrict extends PackageChooser
 {

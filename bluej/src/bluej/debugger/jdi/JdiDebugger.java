@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1295 2002-08-01 10:58:17Z mik $
+ * @version $Id: JdiDebugger.java 1418 2002-10-18 09:38:56Z mik $
  *
  * The startup process is as follows:
  *
@@ -965,28 +965,27 @@ public final class JdiDebugger extends Debugger
     }
 
     /**
-     * List all the threads being debugged as a Vector containing elements
+     * List all the threads being debugged as a list containing elements
      * of type DebuggerThread. Filter out threads that belong to system,
      * returning only user threads. This can be done only if the machine
      * is currently suspended.
      *
-     * @return  A vector of threads (type JdiThread), or null if the machine
+     * @return  A list of threads (type JdiThread), or null if the machine
      *		is currently running
      */
-    public Vector listThreads()
+    public List listThreads()
     {
         List threads = getVM().allThreads();
         int len = threads.size();
 
-        Vector threadVec = new Vector();
+        List threadList = new ArrayList();
 
         // reverse order to make display nicer (newer threads first)
         for(int i = 0; i < len; i++) {
             ThreadReference thread = (ThreadReference)threads.get(len-i-1);
-            String name = thread.name();
-            threadVec.addElement(new JdiThread(thread));
+            threadList.add(new JdiThread(thread));
         }
-        return threadVec;
+        return threadList;
     }
 
     /**
@@ -1234,7 +1233,7 @@ public final class JdiDebugger extends Debugger
         Debug.message("threads:");
         Debug.message("--------");
 
-        Vector threads = listThreads();
+        List threads = listThreads();
         if(threads == null)
             Debug.message("cannot get thread info!");
         else {

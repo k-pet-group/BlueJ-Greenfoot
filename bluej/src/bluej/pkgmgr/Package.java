@@ -34,7 +34,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1417 2002-10-18 07:56:39Z mik $
+ * @version $Id: Package.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1357,7 +1357,7 @@ public class Package extends Graph
             // int index = targets.indexOf(selected);
             // int last = targets.size() - 1;
             // Swap selected vertex with top
-            // targets.put(targets.elementAt(last), index);
+            // targets.put(targets.get(last), index);
             // targets.put(selected, last);
 
             selected.toggleFlag(Target.F_SELECTED);

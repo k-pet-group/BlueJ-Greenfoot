@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.HashMap;
 import bluej.utility.Utility;
 import bluej.utility.Debug;
-import java.util.Enumeration;
 
 /** 
  ** Manages an invocation history of arguments used in a package when objects 

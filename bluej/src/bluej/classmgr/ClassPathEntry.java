@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Vector;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 import java.net.*;
@@ -16,7 +15,7 @@ import bluej.Config;
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPathEntry.java 1353 2002-10-07 14:26:40Z mik $
+ * @version $Id: ClassPathEntry.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class ClassPathEntry implements Cloneable
 {

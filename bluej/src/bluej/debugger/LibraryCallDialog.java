@@ -13,7 +13,8 @@ import bluej.views.MethodView;
 import bluej.views.ViewFilter;
 import bluej.classmgr.ClassMgr;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -27,7 +28,7 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 1378 2002-10-14 13:40:07Z mik $
+ * @version $Id: LibraryCallDialog.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
@@ -53,13 +54,13 @@ public class LibraryCallDialog extends JDialog
     private ClassHistory history;
     private Package pkg;
     private CallableView viewToCall;
-    private Vector currentViews;      // views currently displayed in list
+    private List currentViews;      // views currently displayed in list
 
     public LibraryCallDialog(PkgMgrFrame pmf)
     {
         super(pmf, Config.getString("callLibraryDialog.title"), false);
         pkg = pmf.getPackage();
-        currentViews = new Vector();
+        currentViews = new ArrayList();
         viewToCall = null;
         history = ClassHistory.getClassHistory(10);
         makeDialog();
@@ -74,7 +75,7 @@ public class LibraryCallDialog extends JDialog
     	super.setVisible(show);
     	if (show) {
             okButton.setEnabled(false);
-            classField.setModel(new DefaultComboBoxModel(history.getHistory()));
+            classField.setModel(new DefaultComboBoxModel(history.getHistory().toArray()));
             classSelected();
             classField.requestFocus();
     	}
@@ -176,7 +177,7 @@ public class LibraryCallDialog extends JDialog
     {
         View classView = View.getView(cl);
         ViewFilter filter;
-        Vector list = new Vector();
+        List list = new ArrayList();
 
         ConstructorView[] constructors = classView.getConstructors();
         filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
@@ -186,7 +187,7 @@ public class LibraryCallDialog extends JDialog
         filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
         addMethods(list, methods, filter);
 
-        methodList.setListData(list);
+        methodList.setListData(list.toArray());
         methodList.clearSelection();
         methodList.setEnabled(true);
         docButton.setEnabled(true);
@@ -203,9 +204,9 @@ public class LibraryCallDialog extends JDialog
     }
 
     /**
-     * Add some methods, filtered by a given view filter, to a vector.
+     * Add some methods, filtered by a given view filter, to a list.
      */
-    public void addMethods(Vector list, CallableView[] methods,
+    public void addMethods(List list, CallableView[] methods,
                             ViewFilter filter)
     {
         for(int i = 0; i < methods.length; i++) {
@@ -255,7 +256,7 @@ public class LibraryCallDialog extends JDialog
                   Config.getString("callLibraryDialog.classLabel")),
                   BorderLayout.WEST);
 
-            classField = new JComboBox(history.getHistory());
+            classField = new JComboBox(history.getHistory().toArray());
             classField.setEditable(true);
             classField.setMaximumRowCount(10);
             JTextField textField = (JTextField)classField.getEditor().getEditorComponent();

@@ -5,7 +5,6 @@ import bluej.Config;
 import java.awt.*;
 import java.io.*;
 import java.util.Random;
-import java.util.Vector;
 import java.awt.event.*;
 import javax.swing.*;
 

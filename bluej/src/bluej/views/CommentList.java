@@ -5,24 +5,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
 import java.util.Properties;
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
- ** @version $Id: CommentList.java 187 1999-07-17 02:32:38Z ajp $
+ ** @version $Id: CommentList.java 1418 2002-10-18 09:38:56Z mik $
  ** @author Michael Cahill
  **
  ** CommentList class - maintains a list of BlueJ comments
  **/
 public final class CommentList
 {
-    private Vector comments;
+    private List comments;
 	
     /**
      * Constructor - create a CommentList with an initial list of comments.
      */
-    public CommentList(Vector comments)
+    public CommentList(List comments)
     {
         this.comments = comments;
     }
@@ -32,22 +33,22 @@ public final class CommentList
      */
     public CommentList()
     {
-        this(new Vector());
+        this(new ArrayList());
     }
 	
     public void addComment(Comment comment)
     {
-        comments.addElement(comment);
+        comments.add(comment);
     }
 	
     public void removeComment(Comment comment)
     {
-        comments.removeElement(comment);
+        comments.remove(comment);
     }
 	
-    public Enumeration getComments()
+    public Iterator getComments()
     {
-        return comments.elements();
+        return comments.iterator();
     }
 	
     public int numComments()
@@ -72,7 +73,7 @@ public final class CommentList
         {
             Comment comment = new Comment();
             comment.load(props, "comment" + i);
-            comments.addElement(comment);
+            comments.add(comment);
         }
     }
 }

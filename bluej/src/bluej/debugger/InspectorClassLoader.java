@@ -29,7 +29,7 @@ class InspectorClassLoader extends ClassLoader
         try
         {
             InputStream is = new FileInputStream(new File(dir, name + ".class"));
-            Vector bytes = new Vector();
+            List bytes = new ArrayList();
             byte[] bary = new byte[1024];
             int bread = is.read(bary);
             int btotal = 0;
@@ -42,15 +42,15 @@ class InspectorClassLoader extends ClassLoader
                 bary = new byte[1024];
                 bread = is.read(bary);
             }
-            Enumeration e = bytes.elements();
-            bary = ((byte[]) e.nextElement());
+            Iterator e = bytes.iterator();
+            bary = ((byte[]) e.next());
             int target = 0;
             byte[] output = new byte[btotal];
-            while (e.hasMoreElements())
+            while (e.hasNext())
             {
                 System.arraycopy(bary, 0, output, target, bary.length);
                 target += bary.length;
-                bary = ((byte[]) e.nextElement());
+                bary = ((byte[]) e.next());
             }
             System.arraycopy(bary, 0, output, target, blast);
             return output;

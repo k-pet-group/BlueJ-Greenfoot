@@ -1,7 +1,5 @@
 package bluej.debugger;
 
-import java.util.Vector;
-
 /** 
  * This class implements a singleton history object for library class
  * invocations.

@@ -3,8 +3,6 @@ package bluej.tester;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JPanel;
-import java.util.Enumeration;
-import java.util.Vector;
 
 import bluej.utility.Debug;
 import bluej.debugger.*;
@@ -14,7 +12,7 @@ import bluej.debugger.*;
  *
  * @author  Michael Cahill (ObjectBench.java)
  * @author  Andrew Patterson
- * @version $Id: UnitTestBench.java 1012 2001-11-30 01:26:31Z ajp $
+ * @version $Id: UnitTestBench.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class UnitTestBench extends JPanel
 {

@@ -5,7 +5,6 @@ import bluej.graph.Graph;
 import bluej.views.CallableView;
 import bluej.debugger.DebuggerObject;
 
-import java.util.Enumeration;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -14,7 +13,7 @@ import javax.swing.*;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 811 2001-03-25 23:11:51Z mik $
+ * @version $Id: PackageEditor.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class PackageEditor extends GraphEditor
 {

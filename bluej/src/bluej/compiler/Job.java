@@ -3,10 +3,8 @@ package bluej.compiler;
 import bluej.Config;
 import bluej.utility.Debug;
 
-import java.util.Vector;
-
 /**
- ** @version $Id: Job.java 1085 2002-01-11 22:30:13Z mik $
+ ** @version $Id: Job.java 1418 2002-10-18 09:38:56Z mik $
  ** @author Michael Cahill
  **
  ** A compiler "job" - list of filenames to compile + parameters.

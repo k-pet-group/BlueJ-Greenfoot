@@ -3,8 +3,6 @@ package bluej.debugger;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JPanel;
-import java.util.Enumeration;
-import java.util.Vector;
 
 import bluej.utility.Debug;
 
@@ -12,7 +10,7 @@ import bluej.utility.Debug;
  * The panel that displays objects at the bottom of the package manager
  *
  * @author  Michael Cahill
- * @version $Id: ObjectBench.java 1369 2002-10-11 14:57:48Z mik $
+ * @version $Id: ObjectBench.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class ObjectBench extends JPanel
 {

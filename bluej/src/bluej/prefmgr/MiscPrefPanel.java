@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 import java.io.*;
-import java.util.Vector;
 
 import bluej.Config;
 import bluej.utility.Debug;
@@ -22,7 +21,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: MiscPrefPanel.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {

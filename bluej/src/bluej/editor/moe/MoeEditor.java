@@ -19,8 +19,8 @@ import bluej.utility.FileUtility;
 import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.DocuGenerator;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Date;
@@ -1604,15 +1604,15 @@ public final class MoeEditor extends JFrame
 
     private String[] tokenize(String input)
     {
-        Vector v = new Vector();
+        List list = new ArrayList();
         StringTokenizer t = new StringTokenizer(input);
         String tokens[];
 
         while (t.hasMoreTokens())
-        v.addElement(t.nextToken());
-        tokens = new String[v.size()];
-        for (int i=0; i<tokens.length; i++)
-        tokens[i] = (String) v.elementAt(i);
+            list.add(t.nextToken());
+
+        tokens = new String[list.size()];
+        list.toArray(tokens);
         return tokens;
     }
 

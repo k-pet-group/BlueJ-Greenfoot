@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
  * saved project properties.
  *
  * @author  Bruce Quig
- * @version $Id: AppletParam.java 1248 2002-05-29 04:03:14Z bquig $
+ * @version $Id: AppletParam.java 1418 2002-10-18 09:38:56Z mik $
  */
 public final class AppletParam 
 {
@@ -80,7 +80,7 @@ public final class AppletParam
     
     /**
      * Equality relates to the name of the Applet param name so that AppletParam
-     * can easily be found in a Vector or DefaultListModel for location and 
+     * can easily be found in a list or DefaultListModel for location and 
      * replacement.  
      * @param obj object being evaluated against
      * @return true if considered equivalent 

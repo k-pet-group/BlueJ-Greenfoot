@@ -1,8 +1,8 @@
 package bluej.compiler;
 
 import java.io.*;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.lang.Runtime;
 
 import bluej.utility.Debug;
@@ -16,7 +16,7 @@ import bluej.Config;
  * compiler. Verified working with Jikes 1.12.
  *
  * @author  Andrew Patterson
- * @version $Id: JikesCompiler.java 1085 2002-01-11 22:30:13Z mik $
+ * @version $Id: JikesCompiler.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class JikesCompiler extends Compiler
 {
@@ -54,39 +54,39 @@ public class JikesCompiler extends Compiler
 
     public boolean compile(String[] sources, CompileObserver watcher)
     {
-        Vector args = new Vector();
+        List args = new ArrayList();
 
-        args.addElement(executable);
+        args.add(executable);
 
-        args.addElement("-nowarn");	// suppress warnings
-        args.addElement("+D");		// generate Emacs style error messages
-        args.addElement("-Xstdout"); // errors must go to stdout
+        args.add("-nowarn");	// suppress warnings
+        args.add("+D");		// generate Emacs style error messages
+        args.add("-Xstdout"); // errors must go to stdout
 
         if(destdir != null) {
-            args.addElement("-d");
-            args.addElement(destdir);
+            args.add("-d");
+            args.add(destdir);
         }
 
         // as of Jikes 0.50, jikes will not automatically find the standard
         // JDK 1.2 classes because of changes Sun has made to the classpath
         // mechanism. We will supply jikes with the sun boot classes
         if(classpath != null) {
-            args.addElement("-classpath");
-            args.addElement(classpath + File.pathSeparator + System.getProperty("sun.boot.class.path"));
+            args.add("-classpath");
+            args.add(classpath + File.pathSeparator + System.getProperty("sun.boot.class.path"));
         }
 
         if(debug)
-            args.addElement("-g");
+            args.add("-g");
 
         if(deprecation)
-            args.addElement("-deprecation");
+            args.add("-deprecation");
 
         for(int i = 0; i < sources.length; i++)
-            args.addElement(sources[i]);
+            args.add(sources[i]);
 
         int length = args.size();
         String[] params = new String[length];
-        args.copyInto(params);
+        args.toArray(params);
 
         boolean result = false;
 

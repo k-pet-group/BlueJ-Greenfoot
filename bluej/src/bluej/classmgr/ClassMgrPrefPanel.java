@@ -8,7 +8,8 @@ import java.awt.*;
 import java.awt.event.*;
 
 import java.io.*;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 import bluej.Config;
 import bluej.utility.Debug;
@@ -22,7 +23,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 1353 2002-10-07 14:26:40Z mik $
+ * @version $Id: ClassMgrPrefPanel.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -49,8 +50,8 @@ public class ClassMgrPrefPanel extends JPanel
      */
     private ClassMgrPrefPanel()
     {
-        Vector bootLibrariesList = new Vector(ClassMgr.getClassMgr().bootLibraries.getEntries());
-        Vector systemLibrariesList = new Vector(ClassMgr.getClassMgr().systemLibraries.getEntries());
+        List bootLibrariesList = new ArrayList(ClassMgr.getClassMgr().bootLibraries.getEntries());
+        List systemLibrariesList = new ArrayList(ClassMgr.getClassMgr().systemLibraries.getEntries());
 
         // Construct a user editable table of user libraries and add/remove buttons
 
@@ -134,7 +135,7 @@ public class ClassMgrPrefPanel extends JPanel
         {
             JList list = new JList();
             {
-                list.setListData(systemLibrariesList);
+                list.setListData(systemLibrariesList.toArray());
                 list.setCellRenderer(new ClassMgrCellRenderer());
                 list.setEnabled(false);
                 list.setVisibleRowCount(3);
@@ -156,7 +157,7 @@ public class ClassMgrPrefPanel extends JPanel
         {
             JList list = new JList();
             {
-                list.setListData(bootLibrariesList);
+                list.setListData(bootLibrariesList.toArray());
                 list.setCellRenderer(new ClassMgrCellRenderer());
                 list.setEnabled(false);
                 list.setVisibleRowCount(4);

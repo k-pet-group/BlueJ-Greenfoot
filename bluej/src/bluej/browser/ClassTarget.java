@@ -5,7 +5,6 @@ import bluej.utility.Debug;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
 import bluej.utility.MultiEnumeration;
-import bluej.utility.SortableVector;
 import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 import bluej.pkgmgr.Package;
@@ -19,7 +18,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: ClassTarget.java 532 2000-06-08 07:46:08Z ajp $
+ ** @version $Id: ClassTarget.java 1418 2002-10-18 09:38:56Z mik $
  ** @author Michael Cahill
  **
  ** A general target for the browser

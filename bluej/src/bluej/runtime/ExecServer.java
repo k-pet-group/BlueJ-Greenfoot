@@ -273,9 +273,8 @@ public class ExecServer
         scope.put(instanceName, value);
 
         // debugging
-        //  	Enumeration e = scope.keys();
-        // 	for (; e.hasMoreElements(); ) {
-        //  	    String s = (String)e.nextElement();
+        // 	for (Iterator it = scope.keys(); it.hasNext(); ) {
+        //  	    String s = (String)it.next();
         //  	    System.out.println("key: " + s);
         //  	}
     }

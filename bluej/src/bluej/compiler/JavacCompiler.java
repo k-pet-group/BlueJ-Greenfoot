@@ -1,8 +1,7 @@
 package bluej.compiler;
 
 import java.io.*;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
@@ -20,7 +19,7 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 1176 2002-03-13 13:43:30Z mik $
+ * @version $Id: JavacCompiler.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class JavacCompiler extends Compiler
 {
@@ -58,30 +57,30 @@ public class JavacCompiler extends Compiler
 
     public boolean compile(String[] sources, CompileObserver watcher)
     {
-        Vector args = new Vector();
+        List args = new ArrayList();
 
-        args.addElement(executable);
+        args.add(executable);
 
         if(destdir != null) {
-            args.addElement("-d");
-            args.addElement(destdir);
+            args.add("-d");
+            args.add(destdir);
         }
 
         if(classpath != null) {
-            args.addElement("-classpath");
-            args.addElement(classpath);
+            args.add("-classpath");
+            args.add(classpath);
         }
 
         if(debug)
-            args.addElement("-g");
+            args.add("-g");
 
         if(deprecation)
-            args.addElement("-deprecation");
+            args.add("-deprecation");
         
         if(! System.getProperty("java.vm.version").startsWith("1.3"))
             if(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14)) {
-                args.addElement("-source");
-                args.addElement("1.4");
+                args.add("-source");
+                args.add("1.4");
             }
 
          /** Not used at present...
@@ -90,17 +89,17 @@ public class JavacCompiler extends Compiler
         if(userOptions != null && userOptions.size() > 0) {
             Iterator it = userOptions.iterator();
             while(it.hasNext()) {
-                args.addElement((String)it.next());
+                args.add((String)it.next());
             }
         }
         */
 
         for(int i = 0; i < sources.length; i++)
-            args.addElement(sources[i]);
+            args.add(sources[i]);
 
         int length = args.size();
         String[] params = new String[length];
-        args.copyInto(params);
+        args.toArray(params);
 
         boolean result = false;
 

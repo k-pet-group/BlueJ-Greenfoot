@@ -7,7 +7,6 @@ import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
 import java.util.List;
-import java.util.Vector;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -17,7 +16,7 @@ import javax.swing.*;
  * had mismatched package lines on an open non-BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportMismatchDialog.java 1098 2002-01-16 04:53:33Z ajp $
+ * @version $Id: ImportMismatchDialog.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class ImportMismatchDialog extends JDialog
     implements ActionListener
@@ -82,7 +81,7 @@ public class ImportMismatchDialog extends JDialog
 
             mainPanel.add(Box.createVerticalStrut(5));
 
-            JList failedList = new JList(new Vector(files));
+            JList failedList = new JList(files.toArray());
             {
                 failedList.setAlignmentX(LEFT_ALIGNMENT);
             }

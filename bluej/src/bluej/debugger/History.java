@@ -1,6 +1,7 @@
 package bluej.debugger;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 /** 
  * History objects maintain a history of text strings. This serves as a
@@ -12,7 +13,7 @@ import java.util.Vector;
  */
 public class History
 {
-    private Vector history = null;
+    private List history = null;
     private int maxLength;
     private boolean blankAtStart;
     
@@ -28,7 +29,7 @@ public class History
     protected History(int maxLength, boolean blankDefault)
     {
         this.maxLength = maxLength;
-        history = new Vector(maxLength+1);
+        history = new ArrayList(maxLength+1);
         history.add("");
         blankAtStart = blankDefault;
     }
@@ -46,7 +47,7 @@ public class History
     /**
      * Return the history of used classes.
      */	
-    public Vector getHistory()
+    public List getHistory()
     {
         return history;
     }

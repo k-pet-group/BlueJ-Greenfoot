@@ -2,14 +2,11 @@ package bluej.views;
 
 import bluej.Config;
 import bluej.utility.Debug;
-import bluej.utility.Comparer;
-import bluej.utility.SortableVector;
 import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 
 import java.lang.reflect.*;
 import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.*;
 
 
@@ -17,7 +14,7 @@ import java.util.*;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 1226 2002-04-15 12:58:51Z mik $
+ * @version $Id: View.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class View
 {
@@ -127,19 +124,17 @@ public class View
     public MethodView[] getAllMethods()
     {
         if(allMethods == null) {
-            Hashtable hashtable = new Hashtable();
-            getAllMethods(hashtable, 0);
-            SortableVector v = new SortableVector();
-            for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
-                v.addElement(e.nextElement());
-            v.sort(new ElementComparer());
+            HashMap map = new HashMap();
+            getAllMethods(map, 0);
+            
+            List methods = new ArrayList(map.values());
+            Collections.sort(methods, new ElementComparer());
 
-            int numMethods = v.size();
+            int numMethods = methods.size();
             allMethods = new MethodView[numMethods];
             for(int i = 0; i < numMethods; i++) {
-                MemberElement elem = (MemberElement)v.elementAt(i);
+                MemberElement elem = (MemberElement)methods.get(i);
                 allMethods[i] = (MethodView)elem.member;
-                //Debug.message(":: adding : " + allMethods[i].toString());
             }
         }
 
@@ -153,17 +148,16 @@ public class View
     public FieldView[] getAllFields()
     {
         if(allFields == null) {
-            Hashtable hashtable = new Hashtable();
-            getAllFields(hashtable, 0);
-            SortableVector v = new SortableVector();
-            for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
-                v.addElement(e.nextElement());
-            v.sort(new ElementComparer());
+            HashMap map = new HashMap();
+            getAllFields(map, 0);
+            
+            List fields = new ArrayList(map.values());
+            Collections.sort(fields, new ElementComparer());
 
-            int numFields = v.size();
+            int numFields = fields.size();
             allFields = new FieldView[numFields];
             for(int i = 0; i < numFields; i++) {
-                MemberElement elem = (MemberElement)v.elementAt(i);
+                MemberElement elem = (MemberElement)fields.get(i);
                 allFields[i] = (FieldView)elem.member;
             }
         }
@@ -173,7 +167,7 @@ public class View
 
     /**
      ** (Attempt at an) efficient implementation of getAllMethods + getAllFields
-     ** The old version had shocking performance - this one uses a Hashtable
+     ** The old version had shocking performance - this one uses a HashMap
      ** to notice the conflicts
      **/
 
@@ -189,10 +183,10 @@ public class View
         }
     }
 
-    class ElementComparer implements Comparer
+    class ElementComparer implements Comparator
     {
         /** Return { -1, 0, 1 } to represent <a> { <, ==, > } <b> **/
-        public final int cmp(Object a, Object b)
+        public final int compare(Object a, Object b)
         {
             int cmp = ((MemberElement)a).index - ((MemberElement)b).index;
 
@@ -200,7 +194,7 @@ public class View
         }
     }
 
-    protected int getAllMethods(Hashtable h, int methnum)
+    protected int getAllMethods(HashMap h, int methnum)
     {
         if(allMethods != null) {
             // carefully copy from allMethods into h
@@ -225,7 +219,7 @@ public class View
         return methnum;
     }
 
-    protected int getAllFields(Hashtable h, int fieldnum)
+    protected int getAllFields(HashMap h, int fieldnum)
     {
         if(allFields != null) {
             // carefully copy from allFields into h
@@ -248,7 +242,7 @@ public class View
         return fieldnum;
     }
 
-    private int addMembers(Hashtable h, MemberView[] members, int num)
+    private int addMembers(HashMap h, MemberView[] members, int num)
     {
         //Debug.message("Started addMembers for " + cl);
 
@@ -339,9 +333,9 @@ public class View
         comments_loaded = true;
 
         // match the comments against this view's members
-        // -> put all members into a hashtable indexed by
+        // -> put all members into a hashmap indexed by
         // <member>.getSignature() (== <comment>.getTarget())
-        Hashtable table = new Hashtable();
+        HashMap table = new HashMap();
         addMembers(table, getAllFields());
         addMembers(table, getConstructors());
         addMembers(table, getAllMethods());
@@ -349,7 +343,7 @@ public class View
         loadClassComments(this, table);
     }
 
-    protected void loadClassComments(View curview, Hashtable table)
+    protected void loadClassComments(View curview, HashMap table)
     {
         // move up to the superclass first, so that redefinied comments override
         if(curview.getSuper() != null)
@@ -382,8 +376,8 @@ public class View
 
         if(comments != null) {
             // match up the comments read from the file with the members of this view
-            for(Enumeration e = comments.getComments(); e.hasMoreElements(); ) {
-                Comment c = (Comment)e.nextElement();
+            for(Iterator it = comments.getComments(); it.hasNext(); ) {
+                Comment c = (Comment)it.next();
                 
                 if(c.getTarget().startsWith("class ") ||
                    c.getTarget().startsWith("interface ")) {
@@ -408,7 +402,7 @@ public class View
         }
     }
 
-    private void addMembers(Hashtable table, MemberView[] members)
+    private void addMembers(HashMap table, MemberView[] members)
     {
         for(int i = 0; i < members.length; i++) {
             //Debug.message("Adding member " + members[i].getSignature());

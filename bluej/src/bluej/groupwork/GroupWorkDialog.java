@@ -4,7 +4,6 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 
-import java.util.Vector;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -13,7 +12,7 @@ import javax.swing.*;
 /**
  * Dialog for Group work purposes
  *
- * @version $Id: GroupWorkDialog.java 904 2001-05-23 05:31:35Z ajp $
+ * @version $Id: GroupWorkDialog.java 1418 2002-10-18 09:38:56Z mik $
  * @author  Markus Ostman
  */
 public class GroupWorkDialog extends JDialog

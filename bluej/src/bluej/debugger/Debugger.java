@@ -4,7 +4,7 @@ package bluej.debugger;
 //import bluej.debugger.suntools.SunDebugger;
 import bluej.debugger.jdi.JdiDebugger;
 
-import java.util.Vector;
+import java.util.List;
 
 /**
  * A class defining the debugger primitives needed by BlueJ
@@ -13,7 +13,7 @@ import java.util.Vector;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 1073 2002-01-08 14:48:14Z mik $
+ * @version $Id: Debugger.java 1418 2002-10-18 09:38:56Z mik $
  */
 public abstract class Debugger
 {
@@ -171,15 +171,15 @@ public abstract class Debugger
 
 
     /**
-     * List all the threads being debugged as a Vector containing elements
+     * List all the threads being debugged as a list containing elements
      * of type DebuggerThread. Filter out threads that belong to system,
      * returning only user threads. This can be done only if the machine
      * is currently suspended.
      *
-     * @return  A vector of threads, or null if the machine is currently
+     * @return  A list of threads, or null if the machine is currently
      *		running
      */
-    public abstract Vector listThreads();
+    public abstract List listThreads();
 
 
     /**

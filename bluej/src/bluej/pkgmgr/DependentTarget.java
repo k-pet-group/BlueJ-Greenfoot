@@ -19,7 +19,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: DependentTarget.java 1417 2002-10-18 07:56:39Z mik $
+ * @version $Id: DependentTarget.java 1418 2002-10-18 09:38:56Z mik $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -125,7 +125,7 @@ public abstract class DependentTarget extends Target
      */
     protected void removeAllOutDependencies()
     {
-        // While removing the dependencies the dependency Vector must be
+        // While removing the dependencies the dependency list must be
         // copied since the original is modified during this operation.
         // Enumerations over the original would go wrong.
 
@@ -145,7 +145,7 @@ public abstract class DependentTarget extends Target
      */
     protected void removeInheritDependencies()
     {
-        // While removing the dependencies the dependency Vector must be
+        // While removing the dependencies the dependency list must be
         // copied since the original is modified during this operation.
         // Enumerations over the original would go wrong.
 
@@ -163,7 +163,7 @@ public abstract class DependentTarget extends Target
      */
     protected void removeAllInDependencies()
     {
-        // While removing the dependencies the dependency Vector must be
+        // While removing the dependencies the dependency list must be
         // copied since the original is modified during this operation.
         // Enumerations over the original would go wrong.
 

@@ -27,7 +27,7 @@ import javax.swing.border.Border;
  * @author     Michael Cahill
  * @author     Michael Kolling
  * @author     Duane Buck
- * @version    $Id: ObjectViewer.java 853 2001-04-19 04:24:26Z ajp $
+ * @version    $Id: ObjectViewer.java 1418 2002-10-18 09:38:56Z mik $
  */
 public class ObjectViewer extends JFrame
     implements ActionListener, ListSelectionListener, InspectorListener
@@ -68,7 +68,7 @@ public class ObjectViewer extends JFrame
     // === static variables ===
 
     protected static int count = 0;
-    protected static Hashtable viewers = new Hashtable();
+    protected static HashMap viewers = new HashMap();
 
     protected final static Color bgColor = new Color(208, 212, 208);
 
@@ -147,8 +147,8 @@ public class ObjectViewer extends JFrame
      */
     public static void updateViewers()
     {
-        for (Enumeration e = viewers.elements(); e.hasMoreElements(); ) {
-            ObjectViewer viewer = (ObjectViewer) e.nextElement();
+        for (Iterator it = viewers.values().iterator(); it.hasNext(); ) {
+            ObjectViewer viewer = (ObjectViewer) it.next();
             viewer.update();
         }
     }

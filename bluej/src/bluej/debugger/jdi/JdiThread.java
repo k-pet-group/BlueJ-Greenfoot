@@ -21,7 +21,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 1414 2002-10-18 05:28:55Z ajp $
+ * @version $Id: JdiThread.java 1418 2002-10-18 09:38:56Z mik $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -224,7 +224,7 @@ public final class JdiThread extends DebuggerThread
      * The thread must be suspended to do this. Otherwise an empty list
      * is returned.
      *
-     * @return  A Vector of SourceLocations
+     * @return  A List of SourceLocations
      */
     public List getStack()
     {
