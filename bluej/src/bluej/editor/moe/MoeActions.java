@@ -3,6 +3,7 @@ package bluej.editor.moe;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
+import bluej.prefmgr.PrefMgrDialog;
 
 import java.util.Hashtable;
 
@@ -467,8 +468,6 @@ public final class MoeActions
     // === Options: ===
     // --------------------------------------------------------------------
 
-    // --------------------------------------------------------------------
-
     class KeyBindingsAction extends MoeAbstractAction {
 
         public KeyBindingsAction() {
@@ -480,6 +479,19 @@ public final class MoeActions
                                                     categories, categoryIndex);
 
             dlg.setVisible(true);
+        }
+    }
+
+    // --------------------------------------------------------------------
+
+    class PreferencesAction extends MoeAbstractAction {
+
+        public PreferencesAction() {
+            super("preferences", null);
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            PrefMgrDialog.showDialog(getEditor(e));
         }
     }
 
@@ -658,7 +670,6 @@ public final class MoeActions
             new CommentAction(),
             new UncommentAction(),
             new InsertMethodAction(),
-            // 	    new HalfTabAction(),
 
             new FindAction(),
             new FindBackwardAction(),
@@ -670,6 +681,7 @@ public final class MoeActions
             new ToggleBreakPointAction(),
 
             new KeyBindingsAction(),
+            new PreferencesAction(),
 
             new AboutAction(),
             new DescribeKeyAction(),
@@ -757,15 +769,16 @@ public final class MoeActions
 
             // customisation functions
             (Action)(actions.get("key-bindings")),              // 51
+            (Action)(actions.get("preferences")),
 
             // help functions
-            (Action)(actions.get("describe-key")),              // 52
+            (Action)(actions.get("describe-key")),              // 53
             (Action)(actions.get("help-mouse")),
             (Action)(actions.get("show-manual")),
             (Action)(actions.get("about-editor")),
 
             // misc functions
-            undoAction,                                         // 56
+            undoAction,                                         // 57
             redoAction,
             (Action)(actions.get("find")),
             (Action)(actions.get("find-backward")),
@@ -775,7 +788,7 @@ public final class MoeActions
             (Action)(actions.get("goto-line")),
             (Action)(actions.get("compile")),
             (Action)(actions.get("toggle-breakpoint")),
-        };                                                      // 66
+        };                                                      // 67
 
         categories = new String[] { "Edit Functions",
                                     "Move & Scroll",
@@ -783,7 +796,7 @@ public final class MoeActions
                                     "Customisation",
                                     "Help",
                                     "Misc." };
-        categoryIndex = new int[] { 0, 31, 47, 51, 52, 56, 66 };
+        categoryIndex = new int[] { 0, 31, 47, 51, 53, 57, 67 };
     }
 
 } // end class MoeActions
