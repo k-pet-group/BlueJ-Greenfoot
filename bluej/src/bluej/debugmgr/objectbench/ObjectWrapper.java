@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: ObjectWrapper.java 2661 2004-06-25 06:41:15Z fisker $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -536,12 +536,6 @@ public class ObjectWrapper extends JComponent
             return;
 
         menuOffset = calcOffset();
-        //SingleSelectionModel ssm = menu.getSelectionModel();
-        //ssm.setSelectedIndex(4);
-        //ssm.clearSelection();
-        Component c = menu.getComponent(4);
-        menu.setSelected( c );
-        //System.err.println("selected" + c);
         menu.show(this, x + 1, y - menuOffset);
        
         
