@@ -7,12 +7,13 @@ import java.util.*;
  * construction/method call mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 1882 2003-04-24 06:28:11Z ajp $
+ * @version $Id: InvokerRecord.java 1941 2003-05-05 06:07:49Z ajp $
  */
 public abstract class InvokerRecord
 {
-	final static String firstIndent = "\t\t";
-	final static String secondIndent = "\t\t\t";
+	final static String firstIndent = "\t";
+	final static String secondIndent = "\t\t";
+	final static String thirdIndent = "\t\t\t";
 	final static String statementEnd = ";\n";
 
 	/**
@@ -41,26 +42,26 @@ public abstract class InvokerRecord
 	 */
 	public abstract String toTestMethod();
 
-
-    protected ArrayList assertions = new ArrayList();
+    private ArrayList assertions = new ArrayList();
     
+    /**
+     * Add the skeleton of an assertion statement to our list of
+     * assertions made about this invoker record.
+     * 
+     * @param assertion
+     */
     public void addAssertion(String assertion)
     {
         assertions.add(assertion);        
     }
     
-    public String getAllAssertions()
+    public int getAssertionCount()
     {
-		StringBuffer sb = new StringBuffer();
-		
-		Iterator it = assertions.iterator();
-		
-		while(it.hasNext()) {
-			sb.append(secondIndent);
-			sb.append(it.next());
-			sb.append(statementEnd);
-		}
-    	
-    	return sb.toString();
+    	return assertions.size();
+    }
+    
+    public String getAssertion(int i)
+    {
+		return (String) assertions.get(i);
     }
 }

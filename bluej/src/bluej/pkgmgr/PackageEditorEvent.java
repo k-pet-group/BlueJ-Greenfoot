@@ -1,14 +1,16 @@
 package bluej.pkgmgr;
 
-import java.util.*;
-import bluej.views.*;
+import java.util.EventObject;
+
 import bluej.debugger.DebuggerObject;
+import bluej.testmgr.InvokerRecord;
+import bluej.views.CallableView;
 
 /**
  * The event which occurs while editing a package
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditorEvent.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: PackageEditorEvent.java 1941 2003-05-05 06:07:49Z ajp $
  */
 public class PackageEditorEvent extends EventObject
 {
@@ -25,6 +27,7 @@ public class PackageEditorEvent extends EventObject
     protected int id;
     protected CallableView cv;
     protected DebuggerObject obj;
+	protected InvokerRecord ir;
     protected String name;
 
     public PackageEditorEvent(Object source, int id)
@@ -52,7 +55,7 @@ public class PackageEditorEvent extends EventObject
         this.cv = cv;
     }
 
-    public PackageEditorEvent(Object source, int id, DebuggerObject obj)
+    public PackageEditorEvent(Object source, int id, DebuggerObject obj, InvokerRecord ir)
     {
         super(source);
 
@@ -61,6 +64,7 @@ public class PackageEditorEvent extends EventObject
 
         this.id = id;
         this.obj = obj;
+		this.ir = ir;
     }
 
     public int getID()
@@ -81,5 +85,10 @@ public class PackageEditorEvent extends EventObject
     public DebuggerObject getDebuggerObject()
     {
         return obj;
+    }
+    
+    public InvokerRecord getInvokerRecord()
+    {
+    	return ir;	
     }
 }

@@ -18,7 +18,7 @@ import bluej.utility.DialogManager;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1939 2003-05-03 15:36:37Z mik $
+ * @version    $Id: Inspector.java 1941 2003-05-05 06:07:49Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -306,7 +306,7 @@ public abstract class Inspector extends JFrame
     private void doGet()
     {
         if(selectedObject != null) {
-            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject);
+            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject, ir);
         }
     }
 
@@ -326,7 +326,7 @@ public abstract class Inspector extends JFrame
 	protected void handleAssertions()
 	{
 		if (assertPanel != null && assertPanel.isAssertEnabled()) {
-			ir.addAssertion("\t\t\t" + assertPanel.getAssertStatement() + ";\n");
+			ir.addAssertion(assertPanel.getAssertStatementStart());
 		}
 	}
 

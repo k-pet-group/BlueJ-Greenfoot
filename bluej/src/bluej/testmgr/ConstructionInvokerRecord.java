@@ -5,7 +5,7 @@ package bluej.testmgr;
  * mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ConstructionInvokerRecord.java 1882 2003-04-24 06:28:11Z ajp $
+ * @version $Id: ConstructionInvokerRecord.java 1941 2003-05-05 06:07:49Z ajp $
  */
 public class ConstructionInvokerRecord extends InvokerRecord
 {
@@ -20,18 +20,38 @@ public class ConstructionInvokerRecord extends InvokerRecord
         this.command = command;
     }
 
-    public String toTestMethod()
-    {
-        return "\t\t" + type + " " + name + " = " + command + ";\n";
-    }
-
+	/**
+	 * Construct a declaration for any objects constructed
+	 * by this invoker record.
+	 * 
+	 * @return a String representing the object declaration
+	 *         src or null if there is none.
+	 */    
     public String toFixtureDeclaration()
     {
-        return "\t" + type + " " + name + ";\n";       
+        return firstIndent + type + " " + name + statementEnd;       
     }
     
+	/**
+	 * Construct a portion of an initialisation method for
+	 * this invoker record.
+	 *  
+	 * @return a String reprenting the object initialisation
+	 *         src or null if there is none. 
+	 */    
     public String toFixtureSetup()
     {
-        return "\t\t" + name + " = " + command + ";\n";          
+        return secondIndent + name + " = " + command + ";\n";          
     }
+
+	/**
+	 * Construct a portion of a test method for this
+	 * invoker record.
+	 * 
+	 * @return a String representing the test method src
+	 */
+	public String toTestMethod()
+	{
+		return secondIndent + type + " " + name + " = " + command + ";\n";
+	}
 }

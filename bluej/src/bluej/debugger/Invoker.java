@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: Invoker.java 1941 2003-05-05 06:07:49Z ajp $
  */
 
 public class Invoker extends Thread
@@ -353,9 +353,8 @@ public class Invoker extends Thread
                 instanceName = null;
             }
             else {
-                String returnClassName = method.getReturnType().getQualifiedName();
-                
-                ir = new MethodInvokerRecord(returnClassName, command + actualArgString);
+                ir = new MethodInvokerRecord(method.getReturnType().getViewClass(),
+                							 command + actualArgString);
                 instanceName = "result";
             }                
         }

@@ -22,7 +22,7 @@ import bluej.utility.DialogManager;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1908 2003-04-28 07:33:30Z ajp $
+ * @version $Id: UnitTestClassRole.java 1941 2003-05-05 06:07:49Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -229,7 +229,7 @@ public class UnitTestClassRole extends ClassRole
         while(it.hasNext()) {
             Map.Entry mapent = (Map.Entry) it.next();
 
-            pmf.putObjectOnBench((DebuggerObject)mapent.getValue(),(String) mapent.getKey());
+            pmf.putObjectOnBench((String) mapent.getKey(), (DebuggerObject)mapent.getValue(), null);
         }
         
         pmf.getObjectBench().resetRecordingInteractions();
@@ -276,7 +276,7 @@ public class UnitTestClassRole extends ClassRole
         while(it.hasNext()) {
             Map.Entry mapent = (Map.Entry) it.next();
 
-            pmf.putObjectOnBench((DebuggerObject)mapent.getValue(),(String) mapent.getKey());
+            pmf.putObjectOnBench((String) mapent.getKey(), (DebuggerObject)mapent.getValue(), null);
         }
     }   
     

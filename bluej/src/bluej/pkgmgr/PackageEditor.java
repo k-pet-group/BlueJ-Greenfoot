@@ -1,16 +1,17 @@
 package bluej.pkgmgr;
 
-import bluej.graph.GraphEditor;
-import bluej.views.CallableView;
-import bluej.debugger.DebuggerObject;
+import java.awt.Component;
 
-import java.awt.*;
+import bluej.debugger.DebuggerObject;
+import bluej.graph.GraphEditor;
+import bluej.testmgr.InvokerRecord;
+import bluej.views.CallableView;
 
 /**
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 1932 2003-05-01 14:04:46Z mik $
+ * @version $Id: PackageEditor.java 1941 2003-05-05 06:07:49Z ajp $
  */
 public final class PackageEditor extends GraphEditor
 {
@@ -91,9 +92,9 @@ public final class PackageEditor extends GraphEditor
                                     packageName));
     }
 
-    public void raisePutOnBenchEvent(Component src, DebuggerObject obj)
+    public void raisePutOnBenchEvent(Component src, DebuggerObject obj, InvokerRecord ir)
     {
         fireTargetEvent(
-            new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj));
+            new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, ir));
     }
 }

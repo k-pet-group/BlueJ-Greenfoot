@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1933 2003-05-02 09:06:52Z mik $
+ * @version $Id: PkgMgrFrame.java 1941 2003-05-05 06:07:49Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -694,7 +694,7 @@ public class PkgMgrFrame extends JFrame
             String newObjectName = DialogManager.askString((Component) e.getSource(), "getobject-new-name");
 
             if (newObjectName != null && JavaNames.isIdentifier(newObjectName)) {
-                putObjectOnBench(e.getDebuggerObject(), newObjectName);
+                putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getInvokerRecord());
             }
             break;
         }
@@ -1246,7 +1246,6 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
-    
     /**
      * Build the text fixture specified in the indicated target on the object
      * bench.
@@ -1258,7 +1257,6 @@ public class PkgMgrFrame extends JFrame
             utcr.doFixtureToBench(this, target);
         }
     }
-
     
     /**
      * Create a test method for the indicated target.
@@ -1272,11 +1270,8 @@ public class PkgMgrFrame extends JFrame
             utcr.doMakeTestCase(this, target);
         }
     }
-
-    /**
-     * Create an object on the object bench.
-     */
-    public void putObjectOnBench(DebuggerObject object, String newInstanceName)
+    
+    public void putObjectOnBench(String newInstanceName, DebuggerObject object, InvokerRecord ir)
     {
         if (!object.isNullObject()) {
             ObjectWrapper wrapper = ObjectWrapper.getWrapper(this, getObjectBench(), object, newInstanceName);
@@ -1285,6 +1280,12 @@ public class PkgMgrFrame extends JFrame
             // load the object into runtime scope
             Debugger.debugger.addObjectToScope(getPackage().getId(),
                                                 wrapper.getName(), object);
+                                                
+            if (ir instanceof MethodInvokerRecord) {
+            	MethodInvokerRecord mir = (MethodInvokerRecord) ir;
+            	
+            	mir.setBenchName(newInstanceName, wrapper.getObject().getClassName());
+            }
         }
     }
 

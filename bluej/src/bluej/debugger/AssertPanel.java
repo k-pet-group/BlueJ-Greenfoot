@@ -12,7 +12,7 @@ import bluej.Config;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: AssertPanel.java 1941 2003-05-05 06:07:49Z ajp $
  */
 public class AssertPanel extends JPanel
 {
@@ -145,10 +145,11 @@ public class AssertPanel extends JPanel
 	
 	/**
 	 * Returns a statement representing this assertion.
+	 * Does not include a trailing variable or bracket! 
 	 * 
 	 * @return a String of the assertion statement.
 	 */
-    public String getAssertStatement()
+    public String getAssertStatementStart()
     {
         StringBuffer sb = new StringBuffer();
         
@@ -162,8 +163,6 @@ public class AssertPanel extends JPanel
 			sb.append(", ");
 		}
 					
-		sb.append("result)");
-    	
         return sb.toString();    
     }
 }
