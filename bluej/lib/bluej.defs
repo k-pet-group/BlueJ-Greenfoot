@@ -339,38 +339,14 @@ bluej.compiler.source14=false
 
 #####################################################################
 ## Options for starting the internal virtual machine.
-## This is a system specific option: It can be prefixed with an
-## OS identifier. Known identifiers are "win9x", "win", "solaris",
-## macos and "linux".
+## By default, we switch Hotspot optimisation off. There are some 
+## bugs in Hotspot that cause debugging errors when optimising.
+## If you really want, you can switch it on here - this will make
+## your programs run faster, but cause bugs in BlueJ's debugger!!
+## Not recommended. (values: true/false)
 #####################################################################
 
-#win9xVmOptions=-classic
-win9xVmOptions=
-winVmOptions=
-linuxVmOptions=
-solarisVmOptions=
-macosVmOptions=
-
-#default:
-VmOptions=
-
-
-#####################################################################
-## User Interface "Look and Feel"
-## To get the default system look and feel, don't set this property.
-#####################################################################
-
-# For the "Java Look and Feel":
-#bluej.lookAndFeel=javax.swing.plaf.metal.MetalLookAndFeel
-
-# For the Windows "Look and Feel":
-#bluej.lookAndFeel=javax.swing.plaf.windows.WindowsLookAndFeel
-
-# For the Macintosh "Look and Feel":
-#bluej.lookAndFeel=javax.swing.plaf.mac.MacLookAndFeel
-
-# For the Motif "Look and Feel":
-#bluej.lookAndFeel=javax.swing.plaf.motif.MotifLookAndFeel
+bluej.vm.optimize=false
 
 
 #######################################################################
