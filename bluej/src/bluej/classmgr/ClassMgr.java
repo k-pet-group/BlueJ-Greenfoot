@@ -23,7 +23,7 @@ import bluej.Config;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 826 2001-03-28 13:31:54Z ajp $
+ * @version $Id: ClassMgr.java 1053 2001-12-19 06:31:58Z ajp $
  */
 public class ClassMgr
 {
@@ -47,26 +47,28 @@ public class ClassMgr
      * @return  the <code>ClassMgr</code> object associated with the current
      *          BlueJ environment.
      */
-    public static ClassMgr getClassMgr() {
+    public static ClassMgr getClassMgr()
+    {
         return currentClassMgr;
     }
 
     /**
-     * Returns a ClassLoader which can load classes from a particular class
+     * Returns a ProjectClassLoader which can load classes from a particular 
      * directory (while delegating other class loading to the default BlueJ
      * class loader).
      */
-    public static ClassLoader getLoader(File classdir) {
-        return new ClassPathLoader(new ClassPath(classdir.getPath(), "Project " + classdir),
-                                        getBlueJLoader());
+    public static ProjectClassLoader getProjectLoader(File projectDir)
+    {
+        return new ProjectClassLoader(projectDir, getClassMgr().bluejloader);
     }
 
     /**
      * Convenience static method to easily allow classes to be loaded into the default
      * BlueJ class loader.
      */
-    public static Class loadBlueJClass(String classname) throws ClassNotFoundException {
-        return getBlueJLoader().loadClass(classname);
+    public static Class loadBlueJClass(String classname) throws ClassNotFoundException
+    {
+        return getClassMgr().bluejloader.loadClass(classname);
     }
     /**
      * Returns the class loader associated with the ClassMgr.
@@ -76,25 +78,14 @@ public class ClassMgr
      * @return  the <code>ClassLoader</code> associated with BlueJ's
      *          current ClassMgr
      */
-    public static ClassLoader getBlueJLoader() {
-        return getClassMgr().classloader;
-    }
-
-
-    private BlueJLoader classloader = new BlueJLoader();
-
-    public Iterator getAllClassPathEntries()
+    public static ClassLoader getBlueJLoader()
     {
-        List fullList = new LinkedList();
-
-        fullList.addAll(systemLibraries.getEntries());
-        fullList.addAll(userLibraries.getEntries());
-        fullList.addAll(bootLibraries.getEntries());
-
-        return fullList.iterator();
+        return getClassMgr().bluejloader;
     }
 
-    public String getAllClassPath()
+    private BlueJLoader bluejloader = new BlueJLoader();
+
+    public ClassPath getAllClassPath()
     {
         ClassPath all = new ClassPath();
 
@@ -102,24 +93,7 @@ public class ClassMgr
         all.addClassPath(userLibraries);
         all.addClassPath(bootLibraries);
 
-        return all.toString();
-    }
-
-    public Iterator getNonBootClassPathEntries()
-    {
-        List fullList = new LinkedList();
-        fullList.addAll(systemLibraries.getEntries());
-        fullList.addAll(userLibraries.getEntries());
-
-        return fullList.iterator();
-    }
-
-    public String getNonBootClassPath()
-    {
-        ClassPath all = new ClassPath();
-        all.addClassPath(systemLibraries);
-        all.addClassPath(userLibraries);
-        return all.toString();
+        return all;
     }
 
     /**
@@ -134,8 +108,8 @@ public class ClassMgr
     protected ClassPath bootLibraries = new ClassPath();
 
     /** Don't let anyone else instantiate this class */
-    private ClassMgr() {
-
+    private ClassMgr()
+    {
         addConfigEntries(systemLibraries, syslibPrefix);
 
         addConfigEntries(userLibraries, userlibPrefix);
@@ -300,10 +274,3 @@ public class ClassMgr
     }
 }
 
-class ClassPathLoader extends URLClassLoader
-{
-    ClassPathLoader(ClassPath classpath, ClassLoader parent)
-    {
-        super(classpath.getURLs(), parent);
-    }
-}

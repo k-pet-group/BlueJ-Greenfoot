@@ -15,7 +15,7 @@ import javax.swing.table.*;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 416 2000-03-14 03:03:13Z ajp $
+ * @version $Id: ClassPath.java 1053 2001-12-19 06:31:58Z ajp $
  */
 public class ClassPath
 {
@@ -49,6 +49,21 @@ public class ClassPath
     public ClassPath(String classpath, String genericdescription)
     {
         addClassPath(classpath, genericdescription);
+    }
+
+    /**
+     * Construct a Classpath from an array of URLs
+     *
+     * @param   an array of File URLs
+     */
+    public ClassPath(URL urls[])
+    {
+	for(int i=0; i<urls.length; i++) {
+            ClassPathEntry cpe = new ClassPathEntry(urls[i].getFile(), "");
+
+            if(!entries.contains(cpe))
+                entries.add(cpe);
+        }
     }
 
     /**

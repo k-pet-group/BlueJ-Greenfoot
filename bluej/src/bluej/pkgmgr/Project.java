@@ -29,7 +29,7 @@ import junit.framework.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1018 2001-12-04 05:08:03Z ajp $
+ * @version $Id: Project.java 1053 2001-12-19 06:31:58Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -240,7 +240,7 @@ public class Project
     private Map packages;
 
     /** a ClassLoader for the local virtual machine */
-    private ClassLoader loader;
+    private ProjectClassLoader loader;
 
     /** a ClassLoader for the remote virtual machine */
     private DebuggerClassLoader debuggerLoader;
@@ -478,10 +478,10 @@ public class Project
      * Get the ClassLoader for this project.
      * The ClassLoader load classes on the local VM.
      */
-    private synchronized ClassLoader getLocalClassLoader()
+    private synchronized ProjectClassLoader getLocalClassLoader()
     {
         if(loader == null)
-            loader = ClassMgr.getLoader(getProjectDir());
+            loader = ClassMgr.getProjectLoader(getProjectDir());
 
         return loader;
     }
@@ -570,22 +570,11 @@ public class Project
      */
     public String getClassPath()
     {
-        // construct a class path out of all our class path entries and
-        // our current class directory
-        StringBuffer c = new StringBuffer();
+        ClassPath allcp = ClassMgr.getClassMgr().getAllClassPath();
 
-        Iterator i = ClassMgr.getClassMgr().getAllClassPathEntries();
+	allcp.addClassPath(getLocalClassLoader().getAsClassPath());
 
-        while(i.hasNext()) {
-            ClassPathEntry cpe = (ClassPathEntry)i.next();
-
-            c.append(cpe.getPath());
-            c.append(File.pathSeparator);
-        }
-
-        c.append(getProjectDir().getPath());    // for classes in current project
-
-        return c.toString();
+        return allcp.toString();
     }
 
     /**

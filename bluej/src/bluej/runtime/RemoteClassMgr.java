@@ -12,44 +12,77 @@ import java.net.*;
 import javax.swing.table.*;
 
 /**
- * Class to maintain a global classpath environment.
+ * Class to maintain a global classpath environment on the
+ * remote virtual machine.
+ *
+ *  DefaultSystemLoader
+ *       ^
+ *       |
+ *  BlueJLoader (changed with setLibraries(). If null, uses 
+ *    ^  ^  ^    the DefaultSystemLoader)
+ *    |  |  |
+ *  ProjectClassLoaders
+ *              (one for each project)
  *
  * @author  Andrew Patterson
- * @version $Id: RemoteClassMgr.java 820 2001-03-27 07:51:06Z mik $
+ * @version $Id: RemoteClassMgr.java 1053 2001-12-19 06:31:58Z ajp $
  */
 public class RemoteClassMgr
 {
     /**
+     * The loader which is made parent of all the ProjectClassLoaders
+     * that we create. Until the first call to setLibraries(), this is
+     * the default system class loader. After that is changed to a
+     * BlueJLoader.
      *
+     * Note, after a call to setLibraries(), existing ProjectClassLoaders
+     * will still be using the old instance of bluejLoader. Only class
+     * loaders created after the setLibraries() call will have the
+     * changes. ProjectClassLoaders should be recreated on a compile
+     * so this problem shouldn't be too much of a problem.
      */
-    private ClassPath otherLibraries = new ClassPath();
+    private ClassLoader bluejLoader = ClassLoader.getSystemClassLoader();
 
-    public ClassLoader getLoader(String classpathstr)
-    {
-        return new ClassPathLoader(new ClassPath(classpathstr,""));
-    }
-
+    /**
+     * Return a non-project specific class loader
+     */
     public ClassLoader getLoader()
     {
-        return new ClassPathLoader(new ClassPath());
+	return bluejLoader;
     }
 
+    /**
+     * Return a project specific class loader
+     */
+    public ClassLoader getLoader(String projectDirName)
+    {
+        return new ProjectClassLoader(new File(projectDirName),
+					bluejLoader);
+    }
+
+    /**
+     * Set the list of libraries that are in the remote virtual
+     * machines class path
+     */
     public void setLibraries(String libraries)
     {
-        otherLibraries = new ClassPath(libraries, "");
+       bluejLoader = new BlueJLoader(libraries);
     }
 
-
-    class ClassPathLoader extends URLClassLoader
+    class BlueJLoader extends URLClassLoader
     {
-        ClassPathLoader(ClassPath classpath)
+        BlueJLoader(String libraries)
         {
-            super(classpath.getURLs());
-
-            URL otherURLs[] = otherLibraries.getURLs();
-
-            for(int i=0; i<otherURLs.length; i++)
-                addURL(otherURLs[i]);
+            super(getStringAsURLArray(libraries));
         }
     }
+
+	private static URL[] getStringAsURLArray(String libraries)
+	{
+	    ClassPath librariesClassPath = new ClassPath(libraries, "");
+
+	    URL librariesURLs[] = librariesClassPath.getURLs();
+
+	    return librariesURLs;
+	}
 }

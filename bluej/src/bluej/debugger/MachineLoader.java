@@ -9,7 +9,7 @@ import bluej.classmgr.ClassMgr;
  * time, and we would like to do it in the background.
  *
  * @author  Michael Kolling
- * @version $Id: MachineLoader.java 291 1999-11-30 06:24:36Z ajp $
+ * @version $Id: MachineLoader.java 1053 2001-12-19 06:31:58Z ajp $
  */
 public class MachineLoader extends Thread
 {
@@ -30,6 +30,6 @@ public class MachineLoader extends Thread
     {
         Debugger.debugger.startDebugger();
 
-        Debugger.debugger.setLibraries(ClassMgr.getClassMgr().getAllClassPath());
+        Debugger.debugger.setLibraries(ClassMgr.getClassMgr().getAllClassPath().toString());
     }
 }
