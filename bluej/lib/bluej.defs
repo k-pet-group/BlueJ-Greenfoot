@@ -253,7 +253,7 @@ bluej.compiler.type=internal
 ## Tabtype can be either hard or soft(replace with space
 #####################################################################
 
-bluej.editor.tabsize=8
+bluej.editor.tabsize=4
 bluej.editor.tabtype=hard
 #bluej.editor.tabtype=soft
 

@@ -299,9 +299,15 @@ pkgmgr.newClass.newInterface=Interface
 pkgmgr.newClass.newApplet=Applet
 
 # "new package" dialog
-pkgmgr.newPackage.title=BlueJ:  Create New Package
-pkgmgr.newPackage.label=Package Name:
+pkgmgr.newPackage.title=BlueJ:  Neues Package erzeugen
+pkgmgr.newPackage.label=Package-Name:
 pkgmgr.newPackage.newPackage=Package
+
+# "Use Library Class" dialog
+pkgmgr.callLibraryDialog.title=BlueJ:  Library-Klasse aufrufen
+pkgmgr.callLibraryDialog.classLabel=Klasse:
+pkgmgr.callLibraryDialog.docButton=Dokumentation
+pkgmgr.callLibraryDialog.listHeading=Konstruktoren und statische Methoden
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Projekt exportieren
@@ -418,6 +424,7 @@ menu.edit.removeArrow=Pfeil löschen...
 menu.tools=Werkzeuge
 menu.tools.compile=Übersetzen
 menu.tools.compileSelected=Einzeln übersetzen
+menu.tools.callLibrary=Library-Klasse aufrufen...
 menu.tools.rebuild=Package neu generieren
 menu.tools.generateDoc=Dokumentation generieren
 menu.tools.browse=Libraries...

@@ -303,6 +303,12 @@ pkgmgr.newPackage.title=BlueJ:  Create New Package
 pkgmgr.newPackage.label=Package Name:
 pkgmgr.newPackage.newPackage=Package
 
+# "Use Library Class" dialog
+pkgmgr.callLibraryDialog.title=BlueJ:  Call Library Class
+pkgmgr.callLibraryDialog.classLabel=Class:
+pkgmgr.callLibraryDialog.docButton=Documentation
+pkgmgr.callLibraryDialog.listHeading=Constructors and static methods
+
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Export Project
 pkgmgr.export.helpLine1=Export stores a copy of the current project in

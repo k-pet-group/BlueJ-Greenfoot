@@ -303,6 +303,12 @@ pkgmgr.newPackage.title=BlueJ:  Skapa Nytt Paket
 pkgmgr.newPackage.label=Paketnamn:
 pkgmgr.newPackage.newPackage=Paket
 
+# "Use Library Class" dialog
+pkgmgr.callLibraryDialog.title=BlueJ:  Call Library Class
+pkgmgr.callLibraryDialog.classLabel=Class:
+pkgmgr.callLibraryDialog.docButton=Documentation
+pkgmgr.callLibraryDialog.listHeading=Constructors and static methods
+
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Exportera Projekt
 pkgmgr.export.helpLine1=Exportera sparar en kopia av det aktuella projektet i
@@ -418,6 +424,7 @@ menu.edit.removeArrow=Radera pil...
 menu.tools=Verktyg
 menu.tools.compile=Kompilera
 menu.tools.compileSelected=Kompilera Markerade
+menu.tools.callLibrary=Use Library Class...
 menu.tools.rebuild=Bygg om paketet
 menu.tools.generateDoc=Generate Documentation
 menu.tools.browse=Bläddra i bibliotek...
