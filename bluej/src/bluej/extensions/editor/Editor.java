@@ -9,7 +9,7 @@ import javax.swing.text.*;
  * Most method of this class must be called from a swing compatile thread,
  * if a method is thread safe it will be marked so.
  *
- * @version    $Id: Editor.java 2928 2004-08-23 09:18:04Z damiano $
+ * @version    $Id: Editor.java 2946 2004-08-25 09:13:55Z damiano $
  */
 
 /*
@@ -202,7 +202,7 @@ public class Editor
      */
     public Object getProperty(String propertyKey)
     {
-        return null;
+        return bjEditor.getProperty(propertyKey);
     }
 
 
@@ -215,12 +215,12 @@ public class Editor
      */
     public void setProperty(String propertyKey, Object value)
     {
+        bjEditor.setProperty(propertyKey,value);
     }
 
 
     /**
-     * Translates a text location into an offset into the text held
-     * by the editor.
+     * Translates a text location into an offset into the text held by the editor.
      *
      * @param  location                   position to be translated
      * @return                            the offset into the text of this text
@@ -234,43 +234,57 @@ public class Editor
 
 
     /**
-     * Translate an offset in the text held by the editor into a text location
+     * Translate an offset in the text held by the editor into a text location.
      *
      * @param  offset  location to be translated
      * @return         the TextLocation in the text of this offset or null if the offset is invalid
      */
     public TextLocation getTextLocationFromOffset(int offset)
     {
-        LineColumn lineColumn = bjEditor.getLineColumnFromOffset(offset);
-        return convertLocation(lineColumn);
+        return convertLocation(bjEditor.getLineColumnFromOffset(offset));
     }
 
 
     /**
-     * Returns the length of the line indicated in the edited text
+     * Returns the length of the line indicated in the edited text.
      *
-     * @param  line  the line in the text for which the length should be calculated
+     * @param  line  the line in the text for which the length should be calculated, starting from zero.
      * @return       the length of the line, -1 if line is invalid
      */
     public int getLineLength(int line)
     {
-        return 0;
+        return bjEditor.getLineLength(line);
     }
 
 
     /**
-     * Returns the total number of lines in the currently edited text
+     * Returns the total number of lines in the currently edited text.
      *
-     * @return    The lineCount value
+     * @return    The number of lines in the text >= 0
      */
     public int getLineCount()
     {
-        return 0;
+        return bjEditor.numberOfLines();
     }
 
 
     /**
+     * Returns the length of the data.  This is the number of
+     * characters of content that represents the users data.
+     *
+     * It is possible to obtain the line and column of the last character of text by using
+     * the getLineColumnFromOffset(getTextLength()) method.
+     *
+     * @return the length >= 0
+     */
+    public int getTextLength ()
+    {
+        return bjEditor.getTextLength();
+    }
+
+    /**
      * Utility to convert a TextLocation into a LineColumn.
+     * If null is given as parameter then null is returned.
      *
      * @param  location  The point in the editor to convert to a LineColumn.
      * @return           The LineColumn object describing a point in the editor.
@@ -287,7 +301,8 @@ public class Editor
 
     /**
      * Utility to convert a LineColumn into a TextLocation.
-     *
+     * If null is given as parameter then null is returned.
+     * 
      * @param  location  The point in the editor to convert to a TextLocation.
      * @return           The TextLocation object describing a point in the editor.
      */

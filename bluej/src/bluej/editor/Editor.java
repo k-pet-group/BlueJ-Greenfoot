@@ -15,7 +15,7 @@ import javax.swing.text.*;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 2928 2004-08-23 09:18:04Z damiano $
+ * @version $Id: Editor.java 2946 2004-08-25 09:13:55Z damiano $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -288,5 +288,47 @@ public interface Editor
      * represent a position which does not exist in the text.
      */
     public int getOffsetFromLineColumn( LineColumn location );
+    
+    /**
+     * Returns a property of the current editor.
+     *
+     * @param  propertyKey  The propertyKey of the property to retrieve.
+     * @return              the property value or null if it is not found
+     */
+    public Object getProperty(String propertyKey);
+
+    /**
+     * Set a property for the current editor. Any existing property with
+     * this key will be overwritten.
+     *
+     * @param  propertyKey  The property key of the new property
+     * @param  value        The new property value
+     */
+    public void setProperty(String propertyKey, Object value);
+    
+    /**
+     * Returns the length of the line indicated in the edited text.
+     *
+     * @param  line  the line in the text for which the length should be calculated, starting from 0
+     * @return       the length of the line, -1 if line is invalid
+     */
+    public int getLineLength(int line);
+    
+    /**
+     * Return the number of lines in the documant.
+     */
+    public int numberOfLines();
+    
+    /**
+     * Returns the length of the data.  This is the number of
+     * characters of content that represents the users data.
+     *
+     * It is possible to obtain the line and column of the last character of text by using
+     * the getLineColumnFromOffset() method.
+     *
+     * @return the length >= 0
+     */
+    public int getTextLength ();    
+    
     
 } // end interface Editor

@@ -148,6 +148,7 @@ public final class MoeEditor extends JFrame
     private TextInsertNotifier doTextInsert = new TextInsertNotifier();
 
     private ClassLoader projectClassLoader;
+    private HashMap propertyMap = new HashMap();
 
     // =========================== NESTED CLASSES ===========================
 
@@ -843,6 +844,81 @@ public final class MoeEditor extends JFrame
 
         return lineOffset + location.getColumn();
     }
+
+    /**
+     * Returns a property of the current editor.
+     *
+     * @param  propertyKey  The propertyKey of the property to retrieve.
+     * @return              the property value or null if it is not found
+     */
+    public Object getProperty(String propertyKey)
+    {
+        return propertyMap.get(propertyKey);
+    }
+
+
+    /**
+     * Set a property for the current editor. Any existing property with
+     * this key will be overwritten.
+     *
+     * @param  propertyKey  The property key of the new property
+     * @param  value        The new property value
+     */
+    public void setProperty(String propertyKey, Object value)
+    {
+        if ( propertyKey == null ) {
+            return;
+        }
+        
+        propertyMap.put(propertyKey,value);
+    }
+
+   /**
+     * Returns the length of the line indicated in the edited text.
+     * Zero is a valid value if the given line has no characters in it.
+     *
+     * @param  line  the line in the text for which the length should be calculated, starting from 0
+     * @return       the length of the line, -1 if line is invalid
+     */
+    public int getLineLength(int line)
+    {
+        if (line < 0) {
+            return -1;
+        }
+
+        Element lineElement = document.getDefaultRootElement().getElement(line);
+        if (lineElement == null) {
+            return -1;
+        }
+
+        int startOffset = lineElement.getStartOffset();
+        
+        return lineElement.getEndOffset() - startOffset;
+    }
+
+
+    /**
+     * Returns the length of the data.  This is the number of
+     * characters of content that represents the users data.
+     *
+     * It is possible to obtain the line and column of the last character of text by using
+     * the getLineColumnFromOffset() method.
+     *
+     * @return the length >= 0
+     */
+    public int getTextLength ()
+    {
+        return document.getLength();
+    }
+    
+    /**
+     * Return the number of lines in the documant.
+     */
+    public int numberOfLines()
+    {
+        return document.getDefaultRootElement().getElementCount();
+    }
+    
 
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
@@ -1679,14 +1755,6 @@ public final class MoeEditor extends JFrame
         return sourceIsCode && (!viewingHTML);
     }
 
-    // --------------------------------------------------------------------
-    /**
-     * Return the number of lines in the documant.
-     */
-    private int numberOfLines()
-    {
-        return document.getDefaultRootElement().getElementCount();
-    }
 
     // --------------------------------------------------------------------
     /**
