@@ -1,0 +1,18 @@
+Exception
+Esta es una excepción general que sólo dice 
+que algo va mal. No tengo idea 
+de qué se trata...
+
+NullPointerException
+Usted trató de acceder a un objeto (tanto un campo
+en un objeto o un mensaje de un objeto). Esto
+no funcionará debido a que la referencia al objeto que
+usted utilizó para acceder al objeto fue 'null'. Por 
+ejemplo: Usted escribió "thing.print()", y "thing"
+era null en este momento.
+
+ArithmeticException
+Algo fue mal durante un cálculo
+aritmético, tal como una división por 0 o
+algo similar.
+
