@@ -10,7 +10,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import com.apple.mrj.*;
+import com.apple.eawt.*;
 
 import bluej.*;
 import bluej.debugger.*;
@@ -26,11 +26,10 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1845 2003-04-14 06:15:46Z ajp $
+ * @version $Id: PkgMgrFrame.java 1857 2003-04-16 12:44:00Z mik $
  */
 public class PkgMgrFrame extends JFrame
-    implements BlueJEventListener, MouseListener,
-               PackageEditorListener, MRJQuitHandler, MRJAboutHandler
+    implements BlueJEventListener, MouseListener, PackageEditorListener
 {
     // static final Color bgColor = Config.getItemColour("colour.background");
     public Font PkgMgrFont = PrefMgr.getStandardFont();
@@ -47,6 +46,8 @@ public class PkgMgrFrame extends JFrame
 
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
+    private static Application macApplication = prepareMacOSApp();
 
     // instance fields:
 
@@ -73,12 +74,10 @@ public class PkgMgrFrame extends JFrame
     private ClassTarget testTarget = null;
     private String testTargetMethod;
     
-
     private JMenuBar menubar = null;
     private JMenu toolsMenu;
     private List itemsToDisable;
     private JButton progressButton;
-
 
     /* The scroller which holds the PackageEditor we use to edit packages */
     private JScrollPane classScroller = null;
@@ -104,6 +103,31 @@ public class PkgMgrFrame extends JFrame
 
     private static ExtensionsManager extMgr = ExtensionsManager.getExtMgr();
 
+
+        
+    /**
+     * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit menu)
+     */
+    private static Application prepareMacOSApp()
+    {
+        Application macApp = new Application();
+        macApp.setEnabledPreferencesMenu(true);
+        macApp.addApplicationListener(new com.apple.eawt.ApplicationAdapter() {
+            public void handleAbout(ApplicationEvent e) {
+                getMostRecent().aboutBlueJ();
+            }
+            public void handlePreferences(ApplicationEvent e) {
+                getMostRecent().showPreferences();
+            }
+            public void handleQuit(ApplicationEvent e) {
+                getMostRecent().wantToQuit();
+            }
+        });
+        
+        return macApp;
+    }
+
+
     /**
      * Open a PkgMgrFrame with no package.
      * Packages can be installed into this
@@ -112,14 +136,12 @@ public class PkgMgrFrame extends JFrame
     public static PkgMgrFrame createFrame()
     {
         PkgMgrFrame frame = new PkgMgrFrame();
-
         frames.add(frame);
-
         BlueJEvent.addListener(frame);
-
         return frame;
     }
 
+    
     /**
      * Open a PkgMgrFrame with a package.
      * This may create a new frame or return an existing frame
@@ -146,6 +168,7 @@ public class PkgMgrFrame extends JFrame
         return pmf;
     }
 
+
     /**
      * Remove a frame from the set of currently open PkgMgrFrames.
      * The PkgMgrFrame must not be editing a package when this
@@ -165,6 +188,7 @@ public class PkgMgrFrame extends JFrame
         frame.dispose();
     }
 
+    
     /**
      * Find a frame which is editing a particular Package and return
      * it or return null if it is not being edited
@@ -180,6 +204,7 @@ public class PkgMgrFrame extends JFrame
         return null;
     }
 
+    
     /**
      * @return the number of currently open top level frames
      */
@@ -202,6 +227,7 @@ public class PkgMgrFrame extends JFrame
         return openFrames;
     }
 
+    
     /**
      * Find all PkgMgrFrames which are currently editing a particular
      * project
@@ -216,6 +242,7 @@ public class PkgMgrFrame extends JFrame
         return getAllProjectFrames(proj, "");
     }
 
+    
     /**
      * Find all PkgMgrFrames which are currently editing a particular
      * project, and which are below a certain point in the package
@@ -260,6 +287,22 @@ public class PkgMgrFrame extends JFrame
         return (PkgMgrFrame[])list.toArray(new PkgMgrFrame[list.size()]);
     }
 
+
+    /**
+     * Gets the most recently used PkgMgrFrame
+     * @return the PkgMgrFrame that currently has the focus
+     */
+    public static PkgMgrFrame getMostRecent()
+    {
+        PkgMgrFrame[] frames = getAllFrames();
+        PkgMgrFrame mostRecent = frames[0];
+        for (int i=0; i<frames.length; i++) {
+            if (frames[i].getFocusOwner() != null) mostRecent = frames[i];
+        }
+        return mostRecent;
+    }
+
+
     /**
      * Display a short text message to the user. Without specifying a package,
      * this is done by showing the message in the status bars of all open
@@ -273,6 +316,7 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+    
     /**
      * Display a short text message in the frame of the specified package.
      */
@@ -308,20 +352,6 @@ public class PkgMgrFrame extends JFrame
             DialogManager.showMessageWithText(pmf, msgId, text);
     }
     
-    /**
-     * Gets the most recently used PkgMgrFrame
-     * @return the PkgMgrFrame that currently has the focus
-     */
-    public static PkgMgrFrame getMostRecent()
-    {
-        PkgMgrFrame[] frames = getAllFrames();
-        PkgMgrFrame mostRecent = frames[0];
-        for (int i=0; i<frames.length; i++) {
-            if (frames[i].getFocusOwner() != null) mostRecent = frames[i];
-        }
-        return mostRecent;
-    }
-
 
     // ================ (end of static part) ==========================
 
@@ -338,10 +368,6 @@ public class PkgMgrFrame extends JFrame
         makeFrame();
 
         updateWindowTitle();
-
-        MRJApplicationUtils.registerQuitHandler(this);
-        MRJApplicationUtils.registerAboutHandler(this);
-
         setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
     }
 
@@ -542,6 +568,7 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+    
     /**
      * Display a message in the status bar of the frame
      */
@@ -551,6 +578,9 @@ public class PkgMgrFrame extends JFrame
             statusbar.setText(status);
     }
 
+    /**
+     * Clear status bar of the frame
+     */
     public void clearStatus()
     {
         if (statusbar != null)
@@ -885,17 +915,6 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * MacOS Quit menu was chosen - redefined from MRJQuitHandler
-     */
-    public void handleQuit()
-    {
-        // On MacOS, no event handling is possible in the quithandler. That's why
-        // we don't show the dialog here (wantToQuit), but exit straight out.
-        // possible fix: show the dialog from another thread.
-        doQuit();
-    }
-
-    /**
      * Quit menu item was chosen.
      */
     public void wantToQuit()
@@ -1090,12 +1109,20 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * About menu was chosen - redefined from MRJAboutHandler
+     * Preferences menu was chosen.
      */
-    public void handleAbout()
+    public void showPreferences()
     {
-            AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
-            about.setVisible(true);
+        PrefMgrDialog.showDialog(this);
+    }
+
+    /**
+     * About menu was chosen.
+     */
+    public void aboutBlueJ()
+    {
+        AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
+        about.setVisible(true);
     }
 
     /**
@@ -2105,7 +2132,7 @@ public class PkgMgrFrame extends JFrame
 
             createMenuItem("menu.tools.preferences", menu, 0, 0, false,
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); PrefMgrDialog.showDialog(frame); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); showPreferences(); }
                            });
 
             toolsExtensionsCheckSeparator();
@@ -2159,7 +2186,7 @@ public class PkgMgrFrame extends JFrame
         {
             createMenuItem("menu.help.about", menu, 0, 0, false,
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); handleAbout(); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); aboutBlueJ(); }
                            });
             createMenuItem("menu.help.versionCheck", menu, KeyEvent.VK_V, SHORTCUT_MASK, false,
                            new ActionListener() {
