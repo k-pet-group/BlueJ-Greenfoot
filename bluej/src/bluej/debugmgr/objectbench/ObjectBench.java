@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2736 2004-07-05 10:09:07Z mik $
+ * @version $Id: ObjectBench.java 2753 2004-07-07 10:00:09Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -156,6 +156,18 @@ public class ObjectBench extends JPanel
         obp.repaint();
     }
 
+    
+    /**
+     * Remove the selected object from the bench. If no object is selected,
+     * do nothing.
+     */
+    public void removeSelectedObject(String scopeId)
+    {
+        ObjectWrapper wrapper = getSelectedObject();
+        if(wrapper != null)
+            removeObject(wrapper, scopeId);
+    }
+    
     
     /**
      * Sets what is the currently selected ObjectWrapper, null can be given to 

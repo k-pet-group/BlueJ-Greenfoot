@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2750 2004-07-07 07:36:38Z mik $
+ * @version $Id: PkgMgrFrame.java 2753 2004-07-07 10:00:09Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -330,7 +330,8 @@ public class PkgMgrFrame extends JFrame
         PkgMgrFrame mostRecent = frames[0];
 
         for (int i=0; i<frames.length; i++) 
-            if (frames[i].getFocusOwner() != null) mostRecent = frames[i];
+            if (frames[i].getFocusOwner() != null) 
+                mostRecent = frames[i];
 
         return mostRecent;
     }
@@ -1610,13 +1611,23 @@ public class PkgMgrFrame extends JFrame
      * Remove the selected targets. Ask before deletion. If nothing is selected
      * display an errormessage.
      */
-    public void doRemove(){
-        if (! (doRemoveTargets() || doRemoveDependency() )) {
-            DialogManager.showError(this, "no-class-selected");
+    public void doRemove()
+    {
+        if(editor.isFocusOwner()) {         // focus in diagram
+            if (! (doRemoveTargets() || doRemoveDependency() )) {
+                DialogManager.showError(this, "no-class-selected");
+            }
+        }
+        else if(objbench.isFocusOwner()) {  // focus in object bench
+            objbench.removeSelectedObject(pkg.getId());
+        }
+        else {
+            // ignore the command - focus is probably in text eval area
         }
     }
     
-    private boolean doRemoveTargets() {
+    private boolean doRemoveTargets() 
+    {
         Target[] targets = pkg.getSelectedTargets();
         if (targets.length <= 0){
             return false;
@@ -1629,7 +1640,8 @@ public class PkgMgrFrame extends JFrame
         return true;
     }
     
-    private boolean doRemoveDependency() {
+    private boolean doRemoveDependency() 
+    {
         Dependency dependency = pkg.getSelectedDependency();
         if (dependency == null){
             return false;
