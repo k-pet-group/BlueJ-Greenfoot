@@ -22,14 +22,15 @@ import javax.swing.border.Border;
 
 /**
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: AssertPanel.java 1629 2003-02-13 02:03:35Z ajp $
  */
 public class AssertPanel extends JPanel
 {
     JTabbedPane assertionTabs;
     JPanel standardPanel;
     JPanel freeformPanel;
-
+    JTextField assertData;
+    
     public AssertPanel()
     {
         standardPanel = new JPanel();
@@ -40,7 +41,7 @@ public class AssertPanel extends JPanel
             eq.addItem("same as");
             eq.addItem("not null");
             standardPanel.add(eq);
-            standardPanel.add(new JTextField(20));
+            standardPanel.add(assertData = new JTextField(20));
         }
 
         freeformPanel = new JPanel();
@@ -59,5 +60,10 @@ public class AssertPanel extends JPanel
 
         add(assertionTabs, BorderLayout.CENTER);
 
+}
+
+    public String getData()
+    {
+        return assertData.getText();    
     }
 }

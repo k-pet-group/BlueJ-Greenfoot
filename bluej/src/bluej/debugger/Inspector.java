@@ -21,7 +21,7 @@ import javax.swing.border.Border;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1628 2003-02-13 00:21:54Z ajp $
+ * @version    $Id: Inspector.java 1629 2003-02-13 02:03:35Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -49,6 +49,7 @@ public abstract class Inspector extends JFrame
     protected JButton inspectButton;
     protected JButton getButton;
     protected JCheckBox assertCheckbox;
+    protected AssertPanel assertPanel;
 
     protected DebuggerObject selectedObject;    // the object currently selected in the list
     protected String selectedObjectName;        // the name of the field of the
@@ -319,6 +320,10 @@ public abstract class Inspector extends JFrame
      */
     private void doClose()
     {
+        if (assertCheckbox != null && assertCheckbox.isSelected()) {
+            ir.addAssertion("\t\t\tassertEquals(" + assertPanel.getData() + ", result);\n");
+        }
+        
         setVisible(false);
         remove();
         dispose();
@@ -447,7 +452,7 @@ public abstract class Inspector extends JFrame
             assertCheckbox.setAlignmentX(LEFT_ALIGNMENT);
             buttonPanel.add(assertCheckbox);
            
-            AssertPanel assertPanel = new AssertPanel();
+            assertPanel = new AssertPanel();
             {
                 assertPanel.setAlignmentX(LEFT_ALIGNMENT);
                 buttonPanel.add(assertPanel);

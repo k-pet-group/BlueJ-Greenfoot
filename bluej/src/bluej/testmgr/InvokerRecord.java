@@ -14,11 +14,11 @@ import bluej.runtime.*;
  * method call mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 1628 2003-02-13 00:21:54Z ajp $
+ * @version $Id: InvokerRecord.java 1629 2003-02-13 02:03:35Z ajp $
  */
 public abstract class InvokerRecord
 {
-    protected List assertions = new ArrayList();
+    protected ArrayList assertions = new ArrayList();
     
     public abstract boolean hasReturnValue();
     

@@ -15,7 +15,7 @@ import bluej.runtime.*;
  * value).
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 1628 2003-02-13 00:21:54Z ajp $
+ * @version $Id: MethodInvokerRecord.java 1629 2003-02-13 02:03:35Z ajp $
  */
 public class MethodInvokerRecord extends InvokerRecord
 {
@@ -54,14 +54,20 @@ public class MethodInvokerRecord extends InvokerRecord
         return false;    
     }
 
-    public String toString()
-    {
-        return "\t\t" + command + ";\n";
-    }
-
     public String toTestMethod()
     {
-        return "\t\t" + command + ";\n";
+        StringBuffer sb = new StringBuffer();
+        
+        sb.append("\t\t{\n");
+        sb.append("\t\t\t" + type + " result = " + command + ";\n");
+
+        if (assertions.size() > 0) {
+            sb.append(assertions.get(0));
+        }
+
+        sb.append("\t\t}\n");
+                    
+        return sb.toString();
     }
 
     public String toFixtureDeclaration()

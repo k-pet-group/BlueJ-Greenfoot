@@ -31,7 +31,7 @@ import antlr.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1628 2003-02-13 00:21:54Z ajp $
+ * @version $Id: UnitTestClassRole.java 1629 2003-02-13 02:03:35Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -161,6 +161,8 @@ public class UnitTestClassRole extends ClassRole
         if (newTestName == null)
             return;
 
+        pmf.getProject().removeLocalClassLoader();
+
         pmf.getPackage().getProject().setTestMode(true);
         
         pmf.endTestButton.setEnabled(true);
@@ -228,52 +230,7 @@ public class UnitTestClassRole extends ClassRole
 
             pmf.putObjectOnBench((DebuggerObject)mapent.getValue(),(String) mapent.getKey());
         }
-
-/*    public void doStartTest(ClassTarget ct, String testName)
-    {
-        testTarget = ct;
-        testTargetMethod = testName;        
-
-        System.out.println("In " + ct.getQualifiedName() + " adding a test" + testName);
-
-        System.out.println("Clearing objects on object bench");
-
-        getProject().removeLocalClassLoader();
-
-        System.out.println("Placing fixture objects on object bench");
-
-        Map dobs = Debugger.debugger.runTestSetUp(
-                            getProject().getRemoteClassLoader().getId(),
-                            getProject().getUniqueId(),
-                            ct.getQualifiedName());
-
-        Iterator it = dobs.entrySet().iterator();
-        
-        while(it.hasNext()) {
-            Map.Entry mapent = (Map.Entry) it.next();
-
-            putObjectOnBench((DebuggerObject)mapent.getValue(),(String) mapent.getKey());
-        }
-        
-        getProject().enterTestMode();               
-        getObjectBench().startRecordingTest();
-        compileButtonModel.setEnabled(false);
-        enableTestButton(true);
-    }
-    
-    public void doEndTest()
-    {
-        System.out.println(getObjectBench().getTestStatements());        
-        
-        getProject().endTestMode();
-        getObjectBench().startRecordingInteractions();
-        enableTestButton(false);       
-        getProject().removeLocalClassLoader();
-    }
-*/
-
-    }
-    
+    }   
     
     /**
      * Convert the objects on the object bench into a test fixture.
