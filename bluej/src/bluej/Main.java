@@ -16,7 +16,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2836 2004-08-04 14:48:23Z damiano $
+ * @version $Id: Main.java 2838 2004-08-04 17:24:14Z damiano $
  */
 public class Main
 {
@@ -130,7 +130,7 @@ public class Main
             }
         }
         
-    ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
+        ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
     }
     
     /**
