@@ -1,4 +1,3 @@
-
 package bluej.pkgmgr.target;
 
 import java.awt.*;
@@ -28,24 +27,25 @@ import bluej.utility.*;
 import bluej.extmgr.*;
 
 /**
- * A class target in a package, i.e. a target that is a class file
- * built from Java source code
- *
+ * A class target in a package, i.e. a target that is a class file built from
+ * Java source code
+ * 
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- *
- * @version $Id: ClassTarget.java 2771 2004-07-09 09:27:41Z mik $
+ * 
+ * @version $Id: ClassTarget.java 2787 2004-07-12 14:12:42Z mik $
  */
-public class ClassTarget extends EditableTarget implements Moveable
-{	
+public class ClassTarget extends EditableTarget
+    implements Moveable
+{
     static final int MIN_WIDTH = 60;
-	static final int MIN_HEIGHT = 30;
+    static final int MIN_HEIGHT = 30;
     private static final String editStr = Config.getString("pkgmgr.classmenu.edit");
     private static final String compileStr = Config.getString("pkgmgr.classmenu.compile");
     private static final String inspectStr = Config.getString("pkgmgr.classmenu.inspect");
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
-	private static final String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
+    private static final String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
 
     // Define Background Colours
     private static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
@@ -55,7 +55,8 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     private static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
-    // temporary file name extension to trick windows if changing case only in class name
+    // temporary file name extension to trick windows if changing case only in
+    // class name
     private static String TEMP_FILE_EXTENSION = "-temp";
 
     // the role object represents the changing roles that are class
@@ -65,7 +66,7 @@ public class ClassTarget extends EditableTarget implements Moveable
     // setRole(). A role should not contain important state information
     // because role objects are thrown away at a whim.
     private ClassRole role = new StdClassRole();
-    
+
     // a flag indicating whether an editor, when opened for the first
     // time, should display the interface of this class
     private boolean openWithInterface = false;
@@ -83,12 +84,14 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     // flag to prevent recursive calls to analyseDependancies()
     private boolean analysing = false;
-    
+
     private int ghostX;
     private int ghostY;
-    private boolean isMoving = false;
+    private int ghostWidth;
+    private int ghostHeight;
+    private boolean isDragging = false;
     private boolean isMoveable = true;
-    
+
     private String typeParameters = "";
 
     /**
@@ -112,7 +115,7 @@ public class ClassTarget extends EditableTarget implements Moveable
         // successfully analyse/compile the source.
         if (template != null) {
             if (template.startsWith("applet"))
-            role = new AppletClassRole();
+                role = new AppletClassRole();
             else if (template.startsWith("unittest"))
                 role = new UnitTestClassRole();
             else if (template.startsWith("abstract"))
@@ -125,8 +128,8 @@ public class ClassTarget extends EditableTarget implements Moveable
     }
 
     /**
-     * Return the target's name, including the package name.
-     * eg. bluej.pkgmgr.Target
+     * Return the target's name, including the package name. eg.
+     * bluej.pkgmgr.Target
      */
     public String getQualifiedName()
     {
@@ -134,43 +137,46 @@ public class ClassTarget extends EditableTarget implements Moveable
     }
 
     /**
-     * Return the target's base name (ie the name without the package name).
-     * eg. Target
+     * Return the target's base name (ie the name without the package name). eg.
+     * Target
      */
     public String getBaseName()
     {
         return getIdentifierName();
     }
 
-    public SourceInfo getSourceInfo(){
+    public SourceInfo getSourceInfo()
+    {
         return sourceInfo;
     }
-    
+
     /**
      * Returns the text which the target is displaying as its label. For normal
      * classes this is just the identifier name. For generic classes the generic
      * parameters are shown as well
      */
-    public String getDisplayName() {
+    public String getDisplayName()
+    {
         return super.getDisplayName() + getTypeParameters();
     }
-    
+
     /**
-     * Returns the type parameters for a generic class as declared in the source file.  
+     * Returns the type parameters for a generic class as declared in the source
+     * file.
      */
-    private String getTypeParameters() {
-        
+    private String getTypeParameters()
+    {
         return typeParameters;
     }
 
     /**
-     * Change the state of this target. The target will be repainted to show
-     * the new state.
+     * Change the state of this target. The target will be repainted to show the
+     * new state.
      */
     public void setState(int newState)
-    {	
-     	Inspector.removeInstance(getQualifiedName());
-    	super.setState(newState);
+    {
+        Inspector.removeInstance(getQualifiedName());
+        super.setState(newState);
     }
 
     /**
@@ -183,9 +189,8 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     /**
      * Set the role for this class target.
-     *
-     * Avoids changing over the role object if the new one is of the same
-     * type
+     * 
+     * Avoids changing over the role object if the new one is of the same type
      */
     protected void setRole(ClassRole newRole)
     {
@@ -195,32 +200,30 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     /**
      * Use a variety of tests to determine what our role is.
-     *
-     * All tests must be very quick and should not rely on any
-     * significant computation (ie. reparsing). If computation is
-     * required, the existing role will do for the time being.
+     * 
+     * All tests must be very quick and should not rely on any significant
+     * computation (ie. reparsing). If computation is required, the existing
+     * role will do for the time being.
      */
     public void determineRole(Class cl)
     {
         if (cl != null) {
             Class junitClass = null;
-        	try {
-				junitClass = cl.getClassLoader().loadClass("junit.framework.TestCase");
-        	}
-			catch (ClassNotFoundException cnfe) {
-				junitClass = junit.framework.TestCase.class;
-			}        	
+            try {
+                junitClass = cl.getClassLoader().loadClass("junit.framework.TestCase");
+            }
+            catch (ClassNotFoundException cnfe) {
+                junitClass = junit.framework.TestCase.class;
+            }
 
-			Class appletClass = null;
-			try {
-				appletClass = cl.getClassLoader().loadClass("java.applet.Applet");
-			}
-			catch (ClassNotFoundException cnfe) {
-				appletClass = java.applet.Applet.class;
-			}        	
-		
-			
-			
+            Class appletClass = null;
+            try {
+                appletClass = cl.getClassLoader().loadClass("java.applet.Applet");
+            }
+            catch (ClassNotFoundException cnfe) {
+                appletClass = java.applet.Applet.class;
+            }
+
             // if cl is non-null then it is the definitive information
             // source ie. if it thinks its an applet who are we to argue
             // with it.
@@ -230,11 +233,11 @@ public class ClassTarget extends EditableTarget implements Moveable
                 setRole(new UnitTestClassRole());
             else if (Modifier.isInterface(cl.getModifiers()))
                 setRole(new InterfaceClassRole());
-            else if (Modifier.isAbstract(cl.getModifiers())) 
+            else if (Modifier.isAbstract(cl.getModifiers()))
                 setRole(new AbstractClassRole());
             else if (JavaUtils.getJavaUtils().isEnum(cl))
                 setRole(new EnumClassRole());
-            else 
+            else
                 setRole(new StdClassRole());
         }
         else {
@@ -252,8 +255,8 @@ public class ClassTarget extends EditableTarget implements Moveable
                     setRole(new AbstractClassRole());
                 else if (classInfo.isEnum())
                     setRole(new EnumClassRole());
-                else 
-                    setRole(new StdClassRole()); 
+                else
+                    setRole(new StdClassRole());
 
             }
         }
@@ -262,9 +265,12 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     /**
      * Load existing information about this class target
-     * @param props the properties object to read
-     * @param prefix an internal name used for this target to identify
-     * its properties in a properties file used by multiple targets.
+     * 
+     * @param props
+     *            the properties object to read
+     * @param prefix
+     *            an internal name used for this target to identify its
+     *            properties in a properties file used by multiple targets.
      */
     public void load(Properties props, String prefix)
         throws NumberFormatException
@@ -275,10 +281,10 @@ public class ClassTarget extends EditableTarget implements Moveable
         // the class target. Be careful here as if you add role types
         // you need to add them here as well.
         String type = props.getProperty(prefix + ".type");
-        
+
         String intf = props.getProperty(prefix + ".showInterface");
         openWithInterface = Boolean.valueOf(intf).booleanValue();
-        
+
         if (AppletClassRole.APPLET_ROLE_NAME.equals(type))
             setRole(new AppletClassRole());
         else if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type))
@@ -290,53 +296,52 @@ public class ClassTarget extends EditableTarget implements Moveable
         else if (EnumClassRole.ENUM_ROLE_NAME.equals(type))
             setRole(new EnumClassRole());
 
-
         getRole().load(props, prefix);
     }
 
     /**
      * Save information about this class target
-     * @param props the properties object to save to
-     * @param prefix an internal name used for this target to identify
-     * its properties in a properties file used by multiple targets.
+     * 
+     * @param props
+     *            the properties object to save to
+     * @param prefix
+     *            an internal name used for this target to identify its
+     *            properties in a properties file used by multiple targets.
      */
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
 
-        if (getRole().getRoleName() != null) 
+        if (getRole().getRoleName() != null)
             props.put(prefix + ".type", getRole().getRoleName());
 
         if (editorOpen()) {
             openWithInterface = getEditor().isShowingInterface();
         }
-        props.put(prefix + ".showInterface", 
-                    new Boolean(openWithInterface).toString());
+        props.put(prefix + ".showInterface", new Boolean(openWithInterface).toString());
 
-        getRole().save(props, 0, prefix);        
+        getRole().save(props, 0, prefix);
     }
 
     /**
-     * Copy all the files belonging to this target to a new location.
-     * For class targets, that is the source file, and possibly (if compiled)
-     * class and context files.
-     *
-     * @param directory The directory to copy into (ending with "/")
+     * Copy all the files belonging to this target to a new location. For class
+     * targets, that is the source file, and possibly (if compiled) class and
+     * context files.
+     * 
+     * @param directory
+     *            The directory to copy into (ending with "/")
      */
     public boolean copyFiles(String directory)
     {
         boolean okay = true;
 
-        if (!FileUtility.copyFile(getSourceFile(),
-                              new File(directory, getBaseName() + ".java")))
+        if (!FileUtility.copyFile(getSourceFile(), new File(directory, getBaseName() + ".java")))
             okay = false;
 
-        if(upToDate()) {
-            if(!FileUtility.copyFile(getClassFile(),
-                              new File(directory, getBaseName() + ".class")))
+        if (upToDate()) {
+            if (!FileUtility.copyFile(getClassFile(), new File(directory, getBaseName() + ".class")))
                 okay = false;
-            if(!FileUtility.copyFile(getContextFile(),
-                              new File(directory, getBaseName() + ".ctxt")))
+            if (!FileUtility.copyFile(getContextFile(), new File(directory, getBaseName() + ".ctxt")))
                 okay = false;
         }
         return okay;
@@ -344,6 +349,7 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     /**
      * Check if the compiled class and the source are up to date.
+     * 
      * @return true if they are in sync otherwise false.
      */
     public boolean upToDate()
@@ -353,11 +359,10 @@ public class ClassTarget extends EditableTarget implements Moveable
         File clss = getClassFile();
 
         // if just a .class file with no src, it better be up to date
-		if(!hasSourceCode())
-			return true;
-				
-        if(!clss.exists()
-             || (src.exists() && (src.lastModified() > clss.lastModified())))
+        if (!hasSourceCode())
+            return true;
+
+        if (!clss.exists() || (src.exists() && (src.lastModified() > clss.lastModified())))
             return false;
 
         return true;
@@ -370,8 +375,8 @@ public class ClassTarget extends EditableTarget implements Moveable
     {
         setState(S_INVALID);
 
-        for(Iterator it = dependents(); it.hasNext(); ) {
-            Dependency d = (Dependency)it.next();
+        for (Iterator it = dependents(); it.hasNext();) {
+            Dependency d = (Dependency) it.next();
             Target dependent = d.getFrom();
             dependent.setState(S_INVALID);
         }
@@ -379,6 +384,7 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     /**
      * Verify whether this class target is an interface class
+     * 
      * @return true if class target is an interface class, else returns false
      */
     public boolean isInterface()
@@ -386,22 +392,24 @@ public class ClassTarget extends EditableTarget implements Moveable
         return (getRole() instanceof InterfaceClassRole);
     }
 
-	/**
-	 * Verify whether this class target is an unit test class
-	 * @return true if class target is a unit test class, else returns false
-	 */
-	public boolean isUnitTest()
-	{
-		return (getRole() instanceof UnitTestClassRole);
-	}
+    /**
+     * Verify whether this class target is an unit test class
+     * 
+     * @return true if class target is a unit test class, else returns false
+     */
+    public boolean isUnitTest()
+    {
+        return (getRole() instanceof UnitTestClassRole);
+    }
 
     // --- Target interface ---
 
     Color getBackgroundColour()
     {
-        if(state == S_COMPILING) {
+        if (state == S_COMPILING) {
             return compbg;
-        } else
+        }
+        else
             return getRole().getBackgroundColour();
     }
 
@@ -456,11 +464,12 @@ public class ClassTarget extends EditableTarget implements Moveable
      */
     public FileFilter getInnerClassFiles()
     {
-       return new InnerClassFileFilter();
+        return new InnerClassFileFilter();
 
     }
 
-    class InnerClassFileFilter implements FileFilter
+    class InnerClassFileFilter
+        implements FileFilter
     {
         public boolean accept(File pathname)
         {
@@ -469,23 +478,17 @@ public class ClassTarget extends EditableTarget implements Moveable
     }
 
     /**
-     * @return the editor object associated with this target. May be null
-     *  if there was a problem opening this editor.
+     * @return the editor object associated with this target. May be null if
+     *         there was a problem opening this editor.
      */
     public Editor getEditor()
     {
-        if(editor == null){
+        if (editor == null) {
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
-            editor = EditorManager.getEditorManager().openClass(filename, 
-                    docFilename, 
-                    getBaseName(), 
-                    this, 
-                    isCompiled(), 
-                    breakpoints, 
-                    getPackage().getProject().getLocalClassLoader(),
-                    editorBounds);
-            if(openWithInterface)
+            editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
+                    isCompiled(), breakpoints, getPackage().getProject().getLocalClassLoader(), editorBounds);
+            if (openWithInterface)
                 editor.showInterface(true);
         }
         return editor;
@@ -496,19 +499,18 @@ public class ClassTarget extends EditableTarget implements Moveable
     // --- user interface function implementation ---
 
     /**
-     *
+     *  
      */
     private void inspect()
     {
-    	try {
-			DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName());
+        try {
+            DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName());
 
-			ClassInspector insp = 
-				ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
-    	}
-		catch (ClassNotFoundException cnfe) { }
+            ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));  // show dialog
+        }
+        catch (ClassNotFoundException cnfe) {}
     }
-    
+
     // --- EditorWatcher interface ---
 
     /**
@@ -516,22 +518,25 @@ public class ClassTarget extends EditableTarget implements Moveable
      */
     public void modificationEvent(Editor editor)
     {
-        invalidate();        
-        
+        invalidate();
+
         //Lazy remove breakpoints
         Thread t = new Thread() {
-            public void run() {
+            public void run()
+            {
                 removeBreakpoints();
             }
         };
         t.start();
-        
-        sourceInfo.setSourceModified();        
+
+        sourceInfo.setSourceModified();
     }
 
     /**
      * Called by Editor when a file is saved
-     * @param editor    the editor object being saved
+     * 
+     * @param editor
+     *            the editor object being saved
      */
     public void saveEvent(Editor editor)
     {
@@ -541,15 +546,19 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     /**
      * Called by Editor when a breakpoint is been set/cleared
-     * @param filename  the name of the file that was modified
-     * @param lineNo    the line number of the breakpoint
-     * @param set   whether the breakpoint is set (true) or cleared
-     *
-     * @return  null if there was no problem, or an error string
+     * 
+     * @param filename
+     *            the name of the file that was modified
+     * @param lineNo
+     *            the line number of the breakpoint
+     * @param set
+     *            whether the breakpoint is set (true) or cleared
+     * 
+     * @return null if there was no problem, or an error string
      */
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     {
-        if(isCompiled()) {
+        if (isCompiled()) {
             return getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set);
         }
         else
@@ -560,13 +569,13 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     public void removeBreakpoints()
     {
-        if(editor != null)
+        if (editor != null)
             editor.removeBreakpoints();
     }
 
     public void removeStepMark()
     {
-        if(editor != null)
+        if (editor != null)
             editor.removeStepMark();
     }
 
@@ -575,17 +584,16 @@ public class ClassTarget extends EditableTarget implements Moveable
         return (state == S_NORMAL);
     }
 
-
     public void compile(Editor editor)
     {
         getPackage().compile(this);
     }
 
     /**
-     *  Called when this class target has just been successfully compiled.
-     *
-     * We load the compiled class if possible and check it the compilation
-     * has resulted in it taking a different role (ie abstract to applet)
+     * Called when this class target has just been successfully compiled.
+     * 
+     * We load the compiled class if possible and check it the compilation has
+     * resulted in it taking a different role (ie abstract to applet)
      */
     public void endCompile()
     {
@@ -596,31 +604,31 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     /**
      * generates a source code skeleton for this class
-     *
+     *  
      */
     public void generateSkeleton(String template)
     {
         // delegate to role object
-        if(template == null)
+        if (template == null)
             Debug.reportError("generate class skeleton error");
         else {
-            role.generateSkeleton(template, getPackage(), getBaseName(),
-                                  getSourceFile().getPath());
+            role.generateSkeleton(template, getPackage(), getBaseName(), getSourceFile().getPath());
             setState(Target.S_INVALID);
         }
     }
 
-    public void enforcePackage(String packageName) throws IOException
+    public void enforcePackage(String packageName)
+        throws IOException
     {
         ClassInfo info;
 
-        if(!JavaNames.isQualifiedIdentifier(packageName))
+        if (!JavaNames.isQualifiedIdentifier(packageName))
             throw new IllegalArgumentException();
 
         try {
             info = ClassParser.parse(getSourceFile());
         }
-        catch(Exception e) {
+        catch (Exception e) {
             return;
         }
 
@@ -700,16 +708,15 @@ public class ClassTarget extends EditableTarget implements Moveable
      */
     public void analyseSource(boolean modifySource)
     {
-        if(analysing)
+        if (analysing)
             return;
 
         analysing = true;
 
-        ClassInfo info = sourceInfo.getInfo(getSourceFile().getPath(),
-                                            getPackage().getAllClassnames());
+        ClassInfo info = sourceInfo.getInfo(getSourceFile().getPath(), getPackage().getAllClassnames());
 
         // info will be null if the source was unparseable
-        if(info != null) {
+        if (info != null) {
             // the following may update the package display but it
             // will not modify the classes source code
             determineRole(null);
@@ -718,16 +725,16 @@ public class ClassTarget extends EditableTarget implements Moveable
 
             // these two however will potentially modify the source
             if (modifySource) {
-                if(analyseClassName(info)) {
-                    if(nameEqualsIgnoreCase(info.getName())) {
+                if (analyseClassName(info)) {
+                    if (nameEqualsIgnoreCase(info.getName())) {
                         // this means file has same name but different case
                         // to trick Windows OS to do a name change we need to
                         // rename to temp name and then rename to desired name
-                        doClassNameChange(info.getName()+ TEMP_FILE_EXTENSION);
+                        doClassNameChange(info.getName() + TEMP_FILE_EXTENSION);
                     }
                     doClassNameChange(info.getName());
                 }
-                if(analysePackageName(info))
+                if (analysePackageName(info))
                     doPackageNameChange(info.getPackage());
             }
         }
@@ -736,12 +743,12 @@ public class ClassTarget extends EditableTarget implements Moveable
 
         analysing = false;
     }
-    
+
     public void setTypeParameters(ClassInfo info)
     {
-        if(info.hasTypeParameter()) {
+        if (info.hasTypeParameter()) {
             String newTypeParameters = info.getTypeParameterText().getText();
-            if(! newTypeParameters.equals(typeParameters)) {
+            if (!newTypeParameters.equals(typeParameters)) {
                 typeParameters = newTypeParameters;
                 updateSize();
             }
@@ -749,10 +756,11 @@ public class ClassTarget extends EditableTarget implements Moveable
     }
 
     /**
-     * Analyses class name of Classtarget with that of parsed src file.
-     * Aim is to detect any textual changes of class name and modify resources 
-     * to suit
-     * @param info contains parsed class information
+     * Analyses class name of Classtarget with that of parsed src file. Aim is
+     * to detect any textual changes of class name and modify resources to suit
+     * 
+     * @param info
+     *            contains parsed class information
      * @return true if class name is different
      */
     public boolean analyseClassName(ClassInfo info)
@@ -773,8 +781,8 @@ public class ClassTarget extends EditableTarget implements Moveable
     }
 
     /**
-     *  Analyse the current dependencies in the source code and update the
-     *  dependencies in the graphical display accordingly.
+     * Analyse the current dependencies in the source code and update the
+     * dependencies in the graphical display accordingly.
      */
     public void analyseDependencies(ClassInfo info)
     {
@@ -785,59 +793,54 @@ public class ClassTarget extends EditableTarget implements Moveable
         unflagAllOutDependencies();
 
         // handle superclass dependency
-        if(info.getSuperclass() != null) {
-            DependentTarget superclass = getPackage().getDependentTarget(info.getSuperclass());            
+        if (info.getSuperclass() != null) {
+            DependentTarget superclass = getPackage().getDependentTarget(info.getSuperclass());
             if (superclass != null) {
-                getPackage().addDependency(
-                                  new ExtendsDependency(getPackage(), this, superclass),
-                                  false);
+                getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass), false);
             }
         }
 
         // handle implemented interfaces
         List vect = info.getImplements();
-        for(Iterator it = vect.iterator(); it.hasNext(); ) {
-            String name = (String)it.next();
+        for (Iterator it = vect.iterator(); it.hasNext();) {
+            String name = (String) it.next();
             DependentTarget interfce = getPackage().getDependentTarget(name);
-            
+
             if (interfce != null) {
-                getPackage().addDependency(
-                                  new ImplementsDependency(getPackage(), this, interfce),
-                                  false);
+                getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce), false);
             }
         }
 
         // handle used classes
         vect = info.getUsed();
-        for(Iterator it = vect.iterator(); it.hasNext(); ) {
-            String name = (String)it.next();
+        for (Iterator it = vect.iterator(); it.hasNext();) {
+            String name = (String) it.next();
             DependentTarget used = getPackage().getDependentTarget(name);
             if (used != null) {
-				if (used.getAssociation() == this || this.getAssociation() == used)
-					continue;
+                if (used.getAssociation() == this || this.getAssociation() == used)
+                    continue;
 
-				getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
-            	
+                getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
+
             }
         }
 
         // check for inconsistent use dependencies
-        for(Iterator it = usesDependencies(); it.hasNext();) {
-            UsesDependency usesDep = ((UsesDependency)it.next());
-            if(! usesDep.isFlagged())
+        for (Iterator it = usesDependencies(); it.hasNext();) {
+            UsesDependency usesDep = ((UsesDependency) it.next());
+            if (!usesDep.isFlagged())
                 getPackage().setStatus(usesArrowMsg + usesDep);
         }
     }
 
     /**
-     * Check to see that name has not changed.
-     * If name has changed then update details.
-     * Return true if the name has changed.
+     * Check to see that name has not changed. If name has changed then update
+     * details. Return true if the name has changed.
      */
     private boolean doClassNameChange(String newName)
     {
         //need to check that class does not already exist
-        if(getPackage().getTarget(newName) != null) {
+        if (getPackage().getTarget(newName) != null) {
             getPackage().showError("duplicate-name");
             return false;
         }
@@ -845,14 +848,13 @@ public class ClassTarget extends EditableTarget implements Moveable
         File newSourceFile = new File(getPackage().getPath(), newName + ".java");
         File oldSourceFile = getSourceFile();
 
-        if(FileUtility.copyFile(oldSourceFile, newSourceFile)) {
+        if (FileUtility.copyFile(oldSourceFile, newSourceFile)) {
 
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
             getEditor().changeName(newName, newSourceFile.getPath());
 
-            role.prepareFilesForRemoval(this,
-                                         oldSourceFile.getPath(),
-                                         getClassFile().getPath(), getContextFile().getPath());
+            role.prepareFilesForRemoval(this, oldSourceFile.getPath(), getClassFile().getPath(), getContextFile()
+                    .getPath());
 
             // this is extremely dangerous code here.. must track all
             // variables which are set when ClassTarget is first
@@ -865,22 +867,24 @@ public class ClassTarget extends EditableTarget implements Moveable
         }
         return false;
     }
-    
+
     /**
      * Checks for ClassTarget name equality if case is ignored.
-     * @param newName 
+     * 
+     * @param newName
      * @return true if name is equal ignoring case.
      */
     private boolean nameEqualsIgnoreCase(String newName)
     {
-        return (getBaseName().equalsIgnoreCase(newName));      
+        return (getBaseName().equalsIgnoreCase(newName));
     }
 
-	/**
-	 * Change the package of a class target to something else.
-     *
-	 * @param newName the new fully qualified package name
-	 */
+    /**
+     * Change the package of a class target to something else.
+     * 
+     * @param newName
+     *            the new fully qualified package name
+     */
     private void doPackageNameChange(String newName)
     {
         Project proj = getPackage().getProject();
@@ -888,24 +892,24 @@ public class ClassTarget extends EditableTarget implements Moveable
         // This should be a WIzard one, Damiano
         Package dstPkg = proj.getPackage(newName);
 
-        if(dstPkg == null) {
+        if (dstPkg == null) {
             DialogManager.showError(null, "package-name-invalid");
         }
         else {
-        	// fix for bug #382. Potentially could clash with a package
-        	// in the destination package with the same name
-        	if (dstPkg.getTarget(getBaseName()) != null) {
-        		DialogManager.showError(null, "package-name-clash");
-        		return;
-        	}
-        	
-            if(DialogManager.askQuestion(null, "package-name-changed") == 0) {
+            // fix for bug #382. Potentially could clash with a package
+            // in the destination package with the same name
+            if (dstPkg.getTarget(getBaseName()) != null) {
+                DialogManager.showError(null, "package-name-clash");
+                return;
+            }
+
+            if (DialogManager.askQuestion(null, "package-name-changed") == 0) {
                 switch(dstPkg.importFile(getSourceFile())) {
-                default:
-                    prepareForRemoval();
-                    getPackage().removeTarget(this);
-                    close();
-                    return;
+                    default :
+                        prepareForRemoval();
+                        getPackage().removeTarget(this);
+                        close();
+                        return;
                 }
             }
         }
@@ -916,24 +920,24 @@ public class ClassTarget extends EditableTarget implements Moveable
             enforcePackage(getPackage().getQualifiedName());
             getEditor().reloadFile();
         }
-        catch(IOException ioe) { }
+        catch (IOException ioe) {}
     }
 
     /**
-     * Resizes the class so the entire classname + type parameter are visible 
-     *
+     * Resizes the class so the entire classname + type parameter are visible
+     *  
      */
-    private void updateSize() {
+    private void updateSize()
+    {
         int width = calculateWidth(getDisplayName());
         setSize(width, getHeight());
-        handleMoveAndResizing();       
         repaint();
     }
-    
-	/**
-	 * Construct a popup menu for the class target, including caching
-	 * of results.
-	 */
+
+    /**
+     * Construct a popup menu for the class target, including caching of
+     * results.
+     */
     protected JPopupMenu menu = null;
     boolean compiledMenu = false;
 
@@ -950,20 +954,20 @@ public class ClassTarget extends EditableTarget implements Moveable
                 cl = getPackage().loadClass(getQualifiedName());
             }
             catch (LinkageError le) {
-                Debug.message(le.toString());    
+                Debug.message(le.toString());
 
                 // trouble loading the class
                 // remove the class file and invalidate the target
                 if (hasSourceCode()) {
-                    getClassFile().delete();    
+                    getClassFile().delete();
                     invalidate();
                 }
-                cl = null;               
+                cl = null;
             }
         }
 
-		if (menu != null)
-			 editor.remove(menu);
+        if (menu != null)
+            editor.remove(menu);
 
         // check that the class loading hasn't changed out state
         if (state == S_NORMAL) {
@@ -981,9 +985,10 @@ public class ClassTarget extends EditableTarget implements Moveable
 
     /**
      * Creates a popup menu for this class target.
-     *
-     * @param   cl  class object associated with this class target
-     * @return      the created popup menu object
+     * 
+     * @param cl
+     *            class object associated with this class target
+     * @return the created popup menu object
      */
     protected JPopupMenu createMenu(Class cl)
     {
@@ -997,8 +1002,8 @@ public class ClassTarget extends EditableTarget implements Moveable
                 menu.addSeparator();
 
         if (cl != null)
-			if (role.createClassStaticMenu(menu, this, cl))
-				menu.addSeparator();
+            if (role.createClassStaticMenu(menu, this, cl))
+                menu.addSeparator();
         role.addMenuItem(menu, new EditAction(), true);
         role.addMenuItem(menu, new CompileAction(), hasSourceCode());
         role.addMenuItem(menu, new InspectAction(), cl != null);
@@ -1007,10 +1012,10 @@ public class ClassTarget extends EditableTarget implements Moveable
         // call on role object to add any options needed at bottom
         role.createRoleMenuEnd(menu, this, state);
 
-        MenuManager menuManager = new MenuManager( menu );
+        MenuManager menuManager = new MenuManager(menu);
         menuManager.setAttachedObject(this);
         menuManager.addExtensionMenu(getPackage().getProject());
-        
+
         return menu;
     }
 
@@ -1023,27 +1028,27 @@ public class ClassTarget extends EditableTarget implements Moveable
 
         public void actionPerformed(ActionEvent e)
         {
-			PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-			
-			if (pmf != null) {
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+
+            if (pmf != null) {
                 String testClassName = getIdentifierName() + "Test";
-				pmf.createNewClass(testClassName, "unittest");
-                // we want to check that the previous called actually 
+                pmf.createNewClass(testClassName, "unittest");
+                // we want to check that the previous called actually
                 // created a unit test class as a name clash with an existing
-                // class would not.  This prevents a non unit test becoming
+                // class would not. This prevents a non unit test becoming
                 // associated with a class unintentionally
                 Target target = getPackage().getTarget(testClassName);
                 ClassTarget ct = null;
-                if(target instanceof ClassTarget) {
-                    ct = (ClassTarget)target;
-                    if(ct != null && ct.isUnitTest())
-                        setAssociation(getPackage().getTarget(getIdentifierName() + "Test"));
+                if (target instanceof ClassTarget) {
+                    ct = (ClassTarget) target;
+                    if (ct != null && ct.isUnitTest())
+                        setAssociation((DependentTarget)getPackage().getTarget(getIdentifierName() + "Test"));
                 }
                 updateAssociatePosition();
                 getPackage().getEditor().revalidate();
                 getPackage().getEditor().repaint();
 
-			}
+            }
         }
     }
 
@@ -1083,7 +1088,7 @@ public class ClassTarget extends EditableTarget implements Moveable
         public void actionPerformed(ActionEvent e)
         {
             PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-            if ( pmf.askRemoveClass() ){
+            if (pmf.askRemoveClass()) {
                 getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this);
             }
         }
@@ -1102,17 +1107,12 @@ public class ClassTarget extends EditableTarget implements Moveable
         }
     }
 
-   
     public void mousePressed(MouseEvent evt, GraphEditor editor)
     {
         super.mousePressed(evt, editor);
     }
 
-    public void singleClick(MouseEvent evt, GraphEditor editor)
-    {
-    }
-
-    public void doubleClick(MouseEvent evt, GraphEditor editor)
+    public void doubleClick(MouseEvent evt)
     {
         open();
     }
@@ -1120,80 +1120,123 @@ public class ClassTarget extends EditableTarget implements Moveable
     /**
      * @return Returns the ghostX.
      */
-    public int getGhostX() {
+    public int getGhostX()
+    {
         return ghostX;
     }
-    
+
     /**
      * @return Returns the ghostX.
      */
-    public int getGhostY() {
+    public int getGhostY()
+    {
         return ghostY;
-    }   
-    /**
-     * @param ghostX The ghostX to set.
-     */
-    public void setGhostX(int ghostX) {
-        this.ghostX = ghostX;
     }
-    /**
-     * @param ghostY The ghostY to set.
-     */
-    public void setGhostY(int ghostY) {
-        this.ghostY = ghostY;
-    }
-    
-    /** returns whether */
-    public boolean isMoving(){
-        return isMoving;
-    }
-    
-    public void setIsMoving(boolean isMoving){
-        this.isMoving = isMoving;
-    }
-    
-    public void setPos(int x, int y){
-        super.setPos(x,y);
-        setGhostX(x);
-        setGhostY(y);
-    }
-    
-    public void updateAssociatePosition() {
-        
-    	Target t = getAssociation();
-    	
-        if (t != null) {
-            //TODO magic numbers. Should also take grid size in to account.
-            t.setPos(getX() + 30, getY() - 30);
-        }
-    }
-    
 
     /**
-     * Prepares this ClassTarget for removal from a Package.
-     * It removes dependency arrows and calls prepareFilesForRemoval()
-     * to remove applicable files.
-     *
+     * @return Returns the ghostX.
+     */
+    public int getGhostWidth()
+    {
+        return ghostWidth;
+    }
+
+    /**
+     * @return Returns the ghostX.
+     */
+    public int getGhostHeight()
+    {
+        return ghostHeight;
+    }
+
+    /**
+     * Set the position of the ghost image given a delta to the real size.
+     */
+    public void setGhostPosition(int deltaX, int deltaY)
+    {
+        this.ghostX = getX() + deltaX;
+        this.ghostY = getY() + deltaY;
+    }
+
+    /**
+     * Set the size of the ghost image given a delta to the real size.
+     */
+    public void setGhostSize(int deltaX, int deltaY)
+    {
+        ghostWidth = Math.max(getWidth() + deltaX, MIN_WIDTH);
+        ghostHeight = Math.max(getHeight() + deltaY, MIN_HEIGHT);
+    }
+
+    /**
+     * Set the target's position to its ghost position.
+     */
+    public void setPositionToGhost()
+    {
+        super.setPos(ghostX, ghostY);
+        setSize(ghostWidth, ghostHeight);
+        isDragging = false;
+    }
+
+    /** 
+     * Ask whether we are currently dragging. 
+     */
+    public boolean isDragging()
+    {
+        return isDragging;
+    }
+
+    /**
+     * Set whether or not we are currently dragging this class
+     * (either moving or resizing).
+     */
+    public void setDragging(boolean isDragging)
+    {
+        this.isDragging = isDragging;
+    }
+
+    /**
+     * Set the position of this target.
+     */
+    public void setPos(int x, int y)
+    {
+        super.setPos(x, y);
+        setGhostPosition(0, 0);
+    }
+
+    /**
+     * Set the size of this target.
+     */
+    public void setSize(int width, int height)
+    {
+        super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
+        setGhostSize(0, 0);
+    }
+
+    /**
+     * Prepares this ClassTarget for removal from a Package. It removes
+     * dependency arrows and calls prepareFilesForRemoval() to remove applicable
+     * files.
+     *  
      */
     private void prepareForRemoval()
     {
-        if(editor != null)
+        if (editor != null)
             editor.close();
 
-		// if this target is the assocation for another Target, remove
-		// the association
-		Iterator it = getPackage().getVertices();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if (o instanceof DependentTarget) {
-				DependentTarget d = (DependentTarget) o;
-				if (this.equals(d.getAssociation()))
-					d.setAssociation(null);
-			}
-		}
-		
-		// flag dependent Targets as invalid
-		invalidate();
+        // if this target is the assocation for another Target, remove
+        // the association
+        Iterator it = getPackage().getVertices();
+        while (it.hasNext()) {
+            Object o = it.next();
+            if (o instanceof DependentTarget) {
+                DependentTarget d = (DependentTarget) o;
+                if (this.equals(d.getAssociation()))
+                    d.setAssociation(null);
+            }
+        }
+
+        // flag dependent Targets as invalid
+        invalidate();
 
         removeAllInDependencies();
         removeAllOutDependencies();
@@ -1203,9 +1246,9 @@ public class ClassTarget extends EditableTarget implements Moveable
     }
 
     /**
-     *
-     * Removes applicable files (.class, .java and .ctxt) prior to
-     * this ClassTarget being removed from a Package.
+     * 
+     * Removes applicable files (.class, .java and .ctxt) prior to this
+     * ClassTarget being removed from a Package.
      */
     public void prepareFilesForRemoval()
     {
@@ -1215,47 +1258,50 @@ public class ClassTarget extends EditableTarget implements Moveable
             File[] files = getPackage().getPath().listFiles(getInnerClassFiles());
 
             if (files != null) {
-                for(int i=0; i<files.length; i++) {
-                   files[i].delete();
+                for (int i = 0; i < files.length; i++) {
+                    files[i].delete();
                 }
             }
         }
 
-        getRole().prepareFilesForRemoval(this,
-                                    getSourceFile().getPath(),
-                                    getClassFile().getPath(),
-                                    getContextFile().getPath());
+        getRole().prepareFilesForRemoval(this, getSourceFile().getPath(), getClassFile().getPath(),
+                getContextFile().getPath());
     }
 
-	/* (non-Javadoc)
-	 * @see bluej.editor.EditorWatcher#generateDoc()
-	 */
-	public void generateDoc() {
-		getPackage().generateDocumentation(this);
-	}
-    
-    public void remove(){
-        prepareForRemoval();
-        getPackage().removeClass(this);   
-    }
-    
-    public void setSize(int width, int height)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see bluej.editor.EditorWatcher#generateDoc()
+     */
+    public void generateDoc()
     {
-        super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
+        getPackage().generateDocumentation(this);
     }
 
-    /* (non-Javadoc)
+    public void remove()
+    {
+        prepareForRemoval();
+        getPackage().removeClass(this);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see bluej.graph.Moveable#isMoveable()
      */
-    public boolean isMoveable() {
+    public boolean isMoveable()
+    {
         return isMoveable;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see bluej.graph.Moveable#setIsMoveable(boolean)
      */
-    public void setIsMoveable(boolean isMoveable) {
+    public void setIsMoveable(boolean isMoveable)
+    {
         this.isMoveable = isMoveable;
     }
-    
+
 }

@@ -18,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2752 2004-07-07 09:39:56Z mik $
+ * @version $Id: ReadmeTarget.java 2787 2004-07-12 14:12:42Z mik $
  */
 public class ReadmeTarget extends Target
     implements ActionListener
@@ -177,7 +177,7 @@ public class ReadmeTarget extends Target
      * Called when a package icon in a GraphEditor is double clicked.
      * Creates a new PkgFrame when a package is drilled down on.
      */
-    public void doubleClick(MouseEvent evt, GraphEditor editor)
+    public void doubleClick(MouseEvent evt)
     {
        openEditor();
     }

@@ -11,7 +11,7 @@ import bluej.utility.Utility;
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 2775 2004-07-09 15:07:12Z mik $
+ * @version $Id: ClassTargetPainter.java 2787 2004-07-12 14:12:42Z mik $
  */
 
 public class ClassTargetPainter
@@ -42,11 +42,13 @@ public class ClassTargetPainter
     public void paint(Graphics2D g, ClassTarget classTarget, boolean hasFocus)
     {
         g.translate(classTarget.getX(), classTarget.getY());
-
+        
+        int width = classTarget.getWidth();
+        int height = classTarget.getHeight();
+        
         // draw the stationary class
-        drawSkeleton(g, classTarget);
-        drawUMLStyle(g, classTarget, hasFocus);
-        drawWarnings(g, classTarget);
+        drawSkeleton(g, classTarget, width, height);
+        drawUMLStyle(g, classTarget, hasFocus, width, height);
         // drawRole(g);  // currently, roles don't draw
         g.translate(-classTarget.getX(), -classTarget.getY());
     }
@@ -56,10 +58,12 @@ public class ClassTargetPainter
         ClassTarget classTarget = (ClassTarget) target;
         oldComposite = g.getComposite();
         g.translate(classTarget.getGhostX(), classTarget.getGhostY());
+        int width = classTarget.getGhostWidth();
+        int height = classTarget.getGhostHeight();
+        
         g.setComposite(alphaComposite);
-        drawSkeleton(g, classTarget);
-        drawUMLStyle(g, classTarget, hasFocus);
-        drawWarnings(g, classTarget);
+        drawSkeleton(g, classTarget, width, height);
+        drawUMLStyle(g, classTarget, hasFocus, width, height);
         // drawRole(g);  // currently, roles don't draw
         g.setComposite(oldComposite);
         g.translate(-classTarget.getGhostX(), -classTarget.getGhostY());
@@ -69,19 +73,19 @@ public class ClassTargetPainter
      * Draw the Coloured rectangle, the shadow and the borders.
      *  
      */
-    private void drawSkeleton(Graphics2D g, ClassTarget classTarget)
+    private void drawSkeleton(Graphics2D g, ClassTarget classTarget, int width, int height)
     {
         g.setColor(getBackgroundColour(classTarget));
-        g.fillRect(0, 0, classTarget.getWidth(), classTarget.getHeight());
+        g.fillRect(0, 0, width, height);
 
-        drawShadow(g, classTarget);
+        drawShadow(g, width, height);
     }
 
     /**
      * Draw the stereotype, identifier name and the line beneath the identifier
      * name.
      */
-    private void drawUMLStyle(Graphics2D g, ClassTarget classTarget, boolean hasFocus)
+    private void drawUMLStyle(Graphics2D g, ClassTarget classTarget, boolean hasFocus, int width, int height)
     {
         // get the Stereotype
         String stereotype = classTarget.getRole().getStereotypeLabel();
@@ -94,7 +98,7 @@ public class ClassTargetPainter
             String stereotypeLabel = STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE;
             Font stereotypeFont = targetFont.deriveFont((float) (targetFont.getSize() - 2));
             g.setFont(stereotypeFont);
-            Utility.drawCentredText(g, stereotypeLabel, TEXT_BORDER, currentTextPosY, classTarget.getWidth() - 2
+            Utility.drawCentredText(g, stereotypeLabel, TEXT_BORDER, currentTextPosY, width - 2
                     * TEXT_BORDER, TEXT_HEIGHT);
             currentTextPosY += TEXT_HEIGHT - 2;
         }
@@ -102,17 +106,18 @@ public class ClassTargetPainter
         g.setFont(targetFont);
 
         // draw the identifiername of the class
-        Utility.drawCentredText(g, classTarget.getDisplayName(), TEXT_BORDER, currentTextPosY, classTarget.getWidth()
+        Utility.drawCentredText(g, classTarget.getDisplayName(), TEXT_BORDER, currentTextPosY, width
                 - 2 * TEXT_BORDER, TEXT_HEIGHT);
         currentTextPosY += TEXT_HEIGHT;
 
+        drawWarnings(g, classTarget, width, height);
+
         // draw line beneath the stereotype and indentifiername. The UML-style
         g.setColor(borderColor);
-        g.drawLine(0, currentTextPosY, classTarget.getWidth(), currentTextPosY);
+        g.drawLine(0, currentTextPosY, width, currentTextPosY);
         
-        g.setColor(borderColor);
         boolean drawSelected = classTarget.isSelected() && hasFocus;
-        drawBorder(g, classTarget, drawSelected);
+        drawBorder(g, drawSelected, width, height);
     }
 
     /**
@@ -120,7 +125,7 @@ public class ClassTargetPainter
      * if the sourcecode is missing. Display the "broken" image if the
      * sourcecode couldn't be parsed.
      */
-    private void drawWarnings(Graphics2D g, ClassTarget classTarget)
+    private void drawWarnings(Graphics2D g, ClassTarget classTarget, int width, int height)
     {
 
         // If the state isn't normal, draw stripes in the rectangle
@@ -128,49 +133,27 @@ public class ClassTargetPainter
         if (classTarget.getState() != ClassTarget.S_NORMAL) {
             g.setColor(stripeColor);
             int divider = (stereotype == null) ? 19 : 33;
-            Utility.stripeRect(g, 0, divider, classTarget.getWidth(), classTarget.getHeight() - divider, 8, 3);
+            Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
         }
 
         // if sourcecode is missing. Write "(no source)" in the diagram
         if (!classTarget.hasSourceCode()) {
             g.setColor(textcolor);
             g.setFont(targetFont.deriveFont((float) (targetFont.getSize() - 2)));
-            Utility.drawCentredText(g, "(no source)", TEXT_BORDER, classTarget.getHeight() - 18, classTarget.getWidth()
+            Utility.drawCentredText(g, "(no source)", TEXT_BORDER, height - 18, width
                     - 2 * TEXT_BORDER, TEXT_HEIGHT);
         }
         // if the sourcecode is invalid, display the "broken" image in diagram
         else if (!classTarget.getSourceInfo().isValid()) {
-            g.drawImage(brokenImage, TEXT_BORDER, classTarget.getHeight() - 22, null);
-        }
-    }
-
-//    /**
-//     * Let the role object of the class draw.
-//     */
-//    private void drawRole(Graphics2D g)
-//    {
-//        // If a role ever needs to add to the diagram, put the drawing code here
-//        // delegate extra functionality to role object
-//        ClassRole role = classTarget.getRole();
-//    }
-
-    private Color getBackgroundColour(ClassTarget classTarget)
-    {
-        if (classTarget.getState() == ClassTarget.S_COMPILING) {
-            return compileColor;
-        }
-        else {
-            return classTarget.getRole().getBackgroundColour();
+            g.drawImage(brokenImage, TEXT_BORDER, height - 22, null);
         }
     }
 
     /**
      * Draw the borders of this target.
      */
-    private void drawBorder(Graphics2D g, ClassTarget classTarget, boolean selected)
+    private void drawBorder(Graphics2D g, boolean selected, int width, int height)
     {
-        int height = classTarget.getHeight();
-        int width = classTarget.getWidth();
         int thickness = 1; // default thickness
 
         if (selected) {
@@ -185,11 +168,9 @@ public class ClassTargetPainter
     /**
      * Draw a 'shadow' appearance under and to the right of the target.
      */
-    private void drawShadow(Graphics2D g, Target target)
-    {// colorchange is expensive on mac, so draworder is by color, not position
-        int height = target.getHeight();
-        int width = target.getWidth();
-
+    private void drawShadow(Graphics2D g, int width, int height)
+    {
+        // colorchange is expensive on mac, so draworder is by color, not position
         g.setColor(colours[3]);
         g.drawLine(3, height + 1, width, height + 1);//bottom
 
@@ -204,5 +185,18 @@ public class ClassTargetPainter
         g.setColor(colours[0]);
         g.drawLine(6, height + 4, width + 2, height + 4); //bottom
         g.drawLine(width + 3, height + 3, width + 3, 5); // left
+    }
+
+    /**
+     * Return the background colour for this target.
+     */
+    private Color getBackgroundColour(ClassTarget classTarget)
+    {
+        if (classTarget.getState() == ClassTarget.S_COMPILING) {
+            return compileColor;
+        }
+        else {
+            return classTarget.getRole().getBackgroundColour();
+        }
     }
 }

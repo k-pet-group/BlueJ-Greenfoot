@@ -4,7 +4,8 @@ import java.awt.*;
 import java.awt.Graphics2D;
 
 import bluej.Config;
-import bluej.graph.GraphElementController;
+import bluej.graph.SelectionController;
+import bluej.graph.RubberBand;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.DependentTarget;
@@ -14,7 +15,7 @@ import bluej.pkgmgr.target.DependentTarget;
  * 
  * @author fisker
  * @author Michael Kolling
- * @version $Id: UsesDependencyPainter.java 2775 2004-07-09 15:07:12Z mik $
+ * @version $Id: UsesDependencyPainter.java 2787 2004-07-12 14:12:42Z mik $
  */
 public class UsesDependencyPainter
     implements DependencyPainter
@@ -111,7 +112,7 @@ public class UsesDependencyPainter
      * @param g
      * @param d
      */
-    public void paintIntermedateDependency(Graphics2D g, DependentTarget d)
+    public void paintIntermedateDependency(Graphics2D g, RubberBand rb)
     {
         Stroke dashedStroke, normalStroke;
         dashedStroke = dashedUnselected;
@@ -122,8 +123,8 @@ public class UsesDependencyPainter
         g.setColor(normalColour);
 
         // Start from the centre of the src class
-        Point pFrom = new Point(d.getX() + d.getWidth() / 2, d.getY() + d.getHeight() / 2);
-        Point pTo = new Point(GraphElementController.dependencyArrowX, GraphElementController.dependencyArrowY);
+        Point pFrom = rb.startPt;
+        Point pTo = rb.endPt;
 
         // Get the angle of the line from src to dst.
         double angle = Math.atan2(-(pFrom.getY() - pTo.getY()), pFrom.getX() - pTo.getX());

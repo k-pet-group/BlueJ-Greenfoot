@@ -6,7 +6,6 @@ package bluej.graph;
   */
 public interface Moveable
 {
-    
     /**
      * @return Returns the ghostX.
      */
@@ -18,22 +17,35 @@ public interface Moveable
     public int getGhostY();
     
     /**
-     * @param ghostX The ghostX to set.
+     * Set the position of the ghost image given a delta to the real size.
      */
-    public void setGhostX(int ghostX);
+    public void setGhostPosition(int deltaX, int deltaY);
+
+    /**
+     * Set the size of the ghost image.
+     */
+    public void setGhostSize(int ghostWidth, int ghostHeight);
+
+    /**
+     * Set the target's position to its ghost position.
+     */
+    public void setPositionToGhost();
+    
+    /** 
+     * Ask whether we are currently dragging. 
+     */
+    public boolean isDragging();
     
     /**
-     * @param ghostY The ghostY to set.
+     * Set whether or not we are currently dragging this class
+     * (either moving or resizing).
      */
-    public void setGhostY(int ghostY);
-    
-    /** returns whether */
-    public boolean isMoving();
-    
-    public void setIsMoving(boolean isMoving);
+    public void setDragging(boolean isDragging);
     
     public boolean isMoveable();
     
     public void setIsMoveable(boolean isMoveable);
+
+    public boolean isResizable();
 
 }

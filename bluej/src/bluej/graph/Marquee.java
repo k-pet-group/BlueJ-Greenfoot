@@ -1,19 +1,20 @@
 package bluej.graph;
 
 import java.awt.*;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * The diagram's marquee (a rectangular drag area for selecting graph elements).
  * 
  * @author fisker
+ * @author Michael Kolling
  */
 public final class Marquee
 {
     private Graph graph;
     private int drag_start_x, drag_start_y;
     private Rectangle currentRect;
-    private GraphElementSet elements;  // the graph elements currently in the marguee
+    private SelectionSet selected = null;
 
     /**
      * Create a marquee for a given graph.
@@ -21,7 +22,6 @@ public final class Marquee
     public Marquee(Graph graph)
     {
         this.graph = graph;
-        elements = new GraphElementSet();
     }
 
     /**
@@ -31,7 +31,7 @@ public final class Marquee
     {
         drag_start_x = x;
         drag_start_y = y;
-        elements.clear();
+        selected = new SelectionSet();
     }
 
     /**
@@ -40,6 +40,7 @@ public final class Marquee
      * 
      * @param drag_x  The x coordinate of the current drag position 
      * @param drag_y  The y coordinate of the current drag position 
+     * @return  The set of graph elements selected by this marquee
      */
     public void move(int drag_x, int drag_y)
     {
@@ -54,8 +55,7 @@ public final class Marquee
             y = y + h;
         w = Math.abs(w);
         h = Math.abs(h);
-        Rectangle newRect = new Rectangle(x, y, w, h);
-        currentRect = newRect;
+        currentRect = new Rectangle(x, y, w, h);
 
         findSelectedVertices(x, y, w, h);
     }
@@ -67,13 +67,13 @@ public final class Marquee
     private void findSelectedVertices(int x, int y, int w, int h)
     {
         //clear the currently selected
-        elements.clear();
+        selected.clear();
 
         //find the intersecting vertices
         for (Iterator it = graph.getVertices(); it.hasNext();) {
             Vertex v = (Vertex) it.next();
             if (v.getRectangle().intersects(x, y, w, h)) {
-                elements.add(v);
+                selected.add(v);
             }
         }
     }
@@ -81,19 +81,28 @@ public final class Marquee
     /**
      * Stop a current marquee selection.
      */
-    public void stop()
+    public SelectionSet stop()
     {
         currentRect = null;
+        SelectionSet tmp = selected;
+        selected = null;
+        return tmp;
     }
 
     /**
-     * Get the elements selected by the marquee
+     * Tell whether this marquee is currently active.
      */
-    public GraphElementSet getElements()
+    public boolean isActive()
     {
-        return elements;
+        return selected != null;
     }
-
+    
+    /**
+     * Return the currently visible rectangle of this marquee.
+     * If the marquee is not currently drawn, return null.
+     * 
+     * @return The marquee's rectangle, or null if not visible.
+     */
     public Rectangle getRectangle()
     {
         return currentRect;

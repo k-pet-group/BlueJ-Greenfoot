@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2775 2004-07-09 15:07:12Z mik $
+ * @version $Id: GraphPainterStdImpl.java 2787 2004-07-12 14:12:42Z mik $
  */
 public class GraphPainterStdImpl
     implements GraphPainter
@@ -61,7 +61,7 @@ public class GraphPainterStdImpl
         paintEdges(g, graph);
         paintVertices(g, graph);
         paintGhosts(g, graph);
-        paintIntermediateDependency(g);
+        paintIntermediateDependency(g, graph);
     }
 
     /**
@@ -109,18 +109,12 @@ public class GraphPainterStdImpl
      */
     private void paintGhosts(Graphics2D g, Graph graph)
     {
-        Vertex vertex;
-        Moveable moveable;
-        boolean isTargetAtStartingPoint;
-        //Paint the ghosts
         for (Iterator it = graph.getVertices(); it.hasNext();) {
-            vertex = (Vertex) it.next();
+            Object vertex = it.next();
             if (vertex instanceof Moveable) {
-                moveable = (Moveable) vertex;
-                isTargetAtStartingPoint = vertex.getX() != moveable.getGhostX()
-                        || vertex.getY() != moveable.getGhostY();
-                if (moveable.isMoving() && isTargetAtStartingPoint) {
-                    paintGhostVertex(g, vertex);
+                Moveable moveable = (Moveable) vertex;
+                if (moveable.isDragging()) {
+                    paintGhostVertex(g, moveable);
                 }
             }
         }
@@ -138,15 +132,15 @@ public class GraphPainterStdImpl
         getDependencyPainter(dependency).paint(g, dependency, isGraphEditorInFocus());
     }
 
-    public DependencyPainter getDependencyPainter(Dependency dependency)
+    public DependencyPainter getDependencyPainter(Edge edge)
     {
-        if (dependency instanceof ImplementsDependency) {
+        if (edge instanceof ImplementsDependency) {
             return implementsDependencyPainter;
         }
-        else if (dependency instanceof ExtendsDependency) {
+        else if (edge instanceof ExtendsDependency) {
             return extendsDependencyPainter;
         }
-        else if (dependency instanceof UsesDependency) {
+        else if (edge instanceof UsesDependency) {
             return usesDependencyPainter;
         }
         else {
@@ -163,7 +157,6 @@ public class GraphPainterStdImpl
      */
     private void paintVertex(Graphics2D g, Vertex vertex)
     {
-
         if (vertex instanceof ClassTarget) {
             classTargetPainter.paint(g, (ClassTarget) vertex, isGraphEditorInFocus());
         }
@@ -184,9 +177,8 @@ public class GraphPainterStdImpl
      * @param g
      * @param vertex
      */
-    private void paintGhostVertex(Graphics2D g, Vertex vertex)
+    private void paintGhostVertex(Graphics2D g, Moveable vertex)
     {
-
         if (vertex instanceof ClassTarget) {
             classTargetPainter.paintGhost(g, (ClassTarget) vertex, isGraphEditorInFocus());
         }
@@ -205,17 +197,16 @@ public class GraphPainterStdImpl
      * @param g
      * @param d
      */
-    private void paintIntermediateDependency(Graphics2D g)
+    private void paintIntermediateDependency(Graphics2D g, Graph graph)
     {
-        DependentTarget d = GraphElementController.dependTarget;
-        if (d == null) {
-            return;
-        }
-        if (d.getPackage().getState() == Package.S_CHOOSE_EXT_TO) {
-            extendsDependencyPainter.paintIntermediateDependency(g, d);
-        }
-        else if (d.getPackage().getState() == Package.S_CHOOSE_USES_TO) {
-            usesDependencyPainter.paintIntermedateDependency(g, d);
+        RubberBand rb = graphEditor.getRubberBand();
+        if (rb != null) {
+            if (((Package)graph).getState() == Package.S_CHOOSE_EXT_TO) {
+                extendsDependencyPainter.paintIntermediateDependency(g, rb);
+            }
+            else if (((Package)graph).getState() == Package.S_CHOOSE_USES_TO) {
+                usesDependencyPainter.paintIntermedateDependency(g, rb);
+            }
         }
     }
 

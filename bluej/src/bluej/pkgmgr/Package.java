@@ -26,7 +26,7 @@ import bluej.utility.filefilter.*;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 2775 2004-07-09 15:07:12Z mik $
+ * @version $Id: Package.java 2787 2004-07-12 14:12:42Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -635,7 +635,7 @@ public final class Package extends Graph
 
                 if (t1 != null && t2 != null && t1 instanceof DependentTarget) {
                     DependentTarget dt = (DependentTarget) t1;
-                    dt.setAssociation(t2);
+                    dt.setAssociation((DependentTarget)t2);
                 }
             }
         }
@@ -1665,10 +1665,18 @@ public final class Package extends Graph
 
     /**
      * Called when in an interesting state (e.g. adding a new dependency) and a
-     * target is selected.
+     * target is selected. Calling with 'null' as parameter resets to idle state.
      */
     public void targetSelected(Target t)
     {
+        if(t == null) {
+            if(getState() != S_IDLE) {
+                setState(S_IDLE);
+                setStatus(" ");
+            }
+            return;
+        }
+
         switch(getState()) {
             case S_CHOOSE_USES_FROM :
                 if (t instanceof DependentTarget) {

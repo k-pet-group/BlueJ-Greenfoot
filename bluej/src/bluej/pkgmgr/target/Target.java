@@ -15,7 +15,7 @@ import java.awt.geom.*;
  * A general target in a package
  * 
  * @author Michael Cahill
- * @version $Id: Target.java 2775 2004-07-09 15:07:12Z mik $
+ * @version $Id: Target.java 2787 2004-07-12 14:12:42Z mik $
  */
 public abstract class Target extends Vertex
     implements Comparable
@@ -40,10 +40,7 @@ public abstract class Target extends Vertex
     private String displayName; // displayed name of the target
     private Package pkg; // the package this target belongs to
 
-    protected boolean resizing;
     protected boolean disabled;
-
-    public Rectangle oldRect; //TODO incapsulate field
 
     protected int state = S_INVALID;
 
@@ -199,29 +196,7 @@ public abstract class Target extends Vertex
      */
     public boolean isHandle(int x, int y)
     {
-        boolean resizing;
-        resizing = (x - this.getX() + y - this.getY() >= getWidth() + getHeight() - HANDLE_SIZE);
-        return resizing;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.graph.Selectable#isResizing()
-     */
-    public boolean isResizing()
-    {
-        return resizing;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.graph.Selectable#setResizing(boolean)
-     */
-    public void setResizing(boolean resizing)
-    {
-        this.resizing = resizing;
+        return (x - this.getX() + y - this.getY() >= getWidth() + getHeight() - HANDLE_SIZE);
     }
 
     public boolean isQueued()

@@ -14,7 +14,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 2599 2004-06-13 07:56:04Z mik $
+ * @version	$Id: DependentTarget.java 2787 2004-07-12 14:12:42Z mik $
  */
 public abstract class DependentTarget extends Target
 {
@@ -23,7 +23,7 @@ public abstract class DependentTarget extends Target
     private List parents;
     private List children;
 
-	protected Target assoc;
+	protected DependentTarget assoc;
 	
     /**
      * Create a new target at a specified position.
@@ -36,15 +36,21 @@ public abstract class DependentTarget extends Target
         outUses = new ArrayList();
         parents = new ArrayList();
         children = new ArrayList();
-        
+
         assoc = null;
     }
     
-    /*public void setPos(int x, int y){
+    public void setPos(int x, int y)
+    {
         super.setPos(x,y);
-        recalcOutUses();
-        recalcInUses();
-    }*/
+        recalcDependentPositions();
+    }
+
+    public void setSize(int width, int height)
+    {
+        super.setSize(width, height);
+        recalcDependentPositions();
+    }
 
 	/**
 	 * Save association information about this class target
@@ -61,7 +67,7 @@ public abstract class DependentTarget extends Target
 		}
 	}
 
-	public void setAssociation(Target t)
+	public void setAssociation(DependentTarget t)
 	{
 		assoc = t;
 		//assoiated classes are not allowed to move on their own
@@ -70,7 +76,7 @@ public abstract class DependentTarget extends Target
 		}
 	}
 	
-	public Target getAssociation()
+	public DependentTarget getAssociation()
 	{
 		return assoc;
 	}
@@ -339,24 +345,33 @@ public abstract class DependentTarget extends Target
      * dependency arrows associated with this target.
      * @param editor
      */
-    public void handleMoveAndResizing() {
-        Rectangle newRect = new Rectangle(this.getX(), this.getY(), getWidth(), 
-                						  getHeight());
-        //If the target moved or changed size, the depend arrows must be updated
-        if(!newRect.equals(oldRect)) {
-            // Recalculate arrows
-            recalcInUses();
-            recalcOutUses();
+    public void recalcDependentPositions() 
+    {
+        // Recalculate arrows
+        recalcInUses();
+        recalcOutUses();
 
-            // Recalculate neighbours' arrows
-            for(Iterator it = inUses.iterator(); it.hasNext(); ) {
-                Dependency d = (Dependency)it.next();
-                d.getFrom().recalcOutUses();
-            }
-            for(Iterator it = outUses.iterator(); it.hasNext(); ) {
-                Dependency d = (Dependency)it.next();
-                d.getTo().recalcInUses();
-            }
+        // Recalculate neighbours' arrows
+        for(Iterator it = inUses.iterator(); it.hasNext(); ) {
+            Dependency d = (Dependency)it.next();
+            d.getFrom().recalcOutUses();
+        }
+        for(Iterator it = outUses.iterator(); it.hasNext(); ) {
+            Dependency d = (Dependency)it.next();
+            d.getTo().recalcInUses();
+        }
+
+        updateAssociatePosition();
+    }
+
+    protected void updateAssociatePosition()
+    {
+        DependentTarget t = getAssociation();
+
+        if (t != null) {
+            //TODO magic numbers. Should also take grid size in to account.
+            t.setPos(getX() + 30, getY() - 30);
+            t. recalcDependentPositions();
         }
     }
 

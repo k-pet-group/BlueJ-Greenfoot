@@ -20,7 +20,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Dependency.java 2775 2004-07-09 15:07:12Z mik $
+ * @version $Id: Dependency.java 2787 2004-07-12 14:12:42Z mik $
  */
 public abstract class Dependency extends Edge
 {
@@ -141,19 +141,6 @@ public abstract class Dependency extends Edge
 	 */
 	public boolean isHandle(int x, int y) {
 		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see bluej.graph.Selectable#isResizeing()
-	 */
-	public boolean isResizing() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see bluej.graph.Selectable#setResizeing(boolean)
-	 */
-	public void setResizing(boolean resizing) {
 	}
 
     /**

@@ -19,7 +19,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 2771 2004-07-09 09:27:41Z mik $
+ * @version $Id: PackageTarget.java 2787 2004-07-12 14:12:42Z mik $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -39,7 +39,9 @@ public class PackageTarget extends Target
 
     private int ghostX;
     private int ghostY;
-    private boolean isMoving;
+    private int ghostWidth;
+    private int ghostHeight;
+    private boolean isDragging;
     private boolean isMoveable = true;
 
     public PackageTarget(Package pkg, String baseName)
@@ -104,11 +106,9 @@ public class PackageTarget extends Target
      * Called when a package icon in a GraphEditor is double clicked. Creates a
      * new PkgFrame when a package is drilled down on.
      */
-    public void doubleClick(MouseEvent evt, GraphEditor editor)
+    public void doubleClick(MouseEvent evt)
     {
-        PackageEditor pe = (PackageEditor) editor;
-
-        pe.raiseOpenPackageEvent(this, getPackage().getQualifiedName(getBaseName()));
+        getPackage().getEditor().raiseOpenPackageEvent(this, getPackage().getQualifiedName(getBaseName()));
     }
 
     public void popupMenu(int x, int y, GraphEditor editor)
@@ -200,13 +200,13 @@ public class PackageTarget extends Target
     public void setSize(int width, int height)
     {
         super.setSize(Math.max(width, MIN_WIDTH), Math.max(height, MIN_HEIGHT));
+        setGhostSize(0, 0);
     }
 
     public void setPos(int x, int y)
     {
         super.setPos(x, y);
-        setGhostX(x);
-        setGhostY(y);
+        setGhostPosition(0, 0);
     }
 
     /**
@@ -226,32 +226,64 @@ public class PackageTarget extends Target
     }
 
     /**
-     * @param ghostX
-     *            The ghostX to set.
+     * @return Returns the ghostX.
      */
-    public void setGhostX(int ghostX)
+    public int getGhostWidth()
     {
-        this.ghostX = ghostX;
+        return ghostWidth;
     }
 
     /**
-     * @param ghostY
-     *            The ghostY to set.
+     * @return Returns the ghostX.
      */
-    public void setGhostY(int ghostY)
+    public int getGhostHeight()
     {
-        this.ghostY = ghostY;
+        return ghostHeight;
     }
 
-    /** returns whether */
-    public boolean isMoving()
+    /**
+     * Set the position of the ghost image given a delta to the real size.
+     */
+    public void setGhostPosition(int deltaX, int deltaY)
     {
-        return isMoving;
+        this.ghostX = getX() + deltaX;
+        this.ghostY = getY() + deltaY;
     }
 
-    public void setIsMoving(boolean isMoving)
+    /**
+     * Set the size of the ghost image given a delta to the real size.
+     */
+    public void setGhostSize(int deltaX, int deltaY)
     {
-        this.isMoving = isMoving;
+        ghostWidth = Math.max(getWidth() + deltaX, MIN_WIDTH);
+        ghostHeight = Math.max(getHeight() + deltaY, MIN_HEIGHT);
+    }
+
+    /**
+     * Set the target's position to its ghost position.
+     */
+    public void setPositionToGhost()
+    {
+        super.setPos(ghostX, ghostY);
+        setSize(ghostWidth, ghostHeight);
+        isDragging = false;
+    }
+
+    /** 
+     * Ask whether we are currently dragging. 
+     */
+    public boolean isDragging()
+    {
+        return isDragging;
+    }
+
+    /**
+     * Set whether or not we are currently dragging this class
+     * (either moving or resizing).
+     */
+    public void setDragging(boolean isDragging)
+    {
+        this.isDragging = isDragging;
     }
 
     /*

@@ -20,7 +20,7 @@ import bluej.debugmgr.objectbench.*;
 import bluej.debugmgr.texteval.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
-import bluej.graph.GraphElementController;
+import bluej.graph.SelectionController;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.actions.*;
@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2772 2004-07-09 10:38:54Z mik $
+ * @version $Id: PkgMgrFrame.java 2787 2004-07-12 14:12:42Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -471,10 +471,9 @@ public class PkgMgrFrame extends JFrame
         this.pkg = pkg;
         this.editor = new PackageEditor(pkg);
         editor.setFocusable(true);
-        editor.addMouseListener(this);        // This listener MUST be before
-        editor.addMouseListener(editor);      //  the editor itself!
-        editor.addKeyListener(editor);
-        editor.addFocusListener(this);
+        editor.addMouseListener(this);        // This mouse listener MUST be before
+        editor.addFocusListener(this);        //  the editor's listener itself!
+        editor.startMouseListening(); 
         this.pkg.editor = this.editor;
 
         classScroller.setViewportView(editor);
@@ -559,7 +558,6 @@ public class PkgMgrFrame extends JFrame
 
         editor.removePackageEditorListener(this);
         editor.removeMouseListener(this);
-        editor.removeKeyListener(editor);
         editor.removeFocusListener(this);
 
         getObjectBench().removeAllObjects(getProject().getUniqueId());
