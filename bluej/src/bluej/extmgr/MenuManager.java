@@ -98,6 +98,30 @@ public class MenuManager
     return newMenuItem;
     }
 
+
+  /**
+   * I need this one to know if a gien extension has a menu to put up...
+   * I am passing a frame to have a uniform interface.
+   * It may be useful in the future.
+   */
+  public boolean haveMenuItems ( PkgMgrFrame thisFrame )
+    {
+    if ( ! myWrapper.isValid() ) return false;
+
+    BlueJ aBluej = myWrapper.getBluej();
+    if ( aBluej == null ) return false;
+
+    MenuGen menuGen = aBluej.getMenuGen();
+    if ( menuGen == null ) return false;
+
+    JMenuItem newMenuItem = menuGen.getMenuItem();
+    if ( newMenuItem == null ) return false;
+
+    // NOTE: I do not really care if the given menu will be destroyed
+    return true;
+    }
+
+
   /**
    * This will remove the given item AND return its previous position.
    * returns the removed item position if all is fine
@@ -142,6 +166,8 @@ public class MenuManager
         {
         PkgMgrFrame thisFrame = allFrames[index];
         //Debug.message("MenuManager.MenuExtensionRevalidateReq.run(): index="+index);
+
+        thisFrame.toolsExtensionsCheckSeparator();
         JMenuItem oldMenuItem = (JMenuItem)framesToJmenu.get(thisFrame);
         JMenuItem newMenuItem = menuFrameRevalidate (thisFrame,oldMenuItem);
         newFramesToJmenu.put(thisFrame,newMenuItem);

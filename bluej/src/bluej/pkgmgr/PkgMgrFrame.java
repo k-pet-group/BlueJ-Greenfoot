@@ -42,7 +42,7 @@ import antlr.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1571 2002-12-11 14:45:40Z mik $
+ * @version $Id: PkgMgrFrame.java 1581 2002-12-12 14:46:18Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -72,6 +72,7 @@ public class PkgMgrFrame extends JFrame
     private JButton imgExtendsButton;
     private JButton imgDependsButton;
     private JMenu recentProjectsMenu;
+    private int toolsExtensionsSeparatorIndex;
 
     private JLabel statusbar = new JLabel(" ");
 
@@ -688,7 +689,7 @@ public class PkgMgrFrame extends JFrame
         if(openProj == null)
             return false;
         else {
-            extMgr.projectOpening (openProj, this, isEmptyFrame()?toolsMenu:null);
+            extMgr.projectOpening (openProj, this, toolsMenu);
             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
@@ -1932,8 +1933,10 @@ public class PkgMgrFrame extends JFrame
                                public void actionPerformed(ActionEvent e) { menuCall(); PrefMgrDialog.showDialog(frame); }
                            });
 
-            menu.addSeparator();
 
+
+
+            toolsExtensionsCheckSeparator();
             extMgr.addMenuItems (null, this, toolsMenu);
         }
 
@@ -2023,6 +2026,28 @@ public class PkgMgrFrame extends JFrame
       {
           return toolsMenu;
       }
+
+
+    /**
+     * I need this call so the separator is added when a menu is added.
+     */
+    public void toolsExtensionsCheckSeparator()
+      {
+          if ( extMgr.haveMenuItems(null, this, toolsMenu) ) {
+              // I am wishing to add a separator but there is already one.
+              if ( toolsExtensionsSeparatorIndex > 0 ) return;
+              // Yes, this is the right place where to count ....
+              toolsExtensionsSeparatorIndex=toolsMenu.getItemCount();
+              toolsMenu.addSeparator();
+          } else {
+              // I want to remove the separator but there is none...
+              if ( toolsExtensionsSeparatorIndex <= 0 ) return;
+              toolsMenu.remove(toolsExtensionsSeparatorIndex);
+              toolsExtensionsSeparatorIndex=0;
+          }
+      }
+
+
 
     /**
      * Add a new menu item to a menu.

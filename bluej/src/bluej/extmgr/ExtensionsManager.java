@@ -268,6 +268,8 @@ public class ExtensionsManager implements BlueJEventListener
      */
     public void addMenuItems(Project project, PkgMgrFrame pmf, JMenu menu)
     {
+        pmf.toolsExtensionsCheckSeparator();
+    
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
@@ -279,6 +281,31 @@ public class ExtensionsManager implements BlueJEventListener
             aManager.menuFrameRevalidateReq(pmf);
         }
     }
+
+
+    /**
+     * There is a need to know if there is at least one menu present.
+     * AT the moemnt is just not to add a separator, but it may get 
+     * more useful in the future. The first menu that I find I just return
+     * so this approach is not so bad in terms of performance. 
+     * It may be done in a better way in the future.
+     */
+    public boolean haveMenuItems (Project project, PkgMgrFrame pmf, JMenu menu)
+    {
+        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
+            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+
+            if (!aWrapper.isValid()) continue;
+
+            MenuManager aManager = aWrapper.getMenuManager();
+            if (aManager == null)  continue;
+
+            if ( aManager.haveMenuItems(pmf) ) return true;
+        }
+        
+        return false;
+    }
+
 
 
     /**
