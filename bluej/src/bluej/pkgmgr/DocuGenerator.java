@@ -109,8 +109,15 @@ public class DocuGenerator
                 BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
 
         // build the call string
-        String javadocCall = docCommand + " " + fixedJavadocParams + tmpJavadocParams
-            + " -d " + docDir.getPath() + " " + filename;
+        ArrayList call = new ArrayList();
+        call.add(docCommand);
+        addParams(call, fixedJavadocParams);
+        addParams(call, tmpJavadocParams);
+        call.add("-d");
+        call.add(docDir.getPath());
+        call.add(filename);
+
+        String[] javadocCall = (String[])call.toArray(new String[0]);
 
         // build the path for the result to be shown
         File htmlFile = new File(getDocuPath(filename));
@@ -165,7 +172,7 @@ public class DocuGenerator
      * @param call the call to the documentation generating tool.
      * @param url the URL to be shown after successful completion.
      */
-    private static void generateDoc(String call, File result, File log, 
+    private static void generateDoc(String[] call, File result, File log, 
                                     String header, boolean openBrowser)
     {
         // start the call in a separate thread to allow fast return to GUI.
@@ -188,13 +195,13 @@ public class DocuGenerator
      */
     private static class DocuRunStarter implements Runnable
     {
-        private String docuCall;
+        private String[] docuCall;
         private File showFile;
         private File logFile;
         private String logHeader;
         private boolean openBrowser;
 
-        public DocuRunStarter(String call, File result, File log, 
+        public DocuRunStarter(String[] call, File result, File log, 
                               String header, boolean browse)
         {
             docuCall = call;
@@ -217,7 +224,8 @@ public class DocuGenerator
 //                 Writer logWriter = new OutputStreamWriter(logStream);
                 PrintWriter logWriter = new PrintWriter(logStream,true);
                 logWriter.println(logHeader);
-                logWriter.println(docuCall);
+                for(int i=0; i < docuCall.length; i++)
+                    logWriter.println(docuCall[i]);
                 logWriter.flush();
                 docuRun = Runtime.getRuntime().exec(docuCall);
 
@@ -316,10 +324,6 @@ public class DocuGenerator
         docDirPath = docDir.getPath();
 
         // tool-dependent instance information for javadoc
-        destinationParam = " -d " + docDirPath;
-        sourceParam = " -sourcepath " + projectDirPath;
-        titleParams = " -doctitle " + project.getProjectName()
-                    + " -windowtitle " + project.getProjectName();
     }
 
     /**
@@ -350,30 +354,6 @@ public class DocuGenerator
             }
         }
 
-        // get the names of all the targets for the documentation tool.
-        // first: get the names of all packages that contain java sources.
-        List packageNames = project.getPackageNames();
-        StringBuffer tmp = new StringBuffer();
-        for (Iterator names=packageNames.iterator(); names.hasNext(); ) {
-            String packageName = (String)names.next();
-            // as javadoc doesn't like packages with no java-files, we have to
-            // pass only names of packages that really contain java files.
-            Package pack = project.getPackage(packageName);
-            if (FileUtility.containsFile(pack.getPath(),".java")) {
-                tmp.append(" ");
-                tmp.append(packageName);
-            }
-        }
-
-        // second: get class names of classes in unnamed package, if any
-        List classNames = project.getPackage(project.getInitialPackageName())
-                                                          .getAllClassnames();
-        for (Iterator names = classNames.iterator();names.hasNext(); ) {
-            tmp.append(" ");
-            tmp.append((String)names.next());
-        }
-        String targets = new String(tmp);
-
 
         // tool-specific infos for javadoc
         // get the parameter that enables javadoc to link the generated
@@ -381,14 +361,63 @@ public class DocuGenerator
         String linkParam = getLinkParam();
 
         // stick it all together
-        String javadocCall = docCommand + sourceParam + destinationParam
-                          + titleParams + linkParam + " " + fixedJavadocParams
-                          + targets;
+//          String javadocCall = docCommand + sourceParam + destinationParam
+//                            + titleParams + linkParam + " " + fixedJavadocParams
+//                            + targets;
+        destinationParam = " -d \"" + docDirPath + "\"";
+        sourceParam = " -sourcepath \"" + projectDirPath + "\"";
+        titleParams = " -doctitle \"" + project.getProjectName()  + "\""
+                    + " -windowtitle \"" + project.getProjectName() + "\"";
+
+        ArrayList call = new ArrayList();
+        call.add(docCommand);
+        call.add("-sourcepath");
+        call.add(projectDirPath);
+        call.add("-d");
+        call.add(docDirPath);
+        call.add("-doctitle");
+        call.add(project.getProjectName());
+        call.add("-windowtitle");
+        call.add(project.getProjectName());
+        addParams(call, linkParam);
+        addParams(call, fixedJavadocParams);
+
+        // add the names of all the targets for the documentation tool.
+        // first: get the names of all packages that contain java sources.
+        List packageNames = project.getPackageNames();
+        for (Iterator names=packageNames.iterator(); names.hasNext(); ) {
+            String packageName = (String)names.next();
+            // as javadoc doesn't like packages with no java-files, we have to
+            // pass only names of packages that really contain java files.
+            Package pack = project.getPackage(packageName);
+            if (FileUtility.containsFile(pack.getPath(),".java")) {
+                if(packageName.length() > 0)
+                    call.add(packageName);
+            }
+        }
+
+        // second: get class names of classes in unnamed package, if any
+        List classNames = project.getPackage(project.getInitialPackageName())
+                                                          .getAllClassnames();
+        for (Iterator names = classNames.iterator();names.hasNext(); ) {
+            call.add((String)names.next());
+        }
+        String[] javadocCall = (String[])call.toArray(new String[0]);
 
         generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
         return "";
     }
 
+    /**
+     * Add all string tokens from s into list.
+     */
+    private static void addParams(List list, String s)
+    {
+        StringTokenizer st = new StringTokenizer(s);
+        while (st.hasMoreTokens()) {
+            list.add(st.nextToken());
+        }
+    }
 
     /**
      * Test whether documentation directory exists in project dir and
