@@ -4,21 +4,22 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import javax.swing.tree.DefaultTreeModel;
-
+import org.bluej.extensions.submitter.Stat;
 /**
  * Parses a given input stream, adding the information to the given node.
  * 
- * @author Clive Miller
- * @version $Id: Parser.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: Parser.java 1566 2002-12-10 14:52:31Z damiano $
  */
 public class Parser
 {
     private Tokenizer token;
     private final boolean project;
     private final DefaultTreeModel treeModel;
+    private Stat stat;
     
-    public Parser (boolean project, DefaultTreeModel treeModel)
+    public Parser (Stat i_stat, boolean project, DefaultTreeModel treeModel)
     {
+        stat = i_stat;
         this.project = project;
         this.treeModel = treeModel;
     }
@@ -37,6 +38,8 @@ public class Parser
         
     public void parse (Node current) throws CompilationException
     {
+        stat.aDbg.debug(Stat.SVC_PARSER,"Parser.parse: current="+current.toString());
+        
         if (parseStatements (current) != Tokenizer.END) {
             throw new CompilationException ("} without {",token);
         }
@@ -45,12 +48,16 @@ public class Parser
     private Tokenizer.Type parseStatements (Node current) throws CompilationException
     {
         Tokenizer.Type type;
-        do {
+        for (;;) {
             type = token.next();
+
             if (type == Tokenizer.END) break;
+
             if (type == Tokenizer.BLOCK_END) break;
+
             if (type == Tokenizer.BLOCK_START) {
-                Node newNode = new Node (token.getTitle(), project);
+                stat.aDbg.debug(Stat.SVC_PARSER,"parseStatements: new Node, title="+token.getTitle());
+                Node newNode = new Node (stat, token.getTitle(), project);
                 if (!token.getTitle().startsWith ("#")) {
                     treeModel.insertNodeInto (newNode, current, 0);
                 }
@@ -58,21 +65,28 @@ public class Parser
                 if (type != Tokenizer.BLOCK_END) {
                     throw new CompilationException ("} expected", token);
                 }
-            } else if (type == Tokenizer.EMPTY_SCHEME) {
-                Node newNode = new Node (token.getTitle(), project);
+                continue;
+            } 
+
+            if (type == Tokenizer.EMPTY_SCHEME) {
+                Node newNode = new Node (stat, token.getTitle(), project);
                 if (!token.getTitle().startsWith ("#")) {
                     treeModel.insertNodeInto (newNode, current, 0);
                 }
-            } else if (type == Tokenizer.CONFIG) {
+                continue;
+            } 
+
+            if (type == Tokenizer.CONFIG) {
                 try {
                     current.addConfig (token.getKey(), token.getValue());
                 } catch (IllegalArgumentException ex) {
                     throw new CompilationException (ex.getMessage(), token);
                 }
-            } else {
-                throw new CompilationException ("Syntax error", token);
-            }
-        } while (true);
+                continue;
+            } 
+
+            throw new CompilationException ("Syntax error", token);
+        }
         return type;
     }
 }

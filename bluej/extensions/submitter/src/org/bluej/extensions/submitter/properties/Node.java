@@ -12,12 +12,13 @@ import java.io.IOException;
 import java.net.URL;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import org.bluej.extensions.submitter.Stat;
     
 /**
  * This is a node of the configuration tree
  * 
  * @author Clive Miller
- * @version $Id: Node.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: Node.java 1566 2002-12-10 14:52:31Z damiano $
  */
 public class Node extends DefaultMutableTreeNode
 {
@@ -30,6 +31,7 @@ public class Node extends DefaultMutableTreeNode
         ".file.jar",
         ".insert"});
     private static int lookups = 0;
+    private Stat stat;
     
     /**
      * Are any scheme inserts currently being looked up?
@@ -49,8 +51,9 @@ public class Node extends DefaultMutableTreeNode
      * @param title the Title of this node
      * @param whether or not this node belongs to a specific project
      */
-    public Node (String title, boolean project)
+    public Node (Stat i_stat, String title, boolean project)
     {
+        stat = i_stat;
         this.title = title;
         this.project = project;
         configuration = new List [configItems.size()];
@@ -81,12 +84,16 @@ public class Node extends DefaultMutableTreeNode
      */
     void addConfig (String key, String value)
     {
+        stat.aDbg.debug(Stat.SVC_PARSER,"Node.addConfig: Node.title="+title+" key="+key+" value="+value);
+        
         int keyIndex = configItems.indexOf (key);
         if (keyIndex == -1) throw new IllegalArgumentException ("Unknown configuration item: "+key);
+        
         List conf = configuration [keyIndex];
         if (conf.size() > 0 && key.equals(".transport")) {
             throw new IllegalArgumentException (key+" already set in this node");
         }
+        
         if (key.startsWith (".file.")) {
             int start,end = value.length();
             int index = conf.size();
@@ -154,12 +161,13 @@ public class Node extends DefaultMutableTreeNode
     }
     
     /**
-     * Checks this node for the presence of insert items.
-     * For all that are found, they are removed from
-     * existance and an attempt is made to follow them
+     * This is called when a user doubleclicks on a node
+     * Here, what it happens seems that it just scand for .insert
      */
-    public void expand (final DefaultTreeModel model) // throws CompilationException
+    public void expand (final DefaultTreeModel model) 
     {
+        stat.aDbg.debug(Stat.SVC_PARSER,"Node.expand: title="+title);
+    
         List inserts = configuration[configItems.indexOf (".insert")];
         for (Iterator it = inserts.iterator(); it.hasNext();) {
             final String lookup = (String)it.next();
@@ -169,10 +177,12 @@ public class Node extends DefaultMutableTreeNode
                     lookups++;
                     DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode ("Looking up "+lookup+"...");
                     model.insertNodeInto (tempNode, Node.this, 0);
+                    stat.aDbg.debug(Stat.SVC_PARSER,"Node.expand.lookup: looking="+lookup);
+                    try { sleep(1000); } catch ( Exception ee ) {}  // Just to stress the SYNC issues... (and thus tryng to fix them in the future)
                     try {
                         URL url = new URL (lookup);
                         InputStream is = url.openStream();
-                        new Parser (project, model).parse (Node.this, is);
+                        new Parser (stat, project, model).parse (Node.this, is);
                         is.close();
                         lookups--;
                         model.removeNodeFromParent (tempNode);

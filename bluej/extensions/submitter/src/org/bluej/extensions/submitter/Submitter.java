@@ -13,7 +13,7 @@ import org.bluej.utility.*;
  * their project by the agreed method
  *
  * @author Clive Miller
- * @version $Id: Submitter.java 1564 2002-12-09 12:41:28Z damiano $
+ * @version $Id: Submitter.java 1566 2002-12-10 14:52:31Z damiano $
  */
 public class Submitter extends Extension implements MenuGen
 {
@@ -47,10 +47,10 @@ public class Submitter extends Extension implements MenuGen
         stat.bluej = bj;
         stat.aDbg  = new Flexdbg();
 
-        stat.aDbg.setDebugLevel(Flexdbg.TRACE);
+        stat.aDbg.setDebugLevel(Flexdbg.NOTICE);
         stat.aDbg.setServiceMask(Flexdbg.ALL_SERVICES);
 
-        stat.aDbg.trace(Stat.PROPERTIES,"Submitter.startup: CALLED");
+        stat.aDbg.trace(Stat.SVC_PROP,"Submitter.startup: CALLED");
                
         sp = null;
         globalPreferences = new PrefPanel(bj);   
@@ -91,22 +91,25 @@ public class Submitter extends Extension implements MenuGen
     public void actionPerformed ( ActionEvent anEvent )
       {
       final BPackage pkg = bj.getCurrentPackage();
-        if (pkg == null) {
+        if (pkg == null) 
+            return;
+        
+        if (submitterThread != null && submitterThread.isAlive()) {
+            stat.aDbg.notice(Stat.SVC_BUTTON,"MenuAction.actionPerformed: previous thread is alive");
             return;
         }
-        if (submitterThread == null || !submitterThread.isAlive()) {
-            submitterThread = new Thread() {
-                public void run() {
-                    sp = new SubmissionProperties (stat, pkg);
-                    sp.reload();
-                    sd = new SubmissionDialog (bj, pkg, sp);
-                    sd.reset();
-                    sd.show();
-                }
-            };
-            submitterThread.start();
+        
+        submitterThread = new Thread() {
+            public void run() {
+                sp = new SubmissionProperties (stat, pkg);
+                sp.reload();
+                sd = new SubmissionDialog (bj, pkg, sp);
+                sd.reset();
+                sd.show();
+            }
+        };
+        submitterThread.start();
         }
-      }
     }
 
 

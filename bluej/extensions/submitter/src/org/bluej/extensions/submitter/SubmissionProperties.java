@@ -23,16 +23,19 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
+
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
 
 /**
  * Manages the properties appropriate to the selected submission scheme.
  *
  * @author Clive Miller
- * @version $Id: SubmissionProperties.java 1564 2002-12-09 12:41:28Z damiano $
+ * @version $Id: SubmissionProperties.java 1566 2002-12-10 14:52:31Z damiano $
  **/
 
 class SubmissionProperties
@@ -53,10 +56,10 @@ class SubmissionProperties
         stat = i_stat;
         bj = stat.bluej;
 
-        stat.aDbg.trace(Stat.PROPERTIES,"new SubmissionProperties: CALLED");
+        stat.aDbg.trace(Stat.SVC_PROP,"new SubmissionProperties: CALLED");
 
         this.pkg = pkg;
-        rootNode = new Node ("Submissions", false);
+        rootNode = new Node (stat, "Submissions", false);
         treeModel = new DefaultTreeModel (rootNode) {
             public synchronized void insertNodeInto (MutableTreeNode newChild, MutableTreeNode parent, int index) {
                 index = getChildCount (parent); // Forces insert to go at the end of the parent's list
@@ -73,18 +76,42 @@ class SubmissionProperties
         tree = new JTree (treeModel);
         tree.getSelectionModel().setSelectionMode (javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setRootVisible (false);
-        tree.addTreeWillExpandListener (new TreeWillExpandListener() {
-            public void treeWillCollapse (TreeExpansionEvent event) {}
-            public void treeWillExpand (TreeExpansionEvent event) {
-                Node node = (Node)event.getPath().getLastPathComponent();
-                expandNode (node);
-            }
-        });
+//        tree.addTreeWillExpandListener (new SubExpandListener());
+        tree.addTreeSelectionListener( new SubSelectionListener());
         tree.putClientProperty("JTree.lineStyle", "Angled");
 
 
         
     }
+
+
+    /**
+     * This is called when somebody clicks on something that needs to be expanded.
+     */
+    class SubSelectionListener implements TreeSelectionListener
+    {
+        public void valueChanged (TreeSelectionEvent event) {
+            Node node = (Node)event.getPath().getLastPathComponent();
+            expandNode (node);   
+        }
+    }
+
+
+
+
+    /**
+     * This is called when somebody clicks on something that needs to be expanded.
+     */
+    class SubExpandListener implements TreeWillExpandListener
+    {
+        public void treeWillCollapse (TreeExpansionEvent event) {}
+        
+        public void treeWillExpand (TreeExpansionEvent event) {
+            Node node = (Node)event.getPath().getLastPathComponent();
+            expandNode (node);   
+        }
+    }
+    
     
     public void addTreeModelListener (TreeModelListener tml)
     {
@@ -103,8 +130,6 @@ class SubmissionProperties
             File projectConfFile = new File (prj.getProjectDir(), PROPERTIES_FILENAME);
             load (projectConfFile, true);
         }
-// Hoping to be able to remove this line
-//        treeModel.reload();
         
         Node proj = null;
         for (Enumeration e = rootNode.children(); e.hasMoreElements(); ) { // Any project nodes?
@@ -124,27 +149,29 @@ class SubmissionProperties
     
     private void load (File file, boolean isProject)
     {
-        stat.aDbg.trace(Stat.PROPERTIES,"SubmissionProperties.load CALLED");
+        stat.aDbg.trace(Stat.SVC_PROP,"SubmissionProperties.load CALLED");
+        stat.aDbg.debug(Stat.SVC_PROP,"file="+file.toString());
 
         String filename = null;
-        if (file.exists()) {
-            FileInputStream fis = null;
-            try {
-                 filename = file.getCanonicalPath();
-                 fis = new FileInputStream (file);
-                 new Parser (isProject, treeModel).parse (rootNode, fis);
-                 fis.close();
-            } catch (CompilationException cex) {
-                if (filename != null) cex.addFilename (filename);
-                JTextArea ta = new JTextArea (cex.toString());
-                ta.setEditable (false);
-                Font font = ta.getFont();
-                ta.setFont (new Font ("Courier", font.getStyle(), font.getSize()));
-                JScrollPane sp = new JScrollPane (ta);
-                JOptionPane.showMessageDialog (pkg.getFrame(),sp,bj.getLabel ("message.conferror"),JOptionPane.ERROR_MESSAGE);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog (pkg.getFrame(),ex.toString(),bj.getLabel ("message.conferror"),JOptionPane.ERROR_MESSAGE);
-            }
+        if (! file.exists())
+            return;
+
+        FileInputStream fis = null;
+        try {
+             filename = file.getCanonicalPath();
+             fis = new FileInputStream (file);
+             new Parser (stat, isProject, treeModel).parse (rootNode, fis);
+             fis.close();
+        } catch (CompilationException cex) {
+            if (filename != null) cex.addFilename (filename);
+            JTextArea ta = new JTextArea (cex.toString());
+            ta.setEditable (false);
+            Font font = ta.getFont();
+            ta.setFont (new Font ("Courier", font.getStyle(), font.getSize()));
+            JScrollPane sp = new JScrollPane (ta);
+            JOptionPane.showMessageDialog (pkg.getFrame(),sp,bj.getLabel ("message.conferror"),JOptionPane.ERROR_MESSAGE);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog (pkg.getFrame(),ex.toString(),bj.getLabel ("message.conferror"),JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -173,17 +200,9 @@ class SubmissionProperties
     
     private void expandNode (Node node)
     {
-//        try {
-            node.expand (treeModel);
-/*        } catch (CompilationException cex) {
-            JTextArea ta = new JTextArea (cex.toString());
-            ta.setEditable (false);
-            Font font = ta.getFont();
-            ta.setFont (new Font ("Courier", font.getStyle(), font.getSize()));
-            JScrollPane sp = new JScrollPane (ta);
-            JOptionPane.showMessageDialog (pkg.getFrame(),sp,bj.getLabel ("message.conferror"),JOptionPane.ERROR_MESSAGE);
-        }
-*/    }
+        stat.aDbg.debug(Stat.SVC_PROP, "SubmissionProperties.expandNode: node="+node.toString());  
+        node.expand (treeModel);
+    }
         
     public Collection getProps (String item) throws AbortOperationException
     {

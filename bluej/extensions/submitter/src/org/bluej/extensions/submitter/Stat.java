@@ -10,11 +10,11 @@ import bluej.extensions.*;
 
 public class Stat 
   {
-  Flexdbg aDbg=null;
-  BlueJ   bluej=null;
+  public Flexdbg aDbg=null;
+  public BlueJ   bluej=null;
 
 
-  public static final int PROPERTIES=0x00000001;
-
-  
+  public static final int SVC_PROP=0x00000001;
+  public static final int SVC_BUTTON=0x00000002;
+  public static final int SVC_PARSER=0x00000004;
   }
