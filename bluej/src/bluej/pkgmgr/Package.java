@@ -24,7 +24,7 @@ import bluej.extmgr.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1744 2003-04-04 09:59:05Z damiano $
+ * @version $Id: Package.java 1746 2003-04-04 13:45:35Z fisker $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1043,6 +1043,16 @@ public class Package extends Graph
         return project.generateDocumentation();
     }
 
+	/**
+	 * Generate documentation for class in 'filename'
+	 * @param filename
+	 */
+	public void generateDocumentation(ClassTarget ct) {
+		ct.getEditor().save();
+		String filename = ct.getSourceFile().getPath();
+		project.generateDocumentation(filename);
+	}
+
     /**
      *  Remove all breakpoints in all classes.
      */
@@ -1726,9 +1736,8 @@ public class Package extends Graph
      * and showing the message in the editor's information area.
      */
     private boolean showEditorMessage(String filename, int lineNo,
-                                      String message, boolean invalidate,
-                                      boolean beep, boolean bringToFront,
-                                      boolean setStepMark, String help)
+                        String message, boolean invalidate, boolean beep,
+                        boolean bringToFront, boolean setStepMark, String help)
     {
         String fullName = getProject().
             convertPathToPackageName(filename);
@@ -2071,4 +2080,6 @@ public class Package extends Graph
             break;
         }
     }
+
+	
 }
