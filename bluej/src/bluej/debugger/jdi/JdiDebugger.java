@@ -34,7 +34,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 2914 2004-08-20 00:40:01Z bquig $
+ * @version $Id: JdiDebugger.java 2926 2004-08-23 02:48:40Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -479,15 +479,22 @@ public class JdiDebugger extends Debugger
             return null;
         }
 
-        if (arrayRef != null && arrayRef.length() > 2) {
+        if (arrayRef != null && arrayRef.length() > 5) {
             String failureType = ((StringReference) arrayRef.getValue(0)).value();
             String exMsg = ((StringReference) arrayRef.getValue(1)).value();
             String traceMsg = ((StringReference) arrayRef.getValue(2)).value();
+            
+            String failureClass = ((StringReference) arrayRef.getValue(3)).value();
+            String failureSource = ((StringReference) arrayRef.getValue(4)).value();
+            String failureMethod = ((StringReference) arrayRef.getValue(5)).value();
+            int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(6)).value());
+            
+            SourceLocation failPoint = new SourceLocation(failureClass, failureSource, failureMethod, lineNo);
 
             if (failureType.equals("failure"))
-                return new JdiTestResultFailure(className, methodName, exMsg, traceMsg);
+                return new JdiTestResultFailure(className, methodName, exMsg, traceMsg, failPoint);
             else
-                return new JdiTestResultError(className, methodName, exMsg, traceMsg);
+                return new JdiTestResultError(className, methodName, exMsg, traceMsg, failPoint);
         }
 
         // a null means that we had success. Return a success test result

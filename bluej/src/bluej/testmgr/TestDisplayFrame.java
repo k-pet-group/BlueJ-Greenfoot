@@ -1,9 +1,10 @@
 package bluej.testmgr;
 
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -17,7 +18,7 @@ import bluej.pkgmgr.Project;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 2861 2004-08-10 06:10:42Z davmac $
+ * @version $Id: TestDisplayFrame.java 2926 2004-08-23 02:48:40Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -45,13 +46,21 @@ public class TestDisplayFrame
 
 	private JList testnames;
     private ProgressBar pb;
+    private GridBagConstraints pbConstraints;
+    private JPanel statusLabel;
+    private JPanel topPanel;
+    
+    // index of the progress bar in the topPanel's components
+    private final static int PROGRESS_BAR_INDEX = 2;
     
     private CounterPanel cp;
     private int errorCount, failureCount;
     private int testTotal; 
     private boolean doingMultiple;
         
-    private FailureDetailView fdv;
+    // private FailureDetailView fdv;
+    private JTextArea exceptionMessageField;
+    private JButton showSourceButton;
     
     private Project lastProject;
     
@@ -99,10 +108,12 @@ public class TestDisplayFrame
 				}
 			});
 		
-		JPanel topPanel = new JPanel();
+		topPanel = new JPanel();
 		{
 			topPanel.setBorder(BlueJTheme.generalBorder);
-			topPanel.setLayout(new BoxLayout(topPanel,BoxLayout.Y_AXIS));
+			//topPanel.setLayout(new BoxLayout(topPanel,BoxLayout.Y_AXIS));
+            topPanel.setLayout(new GridBagLayout());
+            GridBagConstraints c = new GridBagConstraints();
 					
 			JScrollPane jsp = new JScrollPane();
 			{
@@ -111,20 +122,68 @@ public class TestDisplayFrame
 				testnames = new JList(testEntries);
 				testnames.setCellRenderer(new MyCellRenderer());
 				testnames.addListSelectionListener(new MyListSelectionListener());
-                testnames.addMouseListener(new DoubleClickListener());
+                testnames.addMouseListener(new ShowSourceListener());
 							
 				jsp.setViewportView(testnames);
 			}
 		
-			topPanel.add(jsp);
-	        topPanel.add(pb=new ProgressBar());
-	        topPanel.add(cp=new CounterPanel());
+			c.fill = GridBagConstraints.BOTH;
+            c.weightx = 1.0;
+            c.weighty = 1.0;
+            c.gridx = 0;
+            topPanel.add(jsp,c);
+            
+            c.weighty = 0;
+            topPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), c);
+	        topPanel.add(pb=new ProgressBar(), c);
+            topPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), c);
+	        topPanel.add(cp=new CounterPanel(), c);
+            topPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), c);
         
-	        fdv = new FailureDetailView();
+            // exception message field (text area)
+            exceptionMessageField = new JTextArea("");
+            exceptionMessageField.setEditable(false);
+            Border x = new CompoundBorder(new LineBorder(Color.BLACK, 1),
+                    new EmptyBorder(2,2,2,2));
+            exceptionMessageField.setBorder(x);
+            exceptionMessageField.setRows(2);
+            exceptionMessageField.setLineWrap(true);
+            exceptionMessageField.setFocusable(false);
+            
+            Dimension size = exceptionMessageField.getPreferredSize();
+            size.width = exceptionMessageField.getMaximumSize().width;
+            exceptionMessageField.setPreferredSize(size);
+            size.width = exceptionMessageField.getMinimumSize().width;
+            exceptionMessageField.setMinimumSize(size);
+
+            // "show source" and "close" buttons
+            showSourceButton = new JButton(Config.getString("testdisplay.showsource"));
+            showSourceButton.addActionListener(new ShowSourceListener());
+            
+            JButton closeButton = new JButton(Config.getString("close"));
+            closeButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    frame.setVisible(false);
+                }
+            });
+            
+	        // Panel for "show source" and "close" buttons
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+            buttonPanel.add(showSourceButton);
+            buttonPanel.add(Box.createHorizontalGlue());
+            buttonPanel.add(closeButton);
+            
+            c.weighty = .1;
+            topPanel.add(exceptionMessageField, c);
+            c.weighty = 0;
+            topPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), c);
+            topPanel.add(buttonPanel, c);
+
+            c.gridy = PROGRESS_BAR_INDEX;
+            pbConstraints = c;
+        }
         
-        	topPanel.add(new JScrollPane(fdv.getComponent()));
-		}
-		
 		frame.getContentPane().add(topPanel);
         frame.pack();
     }
@@ -137,11 +196,15 @@ public class TestDisplayFrame
         failureCount = 0;
         testTotal = 0;   
 
-        fdv.clear();
+        exceptionMessageField.setText("");
+        showSourceButton.setEnabled(false);
         pb.reset();
         cp.setTotal(0);
         cp.setErrorValue(0);
-        cp.setFailureValue(0);       
+        cp.setFailureValue(0);
+        
+        topPanel.remove(PROGRESS_BAR_INDEX);
+        topPanel.add(pb, pbConstraints, PROGRESS_BAR_INDEX);
     }
     
     /**
@@ -201,19 +264,41 @@ public class TestDisplayFrame
      * 
      * @param dtr
      */ 
-    public void addResultQuietly(DebuggerTestResult dtr)
+    public void addResultQuietly(final DebuggerTestResult dtr)
     {
-        testEntries.addElement(dtr);
-        
-        cp.setRunValue(testEntries.getSize());
-        pb.step(testEntries.getSize(), dtr.isSuccess());
-        
-        if (!dtr.isSuccess()) {
-        	if (dtr.isFailure())
-				cp.setFailureValue(++failureCount);
-			else
-				cp.setErrorValue(++errorCount);
-        }
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                testEntries.addElement(dtr);
+                
+                cp.setRunValue(testEntries.getSize());
+                pb.step(testEntries.getSize(), dtr.isSuccess());
+                
+                if (pb.getValue() == pb.getMaximum()) {
+                    statusLabel = new JPanel();
+
+                    if (errorCount + failureCount == 0)
+                        statusLabel.setBackground(Color.GREEN);
+                    else
+                        statusLabel.setBackground(Color.RED);
+
+                    statusLabel.setMinimumSize(pb.getMinimumSize());
+                    statusLabel.setMaximumSize(pb.getMaximumSize());
+                    statusLabel.setPreferredSize(pb.getSize());
+                    statusLabel.setOpaque(true);
+                    topPanel.remove(PROGRESS_BAR_INDEX);
+                    topPanel.add(statusLabel, pbConstraints, PROGRESS_BAR_INDEX);
+                    topPanel.validate();
+                    statusLabel.repaint();
+                }
+                
+                if (!dtr.isSuccess()) {
+                    if (dtr.isFailure())
+                        cp.setFailureValue(++failureCount);
+                    else
+                        cp.setErrorValue(++errorCount);
+                }
+            }
+        });
     }
 
 	class MyListSelectionListener implements ListSelectionListener
@@ -224,54 +309,78 @@ public class TestDisplayFrame
 				DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
 
 				if (dtr.isError() || dtr.isFailure()) {
-					fdv.showFailure(dtr.getExceptionMessage() + "\n---\n" + dtr.getTrace());
-				} else
-					fdv.clear();		
+					// fdv.showFailure(dtr.getExceptionMessage() + "\n---\n" + dtr.getTrace());
+                    if (dtr.isError()) {
+                        String text = dtr.getTrace();
+                        int index = text.indexOf('\n');
+                        exceptionMessageField.setText(text.substring(0, index));
+                    }
+                    else
+                        exceptionMessageField.setText(dtr.getExceptionMessage());
+                    // This puts in the stack trace as well
+                    //exceptionMessageField.setText(exceptionMessageField.getText()
+                    //        + "\n---\n" + dtr.getTrace());
+                    exceptionMessageField.setCaretPosition(0);
+                    showSourceButton.setEnabled(true);
+				} else {
+                    exceptionMessageField.setText("");
+                    showSourceButton.setEnabled(false);
+                }
 			}
 		}
 	}
     
-    class DoubleClickListener extends MouseAdapter
+    class ShowSourceListener extends MouseAdapter implements ActionListener
     {
         public void mouseClicked(MouseEvent e)
         {
-            // bluej.utility.Debug.message("clicked, count = " +
-            // e.getClickCount());
             int cc = e.getClickCount();
             if (cc == 2) {
-                DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
-                if (dtr != null && (dtr.isError() || dtr.isFailure())) {
-                    String trace = dtr.getTrace();
-                    int index1 = trace.indexOf('\n');
-                    index1 = trace.indexOf("at ", index1) + 3;
-                    int index2 = trace.indexOf('\n', index1 + 1);
-                    String loc = trace.substring(index1, index2).trim();
+                showSource();
+            }
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            showSource();
+        }
+        
+        private void showSource()
+        {
+            DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
+            if (dtr != null && (dtr.isError() || dtr.isFailure())) {
+                String trace = dtr.getTrace();
+                int index1 = trace.indexOf('\n');
+                index1 = trace.indexOf("at ", index1) + 3;
+                int index2 = trace.indexOf('\n', index1 + 1);
+                String loc = trace.substring(index1, index2).trim();
 
-                    // Now loc is:
-                    // "package.class$innerclass.method(filename.java:lineno"
-                    index1 = loc.indexOf('(');
-                    String packageClassMethod = loc.substring(0, index1);
-                    index2 = packageClassMethod.lastIndexOf('.');
-                    index2 = packageClassMethod.lastIndexOf('.', index2 - 1);
-                    String packageName;
-                    if (index2 != -1)
-                        packageName = packageClassMethod.substring(0, index2);
-                    else
-                        packageName = "";
+                // Now loc is:
+                // "package.class$innerclass.method(filename.java:lineno"
+                index1 = loc.indexOf('(');
+                String packageClassMethod = loc.substring(0, index1);
+                index2 = packageClassMethod.lastIndexOf('.');
+                index2 = packageClassMethod.lastIndexOf('.', index2 - 1);
+                String packageName;
+                if (index2 != -1)
+                    packageName = packageClassMethod.substring(0, index2);
+                else
+                    packageName = "";
 
-                    Package spackage = lastProject.getExistingPackage(packageName);
-                    if (spackage == null)
-                        return;
+                Package spackage = lastProject.getExistingPackage(packageName);
+                if (spackage == null)
+                    return;
 
-                    // We have the package name. Now get the source name and
-                    // line number.
-                    index2 = loc.lastIndexOf(':');
-                    String sourceName = loc.substring(index1 + 1, index2);
-                    index1 = loc.indexOf(')');
-                    int lineno = Integer.parseInt(loc.substring(index2 + 1, index1));
+                // We have the package name. Now get the source name and
+                // line number.
+                //index2 = loc.lastIndexOf(':');
+                //String sourceName = loc.substring(index1 + 1, index2);
+                String sourceName = dtr.getExceptionLocation().getFileName();
+                //index1 = loc.indexOf(')');
+                //int lineno = Integer.parseInt(loc.substring(index2 + 1, index1));
+                int lineno = dtr.getExceptionLocation().getLineNumber();
 
-                    spackage.showSource(sourceName, lineno, "", false);
-                }
+                spackage.showSource(sourceName, lineno, "", false);
             }
         }
     };
@@ -305,14 +414,15 @@ class MyCellRenderer extends JLabel implements ListCellRenderer
 		if (isSelected) {
 			setBackground(list.getSelectionBackground());
 			setForeground(list.getSelectionForeground());
+            setOpaque(true);
 		}
 		else {
 			setBackground(list.getBackground());
 			setForeground(list.getForeground());
+            setOpaque(false);
 		}
 		setEnabled(list.isEnabled());
 		setFont(list.getFont());
-		setOpaque(true);
 
 		return this;
 	}

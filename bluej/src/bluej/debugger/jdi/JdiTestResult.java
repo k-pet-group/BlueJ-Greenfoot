@@ -3,6 +3,7 @@ package bluej.debugger.jdi;
 import java.io.*;
 
 import bluej.debugger.DebuggerTestResult;
+import bluej.debugger.SourceLocation;
 
 /**
  * Represents the result of running a single test method.
@@ -50,6 +51,14 @@ public class JdiTestResult extends DebuggerTestResult
     public String getTrace()
     {
 		throw new IllegalStateException("getting stack trace from successful test");
+    }
+    
+    /* (non-Javadoc)
+     * @see bluej.debugger.DebuggerTestResult#getExceptionLocation()
+     */
+    public SourceLocation getExceptionLocation()
+    {
+        throw new IllegalStateException("getting stack trace from successful test");
     }
 
     /* (non-Javadoc)

@@ -10,13 +10,13 @@ import bluej.Config;
  * A panel with test run counters.
  *
  * @author  Andrew Patterson (derived from JUnit src)
- * @version $Id: CounterPanel.java 1906 2003-04-28 05:48:45Z ajp $
+ * @version $Id: CounterPanel.java 2926 2004-08-23 02:48:40Z davmac $
  */
 public class CounterPanel extends JPanel
 {
-	private JTextField fNumberOfErrors;
-	private JTextField fNumberOfFailures;
-	private JTextField fNumberOfRuns;
+	private JLabel fNumberOfErrors;
+	private JLabel fNumberOfFailures;
+	private JLabel fNumberOfRuns;
 	final static Icon fFailureIcon = Config.getImageAsIcon("image.testmgr.failure");
 	final static Icon fErrorIcon = Config.getImageAsIcon("image.testmgr.error");
 
@@ -54,19 +54,18 @@ public class CounterPanel extends JPanel
           5, 0, 1, 1, 0.33, 0.0,
           GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
           new Insets(0, 8, 0, 0));
+      
+      setMaximumSize(new Dimension(getMaximumSize().width, getPreferredSize().height));
 	}
 
-	private JTextField createOutputField(int width) {
-		JTextField field= new JTextField("0", width);
-		// force a fixed layout to avoid accidental hiding on relayout
-		field.setMinimumSize(field.getPreferredSize());
-		field.setMaximumSize(field.getPreferredSize());
-		field.setHorizontalAlignment(JTextField.LEFT);
-		//field.setFont(StatusLine.BOLD_FONT);
-		field.setEditable(false);
-		field.setBorder(BorderFactory.createEmptyBorder());
-		return field;
-	}
+    private JLabel createOutputField(int width) {
+        JLabel field= new JLabel("0");
+        Dimension size = field.getMinimumSize();
+        size.width *= width;
+        field.setMinimumSize(size);
+        
+        return field;
+    }
 
 	public void addToGrid(Component comp,
 	    	int gridx, int gridy, int gridwidth, int gridheight,
@@ -110,7 +109,7 @@ public class CounterPanel extends JPanel
 		setLabelValue(fNumberOfFailures, value);
 	}
 
-	private void setLabelValue(JTextField label, int value) {
+	private void setLabelValue(JLabel label, int value) {
 		label.setText(Integer.toString(value));
 	}
 }

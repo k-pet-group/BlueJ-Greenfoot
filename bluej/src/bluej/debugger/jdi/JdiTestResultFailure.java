@@ -1,11 +1,15 @@
 package bluej.debugger.jdi;
 
+import bluej.debugger.SourceLocation;
+
 /**
  * Represents the result of running a single test method.
  */
 public class JdiTestResultFailure extends JdiTestResult
 {
-    JdiTestResultFailure(String className, String methodName, String exceptionMsg, String traceMsg)
+    SourceLocation failPoint;
+    
+    JdiTestResultFailure(String className, String methodName, String exceptionMsg, String traceMsg, SourceLocation failPoint)
     {
 		super(className, methodName);
 
@@ -18,6 +22,8 @@ public class JdiTestResultFailure extends JdiTestResult
 			this.traceMsg = getFilteredTrace(traceMsg);
 	    else
 	    	this.traceMsg = null;
+        
+        this.failPoint = failPoint;
     }
     
     /**
@@ -35,6 +41,14 @@ public class JdiTestResultFailure extends JdiTestResult
     public String getTrace()
     {
         return traceMsg;
+    }
+    
+    /* (non-Javadoc)
+     * @see bluej.debugger.DebuggerTestResult#getExceptionLocation()
+     */
+    public SourceLocation getExceptionLocation()
+    {
+        return failPoint;
     }
 
     /* (non-Javadoc)

@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2913 2004-08-20 00:39:04Z bquig $
+ * @version $Id: ExecServer.java 2926 2004-08-23 02:48:40Z davmac $
  */
 public class ExecServer
 {
@@ -505,7 +505,16 @@ public class ExecServer
     }
 
 	/**
-     * Execute a JUnit test method and return the result.
+     * Execute a JUnit test method and return the result.<p>
+     * 
+     * The array returned in case of failure or error contains:<br>
+     *  [0] = "failure" or "error" (string)<br>
+     *  [1] = the exception message (or "no exception message")<br>
+     *  [2] = the stack trace as a string (or "no stack trace")<br>
+     *  [3] = the name of the class in which the exception/failure occurred<br>
+     *  [4] = the source filename for where the exception/failure occurred<br>
+     *  [5] = the name of the method in which the exception/failure occurred<br>
+     *  [6] = the line number where the exception/failure occurred (a string)
      * 
      * @return an array in case of failure or error, and null if the test ran
      *         successfully.
@@ -559,7 +568,7 @@ public class ExecServer
 			
 		if (tr.errorCount() == 1) {
 			for (Enumeration e = tr.errors(); e.hasMoreElements(); ) {
-				Object result[] = new Object[6];
+				Object result[] = new Object[7];
 				TestFailure tf = (TestFailure)e.nextElement();
 				
 				result[0] = tf.isFailure() ? "failure" : "error";
@@ -568,7 +577,8 @@ public class ExecServer
 				StackTraceElement [] ste = tf.thrownException().getStackTrace();
                 result[3] = ste[0].getClassName();
                 result[4] = ste[0].getFileName();
-                result[5] = String.valueOf(ste[0].getLineNumber());
+                result[5] = ste[0].getMethodName();
+                result[6] = String.valueOf(ste[0].getLineNumber());
                 
 				return result;
 			}
@@ -578,16 +588,23 @@ public class ExecServer
 
 		if (tr.failureCount() == 1) {
 			for (Enumeration e = tr.failures(); e.hasMoreElements(); ) {
-				Object result[] = new Object[6];
+				Object result[] = new Object[7];
 				TestFailure tf = (TestFailure)e.nextElement();
 				
 				result[0] = tf.isFailure() ? "failure" : "error";
 				result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
 				result[2] = tf.trace() != null ? tf.trace() : "no trace";
                 StackTraceElement [] ste = tf.thrownException().getStackTrace();
-                result[3] = ste[0].getClassName();
-                result[4] = ste[0].getFileName();
-                result[5] = String.valueOf(ste[0].getLineNumber());
+                
+                // search the stack trace backward until finding a class not
+                // part of the junit framework
+                int i = 0;
+                while(i < ste.length && ste[i].getClassName().startsWith("junit."))
+                    i++;
+                result[3] = ste[i].getClassName();
+                result[4] = ste[i].getFileName();
+                result[5] = ste[i].getMethodName();
+                result[6] = String.valueOf(ste[i].getLineNumber());
 
 				return result;
 			}

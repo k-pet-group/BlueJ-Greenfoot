@@ -5,7 +5,7 @@ package bluej.debugger;
  * method.
  *
  * @author  Andrew Patterson
- * @version $Id: DebuggerTestResult.java 1905 2003-04-28 05:21:24Z ajp $
+ * @version $Id: DebuggerTestResult.java 2926 2004-08-23 02:48:40Z davmac $
  */
 public abstract class DebuggerTestResult
 {
@@ -59,4 +59,12 @@ public abstract class DebuggerTestResult
 	 * @return  a String of the details of the exception thrown
 	 */
     abstract public String getExceptionMessage();
+    
+    /**
+     * Return the location of the failure/error point (ie. the point where
+     * the exception was thrown)
+     * 
+     * @return  a SourceLocation with the details of the failure point
+     */
+    abstract public SourceLocation getExceptionLocation();
 }
