@@ -6,12 +6,14 @@ import java.awt.event.*;
 import java.util.*;
 
 /**
- * The listener for InspectorEvent events.
- * 
- * @author Duane Buck
- * @version $Id: InspectorListener.java 710 2000-11-22 06:33:42Z dbuck $
+ *  The listener for InspectorEvent events.
+ *
+ *@author     Duane Buck
+ *@created    December 26, 2000
+ *@version    $Id: InspectorListener.java 739 2000-12-27 08:11:41Z dbuck $
  */
-public interface InspectorListener extends EventListener {
+public interface InspectorListener extends EventListener
+{
 
     void inspectEvent(InspectorEvent e);
 

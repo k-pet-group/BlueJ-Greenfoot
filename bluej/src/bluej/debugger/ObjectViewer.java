@@ -29,7 +29,7 @@ import javax.swing.border.Border;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Duane Buck
- * @version $Id: ObjectViewer.java 727 2000-12-15 06:53:24Z mik $
+ * @version $Id: ObjectViewer.java 739 2000-12-27 08:11:41Z dbuck $
  */
 public final class ObjectViewer extends JFrame
     implements ActionListener, ListSelectionListener, InspectorListener
@@ -51,6 +51,9 @@ public final class ObjectViewer extends JFrame
       private static final int VISIBLE_ARRAY_FIELDS = 45;
       private static final int ARRAY_QUERY_INDEX = 40;
       private static final int ARRAY_QUERY_SLOT_VALUE = -2;
+
+      private static Class [] insp=new Class [10];
+      private static int inspCnt=0;
    
       private boolean isInspection;   // true if inspecting object, false if
                                     //  displaying result
@@ -640,8 +643,11 @@ public final class ObjectViewer extends JFrame
       
         inspectorTabs=new JTabbedPane();
         inspectorTabs.add("Standard",mainPanel);
-        addInspectors(inspectorTabs, Config.getSystemInspectorDir());
-        addInspectors(inspectorTabs, new File(pkg.getProject().getProjectDir(),"inspector"));
+        if (inspCnt==0) {
+            loadInspectors(Config.getSystemInspectorDir());
+            loadInspectors(new File(pkg.getProject().getProjectDir(),"inspector"));
+        }
+        addInspectors(inspectorTabs);
       
         ((JPanel)getContentPane()).add(inspectorTabs,BorderLayout.CENTER);
       
@@ -666,31 +672,50 @@ public final class ObjectViewer extends JFrame
         button.requestFocus();
     }
    
-    private void addInspectors(JTabbedPane inspectorTabs, File inspectorDir) 
-    {
-        ClassLoader loader = new InspectorClassLoader(inspectorDir);
-        String[]inspName=inspectorDir.list();
-        if (inspName!=null) {
-            for (int i=0;i<inspName.length;i++) {  // Add inspectors (if any)
-                if (inspName[i].endsWith(".class")) {
-                    try {
-                        bluej.debugger.Inspector insp = ((Inspector)loader.loadClass(inspName[i].substring(0,inspName[i].length()-6)).newInstance());
-                        if (obj.isAssignableTo(insp.getInspectedClassname())) {
-                            boolean initOK=insp.initialize(ObjectViewer.this.obj);
-                            if (initOK) { //Inspector makes final decision 
-                                insp.addInspectorListener(this);
-                                inspectorTabs.add(insp.getInspectorTitle(),insp);
-                            }
-                        }
-                    }
-                    catch (InstantiationException e) {
-                    }
-                    catch (IllegalAccessException e) {
-                    }
-                    catch (ClassNotFoundException e) {
-                    }
-                }
-            }
+    private void loadInspectors(File inspectorDir) {
+       ClassLoader loader = new InspectorClassLoader(inspectorDir);
+       String[]inspName=inspectorDir.list();
+       if (inspName!=null) {
+           for (int i=0;i<inspName.length;i++) {  // Add inspectors (if any)
+               if (inspName[i].endsWith(".class")) {
+                   try {
+                       Class theInspClass = loader.loadClass(inspName[i].substring(0,inspName[i].length()-6));
+                       int inspIdx=inspCnt;
+                       inspCnt++;
+                       if (inspCnt>=insp.length) {
+                           Class [] temp=new Class[insp.length*2];
+                           System.arraycopy(insp,0,temp,0,insp.length);
+                           insp=temp;
+                       }
+                       insp[inspIdx]=theInspClass;
+                   }
+                   catch (ClassNotFoundException e) {
+                   }
+               }
+           }
+       }
+   }
+
+   private void addInspectors(JTabbedPane inspectorTabs) {
+       for (int i=0;i<inspCnt;i++) {  // Add inspectors (if any)
+           try {
+               bluej.debugger.Inspector theInsp=((Inspector)insp[i].newInstance());
+               String[] ic=theInsp.getInspectedClassnames();
+               for (int j=0;j<ic.length;j++) {
+                   if (obj.isAssignableTo(ic[j])) {
+                       boolean initOK=theInsp.initialize(ObjectViewer.this.obj);
+                       if (initOK) { //Inspector makes final decision 
+                           theInsp.addInspectorListener(this);
+                           inspectorTabs.add(theInsp.getInspectorTitle(),theInsp);
+                       }
+                   break;
+                   }
+               }
+           }
+           catch (InstantiationException e) {
+           }
+           catch (IllegalAccessException e) {
+           }
         }
     }
    
