@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2907 2004-08-18 19:00:38Z mik $
+ * @version $Id: GraphPainterStdImpl.java 2929 2004-08-23 11:51:06Z polle $
  */
 public class GraphPainterStdImpl
     implements GraphPainter
@@ -120,7 +120,7 @@ public class GraphPainterStdImpl
             throw new IllegalArgumentException("Not a dependency");
         }
         Dependency dependency = (Dependency) edge;
-        getDependencyPainter(dependency).paint(g, dependency, isGraphEditorInFocus());
+        getDependencyPainter(dependency).paint(g, dependency, isPermanentFocusOwner());
     }
 
     /**
@@ -155,13 +155,13 @@ public class GraphPainterStdImpl
     private void paintVertex(Graphics2D g, Vertex vertex)
     {
         if (vertex instanceof ClassTarget) {
-            classTargetPainter.paint(g, (ClassTarget) vertex, isGraphEditorInFocus());
+            classTargetPainter.paint(g, (ClassTarget) vertex, isPermanentFocusOwner());
         }
         else if (vertex instanceof ReadmeTarget) {
-            readmePainter.paint(g, (ReadmeTarget) vertex, isGraphEditorInFocus());
+            readmePainter.paint(g, (ReadmeTarget) vertex, isPermanentFocusOwner());
         }
         else if (vertex instanceof PackageTarget) {
-            packageTargetPainter.paint(g, (PackageTarget) vertex, isGraphEditorInFocus());
+            packageTargetPainter.paint(g, (PackageTarget) vertex, isPermanentFocusOwner());
         }
         else {
             //asserts false;
@@ -177,10 +177,10 @@ public class GraphPainterStdImpl
     private void paintGhostVertex(Graphics2D g, Moveable vertex)
     {
         if (vertex instanceof ClassTarget) {
-            classTargetPainter.paintGhost(g, (ClassTarget) vertex, isGraphEditorInFocus());
+            classTargetPainter.paintGhost(g, (ClassTarget) vertex, isPermanentFocusOwner());
         }
         else if (vertex instanceof PackageTarget) {
-            packageTargetPainter.paintGhost(g, (PackageTarget) vertex, isGraphEditorInFocus());
+            packageTargetPainter.paintGhost(g, (PackageTarget) vertex, isPermanentFocusOwner());
         }
         else {
             //asserts false;
@@ -208,11 +208,13 @@ public class GraphPainterStdImpl
     }
 
     /**
-     * Tell whether the graph editor has key focus.
+     * Tell whether the graph editor has the permanent key focus - 
+     * this is NOT the temporary which hasFocus() and isFocusOwner() uses.
      */
-    public boolean isGraphEditorInFocus()
+    private boolean isPermanentFocusOwner()
     {
-        return graphEditor.hasFocus();
+        Component permanentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
+        return (permanentFocusOwner == graphEditor);
     }
 
     /**
