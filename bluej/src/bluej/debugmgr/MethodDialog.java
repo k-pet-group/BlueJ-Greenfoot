@@ -2,12 +2,10 @@ package bluej.debugmgr;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import com.sun.org.apache.bcel.internal.generic.LADD;
 
 import bluej.*;
 import bluej.pkgmgr.*;
@@ -25,7 +23,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2585 2004-06-10 13:27:46Z polle $
+ * @version $Id: MethodDialog.java 2586 2004-06-10 13:33:02Z polle $
  */
 public class MethodDialog extends CallDialog
 	implements FocusListener
