@@ -14,9 +14,9 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1785 2003-04-10 08:30:07Z damiano $
+ * @version    $Id: Submitter.java 1810 2003-04-10 10:38:42Z damiano $
  */
-public class Submitter extends Extension implements MenuGenerator, BluejEventListener
+public class Submitter extends Extension implements MenuGenerator, BlueJExtensionEventListener
 {
     private MenuAction anAction;
     private int numPackagesOpen = 0;       // Counter for menu en/disable
@@ -51,7 +51,7 @@ public class Submitter extends Extension implements MenuGenerator, BluejEventLis
         anAction.setEnabled(false);
         stat.bluej.setMenuGenerator(this);
 
-        stat.bluej.addBluejEventListener(this);
+        stat.bluej.addBlueJExtensionEventListener(this);
     }
 
 
@@ -74,7 +74,7 @@ public class Submitter extends Extension implements MenuGenerator, BluejEventLis
      *
      * @param  ev  Description of the Parameter
      */
-    public void eventOccurred(BluejEvent ev)
+    public void eventOccurred(BlueJExtensionEvent ev)
     {
         // nothing to do if it is not a package event.
         if (!(ev instanceof bluej.extensions.event.PackageEvent)) return;
