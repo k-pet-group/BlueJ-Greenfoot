@@ -5,7 +5,7 @@ package bluej.extensions.event;
  * If you want to listen for extensions events you have tom implement this interface
  * and register it using the addBluejListener of the BlueJ Class.
  *
- * @version $Id: BluejEventListener.java 1791 2003-04-10 08:55:58Z damiano $
+ * @version $Id: BluejEventListener.java 1795 2003-04-10 09:21:11Z damiano $
  */
 public interface BluejEventListener
 {
@@ -15,5 +15,5 @@ public interface BluejEventListener
      * return as quick as possible. 
      * If long operation must be performed they should be a Thread.
      */
-    public void eventOccurred (BlueJEvent event);
+    public void eventOccurred (BluejEvent event);
 }

@@ -322,7 +322,7 @@ public class ExtensionsManager implements BlueJEventListener
      *
      * @param  event  the event to delegate
      */
-    public void delegateEvent(bluej.extensions.event.BlueJEvent event)
+    public void delegateEvent(bluej.extensions.event.pippoEvent event)
     {
         for (Iterator it = extensions.iterator(); it.hasNext(); ) {
             ExtensionWrapper wrapper = (ExtensionWrapper) it.next();

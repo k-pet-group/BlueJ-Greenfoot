@@ -3,14 +3,14 @@ package bluej.extensions.event;
 /**
  * This class encapsulates events that are at the whole application level.
  * 
- * @version $Id: ApplicationEvent.java 1791 2003-04-10 08:55:58Z damiano $
+ * @version $Id: ApplicationEvent.java 1795 2003-04-10 09:21:11Z damiano $
  */
 
  /*
   * Author Damiano Bolla, University of Kent at Canterbury, January 2003
   */
 
-public class ApplicationEvent implements BlueJEvent 
+public class ApplicationEvent implements BluejEvent 
   {
   /**
    * This event will be sent to the Extension when BlueJ is ready.
