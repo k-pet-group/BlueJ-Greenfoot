@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3269 2005-01-13 01:22:06Z davmac $
+ * @version $Id: TextParser.java 3292 2005-01-19 01:16:01Z davmac $
  */
 public class TextParser
 {
@@ -87,6 +87,8 @@ public class TextParser
                 // Debug.message("got type = " + t);
                 if (t == null)
                     return "";
+                else if (t.isVoid())
+                    return null;
                 else
                     return t.toString();
             }

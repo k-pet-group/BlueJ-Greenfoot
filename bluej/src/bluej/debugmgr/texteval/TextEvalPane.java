@@ -27,7 +27,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3240 2004-12-16 00:04:59Z davmac $
+ * @version $Id: TextEvalPane.java 3292 2005-01-19 01:16:01Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
@@ -128,6 +128,7 @@ public class TextEvalPane extends JEditorPane
      */
     public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
     {
+        currentCommand = "";
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 frame.getObjectBench().addInteraction(ir);
@@ -186,6 +187,7 @@ public class TextEvalPane extends JEditorPane
             }
         }
         else {
+            currentCommand = "";
             EventQueue.invokeLater(new Runnable() {
                 public void run()
                 {
@@ -626,7 +628,6 @@ public class TextEvalPane extends JEditorPane
             else {
                 markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
             }
-            currentCommand = "";
         }
     }
 
