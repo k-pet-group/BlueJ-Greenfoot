@@ -224,8 +224,10 @@ public class DocuGenerator
 //                 Writer logWriter = new OutputStreamWriter(logStream);
                 PrintWriter logWriter = new PrintWriter(logStream,true);
                 logWriter.println(logHeader);
+                logWriter.println("<---- javadoc command: ---->");
                 for(int i=0; i < docuCall.length; i++)
                     logWriter.println(docuCall[i]);
+                logWriter.println("<---- end of javadoc command ---->");
                 logWriter.flush();
                 docuRun = Runtime.getRuntime().exec(docuCall);
 
