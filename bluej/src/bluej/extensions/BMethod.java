@@ -7,6 +7,7 @@ import bluej.pkgmgr.Package;
 import bluej.views.*;
 
 import com.sun.jdi.*;
+import bluej.pkgmgr.*;
 
 /**
  * A wrapper for a method of a BlueJ class.
@@ -17,7 +18,7 @@ import com.sun.jdi.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1970 2003-05-21 10:59:26Z damiano $
+ * @version $Id: BMethod.java 1972 2003-05-21 13:14:24Z damiano $
  */
 
 /*
@@ -145,7 +146,8 @@ public class BMethod
         if ( thisField == null ) return null;
 
         // DOing this is the correct way of returning the right object. Tested 080303, Damiano
-        return BField.doGetVal(bluejPkg, resultName, objRef.getValue(thisField));
+        PkgMgrFrame aFrame = parentId.getPackageFrame();
+        return BField.doGetVal(aFrame, resultName, objRef.getValue(thisField));
         }
     
   

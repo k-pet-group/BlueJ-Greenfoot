@@ -16,7 +16,7 @@ import java.util.*;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 1965 2003-05-20 17:30:25Z damiano $
+ * @version $Id: BObject.java 1972 2003-05-21 13:14:24Z damiano $
  */
 
 /*
@@ -25,42 +25,36 @@ import java.util.*;
  */
 public class BObject
 {
-    private ObjectWrapper  wrapper;  
-
+    private ObjectWrapper  wrapper;     // I wish I could get rid of this...
+    private Identifier     wrapperId;
+    
     /**
      * Constructor for BObject.
      */
     BObject (ObjectWrapper aWrapper)
     {
         wrapper = aWrapper;
+
+        Package bluejPkg  = wrapper.getPackage();
+        Project bluejProj = bluejPkg.getProject();
+
+        // It really seems that the translation between Java naming and Class is needed.
+        // Also tryng to get the Class instead of just the name is a mess...
+        String  className = transJavaToClass(wrapper.getClassName());
+
+        wrapperId = new Identifier (bluejProj, bluejPkg, className );
     }
-
-    /**
-     * Tests if this object is still valid in BlueJ.
-     * This object may not be valid since what it represents has been modified or deleted
-     * from the main BlueJ graphical user interface.
-     * Return true if it is valid, false otherwise.
-     */
-    public boolean isValid()
-        {
-        if ( wrapper == null ) return ( false);
-        // TODO: Possible others checks here
-        return true;
-        }
-
 
     /**
      * Returns the package this object belongs to.
-     * It returns null if this is not a valid object anymore.
      */
     public BPackage getPackage()
-    {
-        if ( ! isValid() ) return null;
-
-        Package aPkg = wrapper.getPackage();
-        Project bluejProject = aPkg.getProject();
-        return new BPackage(new Identifier(bluejProject, aPkg ));
-    }
+        throws ProjectNotOpenException, PackageNotFoundException
+        {
+        Project bluejPrj = wrapperId.getBluejProject();
+        Package bluejPkg = wrapperId.getBluejPackage();
+        return new BPackage(new Identifier(bluejPrj, bluejPkg ));
+        }
         
     /**
      * Removes this object from the object bench. 
@@ -68,15 +62,10 @@ public class BObject
      * Once the object is removed from the bench it will not be available again.
      */
     public void removeFromBench()
+        throws ProjectNotOpenException, PackageNotFoundException
         {
-        if ( ! isValid() ) return;
-
-        // This should really always exists, no need to check
-        Package aPackage = wrapper.getPackage();
-
-        // This may reasonably fail
-        PkgMgrFrame aFrame = PkgMgrFrame.findFrame ( aPackage );
-        if ( aFrame == null ) return;
+        Package aPackage = wrapperId.getBluejPackage();
+        PkgMgrFrame aFrame = wrapperId.getPackageFrame();
 
         ObjectBench aBench = aFrame.getObjectBench();
         aBench.remove(wrapper, aPackage.getId());
@@ -93,9 +82,10 @@ public class BObject
      * @param instanceName  The name you want this object to have on the bench.
      */
     public void addToBench(String instanceName)
-    {
-        if ( ! isValid() ) return;
-
+        throws ProjectNotOpenException, PackageNotFoundException
+        {
+        if ( wrapper == null ) return;
+        
         // No reational to add a null object, isn't it ?
         if (wrapper.getObject().isNullObject()) return;
 
@@ -103,27 +93,24 @@ public class BObject
         if ( instanceName != null ) wrapper.setName(instanceName);
         
         // This should really always exists, no need to check
-        Package aPackage = wrapper.getPackage();
-
-        // This may reasonably fail
-        PkgMgrFrame aFrame = PkgMgrFrame.findFrame ( aPackage );
-        if ( aFrame == null ) return;
+        Package aPackage = wrapperId.getBluejPackage();
+        PkgMgrFrame aFrame = wrapperId.getPackageFrame();
 
         ObjectBench aBench = aFrame.getObjectBench();
         aBench.add(wrapper);
 
         // load the object into runtime scope
         aPackage.getDebugger().addObjectToScope(aPackage.getId(),wrapper.getName(), wrapper.getObject());
-    }
+        }
 
 
     /**
      * Return the name of this object on the object bench.
-     * It can return null if the object is invalid.
+     * @return The instance name if the object can be put into bench, null othervise
      */
     public String getInstanceName()
         {
-        if ( ! isValid() ) return null;
+        if ( wrapper == null ) return null;
 
         return wrapper.getName();
         }
@@ -131,32 +118,26 @@ public class BObject
     /**
      * Return the class of this object.
      * Similar to Reflection API.
-     * It can return null if the object is invalid.
      */
     public BClass getBClass()
-    {
+        throws ProjectNotOpenException, ClassNotFoundException
+        {
+        // Tis is to test if the Bobject is till valid
+        wrapperId.getJavaClass();
+        
         // Tested also with string array. 20 may 2003, Damiano
-        if ( ! isValid() ) return null;
-
-        Package bluejPkg  = wrapper.getPackage();
-        Project bluejProj = bluejPkg.getProject();
-
-        // It really seems that the translation between Java naming and Class is needed.
-        // Also tryng to get the Class instead of just the name is a mess...
-        String  className = transJavaToClass(wrapper.getClassName());
-
-        return new BClass ( new Identifier (bluejProj,bluejPkg,className));
-    } 
+        return new BClass ( wrapperId );
+        } 
 
     /**
      * Returns the underlying BlueJ package.
      * Should remain visible only to package members.
      */
-    Package getBluejPackage ()
-    {
-        if ( wrapper == null ) return null;
-        return wrapper.getPackage();
-    }
+    PkgMgrFrame getPackageFrame ()
+        throws ProjectNotOpenException, PackageNotFoundException
+        {
+        return wrapperId.getPackageFrame();
+        }
 
     /**
      * Used by BField to get hold of the real Object
@@ -172,7 +153,7 @@ public class BObject
 
 
     /**
-     * Returns a reasonable representation of this object.
+     * Returns a string representation of the Object
      */
     public String toString ()
       {

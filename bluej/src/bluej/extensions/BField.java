@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1968 2003-05-21 09:59:49Z damiano $
+ * @version $Id: BField.java 1972 2003-05-21 13:14:24Z damiano $
  */
 
 /*
@@ -86,7 +86,7 @@ public class BField
     private Object getStaticField () throws ProjectNotOpenException, PackageNotFoundException
       {
       Package bluejPkg = parentId.getBluejPackage();
-      
+      PkgMgrFrame aFrame = parentId.getPackageFrame();
       String wantFieldName = getName();
 
       // I need to get the view of the parent of this Field
@@ -142,7 +142,7 @@ public class BField
         return null;
         }
 
-      return doGetVal(bluejPkg, wantFieldName, objRef);
+      return doGetVal(aFrame, wantFieldName, objRef);
       }
 
 
@@ -175,17 +175,17 @@ public class BField
         Field thisField = type.fieldByName (bluej_view.getName());
         if ( thisField == null ) return null;
        
-        Package bluej_pkg = onThis.getBluejPackage();
-        return doGetVal(bluej_pkg, bluej_view.getName(), objRef.getValue(thisField));
+        PkgMgrFrame aFrame = onThis.getPackageFrame();
+        return doGetVal(aFrame, bluej_view.getName(), objRef.getValue(thisField));
         }
 
 
     /**
-     * Given a Value that comes from th remote debugger machine, converts it into somethig
+     * Given a Value that comes from the remote debugger machine, converts it into somethig
      * that is usable. The real important thing here is to return a BObject for objects 
      * that can be put into the bench.
      */
-    static Object doGetVal ( Package bluej_pkg, String instanceName, Value val )
+    static Object doGetVal ( PkgMgrFrame packageFrame, String instanceName, Value val )
         {
         if ( val == null ) return null;
         
@@ -201,8 +201,7 @@ public class BField
 
         if (val instanceof ObjectReference)
           {
-          PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
-          ObjectWrapper objWrap = new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val),instanceName);
+          ObjectWrapper objWrap = new ObjectWrapper (packageFrame, packageFrame.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val),instanceName);
           return new BObject ( objWrap );
           }
 

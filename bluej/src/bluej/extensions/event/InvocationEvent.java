@@ -16,7 +16,7 @@ import com.sun.jdi.*;
  * From this event you can extract the actual result of the invocation, and access the BlueJ
  * classes and objects involved.
  * 
- * @version $Id: InvocationEvent.java 1904 2003-04-27 17:12:42Z iau $
+ * @version $Id: InvocationEvent.java 1972 2003-05-21 13:14:24Z damiano $
  */
 
 /*
@@ -160,7 +160,6 @@ public class InvocationEvent implements ExtensionEvent
       if ( realResult == null ) return null;
 
       PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluej_pkg);
-
       ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), realResult, objectName);
 
       return ExtensionBridge.newBObject(wrapper);
@@ -179,7 +178,8 @@ public class InvocationEvent implements ExtensionEvent
       if ( thisField == null ) return null;
 
       // WARNING: I do not have the newly created name here....
-      return ExtensionBridge.getVal(bluej_pkg, "", objRef.getValue(thisField));
+      PkgMgrFrame aFrame = PkgMgrFrame.findFrame(bluej_pkg);
+      return ExtensionBridge.getVal(aFrame, "", objRef.getValue(thisField));
       }
 
 

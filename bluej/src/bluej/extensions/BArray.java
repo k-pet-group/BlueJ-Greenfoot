@@ -1,12 +1,16 @@
 package bluej.extensions;
 
-import com.sun.jdi.*;
+import bluej.pkgmgr.PkgMgrFrame;
+import com.sun.jdi.ArrayReference;
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ReferenceType;
+import com.sun.jdi.Value;
 
 /**
  * A wrapper for an array object in BlueJ.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BArray.java 1965 2003-05-20 17:30:25Z damiano $
+ * @version $Id: BArray.java 1972 2003-05-21 13:14:24Z damiano $
  */
 
 /*
@@ -27,6 +31,7 @@ public class BArray
    * @return an Object that encapsulate the specific item or null if not an array.
    */
   public static Object getValue ( BObject thisArray, int itemIndex )
+    throws ProjectNotOpenException, PackageNotFoundException
     {
     ObjectReference objRef = thisArray.getObjectReference();
 
@@ -37,7 +42,8 @@ public class BArray
     
     Value val = array.getValue(itemIndex);
 
-    return BField.doGetVal(thisArray.getBluejPackage(), "Array", val);
+    PkgMgrFrame aFrame = thisArray.getPackageFrame();
+    return BField.doGetVal(aFrame, "Array", val);
     }
 
 

@@ -5,6 +5,7 @@ import bluej.extensions.event.*;
 import bluej.extmgr.*;
 import bluej.pkgmgr.Package;
 import com.sun.jdi.*;
+import bluej.pkgmgr.*;
 
 /*
  * This class acts as a bridge between the extensions package and other 
@@ -23,9 +24,9 @@ public class ExtensionBridge
     thisBluej.delegateEvent(anEvent);
     }
 
-  public static Object getVal ( Package bluej_pkg, String instanceName, Value val )
+  public static Object getVal ( PkgMgrFrame aFrame, String instanceName, Value val )
     {
-    return BField.doGetVal(bluej_pkg, instanceName, val );
+    return BField.doGetVal(aFrame, instanceName, val );
     }
 
   public static BlueJ newBluej(ExtensionWrapper aWrapper, PrefManager aPrefManager, MenuManager aMenuManager)
