@@ -30,7 +30,6 @@ public class ExtensionsManager implements BlueJEventListener
 {
     private static ExtensionsManager instance;
 
-
     /**
      *  Processes arguments passed to BlueJ, and takes a note of the location of
      *  BlueJLib (<CODE>&lt;bluej&gt;/lib</CODE>). A call to this method must be
@@ -48,15 +47,12 @@ public class ExtensionsManager implements BlueJEventListener
 
 
     /**
-     *  Gets the extMgr attribute of the ExtensionsManager class
-     *
-     * @return    The extMgr value
+     * Return the ExtensionManager instance.
      */
     public static ExtensionsManager getExtMgr()
     {
         return instance;
     }
-
 
     private final List argsList;
     private final List extensions;
@@ -64,29 +60,23 @@ public class ExtensionsManager implements BlueJEventListener
     private PrefManager prefManager;
 
     /**
-     *  Constructor for the ExtensionsManager object
+     *  Constructor for the ExtensionsManager object.
+     *  It is private to be a singleton.
      *
-     * @param  args      Description of the Parameter
-     * @param  bluejLib  Description of the Parameter
+     * @param  args      Parameters passed to BlueJ
+     * @param  bluejLib  Where the bluej library is.
      */
     private ExtensionsManager(String[] args, File bluejLib)
     {
-        try {
-            ClassLoader cl = ExtensionsManager.class.getClassLoader();
-            cl.loadClass("bluej.extensions.Extension");
-        } catch (ClassNotFoundException ex) {
-            DialogManager.showText(null, "Error: you need bluejext.jar as well as bluej.jar in your path!");
-            System.exit(-1);
-        }
-
         this.bluejLib = bluejLib;
         argsList = Collections.unmodifiableList(Arrays.asList(args));
 
         extensions = new ArrayList();
 
-        // This will also register the panel with BlueJ
+        // This will also register the panel with BlueJ.
         prefManager = new PrefManager(this);
 
+        // This must be here, after all has been initialized.
         BlueJEvent.addListener(this);
     }
 
