@@ -11,7 +11,7 @@ import bluej.pkgmgr.target.DependentTarget;
 /**
  * Paints a ClassTarget
  * @author fisker
- * @version $Id: ExtendsDependencyPainter.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: ExtendsDependencyPainter.java 2587 2004-06-10 14:11:21Z polle $
  */
 public class ExtendsDependencyPainter implements DependencyPainter
 {
@@ -28,6 +28,7 @@ public class ExtendsDependencyPainter implements DependencyPainter
         if (!(dependency instanceof ExtendsDependency)){
             throw new IllegalArgumentException("Not a ExtendsDependency");
         }
+        Stroke oldStroke = g.getStroke();
         ExtendsDependency d = (ExtendsDependency) dependency;
         
         g.setStroke((d.isSelected()? normalSelected : normalUnselected));
@@ -46,6 +47,7 @@ public class ExtendsDependencyPainter implements DependencyPainter
         pTo = ((DependentTarget)d.getTo()).getAttachment(angle);
 
         paintArrow(g, pFrom, pTo);
+        g.setStroke(oldStroke);
     }
 
     

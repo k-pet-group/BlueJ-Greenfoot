@@ -12,7 +12,7 @@ import bluej.pkgmgr.target.DependentTarget;
 /**
  * Paints usesDependencies
  * @author fisker
- * @version $Id: UsesDependencyPainter.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: UsesDependencyPainter.java 2587 2004-06-10 14:11:21Z polle $
  */
 public class UsesDependencyPainter implements DependencyPainter
 {
@@ -40,6 +40,7 @@ public class UsesDependencyPainter implements DependencyPainter
         if (!(dependency instanceof UsesDependency)){
             throw new IllegalArgumentException("Not a UsesDependency");
         }
+        Stroke oldStroke = g.getStroke();        
         UsesDependency d = (UsesDependency) dependency; 
         Stroke dashedStroke, normalStroke;
         if (d.isSelected()) 
@@ -100,6 +101,8 @@ public class UsesDependencyPainter implements DependencyPainter
         // draw the middle bit
         g.drawLine(src_x, src_y, src_x, dst_y);
         g.drawLine(src_x, dst_y, dst_x, dst_y);
+        
+        g.setStroke(oldStroke);
     }
 
     /**

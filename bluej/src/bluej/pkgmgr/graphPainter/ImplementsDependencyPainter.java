@@ -11,7 +11,7 @@ import bluej.pkgmgr.target.DependentTarget;
 /**
  * Paintes ImplementsDependencies
  * @author fisker
- * @version $Id: ImplementsDependencyPainter.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: ImplementsDependencyPainter.java 2587 2004-06-10 14:11:21Z polle $
  */
 public class ImplementsDependencyPainter implements DependencyPainter
 {
@@ -40,6 +40,8 @@ public class ImplementsDependencyPainter implements DependencyPainter
         if (!(dependency instanceof ImplementsDependency)){
             throw new IllegalArgumentException();
         }
+        Stroke oldStroke = g.getStroke();
+        
         ImplementsDependency d = (ImplementsDependency) dependency;
         Stroke dashedStroke, normalStroke;
         if (d.isSelected()) 
@@ -78,6 +80,8 @@ public class ImplementsDependencyPainter implements DependencyPainter
         
         g.setStroke(normalStroke);
         g.drawPolygon(xPoints, yPoints, 3);
+
+        g.setStroke(oldStroke);
     }
     /* (non-Javadoc)
      * @see bluej.pkgmgr.graphPainter.DependencyPainter#getPopupMenuPosition(bluej.pkgmgr.dependency.Dependency)
