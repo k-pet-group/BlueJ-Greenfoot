@@ -14,10 +14,10 @@ import sun.misc.*;
  * This loader finds and loads the known BlueJ classes and sets up the classpath.
  * While doing this, it displays a splash screen.
  *
- * @author	Andrew Patterson
- * @author	Damiano Bolla
- * @author	Michael Kolling
- * @version $Id: Boot.java 2183 2003-09-28 14:56:11Z mik $
+ * @author  Andrew Patterson
+ * @author  Damiano Bolla
+ * @author  Michael Kolling
+ * @version $Id: Boot.java 2184 2003-09-28 15:04:26Z mik $
  */
 public class Boot
 {
@@ -61,41 +61,41 @@ public class Boot
      */
     public static void main(String[] args)
     {
-		if((args.length >= 1) && "-version".equals(args[0])) {
-			System.out.println("BlueJ version " + BLUEJ_VERSION
-							   + " (Java version "
-							   + System.getProperty("java.version")
-							   + ")");
-			System.out.println("--");
+        if((args.length >= 1) && "-version".equals(args[0])) {
+            System.out.println("BlueJ version " + BLUEJ_VERSION
+                               + " (Java version "
+                               + System.getProperty("java.version")
+                               + ")");
+            System.out.println("--");
 
-			System.out.println("virtual machine: "
-							   + System.getProperty("java.vm.name")
-							   + " "
-							   + System.getProperty("java.vm.version")
-							   + " ("
-							   + System.getProperty("java.vm.vendor")
-							   + ")");
+            System.out.println("virtual machine: "
+                               + System.getProperty("java.vm.name")
+                               + " "
+                               + System.getProperty("java.vm.version")
+                               + " ("
+                               + System.getProperty("java.vm.vendor")
+                               + ")");
 
-			System.out.println("running on: "
-							   + System.getProperty("os.name")
-							   + " "
-							   + System.getProperty("os.version")
-							   + " ("
-							   + System.getProperty("os.arch")
-							   + ")");
-			System.exit(-1);
-		}
+            System.out.println("running on: "
+                               + System.getProperty("os.name")
+                               + " "
+                               + System.getProperty("os.version")
+                               + " ("
+                               + System.getProperty("os.arch")
+                               + ")");
+            System.exit(-1);
+        }
 
-		SplashWindow splash = new SplashWindow();
-    	
-		if((args.length >= 1) && "-useclassesdir".equals(args[0])) {
-			useClassesDir = true;
-		}
-		
+        SplashWindow splash = new SplashWindow();
+        
+        if((args.length >= 1) && "-useclassesdir".equals(args[0])) {
+            useClassesDir = true;
+        }
+        
         instance = new Boot(args);
         instance.bootBluej();
 
-		splash.remove();
+        splash.remove();
     }
 
 
@@ -276,52 +276,52 @@ public class Boot
 //        }
     }
 
-	/**
-	 * Returns an array of URLs for all the required BlueJ jars
-	 *
-	 * @return  URLs of the required JAR files
-	 * @exception  MalformedURLException  for any problems with the URLs
-	 */
-	private URL[] getKnownJars(File libDir, String[] jars, boolean isSystem) 
+    /**
+     * Returns an array of URLs for all the required BlueJ jars
+     *
+     * @return  URLs of the required JAR files
+     * @exception  MalformedURLException  for any problems with the URLs
+     */
+    private URL[] getKnownJars(File libDir, String[] jars, boolean isSystem) 
         throws MalformedURLException
-	{
-		// by default, we require all our known jars to be present
-		int startJar = 0;
-		ArrayList urlList = new ArrayList();
+    {
+        // by default, we require all our known jars to be present
+        int startJar = 0;
+        ArrayList urlList = new ArrayList();
 
-		// a hack to let BlueJ run from within Eclipse.
-		// If specified on command line, lets add a ../classes
-		// directory to the classpath (where Eclipse stores the
-		// .class files)
-		if (isSystem && useClassesDir) {
-			File classesDir = new File(libDir.getParentFile(), "classes");
-			
-			if (classesDir.isDirectory()) {
-				urlList.add(classesDir.toURL());
-				// skip over requiring bluejcore.jar, bluejeditor.jar etc.
-				startJar = bluejBuildJars;
-			}
-		}
+        // a hack to let BlueJ run from within Eclipse.
+        // If specified on command line, lets add a ../classes
+        // directory to the classpath (where Eclipse stores the
+        // .class files)
+        if (isSystem && useClassesDir) {
+            File classesDir = new File(libDir.getParentFile(), "classes");
+            
+            if (classesDir.isDirectory()) {
+                urlList.add(classesDir.toURL());
+                // skip over requiring bluejcore.jar, bluejeditor.jar etc.
+                startJar = bluejBuildJars;
+            }
+        }
 
-		for (int i=startJar; i < jars.length; i++) {
-			File toAdd = new File(libDir, jars[i]);
+        for (int i=startJar; i < jars.length; i++) {
+            File toAdd = new File(libDir, jars[i]);
 
-			if (!toAdd.canRead())
-				throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
+            if (!toAdd.canRead())
+                throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
 
-			urlList.add(toAdd.toURL());
-		}
-	
+            urlList.add(toAdd.toURL());
+        }
+    
         if (isSystem) {
             // We also need to add tools.jar on some systems
             URL toolsURL = getToolsURL();
             if(toolsURL != null)
                 urlList.add(toolsURL);
         }
-		return (URL[]) urlList.toArray(new URL[0]);
-	}
-	
-	
+        return (URL[]) urlList.toArray(new URL[0]);
+    }
+    
+    
     /**
      * Returns an array of URLs for all the JAR files located in the lib/ext directory
      *
