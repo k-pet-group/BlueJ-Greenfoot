@@ -373,12 +373,11 @@ bluej.vm.optimize=true
 
 
 #######################################################################
-## Debugging. When on, debug output goes to console; when off, it is
-##  written to a log file in the user's bluej settings directory.
+## Debugging. When true, debug output goes to console; when false, it
+##  is written to a log file in the user's bluej settings directory.
 #######################################################################
 
-debug=on
-bluej.debugLog=debug.log
+bluej.debug=false
 
 
 #######################################################################
