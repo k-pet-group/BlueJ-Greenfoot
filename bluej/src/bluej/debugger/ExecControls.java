@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 136 1999-06-21 06:35:48Z mik $
+ ** @version $Id: ExecControls.java 137 1999-06-21 07:45:37Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -41,6 +41,7 @@ public class ExecControls extends JFrame
 						//  selected
     private DebuggerObject currentObject;	// the "this" object for the
 						//  selected stack frame
+    private int currentFrame = 0;		// currently selected frame
 
     public ExecControls()
     {
@@ -125,7 +126,7 @@ public class ExecControls extends JFrame
 	    viewInstanceField(instanceList.getSelectedIndex());
 	}
 	else if(src == localList) {
-	    //viewField(instanceList.getSelectedIndex());
+	    viewLocalVar(localList.getSelectedIndex());
 	}
     }
 
@@ -197,6 +198,7 @@ public class ExecControls extends JFrame
 	    setStackFrameDetails(index);
 	    selectedThread.setSelectedFrame(index);
 	    Debugger.debugger.showSource(selectedThread);
+	    currentFrame = index;
 	}
     }
 	
@@ -213,6 +215,15 @@ public class ExecControls extends JFrame
 	    ObjectViewer viewer = ObjectViewer.getViewer(true, 
 					currentObject.getFieldObject(index), 
 					null, null, false, this);
+	}
+    }
+
+    private void viewLocalVar(int index)
+    {
+	if(selectedThread.varIsObject(currentFrame, index)) {
+	    ObjectViewer viewer = ObjectViewer.getViewer(true, 
+			selectedThread.getStackObject(currentFrame, index),
+			null, null, false, this);
 	}
     }
 

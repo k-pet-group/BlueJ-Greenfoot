@@ -9,7 +9,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: DebuggerThread.java 135 1999-06-21 03:39:47Z mik $
+ ** @version $Id: DebuggerThread.java 137 1999-06-21 07:45:37Z mik $
  **/
 
 public abstract class DebuggerThread
@@ -21,11 +21,16 @@ public abstract class DebuggerThread
     public abstract boolean isSuspended();
     public abstract String getClassSourceName(int frameNo);
     public abstract int getLineNumber(int frameNo);
+
     public abstract Vector getStack();
     public abstract Vector getLocalVariables(int frameNo);
+    public abstract boolean varIsObject(int frameNo, int index);
+    public abstract DebuggerObject getStackObject(int frameNo, int index);
     public abstract DebuggerObject getCurrentObject(int frameNo);
+
     public abstract void setSelectedFrame(int frame);
     public abstract int getSelectedFrame();
+
     public abstract void stop();
     public abstract void step();
     public abstract void stepInto();

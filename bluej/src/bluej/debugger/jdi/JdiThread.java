@@ -177,12 +177,10 @@ public final class JdiThread extends DebuggerThread
 
 	
     /**
-     * Return strings listing the local variables. Note that internally, the
-     * local variables include "this" - we leave that out here (and leave it
-     * up to the instance variable section to display those).
+     * Return strings listing the local variables.
      *
-     * The thread must be suspended to do this. Otherwise an empty string
-     * array is returned.
+     * The thread must be suspended to do this. Otherwise an empty Vector
+     * is returned.
      */
     public Vector getLocalVariables(int frameNo)
     {
@@ -208,6 +206,51 @@ public final class JdiThread extends DebuggerThread
 	    Debug.reportError("could not get local variable info: " + e);
 	}
 	return new Vector();
+    }
+
+    /**
+     * Return true if the identified slot on the stack contains an object.
+     */
+    public boolean varIsObject(int frameNo, int index)
+    {
+	try {
+	    if(rt.isSuspended()) {
+		StackFrame frame = rt.frame(frameNo);
+		List vars = frame.visibleVariables();
+		LocalVariable var = (LocalVariable)vars.get(index);
+		Value val = frame.getValue(var);
+		return (val instanceof ObjectReference);
+	    }
+	    else
+		return false;
+	} catch(Exception e) {
+	    // nothing can be done...
+	    Debug.reportError("could not get local variable info: " + e);
+	}
+	return false;
+    }
+
+    /**
+     * Return an object from this thread's stack. The variable must contain
+     * an object.
+     */
+    public DebuggerObject getStackObject(int frameNo, int index)
+    {
+	try {
+	    if(rt.isSuspended()) {
+		StackFrame frame = rt.frame(frameNo);
+		List vars = frame.visibleVariables();
+		LocalVariable var = (LocalVariable)vars.get(index);
+		ObjectReference val = (ObjectReference)frame.getValue(var);
+		return JdiObject.getDebuggerObject(val);
+	    }
+	    else
+		return null;
+	} catch(Exception e) {
+	    // nothing can be done...
+	    Debug.reportError("could not get local variable info: " + e);
+	}
+	return null;
     }
 
     public DebuggerObject getCurrentObject(int frameNo)

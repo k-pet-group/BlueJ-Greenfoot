@@ -94,6 +94,10 @@ public class MyClass
    public void newMethod()
    {
         x = 88;
+        shortloop(4);
         System.out.println("The debugger is shit!");
+        System.out.println("line2");
+        System.out.println("line3");
+    
    }
 }
