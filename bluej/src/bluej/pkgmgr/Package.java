@@ -28,7 +28,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 129 1999-06-15 07:21:23Z mik $
+ ** @version $Id: Package.java 134 1999-06-21 02:34:23Z bruce $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -447,19 +447,12 @@ public class Package extends Graph
 		Target target = null;
 		String type = props.getProperty("target" + (i + 1) + ".type");
 		
-		if("ClassTarget".equals(type)) {
-		    target = new ClassTarget(this);
+		if("ClassTarget".equals(type) || "AppletTarget".equals(type)) {
+		    target = new ClassTarget(this,  "AppletTarget".equals(type));
 		    // all library classes should be considered to be compiled
 		    if (libraryPackage) {
 			target.state = Target.S_NORMAL;
 			((ClassTarget)target).setLibraryTarget(true);
-		    }
-		}
-		else if("AppletTarget".equals(type)) {
-		    target = new AppletTarget(this);
-		    if (libraryPackage) {
-			target.state = Target.S_NORMAL;
-			((AppletTarget)target).setLibraryTarget(true);
 		    }
 		}
 		else if("ImportedClassTarget".equals(type))
@@ -503,12 +496,12 @@ public class Package extends Graph
 	    Target t = (Target)e.nextElement();
 	    if((t instanceof ClassTarget)
 	       && ((ClassTarget)t).upToDate()) {
-		ClassTarget ct = null;
-		if(t instanceof AppletTarget)
-		    ct = (AppletTarget)t;
-		else
-		    ct = (ClassTarget)t;
-//ClassTarget ct = (ClassTarget)t;
+		// ClassTarget ct = null;
+// 		if(t instanceof AppletTarget)
+// 		    ct = (AppletTarget)t;
+// 		else
+	      //	    ct = (ClassTarget)t;
+	      ClassTarget ct = (ClassTarget)t;
 		if (readyToPaint)
 		    ct.setState(Target.S_NORMAL);
 		// XXX: Need to invalidate things dependent on t
@@ -788,15 +781,20 @@ public class Package extends Graph
     public String getBaseDir()
     {
 	if(baseDir == null) {
-	    if(packageName == noPackage)
+	    if(packageName == noPackage) {
 		baseDir = dirname;
+	    }
 	    else {
 		String dir = new File(dirname).getAbsolutePath();
-				
+		
 		int next = 0;
 		do {
 		    dir = new File(dir).getParent();
+		    Debug.message("dir now " + dir);
+
 		    next = packageName.indexOf('.', next + 1);
+		    	Debug.message("next: " + next);
+
 		} while((next != -1) && (dir != null));
 
 		baseDir = dir;

@@ -604,10 +604,7 @@ public class PkgMgrFrame extends PkgFrame
 
 		ClassTarget target =  null;
 		int classType = dlg.getClassType();
-		if(classType == NewClassDialog.NC_APPLET)
-		    target = new AppletTarget(pkg, name);
-		else
-		    target = new ClassTarget(pkg, name);
+		target = new ClassTarget(pkg, name, classType == NewClassDialog.NC_APPLET);
 		
 		target.setAbstract(classType == NewClassDialog.NC_ABSTRACT);
 		target.setInterface(classType == NewClassDialog.NC_INTERFACE);

@@ -32,6 +32,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
+
 /** 
  ** A class target in a package, i.e. a target that is a class file
  ** built from Java source code
@@ -39,7 +40,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 127 1999-06-15 05:01:18Z mik $
+ ** @version $Id: ClassTarget.java 134 1999-06-21 02:34:23Z bruce $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -66,6 +67,7 @@ public class ClassTarget extends EditableTarget
 					Config.getImageFilename("image.broken"));
 
     // variables
+    private ClassRole role;
 
     protected int modifiers;
     protected Vector breakpoints = new Vector();
@@ -75,6 +77,7 @@ public class ClassTarget extends EditableTarget
     // Fields used in Tarjan's algorithm:
     public int dfn, link;
 
+  
     /**
      * Create a new class target in package 'pkg'.
      */
@@ -84,16 +87,34 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
+     * Create a new class target in package 'pkg'.
+     */
+    public ClassTarget(Package pkg, String name, boolean isApplet)
+    {
+	super(pkg, name);
+	if(isApplet)
+	    role = new AppletClassRole();
+	else
+	    role = new StdClassRole();
+    }
+
+    /**
      *  Create a new class target in package 'pkg' without a name. The
      *  name must be set later.
      */
-    public ClassTarget(Package pkg)
+    public ClassTarget(Package pkg, boolean isApplet)
     {
-	super(pkg, null);
+	this(pkg, null, isApplet);
     }
 
-    public void load(Properties props, String prefix) 
-	throws NumberFormatException
+
+    /**
+     * load existing information about this class target
+     * @param props the properties object to read
+     * @param prefix an internal name used for this target to identify 
+     * its properties in a properties file used by multiple targets.
+     */
+    public void load(Properties props, String prefix) throws NumberFormatException
     {
 	super.load(props, prefix);
 
@@ -102,11 +123,16 @@ public class ClassTarget extends EditableTarget
 	sourceInfo.load(props, prefix);
     }
 
+    /**
+     * save information about this class target
+     * @param props the properties object to save to
+     * @param prefix an internal name used for this target to identify 
+     * its properties in a properties file used by multiple targets.
+     */
     public void save(Properties props, String prefix)
     {
 	super.save(props, prefix);
-	props.put(prefix + ".type", "ClassTarget");
-	props.put(prefix + ".modifiers", Integer.toString(modifiers, 16));
+	role.save(props,modifiers, prefix);
 	sourceInfo.save(props, prefix);
     }
 	
@@ -133,6 +159,10 @@ public class ClassTarget extends EditableTarget
 	return okay;
     }
 
+    /**
+     * Check if the compiled class and the source are up to date
+     * @return true if they are in sync otherwise false.
+     */
     public boolean upToDate()
     {
 	try {	
@@ -151,8 +181,8 @@ public class ClassTarget extends EditableTarget
     }
 	
     /**
-     ** Mark this class as modified, and mark all dependent classes too
-     **/
+     * Mark this class as modified, and mark all dependent classes too
+     */
     public void invalidate()
     {
 	setState(S_INVALID);
@@ -164,16 +194,30 @@ public class ClassTarget extends EditableTarget
 	}
     }
 
+
+    /**
+     * return the modifiers associated with this class target
+     * @return int representing the modifiers
+     */
     public int getModifiers()
     {
 	return modifiers;
     }
 	
+    /**
+     * verify whether this class target is an interface
+     * @return true if class target is an interface, else returns false
+     */
     public boolean isInterface()
     {
 	return Modifier.isInterface(modifiers);
     }
 
+    /**
+     * change modifiers so that this class is either an interface or not
+     * @param isInterface boolean value reperesenting whether target should be set
+     *  to an interface or not
+     */
     public void setInterface(boolean isInterface)
     {
 	if(isInterface)
@@ -181,12 +225,21 @@ public class ClassTarget extends EditableTarget
 	else
 	    modifiers &= ~Modifier.INTERFACE;
     }
-	
+
+    /**
+     * verify whether this class target is an abstract class
+     * @return true if class target is an abstract class, else returns false
+     */	
     public boolean isAbstract()
     {
 	return Modifier.isAbstract(modifiers);
     }
 
+    /**
+     * change modifiers so that this class is either an interface or not
+     * @param isAbstract boolean value reperesenting whether target should be set
+     *  to abstract or not
+     */
     public void setAbstract(boolean isAbstract)
     {
 	if(isAbstract)
@@ -195,6 +248,7 @@ public class ClassTarget extends EditableTarget
 	    modifiers &= ~Modifier.ABSTRACT;
     }
 	
+
     Color getDefaultBackground()
     {
 	if(isInterface())
@@ -327,6 +381,7 @@ public class ClassTarget extends EditableTarget
 	return true;
     }
 
+
     public void compile(Editor editor)
     {
 	pkg.compile(this);
@@ -347,37 +402,25 @@ public class ClassTarget extends EditableTarget
 	return (state == S_NORMAL);
     }
 
+
     public String classFile()
     {
 	return pkg.getClassFileName(name) + ".class";
     }
-	
+
+
+    /**
+     * generates a source code skeleton for this class	
+     *
+     */
     public void generateSkeleton()
     {
-	Hashtable translations = new Hashtable();
-	translations.put("CLASSNAME", name);
-		
-	String template = isAbstract() ? "template.abstract" :
-	    isInterface() ? "template.interface" :
-	    "template.stdclass";
-			
-	String pkgname = pkg.getName();
-	if((pkgname == Package.noPackage))
-	    translations.put("PKGLINE", "");
-	else
-	    translations.put("PKGLINE", "package " + pkgname + ";" + Config.nl + Config.nl);
-			
-	String filename = Config.getLibFilename(template);
-		
-	try {
-	    Utility.translateFile(filename, sourceFile(), translations);
-	} catch(IOException e) {
-	    Debug.reportError("Exception during file translation from " + filename + " to " + sourceFile());
-	    e.printStackTrace();
-	}
-		
-	setState(S_INVALID);
-    }
+	// delegate to role object
+	role.generateSkeleton(pkg, name, sourceFile(), isAbstract(), isInterface());
+	// do we need to check whether skeleton generated before setting state?
+	setState(Target.S_INVALID);
+    }  
+
 
     /** 
      *  Analyse the current dependencies in the source code and update the
@@ -398,7 +441,7 @@ public class ClassTarget extends EditableTarget
 	    else {
 		if(this instanceof AppletTarget)
 		    Debug.message(" convert applet to class");
-		// FIX: convert
+		    // FIX: convert
 	    }
 
 	    setInterface(info.isInterface());
@@ -476,6 +519,14 @@ public class ClassTarget extends EditableTarget
 	
     protected Hashtable actions;
 
+    /**
+     * creates a popup menu for this class target.
+     *
+     * @param cl Class object associated with this class target
+     * @param editorFrame the parent editorFrame
+     *
+     * @return the created popup menu object
+     */
     protected JPopupMenu createMenu(Class cl, JFrame editorFrame) {
 	actions = new Hashtable();
 	
@@ -495,6 +546,9 @@ public class ClassTarget extends EditableTarget
 	    return menu;
 	}
 	
+	// call on role object to add any options needed
+ 	role.createMenu(menu, this, state);
+
 	if ((cl != null) && (!isAbstract()))
 	    createClassMenu(menu, cl);
 	
@@ -507,10 +561,20 @@ public class ClassTarget extends EditableTarget
 	addMenuItem(menu, removeStr, true);
 	
 	return menu;
+
     }
-	
+
+    /**
+     * adds a menu item to a popup menu.
+     *
+     * @param menu the popup menu the item is to be added to
+     * @param itemString the String to be displayed on menu item
+     * @param enabled boolean value representing whether item should be enabled
+     *
+     */
     protected void addMenuItem(JPopupMenu menu, String itemString, boolean enabled)
     {
+    //	 role.addMenuItem(menu, itemString, enabled);
 	JMenuItem item;
 
 	menu.add(item = new JMenuItem(itemString));
@@ -521,14 +585,19 @@ public class ClassTarget extends EditableTarget
 	    item.setEnabled(false);
     }
 
+    /**
+     * creates a class menu containing any constructors and static methods etc.
+     *
+     * @param menu the popup menu to add the class menu items to
+     * @param cl Class object associated with this class target
+     *
+     */
     protected void createClassMenu(JPopupMenu menu, Class cl)
     {
 	View view = View.getView(cl, pkg.getSearcher());
 	ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
 	ConstructorView[] constructors = view.getConstructors();
 	
-	//Debug.message("Adding constructors for " + cl);
-	//Debug.message("Constructor count = " + constructors.length);
 	if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new "))
 	    menu.addSeparator();
 		
@@ -539,6 +608,7 @@ public class ClassTarget extends EditableTarget
 	    menu.addSeparator();
     }
 	
+
     protected boolean createMenuItems(JPopupMenu menu,
 				      MemberView[] members, ViewFilter filter, 
 				      int first, int last, String prefix)
@@ -550,7 +620,6 @@ public class ClassTarget extends EditableTarget
 	for(int i = first; i < last; i++) {
 	    try {
 		MemberView m = members[last - i - 1];
-		//Debug.message("createSubMenu - calling filter.accept");
 		if(!filter.accept(m))
 		    continue;
 		//Debug.message("createSubMenu - creating MenuItem");
@@ -568,6 +637,7 @@ public class ClassTarget extends EditableTarget
 	return hasEntries;
     }
 
+
     /**
      *  Draw this target, redefined from Target.
      */
@@ -576,6 +646,8 @@ public class ClassTarget extends EditableTarget
 	super.draw(g);
 	if(!sourceInfo.isValid())
 	    g.drawImage(brokenImage, x + TEXT_BORDER, y + height - 22, null);
+	// delegate extra functionality to role object
+	role.draw(g, this, x, y, width, height);
     }
 
 
@@ -583,6 +655,8 @@ public class ClassTarget extends EditableTarget
 
     public void actionPerformed(ActionEvent e)
     {
+      //role.actionPerformed(e, pkg, actions, state);
+
 	MemberView member = (MemberView)actions.get(e.getSource());
 	String cmd = e.getActionCommand();
 		
@@ -662,10 +736,15 @@ public class ClassTarget extends EditableTarget
 		System.err.println("Invalid cast to JFrame in ClassTarget");
 	    }
 	}
+	else
+	  // if not handled send to class role for consumption
+	  role.actionPerformed(e, this);
+
     }
 
     int anchor_x = 0, anchor_y = 0;
     int last_x = 0, last_y = 0;
+
     public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor)
     {
 	super.mousePressed(evt, x, y, editor);
@@ -791,20 +870,9 @@ public class ClassTarget extends EditableTarget
      */
     public void prepareFilesForRemoval()
     {
-	File sourceFileName = new File(sourceFile());
-	if (sourceFileName.exists())
-	    sourceFileName.delete(); 
-
-	File classFileName = new File(classFile()); 
-	if (classFileName.exists())
-	    classFileName.delete();
- 	
-	File contextFileName = new File(contextFile());
-	if (contextFileName.exists())
-	    contextFileName.delete(); 
-
+	// delegated to role object
+	role.prepareFilesForRemoval(sourceFile(), classFile(), contextFile());
     }
-
 
 
 	

@@ -12,7 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: RunAppletDialog.java 120 1999-06-08 06:00:53Z bruce $
+ ** @version $Id: RunAppletDialog.java 134 1999-06-21 02:34:23Z bruce $
  ** @author Bruce Quig
  **
  ** Dialog for generating HTML and running applets.
@@ -64,9 +64,11 @@ public class RunAppletDialog extends JDialog
 		setVisible(false);
 	    }
 	});
+	JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout
+	mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));	
 
 	appletParameters = new DefaultListModel();
-	webPageName = appletClassName + AppletTarget.HTML_EXTENSION;
+	webPageName = appletClassName + AppletClassRole.HTML_EXTENSION;
 
 	// button panel at bottom of dialog
 	JPanel buttonPanel = new JPanel();
@@ -101,9 +103,9 @@ public class RunAppletDialog extends JDialog
 	bGroup.add(runWebBrowser);
 	getContentPane().add("North", radioPanel);
 	
-	webPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
-	// addGridBagComponent(webPanel, gridBag, gridConstraints, radioPanel, 
-// 			    0, 0, 3, 1, GridBagConstraints.WEST); 
+	webPanel.setBorder(BorderFactory.createCompoundBorder(
+			       BorderFactory.createLineBorder(Color.darkGray),
+			       BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 	
 	addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel("Height = "), 
 			    0, 1, 1, 1, GridBagConstraints.EAST);
@@ -127,7 +129,7 @@ public class RunAppletDialog extends JDialog
 	parameterList.setModel(appletParameters);
 	parameterList.addListSelectionListener(this);
 	JScrollPane parameterScroller = new JScrollPane(parameterList);
-	//parameterScroller.setColumnHeaderView(new JLabel("Applet parameters", JLabel.WEST));
+	parameterScroller.setColumnHeaderView(new JLabel("Applet parameters", JLabel.CENTER));
 	addGridBagComponent(webPanel, gridBag, gridConstraints, parameterScroller, 
 			    0, 2, 4, 3, GridBagConstraints.CENTER);
 

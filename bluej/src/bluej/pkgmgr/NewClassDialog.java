@@ -9,7 +9,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: NewClassDialog.java 118 1999-06-08 05:35:11Z bruce $
+ ** @version $Id: NewClassDialog.java 134 1999-06-21 02:34:23Z bruce $
  ** @author Justin Tan
  ** @author Michael Kolling
  **
@@ -60,12 +60,14 @@ public class NewClassDialog extends JDialog
 		    setVisible(false);
 		}
 	});
-		
+	JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout
+	mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));		
 	JPanel buttonPanel = new JPanel();
 	buttonPanel.setLayout(new FlowLayout());
 	JButton button;
 	buttonPanel.add(button = new JButton(okay));
 	button.addActionListener(this);
+	buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	getRootPane().setDefaultButton(button);
 
 	buttonPanel.add(button = new JButton(cancel));
@@ -73,13 +75,22 @@ public class NewClassDialog extends JDialog
 	getContentPane().add("South", buttonPanel);
 
 	JPanel compPanel = new JPanel();
-	compPanel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
+	compPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	compPanel.setLayout(new GridLayout(0,1,20,2));
 
 	compPanel.add(new JLabel(newClassLabel));
 	compPanel.add(textFld = new JTextField(16));
+	getContentPane().add("North", compPanel);
+
+	compPanel = new JPanel();
+	compPanel.setLayout(new BoxLayout(compPanel, BoxLayout.Y_AXIS));
 	
-	compPanel.add(new JLabel(classTypeStr));
+	//compPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+	//create compound border empty border outside of a titled border
+	compPanel.setBorder(BorderFactory.createCompoundBorder(
+			        BorderFactory.createTitledBorder(classTypeStr),
+			        BorderFactory.createEmptyBorder(0, 20, 0, 20)));
+	//compPanel.add(new JLabel(classTypeStr));
 	ButtonGroup bGroup = new ButtonGroup();
 	typeNormal = new JRadioButton(newClassStr, true);
 	compPanel.add(typeNormal);
