@@ -59,8 +59,8 @@ public final class MoeEditor extends JFrame
     // -------- CONSTANTS --------
 
     // version number
-    static final int version = 140;
-    static final String versionString = "1.4";
+    static final int version = 200;
+    static final String versionString = "2.0";
 
     // colours
     static final Color textColor = new Color(0,0,0);		// normal text
@@ -675,7 +675,7 @@ public final class MoeEditor extends JFrame
             setChanged();
         }
         actions.userAction();
-        doTextInsert.setEvent(e);
+        doTextInsert.setEvent(e, currentTextPane);
         SwingUtilities.invokeLater(doTextInsert);
     }
 
@@ -816,7 +816,7 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
     /**
      *  Check whether TABs need expanding in this editor. If they
-     *  do, return true. At the same time, set this flag to false.
+     *  do, return true. At the same time, set this flag to true.
      */
     public boolean checkExpandTabs()
     {
@@ -2130,11 +2130,13 @@ public final class MoeEditor extends JFrame
 
     class TextInsertNotifier implements Runnable {
         private DocumentEvent evt;
-        public void setEvent(DocumentEvent e) {
+        private JEditorPane editorPane;
+        public void setEvent(DocumentEvent e, JEditorPane editorPane) {
             evt = e;
+            this.editorPane = editorPane;
         }
         public void run() {
-            actions.textInsertAction(evt);
+            actions.textInsertAction(evt, editorPane);
         }
     }
 
