@@ -24,7 +24,7 @@ import sun.misc.*;
  * @author	Andrew Patterson
  * @author	Damiano Bolla
  * @author	Michael Kolling
- * @version $Id: Boot.java 2149 2003-08-05 14:39:42Z mik $
+ * @version $Id: Boot.java 2163 2003-08-06 16:40:21Z mik $
  */
 public class Boot
 {
@@ -53,9 +53,11 @@ public class Boot
     private static final int bluejBuildJars = 3;
     
     // The jar files we expect in the BlueJ lib directory
-    private static String jars[] = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-                                       "antlr.jar", "junit.jar", "MRJ141Stubs.jar",
-                                       "MRJToolkitStubs.zip" };
+    // The first lot are the ones to run BlueJ itself
+    private static String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
+                                          "antlr.jar", "MRJ141Stubs.jar", "MRJToolkitStubs.zip" };
+    // The second group are available to user code
+    private static String[] bluejUserJars = { "junit.jar" };
     
     private static boolean useClassesDir = false;
 	
@@ -126,6 +128,7 @@ public class Boot
     private ClassLoader bootLoader; // The loader this class is loaded with
 
     private URL[] runtimeClassPath; // The class path used to run the rest of BlueJ
+    private URL[] runtimeUserClassPath; // The initial class path used to run code within BlueJ
     private URLClassLoader runtimeLoader;   // The class loader used for the rest of BlueJ
 
 
@@ -183,29 +186,14 @@ public class Boot
         return runtimeClassPath;
     }
 
-
     /**
-     * Returns the runtime class path as a String.
-     * Can be used to start another JVM which will then see the same
-     * libraries as BlueJ itself.
+     * Returns the runtime user classpath. This is available to code within BlueJ.
      *
-     * @return    The runtimeClassPathString value
+     * @return    The runtimeUserClassPath value
      */
-    public String getRuntimeClassPathString()
+    public URL[] getRuntimeUserClassPath()
     {
-        String pathSep = System.getProperty("path.separator");
-        StringBuffer result = new StringBuffer(300);
-
-        for (int index = 0; index < runtimeClassPath.length; index++) {
-            String filename = runtimeClassPath[index].getFile();
-            result.append(filename);
-            
-            // no separator on the last entry
-            if (index != runtimeClassPath.length - 1)
-            	result.append(pathSep);
-        }
-
-        return result.toString();
+        return runtimeUserClassPath;
     }
 
 
@@ -227,8 +215,10 @@ public class Boot
         bluejLibDir = calculateBluejLibDir();
 
         try {
-            // Find all the "hidden" libraries needed by BlueJ
-            runtimeClassPath = getKnownJars(bluejLibDir);
+            // Find all the libraries needed by BlueJ
+            runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
+            // Find all the libraries needed by BlueJ
+            runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false);
             // Construct a new class loader which knows about them
             runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
 
@@ -299,7 +289,7 @@ public class Boot
 	 * @return  URLs of the required JAR files
 	 * @exception  MalformedURLException  for any problems with the URLs
 	 */
-	private URL[] getKnownJars(File libDir) 
+	private URL[] getKnownJars(File libDir, String[] jars, boolean isSystem) 
         throws MalformedURLException
 	{
 		// by default, we require all our known jars to be present
@@ -310,7 +300,7 @@ public class Boot
 		// If specified on command line, lets add a ../classes
 		// directory to the classpath (where Eclipse stores the
 		// .class files)
-		if (useClassesDir) {
+		if (isSystem && useClassesDir) {
 			File classesDir = new File(libDir.getParentFile(), "classes");
 			
 			if (classesDir.isDirectory()) {
@@ -321,23 +311,23 @@ public class Boot
 		}
 
 		for (int i=startJar; i < jars.length; i++) {
-			File toAdd;
-		
-			toAdd = new File(libDir, jars[i]);
+			File toAdd = new File(libDir, jars[i]);
 
 			if (!toAdd.canRead())
 				throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
 
 			urlList.add(toAdd.toURL());
 		}
-		
-		// We also need to add tools.jar on some systems
-        URL toolsURL = getToolsURL();
-        if(toolsURL != null)
-            urlList.add(toolsURL);
-
+	
+        if (isSystem) {
+            // We also need to add tools.jar on some systems
+            URL toolsURL = getToolsURL();
+            if(toolsURL != null)
+                urlList.add(toolsURL);
+        }
 		return (URL[]) urlList.toArray(new URL[0]);
 	}
+	
 	
     /**
      * Returns an array of URLs for all the JAR files located in the lib/ext directory
