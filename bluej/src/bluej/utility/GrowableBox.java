@@ -2,6 +2,7 @@ package bluej.utility;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -16,18 +17,22 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
+import bluej.Config;
+
 /**
  * A box that can be used to dynamically (from the UI) add and remove
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 2638 2004-06-20 12:06:37Z polle $
+ * @version $Id: GrowableBox.java 2653 2004-06-23 09:34:29Z polle $
  */
 public class GrowableBox extends Box
 {
     private ComponentFactory componentFactory;
     private JComponent emptyGrowable;
     private Border emptyBorder;
+    private static Insets buttonInsets = new Insets(0, 1, 0, 1);	
+    private static Font buttonFont = new Font("Monospaced", Font.BOLD, 12);	
     private static String addText = "+";
     private static ImageIcon addIcon;
     private static String removeText = "-";
@@ -117,12 +122,14 @@ public class GrowableBox extends Box
      * @param removeButton
      */
     private void initButtons(JButton addButton, JButton removeButton) {
+    	addButton.setFont(buttonFont);
+    	removeButton.setFont(buttonFont);
         addButton.setText(addText);
         addButton.setIcon(addIcon);
         removeButton.setText(removeText);
         removeButton.setIcon(removeIcon);
-        addButton.setMargin(new Insets(0, 0, 0, 0));
-        removeButton.setMargin(new Insets(0, 0, 0, 0));
+        addButton.setMargin(buttonInsets);
+        removeButton.setMargin(buttonInsets);
     }
 
     private void addGrowableComponent(int index, JComponent growableComponent) {        
