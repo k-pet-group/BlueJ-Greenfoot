@@ -214,6 +214,8 @@ editor.find.title = Find
 editor.find.textfield.label = Find:
 editor.find.forward=Forward
 editor.find.backward=Backward
+editor.find.replace=Replace
+editor.find.replaceall=Replace All
 
 #Messages, warnings, etc that is displayed by Info.java
 editor.info.version = Moe version
@@ -423,7 +425,8 @@ pkgmgr.appletInBrowser=Executing Applet in web browser
 pkgmgr.exported=Export complete.
 pkgmgr.exported.jar=Export to jar file complete.
 
-properties.heading=BlueJ properties. Settings in this file override \"bluej.defs\"
+properties.heading.bluej=BlueJ properties. Settings in this file override \"bluej.defs\"
+properties.heading.moe=Moe Editor properties. Settings in this file override \"moe.defs\"
 
 # menus and menu items
 
