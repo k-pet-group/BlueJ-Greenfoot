@@ -19,7 +19,7 @@ import bluej.extensions.event.PackageListener;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ProjectManager.java 3167 2004-11-25 02:38:59Z davmac $
  */
 public class ProjectManager
     implements PackageListener, CompileListener
@@ -98,8 +98,8 @@ public class ProjectManager
             ProjectListener element = (ProjectListener) iter.next();
             ProjectEvent projectEvent = new ProjectEvent(event);
             element.projectClosed(projectEvent);
-            openedPackages.remove(event.getPackage());
         }
+        openedPackages.remove(event.getPackage());
     }
 
     public BPackage getPackage(String project, String name)
