@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1229 2002-04-19 14:17:18Z mik $
+ * @version $Id: JdiDebugger.java 1261 2002-06-26 07:03:47Z ajp $
  *
  * The startup process is as follows:
  *
@@ -182,12 +182,19 @@ public final class JdiDebugger extends Debugger
         //suspendArg.setValue("false");
 
         try {
-            String vmOptions = Config.getSystemPropString("VmOptions");
-            String localVMClassPath = quoteArg.value() +
-                System.getProperty("java.class.path") +
-                quoteArg.value();
+            // set the optionsArg for the VM launcher
+            {
+                String vmOptions = Config.getSystemPropString("VmOptions");
+                String localVMClassPath = "-classpath " + quoteArg.value() +
+                                            System.getProperty("java.class.path") +
+                                            quoteArg.value();
 
-            optionsArg.setValue(vmOptions + " -classpath " + localVMClassPath);
+                if (vmOptions == null)
+                    optionsArg.setValue(localVMClassPath);
+                else
+                    optionsArg.setValue(vmOptions + " " + localVMClassPath);
+            }
+
             machine = connector.launch(arguments);
 
             process = machine.process();
