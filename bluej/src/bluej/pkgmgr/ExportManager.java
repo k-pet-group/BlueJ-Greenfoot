@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 614 2000-07-03 02:35:00Z mik $
+ * @version $Id: ExportManager.java 636 2000-07-07 05:03:00Z mik $
  */
 final class ExportManager
 {
@@ -61,7 +61,12 @@ final class ExportManager
                       dialog.includeSource());
         else
             exportDir(sourceDir, newName, dialog.getMainClass(),
-                      dialog.includeSource());
+                      false, dialog.includeSource(), "error-exporting");
+    }
+
+    public void saveAs(String sourceDir, String destDir)
+    {
+        exportDir(sourceDir, destDir, null, true, true, "cannot-copy-package");
     }
 
     /**
@@ -148,10 +153,11 @@ final class ExportManager
      * Export this project to a directory.
      */
     private void exportDir(String sourceDir, String destDir, String mainClass,
-                           boolean includeSource)
+                           boolean includeBlueJ, boolean includeSource,
+                           String errorMessage)
     {
         int result = FileUtility.copyDirectory(sourceDir, destDir,
-                                               true, !includeSource);
+                                               !includeBlueJ, !includeSource);
         switch(result) {
         case FileUtility.NO_ERROR:
             break;
@@ -160,7 +166,7 @@ final class ExportManager
             return;
         case FileUtility.SRC_NOT_DIRECTORY:
         case FileUtility.COPY_ERROR:
-            DialogManager.showError(frame, "error-exporting");
+            DialogManager.showError(frame, errorMessage);
             return;
         }
         writeReadMe(destDir, mainClass);

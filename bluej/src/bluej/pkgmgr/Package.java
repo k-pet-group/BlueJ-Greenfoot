@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 628 2000-07-06 05:31:09Z ajp $
+ * @version $Id: Package.java 636 2000-07-07 05:03:00Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -700,34 +700,34 @@ public class Package extends Graph
      *
      * @return An error code indicating success or failure.
      */
-    public int saveAs(String newname)
-    {
-//        if (!save(newname))
-//            return CREATE_ERROR;
+//     public int saveAs(String newname)
+//     {
+// //        if (!save(newname))
+// //            return CREATE_ERROR;
 
-        boolean okay = true;
-        Enumeration t_enum = targets.elements();
-        for(int i = 0; t_enum.hasMoreElements(); i++) {
-            Target t = (Target)t_enum.nextElement();
-            okay = okay && t.copyFiles(newname + File.separator);
-            if(t instanceof EditableTarget) {
-                // if editor is not null close it
-                if(((EditableTarget)t).editor != null)
-                    ((EditableTarget)t).editor.close();
-                // make editor null so existing references to old file are lost
-                ((EditableTarget)t).editor = null;
-            }
+//         boolean okay = true;
+//         Enumeration t_enum = targets.elements();
+//         for(int i = 0; t_enum.hasMoreElements(); i++) {
+//             Target t = (Target)t_enum.nextElement();
+//             okay = okay && t.copyFiles(newname + File.separator);
+//             if(t instanceof EditableTarget) {
+//                 // if editor is not null close it
+//                 if(((EditableTarget)t).editor != null)
+//                     ((EditableTarget)t).editor.close();
+//                 // make editor null so existing references to old file are lost
+//                 ((EditableTarget)t).editor = null;
+//             }
 
-        }
-        // PENDING: update all package directives in sources
+//         }
+//         // PENDING: update all package directives in sources
 
- //XXX       dirname = newname;
+//  //XXX       dirname = newname;
 
-        if(okay)
-            return NO_ERROR;
-        else
-            return COPY_ERROR;
-    }
+//         if(okay)
+//             return NO_ERROR;
+//         else
+//             return COPY_ERROR;
+//     }
 
     /**
      * Import a source file into this package as a new

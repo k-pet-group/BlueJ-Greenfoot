@@ -123,15 +123,10 @@ directory-exists
 A file or directory with this
 name already exists.
 
-cannot-write-package
-Could not write package to new
-location. Please check the name
-and access rights.
-
 cannot-copy-package
-There was a problem copying some
-of the package files. The package
-may be incomplete.
+There was a problem copying the
+package files. The package was
+not written or may be incomplete.
 
 file-does-not-exist
 The specified file

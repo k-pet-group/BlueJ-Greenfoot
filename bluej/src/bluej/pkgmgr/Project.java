@@ -23,12 +23,17 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 622 2000-07-05 05:53:32Z mik $
+ * @version $Id: Project.java 636 2000-07-07 05:03:00Z mik $
  */
 public class Project
     implements BlueJEventListener
 {
     // static fields
+
+    private static final String saveAsTitle = 
+        Config.getString("pkgmgr.saveAs.title");
+    private static final String saveLabel = 
+        Config.getString("pkgmgr.saveAs.buttonLabel");
 
     /**
      * collection of all open projects. the canonical name of the project
@@ -110,6 +115,12 @@ public class Project
      */
     public static void closeProject(Project project)
     {
+        PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(project);
+
+        for(int i=0; i< frames.length; i++) {
+            frames[i].doClose(true);
+        }
+
         BlueJEvent.removeListener(project);
         projects.remove(project.getProjectDir().getPath());
     }
@@ -344,7 +355,7 @@ public class Project
     }
 
     /**
-     * Reload all constructed package of this project.
+     * Reload all constructed packages of this project.
      *
      * This function is used after a major change to the contents
      * of the project directory ie an import.
@@ -357,6 +368,37 @@ public class Project
             Package pkg = (Package) i.next();
 
             pkg.reload();
+        }
+    }
+
+    /**
+     * Implementation of the "Save As.." user function.
+     */
+    public void saveAs(PkgMgrFrame frame)
+    {
+        // get a file name to save under
+        String newName = FileUtility.getFileName(frame, saveAsTitle, 
+                                                 saveLabel, false);
+
+        if (newName != null) {
+
+            saveAll();
+            new ExportManager(frame).saveAs(getProjectDir().getPath(), 
+                                            newName);
+            closeProject(this);
+
+            // open new project
+
+            Project openProj = openProject(newName);
+            if(openProj != null) {
+                Package pkg = openProj.getPackage(
+                                         openProj.getInitialPackageName());
+                
+                PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
+                pmf.show();
+            }
+            else
+                Debug.message("could not open package under new name");
         }
     }
 

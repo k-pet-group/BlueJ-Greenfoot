@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 634 2000-07-07 02:38:22Z ajp $
+ * @version $Id: PkgMgrFrame.java 636 2000-07-07 05:03:00Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -62,8 +62,6 @@ public class PkgMgrFrame extends JFrame
     private static final String addClassTitle = Config.getString("pkgmgr.addClass.title");
     private static final String addLabel = Config.getString("pkgmgr.addClass.buttonLabel");
     private static final String importpkgTitle = Config.getString("pkgmgr.importPkg.title");
-    private static final String saveAsTitle =  Config.getString("pkgmgr.saveAs.title");
-    private static final String saveLabel =  Config.getString("pkgmgr.saveAs.buttonLabel");
 
     private static final ImageIcon workingIcon = new ImageIcon(Config.getImageFilename("image.working"));
     private static final ImageIcon notWorkingIcon = new ImageIcon(Config.getImageFilename("image.working.disab"));
@@ -133,14 +131,22 @@ public class PkgMgrFrame extends JFrame
     /**
      * Open a PkgMgrFrame with a package.
      * This may create a new frame or return an existing frame
-     * if this package is already being edited by a frame.
+     * if this package is already being edited by a frame. If an empty
+     * frame exists, that frame will be used to show the package.
      */
     public static PkgMgrFrame createFrame(Package pkg)
     {
         PkgMgrFrame pmf = findFrame(pkg);
 
         if (pmf == null) {
-            pmf = createFrame();
+            // check whether we've got an empty frame
+            
+            if(frames.size() == 1)
+                pmf = (PkgMgrFrame)frames.get(0);
+
+            if((pmf == null) || !pmf.isEmptyFrame())
+                pmf = createFrame();
+
             pmf.openPackage(pkg);
         }
 
@@ -593,7 +599,7 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case PROJ_SAVEAS:
-            doSaveAs();
+            getProject().saveAs(this);
             break;
 
         case PROJ_IMPORT:        // can be executed when isEmptyFrame() is true
@@ -781,9 +787,9 @@ public class PkgMgrFrame extends JFrame
         File dirName = FileUtility.getPackageName(this);
 
         if (dirName != null) {
-            Project openProj;
+            Project openProj = Project.openProject(dirName.getAbsolutePath());
 
-            if((openProj = Project.openProject(dirName.getAbsolutePath())) != null) {
+            if(openProj != null) {
 
                 Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
@@ -814,7 +820,7 @@ public class PkgMgrFrame extends JFrame
      * is with the windows close button. We want slightly different
      * behaviour for these two cases.
      */
-    private void doClose(boolean doingMenuClose)
+    public void doClose(boolean keepLastFrame)
     {
         doSave();
         closePackage();
@@ -824,7 +830,7 @@ public class PkgMgrFrame extends JFrame
         // than remove frame
 
         if(frameCount() == 1) {
-            if(doingMenuClose) {        // close package, leave frame
+            if(keepLastFrame) {        // close package, leave frame
                 updateWindowTitle();
             }
             else {                      // all frames gone, lets quit
@@ -871,38 +877,6 @@ public class PkgMgrFrame extends JFrame
         pkg.save(p);
 
         setStatus(packageSaved);
-    }
-
-    /**
-     * Implementation of the "Save As.." user function.
-     */
-    private void doSaveAs()
-    {
-        // get a file name to save under
-        String newname = FileUtility.getFileName(this, saveAsTitle, saveLabel, true);
-
-        if (newname != null) {
-
-            // check whether name is already in use
-            File dir = new File(newname);
-            if(dir.exists()) {
-                DialogManager.showError(this, "directory-exists");
-                return;
-            }
-
-            // save package under new name
-
-            //mik:Main.removePackage(pkg);	// remove under old name
-            int result = pkg.saveAs(newname);
-            //mik:Main.addPackage(pkg);	// add under new name
-
-            if(result == Package.CREATE_ERROR)
-                DialogManager.showError(this, "cannot-write-package");
-            else if(result == Package.COPY_ERROR)
-                DialogManager.showError(this, "cannot-copy-package");
-
-            updateWindowTitle();
-        }
     }
 
     /**

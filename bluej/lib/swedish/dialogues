@@ -121,11 +121,6 @@ directory-exists
 En fil eller katalog med det här namnet
 existerar redan.
 
-cannot-write-package
-Kunde inte skriva paketet till den
-nya destinationen. Var god kontrollera
-namn och tillträdesrättigheter.
-
 cannot-copy-package
 Det uppstod problem vid kopiering av
 några av paketets filer. Paketet kan 

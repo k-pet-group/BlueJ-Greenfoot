@@ -112,15 +112,11 @@ directory-exists
 Ein Verzeichnis mit diesem Namen
 existiert bereits.
 
-cannot-write-package
-Das Package konnte nicht geschrieben
-werden. Bitte überprüfen Sie den
-Namen und Zugriffsrechte.
-
 cannot-copy-package
-Es gab Probleme beim Kopieren einiger
-Package-Dateien. Das Package ist
-eventuell unvollständig.
+Es gab Probleme beim Kopieren der
+Package-Dateien. Das Package konnte
+nicht oder nur teilweise geschrieben
+werden.
 
 file-does-not-exist
 Die angegebene Datei existiert nicht.
