@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 657 2000-07-26 07:39:59Z mik $
+ * @version $Id: PkgMgrFrame.java 659 2000-07-27 00:47:18Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -855,9 +855,12 @@ public class PkgMgrFrame extends JFrame
     private void doOpenNonBlueJ()
     {
         String fileName = FileUtility.getFileName(this,
-                                                  Config.getString("pkgmgr.openNonBlueJPkg.title"),
-                                                  Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"),
-                                                  false);
+                        Config.getString("pkgmgr.openNonBlueJPkg.title"),
+                        Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"),
+                        true);
+
+        if(fileName == null)
+            return;
 
         File dirName = new File(fileName);
 
@@ -982,9 +985,9 @@ public class PkgMgrFrame extends JFrame
         // prompt for the directory to import from
         File importDir;
         String importName = FileUtility.getFileName(this,
-                                                    Config.getString("pkgmgr.importPkg.title"),
-                                                    Config.getString("pkgmgr.importPkg.buttonLabel"),
-                                                    false);
+                             Config.getString("pkgmgr.importPkg.title"),
+                             Config.getString("pkgmgr.importPkg.buttonLabel"),
+                             true);
 
         if (importName == null)
             return;
