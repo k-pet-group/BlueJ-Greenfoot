@@ -13,11 +13,11 @@ class Occurrence implements Reportable
     //==========================================================================
     
     /** The file containing the occurrence */
-    private File file; 
+    protected File file; 
     
     /** The line number containing the occurrence */
-    private int line;
-    private int column; 
+    protected int line;
+    protected int column; 
 
 
     //==========================================================================
