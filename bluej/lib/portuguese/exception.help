@@ -2,7 +2,7 @@ NullPointerException*
 Você tentou acessar um objeto (ou um campo
 de um objeto ou um método de um objeto). Não
 funcionou porque a referência que você usou para
-acessar o objeto possuia 'null'. Por exemplo:
+acessar o objeto possui 'null'. Por exemplo:
 você escreveu "coisa.print()", e "coisa" continha
 null naquele momento.
 
@@ -76,6 +76,20 @@ Tente recompilar seu projeto inteiro. Se o problema
 persistir, verifique com outros projetos. 
 Se isto acontecer em mais de um projeto,
 você poderá precisar reinstalar o JDK.
+
+StackOverflowError*
+O erro indica que seu programa executou sem memória na pilha.
+Isto acontece quando você possui um erro de programação
+conhecido por "recursividade infinita". Recursão é
+a capacidade de um método de chamar a si próprio. Recursão
+infinita significa que isso está acontecendo indefinidamente,
+causando um estouro de memória.
+Observer seu código e procure nos métodos que fazem
+chamadas a si próprios. Este problema só acontece se 
+o método chamar a si próprio indefinidamente.
+Este mesmo problema pode acontecer se você possuir
+um construtor que cria um outro objeto da sua própria
+classe. O construtor irá chamar a si próprio infinitamente.
 
 ArrayStoreException*
 Nenhuma ajuda disponível - desculpe.

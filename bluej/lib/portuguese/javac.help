@@ -518,6 +518,20 @@ ao invés de apenas
 ou você fornece uma implementação para
 o método indicado na mensagem de erro
 
+* is not abstract and does not override abstract method *
+A presente classe herda de uma classe abstrata ou
+implementa uma interface. Classes abstratas e interfaces
+definem métodos sem implementação. Esta classe não
+implementou todos os métodos que precisam de uma
+implementação, portanto ela também deve ser abstrata (
+uma vez que tem métodos sem implementação). Você
+deve ou declarar esta classe como abstrata
+    public abstract class ...
+ao invés de
+    public class ...
+ou então deve fornecer uma implementação para o 
+método indicado na mensagem de erro.
+
 error writing source; cannot overwrite input file *
 Nenhuma ajuda disponível.
 

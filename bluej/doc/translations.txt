@@ -13,7 +13,7 @@ german          2.0.0                x                         Thomas R?fer     
 italian         1.3.5                x          15.sept        Angelo Papadia      <angelo.papadia@libero.it>
 japanese        1.3.5                           partially
 korean          1.2.x                                            
-portuguese      1.3.5                x                         Fred Guedes Pereira <fredguedespereira@yahoo.com.br>
+portuguese      2.0.0                x                         Fred Guedes Pereira <fredguedespereira@yahoo.com.br>
 spanish         1.2.x                                                
 swedish         1.3.5                x          later          Markus Östman       <markus@gnistra.se>
 trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>

@@ -92,11 +92,6 @@ O arquivo README deste projeto não pôde ser atualizado
 com as informações da classe principal.
 Ocorreu um erro ao alterar este arquivo.
 
-error-exporting
-Ocorreu um erro durante tentativa de exportação
-da aplicação. Alguns ou todos os arquivos podem 
-não ter sido corretamente copiados.
-
 error-writing-jar
 O arquivo jar não foi gravado corretamente.
 (Cheque as permissões do sistema de arquivos
@@ -114,6 +109,10 @@ Nome de classe inválido.
 
 invalid-package-name
 Nome de pacote inválido.
+
+must-be-identifier
+Nome não válido. Tem 
+que ser um identificador Java.
 
 directory-exists
 Um arquivo ou diretório com 
