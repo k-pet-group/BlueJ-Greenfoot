@@ -23,11 +23,14 @@ import java.util.ArrayList;
  *
  * @author  Michael Kolling
  *
- * @version $Id: FreeFormCallDialog.java 1378 2002-10-14 13:40:07Z mik $
+ * @version $Id: FreeFormCallDialog.java 1382 2002-10-14 14:48:48Z mik $
  */
 public class FreeFormCallDialog extends CallDialog
 {
+    private static final String NOT_VOID = "not void";
+    
     private JComboBox callField;
+    private ButtonGroup radioButtons;
     private FreeCallHistory history;
 
     public FreeFormCallDialog(PkgMgrFrame pmf)
@@ -91,9 +94,9 @@ public class FreeFormCallDialog extends CallDialog
     /**
      * Get the value of the 'hasResult' switch.
      */
-    public boolean getHasResult()
+    public boolean hasResult()
     {
-        return false;
+        return radioButtons.getSelection().getActionCommand() == NOT_VOID;
     }
 
     /**
@@ -125,6 +128,37 @@ public class FreeFormCallDialog extends CallDialog
                     });
 
         topPanel.add(callField, BorderLayout.CENTER);
+
+        JPanel choicePanel = new JPanel();
+        {
+            choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
+            //choicePanel.setAlignmentX(LEFT_ALIGNMENT);
+            radioButtons = new ButtonGroup(); 
+    
+            JRadioButton button = new JRadioButton(Config.getString("freeCallDialog.returnsResult"), true);
+            button.setActionCommand(NOT_VOID);
+            radioButtons.add(button);
+            choicePanel.add(button);
+            
+            button = new JRadioButton(Config.getString("freeCallDialog.returnsNoResult"), true);
+            button.setActionCommand(null);
+            radioButtons.add(button);
+            choicePanel.add(button);
+        }
+
+        JPanel labelPanel = new JPanel();
+        {
+            labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
+            labelPanel.add(new JLabel(Config.getString("freeCallDialog.resultLabel")));
+            labelPanel.add(new JLabel(" "));
+        }
+
+        JPanel selectionPanel = new JPanel();
+        {
+            selectionPanel.add(labelPanel);
+            selectionPanel.add(choicePanel);
+        }
+        topPanel.add(selectionPanel, BorderLayout.SOUTH);
 
         super.makeDialog(topPanel, getErrorLabel());
     }

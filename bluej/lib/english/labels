@@ -369,6 +369,9 @@ callLibraryDialog.classNotFound2=(Check the class name and press Enter again.)
 # "Free Form Call" dialog
 freeCallDialog.title=BlueJ:  Evaluate
 freeCallDialog.fieldLabel=Evaluate:
+freeCallDialog.resultLabel=This is
+freeCallDialog.returnsResult=an expression (returns a result)
+freeCallDialog.returnsNoResult=a statement (does not return a result)
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Export Project

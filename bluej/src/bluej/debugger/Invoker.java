@@ -28,7 +28,7 @@ import java.util.*;
  * then loads the resulting class file and executes a method in a new thread.
  *
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1378 2002-10-14 13:40:07Z mik $
+ * @version $Id: Invoker.java 1382 2002-10-14 14:48:48Z mik $
  */
 
 public class Invoker extends Thread
@@ -66,7 +66,9 @@ public class Invoker extends Thread
     private String instanceName;
     private CallDialog dialog;
     private boolean constructing;
+    private boolean expectResult;
     private String resultName;
+    private String commandAsString;
 
     /**
      * Create an invoker for a free form statement or expression.
@@ -108,6 +110,7 @@ public class Invoker extends Thread
         this.pkg = pmf.getPackage();
         this.member = member;
         this.watcher = watcher;
+        this.expectResult = (watcher != null);
 
         this.shellName = getShellName();
 
@@ -225,7 +228,7 @@ public class Invoker extends Thread
             else if(dlg instanceof FreeFormCallDialog) {
                 pmf.setWaitCursor(true);
                 FreeFormCallDialog ffDialog = (FreeFormCallDialog)dlg;
-                doFreeFormInvocation(ffDialog.getExpression(), ffDialog.getHasResult());
+                doFreeFormInvocation(ffDialog.getExpression(), ffDialog.hasResult());
             }
         }
         else
@@ -314,8 +317,8 @@ public class Invoker extends Thread
         File shell = writeInvocationFile(pkg, paramInit, 
                             command + argString, resultName, constructing, isVoid);
 
+        commandAsString = command + actualArgString;
         compileInvocationFile(shell);
-        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, command + actualArgString);
     }
 
     /**
@@ -331,6 +334,7 @@ public class Invoker extends Thread
      */
     protected void doFreeFormInvocation(String executionString, boolean hasResult)
     {
+        expectResult = hasResult;
         // generate and store unique ID for result object
         resultName = getUniqueResultName();
         
@@ -338,8 +342,8 @@ public class Invoker extends Thread
                                          resultName, false, !hasResult);
                                          //constructing, isVoid);
 
+        commandAsString = executionString;
         compileInvocationFile(shell);
-        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, executionString);
     }
 
     /**
@@ -536,6 +540,7 @@ public class Invoker extends Thread
      */
     public void startClass()
     {
+        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandAsString);
         try {
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, null);
             DebuggerClassLoader loader = pkg.getRemoteClassLoader();
@@ -570,7 +575,7 @@ public class Invoker extends Thread
             switch(status) {
 
             case Debugger.NORMAL_EXIT:
-                if(watcher != null) {
+                if(expectResult) {
                     DebuggerObject result = Debugger.debugger.getStaticValue(
                                                 shellClassName,
                                                 "__bluej_runtime_result");
