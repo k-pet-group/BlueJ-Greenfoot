@@ -343,7 +343,7 @@ public final class MoeActions
         
         if(prefix.trim().length() == 0) {  // only if there is no other text before '}'
             textPane.setCaretPosition(lineStart);
-            doIndent(textPane, false);
+            doIndent(textPane, true);
             textPane.setCaretPosition(textPane.getCaretPosition() + 1);
         }
     }
