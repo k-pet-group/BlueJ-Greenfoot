@@ -15,7 +15,10 @@ significant actions within BlueJ, and provides access to its projects,
 packages, classes and objects via a set of wrapper classes which behave in 
 a similar way to the <code>java.lang.reflect</code> classes.  
 </P> 
-
+<p>
+The <code>editor</code> sub-package provides access from an extension to the BlueJ editor,
+which can be used either to interact with the user's use of the editor, or to modify the text being edited.
+</p>
 <H2>A simple extension</H2>
 <P>The following example implements an extension which logs the name of every
 BlueJ project opened by the user 
@@ -54,7 +57,13 @@ name of the Main-Class to be run on the jar file.</P>
     &lt;/target>
 </PRE>
 -->
-<P>This is the actual code</P>
+<P><b>Note to Mac users:</b> To navigate to the <code>lib/extensions</code> 
+directory of your BlueJ installation, right-click (or control-click) on the BlueJ 
+application icon, the select "Show Package Contents"and then
+<code>extensions</code>. The Mac equivalent of
+<code>&lt;USER_HOME&gt;\bluej\extensions</code> is
+<code>~/Library/Preferences/org.bluej/extensions</code>.</P>
+<H3>Sample extension code</H3>
 
 <PRE>
 import bluej.extensions.*;
@@ -70,11 +79,14 @@ public class SimpleExtension extends Extension implements PackageListener {
      * When this method is called, the extension may start its work.
      */
     public void startup (BlueJ bluej) {
+        // Listen for BlueJ events at the "package" level
         bluej.addPackageListener(this);
     }
 
     /*
      * A package has been opened. Print the name of the project it is part of.
+     * System.out is redirected to the BlueJ debug log file.
+     * The location of this file is given in the Help/About BlueJ dialog box.
      */
     public void packageOpened ( PackageEvent ev ) {
         try {
@@ -102,7 +114,7 @@ public class SimpleExtension extends Extension implements PackageListener {
      * Returns the version number of this extension
      */
     public String  getVersion () { 
-        return ("2003.11");  
+        return ("2004.09");  
     }
 
     /*
@@ -128,7 +140,7 @@ public class SimpleExtension extends Extension implements PackageListener {
         try {
             return new URL("http://www.bluej.org/doc/writingextensions.html");
         } catch ( Exception eee ) {
-            // There is no reason at all that this should trow exception...
+            // The link is either dead or otherwise unreachable
             System.out.println ("Simple extension: getURL: Exception="+eee.getMessage());
             return null;
         }

@@ -19,7 +19,7 @@ import java.util.List;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 2966 2004-08-31 06:29:34Z damiano $
+ * @version    $Id: BClass.java 3012 2004-09-22 11:05:04Z iau $
  */
 
 /*
@@ -99,7 +99,8 @@ public class BClass
 
 
     /**
-     * Returns s proxy objefct that provide an interface to the editor for this BClass.
+     * Returns a proxy object that provide an interface to the editor for this BClass.
+     * If an editor already exists, a proxy for it is returned. Otherwise, an editor is created but not made visible.
      *
      * @return                            The proxy editor object or null if it cannot be created
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.

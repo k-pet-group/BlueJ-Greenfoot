@@ -43,79 +43,23 @@ import javax.swing.JMenuItem;
  * import java.awt.event.*;
  *
  * class MenuBuilder extends MenuGenerator {
- *     private ToolsAction aToolsAction;
- *     private ClassAction aClassAction;
- *     private ObjectAction aObjectAction;
  *     private BPackage curPackage;
  *     private BClass curClass;
  *     private BObject curObject;
  * 
- *     MenuBuilder() {
- *         aToolsAction = new ToolsAction("Click Tools");
- *         aClassAction = new ClassAction("Click Class");
- *         aObjectAction = new ObjectAction("Click Object");
- *     }
- * 
  *     public JMenuItem getToolsMenuItem(BPackage aPackage) {
- *         return new JMenuItem(aToolsAction);
+ *         return new JMenuItem(new SimpleAction("Click Tools", "Tools menu:"));
  *     }
  * 
  *     public JMenuItem getClassMenuItem(BClass aClass) {
- *         return new JMenuItem(aClassAction);
+ *         return new JMenuItem(new SimpleAction("Click Class", "Class menu:"));
  *     }
  * 
  *     public JMenuItem getObjectMenuItem(BObject anObject) {
- *         return new JMenuItem(aObjectAction);
- *     }
- * 
- *     // A utility method which prints the objects involved in the current
- *     // menu invocation.
- *     private void printCurrentStatus(String header) {
- *         try {
- *             if (curObject != null)
- *                 curClass = curObject.getBClass();
- *             if (curClass != null)
- *                 curPackage = curClass.getPackage();
- *                 
- *             System.out.println(header);
- *             if (curPackage != null)
- *                 System.out.println("  Current Package=" + curPackage);
- *             if (curClass != null)
- *                 System.out.println("  Current Class=" + curClass);
- *             if (curObject != null)
- *                 System.out.println("  Current Object=" + curObject);
- *         } catch (Exception exc) { }
- *     }
- * 
- *     // Now the nested classes that instantiate the different menus.
- *     class ToolsAction extends AbstractAction {
- *         public ToolsAction(String menuName) {
- *             putValue(AbstractAction.NAME, menuName);
- *         }
- *         public void actionPerformed(ActionEvent anEvent) {
- *             printCurrentStatus("Tools menu:");
- *         }
- *     }
- * 
- *     class ClassAction extends AbstractAction {
- *         public ClassAction(String menuName) {
- *             putValue(AbstractAction.NAME, menuName);
- *         }
- *         public void actionPerformed(ActionEvent anEvent) {
- *             printCurrentStatus("Class menu:");
- *         }
- *     }
- * 
- *     class ObjectAction extends AbstractAction {
- *         public ObjectAction(String menuName) {
- *             putValue(AbstractAction.NAME, menuName);
- *         }
- *         public void actionPerformed(ActionEvent anEvent) {
- *             printCurrentStatus("Object menu:");
- *         }
+ *         return new JMenuItem(new SimpleAction("Click Object", "Object menu:"));
  *     }
  *     
- *     // and the methods which will be called in the main class when
+ *     // These methods will be called when
  *     // each of the different menus are about to be invoked.
  *     public void notifyPostToolsMenu(BPackage bp, JMenuItem jmi) {
  *         System.out.println("Post on Tools menu");
@@ -131,10 +75,43 @@ import javax.swing.JMenuItem;
  *         System.out.println("Post on Object menu");
  *         curPackage = null ; curClass = null ; curObject = bo;
  *     }
+ *     
+ *     // A utility method which pops up a dialog detailing the objects 
+ *     // involved in the current (SimpleAction) menu invocation.
+ *     private void showCurrentStatus(String header) {
+ *         try {
+ *             if (curObject != null)
+ *                 curClass = curObject.getBClass();
+ *             if (curClass != null)
+ *                 curPackage = curClass.getPackage();
+ *                 
+ *             String msg = header;
+ *             if (curPackage != null)
+ *                 msg += "\nCurrent Package = " + curPackage;
+ *             if (curClass != null)
+ *                 msg += "\nCurrent Class = " + curClass;
+ *             if (curObject != null)
+ *                 msg += "\nCurrent Object = " + curObject;
+ *             JOptionPane.showMessageDialog(null, msg);
+ *         } catch (Exception exc) { }
+ *     }
+ *     
+ *     // The nested class that instantiates the different (simple) menus.
+ *     class SimpleAction extends AbstractAction {
+ *         private String msgHeader;
+ *         
+ *         public SimpleAction(String menuName, String msg) {
+ *             putValue(AbstractAction.NAME, menuName);
+ *             msgHeader = msg;
+ *         }
+ *         public void actionPerformed(ActionEvent anEvent) {
+ *             showCurrentStatus(msgHeader);
+ *         }
+ *     }
  * }
  * </PRE>
  *
- * @version $Id: MenuGenerator.java 2365 2003-11-18 16:11:56Z iau $
+ * @version $Id: MenuGenerator.java 3012 2004-09-22 11:05:04Z iau $
  */
 
  /*

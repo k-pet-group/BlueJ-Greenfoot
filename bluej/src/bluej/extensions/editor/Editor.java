@@ -6,15 +6,12 @@ import javax.swing.text.*;
 /**
  * Proxy object that allows interaction with the BlueJ Editor for a
  * particular class.
- * Most method of this class must be called from a swing compatile thread,
- * if a method is thread safe it will be marked so.
+ * Except as marked, methods of this class must be called from a swing compatible thread.
  *
- * @version    $Id: Editor.java 2946 2004-08-25 09:13:55Z damiano $
+ * @author Damiano Bolla, University of Kent at Canterbury, 2004
+ * @version    $Id: Editor.java 3012 2004-09-22 11:05:04Z iau $
  */
 
-/*
- * @author Damiano Bolla, University of Kent at Canterbury, 2004
- */
 public class Editor
 {
     private bluej.editor.Editor bjEditor;
@@ -34,7 +31,7 @@ public class Editor
 
 
     /**
-     * Request to the editor to save the file currently opened.
+     * Request the editor to save the file currently opened.
      */
     public void saveFile()
     {
@@ -43,9 +40,9 @@ public class Editor
 
 
     /**
-     * Request to the editor to shows or hide this Editor depending on the value of parameter visible.
+     * Show or hide this Editor.
      *
-     * @param  visible  The new visible value
+     * @param  visible  If true, make this editor visible
      */
     public void setVisible(boolean visible)
     {
@@ -54,7 +51,7 @@ public class Editor
 
 
     /**
-     * Returns if this Editor is visible.
+     * Is this Editor currently visible?
      *
      * @return    true if the Editor is visible, false otherwise.
      */
@@ -65,7 +62,7 @@ public class Editor
 
 
     /**
-     * Returns the current caret location within the edited text.
+     * Returns the current caret location (the position of the user's cursor) within the edited text.
      *
      * @return    the textLocation.
      */
@@ -76,7 +73,7 @@ public class Editor
 
 
     /**
-     * Sets the current Caret location within the edited text.
+     * Sets the current caret location within the edited text.
      *
      * @param  location                   The location in the text to set the Caret to.
      * @throws  IllegalArgumentException  if the specified TextLocation represents a position which does not exist in the text.
@@ -88,8 +85,8 @@ public class Editor
 
 
     /**
-     * Request to the editor to display the given message in the editor message area.
-     * The message will be cleared when BlueJ needs to.
+     * Request the editor to display the given message in the editor message area.
+     * The message will be cleared using BlueJ's usual rules.
      *
      * @param  message  The message to display.
      */
@@ -136,8 +133,8 @@ public class Editor
 
 
     /**
-     * Request to the editor to replace the text between beginning and end with the given newText
-     * If begin and end points to the same location, the text is inserted.
+     * Request the editor to replace the text between beginning and end with the given newText
+     * If begin and end refer to the same location, the text is inserted.
      *
      * @param  begin                      where to start to replace
      * @param  end                        where to end to replace
@@ -157,7 +154,7 @@ public class Editor
 
 
     /**
-     * Request to the editor to mark the text between begin and end as selected.
+     * Request the editor to mark the text between begin and end as selected.
      *
      * @param  begin                      where to start the selection
      * @param  end                        where to end the selection
@@ -171,10 +168,10 @@ public class Editor
 
 
     /**
-     * Request to the editor to permit or deny editor content modification by the user using the graphic user interface.
-     * Extensions must set readOnly to true before changing the editor content programmatically.
+     * Request the editor to permit or deny editor content modification (via the editor GUI).
+     * Extensions should set readOnly to true before changing the editor content programmatically.
      *
-     * @param  readOnly  If true user cannot change the editor content using the GUI, false allows user interaction using the GUI.
+     * @param  readOnly  If true user cannot change the editor content using the GUI, false allows user interaction.
      */
     void setReadOnly(boolean readOnly)
     {
@@ -183,7 +180,7 @@ public class Editor
 
 
     /**
-     * Returns if the editor is readonly or not.
+     * Is the editor currently set to readonly?.
      *
      * @return    true if the user cannot change the text using the GUI, false othervise
      */
@@ -223,8 +220,8 @@ public class Editor
      * Translates a text location into an offset into the text held by the editor.
      *
      * @param  location                   position to be translated
-     * @return                            the offset into the text of this text
-     * @throws  IllegalArgumentException  if the specified TextLocations
+     * @return                            the offset into the text of this location
+     * @throws  IllegalArgumentException  if the specified TextLocation
      * represent a position which does not exist in the text.
      */
     public int getOffsetFromTextLocation(TextLocation location)
@@ -234,7 +231,7 @@ public class Editor
 
 
     /**
-     * Translate an offset in the text held by the editor into a text location.
+     * Translate an offset in the text held by the editor into a TextLocation.
      *
      * @param  offset  location to be translated
      * @return         the TextLocation in the text of this offset or null if the offset is invalid
@@ -269,10 +266,10 @@ public class Editor
 
 
     /**
-     * Returns the length of the data.  This is the number of
-     * characters of content that represents the users data.
+     * Returns the length of the currently edited text.  This is the number of
+     * characters of content that represents the user's data.
      *
-     * It is possible to obtain the line and column of the last character of text by using
+     * The line number and column of the last character of text can be obtained by using
      * the getLineColumnFromOffset(getTextLength()) method.
      *
      * @return the length >= 0

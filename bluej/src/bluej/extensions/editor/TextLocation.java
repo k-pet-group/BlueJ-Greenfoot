@@ -1,18 +1,18 @@
 package bluej.extensions.editor;
 
 /**
- * A TextLocation object groups two pieces of information: the line number and the column number.
+ * A TextLocation object groups two pieces of information: a line number and a column number.
  * They represent a position in the editor's text.
  * A text location represents the gap to the left of the position identified, so
  * that (0, 0) is the start of the file, (0, 1) is between the first and
  * second characters in the file, and so on. There is a TextLocation position to
  * the right of the last character on a line. The column value of this
- * position can be calculated using Editor.getLineLength(int line).
+ * position can be determined using Editor.getLineLength(int line).
  *
- * @definition An invalid TextLocation is one that, at the time of use, points to an area outside the
- * text being edited.
+ * When applied to a particular edited text, a TextLocation may be <em>invalid</em>. 
+ * That is, at the time of use, it points to an area outside the text being edited.
  * 
- * @version $Id: TextLocation.java 2920 2004-08-20 08:02:09Z damiano $
+ * @version $Id: TextLocation.java 3012 2004-09-22 11:05:04Z iau $
  */
 
 /*
@@ -36,7 +36,7 @@ public class TextLocation
 
 
     /**
-     * Sets the line of the text position, leaves the column unchanged.
+     * Sets the line number of this text position, leaving the column unchanged.
      *
      * @param  line  the line number starting from zero
      */
@@ -58,7 +58,7 @@ public class TextLocation
 
 
     /**
-     * Sets the column where this caret should be, leaves the line unchanged.
+     * Sets the column of this text position, leaving the line number unchanged.
      *
      * @param  column  the column number starting from zero
      */
@@ -80,7 +80,7 @@ public class TextLocation
 
 
     /**
-     * Set both the line and column where of text location
+     * Set both the line number and column of this text location
      *
      * @param  line    a line number starting from zero
      * @param  column  a column number starting from zero
@@ -92,7 +92,7 @@ public class TextLocation
     }
     
     /**
-     * Returns a string represettation of this object.
+     * Returns a string representation of this text location.
      *
      * @return a string that represents this object status
      */
