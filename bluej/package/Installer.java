@@ -17,7 +17,7 @@ import java.util.zip.*;
   *
   *   java Installer
   *
-  * @version $Id: Installer.java 3000 2004-09-13 05:17:25Z bquig $
+  * @version $Id: Installer.java 3062 2004-10-25 00:30:59Z bquig $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -698,7 +698,7 @@ public class Installer extends JFrame
             out.write(commands);
             out.write("\n");
         }
-        out.write(javaName + " " + getProperty("javaOpts.unix") + " " +
+        out.write("\"" + javaName + "\" " + getProperty("javaOpts.unix") + " " +
                   getProperty("mainClass") + " $*\n");
         out.close();
 
@@ -712,7 +712,7 @@ public class Installer extends JFrame
 
     /**
      * Write out an MSDOS style batch file to start the application.
-     * (JDK 1.3 and later)
+     * (JDK 1.4 and later)
      */
     public void writeWindows() throws IOException
     {
@@ -721,11 +721,11 @@ public class Installer extends JFrame
 
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("@echo off\r\n");
-        out.write("set APPBASE=" + installationDir + "\r\n");
+        out.write("set APPBASE=\"" + installationDir + "\"\r\n");
         String commands = getProperty("commands.win").toString();
         if(commands != null) {
             commands = replace(commands, '~', "%APPBASE%");
-            commands = replace(commands, '!', javaPath);
+            commands = replace(commands, '!', "\"" + javaPath + "\"");
             commands = replace(commands, '@', architecture);
             out.write(commands);
             out.write("\r\n");
