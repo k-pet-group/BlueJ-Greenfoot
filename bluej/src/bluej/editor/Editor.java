@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
-** @version $Id: Editor.java 361 2000-01-14 00:59:47Z mik $
+** @version $Id: Editor.java 375 2000-01-24 22:56:25Z mik $
 ** @author Michael Cahill
 ** @author Michael Kolling
 ** Interface between an editor and the rest of BlueJ
@@ -76,15 +76,23 @@ public interface Editor
      */
     void setSelection(int lineNumber, int column, int len);
 
+
+    /**
+     *  Make the editor display a given view. Does not show the editor if
+     *  it's not shown, just fills the contents.
+     *
+     *  @param view     the view to be displayed. Must be one of the 
+     *                  view constants defined above
+     */
+    void setView(int view);
+
+
     /**
      *  Show the editor window. This includes whatever is necessary of the
      *  following: make visible, de-iconify, bring to front of window 
      *  stack.
-     *
-     *  @param view		the view to be displayed. Must be one of the 
-     *			view constants defined above
      */
-    void show(int view);
+    void setVisible(boolean vis);
 
 
     /**
@@ -106,10 +114,12 @@ public interface Editor
      */
     void close();
 
+
     /**
      * Refresh the editor display (needed if font size has changed)
      */
     void refresh();
+
 
     /**
      *  Display a message (used for compile/runtime errors). An editor

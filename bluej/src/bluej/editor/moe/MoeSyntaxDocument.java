@@ -31,14 +31,14 @@ import bluej.utility.*;
 import org.gjt.sp.jedit.syntax.*;
 
 /**
-* A simple implementation of <code>SyntaxDocument</code> that 
-* inherits from DefaultSyntaxDocument. It takes
-* care of inserting and deleting lines from the token marker's state.
-* It adds the ability to handle paragraph attributes on a per line basis.
-*
-* @author Bruce Quig
-*
-*/
+ * A simple implementation of <code>SyntaxDocument</code> that 
+ * inherits from DefaultSyntaxDocument. It takes
+ * care of inserting and deleting lines from the token marker's state.
+ * It adds the ability to handle paragraph attributes on a per line basis.
+ *
+ * @author Bruce Quig
+ *
+ */
 public class MoeSyntaxDocument extends DefaultSyntaxDocument
 {
 
@@ -52,33 +52,37 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
      * Sets attributes for a paragraph.  This method was added to 
      * provide the ability to replicate DefaultStyledDocument's ability to 
      * set each lines attributes easily.
-     * This is an added method for the BlueJ adaption of jedit's Syntax package   
+     * This is an added method for the BlueJ adaption of jedit's Syntax
+     * package   
      *
      * @param offset the offset into the paragraph >= 0
      * @param length the number of characters affected >= 0
      * @param s the attributes
      * @param replace whether to replace existing attributes, or merge them
      */
-    public void setParagraphAttributes(int offset, int length, AttributeSet s, 
+    public void setParagraphAttributes(int offset, int length, AttributeSet s,
                                        boolean replace)
     {
-
         // code closely resembles method from DefaultStyleDocument
         try {
             writeLock();
             //DefaultDocumentEvent changes = 
-            //    new DefaultDocumentEvent(offset, length, DocumentEvent.EventType.CHANGE);
+            //    new DefaultDocumentEvent(offset, length, 
+            //     DocumentEvent.EventType.CHANGE);
 
             //AttributeSet sCopy = s.copyAttributes();
 
             Element section = getDefaultRootElement();
             int index0 = section.getElementIndex(offset);
-            int index1 = section.getElementIndex(offset + ((length > 0) ? length - 1 : 0));
+            int index1 = section.getElementIndex(offset + 
+                                                ((length>0) ? length-1 : 0));
 
             for (int i = index0; i <= index1; i++) {
                 Element paragraph = section.getElement(i);
-                MutableAttributeSet attr = (MutableAttributeSet) paragraph.getAttributes();
-                //   changes.addEdit(new AttributeUndoableEdit(paragraph, sCopy, replace));
+                MutableAttributeSet attr = 
+                    (MutableAttributeSet) paragraph.getAttributes();
+                // changes.addEdit(new AttributeUndoableEdit(paragraph, 
+                //                                          sCopy, replace));
                 if (replace) {
                     attr.removeAttributes(attr);
                 }

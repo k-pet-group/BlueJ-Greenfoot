@@ -37,7 +37,7 @@ import java.util.*;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 357 2000-01-13 03:57:25Z ajp $
+ * @version $Id: Package.java 375 2000-01-24 22:56:25Z mik $
  * @author Michael Cahill
  *
  */
@@ -1725,7 +1725,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
             t.unsetFlag(Target.F_QUEUED);
         }
 
-        if(bringToFront || !t.getEditor().isShowing())
+        if(t.getDisplayedView() != Editor.IMPLEMENTATION)
+            t.showView(Editor.IMPLEMENTATION);
+        else if(bringToFront || !t.getEditor().isShowing())
             t.open();
         Editor editor = t.getEditor();
         if(editor!=null)

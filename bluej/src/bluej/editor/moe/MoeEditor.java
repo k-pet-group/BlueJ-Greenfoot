@@ -46,8 +46,8 @@ public final class MoeEditor extends JFrame
     // -------- CONSTANTS --------
 
     // version number
-    static final int version = 030;
-    static final String versionString = "0.3";
+    static final int version = 040;
+    static final String versionString = "0.4";
 
     // colours
     static final Color textColor = new Color(0,0,0);		// normal text
@@ -83,6 +83,7 @@ public final class MoeEditor extends JFrame
 
     // Attributes for lines and document
     public static final String BREAKPOINT = "break";
+    public static final String STEPMARK = "step";
     static final String COMPILED = "compiled";
 
     // -------- INSTANCE VARIABLES --------
@@ -101,14 +102,15 @@ public final class MoeEditor extends JFrame
     private JComponent toolbar;		// The toolbar
     private JComboBox viewSelector;	// The view choice selector
 
-    private String filename;              // name of file or null
+    private String filename;            // name of file or null
     private String windowTitle;		// title of editor window
-    private boolean firstSave;           // true if never been saved
+    private boolean firstSave;          // true if never been saved
     private boolean isCompiled;		// true when source has been compiled
 
     private String newline;		// the line break character used
     private boolean isCode;		// true if current buffer is code
 
+    private int currentStepPos;         // position of step mark (or -1)
     private boolean mayHaveBreakpoints;	// true if there were BP here
     private boolean ignoreChanges = false;
 
@@ -169,6 +171,7 @@ public final class MoeEditor extends JFrame
         isCompiled = false;
         newline = System.getProperty("line.separator");
         this.isCode = isCode;
+        currentStepPos = -1;
         mayHaveBreakpoints = false;
 
         initWindow(showToolbar, showLineNum);
@@ -238,7 +241,6 @@ public final class MoeEditor extends JFrame
             info.message ("Moe version " + versionString, "New file");
 
         setWindowTitle();
-        //show();
         textPane.setFont(PrefMgr.getStandardEditorFont());
         textPane.setSelectionColor(selectionColour);
 
@@ -331,21 +333,45 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Show the editor window. This includes whatever is necessary of the
-     *  following: make visible, de-iconify, bring to front of window stack.
+     *  Make the editor display a given view.
      *
-     *  @param view		the view to be displayed. Must be one of the
-     *			view constants defined above
+     *  @param view     the view to be displayed. Must be one of the 
+     *                  view constants defined above
      */
-    public void show(int view)	// inherited from Editor, redefined
+    public void setView(int view)
     {
-        textPane.setFont(PrefMgr.getStandardEditorFont());
-        setView(view);
-        checkSyntaxStatus();
-        setVisible(true);		// show the window
-        //  ## NYI: de-iconify
+        int newIndex = 0;   // bluej.editor.Editor.IMPLEMENTATION
+
+        if (view == bluej.editor.Editor.PUBLIC)
+            newIndex = 1;
+        else if (view == bluej.editor.Editor.PACKAGE)
+            newIndex = 2;
+        else if (view == bluej.editor.Editor.INHERITED)
+            newIndex = 3;
+
+        if(newIndex != viewSelector.getSelectedIndex()) {
+            viewSelector.setSelectedIndex(newIndex);
+            // this will cause an itemStateChanged event for the selector.
+            // the event handler does all the rest.
+        }
     }
 
+    // --------------------------------------------------------------------
+    /**
+     *  Show the editor window. This includes whatever is necessary of the
+     *  following: make visible, de-iconify, bring to front of window stack.
+     */
+    public void setVisible(boolean vis)  // inherited from Editor, redefined
+    {
+        if(vis) {
+            textPane.setFont(PrefMgr.getStandardEditorFont());
+            checkSyntaxStatus();
+            //  ## NYI: de-iconify
+        }
+        super.setVisible(vis);		// show the window
+    }
+
+    // --------------------------------------------------------------------
     /**
      *  Refresh the editor window. 
      */
@@ -435,8 +461,15 @@ public final class MoeEditor extends JFrame
                                String help)
                                // inherited from Editor
     {
-        Element line = getLine (lineNumber);
-        textPane.setCaretPosition(line.getStartOffset());
+        Element line = getLine(lineNumber);
+        int pos = line.getStartOffset();
+
+        if(setStepMark)
+            setStepMark(pos);
+
+        // highlight the line
+
+        textPane.setCaretPosition(pos);
         textPane.moveCaretPosition(line.getEndOffset());
 
         // display the message
@@ -475,6 +508,15 @@ public final class MoeEditor extends JFrame
 
     public void removeStepMark()		// inherited from Editor
     {
+        if(currentStepPos != -1) {
+            SimpleAttributeSet a = new SimpleAttributeSet();
+            a.addAttribute(STEPMARK, Boolean.FALSE);
+            document.setParagraphAttributes(currentStepPos, 0, a, false);
+            currentStepPos = -1;
+            // force an update of UI 
+            repaint();
+        }
+        // remove highlight as well
         textPane.setCaretPosition(textPane.getCaretPosition());
     }
 
@@ -1220,6 +1262,9 @@ public final class MoeEditor extends JFrame
 
     void toggleBreakpoint()
     {
+        if (!isCode)
+            return;     // PENDING: add dialog: 
+                        // "can only set bp in implementation view"
         toggleBreakpoint(textPane.getCaretPosition());
     }
 
@@ -1327,6 +1372,23 @@ public final class MoeEditor extends JFrame
         document.setParagraphAttributes(pos, 0, a, false);
     }
 
+    // --------------------------------------------------------------------
+    /**
+     *  Try to set or remove a breakpoint (depending on the parameter) at
+     *  the given position. Informs the watcher.
+     */
+
+    private void setStepMark(int pos)
+    {
+        removeStepMark();
+        SimpleAttributeSet a = new SimpleAttributeSet();
+        a.addAttribute(STEPMARK, Boolean.TRUE);
+        document.setParagraphAttributes(pos, 0, a, false);
+        currentStepPos = pos;
+        // force an update of UI 
+        repaint();
+    }
+
     // ========================= SUPPORT ROUTINES ==========================
 
     // --------------------------------------------------------------------
@@ -1425,7 +1487,6 @@ public final class MoeEditor extends JFrame
         catch (IOException ex) {
             info.warning ("ERROR: There was an error while trying to read this file");
         }
-        setView(bluej.editor.Editor.IMPLEMENTATION);
         setSaved();
     }
 
@@ -1453,10 +1514,15 @@ public final class MoeEditor extends JFrame
 
 
     // --------------------------------------------------------------------
+    /**
+     * Toggle the editor's 'compiled' status. If compiled, enable the
+     * view selector and breakpoint function.
+     */
     private void setCompileStatus(boolean compiled)
     {
         viewSelector.setEnabled(compiled);
-        actions.getActionByName("toggle-breakpoint").setEnabled(compiled);
+        actions.getActionByName("toggle-breakpoint").setEnabled(
+                                                        compiled && isCode);
         isCompiled = compiled;
 
         if(compiled)
@@ -1504,37 +1570,6 @@ public final class MoeEditor extends JFrame
                 title = "Moe: " + filename;
         }
         setTitle(title);
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     *  Sets the editor to contain a view. This is used if the view is set
-     *  from the outside of the editor (not by the editor function).
-     *
-     *  @param view    the new view. Must be one of the defined view constants.
-     */
-    private void setView(int view)
-    {
-        int newIndex = 0;
-
-        if (view == bluej.editor.Editor.IMPLEMENTATION)
-            newIndex = 0;
-        else if (view == bluej.editor.Editor.PUBLIC)
-            newIndex = 1;
-        else if (view == bluej.editor.Editor.PACKAGE)
-            newIndex = 2;
-        else if (view == bluej.editor.Editor.INHERITED)
-            newIndex = 3;
-
-        if(newIndex != viewSelector.getSelectedIndex()) {
-            viewSelector.setSelectedIndex(newIndex);
-
-            isCode = (view == bluej.editor.Editor.IMPLEMENTATION);
-            if(!isCode)
-                setCompileStatus(true);
-
-            actions.compileAction.setEnabled(isCode);
-        }
     }
 
     // --------------------------------------------------------------------
@@ -1592,20 +1627,23 @@ public final class MoeEditor extends JFrame
         int view;
 
         switch (viewSelector.getSelectedIndex()) {
-        case (0): view = bluej.editor.Editor.IMPLEMENTATION;
-            break;
-        case (1): view = bluej.editor.Editor.PUBLIC;
-            break;
-        case (2): view = bluej.editor.Editor.PACKAGE;
-            break;
-        case (3): view = bluej.editor.Editor.INHERITED;
-            break;
-        default:  view = 0;
+            case (0): view = bluej.editor.Editor.IMPLEMENTATION;
+                break;
+            case (1): view = bluej.editor.Editor.PUBLIC;
+                break;
+            case (2): view = bluej.editor.Editor.PACKAGE;
+                break;
+            case (3): view = bluej.editor.Editor.INHERITED;
+                break;
+            default:  view = 0;
         }
         watcher.changeView(this, view);
 
         // calling "changeView" in the watcher will cause the right text
         // to appear in the editor
+
+        isCode = (view == bluej.editor.Editor.IMPLEMENTATION);
+        actions.compileAction.setEnabled(isCode);
     }
 
     // ======================= WINDOW INITIALISATION =======================

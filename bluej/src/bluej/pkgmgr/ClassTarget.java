@@ -43,7 +43,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 365 2000-01-14 06:33:17Z mik $
+ * @version $Id: ClassTarget.java 375 2000-01-24 22:56:25Z mik $
  */
 public class ClassTarget extends EditableTarget
 
@@ -381,7 +381,7 @@ public class ClassTarget extends EditableTarget
      */
     public boolean changeView(Editor editor, int viewType)
     {
-	showView(editor, viewType);
+	generateView(editor, viewType);
 	return true;
     }
 
@@ -796,8 +796,7 @@ public class ClassTarget extends EditableTarget
 	    new Invoker(pkg, (CallableView)member, null, watcher);
 	}
 	else if(editStr.equals(cmd)) {
-	    displayedView = Editor.IMPLEMENTATION;
-	    open();
+	    showView(Editor.IMPLEMENTATION);
 	}
 	else if(publicStr.equals(cmd)) {
 	    showView(Editor.PUBLIC);
@@ -841,7 +840,7 @@ public class ClassTarget extends EditableTarget
 
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	    open();
+        open();
     }
 
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
@@ -882,11 +881,19 @@ public class ClassTarget extends EditableTarget
     {
 	if(viewType == displayedView)
 	    open();
-	else
-	    showView(getEditor(), viewType);
+	else {
+            Editor editor = getEditor();
+	    editor.setView(viewType);
+            editor.setVisible(true);
+        }
     }
 
-    public void showView(Editor editor, int viewType)
+    /**
+     * Show a view in the editor. If 'open' is true, the editor needs to be
+     * opened, otherwise it is already open and we only need to create the
+     * content.
+     */
+    private void generateView(Editor editor, int viewType)
     {
 	if(editor==null)
 	    return;
@@ -898,7 +905,6 @@ public class ClassTarget extends EditableTarget
 	    reopen();
 	else {
 	    editor.clear();
-//  	    Class cl = pkg.loadClass(fullname);   // -as- 11/99
 	    Class cl = pkg.loadClass(name);
 	    if(cl != null) {
 		View view = View.getView(cl);
@@ -916,7 +922,6 @@ public class ClassTarget extends EditableTarget
 	    editor.setReadOnly(true);
 	    setState(S_NORMAL);
 	    editor.setSelection(1, 1, 0);  // move cursor to top of editor
-	    editor.show(viewType);
 	}
     }
 

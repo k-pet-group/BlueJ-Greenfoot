@@ -369,7 +369,7 @@ implements BlueJEventListener
 		    " ",
 		    "BlueJ is available free of charge and may be",
 		    "redistributed freely. It may not be sold for",
-		    "for profit or included in other packages which",
+		    "profit or included in other packages which",
 		    "are sold for profit without written authorisation."
 		    },
 		"BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);

@@ -10,7 +10,7 @@ class Student extends Person
     private String SID;    // student ID number
 
     /**
-     * Create a student with default settings for detail information.
+     * Create a st  udent with default settings for detailsettings for detail information.!
      */
     Student()
     {

@@ -1,25 +1,10 @@
+package bluej.editor.moe;
+
 /**
  * MoeSyntaxView.java - adapted from 
  * SyntaxView.java - jEdit's own Swing view implementation
  * to add Syntax highlighting to the BlueJ programming environment.
- * Copyright (C) 1998, 1999 Slava Pestov
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
  */
-
-package bluej.editor.moe;
 
 import javax.swing.text.*;
 import javax.swing.*;
@@ -32,22 +17,29 @@ import bluej.Config;
 
 /**
  * A Swing view implementation that colorizes lines of a
- * <code>SyntaxDocument</code> using a <code>TokenMarker</code>.<p>
+ * SyntaxDocument using a TokenMarker.
  *
- * This class should not be used directly; a <code>SyntaxEditorKit</code>
+ * This class should not be used directly; a SyntaxEditorKit
  * should be used instead.
  *
  * @author Slava Pestov
- * @version $Id: MoeSyntaxView.java 343 2000-01-12 03:39:59Z bruce $
+ * @author Bruce Quig
+ * @author Michael Kolling
+ *
+ * @version $Id: MoeSyntaxView.java 375 2000-01-24 22:56:25Z mik $
  */
+
 public class MoeSyntaxView extends PlainView
 {
-
-
     // private members
     private Segment line;
 
-    static final Image breakImage = new ImageIcon(Config.getImageFilename("image.break")).getImage();
+    static final Image breakImage = 
+        new ImageIcon(Config.getImageFilename("image.breakmark")).getImage();
+    static final Image stepImage = 
+        new ImageIcon(Config.getImageFilename("image.stepmark")).getImage();
+    static final Image breakStepImage = 
+        new ImageIcon(Config.getImageFilename("image.breakstepmark")).getImage();
     static final int BREAKPOINT_OFFSET = MoeEditor.TAG_WIDTH + 2;
     /**
      * Creates a new <code>MoeSyntaxView</code> for painting the specified
@@ -62,18 +54,18 @@ public class MoeSyntaxView extends PlainView
 
     /**
      * Paints the specified line.
-     * <p>
+     * 
      * This method performs the following:
-     * <ul>
-     * <li>Gets the token marker and color table from the current document,
-     * typecast to a <code>SyntaxDocument</code>.
-     * <li>Tokenizes the required line by calling the
-     * <code>markTokens()</code> method of the token marker.
-     * <li>Paints each token, obtaining the color by looking up the
-     * the <code>Token.id</code> value in the color table.
-     * </ul>
+     * 
+     *  - Gets the token marker and color table from the current document,
+     *    typecast to a SyntaxDocument.
+     *  - Tokenizes the required line by calling the
+     *    markTokens() method of the token marker.
+     *  - Paints each token, obtaining the color by looking up the
+     *    the Token.id value in the color table.
+     * 
      * If either the document doesn't implement
-     * <code>SyntaxDocument</code>, or if the returned token marker is
+     * SyntaxDocument, or if the returned token marker is
      * null, the line will be painted with no colorization.
      *
      * @param lineIndex The line number
@@ -105,11 +97,27 @@ public class MoeSyntaxView extends PlainView
 
             document.getText(start,end - (start + 1),line);
 
-            //from paragraph view, draw breakpoint image
+            // draw breakpoint and/or step image
+
             if (Boolean.TRUE.equals
-                (lineElement.getAttributes().getAttribute(MoeEditor.BREAKPOINT))) {
-                // draw break symbol
-                g.drawImage(breakImage, x-1, y - breakImage.getHeight(null), null);
+                (lineElement.getAttributes().getAttribute(
+                                                MoeEditor.BREAKPOINT))) {
+                if (Boolean.TRUE.equals
+                    (lineElement.getAttributes().getAttribute(
+                                                MoeEditor.STEPMARK))) {
+                    g.drawImage(breakStepImage, x-1, 
+                                y-breakStepImage.getHeight(null), null);
+                }
+                else {  // break only
+                    g.drawImage(breakImage, x-1, 
+                                y-breakImage.getHeight(null), null);
+                }
+            }
+            else if (Boolean.TRUE.equals
+                (lineElement.getAttributes().getAttribute(
+                                                MoeEditor.STEPMARK))) {
+                g.drawImage(stepImage, x-1, y-stepImage.getHeight(null), 
+                            null);
             }
 
             // if no tokenMarker just paint as plain text
@@ -118,9 +126,11 @@ public class MoeSyntaxView extends PlainView
                 Utilities.drawTabbedText(line, offsetX, y, g, this, 0);
             }
             else {
-                paintSyntaxLine(line, lineIndex, offsetX, y, g, document, tokenMarker, def);
+                paintSyntaxLine(line, lineIndex, offsetX, y, g, document, 
+                                tokenMarker, def);
 
-                // following lines were in SyntaxView.  Unsure as to whether needed
+                // following lines were in SyntaxView.  Unsure as to whether
+                //  needed
                 // if(tokenMarker.isNextLineRequested())
                 // forceRepaint(metrics,x,y);
             }
@@ -302,6 +312,12 @@ public class MoeSyntaxView extends PlainView
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.2  2000/01/24 22:56:23  mik
+*
+* editor improvements:
+*  - fixed problem with compile button disable inviews
+*  - added step arrow
+*
 * Revision 1.1  2000/01/12 03:39:59  bruce
 *
 * New files added to provide Syntax highlighting.  Altered document type from Styled to Plain.
