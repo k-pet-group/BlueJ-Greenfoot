@@ -7,7 +7,7 @@ import bluej.pkgmgr.Package;
  * an execution.
  *
  * @author  Clive Miller
- * @version $Id: ExecutionEvent.java 1718 2003-03-21 09:27:05Z damiano $
+ * @version $Id: ExecutionEvent.java 1763 2003-04-09 05:53:41Z ajp $
  */
 
 public class ExecutionEvent
@@ -82,7 +82,6 @@ public class ExecutionEvent
     
     void setParameters (Class[] signature, String[] parameters)
     {
-        this.methodName = methodName;
         this.signature = signature;
         this.parameters = parameters;
     }
