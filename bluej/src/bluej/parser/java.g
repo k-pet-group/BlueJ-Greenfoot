@@ -35,6 +35,7 @@ import bluej.parser.symtab.SymbolTable;
 import bluej.parser.symtab.JavaVector;
 import bluej.parser.symtab.DummyClass;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 
 import antlr.*;
 
@@ -70,51 +71,54 @@ options {
     // We need a symbol table to track definitions
     private SymbolTable symbolTable;
     private TokenStreamHiddenTokenFilter filter;
-    
+    private ClassInfo info;
+	    
     // the main entry point to parse a file
     public static ClassInfo parse(String filename, Vector classes)
         throws Exception 
     {
 	// create a new symbol table
 	SymbolTable symbolTable = new SymbolTable();
-	doFile(new File(filename), symbolTable); // parse it
+        ClassInfo info = new ClassInfo();
+
+	doFile(new File(filename), symbolTable, info); // parse it
 
 	// resolve the types of all symbols in the symbol table
 	//  -- we don't need this for BlueJ
 	// symbolTable.resolveTypes();
 
-	ClassInfo info = new ClassInfo();
 
 	// add existing classes to the symbol table
 	symbolTable.addClasses(classes);
 
 	symbolTable.getInfo(info);
+
 	return info;
     }
 
 
     // This method decides what action to take based on the type of
     //   file we are looking at
-    public static void doFile(File f, SymbolTable symbolTable)
+    public static void doFile(File f, SymbolTable symbolTable, ClassInfo info)
 	throws Exception 
     {
         // If this is a directory, walk each file/dir in that directory
         if (f.isDirectory()) {
             String files[] = f.list();
             for(int i=0; i < files.length; i++)
-                doFile(new File(f, files[i]), symbolTable);
+                doFile(new File(f, files[i]), symbolTable, info);
         }
 
         // otherwise, if this is a java file, parse it!
         else if (f.getName().endsWith(".java")) {
             symbolTable.setFile(f);
-            parseFile(new BufferedInputStream(new FileInputStream(f)), symbolTable);
+            parseFile(new BufferedInputStream(new FileInputStream(f)), symbolTable, info);
         }
     }
 
     // Here's where we do the real work...
     public static void parseFile(InputStream s,
-                                 SymbolTable symbolTable)
+                                 SymbolTable symbolTable, ClassInfo info)
 	throws Exception 
     {
 	// Create a scanner that reads from the input stream passed to us
@@ -134,6 +138,7 @@ options {
 
 	// Tell the parser to use the symbol table passed to us
 	parser.setSymbolTable(symbolTable);
+	parser.setClassInfo(info);
 	parser.setFilter(filter);
 
 	// start parsing at the compilationUnit rule
@@ -143,6 +148,10 @@ options {
     // Tell the parser which symbol table to use
     public void setSymbolTable(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
+    }
+
+    public void setClassInfo(ClassInfo info) {
+    	this.info = info;
     }
 
     public void setFilter(TokenStreamHiddenTokenFilter filter) {
@@ -231,6 +240,12 @@ options {
         symbolTable.addImport(id, className, packageName);
     }
 
+    // create a selection which consists of the location just after the token passed
+    // in
+    public Selection selectionAfterToken(JavaToken id) {
+	return new Selection(id.getFile(), id.getLine(),
+                              id.getColumn() + id.getText().length(),0);
+    }    
 }
 
 
@@ -432,14 +447,34 @@ modifier returns [boolean isAbstract]
 classDefinition[boolean isAbstract, JavaToken commentToken]
     {JavaToken superClass=null; JavaVector interfaces=null;}
     :   "class" id:IDENT // aha! a class!
+            {
+		// the place which we would want to insert an "extends" is at the
+		// character just after the classname identifier
+		// it is also potentially the place where we would insert a
+		// "implements" so we will set that here and allow it to be overridden
+		// later on if need be
+		Selection sel = selectionAfterToken((JavaToken)id);
+            	info.setClassExtendsInsertSelection(sel);
+		info.setClassImplementsInsertSelection(sel);
+            }
 
             // it _might_ have a superclass...
-            ("extends" superClass=identifier
-            { }
+            ( ex:"extends" superClass=identifier
+            {
+                info.setClassExtendsReplaceSelection(new Selection((JavaToken)ex));
+                info.setClassSuperClassReplaceSelection(new Selection(superClass));
+
+		// maybe we need to place "implements" lines after this superClass..
+		// set it here but of course it could be overidden later on...
+		JavaToken jid = (JavaToken)superClass;
+		info.setClassImplementsInsertSelection(sel);
+            }
             )?
 
             // it might implement some interfaces...
-            (interfaces=implementsClause)?
+            ( interfaces=implementsClause
+            { }
+            )?
 
             // tell the symbol table about it
             // Note that defineClass pushes tyhe class' scope,

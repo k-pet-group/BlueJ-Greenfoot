@@ -24,6 +24,7 @@ import bluej.parser.symtab.SymbolTable;
 import bluej.parser.symtab.JavaVector;
 import bluej.parser.symtab.DummyClass;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 
 import antlr.*;
 
@@ -45,51 +46,54 @@ public class ClassParser extends antlr.LLkParser
     // We need a symbol table to track definitions
     private SymbolTable symbolTable;
     private TokenStreamHiddenTokenFilter filter;
-    
+    private ClassInfo info;
+	    
     // the main entry point to parse a file
     public static ClassInfo parse(String filename, Vector classes)
         throws Exception 
     {
 	// create a new symbol table
 	SymbolTable symbolTable = new SymbolTable();
-	doFile(new File(filename), symbolTable); // parse it
+        ClassInfo info = new ClassInfo();
+
+	doFile(new File(filename), symbolTable, info); // parse it
 
 	// resolve the types of all symbols in the symbol table
 	//  -- we don't need this for BlueJ
 	// symbolTable.resolveTypes();
 
-	ClassInfo info = new ClassInfo();
 
 	// add existing classes to the symbol table
 	symbolTable.addClasses(classes);
 
 	symbolTable.getInfo(info);
+
 	return info;
     }
 
 
     // This method decides what action to take based on the type of
     //   file we are looking at
-    public static void doFile(File f, SymbolTable symbolTable)
+    public static void doFile(File f, SymbolTable symbolTable, ClassInfo info)
 	throws Exception 
     {
         // If this is a directory, walk each file/dir in that directory
         if (f.isDirectory()) {
             String files[] = f.list();
             for(int i=0; i < files.length; i++)
-                doFile(new File(f, files[i]), symbolTable);
+                doFile(new File(f, files[i]), symbolTable, info);
         }
 
         // otherwise, if this is a java file, parse it!
         else if (f.getName().endsWith(".java")) {
             symbolTable.setFile(f);
-            parseFile(new BufferedInputStream(new FileInputStream(f)), symbolTable);
+            parseFile(new BufferedInputStream(new FileInputStream(f)), symbolTable, info);
         }
     }
 
     // Here's where we do the real work...
     public static void parseFile(InputStream s,
-                                 SymbolTable symbolTable)
+                                 SymbolTable symbolTable, ClassInfo info)
 	throws Exception 
     {
 	// Create a scanner that reads from the input stream passed to us
@@ -109,6 +113,7 @@ public class ClassParser extends antlr.LLkParser
 
 	// Tell the parser to use the symbol table passed to us
 	parser.setSymbolTable(symbolTable);
+	parser.setClassInfo(info);
 	parser.setFilter(filter);
 
 	// start parsing at the compilationUnit rule
@@ -118,6 +123,10 @@ public class ClassParser extends antlr.LLkParser
     // Tell the parser which symbol table to use
     public void setSymbolTable(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
+    }
+
+    public void setClassInfo(ClassInfo info) {
+    	this.info = info;
     }
 
     public void setFilter(TokenStreamHiddenTokenFilter filter) {
@@ -533,18 +542,34 @@ public ClassParser(ParserSharedInputState state) {
 	) throws ParserException, IOException {
 		
 		Token  id = null;
+		Token  ex = null;
 		JavaToken superClass=null; JavaVector interfaces=null;
 		
 		match(LITERAL_class);
 		id = LT(1);
 		match(IDENT);
+		if ( inputState.guessing==0 ) {
+			
+					// the place which we would want to insert an "extends" is at the
+					// character just after the classname identifier
+					JavaToken jid = (JavaToken)id;
+					Selection sel = new Selection(jid.getFile(), jid.getLine(),
+									jid.getColumn()+jid.getText().length(),
+									0);
+				info.setClassExtendsInsertSelection(sel);
+			
+		}
 		{
 		switch ( LA(1)) {
 		case LITERAL_extends:
 		{
+			ex = LT(1);
 			match(LITERAL_extends);
 			superClass=identifier();
 			if ( inputState.guessing==0 ) {
+				
+				info.setClassExtendsReplaceSelection(new Selection((JavaToken)ex));
+				info.setClassSuperClassReplaceSelection(new Selection(superClass));
 				
 			}
 			break;
@@ -565,6 +590,9 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_implements:
 		{
 			interfaces=implementsClause();
+			if ( inputState.guessing==0 ) {
+				
+			}
 			break;
 		}
 		case LCURLY:

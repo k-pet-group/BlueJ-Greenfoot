@@ -8,6 +8,7 @@ public final class ClassInfo {
 
     private String name;
     private String superclass;
+    
     private Vector implemented = new Vector();
     private Vector imported = new Vector();
     private Vector used = new Vector();
@@ -130,13 +131,35 @@ public final class ClassInfo {
         isAbstract = b;
     }
 
-    public void setSuperPos(int line, int col)
-    {
-        superClassLine = line;
-        superClassCol = col;
+    private Selection classextendsinsertselection;
+    private Selection classextendsreplaceselection; 
+    private Selection classsuperclassreplaceselection;
+
+    public void setClassExtendsInsertSelection(Selection s) {
+        classextendsinsertselection = s;
     }
 
+    public Selection getClassExtendsInsertSelection() {
+        return classextendsinsertselection;
+    }
+    
+    public void setClassExtendsReplaceSelection(Selection s) {
+        classextendsreplaceselection = s;
+    }
 
+    public Selection getClassExtendsReplaceSelection() {
+        return classextendsreplaceselection;
+    }
+
+    public void setClassSuperClassReplaceSelection(Selection s)
+    {
+        classsuperclassreplaceselection = s;
+    }
+
+    public Selection getClassSuperClassReplaceSelection() {
+        return classsuperclassreplaceselection;
+    }
+        
     // accessors:
 
     public String getSuperclass()
