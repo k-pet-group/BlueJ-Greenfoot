@@ -16,7 +16,7 @@ import java.net.UnknownServiceException;
  * Adapted to have some vars inserted into the jar name.
  *
  * @author     Clive Miller
- * @version    $Id: JarSession.java 1708 2003-03-19 09:39:47Z damiano $
+ * @version    $Id: JarSession.java 1717 2003-03-20 14:51:40Z damiano $
  */
 
 public class JarSession extends TransportSession
@@ -121,6 +121,10 @@ public class JarSession extends TransportSession
         sendingThread =
             new Thread()
             {
+/* ARGHH, this is a can of worms in terms of stopping what is happening
+ * and in terms of exception propagation (taht just does not happens anymore)
+ * Have no idea on how to fix this yet, I have to think about it. Damiano
+ */
                 public void run()
                 {
                     try {
