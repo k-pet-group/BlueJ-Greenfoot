@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
+import javax.swing.border.*;
 
 import com.apple.mrj.*;
 
@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1823 2003-04-10 16:27:51Z mik $
+ * @version $Id: PkgMgrFrame.java 1824 2003-04-10 21:19:18Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1790,28 +1790,29 @@ public class PkgMgrFrame extends JFrame
             testPanel = new JPanel();
             {
                 testPanel.setLayout(new BoxLayout(testPanel, BoxLayout.Y_AXIS));
-                //testPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
-                testPanel.setBorder(BorderFactory.createTitledBorder(Config.getString("pkgmgr.test.label")));
-//                testPanel.setBorder(BorderFactory.createCompoundBorder(
-//                                          BorderFactory.createTitledBorder(
-//                                                 Config.getString("pkgmgr.test.label")),
-//                                          Config.generalBorder));
 
-				JButton button = createButton(Config.getString("pkgmgr.test.run"),
+                testPanel.setBorder(BorderFactory.createEmptyBorder(5,5,14,5));
+//                testPanel.setBorder(BorderFactory.createTitledBorder(
+//                                        BorderFactory.createEmptyBorder(0,3,3,3),
+//                                        Config.getString("pkgmgr.test.label")));
+
+				JButton runButton = createButton(Config.getString("pkgmgr.test.run"),
 									  null,
 									  Config.getString("tooltip.test"));
-				button.addActionListener(new ActionListener() {
+				runButton.addActionListener(new ActionListener() {
 											public void actionPerformed(ActionEvent e) {
 												doTest(); }
 										 });
-                testPanel.add(button);
-                testPanel.add(Box.createVerticalStrut(6));
+                runButton.setAlignmentX(0.15f);
+                testPanel.add(runButton);
+                testPanel.add(Box.createVerticalStrut(8));
 
                 recordingLabel = new JLabel(Config.getString("pkgmgr.test.record"),
                                                 Config.getImageAsIcon("image.test.recording"),
                                                 SwingConstants.LEADING);
                 recordingLabel.setFont(PkgMgrFont);
                 recordingLabel.setEnabled(false);
+                recordingLabel.setAlignmentX(0.15f);
                 testPanel.add(recordingLabel);
                 testPanel.add(Box.createVerticalStrut(3));
 
@@ -1823,6 +1824,7 @@ public class PkgMgrFrame extends JFrame
                         doEndTest(); }
                  });
                 endTestButton.setEnabled(false);
+
                 testPanel.add(endTestButton);
                 testPanel.add(Box.createVerticalStrut(3));
 
@@ -1834,9 +1836,9 @@ public class PkgMgrFrame extends JFrame
                         doCancelTest(); }
                  });
                 cancelTestButton.setEnabled(false);
+
                 testPanel.add(cancelTestButton);
-
-
+                
                 testPanel.setAlignmentX(0.5f);
             }
 
@@ -1863,7 +1865,6 @@ public class PkgMgrFrame extends JFrame
         toolPanel.add(buttonPanel);
         toolPanel.add(Box.createVerticalGlue());
         toolPanel.add(testPanel);
-        toolPanel.add(Box.createVerticalStrut(3));
         toolPanel.add(progressButton);
 
         // create the bottom object bench and status area
@@ -1880,7 +1881,7 @@ public class PkgMgrFrame extends JFrame
                                 BorderFactory.createEmptyBorder(5,0,5,0)));
             bottomPanel.add(bench, BorderLayout.CENTER);
             statusbar = new JLabel(" ");
-            statusbar.setAlignmentX(0.0f);
+            //statusbar.setAlignmentX(0.0f);
             
             testStatusMessage = new JLabel("");
 

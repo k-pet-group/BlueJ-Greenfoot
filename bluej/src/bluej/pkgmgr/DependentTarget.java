@@ -12,7 +12,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 1728 2003-03-28 02:01:36Z ajp $
+ * @version	$Id: DependentTarget.java 1824 2003-04-10 21:19:18Z mik $
  */
 public abstract class DependentTarget extends Target
 {
@@ -312,12 +312,6 @@ public abstract class DependentTarget extends Target
     abstract Color getBorderColour();
     abstract Color getTextColour();
     abstract Font getFont();
-
-    public void repaint()
-    {
-        if (getPackage().getEditor() != null)
-            getPackage().getEditor().repaint(getX(), getY(), getWidth() + SHAD_SIZE, getHeight() + SHAD_SIZE);
-    }
 
     public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor)
     {

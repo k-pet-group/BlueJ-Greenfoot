@@ -17,7 +17,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: Target.java 1824 2003-04-10 21:19:18Z mik $
  */
 public abstract class Target extends Vertex implements Comparable
 {
@@ -32,7 +32,7 @@ public abstract class Target extends Vertex implements Comparable
     // move me!
     static final int HANDLE_SIZE = 20;
     static final int TEXT_HEIGHT = 16;
-    static final int TEXT_BORDER = 8;
+    static final int TEXT_BORDER = 4;
     //static final int SHAD_SIZE = 5;
     static final int SHAD_SIZE = 4;
 
@@ -251,8 +251,11 @@ public abstract class Target extends Vertex implements Comparable
 
     public void repaint()
     {
-        if (pkg.getEditor() != null)
-            pkg.getEditor().repaint(getX(), getY(), getWidth() + SHAD_SIZE, getHeight() + SHAD_SIZE);
+        if (pkg.getEditor() != null) {
+            pkg.getEditor().repaint();
+            // the following would be preferred, but causes a clipping bug on MacOS
+            //pkg.getEditor().repaint(getX(), getY(), getWidth() + SHAD_SIZE, getHeight() + SHAD_SIZE);
+        }
     }
 
     /**
@@ -263,12 +266,6 @@ public abstract class Target extends Vertex implements Comparable
         g.setColor(getBackgroundColour());
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        // functionality transferred to ClassTarget
-        // if(state != S_NORMAL) {
-        //     g.setColor(shadowCol); // Color.lightGray
-        //     Utility.stripeRect(g, 0, 0, width, height, 8, 3);
-        // }
-
         g.setColor(shadowCol);
         drawShadow(g);
 
@@ -276,15 +273,19 @@ public abstract class Target extends Vertex implements Comparable
         drawBorders(g);
     }
 
-    void drawShadow(Graphics2D g)
+    /**
+     * Draw a 'shadow' appearance under and to the right of the target.
+     */
+    protected void drawShadow(Graphics2D g)
     {
         g.fillRect(SHAD_SIZE, getHeight(), getWidth(), SHAD_SIZE);
         g.fillRect(getWidth(), SHAD_SIZE, SHAD_SIZE, getHeight());
-        //Utility.drawThickLine(g, getWidth() - HANDLE_SIZE, getHeight(),
-        //                      getWidth(), getHeight() - HANDLE_SIZE, 3);
     }
 
-    void drawBorders(Graphics2D g)
+    /**
+     * Draw the borders of this target.
+     */
+    protected void drawBorders(Graphics2D g)
     {
         int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
         Utility.drawThickRect(g, 0, 0, getWidth(), getHeight(), thickness);

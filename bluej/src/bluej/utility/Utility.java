@@ -15,7 +15,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: Utility.java 1824 2003-04-10 21:19:18Z mik $
  */
 public class Utility
 {
@@ -27,32 +27,6 @@ public class Utility
         r = (r > 0) ? r : -r;
 
         return min + (r % (max - min));
-    }
-
-    /**
-     ** Draw a thick line - one of the (many) useful things missing from the AWT
-     **/
-    public static void drawThickLine(Graphics g, int x1, int y1, int x2, int y2, int thickness)
-    {
-        // Note: there is some subtlety here to do with rounding
-        double perp = Math.atan2(-(y1 - y2), x1 - x2) + Math.PI / 2;
-        int[] xPoints = new int[4];
-        int[] yPoints = new int[4];
-        int ldx = (int)(thickness * Math.cos(perp)) / 2;
-        int ldy = (int)(thickness * Math.sin(perp)) / 2;
-        int rdx = (int)(thickness * Math.cos(perp));
-        int rdy = (int)(thickness * Math.sin(perp));
-
-        xPoints[0] = x1 - ldx;
-        yPoints[0] = y1 + ldy;
-        xPoints[1] = x2 - ldx;
-        yPoints[1] = y2 + ldy;
-        xPoints[2] = xPoints[1] + rdx;
-        yPoints[2] = yPoints[1] - rdy;
-        xPoints[3] = xPoints[0] + rdx;
-        yPoints[3] = yPoints[0] - rdy;
-
-        g.fillPolygon(xPoints, yPoints, 4);
     }
 
     /**

@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1761 2003-04-08 06:02:43Z bquig $
+ * @version $Id: ClassTarget.java 1824 2003-04-10 21:19:18Z mik $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -1043,7 +1043,6 @@ public class ClassTarget extends EditableTarget
 
     /**
      * Draws UML specific parts of the representation of this ClassTarget.
-     *
      */
     private void drawUMLStyle(Graphics2D g)
     {
@@ -1066,35 +1065,23 @@ public class ClassTarget extends EditableTarget
             String stereotypeLabel = STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE;
             Font stereotypeFont = original.deriveFont((float)(original.getSize() - 2));
             g.setFont(stereotypeFont);
-            Utility.drawCentredText(g, stereotypeLabel,
-                                    TEXT_BORDER, currentY,
-                    getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
-            currentY += TEXT_HEIGHT -2;
+            Utility.drawCentredText(g, stereotypeLabel, TEXT_BORDER, currentY,
+                                    getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
+            currentY += TEXT_HEIGHT - 2;
         }
         g.setFont(original);
 
-        Utility.drawCentredText(g, getIdentifierName(),
-                                TEXT_BORDER, currentY,
-                getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
-        currentY += ( TEXT_HEIGHT);
+        Utility.drawCentredText(g, getIdentifierName(), TEXT_BORDER, currentY,
+                                getWidth() - 2 * TEXT_BORDER, TEXT_HEIGHT);
+        currentY += TEXT_HEIGHT;
         g.drawLine(0, currentY, getWidth(), currentY);
     }
 
     /**
      * Redefinition of the method found in Target.
-     * It draws a shadow around the ClassTarget
+     * It draws a border around the ClassTarget
      */
-   void drawShadow(Graphics2D g)
-    {
-        g.fillRect(SHAD_SIZE, getHeight(), getWidth(), SHAD_SIZE);
-        g.fillRect(getWidth(), SHAD_SIZE, SHAD_SIZE, getHeight());
-    }
-
-    /**
-     * Redefinition of the method found in Target.
-     * It draws a shadow around the ClassTarget
-     */
-    void drawBorders(Graphics2D g)
+    protected void drawBorders(Graphics2D g)
     {
         int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
         Utility.drawThickRect(g, 0, 0, getWidth(), getHeight(), thickness);
