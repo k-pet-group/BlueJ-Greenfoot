@@ -23,7 +23,8 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 677 2000-09-01 12:37:28Z ajp $
+ * @author  Bruce Quig
+ * @version $Id: Project.java 788 2001-03-02 04:04:20Z bquig $
  */
 public class Project
     implements BlueJEventListener
@@ -123,7 +124,6 @@ public class Project
         else
             proj.initialPackageName = startingPackageName;
 
-
         return proj;
     }
 
@@ -176,6 +176,35 @@ public class Project
             }
         }
         return false;
+    }
+
+    /**
+     * returns the number of open projects
+     */
+    public static int getOpenProjectCount()
+    {
+        return projects.size();
+    }
+
+    /**
+     * workaround method to get a project from the project list.
+     * Added so that if only one project is open you could call this
+     * to access that project.  This was added to allow an inspector window
+     * created from within the debugger to access custom inspectors for a 
+     * project.
+     * @return an open project (may return null if no projects open)
+     *
+     */
+    public static Project getProject()
+    {
+        
+        if(projects.size() == 1) {
+            Collection projectColl = projects.values();
+            Iterator it = projectColl.iterator();
+            if(it.hasNext())
+                return (Project)it.next();
+        }
+        return null;
     }
 
     /* ------------------- end of static declarations ------------------ */
