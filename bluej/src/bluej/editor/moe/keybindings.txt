@@ -1,0 +1,67 @@
+default key bindings in moe
+
+     SHORTCUT                   SHIFT-SHORTCUT 
+a    (select-all)
+b    toggle-breakpoint
+c    copy-to-clipboard
+d    describe-key
+e
+f    find
+g    find-next                  find-next-backward
+h    (reserved on MacOS)
+i    
+j    toggle-interface-view
+k    compile
+l
+m    insert-method
+n
+o    
+p    print
+q    (on MacOS: Quit)
+r    replace
+s    save
+t
+u
+v    paste-from-clipboard
+w    close
+x    cut-to-clipboard
+y    redo
+z    undo
+
+
+           PLAIN                   SHIFT
+enter      (insert-break)          insert-break-and-indent
+tab        insert-spaced-tab       indent
+backspace  delete-previous
+delete     delete-next
+
+F1
+F2       copy-line
+F3       paste-from-clipboard
+F4       cut-line
+F5       deindent-block
+F6       indent-block
+F7       uncomment-block
+F8       comment-block
+F9
+F10
+F11
+F12
+
+Cursor block without shift:
+
+               SHORTCUT             ALT                    SHORTCUT-ALT
+      Left     carent-begin-line    delete-previous        cut-word
+      Right    caret-end-line       delete-next            cut-end-of-word
+      Up       caret-begin          paste-from-clipboard   
+      Down     carent-end
+
+with shift:
+                                    SHORTCUT               ALT
+Shift-Left     selection-back       selection-begin-line   cut-line
+Shift-Right    selection-forward    selection-end-line     cut-end-of-line
+Shift-Up       selection-up         selection-begin
+Shift-Down     selection-down       selection-end
+
+Note: SHORTCUT is the default shortcut key (CTRL on Windows, Command on Mac)
+      ALT is the alternate shortcut key (ALT on Windows, CTRL on Mac)
