@@ -71,6 +71,7 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 #bluej.help.courseInfo.label=CS1 course info
 #bluej.help.courseInfo.url=http://www.bluej.org/help/archive.html
 
+
 #####################################################################
 ## User's home directory. This is also defined by Java, and if that's
 ## fine for you, don't specify this property. This property, if
@@ -200,6 +201,7 @@ bluej.classTemplates = stdclass abstract interface applet
 #bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
+
 #######################################################################
 ## Fonts. You can choose a font size for most of the interface
 ## components, and a font face and size for the editor. The editor font
@@ -276,6 +278,8 @@ bluej.editor.displayLineNumbers=false
 bluej.editor.makeBackup=false
 bluej.editor.matchBrackets=true
 
+bluej.editor.tabsize=4
+
 
 #######################################################################
 ### Colours. All are specified as RGB values.
@@ -329,13 +333,6 @@ bluej.compiler.type=internal
 
 bluej.compiler.source14=false
 
-#####################################################################
-## Editor related preferences.
-## Moe specific options should go in moe.defs
-## The following are more generalised preferences
-#####################################################################
-
-bluej.editor.tabsize=4
 
 #####################################################################
 ## Options for starting the internal virtual machine.
