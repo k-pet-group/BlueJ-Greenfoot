@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2965 2004-08-31 05:58:15Z davmac $
+ * @version $Id: JavaUtils15.java 2967 2004-08-31 06:43:25Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -188,6 +188,12 @@ public class JavaUtils15 extends JavaUtils {
     {
         Type rt = method.getGenericReturnType();
         return genTypeFromType(rt);
+    }
+    
+    public GenType getRawReturnType(Method method)
+    {
+        Class c = method.getReturnType();
+        return JavaUtils14.genTypeFromClass(c);
     }
     
     public List getTypeParams(Method method)

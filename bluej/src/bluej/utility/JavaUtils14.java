@@ -13,7 +13,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 2965 2004-08-31 05:58:15Z davmac $
+ * @version $Id: JavaUtils14.java 2967 2004-08-31 06:43:25Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -94,6 +94,11 @@ public class JavaUtils14 extends JavaUtils
     {
         Class retType = method.getReturnType();
         return genTypeFromClass(retType);
+    }
+    
+    public GenType getRawReturnType(Method method)
+    {
+        return getReturnType(method);
     }
 
     public List getTypeParams(Method method)

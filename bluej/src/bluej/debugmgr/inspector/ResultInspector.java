@@ -26,7 +26,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2965 2004-08-31 05:58:15Z davmac $
+ * @version $Id: ResultInspector.java 2967 2004-08-31 06:43:25Z davmac $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -138,14 +138,14 @@ public class ResultInspector extends Inspector
         // We know it's a MethodView, as we don't inspect the result of a
         // constructor!
         MethodView methodView = (MethodView) expressionInformation.getMethodView();
+        Method m = methodView.getMethod();
 
         if (instanceType.isRaw()) {
-            resultType = new GenTypeClass(new JavaReflective(methodView.getReturnType().getViewClass()));
+            resultType = JavaUtils.getJavaUtils().getRawReturnType(m);
             return;
         }
         
         // Find the expected return type
-        Method m = methodView.getMethod();
         GenType methodReturnType = JavaUtils.getJavaUtils().getReturnType(m);
 
         // TODO: infer type of generic parameters based on the actual

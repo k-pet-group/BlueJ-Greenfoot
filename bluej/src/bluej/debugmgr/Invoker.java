@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 2965 2004-08-31 05:58:15Z davmac $
+ * @version $Id: Invoker.java 2967 2004-08-31 06:43:25Z davmac $
  */
 
 public class Invoker
@@ -190,18 +190,11 @@ public class Invoker
         // from the object's class to that class.
         this.objName = objWrapper.getName();
         this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName());
+        if (typeMap == null)
+            typeMap = new HashMap();
         Reflective superRefl = new JavaReflective(member.getDeclaringView().getViewClass());
-        if (typeMap != null)
-            GenTypeClass.addDefaultParamBases(typeMap, superRefl);
-        else {
-            // DAV what the @#$! was I trying to do here?
-            //typeMap = new HashMap();
-            //GenTypeClass objGenType = objWrapper.getObject().getGenType();
-            //Reflective objRefl = objGenType.getReflective();
-            //GenTypeClass.addDefaultParamBases(typeMap, objRefl);
-            //if (typeMap.isEmpty())
-            //    typeMap = null;
-        }
+        GenTypeClass.addDefaultParamBases(typeMap, superRefl);
+
         executionEvent = ExecutionEvent.createObjectMethod(objName);
         
         constructing = false;
