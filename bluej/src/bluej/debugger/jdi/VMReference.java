@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2372 2003-11-19 03:39:40Z ajp $
+ * @version $Id: VMReference.java 2380 2003-11-24 02:26:30Z ajp $
  *
  * The startup process is as follows:
  *
@@ -876,7 +876,6 @@ class VMReference
      * @return  null if there was no problem, or an error string
      */
     String setBreakpoint(String className, int line)
-    	throws AbsentInformationException
     {
 		Location location = loadClassesAndFindLine(className, line);
 		if (location == null) {
@@ -900,7 +899,6 @@ class VMReference
      * @return  null if there was no problem, or an error string
      */
     String clearBreakpoint(String className, int line)
-    	throws AbsentInformationException
     {
 		Location location = loadClassesAndFindLine(className, line);
 		if (location == null) {
