@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2518 2004-05-04 04:45:58Z davmac $
+ * @version $Id: VMReference.java 2596 2004-06-12 19:42:55Z mik $
  *
  * The startup process is as follows:
  *
@@ -482,7 +482,7 @@ class VMReference
         execServerMethods.put(ExecServer.NEW_LOADER,
             findMethodByName(serverClass, ExecServer.NEW_LOADER));
         execServerMethods.put(ExecServer.LOAD_CLASS,
-        	findMethodByName(serverClass, ExecServer.LOAD_CLASS));
+        		findMethodByName(serverClass, ExecServer.LOAD_CLASS));
         execServerMethods.put(ExecServer.ADD_OBJECT,
             findMethodByName(serverClass, ExecServer.ADD_OBJECT));
 //		BeanShell        
@@ -1241,7 +1241,7 @@ class VMReference
      * and are loaded ie ExecServer etc.
      */
     private ReferenceType findClassByName(String className, ClassLoaderReference clr)
-    	throws ClassNotFoundException
+        throws ClassNotFoundException
     {
         // find the class
         List list = machine.classesByName(className);
