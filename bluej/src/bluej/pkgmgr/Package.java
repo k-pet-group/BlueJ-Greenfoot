@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 506 2000-05-24 05:58:24Z ajp $
+ * @version $Id: Package.java 507 2000-05-24 06:36:15Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -196,6 +196,7 @@ public class Package extends Graph
         callHistory = new CallHistory(HISTORY_LENGTH);
         //if(Graph.BLUE.equals(notationStyle))
         //    isUML = false;
+        load();
     }
 
     public boolean isUnnamedPackage()

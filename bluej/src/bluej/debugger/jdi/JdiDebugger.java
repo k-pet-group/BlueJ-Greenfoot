@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: JdiDebugger.java 507 2000-05-24 06:36:15Z ajp $
  *
  * The startup process is as follows:
  *
@@ -72,7 +72,7 @@ public final class JdiDebugger extends Debugger
     static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
 
     // options for the remote virtual machine
-    static final String VM_OPTIONS = "";
+    static final String VM_OPTIONS = "-classic";
 
     // the field name of the static field within that class that hold the
     // server object

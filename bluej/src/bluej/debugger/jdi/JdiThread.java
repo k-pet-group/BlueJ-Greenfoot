@@ -15,7 +15,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: JdiThread.java 507 2000-05-24 06:36:15Z ajp $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -299,17 +299,13 @@ public final class JdiThread extends DebuggerThread
 
     private void doStep(int depth)
     {
-        System.out.println("clearStep");
         clearPreviousStep(rt);
         StepRequest request = eventReqMgr.createStepRequest(rt,
 					StepRequest.STEP_LINE, depth);
         // Make sure the step event is done only once
         request.addCountFilter(1);
-        System.out.println("request.enable");
         request.enable();
-        System.out.println(rt.status());
         rt.resume();
-        System.out.println("doStep end");
     }
 
     public void cont()
@@ -345,9 +341,7 @@ public final class JdiThread extends DebuggerThread
             StepRequest request = (StepRequest)iter.next();
 
             if (request != null && request.thread() != null) {
-                System.out.println("clearing previous step");
                 if (request.thread().equals(thread)) {
-                System.out.println("clearing previous step definately " + request.isEnabled());
                     eventReqMgr.deleteEventRequest(request);
                     break;
                 }
