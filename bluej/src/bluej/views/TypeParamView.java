@@ -6,7 +6,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * Represents a formal type parameter for a generic class
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: TypeParamView.java 2624 2004-06-18 14:31:46Z polle $
+ * @version $Id: TypeParamView.java 2635 2004-06-19 16:27:32Z polle $
  */
 public class TypeParamView
 {
@@ -38,21 +38,6 @@ public class TypeParamView
     }
 
     /**
-     * Returns the bound for this type parameter. 
-     * 
-     * @return the bound, or null if no bound
-     */
-    public String getBound() {
-        String bound = paramType.getBound().toString(false);
-        //TODO maybe move this check to GenTypeXXX or somewhere else
-        if (bound.equals("java.lang.Object")) {
-            return null;
-        } else {
-            return paramType.getBound().toString(true);
-        }
-    }
-
-    /**
      * @return the View of the class or interface that declares this member.
      */
     public View getDeclaringView() {
@@ -64,10 +49,6 @@ public class TypeParamView
      * Eaxample: T extends Integer
      */
     public String toString() {
-        if (getBound() != null) {
-            return getName() + " extends " + getBound();
-        } else {
-            return getName();
-        }
+        return paramType.toString(true);
     }
 }

@@ -7,7 +7,7 @@ import bluej.utility.JavaUtils;
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 2582 2004-06-10 04:32:41Z davmac $
+ * @version $Id: ConstructorView.java 2635 2004-06-19 16:27:32Z polle $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -53,9 +53,9 @@ public final class ConstructorView extends CallableView
      * Get a short String describing this member. A description is similar
      * to the signature, but it has parameter names in it instead of types.
      */
-    public String getShortDesc() {
-        Class[] params = cons.getParameterTypes();
-        return makeDescription(cons.getName(), params, false);
+    public String getShortDesc() 
+    {
+        return JavaUtils.getJavaUtils().getShortDesc(cons, getParamNames());       
     }
 
     /**
@@ -63,9 +63,17 @@ public final class ConstructorView extends CallableView
      * similar to the short description, but it has type names and parameters
      * included.
      */
-    public String getLongDesc() {
-        Class[] params = cons.getParameterTypes();
-        return makeDescription(cons.getName(), params, true);
+    public String getLongDesc() 
+    {
+        return JavaUtils.getJavaUtils().getLongDesc(cons, getParamNames());
+    }
+    
+    private String[] getParamNames() 
+    {
+        Comment c = getComment();
+        if( c == null )
+            return null;
+        return c.getParamNames();
     }
 
     /**

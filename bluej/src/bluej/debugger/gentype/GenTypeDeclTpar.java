@@ -18,5 +18,19 @@ public class GenTypeDeclTpar extends GenTypeTpar {
     public GenTypeSolid getBound() {
         return upperBound;
     }
+    
+   
+    /**
+     * Returns a string describing this type parameter. This includes name and bound as written in Java. <br>
+     * Example: T extends Integer
+     */
+    public String toString(boolean stripPrefix) {
+        String bound = getBound().toString(false);
+        if (bound.equals("java.lang.Object")) {
+            return getTparName();
+        } else {
+            return getTparName() + " extends " + getBound();
+        }
+    }
 
 }

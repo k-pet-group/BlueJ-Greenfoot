@@ -2,6 +2,7 @@ package bluej.utility;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import bluej.debugger.gentype.*;
@@ -10,7 +11,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2623 2004-06-18 07:15:53Z davmac $
+ * @version $Id: JavaUtils15.java 2635 2004-06-19 16:27:32Z polle $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -36,7 +37,41 @@ public class JavaUtils15 extends JavaUtils {
         Type [] params = method.getGenericParameterTypes();
         return makeDescription(name, params, paramnames, method.isVarArgs(), true);
     }
+    
+    public String getShortDesc(Constructor constructor, String [] paramnames)
+    {
+        String name = constructor.getName();        
+        name += getTypeParams(constructor);        
+        Type[] params = constructor.getGenericParameterTypes();
+        return makeDescription(name, params, paramnames, constructor.isVarArgs(), false);
+    }
 
+    public String getLongDesc(Constructor constructor, String [] paramnames)
+    {
+        String name = constructor.getName();        
+        name += getTypeParams(constructor); 
+        Type [] params = constructor.getGenericParameterTypes();
+        return makeDescription(name, params, paramnames, constructor.isVarArgs(), true);
+    }
+    
+    private String getTypeParams(Constructor constructor)
+    {
+        String typeString = "";
+        List typeParams = getTypeParams(constructor.getDeclaringClass());
+        if(typeParams.size()>0) {
+            typeString += "<";
+	        for (Iterator iter = typeParams.iterator(); iter.hasNext();) {
+	            GenTypeDeclTpar element = (GenTypeDeclTpar) iter.next();
+	            typeString += element.toString(true);
+	            if(iter.hasNext()) {
+	                typeString += ",";
+	            }
+	        }
+	        typeString += ">";
+        }
+        return typeString;
+    }
+    
     public String getSignature(Constructor cons)
     {
         String name = JavaNames.getBase(cons.getName());

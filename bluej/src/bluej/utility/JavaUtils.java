@@ -15,7 +15,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2623 2004-06-18 07:15:53Z davmac $
+ * @version $Id: JavaUtils.java 2635 2004-06-19 16:27:32Z polle $
  */
 public abstract class JavaUtils {
 
@@ -77,6 +77,22 @@ public abstract class JavaUtils {
      * included.
      */
     abstract public String getLongDesc(Method method, String [] paramnames);
+    
+    /**
+     * Get a "short description" of a constructor. This is like the signature,
+     * but substitutes the parameter names for their types.
+     * 
+     * @param constructor   The constructor to get the description of
+     * @return The description.
+     */
+    abstract public String getShortDesc(Constructor constructor, String [] paramnames);
+    
+    /**
+     * Get a long String describing the constructor. A long description is
+     * similar to the short description, but it has type names and parameters
+     * included.
+     */
+    abstract public String getLongDesc(Constructor constructor, String [] paramnames);
     
     abstract public boolean isVarArgs(Constructor cons);
     
