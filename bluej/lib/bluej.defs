@@ -178,6 +178,10 @@ bluej.macos.screenmenubar=true
 ##
 ## This setting should not be uncommented except in that situation.
 ##
+## NOTE: this setting is _only_ used under windows, and only when
+##       BlueJ is launched with the standard windows launcher (not if
+##       launched using a windows batch file)
+##
 ## The commented out examples below are just to show the
 ## syntax used
 #####################################################################
