@@ -88,9 +88,12 @@ public class ClassDiagramPrinter implements Printable
      */
     public int print(Graphics g, PageFormat pageFormat, int pageIndex)
     {
-        if(pageIndex >= pages)
+        System.out.println("printing "+pageIndex);
+        if(pageIndex >= pages) {
+            System.out.println("  no page ");
             return Printable.NO_SUCH_PAGE;
-
+        }
+        
         Rectangle printArea = getPrintArea(pageFormat);
         
         if(currentColumn < pageColumns) {
@@ -102,7 +105,9 @@ public class ClassDiagramPrinter implements Printable
             currentRow++;
             currentColumn = 0;
         }
-                 
+        g.setColor(Color.BLACK);
+        g.drawLine(10, 10, 100, 100);
+
         printTitle(g, pageFormat, pageIndex + 1);
 
         g.translate(printArea.x - currentColumn * printArea.width,
@@ -137,8 +142,6 @@ public class ClassDiagramPrinter implements Printable
      */
     private void printTitle(Graphics g, PageFormat pageFormat, int pageNum)
     {
-
-        FontMetrics tfm = g.getFontMetrics(printTitleFont);
         FontMetrics ifm = g.getFontMetrics(printInfoFont);
         Rectangle printArea = new Rectangle((int)pageFormat.getImageableX(),
                                             (int)pageFormat.getImageableY(),
