@@ -14,7 +14,7 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1783 2003-04-10 08:22:40Z damiano $
+ * @version    $Id: Submitter.java 1785 2003-04-10 08:30:07Z damiano $
  */
 public class Submitter extends Extension implements MenuGenerator, BluejEventListener
 {
@@ -33,7 +33,7 @@ public class Submitter extends Extension implements MenuGenerator, BluejEventLis
         stat.bluej = i_bluej;
         stat.aDbg = new Flexdbg();
 
-        int debugLevel = Utility.convStringToInt(stat.bluej.getExtPropString("debug.level", ""), Flexdbg.NOTICE);
+        int debugLevel = Utility.convStringToInt(stat.bluej.getExtensionPropertyString("debug.level", ""), Flexdbg.NOTICE);
         stat.aDbg.setDebugLevel(debugLevel);
         stat.aDbg.setServiceMask(Flexdbg.ALL_SERVICES);
         stat.aDbg.trace(Stat.SVC_PROP, "Submitter.startup: CALLED");

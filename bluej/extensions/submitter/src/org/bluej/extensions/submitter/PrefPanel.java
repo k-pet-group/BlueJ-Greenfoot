@@ -54,7 +54,7 @@ public class PrefPanel implements PreferenceGenerator
      */
     private void saveOneValue ( String propKey, String propVal )
         {
-        stat.bluej.setExtPropString(propKey,propVal);
+        stat.bluej.setExtensionPropertyString(propKey,propVal);
         stat.globalProp.setProperty(propKey,propVal);
         }
 
@@ -75,15 +75,15 @@ public class PrefPanel implements PreferenceGenerator
     public void loadValues()
         {
 
-        String propVal = stat.bluej.getExtPropString(GlobalProp.SMTPHOST_VAR,"");
+        String propVal = stat.bluej.getExtensionPropertyString(GlobalProp.SMTPHOST_VAR,"");
         smtphost.setText(propVal);
         stat.globalProp.setProperty(GlobalProp.SMTPHOST_VAR,propVal);
         
-        propVal = stat.bluej.getExtPropString(GlobalProp.USERADDR_VAR,System.getProperty("user.name","")+"@");
+        propVal = stat.bluej.getExtensionPropertyString(GlobalProp.USERADDR_VAR,System.getProperty("user.name","")+"@");
         useraddr.setText(propVal);
         stat.globalProp.setProperty(GlobalProp.USERADDR_VAR,propVal);
 
-        propVal = stat.bluej.getExtPropString(GlobalProp.USERNAME_VAR,System.getProperty("user.name",""));
+        propVal = stat.bluej.getExtensionPropertyString(GlobalProp.USERNAME_VAR,System.getProperty("user.name",""));
         username.setText(propVal);
         stat.globalProp.setProperty(GlobalProp.USERNAME_VAR,propVal);
         }

@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1781 2003-04-10 08:10:43Z damiano $
+ * @version $Id: BlueJ.java 1785 2003-04-10 08:30:07Z damiano $
  */
 
 public class BlueJ
@@ -293,14 +293,14 @@ public class BlueJ
 
      /**
       * Returns a property from Extensions properties file, includes a default value.
-      * You MUST use the setExtPropString to write the property that you want stored.
+      * You must use the setExtensionPropertyString to write the property that you want stored.
       * You can then come back and retrieve it using this function.
       * 
       * @param property The name of the required global property
       * @param def The default value to use if the property cannot be found
       * @return the value of that property
       */
-    public String getExtPropString (String property, String def)
+    public String getExtensionPropertyString (String property, String def)
     {
         String thisKey = myWrapper.getSettingsString ( property );
         return Config.getPropString (thisKey, def);
@@ -308,12 +308,12 @@ public class BlueJ
      
      /**
       * Sets a property into Extensions properties file.
-      * The property name does NOT needs to be fully qulified since a prefix will be prepended to it.
+      * The property name does not needs to be fully qulified since a prefix will be prepended to it.
       * 
       * @param property The name of the required global property
       * @param value the required value of that property.
       */
-    public void setExtPropString (String property, String value)
+    public void setExtensionPropertyString (String property, String value)
     {
         String thisKey = myWrapper.getSettingsString ( property );
         Config.putPropString (thisKey, value);
