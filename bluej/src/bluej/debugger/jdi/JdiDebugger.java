@@ -31,11 +31,11 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2689 2004-06-30 00:57:40Z davmac $
+ * @version $Id: JdiDebugger.java 2808 2004-07-19 05:48:03Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
-    private static final int loaderPriority = Thread.currentThread().getPriority() - 2;
+    private static final int loaderPriority = Thread.NORM_PRIORITY - 2;
     
 	// the synch object for loading.
 	// See the inner class MachineLoaderThread (at the bottom of this source)
