@@ -10,19 +10,27 @@ import bluej.utility.Queue;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: CompilerThread.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: CompilerThread.java 2100 2003-07-08 11:49:41Z mik $
  */
 public class CompilerThread extends Thread
 {
-    Queue jobs;
-    boolean busy;
+    private Queue jobs;
+    private boolean busy;
 	
+    /**
+     * Create a new compiler thread that holds its own job queue.
+     */
     public CompilerThread()
     {
         super(Config.getString("compiler.thread.title"));
         jobs = new Queue();
     }
 	
+    /**
+     * Start running this thread. The compiler thread will run infinitely in a loop.
+     * It will compile jobs as long as there are any jobs pending, and then wait
+     * for new jobs to be scheduled. New jobs are scheduled using the addJob method.
+     */
     public void run()
     {
         Job job;
@@ -43,6 +51,10 @@ public class CompilerThread extends Thread
         }
     }
 
+    /**
+     * Add a new job to this thread's job queue. The job will be processed by
+     * this thread some tim ein the near future. This method returns immediately.
+     */
     public synchronized void addJob(Job job)
     {
         jobs.enqueue(job);

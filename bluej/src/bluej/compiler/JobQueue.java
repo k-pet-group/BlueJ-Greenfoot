@@ -10,7 +10,7 @@ import bluej.utility.Debug;
  * compiler.
  *
  * @author  Michael Cahill
- * @version $Id: JobQueue.java 2096 2003-07-04 14:52:01Z mik $
+ * @version $Id: JobQueue.java 2100 2003-07-08 11:49:41Z mik $
  */
 public class JobQueue
 {
@@ -71,6 +71,9 @@ public class JobQueue
                               classPath, destDir));
     }
 
+    /**
+     * Wait until the compiler job queue is empty, then return.
+     */
     public void waitForEmptyQueue()
     {
         while (thread.isBusy()) {

@@ -33,7 +33,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2097 2003-07-07 18:50:52Z damiano $
+ * @version $Id: PkgMgrFrame.java 2100 2003-07-08 11:49:41Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -379,6 +379,9 @@ public class PkgMgrFrame extends JFrame
 		}
 	}
 
+	/**
+	 * Display an error message in a dialogue attached to the specified package frame.
+	 */
     public static void showError(Package sourcePkg, String msgId)
     {
         PkgMgrFrame pmf = findFrame(sourcePkg);
@@ -387,6 +390,9 @@ public class PkgMgrFrame extends JFrame
             DialogManager.showError(pmf, msgId);
     }
 
+	/**
+	 * Display a message in a dialogue attached to the specified package frame.
+	 */
     public static void showMessage(Package sourcePkg, String msgId)
     {
         PkgMgrFrame pmf = findFrame(sourcePkg);
@@ -395,6 +401,10 @@ public class PkgMgrFrame extends JFrame
             DialogManager.showMessage(pmf, msgId);
     }
 
+	/**
+	 * Display a parameterised message in a dialogue attached to the specified 
+     * package frame.
+	 */
     public static void showMessageWithText(Package sourcePkg, String msgId, String text)
     {
         PkgMgrFrame pmf = findFrame(sourcePkg);
@@ -409,14 +419,12 @@ public class PkgMgrFrame extends JFrame
     public static void extensionToolsMenuRevalidate ()
     {
         // What I need to do is to call a resync on all the frames, in swing thread
-        EventQueue.invokeLater(new Runnable () 
-        {
+        EventQueue.invokeLater(new Runnable ()  {
             public void run ()
             {
                 fixAllToolsMenu ();
             }
         });
-
     }
 
     /**
@@ -425,10 +433,10 @@ public class PkgMgrFrame extends JFrame
     private static void fixAllToolsMenu()
     {
         // We have to be extra safe since this may be called any time
-        if ( frames == null ) return;
+        if (frames == null) 
+            return;
 
-        for ( Iterator iter=frames.iterator(); iter.hasNext(); )
-        {
+        for (Iterator iter=frames.iterator(); iter.hasNext(); )  {
             PkgMgrFrame aFrame = (PkgMgrFrame)iter.next();
             aFrame.menuManager.revalidate(aFrame.toolsMenu.getPopupMenu());
         }

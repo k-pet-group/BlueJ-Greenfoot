@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2096 2003-07-04 14:52:01Z mik $
+ * @version $Id: JdiDebugger.java 2100 2003-07-08 11:49:41Z mik $
  */
 public class JdiDebugger extends Debugger
 {
@@ -97,7 +97,7 @@ public class JdiDebugger extends Debugger
 		// remote virtual machine in the background
 		machineLoader = new MachineLoaderThread();
 		// lower priority to improve GUI response time
-		machineLoader.setPriority(Thread.currentThread().getPriority() - 2);
+        machineLoader.setPriority(Thread.currentThread().getPriority() - 2);
 		machineLoader.start();	
 	}
 	
@@ -180,8 +180,10 @@ public class JdiDebugger extends Debugger
 	 */
     public void newClassLoader(String classPath)
     {
-		usedNames.clear();
+		if (!vmReady)
+			return;
 
+		usedNames.clear();
 		getVM().newClassLoader(classPath);
     }
 

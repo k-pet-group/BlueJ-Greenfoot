@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2096 2003-07-04 14:52:01Z mik $
+ * @version $Id: Package.java 2100 2003-07-08 11:49:41Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1912,7 +1912,7 @@ public final class Package extends Graph
 	        ExtensionsManager.get().delegateEvent(aCompileEvent);
 	   
 	        setStatus(compiling);
-	
+
 	        if (sources.length > 0) {
 	            getProject().removeLocalClassLoader();
 	            getProject().newRemoteClassLoader();
