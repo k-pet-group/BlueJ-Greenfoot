@@ -3,6 +3,7 @@ package bluej;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
+import java.util.List;
 import java.util.*;
 
 import javax.swing.ImageIcon;
@@ -35,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2814 2004-07-23 04:22:20Z bquig $
+ * @version $Id: Config.java 2815 2004-07-23 04:24:30Z bquig $
  */
 
 public final class Config
