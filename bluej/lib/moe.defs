@@ -26,7 +26,7 @@ menubar = class edit tools option
 #   a separator.
 
 class = save reload - page-setup print - close
-edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - comment uncomment - insert-method
+edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - indent-block deindent-block comment-block uncomment-block - insert-method
 tools = find find-next find-next-backward replace - compile toggle-breakpoint - toggle-interface-view
 option = key-bindings preferences
 

@@ -175,8 +175,10 @@ editor.redoLabel = Redo
 editor.cut-to-clipboardLabel = Cut
 editor.copy-to-clipboardLabel = Copy
 editor.paste-from-clipboardLabel = Paste
-editor.commentLabel = Comment
-editor.uncommentLabel = Uncomment
+editor.indent-blockLabel = Indent more
+editor.deindent-blockLabel = Indent less
+editor.comment-blockLabel = Comment
+editor.uncomment-blockLabel = Uncomment
 editor.insert-methodLabel = Insert method
 
 editor.findLabel = Find...

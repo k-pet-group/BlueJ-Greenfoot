@@ -103,13 +103,18 @@ browserCmd2=netscape $
 ## Documentation generation. This specifies the command used for
 ## generating documentation and the directory name within the project
 ## directory where the documentation is stored.
+## Most of the options are sensible as they are. If you want private
+## methods included in the documentation, change "-package" in the
+## options to "-private".
 ## If "linkToStandardLib" is true, we will try to use the URL specified
 ## above as "bluej.url.javaStdLib" to create links. If that URL is
 ## not accessible, documentation generation will fail. Therefore, if
-## you want to work offline, set "linkToStandardLib" to false.
+## you want to work offline, set "linkToStandardLib" to false (you
+## can also do that from within BlueJ in the Preferences dialog).
 #######################################################################
 
 doctool.command=javadoc
+doctool.options=-author -version -nodeprecated -package
 doctool.outputdir=doc
 doctool.linkToStandardLib=true
 
