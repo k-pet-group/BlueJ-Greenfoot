@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 559 2000-06-19 02:24:16Z ajp $
+ * @version $Id: ClassTarget.java 565 2000-06-19 05:40:01Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -465,14 +465,15 @@ public class ClassTarget extends EditableTarget
         setState(Target.S_INVALID);
     }
 
-    public static void enforcePackage(File sourceFile, String packageName) throws IOException
+    public void enforcePackage(String packageName) throws IOException
     {
         ClassInfo info;
 
-        packageName = packageName.trim();
+        if(!JavaNames.isQualifiedIdentifier(packageName))
+            throw new IllegalArgumentException();
 
         try {
-            info = ClassParser.parse(sourceFile);
+            info = ClassParser.parse(getSourceFile());
         }
         catch(Exception e) {
             return;
@@ -502,7 +503,7 @@ public class ClassTarget extends EditableTarget
         else {
             if (info.hasPackageStatement()) {
                 // it is trivial to make the package name the same
-                if (info.getPackage() == packageName)
+                if (info.getPackage().equals(packageName))
                     return;
                 // we must change just the package name
                 fourCases = 3;
@@ -513,8 +514,10 @@ public class ClassTarget extends EditableTarget
             }
         }
 
-        FileEditor fed = new FileEditor(sourceFile);
+        // this allows us to make the changes to the file
+        FileEditor fed = new FileEditor(getSourceFile());
 
+        // first delete or insert the semicolon
         if (fourCases == 1 || fourCases == 4) {
             Selection selSemi = info.getPackageSemiSelection();
 
@@ -525,6 +528,7 @@ public class ClassTarget extends EditableTarget
                 fed.replaceSelection(selSemi, ";");
         }
 
+        // then delete or insert the package name
         Selection selName = info.getPackageNameSelection();
 
         if (fourCases == 1)
@@ -532,8 +536,8 @@ public class ClassTarget extends EditableTarget
         else
             fed.replaceSelection(selName, packageName);
 
+        // finally delete or insert the package statement
         if (fourCases == 1 || fourCases == 4) {
-
             Selection selStatement = info.getPackageStatementSelection();
 
             if (fourCases == 1)
@@ -542,6 +546,7 @@ public class ClassTarget extends EditableTarget
                 fed.replaceSelection(selStatement, "package ");
         }
 
+        // save changes back to disk
         fed.save();
     }
 
