@@ -11,6 +11,7 @@ import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.ViewFilter;
+import bluej.classmgr.ClassMgr;
 
 import java.util.Vector;
 
@@ -20,27 +21,27 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 /**
- * 
+ *
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 824 2001-03-28 07:04:24Z mik $
+ * @version $Id: LibraryCallDialog.java 1008 2001-11-16 06:58:07Z ajp $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
 {
-    private static final String[] clickHere = { 
+    private static final String[] clickHere = {
         "    ",
         "    " + Config.getString("callLibraryDialog.clickHere1"),
         "    " + Config.getString("callLibraryDialog.clickHere2"),
     };
-    
-    private static final String[] classNotFound = { 
+
+    private static final String[] classNotFound = {
         "    ",
         "    " + Config.getString("callLibraryDialog.classNotFound1"),
         "    " + Config.getString("callLibraryDialog.classNotFound2"),
     };
-    
+
     private JComboBox classField;
     private JList methodList;
     private JButton docButton;
@@ -143,10 +144,10 @@ public class LibraryCallDialog extends JDialog
             displayTextInClassList(clickHere);
             return;
         }
-            
+
         try {
-            cl = Class.forName(className, true, 
-                               ClassLoader.getSystemClassLoader());
+            cl = Class.forName(className, true,
+                               ClassMgr.getBlueJLoader());
         }
         catch(Exception exc) {
             displayTextInClassList(classNotFound);
@@ -191,7 +192,7 @@ public class LibraryCallDialog extends JDialog
     /**
      * Add some methods, filtered by a given view filter, to a vector.
      */
-    public void addMethods(Vector list, CallableView[] methods, 
+    public void addMethods(Vector list, CallableView[] methods,
                             ViewFilter filter)
     {
         for(int i = 0; i < methods.length; i++) {
@@ -238,7 +239,7 @@ public class LibraryCallDialog extends JDialog
         JPanel classPanel = new JPanel(new BorderLayout(4,6));
         {
             classPanel.add(new JLabel(
-                  Config.getString("callLibraryDialog.classLabel")), 
+                  Config.getString("callLibraryDialog.classLabel")),
                   BorderLayout.WEST);
 
             classField = new JComboBox(history.getHistory());
@@ -315,7 +316,7 @@ public class LibraryCallDialog extends JDialog
             });
     }
 
-    /** 
+    /**
      * Helper method to add a button to a panel.
      */
     private JButton addButton(JPanel panel, String label)
