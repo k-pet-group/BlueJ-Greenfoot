@@ -7,7 +7,8 @@ import bluej.testmgr.record.*;
  * Debugger interface implemented by classes interested in the result of an invocation
  *
  * @author  Michael Cahill
- * @version $Id: ResultWatcher.java 2276 2003-11-05 15:02:44Z mik $
+ * @author  Poul Henriksen
+ * @version $Id: ResultWatcher.java 2544 2004-05-24 08:56:02Z polle $
  */
 public interface ResultWatcher
 {
@@ -23,4 +24,13 @@ public interface ResultWatcher
 	 * An invocation has failed - here is the error message
 	 */
 	void putError(String message);
+	
+	/**
+	 * A watcher shuold be able to return information about the result that it
+	 * is watching. T is used to display extra information (about the expression
+	 * that gave the result) when the result is shown.
+	 * 
+	 * @return An object with information on the expression
+	 */
+	public ExpressionInformation getExpressionInformation();
 }

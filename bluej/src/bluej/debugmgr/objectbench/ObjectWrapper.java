@@ -27,7 +27,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2318 2003-11-10 16:39:45Z polle $
+ * @version $Id: ObjectWrapper.java 2544 2004-05-24 08:56:02Z polle $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -481,13 +481,15 @@ public class ObjectWrapper extends JComponent
      * create a watcher to watch out for the result coming back, do the
      * actual invocation, and update open object viewers after the call.
      */
-    private void executeMethod(MethodView method)
+    private void executeMethod(final MethodView method)
     {
         ResultWatcher watcher = null;
 
         pkg.forgetLastSource();
 
         watcher = new ResultWatcher() {
+            private ExpressionInformation expressionInformation = new ExpressionInformation(method,getName());
+            
             public void putResult(DebuggerObject result, String name, InvokerRecord ir)
             {
                 ob.addInteraction(ir);
@@ -498,11 +500,14 @@ public class ObjectWrapper extends JComponent
                                     
                 ResultInspector viewer =
                     ResultInspector.getInstance(result, name, pkg,
-                                           ir, pmf);
+                                           ir, expressionInformation, pmf);
                 BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
                                       viewer.getResult());
             }
             public void putError(String msg) { }
+            public ExpressionInformation getExpressionInformation() {
+                return expressionInformation;
+            }              
         };
 
         Invoker invoker = new Invoker(pmf, method, instanceName, watcher);

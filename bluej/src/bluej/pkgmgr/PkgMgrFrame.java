@@ -47,7 +47,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2516 2004-05-03 08:20:51Z polle $
+ * @version $Id: PkgMgrFrame.java 2544 2004-05-24 08:56:02Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1273,7 +1273,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Interactively call a class (ie static) method or a class constructor
      */
-    private void callMethod(CallableView cv)
+    private void callMethod(final CallableView cv)
     {
         ResultWatcher watcher = null;
 
@@ -1308,10 +1308,16 @@ public class PkgMgrFrame extends JFrame
                     }
                 }
                 public void putError(String msg) { }
+                /**
+                 * We have no use of this information when using the constructor
+                 */
+                public ExpressionInformation getExpressionInformation() {                    
+                    return null;
+                } 
             };
         }
         else if(cv instanceof MethodView) {
-            MethodView mv = (MethodView) cv;
+            final MethodView mv = (MethodView) cv;
 
             // if we are calling a main method then we want to simulate a
             // new launch of an application, so first of all we unload all our
@@ -1326,6 +1332,8 @@ public class PkgMgrFrame extends JFrame
             // that waits for completion of the call and then displays the
             // result (or does nothing if void)
             watcher = new ResultWatcher() {
+                private ExpressionInformation expressionInformation = new ExpressionInformation(mv,getName());
+                
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
                     getObjectBench().addInteraction(ir);
@@ -1335,10 +1343,13 @@ public class PkgMgrFrame extends JFrame
                         return;
                         
                     ResultInspector viewer =
-                        ResultInspector.getInstance(result, name, getPackage(), ir, PkgMgrFrame.this);
+                        ResultInspector.getInstance(result, name, getPackage(), ir, expressionInformation, PkgMgrFrame.this);
                     BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                 }
                 public void putError(String msg) { }
+                public ExpressionInformation getExpressionInformation() {
+                    return expressionInformation;
+                } 
             };
         }
 
@@ -1768,27 +1779,34 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * User function "Free Form Call...". Pop up the dialog that allows
-     * users to make that call.
-     */   
-    public void callFreeForm()
-    {
-        if(freeFormCallDialog == null) {
+     * User function "Free Form Call...". Pop up the dialog that allows users to
+     * make that call.
+     */
+    public void callFreeForm() {
+        if (freeFormCallDialog == null) {
             freeFormCallDialog = new FreeFormCallDialog(this);
         }
         ResultWatcher watcher = new ResultWatcher() {
-           public void putResult(DebuggerObject result, String name, InvokerRecord ir)
-           {
-               getObjectBench().addInteraction(ir);
-               if(result != null) {
-                   ResultInspector viewer =
-                   ResultInspector.getInstance(result, name, getPackage(), ir, PkgMgrFrame.this);
-                   BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
-               } else {
-                   BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
-               }               
-           }
-           public void putError(String msg) { }
+            FreeFormCallDialog freeFormCallDialog = PkgMgrFrame.this.freeFormCallDialog;
+
+            public void putResult(DebuggerObject result, String name, InvokerRecord ir) {
+                getObjectBench().addInteraction(ir);
+                if (result != null) {
+                    ResultInspector viewer = ResultInspector.getInstance(result, name,
+                            getPackage(), ir, getExpressionInformation(), PkgMgrFrame.this);
+                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
+                } else {
+                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
+                }
+            }
+
+            public void putError(String msg) {
+            }
+
+            public ExpressionInformation getExpressionInformation() {
+                String expression = freeFormCallDialog.getExpression();
+                return new ExpressionInformation(expression);
+            }
         };
         new Invoker(this, freeFormCallDialog, watcher);
     }

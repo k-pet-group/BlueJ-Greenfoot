@@ -1,6 +1,7 @@
 package bluej.extensions;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -13,7 +14,7 @@ import bluej.views.CallableView;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Clive Miller, University of Kent at Canterbury, 2002
  * 
- * @version $Id: DirectInvoker.java 2314 2003-11-10 14:49:48Z damiano $
+ * @version $Id: DirectInvoker.java 2544 2004-05-24 08:56:02Z polle $
  */
 class DirectInvoker
 {
@@ -244,6 +245,14 @@ class DirectResultWatcher implements ResultWatcher
     {
     return resultName;
     }
+
+/* (non-Javadoc)
+ * @see bluej.debugmgr.ResultWatcher#getExpressionInformation()
+ */
+public ExpressionInformation getExpressionInformation() {
+    // TODO Auto-generated method stub
+    return null;
+}
   }
 
 

@@ -4,21 +4,34 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.swing.SwingUtilities;
-
-import bluej.*;
+import bluej.BlueJEvent;
+import bluej.Config;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.JobQueue;
-import bluej.debugger.*;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.testmgr.record.*;
-import bluej.utility.*;
-import bluej.views.*;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.testmgr.record.ConstructionInvokerRecord;
+import bluej.testmgr.record.ExpressionInvokerRecord;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.testmgr.record.MethodInvokerRecord;
+import bluej.testmgr.record.StaticVoidMainMethodInvokerRecord;
+import bluej.testmgr.record.VoidMethodInvokerRecord;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
+import bluej.utility.Utility;
+import bluej.views.CallableView;
+import bluej.views.ConstructorView;
+import bluej.views.LabelPrintWriter;
+import bluej.views.MethodView;
 
 /**
  * Debugger class that arranges invocation of constructors or methods.
@@ -27,7 +40,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2489 2004-04-08 08:58:58Z polle $
+ * @version $Id: Invoker.java 2544 2004-05-24 08:56:02Z polle $
  */
 
 public class Invoker extends Thread
@@ -261,11 +274,13 @@ public class Invoker extends Thread
      */
     protected void doInvocation(String[] args, Class[] argTypes)
     {
-        // if here with null, null then no arguments, no constructor
-        
-        
-        
-        
+    	//Store the arguments in order to show them in the result inspetor later
+		ExpressionInformation info = watcher.getExpressionInformation();
+		if (info != null) {
+			info.setArgumentValues(args);
+		}
+    	
+    	// if here with null, null then no arguments, no constructor
         executionEvent.setParameters(argTypes, args);
         if(constructing) {
             executionEvent.setObjectName(instanceName);
