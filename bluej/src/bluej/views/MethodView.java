@@ -5,7 +5,7 @@ import bluej.utility.Utility;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: MethodView.java 202 1999-07-22 07:45:35Z mik $
+ ** @version $Id: MethodView.java 203 1999-07-23 05:32:28Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java method in BlueJ
@@ -82,7 +82,6 @@ public class MethodView extends MemberView
     public String getSignature(boolean includeparamnames)
     {
 	StringBuffer sb = new StringBuffer();
-	Comment comment = getComment();
 
 	sb.append(View.getTypeName(method.getReturnType()));
 	sb.append(" ");
@@ -92,8 +91,8 @@ public class MethodView extends MemberView
 	for(int j = 0; j < params.length; j++) {
 	    sb.append(View.getTypeName(params[j]));
 			
-	    if(comment != null && includeparamnames) {
-		String paramname = comment.getParamName(j);
+	    if(getComment() != null && includeparamnames) {
+		String paramname = getComment().getParamName(j);
 		
 		if(paramname != null) {
 		    sb.append(" ");

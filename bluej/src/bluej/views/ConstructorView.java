@@ -5,7 +5,7 @@ import bluej.utility.Utility;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: ConstructorView.java 202 1999-07-22 07:45:35Z mik $
+ ** @version $Id: ConstructorView.java 203 1999-07-23 05:32:28Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java constructor in BlueJ
@@ -51,20 +51,21 @@ public final class ConstructorView extends MemberView
 	public String getSignature(boolean includeparamnames)
 	{
 		StringBuffer sb = new StringBuffer();
+
 		sb.append(cons.getName());
 		sb.append("(");
 		Class[] params = cons.getParameterTypes();
 		for(int j = 0; j < params.length; j++)
 		{
 			sb.append(View.getTypeName(params[j]));
-			if(comment != null && includeparamnames) {
-			    String paramname = comment.getParamName(j);
+			if(getComment() != null && includeparamnames) {
+			    String paramname = getComment().getParamName(j);
 
-                if(paramname != null) {
-                    sb.append(" ");
-                    sb.append(paramname);
-                }
-            }
+			if(paramname != null) {
+			    sb.append(" ");
+			    sb.append(paramname);
+			}
+	        }
 			if (j < (params.length - 1))
 				sb.append(",");
 		}
