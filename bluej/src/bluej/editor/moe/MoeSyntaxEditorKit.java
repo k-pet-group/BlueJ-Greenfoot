@@ -41,7 +41,7 @@ import org.gjt.sp.jedit.syntax.*;
  *
  * @see org.gjt.sp.jedit.syntax.SyntaxView
  */
-public class MoeSyntaxEditorKit extends DefaultEditorKit 
+public class MoeSyntaxEditorKit extends DefaultEditorKit
         implements ViewFactory
 {
     /**

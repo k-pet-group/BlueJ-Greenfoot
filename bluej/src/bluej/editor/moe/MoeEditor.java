@@ -32,9 +32,9 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 
 
 /**
- ** @author Michael Kolling
- **
- **/
+ * @author Michael Kolling
+ *
+ */
 
 // PENDING: add "finalize" method that does:
 //        MoeEditorManager.editorManager.removeEditor(this);
@@ -61,15 +61,11 @@ public final class MoeEditor extends JFrame
     static final Color selectionColour = new Color(204, 204, 204);
     static final Color titleCol = Config.getItemColour("colour.text.fg");
 
-    //bq are these still relevant?
     // Fonts
     public static Font editFont = new Font("Monospaced", Font.PLAIN, 
                                            12);
-
     public static Font printFont = new Font("Monospaced", Font.PLAIN, 
                                             10);
-    //bq remove hard coded values for font sizes
-    
     // suffixes for resources
     static final String LabelSuffix = "Label";
     static final String ActionSuffix = "Action";
@@ -85,6 +81,7 @@ public final class MoeEditor extends JFrame
     public static final String BREAKPOINT = "break";
     public static final String STEPMARK = "step";
     static final String COMPILED = "compiled";
+
 
     // -------- INSTANCE VARIABLES --------
 
@@ -113,6 +110,8 @@ public final class MoeEditor extends JFrame
     private int currentStepPos;         // position of step mark (or -1)
     private boolean mayHaveBreakpoints;	// true if there were BP here
     private boolean ignoreChanges = false;
+
+    private MoePrinter printer;
 
     // =========================== NESTED CLASSES ===========================
 
@@ -162,7 +161,6 @@ public final class MoeEditor extends JFrame
                      Properties resources)
     {
         super("Moe");
-
         this.watcher = watcher;
         this.resources = resources;
         filename = null;
@@ -284,6 +282,7 @@ public final class MoeEditor extends JFrame
     // inherited from Editor, redefined
     {
 
+	//PENDING: further work to provide italic or bold formatting to views (bq)
         //=====original version=====
 
   //       MoeSyntaxEditorKit kit = (MoeSyntaxEditorKit)textPane.getEditorKit();
@@ -637,385 +636,17 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Implementation if the "print" user function
-     *  (NOTE: re-implement under jdk 1.2 with "PrinterJob"!)
-     */
-//     public void print()
-//     {
-
-//         //Print pj = new Print(document, printFont);
-
-//         PrintJob printJob = PrinterJob.getPrinterJob();
-
-//         printJob.setPrintable(this);
-//         printJob.printDialog();
-//         PageFormat pf = printJob.pageDialog(printJob.defaultPage());
-        
-//         try{
-//             printJob.print();
-//         } catch(Exception pe) {
-//             Debug.message("print exception");
-//         }
-
-
-
-//     }
-
-
-
-
-//     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex)
-//     {
-
-      
-//         Graphics2D graphics2D = (Graphics2D)graphics;
-//         //graphics2D.setFont(printFont);
-
-//         return 0;
-//     }
-
-    
-
-  //   public int print1(Graphics graphics, PageFormat pageFormat, int pageIndex)
-//     {
-
-      
-//         Graphics2D graphics2D = (Graphics2D)graphics;
-//         //graphics2D.setColor(Color.black);
-//         graphics2D.setFont(printFont);
-        
-//         int fontHeight = graphics2D.getFontMetrics().getHeight();
-//         int fontDescent = graphics2D.getFontMetrics().getDescent();
-        
-//         //leave room for page number
-//         double pageHeight = 
-//             pageFormat.getImageableHeight();
-//         double pageWidth = 
-//             pageFormat.getImageableWidth();
-
-
-//         double xStart = pageFormat.getImageableX(); 
-//         double yStart = pageFormat.getImageableY(); 
-
-//         Debug.message("H = " + pageHeight + " W = " + pageWidth);
-//         Debug.message("ImageableX = " + pageFormat.getImageableX() + 
-//                       " ImageableY = " + pageFormat.getImageableY());
-        
-//         //graphics2D.translate(pageFormat.getImageableX(), 
-//         //   pageFormat.getImageableY());
-//         textPane.setFont(printFont);//bq
-
-//         Dimension textSize = textPane.getSize(null);
-
-//         double pages = textSize.height / pageHeight;
-//         Debug.message("pages: " + pages);
-//          if(pageIndex >= pages) {
-//              Debug.message("page index = " + pageIndex);
-//              textPane.setFont(editFont);
-//              return Printable.NO_SUCH_PAGE;
-//          }
-
-//          // simple test
-//          //graphics2D.drawString("hello...", 40, 40);
-//          //graphics2D.drawRect(10, 10, 400, 600);
-
-//         //Rectangle printArea = getPrintArea(pageSize);
-    
-
-//         // while( pageIndex < pages) {
-//          //        graphics2D.draw(new Rectangle2D.Double(xStart, yStart,pageWidth, pageHeight));
-//         graphics2D.draw(new Rectangle2D.Double(xStart, yStart, pageWidth, pageHeight));
-//         //graphics2D.drawRect((int)xStart, (int)yStart,(int)pageWidth, (int)pageHeight);
-//          //graphics2D.drawRect((int)xStart, (int)yStart,300,500 );
-//         // graphics2D.translate(xStart - TAG_WIDTH - 2, 
-//         //                      yStart - pageIndex * pageHeight);
-//     //graphics2D.setClip(TAG_WIDTH + 3, (int)(pageIndex * pageHeight), 
-//     //                       (int)pageWidth, (int)pageHeight);
-//     //  textPane.paint(graphics2D);
-            
-
-//             //graphics2D.dispose();
-//             //return Printable.NO_SUCH_PAGE;
-//             //}
-            
-
-//             //Debug.message("text height: " + textSize.height);
-//         //Debug.message("text width: " + textSize.width);
-//         //textSize.width -= (TAG_WIDTH + 3);
-//         //        int pages = (textSize.height + printArea.height - 1) / printArea.height;
-//         //Debug.message("pages: " + pages);
-//         //graphics2D.setClip(40, 10, 400, 600);
-//         //textPane.print(graphics2D);
-//         //graphics2D.setClip(0,0, 200, 400);
-//         return Printable.PAGE_EXISTS;
-//     }
-
-
- 
-//     // --------------------------------------------------------------------
-//     /**
-//      *  Part of the print function. Print out the class view currently
-//      *  visible in the editor.
-//      */
-//     private void printClass(PrintJob printjob)
-//     {
-//         Dimension pageSize = printjob.getPageDimension();
-
-//         Font oldFont = textPane.getFont();
-//         //textPane.setFont(printFont);
-
-//         Rectangle printArea = getPrintArea(pageSize);
-//         Dimension textSize = textPane.getSize(null);
-//         //Debug.message("text height: " + textSize.height);
-//         textSize.width -= (TAG_WIDTH + 3);
-//         int pages = (textSize.height + printArea.height - 1) / 
-//             printArea.height;
-//         //Debug.message("pages: " + pages);
-
-//         int answer;
-//         if(printArea.width < textSize.width-8) {
-//             answer = DialogManager.askQuestion(this, "really-print");
-//         }
-//         else
-//             answer = 0;
-
-//         if(answer == 0) {
-//             String date = DateFormat.getDateInstance().format(new Date());
-
-//             for(int i = 0; i < pages; i++) {
-//                 Graphics g = printjob.getGraphics();
-//                 printFrame(g, printArea, i + 1, date);
-
-//                 g.translate(printArea.x - TAG_WIDTH - 2, 
-//                             printArea.y - i * printArea.height);
-//                 g.setClip(TAG_WIDTH + 3, i * printArea.height, 
-//                           printArea.width, printArea.height);
-//                 textPane.print(g);
-//                 g.dispose();
-//             }
-//         }
-//         //textPane.setFont(oldFont);
-//     }
-
-//     // --------------------------------------------------------------------
-//     static final int PRINT_HMARGIN = 16;
-//     static final int PRINT_VMARGIN = 16;
-//     static final Font printTitleFont = new Font("SansSerif", Font.PLAIN, 
-//                                                 Config.printTitleFontsize);
-//     static final Font printInfoFont = new Font("SansSerif", Font.ITALIC, 
-//                                                Config.printInfoFontsize);
-
-//     // --------------------------------------------------------------------
-//     /**
-//      *  Return the rectangle on the page in which to print the text.
-//      *  The rectangle is the page minus margins minus space for header and
-//      *  footer text.
-//      */
-//     private Rectangle getPrintArea(Dimension pageSize)
-//     {
-//         FontMetrics tfm = getFontMetrics(printTitleFont);
-//         FontMetrics ifm = getFontMetrics(printInfoFont);
-//         int fontSize = textPane.getFont().getSize();
-
-//         int printHeight = pageSize.height - 2 * PRINT_VMARGIN - 
-//             tfm.getHeight() - ifm.getHeight() - 4;
-
-//         // ensure printHeight is multiple of font size
-//         printHeight = (printHeight / fontSize) * fontSize;
-//         //Debug.message("print height: " + printHeight);
-//         //Debug.message("lines/page " + (printHeight / fontSize));
-
-//         return new Rectangle(PRINT_HMARGIN,
-//                              PRINT_VMARGIN + tfm.getHeight() + 4,
-//                              pageSize.width - 2 * PRINT_HMARGIN,
-//                              printHeight);
-//     }
-
-//     // --------------------------------------------------------------------
-//     /**
-//      *  printFrame - part of the print function. Print the frame around the
-//      *  page, including header and footer.
-//      */
-//     private void printFrame(Graphics g, Rectangle printArea, int pageNum,
-//                             String date) 
-//     {
-//         FontMetrics tfm = getFontMetrics(printTitleFont);
-//         FontMetrics ifm = getFontMetrics(printInfoFont);
-//         Rectangle frameArea = new Rectangle(printArea);
-//         frameArea.grow(1, 1);
-
-//         // frame header area
-//         g.setColor(lightGrey);
-//         g.fillRect(frameArea.x, PRINT_VMARGIN, frameArea.width, 
-//                    frameArea.y - PRINT_VMARGIN);
-
-//         g.setColor(titleCol);
-//         g.drawRect(frameArea.x, PRINT_VMARGIN, frameArea.width, 
-//                    frameArea.y - PRINT_VMARGIN);
-
-//         // frame print area
-//         g.drawRect(frameArea.x, frameArea.y, frameArea.width, 
-//                    frameArea.height);
-
-//         // write header
-//         g.setFont(printTitleFont);
-//         String title = "Class " + windowTitle;
-//         if(pageNum > 1)
-//             title = title + " (continued)";
-//         Utility.drawCentredText(g, title, printArea.x, PRINT_VMARGIN, 
-//                                 printArea.width, tfm.getHeight()+4);
-
-//         // write footer
-//         g.setFont(printInfoFont);
-//         Utility.drawRightText(g, "printed: " + date + ",   page " + pageNum,
-//                               printArea.x, printArea.y + printArea.height,
-//                               printArea.width, ifm.getHeight()+4);
-//     }
-
-
-
-   // --------------------------------------------------------------------
-    /**
-     *  Implementation if the "print" user function
-     *  (NOTE: re-implement under jdk 1.2 with "PrinterJob"!)
+     *  Implementation of the "print" user function.
+     *  Printing is delegated to a PrintThread inner class to run in a low
+     *  priority thread.
      */
     public void print()
     {
-        PrintJob printjob = getToolkit().getPrintJob(this, 
-                                                     "Class " + windowTitle,
-                                                     null);
-        if(printjob != null) {
-            printClass(printjob);
-            printjob.end();
-        }
+        PrintThread pt = new PrintThread();
+        pt.setPriority((Thread.currentThread().getPriority() - 1));
+        pt.start();
     }
 
-    // --------------------------------------------------------------------
-    /**
-     *  Part of the print function. Print out the class view currently
-     *  visible in the editor.
-     */
-    private void printClass(PrintJob printjob) 
-    {
-        Dimension pageSize = printjob.getPageDimension();
-
-        Font oldFont = textPane.getFont();
-        textPane.setFont(printFont);
-
-        Rectangle printArea = getPrintArea(pageSize);
-        Dimension textSize = textPane.getSize(null);
-        //Debug.message("text height: " + textSize.height);
-        textSize.width -= (TAG_WIDTH + 3);
-        int pages = (textSize.height + printArea.height - 1) / 
-            printArea.height;
-        //Debug.message("pages: " + pages);
-
-        int answer;
-        if(printArea.width < textSize.width-8) {
-            answer = DialogManager.askQuestion(this, "really-print");
-        }
-        else
-            answer = 0;
-
-        if(answer == 0) {
-            String date = DateFormat.getDateInstance().format(new Date());
-
-            for(int i = 0; i < pages; i++) {
-                Graphics g = printjob.getGraphics();
-                printFrame(g, printArea, i + 1, date);
-
-                g.translate(printArea.x - TAG_WIDTH - 2, 
-                            printArea.y - i * printArea.height);
-                g.setClip(TAG_WIDTH + 3, i * printArea.height, 
-                          printArea.width, printArea.height);
-                textPane.print(g);
-                g.dispose();
-            }
-        }
-        textPane.setFont(oldFont);
-    }
-
-    // --------------------------------------------------------------------
-    static final int PRINT_HMARGIN = 16;
-    static final int PRINT_VMARGIN = 16;
-//     static final Font printTitleFont = new Font("SansSerif", Font.PLAIN, 
-//                                                 Config.printTitleFontsize);
-//     static final Font printInfoFont = new Font("SansSerif", Font.ITALIC, 
-//                                                Config.printInfoFontsize);
-
-    //bq remove hardcoded fontsizes
-    static final Font printTitleFont = new Font("SansSerif", Font.PLAIN, 
-                                                14);
-    static final Font printInfoFont = new Font("SansSerif", Font.ITALIC, 
-                                               10);
-
-
-    // --------------------------------------------------------------------
-    /**
-     *  Return the rectangle on the page in which to print the text.
-     *  The rectangle is the page minus margins minus space for header and
-     *  footer text.
-     */
-    private Rectangle getPrintArea(Dimension pageSize)
-    {
-        FontMetrics tfm = getFontMetrics(printTitleFont);
-        FontMetrics ifm = getFontMetrics(printInfoFont);
-        int fontSize = textPane.getFont().getSize();
-
-        int printHeight = pageSize.height - 2 * PRINT_VMARGIN - 
-            tfm.getHeight() - ifm.getHeight() - 4;
-
-        // ensure printHeight is multiple of font size
-        printHeight = (printHeight / fontSize) * fontSize;
-        //Debug.message("print height: " + printHeight);
-        //Debug.message("lines/page " + (printHeight / fontSize));
-
-        return new Rectangle(PRINT_HMARGIN,
-                             PRINT_VMARGIN + tfm.getHeight() + 4,
-                             pageSize.width - 2 * PRINT_HMARGIN,
-                             printHeight);
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     *  printFrame - part of the print function. Print the frame around the
-     *  page, including header and footer.
-     */
-    private void printFrame(Graphics g, Rectangle printArea, int pageNum,
-                            String date) 
-    {
-        FontMetrics tfm = getFontMetrics(printTitleFont);
-        FontMetrics ifm = getFontMetrics(printInfoFont);
-        Rectangle frameArea = new Rectangle(printArea);
-        frameArea.grow(1, 1);
-
-        // frame header area
-        g.setColor(lightGrey);
-        g.fillRect(frameArea.x, PRINT_VMARGIN, frameArea.width, 
-                   frameArea.y - PRINT_VMARGIN);
-
-        g.setColor(titleCol);
-        g.drawRect(frameArea.x, PRINT_VMARGIN, frameArea.width, 
-                   frameArea.y - PRINT_VMARGIN);
-
-        // frame print area
-        g.drawRect(frameArea.x, frameArea.y, frameArea.width, 
-                   frameArea.height);
-
-        // write header
-        g.setFont(printTitleFont);
-        String title = "Class " + windowTitle;
-        if(pageNum > 1)
-            title = title + " (continued)";
-        Utility.drawCentredText(g, title, printArea.x, PRINT_VMARGIN, 
-                                printArea.width, tfm.getHeight()+4);
-
-        // write footer
-        g.setFont(printInfoFont);
-        Utility.drawRightText(g, "printed: " + date + ",   page " + pageNum,
-                              printArea.x, printArea.y + printArea.height,
-                              printArea.width, ifm.getHeight()+4);
-    }
 
 
     // --------------------------------------------------------------------
@@ -1874,7 +1505,6 @@ public final class MoeEditor extends JFrame
         if (actionName == null)
             actionName = key;
         Action action = actions.getActionByName(actionName);
-
         if (action != null) {	// should never be null...
             button.addActionListener(action);
             button.setActionCommand(actionName);
@@ -1901,5 +1531,27 @@ public final class MoeEditor extends JFrame
         viewSelector.addItemListener(this);
         return viewSelector;
     }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * inner class for printing thread to allow printing to occur
+     * as a background operation.
+     * @author Bruce Quig
+     */
+    class PrintThread extends Thread
+    {
+        public void run()
+        {
+            if(printer == null)
+                printer = new MoePrinter();
+
+            //printer.printDocument(document, windowTitle, printFont, pageFormat);  
+            // print document, using new pageformat object at present
+            printer.printDocument(document, windowTitle, printFont, new PageFormat());        
+        }
+        
+    }
+
 
 } // end class MoeEditor
