@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 555 2000-06-19 00:35:11Z mik $
+ * @version $Id: Package.java 559 2000-06-19 02:24:16Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -121,11 +121,6 @@ public class Package extends Graph
     /** needed when debugging with breakpoints to see if the editor window
      *  needs to be brought to the front */
     private String lastSourceName = "";
-
-    /* filter used for importing packages */
-    protected static DirectoryFilter dirsOnly = new DirectoryFilter();
-    /* filter used for importing packages */
-    protected static JavaSourceFilter javaOnly = new JavaSourceFilter();
 
     /** state constant */ public static final int S_IDLE = 0;
     /** state constant */ public static final int S_CHOOSE_USES_FROM = 1;
@@ -640,19 +635,18 @@ public class Package extends Graph
     }
 
     /**
-     * importFile - import a source file into this package as a new
-     *  class target. Returns an error code: <br>
+     * import a source file into this package as a new
+     * class target. Returns an error code: <br>
      *   NO_ERROR       - everything is fine <br>
      *   FILE_NOT_FOUND - file does not exist <br>
      *   ILLEGAL_FORMAT - the file name does not end in ".java" <br>
-     *   CLASS_EXISTS - a class with this name already exists <br>
+     *   CLASS_EXISTS   - a class with this name already exists <br>
      *   COPY_ERROR     - could not copy
      */
-    public int importFile(String sourcePath)
+    public int importFile(File sourceFile)
     {
         // check whether specified class exists and is a java file
 
-        File sourceFile = new File(sourcePath);
         if(! sourceFile.exists())
             return FILE_NOT_FOUND;
         String fileName = sourceFile.getName();
@@ -669,27 +663,35 @@ public class Package extends Graph
 
         // copy class source into package
 
-        String destPath = new File(getPath(),fileName).getPath();
-        if(!FileUtility.copyFile(sourcePath, destPath))
+        File destFile = new File(getPath(),fileName);
+        if(!FileUtility.copyFile(sourceFile, destFile))
             return COPY_ERROR;
 
         // remove package line in class source
-
         try {
-            ClassTarget.enforcePackage(destPath, getQualifiedName());
+            ClassTarget.enforcePackage(destFile, getQualifiedName());
         }
-        catch(IOException ioe)
-            {
-                Debug.message(ioe.getLocalizedMessage());
-            }
+        catch(IOException ioe) {
+            Debug.message(ioe.getLocalizedMessage());
+        }
 
+        addClass(className);
+
+        return NO_ERROR;
+    }
+
+    public void addClass(String className)
+    {
         // create class icon (ClassTarget) for new class
-
         ClassTarget target = new ClassTarget(this, className);
         addTarget(target);
         target.analyseDependencies();
+    }
 
-        return NO_ERROR;
+    public void addPackage(String packageName)
+    {
+        PackageTarget target = new PackageTarget(this, packageName);
+        addTarget(target);
     }
 
     /**
@@ -1837,7 +1839,7 @@ public class Package extends Graph
             if((currentArrow != null) && (currentArrow != selectedArrow))
                 currentArrow.highlight(getEditor().getGraphics2D());
             if(selectedArrow != null) {
-                
+
                 if (!(selectedArrow instanceof UsesDependency)) {
                     userRemoveDependency(selectedArrow);
                 }

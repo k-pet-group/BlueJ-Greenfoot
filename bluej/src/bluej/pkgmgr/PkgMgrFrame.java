@@ -22,11 +22,12 @@ import bluej.terminal.TerminalButtonModel;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.prefmgr.PrefMgr;
 import bluej.browser.LibraryBrowser;
+import bluej.utility.filefilter.JavaSourceFilter;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 555 2000-06-19 00:35:11Z mik $
+ * @version $Id: PkgMgrFrame.java 559 2000-06-19 02:24:16Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -54,8 +55,8 @@ public class PkgMgrFrame extends JFrame
     private static final String creatingVM = Config.getString("pkgmgr.creatingVM");
     private static final String creatingVMDone = Config.getString("pkgmgr.creatingVMDone");
 
-    private static final String importClassTitle = Config.getString("pkgmgr.importClass.title");
-    private static final String importLabel = Config.getString("pkgmgr.importClass.buttonLabel");
+    private static final String addClassTitle = Config.getString("pkgmgr.addClass.title");
+    private static final String addLabel = Config.getString("pkgmgr.addClass.buttonLabel");
     private static final String importpkgTitle = Config.getString("pkgmgr.importPkg.title");
     private static final String saveAsTitle =  Config.getString("pkgmgr.saveAs.title");
     private static final String saveLabel =  Config.getString("pkgmgr.saveAs.buttonLabel");
@@ -516,7 +517,7 @@ public class PkgMgrFrame extends JFrame
         int evtId = e.getID();
 
         switch(evtId) {
-        case PackageEditorEvent.TARGET_CALLABLE:   // user has initiated method call or 
+        case PackageEditorEvent.TARGET_CALLABLE:   // user has initiated method call or
                                                    //  constructor
             callMethod(e.getCallable());
             break;
@@ -526,11 +527,11 @@ public class PkgMgrFrame extends JFrame
             removeClass(t);
             break;
 
-        case PackageEditorEvent.TARGET_OPEN:       // user has initiated a package open operation
+         case PackageEditorEvent.TARGET_OPEN:       // user has initiated a package open operation
             openPackageTarget(e.getName());
             break;
 
-        case PackageEditorEvent.OBJECT_PUTONBENCH:
+         case PackageEditorEvent.OBJECT_PUTONBENCH: // user has "Get" has on object from an inspector
             putObjectOnBench(e.getDebuggerObject(), e.getFieldName(), e.getInstanceName());
             break;
         }
@@ -609,6 +610,10 @@ public class PkgMgrFrame extends JFrame
 
         case EDIT_NEWPACKAGE:
             createNewPackage();
+            break;
+
+         case EDIT_ADDCLASS:
+            doAddFromFile();
             break;
 
         case EDIT_REMOVE:
@@ -719,7 +724,8 @@ public class PkgMgrFrame extends JFrame
     // --- below are implementations of particular user actions ---
 
     /**
-     *
+     * Allow the user to select a directory into which we create
+     * a project.
      */
     protected void doNewProject()
     {
@@ -727,7 +733,7 @@ public class PkgMgrFrame extends JFrame
 
         if (Project.createNewProject(newname)) {
             Project proj = Project.openProject(newname);
-            
+
             if(isEmptyFrame()) {
                 openPackage(proj.getPackage(""));
             }
@@ -867,15 +873,35 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+    private void doImport()
+    {
+        File importDir = null;
+        JFileChooser newChooser = FileUtility.getFileChooser(true);
+
+        int result = newChooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION)
+            importDir = newChooser.getSelectedFile();
+        else if (result == JFileChooser.CANCEL_OPTION)
+            return;
+
+        FileUtility.recursiveCopyFile(importDir, getPackage().getPath());
+
+        Import.convertDirectory(getPackage().getPath());
+    }
+
     /**
      * implementation of the "Import Class" user function
      */
-    private void doImport()
+    private void doAddFromFile()
     {
-        String className = FileUtility.getFileName(this, importClassTitle, importLabel);
+        String className = FileUtility.getFileName(this,
+                            addClassTitle, addLabel,
+                            FileUtility.getJavaSourceFilter());
+        File classFile = new File(className);
 
         if(className != null) {
-            int result = pkg.importFile(className);
+            int result = pkg.importFile(classFile);
             switch (result) {
 	        case Package.NO_ERROR:
                 editor.repaint();
@@ -992,7 +1018,6 @@ public class PkgMgrFrame extends JFrame
             return Printable.PAGE_EXISTS;
         }
     } // end of nested class PrinterThread
-
 
     // Add a title to printouts
     static final int PRINT_HMARGIN = 6;
@@ -1173,24 +1198,19 @@ public class PkgMgrFrame extends JFrame
 
                 File newpkgDir = new File(getPackage().getPath(), name);
 
-                if(newpkgDir.mkdir())
-                    {
-                        File newpkgFile = new File(newpkgDir, Package.pkgfileName);
+                if(newpkgDir.mkdir()) {
+                    File newpkgFile = new File(newpkgDir, Package.pkgfileName);
 
-                        try {
-                            if(newpkgFile.createNewFile())
-                                {
-                                    PackageTarget target = new PackageTarget(pkg, name);
+                    try {
+                        if(newpkgFile.createNewFile()) {
+                            PackageTarget target = new PackageTarget(pkg, name);
 
-                                    pkg.addTarget(target);
-                                    editor.repaint();
-                                }
+                            pkg.addTarget(target);
+                            editor.repaint();
                         }
-                        catch(IOException ioe)
-                            {
-
-                            }
                     }
+                    catch(IOException ioe) { }
+                }
             }
         }
     }
@@ -1784,20 +1804,22 @@ public class PkgMgrFrame extends JFrame
     static final int EDIT_COMMAND = PROJ_COMMAND + 100;
     static final int EDIT_NEWCLASS = EDIT_COMMAND;
     static final int EDIT_NEWPACKAGE = EDIT_NEWCLASS + 1;
-    static final int EDIT_REMOVE = EDIT_NEWPACKAGE + 1;
+    static final int EDIT_ADDCLASS = EDIT_NEWPACKAGE + 1;
+    static final int EDIT_REMOVE = EDIT_ADDCLASS + 1;
     static final int EDIT_NEWUSES = EDIT_REMOVE + 1;
     static final int EDIT_NEWINHERITS = EDIT_NEWUSES + 1;
     static final int EDIT_REMOVEARROW = EDIT_NEWINHERITS + 1;
 
 
     static final String[] EditCmds = {
-        "newClass", "newPackage", "remove", "newUses", "newInherits",
+        "newClass", "newPackage", "addClass", "remove", "newUses", "newInherits",
         "removeArrow"
     };
 
     static final KeyStroke[] EditKeys = {
         KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK),
+        null,
         null,
         null,
         null,

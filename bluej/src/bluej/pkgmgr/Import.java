@@ -18,10 +18,6 @@ import bluej.views.Comment;
 import bluej.views.CommentList;
 import bluej.classmgr.*;
 
-import java.awt.*;
-import java.awt.font.*;
-import java.awt.geom.*;
-import java.awt.event.*;
 import javax.swing.JFrame;
 import java.io.*;
 import java.util.*;
@@ -29,7 +25,7 @@ import java.text.DateFormat;
 
 /**
  *
- * @version $Id: Import.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: Import.java 559 2000-06-19 02:24:16Z ajp $
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
@@ -149,6 +145,27 @@ public class Import
             return null;
     }
 
+    public static boolean importDir(File dir, Package rootPackage)
+    {
+/*                // handle Java source by doing an import
+                if (files[i].getName().endsWith(".java")) {
+                    result = rootPackage.importFile(files[i]);
+
+                    switch(result) {
+                     case Package.FILE_NOT_FOUND:
+                     case Package.ILLEGAL_FORMAT:
+                        System.out.println("notfound/illegal");
+                        break;
+                     case Package.COPY_ERROR:
+                     case Package.CLASS_EXISTS:
+                        System.out.println("gone");
+                        break;
+                     case Package.NO_ERROR:
+                        break;
+                    }
+                } */
+        return true;
+    }
 
     /**
      * Import the Java source files from a given directory into a package.
@@ -172,4 +189,82 @@ public class Import
         return (files.length > 0); */
 		return true;
     } // importJavaSources
+
+    /**
+     * Find all directories under a certain directory which
+     * we deem 'interesting'.
+     * An interesting directory is one which either contains
+     * a java source file or contains a directory which in
+     * turn contains a java source file.
+     */
+    public static List findInterestingDirectories(File dir)
+    {
+        List interesting = new LinkedList();
+
+        File[] files = dir.listFiles();
+
+        if (files == null)
+            return interesting;
+
+        boolean imInteresting = false;
+
+        for (int i=0; i<files.length; i++) {
+
+            if (files[i].isDirectory()) {
+                // if any of our sub directories are interesting
+                // then we are interesting
+                // we ensure that the subdirectory would have
+                // a valid java package name before considering
+                // anything in it
+                if(JavaNames.isIdentifier(files[i].getName())) {
+
+                    List subInteresting = findInterestingDirectories(files[i]);
+
+                    if (subInteresting.size() > 0) {
+                        interesting.addAll(subInteresting);
+                        imInteresting = true;
+                    }
+                }
+            }
+            else {
+                if (files[i].getName().endsWith(".java"))
+                    imInteresting = true;
+            }
+        }
+
+        // if we have found anything of interest (either a java
+        // file or a subdirectory with java files) then we consider
+        // ourselves interesting and add ourselves to the list
+        if (imInteresting)
+            interesting.add(dir);
+
+        return interesting;
+    }
+
+    /**
+     * Convert an existing directory structure to one
+     * that BlueJ can open as a project.
+     */
+    public static void convertDirectory(File dir)
+    {
+        List l = findInterestingDirectories(dir);
+
+        // create a bluej.pkg file in every directory that
+        // we have determined to be interesting
+
+        Iterator i = l.iterator();
+
+        while(i.hasNext()) {
+            File f = (File) i.next();
+
+            File bluejFile = new File(f, Package.pkgfileName);
+
+            try {
+                bluejFile.createNewFile();
+            }
+            catch(IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
+    }
 }

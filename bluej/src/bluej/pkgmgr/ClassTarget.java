@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 555 2000-06-19 00:35:11Z mik $
+ * @version $Id: ClassTarget.java 559 2000-06-19 02:24:16Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -67,7 +67,7 @@ public class ClassTarget extends EditableTarget
 
     static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
-    static final Image brokenImage = 
+    static final Image brokenImage =
 	Toolkit.getDefaultToolkit().getImage(Config.getImageFilename("image.broken"));
 
     static final String STEREOTYPE_OPEN = "<<";
@@ -465,14 +465,14 @@ public class ClassTarget extends EditableTarget
         setState(Target.S_INVALID);
     }
 
-    public static void enforcePackage(String sourceFileName, String packageName) throws IOException
+    public static void enforcePackage(File sourceFile, String packageName) throws IOException
     {
         ClassInfo info;
 
         packageName = packageName.trim();
 
         try {
-            info = ClassParser.parse(sourceFileName);
+            info = ClassParser.parse(sourceFile);
         }
         catch(Exception e) {
             return;
@@ -513,7 +513,7 @@ public class ClassTarget extends EditableTarget
             }
         }
 
-        FileEditor fed = new FileEditor(new File(sourceFileName));
+        FileEditor fed = new FileEditor(sourceFile);
 
         if (fourCases == 1 || fourCases == 4) {
             Selection selSemi = info.getPackageSemiSelection();
