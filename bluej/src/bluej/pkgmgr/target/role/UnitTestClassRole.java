@@ -1,31 +1,38 @@
 package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import javax.swing.*;
 
 import bluej.Config;
-import bluej.debugger.*;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerTestResult;
 import bluej.editor.Editor;
 import bluej.editor.moe.MoeEditor;
-import bluej.parser.*;
 import bluej.parser.SourceLocation;
-import bluej.pkgmgr.*;
-import bluej.pkgmgr.target.*;
+import bluej.parser.SourceSpan;
+import bluej.parser.UnitTestAnalyzer;
+import bluej.pkgmgr.PackageEditor;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.ExistingFixtureInvokerRecord;
-import bluej.utility.*;
+import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
 
 /**
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2860 2004-08-10 05:55:35Z davmac $
+ * @version $Id: UnitTestClassRole.java 2984 2004-09-03 08:01:12Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -243,7 +250,7 @@ public class UnitTestClassRole extends ClassRole
      * @param pmf  the PkgMgrFrame this is all occurring in
      * @param ct   the ClassTarget of the unit test class
      */
-    public void doMakeTestCase(PkgMgrFrame pmf, ClassTarget ct)
+    public void doMakeTestCase(final PkgMgrFrame pmf, final ClassTarget ct)
     {
         // prompt for a new test name
         String newTestName = DialogManager.askString(pmf, "unittest-new-test-method");
@@ -280,25 +287,34 @@ public class UnitTestClassRole extends ClassRole
         }
         catch (FileNotFoundException fnfe) { fnfe.printStackTrace(); }
 
-        pmf.getProject().removeLocalClassLoader();
         pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
         						 + ct.getBaseName() + "." + newTestName + "()");
- 
-        Editor ed = ct.getEditor();
 
-        Map dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
-
-        Iterator it = dobs.entrySet().iterator();
+        final String testName = newTestName;
         
-        while(it.hasNext()) {
-            Map.Entry mapent = (Map.Entry) it.next();
-
-            pmf.putObjectOnBench((String) mapent.getKey(), (DebuggerObject)mapent.getValue(), null);
-        }
-        
-        pmf.getObjectBench().resetRecordingInteractions();
-        
-        pmf.setTestInfo(newTestName, ct);
+        new Thread() {
+            public void run() {
+                pmf.getProject().removeLocalClassLoader();
+                
+                final Map dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
+                
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        Iterator it = dobs.entrySet().iterator();
+                        
+                        while(it.hasNext()) {
+                            Map.Entry mapent = (Map.Entry) it.next();
+                            
+                            pmf.putObjectOnBench((String) mapent.getKey(), (DebuggerObject)mapent.getValue(), null);
+                        }
+                        
+                        pmf.getObjectBench().resetRecordingInteractions();
+                        
+                        pmf.setTestInfo(testName, ct);
+                    }
+                });
+            }
+        }.start();
      }
 
     /**
