@@ -31,7 +31,7 @@ import antlr.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1627 2003-02-12 06:02:44Z ajp $
+ * @version $Id: UnitTestClassRole.java 1628 2003-02-13 00:21:54Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -160,10 +160,58 @@ public class UnitTestClassRole extends ClassRole
 
         if (newTestName == null)
             return;
-            
-//        pmf.doStartTest(ct, newTestName);
-    }
 
+        pmf.getPackage().getProject().setTestMode(true);
+        
+        pmf.endTestButton.setEnabled(true);
+        pmf.cancelTestButton.setEnabled(true);
+        pmf.testStatusMessage.setEnabled(true);
+        pmf.testStatusMessage.setText("constructing " + ct.getBaseName() + ".test" + newTestName + "()");
+ 
+        Editor ed = ct.getEditor();
+
+        Map dobs = Debugger.debugger.runTestSetUp(
+                            pmf.getProject().getRemoteClassLoader().getId(),
+                            pmf.getProject().getUniqueId(),
+                            ct.getQualifiedName());
+
+        Iterator it = dobs.entrySet().iterator();
+        
+        while(it.hasNext()) {
+            Map.Entry mapent = (Map.Entry) it.next();
+
+            pmf.putObjectOnBench((DebuggerObject)mapent.getValue(),(String) mapent.getKey());
+        }
+        
+        pmf.getObjectBench().resetRecordingInteractions();
+        
+        pmf.setTestInfo(newTestName, ct);
+     }
+
+    public void doEndMakeTestCase(PkgMgrFrame pmf, ClassTarget ct, String name)
+    {
+        Editor ed = ct.getEditor();
+
+        try {
+            BaseAST ast = (BaseAST) bluej.parser.ast.JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));
+            BaseAST firstClass = (BaseAST) ast.getFirstChild();
+
+            LocatableAST methodInsert = null;
+
+            methodInsert = (LocatableAST) firstClass.getFirstChild().getNextSibling();
+
+            if (methodInsert != null) {
+                ed.setSelection(methodInsert.getLine(), methodInsert.getColumn(), 1);
+                
+                ed.insertText("\n\tpublic void test" + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
     public void doFixtureToBench(PkgMgrFrame pmf, ClassTarget ct)
     {
         Editor ed = ct.getEditor();
@@ -238,19 +286,21 @@ public class UnitTestClassRole extends ClassRole
             BaseAST ast = (BaseAST) bluej.parser.ast.JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));
             BaseAST firstClass = (BaseAST) ast.getFirstChild();
 
-            System.out.println(ast.toStringTree());
-
-//            System.out.println(pmf.getObjectBench().getFixtureDeclare());
-//            System.out.println(pmf.getObjectBench().getFixtureInitialise());
-
-            pmf.getProject().removeLocalClassLoader();
-            
             java.util.List variables = null;
+            java.util.List setup = null;
+            LocatableAST openingBracket = null;
+            LocatableAST methodInsert = null;
+
+            openingBracket = (LocatableAST) firstClass.getFirstChild();
+            methodInsert = (LocatableAST) firstClass.getFirstChild().getNextSibling();
             
-            BaseAST childAST = (BaseAST) firstClass.getFirstChild();
+            BaseAST childAST = (BaseAST) methodInsert.getNextSibling();
+
             while(childAST != null) {
                 if(childAST.getType() == UnitTestParserTokenTypes.OBJBLOCK) {
+                    
                     variables = bluej.parser.ast.JavaParser.getVariableSelections(childAST);
+                    setup = bluej.parser.ast.JavaParser.getSetupMethodSelections(childAST);
                     break;
                 }               
                 childAST = (BaseAST) childAST.getNextSibling();            
@@ -268,21 +318,26 @@ public class UnitTestClassRole extends ClassRole
                     ed.insertText("", false);
                 }
             }
-        
-             
-/*            ClassInfo info = ClassParser.parse(ct.getSourceFile(), null);
 
-            if (info.hasSetUpBrackets()) {
-                Selection l,r;
+            if (setup != null) {
+                Iterator it = setup.iterator();
+                
+                if(it.hasNext()) {
+                    LocatableAST firstAST = (LocatableAST) it.next();
+                    LocatableAST secondAST = (LocatableAST) it.next();
+                    
+                    ed.setSelection(firstAST.getLine(), firstAST.getColumn(),
+                                        secondAST.getLine(), secondAST.getColumn() + 1);
+                    ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup()
+                                     + "\t}", false);
+                }
+            }
 
-                l = info.getSetUpLeftBracket();
-                r = info.getSetUpRightBracket();
-
-                ed.insertText("{\n" + pmf.getObjectBench().endRecording() + "\t", false);
-            } */
-            
-            
-            
+            if (openingBracket != null) {
+                ed.setSelection(openingBracket.getLine(), openingBracket.getColumn(), 1);
+                
+                ed.insertText("{\n" + pmf.getObjectBench().getFixtureDeclaration(), false);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

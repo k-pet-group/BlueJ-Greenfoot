@@ -30,7 +30,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1601 2003-01-24 09:12:34Z mik $
+ * @version $Id: Project.java 1628 2003-02-13 00:21:54Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -312,6 +312,7 @@ public class Project
     /** the documentation generator for this project. */
     private DocuGenerator docuGenerator;
 
+    private boolean inTestMode = false;
     /** the test runner for this project. */
     //public TestRunner testRunner;
 
@@ -625,6 +626,16 @@ public class Project
             return null;
         }
     }
+
+    public boolean inTestMode()
+    {
+        return inTestMode;
+    }
+
+    public void setTestMode(boolean mode)
+    {
+        inTestMode = mode;
+    }    
 
     /**
      * Return a string representing the classpath for this project.

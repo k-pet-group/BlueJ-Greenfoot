@@ -19,7 +19,7 @@ import bluej.testmgr.*;
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectInspector.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: ObjectInspector.java 1628 2003-02-13 00:21:54Z ajp $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -124,7 +124,7 @@ public class ObjectInspector extends Inspector
         if (name != null)
             fullTitle += " (" + name + ")";
 
-        makeFrame(parent, isResult, true, fullTitle);
+        makeFrame(parent, isResult, true, fullTitle, true);
     }
 
     /**

@@ -250,7 +250,7 @@ Adds a file to an AST tree
         LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
 
         // the children on a class' object block are a list of variable definitions
-        // and class definitions
+        // and method definitions
         while(childAST != null) {
             // we are only interested in variable definitions
             if(childAST.getType() == UnitTestParserTokenTypes.VARIABLE_DEF) {
@@ -261,12 +261,6 @@ Adds a file to an AST tree
                     secondSib = (LocatableAST) firstSib.getNextSibling();
                     
                 if (firstSib != null && secondSib != null) {                    
-//                    System.out.println(firstSib);
-//                    System.out.println(secondSib);
-//                   System.out.println(firstSib.getLine() + firstSib.getColumn() + firstSib.getText());
-//                   System.out.println(secondSib.getLine() + secondSib.getColumn() + secondSib.getText());
-                    
-
                     l.addFirst(secondSib);
                     l.addFirst(firstSib);
                 }
@@ -275,6 +269,60 @@ Adds a file to an AST tree
         }            
 
         return l;
+    }
+
+    public static List getSetupMethodSelections(AST objBlock)
+    {
+        if (!(objBlock instanceof LocatableAST))
+            throw new IllegalArgumentException("wrong AST type");
+
+        LinkedList l = new LinkedList();
+        LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
+
+        // the children on a class' object block are a list of variable definitions
+        // and method definitions
+        while(childAST != null) {
+            // we are only interested in method definitions
+            if(childAST.getType() == UnitTestParserTokenTypes.METHOD_DEF) {
+                LocatableAST firstSib = null, secondSib = null, thirdSib = null;
+                
+                firstSib = (LocatableAST) childAST.getFirstChild();
+                if(firstSib != null && firstSib.getText().equals("setUp"))
+                    secondSib = (LocatableAST) firstSib.getNextSibling();
+                else
+                    continue;
+
+                if (secondSib != null) {
+                    thirdSib = (LocatableAST) secondSib.getNextSibling();
+                }
+                    
+                if (secondSib != null && thirdSib != null) {                    
+                    l.addFirst(thirdSib);
+                    l.addFirst(secondSib);
+
+                    return l;
+                }
+            }               
+            childAST = (LocatableAST) childAST.getNextSibling();            
+        }            
+
+        return l;
+    }
+
+    public static LocatableAST getOpeningBracketSelection(AST classBlock)
+    {
+        if (!(classBlock instanceof LocatableAST))
+            throw new IllegalArgumentException("wrong AST type");
+
+        return (LocatableAST) classBlock.getNextSibling();
+    }
+
+    public static LocatableAST getMethodInsertSelection(AST classBlock)
+    {
+        if (!(classBlock instanceof LocatableAST))
+            throw new IllegalArgumentException("wrong AST type");
+
+        return (LocatableAST) classBlock.getNextSibling();
     }
 	
 	public static void doTreeAction(AST t, String[] tokenNames)

@@ -17,7 +17,7 @@ import bluej.testmgr.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: ObjectBench.java 1628 2003-02-13 00:21:54Z ajp $
  */
 public class ObjectBench
 {
@@ -395,7 +395,7 @@ public class ObjectBench
         invokerRecords.add(ir);    
     }
     
-    public String getFixtureDeclare()
+    public String getFixtureDeclaration()
     {
         StringBuffer sb = new StringBuffer();
         Iterator it = invokerRecords.iterator();
@@ -403,14 +403,37 @@ public class ObjectBench
         while(it.hasNext()) {
             InvokerRecord ir = (InvokerRecord) it.next();
             
-            sb.append(ir);
+            sb.append(ir.toFixtureDeclaration());
         }                    
 
         return sb.toString();
     }
     
-    public String getFixtureInitialise()
+    public String getFixtureSetup()
     {
-        return ""; 
+        StringBuffer sb = new StringBuffer();
+        Iterator it = invokerRecords.iterator();
+        
+        while(it.hasNext()) {
+            InvokerRecord ir = (InvokerRecord) it.next();
+            
+            sb.append(ir.toFixtureSetup());
+        }                    
+
+        return sb.toString();
+    }
+    
+    public String getTestMethod()
+    {
+        StringBuffer sb = new StringBuffer();
+        Iterator it = invokerRecords.iterator();
+        
+        while(it.hasNext()) {
+            InvokerRecord ir = (InvokerRecord) it.next();
+            
+            sb.append(ir.toTestMethod());
+        }                    
+
+        return sb.toString();
     }
 }

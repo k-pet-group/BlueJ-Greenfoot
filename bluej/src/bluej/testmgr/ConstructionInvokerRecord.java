@@ -14,7 +14,7 @@ import bluej.runtime.*;
  * mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ConstructionInvokerRecord.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: ConstructionInvokerRecord.java 1628 2003-02-13 00:21:54Z ajp $
  */
 public class ConstructionInvokerRecord extends InvokerRecord
 {
@@ -44,8 +44,18 @@ public class ConstructionInvokerRecord extends InvokerRecord
         return true;        
     }
 
-    public String toString()
+    public String toTestMethod()
     {
         return "\t\t" + type + " " + name + " = " + command + ";\n";
+    }
+
+    public String toFixtureDeclaration()
+    {
+        return "\t" + type + " " + name + ";\n";       
+    }
+    
+    public String toFixtureSetup()
+    {
+        return "\t\t" + name + " = " + command + ";\n";          
     }
 }

@@ -16,7 +16,7 @@ import bluej.testmgr.*;
  * A window that displays the static fields in an class.
  *
  * @author     Michael Kolling
- * @version    $Id: ClassInspector.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version    $Id: ClassInspector.java 1628 2003-02-13 00:21:54Z ajp $
  */
 public class ClassInspector extends Inspector
 {
@@ -86,7 +86,7 @@ public class ClassInspector extends Inspector
         myClass = clss;
 
         makeFrame(parent, false, false,
-                  classNameLabel + " " + JavaNames.stripPrefix(clss.getName()));
+                  classNameLabel + " " + JavaNames.stripPrefix(clss.getName()), false);
     }
 
     /**

@@ -43,7 +43,7 @@ import antlr.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: PkgMgrFrame.java 1628 2003-02-13 00:21:54Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -80,6 +80,14 @@ public class PkgMgrFrame extends JFrame
     private int toolsExtensionsSeparatorIndex;
 
     private JLabel statusbar;
+    
+    JLabel testStatusMessage;
+    JButton endTestButton;
+    JButton cancelTestButton;
+    
+    private ClassTarget testTarget = null;
+    private String testTargetMethod;
+    
 
     private JMenuBar menubar = null;
     private JMenu toolsMenu;
@@ -98,9 +106,6 @@ public class PkgMgrFrame extends JFrame
        there is no package current being edited (isEmptyFrame() == true) */
     private PackageEditor editor = null;
 
-    private ClassTarget testTarget = null;
-    private String testTargetMethod;
-    
     private ObjectBench objbench;
 
     private LibraryCallDialog libraryCallDialog = null;
@@ -1400,6 +1405,38 @@ public class PkgMgrFrame extends JFrame
         setStatus(Config.getString("pkgmgr.chooseArrow"));
     }
 
+    private void doEndTest()
+    {
+        testStatusMessage.setEnabled(false);
+        testStatusMessage.setText("");
+        endTestButton.setEnabled(false);
+        cancelTestButton.setEnabled(false);
+        
+        getProject().setTestMode(false);
+        
+        if (testTarget.getRole() instanceof UnitTestClassRole) {
+            UnitTestClassRole utcr = (UnitTestClassRole) testTarget.getRole();
+
+            utcr.doEndMakeTestCase(this, testTarget, testTargetMethod);
+        }            
+    }
+    
+    private void doCancelTest()
+    {
+        testStatusMessage.setEnabled(false);
+        testStatusMessage.setText("");
+        endTestButton.setEnabled(false);
+        cancelTestButton.setEnabled(false);
+
+        getProject().setTestMode(false);
+    }
+
+    public void setTestInfo(String testName, ClassTarget testClass)
+    {
+        this.testTargetMethod = testName;
+        this.testTarget = testClass;
+    }
+    
     /**
      * Removes the specified ClassTarget from the Package.
      */
@@ -1452,51 +1489,6 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
-/*    public void doStartTest(ClassTarget ct, String testName)
-    {
-        testTarget = ct;
-        testTargetMethod = testName;        
-
-        System.out.println("In " + ct.getQualifiedName() + " adding a test" + testName);
-
-        System.out.println("Clearing objects on object bench");
-
-        getProject().removeLocalClassLoader();
-
-        System.out.println("Placing fixture objects on object bench");
-
-        Map dobs = Debugger.debugger.runTestSetUp(
-                            getProject().getRemoteClassLoader().getId(),
-                            getProject().getUniqueId(),
-                            ct.getQualifiedName());
-
-        Iterator it = dobs.entrySet().iterator();
-        
-        while(it.hasNext()) {
-            Map.Entry mapent = (Map.Entry) it.next();
-
-            putObjectOnBench((DebuggerObject)mapent.getValue(),(String) mapent.getKey());
-        }
-        
-        getProject().enterTestMode();               
-        getObjectBench().startRecordingTest();
-        compileButtonModel.setEnabled(false);
-        enableTestButton(true);
-    }
-  */  
-    /**
-     *
-     */
-    public void doEndTest()
-    {
-  /*      System.out.println(getObjectBench().getTestStatements());        
-        
-        getProject().endTestMode();
-        getObjectBench().startRecordingInteractions();
-        enableTestButton(false);       
-        getProject().removeLocalClassLoader(); */
-    }
-    
     /**
      * User function "Free Form Call...". Pop up the dialog that allows
      * users to make that call.
@@ -1785,13 +1777,34 @@ public class PkgMgrFrame extends JFrame
         JPanel bottomPanel = new JPanel();
         {
             bottomPanel.setLayout(new BorderLayout());
+
+            JPanel testPanel = new JPanel();
+            testPanel.setLayout(new FlowLayout());
+            testPanel.add(testStatusMessage = new JLabel(""));
+            testPanel.add(endTestButton = new JButton("end test"));
+            testPanel.add(cancelTestButton = new JButton("cancel test"));
+
+            endTestButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    doEndTest(); }
+             });
+            cancelTestButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    doCancelTest(); }
+             });
+
+            testStatusMessage.setEnabled(false);
+            endTestButton.setEnabled(false);
+            cancelTestButton.setEnabled(false);
+
+            bottomPanel.add(testPanel, BorderLayout.NORTH);
             objbench = new ObjectBench();
 
             JComponent bench = objbench.getComponent();
             bench.setBorder(BorderFactory.createCompoundBorder(
                                 BorderFactory.createBevelBorder(BevelBorder.LOWERED),
                                 BorderFactory.createEmptyBorder(5,0,5,0)));
-            bottomPanel.add(bench, BorderLayout.NORTH);
+            bottomPanel.add(bench, BorderLayout.CENTER);
             statusbar = new JLabel(" ");
             statusbar.setAlignmentX(0.0f);
             
@@ -1800,7 +1813,7 @@ public class PkgMgrFrame extends JFrame
 //             bottom.add(statusbar, BorderLayout.CENTER);
 //             bottom.add(new JTextField(30), BorderLayout.EAST);
 //             bottomPanel.add(bottom, BorderLayout.SOUTH);
-            bottomPanel.add(statusbar);
+            bottomPanel.add(statusbar, BorderLayout.SOUTH);
         }
 
         mainPanel.add(toolPanel, BorderLayout.WEST);
@@ -2225,15 +2238,6 @@ public class PkgMgrFrame extends JFrame
      */
     protected void enableFunctions(boolean enable)
     {
-//        if (enable) {
-//            executorField.setBackground(Color.white);
-//            executorField.setFocus();
-//       }
-//        else
-//            executorField.setBackground(Color.lightgrey);
-        
-//        executorField.setEnabled(enable);
-        
         // set Button enable status
         Component[] panelComponents = buttonPanel.getComponents();
         for(int i = 0; i < panelComponents.length; i++)
