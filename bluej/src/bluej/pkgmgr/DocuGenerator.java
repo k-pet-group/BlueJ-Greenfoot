@@ -382,7 +382,7 @@ public class DocuGenerator
 
         // stick it all together
         String javadocCall = docCommand + sourceParam + destinationParam
-                          + titleParams + linkParam + fixedJavadocParams
+                          + titleParams + linkParam + " " + fixedJavadocParams
                           + targets;
 
         generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
