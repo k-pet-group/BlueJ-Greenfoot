@@ -90,8 +90,7 @@ browser.menu.library.close=Close
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Libraries
 classmgr.userlibraries=User Libraries
-classmgr.systemlibraries=System Libraries
-classmgr.bootlibraries=Boot Libraries
+classmgr.userliblibraries=User Libraries from
 classmgr.add=Add
 classmgr.delete=Delete
 classmgr.statuscolumn=Status
