@@ -14,10 +14,10 @@ public class RemoteTestRunner extends BaseTestRunner
     /**
      * Runs a suite extracted from a TestCase subclass.
      */
-    static public TestResult run(Class testClass)
+/*    static public TestResult run(Class testClass)
     {
         return run(new TestSuite(testClass));
-    }
+    } */
 
     /**
      * Runs a single test and collects its results.

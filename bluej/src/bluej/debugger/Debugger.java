@@ -14,7 +14,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: Debugger.java 1727 2003-03-26 04:23:18Z ajp $
  */
 public abstract class Debugger
 {
@@ -95,32 +95,27 @@ public abstract class Debugger
      */
     public abstract void setLibraries(String classpath);
 
-
-    /**
-     * Set the remote "current directory" for relative file access.
-     */
-    public abstract void setDirectory(String path);
-
+	/**
+	 * Run the setUp() method of a test class and return the created
+	 * objects.
+	 * 
+	 * @param loadId	the ID representing the classloader on the remote VM
+	 * @param scopeId	the scope ID representing the object bench on the remote VM
+	 * @param className	the fully qualified name of the class
+	 * @return			a Map of (String name, DebuggerObject obj) entries
+	 */
     public abstract Map runTestSetUp(String loadId, String scopeId, String className);
 
-    public abstract DebuggerTestResult runTestClass(String loadId, String scopeId, String className);
-
+	/**
+	 * Run a single test method in a test class and return the result.
+	 * 
+	 * @param loadId	the ID representing the classloader on the remote VM
+	 * @param scopeId	the scope ID representing the object bench on the remote VM
+	 * @param className	the fully qualified name of the class
+	 * @param methodName the name of the method
+	 * @return			a DebuggerTestResult object
+	 */
     public abstract DebuggerTestResult runTestMethod(String loadId, String scopeId, String className, String methodName);
-
-    /**
-     * Serialize an object in the debugger to a file
-     */
-    public abstract void serializeObject(String scopeId, String instanceName,
-                                         String fileName);
-
-
-    /**
-     * Deserialize an object in the debugger from a file
-     */
-    public abstract DebuggerObject deserializeObject(String loaderId,
-                                                     String scopeId,
-                                                     String newInstanceName,
-                                                     String fileName);
 
     /**
      * Dispose all top level windows in the remote machine.

@@ -501,6 +501,7 @@ menu.edit.removeArrow=Remove Arrow...
 
 menu.tools=Tools
 menu.tools.compile=Compile
+menu.tools.test=Test
 menu.tools.compileSelected=Compile Selected
 menu.tools.rebuild=Rebuild Package
 menu.tools.callLibrary=Use Library Class...
@@ -543,6 +544,8 @@ tooltip.newClass=Create a new class in this package
 tooltip.newUses=Insert a 'uses' relation
 tooltip.newExtends=Insert an inheritance relation
 tooltip.compile=Compile all uncompiled classes in this package
+tooltip.test=Run all compiled test classes in this package
 tooltip.showUses=Toggle display of 'uses' relations
 tooltip.showExtends=Toggle display of inheritance relations
 tooltip.progress=Work indicator: indicates when virtual machine is executing
+

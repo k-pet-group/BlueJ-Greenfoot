@@ -34,7 +34,7 @@ import bluej.testmgr.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: PkgMgrFrame.java 1727 2003-03-26 04:23:18Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1396,6 +1396,24 @@ public class PkgMgrFrame extends JFrame
         setStatus(Config.getString("pkgmgr.chooseArrow"));
     }
 
+	/**
+	 * The user function to test all classes in a package
+	 */
+	private void doTest()
+	{
+		List l = pkg.getTestTargets();
+
+		Iterator it = l.iterator();
+		
+		while(it.hasNext()) {
+			ClassTarget ct = (ClassTarget) it.next();
+
+			ct.getRole().run(this, ct, null);
+		}
+	}
+
+
+
     private void doEndTest()
     {
         testStatusMessage.setEnabled(false);
@@ -1736,6 +1754,16 @@ public class PkgMgrFrame extends JFrame
                                                 pkg.compile(); }
                                          });
                 buttonPanel.add(button);
+				buttonPanel.add(Box.createVerticalStrut(3));
+
+				button = createButton(Config.getString("menu.tools.test"),
+									  emptyIcon,
+									  Config.getString("tooltip.test"));
+				button.addActionListener(new ActionListener() {
+											public void actionPerformed(ActionEvent e) {
+												doTest(); }
+										 });
+				buttonPanel.add(button);
             }
     
             // Image Button Panel to hold the Progress Image

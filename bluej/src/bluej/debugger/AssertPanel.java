@@ -1,46 +1,49 @@
 package bluej.debugger;
 
-import bluej.Config;
-import bluej.utility.Debug;
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.Utility;
-import bluej.utility.JavaNames;
-import bluej.utility.DialogManager;
-
-import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.*;
-import java.util.*;
-import java.io.File;
+
 import javax.swing.*;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.border.Border;
 
 /**
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 1629 2003-02-13 02:03:35Z ajp $
+ * @version $Id: AssertPanel.java 1727 2003-03-26 04:23:18Z ajp $
  */
 public class AssertPanel extends JPanel
+	implements ItemListener
 {
     JTabbedPane assertionTabs;
     JPanel standardPanel;
     JPanel freeformPanel;
     JTextField assertData;
+	JComboBox assertCombo;
+	
+	/**
+	 * The assertion statement that this panel represents
+	 */
+	private String panelAssertStatement;
     
+    private String[] labels = new String[]
+    	 { "equal to", "same as", "not the same as", "not null", "null"  };
+    	 
+    private boolean[] labelsFieldNeeded = new boolean[] 
+    	{ true, true, true, false, false };
+
+	private String[] labelsAssertStatement = new String[]
+		 { "assertEquals", "assertSame", "assertNotSame", "assertNotNull", "assertNull"  };
+    	
     public AssertPanel()
     {
         standardPanel = new JPanel();
         { 
             standardPanel.add(new JLabel("result is"));
-            JComboBox eq = new JComboBox();
-            eq.addItem("equal to");
-            eq.addItem("same as");
-            eq.addItem("not null");
-            standardPanel.add(eq);
+
+            assertCombo = new JComboBox(labels);
+            {
+				assertCombo.addItemListener(this);
+			}                       
+            standardPanel.add(assertCombo);
+            
             standardPanel.add(assertData = new JTextField(20));
         }
 
@@ -59,11 +62,46 @@ public class AssertPanel extends JPanel
 //        assertionTabs.addTab("Free Form Assertions", null, freeformPanel);
 
         add(assertionTabs, BorderLayout.CENTER);
+	}
 
-}
+	public void itemStateChanged(ItemEvent e)
+	{
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			int index = findItemIndex((String)e.getItem());
+			
+			if(index >= 0) {
+				assertData.setEnabled(labelsFieldNeeded[index]);
+				assertData.setBackground(labelsFieldNeeded[index] ? Color.WHITE : Color.GRAY);
+			}
+		}
+	}
 
-    public String getData()
+	private int findItemIndex(String item)
+	{
+		for(int i=0; i<labels.length; i++) {
+			if (labels[i].equals(item))
+				return i;
+		}
+
+		return -1;
+	}
+	
+    public String getAssertStatement()
     {
-        return assertData.getText();    
+        StringBuffer sb = new StringBuffer();
+        
+        int index = assertCombo.getSelectedIndex();
+        
+        sb.append(labelsAssertStatement[index]);
+        sb.append("(");
+
+		if (labelsFieldNeeded[index]) {
+			sb.append(assertData.getText());
+			sb.append(", ");
+		}
+					
+		sb.append("result);");
+    	
+        return sb.toString();    
     }
 }

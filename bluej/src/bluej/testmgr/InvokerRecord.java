@@ -1,20 +1,13 @@
 package bluej.testmgr;
 
-import java.util.List;
 import java.util.*;
-
-import bluej.utility.Utility;
-import bluej.utility.Debug;
-import bluej.views.*;
-import bluej.debugger.*;
-import bluej.runtime.*;
 
 /**
  * Records a single user interaction with the object construction/
  * method call mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 1629 2003-02-13 02:03:35Z ajp $
+ * @version $Id: InvokerRecord.java 1727 2003-03-26 04:23:18Z ajp $
  */
 public abstract class InvokerRecord
 {
@@ -35,5 +28,20 @@ public abstract class InvokerRecord
     public void addAssertion(String assertion)
     {
         assertions.add(assertion);        
+    }
+    
+    protected String getAllAssertions()
+    {
+		StringBuffer sb = new StringBuffer();
+		
+		Iterator it = assertions.iterator();
+		
+		while(it.hasNext()) {
+			sb.append("\t\t\t");
+			sb.append(it.next());
+			sb.append("\n");
+		}
+    	
+    	return sb.toString();
     }
 }

@@ -1,24 +1,18 @@
 package bluej.debugger.jdi;
 
-import bluej.debugger.*;
-
-import bluej.Config;
-import bluej.BlueJEvent;
-import bluej.utility.*;
-import bluej.runtime.ExecServer;
-import bluej.terminal.Terminal;
-
 import java.io.*;
-import java.util.List;
 import java.util.*;
 
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
+import com.sun.jdi.event.*;
 import com.sun.jdi.request.*;
-import com.sun.jdi.event.LocatableEvent;
-import com.sun.jdi.event.ExceptionEvent;
 
-import junit.framework.*;
+import bluej.*;
+import bluej.debugger.*;
+import bluej.runtime.ExecServer;
+import bluej.terminal.Terminal;
+import bluej.utility.Debug;
 
 /**
  * A class implementing the execution and debugging primitives needed by
@@ -28,7 +22,7 @@ import junit.framework.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: JdiDebugger.java 1727 2003-03-26 04:23:18Z ajp $
  *
  * The startup process is as follows:
  *
@@ -478,19 +472,6 @@ public final class JdiDebugger extends Debugger
         invokeExecServer( ExecServer.SET_LIBRARIES, Arrays.asList(args));
     }
 
-    /**
-     * Set the remote "current directory" for relative file access.
-     * Cannot be used currently because all the class loading goes wrong
-     * once the directory gets changed. Someone needs to fix the class
-     * loading first.
-     */
-    public void setDirectory(String path)
-    {
-        Object args[] = { path };
-
-        invokeExecServer(ExecServer.SET_DIRECTORY, Arrays.asList(args));
-    }
-
     public Map runTestSetUp(String loaderId, String scopeId, String className)
     {
         Object args[] = { loaderId, scopeId, className };
@@ -519,51 +500,22 @@ public final class JdiDebugger extends Debugger
         return returnMap;
     }
 
-    public DebuggerTestResult runTestClass(String loaderId, String scopeId, String className)
-    {
-        Object args[] = { loaderId, scopeId, className };
-
-        ArrayReference arrayRef = (ArrayReference) invokeExecServer(ExecServer.RUN_TEST_CLASS, Arrays.asList(args));
-
-        return new JdiTestResult(arrayRef);        
-    }
-
     public DebuggerTestResult runTestMethod(String loaderId, String scopeId, String className, String methodName)
     {
         Object args[] = { loaderId, scopeId, className, methodName };
 
-        ArrayReference arrayRef = (ArrayReference) invokeExecServer(ExecServer.RUN_TEST_METHOD, Arrays.asList(args));
-        
-        return new JdiTestResult(arrayRef);        
+		ArrayReference arrayRef = (ArrayReference) invokeExecServer(ExecServer.RUN_TEST_METHOD, Arrays.asList(args));
+      
+        if (arrayRef != null) {
+			String exMsg = ((StringReference) arrayRef.getValue(0)).value();
+			String traceMsg = ((StringReference) arrayRef.getValue(1)).value();
+
+			return new JdiTestResult(className, methodName, exMsg, traceMsg);        
+        }
+		
+		return new JdiTestResult(className, methodName);
     }    
 
-
-    /**
-     * Serialize an object in the debugger to a file
-     */
-    public void serializeObject(String scopeId, String instanceName,
-                                String fileName)
-    {
-        Object args[] = { scopeId, instanceName, fileName };
-        invokeExecServer(ExecServer.SERIALIZE_OBJECT, Arrays.asList(args));
-    }
-
-    /**
-     * Deserialize an object in the debugger from a file
-     */
-    public DebuggerObject deserializeObject(String loaderId, String scopeId,
-                                            String newInstanceName, String fileName)
-    {
-        Object args[] = { scopeId, newInstanceName, fileName };
-
-        ObjectReference objRef = (ObjectReference)
-            invokeExecServer(ExecServer.DESERIALIZE_OBJECT, Arrays.asList(args));
-
-        if (objRef == null)
-            return null;
-
-        return JdiObject.getDebuggerObject(objRef);
-    }
 
     /**
      * Dispose all top level windows in the remote machine.
@@ -645,38 +597,6 @@ public final class JdiDebugger extends Debugger
     }
 
     /**
-     * Start the server process on the remote machine to perform a task.
-     * Arguments to the server are a task ID specifying what we want done,
-     * and four optional string parameters. The string parameters must not
-     * be null. The task ID is one of the constants defined in
-     * runtime.ExecServer.
-     *
-     * Returns the class loader if the task is CREATE_LOADER, the new object
-     * if the task is DESERIALIZE_OBJECT, null otherwise.
-     *
-     * This is done synchronously: we return once the remote execution
-     * has completed.
-     */
-/*    private Value startServer(int task, String arg1,
-                              String arg2, String arg3, String arg4)
-    {
-            List arguments = new ArrayList(5);
-            arguments.add(vm.mirrorOf(task));
-            arguments.add(vm.mirrorOf(arg1));
-            arguments.add(vm.mirrorOf(arg2));
-            arguments.add(vm.mirrorOf(arg3));
-            arguments.add(vm.mirrorOf(arg4));
-            Value returnVal = execServer.invokeMethod(serverThread,
-                                                      performTaskMethod,
-                                                      arguments, 0);
-            return returnVal;
-        }
-        }
-        return null;
-    }
-*/
-
-    /**
      * Find the components on the remote VM that we need to talk to it:
      * the execServer object, the performTaskMethod, and the serverThread.
      * These three variables (mirrors to the remote entities) are set up here.
@@ -726,18 +646,10 @@ public final class JdiDebugger extends Debugger
                                 findMethodByName(serverClass,ExecServer.REMOVE_OBJECT));
         execServerMethods.put( ExecServer.SET_LIBRARIES,
                                 findMethodByName(serverClass,ExecServer.SET_LIBRARIES));
-        execServerMethods.put( ExecServer.SET_DIRECTORY,
-                                findMethodByName(serverClass,ExecServer.SET_DIRECTORY));
         execServerMethods.put( ExecServer.RUN_TEST_SETUP,
                                 findMethodByName(serverClass,ExecServer.RUN_TEST_SETUP));
-        execServerMethods.put( ExecServer.RUN_TEST_CLASS,
-                                findMethodByName(serverClass,ExecServer.RUN_TEST_CLASS));
         execServerMethods.put( ExecServer.RUN_TEST_METHOD,
                                 findMethodByName(serverClass,ExecServer.RUN_TEST_METHOD));
-        execServerMethods.put( ExecServer.SERIALIZE_OBJECT,
-                                findMethodByName(serverClass,ExecServer.SERIALIZE_OBJECT));
-        execServerMethods.put( ExecServer.DESERIALIZE_OBJECT,
-                                findMethodByName(serverClass,ExecServer.DESERIALIZE_OBJECT));
         execServerMethods.put( ExecServer.SUPRESS_OUTPUT,
                                 findMethodByName(serverClass,ExecServer.SUPRESS_OUTPUT));
         execServerMethods.put( ExecServer.RESTORE_OUTPUT,

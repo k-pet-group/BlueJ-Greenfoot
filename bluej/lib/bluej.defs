@@ -407,6 +407,11 @@ image.step_into=step_into.gif
 image.stop=stop.gif
 image.terminate=terminate.gif
 
+# test manager
+image.testmgr.ok=ok.gif
+image.testmgr.error=error.gif
+image.testmgr.failure=failure.gif
+
 # Extensions manager help page
 image.extmgr.info=extmgr-info.gif
 

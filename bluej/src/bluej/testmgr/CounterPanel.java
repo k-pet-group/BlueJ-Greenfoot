@@ -4,6 +4,8 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import bluej.Config;
+
 /**
  * A panel with test run counters
  */
@@ -12,8 +14,8 @@ public class CounterPanel extends JPanel
 	private JTextField fNumberOfErrors;
 	private JTextField fNumberOfFailures;
 	private JTextField fNumberOfRuns;
-	private Icon fFailureIcon=null; // TestRunner.getIconResource(getClass(), "icons/failure.gif");
-	private Icon fErrorIcon=null; //TestRunner.getIconResource(getClass(), "icons/error.gif");
+	final static Icon fFailureIcon = Config.getImageAsIcon("image.testmgr.failure");
+	final static Icon fErrorIcon = Config.getImageAsIcon("image.testmgr.error");
 
 	private int fTotal;
 

@@ -1,50 +1,19 @@
 package bluej.pkgmgr;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.awt.event.*;
+import java.io.*;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.*;
 
 import bluej.Config;
-import bluej.compiler.CompileObserver;
-import bluej.compiler.JobQueue;
-import bluej.debugger.CallHistory;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerClassLoader;
-import bluej.debugger.DebuggerThread;
-import bluej.debugger.ExecControls;
-import bluej.debugger.Invoker;
-import bluej.debugger.SourceLocation;
-import bluej.editor.Editor;
-import bluej.editor.EditorManager;
-import bluej.graph.Graph;
-import bluej.graph.Vertex;
+import bluej.compiler.*;
+import bluej.debugger.*;
+import bluej.editor.*;
+import bluej.graph.*;
 import bluej.parser.ClassParser;
-import bluej.parser.symtab.ClassInfo;
-import bluej.parser.symtab.Selection;
-import bluej.utility.Debug;
-import bluej.utility.FileUtility;
-import bluej.utility.JavaNames;
-import bluej.utility.MultiIterator;
-import bluej.utility.SortedProperties;
-import bluej.utility.filefilter.JavaClassFilter;
-import bluej.utility.filefilter.JavaSourceFilter;
-import bluej.utility.filefilter.SubPackageFilter;
+import bluej.parser.symtab.*;
+import bluej.utility.*;
+import bluej.utility.filefilter.*;
 
 
 /**
@@ -53,7 +22,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1627 2003-02-12 06:02:44Z ajp $
+ * @version $Id: Package.java 1727 2003-03-26 04:23:18Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -860,6 +829,28 @@ public class Package extends Graph
 
         return new MultiIterator(iterations);
     }
+
+	/**
+	 * Return a List of all ClassTargets that have the role of
+	 * a unit test.
+	 */
+	public List getTestTargets()
+	{
+		List l = new ArrayList();
+		
+		for(Iterator it = targets.iterator(); it.hasNext(); ) {
+			Target target = (Target)it.next();
+
+			if(target instanceof ClassTarget) {
+				ClassTarget ct = (ClassTarget)target;
+
+				if (ct.isUnitTest())
+					l.add(ct);
+			}
+		}
+		
+		return l;
+	}
 
     /**
      *  The standard compile user function: Find and compile all uncompiled

@@ -4,8 +4,6 @@ import java.awt.*;
 import java.util.*;
 
 import javax.swing.*;
-import junit.framework.TestFailure;
-import junit.runner.*;
 
 /**
  * A view that shows a stack trace of a failure
@@ -19,7 +17,7 @@ public class FailureDetailView
 	 */
 	static class StackTraceListModel extends AbstractListModel
 	{
-		private Vector fLines= new Vector(20);
+		private Vector fLines = new Vector(20);
 		
 		public Object getElementAt(int index) {
 			return fLines.elementAt(index);
@@ -72,8 +70,8 @@ public class FailureDetailView
 			fList= new JList(new StackTraceListModel());
 			fList.setFont(new Font("Dialog", Font.PLAIN, 12));
 			fList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			fList.setVisibleRowCount(10);
-			fList.setFixedCellWidth(600);
+			fList.setVisibleRowCount(8);
+			fList.setFixedCellWidth(400);
 			fList.setCellRenderer(new StackEntryRenderer());
 		}
 		return fList;

@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: ClassTarget.java 1727 2003-03-26 04:23:18Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -319,6 +319,15 @@ public class ClassTarget extends EditableTarget
         return (getRole() instanceof InterfaceClassRole);
     }
 
+	/**
+	 * Verify whether this class target is an unit test class
+	 * @return true if class target is a unit test class, else returns false
+	 */
+	public boolean isUnitTest()
+	{
+		return (getRole() instanceof UnitTestClassRole);
+	}
+
     // --- Target interface ---
 
     Color getBackgroundColour()
@@ -467,31 +476,6 @@ public class ClassTarget extends EditableTarget
     {
         getPackage().compile(this);
     }
-
-/* ajp experiment
-    public void refactorEvent(Editor editor, BlueJHook hook)
-    {
-       try {
-            FileParser fileParser = new FileParser();
-
-            fileParser.doFile( getPackage().getProject().getProjectDir() );
-
-            TableMaker maker = new TableMaker( (SymTabAST)(fileParser.getTree()) );
-            SymbolTable symbolTable = maker.getTable();
-
-            Transmogrifier rf = new RenameVariable();
-            rf.setup(symbolTable);
-
-            if (rf.canApply(hook))
-                rf.apply(hook);
-            else
-                System.out.println("can't refactor here");
-        }
-        catch (Exception e) {
-          e.printStackTrace();
-        }
-    }
-*/
 
     // --- end of EditorWatcher interface ---
 

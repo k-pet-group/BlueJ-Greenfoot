@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: UnitTestClassRole.java 1727 2003-03-26 04:23:18Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -49,6 +49,21 @@ public class UnitTestClassRole extends ClassRole
         return Config.getItemColour("colour.class.bg.unittest");
     }
 
+	private boolean isJUnitTestMethod(Method m)
+	{
+		// look for reasons to not include this method as a test case
+		if (!m.getName().startsWith("test"))
+			return false;
+		if (!Modifier.isPublic(m.getModifiers()))
+			return false;
+		if (m.getParameterTypes().length != 0)
+			return false;
+		if (!m.getReturnType().equals(Void.TYPE))
+			return false;
+		
+		return true;
+	}
+	
     /**
      * Generate a popup menu for this TestClassRole.
      * @param cl the class object that is represented by this target
@@ -75,22 +90,14 @@ public class UnitTestClassRole extends ClassRole
         boolean hasEntries = false;
 
         Method[] allMethods = cl.getMethods();
-
+		
         for (int i=0; i < allMethods.length; i++) {
             Method m = allMethods[i];
 
-            String name = m.getName();
-            // look for reasons to not include this method as a test case
-            if (!name.startsWith("test"))
-                continue;
-            if (!Modifier.isPublic(m.getModifiers()))
-                continue;
-            if (m.getParameterTypes().length != 0)
-                continue;
-            if (!m.getReturnType().equals(Void.TYPE))
-                continue;
-
-            Action testAction = new TestAction("Test " + name.substring(4), ct.getPackage().getEditor(), ct, name);
+			if (!isJUnitTestMethod(m))
+				continue;
+				
+            Action testAction = new TestAction("Test " + m.getName().substring(4), ct.getPackage().getEditor(), ct, m.getName());
 
             JMenuItem item = new JMenuItem();
             item.setAction(testAction);
@@ -121,26 +128,49 @@ public class UnitTestClassRole extends ClassRole
 
     public void run(PkgMgrFrame pmf, ClassTarget ct, String param)
     {
-        DebuggerTestResult dtr;
+        DebuggerTestResult dtr = null;
 
         if (param != null) {
             // Test a single method
             dtr = Debugger.debugger.runTestMethod(pmf.getProject().getRemoteClassLoader().getId(),
                         pmf.getProject().getUniqueId(), ct.getQualifiedName(), param);
 
-            if (dtr.errorCount() == 0 && dtr.failureCount() == 0)
+            if (dtr.isSuccess())
                 pmf.setStatus(param + " succeeded");
-            else
-                TestDisplayFrame.getTestDisplay().setResult(dtr);
-
+            else {
+            	TestDisplayFrame.getTestDisplay().startTests(1);
+				TestDisplayFrame.getTestDisplay().addResult(dtr);
+            }
         }
         else {
+			Class cl = pmf.getPackage().loadClass(ct.getQualifiedName());
+
+			if (cl == null)
+				return;
+				
             // Test the whole class
-            dtr = Debugger.debugger.runTestClass(pmf.getProject().getRemoteClassLoader().getId(),
-                            pmf.getProject().getUniqueId(), ct.getQualifiedName());
+			Method[] allMethods = cl.getMethods();
 
-            TestDisplayFrame.getTestDisplay().setResult(dtr);
+			int testCount = 0;
 
+			for (int i=0; i < allMethods.length; i++) {
+				if (isJUnitTestMethod(allMethods[i]))
+					testCount++;
+			}
+
+			TestDisplayFrame.getTestDisplay().startTests(testCount);
+				
+			for (int i=0; i < allMethods.length; i++) {
+				Method m = allMethods[i];
+
+				if (!isJUnitTestMethod(m))
+					continue;
+					
+				dtr = Debugger.debugger.runTestMethod(pmf.getProject().getRemoteClassLoader().getId(),
+								pmf.getProject().getUniqueId(), ct.getQualifiedName(), m.getName());
+
+				TestDisplayFrame.getTestDisplay().addResult(dtr);			
+			}
         }            
     }
 

@@ -1,27 +1,23 @@
 package bluej.debugger;
 
-import bluej.Config;
-import bluej.utility.Debug;
-import bluej.pkgmgr.Package;
-import bluej.utility.DialogManager;
-import bluej.testmgr.*;
-
-import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.*;
 import java.util.*;
+
 import javax.swing.*;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.border.Border;
+import javax.swing.event.*;
+
+import bluej.Config;
+import bluej.pkgmgr.Package;
+import bluej.testmgr.*;
+import bluej.utility.DialogManager;
 
 /**
  * A window that displays the fields in an object or class. This class is subclassed
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1629 2003-02-13 02:03:35Z ajp $
+ * @version    $Id: Inspector.java 1727 2003-03-26 04:23:18Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -315,26 +311,31 @@ public abstract class Inspector extends JFrame
     }
 
     /**
-     *  Close this viewer. Don't forget to remove it from the list of open
-     *  inspectors.
+     * Close this viewer. Don't forget to remove it from the list of open
+     * inspectors.
      */
     private void doClose()
     {
-        if (assertCheckbox != null && assertCheckbox.isSelected()) {
-            ir.addAssertion("\t\t\tassertEquals(" + assertPanel.getData() + ", result);\n");
-        }
-        
+		handleAssertions();
+
         setVisible(false);
         remove();
         dispose();
     }
 
+	protected void handleAssertions()
+	{
+		if (assertCheckbox != null && assertCheckbox.isSelected()) {
+			ir.addAssertion("\t\t\t" + assertPanel.getAssertStatement() + "\n");
+		}
+	}
+
     /**
-     *  Build the GUI interface.
+     * Build the GUI interface.
      *
-     *@param  parent        Description of Parameter
-     *@param  isResult      Indicates if this is a result window or an inspector window
-     *@param  obj           The debugger object we want to look at
+     * @param  parent        Description of Parameter
+     * @param  isResult      Indicates if this is a result window or an inspector window
+     * @param  obj           The debugger object we want to look at
      */
     protected void makeFrame(JFrame parent, boolean isResult, boolean isObject,
                             String nameLabel, boolean showAssert)
@@ -457,6 +458,8 @@ public abstract class Inspector extends JFrame
                 assertPanel.setAlignmentX(LEFT_ALIGNMENT);
                 buttonPanel.add(assertPanel);
             }
+            
+            buttonPanel.add(Box.createVerticalStrut(3));
         }
         
         JButton button = new JButton(close);

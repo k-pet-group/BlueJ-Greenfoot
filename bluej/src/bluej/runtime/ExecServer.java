@@ -1,20 +1,15 @@
 package bluej.runtime;
 
-import bluej.utility.Queue;
-import bluej.utility.Debug;
-import bluej.classmgr.ClassMgr;
-
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
-import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.SwingUtilities;
-import java.beans.*;
+import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.List;
 
 import junit.framework.*;
-import junit.runner.*;
+
+import bluej.utility.Debug;
 
 /**
  * Class that controls the runtime of code executed within BlueJ.
@@ -23,9 +18,9 @@ import junit.runner.*;
  * This class both holds runtime attributes and executes commands.
  * Execution is done through JDI reflection from the JdiDebugger class.
  *
- * @author Michael Kolling
+ * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: ExecServer.java 1727 2003-03-26 04:23:18Z ajp $
  */
 public class ExecServer
 {
@@ -39,12 +34,9 @@ public class ExecServer
     public static final String ADD_OBJECT       = "addObject";
     public static final String REMOVE_OBJECT    = "removeObject";
     public static final String SET_LIBRARIES    = "setLibraries";
-    public static final String SET_DIRECTORY    = "setDirectory";
     public static final String RUN_TEST_SETUP   = "runTestSetUp";
     public static final String RUN_TEST_CLASS   = "runTestClass";
     public static final String RUN_TEST_METHOD   = "runTestMethod";
-    public static final String SERIALIZE_OBJECT = "serializeObject";
-    public static final String DESERIALIZE_OBJECT = "deserializeObject";
     public static final String SUPRESS_OUTPUT   = "supressOutput";
     public static final String RESTORE_OUTPUT   = "restoreOutput";
     public static final String DISPOSE_WINDOWS  = "disposeWindows";
@@ -288,69 +280,6 @@ public class ExecServer
     }
 
     /**
-     *  Set the current working directory for this virtual machine.
-     */
-    private void setDirectory(String dir)
-    {
-        // THIS DOES NOT WORK!
-        // There is, currently, no way to properly set the current directory in Java.
-        System.setProperty("user.dir", dir);
-    }
-
-    /**
-     */
-    private void serializeObject(String scopeId, String instanceName, String fileName)
-    {
-        //Debug.message("[VM] serializeObject: " + instanceName);
-        Map scope = getScope(scopeId);
-        Object wrapObject = scope.get(instanceName);
-
-        if (wrapObject == null) {
-            System.out.println("wrap object was null for scope " + scopeId);
-            System.out.println(scopes.toString());
-        }
-
-        try {
-            FileOutputStream fo = new FileOutputStream(fileName);
-            ObjectOutputStream so = new ObjectOutputStream(fo);
-            so.writeObject(wrapObject);
-            so.flush();
-        }
-        catch(IOException ioe)
-        {
-            ioe.printStackTrace();
-        }
-    }
-
-    private Object deserializeObject(String loaderId, String scopeId, String newInstanceName,
-                                     String fileName)
-    {
-        //Debug.message("[VM] deserializeObject: " + newInstanceName);
-        Map scope = getScope(scopeId);
-        Object obj = null;
-
-        try {
-            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
-
-//            XMLDecoder xmld = new XMLDecoder(new BufferedInputStream(loader.getResourceAsStream(fileName)));
-            
- //           obj = xmld.readObject();
-
-            //xmld.close();
-
-            scope.put(newInstanceName, obj);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        System.out.println(obj.toString());
-
-        return obj;
-    }
-
-    /**
      * Execute a JUnit test case setUp method.
      * 
      * @return  an array consisting of String, Object pairs. For n fixture objects
@@ -434,15 +363,6 @@ public class ExecServer
         return new Object[0];
     }
 
-    /**
-     * Execute a JUnit test case and return the results.
-     * 
-     * @return  an array consisting of Strings.
-     *          The first three Strings are respectively, the runCount, errorCount,
-     *          and failureCount, represented as strings.
-     *          The remaining String's are the toString() values of all errors and
-     *          failures.
-     */
     private Object[] runTestClass(String loaderId, String scopeId, String className)
         throws ClassNotFoundException
     {
@@ -456,7 +376,7 @@ public class ExecServer
                 cl = loader.loadClass(className);
     	}
 
-        TestResult tr = RemoteTestRunner.run(cl);
+        TestResult tr = null; // = RemoteTestRunner.run(cl);
         
         String results[] = new String[3 + tr.errorCount() + tr.failureCount()];
 
@@ -480,11 +400,18 @@ public class ExecServer
         return results;
     }
 
+	/**
+	 * Execute a JUnit test method and return the result.
+	 * 
+	 * @return  an array in case of failure or error, and null if
+	 *          the test ran successfully.
+	 */
     private Object[] runTestMethod(String loaderId, String scopeId, String className, String methodName)
         throws ClassNotFoundException
     {
         Class cl = null;
         
+		// load the class we are going to test
         if(loaderId == null)
             cl = classmgr.getLoader().loadClass(className);
         else {
@@ -494,7 +421,10 @@ public class ExecServer
     	}
 
         TestCase testCase = null;
-            
+        
+        // construct a testcase using
+        // the String constructor and passing in our
+        // method name as a parameter     
         try {
             Class partypes[] = new Class[1];
             partypes[0] = String.class;
@@ -505,10 +435,12 @@ public class ExecServer
             testCase = (TestCase) ct.newInstance(arglist);
         }
         catch (NoSuchMethodException nsme) { }
-        catch (InstantiationException ie) { }
-        catch (IllegalAccessException iae) { }
-        catch (InvocationTargetException ite) { }
+        catch (InstantiationException ie) { throw new IllegalArgumentException("ie"); }
+        catch (IllegalAccessException iae) { throw new IllegalArgumentException("iae"); }
+        catch (InvocationTargetException ite) { throw new IllegalArgumentException("ite"); }
 
+		// if that failed, construct a testcase using
+		// the no-arguement constructor
         if (testCase == null) {
             try {
                 testCase = (TestCase) cl.newInstance();
@@ -523,24 +455,39 @@ public class ExecServer
 
         TestResult tr = RemoteTestRunner.run(suite);
 
-        String results[] = new String[3 + tr.errorCount() + tr.failureCount()];
-
-        results[0] = String.valueOf(tr.runCount());
-        results[1] = String.valueOf(tr.errorCount());
-        results[2] = String.valueOf(tr.failureCount());
-
-        int i = 3;
-        Enumeration e;
-                
-        for (e = tr.errors(); e.hasMoreElements(); ) {
-			results[i++] = ((TestFailure)e.nextElement()).toString();
+		if (tr.errorCount() > 1 || tr.failureCount() > 1)
+			throw new IllegalStateException("error or failure count was > 1");
+			
+		if (tr.errorCount() == 1) {
+			for (Enumeration e = tr.errors(); e.hasMoreElements(); ) {
+				Object result[] = new Object[2];
+				TestFailure tf = (TestFailure)e.nextElement();
+				
+				result[0] = tf.exceptionMessage();
+				result[1] = tf.trace();
+				
+				return result;
+			}
+			// should not reach here
+			throw new IllegalStateException("errorCount was 1 but found no errors");
 		}
-		
-        for (e = tr.failures(); e.hasMoreElements(); ) {
-			results[i++] = ((TestFailure)e.nextElement()).toString();
+
+		if (tr.failureCount() == 1) {
+			for (Enumeration e = tr.failures(); e.hasMoreElements(); ) {
+				Object result[] = new Object[2];
+				TestFailure tf = (TestFailure)e.nextElement();
+				
+				result[0] = tf.exceptionMessage();
+				result[1] = tf.trace();
+
+				return result;
+			}
+			// should not reach here
+			throw new IllegalStateException("failureCount was 1 but found no errors");
 		}
-        
-        return results;
+
+		// success
+		return null;
     }
 
     /**
