@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 86 1999-05-18 02:49:53Z mik $
+ ** @version $Id: PkgFrame.java 106 1999-06-03 02:15:30Z ajp $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -364,19 +364,22 @@ public abstract class PkgFrame extends JFrame
     static final int TOOLS_COMPILESELECTED = TOOLS_COMPILE + 1;
     static final int TOOLS_COMPILEALL = TOOLS_COMPILESELECTED + 1;
     static final int TOOLS_BROWSE = TOOLS_COMPILEALL + 1;
+    static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
 
     static final String[] ToolsCmds = {
-	"compile", "compileSelected", "rebuild", "browse"
+	"compile", "compileSelected", "rebuild", "browse", "preferences"
     };
 
     static final KeyStroke[] ToolsKeys = {
 	KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK), 
 	KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.SHIFT_MASK | Event.CTRL_MASK),
 	null,
-	KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK)
+	KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
+	null
     };
 
     static final int[] ToolsSeparators = {
+	TOOLS_COMPILEALL
     };
 
     static final int VIEW_COMMAND = TOOLS_COMMAND + 100;

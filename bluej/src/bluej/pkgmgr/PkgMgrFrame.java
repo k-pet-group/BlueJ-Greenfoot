@@ -26,7 +26,7 @@ import bluej.debugger.ExecControls;
 import bluej.debugger.ExecControlButtonModel;
 import bluej.terminal.Terminal;
 import bluej.terminal.TerminalButtonModel;
-
+import bluej.classmgr.ClassMgrDialog;
 
 public class PkgMgrFrame extends PkgFrame 
 
@@ -302,14 +302,18 @@ public class PkgMgrFrame extends PkgFrame
 	    break;
 
 	case TOOLS_BROWSE:
-	    Utility.NYI(this);
-//  	    getBrowser().setVisible(true);
+//	    Utility.NYI(this);
+  	    getBrowser().setVisible(true);
 //  	    // offset browser from this window
-//  	    getBrowser().setLocation(this.getLocation().x + 100, 
-//  				     this.getLocation().y + 100);
-//  	    getBrowser().invalidate();
-//  	    getBrowser().validate();
+  	    getBrowser().setLocation(this.getLocation().x + 100, 
+  				     this.getLocation().y + 100);
+  	    getBrowser().invalidate();
+  	    getBrowser().validate();
 	    break;
+
+	case TOOLS_PREFERENCES:
+		ClassMgrDialog.showDialog(null);
+		break;
 
 	    // View commands
 	case VIEW_SHOWUSES:
@@ -1087,7 +1091,8 @@ public class PkgMgrFrame extends PkgFrame
 			       && !label.equals(Config.getString("menu.package.quit"))
 			       && !label.equals(Config.getString("menu.package"))
 			       && !label.equals(Config.getString("menu.tools"))
-			       && !label.equals(Config.getString("menu.tools.browse")))
+			       && !label.equals(Config.getString("menu.tools.browse"))
+			       && !label.equals(Config.getString("menu.tools.preferences")))
 				item.setEnabled(enable);
 			}
 		    }

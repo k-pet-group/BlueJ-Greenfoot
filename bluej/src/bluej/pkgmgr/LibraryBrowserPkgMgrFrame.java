@@ -15,7 +15,6 @@ import bluej.browser.AttributeChooser;
 import bluej.browser.LibraryChooser;
 import bluej.browser.ChooseUseDestinationDIalog;
 import bluej.browser.FindLibraryDialog;
-import bluej.browser.AddLibraryDialog;
 import bluej.utility.ToggleMessageBox;
 import bluej.utility.ToggleMessageBoxOwner;
 import bluej.utility.Utility;
@@ -32,8 +31,8 @@ import java.net.MalformedURLException;
  * Runs as either a standalone application, or spawned from
  * the BlueJ environment
  *
- * @author $Author: mik $
- * @date $Date: 1999-05-04 01:03:10 +0100 (Tue, 04 May 1999) $
+ * @author $Author: ajp $
+ * @date $Date: 1999-06-03 03:15:30 +0100 (Thu, 03 Jun 1999) $
  * $Header$
  **/
 public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListener, ToggleMessageBoxOwner {
@@ -213,10 +212,6 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
     protected void setupMenus() {
 	menuBar = new JMenuBar();
 	JMenu libraryM = new JMenu(Config.getString("browser.menu.library"));
-	addLibMI = new JMenuItem(Config.getString("browser.menu.library.addlibrary"));
-	libraryM.add(addLibMI);
-	addLibMI.addActionListener(this);
-	addLibMI.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK));
 
 	refreshMI = new JMenuItem(Config.getString("browser.menu.library.refresh"));
 	refreshMI.addActionListener(this);
@@ -337,9 +332,6 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 	    libraryChooser.saveConfig();
 				
 	    close();
-	} else if (source == addLibMI) {
-	    AddLibraryDialog.init(this, Config.getString("browser.menu.library.addlibrary.title"));
-	    AddLibraryDialog.showDialog(null);
 	} else if (source == aboutMI) {
 	    Utility.showMessage(this,
 				Config.getString("browser.menu.help.about.text"));
