@@ -28,7 +28,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2298 2003-11-06 19:06:33Z damiano $
+ * @version $Id: Package.java 2330 2003-11-13 04:10:34Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1062,7 +1062,7 @@ public final class Package extends Graph
             srcFiles[i] = ct.getSourceFile();
         }
         removeBreakpoints();
-        Terminal.getTerminal().clear();
+        //Terminal.getTerminal().clear();
         
         JobQueue.getJobQueue().addJob(srcFiles, observer,
                                         getProject().getClassPath(),

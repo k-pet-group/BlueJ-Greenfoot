@@ -12,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2250 2003-11-04 12:43:09Z mik $
+ * @version $Id: Debugger.java 2330 2003-11-13 04:10:34Z ajp $
  */
 public abstract class Debugger
 {
@@ -37,9 +37,9 @@ public abstract class Debugger
 	 * 
 	 * @return  a Debugger instance
 	 */
-	public static Debugger getDebuggerImpl(File startingDirectory)
+	public static Debugger getDebuggerImpl(File startingDirectory, DebuggerTerminal terminal)
 	{
-        return new JdiDebugger(startingDirectory);
+        return new JdiDebugger(startingDirectory, terminal);
 	}
 	
 	/**

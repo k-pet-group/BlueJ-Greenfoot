@@ -6,7 +6,6 @@ import java.util.*;
 import javax.swing.event.EventListenerList;
 
 import bluej.*;
-import bluej.Config;
 import bluej.debugger.*;
 import bluej.debugmgr.Invoker;
 import bluej.runtime.ExecServer;
@@ -29,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2304 2003-11-07 12:52:25Z fisker $
+ * @version $Id: JdiDebugger.java 2330 2003-11-13 04:10:34Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -59,6 +58,9 @@ public class JdiDebugger extends Debugger
 	// the directory to launch the VM in
 	private File startingDirectory;
 	
+    // terminal to use for all VM input and output
+    private DebuggerTerminal terminal;
+    
 	// a Set of strings which have been used as names on the
 	// object bench. We endeavour to not reuse them.
 	private Set usedNames;
@@ -74,10 +76,12 @@ public class JdiDebugger extends Debugger
 	 *  
 	 * @param startingDirectory  a File representing the directory
 	 *                           we should launch the debug VM in.
+     * @param terminal           a Terminal where we can do input/output.
 	 */	
-    public JdiDebugger(File startingDirectory)
+    public JdiDebugger(File startingDirectory, DebuggerTerminal terminal)
     {
 		this.startingDirectory = startingDirectory;
+        this.terminal = terminal;
 		
         allThreads = new JdiThreadSet();
 		treeModel = new JdiThreadTreeModel(new JdiThreadNode());
@@ -690,7 +694,7 @@ public class JdiDebugger extends Debugger
 		 {
              try{
     		 	// System.out.println("machine loader is running " + vmRunning);
-    			vmRef = new VMReference(JdiDebugger.this, startingDirectory);
+    			vmRef = new VMReference(JdiDebugger.this, terminal, startingDirectory);
     			vmRef.waitForStartup();
     
     			vmRunning = true;

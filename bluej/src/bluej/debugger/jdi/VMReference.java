@@ -24,7 +24,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2304 2003-11-07 12:52:25Z fisker $
+ * @version $Id: VMReference.java 2330 2003-11-13 04:10:34Z ajp $
  *
  * The startup process is as follows:
  *
@@ -124,7 +124,7 @@ class VMReference
      * @return			an instance of a VirtualMachine or null if there
      * 					was an error
      */
-    public VirtualMachine localhostSocketLaunch(File initDir, VirtualMachineManager mgr)
+    public VirtualMachine localhostSocketLaunch(File initDir, DebuggerTerminal term, VirtualMachineManager mgr)
     {
     	final int CONNECT_TRIES = 10;		// try to connect max of 10 times
     	final int CONNECT_WAIT = 500;		// wait half a sec between each connect
@@ -167,19 +167,19 @@ class VMReference
 			errorStreamRedirector =
 			    redirectIOStream(new InputStreamReader(vmProcess.getErrorStream()),
 								//new OutputStreamWriter(System.err),
-								Terminal.getTerminal().getErrorWriter(),
+								term.getErrorWriter(),
 								false);
 
 			// redirect output stream from process to Terminal
 			outputStreamRedirector = 
 			    redirectIOStream(new InputStreamReader(vmProcess.getInputStream()),
 								//new OutputStreamWriter(System.err),
-								Terminal.getTerminal().getWriter(),
+								term.getWriter(),
 								false);
 
 			// redirect Terminal input to process output stream
 			inputStreamRedirector = 
-			    redirectIOStream(Terminal.getTerminal().getReader(),
+			    redirectIOStream(term.getReader(),
 								new OutputStreamWriter(vmProcess.getOutputStream()),
 								false);
 			remoteVMprocess = vmProcess;
@@ -278,12 +278,12 @@ class VMReference
      * Create the second virtual machine and start
      * the execution server (class ExecServer) on that machine.
      */
-    public VMReference(JdiDebugger owner, File initialDirectory) throws JdiVmCreationException
+    public VMReference(JdiDebugger owner, DebuggerTerminal term, File initialDirectory) throws JdiVmCreationException
     {
 		this.owner = owner;
 		
 		// machine will be suspended at startup
-        machine = localhostSocketLaunch(initialDirectory,
+        machine = localhostSocketLaunch(initialDirectory, term,
         								Bootstrap.virtualMachineManager());
         //machine = null; //uncomment to simulate inabilty to create debug VM
         if (machine == null) {

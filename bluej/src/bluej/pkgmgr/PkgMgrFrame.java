@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2318 2003-11-10 16:39:45Z polle $
+ * @version $Id: PkgMgrFrame.java 2330 2003-11-13 04:10:34Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1860,12 +1860,12 @@ public class PkgMgrFrame extends JFrame
 
 		 case Debugger.IDLE:
 		 	machineIcon.setIdle();
-            Terminal.getTerminal().activate(false);
+            getProject().getTerminal().activate(false);
         	break;
 		 
 		 case Debugger.RUNNING:
             machineIcon.setRunning();
-            Terminal.getTerminal().activate(true);
+            getProject().getTerminal().activate(true);
 		 	break;
 	 
 		 case Debugger.SUSPENDED:
@@ -2320,7 +2320,7 @@ public class PkgMgrFrame extends JFrame
 
             item = createCheckboxMenuItem("menu.view.showTerminal", menu,
                            KeyEvent.VK_T, SHORTCUT_MASK, false, false, null);
-            item.setModel(new TerminalButtonModel());
+            item.setModel(new TerminalButtonModel(this));
 
             showTestResultsItem = createCheckboxMenuItem("menu.view.showTestDisplay", menu,
                            0, 0, false, false, null);

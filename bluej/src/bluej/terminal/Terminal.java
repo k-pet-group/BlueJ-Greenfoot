@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
 import bluej.*;
+import bluej.debugger.DebuggerTerminal;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
 
@@ -16,10 +18,10 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 2275 2003-11-05 13:38:49Z mik $
+ * @version $Id: Terminal.java 2330 2003-11-13 04:10:34Z ajp $
  */
 public final class Terminal extends JFrame
-    implements KeyListener, BlueJEventListener
+    implements KeyListener, BlueJEventListener, DebuggerTerminal
 {
     private static final String WINDOWTITLE = Config.getString("terminal.title");
     private static final int windowHeight =
@@ -40,15 +42,8 @@ public final class Terminal extends JFrame
 
     // -- static singleton factory method --
 
-    static Terminal frame = null;
+//    static Terminal frame = null;
     static boolean enabled = true;
-
-    public synchronized static Terminal getTerminal()
-    {
-        if(frame == null)
-            frame = new Terminal();
-        return frame;
-    }
 
 
     // -- instance --
@@ -77,7 +72,7 @@ public final class Terminal extends JFrame
     /**
      * Create a new terminal window with default specifications.
      */
-    private Terminal()
+    public Terminal(Project project)
     {
         this(WINDOWTITLE, windowWidth, windowHeight);
     }
@@ -95,18 +90,16 @@ public final class Terminal extends JFrame
         BlueJEvent.addListener(this);
     }
 
-
     /**
-     * Show or hide the terminal window.
+     * Show or hide the ExecControl window.
      */
-    public void showTerminal(boolean doShow)
+    public void showHide(boolean show)
     {
-        setVisible(doShow);
-        if(doShow) {
+        setVisible(show);
+        if(show) {
             text.requestFocus();
         }
     }
-
 
     /**
      * Return true if the window is currently displayed.
@@ -234,7 +227,7 @@ public final class Terminal extends JFrame
     private void prepare()
     {
         if(newMethodCall) {   // prepare only once per method call
-            showTerminal(true);
+            showHide(true);
             newMethodCall = false;
         }
     }
@@ -497,7 +490,7 @@ public final class Terminal extends JFrame
         }
 
         public void actionPerformed(ActionEvent e) {
-            showTerminal(false);
+            showHide(false);
         }
     }
 

@@ -3,14 +3,15 @@ package bluej.pkgmgr;
 import java.io.*;
 import java.util.*;
 
-import bluej.*;
+import bluej.Config;
 import bluej.classmgr.*;
 import bluej.debugger.*;
-import bluej.debugmgr.*;
+import bluej.debugmgr.ExecControls;
+import bluej.extmgr.ExtensionsManager;
 import bluej.prefmgr.PrefMgr;
+import bluej.terminal.Terminal;
 import bluej.utility.*;
 import bluej.views.View;
-import bluej.extmgr.*;
 
 /**
  * A BlueJ Project.
@@ -19,7 +20,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2325 2003-11-12 13:45:25Z fisker $
+ * @version $Id: Project.java 2330 2003-11-13 04:10:34Z ajp $
  */
 public class Project
     implements DebuggerListener
@@ -314,6 +315,9 @@ public class Project
     /** the ExecControls for this project */
 	private ExecControls execControls = null;
 
+    /** the Terminal for this project */
+    private Terminal terminal = null;
+    
 	/** the documentation generator for this project. */
 	private DocuGenerator docuGenerator;
 	
@@ -351,7 +355,7 @@ public class Project
             Debug.reportError("could not read package file (unnamed package)");
         }
 
-		debugger = Debugger.getDebuggerImpl(getProjectDir());
+		debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
 		debugger.addDebuggerListener(this);
 		debugger.launch();
 
@@ -378,7 +382,8 @@ public class Project
      * Return wether the project is located in a readonly directory
      * @return
      */
-    public boolean isReadOnly(){
+    public boolean isReadOnly()
+    {
         return !projectDir.canWrite();
     }
     /**
@@ -765,7 +770,21 @@ public class Project
 			
 		return execControls;
 	}
-	
+
+    public boolean hasTerminal()
+    {
+        return terminal != null;
+    }
+    
+    public Terminal getTerminal()
+    {
+        if (terminal == null)
+            terminal = new Terminal(this);
+            
+        return terminal;
+    }
+    
+
     /**
      * Loads a class using the current classLoader
      */
