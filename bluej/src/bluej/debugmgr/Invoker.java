@@ -28,7 +28,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2689 2004-06-30 00:57:40Z davmac $
+ * @version $Id: Invoker.java 2697 2004-06-30 11:29:03Z mik $
  */
 
 public class Invoker extends Thread
@@ -648,7 +648,7 @@ public class Invoker extends Thread
         File[] files = { shellFile };
         numberCompiling++;
         JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(),
-                                      pkg.getProject().getProjectDir());
+                                      pkg.getProject().getProjectDir(), true);
     }
 
     // -- CompileObserver interface --
