@@ -1,12 +1,10 @@
 package bluej.extensions;
 
 
-import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ObjectWrapper;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.*;
-import java.lang.reflect.Modifier;
 
 
 /**

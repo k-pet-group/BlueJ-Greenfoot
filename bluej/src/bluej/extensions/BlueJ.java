@@ -41,7 +41,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1681 2003-03-10 11:58:30Z damiano $
+ * @version $Id: BlueJ.java 1686 2003-03-10 13:02:09Z damiano $
  */
 
 public class BlueJ
@@ -62,8 +62,7 @@ public class BlueJ
         this.myWrapper   = myWrapper;
         this.prefManager = prefManager;
 
-        /*
-         * I do NOT want lazy initialization othervise I may try to load it
+        /* I do NOT want lazy initialization othervise I may try to load it
          * may times just because I cannof find anything.
          * Or having state variables to know I I did load it but had nothing found
          */
@@ -154,7 +153,7 @@ public class BlueJ
 
 
     /**
-     * Gets the current package. That is, the most recently accessed package.
+     * Gets the current package being displayed. 
      * It can return null if this information is not available.
      * This is here and NOT into a BProject since it depends on user interface.
      * Depending on what is the currently selected Frame you may get packages that

@@ -1,18 +1,6 @@
 package bluej.extensions;
 
-import bluej.debugger.ObjectWrapper;
-import bluej.debugger.jdi.JdiObject;
-import bluej.pkgmgr.PkgMgrFrame;
-
 import com.sun.jdi.*;
-
-import java.lang.reflect.Modifier;
-import bluej.pkgmgr.Package;
-import bluej.views.*;
-import bluej.debugger.*;
-import bluej.utility.Debug;
-
-
 
 /**
  * This is the equivalent of Reflection java.lang.reflect.Array.

@@ -15,13 +15,8 @@ import java.util.ListIterator;
 import java.awt.Component;
 import java.awt.Frame;
 
-import java.util.*;
-import java.io.File;
-import java.io.InputStream;
-import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Window;
 import javax.swing.Box;
@@ -41,7 +36,7 @@ import java.awt.event.ActionListener;
  * possible and try to get all info dynamically. I need this to be in sync with BlueJ
  * This MAY NOT be ENOUGH so, check it with Andrew.
  *
- * @version $Id: BPackage.java 1684 2003-03-10 12:19:40Z damiano $
+ * @version $Id: BPackage.java 1686 2003-03-10 13:02:09Z damiano $
  */
 public class BPackage
 {

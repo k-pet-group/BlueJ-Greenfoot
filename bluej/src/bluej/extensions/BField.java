@@ -6,7 +6,6 @@ import bluej.pkgmgr.PkgMgrFrame;
 
 import com.sun.jdi.*;
 
-import java.lang.reflect.Modifier;
 import bluej.pkgmgr.Package;
 import bluej.views.*;
 import bluej.debugger.*;

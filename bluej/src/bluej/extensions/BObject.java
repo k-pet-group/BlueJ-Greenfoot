@@ -4,31 +4,26 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.views.View;
-import bluej.views.MethodView;
 
-import com.sun.jdi.ArrayReference;
-import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
-import com.sun.jdi.ReferenceType;
 
-import java.util.List;
-import java.util.ListIterator;
-import java.lang.reflect.Modifier;
-import java.awt.Point;
 import bluej.debugger.*;
 
 /**
- * The BlueJ proxy Object object. 
+ * This allows you to interacet with objects that are created in the BlueJ environment.
+ * This wraps an object so you can put and remove it from the bench.
+ * You get Bobjects from BConstructor or BMethods and of course you get them also from
+ * BField.
  *
- * @version $Id: BObject.java 1665 2003-03-07 15:45:06Z damiano $
+ * @version $Id: BObject.java 1686 2003-03-10 13:02:09Z damiano $
  */
 public class BObject
 {
     private ObjectWrapper  wrapper;  
 
     /**
-     * Do NOT use: You should get BObjects from the BPackage or by the BConstructors
+     * Do NOT use.
+     * You should get BObjects from the BPackage, BConstructor, BMethod, BField
      */
     BObject (ObjectWrapper i_wrapper)
     {
@@ -48,6 +43,8 @@ public class BObject
 
 
     /**
+     * Gets the BPackage whose this BObject belongs.
+     * 
      * @return the BPackage belonging to this Object
      */
     public BPackage getPackage()
@@ -58,8 +55,8 @@ public class BObject
     }
         
     /**
-     * Removes this object from the Object Bench. Having done this, it will no longer be accessible in
-     * any way, shape or form.
+     * Removes this object from the Object Bench. 
+     * Having done this, it will no longer be accessible in any way, shape or form.
      */
     public void removeFromBench()
         {
@@ -80,7 +77,8 @@ public class BObject
     
 
     /**
-     * Is this object a null one. If so you will not be able to put it into the bench..
+     * Is this object a null one, if so you will not be able to put it into the bench.
+     * 
      * @return true or false
      */
     public boolean isNullObject()
@@ -93,7 +91,8 @@ public class BObject
 
 
     /**
-     * puts this object on the Object Bench
+     * Puts this object on the Object Bench.
+     * If it is a null object you will not be able to put it.
      * 
      * @param instanceName  The name you want this object to have on the bench
      */
@@ -123,7 +122,7 @@ public class BObject
 
 
     /**
-     * Used when you need to know the name of the object on the bench.<P>
+     * Used when you need to know the name of the object on the bench.
      * 
      * @return the instance name of the object, can return null if object is invalid
      */
@@ -135,8 +134,9 @@ public class BObject
         }
     
     /**
-     * Similar to Reflection API this gets the object BClass and from that you get
-     * what you need from it. BClass can tell you if it is an array, the modifiers and so on.
+     * Similar to Reflection API this gets the object BClass.
+     * Trom that you get what you need from it. 
+     * BClass can tell you if it is an array, the modifiers and so on.
      * 
      * @return the proxy BClass of this object
      */
@@ -148,7 +148,7 @@ public class BObject
     } 
 
     /**
-     * FOR bluej.extensions ONLY.<P>
+     * FOR bluej.extensions ONLY.
      * This should be visible only from within the bluej.extensions
      * Used by BArray
      */
@@ -159,7 +159,7 @@ public class BObject
     }
 
     /**
-     * FOR bluej.extensions ONLY.<P>
+     * FOR bluej.extensions ONLY.
      * This should be visible only from within the bluej.extensions
      * Used by BField to get hold of the real Object
      */
@@ -171,7 +171,5 @@ public class BObject
         if ( obj == null ) return null;
         return obj.getObjectReference();
         }
-
-
 
 }   

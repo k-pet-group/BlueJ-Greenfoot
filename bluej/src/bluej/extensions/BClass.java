@@ -1,17 +1,13 @@
 package bluej.extensions;
 
 import bluej.compiler.JobQueue;
-import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.ClassTarget;
-import bluej.utility.Debug;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.lang.reflect.Modifier;
-import java.awt.Point;
 import bluej.pkgmgr.Package;
 import bluej.views.*;
 
@@ -21,7 +17,7 @@ import bluej.views.*;
  * The reasoning behind it is that is is no good to create a new standard when there 
  * is already one that can be used.
  * 
- * @version $Id: BClass.java 1665 2003-03-07 15:45:06Z damiano $
+ * @version $Id: BClass.java 1686 2003-03-10 13:02:09Z damiano $
  */
 public class BClass
 {

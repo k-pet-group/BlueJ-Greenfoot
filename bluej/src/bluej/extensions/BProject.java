@@ -2,20 +2,19 @@ package bluej.extensions;
 
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
 
 import java.io.File;
 import java.util.List;
 import java.util.ListIterator;
 
 /**
- * This represent a Project open by BlueJ
+ * This represent a Project open by BlueJ.
  * NOTE: As a reference I store ONLY the key of the project and EVERY time I want to 
  * get information I will retrieve the LIVE Project.
  * I do this to try to have a reasonably syncronized view between the BleuJ and this
  * Othervise I will be holding a Project object that is NO longer active !
  *
- * @version $Id: BProject.java 1647 2003-03-05 12:00:24Z damiano $
+ * @version $Id: BProject.java 1686 2003-03-10 13:02:09Z damiano $
  */
 
 public class BProject
@@ -23,9 +22,8 @@ public class BProject
     private final Object projectKey;
   
     /**
-     * Not for public use:
-     * Creates a new project using as project ID the project dir
-     * I need this to make better control on what parameters are passwd to this constructor
+     * Not for public use.
+     * You can get projects from BlueJ
      */
     BProject (File projectDir)
     {
@@ -33,9 +31,8 @@ public class BProject
     }
 
     /**
-     * Not for public use:
-     * Creates a new project using as project ID the original bluejProject
-     * I need this to make better control on what parameters are passwd to this constructor
+     * Not for public use.
+     * You can get projects from BlueJ
      * NOTA: The underlyng mechanism is the same as the previous one. This is for type checking
      */
     BProject (Project bluejProject)
@@ -48,6 +45,8 @@ public class BProject
 
 
     /**
+     * is this project still a valid one.
+     * 
      * @return true if this project is valid and active, false othervise.
      */
     public boolean isValid ()
@@ -72,7 +71,7 @@ public class BProject
     }
     
     /**
-     * Gets the current top-level directory of this project. 
+     * Gets the current directory of this project. 
      * This would not change during the lifetime of the extension.
      * 
      * @return directory of this project. Can return null if project is invalid.
@@ -86,8 +85,8 @@ public class BProject
     }
     
     /**
-     * Requests BlueJ to save all open files of this project. Since files are saved everytime
-     * they are compiled, it is not envisaged that there should be any problem to do this.
+     * Requests BlueJ to save all open files of this project. 
+     * Since files are saved everytime they are compiled, it is not envisaged that there should be any problem to do this.
      * TODO: Should decide to trow error on strange situation.
      */
     public void saveProject()
@@ -115,9 +114,10 @@ public class BProject
     
     
     /**
-     * Get a package
+     * Get a package belonging to this Project.
+     * 
      * @param the fully-qualified name of the package
-     * @return the requested package, or <code>null</code> if it wasn't found
+     * @return the requested package, or null if it wasn't found
      */
     public BPackage getPackage (String name)
     {
@@ -131,7 +131,8 @@ public class BProject
     }
     
     /**
-     * Gets all the packages
+     * Gets all the packages in this project.
+     * 
      * @return all the packages in this project. If for some reason none exists an empty array is returned.
      */
     public BPackage[] getPackages()
