@@ -3,7 +3,10 @@ package bluej.compiler;
 import java.io.*;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.List;
+import java.util.Iterator;
 
+import bluej.utility.CompileUtility;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
@@ -16,7 +19,7 @@ import bluej.Config;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: JavacCompiler.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: JavacCompiler.java 1134 2002-02-21 05:06:37Z bquig $
  */
 public class JavacCompiler extends Compiler
 {
@@ -73,6 +76,15 @@ public class JavacCompiler extends Compiler
 
         if(deprecation)
             args.addElement("-deprecation");
+        
+        // add user specified compiler options
+        List userOptions = CompileUtility.getUserCompilerOptions();
+        if(userOptions != null && userOptions.size() > 0) {
+            Iterator it = userOptions.iterator();
+            while(it.hasNext()) {
+                args.addElement((String)it.next());
+            }
+        }
 
         for(int i = 0; i < sources.length; i++)
             args.addElement(sources[i]);
