@@ -24,23 +24,32 @@ package bluej.editor.moe;
 import javax.swing.text.*;
 
 /**
- * An implementation of <code>EditorKit</code> used for syntax colorizing.
- * It implements a view factory that maps elements to syntax colorizing
- * views.<p>
- *
- * This editor kit can be plugged into text components to give them
- * colorization features. It can be used in other applications, not
- * just jEdit. The syntax colorizing package doesn't depend on any
- * jEdit classes.
- *
- * @author Slava Pestov
- * @author Bruce Quig (BlueJ specific modifications)
+ * An implementation of <code>EditorKit</code> used for syntax coloring.
+ * This is an adaptation of the SyntaxEditorKit class from JEdit for BlueJ.
+ * 
+ * @author Bruce Quig
+ * @author Michael Kšlling
  *
  * @see org.gjt.sp.jedit.syntax.SyntaxView
  */
 public class MoeSyntaxEditorKit extends DefaultEditorKit
         implements ViewFactory
 {
+    private boolean isTextEval;
+
+    /**
+     * Create a moe editor kit. There are two modes in which this can operate:
+     * as an editor kit for the standard editor (textEval == false) or as an
+     * editor kit for the text evaluation area (textEval == true).
+     * 
+     * @param textEval  Indicate whether to operate for the text eval area
+     */
+    public MoeSyntaxEditorKit(boolean textEval)
+    {
+        super();
+        isTextEval = textEval;
+    }
+    
     /**
      * Returns an instance of a view factory that can be used for
      * creating views from elements. This implementation returns
@@ -62,7 +71,7 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      */
     public View create(Element elem)
     {
-        return new MoeSyntaxView(elem);
+        return new MoeSyntaxView(elem, isTextEval);
     }
 
     /**

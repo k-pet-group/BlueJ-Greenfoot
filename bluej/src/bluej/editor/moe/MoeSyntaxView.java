@@ -31,7 +31,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 2618 2004-06-17 14:03:32Z mik $
+ * @version $Id: MoeSyntaxView.java 2625 2004-06-19 11:35:15Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -58,20 +58,27 @@ public class MoeSyntaxView extends PlainView
         Config.getImageAsIcon("image.stepmark").getImage();
     static final Image breakStepImage =
         Config.getImageAsIcon("image.breakstepmark").getImage();
+    static final Image promptImage =
+        Config.getImageAsIcon("image.prompt").getImage();
     static final int BREAKPOINT_OFFSET = MoeEditor.TAG_WIDTH + 2;
 
     static final Color outputColor = new Color(0, 120, 0);
     static final Color errorColor = new Color(200, 0, 20);
     
+    private boolean isTextEval;
+    
     /**
      * Creates a new <code>MoeSyntaxView</code> for painting the specified
      * element.
      * @param elem The element
+     * @param textEval indicate whether this view is for the text eval area
+     *                 or for the editor
      */
-    public MoeSyntaxView(Element elem)
+    public MoeSyntaxView(Element elem, boolean textEval)
     {
         super(elem);
         line = new Segment();
+        isTextEval = textEval;
     }
 
     /**
@@ -114,59 +121,14 @@ public class MoeSyntaxView extends PlainView
             int start = lineElement.getStartOffset();
             int end = lineElement.getEndOffset();
 
-            document.getText(start,end - (start + 1), line);
-
+            document.getText(start, end - (start + 1), line);
             g.setColor(def);
-            if(PrefMgr.getFlag(PrefMgr.LINENUMBERS))
-                drawLineNumber(g, lineIndex+1, x, y);
-
-            // draw breakpoint and/or step image
-
-            if (Boolean.TRUE.equals
-                (lineElement.getAttributes().getAttribute(BREAKPOINT))) {
-                if (Boolean.TRUE.equals
-                    (lineElement.getAttributes().getAttribute(STEPMARK))) {
-                    g.drawImage(breakStepImage, x-1,
-                                y+3-breakStepImage.getHeight(null), null);
-                }
-                else {  // break only
-                    g.drawImage(breakImage, x-1,
-                                y+3-breakImage.getHeight(null), null);
-                }
-            }
-            else if (Boolean.TRUE.equals
-                (lineElement.getAttributes().getAttribute(STEPMARK))) {
-                g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null),
-                            null);
-            }
-
-            if (Boolean.TRUE.equals
-                    (lineElement.getAttributes().getAttribute(OUTPUT))) {
-                g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null),
-                        null);
-                g.setColor(outputColor);
-                Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
-                        0);
-            }
-            else if (Boolean.TRUE.equals
-                    (lineElement.getAttributes().getAttribute(ERROR))) {
-                g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null),
-                        null);
-                g.setColor(errorColor);
-                Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
-                        0);
+            
+            if(isTextEval) {
+                drawTextEvalMethod(lineIndex, g, x, y, document, tokenMarker, def, lineElement);
             }
             else {
-    
-                // if no tokenMarker just paint as plain text
-                if(tokenMarker == null) {
-                    Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
-                                             0);
-                }
-                else {
-                    paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
-                                    document, tokenMarker, def);
-                }
+                drawEditorLine(lineIndex, g, x, y, document, tokenMarker, def, lineElement);
             }
         }
         catch(BadLocationException bl) {
@@ -176,6 +138,64 @@ public class MoeSyntaxView extends PlainView
     }
 
     /**
+     * Draw a line for the moe editor.
+	 */
+	private void drawEditorLine(int lineIndex, Graphics g, int x, int y, SyntaxDocument document, 
+            TokenMarker tokenMarker, Color def, Element lineElement) 
+    {
+		if(PrefMgr.getFlag(PrefMgr.LINENUMBERS))
+		    drawLineNumber(g, lineIndex+1, x, y);
+   
+		// draw breakpoint and/or step image
+   
+		if (Boolean.TRUE.equals
+		    (lineElement.getAttributes().getAttribute(BREAKPOINT))) {
+		    if (Boolean.TRUE.equals
+		        (lineElement.getAttributes().getAttribute(STEPMARK))) {
+		        g.drawImage(breakStepImage, x-1,
+		                    y+3-breakStepImage.getHeight(null), null);
+		    }
+		    else {  // break only
+		        g.drawImage(breakImage, x-1,
+		                    y+3-breakImage.getHeight(null), null);
+		    }
+		}
+		else if (Boolean.TRUE.equals
+		    (lineElement.getAttributes().getAttribute(STEPMARK))) {
+		    g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null),
+		                null);
+		}
+
+		paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+		                document, tokenMarker, def);
+	}
+
+	/**
+     * Draw a line for the text eval area.
+	 */
+	private void drawTextEvalMethod(int lineIndex, Graphics g, int x, int y, 
+            SyntaxDocument document, TokenMarker tokenMarker, Color def, Element lineElement) 
+    {
+		if (Boolean.TRUE.equals
+		        (lineElement.getAttributes().getAttribute(OUTPUT))) {
+		    g.setColor(outputColor);
+		    Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
+		            0);
+		}
+		else if (Boolean.TRUE.equals
+		        (lineElement.getAttributes().getAttribute(ERROR))) {
+		    g.setColor(errorColor);
+		    Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
+		            0);
+		}
+		else {
+            g.drawImage(promptImage, x-1, y+3-promptImage.getHeight(null), null);
+		    paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+		            document, tokenMarker, def);   
+		}
+	}
+
+	/**
      * Draw the line number in front of the line
      */
     private void drawLineNumber(Graphics g, int lineNumber, int x, int y)
@@ -266,7 +286,8 @@ public class MoeSyntaxView extends PlainView
 
         Rectangle bounds = allocation.getBounds();
 
-        if(Boolean.FALSE.equals(getDocument().getProperty(MoeEditor.COMPILED))) {
+        
+        if(!isTextEval && (Boolean.FALSE.equals(getDocument().getProperty(MoeEditor.COMPILED)))) {
             g.setColor(Color.lightGray);
             g.fillRect(0, 0, bounds.x + MoeEditor.TAG_WIDTH,
                        bounds.y + bounds.height);
@@ -277,7 +298,10 @@ public class MoeSyntaxView extends PlainView
 
         // paint the tag separator line
 
-        g.setColor(Color.black);
+        if(isTextEval)
+            g.setColor(Color.lightGray);
+        else
+            g.setColor(Color.black);
         g.drawLine(bounds.x + MoeEditor.TAG_WIDTH, 0,
                    bounds.x + MoeEditor.TAG_WIDTH, bounds.y + bounds.height);
     }

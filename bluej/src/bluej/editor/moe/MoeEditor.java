@@ -1802,7 +1802,7 @@ public final class MoeEditor extends JFrame
 
         // create the text pane
 
-        MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit();
+        MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false);
         sourcePane = new MoeEditorPane();
 
         sourcePane.setDocument(sourceDocument);

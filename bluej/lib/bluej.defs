@@ -444,12 +444,15 @@ image.classIcon=classIcon.gif
 image.broken=broken-arrow.gif
 image.help=help.gif
 
-# debugger:
+# debugger
 image.continue=continue.gif
 image.step=step.gif
 image.step_into=step_into.gif
 image.stop=stop.gif
 image.terminate=terminate.gif
+
+#text eval area
+image.prompt=prompt.gif
 
 # unit testing
 image.test.recording=record.gif

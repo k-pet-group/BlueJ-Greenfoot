@@ -26,14 +26,12 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2618 2004-06-17 14:03:32Z mik $
+ * @version $Id: TextEvalArea.java 2625 2004-06-19 11:35:15Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
 {
     private static final int BUFFER_LINES = 40;
-    private static final String PROMPT = "> ";
-    private static final int PROMPT_LENGTH = 2;
     
     //    private JTextArea text;
     private JEditorPane text;
@@ -55,17 +53,19 @@ public final class TextEvalArea extends JScrollPane
 
         text = new JEditorPane();
         text.setMargin(new Insets(2,2,2,2));
-        text.setEditorKit(new MoeSyntaxEditorKit());
+        text.setEditorKit(new MoeSyntaxEditorKit(true));
 
         doc = (MoeSyntaxDocument) text.getDocument();
         doc.setTokenMarker(new JavaTokenMarker());
 
         setViewportView(text);
         text.setFont(font);
-        append(PROMPT);
 
         KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-        text.getKeymap().addActionForKeyStroke(enterKey, new ExecuteCommandAction(this));
+        Keymap newmap = JTextComponent.addKeymap("texteval", text.getKeymap());
+        newmap.addActionForKeyStroke(enterKey, new ExecuteCommandAction(this));
+        text.setKeymap(newmap);
+        
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         setPreferredSize(new Dimension(200,100));
     }
@@ -112,7 +112,6 @@ public final class TextEvalArea extends JScrollPane
 //            
         } else {
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
-            append(PROMPT);
         }
     }
     
@@ -173,10 +172,10 @@ public final class TextEvalArea extends JScrollPane
      */
     private void markAs(String flag)
     {
-        append("\n" + PROMPT);
+        append("\n");
         SimpleAttributeSet a = new SimpleAttributeSet();
         a.addAttribute(flag, Boolean.TRUE);
-        doc.setParagraphAttributes(doc.getLength()-1-PROMPT_LENGTH, a);
+        doc.setParagraphAttributes(doc.getLength()-1, a);
         text.repaint();
     }
     
@@ -212,7 +211,7 @@ public final class TextEvalArea extends JScrollPane
     private String getCurrentLine()
     {
         Element line = doc.getParagraphElement(doc.getLength());
-        int lineStart = line.getStartOffset() + PROMPT_LENGTH;
+        int lineStart = line.getStartOffset();
         int lineEnd = line.getEndOffset();
         
         try {

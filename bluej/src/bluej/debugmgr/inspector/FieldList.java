@@ -1,6 +1,3 @@
-/*
- * Created on May 18, 2004
- */
 package bluej.debugmgr.inspector;
 
 import java.awt.Color;
@@ -34,7 +31,8 @@ public class FieldList extends JTable
      * 
      * @param maxDescriptionLength The maximum number of characters for the "description" of the field (the name and modifiers)
      */
-	public FieldList(int maxDescriptionLength) {
+	public FieldList(int maxDescriptionLength) 
+    {
         super(new ListTableModel());
         this.setShowGrid(false);
         this.setRowSelectionAllowed(true);
@@ -55,7 +53,8 @@ public class FieldList extends JTable
 	 * 
 	 * @param listData Strings that include a "=" 
 	 */
-    public void setData(Object[] listData) {
+    public void setData(Object[] listData) 
+    {
         ((ListTableModel) getModel()).setDataVector(listData);
         removeHeader();
     }
@@ -64,7 +63,8 @@ public class FieldList extends JTable
      * Ensures that the header of the table is not shown at all!
      *
      */
-    private void removeHeader() {
+    private void removeHeader() 
+    {
         this.unconfigureEnclosingScrollPane();        
     }
     
@@ -120,18 +120,16 @@ public class FieldList extends JTable
         
         private int maxDescriptionLength;
         
-        public ListTableCellRenderer(int maxDescriptionLength) {
+        public ListTableCellRenderer(int maxDescriptionLength) 
+        {
             this.maxDescriptionLength = maxDescriptionLength;
             this.setOpaque(true);            
         }       
       
-        public Component getTableCellRendererComponent(
-                JTable table,
-                Object value,
-                boolean isSelected,
-                boolean hasFocus,
-                int row,
-                int column) {           
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                        boolean isSelected, boolean hasFocus,
+										int row, int column) 
+        {
             
             String valueString = (String) value; 
             
