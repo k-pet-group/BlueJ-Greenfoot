@@ -450,7 +450,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safeEventOccurred: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safeEventOccurred: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           return;
           }
       }
@@ -472,7 +472,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safeGetExtensionDescription: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safeGetExtensionDescription: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           return null;
           }
     }
@@ -493,7 +493,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safeGetURL: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safeGetURL: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           return null;
           }
     }
@@ -514,7 +514,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safeGetExtensionVersion: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safeGetExtensionVersion: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           return null;
           }
     }
@@ -536,7 +536,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safeIsCompatible: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safeIsCompatible: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           // If one bombs at me it shurely is not compatilbe 
           return false;
           }
@@ -557,7 +557,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safeStartup: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safeStartup: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           }
     }
 
@@ -579,7 +579,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safeTerminate: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safeTerminate: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           }
     }
 
@@ -602,7 +602,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safePrefGenLoadValues: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safePrefGenLoadValues: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           }
     }
 
@@ -623,7 +623,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safePrefGenSaveValues: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safePrefGenSaveValues: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           }
     }
 
@@ -644,7 +644,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safePrefGenGetPanel: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safePrefGenGetPanel: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           return null;
           }
     }
@@ -667,7 +667,7 @@ public class ExtensionWrapper
           }
         catch ( Exception exc )
           {
-          Debug.message("ExtensionWrapper.safeMenuGenGetMenuItem: Exception="+exc.getMessage());
+          Debug.message("ExtensionWrapper.safeMenuGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
           return null;
           }
     }
