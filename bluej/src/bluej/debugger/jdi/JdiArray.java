@@ -14,12 +14,10 @@ import com.sun.jdi.*;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 1537 2002-11-29 13:40:19Z ajp $
+ * @version    $Id: JdiArray.java 1561 2002-12-06 05:05:06Z ajp $
  */
 public class JdiArray extends JdiObject
 {
-    private ArrayReference obj;
-
     protected JdiArray(ArrayReference obj)
     {
         this.obj = obj;
@@ -76,7 +74,7 @@ public class JdiArray extends JdiObject
      */
     public int getInstanceFieldCount()
     {
-        return obj.length();
+        return ((ArrayReference) obj).length();
     }
 
 
@@ -92,14 +90,14 @@ public class JdiArray extends JdiObject
     }
 
     /**
-     *  Return the name of the object field at 'slot'.
+     * Return the name of the object field at 'slot'.
      *
      *@param  slot  The slot number to be checked
      *@return       The InstanceFieldName value
      */
     public String getInstanceFieldName(int slot)
     {
-        return "array" + String.valueOf(slot);
+        return "[" + String.valueOf(slot) + "]";
     }
 
     /**
@@ -121,7 +119,7 @@ public class JdiArray extends JdiObject
      */
     public DebuggerObject getInstanceFieldObject(int slot)
     {
-        Value val = obj.getValue(slot);
+        Value val = ((ArrayReference) obj).getValue(slot);
         return JdiObject.getDebuggerObject((ObjectReference) val);
     }
 
@@ -150,8 +148,8 @@ public class JdiArray extends JdiObject
     {
         List values;
 
-        if (obj.length() > 0) {
-            values = obj.getValues();
+        if (((ArrayReference) obj).length() > 0) {
+            values = ((ArrayReference) obj).getValues();
         } else {
             values = new ArrayList();
         }
@@ -290,7 +288,7 @@ public class JdiArray extends JdiObject
      */
     public boolean instanceFieldIsObject(int slot)
     {
-        Value val = obj.getValue(slot);
+        Value val = ((ArrayReference) obj).getValue(slot);
 
         if (val == null) {
             return false;
