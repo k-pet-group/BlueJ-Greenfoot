@@ -30,7 +30,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1503 2002-11-15 13:22:28Z mik $
+ * @version $Id: Project.java 1506 2002-11-18 11:49:37Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -99,7 +99,7 @@ public class Project
         }
 
         if (startingDir == null) {
-            Debug.message("attempt to open " + projectPath + " as a project failed");
+            // Debug.message("attempt to open " + projectPath + " as a project failed");
             return null;
         }
 
