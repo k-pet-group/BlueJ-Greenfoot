@@ -18,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2483 2004-03-31 09:13:31Z fisker $
+ * @version $Id: ReadmeTarget.java 2488 2004-04-06 09:42:07Z fisker $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -77,6 +77,10 @@ public class ReadmeTarget extends Target
     public boolean isResizable()
     {
         return false;
+    }
+    
+    public boolean isHandle(){
+    	return false;
     }
 
     public boolean isMoveable()

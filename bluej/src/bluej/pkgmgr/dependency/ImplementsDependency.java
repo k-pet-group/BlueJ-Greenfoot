@@ -11,7 +11,7 @@ import bluej.pkgmgr.target.*;
  * An "implements" dependency between two (class) targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: ImplementsDependency.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: ImplementsDependency.java 2488 2004-04-06 09:42:07Z fisker $
  */
 public class ImplementsDependency extends Dependency
 {
@@ -100,5 +100,10 @@ public class ImplementsDependency extends Dependency
     
     public void remove(){
         pkg.removeArrow(this);
+    }
+    
+    public boolean isResizable()
+    {
+        return false;
     }
 }

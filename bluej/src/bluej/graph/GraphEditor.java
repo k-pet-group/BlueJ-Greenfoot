@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2484 2004-04-06 06:58:05Z fisker $
+ * @version $Id: GraphEditor.java 2488 2004-04-06 09:42:07Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -284,20 +284,19 @@ public class GraphEditor extends JComponent
         int x = evt.getX();
         int y = evt.getY();
         GraphElement ge = findGraphElement(x,y);
+        Cursor cursor = defaultCursor;
         if(ge != null) {
             //make the mousecursor a hand
             if(ge instanceof Selectable) {
-			    setCursor(handCursor);
+            	cursor = handCursor;
                 //are the mouse over a resizeHandle
-                if (((Selectable) ge).isHandle(x,y)) {
-                    setCursor(arrowCursor);
+			    Selectable selectable = (Selectable)ge;
+                if (selectable.isResizable() && selectable.isHandle(x,y)) {
+                	cursor = arrowCursor;
                 }
 			} 
         }
-        else {
-            //make the mousecursor normal
-            setCursor(defaultCursor);
-        }
+        setCursor(cursor);
         graphElementController.mouseMoved(evt);
     }
 

@@ -11,7 +11,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: UsesDependency.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: UsesDependency.java 2488 2004-04-06 09:42:07Z fisker $
  */
 public class UsesDependency extends Dependency
 {
@@ -194,5 +194,10 @@ public class UsesDependency extends Dependency
 
     public boolean isEndLeft() {
         return endLeft;
+    }
+    
+    public boolean isResizable()
+    {
+        return false;
     }
 }

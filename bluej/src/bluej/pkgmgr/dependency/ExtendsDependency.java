@@ -12,7 +12,7 @@ import java.awt.*;
  * An "extends" dependency between two (class) targets in a package
  *
  * @author Michael Cahill
- * @version $Id: ExtendsDependency.java 2472 2004-02-09 13:00:47Z fisker $
+ * @version $Id: ExtendsDependency.java 2488 2004-04-06 09:42:07Z fisker $
  */
 public class ExtendsDependency extends Dependency
 {
@@ -86,6 +86,11 @@ public class ExtendsDependency extends Dependency
     
     public void remove(){
         pkg.removeArrow(this);
+    }
+    
+    public boolean isResizable()
+    {
+        return false;
     }
 
 }
