@@ -471,7 +471,7 @@ public class ExtensionWrapper
      *
      * @param  el  The feature to be added to the BJEventListener attribute
      */
-    public void addBJEventListener(BJEventListener el)
+    public void addExtEventListener(ExtEventListener el)
     {
         if (el != null)
             eventListeners.add(el);
@@ -483,14 +483,14 @@ public class ExtensionWrapper
      *
      * @param  event  Description of the Parameter
      */
-    void eventOccurred(BJEvent event)
+    void eventOccurred(ExtEvent event)
     {
         if (!isValid()) return;
 
         if (eventListeners.isEmpty()) return;
 
         for (Iterator it = eventListeners.iterator(); it.hasNext(); ) {
-            BJEventListener el = (BJEventListener) it.next();
+            ExtEventListener el = (ExtEventListener) it.next();
             el.eventOccurred(event);
         }
     }

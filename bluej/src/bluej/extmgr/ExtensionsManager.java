@@ -212,7 +212,7 @@ public class ExtensionsManager implements BlueJEventListener
      */
     public synchronized void packageOpened(Package pkg)
     {
-        delegateEvent(new PackageEvent(PackageEvent.PACKAGE_OPENED, new BPackage(pkg)));
+        delegateEvent(new PackageEvent(PackageEvent.PACKAGE_OPENED, pkg));
     }
 
 
@@ -224,7 +224,7 @@ public class ExtensionsManager implements BlueJEventListener
      */
     public synchronized void packageClosing(Package pkg)
     {
-        delegateEvent(new PackageEvent(PackageEvent.PACKAGE_CLOSING, new BPackage(pkg)));
+        delegateEvent(new PackageEvent(PackageEvent.PACKAGE_CLOSING, pkg));
 
         // Let's assume we are NOT going to delete the extension...
         boolean invalidateExtension = false;
@@ -233,8 +233,7 @@ public class ExtensionsManager implements BlueJEventListener
         Project thisProject = pkg.getProject();
 
         // Shurelly I cannot release anything if I don't know what I am talking about...
-        if (thisProject == null)
-            return;
+        if (thisProject == null) return;
 
         // The following CAN return null....
         PkgMgrFrame[] frameArray = PkgMgrFrame.getAllProjectFrames(thisProject);
@@ -252,8 +251,7 @@ public class ExtensionsManager implements BlueJEventListener
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
             // If the extension did not got loaded with this project skip it...
-            if (thisProject != aWrapper.getProject())
-                continue;
+            if (thisProject != aWrapper.getProject())  continue;
 
             // The following terminated the Extension
             aWrapper.terminate();
@@ -310,15 +308,12 @@ public class ExtensionsManager implements BlueJEventListener
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
-            if (!aWrapper.isValid())
-                continue;
-
+            if (!aWrapper.isValid())  continue;
+            
             MenuManager aManager = aWrapper.getMenuManager();
-            if (aManager == null)
-                continue;
+            if (aManager == null) continue;
 
-            if (aManager.haveMenuItems(pmf))
-                return true;
+            if (aManager.haveMenuItems(pmf)) return true;
         }
 
         return false;
@@ -331,7 +326,7 @@ public class ExtensionsManager implements BlueJEventListener
      *
      * @param  event  the event to delegate
      */
-    private void delegateEvent(BJEvent event)
+    private void delegateEvent(ExtEvent event)
     {
         for (Iterator it = extensions.iterator(); it.hasNext(); ) {
             ExtensionWrapper ew = (ExtensionWrapper) it.next();
@@ -350,7 +345,30 @@ public class ExtensionsManager implements BlueJEventListener
      */
     public void blueJEvent(int eventId, Object arg)
     {
-        if (eventId == BlueJEvent.EXECUTION_STARTED) {
+        if ( eventId == BlueJEvent.EXECUTION_STARTED )
+            {
+            ExecutionEvent exevent = (ExecutionEvent) arg;
+            delegateEvent ( new InvocationEvent ( eventId, exevent ) );
+            return;              
+            }
+
+        if ( eventId == BlueJEvent.EXECUTION_RESULT )
+            {
+            ExecutionEvent exevent = (ExecutionEvent) arg;
+            delegateEvent ( new ResultEvent ( eventId, exevent ) );
+            return;              
+            }
+
+        if ( eventId == BlueJEvent.CREATE_VM_DONE) 
+            {
+            delegateEvent (new AppEvent (AppEvent.APP_READY_EVENT));
+            return;
+            }
+
+
+
+/*
+        {
             ExecutionEvent exevent = (ExecutionEvent) arg;
             delegateEvent(new InvocationEvent(new BPackage(exevent.getPackage()),
                     exevent.getClassName(),
@@ -376,10 +394,8 @@ public class ExtensionsManager implements BlueJEventListener
             delegateEvent(new InvocationEvent(new BPackage(exevent.getPackage()), result));
             return;
         }
+*/        
 
-        if ( eventId == BlueJEvent.CREATE_VM_DONE) {
-            delegateEvent (new AppEvent (AppEvent.APP_READY_EVENT));
-        }
     }
 
 
