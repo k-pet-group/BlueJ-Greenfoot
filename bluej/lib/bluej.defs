@@ -114,9 +114,13 @@ browserCmd2=netscape $
 ## Documentation generation. This specifies the command used for
 ## generating documentation and the directory name within the project
 ## directory where the documentation is stored.
-## Most of the options are sensible as they are. If you want private
-## methods included in the documentation, change "-package" in the
-## options to "-private".
+## Most of the options are sensible as they are.
+##
+## If the doctool.command line is commented out (default), the javadoc
+## command is located in the JDK directory that was used to launch BlueJ
+##
+## If you want private methods included in the documentation,
+## change "-package" in the options to "-private".
 ## If "linkToStandardLib" is true, we will try to use the URL specified
 ## above as "bluej.url.javaStdLib" to create links. If that URL is
 ## not accessible, documentation generation will fail. Therefore, if
@@ -124,7 +128,7 @@ browserCmd2=netscape $
 ## can also do that from within BlueJ in the Preferences dialog).
 #######################################################################
 
-doctool.command=javadoc
+#doctool.command=javadoc
 doctool.options=-author -version -nodeprecated -package
 doctool.outputdir=doc
 doctool.linkToStandardLib=true
@@ -132,11 +136,13 @@ doctool.linkToStandardLib=true
 
 #######################################################################
 ## Applets. Preferences for how applets are generated and executed.
-## These are:
-##    - the command to start the applet viewer
+##
+## If the appletViewer.command line is commented out (default), the viewer 
+## command is located in the JDK directory that was used to launch BlueJ
 #######################################################################
 
-appletViewer.command=appletviewer
+#appletViewer.command=appletviewer
+
 
 #######################################################################
 ## For Mac OS only: indicate whether to place the menu bar at top of 
@@ -148,8 +154,12 @@ appletViewer.command=appletviewer
 
 bluej.macos.screenmenubar=false
 
+
 #####################################################################
 ## System libraries which are added to BlueJ's class path
+##
+## The commented out examples below are just to show the
+## syntax used
 #####################################################################
 
 #bluej.systemlibrary1.description=A Sample Library for Windows
@@ -244,13 +254,6 @@ bluej.fontsize.printText=10
 bluej.fontsize.printTitle=14
 bluej.fontsize.printInfo=10
 
-# library browser fonts
-browser.fontname.treeroot=SansSerif
-browser.fontsize.treeroot=12
-
-browser.fontname.treeleaf=MonoSpaced
-browser.fontsize.treeleaf=11
-
 
 #######################################################################
 ## Terminal settings. Height and width are in number of characters.
@@ -273,8 +276,6 @@ bluej.editor.makeBackup=false
 
 #######################################################################
 ## Class diagram notation style. One of uml or blue.
-## This is the initial default - it can be changed by users in their
-## preferences dialogue.
 #######################################################################
 
 bluej.notation.style=uml
@@ -441,34 +442,4 @@ image.step=step.gif
 image.step_into=step_into.gif
 image.stop=stop.gif
 image.terminate=terminate.gif
-
-## images which appear on menu items
-## currently disabled
-#image.package.open=open16.gif
-#image.package.new=new16.gif
-#image.package.save=save16.gif
-#image.package.saveAs=saveas16.gif
-#image.package.import=import16.gif
-#image.package.export=export16.gif
-#image.package.pageSetup=pagesetup16.gif
-#image.package.print=print16.gif
-#image.package.edit=edit16.gif
-#image.edit.newClass=newclass16.gif
-#image.edit.newPackage=newpackage16.gif
-#image.edit.addClass=addclass16.gif
-#image.edit.remove=remove16.gif
-#image.tools.preferences=preferences16.gif
-#image.tools.compile=edit16.gif
-#image.help.about=about16.gif
-
-## images for library browser
-browser.image.constructoricon=yellow-ball-small.gif
-browser.image.privateicon=red-ball-small.gif
-browser.image.publicicon=blue-ball-small.gif
-browser.image.protectedicon=magenta-ball-small.gif
-
-## images for gui builder
-guibuilder.image.selectbutton=selectarrow.gif
-guibuilder.image.jbutton=jbutton.gif
-guibuilder.image.jradiobutton=jradiobutton.gif
 
