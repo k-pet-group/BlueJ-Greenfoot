@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 2856 2004-08-09 00:59:00Z bquig $
+ * @version $Id: Invoker.java 2950 2004-08-26 15:37:09Z polle $
  */
 
 public class Invoker extends Thread
@@ -283,7 +283,21 @@ public class Invoker extends Thread
             if (dlg instanceof MethodDialog) {
                 MethodDialog mDialog = (MethodDialog) dlg;
                 instanceName = mDialog.getNewInstanceName();
-                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true), mDialog.getTypeParams());
+                
+                TypeParamView[] formalTypeParamViews = mDialog.getFormalTypeParams();
+                String[] actualTypeParams = mDialog.getTypeParams();
+                int len = (formalTypeParamViews==null ? 0 : formalTypeParamViews.length);
+                for (int i = 0; i < len; i++) {
+                    TypeParamView view = formalTypeParamViews[i];
+                    GenType formalType = view.getParamType();
+                    GenType actualType = new GenTypeTpar(actualTypeParams[i]);
+                    if(typeMap == null) {
+                        typeMap = new HashMap();
+                    }
+                    typeMap.put(formalType.toString(false), actualType);
+                }
+                
+                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true), actualTypeParams);
                 pmf.setWaitCursor(true);
                 if (constructing)
                     pkg.setStatus(creating);

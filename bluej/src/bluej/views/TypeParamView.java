@@ -6,7 +6,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * Represents a formal type parameter for a generic class
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: TypeParamView.java 2635 2004-06-19 16:27:32Z polle $
+ * @version $Id: TypeParamView.java 2950 2004-08-26 15:37:09Z polle $
  */
 public class TypeParamView
 {
@@ -50,5 +50,9 @@ public class TypeParamView
      */
     public String toString() {
         return paramType.toString(true);
+    }
+    
+    public GenTypeDeclTpar getParamType() {
+        return paramType;
     }
 }
