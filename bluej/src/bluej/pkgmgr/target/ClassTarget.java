@@ -31,7 +31,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: ClassTarget.java 2049 2003-06-24 07:00:58Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -179,12 +179,28 @@ public class ClassTarget extends EditableTarget
     protected void determineRole(Class cl)
     {
         if (cl != null) {
+			Class junitClass = null;
+        	try {
+				junitClass = cl.getClassLoader().loadClass("junit.framework.TestCase");
+        	}
+			catch (ClassNotFoundException cnfe) {
+				junitClass = junit.framework.TestCase.class;
+			}        	
+
+			Class appletClass = null;
+			try {
+				appletClass = cl.getClassLoader().loadClass("java.applet.Applet");
+			}
+			catch (ClassNotFoundException cnfe) {
+				appletClass = java.applet.Applet.class;
+			}        	
+			
             // if cl is non-null then it is the definitive information
             // source ie. if it thinks its an applet who are we to argue
             // with it.
-            if (Applet.class.isAssignableFrom(cl))
+            if (appletClass.isAssignableFrom(cl))
                 setRole(new AppletClassRole());
-            else if (junit.framework.TestCase.class.isAssignableFrom(cl))
+            else if (junitClass.isAssignableFrom(cl))
                 setRole(new UnitTestClassRole());
             else if (Modifier.isInterface(cl.getModifiers()))
                 setRole(new InterfaceClassRole());
