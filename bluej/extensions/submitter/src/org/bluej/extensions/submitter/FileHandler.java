@@ -17,7 +17,7 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * according to a given String
  * 
  * @author Clive Miller
- * @version $Id: FileHandler.java 1708 2003-03-19 09:39:47Z damiano $
+ * @version $Id: FileHandler.java 1798 2003-04-10 09:31:09Z damiano $
  */
 class FileHandler
 {
@@ -35,7 +35,7 @@ class FileHandler
         essentials = sp.getProps (".file.essential");
         include = sp.getProps (".file.include");
         exclude = sp.getProps (".file.exclude");
-        projectDir = pkg.getProject().getProjectDir();
+        projectDir = pkg.getProject().getDir();
     }
 
     /**
@@ -43,7 +43,7 @@ class FileHandler
      */
     public File[] getFiles() throws AbortOperationException
     {
-        pkg.getProject().saveProject();
+        pkg.getProject().save();
         return (File[])wantedFiles().toArray (new File[0]);
     }
 

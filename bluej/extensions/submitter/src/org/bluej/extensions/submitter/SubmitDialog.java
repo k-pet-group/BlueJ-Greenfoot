@@ -505,7 +505,7 @@ public class SubmitDialog implements ActionListener
     // FOr some misterious reason there is no project open, let's return the default
     if (curProj == null) return;
 
-    File projectDefsFile = new File(curProj.getProjectDir(), PROPERTIES_FILENAME);
+    File projectDefsFile = new File(curProj.getDir(), PROPERTIES_FILENAME);
     // For some reason (maybe the file is not there, I cannot read it...
     if (!projectDefsFile.canRead()) return;
 
@@ -558,7 +558,7 @@ public class SubmitDialog implements ActionListener
     projProps.setProperty(SELECTED_NODE_PROPERTY, curScheme);
 
     // Now let me try to open the file to write the properties on
-    File projectDefsFile = new File(curProj.getProjectDir(), PROPERTIES_FILENAME);
+    File projectDefsFile = new File(curProj.getDir(), PROPERTIES_FILENAME);
 
     FileOutputStream oStream = null;
     try 

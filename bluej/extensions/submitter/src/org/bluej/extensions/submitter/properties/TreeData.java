@@ -77,7 +77,7 @@ public class TreeData
       return;
       }
 
-    File projectConfFile = new File(proj.getProjectDir(), CONFIG_FILENAME);
+    File projectConfFile = new File(proj.getDir(), CONFIG_FILENAME);
     loadFile(rootNode,projectConfFile);
     }
 
