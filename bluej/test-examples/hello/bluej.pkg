@@ -1,9 +1,10 @@
 #BlueJ project file
-#Mon Jun 14 12:27:37 GMT+10:00 1999
+#Fri Aug 06 16:37:16 GMT+10:00 1999
 target1.height=50
-package.window.height=407
-target1.y=20
-target1.x=20
+package.window.height=445
+target1.y=60
+target1.x=70
+target1.valid=true
 package.numTargets=1
 target1.type=ClassTarget
 package.window.width=565

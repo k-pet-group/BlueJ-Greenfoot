@@ -1302,6 +1302,7 @@ public final class MoeEditor extends JFrame
 
 	textPane = new JTextPane();
 	textPane.setDocument(document);
+	//textPane.setLineWrap(false);
 	textPane.setCaretPosition(0);
 	textPane.setMargin(new Insets(2,2,2,2));
 	textPane.setOpaque(true);

@@ -180,11 +180,11 @@ public final class JdiDebugger extends Debugger
         try {
             machine = connector.launch(arguments);
             process = machine.process();
-            redirectIOStream(process.getErrorStream(), System.out);
+            redirectIOStream(process.getErrorStream(), System.out, false);
             redirectIOStream(process.getInputStream(),
-			     Terminal.getTerminal().getOutputStream());
+			     Terminal.getTerminal().getOutputStream(), false);
             redirectIOStream(Terminal.getTerminal().getInputStream(),
-			     process.getOutputStream());
+			     process.getOutputStream(), false);
 			   
 	} catch (VMStartException vmse) {
             Debug.reportError("Target VM did not initialise.");
@@ -875,31 +875,49 @@ public final class JdiDebugger extends Debugger
      *  machine and direct it to our terminal (or vice versa).
      */
     private void redirectIOStream(final InputStream inStream,
-				  final OutputStream outStream) 
+				  final OutputStream outStream,
+				  boolean buffered) 
     {
-	Thread thr = new Thread("I/O reader") { 
-	    public void run() {
-                try {
-                    dumpStream(inStream, outStream);
-                } catch (IOException ex) {
-                    Debug.reportError("Cannot read output user VM.");
-                }
-	    }
-	};
+	Thread thr;
+
+	if(buffered) {
+	    thr = new Thread("I/O reader") { 
+		public void run() {
+		    try {
+			dumpStreamBuffered(inStream, outStream);
+		    } catch (IOException ex) {
+			Debug.reportError("Cannot read output user VM.");
+		    }
+		}
+	    };
+	}
+	else {
+	    thr = new Thread("I/O reader") { 
+		public void run() {
+		    try {
+			dumpStream(inStream, outStream);
+		    } catch (IOException ex) {
+			Debug.reportError("Cannot read output user VM.");
+		    }
+		}
+	    };
+	}
 	thr.setPriority(Thread.MAX_PRIORITY-1);
 	thr.start();
     }
 
-    //      private void dumpStream(InputStream inStream, OutputStream outStream) 
-    //  	throws IOException 
-    //      {
-    //          int ch;
-    //          while ((ch = inStream.read()) != -1) {
-    //              outStream.write(ch);
-    //          }
-    //      }
-
     private void dumpStream(InputStream inStream, OutputStream outStream) 
+	throws IOException 
+    {
+        int ch;
+        while ((ch = inStream.read()) != -1) {
+            outStream.write(ch);
+	    outStream.flush();
+        }
+    }
+
+    private void dumpStreamBuffered(InputStream inStream, 
+				    OutputStream outStream) 
 	throws IOException 
     {
         BufferedReader in = 

@@ -759,6 +759,7 @@ public class PkgMgrFrame extends PkgFrame
     public void executionStarted()
     {
 	progressButton.setEnabled(true);
+	Terminal.getTerminal().activate(true);
     }
 
     /**
@@ -770,6 +771,7 @@ public class PkgMgrFrame extends PkgFrame
 	progressButton.setEnabled(false);
 	if(execCtrlWindow != null && execCtrlWindow.isVisible())
 	    execCtrlWindow.updateThreads();
+	Terminal.getTerminal().activate(false);
     }
 
     /**

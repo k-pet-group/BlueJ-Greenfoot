@@ -5,10 +5,12 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 163 1999-07-08 00:50:23Z mik $
+ ** @version $Id: Terminal.java 217 1999-08-08 05:23:20Z mik $
  **/
 
 package bluej.terminal;
+
+import bluej.utility.Debug;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -17,9 +19,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class Terminal extends JFrame
+public final class Terminal extends JFrame
+	implements KeyListener
 {
-    static final String defaultTitle = "BlueJ Terminal Window";
+    private static final String WINDOWTITLE = "BlueJ Terminal Window";
+    private static final int FONTSIZE = 12;
+    private static final Color activeBgColour = Color.white;
+    private static final Color inactiveBgColour = new Color(224, 224, 224);
+    private static final Color fgColour = Color.black;
 
     // -- static singleton factory method --
 
@@ -33,58 +40,74 @@ public class Terminal extends JFrame
 
     // -- instance --
 
-    TerminalCanvas term;
-    private boolean isActive;
+    private JTextArea text;
+    private boolean isActive = false;
+    private InputBuffer buffer;
 
+    /**
+     * Create a new terminal window with default specifications.
+     */
     private Terminal()
     {
-	this(defaultTitle, 80, 25);
+	this(WINDOWTITLE, 80, 25);
     }
 
-    private Terminal(String title, int width, int height)
+
+    /**
+     * Create a new terminal window.
+     */
+    private Terminal(String title, int columns, int rows)
     {
 	super(title);
 
-	term = new TerminalCanvas(width, height);
+	buffer = new InputBuffer(256);
+
+	text = new JTextArea(rows, columns);
+	JScrollPane scrollPane = new JScrollPane(text);
+	text.setFont(new Font("Monospaced", Font.PLAIN, FONTSIZE));
+	text.setEditable(false);
+	text.setLineWrap(false);
+	text.setForeground(fgColour);
+	text.setMargin(new Insets(6, 6, 6, 6));
+	//text.setBackground(inactiveBgColour);
 
 	getContentPane().setLayout(new BorderLayout());
-	getContentPane().add(term, "Center");
-	setScreenSize(width, height);
+	getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+	createMenu();
+
+	text.addKeyListener(this);
 
 	// Close Action when close button is pressed
 	addWindowListener(new WindowAdapter() {
-	    public void windowClosing(WindowEvent event)
-		{
-		    Window win = (Window)event.getSource();
-		    win.setVisible(false);
-		    //win.dispose();
-		}
+	    public void windowClosing(WindowEvent event) {
+		Window win = (Window)event.getSource();
+		win.setVisible(false);
+	    }
 	});
-    }
 
-    protected void processWindowEvent(WindowEvent e)
-    {
-	super.processWindowEvent(e);
-		
-	if (e.getID() == WindowEvent.WINDOW_CLOSING)
-	    setVisible(false);
+	pack();
     }
 
 
+    /**
+     * Show or hide the terminal window.
+     */
     public void showTerminal(boolean doShow)
     {
 	setVisible(doShow);
+	text.requestFocus();
     }
 
+
+    /**
+     * Return true if the window is currently displayed.
+     */
     public boolean isShown()
     {
 	return isShowing();
     }
 
-    public void clear()
-    {
-	term.clear();
-    }
 
     /**
      * Make the window active.
@@ -92,70 +115,159 @@ public class Terminal extends JFrame
     public void activate(boolean active)
     {
 	if(active != isActive) {
-	    term.setEnabled(active);
-	    term.activate(active);
+	    text.setEnabled(active);
+	    //text.setBackground(active ? activeBgColour : inactiveBgColour);
 	    isActive = active;
 	}
     }
 
-    protected void setScreenSize(int w, int h)
+
+    /**
+     * Clear the terminal.
+     */
+    public void clear()
     {
-	term.setScreenSize(w,h);
+	text.setText("");
+    }
+
+
+    /**
+     * Set the terminal size the the specified number of rows and columns.
+     */
+    private void setScreenSize(int columns, int rows)
+    {
+	text.setColumns(columns);
+	text.setRows(rows);
 	pack();
     }
 
+
+    /**
+     * Prepare the terminal for I/O.
+     */
+    private void prepare()
+    {
+	if(!isShown())
+	    showTerminal(true);
+    }
+
+    /**
+     * Create a new input stream which reads from the terminal.
+     */
     InputStream in = new InputStream() {
 	public int available()
 	{
-	    return term.available();
+	    return buffer.numberOfCharacters();
 	}
 
 	public int read()
 	{
-	    if(!isShown())
-	        showTerminal(true);
-	    if(!isActive) {
-    		activate(true);
-		term.requestFocus();
-	    }
-	    return term.getChar();
+	    return buffer.getChar();
 	}
 
 	public int read(byte b[], int off, int len) throws IOException
 	{
-	    int nBytes = 0;
+  	    int bytesRead = 0;
 
-	    while(nBytes < len)
-	    {
-		b[off + (nBytes++)] = (byte)term.getChar();
-		if(term.available() == 0)
-		break;
+  	    while(bytesRead < len) {
+  		b[off + bytesRead] = (byte)buffer.getChar();
+		bytesRead++;
+  		if(buffer.numberOfCharacters() == 0)
+		    break;
 	    }
 
-	    return nBytes;
+  	    return bytesRead;
 	}
     };
 
+    /**
+     * Return the input stream that can be used to read from this terminal.
+     */
     public InputStream getInputStream()
     {
 	return in;
     }
 
+
+    /**
+     * Create a new output stream which writes to the terminal.
+     */
     OutputStream out = new OutputStream() {
 	public void write(int b) throws IOException
 	{
-	    if(!isShown())
-	        showTerminal(true);
-	    if(!isActive) {
-    		activate(true);
-		term.requestFocus();
-	    }
-	    term.putchar((char)b);
+	    prepare();
+	    text.append("" + (char)b);
+	}
+
+	public void write(byte[] b, int off, int len) throws IOException
+	{
+	    prepare();
+	    text.append(new String(b, off, len));
 	}
     };
 
+    /**
+     * Return the output stream that can be used to write to this terminal
+     */
     public OutputStream getOutputStream()
     {
 	return out;
     }
+
+
+    /**
+     * Create a pop-up menu with terminal commands.
+     */
+    private void createMenu()
+    {
+    }
+
+
+    // ---- KeyListener interface ----
+
+    public void keyPressed(KeyEvent event) { event.consume(); }
+    public void keyReleased(KeyEvent event) { event.consume(); }
+
+    public void keyTyped(KeyEvent event)
+    {
+	char ch = event.getKeyChar();
+
+	switch(ch) {
+	    
+	case '\b':	// backspace
+	    if(buffer.backSpace()) {
+		try {
+		    int line = text.getLineCount();
+		    text.replaceRange("", 
+				text.getLineEndOffset(line-1)-2,
+				text.getLineEndOffset(line-1)-1);
+		}
+		catch (Exception exc) { 
+		    Debug.reportError("bad location for backspace " + exc);
+		}
+	    }			
+	    break;
+
+	case '\r':	// carriage return
+	case '\n':	// newline
+	    if(buffer.putChar('\n')) {
+		text.append("" + ch);
+		buffer.notifyReaders();
+	    }
+	    break;
+
+	default:
+	    if(Character.isISOControl(ch)) {
+		// control character - ignore
+		// later: bind to functions!
+	    }
+	    else {
+		if(buffer.putChar(ch))
+		    text.append("" + ch);
+		break;
+	    }
+	}
+	event.consume();	// make sure the text area doesn't handle this
+    }
+
 }
