@@ -139,7 +139,7 @@ tokens {
         // otherwise, if this is a java file, parse it!
         else if (f.getName().endsWith(".java")) {
             symbolTable.setFile(f);
-            parseFile(new BufferedReader(new InputStreamReader(new FileInputStream(f))), symbolTable, info);
+            parseFile(new BufferedReader(new FileReader(f)), symbolTable, info);
         }
     }
 
@@ -2152,7 +2152,7 @@ HEX_DIGIT
 // if it's a literal or really an identifer
 IDENT
     options {testLiterals=true;}
-    :   ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00C0'..'\u00ff')
+    :   ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00C0'..'\ufffe')
         ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00C0'..'\ufffe'|'0'..'9')*
     ;
 
