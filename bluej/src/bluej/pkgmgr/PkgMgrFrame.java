@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: PkgMgrFrame.java 858 2001-04-20 05:52:24Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1764,6 +1764,7 @@ public class PkgMgrFrame extends JFrame
                 int actionId = CmdTypes[menuType] + i;
                 String itemId = menuId + "." + CmdStrings[menuType][i];
                 String itemStr = Config.getString(itemId);
+                ImageIcon itemIcon = Config.getImageAsIcon("image." + CmdTypeNames[menuType] + "." + CmdStrings[menuType][i]);
                 KeyStroke accelerator = CmdKeys[menuType][i];
                 JMenuItem item;
 
@@ -1806,6 +1807,9 @@ public class PkgMgrFrame extends JFrame
 
                 if(CmdTypes[menuType] == GRP_COMMAND)
                     item.setEnabled(false);
+
+                if (itemIcon != null)
+                    item.setIcon(itemIcon);
 
                 // Add new Item to the Menu & associate Action to it.
                 menu.add(item);
@@ -2022,24 +2026,24 @@ public class PkgMgrFrame extends JFrame
 
     static final int[] CmdTypes = {
         PROJ_COMMAND, EDIT_COMMAND, TOOLS_COMMAND, VIEW_COMMAND,
-        /* GRP_COMMAND, */ HELP_COMMAND
+        /*GRP_COMMAND, */ HELP_COMMAND
     };
 
     static final String[] CmdTypeNames = {
-        "package", "edit", "tools", "view", /* "group", */ "help"
+        "package", "edit", "tools", "view", /*"group",*/ "help"
     };
 
     static final String[][] CmdStrings = {
-        ProjCmds, EditCmds, ToolsCmds, ViewCmds, /* GrpCmds, */ HelpCmds
+        ProjCmds, EditCmds, ToolsCmds, ViewCmds, /*GrpCmds,*/ HelpCmds
     };
 
     static final KeyStroke[][] CmdKeys = {
-        ProjKeys, EditKeys, ToolsKeys, ViewKeys, /* GrpKeys, */ HelpKeys
+        ProjKeys, EditKeys, ToolsKeys, ViewKeys, /*GrpKeys,*/ HelpKeys
     };
 
     static final int[][] CmdSeparators = {
         ProjSeparators, EditSeparators, ToolsSeparators, ViewSeparators,
-        /* GrpSeparators, */ HelpSeparators
+        /*GrpSeparators,*/ HelpSeparators
     };
 
     /**
