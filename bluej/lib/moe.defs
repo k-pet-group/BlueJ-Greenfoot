@@ -4,7 +4,7 @@
 ##  Define the toolbar
 ##
 
-toolbar = view compile undo cut copy paste find find-next close
+toolbar = compile undo cut copy paste find find-next close
 
 # actions for toolbar commands (only needed when it differs from command name
 

@@ -101,10 +101,6 @@ prefmgr.misc.jdkurlpath=JDK documentation URL
 editor.title=BlueJ: Editor
 
 #button lables for toolbar commands
-editor.viewLabel1 = Implementation
-editor.viewLabel2 = Public View
-editor.viewLabel3 = Package View
-editor.viewLabel4 = Protected View
 editor.compileLabel = Compile
 editor.undoLabel = Undo
 editor.cutLabel = Cut
@@ -232,10 +228,7 @@ pkgmgr.packagemenu.open=Open
 pkgmgr.packagemenu.remove=Remove
 
 pkgmgr.classmenu.runApplet=Run Applet
-pkgmgr.classmenu.edit=Edit Implementation
-pkgmgr.classmenu.public=Public View
-pkgmgr.classmenu.package=Package View
-pkgmgr.classmenu.inherited=Inherited View
+pkgmgr.classmenu.edit=Show Source Code
 pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.remove=Remove
 pkgmgr.view.label=View
