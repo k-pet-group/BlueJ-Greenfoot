@@ -16,7 +16,7 @@ import java.lang.reflect.Array;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 839 2001-04-12 04:55:46Z mik $
+ * @version $Id: FileUtility.java 903 2001-05-23 05:30:50Z ajp $
  */
 public class FileUtility
 {
@@ -25,6 +25,7 @@ public class FileUtility
     private static final String packageFilePrefix = "bluej.pk";
 
     private static JFileChooser pkgChooser = null;
+    private static JFileChooser pkgChooserNonBlueJ = null;
     private static JFileChooser fileChooser = null;
 
     //========================= STATIC METHODS ============================
@@ -32,6 +33,16 @@ public class FileUtility
     public static File getPackageName(Component parent)
     {
         JFileChooser chooser = getPackageChooser();
+
+        if (chooser.showOpenDialog(parent) != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+        return chooser.getSelectedFile();
+    }
+
+    public static File getNonBlueJDirectoryName(Component parent)
+    {
+        JFileChooser chooser = getNonBlueJPackageChooser();
 
         if (chooser.showOpenDialog(parent) != JFileChooser.APPROVE_OPTION) {
             return null;
@@ -94,15 +105,37 @@ public class FileUtility
     private static JFileChooser getPackageChooser()
     {
         // find current dir name
-        File f = new File("x");
-        String currentDir = f.getAbsolutePath();
-        currentDir = currentDir.substring(0, currentDir.length()-1);
+        String currentDir = (new File("x")).getAbsolutePath();
 
         if(pkgChooser == null)
-            pkgChooser = new PackageChooser(
-                           Config.getPropString("bluej.defaultProjectPath",
-                                                currentDir));
+            pkgChooser = new PackageChooserStrict(
+                           new File(Config.getPropString("bluej.defaultProjectPath",
+                                                currentDir)));
+
+        pkgChooser.setDialogTitle(Config.getString("pkgmgr.openPkg.title"));
+        pkgChooser.setApproveButtonText(Config.getString("pkgmgr.openPkg.buttonLabel"));
+
         return pkgChooser;
+    }
+
+    /**
+     * Return a BlueJ package chooser, i.e. a file chooser which
+     * recognises BlueJ packages and treats them differently.
+     */
+    private static JFileChooser getNonBlueJPackageChooser()
+    {
+        // find current dir name
+        String currentDir = (new File("x")).getAbsolutePath();
+
+        if(pkgChooserNonBlueJ == null)
+            pkgChooserNonBlueJ = new PackageChooser(
+                           new File(Config.getPropString("bluej.defaultProjectPath",
+                                                currentDir)));
+
+        pkgChooserNonBlueJ.setDialogTitle(Config.getString("pkgmgr.openNonBlueJPkg.title"));
+        pkgChooserNonBlueJ.setApproveButtonText(Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"));
+
+        return pkgChooserNonBlueJ;
     }
 
 
@@ -111,10 +144,12 @@ public class FileUtility
      */
     public static JFileChooser getFileChooser()
     {
+        String currentDir = (new File("x")).getAbsolutePath();
+
         if(fileChooser == null) {
             fileChooser = new BlueJFileChooser(
                             Config.getPropString("bluej.defaultProjectPath",
-                            "."));
+                            currentDir));
         }
 
         return fileChooser;
@@ -379,7 +414,13 @@ public class FileUtility
      */
     public static boolean containsFile(File dir, String suffix)
     {
+        if (dir == null)
+            throw new IllegalArgumentException();
+
         File[] files = dir.listFiles();
+
+        if (files == null)
+            throw new IllegalArgumentException();
 
         for (int i=0; i < files.length; i++) {
             if(files[i].isFile() && files[i].getName().endsWith(suffix))

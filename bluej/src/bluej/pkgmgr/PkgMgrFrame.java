@@ -29,11 +29,13 @@ import bluej.browser.LibraryBrowser;
 import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
+import bluej.groupwork.*;
+
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 875 2001-04-26 06:34:39Z mik $
+ * @version $Id: PkgMgrFrame.java 903 2001-05-23 05:30:50Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -771,6 +773,7 @@ public class PkgMgrFrame extends JFrame
 
             // Group work commands
         case GRP_CREATE:
+            //CVSGroupPkgManager groupPkgMgr=new CVSGroupPkgManager();
         case GRP_OPEN:
         case GRP_UPDATESELECTED:
         case GRP_UPDATEALL:
@@ -891,15 +894,10 @@ public class PkgMgrFrame extends JFrame
      */
     private void doOpenNonBlueJ()
     {
-        String fileName = FileUtility.getFileName(this,
-                        Config.getString("pkgmgr.openNonBlueJPkg.title"),
-                        Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"),
-                        true);
+        File dirName = FileUtility.getNonBlueJDirectoryName(this);
 
-        if(fileName == null)
+        if(dirName == null)
             return;
-
-        File dirName = new File(fileName);
 
         if (dirName != null) {
             if (Project.openProject(dirName.getAbsolutePath()) != null) {
@@ -977,7 +975,7 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
-    /** 
+    /**
      * Quit menu was chosen - redefined from MRJQuitHandler
      */
     public void handleQuit()
@@ -1141,7 +1139,7 @@ public class PkgMgrFrame extends JFrame
         printer.start();
     }
 
-    /** 
+    /**
      * About menu was chosen - redefined from MRJAboutHandler
      */
     public void handleAbout()
@@ -1779,6 +1777,9 @@ public class PkgMgrFrame extends JFrame
             String menuStr = Config.getString(menuId);
 
             //Debug.message("MenuType[" + menuType + "]" + menuId + "[" + menuStr + "]" );
+            if (CmdTypes[menuType] == GRP_COMMAND)
+                continue;
+
             menu = new JMenu(menuStr);
 
             for(int i = 0; i < CmdStrings[menuType].length; i++) {
@@ -1833,8 +1834,10 @@ public class PkgMgrFrame extends JFrame
                     item.setIcon(itemIcon);
 
                 // Add new Item to the Menu & associate Action to it.
-                menu.add(item);
-                actions.put(item, new Integer(actionId));
+                if(CmdTypes[menuType] != GRP_COMMAND) {
+                    menu.add(item);
+                    actions.put(item, new Integer(actionId));
+                }
 
                 if(sep < CmdSeparators[menuType].length
                    && CmdSeparators[menuType][sep] == actionId)
@@ -2047,24 +2050,24 @@ public class PkgMgrFrame extends JFrame
 
     static final int[] CmdTypes = {
         PROJ_COMMAND, EDIT_COMMAND, TOOLS_COMMAND, VIEW_COMMAND,
-        /*GRP_COMMAND, */ HELP_COMMAND
+        GRP_COMMAND, HELP_COMMAND
     };
 
     static final String[] CmdTypeNames = {
-        "package", "edit", "tools", "view", /*"group",*/ "help"
+        "package", "edit", "tools", "view", "group", "help"
     };
 
     static final String[][] CmdStrings = {
-        ProjCmds, EditCmds, ToolsCmds, ViewCmds, /*GrpCmds,*/ HelpCmds
+        ProjCmds, EditCmds, ToolsCmds, ViewCmds, GrpCmds, HelpCmds
     };
 
     static final KeyStroke[][] CmdKeys = {
-        ProjKeys, EditKeys, ToolsKeys, ViewKeys, /*GrpKeys,*/ HelpKeys
+        ProjKeys, EditKeys, ToolsKeys, ViewKeys, GrpKeys, HelpKeys
     };
 
     static final int[][] CmdSeparators = {
         ProjSeparators, EditSeparators, ToolsSeparators, ViewSeparators,
-        /*GrpSeparators,*/ HelpSeparators
+        GrpSeparators, HelpSeparators
     };
 
     /**
