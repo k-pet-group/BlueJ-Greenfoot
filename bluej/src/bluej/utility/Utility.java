@@ -14,7 +14,7 @@ import com.apple.mrj.MRJFileUtils;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 2172 2003-08-26 11:22:27Z mik $
+ * @version $Id: Utility.java 2337 2003-11-14 10:09:45Z mik $
  */
 public class Utility
 {
@@ -272,6 +272,20 @@ public class Utility
             }
         }
         return true;
+    }
+
+    public static void bringToFront(String appName)
+    {
+        Debug.message("activate " + appName);
+        try {
+            Runtime.getRuntime().exec( new String[] {
+                        "osascript",
+                        "-e",
+                        "tell application \"" + appName + "\" to activate" } );
+        }
+        catch(IOException e) {
+            Debug.reportError("could not get application " + appName + " to front");
+        }
     }
 
     /**
