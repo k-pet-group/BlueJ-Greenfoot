@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2081 2003-06-26 15:26:56Z mik $
+ * @version $Id: PkgMgrFrame.java 2083 2003-06-26 16:09:48Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -538,6 +538,9 @@ public class PkgMgrFrame extends JFrame
 
         editor = null;
         pkg = null;
+
+        // Signal that package is gone, Damiano
+        this.popupManager.setAttachedObject ( pkg );
 
         // if there are no other frames editing this project, we close
         // the project
