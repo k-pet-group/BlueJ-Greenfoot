@@ -1,14 +1,15 @@
 package bluej;
 
-import bluej.extmgr.ExtensionsManager;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-import bluej.prefmgr.MiscPrefPanel;
-import bluej.editor.moe.EditorPrefPanel;
-import bluej.classmgr.ClassMgrPrefPanel;
-import bluej.utility.Debug;
 import java.io.File;
+import java.util.Properties;
+
+import bluej.classmgr.ClassMgrPrefPanel;
+import bluej.editor.moe.EditorPrefPanel;
+import bluej.extmgr.ExtensionsManager;
+import bluej.pkgmgr.*;
+import bluej.pkgmgr.Package;
+import bluej.prefmgr.MiscPrefPanel;
+import bluej.utility.Debug;
 
 /**
  * BlueJ starts here.
@@ -17,7 +18,7 @@ import java.io.File;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2269 2003-11-05 11:31:55Z damiano $
+ * @version $Id: Main.java 2354 2003-11-17 05:11:22Z ajp $
  */
 public class Main
 {
@@ -33,8 +34,8 @@ public class Main
         Boot boot = Boot.getInstance();
         String [] args = boot.getArgs();
 		File bluejLibDir = boot.getBluejLibDir();
-        
-        Config.initialise(bluejLibDir);
+
+        Config.initialise(bluejLibDir, processCommandLineProperties(args));
 
         EditorPrefPanel.register();
         MiscPrefPanel.register();
@@ -49,6 +50,31 @@ public class Main
         processArgs(args);
     }
 
+    private Properties processCommandLineProperties(String[] args)
+    {
+        Properties props = new Properties();
+
+        for(int i = 0; i < args.length; i++) {
+            if (!args[i].startsWith("-D"))
+                continue;
+            
+            String definition = args[i].substring(2);
+            int definitionEquals = definition.indexOf('=');
+            
+            if (definitionEquals < 0)
+                continue;
+            
+            String propName = definition.substring(0, definitionEquals); 
+            String propValue = definition.substring(definitionEquals+1);
+            
+            props.put(propName, propValue);
+
+            System.out.println("->" + propName + "<->" + propValue + "<-");
+        }
+
+        return props;
+    }
+    
     /**
      * Start everything off. This is used to open the projects
      * specified on the command line when starting BlueJ.
