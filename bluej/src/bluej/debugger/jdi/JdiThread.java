@@ -6,6 +6,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.SourceLocation;
 import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 1059 2001-12-20 13:49:55Z mik $
+ * @version $Id: JdiThread.java 1142 2002-03-06 13:11:09Z mik $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -265,8 +266,8 @@ public final class JdiThread extends DebuggerThread
                     LocalVariable var = (LocalVariable)vars.get(i);
                     String val = JdiObject.getValueString(
                                                           frame.getValue(var));
-                    localVars.add(var.typeName() + " " +
-                                  var.name() + " = " + val);
+                    localVars.add(JavaNames.stripPrefix(var.typeName()) + 
+                                  " " + var.name() + " = " + val);
                
                 }
                 return localVars;
