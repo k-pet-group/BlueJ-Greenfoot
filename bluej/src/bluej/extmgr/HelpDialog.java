@@ -10,7 +10,7 @@ import javax.swing.table.*;
 /**
  *  The Extensions Manager help panel allows the user to view current  extensions.
  *
- * @version    $Id: HelpDialog.java 2314 2003-11-10 14:49:48Z damiano $
+ * @version    $Id: HelpDialog.java 2442 2003-12-17 09:34:26Z mik $
  */
 
  /*
@@ -175,7 +175,7 @@ public class HelpDialog implements ActionListener
     {
         // It does not matter very much if it is not static, it is created once only
         private String columnNames[] = {
-                "",
+                " ",
                 Config.getString("extmgr.statuscolumn"),
                 Config.getString("extmgr.namecolumn"),
                 Config.getString("extmgr.typecolumn")};
