@@ -44,6 +44,10 @@ bluej.url.tutorial=http://www.bluej.org/tutorial/tutorial.pdf
 bluej.url.reference=http://www.bluej.org/reference/manual.pdf
 bluej.url.javaStdLib=http://java.sun.com/j2se/1.3/docs/api/index.html
 
+# do not change the following:
+bluej.url.versionCheck=http://www.bluej.org/version.info
+
+
 #####################################################################
 ## Project directory. This is the directory that the file chooser
 ## will initially display when opening a project. If commented out,

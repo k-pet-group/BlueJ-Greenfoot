@@ -17,7 +17,7 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 844 2001-04-12 05:06:47Z mik $
+ * @version $Id: VersionCheckDialog.java 848 2001-04-12 05:43:30Z mik $
  */
 final class VersionCheckDialog extends JDialog
      implements ActionListener
@@ -29,8 +29,7 @@ final class VersionCheckDialog extends JDialog
     private static final String helpLine1 = Config.getString("pkgmgr.versionDlg.helpLine1");
     private static final String helpLine2 = Config.getString("pkgmgr.versionDlg.helpLine2");
 
-    private static final String versionURL = "file:///C:/bsrc/bluej/current-version.info";
-
+    private static final String versionURL = Config.getPropString("bluej.url.versionCheck");
 
     private JTextArea textArea;
     private JButton closeButton;
