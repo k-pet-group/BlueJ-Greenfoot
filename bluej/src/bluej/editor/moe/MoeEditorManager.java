@@ -79,10 +79,10 @@ public final class MoeEditorManager
                 EditorWatcher watcher, 
                 boolean compiled,
                 List breakpoints,  // inherited from EditorManager
-                ClassLoader projectClassLoader )
+                ClassLoader projectClassLoader, Rectangle bounds)
     {
         return openEditor (filename, docFilename, true, windowTitle, watcher, compiled,
-                           breakpoints, projectClassLoader);
+                           breakpoints, projectClassLoader, bounds);
     }
 
     // ------------------------------------------------------------------------
@@ -101,9 +101,9 @@ public final class MoeEditorManager
     **/
 
     public Editor openText(String filename, String windowTitle,
-                           EditorWatcher watcher)	// inherited from EditorManager
+                           EditorWatcher watcher, Rectangle bounds)	// inherited from EditorManager
     {
-        return openEditor (filename, null, false, windowTitle, watcher, false, null, null);
+        return openEditor (filename, null, false, windowTitle, watcher, false, null, null, bounds);
     }
 
     public void refreshAll()
@@ -227,14 +227,15 @@ public final class MoeEditorManager
     ** @param windowTitle	title of window (usually class name)
     ** @param watcher	an object interested in editing events
     ** @param compiled	true, if the class has been compiled
-    ** @param breakpoints	list of Integers: line numbers where bpts are
+    ** @param breakpoints	list of Integers: line numbers where bpts are    
+    ** @param bounds	bounds for the editor window
     ** @returns		the new editor, or null if there was a problem
     **/
 
     private Editor openEditor(String filename, String docFilename,
     							boolean isCode, String windowTitle, 
                                 EditorWatcher watcher, boolean compiled, 
-                                List breakpoints, ClassLoader projectClassLoader)
+                                List breakpoints, ClassLoader projectClassLoader, Rectangle bounds)
     {
         MoeEditor editor;
 
@@ -243,7 +244,7 @@ public final class MoeEditorManager
         editors.add(editor);
         if (watcher!=null && filename==null)	// editor for class interface
             return editor;
-        if (editor.showFile(filename, compiled, docFilename))
+        if (editor.showFile(filename, compiled, docFilename, bounds))
             return editor;
         else {
             editor.doClose();			// editor will remove itself

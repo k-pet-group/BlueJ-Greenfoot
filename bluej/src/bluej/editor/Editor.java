@@ -7,13 +7,14 @@
 // Any queries should be directed to Michael Kolling mik@mip.sdu.dk
 package bluej.editor;
 
+import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 
 
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 2349 2003-11-15 16:01:11Z mik $
+ * @version $Id: Editor.java 2642 2004-06-21 14:53:23Z polle $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -28,7 +29,7 @@ public interface Editor
      * 
      * @return false is there was a problem, true otherwise
      */
-    boolean showFile(String filename, boolean compiled, String docFilename);
+    boolean showFile(String filename, boolean compiled, String docFilename, Rectangle bounds);
 
     /**
      * Reload and display the same file that was displayed before.
@@ -180,5 +181,13 @@ public interface Editor
      *  @return  True, if interface is currently shown, false otherwise.
      */
     boolean isShowingInterface();
+
+    /**
+     * Gets the bounds for this editor window.
+     * This method is used to store the bounds between sessions.
+     * 
+     * @return The bounds
+     */
+    Rectangle getBounds();
 
 } // end interface Editor

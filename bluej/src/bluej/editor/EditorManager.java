@@ -8,6 +8,7 @@
 
 package bluej.editor;
 
+import java.awt.Rectangle;
 import java.util.List;
 import bluej.editor.moe.MoeEditorManager;
 
@@ -17,7 +18,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 2349 2003-11-15 16:01:11Z mik $
+ * @version $Id: EditorManager.java 2642 2004-06-21 14:53:23Z polle $
  */
 public abstract class EditorManager
 {
@@ -55,7 +56,7 @@ public abstract class EditorManager
         EditorWatcher watcher, 
         boolean compiled, 
         List breakpoints, 
-        ClassLoader projectClassLoader );
+        ClassLoader projectClassLoader, Rectangle bounds );
 
 
     /**
@@ -72,7 +73,7 @@ public abstract class EditorManager
      * @returns		the new editor, or null if there was a problem
      */
     public abstract Editor openText(String filename, String windowTitle,
-                    EditorWatcher watcher);
+                    EditorWatcher watcher, Rectangle bounds );
 
     /**
      * Indicate to the manager that all resources used by this editor

@@ -1,6 +1,8 @@
 package bluej.pkgmgr.target;
 
+import java.awt.Rectangle;
 import java.io.File;
+import java.util.Properties;
 
 import bluej.editor.*;
 import bluej.pkgmgr.Package;
@@ -9,12 +11,13 @@ import bluej.pkgmgr.Package;
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 2373 2003-11-19 03:41:04Z ajp $
+ * @version $Id: EditableTarget.java 2642 2004-06-21 14:53:23Z polle $
  */
 public abstract class EditableTarget extends DependentTarget
     implements EditorWatcher
 {
     protected Editor editor;
+    protected Rectangle editorBounds;
 
     protected EditableTarget(Package pkg, String name)
     {
@@ -61,7 +64,32 @@ public abstract class EditableTarget extends DependentTarget
     {
         return (editor!=null);
     }
+    
+    public void load(Properties props, String prefix) throws NumberFormatException
+    {
+        super.load(props, prefix);
+        if(props.getProperty(prefix + ".editor.x") != null) {
+	        editorBounds = new Rectangle(Integer.parseInt(props.getProperty(prefix + ".editor.x")),
+	                Integer.parseInt(props.getProperty(prefix + ".editor.y")), 
+	                Integer.parseInt(props.getProperty(prefix + ".editor.width")),
+	                Integer.parseInt(props.getProperty(prefix + ".editor.height")));
+        }
+    }
 
+    public void save(Properties props, String prefix)
+    {
+        super.save(props, prefix);
+        if (editor != null) {
+            editorBounds = editor.getBounds();            
+        } 
+        if(editorBounds!=null) {
+            props.put(prefix + ".editor.x", String.valueOf((int) editorBounds.getX()));
+            props.put(prefix + ".editor.y", String.valueOf((int) editorBounds.getY()));
+            props.put(prefix + ".editor.width", String.valueOf((int) editorBounds.getWidth()));
+            props.put(prefix + ".editor.height", String.valueOf((int) editorBounds.getHeight()));
+        }
+    }
+    
     // --- EditorWatcher interface ---
     // (The EditorWatcher methods are typically redefined in subclasses)
 

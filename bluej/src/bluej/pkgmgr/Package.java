@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: Package.java 2642 2004-06-21 14:53:23Z polle $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -540,18 +540,6 @@ public final class Package extends Graph
             }
         }
 
-        // add our immovable targets (either a text note or a package
-        // which goes to the parent package)
-        if (!isUnnamedPackage()) {
-            Target t = new ParentPackageTarget(this);
-            t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
-            addTarget(t);
-        }
-        else {
-            Target t = new ReadmeTarget(this);
-            t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
-            addTarget(t);
-        }
         addImmovableTargets();
         // make our Package targets reflect what is actually on disk
         // note that we consider this on-disk version the master
@@ -684,6 +672,9 @@ public final class Package extends Graph
 //            addTarget(t);
 //        }
         Target t = new ReadmeTarget(this);
+        //Take special care of ReadmeTarget
+        //see ReadmeTarget.isSaveable for explanation
+        t.load(lastSavedProps, "readme");
         t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
         addTarget(t);
         if (!isUnnamedPackage()) {
@@ -794,6 +785,11 @@ public final class Package extends Graph
             }
         }
         props.put("package.numTargets", String.valueOf(t_count));
+        
+        //Take special care of ReadmeTarget
+        //see ReadmeTarget.isSaveable for explanation
+        Target t = getTarget(ReadmeTarget.README_ID);
+        t.save(props, "readme");
 
         for(int i = 0; i < usesArrows.size(); i++) {        // uses arrows
             Dependency d = (Dependency)usesArrows.get(i);

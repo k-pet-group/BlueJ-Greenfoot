@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2583 2004-06-10 07:27:17Z polle $
+ * @version $Id: ClassTarget.java 2642 2004-06-21 14:53:23Z polle $
  */
 public class ClassTarget extends EditableTarget implements Moveable
 {	
@@ -493,7 +493,8 @@ public class ClassTarget extends EditableTarget implements Moveable
                     this, 
                     isCompiled(), 
                     breakpoints, 
-                    getPackage().getProject().getLocalClassLoader() );
+                    getPackage().getProject().getLocalClassLoader(),
+                    editorBounds);
             if(openWithInterface)
                 editor.showInterface(true);
         }

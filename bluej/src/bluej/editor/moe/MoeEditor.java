@@ -269,11 +269,15 @@ public final class MoeEditor extends JFrame
     /**
      *  Load the file "filename" and show the editor window.
      */
-    public boolean showFile(String filename, boolean compiled, String docFilename)
+    public boolean showFile(String filename, boolean compiled, String docFilename, Rectangle bounds)
                             // inherited from Editor, redefined
     {
         this.filename = filename;
         this.docFilename = docFilename;
+        
+        if(bounds != null) {
+            setBounds(bounds);
+        }
 
         boolean loaded = false;
         boolean readError = false;

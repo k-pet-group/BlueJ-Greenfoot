@@ -18,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2488 2004-04-06 09:42:07Z fisker $
+ * @version $Id: ReadmeTarget.java 2642 2004-06-21 14:53:23Z polle $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -35,6 +35,7 @@ public class ReadmeTarget extends Target
     public static final String README_ID = "@README";
 
     protected Editor editor;
+    private Rectangle editorBounds;
 
 
     public ReadmeTarget(Package pkg)
@@ -49,11 +50,26 @@ public class ReadmeTarget extends Target
 
     public void load(Properties props, String prefix) throws NumberFormatException
     {
+        if(props.getProperty(prefix + ".editor.x") != null) {
+	        editorBounds = new Rectangle(Integer.parseInt(props.getProperty(prefix + ".editor.x")),
+	                Integer.parseInt(props.getProperty(prefix + ".editor.y")), 
+	                Integer.parseInt(props.getProperty(prefix + ".editor.width")),
+	                Integer.parseInt(props.getProperty(prefix + ".editor.height")));
+        }        
     }
 
     public void save(Properties props, String prefix)
-    {
-    }
+    {   
+        if (editor != null) {
+            editorBounds = editor.getBounds();            
+        } 
+        if(editorBounds!=null) {
+            props.put(prefix + ".editor.x", String.valueOf((int) editorBounds.getX()));
+            props.put(prefix + ".editor.y", String.valueOf((int) editorBounds.getY()));
+            props.put(prefix + ".editor.width", String.valueOf((int) editorBounds.getWidth()));
+            props.put(prefix + ".editor.height", String.valueOf((int) editorBounds.getHeight()));
+        }
+    }    
 
     /**
      * @return the name of the (text) file this target corresponds to.
@@ -88,6 +104,13 @@ public class ReadmeTarget extends Target
         return false;
     }
 
+    /**
+     * Although we do save some information (the editor position) about a Readme
+     * this is not done via the usual target save mechanism. If the normal save
+     * mechanism was used, the readme target would appear as a normal target.
+     * This would result in not being able to open a project saved in a newer
+     * BlueJ version with an older BlueJ version.
+     */
     public boolean isSaveable()
     {
         return false;
@@ -122,7 +145,7 @@ public class ReadmeTarget extends Target
         if(editor == null)
             editor = Package.editorManager.openText(
                                                  getSourceFile().getPath(),
-                                                 Package.readmeName, this);
+                                                 Package.readmeName, this, editorBounds);
         return editor;
     }
 
