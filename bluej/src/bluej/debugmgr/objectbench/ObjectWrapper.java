@@ -41,7 +41,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3015 2004-09-24 10:49:25Z fisker $
+ * @version $Id: ObjectWrapper.java 3024 2004-09-29 11:37:58Z fisker $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -105,10 +105,12 @@ public class ObjectWrapper extends JComponent
         if(pmf.isEmptyFrame())
             throw new IllegalArgumentException();
 
-        if (obj.isArray())
+        if (obj.isArray()) {
             return new ArrayWrapper(pmf, ob, obj, instanceName);
-        else
+        }
+        else {
             return new ObjectWrapper(pmf, ob, obj, instanceName);
+        }
     }
 
     protected ObjectWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
@@ -138,6 +140,7 @@ public class ObjectWrapper extends JComponent
         setSize(WIDTH, HEIGHT);
         setFocusable(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        ob.setSelectedObject(this);
     }
 
     

@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2885 2004-08-17 10:37:37Z mik $
+ * @version $Id: ObjectBench.java 3024 2004-09-29 11:37:58Z fisker $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -365,7 +365,9 @@ public class ObjectBench extends JPanel
      * The mouse was clicked in the object bench.
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
-    public void mouseClicked(MouseEvent e) {}
+    public void mouseClicked(MouseEvent e) {
+    	setSelectedObject(null);
+    }
 
     
     /**
