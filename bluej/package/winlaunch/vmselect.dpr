@@ -23,7 +23,7 @@ begin
 
   appdir := ExtractFilePath(Application.ExeName);
 
-   if true or FileExists(appdir + 'lib\bluej.jar') then
+   if (DebugHook <> 0) or FileExists(appdir + 'lib\bluej.jar') then
    begin
 	Application.CreateForm(TMainForm, MainForm);
 	Application.Run;

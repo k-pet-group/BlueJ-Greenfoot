@@ -2,44 +2,40 @@
 File_0=SourceModule,'O:\home\banjo\project\BlueJ\vmselect\javatest.pas',0,1,59,19,78,0,0
 
 [Modules]
-Module0=O:\home\banjo\project\BlueJ\vmselect\main.pas
-Module1=O:\home\banjo\project\BlueJ\vmselect\exfile.pas
-Module2=O:\home\banjo\project\BlueJ\vmselect\findfile.pas
-Module3=O:\home\banjo\project\BlueJ\vmselect\consoleapp.pas
+Module0=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\main.pas
+Module1=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\exfile.pas
+Module2=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\findfile.pas
+Module3=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\vmselect.dpr
 Count=4
 EditWindowCount=1
 
-[O:\home\banjo\project\BlueJ\vmselect\main.pas]
+[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\main.pas]
 ModuleType=SourceModule
 FormState=1
 FormOnTop=0
 
-[O:\home\banjo\project\BlueJ\vmselect\exfile.pas]
+[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\exfile.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[O:\home\banjo\project\BlueJ\vmselect\findfile.pas]
+[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\findfile.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[O:\home\banjo\project\BlueJ\vmselect\consoleapp.pas]
+[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\vmselect.dpr]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[O:\home\banjo\project\BlueJ\vmselect\ProjectGroup1.bpg]
-FormState=0
-FormOnTop=0
-
-[O:\home\banjo\project\BlueJ\vmselect\vmselect.dpr]
+[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\ProjectGroup1.bpg]
 FormState=0
 FormOnTop=0
 
 [EditWindow0]
 ViewCount=4
-CurrentView=0
+CurrentView=1
 View0=0
 View1=1
 View2=2
@@ -63,34 +59,34 @@ LeftPanelData=00000400010000000C000000436F64654578706C6F726572450200000000000001
 RightPanelSize=0
 BottomPanelSize=240
 BottomPanelClients=ProjectManager,MessageView@EditWindow0
-BottomPanelData=00000400010000000B0000004D65737361676556696577DA0400000000000002F000000000000000010000000000000000000000000100000000DA0400001200000050726F6A6563744D616E61676572466F726D0100000000DA0400000B0000004D65737361676556696577FFFFFFFF
+BottomPanelData=0000040000000000DA0400000000000002F000000000000000010000000000000000000000000100000000930100001200000050726F6A6563744D616E61676572466F726D0100000000DA0400000B0000004D65737361676556696577FFFFFFFF
 
 [View0]
-Module=O:\home\banjo\project\BlueJ\vmselect\main.pas
-CursorX=1
-CursorY=264
-TopLine=331
+Module=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\vmselect.dpr
+CursorX=19
+CursorY=26
+TopLine=10
 LeftCol=1
 
 [View1]
-Module=O:\home\banjo\project\BlueJ\vmselect\consoleapp.pas
-CursorX=9
-CursorY=335
-TopLine=318
+Module=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\main.pas
+CursorX=20
+CursorY=437
+TopLine=428
 LeftCol=1
 
 [View2]
-Module=O:\home\banjo\project\BlueJ\vmselect\findfile.pas
-CursorX=20
-CursorY=708
-TopLine=696
+Module=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\exfile.pas
+CursorX=19
+CursorY=358
+TopLine=61
 LeftCol=1
 
 [View3]
-Module=O:\home\banjo\project\BlueJ\vmselect\exfile.pas
-CursorX=17
-CursorY=362
-TopLine=396
+Module=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\findfile.pas
+CursorX=20
+CursorY=158
+TopLine=140
 LeftCol=1
 
 [Watches]
@@ -121,11 +117,11 @@ Visible=1
 State=0
 Left=12
 Top=0
-Width=1230
+Width=387
 Height=240
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1230
+ClientWidth=387
 ClientHeight=240
 TBDockHeight=240
 LRDockWidth=438
@@ -178,7 +174,7 @@ LRDockWidth=322
 Dockable=1
 SplitPos=105
 ArrangeBy=Name
-SelectedItem=Style
+SelectedItem=Caption
 ExpandedItems=
 HiddenCategories=
 
@@ -216,7 +212,7 @@ Dockable=1
 
 [MessageView@EditWindow0]
 Create=1
-Visible=0
+Visible=1
 State=0
 Left=415
 Top=0

@@ -51,16 +51,11 @@ Conditionals=
 DebugSourceDirs=
 UsePackages=0
 [Parameters]
-RunParams=-select
+RunParams=/select
 HostApplication=
 Launcher=
 UseLauncher=0
 DebugCWD=
-[Resource DLL Projects]
-Item0=Chinese (PRC)*$00000804*CHS*CHS
-Item1=German (Germany)*$00000407*DEU*DEU
-Item2=Japanese*$00000411*JPN*JPN
-Item3=Swedish*$0000041D*SVE*SVE
 [RDP Source Files]
 Item0=main.dfm
 Item1=vmselect.drc
@@ -69,27 +64,30 @@ ActiveLang=
 ProjectLang=$00000C09
 RootDir=
 [Version Info]
-IncludeVerInfo=0
-AutoIncBuild=0
+IncludeVerInfo=1
+AutoIncBuild=1
 MajorVer=1
-MinorVer=0
+MinorVer=2
 Release=0
-Build=0
+Build=5
 Debug=0
 PreRelease=0
 Special=0
 Private=0
 DLL=0
-Locale=3081
+Locale=1033
 CodePage=1252
 [Version Info Keys]
-CompanyName=
-FileDescription=
-FileVersion=1.0.0.0
+CompanyName=Monash University
+FileDescription=BlueJ Launcher
+FileVersion=1.2.0.5
 InternalName=
 LegalCopyright=
 LegalTrademarks=
 OriginalFilename=
-ProductName=
-ProductVersion=1.0.0.0
+ProductName=BlueJ
+ProductVersion=1.2.0
 Comments=
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;

@@ -6,7 +6,33 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, FindFile, ComCtrls, ConsoleApp, ExFile, REgistry,
-  Buttons;
+  Buttons, ImgList, ExtCtrls, jpeg;
+
+const
+        jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
+	ibmregkey : string = '\Software\IBM\Java Development Kit';
+        bluejregkey : string = '\Software\BlueJ\BlueJ\1.2.0';
+
+        searchingstartcaption : string = 'Search drives for all Java versions...';
+        searchingstopcaption : string = 'Stop Search';
+
+        foundjavacaption1 : string = 'BlueJ has found more than one Java version that can be used.';
+        foundjavacaption2 : string = 'Please select one and select "Launch" to use it with BlueJ or';
+        foundjavacaption3 : string = 'select "Advanced" if you wish to search for other Java versions';
+
+        foundonejavacaption1 : string = 'BlueJ has the following Java version that can be used.';
+        foundonejavacaption2 : string = 'Please select "Launch" if you wish to use it with BlueJ or';
+        foundonejavacaption3 : string = 'select "Advanced" if you wish to look for other Java versions';
+
+        nojavacaption1 : string = 'BlueJ could not find any Java systems. A JDK/J2SDK must be';
+        nojavacaption2 : string = 'installed to run BlueJ. If one is installed on your system,';
+        nojavacaption3 : string = 'select "Advanced" and then browse to its installation directory';
+
+        simplewinheight : integer = 224;
+        simplecaption : string = 'Simple';
+
+        advancedwinheight : integer = 406;
+        advancedcaption : string = 'Advanced';
 
 type
   TMainForm = class(TForm)
@@ -15,11 +41,15 @@ type
     GoodVM: TListView;
     BadVM: TListView;
     Label1: TLabel;
-    Label2: TLabel;
+    StartMessage1: TLabel;
     StatusBar: TStatusBar;
     BrowseButton: TButton;
     OpenDialog1: TOpenDialog;
     BitBtn1: TBitBtn;
+    StartMessage2: TLabel;
+    ImageList1: TImageList;
+    StartMessage3: TLabel;
+    Image1: TImage;
     procedure SearchButtonClick(Sender: TObject);
     procedure LaunchButtonClick(Sender: TObject);
     procedure BrowseButtonClick(Sender: TObject);
@@ -29,7 +59,8 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure GoodVMExit(Sender: TObject);
-    procedure BitBtn1Click(Sender: TObject);
+    procedure BitBtn1ClickToAdvanced(Sender: TObject);
+    procedure BitBtn1ClickToSimple(Sender: TObject);
   private
         ff : TFindFile;
         goodvmsfound : TStringList;
@@ -55,12 +86,7 @@ type
 var
   MainForm: TMainForm;
 
-  dumbmode : boolean = false;
   forcedialog : boolean = false;
-
-const
-        jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
-        bluejregkey : string = '\Software\BlueJ';
 
 implementation
 
@@ -69,10 +95,17 @@ uses
 
 {$R *.dfm}
 
-function BuildDriveStrings : string;
-var
-        bitmask,i  : integer;
+function DelphiIsRunning : boolean;
 begin
+	Result := DebugHook <> 0;
+end;
+
+procedure TMainForm.SearchButtonClick(Sender: TObject);
+
+ function BuildDriveStrings : string;
+ var
+        bitmask,i  : integer;
+ begin
         bitmask := GetLogicalDrives;
 
         for i := 0 to 31 do
@@ -81,9 +114,8 @@ begin
                         result := result + Chr(Ord('A') + i) + ':\;';
         end;
 
-end;
+ end;
 
-procedure TMainForm.SearchButtonClick(Sender: TObject);
 begin
         if ff.Busy then
                 ff.Abort
@@ -102,10 +134,12 @@ begin
 
                 ff.Execute;
 
-                SearchButton.Caption := 'Stop Search';
+                SearchButton.Caption := searchingstopcaption;
         end;
 end;
 
+{ Update a message to show user that progress is being made through
+  the folders on the computer }
 procedure TMainForm.NewFolder(Sender: TObject; Folder: String;
                                 var IgnoreFolder: Boolean);
 begin
@@ -113,6 +147,8 @@ begin
         GoodVMCheck;
 end;
 
+{ When we find a file called java.exe, check if its a valid VM and
+  add it to the list if it is }
 procedure TMainForm.FindFileFound(Sender: TObject; Folder: String;
 					var FileInfo: TSearchRec);
 var
@@ -157,14 +193,12 @@ begin
         except on EStringListError do
                 ;
         end;
-
-
 end;
 
 procedure TMainForm.SearchDone(Sender: TObject);
 begin
         StatusBar.SimpleText := 'Searching complete';
-        SearchButton.Caption := 'Start Complete Search';
+        SearchButton.Caption := searchingstartcaption;
 
         GoodVMCheck;
 end;
@@ -173,11 +207,9 @@ function TMainForm.LaunchBlueJ(jdkpath : string) : boolean;
 var
         appdir, appdirlib, vmfilename, tooljarfilename,
           bluejjarfilename, editorjarfilename,
-          antlrjarfilename, mrjjarfilename : string;
+          antlrjarfilename, junitjarfilename, mrjjarfilename : string;
         exfile : TExFile;
 begin
-	result := false;
-
         appdir := ExtractFilePath(Application.ExeName);
 
 	// vmfilename is automatically wrapped in quotes by ExecConsoleApp so
@@ -189,6 +221,7 @@ begin
         bluejjarfilename := appdirlib + 'bluej.jar' + '"';
         editorjarfilename := appdirlib + 'editor.jar' + '"';
         antlrjarfilename := appdirlib + 'antlr.jar' + '"';
+        //junitjarfilename := appdirlib + 'junit.jar' + '"';
         mrjjarfilename := appdirlib + 'MRJToolkitStubs.zip' + '"';
 
         tooljarfilename := '"' + ExcludeTrailingPathDelimiter(jdkpath) + '\lib\tools.jar' + '"';
@@ -201,6 +234,7 @@ begin
         exfile.ProcParameters := '-cp ' + bluejjarfilename + ';' +
                                            editorjarfilename + ';' +
                                            antlrjarfilename + ';' +
+//                                           junitjarfilename + ';' +
                                            mrjjarfilename + ';' +
                                            tooljarfilename + ' bluej.Main';
         result := exfile.Execute;
@@ -237,12 +271,20 @@ begin
         OpenDialog1.Execute;
 
         javapath := OpenDialog1.FileName;
+
+        if javapath = '' then
+        	Exit;
+                
 	reason := '';
 
-        if testjavapath(javapath, reason) then
-        begin
-      	        AddGoodVM(javapath, reason);
-	end;
+        if  testjavapath(javapath, reason) then
+      	        AddGoodVM(javapath, reason)
+        else
+	        with BadVM.Items.Add do
+                begin
+                        Caption := javapath;
+                        SubItems.Add(reason)
+                end;
 
         GoodVMCheck;
 end;
@@ -253,7 +295,7 @@ var
         i : integer;
         home, mode, ver : string;
 begin
-	MainForm.Height := 200;
+	BitBtn1ClickToSimple(Sender);
 
         ff := TFindFile.Create(MainForm);
 
@@ -264,10 +306,8 @@ begin
 
         for i := 1 to ParamCount do
         begin
-                if LowerCase(ParamStr(i)) = '-select' then
+                if LowerCase(ParamStr(i)) = '/select' then
                         forcedialog := true
-                else if LowerCase(ParamStr(i)) = '-express' then
-                        dumbmode := true;
         end;
 
         reg := TRegistry.Create;
@@ -326,6 +366,7 @@ begin
         subkeys := TStringList.Create;
         reg := TRegistry.Create;
 
+	{ look for Sun JDK's }
         try
                 reg.RootKey := HKEY_LOCAL_MACHINE;
                 if reg.OpenKey(jdkregkey, false) then
@@ -353,6 +394,62 @@ begin
         finally
                 reg.Free;
         end;
+
+        reg := TRegistry.Create;
+
+	{ look for IBM JDK's }
+        try
+        	subkeys.Clear;
+
+                reg.RootKey := HKEY_LOCAL_MACHINE;
+                if reg.OpenKey(ibmregkey, false) then
+                begin
+                        reg.GetKeyNames(subkeys);
+                        reg.CloseKey;
+                end;
+
+                for i := 0 to subkeys.Count-1 do
+                begin
+                        if reg.OpenKeyReadOnly(ibmregkey + '\' + subkeys[i]) then
+                        begin
+                                home := reg.ReadString('JavaHome');
+
+                                if home <> '' then
+                                begin
+                                        if testjdkpath(home, ver)  then
+                                        begin
+                                                AddGoodVM(home, ver);
+                                        end;
+                                end;
+                                reg.CloseKey;
+                        end;
+                end;
+        finally
+                reg.Free;
+        end;
+
+	{ change opening message depending on how many VM's we find }
+        if goodvmsfound.Count = 0 then
+        begin
+	        StartMessage1.Caption := nojavacaption1;
+        	StartMessage2.Caption := nojavacaption2;
+	        StartMessage3.Caption := nojavacaption3;
+        end
+        else if goodvmsfound.Count = 1 then
+        begin
+	        StartMessage1.Caption := foundonejavacaption1;
+        	StartMessage2.Caption := foundonejavacaption2;
+	        StartMessage3.Caption := foundonejavacaption3;
+
+                GoodVM.ItemIndex := 0;
+        end
+        else
+        begin
+	        StartMessage1.Caption := foundjavacaption1;
+        	StartMessage2.Caption := foundjavacaption2;
+	        StartMessage3.Caption := foundjavacaption3;
+
+        end;
 end;
 
 procedure TMainForm.GoodVMExit(Sender: TObject);
@@ -366,18 +463,26 @@ begin
                 LaunchButton.Enabled := false;
 end;
 
-procedure TMainForm.BitBtn1Click(Sender: TObject);
+procedure TMainForm.BitBtn1ClickToAdvanced(Sender: TObject);
 begin
-	if (BitBtn1.Caption = 'Simple') then
-	begin
-        	BitBtn1.Caption := 'Advanced';
-		Height := 200;
-        end
-        else
-        begin
-        	BitBtn1.Caption := 'Simple';
-                Height := 383;
-        end;
+       	BitBtn1.Caption := simplecaption;
+        BitBtn1.Glyph := nil;
+	BitBtn1.OnClick := BitBtn1ClickToSimple;
+
+        ImageList1.GetBitmap(0, BitBtn1.Glyph);
+
+        Height := advancedwinheight;
+end;
+
+procedure TMainForm.BitBtn1ClickToSimple(Sender: TObject);
+begin
+       	BitBtn1.Caption := advancedcaption;
+        BitBtn1.Glyph := nil;
+	BitBtn1.OnClick := BitBtn1ClickToAdvanced;
+
+        ImageList1.GetBitmap(1, BitBtn1.Glyph);
+
+ 	Height := simplewinheight;
 end;
 
 end.
