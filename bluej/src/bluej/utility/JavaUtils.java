@@ -15,7 +15,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2636 2004-06-20 11:03:55Z polle $
+ * @version $Id: JavaUtils.java 2645 2004-06-22 01:03:12Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -124,6 +124,7 @@ public abstract class JavaUtils {
     
     /**
      * Gets an array of nicely formatted strings with the types of the parameters.
+     * Include the ellipsis (...) for a varargs method.
      * 
      * @param method The method to get the parameters for.
      */
@@ -131,6 +132,7 @@ public abstract class JavaUtils {
     
     /**
      * Gets an array of nicely formatted strings with the types of the parameters.
+     * Include the ellipsis (...) for a varargs constructor.
      * 
      * @param constructor The constructor to get the parameters for.
      */
@@ -153,7 +155,7 @@ public abstract class JavaUtils {
         return rmap;
     }
 
-    protected static String makeDescription(String name, String[] paramTypes, String[] paramNames, boolean includeTypeNames)
+    protected static String makeDescription(String name, String[] paramTypes, String[] paramNames, boolean includeTypeNames, boolean isVarArgs)
     {
         StringBuffer sb = new StringBuffer();
         sb.append(name);
@@ -163,6 +165,9 @@ public abstract class JavaUtils {
                 sb.append(paramTypes[j]);
                 sb.append(" ");
             }
+            if (isVarArgs && j == paramTypes.length - 1)
+                sb.append("... ");
+            
             String paramname = null;
             if (paramNames != null)
                 paramname = paramNames[j];

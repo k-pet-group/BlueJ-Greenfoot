@@ -12,7 +12,7 @@ import bluej.debugger.gentype.*;
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils14.java 2636 2004-06-20 11:03:55Z polle $
+ * @version $Id: JavaUtils14.java 2645 2004-06-22 01:03:12Z davmac $
  */
 public class JavaUtils14 extends JavaUtils {
 
@@ -26,28 +26,28 @@ public class JavaUtils14 extends JavaUtils {
     {
         String name = getTypeName(method.getReturnType()) + " " + method.getName();
         String[] paramTypes = getParameterTypes(method);
-        return makeDescription(name, paramTypes, paramnames, false);
+        return makeDescription(name, paramTypes, paramnames, false, false);
     }
     
     public String getLongDesc(Method method, String [] paramnames)
     {
         String name = getTypeName(method.getReturnType()) + " " + method.getName();
         String[] paramTypes = getParameterTypes(method);
-        return makeDescription(name, paramTypes, paramnames, true);
+        return makeDescription(name, paramTypes, paramnames, true, false);
     }
 
     public String getLongDesc(Constructor constructor, String [] paramnames)
     {
         String name = constructor.getName();
         String[] paramTypes = getParameterTypes(constructor);
-        return makeDescription(name, paramTypes, paramnames, true);
+        return makeDescription(name, paramTypes, paramnames, true, false);
     }
     
     public String getShortDesc(Constructor constructor, String [] paramnames)
     {
         String name = constructor.getName();
         String[] paramTypes = getParameterTypes(constructor);
-        return makeDescription(name, paramTypes, paramnames, false);
+        return makeDescription(name, paramTypes, paramnames, false, false);
     }    
     
     public String getSignature(Constructor cons)

@@ -11,7 +11,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2639 2004-06-21 02:09:00Z davmac $
+ * @version $Id: JavaUtils15.java 2645 2004-06-22 01:03:12Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -26,32 +26,51 @@ public class JavaUtils15 extends JavaUtils {
     {
         String name = getTypeParameters(method);
         name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
-        String[] paramTypes = getParameterTypes(method);
-        return makeDescription(name, paramTypes, paramnames, false);
+
+        // Get the names without introducing ellipsis for varargs
+        Type[] paramTypes = method.getGenericParameterTypes();       
+        String[] paramTypeNames = getParameterTypes(paramTypes, false);
+        
+        return makeDescription(name, paramTypeNames, paramnames, false, method.isVarArgs());
     }
     
     public String getLongDesc(Method method, String [] paramnames)
     {
         String name = getTypeParameters(method);
         name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
-        String[] paramTypes = getParameterTypes(method);
-        return makeDescription(name, paramTypes, paramnames, true);
+        
+        // Get the names without introducing ellipsis for varargs
+        Type[] paramTypes = method.getGenericParameterTypes();       
+        String[] paramTypeNames = getParameterTypes(paramTypes, false);
+
+        // String[] paramTypes = getParameterTypes(method);
+        return makeDescription(name, paramTypeNames, paramnames, true, method.isVarArgs());
     }
     
     public String getShortDesc(Constructor constructor, String [] paramnames)
     {
         String name = constructor.getName();        
         name += getTypeParams(constructor);        
-        String[] paramTypes = getParameterTypes(constructor);
-        return makeDescription(name, paramTypes, paramnames, false);
+
+        // Get the names without introducing ellipsis for varargs
+        Type[] paramTypes = constructor.getGenericParameterTypes();       
+        String[] paramTypeNames = getParameterTypes(paramTypes, false);
+
+        //String[] paramTypes = getParameterTypes(constructor);
+        return makeDescription(name, paramTypeNames, paramnames, false, constructor.isVarArgs());
     }
 
     public String getLongDesc(Constructor constructor, String [] paramnames)
     {
         String name = constructor.getName();        
         name += getTypeParams(constructor); 
-        String[] paramTypes = getParameterTypes(constructor);
-        return makeDescription(name, paramTypes, paramnames, true);
+
+        // Get the names without introducing ellipsis for varargs
+        Type[] paramTypes = constructor.getGenericParameterTypes();       
+        String[] paramTypeNames = getParameterTypes(paramTypes, false);
+
+        // String[] paramTypes = getParameterTypes(constructor);
+        return makeDescription(name, paramTypeNames, paramnames, true, constructor.isVarArgs());
     }
     
     private String getTypeParams(Constructor constructor)
