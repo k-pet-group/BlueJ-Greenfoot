@@ -36,7 +36,7 @@ public class BArray
    * 
    * @return an Object that encapsulate the specific item.
    */
-  static Object get ( BObject thisArray, int itemIndex )
+  public static Object get ( BObject thisArray, int itemIndex )
     {
     ObjectReference objRef = thisArray.getObjectReference();
 

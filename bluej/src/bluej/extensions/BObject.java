@@ -21,7 +21,7 @@ import bluej.debugger.*;
 /**
  * The BlueJ proxy Object object. 
  *
- * @version $Id: BObject.java 1664 2003-03-07 12:10:55Z damiano $
+ * @version $Id: BObject.java 1665 2003-03-07 15:45:06Z damiano $
  */
 public class BObject
 {
@@ -46,21 +46,8 @@ public class BObject
         return true;
         }
 
-    /**
-     * Is this object a null one. If so you will not be able to put it into the bench..
-     * @return true or false
-     */
-    public boolean isNullObject()
-        {
-        // Kind of cheating, but really we can think of it as a null object.
-        if ( ! isValid() ) return true;
-
-        return wrapper.getObject().isNullObject();
-        }
-
 
     /**
-     * Gets the owning Package of this object
      * @return the BPackage belonging to this Object
      */
     public BPackage getPackage()
@@ -91,6 +78,20 @@ public class BObject
         wrapper = null;
         }
     
+
+    /**
+     * Is this object a null one. If so you will not be able to put it into the bench..
+     * @return true or false
+     */
+    public boolean isNullObject()
+        {
+        // Kind of cheating, but really we can think of it as a null object.
+        if ( ! isValid() ) return true;
+
+        return wrapper.getObject().isNullObject();
+        }
+
+
     /**
      * puts this object on the Object Bench
      * 
@@ -121,8 +122,9 @@ public class BObject
         }
 
 
-
     /**
+     * Used when you need to know the name of the object on the bench.<P>
+     * 
      * @return the instance name of the object, can return null if object is invalid
      */
     public String getInstanceName()
@@ -134,7 +136,7 @@ public class BObject
     
     /**
      * Similar to Reflection API this gets the object BClass and from that you get
-     * what you need from it.
+     * what you need from it. BClass can tell you if it is an array, the modifiers and so on.
      * 
      * @return the proxy BClass of this object
      */
@@ -146,6 +148,18 @@ public class BObject
     } 
 
     /**
+     * FOR bluej.extensions ONLY.<P>
+     * This should be visible only from within the bluej.extensions
+     * Used by BArray
+     */
+    Package getBluejPackage ()
+    {
+        if ( wrapper == null ) return null;
+        return wrapper.getPackage();
+    }
+
+    /**
+     * FOR bluej.extensions ONLY.<P>
      * This should be visible only from within the bluej.extensions
      * Used by BField to get hold of the real Object
      */
@@ -158,48 +172,6 @@ public class BObject
         return obj.getObjectReference();
         }
 
-    /**
-     * This should be visible only from within the bluej.extensions
-     * Used by BField and BArray
-     */
-    Package getBluejPackage ()
-        {
-        if ( wrapper == null ) return null;
-        return wrapper.getPackage();
-        }
 
-    
-    /**
-     * Checks if this object is an array
-     * @return <code>true</code> if this object is an array
-     */     
-    public boolean isArray()
-    {
-        return wrapper.getObject().isArray();
-    }
-    
-    /**
-     * Determines the modifiers for this object.
-     * Use <code>java.lang.reflect.Modifiers</code> to
-     * decode the meaning of this integer
-     * @return The modifiers of this method, encoded in
-     * a standard Java language integer. If this object
-     * represents an array, this value will probably
-     * be meaningless.
-     */
-    public int getModifiers()
-    {
-        return wrapper.getObject().getObjectReference().referenceType().modifiers();
-    }
 
-    /**
-     * Gets a description of this object
-     * @return the classname and instance name of this object
-     */     
-    public String toString()
-    {
-        String mod = Modifier.toString (getModifiers());
-        if (mod.length() > 0) mod += " ";
-        return mod+": " + getInstanceName();
-    }
 }   

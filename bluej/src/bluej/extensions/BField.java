@@ -44,6 +44,7 @@ public class BField
 
     /**
      * The name of the Field, as from reflection.
+     * Tested ok, 070303 Damiano
      */
     public String getName()
         {
@@ -52,10 +53,11 @@ public class BField
 
     /**
      * The type of the field, as from reflection
+     * Tested ok, 070303 Damiano
      */
     public Class getType()
         {
-        return bluej_view.getDeclaringView().getClass();
+        return bluej_view.getType().getViewClass();
         }
 
 

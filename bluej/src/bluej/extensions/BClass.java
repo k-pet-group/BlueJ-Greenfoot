@@ -21,43 +21,10 @@ import bluej.views.*;
  * The reasoning behind it is that is is no good to create a new standard when there 
  * is already one that can be used.
  * 
- * @version $Id: BClass.java 1664 2003-03-07 12:10:55Z damiano $
+ * @version $Id: BClass.java 1665 2003-03-07 15:45:06Z damiano $
  */
 public class BClass
 {
-    private static Map primitiveArrayNameMap;
-    static {
-        primitiveArrayNameMap = new HashMap();
-        primitiveArrayNameMap.put ("boolean", "Z");
-        primitiveArrayNameMap.put ("byte", "B");
-        primitiveArrayNameMap.put ("short", "S");
-        primitiveArrayNameMap.put ("char", "C");
-        primitiveArrayNameMap.put ("int", "I");
-        primitiveArrayNameMap.put ("long", "J");
-        primitiveArrayNameMap.put ("float", "F");
-        primitiveArrayNameMap.put ("double", "D");
-    }
-
-    private String transJavaToClass (final String javaStyle)
-    {
-        String className = javaStyle;
-        int array = 0;
-        while (className.endsWith ("[]")) {
-            array++;
-            className = className.substring (0, className.length()-2);
-        }
-        if (array > 0) {
-            String replace = (String)BClass.primitiveArrayNameMap.get(className);
-            if (replace != null) {
-                className = replace;
-            } else {
-                className = "L"+className+";";
-            }
-            while (array-- > 0) className = "["+className;
-        }
-        return className;
-    }
-    
     private Package  bluej_pkg;
     private final ClassTarget classTarget;
     private final Class loadedClass;
@@ -93,33 +60,32 @@ public class BClass
     }
 
     /**
-     * @param className the Java style className, eg int[][]
+     * For extensions use only.
      */    
     BClass (Package i_bluej_pkg, String className)
     {
         bluej_pkg = i_bluej_pkg;
         this.classTarget = null;
-        this.loadedClass = bluej_pkg.loadClass (transJavaToClass (className));
+        this.loadedClass = bluej_pkg.loadClass (transJavaToClass(className));
         bluej_view = View.getView (loadedClass);
     }
 
 
     /**
-     * TODO:
+     * Gets the Java Class being hidden by this BClass, this means showing the real Object...
+     * This is the core point where you can get more information about the class. Es:
+     * What is the real class being hidden
+     * Is it an array
+     * What is the typ of the array element
+     * 
+     * NOTE: This is for INFORMATION ONLY, if you want to interact with BlueJ you MUST
+     * use the methods proviced in BClass
      */
-    public boolean isValid()
+    public Class getJavaClass ()
       {
-      return true;
+      return loadedClass;
       }
 
-    /**
-     * As From Reflection API
-     */
-    public boolean isArray ()
-      {
-      return loadedClass.isArray();
-      }
-      
     /**
      * Gets the owning Package of this class
      * @return the originator
@@ -129,33 +95,7 @@ public class BClass
         return new BPackage (bluej_pkg);
     }
     
-   
-    /**
-     * Gets the name of this class
-     * @return the simple name of the class, ie no package name
-     */
-    public String getName()
-    {
-        String name = getFullName();
-        int i=name.lastIndexOf ('.');
-        return  name.substring (i+1);
-    }
-    
-    /**
-     * Gets the fully-qualified name of this class
-     * @return the full name of the class, ie with package name
-     */
-    public String getFullName()
-    {
-        Class cl = loadedClass;
-        String postfix = "";
-        while (cl.isArray()) {
-            postfix += "[]";
-            cl = cl.getComponentType();
-        }
-        return cl.getName()+postfix;
-    }
-    
+      
     /**
      * Checks to see if a class has been compiled. Ignored and returns <code>true</code> if it
      * is a virtual class.
@@ -163,8 +103,6 @@ public class BClass
      */
     public boolean isCompiled()
     {
-        if ( ! isValid () ) return false;
-        
         if (classTarget == null) return true;
 
         return classTarget.isCompiled();
@@ -185,7 +123,9 @@ public class BClass
     }
 
     /**
-     * Gets the superclass to this one
+     * Gets the superclass to this one.
+     * This must remain here othervise there would be no way to make a superclass of a BClass
+     * 
      * @return the immediate superclass to this one, or <code>null</code> if it has none
      */
     public BClass getSuper()
@@ -195,16 +135,6 @@ public class BClass
         if ( sup == null ) return null;
         
         return new BClass (bluej_pkg, sup);
-    }
-    
-    /** Gets the array type of this array
-     * @return the type of each element of this array
-     * @throws IllegalArgumentException if this is not an array
-     */
-    public BClass getArrayType()
-    {
-        if (!loadedClass.isArray()) throw new IllegalArgumentException ("Not an array");
-        return new BClass (bluej_pkg, loadedClass.getComponentType());
     }
     
     /**
@@ -317,22 +247,51 @@ public class BClass
         return null;
         }
 
-    /**
-     * See Reflection API
-     */
-    public int getModifiers()
-    {
-        return loadedClass.getModifiers();
-    }
+
+     // ====================== UTILITY AREA ====================================
+     private static Map primiMap;
+
+     static
+        {
+        // This will be executed once when this class is loaded
+        primiMap = new HashMap();
+        primiMap.put ("boolean", "Z");
+        primiMap.put ("byte", "B");
+        primiMap.put ("short", "S");
+        primiMap.put ("char", "C");
+        primiMap.put ("int", "I");
+        primiMap.put ("long", "J");
+        primiMap.put ("float", "F");
+        primiMap.put ("double", "D");
+        }
 
     /**
-     * Gets a description of this object
-     * @return the classname of this class
+     * Needed to convert java style class names to classloaded class names.
      */
-    public String toString()
-    {
-        String mod = Modifier.toString (getModifiers());
-        if (mod.length() > 0) mod += " ";
-        return mod+getFullName();
-    }
-}   
+    private String transJavaToClass ( String javaStyle )
+        {
+        String className = javaStyle;
+
+        int arrayCount = 0;
+        while (className.endsWith ("[]")) 
+          {
+          // Counts how may arrays are in this class name
+          arrayCount++;
+          className = className.substring (0, className.length()-2);
+          }
+
+        // No array around, nothing to do.  
+        if (arrayCount <= 0) return className;
+        
+        String replace = (String)BClass.primiMap.get(className);
+
+        // If I can substitute the name I will do it
+        if (replace != null)  className = replace;
+        else                  className = "L"+className+";";
+            
+        while (arrayCount-- > 0) className = "["+className;
+          
+        return className;
+        }
+
+    }   
