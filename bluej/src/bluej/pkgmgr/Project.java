@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2323 2003-11-12 12:48:38Z fisker $
+ * @version $Id: Project.java 2325 2003-11-12 13:45:25Z fisker $
  */
 public class Project
     implements DebuggerListener
@@ -81,8 +81,7 @@ public class Project
         catch(IOException ioe)
         {
             Debug.message("could not resolve directory " + projectPath);
-            ioe.printStackTrace();
-            // give a proper user message here
+            //ioe.printStackTrace();
             return null;
         }
 
