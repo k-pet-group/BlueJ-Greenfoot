@@ -150,11 +150,13 @@ public final class Info extends JPanel
 	try {
 	    //Debug.message("message: #"+line1.getText()+"#");
 	    in = new BufferedReader(new FileReader(fileName));
+	    String displayMsg = line1.getText().trim();  // message displayed
 	    String msg;
 	    String line;
 	    String helptext = "";
 	    while ((msg = in.readLine()) != null) {
-		if(line1.getText().startsWith(msg)) {
+		msg = msg.trim();
+		if((msg.length() > 0) && (displayMsg.startsWith(msg))) {
 		    // found it - read help text
 		    line = in.readLine();
 		    while ((line != null) && (line.length() > 0)) {
@@ -175,7 +177,10 @@ public final class Info extends JPanel
 	    in.close();
 	    if(! found)
 		Utility.showMessage(null, 
-				    "No help available for this message.");
+			    "No help available for this message.\n\n" +
+			    "Please mail the text of the error message\n" +
+			    "to mik@csse.monash.edu.au - we will then\n" +
+			    "add a help text to our help database. Thanks.");
 	}
 	catch(IOException e) {
 	    Utility.showError(null, "Cannot read help file:\n" + fileName);

@@ -673,7 +673,7 @@ public class PkgMgrFrame extends PkgFrame
     }
 
     /**
-     * 
+     * getExecControls - return the Execution Control window.
      */
     public ExecControls getExecControls()
     {
@@ -734,15 +734,20 @@ public class PkgMgrFrame extends PkgFrame
 		if(thread.getParam() == pkg)
 		    hitBreakpoint(thread);
 		break;
-	    case BlueJEvent.STEP:
+	    case BlueJEvent.HALT:
 		thread = (DebuggerThread)arg;
 		if(thread.getParam() == pkg)
-		    updateDebugDisplay(thread, false);
+		    hitHalt(thread);
+		break;
+	    case BlueJEvent.CONTINUE:
+		thread = (DebuggerThread)arg;
+		if(thread.getParam() == pkg)
+		    executionContinued();
 		break;
 	    case BlueJEvent.SHOW_SOURCE:
 		thread = (DebuggerThread)arg;
 		if(thread.getParam() == pkg)
-		    updateDebugDisplay(thread, true);
+		    showSource(thread);
 		break;
 	}
     }
@@ -756,6 +761,8 @@ public class PkgMgrFrame extends PkgFrame
     public void executionStarted()
     {
 	progressButton.setEnabled(true);
+	if((execCtrlWindow != null) && (execCtrlWindow.isVisible()))
+	    execCtrlWindow.updateThreads();
     }
 
     /**
@@ -798,6 +805,25 @@ public class PkgMgrFrame extends PkgFrame
 		       thread.getName(), true);
 	showHideExecControls(true, true);
 	executionHalted();
+    }
+
+
+    /**
+     * hitHalt - execution stopped interactively or after a step.
+     */
+    private void hitHalt(DebuggerThread thread)
+    {
+	executionHalted();
+	updateDebugDisplay(thread, false);
+    }
+
+
+    /**
+     * showSource - source display was requested
+     */
+    private void showSource(DebuggerThread thread)
+    {
+	updateDebugDisplay(thread, true);
     }
 
 

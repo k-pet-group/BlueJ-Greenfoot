@@ -102,6 +102,11 @@ public final class JdiThread extends DebuggerThread
 	return null; // to shut up compiler
     }
 
+    public boolean isSuspended()
+    {
+	return rt.isSuspended();
+    }
+
     public String getClassSourceName(int frameNo)
     {
 	try {
@@ -244,12 +249,12 @@ public final class JdiThread extends DebuggerThread
         // Make sure the step event is done only once
         request.addCountFilter(1);
         request.enable();
-	rt.virtualMachine().resume();
+	rt.resume();
     }
 
     public void cont()
     {
-	rt.virtualMachine().resume();
+	rt.resume();
     }
 
     public void terminate()

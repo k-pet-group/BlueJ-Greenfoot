@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 126 1999-06-15 03:42:35Z mik $
+ ** @version $Id: ExecControls.java 135 1999-06-21 03:39:47Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -41,8 +41,6 @@ public class ExecControls extends JFrame
 						//  selected
     private DebuggerObject currentObject;	// the "this" object for the
 						//  selected stack frame
-    private boolean machineIsRunning = false;
-
 
     public ExecControls()
     {
@@ -65,23 +63,30 @@ public class ExecControls extends JFrame
 	    setVisible(false);
 	}
 	else if(obj == stopButton) {
-	    if(machineIsRunning) {
-		Debugger.debugger.stopMachine();
+	    if(selectedThread != null) {
+		selectedThread.stop();
+		Debugger.debugger.threadStopped(selectedThread);
 		updateThreads();
 	    }
+	    else
+		Debug.message("no thread...");
 	}
 	else if(obj == stepButton) {
-	    if(selectedThread != null)
+	    if(selectedThread != null) {
+		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.step();
+	    }
 	}
 	else if(obj == stepIntoButton) {
-	    if(selectedThread != null)
+	    if(selectedThread != null) {
+		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.stepInto();
+	    }
 	}
 	else if(obj == continueButton) {
 	    if(selectedThread != null) {
-		selectedThread.cont();
 		Debugger.debugger.threadContinued(selectedThread);
+		selectedThread.cont();
 		updateThreads();
 	    }
 	    else
@@ -97,13 +102,14 @@ public class ExecControls extends JFrame
 	
     // ----- ListSelectionListener interface -----
 
+    /**
+     *  A list item was selected. This can be either in the thread list,
+     *  the stack list, or one of the variable lists.
+     */
     public void valueChanged(ListSelectionEvent event)
     {
 	if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
 	    return;
-
-	if(machineIsRunning)		// we don't show anything while the
-	    return;			//  machine is running
 
 	Object src = event.getSource();
 
@@ -138,26 +144,30 @@ public class ExecControls extends JFrame
 	DefaultListModel listModel = (DefaultListModel)threadList.getModel();
 	listModel.removeAllElements();
 
-	threads = Debugger.debugger.listThreads();
-
-	if(threads == null) {
-	    // machine is currently running - can't inspect
-	    listModel.addElement("(machine is running)");
-	    machineIsRunning = true;
-	}
-	else {
-	    machineIsRunning = false;
-	    for(int i = 0; i < threads.size(); i++) {
-		DebuggerThread thread = (DebuggerThread)threads.get(i);
-		String status = thread.getStatus();
-		if(! status.equals("finished"))
-		    listModel.addElement(thread.getName() + " ["+status+"]");
+//  	if(Debugger.debugger.isRunning()) {
+//  	    // machine is currently running - can't inspect
+//  	    listModel.addElement("(machine is running)");
+//  	}
+//  	else {
+	    threads = Debugger.debugger.listThreads();
+	    if(threads == null) {
+		Debug.reportError("cannot get thread info!");
+		listModel.addElement("(error: cannot list threads)");
 	    }
-	    if(listModel.getSize() > 0)
-		threadList.setSelectedIndex(0);  // always select the first one
-	    else
-		clearThreadDetails();
-	}
+	    else {
+		for(int i = 0; i < threads.size(); i++) {
+		    DebuggerThread thread = (DebuggerThread)threads.get(i);
+		    String status = thread.getStatus();
+		    if(! status.equals("finished"))
+			listModel.addElement(thread.getName() + " [" +
+					     status + "]");
+		}
+		if(listModel.getSize() > 0)
+		    threadList.setSelectedIndex(0);  // select the first one
+		else
+		    clearThreadDetails();
+	    }
+//  	}
     }
 	
     private void selectThread(int index)

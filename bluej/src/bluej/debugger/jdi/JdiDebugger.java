@@ -53,7 +53,7 @@ import com.sun.jdi.event.ExceptionEvent;
  ** @author Michael Kolling
  **/
 
-public class JdiDebugger extends Debugger
+public final class JdiDebugger extends Debugger
 {
     // the class name of the execution server class running on the remote VM
     static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
@@ -589,7 +589,7 @@ public class JdiDebugger extends Debugger
 		    if(breakpoint)
 			BlueJEvent.raiseEvent(BlueJEvent.BREAKPOINT, thread);
 		    else
-			BlueJEvent.raiseEvent(BlueJEvent.STEP, thread);
+			BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
 		}
 	    }
 	}
@@ -668,8 +668,8 @@ public class JdiDebugger extends Debugger
      */
     public Vector listThreads()
     {
-	if(machineIsRunning)
-	    return null;
+	//	if(machineIsRunning)
+	//  return null;
 
 	List threads = getVM().allThreads();
 	int len = threads.size();
@@ -697,16 +697,9 @@ public class JdiDebugger extends Debugger
     /**
      *  Stop all (non-system) threads in the remote VM.
      */
-    public void stopMachine()
+    public void threadStopped(DebuggerThread thread)
     {
-	Debug.message("suspending...");
-	VirtualMachine vm = getVM();
-	Debug.message("got vm.");
-	vm.suspend();
-	Debug.message("suspended.");
-//  	Vector threads = listThreads();
-//  	for(int i = 0; i < threads.size(); i++)
-//  	    ((JdiThread)threads.get(i)).stop();
+	raiseEvent(BlueJEvent.HALT, thread);
     }
 
     /**
@@ -715,10 +708,7 @@ public class JdiDebugger extends Debugger
      */
     public void threadContinued(DebuggerThread thread)
     {
-	//  	Package pkg = (Package)waitqueue.get(
-	//  				     ((JdiThread)thread).getRemoteThread());
-	//  	if(pkg != null)
-	//  	    pkg.getFrame().continueExecution();
+	raiseEvent(BlueJEvent.CONTINUE, thread);
     }
 
     /**
@@ -728,13 +718,19 @@ public class JdiDebugger extends Debugger
      */
     public void showSource(DebuggerThread thread)
     {
+	raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
+    }
+
+
+    private void raiseEvent(int event, DebuggerThread thread)
+    {
 	ThreadReference remoteThread = ((JdiThread)thread).getRemoteThread();
 	Object pkg = activeThreads.get(remoteThread);
 	if(pkg == null)
-	    Debug.reportError("cannot find thread for stack display!");
+	    Debug.reportError("cannot find thread for BlueJ event!");
 	else {
 	    thread.setParam(pkg);
-	    BlueJEvent.raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
+	    BlueJEvent.raiseEvent(event, thread);
 	}
     }
 

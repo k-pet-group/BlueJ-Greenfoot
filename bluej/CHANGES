@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00081
+@bug#  : 00083
 @short : 
 @prio  : 
 @source: 
@@ -214,7 +214,7 @@ in the template for the next one):
 @fixrel: 
 @descr : if a package cannot be written to (access rights == read only)
 	 this should be indicated by an info dialog and visual hints
-	 (eg all clases grey)
+	 (eg all classes grey)
 @cause : new feature
 
 @-------
@@ -510,6 +510,17 @@ in the template for the next one):
 =======================================================================
 
 ============================ version 0.9.3 ============================
+
+@-------
+@bug#  : 00082
+@short : grey out tag line in editor if not compiled
+@prio  : 4
+@source: mik
+@date  : 1999-06-21
+@status: closed, fixed (mik, 1999-06-21)
+@fixrel: 0.9.3
+@descr : tag line in editor should be greyed out if the class is not compiled
+@cause : new feature
 
 @-------
 @bug#  : 00036
