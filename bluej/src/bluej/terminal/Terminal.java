@@ -18,7 +18,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 2798 2004-07-14 16:22:29Z mik $
+ * @version $Id: Terminal.java 3047 2004-10-14 04:32:51Z bquig $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -441,17 +441,26 @@ public final class Terminal extends JFrame
         
         //the first time the errortext is shown we need to pack() it
         //to make it have the right size.
-        boolean doPack = false; 
+        boolean isFirstShow = false; 
         if(errorText == null) {
-            doPack = true;
+            isFirstShow = true;
             createErrorPane();
         }
      
         getContentPane().remove(scrollPane);
+  
+        // We want to know if it is not the first time
+        // This means a "clear" has been used to remove the splitpane
+        // when this re-adds the scrollPane to the terminal area
+        // it implicitly removes it from the splitpane as it can only have one
+        // owner. The side-effeect of this is the splitpane's
+        // top component becomes null.
+        if(!isFirstShow)
+            splitPane.setTopComponent(scrollPane);
         getContentPane().add(splitPane, BorderLayout.CENTER);       
         splitPane.resetToPreferredSizes();
             
-        if(doPack) {
+        if(isFirstShow) {
             pack();
         } else {
             validate();
