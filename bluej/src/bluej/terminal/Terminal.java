@@ -23,7 +23,7 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 993 2001-10-24 07:05:06Z mik $
+ * @version $Id: Terminal.java 994 2001-10-24 07:52:29Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -280,36 +280,20 @@ public final class Terminal extends JFrame
 
     // ---- KeyListener interface ----
 
-    public void keyPressed(KeyEvent event) { event.consume(); }
-    public void keyReleased(KeyEvent event) { event.consume(); }
+    public void keyPressed(KeyEvent event) {
+        if(event.getModifiers() != SHORTCUT_MASK)  // let menu commands pass
+            event.consume(); 
+    }
+
+    public void keyReleased(KeyEvent event) {
+        if(event.getModifiers() != SHORTCUT_MASK)
+            event.consume(); 
+    }
 
     public void keyTyped(KeyEvent event)
     {
-        char ch = event.getKeyChar();
-        boolean handled = false;
-
-        // first, handle general terminal operations (menu shortcuts)
-        if(Character.isISOControl(ch)) {
-
-            switch(ch) {
-            case CHAR_CLEAR: clear();
-                             handled = true;
-                break;
-            case CHAR_COPY:  getCopyAction().actionPerformed(
-                                    new ActionEvent(event.getSource(), 0, ""));
-                             handled = true;
-            break;
-            case CHAR_SAVE:  save();
-                             handled = true;
-                break;
-            case CHAR_CLOSE: showTerminal(false);
-                             handled = true;
-                break;
-            }
-        }
-
-        // now, handle text input
-        if(isActive && !handled) {
+        if(isActive) {
+            char ch = event.getKeyChar();
 
             switch(ch) {
 
