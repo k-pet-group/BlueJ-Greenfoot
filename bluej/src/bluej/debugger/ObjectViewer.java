@@ -21,19 +21,18 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- * A window that displays the fields in an object (also know as an
- * "Inspect window") and method call results.
- *
- * @author  Michael Cahill
- * @author  Michael Kolling
- * @version $Id: ObjectViewer.java 333 2000-01-02 13:32:06Z ajp $
- */
+ ** @version $Id: ObjectViewer.java 346 2000-01-12 03:53:37Z ajp $
+ ** @author Michael Cahill
+ ** @author Michael Kolling
+ **
+ ** A window that displays the fields in an object (also know as an
+ ** "Inspect window") and method call results.
+ **/
+
 public final class ObjectViewer extends JFrame
+
 	implements ActionListener, ListSelectionListener
 {
-    private static final Image iconImage = new ImageIcon(
-                                            Config.getImageFilename("image.icon")).getImage();
-
     private static final Color bgColor = new Color(208, 212, 208);
 
     private static String inspectTitle = Config.getString("debugger.objectviewer.title");
@@ -44,7 +43,6 @@ public final class ObjectViewer extends JFrame
     private static String getLabel = Config.getString("debugger.objectviewer.get");
     private static String close = Config.getString("close");
     private static String objectClassName = Config.getString("debugger.objectviewer.objectClassName");
-
 
     private static final int VISIBLE_ARRAY_FIELDS = 45;
     private static final int ARRAY_QUERY_INDEX = 40;
@@ -79,21 +77,21 @@ public final class ObjectViewer extends JFrame
      * This is the only way to get access to viewers - they cannot be
      * directly created.
      *
-     * @param inspection    True is this is an inspection, false for result
-     *                      displays
-     * @param obj           The object displayed by this viewer
-     * @param name          The name of this object or "null" if it is not on the
-     *                      object bench
-     * @param pkg           The package all this belongs to
-     * @param getEnabled    if false, the "get" button is permanently disabled
-     * @param parent        The parent frame of this frame
+     * @param inspection  True is this is an inspection, false for result
+     *			displays
+     * @param obj		The object displayed by this viewer
+     * @param name	The name of this object or "null" if it is not on the
+     *			object bench
+     * @param pkg		The package all this belongs to
+     * @param getEnabled	if false, the "get" button is permanently disabled
+     * @param parent	The parent frame of this frame
      */
     public static ObjectViewer getViewer(boolean inspection,
-                                            DebuggerObject obj, String name,
-                                            Package pkg, boolean getEnabled,
-                                            JFrame parent)
+					 DebuggerObject obj, String name,
+					 Package pkg, boolean getEnabled,
+					 JFrame parent)
     {
-        ObjectViewer viewer = (ObjectViewer)viewers.get(obj);
+	ObjectViewer viewer = (ObjectViewer)viewers.get(obj);
 
 	if(viewer == null) {
 	    String id;
@@ -106,9 +104,9 @@ public final class ObjectViewer extends JFrame
 	    viewer = new ObjectViewer(inspection, obj, pkg, id, getEnabled, parent);
 	    viewers.put(obj, viewer);
 	}
-        viewer.update();
+	viewer.update();
 
-        return viewer;
+	return viewer;
     }
 
     /**
@@ -135,9 +133,7 @@ public final class ObjectViewer extends JFrame
 			   JFrame parent)
     {
 	super();
-
-    setIconImage(iconImage);
-    isInspection = inspect;
+	isInspection = inspect;
 	this.obj = obj;
 	this.pkg = pkg;
 	viewerId = id;
@@ -149,7 +145,7 @@ public final class ObjectViewer extends JFrame
 	    pkgScopeId = "";
 	}
 	else
-	    pkgScopeId = pkg.getId();
+	    pkgScopeId = Utility.quoteSloshes(pkg.getId());
 
 	makeFrame(parent, isInspection, obj);
     }
@@ -515,8 +511,7 @@ public final class ObjectViewer extends JFrame
 	});
 
 	JPanel mainPanel = (JPanel)getContentPane();
-    mainPanel.setBorder(Config.generalBorder);
-//	mainPanel.setBorder(BorderFactory.createEmptyBorder(16,20,10,20));
+	mainPanel.setBorder(Config.generalBorder);
 
 	int maxRows = 8;
 	int rows;
@@ -545,9 +540,6 @@ public final class ObjectViewer extends JFrame
 
 	objFieldList = new JList(new DefaultListModel());
 	objFieldList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    objFieldList.setCellRenderer(new MyCellRenderer());
-
-
 	objFieldList.addListSelectionListener(this);
 	objectScrollPane = new JScrollPane(objFieldList);
 
@@ -591,20 +583,7 @@ public final class ObjectViewer extends JFrame
 
 	// Create panel with "inspect" and "get" buttons
 	JPanel buttonPanel = new JPanel();
-//	buttonPanel.setLayout(new GridLayout(0, 1));
-
-
-//	JPanel buttonFramePanel = new JPanel();
-//	buttonFramePanel.setLayout(new BorderLayout(0,0));
-//	buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0,10,0,0));
-//	buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
-//	mainPanel.add(buttonFramePanel, BorderLayout.EAST);
-
-	// create bottom button pane with "Close" button
-
-	buttonPanel = new JPanel();
-	buttonPanel.setLayout(new FlowLayout());
-	buttonPanel.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
+	buttonPanel.setLayout(new GridLayout(0, 1));
 
 	inspectBtn = new JButton(inspectLabel);
 	inspectBtn.addActionListener(this);
@@ -616,6 +595,17 @@ public final class ObjectViewer extends JFrame
 	getBtn.addActionListener(this);
 	buttonPanel.add(getBtn);
 
+	JPanel buttonFramePanel = new JPanel();
+	buttonFramePanel.setLayout(new BorderLayout(0,0));
+	buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0,10,0,0));
+	buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
+	mainPanel.add(buttonFramePanel, BorderLayout.EAST);
+
+	// create bottom button pane with "Close" button
+
+	buttonPanel = new JPanel();
+	buttonPanel.setLayout(new FlowLayout());
+	buttonPanel.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 	JButton button = new JButton(close);
 	buttonPanel.add(button);
 	button.addActionListener(this);
@@ -633,37 +623,3 @@ public final class ObjectViewer extends JFrame
 	button.requestFocus();
     }
 }
-
-
-
-  // Display an icon and a string for each object in the list.
-
-class MyCellRenderer extends DefaultListCellRenderer {
-
-	private static final ImageIcon object_icon =
-		new ImageIcon(Config.getImageFilename("image.objectviewer.object"));
-
-	private static final ImageIcon blank_icon =
-		new ImageIcon(Config.getImageFilename("image.objectviewer.blank"));
-
-     public Component getListCellRendererComponent(
-       JList list,
-       Object value,            // value to display
-       int index,               // cell index
-       boolean isSelected,      // is the cell selected
-       boolean cellHasFocus)    // the list and the cell have the focus
-     {
-        String s = value.toString();
-
-        if(s.endsWith("<object reference>"))
-            setIcon(object_icon);
-        else
-            setIcon(blank_icon);
-
-        Component c = super.getListCellRendererComponent(
-                                list, value, index, isSelected, cellHasFocus);
-
-        return c;
-     }
- }
-
