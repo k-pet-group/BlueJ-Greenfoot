@@ -164,7 +164,7 @@ public class ExtensionWrapper
         }
 
         // Let me see if this extension is somewhat compatible...
-        if (!extensionInstance.isCompatibleWith(Extension.VERSION_MAJOR, Extension.VERSION_MINOR)) {
+        if (!extensionInstance.isCompatible()) {
             extensionStatusString = Config.getString("extmgr.status.badversion");
             extensionInstance = null;
         }

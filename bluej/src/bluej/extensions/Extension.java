@@ -9,20 +9,31 @@ import bluej.Config;
  *  <b>This API is version 1.2</b> Your class MUST have an empty parameters
  *  constructor AND implement the startup and teminate methods.
  *
- * @version    $Id: Extension.java 1504 2002-11-18 08:29:39Z damiano $
+ * @version    $Id: Extension.java 1642 2003-03-05 11:12:15Z damiano $
  */
 public abstract class Extension
 {
     /**
-     *  The major version number of the Extension API
+     * The major version number of the Extension API
+     * do NOT make it final othervise the compiler will cache it and it will seem immutable
      */
-    public final static int VERSION_MAJOR = 1;
+    public static int VERSION_MAJOR = 2;
 
     /**
      *  The minor version number of the Extension API
+     *  do NOT make it final othervise the compiler will cache it and it will seem immutable
      */
-    public final static int VERSION_MINOR = 2;
+    public static int VERSION_MINOR = 1;
 
+    /**
+     *  Determine whether this extension is compatible with a particular version
+     *  of the extensions API. This method is called BEFORE the startup method.
+     *  The extension writer can use the Extension.VERSION_MAJOR and MINOR as an aid to determine
+     *  if his extension is compatible with the current BlueJ release.
+     *
+     * @return true or false
+     */
+    public abstract boolean isCompatible();
 
     /**
      *  After your class is created this method is called A reference on the
@@ -53,6 +64,8 @@ public abstract class Extension
     /**
      *  Provide the caller with a major version number. This should not change
      *  frequently, but only due to a significant change in the extension.
+     *  NOTE: This is NOT the verion of the Extension API, it is the Verions of the 
+     *  Extension itself !
      *
      * @return    the major part of the current version.
      */
@@ -66,29 +79,6 @@ public abstract class Extension
      * @return    the minor part of the current version.
      */
     public abstract int getVersionMinor();
-
-
-    /**
-     *  Determine whether this extension is compatible with a particular version
-     *  of the extensions API. Typically <I>compatible</I> indicates that the
-     *  major version is the same, and the minor version of the API is the same
-     *  or greater than the intended version. This has nothing to do with the
-     *  version of the extension itself, only the API it is expecting to work
-     *  with. Usually use code like this: <PRE>
-     *    private static final int BUILT_FOR_MAJOR = 1;
-     *    private static final int BUILD_FOR_MINOR = 0;
-     *    public boolean isCompatibleWith (int majorVersion, int minorVersion)
-     *    {
-     *        return (majorVersion == BUILT_FOR_MAJOR && minorVersion >= BUILD_FOR_MINOR);
-     *    }</PRE> However, if you <I>know</I> that it also works with other
-     *  version, this can be modified accordingly.
-     *
-     * @param  majorVersion  Description of the Parameter
-     * @param  minorVersion  Description of the Parameter
-     * @return               The compatibleWith value
-     */
-    public abstract boolean isCompatibleWith(int majorVersion, int minorVersion);
-
 
     /**
      *  Gets a description of the extension's function. This should include a
