@@ -33,6 +33,9 @@ The BlueJ License
 The BlueJ system and this tutorial are freely available to anyone for any
 kind of use. The system and its documentation may be redistributed freely.
 
+Disassembly of the system is prohibited. Alteration and reuse of substantial 
+parts of the documentation only with explicit permission from the authors.
+
 No part of the BlueJ system or its documentation may be sold for profit or
 included in a package that is sold for profit without written authorisation
 of the authors.
