@@ -38,7 +38,7 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 416 2000-03-14 03:03:13Z ajp $
+ * @version $Id: Config.java 423 2000-04-13 00:21:24Z ajp $
  */
 
 public class Config
@@ -339,6 +339,23 @@ public class Config
             return null;
         }
     }
+
+    /**
+     * Find and return the icon for an image.
+     */
+    public static Icon getImage(String propname)
+    {
+        try {
+            String filename = bluej_props.getProperty(propname);
+
+            return new ImageIcon(bluej_home + File.separator + "images" + File.separator + filename);
+
+        } catch(Exception e) {
+            Debug.reportError("Could not find image: " + propname);
+            return null;
+        }
+    }
+
 
     /**
      * Find and return the file name for a help file (eg.
