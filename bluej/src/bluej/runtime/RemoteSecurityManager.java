@@ -6,14 +6,16 @@ import java.security.Permission;
  * A SecurityManager for the BlueJ runtime
  *
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 2281 2003-11-05 17:43:53Z mik $
+ * @version $Id: RemoteSecurityManager.java 3041 2004-10-07 00:40:19Z davmac $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
     /**
      * All user threads will be created into this group
      */
+    /*
     ThreadGroup threadGroup = null;
+    */
 
     /**
      * This method returns the thread group that any new
@@ -25,6 +27,7 @@ public class RemoteSecurityManager extends SecurityManager
      * Currently not implemented - we leave all user created threads
      * alone when simulating System.exit()
      */
+    /*
     public ThreadGroup getThreadGroup()
     {
         if(threadGroup == null) {
@@ -32,6 +35,7 @@ public class RemoteSecurityManager extends SecurityManager
         }
         return threadGroup;
     }
+    */
 
     /**
      * The only thing BlueJ applications are currently not allowed to

@@ -33,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3040 2004-10-06 03:33:59Z davmac $
+ * @version $Id: JdiDebugger.java 3041 2004-10-07 00:40:19Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -743,8 +743,7 @@ public class JdiDebugger extends Debugger
             {
                 JdiThreadNode jtn = treeModel.findThreadNode(tr);
                 // if the thread at the breakpoint is not currently displayed,
-                // display
-                // it now.
+                // display it now.
                 if (jtn == null) {
                     JdiThreadNode root = treeModel.getThreadRoot();
                     treeModel.insertNodeInto(new JdiThreadNode(breakThread), root, 0);
@@ -877,7 +876,7 @@ public class JdiDebugger extends Debugger
      */
     private void displayThread(JdiThread newThread)
     {
-        if (!(hideSystemThreads && (newThread.isKnownSystemThread() || newThread.isFinished()))) {
+        if (!hideSystemThreads || !newThread.isKnownSystemThread()) {
             JdiThreadNode root = treeModel.getThreadRoot();
             treeModel.insertNodeInto(new JdiThreadNode(newThread), root, 0);
         }

@@ -16,7 +16,7 @@ import com.sun.jdi.request.StepRequest;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2961 2004-08-30 12:54:12Z polle $
+ * @version $Id: JdiThread.java 3041 2004-10-07 00:40:19Z davmac $
  */
 class JdiThread extends DebuggerThread
 {
@@ -222,11 +222,13 @@ class JdiThread extends DebuggerThread
 
         String name = rt.name();
         if(name.startsWith("AWT-") ||
+           name.equals("DestroyJavaVM") ||
            name.equals("BlueJ worker thread") ||
            name.equals("Timer Queue") ||
            name.equals("Screen Updater") ||
            name.startsWith("SunToolkit.") ||
-           name.startsWith("Native Carbon"))
+           name.startsWith("Native Carbon") ||
+           name.equals("Java2D Disposer"))
             return true;
 
         return false;

@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3029 2004-09-30 23:57:43Z davmac $
+ * @version $Id: ExecServer.java 3041 2004-10-07 00:40:19Z davmac $
  */
 public class ExecServer
 {
@@ -148,7 +148,36 @@ public class ExecServer
 		// record our main thread
 		// mainThread = Thread.currentThread();
 		
-        workerThread = Thread.currentThread();
+        workerThread = new Thread("BlueJ worker thread")
+        {
+            public void run()
+            {
+                while(true) {
+                    vmSuspend();
+                    switch(workerAction) {
+                        case ADD_OBJECT:
+                            addObject(objectName, object);
+                            break;
+                        case REMOVE_OBJECT:
+                            removeObject(objectName);
+                            break;
+                        case LOAD_CLASS:
+                            try {
+                                workerReturn = loadClass(className);
+                            }
+                            catch(ClassNotFoundException cnfe) {
+                                workerReturn = null;
+                            }
+                            break;
+                        case NEW_LOADER:
+                            workerReturn = newLoader(classPath);
+                            break;
+                        case EXIT_VM:
+                            System.exit(0);
+                    }
+                }
+            }
+        };
 
 		// register a listener to record all window opens and closes
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -172,38 +201,12 @@ public class ExecServer
 		// to make all user-created threads go into a single thread group
 		System.setSecurityManager(new RemoteSecurityManager());
 
-		// signal with a breakpoint that we have performed out VM initialisation
-		// vmStarted();
+		// signal with a breakpoint that we have performed our VM
+        // initialization, at the same time, create the initial server thread.
         newThread();
 		
-        // an infinite loop.. 
-        while(true) {
-            vmSuspend();
-            switch(workerAction) {
-                case ADD_OBJECT:
-                    addObject(objectName, object);
-                    break;
-                case REMOVE_OBJECT:
-                    removeObject(objectName);
-                    break;
-                case LOAD_CLASS:
-                    try {
-                        workerReturn = loadClass(className);
-                    }
-                    catch(ClassNotFoundException cnfe) {
-                        workerReturn = null;
-                    }
-                    break;
-                case NEW_LOADER:
-                    workerReturn = newLoader(classPath);
-                    break;
-                case EXIT_VM:
-                    System.exit(0);
-            }
-        }
-        // System.err.println("worker thread bye bye");
-		//if(! shouldDie)
-		//    System.err.println("main thread bye bye");
+        // set the worker thread in motion also.
+        workerThread.start();
     }
 
 	/**
