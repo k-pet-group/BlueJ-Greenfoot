@@ -1,19 +1,20 @@
-<HTML>
+<html>
 $COMMENT
-    <HEAD>
-        <TITLE>$TITLE Applet</TITLE>
-    </HEAD>
-    <BODY>
-        <H1>$TITLE Applet</H1>
-        <HR>
-        <APPLET CODE="$CLASSFILE" 
-            WIDTH=$APPLETWIDTH 
-            HEIGHT=$APPLETHEIGHT
-            CODEBASE="$CODEBASE">
-            $PARAMETERS
-            ALT="O seu borwser reconhece o marcador &lt;APPLET&gt;, mas não está executando o applet por alguma razão."
-            Seu browser está ignorando o marcador &lt;APPLET&gt;!      
-        </APPLET>
-        <HR>
-    </BODY>
-</HTML>
+    <head>
+        <title>$TITLE Applet</title>
+    </head>
+    <body>
+        <h1>$TITLE Applet</h1>
+        <hr>
+        <applet code="$CLASSFILE" 
+            width=$APPLETWIDTH 
+            height=$APPLETHEIGHT
+            codebase="$CODEBASE"
+            alt="O seu borwser reconhece o marcador &lt;APPLET&gt;, mas não está executando o applet por alguma razão."
+        >
+            $PARAMETERS 
+            Seu browser está ignorando o marcador &lt;APPLET&gt;!    
+        </applet>
+        <hr>
+    </body>
+</html>

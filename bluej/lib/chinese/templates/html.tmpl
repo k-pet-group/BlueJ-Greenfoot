@@ -1,19 +1,20 @@
-<HTML>
+<html>
 $COMMENT
-    <HEAD>
-        <TITLE>$TITLE Applet</TITLE>
-    </HEAD>
-    <BODY>
-        <H1>$TITLE Applet</H1>
-        <HR>
-        <APPLET CODE="$CLASSFILE" 
-            WIDTH=$APPLETWIDTH 
-            HEIGHT=$APPLETHEIGHT
-            CODEBASE=$CODEBASE>
-            $PARAMETERS
-            ALT="你的浏览器支持&lt;APPLET&gt;标记，但是由于某些原因，它不能执行applet"
-            你的浏览器忽略了&lt;APPLET&gt;标记！
-        </APPLET>
-        <HR>
-    </BODY>
-</HTML>
+    <head>
+        <title>$TITLE Applet</title>
+    </head>
+    <body>
+        <h1>$TITLE Applet</h1>
+        <hr>
+        <applet code="$CLASSFILE" 
+            width=$APPLETWIDTH 
+            height=$APPLETHEIGHT
+            codebase="$CODEBASE">
+            alt="你的浏览器支持&lt;APPLET&gt;标记，但是由于某些原因，它不能执行applet"
+        >
+            $PARAMETERS 
+            你的浏览器忽略了&lt;APPLET&gt;标记！     
+        </applet>
+        <hr>
+    </body>
+</html>

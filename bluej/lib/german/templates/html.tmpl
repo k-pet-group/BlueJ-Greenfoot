@@ -1,19 +1,20 @@
-<HTML>
+<html>
 $COMMENT
-    <HEAD>
-        <TITLE>$TITLE Applet</TITLE>
-    </HEAD>
-    <BODY>
-        <H1>$TITLE Applet</H1>
-        <HR>
-        <APPLET CODE="$CLASSFILE" 
-            WIDTH=$APPLETWIDTH 
-            HEIGHT=$APPLETHEIGHT
-            CODEBASE="$CODEBASE">
-            $PARAMETERS
-            ALT="Ihr Browser versteht das &lt;APPLET&gt;-Tag, führt aber aus irgendeinem Grund das Applet nicht aus."
-            Ihr Browser ignoriert das &lt;APPLET&gt;-Tag!      
-        </APPLET>
-        <HR>
-    </BODY>
-</HTML>
+    <head>
+        <title>$TITLE Applet</title>
+    </head>
+    <body>
+        <h1>$TITLE Applet</h1>
+        <hr>
+        <applet code="$CLASSFILE" 
+            width=$APPLETWIDTH 
+            height=$APPLETHEIGHT
+            codebase="$CODEBASE"
+            alt="Ihr Browser versteht das &lt;APPLET&gt;-Tag, führt aber aus irgendeinem Grund das Applet nicht aus."
+        >
+            $PARAMETERS 
+            Ihr Browser ignoriert das &lt;APPLET&gt;-Tag!  
+        </applet>
+        <hr>
+    </body>
+</html>
