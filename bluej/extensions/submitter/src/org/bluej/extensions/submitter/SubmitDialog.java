@@ -47,7 +47,8 @@ public class SubmitDialog implements ActionListener
   private JTextArea    logArea;         // Display what is happening here
   private JButton      submitButton;
   private JButton      cancelButton;
-  private JProgressBar progressBar;
+//  private JProgressBar progressBar;
+  private SubmitterProgressBar progressBar;
   private ResultDialog resultDialog;
   private BPackage     curPkg;
   private Thread       backgroundThread;
@@ -173,7 +174,8 @@ public class SubmitDialog implements ActionListener
     {
       
     // --------- This is used to have afeeling of something running
-    progressBar = new JProgressBar();
+//    progressBar = new JProgressBar();
+    progressBar = new SubmitterProgressBar();
     progressBar.setPreferredSize(new Dimension (400,10));
     progressBar.setBorderPainted(false);
     
