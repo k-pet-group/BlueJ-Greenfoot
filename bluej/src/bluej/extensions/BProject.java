@@ -10,7 +10,7 @@ import java.util.ListIterator;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 1968 2003-05-21 09:59:49Z damiano $
+ * @version $Id: BProject.java 1981 2003-05-22 16:35:43Z iau $
  */
 
 /*
@@ -33,6 +33,7 @@ public class BProject
     /**
      * Returns the name of this project. 
      * This is what is displayed in the title bar of the frame after 'BlueJ'.
+     * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public String getName() throws ProjectNotOpenException
     {
@@ -43,6 +44,7 @@ public class BProject
     
     /**
      * Returns the directory in which this project is stored. 
+     * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public File getDir() throws ProjectNotOpenException
     {
@@ -53,6 +55,7 @@ public class BProject
     
     /**
      * Requests a "save" of all open files in this project. 
+     * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public void save() throws ProjectNotOpenException
     {
@@ -63,6 +66,7 @@ public class BProject
     
     /**
      * Saves any open files, then closes all frames belonging to this project.
+     * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public void close() throws ProjectNotOpenException
     {
@@ -78,6 +82,7 @@ public class BProject
      * 
      * @param the fully-qualified name of the package
      * @return the requested package, or null if it wasn't found
+     * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public BPackage getPackage (String name) throws ProjectNotOpenException
     {
@@ -93,6 +98,7 @@ public class BProject
     /**
      * Returns all packages belonging to this project.
      * @return The array of this project packages, if none exist an empty array is returned.
+     * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public BPackage[] getPackages() throws ProjectNotOpenException
     {

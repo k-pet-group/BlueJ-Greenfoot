@@ -10,7 +10,7 @@ import com.sun.jdi.Value;
  * A wrapper for an array object in BlueJ.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BArray.java 1972 2003-05-21 13:14:24Z damiano $
+ * @version $Id: BArray.java 1981 2003-05-22 16:35:43Z iau $
  */
 
 /*
@@ -29,6 +29,8 @@ public class BArray
    * @param itemIndex The index in the array where you want to peek.
    * 
    * @return an Object that encapsulate the specific item or null if not an array.
+   * @throws ProjectNotOpenException if the project to which this array belongs has been closed by the user.
+   * @throws PackageNotFoundException if the package to which this array belongs has been deleted by the user.
    */
   public static Object getValue ( BObject thisArray, int itemIndex )
     throws ProjectNotOpenException, PackageNotFoundException

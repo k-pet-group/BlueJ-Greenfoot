@@ -7,7 +7,7 @@ import bluej.Config;
  * Defines the interface between BlueJ and an extension. All extensions must extend this class.
  * A concrete extension class must also have a no-arguments constructor.
  * 
- * @version    $Id: Extension.java 1875 2003-04-22 13:30:24Z damiano $
+ * @version    $Id: Extension.java 1981 2003-05-22 16:35:43Z iau $
  */
 
 /*
@@ -55,6 +55,11 @@ public abstract class Extension
      * When BlueJ decides that this extension is no longer needed it will call this 
      * method before removing it from the system. Note that an extension may
      * be reloaded after having been terminated.
+     *
+     * Any attempt by an extension to call methods on its
+     * <code>BlueJ</code> object after this method has been called will
+     * reult in an (unchecked) <code>ExtensionUnloadedException</code>
+     * being thrown by the <code>BlueJ</code> object.
      */
     public void terminate()
     {

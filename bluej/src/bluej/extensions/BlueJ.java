@@ -39,7 +39,11 @@ import java.util.*;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1971 2003-05-21 12:30:12Z damiano $
+ * Attempts to invoke methods on a BlueJ object made by an extension
+ * after its <code>terminate()</code> method has been called will result
+ * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
+ *
+ * @version $Id: BlueJ.java 1981 2003-05-22 16:35:43Z iau $
  */
 
 /*

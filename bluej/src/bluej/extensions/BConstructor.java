@@ -12,7 +12,7 @@ import bluej.pkgmgr.Package;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1970 2003-05-21 10:59:26Z damiano $
+ * @version $Id: BConstructor.java 1981 2003-05-22 16:35:43Z iau $
  */
 
 /*
@@ -82,6 +82,10 @@ public class BConstructor
     /**
      * Creates a new instance of the object described by this constructor.
      * Similar to reflection API.
+     * @throws ProjectNotOpenException if the project to which this constructor belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this constructor belongs has been deleted by the user.
+     * @throws InvocationArgumentException if the <code>initargs</code> don't match the constructor's arguments.
+     * @throws InvocationErrorException if an error occurs during the invocation.
      */
     public BObject newInstance ( Object[] initargs ) 
       throws ProjectNotOpenException, PackageNotFoundException, 

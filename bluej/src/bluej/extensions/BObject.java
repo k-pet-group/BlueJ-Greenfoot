@@ -16,7 +16,7 @@ import java.util.*;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 1972 2003-05-21 13:14:24Z damiano $
+ * @version $Id: BObject.java 1981 2003-05-22 16:35:43Z iau $
  */
 
 /*
@@ -47,6 +47,8 @@ public class BObject
 
     /**
      * Returns the package this object belongs to.
+     * @throws ProjectNotOpenException if the project to which this object belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this object belongs has been deleted by the user.
      */
     public BPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException
@@ -60,6 +62,8 @@ public class BObject
      * Removes this object from the object bench. 
      * This will also remove it from the view of the object bench.
      * Once the object is removed from the bench it will not be available again.
+     * @throws ProjectNotOpenException if the project to which this object belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this object belongs has been deleted by the user.
      */
     public void removeFromBench()
         throws ProjectNotOpenException, PackageNotFoundException
@@ -80,6 +84,8 @@ public class BObject
      * If the object is not a valid one nothing will happen.
      * 
      * @param instanceName  The name you want this object to have on the bench.
+     * @throws ProjectNotOpenException if the project to which this object belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this object belongs has been deleted by the user.
      */
     public void addToBench(String instanceName)
         throws ProjectNotOpenException, PackageNotFoundException
@@ -118,6 +124,8 @@ public class BObject
     /**
      * Return the class of this object.
      * Similar to Reflection API.
+     * @throws ProjectNotOpenException if the project to which this object belongs has been closed by the user.
+     * @throws ClassNotFoundException if the class has been deleted by the user.
      */
     public BClass getBClass()
         throws ProjectNotOpenException, ClassNotFoundException
@@ -132,6 +140,8 @@ public class BObject
     /**
      * Returns the underlying BlueJ package.
      * Should remain visible only to package members.
+     * @throws ProjectNotOpenException if the project to which this object belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this object belongs has been deleted by the user.
      */
     PkgMgrFrame getPackageFrame ()
         throws ProjectNotOpenException, PackageNotFoundException

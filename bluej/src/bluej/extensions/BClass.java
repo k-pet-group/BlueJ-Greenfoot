@@ -15,7 +15,7 @@ import java.util.*;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1978 2003-05-22 11:12:00Z damiano $
+ * @version $Id: BClass.java 1981 2003-05-22 16:35:43Z iau $
  */
 
 public class BClass
@@ -41,6 +41,8 @@ public class BClass
      * 
      * Note that this is for information only. If you want to interact with BlueJ you must
      * use the methods provided in BClass.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws ClassNotFoundException if the class has been deleted by the user.
      */
     public Class getJavaClass () 
       throws ProjectNotOpenException, ClassNotFoundException
@@ -51,6 +53,8 @@ public class BClass
     /**
      * Returns the package this class belongs to.
      * Similar to reflection API.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this class belongs has been deleted by the user.
      */
     public BPackage getPackage() throws ProjectNotOpenException, PackageNotFoundException
     {
@@ -64,6 +68,9 @@ public class BClass
     /**
      * Checks to see if this class has been compiled. 
      * @return true if it is compiled false othervise.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this class belongs has been deleted by the user.
+     * @throws ClassNotInteractiveException if the class is not compileable, i.e. it is a non-interactive (source only) class.
      */
     public boolean isCompiled() 
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotInteractiveException
@@ -76,6 +83,9 @@ public class BClass
     /**
      * Compile this class, and any dependents. 
      * @return true if the compilation was successful, false otherwise.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this class belongs has been deleted by the user.
+     * @throws ClassNotInteractiveException if an attempt is made to compile a non-interactive (source only) class.
      */
     public boolean compile() 
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotInteractiveException
@@ -111,10 +121,13 @@ public class BClass
     /**
      * Returns the superclass of this class.
      * Similar to reflection API.
-     * If this <code>Class</code> represents either the Object class, an interface, 
+     * If this class represents either the Object class, an interface, 
      * a primitive type, or void, then null is returned.
-     * If this <code>Class</code> cannot be referret to a package of this project then 
+     * If the superclass is not part of a package in the current BlueJ project then 
      * null is returned.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this class belongs has been deleted by the user.
+     * @throws ClassNotFoundException if the class has been deleted by the user.
      */
     public BClass getSuperclass() 
       throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
@@ -161,6 +174,8 @@ public class BClass
     /**
      * Returns all the constructors of this class.
      * Similar to reflection API.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws ClassNotFoundException if the class has been deleted by the user.
      */
     public BConstructor[] getConstructors() 
         throws ProjectNotOpenException, ClassNotFoundException
@@ -182,6 +197,8 @@ public class BClass
      * @param signature the signature of the required constructor.
      * @return the requested constructor of this class, or null if
      * the class has not been compiled or the constructor cannot be found.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws ClassNotFoundException if the class has been deleted by the user.
      */
     public BConstructor getConstructor (Class[] signature) 
         throws ProjectNotOpenException, ClassNotFoundException
@@ -201,6 +218,8 @@ public class BClass
     /**
      * Returns the declared methods of this class.
      * Similar to reflection API.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws ClassNotFoundException if the class has been deleted by the user.
      */
     public BMethod[] getDeclaredMethods() 
         throws ProjectNotOpenException, ClassNotFoundException
@@ -219,6 +238,8 @@ public class BClass
     /**
      * Returns the declared method of this class with the given signature.
      * Similar to reflection API.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws ClassNotFoundException if the class has been deleted by the user.
      */
     public BMethod getDeclaredMethod(String methodName, Class[] params ) 
         throws ProjectNotOpenException, ClassNotFoundException
@@ -241,6 +262,8 @@ public class BClass
     /**
      * Returns all the fields of this class.
      * Similar to reflection API.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws ClassNotFoundException if the class has been deleted by the user.
      */
     public BField[] getFields()
         throws ProjectNotOpenException, ClassNotFoundException
@@ -259,6 +282,8 @@ public class BClass
     /**
      * Returns the field of this class which has the given name.
      * Similar to Reflection API.
+     * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
+     * @throws ClassNotFoundException if the class has been deleted by the user.
      */
     public BField getField(String fieldName)
         throws ProjectNotOpenException, ClassNotFoundException

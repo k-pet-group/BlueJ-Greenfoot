@@ -19,7 +19,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1968 2003-05-21 09:59:49Z damiano $
+ * @version $Id: BPackage.java 1981 2003-05-22 16:35:43Z iau $
  */
 
 /*
@@ -42,6 +42,7 @@ public class BPackage
 
     /**
      * Returns the package's project.
+     * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public BProject getProject() throws ProjectNotOpenException
     {
@@ -55,6 +56,8 @@ public class BPackage
     /**
      * Returns the name of the package. 
      * Returns an empty string if no package name has been set.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public String getName() 
         throws ProjectNotOpenException, PackageNotFoundException
@@ -67,6 +70,8 @@ public class BPackage
     /**
      * Returns the package frame.
      * This can be used (e.g.) as the "parent" frame for positioning modal dialogues.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public Frame getFrame() 
         throws ProjectNotOpenException, PackageNotFoundException
@@ -80,6 +85,8 @@ public class BPackage
      * Returns null if the class name does not exist.
      * 
      * @param name the simple name of the required class.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public BClass getBClass (String name)   
         throws ProjectNotOpenException, PackageNotFoundException
@@ -100,6 +107,8 @@ public class BPackage
     /**
      * Returns an array containing all the classes in this package.
      * If there are no classes an empty array will be returned.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public BClass[] getBClasses() 
         throws ProjectNotOpenException, PackageNotFoundException
@@ -125,6 +134,8 @@ public class BPackage
      * Returns a wrapper for the object with the given name on BlueJ's object bench.
      * @param name the name of the object as shown on the object bench
      * @return the object, or null if no such object exists.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public BObject getObject (String instanceName) 
         throws ProjectNotOpenException, PackageNotFoundException
@@ -147,6 +158,8 @@ public class BPackage
     /**
      * Returns an array of all the Objects on the object bench.
      * The array will be empty if no objects are on the bench.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public BObject[] getObjects() 
         throws ProjectNotOpenException, PackageNotFoundException
@@ -169,6 +182,8 @@ public class BPackage
      * If forceAll is true it will compile all files otherwise it will compile
      * just the ones that are modified.
      * @param forceAll if <code>true</code> compile all files.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public void compile (boolean forceAll) 
         throws ProjectNotOpenException, PackageNotFoundException
@@ -182,6 +197,8 @@ public class BPackage
     /**
      * Reloads the entire package.
      * This is used (e.g.) when a new <code>.java</code> file has been added to the package.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public void reload() 
         throws ProjectNotOpenException, PackageNotFoundException

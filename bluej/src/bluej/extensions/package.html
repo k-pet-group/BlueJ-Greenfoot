@@ -88,7 +88,11 @@ public class SimpleExtension extends Extension implements PackageListener
    * Print the name of the project it is part of.
    */
   public void packageOpened ( PackageEvent ev ) {
-    System.out.println ("Project " + ev.getPackage().getProject().getName() + " opened.");
+    try {
+        System.out.println ("Project " + ev.getPackage().getProject().getName() + " opened.");
+    } catch (ExtensionException e) {
+        System.out.println("Project closed by BlueJ");
+    }
   }  
   
   /** 
@@ -109,7 +113,7 @@ public class SimpleExtension extends Extension implements PackageListener
    * Returns the version number of this extension
    */
   public String  getVersion () { 
-    return ("2003.03");  
+    return ("2003.05");  
   }
   
   /**
@@ -129,7 +133,7 @@ public class SimpleExtension extends Extension implements PackageListener
    */
   public URL getURL () {
     try {
-      return new URL("http://www.cs.ukc.ac.uk/projects/bluej/");
+      return new URL("http://www.cs.ukc.ac.uk/projects/bluej/writingextensions.html");
     }
     catch ( Exception eee ) {
       // There is no reason at all that this should throw exception...

@@ -18,7 +18,7 @@ import bluej.pkgmgr.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1972 2003-05-21 13:14:24Z damiano $
+ * @version $Id: BMethod.java 1981 2003-05-22 16:35:43Z iau $
  */
 
 /*
@@ -119,6 +119,10 @@ public class BMethod
      * @param onThis The BObject to which the method call should be applied, null if a static method.
      * @param params an array containing the arguments, or null if there are none
      * @return the resulting Object. It can be a wrapper for a primitive type or a BObject
+     * @throws ProjectNotOpenException if the project to which this object belongs has been closed by the user.
+     * @throws PackageNotFoundException if the package to which this object belongs has been deleted by the user.
+     * @throws InvocationArgumentException if the <code>params</code> don't match the object's arguments.
+     * @throws InvocationErrorException if an error occurs during the invocation.
      */
     public Object invoke (BObject onThis, Object[] params) 
         throws ProjectNotOpenException, PackageNotFoundException, 
