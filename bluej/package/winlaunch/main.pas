@@ -11,7 +11,7 @@ uses
 const
         jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-        bluejregkey : string = '\Software\BlueJ\BlueJ\1.2.1 UKC';
+        bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.0 beta 1';
 
         searchingstartcaption : string = 'Search drives for all Java versions...';
         searchingstopcaption : string = 'Stop Search';
@@ -20,7 +20,7 @@ const
         foundjavacaption2 : string = 'Please select one and select "Launch" to use it with BlueJ or';
         foundjavacaption3 : string = 'select "Advanced" if you wish to search for other Java versions';
 
-        foundonejavacaption1 : string = 'BlueJ has the following Java version that can be used.';
+        foundonejavacaption1 : string = 'BlueJ has found the following Java version that can be used.';
         foundonejavacaption2 : string = 'Please select "Launch" if you wish to use it with BlueJ or';
         foundonejavacaption3 : string = 'select "Advanced" if you wish to look for other Java versions';
 

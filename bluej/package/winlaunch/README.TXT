@@ -1,5 +1,5 @@
 
-BlueJ verson 1.2.2        --        README.TXT
+BlueJ verson 1.3.0 beta        --        README.TXT
 
 Information about BlueJ
 -----------------------
