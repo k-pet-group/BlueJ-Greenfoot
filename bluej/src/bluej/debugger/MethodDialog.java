@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 544 2000-06-13 05:01:00Z ajp $
+ * @version $Id: MethodDialog.java 685 2000-09-12 06:29:49Z mik $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchWatcher
@@ -224,7 +224,7 @@ public class MethodDialog extends JDialog
                 setCallLabel(instanceName, methodName);
 
             if(isMainCall(method, methodName, paramClasses))
-                defaultParamValue = "null";
+                defaultParamValue = "{ }";
 
             gridBag.setConstraints(callLabel, constraints);
             tmpPanel.add(callLabel);
