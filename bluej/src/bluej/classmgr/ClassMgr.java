@@ -24,12 +24,10 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2408 2003-12-02 00:14:27Z ajp $
+ * @version $Id: ClassMgr.java 2847 2004-08-06 09:56:45Z mik $
  */
 public class ClassMgr
 {
-    private static final String errorloadingconfig
-                            = Config.getString("classmgr.error.loadingconfig");
     private static final String errormissingclasspath
                             = Config.getString("classmgr.error.missingclasspath");
     private static final String errormissingbootclasspath

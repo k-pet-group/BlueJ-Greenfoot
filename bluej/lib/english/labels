@@ -316,6 +316,7 @@ pkgmgr.newExtends=New Extends Arrow
 pkgmgr.unimplemented=Sorry - that feature is not yet implemented
 pkgmgr.pkgChooseError=Error selecting valid package name
 pkgmgr.chooseWebPage.title=Select HTML page destination
+pkgmgr.chooseWebPage.buttonLabel=Save HTML page
 
 pkgmgr.parentpackagetarget.open=Open
 pkgmgr.parentpackagetarget.openunamed=Open unamed package

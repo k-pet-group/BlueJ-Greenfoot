@@ -9,12 +9,13 @@ import java.lang.reflect.*;
  * and from jar files within a +libs directory.
  *
  * @author  Andrew Patterson
- * @version $Id: ProjectClassLoader.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: ProjectClassLoader.java 2847 2004-08-06 09:56:45Z mik $
  */
 public class ProjectClassLoader extends URLClassLoader
 {
     private String libsString = "+libs";
-
+    private File[] libsJars;
+    
     public ProjectClassLoader(File projectDir)
     {
         this(projectDir, ClassLoader.getSystemClassLoader());
@@ -35,11 +36,12 @@ public class ProjectClassLoader extends URLClassLoader
         File libsDirectory = new File(projectDir, libsString);
 
         // the list of jars and zips we find
-        File libsJars[] = null;
 
         if (libsDirectory.isDirectory()) {
             libsJars = libsDirectory.listFiles(new JarFilter());
         }
+        if(libsJars == null)
+            libsJars = new File[0];
 
         // if we found any jar files in the libs directory then add their
         // URLs
@@ -73,6 +75,16 @@ public class ProjectClassLoader extends URLClassLoader
         return new ClassPath(getURLs());
     }
 
+    /**
+     * Return the jar files found in the '+libs' directory within the project directory.
+     * 
+     * @return An array of jar files, may be empty, but will not be null.
+     */
+    public File[] getLibs()
+    {
+        return libsJars;
+    }
+    
     /**
      * Turns a directory File object into an array of length 1
      * containing a single URL. This is a helper function for
