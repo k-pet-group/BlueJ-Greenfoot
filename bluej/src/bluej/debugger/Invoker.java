@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1941 2003-05-05 06:07:49Z ajp $
+ * @version $Id: Invoker.java 1949 2003-05-13 14:37:36Z damiano $
  */
 
 public class Invoker extends Thread
@@ -246,29 +246,41 @@ public class Invoker extends Thread
 
     // -- end of CallDialogWatcher interface --
 
+
     /**
-     * Invokes a constructor or method by supplying the required parameters
+     * Simple utility to decide when two params list do not match
      */
-    public void invokeDirect(String i_instanceName, String[] params)
+    private boolean paramsAlmostMatch ( String[] params, Class[] paramClass )
     {
-        if ( i_instanceName != null ) 
-            instanceName = i_instanceName;
+        // A zero len param or a null one are the same !
+        if ( params     != null && params.length < 1 )     params=null;
+        if ( paramClass != null && paramClass.length < 1 ) paramClass=null;
 
-        if ( instanceName == null ) 
-            instanceName = objName;
+        if ( params == null && paramClass == null ) return true;
 
-        Class[] paramClasses = member.getParameters();
-        if(params == null) {
-            if(member.hasParameters()) {
-                System.out.println("Parameters expected");
-                return;
-            }
-        } else if(params.length != paramClasses.length) {
-            System.out.println("Parameter numbers does not match");
+        // If ANY of them is null we are in trouble now. (They MUST be both NOT null)
+        if ( params == null || paramClass == null ) return false;
+
+        // Now I know that BOTH are NOT empty. They MUST be the same length
+        if ( params.length != paramClass.length ) return false;
+
+        // Yes, they are almost the same, the actual type is missing :-)
+        return true;
+    }
+    
+    /**
+     * Invokes a constructor or method with the given parameters.
+     */
+    public void invokeDirect( String[] params )
+    {
+        if ( instanceName == null ) instanceName = objName;
+
+        if ( ! paramsAlmostMatch(params, member.getParameters() ) ) {
+            watcher.putError("Wrong parameters passed");
             return;
-        }
-        
-        doInvocation(params, paramClasses);
+            }
+
+        doInvocation(params, member.getParameters());
     }
     
     /**

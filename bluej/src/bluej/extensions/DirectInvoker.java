@@ -1,33 +1,31 @@
 package bluej.extensions;
 
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.Invoker;
-import bluej.debugger.ResultWatcher;
+import bluej.debugger.*;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.views.CallableView;
 import bluej.testmgr.*;
-import bluej.utility.*;
+import bluej.views.*;
 
 /**
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
  *
  * @author Clive Miller, Damiano Bolla
- * @version $Id: DirectInvoker.java 1712 2003-03-20 10:39:46Z damiano $
+ * @version $Id: DirectInvoker.java 1949 2003-05-13 14:37:36Z damiano $
  */
 class DirectInvoker
 {
     private final Package pkg;
     private final CallableView callable;
-    private String error, resultName;
+    private String errorMsg=null;
+    private String resultName;
 
     /**
      * For use by the bluej.extensions
      */
-    DirectInvoker (Package pkg, CallableView callable )
+    DirectInvoker (Package i_pkg, CallableView i_callable )
     {
-        this.pkg = pkg;
-        this.callable = callable;
+        pkg = i_pkg;
+        callable = i_callable;
     }
 
 
@@ -75,22 +73,25 @@ class DirectInvoker
         
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker = new Invoker (pmf, callable, null, watcher);
-        // Setting the instanceName here works but it is simpler to do it when we
-        // put it into the bench, maybe it should be removed from the params... Damiano
-        invoker.invokeDirect (null, convObjToString(args));
+        invoker.invokeDirect ( convObjToString(args) );
 
         // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
-        // Let me get back a possible error
-        error = watcher.getError();
 
-        // No result... possible
-        if (result == null) 
+        if (watcher.isFailed()) 
           {
-          Debug.message("DirectInvoker.invokeConstructor: ERROR="+error);
+          // If the invoke did fail miserably this is what I can do now...
+          errorMsg = "invokeConstructor: Error="+watcher.getError();
           return null;
           }
 
+        if ( result == null )
+          {
+          // This is most likely an error, but not of the sort above. Unlikely to happen 
+          errorMsg = "DirectInvoker.invokeConstructor: ERROR: result==null";
+          return null;
+          }
+          
         // Result is ALWAYS an Object and it is the first field on the returned object
         result = result.getInstanceFieldObject(0);
         resultName = watcher.getResultName();
@@ -108,19 +109,22 @@ class DirectInvoker
         
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker = new Invoker (pmf, callable, onThisObjectInstance, watcher);
-        // Setting the instanceName here does NOT work at all.
-        invoker.invokeDirect (null, convObjToString(args));
+        invoker.invokeDirect ( convObjToString(args));
 
         // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
 
-        // Let me get back a possible error
-        error = watcher.getError();
+        if (watcher.isFailed()) 
+          {
+          // If the invoke did fail miserably this is what I can do now...
+          errorMsg = "invokeMethod: Error="+watcher.getError();
+          return null;
+          }
 
-        // No result... possible
         if (result == null) 
           {
-          Debug.message("DirectInvoker.invokeMethod: ERROR="+error);
+          // This is most likely an error, but not of the sort above. Unlikely to happen 
+          errorMsg = "DirectInvoker.invokeMethod: ERROR: result==null";
           return null;
           }
 
@@ -131,69 +135,109 @@ class DirectInvoker
         }
 
 
-
+    /**
+     * If the returned error message is != null then there has been a serious error
+     */
     public String getError()
-    {
-        return error;
-    }
+      {
+      return errorMsg;
+      }
     
     public String getResultName()
-    {
-        return resultName;
-    }
+      {
+      return resultName;
+      }
     
+// ====================== UTILITY CLASS aligned left =========================
 
-    /**
-     * This is used to interface with the core BlueJ
-     */
-    public class DirectResultWatcher implements ResultWatcher
+/**
+ * This is used to interface with the core BlueJ
+ * This new version does return when there is an INTERRUPT
+ */
+class DirectResultWatcher implements ResultWatcher
+  {
+  private boolean resultReady;
+  private boolean isFailed;
+  
+  private DebuggerObject result;
+  private String errorMsg;         // When there is a fail this is the reason.
+  private String resultName;
+        
+  public DirectResultWatcher ()
+      {
+      resultReady = false;
+      isFailed    = false;
+      result      = null;
+      errorMsg    = null;
+      }
+        
+  /**
+   * This will try to get the result of an invocation.
+   * null can be returned if the thread is interrupted !!!
+   */
+  public synchronized DebuggerObject getResult()
     {
-        private boolean resultReady;
-        private DebuggerObject result;
-        private String errorString;
-        private String resultName;
-        
-        public DirectResultWatcher ()
+    while (!resultReady) 
+      {
+      try 
         {
-            resultReady = false;
-            result = null;
-            errorString = null;
-        }
-        
-        public synchronized DebuggerObject getResult()
+        wait();
+        } 
+      catch (InterruptedException exc) 
         {
-            while (!resultReady) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {}
-            }
-            return result;
+        // This is correct, if someone wants to get me out of this I should
+        // obey to the oreder !
+        isFailed=true;
+        errorMsg="getResult: Interrupt: Exception="+exc.getMessage();
+        return null;
         }
-            
-        public synchronized void putResult(DebuggerObject result, String name, InvokerRecord ir) 
-        {
-            this.result = result;
-            this.resultName = name;
-            resultReady = true;
-            notifyAll();
-        }
-        
-        public synchronized void putError (String error) 
-        {
-            errorString = "Invocation Error: "+error;
-            this.result = null;
-            resultReady = true;
-            notifyAll();
-        }
-        
-        public String getError()
-        {
-            return errorString;
-        }
-        
-        public String getResultName()
-        {
-            return resultName;
-        }
+      }
+
+    return result;
     }
+
+  /**
+   * I need a way to reliably detect if there is an error or not.
+   * Careful... should I look for resultReady too ?
+   */
+  public synchronized boolean isFailed ()
+    {
+    return isFailed;
+    }
+
+  /**
+   * Used to return a result. We know that it is a good one.
+   */
+  public synchronized void putResult(DebuggerObject aResult, String anObjectName, InvokerRecord ir) 
+    {
+    result = aResult;
+    resultName = anObjectName;
+    resultReady = true;
+    notifyAll();
+    }
+        
+  /**
+   * This is used to return an error. We know it is an error here !
+   */
+  public synchronized void putError (String error) 
+    {
+    errorMsg    = "Invocation: Error="+error;
+    isFailed    = true;
+    resultReady = true;
+    notifyAll();
+    }
+        
+  public String getError()
+    {
+    return errorMsg;
+    }
+        
+  public String getResultName()
+    {
+    return resultName;
+    }
+  }
+
+
+// ================== End of utility class =====================================
 }            
