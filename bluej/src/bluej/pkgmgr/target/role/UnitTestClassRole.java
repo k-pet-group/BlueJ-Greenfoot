@@ -27,7 +27,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2373 2003-11-19 03:41:04Z ajp $
+ * @version $Id: UnitTestClassRole.java 2383 2003-11-24 04:27:08Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -174,6 +174,14 @@ public class UnitTestClassRole extends ClassRole
     	thr.start();
     }
 
+    /**
+     * Actually execute unit tests in a unit test class.
+     * 
+     * @param pmf  the PkgMgrFrame this is all occurring in
+     * @param ct   the ClassTarget of the unit test class
+     * @param param either null (which means run all tests in the class)
+     *              or a name of the method to run
+     */
 	public void doRunTest(PkgMgrFrame pmf, ClassTarget ct, String param)
 	{
 		DebuggerTestResult dtr = null;
@@ -303,27 +311,32 @@ public class UnitTestClassRole extends ClassRole
     public void doEndMakeTestCase(PkgMgrFrame pmf, ClassTarget ct, String name)
     {
         Editor ed = ct.getEditor();
+        ed.save();
 
         try {
-            // conver to use UnitTestAnalyzer
-            BaseAST ast = (BaseAST) bluej.parser.ast.JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));
-            BaseAST firstClass = (BaseAST) ast.getFirstChild();
+            UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
 
-            LocatableAST methodInsert = null;
+            SourceSpan existingSpan = uta.getMethodBlockSpan(name);
 
-            methodInsert = (LocatableAST) firstClass.getFirstChild().getNextSibling();
+            if (existingSpan != null) {
+                // replace this method (don't replace the method header!)
+                ed.setSelection(existingSpan.getStartLine(), existingSpan.getStartColumn(),
+                                  existingSpan.getEndLine(), existingSpan.getEndColumn() + 1);
+                ed.insertText("{\n" + pmf.getObjectBench().getTestMethod() + "\t}", false);
+            }
+            else {
+                // insert a complete method
+                SourceLocation methodInsert = uta.getNewMethodInsertLocation();
 
-            if (methodInsert != null) {
-                ed.setSelection(methodInsert.getLine(), methodInsert.getColumn(), 1);
-                
-                ed.insertText("\n\tpublic void " + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
+                if (methodInsert != null) {
+                    ed.setSelection(methodInsert.getLine(), methodInsert.getColumn(), 1);
+                    ed.insertText("\n\tpublic void " + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
+                }
             }
             
             ed.save();
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        catch (FileNotFoundException fnfe) { /* shouldn't happen */ }
     }
     
     /**
