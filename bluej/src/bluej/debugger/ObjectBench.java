@@ -16,7 +16,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1569 2002-12-11 13:23:20Z mik $
+ * @version $Id: ObjectBench.java 1570 2002-12-11 13:27:21Z mik $
  */
 public class ObjectBench
 {
@@ -229,11 +229,15 @@ public class ObjectBench
 
         public void paint(Graphics g)
         {
+            Color origColor = g.getColor();
             int w = getSize().width;
             int h = getSize().height;
             final int size = 10;  // arrow size
             boolean isPressed = getModel().isPressed();
             
+            g.setColor(getBackground());
+            g.fillRect(0, 0, w, h);
+
             if (isPressed) {
                 g.translate(1, 1);
             }
@@ -245,6 +249,7 @@ public class ObjectBench
             if (isPressed) {
                 g.translate(-1, -1);
             }
+            g.setColor(origColor);
         }    
     }
     
