@@ -28,7 +28,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2604 2004-06-13 18:42:16Z fisker $
+ * @version $Id: ObjectWrapper.java 2629 2004-06-19 14:24:17Z polle $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -65,9 +65,8 @@ public class ObjectWrapper extends JComponent
     // The Java object that this wraps
     protected DebuggerObject obj;
 
-    //TODO: fix these access permissions
-    public String className;
-    public String instanceName;
+    private String className;
+    private String instanceName;
     protected String displayClassName;
     protected JPopupMenu menu;
 
@@ -113,7 +112,7 @@ public class ObjectWrapper extends JComponent
         this.pkg = pmf.getPackage();
         this.ob = ob;
         this.obj = obj;
-        this.instanceName = instanceName;
+        this.setName(instanceName);
 
         className = obj.getClassName();
 
@@ -170,7 +169,7 @@ public class ObjectWrapper extends JComponent
 
         List classes = getClassHierarchy(cl);
 
-        menu = new JPopupMenu(instanceName + " operations");
+        menu = new JPopupMenu(getName() + " operations");
 
         if (cl != null) {
             View view = View.getView(cl);
@@ -445,7 +444,7 @@ public class ObjectWrapper extends JComponent
         drawUMLObjectShape(g, GAP, 0, WIDTH, HEIGHT, SHADOW_SIZE, 8);
 
         drawUMLObjectText(g, GAP, 0, WIDTH, HEIGHT, SHADOW_SIZE,
-                            instanceName + ":", displayClassName);
+                            getName() + ":", displayClassName);
     }
 
     /**
@@ -546,7 +545,7 @@ public class ObjectWrapper extends JComponent
         InvokerRecord ir = new ObjectInspectInvokerRecord(getClassName(), getName());
         
         ObjectInspector viewer =
-      	    ObjectInspector.getInstance(obj, instanceName, pkg, ir, pmf);
+      	    ObjectInspector.getInstance(obj, getName(), pkg, ir, pmf);
     }
 
     protected void removeObject()
@@ -588,7 +587,7 @@ public class ObjectWrapper extends JComponent
             }              
         };
 
-        Invoker invoker = new Invoker(pmf, method, instanceName, watcher);
+        Invoker invoker = new Invoker(pmf, method, getName(), watcher);
         invoker.invokeInteractive();
     }
     

@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2624 2004-06-18 14:31:46Z polle $
+ * @version $Id: Invoker.java 2629 2004-06-19 14:24:17Z polle $
  */
 
 public class Invoker extends Thread
@@ -519,8 +519,8 @@ public class Invoker extends Thread
             buffer.append("java.util.Map __bluej_runtime_scope = getScope(\""
                           + scopeId + "\");" + Config.nl);
         for(int i = 0; i < wrappers.length; i++) {
-            String type = cleverQualifyTypeName(pkg, wrappers[i].className);
-            String instname = wrappers[i].instanceName;
+            String type = cleverQualifyTypeName(pkg, wrappers[i].getClassName());
+            String instname = wrappers[i].getName();
 
             buffer.append(type + " " + instname + " = ");
             buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");

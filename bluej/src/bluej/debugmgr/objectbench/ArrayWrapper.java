@@ -17,7 +17,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: ArrayWrapper.java 2629 2004-06-19 14:24:17Z polle $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
@@ -37,7 +37,7 @@ public class ArrayWrapper extends ObjectWrapper
      */
     protected void createMenu(String className)
     {
-        menu = new JPopupMenu(instanceName);
+        menu = new JPopupMenu(getName());
         JMenuItem item;
 
 //        item.addActionListener(
@@ -78,7 +78,7 @@ public class ArrayWrapper extends ObjectWrapper
         drawUMLObjectShape(g,GAP,0,WIDTH-10,HEIGHT-10,3,5);
 
         drawUMLObjectText(g,GAP,0,WIDTH-10,HEIGHT-10,3,
-                            instanceName + ":", displayClassName);
+                            getName() + ":", displayClassName);
         
     }
 }

@@ -16,7 +16,7 @@ import bluej.utility.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 2477 2004-02-11 11:29:19Z fisker $
+ * @version $Id: CallDialog.java 2629 2004-06-19 14:24:17Z polle $
  */
 public abstract class CallDialog extends JDialog
 	implements ObjectBenchListener
@@ -141,7 +141,7 @@ public abstract class CallDialog extends JDialog
     public void objectEvent(ObjectBenchEvent obe)
     {
         ObjectWrapper wrapper = obe.getWrapper();
-        insertText(wrapper.instanceName);
+        insertText(wrapper.getName());
     }
 
     /**
