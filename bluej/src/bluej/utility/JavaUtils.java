@@ -11,7 +11,7 @@ import bluej.Config;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2582 2004-06-10 04:32:41Z davmac $
+ * @version $Id: JavaUtils.java 2583 2004-06-10 07:27:17Z polle $
  */
 public abstract class JavaUtils {
 
@@ -68,5 +68,7 @@ public abstract class JavaUtils {
     
     abstract public boolean isVarArgs(Constructor cons);
     
-    abstract public boolean isVarArgs(Method method);
+    abstract public boolean isVarArgs(Method method);    
+   
+    abstract public boolean isEnum(Class cl);
 }

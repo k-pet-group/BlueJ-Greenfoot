@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils14.java 2582 2004-06-10 04:32:41Z davmac $
+ * @version $Id: JavaUtils14.java 2583 2004-06-10 07:27:17Z polle $
  */
 public class JavaUtils14 extends JavaUtils {
 
@@ -42,6 +42,9 @@ public class JavaUtils14 extends JavaUtils {
         return false;
     }
 
+    public boolean isEnum(Class cl) {
+        return false;
+    }
 
     /* Internal methods */
     
