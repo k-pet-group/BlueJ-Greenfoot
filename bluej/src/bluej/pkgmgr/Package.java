@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3241 2004-12-16 01:48:47Z davmac $
+ * @version $Id: Package.java 3305 2005-01-27 01:05:20Z bquig $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -995,7 +995,11 @@ public final class Package extends Graph
 
         if (ct.editorOpen())
             ct.getEditor().save();
-        ct.setInvalidState(); // to force compile
+        
+        // we don't want to try and compile if it is a class target without src
+        // it may be better to avoid calling this method on such targets
+        if (ct.hasSourceCode())
+            ct.setInvalidState(); // to force compile
 
         searchCompile(ct, 1, new Stack(), new PackageCompileObserver());
 
@@ -1037,11 +1041,15 @@ public final class Package extends Graph
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-                if (ct.editorOpen())
-                    ct.getEditor().save();
-                ct.setState(Target.S_INVALID);
-                ct.analyseSource(false);
-                compileTargets.add(ct);
+                // we don't want to try and compile if it is a class target without src
+                // it may be better to avoid calling this method on such targets
+                if (ct.hasSourceCode()) {
+                    if (ct.editorOpen())
+                        ct.getEditor().save();
+                    ct.setState(Target.S_INVALID);
+                    ct.analyseSource(false);
+                    compileTargets.add(ct);
+                }
             }
         }
         doCompile(compileTargets, new PackageCompileObserver());
