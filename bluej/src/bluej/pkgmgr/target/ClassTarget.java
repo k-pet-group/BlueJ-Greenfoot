@@ -59,7 +59,7 @@ import javax.swing.JPopupMenu;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3006 2004-09-15 14:25:05Z mik $
+ * @version $Id: ClassTarget.java 3007 2004-09-15 14:45:33Z mik $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -597,6 +597,7 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
+     * Get the editor associated with this class.
      * @return the editor object associated with this target. May be null if
      *         there was a problem opening this editor.
      */
@@ -606,25 +607,37 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * @param isVisible If isVisible == true then the editor will display the
-     *            editor window
+     * Get an editor for this class, either in source view or interface view.
+     * 
+     * @param showInterface Determine whether to show interface view or 
+     *         source view in the editor.
      * @return the editor object associated with this target. May be null if
      *         there was a problem opening this editor.
      */
-    public Editor getEditor(boolean isVisible)
+    private Editor getEditor(boolean showInterface)
     {
         if (editor == null) {
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
             editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
                     isCompiled(), breakpoints, getPackage().getProject().getLocalClassLoader(), editorBounds);
-            if (isVisible) {
-                editor.showInterface(true);
-            }
+            editor.showInterface(showInterface);
         }
         return editor;
     }
 
+    /**
+     * Ensure that the source file of this class is up-to-date (i.e.
+     * that any possible unsaved changes in an open editor window are 
+     * saved).
+     */
+    public void ensureSaved()
+    {
+        if(editor != null) {
+            editor.save();
+        }
+    }
+    
     // --- end of EditableTarget interface ---
 
     // --- user interface function implementation ---
@@ -667,7 +680,6 @@ public class ClassTarget extends EditableTarget
 
     /**
      * Called by Editor when a file is saved
-     * 
      * 
      * @param editor the editor object being saved
      */

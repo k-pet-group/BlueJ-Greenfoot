@@ -26,7 +26,7 @@ import bluej.utility.filefilter.*;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 2792 2004-07-13 10:17:25Z mik $
+ * @version $Id: Package.java 3007 2004-09-15 14:45:33Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1082,6 +1082,7 @@ public final class Package extends Graph
         File[] srcFiles = new File[targetList.size()];
         for (int i = 0; i < targetList.size(); i++) {
             ClassTarget ct = (ClassTarget) targetList.get(i);
+            ct.ensureSaved();
             srcFiles[i] = ct.getSourceFile();
         }
         removeBreakpoints();
