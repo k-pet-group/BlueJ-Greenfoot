@@ -25,7 +25,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2617 2004-06-17 01:07:36Z davmac $
+ * @version $Id: ResultInspector.java 2658 2004-06-25 02:55:31Z davmac $
  */
 public class ResultInspector extends Inspector implements InspectorListener {
 
@@ -158,7 +158,10 @@ public class ResultInspector extends Inspector implements InspectorListener {
         String fieldString;
         if( ! resultType.isPrimitive() ) {
             DebuggerObject resultObject = obj.getFieldObject(0, resultType);
-            fieldString = resultObject.getGenType().toString(true);
+            if( ! resultObject.isNullObject() )
+                fieldString = resultObject.getGenType().toString(true);
+            else
+                fieldString = resultType.toString(true);
         }
         else
             fieldString =  JavaNames.stripPrefix(obj.getFieldValueTypeString(0));        
