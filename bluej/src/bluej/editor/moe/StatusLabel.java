@@ -22,8 +22,6 @@ import javax.swing.event.*;
 **/
 
 public final class StatusLabel extends JLabel
-
-implements DocumentListener
 {
     // ---------------- CONSTANTS -----------------
 
@@ -34,72 +32,47 @@ implements DocumentListener
     static final int SAVED = 1;   
     static final int CHANGED = 2; 
 
-    private final String[] stateString = { Config.getString("editor.state.readOnly"), 
-                                           Config.getString("editor.state.saved"),
-                                           Config.getString("editor.state.changed")};
+    private final String[] stateString = { 
+        Config.getString("editor.state.readOnly"), 
+        Config.getString("editor.state.saved"),
+        Config.getString("editor.state.changed")
+    };
 
 
     // ------------ INSTANCE VARIABLES ------------
 
     private int state;
-    private MoeEditor myEditor;
 
 
     // -------------- CONSTRUCTORS ----------------
 
-    public StatusLabel(int initialState, MoeEditor editor)
+    public StatusLabel(int initialState)
     {
         super("", JLabel.CENTER);
         setText(stateString[initialState]);
         setFont(statusFont);
         setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
         state = initialState;
-        myEditor = editor;
     }
 
     // ------------- PUBLIC METHODS ---------------
 
-    // -------- three methods from DocumentListener: -------- 
-
-    // insert into document
-    public void insertUpdate(DocumentEvent e) 
-    {
-        if (state != CHANGED) {
-            setState (CHANGED);
-            myEditor.setChanged();
-        }
-    }
-
-    // remove from document
-    public void removeUpdate(DocumentEvent e) 
-    {
-        if (state != CHANGED) {
-            setState (CHANGED);
-            myEditor.setChanged();
-        }
-    }
-
-    // document (properties?) changed - ignore
-    public void changedUpdate(DocumentEvent e) {}
-
-    // ----------------- managing the state -------------------
-
-    public boolean isSaved () 
+    public boolean isSaved() 
     {
         return (state != CHANGED);
     }
 
-    public boolean isChanged () 
+    public boolean isChanged() 
     {
         return (state == CHANGED);
     }
 
-    public boolean isReadOnly () 
+    public boolean isReadOnly() 
     {
         return (state == READONLY);
     }
 
-    public void setState (int newState)
+    public void setState(int newState)
     {
         state = newState;
         setText(stateString[state]);

@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 888 2001-05-10 02:16:47Z bquig $
+ * @version $Id: PrefMgr.java 896 2001-05-16 07:28:17Z mik $
  */
 public class PrefMgr
 {
@@ -174,12 +174,12 @@ public class PrefMgr
     private static Font deriveFont(String fontName, int size)
     {
         int style;
-            if(fontName.endsWith("-bold")) {
-                style = Font.BOLD;
-                fontName = fontName.substring(0, fontName.length()-5);
-            }
-            else
-                style = Font.PLAIN;
+        if(fontName.endsWith("-bold")) {
+            style = Font.BOLD;
+            fontName = fontName.substring(0, fontName.length()-5);
+        }
+        else
+            style = Font.PLAIN;
         
         return new Font(fontName, style, size);
     }

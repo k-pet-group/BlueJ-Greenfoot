@@ -47,6 +47,8 @@ public final class MoeActions
 
     private static String KEYS_FILE = "editor.keys";
     private static int SHIFT_CTRL_MASK;
+    private static int META_CTRL_MASK;
+    private static int SHIFT_META_MASK;
 
     // -------- INSTANCE VARIABLES --------
 
@@ -59,6 +61,7 @@ public final class MoeActions
     private FunctionDialog functionDlg;	// the function bindings dialog
     private KeyCatcher keyCatcher;
 
+    private boolean lastActionWasCut;   // true if last action was a cut action
     // undo helpers
     public UndoAction undoAction;
     public RedoAction redoAction;
@@ -93,11 +96,15 @@ public final class MoeActions
     private MoeActions(JTextComponent textComponent)
     {
         SHIFT_CTRL_MASK = Event.CTRL_MASK + Event.SHIFT_MASK;
+        META_CTRL_MASK = Event.CTRL_MASK + Event.META_MASK;
+        SHIFT_META_MASK = Event.SHIFT_MASK + Event.META_MASK;
+
         undoManager = new UndoManager();
 
         if(System.getProperty("java.version").startsWith("1.2")) {
-          keymap = JTextComponent.addKeymap("BlueJ map", textComponent.getKeymap());
-          textComponent.setKeymap(keymap);
+            keymap = JTextComponent.addKeymap("BlueJ map", 
+                                              textComponent.getKeymap());
+            textComponent.setKeymap(keymap);
         }
         else {
             keymap = textComponent.getKeymap();
@@ -107,6 +114,7 @@ public final class MoeActions
         keyCatcher = new KeyCatcher();
         if(! load())
             setDefaultKeyBindings();
+        lastActionWasCut = false;
 
         // for bug workaround (below)
         componentInputMap = textComponent.getInputMap();
@@ -249,6 +257,17 @@ public final class MoeActions
             return false;
         }
     }
+
+    /**
+     * Called to inform that any one of the user actions (text edit or 
+     * caret move) was executed.
+     */
+    public void userAction()
+    {
+        lastActionWasCut = false;
+    }
+
+
     private void printMap()
     {
     }
@@ -589,9 +608,14 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
+            boolean addToClipboard = lastActionWasCut;
             getActionByName("caret-begin-line").actionPerformed(e);
             getActionByName("selection-down").actionPerformed(e);
-            addSelectionToClipboard(getTextComponent(e));
+            if(addToClipboard)
+                addSelectionToClipboard(getTextComponent(e));
+            else
+                getActionByName("copy-to-clipboard").actionPerformed(e);
+            lastActionWasCut = true;
         }
     }
 
@@ -604,10 +628,16 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
+            boolean addToClipboard = lastActionWasCut;
             getActionByName("caret-begin-line").actionPerformed(e);
             getActionByName("selection-down").actionPerformed(e);
-            addSelectionToClipboard(getTextComponent(e));
-            getActionByName("delete-previous").actionPerformed(e);
+            if(addToClipboard) {
+                addSelectionToClipboard(getTextComponent(e));
+                getActionByName("delete-previous").actionPerformed(e);
+            }
+            else
+                getActionByName("cut-to-clipboard").actionPerformed(e);
+            lastActionWasCut = true;
         }
     }
 
@@ -620,10 +650,21 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
-            JTextComponent textPane = getTextComponent(e);
+            boolean addToClipboard = lastActionWasCut;
+
             getActionByName("selection-end-line").actionPerformed(e);
-            addSelectionToClipboard(getTextComponent(e));
-            getActionByName("delete-previous").actionPerformed(e);
+            JTextComponent textComponent = getTextComponent(e);
+            String selection = textComponent.getSelectedText();
+            if(selection == null)
+                getActionByName("selection-forward").actionPerformed(e);
+
+            if(addToClipboard) {
+                addSelectionToClipboard(textComponent);
+                getActionByName("delete-previous").actionPerformed(e);
+            }
+            else
+                getActionByName("cut-to-clipboard").actionPerformed(e);
+            lastActionWasCut = true;
         }
     }
 
@@ -636,10 +677,16 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
+            boolean addToClipboard = lastActionWasCut;
             getActionByName("caret-previous-word").actionPerformed(e);
             getActionByName("selection-next-word").actionPerformed(e);
-            addSelectionToClipboard(getTextComponent(e));
-            getActionByName("delete-previous").actionPerformed(e);
+            if(addToClipboard) {
+                addSelectionToClipboard(getTextComponent(e));
+                getActionByName("delete-previous").actionPerformed(e);
+            }
+            else
+                getActionByName("cut-to-clipboard").actionPerformed(e);
+            lastActionWasCut = true;
         }
     }
 
@@ -652,9 +699,15 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
+            boolean addToClipboard = lastActionWasCut;
             getActionByName("selection-next-word").actionPerformed(e);
-            addSelectionToClipboard(getTextComponent(e));
-            getActionByName("delete-previous").actionPerformed(e);
+            if(addToClipboard) {
+                addSelectionToClipboard(getTextComponent(e));
+                getActionByName("delete-previous").actionPerformed(e);
+            }
+            else
+                getActionByName("cut-to-clipboard").actionPerformed(e);
+            lastActionWasCut = true;
         }
     }
 
@@ -1271,6 +1324,40 @@ public final class MoeActions
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_V, Event.CTRL_MASK),
                               (Action)(actions.get(DefaultEditorKit.pasteAction)));
+
+        // F2, F3, F4
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0),
+                              (Action)(actions.get("copy-line")));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0),
+                              (Action)(actions.get(DefaultEditorKit.pasteAction)));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0),
+                              (Action)(actions.get("cut-line")));
+
+        // cursor block
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_UP, Event.META_MASK),
+                              (Action)(actions.get(DefaultEditorKit.pasteAction)));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, Event.META_MASK),
+                              (Action)(actions.get(DefaultEditorKit.deletePrevCharAction)));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, Event.META_MASK),
+                              (Action)(actions.get(DefaultEditorKit.deleteNextCharAction)));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, SHIFT_META_MASK),
+                              (Action)(actions.get("cut-line")));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, SHIFT_META_MASK),
+                              (Action)(actions.get("cut-end-of-line")));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, META_CTRL_MASK),
+                              (Action)(actions.get("cut-word")));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, META_CTRL_MASK),
+                              (Action)(actions.get("cut-end-of-word")));
     }
 
 
@@ -1305,9 +1392,23 @@ public final class MoeActions
             if(modifierName.length() > 0)
                 keyName = modifierName + "+" + keyName;
 
-            Action action = keymap.getAction(key);
-            if (action == null)
-                editor.writeMessage(keyName + " is not bound to a function.");
+            Keymap map = keymap;
+            Action action = null;
+
+            while (map != null && action == null) {
+                action = map.getAction(key);
+                map = map.getResolveParent();
+            }
+
+            if (action == null) {
+                // BUG workaround: bindings inhertited from component are not found 
+                // through the keymap. we search for them explicitly here...
+                Object binding = componentInputMap.get(key);
+                if(binding == null)
+                    editor.writeMessage(keyName + " is not bound to a function.");
+                else
+                    editor.writeMessage(keyName + " calls the function \"" + binding + "\"");
+            }
             else {
                 String name = (String) action.getValue(Action.NAME);
                 editor.writeMessage(keyName + " calls the function \"" + name + "\"");

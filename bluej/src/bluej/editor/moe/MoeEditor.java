@@ -54,7 +54,8 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 // currently, editors never get removed from editor manager!
 
 public final class MoeEditor extends JFrame
-    implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener
+    implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, 
+               DocumentListener
 {
     // -------- CONSTANTS --------
 
@@ -239,7 +240,7 @@ public final class MoeEditor extends JFrame
                 // set TokenMarker for syntax highlighting if desired
                 checkSyntaxStatus();
 
-                sourceDocument.addDocumentListener(saveState);
+                sourceDocument.addDocumentListener(this);
                 sourceDocument.addUndoableEditListener(new MoeUndoableEditListener());
                 document = sourceDocument;
                 loaded = true;
@@ -567,6 +568,31 @@ public final class MoeEditor extends JFrame
         }
     }
 
+    // -------- three methods from DocumentListener: -------- 
+
+    // insert into document
+    public void insertUpdate(DocumentEvent e) 
+    {
+        if (!saveState.isChanged()) {
+            saveState.setState(StatusLabel.CHANGED);
+            setChanged();
+        }
+        actions.userAction();
+    }
+
+    // remove from document
+    public void removeUpdate(DocumentEvent e) 
+    {
+        if (!saveState.isChanged()) {
+            saveState.setState(StatusLabel.CHANGED);
+            setChanged();
+        }
+        actions.userAction();
+    }
+
+    // document (properties?) changed - ignore
+    public void changedUpdate(DocumentEvent e) {}
+
     // --------------------------------------------------------------------
     /**
      *  Clear the message in the info area.
@@ -576,6 +602,7 @@ public final class MoeEditor extends JFrame
         info.clear();
     }
 
+    // --------------------------------------------------------------------
     /**
      *  Write a message into the info area.
      */
@@ -1268,7 +1295,7 @@ public final class MoeEditor extends JFrame
             // flag document type as a java file by associating a JavaTokenMarker
             // for syntax colouring if specified
             checkSyntaxStatus();
-            sourceDocument.addDocumentListener(saveState);
+            sourceDocument.addDocumentListener(this);
             sourceDocument.addUndoableEditListener(new MoeUndoableEditListener());
         }
         catch (FileNotFoundException ex) {
@@ -1337,13 +1364,23 @@ public final class MoeEditor extends JFrame
     /**
      *  Buffer just went from saved to changed state (called by StatusLabel)
      */
-    void setChanged()
+    private void setChanged()
     {
         if(ignoreChanges)
             return;
         setCompileStatus (false);
         if(watcher != null)
             watcher.modificationEvent(this);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Clear the message in the info area.
+     */
+    void caretMoved()
+    {
+        clearMessage();
+        actions.userAction();
     }
 
     // --------------------------------------------------------------------
@@ -1443,7 +1480,7 @@ public final class MoeEditor extends JFrame
         statusArea.setBorder(BorderFactory.createLineBorder(Color.black));
 
         lineCounter = new LineNumberLabel(1);
-        saveState = new StatusLabel(StatusLabel.SAVED, this);
+        saveState = new StatusLabel(StatusLabel.SAVED);
         if (showLine)				// if the line number display
             statusArea.add(lineCounter);
         statusArea.add(saveState);
@@ -1454,7 +1491,7 @@ public final class MoeEditor extends JFrame
         // create the text document
 
         sourceDocument = new MoeSyntaxDocument();
-        sourceDocument.addDocumentListener(saveState);
+        sourceDocument.addDocumentListener(this);
         sourceDocument.addUndoableEditListener(new MoeUndoableEditListener());
 
         // create the text pane

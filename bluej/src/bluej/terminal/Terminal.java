@@ -23,7 +23,7 @@ import java.io.FileWriter;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Terminal.java 887 2001-05-09 01:00:08Z mik $
+ * @version $Id: Terminal.java 896 2001-05-16 07:28:17Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -127,8 +127,7 @@ public final class Terminal extends JFrame
      */
     public void clear()
     {
-        //text.setText("");
-        text.append("Unicode experiment: " + "\u4F60\u597D\uFF0C\u4E16\u754C");
+        text.setText("");
     }
 
 

@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 880 2001-05-04 07:09:20Z bquig $
+ * @version $Id: Config.java 896 2001-05-16 07:28:17Z mik $
  */
 
 public class Config
@@ -156,15 +156,6 @@ public class Config
 
         MetalLookAndFeel.setCurrentTheme(new BluejTheme());
         
-
-        // set system look and feel. experimental at this stage.
-//         try {
-//             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//         }
-//         catch (Exception exc) {
-//             Debug.reportError("Could not set system look-and-feel");
-//         }
-
     } // initialise
 
     /**

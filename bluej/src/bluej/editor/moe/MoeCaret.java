@@ -44,7 +44,7 @@ public class MoeCaret extends DefaultCaret
      */
     protected void positionCaret(MouseEvent e) 
     {
-        editor.clearMessage();
+        editor.caretMoved();
         Point pt = new Point(e.getX(), e.getY());
         Position.Bias[] biasRet = new Position.Bias[1];
         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
@@ -92,7 +92,7 @@ public class MoeCaret extends DefaultCaret
 
     protected void fireStateChanged()
     {
-        editor.clearMessage();
+        editor.caretMoved();
         super.fireStateChanged();
     }
 
