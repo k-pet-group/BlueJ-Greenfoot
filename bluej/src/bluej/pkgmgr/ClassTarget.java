@@ -51,7 +51,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: ClassTarget.java 1627 2003-02-12 06:02:44Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -898,10 +898,10 @@ public class ClassTarget extends EditableTarget
         role.addMenuItem(menu, new InspectAction(), cl != null);
         role.addMenuItem(menu, new RemoveAction(), true);
 
-//        if (getRole() instanceof StdClassRole) {
-//            menu.addSeparator();
-//            role.addMenuItem(menu, new CreateTestAction(), true);
-//        }
+        if (getRole() instanceof StdClassRole) {
+            menu.addSeparator();
+            role.addMenuItem(menu, new CreateTestAction(), true);
+        }
 
         return menu;
     }

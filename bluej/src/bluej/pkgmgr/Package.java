@@ -53,7 +53,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: Package.java 1627 2003-02-12 06:02:44Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -115,8 +115,8 @@ public class Package extends Graph
        disk for this package */
     private SortedProperties lastSavedProps = new SortedProperties();
 
-    /** all the targets in a package */
-    protected HashMap targets;
+    /* all the targets in a package */
+    protected TargetCollection targets;
 
     /** all the uses-arrows in a package */
     protected List usesArrows;
@@ -206,7 +206,7 @@ public class Package extends Graph
     private void init()
         throws IOException
     {
-        targets = new HashMap();
+        targets = new TargetCollection();
         usesArrows = new ArrayList();
         extendsArrows = new ArrayList();
         selected = null;
@@ -335,8 +335,8 @@ public class Package extends Graph
     {
         PackageTarget pt = null;
 
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
-            Target target = (Target)it.next();
+        for(Iterator e = targets.iterator(); e.hasNext(); ) {
+            Target target = (Target)e.next();
 
             if(target instanceof ClassTarget)
                 return null;
@@ -367,8 +367,8 @@ public class Package extends Graph
     {
         List children = new ArrayList();
 
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
-            Target target = (Target)it.next();
+        for(Iterator e = targets.iterator(); e.hasNext(); ) {
+            Target target = (Target)e.next();
 
             if(target instanceof PackageTarget &&
                !(target instanceof ParentPackageTarget)) {
@@ -620,7 +620,7 @@ public class Package extends Graph
             return;
         }
 
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target target = (Target)it.next();
 
             if(target instanceof ClassTarget) {
@@ -629,7 +629,7 @@ public class Package extends Graph
             }
         }
 
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target t = (Target)it.next();
             if((t instanceof ClassTarget)
                && ((ClassTarget)t).upToDate()) {
@@ -683,7 +683,7 @@ public class Package extends Graph
             }
         }
 
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target target = (Target)it.next();
 
             if(target instanceof ClassTarget) {
@@ -727,8 +727,9 @@ public class Package extends Graph
         props.put("package.numDependencies",
                   String.valueOf(usesArrows.size()));
 
-        Iterator t_enum = targets.values().iterator();            // targets
         int t_count = 0;
+
+        Iterator t_enum = targets.iterator();
         for(int i = 0; t_enum.hasNext(); i++) {
             Target t = (Target)t_enum.next();
             // should we save this target
@@ -845,7 +846,7 @@ public class Package extends Graph
 
     public Iterator getVertices()
     {
-        return targets.values().iterator();
+        return targets.sortediterator();
     }
 
     public Iterator getEdges()
@@ -871,7 +872,7 @@ public class Package extends Graph
 
         List toCompile = new ArrayList();
 
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target target = (Target)it.next();
 
             if(target instanceof ClassTarget) {
@@ -911,7 +912,7 @@ public class Package extends Graph
 
         List compileTargets = new ArrayList();
 
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target target = (Target)it.next();
 
             if(target instanceof ClassTarget) {
@@ -1029,7 +1030,7 @@ public class Package extends Graph
      */
     private void removeBreakpoints()
     {
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target target = (Target)it.next();
 
             if(target instanceof ClassTarget)
@@ -1042,7 +1043,7 @@ public class Package extends Graph
      */
     public void removeStepMarks()
     {
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target target = (Target)it.next();
 
             if(target instanceof ClassTarget)
@@ -1055,7 +1056,7 @@ public class Package extends Graph
         if(t.getPackage() != this)
             throw new IllegalArgumentException();
 
-        targets.put(t.getIdentifierName(), t);
+        targets.add(t);
     }
 
     public void removeTarget(Target t)
@@ -1075,7 +1076,7 @@ public class Package extends Graph
             return;
         }
         targets.remove(oldIdentifier);
-        targets.put(newIdentifier, t);
+        targets.add(t);
     }
 
     /**
@@ -1438,7 +1439,7 @@ public class Package extends Graph
     {
         List names = new ArrayList();
 
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target t = (Target)it.next();
 
             if(t instanceof ClassTarget) {
@@ -1458,7 +1459,7 @@ public class Package extends Graph
     {
         getProject().convertPathToPackageName(filename);
 
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target t = (Target)it.next();
             if(!(t instanceof ClassTarget))
                 continue;
@@ -1474,7 +1475,7 @@ public class Package extends Graph
 
     public EditableTarget getTargetFromEditor(Editor editor)
     {
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target t = (Target)it.next();
             if(!(t instanceof EditableTarget))
                 continue;
@@ -1800,6 +1801,11 @@ public class Package extends Graph
     {
         setStatus(compiling);
 
+        if (sources.length > 0) {
+            getProject().removeLocalClassLoader();
+            getProject().removeRemoteClassLoader();
+        }
+
         for(int i = 0; i < sources.length; i++) {
             String filename = sources[i];
 
@@ -1930,7 +1936,7 @@ public class Package extends Graph
      */
     public void closeAllEditors()
     {
-        for(Iterator it = targets.values().iterator(); it.hasNext(); ) {
+        for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target t = (Target)it.next();
             if(t instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget)t;
@@ -1956,9 +1962,6 @@ public class Package extends Graph
     {
         if(t instanceof ClassTarget) {
             ClassTarget ct = (ClassTarget)t;
-
-            getProject().removeLocalClassLoader();
-            getProject().removeRemoteClassLoader();
         }
     }
 
