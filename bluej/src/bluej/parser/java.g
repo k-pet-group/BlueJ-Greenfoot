@@ -44,12 +44,12 @@ options {
 }
 
 tokens {
-    BLOCK; MODIFIERS; OBJBLOCK; SLIST; CTOR_DEF; METHOD_DEF; VARIABLE_DEF; 
-    INSTANCE_INIT; STATIC_INIT; TYPE; CLASS_DEF; INTERFACE_DEF; 
+    BLOCK; MODIFIERS; OBJBLOCK; SLIST; CTOR_DEF; METHOD_DEF; VARIABLE_DEF;
+    INSTANCE_INIT; STATIC_INIT; TYPE; CLASS_DEF; INTERFACE_DEF;
     PACKAGE_DEF; ARRAY_DECLARATOR; EXTENDS_CLAUSE; IMPLEMENTS_CLAUSE;
-    PARAMETERS; PARAMETER_DEF; LABELED_STAT; TYPECAST; INDEX_OP; 
-    POST_INC; POST_DEC; METHOD_CALL; EXPR; ARRAY_INIT; 
-    IMPORT; UNARY_MINUS; UNARY_PLUS; CASE_GROUP; ELIST; FOR_INIT; FOR_CONDITION; 
+    PARAMETERS; PARAMETER_DEF; LABELED_STAT; TYPECAST; INDEX_OP;
+    POST_INC; POST_DEC; METHOD_CALL; EXPR; ARRAY_INIT;
+    IMPORT; UNARY_MINUS; UNARY_PLUS; CASE_GROUP; ELIST; FOR_INIT; FOR_CONDITION;
     FOR_ITERATOR; EMPTY_STAT; FINAL="final"; ABSTRACT="abstract";
     STRICTFP="strictfp"; SUPER_CTOR_CALL; CTOR_CALL;
 }
@@ -65,11 +65,11 @@ tokens {
 
     // these static variables are used as indices into a BitSet which
     // shows the modifiers of a class
-    static final int PRIVATE	= 0;
-    static final int PUBLIC	= 1;
-    static final int PROTECTED	= 2;
-    static final int STATIC	= 3;
-    static final int ABSTRACT	= 4;
+    static final int MOD_PRIVATE	= 0;
+    static final int MOD_PUBLIC	= 1;
+    static final int MOD_PROTECTED	= 2;
+    static final int MOD_STATIC	= 3;
+    static final int MOD_ABSTRACT	= 4;
 
     // We need a symbol table to track definitions
     private SymbolTable symbolTable;
@@ -367,7 +367,7 @@ declaration
     ;
 
 // A type specification is a type name with possible brackets afterwards
-//   (which would make it an array type). 
+//   (which would make it an array type).
 typeSpec returns [JavaToken t]
     {t=null;}
     :   t=classTypeSpec
@@ -405,7 +405,7 @@ type returns [JavaToken t]
     ;
 
 
-// The primitive types. 
+// The primitive types.
 builtInType returns [JavaToken t]
     {t=null;}
     :   bVoid:"void"       {t = (JavaToken)bVoid;}
@@ -480,17 +480,17 @@ modifiers returns [JavaBitSet mods]
 // modifiers for Java classes, interfaces, class/instance vars and methods
 modifier[JavaBitSet mods]
     :   "private"
-	{ mods.set(PRIVATE); }
+	{ mods.set(MOD_PRIVATE); }
     |   "public"
-	{ mods.set(PUBLIC); }
+	{ mods.set(MOD_PUBLIC); }
     |   "protected"
-	{ mods.set(PROTECTED); }
+	{ mods.set(MOD_PROTECTED); }
     |   "static"
-	{ mods.set(STATIC); }
+	{ mods.set(MOD_STATIC); }
     |   "transient"
     |   "final"
     |   "abstract"
-	{ mods.set(ABSTRACT); }
+	{ mods.set(MOD_ABSTRACT); }
     |   "native"
     |   "threadsafe"
     |   "synchronized"
@@ -541,7 +541,7 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
         // so we'll have to pop...
         { defineClass( (JavaToken)id, superClass,
             		  interfaces,
-            		  mods.get(ABSTRACT), mods.get(PUBLIC),
+            		  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
             		  commentToken,
             		  extendsInsert, implementsInsert,
             		  extendsReplace, superReplace,
@@ -581,7 +581,7 @@ interfaceDefinition[JavaBitSet mods, JavaToken commentToken]
         //   we'll have to pop it...
         { defineInterface((JavaToken)id,
 		            superInterfaces,
-		            mods.get(PUBLIC), commentToken,
+		            mods.get(MOD_PUBLIC), commentToken,
 		            extendsInsert, superInterfaceSelections); }
 
     // now parse the body of the interface (looks like a class...)
@@ -668,7 +668,7 @@ implementsClause[JavaVector interfaces, Vector interfaceSelections] returns [Sel
 //   need to be some semantic checks to make sure we're doing the right thing...
 field
     {
-        JavaToken  type, commentToken = null; 
+        JavaToken  type, commentToken = null;
         JavaVector exceptions = null;           // track thrown exceptions
         JavaBitSet mods = null;
     }
@@ -722,7 +722,7 @@ field
     ;
 
 constructorBody
-    :   LCURLY 
+    :   LCURLY
         // Predicate might be slow but only checked once per constructor def
         // not for general methods.
         ( (explicitConstructorInvocation) => explicitConstructorInvocation
@@ -772,10 +772,10 @@ varInitializer
 	:	( ASSIGN initializer )?
 	;
 
-// This is an initializer used to set up an array.  
+// This is an initializer used to set up an array.
 arrayInitializer
     :   LCURLY
-            (   initializer 
+            (   initializer
                 (
 		    // CONFLICT: does a COMMA after an initializer start a new
 		    //           initializer or start the option ',' at end?
@@ -853,7 +853,7 @@ parameterDeclarationList
 //   header.
 parameterDeclaration
     {JavaToken type; }
-    :   parameterModifier type=typeSpec id:IDENT 
+    :   parameterModifier type=typeSpec id:IDENT
                       (LBRACK RBRACK
          		{ if(type != null)
 			       type.setText(type.getText() + "[]"); } )*
@@ -932,7 +932,7 @@ statement
 
     // Attach a label to the front of a statement
     |   id:IDENT COLON statement  {defineLabel((JavaToken)id);}
-    
+
     // If-else statement
     |   "if" LPAREN expression RPAREN statement
         (
@@ -1044,7 +1044,7 @@ handler
     ;
 
 
-// expressions 
+// expressions
 // Note that most of these expressions follow the pattern
 //   thisLevelExpression :
 //       nextHigherPrecedenceExpression
@@ -1167,7 +1167,7 @@ relationalExpression
                 shiftExpression
             )*
         | "instanceof" typeSpec
-        )		
+        )
     ;
 
 
@@ -1255,7 +1255,7 @@ postfixExpression
 			// allow ClassName[].class
 		|  ( LBRACK RBRACK )+ DOT "class"
 
-	        // an array indexing operation 
+	        // an array indexing operation
 	        |   LBRACK expression RBRACK
 
 	        // method invocation - keep number of parameters
@@ -1308,21 +1308,21 @@ primaryExpression returns [JavaToken t]
 
 /** object instantiation.
  *  Trees are built as illustrated by the following input/tree pairs:
- *  
+ *
  *  new T()
- *  
+ *
  *  new
  *   |
  *   T --  ELIST
  *           |
  *          arg1 -- arg2 -- .. -- argn
- *  
+ *
  *  new int[]
  *
  *  new
  *   |
  *  int -- ARRAY_DECLARATOR
- *  
+ *
  *  new int[] {1,2}
  *
  *  new
@@ -1332,7 +1332,7 @@ primaryExpression returns [JavaToken t]
  *                                EXPR -- EXPR
  *                                  |      |
  *                                  1      2
- *  
+ *
  *  new int[3]
  *  new
  *   |
@@ -1341,9 +1341,9 @@ primaryExpression returns [JavaToken t]
  *              EXPR
  *                |
  *                3
- *  
+ *
  *  new int[1][2]
- *  
+ *
  *  new
  *   |
  *  int -- ARRAY_DECLARATOR
@@ -1353,7 +1353,7 @@ primaryExpression returns [JavaToken t]
  *             EXPR             1
  *               |
  *               2
- *  
+ *
  */
 
 newExpression returns [JavaToken t]
@@ -1397,7 +1397,7 @@ newArrayDeclarator
                 options {
 				warnWhenFollowAmbig = false;
 			}
-                : 
+                :
                      LBRACK
                          (expression)?
                      RBRACK

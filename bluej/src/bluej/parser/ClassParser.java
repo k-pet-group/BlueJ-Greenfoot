@@ -49,11 +49,11 @@ public class ClassParser extends antlr.LLkParser
 
     // these static variables are used as indices into a BitSet which
     // shows the modifiers of a class
-    static final int PRIVATE	= 0;
-    static final int PUBLIC	= 1;
-    static final int PROTECTED	= 2;
-    static final int STATIC	= 3;
-    static final int ABSTRACT	= 4;
+    static final int MOD_PRIVATE	= 0;
+    static final int MOD_PUBLIC	= 1;
+    static final int MOD_PROTECTED	= 2;
+    static final int MOD_STATIC	= 3;
+    static final int MOD_ABSTRACT	= 4;
 
     // We need a symbol table to track definitions
     private SymbolTable symbolTable;
@@ -677,7 +677,7 @@ public ClassParser(ParserSharedInputState state) {
 		if ( inputState.guessing==0 ) {
 			defineClass( (JavaToken)id, superClass,
 					  interfaces,
-					  mods.get(ABSTRACT), mods.get(PUBLIC),
+					  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
 					  commentToken,
 					  extendsInsert, implementsInsert,
 					  extendsReplace, superReplace,
@@ -730,7 +730,7 @@ public ClassParser(ParserSharedInputState state) {
 		if ( inputState.guessing==0 ) {
 			defineInterface((JavaToken)id,
 					            superInterfaces,
-					            mods.get(PUBLIC), commentToken,
+					            mods.get(MOD_PUBLIC), commentToken,
 					            extendsInsert, superInterfaceSelections);
 		}
 		classBlock();
@@ -1003,7 +1003,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			match(LITERAL_private);
 			if ( inputState.guessing==0 ) {
-				mods.set(PRIVATE);
+				mods.set(MOD_PRIVATE);
 			}
 			break;
 		}
@@ -1011,7 +1011,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			match(LITERAL_public);
 			if ( inputState.guessing==0 ) {
-				mods.set(PUBLIC);
+				mods.set(MOD_PUBLIC);
 			}
 			break;
 		}
@@ -1019,7 +1019,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			match(LITERAL_protected);
 			if ( inputState.guessing==0 ) {
-				mods.set(PROTECTED);
+				mods.set(MOD_PROTECTED);
 			}
 			break;
 		}
@@ -1027,7 +1027,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			match(LITERAL_static);
 			if ( inputState.guessing==0 ) {
-				mods.set(STATIC);
+				mods.set(MOD_STATIC);
 			}
 			break;
 		}
@@ -1045,7 +1045,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			match(ABSTRACT);
 			if ( inputState.guessing==0 ) {
-				mods.set(ABSTRACT);
+				mods.set(MOD_ABSTRACT);
 			}
 			break;
 		}
@@ -1235,7 +1235,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		Token  method = null;
 		
-		JavaToken  type, commentToken = null; 
+		JavaToken  type, commentToken = null;
 		JavaVector exceptions = null;           // track thrown exceptions
 		JavaBitSet mods = null;
 		
@@ -3521,21 +3521,21 @@ public ClassParser(ParserSharedInputState state) {
 	
 /** object instantiation.
  *  Trees are built as illustrated by the following input/tree pairs:
- *  
+ *
  *  new T()
- *  
+ *
  *  new
  *   |
  *   T --  ELIST
  *           |
  *          arg1 -- arg2 -- .. -- argn
- *  
+ *
  *  new int[]
  *
  *  new
  *   |
  *  int -- ARRAY_DECLARATOR
- *  
+ *
  *  new int[] {1,2}
  *
  *  new
@@ -3545,7 +3545,7 @@ public ClassParser(ParserSharedInputState state) {
  *                                EXPR -- EXPR
  *                                  |      |
  *                                  1      2
- *  
+ *
  *  new int[3]
  *  new
  *   |
@@ -3554,9 +3554,9 @@ public ClassParser(ParserSharedInputState state) {
  *              EXPR
  *                |
  *                3
- *  
+ *
  *  new int[1][2]
- *  
+ *
  *  new
  *   |
  *  int -- ARRAY_DECLARATOR
@@ -3566,7 +3566,7 @@ public ClassParser(ParserSharedInputState state) {
  *             EXPR             1
  *               |
  *               2
- *  
+ *
  */
 	public final JavaToken  newExpression() throws RecognitionException, TokenStreamException {
 		JavaToken t;
