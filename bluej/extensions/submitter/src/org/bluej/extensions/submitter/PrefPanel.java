@@ -14,7 +14,7 @@ public class PrefPanel implements PrefGen
     public  TreeMap globalSettings;  // is a name, JText
 
     private static final String[] globalProps = {"smtphost", "useraddr", "username"};
-    private static final String[] globalDefaults = {null, System.getProperty("user.name")+"@", System.getProperty("user.name")};
+    private static final String[] globalDefaults = {"", System.getProperty("user.name","")+"@", System.getProperty("user.name","")};
 
     public PrefPanel(BlueJ bluej)
     {
