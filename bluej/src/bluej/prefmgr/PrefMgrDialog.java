@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * instance of PrefMgrDialog at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgrDialog.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: PrefMgrDialog.java 1040 2001-12-10 16:35:56Z mik $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -33,11 +33,11 @@ public class PrefMgrDialog extends JFrame
 
     private JTabbedPane tabbedPane = null;
 
-	/**
-	 * Setup the UI for the dialog and event handlers for the dialog's buttons.
-	 *
-	 * @param title the title of the dialog
-	 */
+    /**
+     * Setup the UI for the dialog and event handlers for the dialog's buttons.
+     *
+     * @param title the title of the dialog
+     */
     private PrefMgrDialog()
     {
         setIconImage(Config.frameImage);
@@ -67,15 +67,15 @@ public class PrefMgrDialog extends JFrame
                 JButton okButton = new JButton(Config.getString("okay"));
                 {
                     okButton.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            for (Iterator i = listeners.iterator(); i.hasNext(); ) {
-                                PrefPanelListener ppl = (PrefPanelListener)i.next();
+                            public void actionPerformed(ActionEvent e) {
+                                for (Iterator i = listeners.iterator(); i.hasNext(); ) {
+                                    PrefPanelListener ppl = (PrefPanelListener)i.next();
 
-                                ppl.commitEditing();
+                                    ppl.commitEditing();
+                                }
+                                setVisible(false);
                             }
-                            setVisible(false);
-                        }
-                    });
+                        });
                 }
 
                 getRootPane().setDefaultButton(okButton);
@@ -83,15 +83,15 @@ public class PrefMgrDialog extends JFrame
                 JButton cancelButton = new JButton(Config.getString("cancel"));
                 {
                     cancelButton.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            for (Iterator i = listeners.iterator(); i.hasNext(); ) {
-                                PrefPanelListener ppl = (PrefPanelListener)i.next();
+                            public void actionPerformed(ActionEvent e) {
+                                for (Iterator i = listeners.iterator(); i.hasNext(); ) {
+                                    PrefPanelListener ppl = (PrefPanelListener)i.next();
 
-                                ppl.revertEditing();
+                                    ppl.revertEditing();
+                                }
+                                setVisible(false);
                             }
-                            setVisible(false);
-                        }
-                    });
+                        });
                 }
 
                 buttonPanel.add(okButton);
@@ -99,7 +99,7 @@ public class PrefMgrDialog extends JFrame
 
                 // try to make the OK and cancel buttons have equal width
                 okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
-                                okButton.getPreferredSize().height));
+                                                        okButton.getPreferredSize().height));
             } // buttonPanel
 
             contentPanel.add(tabbedPane);
@@ -137,15 +137,15 @@ public class PrefMgrDialog extends JFrame
         titles.add(title);
     }
 
-	/**
-	 * Show the preferences dialog.  The first argument should
-	 * be null if you want the dialog to come up in the center
-	 * of the screen.  Otherwise, the argument should be the
-	 * component on top of which the dialog should appear.
-	 *
-	 * @param comp the parent component for the dialog.
-	 */
-	public static boolean showDialog(Component comp) {
+    /**
+     * Show the preferences dialog.  The first argument should
+     * be null if you want the dialog to come up in the center
+     * of the screen.  Otherwise, the argument should be the
+     * component on top of which the dialog should appear.
+     *
+     * @param comp the parent component for the dialog.
+     */
+    public static boolean showDialog(Component comp) {
         if (dialog == null) {
             dialog = new PrefMgrDialog();
         }
@@ -156,8 +156,8 @@ public class PrefMgrDialog extends JFrame
             ppl.beginEditing();
         }
 
-		dialog.setVisible(true);
+        dialog.setVisible(true);
 
-		return true;
-	}
+        return true;
+    }
 }

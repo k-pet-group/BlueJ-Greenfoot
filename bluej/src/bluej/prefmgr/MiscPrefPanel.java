@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 925 2001-06-06 04:45:32Z bquig $
+ * @version $Id: MiscPrefPanel.java 1040 2001-12-10 16:35:56Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -31,6 +31,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
     private JTextField editorFontField;
     private JCheckBox hilightingBox;
+    private JCheckBox lineNumbersBox;
     private JTextField jdkURLField;
     private JCheckBox linkToLibBox;
 
@@ -68,6 +69,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         }
 
         hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
+        lineNumbersBox = new JCheckBox(Config.getString("prefmgr.misc.displaylinenumbers"));
 
         JLabel jdkURLTag = new JLabel(Config.getString("prefmgr.misc.jdkurlpath"));
         {
@@ -126,6 +128,8 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         add(Box.createVerticalStrut(Config.generalSpacingWidth));
         add(hilightingBox);
         add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(lineNumbersBox);
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
         add(Box.createVerticalStrut(Config.generalSpacingWidth));
         add(jdkURLTag);
         add(jdkURLField);
@@ -169,6 +173,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
         hilightingBox.setSelected(PrefMgr.useSyntaxHilighting());
+        lineNumbersBox.setSelected(PrefMgr.displayLineNumbers());
         linkToLibBox.setSelected(PrefMgr.linkDocToLibrary());
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
 
@@ -188,14 +193,12 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         try {
             newFontSize = Integer.parseInt(editorFontField.getText());
-
             PrefMgr.setEditorFontSize(newFontSize);
         }
-        catch (NumberFormatException nfe)
-            {
-            }
+        catch (NumberFormatException nfe) { }
 
         PrefMgr.setSyntaxHilighting(hilightingBox.isSelected());
+        PrefMgr.setDisplayLineNumbers(lineNumbersBox.isSelected());
         PrefMgr.setDocumentationLinking(linkToLibBox.isSelected());
 
         Package.editorManager.refreshAll();

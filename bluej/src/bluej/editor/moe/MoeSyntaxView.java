@@ -21,6 +21,7 @@ import java.util.*;
 
 import bluej.utility.*;
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 
 import org.gjt.sp.jedit.syntax.*;
 
@@ -35,13 +36,20 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 1026 2001-12-07 12:11:54Z mik $
+ * @version $Id: MoeSyntaxView.java 1040 2001-12-10 16:35:56Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
 {
     // private members
     private Segment line;
+
+    private Font defaultFont;
+    // protected FontMetrics metrics;  is inherited from PlainView
+    private Font lineNumberFont;
+    private Font smallLineNumberFont;
+    FontMetrics lineNumberMetrics;
+    private boolean initialised = false;
 
     static final Image breakImage =
         Config.getImageAsIcon("image.breakmark").getImage();
@@ -78,6 +86,10 @@ public class MoeSyntaxView extends PlainView
      * SyntaxDocument, or if the returned token marker is
      * null, the line will be painted with no colorization.
      *
+     * Currently, we assume that the whole document uses the same font.
+     * To support font changes, some of the code from "initilise" needs
+     * to be here to be done repeatedly for each line.
+     *
      * @param lineIndex The line number
      * @param g The graphics context
      * @param x The x co-ordinate where the line should be painted
@@ -85,14 +97,12 @@ public class MoeSyntaxView extends PlainView
      */
     public void drawLine(int lineIndex, Graphics g, int x, int y)
     {
-
-        // add breakpoint offset to x co-ordinate
-        int offsetX = x  + BREAKPOINT_OFFSET;
+        if(!initialised)
+            initialise(g);
 
         SyntaxDocument document = (SyntaxDocument)getDocument();
         TokenMarker tokenMarker = document.getTokenMarker();
 
-        FontMetrics metrics = g.getFontMetrics();
         Color def = getDefaultColor();
 
         try {
@@ -100,10 +110,11 @@ public class MoeSyntaxView extends PlainView
             int start = lineElement.getStartOffset();
             int end = lineElement.getEndOffset();
 
-            document.getText(start,end - (start + 1),line);
+            document.getText(start,end - (start + 1), line);
 
-            // draw line number
-            g.drawString(Integer.toString(lineIndex), x, y);
+            g.setColor(def);
+            if(PrefMgr.displayLineNumbers())
+                drawLineNumber(g, lineIndex+1, x, y);
 
             // draw breakpoint and/or step image
 
@@ -114,28 +125,28 @@ public class MoeSyntaxView extends PlainView
                     (lineElement.getAttributes().getAttribute(
                                                 MoeEditor.STEPMARK))) {
                     g.drawImage(breakStepImage, x-1,
-                                y-breakStepImage.getHeight(null), null);
+                                y+3-breakStepImage.getHeight(null), null);
                 }
                 else {  // break only
                     g.drawImage(breakImage, x-1,
-                                y-breakImage.getHeight(null), null);
+                                y+3-breakImage.getHeight(null), null);
                 }
             }
             else if (Boolean.TRUE.equals
                 (lineElement.getAttributes().getAttribute(
                                                 MoeEditor.STEPMARK))) {
-                g.drawImage(stepImage, x-1, y-stepImage.getHeight(null),
+                g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null),
                             null);
             }
 
             // if no tokenMarker just paint as plain text
             if(tokenMarker == null) {
-                g.setColor(def);
-                Utilities.drawTabbedText(line, offsetX, y, g, this, 0);
+                Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
+                                         0);
             }
             else {
-                paintSyntaxLine(line, lineIndex, offsetX, y, g, document,
-                                tokenMarker, def);
+                paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+                                document, tokenMarker, def);
             }
         }
         catch(BadLocationException bl) {
@@ -145,14 +156,45 @@ public class MoeSyntaxView extends PlainView
     }
 
     /**
-     * returns default foreground colour
-     *
+     * Draw the line number in front of the line
+     */
+    private void drawLineNumber(Graphics g, int lineNumber, int x, int y)
+    {
+        String number = Integer.toString(lineNumber);
+        int stringWidth = lineNumberMetrics.stringWidth(number);
+        int xoffset = BREAKPOINT_OFFSET - stringWidth - 3;
+
+        if(xoffset < -2) {
+            g.setFont(smallLineNumberFont);
+            g.drawString(number, x-3, y);
+        }
+        else {
+            g.setFont(lineNumberFont);
+            g.drawString(number, x + xoffset, y);
+        }
+        g.setFont(defaultFont);
+    }
+
+    /**
+     * Initialise some fields after we get a graphics context for the first time
+     */
+    private void initialise(Graphics g)
+    {
+        defaultFont = g.getFont();
+        lineNumberFont = defaultFont.deriveFont(9.0f);
+        smallLineNumberFont = defaultFont.deriveFont(7.0f);
+        Component c = getContainer();
+        lineNumberMetrics = c.getFontMetrics(lineNumberFont);
+        initialised = true;
+    }
+
+    /**
+     * Return default foreground colour
      */
     protected Color getDefaultColor()
     {
         return getContainer().getForeground();
     }
-
 
     /**
      * paints a line with syntax highlighting,
@@ -160,8 +202,8 @@ public class MoeSyntaxView extends PlainView
      *
      */
     private void paintSyntaxLine(Segment line, int lineIndex, int x, int y,
-                                 Graphics g, SyntaxDocument document, TokenMarker tokenMarker,
-                                 Color def)
+                                 Graphics g, SyntaxDocument document, 
+                                 TokenMarker tokenMarker, Color def)
     {
         Color[] colors = document.getColors();
         Token tokens = tokenMarker.markTokens(line, lineIndex);
@@ -195,22 +237,24 @@ public class MoeSyntaxView extends PlainView
     */
     public void paint(Graphics g, Shape allocation)
     {
-        // paint the lines
-        super.paint(g, allocation);
+        // if uncompiled, fill the tag line with grey
 
         Rectangle bounds = allocation.getBounds();
-
-        // paint the tag line (possibly grey, always a separator line)
 
         if(Boolean.FALSE.equals(getDocument().getProperty(MoeEditor.COMPILED))) {
             g.setColor(Color.lightGray);
             g.fillRect(0, 0, bounds.x + MoeEditor.TAG_WIDTH,
                        bounds.y + bounds.height);
         }
+
+        // paint the lines
+        super.paint(g, allocation);
+
+        // paint the tag separator line
+
         g.setColor(Color.black);
         g.drawLine(bounds.x + MoeEditor.TAG_WIDTH, 0,
                    bounds.x + MoeEditor.TAG_WIDTH, bounds.y + bounds.height);
-
     }
 
 

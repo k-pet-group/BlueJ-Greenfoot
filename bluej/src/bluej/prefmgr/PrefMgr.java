@@ -22,11 +22,12 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 982 2001-10-05 14:51:10Z mik $
+ * @version $Id: PrefMgr.java 1040 2001-12-10 16:35:56Z mik $
  */
 public class PrefMgr
 {
-    private static final String hilightingPropertyName = "bluej.syntaxHilighting";
+    private static final String hilightingPropertyName = "bluej.editor.syntaxHilighting";
+    private static final String lineNumberPropertyName = "bluej.editor.displayLineNumbers";
     private static final String linkingPropertyName = "doctool.linkToStandardLib";
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
@@ -57,6 +58,7 @@ public class PrefMgr
 
     // syntax hilighting
     private static boolean isSyntaxHilighting;
+    private static boolean isDisplayLineNumbers;
     private static boolean isLinkDocumentation;
     private static boolean isUML;
     private static boolean hasTheme;
@@ -94,6 +96,9 @@ public class PrefMgr
         
         isSyntaxHilighting = Boolean.valueOf(
             Config.getPropString(hilightingPropertyName, "true")).booleanValue();
+
+        isDisplayLineNumbers = Boolean.valueOf(
+            Config.getPropString(lineNumberPropertyName, "true")).booleanValue();
 
         isLinkDocumentation = Boolean.valueOf(
             Config.getPropString(linkingPropertyName, "true")).booleanValue();
@@ -146,6 +151,11 @@ public class PrefMgr
     public static boolean useSyntaxHilighting()
     {
         return isSyntaxHilighting;
+    }
+
+    public static boolean displayLineNumbers()
+    {
+        return isDisplayLineNumbers;
     }
 
     public static boolean linkDocToLibrary()
@@ -232,8 +242,7 @@ public class PrefMgr
      */
     protected static void setSyntaxHilighting(boolean enabled)
     {
-        String hs = Config.getDefaultPropString(hilightingPropertyName,
-                                                "true");
+        String hs = Config.getDefaultPropString(hilightingPropertyName, "true");
 
         if (Boolean.valueOf(hs).booleanValue() == enabled)
             Config.removeProperty(hilightingPropertyName);
@@ -242,6 +251,24 @@ public class PrefMgr
                                     new Boolean(enabled).toString());
 
         isSyntaxHilighting = enabled;
+    }
+
+    /**
+     * Set users preference of whether to display line numbers in the editor
+     *
+     * @param enabled   true if line numbers should be displayed
+     */
+    protected static void setDisplayLineNumbers(boolean enabled)
+    {
+        String hs = Config.getDefaultPropString(lineNumberPropertyName, "true");
+
+        if (Boolean.valueOf(hs).booleanValue() == enabled)
+            Config.removeProperty(lineNumberPropertyName);
+        else
+            Config.putPropString(lineNumberPropertyName,
+                                    new Boolean(enabled).toString());
+
+        isDisplayLineNumbers = enabled;
     }
 
     /**
@@ -283,15 +310,14 @@ public class PrefMgr
     }
 
    /**
-     * Set users preference of whether to use syntax hilighting or not
+     * Set users preference of notation style
      *
-     * @param enabled   true if syntax hilighting should be used
+     * @param style   the name of the style
      */
     protected static void setNotationStyle(String style)
     {
         // assumes UML is default, ie. if not blue style then is UML
         isUML = (!Graph.BLUE.equals(style));
         Config.putPropString(notationStyle, style);
-        
     }
 }
