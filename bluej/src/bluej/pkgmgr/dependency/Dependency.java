@@ -20,7 +20,7 @@ import bluej.utility.Debug;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Dependency.java 2789 2004-07-12 18:08:11Z mik $
+ * @version $Id: Dependency.java 2991 2004-09-06 08:29:16Z polle $
  */
 public abstract class Dependency extends Edge
 {
@@ -154,15 +154,6 @@ public abstract class Dependency extends Edge
     }
 
     /**
-     * Return a bounding box for this dependency.
-     */
-    public Rectangle getBoundingBox()
-    {
-        Line line = computeLine();
-        return getBoxFromLine(line);
-    }
-
-    /**
      * Contains method for dependencies that are drawn as more or less straight
      * lines (e.g. extends). Should be overwritten for dependencies with
      * different shape.
@@ -195,10 +186,10 @@ public abstract class Dependency extends Edge
      */
     protected Rectangle getBoxFromLine(Line line)
     {
-        int x = Math.min(line.from.x, line.to.x);
-        int y = Math.min(line.from.y, line.to.y);
-        int width = Math.max(line.from.x, line.to.x) - x;
-        int height = Math.max(line.from.y, line.to.y) - y;
+        int x = Math.min(line.from.x, line.to.x) - SELECT_DIST;
+        int y = Math.min(line.from.y, line.to.y) - SELECT_DIST;
+        int width = Math.max(line.from.x, line.to.x) - x + (2*SELECT_DIST);
+        int height = Math.max(line.from.y, line.to.y) - y + (2*SELECT_DIST);
 
         return new Rectangle(x, y, width, height);
     }
