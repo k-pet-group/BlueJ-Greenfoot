@@ -43,7 +43,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 375 2000-01-24 22:56:25Z mik $
+ * @version $Id: ClassTarget.java 406 2000-03-09 02:19:04Z ajp $
  */
 public class ClassTarget extends EditableTarget
 
@@ -641,7 +641,7 @@ public class ClassTarget extends EditableTarget
     	// call on role object to add any options needed
      	role.createMenu(menu, this, state);
 
-    	if ((cl != null) && (!isAbstract()))
+    	if ((cl != null)) // && (!isAbstract()))
     	    createClassMenu(menu, cl);
 
     	addMenuItem(menu, editStr, true);
@@ -685,17 +685,21 @@ public class ClassTarget extends EditableTarget
      */
     protected void createClassMenu(JPopupMenu menu, Class cl)
     {
-	View view = View.getView(cl);
-	ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
-	ConstructorView[] constructors = view.getConstructors();
+        ViewFilter filter;
+        View view = View.getView(cl);
 
-	if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new "))
-	    menu.addSeparator();
+        if(!isAbstract()) {
+            filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+            ConstructorView[] constructors = view.getConstructors();
 
-	filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
-	MethodView[] allMethods = view.getAllMethods();
-	if(createMenuItems(menu, allMethods, filter, 0, allMethods.length, ""))
-	    menu.addSeparator();
+            if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new "))
+                menu.addSeparator();
+        }
+
+        filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
+        MethodView[] allMethods = view.getAllMethods();
+        if(createMenuItems(menu, allMethods, filter, 0, allMethods.length, ""))
+            menu.addSeparator();
     }
 
 
