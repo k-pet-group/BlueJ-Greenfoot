@@ -13,22 +13,13 @@ import bluej.views.*;
 
 /**
  * The BlueJ proxy Method object. This represents a method of a class or object. 
- * This could be a method, or constructor.
- *
- * @author Clive Miller
- * @version $Id: BMethod.java 1651 2003-03-05 17:03:15Z damiano $
- * @see bluej.extensions.BObject#getMethod(java.lang.String,java.lang.Class[])
- * @see bluej.extensions.BObject#getMethods(boolean)
- * @see bluej.extensions.BClass#getConstructor(java.lang.Class[])
- * @see bluej.extensions.BClass#getConstructors()
- * @see bluej.extensions.BClass#getStaticMethod(java.lang.String,java.lang.Class[])
- * @see bluej.extensions.BClass#getStaticMethods()
  */
 public class BMethod
 {
     private final Package    bluej_pkg;
     private final MethodView bluej_view;
     private       DirectInvoker invoker;
+    private       String instanceName;     // The name you may want on the banch for the new instance.
     
     /**
      * A new method. you can get it from the BClass
@@ -38,7 +29,16 @@ public class BMethod
         bluej_pkg  = i_bluej_pkg;
         bluej_view = i_bluej_view;
     }
-    
+
+
+    /**
+     * If you want to name the object that appears in the object bench with something
+     * you like, you can do it using this method BEFORE you call the newInstance.
+     */
+    public String setInstanceName ( String i_instanceName )
+    {
+        return instanceName = i_instanceName;
+    }
 
     /**
      * Tests if this mthod matches against the given param.
@@ -121,10 +121,10 @@ public class BMethod
      */
     public BObject invoke (BObject onThisObject, String[] params)
     {
-        String instanceName = onThisObject.getInstanceName();
         invoker = new DirectInvoker (bluej_pkg, bluej_view, instanceName);
-        DebuggerObject result = invoker.invoke (params);
+        DebuggerObject result = invoker.invokeMethod (onThisObject.getInstanceName(), params);
 
+        // Result can be null if the method returns void. It is Reflection standard
         if (result == null) return null;
 
         String resultName = invoker.getResultName();
@@ -132,7 +132,7 @@ public class BMethod
         ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
 
         // WARNING: Do I need to add it to the Debugger ?? like this
-        // Debugger.debugger.addObjectToScope(pmf.getPackage().getId(), wrapper.getName(), result);
+        Debugger.debugger.addObjectToScope(pmf.getPackage().getId(), wrapper.getName(), result);
         return new BObject(wrapper);
     }
     
