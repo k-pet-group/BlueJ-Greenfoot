@@ -5,7 +5,7 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 219 1999-08-10 04:22:08Z mik $
+ ** @version $Id: Terminal.java 221 1999-08-10 04:30:15Z mik $
  **/
 
 package bluej.terminal;
@@ -251,7 +251,7 @@ public final class Terminal extends JFrame
 		if(buffer.backSpace()) {
 		    try {
 			int length = text.getDocument().getLength();
-			text.replaceRange("", length-2, length-1);
+			text.replaceRange("", length-1, length);
 		    }
 		    catch (Exception exc) { 
 			Debug.reportError("bad location " + exc);
