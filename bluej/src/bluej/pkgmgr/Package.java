@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 620 2000-07-05 04:29:58Z ajp $
+ * @version $Id: Package.java 625 2000-07-05 10:39:53Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1083,18 +1083,16 @@ public class Package extends Graph
      * with their name as the key.  If class name changes we need to
      * remove the target and add again with the new key.
      */
-/*XXX should we make target identifiers immutable and require a new target to
-  be constructed to do this rename??
-    public void updateTargetIdentifier(Target t, String newIdentifier)
+    public void updateTargetIdentifier(Target t, String oldIdentifier, String newIdentifier)
     {
         if(t == null || newIdentifier == null) {
             Debug.reportError("cannot properly update target name...");
             return;
         }
-        targets.remove(t.getIdentifierName());
+        targets.remove(oldIdentifier);
         targets.put(newIdentifier, t);
     }
-*/
+
     /**
      *  Removes a class from the Package
      *

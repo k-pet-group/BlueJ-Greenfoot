@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 609 2000-06-30 04:24:33Z ajp $
+ * @version $Id: ClassTarget.java 625 2000-07-05 10:39:53Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -88,6 +88,8 @@ public class ClassTarget extends EditableTarget
     public int dfn, link;
 
     private String stereotype;
+    private boolean analysing = false;	// flag to prevent recursive
+					// calls to analyseDependancies()
 
     /**
      * Create a new class target in package 'pkg'.
@@ -555,6 +557,11 @@ public class ClassTarget extends EditableTarget
      */
     public void analyseSource(boolean modifySource)
     {
+	if(analysing)
+		return;
+
+	analysing = true;
+
         ClassInfo info = sourceInfo.getInfo(getSourceFile().getPath(),
                                             getPackage().getAllClassnames());
 
@@ -568,13 +575,15 @@ public class ClassTarget extends EditableTarget
 
             if (modifySource) {
                 if(analyseClassName(info))
-                    System.out.println("Class name changed");
+                    doClassNameChange(info.getName());
                 if(analysePackageName(info))
-                    System.out.println("Package line changed");
+                    doPackageNameChange(info.getPackage());
             }
         }
 
         getPackage().repaint();
+
+	analysing = false;
     }
 
     public boolean analyseClassName(ClassInfo info)
@@ -664,43 +673,64 @@ public class ClassTarget extends EditableTarget
      * If name has changed then update details.
      * Return true if the name has changed.
      */
-    private boolean checkName(ClassInfo info)
+    private boolean doClassNameChange(String newName)
     {
-        String newName = info.getName();
-        Package myPkg = getPackage();
+        //need to check that class does not already exist
+        if(getPackage().getTarget(newName) != null) {
+            getPackage().showError("duplicate-name");
+            return false;
+        }
 
-        if(!getBaseName().equals(newName)) {
-            //need to check that class does not already exist
-            if(getPackage().getTarget(newName) != null) {
-                getPackage().showError("duplicate-name");
-                return false;
-            }
+        File newSourceFile = new File(getPackage().getPath(), newName + ".java");
+        File oldSourceFile = getSourceFile();
 
-            File newSourceFile = new File(myPkg.getPath(), newName + ".java");
-            File oldSourceFile = getSourceFile();
+        if(FileUtility.copyFile(oldSourceFile, newSourceFile)) {
 
-            if(FileUtility.copyFile(oldSourceFile, newSourceFile)) {
+            getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
+            getEditor().changeName(newName, newSourceFile.getPath());
+            role.prepareFilesForRemoval(oldSourceFile.getPath(),
+                                         getClassFile().getPath(),
+                                         getContextFile().getPath());
 
-                ClassTarget newTarget = new ClassTarget(myPkg, newName);
-                newTarget.setPos(this.x, this.y);
+            setIdentifierName(newName); 
+            setDisplayName(newName);
 
-/*  XXX              getPackage().updateTargetIdentifier(this, info.getName());
-                getEditor().changeName(info.getName(), newSourceFileName);
-                role.prepareFilesForRemoval(oldSourceFileName, getClassFile().getPath(), getContextFile().getPath());
-                name = info.getName(); */
-
-                myPkg.removeClass(this);
-                myPkg.addTarget(newTarget);
-
-//                newTarget.analyseDependencies();
-
-                return true;
-            }
+            return true;
         }
 
         return false;
     }
 
+    private void doPackageNameChange(String newName)
+    {
+        Project proj = getPackage().getProject();
+	Package dstPkg = proj.getPackage(newName);
+
+	if(dstPkg == null) {
+            DialogManager.showError(null, "package-name-invalid");
+        }
+        else {
+            if(DialogManager.askQuestion(null, "package-name-changed") == 0) {
+                switch(dstPkg.importFile(getSourceFile())) {
+		 default:
+		    prepareForRemoval();
+		    getPackage().removeTarget(this);
+                    close();
+                    return;
+                }
+	    }
+	}
+
+	// all non working paths lead here.. lets fix the package line
+	// up so it is back to what we expect
+
+	try {
+		enforcePackage(getPackage().getQualifiedName());
+		getEditor().reloadFile();
+	}
+	catch(IOException ioe) { }
+
+    }
 
     protected Class last_class = null;
     protected JPopupMenu menu = null;

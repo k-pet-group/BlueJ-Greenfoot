@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 591 2000-06-28 05:01:27Z ajp $
+ * @version $Id: Target.java 625 2000-07-05 10:39:53Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -205,6 +205,10 @@ public abstract class Target extends Vertex
         return identifierName;
     }
 
+    public void setIdentifierName(String newName)
+    {
+        identifierName = newName;
+    }
     /**
      * Return the current state of the target (one of S_NORMAL, S_INVALID,
      * S_COMPILING)
