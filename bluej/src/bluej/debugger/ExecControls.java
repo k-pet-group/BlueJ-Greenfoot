@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 853 2001-04-19 04:24:26Z ajp $
+ ** @version $Id: ExecControls.java 881 2001-05-07 03:53:36Z ajp $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -172,10 +172,10 @@ public class ExecControls extends JFrame
     {
         Component src = event.getComponent();
 
-        if(src == instanceList) {
+        if(src == instanceList && instanceList.getSelectedIndex() >= 0) {
             viewInstanceField(instanceList.getSelectedIndex());
         }
-        else if(src == localList) {
+        else if(src == localList && localList.getSelectedIndex() >= 0) {
             viewLocalVar(localList.getSelectedIndex());
         }
     }
@@ -297,9 +297,11 @@ public class ExecControls extends JFrame
         currentObject = selectedThread.getCurrentObject(frameNo);
         if(currentObject != null) {
             instanceList.setFixedCellWidth(-1);
-            localList.setFixedCellWidth(-1);
             instanceList.setListData(
                currentObject.getAllFields(false).toArray(new Object[0]));
+        }
+        if(selectedThread != null) {
+            localList.setFixedCellWidth(-1);
             localList.setListData(
              selectedThread.getLocalVariables(frameNo).toArray(new Object[0]));
         }
