@@ -1,0 +1,25 @@
+#BlueJ project file
+#Fri Aug 13 16:02:13 GMT+10:00 1999
+target1.height=50
+dependency1.to=Car
+dependency1.type=UsesDependency
+package.window.height=450
+dependency1.from=Demo
+target2.valid=true
+target1.y=50
+target1.x=60
+target2.height=50
+target1.valid=true
+target2.modifiers=0
+package.numTargets=2
+target2.width=80
+target1.type=ClassTarget
+package.window.width=512
+target1.name=Demo
+target1.width=80
+target2.type=ClassTarget
+package.numDependencies=1
+target2.name=Car
+target2.y=110
+target2.x=220
+target1.modifiers=0

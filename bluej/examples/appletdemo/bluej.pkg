@@ -1,10 +1,10 @@
 #BlueJ project file
-#Fri Jul 09 16:09:27 GMT+10:00 1999
+#Fri Aug 13 11:07:55 GMT+10:00 1999
 target1.height=50
 target1.numberAppletParameters=0
 package.window.height=450
-target1.y=30
-target1.x=60
+target1.y=40
+target1.x=50
 target1.valid=true
 package.numTargets=1
 target1.appletHeight=100
