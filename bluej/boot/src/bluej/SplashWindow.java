@@ -10,13 +10,14 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2439 2003-12-11 14:52:51Z fisker $
+ * @version $Id: SplashWindow.java 2444 2003-12-19 15:46:04Z fisker $
  */
 
-public class SplashWindow extends JWindow
+public class SplashWindow extends JFrame
 {
 	
 	private class BlueJLabel extends JLabel {
+		
 		BlueJLabel(ImageIcon iconImage){
 			super(iconImage);
 		}
@@ -34,6 +35,7 @@ public class SplashWindow extends JWindow
 
     public SplashWindow()
     {
+    	setUndecorated(true);
 //    	// must start with a forward slash or else Java converts the .
 //    	// to a /
     	URL iconURL = getClass().getResource("/bluej/splash.jpg");
