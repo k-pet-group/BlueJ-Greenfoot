@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2585 2004-06-10 13:27:46Z polle $
+ * @version $Id: Invoker.java 2612 2004-06-14 20:36:28Z mik $
  */
 
 public class Invoker extends Thread
@@ -90,6 +90,31 @@ public class Invoker extends Thread
 
     /**
      * Create an invoker for a free form statement or expression.
+     */
+    public Invoker(PkgMgrFrame pmf, String command, ResultWatcher watcher)
+    {
+        if(pmf.isEmptyFrame())
+            throw new IllegalArgumentException();
+
+        if(watcher == null)
+            throw new NullPointerException("Invoker: watcher == null");
+            
+        this.pmf = pmf;
+        this.pkg = pmf.getPackage();
+        this.watcher = watcher;
+        this.member = null;
+        this.shellName = getShellName();
+        this.objName = null;
+        this.instanceName = null;
+
+        constructing = false;
+        executionEvent = ExecutionEvent.createFreeForm(this.pkg);
+        doFreeFormInvocation(command, false);
+    }
+
+    /**
+     * Create an invoker for a free form statement or expression.
+     * TODO: can be removed when 'Evaluate expression' function is removed.
      */
     public Invoker(PkgMgrFrame pmf, FreeFormCallDialog callDialog, ResultWatcher watcher)
     {
@@ -204,8 +229,10 @@ public class Invoker extends Thread
         }
     }
 
-    /* Start a free form invocation. That is: Show the free form
+    /**
+     *  Start a free form invocation. That is: Show the free form
      * evaluation dialog, then sit back and wait for a callback.
+     * TODO: can be removed when 'Evaluate expression' function is removed.
      */
     private void doFreeForm(FreeFormCallDialog callDialog)
     {
@@ -404,8 +431,6 @@ public class Invoker extends Thread
         compileInvocationFile(shell);
     }
 
-//  BeanShell
-    //beanShellExecute(commandAsString);
     /**
      * Write a source file for a class (the 'shell file') to do the interactive 
      * invocation. A shell file has the following form:

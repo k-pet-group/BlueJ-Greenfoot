@@ -6,14 +6,14 @@ import bluej.testmgr.record.*;
 /**
  * Debugger interface implemented by classes interested in the result of an invocation
  *
- * @author  Michael Cahill
+ * @author  Michael Kšlling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 2544 2004-05-24 08:56:02Z polle $
+ * @version $Id: ResultWatcher.java 2612 2004-06-14 20:36:28Z mik $
  */
 public interface ResultWatcher
 {
 	/**
-	 * An invocation has completed - here is the result
+	 * An invocation has completed - here is the result.
 	 * If the invocation has a void result (note that is a void type), name == null.
 	 * It should be possible for result to be null and name to not be,
 	 * though no code currently creates this situation.

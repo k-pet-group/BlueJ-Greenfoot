@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.*;
 import javax.swing.plaf.basic.BasicArrowButton;
 
@@ -17,7 +18,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2611 2004-06-14 12:46:18Z mik $
+ * @version $Id: ObjectBench.java 2612 2004-06-14 20:36:28Z mik $
  */
 public class ObjectBench
 {
@@ -39,9 +40,12 @@ public class ObjectBench
      */
     public ObjectBench()
     {
-    	objectWrappers = new LinkedList();
+        objectWrappers = new LinkedList();
         containerPanel = new ContainerPanel(this);
         containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.X_AXIS));
+        containerPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
+                BorderFactory.createEmptyBorder(5,0,5,0)));
 
         // scroll left button
         leftArrowButton = new ObjectBenchArrowButton(SwingConstants.WEST);

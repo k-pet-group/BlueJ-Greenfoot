@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 
 import bluej.*;
 import bluej.debugger.Debugger;
@@ -18,6 +17,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.debugmgr.*;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.*;
+import bluej.debugmgr.texteval.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
 import bluej.graph.GraphElementController;
@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2611 2004-06-14 12:46:18Z mik $
+ * @version $Id: PkgMgrFrame.java 2612 2004-06-14 20:36:28Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -114,10 +114,13 @@ public class PkgMgrFrame extends JFrame
     private PackageEditor editor = null;
 
     private ObjectBench objbench;
+    private TextEvalArea textEvaluator;
+    private JPanel objectBenchPanel;
     private boolean showingTextEvaluator = false;
     
 	// lazy initialised dialogs
     private LibraryCallDialog libraryCallDialog = null;
+    // TODO: can be removed when 'Evaluate expression' function is removed.
     private FreeFormCallDialog freeFormCallDialog = null;
     private ProjectPrintDialog projectPrintDialog = null;
 
@@ -211,6 +214,7 @@ public class PkgMgrFrame extends JFrame
         frames.remove(frame);
 
         BlueJEvent.removeListener(frame);
+        PrefMgr.setFlag(PrefMgr.SHOW_TEXT_EVAL, frame.showingTextEvaluator);
 
         // frame should be garbage collected but we will speed it
         // on its way
@@ -1900,8 +1904,19 @@ public class PkgMgrFrame extends JFrame
 
         if(showingTextEvaluator == show)    // already showing the right thing?
             return;
-        
-        System.out.println("show text:" + show);
+
+        if(show) {
+            objectBenchPanel.remove(objbench.getComponent());
+            objectBenchPanel.add(textEvaluator, BorderLayout.CENTER);
+            textEvaluator.requestFocus();
+        }
+        else {
+            objectBenchPanel.remove(textEvaluator);
+            objectBenchPanel.add(objbench.getComponent(), BorderLayout.CENTER);
+            objbench.getComponent().requestFocus();
+        }
+        objectBenchPanel.validate();
+        pack();
         showingTextEvaluator = show;
     }
 
@@ -2080,9 +2095,6 @@ public class PkgMgrFrame extends JFrame
                 testPanel.setLayout(new BoxLayout(testPanel, BoxLayout.Y_AXIS));
 
                 testPanel.setBorder(BorderFactory.createEmptyBorder(5,5,14,5));
-//                testPanel.setBorder(BorderFactory.createTitledBorder(
-//                                        BorderFactory.createEmptyBorder(0,3,3,3),
-//                                        Config.getString("pkgmgr.test.label")));
 
 				action = RunTestsAction.getInstance(); 
                 runButton = createButton(action, false, false, 2, 4);
@@ -2134,42 +2146,49 @@ public class PkgMgrFrame extends JFrame
 
         // create the bottom object bench and status area
         
-        JPanel bottomPanel = new JPanel();
+        objectBenchPanel = new JPanel();
         {
-            bottomPanel.setLayout(new BorderLayout());
+            objectBenchPanel.setLayout(new BorderLayout());
 
             objbench = new ObjectBench();
 
             JComponent bench = objbench.getComponent();
-            bench.setBorder(BorderFactory.createCompoundBorder(
-                                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
-                                BorderFactory.createEmptyBorder(5,0,5,0)));
-            bottomPanel.add(bench, BorderLayout.CENTER);
-            statusbar = new JLabel(" ");
-            //statusbar.setAlignmentX(0.0f);
-            
-            testStatusMessage = new JLabel("");
+            textEvaluator = new TextEvalArea(this, PkgMgrFont);
 
+            if(PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
+                objectBenchPanel.add(textEvaluator, BorderLayout.CENTER);
+                showingTextEvaluator = true;
+            }
+            else {
+                objectBenchPanel.add(bench, BorderLayout.CENTER);
+                showingTextEvaluator = false;
+            }
+            statusbar = new JLabel(" ");
+            testStatusMessage = new JLabel(" ");
+
+            // bottom area for status labels and object bench buttons
             JPanel bottom = new JPanel(new BorderLayout());
             bottom.setBorder(BorderFactory.createEmptyBorder(2,0,4,6));
             bottom.add(statusbar, BorderLayout.CENTER);
             bottom.add(testStatusMessage, BorderLayout.WEST);
 
+            // area for 'Object Bench' / 'Text Eval' buttons
             JPanel buttons = new JPanel(new GridLayout(1,0));
             
             objBenchButton = createButton(ShowObjectBenchAction.getInstance(), false, true, 6, 2);
-            objBenchButton.setSelected(true);
+            objBenchButton.setSelected(!showingTextEvaluator);
             buttons.add(objBenchButton);
 
             textEvalButton = createButton(ShowTextEvalAction.getInstance(), false, true, 6, 2);
+            textEvalButton.setSelected(showingTextEvaluator);
             buttons.add(textEvalButton);
             
             bottom.add(buttons, BorderLayout.EAST);
-            bottomPanel.add(bottom, BorderLayout.SOUTH);
+            objectBenchPanel.add(bottom, BorderLayout.SOUTH);
         }
 
         mainPanel.add(toolPanel, BorderLayout.WEST);
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        mainPanel.add(objectBenchPanel, BorderLayout.SOUTH);
 
         classScroller = new JScrollPane();
         mainPanel.add(classScroller, BorderLayout.CENTER);

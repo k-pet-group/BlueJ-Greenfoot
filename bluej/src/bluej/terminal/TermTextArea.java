@@ -9,7 +9,7 @@ import bluej.utility.Debug;
  * A customised text area for use in the BlueJ text terminal.
  *
  * @author  Michael Kolling
- * @version $Id: TermTextArea.java 1776 2003-04-10 04:20:56Z ajp $
+ * @version $Id: TermTextArea.java 2612 2004-06-14 20:36:28Z mik $
  */
 public final class TermTextArea extends JTextArea
 {
@@ -38,7 +38,7 @@ public final class TermTextArea extends JTextArea
             int lines = getLineCount();
             if(lines > BUFFER_LINES) {
                 try {
-                    int linePos = getLineStartOffset(lines-40);
+                    int linePos = getLineStartOffset(lines-BUFFER_LINES);
                     replaceRange(null, 0, linePos);
                 }
                 catch(BadLocationException exc) {

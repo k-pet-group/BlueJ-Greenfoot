@@ -14,7 +14,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 2296 2003-11-06 16:57:14Z mik $
+ * @version $Id: PrefMgr.java 2612 2004-06-14 20:36:28Z mik $
  */
 public class PrefMgr
 {
@@ -26,6 +26,7 @@ public class PrefMgr
     public static final String MATCH_BRACKETS = "bluej.editor.matchBrackets";
     public static final String LINK_LIB = "doctool.linkToStandardLib";
     public static final String SHOW_TEST_TOOLS = "bluej.testing.showtools";
+    public static final String SHOW_TEXT_EVAL = "bluej.startWithTextEval";
     public static final String OPTIMISE_VM = "bluej.vm.optimize";
     
     public static final String USE_THEMES = "bluej.useTheme";
@@ -119,6 +120,8 @@ public class PrefMgr
         flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
         flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
         flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
+        flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
+        
         flags.put(OPTIMISE_VM, Config.getPropString(OPTIMISE_VM, "false"));
     }
 
