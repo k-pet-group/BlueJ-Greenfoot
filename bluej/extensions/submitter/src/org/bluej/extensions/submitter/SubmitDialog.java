@@ -51,7 +51,7 @@ public class SubmitDialog implements ActionListener
   private SubmitterProgressBar progressBar;
   private ResultDialog resultDialog;
   private TreeDialog   treeDialog;
-  private BPackage     curPkg;
+  private BProject     curProject;
   private Thread       backgroundThread;
   
   /**
@@ -87,7 +87,7 @@ public class SubmitDialog implements ActionListener
   /**
    * This gets called when someone whants to submit something
    */
-  public void submitThis (BPackage i_curPkg )
+  public void submitThis (BProject aProject )
     {
     mainFrame.pack();             // You need this, othervise it does not resize right, Damiano
     mainFrame.setVisible(true);   // In ANY case I MUST show something to the user
@@ -99,7 +99,7 @@ public class SubmitDialog implements ActionListener
       }
 
     // Only now I can start mesing up with the current status.
-    curPkg = i_curPkg;
+    curProject = aProject;
 
     // Need to clean up things from possible old run
     statusArea.setText("");
@@ -320,7 +320,7 @@ public class SubmitDialog implements ActionListener
     
     try 
       {
-      FileHandler fh = new FileHandler(stat.bluej, curPkg, stat.treeData);
+      FileHandler fh = new FileHandler(stat.bluej, curProject, stat.treeData);
       if ((files=fh.getFiles()) == null) 
         {
         statusWriteln ("sendFiles: NOTICE: no files to send");
@@ -346,7 +346,7 @@ public class SubmitDialog implements ActionListener
       String projNamePrefix = null;
       String tsProtocol = ts.getProtocol();
       if (tsProtocol.equals("ftp") || tsProtocol.equals("file") || jarName != null)
-          projNamePrefix = curPkg.getProject().getName();
+          projNamePrefix = curProject.getName();
 
       for (int index=0; index < files.length; index++) 
         {
@@ -496,16 +496,15 @@ public class SubmitDialog implements ActionListener
    * It should load it from a property file athat is in the current project directory, if any...
    * When called it WILL load the currently saved default scheme
    */
-  private void loadDefaultScheme(BPackage curPkg)
+  private void loadDefaultScheme()
     {
     // Ok, time to retrieve the selected scheme, but first let's set a nice default
     schemeSelectedSet ("");
 
-    BProject curProj = curPkg.getProject();
-    // FOr some misterious reason there is no project open, let's return the default
-    if (curProj == null) return;
+    // For some misterious reason there is no project open, let's return the default
+    if (curProject == null) return;
 
-    File projectDefsFile = new File(curProj.getDir(), PROPERTIES_FILENAME);
+    File projectDefsFile = new File(curProject.getDir(), PROPERTIES_FILENAME);
     // For some reason (maybe the file is not there, I cannot read it...
     if (!projectDefsFile.canRead()) return;
 
@@ -537,7 +536,7 @@ public class SubmitDialog implements ActionListener
    * This will write down what is the default scheme.
    * Of course the default is the one that is currently selected...
    */
-  private void saveDefaultScheme(BPackage curPkg)
+  private void saveDefaultScheme()
     {
     String curScheme = schemeSelectedGet();
     TreePath path = stat.treeData.getPathFromString(curScheme);
@@ -545,20 +544,15 @@ public class SubmitDialog implements ActionListener
     // Don't save invalid paths
     if (path == null) return;
 
-    BProject curProj = curPkg.getProject();
-    if (curProj == null) 
-      {
-      // For some misterious reason there is no project open
-      stat.aDbg.error(Stat.SVC_PROP, "setDefaultScheme: ERROR: No current project");
-      return;
-      }
+    // No need to get upset about it, no need to coredump either..
+    if (curProject == null) return;
 
     // Let me put what I need into the properties.
     Properties projProps = new Properties();
     projProps.setProperty(SELECTED_NODE_PROPERTY, curScheme);
 
     // Now let me try to open the file to write the properties on
-    File projectDefsFile = new File(curProj.getDir(), PROPERTIES_FILENAME);
+    File projectDefsFile = new File(curProject.getDir(), PROPERTIES_FILENAME);
 
     FileOutputStream oStream = null;
     try 
@@ -624,8 +618,8 @@ class TreeLoadThread extends Thread
   public void run ()
     {
     progressBar.setIndeterminate(true);
-    stat.treeData.loadTree(curPkg);
-    loadDefaultScheme(curPkg);
+    stat.treeData.loadTree(curProject);
+    loadDefaultScheme();
     statusWriteln("Loading Done");
     progressBar.setIndeterminate(false);    
     }
@@ -642,7 +636,7 @@ class SubmitThread extends Thread
   public void run ()
     {
     progressBar.setIndeterminate(true);
-    saveDefaultScheme(curPkg);
+    saveDefaultScheme();
     submitWork();
     progressBar.setIndeterminate(false);    
     }

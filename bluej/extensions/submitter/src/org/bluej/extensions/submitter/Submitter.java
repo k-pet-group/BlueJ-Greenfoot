@@ -14,7 +14,7 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1810 2003-04-10 10:38:42Z damiano $
+ * @version    $Id: Submitter.java 1850 2003-04-14 15:01:45Z damiano $
  */
 public class Submitter extends Extension implements MenuGenerator, BlueJExtensionEventListener
 {
@@ -181,8 +181,12 @@ public class Submitter extends Extension implements MenuGenerator, BlueJExtensio
       // If there is no current package open what am I dong here ?
       if (pkg == null) return;
 
-      // Try to submit this package
-      stat.submitDialog.submitThis ( pkg );
+      BProject aProject = pkg.getProject();
+      // Strange, but there is no need to core dump for this.
+      if ( aProject == null ) return;
+      
+      // Try to submit this project
+      stat.submitDialog.submitThis ( aProject );
       }
     }
 

@@ -52,7 +52,7 @@ public class TreeData
    * This will load the tree with the right content. This is not in the constructor since
    * we may want to be smart in the future and trow some nice exceptions :-)
    */
-  public void loadTree(BPackage curPkg)
+  public void loadTree(BProject curProject)
     {
     stat.aDbg.trace(Stat.SVC_PROP, "SubmitTree.loadTree: CALLED");
 
@@ -61,23 +61,13 @@ public class TreeData
     rootNode.removeAllChildren();
     treeModel.nodeStructureChanged(rootNode);
 
-    if ( curPkg == null ) return;
-        
     File systemConfFile = new File(stat.bluej.getSystemLibDir(), CONFIG_FILENAME);
     loadFile(rootNode,systemConfFile);
 
     File userConfFile = new File(stat.bluej.getUserConfigDir(),CONFIG_FILENAME);
     loadFile(rootNode,userConfFile);
 
-    BProject proj = curPkg.getProject();
-    if ( proj == null ) 
-      {
-      // This should really never happen...
-      stat.aDbg.error(Stat.SVC_PROP, "SubmitTree.loadTree: ERROR: proj==null");
-      return;
-      }
-
-    File projectConfFile = new File(proj.getDir(), CONFIG_FILENAME);
+    File projectConfFile = new File(curProject.getDir(), CONFIG_FILENAME);
     loadFile(rootNode,projectConfFile);
     }
 

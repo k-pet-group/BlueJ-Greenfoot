@@ -1,7 +1,6 @@
 package org.bluej.extensions.submitter;
 
-import bluej.extensions.BlueJ;
-import bluej.extensions.BPackage;
+import bluej.extensions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,25 +16,25 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * according to a given String
  * 
  * @author Clive Miller
- * @version $Id: FileHandler.java 1798 2003-04-10 09:31:09Z damiano $
+ * @version $Id: FileHandler.java 1850 2003-04-14 15:01:45Z damiano $
  */
 class FileHandler
 {
     private final BlueJ bj;
-    private final BPackage pkg;
+    private final BProject thisProject;
     private final TreeData sp;
     private final Collection essentials, include, exclude;
     private final File projectDir;
 
-    public FileHandler (BlueJ bj, BPackage pkg, TreeData sp) throws AbortOperationException
+    public FileHandler (BlueJ bj, BProject aProject, TreeData sp) throws AbortOperationException
     {
         this.bj = bj;
-        this.pkg = pkg;
+        thisProject = aProject;
         this.sp = sp;
         essentials = sp.getProps (".file.essential");
         include = sp.getProps (".file.include");
         exclude = sp.getProps (".file.exclude");
-        projectDir = pkg.getProject().getDir();
+        projectDir = aProject.getDir();
     }
 
     /**
@@ -43,7 +42,7 @@ class FileHandler
      */
     public File[] getFiles() throws AbortOperationException
     {
-        pkg.getProject().save();
+        thisProject.save();
         return (File[])wantedFiles().toArray (new File[0]);
     }
 
