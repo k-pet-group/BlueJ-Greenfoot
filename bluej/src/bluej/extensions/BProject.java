@@ -10,7 +10,7 @@ import java.util.ListIterator;
 /**
  * A wrapper for a Project open by BlueJ.
  *
- * @version $Id: BProject.java 1726 2003-03-24 13:33:06Z damiano $
+ * @version $Id: BProject.java 1797 2003-04-10 09:28:31Z damiano $
  */
 
 public class BProject
@@ -71,7 +71,7 @@ public class BProject
      * Return the current directory of this project. 
      * Can return null if project is invalid.
      */
-    public File getProjectDir()
+    public File getDir()
     {
         Project thisProject = Project.getProject(projectKey);
         if ( thisProject == null ) return null;
@@ -80,9 +80,9 @@ public class BProject
     }
     
     /**
-     * Requests BlueJ to save all open files of this project. 
+     * Requests to save all open files of this project. 
      */
-    public void saveProject()
+    public void save()
     {
         Project thisProject = Project.getProject(projectKey);
         if ( thisProject == null ) return;
@@ -96,7 +96,7 @@ public class BProject
     /**
      * Saves any open files, then closes all frames relating to this project.
      */
-    public void closeProject()
+    public void close()
     {
         Project thisProject = Project.getProject(projectKey);
         if ( thisProject == null ) return;
