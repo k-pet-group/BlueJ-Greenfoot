@@ -30,7 +30,9 @@ public class DialogManager
     {
 	String message = getMessage(msgID);
 	if(message != null)
-	    JOptionPane.showMessageDialog(parent, message);
+	    JOptionPane.showMessageDialog(parent, message,
+                                          Config.getString("dialogmgr.message"),
+					  JOptionPane.INFORMATION_MESSAGE);
     }
 
 
