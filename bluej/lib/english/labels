@@ -13,6 +13,14 @@ compiler.warningDialog.title=Compiler Warnings
 compiler.warningDialog.label=Warnings from last compilation 
 compiler.warningDialog.noWarnings=No warnings
 
+debugger.assert.assertThat=Assert that:
+debugger.assert.resultIs=result is
+debugger.assert.equalTo=equal to
+debugger.assert.sameAs=the same as
+debugger.assert.notSameAs=not the same as
+debugger.assert.notNull=not null
+debugger.assert.null=null
+
 debugger.inspector.title=BlueJ:  Inspector
 debugger.inspector.result.title=BlueJ:  Method Result
 debugger.inspector.staticListTitle=Static fields
