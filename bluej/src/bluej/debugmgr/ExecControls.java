@@ -23,7 +23,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2890 2004-08-18 04:32:58Z davmac $
+ * @version $Id: ExecControls.java 3011 2004-09-22 02:56:00Z davmac $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -91,6 +91,10 @@ public class ExecControls extends JFrame
                                             //  selected stack frame
     private int currentFrame = 0;		    // currently selected frame
     
+    // A flag to keep track of whether a stack frame selection was performed
+    // explicitly via the gui or as a result of a debugger event
+    private boolean autoSelectionEvent = false; 
+    
 
 	/**
 	 * Create a window to view and interact with a debug VM.
@@ -116,7 +120,7 @@ public class ExecControls extends JFrame
 	 */
 	public void showHide(boolean show)
 	{
-		setVisible(show);
+        setVisible(show);
 	}
 
 
@@ -309,7 +313,9 @@ public class ExecControls extends JFrame
         if(stack.size() > 0) {
             stackList.setListData(stack.toArray(new Object[0]));
 			// show details of top frame
+            autoSelectionEvent = true;
 			selectStackFrame(0);
+            autoSelectionEvent = false;
         }
     }
     
@@ -340,7 +346,9 @@ public class ExecControls extends JFrame
             setStackFrameDetails(index);
             selectedThread.setSelectedFrame(index);
                 
-            project.debuggerEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_SHOWSOURCE, selectedThread));
+            if (! autoSelectionEvent)
+                project.debuggerEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_SHOWSOURCE, selectedThread));
+            
             currentFrame = index;
         }
     }
