@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 69 1999-05-11 04:23:02Z bruce $
+ ** @version $Id: Config.java 75 1999-05-11 05:39:14Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -43,7 +43,6 @@ public class Config
     public static final char colon = File.pathSeparatorChar;
 
     public static final String syslibs_file = "syslibs.properties";
-    public static final String standardClasses = "classes.zip";
 
     public static String Version;
 
