@@ -1,4 +1,4 @@
-public interface ShowMessage
+ public interface ShowMessage
 {  /** Show a message in the browser status bar */
    public abstract void showStatus( String s );
 

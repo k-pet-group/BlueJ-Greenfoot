@@ -19,7 +19,6 @@
  **/
 
 import java.util.*;
-import bluej.runtime.Terminal;
 
 public class World
 {

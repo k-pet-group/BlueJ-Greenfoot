@@ -1,4 +1,4 @@
-import java.util.*;
+ import java.util.*;
 
 /** This is a small class that encapsulated the parsing of a HTML string,
     its methods allow the text and the tags to be extracted.

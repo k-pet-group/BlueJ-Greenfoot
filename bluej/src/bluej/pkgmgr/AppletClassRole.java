@@ -19,7 +19,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 168 1999-07-08 01:42:33Z bruce $
+ ** @version $Id: AppletClassRole.java 169 1999-07-08 02:02:13Z mik $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -108,7 +108,7 @@ public class AppletClassRole extends ClassRole
 				 boolean isAbstract, boolean isInterface)
     {
 	String template;
-	Debug.message("applet type = " + appletType);
+	//Debug.message("applet type = " + appletType);
 
 	if(appletType.equals("japplet"))
 	    template = "template.japplet";

@@ -492,7 +492,6 @@ public final class MoeActions
 	    boolean confirmed = pref.showDialog(ed);
 	    
 	    if(confirmed) {
-		Debug.message("size is: " + pref.getFontSize());
 		ed.setFontSize(pref.getFontSize());
 	    }
 	}

@@ -14,7 +14,6 @@
  **  around the fish are blocked, it cannot move and dies.
  **/
 
-import bluej.runtime.Terminal;
 import java.util.Random;
 
 public class Fish extends Creature

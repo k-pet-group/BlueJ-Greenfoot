@@ -14,7 +14,6 @@
  **  the routine "sharkStarvation"), they die of starvation.
  **/
 
-import bluej.runtime.Terminal;
 import java.util.Random;
 
 public class Shark extends Creature

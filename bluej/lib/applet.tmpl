@@ -1,20 +1,20 @@
 $PKGLINE
 /**
- ** Class $CLASSNAME - write a description of the class here
+ ** Applet $CLASSNAME - write a description of the class here
  ** 
  ** @author: 
  ** date: 
  **/
 
 import java.applet.Applet;
-import java.awt.Graphics;
+import java.awt.*;
 
 public class $CLASSNAME extends Applet
 {
     // instance variables - replace the example below with your own
     private int x;
 
-     /**
+    /**
      * Called by the browser or applet viewer to inform this Applet that it
      * has been loaded into the system. It is always called before the first 
      * time that the start method is called.
@@ -37,11 +37,34 @@ public class $CLASSNAME extends Applet
 
     }
 
+
+    /**
+     * This may be the most important method in your applet: Here, the 
+     * drawing of the applet gets done. "paint" gets called everytime the
+     * applet should be drawn on the screen. So put the code here that
+     * shows the applet.
+     *
+     * @param  g   the Graphics object for this applet
+     */
+    public void paint(Graphics g)
+    {
+        // simple text displayed on applet
+        g.setColor(Color.white);
+        g.fillRect(0, 0, 200, 100);
+        g.setColor(Color.black);
+        g.drawString("Sample Applet", 20, 20);
+        g.setColor(Color.blue);
+        g.drawString("created by BlueJ", 20, 40);
+    }
+
+
     /** 
      * Called by the browser or applet viewer to inform this Applet that
      * it should stop its execution. It is called when the Web page that
      * contains this Applet has been replaced by another page, and also
-     * just before the Applet is to be destroyed. 
+     * just before the Applet is to be destroyed. If you do not have any
+     * resources that you need to release (such as threads that you may
+     * want to stop) you can remove this method.
      */
     public void stop()
     {
@@ -49,10 +72,13 @@ public class $CLASSNAME extends Applet
         // is replaced by another page or before Applet is destroyed 
     }
 
+
     /**
      * Called by the browser or applet viewer to inform this Applet that it
      * is being reclaimed and that it should destroy any resources that it
      * has allocated. The stop method will always be called before destroy. 
+     * If you do not have any resources that you need to release you can 
+     * remove this method.
      */
     public void destroy()
     {
@@ -69,52 +95,32 @@ public class $CLASSNAME extends Applet
      */
     public String getAppletInfo()
     {
-        // provide information about the applet
-        return "Title:   \nAuthor:   \nA simple applet example description. ";
+        // replace this with your own info
+        return "Title: BlueJ Applet Demo\n" + 
+               "Author: Bruce Quig\n" +
+               "A simple applet that draws two strings.";
     }
 
 
     /**
-     * Returns parameter information about this Applet. 
-     * Returns information about the parameters than are understood by this Applet.
-     * An applet should override this method to return an array of Strings 
-     * describing these parameters. 
+     * Returns information about the parameters that are understood by this 
+     * Applet. You should return an array of Strings here to provide details
+     * about each of the parameters separately.
      * Each element of the array should be a set of three Strings containing 
      * the name, the type, and a description.
      *
-     * @return a String[] representation of parameter information about this Applet
+     * @return  a String[][] representation of parameter information about 
+     *          this Applet
      */
     public String[][] getParameterInfo()
     {
         // provide parameter information about the applet
         String paramInfo[][] = {
-                 {"firstParameter", "1-10", "description of first parameter"},
-                 {"secondParameter", "boolean", "description of second parameter"} };
+             {"firstParameter", "1-10", "description of first parameter"},
+             {"secondParameter", "boolean", "description of second parameter"}
+        };
         return paramInfo;
     }
 
 
-    /**
-     * Paint method for applet.
-     * 
-     * @param  g   the Graphics object for this applet
-     */
-    public void paint(Graphics g)
-    {
-        // simple text displayed on applet
-        g.drawString("Sample Applet", 20, 20);
-    }
-
-
-    /**
-     * An example of a method - replace this comment with your own
-     * 
-     * @param  y   a sample parameter for a method
-     * @return     the sum of x and y 
-     */
-    public int sampleMethod(int y)
-    {
-        // put your code here
-        return x + y;
-    }
 }
