@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
+import java.util.Iterator;
 
 import bluej.Config;
 import bluej.pkgmgr.dependency.Dependency;
@@ -94,21 +95,21 @@ public class SelectionController
                 if (! clickedElement.isSelected()) {
                     selection.selectOnly(clickedElement);
                 }
+            }
 
-                if(isDrawingDependency()) {
-                    if (clickedElement instanceof Target)
-                        rubberBand = new RubberBand(clickX, clickY, clickX, clickY);
+            if(isDrawingDependency()) {
+                if (clickedElement instanceof Target)
+                    rubberBand = new RubberBand(clickX, clickY, clickX, clickY);
+            }
+            else {
+                dragStartX = clickX;
+                dragStartY = clickY;
+
+                if(clickedElement.isHandle(clickX, clickY)) {
+                    resizing = true;
                 }
                 else {
-                    dragStartX = clickX;
-                    dragStartY = clickY;
-
-                    if(clickedElement.isHandle(clickX, clickY)) {
-                        resizing = true;
-                    }
-                    else {
-                        moving = true;                        
-                    }
+                    moving = true;                        
                 }
             }
         }
@@ -249,6 +250,11 @@ public class SelectionController
         // post context menu
         else if (evt.getKeyCode() == KeyEvent.VK_SPACE || evt.getKeyCode() == KeyEvent.VK_ENTER) {
             postMenu();
+        }
+
+        // 'A' (with any or no modifiers) selects all
+        else if (evt.getKeyCode() == KeyEvent.VK_A) {
+            selectAll();
         }
 
         // Escape removes selections
@@ -496,7 +502,18 @@ public class SelectionController
         selection.clear();
     }
 
-   
+
+    /** 
+     * Select all graph vertices.
+     */
+    private void selectAll()
+    {
+        for(Iterator i = graph.getVertices(); i.hasNext(); ) {
+            selection.add((SelectableGraphElement) i.next());
+        }
+    }
+    
+    
     /**
      * Clear the current selection.
      */
