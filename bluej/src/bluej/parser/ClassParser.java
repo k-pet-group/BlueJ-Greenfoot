@@ -4,10 +4,14 @@
 
 import antlr.TokenBuffer;
 import antlr.TokenStreamException;
+import antlr.TokenStreamIOException;
+import antlr.ANTLRException;
+import antlr.LLkParser;
 import antlr.Token;
 import antlr.TokenStream;
 import antlr.RecognitionException;
 import antlr.NoViableAltException;
+import antlr.MismatchedTokenException;
 import antlr.SemanticException;
 import antlr.ParserSharedInputState;
 import antlr.collections.impl.BitSet;
@@ -761,7 +765,7 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			ex = LT(1);
 			match(LITERAL_extends);
-			superClass=classOrInterfaceType();
+			superClass=classOrInterfaceType(false);
 			if ( inputState.guessing==0 ) {
 				
 				extendsReplace = new Selection((JavaToken)ex);
@@ -1022,7 +1026,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		t=null;
 		
-		t=classOrInterfaceType();
+		t=classOrInterfaceType(true);
 		{
 		_loop23:
 		do {
@@ -1093,20 +1097,34 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final JavaToken  classOrInterfaceType() throws RecognitionException, TokenStreamException {
+	public final JavaToken  classOrInterfaceType(
+		boolean includeTypeArgs
+	) throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
 		Token  id1 = null;
 		Token  id2 = null;
-		t=null;
+		
+			t=null;
+		JavaToken typeArg = null;
+		
 		
 		id1 = LT(1);
 		match(IDENT);
+		if ( inputState.guessing==0 ) {
+			t=(JavaToken)id1;
+		}
 		{
 		switch ( LA(1)) {
 		case LT:
 		{
-			typeArguments();
+			typeArg=typeArguments();
+			if ( inputState.guessing==0 ) {
+				
+					        	if(includeTypeArgs)
+					    	    t.setText(t.getText() + typeArg.getText());	
+					
+			}
 			break;
 		}
 		case SEMI:
@@ -1165,9 +1183,6 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		}
 		}
-		if ( inputState.guessing==0 ) {
-			t=(JavaToken)id1;
-		}
 		{
 		_loop28:
 		do {
@@ -1175,11 +1190,20 @@ public ClassParser(ParserSharedInputState state) {
 				match(DOT);
 				id2 = LT(1);
 				match(IDENT);
+				if ( inputState.guessing==0 ) {
+					t.setText(t.getText() + "." + id2.getText());
+				}
 				{
 				switch ( LA(1)) {
 				case LT:
 				{
-					typeArguments();
+					typeArg=typeArguments();
+					if ( inputState.guessing==0 ) {
+						
+							            	if(includeTypeArgs)
+							    	        t.setText(t.getText() + typeArg.getText());
+							    	
+					}
 					break;
 				}
 				case SEMI:
@@ -1238,9 +1262,6 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				}
 				}
-				if ( inputState.guessing==0 ) {
-					t.setText(t.getText() + "." + id2.getText());
-				}
 			}
 			else {
 				break _loop28;
@@ -1251,24 +1272,45 @@ public ClassParser(ParserSharedInputState state) {
 		return t;
 	}
 	
-	public final void typeArguments() throws RecognitionException, TokenStreamException {
+	public final JavaToken  typeArguments() throws RecognitionException, TokenStreamException {
+		JavaToken t;
 		
-		int currentLtLevel = 0;
+		Token  lt = null;
+		Token  co = null;
+		t = null;
+			JavaToken st = null;
+			JavaToken st1 = null;
+			JavaToken te = null;
+			int currentLtLevel = 0;
+		
 		
 		if ( inputState.guessing==0 ) {
 			currentLtLevel = ltCounter;
 		}
+		lt = LT(1);
 		match(LT);
 		if ( inputState.guessing==0 ) {
-			ltCounter++;
+			ltCounter++;t = (JavaToken)lt;
+			
 		}
-		singleTypeArgument();
+		st=singleTypeArgument();
+		if ( inputState.guessing==0 ) {
+			
+				t.setText(t.getText() + ((JavaToken)st).getText());
+			
+		}
 		{
 		_loop31:
 		do {
 			if ((LA(1)==COMMA) && (_tokenSet_8.member(LA(2)))) {
+				co = LT(1);
 				match(COMMA);
-				singleTypeArgument();
+				st1=singleTypeArgument();
+				if ( inputState.guessing==0 ) {
+					
+					t.setText(t.getText() + ((JavaToken)co).getText() + ((JavaToken)st1).getText());
+					
+				}
 			}
 			else {
 				break _loop31;
@@ -1278,7 +1320,12 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		{
 		if (((LA(1) >= GT && LA(1) <= BSR)) && (_tokenSet_9.member(LA(2)))) {
-			typeArgumentsEnd();
+			te=typeArgumentsEnd();
+			if ( inputState.guessing==0 ) {
+				
+				t.setText(t.getText() + ((JavaToken)te).getText());
+				
+			}
 		}
 		else if ((_tokenSet_9.member(LA(1))) && (_tokenSet_10.member(LA(2)))) {
 		}
@@ -1289,16 +1336,32 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		if (!((currentLtLevel != 0) || ltCounter == currentLtLevel))
 		  throw new SemanticException("(currentLtLevel != 0) || ltCounter == currentLtLevel");
+		return t;
 	}
 	
-	public final void singleTypeArgument() throws RecognitionException, TokenStreamException {
+	public final JavaToken  singleTypeArgument() throws RecognitionException, TokenStreamException {
+		JavaToken t;
+		
+		Token  qu = null;
+		Token  id1 = null;
+		Token  id2 = null;
+		Token  qu1 = null;
+		t=null;
+		JavaToken t1 = null;
+		JavaToken t2 = null;
+		JavaToken t3 = null;
+		JavaToken t4 = null;
+		
 		
 		
 		{
 		switch ( LA(1)) {
 		case IDENT:
 		{
-			classTypeSpec();
+			t3=classTypeSpec();
+			if ( inputState.guessing==0 ) {
+				t = t3;
+			}
 			break;
 		}
 		case LITERAL_void:
@@ -1311,12 +1374,19 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_long:
 		case LITERAL_double:
 		{
-			builtInTypeSpec();
+			t4=builtInTypeSpec();
+			if ( inputState.guessing==0 ) {
+				t = t4;
+			}
 			break;
 		}
 		case QUESTION:
 		{
+			qu = LT(1);
 			match(QUESTION);
+			if ( inputState.guessing==0 ) {
+				if(qu != null) t = (JavaToken)qu;
+			}
 			break;
 		}
 		default:
@@ -1331,11 +1401,13 @@ public ClassParser(ParserSharedInputState state) {
 			switch ( LA(1)) {
 			case LITERAL_extends:
 			{
+				id1 = LT(1);
 				match(LITERAL_extends);
 				break;
 			}
 			case LITERAL_super:
 			{
+				id2 = LT(1);
 				match(LITERAL_super);
 				break;
 			}
@@ -1345,11 +1417,22 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			}
 			}
+			if ( inputState.guessing==0 ) {
+				
+				if(id1 != null) 
+				t.setText(t.getText() + " " + ((JavaToken)id1).getText());
+				else if(id2 != null) 
+				t.setText(t.getText() + " " + ((JavaToken)id2).getText());
+				
+			}
 			{
 			switch ( LA(1)) {
 			case IDENT:
 			{
-				classTypeSpec();
+				t1=classTypeSpec();
+				if ( inputState.guessing==0 ) {
+					t.setText(t.getText() + " " + t1.getText());
+				}
 				break;
 			}
 			case LITERAL_void:
@@ -1362,12 +1445,19 @@ public ClassParser(ParserSharedInputState state) {
 			case LITERAL_long:
 			case LITERAL_double:
 			{
-				builtInTypeSpec();
+				t2=builtInTypeSpec();
+				if ( inputState.guessing==0 ) {
+					t.setText(t.getText() + " " + t2.getText());
+				}
 				break;
 			}
 			case QUESTION:
 			{
+				qu1 = LT(1);
 				match(QUESTION);
+				if ( inputState.guessing==0 ) {
+					t.setText(t.getText() + ((JavaToken)qu1).getText());
+				}
 				break;
 			}
 			default:
@@ -1384,6 +1474,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		
 		}
+		return t;
 	}
 	
 	protected final JavaToken  typeArgumentsEnd() throws RecognitionException, TokenStreamException {
@@ -1542,7 +1633,7 @@ public ClassParser(ParserSharedInputState state) {
 		switch ( LA(1)) {
 		case IDENT:
 		{
-			t=classOrInterfaceType();
+			t=classOrInterfaceType(false);
 			break;
 		}
 		case LITERAL_void:
@@ -1762,7 +1853,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		im = LT(1);
 		match(LITERAL_implements);
-		id=classOrInterfaceType();
+		id=classOrInterfaceType(false);
 		if ( inputState.guessing==0 ) {
 			
 			implementsInsert = selectionAfterToken((JavaToken)id);
@@ -1778,7 +1869,7 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==COMMA)) {
 				co = LT(1);
 				match(COMMA);
-				id=classOrInterfaceType();
+				id=classOrInterfaceType(false);
 				if ( inputState.guessing==0 ) {
 					
 					implementsInsert = selectionAfterToken((JavaToken)id);
@@ -1866,7 +1957,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		ex = LT(1);
 		match(LITERAL_extends);
-		id=classOrInterfaceType();
+		id=classOrInterfaceType(false);
 		if ( inputState.guessing==0 ) {
 			
 			extendsInsert = selectionAfterToken((JavaToken)id);
@@ -1882,7 +1973,7 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==COMMA)) {
 				co = LT(1);
 				match(COMMA);
-				id=classOrInterfaceType();
+				id=classOrInterfaceType(false);
 				if ( inputState.guessing==0 ) {
 					
 					extendsInsert = selectionAfterToken((JavaToken)id);
@@ -2069,7 +2160,7 @@ public ClassParser(ParserSharedInputState state) {
 		if ((LA(1)==LITERAL_extends) && (LA(2)==IDENT)) {
 			ex = LT(1);
 			match(LITERAL_extends);
-			id=classOrInterfaceType();
+			id=classOrInterfaceType(false);
 			if ( inputState.guessing==0 ) {
 				
 					paramInsert.setText(paramInsert.getText() + " " + ex.getText());
@@ -2083,7 +2174,7 @@ public ClassParser(ParserSharedInputState state) {
 				if ((LA(1)==BAND)) {
 					band = LT(1);
 					match(BAND);
-					id=classOrInterfaceType();
+					id=classOrInterfaceType(false);
 					if ( inputState.guessing==0 ) {
 						
 							paramInsert.setText(paramInsert.getText() + " " + band.getText());

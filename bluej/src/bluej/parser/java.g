@@ -407,37 +407,69 @@ arraySpecOpt:
 // - generic type arguments after
 classTypeSpec returns [JavaToken t]
         {t=null;}
-        : t=classOrInterfaceType (LBRACK RBRACK
+        : t=classOrInterfaceType[true] (LBRACK RBRACK
 	{
              if(t != null)
                    t.setText(t.getText() + "[]");
 	} )*
 	;
 
-classOrInterfaceType returns [JavaToken t]
-     {t=null;}
-	:   id1:IDENT (typeArguments)? {t=(JavaToken)id1;}
-		//System.out.println("t.getText() = " + t.getText());}
+classOrInterfaceType[boolean includeTypeArgs] returns [JavaToken t]
+     {
+     	t=null;
+        JavaToken typeArg = null;
+     }
+	:   id1:IDENT {t=(JavaToken)id1;}
+	    (typeArg = typeArguments
+	        {
+	        	if(includeTypeArgs)
+	    	    t.setText(t.getText() + typeArg.getText());	
+	        }
+	    
+	    )? 
         (options{greedy=true;}: // match as many as possible
             DOT
-            id2:IDENT (typeArguments)? {t.setText(t.getText() + "." + id2.getText());}
+            id2:IDENT {t.setText(t.getText() + "." + id2.getText());}
+            (typeArg = typeArguments
+	            {
+	            	if(includeTypeArgs)
+	    	        t.setText(t.getText() + typeArg.getText());
+	    	    }
+	        )?  
         )*
     ;
 
-typeArguments
-{int currentLtLevel = 0;}
+
+
+typeArguments returns [JavaToken t]
+    {   t = null;
+    	JavaToken st = null;
+    	JavaToken st1 = null;
+    	JavaToken te = null;
+    	int currentLtLevel = 0;
+    }
     :
         {currentLtLevel = ltCounter;}
-        LT {ltCounter++;}
-        singleTypeArgument
+        lt:LT {ltCounter++;t = (JavaToken)lt;
+        }
+        st=singleTypeArgument
+        {
+        	t.setText(t.getText() + ((JavaToken)st).getText());
+        }
         (options{greedy=true;}: // match as many as possible
-            COMMA singleTypeArgument
+            co:COMMA st1=singleTypeArgument
+            {
+                t.setText(t.getText() + ((JavaToken)co).getText() + ((JavaToken)st1).getText());
+            }
         )*
         
         (   // turn warning off since Antlr generates the right code,
             // plus we have our semantic predicate below
             options{generateAmbigWarnings=false;}:
-            typeArgumentsEnd
+            te=typeArgumentsEnd
+            {
+                t.setText(t.getText() + ((JavaToken)te).getText());
+            }
         )?
         
         // make sure we have gobbled up enough '>' characters
@@ -445,85 +477,38 @@ typeArguments
         {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
     ;
 
-singleTypeArgument:
+singleTypeArgument returns [JavaToken t]
+    {t=null;
+     JavaToken t1 = null;
+     JavaToken t2 = null;
+     JavaToken t3 = null;
+     JavaToken t4 = null;
+     
+    }
+    :
         (
-            classTypeSpec | builtInTypeSpec | QUESTION
+            t3=classTypeSpec {t = t3;}
+            | t4=builtInTypeSpec {t = t4;}
+            | qu:QUESTION {if(qu != null) t = (JavaToken)qu;}          
         )
         
         (   // I'm pretty sure Antlr generates the right thing here:
             options{generateAmbigWarnings=false;}:
-            ("extends"|"super") (classTypeSpec | builtInTypeSpec | QUESTION)
+            (id1:"extends"|id2:"super")
+                {
+                    if(id1 != null) 
+                        t.setText(t.getText() + " " + ((JavaToken)id1).getText());
+                    else if(id2 != null) 
+                        t.setText(t.getText() + " " + ((JavaToken)id2).getText());
+                }
+             
+            
+            ( t1=classTypeSpec {t.setText(t.getText() + " " + t1.getText());}
+              | t2=builtInTypeSpec {t.setText(t.getText() + " " + t2.getText());}
+              | qu1:QUESTION {t.setText(t.getText() + ((JavaToken)qu1).getText());}
+            )
         )?
     ;
-    
-// this was modified to return information for parser which may not be needed
-// will comment out until I make sure it is not needed
-//typeArguments returns [JavaToken t]
-//    {   t = null;
-//    	JavaToken st = null;
-//    	JavaToken st1 = null;
-//    	JavaToken te = null;
-//    	int currentLtLevel = 0;
-//    }
-//    :
-//        {currentLtLevel = ltCounter;}
-//        lt:LT {ltCounter++;t = (JavaToken)lt;
-//        }
-//        st=singleTypeArgument
-//        {
-//        	t.setText(t.getText() + ((JavaToken)st).getText());
-//        }
-//        (options{greedy=true;}: // match as many as possible
-//            co:COMMA st1=singleTypeArgument
-//            {
-//                t.setText(t.getText() + ((JavaToken)co).getText() + ((JavaToken)st1).getText());
-//            }
-//        )*
-//        
-//        (   // turn warning off since Antlr generates the right code,
-//            // plus we have our semantic predicate below
-//            options{generateAmbigWarnings=false;}:
-//            te=typeArgumentsEnd
-//            {
-//                t.setText(t.getText() + ((JavaToken)te).getText());
-//            }
-//        )?
-//        
-//        // make sure we have gobbled up enough '>' characters
-//        // if we are at the "top level" of nested typeArgument productions
-//        {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
-//    ;
-//
-//singleTypeArgument returns [JavaToken t]
-//    {t=null;
-//     JavaToken t1 = null;
-//    }
-//    :
-//        (
-//            t=classTypeSpec | t=builtInTypeSpec | qu:QUESTION {t = (JavaToken)qu;}          
-//        )
-//        
-//        (   // I'm pretty sure Antlr generates the right thing here:
-//            options{generateAmbigWarnings=false;}:
-//            (id1:"extends"|id2:"super"
-//                {
-//                    if(id1 != null) 
-//                        t.setText(t.getText() + ((JavaToken)id1).getText());
-//                    else if(id2 != null) 
-//                        t.setText(t.getText() + ((JavaToken)id2).getText());
-//                }
-//            ) 
-//            
-//            (t1=classTypeSpec | t1=builtInTypeSpec | qu1:QUESTION
-//                {
-//                	if(t1 != null) 
-//                        t.setText(t.getText() + t1.getText());
-//                    else if(qu1 != null) 
-//                        t.setText(t.getText() + ((JavaToken)qu1).getText());
-//                }
-//            )
-//        )?
-//    ;
 
 // this gobbles up *some* amount of '>' characters, and counts how many
 // it gobbled.
@@ -550,7 +535,7 @@ builtInTypeSpec returns [JavaToken t]
 //   a primitive (builtin) type
 type returns [JavaToken t]
     {t=null;}
-    :   t=classOrInterfaceType
+    :   t=classOrInterfaceType[false]
     |   t=builtInType
     ;
 
@@ -662,7 +647,9 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
                     
     }
     : "class" id:IDENT    // aha! a class!
-    (typeParamsInsert = typeParameters)?
+    (typeParamsInsert = typeParameters
+    	//TODO BQ need to allow for typeparams when setting extends insert token below
+    )?
         {
             // the place which we would want to insert an "extends" is at the
             // character just after the classname identifier
@@ -674,7 +661,7 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
 
     // it might have a superclass...
     (
-     ex:"extends" superClass=classOrInterfaceType
+     ex:"extends" superClass=classOrInterfaceType[false]
         {
             extendsReplace = new Selection((JavaToken)ex);
             superReplace = new Selection(superClass);
@@ -849,13 +836,13 @@ typeParameter returns [JavaToken paramInsert]
         }
         (   // I'm pretty sure Antlr generates the right thing here:
             options{generateAmbigWarnings=false;}:
-            ex:"extends" id=classOrInterfaceType 
+            ex:"extends" id=classOrInterfaceType[false] 
             { 
             	paramInsert.setText(paramInsert.getText() + " " + ex.getText());
             	paramInsert.setText(paramInsert.getText() + " " + id.getText());
             	Selection s = new Selection((JavaToken)paramInsert);
             }
-            (band:BAND id=classOrInterfaceType 
+            (band:BAND id=classOrInterfaceType[false] 
             { 
             	paramInsert.setText(paramInsert.getText() + " " + band.getText());
             	paramInsert.setText(paramInsert.getText() + " " + id.getText());
@@ -933,7 +920,7 @@ interfaceExtends[JavaVector interfaces, Vector interfaceSelections] returns [Sel
     { JavaToken id;
       extendsInsert = null;
     }
-    : ex:"extends" id=classOrInterfaceType
+    : ex:"extends" id=classOrInterfaceType[false]
        {
           extendsInsert = selectionAfterToken((JavaToken)id);
 
@@ -941,7 +928,7 @@ interfaceExtends[JavaVector interfaces, Vector interfaceSelections] returns [Sel
     	  interfaces.addElement(dummyClass(id));
     	  interfaceSelections.addElement(new Selection((JavaToken)id));
        }
-        ( co:COMMA id=classOrInterfaceType
+        ( co:COMMA id=classOrInterfaceType[false]
         {
           extendsInsert = selectionAfterToken((JavaToken)id);
 
@@ -963,7 +950,7 @@ implementsClause[JavaVector interfaces, Vector interfaceSelections] returns [Sel
     { JavaToken id;
       implementsInsert = null;
     }
-    : im:"implements" id=classOrInterfaceType
+    : im:"implements" id=classOrInterfaceType[false]
         {
           implementsInsert = selectionAfterToken((JavaToken)id);
 
@@ -971,7 +958,7 @@ implementsClause[JavaVector interfaces, Vector interfaceSelections] returns [Sel
           interfaces.addElement(dummyClass(id));
     	  interfaceSelections.addElement(new Selection((JavaToken)id));
         }
-    ( co:COMMA id=classOrInterfaceType
+    ( co:COMMA id=classOrInterfaceType[false]
         {
           implementsInsert = selectionAfterToken((JavaToken)id);
 
