@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 2887 2004-08-17 15:18:28Z mik $
+ * @version $Id: FileUtility.java 2891 2004-08-18 08:29:05Z mik $
  */
 public class FileUtility
 {
@@ -273,9 +273,7 @@ public class FileUtility
     public static final int SRC_NOT_DIRECTORY = 2;
     public static final int COPY_ERROR = 3;
 
-    public static int copyDirectory(String source, String dest,
-                                    boolean excludeBlueJ,
-                                    boolean excludeSource)
+    public static int copyDirectory(String source, String dest)
     {
         File srcFile = new File(source);
         File destFile = new File(dest);
@@ -294,8 +292,7 @@ public class FileUtility
             String srcName = source + File.separator + dir[i];
             File file = new File(srcName);
             if(file.isDirectory()) {
-                if(copyDirectory(srcName, dest + File.separator + dir[i],
-                                 excludeBlueJ, excludeSource) != NO_ERROR)
+                if(copyDirectory(srcName, dest + File.separator + dir[i]) != NO_ERROR)
                     return COPY_ERROR;
             }
             else {

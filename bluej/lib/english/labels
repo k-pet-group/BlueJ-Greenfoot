@@ -64,33 +64,6 @@ debugger.jdiDebugger.noLineNumberMsg=This class has been compiled without line n
 debugger.jdiDebugger.noCodeMsg=Cannot set breakpoint: no code in this line
 debugger.jdiDebugger.internalErrorMsg=There was an internal error while attempting to\nset this breakpoint
 
-#library browser configuration
-browser.title=BlueJ:  Library Browser
-browser.version=0.1
-browser.togglemessagebox.toggle.text=don't display this message again
-
-browser.librarychooser.loading.status=Loading libraries...
-browser.librarychooser.loaded.status=Libraries loaded.
-browser.librarychooser.openingarchive.status=Opening archive library
-browser.librarychooser.config.user=userlibs.properties
-
-browser.classchooser.classmenu.open=Open
-browser.classchooser.classmenu.use=Use...
-browser.classchooser.packagemenu.open=Open
-browser.classchooser.packagemenu.use=Use...
-
-browser.usepackage.dialog.text=Select destination package and click Ok
-
-browser.missingclass.text=The browser cannot locate the class $
-
-#library browser menus
-browser.menu.library=Library
-browser.menu.library.properties=Properties...
-browser.menu.library.addlibrary=Add...
-browser.menu.library.addlibrary.title=Add Library
-browser.menu.library.refresh=Refresh
-browser.menu.library.close=Close
-
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Libraries
 classmgr.userlibraries=User Libraries
@@ -379,8 +352,8 @@ callLibraryDialog.classNotFound2=(Check the class name and press Enter again.)
 pkgmgr.export.title=BlueJ:  Create Jar File
 pkgmgr.export.helpLine1=Create a single Java archive (jar) file containing
 pkgmgr.export.helpLine2=the project. Executable if main class is specified.
-pkgmgr.export.classLabel=main class:
-pkgmgr.export.sourceLabel=include source
+pkgmgr.export.classLabel=Main class
+pkgmgr.export.sourceLabel=Include source
 pkgmgr.export.noClassText=none (cannot be executed)
 pkgmgr.export.specifyJar=Specify name for jar file
 pkgmgr.export.createJarText=Create
@@ -522,7 +495,7 @@ menu.package.close=Close@W
 menu.package.save=Save@S
 menu.package.saveAs=S_ave As...
 menu.package.import=_Import...
-menu.package.export=_Export...
+menu.package.export=_Create Jar File...
 menu.package.pageSetup=Page Setup...@^P
 menu.package.print=Print...@P
 menu.package.quit=_Quit@Q
