@@ -1,4 +1,4 @@
-// $ANTLR 2.7.2: java.g -> JavaTokenTypes.txt$
+// $ANTLR 2.7.4: java.g -> JavaTokenTypes.txt$
 Java    // output token vocab name
 BLOCK=4
 MODIFIERS=5
@@ -43,24 +43,24 @@ CTOR_CALL=43
 LITERAL_package="package"=44
 SEMI=45
 LITERAL_import="import"=46
-LBRACK=47
-RBRACK=48
-LITERAL_void="void"=49
-LITERAL_boolean="boolean"=50
-LITERAL_byte="byte"=51
-LITERAL_char="char"=52
-LITERAL_short="short"=53
-LITERAL_int="int"=54
-LITERAL_float="float"=55
-LITERAL_long="long"=56
-LITERAL_double="double"=57
-IDENT=58
-DOT=59
-STAR=60
-LITERAL_private="private"=61
-LITERAL_public="public"=62
-LITERAL_protected="protected"=63
-LITERAL_static="static"=64
+LITERAL_static="static"=47
+LBRACK=48
+RBRACK=49
+LITERAL_void="void"=50
+LITERAL_boolean="boolean"=51
+LITERAL_byte="byte"=52
+LITERAL_char="char"=53
+LITERAL_short="short"=54
+LITERAL_int="int"=55
+LITERAL_float="float"=56
+LITERAL_long="long"=57
+LITERAL_double="double"=58
+IDENT=59
+DOT=60
+STAR=61
+LITERAL_private="private"=62
+LITERAL_public="public"=63
+LITERAL_protected="protected"=64
 LITERAL_transient="transient"=65
 LITERAL_native="native"=66
 LITERAL_threadsafe="threadsafe"=67
