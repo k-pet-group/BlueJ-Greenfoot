@@ -21,10 +21,13 @@ import bluej.utility.Debug;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 345 2000-01-12 03:52:49Z ajp $
+ * @version $Id: PrefMgr.java 352 2000-01-12 05:53:41Z ajp $
  */
 public class PrefMgr
 {
+    private static String hilightingPropertyName = "bluej.syntaxHilighting";
+    private static String editorFontPropertyName = "bluej.fontsize.editor";
+
     private static int fontsize;
     private static int editFontsize;
     private static int printFontsize;
@@ -42,20 +45,19 @@ public class PrefMgr
     private static int editorFontSize;
     private static Font editorStandardFont, editorStandoutFont;
 
+    // syntax hilighting
+    private static boolean isSyntaxHilighting;
+
     private static PrefMgr prefmgr = new PrefMgr();
 
 	/**
 	 */
     private PrefMgr()
     {
-        setEditorFontSize(Config.getPropInteger("bluej.fontsize.editor", 12));
+        setEditorFontSize(Config.getPropInteger(editorFontPropertyName, 12));
 
-/*        fontsize = Integer.parseInt(Config.getProperty("bluej.fontsize","12"));
-
-        printFontsize = Integer.parseInt(Config.getProperty("bluej.fontsize.printText","10"));
-        printTitleFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printTitle","14"));
-        printInfoFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printInfo","10")); */
-
+        isSyntaxHilighting = Boolean.valueOf(
+            Config.getPropString(hilightingPropertyName, "true")).booleanValue();
     }
 
     public static void initialise()
@@ -81,7 +83,6 @@ public class PrefMgr
     public static Font getStandoutMenuFont()
     {
         return italicMenuFont;
-
     }
 
     public static Font getStandardEditorFont()
@@ -89,6 +90,21 @@ public class PrefMgr
         return editorStandardFont;
     }
 
+    public static boolean useSyntaxHilighting()
+    {
+        return isSyntaxHilighting;
+    }
+
+    /**
+     * The following methods are protected and should only be accessed by the
+     * code which implements the various preferneces dialog panels
+     */
+
+    /**
+     * Set the editor font size preference to a particular point size
+     *
+     * @param size  the size of the font
+     */
     protected static void setEditorFontSize(int size)
     {
         if (size > 0 && size != editorFontSize) {
@@ -99,19 +115,39 @@ public class PrefMgr
             // users settings (thereby hopefully keeping the user preferences
             // file to a minimum size)
 
-            if (Config.getDefaultPropInteger("bluej.fontsize.editor", -1) == size)
-                Config.removeProperty("bluej.fontsize.editor");
+            if (Config.getDefaultPropInteger(editorFontPropertyName, -1) == size)
+                Config.removeProperty(editorFontPropertyName);
             else
-                Config.putPropInteger("bluej.fontsize.editor", size);
+                Config.putPropInteger(editorFontPropertyName, size);
 
             editorStandardFont = new Font("Monospaced", Font.PLAIN, size);
             editorStandoutFont = new Font("Monospaced", Font.BOLD, size);
         }
     }
 
+    /**
+     * Return the editor font size as an integer size
+     * (use getStandardEditorFont() if access to the actual font is required)
+     */
     protected static int getEditorFontSize()
     {
         return editorFontSize;
     }
 
+    /**
+     * Set users preference of whether to use syntax hilighting or not
+     *
+     * @param enabled   true if syntax hilighting should be used
+     */
+    protected static void setSyntaxHilighting(boolean enabled)
+    {
+        String hs = Config.getDefaultPropString(hilightingPropertyName,
+                                                "true");
+
+        if (Boolean.valueOf(hs).booleanValue() == enabled)
+            Config.removeProperty(hilightingPropertyName);
+        else
+            Config.putPropString(hilightingPropertyName,
+                                    new Boolean(enabled).toString());
+    }
 }

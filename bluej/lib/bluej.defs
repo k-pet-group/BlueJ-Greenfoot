@@ -93,14 +93,16 @@ bluej.compiler.type=internal
 bluej.fontsize=12
 #bluej.fontsize=10
 
-# fontsize for the editor (DO NOT CHANGE: changing edit font size currently
-# does not work)
+# fontsize for the editor
 bluej.fontsize.editor=12
 
 # fonts for printing
 bluej.fontsize.printText=10
 bluej.fontsize.printTitle=14
 bluej.fontsize.printInfo=10
+
+# should we syntax hilight
+bluej.syntaxHilighting=true
 
 ## debugging: when on, debug output goes to console; when off, to log file
 debug=on

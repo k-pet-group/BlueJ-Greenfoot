@@ -19,7 +19,7 @@ import bluej.prefmgr.*;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 345 2000-01-12 03:52:49Z ajp $
+ * @version $Id: MiscPrefPanel.java 352 2000-01-12 05:53:41Z ajp $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -29,6 +29,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
     private JTextField editorFontField;
     private JTextField jdkURLField;
+    private JCheckBox hilightingBox;
 
     /**
      * Registers the misc preference panel with the preferences
@@ -57,6 +58,8 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             editorFontField.setAlignmentX(LEFT_ALIGNMENT);
         }
 
+	    hilightingBox = new JCheckBox(Config.getString("Use syntax hilighting in editor"));
+
 		JLabel jdkURLTag = new JLabel(Config.getString("JDK documentation URL"));
 		{
 			jdkURLTag.setAlignmentX(LEFT_ALIGNMENT);
@@ -65,6 +68,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         {
             jdkURLField.setAlignmentX(LEFT_ALIGNMENT);
         }
+
 
 /*        JPanel compilerPanel = new JPanel();
         {
@@ -92,6 +96,8 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 		add(editorFontTag);
 		add(editorFontField);
 		add(Box.createVerticalStrut(Config.generalSpacingWidth));
+		add(hilightingBox);
+		add(Box.createVerticalStrut(Config.generalSpacingWidth));
 		add(Box.createVerticalStrut(Config.generalSpacingWidth));
         add(jdkURLTag);
 		add(jdkURLField);
@@ -102,7 +108,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     public void beginEditing()
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
-
+        hilightingBox.setSelected(PrefMgr.useSyntaxHilighting());
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
     }
 
@@ -122,6 +128,8 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         catch (NumberFormatException nfe)
         {
         }
+
+        PrefMgr.setSyntaxHilighting(hilightingBox.isSelected());
 
         String jdkURL = jdkURLField.getText();
 
