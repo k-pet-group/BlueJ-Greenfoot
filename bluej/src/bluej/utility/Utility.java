@@ -15,7 +15,7 @@ import javax.swing.*;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 811 2001-03-25 23:11:51Z mik $
+ * @version $Id: Utility.java 849 2001-04-18 09:16:26Z mik $
  */
 public class Utility
 {
@@ -259,8 +259,11 @@ public class Utility
             if(osname != null && osname.startsWith("Windows 9"))    // win95/98
                 cmd = mergeStrings(Config.getPropString("win9xBrowserCmd1"),
                                    url);
-            else if(osname != null && osname.startsWith("Windows"))  // NT/2000
+            else if(osname != null && osname.startsWith("Windows")) // NT/2000
                 cmd = mergeStrings(Config.getPropString("winBrowserCmd1"),
+                                   url);
+            else if(osname != null && osname.startsWith("Mac"))     // MacOS
+                cmd = mergeStrings(Config.getPropString("macBrowserCmd1"),
                                    url);
             else
                 cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
@@ -276,6 +279,8 @@ public class Utility
                     cmd = Config.getPropString("win9xBrowserCmd2");
                 else if(osname != null && osname.startsWith("Windows"))
                     cmd = Config.getPropString("winBrowserCmd2");
+                else if(osname != null && osname.startsWith("Mac"))
+                    cmd = Config.getPropString("macBrowserCmd2");
                 else
                     cmd = Config.getPropString("browserCmd2");
 
