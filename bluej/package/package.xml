@@ -112,7 +112,7 @@
 	<delete>
              <fileset dir="." includes="*.class"/>
         </delete>
-        <delete dir="install_tmp" />
+        <!--delete dir="install_tmp" /-->
 
     </target>
 
