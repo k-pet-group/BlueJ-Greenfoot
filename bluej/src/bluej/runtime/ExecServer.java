@@ -315,15 +315,17 @@ public class ExecServer
     static void addObject(String scopeId, String instance, String fieldName,
                             String newName)
     {
-        //Debug.message("[VM] addObject: " + newName);
+        //Debug.message("[VM] addObject: " + instance + ", " + fieldName + ", " + newName);
         Map scope = getScope(scopeId);
         Object wrapObject = scope.get(instance);
+
         try {
             Field field = wrapObject.getClass().getField(fieldName);
             Object obj = field.get(wrapObject);
             scope.put(newName, obj);
         }
         catch (Exception e) {
+            e.printStackTrace();
             Debug.reportError("Internal BlueJ error: " +
             	      "object field not found: " + fieldName +
             	      " in " + instance);
@@ -345,7 +347,7 @@ public class ExecServer
 
     static Map getScope(String scopeId)
     {
-        //Debug.message("[VM] getScope");
+        //Debug.message("[VM] getScope" + scopeId);
         Map scope = (Map)scopes.get(scopeId);
 
         if(scope == null) {
