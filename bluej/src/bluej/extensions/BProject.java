@@ -10,7 +10,12 @@ import java.util.ListIterator;
 /**
  * A wrapper for a Project open by BlueJ.
  *
- * @version $Id: BProject.java 1797 2003-04-10 09:28:31Z damiano $
+ * @version $Id: BProject.java 1838 2003-04-11 13:16:46Z damiano $
+ */
+
+/*
+ * Author Clive Mille, Univeristy of Kent at Canterbury, 2002
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003
  */
 
 public class BProject
@@ -18,8 +23,7 @@ public class BProject
     private final Object projectKey;
   
     /**
-     * NOT to be used by Extension writer.
-     * Get BProject from BPackage.
+     * Constructor for a Bproject.
      */
     BProject (File projectDir)
     {
@@ -32,8 +36,7 @@ public class BProject
     }
 
     /**
-     * Not for public use.
-     * NOTA: The underlyng mechanism is the same as the previous one. This is for type checking
+     * The underlyng mechanism is the same as the previous one. This is for type checking
      */
     BProject (Project bluejProject)
     {
@@ -46,6 +49,8 @@ public class BProject
 
     /**
      * Test if this project still a valid one.
+     * This object may not be valid since what it represent has been modified or deleted
+     * from the main BlueJ graphical user interface.
      * @return true if this project is valid and active, false othervise.
      */
     public boolean isValid ()
@@ -87,10 +92,7 @@ public class BProject
         Project thisProject = Project.getProject(projectKey);
         if ( thisProject == null ) return;
 
-        try {
-            thisProject.saveAll();
-        } catch (NullPointerException ex) {
-        }
+        thisProject.saveAll();
     }
     
     /**
@@ -107,7 +109,8 @@ public class BProject
     
     
     /**
-     * Get a package belonging to this Project.
+     * Get a package belonging to this project.
+     * It can return null if this project is invalid.
      * 
      * @param the fully-qualified name of the package
      * @return the requested package, or null if it wasn't found

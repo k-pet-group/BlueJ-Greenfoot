@@ -18,26 +18,45 @@ import java.awt.Frame;
  * A wrapper for a Package in the BlueJ environment.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: BPackage.java 1838 2003-04-11 13:16:46Z damiano $
  */
+
+/*
+ * Author Clive Miller, University of Kent at Canterbury, 2002
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ */
+ 
 public class BPackage
 {
     // Now this can be private, leave it private, of course. Damiano
     private final Package bluej_pkg;
 
     /**
-     * NOT to be used by Extension writer.
-     * BPackages can be obtained from BProject or directly from BlueJ
+     * Constructor for a BPackage.
      */
-    public BPackage (Package i_pkg)
+    public BPackage (Package aBlueJpkg)
     {
         // Unfortunately it must be bublic since it is called by the extension manager
-        bluej_pkg = i_pkg;
+        bluej_pkg = aBlueJpkg;
     }
 
     /**
+     * Determines whether this is a valid package.
+     * This object may not be valid since what it represent has been modified or deleted
+     * from the main BlueJ graphical user interface.
+     * Return true if it is still valid, false othervise.
+     */
+    public boolean isValid()
+    {
+        if ( bluej_pkg == null) return false;
+        // TODO: Possible other checks here
+        return (true);
+    }
+
+
+    /**
      * Return the package's project.
-     * If this is an invalid package, no action will be taken and <code>null</code> will be returned.
+     * It will return null if this is an invalid package.
      */
     public BProject getProject()
     {
@@ -60,7 +79,8 @@ public class BPackage
     
     /**
      * Return a handle on the package's frame.
-     * This may be needed for modal dialogues etc.
+     * This may be needed for modal dialogues.
+     * It may return null if this is not a valid package.
      */
     public Frame getFrame()
     {
@@ -68,23 +88,13 @@ public class BPackage
        return pmf;
     }
 
-    /**
-     * Determines whether this is a valid package.
-     * Return true if it is, false othervise.
-     */
-    public boolean isValid()
-    {
-        if ( bluej_pkg == null) return false;
-        // TODO: Possible other checks here
-        return (true);
-    }
     
     /**
-     * Return a class proxy object relating to a particular class in this package.
-     * If this is an empty package, no action will be taken and <code>null</code> will be returned.
+     * Return the class with the given name in this package.
+     * It may return null if this is an invalid package.
+     * It may return null if the class name does not exist.
      * 
      * @param name the simple name of the required class. For example, <CODE>Person</CODE>.
-     * @return the proxy class object, or <CODE>null</CODE> if no such class exists.
      */
     public BClass getBClass (String name)
     {
@@ -160,8 +170,9 @@ public class BPackage
 
     /**
      * Compile this Package.
-     * 
-     * @param forceAll if <code>true</code> rebuilds the entire project.
+     * If forceAll is true it will compile all files othervise it will compile
+     * just the ones that are modified.
+     * @param forceAll if <code>true</code> compile all files.
      */
     public void compile (boolean forceAll)
     {
@@ -172,7 +183,8 @@ public class BPackage
     }
     
     /**
-     * Reloads the entire package
+     * Reloads the entire package.
+     * This is usually needed when a new java file has been added to the package.
      */
     public void reload()
     {
@@ -181,11 +193,4 @@ public class BPackage
     }
 
 
-   
-
-    
-    
-
-    
-    
 }

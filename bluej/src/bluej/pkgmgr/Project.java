@@ -17,7 +17,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1750 2003-04-04 13:54:31Z fisker $
+ * @version $Id: Project.java 1838 2003-04-11 13:16:46Z damiano $
  */
 public class Project
     implements BlueJEventListener
@@ -495,6 +495,9 @@ public class Project
     {
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
+        // Shurely we do not want to stack trace if nothing exists. Damiano
+        if ( frames == null ) return;
+        
         for(int i=0; i< frames.length; i++) {
             frames[i].doSave();
         }
