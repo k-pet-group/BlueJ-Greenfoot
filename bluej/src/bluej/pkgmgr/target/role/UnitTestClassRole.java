@@ -22,7 +22,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2124 2003-07-18 06:23:08Z ajp $
+ * @version $Id: UnitTestClassRole.java 2131 2003-07-24 02:22:23Z bquig $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -302,6 +302,9 @@ public class UnitTestClassRole extends ClassRole
      */
     public void doBenchToFixture(PkgMgrFrame pmf, ClassTarget ct)
     {
+        if(pmf.getObjectBench().getObjectWrapperCount() == 0)
+            return;
+                
         Editor ed = ct.getEditor();
 
         try {
