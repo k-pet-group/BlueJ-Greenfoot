@@ -168,20 +168,31 @@ bluej.classTemplates = stdclass abstract interface applet
 ## size can be redefined by a user in their preference dialogue.
 #######################################################################
 
-# font and font size for most of the interface components
+#######################################################################
+# Theme fonts for User Interface components
+# These specify font and font sizes for most of the interface components.
 # This is the name of a font face with an optional "-bold" at the end.
-#bluej.fontsize=12
-#bluej.font=SansSerif-bold
+# The theme fonts are only used if bluej.useTheme flag is true.
+# Note: the use of theme flag and specification and non-standard fonts 
+# may affect bluej startup time (not confirmed for all systems)
+
+# Use theme, which means interface and menu fonts can be specified.
+bluej.useTheme=false
+
+bluej.fontsize=12
+bluej.font=SansSerif-bold
 #bluej.font=Monospaced
+#bluej.font=SIMSUN
 
 # fonts for menus
-
-#bluej.menu.font=SansSerif
-#bluej.menu.fontsize=12
+bluej.menu.font=SansSerif-bold
+bluej.menu.fontsize=12
+# END OF THEME FONTS
+#######################################################################
 
 # fonts for Targets (classes in display)
-#bluej.target.font=SansSerif-bold
-#bluej.target.fontsize=12
+bluej.target.font=SansSerif-bold
+bluej.target.fontsize=12
 
 # fontsize for the editor
 bluej.editor.fontsize=12
