@@ -17,7 +17,7 @@ import bluej.utility.JavaNames;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: ClassInspector.java 2315 2003-11-10 16:36:47Z polle $
+ * @version    $Id: ClassInspector.java 2346 2003-11-14 13:52:36Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -93,6 +93,7 @@ public class ClassInspector extends Inspector
                 g.drawLine(0,size.height-1, size.width, size.height-1);
             }            
         };
+        header.setOpaque(false);
         header.add(new JLabel(classNameLabel + " " + className));
         setHeader(header);
         makeFrame(parent, false, false);
