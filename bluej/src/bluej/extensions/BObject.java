@@ -14,7 +14,7 @@ import bluej.debugger.*;
  * This wraps an object so you can put and remove it from the bench.
  * You get Bobjects from BConstructor or BMethods and from BField.
  *
- * @version $Id: BObject.java 1712 2003-03-20 10:39:46Z damiano $
+ * @version $Id: BObject.java 1720 2003-03-21 09:29:10Z damiano $
  */
 public class BObject
 {
@@ -24,7 +24,7 @@ public class BObject
      * Do NOT use.
      * You should get BObjects from the BPackage, BConstructor, BMethod, BField
      */
-    BObject (ObjectWrapper i_wrapper)
+    public BObject (ObjectWrapper i_wrapper)
     {
         wrapper = i_wrapper;
     }
@@ -171,5 +171,15 @@ public class BObject
         if ( obj == null ) return null;
         return obj.getObjectReference();
         }
+
+
+  /**
+   * Returns a reasonable representation of this BObject
+   */
+  public String toString ()
+    {
+    return "BObject instanceName="+getInstanceName()+" Class Name="+wrapper.getClassName();
+    }
+
 
 }   

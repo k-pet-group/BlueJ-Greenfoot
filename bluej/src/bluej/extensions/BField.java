@@ -65,61 +65,67 @@ public class BField
 
 
     /**
-     * When you are inspecting a static Field use this one to get hold
-     * of a reference to the debgged Class
+     * When you are inspecting a static Field use this one.
+     * NOTE: The behaviour is NOT similar to reflection. See the code and the further comments.
      */
     private Object getStaticField ()
       {
-      // UFF, there seems to be no way to get the package from the view...
-      // Maybe should ask Michael, when he has time...
-      DebuggerClassLoader loader = bluej_package.getRemoteClassLoader();
+      String wantFieldName = getName();
 
+      // I need to get the view of the parent of this Field
+      // That must be the Class that I want to look after....
       View parentView = bluej_view.getDeclaringView();
       String className = parentView.getQualifiedName();
 
-      System.out.println ("Parent Class name="+className);
+      // UFF, there seems to be no way to get the package from the view...
+      // Maybe should ask Michael, when he has time...
+      DebuggerClassLoader loader = bluej_package.getRemoteClassLoader();
+      if ( loader == null ) 
+        {
+        // This is really an error
+        Debug.message("BField.getStatucField: Class="+className+" Field="+wantFieldName+" ERROR: cannod get DebuggerClassLoader");
+        return null;
+        }
       
       DebuggerClass debuggerClass = Debugger.debugger.getClass(className, loader);
       if ( debuggerClass == null ) 
         {
-        Debug.message("BField.getStatucField: Class="+className+" Field="+getName()+" ERROR: cannod get debuggerClass");
+        // This may not be an error, the class name may be wrong...
+        Debug.message("BField.getStatucField: Class="+className+" Field="+wantFieldName+" WARNING: cannod get debuggerClass");
         return null;
         }
 
+      // Now I want the Debugger object of that field.
+      // I do it this way since there is no way to get it by name...
       int staticCount=debuggerClass.getStaticFieldCount();
-      String wantField = getName();
       DebuggerObject debugObj=null;
       for ( int index=0; index<staticCount; index++ )
         {
-        if ( wantField.equals(debuggerClass.getStaticFieldName(index)) )
+        if ( wantFieldName.equals(debuggerClass.getStaticFieldName(index)) )
           {
           debugObj = debuggerClass.getStaticFieldObject(index);
           break;
           }
         }
 
-      // No need to compalin about it it may not be a static field...
       if ( debugObj == null ) 
         {
-        Debug.message("BField.getStatucField: Class="+className+" Field="+getName()+" DEBUG: fieldObject==null");
+        // No need to complain about it it may not be a static field...
+//        Debug.message("BField.getStatucField: Class="+className+" Field="+wantFieldName+" DEBUG: fieldObject==null");
         return null;
         }
 
       ObjectReference objRef = debugObj.getObjectReference();
+      if ( objRef == null )
+        {
+        // WARNING At the moment it is not possible to have reflection behaviour
+        // You NEED to have an instance of the class to get static fields...
+        // Therefore.... this is normal behaviour and not an ERROR...
+//        Debug.message("BField.getStatucField: Class="+className+" Field="+wantFieldName+" ERROR: ObjectReference==null");
+        return null;
+        }
 
-// I need a way to get hold of the value in a non coded form.....
-
-/*      
-      Debug.message("Got objRef="+objRef);
-      ReferenceType type = objRef.referenceType();
-      Debug.message("Got type="+type);
-      Field thisField = type.fieldByName (getName());
-      if ( thisField == null ) return null;
-      Debug.message("Got thisField");
-       
-      return getVal(bluej_pkg, "static", objRef.getValue(thisField));
-*/      
-      return "DUMMY RESULT";
+      return getVal(bluej_package, wantFieldName, objRef);
       }
 
 
@@ -149,7 +155,7 @@ public class BField
      * that is kind of reasonable... The real important thing here is to return a 
      * BObject for objects that can be put into the bench.
      */
-    static Object getVal ( Package bluej_pkg, String instanceName, Value val )
+    public static Object getVal ( Package bluej_pkg, String instanceName, Value val )
         {
         if ( val == null ) return null;
         

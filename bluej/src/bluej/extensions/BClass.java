@@ -17,7 +17,7 @@ import bluej.views.*;
  * BClass allows you to know the real underlyng class because there is a need to 
  * understand what is the identity of this Class (BClass) and the identity of the hidden one.
  * 
- * @version $Id: BClass.java 1712 2003-03-20 10:39:46Z damiano $
+ * @version $Id: BClass.java 1720 2003-03-21 09:29:10Z damiano $
  */
 public class BClass
 {
@@ -46,15 +46,6 @@ public class BClass
         bluej_view = View.getView (loadedClass);
     }
 
-
-    private BClass (Package i_bluej_pkg, View view)
-    {
-        bluej_pkg = i_bluej_pkg;
-        this.classTarget = null;
-        this.loadedClass = bluej_pkg.loadClass (view.getQualifiedName());
-        bluej_view = view;
-    }
-
     /**
      * For extensions use only.
      */    
@@ -64,6 +55,15 @@ public class BClass
         this.classTarget = null;
         this.loadedClass = bluej_pkg.loadClass (transJavaToClass(className));
         bluej_view = View.getView (loadedClass);
+    }
+
+
+    private BClass (Package i_bluej_pkg, View view)
+    {
+        bluej_pkg = i_bluej_pkg;
+        this.classTarget = null;
+        this.loadedClass = bluej_pkg.loadClass (view.getQualifiedName());
+        bluej_view = view;
     }
 
 
