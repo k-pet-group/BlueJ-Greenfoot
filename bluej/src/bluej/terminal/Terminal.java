@@ -1,13 +1,3 @@
-/**
- ** The Frame part of the Terminal window used for I/O when running programs
- ** under BlueJ.
- **
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** @version $Id: Terminal.java 598 2000-06-28 05:09:01Z ajp $
- **/
-
 package bluej.terminal;
 
 import bluej.Config;
@@ -23,8 +13,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileWriter;
 
+/**
+ * The Frame part of the Terminal window used for I/O when running programs
+ * under BlueJ.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: Terminal.java 644 2000-07-18 03:46:32Z ajp $
+ */
 public final class Terminal extends JFrame
-	implements KeyListener
+    implements KeyListener
 {
     private static final String WINDOWTITLE = Config.getString("terminal.title");
     private static final int FONTSIZE = 12;
@@ -40,11 +38,23 @@ public final class Terminal extends JFrame
     // -- static singleton factory method --
 
     static Terminal frame = null;
+    static boolean enabled = false;
+
     public synchronized static Terminal getTerminal()
     {
         if(frame == null)
             frame = new Terminal();
         return frame;
+    }
+
+    // a horrible hack/kludge.. when starting the remote VM
+    // it sometimes prints a message (dependant on JDK version)
+    // about option java.compiler is ignored (not that we set
+    // that option). Until the remote VM starts we use this
+    // to ignore all output attempts..
+    public synchronized static void enableTerminal()
+    {
+        enabled = true;
     }
 
     // -- instance --
@@ -268,14 +278,18 @@ public final class Terminal extends JFrame
     OutputStream out = new OutputStream() {
             public void write(int b) throws IOException
             {
-                prepare();
-                writeToTerminal("" + (char)b);
+                if (enabled) {
+                    prepare();
+                    writeToTerminal("" + (char)b);
+                }
             }
 
             public void write(byte[] b, int off, int len) throws IOException
             {
-                prepare();
-                writeToTerminal(new String(b, off, len));
+                if (enabled) {
+                    prepare();
+                    writeToTerminal(new String(b, off, len));
+                }
             }
         };
 
