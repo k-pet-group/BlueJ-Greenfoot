@@ -26,7 +26,7 @@ import javax.swing.border.Border;
  *@author     Michael Cahill
  *@author     Michael Kolling
  *@author     Duane Buck
- *@version    $Id: ObjectViewer.java 757 2001-01-27 03:03:32Z dbuck $
+ *@version    $Id: ObjectViewer.java 766 2001-02-07 23:55:57Z mik $
  */
 public final class ObjectViewer extends JFrame
          implements ActionListener, ListSelectionListener, InspectorListener
@@ -71,14 +71,24 @@ public final class ObjectViewer extends JFrame
 
     private final static Color bgColor = new Color(208, 212, 208);
 
-    private static String inspectTitle = Config.getString("debugger.objectviewer.title");
-    private static String resultTitle = Config.getString("debugger.resultviewer.title");
-    private static String staticListTitle = Config.getString("debugger.objectviewer.staticListTitle");
-    private static String objListTitle = Config.getString("debugger.objectviewer.objListTitle");
-    private static String inspectLabel = Config.getString("debugger.objectviewer.inspect");
-    private static String getLabel = Config.getString("debugger.objectviewer.get");
-    private static String close = Config.getString("close");
-    private static String objectClassName = Config.getString("debugger.objectviewer.objectClassName");
+    private final static String inspectorDirectoryName = "+inspector";
+
+    private final static String inspectTitle = 
+        Config.getString("debugger.objectviewer.title");
+    private final static String resultTitle = 
+        Config.getString("debugger.resultviewer.title");
+    private final static String staticListTitle = 
+        Config.getString("debugger.objectviewer.staticListTitle");
+    private final static String objListTitle = 
+        Config.getString("debugger.objectviewer.objListTitle");
+    private final static String inspectLabel = 
+        Config.getString("debugger.objectviewer.inspect");
+    private final static String getLabel = 
+        Config.getString("debugger.objectviewer.get");
+    private final static String close = 
+        Config.getString("close");
+    private final static String objectClassName = 
+        Config.getString("debugger.objectviewer.objectClassName");
 
     private final static int VISIBLE_ARRAY_START = 40;  // show at least the first 40 elements
     private final static int VISIBLE_ARRAY_TAIL = 5;  // and the last five elements
@@ -760,10 +770,12 @@ public final class ObjectViewer extends JFrame
         {
             loadInspectors(Config.getSystemInspectorDir());
         }
+
         if (!loadedProjects.contains(pkg.getProject().getProjectDir()))
         {
             loadedProjects.add(pkg.getProject().getProjectDir());
-            loadInspectors(new File(pkg.getProject().getProjectDir(), "(Inspector)"));
+            loadInspectors(new File(pkg.getProject().getProjectDir(), 
+                                    inspectorDirectoryName));
         }
         addInspectors(inspectorTabs);
 
