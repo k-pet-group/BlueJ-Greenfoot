@@ -9,7 +9,7 @@ import bluej.pkgmgr.target.ReadmeTarget;
 /**
  * Paints a ReadmeTarget
  * @author fisker
- * @version $Id: ReadmeTargetPainter.java 2602 2004-06-13 18:16:54Z fisker $
+ * @version $Id: ReadmeTargetPainter.java 2610 2004-06-14 12:46:06Z fisker $
  */
 public class ReadmeTargetPainter
 {
@@ -50,9 +50,11 @@ public class ReadmeTargetPainter
         boolean isSelected = readmeTarget.isSelected() && graphPainterStdImpl.isGraphEditorInFocus();
         int thickness = (isSelected) ? 2 : 1;
 
-        g.setColor(Color.white);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_OFF);
+        g.setColor(Color.WHITE);
         g.fill(p);
-        g.setColor(Color.black);
+        g.setColor(Color.BLACK);
         g.setStroke(new BasicStroke(thickness));
         g.draw(p);
 
