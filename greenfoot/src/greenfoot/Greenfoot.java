@@ -7,13 +7,7 @@ import greenfoot.gui.FrameBoundsManager;
 import greenfoot.gui.GreenfootFrame;
 
 import java.awt.Rectangle;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,6 +22,7 @@ import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RInvocationListener;
 import bluej.Config;
+import bluej.debugmgr.CallHistory;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -37,7 +32,7 @@ import bluej.utility.FileUtility;
  * The main class for greenfoot. This is a singelton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Greenfoot.java 3201 2004-11-29 04:07:13Z davmac $
+ * @version $Id: Greenfoot.java 3225 2004-12-08 03:41:32Z davmac $
  */
 public class Greenfoot
 {
@@ -53,7 +48,9 @@ public class Greenfoot
     private List compileListeners = new ArrayList();
 
     private GreenfootObjectInstantiationListener instantiationListener;
-    private List invocationListeners = new ArrayList();;
+    private List invocationListeners = new ArrayList();
+    
+    private CallHistory callHistory = new CallHistory();
 
     private Greenfoot(RBlueJ rBlueJ, RProject project, RPackage package1)
     {
@@ -282,6 +279,14 @@ public class Greenfoot
                 e.printStackTrace();
             }
         }
+    }
+    
+    /**
+     * Get a reference to the CallHistory instance.
+     */
+    public CallHistory getCallHistory()
+    {
+        return callHistory;
     }
 
     /**
