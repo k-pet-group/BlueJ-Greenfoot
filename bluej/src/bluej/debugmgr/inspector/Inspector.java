@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2363 2003-11-18 11:20:16Z polle $
+ * @version    $Id: Inspector.java 2368 2003-11-18 17:43:54Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -570,7 +570,9 @@ public abstract class Inspector extends JFrame
                     String tmp = valueString.substring(0, maxDescriptionLength);
                     JLabel dummy = new JLabel(tmp);
                     int minWidth = dummy.getPreferredSize().width;
-                    tableColumn.setMinWidth(minWidth);
+                    if(tableColumn.getMinWidth() < minWidth) {
+                        tableColumn.setMinWidth(minWidth);
+                    }
                 }
             }           
             return this;
