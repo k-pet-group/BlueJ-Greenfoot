@@ -1,4 +1,4 @@
-// $ANTLR 2.7.2: "unittest.tree.g" -> "UnitTestParser.java"$
+// $ANTLR 2.7.4: "unittest.tree.g" -> "UnitTestParser.java"$
 
     package bluej.parser.ast.gen;
     
@@ -90,7 +90,7 @@ public UnitTestParser() {
 
 	public final void compilationUnit(AST _t) throws RecognitionException {
 		
-		AST compilationUnit_AST_in = (AST)_t;
+		AST compilationUnit_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST compilationUnit_AST = null;
@@ -159,7 +159,7 @@ public UnitTestParser() {
 	
 	public final void packageDefinition(AST _t) throws RecognitionException {
 		
-		AST packageDefinition_AST_in = (AST)_t;
+		AST packageDefinition_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST packageDefinition_AST = null;
@@ -194,7 +194,7 @@ public UnitTestParser() {
 	
 	public final void importDefinition(AST _t) throws RecognitionException {
 		
-		AST importDefinition_AST_in = (AST)_t;
+		AST importDefinition_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST importDefinition_AST = null;
@@ -229,7 +229,7 @@ public UnitTestParser() {
 	
 	public final void typeDefinition(AST _t) throws RecognitionException {
 		
-		AST typeDefinition_AST_in = (AST)_t;
+		AST typeDefinition_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST typeDefinition_AST = null;
@@ -383,7 +383,7 @@ public UnitTestParser() {
 	
 	public final void identifier(AST _t) throws RecognitionException {
 		
-		AST identifier_AST_in = (AST)_t;
+		AST identifier_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST identifier_AST = null;
@@ -448,7 +448,7 @@ public UnitTestParser() {
 	
 	public final void identifierStar(AST _t) throws RecognitionException {
 		
-		AST identifierStar_AST_in = (AST)_t;
+		AST identifierStar_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST identifierStar_AST = null;
@@ -537,7 +537,7 @@ public UnitTestParser() {
 	
 	public final void modifiers(AST _t) throws RecognitionException {
 		
-		AST modifiers_AST_in = (AST)_t;
+		AST modifiers_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST modifiers_AST = null;
@@ -584,7 +584,7 @@ public UnitTestParser() {
 	
 	public final void extendsClause(AST _t) throws RecognitionException {
 		
-		AST extendsClause_AST_in = (AST)_t;
+		AST extendsClause_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST extendsClause_AST = null;
@@ -635,7 +635,7 @@ public UnitTestParser() {
 	
 	public final void implementsClause(AST _t) throws RecognitionException {
 		
-		AST implementsClause_AST_in = (AST)_t;
+		AST implementsClause_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST implementsClause_AST = null;
@@ -682,7 +682,7 @@ public UnitTestParser() {
 	
 	public final void objBlock(AST _t) throws RecognitionException {
 		
-		AST objBlock_AST_in = (AST)_t;
+		AST objBlock_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST objBlock_AST = null;
@@ -791,7 +791,7 @@ public UnitTestParser() {
 	
 	public final void interfaceBlock(AST _t) throws RecognitionException {
 		
-		AST interfaceBlock_AST_in = (AST)_t;
+		AST interfaceBlock_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST interfaceBlock_AST = null;
@@ -857,7 +857,7 @@ public UnitTestParser() {
 	
 	public final void typeSpec(AST _t) throws RecognitionException {
 		
-		AST typeSpec_AST_in = (AST)_t;
+		AST typeSpec_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST typeSpec_AST = null;
@@ -892,7 +892,7 @@ public UnitTestParser() {
 	
 	public final void typeSpecArray(AST _t) throws RecognitionException {
 		
-		AST typeSpecArray_AST_in = (AST)_t;
+		AST typeSpecArray_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST typeSpecArray_AST = null;
@@ -956,7 +956,7 @@ public UnitTestParser() {
 	
 	public final void type(AST _t) throws RecognitionException {
 		
-		AST type_AST_in = (AST)_t;
+		AST type_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST type_AST = null;
@@ -1005,7 +1005,7 @@ public UnitTestParser() {
 	
 	public final void builtInType(AST _t) throws RecognitionException {
 		
-		AST builtInType_AST_in = (AST)_t;
+		AST builtInType_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST builtInType_AST = null;
@@ -1137,7 +1137,7 @@ public UnitTestParser() {
 	
 	public final void modifier(AST _t) throws RecognitionException {
 		
-		AST modifier_AST_in = (AST)_t;
+		AST modifier_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST modifier_AST = null;
@@ -1317,7 +1317,7 @@ public UnitTestParser() {
 	
 	public final void methodDecl(AST _t) throws RecognitionException {
 		
-		AST methodDecl_AST_in = (AST)_t;
+		AST methodDecl_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST methodDecl_AST = null;
@@ -1358,7 +1358,7 @@ public UnitTestParser() {
 	
 	public final void variableDef(AST _t) throws RecognitionException {
 		
-		AST variableDef_AST_in = (AST)_t;
+		AST variableDef_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST variableDef_AST = null;
@@ -1431,7 +1431,7 @@ public UnitTestParser() {
 	
 	public final void ctorDef(AST _t) throws RecognitionException {
 		
-		AST ctorDef_AST_in = (AST)_t;
+		AST ctorDef_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST ctorDef_AST = null;
@@ -1489,7 +1489,7 @@ public UnitTestParser() {
 	
 	public final void methodDef(AST _t) throws RecognitionException {
 		
-		AST methodDef_AST_in = (AST)_t;
+		AST methodDef_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST methodDef_AST = null;
@@ -1581,7 +1581,7 @@ public UnitTestParser() {
 	
 	public final void slist(AST _t) throws RecognitionException {
 		
-		AST slist_AST_in = (AST)_t;
+		AST slist_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST slist_AST = null;
@@ -1627,7 +1627,7 @@ public UnitTestParser() {
 	
 	public final void methodHead(AST _t) throws RecognitionException {
 		
-		AST methodHead_AST_in = (AST)_t;
+		AST methodHead_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST methodHead_AST = null;
@@ -1707,7 +1707,7 @@ public UnitTestParser() {
 	
 	public final void variableDeclarator(AST _t) throws RecognitionException {
 		
-		AST variableDeclarator_AST_in = (AST)_t;
+		AST variableDeclarator_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST variableDeclarator_AST = null;
@@ -1762,7 +1762,7 @@ public UnitTestParser() {
 	
 	public final void varInitializer(AST _t) throws RecognitionException {
 		
-		AST varInitializer_AST_in = (AST)_t;
+		AST varInitializer_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST varInitializer_AST = null;
@@ -1813,7 +1813,7 @@ public UnitTestParser() {
 	
 	public final void parameterDef(AST _t) throws RecognitionException {
 		
-		AST parameterDef_AST_in = (AST)_t;
+		AST parameterDef_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST parameterDef_AST = null;
@@ -1858,7 +1858,7 @@ public UnitTestParser() {
 	
 	public final void objectinitializer(AST _t) throws RecognitionException {
 		
-		AST objectinitializer_AST_in = (AST)_t;
+		AST objectinitializer_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST objectinitializer_AST = null;
@@ -1893,7 +1893,7 @@ public UnitTestParser() {
 	
 	public final void initializer(AST _t) throws RecognitionException {
 		
-		AST initializer_AST_in = (AST)_t;
+		AST initializer_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST initializer_AST = null;
@@ -1933,7 +1933,7 @@ public UnitTestParser() {
 	
 	public final void expression(AST _t) throws RecognitionException {
 		
-		AST expression_AST_in = (AST)_t;
+		AST expression_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST expression_AST = null;
@@ -1968,7 +1968,7 @@ public UnitTestParser() {
 	
 	public final void arrayInitializer(AST _t) throws RecognitionException {
 		
-		AST arrayInitializer_AST_in = (AST)_t;
+		AST arrayInitializer_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST arrayInitializer_AST = null;
@@ -2015,7 +2015,7 @@ public UnitTestParser() {
 	
 	public final void throwsClause(AST _t) throws RecognitionException {
 		
-		AST throwsClause_AST_in = (AST)_t;
+		AST throwsClause_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST throwsClause_AST = null;
@@ -2062,7 +2062,7 @@ public UnitTestParser() {
 	
 	public final void stat(AST _t) throws RecognitionException {
 		
-		AST stat_AST_in = (AST)_t;
+		AST stat_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST stat_AST = null;
@@ -2634,7 +2634,7 @@ public UnitTestParser() {
 	
 	public final void elist(AST _t) throws RecognitionException {
 		
-		AST elist_AST_in = (AST)_t;
+		AST elist_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST elist_AST = null;
@@ -2681,7 +2681,7 @@ public UnitTestParser() {
 	
 	public final void caseGroup(AST _t) throws RecognitionException {
 		
-		AST caseGroup_AST_in = (AST)_t;
+		AST caseGroup_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST caseGroup_AST = null;
@@ -2762,7 +2762,7 @@ public UnitTestParser() {
 	
 	public final void tryBlock(AST _t) throws RecognitionException {
 		
-		AST tryBlock_AST_in = (AST)_t;
+		AST tryBlock_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST tryBlock_AST = null;
@@ -2846,7 +2846,7 @@ public UnitTestParser() {
 	
 	public final void handler(AST _t) throws RecognitionException {
 		
-		AST handler_AST_in = (AST)_t;
+		AST handler_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST handler_AST = null;
@@ -2884,7 +2884,7 @@ public UnitTestParser() {
 	
 	public final void expr(AST _t) throws RecognitionException {
 		
-		AST expr_AST_in = (AST)_t;
+		AST expr_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST expr_AST = null;
@@ -3939,7 +3939,7 @@ public UnitTestParser() {
 	
 	public final void primaryExpression(AST _t) throws RecognitionException {
 		
-		AST primaryExpression_AST_in = (AST)_t;
+		AST primaryExpression_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST primaryExpression_AST = null;
@@ -4374,7 +4374,7 @@ public UnitTestParser() {
 	
 	public final void arrayIndex(AST _t) throws RecognitionException {
 		
-		AST arrayIndex_AST_in = (AST)_t;
+		AST arrayIndex_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST arrayIndex_AST = null;
@@ -4412,7 +4412,7 @@ public UnitTestParser() {
 	
 	public final void ctorCall(AST _t) throws RecognitionException {
 		
-		AST ctorCall_AST_in = (AST)_t;
+		AST ctorCall_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST ctorCall_AST = null;
@@ -4522,7 +4522,7 @@ public UnitTestParser() {
 	
 	public final void newExpression(AST _t) throws RecognitionException {
 		
-		AST newExpression_AST_in = (AST)_t;
+		AST newExpression_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST newExpression_AST = null;
@@ -4620,7 +4620,7 @@ public UnitTestParser() {
 	
 	public final void constant(AST _t) throws RecognitionException {
 		
-		AST constant_AST_in = (AST)_t;
+		AST constant_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST constant_AST = null;
@@ -4716,7 +4716,7 @@ public UnitTestParser() {
 	
 	public final void newArrayDeclarator(AST _t) throws RecognitionException {
 		
-		AST newArrayDeclarator_AST_in = (AST)_t;
+		AST newArrayDeclarator_AST_in = (_t == ASTNULL) ? null : (AST)_t;
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
 		AST newArrayDeclarator_AST = null;

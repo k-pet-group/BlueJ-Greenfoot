@@ -1,4 +1,4 @@
-// $ANTLR 2.7.2: "java.g" -> "JavaRecognizer.java"$
+// $ANTLR 2.7.4: "java.g" -> "JavaRecognizer.java"$
 
     package bluej.parser.ast.gen;
 
