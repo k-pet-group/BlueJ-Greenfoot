@@ -63,10 +63,10 @@ public class TreeData
 
     if ( curPkg == null ) return;
         
-    File systemConfFile = new File(stat.bluej.getSystemLib(), CONFIG_FILENAME);
+    File systemConfFile = new File(stat.bluej.getSystemLibDir(), CONFIG_FILENAME);
     loadFile(rootNode,systemConfFile);
 
-    File userConfFile = stat.bluej.getUserFile(CONFIG_FILENAME);
+    File userConfFile = new File(stat.bluej.getUserConfigDir(),CONFIG_FILENAME);
     loadFile(rootNode,userConfFile);
 
     BProject proj = curPkg.getProject();
