@@ -1,4 +1,4 @@
-selcompile-while-executing
+compile-while-executing
 You cannot compile while the machine
 is executing. This could cause strange
 problems!
