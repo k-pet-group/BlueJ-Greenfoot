@@ -1,0 +1,4 @@
+public class EscapedUnicodeString
+{
+	public String str = "\u00C1\u00C4\u010CD\u00C9\u011A\u00CB and some more";
+}
