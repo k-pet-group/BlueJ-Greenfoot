@@ -315,7 +315,7 @@ pkgmgr.classmenu.inspect=Inspect
 pkgmgr.classmenu.remove=Remove
 
 pkgmgr.test.label=Testing
-pkgmgr.test.record=recording:
+pkgmgr.test.record=recording
 pkgmgr.test.run=Run Tests
 pkgmgr.test.end=End
 
