@@ -1,11 +1,18 @@
 // $ANTLR 2.7.2: "unittest.tree.g" -> "UnitTestParser.java"$
 
     package bluej.parser.ast;
+    
+    import java.util.*;
+    import antlr.BaseAST;
 
+import antlr.TreeParser;
 import antlr.Token;
 import antlr.collections.AST;
 import antlr.RecognitionException;
+import antlr.ANTLRException;
 import antlr.NoViableAltException;
+import antlr.MismatchedTokenException;
+import antlr.SemanticException;
 import antlr.collections.impl.BitSet;
 import antlr.ASTPair;
 import antlr.collections.impl.ASTArray;
@@ -19,6 +26,104 @@ import antlr.collections.impl.ASTArray;
  */
 public class UnitTestParser extends antlr.TreeParser       implements UnitTestParserTokenTypes
  {
+
+    public static List getVariableSelections(AST objBlock)
+    {
+        if (!(objBlock instanceof LocatableAST))
+            throw new IllegalArgumentException("wrong AST type");
+
+        LinkedList l = new LinkedList();
+        LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
+
+        // the children on a class' object block are a list of variable definitions
+        // and method definitions
+        while(childAST != null) {
+            // we are only interested in variable definitions
+            if(childAST.getType() == UnitTestParserTokenTypes.VARIABLE_DEF) {
+				// potentially VARIABLE_DEF could look like this
+				// we need to find the first type token (in this case
+				// "java") and the semicolon
+				
+				// ( VARIABLE_DEF ( . ( . java lang ) String ) ; )
+
+            	// find the complete span of nodes for this variable definition
+                LocatableAST firstSib = null, secondSib = null;
+                
+                firstSib = (LocatableAST) childAST.getFirstChild();
+                if(firstSib != null) {
+                	// the semicolon is always the sibling of the first child found
+                    secondSib = (LocatableAST) firstSib.getNextSibling();
+                    
+                    // however, we need to keep going down with first sib to find left
+                    // most token
+					while (firstSib.getFirstChild() != null)
+						firstSib = (LocatableAST) firstSib.getFirstChild();
+				}
+				                    
+                if (firstSib != null && secondSib != null) {                    
+                    l.addFirst(secondSib);
+                    l.addFirst(firstSib);
+                }
+            }               
+            childAST = (LocatableAST) childAST.getNextSibling();            
+        }            
+
+        return l;
+    }
+
+    public static List getSetupMethodSelections(AST objBlock)
+    {
+        if (!(objBlock instanceof LocatableAST))
+            throw new IllegalArgumentException("wrong AST type");
+
+        LinkedList l = new LinkedList();
+        LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
+
+        // the children on a class' object block are a list of variable definitions
+        // and method definitions
+        while(childAST != null) {
+            // we are only interested in method definitions
+            if(childAST.getType() == UnitTestParserTokenTypes.METHOD_DEF) {
+                LocatableAST firstSib = null, secondSib = null, thirdSib = null;
+                
+                firstSib = (LocatableAST) childAST.getFirstChild();
+                if(firstSib != null && firstSib.getText().equals("setUp"))
+                    secondSib = (LocatableAST) firstSib.getNextSibling();
+                else
+                    continue;
+
+                if (secondSib != null) {
+                    thirdSib = (LocatableAST) secondSib.getNextSibling();
+                }
+                    
+                if (secondSib != null && thirdSib != null) {                    
+                    l.addFirst(thirdSib);
+                    l.addFirst(secondSib);
+
+                    return l;
+                }
+            }               
+            childAST = (LocatableAST) childAST.getNextSibling();            
+        }            
+
+        return l;
+    }
+
+    public static LocatableAST getOpeningBracketSelection(AST classBlock)
+    {
+        if (!(classBlock instanceof LocatableAST))
+            throw new IllegalArgumentException("wrong AST type");
+
+        return (LocatableAST) classBlock.getNextSibling();
+    }
+
+    public static LocatableAST getMethodInsertSelection(AST classBlock)
+    {
+        if (!(classBlock instanceof LocatableAST))
+            throw new IllegalArgumentException("wrong AST type");
+
+        return (LocatableAST) classBlock.getNextSibling();
+    }
 
     /**
      * Locate the comment token associated with a method/class.
