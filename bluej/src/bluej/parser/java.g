@@ -353,7 +353,8 @@ typeDefinition
     : { commentToken = findAttachedComment((JavaToken)LT(1)); }
        mods=modifiers
         ( classDefinition[mods, commentToken]
-        | interfaceDefinition[mods, commentToken]
+          | interfaceDefinition[mods, commentToken]
+          | enumDefinition[mods, commentToken]
         )
     |   SEMI
     ;
@@ -559,7 +560,6 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
     ;
 
 
-
 // Definition of a Java Interface
 interfaceDefinition[JavaBitSet mods, JavaToken commentToken]
     {
@@ -595,6 +595,44 @@ interfaceDefinition[JavaBitSet mods, JavaToken commentToken]
         { popScope(); }
     ;
 
+    // Definition of a Java enum, based on classDefinition
+enumDefinition[JavaBitSet mods, JavaToken commentToken]
+    {
+    	JavaToken superClass=null;
+        JavaVector interfaces = new JavaVector();
+        Vector interfaceSelections = new Vector();
+        Selection implementsInsert=null;
+    }
+    : "enum" id:IDENT    // aha! an enum!
+        {
+            // the place which we would want to insert an "implements" is at the
+            // character just after the classname identifier
+            implementsInsert = selectionAfterToken((JavaToken)id);
+        }
+
+    // it might implement some interfaces...
+    (
+     implementsInsert=implementsClause[interfaces, interfaceSelections]
+    )?
+        // should there be a separate defineEnum??? BQ
+        // tell the symbol table about it
+        // Note that defineClass pushes the class' scope,
+        // so we'll have to pop...
+        { defineClass( (JavaToken)id, superClass,
+            		  interfaces,
+            		  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
+            		  commentToken,
+            		  null, implementsInsert,
+            		  null, null,
+            		  interfaceSelections); }
+
+    // now parse the body of the class
+    enumBlock
+
+        // tell the symbol table that we are exiting a scope
+        { popScope(); }
+    ;
+    
 
 // This is the body of a class.  You can have fields and extra semicolons,
 // That's about it (until you see what a field is...)
@@ -603,6 +641,34 @@ classBlock
             ( field | SEMI )*
         RCURLY
     ;
+
+enumBlock
+	:	LCURLY!
+        enumConstant
+        (
+            // CONFLICT: does a COMMA after an enumConstant start a new
+            //           constant or start the optional ',' at end?
+            //           ANTLR generates proper code by matching
+            //			 the comma as soon as possible.
+            options {warnWhenFollowAmbig = false;}:
+            COMMA enumConstant
+        )*
+        (COMMA!)?
+        
+        (
+            SEMI
+            (  field | SEMI! )*
+        )?
+		RCURLY!
+	;
+
+enumConstant
+    :
+        //(annotation)*
+        IDENT ( LPAREN argList RPAREN )? (classBlock)?
+        
+    ;
+
 
 
 // An interface can extend several other interfaces, so we collect a vector
@@ -665,7 +731,6 @@ implementsClause[JavaVector interfaces, Vector interfaceSelections] returns [Sel
 
     ;
 
-
 // Now the various things that can be defined inside a class or interface...
 // Note that not all of these are really valid in an interface (constructors,
 //   for example), and if this grammar were used for a compiler there would
@@ -682,10 +747,12 @@ field
         mods=modifiers
 
         (
-            ctorHead[null, commentToken] constructorBody    // constructor
+	        ctorHead[null, commentToken] constructorBody    // constructor
         |
             classDefinition[new JavaBitSet(), null]         // inner class
         |
+		    enumDefinition[new JavaBitSet(), null]     // inner enum
+		|
             interfaceDefinition[new JavaBitSet(), null]     // inner interface
         |
             type=typeSpec  // method or variable declaration(s)
@@ -693,7 +760,7 @@ field
                     method:IDENT  // the name of the method
 
                     {
-		        // tell the symbol table about it.  Note that this signals that
+		            // tell the symbol table about it.  Note that this signals that
         	        // we are in a method header so we handle parameters appropriately
         	        defineMethod((JavaToken)method, type, commentToken);
                     }
@@ -759,6 +826,7 @@ explicitConstructorInvocation
 variableDefinitions[JavaToken type, JavaToken commentToken]
     :   variableDeclarator[type, commentToken]
         (COMMA variableDeclarator[type, commentToken] )*
+   
     ;
 
 // Declaration of a variable.  This can be a class/instance variable,
@@ -926,13 +994,16 @@ statement
 	// up, but that's pretty hard without a symbol table ;)
 	|	(declaration)=> declaration SEMI
 
-        // An expression statement.  This could be a method call,
+    // An expression statement.  This could be a method call,
 	// assignment statement, or any other expression evaluated for
 	// side-effects.
 	|	expression SEMI
 
 	// class definition
 	|	mods=modifiers classDefinition[mods, null]
+	
+	//BQ add enum definition?
+	|	mods=modifiers enumDefinition[mods, null]
 
     // Attach a label to the front of a statement
     |   id:IDENT COLON statement  {defineLabel((JavaToken)id);}
