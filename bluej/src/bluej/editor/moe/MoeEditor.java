@@ -1000,7 +1000,7 @@ public final class MoeEditor extends JFrame
                 try {
                     pane.setPage(e.getURL());
                 } catch (Throwable t) {
-                    info.warning("cannot display hyperlink");
+                    info.warning("cannot display hyperlink: " + e.getURL());
                     Debug.reportError("hyperlink failed: " + t);
                 }
             }
@@ -1698,10 +1698,10 @@ public final class MoeEditor extends JFrame
 
             if(reload) {
                 try {
-//                     FileReader reader = new FileReader(getDocPath());
-//                     htmlPane.read(reader, null);
-//                     reader.close();
-                    htmlPane.setPage("file://" + getDocPath());
+                    String fileName = getDocPath();
+                    if(fileName.charAt(1) == ':')  // has Windows drive letter
+                        fileName = fileName.substring(2);
+                    htmlPane.setPage("file://" + fileName);
 
                     htmlDocument = (HTMLDocument)htmlPane.getDocument();
                     htmlDocument.setBase(new URL("file://" + getDocPath()));
