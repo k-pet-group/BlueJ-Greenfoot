@@ -2,12 +2,12 @@
  ** Class Tester - write a description of the class here
  ** 
  ** @author: 
- ** Date: 
+ ** Date: vnjf vjf
  **/
-public class Tester
+public class Tester 
 {
     // instance variables - replace the example below with your own
-    static int st = 33;
+    public static int st = 33;
     
     private int x;
     public String name = "Michael";

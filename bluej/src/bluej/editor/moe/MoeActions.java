@@ -487,7 +487,14 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    Preferences pref = new Preferences();
+	    MoeEditor ed = getEditor(e);
+	    boolean confirmed = pref.showDialog(ed);
+	    
+	    if(confirmed) {
+		Debug.message("size is: " + pref.getFontSize());
+		ed.setFontSize(pref.getFontSize());
+	    }
 	}
     }
 

@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.util.Properties;
 
 /** 
- ** @version $Id: StdClassRole.java 134 1999-06-21 02:34:23Z bruce $
+ ** @version $Id: StdClassRole.java 140 1999-06-22 06:44:42Z mik $
  ** @author Bruce Quig
  **
  ** A role object which a class target uses to delegate behaviour to.
@@ -32,7 +32,8 @@ public class StdClassRole extends ClassRole
      * @param name the name of the class
      * @param sourceFile the name of the source file to be generated
      */	
-    public void generateSkeleton(Package pkg, String name, String sourceFile, boolean isAbstract, boolean isInterface)
+    public void generateSkeleton(Package pkg, String name, String sourceFile, 
+				 boolean isAbstract, boolean isInterface)
     {
 	String template = isAbstract ? "template.abstract" :
 	    isInterface ? "template.interface" :

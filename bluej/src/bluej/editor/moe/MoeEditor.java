@@ -282,7 +282,7 @@ public final class MoeEditor extends JFrame
 	setView(view);
 	setVisible(true);		// show the window
 	textPane.setFont(editFont);
-	//  ## NYI: de-iconify, bring to front
+	//  ## NYI: de-iconify
     }
 
 
@@ -842,6 +842,20 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
+     *  
+     */
+
+    public void setFontSize(int size)
+    {
+	MutableAttributeSet attr = new SimpleAttributeSet();
+	StyleConstants.setFontSize(attr, size);
+	int start = document.getStartPosition().getOffset();
+	int length = document.getEndPosition().getOffset() - start;
+	document.setCharacterAttributes(start, length, attr, false);
+    }
+
+    // --------------------------------------------------------------------
+    /**
      *  Implementation of "compile" user function.
      */
 
@@ -1301,7 +1315,7 @@ public final class MoeEditor extends JFrame
 	actions.getActionByName("uncomment").setEnabled(false);
 	actions.getActionByName("replace").setEnabled(false);
 	actions.getActionByName("goto-line").setEnabled(false);
-	actions.getActionByName("preferences").setEnabled(false);
+	//actions.getActionByName("preferences").setEnabled(false);
 	actions.getActionByName("describe-key").setEnabled(false);
 	actions.getActionByName("show-manual").setEnabled(false);
 

@@ -40,7 +40,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 139 1999-06-22 06:25:37Z bruce $
+ ** @version $Id: ClassTarget.java 140 1999-06-22 06:44:42Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -434,14 +434,12 @@ public class ClassTarget extends EditableTarget
 	    ClassInfo info = ClassParser.parse(sourceFile(), 
 					       pkg.getAllClassnames());
 	    if(info.isApplet()) {
-		if( ! (this instanceof AppletTarget))
-		    Debug.message(" convert class to applet");
-		// FIX: convert
+		if( ! (role instanceof AppletClassRole))
+		    role = new AppletClassRole();
 	    }
 	    else {
-		if(this instanceof AppletTarget)
-		    Debug.message(" convert applet to class");
-		    // FIX: convert
+		if( ! (role instanceof StdClassRole))
+		    role = new StdClassRole();
 	    }
 
 	    setInterface(info.isInterface());

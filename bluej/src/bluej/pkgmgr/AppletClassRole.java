@@ -19,7 +19,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 139 1999-06-22 06:25:37Z bruce $
+ ** @version $Id: AppletClassRole.java 140 1999-06-22 06:44:42Z mik $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -55,7 +55,8 @@ public class AppletClassRole extends ClassRole
      * @param name the name of the class
      * @param sourceFile the name of the source file to be generated
      */
-    public void generateSkeleton(Package pkg, String name, String sourceFile, boolean isAbstract, boolean isInterface)
+    public void generateSkeleton(Package pkg, String name, String sourceFile,
+				 boolean isAbstract, boolean isInterface)
     {
 	String template = "template.applet";
 
@@ -231,19 +232,21 @@ public class AppletClassRole extends ClassRole
 	try {
 	    Utility.translateFile(filename, outputFileName, translations);
 	} catch(IOException e) {
-	    Debug.reportError("Exception during file translation from " + filename + " to " + outputFileName);
+	    Debug.reportError("Exception during file translation from " + 
+			      filename + " to " + outputFileName);
 	    e.printStackTrace();
 	}
     }
 
 
-   /**
+    /**
      * 
      * Removes applicable files (.class, .java and .ctxt) prior to 
      * this AppletClassRole being removed from a Package.
      *
      */
-    public void prepareFilesForRemoval(String sourceFile, String classFile, String contextFile)
+    public void prepareFilesForRemoval(String sourceFile, String classFile, 
+				       String contextFile)
     {
 	super.prepareFilesForRemoval(sourceFile, classFile, contextFile);
 
@@ -254,16 +257,15 @@ public class AppletClassRole extends ClassRole
     }
 
 
-  // overloads method in Target super class
-    public void draw(Graphics g, ClassTarget ct, int x, int y, int width, int height)
+    public void draw(Graphics g, ClassTarget ct, int x, int y, int width, 
+		     int height)
     {
 	g.setColor(ct.getTextColour());
-	Utility.drawCentredText(g, 
-				"www",
-				x + Target.TEXT_BORDER, 
-				y + height - (Target.TEXT_HEIGHT + Target.TEXT_BORDER),
-				width - (2 * Target.TEXT_BORDER), Target.TEXT_HEIGHT);
+	Utility.drawCentredText(g, "www",
+		x + Target.TEXT_BORDER, 
+		y + height - (Target.TEXT_HEIGHT + Target.TEXT_BORDER),
+		width - (2 * Target.TEXT_BORDER), Target.TEXT_HEIGHT);
     
-     }
+    }
 
 }
