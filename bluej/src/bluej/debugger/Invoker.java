@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 532 2000-06-08 07:46:08Z ajp $
+ * @version $Id: Invoker.java 583 2000-06-26 01:51:17Z mik $
  */
 
 public class Invoker extends Thread
@@ -71,7 +71,7 @@ public class Invoker extends Thread
      * Call a class's constructor, then create an ObjectWrapper for the
      * resulting object
      *
-     * @param pkg       the Package we are working on
+     * @param pmf       the frame of the package we are working on
      * @param member    the member to invoke
      * @param objName   the name of the object on which the method is called (has no
      *                  relevance when we are calling a constructor or static method)
@@ -386,7 +386,8 @@ public class Invoker extends Thread
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, null);
             DebuggerClassLoader loader = pkg.getRemoteClassLoader();
             String shellClassName = pkg.getQualifiedName(shellName);
-            Debugger.debugger.startClass(loader, shellClassName, pkg);
+            Debugger.debugger.startClass(loader, shellClassName, 
+                                         pkg.getProject());
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
 
             // the execution is completed, get the result if there was one

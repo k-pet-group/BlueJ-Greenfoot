@@ -15,20 +15,20 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 507 2000-05-24 06:36:15Z ajp $
+ * @version $Id: JdiThread.java 583 2000-06-26 01:51:17Z mik $
  */
 public final class JdiThread extends DebuggerThread
 {
     ThreadReference rt; // the reference to the remote thread
     Object userParam;   // an optional user parameter associated with this
-                        // thread
+    // thread
     int selectedFrame;  // stores a stack frame that was selected for this
-                        // thread (selection is done for debugging)
+    // thread (selection is done for debugging)
 
     EventRequestManager eventReqMgr;
 
     static ObjectReference terminateException;  // The exception object to use
-                                                //   to terminate a thread
+    //   to terminate a thread
 
     public static void setTerminateException(ObjectReference terminateExc)
     {
@@ -83,7 +83,7 @@ public final class JdiThread extends DebuggerThread
         try {
             if(rt.isAtBreakpoint()) {
                 if(rt.frame(0).location().declaringType().name().equals(
-                				"bluej.runtime.ExecServer"))
+                                                                        "bluej.runtime.ExecServer"))
                     return "finished";
                 else
                     return "at breakpoint";
@@ -120,22 +120,31 @@ public final class JdiThread extends DebuggerThread
         return rt.isSuspended();
     }
 
+    public String getClass(int frameNo)
+    {
+        try {
+            return rt.frame(frameNo).location().declaringType().name();
+        } catch(Exception e) {
+            return "<error finding type at frame " + frameNo +">";
+        }
+    }
+
     public String getClassSourceName(int frameNo)
     {
-	try {
-	    return rt.frame(frameNo).location().sourceName();
-	} catch(Exception e) {
-	    return "<no source at frame no " + frameNo +">";
-	}
+        try {
+            return rt.frame(frameNo).location().sourceName();
+        } catch(Exception e) {
+            return "<no source at frame no " + frameNo +">";
+        }
     }
 
     public int getLineNumber(int frameNo)
     {
-	try {
-	    return rt.frame(frameNo).location().lineNumber();
-	} catch(Exception e) {
-	    return 1;
-	}
+        try {
+            return rt.frame(frameNo).location().lineNumber();
+        } catch(Exception e) {
+            return 1;
+        }
     }
 
     /**
@@ -149,33 +158,35 @@ public final class JdiThread extends DebuggerThread
      */
     public Vector getStack()
     {
-	//Debug.message("[JdiThread] getStack");
-	try {
-	    if(rt.isSuspended()) {
+        //Debug.message("[JdiThread] getStack");
+        try {
+            if(rt.isSuspended()) {
+                Debug.message("is suspended");
 
-		Vector stack = new Vector();
-		List frames = rt.frames();
+                Vector stack = new Vector();
+                List frames = rt.frames();
 
-		boolean shellFound = false;
-		for(int i = 0; i < frames.size(); i++) {
-		    StackFrame f = (StackFrame)frames.get(i);
-		    Location loc = f.location();
-		    String classname = loc.declaringType().name();
-		    if(classname.startsWith("__SHELL")) {
-			shellFound = true;
-			break;
-		    }
-		    stack.addElement(classname + "." + loc.method().name());
-		}
-		if(shellFound)
-		    return stack;
-		else
-		    return new Vector();
-	    }
-	} catch(Exception e) {
-	    Debug.reportError("error while getting stack info");
-	}
-	return new Vector();
+                boolean shellFound = false;
+                for(int i = 0; i < frames.size(); i++) {
+                    StackFrame f = (StackFrame)frames.get(i);
+                    Location loc = f.location();
+                    String classname = loc.declaringType().name();
+                    if(classname.startsWith("__SHELL")) {
+                        shellFound = true;
+                        break;
+                    }
+                    stack.addElement(classname + "." + loc.method().name());
+                }
+                return stack;
+//                 if(shellFound)
+//                     return stack;
+//                 else
+//                     return new Vector();
+            }
+        } catch(Exception e) {
+            Debug.reportError("error while getting stack info");
+        }
+        return new Vector();
     }
 
 
@@ -187,28 +198,28 @@ public final class JdiThread extends DebuggerThread
      */
     public Vector getLocalVariables(int frameNo)
     {
-	//Debug.message("[JdiThread] getLocalVariables");
-	try {
-	    if(rt.isSuspended()) {
-		StackFrame frame = rt.frame(frameNo);
-		List vars = frame.visibleVariables();
-		Vector localVars = new Vector();
+        //Debug.message("[JdiThread] getLocalVariables");
+        try {
+            if(rt.isSuspended()) {
+                StackFrame frame = rt.frame(frameNo);
+                List vars = frame.visibleVariables();
+                Vector localVars = new Vector();
 
-		for(int i = 0; i < vars.size(); i++) {
-		    LocalVariable var = (LocalVariable)vars.get(i);
-		    String val = JdiObject.getValueString(
-						frame.getValue(var));
-		    localVars.addElement(var.typeName() + " " +
-					 var.name() + " = " + val);
+                for(int i = 0; i < vars.size(); i++) {
+                    LocalVariable var = (LocalVariable)vars.get(i);
+                    String val = JdiObject.getValueString(
+                                                          frame.getValue(var));
+                    localVars.addElement(var.typeName() + " " +
+                                         var.name() + " = " + val);
 
-		}
-		return localVars;
-	    }
-	} catch(Exception e) {
-	    // nothing can be done...
-	    Debug.reportError("could not get local variable info: " + e);
-	}
-	return new Vector();
+                }
+                return localVars;
+            }
+        } catch(Exception e) {
+            // nothing can be done...
+            Debug.reportError("could not get local variable info: " + e);
+        }
+        return new Vector();
     }
 
     /**
@@ -216,21 +227,21 @@ public final class JdiThread extends DebuggerThread
      */
     public boolean varIsObject(int frameNo, int index)
     {
-	try {
-	    if(rt.isSuspended()) {
-		StackFrame frame = rt.frame(frameNo);
-		List vars = frame.visibleVariables();
-		LocalVariable var = (LocalVariable)vars.get(index);
-		Value val = frame.getValue(var);
-		return (val instanceof ObjectReference);
-	    }
-	    else
-		return false;
-	} catch(Exception e) {
-	    // nothing can be done...
-	    Debug.reportError("could not get local variable info: " + e);
-	}
-	return false;
+        try {
+            if(rt.isSuspended()) {
+                StackFrame frame = rt.frame(frameNo);
+                List vars = frame.visibleVariables();
+                LocalVariable var = (LocalVariable)vars.get(index);
+                Value val = frame.getValue(var);
+                return (val instanceof ObjectReference);
+            }
+            else
+                return false;
+        } catch(Exception e) {
+            // nothing can be done...
+            Debug.reportError("could not get local variable info: " + e);
+        }
+        return false;
     }
 
     /**
@@ -239,52 +250,52 @@ public final class JdiThread extends DebuggerThread
      */
     public DebuggerObject getStackObject(int frameNo, int index)
     {
-	try {
-	    if(rt.isSuspended()) {
-		StackFrame frame = rt.frame(frameNo);
-		List vars = frame.visibleVariables();
-		LocalVariable var = (LocalVariable)vars.get(index);
-		ObjectReference val = (ObjectReference)frame.getValue(var);
-		return JdiObject.getDebuggerObject(val);
-	    }
-	    else
-		return null;
-	} catch(Exception e) {
-	    // nothing can be done...
-	    Debug.reportError("could not get local variable info: " + e);
-	}
-	return null;
+        try {
+            if(rt.isSuspended()) {
+                StackFrame frame = rt.frame(frameNo);
+                List vars = frame.visibleVariables();
+                LocalVariable var = (LocalVariable)vars.get(index);
+                ObjectReference val = (ObjectReference)frame.getValue(var);
+                return JdiObject.getDebuggerObject(val);
+            }
+            else
+                return null;
+        } catch(Exception e) {
+            // nothing can be done...
+            Debug.reportError("could not get local variable info: " + e);
+        }
+        return null;
     }
 
     public DebuggerObject getCurrentObject(int frameNo)
     {
-	try {
-	    if(rt.isSuspended()) {
-		StackFrame frame = rt.frame(frameNo);
-		return JdiObject.getDebuggerObject(frame.thisObject());
-	    }
-	} catch(Exception e) {
-	    // nothing can be done...
-	    Debug.reportError("could not get current object: " + e);
-	}
-	return null;
+        try {
+            if(rt.isSuspended()) {
+                StackFrame frame = rt.frame(frameNo);
+                return JdiObject.getDebuggerObject(frame.thisObject());
+            }
+        } catch(Exception e) {
+            // nothing can be done...
+            Debug.reportError("could not get current object: " + e);
+        }
+        return null;
     }
 
 
     public void setSelectedFrame(int frame)
     {
-	selectedFrame = frame;
+        selectedFrame = frame;
     }
 
     public int getSelectedFrame()
     {
-	return selectedFrame;
+        return selectedFrame;
     }
 
     public void stop()
     {
-	if(!rt.isSuspended())
-	    rt.suspend();
+        if(!rt.isSuspended())
+            rt.suspend();
     }
 
     public void step()
@@ -301,7 +312,7 @@ public final class JdiThread extends DebuggerThread
     {
         clearPreviousStep(rt);
         StepRequest request = eventReqMgr.createStepRequest(rt,
-					StepRequest.STEP_LINE, depth);
+                                               StepRequest.STEP_LINE, depth);
         // Make sure the step event is done only once
         request.addCountFilter(1);
         request.enable();
@@ -310,19 +321,19 @@ public final class JdiThread extends DebuggerThread
 
     public void cont()
     {
-	rt.resume();
+        rt.resume();
     }
 
     public void terminate()
     {
-	try {
-	    rt.stop(terminateException);
-	    if(rt.isSuspended())
-		rt.resume();
-	}
-	catch(Exception e) {
-	    Debug.reportError("cannot terminate thread: " + e);
-	}
+        try {
+            rt.stop(terminateException);
+            if(rt.isSuspended())
+                rt.resume();
+        }
+        catch(Exception e) {
+            Debug.reportError("cannot terminate thread: " + e);
+        }
     }
 
     /**

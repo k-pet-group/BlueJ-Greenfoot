@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 526 2000-06-01 04:54:49Z mik $
+ * @version $Id: JdiDebugger.java 583 2000-06-26 01:51:17Z mik $
  *
  * The startup process is as follows:
  *
@@ -104,26 +104,27 @@ public final class JdiDebugger extends Debugger
 
     private int exitStatus;
     private ExceptionDescription lastException;
-    private Hashtable activeThreads;
+    private Object executionUserParam;   // a user defined parameter set with
+                                         //  each execution
 
 
     public JdiDebugger()
     {
-	super();
-	activeThreads = new Hashtable();
+        super();
+        executionUserParam = null;
     }
 
 
     private VirtualMachine machine = null;
     private synchronized VirtualMachine getVM()
     {
-	while(!initialised)
-	    try {
-		wait();
-	    } catch(InterruptedException e) {
-	    }
+        while(!initialised)
+            try {
+                wait();
+            } catch(InterruptedException e) {
+            }
 
-	return machine;
+        return machine;
     }
 
 
@@ -149,22 +150,22 @@ public final class JdiDebugger extends Debugger
 
         // debug code to print out all existing arguments and their
         // description
-	//  	Collection c = arguments.values();
-	//  	Iterator i = c.iterator();
-	//  	while(i.hasNext()) {
-	//  	    Connector.Argument a = (Connector.Argument)i.next();
-	//  	    Debug.message("arg name: " + a.name());
-	//  	    Debug.message("  descr: " + a.description());
-	//  	    Debug.message("  value: " + a.value());
-	//  	}
+        //  	Collection c = arguments.values();
+        //  	Iterator i = c.iterator();
+        //  	while(i.hasNext()) {
+        //  	    Connector.Argument a = (Connector.Argument)i.next();
+        //  	    Debug.message("arg name: " + a.name());
+        //  	    Debug.message("  descr: " + a.description());
+        //  	    Debug.message("  value: " + a.value());
+        //  	}
 
-	// "main" is the command line: main class and arguments
+        // "main" is the command line: main class and arguments
         Connector.Argument mainArg =
-	    (Connector.Argument)arguments.get("main");
+            (Connector.Argument)arguments.get("main");
         Connector.Argument optionsArg =
-	    (Connector.Argument)arguments.get("options");
+            (Connector.Argument)arguments.get("options");
         //Connector.Argument suspendArg =
-	//    (Connector.Argument)arguments.get("suspend");
+        //    (Connector.Argument)arguments.get("suspend");
 
         if (mainArg == null || optionsArg == null) {
             Debug.reportError("Cannot start virtual machine.");
@@ -173,18 +174,18 @@ public final class JdiDebugger extends Debugger
         }
         mainArg.setValue(SERVER_CLASSNAME);
         optionsArg.setValue(VM_OPTIONS);
-	//suspendArg.setValue("false");
+        //suspendArg.setValue("false");
 
         try {
             machine = connector.launch(arguments);
             process = machine.process();
             redirectIOStream(process.getErrorStream(), System.out, false);
             redirectIOStream(process.getInputStream(),
-			     Terminal.getTerminal().getOutputStream(), false);
+                             Terminal.getTerminal().getOutputStream(), false);
             redirectIOStream(Terminal.getTerminal().getInputStream(),
-			     process.getOutputStream(), false);
+                             process.getOutputStream(), false);
 
-	} catch (VMStartException vmse) {
+        } catch (VMStartException vmse) {
             Debug.reportError("Target VM did not initialise.");
             Debug.reportError(vmse.getMessage() + "\n");
             dumpFailedLaunchInfo(vmse.process());
@@ -224,8 +225,8 @@ public final class JdiDebugger extends Debugger
         }
         finally {
             if (process != null) {
-                    process.destroy();
-                    process = null;
+                process.destroy();
+                process = null;
             }
         }
     }
@@ -279,7 +280,7 @@ public final class JdiDebugger extends Debugger
      *  DebuggerClassLoader, with which the BlueJClassLoader can be looked up.
      */
     public DebuggerClassLoader createClassLoader(String scopeId,
-                                                    String classpath)
+                                                 String classpath)
     {
         ClassLoaderReference loader = (ClassLoaderReference)
             startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "");
@@ -316,7 +317,7 @@ public final class JdiDebugger extends Debugger
      *				event parameter
      */
     public void startClass(DebuggerClassLoader loader, String classname,
-                            Object eventParam)
+                           Object eventParam)
     {
         loadClass(loader, classname);
         ClassType shellClass = findClassByName(machine, classname, loader);
@@ -330,42 +331,44 @@ public final class JdiDebugger extends Debugger
         // ** call Shell.run() **
 
         List arguments = new ArrayList();	// empty argument list
-  	try {
-	    exitStatus = NORMAL_EXIT;
-	    // the following is in preparation for running several threads
-	    // concurrently: we remember which thread is used for executing
-	    // in which package (although, currently, there is always only
-	    // one thread at a time, the serverThread).
-	    activeThreads.put(serverThread, eventParam);
-	    machineStatus = RUNNING;
+        try {
+            exitStatus = NORMAL_EXIT;
+            // the following is in preparation for running several threads
+            // concurrently: we remember which thread is used for executing
+            // in which package (although, currently, there is always only
+            // one thread at a time, the serverThread).
+            if(executionUserParam != null)
+                Debug.reportError("concurrent execution detected - not supported!");
+            executionUserParam = eventParam;
+            machineStatus = RUNNING;
 
-  	    Value returnVal = shellClass.invokeMethod(serverThread,
-						      runMethod,
-						      arguments, 0);
-	    // returnVal is type void
-	    // 'invokeMethod' is synchronous - when we get here it has
-	    // finished
+            Value returnVal = shellClass.invokeMethod(serverThread,
+                                                      runMethod,
+                                                      arguments, 0);
+            // returnVal is type void
+            // 'invokeMethod' is synchronous - when we get here it has
+            // finished
 
-	    // invokeMethod leaves everything suspended, so restart the
-	    // system threads...
-	    resumeMachine();
-	    //dumpThreadInfo();
-	}
-  	catch(InvocationException e) {
-	    // exception thrown in remote machine - ignored here. The
-	    // exception is handled through the exceptionEvent method
-	}
-  	catch(Exception e) {
-	    // remote invocation failed
-	    Debug.message("starting shell class failed: " + e);
-	    exitStatus = EXCEPTION;
-	    lastException = new ExceptionDescription(
-					"Internal BlueJ error!",
-					"Cannot execute remote command",
-					null, 0);
-  	}
+            // invokeMethod leaves everything suspended, so restart the
+            // system threads...
+            resumeMachine();
+            //dumpThreadInfo();
+        }
+        catch(InvocationException e) {
+            // exception thrown in remote machine - ignored here. The
+            // exception is handled through the exceptionEvent method
+        }
+        catch(Exception e) {
+            // remote invocation failed
+            Debug.message("starting shell class failed: " + e);
+            exitStatus = EXCEPTION;
+            lastException = new ExceptionDescription(
+                                   "Internal BlueJ error!",
+                                   "Cannot execute remote command",
+                                   null, 0);
+        }
         machineStatus = IDLE;
-        activeThreads.remove(serverThread);
+        //executionUserParam = null;
     }
 
 
@@ -383,7 +386,7 @@ public final class JdiDebugger extends Debugger
      * 'fieldName' in object 'instanceName'.
      */
     public void addObjectToScope(String scopeId, String instanceName,
-                                     String fieldName, String newObjectName)
+                                 String fieldName, String newObjectName)
     {
         //Debug.message("[addObjectToScope]: " + newObjectName);
         startServer(ExecServer.ADD_OBJECT, scopeId, instanceName,
@@ -425,7 +428,7 @@ public final class JdiDebugger extends Debugger
      * Serialize an object in the debugger to a file
      */
     public void serializeObject(String scopeId, String instanceName,
-                                 String fileName)
+                                String fileName)
     {
         //Debug.message("[serializeObject]: " + instanceName);
         startServer(ExecServer.SERIALIZE_OBJECT, scopeId, instanceName, fileName, "");
@@ -439,7 +442,7 @@ public final class JdiDebugger extends Debugger
     {
         //Debug.message("[deserializeObject]: " + newInstanceName);
         ObjectReference objRef = (ObjectReference)
-           startServer(ExecServer.DESERIALIZE_OBJECT, loaderId, scopeId, newInstanceName, fileName);
+            startServer(ExecServer.DESERIALIZE_OBJECT, loaderId, scopeId, newInstanceName, fileName);
 
         if (objRef == null)
             return null;
@@ -461,7 +464,7 @@ public final class JdiDebugger extends Debugger
      * has completed.
      */
     private Value startServer(int task, String arg1,
-                               String arg2, String arg3, String arg4)
+                              String arg2, String arg3, String arg4)
     {
         VirtualMachine vm = getVM();
 
@@ -512,52 +515,52 @@ public final class JdiDebugger extends Debugger
      */
     private boolean setupServerConnection(VirtualMachine vm)
     {
-	if(serverClass == null)
-	    Debug.reportError("server class not initialised!");
+        if(serverClass == null)
+            Debug.reportError("server class not initialised!");
 
-	Field serverField = serverClass.fieldByName(SERVER_FIELD_NAME);
-	execServer = (ObjectReference)serverClass.getValue(serverField);
+        Field serverField = serverClass.fieldByName(SERVER_FIELD_NAME);
+        execServer = (ObjectReference)serverClass.getValue(serverField);
 
-	if(execServer == null) {
-	    sleep(3000);
-	    execServer = (ObjectReference)serverClass.getValue(serverField);
-	}
-	if(execServer == null) {
-	    Debug.reportError("Failed to load VM server object");
-	    Debug.reportError("Fatal: User code execution will not work");
-	    return false;
-	}
+        if(execServer == null) {
+            sleep(3000);
+            execServer = (ObjectReference)serverClass.getValue(serverField);
+        }
+        if(execServer == null) {
+            Debug.reportError("Failed to load VM server object");
+            Debug.reportError("Fatal: User code execution will not work");
+            return false;
+        }
 
-	Field excField = serverClass.fieldByName(TERMINATE_FIELD_NAME);
-	ObjectReference terminateException =
-	    (ObjectReference)serverClass.getValue(excField);
-	JdiThread.setTerminateException(terminateException);
+        Field excField = serverClass.fieldByName(TERMINATE_FIELD_NAME);
+        ObjectReference terminateException =
+            (ObjectReference)serverClass.getValue(excField);
+        JdiThread.setTerminateException(terminateException);
 
-	// okay, we have the server object; now get the perform method
+        // okay, we have the server object; now get the perform method
 
-	performTaskMethod = findMethodByName(serverClass,
-					     SERVER_PERFORM_METHOD_NAME);
-	if(performTaskMethod == null) {
-	    Debug.reportError("invalid VM server object");
-	    Debug.reportError("Fatal: User code execution will not work");
-	    return false;
-	}
+        performTaskMethod = findMethodByName(serverClass,
+                                             SERVER_PERFORM_METHOD_NAME);
+        if(performTaskMethod == null) {
+            Debug.reportError("invalid VM server object");
+            Debug.reportError("Fatal: User code execution will not work");
+            return false;
+        }
 
-	List list = vm.allThreads();
-	for (int i=0 ; i<list.size() ; i++) {
-	    ThreadReference threadRef = (ThreadReference)list.get(i);
-	    if("main".equals(threadRef.name()))
-		serverThread = threadRef;
-	}
+        List list = vm.allThreads();
+        for (int i=0 ; i<list.size() ; i++) {
+            ThreadReference threadRef = (ThreadReference)list.get(i);
+            if("main".equals(threadRef.name()))
+                serverThread = threadRef;
+        }
 
-	if(serverThread == null) {
-	    Debug.reportError("Cannot find server thread on remote VM");
-	    Debug.reportError("Fatal: User code execution will not work");
-	    return false;
-	}
+        if(serverThread == null) {
+            Debug.reportError("Cannot find server thread on remote VM");
+            Debug.reportError("Fatal: User code execution will not work");
+            return false;
+        }
 
-	//Debug.message(" connection to remote VM established");
-	return true;
+        //Debug.message(" connection to remote VM established");
+        return true;
     }
 
 
@@ -565,7 +568,7 @@ public final class JdiDebugger extends Debugger
      * Get the value of a static field in a class.
      */
     public DebuggerObject getStaticValue(String className, String fieldName)
-	throws Exception
+        throws Exception
     {
         DebuggerObject object = null;
 
@@ -612,60 +615,60 @@ public final class JdiDebugger extends Debugger
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
-	String excClass = exc.exception().type().name();
-	ObjectReference remoteException = exc.exception();
+        String excClass = exc.exception().type().name();
+        ObjectReference remoteException = exc.exception();
 
-	if(excClass.equals("bluej.runtime.TerminateException")) {
-	    // this was an explicit "terminate" by the user
-	    exitStatus = TERMINATED;
-	    lastException = null;
-	    return;
-	}
+        if(excClass.equals("bluej.runtime.TerminateException")) {
+            // this was an explicit "terminate" by the user
+            exitStatus = TERMINATED;
+            lastException = null;
+            return;
+        }
 
-	// get the exception text
-	// attention: the following depends on the (undocumented) fact that
-	// the internal exception message field is named "detailMessage".
-  	Field msgField =
-  	    remoteException.referenceType().fieldByName("detailMessage");
-  	StringReference val =
-  	    (StringReference)remoteException.getValue(msgField);
+        // get the exception text
+        // attention: the following depends on the (undocumented) fact that
+        // the internal exception message field is named "detailMessage".
+        Field msgField =
+            remoteException.referenceType().fieldByName("detailMessage");
+        StringReference val =
+            (StringReference)remoteException.getValue(msgField);
 
-	//better: get message via method call
-	//Method getMessageMethod = findMethodByName(
-	//				   remoteException.referenceType(),
-	//				   "getMessage");
-	//StringReference val = null;
-	//try {
-	//    val = (StringReference)execServer.invokeMethod(serverThread,
-	//  						getMessageMethod,
-	//  						null, 0);
-	//} catch(Exception e) {
-	//    Debug.reportError("Problem getting exception message: " + e);
-	//}
+        //better: get message via method call
+        //Method getMessageMethod = findMethodByName(
+        //				   remoteException.referenceType(),
+        //				   "getMessage");
+        //StringReference val = null;
+        //try {
+        //    val = (StringReference)execServer.invokeMethod(serverThread,
+        //  						getMessageMethod,
+        //  						null, 0);
+        //} catch(Exception e) {
+        //    Debug.reportError("Problem getting exception message: " + e);
+        //}
 
-	String exceptionText =
-	    (val == null ? null : val.value());
+        String exceptionText =
+            (val == null ? null : val.value());
 
-	if(excClass.equals("bluej.runtime.ExitException")) {
-	    // this was a "System.exit()", not a real exception!
-	    exitStatus = FORCED_EXIT;
-	    lastException = new ExceptionDescription(exceptionText);
-	}
-	else {		// real exception
+        if(excClass.equals("bluej.runtime.ExitException")) {
+            // this was a "System.exit()", not a real exception!
+            exitStatus = FORCED_EXIT;
+            lastException = new ExceptionDescription(exceptionText);
+        }
+        else {		// real exception
 
-	    Location loc = exc.location();
-	    String fileName;
-	    try {
-		fileName = loc.sourceName();
-	    } catch(Exception e) {
-		fileName = null;
-	    }
-	    int lineNumber = loc.lineNumber();
+            Location loc = exc.location();
+            String fileName;
+            try {
+                fileName = loc.sourceName();
+            } catch(Exception e) {
+                fileName = null;
+            }
+            int lineNumber = loc.lineNumber();
 
-	    exitStatus = EXCEPTION;
-	    lastException = new ExceptionDescription(excClass, exceptionText,
-						     fileName, lineNumber);
-	}
+            exitStatus = EXCEPTION;
+            lastException = new ExceptionDescription(excClass, exceptionText,
+                                                     fileName, lineNumber);
+        }
     }
 
     /**
@@ -675,36 +678,31 @@ public final class JdiDebugger extends Debugger
      */
     public void breakEvent(LocatableEvent event, boolean breakpoint)
     {
-	// if the breakpoint is marked as "BluejBreak" then this is our
-	// own breakpoint that we have been waiting for at startup
+        // if the breakpoint is marked as "BluejBreak" then this is our
+        // own breakpoint that we have been waiting for at startup
 
-	if("true".equals(event.request().getProperty("isBluejBreak"))) {
-	    synchronized(this) {
-		notifyAll();
-	    }
-	}
-	else {
-	    // breakpoint set by user in user code
+        if("true".equals(event.request().getProperty("isBluejBreak"))) {
+            synchronized(this) {
+                notifyAll();
+            }
+        }
+        else {
+            // breakpoint set by user in user code
 
-	    machineStatus = SUSPENDED;
-	    ThreadReference remoteThread = event.thread();
-	    Object pkg = activeThreads.get(remoteThread);
-	    if(pkg == null)
-		Debug.reportError("cannot find breakpoint thread!");
-	    else {
-		JdiThread thread = new JdiThread(remoteThread, pkg);
-		if(thread.getClassSourceName(0).startsWith("__SHELL")) {
-		    // stepped out into the shell class - resume to finish
-		    getVM().resume();
-		}
-		else {
-		    if(breakpoint)
-			BlueJEvent.raiseEvent(BlueJEvent.BREAKPOINT, thread);
-		    else
-			BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
-		}
-	    }
-	}
+            machineStatus = SUSPENDED;
+            ThreadReference remoteThread = event.thread();
+            JdiThread thread = new JdiThread(remoteThread, executionUserParam);
+            if(thread.getClassSourceName(0).startsWith("__SHELL")) {
+                // stepped out into the shell class - resume to finish
+                getVM().resume();
+            }
+            else {
+                if(breakpoint)
+                    BlueJEvent.raiseEvent(BlueJEvent.BREAKPOINT, thread);
+                else
+                    BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
+            }
+        }
     }
 
 
@@ -720,7 +718,7 @@ public final class JdiDebugger extends Debugger
      * @return  null if there was no problem, or an error string
      */
     public String toggleBreakpoint(String className, int line, boolean set,
-                                    DebuggerClassLoader loader)
+                                   DebuggerClassLoader loader)
     {
         //Debug.message("[toggleBreakpoint]: " + className);
 
@@ -732,41 +730,41 @@ public final class JdiDebugger extends Debugger
         if(remoteClass == null)
             return "Class not found";
 
-	try {
-	    Location loc = findLocationInLine(remoteClass, line);
-	    if(loc == null)
-		return Config.getString("debugger.jdiDebugger.noCodeMsg");
+        try {
+            Location loc = findLocationInLine(remoteClass, line);
+            if(loc == null)
+                return Config.getString("debugger.jdiDebugger.noCodeMsg");
 
-	    EventRequestManager erm = vm.eventRequestManager();
-	    if(set) {
-		BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
-		bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-		bpreq.enable();
-		return null;
-	    }
-	    else {	// clear breakpoint
-		List list = erm.breakpointRequests();
-		for (int i=0 ; i < list.size() ; i++) {
-		    BreakpointRequest bp = (BreakpointRequest)list.get(i);
-		    if(bp.location().equals(loc)) {
-			erm.deleteEventRequest(bp);
-			return null;
-		    }
-		}
-		// bp not found
-		return Config.getString("debugger.jdiDebugger.noBreakpointMsg");
-	    }
-	}
-	catch(AbsentInformationException e) {
-	    return Config.getString("debugger.jdiDebugger.noLineNumberMsg");
-	}
-	catch(InvalidLineNumberException e) {
-	    return Config.getString("debugger.jdiDebugger.noCodeMsg");
-	}
-	catch(Exception e) {
-	    Debug.reportError("breakpoint error: " + e);
-	    return Config.getString("debugger.jdiDebugger.internalErrorMsg");
-	}
+            EventRequestManager erm = vm.eventRequestManager();
+            if(set) {
+                BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
+                bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+                bpreq.enable();
+                return null;
+            }
+            else {	// clear breakpoint
+                List list = erm.breakpointRequests();
+                for (int i=0 ; i < list.size() ; i++) {
+                    BreakpointRequest bp = (BreakpointRequest)list.get(i);
+                    if(bp.location().equals(loc)) {
+                        erm.deleteEventRequest(bp);
+                        return null;
+                    }
+                }
+                // bp not found
+                return Config.getString("debugger.jdiDebugger.noBreakpointMsg");
+            }
+        }
+        catch(AbsentInformationException e) {
+            return Config.getString("debugger.jdiDebugger.noLineNumberMsg");
+        }
+        catch(InvalidLineNumberException e) {
+            return Config.getString("debugger.jdiDebugger.noCodeMsg");
+        }
+        catch(Exception e) {
+            Debug.reportError("breakpoint error: " + e);
+            return Config.getString("debugger.jdiDebugger.internalErrorMsg");
+        }
     }
 
     /**
@@ -780,24 +778,24 @@ public final class JdiDebugger extends Debugger
      */
     public Vector listThreads()
     {
-	List threads = getVM().allThreads();
-	int len = threads.size();
+        List threads = getVM().allThreads();
+        int len = threads.size();
 
-	Vector threadVec = new Vector();
+        Vector threadVec = new Vector();
 
-	// reverse order to make display nicer (newer threads first)
-	for(int i = 0; i < len; i++) {
-	    ThreadReference thread = (ThreadReference)threads.get(len-i-1);
-	    if(thread.threadGroup().name().equals(MAIN_THREADGROUP)) {
+        // reverse order to make display nicer (newer threads first)
+        for(int i = 0; i < len; i++) {
+            ThreadReference thread = (ThreadReference)threads.get(len-i-1);
+            //if(thread.threadGroup().name().equals(MAIN_THREADGROUP)) {
 
-		String name = thread.name();
-		if(! name.startsWith("AWT-") &&	       // known system threads
-		   ! name.startsWith("SunToolkit.") &&
-		   ! name.equals("TimerQueue"))
-		    threadVec.addElement(new JdiThread(thread));
-	    }
-	}
-	return threadVec;
+                String name = thread.name();
+                //if(! name.startsWith("AWT-") &&	       // known system threads
+                //   ! name.startsWith("SunToolkit.") &&
+                //   ! name.equals("TimerQueue"))
+                    threadVec.addElement(new JdiThread(thread));
+            //}
+        }
+        return threadVec;
     }
 
     /**
@@ -805,8 +803,8 @@ public final class JdiDebugger extends Debugger
      */
     public void threadStopped(DebuggerThread thread)
     {
-	machineStatus = SUSPENDED;
-	raiseEvent(BlueJEvent.HALT, thread);
+        machineStatus = SUSPENDED;
+        raiseEvent(BlueJEvent.HALT, thread);
     }
 
     /**
@@ -815,8 +813,8 @@ public final class JdiDebugger extends Debugger
      */
     public void threadContinued(DebuggerThread thread)
     {
-	machineStatus = RUNNING;
-	raiseEvent(BlueJEvent.CONTINUE, thread);
+        machineStatus = RUNNING;
+        raiseEvent(BlueJEvent.CONTINUE, thread);
     }
 
     /**
@@ -826,20 +824,14 @@ public final class JdiDebugger extends Debugger
      */
     public void showSource(DebuggerThread thread)
     {
-	raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
+        raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
     }
 
 
     private void raiseEvent(int event, DebuggerThread thread)
     {
-	ThreadReference remoteThread = ((JdiThread)thread).getRemoteThread();
-	Object pkg = activeThreads.get(remoteThread);
-	if(pkg == null)
-	    Debug.reportError("cannot find thread for BlueJ event!");
-	else {
-	    thread.setParam(pkg);
-	    BlueJEvent.raiseEvent(event, thread);
-	}
+        thread.setParam(executionUserParam);
+        BlueJEvent.raiseEvent(event, thread);
     }
 
 
@@ -851,33 +843,33 @@ public final class JdiDebugger extends Debugger
      *  and report an error if more than one is found.
      */
     private ClassType findClassByName(VirtualMachine vm, String classname,
-				      DebuggerClassLoader loader)
+                                      DebuggerClassLoader loader)
     {
-	JdiClassLoader jdiLoader = (JdiClassLoader)loader;
+        JdiClassLoader jdiLoader = (JdiClassLoader)loader;
 
-	List list = vm.classesByName(classname);
-	if(list.size() == 1) {
-	    return (ClassType)list.get(0);
-	}
-	else if(list.size() > 1) {
-	    if(loader == null) {
-		Debug.reportError("found more than one class: " + classname);
-		return null;
-	    }
-	    Iterator iter = list.iterator();
-	    while(iter.hasNext()) {
-		ClassType cl = (ClassType)iter.next();
-		if(cl.classLoader() == jdiLoader.getLoader())
-		    return cl;
-	    }
-	    Debug.reportError("cannot load class: " + classname);
-	    Debug.reportError("classes found, but none matches loader");
-	    return null;
-	}
-	else {
-	    Debug.reportError("cannot find class " + classname);
-	    return null;
-	}
+        List list = vm.classesByName(classname);
+        if(list.size() == 1) {
+            return (ClassType)list.get(0);
+        }
+        else if(list.size() > 1) {
+            if(loader == null) {
+                Debug.reportError("found more than one class: " + classname);
+                return null;
+            }
+            Iterator iter = list.iterator();
+            while(iter.hasNext()) {
+                ClassType cl = (ClassType)iter.next();
+                if(cl.classLoader() == jdiLoader.getLoader())
+                    return cl;
+            }
+            Debug.reportError("cannot load class: " + classname);
+            Debug.reportError("classes found, but none matches loader");
+            return null;
+        }
+        else {
+            Debug.reportError("cannot find class " + classname);
+            return null;
+        }
     }
 
     /**
@@ -887,25 +879,25 @@ public final class JdiDebugger extends Debugger
      */
     private Method findMethodByName(ReferenceType type, String methodName)
     {
-	List list = type.methodsByName(methodName);
-	if(list.size() != 1) {
-	    Debug.reportError("Problem getting method: " + methodName);
-	    return null;
-	}
-	return (Method)list.get(0);
+        List list = type.methodsByName(methodName);
+        if(list.size() != 1) {
+            Debug.reportError("Problem getting method: " + methodName);
+            return null;
+        }
+        return (Method)list.get(0);
     }
 
     /**
      *  Find the first location in a given line in a class.
      */
     private Location findLocationInLine(ClassType cl, int line)
-      throws Exception
+        throws Exception
     {
-	List list = cl.locationsOfLine(line);
-	if(list.size() == 0)
-	    return null;
-	else
-	    return (Location)list.get(0);
+        List list = cl.locationsOfLine(line);
+        if(list.size() == 0)
+            return null;
+        else
+            return (Location)list.get(0);
     }
 
     /**
@@ -926,60 +918,60 @@ public final class JdiDebugger extends Debugger
      *  machine and direct it to our terminal (or vice versa).
      */
     private void redirectIOStream(final InputStream inStream,
-				  final OutputStream outStream,
-				  boolean buffered)
+                                  final OutputStream outStream,
+                                  boolean buffered)
     {
-	Thread thr;
+        Thread thr;
 
-	if(buffered) {
-	    thr = new Thread("I/O reader") {
-		public void run() {
-		    try {
-			dumpStreamBuffered(inStream, outStream);
-		    } catch (IOException ex) {
-			Debug.reportError("Cannot read output user VM.");
-		    }
-		}
-	    };
-	}
-	else {
-	    thr = new Thread("I/O reader") {
-		public void run() {
-		    try {
-			dumpStream(inStream, outStream);
-		    } catch (IOException ex) {
-			Debug.reportError("Cannot read output user VM.");
-		    }
-		}
-	    };
-	}
-	thr.setPriority(Thread.MAX_PRIORITY-1);
-	thr.start();
+        if(buffered) {
+            thr = new Thread("I/O reader") {
+                    public void run() {
+                        try {
+                            dumpStreamBuffered(inStream, outStream);
+                        } catch (IOException ex) {
+                            Debug.reportError("Cannot read output user VM.");
+                        }
+                    }
+                };
+        }
+        else {
+            thr = new Thread("I/O reader") {
+                    public void run() {
+                        try {
+                            dumpStream(inStream, outStream);
+                        } catch (IOException ex) {
+                            Debug.reportError("Cannot read output user VM.");
+                        }
+                    }
+                };
+        }
+        thr.setPriority(Thread.MAX_PRIORITY-1);
+        thr.start();
     }
 
     private void dumpStream(InputStream inStream, OutputStream outStream)
-	throws IOException
+        throws IOException
     {
         int ch;
         while ((ch = inStream.read()) != -1) {
             outStream.write(ch);
-	    outStream.flush();
+            outStream.flush();
         }
     }
 
     private void dumpStreamBuffered(InputStream inStream,
-				    OutputStream outStream)
-	throws IOException
+                                    OutputStream outStream)
+        throws IOException
     {
         BufferedReader in =
             new BufferedReader(new InputStreamReader(inStream));
-	OutputStreamWriter out =
-	    new OutputStreamWriter(outStream);
+        OutputStreamWriter out =
+            new OutputStreamWriter(outStream);
         String line;
         while ((line = in.readLine()) != null) {
             out.write(line);
             out.write("\n");
-	    out.flush();
+            out.flush();
         }
     }
 
@@ -989,17 +981,17 @@ public final class JdiDebugger extends Debugger
             dumpStream(process.getInputStream(), System.out);
         } catch (IOException e) {
             Debug.message("Unable to display process output: " +
-			  e.getMessage());
+                          e.getMessage());
         }
     }
 
     private void sleep(int millisec)
     {
-	synchronized(this) {
-	    try {
-		wait(millisec);
-	    } catch(InterruptedException e) {}
-	}
+        synchronized(this) {
+            try {
+                wait(millisec);
+            } catch(InterruptedException e) {}
+        }
     }
 
     /**
@@ -1010,36 +1002,36 @@ public final class JdiDebugger extends Debugger
      */
     private void resumeMachine()
     {
-	serverThread.suspend();
-	getVM().resume();
+        serverThread.suspend();
+        getVM().resume();
     }
 
 
     private void dumpThreadInfo()
     {
-	Debug.message("threads:");
-	Debug.message("--------");
+        Debug.message("threads:");
+        Debug.message("--------");
 
-	Vector threads = listThreads();
-	if(threads == null)
-	    Debug.message("cannot get thread info!");
-	else {
-	    for(int i = 0; i < threads.size(); i++) {
-		JdiThread thread = (JdiThread)threads.get(i);
-		String status = thread.getStatus();
-		Debug.message(thread.getName() + " [" + status + "]");
-		try{
-		    Debug.message("  group: " +
-				  ((JdiThread)thread).getRemoteThread().
-				  threadGroup());
-		    Debug.message("  monitor: " +
-				  ((JdiThread)thread).getRemoteThread().
-				  currentContendedMonitor());
-		}
-		catch (Exception e) {
-		    Debug.message("  monitor: exc: " + e); }
-		}
-	}
+        Vector threads = listThreads();
+        if(threads == null)
+            Debug.message("cannot get thread info!");
+        else {
+            for(int i = 0; i < threads.size(); i++) {
+                JdiThread thread = (JdiThread)threads.get(i);
+                String status = thread.getStatus();
+                Debug.message(thread.getName() + " [" + status + "]");
+                try{
+                    Debug.message("  group: " +
+                                  ((JdiThread)thread).getRemoteThread().
+                                  threadGroup());
+                    Debug.message("  monitor: " +
+                                  ((JdiThread)thread).getRemoteThread().
+                                  currentContendedMonitor());
+                }
+                catch (Exception e) {
+                    Debug.message("  monitor: exc: " + e); }
+            }
+        }
     }
 
 }

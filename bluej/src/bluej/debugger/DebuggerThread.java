@@ -9,7 +9,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: DebuggerThread.java 137 1999-06-21 07:45:37Z mik $
+ ** @version $Id: DebuggerThread.java 583 2000-06-26 01:51:17Z mik $
  **/
 
 public abstract class DebuggerThread
@@ -19,6 +19,7 @@ public abstract class DebuggerThread
     public abstract Object getParam();
     public abstract String getStatus();
     public abstract boolean isSuspended();
+    public abstract String getClass(int frameNo);
     public abstract String getClassSourceName(int frameNo);
     public abstract int getLineNumber(int frameNo);
 

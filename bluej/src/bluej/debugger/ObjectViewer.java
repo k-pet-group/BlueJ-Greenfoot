@@ -27,7 +27,7 @@ import javax.swing.JSplitPane;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: ObjectViewer.java 581 2000-06-23 05:55:35Z mik $
+ * @version $Id: ObjectViewer.java 583 2000-06-26 01:51:17Z mik $
  */
 public final class ObjectViewer extends JFrame
     implements ActionListener, ListSelectionListener
@@ -164,7 +164,7 @@ public final class ObjectViewer extends JFrame
         // if is an array and needs compressing
         if(obj.isArray() && obj.getInstanceFieldCount() > VISIBLE_ARRAY_FIELDS)
             objFieldList.setListData(
-                                     compressArrayList(obj.getInstanceFields(isInspection)));
+                   compressArrayList(obj.getInstanceFields(isInspection)));
         else
             objFieldList.setListData(obj.getInstanceFields(isInspection));
 

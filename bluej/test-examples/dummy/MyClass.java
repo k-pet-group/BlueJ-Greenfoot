@@ -56,9 +56,9 @@ private int x = 22222;
 	 */
     public int loop(int count)
     {
-        	int sum = 0;
+        int sum = 0;
 
-        	for (int i=0; i<count; i++) {
+        for (int i=0; i<count; i++) {
             sum = sum + i;
             sum = sum -200;
         }

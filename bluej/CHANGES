@@ -3,8 +3,9 @@ done
   export
 
 done recently
-  error dialog for jar export error
-  comments in exportmanager
+  fixed empty-comment-bug
+  fixed some problems with drawing arrows
+  changed debugger (unfinished)
 
 to do
 

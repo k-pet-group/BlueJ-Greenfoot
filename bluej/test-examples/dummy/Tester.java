@@ -1,4 +1,4 @@
- import java.util.*;
+import java.util.*;
 
 /**
  ** Class Tester - write a description of the class here
@@ -6,7 +6,7 @@
  ** @author: 
  ** Date: vnjf vjf
  **/
-public class Tester 
+public class Tester     
 {
 //     // instance variables - replace the example 
     public static int st = 33;

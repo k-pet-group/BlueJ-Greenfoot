@@ -5,7 +5,7 @@ import bluej.utility.Utility;
 import java.util.*;
 
 /**
-** @version $Id: Comment.java 365 2000-01-14 06:33:17Z mik $
+** @version $Id: Comment.java 583 2000-06-26 01:51:17Z mik $
 ** @author Michael Cahill
 **
 ** Comment class - the source information associated with a class or field
@@ -90,11 +90,13 @@ public final class Comment
 
             // remove blank lines front and back
             int first = 0;
-            while (lines[first].length() == 0)
+            while (first<lines.length && lines[first].length() == 0)
                 first++;
             int last = lines.length - 1;
-            while (lines[last].length() == 0)
+            while (last>=0 && lines[last].length() == 0)
                 last--;
+
+            // print the comment lines
             for(int i = first; i<=last; i++) { 
                 for(int j=0; j<indents; j++)
                     out.indentLine(); 

@@ -1,15 +1,16 @@
 package bluej.pkgmgr;
 
+import bluej.Config;
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
+import bluej.pkgmgr.Package;
+import bluej.utility.Utility;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.debugger.*;
 import bluej.classmgr.*;
 import bluej.views.View;
-
-import bluej.Config;
-import bluej.pkgmgr.Package;
-import bluej.utility.Utility;
 
 import java.util.*;
 import java.io.File;
@@ -21,9 +22,10 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 580 2000-06-22 07:17:42Z mik $
+ * @version $Id: Project.java 583 2000-06-26 01:51:17Z mik $
  */
 public class Project
+    implements BlueJEventListener
 {
     // static fields
 
@@ -107,6 +109,7 @@ public class Project
      */
     public static void closeProject(Project project)
     {
+        BlueJEvent.removeListener(project);
         projects.remove(project.getProjectDir().getPath());
     }
 
@@ -188,6 +191,8 @@ public class Project
 
         packages = new TreeMap();
         packages.put("", new Package(this));
+
+        BlueJEvent.addListener(this);
 
         docuGenerator = new DocuGenerator(this);
     }
@@ -448,4 +453,85 @@ public class Project
 
         return null;
     }
+
+    // ---- BlueJEventListener interface ----
+
+    /**
+     *  A BlueJEvent was raised. Check whether it is one that we're interested
+     *  in.
+     */
+    public void blueJEvent(int eventId, Object arg)
+    {
+        DebuggerThread thread;
+
+        switch(eventId) {
+        case BlueJEvent.BREAKPOINT:
+            thread = (DebuggerThread)arg;
+            if(thread.getParam() == this)
+                hitBreakpoint(thread);
+            break;
+        case BlueJEvent.HALT:
+            thread = (DebuggerThread)arg;
+            if(thread.getParam() == this)
+                hitHalt(thread);
+            break;
+        case BlueJEvent.CONTINUE:
+            thread = (DebuggerThread)arg;
+            if(thread.getParam() == this)
+                executionContinued();
+            break;
+        case BlueJEvent.SHOW_SOURCE:
+            thread = (DebuggerThread)arg;
+            if(thread.getParam() == this)
+                showSourcePosition(thread, false);
+            break;
+        }
+    }
+
+    // ---- end of BlueJEventListener interface ----
+
+    /**
+     * executionContinued - indicate in the interface that the machine
+     *  is executing again.
+     */
+    private void executionContinued()
+    {
+//         pkg.removeStepMarks();
+//         progressButton.setIcon(workingIcon);
+    }
+
+    /**
+     * hitBreakpoint - A breakpoint in this package was hit.
+     */
+    private void hitBreakpoint(DebuggerThread thread)
+    {
+        String className = thread.getClass(0);  // fully qualified
+        String packageName = JavaNames.getPrefix(className);
+
+        getPackage(packageName).hitBreakpoint(thread);
+    }
+
+    /**
+     * hitHalt - execution stopped interactively or after a step.
+     */
+    private void hitHalt(DebuggerThread thread)
+    {
+        String className = thread.getClass(0);  // fully qualified
+        String packageName = JavaNames.getPrefix(className);
+
+        getPackage(packageName).hitHalt(thread);
+    }
+
+    /**
+     * showSourcePosition - The debugger display needs updating.
+     */
+    private void showSourcePosition(DebuggerThread thread,
+                                    boolean updateDebugger)
+    {
+        String className = thread.getClass(0);  // fully qualified
+        String packageName = JavaNames.getPrefix(className);
+
+        getPackage(packageName).showSourcePosition(thread, updateDebugger);
+    }
+
 }

@@ -12,7 +12,7 @@ import bluej.debugger.DebuggerObject;
  * The event which occurs while editing a package
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditorEvent.java 544 2000-06-13 05:01:00Z ajp $
+ * @version $Id: PackageEditorEvent.java 583 2000-06-26 01:51:17Z mik $
  */
 public class PackageEditorEvent extends EventObject
 {
@@ -31,7 +31,6 @@ public class PackageEditorEvent extends EventObject
     public PackageEditorEvent(Object source, int id)
     {
         super(source);
-
         this.id = id;
     }
 

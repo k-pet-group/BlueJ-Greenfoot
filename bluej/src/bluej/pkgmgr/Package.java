@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 580 2000-06-22 07:17:42Z mik $
+ * @version $Id: Package.java 583 2000-06-26 01:51:17Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -290,24 +290,10 @@ public class Package extends Graph
         return parentPackage;
     }
 
-
-
     public void setStatus(String msg)
     {
-        //XXX raise an event to show the status somehow for this package
+        PkgMgrFrame.displayMessage(this, msg);
     }
-
-    public void setStatusProject(String msg)
-    {
-        //XXX raise an event to show the status in all windows belong to this project
-    }
-
-
-    public void setStatusAll(String msg)
-    {
-        //XXX raise an event to show the status in all open pkgmgrframes
-    }
-
 
     public void repaint()
     {
@@ -1551,7 +1537,7 @@ public class Package extends Graph
                 setStatus(chooseUsesTo);
             } else {
                 setState(S_IDLE);
-                setStatus("");
+                setStatus(" ");
             }
             break;
 
@@ -1559,7 +1545,7 @@ public class Package extends Graph
             if (t != fromChoice && t instanceof DependentTarget) {
                 setState(S_IDLE);
                 addDependency(new UsesDependency(this, fromChoice,(DependentTarget)t), true);
-                setStatus("");
+                setStatus(" ");
             }
             break;
 
@@ -1571,7 +1557,7 @@ public class Package extends Graph
                 setStatus(chooseInhTo);
             } else {
                 setState(S_IDLE);
-                setStatus("");
+                setStatus(" ");
             }
             break;
 
@@ -1606,7 +1592,7 @@ public class Package extends Graph
                         }
                     }
                 }
-                setStatus("");
+                setStatus(" ");
             }
             break;
 
@@ -1680,8 +1666,8 @@ public class Package extends Graph
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
 
-        if(! showEditorMessage(new File(getPath(),sourcename).getPath(), lineNo, msg,
-                               false, false, bringToFront, true, null))
+        if(! showEditorMessage(new File(getPath(),sourcename).getPath(), lineNo, 
+                               msg, false, false, bringToFront, true, null))
             showMessageWithText("break-no-source", sourcename);
 
         return bringToFront;
@@ -1738,6 +1724,43 @@ public class Package extends Graph
             editor.displayMessage(message, lineNo, 0, beep, setStepMark,
                                   help);
         return true;
+    }
+
+    /**
+     * hitBreakpoint - A breakpoint in this package was hit.
+     */
+    public void hitBreakpoint(DebuggerThread thread)
+    {
+        Debug.message("source file: " + thread.getClassSourceName(0));
+        Debug.message("source file: " + thread.getClass(0));
+        showSource(thread.getClassSourceName(0),
+                   thread.getLineNumber(0),
+                   thread.getName(), true);
+        ExecControls.showHide(true, true, thread);
+    }
+
+    /**
+     * hitHalt - execution stopped interactively or after a step.
+     */
+    public void hitHalt(DebuggerThread thread)
+    {
+        showSourcePosition(thread, true);
+    }
+
+    /**
+     * showSourcePosition - The debugger display needs updating.
+     */
+    public void showSourcePosition(DebuggerThread thread,
+                                    boolean updateDebugger)
+    {
+        int frame = thread.getSelectedFrame();
+        if(showSource(thread.getClassSourceName(frame),
+                      thread.getLineNumber(frame),
+                      thread.getName(), false))
+            ExecControls.getExecControls().setVisible(true);
+
+        if(updateDebugger)
+            ExecControls.getExecControls().updateThreads(thread);
     }
 
     // ---- bluej.compiler.CompileObserver interface ----
@@ -1910,7 +1933,7 @@ public class Package extends Graph
         return null;
     }
 
-    // MouseListener interface
+    // MouseListener interface - only used while deleting arrow
 
     public void mousePressed(MouseEvent evt)
     {
