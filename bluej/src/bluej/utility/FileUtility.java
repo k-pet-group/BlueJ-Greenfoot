@@ -16,7 +16,7 @@ import java.lang.reflect.Array;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 623 2000-07-05 06:21:48Z markus $
+ * @version $Id: FileUtility.java 624 2000-07-05 07:34:37Z mik $
  */
 public class FileUtility
 {
@@ -38,6 +38,7 @@ public class FileUtility
         }
         return chooser.getSelectedFile();
     }
+
 
     /**
      *  Get a file name from the user, using a file selection dialogue.
@@ -72,16 +73,19 @@ public class FileUtility
         }
     }
 
+
     public static String getFileName(Component parent, String title,
                                      String buttonLabel, boolean directoryOnly)
     {
         return getFileName(parent, title, buttonLabel, directoryOnly, null);
     }
 
+
     public static FileFilter getJavaSourceFilter()
     {
         return new JavaSourceFilter();
     }
+
 
     /**
      * Return a BlueJ package chooser, i.e. a file chooser which
@@ -96,6 +100,7 @@ public class FileUtility
         return pkgChooser;
     }
 
+
     /**
      * return a file chooser for choosing any directory (default behaviour)
      */
@@ -109,6 +114,7 @@ public class FileUtility
 
         return fileChooser;
     }
+
 
     private static class JavaSourceFilter extends FileFilter
     {
@@ -132,6 +138,7 @@ public class FileUtility
         }
     }
 
+
     /**
      * Copy file 'source' to file 'dest'. The source file must exist,
      * the destination file will be created. Returns true if successful.
@@ -143,6 +150,7 @@ public class FileUtility
 
         return copyFile(srcFile, destFile);
     }
+
 
     /**
      * Copy file 'srcFile' to file 'destFile'. The source file must exist,
@@ -173,6 +181,7 @@ public class FileUtility
         }
     }
 
+
     /**
      * Copy stream 'in' to stream 'out'.
      */
@@ -182,6 +191,7 @@ public class FileUtility
         for(int c; (c = in.read()) != -1; )
             out.write(c);
     }
+
 
     /**
      * Copy (recursively) a whole directory.
@@ -227,6 +237,12 @@ public class FileUtility
         return NO_ERROR;
     }
 
+
+    /**
+     * Checks whether a file should be skipped during a copy operation.
+     * You can specify to skip BlueJ specific files and/or Java source
+     * files.
+     */
     public static boolean skipFile(String fileName,
                             boolean skipBlueJ, boolean skipSource)
     {
@@ -241,6 +257,7 @@ public class FileUtility
 
         return false;
     }
+
 
     /**
      * Recursively copy all files from one directory to another.
@@ -292,6 +309,39 @@ public class FileUtility
         else
             return null;
     }
+
+
+    /**
+     * Find a file with a given extension in a given directory or any
+     * subdirectory. Returns just one randomly selected file with that
+     * extension.
+     *
+     * @return   a file with the given extension in the given directory,
+     *           or 'null' if such a file cannot be found.
+     */
+    public static File findFile(File startDir, String suffix)
+    {
+        File[] files = startDir.listFiles();
+
+        // look for files here
+        for (int i=0; i < files.length; i++) {
+            if(files[i].isFile()) {
+                if(files[i].getName().endsWith(suffix))
+                    return files[i];
+            }
+        }
+
+        // if we didn't find one, search subdirectories
+        for (int i=0; i < files.length; i++) {
+            if (files[i].isDirectory()) {
+                File found = findFile(files[i], suffix);
+                if(found != null)
+                    return found;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Delete a directory recursively.
