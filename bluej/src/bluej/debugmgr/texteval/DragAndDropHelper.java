@@ -6,7 +6,6 @@ import javax.swing.*;
 
 import bluej.Config;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.Debug;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -221,11 +220,7 @@ public class DragAndDropHelper
         protected void paintComponent(Graphics g) 
         {
             if (objectLocation != null) {
-
-                Graphics g2d = getGraphics();
-//                AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.7f);
-//                g2d.setComposite(alpha);
-                g2d.drawImage(dragImage, objectLocation.x-30, objectLocation.y-20, null);
+                g.drawImage(dragImage, objectLocation.x-30, objectLocation.y-30, null);
 
             }
         }

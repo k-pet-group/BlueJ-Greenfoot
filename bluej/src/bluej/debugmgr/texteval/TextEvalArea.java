@@ -32,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2729 2004-07-04 18:50:27Z mik $
+ * @version $Id: TextEvalArea.java 2730 2004-07-04 19:45:45Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener
@@ -69,13 +69,19 @@ public final class TextEvalArea extends JScrollPane
 
 
     /**
-     * Try to inspect the last object that was handled.
-     * This is the implementation of the interactive 'inspect' command.
+     * Inspect the given object.
+     * This is done with a delay, because we are in the middle of a mouse click,
+     * and focus gets weird otherwise.
      */
     public void inspectObject(ObjectInfo objInfo)
     {
-        ObjectInspector viewer = ObjectInspector.getInstance(objInfo.obj, 
-                null, frame.getPackage(), objInfo.ir, frame);
+        final ObjectInfo oi = objInfo;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ObjectInspector viewer = ObjectInspector.getInstance(oi.obj, 
+                        null, frame.getPackage(), oi.ir, frame);
+            }
+        });
     }
 
     /**

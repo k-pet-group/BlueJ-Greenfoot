@@ -8,7 +8,6 @@
 
 package bluej.debugmgr.texteval;
 
-import bluej.utility.Debug;
 import bluej.editor.moe.BlueJSyntaxView;
 
 import java.awt.*;
