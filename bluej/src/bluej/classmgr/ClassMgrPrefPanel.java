@@ -20,13 +20,11 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 1915 2003-04-29 05:07:57Z ajp $
+ * @version $Id: ClassMgrPrefPanel.java 1916 2003-04-29 05:26:15Z ajp $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
 {
-    static final String prefpaneltitle = Config.getString("classmgr.prefpaneltitle");
-
     private JTable userLibrariesTable = null;
     private ClassPathTableModel userLibrariesModel = null;
 
@@ -37,7 +35,7 @@ public class ClassMgrPrefPanel extends JPanel
     public static void register()
     {
         ClassMgrPrefPanel p = new ClassMgrPrefPanel();
-        PrefMgrDialog.add(p, prefpaneltitle, p);
+        PrefMgrDialog.add(p, Config.getString("classmgr.prefpaneltitle"), p);
     }
 
     /**
@@ -71,13 +69,13 @@ public class ClassMgrPrefPanel extends JPanel
                 }
 
                 TableColumn notfoundColumn = 
-			userLibrariesTable.getColumn(userLibrariesTable.getColumnName(0));
+					userLibrariesTable.getColumn(userLibrariesTable.getColumnName(0));
                 {
                     notfoundColumn.setPreferredWidth(20);
                 }
 
                 TableColumn locationColumn = 
-			userLibrariesTable.getColumn(userLibrariesTable.getColumnName(1));
+					userLibrariesTable.getColumn(userLibrariesTable.getColumnName(1));
                 {
                     locationColumn.setPreferredWidth(280);
                 }
