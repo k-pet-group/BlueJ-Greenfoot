@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3327 2005-03-03 01:10:45Z davmac $
+ * @version $Id: TextParser.java 3331 2005-03-09 03:40:08Z davmac $
  */
 public class TextParser
 {
@@ -821,11 +821,12 @@ public class TextParser
 
             PackageOrClass nodePorC = porc.getPackageOrClassMember(classNode.getText());
             GenTypeClass nodeClass = (GenTypeClass) nodePorC.getType();
+            GenTypeClass outer = nodeClass;
 
             // Don't pass in an outer class if it's not generic anyway 
             if (! nodeClass.isGeneric())
-                nodeClass = null;
-            return new GenTypeClass(nodeClass.getReflective(), params, nodeClass);
+                outer = null;
+            return new GenTypeClass(nodeClass.getReflective(), params, outer);
         }
         else {
             throw new RecognitionException();
@@ -852,17 +853,22 @@ public class TextParser
             if (childNode.getType() == JavaTokenTypes.WILDCARD_TYPE) {
                 // wildcard parameter
                 AST boundNode = childNode.getNextSibling();
-                int boundType = boundNode.getType();
-                
-                // it's either an upper or lower bound
-                if (boundType == JavaTokenTypes.TYPE_UPPER_BOUNDS) {
-                    tparType = new GenTypeExtends(getType(boundNode.getFirstChild()));
+                if (boundNode != null) {
+                    int boundType = boundNode.getType();
+                    
+                    // it's either an upper or lower bound
+                    if (boundType == JavaTokenTypes.TYPE_UPPER_BOUNDS) {
+                        tparType = new GenTypeExtends(getType(boundNode.getFirstChild()));
+                    }
+                    else if (boundType == JavaTokenTypes.TYPE_LOWER_BOUNDS) {
+                        tparType = new GenTypeSuper(getType(boundNode.getFirstChild()));
+                    }
+                    else
+                        throw new RecognitionException();
                 }
-                else if (boundType == JavaTokenTypes.TYPE_LOWER_BOUNDS) {
-                    tparType = new GenTypeSuper(getType(boundNode.getFirstChild()));
+                else {
+                    tparType = new GenTypeUnbounded();
                 }
-                else
-                    throw new RecognitionException();
             }
             else {
                 // "solid" parameter
@@ -1026,7 +1032,10 @@ public class TextParser
                 PackageOrClass firstpart = getPackageOrType(firstChild);
 
                 PackageOrClass entity = firstpart.getPackageOrClassMember(secondChild.getText());
-                entity.setTypeParams(tparams);
+                if (! tparams.isEmpty())
+                    entity.setTypeParams(tparams);
+                
+                return entity;
             }
         }
         

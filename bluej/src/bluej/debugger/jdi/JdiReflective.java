@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 3324 2005-02-25 01:30:38Z davmac $
+ * @version $Id: JdiReflective.java 3331 2005-03-09 03:40:08Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -126,25 +126,46 @@ public class JdiReflective extends Reflective
     
     public List getTypeParams()
     {
+        // Make sure we are loaded and a generic signature is present.
         checkLoaded();
-        List rlist = new ArrayList();
         String gensig = JdiUtils.getJdiUtils().genericSignature(rclass);
         if (gensig == null)
-            return rlist;
+            return Collections.EMPTY_LIST;
+        
+        // Read the type parameters from the generic signature.
         StringIterator s = new StringIterator(gensig);
+        return getTypeParams(s);
+    }
 
-        char c = s.next();
+    /**
+     * Get the type parameters of this class, as a list of GenTypeDeclTpar,
+     * using a pre-existing string iterator to process the generic signature.
+     *  
+     * @param s  A string iterator, currently at the beginning of the generic
+     *           signature for this class. On return, the iterator will be
+     *           positioned after the type parameters in the signature, at the
+     *           beginning of the class name.
+     * 
+     * @return  A list of GenTypeDeclTpar, representing the type parameters of
+     *          this class.
+     */
+    private List getTypeParams(StringIterator s)
+    {
+        List rlist = new ArrayList();
+
+        char c = s.peek();
         if (c != '<')
             return rlist;
 
         // go through each type parameter, assign it the type from our
         // params list.
+        s.next();
         while (c != '>') {
             String paramName = readClassName(s);
             if (s.current() != ':') {
                 Debug.message("getTypeParams : no ':' following type parameter name in super signature?? got "
                         + s.current());
-                Debug.message("signature was: " + gensig);
+                Debug.message("signature was: " + s.getString());
                 return null;
             }
             // '::' indicates lower bound is an interface. Ignore.
@@ -163,9 +184,10 @@ public class JdiReflective extends Reflective
             rlist.add(new GenTypeDeclTpar(paramName, (GenTypeSolid []) bounds.toArray(new GenTypeSolid [0])));
             c = s.peek();
         }
+        s.next();
         return rlist;
     }
-
+    
     public List getSuperTypesR()
     {
         checkLoaded();
@@ -229,63 +251,18 @@ public class JdiReflective extends Reflective
         // First, skip over the type params in the supertype:
 
         StringIterator s = new StringIterator(JdiUtils.getJdiUtils().genericSignature(rclass));
-        if (s.peek() == '<') {
-            s.next();
-            int lbCount = 1;
-            while (lbCount > 0) {
-                char c = s.next();
-                if (c == '<')
-                    lbCount++;
-                else if (c == '>')
-                    lbCount--;
-            }
+        List l = getTypeParams(s);
+        Map declTpars = new HashMap();
+        for (Iterator i = l.iterator(); i.hasNext(); ) {
+            GenTypeDeclTpar declTpar = (GenTypeDeclTpar) i.next();
+            declTpars.put(declTpar.getTparName(), declTpar); 
         }
-
+        
+        // go through each base type in turn.
         while (s.hasNext()) {
-
             // We now have a base.
-            if (s.next() != 'L') {
-                Debug.message("getSuperTypes: inherit from non reference type?");
-                return rlist;
-            }
-            String bName = readClassName(s);
-            ReferenceType bType = findClass(bName, rclass.classLoader(), rclass.virtualMachine());
-            if (bType == null)
-                Debug.message("getSuperTypes: Couldn't find type: " + bName);
-
-            JdiReflective bReflective = new JdiReflective(bType);
-
-            char c = s.current();
-            if (c == ';') {
-                rlist.add(new GenTypeClass(bReflective, (List) null));
-            }
-            else {
-
-                if (c != '<') {
-                    Debug.message("mapGenericParamsToBase: didn't see '<' at end of base-of-super?? (got " + c + ")");
-                    return rlist;
-                }
-
-                List bParams = new ArrayList();
-
-                while (c != '>') {
-                    // find the first type parameter to the base class from the
-                    // super class
-                    // eg in A<...> extends B<String,Integer>, this is "String".
-                    GenType sParamType = fromSignature(s, null, rclass); // super
-                                                                         // parameter
-                                                                         // type
-                    bParams.add(sParamType);
-                    c = s.peek();
-                }
-
-                s.next(); // read terminating '>'
-                c = s.next(); // read ';'
-                GenTypeClass n = new GenTypeClass(bReflective, bParams);
-                if (c == '.')
-                    n = innerFromSignature(s, bName, n, null, bType);
-                rlist.add(n);
-            }
+            GenTypeClass t = (GenTypeClass) fromSignature(s, declTpars, rclass);
+            rlist.add(t);
         }
         return rlist;
     }
@@ -794,6 +771,11 @@ public class JdiReflective extends Reflective
         public boolean hasNext()
         {
             return i < s.length();
+        }
+        
+        public String getString()
+        {
+            return s;
         }
     };
 }

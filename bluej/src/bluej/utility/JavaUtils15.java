@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3102 2004-11-18 01:39:18Z davmac $
+ * @version $Id: JavaUtils15.java 3331 2005-03-09 03:40:08Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -483,8 +483,18 @@ public class JavaUtils15 extends JavaUtils {
     {
         if( t instanceof Class )
             return JavaUtils14.genTypeFromClass((Class)t);
-        if( t instanceof TypeVariable )
-            return new GenTypeTpar(((TypeVariable)t).getName());
+        if (t instanceof TypeVariable) {
+            TypeVariable tv = (TypeVariable) t;
+
+            // get the bounds, convert to GenType
+            Type[] bounds = tv.getBounds();
+            GenTypeSolid[] gtBounds = new GenTypeSolid[bounds.length];
+            for (int i = 0; i < bounds.length; i++) {
+                gtBounds[i] = (GenTypeSolid) genTypeFromType(bounds[i]);
+            }
+
+            return new GenTypeDeclTpar(tv.getName(), gtBounds);
+        }
         if( t instanceof WildcardType ) {
             WildcardType wtype = (WildcardType)t;
             Type[] upperBounds = wtype.getUpperBounds();
@@ -526,7 +536,12 @@ public class JavaUtils15 extends JavaUtils {
             for( int i = 0; i < argtypes.length; i++ )
                 arggentypes.add(genTypeFromType(argtypes[i]));
             
-            return new GenTypeClass(new JavaReflective(rawtype), arggentypes);
+            // Check for outer type
+            GenTypeClass outer = null;
+            if (pt.getOwnerType() != null)
+                outer = (GenTypeClass) genTypeFromType(pt.getOwnerType());
+            
+            return new GenTypeClass(new JavaReflective(rawtype), arggentypes, outer);
         }
         
         // Assume we have an array
