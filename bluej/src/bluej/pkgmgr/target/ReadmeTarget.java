@@ -18,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2216 2003-10-15 11:53:31Z fisker $
+ * @version $Id: ReadmeTarget.java 2270 2003-11-05 12:39:12Z fisker $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -206,7 +206,7 @@ public class ReadmeTarget extends Target
     {
        // try to open it and if not there, create it
        if(getEditor() == null) {
-           getPackage().showError("error-open-readme");
+           //getPackage().showError("error-open-readme");
     
            try {
                getSourceFile().createNewFile();

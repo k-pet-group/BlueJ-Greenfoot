@@ -28,7 +28,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2268 2003-11-05 11:26:32Z damiano $
+ * @version $Id: Package.java 2270 2003-11-05 12:39:12Z fisker $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -545,7 +545,7 @@ public final class Package extends Graph
             t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
             addTarget(t);
         }
-
+        addImmovableTargets();
         // make our Package targets reflect what is actually on disk
         // note that we consider this on-disk version the master
         // version so if we have a class target called Foo but we
@@ -651,6 +651,32 @@ public final class Package extends Graph
             }
         }
     }
+    
+    private void addImmovableTargets() {
+        // add our immovable targets (either a text note or a package
+        // which goes to the parent package)
+//        if (isUnnamedPackage()) {
+//            Target t = new ReadmeTarget(this);
+//            t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
+//            addTarget(t);
+//        }
+//        else {
+//            Target t = new ParentPackageTarget(this);
+//            t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
+//            addTarget(t);
+//        }
+        Target t = new ReadmeTarget(this);
+        t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
+        addTarget(t);
+        if (!isUnnamedPackage()) {
+            t = new ParentPackageTarget(this);
+            findSpaceForVertex(t);
+            addTarget(t);
+        }
+
+        
+    }
+
 
     /**
      * Reload a package.
