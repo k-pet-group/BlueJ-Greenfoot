@@ -2,6 +2,7 @@ package bluej.runtime;
 
 import bluej.utility.Queue;
 import bluej.utility.Debug;
+import bluej.classmgr.ClassMgr;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
@@ -31,11 +32,13 @@ public class ExecServer
     public static final int LOAD_CLASS	   = 2;
     public static final int ADD_OBJECT     = 3;
     public static final int REMOVE_OBJECT  = 4;
+    public static final int SET_LIBRARIES  = 5;
 
 
     static ExecServer server = null;
     static TerminateException terminateExc = new TerminateException("term");
 
+    private RemoteClassMgr classmgr;
     private Hashtable loaders;
     private static Hashtable scopes = new Hashtable();
 	
@@ -60,6 +63,8 @@ public class ExecServer
 
 	BlueJSecurityManager manager = new BlueJSecurityManager();
 	System.setSecurityManager(manager);
+
+	classmgr = new RemoteClassMgr();
 
 	// the following causes the class loader mechanism to be initialised:
 	// we attempt to load a (non-existant) class
@@ -93,7 +98,7 @@ public class ExecServer
      * This method is called from the main VM to initiate a task here on 
      * this VM.
      */
-    public BlueJClassLoader performTask(int taskType, String arg1, 
+    public ClassLoader performTask(int taskType, String arg1, 
 			    String arg2, String arg3, String arg4)
 	throws Throwable
     {
@@ -114,6 +119,9 @@ public class ExecServer
 	    case REMOVE_OBJECT:
 		removeObject(arg1, arg2);
 		return null;
+	    case SET_LIBRARIES:
+		setLibraries(arg1);
+		return null;
 	    }
 	}
 	catch(Exception e) {
@@ -126,11 +134,11 @@ public class ExecServer
     /**
      * Create a new class loader for a given classpath.
      */
-    private BlueJClassLoader createClassLoader(String loaderId, 
+    private ClassLoader createClassLoader(String loaderId, 
 					       String classpath)
     {
 	//Debug.reportError("[VM] createClassLoader " + loaderId);
-	BlueJClassLoader loader = new BlueJClassLoader(classpath);
+	ClassLoader loader = classmgr.getLoader(classpath);
 	loaders.put(loaderId, loader);
 	return loader;
     }
@@ -149,9 +157,9 @@ public class ExecServer
     /**
      * Find and return a class loader in the table of class loaders.
      */
-    private BlueJClassLoader getLoader(String loaderId)
+    private ClassLoader getLoader(String loaderId)
     {
-	return (BlueJClassLoader)loaders.get(loaderId);
+	return (ClassLoader)loaders.get(loaderId);
     }
 
 
@@ -166,9 +174,9 @@ public class ExecServer
 	//Debug.reportError("loading class " + classname);
 
 	if(loaderId == null)
-	    cl = Class.forName(classname);
+	    cl = classmgr.getLoader().loadClass(classname);
 	else {
-	    BlueJClassLoader loader = getLoader(loaderId);
+	    ClassLoader loader = getLoader(loaderId);
 	    if(loader != null)
 		cl = loader.loadClass(classname);
 	}
@@ -266,4 +274,13 @@ public class ExecServer
 	}
 	return scope;
     }
+
+    /**
+     *  Update the remote VM with the list of user/system libraries
+     *  which the user has created using the ClassMgr.
+     */
+    private void setLibraries(String libraries)
+    {
+	classmgr.setLibraries(libraries);
+    } 
 }
