@@ -248,6 +248,23 @@ Print
 Cancel
 null
 
+open-non-bluej-already-bluej
+The directory you have selected is already
+a BlueJ project.
+
+open-non-bluej-invalid
+You have indicated you wish to open this
+directory as a BlueJ project, however a file
+has been found with a package statement that
+is incompatible with the current directory
+structure. (For example, if the Java class
+Shape has a package line of com.aa, then the
+file Shape.java must be in a directory aa
+which is itself in a directory com. This com
+directory in turn must be in another directory
+which is the directory you should point BlueJ
+to when attempting to open it).
+
 import-into-current
 You currently have a package open in this window.
 Do you want to import into the current package
@@ -258,7 +275,7 @@ New Project
 Cancel
 
 package-name-invalid
-You have changed the package statement which
+You have changed the package statement
 to a package which does not exist in this project.
 If you wish to move this class to another
 package you must create the destination
