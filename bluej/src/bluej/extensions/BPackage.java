@@ -16,7 +16,7 @@ import java.awt.Frame;
  * to that package.
  *
  * @author Clive Miller
- * @version $Id: BPackage.java 1543 2002-11-29 13:49:49Z ajp $
+ * @version $Id: BPackage.java 1631 2003-02-25 11:33:16Z damiano $
  *
  * @see bluej.extensions.BProject#getCurrentPackage()
  * @see bluej.extensions.BProject#getPackage(java.lang.String)
@@ -27,18 +27,22 @@ public class BPackage
     private final Package pkg;
     private final PkgMgrFrame pmf;
 
-    public BPackage (Package pkg)
+
+    public BPackage (Package i_pkg)
     {
-        this.pkg = pkg;
-        this.pmf = PkgMgrFrame.findFrame (pkg);
+        pkg = i_pkg;
+        pmf = PkgMgrFrame.findFrame (i_pkg);
     }
+
     
-    BPackage (PkgMgrFrame pmf)
+    BPackage (Package i_pkg, PkgMgrFrame i_pmf )
     {
-        this.pkg = null;
-        this.pmf = pmf;
+        pkg = i_pkg;
+        pmf = i_pmf;
     }
-    
+
+
+
     Package getRealPackage()
     {
         return pkg;

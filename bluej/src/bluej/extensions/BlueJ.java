@@ -48,7 +48,7 @@ import java.awt.event.ActionListener;
  *                                         +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1504 2002-11-18 08:29:39Z damiano $
+ * @version $Id: BlueJ.java 1631 2003-02-25 11:33:16Z damiano $
  */
 
 public class BlueJ
@@ -79,15 +79,22 @@ public class BlueJ
     
     /**
      * Gets the current package. That is, the most recently accessed package.
+     * It can return null if this information is not available.
+     * This is here and NOT into a BProject since it depends on user interface.
      * @return the current package
      */
     public BPackage getCurrentPackage()
     {
         PkgMgrFrame pmf = PkgMgrFrame.getMostRecent();
+        // If there is nothing at all open there is no Frame open...
         if (pmf == null) return null;
+
         Package pkg = pmf.getPackage();
-        return pkg == null ? new BPackage (pmf)
-                           : new BPackage (pkg);
+        // The frame may be there BUT have no package. 
+        // I do NOT want to create what is NOT there
+        if ( pkg == null ) return null;
+
+        return new BPackage (pkg, pmf);
     }
     
     /**

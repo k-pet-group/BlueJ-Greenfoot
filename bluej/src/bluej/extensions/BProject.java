@@ -13,7 +13,7 @@ import java.util.ListIterator;
  * to that project.
  *
  * @author Clive Miller
- * @version $Id: BProject.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: BProject.java 1631 2003-02-25 11:33:16Z damiano $
  *
  * @see bluej.extensions.BlueJ#getOpenProjects()
  * @see bluej.extensions.BlueJ#openProject(java.io.File)
@@ -74,19 +74,6 @@ public class BProject
         Project.closeProject (project);
     }
     
-    /**
-     * Gets the current package. That is, the package that the most
-     * recently used package frame belongs to.
-     * @return the current package, or <code>null</code> if none are open
-     */
-    public BPackage getCurrentPackage()
-    {
-        PkgMgrFrame pmf = PkgMgrFrame.getMostRecent();
-        if (pmf == null) return null;
-        Package pkg = pmf.getPackage();
-        if (pkg == null) return null;
-        return new BPackage (pkg);
-    }
     
     /**
      * Get a package
