@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2037 2003-06-17 05:54:51Z ajp $
+ * @version $Id: ExecControls.java 2054 2003-06-24 12:53:46Z mik $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -526,8 +526,7 @@ public class ExecControls extends JFrame
 
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel,
-                                                BoxLayout.Y_AXIS));
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
         closeButton = new JButton(closeText);
@@ -545,7 +544,9 @@ public class ExecControls extends JFrame
    
 			flipPanel.add(splitPane, "split");
 			JPanel tempPanel = new JPanel();
-			tempPanel.add(new JLabel("<html><center><b>You cannot view the details of a running thread.<br>Threads must be stopped at a<br>breakpoint, or halted by pressing \"Halt\"<br>to view their details<br></html>"));
+            JLabel infoLabel = new JLabel("<html><center>Thread is running.<br>Threads must be stopped to view details.</html>");
+            infoLabel.setForeground(Color.gray);
+			tempPanel.add(infoLabel);
 			flipPanel.add(tempPanel, "blank");
 		}
 
@@ -599,7 +600,7 @@ public class ExecControls extends JFrame
         button.setHorizontalTextPosition(AbstractButton.CENTER);
         button.setEnabled(false);
 
-        button.setMargin(margin);
+        //button.setMargin(margin);
         button.addActionListener(this);
         panel.add(button);
         return button;
