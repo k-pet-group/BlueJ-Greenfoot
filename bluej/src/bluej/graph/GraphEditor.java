@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2609 2004-06-14 11:22:46Z fisker $
+ * @version $Id: GraphEditor.java 2641 2004-06-21 11:07:01Z polle $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener, FocusListener
@@ -412,7 +412,6 @@ public class GraphEditor extends JComponent
 	 * @see java.awt.event.FocusListener#focusGained(java.awt.event.FocusEvent)
 	 */
 	public void focusGained(FocusEvent e) {
-		System.err.println();
 		hasFocus = true;
 		repaint();
 	}
