@@ -1,11 +1,19 @@
 package bluej.debugmgr;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 import javax.swing.SwingUtilities;
 
 import bluej.*;
+import bluej.compiler.CompileObserver;
+import bluej.compiler.JobQueue;
 import bluej.debugger.*;
+import bluej.debugmgr.inspector.Inspector;
+import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.*;
@@ -19,18 +27,24 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: Invoker.java 2489 2004-04-08 08:58:58Z polle $
  */
 
 public class Invoker extends Thread
-    implements CallDialogWatcher
+    implements CompileObserver, CallDialogWatcher
 {
     private static final String creating = Config.getString("pkgmgr.creating");
     private static final String createDone = Config.getString("pkgmgr.createDone");
 
 
     public static final int OBJ_NAME_LENGTH = 8;
+    public static final String SHELLNAME = "__SHELL";
+    private static int shellNumber = 0;
 
+
+    private static final synchronized String getShellName() {
+        return SHELLNAME + (shellNumber++);
+    }
 
     /**
      * To allow each method/constructor dialog to have a call history we need
@@ -43,6 +57,7 @@ public class Invoker extends Thread
     private Package pkg;
     private ResultWatcher watcher;
     private CallableView member;
+    private String shellName;
     private String objName;
 
     /**
@@ -75,6 +90,7 @@ public class Invoker extends Thread
         this.pkg = pmf.getPackage();
         this.watcher = watcher;
         this.member = null;
+        this.shellName = getShellName();
         this.objName = null;
         this.instanceName = null;
 
@@ -106,6 +122,8 @@ public class Invoker extends Thread
         this.pkg = pmf.getPackage();
         this.member = member;
         this.watcher = watcher;
+
+        this.shellName = getShellName();
 
         // in the case of a constructor, we need to construct an object name
         if(member instanceof ConstructorView) {
@@ -260,38 +278,38 @@ public class Invoker extends Thread
 
         // prepare variables (assigned with actual values) for each parameter
         
-/*        StringBuffer buffer = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
         for(int i = 0; i < numArgs; i++) {
             buffer.append(cleverQualifyTypeName(pkg, argTypes[i].getName()));
             buffer.append(" __bluej_param" + i);
             buffer.append(" = " + args[i]);
             buffer.append(";" + Config.nl);
         }
-        String paramInit = buffer.toString(); */
+        String paramInit = buffer.toString();
 
         // Build two strings with  parameter lists: one using the variable names
         // "(__bluej_param0,__bluej_param1,...)" for internal use, one using the 
         // actual values for interface display.
 
-//        StringBuffer buffer = new StringBuffer("(");
+        buffer = new StringBuffer("(");
         StringBuffer argBuffer = new StringBuffer("(");
         if(numArgs>0) {
-            //buffer.append("__bluej_param0");
+            buffer.append("__bluej_param0");
             argBuffer.append(args[0]);
         }
         for(int i = 1; i < numArgs; i++) {
-            //buffer.append(",__bluej_param" + i);
+            buffer.append(",__bluej_param" + i);
             argBuffer.append(", ");
             argBuffer.append(args[i]);
         }
-        //buffer.append(")");
+        buffer.append(")");
         argBuffer.append(")");
-        //String argString = buffer.toString();
+        String argString = buffer.toString();
         String actualArgString = argBuffer.toString();
 
         // build the invocation string
 
-        //buffer = new StringBuffer();
+        buffer = new StringBuffer();
         String command;             // the interactive command in text form
         boolean isVoid = false;
         
@@ -300,7 +318,8 @@ public class Invoker extends Thread
 
             ir = new ConstructionInvokerRecord(className, instanceName, command + actualArgString);
 
-            commandAsString = command + actualArgString;
+//          BeanShell
+            //commandAsString = command + actualArgString;
         }
         else {  // it's a method call
             MethodView method = (MethodView)member;
@@ -325,16 +344,18 @@ public class Invoker extends Thread
                 instanceName = "result";
             }                
 
-            commandAsString = "bluej.runtime.Shell.makeObj(" + command + actualArgString + ");";
+//          BeanShell
+            //commandAsString = "bluej.runtime.Shell.makeObj(" + command + actualArgString + ");";
         }
 
-        beanShellExecute(commandAsString);
+//      BeanShell
+        //beanShellExecute(commandAsString);
         
-//        File shell = writeInvocationFile(pkg, paramInit, 
- //                           command + argString, constructing, isVoid);
+        File shell = writeInvocationFile(pkg, paramInit, 
+                            command + argString, constructing, isVoid);
 
-        
-     //   compileInvocationFile(shell);
+        commandAsString = command + actualArgString;
+        compileInvocationFile(shell);
     }
 
     /**
@@ -353,62 +374,282 @@ public class Invoker extends Thread
         if (hasResult){
             instanceName = "result";
             ir = new ExpressionInvokerRecord(executionString);
-            commandAsString = "bluej.runtime.Shell.makeObj(" + commandAsString + ");";
-           }
+        }
         else {
             instanceName = null;
             // this is a statement, treat as a void method result
             ir = new VoidMethodInvokerRecord(executionString);
         }
                 
-        commandAsString = executionString;
+        File shell = writeInvocationFile(pkg, "", executionString, 
+                                          false, !hasResult);
 
-        beanShellExecute(commandAsString);
-        
-//        File shell = writeInvocationFile(pkg, "", executionString, 
-//                                          false, !hasResult);
-        // update all open inspect windows
-        //Inspector.updateInspectors();
-        
+        commandAsString = executionString;
         executionEvent.setCommand(executionString);
-        //compileInvocationFile(shell);
+        compileInvocationFile(shell);
     }
 
-    public void beanShellExecute(final String command)
+//  BeanShell
+    //beanShellExecute(commandAsString);
+    /**
+     * Write a source file for a class (the 'shell file') to do the interactive 
+     * invocation. A shell file has the following form:
+     *
+     * $PKGLINE
+     * public class $CLASSNAME extends bluej.runtime.Shell {
+     *     $VARDECL
+     * 
+     *     public static void run()
+     * 	     throws Throwable
+     *     {
+     * 	       $SCOPEINIT
+     * 	       $PARAMINIT
+     * 	       $INVOCATION
+     *     }
+     * }
+     *
+     */
+    private File writeInvocationFile(Package pkg, 
+                                     String paramInit, String callString,
+                                     boolean constructing, boolean isVoid)
     {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                DebuggerObject result = pmf.getProject().getDebugger().executeCode(command);
+        // Create package specification line ("package xyz")
 
-                boolean successful = true;
-                
-                if(dialog != null) {
-                    dialog.setWaitCursor(false);
-                    if(successful) {
-                        dialog.setVisible(false);
-                        if(dialog instanceof MethodDialog)
-                            ((MethodDialog)dialog).updateParameters();
-                    }
-                    
-                }
+        String packageLine;
+        if(pkg.isUnnamedPackage())
+            packageLine = "";
+        else
+            packageLine = "package " + pkg.getQualifiedName() + ";";
 
-                pmf.setWaitCursor(false);
+        // add variable declaration for a (possible) result
 
-                // result will be null here for a void call
-                watcher.putResult(result, instanceName, ir);
+        StringBuffer buffer = new StringBuffer();
+        if (!isVoid) {
+            if(constructing)
+                buffer.append("public static bluej.runtime.ObjectResultWrapper");
+            else
+                buffer.append("public static Object");
+            buffer.append(" __bluej_runtime_result;");
+        }
+//		BeanShell
+        //executionEvent.setCommand(executionString);
+        String vardecl = buffer.toString();
 
-                executionEvent.setResultObject(result);                    
-                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+        // Build scope, ie. add one line for every object on the object
+        // bench that gets the object and makes it available for use as
+        // a parameter. Then add one line for each parameter setting the
+        // parameter value.
 
+        // A sample of the code generated
+        //  java.util.Map __bluej_runtime_scope = getScope("BJIDC:\\aproject");
+        //  JavaType instnameA = (JavaType) __bluej_runtime_scope("instnameA");
+        //  OtherJavaType instnameB = (OtherJavaType) __bluej_runtime_scope("instnameB");
 
-                if (constructing && successful) {
-                    pkg.setStatus(createDone);
-                } 
-                else {
-                    pkg.setStatus(" ");
-                }
+        buffer = new StringBuffer();
+        String scopeId = Utility.quoteSloshes(pkg.getId());
+        ObjectWrapper[] wrappers = pmf.getObjectBench().getWrappers();
+
+        if(wrappers.length > 0)
+            buffer.append("java.util.Map __bluej_runtime_scope = getScope(\""
+                          + scopeId + "\");" + Config.nl);
+        for(int i = 0; i < wrappers.length; i++) {
+            String type = cleverQualifyTypeName(pkg, wrappers[i].className);
+            String instname = wrappers[i].instanceName;
+
+            buffer.append(type + " " + instname + " = ");
+            buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
+            buffer.append(instname + "\");" + Config.nl);
+        }
+        String scopeInit = buffer.toString();
+
+        // build the invocation string
+
+        buffer = new StringBuffer();
+
+        if(constructing) {
+            // A sample of the code generated (for a constructor)
+            //  __bluej_runtime_result = makeObj((Object) new SomeType(2,"adb"));
+
+            buffer.append("__bluej_runtime_result = makeObj((Object)");
+            buffer.append(callString + ");" + Config.nl);
+        }
+        else {
+            // A sample of the code generated (for a method call)
+            //  __bluej_runtime_result = makeObj(2+new String("ap").length());
+            
+            if(!isVoid)
+                buffer.append("__bluej_runtime_result = makeObj(");
+            buffer.append(callString);
+            if(!isVoid)
+                buffer.append(")");
+            buffer.append(";" + Config.nl);
+        }
+        String invocation = buffer.toString();
+
+        File shellFile = new File(pkg.getPath(), shellName + ".java");
+        try {
+            BufferedWriter shell = new BufferedWriter(new FileWriter(shellFile));
+            
+            shell.write(packageLine);
+            shell.newLine();
+            shell.write("public class ");
+            shell.write(shellName);
+            shell.write(" extends bluej.runtime.Shell {");
+            shell.newLine();
+            shell.write(vardecl);
+            shell.newLine();
+            shell.write("public static void run() throws Throwable {");
+            shell.newLine();
+            shell.write(scopeInit);
+            shell.write(paramInit);
+            shell.write(invocation);
+            shell.newLine();
+            shell.write("}}");
+            shell.close();
+            
+        } catch(IOException e) {
+            DialogManager.showError(pmf,"could-not-write-shell-file");
+        }
+        return shellFile;
+    }
+
+//    BeanShell
+//    public void beanShellExecute(final String command)
+//    {
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//                DebuggerObject result = pmf.getProject().getDebugger().executeCode(command);
+//
+//                boolean successful = true;
+//                
+//                if(dialog != null) {
+//                    dialog.setWaitCursor(false);
+//                    if(successful) {
+//                        dialog.setVisible(false);
+//                        if(dialog instanceof MethodDialog)
+//                            ((MethodDialog)dialog).updateParameters();
+//                    }
+//                    
+//                }
+//
+//                pmf.setWaitCursor(false);
+//
+//                // result will be null here for a void call
+//                watcher.putResult(result, instanceName, ir);
+//
+//                executionEvent.setResultObject(result);                    
+//                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+//
+//
+//                if (constructing && successful) {
+//                    pkg.setStatus(createDone);
+//                } 
+//                else {
+//                    pkg.setStatus(" ");
+//                }
+//            }
+//        });
+//    }
+    
+    /**
+     * Start the compilation of a shell fine and register us as a watcher.
+     * After this, we just wait for the callback from the compiler.
+     */    
+    private void compileInvocationFile(File shellFile)
+    {
+        File[] files = { shellFile };
+        JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(),
+                                      pkg.getProject().getProjectDir());
+    }
+
+    // -- CompileObserver interface --
+
+    // not interested in these events:
+    public void startCompile(File[] sources) {}
+    public void checkTarget(String sources) {}
+
+    /**
+     * An error was detected during compilation of the shell
+     * class.
+     */
+    public void errorMessage(String filename, int lineNo, String message,
+                             boolean invalidate)
+    {
+        if(dialog != null) {
+            dialog.setErrorMessage("Error: " + message);
+        }
+        watcher.putError(message);
+    }
+
+    /**
+     * The compilation of the shell class has ended. This method
+     * is called by the CompilerThread after compilation. If
+     * all went well, execute now. Then clean up.
+     */
+    public void endCompile(File[] sources, boolean successful)
+    {
+        if(dialog != null) {
+            dialog.setWaitCursor(false);
+            if(successful) {
+                dialog.setVisible(false);
+                if(dialog instanceof MethodDialog)
+                    ((MethodDialog)dialog).updateParameters();
             }
-        });
+            
+        }
+
+        pmf.setWaitCursor(false);
+
+        if(successful)
+            startClass();
+
+        File srcFile = new File(pkg.getPath(), shellName + ".java");
+		srcFile.delete();
+
+        File classFile = new File(pkg.getPath(), shellName + ".class");
+        classFile.delete();
+
+        if (constructing && successful) {
+            pkg.setStatus(createDone);
+        } 
+        else {
+            pkg.setStatus(" ");
+        }
+    }
+
+    // -- end of CompileObserver interface --
+
+    /**
+     * Execute an interactive method call. At this point, the shell
+     * class has been compiled and we are ready to go. If you want to
+     * extend this to support concurrency (executing in a separate
+     * thread), this is the place to do it: This could be done in
+     * another thread, which you could construct here. Careful,
+     * though: you have to make sure that the clean-up (deleting
+     * the class file) does not happen too early.
+     *
+     * This method is executed by the CompilerThread after
+     * compilation.
+     */
+    public void startClass()
+    {
+        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandAsString);
+        try {
+            String shellClassName = pkg.getQualifiedName(shellName);
+            
+            pkg.getProject().getDebugger().runClassMain(shellClassName);
+                                         
+            // the execution is completed, get the result if there was one
+            // (this could be either a construction or a function result)
+
+            handleResult(shellClassName);
+
+            // update all open inspect windows
+            Inspector.updateInspectors();
+
+        } catch(Throwable e) {
+            e.printStackTrace(System.err);
+        }
     }
 
     /**

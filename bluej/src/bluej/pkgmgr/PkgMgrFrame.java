@@ -32,7 +32,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2484 2004-04-06 06:58:05Z fisker $
+ * @version $Id: PkgMgrFrame.java 2489 2004-04-08 08:58:58Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1273,13 +1273,16 @@ public class PkgMgrFrame extends JFrame
                         name = "result";
                         
                     if(result != null) {
+                      //BeanShell does not need to use the realresult, but can use result directly
+                        DebuggerObject realResult = result.getInstanceFieldObject(0);
+
                         ObjectWrapper wrapper = ObjectWrapper.getWrapper(
                                                        PkgMgrFrame.this, getObjectBench(),
-                                                       result,
+                                                       realResult,
                                                        name);
                         getObjectBench().add(wrapper);
 
-                        getPackage().getDebugger().addObject(wrapper.getName(), result);
+                        getPackage().getDebugger().addObject(wrapper.getName(), realResult);
                                                 
                         getObjectBench().addInteraction(ir);
                     }

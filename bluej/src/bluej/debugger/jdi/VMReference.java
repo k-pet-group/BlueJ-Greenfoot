@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: VMReference.java 2489 2004-04-08 08:58:58Z polle $
  *
  * The startup process is as follows:
  *
@@ -476,10 +476,13 @@ class VMReference
         	findMethodByName(serverClass, ExecServer.LOAD_CLASS));
         execServerMethods.put(ExecServer.ADD_OBJECT,
             findMethodByName(serverClass, ExecServer.ADD_OBJECT));
-        execServerMethods.put(ExecServer.GET_OBJECTS,
-            findMethodByName(serverClass, ExecServer.GET_OBJECTS));
+//		BeanShell        
+        //execServerMethods.put(ExecServer.GET_OBJECTS,
+        //    findMethodByName(serverClass, ExecServer.GET_OBJECTS));
         execServerMethods.put(ExecServer.REMOVE_OBJECT,
             findMethodByName(serverClass, ExecServer.REMOVE_OBJECT));
+        execServerMethods.put(ExecServer.SET_LIBRARIES,
+            findMethodByName(serverClass, ExecServer.SET_LIBRARIES));
         execServerMethods.put(ExecServer.RUN_TEST_SETUP,
             findMethodByName(serverClass, ExecServer.RUN_TEST_SETUP));
         execServerMethods.put(ExecServer.RUN_TEST_METHOD,
@@ -490,8 +493,9 @@ class VMReference
             findMethodByName(serverClass, ExecServer.RESTORE_OUTPUT));
         execServerMethods.put(ExecServer.DISPOSE_WINDOWS,
             findMethodByName(serverClass, ExecServer.DISPOSE_WINDOWS));
-        execServerMethods.put(ExecServer.EXECUTE_CODE,
-            findMethodByName(serverClass, ExecServer.EXECUTE_CODE));
+//		BeanShell        
+        //execServerMethods.put(ExecServer.EXECUTE_CODE,
+        //    findMethodByName(serverClass, ExecServer.EXECUTE_CODE));
         
         //Debug.message(" connection to remote VM established");
         return true;

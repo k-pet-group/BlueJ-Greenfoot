@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: JdiDebugger.java 2489 2004-04-08 08:58:58Z polle $
  */
 public class JdiDebugger extends Debugger
 {
@@ -258,62 +258,95 @@ public class JdiDebugger extends Debugger
         catch (InvocationException ie) { }
     }
 
-    
     /**
-     * Return the debugger objects that exist in the
-     * debugger.
-     * 
-     * @return          a Map of (String name, DebuggerObject obj) entries
+     * Set the class path of the remote VM
      */
-    public Map getObjects()
+    public void setLibraries(String classpath)
     {
-        ArrayReference arrayRef = null;   
-        
-        try {
-            arrayRef = (ArrayReference) getVM().invokeExecServer(ExecServer.GET_OBJECTS, Collections.EMPTY_LIST);
-        }
-        catch (InvocationException ie) {
-            return null;            
-        }
+        Object args[] = { classpath };
 
-        // the returned array consists of double the number of objects
-        // they alternate, name, object, name, object
-        // ie.
-        // arrayRef[0] = a field name 0 (StringReference)
-        // arrayRef[1] = a field value 0 (ObjectReference)
-        // arrayRef[2] = a field name 1 (StringReference)
-        // arrayRef[3] = a field value 1 (ObjectReference)
-        //
-        Map returnMap = new HashMap();
-
-        if (arrayRef != null) {
-            for(int i=0; i<arrayRef.length(); i+=2)
-                returnMap.put(((StringReference) arrayRef.getValue(i)).value(),
-                        JdiObject.getDebuggerObject((ObjectReference)arrayRef.getValue(i+1)));
-        }
-
-        // the resulting map consists of entries (String fieldName, JdiObject obj)
-        return returnMap;
-    }
-
-    public DebuggerObject executeCode(String code)
-    {
-        Value obRef = null;
-        Object args[] = { code };
-
-        try {
-            obRef = getVM().invokeExecServerWorker( ExecServer.EXECUTE_CODE, Arrays.asList(args));
-        }
-        catch (InvocationException ie)
-        {
-            ie.printStackTrace();    
-        }
-        if (obRef == null)
-            return null;
-        
-        return JdiObject.getDebuggerObject((ObjectReference)obRef);
+		try {
+		    getVM().invokeExecServerWorker( ExecServer.SET_LIBRARIES, Arrays.asList(args));
+		} catch (InvocationException e) {
+		}
     }
     
+    
+// BeanShell
+//    /**
+//     * Return the debugger objects that exist in the
+//     * debugger.
+//     * 
+//     * @return          a Map of (String name, DebuggerObject obj) entries
+//     */
+//    public Map getObjects()
+//    {
+//        ArrayReference arrayRef = null;   
+//        
+//        try {
+//            arrayRef = (ArrayReference) getVM().invokeExecServer(ExecServer.GET_OBJECTS, Collections.EMPTY_LIST);
+//        }
+//        catch (InvocationException ie) {
+//            return null;            
+//        }
+//
+//        // the returned array consists of double the number of objects
+//        // they alternate, name, object, name, object
+//        // ie.
+//        // arrayRef[0] = a field name 0 (StringReference)
+//        // arrayRef[1] = a field value 0 (ObjectReference)
+//        // arrayRef[2] = a field name 1 (StringReference)
+//        // arrayRef[3] = a field value 1 (ObjectReference)
+//        //
+//        Map returnMap = new HashMap();
+//
+//        if (arrayRef != null) {
+//            for(int i=0; i<arrayRef.length(); i+=2)
+//                returnMap.put(((StringReference) arrayRef.getValue(i)).value(),
+//                        JdiObject.getDebuggerObject((ObjectReference)arrayRef.getValue(i+1)));
+//        }
+//
+//        // the resulting map consists of entries (String fieldName, JdiObject obj)
+//        return returnMap;
+//    }
+
+//    public DebuggerObject executeCode(String code)
+//    {
+//        Value obRef = null;
+//        Object args[] = { code };
+//
+//        try {
+//            obRef = getVM().invokeExecServerWorker( ExecServer.EXECUTE_CODE, Arrays.asList(args));
+//        }
+//        catch (InvocationException ie)
+//        {
+//            ie.printStackTrace();    
+//        }
+//        if (obRef == null)
+//            return null;
+//        
+//        return JdiObject.getDebuggerObject((ObjectReference)obRef);
+//    }
+    
+	/**
+	 * Return the debugger objects that exist in the
+	 * debugger.
+	 * 
+	 * @return			a Map of (String name, DebuggerObject obj) entries
+	 */
+	public Map getObjects()
+	{
+		throw new IllegalStateException("not implemented");
+		// the returned array consists of double the number of objects
+		// they alternate, name, object, name, object
+		// ie.
+		// arrayRef[0] = a field name 0 (StringReference)
+		// arrayRef[1] = a field value 0 (ObjectReference)
+		// arrayRef[2] = a field name 1 (StringReference)
+		// arrayRef[3] = a field value 1 (ObjectReference)
+		//
+	}
+
 	/**
 	 * Run the setUp() method of a test class and return the created
 	 * objects.

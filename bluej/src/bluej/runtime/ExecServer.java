@@ -4,12 +4,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.lang.reflect.*;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 
 import junit.framework.*;
-import bsh.*;
+//BeanShell
+//import bsh.*;
 
 /**
  * Class that controls the runtime of code executed within BlueJ.
@@ -20,7 +20,7 @@ import bsh.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: ExecServer.java 2489 2004-04-08 08:58:58Z polle $
  */
 public class ExecServer
 {
@@ -32,13 +32,16 @@ public class ExecServer
     public static final String LOAD_CLASS       = "loadClass";
     public static final String ADD_OBJECT       = "addObject";
     public static final String REMOVE_OBJECT    = "removeObject";
-    public static final String GET_OBJECTS      = "getObjects";
+//	BeanShell    
+    //public static final String GET_OBJECTS      = "getObjects";
+    public static final String SET_LIBRARIES    = "setLibraries";
     public static final String RUN_TEST_SETUP   = "runTestSetUp";
     public static final String RUN_TEST_METHOD  = "runTestMethod";
     public static final String SUPRESS_OUTPUT   = "supressOutput";
     public static final String RESTORE_OUTPUT   = "restoreOutput";
     public static final String DISPOSE_WINDOWS  = "disposeWindows";
-    public static final String EXECUTE_CODE     = "executeCode";
+//	BeanShell    
+    //public static final String EXECUTE_CODE     = "executeCode";
     
 
 	// these fields will be fetched by VMReference
@@ -52,13 +55,16 @@ public class ExecServer
 	public static Thread workerThread = null;
 
     // a BeanShell interpreter that we use for executing code
-    private static Interpreter interpreter;
+//	BeanShell    
+    //private static Interpreter interpreter;
         
 	// the class manager on this machine
     private static RemoteClassMgr classmgr;
 
     // the current class loader
 	private static ClassLoader currentLoader;
+	// a hashmap of names to objects
+    private static Map objects = new HashMap();
 
     /**
      * We need to keep track of open windows so that we can dispose of them
@@ -93,8 +99,9 @@ public class ExecServer
 		}
 
         // construct a BeanShell interpreter
-        interpreter = new Interpreter();
-        interpreter.setStrictJava(true);
+//    	BeanShell    
+        //interpreter = new Interpreter();
+        //interpreter.setStrictJava(true);
         
 		// record our main thread
 		mainThread = Thread.currentThread();
@@ -198,20 +205,23 @@ public class ExecServer
     static Map getScope()
     {
         //Debug.message("[VM] getScope");
-        Map hashMap = new HashMap();
-        String varNames[] = interpreter.getNameSpace().getVariableNames();
-        
-        try {
-            for (int i=0; i<varNames.length; i++) {
-                if (varNames[i].equals("bsh"))
-                    continue;
-                hashMap.put(varNames[i], interpreter.getNameSpace().getVariable(varNames[i]));
-            }
-        }
-        catch(UtilEvalError uee) {
-            uee.printStackTrace();    
-        }
-        return hashMap;
+        return objects;
+
+//    	BeanShell    
+        //Map hashMap = new HashMap();
+        //String varNames[] = interpreter.getNameSpace().getVariableNames();
+        //
+        //try {
+        //    for (int i=0; i<varNames.length; i++) {
+        //        if (varNames[i].equals("bsh"))
+        //            continue;
+        //        hashMap.put(varNames[i], interpreter.getNameSpace().getVariable(varNames[i]));
+        //    }
+        //}
+        //catch(UtilEvalError uee) {
+        //    uee.printStackTrace();    
+        //}
+        //return hashMap;
     }
 
     // -- methods called by reflection from JdiDebugger --
@@ -226,23 +236,24 @@ public class ExecServer
      */
     private static ClassLoader newLoader(String classPath)
     {
-        System.err.println("[VM] newLoader " + classPath);
-        currentLoader = classmgr.getLoader(classPath);
+        //Debug.message("[VM] newLoader " + classPath);
+    	currentLoader = classmgr.getLoader(classPath);
 
-        if (classPath.equals("."))
-            return currentLoader;
+//    	BeanShell    
+        //if (classPath.equals("."))
+        //    return currentLoader;
         
-        //interpreter.setClassLoader(currentLoader);
-        interpreter.getNameSpace().clear();
-        try {
-            URL url = new File(classPath).toURL();
-            interpreter.getNameSpace().getClassManager().addClassPath(url);
-            //addClassPath ();"); 
-            interpreter.eval("import *;");
-            //interpreter.eval("setAccessibility(true);");
-        }
-        catch (EvalError ee) { ee.printStackTrace(); }
-        catch (Exception e) { e.printStackTrace(); }
+        ////interpreter.setClassLoader(currentLoader);
+        //interpreter.getNameSpace().clear();
+        //try {
+        //    URL url = new File(classPath).toURL();
+        //    interpreter.getNameSpace().getClassManager().addClassPath(url);
+        //    //addClassPath ();"); 
+        //    interpreter.eval("import *;");
+        //    //interpreter.eval("setAccessibility(true);");
+        //}
+        //catch (EvalError ee) { ee.printStackTrace(); }
+        //catch (Exception e) { e.printStackTrace(); }
         
         return currentLoader;
     }
@@ -289,48 +300,60 @@ public class ExecServer
     static void addObject(String instanceName, Object value)
     {
         // Debug.message("[VM] addObject: " + instanceName + " " + value);
-        //Map scope = getScope();
-        //scope.put(instanceName, value);
-        try {
-            interpreter.set(instanceName, value);           
-        }
-        catch (EvalError ee) {
-            ee.printStackTrace();    
-        }
+        Map scope = getScope();
+        scope.put(instanceName, value);
+//    	BeanShell    
+        //try {
+        //    interpreter.set(instanceName, value);           
+        //}
+        //catch (EvalError ee) {
+        //    ee.printStackTrace();    
+        //}
     }
 
     /**
-     * Get all objects in this machine
+     * Update the remote VM with the list of user/system libraries
+     * which the user has created using the ClassMgr.
      */
-    private static Object[] getObjects()
+    private static void setLibraries(String libraries)
     {
-        try {
-            Map map = getScope();
-            //String varNames[] = interpreter.getNameSpace().getVariableNames();
-            Object obs[] = new Object[map.size()*2];
-
-            Iterator keyIterator = map.keySet().iterator();      
-            
-            try {
-                int i = 0;
-                
-                while(keyIterator.hasNext()) {
-                    String aKey = (String) keyIterator.next();
-                    // fill in the return array in the format
-                    // name, object, name, object
-                    obs[i*2] = aKey;
-                    obs[i*2+1] = interpreter.getNameSpace().getVariable(aKey);
-                    i++;
-                }
-                return obs;
-            }
-            catch(UtilEvalError uee) { }
-
-            
-        } catch(Exception e) { e.printStackTrace(); }
-        
-        return new Object[0];    
+		// Debug.message("[VM] setLibraries: " + libraries);
+        classmgr.setLibraries(libraries);
     }
+  
+   
+//    /**
+//     * Get all objects in this machine
+//     */
+//    private static Object[] getObjects()
+//    {
+//        try {
+//            Map map = getScope();
+//            //String varNames[] = interpreter.getNameSpace().getVariableNames();
+//            Object obs[] = new Object[map.size()*2];
+//
+//            Iterator keyIterator = map.keySet().iterator();      
+//            
+//            try {
+//                int i = 0;
+//                
+//                while(keyIterator.hasNext()) {
+//                    String aKey = (String) keyIterator.next();
+//                    // fill in the return array in the format
+//                    // name, object, name, object
+//                    obs[i*2] = aKey;
+//                    obs[i*2+1] = interpreter.getNameSpace().getVariable(aKey);
+//                    i++;
+//                }
+//                return obs;
+//            }
+//            catch(UtilEvalError uee) { }
+//
+//            
+//        } catch(Exception e) { e.printStackTrace(); }
+//        
+//        return new Object[0];    
+//    }
     
     /**
      * Execute a JUnit test case setUp method.
@@ -496,28 +519,28 @@ public class ExecServer
 		return null;
     }
 
-    private static Object executeCode(String code) throws Throwable
-    {
-        System.out.println("[VM] executeCode " + code);
-        // eval a statement and get the result
-        try {
-            return interpreter.eval(code);             
-        }
-        catch (TargetError e) {
-            // The script threw an exception
-            e.getTarget().printStackTrace();
-            throw e.getTarget();
-        } catch ( ParseException e ) {
-            e.printStackTrace();
-        } catch ( EvalError e ) {
-            e.printStackTrace();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    private static Object executeCode(String code) throws Throwable
+//    {
+//        System.out.println("[VM] executeCode " + code);
+//        // eval a statement and get the result
+//        try {
+//            return interpreter.eval(code);             
+//        }
+//        catch (TargetError e) {
+//            // The script threw an exception
+//            e.getTarget().printStackTrace();
+//            throw e.getTarget();
+//        } catch ( ParseException e ) {
+//            e.printStackTrace();
+//        } catch ( EvalError e ) {
+//            e.printStackTrace();
+//        }
+//        catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
     
     /**
      * Remove an object from the scope.
@@ -525,10 +548,13 @@ public class ExecServer
     private static void removeObject(String instanceName)
     {
         //Debug.message("[VM] removeObject: " + instanceName);
-        try {
-            interpreter.unset(instanceName);
-        }
-        catch (EvalError ee) { }
+        Map scope = getScope();
+        scope.remove(instanceName);
+//		BeanShell
+        //try {
+        //    interpreter.unset(instanceName);
+        //}
+        //catch (EvalError ee) { }
     }
 
     /**

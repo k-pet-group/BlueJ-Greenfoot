@@ -12,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: Debugger.java 2489 2004-04-08 08:58:58Z polle $
  */
 public abstract class Debugger
 {
@@ -138,7 +138,8 @@ public abstract class Debugger
 	 */
     public abstract DebuggerTestResult runTestMethod(String className, String methodName);
 
-    public abstract DebuggerObject executeCode(String code);
+	//	BeanShell
+    //public abstract DebuggerObject executeCode(String code);
     
     /**
      * Dispose all top level windows in the remote machine.

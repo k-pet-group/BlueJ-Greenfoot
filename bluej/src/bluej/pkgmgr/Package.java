@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2486 2004-04-06 08:11:09Z mik $
+ * @version $Id: Package.java 2489 2004-04-08 08:58:58Z polle $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -440,10 +440,10 @@ public final class Package extends Graph
         // process all *.java files
         for(int i=0; i<srcFiles.length; i++) {
             // remove all __SHELL*.java files (temp files created by us)
-//            if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
-//                srcFiles[i].delete();
-//                continue;
-//            }
+            if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
+                srcFiles[i].delete();
+                continue;
+            }
             String javaFileName =
                 JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
 
@@ -459,10 +459,10 @@ public final class Package extends Graph
         // process all *.class files
         for(int i=0; i<classFiles.length; i++) {
             // remove all __SHELL*.class files (temp files created by us)
-//            if (classFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
-//                classFiles[i].delete();
-//                continue;
-//            }
+            if (classFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
+                classFiles[i].delete();
+                continue;
+            }
             String classFileName =
                 JavaNames.stripSuffix(classFiles[i].getName(), ".class");
 
