@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  * 
- * @version $Id: ClassTarget.java 2849 2004-08-06 13:21:13Z mik $
+ * @version $Id: ClassTarget.java 2870 2004-08-13 11:33:36Z mik $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -91,6 +91,7 @@ public class ClassTarget extends EditableTarget
     private int ghostHeight;
     private boolean isDragging = false;
     private boolean isMoveable = true;
+    private boolean hasSource;
 
     private String typeParameters = "";
 
@@ -108,7 +109,8 @@ public class ClassTarget extends EditableTarget
     public ClassTarget(Package pkg, String baseName, String template)
     {
         super(pkg, baseName);
-
+        hasSource = getSourceFile().canRead();
+        
         // we can take a guess at what the role is going to be for the
         // object based on the start of the template name. If we get this
         // wrong, its no great shame as it'll be fixed the first time they
@@ -436,7 +438,7 @@ public class ClassTarget extends EditableTarget
      */
     public boolean hasSourceCode()
     {
-        return getSourceFile().canRead();
+        return hasSource;
     }
 
     /**
