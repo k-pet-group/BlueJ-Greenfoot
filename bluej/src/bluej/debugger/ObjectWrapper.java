@@ -32,7 +32,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: ObjectWrapper.java 1246 2002-05-28 09:43:13Z mik $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -373,15 +373,17 @@ public class ObjectWrapper extends JComponent
 
     }
 
-
+    /**
+     * Process a mouse click into this object. If it was a popup event, show the object's
+     * menu. If it was a double click, inspect the object. If it was a normal mouse click,
+     * insert is into a parameter field (if any).
+     */
     protected void processMouseEvent(MouseEvent evt)
     {
         int menuOffset;
         super.processMouseEvent(evt);
 
-        //XXX        pkg.getFrame().clearStatus();
-
-        if(isPopupEvent(evt)) {
+        if(evt.isPopupTrigger()) {
             if(menu == null)
                 return;
 
@@ -396,11 +398,9 @@ public class ObjectWrapper extends JComponent
                     itemHeightKnown = true;
                 }
             }
-            //lifted higher to avoid mouse events on underlying objects:
-            //  menuOffset = (menu.getComponentCount() - 1) * itemHeight;
+            // try tp position menu so that the pointer is near the method items
             menuOffset = (menu.getComponentCount() - 4) * itemHeight;
-
-            menu.show(this, evt.getX(), evt.getY() - menuOffset);
+            menu.show(this, evt.getX() + 1, evt.getY() - menuOffset);
         }
         else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
             if(evt.getClickCount() > 1)  // double click
@@ -411,12 +411,6 @@ public class ObjectWrapper extends JComponent
             }
 
         }
-    }
-
-    private boolean isPopupEvent(MouseEvent evt)
-    {
-        return evt.isPopupTrigger()
-            || ((evt.getID() == MouseEvent.MOUSE_PRESSED) && evt.isControlDown());
     }
 
     public void actionPerformed(ActionEvent e)

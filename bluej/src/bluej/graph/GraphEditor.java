@@ -13,7 +13,7 @@ import javax.swing.*;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 583 2000-06-26 01:51:17Z mik $
+ * @version $Id: GraphEditor.java 1246 2002-05-28 09:43:13Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener
@@ -84,7 +84,7 @@ public class GraphEditor extends JComponent
 
         graph.setActiveVertex(activeVertex);
 
-        if((activeVertex != null) && !isPopupEvent(evt) &&
+        if((activeVertex != null) && !evt.isPopupTrigger() &&
             ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
             activeVertex.mousePressed(evt, x, y, this);
             if (!motionListening) {
@@ -155,16 +155,17 @@ public class GraphEditor extends JComponent
     {
         super.processMouseEvent(evt);
 
-        if (isPopupEvent(evt))
+        if (evt.isPopupTrigger())
             if((activeVertex != null))
                 activeVertex.popupMenu(evt, evt.getX(), evt.getY(), this);
     }
 
-    private boolean isPopupEvent(MouseEvent evt)
-    {
-        return evt.isPopupTrigger()
-                || ((evt.getID() == MouseEvent.MOUSE_PRESSED) && evt.isControlDown());
-    }
+    // not needed anymore - was fix for old Mac system
+//      private boolean isPopupEvent(MouseEvent evt)
+//      {
+//          return evt.isPopupTrigger()
+//                  || ((evt.getID() == MouseEvent.MOUSE_PRESSED) && evt.isControlDown());
+//      }
 
     public void setReadOnly(boolean state)
     {

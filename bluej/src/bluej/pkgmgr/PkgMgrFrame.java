@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.List;
 import java.io.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.print.*;
 import java.text.DateFormat;
 
@@ -38,7 +39,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1183 2002-03-15 10:46:58Z ajp $
+ * @version $Id: PkgMgrFrame.java 1246 2002-05-28 09:43:13Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1717,6 +1718,8 @@ public class PkgMgrFrame extends JFrame
 
             JButton button = new JButton(newClassString);
             button.setFont(PkgMgrFont);
+            ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
+            button.setIcon(emptyIcon);
             button.setToolTipText(Config.getString("tooltip.newClass"));
             button.addActionListener(this);
             button.setRequestFocusEnabled(false);   // never get keyboard focus
@@ -1747,6 +1750,7 @@ public class PkgMgrFrame extends JFrame
                                                     ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
             button = new JButton(compileString);
             button.setFont(PkgMgrFont);
+            button.setIcon(emptyIcon);
             button.setToolTipText(Config.getString("tooltip.compile"));
             button.addActionListener(this);
             button.setRequestFocusEnabled(false);   // never get keyboard focus
