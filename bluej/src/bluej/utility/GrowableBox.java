@@ -24,7 +24,7 @@ import bluej.Config;
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 2767 2004-07-09 07:35:50Z polle $
+ * @version $Id: GrowableBox.java 2785 2004-07-12 12:22:11Z polle $
  */
 public class GrowableBox extends Box
 {
@@ -115,6 +115,10 @@ public class GrowableBox extends Box
         }
     }
 
+    public ComponentFactory getComponentFactory() {
+        return componentFactory;
+    }
+    
     /**
      * Intialises the buttons to get the correct look.
      * 

@@ -28,7 +28,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2774 2004-07-09 13:13:06Z polle $
+ * @version $Id: MethodDialog.java 2785 2004-07-12 12:22:11Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -78,6 +78,10 @@ public class MethodDialog extends CallDialog implements FocusListener
             this.dialog = dialog;
         }
 
+        public void setHistory(List history) {
+            this.history = history;
+        }
+        
         public JComponent createComponent(JButton addButton, JButton removeButton)
         {
             Box container = new Box(BoxLayout.X_AXIS);
@@ -98,17 +102,20 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2774 2004-07-09 13:13:06Z polle $
+     * @version $Id: MethodDialog.java 2785 2004-07-12 12:22:11Z polle $
      */
     public static class ParameterList
     {
         private List parameters;
         private List types;
         private boolean isVarArgs;
+        private String defaultParamValue;
 
-        public ParameterList(int initialSize, boolean isVarArgs) {
+        public ParameterList(int initialSize, String defaultParamValue, boolean isVarArgs) 
+        {            
             parameters = new ArrayList(initialSize);
             types = new ArrayList(initialSize);
+            this.defaultParamValue = defaultParamValue;
             this.isVarArgs = isVarArgs;
         }
 
@@ -184,6 +191,27 @@ public class MethodDialog extends CallDialog implements FocusListener
                 } else {
                     ((JComboBox) element).setSelectedIndex(0);
                 }
+            }
+        }
+
+        /**
+         * Set the history for the given element.
+         * 
+         * @param i
+         * @param historyList
+         */
+        public void setHistory(int i, List historyList)
+        {
+            if(historyList == null) {
+                return;
+            }
+            else if (isVarArgs && i >= (parameters.size() - 1)) {
+                GrowableBox varArgs = getGrowableBox();
+                VarArgFactory factory = (VarArgFactory) varArgs.getComponentFactory();
+                factory.setHistory(historyList);
+            } else {
+                getParameter(i).setModel(new DefaultComboBoxModel(historyList.toArray()));
+                getParameter(i).insertItemAt(defaultParamValue, 0);
             }
         }
     }
@@ -488,27 +516,29 @@ public class MethodDialog extends CallDialog implements FocusListener
     {
         if (parameterList != null) {
             Class[] paramClasses = getArgTypes(true);
+            //First we add all the current items into the historylist
             for (int i = 0; i < parameterList.size(); i++) {
                 history.addCall(paramClasses[i], (String) parameterList.getParameter(i).getEditor()
-                        .getItem());
-                List historyList = history.getHistory(paramClasses[i]);
-                parameterList.getParameter(i).setModel(
-                        new DefaultComboBoxModel(historyList.toArray()));
-                parameterList.getParameter(i).insertItemAt(defaultParamValue, 0);
+                        .getItem());                
+            }
+            //Then we update all the comboboxes
+            for (int i = 0; i < parameterList.size(); i++) {                
+                List historyList = history.getHistory(paramClasses[i]);                
+                parameterList.setHistory(i, historyList);                
             }
         }
         
         if (typeParameterList != null) {
             TypeParamView[] formalTypeParams = getFormalTypeParams();
             String[] typeParams = getTypeParams();
+            //First we add all the current items into the historylist
             for (int i = 0; i < typeParams.length; i++) {
                 history.addCall(formalTypeParams[i], typeParams[i]);
+            }
+            //Then we update all the comboboxes
+            for (int i = 0; i < typeParams.length; i++) {
                 List historyList = history.getHistory(formalTypeParams[i]);
-                if (historyList != null) {
-                    typeParameterList.getParameter(i).setModel(
-                            new DefaultComboBoxModel(historyList.toArray()));
-                    typeParameterList.getParameter(i).insertItemAt(defaultParamValue, 0);
-                }                
+                typeParameterList.setHistory(i, historyList);                                
             }
         }
     }
@@ -746,7 +776,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     {
         TypeParamView formalTypeParams[] = getFormalTypeParams();
 
-        typeParameterList = new ParameterList(formalTypeParams.length, false);
+        typeParameterList = new ParameterList(formalTypeParams.length, defaultParamValue, false);
         for (int i = 0; i < formalTypeParams.length; i++) {
             List historyList = history.getHistory(formalTypeParams[i]);            
             JComboBox component = createComboBox(historyList);
@@ -770,7 +800,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         String[] paramNames = method.getParamNames();
         String[] paramTypes = method.getParamTypeStrings();
 
-        parameterList = new ParameterList(paramClasses.length, method.isVarArgs());
+        parameterList = new ParameterList(paramClasses.length, defaultParamValue, method.isVarArgs());
         for (int i = 0; i < paramTypes.length; i++) {
             String paramString = paramTypes[i];
             if(paramNames!=null) {
