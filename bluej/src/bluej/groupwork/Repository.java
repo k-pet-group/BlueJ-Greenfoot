@@ -316,6 +316,7 @@ public class Repository {
 		command.setRecursive(true);
 		command.setBuildDirectories(true);
 		command.setPruneDirectories(false);
+		command.setCVSCommand('I',"bluej.pkg");// ignore bluej.pkg files
 		SynchListener synchListener = new SynchListener();
 		client.getEventManager().addCVSListener(synchListener);
 		client.setLocalPath(project.getProjectDir().getAbsolutePath());
@@ -334,7 +335,7 @@ public class Repository {
 		disconnect();
 	}
 	
-	public void importInRepository(Project project){
+	private void importInRepository(Project project){
 		setupConnection();
 		
 		ImportCommand importCommand = new ImportCommand();
@@ -383,11 +384,10 @@ public class Repository {
 		
 		command.setCVSCommand('n',"");
 		command.setCVSCommand('q',"");
-		command.setCleanCopy(false);
 		command.setRecursive(true);
 		command.setBuildDirectories(true);
 		command.setPruneDirectories(false);
-		
+		command.setCleanCopy(false);
 		globalOptions.setCVSRoot(cvsroot.toString());
 		globalOptions.setCVSCommand('n',"");
 		globalOptions.setCVSCommand('q',"");
@@ -438,7 +438,11 @@ public class Repository {
 		File file = new File(str);
 		return file;
 	}
-	
+	/**
+	 * Look through the dirs and return an array of bluej.pkg files found
+	 * @param dirs array of dirs that the method will look through
+	 * @return an array of the found bluej.pkg files
+	 */
 	private File[] find_pkgFiles(File[] dirs){
 		File[] pkgFiles;
 		List pkgFilesList = new LinkedList();
@@ -451,10 +455,61 @@ public class Repository {
 		}
 		return listToFileArray(pkgFilesList);
 	}
+	
+	private void updateGraphLayout(){
+		File[] pkgArray = updatePkgFilesFromRepository();
+		if (pkgArray.length < 1){
+			return;
+		}
+		setupConnection();
+		UpdateCommand command = new UpdateCommand();
+		command.setFiles(pkgArray);
+		command.setCleanCopy(true);
+		command.setRecursive(true);
+		command.setBuildDirectories(true);
+		command.setPruneDirectories(false);
+		SynchListener synchListener = new SynchListener();
+		client.getEventManager().addCVSListener(synchListener);
+		client.setLocalPath(project.getProjectDir().getAbsolutePath());
+		System.out.println("Cvs command: " + command.getCVSCommand());
+		try {
+			client.executeCommand(command, globalOptions);
+		} catch (CommandAbortedException e) {
+			e.printStackTrace();
+		} catch (CommandException e) {
+			e.printStackTrace();
+		} catch (AuthenticationException e) {
+			e.printStackTrace();
+		}
+		synchListener.waitForExecutionToFinish();
+		client.getEventManager().removeCVSListener(synchListener);
+		disconnect();
+		
+	}
+	
+	/**
+	 * Get an array of files containing all the bluej.pkg files in the repository
+	 * @return array of files
+	 */
+	private File[] updatePkgFilesFromRepository() {
+		List updateResults = getUpdateResults();
+		List pkgFiles = new LinkedList();
+		for (Iterator i = updateResults.iterator(); i.hasNext();) {
+			UpdateResult updateResult = (UpdateResult) i.next();
+			if (updateResult.getFilename().endsWith("bluej.pkg")){
+				pkgFiles.add(updateResultToFile(updateResult));
+				//System.out.println("getPkgFilesInRepository:498 added " + updateResultToFile(updateResult).getAbsolutePath());
+			}
+		}
+		File[] pkgArray = listToFileArray(pkgFiles);
+		return pkgArray;
+	}
 	// util methods end
 
 	// public methods begin
 	
+	
+
 	public void printExperiments(Project project){
 		System.out.println("====Files in project===========");
 		File[] files = getFilesInProject(project, false);
@@ -517,6 +572,7 @@ public class Repository {
 		
 		//add and commit the bluej.pkg files in dirs that was bluej packages
 		File[] new_pkgFiles = find_pkgFiles(dirs);
+		project.saveAllGraphLayout();
 		addToRepository(new_pkgFiles);
 		commitToRepository(new_pkgFiles);
 		
@@ -525,14 +581,26 @@ public class Repository {
 		commitToRepository(getFilesInProject(project, includePkgFiles));
 	}
 	
-	
+	/**
+	 * Get all changes from repository except the pkg files that determine the
+	 * layout of the graph.
+	 * @param project
+	 * @param includeGraphLayout should the update include the pkg files.
+	 */
 	public void updateAll(Project project, boolean includeGraphLayout){
+		/*
 		if (!hasBeenCheckedOut(project)){
 			checkout();
 		}
 		else {
 			updateFromRepository(project);
 		}
+		if (includeGraphLayout){
+			updateGraphLayout();
+		}
+		*/
+		updateGraphLayout();
+		project.reReadAllGraphLayout();
 	}
 	
 	public void shareProject(Project project){
@@ -569,18 +637,16 @@ public class Repository {
 				result = false;
 			}
 			
-			/* when a package is first created. pkg and pkh files should be
+			/* when a package is first created. pkg files should be
 			 * added and committed. If we don't, BlueJ can't know which folders
 			 * are packages
 			 */ 
-			if (!includePkgFiles){
-				if (name.equals("bluej.pkg")){
-					result = false;
-				}			
-				if (name.equals("bluej.pkh")){
-					result = false;
-				}			
+			if (!includePkgFiles && name.equals("bluej.pkg")){
+				result = false;
 			}
+			if (name.equals("bluej.pkh")){
+				result = false;
+			}	
 			if (name.equals("team.cfg")){
 				result = false;
 			}	
