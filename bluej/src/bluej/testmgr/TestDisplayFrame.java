@@ -17,7 +17,7 @@ import bluej.pkgmgr.Project;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 2860 2004-08-10 05:55:35Z davmac $
+ * @version $Id: TestDisplayFrame.java 2861 2004-08-10 06:10:42Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -245,7 +245,7 @@ public class TestDisplayFrame
                     int index1 = trace.indexOf('\n');
                     index1 = trace.indexOf("at ", index1) + 3;
                     int index2 = trace.indexOf('\n', index1 + 1);
-                    String loc = trace.substring(index1, index2 - 1).trim();
+                    String loc = trace.substring(index1, index2).trim();
 
                     // Now loc is:
                     // "package.class$innerclass.method(filename.java:lineno"
@@ -267,7 +267,8 @@ public class TestDisplayFrame
                     // line number.
                     index2 = loc.lastIndexOf(':');
                     String sourceName = loc.substring(index1 + 1, index2);
-                    int lineno = Integer.parseInt(loc.substring(index2 + 1));
+                    index1 = loc.indexOf(')');
+                    int lineno = Integer.parseInt(loc.substring(index2 + 1, index1));
 
                     spackage.showSource(sourceName, lineno, "", false);
                 }
