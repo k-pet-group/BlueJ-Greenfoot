@@ -36,7 +36,7 @@ import java.awt.*;
  *  The Extensions Manager help panel allows the user to view current
  *  extensions.
  *
- * @version    $Id: HelpDialog.java 1497 2002-11-11 10:32:50Z damiano $
+ * @version    $Id: HelpDialog.java 1504 2002-11-18 08:29:39Z damiano $
  */
 public class HelpDialog extends JDialog implements ActionListener
 {
@@ -51,8 +51,10 @@ public class HelpDialog extends JDialog implements ActionListener
 
 
     /**
-     *  Setup the UI for the dialog and event handlers for the dialog's buttons.
-     *
+     * Setup the UI for the dialog and event handlers for the dialog's buttons.
+     * I cannot manage to get the ExtensionsManager passed, yet....
+     * This means, basically, that we are NEVER shure if all is ready when we are called...
+     *  
      * @param  parent  Description of the Parameter
      */
     public HelpDialog(PkgMgrFrame parent)
@@ -113,7 +115,7 @@ public class HelpDialog extends JDialog implements ActionListener
     private void showDetails()
     {
         if (detailDialog == null)
-            detailDialog = new HelpDetailDialog(this);
+            detailDialog = new HelpDetailDialog(ExtensionsManager.getExtMgr(),this);
 
         int selectedColumn = extensionsTable.getSelectedColumn();
 
@@ -252,16 +254,16 @@ public class HelpDialog extends JDialog implements ActionListener
                 return "getValueAt: ERROR: no wrapper at row=" + row + " col=" + col;
 
             if (col == 1)
-                return wrapper.getStatus();
+                return wrapper.getExtensionStatus();
 
-            if (col == 2)
-                return wrapper.getName();
+            if (col == 2) 
+              return wrapper.getExtensionClassName();
 
             if (col == 3)
                 return (wrapper.getProject() != null) ? projectString : installedString;
 
             if (col == 4)
-                return wrapper.getVersion();
+                return wrapper.getExtensionVersion();
 
             // If I trow an exception all will stop. This instead keeps going
             return "getValueAt: ERROR at row=" + row + " col=" + col;

@@ -9,7 +9,7 @@ import bluej.Config;
  *  <b>This API is version 1.2</b> Your class MUST have an empty parameters
  *  constructor AND implement the startup and teminate methods.
  *
- * @version    $Id: Extension.java 1497 2002-11-11 10:32:50Z damiano $
+ * @version    $Id: Extension.java 1504 2002-11-18 08:29:39Z damiano $
  */
 public abstract class Extension
 {
@@ -40,7 +40,7 @@ public abstract class Extension
      *  do before being disconnected from the system. This is needed since if I
      *  "reload" an extension I REALLY would like it to come back in the exact
      *  way it was the first time and this extension may have threads going on
-     *  that I want to shut... What you Extension wrapper should do here is to
+     *  that I want to shut... What you Extension writer should do here is to
      *  SHUT down everything you created I try to be nice, you may give me a not
      *  null message string that I may display to the user :-) In ANY case I am
      *  going to disconnect

@@ -2,6 +2,7 @@ package bluej.extmgr;
 
 import bluej.pkgmgr.*;
 import bluej.extensions.*;
+import bluej.utility.Debug;
 
 import java.awt.*;
 import javax.swing.*;
@@ -75,7 +76,9 @@ public class MenuManager
     // This will return -1 if the given menu is not present... 
     insertPoint = removeMenuItem (oldMenuItem);
 
-    BlueJ aBluej = myWrapper.getBlueJ();
+    if ( ! myWrapper.isValid() ) return null;
+
+    BlueJ aBluej = myWrapper.getBluej();
     if ( aBluej == null ) return null;
 
     MenuGen menuGen = aBluej.getMenuGen();
@@ -108,7 +111,10 @@ public class MenuManager
     Container aContainer = anItem.getParent();
 
     // This should never happen, if it does you just get double menues...
-    if ( ! (aContainer instanceof JPopupMenu) ) return -1;
+    if ( ! (aContainer instanceof JPopupMenu) )  {
+        Debug.message("MenuManager.removeMenuItem(): ERROR: aContainer.Class="+aContainer.getClass().getName());
+        return -1;
+    }
 
     JPopupMenu parentMenu = (JPopupMenu)aContainer;
 
@@ -135,6 +141,7 @@ public class MenuManager
       for (int index=0; index<allFrames.length; index++ )
         {
         PkgMgrFrame thisFrame = allFrames[index];
+        //Debug.message("MenuManager.MenuExtensionRevalidateReq.run(): index="+index);
         JMenuItem oldMenuItem = (JMenuItem)framesToJmenu.get(thisFrame);
         JMenuItem newMenuItem = menuFrameRevalidate (thisFrame,oldMenuItem);
         newFramesToJmenu.put(thisFrame,newMenuItem);

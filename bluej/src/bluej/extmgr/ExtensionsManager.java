@@ -8,6 +8,7 @@ import bluej.extensions.event.PackageEvent;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
+import bluej.utility.Debug;
 import bluej.debugger.ExecutionEvent;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -83,8 +84,8 @@ public class ExtensionsManager implements BlueJEventListener
             System.exit(-1);
         }
 
-        argsList = Collections.unmodifiableList(Arrays.asList(args));
         this.bluejLib = bluejLib;
+        argsList = Collections.unmodifiableList(Arrays.asList(args));
 
         String dir = Config.getPropString("bluej.extensions.systempath", (String) null);
         if (dir == null)
@@ -95,41 +96,12 @@ public class ExtensionsManager implements BlueJEventListener
         userDir = Config.getUserConfigFile("extensions");
 
         extensions = new ArrayList();
-        // of ExtensionWrapper
 
         // This will also register the panel with BlueJ
         prefManager = new PrefManager(this);
 
         BlueJEvent.addListener(this);
     }
-
-
-
-    /**
-     *  Convenience method to ensure uniformity of preference items
-     *
-     * @param  ew   the wrapper of the extension to which to apply the key
-     * @param  key  Description of the Parameter
-     * @return      an appropriate string to identify the preference item
-     */
-    public static String getPreferencesString(ExtensionWrapper ew, String key)
-    {
-        return "extensions." + ew.getExtensionClass().getName() + ".preferences." + key;
-    }
-
-
-    /**
-     *  Convenience method to ensure uniformity of settings items
-     *
-     * @param  ew   the wrapper of the extension to which to apply the key
-     * @param  key  Description of the Parameter
-     * @return      an appropriate string to identify the setting
-     */
-    public static String getSettingsString(ExtensionWrapper ew, String key)
-    {
-        return "extensions." + ew.getExtensionClass().getName() + ".settings." + key;
-    }
-
 
     /**
      *  Quite a simple one, just not to change the main BlueJ code.
@@ -152,84 +124,78 @@ public class ExtensionsManager implements BlueJEventListener
      */
     private void loadAllExtensions(File directory, Project project)
     {
-        if (directory == null)
-            return;
+        if (directory == null) return;
 
         File[] files = directory.listFiles();
-        if (files == null)
-            return;
+        if (files == null) return;
 
         for (int index = 0; index < files.length; index++) {
             File thisFile = files[index];
 
-            if (thisFile.isDirectory())
-                continue;
+            if (thisFile.isDirectory())  continue;
 
-            if (!thisFile.getName().endsWith(".jar"))
-                continue;
+            if (!thisFile.getName().endsWith(".jar"))  continue;
 
-            // I should REALLY look for already loaded extensions !!!
-            System.out.println("loading=" + thisFile.toString());
-
-            // We may argue endlessely if I should add it or not...
+            // Ok, lets try to get a wrapper up and running
             ExtensionWrapper aWrapper = new ExtensionWrapper(this, prefManager, thisFile);
+
+            // Loading this warpper failed miserably, too bad...
+            if ( ! aWrapper.isJarValid() ) continue;
+
+            // Let me see if I already have this extension loaded
+            if ( isWrapperAlreadyLoaded (aWrapper) ) continue;
 
             // This MUST be here in ANY case since othervise this wrapper is NOT on the list..
             extensions.add(aWrapper);
 
-            // Wehn a new extension is loaded its wrapper MUST already be on the list of wrappers!
-            if (aWrapper.isJarValid())
-                aWrapper.newExtension(project);
-
+            // Now that all is nice and clean I can safely instantiate the extension
+            aWrapper.newExtension(project);
         }
     }
 
 
     /**
-     *  Returns a reminder as to where to find <CODE>&lt;bluej&gt;/lib</CODE>.
-     *
-     * @return    a <CODE>File</CODE> which is an existing directory.
+     * Checks if the loaded wrappers/extensions IF this wrapper/extension is already loaded
+     * In case of strange params... we return false, meaning that the given wrapper is NOT
+     * loaded in the system... it is a reasonable response, afer all this wrapper is 
+     * not loaded...
      */
-    public File getBlueJLib()
+    private boolean isWrapperAlreadyLoaded ( ExtensionWrapper thisWrapper )
     {
-        return bluejLib;
+        if ( thisWrapper == null ) return false;
+
+        if ( ! thisWrapper.isJarValid() ) return false;
+
+        String thisClassName = thisWrapper.getExtensionClassName();
+
+        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
+            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+
+            String aClassName = aWrapper.getExtensionClassName();
+            if ( aClassName == null ) continue;
+
+            // Found it, this wrapper is already loaded...
+            if ( thisClassName.equals(aClassName) ) {
+                Debug.message("isWrapperAlreadyLoaded==true: className="+thisClassName);
+                return true;
+            }
+        }
+
+    // This wrapper is not already loaded in the list of wrappers/extensions
+    return false;
     }
-
-
-    /**
-     *  Returns an unmodifiable list of the arguments passed to BlueJ.
-     *
-     * @return    a List containing each space-delimited parameter.
-     */
-    public List getArgs()
-    {
-        return argsList;
-    }
-
-
-    /**
-     *  Returns an unmodifiable list of extensions.
-     *
-     * @return    an unmodifiable list of the Extensions, but the elements
-     *      themselves are not protected.
-     */
-    public synchronized List getExtensions()
-    {
-        return Collections.unmodifiableList(extensions);
-    }
-
 
     /**
      *  Searches for and loads any new extensions found in the project.
-     *
-     * @param  pmf        the frame that will contain the project
-     * @param  toolsMenu  if not <code>null</code>, a currently empty frame is
-     *      going to be used, so any new menu items must be added at this time
-     * @param  project    Description of the Parameter
+     *  TODO: Two params are not used, remove them when you can do it.
+     *  
+     * @param  pmf        NOT USED
+     * @param  toolsMenu  NOT USED
+     * @param  project    The project I am opening
      */
     public void projectOpening(Project project, PkgMgrFrame pmf, JMenu toolsMenu)
     {
-        File exts = new File(project.getProjectDir(), "+extensions");
+        File exts = new File(project.getProjectDir(),"extensions");
         loadAllExtensions(exts, project);
     }
 
@@ -247,22 +213,44 @@ public class ExtensionsManager implements BlueJEventListener
 
     /**
      *  This package frame is about to be closed.
+     *  The issue here is to remove the extension if this is the right time to do it..
      *
-     * @param  pkg  the package that is about to be closed TODO: Manage the
-     *      release of extensions.....
+     * @param  pkg  the package that is about to be closed
      */
     public synchronized void packageClosing(Package pkg)
     {
         delegateEvent(new PackageEvent(PackageEvent.PACKAGE_CLOSING, new BPackage(pkg)));
 
-        boolean invalidate = PkgMgrFrame.getAllProjectFrames(pkg.getProject()).length == 1;
-        // last package of this project
-        for (Iterator it = extensions.iterator(); it.hasNext(); ) {
-            ExtensionWrapper ew = (ExtensionWrapper) it.next();
-            if (invalidate && ew.getProject() == pkg.getProject()) {
-                ew.invalidate();
-                it.remove();
-            }
+        // Let's assume we are NOT going to delete the extension...
+        boolean invalidateExtension = false;
+
+        // Here comes the hard part of deciding IF to release the given wrapper/extension..
+        Project thisProject = pkg.getProject();
+
+        // Shurelly I cannot release anything if I don't know what I am talking about...
+        if ( thisProject == null ) return;
+
+        // The following CAN return null....
+        PkgMgrFrame[] frameArray = PkgMgrFrame.getAllProjectFrames(thisProject);
+        if ( frameArray == null ) 
+            invalidateExtension = true;
+        else
+            invalidateExtension = frameArray.length <= 1;
+
+        // Nothing to do....
+        if ( ! invalidateExtension ) return;
+
+        // I am closing the last frame of the project, time to invalidate the right extensions
+        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
+            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+
+            // If the extension did not got loaded with this project skip it...
+            if ( thisProject != aWrapper.getProject() ) continue;
+
+            // The following terminated the Extension
+            aWrapper.terminate();
+            // and this removes the Wrapper from the list of wrappers.
+            iter.remove();
         }
     }
 
@@ -280,15 +268,13 @@ public class ExtensionsManager implements BlueJEventListener
      */
     public void addMenuItems(Project project, PkgMgrFrame pmf, JMenu menu)
     {
-        Iterator iter = extensions.iterator();
-        while (iter.hasNext()) {
+        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-            if (!aWrapper.isValid())
-                continue;
+
+            if (!aWrapper.isValid()) continue;
 
             MenuManager aManager = aWrapper.getMenuManager();
-            if (aManager == null)
-                continue;
+            if (aManager == null)  continue;
 
             aManager.menuFrameRevalidateReq(pmf);
         }
@@ -342,5 +328,39 @@ public class ExtensionsManager implements BlueJEventListener
 
             delegateEvent(new InvocationEvent(new BPackage(exevent.getPackage()), result));
         }
+    }
+
+
+    /**
+     *  Returns a reminder as to where to find <CODE>&lt;bluej&gt;/lib</CODE>.
+     *
+     * @return    a <CODE>File</CODE> which is an existing directory.
+     */
+    public File getBlueJLib()
+    {
+        return bluejLib;
+    }
+
+
+    /**
+     *  Returns an unmodifiable list of the arguments passed to BlueJ.
+     *
+     * @return    a List containing each space-delimited parameter.
+     */
+    public List getArgs()
+    {
+        return argsList;
+    }
+
+
+    /**
+     *  Returns an unmodifiable list of extensions.
+     *
+     * @return    an unmodifiable list of the Extensions, but the elements
+     *      themselves are not protected.
+     */
+    public synchronized List getExtensions()
+    {
+        return Collections.unmodifiableList(extensions);
     }
 }

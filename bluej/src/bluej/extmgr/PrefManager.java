@@ -88,16 +88,15 @@ public class PrefManager implements PrefPanelListener
     private void doWorkItem( ExtensionWrapper aWrapper, int doAction ) 
     {
         // This extension is not valid, let me skip it
-        if ( ! aWrapper.isValid() ) 
-            return;
-        String extensionName = aWrapper.getName();
+        if ( ! aWrapper.isValid() ) return;
+        String extensionName = aWrapper.getExtensionClassName();
     
-        BlueJ aBlueJ = aWrapper.getBlueJ();
+        BlueJ aBluej = aWrapper.getBluej();
         // Can a wrapper not have bluej ? ... yes, it happens....
-        if ( aBlueJ == null ) 
+        if ( aBluej == null ) 
             return;
 
-        PrefGen aPrefPanel = aBlueJ.getPrefGen();
+        PrefGen aPrefPanel = aBluej.getPrefGen();
         // An extension may not have a preference panel
         if ( aPrefPanel == null ) return;
 

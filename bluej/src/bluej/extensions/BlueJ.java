@@ -1,11 +1,9 @@
 package bluej.extensions;
 
 import bluej.extensions.event.BJEventListener;
-import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.extmgr.PrefManager;
 import bluej.extmgr.MenuManager;
-
 
 import bluej.Config;
 import bluej.pkgmgr.Package;
@@ -13,11 +11,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.io.File;
 import java.io.InputStream;
 import java.awt.Component;
@@ -54,7 +48,7 @@ import java.awt.event.ActionListener;
  *                                         +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1497 2002-11-11 10:32:50Z damiano $
+ * @version $Id: BlueJ.java 1504 2002-11-18 08:29:39Z damiano $
  */
 
 public class BlueJ
@@ -62,18 +56,25 @@ public class BlueJ
     private final ExtensionWrapper myWrapper;
     private final PrefManager      prefManager;
 
+    private PrefGen    currentPrefGen=null;
+    private MenuGen    currentMenuGen=null;
     private Properties localLabels;
-
-    private PrefGen currentPrefGen=null;
-    private MenuGen currentMenuGen=null;
 
     /**
      * Extensions should not call this constructor!
+     * When this constructor is called you can safely make use of the object given.
      */
     public BlueJ (ExtensionWrapper myWrapper, PrefManager prefManager)
     {
         this.myWrapper   = myWrapper;
         this.prefManager = prefManager;
+
+        /**
+         * I do NOT want lazy initialization othervise I may try to load it
+         * may times just because I cannof find anything.
+         * Or having state variables to know I I did load it but had nothing found
+         */
+        localLabels = myWrapper.getLabelProperties();
     }
     
     /**
@@ -173,7 +174,7 @@ public class BlueJ
      */
     public List getArgs()
     {
-        return ExtensionsManager.getExtMgr().getArgs();
+        return myWrapper.getArgs();
     }
     
     /**
@@ -192,7 +193,7 @@ public class BlueJ
      */
     public File getSystemLib()
     {
-        return ExtensionsManager.getExtMgr().getBlueJLib();
+        return myWrapper.getBlueJLib();
     }
     
     /**
@@ -347,7 +348,8 @@ public class BlueJ
       */
     public String getExtPropString (String property, String def)
     {
-        return Config.getPropString (ExtensionsManager.getSettingsString (myWrapper, property), def);
+        String thisKey = myWrapper.getSettingsString ( property );
+        return Config.getPropString (thisKey, def);
     }
      
      /**
@@ -358,7 +360,8 @@ public class BlueJ
       */
     public void setExtPropString (String property, String value)
     {
-        Config.putPropString (ExtensionsManager.getSettingsString (myWrapper, property), value);
+        String thisKey = myWrapper.getSettingsString ( property );
+        Config.putPropString (thisKey, value);
     }
     
     /**
@@ -372,25 +375,15 @@ public class BlueJ
      * @return the label appropriate to the current language, or,
      * if that fails, the name of the label will be returned.
      */
-    public String getLabel (String id)
+    public String getLabel (String wantKey)
     {
-        String label = Config.getString (id, null);
-        if (label == null) {
-            if (localLabels == null) { // Lazy initialisation
-                localLabels = new Properties(); // temp - will become default
-                String defaultLanguage = Config.DEFAULT_LANGUAGE;
-                String localLanguage = Config.getPropString("bluej.language", defaultLanguage);
+        // First try from the standard BlueJ properties
+        String label = Config.getString (wantKey, null);
+        if ( label != null ) return label;
 
-                loadLanguageFile (defaultLanguage);
-                if (!defaultLanguage.equals(localLanguage)) {
-                    localLabels = new Properties (localLabels); // temp becomes default
-                    loadLanguageFile (localLanguage); // so now local language is searched first
-                }
-            }
-            
-            label = localLabels.getProperty (id, id);
-        }
-        return label;
+        if ( localLabels == null ) return wantKey;
+
+        return localLabels.getProperty (wantKey, wantKey);
     }
     
     /**
@@ -414,18 +407,6 @@ public class BlueJ
         return label;
     }
 
-    private void loadLanguageFile (String language)
-    {
-        String languageFileName = "lib/" + language + "/labels";
-        InputStream is = myWrapper.getExtensionClass().getClassLoader().getResourceAsStream (languageFileName);
-        try {
-            localLabels.load (is);
-            is.close();
-        }
-        catch(Exception ex) {
-            // ignore as it might well not exist. Could be a nullPointerException too.
-        }
-    }
     
     /**
      * Open a project

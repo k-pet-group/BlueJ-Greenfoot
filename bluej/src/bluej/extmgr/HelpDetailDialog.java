@@ -52,21 +52,24 @@ class HelpDetailDialog extends JDialog implements ActionListener
     private final String preferencesTag = Config.getString("extmgr.details.preferences");
     private final String descriptionTag = Config.getString("extmgr.details.description");
 
-    private JLabel statusField, nameField, locationField, typeField, versionField,
-            dateField, urlField;
+    private JLabel statusField, nameField, locationField, typeField, versionField;
+    private JLabel dateField, urlField;
     private JTextArea descriptionField;
     private URL url;
     private JButton closeButton;
 
+    private ExtensionsManager extensionsManager;
 
     /**
      *  Constructor
      *
      * @param  owner  Description of the Parameter
      */
-    public HelpDetailDialog(Dialog owner)
+    public HelpDetailDialog(ExtensionsManager extensionsManager, Dialog owner)
     {
         super(owner, "Details");
+
+        this.extensionsManager = extensionsManager;
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
@@ -213,24 +216,22 @@ class HelpDetailDialog extends JDialog implements ActionListener
      */
     public void updateInfo(int extensionIndex)
     {
-        if (extensionIndex < 0)
-            return;
+        if (extensionIndex < 0) return;
 
-        List exts = ExtensionsManager.getExtMgr().getExtensions();
+        List exts = extensionsManager.getExtensions();
         ExtensionWrapper wrapper = (ExtensionWrapper) exts.get(extensionIndex);
 
         // You never know when you get strange errors...
-        if (wrapper == null)
-            return;
+        if (wrapper == null) return;
 
-        statusField.setText(wrapper.getStatus());
+        statusField.setText(wrapper.getExtensionStatus());
         statusField.setForeground(wrapper.isValid() ? Color.black : Color.red);
 
-        nameField.setText(wrapper.getName());
-        locationField.setText(wrapper.getLocation());
+        nameField.setText(wrapper.getExtensionClassName());
+        locationField.setText(wrapper.getExtensionFileName());
         typeField.setText((wrapper.getProject() != null) ? projectString : installedString);
-        versionField.setText(wrapper.getVersion());
-        dateField.setText(wrapper.getDate());
+        versionField.setText(wrapper.getExtensionVersion());
+        dateField.setText(wrapper.getExtensionModifiedDate());
 
         url = wrapper.getURL();
         if (url == null)
@@ -240,7 +241,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
             urlField.setForeground(Color.blue);
         }
 
-        descriptionField.setText(wrapper.getDescription());
+        descriptionField.setText(wrapper.getExtensionDescription());
         descriptionField.setCaretPosition(0);
 
         validate();
