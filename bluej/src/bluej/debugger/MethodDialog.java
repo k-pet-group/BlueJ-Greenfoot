@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 695 2000-09-15 05:32:44Z mik $
+ * @version $Id: MethodDialog.java 718 2000-12-07 01:09:25Z ajp $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchWatcher
@@ -229,7 +229,7 @@ public class MethodDialog extends JDialog
             else
                 setCallLabel(instanceName, methodName);
 
-            if(isMainCall(method, methodName, paramClasses))
+            if(methView.isMain())
                 defaultParamValue = "{ }";
 
             gridBag.setConstraints(callLabel, constraints);
@@ -420,19 +420,6 @@ public class MethodDialog extends JDialog
         return argNames;
     } // parseParamNames
 
-
-    /**
-     * Return true is this is a call to
-     *     public static void main(String[])
-     */
-    private boolean isMainCall(MemberView method, String name,
-                               Class[] paramClasses)
-    {
-        return method.isStatic() && "main".equals(name) &&
-            paramClasses.length == 1 && paramClasses[0].isArray() &&
-            paramClasses[0].getComponentType().getName().equals("java.lang.String");
-    }
-
     /**
      * Set the visibility of the dialog, clearing parameter edit fields
      * and setting focus.
@@ -474,7 +461,7 @@ public class MethodDialog extends JDialog
     {
         String command = event.getActionCommand();
 
-        if (CMD_OKAY.equals(command)) 
+        if (CMD_OKAY.equals(command))
             doOk();
         else if (CMD_CANCEL.equals(command))
             doCancel();
