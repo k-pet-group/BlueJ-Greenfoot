@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2544 2004-05-24 08:56:02Z polle $
+ * @version $Id: Invoker.java 2585 2004-06-10 13:27:46Z polle $
  */
 
 public class Invoker extends Thread
@@ -232,7 +232,7 @@ public class Invoker extends Thread
             if(dlg instanceof MethodDialog) {
                 MethodDialog mDialog = (MethodDialog)dlg;
                 instanceName = mDialog.getNewInstanceName();
-                doInvocation(mDialog.getArgs(), mDialog.getArgTypes());
+                doInvocation(mDialog.getArgs(), mDialog.getArgTypes(true));
                 pmf.setWaitCursor(true);
                 if(constructing)
                     pkg.setStatus(creating);
