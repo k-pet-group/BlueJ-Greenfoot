@@ -197,7 +197,7 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
             return;
         }
 
-        if (message.equals("cannot resolve symbol") || message.equals("incompatible types"))
+        if (message.equals("cannot resolve symbol") || message.equals("cannot find symbol") || message.equals("incompatible types"))
             hasfollowup = true;
         else
             haserror = true;
