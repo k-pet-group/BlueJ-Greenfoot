@@ -113,6 +113,21 @@ public class PrefManager implements PrefPanelListener
             return;
           }
         }
+
+    /**
+     * Utility to make the code nicer. Michael likes it :-)
+     */
+    private String stripName ( String i_name )
+      {
+      int dotIndex = i_name.lastIndexOf(".");
+      // No dots around, strange but possible...
+      if ( dotIndex < 0 ) return i_name;
+
+      // This is also strange... the dot is at the end of the string...
+      if ( dotIndex+1 >= i_name.length() ) return i_name;
+
+      return i_name.substring(dotIndex+1);
+      }
   
     /**
      * Being here to make code cleaner. 
@@ -129,7 +144,7 @@ public class PrefManager implements PrefPanelListener
 
         // The panel that the user gives me goes into a container pane
         JPanel framePanel = new JPanel(new BorderLayout());
-        framePanel.setBorder(BorderFactory.createTitledBorder(extensionName));
+        framePanel.setBorder(BorderFactory.createTitledBorder(stripName(extensionName)));
 
         // The panel that the user gives me goes into the north, packed
         framePanel.add (aPanel,BorderLayout.NORTH);
