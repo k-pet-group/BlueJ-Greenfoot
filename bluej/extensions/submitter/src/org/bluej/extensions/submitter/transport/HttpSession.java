@@ -16,7 +16,7 @@ import java.net.HttpURLConnection;
  *
  *
  * @author     Clive Miller
- * @version    $Id: HttpSession.java 1708 2003-03-19 09:39:47Z damiano $
+ * @version    $Id: HttpSession.java 2169 2003-08-20 08:21:01Z iau $
  */
 
 public class HttpSession extends TransportSession
@@ -68,7 +68,6 @@ public class HttpSession extends TransportSession
         //  for (Enumeration e=urlProps.propertyNames(); e.hasMoreElements();) {
         // keys() is used instead of propertyNames() to avoid inheriting
         // from the default list envProps.
-        addBoundary(false);
         for (Enumeration e = urlProps.keys(); e.hasMoreElements(); ) {
             String field = (String) e.nextElement();
             String value = urlProps.getProperty(field);
@@ -100,6 +99,7 @@ public class HttpSession extends TransportSession
      */
     public void disconnect() throws IOException
     {
+        addBoundary(true);
         reportEvent("Sending message...");
         result = send();
     }
@@ -116,6 +116,7 @@ public class HttpSession extends TransportSession
      */
     private void addMimeFile(InputStream is, String name, boolean binary, int index) throws IOException
     {
+        addBoundary(false);
         addMessage("Content-Disposition: form-data;"
                 + " name=\"" + (VAR_fileNamePrefix + index) + "\";"
                 + " filename=\"" + name + "\"");
@@ -130,7 +131,6 @@ public class HttpSession extends TransportSession
         addMessage(null);
         addStream(is);
         addMessage(null);
-        addBoundary(false);
     }
 
 
@@ -143,10 +143,10 @@ public class HttpSession extends TransportSession
      */
     private void addMimeField(String field, String value) throws IOException
     {
+        addBoundary(false);
         addMessage("Content-Disposition: form-data; name=\"" + field + "\"");
         addMessage(null);
         addMessage(value);
-        addBoundary(false);
     }
 
 
