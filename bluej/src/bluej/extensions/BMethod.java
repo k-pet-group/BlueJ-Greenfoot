@@ -17,25 +17,26 @@ import com.sun.jdi.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1948 2003-05-13 13:41:15Z damiano $
+ * @version $Id: BMethod.java 1965 2003-05-20 17:30:25Z damiano $
  */
 
 /*
+ * The same reasoning as of BConstructor applies here.
  * AUthor Clive Miller, University of Kent at Canterbury, 2002
  * Author Damiano Bolla, University of Kent at Canterbury 2003
  */
 public class BMethod
 {
-    private final Package    bluej_pkg;
-    private final MethodView bluej_view;
-    private       DirectInvoker invoker;
+    private MethodView bluej_view;
+    private DirectInvoker invoker;
+    private Identifier parentId;
     
     /**
-     * Constructor
+     * Constructor.
      */
-    BMethod (Package i_bluej_pkg, MethodView i_bluej_view )
+    BMethod ( Identifier aParentId, MethodView i_bluej_view )
     {
-        bluej_pkg  = i_bluej_pkg;
+        parentId = aParentId;
         bluej_view = i_bluej_view;
     }
 
@@ -120,12 +121,13 @@ public class BMethod
      */
     public Object invoke (BObject onThis, Object[] params)
         {
+        Package bluejPkg = parentId.getBluejPackage();
+        
         String instanceName=null;
-
         // If it is a method call on a live object get the identifier for it.
         if ( onThis != null ) instanceName = onThis.getInstanceName();
         
-        invoker = new DirectInvoker (bluej_pkg, bluej_view );
+        invoker = new DirectInvoker (bluejPkg, bluej_view );
         DebuggerObject result = invoker.invokeMethod (instanceName, params);
 
         // Result can be null if the method returns void. It is Reflection standard
@@ -141,7 +143,7 @@ public class BMethod
         if ( thisField == null ) return null;
 
         // DOing this is the correct way of returning the right object. Tested 080303, Damiano
-        return BField.doGetVal(bluej_pkg, resultName, objRef.getValue(thisField));
+        return BField.doGetVal(bluejPkg, resultName, objRef.getValue(thisField));
         }
     
     /**

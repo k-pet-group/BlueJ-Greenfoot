@@ -14,7 +14,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1964 2003-05-20 16:08:43Z damiano $
+ * @version $Id: BClass.java 1965 2003-05-20 17:30:25Z damiano $
  */
 
 public class BClass
@@ -125,12 +125,11 @@ public class BClass
     public BConstructor[] getConstructors()
         {
         View bluejView   = classId.getBluejView();
-        Package bluejPkg = classId.getBluejPackage();
         
         ConstructorView[] constructorViews = bluejView.getConstructors();
         BConstructor[] result = new BConstructor [constructorViews.length];
         for (int index=0; index<constructorViews.length; index++) 
-            result[index] = new BConstructor (bluejPkg, constructorViews[index]);
+            result[index] = new BConstructor (classId, constructorViews[index]);
 
         return result;
         }
@@ -146,12 +145,11 @@ public class BClass
     public BConstructor getConstructor (Class[] signature)
         {
         View bluejView = classId.getBluejView();
-        Package bluejPkg = classId.getBluejPackage();
         
         ConstructorView[] constructorViews = bluejView.getConstructors();
         for (int index=0; index<constructorViews.length; index++) 
             {
-            BConstructor aConstr = new BConstructor (bluejPkg, constructorViews[index]);
+            BConstructor aConstr = new BConstructor (classId, constructorViews[index]);
             if (aConstr.matches (signature)) return aConstr;
             }
         return null;
@@ -165,13 +163,12 @@ public class BClass
     public BMethod[] getDeclaredMethods()
     {
         View bluejView = classId.getBluejView();
-        Package bluejPkg = classId.getBluejPackage();
         
         MethodView[] methodView = bluejView.getDeclaredMethods();
         BMethod[] methods = new BMethod [methodView.length];
 
         for (int index=0; index<methods.length; index++)
-            methods[index] = new BMethod (bluejPkg, methodView[index] );
+            methods[index] = new BMethod (classId, methodView[index] );
 
         return methods;
     }
@@ -183,14 +180,13 @@ public class BClass
     public BMethod getDeclaredMethod(String methodName, Class[] params )
         {
         View bluejView = classId.getBluejView();
-        Package bluejPkg = classId.getBluejPackage();
         
         MethodView[] methodView = bluejView.getDeclaredMethods();
         BMethod[] methods = new BMethod [methodView.length];
 
         for (int index=0; index<methods.length; index++)
             {
-            BMethod aResul = new BMethod (bluejPkg, methodView[index]);
+            BMethod aResul = new BMethod (classId, methodView[index]);
             if ( aResul.matches(methodName, params) ) return aResul;
             }
 
@@ -205,12 +201,11 @@ public class BClass
     public BField[] getFields()
         {
         View bluejView = classId.getBluejView();
-        Package bluejPkg = classId.getBluejPackage();
 
         FieldView[] fieldView = bluejView.getAllFields();
         BField[] bFields = new BField [fieldView.length];
         for ( int index=0; index<fieldView.length; index++)
-            bFields[index] = new BField (bluejPkg,fieldView[index]);
+            bFields[index] = new BField (classId,fieldView[index]);
             
         return bFields;
         }
@@ -225,12 +220,11 @@ public class BClass
         if ( fieldName == null ) return null;
 
         View bluejView   = classId.getBluejView();
-        Package bluejPkg = classId.getBluejPackage();
         
         FieldView[] fieldView = bluejView.getAllFields();
         for ( int index=0; index<fieldView.length; index++)
             {
-            BField result = new BField (bluejPkg,fieldView[index]);
+            BField result = new BField (classId,fieldView[index]);
             if ( result.matches(fieldName) ) return result;
             }
             

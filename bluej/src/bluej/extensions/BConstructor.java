@@ -5,31 +5,40 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.ObjectWrapper;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.*;
+import bluej.pkgmgr.Package;
 
 
 /**
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1852 2003-04-15 14:56:38Z iau $
+ * @version $Id: BConstructor.java 1965 2003-05-20 17:30:25Z damiano $
  */
 
 /*
+ * The problem of consistency here is quite subtle.....
+ * I could try to get a kind of id for a ConstructorView and then try to get it back
+ * when I need it, but really, the gain is almost nil.
+ * What I will do is to have an Identifier with Project,Package,Class given and before doing
+ * anythink I will check with it. If everything is still there it should be OK.
+ * In any case, it it goes wrong we will get an invoker exception !
+ * 
  * Author Damiano Bolla, University of Kent at Canterbury, 2003
  */
  
 public class BConstructor 
   {
-  private bluej.pkgmgr.Package bluej_pkg;
+  private Identifier parentId;
   private ConstructorView bluej_view;
   private DirectInvoker invoker;
 
   /**
-   * Constructor 
+   * Constructor.
+   * It is duty of the caller to make shure that the parent is valid.
    */
-  BConstructor(bluej.pkgmgr.Package i_pkg, ConstructorView i_view )
+  BConstructor(Identifier aParentId, ConstructorView i_view )
     {
-    bluej_pkg  = i_pkg;
+    parentId = aParentId;
     bluej_view = i_view;
     }
 
@@ -76,13 +85,15 @@ public class BConstructor
      */
     public BObject newInstance ( Object[] initargs )
       {
-      invoker = new DirectInvoker (bluej_pkg, bluej_view );
+      Package bluejPkg = parentId.getBluejPackage();
+      
+      invoker = new DirectInvoker (bluejPkg, bluej_view );
       DebuggerObject result = invoker.invokeConstructor (initargs);
 
       if (result == null) return null;
 
       String resultName = invoker.getResultName();
-      PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluej_pkg);
+      PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluejPkg);
 
       ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
 

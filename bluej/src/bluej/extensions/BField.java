@@ -15,10 +15,11 @@ import bluej.utility.Debug;
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: BField.java 1965 2003-05-20 17:30:25Z damiano $
  */
 
 /*
+ * The same reasoning of BConstructor apply here.
  * Author Damiano Bolla, University of Kent at Canterbury, 2003
  * Previous attempt by Clive Miller, University of Kent at Canterbury, 2002
  */
@@ -26,11 +27,11 @@ import bluej.utility.Debug;
 public class BField
 {
     private FieldView bluej_view;
-    private Package   bluej_package;
+    private Identifier parentId;
     
-    BField (Package i_bluej_package, FieldView i_bluej_view )
+    BField ( Identifier aParentId, FieldView i_bluej_view )
     {
-        bluej_package = i_bluej_package;
+        parentId = aParentId;
         bluej_view = i_bluej_view;
     }        
 
@@ -84,6 +85,8 @@ public class BField
      */
     private Object getStaticField ()
       {
+      Package bluejPkg = parentId.getBluejPackage();
+      
       String wantFieldName = getName();
 
       // I need to get the view of the parent of this Field
@@ -93,7 +96,7 @@ public class BField
 
       // UFF, there seems to be no way to get the package from the view...
       // Maybe should ask Michael, when he has time...
-      DebuggerClassLoader loader = bluej_package.getRemoteClassLoader();
+      DebuggerClassLoader loader = bluejPkg.getRemoteClassLoader();
       if ( loader == null ) 
         {
         // This is really an error
@@ -101,7 +104,7 @@ public class BField
         return null;
         }
       
-      DebuggerClass debuggerClass = bluej_package.getDebugger().getClass(className, loader);
+      DebuggerClass debuggerClass = bluejPkg.getDebugger().getClass(className, loader);
       if ( debuggerClass == null ) 
         {
         // This may not be an error, the class name may be wrong...
@@ -139,7 +142,7 @@ public class BField
         return null;
         }
 
-      return doGetVal(bluej_package, wantFieldName, objRef);
+      return doGetVal(bluejPkg, wantFieldName, objRef);
       }
 
 

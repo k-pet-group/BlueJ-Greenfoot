@@ -6,7 +6,7 @@ import com.sun.jdi.*;
  * A wrapper for an array object in BlueJ.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BArray.java 1869 2003-04-21 11:04:44Z damiano $
+ * @version $Id: BArray.java 1965 2003-05-20 17:30:25Z damiano $
  */
 
 /*
@@ -26,7 +26,7 @@ public class BArray
    * 
    * @return an Object that encapsulate the specific item or null if not an array.
    */
-  public static Object get ( BObject thisArray, int itemIndex )
+  public static Object getValue ( BObject thisArray, int itemIndex )
     {
     ObjectReference objRef = thisArray.getObjectReference();
 

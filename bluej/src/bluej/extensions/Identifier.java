@@ -40,7 +40,6 @@ class Identifier
   private File   projectId;
   private String packageId;
   private String qualifiedClassName;
-  private String objectId;
   
   public Identifier(Project bleujProject)
     {

@@ -16,7 +16,7 @@ import java.util.*;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 1964 2003-05-20 16:08:43Z damiano $
+ * @version $Id: BObject.java 1965 2003-05-20 17:30:25Z damiano $
  */
 
 /*
@@ -132,17 +132,20 @@ public class BObject
      * Return the class of this object.
      * Similar to Reflection API.
      * It can return null if the object is invalid.
-     * ================== NEEDS TESTING ========================
      */
     public BClass getBClass()
     {
+        // Tested also with string array. 20 may 2003, Damiano
         if ( ! isValid() ) return null;
 
         Package bluejPkg  = wrapper.getPackage();
         Project bluejProj = bluejPkg.getProject();
+
+        // It really seems that the translation between Java naming and Class is needed.
+        // Also tryng to get the Class instead of just the name is a mess...
         String  className = transJavaToClass(wrapper.getClassName());
 
-        return new BClass ( new Identifier (bluejProj,bluejPkg, className));
+        return new BClass ( new Identifier (bluejProj,bluejPkg,className));
     } 
 
     /**
