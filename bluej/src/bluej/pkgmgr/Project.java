@@ -3,19 +3,25 @@ package bluej.pkgmgr;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 
 import bluej.Config;
 import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPath;
 import bluej.classmgr.ProjectClassLoader;
-import bluej.debugger.*;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerEvent;
+import bluej.debugger.DebuggerListener;
+import bluej.debugger.DebuggerThread;
 import bluej.debugmgr.ExecControls;
 import bluej.extmgr.ExtensionsManager;
 import bluej.prefmgr.PrefMgr;
 import bluej.terminal.Terminal;
-import bluej.utility.*;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
+import bluej.utility.JavaNames;
+import bluej.utility.Utility;
 import bluej.views.View;
 
 /**
@@ -25,7 +31,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3242 2004-12-16 09:41:33Z mik $
+ * @version $Id: Project.java 3307 2005-01-31 01:44:34Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -102,10 +108,14 @@ public class Project
 
             startingPackageName = "";
 
-            while(curDir != null && Package.isBlueJPackage(curDir) && JavaNames.isIdentifier(curDir.getName())) {
-                if(lastDir != null)
-                    startingPackageName = "." + lastDir.getName() +
-                                          startingPackageName;
+            while (curDir != null && Package.isBlueJPackage(curDir)) {
+                if (lastDir != null) {
+                    String lastdirName = lastDir.getName();
+                    if (!JavaNames.isIdentifier(lastdirName))
+                        break;
+
+                    startingPackageName = "." + lastdirName + startingPackageName;
+                }
 
                 lastDir = curDir;
                 curDir = curDir.getParentFile();
