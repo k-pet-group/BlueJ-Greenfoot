@@ -38,9 +38,10 @@ public class ExtensionBridge
     return new BObject (aWrapper);
     }
 
-  public static BPackage newBPackage (Package aBlueJpkg)
+  public static BPackage newBPackage (Package bluejPkg)
     {
-    return new BPackage (aBlueJpkg);
+    Identifier  anId = new Identifier (bluejPkg.getProject(), bluejPkg);
+    return new BPackage (anId);
     }
 
 

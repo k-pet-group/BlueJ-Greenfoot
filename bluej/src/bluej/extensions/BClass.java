@@ -1,15 +1,15 @@
 package bluej.extensions;
 
 import bluej.compiler.JobQueue;
-import bluej.views.ConstructorView;
-import bluej.views.MethodView;
-import bluej.views.View;
-
-import java.util.Map;
-import java.util.HashMap;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.views.*;
+import bluej.views.ConstructorView;
+import bluej.views.MethodView;
+import bluej.views.View;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A wrapper for a BlueJ class. 
@@ -17,7 +17,7 @@ import bluej.views.*;
  * Behaviour is similar to the Java reflection API.
  * For all methods the return value is null if the class is not compiled.
  * 
- * @version $Id: BClass.java 1957 2003-05-16 14:20:18Z damiano $
+ * @version $Id: BClass.java 1961 2003-05-20 10:41:24Z damiano $
  */
 public class BClass
 {
@@ -32,12 +32,14 @@ public class BClass
         classTarget = aClassTarget;
         loadedClass = bluej_pkg.loadClass (classTarget.getQualifiedName());
         bluej_view  = View.getView (loadedClass);
-        System.out.println ("BClass qualifiedName="+classTarget.getQualifiedName());
+//System.out.println ("BClass0.qualifiedName="+classTarget.getQualifiedName());        
     }
 
 
     BClass (Package i_bluej_pkg, String className)
     {
+//System.out.println ("BClass1.className="+className);
+//System.out.println ("BClass1.classNameClass="+transJavaToClass(className));
         bluej_pkg   = i_bluej_pkg;
         classTarget = (ClassTarget)bluej_pkg.getTarget(transJavaToClass(className));
         loadedClass = bluej_pkg.loadClass (transJavaToClass(className));
@@ -75,7 +77,9 @@ public class BClass
      */
     public BPackage getPackage()
     {
-        return new BPackage (bluej_pkg);
+        Project bluejProject = bluej_pkg.getProject();
+        Identifier anId = new Identifier (bluejProject, bluej_pkg );
+        return new BPackage (anId);
     }
     
       

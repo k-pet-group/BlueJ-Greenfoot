@@ -1,13 +1,12 @@
 package bluej.extensions;
 
+import bluej.debugger.*;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ObjectWrapper;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-
 import com.sun.jdi.ObjectReference;
-
-import bluej.debugger.*;
 
 /**
  * A wrapper for an object on the BlueJ object bench.
@@ -16,7 +15,7 @@ import bluej.debugger.*;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: BObject.java 1961 2003-05-20 10:41:24Z damiano $
  */
 
 /*
@@ -57,7 +56,12 @@ public class BObject
     {
         if ( ! isValid() ) return null;
 
-        return new BPackage(wrapper.getPackage());
+        Package aPkg = wrapper.getPackage();
+        Project bluejProject = aPkg.getProject();
+        
+        Identifier anId = new Identifier(bluejProject, aPkg );
+
+        return new BPackage(anId);
     }
         
     /**

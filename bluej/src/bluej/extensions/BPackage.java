@@ -1,6 +1,7 @@
 package bluej.extensions;
 
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.*;
 import bluej.pkgmgr.target.Target;
@@ -18,7 +19,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: BPackage.java 1961 2003-05-20 10:41:24Z damiano $
  */
 
 /*
@@ -28,29 +29,14 @@ import java.awt.Frame;
  
 public class BPackage
 {
-    // Now this can be private, leave it private, of course. Damiano
-    private final Package bluej_pkg;
+    private Identifier packageId;
 
     /**
      * Constructor for a BPackage.
      */
-     BPackage (Package aBlueJpkg)
+    BPackage (Identifier aPackageId)
     {
-        // Unfortunately it must be bublic since it is called by the extension manager
-        bluej_pkg = aBlueJpkg;
-    }
-
-    /**
-     * Determines whether this is a valid package.
-     * This object may not be valid since what it represents may have been modified or deleted
-     * from the main BlueJ graphical user interface.
-     * Returns true if it is still valid, false otherwise.
-     */
-    public boolean isValid()
-    {
-        if ( bluej_pkg == null) return false;
-        // TODO: Possible other checks here
-        return (true);
+        packageId=aPackageId;
     }
 
 
@@ -60,8 +46,10 @@ public class BPackage
      */
     public BProject getProject()
     {
-        if (bluej_pkg == null) return null;
-        return new BProject (bluej_pkg.getProject());
+        Project bluejProject = packageId.getBluejProject();
+        if ( bluejProject == null ) return null;
+
+        return new BProject (new Identifier(bluejProject));
     }
 
 
@@ -73,8 +61,8 @@ public class BPackage
      */
     public String getName()
     {
-        if ( ! isValid() ) return null;
-        return bluej_pkg.getQualifiedName();
+        Package bluejPkg = packageId.getBluejPackage();
+        return bluejPkg.getQualifiedName();
     }
     
     /**
@@ -84,7 +72,8 @@ public class BPackage
      */
     public Frame getFrame()
     {
-       PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+       Package bluejPkg = packageId.getBluejPackage();
+       PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluejPkg);
        return pmf;
     }
 
@@ -98,14 +87,14 @@ public class BPackage
      */
     public BClass getBClass (String name)
     {
-        if ( ! isValid() ) return null;
+        Package bluejPkg = packageId.getBluejPackage();
 
-        Target classTarget = bluej_pkg.getTarget (name);
+        Target classTarget = bluejPkg.getTarget (name);
 
         if (classTarget == null ) return null;
         if ( !(classTarget instanceof ClassTarget)) return null;
         
-        return new BClass (bluej_pkg, (ClassTarget)classTarget);
+        return new BClass (bluejPkg, (ClassTarget)classTarget);
     }
     
     /**
@@ -114,13 +103,14 @@ public class BPackage
      */
     public BClass[] getBClasses()
     {
-        if (! isValid()) return new BClass[0];
+        Package bluejPkg = packageId.getBluejPackage();
         
-        List names = bluej_pkg.getAllClassnames();
+        List names = bluejPkg.getAllClassnames();
         BClass[] classes = new BClass [names.size()];
         for (ListIterator iter=names.listIterator(); iter.hasNext();) {
             int index=iter.nextIndex();
             String name = (String)iter.next();
+System.out.println ("BPackage.classname="+name);            
             classes [index] = getBClass (name);
         }
         return classes;
@@ -136,7 +126,8 @@ public class BPackage
         // The usual check to avoid silly stack trace
         if ( instanceName == null ) return null;
 
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+        Package bluejPkg = packageId.getBluejPackage();
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluejPkg);
         // The above may return null, unfortunately.
         if ( pmf == null ) return null;
         
@@ -155,7 +146,8 @@ public class BPackage
      */
     public BObject[] getObjects()
     {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+        Package bluejPkg = packageId.getBluejPackage();
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluejPkg);
         if ( pmf == null ) return new BObject[0];
    
         ObjectWrapper[] objectWrappers = pmf.getObjectBench().getWrappers();
@@ -176,10 +168,12 @@ public class BPackage
      */
     public void compile (boolean forceAll)
     {
-        if (bluej_pkg == null) return;
+        Package bluejPkg = packageId.getBluejPackage();
 
-        if (forceAll) bluej_pkg.rebuild(); 
-        else bluej_pkg.compile();
+        if (bluejPkg == null) return;
+
+        if (forceAll) bluejPkg.rebuild(); 
+        else bluejPkg.compile();
     }
     
     /**
@@ -188,9 +182,20 @@ public class BPackage
      */
     public void reload()
     {
-        if (bluej_pkg == null) return;
-        bluej_pkg.reload();
+        Package bluejPkg = packageId.getBluejPackage();
+        if (bluejPkg == null) return;
+        bluejPkg.reload();
     }
 
+    /**
+     * Returns a string representation of the Object
+     */
+    public String toString ()
+      {
+      Package bluejPkg = packageId.getBluejPackage();
+      if (bluejPkg == null) return "BPackage: INVALID";
+
+      return "BPackage: "+bluejPkg.getQualifiedName();
+      }
 
 }

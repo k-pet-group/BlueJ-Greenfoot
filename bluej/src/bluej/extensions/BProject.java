@@ -10,7 +10,7 @@ import java.util.ListIterator;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 1852 2003-04-15 14:56:38Z iau $
+ * @version $Id: BProject.java 1961 2003-05-20 10:41:24Z damiano $
  */
 
 /*
@@ -20,30 +20,19 @@ import java.util.ListIterator;
 
 public class BProject
 {
-    private final Object projectKey;
+    private Identifier projectId;
   
     /**
      * Constructor for a BProject.
      */
-    BProject (File projectDir)
+    BProject (Identifier i_projectId)
     {
       /* NOTE: As a reference I store ONLY the key of the project and EVERY time I want to 
        * get information I will retrieve the LIVE Project.
        * I do this to try to have a reasonably synchronized view between the BlueJ and this
        * Othervise I will be holding a Project object that is NO longer active !
        */
-      projectKey = projectDir;
-    }
-
-    /**
-     * The underlyng mechanism is the same as the previous one. This is for type checking
-     */
-    BProject (Project bluejProject)
-    {
-        if ( bluejProject == null ) 
-            projectKey = null;
-        else
-            projectKey = bluejProject.getProjectDir();
+      projectId = i_projectId;
     }
 
 
@@ -55,7 +44,7 @@ public class BProject
      */
     public boolean isValid ()
     {
-        Project thisProject = Project.getProject(projectKey);
+        Project thisProject = projectId.getBluejProject();
         return thisProject != null;      
     }
         
@@ -66,7 +55,7 @@ public class BProject
      */
     public String getName()
     {
-        Project thisProject = Project.getProject(projectKey);
+        Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return null;
         
         return thisProject.getProjectName();
@@ -78,7 +67,7 @@ public class BProject
      */
     public File getDir()
     {
-        Project thisProject = Project.getProject(projectKey);
+        Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return null;
 
         return thisProject.getProjectDir();
@@ -89,7 +78,7 @@ public class BProject
      */
     public void save()
     {
-        Project thisProject = Project.getProject(projectKey);
+        Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return;
 
         thisProject.saveAll();
@@ -100,7 +89,7 @@ public class BProject
      */
     public void close()
     {
-        Project thisProject = Project.getProject(projectKey);
+        Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return;
 
         thisProject.saveAll();
@@ -117,13 +106,14 @@ public class BProject
      */
     public BPackage getPackage (String name)
     {
-        Project thisProject = Project.getProject(projectKey);
-        if ( thisProject == null ) return null;
+        Project bluejProject = projectId.getBluejProject();
+        if ( bluejProject == null ) return null;
 
-        Package pkg = thisProject.getPackage (name);
+        Package pkg = bluejProject.getPackage (name);
         if ( pkg == null ) return null;
-        
-        return new BPackage (pkg);
+
+        Identifier anId = new Identifier (bluejProject,pkg);
+        return new BPackage (anId);
     }
     
     /**
@@ -132,7 +122,7 @@ public class BProject
      */
     public BPackage[] getPackages()
     {
-        Project thisProject = Project.getProject(projectKey);
+        Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return new BPackage[0];
 
         List names = thisProject.getPackageNames();
@@ -144,4 +134,15 @@ public class BProject
         }
         return packages;
     }
+
+    /**
+     * Returns a string representation of the Object
+     */
+    public String toString ()
+      {
+      Project thisProject = projectId.getBluejProject();
+      if ( thisProject == null ) return "BProject: INVALID";
+
+      return "BProject: "+thisProject.getProjectName();
+      }
 }

@@ -40,7 +40,7 @@ import java.util.*;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1904 2003-04-27 17:12:42Z iau $
+ * @version $Id: BlueJ.java 1961 2003-05-20 10:41:24Z damiano $
  */
 
 /*
@@ -109,7 +109,7 @@ public class BlueJ
 
         PkgMgrFrame pmf = getPackageFrame ( pkg );
         pmf.show();
-        return new BProject (openProj);
+        return new BProject (new Identifier(openProj));
     }
 
 
@@ -169,8 +169,9 @@ public class BlueJ
         
         while ( iter.hasNext() )
             {
-            Object projKey = iter.next();
-            result[insIndex++] = new BProject ((File)projKey);
+            File projId = (File)iter.next();
+            Project aProject = Project.getProject(projId);
+            result[insIndex++] = new BProject (new Identifier(aProject));
             }
 
         return result;
@@ -196,7 +197,8 @@ public class BlueJ
         // I do NOT want to create what is NOT there
         if ( pkg == null ) return null;
 
-        return new BPackage (pkg);
+        Identifier anId = new Identifier(pkg.getProject(),pkg);
+        return new BPackage (anId);
     }
 
     /**
