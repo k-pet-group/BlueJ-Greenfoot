@@ -27,7 +27,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: MethodDialog.java 3245 2004-12-19 10:32:03Z bquig $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -104,7 +104,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 3075 2004-11-09 00:10:18Z davmac $
+     * @version $Id: MethodDialog.java 3245 2004-12-19 10:32:03Z bquig $
      */
     public static class ParameterList
     {
@@ -287,7 +287,15 @@ public class MethodDialog extends CallDialog implements FocusListener
                 setErrorMessage(emptyTypeFieldMsg);
             } else {
                 setWaitCursor(true);
-                callWatcher(OK);
+                okButton.requestFocus();
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        callWatcher(OK);
+
+                    }
+                });
                 okCalled = true;
             }
         }
@@ -432,16 +440,24 @@ public class MethodDialog extends CallDialog implements FocusListener
         }
         show();
 
-        if (parameterList != null) {
-            parameterList.getParameter(0).getEditor().getEditorComponent().requestFocus();
-        } else if (dialogType == MD_CREATE) {
-            instanceNameText.selectAll();
-            instanceNameText.requestFocus();
-        }
+        // focus requests have been wrapped in invokeLater method to resolve issues 
+        // with focus confusion on Mac OSX (BlueJ 2.0, JDK 1.4.2)
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run()
+            {
+                if (parameterList != null) {
+                    parameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
+                } else if (dialogType == MD_CREATE) {
+                    instanceNameText.selectAll();
+                    instanceNameText.requestFocusInWindow();
+                }
+                
+                if (typeParameterList != null) {
+                    typeParameterList.getParameter(0).getEditor().getEditorComponent().requestFocusInWindow();
+                }
+            }
+        });
         
-        if (typeParameterList != null) {
-            typeParameterList.getParameter(0).getEditor().getEditorComponent().requestFocus();
-        }
     }
     
     /**
@@ -617,7 +633,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      */
     public void focusLost(FocusEvent fe)
     {
-        // Debug.message(" Focus Lost: " + fe.paramString());
+        //Debug.message(" Focus Lost: " + fe.paramString());
     }
 
     // --- end of FocusListener interface ---
@@ -995,7 +1011,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         component.getEditor().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt)
             {
-                doOk();
+               doOk();
             }
         });
         // add FocusListener for text insertion
