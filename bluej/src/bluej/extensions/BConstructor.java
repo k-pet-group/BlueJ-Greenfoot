@@ -1,9 +1,9 @@
 package bluej.extensions;
 
 
-import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.pkgmgr.PkgMgrFrame;
+import bluej.debugger.*;
+import bluej.debugmgr.objectbench.*;
+import bluej.pkgmgr.*;
 import bluej.views.*;
 
 
@@ -11,7 +11,7 @@ import bluej.views.*;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: BConstructor.java 2314 2003-11-10 14:49:48Z damiano $
  */
 
 /*

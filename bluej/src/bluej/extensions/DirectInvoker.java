@@ -1,10 +1,11 @@
 package bluej.extensions;
 
-import bluej.debugger.*;
-import bluej.debugmgr.*;
-import bluej.pkgmgr.*;
-import bluej.testmgr.record.*;
-import bluej.views.*;
+import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.ResultWatcher;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.views.CallableView;
 
 /**
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
@@ -12,7 +13,7 @@ import bluej.views.*;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Clive Miller, University of Kent at Canterbury, 2002
  * 
- * @version $Id: DirectInvoker.java 2281 2003-11-05 17:43:53Z mik $
+ * @version $Id: DirectInvoker.java 2314 2003-11-10 14:49:48Z damiano $
  */
 class DirectInvoker
 {

@@ -1,13 +1,11 @@
 package bluej.extensions;
 
-import java.util.HashMap;
-
-import bluej.debugger.DebuggerObject;
+import bluej.debugger.*;
 import bluej.debugmgr.objectbench.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-
-import com.sun.jdi.ObjectReference;
+import com.sun.jdi.*;
+import java.util.*;
 
 /**
  * A wrapper for an object on the BlueJ object bench.
@@ -16,7 +14,7 @@ import com.sun.jdi.ObjectReference;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 2147 2003-08-04 20:36:21Z iau $
+ * @version $Id: BObject.java 2314 2003-11-10 14:49:48Z damiano $
  */
 
 /*

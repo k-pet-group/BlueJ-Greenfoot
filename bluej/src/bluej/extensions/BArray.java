@@ -1,16 +1,13 @@
 package bluej.extensions;
 
-import bluej.pkgmgr.PkgMgrFrame;
-import com.sun.jdi.ArrayReference;
-import com.sun.jdi.ObjectReference;
-import com.sun.jdi.ReferenceType;
-import com.sun.jdi.Value;
+import bluej.pkgmgr.*;
+import com.sun.jdi.*;
 
 /**
  * A wrapper for an array object in BlueJ.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BArray.java 1981 2003-05-22 16:35:43Z iau $
+ * @version $Id: BArray.java 2314 2003-11-10 14:49:48Z damiano $
  */
 
 /*

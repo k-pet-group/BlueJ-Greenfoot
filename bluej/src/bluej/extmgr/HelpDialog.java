@@ -1,7 +1,6 @@
 package bluej.extmgr;
 
 import bluej.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
@@ -11,7 +10,7 @@ import javax.swing.table.*;
 /**
  *  The Extensions Manager help panel allows the user to view current  extensions.
  *
- * @version    $Id: HelpDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version    $Id: HelpDialog.java 2314 2003-11-10 14:49:48Z damiano $
  */
 
  /*

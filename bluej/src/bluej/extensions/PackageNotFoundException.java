@@ -6,7 +6,7 @@ package bluej.extensions;
  * is no longer valid. The most likely reason is that the 
  * user has deleted the package from the GUI.
  * 
- * @version $Id: PackageNotFoundException.java 1981 2003-05-22 16:35:43Z iau $
+ * @version $Id: PackageNotFoundException.java 2314 2003-11-10 14:49:48Z damiano $
  */
 
 /*
@@ -14,8 +14,8 @@ package bluej.extensions;
  */
 public class PackageNotFoundException extends ExtensionException 
 {
-  PackageNotFoundException (String reason) {
-      super (reason);
-  }
+    PackageNotFoundException (String reason) {
+        super (reason);
+    }
 
 }

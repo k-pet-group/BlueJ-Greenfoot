@@ -1,20 +1,19 @@
 package bluej.extensions;
 
 import bluej.debugger.*;
-import bluej.debugger.jdi.JdiObject;
-import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.debugger.jdi.*;
+import bluej.debugmgr.objectbench.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.utility.Debug;
+import bluej.utility.*;
 import bluej.views.*;
-
 import com.sun.jdi.*;
 
 /**
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: BField.java 2314 2003-11-10 14:49:48Z damiano $
  */
 
 /*
