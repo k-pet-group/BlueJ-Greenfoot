@@ -17,7 +17,7 @@ import java.util.Enumeration;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Editor.java 1033 2001-12-07 16:11:10Z mik $
+ * @version $Id: Editor.java 1094 2002-01-15 11:14:19Z mik $
  */
 public interface Editor
 {
@@ -27,13 +27,9 @@ public interface Editor
      *
      *  @param filename	the file to be read
      *  @param compiled	true if this is a compiled class
-     *  @param breakpoints	Vector of Integers: list of breakpoints in
-     *			current class (if 'compiled' is false,
-     *			'breakpoints' must be null).
      *  @returns		false is there was a problem, true otherwise
      */
-    boolean showFile(String filename, boolean compiled,
-                     Vector breakpoints);
+    boolean showFile(String filename, boolean compiled);
 
 
     /**

@@ -239,7 +239,7 @@ public final class MoeEditorManager
         editors.addElement(editor);
         if (watcher!=null && filename==null)	// editor for class interface
             return editor;
-        if (editor.showFile(filename, compiled, null))
+        if (editor.showFile(filename, compiled))
             return editor;
         else {
             editor.doClose();			// editor will remove itself

@@ -20,7 +20,7 @@ import net.sourceforge.transmogrify.hook.bluej.*;
 * in the library browser.  Defaults to a public view of a class.
 *
 * @author $Author: mik $
-* @version $Id: CodeViewer.java 1045 2001-12-11 11:41:50Z mik $
+* @version $Id: CodeViewer.java 1094 2002-01-15 11:14:19Z mik $
 */
 public class CodeViewer implements EditorWatcher {
     private MoeEditorManager edMgr = new MoeEditorManager();
@@ -134,7 +134,7 @@ public class CodeViewer implements EditorWatcher {
         if (!hasSource)
             ; // do something to show the interface...
 
-        editor.showFile(theClass.getSourceFile().getPath(), true, null);
+        editor.showFile(theClass.getSourceFile().getPath(), true);
         editor.setReadOnly(true);
     }
 }
