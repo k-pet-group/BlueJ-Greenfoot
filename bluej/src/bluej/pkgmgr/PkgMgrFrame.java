@@ -30,7 +30,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2232 2003-10-28 05:18:53Z bquig $
+ * @version $Id: PkgMgrFrame.java 2243 2003-10-31 13:26:39Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -971,15 +971,13 @@ public class PkgMgrFrame extends JFrame
     }
 
 
+    /**
+     * perform the closing down and quitting of BlueJ.
+     * Note that the order of the events is relevant 
+     * - Extensions should be unloaded after package close
+     */
     private void doQuit()
     {
-        /* Ask to extension manager to unload all extensions. 
-         * Extensions can therefore save their stuff if they wish to
-         * It is here to avoid having extension getting loads of package closing events.
-         */
-        extMgr.unloadExtensions();
-    
-        // close all open frames.
         PkgMgrFrame[] pkgFrames = getAllFrames();
 
         // handle open packages so they are re-opened on startup
@@ -993,6 +991,8 @@ public class PkgMgrFrame extends JFrame
             aFrame.closePackage();
             PkgMgrFrame.closeFrame(aFrame);
         }
+
+        extMgr.unloadExtensions();
         bluej.Main.exit();
     }
 
