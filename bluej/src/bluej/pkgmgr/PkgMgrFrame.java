@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 653 2000-07-26 01:46:35Z ajp $
+ * @version $Id: PkgMgrFrame.java 656 2000-07-26 05:29:39Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -265,7 +265,7 @@ public class PkgMgrFrame extends JFrame
         }
 
         if (list.size() == 0)
-            return null;
+        return null;
 
         return (PkgMgrFrame[])list.toArray(new PkgMgrFrame[list.size()]);
     }
@@ -567,7 +567,7 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case PackageEditorEvent.TARGET_REMOVE:     // user has initiated target
-                                                   //   "remove" option
+            //   "remove" option
             doRemove((Target) e.getSource());
             break;
 
@@ -576,13 +576,13 @@ public class PkgMgrFrame extends JFrame
             openPackageTarget(e.getName());
             break;
 
-         case PackageEditorEvent.TARGET_RUN:       // user has initiated a
-                                                    //   run operation
+        case PackageEditorEvent.TARGET_RUN:       // user has initiated a
+            //   run operation
             runAppletTarget((Target) e.getSource());
             break;
 
-         case PackageEditorEvent.OBJECT_PUTONBENCH: // "Get" object from
-                                                    //   object inspector
+        case PackageEditorEvent.OBJECT_PUTONBENCH: // "Get" object from
+            //   object inspector
             putObjectOnBench(e.getDebuggerObject(), e.getFieldName(),
                              e.getInstanceName());
             break;
@@ -713,10 +713,10 @@ public class PkgMgrFrame extends JFrame
                 DialogManager.showText(this,message);
             break;
 
-//         case TOOLS_BROWSE:
-//             DialogManager.NYI(this);
-//             //            LibraryBrowser lb = new LibraryBrowser();
-//             break;
+            //         case TOOLS_BROWSE:
+            //             DialogManager.NYI(this);
+            //             //            LibraryBrowser lb = new LibraryBrowser();
+            //             break;
 
         case TOOLS_PREFERENCES:         // can be executed when isEmptyFrame() is true
             PrefMgrDialog.showDialog(this);
@@ -855,9 +855,9 @@ public class PkgMgrFrame extends JFrame
     private void doOpenNonBlueJ()
     {
         String fileName = FileUtility.getFileName(this,
-                                Config.getString("pkgmgr.openNonBlueJPkg.title"),
-                                Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"),
-                                false);
+                                                  Config.getString("pkgmgr.openNonBlueJPkg.title"),
+                                                  Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"),
+                                                  false);
 
         File dirName = new File(fileName);
 
@@ -867,14 +867,14 @@ public class PkgMgrFrame extends JFrame
                 return;
             }
 
-/*            File aFile = FileUtility.findFile(dirName, ".java");
+            /*            File aFile = FileUtility.findFile(dirName, ".java");
 
-            if (aFile != null) {
-                ClassInfo info = ClassParser.parse(aFile);
+                          if (aFile != null) {
+                          ClassInfo info = ClassParser.parse(aFile);
 
-                DialogManager.showError(this, "open-non-bluej-invalid");
-            }
-*/
+                          DialogManager.showError(this, "open-non-bluej-invalid");
+                          }
+            */
             // add bluej.pkg files through the directory structure
             Import.convertDirectory(dirName);
 
@@ -1079,96 +1079,6 @@ public class PkgMgrFrame extends JFrame
         PackagePrinter printer = new PackagePrinter(pkg, pageFormat);
         printer.setPriority((Thread.currentThread().getPriority() - 1));
         printer.start();
-    }
-
-    class PrinterThread extends Thread implements Printable
-    {
-        public void run()
-        {
-            this.printPackage();
-        }
-
-        private void printPackage()
-        {
-
-            PrinterJob printerJob = PrinterJob.getPrinterJob();
-
-            Dimension graphSize = pkg.getMinimumSize();
-            printerJob.setPrintable(this, pageFormat);
-
-            if (printerJob.printDialog()) {
-                setStatus(Config.getString("pkgmgr.info.printing"));
-                try {
-                    // call the Printable interface to do the actual printing
-                    printerJob.print();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                setStatus(Config.getString("pkgmgr.info.printed"));
-            }
-        }
-
-        private int pageColumns = 0;
-        private int pageRows = 0;
-        private int currentColumn = 0;
-        private int currentRow = 0;
-
-        final static int a4Width = 595;
-        final static int a4Height = 840;
-
-        /**
-         * Method that implements Printable interface and does that actual printing of
-         * class diagram.
-         */
-        public int print(Graphics g, PageFormat pageFormat, int pageIndex)
-        {
-            // temporary solution that only prints one page
-            if(pageIndex >= 1)
-                return Printable.NO_SUCH_PAGE;
-
-            Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(),
-                                               (int)pageFormat.getImageableHeight());
-            Dimension graphSize = pkg.getMinimumSize();
-            Rectangle printArea = getPrintArea(pageFormat);
-            pageColumns = (graphSize.width + printArea.width - 1) / printArea.width;
-            pageRows = (graphSize.height + printArea.height - 1) / printArea.height;
-
-            // loop does not do much at present, only first page printed
-            for(int i = 0; i < pageRows; i++) {
-                for(int j = 0; j < 1; j++) {
-//                    printTitle(g, pageFormat, i * pageColumns + j + 1);
-                    g.translate(printArea.x - j * printArea.width,
-                                printArea.y - i * printArea.height);
-                    g.setClip(j * printArea.width, i * printArea.height,
-                              printArea.width, printArea.height);
-                    editor.paint(g);
-                }
-            }
-            return Printable.PAGE_EXISTS;
-        }
-    } // end of nested class PrinterThread
-
-    // Add a title to printouts
-    static final int PRINT_HMARGIN = 6;
-    static final int PRINT_VMARGIN = 24;
-    static final Font printTitleFont = new Font("SansSerif", Font.PLAIN,
-                                                12); //Config.printTitleFontsize);
-    static final Font printInfoFont = new Font("SansSerif", Font.ITALIC,
-                                               10); //Config.printInfoFontsize);
-
-    /**
-     * Return the rectangle on the page in which to draw the class diagram.
-     * The rectangle is the page minus margins minus space for header and
-     * footer text.
-     */
-    public Rectangle getPrintArea(PageFormat pageFormat)
-    {
-        FontMetrics tfm = getFontMetrics(printTitleFont);
-        FontMetrics ifm = getFontMetrics(printInfoFont);
-        return new Rectangle((int)pageFormat.getImageableX() + PRINT_HMARGIN,
-                             (int)pageFormat.getImageableY() + 2 * PRINT_VMARGIN,
-                             (int)pageFormat.getImageableWidth() - (2 * PRINT_HMARGIN),
-                             (int)pageFormat.getImageableHeight() - (2 * PRINT_VMARGIN));
     }
 
 
@@ -1930,7 +1840,7 @@ public class PkgMgrFrame extends JFrame
     static final int TOOLS_PREFERENCES = TOOLS_GENERATEDOC + 1;
 
     static final String[] ToolsCmds = {
-	"compile", "compileSelected", "rebuild", "generateDoc", // "browse",
+        "compile", "compileSelected", "rebuild", "generateDoc", // "browse",
         "preferences",
     };
 
