@@ -9,13 +9,8 @@ import bluej.runtime.ExecServer;
 import bluej.terminal.Terminal;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.Vector;
 import java.util.List;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.*;
 
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
@@ -31,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 809 2001-03-21 06:20:20Z mik $
+ * @version $Id: JdiDebugger.java 814 2001-03-26 04:30:12Z ajp $
  *
  * The startup process is as follows:
  *
@@ -108,6 +103,9 @@ public final class JdiDebugger extends Debugger
     volatile private boolean initialised = false;
     private int machineStatus = IDLE;
 
+    private List savedBreakpoints;              // a list of Location's representing
+                                                // a temporarily saved list of breakpoints
+                                                // we want to keep
     private int exitStatus;
     private ExceptionDescription lastException;
     private Object executionUserParam;   // a user defined parameter set with
@@ -250,14 +248,11 @@ public final class JdiDebugger extends Debugger
     }
 
     /**
-     * This method is called by the VMEventHandler when the execution server
-     * class (ExecServer) has been loaded into the VM. We use this to set
-     * a breakpoint in the server class. This is really still part of the
-     * initialisation process. This breakpoint is used to stop the server
+     * This breakpoint is used to stop the server
      * process to make it wait for our task signals. (We later use the
      * suspended process to perform our task requests.)
      */
-    void serverClassPrepared()
+    void serverClassAddBreakpoints()
     {
         EventRequestManager erm = machine.eventRequestManager();
         serverClass = findClassByName(machine, SERVER_CLASSNAME, null);
@@ -276,16 +271,6 @@ public final class JdiDebugger extends Debugger
         bpreq.putProperty("isBluejBreak", "true");
         bpreq.enable();
 
-        // set up a watcher on an exit object on the remote machine
-        // the following does not seem to work. Field modifications
-        // are ignored (as of JDK1.3)
-        /*Field exitField = serverClass.fieldByName(EXIT_FIELD_NAME);
-          ModificationWatchpointRequest mwreq =
-          erm.createModificationWatchpointRequest(exitField);
-          mwreq.setSuspendPolicy(EventRequest.SUSPEND_NONE);
-          mwreq.putProperty("isExitMarker", "true");
-          mwreq.enable();*/
-
         // set a breakpoint on a special exitMarker method
         Method exitMarkerMethod = findMethodByName(serverClass,
                                                    EXIT_MARKER_METHOD_NAME);
@@ -295,14 +280,28 @@ public final class JdiDebugger extends Debugger
         exitbpreq.setSuspendPolicy(EventRequest.SUSPEND_NONE);
         exitbpreq.putProperty("isExitMarker", "true");
         exitbpreq.enable();
+    }
 
+    /**
+     * This method is called by the VMEventHandler when the execution server
+     * class (ExecServer) has been loaded into the VM. We use this to set
+     * a breakpoint in the server class. This is really still part of the
+     * initialisation process.
+     */
+    void serverClassPrepared()
+    {
         // remove the "class prepare" event request (not needed anymore)
 
+        EventRequestManager erm = machine.eventRequestManager();
         List list = erm.classPrepareRequests();
         if(list.size() != 1)
             Debug.reportError("oops - found more than one prepare request!");
         ClassPrepareRequest cpreq = (ClassPrepareRequest)list.get(0);
         erm.deleteEventRequest(cpreq);
+
+        // add the breakpoints (these may be cleared later on and so will
+        // need to be readded)
+        serverClassAddBreakpoints();
     }
 
 
@@ -787,9 +786,76 @@ public final class JdiDebugger extends Debugger
     // ==== code for active debugging: setting breakpoints, stepping, etc ===
 
     /**
+     * Set a breakpoint at a specified line in a class.
+     *
+     * @param   className  The class in which to set the breakpoint.
+     * @param   line       The line number of the breakpoint.
+     * @return  null if there was no problem, or an error string
+     */
+    private String setBreakpoint(String className, int line,
+                                    DebuggerClassLoader loader)
+        throws AbsentInformationException
+    {
+        loadClass(loader, className);
+        ClassType remoteClass = findClassByName(getVM(), className, loader);
+
+        if(remoteClass == null)
+            return "Class not found";
+
+        Location loc = findLocationInLine(remoteClass, line);
+        if(loc == null)
+            return Config.getString("debugger.jdiDebugger.noCodeMsg");
+
+        EventRequestManager erm = getVM().eventRequestManager();
+        BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
+        bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+        bpreq.enable();
+
+        return null;
+    }
+
+    /**
+     * Clear all the breakpoints at a specified line in a class.
+     *
+     * @param   className  The class in which to clear the breakpoints.
+     * @param   line       The line number of the breakpoint.
+     * @return  null if there was no problem, or an error string
+     */
+    private String clearBreakpoint(String className, int line,
+                                       DebuggerClassLoader loader)
+        throws AbsentInformationException
+    {
+        loadClass(loader, className);
+        ClassType remoteClass = findClassByName(getVM(), className, loader);
+
+        if(remoteClass == null)
+            return "Class not found";
+
+        Location loc = findLocationInLine(remoteClass, line);
+        if(loc == null)
+            return Config.getString("debugger.jdiDebugger.noCodeMsg");
+
+        EventRequestManager erm = getVM().eventRequestManager();
+        boolean found = false;
+        List list = erm.breakpointRequests();
+        for (int i=0 ; i < list.size() ; i++) {
+            BreakpointRequest bp = (BreakpointRequest)list.get(i);
+            if(bp.location().equals(loc)) {
+                erm.deleteEventRequest(bp);
+                found = true;
+            }
+        }
+        // bp not found
+        if (found)
+            return null;
+        else
+            return Config.getString("debugger.jdiDebugger.noBreakpointMsg");
+    }
+
+    /**
      * Set/clear a breakpoint at a specified line in a class.
      *
-     * @param className  The class in which to set the breakpoint.
+     * @param className  The class in which to set/clear the breakpoint.
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
      *
@@ -800,37 +866,12 @@ public final class JdiDebugger extends Debugger
     {
         //Debug.message("[toggleBreakpoint]: " + className);
 
-        VirtualMachine vm = getVM();
-
-        loadClass(loader, className);
-        ClassType remoteClass = findClassByName(vm, className, loader);
-
-        if(remoteClass == null)
-            return "Class not found";
-
         try {
-            Location loc = findLocationInLine(remoteClass, line);
-            if(loc == null)
-                return Config.getString("debugger.jdiDebugger.noCodeMsg");
-
-            EventRequestManager erm = vm.eventRequestManager();
             if(set) {
-                BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
-                bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-                bpreq.enable();
-                return null;
+                return setBreakpoint(className, line, loader);
             }
-            else {	// clear breakpoint
-                List list = erm.breakpointRequests();
-                for (int i=0 ; i < list.size() ; i++) {
-                    BreakpointRequest bp = (BreakpointRequest)list.get(i);
-                    if(bp.location().equals(loc)) {
-                        erm.deleteEventRequest(bp);
-                        return null;
-                    }
-                }
-                // bp not found
-                return Config.getString("debugger.jdiDebugger.noBreakpointMsg");
+            else {
+                return clearBreakpoint(className, line, loader);
             }
         }
         catch(AbsentInformationException e) {
@@ -843,6 +884,62 @@ public final class JdiDebugger extends Debugger
             Debug.reportError("breakpoint error: " + e);
             return Config.getString("debugger.jdiDebugger.internalErrorMsg");
         }
+    }
+
+    /**
+     * Temporarily save the breakpoints set in the virtual machine in
+     * anticipation that we are about to create a new classloader.
+     */
+     public void saveBreakpoints()
+    {
+        VirtualMachine vm = getVM();
+        EventRequestManager erm = vm.eventRequestManager();
+        savedBreakpoints = new LinkedList();
+
+        List oldBreakpoints = erm.breakpointRequests();
+        Iterator it = oldBreakpoints.iterator();
+
+        while(it.hasNext()) {
+            BreakpointRequest bp = (BreakpointRequest) it.next();
+
+            if(!bp.location().declaringType().name().equals(SERVER_CLASSNAME)) {
+                savedBreakpoints.add(bp.location());
+            }
+        }
+
+        // we need to throw away all the breakpoints referring to the old
+        // class loader but then we need to restore our exitMarker and
+        // suspendMethod breakpoints
+        erm.deleteAllBreakpoints();
+        serverClassAddBreakpoints();
+    }
+
+    /**
+     * Restore the previosuly saved breakpoints with the new classloader.
+     *
+     * @param loader  The new class loader to restore the breakpoints into
+     */
+    public void restoreBreakpoints(DebuggerClassLoader loader)
+    {
+        VirtualMachine vm = getVM();
+        EventRequestManager erm = vm.eventRequestManager();
+
+        if (savedBreakpoints != null) {
+            Iterator it = savedBreakpoints.iterator();
+
+            while(it.hasNext()) {
+                Location l = (Location) it.next();
+
+                try {
+                    setBreakpoint(l.declaringType().name(), l.lineNumber(), loader);
+                }
+                catch(Exception e) {
+                    Debug.reportError("breakpoint error: " + e);
+                }
+            }
+        }
+
+        savedBreakpoints = null;
     }
 
     /**
@@ -1005,7 +1102,7 @@ public final class JdiDebugger extends Debugger
      *  Find the first location in a given line in a class.
      */
     private Location findLocationInLine(ClassType cl, int line)
-        throws Exception
+        throws AbsentInformationException
     {
         List list = cl.locationsOfLine(line);
         if(list.size() == 0)
@@ -1025,7 +1122,6 @@ public final class JdiDebugger extends Debugger
         erm.createExceptionRequest(null, false, true).enable();
         erm.createClassPrepareRequest().enable();
     }
-
 
     /**
      *	Create a thread that will retrieve any output from the remote

@@ -13,7 +13,7 @@ import java.util.Vector;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 809 2001-03-21 06:20:20Z mik $
+ * @version $Id: Debugger.java 814 2001-03-26 04:30:12Z ajp $
  */
 public abstract class Debugger
 {
@@ -78,7 +78,7 @@ public abstract class Debugger
     /**
      * Remove an object from a package scope (when removed from object bench)
      */
-    public abstract void removeObjectFromScope(String scopeId, 
+    public abstract void removeObjectFromScope(String scopeId,
                                                String instanceName);
 
 
@@ -141,6 +141,15 @@ public abstract class Debugger
                                             boolean set,
                                             DebuggerClassLoader loader);
 
+    /**
+     * Save the breakpoints which have been setup in the debugger
+     */
+    public abstract void saveBreakpoints();
+
+    /**
+     * Restore the previously saved breakpoints using the new class loader
+     */
+    public abstract void restoreBreakpoints(DebuggerClassLoader loader);
 
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,

@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 811 2001-03-25 23:11:51Z mik $
+ * @version $Id: PkgMgrFrame.java 814 2001-03-26 04:30:12Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1157,7 +1157,7 @@ public class PkgMgrFrame extends JFrame
             // reinitialised because the class hangs around from a previous call)
             if(mv.isMain()) {
                 getProject().removeLocalClassLoader();
-                getProject().removeRemoteClassLoader();
+                getProject().removeRemoteClassLoaderLeavingBreakpoints();
             }
 
             // if we are calling a method that has a result, create a watcher

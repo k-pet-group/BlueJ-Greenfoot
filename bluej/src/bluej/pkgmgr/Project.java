@@ -24,7 +24,7 @@ import java.io.IOException;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 788 2001-03-02 04:04:20Z bquig $
+ * @version $Id: Project.java 814 2001-03-26 04:30:12Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -190,14 +190,14 @@ public class Project
      * workaround method to get a project from the project list.
      * Added so that if only one project is open you could call this
      * to access that project.  This was added to allow an inspector window
-     * created from within the debugger to access custom inspectors for a 
+     * created from within the debugger to access custom inspectors for a
      * project.
      * @return an open project (may return null if no projects open)
      *
      */
     public static Project getProject()
     {
-        
+
         if(projects.size() == 1) {
             Collection projectColl = projects.values();
             Iterator it = projectColl.iterator();
@@ -507,6 +507,25 @@ public class Project
         if(debuggerLoader != null) {
             Debugger.debugger.removeClassLoader(debuggerLoader);
             debuggerLoader = null;
+        }
+    }
+
+    /**
+     * Removes the remote VM classloader.
+     * Should be run whenever a source file changes.
+     */
+    synchronized void removeRemoteClassLoaderLeavingBreakpoints()
+    {
+        if(debuggerLoader != null) {
+            Debugger.debugger.saveBreakpoints();
+            Debugger.debugger.removeClassLoader(debuggerLoader);
+
+            // blank out the current loader then cause a new loader
+            // to be created
+            debuggerLoader = null;
+            getRemoteClassLoader();
+
+            Debugger.debugger.restoreBreakpoints(debuggerLoader);
         }
     }
 
