@@ -7,9 +7,9 @@ import bluej.extensions.BPackage;
  * This class represents an invocation event.
  * The various methods here provided will return you the values of the invocation.
  * 
- * @version $Id: InvocationEvent.java 1685 2003-03-10 12:49:18Z damiano $
+ * @version $Id: InvocationEvent.java 1689 2003-03-10 13:40:53Z damiano $
  */
-public class InvocationEvent extends ExtEvent
+public class InvocationEvent extends BluejEvent
 {
     // Occurs when a method call has just begun. This includes constructors, object and static methods.
     public static final int INVOCATION_STARTED = 4;

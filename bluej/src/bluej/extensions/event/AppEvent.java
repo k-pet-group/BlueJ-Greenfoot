@@ -6,7 +6,7 @@ package bluej.extensions.event;
  * Like when the one that happens when the whole system is ready.
  */
 
-public class AppEvent extends ExtEvent 
+public class AppEvent extends BluejEvent 
   {
   public static final int APP_READY_EVENT=1;
 

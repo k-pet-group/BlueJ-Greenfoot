@@ -8,9 +8,9 @@ import bluej.extensions.BPackage;
  * but it will be different as soon as I am able to get the returnin values.
  * Damiano
  * </pre>
- * @version $Id: ResultEvent.java 1685 2003-03-10 12:49:18Z damiano $
+ * @version $Id: ResultEvent.java 1689 2003-03-10 13:40:53Z damiano $
  */
-public class ResultEvent extends ExtEvent
+public class ResultEvent extends BluejEvent
 {
     // This event is returned in case of unknown mapping
     public static final int UNKNOWN_EXIT = 0;
