@@ -1,25 +1,18 @@
 package bluej.debugmgr;
 
-import bluej.Config;
-import bluej.BlueJEvent;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.JavaNames;
-import bluej.compiler.CompileObserver;
-import bluej.compiler.JobQueue;
-import bluej.debugger.*;
-import bluej.debugmgr.inspector.*;
-import bluej.debugmgr.objectbench.*;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.views.ConstructorView;
-import bluej.views.LabelPrintWriter;
-import bluej.views.CallableView;
-import bluej.views.MethodView;
-import bluej.testmgr.*;
-
 import java.io.*;
 import java.util.*;
+
+import bluej.*;
+import bluej.compiler.*;
+import bluej.debugger.*;
+import bluej.debugmgr.inspector.Inspector;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.pkgmgr.*;
+import bluej.pkgmgr.Package;
+import bluej.testmgr.record.*;
+import bluej.utility.*;
+import bluej.views.*;
 
 /**
  * Debugger class that arranges invocation of constructors or methods.
@@ -28,7 +21,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2115 2003-07-16 05:02:43Z ajp $
+ * @version $Id: Invoker.java 2228 2003-10-28 02:09:11Z ajp $
  */
 
 public class Invoker extends Thread
@@ -324,7 +317,10 @@ public class Invoker extends Thread
             }
 
             if (isVoid) {
-                ir = new VoidMethodInvokerRecord(command + actualArgString);
+                if (method.isMain())
+                    ir = new StaticVoidMainMethodInvokerRecord(command + actualArgString);
+                else
+                    ir = new VoidMethodInvokerRecord(command + actualArgString);
                 instanceName = null;
             }
             else {
