@@ -25,7 +25,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Inspector.java 2949 2004-08-26 10:37:04Z polle $
+ * @version $Id: Inspector.java 2959 2004-08-30 12:36:47Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -264,10 +264,6 @@ public abstract class Inspector extends JFrame
 
                 fieldList.setPreferredScrollableViewportSize(new Dimension(width, (int) height));
                 pack();
-
-                // Adjust the location so as to keep the center of the window in
-                // the same position
-                setLocation(oldposX + (oldWidth - getWidth()) / 2, oldposY + (oldHeight - getHeight()) / 2);
 
                 if (assertPanel != null) {
                     assertPanel.updateWithResultData((String) listData[0]);
