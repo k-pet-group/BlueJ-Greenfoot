@@ -23,11 +23,13 @@ import bluej.prefmgr.PrefMgrDialog;
 import bluej.prefmgr.PrefMgr;
 import bluej.browser.LibraryBrowser;
 import bluej.utility.filefilter.JavaSourceFilter;
+import bluej.parser.ClassParser;
+import bluej.parser.symtab.ClassInfo;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 647 2000-07-24 23:32:46Z bquig $
+ * @version $Id: PkgMgrFrame.java 652 2000-07-26 00:30:48Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -619,6 +621,10 @@ public class PkgMgrFrame extends JFrame
             doOpen();
             break;
 
+        case PROJ_OPENNONBLUEJ:        // can be executed when isEmptyFrame() is true
+            doOpenNonBlueJ();
+            break;
+
         case PROJ_CLOSE:
             doClose(true);
             break;
@@ -801,6 +807,7 @@ public class PkgMgrFrame extends JFrame
             }
             else {
                 PkgMgrFrame pmf = createFrame(proj.getPackage(""));
+                DialogManager.tileWindow(pmf, this);
                 pmf.show();
             }
         }
@@ -840,6 +847,65 @@ public class PkgMgrFrame extends JFrame
             }
         }
     }
+
+    /**
+     * Open a dialog that lets the user choose a project.
+     * The project selected is opened in a frame.
+     */
+    private void doOpenNonBlueJ()
+    {
+        String fileName = FileUtility.getFileName(this,
+                                Config.getString("pkgmgr.openNonBlueJPkg.title"),
+                                Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"),
+                                false);
+
+        File dirName = new File(fileName);
+
+        if (dirName != null) {
+            if (Project.openProject(dirName.getAbsolutePath()) != null) {
+                DialogManager.showError(this, "open-non-bluej-already-bluej");
+                return;
+            }
+
+/*            File aFile = FileUtility.findFile(dirName, ".java");
+
+            if (aFile != null) {
+                ClassInfo info = ClassParser.parse(aFile);
+
+                DialogManager.showError(this, "open-non-bluej-invalid");
+            }
+*/
+            // add bluej.pkg files through the directory structure
+            Import.convertDirectory(dirName);
+
+            Project openProj = Project.openProject(dirName.getAbsolutePath());
+
+            // if after converting the directory, the project still doesn't open
+            // then there was no java source in the directories
+            if (openProj == null) {
+                return;
+            }
+
+            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
+
+            PkgMgrFrame pmf;
+
+            if ((pmf = findFrame(pkg)) == null) {
+                if(isEmptyFrame()) {
+                    pmf = this;
+                    openPackage(pkg);
+                }
+                else {
+                    pmf = createFrame(pkg);
+
+                    DialogManager.tileWindow(pmf, this);
+                }
+            }
+
+            pmf.show();
+        }
+    }
+
 
     /**
      * Perform a user initiated close of this frame/package.
@@ -913,22 +979,6 @@ public class PkgMgrFrame extends JFrame
      */
     private void doImport()
     {
-        boolean intoNewProject = true;
-
-        // prompt for if they want it imported into the current
-        // project or a new project
-        if (!isEmptyFrame()) {
-            switch (DialogManager.askQuestion(this, "import-into-current")) {
-            case 0:
-                intoNewProject = false;
-                break;
-            case 2:
-                return;
-            default:
-                break;
-            }
-        }
-
         // prompt for the directory to import from
         File importDir;
         String importName = FileUtility.getFileName(this,
@@ -944,25 +994,8 @@ public class PkgMgrFrame extends JFrame
         if (!importDir.isDirectory())
             return;
 
-        // prompt for the new project to create (if required)
-        if (intoNewProject) {
-            String newProj = FileUtility.getFileName(this,
-                                                     Config.getString("pkgmgr.importPkgNew.title"),
-                                                     Config.getString("pkgmgr.importPkgNew.buttonLabel"),
-                                                     false);
-
-            if (newProj == null)
-                return;
-
-            if (Project.createNewProject(newProj)) {
-                Project proj = Project.openProject(newProj);
-
-                openPackage(proj.getPackage(""));
-            }
-        }
-
-        // if we are still empty then the project creation has failed and we
-        // shouldn't go on
+        // if we are an empty then we shouldn't go on (we shouldn't get
+        // here)
         if (isEmptyFrame())
             return;
 
@@ -1048,7 +1081,97 @@ public class PkgMgrFrame extends JFrame
         printer.start();
     }
 
-   
+    class PrinterThread extends Thread implements Printable
+    {
+        public void run()
+        {
+            this.printPackage();
+        }
+
+        private void printPackage()
+        {
+
+            PrinterJob printerJob = PrinterJob.getPrinterJob();
+
+            Dimension graphSize = pkg.getMinimumSize();
+            printerJob.setPrintable(this, pageFormat);
+
+            if (printerJob.printDialog()) {
+                setStatus(Config.getString("pkgmgr.info.printing"));
+                try {
+                    // call the Printable interface to do the actual printing
+                    printerJob.print();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                setStatus(Config.getString("pkgmgr.info.printed"));
+            }
+        }
+
+        private int pageColumns = 0;
+        private int pageRows = 0;
+        private int currentColumn = 0;
+        private int currentRow = 0;
+
+        final static int a4Width = 595;
+        final static int a4Height = 840;
+
+        /**
+         * Method that implements Printable interface and does that actual printing of
+         * class diagram.
+         */
+        public int print(Graphics g, PageFormat pageFormat, int pageIndex)
+        {
+            // temporary solution that only prints one page
+            if(pageIndex >= 1)
+                return Printable.NO_SUCH_PAGE;
+
+            Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(),
+                                               (int)pageFormat.getImageableHeight());
+            Dimension graphSize = pkg.getMinimumSize();
+            Rectangle printArea = getPrintArea(pageFormat);
+            pageColumns = (graphSize.width + printArea.width - 1) / printArea.width;
+            pageRows = (graphSize.height + printArea.height - 1) / printArea.height;
+
+            // loop does not do much at present, only first page printed
+            for(int i = 0; i < pageRows; i++) {
+                for(int j = 0; j < 1; j++) {
+                    printTitle(g, pageFormat, i * pageColumns + j + 1);
+                    g.translate(printArea.x - j * printArea.width,
+                                printArea.y - i * printArea.height);
+                    g.setClip(j * printArea.width, i * printArea.height,
+                              printArea.width, printArea.height);
+                    editor.paint(g);
+                }
+            }
+            return Printable.PAGE_EXISTS;
+        }
+    } // end of nested class PrinterThread
+
+    // Add a title to printouts
+    static final int PRINT_HMARGIN = 6;
+    static final int PRINT_VMARGIN = 24;
+    static final Font printTitleFont = new Font("SansSerif", Font.PLAIN,
+                                                12); //Config.printTitleFontsize);
+    static final Font printInfoFont = new Font("SansSerif", Font.ITALIC,
+                                               10); //Config.printInfoFontsize);
+
+    /**
+     * Return the rectangle on the page in which to draw the class diagram.
+     * The rectangle is the page minus margins minus space for header and
+     * footer text.
+     */
+    public Rectangle getPrintArea(PageFormat pageFormat)
+    {
+        FontMetrics tfm = getFontMetrics(printTitleFont);
+        FontMetrics ifm = getFontMetrics(printInfoFont);
+        return new Rectangle((int)pageFormat.getImageableX() + PRINT_HMARGIN,
+                             (int)pageFormat.getImageableY() + 2 * PRINT_VMARGIN,
+                             (int)pageFormat.getImageableWidth() - (2 * PRINT_HMARGIN),
+                             (int)pageFormat.getImageableHeight() - (2 * PRINT_VMARGIN));
+    }
+
+
     /**
      * Interactively call a method or a constructor
      */
@@ -1727,7 +1850,8 @@ public class PkgMgrFrame extends JFrame
     static final int PROJ_COMMAND = 1000;
     static final int PROJ_NEW = PROJ_COMMAND;
     static final int PROJ_OPEN = PROJ_NEW + 1;
-    static final int PROJ_CLOSE = PROJ_OPEN + 1;
+    static final int PROJ_OPENNONBLUEJ = PROJ_OPEN + 1;
+    static final int PROJ_CLOSE = PROJ_OPENNONBLUEJ + 1;
     static final int PROJ_SAVE = PROJ_CLOSE + 1;
     static final int PROJ_SAVEAS = PROJ_SAVE + 1;
     static final int PROJ_IMPORT = PROJ_SAVEAS + 1;
@@ -1737,13 +1861,14 @@ public class PkgMgrFrame extends JFrame
     static final int PROJ_QUIT = PROJ_PRINT + 1;
 
     static final String[] ProjCmds = {
-        "new", "open", "close", "save", "saveAs", "import", "export",
+        "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
         "pageSetup", "print", "quit"
     };
 
     static final KeyStroke[] ProjKeys = {
         null,
         KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK),
+        null,   // open non bluej
         KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK),
         null, // save as
@@ -1944,7 +2069,7 @@ public class PkgMgrFrame extends JFrame
         List dontDisable = Arrays.asList(new String [] {
             Config.getString("menu.package.new"),
             Config.getString("menu.package.open"),
-            Config.getString("menu.package.import"),
+            Config.getString("menu.package.openNonBlueJ"),
             Config.getString("menu.package.quit"),
             Config.getString("menu.tools.browse"),
             Config.getString("menu.tools.preferences"),
