@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 1069 2002-01-08 11:40:04Z mik $
+  * @version $Id: Installer.java 1158 2002-03-08 13:33:26Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -677,7 +677,7 @@ public class Installer extends JFrame
         File outputFile = new File(installationDir, (String)getProperty("exeName"));
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("#!/bin/sh\n");
-        out.write("APPBASE=" + installationDir + "\n");
+        out.write("APPBASE=\"" + installationDir + "\"\n");
         String commands;
         String javaName;
         if(isMacOS) {
@@ -718,7 +718,7 @@ public class Installer extends JFrame
 			
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("@echo off\r\n");
-        out.write("set APPBASE=" + installationDir + "\r\n");
+        out.write("set APPBASE=\"" + installationDir + "\"\r\n");
         String commands = getProperty("commands.win").toString();
         if(commands != null) {
             commands = replace(commands, '~', "%APPBASE%");
