@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 538 2000-06-12 10:20:59Z ajp $
+ * @version $Id: Target.java 591 2000-06-28 05:01:27Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -99,18 +99,22 @@ public abstract class Target extends Vertex
     }
 
     /** last pos used for placement of new target (use only through method) **/
-    static int last_pos_x = 50;
-    static int last_pos_y = 50;
+    static int next_pos_x = 10;
+    static int next_pos_y = 70;
 
     /**
      * get the next x value to be used for placement of new target
      */
     protected static int nextX()
     {
-        last_pos_x += 15;
-        if(last_pos_x > 200)
-            last_pos_x = 65;
-        return last_pos_x;
+        if(next_pos_x > 400) {
+            next_pos_x = 10;
+            next_pos_y += 70;
+        }
+
+        next_pos_x += 90;
+
+        return (next_pos_x - 90);
     }
 
     /**
@@ -118,10 +122,7 @@ public abstract class Target extends Vertex
      */
     protected static int nextY()
     {
-        last_pos_y += 15;
-        if(last_pos_y > 250)
-            last_pos_y = 65;
-        return last_pos_y;
+        return next_pos_y;
     }
 
     /**
