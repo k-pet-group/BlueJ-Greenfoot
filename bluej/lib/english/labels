@@ -513,7 +513,6 @@ menu.edit.removeArrow=Remove Arrow...
 
 menu.tools=_Tools
 menu.tools.compile=Compile@K
-menu.tools.test=Run _Tests
 menu.tools.compileSelected=Compile Selected@^K
 menu.tools.rebuild=_Rebuild Package
 menu.tools.callLibrary=Use Library Class...@L
