@@ -1,0 +1,344 @@
+# This file is written in Japanese (Shift-JIS).
+#########
+
+compile-while-executing
+マシンが実行中の間、
+あなたはコンパイルできません。
+これは意外な問題を起こすかもしれません！
+
+exception-thrown
+例外が投げられました：
+
+break-no-source
+ブレークポイントは、ソースが見つけられない
+ファイルにおいてヒットしました。ファイル名：
+
+error-in-file
+ソースが見つけられないファイルに
+エラーが存在しました。
+クラス： ソース行番号：
+
+system-exit
+メソッドは明示的な "exit" の指示によって
+終わりました。結果は全然戻されませんでした。
+終了コード：
+
+no-help
+このメッセージに関する利用可能なヘルプはありません。
+どうぞ、エラーメッセージのテキストを
+mik@monash.edu.au にメールしてください
+そうすれば私達はヘルプテキストを
+私達のヘルプデータベースに付加します。
+ありがとう。
+
+# errors:
+#########
+
+no-lib-selected
+あなたは行くためのライブラリを指定しませんでした。
+「検索結果」リストのライブラリをクリックし、
+「Go to」ボタンを押してください。
+
+no-target-dialog
+ライブラリブラウザからパッケージを使う前に、
+ターゲットとなるパッケージを最低ひとつ、
+BlueJウィンドウで開くことが必要です。
+
+cannot-locate-lib-node
+ライブラリ選択ツリーの選択ノードを置くことができません。
+このエラーの通常の原因は、パッケージを含んでいる
+ディレクトリのパッケージファイルが古いことです。
+
+missing-shadow
+シャドウエリアを置くことができません：
+
+cannot-run-compiler
+コンパイラを実行できません。
+プログラムはあなたのパスにありますか？
+コンパイラの名前：
+
+compiler-error
+コンパイラのエラー：
+
+stream-incomplete
+コンパイラのエラー。
+不完全なエラーストリーム。
+
+out-of-bounds
+指定された要素は、
+配列の範囲内にありません。
+
+cannot-access-element
+指定された配列の要素に
+アクセスできません。
+
+appletviewer-error
+アプレットビューアでの
+アプレットの実行におけるエラー。
+
+error-no-name
+有効な名前を指定しなければなりません。
+
+error-save-file
+ファイルの保存時にエラーが起こりました。
+ファイルは保存されませんでした。
+
+cannot-save-keys
+キーバインディングの保存時に
+エラーが起こりました。バインディングは
+保存されませんでした。
+
+error-no-templates
+指定されたテンプレートディレクトリ (BlueJがクラスの
+テンプレートを見つけるディレクトリ) が存在しません。
+それは <bluej-home>/lib/bluej/defs の
+「bluej.templatePath」プロパティで定義されます。
+このプロパティをチェックし、修正してください。
+
+skeleton-error
+クラスのデフォルトスケルトンを生成できませんでした。
+これは、BlueJのセットアップの
+コンフィギュレーションエラーまたは
+ファイルシステムのアクセスの問題かもしれません。
+
+error-open-source
+このクラスのソースを開けません。
+
+error-open-readme
+このプロジェクトのテキスト注釈を
+開くのに問題があります。
+新しいテキスト注釈は空で作成されました。
+
+error-writing-readme
+このプロジェクトのためのREADMEファイルは、
+主要なクラス情報を付加するための更新ができませんでした。
+このファイルの変更においてエラーがありました。
+
+error-exporting
+アプリケーションのエクスポート時に
+エラーが起こりました。いくつかまたはすべての
+ファイルは正しくコピーされていないかもしれません。
+
+error-writing-jar
+jar ファイルは正しく書かれませんでした。
+(アクセス権やディスクの空き容量について
+ファイルシステムをチェックしてください)
+
+error-jar-exists
+選択された jar ファイルは既に存在します。
+続行しますか？
+上書き
+取消し
+null
+
+invalid-class-name
+不正なクラス名です。
+
+invalid-package-name
+不正なパッケージ名です。
+
+directory-exists
+この名前のファイルまたはディレクトリは、
+すでに存在しています。
+
+cannot-copy-package
+パッケージファイルのコピーにおいて問題がありました。
+パッケージファイルが書かれなかったか、
+または不完全であるかもしれません。
+
+file-does-not-exist
+指定されたファイルは存在しません。
+
+cannot-import
+ファイルをインポートできません。
+ファイルはJavaソースファイルでなければなりません。
+(".java" で終わる名前でなければなりません)
+
+docdir-blocked-by-file
+文書化のためのディレクトリは、
+同名ファイルがあるため、プロジェクト
+ディレクトリにおいて作成できませんでした。
+
+docdir-not-created
+文書化のためのディレクトリは
+プロジェクトディレクトリにおいて
+作成できませんでした。
+
+no-permission-for-docdir
+文書化のためのディレクトリは
+不十分な権限のために、プロジェクト
+ディレクトリにおいて作成できませんでした。
+
+show-or-generate
+前もって生成されている文書を表示しますか？
+それとも文書全体を生成しなおしますか？
+表示のみ
+再生成する
+取消し
+
+doctool-error
+Javadoc がエラーを報告しました。文書を生成するために
+あなたが試したファイルのひとつに文法エラーが
+あるのかもしれません。優先して指定されたJDK文書URLが
+不正確であるのかもしれません。すべてのJavaファイルが
+コンパイルされており、文書化URLがアクセス可能か、
+あるいは不可能かを確かめてください。そして再び
+実行してください。もし再びこのメッセージが表示されるなら、
+Javadocからのエラーメッセージと
+ログファイルをチェックしてください：
+
+severe-doc-trouble
+外部の文書化ツールを呼び出し中に
+例外が起こりました。
+
+no-java-sources-found
+このディレクトリ内に
+Javaソースファイルを見つけられませんでした。
+
+duplicate-name
+同名のクラスが、既にこのパッケージに存在します。
+同じ名前でふたつのクラスを持つことはできません。
+
+error-in-import
+ファイルのインポート中にエラーが発生しました。
+アクセス権とディスクの空き容量を
+チェックしてください。
+
+no-class-selected
+削除するよう選択されたクラスまたはパッケージが
+ありません。削除する前に、クラスまたは
+パッケージをクリックして選択してください。
+
+really-remove-class
+クラスを削除すると、
+そのソースファイルも削除されます。
+処理を続行しますか？
+削除
+取り消し
+null
+
+really-remove-package
+パッケージを削除すると、パッケージディレクトリごと
+削除されます (ディレクトリの中身をすべて含みます)。
+処理を続行しますか？
+削除
+取り消し
+null
+
+remove-package-open
+削除するためにあなたが選んだパッケージは、
+BlueJ内で開かれているいくつかのサブパッケージを
+持っています。パッケージを削除する前に、
+これらのサブパッケージを閉じなければなりません。
+
+package-does-not-exist
+パッケージのオープンエラー。
+パッケージが存在しません：
+
+no-bluej-package
+パッケージのオープンエラー。
+ファイル／ディレクトリは
+BlueJパッケージではありません：
+
+applet-height-width
+アプレットの高さと幅を
+指定する必要があります。
+
+cannot-read-help
+ヘルプファイルを読み込めません：
+
+not-yet-implemented
+まだ実装されていません - 残念です。
+
+quit-all
+開いているプロジェクトをすべて終了しますか？
+すべて終了
+取り消し
+null
+
+really-reload
+最後に編集してからの全変更を
+破棄して再読み込みします。
+よろしいですね？
+再読み込み
+取り消し
+null
+
+really-print
+そのテキストは用紙より広くなっています。長い行は
+切り離されます。エディタウィンドウのサイズを
+狭くすれば、それを避けることができます。
+あなたはとにかく印刷したいですか？
+印刷
+取り消し
+null
+
+open-non-bluej-already-bluej
+選択されたディレクトリは、
+既にBlueJプロジェクトです。
+
+open-non-bluej-invalid
+You have indicated you wish to open this
+directory as a BlueJ project, however a file
+has been found with a package statement that
+is incompatible with the current directory
+structure. (For example, if the Java class
+Shape has a package line of com.aa, then the
+file Shape.java must be in a directory aa
+which is itself in a directory com. This com
+directory in turn must be in another directory
+which is the directory you should point BlueJ
+to when attempting to open it).
+
+import-into-current
+現在このウィンドウで開かれているパッケージがあります。
+この現在のパッケージにインポートしますか？
+それとも新しいプロジェクトを作成し、そこに
+インポートしますか？
+現在のプロジェクト
+新しいプロジェクト
+取り消し
+
+package-name-invalid
+あなたは、パッケージのステートメントを、この
+プロジェクトの中に存在しないパッケージに変更しました。
+もしこのクラスを別のパッケージに移動させたいなら、
+最初に移動先のパッケージを作成しなければなりません。
+パッケージステートメントは、
+オリジナルの形式に戻りました。
+
+package-name-changed
+You have changed the package statement which
+tells Java the package this class is in. Do you
+want to move this class to the indicated package
+or do you want to leave the class where it is
+(the package statement will be reverted back to
+its original form)?
+Move
+Revert
+null
+
+ask-index
+配列要素の添え字 [...] を入力してください
+配列のインスペクト
+null
+
+classmgr-changes-no-effect
+あなたがクラスライブラリに行なった変更は、
+あなたが次にBlueJを起動するまで効果を生じません。
+
+# editor:
+#########
+
+no-search-string
+検索文字列が定義されていません。
+(任意のテキストをハイライトさせるか、
+もしくはまず「検索」を使用します)
+
+default-keys
+本当にすべてのあなたのキーバインディングを
+破棄して、デフォルトのバインディングに
+設定しますか？
+デフォルトに設定する
+取り消し
+null
