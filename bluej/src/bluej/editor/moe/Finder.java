@@ -47,7 +47,6 @@ public final class Finder
     {
 	String s = JOptionPane.showInputDialog(parent, "Find:", "Find", 
 					       JOptionPane.PLAIN_MESSAGE);
-	Debug.message ("string: "+s);
 	return s;
     }
 

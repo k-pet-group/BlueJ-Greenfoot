@@ -231,11 +231,13 @@ public class MainPkgMgrFrame extends PkgMgrFrame {
 	    break;
 
 	case TOOLS_BROWSE:
-	    getBrowser().setVisible(true);
-	    // offset browser from this window
-	    getBrowser().setLocation(this.getLocation().x + 100, this.getLocation().y + 100);
-	    getBrowser().invalidate();
-	    getBrowser().validate();
+	    Utility.NYI(this);
+//  	    getBrowser().setVisible(true);
+//  	    // offset browser from this window
+//  	    getBrowser().setLocation(this.getLocation().x + 100, 
+//  				     this.getLocation().y + 100);
+//  	    getBrowser().invalidate();
+//  	    getBrowser().validate();
 	    break;
 
 	    // View commands
@@ -571,6 +573,10 @@ public class MainPkgMgrFrame extends PkgMgrFrame {
 	if(execCtrlWindow == null) {
 	    execCtrlWindow = new ExecControls();
 	    Utility.centreWindow(execCtrlWindow, this);
+	    Utility.showMessage(this, 
+				"ATTENTION: The debugger is not yet\n" +
+				"fully functional and it known to cause\n" +
+				"problems. It should not be used.");
 	}
 	execCtrlWindow.setVisible(show);
 	if(show && update)

@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 import java.util.MissingResourceException;
 import java.util.StringTokenizer;
 import java.util.Date;
+import java.text.DateFormat;
 import java.io.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -49,7 +50,10 @@ public final class MoeEditor extends JFrame
     static final Color titleCol = Config.getItemColour("colour.text.fg");
 
     // Fonts
-    //   public static Font editFont = new Font("Monospaced", Font.PLAIN, Config.editFontsize);
+    public static Font editFont = new Font("Monospaced", Font.PLAIN, 
+					   Config.editFontsize);
+    public static Font printFont = new Font("Monospaced", Font.PLAIN, 
+					   Config.printFontsize);
 
     // suffixes for resources
     static final String LabelSuffix = "Label";
@@ -211,6 +215,7 @@ public final class MoeEditor extends JFrame
 
 	setWindowTitle();
 	show();
+	textPane.setFont(editFont);
 
 	if (! MoeEditorManager.standAlone)
 	    {
@@ -228,6 +233,7 @@ public final class MoeEditor extends JFrame
     public void reloadFile() // inherited from Editor, redefined
     {
 	doReload();
+	textPane.setFont(editFont);
     }
 
     // --------------------------------------------------------------------
@@ -277,6 +283,7 @@ public final class MoeEditor extends JFrame
     {
 	setView(view);
 	setVisible(true);		// show the window
+	textPane.setFont(editFont);
 	//  ## NYI: de-iconify, bring to front
     }
 
@@ -1327,7 +1334,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Show or hide the line number display (depending on the parameter 'show').
+     * Show or hide the line number display (depending on the parameter
+     * 'show').
      */
 
     private void showLineCounter(boolean show)
@@ -1341,13 +1349,14 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * print - implementation if the "print" user function
+     * Implementation if the "print" user function
+     * (NOTE: re-implement under jdk 1.2 with "PrinterJob"!)
      */
     private void print()
     {
 	PrintJob printjob = getToolkit().getPrintJob(this, 
 				"Class " + windowTitle,
-				System.getProperties());
+				null);
 	if(printjob != null) {
 	    printClass(printjob);
 	    printjob.end();
@@ -1356,28 +1365,50 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * printClass - part of the print function. Print out the class.
+     * Part of the print function. Print out the class view currently
+     * visible in the editor.
      */
     private void printClass(PrintJob printjob) 
     {
   	Dimension pageSize = printjob.getPageDimension();
 
+        Font oldFont = textPane.getFont();
+        textPane.setFont(printFont);
+
 	Rectangle printArea = getPrintArea(pageSize);
 	Dimension textSize = textPane.getSize(null);
+	textSize.width -= (TAG_WIDTH + 3);
 	int pages = (textSize.height + printArea.height - 1) / 
 			printArea.height;
 
-	for(int i = 0; i < pages; i++) {
-	    Graphics g = printjob.getGraphics();
-	    printFrame(g, printArea, i + 1);
-		
-	    g.translate(printArea.x, 
-			printArea.y - i * printArea.height);
-	    g.setClip(0, i * printArea.height, 
-		      printArea.width, printArea.height);
-	    textPane.print(g);
-	    g.dispose();
+	int answer;
+	if(printArea.width < textSize.width-8) {
+	    answer = Utility.askQuestion(editor,
+			"The text is wider than the paper. Long lines\n" +
+			"will be cut off. You can avoid this by resizing\n" +
+			"the editor window to make it narrower. Do you\n" +
+			"want to print anyway?",
+			"Print", "Cancel", null);
 	}
+	else
+	    answer = 0;
+
+	if(answer == 0) {
+	    String date = DateFormat.getDateInstance().format(new Date());
+
+	    for(int i = 0; i < pages; i++) {
+		Graphics g = printjob.getGraphics();
+		printFrame(g, printArea, i + 1, date);
+		
+		g.translate(printArea.x - TAG_WIDTH - 2, 
+			    printArea.y - i * printArea.height);
+		g.setClip(TAG_WIDTH + 3, i * printArea.height, 
+			  printArea.width, printArea.height);
+		textPane.print(g);
+		g.dispose();
+	    }
+	}
+        textPane.setFont(oldFont);
     }
 
     // --------------------------------------------------------------------
@@ -1390,7 +1421,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Return the rectangle on the page in which to draw the class diagram.
+     * Return the rectangle on the page in which to print the text.
      * The rectangle is the page minus margins minus space for header and
      * footer text.
      */
@@ -1398,12 +1429,18 @@ public final class MoeEditor extends JFrame
     {
 	FontMetrics tfm = getFontMetrics(printTitleFont);
 	FontMetrics ifm = getFontMetrics(printInfoFont);
-		
+	int fontSize = textPane.getFont().getSize();
+
+	int printHeight = pageSize.height - 2 * PRINT_VMARGIN - 
+			  tfm.getHeight() - ifm.getHeight() - 4;
+
+	// ensure printHeight is multiple of font size
+	printHeight = (printHeight / fontSize) * fontSize;
+
 	return new Rectangle(PRINT_HMARGIN,
 			     PRINT_VMARGIN + tfm.getHeight() + 4,
 			     pageSize.width - 2 * PRINT_HMARGIN,
-			     pageSize.height - 2 * PRINT_VMARGIN - 
-			       tfm.getHeight() - ifm.getHeight() - 4);
+			     printHeight);
     }
 
     // --------------------------------------------------------------------
@@ -1411,7 +1448,8 @@ public final class MoeEditor extends JFrame
      * printFrame - part of the print function. Print the frame around the
      * page, including header and footer.
      */
-    private void printFrame(Graphics g, Rectangle printArea, int pageNum) 
+    private void printFrame(Graphics g, Rectangle printArea, int pageNum,
+			    String date) 
     {
 	FontMetrics tfm = getFontMetrics(printTitleFont);
 	FontMetrics ifm = getFontMetrics(printInfoFont);
@@ -1433,13 +1471,15 @@ public final class MoeEditor extends JFrame
 
 	// write header
 	g.setFont(printTitleFont);
-	Utility.drawCentredText(g, "Class " + windowTitle,
-				printArea.x, PRINT_VMARGIN, 
+	String title = "Class " + windowTitle;
+	if(pageNum > 1)
+	    title = title + " (continued)";
+	Utility.drawCentredText(g, title, printArea.x, PRINT_VMARGIN, 
 				printArea.width, tfm.getHeight()+4);
 
 	// write footer
 	g.setFont(printInfoFont);
-	Utility.drawRightText(g, (new Date()) + ", page " + pageNum,
+	Utility.drawRightText(g, "printed: " + date + ",   page " + pageNum,
 			      printArea.x, printArea.y + printArea.height,
 			      printArea.width, ifm.getHeight()+4);
     }
@@ -1723,7 +1763,7 @@ public final class MoeEditor extends JFrame
 	textPane.setCaretColor(cursorColor);
 
 	JScrollPane scrollPane = new JScrollPane(textPane);
-	scrollPane.setPreferredSize(new Dimension(600,400));
+	scrollPane.setPreferredSize(new Dimension(598,400));
 
 	contentPane.add(scrollPane, BorderLayout.CENTER);
 

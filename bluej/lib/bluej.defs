@@ -69,10 +69,12 @@ bluej.lookAndFeel=javax.swing.plaf.metal.MetalLookAndFeel
 # font for most of the interface components
 bluej.fontsize=12
 
-# fontsize for the editor
-bluej.fontsize.editor=24
+# fontsize for the editor (DO NOT CHANGE: changing edit font size currently 
+# does not work)
+bluej.fontsize.editor=12
 
 # fonts for printing
+bluej.fontsize.printText=10
 bluej.fontsize.printTitle=14
 bluej.fontsize.printInfo=10
 

@@ -1,3 +1,9 @@
+NOTES for changing to Java 2:
+
+  * replace "getPrintJob()" with "PrinterJob.getPrinterJob()"
+    and use Printerjob functions ("getUsername", layout, etc.)
+    Printing can be improved.
+
 Issues:
 
   * How do we deal with a case like:

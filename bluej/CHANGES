@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00068
+@bug#  : 00070
 @short : 
 @prio  : 
 @source: 
@@ -167,28 +167,16 @@ in the template for the next one):
 @cause : buggy original implementation
 
 @-------
-@bug#  : 00028
-@short : redefined operations appear twice in object popup
-@prio  : 2
-@source: mik
-@date  : 1999-02-01
+@bug#  : 00069
+@short : __SHELL files are not (always) deleted.
+@prio  : 3
+@source: students
+@date  : 1999-04-28
 @status: open
 @fixrel: 
-@descr : redefined operations appear twice in object popup (but should't)
-@cause : incorrect original implementation
-
-@-------
-@bug#  : 00029
-@short : keep order of operations in object popup the same as in source
-@prio  : 2
-@source: mik
-@date  : 1999-02-01
-@status: open
-@fixrel: 
-@descr : keep order of operations in object popup the same as in source
-	 also: check which methods are placed in "System methods" sub-menu;
-	 for String, for example, everything is in there, but shouldn't
-@cause : incorrect original implementation
+@descr : The __SHELL files are often not deleted and accumulate in the 
+	 directory.
+@cause : ?
 
 @-------
 @bug#  : 00022
@@ -437,17 +425,6 @@ in the template for the next one):
 @cause : new feature
 
 @-------
-@bug#  : 00053
-@short : printing
-@prio  : 4
-@source: mik
-@date  : 1999-02-01
-@status: open
-@fixrel: 
-@descr : printing does not work
-@cause : new feature
-
-@-------
 @bug#  : 00054
 @short : support for javadoc
 @prio  : 5
@@ -563,6 +540,52 @@ in the template for the next one):
 =======================================================================
 
 ============================ version 0.9.1 ============================
+
+@-------
+@bug#  : 00028
+@short : redefined operations appear twice in object popup
+@prio  : 2
+@source: mik
+@date  : 1999-02-01
+@status: closed, fixed (bruce, 1999-04-20)
+@fixrel: 0.9.1
+@descr : redefined operations appear twice in object popup (but should't)
+@cause : incorrect original implementation
+
+@-------
+@bug#  : 00029
+@short : keep order of operations in object popup the same as in source
+@prio  : 2
+@source: mik
+@date  : 1999-02-01
+@status: closed, fixed (bruce, 1999-04-20)
+@fixrel: 0.9.1
+@descr : keep order of operations in object popup the same as in source
+	 also: check which methods are placed in "System methods" sub-menu;
+	 for String, for example, everything is in there, but shouldn't
+@cause : incorrect original implementation
+
+@-------
+@bug#  : 00068
+@short : classes can be moved out of screen
+@prio  : 4
+@source: students
+@date  : 1999-04-02
+@status: closed, fixed (mik, 1999-04-27)
+@fixrel: 0.9.1
+@descr : classes can be moved so that they are not longer accessible
+@cause : buggy original implementation
+
+@-------
+@bug#  : 00053
+@short : printing
+@prio  : 4
+@source: mik
+@date  : 1999-02-01
+@status: closed, fixed (mik, 1999-04-27)
+@fixrel: 0.9.1
+@descr : printing does not work
+@cause : new feature
 
 @-------
 @bug#  : 00066

@@ -6,7 +6,7 @@
  **/
 public class MyClass
 {
-    // instance variables - replace the example below with your own
+    // instance variables - replace the example below with your own - replace the example below with your own - repla
     private int x;
     private String name;
 
@@ -49,7 +49,7 @@ public class MyClass
 
 	return x + 5;
     }
-
+xxxxxxxxx
     public int nested()
     {
 	int sum = 0;

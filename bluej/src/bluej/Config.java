@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Config.java 45 1999-04-28 01:01:18Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -52,6 +52,7 @@ public class Config
     private static String user_confdir;
     public static int fontsize;
     public static int editFontsize;
+    public static int printFontsize;
     public static int printTitleFontsize;
     public static int printInfoFontsize;
         
@@ -87,8 +88,9 @@ public class Config
 	Version = getString("main.version");
 	fontsize = Integer.parseInt(props.getProperty("bluej.fontsize","12"));
 	editFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.editor","12"));
+	printFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.printText","10"));
 	printTitleFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.printTitle","14"));
-	printInfoFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.printInfo","12"));
+	printInfoFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.printInfo","10"));
 	checkDebug(user_confdir);
 
     } // initialise

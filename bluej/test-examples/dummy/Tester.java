@@ -26,6 +26,8 @@ public class Tester
      **/
     public int sampleMethod(int y)
     {
+	x = y;
+	System.out.println("mik");
 	// put your code here
 	return x + y;
     }
