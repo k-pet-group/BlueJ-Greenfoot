@@ -14,7 +14,7 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1903 2003-04-27 11:58:54Z iau $
+ * @version    $Id: Submitter.java 1973 2003-05-21 13:52:41Z iau $
  */
 public class Submitter extends Extension implements MenuGenerator, PackageListener
 {
@@ -104,7 +104,7 @@ public class Submitter extends Extension implements MenuGenerator, PackageListen
      */
     public String getVersion()
     {
-        return "3.5";
+        return "3.6";
     }
 
     public String getName()
