@@ -11,15 +11,15 @@ public class Ant extends GreenfootObject
     private static long  antCount;
     
     private static final Random randomizer = AntWorld.getRandomizer();
-    private static final int[][] rotation = { { 270, 305, 0 },
-                                            { 225, 0, 45 },
-                                            { 180, 135, 90} };
-
+    
     // every how many steps can we place a pheromone drop
     private static final int MAX_PH_LEVEL = 5;
 
     // how long to we keep direction after finding pheromones:
     private static final int PH_TIME = 15;
+    
+    // the speed the ant moves with - in pizels per update
+    private static final int SPEED = 4; 
     
     // current movement
     private int deltaX = 0;
@@ -88,7 +88,7 @@ public class Ant extends GreenfootObject
         }
         else {
             randomWalk();
-        }
+        }        
         checkFood();
     }
     
@@ -161,9 +161,9 @@ public class Ant extends GreenfootObject
     {
         if(move) {
             if(current > home)
-                return -1;
+                return -SPEED;
             else
-                return 1;
+                return SPEED;
         }
         else
             return 0;
@@ -174,7 +174,23 @@ public class Ant extends GreenfootObject
      */
     private void checkHome()
     {
-        if((getX() == homeX) && (getY() == homeY)) {
+        Collection antHills = getWorld().getObjectsAt(getX(), getY(), AntHill.class);
+        Iterator it = antHills.iterator();
+        if( it.hasNext()) {
+            Object hill = it.next();
+            if(hill == homeHill) {
+                dropFood();
+            
+                // move one step to where we came from so that we set out back in the 
+                // right direction
+                deltaX = -deltaX;
+                deltaY = -deltaY;
+                move();
+                move();
+            }
+        }
+        //NOT WORKING - need to check home extent
+        /*if((getX() == homeX) && (getY() == homeY)) {
             dropFood();
             
             // move one step to where we came from so that we set out back in the 
@@ -183,7 +199,7 @@ public class Ant extends GreenfootObject
             deltaY = -deltaY;
             move();
             move();
-        }
+        }*/
     }
     
     /**
@@ -192,7 +208,7 @@ public class Ant extends GreenfootObject
     public void checkFood()
     {
        
-        Collection objectsHere = getWorld().getObjectsAtCell(getX(), getY(), Food.class, true);
+        Collection objectsHere = getWorld().getObjectsAt(getX(), getY(), Food.class);
         Iterator it = objectsHere.iterator();
         if( it.hasNext()) {
             Object thing = it.next();
@@ -216,7 +232,7 @@ public class Ant extends GreenfootObject
     public boolean smellPheromone()
     {
         long t1 = System.currentTimeMillis();
-        Collection objectsHere = getWorld().getObjectsAtCell(getX(), getY(), Pheromone.class, true);
+        Collection objectsHere = getWorld().getObjectsAt(getX(), getY(), Pheromone.class);
                    int i=0;
        for(Iterator it = objectsHere.iterator(); it.hasNext(); ) {
             Object thing = it.next();
@@ -241,9 +257,7 @@ public class Ant extends GreenfootObject
     private void dropPheromone()
     {
         Pheromone ph = new Pheromone();
-        ph.setLocation(
-        getX() - ph.getWidth()/getWorld().getCellWidth()/2,
-        getY() - ph.getHeight()/getWorld().getCellHeight()/2);
+        ph.setLocation(getX() - ph.getWidth() / 2, getY() - ph.getHeight() / 2);
        
         getWorld().addObject(ph);
         pheromoneLevel = 0;
@@ -275,22 +289,24 @@ public class Ant extends GreenfootObject
      */
     private int adjustSpeed(int speed)
     {
-        speed = speed + randomizer.nextInt(3) - 1;
+        speed = speed + randomizer.nextInt(2*SPEED -1) - SPEED+1;
         return capSpeed(speed);
     }
     
     /**
-     * The speed returned is in the range [-1 .. 1].
+     * The speed returned is in the range [-SPEED .. SPEED].
      */
     private int capSpeed(int speed)
     {
-        if(speed < 0)
-            return -1;
-        else if(speed > 0)
-            return 1;
+        if(speed < -SPEED)
+            return -SPEED;
+        else if(speed > SPEED)
+            return SPEED;
         else
-            return 0;
+            return speed;
     }
+    
+  
     
     /**
      * Move forward according to the current delta values.
@@ -298,7 +314,7 @@ public class Ant extends GreenfootObject
     private void move()
     {
         setLocation(getX() + deltaX, getY() + deltaY);
-        setRotation(rotation[deltaY+1][deltaX+1]);
+        setRotation(180*Math.atan2(deltaY,deltaX)/Math.PI+90 -45);
     }
     
     /**

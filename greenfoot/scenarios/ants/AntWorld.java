@@ -6,8 +6,8 @@ import java.util.Random;
 
 public class AntWorld extends GreenfootWorld
 {
-    public static final int RESOLUTION = 4;
-    public static final int SIZE = 100;
+    public static final int RESOLUTION = 1;
+    public static final int SIZE = 640;
     
     private static Random randomizer = new Random();
 
@@ -16,12 +16,11 @@ public class AntWorld extends GreenfootWorld
         return randomizer;
     }
     
-    /**
-     * Creates a new world with 20x20 cells and
-     * with a cell size of 50x50 pixels
-     */
+
     public AntWorld() {
-        super(SIZE, SIZE, RESOLUTION, RESOLUTION);
+        super(SIZE,SIZE);
+        
+        setBackgroundColor(Color.BLACK);
         setBackgroundImage("sand.jpg");
         setTiledBackground(true);
     }

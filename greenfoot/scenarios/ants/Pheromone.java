@@ -60,10 +60,10 @@ public class Pheromone extends GreenfootObject
     }
     
     public int getCenterX() {
-        return getX() + getWidth()/getWorld().getCellWidth()/2;
+        return getX() + getWidth()/2;
     }
     
     public int getCenterY() {
-        return getY() + getHeight()/getWorld().getCellHeight()/2;
+        return getY() + getHeight()/2;
     }
 }

@@ -6,7 +6,7 @@ import java.util.Random;
 public class AntHill extends GreenfootObject
 {
     private final static Random randomizer = AntWorld.getRandomizer();
-    private final static int DEFAULT_MAX_ANTS = 50;
+    private final static int DEFAULT_MAX_ANTS = 20;
     
     // number of ants created so far
     private int ants = 0;
@@ -29,7 +29,7 @@ public class AntHill extends GreenfootObject
     {
         if(ants < maxAnts) {
             if(randomizer.nextInt(100) < 10) {            
-                getWorld().addObject(new Ant(getX() + 2, getY() + 2, this));
+                getWorld().addObject(new Ant(getX() + getWidth()/2, getY() + getHeight()/2, this));
                 ants++;
             }
         }
@@ -44,8 +44,8 @@ public class AntHill extends GreenfootObject
             foodCounter = new Counter("Food: ");
             int x = getX();
             int y = getY() + 8;
-            if(y >= getWorld().getWorldHeight()) {
-                y = getWorld().getWorldHeight();    
+            if(y >= getWorld().getHeight()) {
+                y = getWorld().getHeight();    
             }
 
             foodCounter.setLocation(getX(), getY() + 8);
