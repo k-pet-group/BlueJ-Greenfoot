@@ -7,6 +7,7 @@ import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import com.sun.jdi.ObjectReference;
+import java.util.*;
 
 /**
  * A wrapper for an object on the BlueJ object bench.
@@ -15,7 +16,7 @@ import com.sun.jdi.ObjectReference;
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 1961 2003-05-20 10:41:24Z damiano $
+ * @version $Id: BObject.java 1962 2003-05-20 13:47:15Z damiano $
  */
 
 /*
@@ -139,7 +140,11 @@ public class BObject
     {
         if ( ! isValid() ) return null;
 
-        return new BClass (wrapper.getPackage(), wrapper.getClassName());
+        Package bluejPkg  = wrapper.getPackage();
+        Project bluejProj = bluejPkg.getProject();
+        String  className = transJavaToClass(wrapper.getClassName());
+
+        return new BClass ( new Identifier (bluejProj,bluejPkg, className));
     } 
 
     /**
@@ -174,4 +179,52 @@ public class BObject
       }
 
 
-}   
+// ============================ UTILITY ========================================
+
+   private static HashMap primiMap;
+
+   static
+      {
+      // This will be executed once when this class is loaded
+      primiMap = new HashMap();
+      primiMap.put ("boolean", "Z");
+      primiMap.put ("byte", "B");
+      primiMap.put ("short", "S");
+      primiMap.put ("char", "C");
+      primiMap.put ("int", "I");
+      primiMap.put ("long", "J");
+      primiMap.put ("float", "F");
+      primiMap.put ("double", "D");
+      }
+
+  /**
+   * Needed to convert java style class names to classloaded class names.
+   * From: java.lang.String[]
+   * To:   [Ljava.lang.String;
+   */
+  private String transJavaToClass ( String javaStyle )
+    {
+    String className = javaStyle;
+
+    int arrayCount = 0;
+    while (className.endsWith ("[]")) 
+      {
+      // Counts how may arrays are in this class name
+      arrayCount++;
+      className = className.substring (0, className.length()-2);
+      }
+
+    // No array around, nothing to do.  
+    if (arrayCount <= 0) return className;
+        
+    String replace = (String)primiMap.get(className);
+
+    // If I can substitute the name I will do it
+    if (replace != null)  className = replace;
+    else                  className = "L"+className+";";
+            
+    while (arrayCount-- > 0) className = "["+className;
+          
+    return className;
+    }
+  }   

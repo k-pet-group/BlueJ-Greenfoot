@@ -21,42 +21,48 @@ package bluej.extensions;
  * Then, the solution is to put all that is needed in here and have this class only deal with 
  * checking the mess of it...
  * 
+ * NOTE on class Names: Most of the time we would like the qualified form of the class name
+ * however there are cases when we need the short form, it seems reasonable to store the
+ * long form and derive the short one.
+ * 
  */
 
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
 
 import java.io.File;
+import bluej.pkgmgr.target.*;
+import bluej.views.*;
 
  
 class Identifier 
   {
-  private final File   projectId;
-  private final String packageId;
-  private final String classId;
-  private final String objectId;
+  private File   projectId;
+  private String packageId;
+  private String qualifiedClassName;
+  private String objectId;
   
   public Identifier(Project bleujProject)
     {
     projectId = bleujProject.getProjectDir();
-    packageId = null;
-    classId   = null;
-    objectId  = null;
     }
 
   public Identifier (Project bluejProject, Package bluejPackage )
     {
     projectId = bluejProject.getProjectDir();
     packageId = bluejPackage.getQualifiedName();
-    classId   = null;
-    objectId  = null;
     }
 
-  public File getProjectId()
+  public Identifier (Project bluejProject, Package bluejPackage, String aQualifiedClassName )
     {
-    return projectId;
+    projectId = bluejProject.getProjectDir();
+    packageId = bluejPackage.getQualifiedName();
+    qualifiedClassName = aQualifiedClassName;
     }
-    
+
+  /**
+   * Returns the blueJProject by checking its existence
+   */
   public Project getBluejProject ()
     {
     return Project.getProject(projectId);      
@@ -67,8 +73,44 @@ class Identifier
    */
   public Package getBluejPackage ()
     {
-    Project thisProject = getBluejProject();
-    Package thisPackage = thisProject.getPackage(packageId);
-    return  thisPackage;
+    Project bluejProject = getBluejProject();
+    Package bluejPkg = bluejProject.getPackage(packageId);
+    return  bluejPkg;
+    }
+
+  /**
+   * Returns the Java class that is associated with this name in this package
+   */
+  public Class getJavaClass ()
+    {
+    Project bluejPrj = getBluejProject();
+    return bluejPrj.loadClass(qualifiedClassName);
+    }
+
+  /**
+   * Returns the class target of this java class by checking its existence
+   */
+  ClassTarget getClassTarget ()
+    {
+    Package bluejPkg = getBluejPackage();
+
+    String className = qualifiedClassName;
+    int dotpos = qualifiedClassName.lastIndexOf(".");
+    if ( dotpos > 0 ) className = qualifiedClassName.substring(dotpos+1);
+    Target aTarget = bluejPkg.getTarget(className);
+    
+    if ( aTarget instanceof ClassTarget ) return (ClassTarget)aTarget;
+
+    return null;
+    }
+
+  /**
+   * Returns the view associated with this Class
+   */
+  View getBluejView ()
+    {
+    Class aClass = getJavaClass();
+
+    return View.getView(aClass);
     }
 }

@@ -8,52 +8,27 @@ import bluej.views.*;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A wrapper for a BlueJ class. 
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
- * For all methods the return value is null if the class is not compiled.
  * 
- * @version $Id: BClass.java 1961 2003-05-20 10:41:24Z damiano $
+ * @version $Id: BClass.java 1962 2003-05-20 13:47:15Z damiano $
  */
+
 public class BClass
 {
-    private Package  bluej_pkg;
-    private final ClassTarget classTarget;
-    private final Class loadedClass;
-    private final View  bluej_view;
+    private Identifier classId;
 
-    BClass (Package i_bluej_pkg, ClassTarget aClassTarget)
-    {
-        bluej_pkg   = i_bluej_pkg;
-        classTarget = aClassTarget;
-        loadedClass = bluej_pkg.loadClass (classTarget.getQualifiedName());
-        bluej_view  = View.getView (loadedClass);
-//System.out.println ("BClass0.qualifiedName="+classTarget.getQualifiedName());        
-    }
-
-
-    BClass (Package i_bluej_pkg, String className)
-    {
-//System.out.println ("BClass1.className="+className);
-//System.out.println ("BClass1.classNameClass="+transJavaToClass(className));
-        bluej_pkg   = i_bluej_pkg;
-        classTarget = (ClassTarget)bluej_pkg.getTarget(transJavaToClass(className));
-        loadedClass = bluej_pkg.loadClass (transJavaToClass(className));
-        bluej_view  = View.getView (loadedClass);
-    }
-
-    private BClass (Package i_bluej_pkg, View view)
-    {
-        bluej_pkg   = i_bluej_pkg;
-        bluej_view  = view;
-        classTarget = (ClassTarget)bluej_pkg.getTarget(view.getQualifiedName());
-        loadedClass = bluej_pkg.loadClass (view.getQualifiedName());
-    }
-
+    /**
+     * Constructor for the BClass.
+     * It is duty of the caller to guarantee that it is a reasonable classId
+     */
+    BClass ( Identifier thisClassId )
+      {
+      classId = thisClassId;
+      }
 
     /**
      * Returns the Java class being wrapped by this BClass.
@@ -68,7 +43,7 @@ public class BClass
      */
     public Class getJavaClass ()
       {
-      return loadedClass;
+      return classId.getJavaClass();
       }
 
     /**
@@ -77,9 +52,10 @@ public class BClass
      */
     public BPackage getPackage()
     {
-        Project bluejProject = bluej_pkg.getProject();
-        Identifier anId = new Identifier (bluejProject, bluej_pkg );
-        return new BPackage (anId);
+        Project bluejProject = classId.getBluejProject();
+        Package bluejPkg = classId.getBluejPackage();
+
+        return new BPackage (new Identifier (bluejProject, bluejPkg ));
     }
     
       
@@ -90,9 +66,11 @@ public class BClass
      */
     public boolean isCompiled()
     {
-        if (classTarget == null) return true;
+        ClassTarget aTarget = classId.getClassTarget();
 
-        return classTarget.isCompiled();
+        if (aTarget == null) return true;
+
+        return aTarget.isCompiled();
     }
     
     /**
@@ -102,11 +80,18 @@ public class BClass
      */
     public boolean compile()
     {
-        if (classTarget == null) return true;
-        if (isCompiled()) return true;
-        classTarget.compile (null);
+        ClassTarget aTarget = classId.getClassTarget();
+    
+        if (aTarget == null) return true;
+        
+        if (aTarget.isCompiled()) return true;
+        
+        aTarget.compile (null);
+
+        // Wait for the compilation to finish !
         JobQueue.getJobQueue().waitForEmptyQueue();
-        return isCompiled();
+
+        return aTarget.isCompiled();
     }
 
     /**
@@ -116,10 +101,20 @@ public class BClass
     public BClass getSuperclass()
     {
         // This method is needed otherwise you cannot get a superclass of this BClass.
-        View sup = bluej_view.getSuper();
-        if ( sup == null ) return null;
+
+        View bluejView = classId.getBluejView();
         
-        return new BClass (bluej_pkg, sup);
+        View superView = bluejView.getSuper();
+        
+        if ( superView == null ) return null;
+
+        // WARNING: This is most likely wrong !
+        Project bluejPrj = classId.getBluejProject();
+        // WARNING: This is most likely wrong !
+        Package bluejPkg = classId.getBluejPackage();
+        String  className = superView.getQualifiedName();
+        
+        return new BClass (new Identifier (bluejPrj, bluejPkg, className ));
     }
     
     /**
@@ -128,12 +123,13 @@ public class BClass
      */
     public BConstructor[] getConstructors()
         {
-        if ( ! isCompiled() ) return new BConstructor[0];
-
-        ConstructorView[] constructorViews = bluej_view.getConstructors();
+        View bluejView   = classId.getBluejView();
+        Package bluejPkg = classId.getBluejPackage();
+        
+        ConstructorView[] constructorViews = bluejView.getConstructors();
         BConstructor[] result = new BConstructor [constructorViews.length];
         for (int index=0; index<constructorViews.length; index++) 
-            result[index] = new BConstructor (bluej_pkg, constructorViews[index]);
+            result[index] = new BConstructor (bluejPkg, constructorViews[index]);
 
         return result;
         }
@@ -148,12 +144,13 @@ public class BClass
      */
     public BConstructor getConstructor (Class[] signature)
         {
-        if (!isCompiled()) return null;
+        View bluejView = classId.getBluejView();
+        Package bluejPkg = classId.getBluejPackage();
         
-        ConstructorView[] constructorViews = bluej_view.getConstructors();
+        ConstructorView[] constructorViews = bluejView.getConstructors();
         for (int index=0; index<constructorViews.length; index++) 
             {
-            BConstructor aConstr = new BConstructor (bluej_pkg, constructorViews[index]);
+            BConstructor aConstr = new BConstructor (bluejPkg, constructorViews[index]);
             if (aConstr.matches (signature)) return aConstr;
             }
         return null;
@@ -166,13 +163,14 @@ public class BClass
      */
     public BMethod[] getDeclaredMethods()
     {
-        if (!isCompiled()) return new BMethod[0];
+        View bluejView = classId.getBluejView();
+        Package bluejPkg = classId.getBluejPackage();
         
-        MethodView[] methodView = bluej_view.getDeclaredMethods();
+        MethodView[] methodView = bluejView.getDeclaredMethods();
         BMethod[] methods = new BMethod [methodView.length];
 
         for (int index=0; index<methods.length; index++)
-            methods[index] = new BMethod (bluej_pkg, methodView[index] );
+            methods[index] = new BMethod (bluejPkg, methodView[index] );
 
         return methods;
     }
@@ -183,14 +181,15 @@ public class BClass
      */
     public BMethod getDeclaredMethod(String methodName, Class[] params )
         {
-        if (!isCompiled()) return null;
+        View bluejView = classId.getBluejView();
+        Package bluejPkg = classId.getBluejPackage();
         
-        MethodView[] methodView = bluej_view.getDeclaredMethods();
+        MethodView[] methodView = bluejView.getDeclaredMethods();
         BMethod[] methods = new BMethod [methodView.length];
 
         for (int index=0; index<methods.length; index++)
             {
-            BMethod aResul = new BMethod (bluej_pkg, methodView[index]);
+            BMethod aResul = new BMethod (bluejPkg, methodView[index]);
             if ( aResul.matches(methodName, params) ) return aResul;
             }
 
@@ -204,12 +203,13 @@ public class BClass
      */
     public BField[] getFields()
         {
-        if (!isCompiled()) return null;
+        View bluejView = classId.getBluejView();
+        Package bluejPkg = classId.getBluejPackage();
 
-        FieldView[] fieldView = bluej_view.getAllFields();
+        FieldView[] fieldView = bluejView.getAllFields();
         BField[] bFields = new BField [fieldView.length];
         for ( int index=0; index<fieldView.length; index++)
-            bFields[index] = new BField (bluej_pkg,fieldView[index]);
+            bFields[index] = new BField (bluejPkg,fieldView[index]);
             
         return bFields;
         }
@@ -221,13 +221,15 @@ public class BClass
      */
     public BField getField(String fieldName)
         {
-        if (!isCompiled()) return null;
         if ( fieldName == null ) return null;
+
+        View bluejView   = classId.getBluejView();
+        Package bluejPkg = classId.getBluejPackage();
         
-        FieldView[] fieldView = bluej_view.getAllFields();
+        FieldView[] fieldView = bluejView.getAllFields();
         for ( int index=0; index<fieldView.length; index++)
             {
-            BField result = new BField (bluej_pkg,fieldView[index]);
+            BField result = new BField (bluejPkg,fieldView[index]);
             if ( result.matches(fieldName) ) return result;
             }
             
@@ -235,50 +237,14 @@ public class BClass
         }
 
 
-     // ====================== UTILITY AREA ====================================
-     private static Map primiMap;
-
-     static
-        {
-        // This will be executed once when this class is loaded
-        primiMap = new HashMap();
-        primiMap.put ("boolean", "Z");
-        primiMap.put ("byte", "B");
-        primiMap.put ("short", "S");
-        primiMap.put ("char", "C");
-        primiMap.put ("int", "I");
-        primiMap.put ("long", "J");
-        primiMap.put ("float", "F");
-        primiMap.put ("double", "D");
-        }
-
     /**
-     * Needed to convert java style class names to classloaded class names.
+     * Returns a string representation of the Object
      */
-    private String transJavaToClass ( String javaStyle )
-        {
-        String className = javaStyle;
+    public String toString ()
+      {
+      Class javaClass = classId.getJavaClass();
+      if (javaClass == null) return "BClass: INVALID";
 
-        int arrayCount = 0;
-        while (className.endsWith ("[]")) 
-          {
-          // Counts how may arrays are in this class name
-          arrayCount++;
-          className = className.substring (0, className.length()-2);
-          }
-
-        // No array around, nothing to do.  
-        if (arrayCount <= 0) return className;
-        
-        String replace = (String)BClass.primiMap.get(className);
-
-        // If I can substitute the name I will do it
-        if (replace != null)  className = replace;
-        else                  className = "L"+className+";";
-            
-        while (arrayCount-- > 0) className = "["+className;
-          
-        return className;
-        }
-
+      return "BClass: "+javaClass.getName();
+      }
     }   

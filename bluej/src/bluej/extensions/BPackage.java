@@ -19,7 +19,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1961 2003-05-20 10:41:24Z damiano $
+ * @version $Id: BPackage.java 1962 2003-05-20 13:47:15Z damiano $
  */
 
 /*
@@ -87,14 +87,17 @@ public class BPackage
      */
     public BClass getBClass (String name)
     {
+        Project bluejPrj = packageId.getBluejProject();
         Package bluejPkg = packageId.getBluejPackage();
 
-        Target classTarget = bluejPkg.getTarget (name);
+        Target aTarget = bluejPkg.getTarget (name);
 
-        if (classTarget == null ) return null;
-        if ( !(classTarget instanceof ClassTarget)) return null;
+        if ( aTarget == null ) return null;
+        if ( !(aTarget instanceof ClassTarget)) return null;
+
+        ClassTarget classTarget = (ClassTarget)aTarget;
         
-        return new BClass (bluejPkg, (ClassTarget)classTarget);
+        return new BClass (new Identifier (bluejPrj,bluejPkg, classTarget.getQualifiedName()));
     }
     
     /**
@@ -103,15 +106,19 @@ public class BPackage
      */
     public BClass[] getBClasses()
     {
+        Project bluejPrj = packageId.getBluejProject();
         Package bluejPkg = packageId.getBluejPackage();
+
+        String pkgBasename = bluejPkg.getBaseName();
+        if ( pkgBasename.length() > 1 ) pkgBasename = pkgBasename+".";
         
         List names = bluejPkg.getAllClassnames();
+        
         BClass[] classes = new BClass [names.size()];
         for (ListIterator iter=names.listIterator(); iter.hasNext();) {
             int index=iter.nextIndex();
-            String name = (String)iter.next();
-System.out.println ("BPackage.classname="+name);            
-            classes [index] = getBClass (name);
+            String className = pkgBasename+(String)iter.next();
+            classes [index] = new BClass (new Identifier (bluejPrj,bluejPkg,className));
         }
         return classes;
     }

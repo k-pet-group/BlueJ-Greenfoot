@@ -11,7 +11,6 @@ package bluej.editor.moe;
 import javax.swing.*;
 
 import bluej.*;
-import bluej.Config;
 import bluej.prefmgr.*;
 
 /**
@@ -20,7 +19,7 @@ import bluej.prefmgr.*;
 * archive) with an associated description.
 * 
 * @author Andrew Patterson
-* @version $Id: MoeEditorPrefPanel.java 1923 2003-04-30 06:11:12Z ajp $
+* @version $Id: MoeEditorPrefPanel.java 1962 2003-05-20 13:47:15Z damiano $
 */
 public class MoeEditorPrefPanel extends JPanel implements PrefPanelListener {
 

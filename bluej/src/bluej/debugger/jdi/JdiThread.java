@@ -1,6 +1,5 @@
 package bluej.debugger.jdi;
 
-import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerClass;
@@ -21,7 +20,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: JdiThread.java 1962 2003-05-20 13:47:15Z damiano $
  */
 public final class JdiThread extends DebuggerThread
 {
