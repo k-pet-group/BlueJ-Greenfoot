@@ -1,7 +1,0 @@
-known bugs in Red:
-
- 'editors' in RedEditorManager: editors without filenames are not added.
-    This causes problems when determining when to close Red (and other
-    problems). Should probably not use a hash table.
-
- - add finalise in RedEditor to do frame.dispose
