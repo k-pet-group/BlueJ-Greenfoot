@@ -6,7 +6,7 @@ import java.util.Vector;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunThread.java 63 1999-05-04 00:03:10Z mik $
+ ** @version $Id: SunThread.java 69 1999-05-11 04:23:02Z bruce $
  ** @author Michael Cahill
  ** A class implementing the debugger primitives needed by BlueJ
  ** Implemented in a remote VM (via sun.tools.debug)
@@ -138,7 +138,7 @@ public class SunThread extends DebuggerThread
 		RemoteValue value = thisVar.getValue();
 		if(value == null)
 		    return new Vector();
-		SunObject obj = new SunObject((RemoteObject)value);
+		SunObject obj = (SunObject)SunObject.getDebuggerObject((RemoteObject)value);
 
 		String[] staticVar = obj.getStaticFields(false);
 		String[] instVar = obj.getFields(false);

@@ -1,13 +1,24 @@
 package bluej.debugger;
 
+import sun.tools.debug.RemoteObject;
+
 /**
- ** @version $Id: DebuggerObject.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: DebuggerObject.java 69 1999-05-11 04:23:02Z bruce $
  ** @author Michael Cahill
  ** A class representing an object in the debugged VM
  **/
 
 public abstract class DebuggerObject extends DebuggerValue
 {
+   
+   /**
+     * Return an instance of new DebuggerObject.
+     */
+    public static DebuggerObject getDebuggerObject(RemoteObject obj)
+    {
+	return SunObject.getDebuggerObject(obj);
+    }
+
     /**
      * Get the name of the class of this object.
      */

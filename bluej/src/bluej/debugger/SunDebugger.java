@@ -11,7 +11,7 @@ import java.util.Vector;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunDebugger.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: SunDebugger.java 69 1999-05-11 04:23:02Z bruce $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -228,7 +228,7 @@ public class SunDebugger extends Debugger
     {
 	RemoteClass cl = getDebugger().findClass(className);
 	RemoteObject obj = (RemoteObject)cl.getFieldValue(fieldName);
-	DebuggerObject ret = new SunObject(obj);
+	DebuggerObject ret = DebuggerObject.getDebuggerObject(obj);
 		
 	return ret;
     }

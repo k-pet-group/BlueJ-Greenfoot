@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: Config.java 69 1999-05-11 04:23:02Z bruce $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -59,6 +59,9 @@ public class Config
     public static int printFontsize;
     public static int printTitleFontsize;
     public static int printInfoFontsize;
+
+    // Swing JSplitPane divider width constant for uniform look and feel
+    public static final int splitPaneDividerWidth = 5;
 	
     private static boolean initialised = false;
 

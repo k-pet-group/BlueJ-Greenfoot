@@ -5,11 +5,13 @@ import sun.tools.debug.RemoteField;
 import sun.tools.debug.RemoteObject;
 import sun.tools.debug.RemoteString;
 import sun.tools.debug.RemoteValue;
+import sun.tools.debug.RemoteArray;
 
 import bluej.utility.Utility;
+import bluej.utility.Debug;
 
 /**
- ** @version $Id: SunObject.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: SunObject.java 69 1999-05-11 04:23:02Z bruce $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -19,10 +21,32 @@ import bluej.utility.Utility;
 public class SunObject extends DebuggerObject
 {
     RemoteObject obj;
-	
-    public SunObject(RemoteObject obj)
+
+    protected SunObject(){}
+
+    /**
+     * Constructor is private so that instances need to use getSunObject factory method.
+     * @param obj the remote debugger object (Sun code) this encapsulates.
+     */	
+    private SunObject(RemoteObject obj)
     {
 	this.obj = obj;
+    }
+
+
+   /**
+     * Factory method that returns instances of SunObjects.
+     * @param obj the remote debugger object (Sun code) this encapsulates.
+     * @return a new SunObject or a new SunArray object if remote object is an array
+     */	
+    public static DebuggerObject getDebuggerObject(RemoteObject obj)
+    {
+	if(obj instanceof RemoteArray) {
+      	    return new SunArray((RemoteArray)obj);
+	}	
+	else {
+	    return new SunObject(obj);
+	}
     }
 	
     /**
@@ -37,7 +61,6 @@ public class SunObject extends DebuggerObject
 	} catch(Exception e) {
 	    // ignore it
 	}
-		
 	return name;
     }
 	
@@ -54,9 +77,9 @@ public class SunObject extends DebuggerObject
 	} catch(Exception e) {
 	    // ignore it
 	}
-
 	return false;
     }
+
 	
     /**
      * Return the number of static fields.
@@ -144,8 +167,9 @@ public class SunObject extends DebuggerObject
 	    RemoteValue val = obj.getFieldValue(slot);
 	    if(val == null)
 		return false;
-	    else
+	    else {
 		return (val instanceof RemoteObject);
+	    }
 	} catch(Exception e) {
 	    return false;
 	}
@@ -184,7 +208,8 @@ public class SunObject extends DebuggerObject
     /**
      * Return the object in static field 'slot'.
      *
-     * @arg slot  The slot number to be returned
+     * @param slot  The slot number to be returned
+     * @return the object at slot or null if slot does not exist
      */
     public DebuggerObject getStaticFieldObject(int slot)
     {
@@ -205,7 +230,7 @@ public class SunObject extends DebuggerObject
     {
 	try {
 	    RemoteValue val = obj.getFieldValue(slot);
-	    return new SunObject((RemoteObject)val);
+	    return SunObject.getDebuggerObject((RemoteObject)val); 
 	} catch(Exception e) {
 	    return null;
 	}
@@ -222,9 +247,11 @@ public class SunObject extends DebuggerObject
 		
 	try {
 	    RemoteClass rclass = obj.getClazz();
+
 	    RemoteField[] rfields = rclass.getFields();
+
 	    fields = new String[rfields.length];
-			
+	    
 	    for(int i = 0; i < rfields.length; i++) {
 		RemoteValue val = rclass.getFieldValue(i);
 		String valString;
@@ -248,7 +275,6 @@ public class SunObject extends DebuggerObject
 	    e.printStackTrace(System.err);
 	    fields = new String[0];
 	}
-		
 	return fields;
     }
 	
@@ -259,7 +285,6 @@ public class SunObject extends DebuggerObject
     public String[] getFields(boolean includeModifiers)
     {
 	String[] fields;
-		
 	try {
 	    RemoteField[] rfields = obj.getFields();
 	    fields = new String[rfields.length];

@@ -18,7 +18,7 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 60 1999-05-03 02:22:57Z mik $
+ ** @version $Id: MethodDialog.java 69 1999-05-11 04:23:02Z bruce $
  **
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -138,7 +138,7 @@ public class MethodDialog extends JDialog
 	// Set dialog items depends on the Dialog type
 	//
 	switch (dialogType) {
-
+	
 	case MD_CALL:		
 	    makeCallDialog(instanceName, method, paramNames, centerPanel);
 	    break;
@@ -147,7 +147,7 @@ public class MethodDialog extends JDialog
 	    makeCreateDialog(className, instanceName, method, paramNames, 
 			     centerPanel);
 	    break;
-
+	    
 	default:	// error!
 	    throw new Error("Invalid MethodDialog type " + dialogType);
 	}
