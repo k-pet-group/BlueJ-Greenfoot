@@ -1,4 +1,4 @@
-package javablue.GUIGraphics;
+package bluej.guibuilder.graphics;
 
 import java.awt.Button;
 import java.awt.event.*;

@@ -7,7 +7,6 @@ import java.io.*;
 import java.util.Vector;
 import bluej.pkgmgr.*;
 import bluej.editor.*;
-import bluej.editor.red.*;
 
 
 /**
@@ -62,12 +61,6 @@ class GUIDialog extends Dialog implements GUIComponentNormalNode
 		if (target.editorOpen())
 		{
 		    Editor editor = target.getEditor();
-		    if (editor instanceof RedEditor)
-		    {
-			((RedEditor)editor).change_filename(target.sourceFile());
-			((RedEditor)editor).do_revert();
-		    }
-		    else
 			editor.close();
 		}
 	    }

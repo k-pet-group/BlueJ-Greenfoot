@@ -7,7 +7,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 
-import bluej.pkgmgr.*;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.ClassTarget;
 import bluej.editor.*;
 import bluej.editor.moe.*;
 
@@ -56,7 +57,7 @@ public class StructureContainer implements Serializable
 	    target.setInterface(false);
 	    pkg.addTarget(target);
 	    target.invalidate();
-	    pkg.getFrame().setModified(true);
+//	    pkg.getFrame().setModified(true);
 	}
 
 	((Window)guiTree).addWindowListener(windowHandler);
@@ -220,10 +221,7 @@ public class StructureContainer implements Serializable
 	    if (target.editorOpen())
 	    {
 		Editor editor = target.getEditor();
-		if (editor instanceof RedEditor)
-		    ((RedEditor)target.getEditor()).do_revert();
-		else
-		    target.getEditor().reopen();
+	    	target.getEditor().reloadFile();
 	    }
 
 	    target.invalidate();

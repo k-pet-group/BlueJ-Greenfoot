@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.image.FilteredImageSource;
 import java.awt.event.*;
 import java.util.Vector;
-import javablue.gui.image.BlackAndWhiteFilter;
+import bluej.gui.image.BlackAndWhiteFilter;
 
 /**
  * An Image painted in a Canvas, bordered by a ThreeDRectangle.

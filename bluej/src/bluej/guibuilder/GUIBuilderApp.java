@@ -307,7 +307,7 @@ public class GUIBuilderApp extends Frame
 	center = new TabControl(label, panel);
 
 	// Initialize action-buttons and status bar:
-	south.add(new Separator());
+	//south.add(new Separator());
 	String[] modeButton = {"Delete", "Move", "Properties"};
 	Button tmpButton;
 	for(int i=0; i<3 ; i++)
@@ -316,7 +316,7 @@ public class GUIBuilderApp extends Frame
 	    tmpButton.addActionListener (buttonListener);
 	    south.add(tmpButton);
 	}
-	south.add(new Separator());
+	//south.add(new Separator());
 	south.add(status);
 
 	// Add everything:
