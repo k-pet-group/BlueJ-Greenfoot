@@ -13,7 +13,7 @@ import java.util.*;
  * if the line starts with a dot.
  * 
  * @author Clive Miller
- * @version $Id: SmtpSession.java 1959 2003-05-17 14:23:40Z damiano $
+ * @version $Id: SmtpSession.java 1974 2003-05-21 13:53:26Z iau $
  */
 
 public class SmtpSession extends TransportSession
@@ -123,7 +123,6 @@ public class SmtpSession extends TransportSession
       connection.sendln ("Content-Type: multipart/mixed; boundary=\""+boundaryString+"\"");
       connection.sendln ("");
       connection.sendln ("This is a multi-part message in MIME format.");
-      connection.sendln ("");
       }
 
     private void sendMimeText (String theText) throws IOException
@@ -154,12 +153,13 @@ public class SmtpSession extends TransportSession
       connection.sendln ("");
 
       int lineCount = sendStreamToServer ( new InputStreamReader(is) );
-
+      
       reportLog ("===> sent text file "+name+" lineCount="+lineCount);
       }
 
     private void sendBoundary (boolean end) throws IOException
     {
+        connection.nologSendln("");   // RFC2046 section 5.1.1, second note
         connection.sendln ("--"+boundaryString+ (end ? "--":""));
     }
 
