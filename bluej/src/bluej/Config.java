@@ -32,7 +32,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2453 2004-01-14 03:58:23Z ajp $
+ * @version $Id: Config.java 2502 2004-04-19 13:59:05Z polle $
  */
 
 public final class Config
@@ -338,6 +338,45 @@ public final class Config
         return loadDefs(language + File.separator + "moe.help");
     }
 
+    /**
+     * Tests if the specified object is a key in this hashtable.
+     * 
+     * @param   key   possible key.
+     * @return  <code>true</code> if and only if the specified object 
+     *          is a key, as determined by the 
+     *          <tt>equals</tt> method; <code>false</code> otherwise.
+     * @throws  NullPointerException  if the key is <code>null</code>.     
+     */
+    public static boolean systemContainsKey(String key) {
+        return system_props.containsKey(key);
+    }
+    
+    /**
+     * Tests if the specified object is a key in this hashtable.
+     * 
+     * @param   key   possible key.
+     * @return  <code>true</code> if and only if the specified object 
+     *          is a key, as determined by the 
+     *          <tt>equals</tt> method; <code>false</code> otherwise.
+     * @throws  NullPointerException  if the key is <code>null</code>.     
+     */
+    public static boolean userContainsKey(String key) {
+        return user_props.containsKey(key);
+    }
+    
+    /**
+     * Tests if the specified object is a key in this hashtable.
+     * 
+     * @param   key   possible key.
+     * @return  <code>true</code> if and only if the specified object 
+     *          is a key, as determined by the 
+     *          <tt>equals</tt> method; <code>false</code> otherwise.
+     * @throws  NullPointerException  if the key is <code>null</code>.     
+     */
+    public static boolean commandContainsKey(String key) {
+        return command_props.containsKey(key);
+    }
+    
     /**
      * Get a string from the language dependent definitions file
      * (eg. "english/labels").
