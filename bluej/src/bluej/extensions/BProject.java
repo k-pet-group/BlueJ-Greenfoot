@@ -3,14 +3,13 @@ package bluej.extensions;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
 
-import java.io.File;
-import java.util.List;
-import java.util.ListIterator;
+import java.io.*;
+import java.util.*;
 
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 2213 2003-10-13 09:55:27Z damiano $
+ * @version $Id: BProject.java 2266 2003-11-05 11:20:26Z damiano $
  */
 
 /*
@@ -75,6 +74,9 @@ public class BProject
         thisProject.saveAll();
         Project.closeProject (thisProject);
     }
+
+
+
     
     /**
      * Returns a new Package with the given fully qualified name.
@@ -106,6 +108,14 @@ public class BProject
 
         if ( pkg == null ) 
             throw new IllegalStateException("newPackage: getPackage '"+fullyQualifiedName+"' returned null");
+
+        Package reloadPkg=pkg;
+        while(reloadPkg != null) {
+            // This is needed since the GUI is not sync with the state
+            reloadPkg.reload();
+            reloadPkg = reloadPkg.getParent();
+        }
+
 
         return new BPackage (new Identifier (bluejProject,pkg));
     }

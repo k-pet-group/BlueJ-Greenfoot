@@ -5,6 +5,7 @@ import bluej.debugmgr.objectbench.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
+import bluej.utility.*;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -16,7 +17,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2212 2003-10-13 08:41:47Z damiano $
+ * @version $Id: BPackage.java 2266 2003-11-05 11:20:26Z damiano $
  */
 
 /*
@@ -45,10 +46,11 @@ public class BPackage
     public void remove() 
         throws ProjectNotOpenException, PackageNotFoundException
     {
-        Package bluejPkg = packageId.getBluejPackage();
-        Project bluejProject = packageId.getBluejProject();
+        Package bluejPkg  = packageId.getBluejPackage();
+        Package parentPkg = bluejPkg.getParent();
 
-        bluejProject.removePackage(bluejPkg.getQualifiedName());
+        PackageTarget pkgTarget=(PackageTarget)parentPkg.getTarget(bluejPkg.getBaseName());
+        pkgTarget.removeImmediate();
     }
 
     /**
