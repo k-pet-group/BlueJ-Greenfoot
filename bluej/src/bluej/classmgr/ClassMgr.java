@@ -24,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2850 2004-08-06 14:32:26Z mik $
+ * @version $Id: ClassMgr.java 3057 2004-10-21 02:52:15Z bquig $
  */
 public class ClassMgr
 {
@@ -34,8 +34,8 @@ public class ClassMgr
                             = Config.getString("classmgr.error.missingbootclasspath");
 
     private static final String userlibPrefix = "bluej.userlibrary";
-//    private static final String syslibPrefix = "bluej.systemlibrary";  // remove (mik)
-
+    private static final String syslibPrefix = "bluej.systemlibrary";
+    
     private static ClassMgr currentClassMgr = new ClassMgr();
 
     /**
@@ -100,7 +100,7 @@ public class ClassMgr
         userLibraries = new ClassPath();
         userlibExtLibraries = new ClassPath(userextcp);
 
-//        addConfigEntries(systemLibraries, syslibPrefix); // can be removed, I think (mik)
+        addConfigEntries(systemLibraries, syslibPrefix);
         addConfigEntries(userLibraries, userlibPrefix);
 
         if (envcp != null) {
