@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2968 2004-09-01 01:54:05Z davmac $
+ * @version $Id: GenTypeClass.java 2989 2004-09-06 04:55:32Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -241,9 +241,9 @@ public class GenTypeClass extends GenTypeSolid {
         do {
             baseType = (Reflective)i.next();
             bname = baseType.getName();
-            mapGenericParamsToDirectBase(tparams, subType, baseType);
+            tparams = mapGenericParamsToDirectBase(tparams, subType, baseType);
             subType = baseType;
-        } while( ! bname.equals(basename) );
+        } while( tparams != null && ! bname.equals(basename) );
         return tparams;
     }
 
@@ -253,23 +253,19 @@ public class GenTypeClass extends GenTypeSolid {
      * @param subType   the derived type
      * @param baseType  the base type
      */
-    private static void mapGenericParamsToDirectBase(Map tparams,
+    private static Map mapGenericParamsToDirectBase(Map tparams,
             Reflective subType, Reflective baseType)
     {
-        // Cases where we can return early: the base isn't a generic type,
-        // or the super inherits from the "raw" version of the base. Actually
-        // only one test is needed for both cases.
-
-        List baseParams = baseType.getTypeParams();
-        if (baseParams.isEmpty())
-            return;
-
         GenTypeClass baseClass = subType.superTypeByName(baseType.getName());
+        if (baseClass.isRaw())
+            return null;
+
+        // The derived type inherits from the non-raw version of the base type.
+        // This should usually be the case.
         baseClass = (GenTypeClass) baseClass.mapTparsToTypes(tparams);
         tparams.clear();
-        Map baseMap = baseClass.getMap();
-        if (baseMap != null)
-            tparams.putAll(baseClass.getMap());
+        tparams.putAll(baseClass.getMap());
+        return tparams;
     }
     
     /**
