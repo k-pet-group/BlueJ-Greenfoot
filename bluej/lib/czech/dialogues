@@ -37,28 +37,6 @@ kopie t\u00e9to t\u0159\u00eddy. Jestli\u017ee se zd\u00e1 t\u0159\u00edda poni\
    2 - z\u00e1lohujte si adres\u00e1\u0159 s projektem (pro jistotu)
    3 - zm\u011b\u0148te p\u0159\u00edponu z\u00e1lo\u017en\u00edho souboru na .java
 
-# errors:
-#########
-
-no-lib-selected
-Nevybrali jste knihovnu pro proch\u00e1zen\u00ed.
-Klikn\u011bte na knihovnu ve v\u00fdsledku hled\u00e1n\u00ed
-a pot\u00e9 na tla\u010d\u00edtko "J\u00edt na".
-
-no-target-dialog
-D\u0159\u00edv ne\u017e pou\u017eijete bal\u00ed\u010dek z pr\u016fzkumn\u00edka
-knihoven, mus\u00edte m\u00edt otev\u0159en\u00fd
-alespo\u0148 jeden c\u00edlov\u00fd bal\u00ed\u010dek v BlueJ.
-
-cannot-locate-lib-node
-Nelze nal\u00e9zt vybran\u00fd uzel ve stromu
-LibraryChooser. Pravd\u011bpodobn\u011b je tato chyba
-zp\u016fsobena t\u00edm, \u017ee je zastaral\u00fd soubor
-s popisem bal\u00ed\u010dku.
-
-missing-shadow
-St\u00ednovan\u00e1 oblast nebyla nelezena.
-
 cannot-run-compiler
 Kompil\u00e1tor nelze spustit. Je tento kompil\u00e1tor
 dostupn\u00fd?

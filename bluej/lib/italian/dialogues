@@ -39,29 +39,6 @@ progetto. Se ti sembra che il codice sia danneggiato:
        del file java di questa classe; rinominalo col
        nome del file originale (con estensione '.java').
 
-# errors:
-#########
-
-no-lib-selected
-Non hai specificato una libreria a cui andare.
-Scegli una libreria fra quelle in "Risultati
-della ricerca", e premi il pulsante "Vai a".
-
-no-target-dialog
-Prima di usare un package dal
-Browser di Libreria, devi sceglierne
-almeno uno come obiettivo fra quelli
-aperti in BlueJ.
-
-cannot-locate-lib-node
-Non è possibile individuare il nodo scelto
-nell'albero del LibraryChooser. In genere
-ciò è dovuto ad un file di package non 
-aggiornato nella directory col package.
-
-missing-shadow
-Non è possibile localizzare l'area shadow:
-
 cannot-run-compiler
 Non è possibile avviare il compilatore.
 Verifica se il programma è nel path.

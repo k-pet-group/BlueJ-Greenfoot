@@ -37,28 +37,6 @@ in die projekgids. As die klas beskadig is,
        java lêer. Hernoem dit met die oorsproklike naam
        (met 'n '.java' uitgang)
 
-# errors:
-#########
-
-no-lib-selected
-U het nie 'n biblioteek gespesifiseer om heen te gaan nie.
-Klik op 'n biblioteek in die lys van "Soekresultate" en
-druk dan die "Gaan na" knoppie.
-
-no-target-dialog
-Voordat u 'n pakket uit die klasbiblioteek 
-rondblaaier gebruik, moet u ten minste een
-pakket oop hê in BlueJ as bestemming.
-
-cannot-locate-lib-node
-Die geselekteerde node kan nie in die
-biblioteekselekteerder gevind word nie.
-Gewoonlik beteken dit dat daar 'n verouderde
-pakket in die lêergids is.
-
-missing-shadow
-Kan nie skadu-area vind nie:
-
 cannot-run-compiler
 Kan nie die kompileerder loop nie.
 Is die program in u padveranderlike?

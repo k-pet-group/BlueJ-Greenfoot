@@ -36,28 +36,6 @@ na pasta do projeto. Se a classe parecer corrompida,
    3 - procure na pasta do projeto por um backup deste arquivo.
        Renomei-o com o nome original (com uma extensão '.java')
 
-# errors:
-#########
-
-no-lib-selected
-Você não especificou uma biblioteca.
-Clique numa biblioteca na lista "Resultados da busca" e
-então pressione o botão "Ir para".
-
-no-target-dialog
-Antes de usar um pacote do browser de bibliotecas,
-você precisa ter pelo menos um projeto aberto 
-numa janela do BlueJ.
-
-cannot-locate-lib-node
-Não foi possível localizar o nó selecionado na
-árvore do LibraryChooser. A causa comum deste erro
-é um arquivo desatualizado no diretório 
-que contém o pacote.
-
-missing-shadow
-Não foi possivel localizar a área ocultada:
-
 cannot-run-compiler
 Não foi possivel executar o compilador. O programa
 está no seu path?

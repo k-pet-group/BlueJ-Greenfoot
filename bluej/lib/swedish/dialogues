@@ -26,29 +26,6 @@ Var vänlig e-posta felmeddelandet till
 mik@mip.sdu.dk - vi kommer då lägga till en
 hjälptext i vår hjälpdatabas. Tack!
 
-# errors:
-#########
-
-no-lib-selected
-Du har inte valt bibliotek att gå till.
-Klicka på ett bibliotek i "Sök resultat"-listan
-och och klicka därefter på "Gå till"-knappen.
-
-no-target-dialog
-Innan du använder ett paket från
-biblioteksbläddraren, måste du ha
-minst ett "mål"-paket öppet i Bluej
-fönstret.
-
-cannot-locate-lib-node
-Kan inte hitta den valda noden i "LibraryChooser"-
-trädet. Den vanligaste orsaken till
-det här felet är en icke uppdaterad paketfil
-i katalogen där paketet finns.
-
-missing-shadow
-Kan inte hitta "shadow area":
-
 cannot-run-compiler
 Kan inte köra kompilatorn. Finns den i
 din sökväg?

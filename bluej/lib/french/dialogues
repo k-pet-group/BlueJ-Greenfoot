@@ -38,30 +38,6 @@ Si cette classe est effectivement endommagée,
        de ce fichier java. Renommez-le avec le nom original
        (avec un suffixe '.java')
 
-# errors:
-#########
-
-no-lib-selected
-Vous n'avez pas indiqué de bibliothèque cible zzz .
-Cliquez sur une bibliothèque dans la liste des "Résultats de recherche"
-et appuyez sur le bouton "Aller à".
-
-no-target-dialog
-Avant d'utiliser un package à partir
-du Browser de bibliothèques, au moins un
-package cible doit être ouvert
-dans une fenêtre BlueJ.
-
-cannot-locate-lib-node
-Impossible de trouver le noeud sélectionné
-dans l'arbre des bibliothèques.
-La cause habituelle de cette erreur
-est qu'un fichier du package n'est pas à jour
-dans le répertoire de ce package.
-
-missing-shadow
-Impossible de localiser la "shadow area" zzz:
-
 cannot-run-compiler
 Impossible d'exécution du compilateur impossible. Est-il
 dans votre path?

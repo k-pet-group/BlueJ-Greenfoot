@@ -26,29 +26,6 @@ Por favor envíe por e-mail el mensaje de error a
 mik@mip.sdu.dk - luego nosotros le agregaremos un
 texto de ayuda a nuestra base de datos de ayuda. Gracias.
 
-# errors:
-#########
-
-no-lib-selected
-Usted no ha especificado una libre ría ala cual ir.
-Haga click en la librería en la lista de "Resultados de búsqueda"
-y presione el botón "Ir a".
-
-no-target-dialog
-Antes de que usted use un paquete desde
-el Borwser de la Librería, usted necesita
-al menos un paquete objetivo abierto
-en una ventana BlueJ.
-
-cannot-locate-lib-node
-No puede localizar el nodo seleccionado en el
-árbol LibraryChooser.  La causa normal de este
-error es un archivo de paquete desactualizado
-en el directorio que contiene el paquete.
-
-missing-shadow
-No puede localizar el área de sombra:
-
 cannot-run-compiler
 No puede ejecutar el compilador. El programa
 está en su ruta de acceso?

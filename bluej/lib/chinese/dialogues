@@ -23,26 +23,6 @@ mik@monash.edu.au
 我们将在帮助数据库中添加此帮助文档
 谢谢
 
-# errors:
-#########
-
-no-lib-selected
-你没有指定一个库.
-点击选中"查找结果" 列表中的一个库
-并且按"Go to"按钮.
-
-no-target-dialog
-在你从库浏览器中使用一个包之前，
-你应该首先在BlueJ窗口中至少打开一个目标包.
-
-cannot-locate-lib-node
-不能在库选择树定位中定位所选择的节点.
-引起此错误的原因通常是包文件过期.
-
-
-missing-shadow
-无法定位阴影区:
-
 cannot-run-compiler
 不能运行编译器.该程序被添加到path中了吗?
 编译器的名字:

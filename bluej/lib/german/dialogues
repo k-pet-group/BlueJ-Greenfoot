@@ -46,28 +46,6 @@ beschädigt zu sein scheint,
        benennen Sie es in den ursprünglichen 
        Dateinamen um (mit '.java'-Erweiterung)
 
-# errors:
-#########
-
-no-lib-selected
-Sie haben keine Bibliothek angegeben, zu der gewechselt
-werden soll. Wählen Sie eine Bibliothek in der Liste der
-'Suchergebnisse' an und betätigen Sie den Knopf 'Gehe zu'.
-
-no-target-dialog
-Bevor Sie ein Package des Bibliotheks-Browsers nutzen,
-muss mindestens ein Ziel-Package im BlueJ-Fenster
-geöffnet sein.
-
-cannot-locate-lib-node
-Der ausgewählte Knoten im Baum des LibraryChooser-Baums
-kann nicht ermittelt werden. Der häufigste Grund dafür
-ist eine Paket-Datei mit falschem Datum im Verzeichnis
-des Pakets.
-
-missing-shadow
-Der Schatten-Bereich kann nicht ermittelt werden:
-
 cannot-run-compiler
 Compiler konnte nicht gestartet werden.
 Ist er im Suchpfad?
