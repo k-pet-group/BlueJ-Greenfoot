@@ -1,128 +1,226 @@
 package bluej.extmgr;
 
-import bluej.extensions.BPrefPanel.PPSetting;
-
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefPanelListener;
 import bluej.prefmgr.PrefMgrDialog;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Iterator;
-import java.util.Map;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import javax.swing.BoxLayout;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.border.TitledBorder;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import java.awt.event.*;
+
+import bluej.extensions.BPrefPanel;
+import bluej.extensions.BlueJ;
 
 /**
- * The Extensions Preferences Panel allows the user to interactively
- * edit a number of settings, as requested by extensions.
- *
- * @author  Clive Miller
- * @version $Id: ExtPrefPanel.java 1459 2002-10-23 12:13:12Z jckm $
+ * This manages the whole preference pane for Extensions
+ * It will be loaded in the appropriate tab when the register() is called
  */
-public class ExtPrefPanel extends JPanel implements PrefPanelListener
+public class ExtPrefPanel implements PrefPanelListener
 {
-    public static final ExtPrefPanel INSTANCE = new ExtPrefPanel();
+    private final int   DO_panelUpdate=1;
+    private final int   DO_loadValues=2;
+    private final int   DO_saveValues=3;
 
-    public static void register()
+    private JPanel      drawPanel;
+    private Timer       updateTimer;
+  
+    public static final ExtPrefPanel INSTANCE = new ExtPrefPanel();
+    public  JPanel      rootPanel;
+
+    /**
+     * I have no time to figure out how the main system comes here
+     * When it comes it adds this same class using the given call...
+     * NOTE: Since the static allocation we are not REALLY shure when this class is allocated
+     * It may even be USED before it is linked there, any problems ?
+     */
+    public static void register() 
     {
-        PrefMgrDialog.add(INSTANCE, Config.getString("extmgr.extensions"), INSTANCE);
+        PrefMgrDialog.add(INSTANCE.rootPanel, Config.getString("extmgr.extensions"), INSTANCE);
+    }
+
+
+    /**
+     * A private constructor, is it so important that this class is a singleton ?
+     * What if in some future time we want to destroy it and start again ?
+     */
+    private ExtPrefPanel() 
+    {
+        // I need a draw panel Components in here should be laid on the top - down
+        drawPanel = new JPanel();
+        drawPanel.setLayout(new BoxLayout(drawPanel,BoxLayout.Y_AXIS));
+
+        // I need a middle panel just to pack everything up
+        JPanel middlePanel = new JPanel (new BorderLayout());
+        middlePanel.add(drawPanel,BorderLayout.NORTH);
+
+        // And I need to put this panel into a scroll pane
+        JScrollPane drawScroll = new JScrollPane (middlePanel);
+        drawScroll.setBorder(new EmptyBorder(0,0,0,0));
+        drawScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        /* Add the scroll pane to the root panel
+         * It needs to use all the available space, othervise the scroll pane does not
+         * understand when to draw its scrollbars
+         */
+        rootPanel = new JPanel(new BorderLayout());
+        rootPanel.add(drawScroll,BorderLayout.CENTER);
+
+        /* This timer is used to syncronize with the Swing thread
+         * There is a syncronization problem, quite a bing one actually
+         * When the extension is instantiated NOT all structures of the manager
+         * are in SYNC, basically it means that when the extension calls one of the
+         * methods that it should be able to call the data are not always correct
+         * Will try to fix this, now let's use the timer, with a LONG delay
+         */
+        updateTimer = new Timer(1000, new myActionListener());
+        updateTimer.setInitialDelay(1000);
+        updateTimer.setCoalesce(true);
+        updateTimer.setRepeats(false);
+    }
+
+
+    /** 
+     * The idea is that every time the component is shown I go around and delete-add all the panels that
+     * are here. Since this is not something that is done quite often I have a reasonable
+     * way to manage deletion/addition of preferences without becoming mad at it :-)
+     * NOTE: This MUST be swing sync, this is the reason is called by the timer.
+     */
+    private class myActionListener implements ActionListener 
+    {
+        public void actionPerformed ( ActionEvent anEvent ) 
+        {
+          doWorkLoop (DO_panelUpdate);
+        }
+    }
+
+    /**
+     * This is the looper, I will use some const to decide at the end
+     * what to do. Just to make code simples and cleaner
+     * Note that half or more of the code is on Fault managment ...
+     */
+    private void doWorkLoop( int doAction ) 
+    {
+        ExtensionsManager extMgr = ExtensionsManager.getExtMgr();
+        // This should really never happen, but who knows, some strange state...
+        if ( extMgr == null ) return;
+
+        // I need to remove all content, in any case...
+        if ( doAction == DO_panelUpdate ) drawPanel.removeAll();
+      
+        List allExtensions = extMgr.getExtensions();
+        // In theory I should never get null, in theory...
+        if ( allExtensions == null ) return;
+
+        for ( Iterator iter=allExtensions.iterator(); iter.hasNext(); )
+          doWorkItem ((ExtensionWrapper)iter.next(),doAction);
+    }
+
+    /**
+     * Do some work on one extension wrapper.
+     * It is either adding panels, saving or loading...
+     */
+    private void doWorkItem( ExtensionWrapper aWrapper, int doAction ) 
+    {
+        // This extension is not valid, let me skip it
+        if ( ! aWrapper.isValid() ) 
+            return;
+        String extensionName = aWrapper.getName();
+    
+        BlueJ aBlueJ = aWrapper.getBlueJ();
+        // Can a wrapper not have bluej ? ... yes, it happens....
+        if ( aBlueJ == null ) 
+            return;
+
+        BPrefPanel aPrefPanel = aBlueJ.getBPrefPanel();
+        // An extension may not have a preference panel
+        if ( aPrefPanel == null ) 
+            return;
+
+        switch (doAction) 
+        {
+        case DO_loadValues:  
+            aPrefPanel.loadValues();   
+            return;
+        case DO_saveValues:  
+            aPrefPanel.saveValues();   
+            return;
+        case DO_panelUpdate: 
+            addUserPanel (aPrefPanel, extensionName); 
+            return;
+          }
+
+// Will user debug...
+//        System.out.println ("ExtPrefPanel: Unknown doAction="+doAction);
+        }
+  
+    /**
+     * Being here to make code cleaner. 
+     * Given an Extension preference panel add it into the main panel
+     */
+    private void addUserPanel( BPrefPanel aPrefPanel, String extensionName ) 
+    {
+        JPanel aPanel = aPrefPanel.getPanel(); 
+        if ( aPanel == null ) {
+          // The extension coder has a PrefPanel but not a JPanel, BAD, better tell it
+          System.out.println ("BPrefPanel: addUserPanel: getPanel should return a JPanel");
+          return;
+          }
+
+        // The panel that the user gives me goes into a container pane
+        JPanel framePanel = new JPanel(new BorderLayout());
+        framePanel.setBorder(BorderFactory.createTitledBorder(extensionName));
+
+        // The panel that the user gives me goes into the north, packed
+        framePanel.add (aPanel,BorderLayout.NORTH);
+
+        // Finally put this panel into the drawing panel, it will be stacket Y axis
+        drawPanel.add (framePanel);
+    }
+
+
+    /**
+     * To start the revalidation of the panels associated to the extensions you
+     * use this one. NOTE that swing will be accessing the extensions generated objects
+     * in a NON syncronized way, there is a sort of risk here.
+     */
+    public void panelRevalidate() 
+    {
+        updateTimer.restart();  
     }
     
-    private JPanel contents;
-    private Collection items; // of PPSetting
-    private Map extensionPanels; // of ExtensionWrapper => JPanel
-    private Map extensionItems; // of PPSetting => ExtensionWrapper
+
+    /**
+     * Needed only to satisfy the implements
+     */
+    public void beginEditing()  {  }
+    
     
     /**
-     * Sets up the UI.
-     * Registers the extensions preference panel with the preferences.
-     * dialog
+     * Called by the system when it is time to reload the panel values
      */
-    private ExtPrefPanel()
+    public void revertEditing() 
     {
-        items = new ArrayList();
-        setBorder(Config.generalBorder);
-        contents = new JPanel();
-        contents.setPreferredSize (new Dimension (0, 0));
-        JScrollPane scrollPane = new JScrollPane (contents, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        setLayout (new BorderLayout());
-        add (scrollPane);
-        extensionPanels = new HashMap();
-        extensionItems = new HashMap();
-    }
-    
-    public void beginEditing()
-    {
-    }
+        doWorkLoop (DO_loadValues);
+     }
 
-    public void revertEditing()
-    {
-        for (Iterator it=items.iterator(); it.hasNext();) {
-            PPSetting item = (PPSetting)it.next();
-            item.loadValue();
-        }
-    }
-
+    /**
+     * Called by the system when the user has pressed the OK buton
+     */
     public void commitEditing()
     {
-        for (Iterator it=items.iterator(); it.hasNext();) {
-            PPSetting item = (PPSetting)it.next();
-            item.saveValue();
-        }
+        doWorkLoop (DO_saveValues);
     }
 
-    public void removePreferences (ExtensionWrapper ew)
+    /**
+    * To be deleted or moved into the BPrefPanel, we will see
+    */
+    String[] getPreferenceNames(ExtensionWrapper ew)
     {
-        for (Iterator it=items.iterator(); it.hasNext();) {
-            PPSetting item = (PPSetting)it.next();
-            if (extensionItems.get (item) == ew) {
-                it.remove();
-                JPanel panel = (JPanel)extensionPanels.get (ew);
-                panel.remove (item.getDrawable()); // Not strictly necessary
-                if (panel.getComponentCount() == 0) contents.remove (panel);
-                repaint();
-            }
-        }
-    }
-    
-    String[] getPreferenceNames (ExtensionWrapper ew)
-    {
-        Collection names = new ArrayList();
-        for (Iterator it=items.iterator(); it.hasNext();) {
-            PPSetting item = (PPSetting)it.next();
-            if (extensionItems.get (item) == ew) names.add (item.getTitle());
-        }
-        return (String[])names.toArray (new String[0]);
-    }
-        
-    public void addSetting (ExtensionWrapper ew, PPSetting item)
-    {
-        items.add (item);
-        extensionItems.put (item, ew);
-        Component dr = item.getDrawable();
-        JPanel panel = (JPanel)extensionPanels.get (ew);
-        if (panel == null) {
-            panel = new JPanel();
-            panel.setLayout (new BoxLayout (panel, BoxLayout.Y_AXIS));
-            String extName = ew.getName();
-            extName = extName.substring (extName.lastIndexOf ('.')+1);
-            panel.setBorder (new TitledBorder (extName));
-            contents.add (panel);
-            extensionPanels.put (ew, panel);
-        }
-        panel.add (dr);
-        Container parent = getParent();
-        if (parent != null) parent.repaint();
+        String [] values = {""};
+        return (values);
     }
 }

@@ -31,7 +31,7 @@ import java.lang.reflect.Constructor;
  * Individual Extension wrapper.
  *
  * @author Clive Miller
- * @version $Id: ExtensionWrapper.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: ExtensionWrapper.java 1476 2002-10-28 09:41:40Z damiano $
  */
 public class ExtensionWrapper
 {
@@ -103,7 +103,15 @@ public class ExtensionWrapper
     private final Collection menus; // of BMenuItem
     private final Collection eventListeners;
     private final BlueJ bj;
-    
+
+    /**
+     * Accessor for the bluej that is created
+     */
+    public BlueJ getBlueJ ()
+      {
+      return bj;
+      }
+      
     /**
      * A brand new extension is born.
      */
@@ -205,10 +213,10 @@ public class ExtensionWrapper
             item.removeMenuItems();
         }
         menus.clear();
-        ExtPrefPanel.INSTANCE.removePreferences (this);
         status = Config.getString ("extmgr.status.unloaded");
         valid = false;
         instance = null;
+        ExtPrefPanel.INSTANCE.panelRevalidate();;
     }
     
     /**
@@ -312,4 +320,5 @@ public class ExtensionWrapper
             el.eventOccurred (event);
         }
     }
+
 }
