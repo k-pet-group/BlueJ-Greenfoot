@@ -23,7 +23,7 @@ import bluej.Config;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 1053 2001-12-19 06:31:58Z ajp $
+ * @version $Id: ClassMgr.java 1068 2002-01-08 06:04:20Z ajp $
  */
 public class ClassMgr
 {
@@ -247,10 +247,22 @@ public class ClassMgr
             try {
                 String filename = name.replace('.', File.separatorChar) + ".class";
 
-                InputStream in = systemLibraries.getFile(filename);
+                InputStream in = null;
 
-                if(in == null)
-                    in = userLibraries.getFile(filename);
+                // try to get these input streams but catch IO exceptions because there
+                // is no reason why an error reading here should spoil the rest of
+                // the party
+                try {
+                   in = systemLibraries.getFile(filename);
+                }
+                catch (IOException ioe) { }
+
+                if(in == null) {
+                    try {
+                        in = userLibraries.getFile(filename);
+                    }
+                    catch (IOException ioe) { }
+                }
 
                 if(in != null) {
                     BufferedInputStream bufin = new BufferedInputStream(in);
@@ -262,8 +274,7 @@ public class ClassMgr
                 }
 
             } catch(Exception e) {
-                Debug.reportError("cannot load class " + name + ": " + e);
-                e.printStackTrace();
+                Debug.reportError("Exception attempting to load class " + name + ": " + e);
                 return null;
             }
             if (classdata.size() == 0)
