@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 import bluej.Config;
@@ -24,7 +25,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3103 2004-11-18 04:59:24Z davmac $
+ * @version $Id: Project.java 3236 2004-12-14 15:46:33Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -749,6 +750,31 @@ public class Project
 	
     
     /**
+     * The remote VM for this project has just been initialised and is ready now.
+     */
+    private void vmReady()
+    {
+        PkgMgrFrame.displayMessage(Project.this, Config.getString("pkgmgr.creatingVMDone"));
+        
+        // On MacOS, the main window loses focus as the remote VM process is created.
+        // Use the MacOS 'open' command to get the main process back to front.
+        if(Config.isMacOS()) {
+            try {
+                // first, find the path of BlueJ.app
+                String path = getClass().getResource("PkgMgrFrame.class").getPath();
+                int index = path.indexOf("BlueJ.app");
+                if(index != -1) {
+                    path = path.substring(0, index+9);
+                    // once we found it, call 'open' on it to bring it to front.
+                    String[] openCmd = { "open", path };
+                    Runtime.getRuntime().exec(openCmd);
+                }
+            }
+            catch(IOException exc) {} // just a try, if it fails, don't worry too much
+        }
+    }
+
+    /**
      * The remote VM for this project has just been closed. Remove everything in this
      * project that depended on that VM.
      */
@@ -949,13 +975,7 @@ public class Project
 
                     // check whether we just got a freshly created VM
                     if (event.getOldState() == Debugger.NOTREADY && event.getNewState() == Debugger.IDLE) {
-                        PkgMgrFrame.displayMessage(Project.this, Config.getString("pkgmgr.creatingVMDone"));
-                        // try to bring the frame to the front again (needed on
-                        // MacOS)
-                        // PkgMgrFrame frame =
-                        // PkgMgrFrame.findFrame(getPackage(""));
-                        // if(frame != null)
-                        //     Utility.bringToFront(frame);
+                        vmReady();
                     }
 
                     // check whether a good VM just disappeared
