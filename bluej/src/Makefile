@@ -3,7 +3,7 @@
 TOP = ..
 include $(TOP)/$(OS).mk
 
-JIKES_CLASSPATH = /usr/local/jdk1.2/jre/lib/rt.jar:/usr/local/jdk1.2/jre/lib/i18n.jar:/usr/local/jdk1.2/lib/tools.jar:$(TOP)/lib/jbug.jar:$(TOP)/src:$(TOP)/lib/antlr.jar
+JIKES_CLASSPATH = /usr/local/jdk1.2/jre/lib/rt.jar:/usr/local/jdk1.2/jre/lib/i18n.jar:/usr/local/jdk1.2/lib/tools.jar:$(TOP)/lib/jpda.jar:$(TOP)/src:$(TOP)/lib/antlr.jar
 
 ANTLR_CLASSPATH=../../antlr
 

@@ -1,5 +1,5 @@
 #BlueJ project file
-#Tue Jun 29 10:47:39 GMT+10:00 1999
+#Tue Jun 29 11:59:51 GMT+10:00 1999
 target4.name=Adapter
 target5.type=ClassTarget
 target6.height=50
@@ -27,7 +27,7 @@ dependency5.type=ImplementsDependency
 target7.y=100
 target7.x=30
 dependency1.from=SubTester
-target5.y=210
+target5.y=200
 target2.valid=true
 target5.modifiers=0
 target5.x=330
@@ -66,7 +66,7 @@ target2.name=SubTester
 target3.type=ClassTarget
 target6.y=290
 target6.x=130
-target4.y=230
+target4.y=250
 target3.name=MyClass
 target4.x=10
 target4.type=ClassTarget
