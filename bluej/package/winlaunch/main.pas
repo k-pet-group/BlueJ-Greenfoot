@@ -11,7 +11,7 @@ uses
 const
         jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-        bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.0 beta 3';
+        bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.0 beta 4';
 
         searchingstartcaption : string = 'Search drives for all Java versions...';
         searchingstopcaption : string = 'Stop Search';
@@ -223,7 +223,7 @@ begin
         appdirlib := '"' + appdir + 'lib\';
 
         bluejjarfilename := appdirlib + 'bluej.jar' + '"';
-        editorjarfilename := appdirlib + 'editor.jar' + '"';
+        editorjarfilename := appdirlib + 'bluejeditor.jar' + '"';
         extjarfilename := appdirlib + 'bluejext.jar' + '"';
         antlrjarfilename := appdirlib + 'antlr.jar' + '"';
         junitjarfilename := appdirlib + 'junit.jar' + '"';
