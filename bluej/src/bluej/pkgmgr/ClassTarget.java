@@ -48,7 +48,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1496 2002-11-06 10:59:46Z ajp $
+ * @version $Id: ClassTarget.java 1505 2002-11-18 11:46:54Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -734,11 +734,13 @@ public class ClassTarget extends EditableTarget
 
         // handle superclass dependency
         if(info.getSuperclass() != null) {
-            DependentTarget superclass = (DependentTarget)getPackage().getTarget(info.getSuperclass());
-            if (superclass != null)
+            DependentTarget superclass = getPackage().getDependentTarget(info.getSuperclass());
+            
+            if (superTarget != null) {
                 getPackage().addDependency(
                                   new ExtendsDependency(getPackage(), this, superclass),
                                   false);
+            }
         }
 
         // handle implemented interfaces
