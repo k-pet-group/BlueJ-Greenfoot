@@ -113,6 +113,7 @@ editor.pasteLabel = Paste
 editor.findLabel = Find...
 editor.find-nextLabel = Find Next
 editor.closeLabel = Close
+editor.page-setupLabel = Page Setup...
 
 # menu labels (MUST be defined)
 editor.classLabel = Class
@@ -187,7 +188,6 @@ editor.info.saved = File saved
 editor.info.printing = Printing...
 editor.info.printed = Printing... Done.
 editor.info.cancelled = Cancelled.
-
 editor.printer.continued=continued
 #End Editor labels
 
@@ -198,6 +198,8 @@ pkgmgr.chooseInhFrom=Select the subclass
 pkgmgr.chooseInhTo=Select the superclass
 pkgmgr.chooseArrow=Select an arrow to delete
 pkgmgr.packageSaved=Package saved
+pkgmgr.info.printing = Printing...
+pkgmgr.info.printed = Printing... Done.
 
 # dialog titles and texts
 
@@ -309,6 +311,7 @@ menu.package.close=Close
 menu.package.save=Save
 menu.package.saveAs=Save As...
 menu.package.importClass=Import Class...
+menu.package.pageSetup=Page Setup...
 menu.package.print=Print...
 menu.package.quit=Quit
 

@@ -114,6 +114,7 @@ editor.pasteLabel = Klistra in
 editor.findLabel = Hitta...
 editor.find-nextLabel = Hitta nästa
 editor.closeLabel = Stäng
+editor.page-setupLabel = Page Setup...
 
 # menu labels (MUST be defined)
 editor.classLabel = Klass
@@ -200,6 +201,8 @@ pkgmgr.chooseInhFrom=Välj subklass
 pkgmgr.chooseInhTo=Välj superklass
 pkgmgr.chooseArrow=Välj pil att radera
 pkgmgr.packageSaved=Paket sparat
+pkgmgr.info.printing = Printing...
+pkgmgr.info.printed = Printing... Done.
 
 # dialog titles and texts
 
@@ -307,6 +310,7 @@ menu.package.close=Stäng
 menu.package.save=Spara
 menu.package.saveAs=Spara som...
 menu.package.importClass=Importera klass...
+menu.package.pageSetup=Page Setup...
 menu.package.print=Skriv ut...
 menu.package.quit=Avsluta
 

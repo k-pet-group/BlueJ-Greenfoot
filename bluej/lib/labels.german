@@ -128,6 +128,7 @@ editor.saveLabel = Speichern
 editor.reloadLabel = Nochmal laden
 editor.printLabel = Drucken...
 editor.closeLabel = Schließen
+editor.page-setupLabel = Page Setup...
 
 editor.redoLabel = Nochmal
 editor.cut-to-clipboardLabel = Ausschneiden
@@ -199,6 +200,8 @@ pkgmgr.chooseInhFrom=Klicken Sie auf die Unterklasse
 pkgmgr.chooseInhTo=Klicken Sie auf die Oberklasse
 pkgmgr.chooseArrow=Klicken Sie auf den Pfeil, der gelöscht werden soll
 pkgmgr.packageSaved=Package wurde gespeichert
+pkgmgr.info.printing = Printing...
+pkgmgr.info.printed = Printing... Done.
 
 # dialog titles and texts
 
@@ -307,6 +310,7 @@ menu.package.close=Schließen
 menu.package.save=Speichern
 menu.package.saveAs=Speichern als...
 menu.package.importClass=Klasse importieren...
+menu.package.pageSetup=Page Setup...
 menu.package.print=Drucken...
 menu.package.quit=Beenden
 

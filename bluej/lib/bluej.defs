@@ -117,6 +117,10 @@ bluej.fontsize.printInfo=10
 # should we syntax hilight
 bluej.syntaxHilighting=true
 
+# class notation style eg. uml or blue
+bluej.notation.style=uml
+#bluej.notation.style=blue
+
 ## debugging: when on, debug output goes to console; when off, to log file
 debug=on
 
@@ -153,8 +157,10 @@ template.htmlplugin=htmlplugin.tmpl
 image.icon=bluej-icon.gif
 image.logo=bluej-logo.gif
 image.build.depends=arrow_black.gif
+image.build.depends.uml=arrow_black_uml.gif
 image.build.depends.selected=arrow_red.gif
 image.build.extends=darrow_black.gif
+image.build.extends.uml=darrow_black_uml.gif
 image.build.extends.selected=darrow_red.gif
 
 image.objectviewer.object=objectIcon.gif
@@ -201,9 +207,13 @@ colour.text.bg=255,255,255
 colour.text.fg=0,0,0
 
 colour.arrow.uses=136,56,56
-#colour.arrow.uses=152,16,16
 colour.arrow.implements=35,115,15
 colour.arrow.extends=40,40,80
+
+colour.uml.arrow.uses=0,0,0
+colour.uml.arrow.implements=0,0,0
+colour.uml.arrow.extends=0,0,0
+
 
 colour.target.border=0,0,0
 colour.target.shadow=192,192,192
@@ -213,6 +223,9 @@ colour.class.bg.abstract=188,196,204
 colour.class.bg.imported=176,48,96
 colour.class.bg.interface=94,147,107
 colour.package.bg.default=180,130,44
+colour.class.bg.uml.default=188,196,204
+colour.target.bg.uml.compiling=119,136,153
+colour.target.uml.shadow=119,136,153
 
 colour.wrapper.bg=205,38,38
 colour.wrapper.shadow=152,152,152

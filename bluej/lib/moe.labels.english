@@ -1,0 +1,115 @@
+# Moe editor properties
+
+##
+##  Define the toolbar
+##
+
+toolbar = view compile undo cut copy paste find find-next close
+
+# button lables for toolbar commands
+
+viewLabel1 = Implementation
+viewLabel2 = Public View
+viewLabel3 = Package View
+viewLabel4 = Protected View
+compileLabel = Compile
+undoLabel = Undo
+cutLabel = Cut
+copyLabel = Copy
+pasteLabel = Paste
+findLabel = Find...
+find-nextLabel = Find Next
+closeLabel = Close
+
+# actions for toolbar commands (only needed when it differs from command name
+
+openAction = open-file
+cutAction = cut-to-clipboard
+copyAction = copy-to-clipboard
+pasteAction = paste-from-clipboard
+find-nextAction = find-next
+
+##
+##  Define the menus. Each menu gets a key, which is used afterwards to
+##  define the menu's details.
+##
+
+menubar = class edit tools option
+
+# Actions for menus. Each value must be a defined moe action name. Each 
+#   action becomes an item in the menu. Use the minus sign (-) to create 
+#   a separator.
+
+class = save reload - print - close
+edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - comment uncomment - insert-method
+tools = find find-backward find-next replace - compile toggle-breakpoint
+option = key-bindings preferences
+
+# menu labels (MUST be defined)
+
+classLabel = Class
+editLabel = Edit
+toolsLabel = Tools
+debugLabel = Debug
+optionLabel = Options
+helpLabel = Help
+
+# item labels (can be omitted if same as action name)
+
+saveLabel = Save
+reloadLabel = Reload
+printLabel = Print...
+closeLabel =Close
+
+undoLabel = Undo
+redoLabel = Redo
+cut-to-clipboardLabel = Cut
+copy-to-clipboardLabel = Copy
+paste-from-clipboardLabel = Paste
+commentLabel = Comment
+uncommentLabel = Uncomment
+insert-methodLabel = Insert method
+
+findLabel = Find...
+find-backwardLabel = Find Backward...
+find-nextLabel = Find Next
+replaceLabel = Replace...
+compileLabel = Compile
+toggle-breakpointLabel = Set/Clear Breakpoint
+
+state.readOnly = read-only 
+state.saved = saved 
+state.changed = changed
+
+key-bindingsLabel = Key Bindings...
+preferencesLabel = Preferences...
+
+# Dialog titles and texts
+functions.title = Editor Functions
+functions.categories.editFunctions = Edit Functions
+functions.categories.moveScroll = Move & Scroll
+functions.categories.classFunctions = Class Functions
+functions.categories.customisation = Customisation
+functions.categories.help = Help
+functions.categories.misc = Misc
+
+finder.title = Find
+finder.textfield.label = Find:
+
+#Messages, warnings, etc that is displayed by Info.java
+info.version = Moe version 0.4
+info.readingProblem = There was a problem reading this file.
+info.regularFile = (Is it really a regular file? Do you have read access?)
+info.newFile = New file
+info.errorSaving = Error in saving file!
+info.compiled = Class compiled - no syntax errors
+info.noChanges = No changes need to be saved
+info.cannotReload = Can not reload - this text was never saved!
+info.reload = (\"Reload\" reloads the last saved state from disk.)
+info.emptySearchString = Empty search string.
+info.notFound = Not found
+info.compiling = Compiling...
+info.cannotSetBreak = Cannot set breakpoint:\nNo code associated with this editor.
+info.fileDisappeared = ERROR: The file seems to have disappeared!
+info.fileReadError = ERROR: There was an error while trying to read this file.
+info.saved = File saved
