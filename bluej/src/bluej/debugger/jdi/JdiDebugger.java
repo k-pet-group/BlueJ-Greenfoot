@@ -27,52 +27,50 @@ import com.sun.jdi.event.LocatableEvent;
 import com.sun.jdi.event.ExceptionEvent;
 
 /**
- ** A class implementing the execution and debugging primitives needed by
- ** BlueJ.
- **
- ** Execution and debugging is implemented here on a second ("remote") 
- ** virtual machine, which gets started from here via the JDI interface.
- **
- ** @author Michael Kolling
- **
- ** The startup process is as follows:
- **
- **
- **  Debugger		VMEventHandler Thread		Remote VM
- **  ----------------------------------------------------------------------
- **  startDebugger:
- **    start VM --------------------------------------> start
- **    start event handler ---> start                     .
- **      .                        .                       .
- **      .                        .                       .
- **      .                        .                     server class loaded
- **      .                      prepared-event < ---------.
- **  serverClassPrepared() <------.
- **    set break in remote VM
- **    continue remote VM
- **    wait
- **      .                        .                       
- **      .  ------------------------------------------> continue
- **      .                        .                       .
- **      .                        .                     hit breakpoint
- **      .                      break-event < ------------.
- **    continue <-----------------.
- **      .
- **      .
- **
- ** We can now execute commands on the remote VM by invoking methods
- ** using the server thread (which is suspended at the breakpoint).
- ** This is done in the "startServer()" method.
- **
- **/
-
+ * A class implementing the execution and debugging primitives needed by
+ * BlueJ.
+ *
+ * Execution and debugging is implemented here on a second ("remote") 
+ * virtual machine, which gets started from here via the JDI interface.
+ *
+ * @author Michael Kolling
+ *
+ * The startup process is as follows:
+ *
+ *
+ *  Debugger		VMEventHandler Thread		Remote VM
+ *  ----------------------------------------------------------------------
+ *  startDebugger:
+ *    start VM --------------------------------------> start
+ *    start event handler ---> start                     .
+ *      .                        .                       .
+ *      .                        .                       .
+ *      .                        .                     server class loaded
+ *      .                      prepared-event < ---------.
+ *  serverClassPrepared() <------.
+ *    set break in remote VM
+ *    continue remote VM
+ *    wait
+ *      .                        .                       
+ *      .  ------------------------------------------> continue
+ *      .                        .                       .
+ *      .                        .                     hit breakpoint
+ *      .                      break-event < ------------.
+ *    continue <-----------------.
+ *      .
+ *      .
+ *
+ * We can now execute commands on the remote VM by invoking methods
+ * using the server thread (which is suspended at the breakpoint).
+ * This is done in the "startServer()" method.
+ */
 public final class JdiDebugger extends Debugger
 {
     // the class name of the execution server class running on the remote VM
     static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
 
     // options for the remote virtual machine
-    static final String VM_OPTIONS = "";
+    static final String VM_OPTIONS = "-classic";
 
     // the field name of the static field within that class that hold the
     // server object
@@ -133,22 +131,22 @@ public final class JdiDebugger extends Debugger
      */
     public synchronized void startDebugger()
     {
-  	if(initialised)
-  	    return;
+        if(initialised)
+            return;
 
-	BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM, null);
+    	BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM, null);
 
         VirtualMachineManager mgr = Bootstrap.virtualMachineManager();
         LaunchingConnector connector;
 
         connector = mgr.defaultConnector();
-	//Debug.message("connector: " + connector.name());
-	//Debug.message("transport: " + connector.transport().name());
+        //Debug.message("connector: " + connector.name());
+        //Debug.message("transport: " + connector.transport().name());
 
         Map arguments = connector.defaultArguments();
 
-	// debug code to print out all existing arguments and their
-	// description
+        // debug code to print out all existing arguments and their
+        // description
 	//  	Collection c = arguments.values();
 	//  	Iterator i = c.iterator();
 	//  	while(i.hasNext()) {
@@ -167,9 +165,9 @@ public final class JdiDebugger extends Debugger
 	//    (Connector.Argument)arguments.get("suspend");
 
         if (mainArg == null || optionsArg == null) {
-	    Debug.reportError("Cannot start virtual machine.");
-	    Debug.reportError("(Incompatible launch connector)");
-	    return;
+            Debug.reportError("Cannot start virtual machine.");
+            Debug.reportError("(Incompatible launch connector)");
+            return;
         }
         mainArg.setValue(SERVER_CLASSNAME);
         optionsArg.setValue(VM_OPTIONS);
@@ -194,16 +192,16 @@ public final class JdiDebugger extends Debugger
         }
 
         setEventRequests(machine);
-	eventHandler = new VMEventHandler(this, machine);
+        eventHandler = new VMEventHandler(this, machine);
 
-	// now wait until the machine really has started up. We will know that
-	// it has when the first breakpoint is hit (see breakEvent).
-	try {
-	    wait();
-	} catch(InterruptedException e) {}
-	initialised = true;
-	notifyAll();
-	BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
+        // now wait until the machine really has started up. We will know that
+        // it has when the first breakpoint is hit (see breakEvent).
+        try {
+            wait();
+        } catch(InterruptedException e) {}
+        initialised = true;
+        notifyAll();
+        BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
     }
 	
     /**
@@ -213,17 +211,22 @@ public final class JdiDebugger extends Debugger
     {
         try {
             if (machine != null) {
-                machine.dispose();
+
+                try {
+                    machine.dispose();
+                }
+                catch (Exception e) { }
+
                 machine = null;
             }
-        } finally {
+        }
+        finally {
             if (process != null) {
-                process.destroy();
-                process = null;
+                    process.destroy();
+                    process = null;
             }
         }
     }
-
 
     /**
      * This method is called by the VMEventHandler when the execution server
@@ -274,21 +277,20 @@ public final class JdiDebugger extends Debugger
      *  DebuggerClassLoader, with which the BlueJClassLoader can be looked up.
      */
     public DebuggerClassLoader createClassLoader(String scopeId, 
-						 String classpath)
+                                                    String classpath)
     {
-	ClassLoaderReference loader = 
-	    startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "");
+        ClassLoaderReference loader = 
+            startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "");
 
-	return new JdiClassLoader(scopeId, loader);
+        return new JdiClassLoader(scopeId, loader);
     }
 	
-
     /**
      * Remove a class loader
      */
     public void removeClassLoader(DebuggerClassLoader loader)
     {
-	startServer(ExecServer.REMOVE_LOADER, loader.getId(), "", "", "");
+        startServer(ExecServer.REMOVE_LOADER, loader.getId(), "", "", "");
     }
 
 
@@ -298,7 +300,7 @@ public final class JdiDebugger extends Debugger
      */
     public int getStatus()
     {
-	return machineStatus;
+        return machineStatus;
     }
 
 
@@ -419,41 +421,46 @@ public final class JdiDebugger extends Debugger
      * has completed.
      */
     private ClassLoaderReference startServer(int task, String arg1, 
-					String arg2, String arg3, String arg4)
+                                        String arg2, String arg3, String arg4)
     {
-	VirtualMachine vm = getVM();
+        VirtualMachine vm = getVM();
 
-	if(execServer == null) {
-	    if(! setupServerConnection(vm))
-		return null;
-	}
+        if(execServer == null) {
+            if(!setupServerConnection(vm))
+                return null;
+        }
 
-	List arguments = new ArrayList(5);
-	arguments.add(vm.mirrorOf(task));
-	arguments.add(vm.mirrorOf(arg1));
-	arguments.add(vm.mirrorOf(arg2));
-	arguments.add(vm.mirrorOf(arg3));
-	arguments.add(vm.mirrorOf(arg4));
+        // if the VM crashes then many of these methods may fail. Our
+        // catch all exception will grab them all allowing our local
+        // VM to struggle on without the remote VM (previously, we could
+        // not quit the local VM once the remote VM had crashed)
+        
+     	try {
+            List arguments = new ArrayList(5);
+            arguments.add(vm.mirrorOf(task));
+            arguments.add(vm.mirrorOf(arg1));
+            arguments.add(vm.mirrorOf(arg2));
+            arguments.add(vm.mirrorOf(arg3));
+            arguments.add(vm.mirrorOf(arg4));
 
-  	try {
-  	    Value returnVal = execServer.invokeMethod(serverThread, 
-						      performTaskMethod, 
-						      arguments, 0);
-	    // invokeMethod leaves everything suspended, so restart the 
-	    // system threads... 
-	    resumeMachine();
-	    return (ClassLoaderReference)returnVal;
-	}
-  	catch(com.sun.jdi.InternalException e) {
-	    // we regularly get an exception here when trying to load a class
-	    // while the machine is suspended. It doesn't seem to be fatal.
-	    // so we just ignore internal exceptions for the moment.
-  	}
-  	catch(Exception e) {
-	    Debug.message("sending command to remote VM failed: " + e);
-	    Debug.message("task: " + task + " " + arg1 + " " + arg2);
-  	}
-	return null;
+      	    Value returnVal = execServer.invokeMethod(serverThread, 
+                                                        performTaskMethod, 
+                                                        arguments, 0);
+            // invokeMethod leaves everything suspended, so restart the 
+            // system threads... 
+            resumeMachine();
+            return (ClassLoaderReference)returnVal;
+        }
+        catch(com.sun.jdi.InternalException e) {
+            // we regularly get an exception here when trying to load a class
+            // while the machine is suspended. It doesn't seem to be fatal.
+            // so we just ignore internal exceptions for the moment.
+      	}
+        catch(Exception e) {
+            Debug.message("sending command to remote VM failed: " + e);
+            Debug.message("task: " + task + " " + arg1 + " " + arg2);
+      	}
+        return null;
     }
 
 

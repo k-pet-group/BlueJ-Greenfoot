@@ -17,8 +17,8 @@ import com.sun.jdi.*;
 
 public class JdiObject extends DebuggerObject
 {
-    ObjectReference obj;	// the remote object represented
-    List fields;		// list of fields of the object
+    ObjectReference obj;    // the remote object represented
+    List fields;            // list of fields of the object
 
     /**
      * Factory method that returns instances of JdiObjects.
@@ -232,7 +232,7 @@ public class JdiObject extends DebuggerObject
      */
     public Vector getStaticFields(boolean includeModifiers)
     {
-	return getFields(false, true, includeModifiers);
+        return getFields(false, true, includeModifiers);
     }
 	
     /**
@@ -241,7 +241,7 @@ public class JdiObject extends DebuggerObject
      */
     public Vector getInstanceFields(boolean includeModifiers)
     {
-	return getFields(false, false, includeModifiers);
+        return getFields(false, false, includeModifiers);
     }
 
 
@@ -263,45 +263,47 @@ public class JdiObject extends DebuggerObject
      * determines whether static fields or instance fields are returned.
      */
     private Vector getFields(boolean getAll, boolean getStatic, 
-			     boolean includeModifiers)
+                                boolean includeModifiers)
     {
-	Vector fieldStrings = new Vector(fields.size());
+        Vector fieldStrings = new Vector(fields.size());
 
-	ReferenceType cls = obj.referenceType();
-	List visible = cls.visibleFields();
+        ReferenceType cls = obj.referenceType();
+        List visible = cls.visibleFields();
 
-	for (int i = 0; i < fields.size(); i++) {
-	    Field field = (Field)fields.get(i);
-	    if(getAll || (field.isStatic() == getStatic)) {
-		Value val = obj.getValue(field);
+        for (int i = 0; i < fields.size(); i++) {
+            Field field = (Field)fields.get(i);
 
-		String valString = getValueString(val);
-		String fieldString = "";
+            if(getAll || (field.isStatic() == getStatic)) {
+                Value val = obj.getValue(field);
 
-		if(includeModifiers) {
-		    if(field.isPrivate())
-			fieldString  = "private ";
-		    if(field.isProtected())
-			fieldString = "protected ";
-		    if(field.isPublic())
-			fieldString = "public ";
-		}
-		fieldString += Utility.stripPackagePrefix(field.typeName())
-				+ " " + field.name() 
-				+ " = " + valString;
+                String valString = getValueString(val);
+                String fieldString = "";
 
-		if (!visible.contains(field)) {
-		    fieldString += " (hidden)";
-		}
+                if(includeModifiers) {
+                    if(field.isPrivate())
+                        fieldString  = "private ";
+                    if(field.isProtected())
+                        fieldString = "protected ";
+                    if(field.isPublic())
+                        fieldString = "public ";
+                }
+
+                fieldString += Utility.stripPackagePrefix(field.typeName())
+                                                            + " " + field.name()
+                                                            + " = " + valString;
+
+        		if (!visible.contains(field)) {
+                    fieldString += " (hidden)";
+        		}
 		// the following code adds the word "inherited" to inherited
 		// fields - currently unused 
 		//else if (!field.declaringType().equals(cls)) {
 		//    fieldString += " (inherited)";
 		//}
-		fieldStrings.add(fieldString);
-	    }
-	}
-	return fieldStrings;
+                fieldStrings.add(fieldString);
+            }
+        }
+        return fieldStrings;
     }
 
     private Field getField(boolean getStatic, int slot)
@@ -338,15 +340,14 @@ public class JdiObject extends DebuggerObject
      */
     public static String getValueString(Value val)
     {
-	if(val == null)
-	    return "<null>";
-
-	else if((val instanceof ObjectReference) &&
-		!(val instanceof StringReference))
-	    return "<object reference>";
-
-	else
-	    return val.toString();
+        if(val == null)
+            return "<null>";
+        else if((val instanceof ObjectReference) &&
+                    !(val instanceof StringReference))
+        {
+            return "<object reference>";
+        }
+        else
+            return val.toString();
     }
-
 }
