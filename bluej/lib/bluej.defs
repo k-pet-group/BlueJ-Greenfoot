@@ -345,13 +345,13 @@ bluej.compiler.source14=false
 
 #win9xVmOptions=-classic
 win9xVmOptions=
-winVmOptions=
+winVmOptions=-Xint
 linuxVmOptions=
 solarisVmOptions=
 macosVmOptions=
 
 #default:
-VmOptions=
+VmOptions=-Xint
 
 
 #####################################################################
