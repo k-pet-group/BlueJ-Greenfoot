@@ -12,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2489 2004-04-08 08:58:58Z polle $
+ * @version $Id: Debugger.java 2963 2004-08-30 16:05:05Z polle $
  */
 public abstract class Debugger
 {
@@ -113,6 +113,16 @@ public abstract class Debugger
 	 * 						  object bench. 
 	 */
 	public abstract String guessNewName(String className);
+	
+	/**
+     * Guess a suitable name for an object about to be put on the object bench.
+     * 
+     * @param obj
+     *            the object that will be put on the object bench
+     * @return a String suitable as a name for an object on the object bench.
+     */
+    public abstract String guessNewName(DebuggerObject obj);
+
 
     /**
      * Return the machine status; one of the "machine state" constants:

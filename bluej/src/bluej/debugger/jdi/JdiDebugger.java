@@ -13,6 +13,7 @@ import bluej.debugmgr.Invoker;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
+import bluej.utility.JavaUtils;
 
 import com.sun.jdi.*;
 
@@ -34,7 +35,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 2938 2004-08-24 02:11:19Z davmac $
+ * @version $Id: JdiDebugger.java 2963 2004-08-30 16:05:05Z polle $
  */
 public class JdiDebugger extends Debugger
 {
@@ -240,7 +241,25 @@ public class JdiDebugger extends Debugger
 
         return newName + num;
     }
-
+    
+    
+    public String guessNewName(DebuggerObject obj)       
+    {
+        String name = null;
+        DebuggerClass cls = obj.getClassRef();
+        
+        if(cls.isEnum()) {
+            Value val = obj.getObjectReference();
+            name = JdiUtils.getJdiUtils().getValueString(val);
+        }
+        
+        if(name == null) {
+            name = cls.getName();
+        }
+        
+        return guessNewName(name);
+    }
+   
     /**
      * Create a class loader in the debugger.
      */

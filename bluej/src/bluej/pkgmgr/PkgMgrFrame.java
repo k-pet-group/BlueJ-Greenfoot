@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 2936 2004-08-24 01:25:58Z davmac $
+ * @version $Id: PkgMgrFrame.java 2963 2004-08-30 16:05:05Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -754,7 +754,7 @@ public class PkgMgrFrame extends JFrame
                 boolean tryAgain = true;
                 do {
                     String newObjectName = DialogManager.askString((Component) e.getSource(), "getobject-new-name",
-                            getProject().getDebugger().guessNewName(gotObj.getClassRef().getName()));
+                            getProject().getDebugger().guessNewName(gotObj));
 
                     if (newObjectName == null) {
                         tryAgain = false; // cancelled
