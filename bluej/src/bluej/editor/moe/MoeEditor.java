@@ -1734,6 +1734,13 @@ public final class MoeEditor extends JFrame
 
             if(reload) {
                 try {
+                    try {
+                        // this statement fails, but it is needed to avoid
+                        // caching of html page
+                        htmlPane.setPage("");
+                    }
+                    catch(Exception e) {}
+
                     File urlFile = new File(getDocPath());
                     URL myURL = urlFile.toURL();
                     htmlPane.setPage(myURL);
