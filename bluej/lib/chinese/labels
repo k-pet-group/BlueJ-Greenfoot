@@ -9,14 +9,28 @@ compileException=\u7f16\u8bd1\u65f6\u4ea7\u751f\u4f8b\u5916
 compiler.thread.title=BlueJ \u7f16\u8bd1\u5668\u7ebf\u7a0b
 compiler.invalidcompiler=bluej.compiler.type \u6ca1\u6709\u8bbe\u7f6e\u4e3a\u6b63\u786e\u7684\u7f16\u8bd1\u5668\u7c7b\u578b
 compiler.nocompiler=\u7f16\u8bd1\u5668\u65e0\u6cd5\u8fd0\u884c
+compiler.warningDialog.title=\u7f16\u8bd1\u5668\u8b66\u544a
+compiler.warningDialog.label=\u6700\u540e\u4e00\u6b21\u7f16\u8bd1\u7684\u8b66\u544a 
+compiler.warningDialog.noWarnings=\u6ca1\u6709\u8b66\u544a
 
-debugger.objectviewer.title=BlueJ:  \u7c7b\u7684\u5bf9\u8c61\u68c0\u6d4b\u5668
-debugger.resultviewer.title=BlueJ:  \u65b9\u6cd5\u7684\u7ed3\u679c
-debugger.objectviewer.staticListTitle=\u9759\u6001\u57df
-debugger.objectviewer.objListTitle=\u5bf9\u8c61\u57df
-debugger.objectviewer.inspect=\u67e5\u770b
-debugger.objectviewer.get=\u83b7\u53d6
-debugger.objectviewer.objectClassName=\u7c7b\u7684\u5bf9\u8c61
+debugger.assert.assertThat=\u65ad\u8a00:
+debugger.assert.resultIs=\u7ed3\u679c\u662f
+debugger.assert.equalTo=\u7b49\u4e8e
+debugger.assert.equalToFloatingPoint=\u7b49\u4e8e (double \u6216\u8005 float)
+debugger.assert.sameAs=\u7c7b\u4f3c\u4e8e
+debugger.assert.notSameAs=\u4e0d\u540c\u4e8e
+debugger.assert.notNull=\u975e null
+debugger.assert.null=null
+debugger.assert.delta=\u53d8\u5316
+
+debugger.inspector.title=BlueJ:  \u67e5\u770b\u5668
+debugger.inspector.object.title=BlueJ:  \u5bf9\u8c61\u67e5\u770b\u5668
+debugger.inspector.class.title=BlueJ:  \u7c7b\u67e5\u770b\u5668
+debugger.inspector.result.title=BlueJ:  \u65b9\u6cd5\u8fd4\u56de\u503c
+debugger.inspector.showClass=\u663e\u793a\u9759\u6001\u6210\u5458\u53d8\u91cf
+debugger.inspector.inspect=\u67e5\u770b
+debugger.inspector.get=\u83b7\u53d6
+debugger.inspector.classNameLabel=\u7c7b\u540d
 
 debugger.objectwrapper.methodException=\u8bbf\u95ee\u65b9\u6cd5\u65f6\u4ea7\u751f\u4f8b\u5916:
 debugger.objectwrapper.invocationException=\u8c03\u7528\u65f6\u4ea7\u751f\u4f8b\u5916:
@@ -42,7 +56,7 @@ debugger.jdiDebugger.noBreakpointMsg=\u6e05\u9664\u65ad\u70b9: \u5728\u672c\u884
 debugger.jdiDebugger.noLineNumberMsg=\u6b64\u7c7b\u4e0d\u80fd\u7f16\u8bd1\uff0c\u56e0\u4e3a\u7f3a\u5c11\u884c\u53f7\u4fe1\u606f. \u4f60\u4e0d\u80fd\u8bbe\u7f6e\u65ad\u70b9.
 debugger.jdiDebugger.noCodeMsg=\u4e0d\u80fd\u8bbe\u7f6e\u65ad\u70b9\uff1a\u6b64\u884c\u65e0\u4ee3\u7801
 debugger.jdiDebugger.internalErrorMsg=\u8bd5\u56fe\u8bbe\u7f6e\u6b64\u65ad\u70b9\u65f6\u4ea7\u751f\u5185\u90e8\u9519\u8bef
-  
+
 #library browser configuration
 browser.title=BlueJ:  \u5e93\u6d4f\u89c8\u5668
 browser.version=0.1
@@ -70,138 +84,192 @@ browser.menu.library.addlibrary.title=\u589e\u52a0\u5e93
 browser.menu.library.refresh=\u5237\u65b0
 browser.menu.library.close=\u5173\u95ed
 
-# Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ: \u53c2\u6570\u8bbe\u7f6e
-prefmgr.notation.title=\u5efa\u6a21\u7b26\u53f7\u98ce\u683c
-prefmgr.notation.blue=BlueJ\u98ce\u683c
-prefmgr.notation.uml=\u7edf\u4e00\u5efa\u6a21\u8bed\u8a00(UML)\u98ce\u683c
-
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=\u5e93
 classmgr.userlibraries=\u7528\u6237\u5e93
-classmgr.systemlibraries=\u7cfb\u7edf\u5e93
-classmgr.bootlibraries=\u5f15\u5bfc\u5e93
+classmgr.userliblibraries=\u7528\u6237\u5e93\u6765\u81ea
 classmgr.add=\u589e\u52a0
 classmgr.delete=\u5220\u9664
+classmgr.statuscolumn=\u72b6\u6001
+classmgr.statusgood=\u5df2\u88c5\u8f7d
+classmgr.statusbad=\u9519\u8bef
+classmgr.statusnew=\u6ca1\u6709\u8f7d\u5165
 classmgr.locationcolumn=\u5b9a\u4f4d
-classmgr.descriptioncolumn=\u63cf\u8ff0
-classmgr.bootclass=\u5f15\u5bfc\u7c7b\u5e93
-classmgr.bluejclass=BlueJ\u7c7b\u5e93
 classmgr.error.unresolvable=\u4e0d\u53ef\u786e\u8ba4\u7684\u8def\u5f84
 classmgr.error.nodescription=\u65e0\u63cf\u8ff0\u4fe1\u606f
 classmgr.error.missingclasspath=\u65e0Java\u7684classpath. \u7c7b\u88c5\u8f7d\u65f6\u53ef\u80fd\u4ea7\u751f\u5f02\u5e38\uff0c\u56e0\u4e3a\u5f53\u524d\u76ee\u5f55\u4e0b\u7684\u7c7b\u5c06\u5148\u88ab\u89e3\u6790.
 classmgr.error.missingbootclasspath=\u65e0Sun boot classpath. BlueJ \u4e0d\u80fd\u5728\u65e9\u4e8eJDK 1.2\u7684\u73af\u5883\u4e0b\u8fd0\u884c.
 
+# Preferences Manager user interface elements and error messages
+prefmgr.title=BlueJ: \u53c2\u6570\u8bbe\u7f6e
+
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=\u6742\u9879
-prefmgr.misc.editorfontsize=\u7f16\u8f91\u5668\u5b57\u4f53\u5927\u5c0f
-prefmgr.misc.usesyntaxhilighting=\u4f7f\u7528\u53e5\u6cd5\u9ad8\u4eae\u663e\u793a
+prefmgr.misc.documentation.title=\u6587\u672c\u8bbe\u7f6e
 prefmgr.misc.jdkurlpath=JDK \u6587\u6863URL
 prefmgr.misc.linkToLib=\u5f53\u4ea7\u751f\u9879\u76ee\u6587\u6863\u65f6\u4f7f\u7528\u6b64URL
 prefmgr.misc.linkToLibNoteLine1=\u5982\u679c\u7528\u6b64URL\u751f\u6210\u6587\u6863, \u90a3\u4e48\u5b83\u5fc5\u987b\u662f\u6b63\u786e\u7684\u548c\u53ef\u8bbf\u95ee\u7684.
 prefmgr.misc.linkToLibNoteLine2=\u53e6\u5916\u751f\u6210\u6587\u6863\u5931\u8d25\uff0c\u8bf7\u4e0d\u8981\u4f7f\u7528\u6b64\u9009\u9879\uff0c\u4f7f\u7528\u8131\u673a\u5de5\u4f5c.
+prefmgr.misc.testing.title=\u5355\u5143\u6d4b\u8bd5\u8bbe\u7f6e
+prefmgr.misc.showTesting=\u663e\u793a\u5355\u5143\u6d4b\u8bd5\u5de5\u5177
+prefmgr.misc.vm.title=\u865a\u62df\u673a\u8bbe\u7f6e
+prefmgr.misc.optimiseVM=\u4f7f\u7528\u4f18\u5316 (\u6267\u884c\u7684\u66f4\u5feb\uff0c\u4f46\u662f\u53ef\u80fd\u5bfc\u81f4\u8c03\u8bd5\u9519\u8bef)
+prefmgr.misc.addLibTitle=\u9009\u62e9\u76ee\u5f55\u6216\u8005 jar/zip \u6587\u4ef6
+prefmgr.misc.libFileFilter=\u5e93\u6587\u4ef6 (*.jar;*.zip) \u6216\u8005\u7c7b\u76ee\u5f55
+
+# Editor Preferences panel
+prefmgr.edit.prefpaneltitle=\u7f16\u8f91\u5668
+prefmgr.edit.editor.title=\u7f16\u8f91\u5668\u8bbe\u5b9a
+prefmgr.edit.editorfontsize=\u5b57\u4f53\u5927\u5c0f
+prefmgr.edit.usesyntaxhilighting=\u4f7f\u7528\u8bed\u6cd5\u9ad8\u4eae
+prefmgr.edit.autoindent=\u81ea\u52a8\u5bf9\u9f50 (\u56de\u8f66\u548cTab\u952e)
+prefmgr.edit.displaylinenumbers=\u663e\u793a\u884c\u53f7
+prefmgr.edit.makeBackup=\u5907\u4efd\u6e90\u6587\u4ef6
+prefmgr.edit.matchBrackets=\u5339\u914d\u62ec\u53f7
 
 
- #---------------
+# Extensions Manager Help panel
+extmgr.title=BlueJ:  \u5df2\u5b89\u88c5\u7684\u6269\u5c55
+extmgr.extensions=\u6269\u5c55
+extmgr.systemExtensionShort=\u7cfb\u7edfSystem
+extmgr.systemExtensionLong=\u7cfb\u7edf\u6269\u5c55 (\u5bf9\u6240\u6709\u9879\u76ee\u6709\u6548)
+extmgr.projectExtensionShort=\u9879\u76ee
+extmgr.projectExtensionLong=\u9879\u76ee\u6269\u5c55 (\u53ea\u5bf9\u5f53\u524d\u9879\u76ee\u6709\u6548)
+extmgr.statuscolumn=\u72b6\u6001
+extmgr.namecolumn=\u540d\u5b57
+extmgr.typecolumn=\u7c7b\u578b
+extmgr.details=\u6269\u5c55\u7ec6\u8282
+extmgr.details.location=\u4f4d\u7f6e
+extmgr.details.version=\u7248\u672c
+extmgr.details.url=URL
+
+extmgr.status.notused=\u672a\u88ab\u4f7f\u7528
+extmgr.status.loaded=\u5df2\u8f7d\u5165
+extmgr.status.error=\u9519\u8bef
+extmgr.status.unloaded=\u672a\u52a0\u8f7dunloaded
+extmgr.version.unknown=\u672a\u77e5
+extensions.nodescription=\u672a\u7ed9\u51fa\u3002
+
+# Extension errors
+extmgr.error.nomanifest=\u6ca1\u6709manifest\u6587\u4ef6
+extmgr.error.nomain=Manifest\u6ca1\u6709\u5305\u542bMain-Class\u5c5e\u6027
+extmgr.error.notsubclass=Main class\u4e0d\u662f\u6269\u5c55\u7684\u4e00\u4e2a\u5b50\u7c7b
+extmgr.error.cannotload=\u6269\u5c55\u4e0d\u80fd\u88ab\u8f7d\u5165
+
+#---------------
 #Editor labels
 #---------------
 editor.title=BlueJ: \u7f16\u8f91\u5668
 
 #button lables for toolbar commands
-editor.compileLabel = \u7f16\u8bd1
-editor.undoLabel = \u64a4\u9500
-editor.cutLabel = \u526a\u5207
-editor.copyLabel = \u590d\u5236
-editor.pasteLabel = \u7c98\u8d34
-editor.findLabel = \u67e5\u627e...
-editor.find-nextLabel = \u67e5\u627e\u4e0b\u4e00\u4e2a
-editor.closeLabel = \u5173\u95ed
-editor.page-setupLabel = \u9875\u9762\u8bbe\u7f6e...
+editor.compileLabel=\u7f16\u8bd1
+editor.undoLabel=\u64a4\u9500
+editor.cutLabel=\u526a\u5207
+editor.copyLabel=\u590d\u5236
+editor.pasteLabel=\u7c98\u8d34
+editor.closeLabel=\u5173\u95ed
+editor.page-setupLabel=\u9875\u9762\u8bbe\u7f6e...
 
 # menu labels (MUST be defined)
-editor.classLabel = \u7c7b
-editor.editLabel = \u7f16\u8f91
-editor.toolsLabel = \u5de5\u5177
-editor.debugLabel = \u8c03\u8bd5
-editor.optionLabel = \u9009\u9879
-editor.helpLabel = \u5e2e\u52a9
+editor.classLabel=\u7c7b
+editor.editLabel=\u7f16\u8f91
+editor.toolsLabel=\u5de5\u5177
+editor.debugLabel=\u8c03\u8bd5
+editor.optionLabel=\u9009\u9879
+editor.helpLabel=\u5e2e\u52a9
 
 # item labels (can be omitted if same as action name)
-editor.saveLabel = \u4fdd\u5b58
-editor.reloadLabel = \u91cd\u65b0\u8f7d\u5165
-editor.printLabel = \u6253\u5370...
-editor.closeLabel =\u5173\u95ed
+editor.saveLabel=\u4fdd\u5b58
+editor.reloadLabel=\u91cd\u65b0\u8f7d\u5165
+editor.printLabel=\u6253\u5370...
+editor.closeLabel=\u5173\u95ed
 
-editor.redoLabel = \u91cd\u505a
-editor.cut-to-clipboardLabel = \u526a\u5207
-editor.copy-to-clipboardLabel = \u590d\u5236
-editor.paste-from-clipboardLabel = \u7c98\u8d34
-editor.commentLabel = \u6ce8\u91ca
-editor.uncommentLabel = \u4e0d\u6ce8\u91ca
-editor.insert-methodLabel = \u63d2\u5165\u65b9\u6cd5
+editor.redoLabel=\u91cd\u505a
+editor.cut-to-clipboardLabel=\u526a\u5207
+editor.copy-to-clipboardLabel=\u590d\u5236
+editor.paste-from-clipboardLabel=\u7c98\u8d34
+editor.indent-blockLabel=\u7f29\u8fd1\u66f4\u591a
+editor.deindent-blockLabel=\u7f29\u8fdb\u66f4\u5c11
+editor.comment-blockLabel=\u6ce8\u91ca
+editor.uncomment-blockLabel=\u53d6\u6d88\u6ce8\u91ca
+editor.insert-methodLabel=\u63d2\u5165\u65b9\u6cd5
 
-editor.find-backwardLabel = \u5411\u540e\u67e5\u627e...
-editor.replaceLabel = \u66ff\u6362...
-editor.compileLabel = \u7f16\u8bd1
-editor.toggle-breakpointLabel = \u8bbe\u7f6e/\u6e05\u9664\u65ad\u70b9
-editor.toggle-interface-viewLabel = \u5207\u6362\u63a5\u53e3\u89c6\u56fe
+editor.findLabel=\u67e5\u627e...
+editor.find-nextLabel=\u67e5\u627e\u4e0b\u4e00\u4e2a
+editor.find-next-backwardLabel=\u627e\u51fa\u4e0b\u4e00\u4e2a\u8fd4\u56de\u70b9
+editor.go-to-lineLabel=\u8df3\u8f6c\u5230\u67d0\u884c...
+editor.replaceLabel=\u66ff\u6362...
+editor.compileLabel=\u7f16\u8bd1
+editor.toggle-breakpointLabel=\u8bbe\u7f6e/\u6e05\u9664\u65ad\u70b9
+editor.toggle-interface-viewLabel=\u5207\u6362\u63a5\u53e3\u89c6\u56fe
 
-editor.implementationLabel = \u5b9e\u73b0
-editor.interfaceLabel = \u63a5\u53e3
+editor.go-to-lineLabel=\u8df3\u8f6c\u5230\u67d0\u884c...
+editor.gotoline.title=\u8df3\u8f6c\u5230\u67d0\u884c
+editor.gotoline.label=\u8f93\u5165\u884c\u53f7
+editor.gotoline.notNumericMessage=\u8f93\u5165\u5fc5\u987b\u662f\u6570\u5b57
 
-editor.state.readOnly =\u53ea\u8bfb
-editor.state.saved = \u4fdd\u5b58
-editor.state.changed = \u4fee\u6539
+editor.implementationLabel=\u5b9e\u73b0
+editor.interfaceLabel=\u63a5\u53e3
 
-editor.key-bindingsLabel = \u70ed\u952e\u8868...
-editor.preferencesLabel = \u53c2\u6570...
+editor.state.readOnly=\u53ea\u8bfb
+editor.state.saved=\u4fdd\u5b58
+editor.state.changed=\u4fee\u6539
+
+editor.key-bindingsLabel=\u70ed\u952e\u8868...
+editor.preferencesLabel=\u53c2\u6570...
 
 # Dialog titles and texts
-editor.functions.title = \u7f16\u8f91\u5668\u529f\u80fd
-editor.functions.editFunctions = \u7f16\u8f91\u529f\u80fd
-editor.functions.moveScroll = \u79fb\u52a8\u548c\u5377\u6eda
-editor.functions.classFunctions = \u7c7b\u529f\u80fd
-editor.functions.customisation = \u5b9a\u5236
-editor.functions.help = \u5e2e\u52a9
-editor.functions.misc = \u6742\u9879
+editor.functions.title=\u7f16\u8f91\u5668\u529f\u80fd
+editor.functions.editFunctions=\u7f16\u8f91\u529f\u80fd
+editor.functions.moveScroll=\u79fb\u52a8\u548c\u5377\u6eda
+editor.functions.classFunctions=\u7c7b\u529f\u80fd
+editor.functions.customisation=\u5b9a\u5236
+editor.functions.help=\u5e2e\u52a9
+editor.functions.misc=\u6742\u9879
 editor.functions.defaults=\u7f3a\u7701
 editor.functions.categories=\u79cd\u7c7b:
 editor.functions.keys=\u5bf9\u5e94\u70ed\u952e
 editor.functions.addkey=\u589e\u52a0\u70ed\u952e
 editor.functions.delkey=\u5220\u9664\u70ed\u952e
 
-editor.find.title = \u67e5\u627e
-editor.find.textfield.label = \u67e5\u627e:
-editor.find.forward=\u5411\u524d
-editor.find.backward=\u5411\u540e
+editor.find.title=\u67e5\u627e
+editor.find.find.label=\u67e5\u627e:
+editor.find.replace.label=\u66ff\u6362:
+editor.find.findNext=\u4e0b\u4e00\u4e2a
+editor.find.replace=\u66ff\u6362
+editor.find.replaceAll=\u5168\u90e8\u66ff\u6362
+editor.find.up=\u5411\u4e0a\u67e5\u627e
+editor.find.down=\u5411\u4e0b\u67e5\u627e
+editor.find.ignoreCase=\u5ffd\u7565\u683c\u5f0f
+editor.find.wholeWord=\u6574\u8bcd
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe \u7248
-editor.info.readingProblem = \u8bfb\u6b64\u6587\u4ef6\u65f6\u6709\u51fa\u73b0\u95ee\u9898.
-editor.info.regularFile = (\u5b83\u662f\u4e00\u4e2a\u6b63\u89c4\u7684\u6587\u4ef6\u5417\uff1f \u4f60\u6709\u8bfb\u6743\u9650\u5417\uff1f)
-editor.info.newFile =\u65b0\u5efa\u6587\u4ef6
-editor.info.errorSaving = \u4fdd\u5b58\u6587\u4ef6\u65f6\u51fa\u9519!
-editor.info.compiled = \u7f16\u8bd1\u5b8c\u6210 - \u6ca1\u6709\u8bed\u6cd5\u9519\u8bef
-editor.info.noChanges =\u6ca1\u6709\u6539\u53d8\u4e0d\u9700\u8981\u4fdd\u5b58
-editor.info.cannotReload = \u4e0d\u80fd\u91cd\u65b0\u88c5\u8f7d - \u6b64\u6587\u672c\u672a\u4fdd\u5b58!
-editor.info.reload = (\"\u91cd\u65b0\u88c5\u8f7d\" \u4ece\u78c1\u76d8\u91cd\u65b0\u88c5\u8f7d\u6700\u8fd1\u4e00\u6b21\u7684\u5b58\u50a8\u72b6\u6001.)
-editor.info.emptySearchString = \u5c06\u67e5\u627e\u5b57\u7b26\u4e32\u7f6e\u7a7a.
-editor.info.notFound = \u6ca1\u627e\u5230
-editor.info.compiling = \u7f16\u8bd1...
-editor.info.cannotSetBreak = \u4e0d\u80fd\u8bbe\u7f6e\u65ad\u70b9:\\u65e0\u4ee3\u7801\u4e0e\u6b64\u7f16\u8f91\u5668\u76f8\u5173\u8054.
-editor.info.fileDisappeared = \u9519\u8bef: \u6b64\u6587\u4ef6\u4f3c\u4e4e\u4e0d\u5b58\u5728!
-editor.info.fileReadError = \u9519\u8bef: \u5f53\u8bd5\u56fe\u8bfb\u6b64\u6587\u4ef6\u65f6\u51fa\u9519.
-editor.info.saved = \u6587\u4ef6\u4fdd\u5b58\u5b8c\u6bd5
-editor.info.printing = \u6253\u5370...
-editor.info.printed = \u6253\u5370... \u5b8c\u6210.
-editor.info.cancelled = \u53d6\u6d88.
-editor.info.generatingDoc = \u751f\u6210\u7c7b\u63a5\u53e3...
-editor.info.loadingDoc = \u88c5\u8f7d\u7c7b\u63a5\u53e3...
-editor.info.docLoaded = \u88c5\u8f7d\u7c7b\u63a5\u53e3... \u5b8c\u6210.
-editor.info.docAborted = \u6709javadoc\u751f\u6210\u63a5\u53e3\u6587\u6863\u65f6\u4ea7\u751f\n\u4e25\u91cd\u95ee\u9898. \u5931\u8d25.
-editor.info.docDisappeared = \u627e\u4e0d\u5230HTML \u6587\u4ef6:
-editor.info.docNoFrames = \u5728\u7f16\u8f91\u5668\u9884\u89c8\u4e2d\u65e0\u6cd5\u663e\u793a\u6846\u67b6.
-editor.info.tabsExpanded = \u628a\u6240\u6709TAB\u8f6c\u6362\u6210\u7a7a\u683c. (\u4f60\u5de5\u4f5c\u5728\u8f6f\nTAB\u72b6\u6001\u4e0b,\u800c\u6587\u4ef6\u5305\u542b\u4e86\u786cTAB.)
+editor.info.version=Moe \u7248
+editor.info.readingProblem=\u8bfb\u6b64\u6587\u4ef6\u65f6\u6709\u51fa\u73b0\u95ee\u9898.
+editor.info.regularFile=(\u5b83\u662f\u4e00\u4e2a\u6b63\u89c4\u7684\u6587\u4ef6\u5417\uff1f \u4f60\u6709\u8bfb\u6743\u9650\u5417\uff1f)
+editor.info.newFile=\u65b0\u5efa\u6587\u4ef6
+editor.info.errorSaving=\u4fdd\u5b58\u6587\u4ef6\u65f6\u51fa\u9519!
+editor.info.compiled=\u7f16\u8bd1\u5b8c\u6210 - \u6ca1\u6709\u8bed\u6cd5\u9519\u8bef
+editor.info.noChanges=\u6ca1\u6709\u6539\u53d8\u4e0d\u9700\u8981\u4fdd\u5b58
+editor.info.cannotReload=\u4e0d\u80fd\u91cd\u65b0\u88c5\u8f7d - \u6b64\u6587\u672c\u672a\u4fdd\u5b58!
+editor.info.reload=("\u91cd\u65b0\u88c5\u8f7d" \u4ece\u78c1\u76d8\u91cd\u65b0\u88c5\u8f7d\u6700\u8fd1\u4e00\u6b21\u7684\u5b58\u50a8\u72b6\u6001.)
+editor.info.emptySearchString=\u5c06\u67e5\u627e\u5b57\u7b26\u4e32\u7f6e\u7a7a.
+editor.info.notFound=\u6ca1\u627e\u5230
+editor.info.compiling=\u7f16\u8bd1...
+editor.info.cannotSetBreak=\u4e0d\u80fd\u8bbe\u7f6e\u65ad\u70b9:\u65e0\u4ee3\u7801\u4e0e\u6b64\u7f16\u8f91\u5668\u76f8\u5173\u8054.
+editor.info.fileDisappeared=\u9519\u8bef: \u6b64\u6587\u4ef6\u4f3c\u4e4e\u4e0d\u5b58\u5728!
+editor.info.fileReadError=\u9519\u8bef: \u5f53\u8bd5\u56fe\u8bfb\u6b64\u6587\u4ef6\u65f6\u51fa\u9519.
+editor.info.saved=\u6587\u4ef6\u4fdd\u5b58\u5b8c\u6bd5
+editor.info.printing=\u6253\u5370...
+editor.info.printed=\u6253\u5370... \u5b8c\u6210.
+editor.info.cancelled=\u53d6\u6d88.
+editor.info.generatingDoc=\u751f\u6210\u7c7b\u63a5\u53e3...
+editor.info.loadingDoc=\u88c5\u8f7d\u7c7b\u63a5\u53e3...
+editor.info.docLoaded=\u88c5\u8f7d\u7c7b\u63a5\u53e3... \u5b8c\u6210.
+editor.info.docAborted=\u6709javadoc\u751f\u6210\u63a5\u53e3\u6587\u6863\u65f6\u4ea7\u751f\n\u4e25\u91cd\u95ee\u9898. \u5931\u8d25.
+editor.info.docDisappeared=\u627e\u4e0d\u5230HTML \u6587\u4ef6:
+editor.info.docNoFrames=\u5728\u7f16\u8f91\u5668\u9884\u89c8\u4e2d\u65e0\u6cd5\u663e\u793a\u6846\u67b6.
+editor.info.tabsExpanded=\u628a\u6240\u6709TAB\u8f6c\u6362\u6210\u7a7a\u683c. (\u4f60\u5de5\u4f5c\u5728\u8f6f\nTAB\u72b6\u6001\u4e0b,\u800c\u6587\u4ef6\u5305\u542b\u4e86\u786cTAB.)
 editor.printer.continued=\u7ee7\u7eed
 #End Editor labels
 
@@ -211,10 +279,14 @@ pkgmgr.chooseInhFrom=\u9009\u62e9\u5b50\u7c7b
 pkgmgr.chooseInhTo=\u9009\u62e9\u7236\u7c7b
 pkgmgr.chooseArrow=\u9009\u62e9\u8981\u5220\u9664\u7684\u4e00\u4e2a\u7bad\u5934
 pkgmgr.packageSaved=\u5df2\u4fdd\u5b58\u5305
-pkgmgr.info.printing = \u6253\u5370...
-pkgmgr.info.printed = \u6253\u5370... \u5b8c\u6210.
+pkgmgr.info.printing=\u6253\u5370...
+pkgmgr.info.printed=\u6253\u5370... \u5b8c\u6210.
+
+utility.packageChooser.previewPane1=\u9884\u89c8
+utility.packageChooser.previewPane2=\u5305\u7ed3\u6784
 
 # dialog titles and texts
+pkgmgr.title=BlueJ:  
 
 pkgmgr.newPkg.title=\u65b0\u5efa\u9879\u76ee
 pkgmgr.newPkg.buttonLabel=\u65b0\u5efa
@@ -247,11 +319,26 @@ pkgmgr.packagemenu.remove=\u5220\u9664
 pkgmgr.classmenu.runApplet=\u8fd0\u884cApplet
 pkgmgr.classmenu.edit=\u6253\u5f00\u7f16\u8f91\u5668
 pkgmgr.classmenu.compile=\u7f16\u8bd1
+pkgmgr.classmenu.inspect=\u67e5\u770b
 pkgmgr.classmenu.remove=\u5220\u9664
+pkgmgr.classmenu.createTest=\u521b\u5efa\u6d4b\u8bd5\u7c7b
 
-pkgmgr.view.label=\u89c6\u56fe
-pkgmgr.view.usesLabel=\u7528\u4f8b
-pkgmgr.view.inheritLabel=\u7ee7\u627f
+pkgmgr.test.label=\u6d4b\u8bd5
+pkgmgr.test.record=\u6b63\u5728\u8bb0\u5f55
+pkgmgr.test.run=\u8fd0\u884c\u6d4b\u8bd5
+pkgmgr.test.end=\u7ed3\u675f
+pkgmgr.test.succeeded=\u5df2\u6210\u529f
+pkgmgr.test.noTestName=\u4f60\u5fc5\u987b\u8f93\u5165\u8fd9\u4e2a\u6d4b\u8bd5\u7684\u540d\u5b57
+pkgmgr.test.invalidTestName=\u6d4b\u8bd5\u7684\u540d\u5b57\u5fc5\u987b\u662f\u4e00\u4e2a\u5408\u6cd5\u7684java\u6807\u8bc6\u7b26
+pkgmgr.test.recording=\u6b63\u5728\u8bb0\u5f55
+
+pkgmgr.test.popup.testAll=\u6d4b\u8bd5\u6240\u6709\u7684
+pkgmgr.test.popup.noTests=\u6ca1\u6709\u6d4b\u8bd5\u65b9\u6cd5
+pkgmgr.test.popup.testPrefix=\u6d4b\u8bd5
+pkgmgr.test.popup.createTest=\u521b\u5efa\u6d4b\u8bd5\u65b9\u6cd5...
+pkgmgr.test.popup.benchToFixture=\u5bf9\u8c61\u69fd\u5230\u6d4b\u8bd5\u5de5\u5177
+pkgmgr.test.popup.fixtureToBench=\u6d4b\u8bd5\u5de5\u5177\u5230\u5bf9\u8c61\u69fd
+
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  \u5efa\u65b0\u7c7b
@@ -262,13 +349,14 @@ pkgmgr.newClass.abstract=\u62bd\u8c61\u7c7b
 pkgmgr.newClass.interface=\u63a5\u53e3
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
+pkgmgr.newClass.unittest=\u5355\u5143\u6d4b\u8bd5
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  \u5efa\u65b0\u5305
 pkgmgr.newPackage.label=\u5305\u540d:
 pkgmgr.newPackage.newPackage=\u5305
 
-# " Use Library Class" dialog
+# "Use Library Class" dialog
 callLibraryDialog.title=BlueJ: \u8c03\u7528\u7c7b\u5e93
 callLibraryDialog.classLabel=\u7c7b:
 callLibraryDialog.docButton=\u6587\u6863
@@ -277,7 +365,14 @@ callLibraryDialog.clickHere1=\u8f93\u5165\u7c7b\u7684\u5168\u540d,\u7136\u540e\u
 callLibraryDialog.clickHere2=\u663e\u793a\u6784\u9020\u5668\u548c\u65b9\u6cd5.
 callLibraryDialog.classNotFound1=\u65e0\u6cd5\u627e\u5230\u7c7b.
 callLibraryDialog.classNotFound2=(\u68c0\u67e5\u7c7b\u540d\uff0c\u518d\u6309\u56de\u8f66.)
-    
+
+# "Free Form Call" dialog
+freeCallDialog.title=BlueJ:  \u8ba1\u7b97
+freeCallDialog.fieldLabel=\u8ba1\u7b97:
+freeCallDialog.resultLabel=\u8fd9\u662f
+freeCallDialog.returnsResult=\u4e00\u4e2a\u8868\u8fbe\u5f0f (\u6709\u8fd4\u56de\u7ed3\u679c)
+freeCallDialog.returnsNoResult=\u4e00\u4e2a\u8bed\u53e5 (\u6ca1\u6709\u8fd4\u56de\u7ed3\u679c)
+
 # "export" dialog
 pkgmgr.export.title=BlueJ:  \u5bfc\u51fa\u9879\u76ee
 pkgmgr.export.helpLine1=\u5c06\u5f53\u524d\u9879\u76ee\u7684\u526f\u672c\u5bfc\u51fa
@@ -287,13 +382,25 @@ pkgmgr.export.jarFileLabel=\u6309jar\u6587\u4ef6\u5b58\u50a8
 pkgmgr.export.classLabel=\u4e3b\u7c7b:
 pkgmgr.export.sourceLabel=\u5305\u542b\u6e90\u6587\u4ef6
 pkgmgr.export.noClassText=\u65e0 (\u65e0\u6cd5\u6267\u884c)
-    
+
+# "open-non-bluej" mismatch dialog
+pkgmgr.importmismatch.title=BlueJ:  \u5305\u6240\u5728\u884c\u4e0d\u5339\u914d
+pkgmgr.importmismatch.helpLine1=\u8b66\u544a: \u8fd9\u4e0d\u662fJava\u6240\u671f\u671b\u7684\u9876\u5c42\u76ee\u5f55
+pkgmgr.importmismatch.helpLine2=\u9879\u76ee\u7684\u58f0\u660e\u548c\u6b64\u9879\u76ee\u7684\u5176\u4ed6\u7c7b\u5305\u4e2d\u7684\u58f0\u660e\u4e00\u6837
+pkgmgr.importmismatch.helpLine3=\u6253\u5f00\u6b64\u76ee\u5f55\u5c06\u6539\u53d8\u5305\u4e2d\u6240\u6709\u7684\u58f0\u660e
+pkgmgr.importmismatch.helpLine4=\u4e0b\u5217\u4e3a\u6b64\u9879\u76ee\u7684\u539f\u6587\u4ef6.
+pkgmgr.importmismatch.helpLine5=\u53ef\u80fd\u4f60\u6253\u5f00\u7684\u662f\u5b83\u7684\u7236\u76ee\u5f55
+pkgmgr.importmismatch.helpLine6=\u5df2\u9009\u3002\u4f8b\u5982\uff1a\u6253\u5f00\u7684Java\u9879\u76ee\u6587\u4ef6\u5df2\u5305\u542b
+pkgmgr.importmismatch.helpLine7=\u5305 "org.bluej",\u5fc5\u987b\u9009\u62e9\u6b64\u76ee\u5f55
+pkgmgr.importmismatch.helpLine8=_\u5305\u542b_ "org", \u800c\u4e0d\u662f "org" \u6216 "bluej"\u76ee\u5f55\u672c\u8eab.
+pkgmgr.importmismatch.helpLine9=\u8fd8\u60f3\u7ee7\u7eed\u6253\u5f00\u6216\u6539\u53d8 \u5305\u7684\u58f0\u660e\u5417\uff1f
+
 # "import" failure dialog
 pkgmgr.importfailed.title=BlueJ:  \u5bfc\u5165\u72b6\u6001
 pkgmgr.importfailed.helpLine1=\u5bfc\u5165\u65f6\u62f7\u8d1d\u4e0b\u5217\u6587\u4ef6\u5931\u8d25.
 pkgmgr.importfailed.helpLine2=\u6587\u4ef6\u5df2\u7ecf\u5b58\u5728
 pkgmgr.importfailed.helpLine3=\u5df2\u5b58\u5728\u4e8e\u76ee\u6807\u9879\u76ee\u4e2d.
-    
+
 # "version check" dialog
 pkgmgr.versionDlg.title=BlueJ: \u68c0\u67e5\u65b0\u7684\u7248\u672c
 pkgmgr.versionDlg.helpLine1=\u8fd9\u9879\u529f\u80fd\u5c06\u68c0\u67e5\u662f\u5426\u662f\u65b0\u7684 BlueJ \u7248\u672c
@@ -312,57 +419,77 @@ pkgmgr.runApplet.webBrowser=\u5728web\u6d4f\u89c8\u5668\u4e2d\u8fd0\u884cApplet
 pkgmgr.runApplet.heightLbl=\u9ad8 =
 pkgmgr.runApplet.widthLbl=\u5bbd =
 pkgmgr.runApplet.newParameterLbl=\u6dfb\u52a0\u65b0\u53c2\u6570
-pkgmgr.runApplet.appletParameterLbl= Applet\u53c2\u6570
+pkgmgr.runApplet.appletParameterLbl=Applet\u53c2\u6570
 pkgmgr.runApplet.nameLbl=\u540d\u79f0 =
 pkgmgr.runApplet.valueLbl=\u503c =
 pkgmgr.runApplet.paramName=\u53c2\u6570\u540d
 pkgmgr.runApplet.value=\u503c
-pkgmgr.runApplet.htmlComment=<!-- \u6b64\u6587\u4ef6\u7531BlueJ Java Development\u81ea\u52a8\u751f\u6210 -->\n<!-- \u73af\u5883.  \u6bcf\u6b21\u81ea\u52a8\u751f\u6210 -->\n<!-- applet\u5728\u8fd0\u884c.  \u4efb\u4f55\u624b\u52a8\u6539\u53d8\u90fd\u5c06\u5bfc\u81f4\u6587\u4ef6\u4e22\u5931 -->\n<!-- \u4e0b\u6b21\u6b64applet\u5728BlueJ\u4e2d\u8fd0\u884c. \u5b58\u4e3a  -->\n<!-- directory outside of the package directory if you want to    -->\n<!-- preserve this file. -->
-pkgmgr.runApplet.htmlExportedComment=<!-- \u6b64\u6587\u4ef6\u7531BlueJ Java Development \u81ea\u52a8\u751f\u6210 -->\n<!-- \u73af\u5883.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej package directory of the applet at the time of this page being generated. -->\n<!-- If the location of that package alters you will need to edit the codebase value.       -->
-    
-    
+pkgmgr.runApplet.htmlComment=<!-- \u6b64\u6587\u4ef6\u7531BlueJ Java Development\u73af\u5883\u81ea\u52a8\u751f\u6210   -->\n<!-- \u6bcf\u6b21applet\u8fd0\u884c\u8fd9\u4e2a\u6587\u4ef6\u90fd\u4f1a\u88ab\u81ea\u52a8\u91cd\u65b0\u751f\u6210\u3002   -->\n<!-- \u5f53\u8fd9\u4e2aapplet\u4e0b\u4e00\u6b21\u5728BlueJ\u4e2d\u8fd0\u884c\u7684\u65f6\u5019\uff0c      -->\n<!-- \u4efb\u4f55\u624b\u52a8\u7684\u6539\u53d8\u90fd\u5c06\u4e22\u5931\u3002                     -->\n<!-- \u56e0\u6b64\u628a\u8fd9\u4e2a\u6587\u4ef6\u4fdd\u5b58\u5230BlueJ\u5305\u8def\u5f84\u4ee5\u5916\u7684\u76ee\u5f55\u4e2d  -->\n<!-- \u5982\u679c\u4f60\u60f3\u4fdd\u6301\u8fd9\u4e2a\u6587\u4ef6\u7684\u8bdd                     -->
+pkgmgr.runApplet.htmlExportedComment=<!-- \u6b64\u6587\u4ef6\u7531BlueJ Java Development \u81ea\u52a8\u751f\u6210                    -->\n<!-- codebase \u53d8\u91cf\u88ab\u8bbe\u7f6e\u5230\u8fd9\u4e2aapplet\u88ab\u521b\u5efa\u65f6bluej\u7684\u9879\u76ee\u76ee\u5f55\u4e2d   -->\n<!-- \u5982\u679c\u8fd9\u4e2a\u5305\u7684\u4f4d\u7f6e\u5df2\u7ecf\u6539\u53d8\uff0c\u4f60\u9700\u8981\u4fee\u6539codebase\u7684\u503c.          -->
+
+#print project dialog
+pkgmgr.printDialog.title=BlueJ:  \u6253\u5370\u9879\u76ee
+pkgmgr.printDialog.printDiagram=\u6253\u5370\u7c7b\u56fe
+pkgmgr.printDialog.printSource=\u6253\u5370\u6e90\u7801
+pkgmgr.printDialog.printReadme=\u6253\u5370\u9879\u76ee\u7684 readme 
+
 # method call dialog
 pkgmgr.methodCall.titleCreate=BlueJ:  \u65b0\u5efa\u5bf9\u8c61
 pkgmgr.methodCall.titleCall=BlueJ:  \u65b9\u6cd5\u8c03\u7528
 pkgmgr.methodCall.namePrompt=\u5b9e\u4f8b\u540d
-pkgmgr.methodCall.=\u63a5\u53e3
 error.methodCall.emptyField=\u7a7a\u53c2\u6570\u57df
 error.methodCall.illegalName=\u5b9e\u4f8b\u540d\u5fc5\u987b\u662fJava\u7684\u6807\u8bc6\u7b26.
 error.methodCall.duplicateName=\u6b64\u5bf9\u8c61\u540d\u5df2\u5b58\u5728.\n\u8bf7\u9009\u62e9\u4e00\u4e2a\u552f\u4e00\u7684\u540d\u5b57.
-    
+
 # Debugger dialog (ExecControls.java)
-debugger.execControls.windowTitle = BlueJ:  \u8c03\u8bd5\u5668
-debugger.execControls.stackTitle = \u8c03\u7528\u987a\u5e8f
-debugger.execControls.instanceTitle = \u5b9e\u4f8b\u53d8\u91cf
-debugger.execControls.localTitle =\u5c40\u90e8\u53d8\u91cf
-debugger.execControls.threadTitle = \u7ebf\u7a0b
-debugger.execControls.updateText = \u66f4\u65b0
-debugger.execControls.systemThreads = \u663e\u793a\u7cfb\u7edf\u7ebf\u7a0b
-    
+debugger.execControls.windowTitle=BlueJ:  \u8c03\u8bd5\u5668
+debugger.execControls.stackTitle=\u8c03\u7528\u987a\u5e8f
+debugger.execControls.staticTitle=\u9759\u6001\u53d8\u91cf
+debugger.execControls.instanceTitle=\u5b9e\u4f8b\u53d8\u91cf
+debugger.execControls.localTitle=\u5c40\u90e8\u53d8\u91cf
+debugger.execControls.threadTitle=\u7ebf\u7a0b
+debugger.execControls.haltButtonText=\u6682\u505c
+debugger.execControls.stepButtonText=\u5355\u6b65
+debugger.execControls.stepIntoButtonText=\u5355\u6b65\u8fdb\u5165
+debugger.execControls.continueButtonText=\u7ee7\u7eed
+debugger.execControls.terminateButtonText=\u7ec8\u6b62
+
+debugger.options=\u9009\u9879
+debugger.hideSystemThreads=\u9690\u85cf\u7cfb\u7edf\u7ebf\u7a0b
+debugger.threadRunning=<html><center>\u7ebf\u7a0b\u6b63\u5728\u8fd0\u884c\u3002<br>\u5fc5\u987b\u505c\u6b62\u7ebf\u7a0b\u624d\u80fd\u67e5\u770b\u8be6\u7ec6\u4fe1\u606f\u3002</html>
+
 # DialogManager labels
-dialogmgr.error = BlueJ:  \u9519\u8bef
-dialogmgr.question = BlueJ:  \u95ee\u9898
-dialogmgr.message = BlueJ:  \u6d88\u606f
-    
+
+dialogmgr.error=BlueJ:  \u9519\u8bef
+dialogmgr.question=BlueJ:  \u95ee\u9898
+dialogmgr.message=BlueJ:  \u6d88\u606f
+
 #Terminal Window
-terminal.options = \u9009\u9879
-terminal.title = BlueJ:  \u7ec8\u7aef\u7a97\u53e3
-terminal.clear = \u6e05\u9664
-terminal.copy = \u590d\u5236
-terminal.save = \u4fdd\u5b58\u4e3a\u6587\u4ef6...
-terminal.close = \u5173\u95ed
-terminal.recordCalls = \u8bb0\u5f55\u65b9\u6cd5\u8c03\u7528
-terminal.buffering = \u4e0d\u53d7\u9650\u7684\u7f13\u5b58
-terminal.save.title = \u4fdd\u5b58\u7ec8\u7aef\u6587\u672c
-terminal.save.buttonText = \u4fdd\u5b58
-    
+terminal.options=\u9009\u9879
+terminal.title=BlueJ:  \u7ec8\u7aef\u7a97\u53e3
+terminal.clear=\u6e05\u9664
+terminal.copy=\u590d\u5236
+terminal.save=\u4fdd\u5b58\u4e3a\u6587\u4ef6...
+terminal.close=\u5173\u95ed
+terminal.clearScreen=\u8c03\u7528\u65b9\u6cd5\u7684\u65f6\u5019\u6e05\u9664\u5c4f\u5e55
+terminal.recordCalls=\u8bb0\u5f55\u65b9\u6cd5\u8c03\u7528
+terminal.buffering=\u4e0d\u53d7\u9650\u7684\u7f13\u5b58
+terminal.save.title=\u4fdd\u5b58\u7ec8\u7aef\u6587\u672c
+terminal.save.buttonText=\u4fdd\u5b58
+
+#TestDisplay Window
+testdisplay.title=BlueJ:  \u6d4b\u8bd5\u7ed3\u679c
+testdisplay.counter.runs=\u8fd0\u884c:
+testdisplay.counter.errors=\u9519\u8bef:
+testdisplay.counter.failures=\u5931\u8d25:
+
 # status messages
 pkgmgr.compiling=\u7f16\u8bd1...
 pkgmgr.compileDone=\u7f16\u8bd1... \u5b8c\u6210
 pkgmgr.creating=\u65b0\u5efa\u5bf9\u8c61...
 pkgmgr.createDone=\u65b0\u5efa\u5bf9\u8c61... \u5b8c\u6210
-pkgmgr.creatingVM=\u865a\u62df\u673a...
-pkgmgr.creatingVMDone= \u865a\u62df\u673a... \u5b8c\u6210
+pkgmgr.creatingVM=\u521d\u59cb\u5316\u865a\u62df\u673a...
+pkgmgr.creatingVMDone=\u521d\u59cb\u5316\u865a\u62df\u673a... \u5b8c\u6210
 pkgmgr.generatingDocu=\u4ea7\u751f\u6587\u6863...
 pkgmgr.docuGenerated=\u4ea7\u751f\u6587\u6863... \u5b8c\u6210
 pkgmgr.docuAborted=\u4ea7\u751f\u6587\u6863... \u9000\u51fa
@@ -374,14 +501,18 @@ pkgmgr.appletInViewer=\u5728\u5c0f\u5e94\u7528\u7a0b\u5e8f\u9605\u89c8\u5176\u4e
 pkgmgr.appletInBrowser=\u5728web\u6d4f\u89c8\u5668\u4e2d\u8fd0\u884cApplet
 pkgmgr.exported=\u5168\u90e8\u5bfc\u51fa.
 pkgmgr.exported.jar=\u5168\u90e8\u5bfc\u51fa\u5230jar\u6587\u4ef6.
-    
-properties.heading=BlueJ \u5c5e\u6027. \u8bbe\u7f6e\u6b64\u6587\u4ef6\u5c06\u91cd\u8f7d \"bluej.defs\"
+pkgmgr.error.open=\u9879\u76ee\u4e0d\u518d\u5b58\u5728
+pkgmgr.checkingVersion=\u8fde\u63a5\u5230\u7248\u672c\u670d\u52a1\u5668...
+
+properties.heading.bluej=BlueJ \u5c5e\u6027\u3002\u8fd9\u4e2a\u6587\u4ef6\u4e2d\u7684\u8bbe\u7f6e\u5c06\u4f1a\u8986\u76d6 "bluej.defs"
+properties.heading.moe=Moe \u7f16\u8f91\u5668\u7279\u6027. \u53ef\u4ee5\u901a\u8fc7\u6539\u53d8 "moe.defs"\u6587\u4ef6\u6765\u8fdb\u884c\u8bbe\u7f6e
 
 # menus and menu items
-    
+
 menu.package=\u9879\u76ee
 menu.package.new=\u65b0\u5efa\u9879\u76ee
 menu.package.open=\u6253\u5f00\u9879\u76ee...
+menu.package.openRecent=\u6253\u5f00\u6700\u8fd1\u7684
 menu.package.openNonBlueJ=\u6253\u5f00\u975eBlueJ\u6587\u4ef6...
 menu.package.close=\u5173\u95ed
 menu.package.save=\u4fdd\u5b58
@@ -391,7 +522,7 @@ menu.package.export=\u5bfc\u51fa
 menu.package.pageSetup=\u9875\u9762\u8bbe\u7f6e
 menu.package.print=\u6253\u5370
 menu.package.quit=\u9000\u51fa
-    
+
 menu.edit=\u7f16\u8f91
 menu.edit.newClass=\u65b0\u5efa\u7c7b
 menu.edit.newPackage=\u65b0\u5efa\u5305
@@ -400,22 +531,24 @@ menu.edit.remove=\u5220\u9664
 menu.edit.newUses=\u65b0\u5efa\u4f7f\u7528\u7bad\u5934
 menu.edit.newInherits=\u65b0\u5efa\u7ee7\u627f\u7bad\u5934
 menu.edit.removeArrow=\u5220\u9664\u7bad\u5934
-    
+
 menu.tools=\u5de5\u5177
 menu.tools.compile=\u7f16\u8bd1
+menu.tools.test=\u8fd0\u884c\u6d4b\u8bd5
 menu.tools.compileSelected=\u9009\u62e9\u7f16\u8bd1
-menu.tools.callLibrary=\u4f7f\u7528\u7c7b\u5e93...
 menu.tools.rebuild=\u91cd\u65b0\u7f16\u8bd1\u5305
+menu.tools.callLibrary=\u4f7f\u7528\u7c7b\u5e93...
+menu.tools.callFreeForm=\u8ba1\u7b97\u8868\u8fbe\u5f0f...
 menu.tools.generateDoc=\u4ea7\u751f\u6587\u6863
-menu.tools.browse=\u6d4f\u89c8\u5e93...
 menu.tools.preferences=\u53c2\u6570
-    
+
 menu.view=\u89c6\u56fe
 menu.view.showUses=\u663e\u793a\u4f7f\u7528\u5173\u7cfb
 menu.view.showInherits=\u663e\u793a\u7ee7\u627f\u5173\u7cfb
 menu.view.showExecControls=\u663e\u793a\u8c03\u8bd5
 menu.view.showTerminal=\u663e\u793a\u7ec8\u7aef
-    
+menu.view.showTestDisplay=\u663e\u793a\u6d4b\u8bd5\u7ed3\u679c
+
 menu.group=\u5de5\u4f5c\u7ec4
 menu.group.make=\u6784\u9020\u7ec4\u5305
 menu.group.open=\u6253\u5f00\u7ec4\u5305
@@ -427,21 +560,49 @@ menu.group.statusSelection=\u9009\u62e9\u72b6\u6001
 menu.group.statusAll=\u5168\u90e8\u72b6\u6001
 menu.group.users=\u7528\u6237
 menu.group.configuration=\u914d\u7f6e
-    
+
 menu.help=\u5e2e\u52a9
 menu.help.about=\u5173\u4e8e BlueJ
+menu.help.extensions=\u5b89\u88c5\u6269\u5c55
 menu.help.versionCheck=\u68c0\u67e5\u7248\u672c
+menu.help.extensions=\u5b89\u88c5\u6269\u5c55
 menu.help.copyright=\u7248\u6743
 menu.help.website=BlueJ \u7f51\u7ad9
 menu.help.tutorial=BlueJ \u4f7f\u7528\u6307\u5357
 menu.help.standardApi=Java \u7c7b\u5e93
 
 # tool tips
-    
+
 tooltip.newClass=\u5728\u6b64\u5305\u4e2d\u5efa\u4e00\u4e2a\u65b0\u7c7b
 tooltip.newUses=\u63d2\u5165\u4e00\u4e2a'\u4f7f\u7528' \u5173\u7cfb
 tooltip.newExtends=\u63d2\u5165\u4e00\u4e2a\u7ee7\u627f\u5173\u7cfb
 tooltip.compile=\u7f16\u8bd1\u6b64\u5305\u4e2d\u6240\u6709\u672a\u7f16\u8bd1\u7684\u5305
-tooltip.showUses=\u89e6\u53d1'\u4f7f\u7528' \u5173\u7cfb\u7684\u663e\u793a
-tooltip.showExtends=\u89e6\u53d1\u7ee7\u627f\u5173\u7cfb\u7684\u663e\u793a
+tooltip.test=\u8fd0\u884c\u8fd9\u4e2apackage\u4e2d\u6240\u6709\u7684\u6d4b\u8bd5\u7c7b
 tooltip.progress=\u5de5\u4f5c\u6307\u793a\u5668: \u6307\u51fa\u865a\u62df\u673a\u4f55\u65f6\u5728\u8fd0\u884c
+tooltip.test.end=\u7ed3\u675f\u8bb0\u5f55\u4e00\u4e2a\u6d4b\u8bd5\u65b9\u6cd5\u5e76\u4fdd\u5b58\u3002
+tooltip.test.cancel=\u53d6\u6d88\u6216\u8005\u653e\u5f03\u4e00\u4e2a\u6d4b\u8bd5\u65b9\u6cd5\u7684\u8bb0\u5f55\u3002
+
+#Copyright
+
+menu.help.copyright.title=BlueJ \u7248\u6743
+menu.help.copyright.line1=BlueJ \u662f\u81ea\u7531\u8f6f\u4ef6\uff0c\u53ef\u4ee5\u81ea\u7531\u5c06\u5176\u91cd\u65b0\u53d1\u5e03\u3002
+menu.help.copyright.line2=\u5728\u672a\u7ecf\u6388\u6743\u7684\u60c5\u51b5\u4e0b\uff0c\u4e0d\u80fd\u591f\u5c06\u5176\u7528\u4f5c\u4efb\u4f55
+menu.help.copyright.line3=\u76c8\u5229\u7528\u9014\u6216\u8005\u5c06\u5176\u5305\u542b\u5230\u4efb\u4f55\u5176\u4ed6\u4ee5\u76c8\u5229\u4e3a
+menu.help.copyright.line4=\u76ee\u6807\u7684\u8f6f\u4ef6\u5305\u4e2d\u3002
+
+# About
+
+about.bluej.version=BlueJ \u7248\u672c
+about.java.version=Java \u7248\u672c
+about.vm=\u865a\u62df\u673a:
+about.runningOn=\u8fd0\u884c\u4e8e:
+about.javahome=Java Home:
+about.logfile=\u8c03\u8bd5\u65e5\u5fd7\u6587\u4ef6:
+about.moreInfo=\u66f4\u591a\u7684\u4fe1\u606f\u5728 www.bluej.org.
+about.theTeam.deakin=Deakin \u5927\u5b66 BlueJ \u5c0f\u7ec4
+about.theTeam.denmark=Southern Denmark \u5927\u5b66 BlueJ \u5c0f\u7ec4
+about.theTeam.kent=Kent \u5927\u5b66 BlurJ \u5c0f\u7ec4
+
+# Work Indicator
+workIndicator.showDebugger=\u663e\u793a\u8c03\u8bd5\u5668
+workIndicator.resetMachine=\u91cd\u542f\u673a\u5668
