@@ -15,7 +15,7 @@ import javax.swing.table.*;
  * Class to maintain a global classpath environment.
  *
  * @author  Andrew Patterson
- * @version $Id: RemoteClassMgr.java 309 1999-12-10 05:46:35Z ajp $
+ * @version $Id: RemoteClassMgr.java 331 2000-01-02 13:27:10Z ajp $
  */
 public class RemoteClassMgr
 {
@@ -23,10 +23,6 @@ public class RemoteClassMgr
      *
      */
     private ClassPath otherLibraries = new ClassPath();
-
-    public RemoteClassMgr() {
-
-    }
 
     public ClassLoader getLoader(String classpathstr)
     {

@@ -7,7 +7,7 @@ import bluej.classmgr.ClassMgr;
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -33,14 +33,16 @@ public class ExecServer
     public static final int ADD_OBJECT     = 3;
     public static final int REMOVE_OBJECT  = 4;
     public static final int SET_LIBRARIES  = 5;
+    public static final int SERIALIZE_OBJECT = 6;
+    public static final int DESERIALIZE_OBJECT = 7;
 
 
     static ExecServer server = null;
     static TerminateException terminateExc = new TerminateException("term");
 
     private RemoteClassMgr classmgr;
-    private Hashtable loaders;
-    private static Hashtable scopes = new Hashtable();
+    private Map loaders;
+    private static Map scopes = new HashMap();
 
     /**
      * We need to keep track of open windows so that we can dispose of them
@@ -63,13 +65,13 @@ public class ExecServer
 
     // -- instance methods --
 
-    ExecServer()
+    private ExecServer()
     {
         //Debug.message("[VM] creating server object");
 
-        loaders = new Hashtable();
-
         System.setSecurityManager(new RemoteSecurityManager());
+
+        loaders = new HashMap();
 
         classmgr = new RemoteClassMgr();
 
@@ -102,34 +104,7 @@ public class ExecServer
         };
 
         toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
-
-	//	servThread = new ServerThread();
-	//servThread.start();
     }
-
-
-//      class ServerThread extends Thread {
-//  	ServerThread() {
-//  	    super("BlueJ-Execution-Server");
-//  	}
-//  	public void run() {
-//  	    while(true)
-//  		suspendExecution();
-//  	}
-//      }
-
-//      /**
-//       *
-//       */
-//      public synchronized void waitForever()
-//      {
-//  	try {
-//  	    wait();
-//  	} catch(InterruptedException e) {
-//  	    // this should never happen!
-//    	    System.out.println(" server main thread woke up!");
-//  	}
-//      }
 
     /**
      *  This method is used to suspend the execution of this server thread.
@@ -138,8 +113,8 @@ public class ExecServer
      */
     public void suspendExecution()
     {
-	// <BREAKPOINT!>
-	Debug.message("[VM] woke up from suspend");
+        // <BREAKPOINT!>
+        Debug.message("[VM] woke up from suspend");
     }
 
 
@@ -149,9 +124,9 @@ public class ExecServer
      * This method is called from the main VM to initiate a task here on
      * this VM.
      */
-    public ClassLoader performTask(int taskType, String arg1,
-                                    String arg2, String arg3, String arg4)
-	throws Throwable
+    public Object performTask(int taskType, String arg1,
+                               String arg2, String arg3, String arg4)
+        throws Throwable
     {
         try {
             switch(taskType) {
@@ -172,6 +147,11 @@ public class ExecServer
             case SET_LIBRARIES:
                 setLibraries(arg1);
                 return null;
+            case SERIALIZE_OBJECT:
+                serializeObject(arg1, arg2, arg3);
+                return null;
+            case DESERIALIZE_OBJECT:
+                return deserializeObject(arg1, arg2, arg3, arg4);
             }
         }
         catch(Exception e) {
@@ -185,12 +165,12 @@ public class ExecServer
      * Create a new class loader for a given classpath.
      */
     private ClassLoader createClassLoader(String loaderId,
-					       String classpath)
+                                            String classPath)
     {
-	//Debug.reportError("[VM] createClassLoader " + loaderId);
-	ClassLoader loader = classmgr.getLoader(classpath);
-	loaders.put(loaderId, loader);
-	return loader;
+        //Debug.reportError("[VM] createClassLoader " + loaderId);
+        ClassLoader loader = classmgr.getLoader(classPath);
+        loaders.put(loaderId, loader);
+        return loader;
     }
 
 
@@ -199,45 +179,35 @@ public class ExecServer
      */
     private void removeClassLoader(String loaderId)
     {
-	//Debug.reportError("[VM] removeLoader " + loaderId);
-	loaders.remove(loaderId);
+        //Debug.reportError("[VM] removeLoader " + loaderId);
+        loaders.remove(loaderId);
     }
-
-
-    /**
-     * Find and return a class loader in the table of class loaders.
-     */
-    private ClassLoader getLoader(String loaderId)
-    {
-	return (ClassLoader)loaders.get(loaderId);
-    }
-
 
     /**
      * Load a class in the remote runtime.
      */
     private Class loadClass(String loaderId, String classname)
-	throws Exception
+        throws Exception
     {
-	Class cl = null;
+        Class cl = null;
 
-	//Debug.reportError("loading class " + classname);
+        //Debug.reportError("loading class " + classname);
 
-	if(loaderId == null)
-	    cl = classmgr.getLoader().loadClass(classname);
-	else {
-	    ClassLoader loader = getLoader(loaderId);
-	    if(loader != null)
-		cl = loader.loadClass(classname);
-	}
+        if(loaderId == null)
+            cl = classmgr.getLoader().loadClass(classname);
+        else {
+            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
+            if(loader != null)
+                cl = loader.loadClass(classname);
+    	}
 
-	//Debug.reportError("   loaded.");
-	if(cl == null)
-	    Debug.reportError("Could not load class for execution");
-	else
-	    prepareClass(cl);
+        //Debug.reportError("   loaded.");
+        if(cl == null)
+            Debug.reportError("Could not load class for execution");
+        else
+            prepareClass(cl);
 
-	return cl;
+        return cl;
     }
 
     /**
@@ -247,33 +217,93 @@ public class ExecServer
      */
     private void prepareClass(Class cl)
     {
-	try {
-	    Method m = cl.getMethod("prepare", null);
-	    m.invoke(null, null);
-	} catch(Exception e) {
-	    // ignore - some classes don't have prepare method. attempt to
-	    // call will still prepare the class
-	}
+        try {
+            Method m = cl.getMethod("prepare", null);
+            m.invoke(null, null);
+        } catch(Exception e) {
+            // ignore - some classes don't have prepare method. attempt to
+            // call will still prepare the class
+        }
     }
 
     /**
      *  Put an object into a package scope (for possible use as parameter
-     *  later). Used after object creation to addthe newly created object
+     *  later). Used after object creation to add the newly created object
      *  to the scope.
      */
     static void putObject(String scopeId, String instanceName, Object value)
     {
-	//Debug.message("[VM] putObject: " + instanceName);
-	Hashtable scope = getScope(scopeId);
-	scope.put(instanceName, value);
-	// debugging
-	//  	Enumeration e = scope.keys();
-	// 	for (; e.hasMoreElements(); ) {
-	//  	    String s = (String)e.nextElement();
-	//  	    System.out.println("key: " + s);
-	//  	}
+        //Debug.message("[VM] putObject: " + instanceName);
+        Map scope = getScope(scopeId);
+        scope.put(instanceName, value);
+
+        // debugging
+        //  	Enumeration e = scope.keys();
+        // 	for (; e.hasMoreElements(); ) {
+        //  	    String s = (String)e.nextElement();
+        //  	    System.out.println("key: " + s);
+        //  	}
     }
 
+    /**
+     */
+    static void serializeObject(String scopeId, String instanceName, String fileName)
+    {
+        //Debug.message("[VM] serializeObject: " + instanceName);
+        Map scope = getScope(scopeId);
+        Object wrapObject = scope.get(instanceName);
+
+        if (wrapObject == null) {
+            System.out.println("wrap object was null for scope " + scopeId);
+            System.out.println(scopes.toString());
+        }
+
+        try {
+            FileOutputStream fo = new FileOutputStream(fileName);
+            ObjectOutputStream so = new ObjectOutputStream(fo);
+            so.writeObject(wrapObject);
+            so.flush();
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+    }
+
+    private Object deserializeObject(String loaderId, String scopeId, String newInstanceName,
+                                     String fileName)
+    {
+        //Debug.message("[VM] deserializeObject: " + newInstanceName);
+        Map scope = getScope(scopeId);
+        Object obj = null;
+
+        try {
+            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
+
+            FileInputStream fi = new FileInputStream(fileName);
+            ObjectInputStream si = new RemoteObjectInputStream(fi, loader);
+
+            obj = si.readObject();
+
+            scope.put(newInstanceName, obj);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+/*        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+        catch(ClassNotFoundException cfne)
+        {
+            cfne.printStackTrace();
+        } */
+
+        System.out.println(obj.toString());
+
+        return obj;
+    }
 
     /**
      *  Add an object to package scope. The object to be added is held
@@ -282,24 +312,23 @@ public class ExecServer
      *  object and add it to the scope.)
      */
     static void addObject(String scopeId, String instance, String fieldName,
-			  String newName)
+                            String newName)
     {
-	//Debug.message("[VM] addObject: " + newName);
-	Hashtable scope = getScope(scopeId);
-	Object wrapObject = scope.get(instance);
-	try {
-	    Field field = wrapObject.getClass().getField(fieldName);
-	    Object obj = field.get(wrapObject);
-	    scope.put(newName, obj);
-	}
-	catch (Exception e) {
-	    Debug.reportError("Internal BlueJ error: " +
-			      "object field not found: " + fieldName +
-			      " in " + instance);
-	    Debug.reportError("exception: " + e);
-	}
+        //Debug.message("[VM] addObject: " + newName);
+        Map scope = getScope(scopeId);
+        Object wrapObject = scope.get(instance);
+        try {
+            Field field = wrapObject.getClass().getField(fieldName);
+            Object obj = field.get(wrapObject);
+            scope.put(newName, obj);
+        }
+        catch (Exception e) {
+            Debug.reportError("Internal BlueJ error: " +
+            	      "object field not found: " + fieldName +
+            	      " in " + instance);
+            Debug.reportError("exception: " + e);
+        }
     }
-
 
     /**
      *  Remove an object from a package scope. This has to be done tolerantly:
@@ -307,22 +336,22 @@ public class ExecServer
      */
     static void removeObject(String scopeId, String instanceName)
     {
-	//Debug.message("[VM] removeObject: " + instanceName);
-	Hashtable scope = getScope(scopeId);
-	scope.remove(instanceName);
+        //Debug.message("[VM] removeObject: " + instanceName);
+        Map scope = getScope(scopeId);
+        scope.remove(instanceName);
     }
 
 
-    static Hashtable getScope(String scopeId)
+    static Map getScope(String scopeId)
     {
-	//Debug.message("[VM] getScope");
-	Hashtable scope = (Hashtable)scopes.get(scopeId);
+        //Debug.message("[VM] getScope");
+        Map scope = (Map)scopes.get(scopeId);
 
-	if(scope == null) {
-	    scope = new Hashtable();
-	    scopes.put(scopeId, scope);
-	}
-	return scope;
+        if(scope == null) {
+            scope = new HashMap();
+            scopes.put(scopeId, scope);
+        }
+        return scope;
     }
 
 
