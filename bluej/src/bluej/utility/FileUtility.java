@@ -9,13 +9,14 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.io.*;
 import java.util.*;
+import java.lang.reflect.Array;
 
 /**
  * A file utility for various file related actions.
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 622 2000-07-05 05:53:32Z mik $
+ * @version $Id: FileUtility.java 623 2000-07-05 06:21:48Z markus $
  */
 public class FileUtility
 {
@@ -98,7 +99,7 @@ public class FileUtility
     /**
      * return a file chooser for choosing any directory (default behaviour)
      */
-    private static JFileChooser getFileChooser()
+    public static JFileChooser getFileChooser()
     {
         if(fileChooser == null) {
             fileChooser = new BlueJFileChooser(
@@ -290,5 +291,39 @@ public class FileUtility
             return failed.toArray();
         else
             return null;
+    }
+
+    /**
+     * Delete a directory recursively.
+     * This method will delete all files and subdirectories in any
+     * directory without asking questions. Use with care.
+     * 
+     * @param directory   The directory that will be deleted.
+     *
+     */
+    public static void deleteDir(File directory)
+    {
+        File[] fileList = directory.listFiles();
+
+        //If it is a file or an empty directory, delete
+        if(fileList == null || Array.getLength(fileList) == 0){
+            try{
+                directory.delete();
+            }catch (SecurityException se){
+                Debug.message("Trouble deleting: "+directory+se);
+            }
+        }
+        else{
+            //delete all subdirectories
+            for(int i=0;i<Array.getLength(fileList);i++){
+                deleteDir(fileList[i]);
+            }
+            //then delete the directory (when it is empty)
+            try{
+                directory.delete();
+            }catch (SecurityException se){
+                Debug.message("Trouble deleting: "+directory+se);
+            }
+        }
     }
 }
