@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1897 2003-04-25 15:19:10Z mik $
+ * @version $Id: PkgMgrFrame.java 1908 2003-04-28 07:33:30Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1455,6 +1455,15 @@ public class PkgMgrFrame extends JFrame
 
             utcr.doEndMakeTestCase(this, testTarget, testTargetMethod);
         }            
+
+		// remove objects from object bench
+		getProject().removeLocalClassLoader();
+		getProject().removeRemoteClassLoader();
+
+		// try to compile the test class we have just changed
+		getPackage().compileQuiet(testTarget);	
+
+		testTarget = null;
     }
     
     /**
@@ -1463,8 +1472,14 @@ public class PkgMgrFrame extends JFrame
     private void doCancelTest()
     {
         testRecordingEnded();
+        
+        // remove objects from object bench (may have been put there
+        // when testing was started)
+		getProject().removeLocalClassLoader();
+		getProject().removeRemoteClassLoader();
+		
+		testTarget = null;
     }
-
 
     /**
      * Recording of a test case started - set the interface appropriately.
@@ -1479,7 +1494,6 @@ public class PkgMgrFrame extends JFrame
         getProject().setTestMode(true);
     }
 
-
     /**
      * Recording of a test case ended - set the interface appropriately.
      */
@@ -1493,14 +1507,12 @@ public class PkgMgrFrame extends JFrame
         getProject().setTestMode(false);
     }
 
-
     public void setTestInfo(String testName, ClassTarget testClass)
     {
         this.testTargetMethod = testName;
         this.testTarget = testClass;
     }
     
-
     /**
      * Remove the specified ClassTarget from the Package.
      */

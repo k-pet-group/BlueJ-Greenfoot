@@ -15,17 +15,24 @@ import bluej.editor.Editor;
 import bluej.parser.ast.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.TestDisplayFrame;
+import bluej.utility.*;
 import bluej.utility.DialogManager;
 
 /**
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1864 2003-04-16 15:02:57Z mik $
+ * @version $Id: UnitTestClassRole.java 1908 2003-04-28 07:33:30Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
     public static final String UNITTEST_ROLE_NAME = "UnitTestTarget";
+
+    private static final String popupPrefix = Config.getString("pkgmgr.test.popup.testPrefix");
+	private static final String testAll = Config.getString("pkgmgr.test.popup.testAll");
+	private static final String createTest = Config.getString("pkgmgr.test.popup.createTest");
+	private static final String benchToFixture = Config.getString("pkgmgr.test.popup.benchToFixture");
+	private static final String fixtureToBench = Config.getString("pkgmgr.test.popup.fixtureToBench");
     
     /**
      * Create the unit test class role.
@@ -73,7 +80,8 @@ public class UnitTestClassRole extends ClassRole
     protected boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
     {
         // add run all tests option
-        addMenuItem(menu, new TestAction("Test All", ct.getPackage().getEditor(),ct),(state == Target.S_NORMAL));
+        addMenuItem(menu, new TestAction(testAll, ct.getPackage().getEditor(),ct),
+        			(state == Target.S_NORMAL));
         menu.addSeparator();
 
         return true;
@@ -97,7 +105,8 @@ public class UnitTestClassRole extends ClassRole
 			if (!isJUnitTestMethod(m))
 				continue;
 				
-            Action testAction = new TestAction("Test " + m.getName().substring(4), ct.getPackage().getEditor(), ct, m.getName());
+            Action testAction = new TestAction(popupPrefix + " " + m.getName().substring(4),
+            									 ct.getPackage().getEditor(), ct, m.getName());
 
             JMenuItem item = new JMenuItem();
             item.setAction(testAction);
@@ -106,7 +115,7 @@ public class UnitTestClassRole extends ClassRole
             hasEntries = true;
         }
         if (!hasEntries) {
-			JMenuItem item = new JMenuItem("No test methods");
+			JMenuItem item = new JMenuItem(Config.getString("pkgmgr.test.popup.noTests"));
 			item.setFont(PrefMgr.getPopupMenuFont());
 			item.setEnabled(false);
 			menu.add(item);
@@ -122,11 +131,11 @@ public class UnitTestClassRole extends ClassRole
      */
     protected boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class cl)
     {
-        addMenuItem(menu, new MakeTestCaseAction("Create Test Method...",
+        addMenuItem(menu, new MakeTestCaseAction(createTest,
                                                     ct.getPackage().getEditor(), ct), true);
-        addMenuItem(menu, new BenchToFixtureAction("Object Bench to Test Fixture",
+        addMenuItem(menu, new BenchToFixtureAction(benchToFixture,
                                                     ct.getPackage().getEditor(), ct), true);
-        addMenuItem(menu, new FixtureToBenchAction("Test Fixture to Object Bench",
+        addMenuItem(menu, new FixtureToBenchAction(fixtureToBench,
                                                     ct.getPackage().getEditor(), ct), true);
 
         return true;
@@ -144,7 +153,7 @@ public class UnitTestClassRole extends ClassRole
             TestDisplayFrame.getTestDisplay().startTest(1);
 
             if (dtr.isSuccess()) {
-                pmf.setStatus(param + " succeeded");
+                pmf.setStatus(param + " " + Config.getString("pkgmgr.test.succeeded"));
                 TestDisplayFrame.getTestDisplay().addResultQuietly(dtr);
             }
             else {
@@ -191,16 +200,22 @@ public class UnitTestClassRole extends ClassRole
             return;
 
         if (newTestName.length() == 0) {
-            pmf.setStatus("You must specify a name for the test.");
+            pmf.setStatus(Config.getString("pkgmgr.test.noTestName"));
             return;
         }
 
         if(! newTestName.startsWith("test")) {
             newTestName = "test" + Character.toTitleCase(newTestName.charAt(0)) + newTestName.substring(1);
         }
-        
+
+		if (!JavaNames.isIdentifier(newTestName)) {
+			pmf.setStatus(Config.getString("pkgmgr.test.invalidTestName"));
+			return;
+		}
+
         pmf.getProject().removeLocalClassLoader();
-        pmf.testRecordingStarted("constructing " + ct.getBaseName() + "." + newTestName + "()");
+        pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
+        						 + ct.getBaseName() + "." + newTestName + "()");
  
         Editor ed = ct.getEditor();
 
@@ -245,11 +260,6 @@ public class UnitTestClassRole extends ClassRole
         catch (Exception e) {
             e.printStackTrace();
         }
-        
-        pmf.getProject().removeLocalClassLoader();
-        pmf.getProject().removeRemoteClassLoader();
-
-        pmf.getPackage().compileQuiet(ct);	
     }
     
     public void doFixtureToBench(PkgMgrFrame pmf, ClassTarget ct)
