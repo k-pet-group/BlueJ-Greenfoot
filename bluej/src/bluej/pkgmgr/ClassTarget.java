@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1737 2003-04-02 05:02:25Z ajp $
+ * @version $Id: ClassTarget.java 1747 2003-04-04 13:49:16Z fisker $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -410,10 +410,12 @@ public class ClassTarget extends EditableTarget
      */
     public Editor getEditor()
     {
-        if(editor == null)
-            editor = getPackage().editorManager.openClass(
-                                     getSourceFile().getPath(), getBaseName(),
-                                     this, isCompiled(), breakpoints);
+        if(editor == null){
+            String filename = getSourceFile().getPath();
+            String docFilename = getPackage().getProject().getDocumentationFile(filename);
+                editor = Package.editorManager.openClass(filename, docFilename, 
+                             getBaseName(), this, isCompiled(), breakpoints);
+        }
         return editor;
     }
 
@@ -1187,4 +1189,11 @@ public class ClassTarget extends EditableTarget
                                     getClassFile().getPath(),
                                     getContextFile().getPath());
     }
+
+	/* (non-Javadoc)
+	 * @see bluej.editor.EditorWatcher#generateDoc()
+	 */
+	public void generateDoc() {
+		getPackage().generateDocumentation(this);
+	}
 }
