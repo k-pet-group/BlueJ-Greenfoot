@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 628 2000-07-06 05:31:09Z ajp $
+ * @version $Id: ClassTarget.java 633 2000-07-07 02:11:47Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -74,6 +74,7 @@ public class ClassTarget extends EditableTarget
     static final String STEREOTYPE_CLOSE = ">>";
     static final String INTERFACE_LABEL = "interface";
     static final String APPLET_LABEL = "applet";
+    static final String ABSTRACT_CLASS_LABEL = "abstract";
 
 
     // variables
@@ -252,8 +253,8 @@ public class ClassTarget extends EditableTarget
         }
         else {
             modifiers &= ~Modifier.INTERFACE;
-            if(INTERFACE_LABEL.equals(stereotype))
-               stereotype = null;
+            //if(INTERFACE_LABEL.equals(stereotype))
+            //   stereotype = null;
         }
     }
 
@@ -273,8 +274,10 @@ public class ClassTarget extends EditableTarget
      */
     public void setAbstract(boolean isAbstract)
     {
-        if(isAbstract)
+        if(isAbstract) {
             modifiers |= Modifier.ABSTRACT;
+            setStereotypeName(ABSTRACT_CLASS_LABEL);
+        }
         else
             modifiers &= ~Modifier.ABSTRACT;
     }
