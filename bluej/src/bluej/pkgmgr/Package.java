@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 507 2000-05-24 06:36:15Z ajp $
+ * @version $Id: Package.java 514 2000-05-25 07:57:41Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -755,7 +755,7 @@ public class Package extends Graph
      * The DebuggerClassLoader load classes on the remote VM
      * (the machine used for user code execution).
      */
-    public synchronized DebuggerClassLoader getRemoteClassLoader()
+    public DebuggerClassLoader getRemoteClassLoader()
     {
         return getProject().getRemoteClassLoader();
     }
@@ -1672,6 +1672,9 @@ public class Package extends Graph
             String filename = sources[i];
 
             ClassTarget t = getTargetFromFilename(filename);
+
+            if (t == null)
+                continue;
 
             if (successful) {
 

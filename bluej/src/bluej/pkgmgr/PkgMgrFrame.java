@@ -29,7 +29,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 511 2000-05-25 05:32:22Z mik $
+ * @version $Id: PkgMgrFrame.java 514 2000-05-25 07:57:41Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener, Printable
@@ -543,7 +543,9 @@ public class PkgMgrFrame extends JFrame
             break;
 
          case PackageEditorEvent.TARGET_REMOVE:     // user has initiated target "remove" option
+            ClassTarget t = (ClassTarget) e.getSource();
 
+            removeClass(t);
             break;
 
          case PackageEditorEvent.TARGET_OPEN:       // user has initiated a package open operation
@@ -1132,17 +1134,7 @@ public class PkgMgrFrame extends JFrame
 	if(target == null)
 	    DialogManager.showError(this, "no-class-selected");
 	else {
-		if(target instanceof PackageTarget)
-		{
-			PackageTarget t = (PackageTarget) target;
-			String newname = getPackage().getQualifiedName(t.getName());
-
-			Package p = getPackage().getProject().getPackage(newname);
-
-			closePackage();
-			openPackage(p);
-		}
-		else
+		if(target instanceof ClassTarget)
 		{
 			ClassTarget t = (ClassTarget) target;
 	    		removeClass(t);
@@ -1510,6 +1502,7 @@ public class PkgMgrFrame extends JFrame
         toolPanel.add(viewPanel);
         toolPanel.add(Box.createVerticalStrut(4));
         toolPanel.add(progressButton);
+        toolPanel.add(Box.createVerticalStrut(3));
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BorderLayout());
