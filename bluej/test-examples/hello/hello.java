@@ -6,12 +6,19 @@
  
 public class hello
 {
-	public Integer I = new Integer(17);
+    static final int cons = 42;
+    static int stats = 0;
+    	public Integer number = new Integer(17);
+    private String name = "mik";
 
 	/** Method that does the work **/
 	public void go()
 	{
-		System.out.println("hello, world");
+    int nummer;
+
+    nummer = 42;
+    System.out.println("hello, world");
+    System.out.println("answer = " + nummer);
 	}
 	
 	/** main method for testing outside JavaBlue **/

@@ -3,11 +3,13 @@ package bluej.runtime;
 import java.util.Hashtable;
 
 /**
- ** @version $Id: Shell.java 47 1999-04-28 01:24:27Z ajp $
- ** @author Michael Cahill
- ** @author Michael Kolling
  ** Interface implemented by all "shell" classes - used for method invocation
  ** and object creation.
+ **
+ ** @author Michael Cahill
+ ** @author Michael Kolling
+ **
+ ** @version $Id: Shell.java 93 1999-05-28 00:54:37Z mik $
  **/
 
 public abstract class Shell

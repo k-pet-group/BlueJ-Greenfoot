@@ -10,6 +10,7 @@ public class Tester
     static int st = 33;
 
     private int x;
+    private String name = "Michael";
     Tester t;
 
     /**
@@ -29,8 +30,15 @@ public class Tester
      **/
     public int goodtest()
     {
-        return 42;
+        return 43;
     }
+
+    public int secondtest()
+    {
+        return 44;
+    }
+
+
     /**
      ** An example of a method - replace this comment with your own
      ** 	
@@ -40,8 +48,8 @@ public class Tester
     public int test()
     {
         x = t.test();
-	// put your code here
-	return x;
+	       // create NullpointerException
+	       return x;
     }
 
 }

@@ -4,7 +4,7 @@ import bluej.runtime.BlueJRuntime;
 import bluej.pkgmgr.Package;
 
 /**
- ** @version $Id: LocalDebugger.java 86 1999-05-18 02:49:53Z mik $
+ ** @version $Id: LocalDebugger.java 93 1999-05-28 00:54:37Z mik $
  ** @author Michael Cahill
  ** A class implementing the debugger primitives needed by BlueJ
  ** Implemented in the local VM (via reflection, etc.)
@@ -12,8 +12,6 @@ import bluej.pkgmgr.Package;
 
 public class LocalDebugger extends bluej.debugger.Debugger
 {
-    boolean active = false;
-	
     /**
      ** Start debugging
      **/
@@ -27,7 +25,7 @@ public class LocalDebugger extends bluej.debugger.Debugger
     /**
      ** Finish debugging
      **/
-    protected void finishDebugging()
+    protected void endDebugger()
     {
 	if(active)
 	    {
@@ -35,14 +33,6 @@ public class LocalDebugger extends bluej.debugger.Debugger
 			
 		active = false;
 	    }
-    }
-	
-    /**
-     ** Check whether we are currently debugging
-     **/
-    public boolean isActive()
-    {
-	return active;
     }
 	
     /**
@@ -87,7 +77,7 @@ public class LocalDebugger extends bluej.debugger.Debugger
      * "Start" a class (i.e. invoke its main method)
      */
     public void startClass(DebuggerClassLoader loader, String classname, 
-			   String[] args, Package pkg)
+			   Package pkg)
     {
     }
 	

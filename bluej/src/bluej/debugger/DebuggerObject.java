@@ -1,7 +1,6 @@
 package bluej.debugger;
 
-import bluej.debugger.suntools.SunObject;
-import sun.tools.debug.RemoteObject;
+import java.util.Vector;
 
 /**
  ** A class representing an object in the debugged VM.
@@ -9,7 +8,7 @@ import sun.tools.debug.RemoteObject;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: DebuggerObject.java 86 1999-05-18 02:49:53Z mik $
+ ** @version $Id: DebuggerObject.java 93 1999-05-28 00:54:37Z mik $
  **/
 
 public abstract class DebuggerObject
@@ -33,7 +32,7 @@ public abstract class DebuggerObject
     /**
      * Return the number of object fields.
      */
-    public abstract int getFieldCount();
+    public abstract int getInstanceFieldCount();
 
     /**
      * Return the name of the static field at 'slot'.
@@ -47,8 +46,23 @@ public abstract class DebuggerObject
      *
      * @arg slot  The slot number to be checked
      */
-    public abstract String getFieldName(int slot);
+    public abstract String getInstanceFieldName(int slot);
 
+
+    /**
+     * Return true if the static field 'slot' is public.
+     *
+     * @arg slot The slot number to be checked
+     */
+    public abstract boolean staticFieldIsPublic(int slot);
+
+    /**
+     * Return true if the object field 'slot' is public.
+     *
+     * @arg slot The slot number to be checked
+     */
+    public abstract boolean instanceFieldIsPublic(int slot);
+	
 
     /**
      * Return true if the static field 'slot' is an object (and not
@@ -64,22 +78,7 @@ public abstract class DebuggerObject
      *
      * @arg slot The slot number to be checked
      */
-    public abstract boolean fieldIsObject(int slot);
-	
-
-    /**
-     * Return true if the static field 'slot' is public.
-     *
-     * @arg slot The slot number to be checked
-     */
-    public abstract boolean staticFieldIsPublic(int slot);
-
-    /**
-     * Return true if the object field 'slot' is public.
-     *
-     * @arg slot The slot number to be checked
-     */
-    public abstract boolean fieldIsPublic(int slot);
+    public abstract boolean instanceFieldIsObject(int slot);
 	
 
     /**
@@ -94,20 +93,20 @@ public abstract class DebuggerObject
      *
      * @arg slot  The slot number to be returned
      */
-    public abstract DebuggerObject getFieldObject(int slot);
+    public abstract DebuggerObject getInstanceFieldObject(int slot);
 
 
     /**
      * Return an array of strings with the description of each static field
      * in the format "<modifier> <type> <name> = <value>".
      */
-    public abstract String[] getStaticFields(boolean includeModifiers);
+    public abstract Vector getStaticFields(boolean includeModifiers);
 
     /**
      * Return an array of strings with the description of each field in the
      * format "<modifier> <type> <name> = <value>" or
      * "<type> <name> = <value>", depending on the parameter.
      */
-    public abstract String[] getFields(boolean includeModifiers);
+    public abstract Vector getInstanceFields(boolean includeModifiers);
 
 }

@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: ClassTarget.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: ClassTarget.java 93 1999-05-28 00:54:37Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -493,10 +493,14 @@ public class ClassTarget extends EditableTarget
 		    public void putResult(DebuggerObject result, String name) {
 			if((name == null) || (name.length() == 0))
 			    name = "result";
-			ObjectWrapper wrapper = 
-			    new ObjectWrapper(result.getFieldObject(0),
-					      name, pkg);
-			pkg.getFrame().getObjectBench().add(wrapper);
+			if(result != null) {
+			    ObjectWrapper wrapper = 
+			      new ObjectWrapper(result.getInstanceFieldObject(0),
+						name, pkg);
+			    pkg.getFrame().getObjectBench().add(wrapper);
+			}
+			else
+			  Debug.reportError("cannot get execution result");
 		    }
 		};
 

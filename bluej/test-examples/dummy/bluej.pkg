@@ -1,20 +1,30 @@
 #BlueJ project file
-#Fri May 21 10:00:25 GMT+10:00 1999
+#Thu May 27 18:00:46 GMT+10:00 1999
 target1.height=50
-package.window.height=466
-target1.y=110
-target1.x=190
+dependency1.to=Tester
+dependency1.type=ExtendsDependency
+package.window.height=527
+dependency1.from=SubTester
+target3.y=50
+target3.x=40
+target1.y=100
+target1.x=180
 target2.height=50
-target2.modifiers=1
-package.numTargets=2
-target2.width=80
+target2.modifiers=0
+package.numTargets=3
+target2.width=100
 target1.type=ClassTarget
 package.window.width=512
 target1.name=Tester
 target1.width=80
 target2.type=ClassTarget
-package.numDependencies=0
-target2.name=MyClass
-target2.y=50
-target2.x=40
+target3.width=90
+package.numDependencies=1
+target3.modifiers=1
+target2.name=SubTester
+target3.type=ClassTarget
+target3.name=MyClass
+target3.height=50
+target2.y=190
+target2.x=240
 target1.modifiers=1

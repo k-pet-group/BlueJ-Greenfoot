@@ -11,6 +11,7 @@ import java.awt.event.*;
 import java.lang.reflect.*;
 import java.util.Hashtable;
 import java.util.Enumeration;
+import java.util.Vector;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
@@ -19,7 +20,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 86 1999-05-18 02:49:53Z mik $
+ ** @version $Id: ObjectViewer.java 93 1999-05-28 00:54:37Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -149,18 +150,16 @@ public final class ObjectViewer extends JFrame
      */
     public void update()
     {
-
 	// if is an array and needs compressing
-	if(obj.isArray() && obj.getFieldCount() > VISIBLE_ARRAY_FIELDS) 
-	    objFieldList.setListData(compressArrayList(obj.getFields(isInspection)));
-	else {   
-	    objFieldList.setListData(obj.getFields(isInspection));
-	}
+	if(obj.isArray() && obj.getInstanceFieldCount() > VISIBLE_ARRAY_FIELDS) 
+	    objFieldList.setListData(
+		compressArrayList(obj.getInstanceFields(isInspection)));
+	else 
+	    objFieldList.setListData(obj.getInstanceFields(isInspection));
 
 	// static fields only applicable if not an array and list not null
 	if(isInspection && !obj.isArray() && staticFieldList != null)
 	    staticFieldList.setListData(obj.getStaticFields(true));
-
     }
 	
     /**
@@ -248,17 +247,17 @@ public final class ObjectViewer extends JFrame
 	    	setCurrentObj(null, null);
 		// check to see if elements are objects, 
 		// using the index replaced by this element
-		if(obj.fieldIsObject(ARRAY_QUERY_INDEX))
+		if(obj.instanceFieldIsObject(ARRAY_QUERY_INDEX))
 		    setButtonsEnabled(true, false);
 		else
 		    setButtonsEnabled(false, false);
 
 		queryArrayElement =  true;
 	    }
-	    else if(obj.fieldIsObject(slot)) {
-		setCurrentObj(obj.getFieldObject(slot),
-			      obj.getFieldName(slot));
-		if(obj.fieldIsPublic(slot) && !selectedObject.isArray())
+	    else if(obj.instanceFieldIsObject(slot)) {
+		setCurrentObj(obj.getInstanceFieldObject(slot),
+			      obj.getInstanceFieldName(slot));
+		if(obj.instanceFieldIsPublic(slot) && !selectedObject.isArray())
 		    setButtonsEnabled(true, true);
 		else
 		    setButtonsEnabled(true, false);
@@ -288,7 +287,7 @@ public final class ObjectViewer extends JFrame
      */
     private int indexToSlot(int listIndexPosition)
     {
-	int fieldCount = obj.getFieldCount();
+	int fieldCount = obj.getInstanceFieldCount();
 	if(fieldCount < VISIBLE_ARRAY_FIELDS)
 	    return listIndexPosition;
 	else {
@@ -315,36 +314,38 @@ public final class ObjectViewer extends JFrame
 
     /**
      * Compresses an array field name list to a maximum of 45 elements
-     * for display purposes.  When a selected elementgy is chosen 
+     * for display purposes.  When a selected element is chosen 
      * indexToSlot allows the selection to be converted to the original 
      * array element position.
      *
      * @param  fullArrayFieldList the full field list for an array
      * @return the compressed array
      */
-    private String[] compressArrayList(String[] fullArrayFieldList)
+    private Vector compressArrayList(Vector fullArrayFieldList)
     {
-	if(fullArrayFieldList.length > VISIBLE_ARRAY_FIELDS) {
-	    String[] newArray = new String[VISIBLE_ARRAY_FIELDS];
+	//** rewrite using Vector "remove" and "add"
+	if(fullArrayFieldList.size() > VISIBLE_ARRAY_FIELDS) {
+	    Vector newArray = new Vector(VISIBLE_ARRAY_FIELDS);
 	    
 	    for(int i = 0; i < VISIBLE_ARRAY_FIELDS; i++) {
 		// first 40 elements are the same
 		if(i < ARRAY_QUERY_INDEX)
-		    newArray[i] = fullArrayFieldList[i];
+		    newArray.add(fullArrayFieldList.elementAt(i));
 		else if(i == ARRAY_QUERY_INDEX) {
-		    String queryElement  = fullArrayFieldList[i];
-		    int startBracket = queryElement.indexOf("[");
+		    String queryElement = (String)fullArrayFieldList.elementAt(i);
+		    int bracketPos = queryElement.indexOf("[");
 		     
-		    newArray[i] = (queryElement.substring(0, (startBracket - 1)) + "[...]") ;
+		    newArray.add(
+			queryElement.substring(0, (bracketPos-1)) + "[...]");
 		}
 		else 
-		    newArray[i] = fullArrayFieldList[(i + (fullArrayFieldList.length - VISIBLE_ARRAY_FIELDS))];
+		    newArray.add(fullArrayFieldList.elementAt(
+		       i + fullArrayFieldList.size() - VISIBLE_ARRAY_FIELDS));
 	    }
 	    return newArray;
 	}
 	else
 	    return fullArrayFieldList;
-
     }
 
    /**
@@ -363,12 +364,12 @@ public final class ObjectViewer extends JFrame
 
 		    
 		    // check if within bounds of array
-		    if(slot >= 0 && slot < obj.getFieldCount()) {
+		    if(slot >= 0 && slot < obj.getInstanceFieldCount()) {
 
 			// if its an object set as current object
-			if(obj.fieldIsObject(slot) ) {
-			    setCurrentObj(obj.getFieldObject(slot),
-					  obj.getFieldName(slot));
+			if(obj.instanceFieldIsObject(slot) ) {
+			    setCurrentObj(obj.getInstanceFieldObject(slot),
+					  obj.getInstanceFieldName(slot));
 			    setButtonsEnabled(true, false);
 			}
 			else
@@ -542,7 +543,7 @@ public final class ObjectViewer extends JFrame
 
 	if(isInspection) {
 	    objectScrollPane.setColumnHeaderView(new JLabel(objListTitle));
-	    rows = obj.getFieldCount() + 1;
+	    rows = obj.getInstanceFieldCount() + 1;
 	    if(rows < minRows)
 		rows = minRows;
 	    else if(rows > maxRows)

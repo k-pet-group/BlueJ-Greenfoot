@@ -1,9 +1,10 @@
 package bluej.compiler;
 
 import bluej.Config;
+import bluej.utility.Queue;
 
 /**
- ** @version $Id: CompilerThread.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: CompilerThread.java 93 1999-05-28 00:54:37Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **

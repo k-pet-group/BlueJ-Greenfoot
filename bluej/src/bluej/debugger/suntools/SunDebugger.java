@@ -14,7 +14,7 @@ import sun.tools.debug.DebuggerCallback;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunDebugger.java 88 1999-05-20 06:19:11Z mik $
+ ** @version $Id: SunDebugger.java 93 1999-05-28 00:54:37Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -59,20 +59,12 @@ public class SunDebugger extends Debugger
     /**
      * Finish debugging
      */
-    protected synchronized void finishDebugging()
+    protected synchronized void endDebugger()
     {
 	if(remoteDebugger != null) {
 	    remoteDebugger.close();
 	    remoteDebugger = null;
 	}
-    }
-	
-    /**
-     * Check whether we are currently debugging
-     */
-    public boolean isActive()
-    {
-	return (remoteDebugger != null);
     }
 	
     private RemoteDebugger getDebugger()
@@ -144,8 +136,10 @@ public class SunDebugger extends Debugger
      * "Start" a class (i.e. invoke its main method)
      */
     public void startClass(DebuggerClassLoader loader, String classname, 
-			   String[] args, Package pkg)
+			   Package pkg)
     {
+	String[] args = null;  // non-null arguments currently not used
+
 	int length = (args == null) ? 0 : args.length;
 	String[] allArgs = new String[length + 3];
 	allArgs[0] = BlueJRuntime.START_CLASS;

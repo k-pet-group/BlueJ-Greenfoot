@@ -13,7 +13,7 @@ import bluej.utility.Utility;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: SunObject.java 86 1999-05-18 02:49:53Z mik $
+ ** @version $Id: SunObject.java 93 1999-05-28 00:54:37Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -102,7 +102,7 @@ public class SunObject extends DebuggerObject
     /**
      * Return the number of object fields.
      */
-    public int getFieldCount()
+    public int getInstanceFieldCount()
     {
 	try {
 	    return obj.getFields().length;
@@ -131,7 +131,7 @@ public class SunObject extends DebuggerObject
      *
      * @arg slot  The slot number to be checked
      */
-    public String getFieldName(int slot)
+    public String getInstanceFieldName(int slot)
     {
 	try {
 	    return obj.getField(slot).getName();
@@ -166,7 +166,7 @@ public class SunObject extends DebuggerObject
      *
      * @arg slot The slot number to be checked
      */
-    public boolean fieldIsObject(int slot)
+    public boolean instanceFieldIsObject(int slot)
     {
 	try {
 	    RemoteValue val = obj.getFieldValue(slot);
@@ -200,7 +200,7 @@ public class SunObject extends DebuggerObject
      *
      * @arg slot The slot number to be checked
      */
-    public boolean fieldIsPublic(int slot)
+    public boolean instanceFieldIsPublic(int slot)
     {
 	try {
 	    RemoteField field = obj.getField(slot);
@@ -231,7 +231,7 @@ public class SunObject extends DebuggerObject
      *
      * @arg slot  The slot number to be returned
      */
-    public DebuggerObject getFieldObject(int slot)
+    public DebuggerObject getInstanceFieldObject(int slot)
     {
 	try {
 	    RemoteValue val = obj.getFieldValue(slot);
@@ -248,15 +248,15 @@ public class SunObject extends DebuggerObject
      */
     public String[] getStaticFields(boolean includeModifiers)
     {
-	String[] fields;
+	Vector fields;
 		
 	try {
 	    RemoteClass rclass = obj.getClazz();
 
 	    RemoteField[] rfields = rclass.getFields();
 
-	    fields = new String[rfields.length];
-	    
+	    fields = new Vector(rfields.length);
+
 	    for(int i = 0; i < rfields.length; i++) {
 		RemoteValue val = rclass.getFieldValue(i);
 		String valString;
@@ -268,17 +268,19 @@ public class SunObject extends DebuggerObject
 		else
 		    valString = val.toString();
 				
+		String fieldString;
 		if(includeModifiers)
-		    fields[i] = rfields[i].getModifiers();
+		    fieldString = rfields[i].getModifiers();
 		else
-		    fields[i] = "";
+		    fieldString = "";
 
-		fields[i] = fields[i] + rfields[i].getTypedName() + 
+		fieldString = fieldString + rfields[i].getTypedName() + 
 		            " = " + valString;
+		fields.add(fieldString);
 	    }
 	} catch(Exception e) {
 	    e.printStackTrace(System.err);
-	    fields = new String[0];
+	    fields = new Vector();
 	}
 	return fields;
     }
@@ -287,12 +289,12 @@ public class SunObject extends DebuggerObject
      * Return an array of strings with the description of each field in the
      * format "<modifier> <type> <name> = <value>".
      */
-    public String[] getFields(boolean includeModifiers)
+    public Vector getInstanceFields(boolean includeModifiers)
     {
-	String[] fields;
+	Vector fields;
 	try {
 	    RemoteField[] rfields = obj.getFields();
-	    fields = new String[rfields.length];
+	    fields = new Vector(rfields.length);
 			
 	    for(int i = 0; i < rfields.length; i++) {
 		RemoteValue val = obj.getFieldValue(i);
@@ -312,16 +314,18 @@ public class SunObject extends DebuggerObject
 		else
 		    valString = val.toString();
 
+		String fieldString;
 		if(includeModifiers)
-		    fields[i] = rfields[i].getModifiers();
+		    fieldString = rfields[i].getModifiers();
 		else
-		    fields[i] = "";
-		fields[i] = fields[i] + rfields[i].getTypedName() + 
+		    fieldString = "";
+		fieldString = fieldString + rfields[i].getTypedName() + 
 		            " = " + valString;
+		fields.add(fieldString);
 	    }
 	} catch(Exception e) {
 	    e.printStackTrace(System.err);
-	    fields = new String[0];
+	    fields = new Vector();
 	}
 		
 	return fields;

@@ -23,7 +23,7 @@ import sun.tools.javac.SourceClass;
 import sun.tools.javac.BatchEnvironment;
 
 /**
- ** @version $Id: Invoker.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: Invoker.java 93 1999-05-28 00:54:37Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -387,7 +387,7 @@ public class Invoker extends Thread
 	    pkg.getFrame().startExecution();
 	    DebuggerClassLoader loader = pkg.getRemoteClassLoader();
 	    String shellClassName = pkg.getQualifiedName(shellName);
-	    Debugger.debugger.startClass(loader, shellClassName, null, pkg);
+	    Debugger.debugger.startClass(loader, shellClassName, pkg);
 	    pkg.getFrame().stopExecution();
 
 	    // the execution is completed, get the result if there was one

@@ -13,7 +13,7 @@ import bluej.pkgmgr.Package;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Debugger.java 88 1999-05-20 06:19:11Z mik $
+ ** @version $Id: Debugger.java 93 1999-05-28 00:54:37Z mik $
  **/
 
 public abstract class Debugger
@@ -33,7 +33,7 @@ public abstract class Debugger
     public static void handleExit()
     {
 	if(debugger != null) {
-	    debugger.finishDebugging();
+	    debugger.endDebugger();
 	    debugger = null;
 	}
     }
@@ -46,12 +46,7 @@ public abstract class Debugger
     /**
      * Finish debugging
      */
-    protected abstract void finishDebugging();
-
-    /**
-     * Check whether we are currently debugging
-     */
-    public abstract boolean isActive();
+    protected abstract void endDebugger();
 
     /**
      * Create a class loader
@@ -82,11 +77,10 @@ public abstract class Debugger
 				    String classname);
 
     /**
-     * "Start" a class (i.e. invoke its main method)
+     * "Start" a class (i.e. invoke its main method without arguments)
      */
     public abstract void startClass(DebuggerClassLoader loader, 
-				    String classname, String[] args, 
-				    Package pkg);
+				    String classname, Package pkg);
 
     /**
      * Show or hide the text terminal.
