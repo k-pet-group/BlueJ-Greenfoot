@@ -19,7 +19,7 @@ import bluej.utility.DialogManager;
 import bluej.pkgmgr.*;
 
 /**
- ** @version $Id: Importer.java 426 2000-04-14 01:11:12Z markus $
+ ** @version $Id: Importer.java 504 2000-05-24 04:44:14Z markus $
  ** @author Markus Ostman, some parts are copied from jCVS ImportPanel
  **
  ** Import class for bluej group support.
@@ -34,9 +34,12 @@ implements CVSUserInterface
     private String                      password;
     private String                      userName;
     private String                      module;
+    private String                      groupName;
     protected Properties                props;
     protected StringBuffer		scanText;
     protected String			ignoreName;
+    private LoginDialog                 passDialog;
+    private InfoDialog                  info;
  
     public Importer(PkgFrame currentFrame)
     {
@@ -46,6 +49,8 @@ implements CVSUserInterface
         this.password = null;
         this.userName = null;
         this.module = null;
+        this.groupName = null;
+        this.info = new InfoDialog(currentFrame);
     }
 
     /*
@@ -53,7 +58,7 @@ implements CVSUserInterface
      */
     public void loadPreferences()
     {
-        String propsFile = bluej.Config.getSystemConfigDir() + File.separatorChar + "group.defs";
+        String propsFile = bluej.Config.sys_confdir + File.separatorChar + "group.defs";
         
         if (props == null) {
             // try to load the Properties for the group stuff
@@ -74,10 +79,10 @@ implements CVSUserInterface
 	//this.infoPan.savePreferences( "import" );
     }
 
-    private void cancelImport()
-    {
-	this.client.setCanceled( true );
-    }
+ //    private void cancelImport()
+//     {
+// 	this.client.setCanceled( true );
+//     }
 
     /*
      * Directory to import, if the info is not available
@@ -91,7 +96,7 @@ implements CVSUserInterface
         Debug.message("importer,line116 "+baseDir);
         String dirName = currentFrame.getPackage().getDirName();
         Debug.message("importer,line118 "+dirName);
-        String importDir = baseDir+dirName.substring(dirName.lastIndexOf('/'));
+        String importDir = baseDir+dirName.substring(dirName.lastIndexOf(File.separator));
         Debug.message("importer,line120 "+importDir);
 
         if(importDir!= null)
@@ -109,28 +114,29 @@ implements CVSUserInterface
     {
         if(this.module==null){
             this.module = currentFrame.getPackage().getDirName();
-            Debug.message("importer,line129 "+module.substring(module.lastIndexOf('/')+1));
+            Debug.message("importer,line129 "+module.substring(module.lastIndexOf(File.separator)+1));
         }
         
         if(this.module != null)
-            return this.module.substring(module.lastIndexOf('/')+1);
+            return this.module.substring(module.lastIndexOf(File.separator)+1);
         else
             return JOptionPane.showInputDialog(this.currentFrame,
                                                "Give Module name"); 
     }  
 
     /*
-     * Return name of user.
+     * Get name of user.
      */
     public String getUserName()
     {
         if(this.userName == null){
-            LoginDialog passDialog = new LoginDialog(this.currentFrame, 
-                                                     userName );
-            passDialog.setTitle(bluej.Config.getString("groupwork.login.title"));
-            DialogManager.centreDialog(passDialog);
+//             LoginDialog passDialog = new LoginDialog(this.currentFrame, 
+//                                                      userName );
+//             passDialog.setTitle(bluej.Config.getString("groupwork.login.title"));
+//             DialogManager.centreDialog(passDialog);
             passDialog.show();
             
+            this.groupName = passDialog.getgroupName();
             this.userName = passDialog.getUserName();
             this.password = passDialog.getPassword();
             return this.userName;
@@ -140,23 +146,50 @@ implements CVSUserInterface
     }
 
     /*
-     * Return password.
+     * Get password.
      */
     public String getPassword()
     {
         if(this.password == null){
-            LoginDialog passDialog = new LoginDialog(this.currentFrame, 
-                                                           userName );
-            passDialog.setTitle(bluej.Config.getString("groupwork.login.title"));
-            DialogManager.centreDialog(passDialog);
+//             LoginDialog passDialog = new LoginDialog(this.currentFrame, 
+//                                                            userName );
+//             passDialog.setTitle(bluej.Config.getString("groupwork.login.title"));
+//             DialogManager.centreDialog(passDialog);
             passDialog.show();
-            
+
+            this.groupName = passDialog.getgroupName();
             this.userName = passDialog.getUserName();
             this.password = passDialog.getPassword();
             return this.password;
         }
         else
             return this.password;
+    }
+
+    /*
+     * Get groupName.
+     */
+    public String getGroupName()
+    {
+        if(this.password == null || this.userName == null ){
+//             LoginDialog passDialog = new LoginDialog(this.currentFrame, 
+//                                                      userName );
+//             passDialog.setTitle(bluej.Config.getString("groupwork.login.title"));
+//             DialogManager.centreDialog(passDialog);
+            passDialog.show();
+            
+            this.groupName = passDialog.getgroupName();
+            this.userName = passDialog.getUserName();
+            this.password = passDialog.getPassword();
+            return this.groupName;
+        }
+        else
+            return this.groupName;
+    }
+
+    public boolean getCancel()
+    {
+        return this.passDialog.getCancel();
     }
 
     public void performImport()
@@ -177,17 +210,24 @@ implements CVSUserInterface
 
 	String userName = this.getUserName();
 	String passWord = this.getPassword();
+
+        //here we must check if the user have choosen to cancel import
+        if(this.passDialog.getCancel())
+            return;
+
 	String hostname = props.getProperty("group.server", null);
-	String repository = this.getModule();//Name of dir in repos
+        //Name of dir in repos
+	String repository = this.getGroupName()+"/"+this.getModule();
 	String rootDirectory = props.getProperty("group.repository.path",
                                                  null);
 	String importDirectory = this.getImportDirectory();
 	
 	String vendorTag = props.getProperty("group.import.vendor");
 	String releaseTag = props.getProperty("group.import.release");
-	String messageStr = "Testing import"; //this.getLogMessage();
+	String messageStr = this.getLogMessage(this.getModule());
 	
-	if ( repository.startsWith( "/" ) )
+        //Should it be File.separator here?
+	if ( repository.startsWith("/"))
 	    repository = repository.substring( 1 );
 	
 	if ( repository.endsWith( "/" ) )
@@ -226,8 +266,8 @@ implements CVSUserInterface
 				? rmgr.getUIString( "name.for.releasetag" )
 				: rmgr.getUIString( "name.for.logmsg" ) ))))));
 		
-		String msg = rmgr.getUIFormat( "import.needs.input.msg", fmtArgs );
-		String title = rmgr.getUIString( "import.needs.input.title" );
+		String msg = rmgr.getUIFormat("import.needs.input.msg", fmtArgs );
+		String title = rmgr.getUIString("import.needs.input.title");
 		JOptionPane.showMessageDialog
 		    (this.currentFrame,
 		      msg, title, JOptionPane.ERROR_MESSAGE );
@@ -377,7 +417,7 @@ implements CVSUserInterface
 	
 	CVSResponse response = new CVSResponse();
 	
-        CVSJobQueue.getJobQueue().addJob("Import",
+        GroupJobQueue.getJobQueue().addJob("Import",
                                          this.new MyRunner(this.client,
                                                            request, 
                                                            response,
@@ -387,18 +427,6 @@ implements CVSUserInterface
         
         Debug.message("GrpPkgMgr line 456 Add "+request.getCommand()
                       +" (import) to the Job queue");
-        //******************************************
-        //this is now a relic from jCVS. Remember to change the monitor
-        // implementation, if change back.
-        //**************************************
-	//CVSThread thread =
-        //  new CVSThread( "Import",
-        //	   this.new MyRunner(this.client,
-        //                                   request,
-        //                                   response,
-        //                                   binEntries ),
-        //	   this.new MyMonitor(request, response));
-	//thread.start();
     }
 
     
@@ -480,7 +508,7 @@ implements CVSUserInterface
     }
 
     private class MyMonitor
-    implements	CVSJob.Monitor
+    implements	GroupJob.Monitor
     {
         private CVSRequest request;
         private CVSResponse response;
@@ -508,30 +536,45 @@ implements CVSUserInterface
         {
             String resultStr = this.response.getDisplayResults();
             
-            if ( this.response.getStatus() == CVSResponse.OK )
-                {
-                    uiDisplayProgressMsg
-                        ( ResourceMgr.getInstance().getUIString
-                          ( "import.status.success" ) );
+            if ( this.response.getStatus() == CVSResponse.OK ){
+                uiDisplayProgressMsg
+                    ( ResourceMgr.getInstance().getUIString
+                      ( "import.status.success" ) );
+                currentFrame.setStatus
+                    (bluej.Config.getString("groupwork.importingDone"));
+            }
+            else{
+                //If there are other jobs in the Queue, it is very likely
+                //that they depend on the result of this job. Therefore we
+                //abort all of them.
+                //GroupJobQueue.getJobQueue().clearQueue();
+                
+                uiDisplayProgressMsg
+                    ( ResourceMgr.getInstance().getUIString
+                      ( "import.status.failure" ) );
+                //If import encounter an error we need to wait a while 
+                //before we notify the others.
+                synchronized(this) {
+                    try {
+                        wait(500);
+                    }catch(InterruptedException e) {}
                 }
-            else
-                {
-                    uiDisplayProgressMsg
-                        ( ResourceMgr.getInstance().getUIString
-                          ( "import.status.failure" ) );
-                }
+                //Sync.s.callNotify(false);
+                GroupJobQueue.getJobQueue().clearQueue();
+                Debug.message("importer,556: after sync "+Thread.currentThread().getName());
+                info.setText(resultStr);
+                info.display(bluej.Config.getString("groupwork.error.title"));
+            }
             
             Debug.message(resultStr);
             
             if ( this.response != null
-                 && ! this.request.saveTempFiles )
-                {
-                    this.response.deleteTempFiles();
-                }
-        }
-        
+                 && ! this.request.saveTempFiles ){
+                this.response.deleteTempFiles();
+            }
+        }    
     }
-
+    
     public boolean
     importScan(
                String repository, String module, String importPath,
@@ -743,6 +786,15 @@ implements CVSUserInterface
         return result;
     }
 
+    /*
+     * Get the Log message for the imported project
+     *
+     */
+    private String getLogMessage(String project)
+    {
+        return project+" "+bluej.Config.getString("groupwork.log.importmsg");
+    }
+        
     //
     // CVS USER INTERFACE METHODS
     //
@@ -772,6 +824,11 @@ implements CVSUserInterface
     {
         ResourceMgr rmgr = ResourceMgr.getInstance();
         loadPreferences();
+        this.passDialog = new LoginDialog(this.currentFrame, 
+                                          userName );
+        this.passDialog.setTitle(bluej.Config.getString
+                                 ("groupwork.login.title"));
+        DialogManager.centreDialog(passDialog);
     }
 }
 

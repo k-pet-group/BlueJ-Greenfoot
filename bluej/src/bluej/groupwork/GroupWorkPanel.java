@@ -44,7 +44,7 @@ public class GroupWorkPanel extends JPanel
     
     public void loadPrefs()
     {
-	String propsFile = Config.getSystemConfigDir() + File.separatorChar + "group.defs";
+	String propsFile = Config.sys_confdir+File.separatorChar+"group.defs";
 	Debug.message("GrpWrkPnl,45 "+propsFile);
 
         if (props == null) {

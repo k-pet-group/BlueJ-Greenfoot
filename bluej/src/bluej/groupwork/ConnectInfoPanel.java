@@ -37,7 +37,7 @@ import com.ice.jcvsii.*;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: ConnectInfoPanel.java 426 2000-04-14 01:11:12Z markus $
+ ** @version $Id: ConnectInfoPanel.java 504 2000-05-24 04:44:14Z markus $
  ** @author Modifications to jCVS ConnectInfoPanel.java by Markus Ostman
  **
  ** Connect information panel for bluej group support.
@@ -68,10 +68,6 @@ public class ConnectInfoPanel extends JPanel
 	//./temp this should be handled differently
 	this.setUserName(prefs.getProperty(panName + "." + 
 					   Config.INFOPAN_USER_NAME, ""));
-	//this.setModule();
-	this.setExportDirectory(prefs.getProperty(panName + "." + 
-						  Config.INFOPAN_EXPDIR_NAME,
-                                                  ""));
     }
     
     public void savePreferences( String panName )
@@ -82,42 +78,7 @@ public class ConnectInfoPanel extends JPanel
                           this.getUserName());
         prefs.setProperty(panName + "." + Config.INFOPAN_MODULE_NAME,
                           this.getModule());
-        prefs.setProperty(panName + "." + Config.INFOPAN_EXPDIR_NAME,
-			  this.getExportDirectory());
     }
-    
-    /**
-     *./temp This Method is some what redundant for our purposes
-     */
-   //  public void setServerMode( boolean state )
-//     {
-// 	this.inetdRadio.setSelected( ! state );
-// 	this.rshRadio.setSelected( state );
-//     }
-
-    /**
-     *./temp This Method is some what redundant for our purposes
-     */
-   //  public void setPServerMode( boolean state )
-//     {
-// 	this.rshRadio.setSelected( ! state );
-// 	this.inetdRadio.setSelected( state );
-//     }
-    
-   //  public void setUsePassword( boolean state )
-//     {
-// 	this.passwordCheck.setSelected( state );
-//     }
-    
-   //  public boolean isInetdSelected()
-//     {
-// 	return this.inetdRadio.isSelected();
-//     }
-    
-   //  public boolean isPasswordSelected()
-//     {
-// 	return this.passwordCheck.isSelected();
-//     }
     
     public String getUserName()
     {
@@ -160,47 +121,17 @@ public class ConnectInfoPanel extends JPanel
 	if ( this.moduleText != null )
 	    this.moduleText.setText( name );
     }
-
-    /**
-     *./temp This Method is some what redundant for our purposes
-     */
-    public String getExportDirectory()
-    {
-	return ( this.exportDirText == null
-		 ? "" : this.exportDirText.getText() );
-    }
-
-    /**
-     *./temp This Method is some what redundant for our purposes
-     */
-    public void setExportDirectory( String dir )
-    {
-	if ( exportDirText != null )
-	    this.exportDirText.setText( dir );
-    }
     
     public String getImportDirectory()
     {
-	return ( this.exportDirText == null
-		 ? "" : this.exportDirText.getText() );
+ 	return ( this.exportDirText == null
+ 		 ? "" : this.exportDirText.getText() );
     }
     
     public void setImportDirectory( String dir )
     {
-	if ( exportDirText != null )
-	    this.exportDirText.setText( dir );
-    }
-
-    public String getLocalDirectory()
-    {
-	return ( this.exportDirText == null
-		 ? "" : this.exportDirText.getText() );
-    }
-
-    public void setLocalDirectory( String dir )
-    {
-	if ( exportDirText != null )
-	    this.exportDirText.setText( dir );
+       	if ( exportDirText != null )
+ 	    this.exportDirText.setText( dir );
     }
     
     public void requestInitialFocus()
@@ -220,53 +151,7 @@ public class ConnectInfoPanel extends JPanel
     public void itemStateChanged( ItemEvent event )
     {
  	boolean relay = false;
- 	Object item = event.getItemSelectable();
-	
-     // if ( item == this.inetdRadio ){
-// // 	    if ( this.inetdRadio.isSelected() ){
-// // 		this.passwordCheck.setEnabled( true );
-// // 		this.passwordCheck.setSelected( true );
-// // 		this.userNameLbl.setEnabled( true );
-// // 		this.userNameText.setEnabled( true );
-// // 		this.passwordText.setEnabled( true );
-// // 		this.userNameText.requestFocus();
-// // 	    }
-	    
-// 	    relay = true;
-// 	}
-// 	else if ( item == this.rshRadio ){
-// 	    if ( this.rshRadio.isSelected() ){
-// 		this.passwordCheck.setSelected( false );
-// 		this.passwordCheck.setEnabled( false );
-// 		this.passwordText.setEnabled( false );
-// 		this.userNameLbl.setEnabled( true );
-// 		this.userNameText.setEnabled( true );
-// 		this.userNameText.requestFocus();
-// 	    }
-	    
-// 	    relay = true;
-// 	}
-// 	else if ( item == this.passwordCheck){
-// 	    if ( this.passwordCheck.isSelected()){
-// 		this.userNameLbl.setEnabled( true );
-// 		this.userNameText.setEnabled( true );
-// 		this.passwordText.setEnabled( true );
-// 		this.userNameText.requestFocus();
-// 	    }
-// 	    else{
-// 		this.userNameLbl.setEnabled( false );
-// 		this.userNameText.setEnabled( false );
-// 		this.passwordText.setEnabled( false );
-// 	    }
-	    
-// 	    relay = true;
-// 	}
-	
-// 	if ( relay ){
-// 	    this.invalidate();
-// 	    this.validate();
-// 	    this.repaint();
-// 	}
+ 	Object item = event.getItemSelectable();	
     }
     
     private void establishContents( String operation )
@@ -285,8 +170,8 @@ public class ConnectInfoPanel extends JPanel
 	
 	// ------------------- Module -------------------
 	if ( ! operation.equals( "test" ) ){
-	    lbl = this.new MyLabel(bluej.Config.getString("groupwork.module.namelbl")); 
-            //this.new MyLabel( rmgr.getUIString( "name.for.cvsmodule" ) );
+	    lbl = this.new MyLabel(bluej.Config.getString
+                                   ("groupwork.module.namelbl")); 
             lbl.setForeground( Color.black );
 	    AWTUtilities.constrain(fldPan, lbl,
 				   GridBagConstraints.NONE,
@@ -300,50 +185,13 @@ public class ConnectInfoPanel extends JPanel
 				   0, row++, 1, 1, 1.0, 0.0 );
             
 	}
-	
-	// ------------------- Export/Import/Checkout Directory -------------
-	if ( operation.equals( "export" )
-	     || operation.equals( "import" )
-	     || operation.equals( "checkout" ) ){
-	    if ( operation.equals( "export" ) )
-		lbl = this.new MyLabel(rmgr.getUIString("name.for.exportdir"));
-	    else if ( operation.equals( "import" ))
-		lbl = this.new MyLabel(rmgr.getUIString("name.for.importdir"));
-	    else if ( operation.equals( "checkout" ))
-		lbl = this.new MyLabel(rmgr.getUIString("name.for.checkoutdir"));
-
-// 	    AWTUtilities.constrain(
-// 				   fldPan, lbl,
-// 				   GridBagConstraints.NONE,
-// 				   GridBagConstraints.WEST,
-// 				   0, row, 1, 1, 0.0, 0.0 );
-	    
-	    this.exportDirText = new JTextField();
-// 	    AWTUtilities.constrain(
-// 				   fldPan, this.exportDirText,
-// 				   GridBagConstraints.HORIZONTAL,
-// 				   GridBagConstraints.CENTER,
-// 				   1, row++, 1, 1, 1.0, 0.0 );
-	}
-	
-	// ============== SERVER DEFINES DIALOG BUTTON ================
-	
-	
+		
 	// ============== USER LOGIN INFO PANEL ================
 	
 	JPanel namePan = new JPanel();
 	namePan.setLayout( new GridBagLayout() );
 	
-	row = 0;
-	
-	// // server method
-// 	this.rshRadio =new JRadioButton(rmgr.getUIString("name.for.connect.method.server"));
-// 	this.rshRadio.addItemListener( this );
-// 	AWTUtilities.constrain(
-// 			       namePan, this.rshRadio,
-// 			       GridBagConstraints.NONE,
-// 			       GridBagConstraints.WEST,
-// 			       0, row, 1, 1,  0.0, 0.0 );
+	row = 0;	
 
         lbl = this.new MyLabel("Group name"); 
         lbl.setForeground( Color.black );
@@ -356,7 +204,8 @@ public class ConnectInfoPanel extends JPanel
         AWTUtilities.constrain(namePan, this.groupNameText,
                                GridBagConstraints.HORIZONTAL,
                                GridBagConstraints.CENTER,
-                               1, row++, 1, 1, 1.0, 0.0 );
+                               1, row++, 1, 1, 1.0, 0.0,
+                               new Insets( 5, 0, 5, 0 ));
 	
 	this.userNameLbl = this.new MyLabel(rmgr.getUIString("name.for.user.name"));
 	this.userNameLbl.setForeground( Color.black );
@@ -372,7 +221,8 @@ public class ConnectInfoPanel extends JPanel
 			       namePan, this.userNameText,
 			       GridBagConstraints.HORIZONTAL,
 			       GridBagConstraints.WEST,
-			       1, row++, 1, 1, 1.0, 0.0 );
+			       1, row++, 1, 1, 1.0, 0.0,
+                               new Insets( 5, 0, 5, 0 ));
 	
         this.passwordLbl = this.new MyLabel(rmgr.getUIString("name.for.user.pass"));
 	this.passwordLbl.setForeground( Color.black );
@@ -388,24 +238,8 @@ public class ConnectInfoPanel extends JPanel
 			       namePan, this.passwordText,
 			       GridBagConstraints.HORIZONTAL,
 			       GridBagConstraints.WEST,
-			       1, row++, 1, 1, 1.0, 0.0 );
-	
-	
-// 	ButtonGroup btnGrp = new ButtonGroup();
-// 	btnGrp.add( this.rshRadio );
-// 	btnGrp.add( this.inetdRadio );
-	
-	row = 0;
-	
-	JPanel topPan = new JPanel();
-	topPan.setLayout( new GridBagLayout() );
-	
-	AWTUtilities.constrain(
-			       topPan, namePan,
-			       GridBagConstraints.HORIZONTAL,
-			       GridBagConstraints.CENTER,
-			       2, row++, 1, 1, 0.7, 0.0 );
-	
+			       1, row++, 1, 1, 1.0, 0.0,
+                               new Insets( 5, 0, 5, 0 ));
 	row = 0;
 	
 	AWTUtilities.constrain(
@@ -413,7 +247,7 @@ public class ConnectInfoPanel extends JPanel
 			       GridBagConstraints.HORIZONTAL,
 			       GridBagConstraints.CENTER,
 			       0, row++, 1, 1, 1.0, 0.0,
-                               new Insets( 0, 3, 0, 3 ));
+                               new Insets( 5, 3, 5, 3 ));
 	
 	JSeparator sep = new JSeparator( SwingConstants.HORIZONTAL );
 	
@@ -422,10 +256,10 @@ public class ConnectInfoPanel extends JPanel
 			       GridBagConstraints.HORIZONTAL,
 			       GridBagConstraints.CENTER,
 			       0, row++, 1, 1, 0.0, 0.0,
-			       new Insets( 3, 0, 5, 0 ) );
+			       new Insets( 5, 0, 5, 0 ) );
 	
 	AWTUtilities.constrain(
-			       this, topPan,
+			       this, namePan,
 			       GridBagConstraints.HORIZONTAL,
 			       GridBagConstraints.CENTER,
 			       0, row, 1, 1, 1.0, 0.0 );

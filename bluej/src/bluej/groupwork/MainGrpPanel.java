@@ -14,7 +14,7 @@ public class MainGrpPanel extends JPanel
 {
     GroupWorkDialog groupWorkDialog;
     CheckOutPanel coPanel;
-    ImportPanel imPanel;
+    //ImportPanel imPanel;
 
     public MainGrpPanel( GroupWorkDialog groupWorkDialog )
     {
@@ -35,13 +35,13 @@ public class MainGrpPanel extends JPanel
     public void loadPreferences()
     {
 	this.coPanel.loadPreferences();
-	this.imPanel.loadPreferences();
+	//this.imPanel.loadPreferences();
     }
 
     public void savePreferences()
     {
 	this.coPanel.savePreferences();
-	this.imPanel.savePreferences();
+        //	this.imPanel.savePreferences();
 	
     }
 
@@ -58,13 +58,13 @@ public class MainGrpPanel extends JPanel
 	this.add( this.coPanel );
     }
 
-    public void displayImport()
-    {
-	//Creating the Import Panel
-	this.imPanel = new ImportPanel( this );
-	this.imPanel.loadPreferences();
-	this.add( this.imPanel );
-    }
+//     public void displayImport()
+//     {
+// 	//Creating the Import Panel
+// 	this.imPanel = new ImportPanel( this );
+// 	this.imPanel.loadPreferences();
+// 	this.add( this.imPanel );
+//     }
     
     public CheckOutPanel getCheckOutPanel()
     {

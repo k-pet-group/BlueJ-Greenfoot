@@ -89,10 +89,12 @@ public final class CVSGroupInfo
         //Create path to the CVS directory for the project
 	String rootDirPath = createRootPath(localDirName);
 	File rootDirFile = new File(rootDirPath);
+        //File rootDirFile = new File(localDirName);
 	Debug.message("CVSGrpInfo, line88:"+localDirName);
+        Debug.message("CVSGrpInfo, line93:"+rootDirFile.getPath());
 	Config cfg = Config.getInstance();
 	UserPrefs prefs = cfg.getPreferences();
-	this.traceReq = prefs.getBoolean( Config.GLOBAL_CVS_TRACE_ALL, false );
+	this.traceReq = prefs.getBoolean(Config.GLOBAL_CVS_TRACE_ALL, false );
 
 	CVSClient client = new CVSClient();
 	this.project = new CVSProject( client );
@@ -132,11 +134,12 @@ public final class CVSGroupInfo
 	    
 	    if ( password != null )
 		{
-		    project.setPassword( password );
+		    this.project.setPassword( password );
 		}
 	    else
 		{
-		    verifyLogin();
+                    //skip login when opening
+                    // verifyLogin();
 		}
 	}
 	catch ( IOException ex )

@@ -7,7 +7,7 @@ import bluej.pkgmgr.*;
 import com.ice.cvsc.*;
 
 /**
-** @version $Id: GroupPkgManager.java 426 2000-04-14 01:11:12Z markus $
+** @version $Id: GroupPkgManager.java 504 2000-05-24 04:44:14Z markus $
 ** @author Markus Ostman
 ** Interface between the group support and the rest of BlueJ
 **/
@@ -21,6 +21,7 @@ public interface GroupPkgManager
     static final int STATUS = COMMIT+1;
     static final int CHECKOUT = STATUS+1;
     static final int RELEASE = CHECKOUT+1;
+    static final int LOG = RELEASE+1;
 
     /**
      * Method that opens a Group package in Bluej 
@@ -50,13 +51,14 @@ public interface GroupPkgManager
     /**
      * Performs the various group commands 
      *  
-     * @param frame  The current Frame 
-     * @param command  The command 
-     * @param entries  The entries to act upon 
+     * @param frame      The current Frame 
+     * @param command    The command 
+     * @param entries    The entries to act upon
+     * @param implicit   Is it an implicit call to the method
      * @returns True if successful, false if not
      */
     boolean performCommand(PkgMgrFrame frame, int command,
-                           CVSEntryVector entries );
+                           CVSEntryVector entries, boolean implicit );
 
     /**
      * Performs an update from the repository 
@@ -103,6 +105,15 @@ public interface GroupPkgManager
      * @returns True if successful, false if not
      */
     boolean pkgStatus(PkgMgrFrame frame);
+
+    /**
+     * Displays the log messages for the files in the Package
+     *  
+     * @param frame  The current Frame   
+     * @param
+     * @returns True if successful, false if not
+     */
+    boolean pkgLog(PkgMgrFrame frame);
 
     /**
      * Removes the local working directory in a safe way,

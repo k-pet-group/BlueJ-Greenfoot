@@ -19,7 +19,7 @@ import com.ice.util.AWTUtilities;
 import com.ice.jcvsii.*;
 
 /**
-** @version $Id: CheckOutPanel.java 426 2000-04-14 01:11:12Z markus $
+** @version $Id: CheckOutPanel.java 504 2000-05-24 04:44:14Z markus $
 ** @author Modifications to jCVS CheckOutPanel.java by Markus Ostman
 **
 ** Check out panel for bluej group support.
@@ -28,26 +28,26 @@ import com.ice.jcvsii.*;
 public class CheckOutPanel extends GroupWorkPanel
 implements ActionListener, CVSUserInterface
 {
-    protected CVSClient client;
-    protected ConnectInfoPanel info;
-    private JFileChooser localDirChooser;
-    //Don't ask why we need this
-    private PkgMgrFrame frame=null;
-    private boolean openPkg=true;
+    protected CVSClient           client;
+    protected ConnectInfoPanel    info;
+    private JFileChooser          localDirChooser;
+    private PkgMgrFrame           frame=null;//Don't ask why we need this
+    private boolean               openPkg=true;
+    protected JButton             actionButton;
+    protected JButton             cancelButton;
+    private InfoDialog            errorInfo;
 
+    //protected JButton helpButton;
     //protected JTextArea	outputText;
     //protected JLabel feedback;
-
     //private JLabel explain;
-    protected JButton actionButton;
-    //protected JButton helpButton;
-    protected JButton cancelButton;
 
     public CheckOutPanel( MainGrpPanel parent )
     {
         super( parent );
         this.establishContents();
-        //this.getRootPane().setDefaultButton(this.actionButton);
+        this.errorInfo = new InfoDialog
+            (parent.getGroupWorkDialog().getParentFrame());
     }
 
     public void loadPreferences()
@@ -118,12 +118,9 @@ implements ActionListener, CVSUserInterface
         String userName = this.info.getUserName();
         String passWord = this.info.getPassword();
         String hostname = props.getProperty("group.server", null);
-        String repository = this.info.getModule();
+        String repository = this.info.getGroupName()+this.info.getModule();
         String rootDirectory = props.getProperty("group.repository.path",
                                                  null);
-        //./temp here we talked about a file save dialog
-        //File localDirFile = localDirChooser.getSelectedFile();
-        //String localDirectory = this.info.getLocalDirectory();
         String localDirectory = localDirChooser.getSelectedFile().getPath();
 
         //user choice/hard coded/admin choice?
@@ -131,7 +128,6 @@ implements ActionListener, CVSUserInterface
 
         //user choice/hard coded/admin choice?
         int connMethod = CVSRequest.METHOD_INETD;//CVSRequest.METHOD_RSH
-
 
         int cvsPort = CVSUtilities.computePortNum( hostname, 
                                                    connMethod, 
@@ -261,11 +257,9 @@ implements ActionListener, CVSUserInterface
         Debug.message("ChkOutPanel,line220: "+rootDirectory);
         project.establishRootEntry( rootDirectory );
 
-        // UNDONE
-        // IF IT IS ALREADY OPEN, we should tell the ProjectFrame
-        // to do this!!!
-        if ( ! ProjectFrameMgr.checkProjectOpen
-             ( project.getLocalRootDirectory() ) ){
+        //maybe we should have a check here so we don't checkout 
+        //an already open project.
+        if (true ){
             String title = repository + " project";
 
             request.setPServer( isPServer );
@@ -314,7 +308,7 @@ implements ActionListener, CVSUserInterface
             Debug.message("bjChkOPnl, line274: "+project.getRepository());
             Debug.message("bjChkOPnl, line274: "+project.getLocalRootPath());
 
-            CVSJobQueue.getJobQueue().addJob("CheckOut",
+            GroupJobQueue.getJobQueue().addJob("CheckOut",
                                              this.new MyRunner(project,
                                                                this.client,
                                                                request, 
@@ -324,22 +318,9 @@ implements ActionListener, CVSUserInterface
 
             Debug.message("GrpPkgMgr line 456 Add "+request.getCommand()
                           +" (checkout) to the Job queue");
-            //******************************************
-            //this is now a relic from jCVS. Remember to change the monitor
-            // implementation, if change back.
-            //**************************************
-            //CVSThread thread =
-            //  new CVSThread( "CheckOut",
-            //                 this.new MyRunner( project, 
-            //                                    this.client, 
-            //                                    request, 
-            //                                    response ),
-            //                 this.new MyMonitor( request, 
-            //                                     response ));
-            //thread.start();
         }
     }
-
+    
     private class MyRunner
     implements	Runnable
     {
@@ -367,7 +348,7 @@ implements ActionListener, CVSUserInterface
     }
 
     private class MyMonitor
-    implements CVSJob.Monitor
+    implements GroupJob.Monitor
     {
         private CVSRequest request;
         private CVSResponse response;
@@ -403,18 +384,26 @@ implements ActionListener, CVSUserInterface
                       ( "checkout.status.success" ) );
 
                 File rootDirFile = new File( request.getLocalDirectory()+
-                                             "/" + 
-                                             request.getRepository());
+                                             File.separator+ 
+                                             info.getModule()/*request.getRepository()*/);
                 Debug.message("CheckOutPanel.java,line 354" + rootDirFile.getPath());
 
                 //Here we open the project in bluej
                 if(openPkg)
                     openProject(rootDirFile, request.getPassword());
-
+                //If someone is waiting for the checkout, lets notify them
+                //that everthing went all right.
+                Sync.s.callNotify(true);
             }
             else{
                 uiDisplayProgressMsg(ResourceMgr.getInstance().getUIString
                                      ( "checkout.status.failure" ) );
+                //If someone is waiting for the checkout, lets notify them
+                //that something went wrong.
+                Sync.s.callNotify(false);
+                errorInfo.setText(resultStr);
+                errorInfo.display(bluej.Config.getString
+                                  ("groupwork.error.title"));
             }
 
             Debug.message(resultStr);
@@ -463,9 +452,9 @@ implements ActionListener, CVSUserInterface
         JLabel		lbl;
         JPanel		panel;
         JButton		button;
-
+        
         this.setLayout( new GridBagLayout() );
-
+        
         this.info = new ConnectInfoPanel( "checkout" );
 
         //this.info.setPServerMode( true );
@@ -482,40 +471,6 @@ implements ActionListener, CVSUserInterface
                                GridBagConstraints.WEST,
                                0, row++, 1, 1, 1.0, 0.0 );
 
-        // this.feedback =
-        // 	    new JLabel
-        // 	    ( ResourceMgr.getInstance().getUIString
-        // 	      ( "name.for.ready" ) );
-        // 	this.feedback.setOpaque( true );
-        // 	this.feedback.setBackground( Color.white );
-        // 	this.feedback.setBorder
-        // 	    ( new CompoundBorder
-        // 	      ( new LineBorder( Color.darkGray ),
-        // 		new EmptyBorder( 1, 3, 1, 3 ) ) );
-
-        // 	AWTUtilities.constrain(
-        // 			       this, this.feedback,
-        // 			       GridBagConstraints.HORIZONTAL,
-        // 			       GridBagConstraints.CENTER,
-        // 			       0, row++, 1, 1, 1.0, 0.0,
-        // 			       new Insets( 4, 0, 3, 0 ) );
-
-        // 	this.outputText = new JTextArea(){
-        // 	    public boolean isFocusTraversable() { return false; }
-        // 	};
-
-        // 	this.outputText.setEditable( false );
-
-        // 	JScrollPane scroller =
-        // 	    new JScrollPane( this.outputText );
-        // 	scroller.setVerticalScrollBarPolicy
-        // 	    ( JScrollPane.VERTICAL_SCROLLBAR_ALWAYS );
-
-        // 	AWTUtilities.constrain(
-        // 			       this, scroller,
-        // 			       GridBagConstraints.BOTH,
-        // 			       GridBagConstraints.CENTER,
-        // 			       0, row++, 1, 1, 1.0, 1.0 );
 
         JSeparator sep = new JSeparator( SwingConstants.HORIZONTAL );
 
@@ -525,15 +480,9 @@ implements ActionListener, CVSUserInterface
                                GridBagConstraints.CENTER,
                                0, row++, 1, 1, 1.0, 0.0,
                                new Insets( 3, 0, 5, 0 ) );
-
-        //         this.explain = new JLabel("Choose Directory to store local files");
-        //         AWTUtilities.constrain(
-        // 			       this, this.explain,
-        // 			       GridBagConstraints.NONE,
-        // 			       GridBagConstraints.CENTER,
-        // 			       0, row++, 1, 1, 1.0, 0.0,
-        // 			       new Insets( 3, 0, 5, 0 ) );
-
+        
+        
+        
         this.localDirChooser = new JFileChooser();
         this.localDirChooser.setFileView(new PackageFileView());
         this.localDirChooser.setDialogTitle("Choose local directory");
@@ -542,21 +491,6 @@ implements ActionListener, CVSUserInterface
         this.localDirChooser.setApproveButtonToolTipText("Choose selected directory"); 
         this.localDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
         this.localDirChooser.addActionListener(this); 
-
-        //         AWTUtilities.constrain(
-        // 			       this, localDirChooser,
-        // 			       GridBagConstraints.BOTH,
-        // 			       GridBagConstraints.CENTER,
-        // 			       0, row++, 1, 1, 1.0, 1.0 );
-
-        //         sep = new JSeparator( SwingConstants.HORIZONTAL );
-
-        // 	AWTUtilities.constrain(
-        // 			       this, sep,
-        // 			       GridBagConstraints.HORIZONTAL,
-        // 			       GridBagConstraints.CENTER,
-        // 			       0, row++, 1, 1, 1.0, 0.0,
-        // 			       new Insets( 3, 0, 5, 0 ) );
 
         // button panel at bottom of dialog
         JPanel buttonPanel = new JPanel();
@@ -570,40 +504,22 @@ implements ActionListener, CVSUserInterface
 
         this.actionButton.setActionCommand( "CHECKOUT" );
         this.actionButton.addActionListener( this );
+        getGroupWorkDialog().getRootPane().
+            setDefaultButton(this.actionButton);
         //this.actionButton.setEnabled(false);
         buttonPanel.add(this.actionButton);
         
-        // AWTUtilities.constrain(
-        // 			       this, this.actionButton,
-        // 			       GridBagConstraints.NONE,
-        // 			       GridBagConstraints.CENTER,
-        // 			       0, row, 1, 1, 0.0, 0.0,
-        // 			       new Insets( 5, 5, 5, 5 ) );
-
-        //this.helpButton =  new JButton(bluej.Config.getString("menu.help"));
-
-        //this.helpButton.setActionCommand( "HELP" );
-        //this.helpButton.addActionListener( this );
-        //buttonPanel.add(helpButton);
-        // AWTUtilities.constrain(
-        // 			       this, this.helpButton,
-        // 			       GridBagConstraints.NONE,
-        // 			       GridBagConstraints.CENTER,
-        // 			       1, row, 1, 1, 0.0, 0.0,
-        // 			       new Insets( 5, 5, 5, 5 ) );
-
         this.cancelButton =  new JButton(bluej.Config.getString("cancel"));
 
         this.cancelButton.setActionCommand( "CANCEL" );
         this.cancelButton.addActionListener( this );
         buttonPanel.add(cancelButton);
-        AWTUtilities.constrain(
-                               this, buttonPanel,
+        AWTUtilities.constrain(this, buttonPanel,
                                GridBagConstraints.NONE,
                                GridBagConstraints.CENTER,
                                0, row++, 1, 1, 0.0, 0.0,
                                new Insets( 5, 5, 5, 5 ) );
-
+        
     }//End establishContents
 
     /**
@@ -626,8 +542,39 @@ implements ActionListener, CVSUserInterface
 
         if (props.getProperty("group.usesPkgInfo", "false").equals("true")){
             //Here we open the package directly
-            //Requires bluej.pkg file
-            parentFrame.doOpenPackage(rootDirFile.getPath(), passwd);
+            //Requires bluej.pkg file. We also make sure that a checkout
+            //works when we already have another project open (group or not).
+            //---------------------------------------------------------
+            //Maybe this should be a method in PkgFrame?
+            //or a boolean in doopen().
+            //Why isn't equals() used below? see PkgMgrFrame.doOpen()
+            //where it comes from.
+            //---------------------------------------------------------
+            if(parentFrame.getPackage().getDirName() == bluej.Config.getString("pkgmgr.noTitle") || 
+               parentFrame.getPackage().getDirName() == null){
+                parentFrame.doOpenPackage(rootDirFile.getPath(), passwd);
+                //after checkout, the project is up-to-date
+                parentFrame.setStatusR(bluej.Config.getString
+                                       ("groupwork.notChanged"));
+            }
+            else {
+                // Otherwise open it in a new window
+                PkgMgrFrame newFrame = parentFrame.createFrame(rootDirFile.getPath());
+                newFrame.setVisible(true);
+                //If group package, initialize. This is a bit messy,
+                //should be done in createFrame instead!?
+                Package pkg = newFrame.getPackage();
+                if(pkg.getIsGroupPackage()){
+                    pkg.initializeGroupInfo(pkg.getDirName(), parentFrame,
+                                            passwd);
+                }
+                newFrame.enableFunctions(true);
+                //after checkout, the project is up-to-date
+                newFrame.setStatusR(bluej.Config.getString
+                                       ("groupwork.notChanged"));
+            }
+            //------------------------------------------------------
+            //parentFrame.doOpenPackage(rootDirFile.getPath(), passwd);
         }
         else{
             //Here is another approach where we import a package
@@ -653,13 +600,14 @@ implements ActionListener, CVSUserInterface
      * @param passwd     The project password
      * @param userName   Server user name
      * @param module     Project name in repository
+     * @param groupName  Name of the project group
      * @param localDir   Where to put the checked out files
      * @param frame      The current Frame object
      * @param openPkg    Do we want to open the checked out package
      * @returns void
      */
     public void doCheckOut(String passWord, String userName,
-                           String module, String localDir,
+                           String module, String groupName, String localDir,
                            PkgMgrFrame frame, boolean openPkg)
     {
         //this might look a bit weird but it is just to set up 
@@ -670,11 +618,10 @@ implements ActionListener, CVSUserInterface
         this.info.setUserName(userName);
         this.info.setPassword(passWord);
         this.info.setModule(module);
+        this.info.setGroupName(groupName);
         this.localDirChooser.setSelectedFile(new File(localDir));
         this.performCheckout();
     }
-
-
 }
 
 

@@ -12,7 +12,7 @@ import com.ice.jcvsii.*;
 import com.ice.cvsc.*;
 
 /**
- ** @version $Id: InfoDialog.java 426 2000-04-14 01:11:12Z markus $
+ ** @version $Id: InfoDialog.java 504 2000-05-24 04:44:14Z markus $
  ** @author Markus Ostman, some code copied from jCVS
  **
  ** Dialog for Group work information purposes
@@ -49,13 +49,21 @@ public class InfoDialog extends JDialog
 	
 	//Text area showing information
 	this.infoText = new JTextArea();
+        this.infoText.setEditable(false);
+        this.infoText.setFont(new Font("helvetica", Font.BOLD, 14));
+        //this.infoText.setBackground(new Color(192,192,192));
+        this.infoText.setBorder(BorderFactory.createLineBorder
+                                (Color.black, 2));
 	this.scrollPane = new JScrollPane( this.infoText );
+        this.scrollPane.setBorder(BorderFactory.createEmptyBorder
+                                  (10, 10, 10, 10));
 	getContentPane().add("Center", scrollPane);
-
+        
 	// button panel at bottom of dialog
 	JPanel buttonPanel = new JPanel();
 	buttonPanel.setLayout(new FlowLayout());
-	buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+	buttonPanel.setBorder(BorderFactory.createEmptyBorder
+                              (10, 10, 10, 10));
 	JButton button;
 	buttonPanel.add(button = new JButton(close));
 	button.addActionListener(this);
@@ -66,13 +74,15 @@ public class InfoDialog extends JDialog
      * Show this dialog and return false if
      * closed.
      */
-    public void display()
+    public void display(String title)
     {
 	ok = false;
-	pack();
+	//pack();
+        setTitle(title);
         //Set the size to be the same as the parent's
-        setSize(this.parent.getSize());
+        //setSize(this.parent.getSize());
         //To Centre the dialog over the current Bluej Window
+        pack();
 	DialogManager.centreDialog(this);
 	setVisible(true);
     }

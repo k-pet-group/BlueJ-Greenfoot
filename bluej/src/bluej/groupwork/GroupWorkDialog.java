@@ -11,7 +11,7 @@ import javax.swing.*;
 
 
 /**
-** @version $Id: GroupWorkDialog.java 426 2000-04-14 01:11:12Z markus $
+** @version $Id: GroupWorkDialog.java 504 2000-05-24 04:44:14Z markus $
 ** @author Markus Ostman
 **
 ** Dialog for Group work purposes
@@ -91,22 +91,22 @@ implements ActionListener
         return ok;
     }
 
-    /**
-     * Show this dialog with the Import panel
-     *
-     */
-    public boolean displayImport()
-    {
-        ok = false;
-        this.mainGrpPanel.displayImport();
-        this.getContentPane().add("Center",mainGrpPanel);
-        this.setTitle("Import");
-        pack();
-        //To Centre the dialog over the current Bluej Window
-        DialogManager.centreDialog(this);
-        setVisible(true);
-        return ok;
-    }
+//     /**
+//      * Show this dialog with the Import panel
+//      *
+//      */
+//     public boolean displayImport()
+//     {
+//         ok = false;
+//         this.mainGrpPanel.displayImport();
+//         this.getContentPane().add("Center",mainGrpPanel);
+//         this.setTitle("Import");
+//         pack();
+//         //To Centre the dialog over the current Bluej Window
+//         DialogManager.centreDialog(this);
+//         setVisible(true);
+//         return ok;
+//     }
 
     /**
      * return parent to this dialog

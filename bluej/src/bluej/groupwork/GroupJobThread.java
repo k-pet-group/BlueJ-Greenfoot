@@ -5,7 +5,7 @@ import bluej.utility.Debug;
 import bluej.utility.Queue;
 
 /**
- ** @version $Id: GroupJobThread.java 426 2000-04-14 01:11:12Z markus $
+ ** @version $Id: GroupJobThread.java 504 2000-05-24 04:44:14Z markus $
  ** @author Markus Ostman, with influences from CompilerThread in the bluej 
  ** compiler Package
  ** 
@@ -29,10 +29,10 @@ public class GroupJobThread extends Thread
 	
     public void run()
     {
-	CVSJob job;
+	GroupJob job;
 		
 	while(true) {
-	    while((job = (CVSJob)jobs.dequeue()) != null) {
+	    while((job = (GroupJob)jobs.dequeue()) != null) {
 		job.process();
 	    }
 			
@@ -45,11 +45,15 @@ public class GroupJobThread extends Thread
 	}
     }
 
-    public synchronized void addJob(CVSJob job)
+    public synchronized void addJob(GroupJob job)
     {
 	jobs.enqueue(job);
 	notify();
     }
 	
+    public synchronized void clearQueue()
+    {
+        while(jobs.dequeue() != null) {}
+    }
     
 }
