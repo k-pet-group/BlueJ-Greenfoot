@@ -22,14 +22,14 @@ import java.net.URL;
 /**
  * This is the starting point of a BlueJ Extension
  */
-public class SimpleExtension extends Extension implements ExtEventListener
+public class SimpleExtension extends Extension implements BluejEventListener
   {
   /**
    * Here you can actually start using your nice extension, all pieces are in place.
    */
   public void startup (BlueJ bluej)
     {
-    bluej.addExtEventListener(this);
+    bluej.addBluejEventListener(this);
     }
 
   /**
@@ -45,7 +45,7 @@ public class SimpleExtension extends Extension implements ExtEventListener
    * What we do is to put it into the queue of events happening
    * and also we display it into the console.
    */
-  public void eventOccurred ( ExtEvent ev )    
+  public void eventOccurred ( BluejEvent ev )    
     {
     System.out.println ("\nEvxmllog.eventOccurred: "+ev.toString());
     }  
