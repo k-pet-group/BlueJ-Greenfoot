@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3048 2004-10-15 00:46:08Z davmac $
+ * @version $Id: VMReference.java 3049 2004-10-15 02:50:11Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -166,39 +166,56 @@ class VMReference
         
         launchParams = (String[]) paramList.toArray(new String[0]);
 
+        String transport = Config.getPropString("bluej.vm.transport");
         
+        AttachingConnector tcpipConnector = null;
+        AttachingConnector shmemConnector = null;
 
+        Throwable tcpipFailureReason = null;
+        Throwable shmemFailureReason = null;
         
         // Attempt to connect via TCP/IP transport
         
         List connectors = mgr.attachingConnectors();
         AttachingConnector connector = null;
 
-        // find a socket connector
+        // find the known connectors
         Iterator it = connectors.iterator();
         while (it.hasNext()) {
             AttachingConnector c = (AttachingConnector) it.next();
-
+            
             if (c.transport().name().equals("dt_socket")) {
-                connector = c;
-                break;
+                tcpipConnector = c;
+            }
+            else if (c.transport().name().equals("dt_shmem")) {
+                shmemConnector = c;
             }
         }
 
+        // If the transport has been explicitly set the shmem in bluej.defs,
+        // do not try to use the tcp/ip connector.
+        connector = tcpipConnector;
+        if (transport.equals("dt_shmem") && shmemConnector != null)
+            connector = null;
+        
         if (connector != null) {
             try {
-                StringBuffer listenMessage = new StringBuffer();
+                final StringBuffer listenMessage = new StringBuffer();
                 remoteVMprocess = launchVM(initDir, launchParams, listenMessage, term);
             
                 portNumber = extractPortNumber(listenMessage.toString());
 
                 if (portNumber == -1) {
-                    Debug.message("Could not find port number to connect to debugger");
-                    Debug.message("Line received from debugger was: " + listenMessage);
                     closeIO();
                     remoteVMprocess.destroy();
                     remoteVMprocess = null;
-                    return null;
+                    throw new Exception() {
+                        public void printStackTrace()
+                        {
+                            Debug.message("Could not find port number to connect to debugger");
+                            Debug.message("Line received from debugger was: " + listenMessage);
+                        }
+                    };
                 }
 
                 Map arguments = connector.defaultArguments();
@@ -207,7 +224,11 @@ class VMReference
                 Connector.Argument portArg = (Connector.Argument) arguments.get("port");
 
                 if (hostnameArg == null || portArg == null) {
-                    throw new IllegalStateException("incompatible JPDA socket launch connector");
+                    throw new Exception() {
+                        public void printStackTrace() {
+                            Debug.message("incompatible JPDA socket launch connector");
+                        }
+                    };
                 }
 
                 hostnameArg.setValue("127.0.0.1");
@@ -243,30 +264,25 @@ class VMReference
                 remoteVMprocess = null;
             }
             catch(Throwable t) {
-                t.printStackTrace();
+                tcpipFailureReason = t;
             }
         }
 
         // Attempt launch using shared memory transport, if available
         
-        connector = null;
-
-        it = connectors.iterator();
-        while (it.hasNext()) {
-            AttachingConnector c = (AttachingConnector) it.next();
-
-            if (c.transport().name().equals("dt_shmem")) {
-                connector = c;
-                break;
-            }
-        }
+        connector = shmemConnector;
 
         if (connector != null) {
             try {
                 Map arguments = connector.defaultArguments();
                 Connector.Argument addressArg = (Connector.Argument) arguments.get("name");
                 if (addressArg == null) {
-                    Debug.message("Shared memory connector is incompatible - no 'name' argument");
+                    throw new Exception() {
+                        public void printStackTrace()
+                        {
+                            Debug.message("Shared memory connector is incompatible - no 'name' argument");
+                        }
+                    };
                 }
                 else {
                     String shmName = "bluej" + shmCount++;
@@ -283,12 +299,24 @@ class VMReference
                 }
             }
             catch(Throwable t) {
-                Debug.message("Failed to connect to debug VM via shared memory:");
-                t.printStackTrace();
+                shmemFailureReason = t;
             }
         }
 
         // failed to connect
+        Debug.message("Failed to connect to debug VM. Reasons follow:");
+        if (tcpipConnector != null && tcpipFailureReason != null) {
+            Debug.message("dt_socket transport:");
+            tcpipFailureReason.printStackTrace();
+        }
+        if (shmemConnector != null && shmemFailureReason != null) {
+            Debug.message("dt_shmem transport:");
+            tcpipFailureReason.printStackTrace();
+        }
+        if (shmemConnector == null && tcpipConnector == null) {
+            Debug.message(" No suitable transports available.");
+        }
+        
         return null;
     }
 
