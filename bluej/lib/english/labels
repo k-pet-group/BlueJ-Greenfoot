@@ -293,10 +293,11 @@ pkgmgr.view.inheritLabel=Inheritance
 pkgmgr.newClass.title=BlueJ:  Create New Class
 pkgmgr.newClass.label=Class Name:
 pkgmgr.newClass.classType=Class Type
-pkgmgr.newClass.newClass=Class
-pkgmgr.newClass.newAbstractClass=Abstract Class
-pkgmgr.newClass.newInterface=Interface
-pkgmgr.newClass.newApplet=Applet
+pkgmgr.newClass.stdclass=Class
+pkgmgr.newClass.abstract=Abstract Class
+pkgmgr.newClass.interface=Interface
+pkgmgr.newClass.applet=Applet
+pkgmgr.newClass.appletj=Applet
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Create New Package

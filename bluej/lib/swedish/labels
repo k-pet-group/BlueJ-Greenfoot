@@ -293,10 +293,11 @@ pkgmgr.view.inheritLabel=Arv
 pkgmgr.newClass.title=Skapa Ny Klass
 pkgmgr.newClass.label=Klassens namn:
 pkgmgr.newClass.classType=Klasstyp
-pkgmgr.newClass.newClass=Klass
-pkgmgr.newClass.newAbstractClass=Abstrakt klass
-pkgmgr.newClass.newInterface=Interface
-pkgmgr.newClass.newApplet=Applet
+pkgmgr.newClass.stdclass=Klass
+pkgmgr.newClass.abstract=Abstrakt klass
+pkgmgr.newClass.interface=Interface
+pkgmgr.newClass.applet=Applet
+pkgmgr.newClass.appletj=Applet
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Skapa Nytt Paket
