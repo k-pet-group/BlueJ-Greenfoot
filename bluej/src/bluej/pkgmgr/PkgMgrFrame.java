@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 2987 2004-09-06 04:31:03Z davmac $
+ * @version $Id: PkgMgrFrame.java 2988 2004-09-06 04:51:18Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2425,7 +2425,7 @@ public class PkgMgrFrame extends JFrame
                 createMenuItem(RunTestsAction.getInstance(), testingMenu);
                 endTestMenuItem = createMenuItem(EndTestRecordAction.getInstance(), testingMenu);
                 cancelTestMenuItem = createMenuItem(CancelTestRecordAction.getInstance(), testingMenu);
-                //endTestMenuItem.setEnabled(false);
+                endTestMenuItem.setEnabled(false);
                 cancelTestMenuItem.setEnabled(false);
             }
             testItems.add(testingMenu);
