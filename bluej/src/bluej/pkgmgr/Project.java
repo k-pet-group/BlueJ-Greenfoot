@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import java.awt.EventQueue;
 import java.io.*;
 import java.util.*;
 
@@ -20,7 +21,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2873 2004-08-16 05:50:32Z davmac $
+ * @version $Id: Project.java 2890 2004-08-18 04:32:58Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -902,58 +903,64 @@ public class Project
      * A debugger event was fired. Analyse which event it was, and take
      * appropriate action.
      */
-    public void debuggerEvent(DebuggerEvent event)
+    public void debuggerEvent(final DebuggerEvent event)
     {
-        DebuggerThread thread;
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                DebuggerThread thread;
 
-		if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
-			PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
+                if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
+                    PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(Project.this);
 
-			if (frames == null)
-				return;
+                    if (frames == null)
+                        return;
 
-			for(int i=0; i< frames.length; i++)
-				frames[i].setDebuggerState(event.getNewState());
-            
-            // check whether we just got a freshly created VM
-			if (event.getOldState() == Debugger.NOTREADY && event.getNewState() == Debugger.IDLE) {
-				PkgMgrFrame.displayMessage(this, Config.getString("pkgmgr.creatingVMDone"));
-                // try to bring the frame to the front again (needed on MacOS)
-                // PkgMgrFrame frame = PkgMgrFrame.findFrame(getPackage(""));
-                // if(frame != null)
-                //     Utility.bringToFront(frame);
+                    for (int i = 0; i < frames.length; i++)
+                        frames[i].setDebuggerState(event.getNewState());
+
+                    // check whether we just got a freshly created VM
+                    if (event.getOldState() == Debugger.NOTREADY && event.getNewState() == Debugger.IDLE) {
+                        PkgMgrFrame.displayMessage(Project.this, Config.getString("pkgmgr.creatingVMDone"));
+                        // try to bring the frame to the front again (needed on
+                        // MacOS)
+                        // PkgMgrFrame frame =
+                        // PkgMgrFrame.findFrame(getPackage(""));
+                        // if(frame != null)
+                        //     Utility.bringToFront(frame);
+                    }
+
+                    // check whether a good VM just disappeared
+                    if (event.getOldState() == Debugger.IDLE && event.getNewState() == Debugger.NOTREADY)
+                        vmClosed();
+
+                    return;
+                }
+
+                if (event.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
+                    removeStepMarks();
+                    return;
+                }
+
+                DebuggerThread thr = event.getThread();
+                String packageName = JavaNames.getPrefix(thr.getClass(0));
+                Package pkg = getPackage(packageName);
+                if (pkg != null) {
+                    switch(event.getID()) {
+                        case DebuggerEvent.THREAD_BREAKPOINT :
+                            pkg.hitBreakpoint(thr);
+                            break;
+                        case DebuggerEvent.THREAD_HALT :
+                            pkg.hitHalt(thr);
+                            break;
+                        //case DebuggerEvent.THREAD_CONTINUE:
+                        //	break;
+                        case DebuggerEvent.THREAD_SHOWSOURCE :
+                            pkg.showSourcePosition(thr);
+                            break;
+                    }
+                }
             }
-
-            // check whether a good VM just disappeared
-			if (event.getOldState() == Debugger.IDLE && event.getNewState() == Debugger.NOTREADY)
-				vmClosed();
-				
-			return;			
-		}
-
-		if (event.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
-			removeStepMarks();
-			return;
-		}
-		
-        DebuggerThread thr = event.getThread();
-		String packageName = JavaNames.getPrefix(thr.getClass(0));
-		Package pkg = getPackage(packageName);
-		if(pkg != null) {
-			switch(event.getID()) {
-			 case DebuggerEvent.THREAD_BREAKPOINT:
-			 	pkg.hitBreakpoint(thr);
-				break;
-			 case DebuggerEvent.THREAD_HALT:
-			    pkg.hitHalt(thr);
-			    break;
-			 //case DebuggerEvent.THREAD_CONTINUE:
-			 //	break;
-			 case DebuggerEvent.THREAD_SHOWSOURCE:
-				pkg.showSourcePosition(thr);
-				break;
-			}
-		}
+        });
 
     }
 

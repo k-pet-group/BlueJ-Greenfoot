@@ -2,6 +2,7 @@ package bluej.debugmgr;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.swing.*;
@@ -22,7 +23,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2863 2004-08-12 00:45:01Z davmac $
+ * @version $Id: ExecControls.java 2890 2004-08-18 04:32:58Z davmac $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -66,6 +67,7 @@ public class ExecControls extends JFrame
 	private DebuggerThreadTreeModel threadModel;
 	
     
+    private JSplitPane mainPanel;
     private JList stackList, staticList, instanceList, localList;
     private JButton stopButton, stepButton, stepIntoButton, continueButton,
         terminateButton;
@@ -126,7 +128,7 @@ public class ExecControls extends JFrame
      */
     public void valueChanged(ListSelectionEvent event)
     {
-		// ignore mouse down, dragging, etc.
+        // ignore mouse down, dragging, etc.
 		if(event.getValueIsAdjusting())
             return;
 
@@ -146,7 +148,7 @@ public class ExecControls extends JFrame
 	 */
 	public void valueChanged(TreeSelectionEvent event)
 	{
-		Object src = event.getSource();
+        Object src = event.getSource();
 		
 		if(src == threadTree) {
 			clearThreadDetails();
@@ -182,7 +184,7 @@ public class ExecControls extends JFrame
 	 */
 	public void treeNodesChanged(TreeModelEvent e)
 	{
-		if (selectedThread == null)
+        if (selectedThread == null)
 			return;
 			
 		Object nodes[] = e.getChildren();
@@ -236,19 +238,24 @@ public class ExecControls extends JFrame
 	 * @param  dt  the thread to hilight in the thread
 	 *             tree and whose status we want to display.
 	 */
-	public void makeSureThreadIsSelected(DebuggerThread dt)
+	public void makeSureThreadIsSelected(final DebuggerThread dt)
 	{
-		TreePath tp = threadModel.findNodeForThread(dt);
-		
-		if (tp != null) {
-            if (!tp.equals(threadTree.getSelectionPath())) {
-			   threadTree.clearSelection();
-			   threadTree.addSelectionPath(tp);
-            }
-		}
-		else {
-			Debug.message("Thread " + dt + " no longer available for selection");
-		}
+        TreePath tp = threadModel.findNodeForThread(dt);
+	    
+	    if (tp != null) {
+	        if (!tp.equals(threadTree.getSelectionPath())) {
+	            threadTree.clearSelection();
+	            threadTree.addSelectionPath(tp);
+	        }
+	    }
+	    else {
+	        Debug.message("Thread " + dt + " no longer available for selection");
+	    }
+        
+        // There seems to be a swing glitch causing the thread-tree scrollpane
+        // to be reduced to a very small size by the divider. Doing a paint
+        // here seems to fix it.
+        mainPanel.paintImmediately(0,0,mainPanel.getSize().width,mainPanel.getSize().height);
 	}
 
 	/**
@@ -305,7 +312,7 @@ public class ExecControls extends JFrame
 			selectStackFrame(0);
         }
     }
-
+    
     /**
      * Clear the display of thread details (stack and variables).
      */
@@ -324,16 +331,16 @@ public class ExecControls extends JFrame
      */
     private void selectStackFrame(int index)
     {
-        if (index >= 0) {
+        // if the UI isn't up to date, make sure the correct frame is
+        // selected in the list
+        if (stackList.getSelectedIndex() != index)
+            stackList.setSelectedIndex(index);
+
+        else if (index >= 0) {
             setStackFrameDetails(index);
             selectedThread.setSelectedFrame(index);
-            
-            // if the UI isn't up to date, make sure the correct frame is
-            // selected in the list
-            if (stackList.getSelectedIndex() != index)
-                stackList.setSelectedIndex(index);
                 
-			project.debuggerEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_SHOWSOURCE, selectedThread));
+            project.debuggerEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_SHOWSOURCE, selectedThread));
             currentFrame = index;
         }
     }
@@ -404,7 +411,7 @@ public class ExecControls extends JFrame
      */
     private void createWindow()
     {
-    	setIconImage(BlueJTheme.getIconImage());
+        setIconImage(BlueJTheme.getIconImage());
     	
 		setJMenuBar(makeMenuBar());
 
@@ -543,23 +550,27 @@ public class ExecControls extends JFrame
         threadModel.setSyncMechanism(new SyncMechanism() {
             public void invokeLater(Runnable r)
             {
+                try {
                 if(EventQueue.isDispatchThread())
                     r.run();
                 else
-                    EventQueue.invokeLater(r);
+                    EventQueue.invokeAndWait(r);
+                }
+                catch(InterruptedException ie) { }
+                catch(InvocationTargetException ite) { }
             }
         });
 		threadModel.addTreeModelListener(this);
 		
 		threadTree = new JTree(threadModel);
 		{
-			threadTree.addTreeSelectionListener(this);		       
-			threadTree.addMouseListener(treeMouseListener);
 			threadTree.getSelectionModel().
 						setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 			threadTree.setVisibleRowCount(5);
 			threadTree.setShowsRootHandles(false);
 			threadTree.setRootVisible(false);
+            threadTree.addTreeSelectionListener(this);             
+            threadTree.addMouseListener(treeMouseListener);
 		}
 										        
         JScrollPane threadScrollPane = new JScrollPane(threadTree);
@@ -567,6 +578,7 @@ public class ExecControls extends JFrame
         lbl.setOpaque(true);
         threadScrollPane.setColumnHeaderView(lbl);
         threadPanel.add(threadScrollPane, BorderLayout.CENTER);
+        //threadPanel.setMinimumSize(new Dimension(100,100));
 
 		flipPanel = new JPanel();
 		{
@@ -580,7 +592,7 @@ public class ExecControls extends JFrame
 			flipPanel.add(tempPanel, "blank");
 		}
 
-        JSplitPane mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+        /* JSplitPane */ mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                               threadPanel, flipPanel);
 
         mainPanel.setDividerSize(6);
