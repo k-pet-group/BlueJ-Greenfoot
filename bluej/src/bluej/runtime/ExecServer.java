@@ -54,6 +54,7 @@ public class ExecServer
      * when simulating a System.exit() call
      */
     private static List openWindows = Collections.synchronizedList(new LinkedList());
+    private static boolean disposingAllWindows = false; // true while we are dsposing
     private static PrintStream systemErr = System.err;
     private static ByteArrayOutputStream throwawayErr = null;
 
@@ -423,7 +424,8 @@ public class ExecServer
      */
     private static void removeWindow(Object o)
     {
-        openWindows.remove(o);
+        if(!disposingAllWindows)   // don't bother if we are clearing up just now
+            openWindows.remove(o);
     }
 
     /**
@@ -449,6 +451,7 @@ public class ExecServer
     static void disposeWindows()
     {
         synchronized(openWindows) {
+            disposingAllWindows = true;
             Iterator it = openWindows.iterator();
 
             while(it.hasNext()) {
@@ -460,6 +463,7 @@ public class ExecServer
                 }
             }
             openWindows.clear();
+            disposingAllWindows = false;
         }
     }
 

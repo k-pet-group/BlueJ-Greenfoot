@@ -239,6 +239,23 @@ tryAgain:
 				case 'q':  case 'r':  case 's':  case 't':
 				case 'u':  case 'v':  case 'w':  case 'x':
 				case 'y':  case 'z':
+                    // non-english latin characters:
+				case '\u00c0':  case '\u00c1':  case '\u00c2':  case '\u00c3':
+				case '\u00c4':  case '\u00c5':  case '\u00c6':  case '\u00c7':
+				case '\u00c8':  case '\u00c9':  case '\u00ca':  case '\u00cb':
+				case '\u00cc':  case '\u00cd':  case '\u00ce':  case '\u00cf':
+				case '\u00d0':  case '\u00d1':  case '\u00d2':  case '\u00d3':
+				case '\u00d4':  case '\u00d5':  case '\u00d6':  case '\u00d7':
+				case '\u00d8':  case '\u00d9':  case '\u00da':  case '\u00db':
+				case '\u00dc':  case '\u00dd':  case '\u00de':  case '\u00df':
+				case '\u00e0':  case '\u00e1':  case '\u00e2':  case '\u00e3':
+				case '\u00e4':  case '\u00e5':  case '\u00e6':  case '\u00e7':
+				case '\u00e8':  case '\u00e9':  case '\u00ea':  case '\u00eb':
+				case '\u00ec':  case '\u00ed':  case '\u00ee':  case '\u00ef':
+				case '\u00f0':  case '\u00f1':  case '\u00f2':  case '\u00f3':
+				case '\u00f4':  case '\u00f5':  case '\u00f6':  case '\u00f7':
+				case '\u00f8':  case '\u00f9':  case '\u00fa':  case '\u00fb':
+				case '\u00fc':  case '\u00fd':  case '\u00fe':  case '\u00ff':
 				{
 					mIDENT(true);
 					theRetToken=_returnToken;

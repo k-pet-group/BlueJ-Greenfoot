@@ -13,7 +13,7 @@ import java.util.Vector;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 814 2001-03-26 04:30:12Z ajp $
+ * @version $Id: Debugger.java 1073 2002-01-08 14:48:14Z mik $
  */
 public abstract class Debugger
 {
@@ -115,6 +115,12 @@ public abstract class Debugger
                                                      String scopeId,
                                                      String newInstanceName,
                                                      String fileName);
+
+    /**
+     * Dispose all top level windows in the remote machine.
+     */
+    public abstract void disposeWindows();
+
 
     /**
      * "Start" a class (i.e. invoke its main method without arguments)

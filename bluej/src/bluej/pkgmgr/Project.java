@@ -29,7 +29,7 @@ import java.io.IOException;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1066 2002-01-07 06:24:09Z ajp $
+ * @version $Id: Project.java 1073 2002-01-08 14:48:14Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -499,6 +499,12 @@ public class Project
 
             // remove views for classes loaded by this classloader
             View.removeAll(loader);
+
+            // remove all open windows created by these objects
+            Debugger.debugger.disposeWindows();
+            // Note that this is slightly wrong: ideally, we would want to remove windows
+            // created by this project only. Currently, we remove all windows (including 
+            // windows from other projects, even though the objects stay around there).
 
             loader = null;
         }
