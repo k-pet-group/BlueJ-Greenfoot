@@ -42,7 +42,7 @@ import java.util.Vector;
  ** @author Michael Kolling
  ** @author Bruce Quig
  **
- ** @version $Id: ClassTarget.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: ClassTarget.java 271 1999-11-11 03:51:44Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -670,7 +670,7 @@ public class ClassTarget extends EditableTarget
 		menu.add(item);
 		hasEntries = true;
 	    } catch(Exception e) {
-		Debug.reportError(methodException + e);
+		Debug.reportError("Exception accessing methods: " + e);
 		e.printStackTrace();
 	    }
 	}
@@ -702,7 +702,7 @@ public class ClassTarget extends EditableTarget
 		
 	if(member != null) {
 	    if(state != S_NORMAL) {
-		Debug.reportError(instantiateModified);
+		Debug.reportError("Can't instantiate modified class");
 		return;
 	    }
 			
@@ -919,10 +919,6 @@ public class ClassTarget extends EditableTarget
 
 	
     // Internal strings
-    static final String instantiationError = Config.getString("pkgmgr.instantiationError");
-    static final String instantiateModified = Config.getString("pkgmgr.instantiateModified");
-    static final String invokeModified = Config.getString("pkgmgr.invokeModified");
-    static String methodException = Config.getString("pkgmgr.methodException");
 	
     static String editStr = Config.getString("pkgmgr.classmenu.edit");
     static String openStr = Config.getString("browser.classchooser.classmenu.open");

@@ -32,7 +32,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: Package.java 271 1999-11-11 03:51:44Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -426,7 +426,8 @@ public class Package extends Graph
 		props = new Properties();
 		props.load(input);
 	    } catch(IOException e) {
-		Debug.reportError(iniLoadError + fullpkgfile + ": " + e);
+		Debug.reportError("Error loading initialisation file" + 
+				  fullpkgfile + ": " + e);
 		// if it's not found, let's create a default one
 	    }
 
@@ -505,7 +506,8 @@ public class Package extends Graph
 	    }
 	    recalcArrows();
 	} catch(Exception e) {
-	    Debug.reportError(loadError + fullpkgfile + ": " + e);
+	    Debug.reportError("Error loading from file " + 
+			      fullpkgfile + ": " + e);
 	    e.printStackTrace();
 	    return;
 	}
@@ -540,7 +542,7 @@ public class Package extends Graph
 	File dir = new File(dirname);
 	if(!dir.exists())
 	    if(!dir.mkdir()) {
-		Debug.reportError(mkdirError + dirname);
+		Debug.reportError("Error creating directory "+ dirname);
 		return false;
 	    }
 
@@ -585,7 +587,7 @@ public class Package extends Graph
 	    FileOutputStream output = new FileOutputStream(file);
 	    props.store(output, "BlueJ project file");
 	} catch(IOException e) {
-	    Debug.reportError(pkgSaveError + file + ": " + e);
+	    Debug.reportError("Error saving project file " + file + ": " + e);
 	    return false;
 	}
 	
@@ -1931,12 +1933,4 @@ public class Package extends Graph
 	    break;
 	}
     }
-	
-    // Internal strings
-    static String noTarget = Config.getString("pkgmgr.noTarget");
-    static String iniLoadError = Config.getString("pkgmgr.iniLoadError");
-    static String loadError = Config.getString("pkgmgr.loadError");
-    static String mkdirError = Config.getString("pkgmgr.mkdirError");
-    static String pkgSaveError = Config.getString("pkgmgr.pkgSaveError");
-    static String docSaveError = Config.getString("pkgmgr.docSaveError");
 }

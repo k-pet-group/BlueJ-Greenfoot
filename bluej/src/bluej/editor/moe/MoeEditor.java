@@ -512,9 +512,7 @@ public final class MoeEditor extends JFrame
 			  "(\"Reload\" reloads the last saved state from disk.)");
 	}
 	else if (saveState.isChanged()) {
-	    int answer = DialogManager.askQuestion(this,
-					     "Reload discards all changes since the last edit.\nAre you sure?",
-					     "Reload", "Cancel", null);
+	    int answer = DialogManager.askQuestion(this, "really-reload");
 	    if (answer == 0)
 		doReload();
 	}
@@ -560,12 +558,7 @@ public final class MoeEditor extends JFrame
 
 	int answer;
 	if(printArea.width < textSize.width-8) {
-	    answer = DialogManager.askQuestion(this,
-					 "The text is wider than the paper. Long lines\n" +
-					 "will be cut off. You can avoid this by resizing\n" +
-					 "the editor window to make it narrower. Do you\n" +
-					 "want to print anyway?",
-					 "Print", "Cancel", null);
+	    answer = DialogManager.askQuestion(this, "really-print");
 	}
 	else
 	    answer = 0;

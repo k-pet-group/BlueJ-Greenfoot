@@ -26,28 +26,17 @@ debugger.objectwrapper.remove=Remove
 browser.title=Library Browser
 browser.version=0.1
 browser.tempdir=c:\\temp
-browser.usepackage.selecttargetdialog.text=Do you want to use this package\n in the window named\n
-browser.usepackage.selecttargetdialog.title=Use package
-browser.usepackage.notargetdialog.title=Use package
-browser.findlibrarydialog.nolibselected.title=No library selected to go to
-browser.openclassineditor.missingclassdialog.text=The source file for the class you selected cannot be located.\n\nOften libraries are shipped with class files only.
-browser.openclassineditor.innerclassdialog.title=Opening inner class
-browser.openclassineditor.innerclassdialog.text=You are about to open the inner class\n$ in the editor.\n\nAn inner class is defined within the scope of another class.\nThe editor will display the source of the class in which\nthe inner class is defined.
-browser.openclassineditor.nosourceforclassdialog.title=Opening class with no source file
-browser.openclassineditor.nosourceforclassdialog.text=You are about to open the class\n$ in the editor.\n\nThis class has no associated source file.  Because of this, you will be\nrestricted to the PUBLIC view of this class.
 browser.togglemessagebox.toggle.text=don't display this message again
 
 browser.librarychooser.loading.status=Loading libraries...
-browser.librarychooser.loaded.status=Libraries loaded - start browsin'
+browser.librarychooser.loaded.status=Libraries loaded.
 browser.librarychooser.openingarchive.status=Opening archive library
 browser.librarychooser.config.user=userlibs.properties
-browser.librarychooser.saveconfigdialog.text=User configuration information has been changed\n(either a rename or delete or a library)\nDo you want to save these changes?
-browser.librarychooser.saveconfigdialog.title=Save configuration
 
 browser.classchooser.classmenu.open=Open
 browser.classchooser.classmenu.use=Use...
-browser.classchooser.packagemenu.use=Use...
 browser.classchooser.packagemenu.open=Open
+browser.classchooser.packagemenu.use=Use...
 
 browser.usepackage.dialog.text=Select destination package and click Ok
 
@@ -83,10 +72,6 @@ classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be r
 # Preferences Manager user interface elements and error messages
 prefmgr.title=Preferences
 
-editor.saveError=Error saving to file 
-editor.openError=Error opening file 
-editor.unimplemented=Sorry - that feature is not yet implemented
-editor.noTitle=<New File>
 editor.title=BlueJ editor
 
 editor.find.forward=Forward
@@ -120,20 +105,9 @@ pkgmgr.newClass.msg=Enter the name of the class
 pkgmgr.newUses=New Uses Arrow
 pkgmgr.newExtends=New Extends Arrow
 pkgmgr.unimplemented=Sorry - that feature is not yet implemented
-pkgmgr.noTarget=Failed to get target for file 
-pkgmgr.iniLoadError=Error loading initialisation file 
-pkgmgr.loadError=Error loading from file 
-pkgmgr.openError=Close current package before opening another
-pkgmgr.closeError=Current package has been modified
-pkgmgr.mkdirError=Error creating directory 
-pkgmgr.pkgSaveError=Error saving project file 
-pkgmgr.docSaveError=Error saving documentation file
 pkgmgr.pkgChooseError=Error selecting valid package name
 pkgmgr.noPackage=<No package>
-pkgmgr.instantiationError=Exception instantiating: 
-pkgmgr.instantiateModified=Can't instantiate modified class
-pkgmgr.methodException=Exception accessing methods: 
-pkgmgr.invokeModified=Can't invoke a method on a modified class
+
 pkgmgr.classmenu.runApplet=Run Applet
 pkgmgr.classmenu.edit=Edit Implementation
 pkgmgr.classmenu.public=Public View
@@ -203,7 +177,6 @@ menu.edit.removeClass=Remove Class...
 menu.edit.newUses=New Uses Arrow...
 menu.edit.newInherits=New Inheritance Arrow...
 menu.edit.removeArrow=Remove Arrow...
-menu.edit.preferences=Preferences...
 
 menu.tools=Tools
 menu.tools.compile=Compile

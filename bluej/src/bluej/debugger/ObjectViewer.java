@@ -21,7 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: ObjectViewer.java 271 1999-11-11 03:51:44Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -349,10 +349,7 @@ public final class ObjectViewer extends JFrame
      */
     private void selectArrayElement()
     {
-	    String response = DialogManager.askString(this, 
-					"Enter array element index [...]", 
-					"Array Inspection", 
-					null);
+	    String response = DialogManager.askString(this, "ask-index");
 	    if(response != null) {
 		try {
 		    int slot = Integer.parseInt(response);
@@ -366,8 +363,14 @@ public final class ObjectViewer extends JFrame
 					  obj.getInstanceFieldName(slot));
 			    setButtonsEnabled(true, false);
 			}
-			else
+			else {
 			    setButtonsEnabled(false, false);
+			    // PENDING:
+			    // here, we know that the field was not an object.
+			    // (it may be a simple type or null).
+			    // the value should still be shown! doing nothing
+			    // here is an error!
+			}
 		    }
 		    else // not within array bounds
 			DialogManager.showError(this, "out-of-bounds");

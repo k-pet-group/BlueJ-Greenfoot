@@ -28,14 +28,8 @@ public class DialogManager
      */
     public static void showMessage(JFrame parent, String msgID)
     {
-	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
-	String message = BlueJFileReader.readHelpText(filename, msgID, true);
-	if(message == null)
-	    JOptionPane.showMessageDialog(parent, 
-				"BlueJ configuration problem:\n" +
-				"text not found for message ID\n" +
-				msgID);
-	else
+	String message = getMessage(msgID);
+	if(message != null)
 	    JOptionPane.showMessageDialog(parent, message);
     }
 
@@ -50,14 +44,8 @@ public class DialogManager
     public static void showMessageWithText(JFrame parent, String msgID, 
 					   String text)
     {
-	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
-	String message = BlueJFileReader.readHelpText(filename, msgID, true);
-	if(message == null)
-	    JOptionPane.showMessageDialog(parent, 
-				"BlueJ configuration problem:\n" +
-				"text not found for message ID\n" +
-				msgID + "\n" + text);
-	else
+	String message = getMessage(msgID);
+	if(message != null)
 	    JOptionPane.showMessageDialog(parent, message + "\n" + text);
     }
 
@@ -79,14 +67,8 @@ public class DialogManager
      */
     public static void showError(JFrame parent, String msgID)
     {
-	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
-	String message = BlueJFileReader.readHelpText(filename, msgID, true);
-	if(message == null)
-	    JOptionPane.showMessageDialog(parent, 
-				"BlueJ configuration problem:\n" +
-				"text not found for message ID\n" +
-				msgID);
-	else
+	String message = getMessage(msgID);
+	if(message != null)
 	    JOptionPane.showMessageDialog(parent, message, "Error",
 					  JOptionPane.ERROR_MESSAGE);
     }
@@ -98,57 +80,89 @@ public class DialogManager
     public static void showErrorWithText(JFrame parent, String msgID, 
 					 String text)
     {
-	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
-	String message = BlueJFileReader.readHelpText(filename, msgID, true);
-	if(message == null)
-	    JOptionPane.showMessageDialog(parent, 
-				"BlueJ configuration problem:\n" +
-				"text not found for message ID\n" +
-				msgID + "\n" + text);
-	else
+	String message = getMessage(msgID);
+	if(message != null)
 	    JOptionPane.showMessageDialog(parent, message + "\n" + text, 
 					  "Error", JOptionPane.ERROR_MESSAGE);
     }
 
 
     /**
-     * Brings up a two or three button question dialog. If button3 is null
-     * only the first two buttons are shown. Returns the button index that
+     * Brings up a two or three button question dialog. The text for the
+     * question and the buttons is read from the dialogues file. If the third
+     * button text is "null", it is not shown. Returns the button index that
      * was selected (0..2).
      */
-    public static int askQuestion(JFrame parent, String text, 
-				  String button1, String button2, String button3)
+    public static int askQuestion(JFrame parent, String msgID)
     {
-	Object[] options;
-	if (button3 == null)
-	    options = new Object[] { button1, button2 };
-	else
-	    options = new Object[] { button1, button2, button3 };
+	String message = getMessage(msgID);
+	if(message != null) {
+	    int button3Index = message.lastIndexOf("\n");
+	    int button2Index = message.lastIndexOf("\n", button3Index-1);
+	    int button1Index = message.lastIndexOf("\n", button2Index-1);
+	    String button3 = message.substring(button3Index+1);
+	    String button2 = message.substring(button2Index+1, button3Index);
+	    String button1 = message.substring(button1Index+1, button2Index);
+	    message = message.substring(0, button1Index);
+	    Object[] options;
+	    if ("null".equals(button3))
+		options = new Object[] { button1, button2 };
+	    else
+		options = new Object[] { button1, button2, button3 };
 
-	return JOptionPane.showOptionDialog(parent, text, "Question", 
+	    return JOptionPane.showOptionDialog(parent, message, "Question", 
 					    JOptionPane.DEFAULT_OPTION, 
 					    JOptionPane.WARNING_MESSAGE, 
 					    null, options, options[0]);
+	}
+	return 0;
     }
 
 
     /**
      *
      */
-    public static String askString(JFrame parent, String prompt, String title,
-				   String defaultText)
+    public static String askString(JFrame parent, String msgID)
     {
-	String response = (String)JOptionPane.showInputDialog(parent, 
-						prompt, 
+	String response = "";
+	String message = getMessage(msgID);
+	if(message != null) {
+	    int defaultTextIndex = message.lastIndexOf("\n");
+	    int titleIndex = message.lastIndexOf("\n", defaultTextIndex-1);
+	    String defaultText = message.substring(defaultTextIndex+1);
+	    String title = message.substring(titleIndex+1, defaultTextIndex);
+	    message = message.substring(0, titleIndex);
+	    if("null".equals(defaultText))
+		defaultText = null;
+	    response = (String)JOptionPane.showInputDialog(parent, 
+						message, 
 						title, 
 						JOptionPane.PLAIN_MESSAGE, 
 						null, 
-						null,
+						null, 
 						defaultText);
+	}
 	return response;
     }
 
+    /**
+     * Support routine for dialogues. Read the message text out of the 
+     * dialogue text file (language dependent).
+     */
+    private static String getMessage(String msgID) {
+	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
+	String message = BlueJFileReader.readHelpText(filename, msgID, true);
+	if(message == null)
+	    JOptionPane.showMessageDialog(null, 
+				"BlueJ configuration problem:\n" +
+				"text not found for message ID\n" +
+				msgID);
+	return message;
+    }
 
+    /**
+     * Show a "Not Yet Implemented" message.
+     */
     public static void NYI(JFrame frame)
     {
 	showMessage(frame, "not-yet-implemented");

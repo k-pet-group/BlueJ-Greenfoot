@@ -21,7 +21,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: PkgFrame.java 271 1999-11-11 03:51:44Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -38,8 +38,6 @@ public abstract class PkgFrame extends JFrame
     static final String chooseInhFrom = Config.getString("pkgmgr.chooseInhFrom");
     static final String chooseArrow = Config.getString("pkgmgr.chooseArrow");
     static final String packageSaved = Config.getString("pkgmgr.packageSaved");
-    static final String openError =  Config.getString("pkgmgr.openError");
-    static final String closeError =  Config.getString("pkgmgr.closeError");
     static final String errCloseAlert =  Config.getString("pkgmgr.error.close.title");
     static final String errCloseText =  Config.getString("pkgmgr.error.close.text");
     static final String newpkgTitle =  Config.getString("pkgmgr.newPkg.title");

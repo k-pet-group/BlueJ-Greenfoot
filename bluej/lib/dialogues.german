@@ -156,3 +156,39 @@ nicht gelesen werden:
 
 not-yet-implemented
 Noch nicht implementiert - sorry.
+
+quit-all
+Alle offenen Packages schließen?
+Alle schließen
+Abbrechen
+null
+
+really-remove
+Das Löschen der Klasse kann nicht
+rückgängig gemacht werden.
+Wirklich löschen?
+Löschen
+Abbrechen
+null
+
+really-reload
+Durch nochmaliges Laden gehen alle Änderungen 
+seid dem letzten Speichern verloren. Wirklich
+laden?
+Laden
+Abbrechen
+null
+
+really-print
+Der Text ist breiter als das Papier. Lange
+Zeilen werden abgeschnitten werden. Dies kann
+vermieden werden, wenn das Editorfenster schmaler
+gemacht wird. Soll trotzdem gedruckt werden?
+Drucken
+Abbrechen
+null
+
+ask-index
+Index des Arrayelementes [...]
+Arrayinspektion
+null

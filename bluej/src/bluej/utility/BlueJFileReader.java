@@ -63,8 +63,12 @@ public class BlueJFileReader
 		if(match) {
 		    // found it - read help text
 		    line = in.readLine();
+		    if((line != null) && (line.length() > 0)) {
+			helptext = line;
+			line = in.readLine();
+		    }
 		    while ((line != null) && (line.length() > 0)) {
-			helptext += line + "\n";
+			helptext += "\n" + line;
 			line = in.readLine();
 		    }
 		    return helptext;

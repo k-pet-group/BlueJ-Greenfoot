@@ -256,8 +256,7 @@ public class PkgMgrFrame extends PkgFrame
 	case PKG_QUIT:
 	    int answer = 0;
 	    if(frameCount() > 1)
-		answer = DialogManager.askQuestion(this, "Quit all open packages?", 
-					     "Quit All", "Cancel", null);
+		answer = DialogManager.askQuestion(this, "quit-all");
 	    if(answer == 0) {
 		bluej.Main.exit();
 	    }
@@ -505,8 +504,7 @@ public class PkgMgrFrame extends PkgFrame
 //  	    if(pkgfile.exists())
 //  		Debug.reportError("Package " + dirname + " already exists");
 //  	    else {
-//  		String pkgname = DialogManager.askString(this, 
-//  							 "Package name:", "");
+//  		String pkgname = DialogManager.askString(this, "ask-package");
 //  		if((pkgname == null) || (pkgname.length() == 0))
 //  		    pkgname = Package.noPackage;
 
@@ -624,7 +622,7 @@ public class PkgMgrFrame extends PkgFrame
     public void removeClass(ClassTarget removableTarget)
     {
 	// Check they realise that this will delete the files.
-	int response = DialogManager.askQuestion(this, "Removing this class will permanently\ndelete the source file.\nDo you want to continue?", "Ok", "Cancel", null);
+	int response = DialogManager.askQuestion(this, "really-remove");
 
 	// if they agree
 	if(response == 0)
