@@ -24,7 +24,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2616 2004-06-16 11:42:10Z polle $
+ * @version $Id: MethodDialog.java 2620 2004-06-17 16:00:29Z polle $
  */
 public class MethodDialog extends CallDialog
 	implements FocusListener
@@ -515,6 +515,8 @@ public class MethodDialog extends CallDialog
                 public void focusLost(FocusEvent fe) { }
             });
         
+        ConstructorView constructor = (ConstructorView) method;
+        
         if(method.hasParameters()) {            
             tmpPanel = new JPanel();
             GridBagLayout gridBag = new GridBagLayout();
@@ -663,7 +665,7 @@ public class MethodDialog extends CallDialog
      * @param c The component for which to change the preferred height
      * @param height the new height
      */
-    private void setPreferredHeight(Component c, double height) {
+    private void setPreferredHeight(JComponent c, double height) {
         int lastTypeWidth = (int) c.getPreferredSize().getWidth();
         c.setPreferredSize(new Dimension(lastTypeWidth,(int)height));
     }
