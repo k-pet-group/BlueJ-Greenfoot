@@ -16,7 +16,7 @@ import javax.swing.*;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 1578 2002-12-12 05:02:10Z bquig $
+ * @version $Id: ProjectPrintDialog.java 1579 2002-12-12 06:43:40Z bquig $
  * @author Bruce Quig
  */
 public class ProjectPrintDialog extends JDialog implements ActionListener
@@ -42,7 +42,7 @@ public class ProjectPrintDialog extends JDialog implements ActionListener
      * 
      * @param parent the frame that called the print dialog
      */
-    public ProjectPrintDialog(JFrame parent)
+    public ProjectPrintDialog(PkgMgrFrame parent)
     {
         super(parent, projectPrintTitle, true);
 
@@ -64,11 +64,14 @@ public class ProjectPrintDialog extends JDialog implements ActionListener
         printDiagram = new JCheckBox(printDiagramLabel);
         printDiagram.setSelected(true);
         mainPanel.add(printDiagram);
+                
         printSource = new JCheckBox(printSourceLabel);
         mainPanel.add(printSource);
-        printReadme = new JCheckBox(printReadmeLabel);
-        mainPanel.add(printReadme);
-
+                
+        if(((parent.getPackage()).getParent() == null)) {
+            printReadme = new JCheckBox(printReadmeLabel);
+            mainPanel.add(printReadme);
+        }
         mainPanel.add(Box.createVerticalStrut(5));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -84,7 +87,6 @@ public class ProjectPrintDialog extends JDialog implements ActionListener
         buttonPanel.add(cancelButton);
 
         getRootPane().setDefaultButton(okButton);
-
 
         // try to make the OK and cancel buttons have equal width
         okButton.setPreferredSize(
@@ -178,6 +180,6 @@ public class ProjectPrintDialog extends JDialog implements ActionListener
      */
     public boolean printReadme()
     {
-        return printReadme.isSelected();
+        return (printReadme != null && printReadme.isSelected());
     }
 }
