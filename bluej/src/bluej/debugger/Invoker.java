@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1536 2002-11-29 13:39:12Z ajp $
+ * @version $Id: Invoker.java 1557 2002-12-04 10:06:55Z damiano $
  */
 
 public class Invoker extends Thread
@@ -244,9 +244,14 @@ public class Invoker extends Thread
     /**
      * Invokes a constructor or method by supplying the required parameters
      */
-    public void invokeDirect(String instanceName, String[] params)
+    public void invokeDirect(String i_instanceName, String[] params)
     {
-        this.instanceName = instanceName;
+        if ( i_instanceName != null ) 
+            instanceName = i_instanceName;
+
+        if ( instanceName == null ) 
+            instanceName = objName;
+
         Class[] paramClasses = member.getParameters();
         if(params == null) {
             if(member.hasParameters()) {
