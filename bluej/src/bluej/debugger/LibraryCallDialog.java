@@ -27,7 +27,7 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 1371 2002-10-14 08:26:48Z mik $
+ * @version $Id: LibraryCallDialog.java 1378 2002-10-14 13:40:07Z mik $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
@@ -114,7 +114,7 @@ public class LibraryCallDialog extends JDialog
         if(viewToCall == null)   // not a method - help text selected
             return;
 
-        history.addClass((String)classField.getEditor().getItem());
+        history.add((String)classField.getEditor().getItem());
         setVisible(false);
         pkg.getEditor().raiseMethodCallEvent(pkg, viewToCall);
     }

@@ -19,9 +19,7 @@ import bluej.views.MethodView;
 
 import java.awt.Component;
 import java.awt.Cursor;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -30,7 +28,7 @@ import java.util.*;
  * then loads the resulting class file and executes a method in a new thread.
  *
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1371 2002-10-14 08:26:48Z mik $
+ * @version $Id: Invoker.java 1378 2002-10-14 13:40:07Z mik $
  */
 
 public class Invoker extends Thread
@@ -158,15 +156,14 @@ public class Invoker extends Thread
      */
     private void invoke()
     {
-        MethodDialog mDialog = null;
- 
         // check for a method call with no parameter
         // if so, just do it
         if(!constructing && !member.hasParameters()) {
+            dialog = null;
             doInvocation(null, null);
         }
         else {
-            mDialog = (MethodDialog)methods.get(member);
+            MethodDialog mDialog = (MethodDialog)methods.get(member);
 
             if(mDialog == null) {
                 mDialog = new MethodDialog(pmf,
@@ -181,16 +178,15 @@ public class Invoker extends Thread
                 else
                     mDialog.setInstanceName(objName);
             }
-        }
 
-        if(mDialog != null) {
             LabelPrintWriter writer = new LabelPrintWriter();
             member.print(writer);
             mDialog.setDescription(writer.getLabel());
             mDialog.setWatcher(this);
             mDialog.setVisible(true);
+            
+            dialog = mDialog;
         }
-        dialog = mDialog;
     }
 
     /* Start a free form invocation. That is: Show the free form
@@ -214,7 +210,7 @@ public class Invoker extends Thread
     {
         if(event == CallDialog.CANCEL) {
 
-            dialog.setVisible(false);
+            dlg.setVisible(false);
         }
         else if(event == CallDialog.OK) {
 
@@ -227,6 +223,7 @@ public class Invoker extends Thread
                     pkg.setStatus(creating);
             }
             else if(dlg instanceof FreeFormCallDialog) {
+                pmf.setWaitCursor(true);
                 FreeFormCallDialog ffDialog = (FreeFormCallDialog)dlg;
                 doFreeFormInvocation(ffDialog.getExpression(), ffDialog.getHasResult());
             }
@@ -259,7 +256,7 @@ public class Invoker extends Thread
         
         StringBuffer buffer = new StringBuffer();
         for(int i = 0; i < numArgs; i++) {
-            buffer.append("\t\t" + cleverQualifyTypeName(pkg, argTypes[i].getName()));
+            buffer.append(cleverQualifyTypeName(pkg, argTypes[i].getName()));
             buffer.append(" __bluej_param" + i);
             buffer.append(" = " + args[i]);
             buffer.append(";" + Config.nl);
@@ -346,18 +343,27 @@ public class Invoker extends Thread
     }
 
     /**
-     * Write a source file for a class to do the interactive invocation.
+     * Write a source file for a class (the 'shell file') to do the interactive 
+     * invocation. A shell file has the following form:
+     *
+     * $PKGLINE
+     * public class $CLASSNAME extends bluej.runtime.Shell {
+     *     $VARDECL
+     * 
+     *     public static void run()
+     * 	     throws Throwable
+     *     {
+     * 	       $SCOPEINIT
+     * 	       $PARAMINIT
+     * 	       $INVOCATION
+     *     }
+     * }
+     *
      */
     private File writeInvocationFile(Package pkg, 
                                      String paramInit, String callString, String resultName,
                                      boolean constructing, boolean isVoid)
     {
-        // PENDING: this should be changed to write directly to file.
-        // The hashtable mechanism doesn't make so much sense anymore
-        // since most of it gets constructed here anyway.
-
-        Hashtable trans = new Hashtable();
-
         // Create package specification line ("package xyz")
 
         String packageLine;
@@ -366,9 +372,6 @@ public class Invoker extends Thread
         else
             packageLine = "package " + pkg.getQualifiedName() + ";";
 
-        trans.put("PKGLINE", packageLine);
-        trans.put("CLASSNAME", shellName);
-        
         // add variable declaration for a (possible) result
 
         StringBuffer buffer = new StringBuffer();
@@ -376,9 +379,9 @@ public class Invoker extends Thread
             buffer.append("public static bluej.runtime.ObjectResultWrapper");
         else
             buffer.append("public static Object");
-        buffer.append(" __bluej_runtime_result;" + Config.nl);
+        buffer.append(" __bluej_runtime_result;");
 
-        trans.put("VARDECL", buffer.toString());
+        String vardecl = buffer.toString();
 
         // Build scope, ie. add one line for every object on the object
         // bench that gets the object and makes it available for use as
@@ -397,13 +400,11 @@ public class Invoker extends Thread
             String type = cleverQualifyTypeName(pkg, wrapper.className);
             String instname = wrapper.instanceName;
 
-            buffer.append("\t\t" + type + " " + instname + " = ");
+            buffer.append(type + " " + instname + " = ");
             buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
             buffer.append(instname + "\");" + Config.nl);
         }
-        
-        trans.put("SCOPEINIT", buffer.toString());
-        trans.put("PARAMINIT", paramInit);
+        String scopeInit = buffer.toString();
 
         // build the invocation string
 
@@ -412,7 +413,7 @@ public class Invoker extends Thread
         if(constructing) {
             buffer.append("__bluej_runtime_result = makeObj((Object)");
             buffer.append(callString + ");" + Config.nl);
-            buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
+            buffer.append("putObject(\"" + scopeId + "\", \"");
             buffer.append(resultName);
             buffer.append("\", __bluej_runtime_result.result);");
         }
@@ -425,19 +426,34 @@ public class Invoker extends Thread
             buffer.append(";" + Config.nl);
 
             if(!isVoid) {
-                buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
+                buffer.append("putObject(\"" + scopeId + "\", \"");
                 buffer.append(resultName);
                 buffer.append("\", __bluej_runtime_result);");
             }
         }
-        trans.put("INVOCATION", buffer.toString());
+        String invocation = buffer.toString();
 
-        File templateFile = Config.getTemplateFile("shell");
         File shellFile = new File(pkg.getPath(), shellName + ".java");
-
         try {
-            BlueJFileReader.translateFile(templateFile, shellFile,
-                                          trans);
+            BufferedWriter shell = new BufferedWriter(new FileWriter(shellFile));
+            
+            shell.write(packageLine);
+            shell.newLine();
+            shell.write("public class ");
+            shell.write(shellName);
+            shell.write(" extends bluej.runtime.Shell {");
+            shell.newLine();
+            shell.write(vardecl);
+            shell.newLine();
+            shell.write("public static void run() throws Throwable {");
+            shell.newLine();
+            shell.write(scopeInit);
+            shell.write(paramInit);
+            shell.write(invocation);
+            shell.newLine();
+            shell.write("}}");
+            shell.close();
+
         } catch(IOException e) {
             e.printStackTrace();
         }

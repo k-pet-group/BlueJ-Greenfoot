@@ -30,7 +30,7 @@ import java.util.StringTokenizer;
  * @author  Michael Kolling
  * @author  Bruce Quig
  *
- * @version $Id: MethodDialog.java 1372 2002-10-14 08:43:35Z mik $
+ * @version $Id: MethodDialog.java 1378 2002-10-14 13:40:07Z mik $
  */
 public class MethodDialog extends CallDialog
 	implements FocusListener
@@ -62,7 +62,6 @@ public class MethodDialog extends CallDialog
     private JLabel callLabel;
 
     private CallHistory history;
-    private ObjectBench bench;
     private String[] paramNames;
     private Class[] paramClasses;
     private boolean emptyField = false;
@@ -76,7 +75,6 @@ public class MethodDialog extends CallDialog
         Package pkg = pmf.getPackage();
 
         history = pkg.getCallHistory();
-        bench = pmf.getObjectBench();
 
         // Find out the type of dialog
         if(method instanceof MethodView) {
@@ -101,11 +99,8 @@ public class MethodDialog extends CallDialog
 
     	if (show) {
             show();
-    	    // clear params from any JComboBoxes
     	    clearParameters();
-
-            // register a watcher for Object Bench selections
-            bench.addObjectBenchListener(this);
+            startObjectBenchListening();
 
       	    if(params != null) {
                 params[0].getEditor().getEditorComponent().requestFocus();
@@ -116,12 +111,8 @@ public class MethodDialog extends CallDialog
       	    }
     	}
     	else {
+            stopObjectBenchListening();
             hide();
-
-            // bug fix added in ver. 1.0.2 to fix refresh problem under Win NT.
-            // removed ajp 7/1/02
-    	    //getOwner().repaint();
-            bench.removeObjectBenchListener(this);
         }
     }
 
@@ -138,7 +129,7 @@ public class MethodDialog extends CallDialog
                 setErrorMessage(illegalNameMsg);
                 return;
             }
-            if(bench.hasObject(getNewInstanceName())) {
+            if(getObjectBench().hasObject(getNewInstanceName())) {
                 setErrorMessage(duplicateNameMsg);
                 return;
             }

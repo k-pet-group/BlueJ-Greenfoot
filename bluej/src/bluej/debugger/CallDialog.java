@@ -17,35 +17,23 @@ import javax.swing.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 1372 2002-10-14 08:43:35Z mik $
+ * @version $Id: CallDialog.java 1378 2002-10-14 13:40:07Z mik $
  */
 public abstract class CallDialog extends JDialog
-	implements ActionListener, ObjectBenchListener
+	implements ObjectBenchListener
 {
     static final int OK = 0;
     static final int CANCEL = 1;
 
-    protected JButton okButton;
-    protected JButton cancelButton;
     private MultiLineLabel errorLabel;
 
+    private ObjectBench bench;
     private CallDialogWatcher watcher;
 
     public CallDialog(PkgMgrFrame pmf, String title)
     {
         super(pmf, title, false);
-    }
-
-    /**
-     * Process action events
-     */
-    public void actionPerformed(ActionEvent event)
-    {
-        Object eventSource = event.getSource();
-        if (eventSource == okButton)
-            doOk();
-        else if (eventSource == cancelButton)
-            doCancel();
+        bench = pmf.getObjectBench();
     }
 
     /**
@@ -100,11 +88,40 @@ public abstract class CallDialog extends JDialog
     }
 
     /**
+     * Return the frame's object bench.
+     */
+    protected ObjectBench getObjectBench()
+    {
+        return bench;
+    }
+
+    /**
+     * Start listening to object bench events.
+     */
+    protected void startObjectBenchListening()
+    {
+        bench.addObjectBenchListener(this);
+    }
+
+    /**
+     * Stop listening to object bench events.
+     */
+    protected void stopObjectBenchListening()
+    {
+        bench.removeObjectBenchListener(this);
+    }
+
+    /**
      * setMessage - Sets a status bar style message for the dialog mainly
      *  for reporting back compiler errors upon method calls.
      */
     public void setErrorMessage(String message)
     {
+        // cut the "location: __SHELL3" bit from some error messages
+        int index = message.indexOf("location:");
+        if(index != -1)
+            message = message.substring(0,index-1);
+
         errorLabel.setText(message);
         pack();
         invalidate();
@@ -116,7 +133,7 @@ public abstract class CallDialog extends JDialog
      */
     public abstract void insertText(String text);
 
-    // -- ObjectBenchListener interface --
+    // ---- ObjectBenchListener interface ----
 
     /**
      * The object was selected interactively (by clicking
@@ -142,11 +159,19 @@ public abstract class CallDialog extends JDialog
         {
             buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
-            okButton = addButton(buttonPanel, Config.getString("okay"));
-            cancelButton = addButton(buttonPanel, Config.getString("cancel"));
+            JButton okButton = new JButton(Config.getString("okay"));
+            okButton.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent evt) { doOk(); }
+                    });
+            buttonPanel.add(okButton);
+
+            JButton cancelButton = new JButton(Config.getString("cancel"));
+            cancelButton.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent evt) { doCancel(); }
+                    });
+            buttonPanel.add(cancelButton);
 
             getRootPane().setDefaultButton(okButton);
-            okButton.setEnabled(false);
 
             // try to make the OK and cancel buttons have equal width
             okButton.setPreferredSize(
@@ -158,8 +183,10 @@ public abstract class CallDialog extends JDialog
         contentPane.setLayout(new BorderLayout(6,6));
         contentPane.setBorder(Config.generalBorder);
 
-        contentPane.add(topComponent, BorderLayout.NORTH);
-        contentPane.add(centerComponent, BorderLayout.CENTER);
+        if(topComponent != null)
+            contentPane.add(topComponent, BorderLayout.NORTH);
+        if(centerComponent != null)
+            contentPane.add(centerComponent, BorderLayout.CENTER);
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
 
         pack();
@@ -172,17 +199,4 @@ public abstract class CallDialog extends JDialog
                 }
             });
     }
-    
-    /**
-     * Helper method to add a button to a panel.
-     */
-    private JButton addButton(JPanel panel, String label)
-    {
-        JButton button = new JButton(label);
-        panel.add(button);
-        button.addActionListener(this);
-        return button;
-    }
-
-
 }

@@ -39,7 +39,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1371 2002-10-14 08:26:48Z mik $
+ * @version $Id: PkgMgrFrame.java 1378 2002-10-14 13:40:07Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, 
@@ -1860,17 +1860,19 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); compileSelected(); }
                            });
+            createMenuItem("menu.tools.rebuild", menu, 0, 0, true, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); pkg.rebuild(); }
+                           });
+            menu.addSeparator();
+
             createMenuItem("menu.tools.callLibrary", menu, KeyEvent.VK_L, SHORTCUT_MASK, true, 
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); callLibraryClass(); }
                            });
-            createMenuItem("menu.tools.callFreeForm", menu, 0, 0, true, 
+            createMenuItem("menu.tools.callFreeForm", menu, KeyEvent.VK_E, SHORTCUT_MASK, true, 
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); callFreeForm(); }
-                           });
-            createMenuItem("menu.tools.rebuild", menu, 0, 0, true, 
-                           new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); pkg.rebuild(); }
                            });
             menu.addSeparator();
 

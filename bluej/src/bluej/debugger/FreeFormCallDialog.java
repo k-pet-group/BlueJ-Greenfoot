@@ -23,18 +23,17 @@ import java.util.ArrayList;
  *
  * @author  Michael Kolling
  *
- * @version $Id: FreeFormCallDialog.java 1372 2002-10-14 08:43:35Z mik $
+ * @version $Id: FreeFormCallDialog.java 1378 2002-10-14 13:40:07Z mik $
  */
 public class FreeFormCallDialog extends CallDialog
 {
     private JComboBox callField;
-    private ClassHistory history;
+    private FreeCallHistory history;
 
     public FreeFormCallDialog(PkgMgrFrame pmf)
     {
         super(pmf, Config.getString("freeCallDialog.title"));
-//        pkg = pmf.getPackage();
-//        history = ClassHistory.getClassHistory(10);
+        history = FreeCallHistory.getCallHistory(10);
         makeDialog();
     }
 
@@ -43,24 +42,17 @@ public class FreeFormCallDialog extends CallDialog
      */
     public void setVisible(boolean show)
     {
-    	super.setVisible(show);
     	if (show) {
-            okButton.setEnabled(false);
+            setErrorMessage("");
             callField.setModel(new DefaultComboBoxModel(history.getHistory()));
-            callField.requestFocus();
+    	    show();
+            startObjectBenchListening();
+            callField.getEditor().getEditorComponent().requestFocus();
     	}
-    }
-
-    /**
-     * Process action events
-     */
-    public void actionPerformed(ActionEvent event)
-    {
-        Object eventSource = event.getSource();
-        if(eventSource == callField)
-            doOk();
-        else 
-            super.actionPerformed(event);   // handles Ok and cancel buttons
+    	else {
+            stopObjectBenchListening();
+    	    hide();
+    	}
     }
 
     /**
@@ -69,9 +61,14 @@ public class FreeFormCallDialog extends CallDialog
      */
     public void doOk()
     {
-//        history.addClass((String)classField.getEditor().getItem());
-        setVisible(false);
-        
+        String expression = getExpression();
+        if(expression.length() > 0) {
+            history.add(expression);
+            setWaitCursor(true);
+            callWatcher(OK);
+        }
+        else
+            doCancel();
     }
 
     /**
@@ -80,7 +77,7 @@ public class FreeFormCallDialog extends CallDialog
      */
     public void doCancel()
     {
-        setVisible(false);
+        callWatcher(CANCEL);
     }
 
     /**
@@ -88,7 +85,7 @@ public class FreeFormCallDialog extends CallDialog
      */
     public String getExpression()
     {
-        return "4+5";
+        return (String)callField.getEditor().getItem();
     }
 
     /**
@@ -96,7 +93,7 @@ public class FreeFormCallDialog extends CallDialog
      */
     public boolean getHasResult()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -104,6 +101,8 @@ public class FreeFormCallDialog extends CallDialog
      */
     public void insertText(String text)
     {
+        ((JTextField)callField.getEditor().getEditorComponent()).setText(text);
+        show();  // bring to front
     }
 
 
@@ -120,8 +119,11 @@ public class FreeFormCallDialog extends CallDialog
         callField.setEditable(true);
         callField.setMaximumRowCount(10);
         JTextField textField = (JTextField)callField.getEditor().getEditorComponent();
-        textField.setColumns(30);
-        callField.addActionListener(this);
+        textField.setColumns(18);
+        textField.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent evt) { doOk(); }
+                    });
+
         topPanel.add(callField, BorderLayout.CENTER);
 
         super.makeDialog(topPanel, getErrorLabel());
