@@ -362,3 +362,8 @@ bindings?
 Set defaults
 Cancel
 null
+
+error-create-vm
+BlueJ was unable to establish connection to the debug VM.
+Possible reasons is that TCP/IP is not installed on this
+machine or that a firewall is blocking connections from localhost.
