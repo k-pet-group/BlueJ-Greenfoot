@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
  * to a given path on a given (attached) server.
  * 
  * @author Clive Miller
- * @version $Id: SmtpSession.java 1588 2002-12-14 19:23:46Z iau $
+ * @version $Id: SmtpSession.java 1593 2002-12-19 13:52:16Z iau $
  */
 
 public class SmtpSession extends TransportSession
@@ -75,7 +75,9 @@ public class SmtpSession extends TransportSession
         sendMessage ("Date: "+rfc822date.format (new java.util.Date()));
         sendMessage ("From: "+userAddress);
         sendMessage ("To: "+sendAddress);
-        if (subject != null) {
+        if (subject == null) {
+            sendMessage ("Subject: BlueJ Submission");
+        } else {
             sendMessage ("Subject: "+subject);
         }
         sendMimeHeaders();
