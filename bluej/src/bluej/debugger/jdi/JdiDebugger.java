@@ -29,12 +29,12 @@ import com.sun.jdi.*;
  * 
  * Most of the actual access to the virtual machine occurs through the
  * MachineLoader thread. When the vm is restarted by user request, a new loader
- * thread is created immediately so that any method calls/etc will execute
- * on the new machine (after waiting until it has loaded).
+ * thread is created immediately so that any method calls/etc will execute on
+ * the new machine (after waiting until it has loaded).
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 2823 2004-07-27 04:51:44Z davmac $
+ * @version $Id: JdiDebugger.java 2825 2004-07-28 01:33:39Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -674,36 +674,39 @@ public class JdiDebugger extends Debugger
     /**
      * Called by VMReference when a HALT is encountered in the debugger VM.
      */
-    void halt(ThreadReference tr)
-    {
-        JdiThreadNode jtn = treeModel.findThreadNode(tr);
-
-        if (jtn != null) {
-            treeModel.nodeChanged(jtn);
-
-            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, new JdiThread(treeModel, tr)));
-        }
-        else {
-            Debug.message("Received HALT for unknown thread " + tr);
-        }
-    }
+    /*
+     * void halt(ThreadReference tr) { JdiThreadNode jtn =
+     * treeModel.findThreadNode(tr);
+     * 
+     * if (jtn != null) { treeModel.nodeChanged(jtn);
+     * 
+     * fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, new
+     * JdiThread(treeModel, tr))); } else { Debug.message("Received HALT for
+     * unknown thread " + tr); } }
+     */
 
     /**
      * Called by VMReference when a BREAKPOINT is encountered in the debugger
      * VM.
      */
-    public void breakpoint(ThreadReference tr)
+    public void breakpoint(final ThreadReference tr)
     {
-        JdiThread breakThread = allThreads.find(tr);
-        JdiThreadNode jtn = treeModel.findThreadNode(tr);
-        // if the thread at the breakpoint is not currently displayed, display
-        // it now.
-        if (jtn == null) {
-            JdiThreadNode root = treeModel.getThreadRoot();
-            treeModel.insertNodeInto(new JdiThreadNode(breakThread), root, 0);
-        }
-        else
-            treeModel.nodeChanged(jtn);
+        final JdiThread breakThread = allThreads.find(tr);
+        treeModel.syncExec(new Runnable() {
+            public void run()
+            {
+                JdiThreadNode jtn = treeModel.findThreadNode(tr);
+                // if the thread at the breakpoint is not currently displayed,
+                // display
+                // it now.
+                if (jtn == null) {
+                    JdiThreadNode root = treeModel.getThreadRoot();
+                    treeModel.insertNodeInto(new JdiThreadNode(breakThread), root, 0);
+                }
+                else
+                    treeModel.nodeChanged(jtn);
+            }
+        });
 
         fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread));
     }
@@ -724,7 +727,7 @@ public class JdiDebugger extends Debugger
     synchronized void vmDisconnect()
     {
         // Debug.message("VM disconnect. Restart: " + autoRestart);
-        
+
         if (autoRestart) {
             // promote garbage collection but also indicate to the
             // launch procedure that we are not in a launch (see launch()).
@@ -734,19 +737,24 @@ public class JdiDebugger extends Debugger
                 machineLoader = new MachineLoaderThread();
             vmRunning = false;
             selfRestart = true;
-            
+
             vmRef.closeIO();
             vmRef = null;
-            
+
             launch();
-            
+
             raiseRemoveStepMarksEvent();
             raiseStateChangeEvent(Debugger.IDLE, Debugger.NOTREADY);
-            
+
             allThreads.clear();
-            treeModel.setRoot(new JdiThreadNode());
-            treeModel.reload();
             usedNames.clear();
+            treeModel.syncExec(new Runnable() {
+                public void run()
+                {
+                    treeModel.setRoot(new JdiThreadNode());
+                    treeModel.reload();
+                }
+            });
         }
     }
 
@@ -756,14 +764,16 @@ public class JdiDebugger extends Debugger
      * Use this event to keep our thread tree model up to date. Currently we
      * ignore the thread group and construct all threads at the same level.
      */
-    void threadStart(ThreadReference tr)
+    void threadStart(final ThreadReference tr)
     {
-        synchronized (treeModel.getRoot()) {
-            JdiThread newThread = new JdiThread(treeModel, tr);
-            allThreads.add(newThread);
-            
-            displayThread(newThread);
-        }
+        final JdiThread newThread = new JdiThread(treeModel, tr);
+        allThreads.add(newThread);
+        treeModel.syncExec(new Runnable() {
+            public void run()
+            {
+                displayThread(newThread);
+            }
+        });
     }
 
     /**
@@ -773,14 +783,16 @@ public class JdiDebugger extends Debugger
      */
     void threadDeath(final ThreadReference tr)
     {
-        synchronized (treeModel.getRoot()) {
-            JdiThreadNode jtn = treeModel.findThreadNode(tr);
-            if (jtn != null) {
-                treeModel.removeNodeFromParent(jtn);
+        allThreads.removeThread(tr);
+        treeModel.syncExec(new Runnable() {
+            public void run()
+            {
+                JdiThreadNode jtn = treeModel.findThreadNode(tr);
+                if (jtn != null) {
+                    treeModel.removeNodeFromParent(jtn);
+                }
             }
-            
-            allThreads.removeThread(tr);
-        }
+        });
     }
 
     /**

@@ -6,10 +6,14 @@ import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
-import bluej.*;
+import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.debugger.*;
+import bluej.debugger.DebuggerThreadTreeModel.SyncMechanism;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
@@ -18,7 +22,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2704 2004-07-01 09:24:22Z polle $
+ * @version $Id: ExecControls.java 2825 2004-07-28 01:33:39Z davmac $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -525,6 +529,15 @@ public class ExecControls extends JFrame
 		 };
 		 
 		threadModel = debugger.getThreadTreeModel();
+        threadModel.setSyncMechanism(new SyncMechanism() {
+            public void invokeLater(Runnable r)
+            {
+                if(EventQueue.isDispatchThread())
+                    r.run();
+                else
+                    EventQueue.invokeLater(r);
+            }
+        });
 		threadModel.addTreeModelListener(this);
 		
 		threadTree = new JTree(threadModel);

@@ -1,121 +1,150 @@
 package bluej.debugger.jdi;
 
 import java.util.Enumeration;
-import javax.swing.tree.*;
-import com.sun.jdi.*;
 
-import bluej.debugger.*;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+
+import bluej.debugger.DebuggerThread;
+import bluej.debugger.DebuggerThreadTreeModel;
+
+import com.sun.jdi.ThreadGroupReference;
+import com.sun.jdi.ThreadReference;
 
 /**
- * A wrapper around DefaultTreeModel that helps us
- * store JdiThreads.
+ * A wrapper around DefaultTreeModel that helps us store JdiThreads.
  * 
- * Our tree stores the data we are interested in
- * the userObject field of the TreeNode (in our
- * tree this type is called JdiThreadNode). The data can
- * either be null (for the root), a ThreadGroupReference
- * (for thread groups) or a JdiThread object (for actual
- * threads).
+ * Our tree stores the data we are interested in the userObject field of the
+ * TreeNode (in our tree this type is called JdiThreadNode). The data can either
+ * be null (for the root), a ThreadGroupReference (for thread groups) or a
+ * JdiThread object (for actual threads).
  * 
- * @author  Andrew Patterson
- * @version $Id: JdiThreadTreeModel.java 2074 2003-06-26 10:26:09Z mik $
+ * @author Andrew Patterson
+ * @version $Id: JdiThreadTreeModel.java 2825 2004-07-28 01:33:39Z davmac $
  */
 public class JdiThreadTreeModel extends DefaultTreeModel
-	implements DebuggerThreadTreeModel
+    implements DebuggerThreadTreeModel
 {
-	/**
-	 * Construct a tree model holding threads.
-	 * 
-	 * @param root
-	 */
+    private SyncMechanism syncer;
+
+    /**
+     * Construct a tree model holding threads.
+     * 
+     * @param root
+     */
     public JdiThreadTreeModel(JdiThreadNode root)
     {
-    	super(root, true);
+        super(root, true);
+        syncer = new SyncMechanism() {
+            public void invokeLater(Runnable r)
+            {
+                synchronized (getRoot()) {
+                    r.run();
+                }
+            }
+        };
     }
 
-	/**
-	 * Return the DebuggerThread object stored in
-	 * a tree node.
-	 * 
-	 * @param node  an object of type JdiThreadNode.
-	 * @returns     the user object of the node typecast
-	 *              to a DebuggerThread object or null if
-	 *              this node does not contain a DebuggerThread.
-	 */
-	public DebuggerThread getNodeAsDebuggerThread(Object node)
-	{
-		Object o = ((JdiThreadNode) node).getUserObject();
-		if (o instanceof JdiThread) {
-			return (JdiThread)o;
+    /**
+     * Set the synchronisation method used to control access to the tree model.
+     * This can be used to enforce Swing threading safety.
+     */
+    public void setSyncMechanism(SyncMechanism s)
+    {
+        syncer = s;
+    }
 
-		}
-		return null;
-	}
+    /**
+     * Invoke some code via the the installed synchronization method.
+     * 
+     * @param r
+     *            The code to invoke in a synchronized fashion
+     */
+    public void syncExec(Runnable r)
+    {
+        syncer.invokeLater(r);
+    }
 
-	public TreePath findNodeForThread(DebuggerThread thr)
-	{
-		return new TreePath(findThreadNode(((JdiThread)thr).getRemoteThread()).getPath());
-		
-	}
+    /**
+     * Return the DebuggerThread object stored in a tree node.
+     * 
+     * @param node
+     *            an object of type JdiThreadNode.
+     * @returns the user object of the node typecast to a DebuggerThread object
+     *          or null if this node does not contain a DebuggerThread.
+     */
+    public DebuggerThread getNodeAsDebuggerThread(Object node)
+    {
+        Object o = ((JdiThreadNode) node).getUserObject();
+        if (o instanceof JdiThread) {
+            return (JdiThread) o;
 
-	/**
-	 * Return the root node as a JdiThreadNode.
-	 */
-	JdiThreadNode getThreadRoot()
-	{
-		return (JdiThreadNode) getRoot();
-	}
+        }
+        return null;
+    }
 
-	/**
-	 * Find a node in the tree holding a particular
-	 * ThreadGroupReference.
-	 * 
-	 * @param tgr  the ThreadGroupReference to look for.
-	 * @return     the JdiThreadNode holding the tgr or null
-	 *             if one does not exist.
-	 */
-	JdiThreadNode findThreadNode(ThreadGroupReference tgr)
-	{
-		Enumeration en = getThreadRoot().breadthFirstEnumeration();
-	
-		while(en.hasMoreElements()) {
-			JdiThreadNode n = (JdiThreadNode) en.nextElement();
+    public TreePath findNodeForThread(DebuggerThread thr)
+    {
+        return new TreePath(findThreadNode(((JdiThread) thr).getRemoteThread()).getPath());
 
-			Object o = n.getUserObject();
-			if (o instanceof ThreadGroupReference) {
-				ThreadGroupReference otgr = (ThreadGroupReference)o;
+    }
 
-				if (otgr.equals(tgr))
-					return n;				
-			}
-		}
-		return null;
-	}
-		
-	/**
-	 * Find a node in the tree holding a particular
-	 * ThreadReference.
-	 * 
-	 * @param tgr  the ThreadReference to look for.
-	 * @return     the JdiThreadNode holding the tr or null
-	 *             if one does not exist.
-	 */
-	JdiThreadNode findThreadNode(ThreadReference tr)
-	{
-		Enumeration en = getThreadRoot().breadthFirstEnumeration();
-	
-		while(en.hasMoreElements()) {
-			JdiThreadNode n = (JdiThreadNode) en.nextElement();
-			
-			Object o = n.getUserObject();
-			if (o instanceof JdiThread) {
-				JdiThread jt = (JdiThread)o;
+    /**
+     * Return the root node as a JdiThreadNode.
+     */
+    JdiThreadNode getThreadRoot()
+    {
+        return (JdiThreadNode) getRoot();
+    }
 
-				if (jt.getRemoteThread().equals(tr))
-					return n;				
-			}
-		}
-				
-		return null;
-	}
+    /**
+     * Find a node in the tree holding a particular ThreadGroupReference.
+     * 
+     * @param tgr
+     *            the ThreadGroupReference to look for.
+     * @return the JdiThreadNode holding the tgr or null if one does not exist.
+     */
+    JdiThreadNode findThreadNode(ThreadGroupReference tgr)
+    {
+        Enumeration en = getThreadRoot().breadthFirstEnumeration();
+
+        while (en.hasMoreElements()) {
+            JdiThreadNode n = (JdiThreadNode) en.nextElement();
+
+            Object o = n.getUserObject();
+            if (o instanceof ThreadGroupReference) {
+                ThreadGroupReference otgr = (ThreadGroupReference) o;
+
+                if (otgr.equals(tgr))
+                    return n;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find a node in the tree holding a particular ThreadReference.
+     * 
+     * @param tgr
+     *            the ThreadReference to look for.
+     * @return the JdiThreadNode holding the tr or null if one does not exist.
+     */
+    JdiThreadNode findThreadNode(ThreadReference tr)
+    {
+        Enumeration en = getThreadRoot().breadthFirstEnumeration();
+
+        while (en.hasMoreElements()) {
+            JdiThreadNode n = (JdiThreadNode) en.nextElement();
+
+            Object o = n.getUserObject();
+            if (o instanceof JdiThread) {
+                JdiThread jt = (JdiThread) o;
+
+                if (jt.getRemoteThread().equals(tr))
+                    return n;
+            }
+        }
+
+        return null;
+    }
 }

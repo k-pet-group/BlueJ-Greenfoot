@@ -22,24 +22,29 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2823 2004-07-27 04:51:44Z davmac $
+ * @version $Id: VMReference.java 2825 2004-07-28 01:33:39Z davmac $
  * 
  * The startup process is as follows:
  * 
- * TODO: fix this comment!!!!!!
- * 
- * Debugger VMEventHandler Thread Remote VM
- * ----------------------------------------------------------------------
- * startDebugger: start VM --------------------------------------> start start
- * event handler ---> start . wait . . . . . . . . . server class loaded .
- * prepared-event < ---------. serverClassPrepared() <------. set break in
- * remote VM continue remote VM . ------------------------------------------>
- * continue . . . . . hit breakpoint . break-event < ------------. continue <
- * -----------------. . .
+ * 1. Debugger spawns a MachineLoaderThread which begins to load the debug vm
+ *    Any access to the debugger during this time uses getVM() which waits
+ *    for the machine to be loaded.
+ *    (see JdiDebugger.MachineLoaderThread).
+ * 2. The MachineLoaderThread creates a VMReference representing the vm. The
+ *    VMReference in turn creates a VMEventHandler to receive events from the
+ *    debug VM.
+ * 3. A "ClassPrepared" event is received telling BlueJ that the ExecServer
+ *    class has been loaded. At this point, breakpoints are set in certain
+ *    places within the server class. Execution in the debug VM continues.
+ * 4. The main breakpoint is hit (breakpoint event). At this point BlueJ is
+ *    ready to begin executing user code on the debug VM.
  * 
  * We can now execute commands on the remote VM by invoking methods using the
  * server thread (which is suspended at the breakpoint). This is done in the
- * "startServer()" method.
+ * "invokeExecServer()" method.
+ * 
+ * Non-user code used by BlueJ is run a seperate "worker" thread via the
+ * "invokeExecServerWorker()" method.
  */
 class VMReference
 {
@@ -124,15 +129,15 @@ class VMReference
 
             ArrayList paramList = new ArrayList(10);
             paramList.add(Config.getJDKExecutablePath("this.key.must.not.exist", "java"));
-            
-            //check if any vm args are specified in Config, at the moment these 
+
+            //check if any vm args are specified in Config, at the moment these
             //are only Locale options: user.language and user.country
-            
+
             List configArgs = Config.getDebugVMArgs();
-            if(!configArgs.isEmpty()) {
+            if (!configArgs.isEmpty()) {
                 paramList.addAll(configArgs);
             }
-            
+
             paramList.add("-classpath");
             paramList.add(allClassPath);
             paramList.add("-Xdebug");
@@ -329,7 +334,7 @@ class VMReference
      */
     public synchronized void close()
     {
-        if(machine != null) {
+        if (machine != null) {
             closeIO();
             machine.dispose();
             if (remoteVMprocess != null) {
@@ -347,8 +352,8 @@ class VMReference
         try {
             remoteVMprocess.getOutputStream().close();
         }
-        catch(IOException ioe) { }
-        
+        catch (IOException ioe) {}
+
         // close our IO redirectors
         if (inputStreamRedirector != null) {
             inputStreamRedirector.close();
@@ -731,11 +736,11 @@ class VMReference
     {
         ThreadReference tr = tde.thread();
         owner.threadDeath(tr);
-        
+
         // There appears to be a VM bug related to system.exit() being called
         // in an invocation thread. The event is only seen as a thread death.
         // Only affects some platforms/vm versions some of the time.
-        if(tr == serverThread || tr == workerThread)
+        if (tr == serverThread && serverThreadStarted || tr == workerThread)
             close();
     }
 
@@ -1359,7 +1364,7 @@ class VMReference
                     String line;
                     while (keepRunning && (line = in.readLine()) != null) {
                         line += '\n';
-                        if(keepRunning) {
+                        if (keepRunning) {
                             writer.write(line.toCharArray(), 0, line.length());
                             writer.flush();
                         }
@@ -1368,7 +1373,7 @@ class VMReference
                 else {
                     int ch;
                     while (keepRunning && (ch = reader.read()) != -1) {
-                        if(keepRunning) {
+                        if (keepRunning) {
                             writer.write(ch);
                             writer.flush();
                         }
