@@ -9,7 +9,7 @@ import bluej.pkgmgr.Package;
  * an execution.
  *
  * @author  Clive Miller
- * @version $Id: ExecutionEvent.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: ExecutionEvent.java 3019 2004-09-28 09:51:57Z damiano $
  */
 
 public class ExecutionEvent
@@ -33,29 +33,6 @@ public class ExecutionEvent
      * The execution has finished because the user has forcefully terminated it
      */
     public static final String TERMINATED_EXIT = "User terminated";
-
-
-    public static ExecutionEvent createConstructor (String className)
-    {
-        return new ExecutionEvent (className, null);
-    }
-    
-    public static ExecutionEvent createStaticMethod (String objName)
-    {
-        return new ExecutionEvent (objName, null);
-    }
-    
-    public static ExecutionEvent createObjectMethod (String objName)
-    {
-        return new ExecutionEvent (null, objName);
-    }
-    
-    public static ExecutionEvent createFreeForm (Package pkg)
-    {
-        ExecutionEvent event = new ExecutionEvent (null, null);
-        event.pkg = pkg;
-        return event;
-    }
     
     private String className, objectName;
     private String methodName;
@@ -66,7 +43,21 @@ public class ExecutionEvent
     private Package pkg;
     private DebuggerObject resultObject;   // If there is a result object it goes here.
 
-    private ExecutionEvent (String className, String objectName)
+    /**
+     * Constructs an ExecutionEvent where className and objName are null and only the package is set.
+     * @param pkg The package this event is bound to.
+     */
+    ExecutionEvent ( Package pkg )
+    {
+        this.pkg = pkg;
+    }
+    
+    /**
+     * Constructs an ExecutionEvent given a className and objName.
+     * @param className  the className of the event.
+     * @param objectName the object name, as in the object bench, of the event, can be null.
+     */
+    ExecutionEvent (String className, String objectName)
     {
         this.className = className;
         this.objectName = objectName;

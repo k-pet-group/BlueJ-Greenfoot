@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3013 2004-09-23 04:09:12Z davmac $
+ * @version $Id: Invoker.java 3019 2004-09-28 09:51:57Z damiano $
  */
 
 public class Invoker
@@ -94,7 +94,7 @@ public class Invoker
         this.instanceName = null;
 
         constructing = false;
-        executionEvent = ExecutionEvent.createFreeForm(this.pkg);
+        executionEvent = new ExecutionEvent(this.pkg);
         commandString = command;
         doFreeFormInvocation(true);
     }
@@ -134,7 +134,7 @@ public class Invoker
             this.objName = pmf.getProject().getDebugger().guessNewName(member.getClassName());
 
             constructing = true;
-            executionEvent = ExecutionEvent.createConstructor(member.getClassName());
+            executionEvent = new ExecutionEvent(member.getClassName(),null);
         }
         else if (member instanceof MethodView) {
 
@@ -142,10 +142,10 @@ public class Invoker
             // object name
             if (((MethodView) member).isStatic()) {
                 this.objName = JavaNames.stripPrefix(member.getClassName());
-                executionEvent = ExecutionEvent.createStaticMethod(objName);
+                executionEvent = new ExecutionEvent(member.getClassName(), null );
             }
             else {
-                executionEvent = ExecutionEvent.createObjectMethod(objName);
+                executionEvent = new ExecutionEvent(member.getClassName(), objName);
             }
 
             constructing = false;
@@ -197,7 +197,7 @@ public class Invoker
         Reflective superRefl = new JavaReflective(member.getDeclaringView().getViewClass());
         GenTypeClass.addDefaultParamBases(typeMap, superRefl);
 
-        executionEvent = ExecutionEvent.createObjectMethod(objName);
+        executionEvent = new ExecutionEvent(member.getClassName(), objName);
         
         constructing = false;
         executionEvent.setPackage(pkg);
