@@ -32,6 +32,13 @@ import java.util.Properties;
 import java.util.Vector;
 import java.applet.Applet;
 
+import net.sourceforge.transmogrify.hook.bluej.BlueJHook;
+import net.sourceforge.transmogrify.hook.Hook;
+import net.sourceforge.transmogrify.hook.Transmogrifier;
+import net.sourceforge.transmogrify.refactorer.*;
+import net.sourceforge.transmogrify.symtab.*;
+import net.sourceforge.transmogrify.symtab.parser.*;
+
 /**
  * A class target in a package, i.e. a target that is a class file
  * built from Java source code
@@ -40,7 +47,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 960 2001-06-26 05:12:27Z bquig $
+ * @version $Id: ClassTarget.java 1018 2001-12-04 05:08:03Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -71,6 +78,7 @@ public class ClassTarget extends EditableTarget
     static final String INTERFACE_LABEL = "interface";
     static final String APPLET_LABEL = "applet";
     static final String ABSTRACT_CLASS_LABEL = "abstract";
+    static final String UNITTEST_LABEL = "unit test";
     static final String HTML_EXTENSION = ".html";
 
 
@@ -104,13 +112,16 @@ public class ClassTarget extends EditableTarget
         super(pkg, baseName);
 
         boolean isApplet = (template!=null) && (template.startsWith("applet"));
-        
-        boolean isAbstract = (template!=null) && 
+        boolean isUnitTest = (template!=null) && (template.startsWith("unittest"));
+
+        boolean isAbstract = (template!=null) &&
                              (template.startsWith("abstract"));
-        boolean isInterface = (template!=null) && 
+        boolean isInterface = (template!=null) &&
                               (template.startsWith("interface"));
         if(isApplet)
             role = new AppletClassRole();
+        else if (isUnitTest)
+            role = new UnitTestClassRole();
         else
             role = new StdClassRole();
 
@@ -147,13 +158,15 @@ public class ClassTarget extends EditableTarget
         throws NumberFormatException
     {
         super.load(props, prefix);
-        
-        // check type in case it is an Applet.  Mainly useful in case
-        // it inherits from Applet further up the inheritance tree
+
+        // check type in case it is an Applet or UnitTest.  Mainly useful in case
+        // it inherits from Applet or UnitTest further up the inheritance tree
         String type = props.getProperty(prefix + ".type");
         if("AppletTarget".equals(type) && (!(role instanceof AppletClassRole)))
             role = new AppletClassRole();
-        
+        if("UnitTestTarget".equals(type) && (!(role instanceof UnitTestClassRole)))
+            role = new UnitTestClassRole();
+
         role.load(props, prefix);
         String modifierStr = props.getProperty(prefix + ".modifiers", "0");
         modifiers = Integer.parseInt(modifierStr, 16);
@@ -303,6 +316,17 @@ public class ClassTarget extends EditableTarget
         return (role instanceof AppletClassRole);
     }
 
+    /**
+     * Verify whether this class target is a UnitTest
+     * @return true if class target is a UnitTest (or subclass), else returns false
+     */
+    public boolean isUnitTest()
+    {
+        ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
+        if(!(role instanceof UnitTestClassRole) && ((classInfo != null) && classInfo.isUnitTest()))
+            role = new UnitTestClassRole();
+        return (role instanceof UnitTestClassRole);
+    }
 
     Color getDefaultBackground()
     {
@@ -435,6 +459,31 @@ public class ClassTarget extends EditableTarget
         getPackage().compile(this);
     }
 
+/* ajp experiment
+    public void refactorEvent(Editor editor, BlueJHook hook)
+    {
+       try {
+            FileParser fileParser = new FileParser();
+
+            fileParser.doFile( getPackage().getProject().getProjectDir() );
+
+            TableMaker maker = new TableMaker( (SymTabAST)(fileParser.getTree()) );
+            SymbolTable symbolTable = maker.getTable();
+
+            Transmogrifier rf = new RenameVariable();
+            rf.setup(symbolTable);
+
+            if (rf.canApply(hook))
+                rf.apply(hook);
+            else
+                System.out.println("can't refactor here");
+        }
+        catch (Exception e) {
+          e.printStackTrace();
+        }
+    }
+*/
+
     // --- end of EditorWatcher interface ---
 
     // --- end of EditableTarget interface ---
@@ -468,6 +517,10 @@ public class ClassTarget extends EditableTarget
                 if( ! (role instanceof AppletClassRole))
                     role = new AppletClassRole();
             }
+            else if (junit.framework.TestCase.class.isAssignableFrom(cl)) {
+                if( ! (role instanceof UnitTestClassRole))
+                    role = new UnitTestClassRole();
+            }
             else {
                 if( ! (role instanceof StdClassRole)) {
                     role = new StdClassRole();
@@ -491,10 +544,10 @@ public class ClassTarget extends EditableTarget
     public void generateSkeleton()
     {
         // delegate to role object
-        if(template == null) 
+        if(template == null)
             Debug.reportError("generate class skeleton error");
         else {
-            role.generateSkeleton(template, getPackage(), getBaseName(), 
+            role.generateSkeleton(template, getPackage(), getBaseName(),
                                   getSourceFile().getPath());
             setState(Target.S_INVALID);
         }
@@ -950,6 +1003,8 @@ public class ClassTarget extends EditableTarget
             type = INTERFACE_LABEL;
         else if(isApplet())
             type = APPLET_LABEL;
+        else if(isUnitTest())
+            type = UNITTEST_LABEL;
 
         return type;
     }

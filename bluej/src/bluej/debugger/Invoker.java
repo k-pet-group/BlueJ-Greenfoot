@@ -30,7 +30,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1004 2001-11-07 05:37:26Z ajp $
+ * @version $Id: Invoker.java 1018 2001-12-04 05:08:03Z ajp $
  */
 
 public class Invoker extends Thread
@@ -214,7 +214,6 @@ public class Invoker extends Thread
         Component[] wrappers = pmf.getObjectBench().getComponents();
         boolean dontQualify = false;
 
-
         // PENDING: this should be changed to write directly to file.
         // The hashtable mechanism doesn't make so much sense anymore
         // since most of it gets constructed here anyway.
@@ -344,7 +343,7 @@ public class Invoker extends Thread
             else {
                 command = objName + "." + method.getName();
 
-                CallRecord.addMethodCallRecord(objName, method.getName(), 
+                CallRecord.addMethodCallRecord(objName, method.getName(),
                                                 member, args);
             }
 

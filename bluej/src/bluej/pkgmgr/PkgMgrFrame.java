@@ -10,6 +10,9 @@ import java.awt.*;
 import java.awt.print.*;
 import java.text.DateFormat;
 
+import junit.swingui.TestRunner;
+import junit.framework.*;
+
 import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
 import com.apple.mrj.MRJQuitHandler;
 import com.apple.mrj.MRJAboutHandler;
@@ -30,12 +33,13 @@ import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.groupwork.*;
+import bluej.tester.*;
 
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 999 2001-10-24 15:31:05Z mik $
+ * @version $Id: PkgMgrFrame.java 1018 2001-12-04 05:08:03Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -110,6 +114,8 @@ public class PkgMgrFrame extends JFrame
     private PackageEditor editor = null;
 
     private ObjectBench objbench;
+    private UnitTestBench unittestBench;
+
     private LibraryCallDialog libraryCallDialog = null;
 
     // ============================================================
@@ -419,6 +425,9 @@ public class PkgMgrFrame extends JFrame
         pack();
         editor.revalidate();
 
+        unittestBench.add(new FixtureWrapper(this, "andrew", "java.lang.String"));
+        unittestBench.add(new FixtureWrapper(this, "micheal_1", "java.util.HashMap"));
+
         // we have had trouble with BlueJ freezing when
         // the enable/disable GUI code was run off a menu
         // item. This code will delay the menu disable
@@ -609,7 +618,13 @@ public class PkgMgrFrame extends JFrame
 
         case PackageEditorEvent.TARGET_RUN:       // user has initiated a
             //   run operation
-            runAppletTarget((Target) e.getSource());
+            ClassTarget ct = (ClassTarget) e.getSource();
+
+            if(ct.isApplet())
+                runAppletTarget(ct);
+            else if(ct.isUnitTest())
+                runUnitTest(ct);
+
             break;
 
         case PackageEditorEvent.OBJECT_PUTONBENCH: // "Get" object from
@@ -979,7 +994,7 @@ public class PkgMgrFrame extends JFrame
 	// possible fix: show the dialog from another thread.
         doQuit();
     }
-        
+
     /**
      * Quit menu item was chosen.
      */
@@ -1236,6 +1251,18 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
+     * Run a target (currently only applets)
+     */
+    private void runUnitTest(ClassTarget ct)
+    {
+        String args[]= { ct.getQualifiedName() };
+
+        getProject().testRunner.start( args );
+        getProject().testRunner.setSuite( ct.getQualifiedName() );
+        getProject().testRunner.runSuite();
+    }
+
+    /**
      * Create an object on the object bench.
      */
     private void putObjectOnBench(DebuggerObject object, String fieldName, String instanceName)
@@ -1282,41 +1309,81 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Implementation of the "New Package" user function
+     * Prompts the user with a dialog asking for the name of
+     * a package to create. Package name can be fully qualified
+     * and all intermediate packages will also be created.
      */
     private void createNewPackage()
     {
         NewPackageDialog dlg = new NewPackageDialog(this);
         boolean okay = dlg.display();
 
-        if(okay) {
-            String name = dlg.getPackageName();
-            if (name.length() > 0) {
-                // check whether name is already used
-                if(pkg.getTarget(name) != null) {
-                    DialogManager.showError(this, "duplicate-name");
-                    return;
-                }
+        if(!okay)
+            return;
 
-                File newpkgDir = new File(getPackage().getPath(), name);
+        String name = dlg.getPackageName();
 
-                if(newpkgDir.mkdir()) {
-                    File newpkgFile = new File(newpkgDir, Package.pkgfileName);
+        if (name.length() == 0)
+            return;
 
-                    try {
-                        if(newpkgFile.createNewFile()) {
-                            PackageTarget target = new PackageTarget(pkg, name);
+        String fullName;
 
-                            pkg.findSpaceForVertex(target);
-                            pkg.addTarget(target);
-                            editor.revalidate();
-                            editor.scrollRectToVisible(target.getRectangle());
-                            editor.repaint();
-                        }
-                    }
-                    catch(IOException ioe) { }
-                }
+        // if the name is fully qualified then we leave it as is but
+        // if it is not we assume they want to create a package in the
+        // current package
+        if (name.indexOf('.') > -1)
+            fullName = name;
+        else
+            fullName = getPackage().getQualifiedName(name);
+
+        // check whether name is already used
+        if (getProject().getPackage(fullName) != null) {
+            DialogManager.showError(this, "duplicate-package-name");
+            return;
+        }
+
+        // construct the directory name for the new package
+        StringTokenizer st = new StringTokenizer(fullName, ".");
+        File newPkgDir = getProject().getProjectDir();
+
+        while(st.hasMoreTokens()) {
+            newPkgDir = new File(newPkgDir, (String)st.nextToken());
+        }
+
+        // now actually construct the directories and add the bluej
+        // package marker files
+        if (newPkgDir.mkdirs()) {
+            st = new StringTokenizer(fullName, ".");
+            newPkgDir = getProject().getProjectDir();
+            File newPkgFile = new File(newPkgDir, Package.pkgfileName);
+
+            try {
+                newPkgFile.createNewFile();
             }
+            catch(IOException ioe) { ioe.printStackTrace(); }
+
+            while(st.hasMoreTokens()) {
+                newPkgDir = new File(newPkgDir, (String)st.nextToken());
+                newPkgFile = new File(newPkgDir, Package.pkgfileName);
+
+                try {
+                    newPkgFile.createNewFile();
+                }
+                catch(IOException ioe) { ioe.printStackTrace(); }
+            }
+        }
+
+        // check that everything has gone well and instruct all affected
+        // packages to reload (to make them notice the new sub packages)
+        Package newPackage = getProject().getPackage(fullName);
+
+        if (newPackage == null) {
+            Debug.reportError("creation of new package failed unexpectedly");
+        }
+
+        while(newPackage != null) {
+            newPackage.reload();
+            newPackage = newPackage.getParent();
         }
     }
 
@@ -1714,10 +1781,28 @@ public class PkgMgrFrame extends JFrame
         toolPanel.add(Box.createVerticalStrut(3));
 
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BorderLayout());
-        JScrollPane objScroller = new JScrollPane(objbench = new ObjectBench());
-        bottomPanel.add("North", objScroller);
-        bottomPanel.add("South", statusbar);
+        {
+            bottomPanel.setLayout(new BorderLayout());
+
+            JTabbedPane tabPane = new JTabbedPane(JTabbedPane.BOTTOM);
+            {
+                JScrollPane objScroller = new JScrollPane(objbench = new ObjectBench());
+                {
+                    objScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+                }
+
+                JScrollPane unitScroller = new JScrollPane(unittestBench = new UnitTestBench());
+                {
+                    unitScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+                }
+
+                tabPane.add("Dynamic", objScroller);
+                tabPane.add("Unit Test", unitScroller);
+            }
+
+            bottomPanel.add("North", tabPane);
+            bottomPanel.add("South", statusbar);
+        }
 
         mainPanel.add("West", toolPanel);
         mainPanel.add("South", bottomPanel);
@@ -1872,7 +1957,7 @@ public class PkgMgrFrame extends JFrame
 
     // menu bar definition
 
-    private static final int SHORTCUT_MASK = 
+    private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
     static final int PROJ_COMMAND = 1000;
@@ -2070,7 +2155,7 @@ public class PkgMgrFrame extends JFrame
         GrpSeparators, HelpSeparators
     };
 
-    // definitions for project commands are not final, since they are different on a Mac 
+    // definitions for project commands are not final, since they are different on a Mac
     // system
     {
         if(Config.osname.startsWith("Mac")) {   // no "Quit" here for Mac

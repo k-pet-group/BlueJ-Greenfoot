@@ -8,12 +8,12 @@ import javax.swing.*;
 import java.util.Properties;
 
 /**
- ** @version $Id: StdClassRole.java 860 2001-04-23 02:07:10Z mik $
- ** @author Bruce Quig
- **
- ** A role object which a class target uses to delegate behaviour to.
- ** StdClassRole is used to represent standard Java classes.
- **/
+ * A role object which a class target uses to delegate behaviour to.
+ * StdClassRole is used to represent standard Java classes.
+ *
+ * @author Bruce Quig
+ * @version $Id: StdClassRole.java 1018 2001-12-04 05:08:03Z ajp $
+ */
 public class StdClassRole extends ClassRole
 {
     /**
@@ -23,25 +23,23 @@ public class StdClassRole extends ClassRole
     {
     }
 
-
     public void save(Properties props, int modifiers, String prefix)
     {
         super.save(props, modifiers, prefix);
         props.put(prefix + ".type", "ClassTarget");
     }
 
-
     /**
-     * load existing information about this class role
-     * @param props the properties object to read
+     * Load existing information about this class role.
+     *
+     * @param props  the properties object to read
      * @param prefix an internal name used for this target to identify
-     * its properties in a properties file used by multiple targets.
+     *               its properties in a properties file used by multiple targets.
      */
     public void load(Properties props, String prefix) throws NumberFormatException
     {
         // no implementation needed as yet
     }
-
 
     /**
      * Generate a popup menu for this AppletClassRole.
@@ -49,7 +47,8 @@ public class StdClassRole extends ClassRole
      * @param editorFrame the frame in which this targets package is displayed
      * @return the generated JPopupMenu
      */
-    protected void createMenu(JPopupMenu menu, ClassTarget ct, int state) {
+    protected void createMenu(JPopupMenu menu, ClassTarget ct, int state)
+    {
         // no implementation at present
     }
 
@@ -60,11 +59,10 @@ public class StdClassRole extends ClassRole
         // no implementation as yet
     }
 
-
     // -- modified ActionListener interface --
 
-    public void actionPerformed(ActionEvent e, ClassTarget ct) {
+    public void actionPerformed(ActionEvent e, ClassTarget ct)
+    {
         // no implementation
     }
-
 }

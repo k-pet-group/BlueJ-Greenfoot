@@ -12,10 +12,15 @@ import bluej.utility.JavaNames;
 import bluej.debugger.*;
 import bluej.classmgr.*;
 import bluej.views.View;
+import bluej.tester.*;
 
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
+
+import junit.swingui.TestRunner;
+import junit.runner.TestSuiteLoader;
+import junit.framework.*;
 
 /**
  * A BlueJ Project.
@@ -24,7 +29,7 @@ import java.io.IOException;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 902 2001-05-23 05:30:16Z ajp $
+ * @version $Id: Project.java 1018 2001-12-04 05:08:03Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -253,6 +258,9 @@ public class Project
     /** the documentation generator for this project. */
     private DocuGenerator docuGenerator;
 
+    /** the test runner for this project */
+    public TestRunner testRunner;
+
     /* ------------------- end of field declarations ------------------- */
 
     /**
@@ -278,6 +286,7 @@ public class Project
         BlueJEvent.addListener(this);
 
         docuGenerator = new DocuGenerator(this);
+        testRunner = new UnitTestRunnerDialog(new UnitTestTestSuiteLoader(this));
     }
 
     /**

@@ -14,12 +14,14 @@ import bluej.views.ViewFilter;
 import bluej.views.EditorPrintWriter;
 import bluej.classmgr.ClassMgr;
 
+import net.sourceforge.transmogrify.hook.bluej.*;
+
 /**
 * A read only (Moe) text editor for showing views of a class selected
 * in the library browser.  Defaults to a public view of a class.
 *
-* @author $Author: mik $
-* @version $Id: CodeViewer.java 727 2000-12-15 06:53:24Z mik $
+* @author $Author: ajp $
+* @version $Id: CodeViewer.java 1018 2001-12-04 05:08:03Z ajp $
 */
 public class CodeViewer implements EditorWatcher {
     private MoeEditorManager edMgr = new MoeEditorManager();
@@ -118,6 +120,8 @@ public class CodeViewer implements EditorWatcher {
      * Part of the EditorWatcher interface.
      **/
     public void compile(Editor editor) {}
+
+    public void refactorEvent(Editor editor, BlueJHook hook) {}
 
     /**
      * Handles the changing of views within the open editor.

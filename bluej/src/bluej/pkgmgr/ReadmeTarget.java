@@ -12,11 +12,13 @@ import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 
+import net.sourceforge.transmogrify.hook.bluej.*;
+
 /**
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 727 2000-12-15 06:53:24Z mik $
+ * @version $Id: ReadmeTarget.java 1018 2001-12-04 05:08:03Z ajp $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -155,6 +157,8 @@ public class ReadmeTarget extends Target
     public void compile(Editor editor)
     {
     }
+
+    public void refactorEvent(Editor editor, BlueJHook hook) {}
 
     // --- end of EditorWatcher interface ---
 

@@ -7,6 +7,7 @@ import bluej.utility.SortedProperties;
 public final class ClassInfo
 {
     private static final String[] appletClasses = { "Applet", "JApplet" };
+    private static final String[] unitTestClasses = { "TestCase", "junit.framework.TestCase" };
 
     private boolean foundClass = false, foundPublicClass = false;
 
@@ -54,6 +55,7 @@ public final class ClassInfo
     private boolean isInterface = false;
     private boolean isAbstract = false;
     private boolean isApplet = false;
+    private boolean isUnitTest = false;
 
     public boolean foundClass()
     {
@@ -89,7 +91,12 @@ public final class ClassInfo
 
         for (int i = 0; i < appletClasses.length; i++) {
             if(name.equals(appletClasses[i]))
-            isApplet = true;
+                isApplet = true;
+        }
+
+        for (int i = 0; i < unitTestClasses.length; i++) {
+            if(name.equals(unitTestClasses[i]))
+                isUnitTest = true;
         }
     }
 
@@ -391,6 +398,10 @@ public final class ClassInfo
         return this.isApplet;
     }
 
+    public boolean isUnitTest()
+    {
+        return this.isUnitTest;
+    }
 
     public void print()
     {
