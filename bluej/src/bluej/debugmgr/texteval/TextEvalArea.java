@@ -20,7 +20,6 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.IndexHistory;
 import bluej.debugmgr.inspector.ObjectInspector;
-import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -33,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2728 2004-07-04 17:57:55Z mik $
+ * @version $Id: TextEvalArea.java 2729 2004-07-04 18:50:27Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener
@@ -48,12 +47,6 @@ public final class TextEvalArea extends JScrollPane
     private Invoker invoker = null;
     private boolean firstTry;
     private IndexHistory history;
-    
-    // the last object that we handled (this can be operated on)
-    private DebuggerObject lastObject;
-    // the invoker record of the last successful call
-    private InvokerRecord lastInvokerRecord;
-    
     
     /**
      * Create a new text area with given size.
@@ -74,35 +67,15 @@ public final class TextEvalArea extends JScrollPane
         text.requestFocus();
     }
 
-    
-    /**
-     * Try to get the last object that was handled onto the object bench.
-     * This is the implementation of the interactive 'get' command.
-     */
-    public void getObjectToBench()
-    {
-        if(lastObject != null) {
-            frame.getPackage().getEditor().raisePutOnBenchEvent(this, lastObject, lastInvokerRecord);
-        }
-        else {
-            error("'Get' can only be used for objects. The last result was not an object.");
-        }
-    }
-    
 
     /**
      * Try to inspect the last object that was handled.
      * This is the implementation of the interactive 'inspect' command.
      */
-    public void inspectObject()
+    public void inspectObject(ObjectInfo objInfo)
     {
-            if(lastObject != null) {
-                ObjectInspector viewer =
-                    ObjectInspector.getInstance(lastObject, null, frame.getPackage(), null, frame);
-            }
-            else {
-                error("'inspect' can only be used for objects. The last result was not an object.");
-            }
+        ObjectInspector viewer = ObjectInspector.getInstance(objInfo.obj, 
+                null, frame.getPackage(), objInfo.ir, frame);
     }
 
     /**
@@ -114,24 +87,26 @@ public final class TextEvalArea extends JScrollPane
      */
     public void tagAreaClick(int pos, int clickCount)
     {
-        if(positionHasObject(pos)) {
+        ObjectInfo objInfo = objectAtPosition(pos);
+        if(objInfo != null) {
             if(clickCount == 1) {
                 DragAndDropHelper dnd = DragAndDropHelper.getInstance();
-                dnd.startDrag(text, frame, lastObject, lastInvokerRecord);
+                dnd.startDrag(text, frame, objInfo.obj, objInfo.ir);
             }
             else if(clickCount == 2) {   // double click
-                inspectObject();
+                inspectObject(objInfo);
             }
         }
     }
     
     /**
-     *  Check weather a position has a breakpoint set
+     * Return the object stored with the line at position 'pos'.
+     * If that line does not have an object, return null.
      */
-    private boolean positionHasObject(int pos)
+    private ObjectInfo objectAtPosition(int pos)
     {
         Element line = getLineAt(pos);
-        return Boolean.TRUE.equals(line.getAttributes().getAttribute(TextEvalSyntaxView.OBJECT));
+        return (ObjectInfo) line.getAttributes().getAttribute(TextEvalSyntaxView.OBJECT);
     }
 
     /**
@@ -160,17 +135,10 @@ public final class TextEvalArea extends JScrollPane
             boolean isObject = result.instanceFieldIsObject(0);
             
             if(isObject)
-                objectOutput(resultString + "   (" + resultType + ")");
+                objectOutput(resultString + "   (" + resultType + ")", 
+                             new ObjectInfo(result.getFieldObject(0), ir));
             else
                 output(resultString + "   (" + resultType + ")");
-            
-            lastInvokerRecord = ir;
-            if(result.instanceFieldIsObject(0)) {
-                lastObject = result.getFieldObject(0);
-            }
-            else {
-                lastObject = null;
-            }
             
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
         } 
@@ -192,7 +160,6 @@ public final class TextEvalArea extends JScrollPane
     		}
     		else {
             error(message);
-            lastObject = null;
             text.setEditable(true);    // allow next input
     		}
     }
@@ -265,7 +232,7 @@ public final class TextEvalArea extends JScrollPane
     {
         try {
             doc.insertString(doc.getLength(), s, null);
-            markAs(TextEvalSyntaxView.OUTPUT);
+            markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
         }
         catch(BadLocationException exc) {
             Debug.reportError("bad location in terminal operation");
@@ -276,11 +243,11 @@ public final class TextEvalArea extends JScrollPane
      * Write a (non-error) message to the text area.
      * @param s The message
      */
-    public void objectOutput(String s)
+    public void objectOutput(String s, ObjectInfo objInfo)
     {
         try {
             doc.insertString(doc.getLength(), s, null);
-            markAs(TextEvalSyntaxView.OBJECT);
+            markAs(TextEvalSyntaxView.OBJECT, objInfo);
         }
         catch(BadLocationException exc) {
             Debug.reportError("bad location in terminal operation");
@@ -295,7 +262,7 @@ public final class TextEvalArea extends JScrollPane
     {
         try {
             doc.insertString(doc.getLength(), "Error: " + s, null);
-            markAs(TextEvalSyntaxView.ERROR);
+            markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
         }
         catch(BadLocationException exc) {
             Debug.reportError("bad location in terminal operation");
@@ -305,11 +272,11 @@ public final class TextEvalArea extends JScrollPane
     /**
      * Mark the last line of the text area as output.
      */
-    private void markAs(String flag)
+    private void markAs(String flag, Object value)
     {
         append("\n ");          // ensure space at the beginning of every line
         SimpleAttributeSet a = new SimpleAttributeSet();
-        a.addAttribute(flag, Boolean.TRUE);
+        a.addAttribute(flag, value);
         doc.setParagraphAttributes(doc.getLength()-2, a);
         text.repaint();
     }
@@ -466,6 +433,16 @@ public final class TextEvalArea extends JScrollPane
    
     }
     
+    final class ObjectInfo {
+        DebuggerObject obj;
+        InvokerRecord ir;
+        
+        public ObjectInfo(DebuggerObject obj, InvokerRecord ir) {
+            this.obj = obj;
+            this.ir = ir;
+        }
+    }
+    
     // ======= Actions =======
     
     final class ExecuteCommandAction extends AbstractAction {
@@ -495,7 +472,7 @@ public final class TextEvalArea extends JScrollPane
                 invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
             }
             else {
-                markAs(TextEvalSyntaxView.OUTPUT);
+                markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
             }
             currentCommand = "";
         }
@@ -522,7 +499,7 @@ public final class TextEvalArea extends JScrollPane
             String line = getCurrentLine();
             currentCommand += line + " ";
             history.add(line);
-            markAs(TextEvalSyntaxView.CONTINUE);
+            markAs(TextEvalSyntaxView.CONTINUE, Boolean.TRUE);
         }
     }
 

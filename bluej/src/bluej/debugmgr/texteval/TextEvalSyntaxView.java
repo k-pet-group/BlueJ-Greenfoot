@@ -15,6 +15,7 @@ package bluej.debugmgr.texteval;
  */
 
 import javax.swing.text.*;
+
 import java.awt.*;
 
 import bluej.Config;
@@ -32,7 +33,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: TextEvalSyntaxView.java 2721 2004-07-02 11:30:40Z mik $
+ * @version $Id: TextEvalSyntaxView.java 2729 2004-07-04 18:50:27Z mik $
  */
 
 public class TextEvalSyntaxView extends BlueJSyntaxView
@@ -76,7 +77,7 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
 		    g.setColor(errorColor);
 		    Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);
 		}
-        else if(hasTag(line, OBJECT)) {
+        else if(hasObject(line, OBJECT)) {
             g.drawImage(objectImage, x-1, y+3-objectImage.getHeight(null), null);
             g.setColor(outputColor);
             Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);
@@ -93,6 +94,19 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
 		}
 	}
 
+    
+    /**
+     * Check whether a given line is tagged with a given tag.
+     * @param line The line to check
+     * @param tag  The name of the tag
+     * @return     True, if the tag is set
+     */
+    protected final boolean hasObject(Element line, String tag)
+    {
+        return line.getAttributes().getAttribute(tag) != null;
+    }
+    
+    
    /**
     * redefined paint method to paint breakpoint area
     *
