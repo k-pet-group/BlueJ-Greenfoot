@@ -14,7 +14,7 @@ import bluej.utility.DialogManager;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 3241 2004-12-16 01:48:47Z davmac $
+ * @version $Id: MiscPrefPanel.java 3244 2004-12-16 10:42:50Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -83,7 +83,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
-        JPanel testPanel = new JPanel(new GridLayout(1,2,0,0));
+        JPanel testPanel = new JPanel(new GridLayout(0,1,0,0));
         {
             testPanel.setBorder(BorderFactory.createCompoundBorder(
                                           BorderFactory.createTitledBorder(
@@ -98,14 +98,13 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
-        JPanel vmPanel = new JPanel(new GridLayout(1,2,0,0));
+        JPanel vmPanel = new JPanel(new GridLayout(0,1,0,0));
         {
             vmPanel.setBorder(BorderFactory.createCompoundBorder(
                                           BorderFactory.createTitledBorder(
                                                  Config.getString("prefmgr.misc.vm.title")),
                                           BlueJTheme.generalBorder));
             vmPanel.setAlignmentX(LEFT_ALIGNMENT);
-            vmPanel.setLayout(new BoxLayout(vmPanel, BoxLayout.Y_AXIS));
 
             optimiseBox = new JCheckBox(Config.getString("prefmgr.misc.optimiseVM"));
             optimiseBox.addActionListener(new ActionListener() {
