@@ -23,7 +23,7 @@ import java.util.ArrayList;
  *
  * @author  Michael Kolling
  *
- * @version $Id: FreeFormCallDialog.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: FreeFormCallDialog.java 1460 2002-10-23 12:21:14Z mik $
  */
 public class FreeFormCallDialog extends CallDialog
 {
@@ -44,7 +44,7 @@ public class FreeFormCallDialog extends CallDialog
     {
     	if (show) {
             setErrorMessage("");
-            callField.setModel(new DefaultComboBoxModel(history.getHistory()));
+            callField.setModel(new DefaultComboBoxModel(history.getHistory().toArray()));
     	    show();
             startObjectBenchListening();
             callField.getEditor().getEditorComponent().requestFocus();
@@ -115,7 +115,7 @@ public class FreeFormCallDialog extends CallDialog
         topPanel.add(new JLabel(Config.getString("freeCallDialog.fieldLabel")),
                      BorderLayout.WEST);
 
-        callField = new JComboBox(history.getHistory());
+        callField = new JComboBox(history.getHistory().toArray());
         callField.setEditable(true);
         callField.setMaximumRowCount(10);
         JTextField textField = (JTextField)callField.getEditor().getEditorComponent();
