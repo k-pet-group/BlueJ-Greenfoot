@@ -1,170 +1,163 @@
-Internal error.
-This is a bug in the Java compiler itself. There is probably
-also a bug in your code, but the compiler cannot figure it 
-out. You may need to get help from someone else...
+* is abstract; cannot be instantiated
+The class is declared "abstract". That means that
+it contains some methods for which it does not
+provide an implementation ("abstract methods").
+You cannot create objects of abstract classes.
+You need to find or write a subclass of the
+abstract class that implements all abstract 
+methods. You can then create objects of that 
+class.
 
-Comment not terminated at end of input.
-You have a comment (with the comment symbol "/*")
-in your program that starts somewhere and does not
-end before the end of your file. The end-of-comment
-symbol "*/" is missing. You need to find that comment 
-and insert the end-of-comment symbol.
+abstract methods cannot have a body
+You have declared a method "abstract" and
+you have written a method body. That is a contradiction.
+Abstract method declarations have only a method header, 
+followed by a semicolon. Either remove the "abstract" 
+keyword, or remove the method body.
 
-String not terminated at end of input.
-You have a string (with double quotes, like "this")
-in your program that starts somewhere and does not
-end before the end of your file. This looks as if the
-end of your source file is missing? Or did you just
-forget the second double quote in your last string?
+* is already defined in *
+There is already a variable (or maybe a
+parameter) in this method that has the 
+same name. Use a different name for this
+one. (Or maybe you meant to use the same
+variable here? Then remove the type name
+here so that it does not look like a new
+declaration.)
 
-String not terminated at end of line.
-You have a string (with double quotes, like "this")
-in your program that starts in this line but does
-not end in the same line. Strings cannot span
-multiple lines. You either forgot the quotes at
-the end of the string, or you put them on another 
-line.
+anonymous class implements interface; cannot have arguments
+No help available
 
-Invalid character constant.
-You have written a character constant that is not valid.
-A character constant is a single character enclosed in 
-single quotes, for example 'a'. Most of the time, there
-can be only one single character between the quotes. The
-only exception is if the first character is the backslash
-(called the "escape character") for specifying special
-characters, eg. '\n' or '\t'.
+anonymous class implements interface; cannot have qualifier for new
+No help available
 
-Unbalanced parentheses.
-Somewhere your parenthesis (that's the round braces as
-used for this sentence) are gone out of balance. You have
-either more closing paranthesis than opening ones, or
-vice versa.
+array required, but *
+You are using syntax here that suggests that you are
+trying to access an array element. The variable you
+refer to is not an array, though.
 
-Invalid escape character.
-An escape character is written with a backslash
-and a second character, for example '\n'. This is
-used to specify special characters. There is only 
-a fixed set of characters that may appear after 
-the backslash. They are \n, \t, \b, \r, \f, \\,
-\', \" and numbers. If you want to write the 
-backslash itself, write "\\" - this will be replaced
-by a single backslash in your string.
+break outside switch or loop
+The "break" statement breaks out of a block,
+such as a "switch" statement or a loop 
+("for", "while" or "do" loop). It cannot be 
+used outside of such a block.
 
-Hexadecimal numbers must contain at least one hexadecimal digit.
-You have specified a hexadecimal number. (This is done 
-by starting a number with "0X".) In hexadecimal numbers,
-you must have at least one digit after the "X".
+* must be first statement in constructor
+As the very first thing in every class that has a 
+superclass, you should call the superclass's 
+constructor. You do that by adding
+    super(...);
+as the first line of your constructor (where you
+replace the dots with the appropriate parameters).
+Trying to use members of the superclass before
+calling it's constructor is bound to be trouble!
 
-Invalid character in octal number.
-You have specified an octal number. (Every integer
-number starting with a 0 (zero) is read as an octal
-number.) Octal numbers can only have digits in the
-range 0..7.  If you did not intend to use an octal
-number, remove the zero at the beginning of the 
-number.
+cannot access *
+No help available
 
-Invalid character in number.
-You have a character here within a number that doesn't
-belong there. If this was not an accident (ie. the
-character is supposed to mean something) then you need
-to put at least a space between it and the number.
+* cannot be applied to *
+No help available
 
-Invalid character in input.
-There is a character in the source file here
-that the compiler cannot cope with.
+cannot assign a value to final variable *
+The variable you are trying to assign to here has
+been declared "final". That means that you are not 
+allowed to change its value later on. If you really
+need to change the value, remove the "final" keyword
+from the variable declaration.
 
-Invalid floating point format.
-You have made some mistake in writing a floating
-point number. (A floating point number is one
-with a decimal point in it.) Examples of correctly 
-written floating point numbers are 
-18.0      18.     1.8e1     .18E2
+* cannot be dereferenced
+You are using dot notation to access a field or method
+of another object. However, the variable you are using
+is not of an object type - it does not have fields or
+methods.
 
-Integer literal out of range.
-You have written a number that is either too large or 
-too small to fit into the data type that is expected 
-here. You need to use a smaller number, or a larger
-data type (for example, "long" instead of "int").
+cannot inherit from final *
+The superclass (the class listed after the 
+"extends" keyword) is declared final. That 
+means that it specifically prohibits 
+subclasses. Sorry - you cannot subclass it
+if it doesn't want you to...
 
-Numeric overflow: float literal too large.
-The system cannot cope with floating point numbers
-this big.
+* before supertype constructor has been called
+As the very first thing in every class that has a 
+superclass, you should call the superclass's 
+constructor. You do that by adding
+    super(...);
+as the first line of your constructor (where you
+replace the dots with the appropriate parameters).
+Trying to use members of the superclass before
+calling it's constructor is bound to be trouble!
 
-Numeric overflow: double literal too large.
-The system cannot cope with floating point doubles
-this big.
+cannot return a value from method whose result type is void
+A void result type in a method signature means that this
+method will not return any result.  The method body 
+should not have a return statement within it.
 
-Numeric underflow: float literal too small.
-The system cannot cope with floating point numbers
-this small.
+cannot select a static class from a parameterized type
+No help available
 
-Numeric underflow: double literal too small.
-The system cannot cope with floating point doubles
-this small.
+* cannot be inherited with different arguments:*
+No help available
 
-Statement expected.
-A statement was expected at this point. A
-statement is an instruction like "x = 3;"
-or similar.
+'catch' without 'try'
+"catch" is a Java keyword that can only appear after a
+"try" block. The correct pattern is
+   try {
+      statements;
+   }
+   catch(Exception e) {
+     statements;
+   }
 
-Type expected.
-The next thing appearing in the code at this 
-position was expected to be a type, such as
-"int" or "String". You may have a wrong symbol
-in your code here, or you forgot a symbol 
-(possibly on one of the lines above).
+* clashes with package of same name
+Make sure that the class and the package
+have different names. Usually, classes 
+should start with a capital letter, while
+package names start with a lowercase letter.
 
-Identifier expected.
-The next thing appearing in the code at this 
-position was expected to be an identifier.
-An identifier is a name for a variable or
-a method or similar things, such as "a" or
-"add" or "myMethod". You do not seem to have
-a valid identifier where you needed one. This
-also happens when you try to use a word as
-an identifier that already means something
-else (like "class" or "int").
+code too large for try statement
+You have too much code inside this try statement.
+Put the code into a separate method and insert a 
+method call here.
 
-'class' or 'interface' keyword expected.
-The word "class" or "interface" is expected to
-appear somewhere near the top of a source file.
-This is missing here (or there is stuff in front
-of it that doesn't belong there).
+constant expression required
+You have used a variable or an expression here, but
+that's illegal. You can only use constants here.
+Constants are number literals (such as 42) or 
+identifiers declared as "final".
 
-Class or interface declaration expected.
-The source file must start with a proper class or
-interface definition, such as "public class MyClass"
-or something similar. The compiler could not find 
-that here.
+continue outside of loop
+The "continue" statement is used to 
+immediately start the next loop
+iteration. It has no meaning outside
+of a loop. It can only be used inside
+a "for", "while" or "do" loop.
 
-';' expected.
-There is a semicolon missing at the end of 
-a line. This could be the line marked in the
-editor, or the line above.
+cyclic inheritance involving *
+You are trying to extend a class here, but
+that class has already declared that it
+extends yours! Well, that cannot work!
+You have to decide which one is the 
+superclass and which is the subclass.
 
-* expected.
-The symbol named in the error message was 
-expected to appear at this point in the code.
-It was not there; instead, there was some
-other symbol. Try to think about why this 
-symbol may be expected here.
+* does not exist
+The name you used here (which could be either
+an attempt to name a variable, a class or a 
+package) does not exist. There was neither a 
+variable nor a class nor a package with this 
+name.
 
-Missing term.
-Wow - you really got the compiler confused here!
-You have written something that does not make
-sense this way. You have one part of a construct
-while another part of the same construct is
-missing. For example, you may have an array index
-("[2]") without naming a variable.
+duplicate class:*
+There appears to already be a class of this name.
 
-Assignment expressions are not permitted as the third subexpression of a conditional expression (that is, a ? : expression).  Try parenthesizing this assignment expression.
-The second term in your conditional expression 
-(condition ? term1 : term2) is an assignment.
-That is not legal. You can fix this by putting
-paranthesis around that term, ie writing
-(condition ? term1 : (term2))
+duplicate case label
+You have used the same label twice in the same 
+"switch" statement.
 
-'else' without 'if'.
+duplicate default label
+You have written "default" twice inthe same switch 
+statement. You cannot do that - once is enough.
+
+'else' without 'if'
 An 'else' keyword can only appear as part of an 'if'
 statement, in the form
    if (condition)
@@ -184,17 +177,29 @@ have to add braces, like this:
       statement3;
    }
 
-'catch' without 'try'.
-"catch" is a Java keyword that can only appear after a
-"try" block. The correct pattern is
-   try {
-      statements;
-   }
-   catch(Exception e) {
-     statements;
-   }
+empty character literal
+You have written a literal character that is empty.
+You cannot write ''.  A character constant is a single 
+character enclosed in single quotes, for example 'a'. 
+Most of the time, there can be only one single character 
+between the quotes. The only exception is if the first 
+character is the backslash (called the "escape character") 
+for specifying special characters, eg. '\n' or '\t'.  
 
-'finally' without 'try'.
+* has already been caught
+This catch statement is useless. It can
+never be executed, because all exceptions
+that it is declared to catch are already 
+caught by another catch statement above it.
+
+* is never thrown in body of corresponding try statement
+You have declared that you want to catch
+an exception here. But I can tell you
+that this exception will never be thrown
+here! There is no statement in the "try"
+block that throws this exception.
+
+'finally' without 'try'
 "finally" is a Java keyword that can only appear after a
 "try" block. The correct pattern is
    try {
@@ -207,475 +212,262 @@ have to add braces, like this:
       statements;
    }
 
-'try' without 'catch' or 'finally'.
-If you use a "try" block, then it must be followed
-by either a "catch" block or a "finally" block (or
-both).  The correct pattern is
-   try {
-      statements;
-   }
-   catch(Exception e) {
-     statements;
-   }
-   finally {
-      statements;
-   }
+floating point number too large
+The system cannot cope with floating point numbers
+this big.
 
-'case' outside switch statement.
-"case" is a Java keyword that can only appear as part
-of a "switch" statement. A switch statement looks like
-this:
-   switch (value) {
-     case value1:
-        statements;
-        break;
-     case value2:
-        statements;
-        break;
-     default:
-        statements;
-        break;
-   }
-The word "case" cannot appear outside of the
-"switch" block.
+floating point number too small
+The system cannot cope with floating point numbers
+this small
 
-'default' outside switch statement.
-"default" is a Java keyword that can only appear as part
-of a "switch" statement. A switch statement looks like
-this:
-   switch (value) {
-     case value1:
-        statements;
-        break;
-     case value2:
-        statements;
-        break;
-     default:
-        statements;
-        break;
-   }
-The word "default" cannot appear outside of the
-"switch" block.
+inner classes cannot have static declarations
+You cannot declare static types in
+nested classes. If you need a static
+type here, declare it in the outer class.
 
-I/O error *
-The was an input or output error while accessing a
-file or device. This happens most frequently when 
-accessing files, and the disk is full or there is a 
-desk error or the disk has been taken out.
+illegal character:*
+There is an illegal character here in the source
+file. This character may be invisible. If you cannot
+find it to delete it, delete the whole line and type
+it again.
 
-The class file containing {0} has a malformed '{1}' attribute.
-No help available.
+illegal combination of modifiers: *
+You have tried to combine two Java modifiers which
+are considered an illegal pairing.  It is likely 
+that the meaning of each is contradictory to each other.
+An example of this would be defining a method as abstract
+and native, final, private or synchronized.
 
-Array index required.
-This code looks like an array access. In other
-words: I think you want to access an array element
-here. But you have not written the array index,
-that is, the number of the element you are trying
-to access. You need to write something like
-"myarray[42]" instead of just "myarray[]".
+illegal escape character
+An escape character is written with a backslash
+and a second character, for example '\n'. This is
+used to specify special characters. There is only 
+a fixed set of characters that may appear after 
+the backslash. They are \n, \t, \b, \r, \f, \\,
+\', \" and numbers. If you want to write the 
+backslash itself, write "\\" - this will be replaced
+by a single backslash in your string.
 
-[] can only be applied to arrays.*
-You are using an array access here (the square brackets
-with the number inbetween, eg. "[42]"), but the thing
-that you are trying to access is not an array. That
-cannot work!
+illegal forward reference
+No help available
 
-Can't specify array dimension in a declaration.
-This looks to me like you are trying to declare an
-array variable. If you do, you cannot specify the array
-size in the declaration. That is, you cannot write
-   int[3] intArray;
-to create an array of size 3. Instead, you should write
-   int[] intArray = new int[3];
-This will create the array with size 3.
+illegal initializer for *
+No help available
 
-Can't specify array dimension in a type expression.
-No help available.
+illegal line end in character literal
+You have a line break where a character literal should
+be specified. You cannot do that. If you want to specify
+the character for a line break ("newline") write it as '\n'.
 
-Array constants can only be used in initializers.
-An array constant is an array that is enumerated using the
-curly braces, for example { 1, 2, 3 }.
-You can use these array constants only when you initialise
-a new variable; you cannot use it in normal assignments
-later.
-If you need an array constant in an assignment, instead
-of writing
-    myArray = { 1, 2, 3 };    // ERROR!
-you can write
-    myArray = new int[] { 1, 2, 3 };  // correct
-This creates and initialises a new array and then assigns
-it.
+* is not an inner class
+No help available
 
-Invalid initializer for type *
-You tried to initialise a variable in it's declaration.
-The initialisation you tried here is not legal.
+illegal start of expression
+No help available
 
-Invalid left hand side of assignment.
-You are using an assignment (=), but the term to the
-left of the equal sign is wrong. You can have only
-one identifier on the left side of the equal sign, and
-that identifier must be the name of a variable. For
-example:
-   answer = 42;
+illegal start of type
+At a position in the source where the name of
+a type was expected, there was something else
+(most likely a Java keyword). Check this line
+for incorrect type definitions.
 
-Invalid arguments to {0}.
-No help available.
+illegal unicode escape
+No help available
 
-Invalid cast *
-You used a cast here. A cast is if you want to turn
-one type into another, for example turning a "Person"
-variable into a "Student", like this:
-   aStudent = (Student)aPerson;
-or a "float" into an "int":
-   anInt = (int)aFloat;
-The cast you tried to do is not legal, though. The type
-on the right side cannot be casted to the type on the
-left.
+improperly formed type, some parameters are missing
+No help available
 
-Impossible for *
-You tried to cast a variable on one type to another,
-for example
-    aStudent = (Student)aPerson;
-The cast itself it the expression on the right in the
-form
-    (NewType)variable
-This can only work if the current type of the variable
-is a subtype of "NewType" (or a subtype of a subtype).
-In your case, the type of the variable is not a subtype
-of the type your are trying to cast to, so the cast can 
-never work.
+incomparable types: *
+No help available
 
-Invalid type expression.
-You have written a typed expression here where
-it does not make sense. Quite possibly, you may
-have mistyped a character, forgotton a semicolon
-or an arithmetic symbol or something similar.
+integer number too large: *
+You have written a number that is too large to fit 
+into the data type that is expected here. You need
+to use a larger data type
+(for example, "long" instead of "int").
 
-Only named classes can have 'extends' or 'implements' clauses.
-You have used an anonymous class (a class that does not have
-a name). Anonymous classes cannot extend or implement other
-classes or interfaces.
+internal error; cannot instantiate *
+No help available
 
-Attempt to reference field *
-You tried to access a field in an object, but
-the object does not have a field of that name.
+* but with different return type
+You may be trying to write two methods that have the same
+signature except for return type.  This is not allowed.
 
-No variable *
-The variable you tried to access does not exist
-in that class.
+interface expected here
+An interface can only extend another interface. The name
+you have specified after the "extends" keyword is not an
+interface.
 
-* not accessible from *
-You tried to access a variable or a method from another
-class here, but you are not permitted to access that 
-method or variable. It has access rights (such as "private"
-or "protected") that do not allow access from this class.
+interface methods cannot have body
+Interface methods must be declarations only.
+That means that they should contain a method 
+header followed by a semicolon.  There should 
+be no method body.
 
-No inner class *
-You tried to access an inner class of another class here.
-But that class does not have an inner class of that name.
+hexadecimal numbers must contain at least one hexadecimal digit
+You have specified a hexadecimal number. (This is done 
+by starting a number with "0X".) In hexadecimal numbers,
+you must have at least one digit after the "X".
 
-Can't make a static reference to nonstatic variable *
-You are in a static method here. Static methods can only
-access static variables. The variable you are trying to
-use here is not static, so it cannot be used here.
+invalid method declaration; return type required
+A method declaration must have a declared return type.
+For example, if your method returns a String, write
+    public String myMethod();
+If you do not want to return a value from this method,
+use the special word "void" to indicate that there is
+no return type. For example
+    public void myMethod();
 
-Can't make a static reference to inner class *
-You are in a static method here. Static methods cannot
-access inner classes.
+* already in use
+There is already a variable (or maybe a
+parameter) in this method that has the 
+same name. Use a different name for this
+one. (Or maybe you meant to use the same
+variable here? Then remove the type name
+here so that it does not look like a new
+declaration.)
 
-Reference to {0} is ambiguous. It is defined in {1} and {2}.
-No help available.
+* is accessed from within inner class; needs to be declared final
+Local variables cannot usually be accessed by inner 
+classes. But that is exactly what you are trying to
+do here. You have two options: You can remove this
+access to the local variable, or you can make the
+variable "final" - then you can access it.
 
-Attempt to reference method*
-You are accessing a method here as if it were a 
-variable (ie. without the paranthesis). If you 
-want to call a method, add the paranthesis (eg.
-write "myMethod()" instead of "myMethod"). If 
-you want to access a variable, then you got the
-name wrong.
+malformed floating point literal
+You have made some mistake in writing a floating
+point number. (A floating point number is one
+with a decimal point in it.) Examples of correctly 
+written floating point numbers are
+18.0      18.     1.8e1     .18E2
 
-Can't assign a value to a final variable: *
-The variable you are trying to assign to here has
-been declared "final". That means that you are not 
-allowed to change its value later on. If you really
-need to change the value, remove the "final" keyword
-from the variable declaration.
+missing method body, or declare abstract
+Methods must either have a body or be abstract. A
+method body is the block in curly braces { } that 
+follows the method header and contains statements.
+If a method does not have a body then it must have the
+keyword "abstract" in its header. For example:
+    public abstract int getAnswer();
 
-Can't assign a second value to a blank final variable: *
-The variable is declared "final". Final variable may
-only be assigned at the point where they are declared,
-or in a constructor, and thay can only be assigned 
-exactly once. You either tried to assign the variable
-outside of a constructor, or you tried to assign it a
-second time.
+missing return statement
+Here, you've got a method that is declared to return a 
+value. There is, however, no "return" statement in the body
+of the method. That doesn't fit together. You must either:
+   - declare the return type of the method as "void"
+     if you don't want to return a value, or
+   - write a "return" statement with the correct 
+     return type at the end of the method, for 
+     example
+         return 42;
+The type of the return value must match the declared type
+in the method header.
 
-The variable in an assignment to a static blank final must be a simple name (it may not follow a dot '.').
-You've got a static variable here that has been declared
-"final". This variable can only be assigned once, and 
-that has to be at the point where it is declared, or 
-from within the constructor of the class in which it is
-declared. You cannot assign this variable from outside
-of the class.
+missing return value
+Here, you have written a "return" statement that does
+not return a value. The method header, however, declares
+that this method returns a value. You must either declare
+that this method does not return a value (by using "void"
+as the return type in the method header), or you must 
+return a value of the correct type, for example 
+    return 42;
+or
+    return "Marvin";
 
-The variable in an assignment to a blank final must be a simple name or a simple name qualified by 'this': *
-You've got a variable here that has been declared
-"final". This variable can only be assigned once, and 
-that has to be at the point where it is declared, or 
-from within the constructor of the class in which it is
-declared. You cannot assign this variable from outside
-of the class.
+name clash: *
+No help available
 
-Attempt to assign a blank final variable *
-You've got a variable here that has been declared
-"final". This variable can only be assigned once, and 
-that has to be at the point where it is declared, or 
-from within the constructor of the class in which it is
-declared. Because you can assign this variable only 
-once, you cannot do it in a loop.
+* is reserved for internal use
+The term shown is reserved for internal use, if it is
+name of a variable or class you will need to change it.
 
-Attempt to assign to a variable *
-You cannot access that variable from here. The variable
-you are trying to access is only visible from within
-the method in which it is defined.
+native methods cannot have a body
+You have declared a method "native" and you have written 
+a method body. Native method declarations have only
+a method header, followed by a semicolon. Either remove
+the "native" keyword, or remove the method body.
 
-Attempt to use a non-final variable *
-You cannot access that variable from here. The variable
-you are trying to access is only visible from within
-the method in which it is defined.
+no enclosing instance of type {0} is in scope
+No help available
 
-* The "super" keyword may only be used for member access and constructor invocation.
-"super" is a reserved word in Java. You cannot use it 
-for a variable. If you tried to assign the "super"
-object to a variable - well, that doesn't work.
-"super" can only be used to call the constructor
-("super();") or to access fields or methods within
-the superclass (eg. "super.length()"). "super"
-alone does not have a sensible meaning otherwise.
+no interface expected here
+You are referring to an interface here (possibly in
+an "extends" declaration of a class). A class can only
+extend other classes (not interfaces). If you want to
+implement this interface, use the "implements" keyword
+instead.
 
-Undefined variable: *
-The variable you are trying to use here cannot be
-found. Either it was never declared or it was
-declared somewhere where you cannot see it.
-The first case happens easily if you have a
-spelling error in a variable. Check that the variable
-is spelled correctly, including all capital characters
-("aNumber" is not the same as "anumber"!).
-The second case happens if a variable is declared 
-inside a block. (A block is a pair of curly braces, 
-like this { }.) If you have a variable declaration
-inside a loop, for instance, then the variable is
-only visible inside that loop. As a rule of thumb:
-a variable becomes invisible after the curly brace (})
-that closes the block in which it is declared.
+* has no match in entry in *
+No help available
 
-Undefined variable or package name: *
-The name you used here (which could be either
-an attempt to name a variable or a package)
-does not exist. There was neither a variable
-nor a package with this name.
+* is not defined in a public class or interface; cannot be accessed from outside package
+No help available
 
-Undefined class or package name: *
-The name you used here (which could be either
-an attempt to name a class or a package)
-does not exist. There was neither a class
-nor a package with this name.
+* cannot be accessed from outside package
+No help available
 
-Undefined variable, class, or package name: *
-The name you used here (which could be either
-an attempt to name a variable, a class or a 
-package) does not exist. There was neither a 
-variable nor a class nor a package with this 
-name.
+not a loop label: *
+No help available
 
-Undefined class name: *
-A class with this name could not be found.
-This may be due to a spelling error in the
-name. Or did you forget to import that class
-from another package?
+not a statement
+You have written a line of code here that is not
+a complete statement. Please check again what you
+intended to do and how you should do it.
 
-Undefined variable or class name: *
-The name you used here (which could be either
-an attempt to name a class or a variable)
-does not exist. There was neither a class
-nor a variable with this name.
+not an enclosing class:*
+No help available
 
-* may not have been initialized. It must be assigned a value in an initializer, or in every constructor.
-You've got a variable here that has been declared
-"final". This variable must be initialised (that is,
-you must assign a value to it) either where it is
-declared or in the body of every constructor of the 
-class. It cannot be left uninitialised, and it cannot
-be assigned later.
+* cannot be applied to *
+The operator that you use here cannot be used for the
+type of value that you are using it for. You are either
+using the wrong type here, or the wrong operator.
 
-* may not have been initialized.
-You are using a variable here, but it is not certain
-that the variable has been assigned a value yet. That
-is very bad coding practice! Make sure that this 
-variable has a value assigned somewhere before you
-use it.
+* clashes with class of same name
+Make sure that the class and the package
+have different names. Usually, classes 
+should start with a capital letter, while
+package names start with a lowercase letter.
 
-* before the superclass constructor has been called.
-As the very first thing in every class that has a 
-superclass, you should call the superclass's 
-constructor. You do that by adding
-    super(...);
-as the first line of your constructor (where you
-replace the dots with the appropriate parameters).
-Trying to use members of the superclass before
-calling it's constructor is bound to be trouble!
+possible fall-through into case
+No help available
 
-Ambiguous class: *
-You used a class here that is defined in two different 
-packages. More precisely: there are two different classes
-that have the same name. Both packages were imported.
-You can solve this problem by writing the fully
-qualified class name, including the package name. For
-example, write
-    java.lang.String
-instead of just 
-    String
-to clarify which of the two you mean.
+error reading *
+No help available
 
-Invalid argument to {0}.
-No help available.
+recursive constructor invocation
+You have written code that causes this
+constructor to call itself. That is not
+allowed (and would most likely lead to
+an infinite loop).
 
-Invalid argument type {0} for {1}.
-The type you used is not a valid type for 
-the argument. Check the type that was expected.
+* is ambiguous, both *
+The identifier named in this message cannot be properly
+resolved, because there is more than one class or interface
+with this name defined in the packages that you have imported.
+You can either refer to the class here with its full qualified
+name (e.g. java.util.List) or import the class with its fully
+qualified name (e.g. import java.util.List).
 
-'length' applied to *
-The "length" operation only makes sense for array
-objects, not for the type you've got here. Other
-types have different methods to find out their
-size (often a method called "size()", or something
-sililar).
+repeated interface
+You have listed the same interface
+twice in the same "implements"
+declaration. Once is enough. My
+memory isn't that bad!
 
-Only constructors can invoke constructors.
-You tried to invoke a constructor here. You cannot do 
-that from within this method. Constructors can be
-invoked explicitly only from within another constructor.
+repeated modifier
+In this declaration, you have written the same
+modifier twice. A modifier is a keyword such
+as final, static, public, private, volatile, ...
 
-Constructor invocation must be the first thing in a method.
-The call to the constructor of the superclass ("super()") 
-must be the first statement in the constructor code. You 
-cannot have any other statements executed in the constructor
-before calling the superclass's constructor.
+{0} has {1} access in {2}
+No help available
 
-Can't invoke a method on a *
-The variable you used to invoke this method on
-is declared of a simple type (like "int" or "char"
-or something similar). Simple types do not have
-methods. If you need the method, use the corrosponding
-class for the simple type, for instance "Integer" 
-instead of "int".
+return outside method
+No help available
 
-* not found in *
-The method (or class or package) you tried to access here
-was not found. This could be due to a spelling error.
-Check the spelling, including all capital letters.
+signature does not match *
+No help available
 
-Can't make static reference to method *
-You are trying to call a non-static method from a 
-static method. You cannot do that. Non-static methods
-are always invoked on a particular object, whereas
-static methods are invoked without a current object.
-If you just call a non-static method from a static
-one, it is not clear what the current object should 
-be.
-
-Can't access protected method *
-The method you are trying to call here has been
-declared "protected". That means that it can only
-be called from the class in which it is defined and 
-from subclasses. Here, you try to call it from a 
-class that is not a subclass. That is not permitted.
-
-Can't access protected field *
-The field you are trying to access here has been
-declared "protected". That means that it can only
-be accessed from the class in which it is defined and 
-from subclasses. Here, you try to access it from a 
-class that is not a subclass. That is not permitted.
-
-Can't access protected inner type *
-The inner type you are trying to access here has been
-declared "protected". That means that it can only
-be accessed from the class in which it is defined and 
-from subclasses. Here, you try to access it from a 
-class that is not a subclass. That is not permitted.
-
-Can't access protected constructor of *
-The constructor you are trying to call here has not 
-been declared "public". That means that it can only
-be called from the class in which it is defined and 
-from classes in the same package.
-
-Reference to variable *
-You have an access to a member of an object here
-in the form
-   a.name()
-This looks like a method access (because of the 
-paranthesis) but the member you are accessing here
-is in fact a field, not a method.
-If you want to access the field, remove the paranthesis.
-If you meant to access a method, then you got the 
-name wrong.
-
-Reference to method *
-You have an access to a member of an object here
-in the form
-   a.name
-This looks like a field access (because there are no
-paranthesis) but the member you are accessing here
-is in fact a method, not a field.
-If you want to access the method, add paranthesis, 
-like this:
-   a.name()
-If you meant to access a field, then you got the 
-name wrong.
-
-The null literal is not a legal argument for the synchronized statement.
-In a "synchronised" statement, the argument you give
-to the "synchronised" instruction cannot be null.
-
-Invalid array dimension.
-Array dimensions (that is the number that specifies
-how large you want an array to be) must be written
-as a single integer number greater than or equal
-to zero inside the square brackets of an array 
-creation. Here is an example. If you want to create
-an array of Strings with space for 7 elements, then
-you write:
-    new String[7]
-The array size can also be an integer variable.
-
-Constructor is ambiguous: {0}, {1}
-No help available.
-
-* Explicit cast needed to convert *
-You have tried to use an expression of one type
-where another type was expected. This type conversion
-cannot be done automatically. You need to write a
-"cast" instruction to make this work (if it was not
-done by accident altogether). A cast instruction is
-written by specifying a new type in paranthesis 
-before an expression. For example, I can "cast" the 
-floating point number 3.14 to an integer by writing
-    (int)3.14
-After it has been casted, it can be assigned to an 
-int, like this: 
-    int i = (int)3.14
-
-* Can't convert *
-You have tried to use an expression of one type
-where another type was expected. This type conversion
-cannot be done automatically. The types just don't
-match.
-
-Invalid term.
-No help available.
-
-* must be declared abstract. It does not define *
+* should be declared abstract; it does not define *
 The current class inherits from an abstract class
 or an interface. Abstract classes and interfaces 
 define methods without giving the implementation.
@@ -691,548 +483,64 @@ instead of just
 or you must provide an implementation for the 
 method named in the error message.
 
-* must be declared abstract.  The package-private abstract method *
-You must declare this class abstract by starting 
-it with
-   public abstract class ...
-instead of just 
-   public class ...
-It is abstract because it inherits an abstract 
-method. You cannot provide an implementation for
-that method here, because that method is
-"package private" - the implementation can only
-be provided by subclasses in its own package.
-
-* is an interface. It can't be instantiated.
-You cannot create objects of an "interface"
-type. In other words, if "someInterface" is 
-the name of an interface, then you cannot
-write
-    new someInterface()
-(well, you can write it, but it won't work :-/ )
-The reason is that interfaces only define
-method signatures, but not the implementation.
-You need to find or write a class that 
-"implements" the interface and then instantiate
-that class.
-
-Can't directly invoke abstract method *
-The method you are trying to call here is
-abstract. Abstract methods have no 
-implementation, so you cannot call them.
-
-No method matching *
-The method you are trying to call here does 
-not exist in that class you specified. This
-could be due to a typing error - check the
-spelling of the method name, including all
-capital letters.
-
-No constructor matching *
-A constructor with the name and parameters
-you used here does not exist. Check the class
-again that you want to instantiate here. Then
-check the spelling of the constructor and the
-types of the parameters.
-
-Wrong number of arguments in *
-The number of the arguments (also called
-parameters) does not match in this method call.
-For example, you may have written a call without
-parameters, such as
-   a.someMethod();
-but the method is defined with a parameter, eg.
-   void someMethod(int i)
-If the method expects a parameter, then you have
-to call it with a parameter, eg:
-   a.someMethod(42)
-If it expects two parameters, then you have to
-supply two, and so on...
-
-Can't make forward reference to {0} in {1}.
-No help available.
-
-Array dimension missing.
-When you create an array you have to specify
-how big it should be. (This is called the
-"array dimension".) You do this by specifying
-the number of elements in the square brackets
-after the "new" instruction and the type name.
-For example:
-    new String[4]
-creates a new String array with four elements.
-
-* is an abstract class. It can't be instantiated.
-The class is declared "abstract". That means that
-it contains some methods for which it does not
-provide an implementation ("abstract methods").
-You cannot create objects of abstract classes.
-You need to find or write a subclass of the
-abstract class that implements all abstract 
-methods. You can then create objects of that 
-class.
-
-No label definition found for *
-The label you are trying to
-access here has not been defined
-anywhere.
-
-'break' must be in loop or switch.
-The "break" statement breaks out of a block,
-such as a "switch" statement or a loop 
-("for", "while" or "do" loop). It cannot be 
-used outside of such a block.
-
-'continue' must be in loop.
-The "continue" statement is used to 
-immediately start the next loop
-iteration. It has no meaning outside
-of a loop. It can only be used inside
-a "for", "while" or "do" loop.
-
-a 'break' or 'continue' must transfer control within the same method.
-If you use a 'break' or 'continue' statement
-with a label to change the control flow, you
-must make sure that the label is declared in
-the same method in which the 'break' or
-'continue' statement is.
-
-Invalid declaration.
-No help available.
-
-'return' with value from constructor*
-We are looking at a constructor here. And there
-is a "return" statement that tries to return a
-value. You cannot do that. You cannot return a
-value from a constructor. The returned value from
-a constructor always is (automatically) the object
-that is constructs.
-
-'return' with value from *
-You have a 'return' statement with a value
-in your method. Your method is not expected
-to return a value, though. The return type
-is declared in the header of the method. In
-your case, it says it doesn't return anything.
-Either change the return statement to just say
-        return;
-(without a parameter), or change the method 
-declaration to indicate that this method has
-a return value.
-
-Incompatible type for return *
-The return type of a method is defined in the
-header of the method (before the method name).
-For example, the method
-     public int doSomething()
-is defined to return a value of type "int". The
-value that is then actually returned using the
-"return" statement must be an "int" (or something
-compatible). For example, you could write
-     return 42;
-but not
-     return "two";   // illegal
-The second one tries to return a String - that's
-not an "int", so it doesn't work.
-
-'return' without value from *
-Here, you have written a "return" statement that does
-not return a value. The method header, however, declares
-that this method returns a value. You must either declare
-that this method does not return a value (by using "void"
-as the return type in the method header), or you must 
-return a value of the correct type, for example 
-    return 42;
-or
-    return "Marvin";
-
-'return' inside static initializer.
-A static initialiser (that is, an unnamed static block
-of code that gets executed during class initialisation)
-cannot have a return statement. Remove it.
-
-Invalid label.
-You have written an invalid label. Labels are tags at the
-beginning of a line of the form
-    <identifier>:
-That is: a Java identifier followed by a colon. The 
-identifier can only contain letters, digits, the 
-underscore and the dollar sign. The real question here,
-however, is: Why are you using labels at all? There are
-not many cases where this is good practice, and you 
-should ask youself whether you can write this differently...
-
-Return required at end of *
-Here, you've got a method that is declared to return a 
-value. There is, however, no "return" statement in the body
-of the method. That doesn't fit together. You must either:
-   - declare the return type of the method as "void"
-     if you don't want to return a value, or
-   - write a "return" statement with the correct 
-     return type at the end of the method, for 
-     example
-         return 42;
-The type of the return value must match the declared type
-in the method header.
-
-Duplicate case label*
-You have used the same label twice in the same 
-"switch" statement.
-
-too large for 'switch' on
-You have used a case label that can never be matched,
-because the value is larger than the largest possible
-value that your switch variable can hold.
-
-A statement cannot be labeled with the same identifier as one of its enclosing statements*
-You have used the same label twice in the same 
-block - are you insane? You shouldn't be using 
-labels at all without a license, let alone 
-overloading labels with the same name!
-
-A declaration cannot be labeled*
-You cannot have a label here, since it makes
-no sense to jump to this location.
-
-Constant expression required.
-You have used a variable or an expression here, but
-that's illegal. You can only use constants here.
-Constants are number literals (such as 42) or 
-identifiers declared as "final".
-
-Duplicate 'default' label.
-You have written "default" twice inthe same switch 
-statement. You cannot do that - once is enough.
-
-Only one package declaration allowed.
-You cannot declare a class to be in more that
-one package. That means, you can have only one
-"package" statement in any class. You have two 
-here.
-
-* clashes with imported class *
-The declared class has the same name as an
-imported class. That's not a good idea. Either:
-    - rename your class, or
-    - don't import that class. You can then
-      use a fully qualified name where you
-      want to use it.
-
-Interfaces can't have constructors.
-This is a declaration of an interface. Interfaces
-only contain constant and method declarations
-(headers). You have written a constructor here - 
-interfaces cannot be constructed.
-
-Constructors can't be native, abstract, static, synchronized, or final*
-The text of this error message says it all, 
-doesn't it? Remove the native, abstract, static, 
-synchronized, or final keyword from the constructor.
-
-Interfaces can't have static initializers.
-Static initialiser blocks, that is: unnamed blocks
-of code marked "static" which are executed when the
-class is initialised, can only appear in classes,
-not in interfaces.
-
-Interface methods can't be native, static, synchronized, final, private, or protected*
-The text of this error message says it all, 
-doesn't it? Remove the native, static, synchronized, 
-final, private or protected keyword from the method.
-
-Interface fields can't be private or protected*
-All declarations in an interface are automatically 
-public. All constant fields declared in an interface
-are public. You cannot declare them private or 
-protected.
-
-*can't be transient. Only variables can be transient.
-The keywork "transient" can only be used with a
-field declaration, not in front of a method.
-
-* can't be volatile. Only variables can be volatile.
-The keywork "volatile" can only be used with a
-field declaration, not in front of a method.
-
-Abstract methods can't be private*
-It does not make sense to declare a method both
-abstract and private. Think about it: because it is
-abstract, a subclass must later redefine it to provide
-an implementation. But because it is private, no
-subclass can ever do that. This doesn't work.
-
-Abstract methods can't be static *
-Only instance methods can be abstract. A static 
-method (class method) cannot be abstract.
-
-Abstract methods can't be final *
-It does not make sense to declare a method both
-abstract and final. Think about it: because it is
-abstract, a subclass must later redefine it to provide
-an implementation. But because it is final, no
-subclass can ever do that. This doesn't work.
-
-Abstract methods can't be native *
-You cannot declare a method both abstract and
-native. Methods both abstract and native do
-not exist.
-
-Abstract methods can't be synchronized *
-You cannot declare an abstract method to be 
-synchronized. If you want synchronization, put
-the "synchronized" declaration with the method
-in the subclass that implements this abstract 
-method.
-
-Abstract and native methods can't have a body *
-You have declared a method "abstract" or "native" and
-you have written a method body. That is a contradiction.
-Both abstract and native method declarations have only
-a method header, followed by a semicolon. Either remove
-the "abstract" or "native" keyword, or remove the method
-body.
-
-Variables can't be synchronized, abstract or native *
-The keywords "synchronized", "abstract" and "native" all
-make sense only for methods. You have used one of these
-for a variable declaration. That doesn't work.
-
-Variables can't be declared strict *
-You cannot declare a variable "strict".
-
-Inner classes can't be volatile, transient, native, or synchronized: {0}
-The keywords "volatile" and "transient" only make sense
-for variables. The keywords "native" and "synchronised"
-are only for methods. You have used one of these for an 
-inner class declaration. That doesn't work.
-
-Transient variables can't be members of interfaces *
-You have declared a variable in an interface "transient".
-You cannot do that. Transient variables can only be in 
-classes. Interfaces can have only constant fields (and
-method declarations).
-
-Volatile variables can't be final or members of interfaces*
-You have declared a variable volatile here. This is not
-allowed in this context. This variable is either declared 
-final or ot is in an interface (then it is, by definition,
-final as well). If it's final, it can't be volatile.
-
-This final variable must be initialized*
-You have a constant declaration here (a variable that
-is declared final). (It may be in an interface - fields
-in interfaces are automatically final.) Constants must
-be assigned a value when they are declared. For 
-example:
-    private final int answer = 42;
-
-Duplicate method declaration: *
-You have declared two methods with the same name
-and the same parameter types. Each method inside
-a particular class must have a different signature -
-that is, either the name of the method or the number
-of parameters or the parameter types must be 
-different.
-
-Methods can't be redefined with a different return type:*
-You are redefining a method here. That means: a 
-superclass of your class has defined a method with the
-same name and parameters as the one you have written
-here. You are overriding the inherited method
-implementation. The problem is: the method in the 
-superclass has a different return type than your method.
-That is not allowed. If the name and the parameters are
-the same, then the return type must match as well.
-
-Duplicate variable declaration: *
-You have declared two variables with the same name.
-Each variable must have a unique name - you cannot
-have the same name twice.
-
-Duplicate inner class declaration:*
-You have two inner classes in this class 
-with the same name. That's no good. Rename 
-one of them.
-
-* can't be an interface: *
-You cannot use an interface here. 
-You must use a class instead.
-
-* Class or interface must be public, in same package, or an accessible member class.
-Access to this class is not allowed. It is probably
-a private class in another package. Private classes
-cannot be used outside their own package. If you
-really need to use this class, you must declare it
-public.
-
-The type name in a qualified 'new' expression must be an unqualified identifier.
-No help available.
-
-Repeated modifier.
-In this declaration, you have written the same
-modifier twice. A modifier is a keyword such
-as final, static, public, private, volatile, ...
-
-Inconsistent member declaration. At most one of public, private, or protected may be specified.
-You cannot declare a field or method private and 
-public at the same time! (Or private and protected,
-or protected and public.) But that's what you are
-trying to do here. What were you thinking?!
-
-Can't subclass final classes: *
-The superclass (the class listed after the 
-"extends" keyword) is declared final. That 
-means that it specifically prohibits 
-subclasses. Sorry - you cannot subclass it
-if it doesn't want you to...
-
-Can't subclass interfaces: *
-The superclass (the class listed after the 
-"extends" keyword) is not a class at all -
-it's an interface. If you want to inherit
-from an interface, use the "implements"
-keyword instead. For example:
-    class MyClass implements SomeInterface
-
-Cyclic class inheritance.
-You are trying to extend a class here, but
-that class has already declared that it
-extends yours! Well, that cannot work!
-You have to decide which one is the 
-superclass and which is the subclass.
-
-Cyclic class inheritance:  A subclass cannot enclose a superclass.
-You cannot extend a class that is an 
-innner class of yourself.
-
-Cyclic interface inheritance.
-You are trying to extend an interface here, 
-but that interface has already declared that 
-it extends yours! Well, that cannot work!
-You have to decide which one extends which.
-
-Cyclic class inheritance or scoping.
-You cannot extend the class you are trying
-to extend here. This class is either not in
-the right scope, or it is trying to extends
-yours.
-
-* must be an interface.
-After the "implements" keyword, you must name
-an interface. Whatever you have written there
-is not an interface (it is probably a class).
-Use "extends" if you want to inherit from a
-class.
-
-Interfaces can't be final*
-You cannot declare an interface "final".
-Think about it: it doesn't make sense! An
-interface is only useful if a class inherits
-from it (with the "implements" keyword). But
-if something if final, you cannot inherit from
-it. So a final interface would be useless!
-
-An interface can't implement anything; it can only extend other interfaces.
-In an interface, you cannot use the "implements"
-keyword. If you want to extend another interface,
-use the "extends" keyword. For example:
-   interface MyInterface extends YourInterface
-
-Multiple inheritance is not supported.
-In Java, you cannot inherit from (extend) two
-classes. If you need to do something like this,
-you have to make one of the superclasses an
-interface. You can implement multiple 
-interfaces.
-
-Invalid class file format in *
-The class file (the file produced by the
-compiler) seems dodgy. The best thing to
-do is to go to the "Tools" menu in the
-main window and select "Rebuild Package".
-
-Unexpected end of file encountered while reading the class file*
-The class file (the file produced by the
-compiler) seems dodgy. The best thing to
-do is to go to the "Tools" menu in the
-main window and select "Rebuild Package".
-
-* requires a method body. Otherwise declare it as abstract.
-Methods must either have a body or be abstract. A
-method body is the block in curly braces { } that 
-follows the method header and contains statements.
-If a method does not have a body then it must have the
-keyword "abstract" in its header. For example:
-    public abstract int getAnswer();
-
-* requires a method body.
-The method body (that is: the block in curly braces { } 
-that follows the method header and contains statements)
-is missing for this constructor.
-
-Constructors may not be modified by strictfp.
-Don't use the "strictfp" modifier for
-constructors. What were you thinking?
-
-Instance variables can't be void: *
-You are declaring a variable with type "void" here.
-The special type name "void" cannot be used as the
-type for a variable. "void" indicates no type -
-variables must have a proper type.
-
-Invalid method declaration; return type required.
-A method declaration must have a declared return type.
-For example, if your method returns a String, write
-    public String myMethod();
-If you do not want to return a value from this method,
-use the special word "void" to indicate that there is
-no return type. For example
-    public void myMethod();
-
-Invalid method declaration; method name required.
-A method must have a name. The name is declared
-in the method signature. A method signature looks
-like this:
-    <access-modifier> <type> <name> (<parameters>)
-For example:
-    private int getAnswer(String question)
-
-Invalid qualified constructor name.
-No help available.
-
-* can't be declared both abstract and final.
-You cannot declare an abstract class "final".
-Think about it: It doesn't make sense! An
-abstract class is only useful if another class 
-extends it. But if a class if final, you cannot 
-extend it. So a final abstract class would be 
-useless!
-
-Array of void is not a valid type.
-You cannot use "void" as the base type of
-an array. The array element type has to be 
-a valid type.
-
-Argument can't have type void: *
-"void" is not a real type. It is used for methods
-to indicate that they do not return anything.
-Arguments (also called parameters) must have a
-proper type.
-
-Invalid expression statement.
-Oh wow - something is wrong here!
-(Sorry that I can't be more specific -
-just read this line carefully and
-you might work out what's wrong. If
-not, ask a guru.)
-
-catch not reached.
-This catch statement is useless. It can
-never be executed, because all exceptions
-that it is declared to catch are already 
-caught by another catch statement above it.
-
-Statement not reached.
+error writing source; cannot overwrite input file *
+No help available
+
+'try' without 'catch' or 'finally'
+If you use a "try" block, then it must be followed
+by either a "catch" block or a "finally" block (or
+both).  The correct pattern is
+   try {
+      statements;
+   }
+   catch(Exception e) {
+     statements;
+   }
+   finally {
+      statements;
+   }
+
+* does not take parameters
+No help available
+
+type variables cannot be dereferenced
+No help available
+
+type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
+No help available
+
+type variable {0} occurs more than once in type of {1}; cannot be left uninstantiated
+No help available
+
+unclosed character literal
+It is likely that you have declared a character literal and
+not added the closing single quote: '.
+
+unclosed comment
+It is likely that you have written a comment and not
+closed it with the comment close characters: */
+
+unclosed string literal
+It is likely that you have declared a String literal and
+not added the closing double quotes: ".
+
+undefined label: *
+The variable you are trying to use here cannot be
+found. Either it was never declared or it was
+declared somewhere where you cannot see it.
+The first case happens easily if you have a
+spelling error in a variable. Check that the variable
+is spelled correctly, including all capital characters
+("aNumber" is not the same as "anumber"!).
+The second case happens if a variable is declared 
+inside a block. (A block is a pair of curly braces, 
+like this { }.) If you have a variable declaration
+inside a loop, for instance, then the variable is
+only visible inside that loop. As a rule of thumb:
+a variable becomes invisible after the curly brace (})
+that closes the block in which it is declared.
+
+unreachable statement
 This statement will never be executed. If
 you examine the code carefully you will
 notice that the control flow is such that 
@@ -1240,223 +548,12 @@ it can never reach this statement. Delete
 it if you really don't want it executed, 
 or fix your code.
 
-Initializer must be able to complete normally.
+initializer must be able to complete normally
 You cannot throw exceptions or otherwise
 terminate static initialiser blocks. You
 have to let it complete executing.
 
-Arithmetic exception.
-Something wrong here with your
-'rithmetic...
-
-* must be defined in a file called *
-A Java class must be defined in a file with
-the same name as the class (plus a ".java"
-suffix). You names don't match.
-
-* Because it is used outside of its source file, it should be defined in a file called *
-A Java class must be defined in a file with
-the same name as the class (plus a ".java"
-suffix). You names don't match.
-
-Possible loss of precision. Use an explicit cast to convert *
-You are assigning a value of one type to a variable
-of another type. The receiving type may not be able
-to store the value properly (it may have to be rounded
-off slightly). If you really want to do this assignment
-indicate this by using an explicit cast. 
-
-* is used twice in the argument list of this method.
-Two of the arguments of this method have the
-same name. Now, that's silly...
-
-* is already defined in this method.
-There is already a variable (or maybe a
-parameter) in this method that has the 
-same name. Use a different name for this
-one. (Or maybe you meant to use the same
-variable here? Then remove the type name
-here so that it does not look like a new
-declaration.)
-
-Local class *
-You have declared the same local class
-twice here. 
-
-* is already defined in this scope.  An inner class may not have the same simple name as any of its enclosing classes.
-That message is very clear, isn't it? If 
-you don't understand it - well, I can't
-explain it any better either...
-
-*, and hides a variable of the same name in *
-This variable use is not clear. There are at least
-two variables with this name, defined in this class,
-inherited from superclasses or in enclosing classes.
-Use "this." in front of this variable name to
-remove the ambiguity or, better still, rename your
-variable.
-
-*, and hides a local variable of the same name. An explicit 'this' qualifier must be used to select the variable, or the local must be renamed.
-This variable use is not clear. There are at least
-two variables with this name, defined in this class,
-inherited from superclasses or in enclosing classes.
-Use "this." in front of this variable name to
-remove the ambiguity or, better still, rename your
-variable.
-
-*, and hides a method of the same name in *
-This method use is not clear. There are at least
-two methods with this name, defined in this class,
-inherited from superclasses or in enclosing classes.
-Use "this." in front of this method name to
-remove the ambiguity or, better still, rename your
-method.
-
-*, and hides a type of the same name in an enclosing scope. An explicit qualifier prefix must be used to name this type.
-This type use is not clear. There are at least
-two types with this name, defined in this class,
-inherited from superclasses or in enclosing classes.
-The best advice would be to rename your types!
-
-* can't be private. Package members are always accessible within the current package.
-The keyword "private" is not allowed here for this
-class definition. Remove the word "private" to allow
-access to this class from other classes in this
-package only, or write "public" instead to allow
-access from all other classes.
-
-* can't be declared static. It is already top-level, since it is a member of a package.
-It does not make sense to declare a class
-static. Remove the "static" keyword.
-
-* can't be made protected. Package members can either be public or local to the current package.
-The keyword "protected" is not allowed here for this
-class definition. Remove the word "protected" to allow
-access to this class from other classes in this
-package only, or write "public" instead to allow
-access from all other classes.
-
-Recursive constructor invocation: *
-You have written code that causes this
-constructor to call itself. That is not
-allowed (and would most likely lead to
-an infinite loop).
-
-* Please remove the file, or make sure it appears in the correct subdirectory of the class path.
-Something is really wrong with your files. If you
-see this in BlueJ, it's time to get worried. BlueJ
-is supposed to handle this properly...
-
-* as expected. Please adjust the class path so that the file does not appear in the *
-There is something wrong with file names, 
-class names and paths. In general, it is
-a good idea to structure your code so that
-every file contains only one class, and the
-file name is the same as the class name
-(with an additional ".java" suffix).
-
-* not found.  Please adjust the classpath so that package *
-This package could not be found. There are two possible
-causes to this problem. Either you just mis-spelled the
-name. Please check the package name (including capitals).
-Or the package is not in the classpath. If it is not a
-standard Java package, and the package is not visible
-in your class diagram, then open the "Preferences" dialog,
-select the "Libraries" tab and add the directory that 
-contains your package to the known library paths.
-
-A type and a package cannot have the same name.  The name *
-Make sure that the class and the package
-have different names. Usually, classes 
-should start with a capital letter, while
-package names start with a lowercase letter.
-
-*refer to a package.  It is illegal for there to be an accessible class named*
-Well, that message says it all, really.
-Choose a different name for that class,
-so that it doesn't have the same name
-as the package.
-
-Invalid name *
-This name is not allowed in
-this context. Choose another
-name.
-
-* is both a class and a package.
-It is not clear what you mean here. There
-is a class with this name, but there is
-also a package with this name. To remove
-this ambiguity, you could use a fully
-qualified class name (That is: a class
-name with all the package names in front.)
-For example: instead of
-        List
-write
-        java.util.List
-
-* in throws clause must be a subclass of class java.lang.Throwable.
-Only objects that inherit from "Throwable"
-can be thrown. Usually, you would throw an
-object of type "Exception" or a subclass
-of "Exception". The class you have named 
-here does not extend "Exception".
-
-Can't throw *
-Only objects that inherit from "Throwable"
-can be thrown. Usually, you would throw an
-object of type "Exception" or a subclass
-of "Exception". The class you have named 
-here does not extend "Exception".
-
-Can't catch *
-Only objects that inherit from "Throwable"
-can be thrown and caught. Usually, you would 
-throw and catch objects of type "Exception" 
-or subclasses of "Exception". The class you 
-have named here does not extend "Exception".
-
-* can't be thrown in initializer.
-You cannot throw exceptions or otherwise
-terminate static initialiser blocks. You
-have to let it complete executing.
-
-Can't read: *
-The file could not be read. It may be
-  - not there
-  - read protected
-  - you may not have the necessary
-    access rights
-  - otherwise in use
-
-Can't write: *
-The file could not be written. Maybe
-you do not have write access in the
-directory? Or your disk is full?
-
-An error has occurred in the compiler; please file a bug report (http://java.sun.com/cgi-bin/bugreport.cgi).
-There is an error in the Java compiler. This
-is not your fault - the compiler is wrong.
-This should not have happened. The developers
-of the compiler would like to know about this
-so that they can improve the compiler. Please
-go to the web site mentioned above and report
-this. Thanks.
-
-An exception has occurred in the compiler; please file a bug report (http://java.sun.com/cgi-bin/bugreport.cgi).
-There is an error in the Java compiler. This
-is not your fault - the compiler is wrong.
-This should not have happened. The developers
-of the compiler would like to know about this
-so that they can improve the compiler. Please
-go to the web site mentioned above and report
-this. Thanks.
-
-Support for inner classes has been disabled.
-This is strange! Support for inner classes should
-not be disabled. Ask someone for help who knowns 
-what she's doing.
-
-* must be caught, or it must be declared in the throws clause of this method.
+unreported exception {0}; must be caught or declared to be thrown
 Your code makes a call to a method that may throw 
 an exception. You have two choices: You can either 
 catch that exception or you can declare that your 
@@ -1476,224 +573,171 @@ declaration
    throws <ExceptionName>
 into the signature of your method.
 
-* must be caught, or it must be declared in the throws clause of this constructor.
-Your code makes a call to a method that may throw 
-an exception. You have two choices: You can either 
-catch that exception or you can declare that your 
-constructor passes it on. If you want to catch the
-exception, you have to use a 
-   try 
-   {
-      ...
-   }
-   catch(...)
-   {
-      ...
-   }
-block.
-If you want to pass it on, you must write the 
-declaration
-   throws <ExceptionName>
-into the signature of your constructor.
+'void' type not allowed here
+The void type cannot be used in this context.  it is
+a special type that is used to indicate no return type 
+for methods.  It cannot be used as a variable type.
 
-A default constructor cannot be created for this class because the constructor of its superclass throws the exception *
-A default constructor is a constructor that has no parameters and throws 
-no exceptions. If you do not specify a constructor in your class, the
-compiler will automatically create a default constructor. BUT: this only 
-works if the superclass also has a default constructor. In your case, the 
-superclass does not have a default constructor. So the default constructor 
-here cannot be created. So you have to write a constructor yourself!
+* not allowed here
+You have used an access modifier (such as "private", 
+"protected", etc.). This modifier is not allowed
+at this location.
 
-* is never thrown in the body of the corresponding try statement.
-You have declared that you want to catch
-an exception here. But I can tell you
-that this exception will never be thrown
-here! There is no statement in the "try"
-block that throws this exception.
+wrong number of type arguments; required *
+No help available
 
-*, as in "outer. new Inner()" or "outer. super()".
-You must name the outer class as well when 
-accessing this inner class (separated by
-a dot) because it cannot be seen otherwise.
+* might already have been assigned to
+A final variable can only be assigned once. (Your variable
+in question here is final.) You have two assignments to this
+variable in your code, and the compiler thinks it could 
+happen that both assignments are executed.
 
-* is in scope; cannot create a default constructor for *
-You should write an explicit constructor
-here, because the default constructor
-cannot be created.
+* might not have been initialized
+You are using a local variable that is not guaranteed
+to be initialised before it is used here. If in doubt,
+initialise it at its declaration.
 
-*, as in "outer.member".
-You must name the outer class as well when 
-accessing this inner class (separated by
-a dot) because it cannot be seen otherwise.
+* might be assigned in loop
+No help available
 
-Member interfaces can only occur in interfaces and top-level classes.
-You are using a member interface here. You 
-can only do that in another interface or
-a top-level class. It is not allowed in
-inner classes.
+error while writing *
+No help available
 
-* can't be static.  Static members can only occur in interfaces and top-level classes.
-You cannot declare static types in
-nested classes. If you need a static
-type here, declare it in the outer class.
+* is public, should be declared in a file named *
+Public classes are required to be located in a file
+named the same as the public class name with a 
+".java" extension.  For example public class Foo
+needs to be located in a file named "Foo.java".
 
-* Only members of interfaces and top-level classes can be static.
-You cannot declare static variables or 
-methods in nested classes. If you need 
-a static variable or method here, declare 
-it in the outer class.
+cannot read: *
+No help available
 
-Too many errors.  (The limit on reported errors is *
-Oh boy. This code is so screwed up - I give
-up. Fix some other bugs first, then I'll tell
-you more.
+Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
+No help available
 
-* cannot override the static method of the same signature declared in *
-You are declaring a method here. There is a
-method with the same signature (that is: the
-same name and parameters) in a superclass.
-So, you are trying to redefine the method
-here. The problem is: the method in the 
-superclass is declared "static". Static
-methods cannot be redefined. 
-If you did not intend to redefine a method,
-just change the method name. If you did want 
-to redefine, make the static method in the
-superclass an instance method.
+Fatal Error: Unable to locate method *
+No help available
 
-* cannot hide the instance method of the same signature declared in *
-You are declaring a static method here. There is a
-method with the same signature (that is: the same 
-name and parameters) in a superclass. So, you are 
-trying to redefine the method here. The problem is: 
-your method is declared "static". Static methods 
-cannot redefine instance methods. 
-If you did not intend to redefine a method,
-just change the method name. If you did want 
-to redefine, remove the "static" keyword.
+* uses or overrides a deprecated API.
+You are using a method that is no longer recommended.
+It is quite likely that there is another method or class 
+that provides this functionality.  Consult the API 
+documentation for more details
 
-* cannot override the final method of the same signature declared in *
-You are declaring a method here. There is a
-method with the same signature (that is: the
-same name and parameters) in a superclass.
-So, you are trying to redefine the method
-here. The problem is: the method in the 
-superclass is declared "final". Final
-methods cannot be redefined. 
-If you did not intend to redefine a method,
-just change the method name. If you did want 
-to redefine, remove the "final" keyword in the
-superclass.
+Some input files use or override a deprecated API.
+No help available
 
-* is not deprecated, but overrides a deprecated method of the same signature declared in *
-You are declaring a method here. There is a method 
-with the same signature (that is: the same name and 
-parameters) in a superclass. So, you are trying to 
-redefine the method here. The problem is: the 
-method in the superclass is declared "deprecated". 
-Deprecated methods cannot be redefined. If you did 
-not intend to redefine a method, just change the 
-method name. If you did want to redefine, declare 
-your method "deprecated" as well.
+Recompile with -deprecation for details.
+No help available
 
-* The access modifier is made more restrictive.
-You are declaring a method here. There is a method 
-with the same signature (that is: the same name and 
-parameters) in a superclass. So, you are trying to 
-redefine the method here. The problem is: the 
-method in the superclass has a more generous access
-modifier than yours (for example, it is public, 
-yours is protected, or it is protected, yours is
-private). You cannot make the access modifier more
-restrictive in a redefinition. If you did not 
-intend to redefine a method, just change the 
-method name. If you did want to redefine, use the 
-same (or a more generous) access modifier than the
-original.
+* uses unchecked operations.
+No help available
 
-* They must have the same return type.
-You are declaring a method here. There is a method 
-with the same signature (that is: the same name and 
-parameters) in a superclass. So, you are trying to 
-redefine the method here. The problem is: the 
-method in the superclass has a different return
-type than yours. You cannot change the return type
-in a redefinition. If you did not intend to redefine 
-a method, just change the method name. If you did 
-want to redefine, use the same return type.
+Some input files use unchecked operations.
+No help available
 
-* Their throws clauses are incompatible.
-You are declaring a method here. There is a method 
-with the same signature (that is: the same name and 
-parameters) in a superclass. So, you are trying to 
-redefine the method here. The problem is: the 
-method in the superclass has a different "throws"
-definition. You cannot arbitrarily change the throws
-clause in a redefined method. You must, either
-    - throw the same exceptions, or
-    - throw fewer exceptions, or
-    - throw exceptions that are subclasses of those
-      thrown in the superclass
+* has been deprecated
+You are using a method that is no longer recommended.
+It is quite likely that there is another method or class 
+that provides this functionality.  Consult the API 
+documentation for more details
 
-* is incompatible with the method of the same signature inherited from *
-You are inheriting two methods here from two different
-classes or interfaces with the same signature (that is: 
-the same name and parameters). The problem is: they
-have different return types. You cannot inherit both of
-them. If you can change the method names in the 
-superclass or interface, do that. Otherwise you cannot
-inherit from both.
+unchecked assignment: *
+No help available
 
-* are compatible, but the combination of them is nontrivial and has not been implemented.  As a workaround, declare *
-Sorry.
+unchecked call to {0} as a member of the raw type {1}
+No help available
 
-This code requires generating a method with more than 64K bytes.  Virtual machines may refuse the resulting class file.
-Leaving this code like this is not a good idea.
-It may not run on all platforms. Try breaking up
-the method into smaller parts.
+unchecked cast to type *
+No help available
 
-The major version *
-There is a versioning problem. The best 
-thing to do is to go to the "Tools" menu 
-in the main window and select "Rebuild 
-Package".
+unchecked generic array creation
+No help available
 
-The major.minor version *
-There is a versioning problem. The best 
-thing to do is to go to the "Tools" menu 
-in the main window and select "Rebuild 
-Package".
+unchecked method invocation: *
+No help available
 
-* already defined in *
-You are trying to define two classes with the same
-name. A class with the same name as the class
-highlighted here is already defined elsewhere.
+';' expected
+There is a semicolon missing at the end of 
+a line. This could be the line marked in the
+editor, or the line above.
 
-* not supported.
-You have used a construct that is not supported by
-Java or this compiler.
+'case', 'default' or '}' expected
+No help available
 
-* repeated.
-You have listed the same interface
-twice in the same "implements"
-declaration. Once is enough. My
-memory isn't that bad!
+'class' or 'interface' expected
+The word "class" or "interface" is expected to
+appear somewhere near the top of a source file.
+This is missing here (or there is stuff in front
+of it that doesn't belong there).
 
-Superclass *
-The declared superclass (the class named after
-the "extends" keyword) does not seem to exist.
-A typing error maybe?
+'.class' expected
+No help available
 
-Interface *
-The listed interface (named after the 
-"implements" keyword) does not seem to 
-exist. A typing error maybe?
+'(' or '[' expected
+It looks like there is an uneven number of brackets
+in your code that is confusing the compiler.  Carefully
+check through your code that three are matching opening 
+and closing brackets.
 
-* not found.
-A class with this name does not exist. 
-Check the name you typed - do you maybe
-have a spelling error in the name? Note
-also capital letters - all capitals must
-be exactly as in the specified class 
-name.
+* expected
+The symbol named in the error message was 
+expected to appear at this point in the code.
+It was not there; instead, there was some
+other symbol. Try to think about why this 
+symbol may be expected here.
 
+orphaned *
+No help available
+
+cannot access *
+No help available
+
+bad class file: *
+No help available
+
+type parameter {0} is not within its bound *
+No help available
+
+incompatible types*
+There was an expression of a certain type required
+here. You provided an expression of a different
+type that is not compatible. (E.g. you wrote a
+String where an int was expected.)
+
+inconvertible types*
+The type you have used here cannot be automatically
+converted to the type required.
+
+possible loss of precision
+No help available
+
+unexpected type
+No help available
+
+abstract {0} {1} cannot be accessed directly
+No help available
+
+*An explicit 'this' qualifier must be used to select the desired instance.
+No help available
+
+non-static {0} {1} cannot be referenced from a static context
+No help available
+
+cannot resolve symbol*
+No help available
+
+{0}; {1} and {2} are static
+No help available
+
+{0}; overridden method is {1}
+No help available
+
+attempting to assign weaker access privileges; was *
+No help available
+
+overridden method does not throw *
+No help available
+
+* attempting to use incompatible return type
+No help available
