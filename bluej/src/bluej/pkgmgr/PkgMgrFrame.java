@@ -30,7 +30,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2260 2003-11-04 18:40:38Z mik $
+ * @version $Id: PkgMgrFrame.java 2267 2003-11-05 11:25:24Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -764,9 +764,9 @@ public class PkgMgrFrame extends JFrame
             Project proj = Project.openProject(newname);
 
             if(isEmptyFrame()) {
-                openPackage(proj.getWizardPackage(""));
+                openPackage(proj.getOrCreatePackageTree(""));
             } else {
-                PkgMgrFrame pmf = createFrame(proj.getWizardPackage(""));
+                PkgMgrFrame pmf = createFrame(proj.getOrCreatePackageTree(""));
                 DialogManager.tileWindow(pmf, this);
                 pmf.show();
             }
@@ -798,7 +798,7 @@ public class PkgMgrFrame extends JFrame
         if(openProj == null)
             return false;
         else {
-            Package pkg = openProj.getWizardPackage(openProj.getInitialPackageName());
+            Package pkg = openProj.getOrCreatePackageTree(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
 
@@ -905,7 +905,7 @@ public class PkgMgrFrame extends JFrame
             }
 
             // now lets display the new project in a frame
-            Package pkg = openProj.getWizardPackage(openProj.getInitialPackageName());
+            Package pkg = openProj.getOrCreatePackageTree(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
 
@@ -1329,7 +1329,7 @@ public class PkgMgrFrame extends JFrame
     private void openPackageTarget(String newname)
     {
         PkgMgrFrame pmf;
-        Package p = getPackage().getProject().getWizardPackage(newname);
+        Package p = getPackage().getProject().getOrCreatePackageTree(newname);
 
         if ((pmf = findFrame(p)) == null) {
             pmf = createFrame(p);
@@ -1488,42 +1488,11 @@ public class PkgMgrFrame extends JFrame
 			}
 		}
 
-        // construct the directory name for the new package
-        StringTokenizer st = new StringTokenizer(fullName, ".");
-        File newPkgDir = getProject().getProjectDir();
-
-        while(st.hasMoreTokens()) {
-            newPkgDir = new File(newPkgDir, (String)st.nextToken());
-        }
-
-        // now actually construct the directories and add the bluej
-        // package marker files
-        if (newPkgDir.isDirectory() || newPkgDir.mkdirs()) {
-            st = new StringTokenizer(fullName, ".");
-            newPkgDir = getProject().getProjectDir();
-            File newPkgFile = new File(newPkgDir, Package.pkgfileName);
-
-            try {
-                newPkgFile.createNewFile();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-
-            while(st.hasMoreTokens()) {
-                newPkgDir = new File(newPkgDir, (String)st.nextToken());
-                newPkgFile = new File(newPkgDir, Package.pkgfileName);
-
-                try {
-                    newPkgFile.createNewFile();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
-        }
-
+    getProject().createPackageDirectory (fullName);
+    
         // check that everything has gone well and instruct all affected
         // packages to reload (to make them notice the new sub packages)
-        Package newPackage = getProject().getWizardPackage(fullName);
+        Package newPackage = getProject().getOrCreatePackageTree(fullName);
 
         if (newPackage == null) {
             Debug.reportError("creation of new package failed unexpectedly");
@@ -1534,7 +1503,6 @@ public class PkgMgrFrame extends JFrame
             newPackage = newPackage.getParent();
         }
     }
-
 
 
     public void doRemove(){
