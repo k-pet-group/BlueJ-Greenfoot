@@ -8,7 +8,7 @@ import java.util.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: JavaNames.java 2359 2003-11-18 03:43:03Z ajp $
  */
 public class JavaNames
 {
@@ -19,10 +19,10 @@ public class JavaNames
     {
         if (str.length() == 0)
             return false;
-        if (!Character.isJavaIdentifierStart(str.charAt(0)))
+        if (!Character.isUnicodeIdentifierStart(str.charAt(0)))
             return false;
         for (int i=1; i < str.length(); i++)
-            if (! Character.isJavaIdentifierPart(str.charAt(i)))
+            if (! Character.isUnicodeIdentifierPart(str.charAt(i)))
                 return false;
 
         return true;
