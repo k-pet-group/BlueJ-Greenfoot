@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1869 2003-04-21 11:04:44Z damiano $
+ * @version $Id: BMethod.java 1904 2003-04-27 17:12:42Z iau $
  */
 
 /*
@@ -100,7 +100,8 @@ public class BMethod
         }
     
     /**
-     * Returns the modifiers of this method.
+     * Returns the modifiers for this method.
+     * The <code>java.lang.reflect.Modifier</code> class can be used to decode the modifiers.
      */
     public int getModifiers()
         {

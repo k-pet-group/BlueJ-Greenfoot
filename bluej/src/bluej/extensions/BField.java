@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1869 2003-04-21 11:04:44Z damiano $
+ * @version $Id: BField.java 1904 2003-04-27 17:12:42Z iau $
  */
 
 /*
@@ -69,7 +69,8 @@ public class BField
         }
 
     /**
-     * Returns the modifiers of this field
+     * Returns the modifiers of this field.
+     * The <code>java.lang.reflect.Modifier</code> class can be used to decode the modifiers.
      * Similar to reflection API
      */
     public int getModifiers ()

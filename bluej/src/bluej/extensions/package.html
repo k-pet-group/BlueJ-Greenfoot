@@ -17,7 +17,8 @@ a similar way to the <code>java.lang.reflect</code> classes.
 </P> 
 
 <H2>A simple extension</H2>
-<P>The following example implements an extension which logs BlueJ behaviour 
+<P>The following example implements an extension which logs the name of every
+BlueJ project opened by the user 
 to <code>System.out</code>. Once it is installed you should see an entry in 
 the "Installed Extensions" panel of the BlueJ help menu.</P>
 
@@ -59,27 +60,42 @@ name of the Main-Class to be run on the jar file.</P>
 import bluej.extensions.*;
 import bluej.extensions.event.*;
 
+import javax.swing.*;
+import java.awt.event.*;
+
 import java.net.URL;
 
 /**
  * This is the starting point of a BlueJ Extension
  */
-public class SimpleExtension extends Extension implements ExtensionEventListener
+public class SimpleExtension extends Extension implements PackageListener
   {
   /**
    * When this method is called, the extension may start its work.
    */
   public void startup (BlueJ bluej) {
-    bluej.addExtensionEventListener(this);
-    }
+    ExtensionMenu myMenu = new ExtensionMenu();
+    bluej.setMenuGenerator(myMenu);
+    
+    Preferences myPreferences = new Preferences(bluej);
+    bluej.setPreferenceGenerator(myPreferences);
+
+    bluej.addPackageListener(this);
+  }
 
   /** 
-   * Something has happened in BlueJ
-   * Simply display the contents of the event on the console.
+   * A package has been opened. 
+   * Print the name of the project it is part of.
    */
-  public void eventOccurred ( ExtensionEvent ev ) {
-    System.out.println ("Event="+ev.toString());
-    }  
+  public void packageOpened ( PackageEvent ev ) {
+    System.out.println ("Project " + ev.getPackage().getProject().getName() + " opened.");
+  }  
+  
+  /** 
+   * A package is closing.
+   */
+  public void packageClosing ( PackageEvent ev ) {
+  }  
     
   /**
    * This method must decide if this Extension is compatible with the 
@@ -87,25 +103,25 @@ public class SimpleExtension extends Extension implements ExtensionEventListener
    */
   public boolean isCompatible () { 
     return true; 
-    }
+  }
 
   /**
    * Returns the version number of this extension
    */
   public String  getVersion () { 
     return ("2003.03");  
-    }
-
+  }
+  
   /**
-   * Returs to the system the name of this extension
+   * Returns the user-visible name of this extension
    */
-  public String  getName () { 
-    return ("Nice Extension");  
-    }
+  public String getName() {
+    return("Simple Extension");
+  }
 
   public String getDescription () {
     return ("A simple extension");
-    }
+  }
 
   /**
    * Returns a URL where you can find info on this extension.
@@ -114,13 +130,13 @@ public class SimpleExtension extends Extension implements ExtensionEventListener
   public URL getURL () {
     try {
       return new URL("http://www.cs.ukc.ac.uk/projects/bluej/");
-      }
+    }
     catch ( Exception eee ) {
       // There is no reason at all that this should throw exception...
       System.out.println ("SimpleExtension: getURL: Exception="+eee.getMessage());
       return null;
-      }
     }
+  }
 }
 </PRE>
 

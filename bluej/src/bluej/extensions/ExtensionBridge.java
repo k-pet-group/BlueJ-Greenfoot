@@ -7,29 +7,12 @@ import bluej.pkgmgr.Package;
 import com.sun.jdi.*;
 
 /*
- * This class is here to bridge methods call between packages that should not
- * be javadoc visible. Whan javadoc will allow to hide public method then this calass
- * can go away.
- * You can use this ant script to document all BUT this class.
- * 
- * 
-        <mkdir dir="${extdoc}"/>
-        <javadoc destdir="${extdoc}"
-            packagenames="bluej.extensions.event"
-            sourcepath="${src}"
-
-            Windowtitle="BlueJ Extensions API"
-            Doctitle="BlueJ Extensions API"
-            bottom="&lt;a href=//www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;">
-
-            <fileset dir="src" defaultexcludes="yes">
-              <include name="bluej/extensions/*.java" />
-              <exclude name="bluej/extensions/ExtensionBridge.java"/>
-            </fileset>
-            <classpath refid="bluej.class.path"/>
-       </javadoc>
-
- 
+ * This class acts as a bridge between the extensions package and other 
+ * BlueJ-internal packages (extmgr) to provide access to methods which
+ * shouldn't be documented in the Extensions API Javadoc. By using this class, 
+ * those methods can be made package-local.
+ *
+ * This class should be excluded when the Javadoc API documentation is generated.
  */
 
 

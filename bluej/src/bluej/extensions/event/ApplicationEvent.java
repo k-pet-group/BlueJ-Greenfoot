@@ -1,9 +1,9 @@
 package bluej.extensions.event;
 
 /**
- * This class reports application event.
+ * This class encapsulates BlueJ application events.
  * 
- * @version $Id: ApplicationEvent.java 1889 2003-04-25 09:28:26Z damiano $
+ * @version $Id: ApplicationEvent.java 1904 2003-04-27 17:12:42Z iau $
  */
 
  /*
@@ -13,9 +13,7 @@ package bluej.extensions.event;
 public class ApplicationEvent implements ExtensionEvent 
   {
   /**
-   * This event will be sent to the Extension when BlueJ is ready.
-   * warning: If you load the extension with a Project you will not get this event since
-   * BlueJ has already completed its initialization when the project is loaded.
+   * Event generated when the BlueJ application is initialised and ready.
    */
   public static final int APP_READY_EVENT=1;
 

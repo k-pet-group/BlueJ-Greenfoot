@@ -6,16 +6,9 @@ import java.io.File;
  * This class encapsulates compiler events.
  * It allows an extension writer to know when a compilation starts and
  * finishes, whether it succeeds or fails, and what warnings or errors are 
- * generated. The order of occurence of the various types of this event is:
- * <pre>
- *     COMPILATION_START_EVENT
- *     COMPILE_ERROR_EVENT                        # If a compilation error occurs
- *     COMPILE_WARNING_EVENT                      # If a compilation warning occurs
- *     COMPILE_FAILED_EVENT or COMPILE_DONE_EVENT
- * </pre>
- * Note that currently BlueJ only reports the first compilation error or warning.
+ * generated.
  * 
- * @version $Id: CompileEvent.java 1885 2003-04-25 08:53:48Z damiano $
+ * @version $Id: CompileEvent.java 1904 2003-04-27 17:12:42Z iau $
  */
 
 /*
@@ -24,7 +17,7 @@ import java.io.File;
 public class CompileEvent implements ExtensionEvent 
 {
   /**
-   * Event generated when compilation begins
+   * Event generated when compilation begins.
    */
   public static final int COMPILE_START_EVENT=1;
 

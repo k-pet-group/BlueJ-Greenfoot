@@ -16,7 +16,7 @@ import com.sun.jdi.*;
  * From this event you can extract the actual result of the invocation, and access the BlueJ
  * classes and objects involved.
  * 
- * @version $Id: InvocationEvent.java 1888 2003-04-25 09:09:16Z damiano $
+ * @version $Id: InvocationEvent.java 1904 2003-04-27 17:12:42Z iau $
  */
 
 /*
@@ -76,7 +76,7 @@ public class InvocationEvent implements ExtensionEvent
       }
      
     /**
-     * Returns the invocation status.
+     * Returns the invocation status. One of the values listed above.
      */
     public int getInvocationStatus()
       {
