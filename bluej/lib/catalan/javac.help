@@ -1,0 +1,783 @@
+as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
+La paraula 'assert' és ara part del llenguatge Java
+i té un significat especial (és una paraula reservada). 
+No es pot utilitzar per anomenar variables ni mètodes. 
+Escolliu, si us plau, un altre nom. 
+
+qualified new of static class
+No hi ha ajuda disponible.
+
+* is abstract; cannot be instantiated
+La classe és del tipus 'abstract'. Això implica
+que conté alguns mètodes pels quals no proporciona
+una implementació ('mètodes abstractes'). No es poden
+crear objectes de classes abstractes. Es necessita 
+trobar o escriure una subclasse de la classe abstracta
+que implementi tots els mètodes abstractes. Podreu crear,
+llavors, objectes d'aquesta nova classe. 
+
+abstract methods cannot have a body
+Heu declarat un mètode 'abstract' i heu escrit un cos
+del mètode. Això és una contradicció. Les declaracions 
+de mètodes abstractes tenen només un encapçalament de mètode,
+seguit per un punt i coma. O traieu la paraula clau
+'abstract', o traieu el cos del mètode. 
+
+* is already defined in *
+Ja hi ha una variable (o potser un paràmetre)
+en aquest mètode que té el mateix nom.
+Utilitzeu un nom diferent. 
+(Si voleu utilitzar la mateixa variable
+aquí, llavors traieu el tipus, perquè no
+aparegui com una nova declaració.) 
+
+anonymous class implements interface; cannot have arguments
+No hi ha ajuda disponible.
+
+anonymous class implements interface; cannot have qualifier for new
+No hi ha ajuda disponible.
+
+array required, but *
+Utilitzeu una sintaxi que suggereix que intenteu 
+accedir a un element d’una matriu. La variable que 
+indiqueu no és una matriu. 
+
+break outside switch or loop
+La instrucció 'break' apareix fora d'un bloc 
+com seria el cas de una instrucció 'switch' 
+o un bucle ('for', 'while' o 'do'). No es pot 
+utilitzar fora d’un d’aquests blocs.
+
+* must be first statement in constructor
+La primera cosa que cal fer en cada classe que té
+una superclasse és cridar al constructor de la 
+superclasse. Podeu fer-ho afegint 
+   super(...);
+com a primera línia del seu constructor 
+(on heu de reemplaçar els punts amb els paràmetres 
+apropiats). Utilitzar membres d’una superclasse 
+abans de cridar al constructor pot causar problemes! 
+
+cannot access *
+No hi ha ajuda disponible.
+
+cannot assign a value to final variable *
+Heu intentat assignar un valor a una variable 
+declarada 'final'. Això significa que no es permet
+modificar el seu valor posteriorment. Si necessiteu
+modificar-lo, elimineu la paraula clau 
+'final' de la seva declaració.
+
+type variables cannot be dereferenced
+No es pot utilitzar la notació amb punt '.' per 
+accedir als camps o mètodes de variables 'type'.
+
+* cannot be dereferenced
+Esteu utilitzant la notació '.' per accedir a un camp 
+o mètode d'un altre objecte. No obstant això, la variable 
+que utilitzeu no és un objecte 'type' - no conté 
+camps ni mètodes.
+
+cannot inherit from final *
+La superclasse (la classe que apareix 
+després de la paraula clau 'extends') està 
+declarada com a final. Això implica que 
+prohibeix de forma explícita que es creïn subclasses.
+
+* before supertype constructor has been called
+La primera cosa que cal fer en cada classe que té
+una superclasse és cridar al constructor de la 
+superclasse. Podeu fer-ho afegint 
+   super(...);
+com a primera línia del seu constructor (on heu 
+de reemplaçar els punts amb els paràmetres apropiats). 
+Utilitzar membres d’una superclasse abans de cridar 
+al constructor pot causar problemes! 
+
+cannot return a value from method whose result type is void
+Que un mètode sigui de tipus 'void' indica que no torna 
+cap resultat. En el cos del mètode no pot haver-hi cap 
+instrucció que retorni un valor.
+
+cannot select a static class from a parameterized type
+No hi ha ajuda disponible.
+
+* cannot be inherited with different arguments:*
+No hi ha ajuda disponible.
+
+'catch' without 'try'
+'catch' és una paraula clau del Java que només pot aparèixer 
+després d’un bloc 'try'. La sintaxi correcta és
+   try {
+      instruccions;
+   }
+   catch(Exception e) {
+     instruccions;
+   }
+
+* clashes with package of same name
+Comproveu que la classe i el paquet tenen 
+noms diferents. Habitualment la primera 
+lletra de les classes és majúscula i la 
+dels paquets minúscula.
+
+code too large for try statement
+El codi inclòs dins de la instrucció 'try' és 
+massa llarg. Poseu el codi en mètodes separats i 
+crideu-los des d’aquí. 
+
+constant expression required
+És incorrecte utilitzar una variable o una expressió 
+en aquesta posició. Només es poden utilitzar constants. 
+Una constant és un nombre (per exemple, 42) o 
+identificadors declarats 'final'.
+
+continue outside of loop
+La instrucció 'continue' és utilitzada 
+per executar, de forma immediata l’inici 
+de la iteració següent. No té cap significat 
+fora d’un bucle. Només es pot utilitzar dins 
+d’un bucle 'for', 'while' o 'do'.
+
+cyclic inheritance involving *
+Esteu intentant estendre aquesta classe 
+a partir d’una altra que ja és una extensió 
+de la vostra. Aquesta situació no pot funcionar! 
+Heu de decidir quina serà la superclasse i 
+quina la subclasse.
+
+* does not exist
+El nom que utilitzeu aquí (que podria ser 
+una temptativa de denominar una variable, una
+classe o un paquet) no existeix. No hi ha cap 
+variable, classe o paquet amb aquest nom. 
+
+duplicate class:*
+Ja hi ha una classe amb aquest nom.
+
+duplicate case label
+Heu utilitzat la mateixa etiqueta dues 
+vegades a la mateixa instrucció 'switch'.
+
+duplicate default label
+Heu escrit dues vegades 'default' a la mateixa 
+instrucció 'switch'.  No és possible fer-ho, 
+una vegada és suficient. 
+
+'else' without 'if'
+La paraula clau 'else' només pot aparèixer com a part 
+d’una instrucció 'if', amb la sintaxi següent 
+   if (condició)
+     instrucció;
+   else
+     instrucció;
+Potser heu oblidat les claus '{}' al voltant de les 
+instruccions? Si teniu més d'una instrucció després de 
+l'if, heu d’afegir les claus:
+   if (condició) 
+   {
+      instrucció1;
+      instrucció2;
+   }
+   else
+   {
+      instrucció3;
+   }
+
+empty character literal
+Heu escrit un caràcter buit. No es pot escriure ’’.  
+Una constant caràcter és un únic caràcter entre cometes 
+simples, per exemple 'a’. Habitualment hi ha només un 
+caràcter entre les cometes. L’única excepció és quan el 
+primer caràcter és la barra invertida '\' (anomenada caràcter 
+'escape') per especificar caràcters especials com \n o \t.
+
+* has already been caught
+Aquesta instrucció 'catch' és inútil. 
+No es pot executar mai, perquè totes les excepcions
+que es declaren per capturar ja són capturades
+per una altra declaració 'catch' prèvia.
+ 
+* is never thrown in body of corresponding try statement
+Heu declarat que voleu capturar una 
+excepció aquí, però podeu tenir la seguretat
+que aquesta excepció no s'activarà mai aquí! 
+No hi ha cap instrucció en el bloc 'try' que 
+activi aquesta excepció. 
+
+'finally' without 'try'
+'finally' és una paraula clau del Java que només pot 
+aparèixer després d’un bloc 'try'. El format correcte és:
+try {
+      instruccions;
+   }
+   catch(Exception e) {
+      instruccions;
+   }
+   finally {
+      instruccions;
+   }
+
+floating point number too large
+El sistema no pot treballar amb nombres 
+de coma flotant tan grans. 
+
+floating point number too small
+El sistema no pot treballar amb nombres
+de coma flotant tan petits.
+
+inner classes cannot have static declarations
+No es pot declarar tipus 'static' en 
+classes niades. Si necessiteu un tipus 
+'static' aquí, feu la declaració en la 
+classe més exterior.
+
+illegal character:*
+Hi ha un caràcter il·legal a l'arxiu font. 
+Aquest caràcter pot ser invisible. 
+Si no el trobeu per esborrar-lo, esborreu 
+la línia sencera i teclegeu-la novament. 
+
+illegal combination of modifiers: *
+Heu intentat combinar dos 'modificadors' del Java que 
+no es poden utilitzar conjuntament. És probable que 
+el significat de cada modificador sigui contradictori 
+amb l'altre. Un exemple d'això seria definir un mètode 
+com 'abstract' i 'native', 'final', 'private' o 'synchronized'.
+
+illegal escape character
+Un caràcter d’escapament s'escriu amb una barra 
+invertida '\' i un segon caràcter, per exemple '\n'. 
+Això s'utilitza per especificar els caràcters especials. 
+Hi ha només un conjunt fix de caràcters
+que pot aparèixer després del \. Són \n,\ t, \b, 
+\r, \f , \', \' i números. Si voleu escriure el mateix 
+caràcter, heu d’escriure \\  - això serà reemplaçat per 
+una sola \ en la vostra cadena. 
+
+illegal forward reference
+No hi ha ajuda disponible.
+
+illegal initializer for *
+No hi ha ajuda disponible.
+
+illegal line end in character literal
+S’ha trobat un salt de línia quan s’esperava un caràcter. 
+No es pot fer. Si voleu especificar el caràcter per a 
+un salt de línia, heu d’escriure com '\n'. 
+ 
+illegal qualifier; {0} is not an inner class
+No hi ha ajuda disponible.
+
+illegal start of expression
+No hi ha ajuda disponible.
+
+illegal start of type
+En una posició del codi font on s’esperava 
+el nom d'un tipus, hi havia un altre paràmetre 
+(probablement una paraula clau del Java). 
+Verifiqueu aquesta línia per trobar 
+definicions incorrectes de tipus. 
+
+illegal unicode escape
+No hi ha ajuda disponible.
+
+improperly formed type, some parameters are missing
+No hi ha ajuda disponible.
+
+incomparable types: *
+No hi ha ajuda disponible.
+
+integer number too large: *
+Heu escrit un número que és massa gran per ser 
+emmagatzemat en el tipus de dada que s'espera aquí. 
+Necessiteu utilitzar un tipus de dades amb més capacitat 
+(per exemple, 'long' en lloc de 'int'). 
+ 
+internal error; cannot instantiate *
+No hi ha ajuda disponible.
+
+* but with different return type
+És possible que estigueu intentant combinar dos mètodes 
+que tenen la mateixa definició de capçalera excepte el tipus de dada 
+retornada. Això no està permès. Probablement, això succeeix 
+perquè la seva classe implementa dos 'interface'. 
+Cada 'interface' té un mètode amb el mateix nom i paràmetres, 
+però diferent tipus de dades retornades. No podeu implementar 
+els dos 'interfaces' llevat que en canvieu. O canvieu el 
+nom d’aquest mètode, o unifiqueu el tipus de dades retornades. 
+
+interface expected here
+Un 'interface' pot només estendre un altre 'interface'. 
+El nom que heu especificat després de la paraula clau 
+'extends' no és un 'interface'. 
+
+interface methods cannot have body
+Els mètodes 'interface' han de ser només 
+declaratius. Això significa  que han de contenir 
+un encapçalament seguit per un punt i coma. 
+No hi ha d'haver el cos dins del mètode. 
+
+hexadecimal numbers must contain at least one hexadecimal digit
+Heu especificat un número hexadecimal (això és fa 
+començant el número amb '0X') En nombres hexadecimals, 
+heu d’escriure almenys un dígit després de la 'X'. 
+
+invalid method declaration; return type required
+Una declaració d’un mètode ha de tenir especificat 
+el tipus de dada retornat. Per exemple, si el mètode 
+retorna un String, cal escriure: 
+  public String myMethod();   
+Si no voleu que el mètode retorni cap valor, utilitzeu 
+la paraula especial 'void' per indicar-ho. Per exemple:
+   public void myMethod();
+
+* already in use
+Ja hi ha una variable (o potser un paràmetre) 
+en aquest mètode que té el mateix nom. 
+Utilitzeu un nom diferent (O si voleu 
+utilitzar la mateixa variable,
+traieu el nom del tipus perquè no s’interpreti
+com a una nova declaració).
+
+* is accessed from within inner class; needs to be declared final
+Les variables locals no poden ser accedides usualment
+per les classes internes. Però això és exactament 
+el que intenteu fer aquí. Teniu dues opcions: treure 
+aquest accés a la variable local, o modificar la variable
+com a 'final', llavors podreu accedir a la variable. 
+ 
+malformed floating point literal
+Heu comès algun error al escriure un número amb 
+coma flotant (un número amb coma flotant té una 
+coma per delimitar la part decimal.) 
+Exemples de números amb coma flotant escrits correctament són:
+18.0      18.     1.8e1     .18E2
+
+
+missing method body, or declare abstract
+Els mètodes han de tenir un cos o han de ser 
+declarats com a 'abstract'. El cos d’un mètode 
+és el bloc contingut entre claus { } que segueix 
+el capçal del mètode i conté les instruccions. 
+Si un mètode no té un cos, ha d’incloure la paraula 
+clau 'abstract' a la capçalera. Per exemple:
+public abstract int getAnswer();
+
+missing return statement
+En aquest mètode s’ha declarat que torna un valor. No hi ha, 
+no obstant, cap instrucció 'return’ en el cos del mètode. 
+Això és contradictori. Teniu dues possibilitats:
+   - Declareu el valor tornat pel mètode com a 'void' 
+     si no voleu tornar cap valor.
+   - Escriviu una instrucció 'return' amb el tipus correcte
+     de valor retornat al final del mètode, per exemple,
+        return 42;
+El tipus del valor retornat ha de coincidir amb el 
+tipus declarat a la capçalera del mètode. 
+
+missing return value
+En aquest mètode s'ha escrit una instrucció 'return' 
+que no torna cap valor. La capçalera del mètode, 
+no obstant, declara que aquest mètode torna un valor. 
+Teniu dues possibilitats: que aquest mètode no torni 
+cap valor (utilitzant 'void' com a tipus retornat en 
+l'encapçalament del mètode), o retornar un valor que 
+sigui del tipus correcte, per exemple,
+    return 42; 
+o 
+    return 'Marvin';
+
+name clash: *
+S’han definit dos mètodes amb el mateix nom. Això només 
+és possible si un sobreescriu l'altre 
+(que no és actualment el cas). 
+Un dels dos noms s'ha de canviar. 
+
+* is reserved for internal use
+El terme utilitzat està reservat per a ús intern. 
+Si és el nom d'una variable o d’una classe, 
+serà necessari canviar-lo. 
+
+native methods cannot have a body
+Heu declarat el mètode com a 'native' i heu escrit 
+un cos per al mètode. Els mètodes declarats com a natius 
+només tenen una capçalera seguida per un punt i coma. 
+O traieu la paraula clau 'native', o traieu el cos del mètode. 
+
+no enclosing instance of type {0} is in scope
+No hi ha ajuda disponible.
+
+no interface expected here
+Esteu fent referència aquí a un 'interface' 
+(possiblement en una declaració 'extends'  d'una classe). 
+Una classe només pot estendres a altres classes (no 'interfaces’). 
+Si voleu implementar aquest 'interface’, utilitzeu 
+la paraula clau 'implements'. 
+
+
+{0} has no match in entry in {1}; required {2}
+No hi ha ajuda disponible.
+
+* is not defined in a public class or interface; cannot be accessed from outside package
+No hi ha ajuda disponible.
+
+* cannot be accessed from outside package
+La classe que intenteu utilitzar no és una classe pública. 
+És a dir: la definició de la classe no comença amb 
+   public class...
+Si una classe no és pública, no es 
+pot utilitzar des de fora del seu paquet. 
+Si necessiteu realment utilitzar la classe, heu de 
+canviar-ne la definició per fer-la pública. 
+
+not a loop label: *
+Les etiquetes que s’utilitzen per a operacions de bucle com 
+   continue <label>;
+s’han de definir per marcar un bucle (això és: han de 
+situar-se immediatament abans de l’inici del bucle). 
+L'etiqueta que heu escrit aquí no té la ubicació 
+correcta: no apunta a un bucle. 
+
+not a statement
+Heu escrit una línia de codi que no és una 
+instrucció completa. Si us plau, reviseu novament 
+el que esteu fent i com hauria de ser. 
+
+not an enclosing class:*
+Heu intentat accedir a l'objecte actual ('this') corresponent 
+a una altra classe fora del seu àmbit. Això només és possible si 
+l’altra classe abasta l’actual ('enclossing’). En altres paraules: 
+en una classe interior podeu aconseguir accedir 
+a la classe exterior, però no a  altres.
+
+* cannot be applied to *
+L'operador que utilitzeu no pot ser utilitzat 
+per a aquest tipus de valor. 
+Un tipus de valor o un operador està equivocat. 
+
+* clashes with class of same name
+Comproveu que la classe i el paquet tenen 
+noms diferents. Generalment, les classes 
+han de començar amb una majúscula, 
+mentre que els noms dels paquets comencen  
+amb una minúscula. 
+
+possible fall-through into case
+No hi ha ajuda disponible.
+
+error reading *
+No hi ha ajuda disponible.
+
+recursive constructor invocation
+Heu escrit un codi que fa que el constructor 
+es cridi ell mateix. Això no es permet 
+(i probablement portaria a un bucle infinit). 
+
+* is ambiguous, both *
+La identificació que apareix en aquest missatge no es pot 
+resoldre apropiadament, perquè hi ha més d'una classe 
+o 'interface’ amb aquest nom en els paquets que heu importat.
+Podeu referir-vos a la classe amb el seu nom complet qualificat 
+(per exemple, java.util.List) o importar la classe amb el seu 
+nom complet qualificat (per exemple, import java.util.List). 
+
+repeated interface
+Heu llistat el mateix 'interface’ 
+dues vegades a la mateixa instrucció 
+'implements’. Una vegada és suficient. 
+La meva memòria no és tan dolenta! 
+
+repeated modifier
+Heu escrit, en aquesta declaració, el mateix 
+modificador dues vegades. Un modificador
+és una paraula clau com 'final’, 'static’,
+'public’, 'private’, 'volatile’... 
+
+{0} has {1} access in {2}
+No hi ha ajuda disponible.
+
+return outside method
+Podeu utilitzar una instrucció  'return' només 
+en mètodes (no en blocs d’inicializació ni en 
+altres segments de codi fora de mètodes). 
+
+signature does not match {0}; incompatible interfaces
+No hi ha ajuda disponible.
+
+signature does not match {0}; incompatible supertype
+No hi ha ajuda disponible.
+
+* should be declared abstract; it does not define *
+La classe actual és herència d'una classe abstracta 
+o un 'interface’. Les classes abstractes i els 
+'interface’ defineixen els mètodes sense implementar-los. 
+Aquesta classe no implementa tots els mètodes que 
+necessiten encara ser implementats, així que encara 
+és abstracta (té encara 
+mètodes definits però no implementats). Teniu  dues 
+possibilitats: declarar aquesta classe abstracta començant amb
+    public abstract class...
+en lloc de 
+   public class...
+o proporcionar una implementació  per al mètode que 
+apareix en el missatge d'error. 
+
+error writing source; cannot overwrite input file *
+No hi ha ajuda disponible.
+
+'try' without 'catch' or 'finally'
+Si utilitzeu un bloc 'try', s'ha de seguir per 
+un bloc  'catch' o un 'finally' (o tots dos). 
+El format correcte és 
+try {
+       instruccions;
+   }
+   catch(Exception e) {
+      instruccions;
+   }
+   finally {
+      instruccions;
+   }
+
+* does not take parameters
+El tipus que utilitzeu no admet paràmetres. 
+No podeu incloure un paràmetre aquí. 
+
+wrong number of type arguments; required *
+No hi ha ajuda disponible.
+
+type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
+No hi ha ajuda disponible.
+
+type variable {0} occurs more than once in type of {1}; cannot be left uninstantiated
+No hi ha ajuda disponible.
+
+unclosed character literal
+És probable que hagi declarat un caràcter literal 
+i hagi oblidat la cometa de tancament ('). 
+
+unclosed comment
+És probable que hagi escrit un comentari i hagi 
+oblidat els caràcters de fi de comentari (*/).
+
+unclosed string literal
+És probable que hagi escrit un literal String 
+(començant amb cometes dobles) i hagi oblidat les 
+cometes dobles finals ("). La cadena ha d'acabar 
+en la mateixa línia que va començar. 
+
+undefined label: *
+La variable que intenteu utilitzar no s’ha trobat. 
+O no s'ha declarat mai, o s'ha declarat en algun lloc no 
+accessible des d’aquesta part del codi. El primer cas 
+succeeix fàcilment si hi ha un error de picatge  
+en el nom de la variable. Verifiqueu que la variable 
+està correctament escrita, incloent les majúscules 
+('aNom' no és el mateix que 'anom'!). El segon cas passa 
+si una variable es declara dins d'un bloc (un bloc és un 
+parell de claus, com això: {}). Si  teniu una declaració 
+d’una variable dins d'un bucle, per exemple, llavors 
+la variable és visible només dins d'aquest bucle. 
+Com a regla per recordar: una variable es torna 
+invisible després de la clau de tancament (}), que 
+finalitza el bloc en el que s’ha declarat. 
+
+unreachable statement
+Aquesta instrucció no s'executarà mai. Si examineu 
+el codi amb cura, observareu que el fluix del 
+control no arribarà a aquesta instrucció. 
+Elimineu-la si realment no la voleu executar, 
+o modifiqueu l’estructura del codi. 
+
+initializer must be able to complete normally
+No podeu llançar excepcions ni interrompre 
+blocs d’inicialització estàtics. 
+Heu de permetre completar l’execució. 
+
+* must be caught or declared to be thrown
+El vostre codi fa una crida a un mètode que 
+pot llançar una excepció. Teniu dues possibilitats: 
+podeu capturar aquesta excepció o podeu declarar 
+que el mètode també llança aquesta excepció. 
+Si voleu capturar l'excepció, heu d'utilitzar un bloc 
+try 
+   {
+      ...
+   }
+   catch(...)
+   {
+      ...
+   }
+Si voleu passar-ho llançant l’excepció, heu d'escriure la clàusula
+    declaració <ExceptionName>
+a la capçalera del mètode. 
+
+'void' type not allowed here
+El tipus 'void' no pot ser utilitzat en aquest context. 
+És un tipus especial que s'utilitza per indicar que un 
+mètode no retornarà cap valor. No es pot utilitzar 
+com un tipus de variable. 
+
+* not allowed here
+Heu utilitzat un modificador d’accés (com 'private', 
+'protected', etc.). Aquest modificador no està permès
+en aquesta situació. 
+
+* might already have been assigned to
+Només es pot realitzar una única assignació a una 
+variable 'final’. (La variable referenciada és 'final’.) 
+Teniu dues assignacions a aquesta variable en el seu codi, 
+i el compilador pensa que podria succeir que les dues 
+assignacions s’executessin. 
+
+* might not have been initialized
+Utilitzeu una variable local que no està garantit 
+que s’hagi inicialitzat abans de ser utilitzada aquí. 
+En cas de dubte, inicialitzeu-la en la seva declaració. 
+
+variable {0} might be assigned in loop
+No hi ha ajuda disponible.
+
+error while writing *
+No hi ha ajuda disponible.
+
+* is public, should be declared in a file named *
+Les classes públiques es necessari que estiguin 
+localitzades en un arxiu amb el mateix nom que 
+la classe amb una extensió '.java'. Per exemple 
+la classe pública Foo ha d’estar localitzada 
+en un arxiu denominat 'Foo.java'. 
+
+cannot read: *
+No hi ha ajuda disponible.
+
+* uses or overrides a deprecated API.
+Esteu utilitzant un mètode obsolet (deprecated). 
+És probable que hi hagi un altre mètode o 
+classe que proporcioni aquesta funcionalitat. 
+Consulteu la documentació API per a més detalls.
+
+* has been deprecated
+Esteu utilitzant un mètode que ja no està obsolet. 
+És probable que hi hagi un 
+altre mètode o classe que proporcioni aquesta funcionalitat. 
+Consulteu la documentació API per a més detalls.
+
+';' expected
+Falta un punt i coma al final d'una línia. 
+Podria ser a la línia marcada per l’editor, 
+o a la línia a dalt. 
+
+'case', 'default' or '}' expected
+No hi ha ajuda disponible.
+
+
+'class' or 'interface' expected
+La paraula 'class'  'interface' s'espera 
+en algun lloc prop de la part superior de l’arxiu font.
+Aquí no apareix (o hi ha text abans que no 
+està situat correctament).
+
+'.class' expected
+No hi ha ajuda disponible.
+
+'(' or '[' expected
+Aparentment hi ha un número desigual de parèntesis 
+en el seu codi que confon el compilador. Reviseu amb cura 
+el codi per què s’emparellin correctament els parèntesis 
+d’obertura i de tancament. 
+
+* expected
+S’espera l’aparició del símbol indicat en 
+el missatge d’error en aquest punt del codi. 
+No s’ha trobat. En el seu lloc hi ha
+un altre símbol. Penseu amb atenció per què 
+s’espera aquí el símbol indicat. 
+
+orphaned *
+No hi ha ajuda disponible.
+
+cannot access *
+No hi ha ajuda disponible.
+
+type parameter {0} is not within its bound *
+No hi ha ajuda disponible.
+
+type parameters of {0} cannot be determined
+No hi ha ajuda disponible.
+
+incompatible types*
+S’espera aquí una expressió d'un cert tipus. 
+Heu proporcionat una expressió d'un tipus diferent 
+que no és compatible. (Per exemple, heu escrit un 
+String on s’esperava un int.) 
+
+inconvertible types*
+El tipus que heu utilitzat aquí no pot ser 
+convertit automàticament al tipus requerit. 
+
+possible loss of precision
+No hi ha ajuda disponible.
+
+unexpected type
+S’espera aquí una expressió d'un cert tipus. 
+Heu proporcionat una expressió d'un tipus diferent 
+que no és compatible. (Per exemple heu escrit un 
+String on s’esperava un int.) 
+
+abstract {0} {1} cannot be accessed directly
+No hi ha ajuda disponible.
+
+*An explicit 'this' qualifier must be used to select the desired instance.
+No hi ha ajuda disponible.
+
+*cannot be referenced from a static context
+Intenteu accedir a un camp o a un mètode d’un objecte 
+instanciat des d’un mètode 'static’. Això no està permès. 
+No teniu cap objecte actiu en un mètode 'static’. 
+Els mètodes 'static’ només poden cridar altres mètodes 
+'static’ de la seva pròpia classe (o necessiten utilitzar
+un objecte explícit per fer la crida). 
+
+cannot resolve symbol*
+Utilitzeu aquí un símbol (un nom per a una variable, 
+per a un mètode o per a una classe) que no s'ha declarat 
+en cap àmbit accessible des d’aquí. Verifiqueu  que 
+aquest nom estigui be escrit - ho heu teclejat malament? 
+O us heu oblidat de declarar-lo? O potser ho heu declarat, 
+però no és accessible des d’aquí? .
+
+{0}; {1} and {2} are static
+No hi ha ajuda disponible.
+
+{0}; overridden method is {1}
+No hi ha ajuda disponible.
+
+* attempting to assign weaker access privileges; was *
+Esteu sobreescrivint un mètode i esteu canviant  el mode d'accés 
+(private, protected, public). Podeu canviar el mode d’accés per 
+permetre un accés més ample (per exemple, de privat a públic) però 
+no és permès reduir-lo (per exemple de públic a privat). 
+Per descomptat, podeu deixar-lo sense modificacions. 
+
+* overridden method does not throw *
+Esteu sobreescrivint un mètode i esteu llançant 
+una excepció. Els mètodes que sobreescriuen no poden 
+llançar excepcions que no siguin llançades pels mètodes 
+sobreescrits (superclass). El mètode en les subclasses 
+poden llançar menys excepcions, però no més. 
+
+* attempting to use incompatible return type
+No hi ha ajuda disponible.
+
+* is already defined in this compilation unit
+Heu utilitzat aquest nom aquí dues vegades. 
+Escolliu un nom diferent per a aquest identificador. 
+
+{0} is already defined in a single-type import
+No hi ha ajuda disponible.
+
+* conflicts with a compiler-synthesized symbol in *
+No hi ha ajuda disponible.
+

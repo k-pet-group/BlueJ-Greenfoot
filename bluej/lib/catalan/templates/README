@@ -1,0 +1,13 @@
+Aquest directori conté algunes plantilles utilitzades
+pel BlueJ per generar arxius.Aquestes plantilles poden 
+ser editades per canviar el contingut per defecte dels
+arxius generats.
+
+- Les plantilles readme i readmeexp es poden editar lliurement.
+- La plantilla html s'ha d'editar amb cura - pot funcionar
+  malament si s’edita incorrectament.
+- La plantilla shell és preferible que NO s'editi (amb l'excepció
+  que REALMENT sapigueu el que esteu fent).
+
+El subdirectori "newclass" conté plantilles per a les classes 
+generades mitjançant l’opció "Noves classes" del BlueJ.

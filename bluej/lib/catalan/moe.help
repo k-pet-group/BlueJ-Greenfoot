@@ -1,0 +1,108 @@
+# 
+# Moe user function help texts. 
+# 
+# Part of the BlueJ program development environment. 
+# 
+ 
+## edit functions 
+ 
+delete-previous \n Esborra el caràcter anterior.
+delete-next \n Esborra el caràcter posterior.
+copy-to-clipboard \n Copia el text seleccionat al porta-retalls. Des d'aquí pot ser\n enganxat, posteriorment, a qualsevol part (vegeu paste-from-clipboard).
+cut-to-clipboard Retalla el text seleccionat i ho porta al porta-retalls. Des d'aquí  pot ser\n enganxat, posteriorment, a qualsevol part (vegeu paste-from-clipboard).
+copy-line \n Copia la línia actual al porta-retalls. Les operacions \n successives de còpia  s'afegiren al porta-retalls.
+cut-line \n Retalla la línia actual al porta-retalls. Les operacions \n successives de còpia  s'afegiren al porta-retalls.
+cut-end-of-line \n Copia el final de la línia actual al porta-retalls. Les operacions \n successives de còpia  s'afegiren al porta-retalls.
+cut-word \n Copia la paraula actual al porta-retalls. Les operacions \n successives de còpia  s'afegiren al porta-retalls.
+cut-end-of-word \n Retalla el final de la paraula actual al porta-retalls. Les operacions \n successives de còpia s'afegiren al porta-retalls.
+paste-from-clipboard \n Enganxa el text existent al porta-retalls, en el punt d'inserció del text actual.
+indent \n Si en les preferències de l'editor està activat el mode 'sagnar', sagnar\n igual que a la línia de dalt. En cas contrari insereix un tabulador tou.
+insert-tab \n Insereix el caràcter TAB.
+new-line \n Insereix un salt de línia. Si en les preferències de l'editor \n està activat el mode 'sagnar', sagnar igual que a la línia de dalt.
+insert-break \n Insereix un salt de línia sense intentar sagnar el text.
+insert-method \n Insereix l’esquelet per a un mètode Java en el text.
+comment-block \n Inclou símbols de comentari en les línies actualment seleccionades. Els símbols poden ser fàcilment eliminats després (vegeu uncomment-block).
+uncomment-block \n Elimina els símbols de comentari de l'inici de les línies seleccionades.\n Vegeu també comment-block.
+indent-block \n Afegeix un nivell de sagnat per a cada línia en la selecció actual\n (o de la línia actual si no hi ha res seleccionat).
+deindent-block \n Elimina un nivell de sagnat per a cada línia en la selecció actual\n (o de la línia actual si no hi ha res seleccionat).
+select-word \n Selecciona la paraula actual (també aplicable \nal botó principal del ratolí: double-click)
+select-line \n Selecciona la línia actual (també aplicable \nal botó principal del ratolí: triple-click).
+select-paragraph \n Selecciona el paràgraf actual.
+select-all \n Selecciona tot el text.
+selection-backward \n Mou el final de la selecció un caràcter endarrere.
+selection-forward \n Mou el final de la selecció un caràcter endavant.
+selection-up \n Mou el fi de la selecció una línia endalt.
+selection-down \n Mou el final de la selecció una línia avall.
+selection-begin-word \n Mou el final de la selecció a l'inici de la paraula \nactual.
+selection-end-word \n Mou el final de la selecció al final de la paraula \nactual.
+selection-previous-word \n Mou el final de la selecció a l'inici de la paraula\n anterior.
+selection-next-word \n Mou el final de la selecció a l'inici de la paraula \nposterior.
+selection-begin-line \n Mou el final de la selecció a l'inici de la línia \nactual.
+selection-end-line \n Mou el final de la selecció al final de la línia \nactual.
+selection-begin-paragraph \n Mou el final de la selecció a l'inici del paràgraf \nactual.
+selection-end-paragraph \n Mou el final de la selecció al final del paràgraf \nactual.
+selection-page-up \n Mou el final de la selecció una pàgina abans.
+selection-page-down \n Mou el final de la selecció una pàgina després.
+selection-begin \n Mou el final de la selecció a l'inici del text.
+selection-end \n Mou el final de la selecció al final del text.
+unselect \n Treu la selecció (no el text seleccionat!).
+ 
+## move and scroll functions 
+ 
+caret-backward \n Mou el punt d'inserció un caràcter abans.
+caret-forward \n Mou el punt d'inserció un caràcter després.
+caret-up \n Mou el punt d'inserció una línia endalt.
+caret-down \n Mou el punt d'inserció una línia avall.
+caret-begin-word \n Mou el punt d'inserció a l'inici de la paraula actual.
+caret-end-word \n Mou el punt d'inserció al final de la paraula actual.
+caret-previous-word \n Mou el punt d'inserció a l'inici de la paraula anterior.
+caret-next-word \n Mou el punt d'inserció a l'inici de la paraula posterior.
+caret-begin-line \n Mou el punt d'inserció a l'inici de la línia actual.
+caret-end-line \n Mou el punt d'inserció al final de la línia actual.
+caret-begin-paragraph \n Mou el punt d'inserció a l'inici del paràgraf actual.
+caret-end-paragraph \n Mou el punt d'inserció al final del paràgraf actual.
+page-up \n Mou el punt d'inserció una pàgina abans.
+page-down \n Mou el punt d'inserció una pàgina després.
+caret-begin \n Mou el punt d'inserció a l'inici del text.
+caret-end \n Mou el punt d'inserció al final del text.
+ 
+## class functions 
+ 
+save \n Desa aquesta classe. Observeu que rarament és necessari desar de forma explícita la classe, ja que es desa automàticament abans de tancar-la.
+reload \n Obre novament la classe de l'arxiu font. Aquesta operació descarta \ntots els canvis fets després de l'última operació d'enregistrament (implícita o explícita).
+close \N Tanca aquesta classe. El text font es desa automàticament.
+print \n Obre un diàleg d'impressió per començar la impressió del treball.
+page-setup \n Obre un diàleg de configuració de pàgina per especificar el format.
+ 
+ 
+## customisation functions 
+ 
+key-bindings \n Mostra i canvia les claus obligatòries per a les funcions d'usuari Moe.
+preferences \n Especifica les configuracions preferides de l'editor.
+ 
+ 
+## help functions 
+ 
+describe-key \n Després de cridar aquesta funció, premeu una tecla. Es mostra el nom del límit de la \nfunció per aquesta clau.
+help-mouse \n Mostra el funciomant dels botons del ratolí.
+show-manual \n Obre un navegador web per mostrar el manual d'usuari del Moe.
+about-editor \n Mostra una nota breu sobre el Moe.
+ 
+ 
+## misc functions 
+ 
+undo \n Desfés l'última operació d'edició (es pot fer novament amb 'refer').
+redo \n Refés l'última operació que va ser desfeta. 
+find \n Obre un diàleg per iniciar una recerca d'una cadena en el text. El diàleg\n permet iniciar recerques endavant i endarrera.
+find-next Si està seleccionat un text, troba la propera aparició en el text seleccionat. En cas contrari\n cerca novament la mateixa cadena utilitzada en la darrera\n recerca. Atura't al final del text. Si es crida novament després d'haver arribat al final del text, continua la recerca des de l'inici.
+find-next-backward \n Igual que 'Cercar següent', però recerca enrere en lloc d'endavant.
+replace \n Substitueix un text per un altre.
+ 
+compile \n Compila la classe actual. La classe és automàticament\n desada abans de ser compilada.
+toggle-interface-view \n Commutar la vista entre la interfície i el codi font.\n La vista de la interfície mostra la classe en format Javadoc.
+toggle-breakpoint \n Fixa o elimina el punt d'aturada en la línia actual.
+ 
+## help texts for adding key bindings 
+ 
+press-key \n Premeu la tecla que voleu afegir...
+cannot-redefine \n Els caràcters imprimibles no poden ser redefinits.

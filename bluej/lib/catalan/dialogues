@@ -1,0 +1,352 @@
+selcompile-while-executing
+No es pot compilar mentre s’executa
+l’aplicació. Això pot causar diversos 
+problemes!  
+
+exception-thrown
+S’ha activat una excepció
+
+break-no-source
+El punt d’aturada apunta a un arxiu del qual no
+es pot localitzar el codi font. Nom de l'arxiu:
+
+error-in-file
+Ha aparegut un error en un arxiu del qual
+no s'ha trobat el font.
+classe: nombre de línia a l’arxiu font:
+
+system-exit
+El mètode ha finalitzat per una instrucció
+'exit' explícita. No s'ha retornat cap resultat.
+El codi 'exit' és: 
+
+no-help
+Cap ajuda disponible per a aquest missatge.
+Si us plau envieu un correu electrònic amb el 
+text del missatge d’error a mik@mip.sdu.dk 
+S'afegirà un text d’ajuda a la base de dades
+d’ajuda. Mercès. 
+
+editor-crashed
+Aparentment BlueJ ha produït un error mentre escrivia
+aquesta classe al disc la darrera vegada. 
+El codi font pot haver-se perdut o estar incomplet. 
+Hi ha d’haver una còpia d’aquesta classe a la carpeta
+del projecte. Si aquesta classe sembla danyada:
+   1 - Abandoneu el BlueJ
+   2 - Copieu la carpeta de backup del projecte (per precaució)
+   3 - Cerqueu en aquesta carpeta una còpia de l’arxiu 
+       Java perdut. Canvieu el nom per l’original 
+       (amb una extensió 'java')
+
+cannot-run-compiler
+No es pot executar el compilador. 
+El programa és en el 'path' del vostre ordinador?
+Nom del compilador:
+
+compiler-error
+Error del compilador:
+
+stream-incomplete
+Error del compilador. Error per un arxiu incomplet.
+
+out-of-bounds
+L’element especificat no 
+és dins del rang de la matriu.
+
+cannot-access-element
+Impossible accedir a l'element indicat de la matriu.
+
+appletviewer-error
+Error al executar l'applet en el visualitzador d’applets.
+
+error-no-name
+Heu d’especificar un nom vàlid.
+
+error-save-file
+S’ha produït un error al desar 
+l’arxiu. L’arxiu no s’ha desat.
+
+cannot-save-keys
+S’ha produït un error al desar els enllaços
+clau. Els enllaços clau no s’han desat.
+
+error-no-templates
+El directori de les plantilles especificat (el directori
+en què el BlueJ cerca les plantilles de les classes) no existeix. 
+Està definit a la propietat "bluej.templatePath" a 
+<directori de bluej>/lib/bluej.defs. Reviseu i fixeu
+aquesta propietat. 
+
+skeleton-error
+No s'ha pogut generar l'esquelet per defecte 
+de la classe. La causa pot ser un error de configuració 
+del BlueJ o problemes en el sistema d'accés als arxius.
+
+error-open-source
+No es pot obrir el codi font de la classe.
+
+error-open-readme
+S'ha produït un problema a l'obrir l’arxiu README 
+del projecte. S’ha generat un nou arxiu README buit. 
+
+error-writing-readme
+No s'ha pogut actualitzar l’arxiu README del projecte
+per afegir la informació de la classe principal. 
+S’ha produït un error al modificar aquest arxiu.
+
+error-exporting
+S'ha produït un error en el procés d’exportació 
+de l'aplicació. És possible que alguns o tots els 
+arxius no s’hagin copiat correctament.
+
+error-writing-jar
+No s'ha pogut escriure correctament l'arxiu jar. 
+(Reviseu els drets d’accés del sistema d'arxius 
+i la disponibilitat d’espai al disc dur.)
+
+error-jar-exists
+L'arxiu jar que heu seleccionat ja existeix.
+Voleu continuar?
+Sobreescriu
+Cancel·la
+Nul
+
+invalid-class-name
+Nom de classe invàlid.
+
+invalid-package-name
+Nom de paquet invàlid.
+
+directory-exists
+Ja hi ha un arxiu o directori amb aquest nom.
+
+cannot-copy-package
+S’ha produït un problema al copiar 
+els arxius del paquet. No s'ha escrit 
+el paquet o ha quedat incomplet.
+
+file-does-not-exist
+L’arxiu especificat no existeix.
+
+cannot-import
+No s’ha pogut importar l'arxiu. 
+L’arxiu ha de ser codi font de Java 
+(l'extensió ha de ser '.java').
+
+docdir-blocked-by-file
+No s'ha pogut crear el directori per a la 
+documentació en el directori del projecte perquè 
+ja hi ha un arxiu amb el mateix nom. 
+
+docdir-not-created
+No s'ha pogut crear el directori per a la 
+documentació en el directori del projecte.
+
+no-permission-for-docdir
+No s’ha pogut crear el directori per a la 
+documentació en el directori del projecte 
+perquè no hi ha drets d’accés suficients.
+
+show-or-generate
+Voleu mostrar la documentació generada 
+prèviament o regenerar la documentació completa?
+Només mostra
+Regenera
+Cancel·la
+
+doctool-error
+El Javadoc indica que s'ha produït un error. És possible que 
+hi hagi errors de sintaxi en algun dels arxius dels quals 
+s’intentava generar la documentació. També és possible que 
+l'URL de documentació especificada a les preferències sigui 
+incorrecte. Confirmeu que tots els arxius Java estan compilats 
+i que l'URL de documentació és accessible o està desactivada. 
+Intenteu-ho posteriorment. Si aquest missatge apareix novament, 
+heu de revisar l'arxiu 'log' amb els missatges d'error del Javadoc:
+
+severe-doc-trouble
+S’ha produït una excepció al cridar 
+una eina de documentació externa.
+
+no-java-sources-found
+No s’han trobat els arxius 
+font Java en aquest directori.
+
+duplicate-name
+Ja hi ha una classe o paquet amb aquest nom 
+en aquest projecte. No és possible tenir dues classes 
+amb el mateix nom.
+
+error-in-import
+S’ha produït un error a l'intentar importar 
+l’arxiu. Comproveu els drets d’accés i 
+l'espai disponible al disc dur.
+
+no-class-selected-compile
+No hi ha cap classe seleccionada 
+per a la compilació. Seleccioneu una classe 
+clicant a sobre abans d’intentar compilar.
+
+no-class-selected
+No hi ha res seleccionat per eliminar. 
+Seleccioneu una classe, fletxa o paquet 
+clicant a sobre abans d’intentar eliminar.
+
+really-remove-class
+Eliminant aquesta classe s'esborrarà 
+permanentment l’arxiu font. 
+Voleu continuar?
+Elimina
+Cancel·la
+Nul
+
+really-remove-package
+Eliminant aquest paquet s'esborrarà permanentment 
+el directori del paquet (incloent TOT el 
+contingut del directori). 
+Voleu continuar?
+Elimina
+Cancel·la
+Nul
+
+remove-package-open
+El paquet que voleu eliminar conté 
+alguns subpaquets oberts amb el BlueJ. 
+Heu de tancar aquests subpaquets si 
+voleu eliminar el paquet inicial.
+
+package-does-not-exist
+S'ha produït un error a l'obrir 
+el paquet. El paquet no existeix:
+
+no-bluej-package
+S'ha produït un error obrint el paquet. 
+L'arxiu/directori no és un paquet del BlueJ.
+
+applet-height-width
+Heu d’especificar l'amplada 
+i l’alçada de l’applet.
+
+cannot-read-help
+No es pot llegir l'arxiu d’ajuda:
+
+not-yet-implemented
+Disculpeu, encara no està implementat.
+
+quit-all
+Voleu sortir de tots els projectes oberts?
+Surt de tots
+Cancel·la
+Nul
+
+really-reload
+Si actualitzeu es perdran tots els canvis 
+des de l’última edició. 
+N'esteu segur?
+Actualitza
+Cancel·la
+Nul
+
+really-print
+El text és mes ample que el paper. Les línies 
+llargues seran tallades. Podeu evitar-ho reduint 
+l’amplada de la finestra de l’editor. Voleu imprimir-la ara?
+Imprimeix
+Cancel·la
+Nul
+
+open-non-bluej-already-bluej
+El directori que ha seleccionat 
+ja és un projecte del BlueJ.
+
+open-non-bluej-no-java
+No s’ha trobat cap arxiu del Java en aquest directori.
+
+open-non-bluej-invalid
+Heu indicat que voleu obrir aquest directori 
+com a projecte del BlueJ, no obstant s’ha trobat 
+un arxiu amb una definició del paquet que és 
+incompatible amb l’estructura del directori actual. 
+(Per exemple, si la classe Java Shape té una línia 
+al paquet com.aa, en aquest cas l’arxiu Shape.java 
+ha d'estar en el directori 'aa' que, a la vegada, 
+està en el directori com. Aquest directori ‘com’ 
+ha de ser en un altra directori que és on el BlueJ 
+apuntarà quan intenti obrir-lo).
+
+import-into-current
+Hi ha un paquet obert en aquesta finestra. 
+Voleu importar dins del paquet actual o 
+preferiu crear un nou projecte i importar-lo dins d’aquest?
+Actual
+Nou projecte
+Cancel·la
+
+package-name-invalid
+Heu canviat la definició del paquet a un paquet 
+que no existeix en el projecte. Si voleu moure 
+aquesta classe a altre paquet, heu de crear 
+prèviament el paquet de destinació. La definició 
+del paquet ha estat convertida a la forma inicial.
+
+
+package-name-clash
+Heu canviat la definició del paquet a un paquet 
+que ja té una classe o paquet amb aquest nom. 
+Si la classe és moguda, la classe o paquet 
+existent serà reescrit i la definició del  
+paquet serà convertida a la forma inicial.
+
+package-name-changed
+Heu canviat la definició del  paquet que indica 
+al Java el paquet al que pertany la classe. 
+Voleu moure aquesta classe al paquet indicat 
+o voleu sortir de la classe (la definició del  
+paquet serà convertida a la forma inicial)?
+Mou
+Torna a la inicial
+Nul
+
+ask-index
+Entreu l’índex de l’element de la matriu[...]
+Inspecciona la matriu
+Nul
+
+classmgr-changes-no-effect
+Els canvis que heu fet a les llibreries de les 
+classes no tindran efecte fins que arranqueu 
+novament el BlueJ.
+
+unittest-new-test-method
+Especifiqueu un nom per a aquest test.
+En enregistrar començarà.
+Nou mètode de test
+Nul
+
+getobject-new-name
+Introduïu el nom del nou objecte en el 
+banc d’objectes.
+Nou nom de l’objecte
+Nul
+
+unittest-fixture-present
+Aquesta classe de test ja té un aspecte declarat. 
+Si confirmeu l’acció, la definició d'aquest aspecte 
+serà reemplaçat. Voleu continuar?
+Reemplaça
+Cancel·la
+Nul
+
+no-search-string
+No s’ha definit cap cadena de recerca. 
+(Seleccioneu un text o utilitzeu primer 'Cercar')
+
+default-keys
+Voleu descartar tots els enllaços i 
+fixar els enllaços per defecte?
+Fixa valors per defecte
+Cancel·la
+Nul
+
+

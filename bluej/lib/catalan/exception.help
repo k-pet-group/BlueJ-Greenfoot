@@ -1,0 +1,144 @@
+NullPointerException*
+Ha intentat accedir a un objecte (o a un camp de 
+l'objecte o a un mètode de l’objecte). Això no ha 
+funcionat perquè l'objecte referenciat és 'null'. Per 
+exemple: vostè va escriure thing.print()", i 'thing' era 
+nul en el moment de l’execució.
+
+ArithmeticException*
+Hi ha hagut un error durant un càlcul aritmètic: pot ser 
+una divisió per 0 o quelcom semblant. 
+
+StringIndexOutOfBoundsException*
+Ha intentat accedir a un caràcter o una subcadena en una 
+cadena i l'índex que ha utilitzat no existeix. 
+Per exemple, pot haver intentat accedir al 
+cinquè caràcter en una cadena que té només tres 
+caràcters. Per a l'operació de subcadena, recordi que el 
+segon paràmetre és l'índex final de la subcadena, no la 
+longitud. 
+
+
+ClassCastException*
+Ha utilitzat un 'cast' - això és una instrucció que 
+assigna un tipus 'static' diferent a un objecte, com l'exemple 
+següent: (String)unObjecte. Aquí, "unObjecte" és 
+convertit a "String". Això és correcte només si l'objecte 
+emmagatzemat en unObjecte és realment de tipus String. En 
+altres paraules: es pot convertir al tipus T només si 
+l’objecte que es vol convertir és del tipus T o d'un dels 
+seus subtipus. En el seu cas no ho era. 
+
+
+IndexOutOfBoundsException*
+Un índex d'algun tipus (d’una matriu, d’un String, o d’un 
+vector) és fora de rang. "Fora de rang" significa que 
+l'índex no existeix en la matriu o en una altra col·lecció 
+(per exemple: ha tractat d'accedir a l'element 5, però només 
+hi ha tres elements). 
+
+
+ArrayIndexOutOfBoundsException*
+L’índex d’una matriu és fora de rang. "Fora de rang" significa 
+que l'índex no existeix en la matriu (per exemple: ha tractat 
+d'accedir a l'element 5, però només hi ha tres 
+elements). El rang correcte de l’índex és 0..longitud del vector-1.
+
+
+ConcurrentModificationException*
+Du a terme una iteració sobre una col·lecció. Mentre es 
+feia, la col·lecció s’ha modificat. Això és un problema. No 
+es permet modificar la col·lecció durant una iteració. Dit 
+d’una altra manera: no es pot continuar la iteració després 
+de modificar la col·lecció. L'única modificació permesa 
+durant una iteració és treure elements amb el mètode de 
+treure del propi iterador (NO treure directament de la 
+col·lecció). 
+
+
+AssertionError*
+Una hipòtesis ha fallat. Això significa que l'expressió 
+dins de la instrucció 'assert' assert(assertion-expression) 
+ha estat avaluada com a falsa. La hipòtesi ha estat 
+plantejada suposant que seria certa en aquest punt, i si ha 
+resultat falsa, indica algun tipus d’error. La naturalesa 
+exacta d'aquest error depèn del programa. S'ha d'investigar 
+per quina raó aquesta expressió ha resultat falsa.
+
+ClassNotFoundException*
+Una classe necessària per executar aquesta aplicació no s’ha 
+trobat. Sembla que es va trobar en el moment de compilar 
+l'aplicació, però no en el moment de l’execució. Les causes 
+possibles podrien ser que el Java no s’ha configurat 
+correctament (si la classe en qüestió és una classe del 
+sistema) o que el projecte s’ha danyat (alguns arxius de la 
+classe es van perdre o s’han corromput). Tracteu de 
+reconstruir el projecte. Si el problema persisteix, proveu-ho 
+amb altres projectes. Si això succeeix amb més d'un 
+projecte, pot ser necessari instal·lar novament el JDK. 
+
+
+ArrayStoreException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+CannotRedoException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+CannotUndoException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+CMMException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+EmptyStackException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+IllegalArgumentException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+IllegalMonitorStateException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+IllegalPathStateException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+IllegalStateException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+ImagingOpException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+MissingResourceException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+NegativeArraySizeException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+NoSuchElementException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+ProfileDataException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+ProviderException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+RasterFormatException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+SecurityException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+SystemException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+UndeclaredThrowableException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+UnsupportedOperationException*
+Disculpeu, l’ajuda d’aquest error no està disponible.
+
+Exception
+Això és una excepció general que només diu que s’ha produït 
+un error. No es disposa d’informació addicional sobre la 
+causa de l'error.

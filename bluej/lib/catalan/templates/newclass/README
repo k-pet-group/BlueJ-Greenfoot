@@ -1,0 +1,39 @@
+README - <bluej-home>/lib/<idioma>/templates/newclass/README
+--------------------------------------------------------------
+
+Aquest directori conté les plantilles de les classes per al BlueJ
+
+Aquestes plantilles per a les classes apareixen com a opció en el quadre 
+de diàleg "Nova classe" dins l’entorn BlueJ.
+
+
+Per canviar les plantilles:
+--------------------------
+Les plantilles es poden modificar fàcilment editant aquests arxius.
+
+
+Per afegir noves plantilles:
+---------------------------
+Per afegir una plantilla, creeu un nou arxiu en aquest directori amb l'extensió ".tmpl"
+(per exemple "classeprincipal.tmpl").
+
+Els noms per als applets, interfaces o classes abstractes han de començar
+amb "applet", "interface" or "abstract", respectivament. En qualsevol altre cas,
+es tracta com una classe estàndard. 
+
+Per defecte, aquesta plantilla es mostra al quadre de diàleg "Nova classe"
+al final de la llista de selecció amb el nom de l’arxiu ("classeprincipal").
+
+El nom que apareix en el quadre de diàleg es pot definir modificant la propietat
+"pkgmgr.newClass.<template-name>" a l’arxiu d’etiquetes (l’arxiu d’etiquetes es troba 
+a <bluej-home>/lib/<ldioma>/labels). Per exemple, en definir 
+
+   pkgmgr.newClass.classeprincipal = Classe principal
+
+apareix "Classe principal" al quadre de diàleg per a la seva elecció.
+
+La posició a la llista pot ser especificada afegint aquesta nova plantilla a
+la llista inclosa a la propietat "bluej.classTemplates" de l’arxiu de definicions
+del BlueJ (<bluej-home>/lib/bluej.defs). Totes les plantilles llistades aquí 
+apareix en l’ordre especificat. La resta de les plantilles s'afegeix 
+al final de la llista en un ordre aleatori.
