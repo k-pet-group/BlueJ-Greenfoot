@@ -30,7 +30,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: Project.java 1503 2002-11-15 13:22:28Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -162,6 +162,7 @@ public class Project
         else
             proj.initialPackageName = startingPackageName;
 
+        //Debugger.debugger.setDirectory(projectDir.getAbsolutePath());
         return proj;
     }
 
