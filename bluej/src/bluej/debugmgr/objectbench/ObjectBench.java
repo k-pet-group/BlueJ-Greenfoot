@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2753 2004-07-07 10:00:09Z mik $
+ * @version $Id: ObjectBench.java 2754 2004-07-07 12:59:19Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -25,9 +25,8 @@ public class ObjectBench extends JPanel
 
     private JScrollPane scroll;
     private ObjectBenchPanel obp;
-    private List objectWrappers;
-    private ObjectWrapper selectedObjectWrapper;
-    private int currentObjectWrapperIndex = -1;
+    private List objects;
+    private ObjectWrapper selectedObject;
 	
     // All invocations done since our last reset.
     private List invokerRecords;
@@ -40,7 +39,7 @@ public class ObjectBench extends JPanel
     public ObjectBench()
     {
         super();
-        objectWrappers = new ArrayList();
+        objects = new ArrayList();
         createComponent();
     }
 
@@ -63,7 +62,7 @@ public class ObjectBench extends JPanel
 
         wrapper.addFocusListener(this);
         obp.add(wrapper);
-        objectWrappers.add(wrapper);
+        objects.add(wrapper);
         obp.revalidate();
         obp.repaint();
     }
@@ -74,7 +73,7 @@ public class ObjectBench extends JPanel
      */
     public List getObjects()
     {
-        return Collections.unmodifiableList(objectWrappers);
+        return Collections.unmodifiableList(objects);
     }
 
     
@@ -87,7 +86,7 @@ public class ObjectBench extends JPanel
      */
     public ObjectWrapper getObject(String name)
     {
-        for(Iterator i=objectWrappers.iterator(); i.hasNext(); ) {
+        for(Iterator i = objects.iterator(); i.hasNext(); ) {
             ObjectWrapper wrapper = (ObjectWrapper)i.next();
             if(wrapper.getName().equals(name))
                 return wrapper;
@@ -113,7 +112,7 @@ public class ObjectBench extends JPanel
      */
     public int getObjectCount()
     {
-        return objectWrappers.size();
+        return objects.size();
     }
 
     
@@ -124,13 +123,13 @@ public class ObjectBench extends JPanel
     {
         setSelectedObject (null);
 
-        for(Iterator i = objectWrappers.iterator(); i.hasNext(); ) {
+        for(Iterator i = objects.iterator(); i.hasNext(); ) {
             ObjectWrapper wrapper = (ObjectWrapper) i.next();
             wrapper.prepareRemove();
             wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
             obp.remove(wrapper);
         }
-        objectWrappers.clear();
+        objects.clear();
         resetRecordingInteractions();
         obp.revalidate();
         obp.repaint();
@@ -144,13 +143,13 @@ public class ObjectBench extends JPanel
      */
     public void removeObject(ObjectWrapper wrapper, String scopeId)
     {
-        if(wrapper == selectedObjectWrapper)
+        if(wrapper == selectedObject)
             setSelectedObject(null);
             
         wrapper.prepareRemove();
         wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
         obp.remove(wrapper);
-        objectWrappers.remove(wrapper);
+        objects.remove(wrapper);
 
         obp.revalidate();
         obp.repaint();
@@ -175,15 +174,14 @@ public class ObjectBench extends JPanel
      */
     public void setSelectedObject(ObjectWrapper aWrapper)
     {
-        if (selectedObjectWrapper != null) {
-            selectedObjectWrapper.setSelected(false);
+        if (selectedObject != null) {
+            selectedObject.setSelected(false);
         }
-        selectedObjectWrapper = aWrapper;
+        selectedObject = aWrapper;
         
-        if (selectedObjectWrapper != null) {
-            selectedObjectWrapper.setSelected(true);
-            currentObjectWrapperIndex = objectWrappers.indexOf(aWrapper);
-            selectedObjectWrapper.requestFocusInWindow();
+        if (selectedObject != null) {
+            selectedObject.setSelected(true);
+            selectedObject.requestFocusInWindow();
         }
     }
 
@@ -194,7 +192,7 @@ public class ObjectBench extends JPanel
      */
     public ObjectWrapper getSelectedObject()
     {
-        return selectedObjectWrapper;
+        return selectedObject;
     }
 
     
@@ -268,48 +266,68 @@ public class ObjectBench extends JPanel
      */
     public void keyPressed(KeyEvent e) 
     {
+        int selectedObjectIndex;
+        if(selectedObject == null)
+            selectedObjectIndex = -1;
+        else
+            selectedObjectIndex = objects.indexOf(selectedObject);
         int key = e.getKeyCode();
+        
         switch (key){
-            case KeyEvent.VK_LEFT: {
-                if (currentObjectWrapperIndex > 0){
-                currentObjectWrapperIndex--;
+            case KeyEvent.VK_LEFT:
+                if (selectedObjectIndex > 0) {
+                    selectedObjectIndex--;
                 }
-                else if (currentObjectWrapperIndex < 0 ){
-                    //currentObjectWrapperIndex = objectWrappers.size() - 1;
-                    currentObjectWrapperIndex = 0;
+                else {
+                    selectedObjectIndex = 0;
+                }
+                setSelectedObjectByIndex(selectedObjectIndex);
+                break;
+
+            case KeyEvent.VK_RIGHT:
+                if (selectedObjectIndex < objects.size() - 1) {
+                    setSelectedObjectByIndex(selectedObjectIndex + 1);
                 }
                 break;
-            }
-            case KeyEvent.VK_RIGHT: {
-                if (currentObjectWrapperIndex < objectWrappers.size() - 1){
-                    currentObjectWrapperIndex++;
+
+            case KeyEvent.VK_UP:
+                selectedObjectIndex = selectedObjectIndex - obp.getNumberOfColumns();
+                if (selectedObjectIndex >= 0) {
+                    setSelectedObjectByIndex(selectedObjectIndex);
                 }
                 break;
-            }
-            case KeyEvent.VK_ENTER:{
+
+            case KeyEvent.VK_DOWN:
+                selectedObjectIndex = selectedObjectIndex + obp.getNumberOfColumns();
+                if (selectedObjectIndex < objects.size()) {
+                    setSelectedObjectByIndex(selectedObjectIndex);
+                }
+                break;
+
+            case KeyEvent.VK_ENTER:
                 showPopupMenu();
                 break;
-            }
-            case KeyEvent.VK_SPACE:{
+
+            case KeyEvent.VK_SPACE:
                 showPopupMenu();
                 break;
-            }
-            case KeyEvent.VK_ESCAPE:{
-                currentObjectWrapperIndex = -1;
+
+            case KeyEvent.VK_ESCAPE:
                 setSelectedObject(null);
                 repaint();
                 break;
-            }
-        }
-        boolean isInRange = (0 <= currentObjectWrapperIndex && 
-                             currentObjectWrapperIndex < objectWrappers.size()); 
-        if (isInRange){
-            ObjectWrapper currentObjectWrapper = (ObjectWrapper) objectWrappers.get(currentObjectWrapperIndex);
-            setSelectedObject(currentObjectWrapper);
-            repaint();
         }
     }
 
+    /**
+     * Sets the selected object from an index in the objects list.
+     * The index MUST be valid.
+     */
+    private void setSelectedObjectByIndex(int i)
+    {
+        setSelectedObject((ObjectWrapper) objects.get(i));
+        repaint();
+    }
     
     /**
      * A key was released in the object bench.
@@ -373,8 +391,8 @@ public class ObjectBench extends JPanel
      */
     private void showPopupMenu() 
     {
-        if (selectedObjectWrapper != null){
-            selectedObjectWrapper.showMenu();
+        if (selectedObject != null){
+            selectedObject.showMenu();
         }
     }
 
@@ -509,16 +527,31 @@ public class ObjectBench extends JPanel
          */
         public Dimension getPreferredSize()
         {
+            int rows = getNumberOfRows();
+            return new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT * rows);                
+        }
+        
+        /**
+         * Return the current number of rows or objects on this bench.
+         */
+        public int getNumberOfRows()
+        {
             int objects = getComponentCount();
-            int rows;
             if(objects == 0) {
-                rows = 1;
+                return 1;
             }
             else {
                 int objectsPerRow = getWidth() / ObjectWrapper.WIDTH;
-                rows = (objects + objectsPerRow - 1) / objectsPerRow;
-            }
-            return new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT * rows);                
+                return (objects + objectsPerRow - 1) / objectsPerRow;
+            }            
+        }
+        
+        /**
+         * Return the current number of rows or objects on this bench.
+         */
+        public int getNumberOfColumns()
+        {
+            return getWidth() / ObjectWrapper.WIDTH;
         }
         
         /**

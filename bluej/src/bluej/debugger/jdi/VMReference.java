@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2689 2004-06-30 00:57:40Z davmac $
+ * @version $Id: VMReference.java 2754 2004-07-07 12:59:19Z mik $
  *
  * The startup process is as follows:
  *
@@ -682,7 +682,7 @@ class VMReference
             throw new IllegalArgumentException("no ExecServer method called " + methodName);
 
         Value v = invokeStaticRemoteMethod(serverThread, serverClass, m, args, true, false);
-        Debug.message("[VMRefMain] Returning from invocation.");
+//        Debug.message("[VMRefMain] Returning from invocation.");
         return v;
     }
 
