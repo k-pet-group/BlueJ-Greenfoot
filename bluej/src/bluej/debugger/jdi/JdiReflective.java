@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  *  
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2640 2004-06-21 05:08:18Z davmac $
+ * @version $Id: JdiReflective.java 2688 2004-06-30 00:07:50Z davmac $
  */
 public class JdiReflective extends Reflective {
 
@@ -22,7 +22,9 @@ public class JdiReflective extends Reflective {
     // If the type has not been loaded, we know only it's name, and the
     // type from which we discovered the reference to it:
     protected String name = null;
-    private ReferenceType sourceType = null;
+    // private ReferenceType sourceType = null;
+    private ClassLoaderReference sourceLoader = null;
+    private VirtualMachine sourceVM = null;
     
     /**
      * Constructor - loaded type
@@ -37,14 +39,29 @@ public class JdiReflective extends Reflective {
     }
     
     /**
-     * Constructor - type not loaded yet
+     * Constructor - type not loaded yet; source (parent) object available.
      * @param name       The fully qualified type name
      * @param sourceType  The type from which a reference to this type was
      *                      obtained
      */
     public JdiReflective(String name, ReferenceType sourceType) {
         this.name = name;
-        this.sourceType = sourceType;
+        // this.sourceType = sourceType;
+        this.sourceLoader = sourceType.classLoader();
+        this.sourceVM = sourceType.virtualMachine();
+    }
+    
+    /**
+     * Constructor - type may not yet be loaded; class loader available.
+     * @param name         The fully qualified type name
+     * @param classLoader  The class loader used to load this type
+     * @param vm           The virtual machine reference
+     */
+    public JdiReflective(String name, ClassLoaderReference classLoader, VirtualMachine vm)
+    {
+        this.name = name;
+        this.sourceLoader = classLoader;
+        this.sourceVM = vm;
     }
     
     /**
@@ -53,11 +70,12 @@ public class JdiReflective extends Reflective {
     protected void checkLoaded()
     {
         if( rclass == null ) {
-            rclass = findClass(name, sourceType);
+            rclass = findClass(name, sourceLoader, sourceVM);
             if( rclass == null )
                 Debug.message("Attemp to use unloaded type: " + name);
             name = null;
-            sourceType = null;
+            sourceLoader = null;
+            sourceVM = null;
         }
     }
     
@@ -152,7 +170,7 @@ public class JdiReflective extends Reflective {
                 return rlist;
             }
             String bName = readClassName(s);
-            ReferenceType bType = findClass(bName, rclass);
+            ReferenceType bType = findClass(bName, rclass.classLoader(), rclass.virtualMachine());
             if( bType == null )
                 Debug.message("getSuperTypes: Couldn't find type: " + bName );
             
@@ -195,10 +213,9 @@ public class JdiReflective extends Reflective {
      *                   used to locate the desired class.
      * @return    A ClassType object representing the found class (or null)
      */
-    private static ReferenceType findClass(String name, ReferenceType lclass)
+    private static ReferenceType findClass(String name, ClassLoaderReference cl, VirtualMachine vm)
     {
         Iterator i;
-        ClassLoaderReference cl = lclass.classLoader();
         
         if( cl != null ) {
             // See if the desired class was initiated by our class loader.
@@ -214,7 +231,6 @@ public class JdiReflective extends Reflective {
         // TODO. Technically what we do here is incorrect. We should walk up
         // the chain of classloaders and check each in turn until we reach
         // the system clas loader.
-        VirtualMachine vm = lclass.virtualMachine();
         i = vm.classesByName(name).iterator();
         while( i.hasNext() ) {
             ReferenceType ct = (ReferenceType)i.next();
@@ -256,7 +272,7 @@ public class JdiReflective extends Reflective {
      *                  types. 
      * @return The GenType structure determined from the signature.
      */
-    public static GenType fromSignature(StringIterator i, Map tparams, ReferenceType parent)
+    private static GenType fromSignature(StringIterator i, Map tparams, ReferenceType parent)
     {
         char c = i.next();
         if( c == '*' ) {
@@ -349,7 +365,7 @@ public class JdiReflective extends Reflective {
     }
 
     /**
-     * Determine the complete type of a field.
+     * Determine the complete type of an instance field.
      * @param f      The field
      * @param parent  The object in which the field is located
      * @return  The type of the field value
@@ -374,7 +390,7 @@ public class JdiReflective extends Reflective {
         }
         catch(ClassNotLoadedException cnle) {
             // Debug.message("ClassNotLoadedException, name = " + f.typeName());
-            t = findClass(f.typeName(), parent.obj.referenceType());
+            t = findClass(f.typeName(), parent.obj.referenceType().classLoader(), parent.obj.virtualMachine());
             if( t == null && v != null )
                 t = v.type();
         }
@@ -404,7 +420,7 @@ public class JdiReflective extends Reflective {
                 if( t == null )
                     ref = new JdiReflective(f.typeName(), parent.obj.referenceType());
                 else {
-                    ReferenceType rt = findClass(t.name(), parent.obj.referenceType());
+                    ReferenceType rt = findClass(t.name(), parent.obj.referenceType().classLoader(), parent.obj.virtualMachine());
                     ref = new JdiReflective(rt);
                 }
                 return new GenTypeClass(ref, (List)null);
@@ -433,6 +449,91 @@ public class JdiReflective extends Reflective {
         return fromSignature(iterator, tparams, parent.obj.referenceType());
     }
 
+    /**
+     * Determine the complete type of a class field.
+     * @param f      The field
+     * @param parent  The object in which the field is located
+     * @return  The type of the field value
+     */
+    public static GenType fromField(Field f, ReferenceType parent)
+    {
+        Type t = null;
+        
+        // For a field whose value is unset/null, the corresponding class
+        // type may not have been loaded. In this case "f.type()" throws a
+        // ClassNotLoadedException.
+        //
+        // In the case of string literals, however, it's possible that trying
+        // to get a reference to "java.lang.String" throws
+        // ClassNotLoadedException even when the value isn't null. In this
+        // case, findClass() and v.type() both successfully get a reference
+        // to the type. Perhaps it's a VM bug.
+        
+        Value v = parent.getValue(f); // cheap way to make sure class is loaded
+        try {
+            t = f.type();
+        }
+        catch(ClassNotLoadedException cnle) {
+            // Debug.message("ClassNotLoadedException, name = " + f.typeName());
+            t = findClass(f.typeName(), parent.classLoader(), parent.virtualMachine());
+            if( t == null && v != null )
+                t = v.type();
+        }
+        
+        final String gensig = JdiUtils.getJdiUtils().genericSignature(f);
+        
+        if( gensig == null ) {
+            if( t instanceof BooleanType )
+                return new GenTypeBool();
+            else if( t instanceof ByteType )
+                return new GenTypeByte();
+            else if( t instanceof CharType )
+                return new GenTypeChar();
+            else if( t instanceof DoubleType )
+                return new GenTypeDouble();
+            else if( t instanceof FloatType )
+                return new GenTypeFloat();
+            else if( t instanceof IntegerType )
+                return new GenTypeInt();
+            else if( t instanceof LongType )
+                return new GenTypeLong();
+            else if( t instanceof ShortType )
+                return new GenTypeShort();
+            else {
+                // The class may or may not be loaded.
+                Reflective ref;
+                if( t == null )
+                    ref = new JdiReflective(f.typeName(), parent.classLoader(), parent.virtualMachine());
+                else {
+                    ReferenceType rt = findClass(t.name(), parent.classLoader(), parent.virtualMachine());
+                    ref = new JdiReflective(rt);
+                }
+                return new GenTypeClass(ref, (List)null);
+            }
+        }
+        
+        // generic version.
+        // Get the mapping of type parameter names to actual types. Then,
+        // map the names to the class/interface the field is actually defined
+        // in.
+        
+        //Map tparams; // = parent.getGenericParams();
+        // Reflective r = new JdiReflective(parent.obj.referenceType());
+        
+        // For any parameters that we don't have explicit information for,
+        // substitute an appropriate wildcard type.
+        //if( tparams == null )
+        //    tparams = new HashMap();
+        // GenTypeClass.addDefaultParamBases(tparams, r);
+        // GenTypeClass genType = new GenTypeClass(r, tparams);
+        
+        // genType is now the actual type of the parent object. Map the
+        // parameters to the declaring type:
+        // tparams = genType.mapToSuper(f.declaringType().name());
+        StringIterator iterator = new StringIterator(gensig);
+        return fromSignature(iterator, null, parent);
+    }
+    
     static class StringIterator {
         int i = 0;
         String s;
