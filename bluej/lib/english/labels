@@ -381,6 +381,7 @@ dialogmgr.question = BlueJ:  Question
 dialogmgr.message = BlueJ:  Message
 
 #Terminal Window
+terminal.options = Optionss
 terminal.title = BlueJ:  Terminal Window
 terminal.clear = Clear
 terminal.copy = Copy

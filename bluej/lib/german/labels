@@ -372,6 +372,7 @@ dialogmgr.question = Question
 dialogmgr.message = Message
 
 #Terminal Window
+terminal.options = Options
 terminal.title = BlueJ Terminal Window
 terminal.clear = Löschen
 terminal.copy = Kopieren

@@ -22,7 +22,7 @@ import java.io.FileWriter;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Terminal.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: Terminal.java 876 2001-04-30 05:51:15Z bquig $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -367,7 +367,7 @@ public final class Terminal extends JFrame
         text.addKeyListener(this);
 
         JMenuBar menubar = new JMenuBar();
-        JMenu menu = new JMenu("Options");
+        JMenu menu = new JMenu(Config.getString("terminal.options"));
         JMenuItem item;
         item = menu.add(new ClearAction());
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,

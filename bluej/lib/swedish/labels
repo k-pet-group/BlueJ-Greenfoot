@@ -373,6 +373,7 @@ dialogmgr.question = Fråga
 dialogmgr.message = Meddelande
 
 #Terminal Window ##TO BE TRANSLATED##
+terminal.options = Options
 terminal.title = BlueJ Terminalfönster
 terminal.clear = Rensa
 terminal.copy = Kopiera

@@ -35,7 +35,7 @@ only exception is if the first character is the backslash
 characters, eg. '\n' or '\t'.
 
 Unbalanced parentheses.
-Somewhere your paranthesis (that's the round braces as
+Somewhere your parenthesis (that's the round braces as
 used for this sentence) are gone out of balance. You have
 either more closing paranthesis than opening ones, or
 vice versa.

@@ -198,8 +198,6 @@ browser.fontsize.treeroot=12
 browser.fontname.treeleaf=MonoSpaced
 browser.fontsize.treeleaf=11
 
-# page format for printing
-
 
 #######################################################################
 ## Syntax highlighting - should we do it?
@@ -292,6 +290,8 @@ bluej.compiler.type=internal
 #####################################################################
 
 bluej.editor.tabsize=4
+
+# tabtype not implemented yet
 bluej.editor.tabtype=hard
 #bluej.editor.tabtype=soft
 
