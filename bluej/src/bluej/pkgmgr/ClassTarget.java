@@ -48,7 +48,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: ClassTarget.java 1496 2002-11-06 10:59:46Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -844,8 +844,31 @@ public class ClassTarget extends EditableTarget
 
     public void popupMenu(int x, int y, GraphEditor editor)
     {
+        Class cl = null;
+
         if (state == S_NORMAL) {
-            Class cl = getPackage().loadClass(getQualifiedName());
+            // handle error causes when loading 1.4 compiled classes
+            // on a 1.3 VM
+            // we detect the error, remove the class file, and invalidate
+            // to allow them to be recompiled
+            try {
+                cl = getPackage().loadClass(getQualifiedName());
+            }
+            catch (LinkageError le) {
+                Debug.message(le.toString());    
+
+                // trouble loading the class
+                // remove the class file and invalidate the target
+                if (getSourceFile().exists()) {
+                    getClassFile().delete();    
+                    invalidate();
+                }
+                cl = null;               
+            }
+        }
+
+        // check that the class loading hasn't changed out state
+        if (state == S_NORMAL) {
             if ((cl != null) && (last_class != cl)) {
                 if (menu != null)
                     editor.remove(menu);

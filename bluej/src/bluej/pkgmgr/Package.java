@@ -34,7 +34,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: Package.java 1496 2002-11-06 10:59:46Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -395,13 +395,14 @@ public class Package extends Graph
         return selected;
     }
 
-
     /**
      * Search a directory for Java source and class files and add their
      * names to a set which is returned.
      * Will delete any __SHELL files which are found in the directory
      * and will ignore any single .class files which do not contain
      * public classes.
+     *
+     * The returned set is guaranteed to be only valid Java identifiers.
      */
     private Set findTargets(File path)
     {
@@ -410,7 +411,9 @@ public class Package extends Graph
 
         Set interestingSet = new HashSet();
 
+        // process all *.java files
         for(int i=0; i<srcFiles.length; i++) {
+            // remove all __SHELL*.java files (temp files created by us)
             if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
                 srcFiles[i].delete();
                 continue;
@@ -427,7 +430,9 @@ public class Package extends Graph
                 interestingSet.add(javaFileName);
         }
 
+        // process all *.class files
         for(int i=0; i<classFiles.length; i++) {
+            // remove all __SHELL*.class files (temp files created by us)
             if (classFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
                 classFiles[i].delete();
                 continue;
@@ -442,14 +447,19 @@ public class Package extends Graph
             if (classFileName.indexOf('$') == -1) {
                 // add only if there is no corresponding .java file
                 if (!interestingSet.contains(classFileName)) {
-                    // fix for bug 152
-                    // check that this class is a public class which means that
-                    // private and package .class files generated because there are
-                    // multiple classes defined in a single file will not add a target
-                    Class c = loadClass(getQualifiedName(classFileName));
-
-                    if (Modifier.isPublic(c.getModifiers()))
-                        interestingSet.add(classFileName);
+                    try {
+                        Class c = loadClass(getQualifiedName(classFileName));
+                
+                        // fix for bug 152
+                        // check that this class is a public class which means that
+                        // private and package .class files generated because there are
+                        // multiple classes defined in a single file will not add a target
+                        if (Modifier.isPublic(c.getModifiers()))
+                            interestingSet.add(classFileName);
+                    }
+                    catch (LinkageError e) {
+                        Debug.message(e.toString());
+                    }
                 }
             }
         }
@@ -539,10 +549,6 @@ public class Package extends Graph
 
             while(it.hasNext()) {
                 String targetName = (String) it.next();
-
-                // first check if the target name would be a valid class name
-                if (!JavaNames.isIdentifier(targetName))
-                    continue;
 
                 Target target = (Target) propTargets.get(targetName);
                 if(target == null || !(target instanceof ClassTarget)) {
@@ -639,10 +645,6 @@ public class Package extends Graph
 
         for(Iterator it = interestingSet.iterator(); it.hasNext(); ) {
             String targetName = (String) it.next();
-
-            // first check if the target name would be a valid class name
-            if (!JavaNames.isIdentifier(targetName))
-                continue;
 
             Target target = (Target) targets.get(targetName);
 
