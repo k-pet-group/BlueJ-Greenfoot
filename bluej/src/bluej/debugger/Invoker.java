@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 657 2000-07-26 07:39:59Z mik $
+ * @version $Id: Invoker.java 723 2000-12-12 04:43:19Z mik $
  */
 
 public class Invoker extends Thread
@@ -452,6 +452,9 @@ public class Invoker extends Thread
 		  break;
 
 	      case Debugger.FORCED_EXIT:  // exit through System.exit()
+                  // possible change: currently, exits don't get reported for
+                  // void methods. maybe: exits should get reported if return
+                  // value != 0
 		  if(watcher != null) {
 		      ExceptionDescription exc =
 			  Debugger.debugger.getException();

@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 699 2000-10-23 03:36:34Z bquig $
+  * @version $Id: Installer.java 723 2000-12-12 04:43:19Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -31,10 +31,6 @@ import java.util.zip.*;
 public class Installer extends JFrame
 	implements ActionListener
 {
-    private static final String libDir = "lib";
-    private static final String syslibs = "syslibs.properties";
-    private static final String standardClasses = "classes.zip";
-
     private static final String nl = System.getProperty("line.separator");
     private static final char slash = File.separatorChar;
     private static final String colon = File.pathSeparator;
@@ -42,6 +38,7 @@ public class Installer extends JFrame
 
     // File to test for JDK (relative to javaPath):
     static private String jdkFile = "/lib/tools.jar";
+    static private String jdkFile2 = "/Classes/jpda.jar";  // for MacOS
 
     static final int BUFFER_SIZE=8192;
 
@@ -270,6 +267,7 @@ public class Installer extends JFrame
             "/usr/jdk" + shortVersion, 
             "/usr/local/jdk" + javaVersion, 
             "/usr/local/jdk" + shortVersion, 
+            "/System/Library/Frameworks/JavaVM.framework", 
         };
 
         for(int i = 0; i < tryPaths.length; i++)
@@ -419,7 +417,12 @@ public class Installer extends JFrame
     public boolean isJDKPath(String path) 
     {
         String jdkFilePath = path + jdkFile;
-        return new File(jdkFilePath).exists();
+        if(new File(jdkFilePath).exists())
+            return true;
+        else {
+            jdkFilePath = path + jdkFile2;
+            return new File(jdkFilePath).exists();
+        }
     }
 
     /**
@@ -458,11 +461,11 @@ public class Installer extends JFrame
     private void jdkPathProblem() 
     {
         notifyProblem(
-                      "The Java directory you have specified is not a valid \n" +
-                      "JDK directory. The JDK directory is the directory \n" +
-                      "that JDK (aka Java 2 SDK) was installed to. It must \n" +
-                      "have a subdirectory \"lib\" with a file named \n" +
-                      "\"tools.jar\" in it.");
+          "The Java directory you have specified is not a valid \n" +
+          "JDK directory. The JDK directory is the directory \n" +
+          "that JDK (aka Java 2 SDK) was installed to. It must \n" +
+          "have a subdirectory \"lib\" with a file named \n" +
+          "\"tools.jar\" in it.");
     }
 
     /**
@@ -731,6 +734,45 @@ public class Installer extends JFrame
         out.write(javaPath + "/bin/java " + 
                   getProperty("javaOpts.1.2") + " -D" + 
                   getProperty("installDirProp") + "=$APPBASE "+ 
+                  getProperty("mainClass") + " $*\n");
+        out.close();
+		
+        try {
+            Runtime.getRuntime().exec("chmod 755 " + outputFile);
+        } catch(Exception e) {
+            // ignore it - might not be Unix
+        }
+    }
+
+    /**
+     * Write out a MacOS X, Bourne shell script to start the application
+     */
+    public void writeMacOS() throws IOException 
+    {
+
+        File outputFile = new File(installationDir, (String)getProperty("exeName"));
+        FileWriter out = new FileWriter(outputFile.toString());
+        out.write("#!/bin/sh\n");
+        out.write("APPBASE=" + installationDir + "\n");
+        String commands;
+        commands = getProperty("unixCommands").toString();
+        if(commands != null) {
+            commands = replace(commands, '~', "$APPBASE");
+            commands = replace(commands, '!', javaPath);
+            commands = replace(commands, '@', architecture);
+            out.write(commands);
+            out.write("\n");
+        }
+        String classpath;
+        classpath = getProperty("classpath.mac").toString();
+        classpath = classpath.replace(';', ':');
+        classpath = replace(classpath, '~', "$APPBASE");
+        classpath = replace(classpath, '!', javaPath);
+        classpath = replace(classpath, '@', architecture);
+        out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
+        out.write("export CLASSPATH\n");
+        out.write(javaPath + "/Commands/java " + getProperty("javaOpts") +
+                  " -D" + getProperty("installDirProp") + "=$APPBASE "+ 
                   getProperty("mainClass") + " $*\n");
         out.close();
 		

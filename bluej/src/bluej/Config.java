@@ -40,7 +40,7 @@
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 710 2000-11-22 06:33:42Z dbuck $
+ * @version $Id: Config.java 723 2000-12-12 04:43:19Z mik $
  */
 
     public class Config
@@ -311,8 +311,10 @@
             sysID = "win";
          else if(osname != null && osname.startsWith("Linux"))    // Linux
             sysID = "linux";
-         else if(osname != null && osname.startsWith("SunOS"))  // Solaris
+         else if(osname != null && osname.startsWith("SunOS"))    // Solaris
             sysID = "solaris";
+         else if(osname != null && osname.startsWith("Mac"))      // MacOS
+            sysID = "macos";
          else
             sysID = "";
       

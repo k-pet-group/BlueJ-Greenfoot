@@ -27,8 +27,6 @@ import javax.swing.JFrame;
 import java.io.*;
 import java.util.*;
 import java.text.DateFormat;
-import java.awt.print.Paper;
-import java.awt.print.PageFormat;
 
 
 /**
@@ -38,7 +36,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 716 2000-12-07 00:18:50Z ajp $
+ * @version $Id: Package.java 723 2000-12-12 04:43:19Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -944,7 +942,7 @@ public class Package extends Graph
         removeBreakpoints();
 
         JobQueue.getJobQueue().addJob(files, this, getProject().getClassPath(),
-                                        getProject().getProjectDir().getPath());
+                                       getProject().getProjectDir().getPath());
     }
 
 
