@@ -738,8 +738,7 @@ public final class MoeEditor extends JFrame
      * Returns if this editor is read-only.
      * Accessor for the setReadOnly property.
      *
-     * @return     The readOnly value
-     * @returns    a boolean indicating whether the editor is read-only.
+     * @return   a boolean indicating whether the editor is read-only.
      */
     public boolean isReadOnly()
     {
@@ -787,7 +786,7 @@ public final class MoeEditor extends JFrame
     /**
      * Returns the LineColumn object from the given offset in the text.
      *
-     * @param  offset  Description of the Parameter
+     * @param  offset  The number of characters from the beginning of text (startng from zero)
      * @return         the LineColumn object or null if the offset points outside the text.
      */
     public LineColumn getLineColumnFromOffset( int offset )
@@ -871,7 +870,6 @@ public final class MoeEditor extends JFrame
      */
     public String getText( LineColumn begin, LineColumn end )
     {
-
         int first = getOffsetFromLineColumn( begin );
         int last = getOffsetFromLineColumn( end );
         int beginOffset = Math.min( first, last );
@@ -886,7 +884,57 @@ public final class MoeEditor extends JFrame
     }
 
 
+    /**
+     * Request to the editor to replace the text between beginning and end with the given newText
+     * If begin and end points to the same location, the text is inserted.
+     *
+     * @param  begin                      where to start to replace
+     * @param  end                        where to end to replace
+     * @param  newText                    The new text value
+     * @throws  IllegalArgumentException  if either of the specified LineColumn
+     * represent a position which does not exist in the text.
+     * @throws  BadLocationException  if internally the text points outside a location in the text.
+     */
+    public void setText( LineColumn begin, LineColumn end, String newText )
+        throws BadLocationException
+    {
+        int start = getOffsetFromLineColumn ( begin );
+        int finish = getOffsetFromLineColumn ( end );
+        
+        int beginOffset = Math.min(start,finish);
+        int endOffset = Math.max(start,finish);
 
+        if ( beginOffset != endOffset ) {
+            // since they are different we need to delete what is between them
+            // Tested 23 aug 2004, Damiano
+            int selectLen = endOffset - beginOffset; 
+            document.remove(beginOffset,selectLen);
+        }
+        
+        document.insertString(beginOffset,newText,null);  
+    }
+
+    /**
+     * Request to the editor to mark the text between begin and end as selected.
+     *
+     * @param  begin                      where to start the selection
+     * @param  end                        where to end the selection
+     * @throws  IllegalArgumentException  if either of the specified TextLocations
+     * represent a position which does not exist in the text.
+     */
+    public void setSelection(LineColumn begin, LineColumn end)
+    {
+        int start = getOffsetFromLineColumn ( begin );
+        int finish = getOffsetFromLineColumn ( end );
+        
+        int selectionStart = Math.min(start,finish);
+        int selectionEnd = Math.max(start,finish);
+
+        // Swing code says that selection should be done this way.
+        // Tested 23 Aug 2004, Damiano
+        currentTextPane.setCaretPosition(selectionStart);
+        currentTextPane.moveCaretPosition(selectionEnd);
+    }
 
     /**
      * Translates a LineColumn into an offset into the text held by the editor.

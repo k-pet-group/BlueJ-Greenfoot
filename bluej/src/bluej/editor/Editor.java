@@ -9,12 +9,13 @@ package bluej.editor;
 
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
+import javax.swing.text.*;
 
 
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 2925 2004-08-22 13:42:42Z damiano $
+ * @version $Id: Editor.java 2928 2004-08-23 09:18:04Z damiano $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -246,6 +247,30 @@ public interface Editor
      * @throws  IllegalArgumentException  if either of the specified TextLocations represent a position which does not exist in the text.
      */
     public String getText( LineColumn begin, LineColumn end );    
+
+    /**
+     * Request to the editor to replace the text between beginning and end with the given newText
+     * If begin and end points to the same location, the text is inserted.
+     *
+     * @param  begin                      where to start to replace
+     * @param  end                        where to end to replace
+     * @param  newText                    The new text value
+     * @throws  IllegalArgumentException  if either of the specified LineColumn
+     * represent a position which does not exist in the text.
+     * @throws  BadLocationException  if internally the text points outside a location in the text.
+     */
+    public void setText( LineColumn begin, LineColumn end, String newText )
+        throws BadLocationException;
+    
+    /**
+     * Request to the editor to mark the text between begin and end as selected.
+     *
+     * @param  begin                      where to start the selection
+     * @param  end                        where to end the selection
+     * @throws  IllegalArgumentException  if either of the specified TextLocations
+     * represent a position which does not exist in the text.
+     */
+    public void setSelection(LineColumn begin, LineColumn end);
     
     /**
      * Returns the LineColumn object from the given offset in the text.
