@@ -1,0 +1,27 @@
+#library browser configuration
+browser.title=BlueJ:  Library Browser
+browser.version=0.1
+browser.togglemessagebox.toggle.text=don't display this message again
+
+browser.librarychooser.loading.status=Loading libraries...
+browser.librarychooser.loaded.status=Libraries loaded.
+browser.librarychooser.openingarchive.status=Opening archive library
+browser.librarychooser.config.user=userlibs.properties
+
+browser.classchooser.classmenu.open=Open
+browser.classchooser.classmenu.use=Use...
+browser.classchooser.packagemenu.open=Open
+browser.classchooser.packagemenu.use=Use...
+
+browser.usepackage.dialog.text=Select destination package and click Ok
+
+browser.missingclass.text=The browser cannot locate the class $
+
+#library browser menus
+browser.menu.library=Library
+browser.menu.library.properties=Properties...
+browser.menu.library.addlibrary=Add...
+browser.menu.library.addlibrary.title=Add Library
+browser.menu.library.refresh=Refresh
+browser.menu.library.close=Close
+
