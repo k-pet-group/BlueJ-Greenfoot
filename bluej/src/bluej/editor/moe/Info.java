@@ -157,10 +157,18 @@ public final class Info extends JPanel
     private void displayHelp(String helpGroup)
     {
         File fileName = Config.getLanguageFile(helpGroup + ".help");
-        String helpText = BlueJFileReader.readHelpText(fileName, 
-                                                       originalMsg.trim(),
+        int i = originalMsg.indexOf('\n');
+        
+        // fix for newline bug #386 with jdk1.4.0
+        String line;
+        if (i<0) {
+            line = originalMsg;
+        } else {
+            line = originalMsg.substring(0,i);   
+        }
+        
+        String helpText = BlueJFileReader.readHelpText(fileName, line.trim(),
                                                        false);
-
 //         if(originalMsg.length() > 60) {
 //             int half = originalMsg.length() / 2;
 //             originalMsg = originalMsg.substring(0, half) + "\n" +
