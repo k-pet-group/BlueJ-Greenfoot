@@ -29,7 +29,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: ObjectWrapper.java 1994 2003-05-30 06:36:58Z bquig $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -117,7 +117,7 @@ public class ObjectWrapper extends JComponent
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
         
         setMinimumSize(new Dimension(WIDTH+GAP, HEIGHT));
-        setSize(WIDTH+GAP, HEIGHT);
+        setSize(WIDTH + GAP, HEIGHT);
     }
 
     public Package getPackage()
@@ -425,7 +425,14 @@ public class ObjectWrapper extends JComponent
                 }
             }
             // try tp position menu so that the pointer is near the method items
-            menuOffset = (menu.getComponentCount() - 4) * itemHeight;
+            int offsetFactor = 4;
+            int menuCount = menu.getComponentCount();
+            // typically there are a minimum of 4 menu items for most objects
+            // arrays however do not (at present) so calculation is adjusted to compensate 
+            if( menuCount < 4)
+                offsetFactor = menuCount;
+            menuOffset = (menu.getComponentCount() - offsetFactor) * itemHeight;
+         
             menu.show(this, evt.getX() + 1, evt.getY() - menuOffset);
         }
         else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
