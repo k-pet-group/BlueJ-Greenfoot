@@ -11,7 +11,7 @@ uses
 const
         jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-        bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.0 beta 2';
+        bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.0 beta 3';
 
         searchingstartcaption : string = 'Search drives for all Java versions...';
         searchingstopcaption : string = 'Stop Search';
@@ -236,14 +236,15 @@ begin
         exfile.WaitUntilDone := false;
         exfile.WindowType := wtMinimize;
         exfile.ProcFileName := vmfilename;
-        exfile.ProcParameters := '-cp ' + bluejjarfilename + ';' +
-                                           editorjarfilename + ';' +
-                                           extjarfilename + ';' +
-                                           antlrjarfilename + ';' +
-                                           junitjarfilename + ';' +
-                                           mrjjarfilename + ';' +
-                                           tooljarfilename + ' bluej.Main ' +
-                                           goodparams.DelimitedText;
+        exfile.ProcParameters := '-jar ' + bluejjarfilename + ' ' + goodparams.DelimitedText;
+//                                              ';' +
+//                                           editorjarfilename + ';' +
+//                                           extjarfilename + ';' +
+//                                           antlrjarfilename + ';' +
+//                                           junitjarfilename + ';' +
+//                                           mrjjarfilename + ';' +
+//                                           tooljarfilename +
+//                                        ' bluej.Main ' + goodparams.DelimitedText;
         result := exfile.Execute;
 end;
 
