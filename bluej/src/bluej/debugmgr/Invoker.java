@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 2818 2004-07-26 03:42:35Z davmac $
+ * @version $Id: Invoker.java 2856 2004-08-09 00:59:00Z bquig $
  */
 
 public class Invoker extends Thread
@@ -406,7 +406,7 @@ public class Invoker extends Thread
                 constype += ">";
             }
             command = "new " + constype;
-            ir = new ConstructionInvokerRecord(className, instanceName, command + actualArgString);
+            ir = new ConstructionInvokerRecord(constype, instanceName, command + actualArgString);
 
             //          BeanShell
             //commandAsString = command + actualArgString;
