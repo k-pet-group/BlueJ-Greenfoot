@@ -18,14 +18,19 @@ import com.sun.jdi.*;
  * A class implementing the execution and debugging primitives needed by
  * BlueJ.
  * 
+ * This class is tightly coupled with the classes VMReference and
+ * VMEventHandler. JdiDebugger is the half of the debugger that is
+ * persistent across debugger sessions. VMReference and VMEventHandler
+ * will be constructed anew each time a remote VM is started.
+ * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2039 2003-06-19 06:03:24Z ajp $
+ * @version $Id: JdiDebugger.java 2041 2003-06-20 04:56:33Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
 	// the synch object for loading.
-	// See the inner class MachineLoaderThread (at the bottom)
+	// See the inner class MachineLoaderThread (at the bottom of this source)
 	volatile private boolean vmReady = false;
 
 	// the reference to the current remote VM handler
@@ -195,6 +200,8 @@ public class JdiDebugger extends Debugger
         Object args[] = { instanceName };
 
 		getVM().invokeExecServer( ExecServer.REMOVE_OBJECT, Arrays.asList(args) );
+		
+		System.out.println(getVM().getStatus());
     }
 
     /**
