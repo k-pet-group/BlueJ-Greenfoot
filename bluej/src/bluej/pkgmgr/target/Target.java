@@ -19,7 +19,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2216 2003-10-15 11:53:31Z fisker $
+ * @version $Id: Target.java 2381 2003-11-24 02:26:45Z ajp $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -345,7 +345,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
             return;
         }
         drag_start_x = evt.getX();
-        drag_start_y = evt.getY();;
+        drag_start_y = evt.getY();
         oldRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
     }
 
