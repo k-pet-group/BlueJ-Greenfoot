@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 555 2000-06-19 00:35:11Z mik $
+ * @version $Id: Project.java 566 2000-06-19 05:40:19Z ajp $
  */
 public class Project
 {
@@ -244,6 +244,18 @@ public class Project
         }
 
         throw new IllegalStateException("Project.getPackage()");
+    }
+
+    /**
+     * Save all package of this project.
+     */
+    public void saveAll()
+    {
+        PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
+
+        for(int i=0; i< frames.length; i++) {
+            frames[i].doSave();
+        }
     }
 
     /**
