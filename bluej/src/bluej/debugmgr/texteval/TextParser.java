@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3292 2005-01-19 01:16:01Z davmac $
+ * @version $Id: TextParser.java 3310 2005-02-04 05:12:08Z davmac $
  */
 public class TextParser
 {
@@ -38,7 +38,7 @@ public class TextParser
      * TextParser constructor. Defines the class loader and package scope
      * for evaluation.
      */
-    TextParser(ClassLoader classLoader, String packageScope, ObjectBench ob)
+    public TextParser(ClassLoader classLoader, String packageScope, ObjectBench ob)
     {
         this.classLoader = classLoader;
         this.packageScope = packageScope;
@@ -51,7 +51,7 @@ public class TextParser
      * be determined, or a string representing the result type (of an
      * expression).
      */
-    String parseCommand(String command)
+    public String parseCommand(String command)
     {
         boolean parsedOk = false;
         AST rootAST;
