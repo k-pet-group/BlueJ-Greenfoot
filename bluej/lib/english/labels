@@ -241,7 +241,7 @@ editor.info.docLoaded = Loading class interface... Done.
 editor.info.docAborted = There was a serious problem generating the javadoc\ninterface. Aborted.
 editor.info.docDisappeared = Cannot find HTML file:
 editor.info.docNoFrames = Frame display is disabled in editor preview.
-
+editor.info.tabsExpanded = Converted all TABs to spaces. (You are working\nwith soft TABs, the file contained hard TABs.)
 editor.printer.continued=continued
 #End Editor labels
 
