@@ -17,7 +17,7 @@ import java.util.zip.*;
   *
   *   java Installer
   *
-  * @version $Id: Installer.java 2495 2004-04-14 11:03:12Z polle $
+  * @version $Id: Installer.java 3000 2004-09-13 05:17:25Z bquig $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -65,6 +65,7 @@ public class Installer extends JFrame
     String architecture;        // "sparc", "i386", etc
     String javaVersion;
     boolean isJDK12;
+    boolean isJDK13;
 
     String installationDir = "";
     String javaPath = "";
@@ -228,6 +229,7 @@ public class Installer extends JFrame
         architecture = System.getProperty("os.arch");
         javaVersion = System.getProperty("java.version");
         isJDK12 = javaVersion.startsWith("1.2");
+        isJDK13 = javaVersion.startsWith("1.3");
         javaPath = findJavaPath();
 
         //System.out.println(javaPath);
@@ -238,14 +240,14 @@ public class Installer extends JFrame
         unpackTo(false);
         makeWindow();
 
-        if(isJDK12) {
-            notifyError("This version of BlueJ requires JDK 1.3 or newer.\n" +
-                        "You are running on JDK 1.2.x.  Please upgrade\n" +
+        if(isJDK12 || isJDK13) {
+            notifyError("This version of BlueJ requires JDK 1.4 or newer.\n" +
+                        "You are running on JDK " + javaVersion +" Please upgrade\n" +
                         "JDK before installing BlueJ.\n\n" +
-                        "Older version of BlueJ (up to version 1.3) can\n" +
-                        "run on JDK 1.2.2 - download that version if you\n" +
+                        "Older versions of BlueJ (prior to version 2.0.0) can\n" +
+                        "run on JDK 1.3 - download that version if you\n" +
                         "cannot upgrade JDK.",
-                        "JDK 1.3 (or newer) required.");
+                        "JDK 1.4 (or newer) required.");
         }
     }
 
@@ -669,7 +671,7 @@ public class Installer extends JFrame
 
     /**
      * Write out a Unix, Bourne shell script to start the application
-     * For JDK 1.3 and later
+     * For JDK 1.4 and later
      */
     public void writeUnix(boolean isMacOS)
         throws IOException
