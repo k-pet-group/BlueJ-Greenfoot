@@ -13,7 +13,7 @@ import java.util.List;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: Debugger.java 1527 2002-11-28 15:36:18Z mik $
  */
 public abstract class Debugger
 {
@@ -130,10 +130,14 @@ public abstract class Debugger
 
 
     /**
+     * Get a class from the virtual machine.
+     */
+    public abstract DebuggerClass getClass(String className, DebuggerClassLoader loader);
+
+    /**
      * Get the value of a static field in a class
      */
-    public abstract DebuggerObject getStaticValue(String className, String fieldName)
-        throws Exception;
+    public abstract DebuggerObject getStaticValue(String className, String fieldName);
 
 
     /**

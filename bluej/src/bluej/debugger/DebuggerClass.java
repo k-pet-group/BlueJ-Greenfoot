@@ -6,10 +6,17 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerClass.java 1059 2001-12-20 13:49:55Z mik $
+ *@version    $Id: DebuggerClass.java 1527 2002-11-28 15:36:18Z mik $
  */
 public abstract class DebuggerClass
 {
+    /**
+     *  Return the name of this class (fully qualified).
+     *
+     *@return    The class name
+     */
+    public abstract String getName();
+
     /**
      *  Return the number of static fields.
      *

@@ -32,7 +32,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1521 2002-11-27 13:22:48Z mik $
+ * @version $Id: ObjectWrapper.java 1527 2002-11-28 15:36:18Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -430,8 +430,8 @@ public class ObjectWrapper extends JComponent
      */
     private void inspectObject()
     {
-        ObjectViewer viewer =
-      	    ObjectViewer.getViewer(true, obj, instanceName, pkg, true, pmf);
+        ObjectInspector viewer =
+      	    ObjectInspector.getInstance(false, obj, instanceName, pkg, true, pmf);
     }
 
     /**
@@ -490,8 +490,8 @@ public class ObjectWrapper extends JComponent
             watcher = new ResultWatcher() {
                     public void putResult(DebuggerObject result, String name)
                     {
-                        ObjectViewer viewer =
-                            ObjectViewer.getViewer(false, result, name,
+                        ObjectInspector viewer =
+                            ObjectInspector.getInstance(true, result, name,
                                                    pkg, true, pmf);
                         BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
                                               viewer.getResult());

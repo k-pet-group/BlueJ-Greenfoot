@@ -7,6 +7,7 @@ import bluej.utility.BlueJFileReader;
 import bluej.utility.DialogManager;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClassLoader;
+import bluej.debugger.DebuggerClass;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
@@ -48,7 +49,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1521 2002-11-27 13:22:48Z mik $
+ * @version $Id: ClassTarget.java 1527 2002-11-28 15:36:18Z mik $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -441,20 +442,15 @@ public class ClassTarget extends EditableTarget
     /**
      *
      */
-    private void compile()
-    {
-        getPackage().compile(this);
-    }
-    
-    /**
-     *
-     */
     private void inspect()
     {
+        DebuggerClassLoader loader = getPackage().getRemoteClassLoader();
+        DebuggerClass clss = Debugger.debugger.getClass(getQualifiedName(), loader);
+        System.out.println("class " + getQualifiedName() + ": " + clss);
     }
     
     /**
-     *
+     * Remove this class target from the system.
      */
     private void remove()
     {
@@ -950,7 +946,7 @@ public class ClassTarget extends EditableTarget
                     });
         addMenuItem(menu, compileStr, true,
                     new ActionListener() {
-                        public void actionPerformed(ActionEvent e) { compile(); }
+                        public void actionPerformed(ActionEvent e) { compile(null); }
                     });
         addMenuItem(menu, inspectStr, (state == S_NORMAL),
                     new ActionListener() {

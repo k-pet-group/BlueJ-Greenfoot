@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1520 2002-11-27 11:34:25Z mik $
+ * @version $Id: Invoker.java 1527 2002-11-28 15:36:18Z mik $
  */
 
 public class Invoker extends Thread
@@ -588,7 +588,7 @@ public class Invoker extends Thread
             handleResult(shellClassName);
 
             // update all open inspect windows
-            ObjectViewer.updateViewers();
+            Inspector.updateInspectors();
 
         } catch(Throwable e) {
             e.printStackTrace(System.err);

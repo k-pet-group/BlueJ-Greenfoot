@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: JdiDebugger.java 1527 2002-11-28 15:36:18Z mik $
  *
  * The startup process is as follows:
  *
@@ -644,16 +644,27 @@ public final class JdiDebugger extends Debugger
 
 
     /**
+     * Get a class from the virtual machine.
+     */
+    public DebuggerClass getClass(String className, DebuggerClassLoader loader)
+    {
+        loadClass(loader, className);
+        ReferenceType classMirror = findClassByName(getVM(), className, loader);
+        if(classMirror == null)
+            return null;
+        else
+            return new JdiClass(classMirror);
+    }
+
+
+    /**
      * Get the value of a static field in a class.
      */
     public DebuggerObject getStaticValue(String className, String fieldName)
-        throws Exception
     {
         DebuggerObject object = null;
 
         ReferenceType classMirror = findClassByName(getVM(), className, null);
-
-        //Debug.message("[getStaticValue] " + className + ", " + fieldName);
 
         if(classMirror == null) {
             Debug.reportError("Cannot find class for result value");

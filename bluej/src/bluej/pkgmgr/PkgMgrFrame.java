@@ -41,7 +41,7 @@ import bluej.extmgr.HelpDialog;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1524 2002-11-28 02:37:34Z bquig $
+ * @version $Id: PkgMgrFrame.java 1527 2002-11-28 15:36:18Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1120,8 +1120,8 @@ public class PkgMgrFrame extends JFrame
             if(!mv.isVoid()) {
                 watcher = new ResultWatcher() {
                         public void putResult(DebuggerObject result, String name) {
-                            ObjectViewer viewer =
-                                ObjectViewer.getViewer(false, result, name, getPackage(), true,
+                            ObjectInspector viewer =
+                                ObjectInspector.getInstance(true, result, name, getPackage(), true,
                                                        PkgMgrFrame.this);
                             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                         }
@@ -1428,8 +1428,8 @@ public class PkgMgrFrame extends JFrame
         }
         ResultWatcher watcher = new ResultWatcher() {
                public void putResult(DebuggerObject result, String name) {
-                   ObjectViewer viewer =
-                        ObjectViewer.getViewer(false, result, name, getPackage(), true,
+                   ObjectInspector viewer =
+                        ObjectInspector.getInstance(true, result, name, getPackage(), true,
                                                PkgMgrFrame.this);
                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                }

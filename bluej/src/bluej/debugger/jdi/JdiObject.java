@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiObject.java 1059 2001-12-20 13:49:55Z mik $
+ *@version    $Id: JdiObject.java 1527 2002-11-28 15:36:18Z mik $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -349,8 +349,8 @@ public class JdiObject extends DebuggerObject
      *  ('getStatic' is ignored). If 'getAll' is false, then 'getStatic'
      *  determines whether static fields or instance fields are returned.
      *
-     *@param  getAll            Description of Parameter
-     *@param  getStatic         Description of Parameter
+     *@param  getAll            If true, get static and instance fields
+     *@param  getStatic         If 'getAll' is false, determine which fields to get
      *@param  includeModifiers  If true, include the modifier name (public, private)
      *@return                   The Fields value
      */
@@ -403,17 +403,13 @@ public class JdiObject extends DebuggerObject
 
     private Field getField(boolean getStatic, int slot)
     {
-        for (int i = 0; i < fields.size(); i++)
-        {
+        for (int i = 0; i < fields.size(); i++) {
             Field field = (Field) fields.get(i);
-            if (field.isStatic() == getStatic)
-            {
-                if (slot == 0)
-                {
+            if (field.isStatic() == getStatic) {
+                if (slot == 0) {
                     return field;
                 }
-                else
-                {
+                else {
                     slot--;
                 }
             }

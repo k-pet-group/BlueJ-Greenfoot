@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiClass.java 1059 2001-12-20 13:49:55Z mik $
+ *@version    $Id: JdiClass.java 1527 2002-11-28 15:36:18Z mik $
  */
 public class JdiClass extends DebuggerClass
 {
@@ -33,6 +33,17 @@ public class JdiClass extends DebuggerClass
     {
         this.remoteClass = remoteClass;
         getRemoteFields();
+    }
+
+
+    /**
+     *  Return the name of this class (fully qualified).
+     *
+     *@return    The class name
+     */
+    public String getName()
+    {
+        return remoteClass.name();
     }
 
 
