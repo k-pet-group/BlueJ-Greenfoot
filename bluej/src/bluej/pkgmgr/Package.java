@@ -26,7 +26,7 @@ import bluej.utility.filefilter.*;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3007 2004-09-15 14:45:33Z mik $
+ * @version $Id: Package.java 3096 2004-11-15 23:59:23Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1930,8 +1930,8 @@ public final class Package extends Graph
     public void exceptionMessage(List stack, String message, boolean invalidate)
     {
         if ((stack == null) || (stack.size() == 0)) {
-            Debug.message("Stack missing in exception event");
-            Debug.message("exc message: " + message);
+            // Stack empty or missing. This can happen when an exception is
+            // thrown from the code pad for instance.
             return;
         }
 

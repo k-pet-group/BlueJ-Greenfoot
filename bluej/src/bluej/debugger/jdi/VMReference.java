@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3056 2004-10-21 00:58:44Z davmac $
+ * @version $Id: VMReference.java 3096 2004-11-15 23:59:23Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -946,23 +946,25 @@ class VMReference
                                                                                                                        
             // "stackt" is now an array of Values. Each Value represents a
             // "StackTraceElement" object.
-            ReferenceType StackTraceElementType = (ReferenceType)stackt[0].type();
-            Method getClassName = (Method)StackTraceElementType.methodsByName("getClassName").get(0);
-            Method getFileName = (Method)StackTraceElementType.methodsByName("getFileName").get(0);
-            Method getLineNum = (Method)StackTraceElementType.methodsByName("getLineNumber").get(0);
-            Method getMethodName = (Method)StackTraceElementType.methodsByName("getMethodName").get(0);
-                                                                                                                       
-            for(int i = 0; i < stackt.length; i++) {
-                Value classNameV = safeInvoke(stackt[i], getClassName, empty);
-                Value fileNameV = safeInvoke(stackt[i], getFileName, empty);
-                Value methodNameV = safeInvoke(stackt[i], getMethodName, empty);
-                Value lineNumV = safeInvoke(stackt[i], getLineNum, empty);
-                                                                                                                       
-                String className = ((StringReference)classNameV).value();
-                String fileName = ((StringReference)fileNameV).value();
-                String methodName = ((StringReference)methodNameV).value();
-                int lineNumber = ((IntegerValue)lineNumV).value();
-                stack.add(new SourceLocation(className,fileName,methodName,lineNumber));
+            if (stackt.length > 0) {
+                ReferenceType StackTraceElementType = (ReferenceType)stackt[0].type();
+                Method getClassName = (Method)StackTraceElementType.methodsByName("getClassName").get(0);
+                Method getFileName = (Method)StackTraceElementType.methodsByName("getFileName").get(0);
+                Method getLineNum = (Method)StackTraceElementType.methodsByName("getLineNumber").get(0);
+                Method getMethodName = (Method)StackTraceElementType.methodsByName("getMethodName").get(0);
+                
+                for(int i = 0; i < stackt.length; i++) {
+                    Value classNameV = safeInvoke(stackt[i], getClassName, empty);
+                    Value fileNameV = safeInvoke(stackt[i], getFileName, empty);
+                    Value methodNameV = safeInvoke(stackt[i], getMethodName, empty);
+                    Value lineNumV = safeInvoke(stackt[i], getLineNum, empty);
+                    
+                    String className = ((StringReference)classNameV).value();
+                    String fileName = ((StringReference)fileNameV).value();
+                    String methodName = ((StringReference)methodNameV).value();
+                    int lineNumber = ((IntegerValue)lineNumV).value();
+                    stack.add(new SourceLocation(className,fileName,methodName,lineNumber));
+                }
             }
                                                                                                                        
             // stack is a list of SourceLocation (bluej.debugger.SourceLocation)
