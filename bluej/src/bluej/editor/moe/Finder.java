@@ -172,19 +172,17 @@ public class Finder extends JDialog
         
         JPanel textPanel = new JPanel();
         textPanel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
-
+        textPanel.setLayout(new GridLayout(0,1));
+        
+                 
+         textPanel.add(new JPanel());
         // add search text field
+        textPanel.add(new JLabel(textfieldLabel), BorderLayout.NORTH);
 
-        textPanel.add(new JLabel(textfieldLabel));
-//         queryModel = new DefaultComboBoxModel();
-//         textField = new JComboBox(queryModel);
-//         Dimension dim = textField.getMinimumSize();
-//         dim.width = 220;
-//         textField.setPreferredSize(dim);
-//         textField.setEditable(true);
         textField = new JTextField(16);
         textPanel.add(textField);
 	
+         textPanel.add(new JPanel());
         getContentPane().add("Center", textPanel);
 
         // add buttons
