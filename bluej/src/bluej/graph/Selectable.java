@@ -1,18 +1,21 @@
 package bluej.graph;
 
+import java.awt.Rectangle;
+
 /**
  * Implemented by GraphElements that is selectable
  * @author fisker
- * @version $Id: Selectable.java 2488 2004-04-06 09:42:07Z fisker $
+ * @version $Id: Selectable.java 2755 2004-07-07 15:52:12Z mik $
  */
 public interface Selectable {
     //selection
-    public void setSelected(boolean selected);
-    public boolean isSelected();
+    void setSelected(boolean selected);
+    boolean isSelected();
+    Rectangle getBoundingBox();
     
     //resizing
-    public boolean isHandle(int x, int y);
-    public boolean isResizing();
-    public void setResizing(boolean resizeing);
-    public boolean isResizable();
+    boolean isHandle(int x, int y);
+    boolean isResizing();
+    void setResizing(boolean resizeing);
+    boolean isResizable();
 }

@@ -16,7 +16,7 @@ import java.awt.geom.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2706 2004-07-01 11:05:50Z polle $
+ * @version $Id: Target.java 2755 2004-07-07 15:52:12Z mik $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -175,6 +175,14 @@ public abstract class Target extends Vertex implements Comparable, Selectable
      */
     public boolean isSelected() {
         return selected;
+    }
+    
+    /**
+     * Return a bounding box for this target.
+     */
+    public Rectangle getBoundingBox()
+    {
+        return getRectangle();
     }
     
     public void toggleSelected(){

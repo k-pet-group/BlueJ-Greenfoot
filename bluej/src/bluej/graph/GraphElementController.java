@@ -307,42 +307,44 @@ public class GraphElementController
     }
 
     
-    private static boolean isArrowKey(KeyEvent evt){
-    	return evt.getKeyCode() == KeyEvent.VK_UP ||
-		 evt.getKeyCode() == KeyEvent.VK_DOWN ||
-		 evt.getKeyCode() == KeyEvent.VK_LEFT ||
-		 evt.getKeyCode() == KeyEvent.VK_RIGHT;
+    private static boolean isArrowKey(KeyEvent evt)
+    {
+    	    return evt.getKeyCode() == KeyEvent.VK_UP ||
+    	           evt.getKeyCode() == KeyEvent.VK_DOWN ||
+    	           evt.getKeyCode() == KeyEvent.VK_LEFT ||
+    	           evt.getKeyCode() == KeyEvent.VK_RIGHT;
     }
+    
+    
     /**
      * @param evt
      */
-    public void keyPressed(KeyEvent evt) {
+    public void keyPressed(KeyEvent evt) 
+    {
         //init dependencies
         if (currentTarget instanceof DependentTarget){
-            dependencies = ((DependentTarget)currentTarget).dependentsAsList();	                
+            dependencies = ((DependentTarget)currentTarget).dependentsAsList();                 
         } else {
             dependencies = new LinkedList();//dummy empty list
         }
 
-        //navigate the diagram
-        if (isArrowKey(evt) && !evt.isShiftDown() && !evt.isControlDown()) {
-            navigate(evt);
-        }        
-        
-        //moving targets
-        if (isArrowKey(evt) && evt.isShiftDown() ) {
-        	moveTargets(evt);
-    	}
-                
-        //resizing
-        if (isArrowKey(evt) && evt.isControlDown() ) {
-        	resizeFreely(evt);
+        if(isArrowKey(evt)) {
+            if(evt.isControlDown()) {       //resizing
+                resizeFreely(evt);
+            }
+            else if(evt.isShiftDown()) {    //moving targets
+                moveTargets(evt);
+            }
+            else {                          //navigate the diagram
+                navigate(evt);
+            }
         }
+        
         boolean isPlusOrMinus = evt.getKeyCode() == KeyEvent.VK_PLUS ||
-								evt.getKeyCode() == KeyEvent.VK_MINUS;	
+                                evt.getKeyCode() == KeyEvent.VK_MINUS;  
         if (isPlusOrMinus){
-			resizeWithFixedRatio(evt);
-		}
+            resizeWithFixedRatio(evt);
+        }
        
         //dependency selection
         if(evt.getKeyCode() == KeyEvent.VK_PAGE_UP || 
@@ -361,6 +363,7 @@ public class GraphElementController
             undoSelection();
         }
         
+        evt.consume();
         graphEditor.repaint();
     }
     
@@ -368,8 +371,9 @@ public class GraphElementController
     /**
 	 * @param evt
 	 */
-	private void navigate(KeyEvent evt) {
-		if (currentTarget == null){
+	private void navigate(KeyEvent evt) 
+    {
+	    if(currentTarget == null) {
 			currentTarget = (Target) graphEditor.findSingleVertex();
 		}
 		currentTarget = (Target) traverseStragegiImpl.findNextVertex(pkg, currentTarget, evt.getKeyCode());
@@ -377,7 +381,7 @@ public class GraphElementController
 		graphEditor.getGraphElementManager().add(currentTarget);
 		
 		currentDependencyIndex = 0;
-		if (currentDependency != null){
+		if(currentDependency != null) {
 		    graphEditor.getGraphElementManager().remove(currentDependency);
 		    currentDependency = null;
 		}

@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2725 2004-07-02 20:33:26Z mik $
+ * @version $Id: ObjectWrapper.java 2755 2004-07-07 15:52:12Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -111,7 +111,7 @@ public class ObjectWrapper extends JComponent
             return new ObjectWrapper(pmf, ob, obj, instanceName);
     }
 
-    public ObjectWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
+    protected ObjectWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
     {
         if(pmf.isEmptyFrame())
             throw new IllegalArgumentException();

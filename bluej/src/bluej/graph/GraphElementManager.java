@@ -1,6 +1,7 @@
 package bluej.graph;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.*;
 
 
@@ -31,10 +32,17 @@ class GraphElementManager
      * @param graphElement a GraphElement implementing Selectable which 
      * returns false if it's 'isSelected' method is called.
      */
-    public void add(GraphElement graphElement){
-        if (graphElement instanceof Selectable && !((Selectable)graphElement).isSelected()){
-            ((Selectable)graphElement).setSelected(true);
-            graphElements.add(graphElement);
+    public void add(GraphElement graphElement)
+    {
+        if(graphElement instanceof Selectable) {
+            Selectable element = (Selectable) graphElement;
+            if(! element.isSelected()) {
+                element.setSelected(true);
+                graphElements.add(element);
+                Rectangle box = element.getBoundingBox();
+                box.grow(20,20);
+                graphEditor.scrollRectToVisible(box);
+            }
         }
     }
     
@@ -42,9 +50,10 @@ class GraphElementManager
      * Move all the elements from another graphElementManager to this one.
      * @param graphElementManager the other graphElementManager
      */
-    public void moveAll(GraphElementManager graphElementManager){
+    public void moveAll(GraphElementManager graphElementManager)
+    {
         GraphElement graphElement;
-        for(Iterator i=graphElementManager.graphElements.iterator();i.hasNext();){
+        for(Iterator i=graphElementManager.graphElements.iterator();i.hasNext();) {
             graphElement = (GraphElement) i.next();
             i.remove();
             graphElements.add(graphElement);

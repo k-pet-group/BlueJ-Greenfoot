@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2753 2004-07-07 10:00:09Z mik $
+ * @version $Id: PkgMgrFrame.java 2755 2004-07-07 15:52:12Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1490,9 +1490,8 @@ public class PkgMgrFrame extends JFrame
             getPackage().getDebugger().addObject(wrapper.getName(), object);
                                                 
             if (ir instanceof MethodInvokerRecord) {
-            	MethodInvokerRecord mir = (MethodInvokerRecord) ir;
-            	
-            	mir.setBenchName(newInstanceName, wrapper.getObject().getClassName());
+                MethodInvokerRecord mir = (MethodInvokerRecord) ir;
+                mir.setBenchName(newInstanceName, wrapper.getObject().getClassName());
             }
         }
     }
@@ -2164,6 +2163,7 @@ public class PkgMgrFrame extends JFrame
         classScroller.setBorder(Config.normalBorder);
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         classScroller.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+        classScroller.setFocusable(false);
         mainPanel.add(classScroller, BorderLayout.CENTER);
         
 
@@ -2275,7 +2275,6 @@ public class PkgMgrFrame extends JFrame
         }
         button.setFont(PkgMgrFont);
         button.putClientProperty("JButton.buttonType", "toolbar");  // "icon"
-        //button.setRequestFocusEnabled(false);// hint the laf that mouse click shouldn't request focus
         button.setFocusable(false); //bottons shouldn't get focus
         
         if (notext)

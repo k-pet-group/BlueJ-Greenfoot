@@ -17,9 +17,7 @@ public abstract class GraphElement {
      * doesn't have a popupmenu can made due with the default behavior.
      * @return
      */
-    public boolean contains(int x, int y){
-        return false;
-    }
+    abstract public boolean contains(int x, int y);
     
 
     public void mousePressed(MouseEvent evt, GraphEditor editor) {}

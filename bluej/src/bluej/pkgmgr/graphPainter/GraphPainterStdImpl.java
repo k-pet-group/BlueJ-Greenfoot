@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
 /**
  * Paints a Graph using TargetPainters
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2592 2004-06-11 12:53:08Z fisker $
+ * @version $Id: GraphPainterStdImpl.java 2755 2004-07-07 15:52:12Z mik $
  */
 public class GraphPainterStdImpl implements GraphPainter
 {
@@ -129,7 +129,8 @@ public class GraphPainterStdImpl implements GraphPainter
      * @param g
      * @param edge
      */
-    private void paintEdge(Graphics2D g, Edge edge){
+    private void paintEdge(Graphics2D g, Edge edge)
+    {
         if (!(edge instanceof Dependency)){
             throw new IllegalArgumentException("Not a dependency");
         }
@@ -137,7 +138,8 @@ public class GraphPainterStdImpl implements GraphPainter
         getDependencyPainter(dependency).paint(g, dependency);
     }
     
-    public DependencyPainter getDependencyPainter(Dependency dependency){
+    public DependencyPainter getDependencyPainter(Dependency dependency)
+    {
         if (dependency instanceof ImplementsDependency){
             return implementsDependencyPainter;
         }

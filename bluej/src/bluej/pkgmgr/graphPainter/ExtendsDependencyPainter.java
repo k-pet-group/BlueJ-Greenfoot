@@ -6,32 +6,36 @@ import bluej.Config;
 import bluej.graph.GraphElementController;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
+import bluej.pkgmgr.dependency.Dependency.Line;
 import bluej.pkgmgr.target.DependentTarget;
 
 /**
  * Paints a ClassTarget
  * @author fisker
- * @version $Id: ExtendsDependencyPainter.java 2590 2004-06-11 11:29:14Z fisker $
+ * @author  Michael Kolling
+ * @version $Id: ExtendsDependencyPainter.java 2755 2004-07-07 15:52:12Z mik $
  */
 public class ExtendsDependencyPainter implements DependencyPainter
 {
-    protected static final float strokeWithDefault = 1.0f;
-    protected static final float strokeWithSelected = 2.0f;
+    protected static final float strokeWidthDefault = 1.0f;
+    protected static final float strokeWidthSelected = 2.0f;
     
     static final Color normalColour = Config.getItemColour("colour.arrow.extends");
-    private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
-    private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
+    private static final BasicStroke normalSelected = new BasicStroke(strokeWidthSelected);
+    private static final BasicStroke normalUnselected = new BasicStroke(strokeWidthDefault);
     static final int ARROW_SIZE = 18;		// pixels
     static final double ARROW_ANGLE = Math.PI / 6;	// radians
     
     private GraphPainterStdImpl graphPainterStdImpl;
     
-    public ExtendsDependencyPainter(GraphPainterStdImpl graphPainterStdImpl){
-    	this.graphPainterStdImpl = graphPainterStdImpl;
+    public ExtendsDependencyPainter(GraphPainterStdImpl graphPainterStdImpl)
+    {
+        this.graphPainterStdImpl = graphPainterStdImpl;
     }
     
-    public void paint(Graphics2D g, Dependency dependency) {
-        if (!(dependency instanceof ExtendsDependency)){
+    public void paint(Graphics2D g, Dependency dependency) 
+    {
+        if (!(dependency instanceof ExtendsDependency)) {
             throw new IllegalArgumentException("Not a ExtendsDependency");
         }
         Stroke oldStroke = g.getStroke();
@@ -40,20 +44,9 @@ public class ExtendsDependencyPainter implements DependencyPainter
         boolean isSelected = d.isSelected() && graphPainterStdImpl.isGraphEditorInFocus();
         g.setStroke((isSelected? normalSelected : normalUnselected));
 
-        // Start from the centre of the src class
-        Point pFrom = new Point(d.getFrom().getX() + d.getFrom().getWidth()/2,
-                                d.getFrom().getY() + d.getFrom().getHeight()/2);
-        Point pTo = new Point(d.getTo().getX() + d.getTo().getWidth()/2,
-                			  d.getTo().getY() + d.getTo().getHeight()/2);
-
-        // Get the angle of the line from src to dst.
-        double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
-
-        // Get the dest point
-        pFrom = ((DependentTarget)d.getFrom()).getAttachment(angle + Math.PI);
-        pTo = ((DependentTarget)d.getTo()).getAttachment(angle);
-
-        paintArrow(g, pFrom, pTo);
+        Line line = d.computeLine();
+        
+        paintArrow(g, line.from, line.to);
         g.setStroke(oldStroke);
     }
 

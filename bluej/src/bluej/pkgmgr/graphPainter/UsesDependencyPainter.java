@@ -12,12 +12,13 @@ import bluej.pkgmgr.target.DependentTarget;
 /**
  * Paints usesDependencies
  * @author fisker
- * @version $Id: UsesDependencyPainter.java 2590 2004-06-11 11:29:14Z fisker $
+ * @author  Michael Kolling
+ * @version $Id: UsesDependencyPainter.java 2755 2004-07-07 15:52:12Z mik $
  */
 public class UsesDependencyPainter implements DependencyPainter
 {
-    protected static final float strokeWithDefault = 1.0f;
-    protected static final float strokeWithSelected = 2.0f;
+    protected static final float strokeWidthDefault = 1.0f;
+    protected static final float strokeWidthSelected = 2.0f;
     static final int ARROW_SIZE = 10;		// pixels
     static final double ARROW_ANGLE = Math.PI / 6;	// radians
     
@@ -25,25 +26,27 @@ public class UsesDependencyPainter implements DependencyPainter
 
 
     private static final float  dash1[] = {5.0f,2.0f};
-    private static final BasicStroke dashedUnselected = new BasicStroke(strokeWithDefault,
+    private static final BasicStroke dashedUnselected = new BasicStroke(strokeWidthDefault,
             BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER,
             10.0f, dash1, 0.0f);
-    private static final BasicStroke dashedSelected = new BasicStroke(strokeWithSelected,
+    private static final BasicStroke dashedSelected = new BasicStroke(strokeWidthSelected,
             BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER,
             10.0f, dash1, 0.0f);
-    private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
-    private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
+    private static final BasicStroke normalSelected = new BasicStroke(strokeWidthSelected);
+    private static final BasicStroke normalUnselected = new BasicStroke(strokeWidthDefault);
     
     private GraphPainterStdImpl graphPainterStdImpl;
     
-    public UsesDependencyPainter(GraphPainterStdImpl graphPainterStdImpl){
-    	this.graphPainterStdImpl = graphPainterStdImpl;
+    public UsesDependencyPainter(GraphPainterStdImpl graphPainterStdImpl)
+    {
+        this.graphPainterStdImpl = graphPainterStdImpl;
     }
     
-    public void paint(Graphics2D g, Dependency dependency){
-        if (!(dependency instanceof UsesDependency)){
+    public void paint(Graphics2D g, Dependency dependency)
+    {
+        if (!(dependency instanceof UsesDependency)) {
             throw new IllegalArgumentException("Not a UsesDependency");
         }
         Stroke oldStroke = g.getStroke();        

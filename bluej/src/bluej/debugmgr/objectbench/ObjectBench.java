@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2754 2004-07-07 12:59:19Z mik $
+ * @version $Id: ObjectBench.java 2755 2004-07-07 15:52:12Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -60,7 +60,7 @@ public class ObjectBench extends JPanel
         }
         wrapper.setName(newname);
 
-        wrapper.addFocusListener(this);
+        // wrapper.addFocusListener(this); -- not needed
         obp.add(wrapper);
         objects.add(wrapper);
         obp.revalidate();
@@ -202,7 +202,7 @@ public class ObjectBench extends JPanel
      */
     public void addObjectBenchListener(ObjectBenchListener l)
     {
-        obp.addObjectBenchListener(l);
+        listenerList.add(ObjectBenchListener.class, l);
     }
     
 
@@ -212,17 +212,31 @@ public class ObjectBench extends JPanel
      */
     public void removeObjectBenchListener(ObjectBenchListener l)
     {
-        obp.removeObjectBenchListener(l);
+        listenerList.remove(ObjectBenchListener.class, l);
     }
     
     
     /**
-     * Fire an object event for the named object.
+     * Fire an object event for the named object. This will
+     * notify all listeners that have registered interest for
+     * notification on this event type.
      */
     public void fireObjectEvent(ObjectWrapper wrapper)
     {
-        obp.fireObjectEvent(wrapper);
+        setSelectedObject(wrapper);
+        // guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {   // I don't understand this - why step 2? (mik)
+            if (listeners[i] == ObjectBenchListener.class) {
+                ((ObjectBenchListener)listeners[i+1]).objectEvent(
+                        new ObjectBenchEvent(this,
+                                ObjectBenchEvent.OBJECT_SELECTED, wrapper));
+            }
+        }
     }
+    
 
     /**
      * Show or hide the focus highlight (an emphasised border around
@@ -372,7 +386,7 @@ public class ObjectBench extends JPanel
      * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
      */
     public void mousePressed(MouseEvent e) {
-        requestFocusInWindow();
+        requestFocus();
     }
 
     
@@ -391,7 +405,7 @@ public class ObjectBench extends JPanel
      */
     private void showPopupMenu() 
     {
-        if (selectedObject != null){
+        if(selectedObject != null) {
             selectedObject.showMenu();
         }
     }
@@ -489,21 +503,21 @@ public class ObjectBench extends JPanel
         // start with a clean slate recording invocations
         resetRecordingInteractions();
         //when empty, the objectbench is focusable
-        setFocusable(true);        
+        setFocusable(true);
 
         addFocusListener(this);
         addKeyListener(this);
-        addMouseListener(this);        
+        obp.addMouseListener(this);
     }
 
     
     // ------------- nested class ObjectBenchPanel --------------
 
     /**
-     * This is an inner class so that people can't add or remove
-     * components to it that are of the wrong type (ie not ObjectWrapper).
+     * This is the panel that lives inside the object bench's scrollpane
+     * and actually holds the object wrapper components.
      */
-    private class ObjectBenchPanel extends JPanel
+    private final class ObjectBenchPanel extends JPanel
     {
         public ObjectBenchPanel()
         {
@@ -518,7 +532,6 @@ public class ObjectBench extends JPanel
         public Component add(Component comp)
         {
             super.add(comp);
-            
             return comp;
         }
 
@@ -552,38 +565,6 @@ public class ObjectBench extends JPanel
         public int getNumberOfColumns()
         {
             return getWidth() / ObjectWrapper.WIDTH;
-        }
-        
-        /**
-         * This component will raise ObjectBenchEvents when nodes are
-         * selected in the bench. The following functions manage this.
-         */
-        public void addObjectBenchListener(ObjectBenchListener l)
-        {
-            listenerList.add(ObjectBenchListener.class, l);
-        }
-
-        public void removeObjectBenchListener(ObjectBenchListener l)
-        {
-            listenerList.remove(ObjectBenchListener.class, l);
-        }
-
-        // notify all listeners that have registered interest for
-        // notification on this event type.
-        void fireObjectEvent(ObjectWrapper wrapper)
-        {
-            setSelectedObject(wrapper);
-            // guaranteed to return a non-null array
-            Object[] listeners = listenerList.getListenerList();
-            // process the listeners last to first, notifying
-            // those that are interested in this event
-            for (int i = listeners.length-2; i>=0; i-=2) {
-                if (listeners[i] == ObjectBenchListener.class) {
-                    ((ObjectBenchListener)listeners[i+1]).objectEvent(
-                            new ObjectBenchEvent(this,
-                                    ObjectBenchEvent.OBJECT_SELECTED, wrapper));
-                }
-            }
         }
     }
 }

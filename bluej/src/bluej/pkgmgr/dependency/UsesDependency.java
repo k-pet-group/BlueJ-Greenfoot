@@ -1,6 +1,5 @@
 package bluej.pkgmgr.dependency;
 
-import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
 
@@ -10,28 +9,11 @@ import java.awt.*;
 /**
  * A dependency between two targets in a package
  *
- * @author  Michael Cahill
- * @version $Id: UsesDependency.java 2488 2004-04-06 09:42:07Z fisker $
+ * @author  Michael Kolling
+ * @version $Id: UsesDependency.java 2755 2004-07-07 15:52:12Z mik $
  */
 public class UsesDependency extends Dependency
 {
-    private static final Color normalColour = Config.getItemColour("colour.arrow.uses");
-
-    private static final int SELECT_DIST = 4;
-
-    private static final float  dash1[] = {5.0f,2.0f};
-    private static final BasicStroke dashedUnselected = new BasicStroke(strokeWithDefault,
-                                                              BasicStroke.CAP_BUTT,
-                                                              BasicStroke.JOIN_MITER,
-                                                              10.0f, dash1, 0.0f);
-    private static final BasicStroke dashedSelected = new BasicStroke(strokeWithSelected,
-                                                                  BasicStroke.CAP_BUTT,
-                                                                  BasicStroke.JOIN_MITER,
-                                                                  10.0f, dash1, 0.0f);
-    private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
-    private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
-                                                              
-                                                              
     private int sourceX, sourceY, destX, destY;
     private boolean startTop, endLeft;
     private boolean flag;	// flag to mark some dependencies
@@ -60,7 +42,6 @@ public class UsesDependency extends Dependency
         this.destY = dst_y;
         this.setEndLeft(end_left);
     }
-
 
     /**
      * Test whether (x,y) is in rectangle (x0,x1,y0,y1),
@@ -120,6 +101,16 @@ public class UsesDependency extends Dependency
             || inRect(x, y, src_x, dst_y - SELECT_DIST, dst_x, dst_y + SELECT_DIST);
     }
 
+    
+    /**
+     * Compute line information (start point, end point, angle)
+     * for the current state of this dependency.
+     */
+    public Line computeLine()
+    {
+        return new Line(new Point(sourceX, sourceY), new Point(destX, destY), 0.0);
+    }
+    
 
     public void load(Properties props, String prefix)
     {

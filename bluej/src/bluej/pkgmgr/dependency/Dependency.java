@@ -1,5 +1,7 @@
 package bluej.pkgmgr.dependency;
 
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.Properties;
 
@@ -17,15 +19,18 @@ import bluej.utility.Debug;
  * A dependency between two targets in a package.
  *
  * @author  Michael Cahill
- * @version $Id: Dependency.java 2472 2004-02-09 13:00:47Z fisker $
+ * @author  Michael Kolling
+ * @version $Id: Dependency.java 2755 2004-07-07 15:52:12Z mik $
  */
 public abstract class Dependency extends Edge implements Selectable
 {
     Package pkg;
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
     protected boolean selected = false;
-    protected static final float strokeWithDefault = 1.0f;
-    protected static final float strokeWithSelected = 2.0f;
+//    protected static final float strokeWithDefault = 1.0f;
+//    protected static final float strokeWithSelected = 2.0f;
+
+    static final int SELECT_DIST = 4;
 
     public Dependency(Package pkg, DependentTarget from, DependentTarget to)
     {
@@ -151,4 +156,93 @@ public abstract class Dependency extends Edge implements Selectable
 	public void setResizing(boolean resizing) {
 	}
 
+    /**
+     * Return a bounding box for this dependency.
+     */
+    public Rectangle getBoundingBox()
+    {
+        Line line = computeLine();
+        return getBoxFromLine(line);
+    }
+
+    /**
+     * Contains method for dependencies that are drawn as more or less
+     * straight lines (e.g. extends). Should be overwritten for dependencies
+     * with different shape.
+     */
+    public boolean contains(int x, int y)
+    {
+        Line line = computeLine();
+        Rectangle bounds = getBoxFromLine(line);
+
+        // Now check if <p> is in the rectangle
+        if(! bounds.contains(x, y)) {
+            return false;
+        }
+
+        // Get the angle of the line from pFrom to p
+        double theta = Math.atan2(-(line.from.y - y), line.from.x - x);
+
+        double norm = normDist(line.from.x, line.from.y, x, y, Math.sin(line.angle - theta));
+        return (norm < SELECT_DIST * SELECT_DIST);
+    }
+
+    static final double normDist(int ax, int ay, int bx, int by, double scale)
+    {
+        return ((ax - bx) * (ax - bx) + (ay - by) * (ay - by)) * scale * scale;
+    }
+
+    /**
+     * Given the line describing start and end points of this dependency,
+     * return its bounding box.
+     */
+    protected Rectangle getBoxFromLine(Line line)
+    {
+        int x = Math.min(line.from.x, line.to.x);
+        int y = Math.min(line.from.y, line.to.y);
+        int width = Math.max(line.from.x, line.to.x) - x;
+        int height = Math.max(line.from.y, line.to.y) - y;
+        
+        return new Rectangle(x, y, width, height);
+    }
+
+    /**
+     * Compute line information (start point, end point, angle)
+     * for the current state of this dependency.
+     * This is accurate for dependencis that are drawn as straight lines
+     * from and to the target border (such as extends dependencies)
+     * and should be redefined for different shaped dependencies.
+     */
+    public Line computeLine()
+    {
+        // Compute centre points of source and dest target
+        Point pFrom = new Point(from.getX() + from.getWidth()/2, from.getY() + from.getHeight()/2);
+        Point pTo = new Point(to.getX() + to.getWidth()/2, to.getY() + to.getHeight()/2);
+
+        // Get the angle of the line from pFrom to pTo.
+        double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
+
+        // Compute intersection points with target border
+        pFrom = ((DependentTarget)from).getAttachment(angle + Math.PI);
+        pTo = ((DependentTarget)to).getAttachment(angle);
+
+        return new Line(pFrom, pTo, angle);
+    }
+    
+
+    /**
+     * Inner class to describe the most important state of this dependency
+     * (start point, end point, angle) concisely.
+     */
+    public class Line {
+        public Point from;
+        public Point to;
+        double angle;
+        Line(Point from, Point to, double angle) {
+            this.from = from;
+            this.to = to;
+            this.angle = angle;
+        }
+    }
+    
 }

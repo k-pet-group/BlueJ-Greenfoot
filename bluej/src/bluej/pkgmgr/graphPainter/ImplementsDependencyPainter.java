@@ -11,12 +11,13 @@ import bluej.pkgmgr.target.DependentTarget;
 /**
  * Paintes ImplementsDependencies
  * @author fisker
- * @version $Id: ImplementsDependencyPainter.java 2590 2004-06-11 11:29:14Z fisker $
+ * @author  Michael Kolling
+ * @version $Id: ImplementsDependencyPainter.java 2755 2004-07-07 15:52:12Z mik $
  */
 public class ImplementsDependencyPainter implements DependencyPainter
 {
-    protected static final float strokeWithDefault = 1.0f;
-    protected static final float strokeWithSelected = 2.0f;
+    protected static final float strokeWidthDefault = 1.0f;
+    protected static final float strokeWidthSelected = 2.0f;
     
     static final Color normalColour = Config.getItemColour("colour.arrow.implements");
     //static final Color bgGraph = Config.getItemColour("colour.graph.background");
@@ -24,16 +25,16 @@ public class ImplementsDependencyPainter implements DependencyPainter
     static final double ARROW_ANGLE = Math.PI / 6;	// radians
     //static final int SELECT_DIST = 4;
     private static final float  dash1[] = {5.0f,2.0f};
-    private static final BasicStroke dashedUnselected = new BasicStroke(strokeWithDefault,
+    private static final BasicStroke dashedUnselected = new BasicStroke(strokeWidthDefault,
             BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER,
             10.0f, dash1, 0.0f);
-    private static final BasicStroke dashedSelected = new BasicStroke(strokeWithSelected,
+    private static final BasicStroke dashedSelected = new BasicStroke(strokeWidthSelected,
             BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER,
             10.0f, dash1, 0.0f);
-    private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
-    private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
+    private static final BasicStroke normalSelected = new BasicStroke(strokeWidthSelected);
+    private static final BasicStroke normalUnselected = new BasicStroke(strokeWidthDefault);
     
     private GraphPainterStdImpl graphPainterStdImpl;
     
