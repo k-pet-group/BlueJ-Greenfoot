@@ -12,7 +12,6 @@ How to make a BlueJ release                    (last update 31.08.2001, mik)
  		- Build BlueJ on MacOS
  		- Build BlueJ on a 5.0 system, then copy the following files to Mac:
  			bluej/utility/JavaUtils15.class
-			bluej/utility/JavaArrayReflective.class
 			bluej/debugger/jdi/JdiUtils15.class
 
  b) 
