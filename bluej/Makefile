@@ -100,9 +100,14 @@ package/bluej-$(PKG_VERSION).jar: distcompile
 	cp -rp $(INSTALL_EXAMPLES) install_tmp/examples
 	( cd install_tmp/examples && rm -rf `$(FINDCVS)` )
 
+	# jar editor
+	( cd classes ; \
+	  jar cv0Mf ../install_tmp/lib/editor.jar bluej/editor bluej/utility org && rm -rf bluej/editor org )
+
 	# jar bluej class files into lib/bluej.jar
 	( cd classes ; \
 	  jar cv0Mf ../install_tmp/lib/bluej.jar `$(FINDALL)` )
+
 	chmod -R a+r install_tmp
 
 	# bundle the whole bluej distribution together to bluej-dist.jar
@@ -113,7 +118,7 @@ package/bluej-$(PKG_VERSION).jar: distcompile
 	( cd package && \
 	  javac Installer.java ; \
 	  java Installer build installer.props ; \
-	  jar cv0mf manifest bluej-$(PKG_VERSION).jar *.class )
+	  jar cv0mf manifest bluej-$(PKG_VERSION).jar editor.jar *.class )
 
 	# clean up
 	rm -f package/bluej-dist.jar
