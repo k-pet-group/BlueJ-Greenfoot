@@ -10,7 +10,7 @@ import bluej.utility.Utility;
 /**
  * Paints a ClassTarget
  * @author fisker
- * @version $Id: ClassTargetPainter.java 2514 2004-04-29 15:58:45Z fisker $
+ * @version $Id: ClassTargetPainter.java 2557 2004-05-27 11:06:31Z polle $
  */
 
 public class ClassTargetPainter
@@ -104,7 +104,7 @@ public class ClassTargetPainter
 
         
         // draw the identifiername of the class
-        Utility.drawCentredText(g, classTarget.getIdentifierName(), TEXT_BORDER,
+        Utility.drawCentredText(g, classTarget.getDisplayName(), TEXT_BORDER,
                 				currentTextPosY, 
                 				classTarget.getWidth() - 2 * TEXT_BORDER,
                 				TEXT_HEIGHT);
