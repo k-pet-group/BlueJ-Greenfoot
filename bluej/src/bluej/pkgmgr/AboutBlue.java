@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 2150 2003-08-05 14:40:32Z mik $
+ * @version $Id: AboutBlue.java 2155 2003-08-06 08:20:43Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -49,21 +49,17 @@ class AboutBlue extends JDialog
         MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT);
         text.setBackground(Color.white);
         text.addText(" ");
-        text.addText("The BlueJ development environment was\n" +
-            		 "developed at Monash University, Australia,\n" +
-                     "and the University of Southern Denmark.");
-        text.addText(" ");
-        text.addText("The BlueJ team:", false, true);
-        text.addText("      Kasper Fisker\n" +
-                     "      Poul Henriksen\n" +
-                     "      Michael K\u00F6lling\n" +
-                     "      Andrew Patterson\n" +
-                     "      Bruce Quig\n" +
+        text.addText("The BlueJ team at Deakin University", false, true);
+        text.addText("      Andrew Patterson, Bruce Quig,\n" +
                      "      John Rosenberg\n");
         text.addText(" ");
-        text.addText("The extension mechanism was written by\n" +
-                     "Ian Utting, Clive Miller and Damiano Bolla\n" +
-                     "at the University of Kent at Canterbury.");
+        text.addText("The BlueJ team at the University", false, true);
+        text.addText("of Southern Denmark", false, true);
+        text.addText("      Kasper Fisker, Poul Henriksen,\n" +
+                     "      Michael K\u00F6lling\n");
+        text.addText(" ");
+        text.addText("The BlueJ extension team at Kent University", false, true);
+        text.addText("      Damiano Bolla, Ian Utting");
 
         aboutPanel.add(text, BorderLayout.CENTER);
 
