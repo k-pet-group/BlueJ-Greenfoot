@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2336 2003-11-14 10:08:43Z mik $
+ * @version $Id: PkgMgrFrame.java 2338 2003-11-14 10:15:19Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -473,11 +473,11 @@ public class PkgMgrFrame extends JFrame
             int x = Integer.parseInt(x_str);
             int y = Integer.parseInt(y_str);
 
-            if (x > (Config.screenBounds.width - 40))
-                x = Config.screenBounds.width - 40;
+            if (x > (Config.screenBounds.width - 80))
+                x = Config.screenBounds.width - 80;
 
-            if (y > (Config.screenBounds.height - 40))
-                y = Config.screenBounds.height - 40;
+            if (y > (Config.screenBounds.height - 80))
+                y = Config.screenBounds.height - 80;
 
             setLocation(x,y);
         }
