@@ -12,25 +12,31 @@ import bluej.Config;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 2176 2003-09-05 10:23:47Z fisker $
+ * @version $Id: GraphEditor.java 2202 2003-10-06 13:01:00Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
 {
     protected static final Color background = Config.getItemColour("colour.graph.background");
-
-    private Graph graph;
-    private GraphElement activeGraphElement;
     final static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
     final static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
     final static Cursor arrowCursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
+    private Graph graph;
+    private GraphElement activeGraphElement;
     private boolean readOnly = false;
-
+    private Marquee marquee;
+    // Contains the elements that has been selected
+    private GraphElementManager graphElementManager;
+    private int x,y; //coordinates for the last left clicked position
+    
+    
     public GraphEditor(Graph graph)
     {
         this.graph = graph;
         activeGraphElement = null;
+        graphElementManager = new GraphElementManager(this);
         addMouseMotionListener(this);
+        marquee = new Marquee(graph,this);
     }
 
     public Dimension getPreferredSize()
@@ -52,6 +58,7 @@ public class GraphEditor extends JComponent
         }
 
         graph.draw(g);
+        marquee.draw(g);
     }
 
 
@@ -132,19 +139,21 @@ public class GraphEditor extends JComponent
         
     }
 
+    private boolean isMultiselectionKeyDown(MouseEvent evt){
+        int mKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        int modifiers = evt.getModifiersEx();
+        /*System.out.println("mKey=" + mKey + " modifiers=" + modifiers + 
+                           " CTRL_MASK=" + Event.CTRL_MASK + 
+                           " CTRL_DOWN_MASK="+ MouseEvent.CTRL_DOWN_MASK);
+                           */
+        return evt.isShiftDown();
+    }
 
 	// ---- KeyListener interface ----
 	
     public void keyPressed(KeyEvent evt)
     {
-/**  kay activation of popup menu -no ready
-    	char key = evt.getKeyChar();
-    	switch(key) {
-    	case 'm': 
-            if(activeVertex != null)
-                activeVertex.popupMenu(10, 10, this);
-        }
- */
+        
     }
     
     public void keyReleased(KeyEvent evt)
@@ -163,36 +172,66 @@ public class GraphEditor extends JComponent
             if(evt.getClickCount() > 1 && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
                 activeGraphElement.doubleClick(evt, evt.getX(), evt.getY(), this);
             }
-            else
-            activeGraphElement.singleClick(evt, evt.getX(), evt.getY(), this);
+            else{
+                activeGraphElement.singleClick(evt, evt.getX(), evt.getY(), this);
+            }
+            if (!isMultiselectionKeyDown(evt)){
+                graphElementManager.clear();
+                graphElementManager.add(activeGraphElement);
+            }
+            
         }
     }
+    
 
     public void mousePressed(MouseEvent evt)
     {
-        int x = evt.getX();
-        int y = evt.getY();
-
-        activeGraphElement = findGraphElement(x,y);
-        graph.setActiveGraphElement(activeGraphElement);
-        // Signal the graphElement that it was clicked
+        x = evt.getX();
+        y = evt.getY();
+        
+        if(!evt.isPopupTrigger()){
+            marquee.start(x, y); 
+            activeGraphElement = findGraphElement(x, y);
+    
+            if (activeGraphElement == null){
+                if(!isMultiselectionKeyDown(evt)){
+                    //the background was clicked and multiselectionKey wasn't down
+                    graphElementManager.clear();
+                }
+            }else{
+                if(isMultiselectionKeyDown(evt)){
+                    //a class was clicked, while multiselectionKey was down.
+                    if(((Selectable)activeGraphElement).isSelected()){
+                        // the clicked class was selected
+                        graphElementManager.remove(activeGraphElement);
+                    }
+                    else{
+                        //the clicked class wasn't selected
+                        graphElementManager.add(activeGraphElement);
+                    }
+                }else{
+                    //a class was clicked,while multiselection was up.
+                    if (!((Selectable)activeGraphElement).isSelected()){
+                        //the class was wasn't selected
+                        graphElementManager.clear();
+                        graphElementManager.add(activeGraphElement);
+                    }
+                }
+                
+            }
+        }
+      
+        // Signal the graphElement that it was pressed
         if((activeGraphElement != null) && !evt.isPopupTrigger() &&
             ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-                activeGraphElement.mousePressed(evt, x, y, this);
+                graphElementManager.mousePressed(evt);
         }
         //if the graphElement is selectable and it got clicked on a handle,
         //then it is resizing.
         if(activeGraphElement instanceof Selectable)
         {
             Selectable selectable = (Selectable) activeGraphElement;
-            if ( selectable.isHandle(x,y) )
-            {
-               selectable.setResizing(true);
-            }
-            else
-            {
-                selectable.setResizing(false);
-            }
+            selectable.setResizing(selectable.isHandle(x, y));
         }
     }
     
@@ -200,8 +239,14 @@ public class GraphEditor extends JComponent
 
     public void mouseReleased(MouseEvent evt)
     {
+        marquee.stop();
+        graphElementManager.moveAll(marquee.getGraphElementManger());
+        
+        if (activeGraphElement != null) {
+            ((Selectable) activeGraphElement).setResizing(false);
+        }
         if(activeGraphElement != null && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-            activeGraphElement.mouseReleased(evt, evt.getX(), evt.getY(), this);
+            graphElementManager.mouseReleased(evt);
         }
     }
 
@@ -211,11 +256,19 @@ public class GraphEditor extends JComponent
 	
     public void mouseDragged(MouseEvent evt)
     {
-        if (readOnly)
-            return;
-
-        if(activeGraphElement != null)
-        activeGraphElement.mouseDragged(evt, evt.getX(), evt.getY(), this);
+        if (readOnly) return;
+        
+        if(!evt.isPopupTrigger()&&
+        ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)){
+            if(activeGraphElement == null)
+            {
+                marquee.move(evt.getX(), evt.getY());          
+            }
+            else
+            {
+                graphElementManager.mouseDragged(evt);
+            }
+        }
     }
     
    
@@ -242,10 +295,7 @@ public class GraphEditor extends JComponent
             //make the mousecursor normal
             setCursor(defaultCursor);
         }
-        if(activeGraphElement != null)
-        {
-            activeGraphElement.mouseMoved(evt, evt.getX(), evt.getY(), this);
-        } 
+        graphElementManager.mouseMoved(evt);
     }
 
     // ---- end of MouseMotionListener interface ----
@@ -258,7 +308,9 @@ public class GraphEditor extends JComponent
 
         if(evt.isPopupTrigger() && activeGraphElement != null)
         {
-            activeGraphElement.popupMenu(evt.getX(), evt.getY(), this);
+            graphElementManager.clear();
+            graphElementManager.add(activeGraphElement);
+            activeGraphElement.popupMenu(x, y, this);
         }
     }
 
