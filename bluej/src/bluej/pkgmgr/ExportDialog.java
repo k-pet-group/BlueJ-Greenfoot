@@ -17,7 +17,7 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 2433 2003-12-09 12:18:54Z mik $
+ * @version $Id: ExportDialog.java 2887 2004-08-17 15:18:28Z mik $
  */
 class ExportDialog extends JDialog
 {
@@ -25,17 +25,12 @@ class ExportDialog extends JDialog
     private static final String dialogTitle = Config.getString("pkgmgr.export.title");
     private static final String helpLine1 = Config.getString("pkgmgr.export.helpLine1");
     private static final String helpLine2 = Config.getString("pkgmgr.export.helpLine2");
-    private static final String directoryLabel = Config.getString("pkgmgr.export.directoryLabel");
-    private static final String jarFileLabel = Config.getString("pkgmgr.export.jarFileLabel");
     private static final String classLabelText = Config.getString("pkgmgr.export.classLabel");
     private static final String sourceLabel = Config.getString("pkgmgr.export.sourceLabel");
     private static final String noClassText = Config.getString("pkgmgr.export.noClassText");
-    private static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
-    private String mainClassName = null;
+    private String mainClassName = "";
 
-    private JRadioButton directoryButton;
-    private JRadioButton jarButton;
     private JComboBox classSelect;
     private JCheckBox sourceBox;
 
@@ -69,15 +64,6 @@ class ExportDialog extends JDialog
     }
 
     /**
-     * Return true if user wants to save in jar file, false for saving
-     * in directory.
-     */
-    public boolean saveAsJar()
-    {
-        return jarButton.isSelected();
-    }
-
-    /**
      * Return true if user wants to include the source.
      */
     public boolean includeSource()
@@ -92,7 +78,7 @@ class ExportDialog extends JDialog
     {
         mainClassName = (String)classSelect.getSelectedItem();
         if(mainClassName.equals(noClassText))
-            mainClassName = null;
+            mainClassName = "";
         ok = true;
         setVisible(false);
     }
@@ -124,7 +110,7 @@ class ExportDialog extends JDialog
             JLabel helpText2 = new JLabel(helpLine2);
             mainPanel.add(helpText2);
 
-            Font smallFont = helpText1.getFont().deriveFont(10);
+            Font smallFont = helpText1.getFont().deriveFont(Font.ITALIC, 11.0f);
             helpText1.setFont(smallFont);
             helpText2.setFont(smallFont);
 
@@ -140,21 +126,6 @@ class ExportDialog extends JDialog
 						BorderFactory.createEtchedBorder(),
 						BorderFactory.createEmptyBorder(5, 10, 5, 10)));
 
-                directoryButton = new JRadioButton(directoryLabel, true);
-                directoryButton.setAlignmentX(LEFT_ALIGNMENT);
-                jarButton = new JRadioButton(jarFileLabel, false);
-                jarButton.setAlignmentX(LEFT_ALIGNMENT);
-
-                ButtonGroup bGroup = new ButtonGroup();
-                {
-                    bGroup.add(directoryButton);
-                    bGroup.add(jarButton);
-                }
-
-                inputPanel.add(directoryButton);
-                inputPanel.add(jarButton);
-                inputPanel.add(Box.createVerticalStrut(5));
-
                 JLabel classLabel = new JLabel(classLabelText);
                 classLabel.setAlignmentX(LEFT_ALIGNMENT);
                 inputPanel.add(classLabel);
@@ -165,7 +136,7 @@ class ExportDialog extends JDialog
                 inputPanel.add(classSelect);
                 inputPanel.add(Box.createVerticalStrut(5));
 
-                sourceBox = new JCheckBox(sourceLabel, true);
+                sourceBox = new JCheckBox(sourceLabel, false);
                 sourceBox.setAlignmentX(LEFT_ALIGNMENT);
                 inputPanel.add(sourceBox);
             }

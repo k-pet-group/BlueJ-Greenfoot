@@ -16,13 +16,11 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 2873 2004-08-16 05:50:32Z davmac $
+ * @version $Id: FileUtility.java 2887 2004-08-17 15:18:28Z mik $
  */
 public class FileUtility
 {
     private static final String sourceSuffix = ".java";
-    private static final String contextSuffix = ".ctxt";
-    private static final String packageFilePrefix = "bluej.pk";
 
     private static JFileChooser pkgChooser = null;
     private static JFileChooser pkgChooserNonBlueJ = null;
@@ -136,9 +134,6 @@ public class FileUtility
      */
     private static JFileChooser getPackageChooser()
     {
-        // find current dir name
-        String currentDir = (new File("x")).getAbsolutePath();
-
         if(pkgChooser == null) {
             pkgChooser = new PackageChooserStrict(new File(PrefMgr.getProjectDirectory()));
         }
@@ -154,9 +149,6 @@ public class FileUtility
      */
     private static JFileChooser getNonBlueJPackageChooser()
     {
-        // find current dir name
-        String currentDir = (new File("x")).getAbsolutePath();
-
         if(pkgChooserNonBlueJ == null)
             pkgChooserNonBlueJ = new PackageChooser(
                                           new File(PrefMgr.getProjectDirectory()));
@@ -173,8 +165,6 @@ public class FileUtility
      */
     private static JFileChooser getFileChooser()
     {
-        String currentDir = (new File("x")).getAbsolutePath();
-
         if(fileChooser == null) {
             fileChooser = new BlueJFileChooser(PrefMgr.getProjectDirectory());
         }
@@ -188,8 +178,6 @@ public class FileUtility
      */
     private static JFileChooser getMultipleFileChooser()
     {
-        String currentDir = (new File("x")).getAbsolutePath();
-
         if(multiFileChooser == null) {
             multiFileChooser = new BlueJFileChooser(PrefMgr.getProjectDirectory());
             multiFileChooser.setMultiSelectionEnabled(true);
@@ -311,35 +299,12 @@ public class FileUtility
                     return COPY_ERROR;
             }
             else {
-                if(!skipFile(dir[i], excludeBlueJ, excludeSource)) {
-                    File file2 = new File(dest, dir[i]);
-                    if(!copyFile(file, file2))
-                        return COPY_ERROR;
-                }
+                File file2 = new File(dest, dir[i]);
+                if(!copyFile(file, file2))
+                    return COPY_ERROR;
             }
         }
         return NO_ERROR;
-    }
-
-
-    /**
-     * Checks whether a file should be skipped during a copy operation.
-     * You can specify to skip BlueJ specific files and/or Java source
-     * files.
-     */
-    public static boolean skipFile(String fileName,
-                            boolean skipBlueJ, boolean skipSource)
-    {
-        if(skipBlueJ)
-            if(fileName.startsWith(packageFilePrefix) ||
-               fileName.endsWith(contextSuffix))
-                return true;
-
-        if(skipSource)
-            if(fileName.endsWith(sourceSuffix))
-                return true;
-
-        return false;
     }
 
 

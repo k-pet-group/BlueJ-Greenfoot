@@ -20,7 +20,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 2851 2004-08-06 14:43:05Z mik $
+ * @version $Id: AppletClassRole.java 2887 2004-08-17 15:18:28Z mik $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -300,6 +300,7 @@ public class AppletClassRole extends ClassRole
         translations.put("APPLETWIDTH", width);
         translations.put("APPLETHEIGHT", height);
         
+        // add libraries from <project>/+libs/ to archives
         String archives = "";
         try{
             for(int i=0; i < libs.length; i++) {
@@ -311,7 +312,8 @@ public class AppletClassRole extends ClassRole
         }
         catch(MalformedURLException e) {}
         
-        String userLibs = ClassMgr.getClassMgr().getUserClassPath().asCommaSeparatedList();
+        // add libraries from <bluej>/lib/userlib/ and Preferences-Libraries to archives
+        String userLibs = ClassMgr.getClassMgr().getUserClassPath().asList(',', true);
         if(userLibs.length() > 0) {
             if(archives.length() > 0)
                 archives = archives + "," + userLibs;

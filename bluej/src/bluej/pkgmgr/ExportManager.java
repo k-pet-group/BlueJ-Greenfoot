@@ -1,30 +1,32 @@
 package bluej.pkgmgr;
 
-import java.util.*;
 import java.util.jar.*;
 import java.util.zip.*;
 import java.io.*;
 
 import bluej.Config;
+import bluej.classmgr.ClassMgr;
+import bluej.classmgr.ProjectClassLoader;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.utility.BlueJFileReader;
 
 /**
  * Component to manage exporting projects to standard Java format.
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 2654 2004-06-23 15:11:42Z polle $
+ * @version $Id: ExportManager.java 2887 2004-08-17 15:18:28Z mik $
  */
 final class ExportManager
 {
     private static final String specifyJar = Config.getString("pkgmgr.export.specifyJar");
-    private static final String specifyDir = Config.getString("pkgmgr.export.specifyDir");
     private static final String createJarText = Config.getString("pkgmgr.export.createJarText");
-    private static final String createDirText = Config.getString("pkgmgr.export.createDirText");
     
+    private static final String sourceSuffix = ".java";
+    private static final String contextSuffix = ".ctxt";
+    private static final String packageFilePrefix = "bluej.pk";
+
     private PkgMgrFrame frame;
 
     public ExportManager(PkgMgrFrame frame)
@@ -45,27 +47,15 @@ final class ExportManager
         if(!okay)
             return;
 
-        String newName;
-        if (dialog.saveAsJar())
-            newName = FileUtility.getFileName(frame, specifyJar, createJarText, false, null, false);
-        else
-            newName = FileUtility.getFileName(frame, specifyDir, createDirText, false, null, false);
+        String newName = FileUtility.getFileName(frame, specifyJar, createJarText, 
+                                                 false, null, false);
         if(newName == null)
             return;
 
         String sourceDir = frame.getProject().getProjectDir().getPath();
 
-        if(dialog.saveAsJar())
-            exportJar(sourceDir, newName, dialog.getMainClass(),
-                      dialog.includeSource());
-        else
-            exportDir(sourceDir, newName, dialog.getMainClass(),
-                      false, dialog.includeSource(), "error-exporting");
-    }
-
-    public void saveAs(String sourceDir, String destDir)
-    {
-        exportDir(sourceDir, destDir, null, true, true, "cannot-copy-package");
+        exportJar(sourceDir, newName, dialog.getMainClass(),
+                dialog.includeSource());
     }
 
     /**
@@ -86,19 +76,31 @@ final class ExportManager
         OutputStream oStream = null;
         JarOutputStream jStream = null;
 
+        // add jar files from +libs to classpath
+        File[] libs = frame.getProject().getLocalClassLoader().getProjectLibs();
+        String classpath = "";
+        for(int i=0; i < libs.length; i++) {
+            classpath += " " + libs[i].getName();
+        }
+        
+//        // add jar files from lib/userlib and Preferences to classpath
+//        String userLibs = ClassMgr.getClassMgr().getUserClassPath().asList(' ', false);
+//        if(userLibs.length() > 0) {
+//            classpath += " " + userLibs;
+//        }
+//        System.out.println(classpath);
+
         try {
             // create manifest
             Manifest manifest = new Manifest();
             Attributes attr = manifest.getMainAttributes();
             attr.put(Attributes.Name.MANIFEST_VERSION, "1.0");
             attr.put(Attributes.Name.MAIN_CLASS, mainClass);
+            attr.put(Attributes.Name.CLASS_PATH, classpath);
 
             // create jar file
             oStream = new FileOutputStream(jarFile);
-            if(mainClass != null && mainClass.length() > 0)
-                jStream = new JarOutputStream(oStream, manifest);
-            else
-                jStream = new JarOutputStream(oStream);
+            jStream = new JarOutputStream(oStream, manifest);
 
             writeDirToJar(new File(sourceDir), "", jStream, includeSource,
                             jarFile.getCanonicalFile());
@@ -127,17 +129,22 @@ final class ExportManager
         throws IOException
     {
         File[] dir = sourceDir.listFiles();
-        for(int i=0; i<dir.length; i++) {
+        for(int i = 0; i < dir.length; i++) {
             if(dir[i].isDirectory()) {
-                if(!skipDir(dir[i]))
-                    writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
-                                  jStream, includeSource, outputFile);
+                if(!skipDir(dir[i])) {
+                    if(isLibDirectory(dir[i])) // move jars from lib directory to top level dir
+                        writeDirToJar(dir[i], pathPrefix,
+                                jStream, includeSource, outputFile);
+                    else
+                        writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
+                                jStream, includeSource, outputFile);
+                }
             }
             else {
                 // check against a list of file we don't want to export and also
                 // check that we don't try to export the jar file we are writing
                 // (hangs the machine)
-                if(!FileUtility.skipFile(dir[i].getName(), true, !includeSource) &&
+                if(!skipFile(dir[i].getName(), !includeSource) &&
                     !outputFile.equals(dir[i].getCanonicalFile())) {
                         writeJarEntry(dir[i], jStream, pathPrefix + dir[i].getName());
                 }
@@ -152,13 +159,37 @@ final class ExportManager
      * Test whether a given directory should be skipped (not included) in
      * export.
      */
-    private boolean skipDir(File dirName)
+    private boolean skipDir(File dir)
     {
         for(int i = 0; i < skipDirs.length; i++) {
-            if(dirName.getName().equals(skipDirs[i]))
+            if(dir.getName().equals(skipDirs[i]))
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Checks whether a file should be skipped during a copy operation.
+     * BlueJ specific files (bluej.pkg and *.ctxt) and - optionally - Java
+     * source files are skipped.
+     */
+    private boolean skipFile(String fileName, boolean skipSource)
+    {
+        if(fileName.startsWith(packageFilePrefix) || fileName.endsWith(contextSuffix))
+            return true;
+
+        if(skipSource && fileName.endsWith(sourceSuffix))
+            return true;
+
+        return false;
+    }
+
+    /**
+     * Test whether a given directory is the project +libs directory
+     */
+    private boolean isLibDirectory(File dir)
+    {
+        return ProjectClassLoader.projectLibDirName.equals(dir.getName());
     }
 
     /**
@@ -176,7 +207,9 @@ final class ExportManager
             jStream.putNextEntry(new ZipEntry(entryName));
             FileUtility.copyStream(in, jStream);
         }
-        //catch(IOException exc) {
+        catch(ZipException exc) {
+            Debug.message("warning: " + exc);
+        }
         finally {
             if(in != null)
                 in.close();
@@ -184,64 +217,22 @@ final class ExportManager
     }
 
     /**
-     * Export this project to a directory.
+     * Do a 'save as' -- that is: copy this project dir to another location.
      */
-    private void exportDir(String sourceDir, String destDir, String mainClass,
-                           boolean includeBlueJ, boolean includeSource,
-                           String errorMessage)
+    public void saveAs(String sourceDir, String destDir)
     {
-        int result = FileUtility.copyDirectory(sourceDir, destDir,
-                                               !includeBlueJ, !includeSource);
+         int result = FileUtility.copyDirectory(sourceDir, destDir,
+                                               false, false);
         switch(result) {
-        case FileUtility.NO_ERROR:
-            break;
-        case FileUtility.DEST_EXISTS:
-            DialogManager.showError(frame, "directory-exists");
-            return;
-        case FileUtility.SRC_NOT_DIRECTORY:
-        case FileUtility.COPY_ERROR:
-            DialogManager.showError(frame, errorMessage);
-            return;
-        }
-        writeReadMe(destDir, mainClass);
-        frame.setStatus(Config.getString("pkgmgr.exported"));
-    }
-
-    /**
-     * If a main class was specified, add information to the readme
-     * file about how to start the application.
-     */
-    private void writeReadMe(String dir, String mainClass)
-    {
-        if(mainClass == null || mainClass.length() == 0)
-            return;
-
-        try {
-            // copy README to tmp file
-            String readMePath = dir + File.separator + Package.readmeName;
-            File readMe = new File(readMePath);
-            File tmp = File.createTempFile("bluej", "txt");
-            FileUtility.copyFile(readMe, tmp);
-
-            // write template to README
-            Hashtable translations = new Hashtable();
-            translations.put("MAINCLASS", mainClass);
-
-            File templateFile =
-                Config.getTemplateFile("readmeexp");
-            BlueJFileReader.translateFile(templateFile, readMe,
-                                          translations);
-            // append original README
-            InputStream in = new BufferedInputStream(new FileInputStream(tmp));
-            OutputStream out = new BufferedOutputStream(
-                new FileOutputStream(readMePath, true));
-            FileUtility.copyStream(in, out);
-            in.close();
-            out.close();
-        } catch(IOException e) {
-            DialogManager.showError(frame, "error-writing-readme");
-            Debug.reportError("README file could not be updated. " + e);
+            case FileUtility.NO_ERROR:
+                break;
+            case FileUtility.DEST_EXISTS:
+                DialogManager.showError(frame, "directory-exists");
+                return;
+            case FileUtility.SRC_NOT_DIRECTORY:
+            case FileUtility.COPY_ERROR:
+                DialogManager.showError(frame, "cannot-copy-package");
+                return;
         }
     }
-
 }

@@ -9,7 +9,7 @@ import java.net.*;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 2850 2004-08-06 14:32:26Z mik $
+ * @version $Id: ClassPath.java 2887 2004-08-17 15:18:28Z mik $
  */
 public class ClassPath
 {
@@ -246,16 +246,6 @@ public class ClassPath
     }
 
     /**
-     * Create a string with this class path as a comma separated list of strings.
-     * 
-     * @return  The classpath as string.
-     */
-    public String asCommaSeparatedList()
-    {
-        return asList(',', true);
-    }
-
-    /**
      * Create a string with this class path as a separated list of strings.
      * The separator character is system dependent (see File.pathSeparatorChar).
      * 
@@ -271,9 +261,10 @@ public class ClassPath
      * The separator character can be specified.
      * 
      * @param separator  The character to be used to separate entries.
+     * @param useURL    
      * @return  The classpath as string.
      */
-    private String asList(char separator, boolean useURL)
+    public String asList(char separator, boolean useURL)
     {
         StringBuffer buf = new StringBuffer();
 

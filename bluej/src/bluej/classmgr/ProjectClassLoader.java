@@ -9,11 +9,11 @@ import java.lang.reflect.*;
  * and from jar files within a +libs directory.
  *
  * @author  Andrew Patterson
- * @version $Id: ProjectClassLoader.java 2850 2004-08-06 14:32:26Z mik $
+ * @version $Id: ProjectClassLoader.java 2887 2004-08-17 15:18:28Z mik $
  */
 public class ProjectClassLoader extends URLClassLoader
 {
-    private String libsString = "+libs";
+    public static final String projectLibDirName = "+libs";
     private File[] libsJars;
     
     public ProjectClassLoader(File projectDir)
@@ -33,7 +33,7 @@ public class ProjectClassLoader extends URLClassLoader
 
         // the subdirectory of the project which can hold project specific
         // jars and zips
-        File libsDirectory = new File(projectDir, libsString);
+        File libsDirectory = new File(projectDir, projectLibDirName);
 
         // the list of jars and zips we find
 

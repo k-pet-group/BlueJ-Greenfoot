@@ -376,18 +376,14 @@ callLibraryDialog.classNotFound1=Could not find the class.
 callLibraryDialog.classNotFound2=(Check the class name and press Enter again.)
 
 # "export" dialog
-pkgmgr.export.title=BlueJ:  Export Project
-pkgmgr.export.helpLine1=Export stores a copy of the current project in
-pkgmgr.export.helpLine2=standard Java (non-BlueJ) format.
-pkgmgr.export.directoryLabel=Store as directory structure
-pkgmgr.export.jarFileLabel=Store as jar file
+pkgmgr.export.title=BlueJ:  Create Jar File
+pkgmgr.export.helpLine1=Create a single Java archive (jar) file containing
+pkgmgr.export.helpLine2=the project. Executable if main class is specified.
 pkgmgr.export.classLabel=main class:
 pkgmgr.export.sourceLabel=include source
 pkgmgr.export.noClassText=none (cannot be executed)
 pkgmgr.export.specifyJar=Specify name for jar file
-pkgmgr.export.specifyDir=Specify name for export directory
 pkgmgr.export.createJarText=Create
-pkgmgr.export.createDirText=Create
 
 # "open-non-bluej" mismatch dialog
 pkgmgr.importmismatch.title=BlueJ:  Package Line Mismatches
@@ -508,7 +504,6 @@ pkgmgr.usesArrowMsg="Uses" dependency declared but never used:
 pkgmgr.breakpointMsg=Class has to be compiled to set breakpoints.
 pkgmgr.appletInViewer=Executing Applet in appletviewer
 pkgmgr.appletInBrowser=Executing Applet in web browser
-pkgmgr.exported=Export complete.
 pkgmgr.exported.jar=Export to jar file complete.
 pkgmgr.error.open=The project does not exist (anymore)
 pkgmgr.checkingVersion=Making connection to version server...
