@@ -9,7 +9,7 @@ import bluej.utility.JavaReflective;
  * Tests for the GenType classes.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeTests.java 3077 2004-11-09 04:33:53Z davmac $
+ * @version $Id: GenTypeTests.java 3325 2005-02-25 01:30:57Z davmac $
  */
 public class GenTypeTests extends TestCase
 {
@@ -52,9 +52,11 @@ public class GenTypeTests extends TestCase
         List basePars = new ArrayList();
         basePars.add(oBound);
         GenTypeClass baseClass = new GenTypeClass(baseReflective, basePars);
-        Map m = baseClass.mapToDerived(derivedR2);
+        //Map m = baseClass.mapToDerived(derivedR2);
+        GenTypeClass mapped = (GenTypeClass) baseClass.mapToDerived2(derivedR2);
         
-        assertTrue(m.get("T").equals(oBound));
+        //assertTrue(m.get("T").equals(oBound));
+        assertEquals("derived2<java.lang.Object>", mapped.toString());
     }
     
     /**
@@ -83,5 +85,32 @@ public class GenTypeTests extends TestCase
         
         // check that result is a legal java type (when as a string)
         assertEquals("?", st);
+    }
+    
+    /**
+     * Test we can map successfully from a raw type to a non-generic base type.
+     */
+    public void test3()
+    {
+        TestReflective baseReflective = new TestReflective("base");
+        TestReflective derivedR = new TestReflective("derived1");
+
+        // Create genType for java.lang.Object
+        Class c = Object.class;
+        JavaReflective objectR = new JavaReflective(c);
+        GenTypeSolid oBound = new GenTypeClass(objectR);
+
+        // derived class has a type parameter "T"
+        derivedR.typeParams.add(new GenTypeDeclTpar("T", new GenTypeSolid [] {oBound}));
+
+        // derived inherits from base
+        List noTpars = new ArrayList();
+        derivedR.superTypes.add(new GenTypeClass(baseReflective, noTpars));
+
+        // Make a raw version of the derived type
+        GenTypeClass derived = new GenTypeClass(derivedR, noTpars);
+        GenTypeClass mapped = derived.mapToSuper2("base");
+        
+        assertEquals(mapped.toString(), "base");
     }
 }
