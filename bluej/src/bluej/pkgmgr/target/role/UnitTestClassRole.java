@@ -11,6 +11,7 @@ import antlr.BaseAST;
 import bluej.Config;
 import bluej.debugger.*;
 import bluej.editor.Editor;
+import bluej.parser.*;
 import bluej.parser.ast.*;
 import bluej.parser.ast.gen.*;
 import bluej.pkgmgr.*;
@@ -23,7 +24,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2249 2003-11-04 05:02:18Z ajp $
+ * @version $Id: UnitTestClassRole.java 2252 2003-11-04 12:50:05Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -318,7 +319,7 @@ public class UnitTestClassRole extends ClassRole
             BaseAST firstClass = (BaseAST) ast.getFirstChild();
 
             java.util.List variables = null;
-            java.util.List setup = null;
+            SourceSpan setupSpan = null;
             LocatableAST openingBracket = null;
             LocatableAST methodInsert = null;
 
@@ -330,8 +331,8 @@ public class UnitTestClassRole extends ClassRole
             while(childAST != null) {
                 if(childAST.getType() == UnitTestParserTokenTypes.OBJBLOCK) {
                     
-                    variables = UnitTestParser.getVariableSelections(childAST);
-                    setup = UnitTestParser.getSetupMethodSelections(childAST);
+                    variables = UnitTestAnalyzer.getVariableSourceSpans(childAST);
+                    setupSpan = UnitTestAnalyzer.getMethodBlockSourceSpan(childAST, "setUp");
                     break;
                 }               
                 childAST = (BaseAST) childAST.getNextSibling();            
@@ -345,27 +346,20 @@ public class UnitTestClassRole extends ClassRole
                 Iterator it = variables.iterator();
                 
                 while(it.hasNext()) {
-                    LocatableAST firstAST = (LocatableAST) it.next();
-                    LocatableAST secondAST = (LocatableAST) it.next();
+                    SourceSpan variableSpan = (SourceSpan) it.next();
                     
-                    ed.setSelection(firstAST.getLine(), firstAST.getColumn(),
-                                        secondAST.getLine(), secondAST.getColumn() + 1);
+                    ed.setSelection(variableSpan.getStartLine(), variableSpan.getStartColumn(),
+                                     variableSpan.getEndLine(), variableSpan.getEndColumn() + 1);
                     ed.insertText("", false);
                 }
             }
 
-            if (setup != null) {
-                Iterator it = setup.iterator();
-                
-                if(it.hasNext()) {
-                    LocatableAST firstAST = (LocatableAST) it.next();
-                    LocatableAST secondAST = (LocatableAST) it.next();
-                    
-                    ed.setSelection(firstAST.getLine(), firstAST.getColumn(),
-                                        secondAST.getLine(), secondAST.getColumn() + 1);
-                    ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup()
-                                     + "\t}", false);
-                }
+            // rewrite the setUp() method of the unit test
+            if (setupSpan != null) {
+                ed.setSelection(setupSpan.getStartLine(), setupSpan.getStartColumn(),
+                                 setupSpan.getEndLine(), setupSpan.getEndColumn() + 1);
+                ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup()
+                                + "\t}", false);
             }
 
             if (openingBracket != null) {

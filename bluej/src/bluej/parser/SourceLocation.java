@@ -1,10 +1,13 @@
 package bluej.parser;
 
 /**
- * @author ajp
+ * A line/column location in a source file.
  *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * Note that all line/column numbers start counting from
+ * 1 (not 0).
+ *
+ * @author  Andrew Patterson
+ * @version $Id: SourceLocation.java 2252 2003-11-04 12:50:05Z ajp $
  */
 public class SourceLocation
 {
@@ -13,6 +16,9 @@ public class SourceLocation
     
     public SourceLocation(int line, int column)
     {
+        if (line < 1 || column < 1)
+            throw new IllegalArgumentException("line/column numbers must be greater than 0");
+
         this.line = line;
         this.column = column;
     }
@@ -22,6 +28,9 @@ public class SourceLocation
      */
     public void setLine(int line)
     {
+        if (line < 1)
+            throw new IllegalArgumentException("line number must be greater than 0");
+
         this.line = line;
     }
 
@@ -39,6 +48,9 @@ public class SourceLocation
      */
     public void setColumn(int column)
     {
+        if (column < 1)
+            throw new IllegalArgumentException("column number must be greater than 0");
+
         this.column = column;
     }
 
