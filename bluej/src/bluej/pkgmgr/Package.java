@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2373 2003-11-19 03:41:04Z ajp $
+ * @version $Id: Package.java 2389 2003-11-26 10:27:27Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -261,6 +261,10 @@ public final class Package extends Graph
         return readme;
     }
 
+    /**
+     * Construct a path for this package relative to the project.
+     * @return The relative path.
+     */
     private File getRelativePath()
     {
         Package currentPkg = this;

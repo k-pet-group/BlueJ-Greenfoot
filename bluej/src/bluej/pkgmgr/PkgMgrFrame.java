@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2373 2003-11-19 03:41:04Z ajp $
+ * @version $Id: PkgMgrFrame.java 2389 2003-11-26 10:27:27Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -122,12 +122,15 @@ public class PkgMgrFrame extends JFrame
         macApp.addApplicationListener(new com.apple.eawt.ApplicationAdapter() {
             public void handleAbout(ApplicationEvent e) {
                 getMostRecent().aboutBlueJ();
+                e.setHandled(true);
             }
             public void handlePreferences(ApplicationEvent e) {
                 getMostRecent().showPreferences();
+                e.setHandled(true);
             }
             public void handleQuit(ApplicationEvent e) {
                 getMostRecent().wantToQuit();
+                e.setHandled(true);
             }
         });
         

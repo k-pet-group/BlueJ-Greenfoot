@@ -1,6 +1,7 @@
 package bluej.utility;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -14,7 +15,7 @@ import com.apple.mrj.MRJFileUtils;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 2337 2003-11-14 10:09:45Z mik $
+ * @version $Id: Utility.java 2389 2003-11-26 10:27:27Z mik $
  */
 public class Utility
 {
@@ -274,18 +275,11 @@ public class Utility
         return true;
     }
 
-    public static void bringToFront(String appName)
+    public static void bringToFront(Frame frame)
     {
-        Debug.message("activate " + appName);
-        try {
-            Runtime.getRuntime().exec( new String[] {
-                        "osascript",
-                        "-e",
-                        "tell application \"" + appName + "\" to activate" } );
-        }
-        catch(IOException e) {
-            Debug.reportError("could not get application " + appName + " to front");
-        }
+        Debug.message("activate " + frame);
+//        frame.dispatchEvent(new MouseEvent(frame, 1, System.currentTimeMillis(), 
+//                        0, 100, 100, 1, false));
     }
 
     /**

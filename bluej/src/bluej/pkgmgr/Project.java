@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2330 2003-11-13 04:10:34Z ajp $
+ * @version $Id: Project.java 2389 2003-11-26 10:27:27Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -231,15 +231,15 @@ public class Project
      * Gets the set of currently open projects. It is an accessor only
      * @return a Set containing all open projects.
      */
-    public static Collection getProjects ()
+    public static Collection getProjects()
     {
         return projects.values();
     }
 
     /**
-     * Given a Projects key returns the Project objects descrbing this projects.
+     * Given a Projects key returns the Project objects describing this projects.
      */
-    public static Project getProject ( Object projectKey )
+    public static Project getProject (Object projectKey)
     {
         return (Project)projects.get(projectKey);
     }
@@ -449,7 +449,7 @@ public class Project
      * @param qualifiedName package name ie java.util or "" for unnamed package
      * @return null if the named package cannot be found
      */
-    public Package getPackage( String qualifiedName )
+    public Package getPackage(String qualifiedName)
     {
         return (Package) packages.get(qualifiedName);
     }
@@ -457,7 +457,7 @@ public class Project
     /**
      * This creates package directories.
      */
-    public void createPackageDirectory ( String fullName )
+    public void createPackageDirectory (String fullName)
     {
         // construct the directory name for the new package
         StringTokenizer st = new StringTokenizer(fullName, ".");
@@ -868,8 +868,13 @@ public class Project
 				frames[i].setDebuggerState(event.getNewState());
             
             // check whether we just got a freshly created VM
-			if (event.getOldState() == Debugger.NOTREADY && event.getNewState() == Debugger.IDLE)
+			if (event.getOldState() == Debugger.NOTREADY && event.getNewState() == Debugger.IDLE) {
 				PkgMgrFrame.displayMessage(this, Config.getString("pkgmgr.creatingVMDone"));
+                // try to bring the frame to the front again (needed on MacOS)
+                // PkgMgrFrame frame = PkgMgrFrame.findFrame(getPackage(""));
+                // if(frame != null)
+                //     Utility.bringToFront(frame);
+            }
 
             // check whether a good VM just disappeared
 			if (event.getOldState() == Debugger.IDLE && event.getNewState() == Debugger.NOTREADY)
@@ -885,7 +890,6 @@ public class Project
 		
         DebuggerThread thr = event.getThread();
 		String packageName = JavaNames.getPrefix(thr.getClass(0));
-    // This is really a getPackage 311003 Damiano
 		Package pkg = getPackage(packageName);
 		if(pkg != null) {
 			switch(event.getID()) {
