@@ -6,7 +6,7 @@ import java.lang.reflect.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2568 2004-06-02 05:38:07Z davmac $
+ * @version $Id: JavaUtils15.java 2569 2004-06-02 06:21:02Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -18,7 +18,7 @@ public class JavaUtils15 extends JavaUtils {
 
     public String getShortDesc(Method method, String [] paramnames)
     {
-        String name = getTypeName(method.getReturnType()) + " " + method.getName();
+        String name = getTypeName(method.getGenericReturnType()) + " " + method.getName();
         Type[] params = method.getGenericParameterTypes();
         return makeDescription(name, params, paramnames, method.isVarArgs(), false);
     }
