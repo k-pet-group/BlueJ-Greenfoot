@@ -13,7 +13,7 @@ import javax.swing.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 517 2000-05-25 07:58:59Z ajp $
+ * @version $Id: JavaNames.java 568 2000-06-19 05:41:42Z ajp $
  */
 public class JavaNames
 {
@@ -35,18 +35,17 @@ public class JavaNames
 
     /**
      * Check whether a string is valid Java qualified identifier
-     * ie java.util or util or com.sun.test
+     * ie java.util or util or com.sun.test or the empty string
      * but not .java or java..util to com.sun.
      */
     public static boolean isQualifiedIdentifier(String str)
     {
         if (str.length() == 0)
-            return false;
+            return true;
 
         StringTokenizer st = new StringTokenizer(str, ".");
 
-        while(st.hasMoreTokens())
-        {
+        while(st.hasMoreTokens()) {
             if(!JavaNames.isIdentifier((String)(st.nextToken())))
                 return false;
         }
