@@ -249,7 +249,7 @@ bluej.compiler.type=internal
 #####################################################################
 
 win9xVmOptions=
-winVmOptions=
+winVmOptions=-classic
 linuxVmOptions=-classic
 solarisVmOptions=
 
