@@ -167,9 +167,16 @@ bluej.classTemplates = stdclass abstract interface applet
 ## size can be redefined by a user in their preference dialogue.
 #######################################################################
 
-# font size for most of the interface components
+# font and font size for most of the interface components
+# This is the name of a font face with an optional "-bold" at the end.
+bluej.fontsize=10
+bluej.font=SansSerif-bold
+#bluej.font=Monospaced
+#bluej.font=SIMSUN
 
-bluej.fontsize=12
+# fonts for menus
+bluej.menu.font=SansSerif-bold
+bluej.menu.fontsize=10
 
 # fontsize for the editor
 

@@ -13,6 +13,7 @@ import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,6 +21,7 @@ import java.io.PrintStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
+
 
 import java.awt.*;
 
@@ -40,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 871 2001-04-26 00:56:38Z mik $
+ * @version $Id: Config.java 880 2001-05-04 07:09:20Z bquig $
  */
 
 public class Config
@@ -151,6 +153,9 @@ public class Config
         compilertype = Config.getPropString("bluej.compiler.type");
         if(compilertype.equals("internal"))
             compilertype = "javac";
+
+        MetalLookAndFeel.setCurrentTheme(new BluejTheme());
+        
 
         // set system look and feel. experimental at this stage.
 //         try {

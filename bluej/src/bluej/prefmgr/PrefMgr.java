@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 762 2001-02-07 04:21:14Z mik $
+ * @version $Id: PrefMgr.java 880 2001-05-04 07:09:20Z bquig $
  */
 public class PrefMgr
 {
@@ -38,12 +38,12 @@ public class PrefMgr
     private static int printTitleFontsize;
     private static int printInfoFontsize;
 
-    private static Font normalFont = new Font("SansSerif", Font.BOLD, 12);
+    private static Font normalFont;
 
     // initialised by a call to setMenuFontSize()
     private static int menuFontSize;
-    static final Font menuFont = new Font("SansSerif", Font.PLAIN, 12);
-    static final Font italicMenuFont = new Font("SansSerif", Font.ITALIC, 12);
+    private static Font menuFont;
+    private static Font italicMenuFont;
 
     // initialised by a call to setEditorFontSize()
     private static int editorFontSize;
@@ -60,7 +60,19 @@ public class PrefMgr
 	 */
     private PrefMgr()
     {
+        //set up fonts
         setEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
+
+        //bluej menu font
+        String menuFontName = Config.getPropString("bluej.menu.font", "SansSerif");
+        int menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
+        menuFont = deriveFont(menuFontName, menuFontSize);
+        italicMenuFont = new Font(menuFontName, Font.ITALIC, menuFontSize);
+
+        //standard font for UI components
+        String normalFontName = Config.getPropString("bluej.font", "SansSerif");
+        int normalFontSize = Config.getPropInteger("bluej.fontsize", 12);
+        normalFont = deriveFont(normalFontName, normalFontSize);
 
         isSyntaxHilighting = Boolean.valueOf(
             Config.getPropString(hilightingPropertyName, "true")).booleanValue();
@@ -138,16 +150,27 @@ public class PrefMgr
 
             String fontName = Config.getPropString(editorFontPropertyName, 
                                                    "Monospaced");
-            int style;
+         
+            editorStandardFont = deriveFont(fontName, size);
+            editorStandoutFont = new Font(fontName, Font.BOLD, size);
+        }
+    }
+    
+    /**
+    * Create font from name, style and size info.  Styles allowed are PLAIN
+    * and BOLD.  Bold is determined by -bold suffix on font name.
+    */
+    private static Font deriveFont(String fontName, int size)
+    {
+        int style;
             if(fontName.endsWith("-bold")) {
                 style = Font.BOLD;
                 fontName = fontName.substring(0, fontName.length()-5);
             }
             else
                 style = Font.PLAIN;
-            editorStandardFont = new Font(fontName, style, size);
-            editorStandoutFont = new Font(fontName, Font.BOLD, size);
-        }
+        
+        return new Font(fontName, style, size);
     }
 
     /**
