@@ -1,7 +1,5 @@
 package org.bluej.extensions.submitter;
 
-import bluej.extensions.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -13,14 +11,9 @@ import java.text.NumberFormat;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Window;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.text.*;
 
 /**
  * Processes the transport URL
@@ -28,7 +21,7 @@ import javax.swing.text.JTextComponent;
  * I really need to get around to clean it up a bit, Damiano
  * 
  * @author Clive Miller
- * @version $Id: UrlRewrite.java 1708 2003-03-19 09:39:47Z damiano $
+ * @version $Id: UrlRewrite.java 1713 2003-03-20 11:15:06Z damiano $
  */
 
 class UrlRewrite
@@ -70,7 +63,7 @@ class UrlRewrite
             right.gridx = 1;
             right.fill = GridBagConstraints.HORIZONTAL;
         }
-        body.setBorder(BPackage.getDialogBorder());
+        body.setBorder(new EmptyBorder(5,5,5,5));
         NumberFormat digits = new DecimalFormat ("00");
         if (!isMessage) while (true) {
             final int start = urlString.indexOf ('<');
