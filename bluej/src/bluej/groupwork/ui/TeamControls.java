@@ -11,6 +11,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -29,6 +30,7 @@ public class TeamControls extends JFrame {
 	
 	private JButton commitButton;
 	private JButton updateButton;
+	private JCheckBox includeGraphLayoutCheckBox;
 	//private PkgMgrFrame pmf;
 	private Project project;
 	private static final String title = ""; // Config.
@@ -73,6 +75,8 @@ public class TeamControls extends JFrame {
                     BorderFactory.createTitledBorder("Code Synchronization"),
                     BlueJTheme.generalBorder));
         	mainPanel.setAlignmentX(LEFT_ALIGNMENT);
+        	
+        	// Commit button
         	commitButton = new JButton("Commit to Repository");
         	commitButton.addActionListener(new ActionListener() {
         		public void actionPerformed(ActionEvent evt) { 
@@ -80,19 +84,26 @@ public class TeamControls extends JFrame {
         		}		
         	});
         
+        	// Update button
         	updateButton = new JButton("Update from Repository");
         	updateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) { 
 				doUpdate(); 
 				}		
         	});
+        	
+        	// IncludeGraphLayoutCheckbox
+        	includeGraphLayoutCheckBox = new JCheckBox("Include Graphlayout");
+        	
+        	
         	mainPanel.add(commitButton);
         	mainPanel.add(updateButton);
+        	mainPanel.add(includeGraphLayoutCheckBox);
         }
         getContentPane().add(mainPanel);
         pack();
 	}
-	
+	 
 	/**
      * Show or hide the ExecControl window.
      */
@@ -103,13 +114,13 @@ public class TeamControls extends JFrame {
 	
 	private void doUpdate() {
 		System.out.println("TeamDialog: Update");
-		project.getRepository().updateAll(project); 
+		project.getRepository().updateAll(project, includeGraphLayoutCheckBox.isSelected()); 
 	}
 	
 	
 	private void doCommit() {
 		System.out.println("TeamDialog: Commit");
-		project.getRepository().commitAll(project);
+		project.getRepository().commitAll(project, includeGraphLayoutCheckBox.isSelected());
 	    //project.getRepository().shareProject(project); 
 	}
 }

@@ -81,10 +81,10 @@ public class Repository {
 	 * @param project the project
 	 * @return array of Files 
 	 */
-	private static File[] getFilesInProject(Project project){
+	private static File[] getFilesInProject(Project project, boolean includePkgFiles){
 		File projectDir = project.getProjectDir();
 		List files = new LinkedList();
-		traverseDirsForFiles(files, projectDir);
+		traverseDirsForFiles(files, projectDir, includePkgFiles);
 		return listToFileArray(files);
 	}
 	
@@ -96,8 +96,8 @@ public class Repository {
 	}
 	
 	
-	private static void traverseDirsForFiles(List allFiles, File dir){
-		File[] files = dir.listFiles(new CodeFileFilter());
+	private static void traverseDirsForFiles(List allFiles, File dir, boolean includePkgFiles){
+		File[] files = dir.listFiles(new CodeFileFilter(includePkgFiles));
 		if (files==null){
 			return;
 		}
@@ -105,7 +105,7 @@ public class Repository {
 			if (files[i].isFile()){
 				allFiles.add(files[i]);
 			}else{
-				traverseDirsForFiles(allFiles, files[i]);
+				traverseDirsForFiles(allFiles, files[i], includePkgFiles);
 			}
 		}
 	}
@@ -457,7 +457,7 @@ public class Repository {
 	
 	public void printExperiments(Project project){
 		System.out.println("====Files in project===========");
-		File[] files = getFilesInProject(project);
+		File[] files = getFilesInProject(project, false);
 		Set set = null;
 		for(int i=0; i < files.length; i++ ){
 			System.out.println(files[i].getName());
@@ -498,9 +498,18 @@ public class Repository {
 		*/
 	}
 	
-	public void commitAll(Project project){
-		
-		
+	/**
+	 * Commits the files and directories in the project. If files or dirs need
+	 * to be added first, they are added.
+	 * The booelean pkg determins wether pkg files are included in the commit.
+	 * One exception to this is newly created packages. They always have their
+	 * pkg files committed. Otherwise bluej won't know the difference between
+	 * simple directories and bluej packages.
+	 * 
+	 * @param project
+	 * @param includePkgFiles if true, pkg files are included in the commit.
+	 */
+	public void commitAll(Project project, boolean includePkgFiles){
 		// add and commit the folders
 		File[] dirs = getDirsInProjectWhichNeedToBeAdded(project);
 		addToRepository(dirs);
@@ -513,11 +522,11 @@ public class Repository {
 		
 		//add and commit the files
 		addToRepository(getFilesInSandboxWhichNeedToBeAdded());
-		commitToRepository(getFilesInProject(project));
+		commitToRepository(getFilesInProject(project, includePkgFiles));
 	}
 	
 	
-	public void updateAll(Project project){
+	public void updateAll(Project project, boolean includeGraphLayout){
 		if (!hasBeenCheckedOut(project)){
 			checkout();
 		}
@@ -537,6 +546,15 @@ public class Repository {
 	
 	private static class CodeFileFilter implements FilenameFilter {
 
+		boolean includePkgFiles;
+		
+		public CodeFileFilter(){
+			this(false);
+		}
+		
+		public CodeFileFilter(boolean includePkgFiles){
+			this.includePkgFiles = includePkgFiles;
+		}
 		/**
 		 * Determins which files should be included
 		 * @param dir the directory in which the file was found.
@@ -555,7 +573,7 @@ public class Repository {
 			 * added and committed. If we don't, BlueJ can't know which folders
 			 * are packages
 			 */ 
-			if (isInCVS(dir)){
+			if (!includePkgFiles){
 				if (name.equals("bluej.pkg")){
 					result = false;
 				}			
