@@ -473,6 +473,7 @@ public final class MoeEditor extends JFrame
 
         currentTextPane.setCaretPosition(pos);
         currentTextPane.moveCaretPosition(line.getEndOffset() - 1);
+        moeCaret.setPersistentHighlight();
         // w/o line break
 
         // display the message

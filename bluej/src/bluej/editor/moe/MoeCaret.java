@@ -32,6 +32,8 @@ public class MoeCaret extends DefaultCaret
         
     private MoeEditor editor;
 
+    private boolean persistentHighlight = false;
+    
     // matching bracket highlight holder
     private Object matchingBracketHighlight;
 
@@ -84,6 +86,24 @@ public class MoeCaret extends DefaultCaret
             super.moveCaret(e);
         }
     }
+    
+    /**
+     * Set the dot and mark position
+     */
+    public void setDot(int pos)
+    {
+        persistentHighlight = false;
+        super.setDot(pos);
+    }
+    
+    /**
+     * Set the dot position (leave the mark where it is).
+     */
+    public void moveDot(int pos)
+    {
+        persistentHighlight = false;
+        super.moveDot(pos);
+    }
 
     /**
      * Fire a state canged event.
@@ -92,6 +112,27 @@ public class MoeCaret extends DefaultCaret
     {
         editor.caretMoved();
         super.fireStateChanged();
+    }
+    
+    /**
+     * Target text component lost focus.
+     */
+    public void focusLost(FocusEvent e)
+    {
+        super.focusLost(e);
+        if (persistentHighlight)
+            setSelectionVisible(true);
+    }
+    
+    /**
+     * Set the highlight (of the selection) as persistent - that is, it won't
+     * become invisible if the component loses focus. This lasts until the
+     * caret position is changed.
+     */
+    public void setPersistentHighlight()
+    {
+        setSelectionVisible(true);
+        persistentHighlight = true;
     }
      
     /**
