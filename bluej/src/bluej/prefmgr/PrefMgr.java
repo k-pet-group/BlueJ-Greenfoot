@@ -12,6 +12,7 @@ import java.util.*;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import bluej.graph.Graph;
 
 /**
  * A class to manage the user editable preferences
@@ -21,12 +22,13 @@ import bluej.utility.Debug;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 359 2000-01-13 13:50:31Z ajp $
+ * @version $Id: PrefMgr.java 520 2000-05-31 06:49:05Z bquig $
  */
 public class PrefMgr
 {
     private static String hilightingPropertyName = "bluej.syntaxHilighting";
     private static String editorFontPropertyName = "bluej.fontsize.editor";
+    private static String notationStyle = "bluej.notation.style";
 
     private static int fontsize;
     private static int editFontsize;
@@ -47,6 +49,7 @@ public class PrefMgr
 
     // syntax hilighting
     private static boolean isSyntaxHilighting;
+    private static boolean isUML;
 
     private static PrefMgr prefmgr = new PrefMgr();
 
@@ -58,6 +61,9 @@ public class PrefMgr
 
         isSyntaxHilighting = Boolean.valueOf(
             Config.getPropString(hilightingPropertyName, "true")).booleanValue();
+
+        isUML = (Config.getDefaultPropString(notationStyle, Graph.UML).equals(Graph.UML));
+
     }
 
     public static void initialise()
@@ -151,5 +157,27 @@ public class PrefMgr
                                     new Boolean(enabled).toString());
 
         isSyntaxHilighting = enabled;
+    }
+
+    /**
+     * Return the notation style for bluej
+     * Two styles available: uml (default) or blue 
+     */
+    public static boolean isUML()
+    {
+        return isUML;
+    }
+
+   /**
+     * Set users preference of whether to use syntax hilighting or not
+     *
+     * @param enabled   true if syntax hilighting should be used
+     */
+    protected static void setNotationStyle(String style)
+    {
+        // assumes UML is default, ie. if not blue style then is UML
+        isUML = (!Graph.BLUE.equals(style));
+        Config.putPropString(notationStyle, style);
+        
     }
 }

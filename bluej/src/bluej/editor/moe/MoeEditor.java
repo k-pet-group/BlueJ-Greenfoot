@@ -32,7 +32,8 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 
 
 /**
- * @author Michael Kolling *
+ * @author Michael Kolling 
+ *
  */
 
 // PENDING: add "finalize" method that does:
@@ -78,6 +79,9 @@ public final class MoeEditor extends JFrame
     public static final String BREAKPOINT = "break";
     public static final String STEPMARK = "step";
     static final String COMPILED = "compiled";
+
+    // PageFormat object for printing page format
+    private static PageFormat pageFormat = new PageFormat();
 
 
     // -------- INSTANCE VARIABLES --------
@@ -637,9 +641,9 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Implementation of the "print" user function.
-     *  Printing is delegated to a PrintThread inner class to run in a low
-     *  priority thread.
+     * Implementation of the "print" user function.
+     * Printing is delegated to a PrintThread inner class to run in a low
+     * priority thread.
      */
     public void print()
     {
@@ -648,6 +652,18 @@ public final class MoeEditor extends JFrame
         pt.start();
     }
 
+
+    // --------------------------------------------------------------------
+    /**
+     * Implementation of the "page setup" user function.
+     * This provides a dialog for print page setup.  The resulting format
+     * is only persistent for session at present.
+     */
+    public void pageSetup()
+    {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        pageFormat = job.pageDialog(pageFormat);
+    }
 
 
     // --------------------------------------------------------------------
@@ -1549,8 +1565,8 @@ public final class MoeEditor extends JFrame
             //printer.printDocument(document, windowTitle, printFont, pageFormat);
             // print document, using new pageformat object at present
             info.message (Config.getString("editor.info.printing"));
-            if(printer.printDocument(document, windowTitle, printFont,
-                                  new PageFormat()))
+            if(printer.printDocument(document, windowTitle, printFont, 
+                                     pageFormat))
                 info.message (Config.getString("editor.info.printed"));
             else
                 info.message (Config.getString("editor.info.cancelled"));

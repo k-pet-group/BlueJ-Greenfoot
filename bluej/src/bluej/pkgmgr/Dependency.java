@@ -12,7 +12,7 @@ import java.awt.Color;
  * A dependency between two targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: Dependency.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: Dependency.java 520 2000-05-31 06:49:05Z bquig $
  */
 public abstract class Dependency extends Edge
 {
@@ -54,14 +54,14 @@ public abstract class Dependency extends Edge
 
     public void load(Properties props, String prefix)
     {
-	String fromName = props.getProperty(prefix + ".from");
-	this.from = pkg.getTarget(fromName);
-	if(this.from == null)
-	    Debug.reportError("Failed to find 'from' target " + fromName);
-	String toName = props.getProperty(prefix + ".to");
-	this.to = pkg.getTarget(toName);
-	if(this.to == null)
-	    Debug.reportError("Failed to find 'to' target " + toName);
+        String fromName = props.getProperty(prefix + ".from");
+        this.from = pkg.getTarget(fromName);
+        if(this.from == null)
+            Debug.reportError("Failed to find 'from' target " + fromName);
+        String toName = props.getProperty(prefix + ".to");
+        this.to = pkg.getTarget(toName);
+        if(this.to == null)
+            Debug.reportError("Failed to find 'to' target " + toName);
     }
 
     public void save(Properties props, String prefix)

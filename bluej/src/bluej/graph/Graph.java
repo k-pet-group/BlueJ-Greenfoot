@@ -10,11 +10,15 @@ import java.util.Vector;
  * General graph
  *
  * @author  Michael Cahill
- * @version $Id: Graph.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: Graph.java 520 2000-05-31 06:49:05Z bquig $
  */
 public abstract class Graph
 {
     protected GraphEditor editor;
+
+    public final static String UML="uml";
+    public final static String BLUE="blue";
+
 
     public abstract Enumeration getVertices();
     public abstract Enumeration getEdges();

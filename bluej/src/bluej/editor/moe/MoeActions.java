@@ -681,6 +681,19 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
+    class PageSetupAction extends MoeAbstractAction {
+
+        public PageSetupAction() {
+            super("page-setup", null);
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            getEditor(e).pageSetup();
+        }
+    }
+
+    // --------------------------------------------------------------------
+
     //     class Action extends MoeAbstractAction {
     //
     //       public Action() {
@@ -740,7 +753,7 @@ public final class MoeActions
     private int getCurrentLineIndex(JTextComponent text)
     {
         MoeSyntaxDocument document = (MoeSyntaxDocument)text.getDocument();
-	return document.getDefaultRootElement().getElementIndex(
+        return document.getDefaultRootElement().getElementIndex(
 					text.getCaretPosition());
     }
 
@@ -819,6 +832,7 @@ public final class MoeActions
         Action[] myActions = {
             new SaveAction(),
             new ReloadAction(),
+            new PageSetupAction(),
             new PrintAction(),
             new CloseAction(),
 
@@ -926,19 +940,21 @@ public final class MoeActions
             (Action)(actions.get("reload")),
             (Action)(actions.get("close")),
             (Action)(actions.get("print")),
+            (Action)(actions.get("page-setup")),
+
 
             // customisation functions
-            (Action)(actions.get("key-bindings")),              // 53
+            (Action)(actions.get("key-bindings")),              // 54
             (Action)(actions.get("preferences")),
 
             // help functions
-            (Action)(actions.get("describe-key")),              // 55
+            (Action)(actions.get("describe-key")),              // 56
             (Action)(actions.get("help-mouse")),
             (Action)(actions.get("show-manual")),
             (Action)(actions.get("about-editor")),
 
             // misc functions
-            undoAction,                                         // 59
+            undoAction,                                         // 60
             redoAction,
             (Action)(actions.get("find")),
             (Action)(actions.get("find-backward")),
@@ -947,7 +963,7 @@ public final class MoeActions
             (Action)(actions.get("replace")),
             (Action)(actions.get("compile")),
             (Action)(actions.get("toggle-breakpoint")),
-        };                                                      // 68
+        };                                                      // 69
 
         categories = new String[] { Config.getString("editor.functions.editFunctions"),
                                     Config.getString("editor.functions.moveScroll"),

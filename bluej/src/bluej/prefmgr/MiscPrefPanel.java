@@ -14,13 +14,15 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.prefmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.graph.Graph;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 359 2000-01-13 13:50:31Z ajp $
+ * @version $Id: MiscPrefPanel.java 520 2000-05-31 06:49:05Z bquig $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -31,6 +33,12 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     private JTextField editorFontField;
     private JTextField jdkURLField;
     private JCheckBox hilightingBox;
+
+    ButtonGroup notationStyleGroup;
+    private JRadioButton umlRadioButton;
+    private JRadioButton blueRadioButton;
+
+    //private
 
     /**
      * Registers the misc preference panel with the preferences
@@ -65,6 +73,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 		{
 			jdkURLTag.setAlignmentX(LEFT_ALIGNMENT);
 		}
+
         jdkURLField = new SingleLineTextField(8);
         {
             jdkURLField.setAlignmentX(LEFT_ALIGNMENT);
@@ -102,6 +111,30 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 		add(Box.createVerticalStrut(Config.generalSpacingWidth));
         add(jdkURLTag);
 		add(jdkURLField);
+		add(Box.createVerticalStrut(Config.generalSpacingWidth));
+
+        JPanel notationPanel = new JPanel();
+        {
+		    notationPanel.setLayout(new BoxLayout(notationPanel, BoxLayout.Y_AXIS));
+            notationPanel.setBorder(BorderFactory.createCompoundBorder(
+                                    BorderFactory.createTitledBorder("Notation Style"),
+                                    Config.generalBorder));
+            notationPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+            notationStyleGroup = new ButtonGroup();
+            umlRadioButton = new JRadioButton("Unified Modeling Language (UML)");
+            blueRadioButton = new JRadioButton("Blue");
+            umlRadioButton.setActionCommand(Graph.UML);
+            blueRadioButton.setActionCommand(Graph.BLUE);
+            notationStyleGroup.add(umlRadioButton);
+            notationStyleGroup.add(blueRadioButton);
+
+            notationPanel.add(umlRadioButton);
+            notationPanel.add(blueRadioButton);
+        }
+
+        add(notationPanel);
+
 
 		add(Box.createGlue());
     }
@@ -111,6 +144,11 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
         hilightingBox.setSelected(PrefMgr.useSyntaxHilighting());
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
+
+        if(!PrefMgr.isUML())
+            blueRadioButton.setSelected(true);
+        else
+            umlRadioButton.setSelected(true);
     }
 
     public void revertEditing()
@@ -140,6 +178,10 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             Config.removeProperty(jdkURLPropertyName);
         else
             Config.putPropString(jdkURLPropertyName, jdkURL);
+
+        String notationStyle = notationStyleGroup.getSelection().getActionCommand();
+        PrefMgr.setNotationStyle(notationStyle);
+        PkgMgrFrame.refreshAllFrames();
     }
 
     class SingleLineTextField extends JTextField

@@ -110,23 +110,23 @@ public class MoePrinter
             PrinterJob job = PrinterJob.getPrinterJob(); 
 
             // alter page to Moe default settings
-            Paper moePaper = format.getPaper();
-            double width = moePaper.getWidth();
-            double height = moePaper.getHeight();
-            moePaper = format.getPaper();
+     //        Paper moePaper = format.getPaper();
+//             double width = moePaper.getWidth();
+//             double height = moePaper.getHeight();
+//             moePaper = format.getPaper();
 
-            // make it A4 roughly (temp)
-            moePaper.setSize(595, 840);
+//             // make it A4 roughly (temp)
+//             moePaper.setSize(595, 840);
             
-            double leftSideMargin = 36;
-            double rightSideMargin = 72;
-            double topMargin = 54;
-            double bottomMargin = 36;
-            moePaper.setImageableArea(leftSideMargin, 
-                                      topMargin, 
-                                      width - (leftSideMargin + rightSideMargin), 
-                                      height - (topMargin + bottomMargin));
-            format.setPaper(moePaper);
+//             double leftSideMargin = 36;
+//             double rightSideMargin = 72;
+//             double topMargin = 54;
+//             double bottomMargin = 36;
+//             moePaper.setImageableArea(leftSideMargin, 
+//                                       topMargin, 
+//                                       width - (leftSideMargin + rightSideMargin), 
+//                                       height - (topMargin + bottomMargin));
+//             format.setPaper(moePaper);
 
             // make sure the pageformat is ok
             format = job.validatePage(format);           

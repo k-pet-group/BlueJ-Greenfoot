@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 515 2000-05-25 07:58:20Z ajp $
+ * @version $Id: ClassTarget.java 520 2000-05-31 06:49:05Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -55,6 +55,8 @@ public class ClassTarget extends EditableTarget
     static final Color abstractbg = Config.getItemColour("colour.class.bg.abstract");
     static final Color interfacebg = Config.getItemColour("colour.class.bg.interface");
     static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
+    static final Color umldefaultbg = Config.getItemColour("colour.class.bg.uml.default");
+    static final Color umlcompbg = Config.getItemColour("colour.target.bg.uml.compiling");
 
     static final Color colBorder = Config.getItemColour("colour.target.border");
     static final Color graphbg = Config.getItemColour("colour.graph.background");
@@ -67,6 +69,12 @@ public class ClassTarget extends EditableTarget
     static final Image brokenImage = Toolkit.getDefaultToolkit().getImage(
                                                                           Config.getImageFilename("image.broken"));
 
+    static final String STEREOTYPE_OPEN = "<<";
+    static final String STEREOTYPE_CLOSE = ">>";
+    static final String INTERFACE_LABEL = "interface";
+    static final String APPLET_LABEL = "applet";
+
+
     // variables
     private ClassRole role;
 
@@ -78,6 +86,7 @@ public class ClassTarget extends EditableTarget
     // Fields used in Tarjan's algorithm:
     public int dfn, link;
 
+    private String stereotype;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -98,6 +107,7 @@ public class ClassTarget extends EditableTarget
             role = new AppletClassRole();
         else
             role = new StdClassRole();
+
     }
 
     /**
@@ -233,10 +243,15 @@ public class ClassTarget extends EditableTarget
      */
     public void setInterface(boolean isInterface)
     {
-        if(isInterface)
+        if(isInterface) {
             modifiers |= Modifier.INTERFACE;
-        else
+            setStereotypeName(INTERFACE_LABEL);
+        }
+        else {
             modifiers &= ~Modifier.INTERFACE;
+            if(INTERFACE_LABEL.equals(stereotype))
+               stereotype = null;
+        }
     }
 
     /**
@@ -264,7 +279,9 @@ public class ClassTarget extends EditableTarget
 
     Color getDefaultBackground()
     {
-        if(isInterface())
+       if(PrefMgr.isUML())
+          return umldefaultbg; //bq add def for own colour
+        else if(isInterface())
             return interfacebg;
         else if(isAbstract())
             return abstractbg;
@@ -276,8 +293,9 @@ public class ClassTarget extends EditableTarget
 
     Color getBackgroundColour()
     {
-        if(state == S_COMPILING)
-            return compbg;
+        if(state == S_COMPILING) {
+            return PrefMgr.isUML()? umlcompbg: compbg;
+        }
         else
             return getDefaultBackground();
     }
@@ -553,6 +571,7 @@ public class ClassTarget extends EditableTarget
         if(info.isApplet()) {
             if( ! (role instanceof AppletClassRole))
                 role = new AppletClassRole();
+            stereotype = APPLET_LABEL;
         }
         else {
             if( ! (role instanceof StdClassRole))
@@ -819,10 +838,107 @@ public class ClassTarget extends EditableTarget
     public void draw(Graphics2D g)
     {
         super.draw(g);
+
+        if(state != S_NORMAL) {
+            // Debug.message("Target: drawing invalid target " + this);
+            g.setColor(umlcompbg); 
+
+            int divider = 0;
+
+            // set divider if UML, different position if stereotype is present
+            if(PrefMgr.isUML())
+                divider = (stereotype == null) ? 18 : 32; 
+
+            Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
+        }
+
+        g.setColor(getBorderColour());
+        drawBorders(g);
+
+        if(PrefMgr.isUML())
+            drawUMLStyle(g);
+        else
+            drawBlueStyle(g);
+        
         if(!sourceInfo.isValid())
             g.drawImage(brokenImage, x + TEXT_BORDER, y + height - 22, null);
+
         // delegate extra functionality to role object
         role.draw(g, this, x, y, width, height);
+    }
+
+    private void drawUMLStyle(Graphics2D g)
+    {
+        g.setColor(getTextColour());
+        
+        int currentY = 2;
+        // draw stereotype if applicable
+        Font original = getFont();
+        if(stereotype != null) {
+            String stereotypeLabel = STEREOTYPE_OPEN + stereotype + STEREOTYPE_CLOSE;
+            Font stereotypeFont = original.deriveFont((float)(original.getSize() - 2));
+            g.setFont(stereotypeFont);
+            Utility.drawCentredText(g, stereotypeLabel,
+                                    TEXT_BORDER, currentY,
+                                    width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+            currentY += TEXT_HEIGHT -2;
+        }
+        g.setFont(original);
+        
+        Utility.drawCentredText(g, getIdentifierName(),
+                                TEXT_BORDER, currentY,
+                                width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+        currentY += ( TEXT_HEIGHT);
+        g.drawLine(0, currentY, width, currentY);
+    }
+
+    private void drawBlueStyle(Graphics2D g)
+    {
+        g.setColor(textbg);
+        g.fillRect(TEXT_BORDER, TEXT_BORDER,
+                   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+
+        g.setColor(getBorderColour());
+        g.drawRect(TEXT_BORDER, TEXT_BORDER,
+                   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+
+        g.setColor(getTextColour());
+        g.setFont(getFont());
+        Utility.drawCentredText(g, getIdentifierName(),
+                                TEXT_BORDER, TEXT_BORDER,
+                                width - 2 * TEXT_BORDER, TEXT_HEIGHT);
+    }
+
+   void drawShadow(Graphics2D g)
+    {
+        g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
+        g.fillRect(width, SHAD_SIZE, SHAD_SIZE, height);
+        if(!PrefMgr.isUML())
+            Utility.drawThickLine(g, width - HANDLE_SIZE, height,
+                                  width, height - HANDLE_SIZE, 3);
+    }
+
+    void drawBorders(Graphics2D g)
+    {
+        
+        int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
+        Utility.drawThickRect(g, 0, 0, width, height, thickness);
+        if(PrefMgr.isUML()) 
+            if((flags & F_SELECTED) == 0)
+                return;
+        // Draw lines showing resize tag
+        g.drawLine(width - HANDLE_SIZE - 2, height,
+                   width, height - HANDLE_SIZE - 2);
+        g.drawLine(width - HANDLE_SIZE + 2, height,
+                   width, height - HANDLE_SIZE + 2);
+    }
+
+    /**
+     * Set a sterotype name eg. applet or Interface
+     */
+    public void setStereotypeName(String stereotypeName)
+    {
+        stereotype = stereotypeName;
     }
 
 

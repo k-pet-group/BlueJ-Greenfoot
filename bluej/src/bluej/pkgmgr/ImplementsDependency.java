@@ -3,14 +3,14 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.prefmgr.PrefMgr;
+
 
 import java.util.Properties;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Color;
+import java.awt.*;
 
 /**
- ** @version $Id: ImplementsDependency.java 427 2000-04-18 04:33:04Z ajp $
+ ** @version $Id: ImplementsDependency.java 520 2000-05-31 06:49:05Z bquig $
  ** @author Michael Cahill
  **
  ** An "implements" dependency between two (class) targets in a package
@@ -18,10 +18,19 @@ import java.awt.Color;
 public class ImplementsDependency extends Dependency
 {
 	static final Color normalColour = Config.getItemColour("colour.arrow.implements");
+	static final Color umlColour = Config.getItemColour("colour.uml.arrow.implements");
+	//static final Color umlColour = Color.black;
 	static final Color bgGraph = Config.getItemColour("colour.graph.background");
 	static final int ARROW_SIZE = 12;		// pixels
+	static final int UML_ARROW_SIZE = 18;		// pixels
 	static final double ARROW_ANGLE = Math.PI / 6;	// radians
 	static final int SELECT_DIST = 4;
+    private static final float  dash1[] = {5.0f,2.0f};
+    private static final BasicStroke dashed = new BasicStroke(1.0f,
+                                                      BasicStroke.CAP_BUTT,
+                                                      BasicStroke.JOIN_MITER,
+                                                      10.0f, dash1, 0.0f);
+
 
 	public ImplementsDependency(Package pkg, Target from, Target to)
 	{
@@ -35,34 +44,50 @@ public class ImplementsDependency extends Dependency
 
 	void draw(Color colour, Graphics2D g)
 	{
-		// Start from the centre of the src class
-		Point pFrom = new Point(from.x + from.width/2, from.y + from.height/2);
-		Point pTo = new Point(to.x + to.width/2, to.y + to.height/2);
 
-		// Get the angle of the line from src to dst.
-		double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		
+        g.setColor(colour);
 
-		// Get the dest point
-		pFrom = ((Target)from).getAttachment(angle + Math.PI);
-		pTo = ((Target)to).getAttachment(angle);
+        // Start from the centre of the src class
+        Point pFrom = new Point(from.x + from.width/2, from.y + from.height/2);
+        Point pTo = new Point(to.x + to.width/2, to.y + to.height/2);
 
-		Point pArrow = new Point(pTo.x + (int)(8 * Math.cos(angle)), pTo.y - (int)(8 * Math.sin(angle)));
+        // Get the angle of the line from src to dst.
+        double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
 
-		g.setColor(colour);
-		Utility.drawThickLine(g, pFrom.x, pFrom.y, pArrow.x, pArrow.y, 5);
+        // Get the dest point
+        pFrom = ((Target)from).getAttachment(angle + Math.PI);
+        pTo = ((Target)to).getAttachment(angle);
 
-		// draw the arrow head
-		int[] xPoints =  { pTo.x, pTo.x + (int)(ARROW_SIZE * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(ARROW_SIZE * Math.cos(angle - ARROW_ANGLE)) };
-		int[] yPoints =  { pTo.y, pTo.y - (int)(ARROW_SIZE * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(ARROW_SIZE * Math.sin(angle - ARROW_ANGLE)) };
-		g.fillPolygon(xPoints, yPoints, 3);
+        int arrowSize = PrefMgr.isUML() ? UML_ARROW_SIZE : ARROW_SIZE;
 
-		g.setColor(bgGraph);
-		g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
+        Point pArrow = new Point(pTo.x + (int)((arrowSize - 2) * Math.cos(angle)), pTo.y - (int)((arrowSize - 2) * Math.sin(angle)));
+
+        // draw the arrow head
+        int[] xPoints =  { pTo.x, pTo.x + (int)((arrowSize) * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(arrowSize * Math.cos(angle - ARROW_ANGLE)) };
+        int[] yPoints =  { pTo.y, pTo.y - (int)((arrowSize) * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(arrowSize * Math.sin(angle - ARROW_ANGLE)) };
+  
+        if(PrefMgr.isUML()) {
+            g.drawPolygon(xPoints, yPoints, 3);
+            g.setStroke(dashed);
+            g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
+        }
+        else {
+            Utility.drawThickLine(g, pFrom.x, pFrom.y, pArrow.x, pArrow.y, 5);
+            g.fillPolygon(xPoints, yPoints, 3);
+            g.setColor(bgGraph);
+            g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
+        }
+  
 	}
 
 	public void draw(Graphics2D g)
 	{
-		draw(normalColour, g);
+        if(PrefMgr.isUML())
+            draw(umlColour, g);
+        else
+            draw(normalColour, g);
 	}
 
 	public boolean contains(int x, int y)

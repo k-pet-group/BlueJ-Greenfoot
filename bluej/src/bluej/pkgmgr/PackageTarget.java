@@ -16,15 +16,20 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: PackageTarget.java 520 2000-05-31 06:49:05Z bquig $
  */
 public class PackageTarget extends Target implements ActionListener
 {
     static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
+    static final Color umldefaultbg = Config.getItemColour("colour.class.bg.uml.default");
+
     static final Color ribboncolour = defaultbg.darker().darker();
     static final Color bordercolour = Config.getItemColour("colour.target.border");
     static final Color textbg = Config.getItemColour("colour.text.bg");
     static final Color textfg = Config.getItemColour("colour.text.fg");
+    
+    static final int TAB_HEIGHT = 12;
+
 
     protected String packageDir = null;
     protected String packageName = null;
@@ -33,6 +38,10 @@ public class PackageTarget extends Target implements ActionListener
     static String openStr = Config.getString("browser.classchooser.packagemenu.open");
 
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
+    static final BasicStroke normalStroke = new BasicStroke(1);
+    static final BasicStroke selectedStroke = new BasicStroke(3);
+
 
     public PackageTarget(Package pkg, String shortName)
     {
@@ -72,7 +81,10 @@ public class PackageTarget extends Target implements ActionListener
 
     Color getBackgroundColour()
     {
-        return defaultbg;
+        if(PrefMgr.isUML())
+            return umldefaultbg;
+        else
+            return defaultbg;
     }
 
     Color getBorderColour()
@@ -91,6 +103,34 @@ public class PackageTarget extends Target implements ActionListener
     }
 
     public void draw(Graphics2D g)
+    {
+        if(PrefMgr.isUML())
+            drawUMLStyle(g);
+        else
+            drawBlueStyle(g);
+    }
+
+    public void drawUMLStyle(Graphics2D g)
+    {
+        int tabWidth = width / 3;
+
+        g.setColor(getBackgroundColour());
+        //g.fillRect(0, 0, width, height);
+        g.fillRect(0, 0, width/3, TAB_HEIGHT);
+        g.fillRect(0, TAB_HEIGHT, width, height - TAB_HEIGHT);
+
+        g.setColor(shadowCol);
+        drawUMLShadow(g);
+
+        g.setColor(getBorderColour());
+        g.setFont(getFont());
+        Utility.drawCentredText(g, getDisplayName(),
+        			TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT,
+        			width - 2*TEXT_BORDER, TEXT_HEIGHT);
+        drawUMLBorders(g);
+    }
+
+    public void drawBlueStyle(Graphics2D g)
     {
         g.setColor(getBackgroundColour());
         g.fillRect(0, 0, width, height);
@@ -130,6 +170,35 @@ public class PackageTarget extends Target implements ActionListener
         	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
         drawBorders(g);
     }
+
+    void drawUMLBorders(Graphics2D g)
+    {
+
+        if(!((flags & F_SELECTED) == 0))
+            g.setStroke(selectedStroke);
+
+        //Utility.drawThickRect(g, 0, 0, width/3, height/5, thickness);
+        //Utility.drawThickRect(g, 0, height/5, width, height - height/5, thickness);
+        g.drawRect(0, 0, width/3, TAB_HEIGHT);
+        g.drawRect(0, TAB_HEIGHT, width, height - TAB_HEIGHT);
+
+        if((flags & F_SELECTED) == 0)
+                return;
+
+        g.setStroke(normalStroke);
+        // Draw lines showing resize tag
+        g.drawLine(width - HANDLE_SIZE - 2, height,
+                   width, height - HANDLE_SIZE - 2);
+        g.drawLine(width - HANDLE_SIZE + 2, height,
+                   width, height - HANDLE_SIZE + 2);
+    }
+
+    void drawUMLShadow(Graphics2D g)
+    {
+        g.fillRect(SHAD_SIZE, height , width, SHAD_SIZE);
+        g.fillRect(width, SHAD_SIZE + TAB_HEIGHT, SHAD_SIZE, height - TAB_HEIGHT);
+    }
+
 
     /**
      * Called when a package icon in a GraphEditor is double clicked.

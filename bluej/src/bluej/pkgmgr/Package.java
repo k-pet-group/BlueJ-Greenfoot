@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 519 2000-05-31 04:05:07Z ajp $
+ * @version $Id: Package.java 520 2000-05-31 06:49:05Z bquig $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -143,9 +143,6 @@ public class Package extends Graph
     /** the state a package can be in (one of the S_* values) */
     private int state = S_IDLE;
 
-    /** is uml notation used */
-    // static final String notationStyle = Config.getDefaultPropString("bluej.notation.style", Graph.UML);
-    // private boolean isUML =  true;
 
 
     /* ------------------- end of field declarations ------------------- */
@@ -192,8 +189,6 @@ public class Package extends Graph
         extendsArrows = new Vector();
         selected = null;
         callHistory = new CallHistory(HISTORY_LENGTH);
-        //if(Graph.BLUE.equals(notationStyle))
-        //    isUML = false;
         load();
     }
 
@@ -307,10 +302,6 @@ public class Package extends Graph
         //XXX raise an event to show the status in all windows belong to this project
     }
 
-  //   public boolean isUML()
-//     {
-//         return isUML;
-//     }
 
     public void setStatusAll(String msg)
     {

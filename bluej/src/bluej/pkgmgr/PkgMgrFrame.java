@@ -29,7 +29,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 519 2000-05-31 04:05:07Z ajp $
+ * @version $Id: PkgMgrFrame.java 520 2000-05-31 06:49:05Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener, Printable
@@ -71,7 +71,6 @@ public class PkgMgrFrame extends JFrame
     private static ExecControls execCtrlWindow = null;
 
     private PageFormat pageFormat;
-    // private static final String notationStyle = Config.getDefaultPropString("bluej.notation.style", Graph.UML);
 
     // instance fields:
 
@@ -92,6 +91,7 @@ public class PkgMgrFrame extends JFrame
         there is no package current being edited (isEmptyFrame() == true) */
     private PackageEditor editor = null;
 
+    
     private PkgMgrFrame outer;
 
     private JLabel statusbar = new JLabel(" ");
@@ -231,6 +231,19 @@ public class PkgMgrFrame extends JFrame
         return null;
     }
 
+   /**
+     * Refresh (repaint()) all open frames.
+     * Called when class diagram notation style is changed
+     * in PrefMgr.
+     */
+    public static void refreshAllFrames()
+    {
+        if (!frames.isEmpty()) {
+            for(Iterator i = frames.iterator(); i.hasNext(); )
+                ((PkgMgrFrame)i.next()).repaint();
+        }
+    }
+
     /**
      * Display a short text message to the user. In the
      * current implementation, this is done by showing the message in
@@ -295,9 +308,7 @@ public class PkgMgrFrame extends JFrame
         setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
     }
 
-    /**
-     *  Displays the package in the frame ready for editing
-     */
+
     public void openPackage(Package pkg)
     {
         if(pkg == null)
@@ -339,6 +350,54 @@ public class PkgMgrFrame extends JFrame
 
         SwingUtilities.invokeLater(enableUI);
     }
+
+ //    /**
+//      *  Displays the package in the frame ready for editing
+//      */
+//     public void openPackage(Package pkg)
+//     {
+//         if(pkg == null)
+//             throw new NullPointerException();
+
+//         // if we are already editing a package, close it and
+//         // open the new one
+//         if(this.pkg != null) {
+//             closePackage();
+//         }
+
+//         this.pkg = pkg;
+//         this.editor = new PackageEditor(pkg, this);
+
+//         classScroller = new JScrollPane(editor);
+//         mainPanel.add(classScroller, "Center");
+
+//         classScroller.setViewportView(editor);
+//         editor.addPackageEditorListener(this);
+
+//         Properties p = pkg.getLastSavedProperties();
+
+//         String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
+//         String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
+
+//         classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
+
+//         pack();
+//         editor.revalidate();
+
+//         // we have had trouble with BlueJ freezing when
+//         // the enable/disable GUI code was run off a menu
+//         // item. This code will delay the menu disable
+//         // until after menu processing has finished
+//         Runnable enableUI = new Runnable() {
+//             public void run() {
+//                 enableFunctions(true);
+//                 updateWindowTitle();
+//                 show();
+//             }
+//         };
+
+//         SwingUtilities.invokeLater(enableUI);
+//     }
 
     /**
      * Closes the current package.
@@ -1461,6 +1520,7 @@ public class PkgMgrFrame extends JFrame
         setIconImage(iconImage);
 
         setupMenus();
+
 
         JPanel mainPanel = new JPanel();
 
