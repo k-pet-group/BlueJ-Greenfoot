@@ -12,7 +12,7 @@ import bluej.testmgr.record.InvokerRecord;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2549 2004-05-26 11:16:02Z polle $
+ * @version $Id: AssertPanel.java 2553 2004-05-26 13:17:28Z polle $
  */
 public class AssertPanel extends JPanel
 {
@@ -79,7 +79,7 @@ public class AssertPanel extends JPanel
 
 		// a checkbox which enables/disables all the assertion UI
 		
-		assertCheckbox = new JCheckBox(Config.getString("debugger.assert.assertThat"), false);
+		assertCheckbox = new JCheckBox(Config.getString("debugger.assert.assertThat"), true);
 		{
 			assertCheckbox.setAlignmentX(LEFT_ALIGNMENT);
 			assertCheckbox.addItemListener(new ItemListener() {
@@ -172,11 +172,11 @@ public class AssertPanel extends JPanel
             deltaData.setVisible(false);
             deltaLabel.setVisible(false);
 
-            assertCombo.setEnabled(false);
-            assertData.setEnabled(false);
-            assertLabel.setEnabled(false);
-            deltaData.setEnabled(false);
-            deltaLabel.setEnabled(false);
+            assertCombo.setEnabled(true);
+            assertData.setEnabled(true);
+            assertLabel.setEnabled(true);
+            deltaData.setEnabled(true);
+            deltaLabel.setEnabled(true);
         }
 
 		add(assertCheckbox);
