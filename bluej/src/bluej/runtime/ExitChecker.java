@@ -7,7 +7,7 @@ package bluej.runtime;
  * ATTENTION: The class needs jdk 1.4 to be compiled!
  *
  * @author  Michael Kolling
- * @version $Id: ExitChecker.java 2253 2003-11-04 13:49:11Z mik $
+ * @version $Id: ExitChecker.java 2370 2003-11-19 00:50:01Z ajp $
  */
 public class ExitChecker
 {
@@ -28,7 +28,7 @@ public class ExitChecker
             throwException();
         }
         catch(IllegalStateException exc) {
-            StackTraceElement[] stack = exc.getStackTrace(); // needs jdk 1.4!
+            // StackTraceElement[] stack = exc.getStackTrace(); // needs jdk 1.4!
             
             // in a real Runtime.exit(), the stack top looks like this:
             // [0] bluej.runtime.ExitChecker:throwException
@@ -36,9 +36,9 @@ public class ExitChecker
             // [2] bluej.runtime.RemoteSecurityManager:checkExit
             // [3] java.lang.Runtime:exit
 
-            if((stack[3].getClassName().equals("java.lang.Runtime")) &&
-               (stack[3].getMethodName().equals("exit")))
-                return true;
+            //if((stack[3].getClassName().equals("java.lang.Runtime")) &&
+              // (stack[3].getMethodName().equals("exit")))
+                //return true;
         }
         return false;
     }

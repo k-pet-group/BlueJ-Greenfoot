@@ -11,7 +11,7 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2364 2003-11-18 14:29:19Z fisker $
+ * @version $Id: SplashWindow.java 2370 2003-11-19 00:50:01Z ajp $
  */
 
 public class SplashWindow extends JWindow
@@ -31,7 +31,7 @@ public class SplashWindow extends JWindow
         // getResource()
 
         image = new JLabel(icon);
-        image.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        image.setBorder(BorderFactory.createLineBorder(Color.black, 1));
         getContentPane().add(image);
 
         pack();

@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2366 2003-11-18 16:30:33Z fisker $
+ * @version $Id: ClassTarget.java 2370 2003-11-19 00:50:01Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -281,7 +281,7 @@ public class ClassTarget extends EditableTarget
             openWithInterface = getEditor().isShowingInterface();
         }
         props.put(prefix + ".showInterface", 
-                    Boolean.toString(openWithInterface));
+                    new Boolean(openWithInterface).toString());
 
         getRole().save(props, 0, prefix);
     }

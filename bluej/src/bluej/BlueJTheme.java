@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  * components for i18n purposes.
  *
  * @author  Bruce Quig
- * @version $Id: BlueJTheme.java 2343 2003-11-14 12:34:10Z polle $
+ * @version $Id: BlueJTheme.java 2370 2003-11-19 00:50:01Z ajp $
  */
 public class BlueJTheme extends DefaultMetalTheme
 {
@@ -212,8 +212,8 @@ public class BlueJTheme extends DefaultMetalTheme
 	    private ImageIcon bottomLeftCorner = Config.getImageAsIcon("image.border.bottomleft");
 	    private ImageIcon bottomRightCorner = Config.getImageAsIcon("image.border.bottomright");
 	    private Color shadowColor = new Color(145,145,145);
-	    private Color backgroundColor = Color.WHITE;
-	    private Color borderColor = Color.BLACK;
+	    private Color backgroundColor = Color.white;
+	    private Color borderColor = Color.black;
         private int backgroundThickness = 5; //extra space around the frame
 	    
 	    public RoundedShadowBorder() {
@@ -325,8 +325,8 @@ public class BlueJTheme extends DefaultMetalTheme
 	private static class ShadowBorder extends AbstractBorder{  
 	    private Insets insets;
 	    private Color shadowColor = new Color(145,145,145);
-	    private Color backgroundColor = Color.WHITE;
-	    private Color borderColor = Color.BLACK;
+	    private Color backgroundColor = Color.white;
+	    private Color borderColor = Color.black;
         private int backgroundThickness = 5; //extra space around the frame
        
 	    

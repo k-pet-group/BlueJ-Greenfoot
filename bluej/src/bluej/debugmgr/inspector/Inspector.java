@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2368 2003-11-18 17:43:54Z polle $
+ * @version    $Id: Inspector.java 2370 2003-11-19 00:50:01Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -509,7 +509,7 @@ public abstract class Inspector extends JFrame
     extends JLabel
     implements TableCellRenderer {
         final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");
-        final private static Border valueBorder = BorderFactory.createLineBorder(Color.GRAY);
+        final private static Border valueBorder = BorderFactory.createLineBorder(Color.gray);
         
         private int maxDescriptionLength;
         
@@ -543,7 +543,7 @@ public abstract class Inspector extends JFrame
             }
             
             Border b = BorderFactory.createLineBorder(this.getBackground(), 3);
-            setBorder(b);  
+            super.setBorder(b);  
             
             TableColumn tableColumn = table.getColumnModel().getColumn(column);
             int preferredWidth = tableColumn.getPreferredWidth();
@@ -558,7 +558,7 @@ public abstract class Inspector extends JFrame
                 this.setBackground(Color.white);                
                 this.setHorizontalAlignment(JLabel.CENTER);
                 Border compoundBorder = BorderFactory.createCompoundBorder(getBorder(),valueBorder);
-                setBorder(compoundBorder);                
+                super.setBorder(compoundBorder);                
             } else {
                 this.setHorizontalAlignment(JLabel.LEADING);
                 //Determine the minimum width
