@@ -5,28 +5,14 @@ import bluej.extmgr.ExtensionWrapper;
 import bluej.extmgr.PrefManager;
 import bluej.extmgr.MenuManager;
 
-import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.Config;
 import bluej.utility.DialogManager;
 
 import java.util.*;
 import java.io.File;
-import java.io.InputStream;
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Point;
-import java.awt.Window;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Provides services to BlueJ extensions. 
@@ -55,7 +41,7 @@ import java.awt.event.ActionListener;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1672 2003-03-10 08:58:56Z damiano $
+ * @version $Id: BlueJ.java 1681 2003-03-10 11:58:30Z damiano $
  */
 
 public class BlueJ
@@ -68,15 +54,15 @@ public class BlueJ
     private Properties localLabels;
 
     /**
-     * Extensions should not call this constructor!
-     * When this constructor is called you can safely make use of the object given.
+     * Extensions should not call this constructor.
+     * The BlueJ object is given to the Extension by the system.
      */
     public BlueJ (ExtensionWrapper myWrapper, PrefManager prefManager)
     {
         this.myWrapper   = myWrapper;
         this.prefManager = prefManager;
 
-        /**
+        /*
          * I do NOT want lazy initialization othervise I may try to load it
          * may times just because I cannof find anything.
          * Or having state variables to know I I did load it but had nothing found
@@ -89,6 +75,7 @@ public class BlueJ
     /**
      * Opens a project
      * 
+     * @param directory Give the directory where the project is.
      * @return the BProject that describes the newly opened or null if it cannot be opened
      */
     public BProject openProject (File directory)
@@ -126,7 +113,8 @@ public class BlueJ
     }
         
     /**
-     * Create new project.
+     * Creates new project.
+     * Give the directory where you want the project be placed. It must be writable, obviously.
      * 
      * @return the newly created BProject if successful. null otherwise.
      */
@@ -191,8 +179,10 @@ public class BlueJ
 
 
     /**
-     * Install a new menu generator for this extension
+     * Install a new menu generator for this extension.
      * If you want no menues then just set it to null
+     * 
+     * @param menuGen a Class instance that implements the MenuGen interface
      */
     public void setMenuGen ( MenuGen menuGen )
     {
@@ -212,8 +202,10 @@ public class BlueJ
     }
 
     /**
-     * Install a new preference panel for this extension
+     * Install a new preference panel for this extension.
      * If you want to delete it just set prefGen to null
+     * 
+     * @param prefGen a class instance that implements the PrefGen interface.
      */
     public void setPrefGen(PrefGen prefGen)
     {
@@ -222,7 +214,7 @@ public class BlueJ
     }
     
     /**
-     * @return what you have set with setBPrefPanel
+     * @return what you have set with setPrefPanel
      */
     public PrefGen getPrefGen()
     {
@@ -233,7 +225,7 @@ public class BlueJ
     /**
      * Returns the arguments with which BlueJ was started.
      * 
-     * @return args
+     * @return a List of strings
      */
     public List getArgs()
     {
@@ -241,9 +233,7 @@ public class BlueJ
     }
     
     /**
-     * Returns the path to the BlueJ system library directory 
-     * <CODE>&lt;bluej&gt;/lib/</CODE>
-     * @return the lib directory
+     * @return the path to the BlueJ system library directory
      */
     public File getSystemLib()
     {
@@ -264,136 +254,19 @@ public class BlueJ
     /**
      * Registers a package listener with the BlueJ object.
      * Opening and Closing events will be passed to the listener.
-     * @param pl the listener
+     * @param listener an instance of a class that implements the ExtEventListener interface
      */
-    public void addExtEventListener (ExtEventListener el)
+    public void addExtEventListener (ExtEventListener listener)
     {
-        myWrapper.addExtEventListener (el);
+        myWrapper.addExtEventListener (listener);
     }
 
-    /**
-     * Shows a message box, with this text and an OK button
-     * @param message the text to be displayed in the box.
-     */
-    public void showMessage (String message)
-    {
-        DialogManager.showText (PkgMgrFrame.getMostRecent(), message);
-    }
-   
-    /**
-     * Gets the bluej default dialog border
-     * @return a blank border of 5 pixels
-     */
-    public javax.swing.border.Border getDialogBorder()
-    {
-        return Config.dialogBorder;
-    }
-     
-    /**
-     * Centres a frame onto the package frame
-     * @param frame the frame to be centred
-     */
-    public void centreWindow (java.awt.Window child)
-    {
-        centreWindow (child, PkgMgrFrame.getMostRecent());
-    }
-    
-    /**
-     * centreWindow - tries to center a window within a parent window
-     */
-    public static void centreWindow(Window child, Window parent)
-    {
-        child.pack();
-
-        Point p_topleft = parent.getLocationOnScreen();
-        Dimension p_size = parent.getSize();
-        Dimension d_size = child.getSize();
-
-        Dimension screen = parent.getToolkit().getScreenSize(); // Avoid window going off the screen
-        int x = p_topleft.x + (p_size.width - d_size.width) / 2;
-        int y = p_topleft.y + (p_size.height - d_size.height) / 2;
-        if (x + d_size.width > screen.width) x = screen.width - d_size.width;
-        if (y + d_size.height > screen.height) y = screen.height - d_size.height;
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        child.setLocation(x,y);
-    }
-
-    /**
-     * As for showLabelDialog, but you can specify the modal parent frame
-     * @param title the title of the dialog box
-     * @param body the contents of the dialog
-     * @param parent the Frame that is to be the modal parent
-     * @return the dialog
-     */
-    public JDialog showGeneralDialog (String title, Component body, Frame parent)
-    {
-        final JDialog dialog = new JDialog (parent, title, true);
-        addDialogBody (dialog, body);
-        return dialog;
-    }
-    
-    /**
-     * As for showLabelDialog, but you can specify the modal parent dialog
-     * @param title the title of the dialog box
-     * @param body the contents of the dialog
-     * @param parent the Dialog that is to be the modal parent
-     * @return the dialog
-     */
-    public JDialog showGeneralDialog (String title, Component body, Dialog parent)
-    {
-        final JDialog dialog = new JDialog (parent, title, true);
-        addDialogBody (dialog, body);
-        return dialog;
-    }
-    
-    /**
-     * Creates a skeleton dialog box plus a close button in the local language.
-     * @param title the title of the dialog box
-     * @param body the contents of the dialog box
-     * @return the dialog so you can dispose of it if you need to.
-     */
-    public JDialog showGeneralDialog (String title, Component body)
-    {
-        return showGeneralDialog (title, body, PkgMgrFrame.getMostRecent());
-    }
-
-    private void addDialogBody (final JDialog dialog, Component body)
-    {
-        JPanel panel = new JPanel();
-        panel.setLayout (new BoxLayout (panel, BoxLayout.Y_AXIS));
-        panel.add (body);
-
-        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent e)
-            {
-                dialog.dispose();
-            }
-        });
-
-        panel.add (Box.createVerticalStrut (5));
-        
-        JButton close = new JButton (Config.getString("close"));
-        close.setAlignmentX (0.5f);
-        close.addActionListener (new ActionListener() {
-            public void actionPerformed (ActionEvent e) {
-                dialog.dispose();
-            }
-        });
-        panel.add (close);
-        panel.setBorder(getDialogBorder());
-        dialog.setContentPane(panel);
-
-        dialog.pack();
-        centreWindow (dialog);
-        dialog.setVisible(true);
-    }
 
      /**
       * Gets a property from BlueJ properties, but include a default value.
+      * 
       * @param property The name of the required global property
-      * @param def The default value to use if the property
-      * cannot be found.
+      * @param def The default value to use if the property cannot be found.
       * @return the value of that property.
       */
     public String getBJPropString (String property, String def)
@@ -402,9 +275,10 @@ public class BlueJ
     }
 
      /**
-      * Gets a property from BlueJ properties file, but include a default value.
+      * Gets a property from Extensions properties file, but include a default value.
       * You MUST use the setExtPropString to write the propertie that you want stored.
       * You can then come back and retrieve it using this function.
+      * 
       * @param property The name of the required global property
       * @param def The default value to use if the property cannot be found
       * @return the value of that property
@@ -416,8 +290,9 @@ public class BlueJ
     }
      
      /**
-      * Sets a property into BlueJ properties file.
-      * The property name does not NEED to be fully qulified since a prefix will be prepended to it.
+      * Sets a property into Extensions properties file.
+      * The property name does NOT needs to be fully qulified since a prefix will be prepended to it.
+      * 
       * @param property The name of the required global property
       * @param value the required value of that property.
       */
@@ -434,9 +309,9 @@ public class BlueJ
      * <CODE>lib/&lt;language&gt;/labels</CODE>, for example,
      * <CODE>lib/english/labels</CODE> for the English language settings.
      * If no labels are found for the current language, the default language (english) will be tried.
+     * 
      * @param id the id of the label to be searched
-     * @return the label appropriate to the current language, or,
-     * if that fails, the name of the label will be returned.
+     * @return the label appropriate to the current language, or, if that fails, the name of the label will be returned.
      */
     public String getLabel (String wantKey)
     {
@@ -454,6 +329,7 @@ public class BlueJ
      * of a <code>$</code> symbol with the given replacement string.
      * If there is no occurrance of <code>$</code> then it will be added
      * after a space, to the end of the resulting string
+     * 
      * @param id the id of the label to be searched in the dictionaries
      * @param replacement the string to replace the <code>$</code>.
      * @return the label, suitably modified.
@@ -470,7 +346,6 @@ public class BlueJ
         return label;
     }
 
-    
     
     /**
      * Close BlueJ
