@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1847 2003-04-14 06:51:23Z ajp $
+ * @version $Id: UnitTestClassRole.java 1864 2003-04-16 15:02:57Z mik $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -49,20 +49,20 @@ public class UnitTestClassRole extends ClassRole
         return Config.getItemColour("colour.class.bg.unittest");
     }
 
-	private boolean isJUnitTestMethod(Method m)
-	{
-		// look for reasons to not include this method as a test case
-		if (!m.getName().startsWith("test"))
-			return false;
-		if (!Modifier.isPublic(m.getModifiers()))
-			return false;
-		if (m.getParameterTypes().length != 0)
-			return false;
-		if (!m.getReturnType().equals(Void.TYPE))
-			return false;
-		
-		return true;
-	}
+    private boolean isJUnitTestMethod(Method m)
+    {
+        // look for reasons to not include this method as a test case
+        if (!m.getName().startsWith("test"))
+            return false;
+        if (!Modifier.isPublic(m.getModifiers()))
+            return false;
+        if (m.getParameterTypes().length != 0)
+            return false;
+        if (!m.getReturnType().equals(Void.TYPE))
+            return false;
+        
+        return true;
+    }
 	
     /**
      * Generate a popup menu for this TestClassRole.
@@ -190,8 +190,17 @@ public class UnitTestClassRole extends ClassRole
         if (newTestName == null)
             return;
 
+        if (newTestName.length() == 0) {
+            pmf.setStatus("You must specify a name for the test.");
+            return;
+        }
+
+        if(! newTestName.startsWith("test")) {
+            newTestName = "test" + Character.toTitleCase(newTestName.charAt(0)) + newTestName.substring(1);
+        }
+        
         pmf.getProject().removeLocalClassLoader();
-        pmf.testRecordingStarted("constructing " + ct.getBaseName() + ".test" + newTestName + "()");
+        pmf.testRecordingStarted("constructing " + ct.getBaseName() + "." + newTestName + "()");
  
         Editor ed = ct.getEditor();
 
@@ -228,7 +237,7 @@ public class UnitTestClassRole extends ClassRole
             if (methodInsert != null) {
                 ed.setSelection(methodInsert.getLine(), methodInsert.getColumn(), 1);
                 
-                ed.insertText("\n\tpublic void test" + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
+                ed.insertText("\n\tpublic void " + name + "()\n\t{\n" + pmf.getObjectBench().getTestMethod() + "\t}\n}\n", false);
             }
             
             ed.save();
@@ -237,8 +246,8 @@ public class UnitTestClassRole extends ClassRole
             e.printStackTrace();
         }
         
-		pmf.getProject().removeLocalClassLoader();
-		pmf.getProject().removeRemoteClassLoader();
+        pmf.getProject().removeLocalClassLoader();
+        pmf.getProject().removeRemoteClassLoader();
 
         pmf.getPackage().compileQuiet(ct);	
     }
