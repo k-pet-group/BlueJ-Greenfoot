@@ -1,0 +1,19 @@
+BlueJ interface translations and translators
+
+
+language        last update     translator
+--------------------------------------------
+afrikaans       1.2.x           Petri Jooste    <RKWJPJ@puknet.puk.ac.za>
+chinese         1.2.x           
+czech           1.3.0           Petr Skoda      <petr.skoda@vslib.cz>
+english         1.2.x           
+french          1.2.x           Patrice MOREAUX <patrice.moreaux@univ-reims.fr>
+german          1.2.x           Ferdinand Kasper <fkasper@via.at>
+                                Claus Hentschel <claus.hentschel@mbau.fh-hannover.de>
+                                Thomas Ršfer    <roefer@tzi.de>
+italian         1.3.0           Angelo Papadia  <angelo.papadia@libero.it>
+japanese        1.2.x           Runrun          ?
+korean          1.2.x           Suk-Hyung Hwang <shwang@sunmoon.ac.kr>
+portuguese      1.2.x           Fred Guedes Pereira   <fredguedespereira@yahoo.com.br>
+spanish         1.2.x           Ivan Guarin     <ivanalgu@flamingo.uis.edu.co>
+swedish         1.2.x           Markus …stman   <markus@gnistra.se>
