@@ -25,7 +25,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Inspector.java 2801 2004-07-15 15:43:47Z mik $
+ * @version $Id: Inspector.java 2828 2004-08-02 14:16:59Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -142,6 +142,25 @@ public abstract class Inspector extends JFrame
             }
         };
         fieldList.addMouseListener(mouseListener);
+        
+        //to make it possible to close dialogs with the keyboard (ENTER or ESCAPE), we
+        // grab the key event from the fieldlist. 
+        fieldList.addKeyListener(new KeyListener() {            
+            public void keyPressed(KeyEvent e)
+            {                
+            }
+
+            public void keyReleased(KeyEvent e)
+            {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    doClose();
+                }    
+            }
+
+            public void keyTyped(KeyEvent e)
+            {
+            }
+        });        
     }
 
     protected boolean isGetEnabled()
