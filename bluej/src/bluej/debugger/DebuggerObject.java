@@ -6,10 +6,12 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 1991 2003-05-28 08:53:06Z ajp $
+ *@version    $Id: DebuggerObject.java 2529 2004-05-10 12:33:31Z polle $
  */
 public abstract class DebuggerObject
 {
+    public static final String OBJECT_REFERENCE = "<object reference>";
+    
     /**
      *  Get the fully qualified name of the class of this object.
      *

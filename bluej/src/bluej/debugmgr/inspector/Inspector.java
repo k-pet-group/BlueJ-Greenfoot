@@ -24,7 +24,7 @@ import bluej.testmgr.record.*;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2517 2004-05-03 20:16:48Z polle $
+ * @version    $Id: Inspector.java 2529 2004-05-10 12:33:31Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -520,7 +520,7 @@ public abstract class Inspector extends JFrame
             
             String valueString = (String) value; 
             
-            if(valueString.equals(" <object reference>")) {                                
+            if(valueString.equals(" " + DebuggerObject.OBJECT_REFERENCE)) {                                
                 this.setIcon(objectrefIcon);
                 this.setText("");
             } else {

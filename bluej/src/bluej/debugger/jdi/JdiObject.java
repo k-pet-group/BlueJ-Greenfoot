@@ -11,7 +11,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2528 2004-05-10 11:59:42Z polle $
+ * @version $Id: JdiObject.java 2529 2004-05-10 12:33:31Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -496,7 +496,7 @@ public class JdiObject extends DebuggerObject
         }
         else if (val instanceof ObjectReference)
         {
-            return "<object reference>";
+            return OBJECT_REFERENCE;
         }
 
         // the following should not be necessary but it seems like
