@@ -5,7 +5,6 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
-import bluej.utility.MultiEnumeration;
 import bluej.utility.Utility;
 
 import java.util.Vector;
@@ -18,7 +17,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: Target.java 1418 2002-10-18 09:38:56Z mik $
+ ** @version $Id: Target.java 1431 2002-10-21 05:22:50Z ajp $
  ** @author Michael Cahill
  **
  ** A general target for the browser
@@ -46,13 +45,13 @@ abstract public class Target extends JComponent
     protected String displayName;		    // the display name of the target
     protected int targetWidth;
     protected boolean selected;
-    
+
     public Target(String displayName)
     {
         this.displayName = displayName;
         this.selected = false;
 
-        targetWidth = (int)((TEXT_BORDER * 4) + 
+        targetWidth = (int)((TEXT_BORDER * 4) +
                         PrefMgr.getStandardFont().getStringBounds(displayName,new FontRenderContext(new AffineTransform(), false, false)).getWidth());
 
         if (targetWidth < DEF_WIDTH)
@@ -60,24 +59,24 @@ abstract public class Target extends JComponent
 
         setBorder(BorderFactory.createEmptyBorder(0,0, SHAD_SIZE, SHAD_SIZE));
 
-        enableEvents(AWTEvent.MOUSE_EVENT_MASK);    
+        enableEvents(AWTEvent.MOUSE_EVENT_MASK);
     }
 
     public Dimension getPreferredSize()
     {
-        return new Dimension(targetWidth, DEF_HEIGHT);    
+        return new Dimension(targetWidth, DEF_HEIGHT);
     }
 
     public Dimension getMinimumSize()
     {
-        return new Dimension(targetWidth, DEF_HEIGHT);    
+        return new Dimension(targetWidth, DEF_HEIGHT);
     }
-    
+
 
     protected void processMouseEvent(MouseEvent evt)
     {
         super.processMouseEvent(evt);
-	
+
         if (evt.isPopupTrigger())
             popupMenu(evt.getX(), evt.getY());
     }
@@ -99,28 +98,28 @@ abstract public class Target extends JComponent
         Insets insets = getInsets();
         int width = getWidth() - insets.left - insets.right;
         int height = getHeight() - insets.top - insets.bottom;
-    
+
        	g.setColor(getBackgroundColour());
     	g.fillRect(insets.left, insets.top, width, height);
-    		
+
 //    	if(state != S_NORMAL) {
     	    // Debug.message("Target: drawing invalid target " + this);
 //    	    g.setColor(shadowCol); // Color.lightGray
 //    	    Utility.stripeRect(g, 0, 0, width, height, 8, 3);
 //    	}
-    
+
     	g.setColor(textbg);
     	g.fillRect(insets.left + TEXT_BORDER, insets.top + TEXT_BORDER,
     		   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
-    
+
     	g.setColor(shadowCol);
        	drawShadow(g);
-    		
+
     	g.setColor(getBorderColour());
     	g.drawRect(insets.left + TEXT_BORDER, insets.top + TEXT_BORDER,
     		   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
     	drawBorders(g);
-    		
+
     	g.setColor(getTextColour());
     	g.setFont(PrefMgr.getStandardFont());
 
@@ -136,7 +135,7 @@ abstract public class Target extends JComponent
     	g.fillRect(SHAD_SIZE, height-SHAD_SIZE, width-SHAD_SIZE, SHAD_SIZE);
     	g.fillRect(width-SHAD_SIZE, SHAD_SIZE, height-SHAD_SIZE, height);
     }
-	
+
     void drawBorders(Graphics g)
     {
         Insets insets = getInsets();
