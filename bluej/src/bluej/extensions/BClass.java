@@ -17,7 +17,7 @@ import bluej.editor.*;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 2365 2003-11-18 16:11:56Z iau $
+ * @version    $Id: BClass.java 2433 2003-12-09 12:18:54Z mik $
  */
 
 public class BClass
@@ -213,7 +213,7 @@ public class BClass
             return null;
 
         // Let me get the package I want now...
-        Package bluejPkg = bluejPrj.getPackage(classPkgName);
+        Package bluejPkg = bluejPrj.getCachedPackage(classPkgName);
 
         return new BClass(new Identifier(bluejPrj, bluejPkg, superView.getQualifiedName()));
     }

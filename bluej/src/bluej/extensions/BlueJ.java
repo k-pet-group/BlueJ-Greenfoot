@@ -62,7 +62,7 @@ import javax.swing.JMenuItem;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2239 2003-10-30 11:14:59Z damiano $
+ * @version    $Id: BlueJ.java 2433 2003-12-09 12:18:54Z mik $
  */
 
 /*
@@ -133,7 +133,7 @@ public class BlueJ
         if (openProj == null)
             return null;
 
-        Package pkg = openProj.getPackage(openProj.getInitialPackageName());
+        Package pkg = openProj.getCachedPackage(openProj.getInitialPackageName());
         if (pkg == null)
             return null;
 

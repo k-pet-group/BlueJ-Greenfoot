@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2432 2003-12-09 12:11:23Z mik $
+ * @version $Id: PkgMgrFrame.java 2433 2003-12-09 12:18:54Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -761,9 +761,9 @@ public class PkgMgrFrame extends JFrame
             Project proj = Project.openProject(newname);
 
             if(isEmptyFrame()) {
-                openPackage(proj.getOrCreatePackageTree(""));
+                openPackage(proj.getPackage(""));
             } else {
-                PkgMgrFrame pmf = createFrame(proj.getOrCreatePackageTree(""));
+                PkgMgrFrame pmf = createFrame(proj.getPackage(""));
                 DialogManager.tileWindow(pmf, this);
                 pmf.show();
             }
@@ -799,7 +799,7 @@ public class PkgMgrFrame extends JFrame
                 DialogManager.showMessage(this, "project-is-readonly");
             }
             
-            Package pkg = openProj.getOrCreatePackageTree(openProj.getInitialPackageName());
+            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
 
@@ -906,7 +906,7 @@ public class PkgMgrFrame extends JFrame
             }
 
             // now lets display the new project in a frame
-            Package pkg = openProj.getOrCreatePackageTree(openProj.getInitialPackageName());
+            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
 
@@ -1331,7 +1331,7 @@ public class PkgMgrFrame extends JFrame
     private void openPackageTarget(String newname)
     {
         PkgMgrFrame pmf;
-        Package p = getPackage().getProject().getOrCreatePackageTree(newname);
+        Package p = getPackage().getProject().getPackage(newname);
 
         if ((pmf = findFrame(p)) == null) {
             pmf = createFrame(p);
@@ -1472,7 +1472,7 @@ public class PkgMgrFrame extends JFrame
             fullName = getPackage().getQualifiedName(name);
 
         // check whether name is already used as an existing package
-        if (getProject().getOrCreatePackageTree(fullName) != null) {
+        if (getProject().getPackage(fullName) != null) {
             DialogManager.showError(this, "duplicate-name");
             return;
         }
@@ -1482,7 +1482,7 @@ public class PkgMgrFrame extends JFrame
 		String prefix = JavaNames.getPrefix(fullName);
 		String base = JavaNames.getBase(fullName);
 		
-		Package basePkg = getProject().getOrCreatePackageTree(prefix);
+		Package basePkg = getProject().getPackage(prefix);
 		if (basePkg != null) {
 			if (basePkg.getTarget(base) != null) {
 				DialogManager.showError(this, "duplicate-name");
@@ -1494,7 +1494,7 @@ public class PkgMgrFrame extends JFrame
     
         // check that everything has gone well and instruct all affected
         // packages to reload (to make them notice the new sub packages)
-        Package newPackage = getProject().getOrCreatePackageTree(fullName);
+        Package newPackage = getProject().getPackage(fullName);
 
         if (newPackage == null) {
             Debug.reportError("creation of new package failed unexpectedly");

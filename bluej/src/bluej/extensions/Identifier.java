@@ -78,7 +78,7 @@ class Identifier
     {
     Project bluejProject = getBluejProject();
 
-    Package bluejPkg = bluejProject.getPackage(packageId);
+    Package bluejPkg = bluejProject.getCachedPackage(packageId);
     if ( bluejPkg == null ) throw new PackageNotFoundException ("Package '"+packageId+"' is deleted");
     
     return  bluejPkg;

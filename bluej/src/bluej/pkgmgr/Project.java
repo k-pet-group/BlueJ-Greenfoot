@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2432 2003-12-09 12:11:23Z mik $
+ * @version $Id: Project.java 2433 2003-12-09 12:18:54Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -134,7 +134,7 @@ public class Project
         }
 
         if (startingPackageName.equals("")) {
-            Package startingPackage = proj.getOrCreatePackageTree("");
+            Package startingPackage = proj.getPackage("");
 
             while(startingPackage != null) {
                 Package sub = startingPackage.getBoringSubPackage();
@@ -411,7 +411,7 @@ public class Project
      *
      * @param qualifiedName package name ie java.util or "" for unnamed package
      */
-    public Package getOrCreatePackageTree(String qualifiedName)
+    public Package getPackage(String qualifiedName)
     {
         Package existing = (Package) packages.get(qualifiedName);
 
@@ -423,7 +423,7 @@ public class Project
         {
             Package pkg;
             try {
-                Package parent = getOrCreatePackageTree(JavaNames.getPrefix(qualifiedName));
+                Package parent = getPackage(JavaNames.getPrefix(qualifiedName));
                 if(parent != null) {
                     pkg = new Package(this, JavaNames.getBase(qualifiedName), parent);
                     packages.put(qualifiedName, pkg);
@@ -448,7 +448,7 @@ public class Project
      * @param qualifiedName package name ie java.util or "" for unnamed package
      * @return null if the named package cannot be found
      */
-    public Package getPackage(String qualifiedName)
+    public Package getCachedPackage(String qualifiedName)
     {
         return (Package) packages.get(qualifiedName);
     }
@@ -519,7 +519,7 @@ public class Project
         
         // The above named package does not exist, lets create it.
         try {
-            Package parent = getOrCreatePackageTree(JavaNames.getPrefix(qualifiedName));
+            Package parent = getPackage(JavaNames.getPrefix(qualifiedName));
             if(parent == null) 
                 return NEW_PACKAGE_NO_PARENT;
 
@@ -575,7 +575,7 @@ public class Project
      */
     public List getPackageNames()
     {
-        return getPackageNames(getOrCreatePackageTree(""));
+        return getPackageNames(getPackage(""));
     }
 
     /**
@@ -657,7 +657,7 @@ public class Project
             Project openProj = openProject(newName);
             if(openProj != null) {
                 // This is a wizard get 311003 Damiano
-                Package pkg = openProj.getOrCreatePackageTree(openProj.getInitialPackageName());
+                Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
                 PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
                 pmf.show();
@@ -891,7 +891,7 @@ public class Project
 		
         DebuggerThread thr = event.getThread();
 		String packageName = JavaNames.getPrefix(thr.getClass(0));
-		Package pkg = getOrCreatePackageTree(packageName);
+		Package pkg = getPackage(packageName);
 		if(pkg != null) {
 			switch(event.getID()) {
 			 case DebuggerEvent.THREAD_BREAKPOINT:

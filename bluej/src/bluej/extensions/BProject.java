@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 2432 2003-12-09 12:11:23Z mik $
+ * @version $Id: BProject.java 2433 2003-12-09 12:18:54Z mik $
  */
 
 /*
@@ -102,7 +102,7 @@ public class BProject
         if ( risul != Project.NEW_PACKAGE_DONE )
             throw new IllegalStateException("newPackage: Unknown result code="+risul);
 
-        Package pkg = bluejProject.getPackage (fullyQualifiedName);
+        Package pkg = bluejProject.getCachedPackage (fullyQualifiedName);
 
         if ( pkg == null ) 
             throw new IllegalStateException("newPackage: getPackage '"+fullyQualifiedName+"' returned null");
@@ -130,7 +130,7 @@ public class BProject
     {
         Project bluejProject = projectId.getBluejProject();
 
-        Package pkg = bluejProject.getPackage (name);
+        Package pkg = bluejProject.getCachedPackage (name);
         if(pkg == null) 
             return null;
 
