@@ -1,6 +1,7 @@
 package org.bluej.extensions.submitter;
 
 import bluej.extensions.*;
+import bluej.extensions.event.*;
 
 import java.net.URL;
 import javax.swing.*;
@@ -13,9 +14,9 @@ import org.bluej.utility.*;
  * their project by the agreed method
  *
  * @author Clive Miller
- * @version $Id: Submitter.java 1566 2002-12-10 14:52:31Z damiano $
+ * @version $Id: Submitter.java 1580 2002-12-12 13:18:17Z damiano $
  */
-public class Submitter extends Extension implements MenuGen
+public class Submitter extends Extension implements MenuGen, BJEventListener
 {
     private static final int BUILT_FOR_MAJOR = 1;
     private static final int BUILD_FOR_MINOR = 0;
@@ -58,13 +59,39 @@ public class Submitter extends Extension implements MenuGen
 
         String aLabel = bj.getLabel ("menu.submit");
         anAction = new MenuAction ( aLabel  );
+        anAction.setEnabled(false);
         bj.setMenuGen(this);
+
+        bj.addBJEventListener(this);
     }
 
     public String terminate()
     {
         return "";
     }
+
+
+  /** 
+   * Something has happened in blueJ
+   * What we do is to put it into the queue of events happening
+   * and also we display it into the console.
+   */
+  public void eventOccurred ( BJEvent ev )    
+    {
+    int evType = ev.getEvent();
+
+    // nothing to do if it is not a package event.
+    if ( ! (ev instanceof bluej.extensions.event.PackageEvent) ) 
+      return;
+    
+    if ( evType == PackageEvent.PACKAGE_OPENED ) 
+      anAction.setEnabled(true);
+
+    if ( evType == PackageEvent.PACKAGE_CLOSING ) 
+      anAction.setEnabled(false);
+    }  
+
+
 
   /** 
    * If it is as expected I will have only one to give out
