@@ -3,14 +3,14 @@ package bluej.views;
 import java.lang.reflect.*;
 
 /**
- ** @version $Id: MethodView.java 1819 2003-04-10 13:47:50Z fisker $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** A representation of a Java method in BlueJ
- **/
-public class MethodView extends CallableView
-    implements Comparable
+ *
+ *  A representation of a Java method in BlueJ
+ * 
+ *  @version $Id: MethodView.java 2559 2004-05-27 12:03:26Z polle $
+ * @author Michael Cahill
+ * @author Michael Kolling
+ */
+public class MethodView extends CallableView implements Comparable
 {
     protected Method method;
     protected View returnType;
@@ -18,8 +18,7 @@ public class MethodView extends CallableView
     /**
      * Constructor.
      */
-    public MethodView(View view, Method method)
-    {
+    public MethodView(View view, Method method) {
         super(view);
         this.method = method;
     }
@@ -27,21 +26,18 @@ public class MethodView extends CallableView
     /**
      * Returns a string describing this Method.
      */
-    public String toString()
-    {
+    public String toString() {
         return method.toString();
     }
 
-    public int getModifiers()
-    {
+    public int getModifiers() {
         return method.getModifiers();
     }
 
     /**
      * @returns a boolean indicating whether this method has parameters
      */
-    public boolean hasParameters()
-    {
+    public boolean hasParameters() {
         return (method.getParameterTypes().length > 0);
     }
 
@@ -49,13 +45,9 @@ public class MethodView extends CallableView
      * Returns a signature string in the format
      *  name(type,type,type)
      */
-    public String getSignature()
-    {
-        String name = View.getTypeName(method.getReturnType()) +
-            " " +
-            method.getName();
+    public String getSignature() {
+        String name = View.getTypeName(method.getReturnType()) + " " + method.getName();
         Class[] params = method.getParameterTypes();
-
         return makeSignature(name, params);
     }
 
@@ -63,13 +55,9 @@ public class MethodView extends CallableView
      * Get a short String describing this member. A description is similar
      * to the signature, but it has parameter names in it instead of types.
      */
-    public String getShortDesc()
-    {
-        String name = View.getTypeName(method.getReturnType()) +
-            " " +
-            method.getName();
+    public String getShortDesc() {
+        String name = View.getTypeName(method.getReturnType()) + " " + method.getName();
         Class[] params = method.getParameterTypes();
-
         return makeDescription(name, params, false);
     }
 
@@ -78,13 +66,9 @@ public class MethodView extends CallableView
      * similar to the short description, but it has type names and parameters
      * included.
      */
-    public String getLongDesc()
-    {
-        String name = View.getTypeName(method.getReturnType()) +
-            " " +
-            method.getName();
+    public String getLongDesc() {
+        String name = View.getTypeName(method.getReturnType()) + " " + method.getName();
         Class[] params = method.getParameterTypes();
-
         return makeDescription(name, params, true);
     }
 
@@ -92,24 +76,21 @@ public class MethodView extends CallableView
      * Get an array of Class objects representing method's parameters
      * @returns array of Class objects
      */
-    public Class[] getParameters()
-    {
+    public Class[] getParameters() {
         return method.getParameterTypes();
     }
 
     /**
      * Returns the name of this method as a String
      */
-    public String getName()
-    {
+    public String getName() {
         return method.getName();
     }
 
     /**
      * @returns a boolean indicating whether this method has no return value
      */
-    public boolean isVoid()
-    {
+    public boolean isVoid() {
         String resultName = getReturnType().getQualifiedName();
         return "void".equals(resultName);
     }
@@ -118,18 +99,15 @@ public class MethodView extends CallableView
      * @returns if this method is the main method (a static void returning
      * function called main with a string array as an argument)
      */
-    public boolean isMain()
-    {
-        if(!isVoid())
+    public boolean isMain() {
+        if (!isVoid())
             return false;
-        if("main".equals(getName())) {
+        if ("main".equals(getName())) {
             Class[] c = getParameters();
-
-            if(c.length != 1)
+            if (c.length != 1)
                 return false;
-            if(c[0].isArray() && String.class.equals(c[0].getComponentType())) {
-                if(Modifier.isStatic(getModifiers()) &&
-                   Modifier.isPublic(getModifiers()))
+            if (c[0].isArray() && String.class.equals(c[0].getComponentType())) {
+                if (Modifier.isStatic(getModifiers()) && Modifier.isPublic(getModifiers()))
                     return true;
             }
         }
@@ -140,22 +118,18 @@ public class MethodView extends CallableView
      * Returns a Class object that represents the formal return type
      * of the method represented by this Method object.
      */
-    public View getReturnType()
-    {
-        if(returnType == null)
+    public View getReturnType() {
+        if (returnType == null)
             returnType = View.getView(method.getReturnType());
-
         return returnType;
     }
 
     // ==== Comparable interface ====
-
     /**
      * Compare operation to provide alphabetical sorting by method name.
      */
-    public int compareTo(Object other)
-    {
-        MethodView otherView = (MethodView)other;
+    public int compareTo(Object other) {
+        MethodView otherView = (MethodView) other;
         return method.getName().compareTo(otherView.method.getName());
     }
 }
