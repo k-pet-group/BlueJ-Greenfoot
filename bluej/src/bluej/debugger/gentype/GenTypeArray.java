@@ -1,5 +1,7 @@
 package bluej.debugger.gentype;
 
+import java.util.Map;
+
 public class GenTypeArray extends GenTypeClass
 {
     GenType baseType;
@@ -19,4 +21,14 @@ public class GenTypeArray extends GenTypeClass
     {
         return baseType;
     }
+    
+    public GenType mapTparsToTypes(Map tparams)
+    {
+        GenType newBase = baseType.mapTparsToTypes(tparams);
+        if( newBase == baseType )
+            return this;
+        else
+            return new GenTypeArray(newBase, reflective);
+    }
+
 }
