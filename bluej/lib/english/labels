@@ -513,47 +513,47 @@ properties.heading.moe=Moe Editor properties. Settings in this file override \"m
 
 # menus and menu items
 
-menu.package=Project
-menu.package.new=New Project...
-menu.package.open=Open Project...
+menu.package=_Project
+menu.package.new=_New Project...
+menu.package.open=Open Project...@P
 menu.package.openRecent=Open Recent
-menu.package.openNonBlueJ=Open Non BlueJ...
-menu.package.close=Close
-menu.package.save=Save
-menu.package.saveAs=Save As...
-menu.package.import=Import...
-menu.package.export=Export...
-menu.package.pageSetup=Page Setup...
-menu.package.print=Print...
-menu.package.quit=Quit
+menu.package.openNonBlueJ=Open Non _BlueJ...
+menu.package.close=Close@W
+menu.package.save=Save@S
+menu.package.saveAs=S_ave As...
+menu.package.import=_Import...
+menu.package.export=_Export...
+menu.package.pageSetup=Page Setup...@^P
+menu.package.print=Print...@P
+menu.package.quit=_Quit
 
-menu.edit=Edit
-menu.edit.newClass=New Class...
-menu.edit.newPackage=New Package...
-menu.edit.addClass=Add Class from File...
-menu.edit.remove=Remove
-menu.edit.newUses=New Uses Arrow...
-menu.edit.newInherits=New Inheritance Arrow...
+menu.edit=_Edit
+menu.edit.newClass=New Class...@N
+menu.edit.newPackage=New Package...@R
+menu.edit.addClass=_Add Class from File...
+menu.edit.remove=Remove@BACK_SPACE
+menu.edit.newUses=New _Uses Arrow...
+menu.edit.newInherits=New _Inheritance Arrow...
 menu.edit.removeArrow=Remove Arrow...
 
-menu.tools=Tools
-menu.tools.compile=Compile
-menu.tools.test=Run Tests
-menu.tools.compileSelected=Compile Selected
-menu.tools.rebuild=Rebuild Package
-menu.tools.callLibrary=Use Library Class...
-menu.tools.callFreeForm=Evaluate Expression...
-menu.tools.generateDoc=Project Documentation
-menu.tools.preferences=Preferences...
+menu.tools=_Tools
+menu.tools.compile=Compile@K
+menu.tools.test=Run _Tests
+menu.tools.compileSelected=Compile Selected@^K
+menu.tools.rebuild=_Rebuild Package
+menu.tools.callLibrary=Use Library Class...@L
+menu.tools.callFreeForm=Evaluate Expression...@E
+menu.tools.generateDoc=Project Documentation@J
+menu.tools.preferences=_Preferences...
 
-menu.view=View
-menu.view.showUses=Show Uses
-menu.view.showInherits=Show Inheritance
-menu.view.showExecControls=Show Debugger
-menu.view.showTerminal=Show Terminal
-menu.view.showTestDisplay=Show Test Results
+menu.view=_View
+menu.view.showUses=Show Uses@U
+menu.view.showInherits=Show Inheritance@I
+menu.view.showExecControls=Show Debugger@D
+menu.view.showTerminal=Show Terminal@T
+menu.view.showTestDisplay=Show Test _Results
 
-menu.group=Group Work
+menu.group=_Group Work
 menu.group.make=Make Group Package
 menu.group.open=Open Group Package
 menu.group.updateSelected=Update Selected
@@ -565,15 +565,14 @@ menu.group.statusAll=Status of All
 menu.group.users=Users
 menu.group.configuration=Configuration
 
-menu.help=Help
-menu.help.about=About BlueJ
-menu.help.extensions=Installed Extensions
-menu.help.versionCheck=Check Version...
-menu.help.extensions=Installed Extensions
-menu.help.copyright=Copyright
-menu.help.website=BlueJ Web Site
-menu.help.tutorial=BlueJ Tutorial
-menu.help.standardApi=Java Class Libraries
+menu.help=_Help
+menu.help.about=_About BlueJ
+menu.help.extensions=Installed E_xtensions
+menu.help.versionCheck=Check Version...@V
+menu.help.copyright=_Copyright
+menu.help.website=BlueJ _Web Site
+menu.help.tutorial=BlueJ _Tutorial
+menu.help.standardApi=Java _Class Libraries
 
 # tool tips
 
@@ -609,4 +608,4 @@ about.theTeam.kent=The BlueJ team at Kent University
 
 # Work Indicator
 workIndicator.showDebugger=Show Debugger
-workIndicator.resetMachine=Reset Machine
+workIndicator.resetMachine=Reset Machine@^R
