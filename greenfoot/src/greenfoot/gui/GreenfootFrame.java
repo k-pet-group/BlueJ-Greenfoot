@@ -33,6 +33,7 @@ import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.Config;
+import bluej.debugmgr.inspector.Inspector;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -41,7 +42,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: GreenfootFrame.java 3283 2005-01-18 05:05:19Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -347,6 +348,7 @@ public class GreenfootFrame extends JFrame
 
     public void compileStarted(RCompileEvent event)
     {
+        Inspector.removeInspectors();
         worldHandler.setWorld(null);
     }
 
