@@ -1,27 +1,14 @@
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.BlueJEvent;
-import bluej.BlueJEventListener;
-import bluej.pkgmgr.Package;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Utility;
-import bluej.utility.FileUtility;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.JavaNames;
-import bluej.debugger.*;
-import bluej.classmgr.*;
-import bluej.views.View;
-import bluej.tester.*;
-
+import java.io.*;
 import java.util.*;
-import java.io.File;
-import java.io.IOException;
 
-/*import junit.swingui.TestRunner;
-import junit.runner.TestSuiteLoader;
-import junit.framework.*;*/
+import bluej.*;
+import bluej.classmgr.*;
+import bluej.debugger.*;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.*;
+import bluej.views.View;
 
 /**
  * A BlueJ Project.
@@ -30,7 +17,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1639 2003-03-04 20:24:40Z damiano $
+ * @version $Id: Project.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class Project
     implements BlueJEventListener

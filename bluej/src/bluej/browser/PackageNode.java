@@ -1,12 +1,5 @@
 package bluej.browser;
 
-import javax.swing.tree.*;
-import javax.swing.*;
-import java.awt.event.*; // ActionListener, etc.
-import java.util.ArrayList;
-
-import bluej.classmgr.ClassPathEntry;
-
 /**
  * DefaultMutableTreeNode subclass used to represent a single
  * package available in the library browser tree.  Each package
@@ -17,7 +10,7 @@ import bluej.classmgr.ClassPathEntry;
  * 
  * @see LibraryChooser
  * @author Andrew Patterson
- * @version $Id: PackageNode.java 265 1999-11-05 04:31:07Z ajp $
+ * @version $Id: PackageNode.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class PackageNode extends LibraryChooserNode {
 

@@ -1,9 +1,5 @@
 package bluej.browser;
 
-import javax.swing.tree.*;
-import javax.swing.*;
-import java.awt.event.*; // ActionListener, etc.
-import java.util.ArrayList;
 import java.io.File;
 
 import bluej.classmgr.ClassPathEntry;
@@ -18,10 +14,10 @@ import bluej.classmgr.ClassPathEntry;
  * 
  * @see LibraryChooser
  * @author Andrew Patterson
- * @version $Id: ClassPathEntryNode.java 264 1999-10-31 06:24:52Z ajp $
+ * @version $Id: ClassPathEntryNode.java 1700 2003-03-13 03:34:20Z ajp $
  */
-public class ClassPathEntryNode extends LibraryChooserNode {
-
+public class ClassPathEntryNode extends LibraryChooserNode
+{
 	private ClassPathEntry classpathentry;
 	
 	/**

@@ -1,27 +1,17 @@
 package bluej.browser;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
-
 import java.awt.*;
-import java.awt.event.*;
-
+import java.io.*;
 import java.util.*;
-import java.util.zip.*;
 import java.util.jar.*;
 
-import java.io.*;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.*;
+import javax.swing.tree.*;
 
 import bluej.Config;
-import bluej.pkgmgr.PackageTarget;
-import bluej.pkgmgr.Package;
-import bluej.utility.Utility;
 import bluej.utility.DialogManager;
-import bluej.utility.Debug;
-import bluej.classmgr.ClassMgr;
-import bluej.classmgr.ClassPathEntry;
 
 /**
  * Display packages in a tree form.
@@ -31,7 +21,7 @@ import bluej.classmgr.ClassPathEntry;
  *
  * @author  Andy Marks
  * @author  Andrew Patterson
- * @cvs     $Id: LibraryChooser.java 1067 2002-01-08 05:49:39Z ajp $
+ * @cvs     $Id: LibraryChooser.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class LibraryChooser extends JPanel implements Runnable
 {

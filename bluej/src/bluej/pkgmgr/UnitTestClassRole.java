@@ -1,37 +1,27 @@
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.DialogManager;
-import bluej.utility.BlueJFileReader;
-import bluej.utility.FileUtility;
-import bluej.prefmgr.PrefMgr;
-import bluej.debugger.*;
-import bluej.editor.*;
-import bluej.parser.*;
-import bluej.parser.ast.*;
-import bluej.parser.symtab.*;
-import bluej.testmgr.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.io.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
 import java.lang.reflect.*;
+import java.util.*;
 
-import junit.swingui.TestRunner;
-import junit.framework.*;
+import javax.swing.*;
 
-import antlr.collections.*;
-import antlr.*;
+import antlr.BaseAST;
+
+import bluej.Config;
+import bluej.debugger.*;
+import bluej.editor.Editor;
+import bluej.parser.ast.*;
+import bluej.prefmgr.PrefMgr;
+import bluej.testmgr.TestDisplayFrame;
+import bluej.utility.DialogManager;
 
 /**
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1697 2003-03-11 19:58:20Z mik $
+ * @version $Id: UnitTestClassRole.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {

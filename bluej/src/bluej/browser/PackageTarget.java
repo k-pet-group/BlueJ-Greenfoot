@@ -1,23 +1,17 @@
 package bluej.browser;
 
-import bluej.Config;
-import bluej.utility.Debug;
-import bluej.graph.Vertex;
-import bluej.graph.GraphEditor;
-import bluej.utility.Utility;
-import bluej.utility.JavaNames;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-
-import java.util.Vector;
-import java.util.Properties;
-import java.util.Enumeration;
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
+import bluej.Config;
+import bluej.pkgmgr.*;
+import bluej.pkgmgr.Package;
+import bluej.utility.*;
+
 /**
- ** @version $Id: PackageTarget.java 1431 2002-10-21 05:22:50Z ajp $
+ ** @version $Id: PackageTarget.java 1700 2003-03-13 03:34:20Z ajp $
  ** @author Michael Cahill
  **
  ** A general target for the browser

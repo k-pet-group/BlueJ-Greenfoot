@@ -1,9 +1,7 @@
 package bluej;
 
-import bluej.utility.Debug;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
   * Class to handle (throw and deliver) BlueJ events. Event are defined
@@ -49,7 +47,7 @@ import java.util.ArrayList;
   *          that is selected    source displayed
   * </PRE>
   * @author Michael Kolling
-  * @version $Id: BlueJEvent.java 1458 2002-10-23 12:06:40Z jckm $
+  * @version $Id: BlueJEvent.java 1700 2003-03-13 03:34:20Z ajp $
   *
   */
 

@@ -21,7 +21,7 @@ import java.util.Properties;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 1551 2002-12-02 05:58:45Z ajp $
+ * @version $Id: AppletClassRole.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -196,7 +196,7 @@ public class AppletClassRole extends ClassRole
                 if(execOption == RunAppletDialog.EXEC_APPLETVIEWER) {
                     try {
                         String[] execCommand = {APPLETVIEWER_COMMAND, url};
-                        parent.displayMessage(Config.getString("pkgmgr.appletInViewer"));
+                        PkgMgrFrame.displayMessage(Config.getString("pkgmgr.appletInViewer"));
 
                         Process applet =
                             Runtime.getRuntime().exec(execCommand);
@@ -208,7 +208,7 @@ public class AppletClassRole extends ClassRole
                 }
                 else {
                     // start in Browser
-                    parent.displayMessage(Config.getString("pkgmgr.appletInBrowser"));
+                    PkgMgrFrame.displayMessage(Config.getString("pkgmgr.appletInBrowser"));
                     Utility.openWebBrowser(absoluteFileName);
                 }
             }

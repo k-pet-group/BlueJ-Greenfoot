@@ -2,26 +2,23 @@ package bluej;
 
 //import com.apple.mrj.MRJFileUtils;
 
-import bluej.utility.Debug;
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.debugger.Debugger;
-import bluej.debugger.MachineLoader;
-import bluej.classmgr.ClassMgrPrefPanel;
-import bluej.prefmgr.MiscPrefPanel;
-import bluej.prefmgr.PrefMgr;
-import bluej.extmgr.ExtensionsManager;
-
 import java.io.File;
 import java.util.StringTokenizer;
+
+import bluej.classmgr.ClassMgrPrefPanel;
+import bluej.debugger.*;
+import bluej.extmgr.ExtensionsManager;
+import bluej.pkgmgr.*;
+import bluej.pkgmgr.Package;
+import bluej.prefmgr.MiscPrefPanel;
+import bluej.utility.Debug;
 
 /**
  * This is the main entry point to BlueJ. Normal invocations start
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1616 2003-01-27 15:47:57Z damiano $
+ * @version $Id: Main.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class Main
 {

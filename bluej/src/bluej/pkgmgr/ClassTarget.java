@@ -1,47 +1,23 @@
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
-import bluej.utility.BlueJFileReader;
-import bluej.utility.DialogManager;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerClassLoader;
-import bluej.debugger.DebuggerClass;
-import bluej.debugger.Inspector;
-import bluej.debugger.ClassInspector;
-import bluej.parser.ClassParser;
-import bluej.parser.symtab.ClassInfo;
-import bluej.parser.symtab.Selection;
-import bluej.editor.Editor;
-import bluej.graph.GraphEditor;
-import bluej.utility.*;
-import bluej.views.ConstructorView;
-import bluej.views.MemberView;
-import bluej.views.CallableView;
-import bluej.views.MethodView;
-import bluej.views.View;
-import bluej.views.ViewFilter;
-//import bluej.tester.*;
-
+import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.Modifier;
-import java.util.Iterator;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.*;
 import java.util.List;
-import java.util.ArrayList;
-import java.applet.Applet;
 
-/*import net.sourceforge.transmogrify.hook.bluej.BlueJHook;
-import net.sourceforge.transmogrify.hook.Hook;
-import net.sourceforge.transmogrify.hook.Transmogrifier;
-import net.sourceforge.transmogrify.refactorer.*;
-import net.sourceforge.transmogrify.symtab.*;
-import net.sourceforge.transmogrify.symtab.parser.*;*/
+import javax.swing.*;
+
+import bluej.Config;
+import bluej.debugger.*;
+import bluej.editor.Editor;
+import bluej.graph.GraphEditor;
+import bluej.parser.ClassParser;
+import bluej.parser.symtab.*;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.*;
 
 /**
  * A class target in a package, i.e. a target that is a class file
@@ -51,7 +27,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1627 2003-02-12 06:02:44Z ajp $
+ * @version $Id: ClassTarget.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -873,7 +849,7 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * creates a popup menu for this class target.
+     * Creates a popup menu for this class target.
      *
      * @param   cl  class object associated with this class target
      * @return      the created popup menu object

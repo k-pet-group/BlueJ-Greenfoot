@@ -1,19 +1,16 @@
 package bluej.browser;
 
+import java.awt.*;
+import java.lang.reflect.Modifier;
+import java.util.Enumeration;
+
 import javax.swing.*;
 import javax.swing.tree.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.event.*;
 
-import bluej.views.*;
-import bluej.utility.Utility;
 import bluej.Config;
 import bluej.classmgr.ClassMgr;
-
-import java.lang.reflect.*;
-import java.util.*;
+import bluej.utility.Utility;
+import bluej.views.*;
 
 /**
  * A JPanel subclass containing a JTree displaying all the attributes of a
@@ -27,16 +24,17 @@ import java.util.*;
  * @see AttributeThread
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: AttributeChooser.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: AttributeChooser.java 1700 2003-03-13 03:34:20Z ajp $
  */
-public class AttributeChooser extends JPanel {
-
+public class AttributeChooser extends JPanel
+{
 	private String currentClass;
 
 	/**
 	 * Create a new AttributeChooser to display the attributes of a class.
 	 */
-	public AttributeChooser() {
+	public AttributeChooser()
+	{
 		this.setLayout(new BorderLayout());
 	}
 

@@ -1,29 +1,13 @@
 package bluej;
 
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.DefaultProperties;
-
-import java.awt.Color;
-import java.awt.event.KeyEvent;
-import javax.swing.filechooser.FileSystemView;
-import javax.swing.text.JTextComponent;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Properties;
-
-
 import java.awt.*;
+import java.io.*;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+
+import bluej.utility.*;
 
 /**
  * Class to handle application configuration for BlueJ. The configuration
@@ -42,7 +26,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1696 2003-03-11 19:55:19Z mik $
+ * @version $Id: Config.java 1700 2003-03-13 03:34:20Z ajp $
  */
 
 public class Config

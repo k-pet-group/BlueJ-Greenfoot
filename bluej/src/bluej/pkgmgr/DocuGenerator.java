@@ -1,17 +1,11 @@
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.BlueJEvent;
-import bluej.pkgmgr.Package;
-import bluej.utility.Utility;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
-import bluej.prefmgr.PrefMgr;
-
-import java.util.*;
 import java.io.*;
-import java.net.*;
+import java.util.*;
+
+import bluej.*;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.*;
 
 /**
  * This class handles documentation generation from inside BlueJ.

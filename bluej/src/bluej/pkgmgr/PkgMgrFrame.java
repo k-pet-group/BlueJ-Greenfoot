@@ -19,28 +19,22 @@ import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.utility.*;
-import bluej.graph.GraphEditor;
 import bluej.debugger.*;
 import bluej.views.*;
 import bluej.terminal.Terminal;
 import bluej.terminal.TerminalButtonModel;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.prefmgr.PrefMgr;
-import bluej.browser.LibraryBrowser;
-import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
-import bluej.groupwork.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.HelpDialog;
 import bluej.testmgr.*;
 
-import antlr.*;
-
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1638 2003-03-04 04:04:27Z ajp $
+ * @version $Id: PkgMgrFrame.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,

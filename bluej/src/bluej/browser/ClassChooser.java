@@ -1,30 +1,13 @@
 package bluej.browser;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.tree.*;
-import javax.swing.plaf.basic.*;
-import javax.swing.event.*;
-
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
-
 import java.awt.*;
 import java.awt.event.*;
 
-import java.util.*;
-import java.util.zip.*;
-import java.util.jar.*;
+import javax.swing.*;
+import javax.swing.tree.*;
 
-import java.io.*;
-
-import bluej.Config;
-import bluej.utility.Utility;
-import bluej.utility.JavaNames;
-import bluej.utility.Debug;
 import bluej.classmgr.ClassMgr;
-import bluej.classmgr.ClassPathEntry;
-import bluej.pkgmgr.Package;
+import bluej.utility.JavaNames;
 
 /**
  * A JPanel subclass which displays all the classes in a package. ie
@@ -32,12 +15,12 @@ import bluej.pkgmgr.Package;
  * Allows the user to select a particular class which fires an action
  * event indicating the class chosen.
  *
- * @author Andy Marks
- * @author Andrew Patterson
- * @version $Id: ClassChooser.java 596 2000-06-28 05:07:31Z ajp $
+ * @author  Andy Marks
+ * @author  Andrew Patterson
+ * @version $Id: ClassChooser.java 1700 2003-03-13 03:34:20Z ajp $
  */
-public class ClassChooser extends JPanel {
-
+public class ClassChooser extends JPanel
+{
     private FlowPanel flowpanel = null;
 
     /**

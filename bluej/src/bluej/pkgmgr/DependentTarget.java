@@ -1,28 +1,18 @@
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
-import bluej.graph.Vertex;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.util.*;
+import java.util.List;
+
 import bluej.graph.GraphEditor;
 import bluej.utility.MultiIterator;
-import bluej.utility.Utility;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.Iterator;
-import java.util.Collections;
-import java.awt.*;
-import java.awt.font.*;
-import java.awt.geom.*;
-import java.awt.event.*;
 
 /**
- * @version $Id: DependentTarget.java 1539 2002-11-29 13:44:44Z ajp $
- * @author Michael Cahill
- *
  * A general target in a package
+ *
+ * @author 	Michael Cahill
+ * @version	$Id: DependentTarget.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public abstract class DependentTarget extends Target
 {
@@ -36,7 +26,7 @@ public abstract class DependentTarget extends Target
     public DependentTarget(Package pkg, String identifierName)
     {
         super(pkg, identifierName);
-//             calculateWidth(identifierName), DEF_HEIGHT);
+		// calculateWidth(identifierName), DEF_HEIGHT);
 
         inUses = new ArrayList();
         outUses = new ArrayList();

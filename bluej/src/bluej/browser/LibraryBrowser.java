@@ -1,25 +1,14 @@
 package bluej.browser;
 
-import javax.swing.*;
-import javax.swing.filechooser.*;
-import javax.swing.tree.*;
-import javax.swing.border.TitledBorder;
-
-import java.awt.event.*;
 import java.awt.*;
+import java.awt.event.*;
 
-import java.util.*;
-import java.io.File;
-import java.net.URL;
-import java.net.MalformedURLException;
+import javax.swing.*;
+import javax.swing.tree.TreePath;
 
-import bluej.graph.GraphEditor;
 import bluej.Config;
-import bluej.utility.Utility;
-import bluej.utility.DialogManager;
-import bluej.utility.Debug;
-import bluej.editor.Editor;
 import bluej.pkgmgr.Package;
+import bluej.utility.DialogManager;
 
 
 /**
@@ -27,7 +16,7 @@ import bluej.pkgmgr.Package;
  *
  * @author  Andy Marks
  * @author  Andrew Patterson
- * @cvs     $Id: LibraryBrowser.java 853 2001-04-19 04:24:26Z ajp $
+ * @cvs     $Id: LibraryBrowser.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class LibraryBrowser extends JFrame implements ActionListener
 {

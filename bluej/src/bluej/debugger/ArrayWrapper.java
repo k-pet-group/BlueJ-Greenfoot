@@ -1,30 +1,12 @@
 package bluej.debugger;
 
-import bluej.Config;
-import bluej.BlueJEvent;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.Utility;
-import bluej.utility.JavaNames;
-import bluej.views.MethodView;
-import bluej.views.View;
-import bluej.views.ViewFilter;
-import bluej.tester.*;
-
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.dnd.*;
-import java.awt.datatransfer.*;
-import java.awt.image.*;
-import java.io.*;
+
 import javax.swing.*;
-import java.lang.reflect.*;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
+
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.prefmgr.PrefMgr;
 
 /**
  * A wrapper around array objects.
@@ -33,7 +15,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Andrew Patterson
- * @version $Id: ArrayWrapper.java 1576 2002-12-11 23:30:26Z ajp $
+ * @version $Id: ArrayWrapper.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class ArrayWrapper extends ObjectWrapper
 {

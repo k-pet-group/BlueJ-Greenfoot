@@ -1,18 +1,16 @@
 package bluej.pkgmgr;
 
-import bluej.graph.Edge;
-import bluej.utility.Utility;
-import bluej.utility.Debug;
-import java.util.Properties;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Color;
+import java.util.Properties;
+
+import bluej.graph.Edge;
+import bluej.utility.Debug;
 
 /**
- * A dependency between two targets in a package
+ * A dependency between two targets in a package.
  *
  * @author  Michael Cahill
- * @version $Id: Dependency.java 533 2000-06-09 04:24:08Z ajp $
+ * @version $Id: Dependency.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public abstract class Dependency extends Edge
 {

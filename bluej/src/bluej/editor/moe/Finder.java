@@ -10,20 +10,20 @@ package bluej.editor.moe;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
 import bluej.Config;
-import bluej.utility.Debug;
 
 /**
  * The Finder class implements the find and replace functionality of the Moe editor.
  * It provides both the user interface dialogue and the high level implementation
  * of the find and replace functionality.
  *
- * @author Michael Kolling
- * @author Bruce Quig
- *
+ * @author  Michael Kolling
+ * @author  Bruce Quig
+ * @version $Id: Finder.java 1700 2003-03-13 03:34:20Z ajp $
  */
 
 public class Finder extends JDialog
@@ -117,12 +117,12 @@ public class Finder extends JDialog
     /**
      * Replace all instances of the search String with a replacement.
      * -check for valid search criteria
-     * -get initial cursor pos (TODO)
+     * - TODO: get initial cursor pos
      * -start at beginning
      * -do initial find
      * -replace until not found, no wrapping!
      * -print out number of replacements (?)
-     * -return cursor/caret to original place (TODO)
+     * -TODO: return cursor/caret to original place
      */
     private void replaceAll()
     {
@@ -391,4 +391,4 @@ public class Finder extends JDialog
         pack();
     }
 
-}  // end class Finder
+}

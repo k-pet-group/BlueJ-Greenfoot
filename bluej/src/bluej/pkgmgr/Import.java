@@ -1,37 +1,19 @@
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.prefmgr.PrefMgr;
-import bluej.compiler.*;
-import bluej.debugger.*;
-import bluej.parser.ClassParser;
-import bluej.parser.symtab.ClassInfo;
-import bluej.parser.symtab.Selection;
-import bluej.editor.Editor;
-import bluej.editor.EditorManager;
-import bluej.editor.moe.MoeEditorManager;
-import bluej.graph.Graph;
-import bluej.graph.Vertex;
-import bluej.utility.*;
-import bluej.utility.filefilter.*;
-import bluej.classmgr.*;
-
-import java.awt.FlowLayout;
-import java.awt.event.*;
-import javax.swing.*;
 import java.io.*;
 import java.util.*;
-import java.text.DateFormat;
+
+import bluej.utility.JavaNames;
 
 /**
  * Utility functions to help in the process of importing directory
- * structures into BlueJ
+ * structures into BlueJ.
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Import.java 1088 2002-01-12 13:31:47Z ajp $
+ * @version $Id: Import.java 1700 2003-03-13 03:34:20Z ajp $
  */
 class Import
 {

@@ -1,18 +1,15 @@
 package bluej.utility.filefilter;
 
-import java.io.FileFilter;
-import java.io.File;
+import java.io.*;
 
- /**
-  * A FileFilter that only accepts Java class files.
-  * An instance of this class can be used as a parameter for
-  * the listFiles method of class File.
-  *
-  * @version $ $
-  * @author Axel Schmolitzky
-  * @see java.io.FileFilter
-  * @see java.io.File
-  */
+/**
+ * A FileFilter that only accepts Java class files.
+ * An instance of this class can be used as a parameter for
+ * the listFiles method of class File.
+ *
+ * @author  Axel Schmolitzky
+ * @version $Id: JavaClassFilter.java 1700 2003-03-13 03:34:20Z ajp $
+ */
 public class JavaClassFilter implements FileFilter
 {
     /**

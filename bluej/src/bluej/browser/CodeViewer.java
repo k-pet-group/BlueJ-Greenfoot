@@ -1,24 +1,15 @@
 package bluej.browser;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-
+import bluej.editor.*;
 import bluej.editor.moe.MoeEditorManager;
-import bluej.editor.moe.MoeEditor;
-import bluej.editor.Editor;
-import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.ClassTarget;
-import bluej.views.View;
-import bluej.views.ViewFilter;
-import bluej.classmgr.ClassMgr;
 
 /**
 * A read only (Moe) text editor for showing views of a class selected
 * in the library browser.  Defaults to a public view of a class.
 *
 * @author $Author: ajp $
-* @version $Id: CodeViewer.java 1637 2003-03-04 03:22:52Z ajp $
+* @version $Id: CodeViewer.java 1700 2003-03-13 03:34:20Z ajp $
 */
 public class CodeViewer implements EditorWatcher {
     private MoeEditorManager edMgr = new MoeEditorManager();

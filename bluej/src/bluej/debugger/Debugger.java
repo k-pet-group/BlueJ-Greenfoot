@@ -2,10 +2,10 @@ package bluej.debugger;
 
 // -- select debugger implementation to use: --
 //import bluej.debugger.suntools.SunDebugger;
-import bluej.debugger.jdi.JdiDebugger;
-
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+
+import bluej.debugger.jdi.JdiDebugger;
 
 /**
  * A class defining the debugger primitives needed by BlueJ
@@ -14,7 +14,7 @@ import java.util.List;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: Debugger.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public abstract class Debugger
 {

@@ -1,12 +1,7 @@
 package bluej;
 
-import javax.swing.filechooser.FileSystemView;
-import javax.swing.text.JTextComponent;
-import javax.swing.JTextField;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
-import java.util.Properties;
-import java.awt.*;
 
 import bluej.prefmgr.PrefMgr;
 
@@ -17,7 +12,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author Bruce Quig
  * 
- * @version $Id: OldBluejTheme.java 879 2001-05-04 07:08:22Z bquig $
+ * @version $Id: OldBluejTheme.java 1700 2003-03-13 03:34:20Z ajp $
  */
 
 public class BluejTheme extends DefaultMetalTheme

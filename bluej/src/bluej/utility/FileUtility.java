@@ -1,23 +1,22 @@
 package bluej.utility;
 
-import bluej.Config;
-import bluej.pkgmgr.Package;
-import bluej.prefmgr.PrefMgr;
-
 import java.awt.Component;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import java.io.*;
-import java.util.*;
 import java.lang.reflect.Array;
+import java.util.*;
+
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+
+import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 
 /**
  * A file utility for various file related actions.
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: FileUtility.java 1700 2003-03-13 03:34:20Z ajp $
  */
 public class FileUtility
 {
