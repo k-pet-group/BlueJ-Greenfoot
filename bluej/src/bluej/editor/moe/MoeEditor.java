@@ -546,8 +546,7 @@ public final class MoeEditor extends JFrame
             break;
         case BlueJEvent.DOCU_ABORTED:
             BlueJEvent.removeListener(this);
-            info.message("There was a serious problem generating the javadoc",
-                         "interface. Aborted.");   // fix
+            info.warning (Config.getString("editor.info.docAborted"));
             break;
         }
     }
@@ -916,7 +915,7 @@ public final class MoeEditor extends JFrame
             displayInterface(false);
         }
         else {  // interface needs to be re-generated
-            info.message("Generating class interface...");  //fix
+            info.message(Config.getString("editor.info.generatingDoc"));
             BlueJEvent.addListener(this);
             DocuGenerator.generateClassDocu(filename);
         }
@@ -961,13 +960,13 @@ public final class MoeEditor extends JFrame
         }
 
         if(reload) {
-            info.message("Loading class interface...");  //fix
+            info.message(Config.getString("editor.info.loadingDoc"));
             try {
                 FileReader reader = new FileReader(getDocPath());
                 htmlPane.read(reader, null);
                 reader.close();
                 htmlDocument = (HTMLDocument)htmlPane.getDocument();
-                info.message("Loading class interface... Done.");  //fix
+                info.message(Config.getString("editor.info.docLoaded"));
             }
             catch (Exception exc) {
                 info.warning("Cannot find HTML file", getDocPath());
@@ -1436,7 +1435,6 @@ public final class MoeEditor extends JFrame
         // **** temporary: disable all unimplemented actions ****
 
         actions.getActionByName("replace").setEnabled(false);
-        //actions.getActionByName("describe-key").setEnabled(false);
         actions.getActionByName("show-manual").setEnabled(false);
 
         // ****
@@ -1596,21 +1594,6 @@ public final class MoeEditor extends JFrame
         }
         return button;
     }
-
-    // --------------------------------------------------------------------
-
-//     private JComboBox createViewSelector(String key)
-//     {
-//         String[] viewStrings =
-//         { Config.getString("editor."+key + LabelSuffix + "1"),
-//           Config.getString("editor."+key + LabelSuffix + "2"),
-//           Config.getString("editor."+key + LabelSuffix + "3"),
-//           Config.getString("editor."+key + LabelSuffix + "4") };
-//         viewSelector = new JComboBox(viewStrings);
-//         viewSelector.setRequestFocusEnabled(false);   // never get focus
-//         viewSelector.addItemListener(this);
-//         return viewSelector;
-//     }
 
     // --------------------------------------------------------------------
 

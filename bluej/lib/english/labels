@@ -185,6 +185,11 @@ editor.info.saved = File saved
 editor.info.printing = Printing...
 editor.info.printed = Printing... Done.
 editor.info.cancelled = Cancelled.
+editor.info.generatingDoc = Generating class interface...
+editor.info.loadingDoc = Loading class interface...
+editor.info.docLoaded = Loading class interface... Done.
+editor.info.docAborted = There was a serious problem generating the javadoc\ninterface. Aborted.
+
 editor.printer.continued=continued
 #End Editor labels
 
