@@ -132,7 +132,6 @@
         <jar compress="yes" jarfile="${boot.jar}">
             <fileset dir="${boot.build}">
                 <include name="bluej/Boot*.class"/>
-                <include name="bluej/URLDecoder.class"/>
                 <include name="bluej/Splash*.class"/>
             </fileset>
             <fileset dir="${boot.src}">
