@@ -6,7 +6,7 @@ import java.util.Map;
  * "? super ..." type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSuper.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: GenTypeSuper.java 2818 2004-07-26 03:42:35Z davmac $
  */
 public class GenTypeSuper extends GenTypeWildcard
 {
@@ -17,6 +17,11 @@ public class GenTypeSuper extends GenTypeWildcard
     public String toString(boolean stripPrefix)
     {
         return "? super " + lowerBound.toString(stripPrefix);
+    }
+    
+    public String toString(NameTransform nt)
+    {
+        return "? super " + lowerBound.toString(nt);
     }
     
     protected GenTypeParameterizable precisify(GenTypeParameterizable other)

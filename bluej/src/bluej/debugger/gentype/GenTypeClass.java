@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2703 2004-06-30 23:57:40Z davmac $
+ * @version $Id: GenTypeClass.java 2818 2004-07-26 03:42:35Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -113,6 +113,11 @@ public class GenTypeClass extends GenTypeSolid {
         return sb.toString();
     }
     
+    /**
+     * Check whether the type is a generic type (with type parameters) or a
+     * raw type.
+     * @return  true if the type has type parameters
+     */
     public boolean isGeneric()
     {
         return (params != null);
@@ -135,6 +140,23 @@ public class GenTypeClass extends GenTypeSolid {
         r += '>';
         return r;
     }
+    
+    public String toString(NameTransform nt)
+    {
+        String baseClass = nt.transform(rawName());
+        
+        if(params == null)
+            return baseClass;
+        String r = baseClass + '<';
+        for(Iterator i = params.iterator(); i.hasNext(); ) {
+            r += ((GenTypeParameterizable)i.next()).toString(nt);
+            if( i.hasNext() )
+                r += ',';
+        }
+        r += '>';
+        return r;
+    }
+    
     
     public boolean equals(GenTypeParameterizable other)
     {

@@ -22,6 +22,11 @@ public class GenTypeTpar extends GenTypeSolid
         return name;
     }
     
+    public String toString(NameTransform nt)
+    {
+        return name;
+    }
+    
     public boolean equals(GenTypeParameterizable other)
     {
         if( ! (other instanceof GenTypeTpar) )

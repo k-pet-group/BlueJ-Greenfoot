@@ -17,6 +17,14 @@ public class GenTypeArray extends GenTypeClass
         return baseType.toString(stripPrefix) + "[]";
     }
     
+    public String toString(NameTransform nt)
+    {
+        if(baseType instanceof GenTypeParameterizable)
+            return ((GenTypeParameterizable)baseType).toString(nt) + "[]";
+        else
+            return baseType.toString() + "[]";
+    }
+    
     public GenType getBaseType()
     {
         return baseType;

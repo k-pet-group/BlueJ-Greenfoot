@@ -5,7 +5,7 @@ import java.util.Map;
 /* "? extends ..." type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeExtends.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: GenTypeExtends.java 2818 2004-07-26 03:42:35Z davmac $
  */
 public class GenTypeExtends extends GenTypeWildcard
 {
@@ -19,6 +19,11 @@ public class GenTypeExtends extends GenTypeWildcard
     public String toString(boolean stripPrefix)
     {
         return "? extends " + upperBound.toString(stripPrefix);
+    }
+    
+    public String toString(NameTransform nt)
+    {
+        return "? extends " + upperBound.toString(nt);
     }
     
     protected GenTypeParameterizable precisify(GenTypeParameterizable other)
