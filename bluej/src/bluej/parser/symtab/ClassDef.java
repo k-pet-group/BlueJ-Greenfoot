@@ -66,7 +66,7 @@ class ClassDef extends HasImports
 
     /**
      */
-     private Vector interfaceSelections, typeParameterSelections;
+     private Vector interfaceSelections; //, typeParameterSelections;
      private Selection extendsInsert, implementsInsert,
                         extendsReplace, superReplace, typeParamInsert;
 
@@ -270,13 +270,13 @@ class ClassDef extends HasImports
 
                 target.append(getName());
                 
-                if(typeParameterSelections != null){
-                    Iterator it = typeParameterSelections.iterator();
-                    while(it.hasNext()){
-            	        Selection sel = (Selection)it.next();
-            	        target.append(sel.getText());
-                    }
-                }
+//                if(typeParameterSelections != null){
+//                    Iterator it = typeParameterSelections.iterator();
+//                    while(it.hasNext()){
+//            	        Selection sel = (Selection)it.next();
+//            	        target.append(sel.getText());
+//                    }
+//                }
                 
             	if(isAbstract)
             	    info.setAbstract(true);
