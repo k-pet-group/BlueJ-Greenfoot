@@ -10,7 +10,6 @@ import bluej.debugger.ExecutionEvent;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.utility.DialogManager;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.io.File;
-import javax.swing.JMenu;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
