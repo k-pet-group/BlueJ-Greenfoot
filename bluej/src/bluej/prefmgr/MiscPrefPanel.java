@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 561 2000-06-19 02:26:35Z ajp $
+ * @version $Id: MiscPrefPanel.java 762 2001-02-07 04:21:14Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -31,8 +31,9 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
 
     private JTextField editorFontField;
-    private JTextField jdkURLField;
     private JCheckBox hilightingBox;
+    private JTextField jdkURLField;
+    private JCheckBox linkToLibBox;
 
     ButtonGroup notationStyleGroup;
     private JRadioButton umlRadioButton;
@@ -51,75 +52,97 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         PrefMgrDialog.add(p, prefpaneltitle, p);
     }
 
-	/**
-	 * Setup the UI for the dialog and event handlers for the buttons.
-	 */
-	private MiscPrefPanel()
-	{
+    /**
+     * Setup the UI for the dialog and event handlers for the buttons.
+     */
+    private MiscPrefPanel()
+    {
 
-		JLabel editorFontTag = new JLabel(Config.getString("prefmgr.misc.editorfontsize"));
-		{
-			editorFontTag.setAlignmentX(LEFT_ALIGNMENT);
-		}
+        JLabel editorFontTag = new JLabel(Config.getString("prefmgr.misc.editorfontsize"));
+        {
+            editorFontTag.setAlignmentX(LEFT_ALIGNMENT);
+        }
 
         editorFontField = new SingleLineTextField(8);
         {
             editorFontField.setAlignmentX(LEFT_ALIGNMENT);
         }
 
-	    hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
+        hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
 
-		JLabel jdkURLTag = new JLabel(Config.getString("prefmgr.misc.jdkurlpath"));
-		{
-			jdkURLTag.setAlignmentX(LEFT_ALIGNMENT);
-		}
+        JLabel jdkURLTag = new JLabel(Config.getString("prefmgr.misc.jdkurlpath"));
+        {
+            jdkURLTag.setAlignmentX(LEFT_ALIGNMENT);
+        }
 
         jdkURLField = new SingleLineTextField(8);
         {
             jdkURLField.setAlignmentX(LEFT_ALIGNMENT);
         }
 
+        linkToLibBox = new JCheckBox(Config.getString("prefmgr.misc.linkToLib"));
 
-/*        JPanel compilerPanel = new JPanel();
+        JLabel linkToLibNoteLine1 = new JLabel(
+                            Config.getString("prefmgr.misc.linkToLibNoteLine1"));
+        Font smallFont = linkToLibNoteLine1.getFont().deriveFont(10);
         {
-		    compilerPanel.setLayout(new BoxLayout(compilerPanel, BoxLayout.Y_AXIS));
-            compilerPanel.setBorder(BorderFactory.createCompoundBorder(
-                                    BorderFactory.createTitledBorder("Compiler"),
-                                    Config.generalBorder));
-            compilerPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-            compilerPanel.add(new JRadioButton("internal"));
-            compilerPanel.add(new JRadioButton("javac"));
-            compilerPanel.add(new JRadioButton("jikes"));
-
-            JLabel executableTag = new JLabel(Config.getString("Compiler Executable"));
-
-		    compilerPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
-            compilerPanel.add(executableTag);
-            compilerPanel.add(new SingleLineTextField(8));
+            //linkToLibNote.setAlignmentX(LEFT_ALIGNMENT);
+            linkToLibNoteLine1.setFont(smallFont);
         }
-*/
 
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		setBorder(Config.generalBorder);
+        JLabel linkToLibNoteLine2 = new JLabel(
+                            Config.getString("prefmgr.misc.linkToLibNoteLine2"));
+        {
+            //linkToLibNote.setAlignmentX(LEFT_ALIGNMENT);
+            linkToLibNoteLine2.setFont(smallFont);
+        }
 
-		add(editorFontTag);
-		add(editorFontField);
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
-		add(hilightingBox);
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
+
+
+        /*        JPanel compilerPanel = new JPanel();
+                  {
+                  compilerPanel.setLayout(new BoxLayout(compilerPanel, BoxLayout.Y_AXIS));
+                  compilerPanel.setBorder(BorderFactory.createCompoundBorder(
+                  BorderFactory.createTitledBorder("Compiler"),
+                  Config.generalBorder));
+                  compilerPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+                  compilerPanel.add(new JRadioButton("internal"));
+                  compilerPanel.add(new JRadioButton("javac"));
+                  compilerPanel.add(new JRadioButton("jikes"));
+
+                  JLabel executableTag = new JLabel(Config.getString("Compiler Executable"));
+
+                  compilerPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+                  compilerPanel.add(executableTag);
+                  compilerPanel.add(new SingleLineTextField(8));
+                  }
+        */
+
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBorder(Config.generalBorder);
+
+        add(editorFontTag);
+        add(editorFontField);
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(hilightingBox);
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
         add(jdkURLTag);
-		add(jdkURLField);
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(jdkURLField);
+        add(linkToLibBox);
+        add(linkToLibNoteLine1);
+        add(linkToLibNoteLine2);
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
 
         JPanel notationPanel = new JPanel();
         {
-		    notationPanel.setLayout(new BoxLayout(notationPanel, BoxLayout.Y_AXIS));
+            notationPanel.setLayout(new BoxLayout(notationPanel, BoxLayout.Y_AXIS));
             notationPanel.setBorder(BorderFactory.createCompoundBorder(
-                                    BorderFactory.createTitledBorder("Notation Style"),
-                                    Config.generalBorder));
+                                                                       BorderFactory.createTitledBorder("Notation Style"),
+                                                                       Config.generalBorder));
             notationPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             notationStyleGroup = new ButtonGroup();
@@ -137,13 +160,14 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         add(notationPanel);
 
 
-		add(Box.createGlue());
+        add(Box.createGlue());
     }
 
     public void beginEditing()
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
         hilightingBox.setSelected(PrefMgr.useSyntaxHilighting());
+        linkToLibBox.setSelected(PrefMgr.linkDocToLibrary());
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
 
         if(!PrefMgr.isUML())
@@ -166,10 +190,11 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             PrefMgr.setEditorFontSize(newFontSize);
         }
         catch (NumberFormatException nfe)
-        {
-        }
+            {
+            }
 
         PrefMgr.setSyntaxHilighting(hilightingBox.isSelected());
+        PrefMgr.setDocumentationLinking(linkToLibBox.isSelected());
 
         Package.editorManager.refreshAll();
 

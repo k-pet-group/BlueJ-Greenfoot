@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * instance of PrefMgrDialog at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgrDialog.java 751 2001-01-22 06:20:55Z ajp $
+ * @version $Id: PrefMgrDialog.java 762 2001-02-07 04:21:14Z mik $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -45,7 +45,7 @@ public class PrefMgrDialog extends JFrame
         setIconImage(iconImage);
         setTitle(Config.getString("prefmgr.title"));
 
-        tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
+        tabbedPane = new JTabbedPane();
 
         for (ListIterator i = tabs.listIterator(); i.hasNext(); ) {
             int index = i.nextIndex();

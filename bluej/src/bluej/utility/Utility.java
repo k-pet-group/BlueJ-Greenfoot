@@ -15,7 +15,7 @@ import javax.swing.*;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 672 2000-08-30 04:08:18Z mik $
+ * @version $Id: Utility.java 762 2001-02-07 04:21:14Z mik $
  */
 public class Utility
 {
@@ -237,6 +237,7 @@ public class Utility
                 // wait for exit code. 0 indicates success, otherwise
                 // we try second command
                 int exitCode = p.waitFor();
+                //Debug.message("browser command exit code: " + exitCode);
 
                 if(osname != null && osname.startsWith("Windows 9"))
                     cmd = Config.getPropString("win9xBrowserCmd2");

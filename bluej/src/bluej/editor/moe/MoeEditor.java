@@ -28,7 +28,8 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
-import javax.swing.text.html.*;  //#html
+import javax.swing.text.html.*;
+import java.net.URL;
 
 import java.awt.print.*;
 import java.awt.geom.*;
@@ -45,7 +46,7 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 // cuurently, editors never get removed from editor manager!
 
 public final class MoeEditor extends JFrame
-    implements bluej.editor.Editor, BlueJEventListener
+    implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener
 {
     // -------- CONSTANTS --------
 
@@ -99,7 +100,7 @@ public final class MoeEditor extends JFrame
 
     private AbstractDocument document;
     private MoeSyntaxDocument sourceDocument;
-    private HTMLDocument htmlDocument;  // #html
+    private HTMLDocument htmlDocument;
 
     private MoeActions actions;
 
@@ -956,6 +957,7 @@ public final class MoeEditor extends JFrame
             htmlPane = new JEditorPane();
             htmlPane.setEditorKit(new HTMLEditorKit());
             htmlPane.setEditable(false);
+            htmlPane.addHyperlinkListener(this);
             reload = true;
         }
 
@@ -965,12 +967,16 @@ public final class MoeEditor extends JFrame
                 FileReader reader = new FileReader(getDocPath());
                 htmlPane.read(reader, null);
                 reader.close();
+//                 htmlPane.setPage(new URL("file://" + getDocPath()));
+
                 htmlDocument = (HTMLDocument)htmlPane.getDocument();
+                htmlDocument.setBase(new URL("file://" + getDocPath()));
                 info.message(Config.getString("editor.info.docLoaded"));
             }
             catch (Exception exc) {
-                info.warning("Cannot find HTML file", getDocPath());
-                //Config.getString("editor.info.fileDisappeared"));
+                info.warning(Config.getString("editor.info.docDisappeared"),
+                             getDocPath());
+                Debug.reportError("loading class interface failed: " + exc);
             }
         }
         document = htmlDocument;
@@ -978,6 +984,32 @@ public final class MoeEditor extends JFrame
         viewingHTML = true;
         scrollPane.setViewportView(currentTextPane);
         currentTextPane.requestFocus();
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  A hyperlink was activated in the document. Do something appropriate.
+     */
+
+    public void hyperlinkUpdate(HyperlinkEvent e) 
+    {
+        info.clear();
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            JEditorPane pane = (JEditorPane) e.getSource();
+            if (e instanceof HTMLFrameHyperlinkEvent) {
+                HTMLFrameHyperlinkEvent  evt = (HTMLFrameHyperlinkEvent)e;
+                HTMLDocument doc = (HTMLDocument)pane.getDocument();
+                doc.processHTMLFrameHyperlinkEvent(evt);
+            }
+            else {
+                try {
+                    pane.setPage(e.getURL());
+                } catch (Throwable t) {
+                    info.warning("cannot display hyperlink");
+                    Debug.reportError("hyperlink failed: " + t);
+                }
+            }
+        }
     }
 
     // --------------------------------------------------------------------

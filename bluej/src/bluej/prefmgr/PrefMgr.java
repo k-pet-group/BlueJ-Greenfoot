@@ -22,11 +22,12 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 555 2000-06-19 00:35:11Z mik $
+ * @version $Id: PrefMgr.java 762 2001-02-07 04:21:14Z mik $
  */
 public class PrefMgr
 {
     private static final String hilightingPropertyName = "bluej.syntaxHilighting";
+    private static final String linkingPropertyName = "doctool.linkToStandardLib";
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
     private static final String notationStyle = "bluej.notation.style";
@@ -50,6 +51,7 @@ public class PrefMgr
 
     // syntax hilighting
     private static boolean isSyntaxHilighting;
+    private static boolean isLinkDocumentation;
     private static boolean isUML;
 
     private static PrefMgr prefmgr = new PrefMgr();
@@ -63,8 +65,10 @@ public class PrefMgr
         isSyntaxHilighting = Boolean.valueOf(
             Config.getPropString(hilightingPropertyName, "true")).booleanValue();
 
-        isUML = (Config.getDefaultPropString(notationStyle, Graph.UML).equals(Graph.UML));
+        isLinkDocumentation = Boolean.valueOf(
+            Config.getPropString(linkingPropertyName, "true")).booleanValue();
 
+        isUML = (Config.getDefaultPropString(notationStyle, Graph.UML).equals(Graph.UML));
     }
 
     public static void initialise()
@@ -100,6 +104,11 @@ public class PrefMgr
     public static boolean useSyntaxHilighting()
     {
         return isSyntaxHilighting;
+    }
+
+    public static boolean linkDocToLibrary()
+    {
+        return isLinkDocumentation;
     }
 
     /**
@@ -167,6 +176,25 @@ public class PrefMgr
                                     new Boolean(enabled).toString());
 
         isSyntaxHilighting = enabled;
+    }
+
+    /**
+     * Set users preference of whether to link documentation or not
+     *
+     * @param enabled   true if syntax documentation should be linked
+     */
+    protected static void setDocumentationLinking(boolean enabled)
+    {
+        String hs = Config.getDefaultPropString(linkingPropertyName,
+                                                "true");
+
+        if (Boolean.valueOf(hs).booleanValue() == enabled)
+            Config.removeProperty(linkingPropertyName);
+        else
+            Config.putPropString(linkingPropertyName,
+                                    new Boolean(enabled).toString());
+
+        isLinkDocumentation = enabled;
     }
 
     /**

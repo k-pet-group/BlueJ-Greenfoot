@@ -64,7 +64,7 @@ public class DocuGenerator
     /** javadoc parameters for preview runs: do not generate an index,
      * a tree, a help.
      */
-    private static String tmpJavadocParams = " -noindex -notree -nohelp";
+    private static String tmpJavadocParams = " -noindex -notree -nohelp -nonavbar";
 
     /** The project this generator belongs to. */
     private static Project project;
@@ -337,6 +337,7 @@ public class DocuGenerator
                 tmp.append(packageName);
             }
         }
+
         // second: get class names of classes in unnamed package, if any
         List classNames = project.getPackage(project.getInitialPackageName())
                                                           .getAllClassnames();
@@ -400,27 +401,18 @@ public class DocuGenerator
      */
     private String getLinkParam()
     {
-        String docURL = Config.getPropString("bluej.url.javaStdLib");
+        String linkToLib = Config.getPropString("doctool.linkToStandardLib");
+        if(linkToLib.equals("true")) {
 
-        // to avoid runtime errors: check whether substring will work
-        if (docURL.endsWith("index.html")) {
-            // this is the parameter javadoc expects
-            String docURLDir=docURL.substring(0,docURL.indexOf("index.html"));
+            String docURL = Config.getPropString("bluej.url.javaStdLib");
 
-            // test whether this URL is valid: try to read package list file
-            try {
-                URL packList = new URL(docURLDir + "package-list");
-                BufferedReader in = new BufferedReader(
-                          new InputStreamReader(packList.openStream()));
+            if (docURL.endsWith("index.html"))
+                docURL = docURL.substring(0, docURL.indexOf("index.html"));
 
-                if (in.readLine() != null)
-                    // one line of the file could be read, link seems ok
-                    return " -link " + docURLDir;
-            }
-            catch (MalformedURLException e) { }
-            catch (IOException e) { }
+            return " -link " + docURL;
         }
-        return "";
+        else
+            return "";
     }
 }
 
