@@ -16,7 +16,7 @@ import bluej.Config;
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPathEntry.java 1067 2002-01-08 05:49:39Z ajp $
+ * @version $Id: ClassPathEntry.java 1353 2002-10-07 14:26:40Z mik $
  */
 public class ClassPathEntry implements Cloneable
 {
@@ -30,6 +30,11 @@ public class ClassPathEntry implements Cloneable
      */
     private String description;
 
+    /**
+     * Flag to mark entries added after system start (unloaded).
+     */
+    private boolean justAdded = false;
+    
     /**
      * Holds a file/directory location in a classpath entry along with a
      * description.
@@ -48,6 +53,12 @@ public class ClassPathEntry implements Cloneable
         // to be rethought
         this.file = new File(location).getAbsoluteFile();
         this.description = description;
+    }
+
+    public ClassPathEntry(String location, String description, boolean isNew)
+    {
+        this(location, description);
+        justAdded = isNew;
     }
 
     /**
@@ -132,6 +143,15 @@ public class ClassPathEntry implements Cloneable
         return file.toURL();
     }
 
+    /**
+     * Determine if this class path entry has been added after
+     * BlueJ was started (and thus isn't loaded).
+     */
+    public boolean isNew()
+    {
+        return justAdded;
+    }
+    
     /**
      * Determine if this class path entry represents a valid entry
      * on the current VM (ie file/dir exists and is readable)

@@ -22,7 +22,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 1067 2002-01-08 05:49:39Z ajp $
+ * @version $Id: ClassMgrPrefPanel.java 1353 2002-10-07 14:26:40Z mik $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -220,7 +220,7 @@ public class ClassMgrPrefPanel extends JPanel
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 String librarylocation = chooser.getSelectedFile().getAbsolutePath();
 
-                userLibrariesModel.addEntry(new ClassPathEntry(librarylocation,""));
+                userLibrariesModel.addEntry(new ClassPathEntry(librarylocation,"", true));
 
                 DialogManager.showMessage(null, "classmgr-changes-no-effect");
             }

@@ -18,7 +18,7 @@ import bluej.Config;
  * edited and then changes can be reverted or committed.
  *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassPathTableModel.java 1082 2002-01-10 06:41:42Z ajp $
+ * @cvs     $Id: ClassPathTableModel.java 1353 2002-10-07 14:26:40Z mik $
  */
 public class ClassPathTableModel extends AbstractTableModel
 {
@@ -28,6 +28,7 @@ public class ClassPathTableModel extends AbstractTableModel
 
     static final String statusGood = Config.getString("classmgr.statusgood");
     static final String statusBad = Config.getString("classmgr.statusbad");
+    static final String statusNew = Config.getString("classmgr.statusnew");
 
     private ClassPath origcp;
     private ClassPath cp;
@@ -93,10 +94,12 @@ public class ClassPathTableModel extends AbstractTableModel
         ClassPathEntry entry = (ClassPathEntry)cp.getEntries().get(row);
 
         if (col == 0) {
-            if (entry.isValid())
-                return statusGood;
-            else
+            if (!entry.isValid())
                 return statusBad;
+            else if(entry.isNew())
+                return statusNew;
+            else
+                return statusGood;
         }
         else if (col == 1)
             return entry.getCanonicalPathNoException();

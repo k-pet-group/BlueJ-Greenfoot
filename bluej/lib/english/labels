@@ -120,6 +120,7 @@ classmgr.delete=Delete
 classmgr.statuscolumn=Status
 classmgr.statusgood=Loaded
 classmgr.statusbad=Error
+classmgr.statusnew=Not loaded
 classmgr.locationcolumn=Location
 classmgr.descriptioncolumn=Description
 classmgr.bootclass=Boot class library
