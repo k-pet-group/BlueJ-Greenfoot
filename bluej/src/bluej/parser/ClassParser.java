@@ -115,17 +115,17 @@ public class ClassParser extends antlr.LLkParser
         // otherwise, if this is a java file, parse it!
         else if (f.getName().endsWith(".java")) {
             symbolTable.setFile(f);
-            parseFile(new BufferedInputStream(new FileInputStream(f)), symbolTable, info);
+            parseFile(new BufferedReader(new FileReader(f)), symbolTable, info);
         }
     }
 
     // Here's where we do the real work...
-    private static void parseFile(InputStream s,
+    private static void parseFile(Reader r,
                                  SymbolTable symbolTable, ClassInfo info)
 	throws Exception
     {
 	// Create a scanner that reads from the input stream passed to us
-	JavaLexer lexer = new JavaLexer(s);
+	JavaLexer lexer = new JavaLexer(r);
 
 	// Tell the scanner to create tokens of class JavaToken
 	lexer.setTokenObjectClass("bluej.parser.JavaToken");
