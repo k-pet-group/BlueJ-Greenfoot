@@ -18,7 +18,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 2216 2003-10-15 11:53:31Z fisker $
+ * @version $Id: PackageTarget.java 2269 2003-11-05 11:31:55Z damiano $
  */
 public class PackageTarget extends Target
 {
@@ -263,6 +263,17 @@ public class PackageTarget extends Target
             getPackage().removePackage(this); 
             getPackage().getProject().removePackage(getQualifiedName());  
         }
+    }
+
+    /**
+     * Removes the package associated with this target.
+     * No question asked, it would be nice if it was something like
+     * public void remove (boolean askConfirm); D.
+     */
+    public void removeImmediate(){
+        deleteFiles();
+        getPackage().removePackage(this); 
+        getPackage().getProject().removePackage(getQualifiedName());  
     }
 
 }

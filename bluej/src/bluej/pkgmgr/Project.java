@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2265 2003-11-05 10:58:56Z mik $
+ * @version $Id: Project.java 2269 2003-11-05 11:31:55Z damiano $
  */
 public class Project
     implements DebuggerListener
@@ -134,8 +134,8 @@ public class Project
         }
 
         if (startingPackageName.equals("")) {
-            // The following one could be a getPackage ? 311003 Damiano
-            Package startingPackage = proj.getWizardPackage("");
+            // The following one showuld be a getPackage ? 311003 Damiano
+            Package startingPackage = proj.getOrCreatePackageTree("");
 
             while(startingPackage != null) {
                 Package sub = startingPackage.getBoringSubPackage();
@@ -393,16 +393,15 @@ public class Project
     }
 
     /**
-     * Return a package from the project.
-     * This will construct the package if need be or return it from the cache
-     * if already existing. All parent packages on the way to the root of the package 
-     * tree will also be constructed.
-     * Note: This is called Wizard since it does quite a few things that are normally
-     * divided in more then one part.
+     * Returns or creates a package (tree) in this project.
+     * It will construct the package if it needs or return it from the cache.
+     * All parent packages on the way to the root of the package tree will also be constructed.
+     * This method does not check if the user really wanted to create parent packages.
+     * This method assumes that package directory are already set up.
      *
      * @param qualifiedName package name ie java.util or "" for unnamed package
      */
-    public Package getWizardPackage(String qualifiedName)
+    public Package getOrCreatePackageTree(String qualifiedName)
     {
         Package existing = (Package) packages.get(qualifiedName);
 
@@ -414,7 +413,7 @@ public class Project
         {
             Package pkg;
             try {
-                Package parent = getWizardPackage(JavaNames.getPrefix(qualifiedName));
+                Package parent = getOrCreatePackageTree(JavaNames.getPrefix(qualifiedName));
                 if(parent != null) {
                     pkg = new Package(this, JavaNames.getBase(qualifiedName), parent);
                     packages.put(qualifiedName, pkg);
@@ -434,7 +433,7 @@ public class Project
     }
 
     /**
-     * Returns a package from the project
+     * Returns a package from the project.
      * 
      * @param qualifiedName package name ie java.util or "" for unnamed package
      * @return null if the named package cannot be found
@@ -445,10 +444,45 @@ public class Project
     }
 
     /**
-     * Return a new package with the given fully qualified name.
-     * NOTE: getPackage overlaps newPackage but newPackage is needed if 
-     * we want to distinguish the case when a package is already there or is not
-     * already there.
+     * This creates package directories.
+     */
+    public void createPackageDirectory ( String fullName )
+    {
+        // construct the directory name for the new package
+        StringTokenizer st = new StringTokenizer(fullName, ".");
+        File newPkgDir = getProjectDir();
+
+        while(st.hasMoreTokens()) 
+            newPkgDir = new File(newPkgDir, (String)st.nextToken());
+
+        // now actually construct the directories and add the bluej
+        // package marker files
+        if (newPkgDir.isDirectory() || newPkgDir.mkdirs()) {
+            st = new StringTokenizer(fullName, ".");
+            newPkgDir = getProjectDir();
+            File newPkgFile = new File(newPkgDir, Package.pkgfileName);
+
+            try {
+                newPkgFile.createNewFile();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+
+            while(st.hasMoreTokens()) {
+                newPkgDir = new File(newPkgDir, (String)st.nextToken());
+                newPkgFile = new File(newPkgDir, Package.pkgfileName);
+
+                try {
+                    newPkgFile.createNewFile();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns a new package with the given fully qualified name.
      * Once NEW_PACKAGE_DONE is returned you can use getPackage to get the actual package.
      * 
      * @param qualifiedName Ex. java.util or "" for unnamed package
@@ -472,10 +506,14 @@ public class Project
         
         // The above named package does not exist, lets create it.
         try {
-            // Ok, 311003 Damiano we really want to know if the parent is there.
+            // 311003 Damiano we really want to know if the parent is there.
             Package parent = getPackage(JavaNames.getPrefix(qualifiedName));
             if(parent == null) return NEW_PACKAGE_NO_PARENT;
 
+            // Before creating the package you have to create the directory
+            // Maybe it should go into the new Package(...)
+            createPackageDirectory(qualifiedName);
+            
             Package pkg = new Package(this, JavaNames.getBase(qualifiedName), parent);
             packages.put(qualifiedName, pkg);
             }
@@ -607,7 +645,7 @@ public class Project
             Project openProj = openProject(newName);
             if(openProj != null) {
                 // This is a wizard get 311003 Damiano
-                Package pkg = openProj.getWizardPackage(openProj.getInitialPackageName());
+                Package pkg = openProj.getOrCreatePackageTree(openProj.getInitialPackageName());
 
                 PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
                 pmf.show();
