@@ -1,32 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="ready-to-run" name="bluej">
+<project name="bluej" default="ready-to-run">
 
-    <!-- set global properties for this build -->
-    <!-- the first two are the only values you should need to change -->
-    <property name="bluej_home" value="/bluejdev/bluej"/>
-    <property name="java_home" value="/jdk131"/>
-    <!-- property name="java_home" value="c:\jdk1.3.1_01" /-->
+    <!-- ************************************************************ -->
+    <!-- set global properties for this build (and subproject builds} -->
 
-    <property name="build.compiler" value="modern"/>
-    <!--property name="build.compiler" value="jikes" />
-    <property name="build.compiler.fulldepend" value="yes"/>
-    <property name="build.compiler.emacs" value="yes"/>
-    <property name="build.compiler.debug" value="yes"/-->
 
-    <!-- set up common directories -->
+    <!-- the build_java_home is used to find the compiler to fork and the
+         tools.jar file to use with it. Note that in general all
+         compilation should be done on the minimum supported JDK for
+         BlueJ (which is currently 1.3) -->
+    <property name="build_java_home" value="o:\programming\jdk1.3"/>
+
+    <!-- the run_java_home is used to find the jvm to run and the
+         corresponding tools.jar file -->
+    <property name="run_java_home" value="o:\programming\jdk1.4.1"/>
+
+
+    <!-- ********************************************** -->
+    <!-- do not edit below here for local customisation -->
+
+    <!-- Pass this property down to lower build files to find various jars etc -->
+    <property name="bluej_home" value="${basedir}"/>
+
+    <!-- Set up common directories -->
     <property name="src" value="src"/>
     <property name="build" value="classes"/>
     <property name="doc" value="doc/all"/>
     <property name="extdoc" value="doc/extensions"/>
+    <property name="test.src" value="test/src"/>
+    <property name="test.build" value="test/classes"/>
+    <property name="test.report" value="test/report"/>
 
-    <!-- set up classpath -->
+    <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
-        <pathelement location="${bluej_home}/lib/antlrall.jar"/>
-        <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
-        <pathelement location="${bluej_home}/lib/junit.jar" />
         <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip"/>
-        <pathelement location="${bluej_home}/lib/bluejext.jar"/>
-        <pathelement location="${java_home}/lib/tools.jar"/>
+        <pathelement location="${bluej_home}/lib/antlrall.jar"/>
+        <!--pathelement location="${bluej_home}/lib/junit.jar"/-->
+        <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
     </path>
 
     <target name="prepare">
@@ -37,25 +47,56 @@
     </target>
 
     <target name="parser">
-        <ant dir="src/bluej/parser" target="construct"/>
-        <!-- Generate the parser Java code <antlr fork="no" target="src/bluej/parser/java.g" outputdirectory="src/bluej/parser"/> -->
+        <!-- Generate the parser Java code - not a dependency of any other
+             target. Must be explicitly specified on ant command line -->
+        <antlr target="${src}/bluej/parser/java.g"/>
+        <antlr target="${src}/bluej/parser/ast/java.g"/>
+        <antlr target="${src}/bluej/parser/ast/java.tree.g"/>
+        <antlr target="${src}/bluej/parser/ast/javaexpr.tree.g"/>
     </target>
 
     <target name="compile" depends="prepare">
-        <!-- depend srcdir="${src}" destdir="${build}" cache="depcache" closure="no" -->
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac debug="on" destdir="${build}" excludes="de/**,
-            archiver/**, gnu/**, javax/**, kopi/**,
-            net/**/test/**,
-            net/**,
-            bluej/groupwork/**,
-            bluej/tester/**,
-            bluej/browser/**,
-            bluej/guibuilder/**,
-            bluej/editor/moe/Moe.java"
-            srcdir="${src}">
-            <classpath refid="bluej.class.path"/>
-       </javac>
+        <javac
+                executable="${build_java_home}/bin/javac"
+                fork="yes"
+                srcdir="${src}"
+                destdir="${build}"
+                debug="on"
+                excludes="de/**,
+                            archiver/**, gnu/**, javax/**, kopi/**,
+                            net/**/test/**,
+                            net/**,
+                            bluej/groupwork/**,
+                            bluej/tester/**,
+                            bluej/browser/**,
+                            bluej/guibuilder/**,
+                            bluej/editor/moe/Moe.java"
+                >
+            <classpath>
+                <path refid="bluej.class.path"/>
+                <pathelement location="${build_java_home}/lib/tools.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="compile-test">
+        <mkdir dir="${test.build}"/>
+        <mkdir dir="${test.report}"/>
+        <!-- Compile the java code from ${testsrc} into ${testbuild} -->
+        <javac
+                executable="${build_java_home}/bin/javac"
+                fork="yes"
+                srcdir="${test.src}"
+                destdir="${test.build}"
+                deprecation="yes"
+                >
+            <classpath>
+                <path refid="bluej.class.path"/>
+                <pathelement location="${build}"/>
+                <pathelement location="${build_java_home}/lib/tools.jar"/>
+            </classpath>
+        </javac>
     </target>
 
     <target name="jarred" depends="compile">
@@ -81,15 +122,19 @@
     </target>
 
     <target name="inspector">
-        <ant antfile="inspector.xml" dir="inspector" target="compile-inspector"/>
+        <ant antfile="inspector.xml" dir="inspector" target="compile-inspector">
+            <reference refid="bluej.class.path"/>
+        </ant>
     </target>
 
     <target name="run">
         <!-- Run the java code in ${build} -->
-        <java classname="bluej.Main" fork="yes" jvm="${java_home}/bin/java">
+        <java classname="bluej.Main" fork="yes" jvm="${run_java_home}/bin/java">
             <classpath>
-	        <pathelement location="${bluej_home}/lib/bluej.jar"/>
                 <path refid="bluej.class.path"/>
+                <pathelement location="${bluej_home}/lib/bluej.jar"/>
+                <pathelement location="${bluej_home}/lib/bluejext.jar"/>
+                <pathelement location="${run_java_home}/lib/tools.jar"/>
             </classpath>
             <!-- <arg path="${bluej_home}/test-examples/dummy/bluej.pkg"/> -->
         </java>
@@ -99,6 +144,30 @@
         <ant antfile="build.xml" dir="extensions" target="buildall"/>
         <ant antfile="package.xml" dir="package" target="dist"/>
         <ant antfile="package.xml" dir="package" target="windows-dist"/>
+    </target>
+
+    <target name="windows-dist">
+        <ant antfile="package.xml" dir="package" target="windows-dist"/>
+    </target>
+
+    <target name="test" depends="compile,compile-test">
+        <junit printsummary="yes" haltonfailure="yes">
+            <classpath>
+                <path refid="bluej.class.path"/>
+                <pathelement location="${bluej_home}/lib/bluej.jar"/>
+                <pathelement location="${run_java_home}/lib/tools.jar"/>
+                <pathelement location="${test.build}"/>
+            </classpath>
+
+            <formatter type="plain"/>
+
+            <batchtest fork="yes" todir="${test.report}">
+                <fileset dir="${test.src}">
+                    <include name="**/*Test*.java"/>
+                    <exclude name="**/AllTests.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
     </target>
 
     <target name="doc">
@@ -129,12 +198,12 @@
 
     <target name="clean">
         <!-- Delete the ${build} directory trees -->
-        <delete dir="${build}/bluej"/>
-        <delete dir="${build}/org"/>
-        <delete dir="${build}/net"/>
-        <delete file="${bluej_home}/lib/bluej.jar"/>
+        <delete quiet="true" dir="${build}/bluej"/>
+        <delete quiet="true" dir="${build}/org"/>
+        <delete quiet="true" dir="${build}/net"/>
+        <delete quiet="true" file="${bluej_home}/lib/bluej.jar"/>
         <!-- Clean inspectors -->
-    	<ant antfile="inspector.xml" dir="inspector" target="clean-inspector"/>
+        <ant antfile="inspector.xml" dir="inspector" target="clean-inspector"/>
     	<!-- Clean extensions -->
     	<ant antfile="build.xml" dir="extensions" target="cleanall"/>
     </target>
