@@ -18,7 +18,7 @@ import java.util.Enumeration;
  * Adapted to have some vars inserted into the jar name.
  *
  * @author     Clive Miller
- * @version    $Id: JarSession.java 1606 2003-01-27 09:43:12Z damiano $
+ * @version    $Id: JarSession.java 1619 2003-01-31 10:32:44Z damiano $
  */
 
 public class JarSession extends TransportSession
@@ -64,12 +64,10 @@ public class JarSession extends TransportSession
         // I am tryng to be nice with a nice default... Should I ?
 
         // Some mad may have done this, no reason to get too angry
-        if (i_jarName == null)
-            return o_jarName;
+        if (i_jarName == null) return o_jarName;
 
         // This is a user error, lets try to be nice with the user.
-        if (i_jarName.length() <= 0)
-            return o_jarName;
+        if (i_jarName.length() <= 0) return o_jarName;
 
         // Now, the real problem is to manage ALL possible combination of <>
         // Possibly the best way to do it is this one.
@@ -91,11 +89,9 @@ public class JarSession extends TransportSession
                 // First I look up this varName into the system properties
                 String aValue = envProps.getProperty(varName.toString());
                 // Then, if not found I look it up into the properties inserted by the user by GUI
-                if (aValue == null)
-                    aValue = urlProps.getProperty(varName.toString());
+                if (aValue == null) aValue = urlProps.getProperty(varName.toString());
                 // If I have found something I ad it up to the risul...
-                if (aValue != null)
-                    risul.append(aValue);
+                if (aValue != null) risul.append(aValue);
                 // Of course I have to zap the varName, othervise I keep appending...
                 varName = new StringBuffer(50);
                 continue;
