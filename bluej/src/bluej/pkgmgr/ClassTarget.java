@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1747 2003-04-04 13:49:16Z fisker $
+ * @version $Id: ClassTarget.java 1761 2003-04-08 06:02:43Z bquig $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -61,6 +61,8 @@ public class ClassTarget extends EditableTarget
     private static final String STEREOTYPE_OPEN = "<<";
     private static final String STEREOTYPE_CLOSE = ">>";
     static final String HTML_EXTENSION = ".html";
+    // temporary file name extension to trick windows if changing case only in class name
+    private static String TEMP_FILE_EXTENSION = "-temp";
 
     // the role object represents the changing roles that are class
     // target can have ie changing from applet to an interface etc
@@ -634,8 +636,15 @@ public class ClassTarget extends EditableTarget
 
             // these two however will potentially modify the source
             if (modifySource) {
-                if(analyseClassName(info))
+                if(analyseClassName(info)) {
+                    if(nameEqualsIgnoreCase(info.getName())) {
+                        // this means file has same name but different case
+                        // to trick Windows OS to do a name change we need to
+                        // rename to temp name and then rename to desired name
+                        doClassNameChange(info.getName()+ TEMP_FILE_EXTENSION);
+                    }
                     doClassNameChange(info.getName());
+                }
                 if(analysePackageName(info))
                     doPackageNameChange(info.getPackage());
             }
@@ -646,6 +655,13 @@ public class ClassTarget extends EditableTarget
         analysing = false;
     }
 
+    /**
+     * Analyses class name of Classtarget with that of parsed src file.
+     * Aim is to detect any textual changes of class name and modify resources 
+     * to suit
+     * @param info contains parsed class information
+     * @return true if class name is different
+     */
     public boolean analyseClassName(ClassInfo info)
     {
         String newName = info.getName();
@@ -749,8 +765,17 @@ public class ClassTarget extends EditableTarget
 
             return true;
         }
-
         return false;
+    }
+    
+    /**
+     * Checks for ClassTarget name equality if case is ignored.
+     * @param newName 
+     * @return true if name is equal ignoring case.
+     */
+    private boolean nameEqualsIgnoreCase(String newName)
+    {
+        return (getBaseName().equalsIgnoreCase(newName));      
     }
 
     private void doPackageNameChange(String newName)
