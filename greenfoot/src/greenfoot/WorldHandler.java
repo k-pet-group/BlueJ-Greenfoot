@@ -34,7 +34,7 @@ import rmiextension.wrappers.RObject;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3142 2004-11-23 04:06:47Z davmac $
+ * @version $Id: WorldHandler.java 3158 2004-11-24 15:29:21Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget
@@ -108,8 +108,8 @@ public class WorldHandler
         maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
             GreenfootObject go = getObject(e.getX(), e.getY());
-            int dragOffsetX = go.getX() * world.getCellWidth() - e.getX();
-            int dragOffsetY = go.getY() * world.getCellHeight() - e.getY();
+            int dragOffsetX = go.getX() - e.getX();
+            int dragOffsetY = go.getY() - e.getY();
             DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY);
         }
     }
@@ -165,7 +165,7 @@ public class WorldHandler
      */
     private GreenfootObject getObject(int x, int y)
     {
-        Collection objectsThere = world.getObjectsAtPixel(x, y, true);
+        Collection objectsThere = world.getObjectsAt(x, y);
         if (objectsThere.size() < 1) {
             return null;
         }
@@ -370,8 +370,7 @@ public class WorldHandler
         if (o instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
-            Location loc = worldCanvas.translateToGrid(p.x, p.y);
-            go.setLocation(loc.getX(), loc.getY());
+            go.setLocation((int) p.getX(),(int) p.getY());
             quickAddIfActive();
             return true;
         }
@@ -385,8 +384,7 @@ public class WorldHandler
         if (o instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
-            Location loc = worldCanvas.translateToGrid(p.x, p.y);
-            go.setLocation(loc.getX(), loc.getY());
+            go.setLocation((int) p.getX(),(int) p.getY());
             return true;
         }
         else {

@@ -25,7 +25,7 @@ import javax.swing.JComponent;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: WorldCanvas.java 3158 2004-11-24 15:29:21Z polle $
  */
 public class WorldCanvas extends JComponent
     implements Observer, DropTarget
@@ -50,40 +50,15 @@ public class WorldCanvas extends JComponent
     public void setWorld(GreenfootWorld world)
     {
         this.world = world;
-        this.setSize(getSizeInPixels());
+        this.setSize(0,0);
         if (world != null) {
             setBackground(world.getBackgroundColor());
             setBackgroundImage(world.getBackgroundImage());
-
+            this.setSize(world.getWidth(), world.getHeight());
         }
     }
 
-    public Dimension getSizeInPixels()
-    {
-        Dimension size = new Dimension();
-        if (world != null) {
-            size.width = world.getWorldWidth() * world.getCellWidth();
-            size.height = world.getWorldHeight() * world.getCellHeight();
-        }
-        return size;
-    }
-
-    /**
-     * Convenience method to translate form screen coordinates (pixels) into
-     * gridCoordinates
-     *  
-     */
-    public Location translateToGrid(int x, int y)
-    {
-        Location loc = new Location();
-        if (world == null) {
-            return loc;
-        }
-        loc.setX(x / world.getCellWidth());
-        loc.setY(y / world.getCellHeight());
-        return loc;
-    }
-
+   
     /**
      * Puts an image in the background of the world.
      *  
@@ -119,7 +94,6 @@ public class WorldCanvas extends JComponent
                 GreenfootObject thing = (GreenfootObject) iter.next();
 
                 Location loc = new Location(thing.getX(), thing.getY());
-                loc.scale(world.getCellWidth(), world.getCellHeight());
 
                 ImageIcon image = thing.getImage();
                 if (image != null) {
@@ -142,22 +116,7 @@ public class WorldCanvas extends JComponent
         }
 
     }
-
-    private void paintGrid(Graphics g)
-    {
-        if (!world.isGridEnabled()) {
-            return;
-        }
-        g.setColor(world.getGridColor());
-        Dimension sizeInPixels = getSizeInPixels();
-        for (int x = 0; x < sizeInPixels.width; x += world.getCellWidth()) {
-            g.drawLine(x, 0, x, sizeInPixels.height);
-        }
-        for (int y = 0; y < sizeInPixels.height; y += world.getCellHeight()) {
-            g.drawLine(0, y, sizeInPixels.width, y);
-        }
-    }
-
+   
     /**
      * TODO optimize performance... double buffering?
      *  
@@ -171,7 +130,6 @@ public class WorldCanvas extends JComponent
         paintBackground(g);
         paintCanvas(g);
         paintObjects(g);
-        paintGrid(g);
     }
 
     private void paintCanvas(Graphics g)
@@ -184,28 +142,30 @@ public class WorldCanvas extends JComponent
 
     private void paintBackground(Graphics g)
     {
-        g.setColor(getBackground());
-        g.fillRect(0, 0, (int) getSizeInPixels().getWidth(), (int) getSizeInPixels().getHeight());
-
-        if (world.isTiledBackground()) {
-            paintTiledBackground(g);
-        }
-        else if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, this);
+        if(world != null) {
+	        g.setColor(getBackground());
+	        g.fillRect(0, 0, (int) world.getWidth(), (int) world.getHeight());
+	
+	        if (world.isTiledBackground()) {
+	            paintTiledBackground(g);
+	        }
+	        else if (backgroundImage != null) {
+	            g.drawImage(backgroundImage, 0, 0, this);
+	        }
         }
 
     }
 
     private void paintTiledBackground(Graphics g)
     {
-        if (backgroundImage == null) {
+        if (backgroundImage == null || world == null) {
             return;
         }
         int imgWidth = backgroundImage.getWidth(this);
         int imgHeight = backgroundImage.getHeight(this);
 
-        int xTiles = (int) Math.ceil(getSizeInPixels().getWidth() / imgWidth);
-        int yTiles = (int) Math.ceil(getSizeInPixels().getHeight() / imgHeight);
+        int xTiles = (int) Math.ceil(world.getWidth() / imgWidth);
+        int yTiles = (int) Math.ceil(world.getHeight() / imgHeight);
 
         for (int x = 0; x < xTiles; x++) {
             for (int y = 0; y < yTiles; y++) {
@@ -228,7 +188,12 @@ public class WorldCanvas extends JComponent
 
     public Dimension getPreferredSize()
     {
-        return getSizeInPixels();
+        Dimension size = new Dimension();
+        if (world != null) {
+            size.width = world.getWidth();
+            size.height = world.getHeight();
+        }
+        return size;
     }
 
     /**

@@ -16,7 +16,7 @@ public class RobotWorld extends GreenfootWorld
      */
     public RobotWorld()
     {
-        super(500, 500, 1, 1);
+        super(500, 500);
         setBackgroundColor(Color.BLACK);
         setBackgroundImage("road.gif");
         setTiledBackground(true);
@@ -53,19 +53,19 @@ public class RobotWorld extends GreenfootWorld
 
     public int getGridWidth()
     {
-        return toCell(getWorldWidth());
+        return toCell(getWidth());
     }
 
     public int getGridHeight()
     {
-        return toCell(getWorldHeight());
+        return toCell(getHeight());
     }
 
     public Collection getObjectsAtCell(int x, int y, Class cls)
     {
         //we assume that it is possible to get an object in a cell by looking
         // at the middle pixel in the cell
-        return getObjectsAtPixel(toPixel(x) + getCellSize() / 2, toPixel(y) + getCellSize() / 2, cls);
+        return getObjectsAt(toPixel(x) + getCellSize() / 2, toPixel(y) + getCellSize() / 2, cls);
     }
 
     public static int toCell(int i)

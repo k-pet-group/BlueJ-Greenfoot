@@ -15,7 +15,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: GreenfootObject.java 3158 2004-11-24 15:29:21Z polle $
  */
 public class GreenfootObject
 {
@@ -109,10 +109,10 @@ public class GreenfootObject
     public void setLocation(int x, int y)
     {
         if (world != null) {
-            if (world.getWorldWidth() <= x || x < 0) {
+            if (world.getWidth() <= x || x < 0) {
                 return;
             }
-            if (world.getWorldHeight() <= y || y < 0) {
+            if (world.getHeight() <= y || y < 0) {
                 return;
             }
         }
@@ -258,9 +258,7 @@ public class GreenfootObject
             return intersects(x, y, 0, 0, width, height);
         }
         else {
-            int width = world.getCellWidth();
-            int height = world.getCellHeight();
-            return intersects(x, y, 0, 0, width, height);
+            return false;
         }
     }
 
