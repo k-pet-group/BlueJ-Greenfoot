@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1913 2003-04-29 03:19:48Z ajp $
+ * @version $Id: ClassTarget.java 1929 2003-05-01 04:51:14Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -784,6 +784,11 @@ public class ClassTarget extends EditableTarget
         return (getBaseName().equalsIgnoreCase(newName));      
     }
 
+	/**
+	 * Change the package of a class target to something else.
+     *
+	 * @param newName the new fully qualified package name
+	 */
     private void doPackageNameChange(String newName)
     {
         Project proj = getPackage().getProject();
@@ -793,6 +798,13 @@ public class ClassTarget extends EditableTarget
             DialogManager.showError(null, "package-name-invalid");
         }
         else {
+        	// fix for bug #382. Potentially could clash with a package
+        	// in the destination package with the same name
+        	if (dstPkg.getTarget(getBaseName()) != null) {
+        		DialogManager.showError(null, "package-name-clash");
+        		return;
+        	}
+        	
             if(DialogManager.askQuestion(null, "package-name-changed") == 0) {
                 switch(dstPkg.importFile(getSourceFile())) {
                 default:
@@ -806,7 +818,6 @@ public class ClassTarget extends EditableTarget
 
         // all non working paths lead here.. lets fix the package line
         // up so it is back to what we expect
-
         try {
             enforcePackage(getPackage().getQualifiedName());
             getEditor().reloadFile();
@@ -814,6 +825,10 @@ public class ClassTarget extends EditableTarget
         catch(IOException ioe) { }
     }
 
+	/**
+	 * Construct a popup menu for the class target, including caching
+	 * of results.
+	 */
     protected Class last_class = null;
     protected JPopupMenu menu = null;
     boolean compiledMenu = false;

@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1926 2003-04-30 06:30:28Z ajp $
+ * @version $Id: PkgMgrFrame.java 1929 2003-05-01 04:51:14Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1341,11 +1341,24 @@ public class PkgMgrFrame extends JFrame
         else
             fullName = getPackage().getQualifiedName(name);
 
-        // check whether name is already used
+        // check whether name is already used as an existing package
         if (getProject().getPackage(fullName) != null) {
-            DialogManager.showError(this, "duplicate-package-name");
+            DialogManager.showError(this, "duplicate-name");
             return;
         }
+
+		// check whether name is already used for a class in the
+		// parent package
+		String pre = JavaNames.getPrefix(fullName);
+		String base = JavaNames.getBase(fullName);
+		
+		Package basePkg = getProject().getPackage(pre);
+		if (basePkg != null) {
+			if (basePkg.getTarget(base) != null) {
+				DialogManager.showError(this, "duplicate-name");
+				return;
+			}
+		}
 
         // construct the directory name for the new package
         StringTokenizer st = new StringTokenizer(fullName, ".");
