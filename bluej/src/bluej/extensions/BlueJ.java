@@ -50,7 +50,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2177 2003-09-15 11:02:55Z damiano $
+ * @version    $Id: BlueJ.java 2179 2003-09-16 10:06:44Z damiano $
  */
 
 /*
@@ -695,13 +695,14 @@ public class BlueJ
      */
     void postMenuItem(Object attachedObject, JMenuItem onThisItem )
     {
-        // If the extension has no menuGenerator there is nothing to do
         if (currentMenuGen == null)
             return;
 
-        // If the attached object is null I cannot decide which method to call
-        if (attachedObject == null)
+        if (attachedObject == null) {
+            // Only BPackages can be null when a menu is invoked
+            currentMenuGen.notifyPostMenu((BPackage)null,onThisItem);
             return;
+            }
 
         if (attachedObject instanceof Package) {
             Package attachedPkg = (Package) attachedObject;
