@@ -90,7 +90,8 @@ public class VMEventHandler implements Runnable {
     }
 
     private boolean vmDied = false;
-    private boolean handleExitEvent(Event event) {
+    private boolean handleExitEvent(Event event) 
+    {
         if (event instanceof VMDeathEvent) {
             vmDied = true;
             return vmDeathEvent(event);
@@ -99,7 +100,7 @@ public class VMEventHandler implements Runnable {
             if (!vmDied) {
                 vmDisconnectEvent(event);
             }
-            Debug.message("[VM Event] exiting..!?");
+            //Debug.message("[VM Event] exiting..!?");
             return false;
         } 
 	else {
@@ -107,26 +108,11 @@ public class VMEventHandler implements Runnable {
         }
     }
 
-    synchronized void handleDisconnectedException() {
-        /*
-         * A VMDisconnectedException has happened while dealing with
-         * another event. We need to flush the event queue, dealing only
-         * with exit events (VMDeath, VMDisconnect) so that we terminate
-         * correctly.
-         */
-            Debug.message("[VM Event] unexpected disconnection");
-
-//          while (!exiting) {
-//              try {
-//                  EventSet eventSet = queue.remove();
-//                  EventIterator iter = eventSet.eventIterator();
-//                  while (iter.hasNext()) {
-//                      handleExitEvent((Event)iter.next());
-//                  }
-//              } catch (InterruptedException exc) {
-//                  // ignore
-//              }
-//          }
+    synchronized void handleDisconnectedException() 
+    {
+        // A VMDisconnectedException has happened while dealing with
+        // another event. 
+	Debug.reportError("[VM Event] unexpected disconnection");
     }
 
     private boolean breakpointEvent(Event event)
@@ -161,65 +147,15 @@ public class VMEventHandler implements Runnable {
 	return true;
     }
 
-    private boolean threadDeathEvent(Event event)
-    {
-	Debug.message("[VM Event] threadDeathEvent");
-//          ThreadDeathEvent tee = (ThreadDeathEvent)event;
-//          ThreadReference thread = tee.thread();
-//          if (ThreadInfo.current != null && 
-//  	    ThreadInfo.current.equals(thread)) {
-
-//              String currentThreadName;
-            
-//              // Be careful getting the thread name. If this event happens
-//              // as part of VM termination, it may be too late to get the 
-//              // information, and an exception will be thrown.
-//              try {
-//  		currentThreadName = " \"" + thread.name() + "\"";
-//              } catch (Exception e) {
-//  		currentThreadName = "";
-//              }
-                 
-//              setCurrentThread(null);
-
-//              Env.errorln("");
-//              Env.errorln("Current thread" + currentThreadName + 
-//                          " died. Execution continuing...");
-//          }
-        return false;
-    }
-
     public boolean vmDeathEvent(Event event)
     {
-	Debug.message("[VM Event] vmDeathEvent");
-//          String app = null;
-//          if (Env.lastArgs() != null) {
-//              StringTokenizer t = new StringTokenizer(Env.lastArgs());
-//              if (t.hasMoreTokens()) {
-//                  app = t.nextToken();
-//              }
-//          }
-//          if (app == null) {
-//              app = "The application";
-//          }
-//          shutdownMessage = "\n" + app + " exited";
+	//Debug.message("[VM Event] vmDeathEvent");
         return false;
     }
 
     public boolean vmDisconnectEvent(Event event) 
     {
-	Debug.message("[VM Event] vmDisconnectEvent");
-//          String app = null;
-//          if (Env.lastArgs() != null) {
-//              StringTokenizer t = new StringTokenizer(Env.lastArgs());
-//              if (t.hasMoreTokens()) {
-//                  app = t.nextToken();
-//              }
-//          }
-//          if (app == null) {
-//              app = "The application";
-//          }
-//          shutdownMessage = "\n" + app + " has been disconnected";
+	//Debug.message("[VM Event] vmDisconnectEvent");
         return false;
     }
 

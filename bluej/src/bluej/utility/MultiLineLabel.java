@@ -6,7 +6,7 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: MultiLineLabel.java 63 1999-05-04 00:03:10Z mik $
+ ** @version $Id: MultiLineLabel.java 138 1999-06-22 01:05:50Z mik $
  ** @author Justin Tan
  ** A multi-line Label-like AWT component.
  **/
@@ -69,6 +69,15 @@ public class MultiLineLabel extends JPanel
 	    l.setHorizontalAlignment(alignment);
 	    add(l);
 	}	
+    }
+	
+    public void addText(String text, boolean bold, boolean italic)
+    {
+	int oldAttributes = fontAttributes;
+	setBold(bold);
+	setItalic(italic);
+	addText(text);
+	fontAttributes = oldAttributes;
     }
 	
     public void setItalic(boolean italic)

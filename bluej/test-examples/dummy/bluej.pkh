@@ -1,13 +1,13 @@
 #BlueJ project file
-#Mon Jun 21 17:40:31 GMT+10:00 1999
+#Tue Jun 22 10:59:51 GMT+10:00 1999
 target4.name=Adapter
 target5.type=ClassTarget
 target1.height=50
-dependency1.to=Tester
+dependency1.to=MyClass
 target5.name=Sortable
-dependency2.to=MyClass
+dependency2.to=SubTester
 target4.height=50
-dependency3.to=SubTester
+dependency3.to=Tester
 dependency1.type=UsesDependency
 target4.modifiers=0
 package.window.height=544
@@ -18,7 +18,7 @@ dependency3.type=UsesDependency
 target5.valid=true
 dependency4.type=ExtendsDependency
 dependency5.type=ImplementsDependency
-dependency1.from=MyClass
+dependency1.from=SubTester
 target5.y=100
 target2.valid=true
 target5.modifiers=200
@@ -26,12 +26,12 @@ target5.x=30
 target4.valid=true
 target3.y=90
 target3.x=150
-dependency2.from=SubTester
+dependency2.from=Tester
 target1.y=30
 target1.x=320
 target2.height=50
 target5.width=80
-dependency3.from=Tester
+dependency3.from=MyClass
 target5.height=50
 target1.valid=true
 dependency4.from=SubTester

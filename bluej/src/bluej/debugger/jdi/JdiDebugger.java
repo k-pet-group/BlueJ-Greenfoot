@@ -59,7 +59,7 @@ public final class JdiDebugger extends Debugger
     static final String SERVER_CLASSNAME = "bluej.runtime.ExecServer";
 
     // options for the remote virtual machine
-    static final String VM_OPTIONS = "-native";
+    static final String VM_OPTIONS = "";
 
     // the field name of the static field within that class that hold the
     // server object

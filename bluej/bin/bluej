@@ -16,4 +16,6 @@ export CLASSPATH
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BLUEJ_HOME/lib/sparc
 export LD_LIBRARY_PATH
 
-java -native -noverify -Dbluej.home=`makepath $BLUEJ_HOME` bluej.Main $@
+THREADS_FLAG=native; export THREADS_FLAG
+
+java -noverify -Dbluej.home=`makepath $BLUEJ_HOME` bluej.Main $@

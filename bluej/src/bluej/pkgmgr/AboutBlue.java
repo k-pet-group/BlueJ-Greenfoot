@@ -9,7 +9,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: AboutBlue.java 86 1999-05-18 02:49:53Z mik $
+ ** @version $Id: AboutBlue.java 138 1999-06-22 01:05:50Z mik $
  ** @author Justin Tan
  **
  ** General graph edge
@@ -27,10 +27,24 @@ public class AboutBlue extends JDialog
 	aboutPanel.setBackground(Color.white);
 
 	// Create Text Panel
-	String text = "BlueJ version " + version;
-	JPanel textPanel = new MultiLineLabel(text + "\n" + Config.getString("main.about"), JLabel.LEFT);
-	textPanel.setBackground(Color.white);
-	aboutPanel.add(textPanel, BorderLayout.CENTER);
+  	MultiLineLabel text = new MultiLineLabel(JLabel.LEFT);
+	text.setBackground(Color.white);
+	    text.addText("BlueJ version " + version, true, false);
+	    text.addText("\nThe BlueJ development environment was\n" +
+			 "developed at the School of Computer Science\n" +
+			 "and Software Engineering, Monash University.");
+	    text.addText("\nThe BlueJ team:", false, true);
+	    text.addText("      John Rosenberg\n" + 
+			 "      Michael K\u00F6lling\n" +
+			 "      Bruce Quig\n" +
+			 "      Andrew Patterson");
+	    text.addText("\nwith help from:", false, true);
+	    text.addText("      Michael Cahill\n" +
+			 "      Andrew Marks");
+	    text.addText("\nFor more information contact Michael K\u00F6lling\n" +
+			 "(mik@csse.monash.edu.au).");
+
+  	aboutPanel.add(text, BorderLayout.CENTER);
 
 	// Create Button Panel
 	JPanel buttonPanel = new JPanel();
@@ -40,6 +54,7 @@ public class AboutBlue extends JDialog
 	buttonPanel.add(ok);
 	aboutPanel.add(buttonPanel,BorderLayout.SOUTH);
 
+	// insert logo
 	ImageIcon icon = new ImageIcon(Config.getImageFilename("image.logo"));
 	JLabel logoLabel = new JLabel(icon);
 	aboutPanel.add(logoLabel, BorderLayout.WEST);
