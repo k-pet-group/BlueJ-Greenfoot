@@ -18,7 +18,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1556 2002-12-04 05:42:24Z bquig $
+ * @version $Id: Utility.java 1596 2003-01-11 16:13:31Z mik $
  */
 public class Utility
 {
@@ -243,14 +243,22 @@ public class Utility
         else if(Config.osname.startsWith("Windows")) {                 // Windows
 
             String cmd;
+            // catering for stupid differences in Windows shells...
             if(Config.osname.startsWith("Windows 9") || Config.osname.equals("Windows Me"))    // win95/98/Me
                 cmd = "command.com";
             else                                                        // other
                 cmd = "cmd.exe";
 
             try {
-                Process p = Runtime.getRuntime().exec(
-                    new String[] { cmd, "/c", "start", "\"\"", '"' + url + '"' });
+                // more stupid Windows differences...
+                if(Config.osname.startsWith("Windows 98")) {
+                    Process p = Runtime.getRuntime().exec(
+                         new String[] { cmd, "/c", "start", '"' + url + '"' });
+                }
+                else {
+                    Process p = Runtime.getRuntime().exec(
+                        new String[] { cmd, "/c", "start", "\"\"", '"' + url + '"' });
+                }
             }
             catch(IOException e) {
                 Debug.reportError("could not start web browser. exc: " + e);
