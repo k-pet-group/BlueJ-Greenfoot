@@ -30,7 +30,7 @@ public class Tester
         // initialise instance vari ables
         x = 0;
         intArray = new int[4];
-        intArray[0] = 42;
+        intArray[2] = 42;
     } 
 
     /**
@@ -71,7 +71,7 @@ public class Tester
     public void exctest()
     throws Exception
     {
-        throw new Exception("This is mik's fault!");
+        throw new IllegalCountException(43);
     }
 
     public void DivExc()
