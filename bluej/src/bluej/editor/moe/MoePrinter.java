@@ -73,7 +73,7 @@ public class MoePrinter
 
         this.className = className;
         // extract tabsize attribute from document and assign to tabSize attribute
-        Integer tabSizeAsInteger =  (Integer)document.getProperty(document.tabSizeAttribute);
+        Integer tabSizeAsInteger =  (Integer)document.getProperty(PlainDocument.tabSizeAttribute);
         if(tabSizeAsInteger != null)
             tabSize = tabSizeAsInteger.intValue();
 

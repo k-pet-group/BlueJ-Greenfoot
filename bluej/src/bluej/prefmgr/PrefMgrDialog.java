@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * instance of PrefMgrDialog at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgrDialog.java 1050 2001-12-11 19:37:46Z mik $
+ * @version $Id: PrefMgrDialog.java 1766 2003-04-09 05:57:10Z ajp $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -144,7 +144,7 @@ public class PrefMgrDialog extends JFrame
             dialog = new PrefMgrDialog();
         }
 
-        for (Iterator i = dialog.listeners.iterator(); i.hasNext(); ) {
+        for (Iterator i = PrefMgrDialog.listeners.iterator(); i.hasNext(); ) {
             PrefPanelListener ppl = (PrefPanelListener)i.next();
 
             ppl.beginEditing();
