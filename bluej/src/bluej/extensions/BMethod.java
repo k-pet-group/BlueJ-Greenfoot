@@ -3,7 +3,6 @@ package bluej.extensions;
 import bluej.debugger.DebuggerObject;
 import bluej.views.MethodView;
 import java.lang.reflect.Modifier;
-import bluej.pkgmgr.Package;
 import bluej.views.*;
 
 import com.sun.jdi.*;
@@ -18,7 +17,7 @@ import bluej.pkgmgr.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1981 2003-05-22 16:35:43Z iau $
+ * @version $Id: BMethod.java 1985 2003-05-23 09:39:10Z damiano $
  */
 
 /*
@@ -28,16 +27,15 @@ import bluej.pkgmgr.*;
  */
 public class BMethod
 {
-    private MethodView bluej_view;
-    private DirectInvoker invoker;
     private Identifier parentId;
+    private MethodView bluej_view;
     
     /**
      * Constructor.
      */
     BMethod ( Identifier aParentId, MethodView i_bluej_view )
     {
-        parentId = aParentId;
+        parentId   = aParentId;
         bluej_view = i_bluej_view;
     }
 
@@ -128,13 +126,12 @@ public class BMethod
         throws ProjectNotOpenException, PackageNotFoundException, 
                InvocationArgumentException, InvocationErrorException
         {
-        Package bluejPkg = parentId.getBluejPackage();
-        
         String instanceName=null;
         // If it is a method call on a live object get the identifier for it.
         if ( onThis != null ) instanceName = onThis.getInstanceName();
         
-        invoker = new DirectInvoker (bluejPkg, bluej_view );
+        PkgMgrFrame  pkgFrame = parentId.getPackageFrame();
+        DirectInvoker invoker = new DirectInvoker (pkgFrame, bluej_view );
         DebuggerObject result = invoker.invokeMethod (instanceName, params);
 
         // Result can be null if the method returns void. It is Reflection standard
@@ -150,8 +147,7 @@ public class BMethod
         if ( thisField == null ) return null;
 
         // DOing this is the correct way of returning the right object. Tested 080303, Damiano
-        PkgMgrFrame aFrame = parentId.getPackageFrame();
-        return BField.doGetVal(aFrame, resultName, objRef.getValue(thisField));
+        return BField.doGetVal(pkgFrame, resultName, objRef.getValue(thisField));
         }
     
   

@@ -5,14 +5,13 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.ObjectWrapper;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.*;
-import bluej.pkgmgr.Package;
 
 
 /**
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1981 2003-05-22 16:35:43Z iau $
+ * @version $Id: BConstructor.java 1985 2003-05-23 09:39:10Z damiano $
  */
 
 /*
@@ -30,7 +29,6 @@ public class BConstructor
   {
   private Identifier parentId;
   private ConstructorView bluej_view;
-  private DirectInvoker invoker;
 
   /**
    * Constructor.
@@ -91,9 +89,9 @@ public class BConstructor
       throws ProjectNotOpenException, PackageNotFoundException, 
              InvocationArgumentException, InvocationErrorException
       {
-      Package bluejPkg = parentId.getBluejPackage();
+      PkgMgrFrame pkgFrame = parentId.getPackageFrame();
       
-      invoker = new DirectInvoker (bluejPkg, bluej_view );
+      DirectInvoker invoker = new DirectInvoker (pkgFrame, bluej_view );
       DebuggerObject result = invoker.invokeConstructor (initargs);
 
       if (result == null) return null;

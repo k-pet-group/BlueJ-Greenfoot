@@ -2,7 +2,6 @@ package bluej.extensions;
 
 import bluej.debugger.*;
 import bluej.pkgmgr.*;
-import bluej.pkgmgr.Package;
 import bluej.testmgr.*;
 import bluej.views.*;
 
@@ -12,20 +11,20 @@ import bluej.views.*;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Clive Miller, University of Kent at Canterbury, 2002
  * 
- * @version $Id: DirectInvoker.java 1982 2003-05-23 08:08:34Z damiano $
+ * @version $Id: DirectInvoker.java 1985 2003-05-23 09:39:10Z damiano $
  */
 class DirectInvoker
 {
-    private final Package pkg;
+    private final PkgMgrFrame  pkgFrame;
     private final CallableView callable;
     private String resultName;
 
     /**
      * For use by the bluej.extensions
      */
-    DirectInvoker (Package i_pkg, CallableView i_callable )
+    DirectInvoker (PkgMgrFrame i_pkgFrame, CallableView i_callable )
     {
-        pkg = i_pkg;
+        pkgFrame = i_pkgFrame;
         callable = i_callable;
     }
 
@@ -39,11 +38,8 @@ class DirectInvoker
         if ( ! paramsAlmostMatch(args,  callable.getParameters() ) ) 
             throw new InvocationArgumentException ("invokeConstructor: bad arglist");
 
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-        if ( pmf == null ) return null;
-        
         DirectResultWatcher watcher = new DirectResultWatcher();
-        Invoker invoker = new Invoker (pmf, callable, null, watcher);
+        Invoker invoker = new Invoker (pkgFrame, callable, null, watcher);
         invoker.invokeDirect ( convObjToString(args) );
 
         // this will wait() on the invoke to finish
@@ -71,11 +67,8 @@ class DirectInvoker
         if ( ! paramsAlmostMatch(args,  callable.getParameters() ) ) 
             throw new InvocationArgumentException ("invokeMethod: bad arglist");
 
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-        if ( pmf == null ) return null;
-        
         DirectResultWatcher watcher = new DirectResultWatcher();
-        Invoker invoker = new Invoker (pmf, callable, onThisObjectInstance, watcher);
+        Invoker invoker = new Invoker (pkgFrame, callable, onThisObjectInstance, watcher);
         invoker.invokeDirect ( convObjToString(args));
 
         // this will wait() on the invoke to finish
