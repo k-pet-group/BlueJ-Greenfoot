@@ -16,7 +16,7 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 553 2000-06-16 04:36:14Z bquig $
+ * @version $Id: PackageTarget.java 607 2000-06-30 04:23:32Z ajp $
  */
 public class PackageTarget extends Target implements ActionListener
 {
@@ -28,13 +28,10 @@ public class PackageTarget extends Target implements ActionListener
     static final Color bordercolour = Config.getItemColour("colour.target.border");
     static final Color textbg = Config.getItemColour("colour.text.bg");
     static final Color textfg = Config.getItemColour("colour.text.fg");
-    
+
     static final int TAB_HEIGHT = 12;
     private int tabWidth;
 
-
-    protected String packageDir = null;
-    protected String packageName = null;
 
     static String useStr = Config.getString("browser.classchooser.packagemenu.use");
     static String openStr = Config.getString("browser.classchooser.packagemenu.open");
@@ -45,16 +42,28 @@ public class PackageTarget extends Target implements ActionListener
     static final BasicStroke selectedStroke = new BasicStroke(3);
 
 
-    public PackageTarget(Package pkg, String shortName)
+    public PackageTarget(Package pkg, String baseName)
     {
-        super(pkg, shortName, nextX(), nextY(), calculateWidth(shortName), DEF_HEIGHT + TAB_HEIGHT);
-        packageDir = shortName;
-        packageName = shortName;
+        super(pkg, baseName, nextX(), nextY(),
+                calculateWidth(baseName), DEF_HEIGHT + TAB_HEIGHT);
     }
 
-    public String getName()
+    /**
+     * Return the target's base name (ie the name without the package name).
+     * eg. Target
+     */
+    public String getBaseName()
     {
-        return packageName;
+        return getIdentifierName();
+    }
+
+    /**
+     * Return the target's name, including the package name.
+     * eg. bluej.pkgmgr
+     */
+    public String getQualifiedName()
+    {
+        return getPackage().getQualifiedName(getBaseName());
     }
 
     public void load(Properties props, String prefix) throws NumberFormatException
@@ -219,7 +228,7 @@ public class PackageTarget extends Target implements ActionListener
     {
         PackageEditor pe = (PackageEditor) editor;
 
-        pe.raiseOpenPackageEvent(this, getPackage().getQualifiedName(getName()));
+        pe.raiseOpenPackageEvent(this, getPackage().getQualifiedName(getBaseName()));
     }
 
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
@@ -231,7 +240,7 @@ public class PackageTarget extends Target implements ActionListener
 
     private JPopupMenu createMenu(Class cl)
     {
-        JPopupMenu menu = new JPopupMenu(getName() + " operations");
+        JPopupMenu menu = new JPopupMenu(getBaseName());
 
         return null;
     }

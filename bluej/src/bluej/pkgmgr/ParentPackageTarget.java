@@ -14,7 +14,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 551 2000-06-14 22:22:43Z ajp $
+ * @version $Id: ParentPackageTarget.java 607 2000-06-30 04:23:32Z ajp $
  */
 public class ParentPackageTarget extends PackageTarget implements ActionListener
 {
@@ -84,11 +84,11 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
      */
     private JPopupMenu createMenu(Class cl)
     {
-        JPopupMenu menu = new JPopupMenu(getName());
+        JPopupMenu menu = new JPopupMenu(getBaseName());
 
         String item = JavaNames.getPrefix(getPackage().getQualifiedName());
 
-        while(item != "") {
+        while(!item.equals("")) {
             addMenuItem(menu, openStr + " " + item, item);
             item = JavaNames.getPrefix(item);
         }
