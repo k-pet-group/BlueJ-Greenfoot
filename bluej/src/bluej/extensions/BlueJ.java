@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1726 2003-03-24 13:33:06Z damiano $
+ * @version $Id: BlueJ.java 1739 2003-04-04 08:26:04Z damiano $
  */
 
 public class BlueJ
@@ -331,7 +331,7 @@ public class BlueJ
     public String getLabel (String wantKey)
     {
         // If there are no label for this extension I can only return the system ones.
-        if ( localLabels == null ) Config.getString (wantKey, wantKey);
+        if ( localLabels == null ) return Config.getString (wantKey, wantKey);
 
         // In theory there are label for this extension let me try to get them
         String aLabel = localLabels.getProperty (wantKey, null);
