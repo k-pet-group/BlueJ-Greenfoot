@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3205 2004-11-29 15:48:03Z fisker $
+ * @version $Id: PkgMgrFrame.java 3312 2005-02-14 09:14:12Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1078,6 +1078,7 @@ public class PkgMgrFrame extends JFrame
                     {
                         enableFunctions(false); // changes menu items
                         updateWindowTitle();
+                        menuManager.addExtensionMenu(null);
                     }
                 };
                 SwingUtilities.invokeLater(disableUI);
