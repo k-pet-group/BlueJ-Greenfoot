@@ -206,7 +206,7 @@ n'apparaît, ou il y a autre chose qui les précède.
 
 code too large for try statement
 Il y a trop d'instructions à l'intérieur du bloc "try".
-Créez une méthode distincte et appelez-la du bloc.
+Créez une méthode distincte et appelez-la depuis le bloc.
 
 * conflicts with a compiler-synthesized symbol in *
 (Aucune aide disponible)
@@ -443,7 +443,7 @@ Par conséquent, la signature de méthode ne peut
 
 internal error; cannot instantiate *
 Une erreur interne est survenue pendant
-l'instantiation de la classe indiquée.
+l'instanciation de la classe indiquée.
 (Erreur générique)
 
 invalid method declaration; return type required
@@ -513,10 +513,10 @@ publique ni par une interface; par conséquent il ne peut
 être invoqué en dehors du paquetage où il apparaît.
 
 * is public, should be declared in a file named *
-Chaque classe publique doit avoir sa source dans un
+Chaque classe publique doit avoir son texte source dans un
 fichier du même nom portant l'extension ".java".
-Par exemple, la "public class Foo" doit avoir sa
-source dans le fichier "Foo.java".
+Par exemple, la "public class Foo" doit avoir son
+texte source dans le fichier "Foo.java".
 
 * is reserved for internal use
 Le terme indiqué est réservé à des fins internes.
@@ -730,7 +730,7 @@ variable-type.
 
 unclosed character literal
 Il semble que vous ayez écrit une constante caractère sans
-inclure l'apostrophe fermante : «'a» au lieu de «'a'».
+inclure l'apostrophe fermante : 'a au lieu de 'a'.
 
 unclosed comment
 Un commentaire qui débute par /* ou /** doit
@@ -775,7 +775,7 @@ Consultez la documentation pour plus de détails.
 variable {0} might be assigned in loop
 La variable finale en question était certainement sans
 valeur avant la boucle, et pourrait s'en voir assigner
-une dans la boucle, possiblement plus d'une fois - ce
+une dans la boucle, peut-être plus d'une fois - ce
 qui n'est pas acceptable.
 
 'void' type not allowed here
@@ -785,4 +785,3 @@ de résultat; il ne peut y avoir de variables de ce type.
 
 wrong number of type arguments; required *
 (Aucune aide disponible)
-

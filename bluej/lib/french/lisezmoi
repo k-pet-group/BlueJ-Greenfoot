@@ -1,19 +1,24 @@
 fichier: lisezmoi
 description: Traduction française du logiciel BlueJ
-Date: 2003-12-07
+Date: 2004-08-23
 Auteur: Patrice Moreaux
-        Université de Reims Champagne-Ardenne, Reims, FRANCE
+        Université de Reims Champagne-Ardenne, FRANCE
         (patrice.moreaux@univ-reims.fr)
 
-Version BlueJ concernée: 1.35rc1 (2003-11-26)
+Version BlueJ concernée: 2.0 (2004-09-01)
 
 
-Remerciements
--------------
-Cette traduction est basée sur celle fournie par
-  Daniel U. Thibault R & D pour la défense Canada - Valcartier (Daniel.Thibault@DRDC-RDDC.GC.Ca)
-  pour la version 1.3.0beta4 (2003-07-14)
-elle-même basée sur ma traduction pour la version 1.2.2
+Historique
+----------
+Version 2003-12-07, BlueJ 1.35rc1 (2003-11-26)
+  Patrice Moreaux (Université de Reims Champagne-Ardenne, FRANCE)
+  patrice.moreaux@univ-reims.fr
+Version 2003-07-14, BlueJ1.3.0beta4 (2003-07-14)
+  Daniel U. Thibault (R & D pour la défense Canada - Valcartier)
+  Daniel.Thibault@DRDC-RDDC.GC.Ca
+Version 2002-10-17, BlueJ 1.2.2 (2002-10-16)
+  Patrice Moreaux (Université de Reims Champagne-Ardenne, FRANCE)
+  patrice.moreaux@univ-reims.fr
 
 
 Principes de traduction

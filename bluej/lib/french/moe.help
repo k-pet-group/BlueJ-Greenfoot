@@ -96,7 +96,7 @@ undo=\n Défait la plus récente édition.  Elle pourra alors être refaite.
 redo=\n Refait la plus récente édition défaite.
 
 find=\n Invoque un dialogue permettant de chercher une chaîne dans le texte.\n La recherche peut se faire vers l'amont ou l'aval.
-find-next=\n Cherche la prochaine occurence de la sélection ou de la chaîne le plus récemment\n cherchée.  S'arrête à la fin du texte; invoquer de nouveau pour recommencer la\n recherche à son début.
+find-next=\n Cherche la prochaine occurrence de la sélection ou de la chaîne le plus récemment\n cherchée.  S'arrête à la fin du texte; invoquer de nouveau pour recommencer la\n recherche à son début.
 find-next-backward=\n Comme find-next, mais vers l'aval.
 replace=\n Remplace une chaîne par une autre.
 

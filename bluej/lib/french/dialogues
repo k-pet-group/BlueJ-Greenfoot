@@ -87,20 +87,10 @@ error-open-source
 Impossible d'ouvrir le fichier
 source de cette classe.
 
-error-open-readme
-Problème lors de l'ouverture des notes
-de ce projet.  Une nouvelle note vide
-a été créée.
-
 error-writing-readme
 L'information de classe 'main' n'a pu être mise à jour
 dans le fichier README de ce projet.  Un erreur est
 survenue pendant la modification du fichier.
-
-error-exporting
-Une erreur s'est produite lors de l'exportation
-de l'application. Certains (voire tous les) fichiers
-n'ont peut-être pas été copiés correctement.
 
 error-writing-jar
 Le fichier jar n'a pu être enregistré correctement.
@@ -119,6 +109,10 @@ Nom de classe invalide.
 
 invalid-package-name
 Nom de paquetage invalide.
+
+must-be-identifier
+Le nom n'est pas valide.
+Ce doit être un identificateur Java.
 
 directory-exists
 Un fichier ou répertoire de ce nom
@@ -167,8 +161,8 @@ Il se pourrait aussi que l'adresse Web de la documentation
 du JDK spécifiée dans les préférences soit incorrecte.
 Assurez-vous que tous vos fichiers Java soient compilés
 et que l'adresse de la documentation soit accessible
-(ou désactivée), puis ressayez.  Si cela ne suffit pas,
-consultez le journal de Javadoc :
+(ou désactivée), puis essayez à nouveau.
+Si cela ne suffit pas, consultez le journal de Javadoc :
 
 severe-doc-trouble
 Une exception est survenue lors d'un appel
@@ -187,6 +181,11 @@ error-in-import
 Une erreur est survenue pendant la tentative
 d'importation de ce fichier.  Vérifiez vos
 privilèges d'accès et votre espace disque.
+
+no-class-selected-compile
+Pas de classe sélectionnée pour la compilation.
+Sélectionnez une classe en cliquant
+dessus pour la compiler.
 
 no-class-selected
 Pas de classe ni de paquetage sélectionné.
@@ -322,6 +321,11 @@ Avant que les changements apportés aux
 bibliothèques de classes ne soient pris en charge,
 vous devrez quitter et relancer BlueJ.
 
+pref-optimise-no-effect
+Les modifications des paramètres de machine virtuelle ne s'appliquent
+qu'aux projets ouverts après ces modifications
+(ou si vous redémarrez la machine virtuelle).
+
 unittest-new-test-method
 Spécifiez un nom pour cette méthode de test.
 Son enregistrement débutera ensuite.
@@ -343,6 +347,15 @@ Remplacer
 Annuler
 null
 
+unittest-method-present
+Cette classe de test unitaire possède déjà une méthode
+de ce nom. Si vous poursuivez, cette définition
+sera remplacé par la nouvelle.
+Voulez-vous poursuivre?
+Remplacer
+Annuler
+null
+
 no-search-string
 Chaîne à chercher non définie.
 (Sélectionnez d'abord du texte ou utilisez 'Chercher').
@@ -354,3 +367,33 @@ les raccourcis par défaut ?
 Rétablir
 Annuler
 null
+
+error-create-vm
+BlueJ n'a pas pu créer une machine virtuelle (MV) pour exécuter les projets.
+C'est un problème sévère - vous ne pourrez pas créer des objets
+ni exécuter des méthodes avant de l'avoir résolu.
+En général ce problème provient d'une configuration spécifique du réseau sur votre
+machine. BlueJ utilise TCP/IP et des "sockets" pour créer la MV.
+Le problème le plus fréquent est une configuration trop stricte du pare-feu
+qui empêche les connexions depuis votre ordinateur. Arrêtez le pare-feu
+(si vous en avez un) pour vérifier ce point. Si le problème est résolu, essayez
+de configurer le pare-feu pour autoriser ces connexions.
+La configuration réseau est une autre cause possible du problème. Vérifiez
+que TCP/IP et les autres paramètres réseau sont correctement configurés.
+Si les problèmes persistent demandez de l'aide (voir http://www.bluej.org/help/ask-help.html).
+
+project-is-readonly
+Le projet est en lecture seule. Vous ne pourrez pas créer d'objet
+ni exécuter de méthode.
+Le répertoire du projet ou l'ensemble du système de fichiers
+est en lecture seule (est-ce un CD?).
+Pour exploiter totalement ce projet, assurez-vous qu'il est sur un système de
+fichiers modifiable (votre disque dur en général) et que vous
+avez les droits d'écriture sur le répertoire du projet et tous ses fichiers.
+
+could-not-write-shell-file
+Échec de l'exécution dû à un répertoire de projet en lecture seule.
+Pour créer des objets ou exécuter des méthodes, vous devez pouvoir écrire
+dans le répertoire du projet. Assurez-vous que le projet est
+sur un système de fichier modifiable (pas un CD!) et que vous avez
+les droits d'écriture sur le répertoire du projet et ses fichiers.
