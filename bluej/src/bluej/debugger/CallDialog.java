@@ -17,7 +17,7 @@ import javax.swing.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 1371 2002-10-14 08:26:48Z mik $
+ * @version $Id: CallDialog.java 1372 2002-10-14 08:43:35Z mik $
  */
 public abstract class CallDialog extends JDialog
 	implements ActionListener, ObjectBenchListener
@@ -129,9 +129,11 @@ public abstract class CallDialog extends JDialog
     }
 
     /**
-     * Build the Swing dialog.
+     * Build the Swing dialog. The top and center components
+     * are supplied by the specific subclasses. This method
+     * add the Ok and Cancel buttons.
      */
-    protected void makeDialog()
+    protected void makeDialog(JComponent topComponent, JComponent centerComponent)
     {
         JPanel contentPane = (JPanel)getContentPane();
 
@@ -156,8 +158,8 @@ public abstract class CallDialog extends JDialog
         contentPane.setLayout(new BorderLayout(6,6));
         contentPane.setBorder(Config.generalBorder);
 
-        contentPane.add(createTopComponent(), BorderLayout.NORTH);
-        contentPane.add(createCenterComponent(), BorderLayout.CENTER);
+        contentPane.add(topComponent, BorderLayout.NORTH);
+        contentPane.add(centerComponent, BorderLayout.CENTER);
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
 
         pack();
@@ -170,9 +172,6 @@ public abstract class CallDialog extends JDialog
                 }
             });
     }
-
-    protected abstract JComponent createTopComponent();
-    protected abstract JComponent createCenterComponent();
     
     /**
      * Helper method to add a button to a panel.

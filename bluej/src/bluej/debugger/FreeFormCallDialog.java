@@ -23,7 +23,7 @@ import java.util.ArrayList;
  *
  * @author  Michael Kolling
  *
- * @version $Id: FreeFormCallDialog.java 1371 2002-10-14 08:26:48Z mik $
+ * @version $Id: FreeFormCallDialog.java 1372 2002-10-14 08:43:35Z mik $
  */
 public class FreeFormCallDialog extends CallDialog
 {
@@ -106,7 +106,11 @@ public class FreeFormCallDialog extends CallDialog
     {
     }
 
-    protected JComponent createTopComponent()
+
+    /**
+     * Build the Swing dialog.
+     */
+    private void makeDialog()
     {
         JPanel topPanel = new JPanel(new BorderLayout(4,6));
         topPanel.add(new JLabel(Config.getString("freeCallDialog.fieldLabel")),
@@ -119,11 +123,7 @@ public class FreeFormCallDialog extends CallDialog
         textField.setColumns(30);
         callField.addActionListener(this);
         topPanel.add(callField, BorderLayout.CENTER);
-        return topPanel;
-    }
 
-    protected JComponent createCenterComponent()
-    {
-        return getErrorLabel();
+        super.makeDialog(topPanel, getErrorLabel());
     }
 }
