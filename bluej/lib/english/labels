@@ -192,6 +192,11 @@ editor.compileLabel = Compile
 editor.toggle-breakpointLabel = Set/Clear Breakpoint
 editor.toggle-interface-viewLabel = Toggle Interface View
 
+editor.go-to-lineLabel = Go to line...
+editor.gotoline.title = Go to line
+editor.gotoline.label = Enter line number
+editor.gotoline.notNumericMessage = Input must be numeric
+
 editor.implementationLabel = Implementation
 editor.interfaceLabel = Interface
 
