@@ -19,7 +19,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 220 1999-08-10 04:23:38Z bruce $
+ ** @version $Id: AppletClassRole.java 234 1999-08-13 01:48:05Z bruce $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -34,10 +34,25 @@ public class AppletClassRole extends ClassRole
     static final String THIS_DIRECTORY = ".";
     static final String APPLETVIEWER_COMMAND = "appletviewer"; // move to bluej.defs
     static final String URL_PREFIX = "file://localhost/";
+    static final int DEFAULT_APPLET_WIDTH = 200;
+    static final int DEFAULT_APPLET_HEIGHT = 100;
     
     private String[] appletParams;
     private int appletHeight;
     private int appletWidth;
+
+
+
+   /**
+     * Save this AppletClassRole details to file
+     * @param props the properties object that stores target information
+     * @param prefix prefix for this target for identification
+     */
+    public AppletClassRole()
+    {
+	appletHeight = DEFAULT_APPLET_HEIGHT;
+	appletWidth = DEFAULT_APPLET_WIDTH;
+    }
 
 
    /**
@@ -165,9 +180,7 @@ public class AppletClassRole extends ClassRole
 	    // add params that originated from pkg properties
 	    if(appletParams != null)
 		dialog.setAppletParameters(appletParams);
-	    if(appletHeight != 0)
 		dialog.setAppletHeight(appletHeight);
-	    if(appletWidth !=0)
 		dialog.setAppletWidth(appletWidth);
 	}
 	if(dialog.display()) {
