@@ -36,8 +36,9 @@ import javax.swing.*;
  */
 public class ExtensionWrapper
 {
-    private ExtensionsManager extensionsManager;
-    private PrefManager prefManager;
+    private final ExtensionsManager extensionsManager;
+    private final PrefManager prefManager;
+    private final MenuManager menuManager;
 
     private File extensionJarFileName;
     private long extensionLastModified;
@@ -50,7 +51,6 @@ public class ExtensionWrapper
 
     private BlueJ  extensionBluej;
     private String extensionStatusString;
-    private MenuManager menuManager;
     private Project project;
     private Collection eventListeners;
 
@@ -68,6 +68,7 @@ public class ExtensionWrapper
     {
         this.extensionsManager = extensionsManager;
         this.prefManager = prefManager;
+        menuManager = new MenuManager(this);
 
         // Let me try to load the extension class
         if ((extensionClass = getExtensionClass(jarFile)) == null)  return;
@@ -139,16 +140,15 @@ public class ExtensionWrapper
      *
      * @param  project  The project this extensionis linked to, null if none
      */
-    public void newExtension(Project project)
+    void newExtension(Project project)
     {
         // It may happen
         if (extensionClass == null)  return;
 
         this.project = project;
 
-        menuManager    = new MenuManager(this);
         eventListeners = new ArrayList();
-        extensionBluej = new BlueJ(this, prefManager);
+        extensionBluej = new BlueJ(this, prefManager, menuManager);
 
         extensionStatusString = Config.getString("extmgr.status.notused");
 
@@ -177,23 +177,24 @@ public class ExtensionWrapper
 
 
     /**
-     *  Gets the project this extension is associated with (if any)
+     *  Gets the project this extension is associated with.
+     *  This happens in case of extensions loaded with a Project.
+     *  If it is a systemwhide extension this will be null.
      *
-     * @return    the project owning this extension, or <code>null</code> if the
-     *      extension is system-wide (more likely)
+     * @return    the project owning this extension.
      */
-    public Project getProject()
+    Project getProject()
     {
         return project;
     }
 
 
     /**
-     *  Accessor for the MenuManager
+     * Accessor for the MenuManager. Used by this package only.
      *
-     * @return    The menuManager value
+     * @return    The menuManager of this extension.
      */
-    public MenuManager getMenuManager()
+    MenuManager getMenuManager()
     {
         return menuManager;
     }
@@ -215,7 +216,7 @@ public class ExtensionWrapper
      *
      * @return    The jarValid value
      */
-    public boolean isJarValid()
+    boolean isJarValid()
     {
         return (extensionClass != null);
     }
@@ -227,7 +228,7 @@ public class ExtensionWrapper
      *  Not only ! we are even going to release the wrapper after this.
      *  So it can be loaded again, hopefully from a clean environment
      */
-    public void terminate()
+    void terminate()
     {
         Debug.message("Extension.terminate(): class="+getExtensionClassName());
 
@@ -263,6 +264,7 @@ public class ExtensionWrapper
     public String getExtensionClassName()
     {
         if (extensionClass == null) return null;
+
         return extensionClass.getName();
     }
 
@@ -413,38 +415,46 @@ public class ExtensionWrapper
      *
      * @param  el  The feature to be added to the BJEventListener attribute
      */
-    public void addBluejEventListener(BluejEventListener el)
+    public void addBluejEventListener(BluejEventListener eventListener)
     {
-        if (el != null)
-            eventListeners.add(el);
+        if (eventListener == null) return;
+
+        eventListeners.add(eventListener);
     }
-
-
-    /**
-     *  Informs any registered listeners that an event has occurred.
-     *
-     * @param  event  Description of the Parameter
-     */
-    void eventOccurred(BluejEvent event)
-    {
-        if (!isValid()) return;
-
-        if (eventListeners.isEmpty()) return;
-
-        for (Iterator it = eventListeners.iterator(); it.hasNext(); ) {
-            BluejEventListener el = (BluejEventListener) it.next();
-            el.eventOccurred(event);
-        }
-    }
-
-
-
 
 
     /* ====================== ERROR WRAPPED CALLS HERE =========================
      * I need to wrapp ALL calls from BlueJ to the Extension into a try/catch
      * Othervise an error in the extension will render BlueJ unusable. Damiano
      */
+
+
+    /**
+     * Informs any registered listeners that an event has occurred.
+     *
+     * @param  event  Description of the Parameter
+     */
+    void safeEventOccurred(BluejEvent event)
+    {
+        if (!isValid()) return;
+
+        if (eventListeners.isEmpty()) return;
+
+        try
+          {
+          for (Iterator iter = eventListeners.iterator(); iter.hasNext(); ) 
+            {
+            BluejEventListener eventListener = (BluejEventListener) iter.next();
+            eventListener.eventOccurred(event);
+            }
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safeEventOccurred: Exception="+exc.getMessage());
+          return;
+          }
+      }
+
 
 
     /**

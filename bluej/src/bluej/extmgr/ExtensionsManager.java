@@ -277,12 +277,10 @@ public class ExtensionsManager implements BlueJEventListener
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
-            if (!aWrapper.isValid())
-                continue;
+            if (!aWrapper.isValid()) continue;
 
             MenuManager aManager = aWrapper.getMenuManager();
-            if (aManager == null)
-                continue;
+            if (aManager == null) continue;
 
             aManager.menuFrameRevalidateReq(pmf);
         }
@@ -328,7 +326,7 @@ public class ExtensionsManager implements BlueJEventListener
     {
         for (Iterator it = extensions.iterator(); it.hasNext(); ) {
             ExtensionWrapper wrapper = (ExtensionWrapper) it.next();
-            wrapper.eventOccurred(event);
+            wrapper.safeEventOccurred(event);
         }
     }
 
