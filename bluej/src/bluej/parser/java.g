@@ -11,7 +11,7 @@ options {
 
 // Import the necessary classes
 {
-    import bluej.utility.Debug;
+    //import bluej.utility.Debug;
     import bluej.parser.symtab.SymbolTable;
     import bluej.parser.symtab.JavaVector;
     import bluej.parser.symtab.DummyClass;
@@ -106,7 +106,7 @@ tokens {
     public static ClassInfo parse(File file, Vector classes)
     	throws Exception
     {
-	// create a new symbol table
+    // create a new symbol table
 	SymbolTable symbolTable = new SymbolTable();
         ClassInfo info = new ClassInfo();
 
@@ -255,7 +255,7 @@ tokens {
                             JavaVector interfaces,
 			    boolean isAbstract,
 			    boolean isPublic,
-                boolean isEnum,
+			    boolean isEnum,
 			    JavaToken comment,
 			    Selection extendsInsert, Selection implementsInsert,
 			    Selection extendsReplace, Selection superReplace,
@@ -391,16 +391,72 @@ typeSpec returns [JavaToken t]
     |   t=builtInTypeSpec
     ;
 
+arraySpecOpt:
+        (options{greedy=true;}: // match as many as possible
+            lb:LBRACK^  RBRACK!
+        )*
+    ;
+
+
 // A class type specification is a class type with possible brackets afterwards
 //   (which would make it an array type).
+// - generic type arguments after
 classTypeSpec returns [JavaToken t]
         {t=null;}
-        : t=identifier (LBRACK RBRACK
+        : t=classOrInterfaceType (LBRACK RBRACK
 	{
              if(t != null)
                    t.setText(t.getText() + "[]");
 	} )*
 	;
+
+classOrInterfaceType returns [JavaToken t]
+     {t=null;}
+	:   id1:IDENT (typeArguments)? {t=(JavaToken)id1;}
+        (options{greedy=true;}: // match as many as possible
+            DOT
+            id2:IDENT (typeArguments)? {t.setText(t.getText() + "." + id2.getText());}
+        )*
+    ;
+    
+typeArguments
+{int currentLtLevel = 0;}
+    :
+        {currentLtLevel = ltCounter;}
+        LT {ltCounter++;}
+        singleTypeArgument
+        (options{greedy=true;}: // match as many as possible
+            COMMA singleTypeArgument
+        )*
+        
+        (   // turn warning off since Antlr generates the right code,
+            // plus we have our semantic predicate below
+            options{generateAmbigWarnings=false;}:
+            typeArgumentsEnd
+        )?
+        
+        // make sure we have gobbled up enough '>' characters
+        // if we are at the "top level" of nested typeArgument productions
+        {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
+    ;
+
+singleTypeArgument:
+        (
+            classTypeSpec | builtInTypeSpec | QUESTION
+        )
+        
+        (   // I'm pretty sure Antlr generates the right thing here:
+            options{generateAmbigWarnings=false;}:
+            ("extends"|"super") (classTypeSpec | builtInTypeSpec | QUESTION)
+        )?
+    ;
+// this gobbles up *some* amount of '>' characters, and counts how many
+// it gobbled.
+protected typeArgumentsEnd:
+        GT {ltCounter-=1;}
+    |   SR {ltCounter-=2;}
+    |   BSR {ltCounter-=3;}
+    ;
 
 // A builtin type specification is a builtin type with possible brackets
 // afterwards (which would make it an array type).
@@ -417,7 +473,7 @@ builtInTypeSpec returns [JavaToken t]
 //   a primitive (builtin) type
 type returns [JavaToken t]
     {t=null;}
-    :   t=identifier
+    :   t=classOrInterfaceType
     |   t=builtInType
     ;
 
@@ -520,13 +576,14 @@ modifier[JavaBitSet mods]
 // Definition of a Java class
 classDefinition[JavaBitSet mods, JavaToken commentToken]
     {
-        JavaToken superClass=null;
+    	JavaToken superClass=null;
         JavaVector interfaces = new JavaVector();
         Vector interfaceSelections = new Vector();
         Selection extendsInsert=null, implementsInsert=null,
                     extendsReplace=null, superReplace=null;
     }
     : "class" id:IDENT    // aha! a class!
+       (typeParameters)?
         {
             // the place which we would want to insert an "extends" is at the
             // character just after the classname identifier
@@ -538,7 +595,7 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
 
     // it might have a superclass...
     (
-     ex:"extends" superClass=identifier
+     ex:"extends" superClass=classOrInterfaceType
         {
             extendsReplace = new Selection((JavaToken)ex);
             superReplace = new Selection(superClass);
@@ -561,7 +618,7 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
             		  interfaces,
             		  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
             		  false, //not an enum
-                      commentToken,
+            		  commentToken,
             		  extendsInsert, implementsInsert,
             		  extendsReplace, superReplace,
             		  interfaceSelections); }
@@ -582,7 +639,8 @@ interfaceDefinition[JavaBitSet mods, JavaToken commentToken]
         Selection extendsInsert = null;
     }
     : "interface" id:IDENT   // aha! an interface!
-
+        // it _might_ have type paramaters
+        (typeParameters)?
         {
 	    // the place which we would want to insert an "extends" is at the
 	    // character just after the interfacename identifier
@@ -636,7 +694,7 @@ enumDefinition[JavaBitSet mods, JavaToken commentToken]
             		  interfaces,
             		  mods.get(MOD_ABSTRACT), mods.get(MOD_PUBLIC),
             		  true, // yes, it is an enum
-                      commentToken,
+            		  commentToken,
             		  null, implementsInsert,
             		  null, null,
             		  interfaceSelections); }
@@ -651,6 +709,27 @@ enumDefinition[JavaBitSet mods, JavaToken commentToken]
 annotationTypeDeclaration
     :
         AT "interface" IDENT annotationTypeBody
+    ;
+
+typeParameters
+{int currentLtLevel = 0;}
+    :
+        {currentLtLevel = ltCounter;}
+        LT {ltCounter++;}
+        typeParameter (COMMA typeParameter)*
+        (typeArgumentsEnd)?
+        // make sure we have gobbled up enough '>' characters
+        // if we are at the "top level" of nested typeArgument productions
+        {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
+    ;
+
+typeParameter:
+        (IDENT|QUESTION)
+        (   // I'm pretty sure Antlr generates the right thing here:
+            options{generateAmbigWarnings=false;}:
+            "extends" classOrInterfaceType
+            (BAND classOrInterfaceType)*
+        )?
     ;
 
 // This is the body of a class.  You can have fields and extra semicolons,
@@ -719,7 +798,7 @@ interfaceExtends[JavaVector interfaces, Vector interfaceSelections] returns [Sel
     { JavaToken id;
       extendsInsert = null;
     }
-    : ex:"extends" id=identifier
+    : ex:"extends" id=classOrInterfaceType
        {
           extendsInsert = selectionAfterToken((JavaToken)id);
 
@@ -727,7 +806,7 @@ interfaceExtends[JavaVector interfaces, Vector interfaceSelections] returns [Sel
     	  interfaces.addElement(dummyClass(id));
     	  interfaceSelections.addElement(new Selection((JavaToken)id));
        }
-        ( co:COMMA id=identifier
+        ( co:COMMA id=classOrInterfaceType
         {
           extendsInsert = selectionAfterToken((JavaToken)id);
 
@@ -749,7 +828,7 @@ implementsClause[JavaVector interfaces, Vector interfaceSelections] returns [Sel
     { JavaToken id;
       implementsInsert = null;
     }
-    : im:"implements" id=identifier
+    : im:"implements" id=classOrInterfaceType
         {
           implementsInsert = selectionAfterToken((JavaToken)id);
 
@@ -757,7 +836,7 @@ implementsClause[JavaVector interfaces, Vector interfaceSelections] returns [Sel
           interfaces.addElement(dummyClass(id));
     	  interfaceSelections.addElement(new Selection((JavaToken)id));
         }
-    ( co:COMMA id=identifier
+    ( co:COMMA id=classOrInterfaceType
         {
           implementsInsert = selectionAfterToken((JavaToken)id);
 
@@ -793,6 +872,10 @@ field
         |
             interfaceDefinition[new JavaBitSet(), null]     // inner interface
         |
+            // A generic method has the typeParameters before the return type.
+            // This is not allowed for variable definitions, but this production
+            // allows it, a semantic check could be used if you wanted.
+            (typeParameters)?
             type=typeSpec  // method or variable declaration(s)
             (
                     method:IDENT  // the name of the method
@@ -1045,6 +1128,7 @@ statement
 	
 	// enum definition
     // this was legal with Java 1.5 beta1 but not beta2
+    // need to wait for updated JLS enum spec 
 	//|	mods=modifiers enumDefinition[mods, null]
 
     // Attach a label to the front of a statement
