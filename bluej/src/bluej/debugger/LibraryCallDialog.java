@@ -24,10 +24,10 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 815 2001-03-26 05:37:12Z mik $
+ * @version $Id: LibraryCallDialog.java 816 2001-03-26 05:54:10Z mik $
  */
 public class LibraryCallDialog extends JDialog
-	implements ActionListener, FocusListener, ListSelectionListener
+	implements ActionListener, ListSelectionListener
 {
     // ======= static (factory) section =======
 
@@ -55,7 +55,7 @@ public class LibraryCallDialog extends JDialog
 
     private LibraryCallDialog(PkgMgrFrame pmf)
     {
-        super(pmf, "BlueJ: Call Library Class", false);
+        super(pmf, Config.getString("pkgmgr.callLibraryDialog.title"), false);
         pkg = pmf.getPackage();
         currentViews = new Vector();
         viewToCall = null;
@@ -65,8 +65,7 @@ public class LibraryCallDialog extends JDialog
 
 
     /**
-     * Set the visibility of the dialog, clearing parameter edit fields
-     * and setting focus.
+     * Set the visibility of the dialog
      */
     public void setVisible(boolean show)
     {
@@ -187,28 +186,6 @@ public class LibraryCallDialog extends JDialog
         }
     }
 
-    // --- FocusListener interface methods ---
-
-    /**
-     * FocusEventListener method fired when watched component gains focus
-     * Assigns focusedTextField to work around difficulties in JComboBox
-     * firing focus gained events.
-     */
-    public void focusGained(FocusEvent fe)
-    {
-        Debug.message(" Gained Focus: " + fe.paramString());
-    }
-
-    /**
-     * FocusEventListener method fired when watched component loses focus
-     * Does nothing at present except for debug message.
-     *
-     */
-    public void focusLost(FocusEvent fe)
-    {
-        Debug.message(" Focus Lost: " + fe.paramString());
-    }
-
     // ----- ListSelectionListener interface -----
 
     /**
@@ -236,11 +213,12 @@ public class LibraryCallDialog extends JDialog
 
         JPanel classPanel = new JPanel(new BorderLayout(4,6));
         {
-            classPanel.add(new JLabel("Class:"), BorderLayout.WEST);
+            classPanel.add(new JLabel(
+                  Config.getString("pkgmgr.callLibraryDialog.classLabel")), 
+                  BorderLayout.WEST);
 
             Vector historyList = history.getHistory();
             classField = new JComboBox(historyList);
-            classField.addFocusListener(this);
             classField.setEditable(true);
             classField.setMaximumRowCount(10);
             JTextField textField = (JTextField)classField.getEditor().getEditorComponent();
@@ -248,7 +226,7 @@ public class LibraryCallDialog extends JDialog
             classField.addActionListener(this);
             classPanel.add(classField, BorderLayout.CENTER);
 
-            docButton = new JButton("Documentation");
+            docButton = new JButton(Config.getString("pkgmgr.callLibraryDialog.docButton"));
             docButton.addActionListener(this);
             docButton.setEnabled(false);
             classPanel.add(docButton, BorderLayout.EAST);
@@ -262,8 +240,8 @@ public class LibraryCallDialog extends JDialog
             methodList.addListSelectionListener(this);
             methodList.setVisibleRowCount(8);
             JScrollPane methodScrollPane = new JScrollPane(methodList);
-            methodScrollPane.setColumnHeaderView(
-                          new JLabel("Constructors and static methods"));
+            methodScrollPane.setColumnHeaderView(new JLabel(
+                 Config.getString("pkgmgr.callLibraryDialog.listHeading")));
 
             centrePanel.add(methodScrollPane, BorderLayout.CENTER);
 
