@@ -26,7 +26,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2798 2004-07-14 16:22:29Z mik $
+ * @version $Id: TextEvalArea.java 2800 2004-07-15 13:04:54Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener, MouseMotionListener
@@ -36,6 +36,8 @@ public final class TextEvalArea extends JScrollPane
     private static final Cursor objectCursor = new Cursor(Cursor.HAND_CURSOR);
     private static final Cursor textCursor = new Cursor(Cursor.TEXT_CURSOR);
     
+    private static final Color selectionColour = new Color(196, 196, 196);
+
     //    private JTextArea text;
     private TextEvalPane text;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
@@ -463,6 +465,7 @@ public final class TextEvalArea extends JScrollPane
         text.addFocusListener(this);
         text.addMouseMotionListener(this);
         text.setFont(font);
+        text.setSelectionColor(selectionColour);
         text.setAutoscrolls(false);  // important - dragging objects from this component
                                      // does not work correctly otherwise
         text.setText(" ");      // ensure space at the beginning of every line

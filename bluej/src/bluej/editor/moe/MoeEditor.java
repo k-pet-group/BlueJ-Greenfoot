@@ -12,8 +12,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -316,7 +314,7 @@ public final class MoeEditor extends JFrame
 
         setWindowTitle();
         sourcePane.setFont(PrefMgr.getStandardEditorFont());
-//        sourcePane.setSelectionColor(selectionColour);
+        sourcePane.setSelectionColor(selectionColour);
 
         setCompileStatus(compiled);
 
