@@ -1,0 +1,110 @@
+#
+# Moe user function help texts.
+#
+# Part of the BlueJ program development environment.
+#
+
+## edit functions
+
+delete-previous=\n Delete the character before the caret.
+delete-next=\n Delete the character after the caret.
+copy-to-clipboard=\n Copy the selected text to the clipboard. From there, it can be\n pasted somewhere else later (see paste-from-clipboard).
+cut-to-clipboard= Cut the selection from the text and move it to the clipboard.\n From there, it can be pasted somewhere else later (see\n paste-from-clipboard).
+copy-line=\n Copy the current line to the clipboard. Successive \n copy operations add to the clipbord.
+cut-line=\n Cut the current line to the clipboard. Successive \n cut operations add to the clipbord.
+cut-end-of-line=\n Cut the end of the current line to the clipboard.\n Successive cut operations add to the clipbord.
+cut-word=\n Cut the current word to the clipboard. Successive \n cut operations add to the clipbord.
+cut-end-of-word=\n Cut the end of the current word to the clipboard.\n Successive cut operations add to the clipbord.
+paste-from-clipboard=\n Paste the text currently on the clipboard into the text at\n the current caret position.
+indent=\n If 'indent' is selected in the editor preferences, indent as the\n line above. Otherwise insert a soft (spaced) tab. 
+insert-tab=\n Insert a TAB character.
+new-line=\n Insert a line break. If 'indent' is selected in the editor\n preferences, also indent as the line above.
+insert-break=\n Insert a line break without any attempt at indentation.
+insert-method=\n Insert a skeleton for a Java method into the text.
+comment-block=\n Comment out currently selected lines. The comment can easily be\n removed later (see uncomment-block).
+uncomment-block=\n Remove comment symbols from the start of currently selected lines.\n See also comment-block.
+indent-block=\n Add one level of indentation to each line in the current selection\n (or the current line if there is no selection).
+deindent-block=\n Remove one level of indentation from each line in the current selection\n (or the current line if there is no selection).
+
+select-word=\n Select the current word (also bound to\n left-mouse-button: double-click).
+select-line=\n Select the current line (also bound to\n left-mouse-button: triple-click).
+select-paragraph=\n Select the current paragraph.
+select-all=\n Select the whole text.
+selection-backward=\n Move the end of the selection one character backwards.
+selection-forward=\n Move the end of the selection one character forward.
+selection-up=\n Move the end of the selection one line up.
+selection-down=\n Move the end of the selection one line down.
+selection-begin-word=\n Move the end of the selection to the beginning of\n the current word.
+selection-end-word=\n Move the end of the selection to the end of\n the current word.
+selection-previous-word=\n Move the end of the selection to the beginning of\n the previous word.
+selection-next-word=\n Move the end of the selection to the beginning of\n the next word.
+selection-begin-line=\n Move the end of the selection to the beginning of\n the current line.
+selection-end-line=\n Move the end of the selection to the end of\n the current line.
+selection-begin-paragraph=\n Move the end of the selection to the beginning of\n the current paragraph.
+selection-end-paragraph=\n Move the end of the selection to the end of\n the current paragraph.
+selection-page-up=\n Move the end of the selection one page up.
+selection-page-down=\n Move the end of the selection one page down.
+selection-begin=\n Move the end of the selection to the beginning of the text.
+selection-end=\n Move the end of the selection to the end of the text.
+unselect=\n Remove the selection (not the selected text!).
+
+## move and scroll functions
+
+caret-backward=\n Move the caret (cursor) one character backwards.
+caret-forward=\n Move the caret one character forward.
+caret-up=\n Move the caret one line up.
+caret-down=\n Move the caret one line down.
+caret-begin-word=\n Move the caret to the beginning of the current word.
+caret-end-word=\n Move the caret to the end of the current word.
+caret-previous-word=\n Move the caret to the beginning of the previous word.
+caret-next-word=\n Move the caret to the beginning of the next word.
+caret-begin-line=\n Move the caret to the beginning of the current line.
+caret-end-line=\n Move the caret to the end of the current line.
+caret-begin-paragraph=\n Move the caret to the beginning of the current paragraph.
+caret-end-paragraph=\n Move the caret to the end of the current paragraph.
+page-up=\n Move the caret one page up.
+page-down=\n Move the caret one page down.
+caret-begin=\n Move the caret to the beginning of the text.
+caret-end=\n Move the caret to the end of the text.
+
+## class functions
+
+save=\n Save this class. Note that it is rarely necessary to explicitely save\n the class because closing it saves it automatically.
+reload=\n Reload the class from its source file. This operation will discard\n all changes made after the last (implicit or explicit) save operation.
+close=\n Close this class. The source text is automatically saved.
+print=\n Open a print dialog to start a print job.
+page-setup=\n Open a page-setup dialog to specify page layout.
+
+
+## customisation functions
+
+key-bindings=\n View and change the key bindings for Moe's user functions.
+preferences=\n Specify some preference settings for the editor.
+
+
+## help functions
+
+describe-key=\n After invoking this function, type a key. The name of the\n function bound to this key is displayed.
+help-mouse=\n Display mouse button bindings.
+show-manual=\n Open a web browser to show the Moe User Manual.
+about-editor=\n Display a brief note about Moe.
+
+
+## misc functions
+
+undo=\n Undo the last edit operation. (This can then be re-done with 'redo'.)
+redo=\n Redo the last operation that was undone.
+
+find=\n Open a dialog to start a search for a string in the text. The dialog\n allows to start searches backward or forward.
+find-next= If a selection is on, find the next occurrence of the selected text. If no\n selection is on, search again for the same string that was used in the\n last search. Stop at the end of the text. If called again after the end\n of the text was reached, wrap around and continue search from the top.
+find-next-backward=\n Like find-next, but searches up rather than down.
+replace=\n Replace one text string with another.
+
+compile=\n Compile the current class. The class is automatically\n saved before being compiled.
+toggle-interface-view=\n Toggle the display between interface and source view.\n The interface view shpws the class interface in Javadoc format.
+toggle-breakpoint=\n Set or clear a breakpoint in the current line.
+
+## help texts for adding key bindings
+
+press-key=\n  Press the key you want to add...
+cannot-redefine=\n  Printable keys cannot be redefined.

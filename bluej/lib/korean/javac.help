@@ -1,0 +1,743 @@
+* is abstract; cannot be instantiated
+The class is declared "abstract". That means that
+it contains some methods for which it does not
+provide an implementation ("abstract methods").
+You cannot create objects of abstract classes.
+You need to find or write a subclass of the
+abstract class that implements all abstract 
+methods. You can then create objects of that 
+class.
+
+abstract methods cannot have a body
+You have declared a method "abstract" and
+you have written a method body. That is a contradiction.
+Abstract method declarations have only a method header, 
+followed by a semicolon. Either remove the "abstract" 
+keyword, or remove the method body.
+
+* is already defined in *
+There is already a variable (or maybe a
+parameter) in this method that has the 
+same name. Use a different name for this
+one. (Or maybe you meant to use the same
+variable here? Then remove the type name
+here so that it does not look like a new
+declaration.)
+
+anonymous class implements interface; cannot have arguments
+No help available
+
+anonymous class implements interface; cannot have qualifier for new
+No help available
+
+array required, but *
+You are using syntax here that suggests that you are
+trying to access an array element. The variable you
+refer to is not an array, though.
+
+break outside switch or loop
+The "break" statement breaks out of a block,
+such as a "switch" statement or a loop 
+("for", "while" or "do" loop). It cannot be 
+used outside of such a block.
+
+* must be first statement in constructor
+As the very first thing in every class that has a 
+superclass, you should call the superclass's 
+constructor. You do that by adding
+    super(...);
+as the first line of your constructor (where you
+replace the dots with the appropriate parameters).
+Trying to use members of the superclass before
+calling it's constructor is bound to be trouble!
+
+cannot access *
+No help available
+
+* cannot be applied to *
+No help available
+
+cannot assign a value to final variable *
+The variable you are trying to assign to here has
+been declared "final". That means that you are not 
+allowed to change its value later on. If you really
+need to change the value, remove the "final" keyword
+from the variable declaration.
+
+* cannot be dereferenced
+You are using dot notation to access a field or method
+of another object. However, the variable you are using
+is not of an object type - it does not have fields or
+methods.
+
+cannot inherit from final *
+The superclass (the class listed after the 
+"extends" keyword) is declared final. That 
+means that it specifically prohibits 
+subclasses. Sorry - you cannot subclass it
+if it doesn't want you to...
+
+* before supertype constructor has been called
+As the very first thing in every class that has a 
+superclass, you should call the superclass's 
+constructor. You do that by adding
+    super(...);
+as the first line of your constructor (where you
+replace the dots with the appropriate parameters).
+Trying to use members of the superclass before
+calling it's constructor is bound to be trouble!
+
+cannot return a value from method whose result type is void
+A void result type in a method signature means that this
+method will not return any result.  The method body 
+should not have a return statement within it.
+
+cannot select a static class from a parameterized type
+No help available
+
+* cannot be inherited with different arguments:*
+No help available
+
+'catch' without 'try'
+"catch" is a Java keyword that can only appear after a
+"try" block. The correct pattern is
+   try {
+      statements;
+   }
+   catch(Exception e) {
+     statements;
+   }
+
+* clashes with package of same name
+Make sure that the class and the package
+have different names. Usually, classes 
+should start with a capital letter, while
+package names start with a lowercase letter.
+
+code too large for try statement
+You have too much code inside this try statement.
+Put the code into a separate method and insert a 
+method call here.
+
+constant expression required
+You have used a variable or an expression here, but
+that's illegal. You can only use constants here.
+Constants are number literals (such as 42) or 
+identifiers declared as "final".
+
+continue outside of loop
+The "continue" statement is used to 
+immediately start the next loop
+iteration. It has no meaning outside
+of a loop. It can only be used inside
+a "for", "while" or "do" loop.
+
+cyclic inheritance involving *
+You are trying to extend a class here, but
+that class has already declared that it
+extends yours! Well, that cannot work!
+You have to decide which one is the 
+superclass and which is the subclass.
+
+* does not exist
+The name you used here (which could be either
+an attempt to name a variable, a class or a 
+package) does not exist. There was neither a 
+variable nor a class nor a package with this 
+name.
+
+duplicate class:*
+There appears to already be a class of this name.
+
+duplicate case label
+You have used the same label twice in the same 
+"switch" statement.
+
+duplicate default label
+You have written "default" twice inthe same switch 
+statement. You cannot do that - once is enough.
+
+'else' without 'if'
+An 'else' keyword can only appear as part of an 'if'
+statement, in the form
+   if (condition)
+     statement;
+   else
+     statement;
+Maybe you just forgot the braces around the statements?
+If you have more than one statement after the if, you
+have to add braces, like this:
+   if (condition) 
+   {
+      statement1;
+      statement2;
+   }
+   else
+   {
+      statement3;
+   }
+
+empty character literal
+You have written a literal character that is empty.
+You cannot write ''.  A character constant is a single 
+character enclosed in single quotes, for example 'a'. 
+Most of the time, there can be only one single character 
+between the quotes. The only exception is if the first 
+character is the backslash (called the "escape character") 
+for specifying special characters, eg. '\n' or '\t'.  
+
+* has already been caught
+This catch statement is useless. It can
+never be executed, because all exceptions
+that it is declared to catch are already 
+caught by another catch statement above it.
+
+* is never thrown in body of corresponding try statement
+You have declared that you want to catch
+an exception here. But I can tell you
+that this exception will never be thrown
+here! There is no statement in the "try"
+block that throws this exception.
+
+'finally' without 'try'
+"finally" is a Java keyword that can only appear after a
+"try" block. The correct pattern is
+   try {
+      statements;
+   }
+   catch(Exception e) {
+     statements;
+   }
+   finally {
+      statements;
+   }
+
+floating point number too large
+The system cannot cope with floating point numbers
+this big.
+
+floating point number too small
+The system cannot cope with floating point numbers
+this small
+
+inner classes cannot have static declarations
+You cannot declare static types in
+nested classes. If you need a static
+type here, declare it in the outer class.
+
+illegal character:*
+There is an illegal character here in the source
+file. This character may be invisible. If you cannot
+find it to delete it, delete the whole line and type
+it again.
+
+illegal combination of modifiers: *
+You have tried to combine two Java modifiers which
+are considered an illegal pairing.  It is likely 
+that the meaning of each is contradictory to each other.
+An example of this would be defining a method as abstract
+and native, final, private or synchronized.
+
+illegal escape character
+An escape character is written with a backslash
+and a second character, for example '\n'. This is
+used to specify special characters. There is only 
+a fixed set of characters that may appear after 
+the backslash. They are \n, \t, \b, \r, \f, \\,
+\', \" and numbers. If you want to write the 
+backslash itself, write "\\" - this will be replaced
+by a single backslash in your string.
+
+illegal forward reference
+No help available
+
+illegal initializer for *
+No help available
+
+illegal line end in character literal
+You have a line break where a character literal should
+be specified. You cannot do that. If you want to specify
+the character for a line break ("newline") write it as '\n'.
+
+* is not an inner class
+No help available
+
+illegal start of expression
+No help available
+
+illegal start of type
+At a position in the source where the name of
+a type was expected, there was something else
+(most likely a Java keyword). Check this line
+for incorrect type definitions.
+
+illegal unicode escape
+No help available
+
+improperly formed type, some parameters are missing
+No help available
+
+incomparable types: *
+No help available
+
+integer number too large: *
+You have written a number that is too large to fit 
+into the data type that is expected here. You need
+to use a larger data type
+(for example, "long" instead of "int").
+
+internal error; cannot instantiate *
+No help available
+
+* but with different return type
+You may be trying to write two methods that have the same
+signature except for return type.  This is not allowed.
+
+interface expected here
+An interface can only extend another interface. The name
+you have specified after the "extends" keyword is not an
+interface.
+
+interface methods cannot have body
+Interface methods must be declarations only.
+That means that they should contain a method 
+header followed by a semicolon.  There should 
+be no method body.
+
+hexadecimal numbers must contain at least one hexadecimal digit
+You have specified a hexadecimal number. (This is done 
+by starting a number with "0X".) In hexadecimal numbers,
+you must have at least one digit after the "X".
+
+invalid method declaration; return type required
+A method declaration must have a declared return type.
+For example, if your method returns a String, write
+    public String myMethod();
+If you do not want to return a value from this method,
+use the special word "void" to indicate that there is
+no return type. For example
+    public void myMethod();
+
+* already in use
+There is already a variable (or maybe a
+parameter) in this method that has the 
+same name. Use a different name for this
+one. (Or maybe you meant to use the same
+variable here? Then remove the type name
+here so that it does not look like a new
+declaration.)
+
+* is accessed from within inner class; needs to be declared final
+Local variables cannot usually be accessed by inner 
+classes. But that is exactly what you are trying to
+do here. You have two options: You can remove this
+access to the local variable, or you can make the
+variable "final" - then you can access it.
+
+malformed floating point literal
+You have made some mistake in writing a floating
+point number. (A floating point number is one
+with a decimal point in it.) Examples of correctly 
+written floating point numbers are
+18.0      18.     1.8e1     .18E2
+
+missing method body, or declare abstract
+Methods must either have a body or be abstract. A
+method body is the block in curly braces { } that 
+follows the method header and contains statements.
+If a method does not have a body then it must have the
+keyword "abstract" in its header. For example:
+    public abstract int getAnswer();
+
+missing return statement
+Here, you've got a method that is declared to return a 
+value. There is, however, no "return" statement in the body
+of the method. That doesn't fit together. You must either:
+   - declare the return type of the method as "void"
+     if you don't want to return a value, or
+   - write a "return" statement with the correct 
+     return type at the end of the method, for 
+     example
+         return 42;
+The type of the return value must match the declared type
+in the method header.
+
+missing return value
+Here, you have written a "return" statement that does
+not return a value. The method header, however, declares
+that this method returns a value. You must either declare
+that this method does not return a value (by using "void"
+as the return type in the method header), or you must 
+return a value of the correct type, for example 
+    return 42;
+or
+    return "Marvin";
+
+name clash: *
+No help available
+
+* is reserved for internal use
+The term shown is reserved for internal use, if it is
+name of a variable or class you will need to change it.
+
+native methods cannot have a body
+You have declared a method "native" and you have written 
+a method body. Native method declarations have only
+a method header, followed by a semicolon. Either remove
+the "native" keyword, or remove the method body.
+
+no enclosing instance of type {0} is in scope
+No help available
+
+no interface expected here
+You are referring to an interface here (possibly in
+an "extends" declaration of a class). A class can only
+extend other classes (not interfaces). If you want to
+implement this interface, use the "implements" keyword
+instead.
+
+* has no match in entry in *
+No help available
+
+* is not defined in a public class or interface; cannot be accessed from outside package
+No help available
+
+* cannot be accessed from outside package
+No help available
+
+not a loop label: *
+No help available
+
+not a statement
+You have written a line of code here that is not
+a complete statement. Please check again what you
+intended to do and how you should do it.
+
+not an enclosing class:*
+No help available
+
+* cannot be applied to *
+The operator that you use here cannot be used for the
+type of value that you are using it for. You are either
+using the wrong type here, or the wrong operator.
+
+* clashes with class of same name
+Make sure that the class and the package
+have different names. Usually, classes 
+should start with a capital letter, while
+package names start with a lowercase letter.
+
+possible fall-through into case
+No help available
+
+error reading *
+No help available
+
+recursive constructor invocation
+You have written code that causes this
+constructor to call itself. That is not
+allowed (and would most likely lead to
+an infinite loop).
+
+* is ambiguous, both *
+The identifier named in this message cannot be properly
+resolved, because there is more than one class or interface
+with this name defined in the packages that you have imported.
+You can either refer to the class here with its full qualified
+name (e.g. java.util.List) or import the class with its fully
+qualified name (e.g. import java.util.List).
+
+repeated interface
+You have listed the same interface
+twice in the same "implements"
+declaration. Once is enough. My
+memory isn't that bad!
+
+repeated modifier
+In this declaration, you have written the same
+modifier twice. A modifier is a keyword such
+as final, static, public, private, volatile, ...
+
+{0} has {1} access in {2}
+No help available
+
+return outside method
+No help available
+
+signature does not match *
+No help available
+
+* should be declared abstract; it does not define *
+The current class inherits from an abstract class
+or an interface. Abstract classes and interfaces 
+define methods without giving the implementation.
+This class does not define implementations for 
+all the methods that still need implementations,
+so this class itself is still abstract (meaning
+it still has methods without implementations).
+You must either declare this class abstract by 
+starting it with
+   public abstract class ...
+instead of just 
+   public class ...
+or you must provide an implementation for the 
+method named in the error message.
+
+error writing source; cannot overwrite input file *
+No help available
+
+'try' without 'catch' or 'finally'
+If you use a "try" block, then it must be followed
+by either a "catch" block or a "finally" block (or
+both).  The correct pattern is
+   try {
+      statements;
+   }
+   catch(Exception e) {
+     statements;
+   }
+   finally {
+      statements;
+   }
+
+* does not take parameters
+No help available
+
+type variables cannot be dereferenced
+No help available
+
+type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
+No help available
+
+type variable {0} occurs more than once in type of {1}; cannot be left uninstantiated
+No help available
+
+unclosed character literal
+It is likely that you have declared a character literal and
+not added the closing single quote: '.
+
+unclosed comment
+It is likely that you have written a comment and not
+closed it with the comment close characters: */
+
+unclosed string literal
+It is likely that you have declared a String literal and
+not added the closing double quotes: ".
+
+undefined label: *
+The variable you are trying to use here cannot be
+found. Either it was never declared or it was
+declared somewhere where you cannot see it.
+The first case happens easily if you have a
+spelling error in a variable. Check that the variable
+is spelled correctly, including all capital characters
+("aNumber" is not the same as "anumber"!).
+The second case happens if a variable is declared 
+inside a block. (A block is a pair of curly braces, 
+like this { }.) If you have a variable declaration
+inside a loop, for instance, then the variable is
+only visible inside that loop. As a rule of thumb:
+a variable becomes invisible after the curly brace (})
+that closes the block in which it is declared.
+
+unreachable statement
+This statement will never be executed. If
+you examine the code carefully you will
+notice that the control flow is such that 
+it can never reach this statement. Delete
+it if you really don't want it executed, 
+or fix your code.
+
+initializer must be able to complete normally
+You cannot throw exceptions or otherwise
+terminate static initialiser blocks. You
+have to let it complete executing.
+
+unreported exception {0}; must be caught or declared to be thrown
+Your code makes a call to a method that may throw 
+an exception. You have two choices: You can either 
+catch that exception or you can declare that your 
+method passes it on. If you want to catch the
+exception, you have to use a 
+   try 
+   {
+      ...
+   }
+   catch(...)
+   {
+      ...
+   }
+block.
+If you want to pass it on, you must write the 
+declaration
+   throws <ExceptionName>
+into the signature of your method.
+
+'void' type not allowed here
+The void type cannot be used in this context.  it is
+a special type that is used to indicate no return type 
+for methods.  It cannot be used as a variable type.
+
+* not allowed here
+You have used an access modifier (such as "private", 
+"protected", etc.). This modifier is not allowed
+at this location.
+
+wrong number of type arguments; required *
+No help available
+
+* might already have been assigned to
+A final variable can only be assigned once. (Your variable
+in question here is final.) You have two assignments to this
+variable in your code, and the compiler thinks it could 
+happen that both assignments are executed.
+
+* might not have been initialized
+You are using a local variable that is not guaranteed
+to be initialised before it is used here. If in doubt,
+initialise it at its declaration.
+
+* might be assigned in loop
+No help available
+
+error while writing *
+No help available
+
+* is public, should be declared in a file named *
+Public classes are required to be located in a file
+named the same as the public class name with a 
+".java" extension.  For example public class Foo
+needs to be located in a file named "Foo.java".
+
+cannot read: *
+No help available
+
+Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
+No help available
+
+Fatal Error: Unable to locate method *
+No help available
+
+* uses or overrides a deprecated API.
+You are using a method that is no longer recommended.
+It is quite likely that there is another method or class 
+that provides this functionality.  Consult the API 
+documentation for more details
+
+Some input files use or override a deprecated API.
+No help available
+
+Recompile with -deprecation for details.
+No help available
+
+* uses unchecked operations.
+No help available
+
+Some input files use unchecked operations.
+No help available
+
+* has been deprecated
+You are using a method that is no longer recommended.
+It is quite likely that there is another method or class 
+that provides this functionality.  Consult the API 
+documentation for more details
+
+unchecked assignment: *
+No help available
+
+unchecked call to {0} as a member of the raw type {1}
+No help available
+
+unchecked cast to type *
+No help available
+
+unchecked generic array creation
+No help available
+
+unchecked method invocation: *
+No help available
+
+';' expected
+There is a semicolon missing at the end of 
+a line. This could be the line marked in the
+editor, or the line above.
+
+'case', 'default' or '}' expected
+No help available
+
+'class' or 'interface' expected
+The word "class" or "interface" is expected to
+appear somewhere near the top of a source file.
+This is missing here (or there is stuff in front
+of it that doesn't belong there).
+
+'.class' expected
+No help available
+
+'(' or '[' expected
+It looks like there is an uneven number of brackets
+in your code that is confusing the compiler.  Carefully
+check through your code that three are matching opening 
+and closing brackets.
+
+* expected
+The symbol named in the error message was 
+expected to appear at this point in the code.
+It was not there; instead, there was some
+other symbol. Try to think about why this 
+symbol may be expected here.
+
+orphaned *
+No help available
+
+cannot access *
+No help available
+
+bad class file: *
+No help available
+
+type parameter {0} is not within its bound *
+No help available
+
+incompatible types*
+There was an expression of a certain type required
+here. You provided an expression of a different
+type that is not compatible. (E.g. you wrote a
+String where an int was expected.)
+
+inconvertible types*
+The type you have used here cannot be automatically
+converted to the type required.
+
+possible loss of precision
+No help available
+
+unexpected type
+No help available
+
+abstract {0} {1} cannot be accessed directly
+No help available
+
+*An explicit 'this' qualifier must be used to select the desired instance.
+No help available
+
+non-static {0} {1} cannot be referenced from a static context
+No help available
+
+cannot resolve symbol*
+No help available
+
+{0}; {1} and {2} are static
+No help available
+
+{0}; overridden method is {1}
+No help available
+
+attempting to assign weaker access privileges; was *
+No help available
+
+overridden method does not throw *
+No help available
+
+* attempting to use incompatible return type
+No help available
