@@ -40,7 +40,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 860 2001-04-23 02:07:10Z mik $
+ * @version $Id: Config.java 866 2001-04-24 05:27:03Z mik $
  */
 
 public class Config
@@ -52,7 +52,8 @@ public class Config
     //  dictionary
     public static DefaultProperties moe_props;		// moe (editor) properties
 
-    private static String dirname = (File.separatorChar == '/') ? ".bluej" : "bluej";
+    private static String bluej_conf_dirname = (File.separatorChar == '/') ? 
+                                               ".bluej" : "bluej";
     private static File bluej_lib_dir;
     private static File user_conf_dir;
 
@@ -118,13 +119,22 @@ public class Config
         // construct paths for the configuration directories
 
         Config.bluej_lib_dir = bluej_lib_dir;
-        user_conf_dir = new File(FileSystemView.getFileSystemView().getHomeDirectory(),
-                                    dirname);
+        
+        bluej_props = loadDefs("bluej.defs", true);	// system definitions
 
+        // get user home directory
+        File userHome;
+        String homeDir = bluej_props.getProperty("bluej.userHome", "");
+        if(homeDir.length() == 0)
+            userHome = FileSystemView.getFileSystemView().getHomeDirectory();
+        else
+            userHome = new File(homeDir);
+
+        // get user specific bluej property directory (in user home)
+        user_conf_dir = new File(userHome, bluej_conf_dirname);
         checkUserDir(user_conf_dir);
 
-        bluej_props = loadDefs("bluej.defs", true);	// system definitions
-        loadProperties("bluej", bluej_props);	// user specific definitions
+        loadProperties("bluej", bluej_props);  // add user specific definitions
 
         // find our language (but default to english if none found)
         language = bluej_props.getProperty("bluej.language", "english");

@@ -49,6 +49,15 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 
 
 #####################################################################
+## User's home directory. This is also defined by Java, and if that's
+## fine for you, don't specify this property. This property, if 
+## specified, will override Java's user.home property.
+#####################################################################
+
+#bluej.userHome=/home/mik/tmp
+
+
+#####################################################################
 ## Project directory. This is the directory that the file chooser
 ## will initially display when opening a project. If commented out,
 ## the directory where BlueJ was started will be used.
