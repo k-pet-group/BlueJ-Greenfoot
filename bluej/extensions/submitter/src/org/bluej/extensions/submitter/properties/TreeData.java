@@ -1,19 +1,12 @@
 package org.bluej.extensions.submitter.properties;
 
 
-import org.bluej.extensions.submitter.*;
-
-import bluej.extensions.*;
-import org.bluej.utility.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.StringTokenizer;
 import java.io.*;
-import java.net.URL;
-
+import java.net.*;
+import java.util.*;
 import javax.swing.tree.*;
+import org.bluej.extensions.submitter.*;
+import org.bluej.utility.*;
 
 /**
  * This should manage the data loading for the tree of possible submissions
