@@ -1102,15 +1102,15 @@ public final class MoeActions
             Element prevline = getLine(textPane, lineIndex - 1);
             int prevLineStart = prevline.getStartOffset();
             int prevLineEnd = prevline.getEndOffset();
-            String lineText = doc.getText(prevLineStart, prevLineEnd-prevLineStart);
-            if(isOpenBrace(lineText))
+            String prevLineText = doc.getText(prevLineStart, prevLineEnd-prevLineStart);
+            if(isOpenBrace(prevLineText))
                 isOpenBrace = true;
             else {
-                isCommentEnd = lineText.trim().endsWith("*/");
-                isCommentEndOnly = lineText.trim().equals("*/");
+                isCommentEnd = prevLineText.trim().endsWith("*/");
+                isCommentEndOnly = prevLineText.trim().equals("*/");
             }
             
-            int indentPos = findFirstNonIndentChar(lineText, isCommentEnd);
+            int indentPos = findFirstNonIndentChar(prevLineText, isCommentEnd);
 
             // if the cursor is already past the indentation point, insert tab
             // (unless we just did a line break, then we just stop)
@@ -1122,12 +1122,17 @@ public final class MoeActions
                 return;
             }
 
-            String indent = lineText.substring(0, indentPos);
+            String indent = prevLineText.substring(0, indentPos);
+            
+            if(isNewLine && isCommentStart(indent)) {
+            	completeNewCommentBlock(textPane, lineStart, indent);
+            	return;
+            }
 
             // find and replace indentation of current line
 
             int lineEnd = line.getEndOffset();
-            lineText = doc.getText(lineStart, lineEnd-lineStart);
+            String lineText = doc.getText(lineStart, lineEnd-lineStart);
             indentPos = findFirstNonIndentChar(lineText, true);
             doc.remove(lineStart, indentPos);
             doc.insertString(lineStart, 
@@ -1137,6 +1142,31 @@ public final class MoeActions
         catch (BadLocationException exc) {}
     }
 
+    /**
+     * Check whether the indentation s opens a new multi-line comment
+     */
+    private boolean isCommentStart(String s)
+	{
+    	s = s.trim();
+    	return s.endsWith("/**") || s.endsWith("/*");
+    }
+    
+    /**
+     * Insert text to complete a new, started block comment and place
+     * the cursor appropriately.
+     * 
+     * The indentString passed in always ends with "/*".
+     */
+    private void completeNewCommentBlock(JTextComponent textPane, int textPos, 
+    									 String indentString)
+	{
+    	String nextIndent = indentString.substring(0, indentString.length()-2); 
+    	textPane.replaceSelection(nextIndent + " * ");
+    	int pos = textPane.getCaretPosition();
+ 		textPane.replaceSelection("\n");
+ 		textPane.replaceSelection(nextIndent + " */");
+    	textPane.setCaretPosition(pos);
+    }
 
     /**
      * Check whether the given line ends with an opening brace.
