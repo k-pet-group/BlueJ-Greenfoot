@@ -113,7 +113,8 @@ public interface JavaLexerTokenTypes {
 	int VOCAB = 109;
 	int LITERAL_package = 110;
 	int LITERAL_volatile = 111;
-	int HEX_DIGIT = 112;
-	int EXPONENT = 113;
-	int FLOAT_SUFFIX = 114;
+	int LITERAL_assert = 112;
+	int HEX_DIGIT = 113;
+	int EXPONENT = 114;
+	int FLOAT_SUFFIX = 115;
 }

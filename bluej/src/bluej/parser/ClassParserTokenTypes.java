@@ -113,4 +113,5 @@ public interface ClassParserTokenTypes {
 	int VOCAB = 109;
 	int LITERAL_package = 110;
 	int LITERAL_volatile = 111;
+	int LITERAL_assert = 112;
 }

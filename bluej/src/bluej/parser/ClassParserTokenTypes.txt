@@ -108,3 +108,4 @@ DIGIT=108
 VOCAB=109
 LITERAL_package="package"=110
 LITERAL_volatile="volatile"=111
+LITERAL_assert="assert"=112

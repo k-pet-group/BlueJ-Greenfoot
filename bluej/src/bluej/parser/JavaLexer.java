@@ -113,6 +113,7 @@ public JavaLexer(LexerSharedInputState state) {
 	literals.put(new ANTLRHashString("new", this), new Integer(99));
 	literals.put(new ANTLRHashString("return", this), new Integer(50));
 	literals.put(new ANTLRHashString("byte", this), new Integer(10));
+	literals.put(new ANTLRHashString("assert", this), new Integer(112));
 	literals.put(new ANTLRHashString("if", this), new Integer(43));
 	literals.put(new ANTLRHashString("int", this), new Integer(13));
 	literals.put(new ANTLRHashString("double", this), new Integer(16));

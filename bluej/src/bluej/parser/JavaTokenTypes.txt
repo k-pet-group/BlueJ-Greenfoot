@@ -107,4 +107,4 @@ DIGIT=108
 VOCAB=109
 "package"=110
 "volatile"=111
-
+"assert"=112

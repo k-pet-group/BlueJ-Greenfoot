@@ -2043,6 +2043,15 @@ public ClassParser(ParserSharedInputState state) {
 			match(SEMI);
 			break;
 		}
+		case LITERAL_assert:
+		{
+			match(LITERAL_assert);
+			match(LPAREN);
+			expression();
+			match(RPAREN);
+			match(SEMI);
+			break;
+		}
 		case SEMI:
 		{
 			match(SEMI);
@@ -2231,6 +2240,7 @@ public ClassParser(ParserSharedInputState state) {
 		case STRING_LITERAL:
 		case NUM_FLOAT:
 		case LITERAL_volatile:
+		case LITERAL_assert:
 		{
 			break;
 		}
@@ -3621,7 +3631,8 @@ public ClassParser(ParserSharedInputState state) {
 		"DIGIT",
 		"VOCAB",
 		"\"package\"",
-		"\"volatile\""
+		"\"volatile\"",
+		"\"assert\""
 	};
 	
 	private static final long _tokenSet_0_data_[] = { 7515144208L, 140737488355328L, 0L, 0L };
@@ -3640,13 +3651,13 @@ public ClassParser(ParserSharedInputState state) {
 	public static final BitSet _tokenSet_6 = new BitSet(_tokenSet_6_data_);
 	private static final long _tokenSet_7_data_[] = { 343597383760L, 0L };
 	public static final BitSet _tokenSet_7 = new BitSet(_tokenSet_7_data_);
-	private static final long _tokenSet_8_data_[] = { 94549763314417424L, 141836435849216L, 0L, 0L };
+	private static final long _tokenSet_8_data_[] = { 94549763314417424L, 423311412559872L, 0L, 0L };
 	public static final BitSet _tokenSet_8 = new BitSet(_tokenSet_8_data_);
 	private static final long _tokenSet_9_data_[] = { 558346010368L, 1098947493888L, 0L, 0L };
 	public static final BitSet _tokenSet_9 = new BitSet(_tokenSet_9_data_);
-	private static final long _tokenSet_10_data_[] = { 108078171562442512L, 141836435849216L, 0L, 0L };
+	private static final long _tokenSet_10_data_[] = { 108078171562442512L, 423311412559872L, 0L, 0L };
 	public static final BitSet _tokenSet_10 = new BitSet(_tokenSet_10_data_);
-	private static final long _tokenSet_11_data_[] = { -36032337145757872L, 141836999983103L, 0L, 0L };
+	private static final long _tokenSet_11_data_[] = { -36032337145757872L, 423311976693759L, 0L, 0L };
 	public static final BitSet _tokenSet_11 = new BitSet(_tokenSet_11_data_);
 	private static final long _tokenSet_12_data_[] = { 4947802586880L, 1098947493888L, 0L, 0L };
 	public static final BitSet _tokenSet_12 = new BitSet(_tokenSet_12_data_);
