@@ -1,7 +1,12 @@
-<project name="bluej-package" default="dist" basedir=".">
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="bluej-package" default="dist">
 
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
+        <include name="lib/bluej.jar" />
+        <include name="lib/bluejcore.jar" />
+        <include name="lib/bluejeditor.jar" />
+        <include name="lib/bluejext.jar" />
         <include name="lib/antlr.jar" />
         <include name="lib/junit.jar" />
         <include name="lib/MRJ141Stubs.jar" />
@@ -45,21 +50,6 @@
         <include name="examples/people/*.class" />
     </patternset>
 
-    <patternset id="bluej.editorclasses" >
-        <include name="bluej/editor/" />
-        <include name="org/" />
-    </patternset>
-
-    <patternset id="bluej.classes" >
-        <exclude name="bluej/editor/" />
-        <exclude name="org/" />
-        <exclude name="bluej/extensions/" />
-    </patternset>
-
-    <patternset id="bluej.extensions" >
-        <include name="bluej/extensions/" />
-    </patternset>
-
     <target name="dist">
         <delete dir="install_tmp" />
         <mkdir dir="install_tmp"/>
@@ -81,26 +71,6 @@
             </fileset>
         </touch>
 
-        <!-- jar up all the editor classes -->
-        <jar jarfile="install_tmp/lib/editor.jar" compress="no">
-            <fileset dir="${bluej_home}/classes" >
-                <patternset refid="bluej.editorclasses"/>
-            </fileset>
-        </jar>
-
-        <!-- jar up all the other classes -->
-        <jar jarfile="install_tmp/lib/bluej.jar" compress="no">
-            <fileset dir="${bluej_home}/classes" >
-                <patternset refid="bluej.classes"/>
-            </fileset>
-        </jar>
-
-        <jar jarfile="install_tmp/lib/bluejext.jar" compress="no">
-            <fileset dir="${bluej_home}/classes">
-                <patternset refid="bluej.extensions"/>
-            </fileset>
-        </jar>
-
         <chmod dir="install_tmp" perm="a+r"/>
 
         <!-- jar the entire distribution into one jar file            -->
@@ -116,8 +86,7 @@
                includes="Installer.java"
         />
 
-        <!-- NOTE: use  jvm="${java_home}/bin/java"  if java is not in the path -->
-        <java classname="Installer" fork="yes" jvm="java">
+        <java classname="Installer" fork="yes" jvm="${build_java_home}/bin/java">
             <classpath>
                  <pathelement location="." />
             </classpath>
