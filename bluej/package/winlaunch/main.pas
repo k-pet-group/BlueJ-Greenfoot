@@ -61,6 +61,7 @@ type
   private
         ff : TFindFile;
         goodvmsfound : TStringList;
+        goodparams : TStringList;
 
         procedure FindFileFound(Sender: TObject; Folder: String;
                                 var FileInfo: TSearchRec);
@@ -235,7 +236,8 @@ begin
                                            antlrjarfilename + ';' +
 //                                           junitjarfilename + ';' +
                                            mrjjarfilename + ';' +
-                                           tooljarfilename + ' bluej.Main';
+                                           tooljarfilename + ' bluej.Main ' +
+                                           goodparams.DelimitedText;
         result := exfile.Execute;
 end;
 
@@ -296,7 +298,7 @@ var
 begin
 	advancedwinheight := ClientHeight;
 	simplewinheight := LaunchButton.Height + LaunchButton.Top + 8;
-        
+
 	BitBtn1ClickToSimple(Sender);
 
         ff := TFindFile.Create(MainForm);
@@ -306,10 +308,16 @@ begin
         goodvmsfound.CaseSensitive := false;
         goodvmsfound.Sorted := true;
 
+        goodparams := TStringList.Create;
+        goodparams.Delimiter := ' ';
+        goodparams.QuoteChar := '"';
+
         for i := 1 to ParamCount do
         begin
                 if LowerCase(ParamStr(i)) = '/select' then
                         forcedialog := true
+                else
+                	goodparams.Add(ParamStr(i));
         end;
 
         reg := TRegistry.Create;

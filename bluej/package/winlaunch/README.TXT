@@ -1,5 +1,5 @@
 
-BlueJ verson 1.2.0        --        README.TXT
+BlueJ verson 1.2.1        --        README.TXT
 
 Information about BlueJ
 -----------------------
@@ -23,16 +23,16 @@ A history of changes in this and earlier BlueJ versions is at
 
 The BlueJ Team
 --------------
-BlueJ is being developed by John Rosenberg, Bruce Quig, Andrew Patterson 
+BlueJ is being developed by John Rosenberg, Bruce Quig, Andrew Patterson
 and Michael Kolling.
 
 The BlueJ License
 -----------------
-The BlueJ system and this tutorial are freely available to anyone for any 
+The BlueJ system and this tutorial are freely available to anyone for any
 kind of use. The system and its documentation may be redistributed freely.
 
-No part of the BlueJ system or its documentation may be sold for profit or 
-included in a package that is sold for profit without written authorisation 
+No part of the BlueJ system or its documentation may be sold for profit or
+included in a package that is sold for profit without written authorisation
 of the authors.
 
 The copyright (c) for BlueJ is held by M. Kolling and J. Rosenberg.

@@ -70,16 +70,16 @@ LeftCol=1
 
 [View1]
 Module=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\main.pas
-CursorX=60
-CursorY=14
-TopLine=229
+CursorX=28
+CursorY=13
+TopLine=1
 LeftCol=1
 
 [View2]
 Module=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\exfile.pas
-CursorX=19
-CursorY=358
-TopLine=61
+CursorX=32
+CursorY=444
+TopLine=439
 LeftCol=1
 
 [View3]
