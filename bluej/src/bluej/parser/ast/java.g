@@ -2,13 +2,13 @@ header {
     package bluej.parser.ast.gen;
 }
 
-/** Java 1.3 Recognizer
+/** Java 1.5 Recognizer
  *
  * Run 'java Main [-showtree] directory-full-of-java-files'
  *
  * [The -showtree option pops up a Swing frame that shows
  *  the AST constructed from the parser.]
- * 
+ *
  * Run 'java Main <directory full of java files>'
  *
  * Contributing authors:
@@ -42,7 +42,7 @@ header {
  * Version 1.13 (Apr 23, 1999)
  *		Didn't have (stat)? for else clause in tree parser.
  *		Didn't gen ASTs for interface extends.  Updated tree parser too.
- *		Updated to 2.6.0. 
+ *		Updated to 2.6.0.
  * Version 1.14 (Jun 20, 1999)
  *		Allowed final/abstract on local classes.
  *		Removed local interfaces from methods
@@ -68,7 +68,7 @@ header {
  *		observing/combining work of Allan Jacobs and Steve
  *		Messick.  Handles 1.3 src.  Summary:
  *		o  primary didn't include boolean.class kind of thing
- *      o  constructor calls parsed explicitly now:
+ *      	o  constructor calls parsed explicitly now:
  * 		   see explicitConstructorInvocation
  *		o  add strictfp modifier
  *      o  missing objBlock after new expression in tree grammar
@@ -113,9 +113,43 @@ header {
  *	Ray Waldin: add typeDefinition to interfaceBlock in java.tree.g
  *  He found a problem/fix with floating point that start with 0
  *  Ray also fixed problem that (int.class) was not recognized.
+ *  Thorsten van Ellen noticed that \n are allowed incorrectly in strings.
+ *  TJP fixed CHAR_LITERAL analogously.
+ *
+ * Version 1.21.2 (March, 2003)
+ *      Changes by Matt Quail to support generics (as per JDK1.5/JSR14)
+ *      Notes:
+ *      o We only allow the "extends" keyword and not the "implements"
+ *        keyword, since thats what JSR14 seems to imply.
+ *      o Thanks to Monty Zukowski for his help on the antlr-interest
+ *        mail list.
+ *      o Thanks to Alan Eliasen for testing the grammar over his
+ *        Fink source base
+ *
+ * Version 1.22 (July, 2004)
+ *      Changes by Michael Studman to support Java 1.5 language extensions
+ *      Notes:
+ *      o Added support for annotations types
+ *      o Finished off Matt Quail's generics enhancements to support bound type arguments
+ *      o Added support for new for statement syntax
+ *      o Added support for static import syntax
+ *      o Added support for enum types
+ *      o Tested against JDK 1.5 source base and source base of jdigraph project
+ *      o Thanks to Matt Quail for doing the hard part by doing most of the generics work
+ *
+ * Version 1.22.1 (July 28, 2004)
+ *      Bug/omission fixes for Java 1.5 language support
+ *      o Fixed tree structure bug with classOrInterface - thanks to Pieter Vangorpto for
+ *        spotting this
+ *      o Fixed bug where incorrect handling of SR and BSR tokens would cause type
+ *        parameters to be recognised as type arguments.
+ *      o Enabled type parameters on constructors, annotations on enum constants
+ *        and package definitions
+ *      o Fixed problems when parsing if ((char.class.equals(c))) {} - solution by Matt Quail at Cenqua
  *
  * This grammar is in the PUBLIC DOMAIN
  */
+
 class JavaRecognizer extends Parser;
 options {
 	k = 2;                           // two token lookahead
@@ -127,14 +161,17 @@ options {
 }
 
 tokens {
-	BLOCK; MODIFIERS; OBJBLOCK; SLIST; CTOR_DEF; METHOD_DEF; VARIABLE_DEF; 
-	INSTANCE_INIT; STATIC_INIT; TYPE; CLASS_DEF; INTERFACE_DEF; 
+	BLOCK; MODIFIERS; OBJBLOCK; SLIST; CTOR_DEF; METHOD_DEF; VARIABLE_DEF;
+	INSTANCE_INIT; STATIC_INIT; TYPE; CLASS_DEF; INTERFACE_DEF;
 	PACKAGE_DEF; ARRAY_DECLARATOR; EXTENDS_CLAUSE; IMPLEMENTS_CLAUSE;
-	PARAMETERS; PARAMETER_DEF; LABELED_STAT; TYPECAST; INDEX_OP; 
-	POST_INC; POST_DEC; METHOD_CALL; EXPR; ARRAY_INIT; 
-	IMPORT; UNARY_MINUS; UNARY_PLUS; CASE_GROUP; ELIST; FOR_INIT; FOR_CONDITION; 
+	PARAMETERS; PARAMETER_DEF; LABELED_STAT; TYPECAST; INDEX_OP;
+	POST_INC; POST_DEC; METHOD_CALL; EXPR; ARRAY_INIT;
+	IMPORT; UNARY_MINUS; UNARY_PLUS; CASE_GROUP; ELIST; FOR_INIT; FOR_CONDITION;
 	FOR_ITERATOR; EMPTY_STAT; FINAL="final"; ABSTRACT="abstract";
-	STRICTFP="strictfp"; SUPER_CTOR_CALL; CTOR_CALL; COMMENT_DEF;
+	STRICTFP="strictfp"; SUPER_CTOR_CALL; CTOR_CALL; VARIABLE_PARAMETER_DEF;
+	STATIC_IMPORT; ENUM_DEF; ENUM_CONSTANT_DEF; FOR; FOR_EACH; ANNOTATION_DEF; ANNOTATION;
+	ANNOTATION_MEMBER_VALUE_PAIR; ANNOTATION_FIELD_DEF; ANNOTATION_ARRAY_INIT; TYPE_ARGUMENT;
+	TYPE_PARAMETER; WILDCARD_TYPE; TYPE_UPPER_BOUNDS; TYPE_LOWER_BOUNDS; COMMENT_DEF;
 }
 
 {
@@ -153,13 +190,31 @@ tokens {
         if (h instanceof bluej.parser.ast.LocatableAST)
             ((bluej.parser.ast.LocatableAST) h).addImportantToken(t);
     }
+
+    /**
+     * Counts the number of LT seen in the typeArguments production.
+     * It is used in semantic predicates to ensure we have seen
+     * enough closing '>' characters; which actually may have been
+     * either GT, SR or BSR tokens.
+     */
+    private int ltCounter = 0;
+    /**
+     * Counts the number of '>' characters that have been seen but
+     * have not yet been associated with the end of a typeParameters or
+     * typeArguments production. This is necessary because SR and BSR
+     * tokens have significance (the extra '>' characters) not only for the production
+     * that sees them but also productions higher in the stack (possibly right up to an outer-most
+     * typeParameters production). As the stack of the typeArguments/typeParameters productions unwind,
+     * any '>' characters seen prematurely through SRs or BSRs are reconciled.
+     */
+    private int gtToReconcile = 0;
 }
-	
+
 // Compilation Unit: In Java, this is a single file.  This is the start
 //   rule for this parser
 compilationUnit
 	:	// A compilation unit starts with an optional package definition
-		(	packageDefinition
+		(	(packageDefinition)=> packageDefinition
 		|	/* nothing */
 		)
 
@@ -177,7 +232,7 @@ compilationUnit
 // Package statement: "package" followed by an identifier.
 packageDefinition
 	options {defaultErrorHandler = false;} // let ANTLR handle errors
-	:	p:"package"^ {#p.setType(PACKAGE_DEF);} identifier s:SEMI!
+	:	(annotation)* p:"package"^ {#p.setType(PACKAGE_DEF);} identifier s:SEMI!
 	    {   addImportantToken(#p, s);   }
 	;
 
@@ -185,8 +240,19 @@ packageDefinition
 // Import statement: import followed by a package or class name
 importDefinition
 	options {defaultErrorHandler = false;}
-	:	i:"import"^ {#i.setType(IMPORT);} identifierStar s:SEMI!
-	    {   addImportantToken(#i, s);   }
+    { boolean isStatic = false; }
+	:	i:"import"^ ( "static"! {isStatic = true;} )? identifierStar s:SEMI!
+	    {  
+	        if (isStatic)
+	        {
+	            #i.setType(STATIC_IMPORT);
+	        }
+	        else
+	        {
+	            #i.setType(IMPORT);
+	        }
+            addImportantToken(#i, s);   
+	    }
 	;
 
 // A type definition in a file is either a class or interface definition.
@@ -195,6 +261,8 @@ typeDefinition
 	:	m:modifiers!
 		( classDefinition[#m]
 		| interfaceDefinition[#m]
+		| enumDefinition[#m]
+		| annotationDefinition[#m]
 		)
 	|	SEMI!
 	;
@@ -214,10 +282,19 @@ typeSpec[boolean addImagNode]
 	| builtInTypeSpec[addImagNode]
 	;
 
-// A class type specification is a class type with possible brackets afterwards
+arraySpecOpt:
+        (options{greedy=true;}: // match as many as possible
+            lb:LBRACK^ {#lb.setType(ARRAY_DECLARATOR);} RBRACK!
+        )*
+    ;
+
+// A class type specification is a class type with either:
+// - possible brackets afterwards
 //   (which would make it an array type).
+// - generic type arguments after
 classTypeSpec[boolean addImagNode]
-	:	identifier (lb:LBRACK^ {#lb.setType(ARRAY_DECLARATOR);} RBRACK!)*
+	:   classOrInterfaceType[addImagNode]
+        arraySpecOpt
 		{
 			if ( addImagNode ) {
 				#classTypeSpec = #(#[TYPE,"TYPE"], #classTypeSpec);
@@ -225,10 +302,88 @@ classTypeSpec[boolean addImagNode]
 		}
 	;
 
+classOrInterfaceType[boolean addImagNode]
+	:   IDENT^ (typeArguments[addImagNode])?
+        (options{greedy=true;}: // match as many as possible
+            DOT^
+            IDENT (typeArguments[addImagNode])?
+        )*
+    ;
+
+// A generic type argument is a class type, a possibly bounded wildcard type or a built-in type array
+typeArgument[boolean addImagNode]
+	:   (   (classOrInterfaceType[addImagNode] | builtInTypeSpec[addImagNode]) arraySpecOpt
+	        | wildcardType[addImagNode]
+	    )
+		{#typeArgument = #(#[TYPE_ARGUMENT,"TYPE_ARGUMENT"], #typeArgument);}
+    ;
+
+wildcardType[boolean addImagNode]
+    :   q:QUESTION {#q.setType(WILDCARD_TYPE);}
+        (("extends" | "super")=> typeArgumentBounds[addImagNode])?
+    ;
+
+typeArguments[boolean addImagNode]
+{int currentLtLevel = 0;}
+    :
+        {currentLtLevel = ltCounter;}
+        LT! {ltCounter++;}
+        typeArgument[addImagNode]
+        (options{greedy=true;}: // match as many as possible
+            // If there are any '>' to reconcile
+            // (i.e. we've recently encountered a DT, SR or BSR
+            // - the end of one or more type arguments and
+            // possibly an enclosing type parameter)
+            // then further type arguments are not possible
+            {gtToReconcile == 0}? COMMA! typeArgument[addImagNode]
+        )*
+
+        (   // turn warning off since Antlr generates the right code,
+            // plus we have our semantic predicate below
+            options{generateAmbigWarnings=false;}:
+            typeArgumentsEnd
+        )?
+
+        // As we are leaving a typeArguments production, the enclosing '>'
+        // we've just read (and we've possibly seen more than one in the
+        // case of SRs and BSRs) can now be marked as reconciled with a '<'
+        // but we still leave unreconciled the count for any excess '>'
+        // for other typeArguments or typeParameters productions higher in
+        // the stack
+        {if (gtToReconcile > 0) gtToReconcile-=1;}
+        // make sure we have gobbled up enough '>' characters
+        // if we are at the "top level" of nested typeArgument productions
+        {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
+    ;
+
+// this gobbles up *some* amount of '>' characters, and counts how many
+// it gobbled.
+protected typeArgumentsEnd:
+        GT! {ltCounter-=1;gtToReconcile+=1;}
+    |   SR! {ltCounter-=2;gtToReconcile+=2;}
+    |   BSR! {ltCounter-=3;gtToReconcile+=3;}
+    ;
+
+typeArgumentBounds[boolean addImagNode]
+    {boolean isUpperBounds = false;}
+    :
+        ( "extends"! {isUpperBounds=true;} | "super"! ) classOrInterfaceType[addImagNode]
+		{
+		    if (isUpperBounds)
+		    {
+		        #typeArgumentBounds = #(#[TYPE_UPPER_BOUNDS,"TYPE_UPPER_BOUNDS"], #typeArgumentBounds);
+		    }
+		    else
+		    {
+		        #typeArgumentBounds = #(#[TYPE_LOWER_BOUNDS,"TYPE_LOWER_BOUNDS"], #typeArgumentBounds);
+		    }
+		}
+    ;
+
 // A builtin type specification is a builtin type with possible brackets
 // afterwards (which would make it an array type).
 builtInTypeSpec[boolean addImagNode]
-	:	builtInType (lb:LBRACK^ {#lb.setType(ARRAY_DECLARATOR);} RBRACK!)*
+	:	builtInType arraySpecOpt
 		{
 			if ( addImagNode ) {
 				#builtInTypeSpec = #(#[TYPE,"TYPE"], #builtInTypeSpec);
@@ -236,10 +391,10 @@ builtInTypeSpec[boolean addImagNode]
 		}
 	;
 
-// A type name. which is either a (possibly qualified) class name or
-//   a primitive (builtin) type
+// A type name. which is either a (possibly qualified and parameterized)
+// class name or a primitive (builtin) type
 type
-	:	identifier
+	:	classOrInterfaceType[false]
 	|	builtInType
 	;
 
@@ -273,7 +428,18 @@ identifierStar
 //   this rule separate so they can easily be collected in a Vector if
 //   someone so desires
 modifiers
-	:	( modifier )*
+	:
+	    (
+	        //hush warnings since the semantic check for "@interface" solves the non-determinism
+	        options{generateAmbigWarnings=false;}:
+
+	        modifier
+	        |
+	        //Semantic check that we aren't matching @interface as this is not an annotation
+	        //A nicer way to do this would be nice
+	        {LA(1)==AT && !LT(2).getText().equals("interface")}? annotation
+	    )*
+
 		{#modifiers = #([MODIFIERS, "MODIFIERS"], #modifiers);}
 	;
 
@@ -294,38 +460,147 @@ modifier
 	|	"strictfp"
 	;
 
+annotation!
+    :   AT! i:identifier ( LPAREN! ( args:annotationArguments )? RPAREN! )?
+        {#annotation = #(#[ANNOTATION,"ANNOTATION"], i, args);}
+    ;
+
+annotations
+    :   (annotation)*
+    ;
+
+annotationArguments
+    :   annotationMemberValueInitializer | anntotationMemberValuePairs
+    ;
+
+anntotationMemberValuePairs
+    :   annotationMemberValuePair ( COMMA! annotationMemberValuePair )*
+    ;
+
+annotationMemberValuePair!
+    :   i:IDENT ASSIGN! v:annotationMemberValueInitializer
+        {#annotationMemberValuePair = #(#[ANNOTATION_MEMBER_VALUE_PAIR,"ANNOTATION_MEMBER_VALUE_PAIR"], i, v);}
+    ;
+
+annotationMemberValueInitializer
+    :
+        conditionalExpression | annotation | annotationMemberArrayInitializer
+    ;
+
+// This is an initializer used to set up an annotation member array.
+annotationMemberArrayInitializer
+	:	lc:LCURLY^ {#lc.setType(ANNOTATION_ARRAY_INIT);}
+			(	annotationMemberArrayValueInitializer
+				(
+					// CONFLICT: does a COMMA after an initializer start a new
+					//           initializer or start the option ',' at end?
+					//           ANTLR generates proper code by matching
+					//			 the comma as soon as possible.
+					options {
+						warnWhenFollowAmbig = false;
+					}
+				:
+					COMMA! annotationMemberArrayValueInitializer
+				)*
+				(COMMA!)?
+			)?
+		RCURLY!
+	;
+
+// The two things that can initialize an annotation array element are a conditional expression
+//   and an annotation (nested annotation array initialisers are not valid)
+annotationMemberArrayValueInitializer
+	:	conditionalExpression
+	|	annotation
+	;
+
 // Definition of a Java class
 classDefinition![AST modifiers]
 	:	c:"class" IDENT
+		// it _might_ have type paramaters
+		(tp:typeParameters)?
 		// it _might_ have a superclass...
 		sc:superClassClause
 		// it might implement some interfaces...
 		ic:implementsClause
 		// now parse the body of the class
 		cb:classBlock
-		{ #classDefinition = #(#[CLASS_DEF,"CLASS_DEF"],
-							   modifiers,IDENT,sc,ic,cb);
+		{#classDefinition = #(#[CLASS_DEF,"CLASS_DEF"],
+							   modifiers,IDENT,tp,sc,ic,cb);
 	      addImportantToken(#classDefinition, c);   }
 	;
 
 superClassClause!
-	:	( e:"extends" id:identifier )?
-		{#superClassClause = #(#[EXTENDS_CLAUSE,"EXTENDS_CLAUSE"],id);
+	:	( e:"extends" c:classOrInterfaceType[false] )?
+		{#superClassClause = #(#[EXTENDS_CLAUSE,"EXTENDS_CLAUSE"],c);
 	     addImportantToken(#superClassClause, e);   }
 	;
 
 // Definition of a Java Interface
 interfaceDefinition![AST modifiers]
 	:	i:"interface" IDENT
+        // it _might_ have type paramaters
+        (tp:typeParameters)?
 		// it might extend some other interfaces
 		ie:interfaceExtends
 		// now parse the body of the interface (looks like a class...)
 		cb:classBlock
 		{#interfaceDefinition = #(#[INTERFACE_DEF,"INTERFACE_DEF"],
-									modifiers,IDENT,ie,cb);
+									modifiers,IDENT,tp,ie,cb);
          addImportantToken(#interfaceDefinition, i);   }
 	;
 
+enumDefinition![AST modifiers]
+	:	"enum" IDENT
+		// it might implement some interfaces...
+		ic:implementsClause
+		// now parse the body of the enum
+		eb:enumBlock
+		{#enumDefinition = #(#[ENUM_DEF,"ENUM_DEF"],
+							   modifiers,IDENT,ic,eb);}
+    ;
+
+annotationDefinition![AST modifiers]
+	:	AT "interface" IDENT
+		// now parse the body of the annotation
+		ab:annotationBlock
+		{#annotationDefinition = #(#[ANNOTATION_DEF,"ANNOTATION_DEF"],
+							        modifiers,IDENT,ab);}
+    ;
+
+typeParameters
+{int currentLtLevel = 0;}
+    :
+        {currentLtLevel = ltCounter;}
+        LT! {ltCounter++;}
+        typeParameter (COMMA! typeParameter)*
+        (typeArgumentsEnd)?
+
+        // There should be only one '>' to reconcile - the enclosing
+        // '>' for the type parameter. Any other adjacent '>' seen should
+        // have been reconciled with type arguments for the last type parameter
+        // hence we can assert here that there is but one unaccounted '>'.
+        {gtToReconcile==1}?
+        //And then there were none..
+        {gtToReconcile=0;}
+        // make sure we have gobbled up enough '>' characters
+        // if we are at the "top level" of nested typeArgument productions
+        {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
+    ;
+
+typeParameter
+    :
+        // I'm pretty sure Antlr generates the right thing here:
+        (id:IDENT) ( options{generateAmbigWarnings=false;}: typeParameterBounds )?
+		{#typeParameter = #(#[TYPE_PARAMETER,"TYPE_PARAMETER"], #typeParameter);}
+    ;
+
+typeParameterBounds
+    :
+        "extends"! classOrInterfaceType[true]
+        (BAND! classOrInterfaceType[true])*
+        {#typeParameterBounds = #(#[TYPE_UPPER_BOUNDS,"TYPE_UPPER_BOUNDS"], #typeParameterBounds);}
+    ;
 
 // This is the body of a class.  You can have fields and extra semicolons,
 // That's about it (until you see what a field is...)
@@ -339,11 +614,139 @@ classBlock
 		}
 	;
 
+// This is the body of an annotation. You can have annotation fields and extra semicolons,
+// That's about it (until you see what an annoation field is...)
+annotationBlock
+	:	LCURLY!
+	    ( annotationField | SEMI! )*
+		RCURLY!
+		{#annotationBlock = #([OBJBLOCK, "OBJBLOCK"], #annotationBlock);}
+	;
+
+// An annotation field
+annotationField!
+    :   mods:modifiers
+		(	cd:classDefinition[#mods]       // inner class
+			{#annotationField = #cd;}
+
+		|	id:interfaceDefinition[#mods]   // inner interface
+			{#annotationField = #id;}
+
+		|	ed:enumDefinition[#mods]        // inner enum
+			{#annotationField = #id;}
+
+		|	ad:annotationDefinition[#mods]   // inner annotation
+			{#annotationField = #ad;}
+
+		|   t:typeSpec[false]               // annotation field
+			(	i:IDENT  // the name of the field
+
+				LPAREN! RPAREN!
+
+				rt:declaratorBrackets[#t]
+
+                ( "default" amvi:annotationMemberValueInitializer )?
+
+				SEMI
+
+				{#annotationField =
+				    #(#[ANNOTATION_FIELD_DEF,"ANNOTATION_FIELD_DEF"],
+                         mods,
+                         #(#[TYPE,"TYPE"],rt),
+                         i,amvi
+                         );}
+			|	v:variableDefinitions[#mods,#t] SEMI    // variable
+				{#annotationField = #v;}
+			)
+		)
+    ;
+
+// This is the body of an enum. You can have zero or more enum constants
+// followed by any number of fields like a regular class
+enumBlock
+	:	LCURLY!
+	        ( enumConstant ( options{greedy=true;}: COMMA! enumConstant )* ( COMMA! )? )?
+	        ( SEMI! ( field | SEMI! )* )?
+		RCURLY!
+		{#enumBlock = #([OBJBLOCK, "OBJBLOCK"], #enumBlock);}
+	;
+
+//An enum constant may have optional parameters and may have a
+//a body
+enumConstant!
+    :   an:annotations
+        i:IDENT
+        (	LPAREN!
+            a:argList
+            RPAREN!
+        )?
+        ( b:enumConstantBlock )?
+        {#enumConstant = #([ENUM_CONSTANT_DEF, "ENUM_CONSTANT_DEF"], an, i, a, b);}
+    ;
+
+//The class-like body of an enum constant
+enumConstantBlock
+    :   LCURLY!
+        ( enumConstantField | SEMI! )*
+        RCURLY!
+        {#enumConstantBlock = #([OBJBLOCK, "OBJBLOCK"], #enumConstantBlock);}
+    ;
+
+//An enum constant field is just like a class field but without
+//the posibility of a constructor definition or a static initializer
+enumConstantField!
+    :   mods:modifiers
+		(	cd:classDefinition[#mods]       // inner class
+			{#enumConstantField = #cd;}
+
+		|	id:interfaceDefinition[#mods]   // inner interface
+			{#enumConstantField = #id;}
+
+		|	ed:enumDefinition[#mods]        // inner enum
+			{#enumConstantField = #id;}
+
+		|	ad:annotationDefinition[#mods]   // inner annotation
+			{#enumConstantField = #ad;}
+
+		|	// A generic method has the typeParameters before the return type.
+            // This is not allowed for variable definitions, but this production
+            // allows it, a semantic check could be used if you wanted.
+            (tp:typeParameters)? t:typeSpec[false]  // method or variable declaration(s)
+			(	IDENT  // the name of the method
+
+				// parse the formal parameter declarations.
+				LPAREN! param:parameterDeclarationList RPAREN!
+
+				rt:declaratorBrackets[#t]
+
+				// get the list of exceptions that this method is
+				// declared to throw
+				(tc:throwsClause)?
+
+				( s2:compoundStatement | SEMI )
+				{#enumConstantField = #(#[METHOD_DEF,"METHOD_DEF"],
+						     mods,
+						     tp,
+							 #(#[TYPE,"TYPE"],rt),
+							 IDENT,
+							 param,
+							 tc,
+							 s2);}
+			|	v:variableDefinitions[#mods,#t] SEMI
+				{#enumConstantField = #v;}
+			)
+		)
+
+    // "{ ... }" instance initializer
+	|	s4:compoundStatement
+		{#enumConstantField = #(#[INSTANCE_INIT,"INSTANCE_INIT"], s4);}
+	;
+
 // An interface can extend several other interfaces...
 interfaceExtends
 	:	(
 		e:"extends"!
-		identifier ( c:COMMA! i:identifier { addImportantToken(#i, c); } )*
+		classOrInterfaceType[false] ( COMMA! classOrInterfaceType[false] )*
 		)?
 		{#interfaceExtends = #(#[EXTENDS_CLAUSE,"EXTENDS_CLAUSE"],
 							#interfaceExtends);
@@ -353,7 +756,7 @@ interfaceExtends
 // A class can implement several interfaces...
 implementsClause
 	:	(
-			imp:"implements"! identifier ( c:COMMA! i:identifier { addImportantToken(#i, c); } )*
+			imp:"implements"! classOrInterfaceType[false] ( c:COMMA! i:classOrInterfaceType[false] { addImportantToken(#i, c); } )*
 		)?
 		{#implementsClause = #(#[IMPLEMENTS_CLAUSE,"IMPLEMENTS_CLAUSE"],
 								 #implementsClause);
@@ -367,16 +770,27 @@ implementsClause
 field!
 	:	// method, constructor, or variable declaration
 		mods:modifiers
-		(	h:ctorHead s:constructorBody // constructor
-			{#field = #(#[CTOR_DEF,"CTOR_DEF"], mods, h, s);}
-
-		|	cd:classDefinition[#mods]       // inner class
+		(	cd:classDefinition[#mods]       // inner class
 			{#field = #cd;}
-			
+
 		|	id:interfaceDefinition[#mods]   // inner interface
 			{#field = #id;}
 
-		|	t:typeSpec[false]  // method or variable declaration(s)
+		|	ed:enumDefinition[#mods]        // inner enum
+			{#field = #id;}
+
+		|	ad:annotationDefinition[#mods]   // inner annotation
+			{#field = #ad;}
+
+        |   (tp:typeParameters)?
+            (
+                h:ctorHead s:constructorBody // constructor
+                {#field = #(#[CTOR_DEF,"CTOR_DEF"], mods, h, s);}
+
+                |	// A generic method/ctor has the typeParameters before the return type.
+            // This is not allowed for variable definitions, but this production
+            // allows it, a semantic check could be used if you wanted.
+                    t:typeSpec[false]  // method or variable declaration(s)
 			(	IDENT  // the name of the method
 
 				// parse the formal parameter declarations.
@@ -391,6 +805,7 @@ field!
 				( s2:compoundStatement | SEMI )
 				{#field = #(#[METHOD_DEF,"METHOD_DEF"],
 						     mods,
+						     tp,
 							 #(#[TYPE,"TYPE"],rt),
 							 IDENT,
 							 param,
@@ -400,6 +815,7 @@ field!
 				{#field = #v;
                  addImportantToken(#field, se);  }
 			)
+		)
 		)
 
     // "static { ... }" class initializer
@@ -414,16 +830,16 @@ field!
 constructorBody
     :   lc:LCURLY^ {#lc.setType(SLIST);}
             ( options { greedy=true; } : explicitConstructorInvocation)?
-        (statement)*
+            (statement)*
         RCURLY!
     ;
 
 /** Catch obvious constructor calls, but not the expr.super(...) calls */
 explicitConstructorInvocation
-		:	"this"! lp1:LPAREN^ argList RPAREN! SEMI!
-			{#lp1.setType(CTOR_CALL);}
-	    |   "super"! lp2:LPAREN^ argList RPAREN! SEMI!
-			{#lp2.setType(SUPER_CTOR_CALL);}
+    :   "this"! lp1:LPAREN^ argList RPAREN! SEMI!
+		{#lp1.setType(CTOR_CALL);}
+    |   "super"! lp2:LPAREN^ argList RPAREN! SEMI!
+		{#lp2.setType(SUPER_CTOR_CALL);}
     ;
 
 variableDefinitions[AST mods, AST t]
@@ -499,10 +915,18 @@ throwsClause
 	:	"throws"^ identifier ( COMMA! identifier )*
 	;
 
-
 // A list of formal parameters
+//     Zero or more parameters
+//     If a parameter is variable length (e.g. String... myArg) it is the right-most parameter
 parameterDeclarationList
-	:	( parameterDeclaration ( COMMA! parameterDeclaration )* )?
+    // The semantic check in ( .... )* block is flagged as superfluous, and seems superfluous but
+    // is the only way I could make this work. If my understanding is correct this is a known bug
+    :   (   ( parameterDeclaration )=> parameterDeclaration
+            ( options {warnWhenFollowAmbig=false;} : ( COMMA! parameterDeclaration ) => COMMA! parameterDeclaration )*
+            ( COMMA! variableLengthParameterDeclaration )?
+        |
+            variableLengthParameterDeclaration
+        )?
 		{#parameterDeclarationList = #(#[PARAMETERS,"PARAMETERS"],
 									#parameterDeclarationList);}
 	;
@@ -515,9 +939,21 @@ parameterDeclaration!
 									pm, #([TYPE,"TYPE"],pd), id);}
 	;
 
+variableLengthParameterDeclaration!
+    {
+        boolean isVariable = false;
+    }
+	:	pm:parameterModifier t:typeSpec[false] TRIPLE_DOT! id:IDENT
+		pd:declaratorBrackets[#t]
+		{#variableLengthParameterDeclaration = #(#[VARIABLE_PARAMETER_DEF,"VARIABLE_PARAMETER_DEF"],
+                                                pm, #([TYPE,"TYPE"],pd), id);}
+    ;
+
 parameterModifier
-	:	(f:"final")?
-		{#parameterModifier = #(#[MODIFIERS,"MODIFIERS"], f);}
+    //final can appear amongst annotations in any order - greedily consume any preceding
+    //annotations to shut nond-eterminism warnings off
+	:	(options{greedy=true;} : annotation)* (f:"final")? (annotation)*
+		{#parameterModifier = #(#[MODIFIERS,"MODIFIERS"], #parameterModifier);}
 	;
 
 // Compound statement.  This is used in many contexts:
@@ -575,13 +1011,7 @@ statement
 		)?
 
 	// For statement
-	|	"for"^
-			LPAREN!
-				forInit SEMI!   // initializer
-				forCond	SEMI!   // condition test
-				forIter         // updater
-			RPAREN!
-			statement                     // statement to loop over
+	|	forStatement
 
 	// While statement
 	|	"while"^ LPAREN! expression RPAREN! statement
@@ -619,6 +1049,28 @@ statement
 	|	s:SEMI {#s.setType(EMPTY_STAT);}
 	;
 
+forStatement
+    :   f:"for"^
+        LPAREN!
+            ( (forInit SEMI)=>traditionalForStatement {#f.setType(FOR);}
+              |
+              forEachStatement {#f.setType(FOR_EACH);})
+        RPAREN!
+        statement                     // statement to loop over
+    ;
+
+traditionalForStatement
+    :
+        forInit SEMI!   // initializer
+        forCond SEMI!   // condition test
+        forIter         // updater
+    ;
+
+forEachStatement
+    :
+        p:parameterDeclaration COLON! expression
+    ;
+
 casesGroup
 	:	(	// CONFLICT: to which case group do the statements bind?
 			//           ANTLR generates proper code: it groups the
@@ -646,7 +1098,7 @@ caseSList
 // The initializer for a for loop
 forInit
 		// if it looks like a declaration, it is
-	:	(	(declaration)=> declaration
+	:	((declaration)=> declaration
 		// otherwise it could be an expression list...
 		|	expressionList
 		)?
@@ -707,7 +1159,7 @@ handler
 // to point out that new has a higher precedence than '.', so you
 // can validy use
 //     new Frame().show()
-// 
+//
 // Note that the above precedence levels map to the rules below...
 // Once you have a precedence chart, writing the appropriate rules as below
 //   is usually very straightfoward
@@ -835,20 +1287,27 @@ unaryExpression
 unaryExpressionNotPlusMinus
 	:	BNOT^ unaryExpression
 	|	LNOT^ unaryExpression
+	|	(	// subrule allows option to shut off warnings
+			options {
+				// "(int" ambig with postfixExpr due to lack of sequence
+				// info in linear approximate LL(k).  It's ok.  Shut up.
+				generateAmbigWarnings=false;
+			}
+		:	// If typecast is built in type, must be numeric operand
+			// Have to backtrack to see if operator follows
+		(LPAREN builtInTypeSpec[true] RPAREN unaryExpression)=>
+        lpb:LPAREN^ {#lpb.setType(TYPECAST);} builtInTypeSpec[true] RPAREN!
+        unaryExpression
 
-		// use predicate to skip cases like: (int.class)
-    |   (LPAREN builtInTypeSpec[true] RPAREN) =>
-			lpb:LPAREN^ {#lpb.setType(TYPECAST);} builtInTypeSpec[true] RPAREN!
-			unaryExpression
+        // Have to backtrack to see if operator follows.  If no operator
+        // follows, it's a typecast.  No semantic checking needed to parse.
+        // if it _looks_ like a cast, it _is_ a cast; else it's a "(expr)"
+    |	(LPAREN classTypeSpec[true] RPAREN unaryExpressionNotPlusMinus)=>
+        lp:LPAREN^ {#lp.setType(TYPECAST);} classTypeSpec[true] RPAREN!
+        unaryExpressionNotPlusMinus
 
-			// Have to backtrack to see if operator follows.  If no operator
-			// follows, it's a typecast.  No semantic checking needed to parse.
-			// if it _looks_ like a cast, it _is_ a cast; else it's a "(expr)"
-		|	(LPAREN classTypeSpec[true] RPAREN unaryExpressionNotPlusMinus)=>
-			lp:LPAREN^ {#lp.setType(TYPECAST);} classTypeSpec[true] RPAREN!
-			unaryExpressionNotPlusMinus
-
-		|	postfixExpression
+    |	postfixExpression
+    )
 	;
 
 // qualified names, array expressions, method invocation, post inc/dec
@@ -874,7 +1333,9 @@ postfixExpression
 				generateAmbigWarnings=false;
 			}
 		:	*/
-            DOT^ IDENT
+		    //type arguments are only appropriate for a parameterized method
+		    //semantic check may be needed here to ensure this
+            DOT^ (typeArguments[false])? IDENT
 			(	lp:LPAREN^ {#lp.setType(METHOD_CALL);}
 				argList
 				RPAREN!
@@ -885,10 +1346,10 @@ postfixExpression
             (   // (new Outer()).super()  (create enclosing instance)
                 lp3:LPAREN^ argList RPAREN!
                 {#lp3.setType(SUPER_CTOR_CALL);}
-			|   DOT^ IDENT
+			|   DOT^ (typeArguments[false])? IDENT
                 (	lps:LPAREN^ {#lps.setType(METHOD_CALL);}
-				argList
-			RPAREN!
+                    argList
+                    RPAREN!
                 )?
             )
 		|	DOT^ newExpression
@@ -896,25 +1357,25 @@ postfixExpression
 		)*
 
 		(   // possibly add on a post-increment or post-decrement.
-		// allows INC/DEC on too much, but semantics can check
+            // allows INC/DEC on too much, but semantics can check
 			in:INC^ {#in.setType(POST_INC);}
 	 	|	de:DEC^ {#de.setType(POST_DEC);}
 		)?
-	;
+ 	;
 
 // the basic element of an expression
 primaryExpression
 	:	identPrimary ( options {greedy=true;} : DOT^ "class" )?
-	|	constant
+    |   constant
 	|	"true"
 	|	"false"
 	|	"null"
-	|	newExpression
+    |   newExpression
 	|	"this"
 	|	"super"
 	|	LPAREN! assignmentExpression RPAREN!
 		// look for int.class and int[].class
-	|	builtInType 
+	|	builtInType
 		( lbt:LBRACK^ {#lbt.setType(ARRAY_DECLARATOR);} RBRACK! )*
 		DOT^ "class"
 	;
@@ -950,21 +1411,21 @@ identPrimary
 
 /** object instantiation.
  *  Trees are built as illustrated by the following input/tree pairs:
- *  
+ *
  *  new T()
- *  
+ *
  *  new
  *   |
  *   T --  ELIST
  *           |
  *          arg1 -- arg2 -- .. -- argn
- *  
+ *
  *  new int[]
  *
  *  new
  *   |
  *  int -- ARRAY_DECLARATOR
- *  
+ *
  *  new int[] {1,2}
  *
  *  new
@@ -974,7 +1435,7 @@ identPrimary
  *                                EXPR -- EXPR
  *                                  |      |
  *                                  1      2
- *  
+ *
  *  new int[3]
  *  new
  *   |
@@ -983,9 +1444,9 @@ identPrimary
  *              EXPR
  *                |
  *                3
- *  
+ *
  *  new int[1][2]
- *  
+ *
  *  new
  *   |
  *  int -- ARRAY_DECLARATOR
@@ -995,7 +1456,7 @@ identPrimary
  *             EXPR             1
  *               |
  *               2
- *  
+ *
  */
 newExpression
 	:	"new"^ type
@@ -1076,7 +1537,7 @@ LCURLY			:	'{'		;
 RCURLY			:	'}'		;
 COLON			:	':'		;
 COMMA			:	','		;
-//DOT			:	'.'		;
+//DOT  			:	'.'		;
 ASSIGN			:	'='		;
 EQUAL			:	"=="	;
 LNOT			:	'!'		;
@@ -1164,12 +1625,12 @@ ML_COMMENT
 
 // character literals
 CHAR_LITERAL
-	:	'\'' ( ESC | ~'\'' ) '\''
+	:	'\'' ( ESC | ~('\''|'\n'|'\r'|'\\') ) '\''
 	;
 
 // string literals
 STRING_LITERAL
-	:	'"' (ESC|~('"'|'\\'))* '"'
+	:	'"' (ESC|~('"'|'\\'|'\n'|'\r'))* '"'
 	;
 
 
@@ -1192,14 +1653,14 @@ ESC
 		|	'"'
 		|	'\''
 		|	'\\'
-		|	('u')+ HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT 
+		|	('u')+ HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
 		|	'0'..'3'
 			(
 				options {
 					warnWhenFollowAmbig = false;
 				}
 			:	'0'..'7'
-				(	
+				(
 					options {
 						warnWhenFollowAmbig = false;
 					}
@@ -1222,6 +1683,15 @@ protected
 HEX_DIGIT
 	:	('0'..'9'|'A'..'F'|'a'..'f')
 	;
+
+
+// a dummy rule to force vocabulary to be all characters (except special
+//   ones that ANTLR uses internally (0 to 2)
+protected
+VOCAB
+	:	'\3'..'\377'
+	;
+
 
 protected
 IDENT_LETTER
@@ -1287,7 +1757,8 @@ NUM_INT
     options {paraphrase = "a number";}
 	{boolean isDecimal=false; Token t=null; }
     :   '.' {_ttype = DOT;}
-            (	('0'..'9')+ (EXPONENT)? (f1:FLOAT_SUFFIX {t=f1;})?
+            (
+                (('0'..'9')+ (EXPONENT)? (f1:FLOAT_SUFFIX {t=f1;})?
                 {
 				if (t != null && t.getText().toUpperCase().indexOf('F')>=0) {
                 	_ttype = NUM_FLOAT;
@@ -1295,7 +1766,10 @@ NUM_INT
 				else {
                 	_ttype = NUM_DOUBLE; // assume double
 				}
-				}
+				})
+				|
+				// JDK 1.5 token for variable length arguments
+				(".." {_ttype = TRIPLE_DOT;})
             )?
 
 	|	(	'0' {isDecimal = true;} // special case for just '0'
@@ -1320,7 +1794,7 @@ NUM_INT
 		|	('1'..'9') ('0'..'9')*  {isDecimal=true;}		// non-zero decimal
 		)
 		(	('l'|'L') { _ttype = NUM_LONG; }
-		
+
 		// only check to see if it's a float if looks like decimal so far
 		|	{isDecimal}?
             (   '.' ('0'..'9')* (EXPONENT)? (f2:FLOAT_SUFFIX {t=f2;})?
@@ -1338,6 +1812,10 @@ NUM_INT
         )?
 	;
 
+// JDK 1.5 token for annotations and their declarations
+AT
+    :   '@'
+    ;
 
 // a couple protected methods to assist in matching floating point numbers
 protected
@@ -1350,4 +1828,3 @@ protected
 FLOAT_SUFFIX
 	:	'f'|'F'|'d'|'D'
 	;
-
