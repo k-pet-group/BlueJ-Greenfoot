@@ -86,6 +86,9 @@ classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be r
 # Preferences Manager user interface elements and error messages
 prefmgr.title=Preferences
 prefmgr.misc.prefpaneltitle=Miscellaneous
+prefmgr.misc.editorfontsize=Editor font size
+prefmgr.misc.usesyntaxhilighting=Use syntax hilighting
+prefmgr.misc.jdkurlpath=JDK documentation URL
 
 editor.title=BlueJ editor
 
