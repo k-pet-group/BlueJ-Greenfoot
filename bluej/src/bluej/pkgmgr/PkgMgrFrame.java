@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 2810 2004-07-20 19:06:18Z mik $
+ * @version $Id: PkgMgrFrame.java 2820 2004-07-26 10:48:03Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1606,12 +1606,13 @@ public class PkgMgrFrame extends JFrame
      */
     public void doRemove()
     {
-        if (editor.isFocusOwner()) { // focus in diagram
+        Component permanentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
+        if (permanentFocusOwner == editor) { // focus in diagram
             if (!(doRemoveTargets() || doRemoveDependency())) {
                 DialogManager.showError(this, "no-class-selected");
             }
         }
-        else if (objbench.isFocusOwner()) { // focus in object bench
+        else if (permanentFocusOwner == objbench) { // focus in object bench
             objbench.removeSelectedObject(pkg.getId());
         }
         else {

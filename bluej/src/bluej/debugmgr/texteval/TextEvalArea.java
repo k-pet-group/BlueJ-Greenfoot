@@ -26,7 +26,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2801 2004-07-15 15:43:47Z mik $
+ * @version $Id: TextEvalArea.java 2820 2004-07-26 10:48:03Z polle $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener, MouseMotionListener
@@ -266,8 +266,10 @@ public final class TextEvalArea extends JScrollPane
      */
     public void focusGained(FocusEvent e) 
     {
-        setBorder(Config.focusBorder);
-        repaint();
+        if (!e.isTemporary()) {
+            setBorder(Config.focusBorder);        
+            repaint();
+        }
     }
 
     

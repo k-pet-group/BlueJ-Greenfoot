@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2755 2004-07-07 15:52:12Z mik $
+ * @version $Id: ObjectBench.java 2820 2004-07-26 10:48:03Z polle $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -267,7 +267,9 @@ public class ObjectBench extends JPanel
      */
     public void focusLost(FocusEvent e) 
     {
-        showFocusHiLight(false);
+        if (!e.isTemporary()) {
+            showFocusHiLight(false);
+        }
     }
 
     // --- end of FocusListener interface ---
