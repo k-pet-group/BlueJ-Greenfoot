@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2843 2004-08-06 00:01:41Z davmac $
+ * @version $Id: VMReference.java 2844 2004-08-06 00:36:42Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -1187,7 +1187,7 @@ class VMReference
      *            The class to execute.
      * @return
      */
-    private Value invokeShell(String cl)
+    synchronized private Value invokeShell(String cl)
     {
         // Store the class and method to call
         setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
