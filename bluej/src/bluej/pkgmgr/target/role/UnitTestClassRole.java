@@ -22,7 +22,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2061 2003-06-25 07:00:39Z ajp $
+ * @version $Id: UnitTestClassRole.java 2124 2003-07-18 06:23:08Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -160,56 +160,61 @@ public class UnitTestClassRole extends ClassRole
     {
     	Thread thr = new Thread() {
     		public void run() {
-				DebuggerTestResult dtr = null;
+				doRunTest(pmf, ct, param);
+			}
+		};		
 
-				if (param != null) {
-					// Test a single method
-					dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), param);
-
-					TestDisplayFrame.getTestDisplay().startTest(1);
-
-					if (dtr.isSuccess()) {
-						pmf.setStatus(param + " " + Config.getString("pkgmgr.test.succeeded"));
-						TestDisplayFrame.getTestDisplay().addResultQuietly(dtr);
-					}
-					else {
-						TestDisplayFrame.getTestDisplay().addResult(dtr);
-					}
-				}
-				else {
-					Class cl = pmf.getPackage().loadClass(ct.getQualifiedName());
-
-					if (cl == null)
-						return;
-				
-					// Test the whole class
-					Method[] allMethods = cl.getMethods();
-
-					int testCount = 0;
-
-					for (int i=0; i < allMethods.length; i++) {
-						if (isJUnitTestMethod(allMethods[i]))
-							testCount++;
-					}
-
-					TestDisplayFrame.getTestDisplay().startTest(testCount);
-				
-					for (int i=0; i < allMethods.length; i++) {
-						Method m = allMethods[i];
-
-						if (!isJUnitTestMethod(m))
-							continue;
-					
-						dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), m.getName());
-
-						TestDisplayFrame.getTestDisplay().addResult(dtr);			
-					}
-				}            
-       		}
-    	};
     	thr.start();
     }
 
+	public void doRunTest(PkgMgrFrame pmf, ClassTarget ct, String param)
+	{
+		DebuggerTestResult dtr = null;
+
+		if (param != null) {
+			// Test a single method
+			dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), param);
+
+			TestDisplayFrame.getTestDisplay().startTest(1);
+
+			if (dtr.isSuccess()) {
+				pmf.setStatus(param + " " + Config.getString("pkgmgr.test.succeeded"));
+				TestDisplayFrame.getTestDisplay().addResultQuietly(dtr);
+			}
+			else {
+				TestDisplayFrame.getTestDisplay().addResult(dtr);
+			}
+		}
+		else {
+			Class cl = pmf.getPackage().loadClass(ct.getQualifiedName());
+
+			if (cl == null)
+				return;
+				
+			// Test the whole class
+			Method[] allMethods = cl.getMethods();
+
+			int testCount = 0;
+
+			for (int i=0; i < allMethods.length; i++) {
+				if (isJUnitTestMethod(allMethods[i]))
+					testCount++;
+			}
+
+			TestDisplayFrame.getTestDisplay().startTest(testCount);
+				
+			for (int i=0; i < allMethods.length; i++) {
+				Method m = allMethods[i];
+
+				if (!isJUnitTestMethod(m))
+					continue;
+					
+				dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), m.getName());
+
+				TestDisplayFrame.getTestDisplay().addResult(dtr);			
+			}
+		}            
+	}
     public void doMakeTestCase(PkgMgrFrame pmf, ClassTarget ct)
     {
         String newTestName = DialogManager.askString(pmf, "unittest-new-test-method");

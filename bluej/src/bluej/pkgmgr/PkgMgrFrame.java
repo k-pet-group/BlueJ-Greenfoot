@@ -33,7 +33,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2100 2003-07-08 11:49:41Z mik $
+ * @version $Id: PkgMgrFrame.java 2124 2003-07-18 06:23:08Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -62,6 +62,7 @@ public class PkgMgrFrame extends JFrame
 
     private JButton imgExtendsButton;
     private JButton imgDependsButton;
+	private JButton runButton;
     private JTextField executorField;
     
     private JLabel statusbar;
@@ -1555,19 +1556,37 @@ public class PkgMgrFrame extends JFrame
 	 */
 	private void doTest()
 	{
+		runButton.setEnabled(false);
+		
 		List l = pkg.getTestTargets();
 
-		Iterator it = l.iterator();
-		
-        TestDisplayFrame.getTestDisplay().startMultipleTests();
+		final Iterator it = l.iterator();
+				
+		Thread thr = new Thread() {
+			public void run() {
+				TestDisplayFrame.getTestDisplay().startMultipleTests();
 
-		while(it.hasNext()) {
-			ClassTarget ct = (ClassTarget) it.next();
-			if (ct.isCompiled())
-				ct.getRole().run(this, ct, null);
-		}
+				while(it.hasNext()) {
+					ClassTarget ct = (ClassTarget) it.next();
+					if (ct.isCompiled() && ct.isUnitTest()) {
+						UnitTestClassRole utcr = (UnitTestClassRole) ct.getRole();
+	
+						utcr.doRunTest(PkgMgrFrame.this, ct, null);
+					}
+				}
+	
+				TestDisplayFrame.getTestDisplay().endMultipleTests();
 
-        TestDisplayFrame.getTestDisplay().endMultipleTests();
+				EventQueue.invokeLater(new Runnable ()  {
+					public void run ()
+					{
+						runButton.setEnabled(true);
+					}
+				});
+			}
+		};		
+
+		thr.start();
 	}
 
     /**
@@ -1963,7 +1982,7 @@ public class PkgMgrFrame extends JFrame
 //                                        BorderFactory.createEmptyBorder(0,3,3,3),
 //                                        Config.getString("pkgmgr.test.label")));
 
-				JButton runButton = createButton(Config.getString("pkgmgr.test.run"),
+				runButton = createButton(Config.getString("pkgmgr.test.run"),
 									            null,
 									            Config.getString("tooltip.test"),
                                                 true);
