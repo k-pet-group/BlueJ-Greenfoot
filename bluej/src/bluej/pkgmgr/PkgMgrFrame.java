@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 559 2000-06-19 02:24:16Z ajp $
+ * @version $Id: PkgMgrFrame.java 567 2000-06-19 05:40:49Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -570,15 +570,14 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case PROJ_SAVE:
-            doSave();
-            setStatus(packageSaved);
+            getProject().saveAll();
             break;
 
         case PROJ_SAVEAS:
             doSaveAs();
             break;
 
-        case PROJ_IMPORT:
+        case PROJ_IMPORT:        // can be executed when isEmptyFrame() is true
             doImport();
             break;
 
@@ -839,6 +838,8 @@ public class PkgMgrFrame extends JFrame
         p.put("package.editor.height", Integer.toString(d.height));
 
         pkg.save(p);
+
+        setStatus(packageSaved);
     }
 
     /**
@@ -1994,6 +1995,7 @@ public class PkgMgrFrame extends JFrame
                             if(!label.equals(Config.getString("menu.package.new"))
                                && !label.equals(Config.getString("menu.package.open"))
                                && !label.equals(Config.getString("menu.package.quit"))
+                               && !label.equals(Config.getString("menu.package.import"))
                                && !label.equals(Config.getString("menu.package"))
                                && !label.equals(Config.getString("menu.tools"))
                                && !label.equals(Config.getString("menu.tools.browse"))
