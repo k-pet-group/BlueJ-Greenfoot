@@ -19,6 +19,7 @@ import java.beans.PropertyChangeEvent;
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
 import java.awt.event.*;        // New Event model    
 import javax.swing.*;		// all the GUI components
+import javax.swing.KeyStroke;
 import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
@@ -30,13 +31,13 @@ import javax.swing.undo.*;
 
 public final class MoeEditor extends JFrame
 
-	implements bluej.editor.Editor
+	implements bluej.editor.Editor, ItemListener
 {
     // -------- CONSTANTS --------
 
     // version number
-    static final int version = 020;
-    static final String versionString = "0.2";
+    static final int version = 030;
+    static final String versionString = "0.3";
 
     // colours
     static final Color textColor = new Color(0,0,0);		// normal text
@@ -53,9 +54,7 @@ public final class MoeEditor extends JFrame
     public static Font editFont = new Font("Monospaced", Font.PLAIN, 
 					   Config.editFontsize);
     public static Font printFont = new Font("Monospaced", Font.PLAIN, 
-					   Config.printFontsize);
-
-    static int SHIFT_CTRL_MASK;
+					    Config.printFontsize);
 
     // suffixes for resources
     static final String LabelSuffix = "Label";
@@ -66,19 +65,20 @@ public final class MoeEditor extends JFrame
     //  width of tag area for setting breakpoints
     static final short TAG_WIDTH = 14;
 
+    //  spaces for entering half tabs
+    static final String spaces = "    ";
+
     // Attributes for lines
     static final String BreakPoint = "break";
 
     // -------- INSTANCE VARIABLES --------
 
-    private MoeEditor editor;		// the object itself (this)
     private EditorWatcher watcher;
     private ResourceBundle resources;
     private DefaultStyledDocument document;
-    private Hashtable actions;		// user actions
+    private MoeActions actions;
 
     private JTextPane textPane;		// the component holding the text
-    private Keymap keymap;		// the editor's keymap
     private Info info;			// the info number label
     private JPanel statusArea;		// the status area
     private LineNumberLabel lineCounter;	// the line number label
@@ -95,11 +95,6 @@ public final class MoeEditor extends JFrame
     private String newline;		// the line break character used
     private boolean isCode;		// true if current buffer is code
 
-    // undo helpers
-    private UndoAction undoAction;
-    private RedoAction redoAction;
-    private UndoManager undoManager;
-
     // =========================== NESTED CLASSES ===========================
 
     // inner class for listening for undoable edits in text
@@ -108,15 +103,16 @@ public final class MoeEditor extends JFrame
   
 	public void undoableEditHappened(UndoableEditEvent e)
 	{
-	    undoManager.addEdit(e.getEdit());
-	    undoAction.update();
-	    redoAction.update();
+	    actions.undoManager.addEdit(e.getEdit());
+	    actions.undoAction.update();
+	    actions.redoAction.update();
 	}
     }
 
     /** 
-     *  Inner class listening for disabling actions - if an action is disabled 
-     *  (enabled), the connected button is disabled (enabled) as well.
+     *  Inner class listening for disabling actions - if an action is
+     *  disabled (enabled), the connected button is disabled (enabled) 
+     *  as well.
      */
     private class ActionChangeListener implements PropertyChangeListener {
 	JButton button;
@@ -147,7 +143,6 @@ public final class MoeEditor extends JFrame
     {
 	super("Moe");
 
-	editor = this;
 	this.watcher = watcher;
 	this.resources = resources;
 	filename = null;
@@ -156,10 +151,6 @@ public final class MoeEditor extends JFrame
 	isCompiled = false;
 	newline = System.getProperty("line.separator");
 	this.isCode = isCode;
-	SHIFT_CTRL_MASK = Event.CTRL_MASK;
-	SHIFT_CTRL_MASK |= Event.SHIFT_MASK;
-
-	undoManager = new UndoManager();
 
 	initWindow(showToolbar, showLineNum);
     }
@@ -196,7 +187,7 @@ public final class MoeEditor extends JFrame
 	    }
 	}
 
-	if (! (MoeEditorManager.standAlone || loaded))  // should exist, but didn't
+	if (! loaded)  // should exist, but didn't
 	    return false;
 
 	//     if (loaded) ## NYI
@@ -223,13 +214,9 @@ public final class MoeEditor extends JFrame
 	show();
 	textPane.setFont(editFont);
 
-	if (! MoeEditorManager.standAlone)
-	    {
-		setCompileStatus(compiled);
-		if (!isCode) {
-		    getActionByName("compile").setEnabled(false);
-		}
-	    }
+	setCompileStatus(compiled);
+	if (!isCode)
+	    actions.getActionByName("compile").setEnabled(false);
 	return true;
 
     } // showFile
@@ -337,17 +324,7 @@ public final class MoeEditor extends JFrame
 
     public void close()	// inherited from Editor
     {
-	if (MoeEditorManager.standAlone && (saveState.isChanged())) {
-	    int answer = Utility.askQuestion(this, "The text has been changed.\nSave changes?",
-					     "Save", "Don't save", "Cancel");
-	    if (answer == 0)	// first choice: save
-		save();
-	    else if (answer != 1)	// could be cancel or window close
-		return;
-	}
-	else if (! MoeEditorManager.standAlone) {
-	    save(); // temporary - should really be done by watcher from outside
-	}
+	save(); // temporary - should really be done by watcher from outside
 	doClose();
     }
 
@@ -434,905 +411,40 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
     // --------------------------------------------------------------------
-    /**
-     * The editor has been closed. Hide the editor window now. Never call this 
-     * function
-     */
 
-    public void doClose()
+    // ==================== USER ACTION IMPLEMENTATIONS ===================
+
+    // --------------------------------------------------------------------
+    /**
+     * 
+     */
+    public void userSave()
     {
-	setVisible(false);
-	MoeEditorManager.editorManager.removeEditor(this);
-	if (watcher != null)
-	    watcher.closeEvent(this);
-    }
-
-    //   // --------------------------------------------------------------------
-    //   /**
-    //    ** sets the editors preferred size
-    //    **/
-    // 
-    //   public Dimension getPreferredSize()
-    //   {
-    //     return new Dimension(width, height);
-    //   }
-    // 
-    //   // --------------------------------------------------------------------
-    //   /**
-    //    ** FUNCTION: do_save_as(String)
-    //    ** Save this buffer under a new file name. The new name is 
-    //    ** passed as parameter.  (This is called by "save_as").
-    //    **/
-    // 
-    //   public void do_save_as (String fname)
-    //   {
-    //     if (buffer.save (fname, RedEditorManager.red.append_nl_on())) {
-    //       filename = new String(fname);
-    //       set_title ();
-    //       set_saved (true);
-    //     }
-    //     else
-    //       info.warning ("Could not save file!",
-    // 	     "The reason could be: invalid file name, or file exists" +
-    //  	     " and is write protected");
-    //   }
-    // 
-    // 
-    //   // --------------------------------------------------------------------
-    //   /**
-    //    ** Show or hide the toolbar (depending on the parameter 'show').
-    //    **/
-    // 
-    //   public void show_toolbar(boolean show)
-    //   {
-    //     if(show)
-    //     {
-    //       mainPanel.add("North", toolbar);
-    //       frame.validate();
-    //     }
-    //     else
-    //     {   
-    //       mainPanel.remove(toolbar);
-    //       frame.validate();
-    //     }
-    //   }
-    // 
-    // ===============================================
-    // 
-    //   // --------------------------------------------------------------------
-    //   /**
-    //    ** FUNCTION: do_replace_all(String, int)
-    //    ** replace all
-    //    **/
-    // 
-    //   private void do_replace_all (String pattern, int direction, 
-    // 			  boolean case_sens, boolean whole_word, 
-    // 			  String  rep_pattern)
-    //   {
-    //     BufferPos start;
-    //     int cnt = 0;
-    // 
-    //     if (pattern.length()==0) {
-    //       info.message ("Empty search string", "", "");
-    //       return;
-    //     }
-    // 
-    //     if (check_selection (false, (direction==backwd)))	// switch sel. off
-    //       ;
-    //     start = buffer.get_point ();
-    // 
-    //     while (buffer.find (pattern, case_sens, whole_word,
-    // 			  (direction==backwd), false)) {
-    //       delete_between_points ();
-    //       insert (rep_pattern);
-    //       cnt++;
-    //     }
-    //     if (buffer.pt.is_before (start)) {
-    //       buffer.point_to (start);
-    //       display ();
-    //     }
-    //     else {
-    //       buffer.point_to (start);
-    //       screen_update_from (start);
-    //     }
-    //     info.int_message (cnt, " instances replaced", "");
-    //   }
-    // 
-    //   // --------------------------------------------------------------------
-    //   /**
-    //    ** FUNCTION: do_replace(String)
-    //    ** Internal replace routine used by the replace (indirectly 
-    //    ** over finder). Replaces the current selection with "pattern".
-    //    ** If there is no current selection, just return false.
-    //    **/
-    // 
-    //   private void do_replace (String pattern)
-    //   {
-    //     BufferPos start;
-    // 
-    //     if (!check_selection (true, true))		// if selection, cut it
-    //       return;
-    // 
-    //     start = buffer.get_point ();
-    //     insert (pattern);
-    //     screen_update_from (start);
-    //   }
-    // 
-    // 
-    //   // --------------------------------------------------------------------
-    //   /**
-    //    ** FUNCTION: insert_file()
-    //    ** display a file dialgo to prompt the user for a file 
-    //    ** to insert then check that file exists if so 
-    //    ** then insert the file
-    //    **/
-    // 
-    //   private void insert_file ()
-    //   {
-    //     // Create a file dialog to query the user for a filename
-    //     FileDialog fd = new FileDialog(frame,"Insert File",FileDialog.LOAD);
-    //     fd.show();                            // Display the dialog and block
-    //     String insertFile = fd.getFile(); 	// Get users response
-    //     if(insertFile != null)
-    //     {
-    //       Action action;
-    //       BufferPos start;
-    // 
-    //       try {
-    // 	// See if the requested file exists
-    // 	FileInputStream file = new FileInputStream(insertFile);
-    // 
-    // 	start = buffer.get_point ();
-    // 	if (RedEditorManager.red.text_quote_string() != null) 
-    // 	  buffer.insert_file (file, RedEditorManager.red.text_quote_string(), 
-    // 			       RedEditorManager.red.convert_dos_on());
-    // 	else
-    // 	  buffer.insert_file (file, null, RedEditorManager.red.convert_dos_on());
-    //       
-    // 	file.close();             // Close the FileInputStream
-    // 
-    // 	// store information about this on undo-stack
-    // 	action = undo_stack.new_action ();		// get action record
-    // 	action.set_insertion (start.line_no, start.column, 
-    // 			       buffer.pt.line_no, buffer.pt.column, false);
-    // 
-    // 	screen_update_from (start);
-    // 	show_line_number (false);
-    // 	set_saved (false);
-    //       }
-    //       catch(IOException e)
-    //       {
-    // 	info.warning ("Could not open file.", filename);
-    //       }
-    //     }
-    //   }
-    // 
-    //   // --------------------------------------------------------------------
-    //   /**
-    //    ** FUNCTION: goto_line()
-    //    ** Interactive. Ask for line number and set cursor to that line.
-    //    ** If the number is greater than last line, goto last line.
-    //    **/
-    // 
-    //   private void goto_line ()
-    //   {
-    //     int line_no;
-    // 
-    //     if (param_prompt != null) {		// got parameter - analyse and do it
-    //       param_prompt = null;
-    //       try {
-    //           line_no = Integer.parseInt (parameter);
-    //       }
-    //       catch (NumberFormatException e) {
-    // 	  RedEditorManager.red.beep ();
-    // 	  return;
-    //       }
-    //       if (check_selection (false, true))	// make sure selection is off
-    // 	;
-    //       buffer.point_to_bob ();
-    //       buffer.goto_pos (line_no, 0);
-    //       show_point ();
-    //       show_line ();
-    //       show_line_number (false);
-    //     }
-    //     else {				// prompt for parameter
-    //       param_prompt = "Goto line: ";
-    //       parameter = "";
-    //       info.message (param_prompt, "", "");
-    //     }
-    //   }
-    // 
-
-    // ============================ USER ACTIONS =============================
-
-    abstract class MoeAbstractAction extends AbstractAction {
-
-	private KeyStroke key;
-
-	public MoeAbstractAction(String name, KeyStroke keyStroke) {
-	    super(name);
-	    key = keyStroke;
-	    if(keyStroke != null)
-		keymap.addActionForKeyStroke(keyStroke, this);
-	}
-
-	final public KeyStroke getKey() {
-	    return key;
-	}
-    }
-
-    // === File: ===
-    // --------------------------------------------------------------------
-
-    class SaveAction extends MoeAbstractAction {
-
-	public SaveAction() {
-	    super("save", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
-	}
-
-	public void actionPerformed(ActionEvent e) {
-
-	    if (saveState.isSaved())  // && (last_func != UserFuncID.UFSave)) ##
-		info.message ("No changes need to be saved");
-	    else {
-
-		if (filename == null) {
-		    // MoeEditorManager.saveAsRequest...
-		    Utility.NYI(editor);
-		}
-		else
-		    save();
-	    }
-	}
+	if (saveState.isSaved())
+	    info.message ("No changes need to be saved");
+	else 
+	    save();
     }
 
     // --------------------------------------------------------------------
-
     /**
-     * Reload has been chosen. Ask "Really?" and call "doReload" if the answer
-     * is yes.
+     * 
      */
-    class ReloadAction extends MoeAbstractAction {
-
-	public ReloadAction() {
-	    super("reload", null);
+    public void reload()
+    {
+	if (filename == null) {
+	    info.warning ("Can not reload - this text was never saved!",
+			  "(\"Reload\" reloads the last saved state from disk.)");
 	}
-
-	public void actionPerformed(ActionEvent e) {
-	    if (filename == null) {
-		info.warning ("Can not reload - this text was never saved!",
-			      "(\"Reload\" reloads the last saved state from disk.)");
-	    }
-	    else if (saveState.isChanged()) {
-		int answer = Utility.askQuestion(editor,
-						 "Reload discards all changes since the last edit.\nAre you sure?",
-						 "Reload", "Cancel", null);
-		if (answer == 0)
-		    doReload();
-	    }
-	    else
+	else if (saveState.isChanged()) {
+	    int answer = Utility.askQuestion(this,
+					     "Reload discards all changes since the last edit.\nAre you sure?",
+					     "Reload", "Cancel", null);
+	    if (answer == 0)
 		doReload();
 	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class PrintAction extends MoeAbstractAction {
-
-	public PrintAction() {
-	    super("print", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK));
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    print();
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class CloseAction extends MoeAbstractAction {
-
-	public CloseAction() {
-	    super("close", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK));
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    close();
-	}
-    }
-
-    // === Edit: ===
-    // --------------------------------------------------------------------
-
-    class UndoAction extends MoeAbstractAction {
-
-	public UndoAction() 
-	{
-	    super("undo", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.CTRL_MASK));
-	    this.setEnabled(false);
-	}
-    
-	public void actionPerformed(ActionEvent e) 
-	{
-	    try {
-		undoManager.undo();
-	    }
-	    catch (CannotUndoException ex) {
-		Debug.message("moe: cannot undo...");
-	    }
-	    update();
-	    redoAction.update();
-	}
-
-	private void update()
-	{
-	    if (undoManager.canUndo()) {
-		this.setEnabled(true);
-		putValue(Action.NAME, undoManager.getUndoPresentationName());
-	    }
-	    else {
-		this.setEnabled(false);
-		putValue(Action.NAME, "Undo");
-	    }
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class RedoAction extends MoeAbstractAction {
-
-	public RedoAction() 
-	{
-	    super("redo", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_Y, Event.CTRL_MASK));
-	    this.setEnabled(false);
-	}
-
-	public void actionPerformed(ActionEvent e) 
-	{
-	    try {
-		undoManager.redo();
-	    }
-	    catch (CannotRedoException ex) {
-		Debug.message("moe: cannot redo...");
-	    }
-	    update();
-	    undoAction.update();
-	}
-
-	private void update()
-	{
-	    if (undoManager.canRedo()) {
-		this.setEnabled(true);
-		putValue(Action.NAME, undoManager.getRedoPresentationName());
-	    }
-	    else {
-		this.setEnabled(false);
-		putValue(Action.NAME, "Redo");
-	    }
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class CommentAction extends MoeAbstractAction {
-
-	public CommentAction() {
-	    super("comment", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, Event.CTRL_MASK));
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class UncommentAction extends MoeAbstractAction {
-
-	public UncommentAction() {
-	    super("uncomment", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, SHIFT_CTRL_MASK));
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class InsertMethodAction extends MoeAbstractAction {
-
-	public InsertMethodAction() {
-	    super("insert-method", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_M, Event.CTRL_MASK));
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    int pos = textPane.getCaretPosition();
-	    textPane.replaceSelection(
-		"    /**\n" +
-		"     * An example of a method - replace this comment with your own\n" +
-		"     * \n" +
-		"     * @param  y   a sample parameter for a method \n" + 
-		"     * @return     the sum of x and y \n" +
-		"     **/\n" + 
-		"    public int sampleMethod(int y)\n" +
-		"    {\n" +
-		"        // put your code here\n" + 
-		"        return x + y;\n" +
-		"    }");
-	    textPane.setCaretPosition(pos);
-	}
-    }
-
-    // === Tools: ===
-    // --------------------------------------------------------------------
-
-    /**
-     * Change the current view. This function reads the current setting of the
-     * view selector and displays the selected view.
-     */
-    class SelectViewAction extends MoeAbstractAction {
-
-	public SelectViewAction() {
-	    super("select-view", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    int view;
-    
-	    switch (viewSelector.getSelectedIndex()) {
-	    case (0): view = bluej.editor.Editor.IMPLEMENTATION;
-		break;
-	    case (1): view = bluej.editor.Editor.PUBLIC;
-		break;
-	    case (2): view = bluej.editor.Editor.PACKAGE;
-		break;
-	    case (3): view = bluej.editor.Editor.INHERITED;
-		break;
-	    default:  view = 0;
-	    }
-	    watcher.changeView(editor, view);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class FindAction extends MoeAbstractAction {
- 
-	public FindAction() {
-	    super("find", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Finder finder = MoeEditorManager.editorManager.getFinder();
-	    String s = finder.getNewSearchString(editor);
-	    if(s!=null)
-		find(s, finder);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class FindBackwardAction extends MoeAbstractAction {
-
-	public FindBackwardAction() {
-	    super("find-backward", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_F, SHIFT_CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class FindNextAction extends MoeAbstractAction {
-
-	public FindNextAction() {
-	    super("find-next", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Finder finder = MoeEditorManager.editorManager.getFinder();
-	    String s = textPane.getSelectedText();
-	    if (s == null) {
-		s = finder.getLastSearchString();
-		if (s == null) {
-		    info.warning("No search string is defined.",
-				 "(You never searched for anything here before.)");
-		    return;
-		}
-	    }
-	    find(s, finder);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class FindNextReverseAction extends MoeAbstractAction {
- 
-	public FindNextReverseAction() {
-	    super("find-next-reverse", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class ReplaceAction extends MoeAbstractAction {
-
-	public ReplaceAction() {
-	    super("replace", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class GotoLineAction extends MoeAbstractAction {
-
-	public GotoLineAction() {
-	    super("goto-line", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Element line = getLine (2);
-	    textPane.setCaretPosition(line.getStartOffset());
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class CompileAction extends MoeAbstractAction {
-
-	public CompileAction() {
-	    super("compile", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    if (watcher == null)
-		return;
-
-	    watcher.compile(editor);
-	    info.message ("Compiling...");
-	}
-    }
-    // === Debug: ===
-    // --------------------------------------------------------------------
-
-    class SetBreakPointAction extends MoeAbstractAction {
-
-	public SetBreakPointAction() {
-	    super("set-breakpoint", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    setUnsetBreakpoint(textPane.getCaretPosition(), true);
-	    info.message ("Breakpoint set");
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class ClearBreakPointAction extends MoeAbstractAction {
- 
-	public ClearBreakPointAction() {
-	    super("clear-breakpoint", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_B, SHIFT_CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    setUnsetBreakpoint(textPane.getCaretPosition(), false);
-	    info.message ("Breakpoint cleared");
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class StepAction extends MoeAbstractAction {
-
-	public StepAction() {
-	    super("step", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class StepIntoAction extends MoeAbstractAction {
- 
-	public StepIntoAction() {
-	    super("step-into", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class ContinueAction extends MoeAbstractAction {
-
-	public ContinueAction() {
-	    super("continue", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class TerminateAction extends MoeAbstractAction {
-
-	public TerminateAction() {
-	    super("terminate", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // === Options: ===
-    // --------------------------------------------------------------------
-
-    class PreferencesAction extends MoeAbstractAction {
- 
-	public PreferencesAction() {
-	    super("preferences", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class KeyBindingsAction extends MoeAbstractAction {
- 
-	public KeyBindingsAction() {
-	    super("key-bindings", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // === Help: ===
-    // --------------------------------------------------------------------
-
-    class AboutAction extends MoeAbstractAction {
-
-	public AboutAction() {
-	    super("help-about", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    JOptionPane.showMessageDialog(editor,
-		new String[] { 
-		    "Moe",
-		    "",
-		    "Version " + versionString,
-		    "",
-		    "Moe is the editor of the BlueJ programming environment.",
-		    "Written by Michael K\u00F6lling (mik@csse.monash.edu.au)."
-		    },
-		"About Moe", JOptionPane.INFORMATION_MESSAGE);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class CopyrightAction extends MoeAbstractAction {
- 
-	public CopyrightAction() {
-	    super("help-copyright", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class DescribeKeyAction extends MoeAbstractAction {
-
-	public DescribeKeyAction() {
-	    super("help-describe-key", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK));
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class HelpMouseAction extends MoeAbstractAction {
-
-	public HelpMouseAction() {
-	    super("help-mouse", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class ShowManualAction extends MoeAbstractAction {
-
-	public ShowManualAction() {
-	    super("help-show-manual", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class ReportErrorAction extends MoeAbstractAction {
-
-	public ReportErrorAction() {
-	    super("report-errors", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class EmptyAction extends MoeAbstractAction {
-
-	public EmptyAction() {
-	    super("nothing", null);
-	}
- 
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    //     class Action extends MoeAbstractAction {
-    //  
-    //       public Action() {
-    //  	 super("");
-    //       }
-    //  
-    //       public void actionPerformed(ActionEvent e) {
-    // 	  Utility.NYI(editor);
-    //       }
-    //     }
-
-
-    // ========================= SUPPORT ROUTINES ==========================
-
-    private void setCompileStatus(boolean compiled)
-    {
-	viewSelector.setEnabled(compiled);
-	isCompiled = compiled;
-	/*
-	  utility->set_sensitive (break_item, compiled);
-	  utility->set_sensitive (clr_break_item, compiled);
-	  utility->set_sensitive (interface_item, compiled);
-	  utility->set_sensitive (interface_button, compiled);
-	  screen->set_tag_grey (!compiled);
-	  if (showing_interface && !compiled)
-	  interface_toggle ();
-	*/
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     * Set the saved/changed status of this buffer to SAVED.
-     */
-    private void setSaved()
-    {
-	info.message ("File saved");
-	saveState.setState (StatusLabel.SAVED);
-	if(watcher != null)
-	    watcher.saveEvent(this);
-    }
-
-    // --------------------------------------------------------------------
-
-    private void setWindowTitle()
-    {
-	String title = windowTitle;
-
-	if (title == null) {
-	    if (filename == null)
-		title = "Moe: <no name>";
-	    else
-		title = "Moe: " + filename;
-	}
-	setTitle(title);
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     * Buffer just went from saved to changed state (called by StatusLabel)
-     */
-    void setChanged()
-    {
-	if (! MoeEditorManager.standAlone) {
-	    setCompileStatus (false);
-	    if(watcher != null)
-		watcher.modificationEvent(this);
-	}
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     * Sets the editor to contain a view. This is used if the view is set from
-     * the outside of the editor (not by the editor function).
-     *
-     * @param view	    the new view. Must be one of the defined view constants.
-     */
-    private void setView(int view)
-    {
-	if (view == bluej.editor.Editor.IMPLEMENTATION)
-	    viewSelector.setSelectedIndex(0);
-	else if (view == bluej.editor.Editor.PUBLIC)
-	    viewSelector.setSelectedIndex(1);
-	else if (view == bluej.editor.Editor.PACKAGE)
-	    viewSelector.setSelectedIndex(2);
-	else if (view == bluej.editor.Editor.INHERITED)
-	    viewSelector.setSelectedIndex(3);
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     * Show or hide the line number display (depending on the parameter
-     * 'show').
-     */
-
-    private void showLineCounter(boolean show)
-    {
-	if (show)
-	    statusArea.add(lineCounter);
 	else
-	    statusArea.remove(lineCounter);
-	validate();
+	    doReload();
     }
 
     // --------------------------------------------------------------------
@@ -1340,11 +452,11 @@ public final class MoeEditor extends JFrame
      * Implementation if the "print" user function
      * (NOTE: re-implement under jdk 1.2 with "PrinterJob"!)
      */
-    private void print()
+    public void print()
     {
 	PrintJob printjob = getToolkit().getPrintJob(this, 
-				"Class " + windowTitle,
-				null);
+						     "Class " + windowTitle,
+						     null);
 	if(printjob != null) {
 	    printClass(printjob);
 	    printjob.end();
@@ -1368,17 +480,17 @@ public final class MoeEditor extends JFrame
 	//Debug.message("text height: " + textSize.height);
 	textSize.width -= (TAG_WIDTH + 3);
 	int pages = (textSize.height + printArea.height - 1) / 
-			printArea.height;
+	    printArea.height;
 	//Debug.message("pages: " + pages);
 
 	int answer;
 	if(printArea.width < textSize.width-8) {
-	    answer = Utility.askQuestion(editor,
-			"The text is wider than the paper. Long lines\n" +
-			"will be cut off. You can avoid this by resizing\n" +
-			"the editor window to make it narrower. Do you\n" +
-			"want to print anyway?",
-			"Print", "Cancel", null);
+	    answer = Utility.askQuestion(this,
+					 "The text is wider than the paper. Long lines\n" +
+					 "will be cut off. You can avoid this by resizing\n" +
+					 "the editor window to make it narrower. Do you\n" +
+					 "want to print anyway?",
+					 "Print", "Cancel", null);
 	}
 	else
 	    answer = 0;
@@ -1422,7 +534,7 @@ public final class MoeEditor extends JFrame
 	int fontSize = textPane.getFont().getSize();
 
 	int printHeight = pageSize.height - 2 * PRINT_VMARGIN - 
-			  tfm.getHeight() - ifm.getHeight() - 4;
+	    tfm.getHeight() - ifm.getHeight() - 4;
 
 	// ensure printHeight is multiple of font size
 	printHeight = (printHeight / fontSize) * fontSize;
@@ -1478,10 +590,55 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Find. Does a find with info in the info area.
+     * The editor has been closed. Hide the editor window now. 
+     */
+    public void doClose()
+    {
+	setVisible(false);
+	MoeEditorManager.editorManager.removeEditor(this);
+	if (watcher != null)
+	    watcher.closeEvent(this);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Implementation of "find" user function.
      */
 
-    private void find(String s, Finder finder)
+    public void find()
+    {
+	Finder finder = MoeEditorManager.editorManager.getFinder();
+	String s = finder.getNewSearchString(this);
+	if(s != null)
+	    findString(finder, s);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Implementation of "find-next" user function.
+     */
+
+    public void findNext()
+    {
+	Finder finder = MoeEditorManager.editorManager.getFinder();
+	String s = textPane.getSelectedText();
+	if (s == null) {
+	    s = finder.getLastSearchString();
+	    if (s == null) {
+		info.warning("No search string is defined.",
+			     "(You never searched for anything here before.)");
+		return;
+	    }
+	}
+	findString(finder, s);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Do a find with info in the info area.
+     */
+
+    private void findString(Finder finder, String s)
     {
 	if (s.length()==0) {
 	    info.warning("Empty search string.");
@@ -1516,7 +673,7 @@ public final class MoeEditor extends JFrame
 	boolean finished = false;
 
 	int start = startPosition;
-	Element line = document.getParagraphElement(start);
+	Element line = getLineAt(start);
 	int lineEnd = Math.min(line.getEndOffset(), endPos);
 
 	try {
@@ -1555,32 +712,38 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Find and return a line in the document
+     * Implementation of "compile" user function.
      */
 
-    private Element getLine (int lineNo)
+    public void compile()
     {
-	return document.getDefaultRootElement().getElement(lineNo-1);
+	if (watcher == null)
+	    return;
+
+	watcher.compile(this);
+	info.message ("Compiling...");
     }
 
     // --------------------------------------------------------------------
     /**
-     * Return the number of the current line.
+     * Implementation of "set-breakpoint" user function.
      */
 
-    private int getCurrentLineNo ()
+    public void setBreakpoint()
     {
-	return document.getDefaultRootElement().getElementIndex(textPane.getCaretPosition()) + 1;
+	setUnsetBreakpoint(textPane.getCaretPosition(), true);
+	info.message ("Breakpoint set");
     }
 
-    // ------------------------------------------------------------------------
+    // --------------------------------------------------------------------
     /**
-     * Return the number of the line containing position 'pos'.
+     * Implementation of "clear-breakpoint" user function.
      */
 
-    private int getLineAt (int pos)
+    public void clearBreakpoint()
     {
-	return document.getDefaultRootElement().getElementIndex(pos) + 1;
+	setUnsetBreakpoint(textPane.getCaretPosition(), false);
+	info.message ("Breakpoint cleared");
     }
 
     // --------------------------------------------------------------------
@@ -1604,7 +767,7 @@ public final class MoeEditor extends JFrame
     private boolean hasBreakpoint(int pos)
     {
 	Element paragraph = document.getParagraphElement(pos);
-	return (Boolean.TRUE.equals(paragraph.getAttributes().getAttribute(MoeEditor.BreakPoint)));
+	return (Boolean.TRUE.equals(paragraph.getAttributes().getAttribute(BreakPoint)));
     }
 
     // --------------------------------------------------------------------
@@ -1616,8 +779,8 @@ public final class MoeEditor extends JFrame
     private void setUnsetBreakpoint(int pos, boolean set)
     {
 	if (watcher != null) {
-	    String result = watcher.breakpointToggleEvent(editor, 
-							  getLineAt(pos), set);
+	    String result = watcher.breakpointToggleEvent(this, 
+							  getLineNumberAt(pos), set);
 	    if(result == null || result.length() == 0) {
 		// no problem, go ahead
 		SimpleAttributeSet a = new SimpleAttributeSet();
@@ -1631,6 +794,59 @@ public final class MoeEditor extends JFrame
 		    info.warning("Cannot set breakpoint:", result);
 	    }
 	}
+    }
+
+    // ========================= SUPPORT ROUTINES ==========================
+
+    // --------------------------------------------------------------------
+    /**
+     * Return the current line.
+     */
+
+    private Element getCurrentLine ()
+    {
+	return document.getParagraphElement(textPane.getCaretPosition());
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Find and return a line by line number
+     */
+
+    private Element getLine (int lineNo)
+    {
+	return document.getDefaultRootElement().getElement(lineNo-1);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Find and return a line by text position
+     */
+
+    private Element getLineAt (int pos)
+    {
+	return document.getParagraphElement(pos);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Return the number of the current line.
+     */
+
+    private int getCurrentLineNo ()
+    {
+	return document.getDefaultRootElement().getElementIndex(
+								textPane.getCaretPosition()) + 1;
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Return the number of the line containing position 'pos'.
+     */
+
+    private int getLineNumberAt (int pos)
+    {
+	return document.getDefaultRootElement().getElementIndex(pos) + 1;
     }
 
     // --------------------------------------------------------------------
@@ -1658,6 +874,94 @@ public final class MoeEditor extends JFrame
 	}
 	setView(bluej.editor.Editor.IMPLEMENTATION);
 	setSaved();
+    }
+
+    // --------------------------------------------------------------------
+    private void setCompileStatus(boolean compiled)
+    {
+	viewSelector.setEnabled(compiled);
+	isCompiled = compiled;
+	/*
+	  utility->set_sensitive (break_item, compiled);
+	  utility->set_sensitive (clr_break_item, compiled);
+	  utility->set_sensitive (interface_item, compiled);
+	  utility->set_sensitive (interface_button, compiled);
+	  screen->set_tag_grey (!compiled);
+	  if (showing_interface && !compiled)
+	  interface_toggle ();
+	*/
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Set the saved/changed status of this buffer to SAVED.
+     */
+    private void setSaved()
+    {
+	info.message ("File saved");
+	saveState.setState (StatusLabel.SAVED);
+	if(watcher != null)
+	    watcher.saveEvent(this);
+    }
+
+    // --------------------------------------------------------------------
+
+    private void setWindowTitle()
+    {
+	String title = windowTitle;
+
+	if (title == null) {
+	    if (filename == null)
+		title = "Moe: <no name>";
+	    else
+		title = "Moe: " + filename;
+	}
+	setTitle(title);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Buffer just went from saved to changed state (called by StatusLabel)
+     */
+    void setChanged()
+    {
+	setCompileStatus (false);
+	if(watcher != null)
+	    watcher.modificationEvent(this);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Sets the editor to contain a view. This is used if the view is set from
+     * the outside of the editor (not by the editor function).
+     *
+     * @param view    the new view. Must be one of the defined view constants.
+     */
+    private void setView(int view)
+    {
+	if (view == bluej.editor.Editor.IMPLEMENTATION)
+	    viewSelector.setSelectedIndex(0);
+	else if (view == bluej.editor.Editor.PUBLIC)
+	    viewSelector.setSelectedIndex(1);
+	else if (view == bluej.editor.Editor.PACKAGE)
+	    viewSelector.setSelectedIndex(2);
+	else if (view == bluej.editor.Editor.INHERITED)
+	    viewSelector.setSelectedIndex(3);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Show or hide the line number display (depending on the parameter
+     * 'show').
+     */
+
+    private void showLineCounter(boolean show)
+    {
+	if (show)
+	    statusArea.add(lineCounter);
+	else
+	    statusArea.remove(lineCounter);
+	validate();
     }
 
     // --------------------------------------------------------------------
@@ -1689,6 +993,28 @@ public final class MoeEditor extends JFrame
 	    tokens[i] = (String) v.elementAt(i);
 
 	return tokens;
+    }
+
+    // ---- ItemListener interface ----
+
+    public void itemStateChanged(ItemEvent e) 
+    {
+	// the only item we're listening to is the items in the view selector
+
+	int view;
+    
+	switch (viewSelector.getSelectedIndex()) {
+	case (0): view = bluej.editor.Editor.IMPLEMENTATION;
+	    break;
+	case (1): view = bluej.editor.Editor.PUBLIC;
+	    break;
+	case (2): view = bluej.editor.Editor.PACKAGE;
+	    break;
+	case (3): view = bluej.editor.Editor.INHERITED;
+	    break;
+	default:  view = 0;
+	}
+	watcher.changeView(this, view);
     }
 
     // ======================= WINDOW INITIALISATION =======================
@@ -1753,16 +1079,15 @@ public final class MoeEditor extends JFrame
 	textPane.getCaret().setBlinkRate(0);
 	textPane.setSelectionColor(selectionColor);
 	textPane.setCaretColor(cursorColor);
-	keymap = textPane.getKeymap();
 
 	JScrollPane scrollPane = new JScrollPane(textPane);
 	scrollPane.setPreferredSize(new Dimension(598,400));
 
 	contentPane.add(scrollPane, BorderLayout.CENTER);
 
-	// create table of edit actions
+	// get table of edit actions
 
-	createActionTable(textPane);
+	actions = MoeActions.getActions(textPane);
 
 	// create menubar and menus
 
@@ -1793,94 +1118,6 @@ public final class MoeEditor extends JFrame
 
     } // init_window
 
-
-    // --------------------------------------------------------------------
-    /**
-     * Create the table of action supported by this editor
-     */
-
-    private void createActionTable(JTextComponent textComponent)
-    {
-	actions = new Hashtable();	    // will hold all user actions
-
-	// first, create our own actions
-
-	undoAction = new UndoAction();
-	redoAction = new RedoAction();
-
-	Action[] myActions = {
-
-	    // class actions
-	    new SaveAction(),
-	    new ReloadAction(),
-	    new PrintAction(),
-	    new CloseAction(),
-
-	    // edit actions
-	    undoAction,
-	    redoAction,
-	    new CommentAction(),
-	    new UncommentAction(),
-	    new InsertMethodAction(),
-
-	    // tool actions
-	    new FindAction(),
-	    new FindBackwardAction(),
-	    new FindNextAction(),
-	    new FindNextReverseAction(),
-	    new ReplaceAction(),
-	    new GotoLineAction(),
-	    new CompileAction(),
-
-	    // debug actions
-	    new SetBreakPointAction(),
-	    new ClearBreakPointAction(),
-	    new StepAction(),
-	    new StepIntoAction(),
-	    new ContinueAction(),
-	    new TerminateAction(),
-
-	    // option actions
-	    new PreferencesAction(),
-	    new KeyBindingsAction(),
-
-	    // help actions
-	    new AboutAction(),
-	    new CopyrightAction(),
-	    new DescribeKeyAction(),
-	    new HelpMouseAction(),
-	    new ShowManualAction(),
-	    new ReportErrorAction(),
-
-	    // internal actions
-	    new EmptyAction(),
-	    new SelectViewAction()
-	};
-
-	// now, get the actions already defined in the editor and merge them
-	// with our own actions
-
-	Action[] allActions = TextAction.augmentList(
-					     textComponent.getActions(),
-					     myActions);
-
-	// next, enter all those actions into our hash table
-
-	Action action;
-	for (int i=0; i < allActions.length; i++) {
-	    action = allActions[i];
-	    actions.put(action.getValue(Action.NAME), action);
-	}
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     * Return an action with a given name.
-     */
-    private Action getActionByName(String name)
-    {
-	return (Action)(actions.get(name));
-    }
 
     // --------------------------------------------------------------------
 
@@ -1938,7 +1175,7 @@ public final class MoeEditor extends JFrame
 	    if (itemKeys[i].equals("-"))
 		menu.addSeparator();
 	    else {
-		Action action = getActionByName(itemKeys[i]);
+		Action action = actions.getActionByName(itemKeys[i]);
 		if (action == null)
 		    Debug.message ("Moe: cannot find action " + itemKeys[i]);
 		else {
@@ -1946,9 +1183,9 @@ public final class MoeEditor extends JFrame
 		    label = getResource(itemKeys[i] + LabelSuffix);
 		    if (label != null)
 			item.setText(label);
-		    KeyStroke[] keys = keymap.getKeyStrokesForAction(action);
-		    if (keys != null && keys.length > 0) 
-			item.setAccelerator(keys[0]);
+		    KeyStroke accel = actions.getKeyStrokeForAction(action);
+		    if (accel != null) 
+			item.setAccelerator(accel);
 		}
 	    }
 	}
@@ -1994,7 +1231,7 @@ public final class MoeEditor extends JFrame
 	String actionName = getResource(key + ActionSuffix);
 	if (actionName == null)
 	    actionName = key;
-	Action action = getActionByName(actionName);
+	Action action = actions.getActionByName(actionName);
 
 	if (action != null) {	// should never be null...
 	    button.addActionListener(action);
@@ -2018,34 +1255,20 @@ public final class MoeEditor extends JFrame
 	  getResource(key + LabelSuffix + "3"),
 	  getResource(key + LabelSuffix + "4") };
 	viewSelector = new JComboBox(viewStrings);
-	viewSelector.setRequestFocusEnabled(false);   // never get keyboard focus
-
-	String actionName = getResource(key + ActionSuffix);
-	if (actionName == null)
-	    actionName = key;
-	Action action = getActionByName(actionName);
-
-	if (action != null) {	// should never be null...
-	    viewSelector.addActionListener(action);
-	    viewSelector.setActionCommand(actionName);
-	}
-	else {
-	    viewSelector.setEnabled(false);
-	    Debug.message("Moe: action not found for view selector");
-	}
-
+	viewSelector.setRequestFocusEnabled(false);   // never get focus
+	viewSelector.addItemListener(this);
 	return viewSelector;
     }
 
     public boolean isReadOnly() {
-	    return !textPane.isEditable();
+	return !textPane.isEditable();
     }
     
     public void setReadOnly(boolean readOnlyStatus) {
-	    if (readOnlyStatus)
-		saveState.setState(StatusLabel.READONLY);
+	if (readOnlyStatus)
+	    saveState.setState(StatusLabel.READONLY);
 
-	    textPane.setEditable(!readOnlyStatus);
+	textPane.setEditable(!readOnlyStatus);
     }
 		    
 } // end class MoeEditor

@@ -14,13 +14,13 @@ import java.io.*;		// Object input, ouput streams
  **
  **/
 
-public final class MoeEditorManager implements bluej.editor.EditorManager
+public final class MoeEditorManager 
+
+    implements bluej.editor.EditorManager
 {
     // public static variables
 
     public static MoeEditorManager editorManager;   // the manager object itself
-    public static boolean standAlone;		    // running stand-alone mode
-
     // private variables
 
     private ResourceBundle resources;
@@ -34,10 +34,9 @@ public final class MoeEditorManager implements bluej.editor.EditorManager
 
     // =========================== PUBLIC METHODS ===========================
 
-    public MoeEditorManager(boolean standAlone)
+    public MoeEditorManager()
     {	
 	editors = new Vector(4,4);
-	this.standAlone = standAlone;
 	finder = new Finder();
 
 	showToolBar = true;
@@ -178,8 +177,6 @@ public final class MoeEditorManager implements bluej.editor.EditorManager
     void removeEditor(MoeEditor editor)
     {
 	editors.removeElement(editor);
-	if(standAlone && (editors.size() == 0))	// if no editors left
-	    System.exit(0);				// exit Moe
     }
 
     // ------------------------------------------------------------------------
@@ -223,7 +220,7 @@ public final class MoeEditorManager implements bluej.editor.EditorManager
 	if (editor.showFile (filename, compiled, null))
 	    return editor;
 	else {
-	    editor.doClose();				// editor will remove itself
+	    editor.doClose();			// editor will remove itself
 	    return null;
 	}
     }
@@ -233,10 +230,7 @@ public final class MoeEditorManager implements bluej.editor.EditorManager
     private void openResources()
     {
 	try {
-	    if (standAlone)
-		resources = ResourceBundle.getBundle("moe-sa", Locale.getDefault());
-	    else
-		resources = ResourceBundle.getBundle("moe", Locale.getDefault());
+	    resources = ResourceBundle.getBundle("moe", Locale.getDefault());
 	}
 	catch (MissingResourceException ex) {
 	    System.err.println("moe resources not found - what now?");

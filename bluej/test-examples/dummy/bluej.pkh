@@ -1,5 +1,5 @@
 #BlueJ project file
-#Thu Apr 29 21:30:04 EDT 1999
+#Fri Apr 30 02:29:16 EDT 1999
 target2.width=80
 target4.y=50
 target4.x=40
@@ -10,7 +10,7 @@ target2.modifiers=1
 target2.y=110
 target2.x=190
 package.window.height=466
-target3.modifiers=0
+target3.modifiers=1
 target3.name=Dumm2
 target4.modifiers=1
 package.numTargets=4

@@ -19,10 +19,10 @@ import bluej.utility.ClasspathSearcher;
  * in the library browser.  Defaults to a public view of a class.
  * 
  * @author $Author: mik $
- * @version $Id: CodeViewer.java 36 1999-04-27 04:04:54Z mik $
+ * @version $Id: CodeViewer.java 57 1999-04-30 06:35:26Z mik $
  */
 public class CodeViewer implements EditorWatcher {
-	private MoeEditorManager edMgr = new MoeEditorManager(false);
+	private MoeEditorManager edMgr = new MoeEditorManager();
 		
 	private Editor editor = null;
 	private ClassTarget theClass = null;

@@ -49,7 +49,7 @@ public class MyClass
 
 	return x + 5;
     }
-xxxxxxxxx
+
     public int nested()
     {
 	int sum = 0;
