@@ -406,3 +406,6 @@ image.step_into=step_into.gif
 image.stop=stop.gif
 image.terminate=terminate.gif
 
+# Extensions manager help page
+image.extmgr.info=extmgr-info.gif
+
