@@ -1,34 +1,33 @@
-package bluej.extensions.editor;
+package bluej.editor;
 
 /**
- * A TextLocation object groups two pieces of information: the line number and the column number.
+ * A LineColumn object groups two pieces of information: the line number and the column number.
  * They represent a position in the editor's text.
  * A text location represents the gap to the left of the position identified, so
  * that (0, 0) is the start of the file, (0, 1) is between the first and
- * second characters in the file, and so on. There is a TextLocation position to
- * the right of the last character on a line. The column value of this
- * position can be calculated using Editor.getLineLength(int line).
+ * second characters in the file, and so on. There is a LineColumn position to
+ * the right of the last character on a line. 
  *
- * @definition An invalid TextLocation is one that, at the time of use, points to an area outside the
+ * @definition An invalid LineColumn is one that, at the time of use, points to an area outside the
  * text being edited.
  * 
- * @version $Id: TextLocation.java 2920 2004-08-20 08:02:09Z damiano $
+ * @version $Id: LineColumn.java 2920 2004-08-20 08:02:09Z damiano $
  */
 
 /*
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
  */  
-public class TextLocation
+public class LineColumn
 {
     private int line,column;
     
     /**
-     * Create a TextLocation representing the text position at the specified line and column
+     * Create a LineColumn representing the text position at the specified line and column
      *
      * @param  line    a line number starting from 0
      * @param  column  a column number starting from 0
      */
-    public TextLocation(int line, int column)
+    public LineColumn(int line, int column)
     {
         this.line = line;
         this.column = column;
@@ -85,14 +84,14 @@ public class TextLocation
      * @param  line    a line number starting from zero
      * @param  column  a column number starting from zero
      */
-    public void setPosition(int line, int column)
+    public void setLineColumn(int line, int column)
     {
         this.line = line;
-        this.column = column;    
+        this.column = column;
     }
-    
+
     /**
-     * Returns a string represettation of this object.
+     * Returns a string representation of this object.
      *
      * @return a string that represents this object status
      */

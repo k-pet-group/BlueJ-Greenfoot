@@ -1,11 +1,12 @@
 package bluej.extensions.editor;
+import bluej.editor.*;
 
 
 /**
  * Proxy object that allows interaction with the BlueJ Editor for a
  * particular class.
  *
- * @version    $Id: Editor.java 2909 2004-08-19 08:32:52Z damiano $
+ * @version    $Id: Editor.java 2920 2004-08-20 08:02:09Z damiano $
  */
 
 /*
@@ -67,7 +68,8 @@ public class Editor
      */
     public TextLocation getCaretLocation()
     {
-        return null;
+        LineColumn lineColumn = bjEditor.getCaretLocation();
+        return new TextLocation (lineColumn.getLine(),lineColumn.getColumn());
     }
 
 

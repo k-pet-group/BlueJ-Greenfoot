@@ -14,7 +14,7 @@ import java.awt.print.PrinterJob;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 2909 2004-08-19 08:32:52Z damiano $
+ * @version $Id: Editor.java 2920 2004-08-20 08:02:09Z damiano $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -197,4 +197,12 @@ public interface Editor
      */
     Rectangle getBounds();
 
+
+   /**
+     * Returns the current caret location within the edited text.
+     *
+     * @return    the LineColumn object.
+     */
+    public LineColumn getCaretLocation();
+    
 } // end interface Editor

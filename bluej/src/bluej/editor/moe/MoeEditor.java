@@ -8,6 +8,7 @@
 
 package bluej.editor.moe;
 
+import bluej.editor.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.PageFormat;
@@ -652,6 +653,23 @@ public final class MoeEditor extends JFrame
     {
         return viewingHTML;
     }
+    
+    /**
+     * Returns the current caret location within the edited text.
+     *
+     * @return    the LineColumn object.
+     */
+    public LineColumn getCaretLocation()
+    {    
+        int caretOffset = currentTextPane.getCaretPosition();
+        
+        int lineNumber = document.getDefaultRootElement().getElementIndex(caretOffset);        
+    
+        Element lineElement = getLineAt(caretOffset);
+        int column = caretOffset - lineElement.getStartOffset();
+    
+        return new LineColumn ( lineNumber, column );
+    }    
     
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
