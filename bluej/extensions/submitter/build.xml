@@ -17,7 +17,7 @@
     <property name="bluej_home" value="${basedir}/../.."/>
 
     <!-- set to the name of the extensions jar file -->
-    <property name="output_jar" value="submission.jar"/>
+    <property name="output_jar" value="submitter.jar"/>
 
 
     <!-- ********************************************** -->
