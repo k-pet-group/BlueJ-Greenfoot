@@ -19,7 +19,7 @@ import bluej.views.*;
  * understand what is the identity of this Class (BClass) and the identity of the hidden one.
  * NOTE: For all methods the return value is null if the class is not compiled.
  * 
- * @version $Id: BClass.java 1726 2003-03-24 13:33:06Z damiano $
+ * @version $Id: BClass.java 1770 2003-04-09 16:24:27Z damiano $
  */
 public class BClass
 {
@@ -125,7 +125,7 @@ public class BClass
      * Returns the superclass of this BClass.
      * If there is no superclass null is returned.
      */
-    public BClass getSuper()
+    public BClass getSuperclass()
     {
         // This method is needed othervise yoy cannot get a superclass of this BClass.
         View sup = bluej_view.getSuper();

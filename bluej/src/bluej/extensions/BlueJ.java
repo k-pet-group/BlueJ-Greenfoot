@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1768 2003-04-09 08:45:35Z damiano $
+ * @version $Id: BlueJ.java 1770 2003-04-09 16:24:27Z damiano $
  */
 
 public class BlueJ
@@ -165,10 +165,8 @@ public class BlueJ
 
 
     /**
-     * Returns the current package being displayed. 
+     * Returns the currently selected Package.
      * It can return null if this information is not available.
-     * Depending on the currently selected Frame you may get packages that
-     * belongs to different projects.
      */
     public BPackage getCurrentPackage()
     {
@@ -322,7 +320,7 @@ public class BlueJ
     }
     
     /**
-     * Returns a language-independent label.
+     * Returns a language-dependent label.
      * The search order is to look FIRST into extensions labels and if not found into 
      * systems label.
      * Extensions labels are stored in a Property format and MUST be jarred together

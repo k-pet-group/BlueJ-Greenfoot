@@ -22,7 +22,7 @@ import java.awt.Window;
  * A wrapper for a Package in the BlueJ environment.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1726 2003-03-24 13:33:06Z damiano $
+ * @version $Id: BPackage.java 1770 2003-04-09 16:24:27Z damiano $
  */
 public class BPackage
 {
@@ -73,7 +73,7 @@ public class BPackage
     }
 
     /**
-     * Determines whether this is a valid BPackage.
+     * Determines whether this is a valid package.
      * Return true if it is, false othervise.
      */
     public boolean isValid()
@@ -84,7 +84,7 @@ public class BPackage
     }
     
     /**
-     * Return a BClass proxy object relating to a particular class in this package.
+     * Return a class proxy object relating to a particular class in this package.
      * If this is an empty package, no action will be taken and <code>null</code> will be returned.
      * 
      * @param name the simple name of the required class. For example, <CODE>Person</CODE>.
@@ -103,8 +103,8 @@ public class BPackage
     }
     
     /**
-     * Return an array with al BClass in thi BPackage.
-     * If there are no BClasses or the BPackage is invalid an empty array will be returned.
+     * Return an array containing all classes in this package.
+     * If there are no classes or the package is invalid an empty array will be returned.
      */
     public BClass[] getBClasses()
     {
