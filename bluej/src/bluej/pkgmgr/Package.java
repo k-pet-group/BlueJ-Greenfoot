@@ -28,7 +28,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2291 2003-11-06 09:39:02Z fisker $
+ * @version $Id: Package.java 2298 2003-11-06 19:06:33Z damiano $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -387,23 +387,12 @@ public final class Package extends Graph
         return lastSavedProps;
     }
 
+    
     /**
-     * Get the currently selected Target.  Should return null if the selected
-     * graphelement is not a Target
-     *
-     * @return the currently selected Target.
-     */
-    public Target getSelectedTarget()
-    //TODO This method is obsolete, remove when it is nolonger used.
-    {
-        if (selected != null && selected instanceof Target)
-        {
-            return (Target) selected;
-        }
-        return null; 
-    }
-    
-    
+     * Get the currently selected Targets.
+     * It will return an empty array if no target is selected.
+     * @return the currently selected array of Targets.
+     */    
     public Target[] getSelectedTargets(){
         Target[] targetArray = new Target[0];
         LinkedList list = new LinkedList();

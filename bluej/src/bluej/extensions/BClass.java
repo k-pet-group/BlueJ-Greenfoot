@@ -10,13 +10,14 @@ import bluej.views.MethodView;
 import bluej.views.View;
 import java.util.*;
 import java.io.*;
+import bluej.editor.*;
 
 /**
  * A wrapper for a BlueJ class.
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 2209 2003-10-10 14:02:43Z damiano $
+ * @version    $Id: BClass.java 2298 2003-11-06 19:06:33Z damiano $
  */
 
 public class BClass
@@ -384,6 +385,7 @@ public class BClass
 
     /**
      * Returns this Class .java file.
+     * If the file is currently being edited it will be saved at this method call.
      *
      * @return                            the class .java file.
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
@@ -393,8 +395,46 @@ public class BClass
              throws ProjectNotOpenException, PackageNotFoundException
     {
         ClassTarget aTarget = classId.getClassTarget();
+        Editor anEditor = aTarget.getEditor();
+        if ( anEditor != null ) anEditor.save();
 
         return aTarget.getSourceFile();
+    }
+
+
+    /**
+     * Signal to BlueJ that an extension is willing to begin changing the source file of this class.
+     * The file containing the source for this Class can be found using getJavaFile();
+     * If the file is currently being edited it will be saved and the editor will be set read-only.
+     * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
+     * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
+     */
+    public void beginChangeSource()
+             throws ProjectNotOpenException, PackageNotFoundException
+    {
+        ClassTarget aTarget = classId.getClassTarget();
+        Editor anEditor = aTarget.getEditor();
+        if ( anEditor == null ) return;
+        
+        anEditor.save();
+        anEditor.setReadOnly(true);
+    }
+
+    /**
+     * Signal to BlueJ that an extension has finished changing the source file of this class.
+     * 
+     * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
+     * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
+     */
+    public void endChangeSource()
+             throws ProjectNotOpenException, PackageNotFoundException
+    {
+        ClassTarget aTarget = classId.getClassTarget();
+        Editor anEditor = aTarget.getEditor();
+        if ( anEditor == null ) return;
+        
+        anEditor.reloadFile();
+        anEditor.setReadOnly(false);
     }
 
 

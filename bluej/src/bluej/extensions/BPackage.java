@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2281 2003-11-05 17:43:53Z mik $
+ * @version $Id: BPackage.java 2298 2003-11-06 19:06:33Z damiano $
  */
 
 /*
@@ -272,53 +272,52 @@ public class BPackage
         if ( waitCompileEnd ) JobQueue.getJobQueue().waitForEmptyQueue();
         }
 
-
-
-
     /** 
-     * Returns the currently selected Class in a Package.
-     * If no Class is being selected null is returned.
+     * Returns the currently selected Classes in a Package.
+     * If no Class is being selected an empty array is returned.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
-    public BClass getCurrentClass ()
+    public BClass []getCurrentClasses ()
         throws ProjectNotOpenException, PackageNotFoundException
     {
-        Target aTarget = packageId.getCurrentBluejTarget();
-        // The above may return null if there is nothing selected.
-        if ( aTarget == null ) return null;
-
-        // Nothing to do if it is not a class target.
-        if ( !(aTarget instanceof ClassTarget )) return null; 
+        Package bluejPkg = packageId.getBluejPackage();    
+        Target []targets = bluejPkg.getSelectedTargets();
+        ArrayList aList  = new ArrayList();
         
-        ClassTarget aClass = (ClassTarget)aTarget;
-        String qualifiedClassName = aClass.getQualifiedName();
-        Package attachedPkg = aClass.getPackage();
-        Identifier anId = new Identifier (attachedPkg.getProject(),attachedPkg, qualifiedClassName);
+        for(int index=0; index<targets.length; index++) 
+            {
+            if ( !(targets[index] instanceof ClassTarget )) continue; 
+          
+            ClassTarget aClass = (ClassTarget)targets[index];
+            String qualifiedClassName = aClass.getQualifiedName();
+            Package attachedPkg       = aClass.getPackage();
+            Identifier anId = new Identifier (attachedPkg.getProject(),attachedPkg, qualifiedClassName);
+            aList.add(new BClass(anId));
+            }
 
-        return new BClass(anId);
+        return (BClass[]) aList.toArray(new BClass[aList.size()]);
     }
 
     /** 
-     * Returns the currently selected Object in the Object Bench.
-     * If no Object is being selected null is returned.
+     * Returns the currently selected Objects in the Object Bench.
+     * If no Object is being selected an empty array is returned.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
-    public BObject getCurrentObject ()
+    public BObject []getCurrentObjects ()
         throws ProjectNotOpenException, PackageNotFoundException
     {
         PkgMgrFrame bluejFrame = packageId.getPackageFrame();
-
         ObjectBench aBench = bluejFrame.getObjectBench();
-        // Should never happens really.
-        if ( aBench == null ) return null;
+        if ( aBench == null ) return new BObject[0];
 
+        ArrayList aList  = new ArrayList();
+        // In the futire we will really return more than one element
         ObjectWrapper aWrapper = aBench.getSelectedObjectWrapper();
-        // This can happen quite easly.
-        if ( aWrapper == null ) return null;
-        
-        return new BObject(aWrapper);
+        if ( aWrapper != null ) aList.add(new BObject(aWrapper));
+
+        return (BObject[]) aList.toArray(new BObject[aList.size()]);
     }
 
 

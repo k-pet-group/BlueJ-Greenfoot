@@ -27,14 +27,12 @@ package bluej.extensions;
  * 
  */
 
-import bluej.pkgmgr.Project;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-
-import java.io.File;
 import bluej.pkgmgr.target.*;
-import bluej.views.*;
 import bluej.utility.*;
+import bluej.views.*;
+import java.io.*;
 
  
 class Identifier 
@@ -85,23 +83,6 @@ class Identifier
     
     return  bluejPkg;
     }
-
-
-  /**
-   * Returns the current class target given the current identifier.
-   */
-  Target getCurrentBluejTarget () throws ProjectNotOpenException, PackageNotFoundException
-    {
-    Package bluejPkg = getBluejPackage();
-
-    Target aTarget = bluejPkg.getSelectedTarget();
-    if ( aTarget == null ) return null;
-
-    return aTarget;
-    }
-
-
-
 
   /**
    * Returns the Frame associated with this Package.
