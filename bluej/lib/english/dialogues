@@ -345,12 +345,8 @@ will not take effect until the next time you
 start BlueJ.
 
 unittest-new-test-method
-Enter the name of the new test method you
-wish to create using the BlueJ object
-interaction. For example, if you enter
-Basic here, a test method called
-testBasic will be constructed in the unit test
-class.
+Specify a name for this test.
+Recording will then start.
 New Test Method
 null
 
