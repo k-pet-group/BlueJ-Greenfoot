@@ -10,11 +10,16 @@ import bluej.terminal.InputBuffer;
  * signals (CTRL-Z or CTRL-D) from a terminal
  * 
  * @author Davin McCall
- * @version $Id: BJInputStream.java 3315 2005-02-17 00:21:15Z davmac $
+ * @version $Id: BJInputStream.java 3317 2005-02-17 01:49:17Z davmac $
  */
 public class BJInputStream extends InputStream
 {
     private InputStream source;
+    private byte [] buffer = null;
+    int buffoffset = 0;
+    
+    boolean endOfLine = false;
+    boolean exOnEOL = false;
     
     /**
      * Construct a BJ
@@ -25,14 +30,38 @@ public class BJInputStream extends InputStream
         this.source = source;
     }
     
-    /* (non-Javadoc)
-     * @see java.io.InputStream#read()
-     */
     public int read() throws IOException {
+        
+        if (exOnEOL && endOfLine)
+            throw new IOException();
+        
         int n = source.read();
-        // CTRL-Z or CTRL-D
+        
+        // Check for EOF signal
         if (n == InputBuffer.EOF_CHAR)
             return -1;
+        
+        // Are we line-buffering?
+        if (exOnEOL && n == '\n')
+            endOfLine = true;
+        
         return n;
+    }
+    
+    public int read(byte [] b, int off, int len) throws IOException
+    {
+        // reads are line buffered. If a complete line is read, we don't
+        // want to read any more. So we flag this and it is handled in the
+        // read() method.
+        exOnEOL = true;
+        int n = super.read(b, off, len);
+        exOnEOL = false;
+        endOfLine = false;
+        return n;
+    }
+    
+    public int available() throws IOException
+    {
+        return source.available();
     }
 }
