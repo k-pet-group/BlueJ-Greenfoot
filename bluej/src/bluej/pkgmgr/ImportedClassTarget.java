@@ -8,14 +8,14 @@ import java.awt.Color;
 import java.awt.Font;
 
 /** 
- ** @version $Id: ImportedClassTarget.java 231 1999-08-12 04:15:34Z ajp $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** This target represents a class that was imported into the package from
- ** a library. For these classes, the target lives in the current package,
- ** but the source and the class of the target are in other locations.
- **/
+ * This target represents a class that was imported into the package from
+ * a library. For these classes, the target lives in the current package,
+ * but the source and the class of the target are in other locations.
+ *
+ * @author Michael Cahill
+ * @author Michael Kolling
+ * @version $Id: ImportedClassTarget.java 284 1999-11-25 02:34:37Z ajp $
+ */
 
 public class ImportedClassTarget extends ClassTarget
 {
@@ -145,7 +145,7 @@ public class ImportedClassTarget extends ClassTarget
     public String sourceFile()
     {
         return "";
-//        return sourcePkgDir + Config.slash + name + ".java";
+//        return sourcePkgDir + File.separator + name + ".java";
     }
  
     /**

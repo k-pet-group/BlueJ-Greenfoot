@@ -30,7 +30,7 @@ import bluej.pkgmgr.PackageCacheMgr;
  *
  * @author  Andy Marks
  * @author  Andrew Patterson
- * @cvs     $Id: LibraryBrowser.java 282 1999-11-18 10:36:00Z ajp $
+ * @cvs     $Id: LibraryBrowser.java 284 1999-11-25 02:34:37Z ajp $
  */
 public class LibraryBrowser extends JFrame implements ActionListener
 {
@@ -421,7 +421,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
      */
 //    public void openPackage(PackageTarget thePackage) {
 	// need to use getParent() because packge base dir will end with start of the package name
-//	String packageToOpen = new File(thePackage.getPackage().getBaseDir()).getParent() + File.separator + thePackage.packageName.replace('.', Config.slash);
+//	String packageToOpen = new File(thePackage.getPackage().getBaseDir()).getParent() + File.separator + thePackage.packageName.replace('.', File.separator);
 	// make sure package is selected in tree before call to libraryChooser.openPackage#
 //	libraryChooser.selectPackageInTree(packageToOpen);
 //	libraryChooser.openSelectedPackageInClassChooser();

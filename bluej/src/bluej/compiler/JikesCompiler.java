@@ -11,7 +11,7 @@ import bluej.utility.DialogManager;
 import bluej.Config;
 
 /**
- ** @version $Id: JikesCompiler.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: JikesCompiler.java 284 1999-11-25 02:34:37Z ajp $
  ** @author Andrew Patterson
  **
  ** JikesCompiler class - an implementation for the BlueJ "Compiler"
@@ -72,7 +72,7 @@ public class JikesCompiler extends Compiler
 	// mechanism. We will supply jikes with the sun boot classes
 	if(classpath != null) {
 	    args.addElement("-classpath");
-	    args.addElement(classpath + Config.colon + System.getProperty("sun.boot.class.path"));
+	    args.addElement(classpath + File.pathSeparator + System.getProperty("sun.boot.class.path"));
 	}
 	
 	if(debug)

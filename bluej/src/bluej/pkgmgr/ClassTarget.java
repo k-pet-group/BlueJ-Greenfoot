@@ -42,7 +42,7 @@ import java.util.Vector;
  ** @author Michael Kolling
  ** @author Bruce Quig
  **
- ** @version $Id: ClassTarget.java 281 1999-11-18 03:58:18Z axel $
+ ** @version $Id: ClassTarget.java 284 1999-11-25 02:34:37Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -295,16 +295,16 @@ public class ClassTarget extends EditableTarget
     // --- EditableTarget interface ---
 
     /**
-     ** @return a boolean indicating whether this target contains source code
-     **/
+     * @return a boolean indicating whether this target contains source code
+     */
     protected boolean isCode()
     {
 	return true;
     }
 
     /**
-     ** @return the name of the (text) file this target corresponds to.
-     **/
+     * @return the name of the (text) file this target corresponds to.
+     */
     public String sourceFile()
     {
 	return pkg.getFileName(name) + ".java";
@@ -330,8 +330,8 @@ public class ClassTarget extends EditableTarget
     }
 	
     /**
-     ** @return the current view being shown - one of the Editor constants
-     **/
+     * @return the current view being shown - one of the Editor constants
+     */
     public int getDisplayedView()
     {
 	return displayedView;
@@ -348,9 +348,9 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     ** Called by Editor when a file is saved
-     ** @param editor	the editor object being saved
-     **/
+     * Called by Editor when a file is saved
+     * @param editor	the editor object being saved
+     */
     public void saveEvent(Editor editor) 
     {
 	analyseDependencies();

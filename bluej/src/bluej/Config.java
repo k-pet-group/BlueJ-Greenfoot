@@ -20,39 +20,34 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
-** @version $Id: Config.java 278 1999-11-16 00:58:12Z ajp $
-** @author Michael Cahill
-** @author Michael Kolling
-**
-** Class to handle application configuration for BlueJ. The configuration
-** information is spread over several files:
-**
-**  <bluej_home>/bluej.defs
-**  <bluej_home>/labels.<language>	(eg "labels.english")
-**  <user_home>/.bluej/bluej.properties
-**  <bluej_home>/moe.labels.<language>
-**
-** "bluej.defs"	- contains system definitions which are not language 
-**			  specific and not user specific.
-** "labels.<language>"	- contains language specific strings
-** "bluej.properties"	- contains user specific settings. Settings here
-**			  override settings in bluej.defs
-** "moe.labels.english"- definitions for moe (the editor)
-**/
-
+ * Class to handle application configuration for BlueJ. The configuration
+ * information is spread over several files.
+ *
+ *  <bluej_home>/bluej.defs
+ *  <bluej_home>/labels.<language>	(eg "labels.english")
+ *  <user_home>/.bluej/bluej.properties
+ *  <bluej_home>/moe.labels.<language>
+ *
+ * "bluej.defs"	- contains system definitions which are not language 
+ *                specific and not user specific.
+ * "labels.<language>"	- contains language specific strings
+ * "bluej.properties"	- contains user specific settings. Settings here
+ *                        override settings in bluej.defs
+ * "moe.labels.english"- definitions for moe (the editor)
+ *
+ * @author Michael Cahill
+ * @author Michael Kolling
+ * @version $Id: Config.java 284 1999-11-25 02:34:37Z ajp $
+ */
 public class Config
 {
     public static final String nl = System.getProperty("line.separator");
-    public static final char slash = File.separatorChar;
-    public static final char colon = File.pathSeparatorChar;
-    public static final String slashstring = File.separator;
-    public static final String colonstring = File.pathSeparator;
 
     private static Properties bluej_props;	// bluej properties
     private static Properties lang_props;	// The internationalisation
     //  dictionary
     public static Properties moe_props;		// moe (editor) properties
-    private static String dirname = (slash == '/') ? ".bluej" : "bluej";
+    private static String dirname = (File.separatorChar == '/') ? ".bluej" : "bluej";
     private static String bluej_home;
     private static String sys_confdir;
     private static String user_confdir;
@@ -102,9 +97,9 @@ public class Config
         // construct paths for the configuration directories
 
         Config.bluej_home = bluej_home;
-        sys_confdir = bluej_home + slash + "lib";
+        sys_confdir = bluej_home + File.separator + "lib";
         user_confdir = FileSystemView.getFileSystemView().
-            getHomeDirectory().getAbsolutePath() + slash + dirname;
+            getHomeDirectory().getAbsolutePath() + File.separator + dirname;
 
         checkUserDir(user_confdir);
 
@@ -145,7 +140,7 @@ public class Config
     private static void checkDebug(String userdir)
     {
         if (! "on".equals(bluej_props.getProperty("debug"))) {
-            String debugLogFileName = userdir + slash +
+            String debugLogFileName = userdir + File.separator +
                 bluej_props.getProperty("bluej.debugLog");
             // simple diversion of output stream to a log file
             try {
@@ -179,7 +174,7 @@ public class Config
      */
     private static Properties loadDefs(String filename, boolean asDefault)
     {
-        String fullname = sys_confdir + slash + filename;
+        String fullname = sys_confdir + File.separator + filename;
         Properties defs = new Properties();
 
         try {
@@ -198,10 +193,10 @@ public class Config
     /**
      * Load local BlueJ properties. The properties definitions override
      * the defaults found in the definitions file.
-     **/
+     */
     private static void loadProperties(String filename, Properties props)
     {
-        String fullname = user_confdir + slash + filename + ".properties";
+        String fullname = user_confdir + File.separator + filename + ".properties";
 
         try {
             FileInputStream input = new FileInputStream(fullname);
@@ -216,7 +211,7 @@ public class Config
      */
     private static void saveProperties(String filename, Properties props)
     {
-        String fullname = user_confdir + slash + filename + ".properties";
+        String fullname = user_confdir + File.separator + filename + ".properties";
         try {
             FileOutputStream output = new FileOutputStream(fullname);
             props.store(output, getString("properties.heading"));
@@ -295,7 +290,7 @@ public class Config
     {
         try {
             String filename = bluej_props.getProperty(propname);
-            return bluej_home + slash + "lib" + slash + filename;
+            return bluej_home + File.separator + "lib" + File.separator + filename;
         } catch(Exception e) {
             Debug.reportError("Could not get library name: " + propname);
             return null;
@@ -309,7 +304,7 @@ public class Config
     {
         try {
             String filename = bluej_props.getProperty(propname);
-            return bluej_home + slash + "images" + slash + filename;
+            return bluej_home + File.separator + "images" + File.separator + filename;
         } catch(Exception e) {
             Debug.reportError("Could not find image: " + propname);
             return null;
@@ -322,7 +317,7 @@ public class Config
      */
     public static String getHelpFilename(String base)
     {
-        return sys_confdir + slash + base + ".help." + language;
+        return sys_confdir + File.separator + base + ".help." + language;
     }
 
     /**
@@ -331,7 +326,7 @@ public class Config
      */
     public static String getLanguageFilename(String base)
     {
-        return sys_confdir + slash + base + "." + language;
+        return sys_confdir + File.separator + base + "." + language;
     }
 
     public static Color getItemColour(String itemname)
@@ -378,8 +373,8 @@ public class Config
         if(canonPath == null)
             return null;
 
-        String path = canonPath.replace('/', slash);
-        path = path.replace(';', colon);
+        String path = canonPath.replace('/', File.separatorChar);
+        path = path.replace(';', File.pathSeparatorChar);
         return path;
     }
 
@@ -390,8 +385,8 @@ public class Config
 
     public static void putPath(Properties props, String propname, String path)
     {
-        path = path.replace(slash, '/');
-        path = path.replace(colon, ';');
+        path = path.replace(File.separatorChar, '/');
+        path = path.replace(File.pathSeparatorChar, ';');
         props.put(propname, path);
     }
 

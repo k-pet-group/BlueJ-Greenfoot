@@ -32,7 +32,7 @@ import java.io.*;
 import java.util.*;
 
 /**
-** @version $Id: Package.java 281 1999-11-18 03:58:18Z axel $
+** @version $Id: Package.java 284 1999-11-25 02:34:37Z ajp $
 ** @author Michael Cahill
 **
 ** A Java package (collection of Java classes).
@@ -198,7 +198,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
             ClassPathEntry cpe = (ClassPathEntry)i.next();
 
             c.append(cpe.getPath());
-            c.append(Config.colon);
+            c.append(File.pathSeparator);
         }
         c.append(getDirName());  // for classes in current package
 
@@ -415,7 +415,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
                      boolean libraryPackage)
     {
         // Read the package properties
-        String fullpkgfile = dirname + Config.slash + pkgfileName;
+        String fullpkgfile = dirname + File.separator + pkgfileName;
         this.dirname = dirname;
 
         // if we haven't been given properties to use, load them
@@ -606,7 +606,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         Enumeration t_enum = targets.elements();
         for(int i = 0; t_enum.hasMoreElements(); i++) {
             Target t = (Target)t_enum.nextElement();
-            okay = okay && t.copyFiles(newname + Config.slash);
+            okay = okay && t.copyFiles(newname + File.separator);
             if(t instanceof EditableTarget) {
                 // if editor is not null close it
                 if(((EditableTarget)t).editor != null)
@@ -659,7 +659,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
         // copy class source into package
 
-        String destPath = dirname + Config.slash + fileName;
+        String destPath = dirname + File.separator + fileName;
         if(!BlueJFileReader.copyFile(sourcePath, destPath))
             return COPY_ERROR;
 
@@ -1528,12 +1528,12 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     public String getFileName(String basename)
     {
-        return dirname + Config.slash + basename;
+        return dirname + File.separator + basename;
     }
 
     public String getClassFileName(String basename)
     {
-        return dirname + Config.slash + basename.replace('.', Config.slash);
+        return dirname + File.separator + basename.replace('.', File.separatorChar);
     }
 
     /**

@@ -21,7 +21,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 281 1999-11-18 03:58:18Z axel $
+ ** @version $Id: PkgFrame.java 284 1999-11-25 02:34:37Z ajp $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -186,7 +186,7 @@ implements ActionListener, ItemListener
             if(dirname != null) {
                 // remove any trailing slashes
                 int len = dirname.length();
-                while((len > 0) && (dirname.charAt(len - 1) == Config.slash))
+                while((len > 0) && (dirname.charAt(len - 1) == File.separatorChar))
                     --len;
                 dirname = dirname.substring(0, len);
             }

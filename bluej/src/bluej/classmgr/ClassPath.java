@@ -13,7 +13,7 @@ import javax.swing.table.*;
 /**
  * Class to maintain a list of ClassPathEntry's.
  *
- * @version $Id: ClassPath.java 280 1999-11-18 01:10:21Z ajp $
+ * @version $Id: ClassPath.java 284 1999-11-25 02:34:37Z ajp $
  * @author Andrew Patterson
  */
 public class ClassPath
@@ -77,7 +77,7 @@ public class ClassPath
     public void removeClassPath(String classpath)
     {
         try {
-            StringTokenizer st = new StringTokenizer(classpath, Config.colonstring);
+            StringTokenizer st = new StringTokenizer(classpath, File.pathSeparator);
 
             while(st.hasMoreTokens()) {
                 String entry = st.nextToken();
@@ -139,7 +139,7 @@ public class ClassPath
             return;
 
         try {
-            StringTokenizer st = new StringTokenizer(classpath, Config.colonstring);
+            StringTokenizer st = new StringTokenizer(classpath, File.pathSeparator);
 
             while(st.hasMoreTokens()) {
                 String entry = st.nextToken();
@@ -322,7 +322,7 @@ public class ClassPath
             ClassPathEntry nextEntry = (ClassPathEntry)it.next();
 
             buf.append(nextEntry.getPath());
-            buf.append(Config.colon);
+            buf.append(File.pathSeparatorChar);
         }
 
         return buf.toString();

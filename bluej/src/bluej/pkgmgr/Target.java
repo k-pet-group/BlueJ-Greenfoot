@@ -17,11 +17,11 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- ** @version $Id: Target.java 281 1999-11-18 03:58:18Z axel $
- ** @author Michael Cahill
- **
- ** A general target in a package
- **/
+ * @version $Id: Target.java 284 1999-11-25 02:34:37Z ajp $
+ * @author Michael Cahill
+ *
+ * A general target in a package
+ */
 public abstract class Target extends Vertex
 {
     static final int MIN_WIDTH = 60;
@@ -49,7 +49,7 @@ public abstract class Target extends Vertex
     static final int F_SELECTED = 1 << 0;
     static final int F_QUEUED = 1 << 1;
 
-    protected String name;		// name of the target
+    protected String name;          // name of the target
     protected String fullname;		// name with package name
     protected Package pkg;		// the package this target belongs to
     protected SortableVector inUses;

@@ -21,7 +21,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 281 1999-11-18 03:58:18Z axel $
+ ** @version $Id: AppletClassRole.java 284 1999-11-25 02:34:37Z ajp $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -196,7 +196,7 @@ public class AppletClassRole extends ClassRole
 	    else {
 
 		String dir =  new File(pkg.getDirName()).getAbsolutePath();
-		String absoluteFileName = dir + Config.slash + name + HTML_EXTENSION;
+		String absoluteFileName = dir + File.separator + name + HTML_EXTENSION;
 		
 		createWebPage(name, ".", absoluteFileName);
 	

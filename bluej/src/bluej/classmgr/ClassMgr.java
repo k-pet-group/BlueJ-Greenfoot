@@ -23,7 +23,7 @@ import bluej.Config;
  *               and supply the directory the package lives in)
  *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassMgr.java 280 1999-11-18 01:10:21Z ajp $
+ * @cvs     $Id: ClassMgr.java 284 1999-11-25 02:34:37Z ajp $
  */
 public class ClassMgr
 {
@@ -221,7 +221,7 @@ public class ClassMgr
             ByteArrayOutputStream classdata = new ByteArrayOutputStream();
 
             try {
-                String filename = name.replace('.', Config.slash) + ".class";
+                String filename = name.replace('.', File.separatorChar) + ".class";
 
                 InputStream in = systemLibraries.getFile(filename);
 
