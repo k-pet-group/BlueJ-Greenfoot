@@ -30,7 +30,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1632 2003-02-26 10:22:00Z damiano $
+ * @version $Id: Project.java 1639 2003-03-04 20:24:40Z damiano $
  */
 public class Project
     implements BlueJEventListener
@@ -236,9 +236,9 @@ public class Project
      * 
      * @return a Set containing the keys of all open projects.
      */
-    public static Set getProjectSet ()
+    public static Set getProjectKeySet ()
     {
-        return projects.entrySet();
+        return projects.keySet();
     }
 
     /**
