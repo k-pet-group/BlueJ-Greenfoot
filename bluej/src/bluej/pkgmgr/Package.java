@@ -24,10 +24,10 @@ import bluej.extmgr.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: Package.java 1845 2003-04-14 06:15:46Z ajp $
  */
 public class Package extends Graph
-    implements CompileObserver, MouseListener, MouseMotionListener
+    implements MouseListener, MouseMotionListener
 {
     /** message to be shown on the status bar */
     static final String compiling = Config.getString("pkgmgr.compiling");
@@ -901,7 +901,10 @@ public class Package extends Graph
                     toCompile.add(ct);
             }
         }
-        compileSet(toCompile);
+
+		for(int i = toCompile.size() - 1; i >= 0; i--)
+			searchCompile((ClassTarget)toCompile.get(i), 1,
+						  new Stack(), new PackageCompileObserver());
     }
 
     /**
@@ -916,9 +919,24 @@ public class Package extends Graph
             ct.getEditor().save();
         ct.setState(Target.S_INVALID);		// to force compile
 
-        searchCompile(ct, 1, new Stack());
+        searchCompile(ct, 1, new Stack(), new PackageCompileObserver());
     }
 
+
+	/**
+	 *  Compile a single class quietly.
+	 */
+	public void compileQuiet(ClassTarget ct)
+	{
+		if(!checkCompile())
+			return;
+
+		if (ct.editorOpen())
+			ct.getEditor().save();
+		ct.setState(Target.S_INVALID);		// to force compile
+
+		searchCompile(ct, 1, new Stack(), new QuietPackageCompileObserver());
+	}
 
     /**
      * Force compile of all classes. Called by user function "rebuild".
@@ -942,20 +960,13 @@ public class Package extends Graph
                 compileTargets.add(ct);
             }
         }
-        doCompile(compileTargets);
+        doCompile(compileTargets, new PackageCompileObserver());
     }
 
-
-    private void compileSet(List toCompile)
-    {
-        for(int i = toCompile.size() - 1; i >= 0; i--)
-            searchCompile((ClassTarget)toCompile.get(i), 1,
-                          new Stack());
-    }
-
-
-    /** Use Tarjan's algorithm to construct compiler Jobs **/
-    private void searchCompile(ClassTarget t, int dfcount, Stack stack)
+    /**
+     * Use Tarjan's algorithm to construct compiler Jobs. 
+     */
+    private void searchCompile(ClassTarget t, int dfcount, Stack stack, CompileObserver observer)
     {
         if((t.getState() != Target.S_INVALID) || t.isFlagSet(Target.F_QUEUED))
             return;
@@ -980,7 +991,7 @@ public class Package extends Graph
                     t.link = Math.min(t.link, to.dfn);
             }
             else if(to.getState() == Target.S_INVALID) {
-                searchCompile((ClassTarget)to, dfcount + 1, stack);
+                searchCompile((ClassTarget)to, dfcount + 1, stack, observer);
                 t.link = Math.min(t.link, to.link);
             }
         }
@@ -994,7 +1005,7 @@ public class Package extends Graph
                 compileTargets.add(x);
             } while(x != t);
 
-            doCompile(compileTargets);
+            doCompile(compileTargets, observer);
         }
     }
 
@@ -1002,7 +1013,7 @@ public class Package extends Graph
      *  Compile every Target in 'targetList'. Every compilation goes through
      *  this method.
      */
-    private void doCompile(List targetList)
+    private void doCompile(List targetList, CompileObserver observer)
     {
         if(targetList.size() == 0)
             return;
@@ -1014,10 +1025,10 @@ public class Package extends Graph
         }
         removeBreakpoints();
 
-        JobQueue.getJobQueue().addJob(srcFiles, this, getProject().getClassPath(),
-                                      getProject().getProjectDir());
+        JobQueue.getJobQueue().addJob(srcFiles, observer,
+        								getProject().getClassPath(),
+                                      	getProject().getProjectDir());
     }
-
 
     /**
      *  Check whether it's okay to compile.
@@ -1818,152 +1829,195 @@ public class Package extends Graph
             ExecControls.getExecControls().updateThreads(thread);
     }
 
+	/**
+	 * Display an exception message. This is almost the same as "errorMessage"
+	 * except for different help texts.
+	 */
+	public void exceptionMessage(List stack, String message,
+								 boolean invalidate)
+	{
+		if((stack == null ) || (stack.size() == 0)) {
+			Debug.message("Stack missing in exception event");
+			Debug.message("exc message: " + message);
+			return;
+		}
+	
+		// using the stack, try to find the source code
+		boolean done = false;
+		Iterator iter = stack.iterator();
+		boolean firstTime = true;
+	
+		while(!done && iter.hasNext()) {
+			SourceLocation loc = (SourceLocation)iter.next();
+			String filename = new File(getPath(), loc.getFileName()).getPath();
+			int lineNo = loc.getLineNumber();
+			done = showEditorMessage(filename, lineNo, message, invalidate,
+									 true, true, false, "exception");
+			if(firstTime && !done) {
+				message += " (in " + loc.getClassName() + ")";
+				firstTime = false;
+			}
+		}
+		if(!done) {
+			SourceLocation loc = (SourceLocation)stack.get(0);
+			showMessageWithText("error-in-file",
+								loc.getClassName() + ":" +
+								loc.getLineNumber() + "\n" + message);
+		}
+	}
+
     // ---- bluej.compiler.CompileObserver interface ----
 
-    /**
-     *  A compilation has been started. Mark the affected classes as being
-     *  currently compiled.
-     */
-    public void startCompile(File[] sources)
-    {
+	/**
+	 * Observe compilation jobs and change the PkgMgr interface
+	 * elements as compilation goes through different stages. 
+	 */
+	class PackageCompileObserver implements CompileObserver
+	{
+		protected void markAsCompiling(File[] sources)
+		{
+			for(int i = 0; i < sources.length; i++) {
+				String fileName = sources[i].getPath();
+				String fullName = getProject().convertPathToPackageName(fileName);
+	
+				Target t = (Target) getTarget(JavaNames.getBase(fullName));
+	
+				if(t != null)
+					t.setState(ClassTarget.S_COMPILING);
+			}
+		}
 
-        // The following two lines will send a compilation event to extensions.
-        CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, sources);
-        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
-   
-        setStatus(compiling);
+	    /**
+	     *  A compilation has been started. Mark the affected classes as being
+	     *  currently compiled.
+	     */
+	    public void startCompile(File[] sources)
+	    {
+	        // The following two lines will send a compilation event to extensions.
+	        CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, sources);
+	        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+	   
+	        setStatus(compiling);
+	
+	        if (sources.length > 0) {
+	            getProject().removeLocalClassLoader();
+	            getProject().removeRemoteClassLoader();
+	        }
 
-        if (sources.length > 0) {
-            getProject().removeLocalClassLoader();
-            getProject().removeRemoteClassLoader();
-        }
+			markAsCompiling(sources);
+	    }
+	
+	    /**
+	     * Display an error message associated with a specific line in a class.
+	     * This is done by opening the class's source, highlighting the line
+	     * and showing the message in the editor's information area.
+	     */
+	    public void errorMessage(String filename, int lineNo, String message,
+	                             boolean invalidate)
+	    {
+	        // The following lines will send a compilation Error event to extensions.
+	        int eventId = invalidate?CompileEvent.COMPILE_ERROR_EVENT:CompileEvent.COMPILE_WARNING_EVENT;
+	        File [] sources = new File[1]; 
+	        sources [0] = new File(filename);
+	        CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
+	        aCompileEvent.setErrorLineNumber(lineNo);
+	        aCompileEvent.setErrorMessage(message);
+	        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+	 
+	        if(! showEditorMessage(filename, lineNo, message, invalidate, true,
+	                               true, false, Config.compilertype))
+	            showMessageWithText("error-in-file",
+	                                filename + ":" + lineNo +
+	                                "\n" + message);
+	    }
 
-        for(int i = 0; i < sources.length; i++) {
-            String filename = sources[i].getPath();
+		public void exceptionMessage(List stack, String message,
+									 boolean invalidate)
+		{
+			Package.this.exceptionMessage(stack, message, invalidate);
+		}
+	
+	    public void checkTarget(String qualifiedName)
+	    {
+	
+	    }
+	
+	
+	    /**
+	     *  Compilation has ended.  Mark the affected classes as being
+	     *  normal again.
+	     */
+	    public void endCompile(File[] sources, boolean successful)
+	    {
+	        // The following three lines will send a compilation event to extensions.
+	        int eventId = successful?CompileEvent.COMPILE_DONE_EVENT:CompileEvent.COMPILE_FAILED_EVENT;
+	        CompileEvent aCompileEvent = new CompileEvent(eventId,sources);
+	        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+	    
+	        for(int i = 0; i < sources.length; i++) {
+	            String filename = sources[i].getPath();
+	
+	            String fullName = getProject().convertPathToPackageName(filename);
+	
+	            ClassTarget t = (ClassTarget) targets.get(JavaNames.getBase(fullName));
+	
+	            if (t == null)
+	                continue;
+	
+	            if (successful) {
+	                t.endCompile();
+	
+	                /* compute ctxt files (files with comments and parameters names) */
+	                try {
+	                    ClassInfo info = ClassParser.parse(t.getSourceFile(), new Vector(getAllClassnames()));
+	
+	                    OutputStream out = new FileOutputStream(t.getContextFile());
+	                    info.getComments().store(out, "BlueJ class context");
+	                    out.close();
+	                } catch (Exception ex) {
+	                    ex.printStackTrace();
+	                }
+	            }
+	
+	            t.setState(successful ? Target.S_NORMAL : Target.S_INVALID);
+	            t.unsetFlag(Target.F_QUEUED);
+	            if(successful && t.editorOpen())
+	                t.getEditor().setCompiled(true);
+	        }
+	        setStatus(compileDone);
+	        getEditor().repaint();
+	    }
+	}
+	
+	class QuietPackageCompileObserver extends PackageCompileObserver
+	{
+		public void startCompile(File[] sources)
+		{
+			// the following two lines will send a compilation event to extensions.
+			CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, sources);
+			ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+	   
+			setStatus(compiling);
+	
+			markAsCompiling(sources);
+		}
 
-            String fullName = getProject().convertPathToPackageName(filename);
+		public void errorMessage(String filename, int lineNo, String message,
+								 boolean invalidate)
+	    {
+	    }
 
-            Target t = (Target) getTarget(JavaNames.getBase(fullName));
-
-            if(t != null)
-                t.setState(ClassTarget.S_COMPILING);
-        }
-    }
-
-    /**
-     * Display an error message associated with a specific line in a class.
-     * This is done by opening the class's source, highlighting the line
-     * and showing the message in the editor's information area.
-     */
-    public void errorMessage(String filename, int lineNo, String message,
-                             boolean invalidate)
-    {
-
-        // The following lines will send a compilation Error event to extensions.
-        int eventId = invalidate?CompileEvent.COMPILE_ERROR_EVENT:CompileEvent.COMPILE_WARNING_EVENT;
-        File [] sources = new File[1]; 
-        sources [0] = new File(filename);
-        CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
-        aCompileEvent.setErrorLineNumber(lineNo);
-        aCompileEvent.setErrorMessage(message);
-        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
-
-
-    
-        if(! showEditorMessage(filename, lineNo, message, invalidate, true,
-                               true, false, Config.compilertype))
-            showMessageWithText("error-in-file",
-                                filename + ":" + lineNo +
-                                "\n" + message);
-    }
-
-    public void checkTarget(String qualifiedName)
-    {
-
-    }
-
-    /**
-     * Display an exception message. This is almost the same as "errorMessage"
-     * except for different help texts.
-     */
-    public void exceptionMessage(List stack, String message,
-                                 boolean invalidate)
-    {
-        if((stack == null ) || (stack.size() == 0)) {
-            Debug.message("Stack missing in exception event");
-            Debug.message("exc message: " + message);
-            return;
-        }
-
-        // using the stack, try to find the source code
-        boolean done = false;
-        Iterator iter = stack.iterator();
-        boolean firstTime = true;
-
-        while(!done && iter.hasNext()) {
-            SourceLocation loc = (SourceLocation)iter.next();
-            String filename = new File(getPath(), loc.getFileName()).getPath();
-            int lineNo = loc.getLineNumber();
-            done = showEditorMessage(filename, lineNo, message, invalidate,
-                                     true, true, false, "exception");
-            if(firstTime && !done) {
-                message += " (in " + loc.getClassName() + ")";
-                firstTime = false;
-            }
-        }
-        if(!done) {
-            SourceLocation loc = (SourceLocation)stack.get(0);
-            showMessageWithText("error-in-file",
-                                loc.getClassName() + ":" +
-                                loc.getLineNumber() + "\n" + message);
-        }
-    }
-
-    /**
-     *  Compilation has ended.  Mark the affected classes as being
-     *  normal again.
-     */
-    public void endCompile(File[] sources, boolean successful)
-    {
-
-        // The following three lines will send a compilation event to extensions.
-        int eventId = successful?CompileEvent.COMPILE_DONE_EVENT:CompileEvent.COMPILE_FAILED_EVENT;
-        CompileEvent aCompileEvent = new CompileEvent(eventId,sources);
-        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
-    
-        for(int i = 0; i < sources.length; i++) {
-            String filename = sources[i].getPath();
-
-            String fullName = getProject().convertPathToPackageName(filename);
-
-            ClassTarget t = (ClassTarget) targets.get(JavaNames.getBase(fullName));
-
-            if (t == null)
-                continue;
-
-            if (successful) {
-                t.endCompile();
-
-                /* compute ctxt files (files with comments and parameters names) */
-                try {
-                    ClassInfo info = ClassParser.parse(t.getSourceFile(), new Vector(getAllClassnames()));
-
-                    OutputStream out = new FileOutputStream(t.getContextFile());
-                    info.getComments().store(out, "BlueJ class context");
-                    out.close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            t.setState(successful ? Target.S_NORMAL : Target.S_INVALID);
-            t.unsetFlag(Target.F_QUEUED);
-            if(successful && t.editorOpen())
-                t.getEditor().setCompiled(true);
-        }
-        setStatus(compileDone);
-        getEditor().repaint();
-    }
+		public void exceptionMessage(List stack, String message,
+									 boolean invalidate)
+		{
+		}
+		
+/*		public void endCompile(File[] sources, boolean successful)
+		{
+			
+		} */
+		
+	}
 
     // ---- end of bluej.compiler.CompileObserver interface ----
 

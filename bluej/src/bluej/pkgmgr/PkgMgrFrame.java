@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1832 2003-04-11 09:57:07Z damiano $
+ * @version $Id: PkgMgrFrame.java 1845 2003-04-14 06:15:46Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1257,6 +1257,9 @@ public class PkgMgrFrame extends JFrame
             editor.revalidate();
             editor.scrollRectToVisible(target.getRectangle());
             editor.repaint();
+            
+            if (target.getRole() instanceof UnitTestClassRole)
+            	pkg.compileQuiet(target);
         }
     }
 
