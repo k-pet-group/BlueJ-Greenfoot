@@ -432,6 +432,27 @@ public class ExtensionWrapper
           }
     }
 
+    /**
+     * Returns the extension's name.
+     * It would be far more reliable to use the full class name of the extension. Damiano
+     */
+    String safeGetExtensionName()
+    {
+        if (extensionInstance == null) return "";
+
+        try
+          {
+          return extensionInstance.getName();
+          }
+        catch ( Exception exc )
+          {
+          Debug.message("ExtensionWrapper.safeGetExtensionName: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
+          exc.printStackTrace();
+          return "";
+          }
+    }
+
+
 
     /**
      *  Gets the extension's 'further information' URL

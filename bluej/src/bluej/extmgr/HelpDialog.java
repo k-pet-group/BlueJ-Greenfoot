@@ -11,7 +11,7 @@ import javax.swing.table.*;
 /**
  *  The Extensions Manager help panel allows the user to view current  extensions.
  *
- * @version    $Id: HelpDialog.java 1867 2003-04-17 18:16:31Z damiano $
+ * @version    $Id: HelpDialog.java 1875 2003-04-22 13:30:24Z damiano $
  */
 
  /*
@@ -243,7 +243,7 @@ public class HelpDialog implements ActionListener
                 return wrapper.getExtensionStatus();
 
             if (col == 2) 
-              return wrapper.getExtensionClassName();
+              return wrapper.safeGetExtensionName();
 
             if (col == 3)
                 return (wrapper.getProject() != null) ? projectString : installedString;

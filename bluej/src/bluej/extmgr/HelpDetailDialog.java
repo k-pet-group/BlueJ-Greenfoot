@@ -187,7 +187,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
         statusField.setText(wrapper.getExtensionStatus());
         statusField.setForeground(wrapper.isValid() ? Color.black : Color.red);
 
-        nameField.setText(wrapper.getExtensionClassName());
+        nameField.setText(wrapper.safeGetExtensionName());
         locationField.setText(wrapper.getExtensionFileName());
         typeField.setText((wrapper.getProject() != null) ? projectString : installedString);
         versionField.setText(wrapper.safeGetExtensionVersion());

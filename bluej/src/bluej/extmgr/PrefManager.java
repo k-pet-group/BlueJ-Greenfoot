@@ -80,9 +80,9 @@ public class PrefManager implements PrefPanelListener
     private void doWorkItem( ExtensionWrapper aWrapper, int doAction ) 
     {
         // This extension is not valid, let me skip it
-        if (! aWrapper.isValid()) 
-            return;
-        String extensionName = aWrapper.getExtensionClassName();
+        if (! aWrapper.isValid()) return;
+
+        String extensionName = aWrapper.safeGetExtensionName();
 
         switch (doAction) {
             case DO_loadValues:  
@@ -99,7 +99,6 @@ public class PrefManager implements PrefPanelListener
 
     /**
      * Utility to make the code nicer. Michael likes it :-)
-     */
     private String stripName ( String i_name )
     {
         int dotIndex = i_name.lastIndexOf(".");
@@ -113,6 +112,7 @@ public class PrefManager implements PrefPanelListener
 
         return i_name.substring(dotIndex+1);
     }
+     */
   
     /**
      * Being here to make code cleaner. 
@@ -126,7 +126,7 @@ public class PrefManager implements PrefPanelListener
 
         // The panel that the user gives me goes into a container pane
         JPanel framePanel = new JPanel(new BorderLayout());
-        framePanel.setBorder(BorderFactory.createTitledBorder(stripName(extensionName)));
+        framePanel.setBorder(BorderFactory.createTitledBorder(extensionName));
 
         // The panel that the user gives me goes into the north, packed
         framePanel.add (aPanel,BorderLayout.NORTH);
