@@ -1,11 +1,3 @@
-// Copyright (c) 2000 BlueJ Group, Monash University
-//
-// This software is made available under the terms of the "MIT License"
-// A copy of this license is included with this source distribution
-// in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html 
-// Any queries should be directed to Michael Kolling mik@mip.sdu.dk
-
 package bluej.debugmgr.texteval;
 
 import bluej.editor.moe.BlueJSyntaxView;

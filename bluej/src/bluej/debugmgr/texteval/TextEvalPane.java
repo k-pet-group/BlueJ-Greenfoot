@@ -6,7 +6,6 @@ import java.awt.Rectangle;
 import javax.swing.JEditorPane;
 
 import bluej.editor.moe.BlueJSyntaxView;
-import bluej.utility.Debug;
 
 /**
  * A modified editor pane for the text evaluation area.
@@ -14,7 +13,7 @@ import bluej.utility.Debug;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 2759 2004-07-08 08:58:27Z mik $
+ * @version $Id: TextEvalPane.java 2760 2004-07-08 09:39:51Z mik $
  */
 public class TextEvalPane extends JEditorPane {
 

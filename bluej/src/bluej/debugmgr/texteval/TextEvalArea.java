@@ -1,13 +1,7 @@
 package bluej.debugmgr.texteval;
 
-import java.awt.Dimension;
-import java.awt.Event;
+import java.awt.*;
 import java.awt.event.*;
-import java.awt.Font;
-import java.awt.Insets;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.ActionEvent;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -32,11 +26,16 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2759 2004-07-08 08:58:27Z mik $
+ * @version $Id: TextEvalArea.java 2760 2004-07-08 09:39:51Z mik $
  */
 public final class TextEvalArea extends JScrollPane
-    implements ResultWatcher, KeyListener, FocusListener
+    implements ResultWatcher, KeyListener, FocusListener, MouseMotionListener
 {
+    // The cursor to use while hovering over object icon
+    private static final Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+    private static final Cursor objectCursor = new Cursor(Cursor.HAND_CURSOR);
+    private static final Cursor textCursor = new Cursor(Cursor.TEXT_CURSOR);
+    
     //    private JTextArea text;
     private TextEvalPane text;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
@@ -45,6 +44,8 @@ public final class TextEvalArea extends JScrollPane
     private Invoker invoker = null;
     private boolean firstTry;
     private IndexHistory history;
+    private boolean mouseInTag = false;
+    private boolean mouseOverObject = false;
     
     /**
      * Create a new text area with given size.
@@ -143,6 +144,63 @@ public final class TextEvalArea extends JScrollPane
     }
 
     //   --- end of ResultWatcher interface ---
+
+    // ---- MouseMotionListener interface: ----
+    
+    public void mouseDragged(MouseEvent evt) {}
+
+    /**
+     * When the mouse is moved, check whether we should change the 
+     * mouse cursor.
+     */
+    public void mouseMoved(MouseEvent evt) 
+    {
+        int x = evt.getX();
+        int y = evt.getY();
+        
+        if(mouseInTag) {
+            if(x > BlueJSyntaxView.TAG_WIDTH) {    // moved out of tag area
+                text.setCursor(textCursor);
+                mouseInTag = false;
+            }
+            else 
+                setTagAreaCursor(x, y);
+        }
+        else {
+            if(x <= BlueJSyntaxView.TAG_WIDTH) {   // moved into tag area
+                text.setCursor(defaultCursor);
+                mouseOverObject = false;
+                setTagAreaCursor(x, y);
+                mouseInTag = true;
+            }
+        }
+    }
+
+    /**
+     * Set the mouse cursor for the tag area. 
+     */
+    private void setTagAreaCursor(int x, int y)
+    {
+        if(pointOverObjectIcon(x, y) != mouseOverObject) {  // entered or left object
+            mouseOverObject = !mouseOverObject;
+            if(mouseOverObject)
+                text.setCursor(objectCursor);
+            else
+                text.setCursor(defaultCursor);
+        }        
+    }
+
+    /**
+     * Check whether a given point on screen is over an object icon.
+     */
+    private boolean pointOverObjectIcon(int x, int y)
+    {
+        int pos = text.getUI().viewToModel(text, new Point(x, y));
+        ObjectInfo objInfo = objectAtPosition(pos);
+        return objInfo != null;        
+    }
+    
+    // ---- end of MouseMotionListener interface ----
 
     /**
      * Inspect the given object.
@@ -403,6 +461,7 @@ public final class TextEvalArea extends JScrollPane
         text.setCaret(new TextEvalCaret(this));
         text.addKeyListener(this);
         text.addFocusListener(this);
+        text.addMouseMotionListener(this);
         text.setFont(font);
         text.setAutoscrolls(false);  // important - dragging objects from this component
                                      // does not work correctly otherwise
