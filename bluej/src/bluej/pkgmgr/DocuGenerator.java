@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import bluej.*;
-import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
 
 /**
@@ -113,6 +112,9 @@ public class DocuGenerator
         addParams(call, tmpJavadocParams);
         call.add("-d");
         call.add(docDir.getPath());
+        call.add("-classpath");
+        File junitFile = new File(Config.getBlueJLibDir(), "junit.jar");
+        call.add(junitFile.getAbsolutePath());
         call.add(filename);
 
         String[] javadocCall = (String[])call.toArray(new String[0]);
@@ -360,6 +362,9 @@ public class DocuGenerator
         call.add(docCommand);
         call.add("-sourcepath");
         call.add(projectDirPath);
+        call.add("-classpath");
+        File junitFile = new File(Config.getBlueJLibDir(), "junit.jar");
+        call.add(junitFile.getAbsolutePath());
         call.add("-d");
         call.add(docDirPath);
         if(! System.getProperty("java.vm.version").startsWith("1.3")) {
