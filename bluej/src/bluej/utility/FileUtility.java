@@ -16,7 +16,7 @@ import java.lang.reflect.Array;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 629 2000-07-07 01:28:58Z mik $
+ * @version $Id: FileUtility.java 631 2000-07-07 02:05:15Z mik $
  */
 public class FileUtility
 {
@@ -357,7 +357,6 @@ public class FileUtility
         for (int i=0; i < files.length; i++) {
             if(files[i].isFile() && files[i].getName().endsWith(suffix))
                 return true;
-            }
         }
 
         return false;
