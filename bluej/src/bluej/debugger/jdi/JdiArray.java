@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.*;
 import bluej.utility.JavaNames;
 
-import com.sun.jdi.*;
+import com.sun.jdi.ArrayReference;
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.Value;
 
 /**
  * Represents an array object running on the user (remote) machine.
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 2961 2004-08-30 12:54:12Z polle $
+ * @version    $Id: JdiArray.java 2982 2004-09-03 02:20:13Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -54,10 +55,10 @@ public class JdiArray extends JdiObject
             // (this is possible because all arrays extend Object)
             if(ctypestr.charAt(0) == '[')
                 return;
-            
-            // Having established a component type that is not an array, we'll
-            // make the bold assumption that it is a reference type. (This is
-            // correct due to the presence of a generic signature in the field).
+
+            // The array may be of a primitive type.
+            if(genericType.isPrimitive())
+                return;
 
             // It's not really possible for an array to have a component type
             // that is a wildcard, but this type is inferred in some cases so
@@ -90,6 +91,7 @@ public class JdiArray extends JdiObject
                 // GenTypeSuper or the like. In some cases it would be possible
                 // to map from a super type to a sub type, but it's possible
                 // that the super type is not even loaded. So don't even try.
+                
                 String compName = ctypestr.substring(1, ctypestr.length() - 1);
                 compName = compName.replace('/','.');
                 
