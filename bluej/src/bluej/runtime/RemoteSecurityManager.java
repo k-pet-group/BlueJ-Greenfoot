@@ -8,7 +8,7 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: RemoteSecurityManager.java 2250 2003-11-04 12:43:09Z mik $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
@@ -58,6 +58,8 @@ public class RemoteSecurityManager extends SecurityManager
          * virtual machine (to simulate quitting the application).
          */
         
+        return;
+/*        
         if(! System.getProperty("java.version").startsWith("1.3")) {
             // it is important that we don't make this call on anything 
             // before jdk 1.4, since this class uses 1.4 methods
@@ -101,6 +103,7 @@ public class RemoteSecurityManager extends SecurityManager
             // this exception will be displayed to the user
             throw new ExitException(Integer.toString(status));
         }
+*/
     }
 
     public void checkMemberAccess(Class clazz,

@@ -12,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2077 2003-06-26 14:09:27Z mik $
+ * @version $Id: Debugger.java 2250 2003-11-04 12:43:09Z mik $
  */
 public abstract class Debugger
 {
@@ -53,7 +53,7 @@ public abstract class Debugger
     /**
      * Finish debugging.
      */
-    public abstract void close();
+    public abstract void close(boolean restart);
 
 	/**
 	 * Add a listener for DebuggerEvents

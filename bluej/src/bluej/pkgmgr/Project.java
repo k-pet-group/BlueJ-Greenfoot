@@ -20,7 +20,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2244 2003-10-31 14:25:02Z damiano $
+ * @version $Id: Project.java 2250 2003-11-04 12:43:09Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -175,7 +175,7 @@ public class Project
 			project.getExecControls().dispose();
 
 		project.getDebugger().removeDebuggerListener(project);
-		project.getDebugger().close();
+		project.getDebugger().close(false);
 		
         PrefMgr.addRecentProject(project.getProjectDir().getAbsolutePath());
         projects.remove(project.getProjectDir());
@@ -618,10 +618,24 @@ public class Project
         }
     }
 
+    /**
+     * Explicitly restart the remote debug VM. The VM first gets shut down, and then
+     * freshly restarted.
+     */
 	public void restartVM()
 	{
-		getDebugger().close();
-
+		getDebugger().close(true);
+        vmClosed();
+		PkgMgrFrame.displayMessage(this, Config.getString("pkgmgr.creatingVM"));
+	}
+	
+    
+    /**
+     * The remote VM for this project has just been closed. Remove everything in this
+     * project that depended on that VM.
+     */
+    private void vmClosed()
+    {
 		// remove breakpoints for all packages
 		Iterator i = packages.values().iterator();
 
@@ -633,12 +647,9 @@ public class Project
 		// any calls to the debugger made by removeLocalClassLoader
 		// will silently fail
 		removeLocalClassLoader();
-
-		PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVM"));
-			
-		getDebugger().launch();
-	}
-	
+    }
+    
+    
     /**
      * Get the ClassLoader for this project.
      * The ClassLoader load classes on the local VM.
@@ -793,9 +804,14 @@ public class Project
 
 			for(int i=0; i< frames.length; i++)
 				frames[i].setDebuggerState(event.getNewState());
-				
+            
+            // check whether we just got a freshly created VM
 			if (event.getOldState() == Debugger.NOTREADY && event.getNewState() == Debugger.IDLE)
-				PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVMDone"));
+				PkgMgrFrame.displayMessage(this, Config.getString("pkgmgr.creatingVMDone"));
+
+            // check whether a good VM just disappeared
+			if (event.getOldState() == Debugger.IDLE && event.getNewState() == Debugger.NOTREADY)
+				vmClosed();
 				
 			return;			
 		}
