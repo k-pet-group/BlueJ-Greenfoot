@@ -9,7 +9,7 @@ import com.sun.jdi.event.*;
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 3025 2004-09-30 04:07:50Z bquig $
+ * @version $Id: VMEventHandler.java 3030 2004-10-01 01:32:28Z davmac $
  */
 class VMEventHandler extends Thread
 {
@@ -36,10 +36,7 @@ class VMEventHandler extends Thread
         while (!exiting) {
             try {
                 // wait for the next event
-                //Debug.message("get event off queue..."); // TODO
-                //Debug.message(" isInterrupted = " + isInterrupted());
                 EventSet eventSet = queue.remove();
-                boolean storedInterrupt = interrupted();
                 
                 // From the JDK documentation
                 // The events that are grouped in an EventSet are restricted in the following ways:
@@ -71,6 +68,7 @@ class VMEventHandler extends Thread
                 
                 // synchronize to avoid getting interrupt()ed temporarily
                 synchronized(this) {
+                    boolean storedInterrupt = interrupted();
                     boolean addToSuspendCount = false;
                     
                     // iterate through all events in the set
