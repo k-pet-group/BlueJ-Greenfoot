@@ -12,7 +12,7 @@ import bluej.Config;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 2226 2003-10-28 02:07:26Z ajp $
+ * @version $Id: GraphEditor.java 2385 2003-11-24 12:30:38Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -146,7 +146,13 @@ public class GraphEditor extends JComponent
                            " CTRL_MASK=" + Event.CTRL_MASK + 
                            " CTRL_DOWN_MASK="+ MouseEvent.CTRL_DOWN_MASK);
                            */
-        return evt.isShiftDown();
+        if (Config.osname.equals("macOS")){
+        	return evt.isShiftDown() || evt.isShiftDown();
+        }
+        else {
+        	return evt.isShiftDown() || evt.isControlDown();
+        }
+        
     }
 
 	// ---- KeyListener interface ----
