@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2869 2004-08-13 02:39:49Z davmac $
+ * @version $Id: ExecServer.java 2913 2004-08-20 00:39:04Z bquig $
  */
 public class ExecServer
 {
@@ -454,7 +454,12 @@ public class ExecServer
             // this will not get inherited fields!! (would need to deal
             // with them some other way)            
             Field fields[] = cl.getDeclaredFields();
-            Object obs[] = new Object[fields.length*2];
+            // we make it one bigger than double the number of fields to store the
+            // test case object which is used later for extracting (possibly generic) fields
+            // whose exact generic types may not be available via class level
+            // reflection
+
+            Object obs[] = new Object[fields.length*2 + 1];
 
             for(int i=0; i<fields.length; i++) {
                 // make sure we can access the field regardless of protection
@@ -464,7 +469,8 @@ public class ExecServer
                 obs[i*2] = fields[i].getName();
                 obs[i*2+1] = fields[i].get(testCase);
             }
-
+            //add the testcase as the last object in the array
+            obs[obs.length-1] = testCase;
             return obs;
         }
         catch (Throwable e) {
