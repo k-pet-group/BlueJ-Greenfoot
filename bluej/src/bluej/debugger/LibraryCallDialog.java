@@ -24,7 +24,7 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 816 2001-03-26 05:54:10Z mik $
+ * @version $Id: LibraryCallDialog.java 818 2001-03-26 07:19:56Z mik $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
@@ -207,6 +207,9 @@ public class LibraryCallDialog extends JDialog
 
     // ----- end of ListSelectionListener interface -----
 
+    /**
+     * Build the Swing dialog.
+     */
     private void makeDialog()
     {
         JPanel contentPane = (JPanel)getContentPane();
@@ -243,6 +246,15 @@ public class LibraryCallDialog extends JDialog
             methodScrollPane.setColumnHeaderView(new JLabel(
                  Config.getString("pkgmgr.callLibraryDialog.listHeading")));
 
+            MouseListener mouseListener = new MouseAdapter() {
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2) {
+                            doOk();
+                        }
+                    }
+                };
+            methodList.addMouseListener(mouseListener);
+
             centrePanel.add(methodScrollPane, BorderLayout.CENTER);
 
         }
@@ -269,16 +281,10 @@ public class LibraryCallDialog extends JDialog
         contentPane.setBorder(Config.generalBorder);
 
         contentPane.add(classPanel, BorderLayout.NORTH);
-        //contentPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
         contentPane.add(centrePanel, BorderLayout.CENTER);
-        //contentPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
-        //contentPane.add(new JSeparator());
-        //contentPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
 
         pack();
-
-        // Set some attributes for this DialogBox
         DialogManager.centreDialog(this);
 
         // Close Action when close button is pressed
@@ -289,6 +295,9 @@ public class LibraryCallDialog extends JDialog
             });
     }
 
+    /** 
+     * Helper method to add a button to a panel.
+     */
     private JButton addButton(JPanel panel, String label)
     {
         JButton button = new JButton(label);
