@@ -8,6 +8,9 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import bluej.*;
 import bluej.debugger.DebuggerObject;
@@ -22,7 +25,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2322 2003-11-11 11:14:16Z polle $
+ * @version    $Id: Inspector.java 2344 2003-11-14 12:35:25Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -45,7 +48,7 @@ public abstract class Inspector extends JFrame
     
     // === instance variables ===
 
-    protected JList fieldList = null;
+    protected JTable fieldList = null;
 
     protected JButton inspectButton;
     protected JButton getButton;
@@ -62,7 +65,13 @@ public abstract class Inspector extends JFrame
 
   
     // The top component of the UI
-	private JPanel header = new JPanel();
+    private JPanel header = new JPanel();
+
+    //The maximum length of the description (modifiers + field-name)    
+    private final static int MAX_DESCRIPTION_LENGTH = 40;
+    
+    //The width of the list
+    private static final int LIST_WIDTH = 420;    
 
     // === static methods ===
 
@@ -181,44 +190,36 @@ public abstract class Inspector extends JFrame
      *  object values.
      */
     public void update()
-    {
-        
-
+    {      
         Object[] listData = getListData();
-        fieldList.setListData(listData);
-
-        int rows = listData.length + 2;
-        
-        if(rows > getPreferredRows()) {
-            rows = getPreferredRows();
-        }
-        
-        fieldList.setVisibleRowCount(rows);
+        ((ListTableModel)fieldList.getModel()).setDataVector(listData);
 
         if (fieldList != null) {
             fieldList.revalidate();
         }
 
         //Ensures that an element is always seleceted (if there is any)       
-        if(fieldList.isSelectionEmpty()) {
+        if(fieldList.getSelectedRow() == -1) {
             try {
-                fieldList.setSelectedIndex(0);
+                fieldList.setRowSelectionInterval(0,0);
             } catch (IndexOutOfBoundsException e) {
                 //the list is empty
             }            
-        }
+        }  
         
-        // Ensure a minimum width for the lists: if list is narrower
-        // than 200 pixels, set it to 200.
-
-        double width = fieldList.getPreferredScrollableViewportSize().getWidth();
-        if(width <= 200)
-            fieldList.setFixedCellWidth(200);
-        else
-            fieldList.setFixedCellWidth(-1);
-
-        pack();       
-
+        //Calculate the height of the list
+        double height = fieldList.getPreferredSize().getHeight();        
+        int rows = listData.length;     
+        if(rows > getPreferredRows()) {
+            int rowHeight = fieldList.getRowHeight();
+            rows = getPreferredRows();
+            height = rowHeight * rows;
+        }                
+        
+        fieldList.setPreferredScrollableViewportSize(new Dimension(LIST_WIDTH, (int)height));
+        
+        pack();      
+        
         repaint();
 
         if (assertPanel != null) {
@@ -242,7 +243,7 @@ public abstract class Inspector extends JFrame
             return;
         }
         
-        int slot = fieldList.getSelectedIndex();
+        int slot = fieldList.getSelectedRow();
 
         // occurs if valueChanged picked up a clearSelection event from
         // the list
@@ -319,7 +320,7 @@ public abstract class Inspector extends JFrame
      */
     private void doClose()
     {
-		handleAssertions();
+        handleAssertions();
 
         setVisible(false);
         remove();
@@ -374,22 +375,29 @@ public abstract class Inspector extends JFrame
         
         // the field list is either the fields of an object or class, the elements
         // of an array, or if we are viewing a result, the result of a method call
-        fieldList = new JList(new DefaultListModel());
-        fieldList.setCellRenderer(new FieldCellRenderer(100));
+        fieldList = new JTable(new ListTableModel());
+        
+        fieldList.setShowGrid(false);
+        fieldList.setRowSelectionAllowed(true);
+        fieldList.setColumnSelectionAllowed(false);
+        fieldList.setSelectionBackground(selectionColor);
         fieldList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        fieldList.addListSelectionListener(this);
-        //fieldList.setBackground(new Color(230,230,230));
+        fieldList.setIntercellSpacing(new Dimension());        
+        fieldList.setDefaultRenderer(Object.class, new ListTableCellRenderer(MAX_DESCRIPTION_LENGTH));
+        fieldList.getSelectionModel().addListSelectionListener(this);
+        
         fieldList.setBackground(this.getBackground());
         fieldList.setBorder(null);
         JScrollPane scrollPane = new JScrollPane(fieldList);
-        scrollPane.setBorder(null);
+        scrollPane.setBorder(BlueJTheme.generalBorder);
         fieldList.requestDefaultFocus();
-        fieldList.setFixedCellHeight(25);
-        // if we are inspecting, we need a header
+        fieldList.setRowHeight(25);
+        fieldList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         fieldList.setSelectionBackground(selectionColor);
         
+        
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-
+       
         // add mouse listener to monitor for double clicks to inspect list
         // objects. assumption is made that valueChanged will have selected
         // object on first click
@@ -437,12 +445,12 @@ public abstract class Inspector extends JFrame
         JPanel bottomPanel = new JPanel();
         bottomPanel.setOpaque(false);
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
         if (showAssert && (this instanceof  ResultInspector) && pkg.getProject().inTestMode()) {          
             assertPanel = new AssertPanel();
             {
-				assertPanel.setAlignmentX(LEFT_ALIGNMENT);
+                assertPanel.setAlignmentX(LEFT_ALIGNMENT);
                 bottomPanel.add(assertPanel);
             }
         }
@@ -488,97 +496,123 @@ public abstract class Inspector extends JFrame
         }
     }
     
+    
+    
+    
     /**
-     * Renderer to display a field. The field is split into two parts:<br>
-     *  The first contains the type and modifiers of the field.<br> 
-     *  The second contains the value of the field.
-     *
+     * Cell renderer that makes a two column table look like a list.
+     * 
      * @author Poul Henriksen
+     *  
      */
-    private static class FieldCellRenderer
-    extends JComponent
-    implements ListCellRenderer {
+    public static class ListTableCellRenderer
+    extends JLabel
+    implements TableCellRenderer {
         final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");
+        final private static Border valueBorder = BorderFactory.createLineBorder(Color.GRAY);
         
-        final private JLabel descriptionLabel = new JLabel();
-        final private JLabel valueLabel;
+        private int maxDescriptionLength;
         
-        final private JComponent valueContainer = new JPanel();
-        
-        /**
-         * Creates new rendere to display fields of an object
-         * @param valueFieldWidth The width of value field
-         */
-        public FieldCellRenderer(final int valueFieldWidth) {
-            this.setLayout(new BorderLayout());
-            
-            valueLabel = new JLabel() {
-                public Dimension getPreferredSize() {
-                    Dimension size = super.getPreferredSize();
-                    size.width = valueFieldWidth;
-                    return size;
-                }  
-            };
-            
-            descriptionLabel.setOpaque(true);
-            valueContainer.setOpaque(true);
-            valueLabel.setOpaque(true);
-            setOpaque(true);
-            
-            valueLabel.setBackground(Color.WHITE);
-            valueLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-            valueLabel.setHorizontalAlignment(JLabel.CENTER);
-            
-            valueContainer.add(valueLabel);
-            this.add(descriptionLabel,BorderLayout.CENTER);
-            this.add(valueContainer, BorderLayout.EAST);
-        }
-        
-       public Component getListCellRendererComponent(
-                JList list,
-				Object value,				
-				int index, 
+        public ListTableCellRenderer(int maxDescriptionLength) {
+            this.maxDescriptionLength = maxDescriptionLength;
+            this.setOpaque(true);            
+        }       
+      
+        public Component getTableCellRendererComponent(
+                JTable table,
+				Object value,
 				boolean isSelected,
-				boolean cellHasFocus)
-        {
-            String s = value.toString();
+				boolean hasFocus,
+				int row,
+				int column) {           
             
-            //split on "="
-            int delimiterIndex = s.indexOf('=');
-            if (delimiterIndex >= 0) {
-                String descriptionString = s.substring(0, delimiterIndex);
-                String valueString = s.substring(delimiterIndex + 1);
-                descriptionLabel.setText(descriptionString);
-                if(valueString.equals(" <object reference>")) {
-                    valueLabel.setText("");
-                    valueLabel.setIcon(objectrefIcon);
-                    this.setToolTipText(null);
-                }else {              
-                    valueLabel.setIcon(null);
-                    valueLabel.setText(valueString);   
-                    this.setToolTipText(valueString);                                            
-                }
-                valueLabel.setVisible(true);
+            String valueString = (String) value; 
+            
+            if(valueString.equals(" <object reference>")) {                                
+                this.setIcon(objectrefIcon);
+                this.setText("");
             } else {
-                //It was not a "normal" object. We just show the string.
-                //It could be an array compression [...]
-                descriptionLabel.setText(s);
-                valueLabel.setVisible(false);
-                this.setToolTipText(null);
-            }
+                this.setIcon(null);
+                this.setText(valueString);
+            }            
             
             if (isSelected) {
-                valueContainer.setBackground(list.getSelectionBackground());
-                descriptionLabel.setBackground(list.getSelectionBackground());              
+                this.setBackground(table.getSelectionBackground());               
             } else {
-                valueContainer.setBackground(list.getBackground());
-                descriptionLabel.setBackground(list.getBackground());
+                this.setBackground(table.getBackground());
             }
-            setEnabled(list.isEnabled());
-            setFont(list.getFont());
             
+            Border b = BorderFactory.createLineBorder(this.getBackground(), 3);
+            setBorder(b);  
+            
+            TableColumn tableColumn = table.getColumnModel().getColumn(column);
+            int preferredWidth = tableColumn.getPreferredWidth();
+            int labelWidth = this.getPreferredSize().width;                       
+            if(labelWidth > preferredWidth) {
+                preferredWidth = labelWidth;
+                tableColumn.setPreferredWidth(preferredWidth);
+            }        
+            
+            //depending in which column we are in, we have to do some different stuff
+            if(column==1) {
+                this.setBackground(Color.white);                
+                this.setHorizontalAlignment(JLabel.CENTER);
+            } else {
+                this.setHorizontalAlignment(JLabel.LEADING);
+                //Determine the minimum width
+                if(valueString.length() < maxDescriptionLength) { 
+                    if(preferredWidth > tableColumn.getMinWidth()) {
+                        tableColumn.setMinWidth(preferredWidth);
+                    }
+                } else {
+                    String tmp = valueString.substring(0, maxDescriptionLength);
+                    JLabel dummy = new JLabel(tmp);
+                    int minWidth = dummy.getPreferredSize().width;
+                    tableColumn.setMinWidth(minWidth);
+                }
+            }           
             return this;
+        }        
+    }
+    
+    public static class ListTableModel extends DefaultTableModel {
+        public ListTableModel() {
+            super();
         }
+        
+        public ListTableModel(Object[] rows) {
+            setDataVector(rows);
+        }
+        
+        public void setDataVector(Object[] rows) {
+            Object[][] cells = new Object[rows.length][2];
+            for (int i = 0; i < rows.length; i++) {
+                String s = (String) rows[i];
+                String descriptionString;
+                String valueString;
+                //split on "="
+                int delimiterIndex = s.indexOf('=');
+                if (delimiterIndex >= 0) {
+                    descriptionString = s.substring(0, delimiterIndex);
+                    valueString = s.substring(delimiterIndex + 1);
+                    
+                } else {
+                    //It was not a "normal" object. We just show the string.
+                    //It could be an array compression [...]
+                    descriptionString = s;
+                    valueString = "";
+                }
+                cells[i][0] = descriptionString; 
+                cells[i][1] = valueString;               
+            }
+            this.setDataVector(cells, new Object[] { "", "" });
+        }
+        
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+        
+        
     }
     
 }
