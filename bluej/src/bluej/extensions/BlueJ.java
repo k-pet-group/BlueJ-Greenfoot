@@ -3,6 +3,7 @@ package bluej.extensions;
 import bluej.extensions.event.BJEventListener;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionWrapper;
+import bluej.extmgr.ExtPrefPanel;
 
 import bluej.Config;
 import bluej.pkgmgr.Package;
@@ -55,14 +56,14 @@ import java.awt.event.ActionListener;
  *   +---- BPrefPanel</PRE>
  *
  * It is received from the extension's {@link bluej.extensions.Extension#Extension(bluej.extensions.BlueJ) constructor}. 
- * @author Clive Miller
- * @version $Id: BlueJ.java 1468 2002-10-23 16:00:59Z jckm $
+ * @author Clive Miller 
+ * @version $Id: BlueJ.java 1479 2002-10-28 09:52:34Z damiano $
  */
 public class BlueJ
 {
     private final ExtensionWrapper ew;
     private BMenu menu;
-    private BPrefPanel prefPanel;
+    private BPrefPanel currentBPrefPanel=null;
     private Properties localLabels;
 
     /**
@@ -137,15 +138,25 @@ public class BlueJ
     }
 
     /**
-     * Returns a proxy pref panel object
-     * @return the proxy pref panel object
+     * Install a new preference panel for this extension
+     * If you want to delete it just set prefPanel to null
      */
-    public BPrefPanel getPrefPanel()
+    public void setBPrefPanel(BPrefPanel prefPanel)
     {
-        if (prefPanel == null) prefPanel = new BPrefPanel (ew);
-        return prefPanel;
+      currentBPrefPanel = prefPanel;
+      ExtPrefPanel.INSTANCE.panelRevalidate();
     }
     
+    /**
+     * Accessor for the preference panel. It returns what you have set 
+     * with setBPrefPanel
+     */
+    public BPrefPanel getBPrefPanel()
+    {
+      return currentBPrefPanel;
+    }
+
+
     /**
      * Returns the array of arguments with which BlueJ was started.
      * @return args
@@ -318,12 +329,11 @@ public class BlueJ
 
      /**
       * Gets a property from BlueJ properties file, but include a default value.
-      * You MUST use the setBJPropString to write the propertie that you want stored.
+      * You MUST use the setExtPropString to write the propertie that you want stored.
       * You can then come back and retrieve it using this function.
       * @param property The name of the required global property
-      * @param def The default value to use if the property
-      * cannot be found.
-      * @return the value of that property.
+      * @param def The default value to use if the property cannot be found
+      * @return the value of that property
       */
     public String getExtPropString (String property, String def)
     {
@@ -331,7 +341,7 @@ public class BlueJ
     }
      
      /**
-      * Sets a property from BlueJ properties file.
+      * Sets a property into BlueJ properties file.
       * The property name does not NEED to be fully qulified since a prefix will be prepended to it.
       * @param property The name of the required global property
       * @param value the required value of that property.
@@ -381,7 +391,6 @@ public class BlueJ
      * @param id the id of the label to be searched in the dictionaries
      * @param replacement the string to replace the <code>$</code>.
      * @return the label, suitably modified.
-     * @see #getLabel(String)
      */
     public String getLabelInsert (String id, String replacement)
     {
@@ -439,7 +448,7 @@ public class BlueJ
     }
         
     /**
-     * Creates a new project
+     * Create new project
      */
     public void createProject (File projectPath)
     {
@@ -449,7 +458,7 @@ public class BlueJ
     }
     
     /**
-     * Closes BlueJ
+     * Close BlueJ
      */
     public void closeBlueJ()
     {
