@@ -17,7 +17,7 @@ import java.util.*;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 1083 2002-01-11 16:54:51Z mik $
+ * @version $Id: View.java 1226 2002-04-15 12:58:51Z mik $
  */
 public class View
 {
@@ -50,8 +50,7 @@ public class View
         // Debug.message("Started getView for class " + cl);
 
         View v = (View)views.get(cl);
-        if(v == null)
-        {
+        if(v == null) {
             v = new View(cl);
             views.put(cl, v);
         }
@@ -69,14 +68,11 @@ public class View
     {
         Iterator it = views.values().iterator();
 
-        while(it.hasNext())
-        {
+        while(it.hasNext()) {
             View v = (View) it.next();
 
             if (v.getClassLoader() == loader) {
                 it.remove();
-            }
-            else {
             }
         }
     }
@@ -151,37 +147,35 @@ public class View
     }
 
     /**
-    ** Walk superclasses + interfaces for fields.
-    ** All fields are inherited (+ overridden) from everywhere.
-    **/
+     ** Walk superclasses + interfaces for fields.
+     ** All fields are inherited (+ overridden) from everywhere.
+     **/
     public FieldView[] getAllFields()
     {
-        if(allFields == null)
-            {
-                Hashtable hashtable = new Hashtable();
-                getAllFields(hashtable, 0);
-                SortableVector v = new SortableVector();
-                for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
-                    v.addElement(e.nextElement());
-                v.sort(new ElementComparer());
+        if(allFields == null) {
+            Hashtable hashtable = new Hashtable();
+            getAllFields(hashtable, 0);
+            SortableVector v = new SortableVector();
+            for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
+                v.addElement(e.nextElement());
+            v.sort(new ElementComparer());
 
-                int numFields = v.size();
-                allFields = new FieldView[numFields];
-                for(int i = 0; i < numFields; i++)
-                    {
-                        MemberElement elem = (MemberElement)v.elementAt(i);
-                        allFields[i] = (FieldView)elem.member;
-                    }
+            int numFields = v.size();
+            allFields = new FieldView[numFields];
+            for(int i = 0; i < numFields; i++) {
+                MemberElement elem = (MemberElement)v.elementAt(i);
+                allFields[i] = (FieldView)elem.member;
             }
+        }
 
         return allFields;
     }
 
     /**
-    ** (Attempt at an) efficient implementation of getAllMethods + getAllFields
-    ** The old version had shocking performance - this one uses a Hashtable
-    ** to notice the conflicts
-    **/
+     ** (Attempt at an) efficient implementation of getAllMethods + getAllFields
+     ** The old version had shocking performance - this one uses a Hashtable
+     ** to notice the conflicts
+     **/
 
     class MemberElement
     {
@@ -270,12 +264,12 @@ public class View
     private boolean hideMethodName(String name)
     {
         return (name.startsWith(classIgnore) ||
-		name.startsWith(accessIgnore));
+                name.startsWith(accessIgnore));
     }
 
     public MethodView[] getDeclaredMethods()
     {
-	int count = 0;
+        int count = 0;
         if(methods == null) {
             Method[] cl_methods = cl.getDeclaredMethods();
 
@@ -457,8 +451,8 @@ public class View
     }
 
     /**
-    ** Get a longer String describing this member
-    **/
+     ** Get a longer String describing this member
+     **/
     public String getLongDesc()
     {
         String desc = Modifier.toString(cl.getModifiers()) + " class " + cl.getName();

@@ -25,7 +25,7 @@ import javax.swing.table.*;
  *              (one for each project)
  *
  * @author  Andrew Patterson
- * @version $Id: RemoteClassMgr.java 1145 2002-03-08 05:00:48Z ajp $
+ * @version $Id: RemoteClassMgr.java 1226 2002-04-15 12:58:51Z mik $
  */
 public class RemoteClassMgr
 {
@@ -48,7 +48,7 @@ public class RemoteClassMgr
      */
     public ClassLoader getLoader()
     {
-	return bluejLoader;
+        return bluejLoader;
     }
 
     /**
@@ -57,7 +57,7 @@ public class RemoteClassMgr
     public ClassLoader getLoader(String projectDirName)
     {
         return new ProjectClassLoader(new File(projectDirName),
-					bluejLoader);
+                                      bluejLoader);
     }
 
     /**
@@ -66,7 +66,7 @@ public class RemoteClassMgr
      */
     public void setLibraries(String libraries)
     {
-       bluejLoader = new BlueJLoader(libraries);
+        bluejLoader = new BlueJLoader(libraries);
     }
 
     class BlueJLoader extends URLClassLoader
@@ -79,10 +79,10 @@ public class RemoteClassMgr
 
     private static URL[] getStringAsURLArray(String libraries)
     {
-            ClassPath librariesClassPath = new ClassPath(libraries, "");
+        ClassPath librariesClassPath = new ClassPath(libraries, "");
 
-            URL librariesURLs[] = librariesClassPath.getURLs();
+        URL librariesURLs[] = librariesClassPath.getURLs();
 
-            return librariesURLs;
-    	}
+        return librariesURLs;
+    }
 }

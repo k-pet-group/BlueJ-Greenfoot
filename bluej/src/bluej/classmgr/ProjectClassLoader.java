@@ -13,7 +13,7 @@ import bluej.Config;
  * and from jar files within a +libs directory.
  *
  * @author  Andrew Patterson
- * @version $Id: ProjectClassLoader.java 1140 2002-02-21 06:30:43Z ajp $
+ * @version $Id: ProjectClassLoader.java 1226 2002-04-15 12:58:51Z mik $
  */
 public class ProjectClassLoader extends URLClassLoader
 {
@@ -34,27 +34,27 @@ public class ProjectClassLoader extends URLClassLoader
 
         setAssertions(true);
 
-	// the subdirectory of the project which can hold project specific
-	// jars and zips
-	File libsDirectory = new File(projectDir, libsString);
+        // the subdirectory of the project which can hold project specific
+        // jars and zips
+        File libsDirectory = new File(projectDir, libsString);
 
-	// the list of jars and zips we find
-	File libsJars[] = null;
+        // the list of jars and zips we find
+        File libsJars[] = null;
 
-	if (libsDirectory.isDirectory()) {
+        if (libsDirectory.isDirectory()) {
             libsJars = libsDirectory.listFiles(new JarFilter());
-	}
+        }
 
-	// if we found any jar files in the libs directory then add their
-	// URLs
-	if (libsJars != null) {
+        // if we found any jar files in the libs directory then add their
+        // URLs
+        if (libsJars != null) {
             for(int i=0; i<libsJars.length; i++) {
                 try {
                     addURL(libsJars[i].toURL());
                 }
                 catch(MalformedURLException mue) { }
             }
-	}
+        }
     }
 
     /**
@@ -63,7 +63,7 @@ public class ProjectClassLoader extends URLClassLoader
      */
     public ClassPath getAsClassPath()
     {
-	return new ClassPath(getURLs());
+        return new ClassPath(getURLs());
     }
 
     /**
@@ -73,13 +73,13 @@ public class ProjectClassLoader extends URLClassLoader
      */
     private static URL[] getDirectoryAsURL(File projectDir)
     {
-	if (!projectDir.isDirectory())
-	    throw new IllegalArgumentException("project directory was not a directory");
+        if (!projectDir.isDirectory())
+            throw new IllegalArgumentException("project directory was not a directory");
 
-	// the project directory is always added as a URL
+        // the project directory is always added as a URL
         try {
             URL urls[] = { projectDir.toURL() };
-	    return urls;
+            return urls;
         }
         catch(MalformedURLException mue) { }
 
