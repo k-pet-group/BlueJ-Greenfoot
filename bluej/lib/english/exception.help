@@ -67,6 +67,19 @@ point, and it being false indicates some sort of error.
 The exact nature of this error depends on the program.
 You should investigate why this expression was false.
 
+ClassNotFoundException*
+A class that was needed to execute this application
+could not be found. It seems that it was found at the
+time the application was compiled, but now it's gone.
+Possible causes could be that your Java system is not
+configured properly (if the class in question is a 
+system class) or that your project is damaged (some
+class files somehow got lost or corrupted).
+Try rebuilding your whole project. If the problem 
+persists, chack with other projects. If this happens
+with more than one project, you may need to reinstall
+JDK.
+
 ArrayStoreException*
 No help available - sorry.
 
