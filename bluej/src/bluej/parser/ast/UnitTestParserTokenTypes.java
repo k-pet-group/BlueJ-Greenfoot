@@ -1,6 +1,9 @@
 // $ANTLR 2.7.2: "unittest.tree.g" -> "UnitTestParser.java"$
 
-package bluej.parser.ast;
+    package bluej.parser.ast;
+    
+    import java.util.*;
+    import antlr.BaseAST;
 
 public interface UnitTestParserTokenTypes {
 	int EOF = 1;

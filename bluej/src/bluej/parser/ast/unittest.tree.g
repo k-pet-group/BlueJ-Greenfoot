@@ -135,7 +135,7 @@ options {
         }
 
 	    antlr.CommonASTWithHiddenTokens caht = (antlr.CommonASTWithHiddenTokens) keyword.getFirstChild();
-        if(caht.getHiddenBefore() != null) {
+        if(caht != null && caht.getHiddenBefore() != null) {
             antlr.CommonHiddenStreamToken chst = caht.getHiddenBefore();
             return chst;
         }

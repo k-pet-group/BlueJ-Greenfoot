@@ -5,10 +5,14 @@
     import java.util.*;
     import antlr.BaseAST;
 
+import antlr.TreeParser;
 import antlr.Token;
 import antlr.collections.AST;
 import antlr.RecognitionException;
+import antlr.ANTLRException;
 import antlr.NoViableAltException;
+import antlr.MismatchedTokenException;
+import antlr.SemanticException;
 import antlr.collections.impl.BitSet;
 import antlr.ASTPair;
 import antlr.collections.impl.ASTArray;
@@ -139,7 +143,7 @@ public class UnitTestParser extends antlr.TreeParser       implements UnitTestPa
         }
 
 	    antlr.CommonASTWithHiddenTokens caht = (antlr.CommonASTWithHiddenTokens) keyword.getFirstChild();
-        if(caht.getHiddenBefore() != null) {
+        if(caht != null && caht.getHiddenBefore() != null) {
             antlr.CommonHiddenStreamToken chst = caht.getHiddenBefore();
             return chst;
         }
