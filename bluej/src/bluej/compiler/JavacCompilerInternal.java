@@ -3,8 +3,7 @@ package bluej.compiler;
 import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Vector;
-
-import com.sun.tools.javac.Main;
+import java.lang.reflect.*;
 
 import bluej.utility.*;
 
@@ -16,7 +15,7 @@ import bluej.utility.*;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JavacCompilerInternal.java 1087 2002-01-12 13:29:08Z ajp $
+ * @version $Id: JavacCompilerInternal.java 1120 2002-01-30 11:52:35Z ajp $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -81,24 +80,62 @@ public class JavacCompilerInternal extends Compiler
         String[] params = new String[length];
         args.copyInto(params);
 
+        Class compiler = null;
+        Method compileMethod = null;
+
+        /* problem number one is that between 1.3 and 1.4 the compile
+           method changed from an instance method to a static method.
+           use reflection to fix this.
+           based on an idea from the JDEE code by jslopez@alum.mit.edu */
+
+        try {
+            compiler = Class.forName("com.sun.tools.javac.Main");
+
+            if (compiler == null)
+                return false;
+
+            Class[] p = new Class[] {String[].class};
+
+            compileMethod = compiler.getMethod("compile", p);
+
+        } catch (ClassNotFoundException e) {
+            Debug.message("com.sun.tools.javac.Main compiler is not available");
+            return false;
+        } catch (NoSuchMethodException e) {
+            Debug.message("com.sun.tools.javac.Main compile method could not be found");
+            return false;
+        }
+
+        if (compileMethod == null)
+            return false;
+
         PrintStream systemErr = System.err;
         ErrorStream output = new ErrorStream();
 
-        /* there is a problem with the jdk1.4 beta. It seems to use a
+        /* second problem with the jdk1.4 beta. It seems to use a
            PrintWriter wrapped around the system error stream. It also
            seems to cache the creation of this, so on subsequent compiles,
            the original output stream is still being used. To cope with
            both 1.3 and 1.4, we check the results of both the first stream
-           and the newly created stream */
+           and the newly created stream - need to check this is true with
+           1.4 release version */
 
         if (firstStream == null)
             firstStream = output;
 
         System.setErr(output);      // redirect errors to our stream
 
-        //Main javac = new Main(output, "javac"); // old version
- 		com.sun.tools.javac.Main javac = new com.sun.tools.javac.Main();
-        int result = javac.compile(params);
+        int result = 1;
+        try {
+            Object objResult;
+            Object[] arguments = new Object[] { params };
+            objResult = compileMethod.invoke(compiler.newInstance(), arguments);
+
+            result = ((Integer) objResult).intValue();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
 
         // only one of 'output' or 'firstStream' should be receiving output so
         // we will only generate one error message
@@ -121,7 +158,6 @@ public class JavacCompilerInternal extends Compiler
         if (firstStream != null)
             firstStream.reset();
 
-		//return result;
 		return result==0;
 	}
 }
