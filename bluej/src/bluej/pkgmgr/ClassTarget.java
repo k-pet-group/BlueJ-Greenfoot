@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 683 2000-09-12 04:47:32Z bquig $
+ * @version $Id: ClassTarget.java 689 2000-09-13 04:40:59Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -272,6 +272,18 @@ public class ClassTarget extends EditableTarget
         }
         else
             modifiers &= ~Modifier.ABSTRACT;
+    }
+
+    /**
+     * verify whether this class target is an Applet
+     * @return true if class target is an Applet (or subclass), else returns false
+     */
+    public boolean isApplet()
+    {
+        ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
+
+        return (role instanceof AppletClassRole
+                || ((classInfo != null) && classInfo.isApplet()));
     }
 
 
@@ -937,11 +949,8 @@ public class ClassTarget extends EditableTarget
             type = ABSTRACT_CLASS_LABEL;
         else if(isInterface())
             type = INTERFACE_LABEL;
-        else if(role instanceof AppletClassRole)
+        else if(isApplet())
             type = APPLET_LABEL;
-
-        //if(type != null)
-        //    type = STEREOTYPE_OPEN + type + STEREOTYPE_CLOSE;
 
         return type;
     }

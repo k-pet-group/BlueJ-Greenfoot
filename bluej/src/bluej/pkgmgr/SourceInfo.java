@@ -12,7 +12,7 @@ import java.util.*;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: SourceInfo.java 689 2000-09-13 04:40:59Z bquig $
  */
 public final class SourceInfo
 {
@@ -41,7 +41,6 @@ public final class SourceInfo
         {
             try {
                 info = ClassParser.parse(sourceFile, classNames);
-
                 valid = true;
             }
             catch(Exception e) {
@@ -57,6 +56,15 @@ public final class SourceInfo
             }
         }
 
+        return info;
+    }
+
+    /**
+     * Similar to getInfo, but do not parse if info is not available.
+     * Instead, return null, if we got no info.
+     */
+    public ClassInfo getInfoIfAvailable()
+    {
         return info;
     }
 
