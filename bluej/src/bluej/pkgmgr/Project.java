@@ -9,6 +9,7 @@ import bluej.debugger.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
 import bluej.views.View;
+import bluej.extmgr.*;
 
 /**
  * A BlueJ Project.
@@ -17,7 +18,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1838 2003-04-11 13:16:46Z damiano $
+ * @version $Id: Project.java 1867 2003-04-17 18:16:31Z damiano $
  */
 public class Project
     implements BlueJEventListener
@@ -150,6 +151,8 @@ public class Project
             proj.initialPackageName = startingPackageName;
 
         //Debugger.debugger.setDirectory(projectDir.getAbsolutePath());
+        ExtensionsManager.getExtMgr().projectOpening( proj );
+
         return proj;
     }
 

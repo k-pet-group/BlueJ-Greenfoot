@@ -16,7 +16,7 @@ import javax.swing.border.*;
  */
 public class PrefManager implements PrefPanelListener
 {
-    private ExtensionsManager extensionsManager;
+    private List        extensionsList;
 
     private final int   DO_panelUpdate=1;
     private final int   DO_loadValues=2;
@@ -26,12 +26,11 @@ public class PrefManager implements PrefPanelListener
     private JPanel      rootPanel;
 
     /**
-     * The manager needs to know who is the extension manager.
-     * Well, this is just to have the list of extensions...
+     * The manager needs to know the installed extensions
      */
-    public PrefManager(ExtensionsManager extensionsManager) 
+    public PrefManager(List i_extensionsList) 
     {
-        this.extensionsManager = extensionsManager;
+        extensionsList = i_extensionsList;
 
         // I need a draw panel Components in here should be laid on the top - down
         drawPanel = new JPanel();
@@ -68,11 +67,7 @@ public class PrefManager implements PrefPanelListener
         // I need to remove all content, in any case...
         if ( doAction == DO_panelUpdate ) drawPanel.removeAll();
       
-        List allExtensions = extensionsManager.getExtensions();
-        // In theory I should never get null, in theory...
-        if ( allExtensions == null ) return;
-
-        for ( Iterator iter=allExtensions.iterator(); iter.hasNext(); )
+        for ( Iterator iter=extensionsList.iterator(); iter.hasNext(); )
           doWorkItem ((ExtensionWrapper)iter.next(),doAction);
     }
 

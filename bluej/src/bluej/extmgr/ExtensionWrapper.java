@@ -127,6 +127,7 @@ public class ExtensionWrapper
             }
         } catch (Throwable exc) {
             Debug.message(errorPrefix+"Exception="+exc.getMessage());
+            exc.printStackTrace();
             return null;
         }
 

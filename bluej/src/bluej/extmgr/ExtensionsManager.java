@@ -61,10 +61,11 @@ public class ExtensionsManager implements BlueJEventListener
         this.bluejLib = bluejLib;
         argsList = Collections.unmodifiableList(Arrays.asList(args));
 
+        // There is some synchronization issues to clear out... Rare but possible
         extensions = new ArrayList();
 
         // This will also register the panel with BlueJ.
-        prefManager = new PrefManager(this);
+        prefManager = new PrefManager(extensions);
 
         // This must be here, after all has been initialized.
         BlueJEvent.addListener(this);
@@ -96,11 +97,14 @@ public class ExtensionsManager implements BlueJEventListener
      *  extension. If it finds a loadable extension it will add it to the loaded
      *  extensions. This IS the function that should be called to load
      *  extensions
+     *  
+     *  NOTE: This one will either ADD or delete stuffe from the list of extensions
+     *  so it must be syncronized....
      *
      * @param  directory  Where to look for extensions
      * @param  project    A project this extension is bound to
      */
-    private void loadAllExtensions(File directory, Project project)
+    private synchronized void loadAllExtensions(File directory, Project project)
     {
         if (directory == null) return;
 
@@ -126,8 +130,11 @@ public class ExtensionsManager implements BlueJEventListener
             // This MUST be here in ANY case since otherwise this wrapper is NOT on the list..
             extensions.add(aWrapper);
 
-            // Now that all is nice and clean I can safely instantiate the extension
+            // Now that all is nice and clean I can safely try to instantiate the extension
             aWrapper.newExtension(project);
+
+            // but wait, it is not finished. If the wrapper is invalid we got to remove it
+            if ( !aWrapper.isValid() ) extensions.remove(aWrapper);
         }
     }
 
@@ -171,7 +178,8 @@ public class ExtensionsManager implements BlueJEventListener
     public void showHelp ( JFrame parentFrame )
       {
       // It should be constructed and then destroyed, since it is associated with a frame...
-      HelpDialog aHelp = new HelpDialog ( this, parentFrame );
+      // I give it an unmodifiable collection so I am not LOCKING the list of extensions.
+      HelpDialog aHelp = new HelpDialog ( Collections.unmodifiableList(extensions), parentFrame );
       }
 
     /**
@@ -180,7 +188,6 @@ public class ExtensionsManager implements BlueJEventListener
     public void projectOpening( Project project )
     {
         File exts = new File(project.getProjectDir(), "extensions");
-//        Debug.message("loading from="+exts);
         loadAllExtensions(exts, project);
     }
 
@@ -190,7 +197,7 @@ public class ExtensionsManager implements BlueJEventListener
      *
      * @param  pkg  the package that has just been opened.
      */
-    public synchronized void packageOpened(Package pkg)
+    public void packageOpened(Package pkg)
     {
         delegateEvent(new PackageEvent(PackageEvent.PACKAGE_OPENED, pkg));
     }
@@ -198,7 +205,8 @@ public class ExtensionsManager implements BlueJEventListener
 
     /**
      *  This package frame is about to be closed.
-     *  The issue here is to remove the extension if this is the right time to do it..
+     *  The issue here is to remove the extension if this is the right time to do it.
+     *  NOTA: This must be syncronized since it changes the extensionslist
      *
      * @param  pkg  the package that is about to be closed
      */
@@ -223,8 +231,7 @@ public class ExtensionsManager implements BlueJEventListener
             invalidateExtension = frameArray.length <= 1;
 
         // Nothing to do....
-        if (!invalidateExtension)
-            return;
+        if (!invalidateExtension) return;
 
         // I am closing the last frame of the project, time to invalidate the right extensions
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
@@ -235,6 +242,7 @@ public class ExtensionsManager implements BlueJEventListener
 
             // The following terminated the Extension
             aWrapper.terminate();
+
             // and this removes the Wrapper from the list of wrappers.
             iter.remove();
         }
@@ -355,14 +363,5 @@ public class ExtensionsManager implements BlueJEventListener
     public List getArgs()
     {
         return argsList;
-    }
-
-    /**
-     * Returns the list of extensions.
-     * It should be used only within the extmgr package.
-     */
-    synchronized List getExtensions()
-    {
-        return extensions;
     }
 }

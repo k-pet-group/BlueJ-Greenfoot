@@ -11,7 +11,7 @@ import javax.swing.table.*;
 /**
  *  The Extensions Manager help panel allows the user to view current  extensions.
  *
- * @version    $Id: HelpDialog.java 1866 2003-04-17 10:33:24Z damiano $
+ * @version    $Id: HelpDialog.java 1867 2003-04-17 18:16:31Z damiano $
  */
 
  /*
@@ -30,15 +30,15 @@ public class HelpDialog implements ActionListener
     private JButton          closeButton;
     private JTable           extensionsTable;
     private ExtensionsTableModel extensionsTableModel;
-    private ExtensionsManager extMgr;
+    private List extensionsList;
 
     /**
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
      * This new version is guaranetee to have a valid extension manager.
      */
-    HelpDialog(ExtensionsManager myManager, JFrame parent)
+    HelpDialog(List i_extensionsList, JFrame parent)
     {
-        extMgr = myManager;
+        extensionsList = i_extensionsList;
     
         extensionsTable = getExtensionTable();
         JScrollPane extensionsPane = new JScrollPane(extensionsTable);
@@ -139,13 +139,10 @@ public class HelpDialog implements ActionListener
      */
     private ExtensionWrapper getWrapper(int index)
     {
-        // Every time I am called I reload this ?
-        List exts = extMgr.getExtensions();
-
         // of ExtensionWrapper
-        if (index > exts.size()) return null;
+        if (index > extensionsList.size()) return null;
 
-        return (ExtensionWrapper) exts.get(index);
+        return (ExtensionWrapper) extensionsList.get(index);
     }
 
 
@@ -187,7 +184,7 @@ public class HelpDialog implements ActionListener
          */
         public int getRowCount()
         {
-            return extMgr.getExtensions().size();
+            return extensionsList.size();
         }
 
 
