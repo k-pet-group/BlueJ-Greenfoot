@@ -16,7 +16,7 @@ import bluej.testmgr.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: ObjectBench.java 1881 2003-04-24 06:27:51Z ajp $
  */
 public class ObjectBench
 {
@@ -402,7 +402,8 @@ public class ObjectBench
         while(it.hasNext()) {
             InvokerRecord ir = (InvokerRecord) it.next();
             
-            sb.append(ir.toFixtureDeclaration());
+            if (ir.toFixtureDeclaration() != null)
+            	sb.append(ir.toFixtureDeclaration());
         }                    
 
         return sb.toString();
@@ -416,7 +417,8 @@ public class ObjectBench
         while(it.hasNext()) {
             InvokerRecord ir = (InvokerRecord) it.next();
             
-            sb.append(ir.toFixtureSetup());
+			if (ir.toFixtureSetup() != null)
+	            sb.append(ir.toFixtureSetup());
         }                    
 
         return sb.toString();
@@ -430,7 +432,8 @@ public class ObjectBench
         while(it.hasNext()) {
             InvokerRecord ir = (InvokerRecord) it.next();
             
-            sb.append(ir.toTestMethod());
+			if (ir.toTestMethod() != null)
+	            sb.append(ir.toTestMethod());
         }                    
 
         return sb.toString();
