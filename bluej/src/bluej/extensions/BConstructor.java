@@ -63,9 +63,8 @@ public class BConstructor
 
     /**
      * Creates a new instance of the object described by this constructor
-     * TODO: Pass an array of objects and convert it into strings....
      */
-    public BObject newInstance ( String[] initargs )
+    public BObject newInstance ( Object[] initargs )
       {
       invoker = new DirectInvoker (bluej_pkg, bluej_view );
       DebuggerObject result = invoker.invokeConstructor (initargs);

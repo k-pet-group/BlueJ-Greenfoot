@@ -108,18 +108,11 @@ public class BMethod
      * - If the result is a primitive then you can vet the value but NOT put it into the bench<P>
      * - If the result is an OBject you can put it into the bench <P>
      * 
-     * @param args an array containing the arguments which are parsed in the same way that BlueJ
-     * parses input from the user. These should be exactly
-     * as they would appear in Java code, for example <BL>
-     * <LI><CODE>5</CODE>
-     * <LI><CODE>"Fred"</CODE>
-     * <LI><CODE>3.5f</CODE>
-     * <LI><CODE>person1</CODE>
-     * </BL>They can refer to other objects on the object bench too. If there are no parameters,
-     * this should be set to <CODE>null</CODE>.
-     * @return the resulting OBJect
+     * @param args an array containing the arguments. If none then pass null
+     *
+     * @return the resulting Object. It can be a primitive wrapper or a BObject
      */
-    public Object invoke (BObject onThis, String[] params)
+    public Object invoke (BObject onThis, Object[] params)
         {
         invoker = new DirectInvoker (bluej_pkg, bluej_view );
         DebuggerObject result = invoker.invokeMethod (onThis.getInstanceName(), params);
