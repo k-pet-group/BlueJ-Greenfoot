@@ -10,27 +10,33 @@ import com.sun.jdi.ObjectReference;
 import bluej.debugger.*;
 
 /**
- * A Wrapper for an Object in the BlueJ object bench.
- * This wraps an object so you can put and remove it from the bench.
- * You get Bobjects from BConstructor or BMethods and from BField.
+ * A wrapper for an object in the BlueJ object bench.
+ * This wraps an object so you can add and remove it from the bench.
+ * Bobjects can be obtained from BConstructor, BMethods or BField.
  *
- * @version $Id: BObject.java 1801 2003-04-10 09:46:35Z damiano $
+ * @version $Id: BObject.java 1837 2003-04-11 12:54:18Z damiano $
+ */
+
+/*
+ * Author Clive Miller, University of Kent at Canterbury, 2002
+ * Author Damiano Bolla, University of Kent at Canterbury 2003
  */
 public class BObject
 {
     private ObjectWrapper  wrapper;  
 
     /**
-     * NOT to be used by Extension writer.
-     * Get BObjects from the BPackage, BConstructor, BMethod, BField
+     * Constructor for BObject.
      */
-    public BObject (ObjectWrapper i_wrapper)
+    public BObject (ObjectWrapper aWrapper)
     {
-        wrapper = i_wrapper;
+        wrapper = aWrapper;
     }
 
     /**
-     * Tests if this BObject is still valid in Bluej.
+     * Tests if this BObject is still valid in BlueJ.
+     * This object may not be valid since what it represent has been modified or deleted
+     * from the main BlueJ graphical user interface.
      * Return true if it is false othervise.
      */
     public boolean isValid()
@@ -42,7 +48,8 @@ public class BObject
 
 
     /**
-     * Return the BPackage whose this BObject belongs.
+     * Return the package this object belongs to.
+     * It returns null if this is not a valid object anymore.
      */
     public BPackage getPackage()
     {
@@ -54,6 +61,7 @@ public class BObject
     /**
      * Removes this object from the Object Bench. 
      * This will also remove it from the visible part of the bench.
+     * Once the object is removed from the bench it will not be available again.
      */
     public void removeFromBench()
         {
@@ -76,6 +84,7 @@ public class BObject
     /**
      * Adds this object on the Object Bench.
      * If you pass null as instanceName the object will have a predefined name.
+     * If the object is not a valid one nothing will happen.
      * 
      * @param instanceName  The name you want this object to have on the bench.
      */
@@ -106,7 +115,7 @@ public class BObject
 
     /**
      * Return the name of the object on the bench.
-     * It can return null if the object is in an invalid state.
+     * It can return null if the object is invalid.
      */
     public String getInstanceName()
         {
@@ -116,7 +125,7 @@ public class BObject
         }
     
     /**
-     * Return the BClass of this BObject.
+     * Return the class of this object.
      * Similar to Reflection API.
      * It can return null if the object is invalid.
      */
@@ -128,9 +137,8 @@ public class BObject
     } 
 
     /**
-     * FOR bluej.extensions ONLY.
-     * This should be visible only from within the bluej.extensions
-     * Used by BArray
+     * Returns the underlyng BlueJ package.
+     * Should remain visible only to package members.
      */
     Package getBluejPackage ()
     {
@@ -139,8 +147,6 @@ public class BObject
     }
 
     /**
-     * FOR bluej.extensions ONLY.
-     * This should be visible only from within the bluej.extensions
      * Used by BField to get hold of the real Object
      */
     ObjectReference getObjectReference()
@@ -153,13 +159,13 @@ public class BObject
         }
 
 
-  /**
-   * Return a reasonable representation of this BObject.
-   */
-  public String toString ()
-    {
-    return "BObject instanceName="+getInstanceName()+" Class Name="+wrapper.getClassName();
-    }
+    /**
+     * Return a reasonable representation of this object.
+     */
+    public String toString ()
+      {
+      return "BObject instanceName="+getInstanceName()+" Class Name="+wrapper.getClassName();
+      }
 
 
 }   

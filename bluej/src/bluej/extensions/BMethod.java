@@ -15,7 +15,12 @@ import com.sun.jdi.*;
  * Integer for int, Long for long and so on, or it may return a BObject that can
  * further be sent to the bench.
  *
- * @version $Id: BMethod.java 1726 2003-03-24 13:33:06Z damiano $
+ * @version $Id: BMethod.java 1837 2003-04-11 12:54:18Z damiano $
+ */
+
+/*
+ * AUthor Clive Miller, University of Kent at Canterbury, 2002
+ * Author Damiano Bolla, University of Kent at Canterbury 2003
  */
 public class BMethod
 {
@@ -24,7 +29,7 @@ public class BMethod
     private       DirectInvoker invoker;
     
     /**
-     * A new method. you can get it from the BClass
+     * Constructor
      */
     BMethod (Package i_bluej_pkg, MethodView i_bluej_view )
     {
@@ -33,7 +38,7 @@ public class BMethod
     }
 
     /**
-     * Tests if this mthod matches against the given parameters.
+     * Tests if this mthod matches against the given signature.
      * This is similar to reflection API.
      * It returns true if there is a match, false othervise.
      * A null parameter is equivaled to a zero len parameter array.
