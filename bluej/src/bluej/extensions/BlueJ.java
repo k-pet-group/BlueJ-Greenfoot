@@ -56,7 +56,7 @@ import java.awt.event.ActionListener;
  *
  * It is received from the extension's {@link bluej.extensions.Extension#Extension(bluej.extensions.BlueJ) constructor}. 
  * @author Clive Miller
- * @version $Id: BlueJ.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: BlueJ.java 1468 2002-10-23 16:00:59Z jckm $
  */
 public class BlueJ
 {
@@ -381,7 +381,7 @@ public class BlueJ
      * @param id the id of the label to be searched in the dictionaries
      * @param replacement the string to replace the <code>$</code>.
      * @return the label, suitably modified.
-     * @see getLabel(String)
+     * @see #getLabel(String)
      */
     public String getLabelInsert (String id, String replacement)
     {
@@ -439,7 +439,7 @@ public class BlueJ
     }
         
     /**
-     * Create new project
+     * Creates a new project
      */
     public void createProject (File projectPath)
     {
@@ -449,7 +449,7 @@ public class BlueJ
     }
     
     /**
-     * Close BlueJ
+     * Closes BlueJ
      */
     public void closeBlueJ()
     {
