@@ -334,6 +334,7 @@ bluej.compiler.type=internal
 #bluej.compiler.type=javac
 #bluej.compiler.executable=javac
 
+bluej.compiler.source14=false
 
 #####################################################################
 ## Editor related preferences.
