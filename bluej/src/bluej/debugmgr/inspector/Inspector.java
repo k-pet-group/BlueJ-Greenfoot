@@ -20,7 +20,7 @@ import bluej.testmgr.record.*;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2534 2004-05-19 15:03:04Z polle $
+ * @version    $Id: Inspector.java 2550 2004-05-26 11:20:49Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -62,7 +62,7 @@ public abstract class Inspector extends JFrame
     private final static int MAX_DESCRIPTION_LENGTH = 30;
     
     //The width of the list
-    private static final int LIST_WIDTH = 300;    
+    private static final int LIST_WIDTH = 200;    
  
     /**
      *  Update all open inspectors to show up-to-date values.
