@@ -2,13 +2,14 @@ package bluej.pkgmgr;
 
 import java.util.Comparator;
 
+import bluej.pkgmgr.dependency.*;
 import bluej.pkgmgr.target.*;
 
 /**
  * An ordering on targets to make layout nicer (reduce line intersections, etc.)
  *
  * @author Michael Cahill
- * @version $Id: LayoutComparer.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: LayoutComparer.java 2200 2003-10-02 04:15:04Z ajp $
  */
 public class LayoutComparer implements Comparator
 {

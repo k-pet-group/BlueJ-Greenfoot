@@ -15,6 +15,7 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.graph.*;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.*;
+import bluej.pkgmgr.dependency.*;
 import bluej.pkgmgr.target.*;
 import bluej.terminal.Terminal;
 import bluej.utility.*;
@@ -27,7 +28,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2115 2003-07-16 05:02:43Z ajp $
+ * @version $Id: Package.java 2200 2003-10-02 04:15:04Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener

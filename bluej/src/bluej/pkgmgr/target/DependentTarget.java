@@ -8,13 +8,14 @@ import java.util.List;
 import bluej.graph.GraphEditor;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.dependency.*;
 import bluej.utility.MultiIterator;
 
 /**
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version	$Id: DependentTarget.java 2200 2003-10-02 04:15:04Z ajp $
  */
 public abstract class DependentTarget extends Target
 {

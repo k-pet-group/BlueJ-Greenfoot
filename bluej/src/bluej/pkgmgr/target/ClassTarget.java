@@ -19,6 +19,7 @@ import bluej.parser.ClassParser;
 import bluej.parser.symtab.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.dependency.*;
 import bluej.pkgmgr.target.role.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
@@ -32,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2192 2003-10-01 11:28:33Z damiano $
+ * @version $Id: ClassTarget.java 2200 2003-10-02 04:15:04Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
