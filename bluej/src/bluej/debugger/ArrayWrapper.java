@@ -15,7 +15,8 @@ import bluej.prefmgr.PrefMgr;
  * object bench.
  *
  * @author  Andrew Patterson
- * @version $Id: ArrayWrapper.java 1700 2003-03-13 03:34:20Z ajp $
+ * @author Bruce Quig
+ * @version $Id: ArrayWrapper.java 1996 2003-05-30 06:44:30Z bquig $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
@@ -36,18 +37,12 @@ public class ArrayWrapper extends ObjectWrapper
     protected void createMenu(String className)
     {
         menu = new JPopupMenu(instanceName);
-
         JMenuItem item;
 
-        item = new JMenuItem("int length = " + obj.getInstanceFieldCount());
 //        item.addActionListener(
 //            new ActionListener() {
 //                public void actionPerformed(ActionEvent e) { /*invokeMethod(e.getSource());*/ }
- //           });
-        item.setFont(PrefMgr.getPopupMenuFont());
-        menu.add(item);
-
-        menu.addSeparator();
+//           });
 
         // add inspect and remove options
         menu.add(item = new JMenuItem(inspect));
