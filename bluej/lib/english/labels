@@ -381,6 +381,11 @@ debugger.execControls.localTitle = Local Variables
 debugger.execControls.threadTitle = Threads
 debugger.execControls.updateText = Update
 debugger.execControls.systemThreads = Show system threads
+debugger.execControls.haltButtonText = Halt
+debugger.execControls.stepButtonText = Step
+debugger.execControls.stepIntoButtonText = Step Into
+debugger.execControls.continueButtonText = Continue
+debugger.execControls.terminateButtonText = Terminate
 
 # DialogManager labels
 dialogmgr.error = BlueJ:  Error
