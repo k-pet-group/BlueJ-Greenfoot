@@ -19,8 +19,8 @@ import bluej.prefmgr.*;
  * to the browser.  The new library can be specified as a file (ZIP or JAR
  * archive) with an associated description.
  * 
- * @author Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 278 1999-11-16 00:58:12Z ajp $
+ * @author  Andrew Patterson
+ * @cvs     $Id: ClassMgrPrefPanel.java 280 1999-11-18 01:10:21Z ajp $
  */
 public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
 
