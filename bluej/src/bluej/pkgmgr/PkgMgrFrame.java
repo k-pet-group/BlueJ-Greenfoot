@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 628 2000-07-06 05:31:09Z ajp $
+ * @version $Id: PkgMgrFrame.java 630 2000-07-07 01:35:30Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -531,7 +531,6 @@ public class PkgMgrFrame extends JFrame
 
         case PackageEditorEvent.TARGET_REMOVE:     // user has initiated target
                                                    //   "remove" option
-//            Target t = ;
             doRemove((Target) e.getSource());
             break;
 
@@ -779,8 +778,7 @@ public class PkgMgrFrame extends JFrame
 
             if((openProj = Project.openProject(dirName.getAbsolutePath())) != null) {
 
-                Package pkg = openProj.getPackage(
-                                                  openProj.getInitialPackageName());
+                Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
                 PkgMgrFrame pmf;
 
@@ -789,8 +787,11 @@ public class PkgMgrFrame extends JFrame
                         pmf = this;
                         openPackage(pkg);
                     }
-                    else
+                    else {
                         pmf = createFrame(pkg);
+
+                        DialogManager.tileWindow(pmf, this);
+                    }
                 }
 
                 pmf.show();
@@ -1215,9 +1216,14 @@ public class PkgMgrFrame extends JFrame
      */
     private void openPackageTarget(String newname)
     {
+        PkgMgrFrame pmf;
         Package p = getPackage().getProject().getPackage(newname);
-        PkgMgrFrame newframe = createFrame(p);
-        newframe.show();
+
+        if ((pmf = findFrame(p)) == null) {
+            pmf = createFrame(p);
+            DialogManager.tileWindow(pmf, this);
+        }
+        pmf.show();
     }
 
     /**
