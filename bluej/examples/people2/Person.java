@@ -41,9 +41,9 @@ abstract class Person
     /**
      * Set a new birth year for this person.
      */
-    public void setYearOfBirth(int newYearOofBirth)
+    public void setYearOfBirth(int newYearOfBirth)
     {
-        yearOfBirth = newYearOofBirth;
+        yearOfBirth = newYearOfBirth;
     }
 
     /**
