@@ -12,14 +12,17 @@ import bluej.views.MethodView;
  * information such as the method signature, javadoc, etc...
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ExpressionInformation.java 2617 2004-06-17 01:07:36Z davmac $
+ * @version $Id: ExpressionInformation.java 2664 2004-06-25 13:19:22Z polle $
  */
 public class ExpressionInformation {
 	private Comment comment;
 	private String signature;
 	private String expression;
-	private String dynamicType;
-	private CallableView methodView;
+	private String dynamicType;	
+	private MethodView methodView;
+
+    private String invokedOn;
+    private String[] args;
     
 	// if expression is a call of an instance method, this is the type of the instance.
     private GenType instanceType;
@@ -40,14 +43,12 @@ public class ExpressionInformation {
 		comment = methodView.getComment();
 		signature = methodView.getLongDesc();
 
-		String invokedOn = null;
 		if (methodView.isStatic()) {
 			invokedOn = methodView.getClassName();
 		} else {
 			invokedOn = instanceName;
 		}
 
-		expression = invokedOn + "." + methodView.getName();
 	}
     
     public ExpressionInformation(MethodView methodView, String instanceName, GenType instanceType) {
@@ -55,7 +56,6 @@ public class ExpressionInformation {
         comment = methodView.getComment();
         signature = methodView.getLongDesc();
 
-        String invokedOn = null;
         if (methodView.isStatic()) {
             invokedOn = methodView.getClassName();
         } else {
@@ -63,7 +63,6 @@ public class ExpressionInformation {
             this.instanceType = instanceType;
         }
 
-        expression = invokedOn + "." + methodView.getName();
     }
 
 	/**
@@ -82,19 +81,8 @@ public class ExpressionInformation {
 	 * 
 	 * @param args the argument values
 	 */
-	public void setArgumentValues(String[] args) {
-		expression += "(";
-
-		if (args != null) {
-			for (int i = 0; i < args.length; i++) {
-				String string = args[i];
-				expression += string;
-				if (i + 1 < args.length) {
-					expression += ", ";
-				}
-			}
-		}
-		expression += ")";
+	public void setArgumentValues(String[] args) {	
+	    this.args = args;	    
 	}
 	
 	/**
@@ -115,10 +103,23 @@ public class ExpressionInformation {
 	 * 
 	 * @return Returns the expression.
 	 */
-	public String getExpression() {
+	public String getExpression()
+    {
+        expression = invokedOn + "." + methodView.getName();
+        expression += "(";
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                String string = args[i];
+                expression += string;
+                if (i + 1 < args.length) {
+                    expression += ", ";
+                }
+            }
+        }
+        expression += ")";
 
-		return expression;
-	}
+        return expression;
+    }
 	
 	/**
 	 * Get the signature for the method.
