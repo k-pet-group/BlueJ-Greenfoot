@@ -1,10 +1,13 @@
 package bluej.debugger.jdi;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
-
-import java.util.List;
-import java.util.ArrayList;
+import bluej.debugger.gentype.*;
+import bluej.utility.JavaNames;
 
 import com.sun.jdi.*;
 
@@ -13,23 +16,70 @@ import com.sun.jdi.*;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 2549 2004-05-26 11:16:02Z polle $
+ * @version    $Id: JdiArray.java 2733 2004-07-05 02:38:20Z davmac $
  */
 public class JdiArray extends JdiObject
 {
     private static final String nullLabel =	Config.getString("debugger.null");
+    
+    private GenType componentType; 
+    
     protected JdiArray(ArrayReference obj)
     {
         this.obj = obj;
     }
 
-    private JdiArray()
+    /**
+     * Constructor for when the array type is known.
+     * @param obj           The reference to the the remote object
+     * @param expectedType  The known type of the object
+     */
+    protected JdiArray(ArrayReference obj, GenType expectedType)
     {
-    }
+        this.obj = obj;
+        // All arrays extend java.lang.Object - so it's possible that the
+        // expected type is java.lang.Object and not an array type at all.
+        if(expectedType instanceof GenTypeArray) {
+            String ctypestr = obj.referenceType().signature();
+            GenType genericType = expectedType;
+            int level = 0;
+            
+            // Go downwards until we find the base component type
+            while(genericType instanceof GenTypeArray) {
+                GenTypeArray genericArray = (GenTypeArray)genericType;
+                genericType = genericArray.getBaseType();
+                ctypestr = ctypestr.substring(1);
+                level++;
+            }
+            
+            // If the arrays are of different depths, no inference is possible
+            // (this is possible because all arrays extend Object)
+            if(ctypestr.charAt(0) == '[')
+                return;
+            
+            // Having established a component type that is not an array, we'll
+            // make the bold assumption that it is a reference type. (This is
+            // correct due to the presence of a generic signature in the field).
+            
+            // the sig looks like "Lpackage/package/class;". Strip the 'L' and
+            // the ';'
+            String compName = ctypestr.substring(1, ctypestr.length() - 1);
+            compName = compName.replace('/','.');
+            
+            Reflective compReflective = new JdiReflective(compName, obj.referenceType());
+            
+            Map genericParams = ((GenTypeClass)genericType).
+                    mapToDerived(compReflective);
+            GenTypeClass component = new GenTypeClass(compReflective, genericParams);
+            
+            while(level > 1) {
+                component = new GenTypeArray(component,
+                        new JdiArrayReflective(component, obj.referenceType()));
+                level--;
+            }
+            componentType = component;
 
-    public ObjectReference getObjectReference()
-    {
-        return obj;
+        }            
     }
 
     /**
@@ -41,7 +91,36 @@ public class JdiArray extends JdiObject
     {
         return obj.referenceType().name();
     }
+    
+    public String getGenClassName()
+    {
+        if(componentType == null)
+            return getClassName();
+        return componentType.toString() + "[]";
+    }
+    
+    public String getStrippedGenClassName()
+    {
+        if(componentType == null)
+            return JavaNames.stripPrefix(getClassName());
+        return componentType.toString(true) + "[]";
+    }
 
+    /**
+     *  Get the GenType object representing the type of this array.
+     * 
+     * @return   GenType representing the type of the array.
+     */
+    public GenTypeClass getGenType()
+    {
+        if(componentType != null) {
+            Reflective r = new JdiArrayReflective(componentType, obj.referenceType());
+            return new GenTypeArray(componentType, r);
+        }
+        else
+            return super.getGenType();
+    }
+    
     /**
      *  Return true if this object is an array.
      *
@@ -120,7 +199,10 @@ public class JdiArray extends JdiObject
     public DebuggerObject getInstanceFieldObject(int slot)
     {
         Value val = ((ArrayReference) obj).getValue(slot);
-        return JdiObject.getDebuggerObject((ObjectReference) val);
+        if(componentType != null)
+            return JdiObject.getDebuggerObject((ObjectReference) val, componentType);
+        else
+            return JdiObject.getDebuggerObject((ObjectReference) val);
     }
 
 
@@ -179,7 +261,7 @@ public class JdiArray extends JdiObject
      * @param   type    Description of Parameter
      * @return          The AssignableTo value
      */
-    public boolean isAssignableTo(String type)
+/*    public boolean isAssignableTo(String type)
     {
         if (obj == null)
         {
@@ -238,7 +320,7 @@ public class JdiArray extends JdiObject
             }
         }
         return false;
-    }
+    } */
 
 
     /**

@@ -8,7 +8,7 @@ import com.sun.jdi.ReferenceType;
  * A proxy-type reflective for arrays.
  * 
  * @author Davin McCall
- * @version $Id: JdiArrayReflective.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: JdiArrayReflective.java 2733 2004-07-05 02:38:20Z davmac $
  */
 public class JdiArrayReflective extends JdiReflective {
 
@@ -18,6 +18,12 @@ public class JdiArrayReflective extends JdiReflective {
     {
         super(null, srctype);
         componentType = t;
+    }
+    
+    public String getName()
+    {
+        checkLoaded();
+        return super.getName();
     }
     
     protected void checkLoaded()

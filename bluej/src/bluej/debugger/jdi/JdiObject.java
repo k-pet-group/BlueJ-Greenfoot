@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2703 2004-06-30 23:57:40Z davmac $
+ * @version $Id: JdiObject.java 2733 2004-07-05 02:38:20Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -45,7 +45,7 @@ public class JdiObject extends DebuggerObject
     public static JdiObject getDebuggerObject(ObjectReference obj, GenType expectedType)
     {
         if( obj instanceof ArrayReference )
-            return new JdiArray((ArrayReference) obj);
+            return new JdiArray((ArrayReference) obj, expectedType);
         else {
             if( expectedType instanceof GenTypeClass )
                 return new JdiObject(obj, (GenTypeClass)expectedType);
@@ -63,10 +63,19 @@ public class JdiObject extends DebuggerObject
      */
     public static JdiObject getDebuggerObject(ObjectReference obj, Field field, JdiObject parent)
     {
+        GenType expectedType = JdiReflective.fromField(field, parent);
         if (obj instanceof ArrayReference)
-            return new JdiArray((ArrayReference) obj);
-        else
-            return new JdiObject(obj, field, parent);
+            return new JdiArray((ArrayReference) obj, expectedType);
+        
+        if (expectedType instanceof GenTypeClass)
+            return new JdiObject(obj, (GenTypeClass) expectedType);
+        
+        return new JdiObject(obj);
+        
+        //if (obj instanceof ArrayReference)
+        //    return new JdiArray((ArrayReference) obj, field, parent);
+        //else
+        //    return new JdiObject(obj, field, parent);
     }
     
     
@@ -108,23 +117,6 @@ public class JdiObject extends DebuggerObject
         }
     }
     
-    /**
-     * Private constructor. Construct from a given object reference using the
-     * generic signature of a field and the parent object.
-     * @param obj     The object to represent
-     * @param field   The field to extract the generic signature from
-     * @param parent  The parent object to get type information from
-     */
-    private JdiObject(ObjectReference obj, Field field, JdiObject parent)
-    {
-        this.obj = obj;
-        getRemoteFields();
-        if( obj != null && JdiUtils.getJdiUtils().hasGenericSig(field) ) {
-            GenTypeClass genericType = (GenTypeClass)JdiReflective.fromField(field, parent);
-            genericParams = genericType.mapToDerived(new JdiReflective(obj.referenceType()));
-        }
-    }
-
     /**
      *  Get the (raw) name of the class of this object.
      *
