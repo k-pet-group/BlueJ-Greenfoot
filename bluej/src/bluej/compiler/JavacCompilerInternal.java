@@ -4,45 +4,19 @@ import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.sun.tools.javac.Main;    // newer version
-//import sun.tools.javac.Main;    // old (working) version
+import com.sun.tools.javac.Main;
 
 import bluej.utility.*;
 
-/*
-public final static String CLASSIC_CLASS = "sun.tools.javac.Main";
-  public final static String MODERN_CLASS = "com.sun.tools.javac.Main";
-
-  private boolean modern = false;
-
-  public Javac() {
-
-    // Use reflection to be able to build on all JDKs
-    try {
-        Class.forName(MODERN_CLASS);
-        modern = true;
-    } catch (ClassNotFoundException e) {
-        log.warn("Javac()", e);
-        try {
-            Class.forName(CLASSIC_CLASS);
-            modern = false;
-        } catch (ClassNotFoundException ex) {
-            log.warn("No compiler found in your classpath. Make sure you added 'tools.jar'", ex);
-            throw new RuntimeException("No compiler found in your classpath. Make sure you added
-'tools.jar'");
-        }
-    }
-  }
-*/
-
 /**
- * JavacCompilerInternal class - an implementation for the BlueJ "Compiler"
- * class. This implementation provides an interface to Sun's javac
- * compiler by executing the sun.tools methods directly.
+ * An implementation for the BlueJ "Compiler"
+ * class providing an interface to Sun's javac
+ * compiler by executing the com.sun.tools methods directly.
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: JavacCompilerInternal.java 971 2001-07-23 04:19:06Z ajp $
+ * @author  Andrew Patterson
+ * @version $Id: JavacCompilerInternal.java 1087 2002-01-12 13:29:08Z ajp $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -184,20 +158,17 @@ class ErrorStream extends PrintStream
 
     public String getFilename()
     {
-        Debug.assert(haserror);
         return filename;
     }
 
     public int getLineNo()
     {
-        Debug.assert(haserror);
         return lineno;
     }
 
     public String getMessage()
     {
-	Debug.assert(haserror);
-	return message;
+        return message;
     }
 
     /**

@@ -55,7 +55,7 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
  */
 
 public final class MoeEditor extends JFrame
-    implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, 
+    implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener,
                DocumentListener
 {
     // -------- CONSTANTS --------
@@ -376,7 +376,7 @@ public final class MoeEditor extends JFrame
     {
         if (saveState.isChanged()) {
 
-            Debug.assert(filename != null);
+//            Debug.assert(filename != null);
 
             try {
                 FileWriter writer = new FileWriter(filename);
@@ -573,10 +573,10 @@ public final class MoeEditor extends JFrame
         }
     }
 
-    // -------- three methods from DocumentListener: -------- 
+    // -------- three methods from DocumentListener: --------
 
     // insert into document
-    public void insertUpdate(DocumentEvent e) 
+    public void insertUpdate(DocumentEvent e)
     {
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
@@ -586,7 +586,7 @@ public final class MoeEditor extends JFrame
     }
 
     // remove from document
-    public void removeUpdate(DocumentEvent e) 
+    public void removeUpdate(DocumentEvent e)
     {
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
@@ -615,7 +615,7 @@ public final class MoeEditor extends JFrame
     {
         info.message(msg);
     }
-    
+
     /**
      *  Write a warning message into the info area.
      * Typically some form of unexpected behaviour has occurred.
@@ -625,8 +625,8 @@ public final class MoeEditor extends JFrame
         info.warning(msg);
     }
 
-    
-    
+
+
     // ==================== USER ACTION IMPLEMENTATIONS ===================
 
     // --------------------------------------------------------------------
@@ -723,12 +723,12 @@ public final class MoeEditor extends JFrame
         //DialogManager.centreWindow(finder, this);
         finder.show(this, currentTextPane.getSelectedText(), false);
     }
-    
+
     // --------------------------------------------------------------------
     /**
      *  Implementation of "replace" user function.
-     *  Replace adds extra functionality to that of a find dialog, 
-     *  as well as altered behaviour.  It can remain open for multiple 
+     *  Replace adds extra functionality to that of a find dialog,
+     *  as well as altered behaviour.  It can remain open for multiple
      *  functions.
      */
     public void replace()
@@ -795,7 +795,7 @@ public final class MoeEditor extends JFrame
     /**
      *   Do a find with info in the info area.
      */
-    boolean findString(String s, boolean backward, boolean ignoreCase, 
+    boolean findString(String s, boolean backward, boolean ignoreCase,
                        boolean wholeWord, boolean wrap)
     {
         if (s.length()==0) {
@@ -888,7 +888,7 @@ public final class MoeEditor extends JFrame
      *  doFindBackward - do a find backwards without visible feedback.
      *   Returns false if not found.
      */
-    boolean doFindBackward(String s, boolean ignoreCase, boolean wholeWord, 
+    boolean doFindBackward(String s, boolean ignoreCase, boolean wholeWord,
                            boolean wrap)
     {
         int docLength = document.getLength();
@@ -950,7 +950,7 @@ public final class MoeEditor extends JFrame
      *                    find only whole-word ocurrences
      * @returns     the index of the substring, or -1 if not found
      */
-    private int findSubstring(String text, String sub, boolean ignoreCase, 
+    private int findSubstring(String text, String sub, boolean ignoreCase,
                               boolean wholeWord, boolean backwards)
     {
         int strlen = text.length();
@@ -961,7 +961,7 @@ public final class MoeEditor extends JFrame
 
         // 'wholeWord' search does not make much sense when the search string is not a word
         // (ar at least the first and last character is a letter). Check that.
-        if(!Character.isJavaIdentifierPart(sub.charAt(0)) 
+        if(!Character.isJavaIdentifierPart(sub.charAt(0))
                || !Character.isJavaIdentifierPart(sub.charAt(sublen-1)))
             wholeWord = false;
 
@@ -973,7 +973,7 @@ public final class MoeEditor extends JFrame
             found = text.regionMatches(ignoreCase, pos, sub, 0, sublen);
             if(found && wholeWord) {
                 found = ((pos == 0) || !Character.isJavaIdentifierPart(text.charAt(pos-1))) &&
-                        ((pos+sublen >= strlen) || 
+                        ((pos+sublen >= strlen) ||
                            !Character.isJavaIdentifierPart(text.charAt(pos+sublen)));
             }
             if(!found) {
@@ -1372,7 +1372,7 @@ public final class MoeEditor extends JFrame
      */
     public void doReload()
     {
-        Debug.assert (filename != null);
+//        Debug.assert (filename != null);
 
         try {
             FileReader reader = new FileReader(filename);
