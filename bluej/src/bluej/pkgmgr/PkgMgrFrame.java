@@ -392,12 +392,17 @@ implements BlueJEventListener
     // --- below are implementations of particular user actions ---
 
     /**
-     * doOpen - open a package (either a BlueJ package or import a foreign)
+     * doOpen - open a dialog that lets the user choose a package 
+     * (either a BlueJ package or a plain directory to import). If the
+     * chosen directory is not a BlueJ package then "Package.importPackage"
+     * is called to try to turn the chosen directory into a BlueJ package.
+     * If this was successful or the package was a BlueJ package in the
+     * first place, then the package is opened in a frame.
      */
     private void doOpen() {
-        String PkgPath = openPackageDialog();
-        if (PkgPath != null) {
-            File packageDir = new File(PkgPath);
+        String pkgPath = openPackageDialog();
+        if (pkgPath != null) {
+            File packageDir = new File(pkgPath);
 
             // if path is not a valid BlueJ package - try to import it
             if (!Package.isBlueJPackage(packageDir))
@@ -407,10 +412,10 @@ implements BlueJEventListener
                 }
 
             if(pkg.getDirName() == noTitle || pkg.getDirName() == null) 
-                doOpenPackage(PkgPath);
+                doOpenPackage(pkgPath);
             else {
                 // Otherwise open it in a new window
-                PkgMgrFrame frame = createFrame(PkgPath);
+                PkgMgrFrame frame = createFrame(pkgPath);
                 frame.setVisible(true);
             }
         }

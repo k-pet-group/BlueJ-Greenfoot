@@ -94,7 +94,7 @@ PACKAGES = \
 FINDALL = find . -follow \( -name CVS -a -prune \) -o \( -type f -a -print \)
 FINDCVS = find . -name CVS
 
-default all allclasses clean jikes javac grammar antlr::
+default all allclasses clean jikes javac grammar antlr doc::
 	for f in $(SUBDIRS) ; do \
 		$(MAKE) -C $$f $@ ; \
 	done

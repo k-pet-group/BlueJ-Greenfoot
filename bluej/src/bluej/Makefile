@@ -21,7 +21,7 @@ JAVAC_OPTS = -deprecation
 # The BlueJ documentation generator (javadoc with right CLASSPATH + opts)
 JBDOC = jbdoc
 JAVADOC = CLASSPATH="$(CLASSPATH)" javadoc
-JAVADOC_OPTS = -author -sourcepath $(SRCROOT)
+JAVADOC_OPTS = -author -private -sourcepath $(SRCROOT)
 DOC_DIR = $(TOP)/doc
 
 

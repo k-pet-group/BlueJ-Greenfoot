@@ -21,7 +21,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 284 1999-11-25 02:34:37Z ajp $
+ ** @version $Id: PkgFrame.java 294 1999-12-01 02:28:26Z axel $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -42,12 +42,11 @@ implements ActionListener, ItemListener
     static final String errCloseText =  Config.getString("pkgmgr.error.close.text");
     static final String newpkgTitle =  Config.getString("pkgmgr.newPkg.title");
     static final String createLabel =  Config.getString("pkgmgr.newPkg.buttonLabel");
-    static final String openpkgTitle =  Config.getString("pkgmgr.openPkg.title");
 
     static int DEFAULT_WIDTH = 512;
     static int DEFAULT_HEIGHT = 450;
 
-    static JBPackageChooser pkgChooser = null;	// chooser for packages only
+    static PackageChooser pkgChooser = null;	// chooser for packages only
     static JFileChooser fileChooser = null;	// chooser for all files/dirs
     JScrollPane classScroller = null;
     JScrollPane objScroller = null;
@@ -145,7 +144,7 @@ implements ActionListener, ItemListener
     {
         if(fileChooser == null) {
             fileChooser = new JFileChooser(".");
-            fileChooser.setFileView(new JBPackageFileView());
+            fileChooser.setFileView(new PackageFileView());
         }
         if (directoryOnly)
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -155,18 +154,12 @@ implements ActionListener, ItemListener
     }
 
     /**
-     * Return a BlueJ package chooser (i.e. a file chooser which
-     * recognises BlueJ packages and treats directories differently:
-     * on selection of a directory (either BlueJ package or plain)
-     * it will return rather than open that directory).
+     * Return a BlueJ package chooser, i.e. a file chooser which
+     * recognises BlueJ packages and treats them differently.
      */
-    private JBPackageChooser getPackageChooser() { 
-        if(pkgChooser == null) {
-            pkgChooser = new JBPackageChooser(".");
-            pkgChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            pkgChooser.setFileView(new JBPackageFileView());
-            pkgChooser.setApproveButtonText("Open in BlueJ");
-        }
+    private PackageChooser getPackageChooser() { 
+        if(pkgChooser == null)
+            pkgChooser = new PackageChooser(".");
         return pkgChooser;
     }
 
@@ -177,9 +170,7 @@ implements ActionListener, ItemListener
      * the name of an existing directory (either plain or a BlueJ package).
      */
     public String openPackageDialog() {
-        JBPackageChooser chooser = getPackageChooser();
-
-        chooser.setDialogTitle(openpkgTitle);
+        PackageChooser chooser = getPackageChooser();
 
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             String dirname = chooser.getSelectedFile().getPath();

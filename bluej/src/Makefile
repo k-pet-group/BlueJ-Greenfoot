@@ -22,7 +22,7 @@ SUBDIRS = \
 
 default: $(DEFAULT_COMPILER)
 
-clean clobber allclasses::
+clean clobber allclasses doc::
 	for dir in $(SUBDIRS) ; do \
 		$(MAKE) -C $$dir $@ || break ; \
 	done

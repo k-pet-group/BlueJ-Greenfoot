@@ -96,6 +96,7 @@ pkgmgr.packageSaved=Package saved
 pkgmgr.newPkg.title=New Package
 pkgmgr.newPkg.buttonLabel=Create
 pkgmgr.openPkg.title=Open Package
+pkgmgr.openPkg.buttonLabel=Open in BlueJ
 pkgmgr.saveAs.title=Save Package
 pkgmgr.saveAs.buttonLabel=Save
 pkgmgr.importClass.title=Select Class for Import

@@ -21,23 +21,23 @@ import java.util.Properties;
 
 /**
  * Class to handle application configuration for BlueJ. The configuration
- * information is spread over several files.
- *
- *  <bluej_home>/bluej.defs
- *  <bluej_home>/labels.<language>	(eg "labels.english")
- *  <user_home>/.bluej/bluej.properties
- *  <bluej_home>/moe.labels.<language>
- *
+ * information is spread over several files: <BR>
+ * <BR>
+ *  &lt;bluej_home>/bluej.defs <BR>
+ *  &lt;bluej_home>/labels.&lt;language>	(eg "labels.english") <BR>
+ *  &lt;user_home>/.bluej/bluej.properties <BR>
+ *  &lt;bluej_home>/moe.labels.&lt;language> <BR>
+ * <BR>
  * "bluej.defs"	- contains system definitions which are not language 
- *                specific and not user specific.
- * "labels.<language>"	- contains language specific strings
+ *			  specific and not user specific. <BR>
+ * "labels.&lt;language>"	- contains language specific strings <BR>
  * "bluej.properties"	- contains user specific settings. Settings here
- *                        override settings in bluej.defs
+ *			  override settings in bluej.defs <BR>
  * "moe.labels.english"- definitions for moe (the editor)
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 286 1999-11-25 05:47:42Z ajp $
+ * @version $Id: Config.java 294 1999-12-01 02:28:26Z axel $
  */
 public class Config
 {

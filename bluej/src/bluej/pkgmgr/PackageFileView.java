@@ -8,10 +8,13 @@ import javax.swing.filechooser.*;
 import java.io.File;
 
 /**
+ * A FileView subclass that enables BlueJ packages to be displayed with a
+ * distinct icon in a FileChooser.
  *
  * @author Michael Kolling
+ * @see PackageChooser
  */
-class JBPackageFileView extends FileView {
+class PackageFileView extends FileView {
 
     static final Icon packageIcon = new ImageIcon(Config.getImageFilename("image.packageIcon"));
 

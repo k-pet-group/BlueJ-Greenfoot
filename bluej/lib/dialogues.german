@@ -22,14 +22,14 @@ Operation beendet worden. Ein Ergebnis wurde
 nicht zurückgegeben. Der "exit" code ist:
 
 one-browser-only
-Von dem Library Browser kann nur eine
+Vom Library Browser kann nur eine
 Kopie zur Zeit geöffnet werden.
 
 no-help
 Für diese Fehlermeldung ist kein Hilfetext
 verfügbar. Bitte schicken Sie den Text der
 Fehlermeldung an mik@csse.monash.edu.au - 
-wir werden dann einen Hilfstext hinzufuegen.
+wir werden dann einen Hilfstext hinzufügen.
 
 # errors:
 #########
@@ -68,11 +68,11 @@ Compilerfehler:
 
 stream-incomplete
 Compilerfehler. Der "error stream" 
-ist unvollstaendig.
+ist unvollständig.
 
 out-of-bounds
-Das angegebene Arrayelement ist 
-außerhalb der Arraygrenzen.
+Der angegebene Array-Index liegt 
+außerhalb der Array-Grenzen.
 
 cannot-access-element
 Das angegebene Arrayelement konnte
@@ -87,20 +87,20 @@ Ein gültiger Name muss angegeben werden.
 
 skeleton-error
 Das Skelett für die Klasse konnte nicht erzeugt
-werden. Der Grund dafür ist möglicherweise
+werden. Mögliche Gründe dafür sind eine
 inkorrekte Installation oder Probleme, das
 Dateisystem zu lesen.
 
 error-open-source
-Der Quelltext der Klasse konnte nicht 
+Die Quelltextdatei der Klasse konnte nicht 
 geöffnet werden. Das sieht böse aus!
 
 invalid-name
 Ungültiger Klassenname.
 
 directory-exists
-Ein Verzeichnis mit dem Namen
-existiert schon.
+Ein Verzeichnis mit diesem Namen
+existiert bereits.
 
 cannot-write-package
 Das Package konnte nicht geschrieben
@@ -117,13 +117,18 @@ Die angegebene Datei existiert nicht.
 
 cannot-import
 Die Datei kann nicht importiert werden.
-Nur Java Quelltexte deren Namen mit
-".java" endet können importiert
+Nur Java-Quelltextdateien, deren Namen
+mit ".java" enden, können importiert
 werden.
 
+no-java-sources-found
+Es wurden keine Java-Quelltextdateien
+in diesem Verzeichnis (oder in einem
+der Unterverzeichnisse) gefunden.
+
 duplicate-name
-Eine Klasse diesen Namens gibt es in
-diesem Package schon. Das Package
+Eine Klasse mit diesem Namen gibt es
+in diesem Package schon. Das Package
 kann nicht zwei Klassen mit gleichem
 Namen enthalten.
 
@@ -185,6 +190,28 @@ Zeilen werden abgeschnitten werden. Dies kann
 vermieden werden, wenn das Editorfenster schmaler
 gemacht wird. Soll trotzdem gedruckt werden?
 Drucken
+Abbrechen
+null
+
+really-import-package
+Das gewählte Verzeichnis ist kein BlueJ-Package.
+Soll dieses Verzeichnis nach Java-Quelltextdateien
+durchsucht werden, die in einem BlueJ-Package-Fenster
+dargestellt werden können?
+(Wenn lediglich der Inhalt dieses Verzeichnisses 
+angezeigt werden sollte, dann bitte jetzt "Abbrechen"
+wählen und anschließend das Verzeichnis mit einem
+Doppelklick öffnen).
+Durchsuchen
+Abbrechen
+null
+
+also-search-subdirs
+Das gewählte Verzeichnis enthält Unterverzeichnisse.
+Sollen diese Verzeichnisse sowie ihre Unterverzeichnisse
+ebenfalls durchsucht werden und als geschachtelte Packages
+dargestellt werden, wenn sie Java-Quelltextdateien enthalten?
+Unterverzeichnisse durchsuchen
 Abbrechen
 null
 
