@@ -82,7 +82,7 @@ public class MoePrinter
                     document.getText(lineElement.getStartOffset(), 
                                      lineElement.getEndOffset() - lineElement.getStartOffset(),
                                      segment);
-                    lines.add(segment.toString());
+                    lines.add(removeNewLines(segment.toString()));
                 } catch(BadLocationException ble) {
                     Debug.reportError("Exception thrown accessing document text: " + ble);
                 }
@@ -96,6 +96,24 @@ public class MoePrinter
         return printText(lines, font, format);
     }
 
+
+    /**
+     * Remove newline and carriage return characters from the end of this 
+     * string. This is needed because of what appears to be a bug in the
+     * document classes: sometimes the lines appear to include NL or CR
+     * characters.
+     */
+    private String removeNewLines(String line)
+    {
+        int length = line.length();
+        char lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
+        while((lastChar == '\n') || (lastChar == '\r')) {
+            line = line.substring(0, line.length()-1);
+            length = line.length();
+            lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
+        }
+        return line;
+    }
 
     /**
      * Prints the text.  It sets paper size (at present) and paginates text
@@ -151,8 +169,8 @@ public class MoePrinter
             return false;
         }
     }
-    
-      
+
+
     /**
      * The pagination method.  Paginate the text onto Printable page objects.
      * This includes wrapping long lines of text.
