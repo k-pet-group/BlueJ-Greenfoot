@@ -45,7 +45,7 @@
 
 	<target name="compile" depends="init" description="Compile the source and run rmic" >
     	<!-- Compile the java code from ${src} into ${build} -->
-	    <javac srcdir="${src}" destdir="${build}"/>
+	    <javac srcdir="${src}" destdir="${build}" classpathref="bluej.class.path" debug="true"/>
 	    <!-- Compile the RMI-classes -->
     	<rmic base="${build}" includes="**/*Impl.class">
         	<classpath>
