@@ -36,6 +36,7 @@
 
 	<property name="boot.jar" value="${bluej_home}/lib/bluej.jar"/>
 	<property name="core.jar" value="${bluej_home}/lib/bluejcore.jar"/>
+	<property name="editor.jar" value="${bluej_home}/lib/bluejeditor.jar"/>
 	<property name="extension.jar" value="${bluej_home}/lib/bluejext.jar"/>
 
     <!-- Set up classpath (does not include jar files built by us) -->
@@ -74,7 +75,7 @@
     </target>
 
     <!--
-      -  Compile the core classes (including extension classes)
+      -  Compile the core classes (includes extension and editor classes)
      -->
     <target name="compile-core">
         <mkdir dir="${core.build}"/>
@@ -125,9 +126,9 @@
     </target>
 
     <target name="jar-boot" depends="compile-boot">
-        <!-- Delete the old jar first. To make sure it gets recreated -->
+        <!-- delete the old jar first. To make sure it gets recreated -->
         <delete quiet="true" file="${boot.jar}"/>
-        <!-- This is the Boot, the resulting jar is bluej.jar for historic reasons -->
+        <!-- this is the Boot, the resulting jar is bluej.jar for historic reasons -->
         <jar compress="yes" jarfile="${boot.jar}">
             <fileset dir="${boot.build}">
                 <include name="bluej/Boot*.class"/>
@@ -145,9 +146,22 @@
     <target name="jar-core" depends="jar-boot, compile-core">
         <!-- delete the old jar first. To make sure it gets recreated -->
         <delete quiet="true" file="${core.jar}"/>
-        <jar compress="no" jarfile="${core.jar}">
+        <jar compress="yes" jarfile="${core.jar}">
             <fileset dir="${core.build}">
                 <exclude name="bluej/extensions/**" />
+                <exclude name="bluej/editor/**" />
+                <exclude name="org/**" />
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="jar-editor" depends="jar-boot, compile-core">
+        <!-- delete the old jar first. To make sure it gets recreated -->
+        <delete quiet="true" file="${editor.jar}"/>
+        <jar compress="yes" jarfile="${editor.jar}">
+            <fileset dir="${core.build}">
+                <include name="bluej/editor/**" />
+                <include name="org/**" />
             </fileset>
         </jar>
     </target>
@@ -155,18 +169,14 @@
     <target name="jar-extension" depends="jar-boot, compile-core">
         <!-- delete the old jar first. To make sure it gets recreated -->
         <delete quiet="true" file="${extension.jar}"/>
-        <jar compress="no" jarfile="${extension.jar}">
+        <jar compress="yes" jarfile="${extension.jar}">
             <fileset dir="${core.build}">
                 <include name="bluej/extensions/**" />
             </fileset>
         </jar>
     </target>
 
-    <target name="ready-to-run" depends="jar-core, jar-extension">
-    </target>
-
-    <target name="editor-dist">
-        <ant antfile="editor.xml" dir="src/bluej/editor" target="dist"/>
+    <target name="ready-to-run" depends="jar-core, jar-editor, jar-extension">
     </target>
 
     <target name="inspector">
@@ -182,10 +192,14 @@
         </java>
     </target>
 
-    <target name="dist" depends="editor-dist">
+    <target name="editor-dist">
+        <ant antfile="editor.xml" dir="src/bluej/editor" target="dist"/>
+    </target>
+
+    <target name="dist">
         <ant antfile="build.xml" dir="extensions" target="buildall"/>
-        <ant antfile="package.xml" dir="package" target="dist"/>
-        <ant antfile="package.xml" dir="package" target="windows-dist"/>
+        <ant dir="package" target="dist"/>
+        <ant dir="package" target="windows-dist"/>
     </target>
 
     <target name="windows-dist">
@@ -267,6 +281,7 @@
         <delete quiet="true" dir="${core.build}/org"/>
         <delete quiet="true" dir="${core.build}/net"/>
         <delete quiet="true" file="${core.jar}"/>
+        <delete quiet="true" file="${editor.jar}"/>
         <delete quiet="true" file="${extension.jar}"/>
     </target>
 
