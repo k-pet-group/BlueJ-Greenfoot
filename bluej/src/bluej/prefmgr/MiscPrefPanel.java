@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 520 2000-05-31 06:49:05Z bquig $
+ * @version $Id: MiscPrefPanel.java 561 2000-06-19 02:26:35Z ajp $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -111,6 +111,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 		add(Box.createVerticalStrut(Config.generalSpacingWidth));
         add(jdkURLTag);
 		add(jdkURLField);
+		add(Box.createVerticalStrut(Config.generalSpacingWidth));
 		add(Box.createVerticalStrut(Config.generalSpacingWidth));
 
         JPanel notationPanel = new JPanel();
