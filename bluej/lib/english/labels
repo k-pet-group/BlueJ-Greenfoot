@@ -9,6 +9,8 @@ compileException=Exception during compilation
 compiler.thread.title=BlueJ compiler thread
 compiler.invalidcompiler=bluej.compiler.type is not set to a valid compiler type
 compiler.nocompiler=Compiler could not be executed
+compiler.warningDialog.title=Compiler Warnings
+compiler.warningDialog.label=The compiler generated the following warnings: 
 
 debugger.inspector.title=BlueJ:  Inspector
 debugger.inspector.result.title=BlueJ:  Method Result
@@ -187,6 +189,7 @@ editor.insert-methodLabel = Insert method
 editor.findLabel = Find...
 editor.find-nextLabel = Find Next
 editor.find-next-backwardLabel = Find Next Backward
+editor.go-to-lineLabel = Go to line...
 editor.replaceLabel = Replace...
 editor.compileLabel = Compile
 editor.toggle-breakpointLabel = Set/Clear Breakpoint
