@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  * 
- * @version $Id: ClassTarget.java 2789 2004-07-12 18:08:11Z mik $
+ * @version $Id: ClassTarget.java 2849 2004-08-06 13:21:13Z mik $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -243,8 +243,6 @@ public class ClassTarget extends EditableTarget
                 setRole(new AbstractClassRole());
             else if (JavaUtils.getJavaUtils().isEnum(cl))
                 setRole(new EnumClassRole());
-            else
-                setRole(new StdClassRole());
         }
         else {
             // try the parsed source code
@@ -261,12 +259,9 @@ public class ClassTarget extends EditableTarget
                     setRole(new AbstractClassRole());
                 else if (classInfo.isEnum())
                     setRole(new EnumClassRole());
-                else
-                    setRole(new StdClassRole());
-
             }
         }
-        // everything failed, lets leave the role as it was
+        // don't really know, lets leave the role as it was
     }
 
     /**

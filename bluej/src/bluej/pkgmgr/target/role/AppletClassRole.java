@@ -19,7 +19,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 2848 2004-08-06 11:29:43Z mik $
+ * @version $Id: AppletClassRole.java 2849 2004-08-06 13:21:13Z mik $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -120,7 +120,6 @@ public class AppletClassRole extends ClassRole
         value = props.getProperty(prefix + ".appletWidth");
         if(value != null)
             appletWidth = Integer.parseInt(value);
-
     }
 
     /**
