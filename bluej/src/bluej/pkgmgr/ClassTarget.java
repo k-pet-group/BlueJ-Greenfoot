@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 920 2001-06-04 05:02:55Z mik $
+ * @version $Id: ClassTarget.java 923 2001-06-06 01:01:12Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -1137,9 +1137,8 @@ public class ClassTarget extends EditableTarget
         // flag dependent Targets as invalid
         //invalidate();
 
-        Editor ed = getEditor();
-        if(ed != null)
-            ed.close();
+        if(editor != null)
+            editor.close();
 
         removeAllInDependencies();
         removeAllOutDependencies();
