@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 886 2001-05-09 00:42:09Z bquig $
+ * @version $Id: ClassTarget.java 920 2001-06-04 05:02:55Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -700,6 +700,7 @@ public class ClassTarget extends EditableTarget
 
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
             getEditor().changeName(newName, newSourceFile.getPath());
+
             role.prepareFilesForRemoval(oldSourceFile.getPath(),
                                          getClassFile().getPath(),
                                          getContextFile().getPath());
