@@ -1,6 +1,7 @@
 package bluej.groupwork;
 
 import java.io.PrintStream;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import org.netbeans.lib.cvsclient.event.TerminationEvent;
  * @author fisker
  * 
  */
-public class UpdateListener extends CVSAdapter{
+public class UpdateListener extends BasicServerResponse{
 	/**
      * Stores a tagged line
      */
@@ -31,7 +32,6 @@ public class UpdateListener extends CVSAdapter{
      * Stores the UpdateResults
      */
     private List updateResults = new LinkedList();
-    private boolean isTerminated = false;
     /**
      * Called when the server wants to send a message to be displayed to
      * the user. The message is only for information purposes and clients
@@ -73,19 +73,68 @@ public class UpdateListener extends CVSAdapter{
     	}
     }
     
+    
+    
+    private List getUpdateResultsOfType(char type){
+    	List results = new LinkedList();
+    	for (Iterator i = updateResults.iterator(); i.hasNext();) {
+			UpdateResult updateResult = (UpdateResult) i.next();
+			if (updateResult.getStatusCode()== type){
+				results.add(updateResult);
+			}
+		}
+    	return results;
+    }
+    
     /**
      * Get the list of UpdateResults. This method will block until the 
      * UpdateCommand we are listening for has terminated.
      * @return List of UpdateResults
      */
-    public synchronized List getUpdateResults(){
-    	while(!isTerminated){
-    		try {
-				wait();
-			} catch (InterruptedException e) {}
-    	}
+    public List getUpdateResults(){
+    	waitForExecutionToFinish();
     	return updateResults;
     }
    
+    /**
+     * Get a list of UpdateResults that represents conflicts. 
+     * This method will block until the UpdateCommand we are listening for has
+     * terminated.
+     * @return List of UpdateResults which represents conflicts
+     */
+    public List getConflicts(){
+    	waitForExecutionToFinish();
+    	return getUpdateResultsOfType('C');
+    }
+    
+    /**
+     * Get a list of UpdateResults that represents unknowns. 
+     * This method will block until the UpdateCommand we are listening for has
+     * terminated.
+     * @return List of UpdateResults which represents unknowns
+     */
+    public List getUnknown(){
+    	waitForExecutionToFinish();
+    	return getUpdateResultsOfType('?');
+    }
+    
+    /**
+     * Get a list of UpdateResults that represents updates. 
+     * This method will block until the UpdateCommand we are listening for has
+     * terminated.
+     * @return List of UpdateResults which represents updates
+     */
+    public List getUpdated(){
+    	waitForExecutionToFinish();
+    	return getUpdateResultsOfType('U');
+    }
+
+	/**
+	 * @return
+	 */
+	public int size() {
+		return updateResults.size();
+	}
+    
     
 }

@@ -1,5 +1,6 @@
 package bluej.groupwork.ui;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,17 +8,28 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import org.netbeans.lib.cvsclient.command.CommandAbortedException;
+import org.netbeans.lib.cvsclient.command.CommandException;
+import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.groupwork.Repository;
+import bluej.groupwork.BasicServerResponse;
+import bluej.groupwork.UpdateListener;
+import bluej.groupwork.UpdateResult;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 
@@ -33,13 +45,13 @@ public class TeamControls extends JFrame {
 	private JCheckBox includeGraphLayoutCheckBox;
 	//private PkgMgrFrame pmf;
 	private Project project;
-	private static final String title = ""; // Config.
+	private static final String title = Config.getString("team.teamcontrols.title");
 	private static final Image iconImage =
         Config.getImageAsIcon("image.icon").getImage();
-	
+	private ProgressDialog progress;
 	
 	public TeamControls(Project project){
-		//super(pmf, title);
+		super(title);
 		this.project = project;
 		makeWindow();
 	}
@@ -95,11 +107,18 @@ public class TeamControls extends JFrame {
         	// IncludeGraphLayoutCheckbox
         	includeGraphLayoutCheckBox = new JCheckBox("Include Graphlayout");
         	
-        	
+        	//allow the Add and Delete buttons to be resized to equal width
+    		commitButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+    						commitButton.getPreferredSize().height));
+    		updateButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+    						updateButton.getPreferredSize().height));
         	mainPanel.add(commitButton);
+        	mainPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         	mainPanel.add(updateButton);
+        	mainPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         	mainPanel.add(includeGraphLayoutCheckBox);
         }
+        progress = new ProgressDialog(this); 
         getContentPane().add(mainPanel);
         pack();
 	}
@@ -113,14 +132,61 @@ public class TeamControls extends JFrame {
     }
 	
 	private void doUpdate() {
-		System.out.println("TeamDialog: Update");
-		project.getRepository().updateAll(project, includeGraphLayoutCheckBox.isSelected()); 
+		Thread thread = new Thread(){
+			public void run(){
+				UpdateListener updateListener = null;
+				try {
+					updateListener = project.getRepository().updateAll(includeGraphLayoutCheckBox.isSelected());
+				} catch (CommandAbortedException e) {
+					e.printStackTrace();
+				} catch (CommandException e) {
+					e.printStackTrace();
+				} catch (AuthenticationException e) {
+					e.printStackTrace();
+				}
+				project.reloadFilesInEditors();
+				progress.stop();
+				handleConflicts(updateListener);
+			}
+			
+			public void handleConflicts(UpdateListener updateListener){
+				StringBuffer conflicts = new StringBuffer();
+				if (updateListener.getConflicts().size() > 0){
+					conflicts.append("The following classes had conflicts:\n");
+					for (Iterator i = updateListener.getConflicts().iterator(); i.hasNext();) {
+						UpdateResult updateResult = (UpdateResult) i.next();
+						conflicts.append(updateResult.getFilename() + "\n");					
+					}
+					JOptionPane.showMessageDialog(TeamControls.this,conflicts);
+				}
+			}
+		};
+		thread.start();
+		progress.start(); 
 	}
 	
 	
 	private void doCommit() {
-		System.out.println("TeamDialog: Commit");
-		project.getRepository().commitAll(project, includeGraphLayoutCheckBox.isSelected());
-	    //project.getRepository().shareProject(project); 
+		Thread thread = new Thread(){
+			public void run(){
+				BasicServerResponse basicServerResponse = null;
+				try {
+					basicServerResponse = project.getRepository().commitAll(includeGraphLayoutCheckBox.isSelected());
+				} catch (CommandAbortedException e) {
+					e.printStackTrace();
+				} catch (CommandException e) {
+					e.printStackTrace();
+				} catch (AuthenticationException e) {
+					e.printStackTrace();
+				}
+				progress.stop();
+				if (basicServerResponse.isError()){
+					JOptionPane.showMessageDialog(TeamControls.this, basicServerResponse.getMessage());
+				}
+			}
+		};
+		thread.start();
+		progress.start();
+	    //project.getRepository().shareProject(project);
 	}
 }
