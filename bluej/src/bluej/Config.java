@@ -40,7 +40,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 614 2000-07-03 02:35:00Z mik $
+ * @version $Id: Config.java 615 2000-07-03 04:12:37Z mik $
  */
 
 public class Config
@@ -94,7 +94,7 @@ public class Config
     static {
         JTextField f = new JTextField();
         KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-        Keymap map = f.getKeymap(JTextComponent.DEFAULT_KEYMAP);
+        Keymap map = f.getKeymap();
         map.removeKeyStrokeBinding(enter);
     }
 
@@ -142,16 +142,18 @@ public class Config
      */
     private static Rectangle calculateScreenBounds()
     {
-        Rectangle bounds = new Rectangle();
-        GraphicsEnvironment ge = GraphicsEnvironment.
-            getLocalGraphicsEnvironment();
-        GraphicsDevice[] gs = ge.getScreenDevices();
-        for (int j = 0; j < gs.length; j++) { 
-            GraphicsDevice gd = gs[j];
-            GraphicsConfiguration[] gc = gd.getConfigurations();
-            for (int i=0; i < gc.length; i++)
-                bounds = bounds.union(gc[i].getBounds());
-        }
+//         Rectangle bounds = new Rectangle();
+//         GraphicsEnvironment ge = GraphicsEnvironment.
+//             getLocalGraphicsEnvironment();
+//         GraphicsDevice[] gs = ge.getScreenDevices();
+//         for (int j = 0; j < gs.length; j++) { 
+//             GraphicsDevice gd = gs[j];
+//             GraphicsConfiguration[] gc = gd.getConfigurations();
+//             for (int i=0; i < gc.length; i++)
+//                 bounds = bounds.union(gc[i].getBounds());
+//         }
+        // for jdk 1.2:
+        Rectangle bounds = new Rectangle(0,0,800,600);
         return bounds;
     }
 

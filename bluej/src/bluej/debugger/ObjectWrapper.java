@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 614 2000-07-03 02:35:00Z mik $
+ * @version $Id: ObjectWrapper.java 615 2000-07-03 04:12:37Z mik $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -141,8 +141,7 @@ public class ObjectWrapper extends JComponent
                 JMenu subMenu = new JMenu(inheritedFrom + " "
                                + JavaNames.stripPrefix(currentClass.getName()));
                 subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                createMenuItems(subMenu.getPopupMenu(), declaredMethods, 
-                                filter, 0, 
+                createMenuItems(subMenu, declaredMethods, filter, 0, 
                                 declaredMethods.length, (itemsOnScreen / 2));
                 menu.insert(subMenu, 0);
             }
@@ -190,14 +189,12 @@ public class ObjectWrapper extends JComponent
      * @param sizeLimit the limit to which the menu should grow before openeing
      *                  submenus
      */
-    private void createMenuItems(JPopupMenu menu, MethodView[] methods,
+    private void createMenuItems(JComponent menu, MethodView[] methods,
                                  ViewFilter filter, int first, int last,
                                  int sizeLimit)
     {
         JMenuItem item;
         String methodSignature;
-        List subMenus = new ArrayList();
-        JPopupMenu firstMenu = menu;
 
         for(int i = first; i < last; i++) {
             try {
@@ -223,16 +220,18 @@ public class ObjectWrapper extends JComponent
                 actions.put(item, m);
 
                 // check whether it's time for a submenu
-
-                if(menu.getComponentCount() >= sizeLimit) {
+                
+                int itemCount;
+                if(menu instanceof JMenu)
+                    itemCount =((JMenu)menu).getMenuComponentCount();
+                else
+                    itemCount = menu.getComponentCount();
+                if(itemCount >= sizeLimit) {
                     JMenu subMenu = new JMenu("more methods");
                     subMenu.setFont(PrefMgr.getStandoutMenuFont());
                     subMenu.setForeground(envOpColour);
-                    //menu.add(subMenu);  // this causes an error!
-                                          // seems that you cannot add menus
-                                          // and then add items later...
-                    subMenus.add(subMenu);
-                    menu = subMenu.getPopupMenu();
+                    menu.add(subMenu);
+                    menu = subMenu;
                     sizeLimit = itemsOnScreen / 2;
                 }
                 menu.add(item);
@@ -241,13 +240,6 @@ public class ObjectWrapper extends JComponent
                 e.printStackTrace();
             }
         }
-
-        // stack the menus inside each other
-
-        for(int i = subMenus.size()-2; i >= 0; i--)
-            ((JMenu)subMenus.get(i)).add((JMenu)subMenus.get(i+1));
-        if(subMenus.size() > 0)
-            firstMenu.add((JMenu)subMenus.get(0));
     }
 
 
