@@ -16,13 +16,13 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3039 2004-10-05 08:59:05Z mik $
+ * @version $Id: Boot.java 3053 2004-10-15 10:46:43Z mik $
  */
 public class Boot
 {
     public static final int BLUEJ_VERSION_MAJOR = 2;
     public static final int BLUEJ_VERSION_MINOR = 0;
-    public static final int BLUEJ_VERSION_RELEASE = 1;
+    public static final int BLUEJ_VERSION_RELEASE = 2;
     public static final String BLUEJ_VERSION_SUFFIX = "";
 
     public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
@@ -215,7 +215,7 @@ public class Boot
 
             // Construct a bluej.Main object. This starts BlueJ "proper".
             Class mainClass = Class.forName("bluej.Main", true, runtimeLoader);
-            Object main = mainClass.newInstance();
+            mainClass.newInstance();
             
         } catch (Exception exc) {
             exc.printStackTrace();
