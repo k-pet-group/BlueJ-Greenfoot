@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1537 2002-11-29 13:40:19Z ajp $
+ * @version $Id: JdiDebugger.java 1554 2002-12-02 06:00:30Z ajp $
  *
  * The startup process is as follows:
  *
@@ -88,7 +88,7 @@ public final class JdiDebugger extends Debugger
     private Process process = null;
     private VMEventHandler eventHandler = null;
 
-    private ClassType serverClass = null;           // the class of the exec server
+    private ClassType serverClass = null;       // the class of the exec server
     private ObjectReference serverInstance = null;  // the exec server instance
     private ThreadReference serverThread = null;    // the thread of the exec server instance
 
@@ -275,7 +275,7 @@ public final class JdiDebugger extends Debugger
     void serverClassAddBreakpoints()
     {
         EventRequestManager erm = machine.eventRequestManager();
-        serverClass = findClassByName(machine, SERVER_CLASSNAME, null);
+        serverClass = (ClassType) findClassByName(machine, SERVER_CLASSNAME, null);
 
         // set a breakpoint in the suspend method
         Method suspendMethod = findMethodByName(serverClass,
@@ -379,7 +379,7 @@ public final class JdiDebugger extends Debugger
                            Object eventParam)
     {
         loadClass(loader, classname);
-        ClassType shellClass = findClassByName(machine, classname, loader);
+        ClassType shellClass = (ClassType) findClassByName(machine, classname, loader);
 
         Method runMethod = findMethodByName(shellClass, "run");
         if(runMethod == null) {
@@ -918,7 +918,7 @@ public final class JdiDebugger extends Debugger
         throws AbsentInformationException
     {
         loadClass(loader, className);
-        ClassType remoteClass = findClassByName(getVM(), className, loader);
+        ClassType remoteClass = (ClassType) findClassByName(getVM(), className, loader);
 
         if(remoteClass == null)
             return "Class not found";
@@ -947,7 +947,7 @@ public final class JdiDebugger extends Debugger
         throws AbsentInformationException
     {
         loadClass(loader, className);
-        ClassType remoteClass = findClassByName(getVM(), className, loader);
+        ClassType remoteClass = (ClassType) findClassByName(getVM(), className, loader);
 
         if(remoteClass == null)
             return "Class not found";
@@ -1163,20 +1163,20 @@ public final class JdiDebugger extends Debugger
     // -- support methods --
 
     /**
-     * Find the mirror of a class in the remote VM.
+     * Find the mirror of a class/interface/array in the remote VM.
      *
      * The class is expected to exist. We expect only one single
      * class to exist with this name and report an error if more
      * than one is found.
      */
-    private ClassType findClassByName(VirtualMachine vm, String classname,
+    private ReferenceType findClassByName(VirtualMachine vm, String classname,
                                       DebuggerClassLoader loader)
     {
         JdiClassLoader jdiLoader = (JdiClassLoader)loader;
 
         List list = vm.classesByName(classname);
         if(list.size() == 1) {
-            return (ClassType)list.get(0);
+            return (ReferenceType)list.get(0);
         }
         else if(list.size() > 1) {
             if(loader == null) {
@@ -1185,7 +1185,7 @@ public final class JdiDebugger extends Debugger
             }
             Iterator iter = list.iterator();
             while(iter.hasNext()) {
-                ClassType cl = (ClassType)iter.next();
+                ReferenceType cl = (ReferenceType)iter.next();
                 if(cl.classLoader() == jdiLoader.getLoader())
                     return cl;
             }
