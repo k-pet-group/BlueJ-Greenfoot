@@ -454,6 +454,7 @@ image.terminate=terminate.gif
 
 #text eval area
 image.prompt=prompt.gif
+image.continue=prompt-continue.gif
 
 # unit testing
 image.test.recording=record.gif

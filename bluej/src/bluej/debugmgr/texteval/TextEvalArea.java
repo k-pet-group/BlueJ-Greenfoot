@@ -29,7 +29,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2675 2004-06-28 18:14:07Z mik $
+ * @version $Id: TextEvalArea.java 2676 2004-06-28 19:28:38Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -319,10 +319,13 @@ public final class TextEvalArea extends JScrollPane
             if(currentCommand.trim().length() != 0) {
                        
                 history.add(line);
-                append("\n ");      // ensure space at the beginning of every line, because
-                                    // line properties do not work otherwise
                 firstTry = true;
                 invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
+                append("\n ");      // ensure space at the beginning of every line, because
+                                    // line properties do not work otherwise
+            }
+            else {
+                markAs(MoeSyntaxView.OUTPUT);
             }
             currentCommand = "";
         }
@@ -349,8 +352,7 @@ public final class TextEvalArea extends JScrollPane
             String line = getCurrentLine();
             currentCommand += line + " ";
             history.add(line);
-            append("\n ");      // ensure space at the beginning of every line, because
-                                // line properties do not work otherwise
+            markAs(MoeSyntaxView.CONTINUE);
         }
     }
 

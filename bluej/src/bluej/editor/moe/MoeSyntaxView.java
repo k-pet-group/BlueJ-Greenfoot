@@ -31,7 +31,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 2625 2004-06-19 11:35:15Z mik $
+ * @version $Id: MoeSyntaxView.java 2676 2004-06-28 19:28:38Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -51,6 +51,7 @@ public class MoeSyntaxView extends PlainView
     public static final String STEPMARK = "step";
     public static final String OUTPUT = "output";
     public static final String ERROR = "error";
+    public static final String CONTINUE = "continue";
 
     static final Image breakImage =
         Config.getImageAsIcon("image.breakmark").getImage();
@@ -60,6 +61,8 @@ public class MoeSyntaxView extends PlainView
         Config.getImageAsIcon("image.breakstepmark").getImage();
     static final Image promptImage =
         Config.getImageAsIcon("image.prompt").getImage();
+    static final Image continueImage =
+        Config.getImageAsIcon("image.continue").getImage();
     static final int BREAKPOINT_OFFSET = MoeEditor.TAG_WIDTH + 2;
 
     static final Color outputColor = new Color(0, 120, 0);
@@ -125,7 +128,7 @@ public class MoeSyntaxView extends PlainView
             g.setColor(def);
             
             if(isTextEval) {
-                drawTextEvalMethod(lineIndex, g, x, y, document, tokenMarker, def, lineElement);
+                drawTextEvalLine(lineIndex, g, x, y, document, tokenMarker, def, lineElement);
             }
             else {
                 drawEditorLine(lineIndex, g, x, y, document, tokenMarker, def, lineElement);
@@ -173,7 +176,7 @@ public class MoeSyntaxView extends PlainView
 	/**
      * Draw a line for the text eval area.
 	 */
-	private void drawTextEvalMethod(int lineIndex, Graphics g, int x, int y, 
+	private void drawTextEvalLine(int lineIndex, Graphics g, int x, int y, 
             SyntaxDocument document, TokenMarker tokenMarker, Color def, Element lineElement) 
     {
 		if (Boolean.TRUE.equals
@@ -188,6 +191,12 @@ public class MoeSyntaxView extends PlainView
 		    Utilities.drawTabbedText(line, x+BREAKPOINT_OFFSET, y, g, this,
 		            0);
 		}
+        else if (Boolean.TRUE.equals
+                (lineElement.getAttributes().getAttribute(CONTINUE))) {
+            g.drawImage(continueImage, x-1, y+3-promptImage.getHeight(null), null);
+            paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+                    document, tokenMarker, def);   
+        }
 		else {
             g.drawImage(promptImage, x-1, y+3-promptImage.getHeight(null), null);
 		    paintSyntaxLine(line, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
