@@ -65,10 +65,12 @@ public class PrefManager implements PrefPanelListener
     private void doWorkLoop( int doAction ) 
     {
         // I need to remove all content, in any case...
-        if ( doAction == DO_panelUpdate ) drawPanel.removeAll();
+        if (doAction == DO_panelUpdate) 
+            drawPanel.removeAll();
       
-        for ( Iterator iter=extensionsList.iterator(); iter.hasNext(); )
-          doWorkItem ((ExtensionWrapper)iter.next(),doAction);
+        for (Iterator iter=extensionsList.iterator(); iter.hasNext(); ) {
+            doWorkItem ((ExtensionWrapper)iter.next(),doAction);
+        }
     }
 
     /**
@@ -78,37 +80,39 @@ public class PrefManager implements PrefPanelListener
     private void doWorkItem( ExtensionWrapper aWrapper, int doAction ) 
     {
         // This extension is not valid, let me skip it
-        if ( ! aWrapper.isValid() ) return;
+        if (! aWrapper.isValid()) 
+            return;
         String extensionName = aWrapper.getExtensionClassName();
 
-        switch (doAction) 
-        {
-        case DO_loadValues:  
-            aWrapper.safePrefGenLoadValues();   
-            return;
-        case DO_saveValues:  
-            aWrapper.safePrefGenSaveValues();   
-            return;
-        case DO_panelUpdate: 
-            addUserPanel (aWrapper, extensionName); 
-            return;
-          }
+        switch (doAction) {
+            case DO_loadValues:  
+                aWrapper.safePrefGenLoadValues();   
+                return;
+            case DO_saveValues:  
+                aWrapper.safePrefGenSaveValues();   
+                return;
+            case DO_panelUpdate: 
+                addUserPanel (aWrapper, extensionName); 
+                return;
         }
+    }
 
     /**
      * Utility to make the code nicer. Michael likes it :-)
      */
     private String stripName ( String i_name )
-      {
-      int dotIndex = i_name.lastIndexOf(".");
-      // No dots around, strange but possible...
-      if ( dotIndex < 0 ) return i_name;
+    {
+        int dotIndex = i_name.lastIndexOf(".");
+        // No dots around, strange but possible...
+        if (dotIndex < 0) 
+            return i_name;
 
-      // This is also strange... the dot is at the end of the string...
-      if ( dotIndex+1 >= i_name.length() ) return i_name;
+        // This is also strange... the dot is at the end of the string...
+        if (dotIndex+1 >= i_name.length()) 
+            return i_name;
 
-      return i_name.substring(dotIndex+1);
-      }
+        return i_name.substring(dotIndex+1);
+    }
   
     /**
      * Being here to make code cleaner. 
@@ -117,7 +121,8 @@ public class PrefManager implements PrefPanelListener
     private void addUserPanel( ExtensionWrapper aWrapper, String extensionName ) 
     {
         JPanel aPanel = aWrapper.safePrefGenGetPanel();
-        if ( aPanel == null ) return;
+        if (aPanel == null) 
+            return;
 
         // The panel that the user gives me goes into a container pane
         JPanel framePanel = new JPanel(new BorderLayout());
@@ -145,12 +150,12 @@ public class PrefManager implements PrefPanelListener
      * Nothing much to do, this is to satisfy the invokeLater
      */
     private class DoPanelUpdate implements Runnable
-      {
-      public void run()
+    {
+        public void run()
         {
-        doWorkLoop (DO_panelUpdate);
+            doWorkLoop (DO_panelUpdate);
         }
-      }
+    }
 
     /**
      * Needed only to satisfy the implements
@@ -164,7 +169,7 @@ public class PrefManager implements PrefPanelListener
     public void revertEditing() 
     {
         doWorkLoop (DO_loadValues);
-     }
+    }
 
     /**
      * Called by the system when the user has pressed the OK buton
