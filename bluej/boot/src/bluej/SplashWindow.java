@@ -1,7 +1,11 @@
 package bluej;
 
 import java.awt.*;
-import javax.swing.*;
+import java.awt.image.BufferedImage;
+import javax.swing.JComponent;
+import javax.swing.BorderFactory;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 import java.net.URL;
 
@@ -10,40 +14,27 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2686 2004-06-29 13:52:10Z mik $
+ * @version $Id: SplashWindow.java 2744 2004-07-06 15:45:21Z mik $
  */
 
-public class SplashWindow extends JFrame
+public class SplashWindow extends Frame
 {
-	
-	private class BlueJLabel extends JLabel {
-		
-		BlueJLabel(ImageIcon iconImage){
-			super(iconImage);
-		}
-		
-		public void paint(Graphics g){
-			super.paint(g);
-			g.setColor(new Color(31,70,110));
-			g.setFont(new Font("SansSerif", Font.PLAIN, 12));
-			g.drawString("Version " + Boot.BLUEJ_VERSION, 24, image.getHeight()-14);
-		}
-	}
-	
-    private BlueJLabel image;
-
     public SplashWindow()
     {
+        setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
     		setUndecorated(true);
     		// must start with a forward slash or else Java converts the .
     		// to a /
-    		URL iconURL = getClass().getResource("/bluej/splash.jpg");
-    	
-        ImageIcon icon = new ImageIcon(iconURL);
-
-        image = new BlueJLabel(icon);
-        image.setBorder(BorderFactory.createLineBorder(Color.black, 1));
-        getContentPane().add(image);
+    		URL splashURL = getClass().getResource("/bluej/splash.jpg");
+    		BlueJLabel image = null;
+            
+        try {
+            BufferedImage splashImage = ImageIO.read(splashURL);
+            image = new BlueJLabel(splashImage);
+        }
+        catch(IOException exc) { // ignore
+        }
+        add(image);
         pack();
 
         // centre on screen
@@ -51,10 +42,9 @@ public class SplashWindow extends JFrame
         setLocation((screenDim.width - getSize().width)/2,
                     (screenDim.height - getSize().height)/2);
         setVisible(true);
-        // try { Thread.sleep(7000);} catch(Exception e) {}  // for testing: show longer
+        //try { Thread.sleep(7000);} catch(Exception e) {}  // for testing: show longer
     }
 
-    
     /**
      * Remove this splash screen from screen. Since we never need it again,
      * throw it away completely.
@@ -62,5 +52,34 @@ public class SplashWindow extends JFrame
     public void remove()
     {
         dispose();
+    }
+
+    private class BlueJLabel extends JComponent {
+        
+        private BufferedImage image;
+        
+        BlueJLabel(BufferedImage splashImage) {
+            image = splashImage;
+            setBorder(BorderFactory.createLineBorder(Color.black, 1));
+        }
+        
+        public void paintComponent(Graphics g) {
+            g.drawImage(image, 0, 0, null);
+            g.setColor(new Color(31,70,110));
+            g.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            g.drawString("Version " + Boot.BLUEJ_VERSION, 24, image.getHeight()-14);
+        }
+        
+        public Dimension getMinimumSize() {
+            return new Dimension(image.getWidth(), image.getHeight());
+        }
+        
+        public Dimension getMaximumSize() {
+            return new Dimension(image.getWidth(), image.getHeight());
+        }
+        
+        public Dimension getPreferredSize() {
+            return new Dimension(image.getWidth(), image.getHeight());
+        }
     }
 }
