@@ -1,0 +1,184 @@
+compile-while-executing
+You cannot compile while the machine
+is executing. This could cause strange
+problems!
+
+exception-thrown
+An exception was thrown:
+
+break-no-source
+Breakpoint hit in a file for which the
+source cannot be found.  Filename:
+
+error-in-file
+An error occurred in a file for which the
+source cannot be found.
+Filename:line number / error message:
+
+system-exit
+The method finished through an explicit
+"exit" instruction. No result was
+returned. The exit code is:
+
+one-browser-only
+Sorry - you can only start one copy
+of this version of the Library Browser
+
+no-help
+No help available for this message.
+Please mail the text of the error message
+to mik@csse.monash.edu.au - we will then
+add a help text to our help database. Thanks.
+
+# errors:
+#########
+
+no-lib-selected
+You have not specified a library to go to.
+Click on a library in the "Search results" list
+and then press the "Go to" button.
+
+no-target-dialog
+Before you use a package from
+the Library Browser, you need
+at least one target package open
+in a BlueJ window.
+
+cannot-locate-lib-node
+Cannot locate the selected node in the 
+LibraryChooser tree.  The usual cause of 
+this error is an out-of-date package file
+in the directory containing the package.
+
+missing-shadow
+Cannot locate shadow area:
+
+cannot-run-compiler
+Cannot run compiler. Is the 
+program in your path? 
+Name of compiler:
+
+compiler-error
+Compiler error:
+
+stream-incomplete
+Compiler error. Error stream incomplete.
+
+out-of-bounds
+Element specified is not
+within array bounds.
+
+cannot-access-element
+Unable to access the array 
+element specified.
+
+appletviewer-error
+Error executing applet in appletviewer.
+
+error-no-name
+You must specify a valid name.
+
+skeleton-error
+The default skeleton for the class could not be
+generated. This may be because of configuration
+error in the setup of BlueJ, or because of file
+system access problems.
+
+error-open-source
+There is a problem opening the source of
+this class.  Serious trouble!
+
+invalid-name
+Invalid Class Name.
+
+directory-exists
+A file or directory with this
+name already exists.
+
+cannot-write-package
+Could not write package to new
+location. Please check the name
+and access rights.
+
+cannot-copy-package
+There was a problem copying some
+of the package files. The package
+may be incomplete.
+
+file-does-not-exist
+The specified file
+does not exist.
+
+cannot-import
+Cannot import file. The file must
+be a Java source file (it's name
+must end in ".java").
+
+duplicate-name
+A class with this name already exists
+in this package. You cannot have two
+classes with the same name.
+
+error-in-import
+An error occured during the attempt to
+import the file. Check access rights and
+disk space.
+
+no-class-selected
+No Class selected for removal.
+Select Class by clicking on it 
+before trying to remove.
+
+package-does-not-exist
+Error in opening package.
+Package does not exist:
+
+no-bluej-package
+Error in opening package.
+The file/directory is not 
+a BlueJ package:
+
+applet-height-width
+Applet height and width 
+must be specified.
+
+cannot-read-help
+Cannot read help file:
+
+not-yet-implemented
+Not Yet Implemented - sorry.
+
+quit-all
+Quit all open packages?
+Quit All
+Cancel
+null
+
+really-remove
+Removing this class will permanently
+delete the source file.
+Do you want to continue?
+Remove
+Cancel
+null
+
+really-reload
+Reload discards all changes since the last edit.
+Are you sure?
+Reload
+Cancel
+null
+
+really-print
+The text is wider than the paper. Long lines
+will be cut off. You can avoid this by resizing
+the editor window to make it narrower. Do you
+want to print anyway?
+Print
+Cancel
+null
+
+ask-index
+Enter array element index [...]
+Array Inspection
+null

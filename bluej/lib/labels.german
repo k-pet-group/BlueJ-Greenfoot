@@ -1,0 +1,211 @@
+okay=Ok
+cancel=Abbrechen
+close=Schließen
+
+main.invalidPackage=Package konnte nicht gefunden werden.
+
+compileException=Exception während des Compilierens 
+compiler.thread.title=BlueJ Compiler Thread
+compiler.invalidcompiler=bluej.compiler.type enthält keinen gültigen Compilertyp
+compiler.nocompiler=Compiler kann nicht gestartet werden
+
+debugger.objectviewer.title=Object Inspector: Object der Klasse
+debugger.resultviewer.title=Methodenergebnis
+debugger.objectviewer.staticListTitle=Statische Felder
+debugger.objectviewer.objListTitle=Objectfelder
+debugger.objectviewer.inspect=Inspect
+debugger.objectviewer.get=Holen
+debugger.objectviewer.objectClassName=Object der Klasse
+
+debugger.objectwrapper.methodException=Exception während Methodenzugriff: 
+debugger.objectwrapper.invocationException=Exception während Ausführung: 
+debugger.objectwrapper.inspect=Inspect
+debugger.objectwrapper.remove=Entfernen
+
+#library browser configuration
+browser.title=Library Browser
+browser.version=0.1
+browser.tempdir=c:\\temp
+browser.togglemessagebox.toggle.text=Ich möchte diese Nachricht in Zukunft nicht sehen
+
+browser.librarychooser.loading.status=Libraries werden geladen...
+browser.librarychooser.loaded.status=Libraries sind geladen.
+browser.librarychooser.openingarchive.status=Libraryarchiv wird geöffnet
+browser.librarychooser.config.user=userlibs.properties
+
+browser.classchooser.classmenu.open=Öffnen
+browser.classchooser.classmenu.use=Benutzen...
+browser.classchooser.packagemenu.open=Öffnen
+browser.classchooser.packagemenu.use=Benutzen...
+
+browser.usepackage.dialog.text=Selektieren Sie das gewünschte Package und klicken Sie Ok
+
+browser.missingclass.text=Der Browser kann die folgende Klasse nicht finden: $
+
+#library browser menus
+browser.menu.library=Library
+browser.menu.library.properties=Einstellungen...
+browser.menu.library.addlibrary=Einfügen...
+browser.menu.library.addlibrary.title=Library einfügen
+browser.menu.library.refresh=Darstellung erneuern
+browser.menu.library.close=Schließen
+
+# Class Manager user interface elements and error messages
+#
+classmgr.prefpaneltitle=Libraries
+classmgr.userlibraries=Benutzerlibraries
+classmgr.systemlibraries=Systemlibraries
+classmgr.bootlibraries=Boot-Libraries
+classmgr.add=Hinzufügen
+classmgr.delete=Löschen
+classmgr.locationcolumn=Pfad
+classmgr.descriptioncolumn=Beschreibung
+classmgr.unresolvable=Unauflösbarer Pfad
+classmgr.bootclass=Boot-Klassen-Library
+classmgr.bluejclass=BlueJ-Klassen-Library
+classmgr.error.unresolvable=Unauflösbarer Pfad
+classmgr.error.loadingconfig=Missing configuration file. This file is used to specify libraries\nin addition to the standard boot libraries.
+classmgr.error.savingconfig=Saving configuration file.
+classmgr.error.missingclasspath=No java classpath. Class loading behaviour may be strange because\nclasses in the current directory will be resolved first.
+classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be run on a pre JDK 1.2 environment.
+
+# Preferences Manager user interface elements and error messages
+prefmgr.title=Einstellungen
+
+editor.title=BlueJ editor
+
+editor.find.forward=Vorwärts
+editor.find.backward=Rückwärts
+
+editor.functions.defaults=Standard
+editor.functions.categories=Kategorien:
+editor.functions.keys=Tastenbindungen
+editor.functions.addkey=Taste hinzufügen
+editor.functions.delkey=Taste löschen
+
+pkgmgr.noTitle=<noTitle>
+pkgmgr.chooseUsesFrom=Klicken Sie auf die Klasse von der der Pfeil ausgeht
+pkgmgr.chooseUsesTo=Klicken Sie auf die Klasse auf die der Pfeil zeigt
+pkgmgr.chooseInhFrom=Klicken Sie auf die Unterklasse
+pkgmgr.chooseInhTo=Klicken Sie auf die Oberklasse
+pkgmgr.chooseArrow=Klicken Sie auf den Pfeil, der gelöscht werden soll
+pkgmgr.packageSaved=Package wurde gespeichert
+
+# dialog titles and texts
+
+pkgmgr.newPkg.title=Neues Package
+pkgmgr.newPkg.buttonLabel=Erzeugen
+pkgmgr.openPkg.title=Package öffnen
+pkgmgr.saveAs.title=Package speichern
+pkgmgr.saveAs.buttonLabel=Speichern
+pkgmgr.importClass.title=Klassenselektion für Import
+pkgmgr.importClass.buttonLabel=Importieren
+pkgmgr.importPkg.title=Package Importieren
+pkgmgr.newClass.msg=Name der Klasse
+pkgmgr.newUses=Neuer "Uses"-Pfeil
+pkgmgr.newExtends=Neuer "Extends"-Pfeil
+pkgmgr.noPackage=<No package>
+
+pkgmgr.classmenu.runApplet=Applet ausführen
+pkgmgr.classmenu.edit=Editieren
+pkgmgr.classmenu.public=Public View
+pkgmgr.classmenu.package=Package View
+pkgmgr.classmenu.inherited=Inherited View
+pkgmgr.classmenu.compile=Compilieren
+pkgmgr.classmenu.remove=Löschen
+
+pkgmgr.view.label=Sicht
+pkgmgr.view.usesLabel="Uses"
+pkgmgr.view.inheritLabel=Vererbung
+
+# "new class" dialog
+pkgmgr.newClass.title=Neue Klasse erzeugen
+pkgmgr.newClass.label=Klassenname:
+pkgmgr.newClass.classType=Typ der Klasse
+pkgmgr.newClass.newClass=Klasse
+pkgmgr.newClass.newAbstractClass=Abstrakte Klasse
+pkgmgr.newClass.newInterface=Interface
+pkgmgr.newClass.newApplet=Applet
+
+# run applet dialog
+pkgmgr.runApplet.title=Applet ausführen
+pkgmgr.runApplet.webPageLabel=Web-Seite erzeugen
+pkgmgr.runApplet.htmlComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  It is regenerated automatically each time the  -->\n<!-- applet is run.  Any manual changes made to file will be lost -->\n<!-- when the applet is next run inside BlueJ.  Save into a       -->\n<!-- directory outside of the package directory if you want to    -->\n<!-- preserve this file. -->
+
+pkgmgr.runApplet.htmlExportedComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej package directory of the applet at the time of this page being generated. -->\n<!-- If the location of that package alters you will nedd to edit the codebase value.       -->
+
+
+# method call dialog
+pkgmgr.methodCall.titleCreate=Object erzeugen
+pkgmgr.methodCall.titleCall=Methodenaufruf
+pkgmgr.methodCall.namePrompt=Name der Instanz: 
+pkgmgr.methodCall.=Interface
+error.methodCall.emptyField=Leeres Parameterfeld
+error.methodCall.illegalName=Der Instanzname muss ein Java "Identifier" sein.
+error.methodCall.duplicateName=Es existiert schon ein Object mit diesem Namen.\nBitte wählen Sie einen anderen Namen.
+
+# status messages
+pkgmgr.compiling=Compile...
+pkgmgr.compileDone=Compile... Fertig
+pkgmgr.creating=Object wird erzeugt...
+pkgmgr.createDone=Object wird erzeugt... Fertig
+pkgmgr.creatingVM=Virtuelle Maschine wird erzeugt...
+pkgmgr.creatingVMDone=Virtuelle Maschine wird erzeugt... Fertig
+pkgmgr.webBrowserMsg= Web Browser ist gestarted worden.
+pkgmgr.webBrowserError=Web Browser konnte nicht gestarted werden.
+pkgmgr.usesArrowMsg="Uses"-Beziehung deklariert, aber nicht benutzt: 
+
+properties.heading=BlueJ properties. Settings in this file override \"bluej.defs\"
+# menus and menu items
+
+menu.package=Package
+menu.package.new=Neu...
+menu.package.open=Öffnen...
+menu.package.close=Schießen
+menu.package.save=Speichern
+menu.package.saveAs=Speichern als...
+menu.package.importClass=Klasse importieren...
+menu.package.importPackage=Package importieren...
+menu.package.exportPackage=Package exportieren...
+menu.package.print=Drucken...
+menu.package.quit=Beenden
+
+menu.edit=Bearbeiten
+menu.edit.newClass=Neue Klasse...
+menu.edit.removeClass=Klasse löschen...
+menu.edit.newUses=Neuer "Uses"-Pfeil...
+menu.edit.newInherits=Neuer Vererbungspfeil...
+menu.edit.removeArrow=Pfeil löschen...
+
+menu.tools=Werkzeuge
+menu.tools.compile=Compile
+menu.tools.compileSelected=Compile einzeln
+menu.tools.rebuild=Package regenerieren
+menu.tools.browse=Libraries...
+menu.tools.preferences=Einstellungen...
+
+menu.view=Sicht
+menu.view.showUses="Uses" Pfeile zeigen
+menu.view.showInherits=Vererbungspfeile zeigen
+menu.view.showExecControls=Debugger zeigen
+menu.view.showTerminal=Terminal zeigen
+menu.view.clearTerminal=Terminalinhalt löschen
+
+menu.group=Gruppenarbeit
+menu.group.make=Make Group Package
+menu.group.open=Open Group Package
+menu.group.updateSelected=Update Selected
+menu.group.updateAll=Update All
+menu.group.commitSelected=Commit Selected
+menu.group.commitAll=Commit All
+menu.group.statusSelection=Status of Selection
+menu.group.statusAll=Status of All
+menu.group.users=Users
+menu.group.configuration=Configuration
+
+menu.help=Hilfe
+menu.help.about=Über BlueJ...
+menu.help.copyright=Copyright...
+menu.help.tutorial=BlueJ-Tutorium...
+menu.help.reference=BlueJ Referenzhandbuch...
+menu.help.standardApi=Java Klassen-Libraries...
