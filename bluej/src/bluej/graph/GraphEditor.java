@@ -1,9 +1,6 @@
 package bluej.graph;
 
 import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Package;
-
 import java.util.Iterator;
 import java.awt.*;
 import java.awt.event.*;
@@ -13,7 +10,7 @@ import javax.swing.*;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: GraphEditor.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener

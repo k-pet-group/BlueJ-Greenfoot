@@ -9,12 +9,8 @@
 package bluej.editor.moe;
 
 import bluej.Config;
-import bluej.utility.Debug;
-
-import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
-import java.awt.event.*;        // New Event model    
-import javax.swing.*;		// all the GUI components
-import javax.swing.event.*;
+import java.awt.*;              // New Event model    
+import javax.swing.*;
 
 /**
 ** @author Michael Kolling

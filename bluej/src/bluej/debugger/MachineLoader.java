@@ -1,6 +1,5 @@
 package bluej.debugger;
 
-import bluej.Config;
 import bluej.classmgr.ClassMgr;
 
 /**
@@ -9,7 +8,7 @@ import bluej.classmgr.ClassMgr;
  * time, and we would like to do it in the background.
  *
  * @author  Michael Kolling
- * @version $Id: MachineLoader.java 1053 2001-12-19 06:31:58Z ajp $
+ * @version $Id: MachineLoader.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class MachineLoader extends Thread
 {

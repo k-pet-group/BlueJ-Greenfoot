@@ -1,20 +1,10 @@
 package bluej.debugger;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.MultiLineLabel;
-import bluej.utility.JavaNames;
-import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.debugger.CallHistory;
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-
-import java.util.List;
-import java.util.ArrayList;
 
 
 /**
@@ -23,7 +13,7 @@ import java.util.ArrayList;
  *
  * @author  Michael Kolling
  *
- * @version $Id: FreeFormCallDialog.java 1503 2002-11-15 13:22:28Z mik $
+ * @version $Id: FreeFormCallDialog.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class FreeFormCallDialog extends CallDialog
 {

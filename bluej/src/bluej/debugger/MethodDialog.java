@@ -1,9 +1,7 @@
 package bluej.debugger;
 
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.utility.MultiLineLabel;
-import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -30,7 +28,7 @@ import java.util.StringTokenizer;
  * @author  Michael Kolling
  * @author  Bruce Quig
  *
- * @version $Id: MethodDialog.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: MethodDialog.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class MethodDialog extends CallDialog
 	implements FocusListener

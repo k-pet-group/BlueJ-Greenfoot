@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import bluej.utility.Utility;
-import bluej.utility.Debug;
 
 /** 
  ** Manages an invocation history of arguments used in a package when objects 

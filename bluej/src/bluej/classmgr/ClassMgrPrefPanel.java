@@ -1,7 +1,6 @@
 package bluej.classmgr;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.table.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
@@ -12,8 +11,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.OvalIcon;
 import bluej.utility.DialogManager;
 import bluej.prefmgr.*;
 
@@ -23,7 +20,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: ClassMgrPrefPanel.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener

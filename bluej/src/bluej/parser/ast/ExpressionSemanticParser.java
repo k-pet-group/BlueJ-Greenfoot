@@ -1,21 +1,13 @@
 // $ANTLR 2.7.1: "javaexpr.tree.g" -> "ExpressionSemanticParser.java"$
 
-    package bluej.parser.ast;
+package bluej.parser.ast;
 
-    import java.lang.reflect.*;
-    import bluej.utility.JavaNames;
-
-import antlr.TreeParser;
-import antlr.Token;
+import java.lang.reflect.*;
 import antlr.collections.AST;
 import antlr.RecognitionException;
-import antlr.ANTLRException;
 import antlr.NoViableAltException;
-import antlr.MismatchedTokenException;
 import antlr.SemanticException;
-import antlr.collections.impl.BitSet;
 import antlr.ASTPair;
-import antlr.collections.impl.ASTArray;
 
 
 /**

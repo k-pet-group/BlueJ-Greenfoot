@@ -22,9 +22,6 @@
 package bluej.editor.moe;
 
 import javax.swing.text.*;
-import javax.swing.*;
-
-import org.gjt.sp.jedit.syntax.*;
 
 /**
  * An implementation of <code>EditorKit</code> used for syntax colorizing.

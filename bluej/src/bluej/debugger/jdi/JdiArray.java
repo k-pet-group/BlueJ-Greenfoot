@@ -2,8 +2,6 @@ package bluej.debugger.jdi;
 
 import bluej.debugger.DebuggerObject;
 
-import bluej.utility.Debug;
-
 import java.util.List;
 import java.util.ArrayList;
 
@@ -14,7 +12,7 @@ import com.sun.jdi.*;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 1561 2002-12-06 05:05:06Z ajp $
+ * @version    $Id: JdiArray.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class JdiArray extends JdiObject
 {

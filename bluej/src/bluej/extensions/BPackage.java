@@ -12,17 +12,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.awt.Frame;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Window;
-
 
 
 /**
  * A wrapper for a Package in the BlueJ environment.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1799 2003-04-10 09:33:53Z damiano $
+ * @version $Id: BPackage.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class BPackage
 {

@@ -1,13 +1,10 @@
 package bluej.debugger;
 
-import java.util.List;
-import java.util.ArrayList;
-
 /**
  * This class a location in some source code
  *
  * @author  Michael Kolling
- * @version $Id: SourceLocation.java 910 2001-05-24 07:24:41Z mik $
+ * @version $Id: SourceLocation.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public final class SourceLocation
 {

@@ -4,18 +4,13 @@ import bluej.utility.Debug;
 
 import com.sun.jdi.*;
 import com.sun.jdi.event.*;
-import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.EventRequest;
-
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 820 2001-03-27 07:51:06Z mik $
+ * @version $Id: VMEventHandler.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class VMEventHandler implements Runnable
 {

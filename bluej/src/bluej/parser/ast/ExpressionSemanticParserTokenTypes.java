@@ -2,9 +2,6 @@
 
     package bluej.parser.ast;
 
-    import java.lang.reflect.*;
-    import bluej.utility.JavaNames;
-
 public interface ExpressionSemanticParserTokenTypes {
 	int EOF = 1;
 	int NULL_TREE_LOOKAHEAD = 3;

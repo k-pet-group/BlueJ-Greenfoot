@@ -1,7 +1,6 @@
 package bluej.graph;
 
 import java.awt.*;
-import java.util.List;
 import java.util.Iterator;
 import java.awt.geom.*;
 
@@ -10,7 +9,7 @@ import java.awt.geom.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 1541 2002-11-29 13:48:00Z ajp $
+ * @version $Id: Graph.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public abstract class Graph
 {

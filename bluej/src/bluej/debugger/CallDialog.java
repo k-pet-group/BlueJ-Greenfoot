@@ -1,7 +1,6 @@
 package bluej.debugger;
 
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.DialogManager;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -17,7 +16,7 @@ import javax.swing.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: CallDialog.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public abstract class CallDialog extends JDialog
 	implements ObjectBenchListener

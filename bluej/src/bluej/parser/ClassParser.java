@@ -4,19 +4,13 @@
 
 import antlr.TokenBuffer;
 import antlr.TokenStreamException;
-import antlr.TokenStreamIOException;
-import antlr.ANTLRException;
-import antlr.LLkParser;
 import antlr.Token;
 import antlr.TokenStream;
 import antlr.RecognitionException;
 import antlr.NoViableAltException;
-import antlr.MismatchedTokenException;
-import antlr.SemanticException;
 import antlr.ParserSharedInputState;
 import antlr.collections.impl.BitSet;
 
-    import bluej.utility.Debug;
     import bluej.parser.symtab.SymbolTable;
     import bluej.parser.symtab.JavaVector;
     import bluej.parser.symtab.DummyClass;

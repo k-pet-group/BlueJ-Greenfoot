@@ -1,15 +1,12 @@
 package bluej.debugger;
 
-import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
-import java.io.*;
 
 /**
  * The event which occurs when  performing actions with the ObjectBench.
  *
  * @author  Andrew Patterson
- * @version $Id: ObjectBenchEvent.java 323 2000-01-02 13:08:19Z ajp $
+ * @version $Id: ObjectBenchEvent.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class ObjectBenchEvent extends EventObject
 {

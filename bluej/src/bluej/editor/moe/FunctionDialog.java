@@ -20,7 +20,6 @@ import java.util.Properties;
 
 import bluej.Config;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.FixedMultiLineLabel;
 

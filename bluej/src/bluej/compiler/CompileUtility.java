@@ -1,8 +1,6 @@
 package bluej.compiler;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import java.io.*;
 import java.util.*;
 
 /**
@@ -10,7 +8,7 @@ import java.util.*;
  * compiler options.
  *
  * @author  Bruce QUig
- * @version $Id: CompileUtility.java 1174 2002-03-13 13:30:49Z bquig $
+ * @version $Id: CompileUtility.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class CompileUtility
 {

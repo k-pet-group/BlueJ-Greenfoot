@@ -2,8 +2,6 @@ package bluej.classmgr;
 
 import java.io.*;
 import java.util.*;
-import java.net.*;
-
 import bluej.utility.Debug;
 import bluej.Config;
 
@@ -23,7 +21,7 @@ import bluej.Config;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 1068 2002-01-08 06:04:20Z ajp $
+ * @version $Id: ClassMgr.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class ClassMgr
 {

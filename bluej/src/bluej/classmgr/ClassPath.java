@@ -1,21 +1,15 @@
 package bluej.classmgr;
 
-import bluej.utility.Debug;
-import bluej.utility.SortedProperties;
-import bluej.Config;
-
 import java.io.*;
 import java.util.*;
 import java.util.jar.*;
 import java.net.*;
 
-import javax.swing.table.*;
-
 /**
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 1053 2001-12-19 06:31:58Z ajp $
+ * @version $Id: ClassPath.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class ClassPath
 {

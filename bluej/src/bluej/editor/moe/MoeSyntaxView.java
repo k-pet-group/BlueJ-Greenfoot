@@ -15,11 +15,7 @@ package bluej.editor.moe;
  */
 
 import javax.swing.text.*;
-import javax.swing.*;
 import java.awt.*;
-import java.util.*;
-
-import bluej.utility.*;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 
@@ -36,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 1149 2002-03-08 11:14:09Z mik $
+ * @version $Id: MoeSyntaxView.java 1818 2003-04-10 13:31:55Z fisker $
  */
 
 public class MoeSyntaxView extends PlainView

@@ -1,19 +1,15 @@
 package bluej.classmgr;
 
 import java.io.*;
-import java.util.*;
 import java.net.*;
 import java.lang.reflect.*;
-
-import bluej.utility.Debug;
-import bluej.Config;
 
 /**
  * A class loader that will load classes from the current directory
  * and from jar files within a +libs directory.
  *
  * @author  Andrew Patterson
- * @version $Id: ProjectClassLoader.java 1226 2002-04-15 12:58:51Z mik $
+ * @version $Id: ProjectClassLoader.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class ProjectClassLoader extends URLClassLoader
 {

@@ -3,7 +3,6 @@ package bluej.debugger.jdi;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerClass;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 
 import java.util.List;
@@ -16,7 +15,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiObject.java 1572 2002-12-11 16:23:16Z mik $
+ *@version    $Id: JdiObject.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class JdiObject extends DebuggerObject
 {

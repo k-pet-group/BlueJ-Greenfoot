@@ -15,10 +15,6 @@ import bluej.testmgr.*;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.dnd.*;
-import java.awt.datatransfer.*;
-import java.awt.image.*;
-import java.io.*;
 import javax.swing.*;
 import java.lang.reflect.*;
 import java.util.Hashtable;
@@ -33,7 +29,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: ObjectWrapper.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class ObjectWrapper extends JComponent
 {

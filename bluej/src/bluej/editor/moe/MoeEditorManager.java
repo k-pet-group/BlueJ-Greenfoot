@@ -9,7 +9,6 @@
 package bluej.editor.moe;
 
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 
@@ -18,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
-import java.awt.*;		// Font
-import java.io.*;		// Object input, ouput streams
+import java.awt.*;		// Object input, ouput streams
 
 /**
 ** @author Michael Kolling

@@ -1,7 +1,5 @@
 package bluej.debugger;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import java.util.List;
@@ -19,7 +17,7 @@ import bluej.testmgr.*;
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectInspector.java 1628 2003-02-13 00:21:54Z ajp $
+ * @version $Id: ObjectInspector.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener

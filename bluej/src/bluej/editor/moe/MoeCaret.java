@@ -12,10 +12,7 @@ import bluej.utility.Debug;
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.text.*;
-import javax.swing.plaf.*;
 
 /**
  * A customised caret for Moe. It gets most of its bahaviour from

@@ -1,13 +1,6 @@
 package bluej.classmgr;
 
-import java.io.*;
-import java.util.*;
 import javax.swing.table.*;
-import javax.swing.*;
-import java.awt.*;
-
-import bluej.utility.Debug;
-import bluej.utility.OvalIcon;
 import bluej.Config;
 
 /**
@@ -18,7 +11,7 @@ import bluej.Config;
  * edited and then changes can be reverted or committed.
  *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassPathTableModel.java 1459 2002-10-23 12:13:12Z jckm $
+ * @cvs     $Id: ClassPathTableModel.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public class ClassPathTableModel extends AbstractTableModel
 {

@@ -1,7 +1,5 @@
 package bluej.debugger;
 
-import bluej.utility.Debug;
-
 import java.util.List;
 
 /**

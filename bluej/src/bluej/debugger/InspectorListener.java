@@ -1,8 +1,5 @@
 package bluej.debugger;
 
-import java.awt.*;
-import java.awt.event.*;
-
 import java.util.*;
 
 /**
@@ -10,7 +7,7 @@ import java.util.*;
  *
  *@author     Duane Buck
  *@created    December 26, 2000
- *@version    $Id: InspectorListener.java 739 2000-12-27 08:11:41Z dbuck $
+ *@version    $Id: InspectorListener.java 1818 2003-04-10 13:31:55Z fisker $
  */
 public interface InspectorListener extends EventListener
 {

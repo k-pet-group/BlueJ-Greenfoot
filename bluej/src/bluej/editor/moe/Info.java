@@ -9,8 +9,6 @@
 package bluej.editor.moe;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
 

@@ -161,7 +161,7 @@ Adds a file to an AST tree
             TypeInfoAST tia = (TypeInfoAST) parser.getAST();
 
     		ExpressionSemanticParser semparse = new ExpressionSemanticParser();
-    		semparse.inMethodCall = 0;
+    		ExpressionSemanticParser.inMethodCall = 0;
             semparse.setASTNodeClass("bluej.parser.ast.TypeInfoAST");
     		try {
     			semparse.expression(tia);

@@ -21,17 +21,13 @@
 */
 package bluej.editor.moe;
 
-import javax.swing.event.*;
 import javax.swing.text.*;
 import java.awt.Color;
-import javax.swing.undo.*;
-
-import bluej.utility.*;
 import bluej.Config;
 
 import org.gjt.sp.jedit.syntax.*;
 
-import java.io.*;		// For configuration file reading.
+// For configuration file reading.
 import java.util.Properties;
 
 /**
