@@ -26,7 +26,7 @@ import bluej.utility.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1775 2003-04-10 04:18:49Z ajp $
+ * @version $Id: Config.java 1784 2003-04-10 08:24:47Z damiano $
  */
 
 public class Config
@@ -132,10 +132,12 @@ public class Config
         String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "false");
         System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);
 
+/* Andrew, if lueJTheme has been deleted from the repository the following will not compile. Damiano
         boolean themed = Boolean.valueOf(
             Config.getPropString("bluej.useTheme", "false")).booleanValue();
         if(themed)    
             MetalLookAndFeel.setCurrentTheme(new BlueJTheme());
+*/            
 
     } // initialise
 
