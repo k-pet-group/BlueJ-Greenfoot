@@ -18,7 +18,7 @@ import bluej.utility.DialogManager;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version    $Id: Inspector.java 1939 2003-05-03 15:36:37Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -457,12 +457,12 @@ public abstract class Inspector extends JFrame
         }
         
         JButton button = new JButton(close);
-/*        {
+        {
             JPanel cbPanel = new JPanel();
             cbPanel.add(button);
-            buttonPanel.add(cbPanel, BorderLayout.SOUTH);*/
-        {
-        	buttonPanel.add(button);
+            cbPanel.setAlignmentX(LEFT_ALIGNMENT);
+            buttonPanel.add(cbPanel);
+/*        	buttonPanel.add(button);*/
             button.addActionListener(new ActionListener() {
                  public void actionPerformed(ActionEvent e) { doClose(); }
               });
