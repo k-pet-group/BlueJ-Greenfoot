@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2481 2004-03-09 12:16:51Z fisker $
+ * @version $Id: Package.java 2486 2004-04-06 08:11:09Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -2156,7 +2156,14 @@ public final class Package extends Graph
         }
     }
 
-   
+    /**
+     * String representation for debugging.
+     */
+    public String toString()
+	{
+    	return "Package:" + getQualifiedName();
+    }
+    
 	// MouseListener interface - only used while deleting arrow
 
     /**

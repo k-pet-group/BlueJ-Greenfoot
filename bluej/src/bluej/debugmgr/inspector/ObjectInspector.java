@@ -20,7 +20,7 @@ import bluej.utility.JavaNames;
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectInspector.java 2315 2003-11-10 16:36:47Z polle $
+ * @version $Id: ObjectInspector.java 2486 2004-04-06 08:11:09Z mik $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -107,7 +107,8 @@ public class ObjectInspector extends Inspector
         this.obj = obj;
         this.objName = name;        
         
-        makeFrame(parent, true, true);
+        makeFrame(true, true);
+       	DialogManager.tileWindow(this, parent);
     }
 
    

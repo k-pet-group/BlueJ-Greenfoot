@@ -1,13 +1,9 @@
-/*
- * Created on Nov 9, 2003
- */
 package bluej.debugmgr.inspector;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 
 import bluej.BlueJTheme;
@@ -16,6 +12,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.JavaNames;
+import bluej.utility.DialogManager;
 
 /**
  * @author Poul Henriksen
@@ -93,15 +90,16 @@ public class ResultInspector extends Inspector implements InspectorListener {
         setTitle(resultTitle);        
         setBorder(BlueJTheme.generalBorderWithStatusBar);
         
-        String fullTitle = name + " : " + className;        
-        String underlinedNameLabel = "<html><u>"+fullTitle+ "</u></font>";
-        setHeader(new JLabel(underlinedNameLabel, JLabel.CENTER));
+        // removed - mik - results dlgs don't have a header!?
+        //String fullTitle = name + " : " + className;        
+        //String underlinedNameLabel = "<html><u>"+fullTitle+ "</u></font>";
+        //setHeader(new JLabel(underlinedNameLabel, JLabel.CENTER));
         this.obj = obj;
         this.objName = name;        
         
-        makeFrame(parent, true, true);
+        makeFrame(true, true);
+      	DialogManager.centreWindow(this, parent);
     }
-
     
 
     /**
@@ -112,14 +110,14 @@ public class ResultInspector extends Inspector implements InspectorListener {
         return obj.getInstanceFields(false).toArray(new Object[0]);        
     }
 
+    
     /**
      * An element in the field list was selected.
      */
     protected void listElementSelected(int slot)
     {
        
-        if (obj.instanceFieldIsObject(slot))
-        {
+        if (obj.instanceFieldIsObject(slot)) {
             String newInspectedName;
             
             if (objName != null ) {
@@ -158,7 +156,6 @@ public class ResultInspector extends Inspector implements InspectorListener {
      */
     protected void prepareInspection()
     {
-      
     }
     
     /**

@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: Project.java 2486 2004-04-06 08:11:09Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -915,6 +915,16 @@ public class Project
     }
 
     // ---- end of DebuggerListener interface ----
+    
+    /**
+     * String representation for debugging.
+     */
+    public String toString()
+	{
+    	return "Project:" + getProjectName();
+    }
+    
+    
     /**
      * Removes a packageTarget from the map of packages in the project.
      * @param packageQualifiedName The qualified name of the package.

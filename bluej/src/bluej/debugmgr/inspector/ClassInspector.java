@@ -11,13 +11,14 @@ import bluej.debugger.DebuggerClass;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.JavaNames;
+import bluej.utility.DialogManager;
 
 /**
  * A window that displays the static fields in an class.
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: ClassInspector.java 2346 2003-11-14 13:52:36Z polle $
+ * @version    $Id: ClassInspector.java 2486 2004-04-06 08:11:09Z mik $
  */
 public class ClassInspector extends Inspector
 {
@@ -96,7 +97,8 @@ public class ClassInspector extends Inspector
         header.setOpaque(false);
         header.add(new JLabel(classNameLabel + " " + className));
         setHeader(header);
-        makeFrame(parent, false, false);
+        makeFrame(false, false);
+       	DialogManager.tileWindow(this, parent);
     }
   
     /**

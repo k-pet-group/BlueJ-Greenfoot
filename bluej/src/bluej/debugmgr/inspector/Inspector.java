@@ -16,7 +16,6 @@ import bluej.*;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.*;
-import bluej.utility.DialogManager;
 
 /**
  * 
@@ -25,7 +24,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2428 2003-12-09 10:51:16Z polle $
+ * @version    $Id: Inspector.java 2486 2004-04-06 08:11:09Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -191,7 +190,7 @@ public abstract class Inspector extends JFrame
      */
     public void update()
     {      
-        Object[] listData = getListData();
+    	Object[] listData = getListData();
         ((ListTableModel)fieldList.getModel()).setDataVector(listData);
         fieldList.setTableHeader(null);
         
@@ -208,21 +207,18 @@ public abstract class Inspector extends JFrame
         double height = fieldList.getPreferredSize().getHeight();        
         int rows = listData.length;     
         if(rows > getPreferredRows()) {
-            int rowHeight = fieldList.getRowHeight();
-            rows = getPreferredRows();
-            height = rowHeight * rows;
+            height = fieldList.getRowHeight() * getPreferredRows();
         }                
         
         fieldList.setPreferredScrollableViewportSize(new Dimension(LIST_WIDTH, (int)height));
         
-        pack();      
-        
+        pack();
         repaint();
 
         if (assertPanel != null) {
             assertPanel.updateWithResultData((String) listData[0]);
         }
-    }
+}
 
 
     // ----- ListSelectionListener interface -----
@@ -354,7 +350,7 @@ public abstract class Inspector extends JFrame
      * @param  isObject      Indicates if this is a object inspector window
      * @param  showAssert    Indicates if assertions should be shown.
      */
-    protected void makeFrame(JFrame parent, boolean isObject, boolean showAssert)
+    protected void makeFrame(boolean isObject, boolean showAssert)
     {
        
         addWindowListener(
@@ -393,7 +389,7 @@ public abstract class Inspector extends JFrame
         fieldList.setRowHeight(25);
         fieldList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         fieldList.setSelectionBackground(selectionColor);
-        
+        fieldList.setPreferredScrollableViewportSize(new Dimension(LIST_WIDTH, 25));        
         
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.setOpaque(false);
@@ -488,12 +484,7 @@ public abstract class Inspector extends JFrame
         
         getRootPane().setDefaultButton(button);
         ((JPanel) getContentPane()).add(bottomPanel, BorderLayout.SOUTH);
-
-        if ((this instanceof  ResultInspector)) {
-            DialogManager.centreWindow(this, parent);
-        } else {
-            DialogManager.tileWindow(this, parent);
-        }
+        pack();
     }
     
     
@@ -505,9 +496,9 @@ public abstract class Inspector extends JFrame
      * @author Poul Henriksen
      *  
      */
-    public static class ListTableCellRenderer
-    extends JLabel
-    implements TableCellRenderer {
+    public static class ListTableCellRenderer extends JLabel
+    		implements TableCellRenderer 
+	{
         final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");
         final private static Border valueBorder = BorderFactory.createLineBorder(Color.gray);
         
