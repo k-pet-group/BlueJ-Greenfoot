@@ -1,11 +1,9 @@
 <project name="bluej" default="ready-to-run" basedir=".">
 
-    <taskdef name="antlr" classname="org.apache.tools.ant.taskdefs.optional.ANTLR"/>
-
     <!-- set global properties for this build -->
     <!-- the first two are the only values you should need to change -->
     <property name="bluej_home" value="U:\project\bluej\main\bluej" />
-    <property name="java_home" value="F:\programming\jdk1.4" />
+    <property name="java_home" value="F:\programming\jdk1.3" />
 
     <!-- property name="build.compiler" value="modern" /-->
     <property name="build.compiler" value="jikes" />
@@ -19,6 +17,7 @@
     <!-- set up classpath -->
     <path id="bluej.class.path">
         <pathelement location="${bluej_home}/lib/antlrall.jar" />
+        <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip" />
         <pathelement location="${java_home}/lib/tools.jar" />
     </path>
 
