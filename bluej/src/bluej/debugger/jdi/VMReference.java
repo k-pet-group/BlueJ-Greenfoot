@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2120 2003-07-18 04:50:28Z ajp $
+ * @version $Id: VMReference.java 2127 2003-07-21 03:25:23Z ajp $
  *
  * The startup process is as follows:
  *
@@ -90,6 +90,12 @@ class VMReference
 
 	// the worker thread running inside the ExecServer
 	private ThreadReference workerThread = null;
+	
+	// a record of the threads we start up for
+	// redirecting ExecServer streams
+	private IOHandlerThread inputStreamRedirector = null;
+	private IOHandlerThread outputStreamRedirector = null;
+	private IOHandlerThread errorStreamRedirector = null;
 
     // the current class loader in the ExecServer
     private ClassLoaderReference currentLoader = null;
@@ -117,7 +123,6 @@ class VMReference
      */
     public VirtualMachine localhostSocketLaunch(File initDir, VirtualMachineManager mgr)
     {
-    	// final int PORT_NUM = 8000;			// use port 8000
     	final int CONNECT_TRIES = 10;		// try to connect max of 10 times
     	final int CONNECT_WAIT = 500;		// wait half a sec between each connect
     	
@@ -134,7 +139,7 @@ class VMReference
 										allClassPath,
             							"-Xdebug",
             							"-Xint",
-            							"-Xrunjdwp:transport=dt_socket,server=y", //,address=" + PORT_NUM,
+            							"-Xrunjdwp:transport=dt_socket,server=y",
             							SERVER_CLASSNAME };
             Process p = Runtime.getRuntime().exec(launchParams, null, initDir);
 
@@ -149,19 +154,22 @@ class VMReference
 			}
 			
 			// redirect error stream from process to Terminal
-			redirectIOStream(new InputStreamReader(p.getErrorStream()),
+			errorStreamRedirector =
+			    redirectIOStream(new InputStreamReader(p.getErrorStream()),
 								//new OutputStreamWriter(System.err),
 								Terminal.getTerminal().getErrorWriter(),
 								false);
 
 			// redirect output stream from process to Terminal
-			redirectIOStream(new InputStreamReader(p.getInputStream()),
+			outputStreamRedirector = 
+			    redirectIOStream(new InputStreamReader(p.getInputStream()),
 								//new OutputStreamWriter(System.err),
 								Terminal.getTerminal().getWriter(),
 								false);
 
 			// redirect Terminal input to process output stream
-			redirectIOStream(Terminal.getTerminal().getReader(),
+			inputStreamRedirector = 
+			    redirectIOStream(Terminal.getTerminal().getReader(),
 								new OutputStreamWriter(p.getOutputStream()),
 								false);
 			process = p;
@@ -233,6 +241,14 @@ class VMReference
         return null;
     }
 
+	/**
+	 * Parse the message printed when starting up in server=y mode but when
+	 * no port is specified. The message contains the port number that
+	 * we should use to connect with.
+	 * 
+	 * @param   msg		the message printed by the debug vm
+	 * @return			the port number to use or -1 in case of error
+	 */
 	private int extractPortNumber(String msg)
 	{
 		int colonIndex = msg.indexOf(":");
@@ -248,77 +264,6 @@ class VMReference
 		
 		return val;
 	}
-
-    public VirtualMachine defaultLaunch(VirtualMachineManager mgr)
-    {
-        VirtualMachine m = null;
-        Process p = null;
-
-        LaunchingConnector connector = mgr.defaultConnector();
-        //Debug.message("connector: " + connector.name());
-        //Debug.message("transport: " + connector.transport().name());
-
-        Map arguments = connector.defaultArguments();
-        // dumpConnectorArgs(arguments);
-
-        // "main" is the command line: main class and arguments
-        Connector.Argument mainArg = (Connector.Argument) arguments.get("main");
-        Connector.Argument optionsArg = (Connector.Argument) arguments.get("options");
-        Connector.Argument quoteArg = (Connector.Argument) arguments.get("quote");
-
-        if (mainArg == null || optionsArg == null || quoteArg == null) {
-            throw new IllegalStateException("incompatible JPDA launch connector");
-        }
-        mainArg.setValue(SERVER_CLASSNAME);
-
-        try {
-            // set the optionsArg for the VM launcher
-            {
-                String vmOptions = Config.getSystemPropString("VmOptions");
-                String localVMClassPath =
-                    "-classpath "
-                        + quoteArg.value()
-                        + System.getProperty("java.class.path")
-                        + quoteArg.value();
-
-                if (vmOptions == null)
-                    optionsArg.setValue(localVMClassPath);
-                else
-                    optionsArg.setValue(vmOptions + " " + localVMClassPath);
-            }
-
-            m = connector.launch(arguments);
-
-            p = m.process();
-
-            // redirect error stream from process to System.out
-            InputStreamReader processErrorReader = new InputStreamReader(p.getErrorStream());
-            //Writer errorWriter = new OutputStreamWriter(System.out);
-            Writer errorWriter = Terminal.getTerminal().getErrorWriter();
-            redirectIOStream(processErrorReader, errorWriter, false);
-
-            // redirect output stream from process to Terminal
-            InputStreamReader processInputReader = new InputStreamReader(p.getInputStream());
-            Writer terminalWriter = Terminal.getTerminal().getWriter();
-            redirectIOStream(processInputReader, terminalWriter, false);
-
-            //redirect Terminal input to process output stream
-            OutputStreamWriter processWriter = new OutputStreamWriter(p.getOutputStream());
-            Reader terminalReader = Terminal.getTerminal().getReader();
-            redirectIOStream(terminalReader, processWriter, false);
-
-        } catch (VMStartException vmse) {
-            Debug.reportError("Target VM did not initialise.");
-            Debug.reportError("(check the 'VmOptions' setting in 'bluej.defs'.)");
-            Debug.reportError(vmse.getMessage() + "\n");
-            dumpFailedLaunchInfo(vmse.process());
-        } catch (Exception e) {
-            Debug.reportError("Unable to launch target VM.");
-            e.printStackTrace();
-        }
-
-        return m;
-    }
 
     /**
      * Create the second virtual machine and start
@@ -364,6 +309,22 @@ class VMReference
      */
     public synchronized void close()
     {
+    	// close our IO redirectors
+    	/*if (inputStreamRedirector != null) {
+			inputStreamRedirector.close();
+			inputStreamRedirector.interrupt();
+    	}
+    		
+		if (errorStreamRedirector != null) {
+			errorStreamRedirector.close();
+			errorStreamRedirector.interrupt();
+		}
+
+		if (outputStreamRedirector != null) {
+			outputStreamRedirector.close();
+			outputStreamRedirector.interrupt();
+		} */
+    		
         // can cause deadlock - why bother
         // lets just nuke it
         //machine.dispose();
@@ -1119,7 +1080,6 @@ class VMReference
 			
 			if (dontSuspendAll) {
 				v = cl.invokeMethod(thr, m, args, ObjectReference.INVOKE_SINGLE_THREADED);
-				
 			} else {
 				v = cl.invokeMethod(thr, m, args, 0);
 
@@ -1158,6 +1118,9 @@ class VMReference
 		catch (InvocationException e) {
 			// exception thrown in remote machine
 			// we can either propagate the exception as a value
+			if (!dontSuspendAll)
+				machine.resume();
+
 			if (propagateException)
 				return e.exception();
 			// or ignore it because it will be handled
@@ -1261,21 +1224,28 @@ class VMReference
      * Create a thread that will retrieve any output from the remote
      * machine and direct it to our terminal (or vice versa).
      */
-    private void redirectIOStream(final Reader reader, final Writer writer, boolean buffered)
+    private IOHandlerThread redirectIOStream(final Reader reader, final Writer writer, boolean buffered)
     {
-        Thread thr;
+        IOHandlerThread thr;
 
         thr = new IOHandlerThread(reader, writer, buffered);
         thr.setPriority(Thread.MAX_PRIORITY - 1);
         thr.start();
+        
+        return thr;
     }
 
+	/**
+	 * The thread for retrieving output from the remote machine
+	 * and redirecting it to the terminal.
+	 */
     private class IOHandlerThread extends Thread
     {
         private Reader reader;
         private Writer writer;
         private boolean buffered;
-
+		private volatile boolean keepRunning = true;
+		
         IOHandlerThread(Reader reader, Writer writer, boolean buffered)
         {
             super("BlueJ I/O Handler " + (buffered ? "(buffered)" : "(unbuffered)"));
@@ -1284,50 +1254,34 @@ class VMReference
             this.buffered = buffered;
         }
 
+		public void close()
+		{
+			keepRunning = false;
+		}
+		
         public void run()
         {
             try {
-                if (buffered)
-                    dumpStream(reader, writer);
-                else
-                    dumpStreamBuffered(reader, writer);
+                if (buffered) {
+					BufferedReader in = new BufferedReader(reader);
+
+					String line;
+					while (keepRunning && (line = in.readLine()) != null) {
+						line += '\n';
+						writer.write(line.toCharArray(), 0, line.length());
+						writer.flush();
+					}
+                }
+                else {
+					int ch;
+					while (keepRunning && (ch = reader.read()) != -1) {
+						writer.write(ch);
+						writer.flush();
+					}
+                }
             } catch (IOException ex) {
-                Debug.reportError("Cannot read output user VM.");
+                // Debug.reportError("Cannot read output user VM.");
             }
-        }
-    }
-
-    private void dumpStream(Reader reader, Writer writer) throws IOException
-    {
-        int ch;
-        while ((ch = reader.read()) != -1) {
-            writer.write(ch);
-            writer.flush();
-        }
-    }
-
-    private void dumpStreamBuffered(Reader reader, Writer writer) throws IOException
-    {
-        BufferedReader in = new BufferedReader(reader);
-
-        String line;
-        while ((line = in.readLine()) != null) {
-            line += '\n';
-            writer.write(line.toCharArray(), 0, line.length());
-            writer.flush();
-        }
-    }
-
-    private void dumpFailedLaunchInfo(Process process)
-    {
-        try {
-            InputStreamReader processErrorReader = new InputStreamReader(process.getErrorStream());
-            OutputStreamWriter errorWriter = new OutputStreamWriter(System.out);
-            dumpStream(processErrorReader, errorWriter);
-            //dumpStream(process.getErrorStream(), System.out);
-            //dumpStream(process.getInputStream(), System.out);
-        } catch (IOException e) {
-            Debug.message("Unable to display process output: " + e.getMessage());
         }
     }
 
