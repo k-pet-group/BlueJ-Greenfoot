@@ -8,21 +8,21 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.io.PrintStream;
-import java.util.Hashtable;
-import java.util.Enumeration;
-
+import java.util.*;
+import java.awt.*;
+import java.awt.event.*;
 
 /**
- ** Class that controls the runtime of code executed within BlueJ.
- ** Sets up a SecurityManager, initial thread state, etc.
- **
- ** This class both holds runtime attibutes and executes commands. 
- ** Execution is done through a call to the "main" method. The main method
- ** is executed on the remote machine; its parameters encode the actual
- ** action to be taken. See "main" for more detail.
- **
- ** @author Michael Kolling
- **/
+ * Class that controls the runtime of code executed within BlueJ.
+ * Sets up a SecurityManager, initial thread state, etc.
+ *
+ * This class both holds runtime attibutes and executes commands. 
+ * Execution is done through a call to the "main" method. The main method
+ * is executed on the remote machine; its parameters encode the actual
+ * action to be taken. See "main" for more detail.
+ *
+ * @author Michael Kolling
+ */
 public class ExecServer
 {
     // task type constants:
@@ -41,7 +41,13 @@ public class ExecServer
     private RemoteClassMgr classmgr;
     private Hashtable loaders;
     private static Hashtable scopes = new Hashtable();
-
+    
+    /**
+     * We need to keep track of open windows so that we can dispose of them
+     * when simulating a System.exit() call
+     */
+    private static Set openWindows = new TreeSet();
+    
     //private ServerThread servThread;
 
     /**
@@ -79,6 +85,24 @@ public class ExecServer
 	catch(Exception e) {
 	    // ignore - we will get a ClassNotFound exception here
 	}
+
+        // register a listener to record all window opens and closes
+
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        
+        AWTEventListener listener = new AWTEventListener()
+        {
+            public void eventDispatched(AWTEvent event)
+            {
+                if(event.getID() == WindowEvent.WINDOW_OPENED) {
+                    addWindow(event.getSource());
+                } else if(event.getID() == WindowEvent.WINDOW_CLOSED) {
+                    removeWindow(event.getSource());
+                }
+            }
+        };
+        
+        toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
 
 	//	servThread = new ServerThread();
 	//servThread.start();
@@ -303,12 +327,54 @@ public class ExecServer
 	return scope;
     }
 
+
+    /**
+     * Add the object to our list of open windows
+     *
+     * @param   o   a window object which has just been opened
+     */
+    static void addWindow(Object o)
+    {
+        openWindows.add(o);            
+    }
+    
+    /**
+     * Remove the object from our list of open windows
+     *
+     * @param   o   a window object which has just been closed
+     */
+    static void removeWindow(Object o)
+    {
+        openWindows.remove(o);            
+    }
+
+    /**
+     * Dispose of all the top level windows we think are open
+     */    
+    static void disposeWindows()
+    {
+        Iterator it = openWindows.iterator();
+        
+        while(it.hasNext())
+        {
+            Object o = it.next();
+            
+            if (o instanceof Window)
+            {
+                Window w = (Window) o;
+                w.dispose();
+            }
+        }
+        
+        openWindows.clear();    
+    }
+
     /**
      *  Update the remote VM with the list of user/system libraries
      *  which the user has created using the ClassMgr.
      */
     private void setLibraries(String libraries)
     {
-	classmgr.setLibraries(libraries);
+        classmgr.setLibraries(libraries);
     } 
 }

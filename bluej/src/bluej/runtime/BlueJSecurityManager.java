@@ -1,17 +1,21 @@
 package bluej.runtime;
 
-import java.io.FileDescriptor;
+import java.io.*;
 import java.net.InetAddress;
 import java.security.Permission;
+import java.awt.*;
 
 /**
- ** A SecurityManager for the BlueJ runtime
- **
- ** @author Michael Cahill
- ** @author Michael Kolling
- **/
+ * A SecurityManager for the BlueJ runtime
+ *
+ * @author Michael Cahill
+ * @author Michael Kolling
+ */
 public class BlueJSecurityManager extends SecurityManager
 {
+    private PrintStream oldErr = null;
+    private ByteArrayOutputStream throwawayErr = null;
+
     /**
      * The only thing BlueJ applications are currently not allowed to
      * do is exit normally. We handle this by signalling the exit as
@@ -21,51 +25,48 @@ public class BlueJSecurityManager extends SecurityManager
      */
     public void checkExit(int status)
     {
-	throw new ExitException("" + status);
+        /**
+         * Many AWT programs react to a window close event by
+         * calling System.exit(). Unfortunately it is the AWT
+         * event thread which is executing at the time and so
+         * we cannot allow that thread to die as it is impossible
+         * to restart without restarting the VM. Here we check if
+         * we are running as the AWT thread and if so, set an
+         * event so that later on all the top level windows
+         * will be disposed (we assume this is the behaviour the
+         * programmer wished by calling System.exit()
+         */
+        if (EventQueue.isDispatchThread())
+        {
+            // no matter what, we have to throw an exception and
+            // no matter what that exception will be printed to
+            // System.err by the AWT thread.. we play some
+            // funny business to hide the message
+
+            // there are probably numerous race conditions etc
+            // hidden in here but this is the best solution we've
+            // come up with so far
+
+            oldErr = System.err;
+            throwawayErr = new ByteArrayOutputStream();
+
+            System.setErr(new PrintStream(throwawayErr));            
+
+            Toolkit.getDefaultToolkit().getSystemEventQueue().
+              invokeLater(new Runnable() {
+                public void run() {
+                    System.setErr(oldErr);
+                    ExecServer.disposeWindows();
+                }
+            });
+
+            // this exception will not ever be printed out            
+            throw new ExitException(Integer.toString(status));
+        }
+        else {
+            throw new ExitException(Integer.toString(status));
+        }
     }
-
-    /**
-     * This method is called at several differnt placed to check whether 
-     * certain actions are legal. Here, we want to allow (contrary to the
-     * default) to re-direct the IO stream.
-     */
-//      public void checkPermission(Permission perm)
-//      {
-//  	if(perm.getName().equals("setIO"))
-//  	    return;	// allow
-//  	else
-//  	    super.checkPermission(perm);
-//      }
-
-    public void checkAccept(String host, int port) {}
-    public void checkAccess(Thread g) {}
-    public void checkAccess(ThreadGroup g) {}
-    public void checkAwtEventQueueAccess() {}
-    public void checkConnect(String host, int port) {}
-    public void checkConnect(String host, int port, Object context) {}
-    public void checkCreateClassLoader() {}
-    public void checkDelete(String file) {}
-    public void checkExec(String cmd) {}
-    // checkExit is redefined above
-    public void checkLink(String lib) {}
-    public void checkListen(int port) {}
-    public void checkMemberAccess(Class clazz, int which) {}
-    public void checkMulticast(InetAddress maddr) {}
-    public void checkMulticast(InetAddress maddr, byte ttl) {}
-    public void checkPackageAccess(String pkg) {}
-    public void checkPackageDefinition(String pkg) {}
-    public void checkPrintJobAccess() {}
-    public void checkPropertiesAccess() {}
-    public void checkPropertyAccess(String key) {}
-    public void checkRead(FileDescriptor fd) {}
-    public void checkRead(String file) {}
-    public void checkRead(String file, Object context) {}
-    public void checkSecurityAccess(String provider) {}
-    public void checkSetFactory() {}
-    public void checkSystemClipboardAccess() {}
-    public boolean checkTopLevelWindow(Object window) { return true; }
-    public void checkWrite(FileDescriptor fd) {}
-    public void checkWrite(String file) {}
 
     /**
      * With the exception of checkExit(int) we want to
@@ -87,16 +88,17 @@ public class BlueJSecurityManager extends SecurityManager
     public void checkPermission(Permission perm, Object context)  {} 
 	
     ThreadGroup threadGroup;
+
     public void setThreadGroup(ThreadGroup threadGroup)
     {
-	this.threadGroup = threadGroup;
+        this.threadGroup = threadGroup;
     }
 	
     public ThreadGroup getThreadGroup()
     {
-	if(threadGroup != null)
-	    return threadGroup;
-	else
-	    return Thread.currentThread().getThreadGroup();
+        if(threadGroup != null)
+            return threadGroup;
+        else
+            return Thread.currentThread().getThreadGroup();
     }
 }
