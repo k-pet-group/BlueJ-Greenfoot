@@ -14,7 +14,7 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2744 2004-07-06 15:45:21Z mik $
+ * @version $Id: SplashWindow.java 3235 2004-12-14 15:42:21Z mik $
  */
 
 public class SplashWindow extends Frame
@@ -23,11 +23,13 @@ public class SplashWindow extends Frame
     {
         setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
     		setUndecorated(true);
-    		// must start with a forward slash or else Java converts the .
-    		// to a /
-    		URL splashURL = getClass().getResource("/bluej/splash.jpg");
+    		URL splashURL = getClass().getResource("splash.jpg");
     		BlueJLabel image = null;
-            
+
+        if(splashURL == null) {
+            System.out.println("cannot find splash image");
+            return;
+        }
         try {
             BufferedImage splashImage = ImageIO.read(splashURL);
             image = new BlueJLabel(splashImage);
