@@ -136,6 +136,7 @@ classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be r
 prefmgr.misc.prefpaneltitle=Miscellaneous
 prefmgr.misc.editorfontsize=Editor font size
 prefmgr.misc.usesyntaxhilighting=Use syntax hilighting
+prefmgr.misc.displaylinenumbers=Display line numbers
 prefmgr.misc.jdkurlpath=JDK documentation URL
 prefmgr.misc.linkToLib=Use this URL when generating project documentation
 prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation, it must be correct and accessible.

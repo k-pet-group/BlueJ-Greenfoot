@@ -232,13 +232,23 @@ browser.fontsize.treeleaf=11
 bluej.terminal.height=25
 bluej.terminal.width=80
 
+
 #######################################################################
 ## Syntax highlighting - should we do it?
 ## This is the initial default - it can be changed by users in their
-## preferences dialogue.
+## preferences dialogue. (values: true / false)
 #######################################################################
 
-bluej.syntaxHilighting=true
+bluej.editor.syntaxHilighting=true
+
+
+#######################################################################
+## Line numbers displayed in the editor - do you want it?
+## This is the initial default - it can be changed by users in their
+## preferences dialogue. (values: true / false)
+#######################################################################
+
+bluej.editor.displayLineNumbers=false
 
 
 #######################################################################
