@@ -20,7 +20,7 @@ import java.io.*;
  * dictionary.
  *
  * @author  Michael Kolling
- * @version $Id: BlueJFileReader.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: BlueJFileReader.java 912 2001-05-25 05:05:37Z ajp $
  */
 public class BlueJFileReader
 {
@@ -38,14 +38,14 @@ public class BlueJFileReader
      *
      * @return              The help text or null.
      */
-    public static String readHelpText(String fileName, String textID,
+    public static String readHelpText(File file, String textID,
                                       boolean exactMatch)
     {
         BufferedReader in = null;
         boolean found = false;
 
         try {
-            in = new BufferedReader(new FileReader(fileName));
+            in = new BufferedReader(new FileReader(file));
             String msg;
             String line;
             String helptext = "";
@@ -81,7 +81,7 @@ public class BlueJFileReader
         }
         catch(IOException e) {
             DialogManager.showErrorWithText(null, "cannot-read-help",
-                                            fileName);
+                                            file.toString());
         }
         finally {
             if(in != null) {

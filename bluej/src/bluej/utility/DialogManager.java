@@ -155,7 +155,7 @@ public class DialogManager
      */
     public static String getMessage(String msgID)
     {
-        String filename = Config.getLanguageFile(DLG_FILE_NAME).getPath();
+        File filename = Config.getLanguageFile(DLG_FILE_NAME);
         String message = BlueJFileReader.readHelpText(filename, msgID, true);
         if(message == null)
             JOptionPane.showMessageDialog(null,

@@ -153,7 +153,7 @@ public final class Info extends JPanel
 
     private void displayHelp(String helpGroup)
     {
-        String fileName = Config.getLibFile(helpGroup + ".help").getPath();
+        File fileName = Config.getLanguageFile(helpGroup + ".help");
         String displayMsg = (line1.getText() + line2.getText()).trim();
 
         String helpText = BlueJFileReader.readHelpText(fileName, displayMsg,
