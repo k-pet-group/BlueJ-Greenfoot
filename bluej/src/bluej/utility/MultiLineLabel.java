@@ -6,25 +6,25 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: MultiLineLabel.java 185 1999-07-17 02:28:27Z ajp $
+ ** @version $Id: MultiLineLabel.java 196 1999-07-22 00:47:11Z ajp $
  ** @author Justin Tan
  ** A multi-line Label-like AWT component.
  **/
 public class MultiLineLabel extends JPanel
 {
     int fontAttributes = Font.PLAIN;
-    int alignment;
+    float alignment;
+    Color col = null;
 	
     /**
      ** Constructor - make a multiline label
      **/
-    public MultiLineLabel(String text, int alignment)
+    public MultiLineLabel(String text, float alignment)
     {
-	this.alignment = alignment;
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-//	setLayout(new GridLayout(0,1));
-	if(text != null)
-	    setText(text);
+        this.alignment = alignment;
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        if(text != null)
+            setText(text);
     }
 
     /**
@@ -32,13 +32,13 @@ public class MultiLineLabel extends JPanel
      **/
     public MultiLineLabel(String text)
     {
-        this(text, JLabel.CENTER);
+        this(text, LEFT_ALIGNMENT);
     }
 
     /**
      ** Constructor, empty with the given alignment
      **/
-    public MultiLineLabel(int alignment)
+    public MultiLineLabel(float alignment)
     {
         this(null, alignment);
     }
@@ -48,7 +48,7 @@ public class MultiLineLabel extends JPanel
      **/
     public MultiLineLabel()
     {
-        this(null, JLabel.CENTER);
+        this(null, LEFT_ALIGNMENT);
     }
 	
     public void setText(String text)
@@ -62,38 +62,47 @@ public class MultiLineLabel extends JPanel
     {
         String strs[] = Utility.splitLines(text);
         JLabel l;
-        Font font = new Font("SansSerif", fontAttributes, Config.fontsize);
+        Font font = new Font("Monospaced", fontAttributes, Config.fontsize);
 
         for (int i = 0; strs != null && i < strs.length; i++) {
-	    l = new JLabel(strs[i]);
-	    l.setFont(font);
-	    l.setAlignmentX(LEFT_ALIGNMENT);
-	    add(l);
-	}	
+            l = new JLabel(strs[i]);
+            l.setFont(font);
+            l.setAlignmentX(alignment);
+
+            if (col != null)
+                l.setForeground(col);
+
+            add(l);
+        }	
     }
 	
     public void addText(String text, boolean bold, boolean italic)
     {
-	int oldAttributes = fontAttributes;
-	setBold(bold);
-	setItalic(italic);
-	addText(text);
-	fontAttributes = oldAttributes;
+        int oldAttributes = fontAttributes;
+        setBold(bold);
+        setItalic(italic);
+        addText(text);
+        fontAttributes = oldAttributes;
     }
-	
+
+    public void setForeground(Color col)
+    {
+        this.col = col;        
+    }
+    	
     public void setItalic(boolean italic)
     {
-	if(italic)
-	    fontAttributes |= Font.ITALIC;
-	else
-	    fontAttributes &= ~Font.ITALIC;
+        if(italic)
+           fontAttributes |= Font.ITALIC;
+        else
+            fontAttributes &= ~Font.ITALIC;
     }
 	
     public void setBold(boolean bold)
     {
-	if(bold)
-	    fontAttributes |= Font.BOLD;
-	else
-	    fontAttributes &= ~Font.BOLD;
+        if(bold)
+            fontAttributes |= Font.BOLD;
+        else
+            fontAttributes &= ~Font.BOLD;
     }
 }
