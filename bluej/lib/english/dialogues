@@ -351,6 +351,15 @@ Replace
 Cancel
 null
 
+unittest-method-present
+This unit test class already has a test method declared
+within it of the same name. If you proceed, the
+definition of the method will be replaced.
+Do you want to continue?
+Replace
+Cancel
+null
+
 no-search-string
 No search string is defined.
 (Highlight some text or use 'Find' first.)
