@@ -1,6 +1,7 @@
 package bluej.debugmgr.texteval;
 
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
@@ -12,9 +13,9 @@ import javax.swing.text.*;
 
 import bluej.BlueJEvent;
 import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -27,7 +28,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2634 2004-06-19 15:05:49Z mik $
+ * @version $Id: TextEvalArea.java 2673 2004-06-28 14:30:30Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -37,7 +38,7 @@ public final class TextEvalArea extends JScrollPane
     //    private JTextArea text;
     private JEditorPane text;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
-    private String currentCommand;
+    private String currentCommand = "";
     private PkgMgrFrame frame;
     private Invoker invoker = null;
     private boolean firstTry;
@@ -69,6 +70,9 @@ public final class TextEvalArea extends JScrollPane
         setPreferredSize(new Dimension(200,100));
     }
 
+    /**
+     * Request to get the keyboard focus into the text evaluation area.
+     */
     public void requestFocus()
     {
         text.requestFocus();
@@ -88,17 +92,13 @@ public final class TextEvalArea extends JScrollPane
             //Debug.message("type:"+result.getFieldValueTypeString(0));
 
             String resultString = result.getFieldValueString(0);
-            String resultType = result.getFieldValueTypeString(0);
+            String resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
             
             output(resultString + "   (" + resultType + ")");
             
-//            ResultInspector viewer = ResultInspector.getInstance(result, name,
-//                    getPackage(), ir, getExpressionInformation(), PkgMgrFrame.this);
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
-//        	String fieldString =  JavaNames.stripPrefix(result.getFieldValueTypeString(0))        
-//            + " = " + obj.getFieldValueString(0);
-//            
-        } else {
+        } 
+        else {
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
         }
     }
@@ -120,14 +120,16 @@ public final class TextEvalArea extends JScrollPane
     
     /**
      * A watcher shuold be able to return information about the result that it
-     * is watching. T is used to display extra information (about the expression
-     * that gave the result) when the result is shown.
+     * is watching. This may be used to display extra information 
+     * (about the expression that gave the result) when the result is shown.
+     * Unused for text eval expressions.
      * 
      * @return An object with information on the expression
      */
     public ExpressionInformation getExpressionInformation()
     {
-        return new ExpressionInformation(currentCommand);
+        return null;
+//        return new ExpressionInformation(currentCommand);
     }
 
     //   --- end of ResultWatcher interface ---
@@ -223,8 +225,9 @@ public final class TextEvalArea extends JScrollPane
     }
 
     /**
-     * 
-     *
+     * Set the keymap for this text area. Especially: take care that cursor 
+     * movement is restricted so that the cursor remains in the last line,
+     * and interpret Return keys to evaluate commands.
      */
     private void defineKeymap()
     {
@@ -232,6 +235,9 @@ public final class TextEvalArea extends JScrollPane
 
         Action action = new ExecuteCommandAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), action);
+
+        action = new ContinueCommandAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK), action);
 
         action = new CursorLeftAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), action);
@@ -245,6 +251,24 @@ public final class TextEvalArea extends JScrollPane
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), action);
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, 0), action);
 
+        action = new NoAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, Event.SHIFT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, Event.SHIFT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, Event.SHIFT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_UP, Event.SHIFT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, Event.SHIFT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, Event.SHIFT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, Event.SHIFT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, Event.SHIFT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, Event.ALT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, Event.ALT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, Event.ALT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_UP, Event.ALT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, Event.ALT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, Event.ALT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, Event.ALT_MASK), action);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, Event.ALT_MASK), action);
+
 
         text.setKeymap(newmap);
    
@@ -253,8 +277,9 @@ public final class TextEvalArea extends JScrollPane
     // ======= Actions =======
     
     final class ExecuteCommandAction extends AbstractAction {
-        
+
         /**
+         * Create a new action object. This action executes the current command.
          */
         public ExecuteCommandAction()
         {
@@ -266,18 +291,44 @@ public final class TextEvalArea extends JScrollPane
          */
         final public void actionPerformed(ActionEvent event)
         {
-            currentCommand = getCurrentLine();
+            currentCommand += getCurrentLine();
             append("\n ");      // ensure space at the beginning of every line, because
                                 // line properties do not work otherwise
             firstTry = true;
+            System.out.println("comm:"+currentCommand);
             invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
+            currentCommand = "";
         }
+    }
 
+    final class ContinueCommandAction extends AbstractAction {
+
+        /**
+         * Create a new action object. This action reads the current
+         * line as a start for a new command and continues reading the 
+         * command in the next line.
+         */
+        public ContinueCommandAction()
+        {
+            super("ContinueCommand");
+        }
+        
+        /**
+         * Read the text of the current line in the text area as the
+         * start of a Java command and continue reading in the next line.
+         */
+        final public void actionPerformed(ActionEvent event)
+        {
+            currentCommand += getCurrentLine() + " ";
+            append("\n ");      // ensure space at the beginning of every line, because
+                                // line properties do not work otherwise
+        }
     }
 
     final class CursorLeftAction extends AbstractAction {
 
         /**
+         * Create a new action object.
          */
         public CursorLeftAction()
         {
@@ -296,6 +347,7 @@ public final class TextEvalArea extends JScrollPane
     final class HistoryBackAction extends AbstractAction {
 
         /**
+         * Create a new action object.
          */
         public HistoryBackAction()
         {
@@ -311,12 +363,32 @@ public final class TextEvalArea extends JScrollPane
     final class HistoryForwardAction extends AbstractAction {
 
         /**
+         * Create a new action object.
          */
         public HistoryForwardAction()
         {
             super("HistoryForward");
         }
         
+        final public void actionPerformed(ActionEvent event)
+        {
+        }
+
+    }
+
+    final class NoAction extends AbstractAction {
+
+        /**
+         * Create a new action object.
+         */
+        public NoAction()
+        {
+            super("DoNothing");
+        }
+        
+        /**
+         * Empty action - do nothing.
+         */
         final public void actionPerformed(ActionEvent event)
         {
         }

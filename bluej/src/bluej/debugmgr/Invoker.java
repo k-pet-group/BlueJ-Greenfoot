@@ -28,7 +28,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: Invoker.java 2673 2004-06-28 14:30:30Z mik $
  */
 
 public class Invoker extends Thread
@@ -360,7 +360,7 @@ public class Invoker extends Thread
         //TODO support type parameters when constructing.
         //check all calls to doInvocation to see where it makes sense to add typeParams
         
-    	//Store the arguments in order to show them in the result inspetor later
+        //Store the arguments in order to show them in the result inspetor later
 		ExpressionInformation info = watcher.getExpressionInformation();
 		if (info != null) {
 			info.setArgumentValues(args);
