@@ -24,7 +24,7 @@ import sun.misc.*;
  * @author	Andrew Patterson
  * @author	Damiano Bolla
  * @author	Michael Kšlling
- * @version $Id: Boot.java 2105 2003-07-08 14:35:44Z mik $
+ * @version $Id: Boot.java 2109 2003-07-14 10:07:36Z mik $
  */
 public class Boot
 {
@@ -282,12 +282,15 @@ public class Boot
         if (!url.startsWith("file:"))
             throw new IllegalStateException("Unexpected format of jar file URL (class Boot.java): " + url);
         url = url.substring(5);
-        try {
-            return java.net.URLDecoder.decode(url, "UTF-8");
-        }
-        catch(UnsupportedEncodingException exc) {
-            return null;
-        }
+        return java.net.URLDecoder.decode(url);
+        
+        //replace with the following when we go to jdk 1.4
+//        try {
+//            return java.net.URLDecoder.decode(url, "UTF-8");
+//        }
+//        catch(UnsupportedEncodingException exc) {
+//            return null;
+//        }
     }
 
 	/**
