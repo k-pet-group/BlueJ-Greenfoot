@@ -107,13 +107,16 @@
              manifest="manifest"
              whenempty="fail" />
 
-        <!-- cleanup -->
+        <!-- cleanup (leaving install_tmp for use by window setup installer) -->
 	<delete file="bluej-dist.jar"/>
 	<delete>
              <fileset dir="." includes="*.class"/>
         </delete>
-        <!--delete dir="install_tmp" /-->
+    </target>
 
+    <target name="clean">
+	<delete file="bluej-dist-new.jar"/>
+        <delete dir="install_tmp"/>
     </target>
 
 </project>
