@@ -4,8 +4,10 @@ import java.io.*;
 import java.util.*;
 import javax.swing.table.*;
 import javax.swing.*;
+import java.awt.*;
 
 import bluej.utility.Debug;
+import bluej.utility.OvalIcon;
 import bluej.Config;
 
 /**
@@ -16,7 +18,7 @@ import bluej.Config;
  * edited and then changes can be reverted or committed.
  *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassPathTableModel.java 280 1999-11-18 01:10:21Z ajp $
+ * @cvs     $Id: ClassPathTableModel.java 1067 2002-01-08 05:49:39Z ajp $
  */
 public class ClassPathTableModel extends AbstractTableModel
 {
@@ -46,10 +48,30 @@ public class ClassPathTableModel extends AbstractTableModel
     public String getColumnName(int col)
     {
         if (col == 0)
+            return "";
+        else if (col == 1)
             return locationLabel;
-        else
+        else if (col == 2)
             return descriptionLabel;
+
+        throw new IllegalArgumentException("bad column number in ClassPathTableModel::getColumnName()");
     }
+
+    /**
+     * Return the class of a particular column
+     * (this is used to determine which CellRenderer
+     *  to use)
+     *
+     * @param col   the column we are naming
+     * @return      the class of the column
+     */
+    public Class getColumnClass(int col)
+    {
+        if (col == 0)
+           return ImageIcon.class;
+        else
+           return Object.class;
+    } 
 
     /**
      * Return the number of rows in the table
@@ -68,7 +90,7 @@ public class ClassPathTableModel extends AbstractTableModel
      */
     public int getColumnCount()
     {
-        return 2;
+        return 3;
     }
     
     /**
@@ -82,10 +104,18 @@ public class ClassPathTableModel extends AbstractTableModel
     {
         ClassPathEntry entry = (ClassPathEntry)cp.getEntries().get(row);
 
-        if(col == 0)
+        if (col == 0) {
+            if (entry.isValid())
+                return OvalIcon.getBlankOvalIcon();
+            else
+                return OvalIcon.getRedOvalIcon();
+        }
+        else if (col == 1)
             return entry.getCanonicalPathNoException();
-        else
+        else if (col == 2)
             return entry.getDescription(); 
+
+        throw new IllegalArgumentException("bad column number in ClassPathTableModel::getValueAt()");
     }
 
     /**
@@ -93,7 +123,7 @@ public class ClassPathTableModel extends AbstractTableModel
      */
     public boolean isCellEditable(int row, int col)
     {
-        return (col == 1);
+        return (col == 2);
     }
 
     /**
@@ -106,7 +136,7 @@ public class ClassPathTableModel extends AbstractTableModel
      */
     public void setValueAt(Object value, int row, int col)
     {
-        if (col == 1) {
+        if (col == 2) {
             ClassPathEntry entry = (ClassPathEntry)cp.getEntries().get(row);
 
             entry.setDescription((String)value);
@@ -143,3 +173,27 @@ public class ClassPathTableModel extends AbstractTableModel
         fireTableDataChanged();
     }
 }
+
+class ColorizedIcon implements Icon {
+
+    Color color;
+   public ColorizedIcon (Color c) {
+  color = c;
+}
+public void paintIcon (Component c, Graphics g, int x, int y)
+{
+  if(color != null) {
+  int width = getIconWidth();
+  int height = getIconHeight();
+   g.setColor (color);
+  g.fillOval (x, y, width, height);
+  }
+}
+public int getIconWidth() {
+  return 10;
+}
+public int getIconHeight() { 
+  return 10;
+}
+}
+

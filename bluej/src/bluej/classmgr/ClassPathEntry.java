@@ -16,7 +16,7 @@ import bluej.Config;
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPathEntry.java 810 2001-03-22 03:56:07Z ajp $
+ * @version $Id: ClassPathEntry.java 1067 2002-01-08 05:49:39Z ajp $
  */
 public class ClassPathEntry implements Cloneable
 {
@@ -130,6 +130,27 @@ public class ClassPathEntry implements Cloneable
     public URL getURL() throws MalformedURLException
     {
         return file.toURL();
+    }
+
+    /**
+     * Determine if this class path entry represents a valid entry
+     * on the current VM (ie file/dir exists and is readable)
+     */
+    public boolean isValid()
+    {
+        /* If its a directory then it exists and we wont try to
+           work out any more about it.. its valid as far as we are
+           concerned */
+        if (file.isDirectory())
+            return true;
+
+        /* If it satisfies our conditions for a Jar file we still may
+           not be able to read it, so use that as a test for validity */
+        if (isJar())
+            return file.canRead();
+
+        /* we don't know what it is.. mark it as invalid */
+        return false;
     }
 
     /**

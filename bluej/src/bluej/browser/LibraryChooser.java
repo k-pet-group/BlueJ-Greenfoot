@@ -31,7 +31,7 @@ import bluej.classmgr.ClassPathEntry;
  *
  * @author  Andy Marks
  * @author  Andrew Patterson
- * @cvs     $Id: LibraryChooser.java 596 2000-06-28 05:07:31Z ajp $
+ * @cvs     $Id: LibraryChooser.java 1067 2002-01-08 05:49:39Z ajp $
  */
 public class LibraryChooser extends JPanel implements Runnable
 {
@@ -177,15 +177,15 @@ public class LibraryChooser extends JPanel implements Runnable
      */
     public void run()
     {
-        // iterate through all the libraries the class manager knows about
-        Iterator libraries = ClassMgr.getClassMgr().getAllClassPathEntries();
+/*        // iterate through all the libraries the class manager knows about
+        Iterator libraries = ClassMgr.getClassMgr().getAllClassPath();
 
         while (libraries.hasNext()) {
             ClassPathEntry cpe = (ClassPathEntry)libraries.next();
 
             addLibraryToTree(new ClassPathEntryNode(cpe));
         }
-
+*/
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         // listen for when the selection changes.

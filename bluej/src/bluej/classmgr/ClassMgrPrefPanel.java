@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import bluej.utility.OvalIcon;
 import bluej.utility.DialogManager;
 import bluej.prefmgr.*;
 
@@ -21,7 +22,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 1050 2001-12-11 19:37:46Z mik $
+ * @version $Id: ClassMgrPrefPanel.java 1067 2002-01-08 05:49:39Z ajp $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -66,12 +67,21 @@ public class ClassMgrPrefPanel extends JPanel
 				// table of user library classpath entries
                 userLibrariesModel = new ClassPathTableModel(ClassMgr.getClassMgr().userLibraries);
                 userLibrariesTable = new JTable(userLibrariesModel);
-                String locationColumnName = userLibrariesTable.getColumnName(0);
-                TableColumn locationColumn = userLibrariesTable.getColumn(locationColumnName);
-                locationColumn.setPreferredWidth(280);
                 {
                     userLibrariesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                     userLibrariesTable.setPreferredScrollableViewportSize(new Dimension(400, 100));
+                }
+
+                TableColumn notfoundColumn = 
+			userLibrariesTable.getColumn(userLibrariesTable.getColumnName(0));
+                {
+                    notfoundColumn.setPreferredWidth(12);
+                }
+
+                TableColumn locationColumn = 
+			userLibrariesTable.getColumn(userLibrariesTable.getColumnName(1));
+                {
+                    locationColumn.setPreferredWidth(280);
                 }
 
                 scrollPane.setAlignmentY(TOP_ALIGNMENT);
@@ -100,6 +110,12 @@ public class ClassMgrPrefPanel extends JPanel
                             }
                         });
                 }
+
+		// allow the Add and Delete buttons to be resized to equal width
+		addButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+						addButton.getPreferredSize().height));
+		deleteButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+						deleteButton.getPreferredSize().height));
 
                 buttonPane.add(addButton);
                 buttonPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
@@ -260,7 +276,8 @@ class ClassMgrCellRenderer implements ListCellRenderer
  * A simple FileFilter subclass to accept on valid library files (i.e., ZIP or JAR extension)
  * Used by the addUserLibrary method to only allow selection of valid library archive files.
  */
-class LibraryFileFilter extends FileFilter {
+class LibraryFileFilter extends FileFilter
+{
 	/**
 	 * Check if it is a valid library archive file.
 	 *
@@ -283,3 +300,4 @@ class LibraryFileFilter extends FileFilter {
 		return "Library files (*.jar;*.zip) or class directories";
 	}
 }
+
