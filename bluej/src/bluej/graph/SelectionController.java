@@ -300,7 +300,7 @@ public class SelectionController
 
     private void notifyPackage(GraphElement element)
     {
-        if(element instanceof Target)
+        if(element instanceof ClassTarget)
             ((Package)graph).targetSelected((Target)element);
         else
             ((Package)graph).targetSelected(null);
