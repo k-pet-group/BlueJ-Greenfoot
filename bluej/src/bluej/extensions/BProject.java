@@ -10,7 +10,7 @@ import java.util.ListIterator;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 1982 2003-05-23 08:08:34Z damiano $
+ * @version $Id: BProject.java 2213 2003-10-13 09:55:27Z damiano $
  */
 
 /*
@@ -76,12 +76,46 @@ public class BProject
         Project.closeProject (thisProject);
     }
     
+    /**
+     * Returns a new Package with the given fully qualified name.
+     * 
+     * @return the requested package, or null if it wasn't found
+     * @throws ProjectNotOpenException if the project has been closed by the user.
+     * @throws PackageExistException if the named package already exist in BlueJ.
+     */
+    public BPackage newPackage( String fullyQualifiedName )
+        throws ProjectNotOpenException, PackageAlreadyExistsException
+    {
+        Project bluejProject = projectId.getBluejProject();
+
+        int risul=bluejProject.newPackage(fullyQualifiedName);
+
+        if ( risul == Project.NEW_PACKAGE_BAD_NAME )
+            throw new IllegalArgumentException("newPackage: Bad package name '"+fullyQualifiedName+"'");
+            
+        if ( risul == Project.NEW_PACKAGE_EXIST )
+            throw new PackageAlreadyExistsException("newPackage: Package '"+fullyQualifiedName+"' already exists");
+
+        if ( risul == Project.NEW_PACKAGE_NO_PARENT )
+            throw new IllegalStateException("newPackage: Package '"+fullyQualifiedName+"' has no parent package");
+
+        if ( risul != Project.NEW_PACKAGE_DONE )
+            throw new IllegalStateException("newPackage: Unknown risult code="+risul);
+
+        Package pkg = bluejProject.getPackage (fullyQualifiedName);
+
+        if ( pkg == null ) 
+            throw new IllegalStateException("newPackage: getPackage '"+fullyQualifiedName+"' returned null");
+
+        return new BPackage (new Identifier (bluejProject,pkg));
+    }
     
     /**
      * Get a package belonging to this project.
      * 
      * @param the fully-qualified name of the package
      * @return the requested package, or null if it wasn't found
+    * 
      * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public BPackage getPackage (String name) throws ProjectNotOpenException

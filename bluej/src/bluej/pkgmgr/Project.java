@@ -20,7 +20,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2212 2003-10-13 08:41:47Z damiano $
+ * @version $Id: Project.java 2213 2003-10-13 09:55:27Z damiano $
  */
 public class Project
     implements DebuggerListener
@@ -435,6 +435,50 @@ public class Project
 
         throw new IllegalStateException("Project.getPackage()");
     }
+
+
+    /**
+     * Return a new package with the given fully qualified name.
+     * NOTE: getPackage overlaps newPackage but newPackage is needed if 
+     * we want to distinguish the case when a package is already there or is not
+     * already there.
+     * Once NEW_PACKAGE_DONE is returned you can use getPackage to get the actual package.
+     * 
+     * @param qualifiedName Ex. java.util or "" for unnamed package
+     * @return Project.NEW_PACKAGE_DONE, Project.NEW_PACKAGE_EXIST, Project.NEW_PACKAGE_BAD_NAME
+     */
+    public static final int NEW_PACKAGE_DONE=0;
+    public static final int NEW_PACKAGE_EXIST=1;
+    public static final int NEW_PACKAGE_BAD_NAME=2;
+    public static final int NEW_PACKAGE_NO_PARENT=3;
+
+    public int newPackage(String qualifiedName)
+    {
+        if ( qualifiedName == null ) return NEW_PACKAGE_BAD_NAME;
+        
+        Package existing = (Package) packages.get(qualifiedName);
+
+        if (existing != null) return NEW_PACKAGE_EXIST;
+
+        // The zero len (unqualified) package should always exist.
+        if ( qualifiedName.length() < 1 ) return NEW_PACKAGE_BAD_NAME;
+        
+        // The above named package does not exist, lets create it.
+        try {
+            Package parent = getPackage(JavaNames.getPrefix(qualifiedName));
+            if(parent == null) return NEW_PACKAGE_NO_PARENT;
+
+            Package pkg = new Package(this, JavaNames.getBase(qualifiedName), parent);
+            packages.put(qualifiedName, pkg);
+            }
+        catch (IOException exc) {
+            return NEW_PACKAGE_BAD_NAME;
+            }
+            
+        return NEW_PACKAGE_DONE;
+    }
+
+
 
     /**
      * Get the names of all packages in this project consisting of
