@@ -80,6 +80,22 @@ persists, chack with other projects. If this happens
 with more than one project, you may need to reinstall
 JDK.
 
+StackOverflowError*
+The error indicates that you ran out of Stack memory.
+This typically happens when your program has a specific
+kind or programming error, called "infinite recursion".
+Recursion means that a method calls itself. Infinite
+recursion means that you do this indefinitely, and 
+eventually you run out of memory.
+Look at your code and examine whether one of the methods
+contains a call to itself. This it not a problem in 
+general, only if it calls itself again and again and 
+again and so on.
+The same problem also occurs if you have a constructor
+that creates another object of the same class. Then your
+constructor will call itself, which will call itself,
+which will then call itself.... you get the idea.
+
 ArrayStoreException*
 No help available - sorry.
 
