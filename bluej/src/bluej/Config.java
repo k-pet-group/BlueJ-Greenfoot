@@ -4,7 +4,11 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.text.Keymap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 52 1999-04-29 07:53:02Z mik $
+ ** @version $Id: Config.java 60 1999-05-03 02:22:57Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -55,9 +59,22 @@ public class Config
     public static int printFontsize;
     public static int printTitleFontsize;
     public static int printInfoFontsize;
-        
 	
     private static boolean initialised = false;
+
+    /*
+     * Default behaviour for JTextFields is to generate an ActionEvent when
+     * "Enter" is pressed. We don't want that. Here, we remove the Enter key 
+     * from the keymap used by all JTextFields. Then we can use the default
+     * button for dialogs (Enter will then activate the default button).
+     */
+    static {
+	JTextField f = new JTextField();
+	KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+	Keymap map = f.getKeymap();
+	map.removeKeyStrokeBinding(enter);
+    }
+
 
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.

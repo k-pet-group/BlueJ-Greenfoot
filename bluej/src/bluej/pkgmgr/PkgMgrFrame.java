@@ -499,8 +499,7 @@ public class PkgMgrFrame extends PkgFrame
 //  	    if(pkgfile.exists())
 //  		Utility.reportError("Package " + dirname + " already exists");
 //  	    else {
-//  		String pkgname = Utility.askStringDialog(this, 
-//  							 "Set name of imported package", 
+//  		String pkgname = Utility.askString(this, 
 //  							 "Package name:", "");
 //  		if((pkgname == null) || (pkgname.length() == 0))
 //  		    pkgname = Package.noPackage;
@@ -571,23 +570,25 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void createNewClass()
     {
-	NewClassDialog d = new NewClassDialog(this);
+	NewClassDialog dlg = new NewClassDialog(this);
+	boolean okay = dlg.display();
 
-	if(d.doShow()) {
-	    if (d.newClassName.length() > 0) {
+	if(okay) {
+	    String name = dlg.getClassName();
+	    if (name.length() > 0) {
 
 		// check whether name is already used
-		if(pkg.getTarget(d.newClassName) != null) {
+		if(pkg.getTarget(name) != null) {
 		    Utility.showError(this, nameUsedError);
 		    return;
 		}
-		ClassTarget newCT = new ClassTarget(pkg, d.newClassName);
+		ClassTarget target = new ClassTarget(pkg, name);
+		int classType = dlg.getClassType();
+		target.setAbstract(classType == NewClassDialog.NC_ABSTRACT);
+		target.setInterface(classType == NewClassDialog.NC_INTERFACE);
+		target.generateSkeleton();
 		
-		newCT.setAbstract(d.classType == d.NC_ABSTRACT);
-		newCT.setInterface(d.classType == d.NC_INTERFACE);
-		newCT.generateSkeleton();
-		
-		pkg.addTarget(newCT);
+		pkg.addTarget(target);
 		editor.repaint();
 	    }
 	}

@@ -608,9 +608,23 @@ public final class MoeEditor extends JFrame
     public void find()
     {
 	Finder finder = MoeEditorManager.editorManager.getFinder();
-	String s = finder.getNewSearchString(this);
+	String s = finder.getNewSearchString(this, Finder.FORWARD);
 	if(s != null)
-	    findString(finder, s);
+	    findString(finder, s, finder.getDirection() == Finder.BACKWARD);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Implementation of "find-backward" user function.
+     */
+
+    public void findBackward()
+    {
+	Debug.message("find back");
+	Finder finder = MoeEditorManager.editorManager.getFinder();
+	String s = finder.getNewSearchString(this, Finder.BACKWARD);
+	if(s != null)
+	    findString(finder, s, finder.getDirection() == Finder.BACKWARD);
     }
 
     // --------------------------------------------------------------------
@@ -630,15 +644,36 @@ public final class MoeEditor extends JFrame
 		return;
 	    }
 	}
-	findString(finder, s);
+	findString(finder, s, finder.getDirection() == Finder.BACKWARD);
     }
+
+    // --------------------------------------------------------------------
+    /**
+     * Implementation of "find-next-reverse" user function.
+     */
+
+    public void findNextReverse()
+    {
+	Finder finder = MoeEditorManager.editorManager.getFinder();
+	String s = textPane.getSelectedText();
+	if (s == null) {
+	    s = finder.getLastSearchString();
+	    if (s == null) {
+		info.warning("No search string is defined.",
+			     "(You never searched for anything here before.)");
+		return;
+	    }
+	}
+	findString(finder, s, finder.getDirection() == Finder.FORWARD);
+    }
+
 
     // --------------------------------------------------------------------
     /**
      *  Do a find with info in the info area.
      */
 
-    private void findString(Finder finder, String s)
+    private void findString(Finder finder, String s, boolean backward)
     {
 	if (s.length()==0) {
 	    info.warning("Empty search string.");
@@ -646,12 +681,14 @@ public final class MoeEditor extends JFrame
 	}
 	String msg;
 	boolean wrap = ! finder.lastSearchFound();
-	if (wrap)
-	    msg = "Find forward (wrap around): " + s;
-	else
-	    msg = "Find forward: " + s;
+	msg = "Find " + (backward ? "backward" : "forward") +
+	                (wrap ? " (wrap around): " : ": ") + s;
 	info.message(msg);
-	boolean found = doFind(s, wrap);
+	boolean found;
+	if(backward)
+	    found = doFindBackward(s, wrap);
+	else
+	    found = doFind(s, wrap);
 	finder.setSearchString(s);
 	finder.setSearchFound(found);
 	if (! found)
@@ -660,7 +697,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * doFind - do a find without visible feedback.
+     * doFind - do a find without visible feedback. Returns false if not found.
      */
 
     private boolean doFind(String s, boolean wrap)
@@ -697,7 +734,7 @@ public final class MoeEditor extends JFrame
 		    else
 			finished = true;
 		}
-		else {
+		else {	// go to next line
 		    line = document.getParagraphElement(lineEnd+1);
 		    start = line.getStartOffset();
 		    lineEnd = Math.min(line.getEndOffset(), endPos);
@@ -705,7 +742,63 @@ public final class MoeEditor extends JFrame
 	    }
 	}
 	catch (BadLocationException ex) {
-	    Debug.message("error in editor find op");
+	    Debug.message("error in editor find operation");
+	}
+	return found;
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * doFindBackward - do a find backwards without visible feedback.
+     *  Returns false if not found.
+     */
+
+    private boolean doFindBackward(String s, boolean wrap)
+    {
+	int docLength = document.getLength();
+	int startPosition = textPane.getCaretPosition() - 1;
+	if(startPosition < 0)
+	    startPosition = docLength;
+	int endPos = 0;		// where the search ends
+
+	boolean found = false;
+	boolean finished = false;
+
+	int start = startPosition;	// start of next partial search
+	Element line = getLineAt(start);
+	int lineStart = Math.max(line.getStartOffset(), endPos);
+
+	try {
+	    while (!found && !finished) {
+		String lineText = document.getText(lineStart, start-lineStart);
+		if(lineText != null && lineText.length() > 0) {
+		    int foundPos = lineText.lastIndexOf(s);
+		    if (foundPos != -1) {
+			textPane.select(lineStart+foundPos, 
+					lineStart+foundPos+s.length());
+			found = true;
+		    }
+		}
+		if (lineStart <= endPos) {	// reached end of search
+		    if (wrap) {   // do the wrapping around
+			endPos = startPosition;
+			line = document.getParagraphElement(docLength);
+			start = line.getEndOffset();
+			lineStart = Math.max(line.getStartOffset(), endPos);
+			wrap = false;  // don't wrap again
+		    }
+		    else
+			finished = true;
+		}
+		else {	// go to next line
+		    line = document.getParagraphElement(lineStart-1);
+		    start = line.getEndOffset();
+		    lineStart = Math.max(line.getStartOffset(), endPos);
+		}
+	    }
+	}
+	catch (BadLocationException ex) {
+	    Debug.message("error in editor find operation");
 	}
 	return found;
     }
@@ -1183,9 +1276,9 @@ public final class MoeEditor extends JFrame
 		    label = getResource(itemKeys[i] + LabelSuffix);
 		    if (label != null)
 			item.setText(label);
-		    KeyStroke accel = actions.getKeyStrokeForAction(action);
-		    if (accel != null) 
-			item.setAccelerator(accel);
+		    KeyStroke[] keys = actions.getKeyStrokesForAction(action);
+		    if (keys != null) 
+			item.setAccelerator(keys[0]);
 		}
 	    }
 	}

@@ -36,6 +36,7 @@ public final class MoeActions
 
     private Hashtable actions;		// table of all known actions
     private Keymap keymap;		// the editor's keymap
+    private FunctionDialog functionDlg;	// the function bindings dialog
 
     // undo helpers
     public UndoAction undoAction;
@@ -82,11 +83,25 @@ public final class MoeActions
     /**
      * Get a keystroke for an action. Return null is there is none.
      */
-    public KeyStroke getKeyStrokeForAction(Action action)
+    public KeyStroke[] getKeyStrokesForAction(Action action)
     {
 	KeyStroke[] keys = keymap.getKeyStrokesForAction(action);
 	if (keys != null && keys.length > 0) 
-	    return keys[0];
+	    return keys;
+	else
+	    return null;
+    }
+
+    /**
+     * Get a keystroke for an action by action name. Return null is there
+     * is none.
+     */
+    public KeyStroke[] getKeyStrokesForName(String actionName)
+    {
+	Action action = getActionByName(actionName);
+	KeyStroke[] keys = keymap.getKeyStrokesForAction(action);
+	if (keys != null && keys.length > 0) 
+	    return keys;
 	else
 	    return null;
     }
@@ -325,7 +340,7 @@ public final class MoeActions
 	    super("find", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    getEditor(e).find();
 	}
@@ -339,9 +354,9 @@ public final class MoeActions
 	    super("find-backward", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_F, SHIFT_CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    getEditor(e).findBackward();
 	}
     }
 
@@ -353,7 +368,7 @@ public final class MoeActions
 	    super("find-next", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    getEditor(e).findNext();
 	}
@@ -367,9 +382,9 @@ public final class MoeActions
 	    super("find-next-reverse", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    getEditor(e).findNextReverse();
 	}
     }
 
@@ -381,7 +396,7 @@ public final class MoeActions
 	    super("replace", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -395,7 +410,7 @@ public final class MoeActions
 	    super("goto-line", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    JTextComponent textPane = getTextComponent(e);
 	    Element line = getLine(textPane, 2);
@@ -411,7 +426,7 @@ public final class MoeActions
 	    super("compile", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    getEditor(e).compile();
 	}
@@ -426,7 +441,7 @@ public final class MoeActions
 	    super("set-breakpoint", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    getEditor(e).setBreakpoint();
 	}
@@ -440,7 +455,7 @@ public final class MoeActions
 	    super("clear-breakpoint", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_B, SHIFT_CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    getEditor(e).clearBreakpoint();
 	}
@@ -453,7 +468,7 @@ public final class MoeActions
 	public StepAction() {
 	    super("step", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -466,7 +481,7 @@ public final class MoeActions
 	public StepIntoAction() {
 	    super("step-into", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -479,7 +494,7 @@ public final class MoeActions
 	public ContinueAction() {
 	    super("continue", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -492,7 +507,7 @@ public final class MoeActions
 	public TerminateAction() {
 	    super("terminate", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -506,7 +521,7 @@ public final class MoeActions
 	public PreferencesAction() {
 	    super("preferences", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -519,9 +534,10 @@ public final class MoeActions
 	public KeyBindingsAction() {
 	    super("key-bindings", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    FunctionDialog dlg = getFunctionDialog();
+	    dlg.setVisible(true);
 	}
     }
 
@@ -533,7 +549,7 @@ public final class MoeActions
 	public AboutAction() {
 	    super("help-about", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    JOptionPane.showMessageDialog(getEditor(e),
 		new String[] { 
@@ -555,7 +571,7 @@ public final class MoeActions
 	public CopyrightAction() {
 	    super("help-copyright", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -569,7 +585,7 @@ public final class MoeActions
 	    super("help-describe-key", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK));
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -582,7 +598,7 @@ public final class MoeActions
 	public HelpMouseAction() {
 	    super("help-mouse", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -595,7 +611,7 @@ public final class MoeActions
 	public ShowManualAction() {
 	    super("help-show-manual", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -608,7 +624,7 @@ public final class MoeActions
 	public ReportErrorAction() {
 	    super("report-errors", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -621,7 +637,7 @@ public final class MoeActions
 	public EmptyAction() {
 	    super("nothing", null);
 	}
- 
+
 	public void actionPerformed(ActionEvent e) {
 	    Utility.NYI(getEditor(e));
 	}
@@ -634,7 +650,7 @@ public final class MoeActions
     //       public Action() {
     //  	 super("");
     //       }
-    //  
+    // 
     //       public void actionPerformed(ActionEvent e) {
     // 	  Utility.NYI(editor);
     //       }
@@ -647,6 +663,17 @@ public final class MoeActions
     /**
      * 
      */
+
+    // --------------------------------------------------------------------
+    /**
+     * Return the dialog to see/edit user functions and bindings.
+     */
+    private FunctionDialog getFunctionDialog()
+    {
+	if(functionDlg == null)
+	    functionDlg = new FunctionDialog(actions);
+	return functionDlg;
+    }
 
     // --------------------------------------------------------------------
     /**

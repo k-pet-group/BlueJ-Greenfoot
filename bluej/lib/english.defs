@@ -114,6 +114,15 @@ editor.unimplemented=Sorry - that feature is not yet implemented
 editor.noTitle=<New File>
 editor.title=BlueJ editor
 
+editor.find.forward=Forward
+editor.find.backward=Backward
+
+editor.functions.defaults=Defaults
+editor.functions.categories=Categories:
+editor.functions.keys=Key Bindings
+editor.functions.addkey=Add Key
+editor.functions.delkey=Delete Key
+
 pkgmgr.noTitle=<noTitle>
 pkgmgr.title=BlueJ
 pkgmgr.chooseUsesFrom=Select the class where the dependency is from

@@ -17,11 +17,7 @@ public class Tester
 	// initialise instance variables
 	x = 0;
     }
-    vnfjdk
-        nvfjkdnv
-    cndkjs
 
-    vfnj vdf
     /**
      ** An example of a method - replace this comment with your own
      ** 	

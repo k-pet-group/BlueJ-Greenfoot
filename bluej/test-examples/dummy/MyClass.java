@@ -13,10 +13,10 @@ public class MyClass
     /**
      ** Constructor for objects of class MyClass
      **/
-    public MyClass()
+    public MyClass(int a)
     {
 	// initialise instance variables
-	x = 0;
+	x = a;
 	name = "Michael";
     }
     

@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: ExecControls.java 60 1999-05-03 02:22:57Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -112,7 +112,7 @@ public class ExecControls extends JFrame
 	else if(src == localList) {
 	}
     }
-	
+
     // ----- end of ListSelectionListener interface -----
 
     public synchronized void updateThreads()

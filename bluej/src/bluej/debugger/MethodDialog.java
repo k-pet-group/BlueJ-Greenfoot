@@ -18,8 +18,8 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 59 1999-05-01 01:45:21Z mik $
- ** @author Justin Tan
+ ** @version $Id: MethodDialog.java 60 1999-05-03 02:22:57Z mik $
+ **
  ** @author Michael Cahill
  ** @author Bruce Quig
  ** @author Michael Kolling
@@ -49,6 +49,8 @@ public class MethodDialog extends JDialog
     static final String emptyFieldMsg = Config.getString("error.methodCall.emptyField");
     static final String illegalNameMsg = Config.getString("error.methodCall.illegalName");
     static final String duplicateNameMsg = Config.getString("error.methodCall.duplicateName");
+
+    static final String okayCommand = Config.getString("okay");
 
     static final String commentSlash = "   ";
 
@@ -117,7 +119,7 @@ public class MethodDialog extends JDialog
 
 	// Create the Button Panel
 	butPanel.setLayout(new FlowLayout());
-	butPanel.add(bOk = new JButton(Config.getString("okay")));
+	butPanel.add(bOk = new JButton(okayCommand));
 	bOk.addActionListener(this);
 
 	butPanel.add(bCancel = new JButton(Config.getString("cancel")));
@@ -207,9 +209,6 @@ public class MethodDialog extends JDialog
 
 		// add FocusListener for text insertion
 		((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
-	  
-		// ((JTextField)params[i].getEditor().getEditorComponent()).setActionCommand("combo");
-		// ((JTextField)params[i].getEditor().getEditorComponent()).addActionListener(this);
 
 		constraints.gridy = i;
 		gridBag.setConstraints(params[i], constraints);
@@ -295,9 +294,6 @@ public class MethodDialog extends JDialog
 		// add FocusListener for text insertion
 		((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
 	  
-		//((JTextField)params[i].getEditor().getEditorComponent()).setActionCommand("combo");
-		//((JTextField)params[i].getEditor().getEditorComponent()).addActionListener(this);
-
 		constraints.gridy = (i + 1);
 		gridBag.setConstraints(params[i], constraints);
 		tmpPanel.add(params[i]);
@@ -381,20 +377,16 @@ public class MethodDialog extends JDialog
 	    // clear params from any JComboBoxes
 	    clearParameters();
 
-	    switch (dialogType) {
-	    case MD_CALL:
-		if(params != null) {
-		    //params[0].requestFocus();
-		    ((JTextField)params[0].getEditor().getEditorComponent()).requestFocus();
-		}
-		break;
-	    case MD_CREATE:
+	    if(params != null) {
+		//params[0].requestFocus();
+		((JTextField)params[0].getEditor().getEditorComponent()).requestFocus();
+	    }
+	    else if(dialogType == MD_CREATE) {
 		instanceNameText.selectAll();
 		instanceNameText.requestFocus();
-		break;				
-	    default:
-		bOk.requestFocus();
 	    }
+	    else
+		bOk.requestFocus();
 	}
     }
 
@@ -404,20 +396,11 @@ public class MethodDialog extends JDialog
     public void actionPerformed(ActionEvent event)
     {
 	Object obj = event.getSource();
-	String cmd = event.getActionCommand();
 
 	if (obj == bOk) 
 	    doOk();
 	else if (obj == bCancel)
 	    doCancel();
-	else {
-	    // enter pressed in combo box
-	    if(cmd.equals("combo"))
-		doOk();
-	    // instanceNameText fired event
-	    else if(cmd.equals(Config.getString("okay")))
-		doOk();
-	}	   
     }
 
     /**
@@ -634,7 +617,6 @@ public class MethodDialog extends JDialog
      */
     public void focusGained(FocusEvent fe)
     {
-	// Debug.message(" Focus Gained: " + fe.paramString());
 	if(fe.getComponent() instanceof JTextField)
 	    focusedTextField = (JTextField)fe.getComponent();
     }

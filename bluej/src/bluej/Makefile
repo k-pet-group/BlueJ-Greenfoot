@@ -150,9 +150,10 @@ EDITOR_CLASSFILES = $(EDITOR_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/editor/%.class)
 
 MOE_CLASSES = \
 		Finder \
+		FunctionDialog \
 		Info \
 		LineNumberLabel \
-		Moe \
+		MoeActions \
 		MoeCaret \
 		MoeEditor \
 		MoeEditorKit \
@@ -237,7 +238,6 @@ UTILITY_CLASSES = \
 		ToggleMessageBox \
 		ToggleMessageBoxOwner \
 		MultiLineLabel \
-		OkayCancelDialog \
 		OkayDialog \
 		PackageFileFilter \
 		SimpleClassLoader \
