@@ -6,7 +6,17 @@ How to make a BlueJ release                    (last update 31.08.2001, mik)
  2. Make sure to build the submitter extension (using 'buildall' from the
     extension ant build file). This places subitter.jar into bluej/lib/extensions.
      
- 3. Compile and build the release with:  ant dist
+ 3a)
+ 		temporary (while building the release on MacOS without jdk 5.0 support
+ 		while BlueJ supports jdk 5.0):
+ 		- Build BlueJ on MacOS
+ 		- Build BlueJ on a 5.0 system, then copy the following files to Mac:
+ 			bluej/utility/JavaUtils15.class
+			bluej/utility/JavaArrayReflective.class
+			bluej/debugger/jdi/JdiUtils15.class
+
+ b) 
+    (Compile and) build the release with:  ant dist
     (make sure the JDK version used for the build is the lowest
      compatible JDK for BlueJ)
     This will create 
