@@ -15,11 +15,9 @@ import bluej.utility.Utility;
  ** Note that while there is some thread-aware code here, this class is not 
  ** MT-safe - there are numerous race conditions.
  **
- ** @author Justin Tan
- ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: TerminalCanvas.java 216 1999-08-04 05:39:54Z mik $
+ ** @version $Id: TerminalCanvas.java 523 2000-06-01 02:44:00Z mik $
  **/
 
 class TerminalCanvas extends JComponent 

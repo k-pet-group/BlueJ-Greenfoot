@@ -29,7 +29,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 520 2000-05-31 06:49:05Z bquig $
+ * @version $Id: PkgMgrFrame.java 523 2000-06-01 02:44:00Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener, Printable
@@ -46,8 +46,8 @@ public class PkgMgrFrame extends JFrame
     static final String newpkgTitle =  Config.getString("pkgmgr.newPkg.title");
     static final String createLabel =  Config.getString("pkgmgr.newPkg.buttonLabel");
 
-    static final int DEFAULT_WIDTH = 512;
-    static final int DEFAULT_HEIGHT = 450;
+    static final int DEFAULT_WIDTH = 480;
+    static final int DEFAULT_HEIGHT = 340;
 
     private static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
     private static String referenceUrl = Config.getPropString("bluej.url.reference");

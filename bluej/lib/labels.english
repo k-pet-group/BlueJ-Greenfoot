@@ -286,6 +286,10 @@ dialogmgr.message = Message
 
 #Terminal Window
 terminal.title = BlueJ Terminal Window
+terminal.clear = Clear
+terminal.copy = Copy
+terminal.save = Save to file...
+terminal.close = Close
 
 # status messages
 pkgmgr.compiling=Compiling...
@@ -361,7 +365,7 @@ menu.help.copyright=Copyright...
 tooltip.newClass=Create a new class in this package
 tooltip.newUses=Insert a 'uses' relation
 tooltip.newExtends=Insert an inheritance relation
-tooltip.compile=Compile all uncompiled classes inthis package
+tooltip.compile=Compile all uncompiled classes in this package
 tooltip.showUses=Toggle display of 'uses' relations
 tooltip.showExtends=Toggle display of inheritance relations
 tooltip.progress=Work indicator: indicates when virtual machine is executing

@@ -5,7 +5,7 @@
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 411 2000-03-13 02:54:47Z markus $
+ ** @version $Id: Terminal.java 523 2000-06-01 02:44:00Z mik $
  **/
 
 package bluej.terminal;
@@ -29,6 +29,11 @@ public final class Terminal extends JFrame
     private static final Color inactiveBgColour = new Color(224, 224, 224);
     private static final Color fgColour = Color.black;
 
+    private static final char CHAR_CLEAR = 11;  // CTRL-K
+    private static final char CHAR_COPY = 3;    // CTRL-C
+    private static final char CHAR_SAVE = 19;   // CTRL-S
+    private static final char CHAR_CLOSE = 23;  // CTRL-W
+
     // -- static singleton factory method --
 
     static Terminal frame = null;
@@ -41,7 +46,7 @@ public final class Terminal extends JFrame
 
     // -- instance --
 
-    private JTextArea text;
+    private TermTextArea text;
     private boolean isActive = false;
     private InputBuffer buffer;
 
@@ -63,7 +68,7 @@ public final class Terminal extends JFrame
 
 	buffer = new InputBuffer(256);
 
-	text = new JTextArea(rows, columns);
+	text = new TermTextArea(rows, columns);
 	JScrollPane scrollPane = new JScrollPane(text);
 	text.setFont(new Font("Monospaced", Font.PLAIN, FONTSIZE));
 	text.setEditable(false);
@@ -72,12 +77,30 @@ public final class Terminal extends JFrame
 	text.setMargin(new Insets(6, 6, 6, 6));
 	//text.setBackground(inactiveBgColour);
 
-	getContentPane().setLayout(new BorderLayout());
 	getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-	createMenu();
-
 	text.addKeyListener(this);
+
+	JMenuBar menubar = new JMenuBar();
+	JMenu menu = new JMenu("Options");
+        JMenuItem item;
+            item = menu.add(new JMenuItem(new ClearAction()));
+            item.setAccelerator(KeyStroke.getKeyStroke(
+                                             KeyEvent.VK_K, Event.CTRL_MASK));
+            item = menu.add(new JMenuItem(getCopyAction()));
+            item.setText(Config.getString("terminal.copy"));
+            item.setAccelerator(KeyStroke.getKeyStroke(
+                                             KeyEvent.VK_C, Event.CTRL_MASK));
+            item = menu.add(new JMenuItem(new SaveAction()));
+            item.setAccelerator(KeyStroke.getKeyStroke(
+                                             KeyEvent.VK_S, Event.CTRL_MASK));
+            menu.add(new JSeparator());
+            item = menu.add(new JMenuItem(new CloseAction()));
+            item.setAccelerator(KeyStroke.getKeyStroke(
+                                             KeyEvent.VK_W, Event.CTRL_MASK));
+
+        menubar.add(menu);
+	setJMenuBar(menubar);
 
 	// Close Action when close button is pressed
 	addWindowListener(new WindowAdapter() {
@@ -97,7 +120,8 @@ public final class Terminal extends JFrame
     public void showTerminal(boolean doShow)
     {
 	setVisible(doShow);
-	text.requestFocus();
+	if(doShow)
+            text.requestFocus();
     }
 
 
@@ -133,6 +157,15 @@ public final class Terminal extends JFrame
     }
 
 
+    /**
+     * Save the terminal text to file.
+     */
+    public void save()
+    {
+	//  NYI
+    }
+
+    
     /**
      * Write some text to the terminal.
      */
@@ -227,14 +260,6 @@ public final class Terminal extends JFrame
     }
 
 
-    /**
-     * Create a pop-up menu with terminal commands.
-     */
-    private void createMenu()
-    {
-    }
-
-
     // ---- KeyListener interface ----
 
     public void keyPressed(KeyEvent event) { event.consume(); }
@@ -242,9 +267,26 @@ public final class Terminal extends JFrame
 
     public void keyTyped(KeyEvent event)
     {
-	if(isActive) {
+        char ch = event.getKeyChar();
 
-	    char ch = event.getKeyChar();
+        // first, handle general terminal operations (menu shortcuts)
+        if(Character.isISOControl(ch)) {
+
+             switch(ch) {
+                 case CHAR_CLEAR: clear();
+                      break;
+                 case CHAR_COPY: getCopyAction().actionPerformed(
+                                     new ActionEvent(event.getSource(), 0, ""));
+                      break;
+                 case CHAR_SAVE: save();
+                      break;
+                 case CHAR_CLOSE: showTerminal(false);
+                      break;
+             }
+        }
+
+        // now, handle text input
+	if(isActive) {
 
 	    switch(ch) {
 	    
@@ -283,4 +325,50 @@ public final class Terminal extends JFrame
 	event.consume();	// make sure the text area doesn't handle this
     }
 
+
+    private class ClearAction extends AbstractAction
+    {
+        public ClearAction()
+        {
+            super(Config.getString("terminal.clear"));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            clear();
+        }
+    }
+
+    private class SaveAction extends AbstractAction
+    {
+        public SaveAction()
+        {
+            super(Config.getString("terminal.save"));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            save();
+        }
+    }
+
+    private class CloseAction extends AbstractAction
+    {
+        public CloseAction()
+        {
+            super(Config.getString("terminal.close"));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            showTerminal(false);
+        }
+    }
+
+    private Action getCopyAction()
+    {
+        Action[] textActions = text.getActions();
+        for (int i=0; i < textActions.length; i++)
+            if(textActions[i].getValue(Action.NAME).equals("copy-to-clipboard"))
+                return textActions[i];
+
+	return null;
+    }
 }
