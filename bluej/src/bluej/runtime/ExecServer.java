@@ -11,35 +11,40 @@ import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.SwingUtilities;
+import java.beans.*;
 
 /**
  * Class that controls the runtime of code executed within BlueJ.
  * Sets up a SecurityManager, initial thread state, etc.
  *
- * This class both holds runtime attibutes and executes commands.
- * Execution is done through a call to the "performTask" method. The
- * performTask method is executed on the remote machine; its parameters
- * encode the actual action to be taken. See "performTask" for more detail.
+ * This class both holds runtime attributes and executes commands.
+ * Execution is done through JDI reflection from the JdiDebugger class.
  *
  * @author Michael Kolling
+ * @author  Andrew Patterson
+ * @version $Id: ExecServer.java 1542 2002-11-29 13:49:35Z ajp $
  */
 public class ExecServer
 {
-    // task type constants:
+    // Task type constants (these constants must match the name of the
+    // corresponding methods in this ExecServer source). Methods to call are
+    // obtained using reflection by JdiDebugger (using these strings).
 
-    public static final int CREATE_LOADER  = 0;
-    public static final int REMOVE_LOADER  = 1;
-    public static final int LOAD_CLASS	   = 2;
-    public static final int ADD_OBJECT     = 3;
-    public static final int REMOVE_OBJECT  = 4;
-    public static final int SET_LIBRARIES  = 5;
-    public static final int SET_DIRECTORY  = 6;
-    public static final int SERIALIZE_OBJECT = 7;
-    public static final int DESERIALIZE_OBJECT = 8;
-    public static final int SUPRESS_OUTPUT = 9;
-    public static final int RESTORE_OUTPUT = 10;
-    public static final int DISPOSE_WINDOWS = 11;
-
+    public static final String CREATE_LOADER    = "createLoader";
+    public static final String REMOVE_LOADER    = "removeLoader";
+    public static final String LOAD_CLASS       = "loadClass";
+    public static final String ADD_OBJECT       = "addObject";
+    public static final String REMOVE_OBJECT    = "removeObject";
+    public static final String SET_LIBRARIES    = "setLibraries";
+    public static final String SET_DIRECTORY    = "setDirectory";
+    public static final String RUN_TEST_SETUP   = "runTestSetUp";
+    public static final String RUN_TEST_CLASS   = "runTestClass";
+    public static final String RUN_TEST_METHOD   = "runTestMethod";
+    public static final String SERIALIZE_OBJECT = "serializeObject";
+    public static final String DESERIALIZE_OBJECT = "deserializeObject";
+    public static final String SUPRESS_OUTPUT   = "supressOutput";
+    public static final String RESTORE_OUTPUT   = "restoreOutput";
+    public static final String DISPOSE_WINDOWS  = "disposeWindows";
 
     /*package*/ static ExecServer server = null;
     /*package*/ static TerminateException terminateExc = new TerminateException("term");
@@ -55,9 +60,9 @@ public class ExecServer
      */
     private static List openWindows = Collections.synchronizedList(new LinkedList());
     private static boolean disposingAllWindows = false; // true while we are dsposing
+
     private static PrintStream systemErr = System.err;
     private static ByteArrayOutputStream throwawayErr = null;
-
 
     /**
      * Main method.
@@ -72,18 +77,65 @@ public class ExecServer
 
     /**
      *  This method is used to generate an event which is recorded
-     *  by the local VM when handling System.exit(). See RemoteSecurityManager
-     *  for details.
+     *  by the local VM when handling System.exit().
+     *
+     *  See RemoteSecurityManager for details.
      */
     public static void exitMarker()
     {
         // <NON SUSPENDING BREAKPOINT!>
     }
 
+    /**
+     * Add the object to our list of open windows
+     *
+     * @param   o   a window object which has just been opened
+     */
+    private static void addWindow(final Object o)
+    {
+        openWindows.add(o);
+        // experiment to try to fix windows bug where window
+        // is hidden behind bluej window
+        /*if (o instanceof Window) {
+            SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        ((Window)o).toFront();
+                    }
+                });
+        } */
+    }
+
+    /**
+     * Remove the object from our list of open windows
+     *
+     * @param   o   a window object which has just been closed
+     */
+    private static void removeWindow(Object o)
+    {
+        if(!disposingAllWindows)   // don't bother if we are clearing up just now
+            openWindows.remove(o);
+    }
+
+    /**
+     * Find a scoping Map for the given scopeId
+     */
+    /*package*/ static Map getScope(String scopeId)
+    {
+        //Debug.message("[VM] getScope" + scopeId);
+        Map scope = (Map)scopes.get(scopeId);
+
+        if(scope == null) {
+            scope = new HashMap();
+            scopes.put(scopeId, scope);
+        }
+        return scope;
+    }
+
+
     // -- instance methods --
 
     /**
-     * Contructor: Initialise the execution server.
+     * Initialise the execution server.
      */
     private ExecServer()
     {
@@ -96,9 +148,9 @@ public class ExecServer
         // we attempt to load a (non-existent) class
 
         try {
-            createClassLoader("#dummy", ".");
+            createLoader("#dummy", ".");
             loadClass("#dummy", "Dummy");
-            removeClassLoader("#dummy");
+            removeLoader("#dummy");
         }
         catch(Exception e) {
             // ignore - we will get a ClassNotFound exception here
@@ -140,81 +192,29 @@ public class ExecServer
 //        Debug.message("[VM] woke up from suspend");
     }
 
-
-
-    /**
-     * Perform a task here on the remote VM.
-     *
-     * This method is called from the main VM to initiate a task here on
-     * this VM.
-     */
-    public Object performTask(int taskType, String arg1,
-                               String arg2, String arg3, String arg4)
-        throws Throwable
-    {
-        try {
-            switch(taskType) {
-            case CREATE_LOADER:
-                return createClassLoader(arg1, arg2);
-            case REMOVE_LOADER:
-                removeClassLoader(arg1);
-                return null;
-            case LOAD_CLASS:
-                loadClass(arg1, arg2);
-                return null;
-            case ADD_OBJECT:
-                addObject(arg1, arg2, arg3, arg4);
-                return null;
-            case REMOVE_OBJECT:
-                removeObject(arg1, arg2);
-                return null;
-            case SET_LIBRARIES:
-                setLibraries(arg1);
-                return null;
-            case SET_DIRECTORY:
-                setDirectory(arg1);
-                return null;
-            case SERIALIZE_OBJECT:
-                serializeObject(arg1, arg2, arg3);
-                return null;
-            case DESERIALIZE_OBJECT:
-                return deserializeObject(arg1, arg2, arg3, arg4);
-            case SUPRESS_OUTPUT:
-                supressErrorOutput();
-                return null;
-            case RESTORE_OUTPUT:
-                restoreErrorOutput();
-                return null;
-            case DISPOSE_WINDOWS:
-                disposeWindows();
-                return null;
-            }
-        }
-        catch(Exception e) {
-            Debug.reportError("Exception while performing task: " + e);
-            e.printStackTrace();
-        }
-        return null;
-    }
-
+    // -- methods called by reflection from JdiDebugger --
+    // --
+    // -- methods that can be made private have been, as
+    // -- the reflection is still able to access them
+    // -- (RemoteSecurityManager switches all reflection
+    // --  access checks off)
 
     /**
      * Create a new class loader for a given classpath.
      */
-    private ClassLoader createClassLoader(String loaderId,
+    private ClassLoader createLoader(String loaderId,
                                             String classPath)
     {
-        //Debug.reportError("[VM] createClassLoader " + loaderId);
+        //Debug.reportError("[VM] createLoader " + loaderId);
         ClassLoader loader = classmgr.getLoader(classPath);
         loaders.put(loaderId, loader);
         return loader;
     }
 
-
     /**
      * Remove a known loader from the table of class loaders.
      */
-    private void removeClassLoader(String loaderId)
+    private void removeLoader(String loaderId)
     {
         //Debug.reportError("[VM] removeLoader " + loaderId);
         loaders.remove(loaderId);
@@ -224,7 +224,7 @@ public class ExecServer
      * Load a class in the remote runtime.
      */
     private Class loadClass(String loaderId, String classname)
-        throws Exception
+        throws ClassNotFoundException
     {
         Class cl = null;
 
@@ -239,19 +239,10 @@ public class ExecServer
         //Debug.reportError("   loaded.");
         if(cl == null)
             Debug.reportError("Could not load class for execution");
-        else
-            prepareClass(cl);
-
-        return cl;
-    }
-
-    /**
-     *  Run the initialisation ("prepare" method) of the new shell class.
-     *  This guarantees that the class is properly prepared, as well as
-     *  executing some init code in that shell method.
-     */
-    private void prepareClass(Class cl)
-    {
+        else {
+            // run the initialisation ("prepare" method) of the new shell class.
+            // This guarantees that the class is properly prepared, as well as
+            // executing some init code in that shell method.
         try {
             Method m = cl.getMethod("prepare", null);
             m.invoke(null, null);
@@ -261,14 +252,19 @@ public class ExecServer
         }
     }
 
+        return cl;
+    }
+
     /**
-     *  Put an object into a package scope (for possible use as parameter
+     *  Add an object into a package scope (for possible use as parameter
      *  later). Used after object creation to add the newly created object
      *  to the scope.
+     *
+     *  Must be static because it is used by Shell without a execServer reference
      */
-    static void putObject(String scopeId, String instanceName, Object value)
+    /*package*/ static void addObject(String scopeId, String instanceName, Object value)
     {
-        //Debug.message("[VM] putObject: " + instanceName);
+        //Debug.message("[VM] addObject: " + instanceName);
         Map scope = getScope(scopeId);
         scope.put(instanceName, value);
 
@@ -280,8 +276,25 @@ public class ExecServer
     }
 
     /**
+     * Update the remote VM with the list of user/system libraries
+     * which the user has created using the ClassMgr.
      */
-    static void serializeObject(String scopeId, String instanceName, String fileName)
+    private void setLibraries(String libraries)
+    {
+        classmgr.setLibraries(libraries);
+    }
+
+    /**
+     *  Set the current working directory for this virtual machine.
+     */
+    private void setDirectory(String dir)
+    {
+        System.setProperty("user.dir", dir);
+    }
+
+    /**
+     */
+    private void serializeObject(String scopeId, String instanceName, String fileName)
     {
         //Debug.message("[VM] serializeObject: " + instanceName);
         Map scope = getScope(scopeId);
@@ -314,10 +327,11 @@ public class ExecServer
         try {
             ClassLoader loader = (ClassLoader)loaders.get(loaderId);
 
-            FileInputStream fi = new FileInputStream(fileName);
-            ObjectInputStream si = new RemoteObjectInputStream(fi, loader);
+//            XMLDecoder xmld = new XMLDecoder(new BufferedInputStream(loader.getResourceAsStream(fileName)));
+            
+ //           obj = xmld.readObject();
 
-            obj = si.readObject();
+            //xmld.close();
 
             scope.put(newInstanceName, obj);
         }
@@ -325,32 +339,57 @@ public class ExecServer
         {
             e.printStackTrace();
         }
-/*        catch(IOException ioe)
-        {
-            ioe.printStackTrace();
-        }
-        catch(ClassNotFoundException cfne)
-        {
-            cfne.printStackTrace();
-        } */
 
         System.out.println(obj.toString());
 
         return obj;
     }
 
+/**
+     * Execute a JUnit test case setUp method.
+     * 
+     * @return  an array consisting of String, Object pairs. For n fixture objects
+     *          there will be n*2 entries in the array. Putting it in an array saves
+     *          having to make lots of reflective List and HashMap calls on the
+     *          calling virtual machine. Once the calling VM gets this array it can
+     *          put it into a more suitable data structure itself.
+     */
+    private Object[] runTestSetUp(String loaderId, String scopeId, String className)
+        throws ClassNotFoundException
+    {
+         return null; 
+    }
+
     /**
-     *  Add an object to package scope. The object to be added is held
+     * Execute a JUnit test case and return the results.
+     * 
+     * @return  an array of TestFailure items
+     */
+    private Object[] runTestClass(String loaderId, String scopeId, String className)
+        throws ClassNotFoundException
+    {
+        return null;
+    }
+
+    private Object[] runTestMethod(String loaderId, String scopeId, String className, String methodName)
+        throws ClassNotFoundException
+    {
+        return null;
+    }
+
+    /**
+     * 
+     *
+     * The object to be added is held
      *  in the object 'instance', in field 'field'. (This is used when
      *  "Get" is selected in the object inspection to pull out the requested
      *  object and add it to the scope.)
      */
-    static void addObject(String scopeId, String instance, String fieldName,
-                            String newName)
+    public void addXXXObject(String scopeId, String newName, Object o)
     {
         //Debug.message("[VM] addObject: " + instance + ", " + fieldName + ", " + newName);
 
-        Map scope = getScope(scopeId);
+/*        Map scope = getScope(scopeId);
         Object wrapObject = scope.get(instance);
         try {
             Object obj;
@@ -370,84 +409,49 @@ public class ExecServer
             Debug.reportError("object field not found: " + fieldName +
                               " in " + instance);
             Debug.reportError("exception: " + e);
-        }
+        } */
     }
 
     /**
-     *  Remove an object from a package scope. This has to be done tolerantly:
+     * Remove an object from a package scope.
+     *
+     * This has to be done tolerantly: (why? ajp 22/5)
      *  If the named instance is not in the scope, we just quetly return.
      */
-    static void removeObject(String scopeId, String instanceName)
+    private void removeObject(String scopeId, String instanceName)
     {
         //Debug.message("[VM] removeObject: " + instanceName);
         Map scope = getScope(scopeId);
         scope.remove(instanceName);
     }
 
-
-    static Map getScope(String scopeId)
-    {
-        //Debug.message("[VM] getScope" + scopeId);
-        Map scope = (Map)scopes.get(scopeId);
-
-        if(scope == null) {
-            scope = new HashMap();
-            scopes.put(scopeId, scope);
-        }
-        return scope;
-    }
-
-    /**
-     * Add the object to our list of open windows
-     *
-     * @param   o   a window object which has just been opened
-     */
-    private static void addWindow(final Object o)
-    {
-        openWindows.add(o);
-        // experiment to try to fix windows bug where window
-        // is hidden behind bluej window
-/*        if (o instanceof Window) {
-            SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        ((Window)o).toFront();
-                    }
-                });
-        } */
-    }
-
-    /**
-     * Remove the object from our list of open windows
-     *
-     * @param   o   a window object which has just been closed
-     */
-    private static void removeWindow(Object o)
-    {
-        if(!disposingAllWindows)   // don't bother if we are clearing up just now
-            openWindows.remove(o);
-    }
-
     /**
      * Redirect System.err to an invisible sink.
+     *
+     * Must be static because it is used by RemoteSecurityManager without a execServer reference
      */
-    static void supressErrorOutput()
+    /*package*/ static void supressOutput()
     {
         throwawayErr = new ByteArrayOutputStream();
         System.setErr(new PrintStream(throwawayErr));
     }
 
     /**
-     * Restore the standard System.err
+     * Restore the standard System.err.
+     *
+     * Must be static because it is used by RemoteSecurityManager without a execServer reference
      */
-    static void restoreErrorOutput()
+    /*package*/ static void restoreOutput()
     {
         System.setErr(systemErr);
     }
 
     /**
-     * Dispose of all the top level windows we think are open
+     * Dispose of all the top level windows we think are open.
+     *
+     * Must be static because it is used by RemoteSecurityManager without a execServer reference
      */
-    static void disposeWindows()
+    /*package*/ static void disposeWindows()
     {
         synchronized(openWindows) {
             disposingAllWindows = true;
@@ -464,22 +468,5 @@ public class ExecServer
             openWindows.clear();
             disposingAllWindows = false;
         }
-    }
-
-    /**
-     *  Update the remote VM with the list of user/system libraries
-     *  which the user has created using the ClassMgr.
-     */
-    private void setLibraries(String libraries)
-    {
-        classmgr.setLibraries(libraries);
-    }
-
-    /**
-     *  Set the current working directory for this virtual machine.
-     */
-    private void setDirectory(String dir)
-    {
-        System.setProperty("user.dir", dir);
     }
 }
