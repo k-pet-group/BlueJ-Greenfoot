@@ -16,7 +16,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2841 2004-08-05 15:11:53Z mik $
+ * @version $Id: Main.java 3097 2004-11-16 02:09:14Z davmac $
  */
 public class Main
 {
@@ -74,23 +74,23 @@ public class Main
      * specified on the command line when starting BlueJ.
      * Any parameters starting with '-' are ignored for now.
      */
-    private  void processArgs(String[] args)
+    private void processArgs(String[] args)
     {
         boolean oneOpened = false;
-        if(args.length > 0) {
-            for(int i = 0; i < args.length; i++) {
-                if (!args[i].startsWith ("-")) {
+        
+        // Open any projects specified on the command line
+        if (args.length > 0) {
+            for (int i = 0; i < args.length; i++) {
+                if (!args[i].startsWith("-")) {
                     Project openProj;
-                    if((openProj = Project.openProject(args[i])) != null) {
+                    if ((openProj = Project.openProject(args[i])) != null) {
                         oneOpened = true;
 
-                        Package pkg = openProj.getPackage(
-                                        openProj.getInitialPackageName());
+                        Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
                         PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
 
-                        pmf.setLocation(i*30 + FIRST_X_LOCATION,
-                                         i*30 + FIRST_Y_LOCATION);
+                        pmf.setLocation(i * 30 + FIRST_X_LOCATION, i * 30 + FIRST_Y_LOCATION);
                         pmf.show();
                     }
                 }
@@ -98,44 +98,38 @@ public class Main
         }
 
         // if we have orphaned packages, these are re-opened
-        if(args.length == 0 || !oneOpened) {
+        if (!oneOpened) {
             // check for orphans...
             boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
-            if(openOrphans && PkgMgrFrame.hadOrphanPackages()) {
+            if (openOrphans && PkgMgrFrame.hadOrphanPackages()) {
                 String exists = "";
                 // iterate through unknown number of orphans
-                for(int i = 1; exists != null; i++) {
+                for (int i = 1; exists != null; i++) {
                     exists = Config.getPropString(Config.BLUEJ_OPENPACKAGE + i, null);
-                    if(exists != null){
+                    if (exists != null) {
                         Project openProj;
                         // checking all is well (project exists)
-                        if((openProj = Project.openProject(exists)) != null) {
+                        if ((openProj = Project.openProject(exists)) != null) {
                             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
                             PkgMgrFrame.createFrame(pkg);
                             oneOpened = true;
                         }
-                
-                    }
-                    // this should only happen if there was one old project to auto-open
-                    // and it cannot be found
-                    else if (!oneOpened) {
-                        openEmptyFrame();
                     }
                 }
             }
-        
-            else {
-                // no arguments, so start an empty package manager window
-                openEmptyFrame();
-            }
         }
-        
+
+        // Make sure at least one frame exists
+        if (!oneOpened) {
+            openEmptyFrame();
+        }
+
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
     }
     
     /**
      * Open a single empty bluej window.
-     *
+     *  
      */
     private void openEmptyFrame()
     {

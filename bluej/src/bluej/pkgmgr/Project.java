@@ -24,7 +24,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3043 2004-10-12 00:10:37Z davmac $
+ * @version $Id: Project.java 3097 2004-11-16 02:09:14Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -101,7 +101,7 @@ public class Project
 
             startingPackageName = "";
 
-            while(curDir != null && Package.isBlueJPackage(curDir)) {
+            while(curDir != null && Package.isBlueJPackage(curDir) && JavaNames.isIdentifier(curDir.getName())) {
                 if(lastDir != null)
                     startingPackageName = "." + lastDir.getName() +
                                           startingPackageName;
@@ -439,6 +439,10 @@ public class Project
             }
             catch (IOException exc) {
                 // the package did not exist in this project
+                pkg = null;
+            }
+            catch(IllegalArgumentException iae) {
+                iae.printStackTrace();
                 pkg = null;
             }
 
