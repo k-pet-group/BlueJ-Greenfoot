@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2725 2004-07-02 20:33:26Z mik $
+ * @version $Id: ObjectBench.java 2726 2004-07-02 20:58:09Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -23,6 +23,7 @@ public class ObjectBench extends JPanel
     private static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3);
     private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
 
+    private JScrollPane scroll;
     private ObjectBenchPanel obp;
     private List objectWrappers;
     private ObjectWrapper selectedObjectWrapper;
@@ -169,7 +170,6 @@ public class ObjectBench extends JPanel
         
         if (selectedObjectWrapper != null) {
             selectedObjectWrapper.setSelected(true);
-//            obp.scrollRectToVisible(new Rectangle(0, 0, 10, 10));
             currentObjectWrapperIndex = objectWrappers.indexOf(aWrapper);
             selectedObjectWrapper.requestFocusInWindow();
         }
@@ -223,7 +223,7 @@ public class ObjectBench extends JPanel
      */
     public void focusGained(FocusEvent e) 
     {
-        obp.setBorder(Config.focusBorder);
+        scroll.setBorder(Config.focusBorder);
         repaint();
     }
 
@@ -233,7 +233,7 @@ public class ObjectBench extends JPanel
      */
     public void focusLost(FocusEvent e) 
     {
-        obp.setBorder(Config.normalBorder);
+        scroll.setBorder(Config.normalBorder);
         repaint();
     }
 
@@ -435,13 +435,12 @@ public class ObjectBench extends JPanel
         // a panel holding the actual object components
         obp = new ObjectBenchPanel();
         obp.setBackground(BACKGROUND_COLOR);
-        obp.setBorder(Config.normalBorder);
         
-        JScrollPane scroll = new JScrollPane(obp);
-        scroll.setBorder(null);
+        scroll = new JScrollPane(obp);
+        scroll.setBorder(Config.normalBorder);
         Dimension sz = obp.getMinimumSize();
         Insets in = scroll.getInsets();
-        sz.setSize(sz.getWidth()+in.left+in.right, sz.getHeight()+in.top+in.bottom+4);
+        sz.setSize(sz.getWidth()+in.left+in.right, sz.getHeight()+in.top+in.bottom);
         scroll.setMinimumSize(sz);
         scroll.setPreferredSize(sz);
         scroll.getVerticalScrollBar().setUnitIncrement(20);

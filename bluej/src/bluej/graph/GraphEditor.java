@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.util.Iterator;
 
 import javax.swing.JComponent;
-import javax.swing.border.*;
 
 import bluej.Config;
 
@@ -14,10 +13,10 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2723 2004-07-02 15:22:53Z mik $
+ * @version $Id: GraphEditor.java 2726 2004-07-02 20:58:09Z mik $
  */
 public class GraphEditor extends JComponent
-    implements MouseListener, MouseMotionListener, KeyListener, FocusListener
+    implements MouseListener, MouseMotionListener, KeyListener
 {
     protected static final Color background = Config.getItemColour("colour.graph.background");
     
@@ -43,7 +42,6 @@ public class GraphEditor extends JComponent
         activeGraphElement = null;
         graphElementManager = new GraphElementManager(this);
         addMouseMotionListener(this);
-        addFocusListener(this);
         marquee = new Marquee(graph, this);
     }
 
@@ -413,24 +411,4 @@ public class GraphEditor extends JComponent
     {
         return graph;
     }
-
-	/**
-     * The graph editor received keyboard focus.
-	 */
-	public void focusGained(FocusEvent e) 
-    {
-        setBorder(Config.focusBorder);
-		repaint();
-	}
-
-    /**
-     * The graph editor lost keyboard focus.
-	 */
-	public void focusLost(FocusEvent e) 
-    {
-		if(!e.isTemporary()) {
-            setBorder(Config.normalBorder);
-		}
-		repaint();
-	}
 }

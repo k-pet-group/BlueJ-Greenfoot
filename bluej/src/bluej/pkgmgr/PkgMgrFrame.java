@@ -46,10 +46,10 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2723 2004-07-02 15:22:53Z mik $
+ * @version $Id: PkgMgrFrame.java 2726 2004-07-02 20:58:09Z mik $
  */
 public class PkgMgrFrame extends JFrame
-    implements BlueJEventListener, MouseListener, PackageEditorListener
+    implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
 {
     public Font PkgMgrFont = PrefMgr.getStandardFont();
 
@@ -477,6 +477,7 @@ public class PkgMgrFrame extends JFrame
         editor.addMouseListener(this);        // This listener MUST be before
         editor.addMouseListener(editor);      //  the editor itself!
         editor.addKeyListener(editor);
+        editor.addFocusListener(this);
         this.pkg.editor = this.editor;
 
         classScroller.setViewportView(editor);
@@ -562,6 +563,7 @@ public class PkgMgrFrame extends JFrame
         editor.removePackageEditorListener(this);
         editor.removeMouseListener(this);
         editor.removeKeyListener(editor);
+        editor.removeFocusListener(this);
 
         getObjectBench().removeAllObjects(getProject().getUniqueId());
 
@@ -687,6 +689,26 @@ public class PkgMgrFrame extends JFrame
     public void mouseClicked(MouseEvent evt) {}
     public void mouseEntered(MouseEvent evt) {}
     public void mouseExited(MouseEvent evt) {}
+
+    // =============== FocusListener interface ==================
+
+    /**
+     * The graph editor received keyboard focus.
+     */
+    public void focusGained(FocusEvent e) 
+    {
+        classScroller.setBorder(Config.focusBorder);
+    }
+
+    /**
+     * The graph editor lost keyboard focus.
+     */
+    public void focusLost(FocusEvent e) 
+    {
+        if(!e.isTemporary()) {
+            classScroller.setBorder(Config.normalBorder);
+        }
+    }
 
     // =============== PackageEditorListener interface ==================
 
@@ -2122,11 +2144,11 @@ public class PkgMgrFrame extends JFrame
         mainPanel.add(toolPanel, BorderLayout.WEST);
 
         classScroller = new JScrollPane();
-        classScroller.setBorder(null);
+        classScroller.setBorder(Config.normalBorder);
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         classScroller.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         mainPanel.add(classScroller, BorderLayout.CENTER);
-
+        
 
         // create the object bench
         

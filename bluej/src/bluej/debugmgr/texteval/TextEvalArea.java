@@ -1,6 +1,5 @@
 package bluej.debugmgr.texteval;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.event.*;
@@ -11,8 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 import javax.swing.text.*;
 
 import bluej.BlueJEvent;
@@ -36,7 +33,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2723 2004-07-02 15:22:53Z mik $
+ * @version $Id: TextEvalArea.java 2726 2004-07-02 20:58:09Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener
