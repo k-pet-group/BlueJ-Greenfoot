@@ -235,7 +235,7 @@ public class BlueJRuntime
 		BlueJClassLoader loader = getLoader(loaderId);
 		if(loader != null)
 		    cl = loader.loadClass(classname);
-		Field[] f = cl.getFields();	// to force loading of class
+		//Field[] f = cl.getFields();	// to force loading of class
 						// into remote machine
 	    }
 
