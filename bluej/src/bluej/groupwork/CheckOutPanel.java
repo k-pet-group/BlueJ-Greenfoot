@@ -26,7 +26,7 @@ import com.ice.jcvsii.*;
 /**
  * Check out panel for BlueJ group support.
  *
- * @version $Id: CheckOutPanel.java 904 2001-05-23 05:31:35Z ajp $
+ * @version $Id: CheckOutPanel.java 958 2001-06-21 03:45:54Z ajp $
  * @author  Markus Ostman, modifications to jCVS CheckOutPanel.java
  */
 public class CheckOutPanel extends JPanel
@@ -504,7 +504,7 @@ public class CheckOutPanel extends JPanel
 
 
 
-        this.localDirChooser = FileUtility.getFileChooser(true);
+        this.localDirChooser = FileUtility.getFileChooser();
         this.localDirChooser.setDialogTitle("Choose local directory");
         this.localDirChooser.setApproveButtonToolTipText("Choose selected directory");
         this.localDirChooser.addActionListener(this);
@@ -567,11 +567,10 @@ public class CheckOutPanel extends JPanel
             //Why isn't equals() used below? see PkgMgrFrame.doOpen()
             //where it comes from.
             //---------------------------------------------------------
-            if(parentFrame.getPackage().getDirName() == bluej.Config.getString("pkgmgr.noTitle") ||
-               parentFrame.getPackage().getDirName() == null){
+            if(parentFrame.isEmptyFrame()){
                 parentFrame.doOpenPackage(rootDirFile.getPath(), passwd);
                 //after checkout, the project is up-to-date
-                parentFrame.setStatusR(bluej.Config.getString
+                parentFrame.setStatus(bluej.Config.getString
                                        ("groupwork.notChanged"));
             }
             else {
@@ -585,9 +584,9 @@ public class CheckOutPanel extends JPanel
                     pkg.initializeGroupInfo(pkg.getDirName(), parentFrame,
                                             passwd);
                 }
-                newFrame.enableFunctions(true);
+                //newFrame.enableFunctions(true);
                 //after checkout, the project is up-to-date
-                newFrame.setStatusR(bluej.Config.getString
+                newFrame.setStatus(bluej.Config.getString
                                        ("groupwork.notChanged"));
             }
             //------------------------------------------------------

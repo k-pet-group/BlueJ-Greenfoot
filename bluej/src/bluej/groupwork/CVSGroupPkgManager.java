@@ -24,20 +24,20 @@ import com.ice.pref.UserPrefs;
 import com.ice.util.AWTUtilities;
 
 /**
-** This Class implements the Interface GroupPkgManager using jCVS 
+** This Class implements the Interface GroupPkgManager using jCVS
 **
 ** @author Markus Ostman, but some of the code structures in here
 ** are based on jCVS sourcecode (Tim Endres), modified to fit Bluej purposes.
 **
 **/
-public final class jCVSGroupPkgManager     
+public class CVSGroupPkgManager
     implements GroupPkgManager
 {
     // public static variables
     //./temp the manager object itself. This is not used
     //but maybe we should just work with a static manager
-    //public static jCVSGroupPkgManager groupPkgMgr=new jCVSGroupPkgManager(); 
-    
+    //public static CVSGroupPkgManager groupPkgMgr=new CVSGroupPkgManager();
+
     // private variables
     private CVSProject project;
     private InfoDialog info;
@@ -45,7 +45,7 @@ public final class jCVSGroupPkgManager
     //Global collection of conflicting files
     //this might be useful for other files as well
     //This information should probably be stored in the group info
-    //since there might be more than one project but there should 
+    //since there might be more than one project but there should
     //maybe just be one manager object?
     private Collection conflictFiles;
     private Collection addedClasses;
@@ -61,9 +61,8 @@ public final class jCVSGroupPkgManager
 
     // =========================== PUBLIC METHODS ===========================
     //./temp: Is this something we need?
-    public jCVSGroupPkgManager()
-    {	
-        this.loadPrefs();
+    public CVSGroupPkgManager()
+    {
         //In case we start using these Collections in several threads
         //we need to synchronize them.
         this.conflictFiles = Collections.synchronizedList(new ArrayList());
@@ -95,9 +94,9 @@ public final class jCVSGroupPkgManager
     }
 
     /**
-     * Checkout a local copy of a Group package from the Master source 
+     * Checkout a local copy of a Group package from the Master source
      * The method is inherited from GroupPkgManager
-     * @param 
+     * @param
      * @param frame  The current Bluej frame
      * @returns void
      */
@@ -113,15 +112,15 @@ public final class jCVSGroupPkgManager
      *
      * Depending on settings in group.defs this method behaves differently.
      * With pkg info:
-     * The local package temporarily changes into a group package, 
-     * gets imported to the repository and then gets overwritten by a 
+     * The local package temporarily changes into a group package,
+     * gets imported to the repository and then gets overwritten by a
      * checked out version of the new group package.
      * Without pkg info:
      * The Java source files are imported to the Repository.
-     *  
-     * 
+     *
+     *
      * The method is inherited from GroupPkgManager
-     * @param 
+     * @param
      * @param frame  The current Bluej frame
      * @returns  void
      */
@@ -131,20 +130,20 @@ public final class jCVSGroupPkgManager
         GroupWorkDialog dialog=new GroupWorkDialog(frame);
         Importer importer=new Importer(frame);
         Package pkg = frame.getPackage();
-        
-        //Depending on the settings in group.defs the import is 
+
+        //Depending on the settings in group.defs the import is
         //performed differently.
-        if (props.getProperty("group.usesPkgInfo", "false").equals("true")){
+        if (Config.getPropString("group.usesPkgInfo", "false").equals("true")) {
 	    //Before import we must turn this package into a group package
             pkg.turnIntoGroupPackage(true);
-            
+
             //And Save the change, note that we are saving using dirName
             //by default, can be relative.
             if(pkg.save()){
                 //./temp What if the import doesn't work?
                 importer.performImport();
-                
-                //If the import was canceled, we restore the project 
+
+                //If the import was canceled, we restore the project
                 //and abort the rest.
                 if(importer.getCancel()){
                     pkg.turnIntoGroupPackage(false);
@@ -153,22 +152,22 @@ public final class jCVSGroupPkgManager
                     frame.repaint();
                     return;
                 }
-                
+
                 //Need to get some information from the Package
                 //before we remove it from the Frame
                 String baseDir = frame.getPackage().getBaseDir();
-                
+
                 //Define the module in the repository
                 if(defineModule(importer.getPassword(),
                                 importer.getUserName(),
-                                importer.getModule(), baseDir, 
+                                importer.getModule(), baseDir,
                                 importer.getGroupName(), frame)){
-                    
+
                     //close the package
                     //Must be careful with the order in which this is
                     //done so that nothing important gets overwritten
                     frame.removePackage();
-                    
+
                     //Checkout the newly created project
                     dialog.getCheckOutPanel().doCheckOut
                         (importer.getPassword(),
@@ -182,7 +181,7 @@ public final class jCVSGroupPkgManager
                     pkg.save();
                     frame.clearStatus();
                     frame.repaint();
-                    return; 
+                    return;
                 }
             }
             else
@@ -194,7 +193,7 @@ public final class jCVSGroupPkgManager
                 importer.performImport();
                 DialogManager.showText(frame,
                                        "Performing Import");
-                
+
                 //Need to get some information from the Package
                 //before we remove it from the Frame
                 String baseDir = frame.getPackage().getBaseDir();
@@ -207,10 +206,10 @@ public final class jCVSGroupPkgManager
 
                 //Checkout the newly created project
                 //Checkout to directory where project is located.
-                //Imported files will be overwritten. 
+                //Imported files will be overwritten.
                 dialog.getCheckOutPanel().doCheckOut(importer.getPassword(),
                                                      importer.getUserName(),
-                                                     module, 
+                                                     module,
                                                      importer.getGroupName(),
                                                      baseDir, frame,
                                                      true);
@@ -221,12 +220,12 @@ public final class jCVSGroupPkgManager
     }//End importPackage
 
     /**
-     * Performs an update from the repository 
-     * 
-     * The method stores the project password and local directory 
+     * Performs an update from the repository
+     *
+     * The method stores the project password and local directory
      * temporarily and then closes the current package.
-     * The update is performed and the updated package is opened. 
-     * @param frame  The current Frame   
+     * The update is performed and the updated package is opened.
+     * @param frame  The current Frame
      * @param implicit   was this an implicit call or not
      *
      * @returns True if successful, false if not
@@ -242,9 +241,8 @@ public final class jCVSGroupPkgManager
 	this.project=frame.getPackage().getGroupInfo().getProject();
 	String passw=this.project.getPassword();
         frame.getPackage().save();
-	String pkgDir=frame.getPackage().getDirName();
+	String pkgDir=frame.getPackage().getPath();
         SortedProperties propsLocal = loadPkgFile(pkgDir);
-        Debug.message("jCVSGrpPkgMgr,140:" + pkgDir);
 
         //This only needs to be done if we are using the pkg file.
         //After loading the .pkg file we rename it to avoid conflicts
@@ -254,28 +252,28 @@ public final class jCVSGroupPkgManager
             if(pkgFile.renameTo(new File(pkgDir+File.separator+"backup")))
                 Debug.message("renaming pkg file before update");
         }catch(SecurityException se){
-            Debug.reportError("Error renaming pkg file" + 
+            Debug.reportError("Error renaming pkg file" +
                               ": " + se);
         }
-        
+
         //Was this the thing that caused the bug when everything "froze"
         //this should probably be done still, somewhere.
         //if(!implicit)
         //  frame.removePackage();
 	if(this.performCommand(frame, UPDATE, null, false)){
-            if(props.getProperty("group.usesPkgInfo","false").equals("true")){
+            if(Config.getPropString("group.usesPkgInfo","false").equals("true")){
 
                 GroupJobQueue.getJobQueue().addJob("update pkgfile",
                                                    this.new UpdatePkgRunner
                                                    (pkgDir, passw, frame,
-                                                    propsLocal), 
+                                                    propsLocal),
                                                    this.new JobMonitor());
             }
             else{
-                GroupJobQueue.getJobQueue().addJob("update pkgfile", 
+                GroupJobQueue.getJobQueue().addJob("update pkgfile",
                                                    this.new UpdatePkgRunner
                                                    (pkgDir, passw, frame,
-                                                    propsLocal), 
+                                                    propsLocal),
                                                    this.new JobMonitor());
             }
             return true;
@@ -288,7 +286,7 @@ public final class jCVSGroupPkgManager
                                              "bluej.pkg")))
                     Debug.message("renaming pkg file before update");
             }catch(SecurityException se){
-                Debug.reportError("Error deleting pkg file" + 
+                Debug.reportError("Error deleting pkg file" +
                                   ": " + se);
             }
 	    return false;
@@ -296,9 +294,9 @@ public final class jCVSGroupPkgManager
     }//End updatePkg
 
     /**
-     * Performs a commit to the repository 
-     *  
-     * @param frame  The current Frame   
+     * Performs a commit to the repository
+     *
+     * @param frame  The current Frame
      *
      * @returns True if successful, false if not
      */
@@ -325,23 +323,23 @@ public final class jCVSGroupPkgManager
     }
 
     /**
-     * Adds a Class to the package. 
+     * Adds a Class to the package.
      *
      * This is only a local change so in order to change the Repository
      * a commit must be performed.
      * If the user is working "offline" the actual CVS add will be performed
      * later.
      * The method is inherited from GroupPkgManager
-     * 
-     * @param frame  The current Frame   
-     * @param classFilePath  The file path of the added class 
+     *
+     * @param frame  The current Frame
+     * @param classFilePath  The file path of the added class
      * @returns True if successful, false if not
      */
     public boolean addClass(PkgMgrFrame frame, String classFilePath)
     {
         //Get the CVS Project of the package
 	this.project=frame.getPackage().getGroupInfo().getProject();
-        
+
         //here we should check if onLine,
         //instead we check if logged in or not
         if(this.project.getPassword() == null){
@@ -352,15 +350,15 @@ public final class jCVSGroupPkgManager
                                  (classFilePath,
                                   frame.getPackage().getDirName(),
                                   this.project.getRepository()));
-            frame.setStatusR(Config.getString("groupwork.changed"));
+            frame.setStatus(Config.getString("groupwork.changed"));
             return true;
         }
-        
+
 	//Create the new entry. It is crucial that all the paths
-        //are set correctly 
+        //are set correctly
         CVSEntryVector entries = new CVSEntryVector();
-	entries.appendEntry(createAddEntry(classFilePath, 
-                                           frame.getPackage().getDirName(),
+	entries.appendEntry(createAddEntry(classFilePath,
+                                           frame.getPackage().getPath(),
                                            this.project.getRepository()));
 
 	//Perform the command
@@ -374,21 +372,21 @@ public final class jCVSGroupPkgManager
     }
 
     /**
-     * Removes a Class from the package. 
+     * Removes a Class from the package.
      *
      * This is only a local change so in order to change the Repository
      * a commit must be performed.
      * The method is inherited from GroupPkgManager
-     * 
-     * @param frame  The current Frame   
-     * @param classFilePath  The file path of the removed class 
+     *
+     * @param frame  The current Frame
+     * @param classFilePath  The file path of the removed class
      * @returns True if successful, false if not
      */
     public boolean removeClass(PkgMgrFrame frame, String classFilePath)
     {
         //Get the group info from the package
         CVSGroupInfo groupInfo = (CVSGroupInfo)
-            frame.getPackage().getGroupInfo();           
+            frame.getPackage().getGroupInfo();
 	this.project=groupInfo.getProject();
 
         //Find the entry to remove
@@ -404,18 +402,18 @@ public final class jCVSGroupPkgManager
             groupInfo.offLineRemove(entry);
             return false;
         }
-        
+
         //here we should check if onLine,
         //instead we check if logged in or not
         if(this.project.getPassword() == null){
             Debug.message("grpPkgmgr,350 removing offline");
             groupInfo.offLineRemove(entry);
-            frame.setStatusR(Config.getString("groupwork.changed"));
+            frame.setStatus(Config.getString("groupwork.changed"));
             return true;
         }
 
 	//Create the new entry. It is crucial that all the paths
-        //are set correctly 
+        //are set correctly
         CVSEntryVector entries = new CVSEntryVector();
 	entries.appendEntry(entry);
 
@@ -431,8 +429,8 @@ public final class jCVSGroupPkgManager
 
     /**
      * Checks the status of the files in the Package
-     *  
-     * @param frame  The current Frame   
+     *
+     * @param frame  The current Frame
      * @param
      * @returns True if successful, false if not
      */
@@ -452,8 +450,8 @@ public final class jCVSGroupPkgManager
 
     /**
      * Displays the log messages for the files in the Package
-     *  
-     * @param frame  The current Frame   
+     *
+     * @param frame  The current Frame
      * @param
      * @returns True if successful, false if not
      */
@@ -470,10 +468,10 @@ public final class jCVSGroupPkgManager
 
     /**
      * Removes the local working directory in a safe way,
-     * i.e. makes sure that there are no changes etc. that have not 
+     * i.e. makes sure that there are no changes etc. that have not
      * been committed. This method is not working at the moment
-     *  
-     * @param frame        The current Frame   
+     *
+     * @param frame        The current Frame
      * @param releaseFile  The file that we want to release
      *                     (project directory)
      *
@@ -484,11 +482,11 @@ public final class jCVSGroupPkgManager
         //we need something here this.project = ?;
        //  CVSEntryVector entries = new CVSEntryVector();
 //         CVSEntry entry = new CVSEntry();
-        
+
         //Get all entries in the project that we want to release
 	// this.project.getRootEntry().addAllSubTreeEntries
 // 	    ( entries = new CVSEntryVector() );
-        
+
         if(this.performCommand(frame, RELEASE, null, false)){
 	    return true;
 	}
@@ -502,14 +500,14 @@ public final class jCVSGroupPkgManager
      * Perform group command
      *
      * Performs the various group commands by building a CVS request
-     * from the given command. The active project in the given Frame then 
+     * from the given command. The active project in the given Frame then
      * performs the request.
-     * The method is inherited from GroupPkgManager 
+     * The method is inherited from GroupPkgManager
      *
      * @param frame      The current Frame
-     * @param command    The command  
+     * @param command    The command
      * @param entries    The entries to act upon
-     * @param implicit   Is this an implicit call to the method  
+     * @param implicit   Is this an implicit call to the method
      * @returns True if ok
      */
     public boolean performCommand(PkgMgrFrame frame, int command,
@@ -521,7 +519,7 @@ public final class jCVSGroupPkgManager
 	String fdbkStr;
 	boolean allok = true;
 	ResourceMgr rmgr = ResourceMgr.getInstance();
-	CVSRequest request = new CVSRequest();	
+	CVSRequest request = new CVSRequest();
 
 	if(frame.getPackage().getGroupInfo() != null
            && command != CHECKOUT){
@@ -531,8 +529,8 @@ public final class jCVSGroupPkgManager
             }
 	    this.project=frame.getPackage().getGroupInfo().getProject();
         }
-	
-	//./temp This is just to see what is happening 
+
+	//./temp This is just to see what is happening
 	Debug.message("GrpPkgMgr, line213: "+project.getRootEntry());
 	Debug.message("GrpPkgMgr, line214: "+project.getRepository());
 	Debug.message("GrpPkgMgr, line215: "+project.getLocalRootPath());
@@ -543,7 +541,7 @@ public final class jCVSGroupPkgManager
 
 	request.setArguments( new CVSArgumentVector() );
 	request.setGlobalArguments( new CVSArgumentVector() );
-	
+
 	request.traceRequest = this.traceReq;
 	request.traceResponse = this.traceResp;
 	request.traceProcessing = this.traceProc;
@@ -556,9 +554,9 @@ public final class jCVSGroupPkgManager
         //Note! the spelling error in is not mine
         if(implicit)
             request.displayReponse = false;
-        
+
 	if ( arguments != null ){
-            //./temp this is very weird, probably we will not have to worry 
+            //./temp this is very weird, probably we will not have to worry
             //about arguments, but if add or Log we can't have -R
             if ( "add".equals(request.getCommand()) ||
                  "log".equals(request.getCommand()) ||
@@ -578,8 +576,8 @@ public final class jCVSGroupPkgManager
 	    //./temp Here should probably some default arguments be set
             //request.parseArgumentString( argStr );
 	}
-	
-	
+
+
 	if ( ! allok )
 	    {
 		String[] fmtArgs =
@@ -591,40 +589,40 @@ public final class jCVSGroupPkgManager
 		JOptionPane.showMessageDialog
 		    ( frame, msg, title, JOptionPane.ERROR_MESSAGE );
 	    }
-	
+
 	int portNum =
 	    CVSUtilities.computePortNum
 	    ( project.getClient().getHostName(),
 	      project.getConnectionMethod(),
 	      project.isPServer() );
-	
+
 	// Establish the request's response handler if it is
 	// not to be queued.
 	if ( ! request.queueResponse ){
 	    request.responseHandler = project;
 	}
-	
+
 	request.setPort( portNum );
-	
+
 	if ( request.redirectOutput ){
 	    fdbkStr = rmgr.getUIString( "project.fdbk.canceled" );
 	    Debug.message("jCVSGrpPkgMgr,line266: "+cvsCommand);
 	    return true;
 	}
-        
+
 	// Handle Entries selection
 	// If entries is not null, use what was passed in.
 	// Otherwise, fill entries according to the spec...
 	if ( entries == null ){
-	    if ( request.getEntrySelector() == CVSRequest.ES_NONE 
+	    if ( request.getEntrySelector() == CVSRequest.ES_NONE
                  || command == CHECKOUT){
 		entries = new CVSEntryVector();
 	    }
 	    else{
-		//Here we select the entries 
+		//Here we select the entries
 		entries = this.getProjectEntries(request.getEntrySelector());
-		
-		// Special case for 'Get User File' and 
+
+		// Special case for 'Get User File' and
 		//'Get New Files' canceling...
 		int selector = request.getEntrySelector();
 		if ( ( selector == CVSRequest.ES_USER
@@ -634,8 +632,8 @@ public final class jCVSGroupPkgManager
 		    Debug.message("jCVSGrpPkgMgr,line139: "+cvsCommand);
 		    return true; // REVIEW - should this be false?
 		}
-		
-		if ( request.execInCurDir 
+
+		if ( request.execInCurDir
 		     && request.getEntrySelector()
 		     == CVSRequest.ES_POPUP ){
 		    CVSEntry dirEnt = entries.entryAt(0);
@@ -648,7 +646,7 @@ public final class jCVSGroupPkgManager
 		}
 	    }
 	}
-	
+
 	if ( entries == null ){
 	    String[] fmtArgs = { request.getCommand() };
 	    String msg = ResourceMgr.getInstance().getUIFormat
@@ -659,7 +657,7 @@ public final class jCVSGroupPkgManager
 		( frame, msg, title, JOptionPane.ERROR_MESSAGE );
 	    return true;
 	}
-	
+
 	// Handle guarantee of a message argument...
 	if ( allok ){
 	    if ( request.guaranteeMsg ){
@@ -668,14 +666,14 @@ public final class jCVSGroupPkgManager
 		    String[] fmtArgs = { request.getCommand() };
 		    String prompt = ResourceMgr.getInstance().getUIFormat
 			( "project.message.required.prompt", fmtArgs );
-		    
+
                     String msgStr=" ";
                     if(!implicit){
                         msgStr=this.requestLogMsg(frame);
                         //DialogManager.askString(frame, "ask-logmsg");
-                    
+
                     }
-		    
+
 		    if ( msgStr != null ){
 			args.addElement( "-m" );
 			args.addElement( msgStr );
@@ -686,20 +684,20 @@ public final class jCVSGroupPkgManager
 		}
 	    }
 	}
-	
+
 	//  UNDONE - it would be nice to "verifyRequest" here,
 	//           but it is not _fully_ built (hostname, et.al.).
-	
+
 	if ( allok ){
 	    request.setEntries( entries );
 	    request.setUserInterface(info);
-	    
+
 	    CVSResponse response = new CVSResponse();
-	    
+
             //Add the CVS request to the job Queue. This ensures that
             //all requests are performed one after the other.
             GroupJobQueue.getJobQueue().addJob(request.getCommand(),
-                                             this.new MyRunner(request, 
+                                             this.new MyRunner(request,
                                                                response),
                                              this.new MyMonitor(request,
                                                                 response,
@@ -709,10 +707,10 @@ public final class jCVSGroupPkgManager
         }
 	else{
 	    //this.resetCursor();
-            frame.clearStatus(); 
+            frame.clearStatus();
 	    Debug.message("GroupPkgMgr,line459: not allok");
 	}
-	
+
 	//displayFinalResult(frame);
 
 	return allok;
@@ -725,18 +723,18 @@ public final class jCVSGroupPkgManager
     {
 	private CVSRequest request;
 	private CVSResponse response;
-	
+
 	public
 	    MyRunner( CVSRequest req, CVSResponse resp )
 	{
 	    this.request = req;
 	    this.response = resp;
 	}
-	
+
 	public void run()
 	{
 	    boolean fail = false;
-	    
+
 	    if ( "add".equals( this.request.getCommand() ) )
 		{
 		    CVSEntry entry = this.request.getEntries().entryAt( 0 );
@@ -745,14 +743,14 @@ public final class jCVSGroupPkgManager
 			project.ensureRepositoryPath
 			(info,
 			 entry.getFullName(), this.response );
-		    
+
 		    if ( addResponse.getStatus() != CVSResponse.OK )
 			{
 			    fail = true;
 			    String fdbkStr =
 				ResourceMgr.getInstance().getUIString
 				( "project.fdbk.errcreate" );
-			    
+
 			    Debug.message("GRpPkgMgr, line324: "+ fdbkStr );
 			    this.response.appendStderr
 				( "An error occurred while creating '"
@@ -763,7 +761,7 @@ public final class jCVSGroupPkgManager
 			    CVSEntry dirEntry =
 				project.getDirEntryForLocalDir
 				( entry.getLocalDirectory() );
-			    
+
 			    if ( dirEntry == null )
 				{
 				    CVSLog.logMsg
@@ -773,12 +771,12 @@ public final class jCVSGroupPkgManager
 					  + entry.getLocalDirectory() );
 				    (new Throwable( "COULD NOT FIND THE DIRECTORY!" )).
 					printStackTrace();
-				    
+
 				    fail = true;
 				    String fdbkStr =
 					ResourceMgr.getInstance().getUIString
 					( "project.fdbk.errcreate" );
-				    
+
 				    //showFeedback( fdbkStr );
 				    Debug.message("GRpPkgMgr, line351: "+ fdbkStr );
 				    this.response.appendStderr
@@ -793,22 +791,22 @@ public final class jCVSGroupPkgManager
 				    // SPECIAL CASE
 				    // SEE "ADD SPECIAL CASE" BELOW
 				    //
-				    // In this special case, the user has 
-				    //selected a file using the FileDialog. 
+				    // In this special case, the user has
+				    //selected a file using the FileDialog.
 				    //Ergo, we have no context other than its
-				    // local directory. And when we were 
-				    //creating it, we were not even sure if 
+				    // local directory. And when we were
+				    //creating it, we were not even sure if
 				    //its parent directory existed yet!
 				    //
-				    // However, at this point, we have 
-				    //"ensureRepositoryPath()-ed" the entry's 
-				    //full name. This means that the entry's 
-				    //parent directory exists. This is 
+				    // However, at this point, we have
+				    //"ensureRepositoryPath()-ed" the entry's
+				    //full name. This means that the entry's
+				    //parent directory exists. This is
 				    //critical, since that directory entry has
-				    // the one piece of information that we 
-				    //lacked when we created the entry to add 
+				    // the one piece of information that we
+				    //lacked when we created the entry to add
 				    //- the repository string. But now,
-				    // we can get the parent and get the 
+				    // we can get the parent and get the
 				    //repository from it!
 				    //
 				    if ( request.getEntrySelector() == CVSRequest.ES_USER )
@@ -818,14 +816,14 @@ public final class jCVSGroupPkgManager
 				}
 			}
 		}
-	    
+
 	    if ( ! fail ){
                 Debug.message("grpPkgmgr,line650 "+project.getRepository());
 		project.performCVSRequest(this.request, this.response);
 	    }
 	}
     }
-    
+
     private class MyMonitor
 	implements GroupJob.Monitor
     {
@@ -839,16 +837,16 @@ public final class jCVSGroupPkgManager
 	    this.response = resp;
             this.frame = frame;
 	}
-	
+
 	public void threadStarted()
 	{
 	    //	actionButton.setText( "Cancel Export" );
 	}
-	
+
 	public void threadCanceled()
 	{
 	}
-	
+
 	public void threadFinished()
 	{
 	    //	actionButton.setText( "Perform Export" );
@@ -859,9 +857,9 @@ public final class jCVSGroupPkgManager
 		}
 
             handleResponse(this.response, this.request, frame);
-            
+
             if(allok){
-                //If someone is waiting let them know that everthing 
+                //If someone is waiting let them know that everthing
                 //went ok.
                 Sync.s.callNotify(true);
 		System.err.println( "THREAD FINISHED: pretty Nice '" );
@@ -869,7 +867,7 @@ public final class jCVSGroupPkgManager
             }
 	}
     }
-    
+
 
     /**
      * Parses a integer command into a valid CVS command
@@ -884,14 +882,14 @@ public final class jCVSGroupPkgManager
      * reponse   - is a valid cvs reponse handling specification
      * arguments - is the remainder of the string taken as command arguments
      *
-     * @param command  The command   
+     * @param command  The command
      * @returns A CVS command
      */
     private String parseCommand(int command)
-    {	
+    {
 	String cvsCommand=" ";
-	
-	switch(command) 
+
+	switch(command)
 	    {
 	    case UPDATE:
 		cvsCommand="update:A:EAUFP:deou:";
@@ -931,34 +929,34 @@ public final class jCVSGroupPkgManager
      * @returns
      */
     private CVSEntryVector getProjectEntries(int selector)
-    {	
+    {
 	int i;
 	File entryFile;
 	String localPath;
 	CVSEntry entry = null;
 	CVSEntryVector entries = new CVSEntryVector();
 
-	
-	this.project.getRootEntry().addAllSubTreeEntries(entries); 
+
+	this.project.getRootEntry().addAllSubTreeEntries(entries);
 
         //If the command is update we take the top level directory
-        //as the only entry. 
+        //as the only entry.
         //othervise we will not get changes in the form of added files.
         //This is a bit of an akward way of doing it but it works.
         //The selector .ES_ALL means to do the command on "all" and
-        //you chose this selector by setting the selector string in 
-        //parseCommand() to "A". 
-        if (selector == CVSRequest.ES_ALL)	
+        //you chose this selector by setting the selector string in
+        //parseCommand() to "A".
+        if (selector == CVSRequest.ES_ALL)
             entries.appendEntry(this.project.getRootEntry().getEntryList().getEntryAt(0));
-        
-        
-        
+
+
+
 	if ( entries != null ){
 	    for ( i = 0 ; i < entries.size() ; ++i ){
 		entry = entries.entryAt(i);
                 Debug.message("grpPkgMgr, line677"+entry.getName());
 		entryFile = this.project.getEntryFile( entry );
-		
+
                 //This bit of code is not necessary
 		if ( selector == CVSRequest.ES_ALLMOD
 		     || selector == CVSRequest.ES_SELMOD ){
@@ -993,8 +991,8 @@ public final class jCVSGroupPkgManager
      * @param entryName Path to the sourcefile to be added
      * @returns
      */
-    private CVSEntry createAddEntry( String entryName, 
-                                     String localDirectory, 
+    private CVSEntry createAddEntry( String entryName,
+                                     String localDirectory,
                                      String repository )
     {
         //./temp this is just an attempt to fix the string problem
@@ -1006,20 +1004,20 @@ public final class jCVSGroupPkgManager
         Debug.message("GrpPkgMgr,line628 "+repository);
 
 	CVSEntry entry = new CVSEntry();
-	
+
 	entry.setName( fileName );
         //sometimes the slash have to be hard coded, sometimes not!
 	entry.setLocalDirectory( repository+"/"+dirName );
         //entry.setLocalDirectory( dirName );
 	entry.setRepository( repository );
 	entry.setTimestamp( this.project.getEntryFile( entry ) );
-	
+
 	// that is a 'zero' to indicate 'New User File'
 	entry.setVersion( "0" );
-	
+
 	return entry;
     }
-    
+
     /**
      * Returns the entry to be removed
      *
@@ -1037,7 +1035,7 @@ public final class jCVSGroupPkgManager
 
         //Get the name of the file
 	String entryName = entryPath.substring(entryPath.lastIndexOf
-                                               (File.separator)+1); 
+                                               (File.separator)+1);
         Debug.message("GrpPkgMgr,line702: "+entryName);
 
 	if ( entries != null ){
@@ -1057,40 +1055,15 @@ public final class jCVSGroupPkgManager
             return null;
         }
     }
-    
-    /**
-     * Loads the group defaults
-     *
-     * @param
-     * @returns
-     */
-    private void loadPrefs()
-    {
-	String propsFile = Config.sys_confdir+File.separatorChar+"group.defs";
-	Debug.message("GrpPkgMgr "+propsFile);
 
-        if (props == null) {
-            // try to load the Properties for the group stuff
-            try {
-                FileInputStream input = new FileInputStream(propsFile);
-		
-                this.props = new Properties();
-                this.props.load(input);
-            } catch(IOException e) {
-                Debug.reportError("Error loading group properties file" + 
-                                  propsFile + ": " + e);
-            }
-	}
-    }
-    
     /**
-     * Merges the content of two bluej.pkg files 
+     * Merges the content of two bluej.pkg files
      *
      * The method loads the pkg file from the repository and try
      * to merge it with the local one. This method relies completely
-     * on that an update is completed. The layout will be according to 
-     * the repository. Later there should be support for the user to 
-     * choose to keep the local layout. 
+     * on that an update is completed. The layout will be according to
+     * the repository. Later there should be support for the user to
+     * choose to keep the local layout.
      *
      * @param pkgDir The directory where the source resides
      * @param propsLocal The local package information
@@ -1102,7 +1075,7 @@ public final class jCVSGroupPkgManager
     {
         SortedProperties propsRepos = new SortedProperties();
         String fullPkgFile = pkgDir + File.separator + "bluej.pkg";
-        
+
         //Try to load the bluej.pkg file that came from the repository
         propsRepos = loadPkgFile(pkgDir);
 
@@ -1121,11 +1094,11 @@ public final class jCVSGroupPkgManager
 
         //Get the number of targets in repository
         int reposTargets = Integer.parseInt(propsRepos.getProperty("package.numTargets", "0"));
-        
+
         //-------------------------------------------------------------
         //this should be a method
         //Transfer all information about locally added classes
-        //to propsRepos. 
+        //to propsRepos.
         String fileName="";
         String className="";
         String tempKey="";
@@ -1138,12 +1111,12 @@ public final class jCVSGroupPkgManager
 
             //increase the number of Targets
             reposTargets++;
-            
-            //Find the key that corresponds to the class name of the 
+
+            //Find the key that corresponds to the class name of the
             //locally added class, by iterating through all keys
             for(Enumeration e=propsLocal.propertyNames();e.hasMoreElements();) {
                 tempKey = (String)e.nextElement();
-                
+
                 //Find the key that maps onto className but also make sure
                 //that the key is of type targetX.name.
                 if(propsLocal.getProperty(tempKey).equals(className) &&
@@ -1153,7 +1126,7 @@ public final class jCVSGroupPkgManager
                     break; //When we find it break the loop
                 }
             }
-            
+
             //Now we can transfer all the info about targetX
             //We should also do this for Dependencies
             for(Enumeration e=propsLocal.propertyNames();e.hasMoreElements();) {
@@ -1164,19 +1137,19 @@ public final class jCVSGroupPkgManager
                 }
             }
         }
-        
-        //We must clear the addedClasses collection othervise it will be 
-        //checked again and again and... 
+
+        //We must clear the addedClasses collection othervise it will be
+        //checked again and again and...
         try{
             addedClasses.clear();
         }catch(UnsupportedOperationException e){
             Debug.reportError("Error clearing Added Classes: " + e);
         }
-        
+
         //---------------------------------------
         //End handling added files
         //--------------------------------------
-        
+
         //-------------------------------------
         //Method: remove the source (*.java, *.class, *.ctxt)
         //for remotely removed classes.
@@ -1207,15 +1180,15 @@ public final class jCVSGroupPkgManager
             className=fileName.substring(fileName.lastIndexOf(File.separator)+1,
                                          fileName.lastIndexOf('.'));
             Debug.message("grpPkgMgr,1154 "+className);
-            
-            
-            
-            //Find the key that corresponds to the class name of the 
+
+
+
+            //Find the key that corresponds to the class name of the
             //locally removed class, by iterating through all keys
             //in propsRepos
             for(Enumeration e=propsRepos.propertyNames();e.hasMoreElements();) {
                 tempKey = (String)e.nextElement();
-                
+
                 //Find the key that maps onto className but also make sure
                 //that the key is of type targetX.name.
                 if(propsRepos.getProperty(tempKey).equals(className) &&
@@ -1225,16 +1198,16 @@ public final class jCVSGroupPkgManager
                     break; //When we find it break the loop
                 }
             }
-            
+
             //get the X in targetX
             int tNum=Integer.parseInt(targetX.substring(targetX.length()-1));
-            
+
             //Now we can remove all the info about targetX. We do this by
-            //shifting down the information for all targets with target 
+            //shifting down the information for all targets with target
             //number > targetX.
             //We should also do this for Dependencies
             while(tNum<reposTargets){
-            
+
                 for(Enumeration e=propsRepos.propertyNames();e.hasMoreElements();) {
                     tempKey = (String)e.nextElement();
                     if(tempKey.startsWith("target"+tNum)){
@@ -1245,23 +1218,23 @@ public final class jCVSGroupPkgManager
                 }
                 tNum++;
             }
-            
+
             //decrease the number of Targets
             reposTargets--;
         }
-        
-        //We must clear the removedClasses collection othervise it will be 
-        //checked again and again and... 
+
+        //We must clear the removedClasses collection othervise it will be
+        //checked again and again and...
         try{
             removedClasses.clear();
         }catch(UnsupportedOperationException e){
             Debug.reportError("Error clearing removed Classes: " + e);
         }
-        
+
         //---------------------------------------
         //End handling removed files
         //--------------------------------------
-        
+
         //Set the new number of targets
         propsRepos.setProperty("package.numTargets",
                                String.valueOf(reposTargets));
@@ -1271,7 +1244,7 @@ public final class jCVSGroupPkgManager
         if(file.exists()) {			// make backup of original
             file.renameTo(new File(pkgDir + File.separator + "bluej.pkh"));
         }
-        
+
         try {
             FileOutputStream output = new FileOutputStream(file);
             propsRepos.store(output, "BlueJ project file");
@@ -1279,12 +1252,12 @@ public final class jCVSGroupPkgManager
             Debug.reportError("Error saving project file " + file + ": " + e);
         }
     }//End mergePkgFile
-    
+
     /**
      * Updates the local bluej.pkg file
      *
      * The method loads the pkg file from the repository and try
-     * to merge it with the local one. 
+     * to merge it with the local one.
      *
      * @param pkgDir The directory where the source resides
      * @param propsLocal The local package information
@@ -1293,7 +1266,7 @@ public final class jCVSGroupPkgManager
     private SortedProperties updatePkgFile(String pkgDir,
                                           SortedProperties propsLocal)
     {
-        
+
         SortedProperties propsDefault = new SortedProperties();
         String fullPkgFile = pkgDir + File.separator + "bluej.pkg";
 
@@ -1327,7 +1300,7 @@ public final class jCVSGroupPkgManager
                 //Find the key that maps onto target name but also make sure
                 //that the key is of type targetX.name
                 if(propsDefault.getProperty(tempKey).equals(propsLocal.getProperty("target"+(i+1)+".name")) && tempKey.endsWith("name")){
-                    propsDefault.setProperty(tempKey.substring(0,tempKey.indexOf('.')) + ".height", propsLocal.getProperty("target"+(i+1)+".height","50")); 
+                    propsDefault.setProperty(tempKey.substring(0,tempKey.indexOf('.')) + ".height", propsLocal.getProperty("target"+(i+1)+".height","50"));
                     propsDefault.setProperty(tempKey.substring(0,tempKey.indexOf('.')) + ".width", propsLocal.getProperty("target"+(i+1)+".width","80"));
                     propsDefault.setProperty(tempKey.substring(0,tempKey.indexOf('.')) + ".x", propsLocal.getProperty("target"+(i+1)+".x","50"));
                     propsDefault.setProperty(tempKey.substring(0,tempKey.indexOf('.')) + ".y", propsLocal.getProperty("target"+(i+1)+".y","50"));
@@ -1340,7 +1313,7 @@ public final class jCVSGroupPkgManager
         if(file.exists()) {			// make backup of original
             file.renameTo(new File(pkgDir + File.separator + "bluej.pkh"));
         }
-        
+
         try {
             FileOutputStream output = new FileOutputStream(file);
             propsDefault.store(output, "BlueJ project file");
@@ -1351,8 +1324,8 @@ public final class jCVSGroupPkgManager
     }//End updatePkgFile
 
     /**
-     * Defines a module in the repository by editing the 
-     * CVSROOT/modules file. This makes it possible to have 
+     * Defines a module in the repository by editing the
+     * CVSROOT/modules file. This makes it possible to have
      * one local name and one repository name for a project.
      * This is to ensure uniqueness in the repository.
      *
@@ -1376,14 +1349,14 @@ public final class jCVSGroupPkgManager
         String modules = "CVSROOT/modules";
         String modulesI = "CVSROOT"+File.separator+"modules";
         String tmp = localDir+File.separator+"tmp";
-        
+
         dialog.getCheckOutPanel().doCheckOut(passWord, userName, modules,
                                              null, tmp, frame, false);
 
         //Here we wait for the checkout to finish.
         Debug.message("grppkgmgr,1319: before sync "+Thread.currentThread().getName());
         Sync.s.callWait(); //maybe this should be a timed wait?
-        //After the checkout is finished we also need to give the 
+        //After the checkout is finished we also need to give the
         //file system time to catch up, this is a bit strange?
         synchronized(this) {
             try {
@@ -1391,7 +1364,7 @@ public final class jCVSGroupPkgManager
             }catch(InterruptedException e) {}
         }
         Debug.message("grppkgmgr,line1318: after wait()");
-        
+
         //was the import & checkout successful?
         if(Sync.s.getOk()){
             Debug.message("Checkout is completed (import command)");
@@ -1414,7 +1387,7 @@ public final class jCVSGroupPkgManager
             String scrambled = CVSScramble.scramblePassword( passWord, 'A' );
             frame.getPackage().initializeGroupInfo(tmp+File.separator+
                                                    "CVSROOT", frame,
-                                                   scrambled);         
+                                                   scrambled);
 
             //Commit the changed modules file
             if(this.performCommand(frame, COMMIT, null, true)){
@@ -1426,7 +1399,7 @@ public final class jCVSGroupPkgManager
             //Here we remove the CVSROOT directory, preferably by
             //releasing it (CVS release)
             //releasePkg(frame, null);
-            Sync.s.callWait();//we must wait for the commit, before we delete 
+            Sync.s.callWait();//we must wait for the commit, before we delete
             Debug.message("grppkgmgr,1385: Here we delete tmp");
             FileUtility.deleteDir(new File(tmp));
             //DialogManager.showText(frame,"Waiting for release");
@@ -1435,7 +1408,7 @@ public final class jCVSGroupPkgManager
         else{
             return false;
         }
-        
+
     }//End DefineModules
 
     /**
@@ -1448,14 +1421,14 @@ public final class jCVSGroupPkgManager
     {
         SortedProperties propsLocal = new SortedProperties();
         String fullPkgFile = pkgDir + File.separator + "bluej.pkg";
-        
+
         // try to load the local bluej.pkg file
         try {
             FileInputStream input = new FileInputStream(fullPkgFile);
-            
+
             propsLocal.load(input);
         } catch(IOException e) {
-            Debug.reportError("Error loading local pkg file" + 
+            Debug.reportError("Error loading local pkg file" +
                               fullPkgFile + ": " + e);
         }
         return propsLocal;
@@ -1478,7 +1451,7 @@ public final class jCVSGroupPkgManager
 
         Object[] msgField = new Object[] {warning, enterMsg, scrollPane};
 
-        int answ = JOptionPane.showOptionDialog(frame, msgField, title, 
+        int answ = JOptionPane.showOptionDialog(frame, msgField, title,
                                                 JOptionPane.YES_NO_OPTION,
                                                 JOptionPane.PLAIN_MESSAGE,
                                                 null, options, options[0]);
@@ -1514,7 +1487,7 @@ public final class jCVSGroupPkgManager
      * Log:
      * Extract the information we want from the result string and
      * display it.
-     * 
+     *
      */
     private void handleResponse(CVSResponse response, CVSRequest request,
                                 PkgMgrFrame frame)
@@ -1525,7 +1498,7 @@ public final class jCVSGroupPkgManager
         StringBuffer displayString=new StringBuffer();
         StringTokenizer st = new StringTokenizer
             (response.getDisplayResults().trim());
-        
+
         //ERROR, Commit handles error differently
         if(response.getStatus() == CVSResponse.ERROR &&
            !request.getCommand().equals("ci")){
@@ -1541,32 +1514,28 @@ public final class jCVSGroupPkgManager
         else if(request.getCommand().equals("update")){
             while (st.hasMoreTokens()){
                 nextToken = st.nextToken();
-                
+
                 if(nextToken.equals("C")){
                     //this could cause a nullpointer, but I think we're safe
                     fileName=baseDir+st.nextToken().substring(1);
-                    Debug.message("GrppkgMgr,794 "+fileName);
                     conflictFiles.add(fileName);
                 }
                 else if(nextToken.equals("A")){
                     fileName=baseDir+st.nextToken().substring(1);
-                    Debug.message("GrppkgMgr,811 "+fileName);
                     addedClasses.add(fileName);
                 }
                 else if(nextToken.equals("R")){
                     fileName=baseDir+st.nextToken().substring(1);
-                    Debug.message("GrppkgMgr,817 "+fileName);
                     removedClasses.add(fileName);
                 }
             }
-            //Since everything went ok, we delete backup 
-            File pkgFile = new File(frame.getPackage().getDirName()+
-                                    File.separator+"backup");
+            //Since everything went ok, we delete backup
+            File pkgFile = new File(frame.getPath(), "backup");
             try{
                 if(pkgFile.delete())
                     Debug.message("deleting backup pkg file");
             }catch(SecurityException se){
-                Debug.reportError("Error deleting backup pkg file" + 
+                Debug.reportError("Error deleting backup pkg file" +
                                   ": " + se);
             }
         }
@@ -1574,11 +1543,11 @@ public final class jCVSGroupPkgManager
         else if(request.getCommand().equals("ci")){
             if(response.getStatus() == CVSResponse.ERROR){
                 while (st.hasMoreTokens()){
-                    nextToken = st.nextToken();                    
+                    nextToken = st.nextToken();
                     if(nextToken.equals("correct")){
                         //Show dialog letting them know that the request
                         //was aborted, due to clashes with repos.
-                        int answer = DialogManager.askQuestion(frame, 
+                        int answer = DialogManager.askQuestion(frame,
                                                                "need-update");
                         // if they agree, update the package
                         if(answer == 0){
@@ -1599,21 +1568,21 @@ public final class jCVSGroupPkgManager
                 if(request.displayReponse)
                     frame.setStatus(Config.getString
                                     ("groupwork.committingDone"));
-                frame.setStatusR(Config.getString
+                frame.setStatus(Config.getString
                                  ("groupwork.notChanged"));
             }
         }
         //ADD or REMOVE
         else if(request.getCommand().equals("add") ||
                 request.getCommand().equals("remove")){
-            frame.setStatusR(Config.getString
+            frame.setStatus(Config.getString
                              ("groupwork.changed"));
         }
         //STATUS
         else if(request.getCommand().equals("status")){
             while (st.hasMoreTokens()){
                 nextToken = st.nextToken();
-                
+
                 if(nextToken.equals("File:")){
                     nextToken = st.nextToken();
                     if(!nextToken.equals("bluej.pkg")){
@@ -1658,7 +1627,7 @@ public final class jCVSGroupPkgManager
         else if(request.getCommand().equals("log")){
             String date = "";
             String file = "";
-            StringBuffer logBuffer = new StringBuffer(); 
+            StringBuffer logBuffer = new StringBuffer();
             Comparator comp = Collections.reverseOrder();
             Map dateLogMap = new TreeMap(comp);
             Map fileDateMap = new HashMap();
@@ -1680,7 +1649,7 @@ public final class jCVSGroupPkgManager
                         date = date.substring(0,date.lastIndexOf(":"));
                         //If the log message is more than one line
                         while(!((nextToken=st.nextToken()).startsWith
-                                ("=======") || 
+                                ("=======") ||
                                 nextToken.startsWith("-------"))){
                             logBuffer.append(nextToken+endOfLine+" ");
                         }
@@ -1689,14 +1658,14 @@ public final class jCVSGroupPkgManager
                         dateList.add(date);
                     }
                     //indicates new file
-                    if(nextToken.startsWith("=======")){ 
+                    if(nextToken.startsWith("=======")){
                         fileDateMap.put(file, dateList);
                         //each file has its own dateList
                         dateList=new ArrayList();
                     }
                 }
             }
-            
+
             //Here we create a Map where a date maps onto a collection
             //of files that where committed on that date.
             dateFileMap = transformMap(fileDateMap, dateLogMap.keySet());
@@ -1707,7 +1676,7 @@ public final class jCVSGroupPkgManager
                                      dateFileMap.get(date).toString()+" "+
                                      endOfLine+" "+
                                      dateLogMap.get(date));
-            } 
+            }
 //             for(Iterator itr=fileDateMap.keySet().iterator();itr.hasNext();){
 //                 file=(String)itr.next();
 //                 displayString.append(endOfLine+file+"\n"+
@@ -1723,7 +1692,7 @@ public final class jCVSGroupPkgManager
             info.setText(displayString.toString());
             info.display(Config.getString("groupwork.log.title"));
         }
-        
+
         Debug.message(response.getDisplayResults().trim());
     }//end handleResponse
 
@@ -1731,7 +1700,7 @@ public final class jCVSGroupPkgManager
      * This a very specialized method that transform a
      * special type of maps.
      *
-     * Don't try to use this method, it only exist to 
+     * Don't try to use this method, it only exist to
      * make other parts of the code more readable.
      *
      */
@@ -1747,7 +1716,7 @@ public final class jCVSGroupPkgManager
             tmpString = (String)itr.next();
             for(Iterator it = map.keySet().iterator();it.hasNext();){
                 tmpKey = (String)it.next();
-                tmpColl = (Collection)map.get(tmpKey); 
+                tmpColl = (Collection)map.get(tmpKey);
                 if(tmpColl.contains(tmpString)){
                     newColl.add(tmpKey);
                 }
@@ -1793,7 +1762,6 @@ public final class jCVSGroupPkgManager
         //Could this be done smarter? Now we wait twice.
         if(!removeEntries.isEmpty()){ //Do remove
             //Perform the command
-            Debug.message("grppkgmgr,1773 offlineRemove");
             if(this.performCommand(frame, REMOVE, removeEntries, false)){
                 Sync.s.callWait();
                 if(Sync.s.getOk()){
@@ -1808,8 +1776,8 @@ public final class jCVSGroupPkgManager
             }
         }
     }
-            
-    private class UpdatePkgRunner 
+
+    private class UpdatePkgRunner
     implements Runnable
     {
         SortedProperties propsLocal;
@@ -1826,10 +1794,10 @@ public final class jCVSGroupPkgManager
             this.pkgDir = pkgDir;
             this.frame = frame;
 	}
-	
+
 	public void run()
 	{
-            if(props.getProperty("group.usesPkgInfo", 
+            if(props.getProperty("group.usesPkgInfo",
                                  "false").equals("true")){
                 mergePkgFile(this.pkgDir, this.propsLocal, this.frame);
             }
@@ -1838,18 +1806,18 @@ public final class jCVSGroupPkgManager
             }
             frame.removePackage();
             frame.doOpenPackage(pkgDir, passw);
-            
+
             //Here we open editor windows for all conflicting files,
             //if there are any.
             if(!conflictFiles.isEmpty()){
                 for(Iterator itr=conflictFiles.iterator();itr.hasNext();){
                     frame.getPackage().hiliteString((String)itr.next(),
                                                     "<<<<<<<", "Conflicts",
-                                                    false);     
+                                                    false);
                 }
-                
-                //We must clear the conflictFiles collection othervise it  
-                //will be checked again and again and... 
+
+                //We must clear the conflictFiles collection othervise it
+                //will be checked again and again and...
                 try{
                     conflictFiles.clear();
                 }catch(UnsupportedOperationException e){
@@ -1866,7 +1834,7 @@ public final class jCVSGroupPkgManager
      * This Class in not in use anymore, could be removed
      *
      */
-    private class ModulesDefRunner 
+    private class ModulesDefRunner
     implements Runnable
     {
         private String tmp;
@@ -1885,7 +1853,7 @@ public final class jCVSGroupPkgManager
             this.frame = frame;
             this.passWord = passWord;
 	}
-	
+
 	public void run()
 	{
             //Create a file writer that appends the module definition
@@ -1899,7 +1867,7 @@ public final class jCVSGroupPkgManager
             } catch (IOException e){
                 Debug.reportError("Could not write the modules definition");
             }
-            
+
             //Initialize the group info temporarily so that we can
             //perform the commit command.
             String scrambled = CVSScramble.scramblePassword( passWord, 'A' );
@@ -1912,7 +1880,7 @@ public final class jCVSGroupPkgManager
             else{
                 Debug.message("GrpPkgMgr,line1547: trouble committing modules");
             }
-            
+
         }
     }//End class ModulesDefRunner
 
@@ -1922,15 +1890,15 @@ public final class jCVSGroupPkgManager
 	public JobMonitor()
 	{
 	}
-	
+
 	public void threadStarted()
 	{
 	}
-	
+
 	public void threadCanceled()
 	{
 	}
-	
+
 	public void threadFinished()
 	{
             Debug.message("Finished job");
