@@ -34,7 +34,7 @@ public class GUIDialogPropertyDialog extends GUIPropertyDialog
     {
         super(f,(GUIComponent)component,componentStr,structCont);
         thisDialog = this;
-        
+
         specialPanel.setLayout(new GridBagLayout());
 	GridBagConstraints gbc1 = new GridBagConstraints();
 	GridBagConstraints gbc2 = new GridBagConstraints();
@@ -52,8 +52,8 @@ public class GUIDialogPropertyDialog extends GUIPropertyDialog
         specialPanel.add(new Label("Modal:"), gbc1);
         specialPanel.add(modal, gbc2);
 
-        tfTitle.setText(((GUIDialog)component).getTitle());
-        if (((GUIDialog)component).isResizable())
+//        tfTitle.setText(((GUIDialog)component).getTitle());
+//        if (((GUIDialog)component).isResizable())
             resizable.setState(true);
         if(((GUIDialog)component).isGUIModal())
             modal.setState(true);
@@ -69,14 +69,14 @@ public class GUIDialogPropertyDialog extends GUIPropertyDialog
        */
     public void modifyComponent()
     {
-	((GUIDialog)component).setResizable(resizable.getState());
+//	((GUIDialog)component).setResizable(resizable.getState());
         ((GUIDialog)component).setGUIModal(modal.getState());
-        ((GUIDialog)component).setTitle(tfTitle.getText());
+//        ((GUIDialog)component).setTitle(tfTitle.getText());
         super.modifyComponent();
     }
 
 
-    
+
     private class ButtonListener implements ActionListener
     {
         public void actionPerformed(ActionEvent e)

@@ -2,8 +2,10 @@ package bluej.guibuilder;
 
 import java.awt.*;
 import java.awt.event.*;
-import bluej.guibuilder.graphics.*;
 import java.io.Serializable;
+import javax.swing.*;
+
+import bluej.guibuilder.graphics.*;
 
 /**
  * A class representing a graphical container for GUIComponents. This container
@@ -15,7 +17,7 @@ import java.io.Serializable;
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
  */
-public class GUIContainer extends Panel
+public class GUIContainer extends JPanel
 {
     private transient GUIBuilderApp app;
     private StructureContainer structCont;
@@ -235,7 +237,7 @@ public class GUIContainer extends Panel
 	setLayout(new BorderLayout());
 	setName("Center");
 	addMouseListener(mouseHandler);
-	
+
 	GUIBorder[] border = {new NorthGUIBorder(), new SouthGUIBorder(),
 	    new EastGUIBorder(), new WestGUIBorder()}; //, new CenterField()};
 	String[] posName = {"North", "South", "East", "West"}; //, "Center"};
@@ -257,114 +259,107 @@ public class GUIContainer extends Panel
      */
     protected void processClick(MouseEvent e)
     {
-	// Is the application in select-mode?
-	if (app.getMode()==GUIBuilderApp.SELECTMODE)
-	{
-	    // De-select any previous selected component:
-	    GUIComponent tmp = app.getSelectedComponent();
-	    if (tmp!=null)
-	    {
-		if (tmp instanceof GUIComponentLeaf)
-		    ((GUIConcreteComponent)tmp).getContainer().setHighlight(false);
-		else if (tmp instanceof GUIComponentNormalNode)
-		    ((GUIComponentNormalNode)tmp).getGUILayout().setHighlight(false);
-	    }
+        // Is the application in select-mode?
+        if (app.getMode()==GUIBuilderApp.SELECTMODE)
+        {
+            // De-select any previous selected component:
+            GUIComponent tmp = app.getSelectedComponent();
+            if (tmp!=null)
+            {
+            if (tmp instanceof GUIComponentLeaf)
+                ((GUIConcreteComponent)tmp).getContainer().setHighlight(false);
+            else if (tmp instanceof GUIComponentNormalNode)
+                ((GUIComponentNormalNode)tmp).getGUILayout().setHighlight(false);
+            }
 
-	    // If user pressed on the border, select the GUIComponentNode
-	    // containing the component
-	    if (e.getComponent().getName().equals("North") ||
-		e.getComponent().getName().equals("South") ||
-		e.getComponent().getName().equals("East") ||
-		e.getComponent().getName().equals("West") ||
-		e.getComponent().getName().equals("Center"))
-	    {
-		app.setSelectedComponent(parent.getTreeParent());
-                if(parent instanceof GUIComponentNode)
-                    ((GUIComponentLayoutNode)parent).setHighlight(true);
-	    }
-	    // otherwise the user pressed on the component, which then will
-	    // be selected:
-	    else
-	    {
-		app.setSelectedComponent(component);
-		setHighlight(true);
-	    }
-	}
-	// If the app. is in add-mode (an add-button on the toolbar is pressed),
-	// no component is present in this container and it is allowed to add
-	// component to this container:
-	else if (app.getMode()==GUIBuilderApp.ADDMODE && component==null && validAddPosition)
-	{
-	    setHighlight(false);
-	    ToolbarButton tmpButton = app.getButtonGroup().getSelectedButton();
-	    
-	    // If the button isn't permanently selected, go back to select-mode:
-	    if (tmpButton!=null && tmpButton.getState()!=ToolbarButton.PERMANENT)
-		app.setMode(GUIBuilderApp.SELECTMODE);
+            // If user pressed on the border, select the GUIComponentNode
+            // containing the component
+            if (e.getComponent().getName().equals("North") ||
+            e.getComponent().getName().equals("South") ||
+            e.getComponent().getName().equals("East") ||
+            e.getComponent().getName().equals("West") ||
+            e.getComponent().getName().equals("Center"))
+            {
+            app.setSelectedComponent(parent.getTreeParent());
+                    if(parent instanceof GUIComponentNode)
+                        ((GUIComponentLayoutNode)parent).setHighlight(true);
+            }
+            // otherwise the user pressed on the component, which then will
+            // be selected:
+            else
+            {
+            app.setSelectedComponent(component);
+            setHighlight(true);
+            }
+        }
+        // If the app. is in add-mode (an add-button on the toolbar is pressed),
+        // no component is present in this container and it is allowed to add
+        // component to this container:
+        else if (app.getMode()==GUIBuilderApp.ADDMODE && component==null && validAddPosition)
+        {
+            setHighlight(false);
+            NewComponentAction newAction = app.getButtonAction();
 
-	    // Make a new component:
-	    GUIComponent tmpComponent = null;
-	    if (tmpButton.getName().equals("Button"))
-		tmpComponent = new GUIButton("Button",parent,structCont,app);
-	    else if (tmpButton.getName().equals("Canvas"))
-	    {
-		tmpComponent = new GUICanvas(parent,structCont,app);
-		((Canvas)tmpComponent).setSize(10,10);
-	    }
-	    else if (tmpButton.getName().equals("Checkbox"))
-		tmpComponent = new GUICheckbox("Checkbox",parent,structCont,app);
-	    else if (tmpButton.getName().equals("Choice"))
-		tmpComponent = new GUIChoice(parent,structCont,app);
-	    else if (tmpButton.getName().equals("Label"))
-                tmpComponent = new GUILabel("Label",parent,structCont,app);
-            else if (tmpButton.getName().equals("List"))
-		tmpComponent = new GUIList(parent,structCont,app);
-	    else if (tmpButton.getName().equals("Scrollbar"))
-		tmpComponent = new GUIScrollbar(Scrollbar.HORIZONTAL,parent,structCont,app);
-	    else if (tmpButton.getName().equals("TextArea"))
-		tmpComponent = new GUITextArea("TextArea",parent,structCont,app);
-	    else if (tmpButton.getName().equals("TextField"))
-		tmpComponent = new GUITextField("TextField",parent,structCont,app);
+            app.setMode(GUIBuilderApp.SELECTMODE);
 
-	    else if (tmpButton.getName().equals("Panel"))
-	    {
-		tmpComponent = new GUIPanel(parent,structCont,app);
-		if (parent instanceof GUIComponentLayoutNode)
-		{
-		    if (((GUIComponentLayoutNode)parent).hasFixedSize())
-			setComponent(tmpComponent);
-		    else
-			((GUIComponentLayoutNode)parent).addGUIComponent(tmpComponent);
-		}
-		else
-		    setComponent(tmpComponent);
+            // Make a new component:
+            GUIComponent tmpComponent = null;
 
-		((GUIPanel)tmpComponent).setGUILayout((GUIComponentLayoutNode)(new GUIFlowLayout ((GUIComponentNode)tmpComponent,structCont,app)));
-		tmpComponent = null;
-	    }
-	    else if (tmpButton.getName().equals("ScrollPane"))
-		tmpComponent = new GUIScrollPane(parent,structCont,app);
+            if (newAction != null)
+                tmpComponent = newAction.createNewComponent(parent, structCont, app);
 
-	    // Insert the new component:
-	    if (tmpComponent!=null)
-	    {
-		if (parent instanceof GUIComponentLayoutNode)
-		{
-		    if (((GUIComponentLayoutNode)parent).hasFixedSize())
-			setComponent(tmpComponent);
-		    else
-			((GUIComponentLayoutNode)parent).addGUIComponent(tmpComponent);
-		}
-		else
-		    setComponent(tmpComponent);
+/*            else if (tmpButton.getActionCommand().equals("Canvas"))
+            {
+        tmpComponent = new GUICanvas(parent,structCont,app);
+        ((Canvas)tmpComponent).setSize(10,10);
+        }
+        else if (tmpButton.getActionCommand().equals("Choice"))
+        tmpComponent = new GUIChoice(parent,structCont,app);
 
-		// Uncomment the following two lines, if you want to show the
-		// property dialog each time you add a component:
+        else if (tmpButton.getActionCommand().equals("List"))
+        tmpComponent = new GUIList(parent,structCont,app);
+        else if (tmpButton.getActionCommand().equals("Scrollbar"))
+        tmpComponent = new GUIScrollbar(Scrollbar.HORIZONTAL,parent,structCont,app);
+        else if (tmpButton.getActionCommand().equals("TextArea"))
+        tmpComponent = new GUITextArea("TextArea",parent,structCont,app);
+        else if (tmpButton.getActionCommand().equals("TextField"))
+        tmpComponent = new
 
-                //if(tmpComponent instanceof GUIComponentLeaf) 
-                //    tmpComponent.showPropertiesDialog();
-                
-	    }
+        else if (tmpButton.getActionCommand().equals("Panel"))
+        {
+        tmpComponent = new GUIPanel(parent,structCont,app);
+        if (parent instanceof GUIComponentLayoutNode)
+        {
+        if (((GUIComponentLayoutNode)parent).hasFixedSize())
+        setComponent(tmpComponent);
+        else
+        ((GUIComponentLayoutNode)parent).addGUIComponent(tmpComponent);
+        }
+        else
+        setComponent(tmpComponent);
+
+        ((GUIPanel)tmpComponent).setGUILayout((GUIComponentLayoutNode)(new GUIFlowLayout ((GUIComponentNode)tmpComponent,structCont,app)));
+        tmpComponent = null;
+        }
+        else if (tmpButton.getActionCommand().equals("ScrollPane"))
+        tmpComponent = new GUIScrollPane(parent,structCont,app);
+        else
+        System.out.println("woops");
+*/
+
+            // Insert the new component:
+            if (tmpComponent!=null)
+            {
+                if (parent instanceof GUIComponentLayoutNode)
+                {
+                    if (((GUIComponentLayoutNode)parent).hasFixedSize())
+                        setComponent(tmpComponent);
+                    else
+                        ((GUIComponentLayoutNode)parent).addGUIComponent(tmpComponent);
+                }
+                else
+                    setComponent(tmpComponent);
+            }
 
             structCont.redraw();
 	}
@@ -374,7 +369,7 @@ public class GUIContainer extends Panel
 	    // Get the component to be moved:
 	    GUIComponent comp2bmoved = app.getSelectedComponent();
             GUIComponent comp2bswapped = getComponent();
-            
+
 	    // Deselect it:
 	    if (comp2bmoved instanceof GUIComponentLeaf)
 		((GUIComponentLeaf)comp2bmoved).getContainer().setHighlight(false);
@@ -387,13 +382,13 @@ public class GUIContainer extends Panel
                 tmp = comp2bswapped;
             else
                 tmp = parent;
-            
+
             while(tmp.getTreeParent() != null)
             {
                 if(comp2bmoved == tmp)
                 {
                     // comp2bswapped is one of comp2bmoved's subcomponents
-                    recursive = true; 
+                    recursive = true;
                     break;
                 }
                 tmp = tmp.getTreeParent();
@@ -401,7 +396,7 @@ public class GUIContainer extends Panel
 	    // Remove it from it's previous position:
             if(comp2bswapped == null && !recursive)
                 comp2bmoved.getTreeParent().deleteChild(comp2bmoved);
-            else 
+            else
             {
                 if(!recursive)
                 {
@@ -411,10 +406,10 @@ public class GUIContainer extends Panel
                     ((GUIConcreteComponent)comp2bmoved).getContainer().setComponent(comp2bmoved);
                     tmpCont.setComponent(comp2bswapped);
                 }
-                
+
             }
-            
-            
+
+
 	    // and insert it and redraw if nessesary:
 	    if (!comp2bmoved.getStructureContainer().equals(structCont))
 		comp2bmoved.getStructureContainer().redraw();
@@ -428,7 +423,7 @@ public class GUIContainer extends Panel
                         ((GUIComponentLayoutNode)parent).addGUIComponent(comp2bmoved);
                 }
             }
-            
+
 	    // Cleanup, go back to select-mode and redraw:
 	    if(!recursive)
             {
@@ -437,7 +432,7 @@ public class GUIContainer extends Panel
                 app.setStatusText("");
             }
             structCont.redraw();
-            
+
 	}
     }
 
@@ -458,7 +453,7 @@ public class GUIContainer extends Panel
 		setHighlight(true);
             if(app.getMode() == GUIBuilderApp.MOVEMODE && validAddPosition)
                 setHighlight(true);
-            
+
 	}
 
 
@@ -468,7 +463,7 @@ public class GUIContainer extends Panel
 		setHighlight(false);
             if(app.getMode() == GUIBuilderApp.MOVEMODE && validAddPosition)
                 setHighlight(false);
-            
+
 	}
 
 
@@ -508,8 +503,8 @@ public class GUIContainer extends Panel
 	    }
 	    else if (e.getActionCommand().equals("Move"))
 	    {
-                
-                
+
+
                 if (((MenuComponent)e.getSource()).getParent()==componentMenu)
                 {
                     app.setMode(GUIBuilderApp.MOVEMODE);
@@ -522,7 +517,7 @@ public class GUIContainer extends Panel
                    app.setMode(GUIBuilderApp.MOVEMODE);
                    app.setStatusText("Click on new position");
                 }
-                
+
 	    }
 	    else if (e.getActionCommand().equals("Properties"))
 	    {
@@ -530,7 +525,7 @@ public class GUIContainer extends Panel
         	    component.showPropertiesDialog();
 		else
                     (((GUIComponentLayoutNode)parent).getTreeParent()).showPropertiesDialog();
-                    
+
             }
 	    else if (e.getActionCommand().equals("Layout"))
 	    {

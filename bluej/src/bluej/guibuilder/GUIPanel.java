@@ -1,6 +1,7 @@
 package bluej.guibuilder;
 
 import java.awt.*;
+import javax.swing.*;
 import java.util.Vector;
 
 
@@ -12,7 +13,7 @@ import java.util.Vector;
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
  */
-class GUIPanel extends Panel implements GUIComponentNormalNode
+class GUIPanel extends JPanel implements GUIComponentNormalNode
 {
     private GUIComponentNode parent = null;
     private GUIComponentLayoutNode layout = null;
@@ -21,7 +22,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
     private StructureContainer structCont = null;
     private GUIContainer container = null;
     private ComponentDescriptor componentDescriptor = new ComponentDescriptor(this);
-    
+
 
     /**
      * Constructs a GUIPanel.
@@ -122,7 +123,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
     {
 	return container;
     }
-    
+
 
     /*
      * This method is used to set the Layout of the GUIPanel. The initContainers method
@@ -152,7 +153,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
      * It is used when the code is generated, so that the components can be added to the
      * right container.
      *
-     * @return The qualifier of the container. 
+     * @return The qualifier of the container.
      */
     public String getQualifier()
     {
@@ -251,7 +252,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
 	int initlevel = componentDescriptor.getInitLevel();
 
         StringBuffer initCode = new StringBuffer ("new Panel ()");
-	
+
 	if (initlevel==ComponentCode.UNREFERENCEABLE)
 	    code.addUnreferenceable(initCode.toString());
 	else
@@ -264,7 +265,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
 		code.addCreation(variableCode+initCode.toString()+";\n");
             code.addCreation(componentDescriptor.getDescriptionCode(getName()));
             ComponentCode childCode = layout.generateCode ();
-            
+
             code.addCreation (childCode.getCreationCode()+"\n");
             code.addGlobal (childCode.getGlobalCode()+"\n");
 	}
@@ -298,6 +299,6 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
     public void showPropertiesDialog()
     {
         GUIPanelPropertyDialog propertyDialog = new GUIPanelPropertyDialog(app,this,"Panel",structCont);
-        
+
     }
 }

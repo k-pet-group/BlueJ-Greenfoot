@@ -2,7 +2,7 @@ package bluej.guibuilder;
 
 import java.awt.*;
 import java.awt.event.*;
-
+import javax.swing.*;
 
 /**
  * GUILabelPropertyDialog.java
@@ -46,7 +46,7 @@ public class GUILabelPropertyDialog extends GUIPropertyDialog
         specialPanel.add(text, gbc2);
         text.setText(((GUILabel)component).getText());
         setTitle("Label Properties");
-            
+
         init();
     }
 
@@ -57,11 +57,11 @@ public class GUILabelPropertyDialog extends GUIPropertyDialog
     {
         String str = new String(align.getSelectedItem());
         if(str.equals("Left"))
-            ((GUILabel)component).setAlignment(Label.LEFT);
+            ((GUILabel)component).setHorizontalAlignment(SwingConstants.LEFT);
         else if(str.equals("Center"))
-            ((GUILabel)component).setAlignment(Label.CENTER);
+            ((GUILabel)component).setHorizontalAlignment(SwingConstants.CENTER);
         else if(str.equals("Right"))
-            ((GUILabel)component).setAlignment(Label.RIGHT);
+            ((GUILabel)component).setHorizontalAlignment(SwingConstants.RIGHT);
         ((GUILabel)component).setText(text.getText());
         super.modifyComponent();
     }

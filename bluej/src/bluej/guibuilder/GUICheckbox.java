@@ -1,6 +1,7 @@
 package bluej.guibuilder;
 
 import java.awt.*;
+import javax.swing.*;
 import java.util.Vector;
 
 
@@ -12,7 +13,7 @@ import java.util.Vector;
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
  */
-public class GUICheckbox extends Checkbox implements GUIComponentLeaf
+public class GUICheckbox extends JCheckBox implements GUIComponentLeaf
 {
     private GUIComponentNode parent = null;
     private boolean changedGroup = false;
@@ -83,7 +84,7 @@ public class GUICheckbox extends Checkbox implements GUIComponentLeaf
     {
 	return parent;
     }
-    
+
 
     /**
      * Sets a reference to the StructureContainer that contains the tree containing
@@ -149,8 +150,8 @@ public class GUICheckbox extends Checkbox implements GUIComponentLeaf
     public ComponentDescriptor getComponentDescriptor()
     {
 	return componentDescriptor;
-    }  
-    
+    }
+
 
     /**
      * Sets the name of the CheckboxGroup this component belongs to.
@@ -200,7 +201,8 @@ public class GUICheckbox extends Checkbox implements GUIComponentLeaf
 	StringBuffer initCode = new StringBuffer ("new Checkbox (\""+getLabel()+"\"");
         if(!checkboxGroup.equals(""))
            initCode.append(", "+checkboxGroup);
-        initCode.append(", "+getStateAsText()+")");
+//      XXX  initCode.append(", "+getStateAsText()+")");
+        initCode.append(", "+"false"+")");
 
         if (initlevel==ComponentCode.UNREFERENCEABLE)
 	    code.addUnreferenceable(initCode.toString());
@@ -234,7 +236,7 @@ public class GUICheckbox extends Checkbox implements GUIComponentLeaf
      */
     public Component display()
     {
-	Checkbox preview = new Checkbox(getLabel(), getCheckboxGroup(),getState());
+        JCheckBox preview = new JCheckBox(getLabel(), false); //getCheckboxGroup(),getState());
         componentDescriptor.cloneComponent(preview);
 	return preview;
     }
@@ -248,16 +250,5 @@ public class GUICheckbox extends Checkbox implements GUIComponentLeaf
     public void showPropertiesDialog()
     {
       GUICheckboxPropertyDialog propertyDialog = new GUICheckboxPropertyDialog(app,this,"Checkbox",structCont);
-    }
-
-
-    /**
-     * Converts the state (selected/not selected) of this component to a string.
-     *
-     * @return	The state of this component. true means on/selected, false means off/not selected.
-     */
-    private String getStateAsText()
-    {
-	return String.valueOf(getState());
     }
 }

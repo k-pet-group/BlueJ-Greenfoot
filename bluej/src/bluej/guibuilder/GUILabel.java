@@ -1,6 +1,7 @@
 package bluej.guibuilder;
 
 import java.awt.*;
+import javax.swing.*;
 import java.util.Vector;
 
 
@@ -12,11 +13,11 @@ import java.util.Vector;
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
  */
-public class GUILabel extends Label implements GUIComponentLeaf
+public class GUILabel extends JLabel implements GUIComponentLeaf
 {
     private GUIComponentNode parent = null;
     private static int counter = 0;
-   
+
     private boolean changedAlignment = false;
     private transient GUIBuilderApp app;
     private StructureContainer structCont = null;
@@ -104,7 +105,7 @@ public class GUILabel extends Label implements GUIComponentLeaf
     {
 	return parent;
     }
-    
+
 
     /**
      * Sets a reference to the StructureContainer that contains the tree containing
@@ -117,7 +118,7 @@ public class GUILabel extends Label implements GUIComponentLeaf
 	this.structCont = structCont;
     }
 
-    
+
     /**
      * Returns the StructureContainer that contains the tree containing this component.
      *
@@ -230,9 +231,9 @@ public class GUILabel extends Label implements GUIComponentLeaf
      */
     public Component display()
     {
-	Label preview = new Label(getText(), getAlignment());
+        JLabel preview = new JLabel(getText()); //, getAlignment());
         componentDescriptor.cloneComponent(preview);
-	return preview;
+        return preview;
     }
 
 
@@ -245,7 +246,7 @@ public class GUILabel extends Label implements GUIComponentLeaf
     public void showPropertiesDialog()
     {
         GUILabelPropertyDialog  propertyDialog = new GUILabelPropertyDialog(app,this,"Label",structCont);
-        
+
     }
 
 
@@ -256,9 +257,9 @@ public class GUILabel extends Label implements GUIComponentLeaf
      */
     private String getAlignmentText()
     {
-	if(getAlignment()==Label.LEFT)
+	if(getHorizontalAlignment()==SwingConstants.LEFT)
 	    return "Label.LEFT";
-	if(getAlignment()==Label.CENTER)
+	if(getHorizontalAlignment()==SwingConstants.CENTER)
 	    return "Label.CENTER";
 	else
 	    return "Label.RIGHT";

@@ -4,8 +4,64 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Vector;
+import javax.swing.*;
+import javax.swing.Box;
+import java.beans.*;
+
 import bluej.guibuilder.graphics.*;
 import bluej.pkgmgr.Package;
+import bluej.Config;
+
+// JavaBeans Archiving classes.
+import archiver.XMLInputStream;
+import archiver.XMLOutputStream;
+import archiver.BeanScriptInputStream;
+import archiver.BeanScriptOutputStream;
+import archiver.JavaOutputStream;
+
+/**
+ *
+javax/swing/JAppletBeanInfo.class
+javax/swing/JButtonBeanInfo.class
+javax/swing/JCheckBoxBeanInfo.class
+javax/swing/JCheckBoxMenuItemBeanInfo.class
+javax/swing/JColorChooserBeanInfo.class
+javax/swing/JComboBoxBeanInfo.class
+javax/swing/JComponentBeanInfo.class
+javax/swing/JDialogBeanInfo.class
+javax/swing/JEditorPaneBeanInfo.class
+javax/swing/JFileChooserBeanInfo.class
+javax/swing/JFrameBeanInfo.class
+javax/swing/JInternalFrameBeanInfo.class
+javax/swing/JLabelBeanInfo.class
+javax/swing/JListBeanInfo.class
+javax/swing/JMenuBarBeanInfo.class
+javax/swing/JMenuBeanInfo.class
+javax/swing/JMenuItemBeanInfo.class
+javax/swing/JOptionPaneBeanInfo.class
+javax/swing/JPanelBeanInfo.class
+javax/swing/JPasswordFieldBeanInfo.class
+javax/swing/JPopupMenuBeanInfo.class
+javax/swing/JProgressBarBeanInfo.class
+javax/swing/JRadioButtonBeanInfo.class
+javax/swing/JRadioButtonMenuItemBeanInfo.class
+javax/swing/JScrollBarBeanInfo.class
+javax/swing/JScrollPaneBeanInfo.class
+javax/swing/JSeparatorBeanInfo.class
+javax/swing/JSliderBeanInfo.class
+javax/swing/JSplitPaneBeanInfo.class
+javax/swing/JTabbedPaneBeanInfo.class
+javax/swing/JTableBeanInfo.class
+javax/swing/JTextAreaBeanInfo.class
+javax/swing/JTextFieldBeanInfo.class
+javax/swing/JTextPaneBeanInfo.class
+javax/swing/JToggleButtonBeanInfo.class
+javax/swing/JToolBarBeanInfo.class
+javax/swing/JTreeBeanInfo.class
+javax/swing/JWindowBeanInfo.class
+javax/swing/text/
+javax/swing/text/JTextComponentBeanInfo.class
+*/
 
 /**
  * This is the main class for the GUI-Builder application. Instantiate this
@@ -16,14 +72,14 @@ import bluej.pkgmgr.Package;
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
  */
-public class GUIBuilderApp extends Frame
+public class GUIBuilderApp extends JFrame
 {
     /**
      * Ease-of-use constant for setMode() and getMode().
      * Specifies the application to be in add-mode.
      *
-     * @see javablue.GUIBuilder.GUIBuilderApp#setMode
-     * @see javablue.GUIBuilder.GUIBuilderApp#getMode
+     * @see blue.guibuilder.GUIBuilderApp#setMode
+     * @see blue.guibuilder.GUIBuilderApp#getMode
      */
     public static final int ADDMODE = 0;
 
@@ -31,8 +87,8 @@ public class GUIBuilderApp extends Frame
      * Ease-of-use constant for setMode() and getMode().
      * Specifies the application to be in move-mode.
      *
-     * @see javablue.GUIBuilder.GUIBuilderApp#setMode
-     * @see javablue.GUIBuilder.GUIBuilderApp#getMode
+     * @see bluej.guibuilder.GUIBuilderApp#setMode
+     * @see bluej.guibuilder.GUIBuilderApp#getMode
      */
     public static final int MOVEMODE = 1;
 
@@ -40,42 +96,43 @@ public class GUIBuilderApp extends Frame
      * Ease-of-use constant for setMode() and getMode().
      * Specifies the application to be in select-mode.
      *
-     * @see javablue.GUIBuilder.GUIBuilderApp#setMode
-     * @see javablue.GUIBuilder.GUIBuilderApp#getMode
+     * @see bluej.guibuilder.GUIBuilderApp#setMode
+     * @see bluej.guibuilder.GUIBuilderApp#getMode
      */
     public static final int SELECTMODE = 2;
 
-    private Panel north = new Panel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-    private Panel center;
-    private Panel south = new Panel(new GridLayout(6,1));
+    private JTabbedPane center;
+    private JPanel workarea;
+    private JToggleButton selectButton;
+
     private Label status = new Label("Add");
 
     private GUIBuilderApp app;
-    private ToolbarButtonGroup buttonGroup = new ToolbarButtonGroup();
+    private ButtonGroup buttonGroup = new ButtonGroup();
+    private NewComponentAction buttonAction = null;
 
     private int mode = SELECTMODE;
     private GUIComponent selectedComponent = null;
     private StructureContainer selectedStruct = null;
-    
+
     private Vector structureVector = new Vector();
     private StructureContainer structCont = null;
     private Package pkg = null;
 
     private String defaultdir = new String();
     private String structdir = new String();
-    
-    private MenuItem file_new_frameMenu = new MenuItem("Frame");
-    private MenuItem file_new_dialogMenu = new MenuItem("Dialog");
-    private MenuItem file_openMenu = new MenuItem("Open");
-    private MenuItem file_saveMenu = new MenuItem("Save");
-    private MenuItem file_previewMenu = new MenuItem("Preview");
-    private MenuItem file_generateMenu = new MenuItem("Generate");
-    private MenuItem file_quitMenu = new MenuItem("Quit");
-    private MenuItem help_aboutMenu = new MenuItem("About");
+
+    private JMenuItem file_new_frameMenu = new JMenuItem("Frame");
+    private JMenuItem file_new_dialogMenu = new JMenuItem("Dialog");
+    private JMenuItem file_openMenu = new JMenuItem("Open");
+    private JMenuItem file_saveMenu = new JMenuItem("Save");
+    private JMenuItem file_previewMenu = new JMenuItem("Preview");
+    private JMenuItem file_generateMenu = new JMenuItem("Generate");
+    private JMenuItem file_quitMenu = new JMenuItem("Quit");
+    private JMenuItem help_aboutMenu = new JMenuItem("About");
 
     private MenuListener menuListener = new MenuListener();
     private ButtonListener buttonListener = new ButtonListener();
-    ToolbarButtonListener toolbarButtonListener = new ToolbarButtonListener();
 
 
     /**
@@ -84,30 +141,28 @@ public class GUIBuilderApp extends Frame
      */
     public GUIBuilderApp()
     {
-	super("GUIBuilder");
-	app = this;
-	addWindowListener(new WindowAdapter() { public void 
-		    windowClosing(WindowEvent e) { shutdown(); } } );
-	setResizable(false);
-	setBackground(Color.lightGray);
-	createInterface();
+        super("GUIBuilder");
+        app = this;
+        addWindowListener(new WindowAdapter() { public void
+        	    windowClosing(WindowEvent e) { shutdown(); } } );
+//        setResizable(false);
+        createInterface();
 
-	show();
+        show();
     }
 
 
     public GUIBuilderApp(Package pkg)
     {
-	super("GUIBuilder");
-	app = this;
-	this.pkg = pkg;
-	addWindowListener(new WindowAdapter() { public void 
-		    windowClosing(WindowEvent e) { shutdown(); } } );
-	setResizable(false);
-	setBackground(Color.lightGray);
-	createInterface();
+        super("GUIBuilder");
+        app = this;
+        this.pkg = pkg;
+        addWindowListener(new WindowAdapter() { public void
+        	    windowClosing(WindowEvent e) { shutdown(); } } );
+//        setResizable(false);
+        createInterface();
 
-	show();
+        show();
     }
 
 
@@ -116,9 +171,9 @@ public class GUIBuilderApp extends Frame
      */
     public void shutdown()
     {
-	while (structureVector.size()>0)
-	    ((StructureContainer)structureVector.elementAt(0)).delete();
-	dispose();
+        while (structureVector.size()>0)
+            ((StructureContainer)structureVector.elementAt(0)).delete();
+        dispose();
     }
 
 
@@ -127,26 +182,26 @@ public class GUIBuilderApp extends Frame
      *
      * @param newmode The mode of the application.
      *
-     * @see javablue.GUIBuilder.GUIBuilderApp#ADDMODE
-     * @see javablue.GUIBuilder.GUIBuilderApp#MOVEMODE
-     * @see javablue.GUIBuilder.GUIBuilderApp#SELECTMODE
+     * @see bluej.guibuilder.GUIBuilderApp#ADDMODE
+     * @see bluej.guibuilder.GUIBuilderApp#MOVEMODE
+     * @see bluej.guibuilder.GUIBuilderApp#SELECTMODE
      */
     public void setMode(int newmode)
     {
-	switch (newmode)
-	{
-	    case ADDMODE:
-		mode = ADDMODE;
-		break;
-	    case SELECTMODE:
-		mode = SELECTMODE;
-		buttonGroup.unPopAll();
-		break;
-	    case MOVEMODE:
-		mode = MOVEMODE;
-		buttonGroup.unPopAll();
-		break;
-	}
+        switch (newmode)
+        {
+            case ADDMODE:
+            mode = ADDMODE;
+            break;
+            case SELECTMODE:
+            mode = SELECTMODE;
+            selectButton.setSelected(true);
+            break;
+            case MOVEMODE:
+            mode = MOVEMODE;
+            selectButton.setSelected(true);
+            break;
+        }
     }
 
 
@@ -155,13 +210,13 @@ public class GUIBuilderApp extends Frame
      *
      * @return The mode of the application.
      *
-     * @see javablue.GUIBuilder.GUIBuilderApp#ADDMODE
-     * @see javablue.GUIBuilder.GUIBuilderApp#MOVEMODE
-     * @see javablue.GUIBuilder.GUIBuilderApp#SELECTMODE
+     * @see bluej.guibuilder.GUIBuilderApp#ADDMODE
+     * @see bluej.guibuilder.GUIBuilderApp#MOVEMODE
+     * @see bluej.guibuilder.GUIBuilderApp#SELECTMODE
      */
     public int getMode()
     {
-	return mode;
+        return mode;
     }
 
 
@@ -173,7 +228,7 @@ public class GUIBuilderApp extends Frame
      */
     public void setStatusText (String text)
     {
-	status.setText(text);
+        status.setText(text);
     }
 
 
@@ -183,11 +238,15 @@ public class GUIBuilderApp extends Frame
      *
      * @return The toolbar button group.
      */
-    public ToolbarButtonGroup getButtonGroup ()
+    public ButtonGroup getButtonGroup ()
     {
-	return buttonGroup;
+        return buttonGroup;
     }
 
+    public NewComponentAction getButtonAction ()
+    {
+        return buttonAction;
+    }
 
     /**
      * Sets the selected component. The delete, move and properties buttons
@@ -197,9 +256,9 @@ public class GUIBuilderApp extends Frame
      */
     public void setSelectedComponent (GUIComponent component)
     {
-	if (selectedComponent!=null && (selectedComponent instanceof GUIComponentLeaf))
-	    ((GUIComponentLeaf)selectedComponent).getContainer().setHighlight(false);
-	selectedComponent = component;
+        if (selectedComponent!=null && (selectedComponent instanceof GUIComponentLeaf))
+        ((GUIComponentLeaf)selectedComponent).getContainer().setHighlight(false);
+        selectedComponent = component;
     }
 
 
@@ -211,13 +270,13 @@ public class GUIBuilderApp extends Frame
      */
     public GUIComponent getSelectedComponent ()
     {
-	return selectedComponent;
+        return selectedComponent;
     }
 
 
     public Package getPackage()
     {
-	return pkg;
+        return pkg;
     }
 
 
@@ -253,84 +312,112 @@ public class GUIBuilderApp extends Frame
      */
     private void createInterface()
     {
-	// Initialize and add menus:
-	MenuBar menubar = new MenuBar();
-	Menu filemenu = new Menu("File");
-	Menu helpmenu = new Menu("Help");
-	menubar.add(filemenu);
-	menubar.setHelpMenu(helpmenu);
+        // Initialize and add menus:
+        JMenuBar menubar = new JMenuBar();
+        JMenu filemenu = new JMenu("File");
+        JMenu helpmenu = new JMenu("Help");
+        menubar.add(filemenu);
+        menubar.add(Box.createHorizontalGlue());
+        menubar.add(helpmenu);
 
-	Menu file_newMenu = new Menu("New");
+        JMenu file_newMenu = new JMenu("New");
 
-	file_newMenu.add(file_new_frameMenu);
-	file_newMenu.add(file_new_dialogMenu);
-	filemenu.add(file_newMenu);
-	filemenu.add(file_openMenu);
-	filemenu.add(file_saveMenu);
-	filemenu.addSeparator();
-	filemenu.add(file_previewMenu);
-	filemenu.addSeparator();
-	filemenu.add(file_generateMenu);
-	filemenu.addSeparator();
-	filemenu.add(file_quitMenu);
-	helpmenu.add(help_aboutMenu);
-	file_new_frameMenu.setShortcut(new MenuShortcut(KeyEvent.VK_F));
-	file_new_frameMenu.addActionListener(menuListener);
-	file_new_dialogMenu.setShortcut(new MenuShortcut(KeyEvent.VK_D));
-	file_new_dialogMenu.addActionListener(menuListener);
-	file_openMenu.setShortcut(new MenuShortcut(KeyEvent.VK_O));
-	file_openMenu.addActionListener(menuListener);
-	file_saveMenu.setShortcut(new MenuShortcut(KeyEvent.VK_S));
-	file_saveMenu.addActionListener(menuListener);
-	file_previewMenu.setShortcut(new MenuShortcut(KeyEvent.VK_P));
-	file_previewMenu.addActionListener(menuListener);
-	file_generateMenu.setShortcut(new MenuShortcut(KeyEvent.VK_G));
-	file_generateMenu.addActionListener(menuListener);
-	file_quitMenu.setShortcut(new MenuShortcut(KeyEvent.VK_Q));
-	file_quitMenu.addActionListener(menuListener);
-	help_aboutMenu.addActionListener(menuListener);
+        file_newMenu.add(file_new_frameMenu);
+        file_newMenu.add(file_new_dialogMenu);
+        filemenu.add(file_newMenu);
+        filemenu.add(file_openMenu);
+        filemenu.add(file_saveMenu);
+        filemenu.addSeparator();
+        filemenu.add(file_previewMenu);
+        filemenu.addSeparator();
+        filemenu.add(file_generateMenu);
+        filemenu.addSeparator();
+        filemenu.add(file_quitMenu);
+        helpmenu.add(help_aboutMenu);
+        file_new_frameMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
+        file_new_frameMenu.addActionListener(menuListener);
+        file_new_dialogMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK));
+        file_new_dialogMenu.addActionListener(menuListener);
+        file_openMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
+        file_openMenu.addActionListener(menuListener);
+        file_saveMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
+        file_saveMenu.addActionListener(menuListener);
+        file_previewMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK));
+        file_previewMenu.addActionListener(menuListener);
+        file_generateMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
+        file_generateMenu.addActionListener(menuListener);
+        file_quitMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK));
+        file_quitMenu.addActionListener(menuListener);
+        help_aboutMenu.addActionListener(menuListener);
 
-	setMenuBar(menubar);
+        setJMenuBar(menubar);
 
-	setLayout(new BorderLayout());
+        /* Main toolbar */
 
-	// Initialize and add "Add"-buttons:
-	Panel[] panel = new Panel[2];
-	String[] guiButton = {"Button","Canvas","Checkbox","Choice","Label",
-			    "List","Scrollbar","TextArea","TextField"};
-	panel[0] = makeCardPanel(guiButton);
+        JPanel windowPanel = new JPanel();
+        {
+            JPanel tools = new JPanel();
+            {
+                tools.setLayout(new BoxLayout(tools, BoxLayout.Y_AXIS));
+                tools.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
 
-	String[] containerButton = {"Panel","ScrollPane"};
-	panel[1] = makeCardPanel(containerButton);
+                selectButton = new JToggleButton("Select");
+                {
+                    selectButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+                                                    selectButton.getPreferredSize().height));
+                    buttonGroup.add(selectButton);
+                    tools.add(selectButton);
+                }
 
-	String[] label = {"Components", "Containers"};
-	center = new TabControl(label, panel);
+                tools.add(Box.createVerticalStrut(6));
 
-	// Initialize action-buttons and status bar:
-	//south.add(new Separator());
-	String[] modeButton = {"Delete", "Move", "Properties"};
-	Button tmpButton;
-	for(int i=0; i<3 ; i++)
-	{
-	    tmpButton = new Button(modeButton[i]);
-	    tmpButton.addActionListener (buttonListener);
-	    south.add(tmpButton);
-	}
-	//south.add(new Separator());
-	south.add(status);
+                NewComponentListener newComponentListener = new NewComponentListener();
 
-	// Add everything:
-	add("South",south);
-	add("North",north);
-	add("Center",center);
+                NewComponentAction actions[] = createNewComponentActions();
 
-	// Position the frame somewhere nice and show it:
-	pack();
-	Dimension dim = getPreferredSize();
-	setSize((int)(dim.width*1.1), dim.height);
+                for(int i=0; i<actions.length; i++)
+                {
+                    JToggleButton newbutton = new JToggleButton(actions[i]);
+                    {
+                        newbutton.addActionListener(newComponentListener);
+                        newbutton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+                                                    newbutton.getPreferredSize().height));
+                        buttonGroup.add(newbutton);
+                        tools.add(newbutton);
+                    }
+                }
 
-	Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-	setLocation(screen.width/20,(screen.height-dim.height)/2);
+                tools.add(Box.createVerticalStrut(6));
+
+                // Initialize action-buttons and status bar:
+                String[] modeButton = {"Delete", "Move", "Properties"};
+                JButton tmpButton;
+                for(int i=0; i<3 ; i++)
+                {
+                    tmpButton = new JButton(modeButton[i]);
+                    tmpButton.addActionListener (buttonListener);
+                    tools.add(tmpButton);
+                }
+            }
+
+            workarea = new JPanel();
+            {
+ //            workarea.setBackground(Color.lightGray);
+                workarea.setBorder(BorderFactory.createEtchedBorder());
+                workarea.setPreferredSize(new Dimension(400,400));
+            }
+
+            windowPanel.setLayout(new BorderLayout());
+            windowPanel.setBorder(Config.generalBorder);
+            windowPanel.add(tools, BorderLayout.WEST);
+            windowPanel.add(workarea, BorderLayout.CENTER);
+            windowPanel.add(status, BorderLayout.SOUTH);
+        }
+
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(windowPanel, BorderLayout.CENTER);
+
+        pack();
     }
 
 
@@ -339,61 +426,8 @@ public class GUIBuilderApp extends Frame
      */
     private void showAboutDialog()
     {
-	AboutDialog about = new AboutDialog (app);
+        AboutDialog about = new AboutDialog (app);
     }
-
-    /**
-     * Creates a Panel containing ToolbarButtons with labels with the texts
-     * specified in the string array.
-     *
-     * @param text The button labels.
-     * @return A panel containing the buttons.
-     */
-    private Panel makeCardPanel(String[] text)
-    {
-	// Setup the GridBagLayout:
-	GridBagLayout gridbag = new GridBagLayout ();
-	GridBagConstraints constraints = new GridBagConstraints();
-
-	constraints.gridwidth = GridBagConstraints.REMAINDER;
-	constraints.fill      = GridBagConstraints.HORIZONTAL;
-	constraints.weightx   = 1.0;
-	constraints.anchor    = GridBagConstraints.NORTH;
-	ToolbarButton[] button = new ToolbarButton[text.length];
-	Panel tmpPanel = new Panel(gridbag);
-	Separator sep = new Separator();
-
-	// Initialize the buttons:
-	for(int i=0; i<text.length; i++)
-	{
-	    button[i] = new ToolbarButton(text[i]);
-	    button[i].setName(text[i]);
-	    button[i].addMouseListener(toolbarButtonListener);
-	    buttonGroup.addButton(button[i]);
-	}
-
-	// Add the buttons to the panel:
-	int i;
-	for(i=0; i<button.length-1 ; i++)
-	{
-	    if (text[i].equals("---"))
-	    {
-		gridbag.setConstraints(sep, constraints);
-		tmpPanel.add(sep);
-	    }
-	    else
-	    {
-		gridbag.setConstraints(button[i], constraints);
-		tmpPanel.add(button[i]);
-	    }
-	}
-	constraints.weighty = 1;
-	gridbag.setConstraints(button[i], constraints);
-	tmpPanel.add(button[i]);
-
-	return tmpPanel;
-    }
-
 
     /**
      * This class handles the menu items.
@@ -407,15 +441,17 @@ public class GUIBuilderApp extends Frame
     {
 	public void actionPerformed (ActionEvent e)
 	{
-	    Object source = e.getSource();
-	    // Make a new Frame:
-	    if (source.equals(file_new_frameMenu))
-		structureVector.addElement(new StructureContainer(app, new GUIFrame(null, null, app)));
-	    // Make a new Dialog:
-	    else if (source.equals(file_new_dialogMenu))
-		structureVector.addElement(new StructureContainer(app, new GUIDialog(app, null, null, app)));
-	    // Load a structure from disk:
-	    else if (source.equals(file_openMenu))
+        Object source = e.getSource();
+        // Make a new Frame:
+        if (source.equals(file_new_frameMenu))
+        structureVector.addElement(new StructureContainer(app, new GUIFrame(null, null, app)));
+        // Make a new Dialog:
+        else if (source.equals(file_new_dialogMenu)) {
+            structureVector.addElement(
+                new StructureContainer(app, workarea));   //, new GUIDialog(app, null, null, app)));
+        }
+        // Load a structure from disk:
+        else if (source.equals(file_openMenu))
 	    {
 		try
 		{
@@ -423,7 +459,7 @@ public class GUIBuilderApp extends Frame
                     f.setDirectory(structdir);
                     f.setModal(true);
                     f.show();
-                
+
                     String strFile = f.getDirectory()+f.getFile();
                     File file = null;
                     if(strFile!=null)
@@ -465,7 +501,7 @@ public class GUIBuilderApp extends Frame
                         ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(structdir+file.getName()));
                         out.writeObject(selectedStruct);
                         out.close();
-                        
+
                         status.setText(" Done!");
                     }
 		}
@@ -483,7 +519,7 @@ public class GUIBuilderApp extends Frame
         	try
 		{
                     FileDialog f = new FileDialog(app,"Save generated code",FileDialog.SAVE);
-            
+
                     f.setDirectory(defaultdir);
                     f.setModal(true);
                     f.show();
@@ -491,12 +527,12 @@ public class GUIBuilderApp extends Frame
                     File file = null;
                     if(strFile!=null)
                 	file = new File(strFile);
-         
+
                     if(file!=null)
                     {
                 	defaultdir = f.getDirectory();
 			PrintWriter pw = new PrintWriter(new FileOutputStream(defaultdir+file.getName()));
-                	
+
                 	pw.print(selectedStruct.generateCode());
                 	pw.flush();
                 	pw.close();
@@ -510,11 +546,150 @@ public class GUIBuilderApp extends Frame
 	    // Exit the application:
 	    else if (source.equals(file_quitMenu))
 		shutdown();
-	    else if (source.equals(help_aboutMenu))
-		showAboutDialog();
+	    else if (source.equals(help_aboutMenu)) {
+ //		showAboutDialog();
+            handleSave("out.xml");
+        }
 	}
     }
 
+
+    public void handleSave(String filename)  {
+        try {
+            FileOutputStream out = new FileOutputStream(filename);
+
+//            String ext = BuilderFileFilter.getExtension(filename);
+
+            ObjectOutput s = null;
+
+//            if (ext.equals(XMLFileFilter.EXT))  {
+                s = new XMLOutputStream(out);
+//            } else if (ext.equals(BSFileFilter.EXT))  {
+//                s = new BeanScriptOutputStream(out);
+//            } else if (ext.equals(JavaFileFilter.EXT)) {
+//                s = new JavaOutputStream(out);
+//            } else {
+//                s = new ObjectOutputStream(out);
+//            }
+
+//            s.writeObject(panel.getRoot());
+            s.writeObject(selectedStruct.getTree());
+            s.close();
+
+//            this.filename = filename;
+//            setTitle();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+//                                                Config.getImage("guibuilder.image.jbutton")
+
+    private NewComponentAction[] createNewComponentActions()
+    {
+        BeanInfo jbuttonBeanInfo = null, jcheckboxBeanInfo = null, jradiobuttonBeanInfo = null, jtogglebuttonBeanInfo = null;
+
+        try {
+            jbuttonBeanInfo = Introspector.getBeanInfo(javax.swing.JButton.class);
+            jcheckboxBeanInfo = Introspector.getBeanInfo(javax.swing.JCheckBox.class);
+            jradiobuttonBeanInfo = Introspector.getBeanInfo(javax.swing.JRadioButton.class);
+            jtogglebuttonBeanInfo = Introspector.getBeanInfo(javax.swing.JToggleButton.class);
+        }
+        catch(IntrospectionException iex)
+        {
+
+        }
+
+        NewComponentAction jbuttonAction = new NewComponentAction(
+                                                "JButton",
+                                                new ImageIcon(jbuttonBeanInfo.getIcon(BeanInfo.ICON_COLOR_16x16))
+                                               )
+        {
+            public GUIComponent createNewComponent(GUIComponentNode parent,
+                                                StructureContainer structCont,
+                                                GUIBuilderApp app)
+            {
+                return new GUIButton("Button",parent,structCont,app);
+            }
+        };
+
+        NewComponentAction jcheckboxAction = new NewComponentAction(
+                                                "JCheckBox",
+                                                new ImageIcon(jcheckboxBeanInfo.getIcon(BeanInfo.ICON_COLOR_16x16))
+                                               )
+        {
+            public GUIComponent createNewComponent(GUIComponentNode parent,
+                                                StructureContainer structCont,
+                                                GUIBuilderApp app)
+            {
+                return new GUICheckbox("Checkbox",parent,structCont,app);
+            }
+        };
+
+        NewComponentAction jradiobuttonAction = new NewComponentAction(
+                                                "JRadioButton",
+                                                new ImageIcon(jradiobuttonBeanInfo.getIcon(BeanInfo.ICON_COLOR_16x16))
+                                               )
+        {
+            public GUIComponent createNewComponent(GUIComponentNode parent,
+                                                StructureContainer structCont,
+                                                GUIBuilderApp app)
+            {
+                return new GUICheckbox("Checkbox",parent,structCont,app);
+            }
+        };
+
+        NewComponentAction jtogglebuttonAction = new NewComponentAction(
+                                                "JToggleButton",
+                                                new ImageIcon(jtogglebuttonBeanInfo.getIcon(BeanInfo.ICON_COLOR_16x16))
+                                               )
+        {
+            public GUIComponent createNewComponent(GUIComponentNode parent,
+                                                StructureContainer structCont,
+                                                GUIBuilderApp app)
+            {
+                return new GUICheckbox("Checkbox",parent,structCont,app);
+            }
+        };
+
+        NewComponentAction jlabelAction = new NewComponentAction("JLabel")
+        {
+            public GUIComponent createNewComponent(GUIComponentNode parent,
+                                                StructureContainer structCont,
+                                                GUIBuilderApp app)
+            {
+                return new GUILabel("Label",parent,structCont,app);
+            }
+        };
+
+        NewComponentAction jtextfieldAction = new NewComponentAction("JTextField")
+        {
+            public GUIComponent createNewComponent(GUIComponentNode parent,
+                                                StructureContainer structCont,
+                                                GUIBuilderApp app)
+            {
+                return new GUITextField("TextField",parent,structCont,app);
+            }
+        };
+
+        NewComponentAction jpanelAction = new NewComponentAction("JPanel")
+        {
+            public GUIComponent createNewComponent(GUIComponentNode parent,
+                                                StructureContainer structCont,
+                                                GUIBuilderApp app)
+            {
+                GUIComponent tmpComponent = new GUIPanel(parent,structCont,app);
+
+                ((GUIPanel)tmpComponent).setGUILayout((GUIComponentLayoutNode)(new GUIFlowLayout ((GUIComponentNode)tmpComponent,structCont,app)));
+
+                return tmpComponent;
+            }
+        };
+
+        return new NewComponentAction[] { jbuttonAction, jcheckboxAction, jradiobuttonAction,
+                                         jtogglebuttonAction, jlabelAction, jtextfieldAction,
+                                         jpanelAction };
+     }
 
 
     /**
@@ -564,35 +739,34 @@ public class GUIBuilderApp extends Frame
 
 
     /**
-     * This class handles clicks on the add-buttons (Button, Canvas, etc.).
+     * This class handles clicks on the new component buttons (JButton etc.).
      *
      * Created: Oct 1, 1998.
      *
      * @author Morten Knudsen & Kent Hansen
      * @version 1.0
      */
-    private class ToolbarButtonListener extends MouseAdapter
+    private class NewComponentListener implements ActionListener
     {
-	public void mouseClicked (MouseEvent e)
-	{
-	    // If the user pressed the left-button:
-	    if ((e.getModifiers()==MouseEvent.BUTTON1_MASK))
-	    {
-		if (buttonGroup.getSelectedButton()!=null)
-		    setMode(ADDMODE);
-		else
-		    setMode(SELECTMODE);
+        public void actionPerformed (ActionEvent e)
+        {
+            if (buttonGroup.getSelection()!=null)
+                setMode(ADDMODE);
+            else
+                setMode(SELECTMODE);
 
-		if (selectedComponent!=null)
-		{
-		    if (selectedComponent instanceof GUIComponentLeaf)
-			((GUIConcreteComponent)selectedComponent).getContainer().setHighlight(false);
-		    else if (selectedComponent instanceof GUIComponentNode)
-			((GUIComponentNormalNode)selectedComponent).getGUILayout().setHighlight(false);
-		    selectedComponent = null;
-		}
-	    }
-	}
+            if (selectedComponent != null)
+            {
+                if (selectedComponent instanceof GUIComponentLeaf)
+                    ((GUIConcreteComponent)selectedComponent).getContainer().setHighlight(false);
+                else if (selectedComponent instanceof GUIComponentNode)
+                    ((GUIComponentNormalNode)selectedComponent).getGUILayout().setHighlight(false);
+
+                selectedComponent = null;
+            }
+
+            buttonAction = (NewComponentAction) (((JToggleButton)e.getSource()).getAction());
+        }
     }
 
 
@@ -604,7 +778,7 @@ public class GUIBuilderApp extends Frame
 	    super (frame, "About GUIBuilder", true);
 	    setLocation(frame.getLocation());
 
-	    addWindowListener(new WindowAdapter() { public void 
+	    addWindowListener(new WindowAdapter() { public void
 		    windowClosing(WindowEvent e) { closeDialog(); } } );
 
 	    setLayout(new GridBagLayout());

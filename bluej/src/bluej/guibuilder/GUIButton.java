@@ -2,6 +2,7 @@ package bluej.guibuilder;
 
 import java.awt.*;
 import java.util.Vector;
+import javax.swing.*;
 
 
 /**
@@ -12,11 +13,11 @@ import java.util.Vector;
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
  */
-public class GUIButton extends Button implements GUIComponentLeaf
+public class GUIButton extends JButton implements GUIComponentLeaf
 {
     private GUIComponentNode parent = null;
     private static int counter = 0;
-    
+
     private transient GUIBuilderApp app = null;
     private StructureContainer structCont = null;
     private GUIContainer container = null;
@@ -93,7 +94,7 @@ public class GUIButton extends Button implements GUIComponentLeaf
     {
 	this.structCont = structCont;
     }
-    
+
 
     /**
      * Returns the StructureContainer that contains the tree containing this component.
@@ -223,6 +224,6 @@ public class GUIButton extends Button implements GUIComponentLeaf
     public void showPropertiesDialog()
     {
         GUIButtonPropertyDialog propertyDialog = new GUIButtonPropertyDialog(app,this,"Button",structCont);
-        
+
     }
 }

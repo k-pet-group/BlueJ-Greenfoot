@@ -1,6 +1,7 @@
 package bluej.guibuilder;
 
 import java.awt.*;
+import javax.swing.*;
 import java.util.Vector;
 
 
@@ -12,17 +13,17 @@ import java.util.Vector;
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
  */
-class GUITextField extends TextField implements GUIComponentLeaf
+class GUITextField extends JTextField implements GUIComponentLeaf
 {
     private GUIComponentNode parent = null;
     private static int counter = 0;
-  
+
     private transient GUIBuilderApp app = null;
     private StructureContainer structCont = null;
     private GUIContainer container = null;
     private ComponentDescriptor componentDescriptor = new ComponentDescriptor(this);
     private boolean defined = false;
-    
+
 
     /**
      * Constructs a GUITextField with no text.
@@ -199,7 +200,7 @@ class GUITextField extends TextField implements GUIComponentLeaf
 	    initCode.append ("\""+getText()+"\"");
         if (defined)
             initCode.append(","+getColumns());
-        
+
         initCode.append (")");
 
 	if (initlevel==ComponentCode.UNREFERENCEABLE)
@@ -247,15 +248,15 @@ class GUITextField extends TextField implements GUIComponentLeaf
     public void showPropertiesDialog()
     {
         GUITextFieldPropertyDialog propertyDialog = new GUITextFieldPropertyDialog(app,this,"TextField",structCont);
-        
+
     }
 
-    
 
-    
-    
-    
-   
-    
-    
+
+
+
+
+
+
+
 }

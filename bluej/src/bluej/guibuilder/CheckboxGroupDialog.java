@@ -26,11 +26,11 @@ public class CheckboxGroupDialog extends Dialog
 
     private TextField tfName = new TextField();
     private Label status = new Label("Status");
-    
+
     private NewDialog newDialog;
     private CheckboxGroupContainer checkboxGroupContainer;
     private GUICheckbox component;
-    
+
 
     /**
      * Constructs a ListenerDialog.
@@ -43,15 +43,15 @@ public class CheckboxGroupDialog extends Dialog
     {
         super(g, true);
         this.component = component;
-        
+
         checkboxGroupContainer = structureContainer.getCheckboxGroupContainer();
         newDialog = new NewDialog(g);
-        
+
         setTitle("CheckboxGroups");
-        
+
         GridBagLayout gb = new GridBagLayout();
         setLayout(gb);
-        
+
         String tmp2 = component.getGroup();
         if(tmp2.equals(""))
             tfName.setText("None");
@@ -65,22 +65,22 @@ public class CheckboxGroupDialog extends Dialog
             tmp = (String)groups.nextElement();
             groupList.addItem(tmp);
         }
-                
+
         GridBagConstraints gbc2 = new GridBagConstraints();
         gbc2.gridwidth = 3;
         gbc2.gridy = 0;
         gbc2.fill = GridBagConstraints.HORIZONTAL;
-        
+
         GridBagConstraints gbcButtons = new GridBagConstraints();
         gbcButtons.gridx = 0;
         gbcButtons.gridy = 4;
         GridBagConstraints gbcMiddle = new GridBagConstraints();
         gbcMiddle.gridy = 2;
         gbcMiddle.fill = GridBagConstraints.HORIZONTAL;
-        
+
         GridBagConstraints gbcLabel = new GridBagConstraints();
         gbcLabel.gridwidth = 2;
-        
+
         add(new Label("All Groups"),gbc2);
         gbc2.gridy++;
         add(groupList,gbc2);
@@ -90,20 +90,20 @@ public class CheckboxGroupDialog extends Dialog
 
         add(newButton,gbcButtons);
         gbcButtons.gridx++;
-                
+
         add(associateButton,gbcButtons);
         gbcButtons.gridx++;
-                
+
         add(removeButton,gbcButtons);
         gbcButtons.gridx++;
-        
+
         gbc2.gridy = 5;
-                
+
         add(closeButton,gbc2);
         gbc2.gridy++;
-        
+
         add(status,gbc2);
-                
+
         newButton.addActionListener(buttonListener);
         associateButton.addActionListener(buttonListener);
         removeButton.addActionListener(buttonListener);
@@ -111,7 +111,7 @@ public class CheckboxGroupDialog extends Dialog
     }
 
 
-    
+
     private class ButtonListener implements ActionListener
     {
         public void actionPerformed(ActionEvent e)
@@ -137,19 +137,19 @@ public class CheckboxGroupDialog extends Dialog
             }
             else if(e.getSource().equals(closeButton))
             {
-                if(!tfName.getText().equals("None"))
+/*                if(!tfName.getText().equals("None"))
                     component.setCheckboxGroup(checkboxGroupContainer.getGUICheckboxGroup(tfName.getText()));
                 else
-                    component.setCheckboxGroup(null);
+                    component.setCheckboxGroup(null);*/
                 dispose();
-            }			
+            }
             else if(e.getSource().equals(newButton))
             {
                 newDialog.setModal(true);
                 newDialog.pack();
                 newDialog.show();
             }
-            else 		// delete Listener	
+            else 		// delete Listener
             {
                 if(groupList.getSelectedIndex()!=-1 && !groupList.getSelectedItem().equals("None"))
                 {
@@ -161,14 +161,14 @@ public class CheckboxGroupDialog extends Dialog
                 }
                 else
                     status.setText("You must select a group to remove");
-                
+
             }
         }
-        
+
     }
 
 
-    
+
     private class NewDialog extends Dialog implements ActionListener
     {
         private Button addOkButton = new Button("OK");
@@ -206,9 +206,9 @@ public class CheckboxGroupDialog extends Dialog
                 dispose();
             }
         }
-            
+
     }
-        
-        
+
+
 }
 

@@ -2,6 +2,8 @@ package bluej.guibuilder;
 
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
+
 import bluej.guibuilder.graphics.Separator;
 
 
@@ -29,7 +31,7 @@ public class GUIPropertyDialog extends Dialog {
      * @see GUIPropertyDialog#init
      */
     protected Panel specialPanel = new Panel();
-    
+
     private TextField tfName = new TextField();
     private Button fg = new Button();
     private Button bg = new Button();
@@ -41,15 +43,15 @@ public class GUIPropertyDialog extends Dialog {
     private Choice cursorChoice = new Choice();
     private Button listenerButton = new Button("Define");
     private Choice levelChoice = new Choice();
-    
+
     private Button okButton = new Button("OK");
     private Button cancelButton = new Button("Cancel");
-    
+
     private ColorButtonListener colorbuttonListener = new ColorButtonListener();
     private FontListener fontListener = new FontListener();
-    
+
     private ButtonListener buttonListener = new ButtonListener();
-    
+
     private ColorDialog colorDialog;
     private Frame frame;
     private StringBuffer ftext = new StringBuffer();
@@ -62,10 +64,10 @@ public class GUIPropertyDialog extends Dialog {
      */
     protected StructureContainer structureContainer;
     private ComponentDescriptor componentDescriptor;
-    
-      private int[] cursors ={ Cursor.CROSSHAIR_CURSOR,Cursor.DEFAULT_CURSOR,Cursor.E_RESIZE_CURSOR,Cursor.HAND_CURSOR,Cursor.MOVE_CURSOR,Cursor.N_RESIZE_CURSOR,Cursor.NE_RESIZE_CURSOR,Cursor.NW_RESIZE_CURSOR,Cursor.S_RESIZE_CURSOR,Cursor.SE_RESIZE_CURSOR,Cursor.SW_RESIZE_CURSOR,Cursor.TEXT_CURSOR,Cursor.W_RESIZE_CURSOR,Cursor.WAIT_CURSOR 
+
+      private int[] cursors ={ Cursor.CROSSHAIR_CURSOR,Cursor.DEFAULT_CURSOR,Cursor.E_RESIZE_CURSOR,Cursor.HAND_CURSOR,Cursor.MOVE_CURSOR,Cursor.N_RESIZE_CURSOR,Cursor.NE_RESIZE_CURSOR,Cursor.NW_RESIZE_CURSOR,Cursor.S_RESIZE_CURSOR,Cursor.SE_RESIZE_CURSOR,Cursor.SW_RESIZE_CURSOR,Cursor.TEXT_CURSOR,Cursor.W_RESIZE_CURSOR,Cursor.WAIT_CURSOR
     };
-    
+
     /**
      * This component needs to be referred to in subclasses.
      *
@@ -77,7 +79,7 @@ public class GUIPropertyDialog extends Dialog {
        * Constructs a GUIPropertyDialog. This class mainly invoked from one of its subclasses.
        The protected member specialPanel should be used by the subclass to show
        the specific properties of the class.
-       
+
        @param f Frame
        @param component The GUIComponent to be changed.
        @param componentStr A String that describes the component.
@@ -89,28 +91,28 @@ public class GUIPropertyDialog extends Dialog {
         this.componentStr = componentStr;
         this.structureContainer = structureContainer;
         this.componentDescriptor = ((GUIConcreteComponent)component).getComponentDescriptor();
-    
+
         frame = f;
         ftext = new StringBuffer(componentDescriptor.getColorString());
         btext = new StringBuffer(componentDescriptor.getBcolorString());
-        
+
         GridBagConstraints gbc1 = new GridBagConstraints();
         gbc1.fill = GridBagConstraints.HORIZONTAL;
-        
+
         GridBagConstraints gbc2 = new GridBagConstraints();
 	gbc2.gridwidth = GridBagConstraints.REMAINDER;
         gbc2.fill = GridBagConstraints.HORIZONTAL;
 	gbc2.weightx = 1;
-        
+
         p.setLayout(gb);
-        
+
         p.add(new Label("Name:",Label.LEFT),gbc1);
 
         tfName.setText(component.getName());
         p.add(tfName,gbc2);
 
         p.add(new Label("Foreground:",Label.LEFT),gbc1);
-        
+
         p.add(fg,gbc2);
         fg.setBackground(((Component)component).getForeground());
         p.add(new Label("Background:",Label.LEFT),gbc1);
@@ -129,7 +131,7 @@ public class GUIPropertyDialog extends Dialog {
         p.add(sizeChoice,gbc2);
         int[] sizes = { 8,10,12,14,16,18,24,36 };
         int size = (((Component)component).getFont()).getSize();
-        int i = 0 ; 
+        int i = 0 ;
         while(sizes[i]<size)
         {
             sizeChoice.add(""+sizes[i]);
@@ -149,38 +151,38 @@ public class GUIPropertyDialog extends Dialog {
         faceChoice.add("Italics");
         faceChoice.add("Bold & Italics");
         faceChoice.select("Plain");
-        
+
         if(currentFont.isBold())
             faceChoice.select("Bold");
         if(currentFont.isItalic())
             faceChoice.select("Italics");
         if(currentFont.isBold() && currentFont.isItalic())
             faceChoice.select("Bold & Italics");
-        
+
 
         samplefield.setFont(currentFont);
-        
+
 	p.add(new Label("Sample:"), gbc1);
         p.add(samplefield,gbc2);
-        
+
         p.add(new Label("Cursor: ",Label.LEFT),gbc1);
         p.add(cursorChoice,gbc2);
         cursorChoice.add("CROSSHAIR_CURSOR");
-        cursorChoice.add("DEFAULT_CURSOR"); 
-        cursorChoice.add("E_RESIZE_CURSOR"); 
-        cursorChoice.add("HAND_CURSOR"); 
-        cursorChoice.add("MOVE_CURSOR"); 
-        cursorChoice.add("N_RESIZE_CURSOR"); 
-        cursorChoice.add("NE_RESIZE_CURSOR"); 
-        cursorChoice.add("NW_RESIZE_CURSOR"); 
-        cursorChoice.add("S_RESIZE_CURSOR"); 
-        cursorChoice.add("SE_RESIZE_CURSOR"); 
-        cursorChoice.add("SW_RESIZE_CURSOR"); 
-        cursorChoice.add("TEXT_CURSOR"); 
-        cursorChoice.add("W_RESIZE_CURSOR"); 
-        cursorChoice.add("WAIT_CURSOR"); 
+        cursorChoice.add("DEFAULT_CURSOR");
+        cursorChoice.add("E_RESIZE_CURSOR");
+        cursorChoice.add("HAND_CURSOR");
+        cursorChoice.add("MOVE_CURSOR");
+        cursorChoice.add("N_RESIZE_CURSOR");
+        cursorChoice.add("NE_RESIZE_CURSOR");
+        cursorChoice.add("NW_RESIZE_CURSOR");
+        cursorChoice.add("S_RESIZE_CURSOR");
+        cursorChoice.add("SE_RESIZE_CURSOR");
+        cursorChoice.add("SW_RESIZE_CURSOR");
+        cursorChoice.add("TEXT_CURSOR");
+        cursorChoice.add("W_RESIZE_CURSOR");
+        cursorChoice.add("WAIT_CURSOR");
         setCursorChoice();
-        
+
 	p.add(new Label("Listeners:"), gbc1);
         p.add(listenerButton,gbc2);
 
@@ -192,19 +194,19 @@ public class GUIPropertyDialog extends Dialog {
 	p.add(levelChoice, gbc2);
 
         p.add(new Separator(),gbc2);
-        
+
         // add Listeners
         fg.addActionListener(colorbuttonListener);
         bg.addActionListener(colorbuttonListener);
         fontChoice.addItemListener(fontListener);
         sizeChoice.addItemListener(fontListener);
         faceChoice.addItemListener(fontListener);
-        
+
         listenerButton.addActionListener(buttonListener);
-        
+
         okButton.addActionListener(buttonListener);
         cancelButton.addActionListener(buttonListener);
-        
+
         basicPanel.setLayout(new BorderLayout());
         buttonPanel.setLayout(new GridBagLayout());
 
@@ -236,7 +238,7 @@ public class GUIPropertyDialog extends Dialog {
         componentDescriptor.setBcolorString(btext.toString());
         componentDescriptor.setInitLevel(levelChoice.getSelectedIndex());
         int selected = cursorChoice.getSelectedIndex();
-        
+
         ((Component)component).setCursor(new Cursor(cursors[selected]));
         ((Component)component).setFont(font);
     }
@@ -254,16 +256,16 @@ public class GUIPropertyDialog extends Dialog {
         if(dim.width > width)
             width = dim.width;
 
-        
+
         basicPanel.setSize(width,dim.height);
         setSize(getPreferredSize());
-        
+
 	setLocation(((Component)component).getLocationOnScreen());
-            
+
         validate();
 
         show();
-        
+
     }
 
     private void setCursorChoice()
@@ -273,11 +275,11 @@ public class GUIPropertyDialog extends Dialog {
         for(int i = 0 ; i < cursors.length ; i++)
             if(cursors[i] == tmpInt)
                 cursorChoice.select(i);
-            
+
     }
 
 
-    
+
     private class ColorButtonListener implements ActionListener
     {
         public void actionPerformed(ActionEvent e)
@@ -285,10 +287,12 @@ public class GUIPropertyDialog extends Dialog {
             if(e.getSource().equals(fg))
             {
                 Color newColor = ((Component)component).getForeground() ;
-                componentDescriptor.getColorString();
-                ColorCap colorCap = new ColorCap(newColor);
+//                componentDescriptor.getColorString();
+//                ColorCap colorCap = new ColorCap(newColor);
 
-                if(componentDescriptor.getColorString().indexOf("System") ==-1)
+//                newColor = JColorChooser.showDialog(this, "Choose a colour", newColor);
+
+/*                if(componentDescriptor.getColorString().indexOf("System") ==-1)
                 {
                     colorDialog = new ColorDialog(frame,colorCap,ftext,false);
                 }
@@ -296,16 +300,16 @@ public class GUIPropertyDialog extends Dialog {
                 {
                     colorDialog = new ColorDialog(frame,colorCap,ftext,true);
                 }
-                newColor = colorCap.getColor();
+                newColor = colorCap.getColor();*/
                 fg.setBackground(newColor);
-                    
+
             }
             else
             {
                 Color newColor = ((Component)component).getBackground() ;
                 btext = new StringBuffer(componentDescriptor.getBcolorString());
                 ColorCap colorCap = new ColorCap(newColor);
-                    
+
                 if(componentDescriptor.getBcolorString().indexOf("System") ==-1)
                     colorDialog = new ColorDialog(frame,colorCap,btext,false);
                 else
@@ -342,7 +346,7 @@ public class GUIPropertyDialog extends Dialog {
     }
 
 
-    
+
     private class FontListener implements ItemListener
     {
         public void itemStateChanged(ItemEvent e)
@@ -364,10 +368,10 @@ public class GUIPropertyDialog extends Dialog {
             validate();
         }
     }
-    
-            
-                    
- 
-                       
-                    
+
+
+
+
+
+
 } // GUIPropertyDialog

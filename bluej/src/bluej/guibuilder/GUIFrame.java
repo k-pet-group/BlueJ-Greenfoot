@@ -3,6 +3,7 @@ package bluej.guibuilder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.*;
 import java.io.*;
 import java.util.Vector;
 import bluej.pkgmgr.*;
@@ -17,7 +18,7 @@ import bluej.editor.*;
  * @author Morten Knudsen & Kent Hansen
  * @version 1.0
  */
-class GUIFrame extends Frame implements GUIComponentNormalNode
+class GUIFrame extends JFrame implements GUIComponentNormalNode
 {
     private GUIComponentNode parent = null;
     private GUIComponentLayoutNode layout = null;
@@ -162,7 +163,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
      */
     public void setGUILayout(GUIComponentLayoutNode layout)
     {
-	super.setLayout((LayoutManager)layout);
+	super.getContentPane().setLayout((LayoutManager)layout);
 	this.layout = layout;
 	layout.initContainers();
     }
@@ -223,7 +224,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
      */
     public void add(GUIComponent component)
     {
-        super.add((Component)component);
+        super.getContentPane().add((Component)component);
 	layout.addGUIComponent(component);
     }
 
@@ -240,17 +241,17 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
      */
     public void add(GUIComponent component, Object constraints)
     {
-        super.add((Component)component, constraints);
+        super.getContentPane().add((Component)component, constraints);
         layout.addGUIComponent(component, constraints);
     }
-            
+
 
     /**
      * Adds a menubar to the Frame. Various item can later be added to this menu.
      * via the property dialog.
      *
      */
-      
+
     public void addMenuBar()
     {
 	if (menubar==null)
@@ -271,7 +272,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
 	setMenuBar(null);
     }
 
-    
+
     /**
      * Removes the GUIComponentLayoutNode used as layout in the Frame. Furthermore
      * removeAll from the super class Contaiener is called.
@@ -304,7 +305,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
 	if (component.equals(layout))
 	    layout = null;
     }
-    
+
      /**
      * Generates the Java code used to make this component.
      *
@@ -340,7 +341,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
     }
 
 
-    
+
     /**
      * Makes a copy of this component. This is used for the preview function, since a
      * component can only be shown in one container.
@@ -370,12 +371,12 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
     public void showPropertiesDialog()
     {
         GUIFramePropertyDialog propertyDialog = new GUIFramePropertyDialog(app,this,"Frame",structCont);
-        
+
     }
 
-    
 
-    
-    
+
+
+
 
 }

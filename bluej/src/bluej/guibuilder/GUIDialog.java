@@ -3,6 +3,7 @@ package bluej.guibuilder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.*;
 import java.io.*;
 import java.util.Vector;
 import bluej.pkgmgr.*;
@@ -10,14 +11,14 @@ import bluej.editor.*;
 
 
 /**
- * A class representing a Dialog.
+ * A class representing a JDialog.
  *
  * Created: Oct 1, 1998.
  *
- * @author Morten Knudsen & Kent Hansen
+ * @author  Morten Knudsen & Kent Hansen
  * @version 1.0
  */
-class GUIDialog extends Dialog implements GUIComponentNormalNode
+class GUIDialog extends JPanel implements GUIComponentNormalNode
 {
     private GUIComponentNode parent = null;
     private GUIComponentLayoutNode layout = null;
@@ -38,7 +39,7 @@ class GUIDialog extends Dialog implements GUIComponentNormalNode
      */
     public GUIDialog (Frame frame, GUIComponentNode parent, StructureContainer structCont, GUIBuilderApp app)
     {
-	super(frame, "Dialog"+counter);
+//	super(frame, "Dialog"+counter);
         this.parent = parent;
         this.structCont = structCont;
         this.app =app;
@@ -82,7 +83,7 @@ class GUIDialog extends Dialog implements GUIComponentNormalNode
     {
 	this.parent = parent;
     }
-    
+
 
     /**
      * Returns the parent node in the tree structure of this component.
@@ -307,12 +308,12 @@ class GUIDialog extends Dialog implements GUIComponentNormalNode
 	code.addGlobal (listenerCode.getGlobalCode()+"\n");
 	code.addCreation ("class "+getName()+" extends Dialog\n");
 	code.addCreation ("{\n");
-        
+
         code.addCreation (listenerCode.getCreationCode());
 	code.addCreation (childCode.getGlobalCode()+"\n");
 
 	code.addCreation ("public "+getName()+"(Frame frame)\n{\n");
-	code.addCreation ("super(frame, \""+getTitle()+"\"");
+//	code.addCreation ("super(frame, \""+getTitle()+"\"");
 	if (modal)
 	    code.addCreation (", true");
 	code.addCreation (");\ncreateInterface();\n}\n\n");
@@ -324,7 +325,7 @@ class GUIDialog extends Dialog implements GUIComponentNormalNode
         code.addCreation(componentDescriptor.getDescriptionCode(getName()));
         code.addCreation (childCode.getCreationCode());
 	code.addCreation ("}\n}\n");
-        
+
 	return code;
     }
 

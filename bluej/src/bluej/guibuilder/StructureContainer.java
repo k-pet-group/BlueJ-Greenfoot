@@ -1,10 +1,9 @@
 package bluej.guibuilder;
 
-import java.awt.Window;
-import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.*;
 import java.io.*;
 
 import bluej.pkgmgr.Package;
@@ -33,6 +32,24 @@ public class StructureContainer implements Serializable
 
     private WindowHandler windowHandler = new WindowHandler();
 
+
+    public StructureContainer (GUIBuilderApp app, JComponent startpoint)
+    {
+        this.app = app;
+        structCont = this;
+
+        guiTree = new GUIPanel(null, this, app);
+
+        startpoint.setLayout(new FlowLayout(FlowLayout.LEFT));
+        startpoint.add((JPanel)guiTree); //, BorderLayout.WEST);
+        ((JPanel)guiTree).setBorder(BorderFactory.createCompoundBorder(
+                                        BorderFactory.createLineBorder(Color.black, 3),
+                                        BorderFactory.createEmptyBorder(2,2,2,2)
+                                        ));
+
+        guiTree.setGUILayout (new GUIBorderLayout (guiTree, this, app));
+
+    }
 
     /**
      * Constructs a new StructureContainer with the specified component as root
@@ -176,9 +193,9 @@ public class StructureContainer implements Serializable
      */
     public void redraw()
     {
-	Dimension size = ((Window)guiTree).getSize();
-	Dimension pref = ((Window)guiTree).getPreferredSize();
-	Point location = ((Window)guiTree).getLocation();
+	Dimension size = ((Container)guiTree).getSize();
+	Dimension pref = ((Container)guiTree).getPreferredSize();
+	Point location = ((Container)guiTree).getLocation();
 
 	int height = size.height;
 	int width = size.width;
@@ -199,10 +216,10 @@ public class StructureContainer implements Serializable
 	    width = pref.width;
 	}
 
-	((Window)guiTree).setLocation(x, y);
-	((Window)guiTree).setSize(width, height);
-        ((Window)guiTree).validate();
-        ((Window)guiTree).repaint();
+//	((Container)guiTree).setLocation(x, y);
+	((Container)guiTree).setSize(width, height);
+        ((Container)guiTree).validate();
+        ((Container)guiTree).repaint();
 
 	if (target!=null)
 	    saveCode();
