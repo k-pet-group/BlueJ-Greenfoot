@@ -39,7 +39,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1302 2002-08-13 14:55:52Z mik $
+ * @version $Id: PkgMgrFrame.java 1303 2002-08-14 07:38:55Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -637,197 +637,6 @@ public class PkgMgrFrame extends JFrame
 
     // ============ end of PackageEditorListener interface ===============
 
-    /**
-     * Handle the invocation of a user action.
-     */
-    private void handleAction(AWTEvent evt)
-    {
-        Object src = evt.getSource();
-        Integer evtIdObj = (Integer)actions.get(src);
-        int evtId = (evtIdObj != null) ? evtIdObj.intValue() : -1;
-        String name;
-        int tmp;
-
-        // Always reset unless one of these buttons are pressed
-        if (evtId != EDIT_NEWUSES && evtId != EDIT_NEWINHERITS) {
-            if(!isEmptyFrame())
-                pkg.setState(Package.S_IDLE);
-        }
-        clearStatus();
-
-        switch(evtId) {
-            // Project commands
-        case PROJ_NEW:                 // can be executed when isEmptyFrame() is true
-            doNewProject();
-            break;
-
-        case PROJ_OPEN:                // can be executed when isEmptyFrame() is true
-            doOpen();
-            break;
-
-        case PROJ_OPENNONBLUEJ:        // can be executed when isEmptyFrame() is true
-            doOpenNonBlueJ();
-            break;
-
-        case PROJ_CLOSE:
-            doClose(true);
-            break;
-
-        case PROJ_SAVE:
-            getProject().saveAll();
-            break;
-
-        case PROJ_SAVEAS:
-            getProject().saveAs(this);
-            break;
-
-        case PROJ_IMPORT:        // can be executed when isEmptyFrame() is true
-            doImport();
-            break;
-
-        case PROJ_EXPORT:
-            doExport();
-            break;
-
-        case PROJ_PAGESETUP:
-            pageSetup();
-            break;
-
-        case PROJ_PRINT:
-            print();
-            break;
-
-        case PROJ_QUIT:        // can be executed when isEmptyFrame() is true
-            wantToQuit();
-            break;
-
-            // Edit commands
-        case EDIT_NEWCLASS:
-            createNewClass();
-            break;
-
-        case EDIT_NEWPACKAGE:
-            createNewPackage();
-            break;
-
-        case EDIT_ADDCLASS:
-            doAddFromFile();
-            break;
-
-        case EDIT_REMOVE:
-            doRemove();
-            break;
-
-        case EDIT_NEWUSES:
-            pkg.setState(Package.S_CHOOSE_USES_FROM);
-            setStatus(chooseUsesFrom);
-            break;
-
-        case EDIT_NEWINHERITS:
-            pkg.setState(Package.S_CHOOSE_EXT_FROM);
-            setStatus(chooseInhFrom);
-            break;
-
-        case EDIT_REMOVEARROW:
-            pkg.setState(Package.S_DELARROW);
-            setStatus(chooseArrow);
-            break;
-
-            // Tools commands
-        case TOOLS_COMPILE:
-            pkg.compile();
-            break;
-
-        case TOOLS_COMPILESELECTED:
-            compileSelected();
-            break;
-
-        case TOOLS_CALLLIBRARY:
-            callLibraryClass();
-            break;
-
-        case TOOLS_REBUILD:
-            pkg.rebuild();
-            break;
-
-        case TOOLS_GENERATEDOC:
-            String message = pkg.generateDocumentation();
-            if (message!="")
-                DialogManager.showText(this,message);
-            break;
-
-        case TOOLS_PREFERENCES:         // can be executed when isEmptyFrame() is true
-            PrefMgrDialog.showDialog(this);
-            break;
-
-            // View commands
-        case VIEW_SHOWUSES:
-            toggleShowUses(src);
-            break;
-
-        case VIEW_SHOWINHERITS:
-            toggleShowExtends(src);
-            break;
-
-        case VIEW_SHOWCONTROLS:
-            ExecControls.showHide(true, true, null);
-            break;
-
-            // Group work commands
-        case GRP_CREATE:
-            //CVSGroupPkgManager groupPkgMgr=new CVSGroupPkgManager();
-        case GRP_OPEN:
-        case GRP_UPDATESELECTED:
-        case GRP_UPDATEALL:
-        case GRP_COMMITSELECTED:
-        case GRP_COMMITALL:
-        case GRP_STATUSSELECTED:
-        case GRP_STATUSALL:
-        case GRP_USERS:
-        case GRP_CONFIG:
-            DialogManager.NYI(this);
-            break;
-
-            // Help commands
-        case HELP_ABOUT:                    // can be executed when isEmptyFrame() is true
-        handleAbout();
-            break;
-
-        case HELP_VERSIONCHECK:             // can be executed when isEmptyFrame() is true
-            VersionCheckDialog dialog = new VersionCheckDialog(this);
-            break;
-
-        case HELP_COPYRIGHT:
-            JOptionPane.showMessageDialog(this,
-                  new String[] {
-                      "BlueJ \u00a9 2000-2002 Michael K\u00F6lling, John Rosenberg.",
-                      " ",
-                      "BlueJ is available free of charge and may be",
-                      "redistributed freely. It may not be sold for",
-                      "profit or included in other packages which",
-                      "are sold for profit without written authorisation."
-                  },
-                  "BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
-            break;
-
-        case HELP_WEBSITE:                  // can be executed when isEmptyFrame() is true
-            showWebPage(bluejUrl);
-            break;
-
-        case HELP_TUTORIAL:                 // can be executed when isEmptyFrame() is true
-            showWebPage(tutorialUrl);
-            break;
-
-        case HELP_STANDARDAPI:              // can be executed when isEmptyFrame() is true
-            showWebPage(Config.getPropString("bluej.url.javaStdLib"));
-            break;
-
-        default:
-            Debug.reportError("unknown command ID");
-            break;
-        }
-    }
-
     // --- below are implementations of particular user actions ---
 
     /**
@@ -1210,6 +1019,23 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
+     * Copyright menu item was chosen.
+     */
+    public void showCopyright()
+    {
+        JOptionPane.showMessageDialog(this,
+              new String[] {
+                  "BlueJ \u00a9 2000-2002 Michael K\u00F6lling, John Rosenberg.",
+                  " ",
+                  "BlueJ is available free of charge and may be",
+                  "redistributed freely. It may not be sold for",
+                  "profit or included in other packages which",
+                  "are sold for profit without written authorisation."
+              },
+              "BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    /**
      * Interactively call a method or a constructor
      */
     private void callMethod(CallableView cv)
@@ -1460,6 +1286,33 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
+     * The user function to add a uses arrow to the dagram was invoked.
+     */
+    public void doNewUses()
+    {
+        pkg.setState(Package.S_CHOOSE_USES_FROM);
+        setStatus(chooseUsesFrom);
+    }
+    
+    /**
+     * The user function to add an inherits arrow to the dagram was invoked.
+     */
+    public void doNewInherits()
+    {
+        pkg.setState(Package.S_CHOOSE_EXT_FROM);
+        setStatus(chooseInhFrom);
+    }
+    
+    /**
+     * The user function to remove an arrow from the dagram was invoked.
+     */
+    public void doRemoveArrow()
+    {
+        pkg.setState(Package.S_DELARROW);
+        setStatus(chooseArrow);
+    }
+
+    /**
      * Removes the specified ClassTarget from the Package.
      */
     public void removeClass(ClassTarget removableTarget)
@@ -1523,28 +1376,38 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
+     * User function "Generate Documentation...".
+     */
+    public void generateProjectDocumentation()
+    {
+        String message = pkg.generateDocumentation();
+        if (message!="")
+            DialogManager.showText(this,message);
+    }
+
+    /**
      * Toggle the state of the "show uses arrows" switch.
      */
-    public void toggleShowUses(Object src)
+    public void toggleShowUses(boolean fromButton)
     {
         if(showUsesCheckbox.isSelected() != showUsesMenuItem.isSelected()) {
-            if(src == showUsesMenuItem)
-                showUsesCheckbox.setSelected(showUsesMenuItem.isSelected());
-            else
+            if(fromButton)
                 showUsesMenuItem.setSelected(showUsesCheckbox.isSelected());
+            else
+                showUsesCheckbox.setSelected(showUsesMenuItem.isSelected());
 
             pkg.toggleShowUses();
             editor.repaint();
         }
     }
 
-    public void toggleShowExtends(Object src)
+    public void toggleShowExtends(boolean fromButton)
     {
         if(showExtendsCheckbox.isSelected() != showExtendsMenuItem.isSelected()) {
-            if(src == showExtendsMenuItem)
-                showExtendsCheckbox.setSelected(showExtendsMenuItem.isSelected());
-            else
+            if(fromButton)
                 showExtendsMenuItem.setSelected(showExtendsCheckbox.isSelected());
+            else
+                showExtendsCheckbox.setSelected(showExtendsMenuItem.isSelected());
 
             boolean result = pkg.toggleShowExtends();
             editor.repaint();
@@ -1674,15 +1537,10 @@ public class PkgMgrFrame extends JFrame
             setStatus(webBrowserError);
     }
 
-    public void itemStateChanged(ItemEvent evt)
-    {
-        handleAction(evt);
-    }
-    
-    public void actionPerformed(ActionEvent evt)
-    {
-        handleAction(evt);
-    }
+//     public void itemStateChanged(ItemEvent evt)
+//     {
+//         handleAction(evt);
+//     }
 
     // --- the following methods set up the GUI frame ---
 
@@ -1714,8 +1572,7 @@ public class PkgMgrFrame extends JFrame
         {
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
-            String newClassString = Config.getString("menu.edit." +
-                                                     EditCmds[EDIT_NEWCLASS - EDIT_COMMAND]);
+            String newClassString = Config.getString("menu.edit.newClass");
 
             JButton button = new JButton(newClassString);
             button.setFont(PkgMgrFont);
@@ -1780,11 +1637,11 @@ public class PkgMgrFrame extends JFrame
 
         showUsesCheckbox = new JCheckBox(Config.getString("pkgmgr.view.usesLabel"),
                                          null, true);
-        showUsesCheckbox.addItemListener(this);
+        showUsesCheckbox.addItemListener(new ItemListener() {
+                                public void itemStateChanged(ItemEvent evt) { toggleShowUses(true); }
+                              });
         showUsesCheckbox.setFont(PkgMgrFont);
         showUsesCheckbox.setToolTipText(Config.getString("tooltip.showUses"));
-        // showUsesCheckbox.setMargin(new Insets(0,0,0,0));
-        actions.put(showUsesCheckbox, new Integer(VIEW_SHOWUSES));
 
         showPanel.add(showUsesCheckbox);
         // Add the Checkbox to ShowExtends Arrows (this must also control
@@ -1792,7 +1649,9 @@ public class PkgMgrFrame extends JFrame
 
         showExtendsCheckbox = new JCheckBox(Config.getString("pkgmgr.view.inheritLabel"),
                                             null, true);
-        showExtendsCheckbox.addItemListener(this);
+        showExtendsCheckbox.addItemListener(new ItemListener() {
+                                public void itemStateChanged(ItemEvent evt) { toggleShowExtends(true); }
+                              });
         showExtendsCheckbox.setFont(PkgMgrFont);
         showExtendsCheckbox.setToolTipText(Config.getString(
                                                             "tooltip.showExtends"));
@@ -1886,381 +1745,266 @@ public class PkgMgrFrame extends JFrame
         makeButtonNotGrow(imgDependsButton);
     }
 
+    private static final int SHORTCUT_MASK =
+        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
     /**
      * setupMenus - Create the menu bar
-     */
-     
-     
-    static final String[] CmdTypeNames = {
-        "package", "edit", "tools", "view", "group", "help"
-    };
-    static final int[] CmdTypes = {
-        PROJ_COMMAND, EDIT_COMMAND, TOOLS_COMMAND, VIEW_COMMAND,
-        GRP_COMMAND, HELP_COMMAND
-    };
+     */     
+    private void setupMenus()
+    {
+        menubar = new JMenuBar();
+        JMenu menu;
+        PkgMgrFrame frame = this;
+        
+        menu = new JMenu(Config.getString("menu.package"));
+        menubar.add(menu);
+        {    
+            createMenuItem("menu.package.new", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); doNewProject(); }
+                           });
+            createMenuItem("menu.package.open", menu, KeyEvent.VK_O, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); doOpen(); }
+                           });
+            createMenuItem("menu.package.openNonBlueJ", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); doOpenNonBlueJ(); }
+                           });
+            createMenuItem("menu.package.close", menu, KeyEvent.VK_W, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); doClose(); }
+                           });
+            createMenuItem("menu.package.save", menu, KeyEvent.VK_S, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); getProject().saveAll(); }
+                           });
+            createMenuItem("menu.package.saveAs", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); getProject().saveAs(frame); }
+                           });
+            menu.addSeparator();
 
-    static String[][] CmdStrings;  // definition: see below
+            createMenuItem("menu.package.import", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); doImport(); }
+                           });
+            createMenuItem("menu.package.export", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); doExport(); }
+                           });
+            menu.addSeparator();
 
-    static final KeyStroke[][] CmdKeys = {
-        ProjKeys, EditKeys, ToolsKeys, ViewKeys, GrpKeys, HelpKeys
-    };
+            createMenuItem("menu.package.pageSetup", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); pageSetup(); }
+                           });
+            createMenuItem("menu.package.print", menu, KeyEvent.VK_P, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); print(); }
+                           });
+            menu.addSeparator();
 
-    static final int[][] CmdSeparators = {
-        ProjSeparators, EditSeparators, ToolsSeparators, ViewSeparators,
-        GrpSeparators, HelpSeparators
-    };
+//          if(Config.osname.startsWith("Mac")) {...}   // no "Quit" here for Mac
+            createMenuItem("menu.package.quit", menu, KeyEvent.VK_Q, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); wantToQuit(); }
+                           });
+        }
 
-        CmdStrings = new String[][] {
-            ProjCmds, EditCmds, ToolsCmds, ViewCmds, GrpCmds, HelpCmds
-        };
 
-    ProjCmds = new String[] {
-        "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
-        "pageSetup", "print", "quit"
-;
-    static final String[] EditCmds = {
-        "newClass", "newPackage", "addClass", "remove", "newUses", "newInherits",
-        "removeArrow"
-    };
-    static final String[] ToolsCmds = {
-        "compile", "compileSelected", "callLibrary", "rebuild", "generateDoc",
-        // "browse",
-        "preferences",
-    };
-    static final String[] ViewCmds = {
-        "showUses", "showInherits", "showExecControls", "showTerminal",
-    };
-    static final String[] GrpCmds = {
+        menu = new JMenu(Config.getString("menu.edit"));
+        menubar.add(menu);
+        {    
+            createMenuItem("menu.edit.newClass", menu, KeyEvent.VK_N, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); createNewClass(); }
+                           });
+            createMenuItem("menu.edit.newPackage", menu, KeyEvent.VK_R, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); createNewPackage(); }
+                           });
+            createMenuItem("menu.edit.addClass", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); doAddFromFile(); }
+                           });
+            createMenuItem("menu.edit.remove", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); doRemove(); }
+                           });
+            menu.addSeparator();
+
+            createMenuItem("menu.edit.newUses", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { clearStatus(); doNewUses(); }
+                           });
+            createMenuItem("menu.edit.newInherits", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { clearStatus(); doNewInherits(); }
+                           });
+            createMenuItem("menu.edit.removeArrow", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); doRemoveArrow(); }
+                           });
+        }
+
+
+        menu = new JMenu(Config.getString("menu.tools"));
+        menubar.add(menu);
+        {    
+            createMenuItem("menu.tools.compile", menu, KeyEvent.VK_K, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); pkg.compile(); }
+                           });
+            createMenuItem("menu.tools.compileSelected", menu, KeyEvent.VK_K, Event.SHIFT_MASK | SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); compileSelected(); }
+                           });
+            createMenuItem("menu.tools.callLibrary", menu, KeyEvent.VK_L, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); callLibraryClass(); }
+                           });
+            createMenuItem("menu.tools.rebuild", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); pkg.rebuild(); }
+                           });
+            menu.addSeparator();
+
+            createMenuItem("menu.tools.generateDoc", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); generateProjectDocumentation(); }
+                           });
+            menu.addSeparator();
+
+            createMenuItem("menu.tools.preferences", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); PrefMgrDialog.showDialog(frame); }
+                           });
+        }
+
+
+        menu = new JMenu(Config.getString("menu.view"));
+        menubar.add(menu);
+        {
+            showUsesMenuItem = createCheckboxMenuItem("menu.view.showUses", menu, 
+                           KeyEvent.VK_U, SHORTCUT_MASK, true,
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); toggleShowUses(false); }
+                           });
+            showExtendsMenuItem = createCheckboxMenuItem("menu.view.showInherits", menu, 
+                           KeyEvent.VK_I, SHORTCUT_MASK, true,
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); toggleShowExtends(false); }
+                           });
+            menu.addSeparator();
+
+            JCheckBoxMenuItem item = createCheckboxMenuItem("menu.view.showExecControls", menu, 
+                           KeyEvent.VK_D, SHORTCUT_MASK, false,
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); ExecControls.showHide(true, true, null); }
+                           });
+            item.setModel(new ExecControlButtonModel());
+            item = createCheckboxMenuItem("menu.view.showTerminal", menu, 
+                           KeyEvent.VK_T, SHORTCUT_MASK, false, null);
+            item.setModel(new TerminalButtonModel());
+        }
+
+
+    /**
+      GrpCmds = {
         "make", "open",
         "updateSelected", "updateAll",
         "commitSelected", "commitAll",
         "statusSelection", "statusAll",
         "users",
         "configuration"
-    };
-    static final String[] HelpCmds = {
-        "about", "versionCheck", "copyright", "website", "tutorial", "standardApi",
-    };
+      }
+    **/
 
-     
-    private void setupMenus()
-    {
-        menubar = new JMenuBar();
-        JMenu menu = null;
-
-
-        int sep = 0;
-        
-        String itemId;
-        
-        String menuStr = Config.getString("menu.package");
-        menu = new JMenu(menuStr);
-
-        String itemStr = Config.getString("menu.package.new");
-        
-        itemId = "menu.package.open";
-        itemId = "menu.package.openNonBlueJ";
-        itemId = "menu.package.close";
-        itemId = "menu.package.save";
-        itemId = "menu.package.saveAs";
-        itemId = "menu.package.import";
-        itemId = "menu.package.export";
-        itemId = "menu.package.pageSetup";
-        itemId = "menu.package.print";
-        itemId = "menu.package.quit";
-
-
-
-        menuId = "menu.edit";
-        menuId = "menu.tools";
-        menuId = "menu.view";
-        menuId = "menu.help";
-        
-        for(int menuType = 0; menuType < CmdTypes.length; menuType++) {
-            int sep = 0;
-
-            for(int i = 0; i < CmdStrings[menuType].length; i++) {
-                int actionId = CmdTypes[menuType] + i;
-                String itemId = menuId + "." + CmdStrings[menuType][i];
-                String itemStr = Config.getString(itemId);
-                ImageIcon itemIcon = Config.getImageAsIcon("image." + CmdTypeNames[menuType] + "." + CmdStrings[menuType][i]);
-                KeyStroke accelerator = CmdKeys[menuType][i];
-                JMenuItem item;
-
-                switch (actionId) {
-                case VIEW_SHOWUSES:     // Add these as CheckBoxMenuItems
-                    item = showUsesMenuItem = new JCheckBoxMenuItem(itemStr,true);
-                    item.addActionListener(this);
-                    if (accelerator != null)
-                        item.setAccelerator(accelerator);
-                    break;
-
-                case VIEW_SHOWINHERITS:
-                    item = showExtendsMenuItem = new JCheckBoxMenuItem(itemStr,true);
-                    item.addActionListener(this);
-                    if (accelerator != null)
-                        item.setAccelerator(accelerator);
-                    break;
-
-                case VIEW_SHOWCONTROLS:
-                    item = new JCheckBoxMenuItem(itemStr,false);
-                    item.setModel(new ExecControlButtonModel());
-                    if (accelerator != null)
-                        item.setAccelerator(accelerator);
-                    break;
-
-                case VIEW_SHOWTERMINAL:
-                    item = new JCheckBoxMenuItem(itemStr,false);
-                    item.setModel(new TerminalButtonModel());
-                    if (accelerator != null)
-                        item.setAccelerator(accelerator);
-                    break;
-
-                default:                        // Otherwise
-                    item = new JMenuItem(itemStr);
-                    item.addActionListener(this);
-                    if (accelerator != null)
-                        item.setAccelerator(accelerator);
-                    break;
-                }
-
-                if(CmdTypes[menuType] == GRP_COMMAND)
-                    item.setEnabled(false);
-
-                if (itemIcon != null)
-                    item.setIcon(itemIcon);
-
-                // if there is a separator before this item, add it now
-                if(sep < CmdSeparators[menuType].length
-                   && CmdSeparators[menuType][sep] == )
-                    {
-                        menu.addSeparator();
-                        ++sep;
-                    }
-
-                // Add new Item to the Menu & associate Action to it.
-                if(CmdTypes[menuType] != GRP_COMMAND) {
-                    menu.add(item);
-                    actions.put(item, new Integer(actionId));
-                }
-
-            }
+        menu = new JMenu(Config.getString("menu.help"));
             // Hack while "setHelpMenu" does not work...
-            if(CmdTypes[menuType] == HELP_COMMAND) {
-                menubar.add(Box.createHorizontalGlue());
-                addUserHelpItems(menu);
-            }
+//             if(CmdTypes[menuType] == HELP_COMMAND) {
+//                 menubar.add(Box.createHorizontalGlue());
+//                 addUserHelpItems(menu);
+//             }
+        menubar.add(menu);
+        menubar.setHelpMenu(menu);  // not implemented in Swing 1.1
+        {    
+            createMenuItem("menu.help.about", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); handleAbout(); }
+                           });
+            createMenuItem("menu.help.versionCheck", menu, KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_MASK, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); VersionCheckDialog dialog = new VersionCheckDialog(frame); }
+                           });
+            createMenuItem("menu.help.copyright", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); showCopyright(); }
+                           });
+            menu.addSeparator();
 
-            // Add the menu to the MenuBar
-            menubar.add(menu);
-        }
-
-        if(menu != null) {
-            // Always put help menu last
-            //menubar.setHelpMenu(menu);  // not implemented in Swing 1.1
+            createMenuItem("menu.help.website", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(bluejUrl); }
+                           });
+            createMenuItem("menu.help.tutorial", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(tutorialUrl); }
+                           });
+            createMenuItem("menu.help.standardApi", menu, 0, 0, 
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); showWebPage(Config.getPropString("bluej.url.javaStdLib")); }
+                           });
         }
 
         setJMenuBar(menubar);
     }
 
+
     /**
-     * Commands - for lookup from events
+     * Add a new menu item to a menu.
      */
-    Hashtable actions = new Hashtable();    // mapping from event source -> action
-
-    // menu bar definition
-
-    private static final int SHORTCUT_MASK =
-        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
-    static final int PROJ_COMMAND = 1000;
-    static final int PROJ_NEW = PROJ_COMMAND;
-    static final int PROJ_OPEN = PROJ_NEW + 1;
-    static final int PROJ_OPENNONBLUEJ = PROJ_OPEN + 1;
-    static final int PROJ_CLOSE = PROJ_OPENNONBLUEJ + 1;
-    static final int PROJ_SAVE = PROJ_CLOSE + 1;
-    static final int PROJ_SAVEAS = PROJ_SAVE + 1;
-    static final int PROJ_IMPORT = PROJ_SAVEAS + 1;
-    static final int PROJ_EXPORT = PROJ_IMPORT + 1;
-    static final int PROJ_PAGESETUP = PROJ_EXPORT + 1;
-    static final int PROJ_PRINT = PROJ_PAGESETUP + 1;
-    static final int PROJ_QUIT = PROJ_PRINT + 1;
-
-    static String[] ProjCmds;  // definition: see below
-
-    static final KeyStroke[] ProjKeys = {
-        null,
-        KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_MASK),
-        null,   // open non bluej
-        KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_MASK),
-        null, // save as
-        null, // import
-        null, // export
-        null, // page setup
-        KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_Q, SHORTCUT_MASK)
-    };
-
-    static final int[] ProjSeparators = {
-        PROJ_IMPORT, PROJ_PAGESETUP, PROJ_QUIT
-    };
-
-    static final int EDIT_COMMAND = PROJ_COMMAND + 100;
-    static final int EDIT_NEWCLASS = EDIT_COMMAND;
-    static final int EDIT_NEWPACKAGE = EDIT_NEWCLASS + 1;
-    static final int EDIT_ADDCLASS = EDIT_NEWPACKAGE + 1;
-    static final int EDIT_REMOVE = EDIT_ADDCLASS + 1;
-    static final int EDIT_NEWUSES = EDIT_REMOVE + 1;
-    static final int EDIT_NEWINHERITS = EDIT_NEWUSES + 1;
-    static final int EDIT_REMOVEARROW = EDIT_NEWINHERITS + 1;
-
-
-    static final String[] EditCmds = {
-        "newClass", "newPackage", "addClass", "remove", "newUses", "newInherits",
-        "removeArrow"
-    };
-
-    static final KeyStroke[] EditKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK),
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-    };
-
-    static final int[] EditSeparators = {
-        EDIT_NEWUSES
-    };
-
-    static final int TOOLS_COMMAND = EDIT_COMMAND + 100;
-    static final int TOOLS_COMPILE = TOOLS_COMMAND;
-    static final int TOOLS_COMPILESELECTED = TOOLS_COMPILE + 1;
-    static final int TOOLS_CALLLIBRARY = TOOLS_COMPILESELECTED + 1;
-    static final int TOOLS_REBUILD = TOOLS_CALLLIBRARY + 1;
-    static final int TOOLS_GENERATEDOC = TOOLS_REBUILD + 1;
-    static final int TOOLS_PREFERENCES = TOOLS_GENERATEDOC + 1;
-
-    static final String[] ToolsCmds = {
-        "compile", "compileSelected", "callLibrary", "rebuild", "generateDoc",
-        // "browse",
-        "preferences",
-    };
-
-    static final KeyStroke[] ToolsKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.SHIFT_MASK | SHORTCUT_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_L, SHORTCUT_MASK),
-        null,
-        null,
-        // KeyStroke.getKeyStroke(KeyEvent.VK_B, SHORTCUT_MASK),
-        null
-    };
-
-    static final int[] ToolsSeparators = {
-        TOOLS_GENERATEDOC, TOOLS_PREFERENCES,
-    };
-
-    static final int VIEW_COMMAND = TOOLS_COMMAND + 100;
-    static final int VIEW_SHOWUSES = VIEW_COMMAND;
-    static final int VIEW_SHOWINHERITS = VIEW_SHOWUSES + 1;
-    static final int VIEW_SHOWCONTROLS = VIEW_SHOWINHERITS + 1;
-    static final int VIEW_SHOWTERMINAL = VIEW_SHOWCONTROLS + 1;
-
-    static final String[] ViewCmds = {
-        "showUses", "showInherits", "showExecControls", "showTerminal",
-    };
-
-    static final KeyStroke[] ViewKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_U, SHORTCUT_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_D, SHORTCUT_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_T, SHORTCUT_MASK),
-    };
-
-    static final int[] ViewSeparators = {
-        VIEW_SHOWCONTROLS,
-    };
-
-    static final int GRP_COMMAND = VIEW_COMMAND + 100;
-    static final int GRP_CREATE = GRP_COMMAND;
-    static final int GRP_OPEN = GRP_CREATE + 1;
-    static final int GRP_UPDATESELECTED = GRP_OPEN + 1;
-    static final int GRP_UPDATEALL = GRP_UPDATESELECTED + 1;
-    static final int GRP_COMMITSELECTED = GRP_UPDATEALL + 1;
-    static final int GRP_COMMITALL = GRP_COMMITSELECTED + 1;
-    static final int GRP_STATUSSELECTED = GRP_COMMITALL + 1;
-    static final int GRP_STATUSALL = GRP_STATUSSELECTED + 1;
-    static final int GRP_USERS = GRP_STATUSALL + 1;
-    static final int GRP_CONFIG = GRP_USERS + 1;
-
-    static final String[] GrpCmds = {
-        "make", "open",
-        "updateSelected", "updateAll",
-        "commitSelected", "commitAll",
-        "statusSelection", "statusAll",
-        "users",
-        "configuration"
-    };
-
-    static final KeyStroke[] GrpKeys = {
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-    };
-
-    static final int[] GrpSeparators = {
-        GRP_UPDATESELECTED, GRP_STATUSSELECTED, GRP_CONFIG
-    };
-
-    static final int HELP_COMMAND = GRP_COMMAND + 100;
-    static final int HELP_ABOUT = HELP_COMMAND;
-    static final int HELP_VERSIONCHECK = HELP_ABOUT + 1;
-    static final int HELP_COPYRIGHT = HELP_VERSIONCHECK + 1;
-    static final int HELP_WEBSITE = HELP_COPYRIGHT + 1;
-    static final int HELP_TUTORIAL = HELP_WEBSITE + 1;
-    static final int HELP_STANDARDAPI = HELP_TUTORIAL + 1;
-
-    static final String[] HelpCmds = {
-        "about", "versionCheck", "copyright", "website", "tutorial", "standardApi",
-    };
-
-    static final KeyStroke[] HelpKeys = {
-        null,
-        KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_MASK),
-        null,
-        null,
-        null,
-        null,
-    };
-
-    static final int[] HelpSeparators = {
-        HELP_WEBSITE
-    };
-
-    // definitions for project commands are not final, since they are different on a Mac
-    // system
+    private void createMenuItem(String itemStr, JMenu menu, int key, int modifiers,
+                                ActionListener listener)
     {
-//          if(Config.osname.startsWith("Mac")) {   // no "Quit" here for Mac
-//              ProjCmds = new String[] {
-//                  "new", "open", "openNonBlueJ", "close", "save", "saveAs", "import", "export",
-//                  "pageSetup", "print"
-//              };
-//          }
-//          else {
-//          }
+        JMenuItem item = new JMenuItem(Config.getString(itemStr));
+
+        if (key != 0)
+            item.setAccelerator(KeyStroke.getKeyStroke(key, modifiers));
+        item.addActionListener(listener);
+        menu.add(item);
     }
 
+
+    /**
+     * Add a new menu item to a menu.
+     */
+    private JCheckBoxMenuItem createCheckboxMenuItem(String itemStr, JMenu menu, 
+                                                    int key, int modifiers, boolean selected,
+                                                    ActionListener listener)
+    {
+        JMenuItem item = new JCheckBoxMenuItem(Config.getString(itemStr), selected);
+
+        if (key != 0)
+            item.setAccelerator(KeyStroke.getKeyStroke(key, modifiers));
+        item.addActionListener(listener);
+        menu.add(item);
+        
+        return item;
+    }
+
+
+    /**
+     * Called on (almost) every menu invocation to clean up.
+     */
+    private void menuCall()
+    {
+        if(!isEmptyFrame())
+            pkg.setState(Package.S_IDLE);
+        clearStatus();
+    }
 
 
     /**
@@ -2288,6 +2032,7 @@ public class PkgMgrFrame extends JFrame
             }
         }
     }
+
 
     /**
      * Enable/disable functionality
