@@ -14,7 +14,7 @@ import com.sun.jdi.*;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 837 2001-04-04 12:27:53Z ajp $
+ * @version    $Id: JdiArray.java 1537 2002-11-29 13:40:19Z ajp $
  */
 public class JdiArray extends JdiObject
 {
@@ -54,6 +54,10 @@ public class JdiArray extends JdiObject
         return true;
     }
 
+    public boolean isNullObject()
+    {
+        return obj == null;
+    }
 
     /**
      *  Return the number of static fields.

@@ -4,6 +4,7 @@ package bluej.debugger;
 //import bluej.debugger.suntools.SunDebugger;
 import bluej.debugger.jdi.JdiDebugger;
 
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ import java.util.List;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 1527 2002-11-28 15:36:18Z mik $
+ * @version $Id: Debugger.java 1537 2002-11-29 13:40:19Z ajp $
  */
 public abstract class Debugger
 {
@@ -71,8 +72,8 @@ public abstract class Debugger
      * Add an object to a package scope. The object is held in field
      * 'fieldName' in object 'instanceName'.
      */
-    public abstract void addObjectToScope(String scopeId, String instanceName,
-                                          String fieldName, String newObjectName);
+    public abstract void addObjectToScope(String scopeId, String newObjectName,
+                                            DebuggerObject dob);
 
 
     /**
@@ -100,6 +101,11 @@ public abstract class Debugger
      */
     public abstract void setDirectory(String path);
 
+    public abstract Map runTestSetUp(String loadId, String scopeId, String className);
+
+    public abstract void runTestClass(String loadId, String scopeId, String className);
+
+    public abstract void runTestMethod(String loadId, String scopeId, String className, String methodName);
 
     /**
      * Serialize an object in the debugger to a file
@@ -137,7 +143,8 @@ public abstract class Debugger
     /**
      * Get the value of a static field in a class
      */
-    public abstract DebuggerObject getStaticValue(String className, String fieldName);
+    public abstract DebuggerObject getStaticValue(String className, String fieldName)
+        throws Exception;
 
 
     /**

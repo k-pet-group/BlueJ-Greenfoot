@@ -6,14 +6,14 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 1059 2001-12-20 13:49:55Z mik $
+ *@version    $Id: DebuggerObject.java 1537 2002-11-29 13:40:19Z ajp $
  */
 public abstract class DebuggerObject
 {
     /**
      *  Get the fully qualified name of the class of this object.
      *
-     *@return    The ClassName value
+     * @return  the fully qualified class name
      */
     public abstract String getClassName();
 
@@ -32,6 +32,11 @@ public abstract class DebuggerObject
      *@return    The Array value
      */
     public abstract boolean isArray();
+
+    /**
+     * Return true if this object has a null value
+     */
+    public abstract boolean isNullObject();
 
     /**
      *  Return the number of static fields.

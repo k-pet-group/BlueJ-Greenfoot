@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1527 2002-11-28 15:36:18Z mik $
+ * @version $Id: JdiDebugger.java 1537 2002-11-29 13:40:19Z ajp $
  *
  * The startup process is as follows:
  *
@@ -80,11 +80,6 @@ public final class JdiDebugger extends Debugger
     // the name of the method used to suspend the ExecServer
     static final String SERVER_SUSPEND_METHOD_NAME = "suspendExecution";
 
-    // the name of the method called to signal the ExecServer to start a new
-    // task
-    static final String SERVER_PERFORM_METHOD_NAME = "performTask";
-
-
     // ==== instance data ====
 
     // The remote virtual machine used with this debugger
@@ -93,13 +88,17 @@ public final class JdiDebugger extends Debugger
     private Process process = null;
     private VMEventHandler eventHandler = null;
 
-    private ReferenceType serverClass = null;  // the class of the exec server
-    private ObjectReference execServer = null; // the exec server object
+    private ClassType serverClass = null;           // the class of the exec server
+    private ObjectReference serverInstance = null;  // the exec server instance
+    private ThreadReference serverThread = null;    // the thread of the exec server instance
+
     private ObjectReference exitException = null; // an exception used to interrupt
     // the main thread when simulating
     // a System.exit()
-    private Method performTaskMethod = null;
-    private ThreadReference serverThread = null;
+
+    private Map execServerMethods = null;           // map of String names to ExecServer methods
+                                                    // used by JdiDebugger.invokeMethod
+    
     volatile private boolean initialised = false;
     private int machineStatus = IDLE;
 
@@ -338,8 +337,10 @@ public final class JdiDebugger extends Debugger
     public DebuggerClassLoader createClassLoader(String scopeId,
                                                  String classpath)
     {
+        Object args[] = { scopeId, classpath };
+
         ClassLoaderReference loader = (ClassLoaderReference)
-            startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "");
+            invokeExecServer(ExecServer.CREATE_LOADER, Arrays.asList(args));
 
         return new JdiClassLoader(scopeId, loader);
     }
@@ -349,7 +350,9 @@ public final class JdiDebugger extends Debugger
      */
     public void removeClassLoader(DebuggerClassLoader loader)
     {
-        startServer(ExecServer.REMOVE_LOADER, loader.getId(), "", "", "");
+        Object args[] = { loader.getId() };
+
+        invokeExecServer(ExecServer.REMOVE_LOADER, Arrays.asList(args));
     }
 
 
@@ -433,7 +436,9 @@ public final class JdiDebugger extends Debugger
      */
     private void loadClass(DebuggerClassLoader loader, String classname)
     {
-        startServer(ExecServer.LOAD_CLASS, loader.getId(), classname, "", "");
+        Object args[] = { loader.getId(), classname };
+
+        invokeExecServer(ExecServer.LOAD_CLASS, Arrays.asList(args));
     }
 
 
@@ -441,11 +446,12 @@ public final class JdiDebugger extends Debugger
      * Add an object to a package scope. The object is held in field
      * 'fieldName' in object 'instanceName'.
      */
-    public void addObjectToScope(String scopeId, String instanceName,
-                                 String fieldName, String newObjectName)
+    public void addObjectToScope(String scopeId, String newObjectName,
+                                    DebuggerObject job)
     {
-        startServer(ExecServer.ADD_OBJECT, scopeId, instanceName,
-                    fieldName, newObjectName);
+        Object args[] = { scopeId, newObjectName, ((JdiObject)job).getObjectReference() };
+
+        invokeExecServer( ExecServer.ADD_OBJECT, Arrays.asList(args));
     }
 
     /**
@@ -455,7 +461,9 @@ public final class JdiDebugger extends Debugger
      */
     public void removeObjectFromScope(String scopeId, String instanceName)
     {
-        startServer(ExecServer.REMOVE_OBJECT, scopeId, instanceName, "", "");
+        Object args[] = { scopeId, instanceName };
+
+        invokeExecServer( ExecServer.REMOVE_OBJECT, Arrays.asList(args) );
     }
 
     /**
@@ -463,7 +471,9 @@ public final class JdiDebugger extends Debugger
      */
     public void setLibraries(String classpath)
     {
-        startServer(ExecServer.SET_LIBRARIES, classpath, "", "", "");
+        Object args[] = { classpath };
+
+        invokeExecServer( ExecServer.SET_LIBRARIES, Arrays.asList(args));
     }
 
     /**
@@ -474,8 +484,24 @@ public final class JdiDebugger extends Debugger
      */
     public void setDirectory(String path)
     {
-        startServer(ExecServer.SET_DIRECTORY, path, "", "", "");
+        Object args[] = { path };
+
+        invokeExecServer(ExecServer.SET_DIRECTORY, Arrays.asList(args));
     }
+
+    public Map runTestSetUp(String loaderId, String scopeId, String className)
+    {
+        return null;
+    }
+
+    public void runTestClass(String loaderId, String scopeId, String className)
+    {
+    }
+
+    public void runTestMethod(String loaderId, String scopeId, String className, String methodName)
+    {
+    }    
+
 
     /**
      * Serialize an object in the debugger to a file
@@ -483,7 +509,8 @@ public final class JdiDebugger extends Debugger
     public void serializeObject(String scopeId, String instanceName,
                                 String fileName)
     {
-        startServer(ExecServer.SERIALIZE_OBJECT, scopeId, instanceName, fileName, "");
+        Object args[] = { scopeId, instanceName, fileName };
+        invokeExecServer(ExecServer.SERIALIZE_OBJECT, Arrays.asList(args));
     }
 
     /**
@@ -492,8 +519,10 @@ public final class JdiDebugger extends Debugger
     public DebuggerObject deserializeObject(String loaderId, String scopeId,
                                             String newInstanceName, String fileName)
     {
+        Object args[] = { scopeId, newInstanceName, fileName };
+
         ObjectReference objRef = (ObjectReference)
-            startServer(ExecServer.DESERIALIZE_OBJECT, loaderId, scopeId, newInstanceName, fileName);
+            invokeExecServer(ExecServer.DESERIALIZE_OBJECT, Arrays.asList(args));
 
         if (objRef == null)
             return null;
@@ -506,7 +535,7 @@ public final class JdiDebugger extends Debugger
      */
     public void disposeWindows()
     {
-        startServer(ExecServer.DISPOSE_WINDOWS, "", "", "", "");
+        invokeExecServer(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
     }
 
     /**
@@ -514,7 +543,7 @@ public final class JdiDebugger extends Debugger
      */
     public void supressErrorOutput()
     {
-        startServer(ExecServer.SUPRESS_OUTPUT, "", "", "", "");
+        invokeExecServer( ExecServer.SUPRESS_OUTPUT, new ArrayList() );
     }
 
     /**
@@ -522,7 +551,62 @@ public final class JdiDebugger extends Debugger
      */
     public void restoreErrorOutput()
     {
-        startServer(ExecServer.RESTORE_OUTPUT, "", "", "", "");
+        invokeExecServer( ExecServer.RESTORE_OUTPUT, new ArrayList() );
+    }
+
+    private Value invokeExecServer( String methodName, List args )
+    {
+        VirtualMachine vm = getVM();
+
+        if(serverInstance == null) {
+            if(!setupServerConnection(vm))
+                return null;
+        }
+
+        // go through the args and if any aren't VM reference types
+        // then fail (unless they are strings in which case we
+        // mirror them onto the vm)
+        for(ListIterator lit = args.listIterator(); lit.hasNext(); ) {
+            Object o = lit.next();
+
+            if (o instanceof String) {
+                lit.set(vm.mirrorOf((String) o));
+            }
+            else if (!(o instanceof Mirror)) {
+                throw new IllegalArgumentException("invokeExecServer passed a non-Mirror argument");
+            }
+        }
+
+        // if the VM crashes then many of these methods may fail. Our
+        // catch all exception will grab them all allowing our local
+        // VM to struggle on without the remote VM (previously, we could
+        // not quit the local VM once the remote VM had crashed)
+
+        try {
+            Method m = (Method) execServerMethods.get(methodName);
+
+            if (m == null)
+                throw new IllegalArgumentException("no ExecServer method called " + methodName);
+
+            Value v = serverInstance.invokeMethod(
+                        serverThread, m, args, ClassType.INVOKE_SINGLE_THREADED);
+
+            // invokeMethod leaves everything suspended, so restart the
+            // system threads...
+            resumeMachine();
+
+            return v;
+        }
+        catch(com.sun.jdi.InternalException e) {
+            // we regularly get an exception here when trying to load a class
+            // while the machine is suspended. It doesn't seem to be fatal.
+            // so we just ignore internal exceptions for the moment.
+        }
+        catch(Exception e) {
+            Debug.message("sending command " + methodName + " to remote VM failed: " + e);
+        }
+
+        return null;
     }
 
     /**
@@ -538,22 +622,9 @@ public final class JdiDebugger extends Debugger
      * This is done synchronously: we return once the remote execution
      * has completed.
      */
-    private Value startServer(int task, String arg1,
+/*    private Value startServer(int task, String arg1,
                               String arg2, String arg3, String arg4)
     {
-        VirtualMachine vm = getVM();
-
-        if(execServer == null) {
-            if(!setupServerConnection(vm))
-                return null;
-        }
-
-        // if the VM crashes then many of these methods may fail. Our
-        // catch all exception will grab them all allowing our local
-        // VM to struggle on without the remote VM (previously, we could
-        // not quit the local VM once the remote VM had crashed)
-
-        try {
             List arguments = new ArrayList(5);
             arguments.add(vm.mirrorOf(task));
             arguments.add(vm.mirrorOf(arg1));
@@ -563,23 +634,12 @@ public final class JdiDebugger extends Debugger
             Value returnVal = execServer.invokeMethod(serverThread,
                                                       performTaskMethod,
                                                       arguments, 0);
-            // invokeMethod leaves everything suspended, so restart the
-            // system threads...
-            resumeMachine();
             return returnVal;
         }
-        catch(com.sun.jdi.InternalException e) {
-            // we regularly get an exception here when trying to load a class
-            // while the machine is suspended. It doesn't seem to be fatal.
-            // so we just ignore internal exceptions for the moment.
-        }
-        catch(Exception e) {
-            Debug.message("sending command to remote VM failed: " + e);
-            Debug.message("task: " + task + " " + arg1 + " " + arg2);
         }
         return null;
     }
-
+*/
 
     /**
      * Find the components on the remote VM that we need to talk to it:
@@ -593,13 +653,13 @@ public final class JdiDebugger extends Debugger
             Debug.reportError("server class not initialised!");
 
         Field serverField = serverClass.fieldByName(SERVER_FIELD_NAME);
-        execServer = (ObjectReference)serverClass.getValue(serverField);
+        serverInstance = (ObjectReference)serverClass.getValue(serverField);
 
-        if(execServer == null) {
+        if(serverInstance == null) {
             sleep(3000);
-            execServer = (ObjectReference)serverClass.getValue(serverField);
+            serverInstance = (ObjectReference)serverClass.getValue(serverField);
         }
-        if(execServer == null) {
+        if(serverInstance == null) {
             Debug.reportError("Failed to load VM server object");
             Debug.reportError("Fatal: User code execution will not work");
             return false;
@@ -615,15 +675,40 @@ public final class JdiDebugger extends Debugger
         Field exitExcField = serverClass.fieldByName(EXIT_FIELD_NAME);
         exitException = (ObjectReference)serverClass.getValue(exitExcField);
 
-        // okay, we have the server object; now get the perform method
+        // okay, we have the server object; now get the methods we need
 
-        performTaskMethod = findMethodByName(serverClass,
-                                             SERVER_PERFORM_METHOD_NAME);
-        if(performTaskMethod == null) {
-            Debug.reportError("invalid VM server object");
-            Debug.reportError("Fatal: User code execution will not work");
-            return false;
-        }
+        execServerMethods = new HashMap();
+
+        execServerMethods.put( ExecServer.CREATE_LOADER,
+                                findMethodByName(serverClass,ExecServer.CREATE_LOADER));
+        execServerMethods.put( ExecServer.REMOVE_LOADER,
+                                findMethodByName(serverClass,ExecServer.REMOVE_LOADER));
+        execServerMethods.put( ExecServer.LOAD_CLASS,
+                                findMethodByName(serverClass,ExecServer.LOAD_CLASS));
+        execServerMethods.put( ExecServer.ADD_OBJECT,
+                                findMethodByName(serverClass,ExecServer.ADD_OBJECT));
+        execServerMethods.put( ExecServer.REMOVE_OBJECT,
+                                findMethodByName(serverClass,ExecServer.REMOVE_OBJECT));
+        execServerMethods.put( ExecServer.SET_LIBRARIES,
+                                findMethodByName(serverClass,ExecServer.SET_LIBRARIES));
+        execServerMethods.put( ExecServer.SET_DIRECTORY,
+                                findMethodByName(serverClass,ExecServer.SET_DIRECTORY));
+        execServerMethods.put( ExecServer.RUN_TEST_SETUP,
+                                findMethodByName(serverClass,ExecServer.RUN_TEST_SETUP));
+        execServerMethods.put( ExecServer.RUN_TEST_CLASS,
+                                findMethodByName(serverClass,ExecServer.RUN_TEST_CLASS));
+        execServerMethods.put( ExecServer.RUN_TEST_METHOD,
+                                findMethodByName(serverClass,ExecServer.RUN_TEST_METHOD));
+        execServerMethods.put( ExecServer.SERIALIZE_OBJECT,
+                                findMethodByName(serverClass,ExecServer.SERIALIZE_OBJECT));
+        execServerMethods.put( ExecServer.DESERIALIZE_OBJECT,
+                                findMethodByName(serverClass,ExecServer.DESERIALIZE_OBJECT));
+        execServerMethods.put( ExecServer.SUPRESS_OUTPUT,
+                                findMethodByName(serverClass,ExecServer.SUPRESS_OUTPUT));
+        execServerMethods.put( ExecServer.RESTORE_OUTPUT,
+                                findMethodByName(serverClass,ExecServer.RESTORE_OUTPUT));
+        execServerMethods.put( ExecServer.DISPOSE_WINDOWS,
+                                findMethodByName(serverClass,ExecServer.DISPOSE_WINDOWS));
 
         List list = vm.allThreads();
         for (int i=0 ; i<list.size() ; i++) {
@@ -661,10 +746,13 @@ public final class JdiDebugger extends Debugger
      * Get the value of a static field in a class.
      */
     public DebuggerObject getStaticValue(String className, String fieldName)
+        throws Exception
     {
         DebuggerObject object = null;
 
         ReferenceType classMirror = findClassByName(getVM(), className, null);
+
+        //Debug.message("[getStaticValue] " + className + ", " + fieldName);
 
         if(classMirror == null) {
             Debug.reportError("Cannot find class for result value");
@@ -733,7 +821,7 @@ public final class JdiDebugger extends Debugger
         //				   "getMessage");
         //StringReference val = null;
         //try {
-        //    val = (StringReference)execServer.invokeMethod(serverThread,
+        //    val = (StringReference)serverInstance.invokeMethod(serverThread,
         //  						getMessageMethod,
         //  						null, 0);
         //} catch(Exception e) {
@@ -1075,9 +1163,11 @@ public final class JdiDebugger extends Debugger
     // -- support methods --
 
     /**
-     *  Find the mirror of a class in the remote VM. The class is expected
-     *  to exist. We expect only one single class to exist with this name
-     *  and report an error if more than one is found.
+     * Find the mirror of a class in the remote VM.
+     *
+     * The class is expected to exist. We expect only one single
+     * class to exist with this name and report an error if more
+     * than one is found.
      */
     private ClassType findClassByName(VirtualMachine vm, String classname,
                                       DebuggerClassLoader loader)
@@ -1110,16 +1200,17 @@ public final class JdiDebugger extends Debugger
     }
 
     /**
-     *  Find the mirror of a method in the remote VM. The method is expected
-     *  to exist. We expect only one single method to exist with this name
-     *  and report an error if more than one is found.
+     * Find the mirror of a method in the remote VM.
+     *
+     * The method is expected to exist. We expect only one single
+     * method to exist with this name and report an error if more
+     * than one is found.
      */
-    private Method findMethodByName(ReferenceType type, String methodName)
+    private Method findMethodByName(ClassType type, String methodName)
     {
         List list = type.methodsByName(methodName);
         if(list.size() != 1) {
-            Debug.reportError("Problem getting method: " + methodName);
-            return null;
+            throw new IllegalArgumentException("getting method " + methodName + " resulted in " + list.size() + " methods");
         }
         return (Method)list.get(0);
     }

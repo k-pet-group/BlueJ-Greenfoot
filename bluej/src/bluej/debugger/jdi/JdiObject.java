@@ -15,15 +15,30 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiObject.java 1527 2002-11-28 15:36:18Z mik $
+ *@version    $Id: JdiObject.java 1537 2002-11-29 13:40:19Z ajp $
  */
 public class JdiObject extends DebuggerObject
 {
-    ObjectReference obj;  // the remote object represented
-    List fields;
-
+    /**
+     *  Factory method that returns instances of JdiObjects.
+     *
+     *@param  obj  the remote object this encapsulates.
+     *@return      a new JdiObject or a new JdiArray object if
+     *  remote object is an array
+     */
+    public static JdiObject getDebuggerObject(ObjectReference obj)
+    {
+        if (obj instanceof ArrayReference) {
+            return new JdiArray((ArrayReference) obj);
+        } else {
+            return new JdiObject(obj);
+        }
+    }
 
     // -- instance methods --
+
+    ObjectReference obj;  // the remote object represented
+    List fields;
 
     protected JdiObject()
     {
@@ -49,6 +64,9 @@ public class JdiObject extends DebuggerObject
      */
     public String getClassName()
     {
+        if (obj == null)
+            return "";
+        else
         return obj.referenceType().name();
     }
 
@@ -60,17 +78,14 @@ public class JdiObject extends DebuggerObject
      */
     public boolean isAssignableTo(String type)
     {
-        if (obj == null)
-        {
+        if (obj == null) {
             return false;
         }
-        if (obj.referenceType() == null)
-        {
+        if (obj.referenceType() == null) {
             return false;
         }
         if (obj.referenceType().name() != null
-                 && type.equals(obj.referenceType().name()))
-        {
+                 && type.equals(obj.referenceType().name())) {
             return true;
         }
         if ((obj.referenceType() instanceof ClassType))
@@ -111,6 +126,10 @@ public class JdiObject extends DebuggerObject
         return false;
     }
 
+    public boolean isNullObject()
+    {
+        return obj == null;
+    }
 
     /**
      *  Return the number of static fields (including inherited fields).
@@ -333,6 +352,10 @@ public class JdiObject extends DebuggerObject
         for (int i = 0; i < fields.size(); i++)
         {
             Field field = (Field) fields.get(i);
+
+            if (checkIgnoreField(field))
+                continue;
+
             if (field.isStatic() == getStatic)
             {
                 count++;
@@ -364,6 +387,9 @@ public class JdiObject extends DebuggerObject
 
         for (int i = 0; i < fields.size(); i++) {
             Field field = (Field) fields.get(i);
+
+            if (checkIgnoreField(field))
+                continue;
 
             if (getAll || (field.isStatic() == getStatic)) {
                 Value val = obj.getValue(field);
@@ -405,6 +431,10 @@ public class JdiObject extends DebuggerObject
     {
         for (int i = 0; i < fields.size(); i++) {
             Field field = (Field) fields.get(i);
+
+            if (checkIgnoreField(field))
+                continue;
+
             if (field.isStatic() == getStatic) {
                 if (slot == 0) {
                     return field;
@@ -418,21 +448,30 @@ public class JdiObject extends DebuggerObject
         return null;
     }
 
+    private boolean checkIgnoreField(Field f)
+    {
+        if (f.name().indexOf('$') >= 0)
+            return true;
+        else
+            return false;
+    }
+
     /**
      *  Get the list of fields for this object.
      */
     private void getRemoteFields()
     {
+        if (obj != null) {
         ReferenceType cls = obj.referenceType();
-        if (cls != null)
-        {
-            fields = cls.allFields();
+
+            if (cls != null) {
+                fields = cls.allFields();
+                return;
+            }
         }
-        else
-        {
-            Debug.reportError("cannot get class for remote object");
-            fields = new ArrayList();
-        }
+        // either null object or unavailable fields
+        // lets give them an empty list of fields
+        fields = new ArrayList();
     }
 
     private boolean checkFieldForObject(boolean getStatic, int slot)
@@ -441,25 +480,6 @@ public class JdiObject extends DebuggerObject
         Value val = obj.getValue(field);
         return (val instanceof ObjectReference);
     }  // list of fields of the object
-
-    /**
-     *  Factory method that returns instances of JdiObjects.
-     *
-     *@param  obj  the remote object this encapsulates.
-     *@return      a new JdiObject or a new JdiArray object if
-     *  remote object is an array
-     */
-    public static JdiObject getDebuggerObject(ObjectReference obj)
-    {
-        if (obj instanceof ArrayReference)
-        {
-            return new JdiArray((ArrayReference) obj);
-        }
-        else
-        {
-            return new JdiObject(obj);
-        }
-    }
 
     /**
      *  Return the value of a field as as string.
