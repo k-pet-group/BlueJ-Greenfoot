@@ -459,6 +459,8 @@ image.debug.terminate=terminate.gif
 image.eval.prompt=prompt.gif
 image.eval.continue=prompt-continue.gif
 image.eval.object=small-object.gif
+image.eval.dragobject-plus=drag-object-plus.gif
+image.eval.dragobject-noplus=drag-object-noplus.gif
 
 # unit testing
 image.test.recording=record.gif
@@ -474,7 +476,7 @@ image.extmgr.info=extmgr-info.gif
 #inspector object reference arrow
 image.inspector.objectref=objectref.gif
 
-#borders
+# borders
 image.border.topleft=corner_top_left.gif
 image.border.topright=corner_top_right.gif
 image.border.bottomleft=corner_bottom_left.gif

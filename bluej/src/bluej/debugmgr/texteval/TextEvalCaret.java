@@ -60,7 +60,7 @@ public class TextEvalCaret extends DefaultCaret
             }
         }
         else {
-            textEval.tagAreaClick(pos, (e.getModifiers() & Event.CTRL_MASK) != 0);
+            textEval.tagAreaClick(pos, e.getClickCount());
         }
     }
 
@@ -82,6 +82,24 @@ public class TextEvalCaret extends DefaultCaret
                 moveDot(pos);
             }
         }
+    }
+    
+    /**
+     * Set the dot (caret) to a new location.
+     */
+    public void setDot(int dot)
+    {
+        if(textEval.isLegalCaretPos(dot))
+            super.setDot(dot);
+    }
+    
+    /**
+     * Move the dot (caret) to a new location, leaving behind the mark.
+     */
+    public void moveDot(int dot)
+    {
+        if(textEval.isLegalCaretPos(dot))
+            super.moveDot(dot);
     }
 }
 

@@ -13,6 +13,7 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
 import bluej.pkgmgr.target.*;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.Package;
+import bluej.utility.Debug;
 
 
 public class GraphElementController
@@ -64,17 +65,18 @@ public class GraphElementController
     }
     
     
-    public void mouseDragged(MouseEvent evt){
+    public void mouseDragged(MouseEvent evt)
+    {
         GraphElement graphElement = null;
         deltaX = evt.getX() - dragStartX;
         deltaY = evt.getY() - dragStartY;
-        Point p = GraphEditor.snapToGrid( new Point(deltaX, deltaY) );
+        Point p = GraphEditor.snapToGrid(new Point(deltaX, deltaY));
         deltaX = (int) p.getX();
         deltaY = (int) p.getY();
         
         isMoveAllowed(deltaX, deltaY);
         
-        for(Iterator i=graphEditor.getGraphElementManager().iterator(); i.hasNext(); ){
+        for(Iterator i=graphEditor.getGraphElementManager().iterator(); i.hasNext(); ) {
             graphElement = (GraphElement) i.next();
             handleMouseDragged(evt, graphElement, graphEditor);
         }
@@ -159,15 +161,17 @@ public class GraphElementController
      * @param graphEditor
      */
     private void handleMouseDragged(MouseEvent evt, GraphElement graphElement, 
-            						GraphEditor graphEditor){
+            						GraphEditor graphEditor)
+    {
         boolean isClassTarget = graphElement instanceof ClassTarget;
-        if(isClassTarget && isStateDrawingDependency((ClassTarget)graphElement)){
+        if(isClassTarget && isStateDrawingDependency((ClassTarget)graphElement)) {
             ClassTarget classTarget = (ClassTarget) graphElement;
             dependTarget = classTarget;
             // Draw a line from this Target to the current Cursor position
             dependencyArrowX = evt.getX();
             dependencyArrowY = evt.getY();
-        }else if (graphElement instanceof Target){
+        }
+        else if (graphElement instanceof Target) {
             Target target = (Target) graphElement;
             handleMouseDraggedTarget(target);
         }

@@ -13,7 +13,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2726 2004-07-02 20:58:09Z mik $
+ * @version $Id: GraphEditor.java 2728 2004-07-04 17:57:55Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -283,6 +283,16 @@ public class GraphEditor extends JComponent
         }
     }
 
+    /**
+     * The mouse pointer entered this component.
+     */
+    public void mouseEntered(MouseEvent e) {}
+
+    /**
+     * The mouse pointer exited this component.
+     */
+    public void mouseExited(MouseEvent e) {}
+
     // ---- end of MouseListener interface ----
 
     // ---- MouseMotionListener interface: ----
@@ -291,10 +301,9 @@ public class GraphEditor extends JComponent
     {
         if (readOnly) return;
         
-        if(!evt.isPopupTrigger()&&
-        ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-            if(activeGraphElement == null)
-            {
+        if(!evt.isPopupTrigger() &&
+           ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
+            if(activeGraphElement == null) {
                 marquee.move(evt.getX(), evt.getY());          
             }
             else {
@@ -303,7 +312,6 @@ public class GraphEditor extends JComponent
         }
     }
     
-   
 
     public void mouseMoved(MouseEvent evt)
     {
@@ -314,11 +322,11 @@ public class GraphEditor extends JComponent
         if(ge != null) {
             //make the mousecursor a hand
             if(ge instanceof Selectable) {
-            	cursor = handCursor;
+                cursor = handCursor;
                 //are the mouse over a resizeHandle
 			    Selectable selectable = (Selectable)ge;
                 if (selectable.isResizable() && selectable.isHandle(x,y)) {
-                	cursor = arrowCursor;
+                    cursor = arrowCursor;
                 }
 			} 
         }
@@ -346,20 +354,10 @@ public class GraphEditor extends JComponent
         readOnly = state;
     }
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-	 */
-	public void mouseEntered(MouseEvent e) {}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-	 */
-	public void mouseExited(MouseEvent e) {}
     /**
      * @return Returns the graphPainter.
      */
-	
-    public GraphPainter getGraphPainter() 
+        public GraphPainter getGraphPainter() 
     {
         return graphPainter;
     }

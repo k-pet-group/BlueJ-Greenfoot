@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2726 2004-07-02 20:58:09Z mik $
+ * @version $Id: ObjectBench.java 2728 2004-07-04 17:57:55Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -215,6 +215,14 @@ public class ObjectBench extends JPanel
         obp.fireObjectEvent(wrapper);
     }
 
+    public void showFocusHiLight(boolean hiLight)
+    {
+        if(hiLight)
+            scroll.setBorder(Config.focusBorder);
+        else
+            scroll.setBorder(Config.normalBorder);
+        repaint();
+    }
 
     // --- FocusListener interface ---
     
@@ -223,8 +231,7 @@ public class ObjectBench extends JPanel
      */
     public void focusGained(FocusEvent e) 
     {
-        scroll.setBorder(Config.focusBorder);
-        repaint();
+        showFocusHiLight(true);
     }
 
     
@@ -233,8 +240,7 @@ public class ObjectBench extends JPanel
      */
     public void focusLost(FocusEvent e) 
     {
-        scroll.setBorder(Config.normalBorder);
-        repaint();
+        showFocusHiLight(false);
     }
 
     // --- end of FocusListener interface ---

@@ -33,7 +33,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2727 2004-07-02 21:02:43Z mik $
+ * @version $Id: TextEvalArea.java 2728 2004-07-04 17:57:55Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener
@@ -83,7 +83,6 @@ public final class TextEvalArea extends JScrollPane
     {
         if(lastObject != null) {
             frame.getPackage().getEditor().raisePutOnBenchEvent(this, lastObject, lastInvokerRecord);
-            listObjectBench();
         }
         else {
             error("'Get' can only be used for objects. The last result was not an object.");
@@ -95,9 +94,8 @@ public final class TextEvalArea extends JScrollPane
      * Try to inspect the last object that was handled.
      * This is the implementation of the interactive 'inspect' command.
      */
-    public void inspectObject(String objectName)
+    public void inspectObject()
     {
-        if(objectName == null) {        // inspect last object used
             if(lastObject != null) {
                 ObjectInspector viewer =
                     ObjectInspector.getInstance(lastObject, null, frame.getPackage(), null, frame);
@@ -105,26 +103,25 @@ public final class TextEvalArea extends JScrollPane
             else {
                 error("'inspect' can only be used for objects. The last result was not an object.");
             }
-        }
-        else {
-            ObjectWrapper object = frame.getObjectBench().getObject(objectName);
-            if(object == null) {
-                error("No object named '" + objectName + "' on the bench.");
-            }
-            else {
-                ObjectInspector viewer =
-                    ObjectInspector.getInstance(object.getObject(), objectName, frame.getPackage(), null, frame);                
-            }
-        }
     }
-    
-    public void tagAreaClick(int pos, boolean ctrl)
+
+    /**
+     * We had a click in the tag area. Handle it appropriately.
+     * Specifically: If the click (or double click) is on an object, then
+     * start an object drag (or inspect).
+     * @param pos   The text position where we got the click.
+     * @param clickCount  Number of consecutive clicks
+     */
+    public void tagAreaClick(int pos, int clickCount)
     {
         if(positionHasObject(pos)) {
-            if(ctrl)
-                inspectObject(null);
-            else
-                getObjectToBench();
+            if(clickCount == 1) {
+                DragAndDropHelper dnd = DragAndDropHelper.getInstance();
+                dnd.startDrag(text, frame, lastObject, lastInvokerRecord);
+            }
+            else if(clickCount == 2) {   // double click
+                inspectObject();
+            }
         }
     }
     
@@ -143,14 +140,6 @@ public final class TextEvalArea extends JScrollPane
     private Element getLineAt(int pos)
     {
         return doc.getParagraphElement(pos);
-    }
-
-    /**
-     * List the objects on the object bench.
-     * This is the implementation of the interactive 'list' command.
-     */
-    public void listObjectBench()
-    {
     }
 
     //   --- ResultWatcher interface ---
@@ -418,22 +407,23 @@ public final class TextEvalArea extends JScrollPane
 
         text.setEditorKit(new MoeSyntaxEditorKit(true));
         text.setCaret(new TextEvalCaret(this));
-//        text.setCaretColor(caretColor);
         text.addKeyListener(this);
         text.addFocusListener(this);
+        text.setFont(font);
+        text.setAutoscrolls(false);  // important - dragging objects from this component
+                                     // does not work correctly otherwise
+        text.setText(" ");      // ensure space at the beginning of every line
 
         doc = (MoeSyntaxDocument) text.getDocument();
         doc.setTokenMarker(new JavaTokenMarker());
 
         setViewportView(text);
-        text.setFont(font);
-        text.setText(" ");      // ensure space at the beginning of every line
-        caretToEnd();
-        
+
         defineKeymap();
 
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         setPreferredSize(new Dimension(300,100));
+        caretToEnd();
     }
 
     /**
@@ -471,25 +461,6 @@ public final class TextEvalArea extends JScrollPane
 
         action = new TransferFocusAction(false);
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), action);
-
-        action = new NoAction();
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, Event.SHIFT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, Event.SHIFT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, Event.SHIFT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_UP, Event.SHIFT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, Event.SHIFT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, Event.SHIFT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, Event.SHIFT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, Event.SHIFT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, Event.ALT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, Event.ALT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_UP, Event.ALT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_UP, Event.ALT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, Event.ALT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, Event.ALT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, Event.ALT_MASK), action);
-        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, Event.ALT_MASK), action);
-
 
         text.setKeymap(newmap);
    
@@ -654,25 +625,6 @@ public final class TextEvalArea extends JScrollPane
                 text.transferFocus();
             else
                 text.transferFocusBackward();
-        }
-
-    }
-
-    final class NoAction extends AbstractAction {
-
-        /**
-         * Create a new action object.
-         */
-        public NoAction()
-        {
-            super("DoNothing");
-        }
-        
-        /**
-         * Empty action - do nothing.
-         */
-        final public void actionPerformed(ActionEvent event)
-        {
         }
 
     }
