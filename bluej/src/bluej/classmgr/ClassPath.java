@@ -13,7 +13,7 @@ import javax.swing.table.*;
 /**
  * Class to maintain a list of ClassPathEntry's.
  *
- * @version $Id: ClassPath.java 194 1999-07-20 05:57:01Z ajp $
+ * @version $Id: ClassPath.java 214 1999-07-29 04:52:27Z ajp $
  * @author Andrew Patterson
  */
 public class ClassPath
@@ -135,6 +135,9 @@ public class ClassPath
 	 */
 	public void addClassPath(String classpath, String genericdescription)
 	{
+        if (classpath == null)
+            return;
+
 		try {
 			StringTokenizer st = new StringTokenizer(classpath, Config.colonstring);
 
