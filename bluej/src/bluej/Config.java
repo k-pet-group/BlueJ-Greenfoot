@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1216 2002-04-03 08:27:22Z mik $
+ * @version $Id: Config.java 1262 2002-06-26 07:05:23Z ajp $
  */
 
 public class Config
@@ -329,8 +329,11 @@ public class Config
 
     /**
      * Get a system-dependent string from the BlueJ properties
-     * ("bluej.defs" or "bluej.properties"). System-dependent strings
-     * start with an OS ID prefix.
+     * System-dependent strings are properties that can
+     * start with an OS ID prefix (though it will default to
+     * finding just the plain property name in the case where the
+     * system id'ed version does not exist).
+     * Returns null if the property does not exist
      */
     public static String getSystemPropString(String propName)
     {
@@ -338,7 +341,7 @@ public class Config
 
         if(osname != null && osname.startsWith("Windows 9"))     // win95/98
             sysID = "win9x";
-        else if(osname != null && osname.startsWith("Windows"))  // NT/2000
+        else if(osname != null && osname.startsWith("Windows"))  // NT/2000/XP
             sysID = "win";
         else if(osname != null && osname.startsWith("Linux"))    // Linux
             sysID = "linux";
@@ -349,9 +352,12 @@ public class Config
         else
             sysID = "";
 
+        // try to find it using the sysId prefix
         String value = bluej_props.getProperty(sysID + propName);
+
+        // if that failed, just look for the plain property value
         if(value == null)
-            value = bluej_props.getProperty(propName, "");
+            value = bluej_props.getProperty(propName);
 
         return value;
     }
@@ -445,6 +451,62 @@ public class Config
         catch (java.net.MalformedURLException mue) { }
         catch (NullPointerException npe) { }
         return null;
+    }
+
+    /**
+     * Find the path to an executable command that may be located
+     * in the JDK bin directory
+     *
+     * The logic goes like this, some tools such as javac, appletviewer
+     * etc should be run from the same bin directory as the JDK that
+     * launched bluej (rather than the first one in the path which may
+     * be of a different version). So for all these properties, if the
+     * property DOES NOT exist, we try to locate the executable in the
+     * JDK directory and if we can't find it we use just the command
+     * name.
+     * If the property DOES exist we return it and it will be resolved
+     * by the Runtime.exec call (ie looked for in the current path if
+     * the command name is not an absolute path)
+     *
+     * This method never returns null (at the very least it returns the
+     * executableName)
+     */
+    public static String getJDKExecutablePath(String propName, String executableName)
+    {
+        if (executableName == null)
+            throw new IllegalArgumentException("must provide an executable name");
+
+        String p = getSystemPropString(propName);
+
+        if (p == null) {
+            // look for it in the JDK bin directory
+            String jdkPathName = System.getProperty("java.home");
+
+            if (jdkPathName != null) {
+                // first check the closest bin directory
+                File jdkPath = new File(jdkPathName);
+                File binPath = new File(jdkPath, "bin");
+
+                File potentialExe = new File(binPath, executableName);
+                if(potentialExe.exists())
+                    return potentialExe.getAbsolutePath();
+
+                // we could be in a JRE directory INSIDE a JDK directory
+                // so lets go up one level and try again
+                jdkPath = jdkPath.getParentFile();
+                if (jdkPath != null) {
+                    binPath = new File(jdkPath, "bin");
+
+                    potentialExe = new File(binPath, executableName);
+                    if(potentialExe.exists())
+                        return potentialExe.getAbsolutePath();
+                }
+            }
+
+            return executableName;
+        }
+
+        return p;
     }
 
     /**
@@ -586,4 +648,3 @@ public class Config
     }
 
 }
-
