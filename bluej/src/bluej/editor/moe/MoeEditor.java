@@ -17,7 +17,6 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.editor.moe.autocomplete.*;
 
 
 import java.util.List;
@@ -161,7 +160,7 @@ public final class MoeEditor extends JFrame
 
     private TextInsertNotifier doTextInsert = new TextInsertNotifier();
 
-    private MoeAutocompleteManager moeAutocompleteManager = null;
+//    private MoeAutocompleteManager moeAutocompleteManager = null;
     private ClassLoader projectClassLoader;
     
     // =========================== NESTED CLASSES ===========================
@@ -368,19 +367,6 @@ public final class MoeEditor extends JFrame
     public void setVisible(boolean vis)  // inherited from Editor, redefined
     {
         if(vis) {
-
-            //Use of the singleton pattern so that each MoeEditor
-            //only has one MoeAutoCompleteManager. Damiano
-            if(moeAutocompleteManager==null){
-                moeAutocompleteManager
-                    = new MoeAutocompleteManager(new File(filename),
-                                                 this,
-                                                 sourcePane);    
-            }
-
-
-
-        
             currentTextPane.setFont(PrefMgr.getStandardEditorFont());
             checkSyntaxStatus();
             checkBracketStatus();
