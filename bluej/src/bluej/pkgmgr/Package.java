@@ -33,7 +33,7 @@ import sun.tools.javac.BlueJJavacMain;
 import sun.tools.javadoc.BlueJDocumentationGenerator;
 
 /**
- ** @version $Id: Package.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Package.java 53 1999-04-29 23:43:58Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -92,7 +92,7 @@ public class Package extends Graph
     protected Vector extendsArrows;
     protected Target selected;	// Currently selected target
     protected Target fromChoice;	// Holds the choice of "from" target for a new dependency
-    PkgMgrFrame frame;
+    PkgFrame frame;
     Dependency currentArrow;	// used during arrow deletion
 	
     private ClasspathSearcher searcher;
@@ -116,7 +116,7 @@ public class Package extends Graph
     /**
      * Create a new package from a given directory in a given frame.
      */
-    public Package(String dirname, PkgMgrFrame frame)
+    public Package(String dirname, PkgFrame frame)
     {
 	this.dirname = dirname;
 	this.frame = frame;
@@ -163,7 +163,7 @@ public class Package extends Graph
     /**
      * Return this package's frame (may be null).
      */
-    public PkgMgrFrame getFrame()
+    public PkgFrame getFrame()
     {
 	return frame;
     }
@@ -197,7 +197,7 @@ public class Package extends Graph
     public ObjectBench getBench() { 
 	ObjectBench bench = null;
 	try {
-	    bench = ((MainPkgMgrFrame) frame).objbench;
+	    bench = ((PkgMgrFrame) frame).objbench;
 	} catch (ClassCastException cce) {
 	    cce.printStackTrace();
 	}
@@ -704,9 +704,9 @@ public class Package extends Graph
     public int insertLibClass(String packageName, String className) {
 	Debug.message("Inserting class: " + packageName + "-" + className + " in " + this.getFrame().getTitle());
 
-	if (getFrame() instanceof MainPkgMgrFrame) {
+	if (getFrame() instanceof PkgMgrFrame) {
 	    String packagePath;
-	    packagePath = ((MainPkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
+	    packagePath = ((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
 	    Debug.message("Package lives in directory: " + packagePath);
 
 	    // create class icon (ClassTarget) for new class
@@ -734,8 +734,8 @@ public class Package extends Graph
 	Debug.message("Inserting package: " + packageName + " in " + this.getFrame().getTitle());
 
 	String packagePath = "";
-	if (getFrame() instanceof MainPkgMgrFrame) {
-	    packagePath = ((MainPkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
+	if (getFrame() instanceof PkgMgrFrame) {
+	    packagePath = ((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
 	    Debug.message("Package lives in directory: " + packagePath);
 	}
 
@@ -1442,7 +1442,7 @@ public class Package extends Graph
 
     /**
      ** closeAllEditors - closes all currently open editors within package
-     ** Should be run whenever a package is removed from PkgMgrFrame.
+     ** Should be run whenever a package is removed from PkgFrame.
      **/
     public void closeAllEditors()
     {

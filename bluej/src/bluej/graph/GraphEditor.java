@@ -1,7 +1,7 @@
 package bluej.graph;
 
 import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.PkgFrame;
 import bluej.pkgmgr.Package;
 
 import java.util.Enumeration;
@@ -10,7 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: GraphEditor.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: GraphEditor.java 53 1999-04-29 23:43:58Z mik $
  ** @author Michael Cahill
  ** Canvas to allow editing of general graphs
  **/
@@ -25,13 +25,13 @@ public class GraphEditor extends JComponent
     static final Color background = Config.getItemColour("colour.background");
     static final Color realBackground = Config.getItemColour("colour.graph.background");
     private Graph graph;
-    PkgMgrFrame frame;
+    PkgFrame frame;
     Vertex activeVertex;
     boolean motionListening;
 
     private boolean readOnly = false;
 	
-    public GraphEditor(Graph graph, PkgMgrFrame frame)
+    public GraphEditor(Graph graph, PkgFrame frame)
     {
 	setGraph(graph);
 	this.frame = frame;
@@ -44,9 +44,9 @@ public class GraphEditor extends JComponent
     }
 	
     /**
-     * Return the PkgMgrFrame containing this editor.
+     * Return the PkgFrame containing this editor.
      */
-    public PkgMgrFrame getFrame() {
+    public PkgFrame getFrame() {
 	return this.frame;
     }
 	

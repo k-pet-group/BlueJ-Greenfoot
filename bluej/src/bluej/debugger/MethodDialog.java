@@ -4,7 +4,6 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.Utility;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Package;
 import bluej.views.ConstructorView;
 import bluej.views.MemberView;
@@ -19,7 +18,7 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: MethodDialog.java 53 1999-04-29 23:43:58Z mik $
  ** @author Justin Tan
  ** @author Michael Cahill
  ** @author Bruce Quig

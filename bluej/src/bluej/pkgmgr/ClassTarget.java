@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: ClassTarget.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: ClassTarget.java 53 1999-04-29 23:43:58Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -545,7 +545,7 @@ public class ClassTarget extends EditableTarget
 	}
 	else if(removeStr.equals(cmd)) {
 		try {
-		    ((MainPkgMgrFrame)pkg.getFrame()).removeClass(this);
+		    ((PkgMgrFrame)pkg.getFrame()).removeClass(this);
 		} catch (ClassCastException cce) {
 			System.err.println("Invalid cast to JFrame in ClassTarget");
 		}

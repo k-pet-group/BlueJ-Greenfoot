@@ -33,10 +33,10 @@ import java.net.MalformedURLException;
  * the BlueJ environment
  *
  * @author $Author: mik $
- * @date $Date: 1999-04-27 05:04:54 +0100 (Tue, 27 Apr 1999) $
+ * @date $Date: 1999-04-30 00:43:58 +0100 (Fri, 30 Apr 1999) $
  * $Header$
  **/
-public class LibraryBrowserPkgMgrFrame extends PkgMgrFrame implements ActionListener, ToggleMessageBoxOwner {
+public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListener, ToggleMessageBoxOwner {
 	// top level UI containers
     private JPanel chooserPanel = new JPanel();
     private JPanel classPanel = new JPanel(new BorderLayout());
@@ -251,7 +251,7 @@ public class LibraryBrowserPkgMgrFrame extends PkgMgrFrame implements ActionList
 					return;
 				
 				Utility.NYI(LibraryBrowserPkgMgrFrame.getFrame());
-				// open a new MainPkgMgrFrame with this package in it
+				// open a new PkgMgrFrame with this package in it
 				//bluej.pkgmgr.Main.openPackage(currentPackageDir);
 			}});
 

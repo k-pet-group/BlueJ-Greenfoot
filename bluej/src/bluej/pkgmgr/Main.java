@@ -10,7 +10,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- ** @version $Id: Main.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Main.java 53 1999-04-29 23:43:58Z mik $
  ** @author Michael Kolling
  ** @author Michael Cahill
  **
@@ -42,12 +42,12 @@ public class Main
 
 	if(args.length == 0) {
 	    // No arguments, so start an empty package manager window
-	    PkgMgrFrame frame = new MainPkgMgrFrame();
+	    PkgFrame frame = PkgMgrFrame.createFrame(null);
 	    frame.setVisible(true);
 	}
 	else {
 	    for(int i = 0; i < args.length; i++) {
-		PkgMgrFrame frame = new MainPkgMgrFrame(args[i]);
+		PkgFrame frame = PkgMgrFrame.createFrame(args[i]);
 		frame.setVisible(true);
 	    }
 	}
@@ -74,14 +74,9 @@ public class Main
 	return (Package)packages.get(pkgname);
     }
 	
-    public static PkgMgrFrame getFrame(String pkgname)
+    public static PkgFrame getFrame(String pkgname)
     {
 	return getPackage(pkgname).getFrame();
-    }
-	
-    public static PkgMgrFrame openFrame(String pkgname)
-    {
-	return openPackage(pkgname).getFrame();
     }
 	
     public static Package openPackage(String pkgname)
@@ -102,7 +97,7 @@ public class Main
 		String pkgfile = fulldir + File.separator + Package.pkgfileName;
 
 		if(new File(pkgfile).exists())
-		    return new MainPkgMgrFrame(fulldir).getPackage();
+		    return PkgMgrFrame.createFrame(fulldir).getPackage();
 	    }
 
 	    for(Enumeration e = libDirs.elements(); e.hasMoreElements(); ) {
@@ -112,7 +107,7 @@ public class Main
 		String pkgfile = fulldir + File.separator + Package.pkgfileName;
 		
 		if(new File(pkgfile).exists())
-		    return new MainPkgMgrFrame(fulldir).getPackage();
+		    return PkgMgrFrame.createFrame(fulldir).getPackage();
 	    }
 	}
 		

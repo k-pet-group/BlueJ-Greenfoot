@@ -19,7 +19,6 @@ JBDOC = jbdoc
 # Top level files
 BLUEJ_CLASSES = \
 		Config \
-		BlueJFrame \
 		Main
 BLUEJ_SRCS = $(BLUEJ_CLASSES:%=%.java)
 BLUEJ_SRCS_OS = $(subst /,$(SL),$(BLUEJ_SRCS))
@@ -189,10 +188,10 @@ PKGMGR_CLASSES = \
 		LayoutComparer \
 		LibraryBrowserPkgMgrFrame \
 		Main \
-		MainPkgMgrFrame \
 		NewClassDialog \
 		Package \
 		PackageTarget \
+		PkgFrame \
 		PkgMgrFrame \
 		PackageCacheMgr \
 		Target \
@@ -207,7 +206,17 @@ RUNTIME_CLASSES = \
 		BlueJClassLoader \
 		BlueJRuntime \
 		BlueJSecurityManager \
+		BooleanResultWrapper \
+		ByteResultWrapper \
+		CharResultWrapper \
+		DoubleResultWrapper \
+		FloatResultWrapper \
+		IntResultWrapper \
+		LongResultWrapper \
+		ObjectResultWrapper \
 		Shell \
+		ShortResultWrapper \
+		StringResultWrapper \
 		Terminal \
 		TerminalCanvas \
 		TerminalFrame

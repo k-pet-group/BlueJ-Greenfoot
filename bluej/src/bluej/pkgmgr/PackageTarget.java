@@ -10,7 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /** 
- ** @version $Id: PackageTarget.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: PackageTarget.java 53 1999-04-29 23:43:58Z mik $
  ** @author Michael Cahill
  **
  ** A link to a package embedded in another package.
@@ -146,7 +146,7 @@ public class PackageTarget extends Target implements ActionListener
 	
     /**
      * Called when a package icon in a GraphEditor is double clicked.
-     * Creates a new PkgMgrFrame when a package is drilled down on.
+     * Creates a new PkgFrame when a package is drilled down on.
      * Andy - needs to use the current frame for the new package if
      * the GraphEditor is within a LibraryBrowser.
      */
@@ -158,7 +158,7 @@ public class PackageTarget extends Target implements ActionListener
 	} else {
 	    Package newpkg = Main.openPackage(pkg.getBaseDir(), packageName);
 	    // open a new Frame for the new package
-	    PkgMgrFrame frame = newpkg.getFrame();
+	    PkgFrame frame = newpkg.getFrame();
 	    frame.setVisible(true);
 	}
     }

@@ -3,7 +3,6 @@ package bluej.debugger;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.MainPkgMgrFrame;
 import bluej.utility.Utility;
 
 import java.awt.*;
@@ -19,7 +18,7 @@ import javax.swing.border.Border;
 
 
 /**
- ** @version $Id: ObjectViewer.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: ObjectViewer.java 53 1999-04-29 23:43:58Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **

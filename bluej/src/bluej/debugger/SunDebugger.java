@@ -1,6 +1,5 @@
 package bluej.debugger;
 
-import bluej.Main;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -12,7 +11,7 @@ import java.util.Vector;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunDebugger.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: SunDebugger.java 53 1999-04-29 23:43:58Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -45,11 +44,11 @@ public class SunDebugger extends Debugger
 	    return;
 
 	try {
-	    Main.displayMessage(creatingVM);
+	    //Main.displayMessage(creatingVM);
 	    remoteDebugger = new RemoteDebugger("", this, false);
 	    String[] args = { BlueJRuntime.INIT };
 	    runtimeCmd(args, "");		// Initialise
-	    Main.displayMessage(creatingVMDone);
+	    //Main.displayMessage(creatingVMDone);
 	} catch(Exception e) {
 	    Utility.reportError("Failed to start debugger: " + e);
 	}
