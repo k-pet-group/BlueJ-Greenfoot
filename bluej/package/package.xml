@@ -1,4 +1,4 @@
-<project name="bluej-package" basedir=".">
+<project name="bluej-package" default="dist" basedir=".">
 
     <patternset id="bluej.images">
         <exclude name="**/.#*" />
