@@ -224,34 +224,28 @@ public class DocuGenerator
                 OutputStream logStream = new FileOutputStream(logFile);
 //                 Writer logWriter = new OutputStreamWriter(logStream);
                 PrintWriter logWriter = new PrintWriter(logStream,true);
+                
+                String[] docuCall2 = new String[docuCall.length-1];
                 logWriter.println(logHeader);
                 logWriter.println("<---- javadoc command: ---->");
-                for(int i=0; i < docuCall.length; i++)
+
+                int i;
+                for(i=0; i < docuCall.length; i++) {
                     logWriter.println(docuCall[i]);
+                    if(i != 0)
+                        docuCall2[i-1] = docuCall[i];
+                }
+                
                 logWriter.println("<---- end of javadoc command ---->");
                 logWriter.flush();
-                docuRun = Runtime.getRuntime().exec(docuCall);
-
-                // because we don't know what comes first we have to start
-                // two threads that consume both the standard and the error
-                // output of the external process. The output is appended to
-                // the log file.
-                EchoThread outEcho = new EchoThread(docuRun.getInputStream(),
-                                                    logStream);
-                EchoThread errEcho = new EchoThread(docuRun.getErrorStream(),
-                                                    logStream);
-                outEcho.start();
-                errEcho.start();
-                try {
-                    docuRun.waitFor();
-                    outEcho.join();
-                    errEcho.join();
-                }
-                catch(InterruptedException e) {
-                    System.err.println("Interrupted waiting for process");
-                }
-
-                if (docuRun.exitValue() == 0) {
+                
+                // Call Javadoc
+                int exitValue = com.sun.tools.javadoc.Main.execute("javadoc",
+                        logWriter,logWriter, logWriter,
+                        "com.sun.tools.doclets.standard.Standard",
+                        docuCall2);
+                
+                if (exitValue == 0) {
                     BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED, null);
                     if (!showFile.exists()) {
                         Debug.message("showfile does not exist - searching");
@@ -272,28 +266,6 @@ public class DocuGenerator
             }
             catch (IOException exc) {
                 DialogManager.showMessage(null,"severe-doc-trouble");
-            }
-        }
-
-        private static class EchoThread extends Thread {
-            private InputStream   readStream;
-            private OutputStream outStream;
-            private byte[] lastBuf;
-            public EchoThread(InputStream r,OutputStream out) {
-                readStream = r;
-                outStream = out;
-            }
-            public void run() {
-                try {
-                    byte[] buf = new byte[1000];
-                    int n;
-                    while((n = readStream.read(buf)) != -1) {
-                        outStream.write(buf, 0, n);
-                    }
-                }
-                catch(IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
