@@ -1,51 +1,40 @@
-How to make a BlueJ release for MacOS X               (last update 24.10.2001, mik)
+How to make a BlueJ release for MacOS X           (last update 16.4.2003, mik)
 ---------------------------------------
 
  1. Build a BlueJ release (see HOWTO.make-release)
 
- 2. Make a copy of an exiting Mac BlueJ release bundle.
+ 2. Do a normal install of bluej-xxx.jar (by running the jar file).
+
+Either:
+-------
+    Make a copy of an exiting Mac BlueJ release bundle.
     Open that bundle (ctrl-click, Show Package Contents).
     Find Info.plist; open and fix the version number.
 
- 3. Do a normal install of bluej-xxx.jar (by running the jar file).
-    Copy the data out of the lib directory of the new versin into
+    Copy the data out of the lib directory of the new version into
     the Resources/Java directory of the BlueJ bundle.
 
-Start MRJAppBuilder
+OR:
+---
+Start Jar Bundler
 
-- Set main classname to bluej.Main
-- Specify output file
-- Add all necessary bluej/lib files to "Merge files" section (all 
-  files and folders from Resources/Java)
-- Add bluej.icns to merged files.
-- Fix classpath in "Application" tab (remove unnecessary paths, leaving just 
-  the .jar files)
-- Set the following MacOS X settings:
+- Set main class to bluej.Main
+- choose icon (Programming/BlueJ/BlueJ-icon/bluej.icns)
+- Add all bluej/lib files (not directories) to "Additional Files" section
+- Set the following properties:
 
-        CFBundleDevelopmentRegion       English
-        CFBundleExecutable              JavaApplicationStub
-        CFBundleIconFile                bluej.icns
-        CFBundleIdentifier              au.edu.monash.BlueJ
-        CFBundleInfoDictionaryVersion   6.0
-        CFBundleName                    BlueJ
-        CFBundlePackageType             APPL
-        CFBundleShortVersionString      1.1.5
-        CFBundleSignature               BluJ
-        CFBundleVersion                 1.0d1
+        Type             APPL
+        Signature        BluJ
+        Version          <version string>
+        Identifier       au.edu.monash.BlueJ
+        Short Version    <vers.string>
+        Bundle Name      BlueJ
+Do NOT set  About Menu Name!
 
-Set/add the following Java Properties:
+Create Application.
 
-   growbox.intrudes                                     true
-   com.apple.macos.useScreenMenuBar                     false  (true)
-   com.apple.mrj.application.apple.menu.about.name      BlueJ
-   com.apple.macosx.useSolarisWinActiveFocus            false
-
-Build the application (will fail)
-Copy the icon file ("BlueJ-icon/bluej.icns") to "Contents/Resources"
-Copy all necessary bluej/lib files to "Contents/Resources/Java"
+Copy all bluej/lib directories to "Contents/Resources/Java".
 Fix the icon (via "Show Info", copy from older version)
-(NOTE: last time I had to copy all the lib files in again, they had
-disappeared!)
 
 Now stuff it and you're...
 
