@@ -15,7 +15,17 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.Package;
 
 /**
- * TODO What's this class for??
+ * This is a controller class. It receives the input from the class diagram
+ * in the form of mouse and keyboard events and controls the behaviour of the
+ * class diagram.<br/>
+ * Events that has to do with moving multiple classes is checked for validity
+ * before they are dispathed to the involved classes. An invalid event is an
+ * event that moves one or more members of the selection outside the diagram.
+ * In this case the event is not dispatched.<br/>
+ * Events that should result in the creation of dependencies between classes is 
+ * handled and the states of the involved classes are set by this class.<br/>
+ * The keyboard support for navigating the diagram is deferred to a 
+ * stragegi class.<br/>
  *  
  */
 public class GraphElementController
@@ -40,8 +50,10 @@ public class GraphElementController
     int deltaX;
     int deltaY;
 
+    // The class that controls which class to select next when arrow keys are pressed
     private TraverseStragegy traverseStragegiImpl = new TraverseStragegyImpl();
 
+    
     public GraphElementController(GraphEditor graphEditor, Graph graph, GraphElementSet graphElementManager)
     {
         this.graphEditor = graphEditor;
@@ -74,6 +86,13 @@ public class GraphElementController
         }
     }
 
+    /**
+     * Make the mouse event snap to grid and decide if the mouse event result in
+     * a valid move in x an y direction.
+     * handle the mouse event individually for each selected class.
+     * 
+     * @param evt
+     */
     public void mouseDragged(MouseEvent evt)
     {
         GraphElement graphElement = null;
@@ -122,7 +141,7 @@ public class GraphElementController
     }
 
     /**
-     * Invoke 'mouseReleased' on all the GraphElements in the list
+     * Invoke 'mouseReleased' on all selected GraphElements.
      * 
      * @param evt
      *            the mouseEvent
@@ -137,6 +156,13 @@ public class GraphElementController
         }
     }
 
+    /**
+     * Notify the package that a state change may have occured. Update
+     * dependencyArrowX and dependencyArrowY that tells the painter class where
+     * the intermediary dependencies point to.
+     * @param evt the mouse event representing mousepressed.
+     * @param graphElement the graphElement the mouse was over when pressed.
+     */
     private void handleMousePressed(MouseEvent evt, GraphElement graphElement)
     {
         if (graphElement instanceof Target) {
@@ -154,7 +180,8 @@ public class GraphElementController
     }
 
     /**
-     * Takes care of dependency drawing.
+     * When the mouse is dragged This method takes care of dependency drawing, 
+     * move and resizing of graphElements.
      * 
      * @param evt
      * @param graphElement
@@ -178,7 +205,7 @@ public class GraphElementController
     }
 
     /**
-     * Takes care of moveing and resizeing targets
+     * Takes care of moving and resizeing targets when the mouse is dragged
      * 
      * @param evt
      * @param classTarget
@@ -225,6 +252,13 @@ public class GraphElementController
         }
     }
 
+    /**
+     * When the mouse is released, this class handles changing graphelements
+     * position or adding new dependencies.
+     * @param evt
+     * @param graphElement
+     * @param graphEditor
+     */
     private void handleMouseReleased(MouseEvent evt, GraphElement graphElement, GraphEditor graphEditor)
     {
         if (graphElement instanceof Moveable) {
@@ -314,18 +348,29 @@ public class GraphElementController
                 || (target.getPackage().getState() == Package.S_CHOOSE_EXT_TO);
     }
 
+    /**
+     * Is the event an arrow key that was pressed
+     * @param evt
+     * @return true if the keyevent was from an arrow key
+     */
     private static boolean isArrowKey(KeyEvent evt)
     {
         return evt.getKeyCode() == KeyEvent.VK_UP || evt.getKeyCode() == KeyEvent.VK_DOWN
                 || evt.getKeyCode() == KeyEvent.VK_LEFT || evt.getKeyCode() == KeyEvent.VK_RIGHT;
     }
 
+    /**
+     * Is the event plus or minus key.
+     * @param evt
+     * @return true if the keyevent was from the plus or minus key
+     */
     private static boolean isPlusOrMinusKey(KeyEvent evt)
     {
         return evt.getKeyCode() == KeyEvent.VK_PLUS || evt.getKeyCode() == KeyEvent.VK_MINUS;
     }
 
     /**
+     * this method is called when the class diagram receives a KeyEvent
      * @param evt
      */
     public void keyPressed(KeyEvent evt)
