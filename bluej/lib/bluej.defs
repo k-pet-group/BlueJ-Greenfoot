@@ -374,9 +374,6 @@ bluej.compiler.type=internal
 #bluej.compiler.type=javac
 #bluej.compiler.executable=javac
 
-bluej.compiler.source14=false
-
-
 #####################################################################
 ## Options for starting the internal virtual machine.
 ## By default, we switch Hotspot optimisation off. There are some 
