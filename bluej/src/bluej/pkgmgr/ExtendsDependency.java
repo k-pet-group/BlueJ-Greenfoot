@@ -5,7 +5,7 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 import java.util.Properties;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Color;
 
@@ -13,7 +13,7 @@ import java.awt.Color;
  ** An "extends" dependency between two (class) targets in a package
  **
  ** @author Michael Cahill
- ** @version $Id: ExtendsDependency.java 114 1999-06-08 04:02:49Z mik $
+ ** @version $Id: ExtendsDependency.java 427 2000-04-18 04:33:04Z ajp $
  **/
 public class ExtendsDependency extends Dependency
 {
@@ -33,19 +33,19 @@ public class ExtendsDependency extends Dependency
 	this(pkg, null, null);
     }
 
-    void draw(Color colour, Graphics g)
+    void draw(Color colour, Graphics2D g)
     {
 	// Start from the centre of the src class
 	Point pFrom = new Point(from.x + from.width/2, from.y + from.height/2);
 	Point pTo = new Point(to.x + to.width/2, to.y + to.height/2);
-		
+
 	// Get the angle of the line from src to dst.
 	double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
-		
+
 	// Get the dest point
 	pFrom = ((Target)from).getAttachment(angle + Math.PI);
 	pTo = ((Target)to).getAttachment(angle);
-			
+
 	Point pArrow = new Point(pTo.x + (int)(8 * Math.cos(angle)), pTo.y - (int)(8 * Math.sin(angle)));
 
 	g.setColor(colour);
@@ -55,25 +55,25 @@ public class ExtendsDependency extends Dependency
 	int[] xPoints =  { pTo.x, pTo.x + (int)(ARROW_SIZE * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(ARROW_SIZE * Math.cos(angle - ARROW_ANGLE)) };
 	int[] yPoints =  { pTo.y, pTo.y - (int)(ARROW_SIZE * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(ARROW_SIZE * Math.sin(angle - ARROW_ANGLE)) };
 	g.fillPolygon(xPoints, yPoints, 3);
-		
+
 	g.setColor(bgGraph);
 	g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
     }
 
-    public void draw(Graphics g)
+    public void draw(Graphics2D g)
     {
 	draw(normalColour, g);
     }
-					
+
     public boolean contains(int x, int y)
     {
 	// Start from the centre of the src class
 	Point pFrom = new Point(from.x + from.width/2, from.y + from.height/2);
 	Point pTo = new Point(to.x + to.width/2, to.y + to.height/2);
-		
+
 	// Get the angle of the line from pFrom to pTo.
 	double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
-		
+
 	// Get the dest point
 	pFrom = ((Target)from).getAttachment(angle + Math.PI);
 	pTo = ((Target)to).getAttachment(angle);
@@ -87,27 +87,27 @@ public class ExtendsDependency extends Dependency
 		// Debug.message("ExtendsDependency.contains: (" + x + ", " + y + ") is outside the rectangle");
 		return false;
 	    }
-		  	
+
 	// Get the angle of the line from pFrom to p
 	double theta = Math.atan2(-(pFrom.y - y), pFrom.x - x);
-		
+
 	double norm = normDist(pFrom.x, pFrom.y, x, y, Math.sin(angle - theta));
 	// Debug.message("ExtendsDependency.contains: (" + x + ", " + y + ") is at distance " + norm);
 	return (norm < SELECT_DIST * SELECT_DIST);
     }
-	
+
     static final double normDist(int ax, int ay, int bx, int by, double scale)
     {
 	return ((ax - bx) * (ax - bx) + (ay - by) * (ay - by)) * scale * scale;
     }
-	
-    public void highlight(Graphics g)
+
+    public void highlight(Graphics2D g)
     {
 	g.setXORMode(Color.red);
 	draw(normalColour, g);
 	g.setPaintMode();
     }
-	
+
     public void load(Properties props, String prefix)
     {
 	super.load(props, prefix);

@@ -1,9 +1,9 @@
 package bluej.graph;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 /**
- ** @version $Id: Edge.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Edge.java 427 2000-04-18 04:33:04Z ajp $
  ** @author Michael Cahill
  **
  ** General graph edge
@@ -18,5 +18,5 @@ public abstract class Edge
 		this.to = to;
 	}
 
-	public abstract void draw(Graphics g);
+	public abstract void draw(Graphics2D g);
 }

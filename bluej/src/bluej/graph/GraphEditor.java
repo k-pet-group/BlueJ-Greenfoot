@@ -10,13 +10,12 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: GraphEditor.java 388 2000-02-09 03:31:56Z ajp $
- ** @author Michael Cahill
- ** Canvas to allow editing of general graphs
- **/
-
+ * Canvas to allow editing of general graphs
+ *
+ * @version $Id: GraphEditor.java 427 2000-04-18 04:33:04Z ajp $
+ * @author  Michael Cahill
+ */
 public class GraphEditor extends JComponent
-
     implements MouseListener, MouseMotionListener
 {
     static final int DEFAULT_WIDTH = 400;
@@ -33,54 +32,54 @@ public class GraphEditor extends JComponent
 
     public GraphEditor(Graph graph, PkgFrame frame)
     {
-	setGraph(graph);
-	this.frame = frame;
-	addMouseListener(this);
-	motionListening = false;
+        setGraph(graph);
+        this.frame = frame;
+        addMouseListener(this);
+        motionListening = false;
 
-	setBackground(background);
+        setBackground(background);
 
-	setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     /**
      * Return the PkgFrame containing this editor.
      */
     public PkgFrame getFrame() {
-	return this.frame;
+        return this.frame;
     }
 
     public void setGraph(Graph graph)
     {
-	this.graph = graph;
-	this.graph.setEditor(this);
-	activeVertex = null;
+        this.graph = graph;
+        this.graph.setEditor(this);
+        activeVertex = null;
     }
 
     public Dimension getPreferredSize()
     {
-	return graph.getMinimumSize();
+        return graph.getMinimumSize();
     }
 
     public Dimension getMinimumSize()
     {
-	return graph.getMinimumSize();
-    }
-
-    public void update(Graphics g)
-    {
-	paint(g);
+        return graph.getMinimumSize();
     }
 
     public void paint(Graphics g)
     {
-	if(!(g instanceof PrintGraphics)) {
-	    Dimension d = getSize();
-	    g.setColor(realBackground);
-	    g.fillRect(0, 0, d.width, d.height);
-	}
+        if(!(g instanceof PrintGraphics)) {
+            Dimension d = getSize();
+            g.setColor(realBackground);
+            g.fillRect(0, 0, d.width, d.height);
+        }
 
-	graph.draw(g);
+        graph.draw(g);
+    }
+
+    public Graphics2D getGraphics2D()
+    {
+        return (Graphics2D) super.getGraphics();
     }
 
     public void mousePressed(MouseEvent evt)

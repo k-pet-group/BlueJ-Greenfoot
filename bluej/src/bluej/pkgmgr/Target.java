@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 332 2000-01-02 13:30:59Z ajp $
+ * @version $Id: Target.java 427 2000-04-18 04:33:04Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -29,13 +29,15 @@ public abstract class Target extends Vertex
     static final int MIN_HEIGHT = 40;
     static final int DEF_WIDTH = 80;
     static final int DEF_HEIGHT = 50;
+    static final int ARR_HORIZ_DIST = 5;
+    static final int ARR_VERT_DIST = 10;
+    static final int GRID_SIZE = 10;
+
+    // move me!
     static final int HANDLE_SIZE = 20;
     static final int TEXT_HEIGHT = 16;
     static final int TEXT_BORDER = 8;
-    static final int GRID_SIZE = 10;
     static final int SHAD_SIZE = 5;
-    static final int ARR_HORIZ_DIST = 5;
-    static final int ARR_VERT_DIST = 10;
 
     static final Color textbg = Config.getItemColour("colour.text.bg");
     static final Color shadowCol = Config.getItemColour("colour.target.shadow");
@@ -531,54 +533,54 @@ public abstract class Target extends Vertex
     /**
      *  Draw this target, including its box, border, shadow and text.
      */
-    public void draw(Graphics g)
+    public void draw(Graphics2D g)
     {
 	g.setColor(getBackgroundColour());
-	g.fillRect(x, y, width, height);
+	g.fillRect(0, 0, width, height);
 
 	if(state != S_NORMAL) {
 	    // Debug.message("Target: drawing invalid target " + this);
 	    g.setColor(shadowCol); // Color.lightGray
-	    Utility.stripeRect(g, x, y, width, height, 8, 3);
+	    Utility.stripeRect(g, 0, 0, width, height, 8, 3);
 	}
 
 	g.setColor(textbg);
-	g.fillRect(x + TEXT_BORDER, y + TEXT_BORDER,
+	g.fillRect(TEXT_BORDER, TEXT_BORDER,
 		   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
 
 	g.setColor(shadowCol);
 	drawShadow(g);
 
 	g.setColor(getBorderColour());
-	g.drawRect(x + TEXT_BORDER, y + TEXT_BORDER,
+	g.drawRect(TEXT_BORDER, TEXT_BORDER,
 		   width - 2 * TEXT_BORDER, TEXT_HEIGHT);
 	drawBorders(g);
 
 	g.setColor(getTextColour());
 	g.setFont(getFont());
 	Utility.drawCentredText(g, name,
-				x + TEXT_BORDER, y + TEXT_BORDER,
+				TEXT_BORDER, TEXT_BORDER,
 				width - 2 * TEXT_BORDER, TEXT_HEIGHT);
     }
 
-    void drawShadow(Graphics g)
+    void drawShadow(Graphics2D g)
     {
-	g.fillRect(x + SHAD_SIZE, y + height, width, SHAD_SIZE);
-	g.fillRect(x + width, y + SHAD_SIZE, SHAD_SIZE, height);
-	Utility.drawThickLine(g, x + width - HANDLE_SIZE, y + height,
-			      x + width, y + height - HANDLE_SIZE, 3);
+	g.fillRect(SHAD_SIZE, height, width, SHAD_SIZE);
+	g.fillRect(width, SHAD_SIZE, SHAD_SIZE, height);
+	Utility.drawThickLine(g, width - HANDLE_SIZE, height,
+			      width, height - HANDLE_SIZE, 3);
     }
 
-    void drawBorders(Graphics g)
+    void drawBorders(Graphics2D g)
     {
 	int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
-	Utility.drawThickRect(g, x, y, width, height, thickness);
+	Utility.drawThickRect(g, 0, 0, width, height, thickness);
 
 	// Draw lines showing resize tag
-	g.drawLine(x + width - HANDLE_SIZE - 2, y + height,
-		   x + width, y + height - HANDLE_SIZE - 2);
-	g.drawLine(x + width - HANDLE_SIZE + 2, y + height,
-		   x + width, y + height - HANDLE_SIZE + 2);
+	g.drawLine(width - HANDLE_SIZE - 2, height,
+		   width, height - HANDLE_SIZE - 2);
+	g.drawLine(width - HANDLE_SIZE + 2, height,
+		   width, height - HANDLE_SIZE + 2);
     }
 
     Rectangle oldRect;
@@ -641,7 +643,7 @@ public abstract class Target extends Vertex
      */
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-        Graphics g = editor.getGraphics();
+        Graphics2D g = (Graphics2D) editor.getGraphics();
 
         // this shouldn't happen (oldRect shouldn't be null if we have got
         // here but on Windows it has happened to me (ajp))
@@ -649,31 +651,35 @@ public abstract class Target extends Vertex
         if (oldRect == null)
             return;
 
-	int orig_x = (resizing ? oldRect.width : oldRect.x);
-	int orig_y = (resizing ? oldRect.height : oldRect.y);
-	int current_x = (resizing ? width : this.x);
-	int current_y = (resizing ? height : this.y);
+        int orig_x = (resizing ? oldRect.width : oldRect.x);
+        int orig_y = (resizing ? oldRect.height : oldRect.y);
+        int current_x = (resizing ? width : this.x);
+        int current_y = (resizing ? height : this.y);
 
-	int x_steps = (orig_x + x - drag_start_x) / GRID_SIZE;
-	int new_x = x_steps * GRID_SIZE;
+        int x_steps = (orig_x + x - drag_start_x) / GRID_SIZE;
+        int new_x = x_steps * GRID_SIZE;
 
-	int y_steps = (orig_y + y - drag_start_y) / GRID_SIZE;
-	int new_y = y_steps * GRID_SIZE;
+        int y_steps = (orig_y + y - drag_start_y) / GRID_SIZE;
+        int new_y = y_steps * GRID_SIZE;
 
-	if(new_x != current_x || new_y != current_y) {
-	    g.setColor(getBorderColour());
-	    g.setXORMode(graphbg);
-	    drawBorders(g);		// remove current border
-	    if (resizing) {
-		this.width = Math.max(new_x, MIN_WIDTH);
-		this.height = Math.max(new_y, MIN_HEIGHT);
-	    }
-	    else {
-		this.x = (new_x >= 0 ? new_x : 0);
-		this.y = (new_y >= 0 ? new_y : 0);
-	    }
-	    drawBorders(g);		// draw new border
-	}
+        if(new_x != current_x || new_y != current_y) {
+            g.setColor(getBorderColour());
+            g.setXORMode(graphbg);
+            g.translate(this.x,this.y);
+            drawBorders(g);		// remove current border
+            g.translate(-this.x,-this.y);
+            if (resizing) {
+                this.width = Math.max(new_x, MIN_WIDTH);
+                this.height = Math.max(new_y, MIN_HEIGHT);
+            }
+            else {
+                this.x = (new_x >= 0 ? new_x : 0);
+                this.y = (new_y >= 0 ? new_y : 0);
+            }
+            g.translate(this.x,this.y);
+            drawBorders(g);		// draw new border
+            g.translate(-this.x,-this.y);
+        }
     }
 
     public String toString()

@@ -5,12 +5,10 @@ import bluej.graph.Edge;
 import bluej.utility.Utility;
 
 import java.util.Properties;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Color;
+import java.awt.*;
 
 /**
- ** @version $Id: UsesDependency.java 233 1999-08-12 23:53:28Z mik $
+ ** @version $Id: UsesDependency.java 427 2000-04-18 04:33:04Z ajp $
  ** @author Michael Cahill
  **
  ** A dependency between two targets in a package
@@ -20,6 +18,11 @@ public class UsesDependency extends Dependency
     private static final Color normalColour = Config.getItemColour("colour.arrow.uses");
     private static final int SELECT_DIST = 4;
 
+    private static final float  dash1[] = {10.0f};
+    private static final BasicStroke dashed = new BasicStroke(1.0f,
+                                                      BasicStroke.CAP_BUTT,
+                                                      BasicStroke.JOIN_MITER,
+                                                      10.0f, dash1, 0.0f);
     private int src_x, src_y, dst_x, dst_y;
     private boolean start_top, end_left;
     private boolean flag;	// flag to mark some dependencies
@@ -49,7 +52,7 @@ public class UsesDependency extends Dependency
 	this.end_left = end_left;
     }
 
-    void draw(Color colour, Graphics g)
+    void draw(Color colour, Graphics2D g)
     {
 	int src_x = this.src_x;
 	int src_y = this.src_y;
@@ -57,6 +60,7 @@ public class UsesDependency extends Dependency
 	int dst_y = this.dst_y;
 
 	g.setColor(colour);
+    g.setStroke(dashed);
 
 	// Draw the start
 	int corner_y = src_y + (start_top ? -15 : 15);
@@ -77,7 +81,7 @@ public class UsesDependency extends Dependency
 	// if arrow vertical corner, draw first segment up to corner
 	if((src_y != dst_y) && (start_top == (src_y < dst_y))) {
 	    corner_x = ((src_x + dst_x) / 2) + (end_left ? 15 : -15);
-	    corner_x = (end_left ? Math.min(dst_x, corner_x) : 
+	    corner_x = (end_left ? Math.min(dst_x, corner_x) :
 				   Math.max(dst_x, corner_x));
 	    g.drawLine(src_x, src_y, corner_x, src_y);
 	    src_x = corner_x;
@@ -86,7 +90,7 @@ public class UsesDependency extends Dependency
 	// if arrow horiz. corner, draw first segment up to corner
 	if((src_x != dst_x) && (end_left == (src_x > dst_x))) {
 	    corner_y = ((src_y + dst_y) / 2) + (start_top ? 15 : -15);
-	    corner_y = (start_top ? Math.min(src_y, corner_y) : 
+	    corner_y = (start_top ? Math.min(src_y, corner_y) :
 				    Math.max(src_y, corner_y));
 	    g.drawLine(dst_x, corner_y, dst_x, dst_y);
 	    dst_y = corner_y;
@@ -97,7 +101,7 @@ public class UsesDependency extends Dependency
 	g.drawLine(src_x, dst_y, dst_x, dst_y);
     }
 
-    public void draw(Graphics g)
+    public void draw(Graphics2D g)
     {
 	draw(normalColour, g);
     }
@@ -113,7 +117,7 @@ public class UsesDependency extends Dependency
 	int ymax = Math.max(y0, y1);
 	return (xmin <= x) && (ymin <= y) && (x < xmax) && (y < ymax);
     }
-				
+
     public boolean contains(int x, int y)
     {
 	int src_x = this.src_x;
@@ -125,20 +129,20 @@ public class UsesDependency extends Dependency
 	int corner_y = src_y + (start_top ? -15 : 15);
 	if(inRect(x, y, src_x - SELECT_DIST, corner_y, src_x + SELECT_DIST, src_y))
 	    return true;
-			
+
 	src_y = corner_y;
 
 	// Check the last line segment
 	int corner_x = dst_x + (end_left ? -15 : 15);
 	if(inRect(x, y, corner_x, dst_y - SELECT_DIST, dst_x, dst_y + SELECT_DIST))
 	    return true;
-			
+
 	dst_x = corner_x;
 
 	// if arrow vertical corner, check first segment up to corner
 	if((src_y != dst_y) && (start_top == (src_y < dst_y))) {
 	    corner_x = ((src_x + dst_x) / 2) + (end_left ? 15 : -15);
-	    corner_x = (end_left ? Math.min(dst_x, corner_x) : 
+	    corner_x = (end_left ? Math.min(dst_x, corner_x) :
 				   Math.max(dst_x, corner_x));
 	    if(inRect(x, y, src_x, src_y - SELECT_DIST, corner_x, src_y + SELECT_DIST))
 		return true;
@@ -148,7 +152,7 @@ public class UsesDependency extends Dependency
 	// if arrow horiz. corner, check first segment up to corner
 	if((src_x != dst_x) && (end_left == (src_x > dst_x))) {
 	    corner_y = ((src_y + dst_y) / 2) + (start_top ? 15 : -15);
-	    corner_y = (start_top ? Math.min(src_y, corner_y) : 
+	    corner_y = (start_top ? Math.min(src_y, corner_y) :
 				    Math.max(src_y, corner_y));
 	    if(inRect(x, y, dst_x - SELECT_DIST, corner_y, dst_x + SELECT_DIST, dst_y))
 		return true;
@@ -159,8 +163,8 @@ public class UsesDependency extends Dependency
 	return inRect(x, y, src_x - SELECT_DIST, src_y, src_x + SELECT_DIST, dst_y)
 	    || inRect(x, y, src_x, dst_y - SELECT_DIST, dst_x, dst_y + SELECT_DIST);
     }
-	
-    public void highlight(Graphics g)
+
+    public void highlight(Graphics2D g)
     {
 	g.setXORMode(Color.red);
 	draw(normalColour, g);

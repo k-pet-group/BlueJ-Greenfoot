@@ -15,15 +15,15 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 
-/** 
+/**
  ** An Applet class role in a package, i.e. a target that is a Applet class file
  ** built from Java source code.
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 411 2000-03-13 02:54:47Z markus $
+ ** @version $Id: AppletClassRole.java 427 2000-04-18 04:33:04Z ajp $
  **/
-public class AppletClassRole extends ClassRole 
+public class AppletClassRole extends ClassRole
 {
     private RunAppletDialog dialog;
 
@@ -39,7 +39,7 @@ public class AppletClassRole extends ClassRole
     static final String URL_PREFIX = "file://localhost/";
     static final int DEFAULT_APPLET_WIDTH = 200;
     static final int DEFAULT_APPLET_HEIGHT = 100;
-    
+
     private String[] appletParams;
     private int appletHeight;
     private int appletWidth;
@@ -81,12 +81,12 @@ public class AppletClassRole extends ClassRole
 	props.put(prefix + ".appletHeight", String.valueOf(appletHeight));
 	props.put(prefix + ".appletWidth", String.valueOf(appletWidth));
     }
-	
+
 
     /**
      * load existing information about this applet class role
      * @param props the properties object to read
-     * @param prefix an internal name used for this target to identify 
+     * @param prefix an internal name used for this target to identify
      * its properties in a properties file used by multiple targets.
      */
     public void load(Properties props, String prefix) throws NumberFormatException
@@ -98,7 +98,7 @@ public class AppletClassRole extends ClassRole
 	    numberParameters = Integer.parseInt(value);
 	if(numberParameters > 0) {
 	    appletParams = new String[numberParameters];
-	    for(int i = 0; i < numberParameters; i++) 
+	    for(int i = 0; i < numberParameters; i++)
 		appletParams[i] = props.getProperty(prefix + ".appletParameter" + (i + 1));
 	}
 
@@ -115,7 +115,7 @@ public class AppletClassRole extends ClassRole
 
 
     /**
-     * generates a source code skeleton for this class	
+     * generates a source code skeleton for this class
      *
      * @param template the name of the particular class template
      * @param pkg the package that the class target resides in
@@ -148,11 +148,11 @@ public class AppletClassRole extends ClassRole
 	ct.addMenuItem(menu, runAppletStr, (state == Target.S_NORMAL));
 	menu.addSeparator();
     }
-	
+
 
     /**
      *  modified from ActionListener interface
-     * 
+     *
      */
     public void actionPerformed(ActionEvent e, ClassTarget ct)
     {
@@ -161,7 +161,7 @@ public class AppletClassRole extends ClassRole
 	if(runAppletStr.equals(cmd))
 	    runApplet(ct);
     }
-    
+
 
     /**
      * Runs the applet using options provided by user RunAppletDialog dialog
@@ -169,7 +169,7 @@ public class AppletClassRole extends ClassRole
      *     - generate a package independent HTML page only
      *     - run applet in JDK appletviewer
      *     _ run in web browser
-     * 
+     *
      * @param ct the class target that is represented by this applet class
      *
      */
@@ -198,9 +198,9 @@ public class AppletClassRole extends ClassRole
 
 		String dir =  new File(pkg.getDirName()).getAbsolutePath();
 		String absoluteFileName = dir + File.separator + name + HTML_EXTENSION;
-		
+
 		createWebPage(name, ".", absoluteFileName);
-	
+
 		// Run applet as an external process
 		String url = URL_PREFIX + absoluteFileName;
 
@@ -208,12 +208,12 @@ public class AppletClassRole extends ClassRole
                   try {
                     String[] execCommand = {APPLETVIEWER_COMMAND, url};
                     ((PkgMgrFrame)pkg.getFrame()).displayMessage(Config.getString("pkgmgr.appletInViewer"));
-                    
-                    Process applet = 
+
+                    Process applet =
                       Runtime.getRuntime().exec(execCommand);
                   } catch (Exception e) {
-                    DialogManager.showError(pkg.getFrame(), 
-                                            "appletviewer-error");	
+                    DialogManager.showError(pkg.getFrame(),
+                                            "appletviewer-error");
                     Debug.reportError("Exception thrown in execution of appletviewer");
                     e.printStackTrace();
                   }
@@ -231,10 +231,10 @@ public class AppletClassRole extends ClassRole
 
     /**
      * Use a file chooser to select a web page name and location.
-     * 
+     *
      * @param frame the parent frame for the file chooser
      * @return the full file name for the web page or null
-     *         if cancel selected in file chooser 
+     *         if cancel selected in file chooser
      */
     private String chooseWebPage(JFrame frame)
     {
@@ -248,7 +248,7 @@ public class AppletClassRole extends ClassRole
 	}
 	else if (result != JFileChooser.CANCEL_OPTION)
 	    DialogManager.showError(frame, "error-no-name");
-	
+
  	return fullFileName;
     }
 
@@ -266,7 +266,7 @@ public class AppletClassRole extends ClassRole
 	    appletHeight = Integer.parseInt(dialog.getAppletHeight());
 	    appletWidth = Integer.parseInt(dialog.getAppletWidth());
 	} catch (NumberFormatException nfe) {
-	    // add exception handling 
+	    // add exception handling
 	}
 	appletParams = dialog.getAppletParameters();
     }
@@ -286,7 +286,7 @@ public class AppletClassRole extends ClassRole
     }
 
 
- 
+
    /**
      * Creates a HTML Skeleton that contains this JApplet using
      * parameters input by user in RunAppletDialog class.
@@ -298,13 +298,13 @@ public class AppletClassRole extends ClassRole
      * @param height specified height of applet
      * @param parameters optional applet parameters
      *
-     */  
+     */
     private void generateHTMLSkeleton(String name, String outputFileName, String appletCodeBase, String width, String height, String[] parameters)
     {
 	Hashtable translations = new Hashtable();
 
 	translations.put("TITLE", name);
-	translations.put("COMMENT", htmlComment);		
+	translations.put("COMMENT", htmlComment);
 	translations.put("CLASSFILE", name + ".class");
 	// check for optional codebase tag
 	if(appletCodeBase != null)
@@ -316,9 +316,9 @@ public class AppletClassRole extends ClassRole
 	StringBuffer allParameters = new StringBuffer();
 	for(int index = 0; index < parameters.length; index++)
 	    allParameters.append("\t" + parameters[index] + "\n");
-	
+
 	translations.put("PARAMETERS", allParameters.toString());
-	
+
 	String template = "template.html";
 
 	// commented out plugin code until fully implemented
@@ -326,14 +326,14 @@ public class AppletClassRole extends ClassRole
 	//     template = "template.htmlplugin";
 	// else
 	//    template = "template.html";
-	   
+
 	String filename = Config.getLibFilename(template);
-		
+
 	try {
-	    BlueJFileReader.translateFile(filename, outputFileName, 
+	    BlueJFileReader.translateFile(filename, outputFileName,
 					  translations);
 	} catch(IOException e) {
-	    Debug.reportError("Exception during file translation from " + 
+	    Debug.reportError("Exception during file translation from " +
 			      filename + " to " + outputFileName);
 	    e.printStackTrace();
 	}
@@ -341,12 +341,12 @@ public class AppletClassRole extends ClassRole
 
 
     /**
-     * 
-     * Removes applicable files (.class, .java and .ctxt) prior to 
+     *
+     * Removes applicable files (.class, .java and .ctxt) prior to
      * this AppletClassRole being removed from a Package.
      *
      */
-    public void prepareFilesForRemoval(String sourceFile, String classFile, 
+    public void prepareFilesForRemoval(String sourceFile, String classFile,
 				       String contextFile)
     {
 	super.prepareFilesForRemoval(sourceFile, classFile, contextFile);
@@ -358,15 +358,15 @@ public class AppletClassRole extends ClassRole
     }
 
 
-    public void draw(Graphics g, ClassTarget ct, int x, int y, int width, 
+    public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width,
 		     int height)
     {
 	g.setColor(ct.getTextColour());
 	Utility.drawCentredText(g, "www",
-		x + Target.TEXT_BORDER, 
+		x + Target.TEXT_BORDER,
 		y + height - (Target.TEXT_HEIGHT + Target.TEXT_BORDER),
 		width - (2 * Target.TEXT_BORDER), Target.TEXT_HEIGHT);
-    
+
     }
 
 }

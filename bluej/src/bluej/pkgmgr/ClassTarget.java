@@ -45,7 +45,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 417 2000-04-04 02:57:53Z bquig $
+ * @version $Id: ClassTarget.java 427 2000-04-18 04:33:04Z ajp $
  */
 public class ClassTarget extends EditableTarget
 
@@ -530,7 +530,7 @@ public class ClassTarget extends EditableTarget
         ClassInfo info = sourceInfo.getInfo(sourceFile(),
                                             pkg.getAllClassnames());
 
-       
+
         // info will be null if the source was unparseable
         if(info == null) {
             pkg.repaint();
@@ -600,7 +600,7 @@ public class ClassTarget extends EditableTarget
 
 
     /**
-     * Check to see that name has not changed.  
+     * Check to see that name has not changed.
      * If name has changed then update details.
      *
      */
@@ -765,7 +765,7 @@ public class ClassTarget extends EditableTarget
     /**
      *  Draw this target, redefined from Target.
      */
-    public void draw(Graphics g)
+    public void draw(Graphics2D g)
     {
         super.draw(g);
         if(!sourceInfo.isValid())

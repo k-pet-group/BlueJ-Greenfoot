@@ -38,7 +38,7 @@ import java.text.DateFormat;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 417 2000-04-04 02:57:53Z bquig $
+ * @version $Id: Package.java 427 2000-04-18 04:33:04Z ajp $
  * @author Michael Cahill
  *
  */
@@ -1526,7 +1526,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         switch(this.state) {
         case S_DELARROW:
             if(currentArrow != null) {
-                currentArrow.highlight(frame.editor.getGraphics());
+                currentArrow.highlight(frame.editor.getGraphics2D());
                 currentArrow = null;
             }
             frame.editor.removeMouseListener(this);
@@ -2053,7 +2053,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         case S_DELARROW:
             Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
             if((currentArrow != null) && (currentArrow != selectedArrow))
-                currentArrow.highlight(frame.editor.getGraphics());
+                currentArrow.highlight(frame.editor.getGraphics2D());
             if(selectedArrow != null)
                 {
 
@@ -2085,9 +2085,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
         case S_DELARROW:	// currently deleting an arrow
             Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
             if((currentArrow != null) && (currentArrow != selectedArrow))
-                currentArrow.highlight(frame.editor.getGraphics());
+                currentArrow.highlight(frame.editor.getGraphics2D());
             if((selectedArrow != null) && (currentArrow != selectedArrow))
-                selectedArrow.highlight(frame.editor.getGraphics());
+                selectedArrow.highlight(frame.editor.getGraphics2D());
             currentArrow = selectedArrow;
             break;
         }

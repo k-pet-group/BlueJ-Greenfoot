@@ -7,14 +7,14 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.Properties;
 
-/** 
- ** @version $Id: StdClassRole.java 149 1999-06-30 01:22:09Z bruce $
+/**
+ ** @version $Id: StdClassRole.java 427 2000-04-18 04:33:04Z ajp $
  ** @author Bruce Quig
  **
  ** A role object which a class target uses to delegate behaviour to.
  ** StdClassRole is used to represent standard Java classes.
  **/
-public class StdClassRole extends ClassRole 
+public class StdClassRole extends ClassRole
 {
 
 
@@ -28,7 +28,7 @@ public class StdClassRole extends ClassRole
     /**
      * load existing information about this class role
      * @param props the properties object to read
-     * @param prefix an internal name used for this target to identify 
+     * @param prefix an internal name used for this target to identify
      * its properties in a properties file used by multiple targets.
      */
     public void load(Properties props, String prefix) throws NumberFormatException
@@ -39,14 +39,14 @@ public class StdClassRole extends ClassRole
 
 
     /**
-     * generates a source code skeleton for this class	
+     * generates a source code skeleton for this class
      *
      * @param template the name of the particular class template
      * @param pkg the package that the class target resides in
      * @param name the name of the class
      * @param sourceFile the name of the source file to be generated
-     */	
-    public void generateSkeleton(Package pkg, String name, String sourceFile, 
+     */
+    public void generateSkeleton(Package pkg, String name, String sourceFile,
 				 boolean isAbstract, boolean isInterface)
     {
 	String template = isAbstract ? "template.abstract" :
@@ -54,7 +54,7 @@ public class StdClassRole extends ClassRole
 	    "template.stdclass";
 
 	generateSkeleton(template, pkg, name, sourceFile);
-    }  
+    }
 
 
    /**
@@ -69,16 +69,16 @@ public class StdClassRole extends ClassRole
 
 
     // overloads method in Target super class
-    public void draw(Graphics g, ClassTarget ct, int x, int y, int width, int height)
+    public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width, int height)
     {
 	// no implementation as yet
     }
 
-	
+
     // -- modified ActionListener interface --
 
     public void actionPerformed(ActionEvent e, ClassTarget ct) {
 	// no implementation
     }
-    
+
 }

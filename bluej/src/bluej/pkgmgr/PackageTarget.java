@@ -12,7 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: PackageTarget.java 416 2000-03-14 03:03:13Z ajp $
+ ** @version $Id: PackageTarget.java 427 2000-04-18 04:33:04Z ajp $
  ** @author Michael Cahill
  **
  ** A link to a package embedded in another package.
@@ -102,7 +102,7 @@ public class PackageTarget extends Target implements ActionListener
         return (state == S_INVALID) ? PrefMgr.getStandoutFont() : PrefMgr.getStandardFont();
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics2D g) {
 	g.setColor(getBackgroundColour());
 	g.fillRect(x, y, width, height);
 

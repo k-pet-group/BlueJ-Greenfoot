@@ -3,7 +3,7 @@ package bluej.pkgmgr;
 import bluej.graph.Edge;
 import bluej.utility.Utility;
 import java.util.Properties;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Color;
 
@@ -12,7 +12,7 @@ import java.awt.Color;
  **
  ** @author Michael Cahill
  **
- ** @version $Id: Dependency.java 233 1999-08-12 23:53:28Z mik $
+ ** @version $Id: Dependency.java 427 2000-04-18 04:33:04Z ajp $
  **/
 
 public abstract class Dependency extends Edge
@@ -71,9 +71,9 @@ public abstract class Dependency extends Edge
 	props.put(prefix + ".to", ((Target)to).getName());
     }
 
-    public abstract void draw(Graphics g);
+    public abstract void draw(Graphics2D g);
     public abstract boolean contains(int x, int y);
-    public abstract void highlight(Graphics g);
+    public abstract void highlight(Graphics2D g);
 
     public String toString()
     {
