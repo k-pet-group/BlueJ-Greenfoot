@@ -17,7 +17,7 @@ import java.io.FileOutputStream;
  * according to a given String
  * 
  * @author Clive Miller
- * @version $Id: FileHandler.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: FileHandler.java 1587 2002-12-13 14:20:39Z iau $
  */
 class FileHandler
 {
@@ -242,9 +242,10 @@ class FileHandler
         File[] list = dir.listFiles();
         for (int i=0; i<list.length; i++)
         {
-            bag.add (list[i]);
             if (list[i].isDirectory())
                 recurseDirectory (bag, list[i]);
+            else
+                bag.add (list[i]);
         }
     }
 
@@ -278,3 +279,4 @@ class FileHandler
         return isBinary;
     }
 }
+
