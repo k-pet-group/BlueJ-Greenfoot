@@ -19,7 +19,8 @@ import javax.swing.text.*;
 import java.awt.*;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
-import org.gjt.sp.jedit.syntax.*;
+import org.syntax.jedit.*;
+import org.syntax.jedit.tokenmarker.*;
 
 /**
  * A Swing view implementation that colorizes lines of a
@@ -32,7 +33,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 2752 2004-07-07 09:39:56Z mik $
+ * @version $Id: MoeSyntaxView.java 3074 2004-11-08 04:24:58Z bquig $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView

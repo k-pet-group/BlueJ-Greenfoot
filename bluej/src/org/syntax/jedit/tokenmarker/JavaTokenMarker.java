@@ -1,38 +1,31 @@
 /*
-* JavaTokenMarker.java - Java token marker
-* Copyright (C) 1999 Slava Pestov
-*
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation; either
-* version 2 of the License, or (at your option) any later version.
-*
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with this library; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
-*/
-package org.gjt.sp.jedit.syntax;
+ * JavaTokenMarker.java - Java token marker
+ * Copyright (C) 1999 Slava Pestov
+ *
+ * You may use and modify this package for any purpose. Redistribution is
+ * permitted, in both source and binary form, provided that this notice
+ * remains intact in all source distributions of this package.
+ */
+
+package org.syntax.jedit.tokenmarker;
+
+import org.syntax.jedit.KeywordMap;
 
 /**
-* Java token marker.
-*
-* @author Slava Pestov
-* @version $Id: JavaTokenMarker.java 2618 2004-06-17 14:03:32Z mik $
-*/
+ * Java token marker.
+ *
+ * @author Slava Pestov
+ * @version $Id: JavaTokenMarker.java 3074 2004-11-08 04:24:58Z bquig $
+ */
 public class JavaTokenMarker extends CTokenMarker
 {
-    public JavaTokenMarker()
-    {
-        super(getKeywords());
-    }
+	public JavaTokenMarker()
+	{
+		super(false,getKeywords());
+	}
 
-    public static KeywordMap getKeywords()
-    {
+	public static KeywordMap getKeywords()
+	{
         if(javaKeywords == null) {
             javaKeywords = new KeywordMap(false);
             javaKeywords.add("abstract",Token.KEYWORD1);
@@ -89,51 +82,8 @@ public class JavaTokenMarker extends CTokenMarker
             javaKeywords.add("enum",Token.PRIMITIVE);
         }
         return javaKeywords;
-    }
+	}
 
-    // private members
-    private static KeywordMap javaKeywords;
+	// private members
+	private static KeywordMap javaKeywords;
 }
-
-/*
-* ChangeLog:
-* $Log$
-* Revision 1.8  2004/06/17 14:03:32  mik
-* next stage of text evaluator: does syntax colouring now,
-can evaluate most expressions and statements
-still work in progress
-*
-* Revision 1.7  2004/04/20 06:23:16  bquig
-* Added enum as keyword to editor syntax recognition as partial support for "Tiger" (j2sdk 1.5)
-*
-* Revision 1.6  2003/04/10 13:47:48  fisker
-* removed more unused imports
-*
-* Revision 1.5  2002/03/26 10:20:43  mik
-* added "-source 1.4" option to javadoc call when appropriate
-* added "assert" to syntax highlight set
-*
-* Revision 1.4  2000/01/14 06:33:16  mik
-* fixed little font pref bug
-*
-* Revision 1.3  2000/01/14 04:35:18  mik
-*
-* changed colours again
-*
-* Revision 1.2  2000/01/14 03:33:04  mik
-* changed syntax colours
-*
-* Revision 1.1  2000/01/12 03:17:59  bruce
-*
-* Addition of Syntax Colour Highlighting Package to CVS tree.  This is LGPL code used in the Moe Editor to provide syntax highlighting.
-*
-* Revision 1.3  1999/06/05 00:22:58  sp
-* LGPL'd syntax package
-*
-* Revision 1.2  1999/04/22 06:03:26  sp
-* Syntax colorizing change
-*
-* Revision 1.1  1999/03/13 09:11:46  sp
-* Syntax code updates, code cleanups
-*
-*/

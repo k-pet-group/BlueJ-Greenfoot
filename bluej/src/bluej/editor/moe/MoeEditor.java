@@ -27,7 +27,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 import javax.swing.undo.UndoManager;
 
-import org.gjt.sp.jedit.syntax.JavaTokenMarker;
+import org.syntax.jedit.tokenmarker.JavaTokenMarker;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;

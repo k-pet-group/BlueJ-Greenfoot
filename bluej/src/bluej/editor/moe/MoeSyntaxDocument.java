@@ -26,7 +26,8 @@ import javax.swing.text.*;
 import java.awt.Color;
 import bluej.Config;
 
-import org.gjt.sp.jedit.syntax.*;
+import org.syntax.jedit.*;
+import org.syntax.jedit.tokenmarker.*;
 
 // For configuration file reading.
 import java.util.Properties;
@@ -41,7 +42,7 @@ import java.util.Properties;
  * @author Jo Wood (Modified to allow user-defined colours, March 2001)
  *
  */
-public class MoeSyntaxDocument extends DefaultSyntaxDocument
+public class MoeSyntaxDocument extends SyntaxDocument
 {
     public static final String OUTPUT = "output";
     public static final String ERROR = "error";

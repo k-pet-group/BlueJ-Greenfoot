@@ -17,7 +17,8 @@ package bluej.editor.moe;
 import javax.swing.text.*;
 
 import java.awt.*;
-import org.gjt.sp.jedit.syntax.*;
+import org.syntax.jedit.tokenmarker.*;
+import org.syntax.jedit.*;
 
 /**
  * A Swing view implementation that colorizes lines of a
@@ -30,7 +31,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 2833 2004-08-04 13:52:47Z mik $
+ * @version $Id: BlueJSyntaxView.java 3074 2004-11-08 04:24:58Z bquig $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -162,8 +163,13 @@ public abstract class BlueJSyntaxView extends PlainView
             Color color;
             if(id == Token.NULL)
                 color = def;
-            else
-                color = colors[id];
+            else {
+                // check we are within the array bounds
+                // safeguard for updated syntax package
+                if(id < colors.length)
+                    color = colors[id];
+                else color = def;
+            }
             g.setColor(color == null ? def : color);
 
             line.count = length;
