@@ -11,11 +11,7 @@ import java.io.*;
 
 import java.awt.Event;
 import java.awt.event.*;
-import javax.swing.Action;
-import javax.swing.AbstractAction;
-import javax.swing.KeyStroke;
-import javax.swing.JOptionPane;
-import javax.swing.text.Keymap;
+import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
@@ -604,7 +600,7 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
-            getEditor(e).toggleInterface();
+            getEditor(e).toggleInterface((JComboBox)e.getSource());
         }
     }
 

@@ -23,8 +23,8 @@ import java.beans.PropertyChangeEvent;
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
 import java.awt.event.*;        // New Event model
 import javax.swing.*;		// all the GUI components
-import javax.swing.KeyStroke;
 import javax.swing.event.*;
+import javax.swing.border.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
@@ -65,6 +65,7 @@ public final class MoeEditor extends JFrame
     static final Color lightGrey = new Color(224, 224, 224);
     static final Color selectionColour = new Color(204, 204, 204);
     static final Color titleCol = Config.getItemColour("colour.text.fg");
+    static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     // Icons
     static final Image iconImage = 
@@ -73,6 +74,11 @@ public final class MoeEditor extends JFrame
     // Fonts
     public static Font printFont = new Font("Monospaced", Font.PLAIN,
                                             10);
+    // Strings
+    String implementationString = Config.getString("editor.implementationLabel");
+    String interfaceString = Config.getString("editor.interfaceLabel");
+
+
     // suffixes for resources
     static final String LabelSuffix = "Label";
     static final String ActionSuffix = "Action";
@@ -877,12 +883,15 @@ public final class MoeEditor extends JFrame
     /**
      *  Implementation of "toggle-interface-view" user function.
      */
-    public void toggleInterface()
+    public void toggleInterface(JComboBox comboBox)
     {
-        if(viewingHTML)
-            switchToSourceView();
-        else
+        if(!sourceIsCode)
+            return;
+        boolean wantHTML = (comboBox.getSelectedItem() == interfaceString);
+        if(wantHTML && !viewingHTML)
             switchToInterfaceView();
+        else if(!wantHTML && viewingHTML)
+            switchToSourceView();
     }
 
     // --------------------------------------------------------------------
@@ -953,44 +962,30 @@ public final class MoeEditor extends JFrame
      */
     private void displayInterface(boolean reload)
     {
-        if(htmlDocument == null) {
-            htmlPane = new JEditorPane();
-            htmlPane.setEditorKit(new HTMLEditorKit());
-            htmlPane.setEditable(false);
-            htmlPane.addHyperlinkListener(this);
-            reload = true;
-        }
+        info.message(Config.getString("editor.info.loadingDoc"));
 
-        if(reload) {
-            info.message(Config.getString("editor.info.loadingDoc"));
-            try {
-                FileReader reader = new FileReader(getDocPath());
-                htmlPane.read(reader, null);
-                reader.close();
-//                 htmlPane.setPage(new URL("file://" + getDocPath()));
+        // start the call in a separate thread to allow fast return to GUI.
+        Thread loadThread = new HTMLDisplayThread(reload);
+        //loadThread.setPriority(Thread.MIN_PRIORITY);
+        loadThread.start();
+    }
 
-                htmlDocument = (HTMLDocument)htmlPane.getDocument();
-                htmlDocument.setBase(new URL("file://" + getDocPath()));
-                info.message(Config.getString("editor.info.docLoaded"));
-            }
-            catch (Exception exc) {
-                info.warning(Config.getString("editor.info.docDisappeared"),
-                             getDocPath());
-                Debug.reportError("loading class interface failed: " + exc);
-            }
-        }
-        document = htmlDocument;
-        currentTextPane = htmlPane;
-        viewingHTML = true;
-        scrollPane.setViewportView(currentTextPane);
-        currentTextPane.requestFocus();
+    // --------------------------------------------------------------------
+    /**
+     *  
+     */
+    public void createHTMLPane() 
+    {
+        htmlPane = new JEditorPane();
+        htmlPane.setEditorKit(new HTMLEditorKit());
+        htmlPane.setEditable(false);
+        htmlPane.addHyperlinkListener(this);
     }
 
     // --------------------------------------------------------------------
     /**
      *  A hyperlink was activated in the document. Do something appropriate.
      */
-
     public void hyperlinkUpdate(HyperlinkEvent e) 
     {
         info.clear();
@@ -1587,8 +1582,10 @@ public final class MoeEditor extends JFrame
             toolbar.add(createToolbarButton(toolKeys[i], false));
             toolbar.add(Box.createHorizontalStrut(4));
         }
+
         toolbar.add(Box.createHorizontalGlue());
-        toolbar.add(createToolbarButton("toggle-interface-view", true));
+        toolbar.add(Box.createHorizontalGlue());
+        toolbar.add(createInterfaceSelector());
 
         return toolbar;
     }
@@ -1618,13 +1615,40 @@ public final class MoeEditor extends JFrame
         if (action != null) {	// should never be null...
             button.addActionListener(action);
             button.setActionCommand(actionName);
-            //action.addPropertyChangeListener(new ActionChangeListener(button));
         }
         else {
             button.setEnabled(false);
             Debug.message("Moe: action not found for button " + label);
         }
         return button;
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Create a combo box for the toolbar
+     */
+    private JComponent createInterfaceSelector()
+    {
+        String[] choiceStrings = { implementationString, interfaceString };
+        JComboBox interfaceToggle = new JComboBox(choiceStrings);
+
+        interfaceToggle.setRequestFocusEnabled(false);
+        interfaceToggle.setBorder(new EmptyBorder(2,2,2,2));
+        interfaceToggle.setForeground(envOpColour);
+
+        String actionName = "toggle-interface-view";
+        Action action = actions.getActionByName(actionName);
+        if (action != null) {	// should never be null...
+            interfaceToggle.setAction(action);
+        }
+        else {
+            interfaceToggle.setEnabled(false);
+            Debug.message("Moe: action not found: " + actionName);
+        }
+        if(!sourceIsCode)
+            interfaceToggle.setEnabled(false);
+        return interfaceToggle;
     }
 
     // --------------------------------------------------------------------
@@ -1649,6 +1673,51 @@ public final class MoeEditor extends JFrame
                 info.message (Config.getString("editor.info.printed"));
             else
                 info.message (Config.getString("editor.info.cancelled"));
+        }
+
+    }
+
+    /**
+     * inner class for loading HTML documentation
+     */
+    class HTMLDisplayThread extends Thread
+    {
+        private boolean reload;
+
+        HTMLDisplayThread(boolean load)
+        {
+            reload = load;
+        }
+
+        public void run()
+        {
+            if(htmlDocument == null) {
+                createHTMLPane();
+                reload = true;
+            }
+
+            if(reload) {
+                try {
+                    FileReader reader = new FileReader(getDocPath());
+                    htmlPane.read(reader, null);
+                    reader.close();
+                    
+                    htmlDocument = (HTMLDocument)htmlPane.getDocument();
+                    htmlDocument.setBase(new URL("file://" + getDocPath()));
+                    info.message(Config.getString("editor.info.docLoaded"));
+                }
+                catch (Exception exc) {
+                    info.warning(
+                             Config.getString("editor.info.docDisappeared"),
+                             getDocPath());
+                    Debug.reportError("loading class interface failed: "+exc);
+                }
+            }
+            document = htmlDocument;
+            currentTextPane = htmlPane;
+            viewingHTML = true;
+            scrollPane.setViewportView(currentTextPane);
+            currentTextPane.requestFocus();
         }
 
     }
