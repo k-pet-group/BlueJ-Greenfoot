@@ -21,7 +21,7 @@ import java.util.Properties;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 1737 2003-04-02 05:02:25Z ajp $
+ * @version $Id: AppletClassRole.java 1778 2003-04-10 05:04:18Z ajp $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -270,8 +270,7 @@ public class AppletClassRole extends ClassRole
      *
      * @param name              the fully qualified name of the applet class
      * @param outputFileName    the name of the generated HTML file
-     * @param appletCodeBase    code base to be included in applet tag if not null, if null
-     *                          then no code base tag is included
+     * @param appletCodeBase    code base to be included in applet tag (canot be null)
      * @param width             specified width of applet
      * @param height            specified height of applet
      * @param parameters        optional applet parameters
@@ -283,9 +282,10 @@ public class AppletClassRole extends ClassRole
         translations.put("TITLE", appletName);
         translations.put("COMMENT", htmlComment);
         translations.put("CLASSFILE", appletName + ".class");
-        // check for optional codebase tag
-        if(appletCodeBase != null)
-            translations.put("CODEBASE", appletCodeBase);
+        // whilst it would be nice to be able to have no codebase, it is in the
+        // HTML template file and hence even if we define no CODEBASE here, it
+        // will appear in the resulting HTML anyway (as CODEBASE=$CODEBASE)
+        translations.put("CODEBASE", appletCodeBase);
         translations.put("APPLETWIDTH", width);
         translations.put("APPLETHEIGHT", height);
 
@@ -315,10 +315,12 @@ public class AppletClassRole extends ClassRole
     {
         super.prepareFilesForRemoval(ct, sourceFile, classFile, contextFile);
 
-        // remove associated HTML file if exists
-        File htmlFileName = new File(ct.getPackage().getProject().getProjectDir(), ct.getQualifiedName() + ClassTarget.HTML_EXTENSION);
-        if (htmlFileName.exists())
-            htmlFileName.delete();
+        // remove associated HTML file if exists (lives in the root project
+        // directory!)
+        File htmlFile = new File(ct.getPackage().getProject().getProjectDir(), 
+                                   ct.getQualifiedName() + ClassTarget.HTML_EXTENSION);
+        if (htmlFile.exists())
+            htmlFile.delete();
     }
 
     public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width,
