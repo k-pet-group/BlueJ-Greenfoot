@@ -2,11 +2,10 @@
 
 BINDIR=`dirname $0`
 BLUEJ_HOME=$BINDIR/.. 
-SUNTOOLS=/usr/java/lib/tools.jar
 
 THREADS_FLAG=native; export THREADS_FLAG
 
-CLASSPATH=$BLUEJ_HOME/lib/bluej.jar:$BLUEJ_HOME/classes:$BLUEJ_HOME/lib/antlr.jar:$SUNTOOLS
+CLASSPATH=$BLUEJ_HOME/lib/bluej.jar:$BLUEJ_HOME/classes:$BLUEJ_HOME/lib/antlr.jar:$BLUEJ_HOME/lib/MRJToolkitStubs.zip
 export CLASSPATH
 
-java bluej.Main $@
+java -Dcom.apple.mrj.application.apple.menu.about.name=BlueJ bluej.Main $@

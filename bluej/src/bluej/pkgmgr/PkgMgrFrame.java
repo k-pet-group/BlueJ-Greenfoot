@@ -10,6 +10,10 @@ import java.awt.*;
 import java.awt.print.*;
 import java.text.DateFormat;
 
+import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
+import com.apple.mrj.MRJQuitHandler;
+import com.apple.mrj.MRJAboutHandler;
+
 import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
@@ -29,11 +33,11 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 860 2001-04-23 02:07:10Z mik $
+ * @version $Id: PkgMgrFrame.java 861 2001-04-23 04:48:45Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
-               PackageEditorListener
+               PackageEditorListener, MRJQuitHandler, MRJAboutHandler
 {
     // static final Color bgColor = Config.getItemColour("colour.background");
     public Font PkgMgrFont = PrefMgr.getStandardFont();
@@ -352,6 +356,8 @@ public class PkgMgrFrame extends JFrame
         makeFrame();
 
         updateWindowTitle();
+	MRJApplicationUtils.registerQuitHandler(this);
+	MRJApplicationUtils.registerAboutHandler(this);
 
         setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
     }
@@ -683,12 +689,7 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case PROJ_QUIT:        // can be executed when isEmptyFrame() is true
-            int answer = 0;
-            if(frameCount() > 1)
-                answer = DialogManager.askQuestion(this, "quit-all");
-            if(answer == 0) {
-                doQuit();
-            }
+	    handleQuit();
             break;
 
             // Edit commands
@@ -784,8 +785,7 @@ public class PkgMgrFrame extends JFrame
 
             // Help commands
         case HELP_ABOUT:                    // can be executed when isEmptyFrame() is true
-            AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
-            about.setVisible(true);
+	    handleAbout();
             break;
 
         case HELP_VERSIONCHECK:             // can be executed when isEmptyFrame() is true
@@ -977,6 +977,21 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+    /** 
+     * Quit menu was chosen - redefined from MRJQuitHandler
+     */
+    public void handleQuit()
+    {
+	// this is an error on MacOS: when run from the MacOS quithandler
+	// no event handling is possible! showing the dialog breaks everything.
+	// fix: show the dialog from another thread...
+	int answer = 0;
+	if(frameCount() > 1)
+	    answer = DialogManager.askQuestion(this, "quit-all");
+	if(answer == 0)
+	    doQuit();
+    }
+
     private void doQuit()
     {
         // close all open frames.
@@ -1126,6 +1141,14 @@ public class PkgMgrFrame extends JFrame
         printer.start();
     }
 
+    /** 
+     * About menu was chosen - redefined from MRJAboutHandler
+     */
+    public void handleAbout()
+    {
+            AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
+            about.setVisible(true);
+    }
 
     /**
      * Interactively call a method or a constructor

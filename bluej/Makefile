@@ -20,7 +20,7 @@
 ##	Use "make grammar" and "make antlr" to make those.
 ##
 
-include $(OS).mk
+#include $(OS).mk
 
 PKG_VERSION = 113mac
 
