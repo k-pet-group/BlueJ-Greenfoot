@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1780 2003-04-10 08:10:42Z damiano $
+ * @version $Id: BlueJ.java 1781 2003-04-10 08:10:43Z damiano $
  */
 
 public class BlueJ
@@ -55,9 +55,9 @@ public class BlueJ
     private final PrefManager      prefManager;
     private final MenuManager      menuManager;
     
-    private PrefGen       currentPrefGen=null;
-    private MenuGenerator currentMenuGen=null;
-    private Properties    localLabels;
+    private PreferenceGenerator    currentPrefGen=null;
+    private MenuGenerator          currentMenuGen=null;
+    private Properties             localLabels;
 
     /**
      * NOT to be used by Extension writer.
@@ -221,16 +221,16 @@ public class BlueJ
      * 
      * @param prefGen a class instance that implements the PrefGen interface.
      */
-    public void setPrefGen(PrefGen prefGen)
+    public void setPreferenceGenerator(PreferenceGenerator prefGen)
     {
         currentPrefGen = prefGen;
         prefManager.panelRevalidate();
     }
     
     /**
-     * Returns the currently registered PrefGen instance.
+     * Returns the currently registered PreferenceGenerator instance.
      */
-    public PrefGen getPrefGen()
+    public PreferenceGenerator getPreferenceGenerator()
     {
         return currentPrefGen;
     }
