@@ -8,7 +8,7 @@ import org.bluej.extensions.submitter.Stat;
 /**
  * Parses a given input stream, adding the information to the given node.
  * 
- * @version $Id: Parser.java 1566 2002-12-10 14:52:31Z damiano $
+ * @version $Id: Parser.java 1612 2003-01-27 09:51:28Z damiano $
  */
 public class Parser
 {
@@ -17,10 +17,10 @@ public class Parser
     private final DefaultTreeModel treeModel;
     private Stat stat;
     
-    public Parser (Stat i_stat, boolean project, DefaultTreeModel treeModel)
+    public Parser (Stat i_stat, boolean isProject, DefaultTreeModel treeModel)
     {
         stat = i_stat;
-        this.project = project;
+        this.project = isProject;
         this.treeModel = treeModel;
     }
     
