@@ -1,9 +1,7 @@
 package bluej.extmgr;
 
-import bluej.extensions.BPackage;
-import bluej.extensions.event.BJEvent;
-import bluej.extensions.event.InvocationEvent;
-import bluej.extensions.event.PackageEvent;
+import bluej.extensions.*;
+import bluej.extensions.event.*;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
@@ -103,6 +101,7 @@ public class ExtensionsManager implements BlueJEventListener
         BlueJEvent.addListener(this);
     }
 
+
     /**
      *  Quite a simple one, just not to change the main BlueJ code.
      */
@@ -124,26 +123,32 @@ public class ExtensionsManager implements BlueJEventListener
      */
     private void loadAllExtensions(File directory, Project project)
     {
-        if (directory == null) return;
+        if (directory == null)
+            return;
 
         File[] files = directory.listFiles();
-        if (files == null) return;
+        if (files == null)
+            return;
 
         for (int index = 0; index < files.length; index++) {
             File thisFile = files[index];
 
-            if (thisFile.isDirectory())  continue;
+            if (thisFile.isDirectory())
+                continue;
 
-            if (!thisFile.getName().endsWith(".jar"))  continue;
+            if (!thisFile.getName().endsWith(".jar"))
+                continue;
 
             // Ok, lets try to get a wrapper up and running
             ExtensionWrapper aWrapper = new ExtensionWrapper(this, prefManager, thisFile);
 
             // Loading this warpper failed miserably, too bad...
-            if ( ! aWrapper.isJarValid() ) continue;
+            if (!aWrapper.isJarValid())
+                continue;
 
             // Let me see if I already have this extension loaded
-            if ( isWrapperAlreadyLoaded (aWrapper) ) continue;
+            if (isWrapperAlreadyLoaded(aWrapper))
+                continue;
 
             // This MUST be here in ANY case since othervise this wrapper is NOT on the list..
             extensions.add(aWrapper);
@@ -157,14 +162,19 @@ public class ExtensionsManager implements BlueJEventListener
     /**
      * Checks if the loaded wrappers/extensions IF this wrapper/extension is already loaded
      * In case of strange params... we return false, meaning that the given wrapper is NOT
-     * loaded in the system... it is a reasonable response, afer all this wrapper is 
+     * loaded in the system... it is a reasonable response, afer all this wrapper is
      * not loaded...
+     *
+     * @param  thisWrapper  Description of the Parameter
+     * @return              The wrapperAlreadyLoaded value
      */
-    private boolean isWrapperAlreadyLoaded ( ExtensionWrapper thisWrapper )
+    private boolean isWrapperAlreadyLoaded(ExtensionWrapper thisWrapper)
     {
-        if ( thisWrapper == null ) return false;
+        if (thisWrapper == null)
+            return false;
 
-        if ( ! thisWrapper.isJarValid() ) return false;
+        if (!thisWrapper.isJarValid())
+            return false;
 
         String thisClassName = thisWrapper.getExtensionClassName();
 
@@ -172,30 +182,33 @@ public class ExtensionsManager implements BlueJEventListener
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
             String aClassName = aWrapper.getExtensionClassName();
-            if ( aClassName == null ) continue;
+            if (aClassName == null)
+                continue;
 
             // Found it, this wrapper is already loaded...
-            if ( thisClassName.equals(aClassName) ) {
-                Debug.message("isWrapperAlreadyLoaded==true: className="+thisClassName);
+            if (thisClassName.equals(aClassName)) {
+                Debug.message("isWrapperAlreadyLoaded==true: className=" + thisClassName);
                 return true;
             }
         }
 
-    // This wrapper is not already loaded in the list of wrappers/extensions
-    return false;
+        // This wrapper is not already loaded in the list of wrappers/extensions
+        return false;
     }
+
 
     /**
      *  Searches for and loads any new extensions found in the project.
      *  TODO: Two params are not used, remove them when you can do it.
-     *  
+     *
+     *
      * @param  pmf        NOT USED
      * @param  toolsMenu  NOT USED
      * @param  project    The project I am opening
      */
     public void projectOpening(Project project, PkgMgrFrame pmf, JMenu toolsMenu)
     {
-        File exts = new File(project.getProjectDir(),"extensions");
+        File exts = new File(project.getProjectDir(), "extensions");
         loadAllExtensions(exts, project);
     }
 
@@ -228,24 +241,27 @@ public class ExtensionsManager implements BlueJEventListener
         Project thisProject = pkg.getProject();
 
         // Shurelly I cannot release anything if I don't know what I am talking about...
-        if ( thisProject == null ) return;
+        if (thisProject == null)
+            return;
 
         // The following CAN return null....
         PkgMgrFrame[] frameArray = PkgMgrFrame.getAllProjectFrames(thisProject);
-        if ( frameArray == null ) 
+        if (frameArray == null)
             invalidateExtension = true;
         else
             invalidateExtension = frameArray.length <= 1;
 
         // Nothing to do....
-        if ( ! invalidateExtension ) return;
+        if (!invalidateExtension)
+            return;
 
         // I am closing the last frame of the project, time to invalidate the right extensions
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
             // If the extension did not got loaded with this project skip it...
-            if ( thisProject != aWrapper.getProject() ) continue;
+            if (thisProject != aWrapper.getProject())
+                continue;
 
             // The following terminated the Extension
             aWrapper.terminate();
@@ -269,14 +285,16 @@ public class ExtensionsManager implements BlueJEventListener
     public void addMenuItems(Project project, PkgMgrFrame pmf, JMenu menu)
     {
         pmf.toolsExtensionsCheckSeparator();
-    
+
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
-            if (!aWrapper.isValid()) continue;
+            if (!aWrapper.isValid())
+                continue;
 
             MenuManager aManager = aWrapper.getMenuManager();
-            if (aManager == null)  continue;
+            if (aManager == null)
+                continue;
 
             aManager.menuFrameRevalidateReq(pmf);
         }
@@ -285,24 +303,32 @@ public class ExtensionsManager implements BlueJEventListener
 
     /**
      * There is a need to know if there is at least one menu present.
-     * AT the moemnt is just not to add a separator, but it may get 
+     * AT the moemnt is just not to add a separator, but it may get
      * more useful in the future. The first menu that I find I just return
-     * so this approach is not so bad in terms of performance. 
+     * so this approach is not so bad in terms of performance.
      * It may be done in a better way in the future.
+     *
+     * @param  project  Description of the Parameter
+     * @param  pmf      Description of the Parameter
+     * @param  menu     Description of the Parameter
+     * @return          Description of the Return Value
      */
-    public boolean haveMenuItems (Project project, PkgMgrFrame pmf, JMenu menu)
+    public boolean haveMenuItems(Project project, PkgMgrFrame pmf, JMenu menu)
     {
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
-            if (!aWrapper.isValid()) continue;
+            if (!aWrapper.isValid())
+                continue;
 
             MenuManager aManager = aWrapper.getMenuManager();
-            if (aManager == null)  continue;
+            if (aManager == null)
+                continue;
 
-            if ( aManager.haveMenuItems(pmf) ) return true;
+            if (aManager.haveMenuItems(pmf))
+                return true;
         }
-        
+
         return false;
     }
 
@@ -322,11 +348,13 @@ public class ExtensionsManager implements BlueJEventListener
     }
 
 
+
     /**
-     *  Description of the Method
+     *  This is called back when some sort of event occours.
+     *  Depending on the event we will send it up adapted to the extension.
      *
-     * @param  eventId  Description of the Parameter
-     * @param  arg      Description of the Parameter
+     * @param  eventId  Get the list of event id from BlueJEvent
+     * @param  arg      This really depends on that event is given
      */
     public void blueJEvent(int eventId, Object arg)
     {
@@ -354,8 +382,14 @@ public class ExtensionsManager implements BlueJEventListener
                 result = InvocationEvent.TERMINATED_EXIT;
 
             delegateEvent(new InvocationEvent(new BPackage(exevent.getPackage()), result));
+            return;
+        }
+
+        if ( eventId == BlueJEvent.CREATE_VM_DONE) {
+            delegateEvent (new AppEvent (AppEvent.APP_READY_EVENT));
         }
     }
+
 
 
     /**
