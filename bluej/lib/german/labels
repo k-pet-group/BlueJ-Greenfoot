@@ -134,9 +134,9 @@ prefmgr.misc.prefpaneltitle=Einstellungen
 prefmgr.misc.editorfontsize=Editor Fontgröße
 prefmgr.misc.usesyntaxhilighting=Syntax hervorheben
 prefmgr.misc.jdkurlpath=JDK Dokumentation URL
-prefmgr.misc.linkToLib=Use this URL when generating project documentation
-prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation, it must be correct and accessible.
-prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
+prefmgr.misc.linkToLib=Diese URL zum Erzeugen der Projektdokumentation benutzen
+prefmgr.misc.linkToLibNoteLine1=Wenn diese URL zum Erzeugen der Dokumentation benutzt wird, dann muss sie korrekt und erreichbar sein,
+prefmgr.misc.linkToLibNoteLine2=sonst kann die Dokumentation nicht erzeugt werden. Zum off-line arbeiten sollte diese Option abgeschaltet werden.
 
 #---------------
 #Editor labels
@@ -256,8 +256,8 @@ pkgmgr.newPkg.title=Neues Package
 pkgmgr.newPkg.buttonLabel=Erzeugen
 pkgmgr.openPkg.title=Package öffnen
 pkgmgr.openPkg.buttonLabel=In BlueJ öffnen
-pkgmgr.openNonBlueJPkg.title=Open Non-BlueJ Project
-pkgmgr.openNonBlueJPkg.buttonLabel=Open in BlueJ
+pkgmgr.openNonBlueJPkg.title=Non-BlueJ-Projekt öffnen
+pkgmgr.openNonBlueJPkg.buttonLabel=Öffnen in BlueJ
 pkgmgr.saveAs.title=Package speichern
 pkgmgr.saveAs.buttonLabel=Speichern
 pkgmgr.addClass.title=Javaklasse auswählen
@@ -403,7 +403,7 @@ pkgmgr.exported.jar=Jar-Export erfolgreich beended.
 properties.heading=BlueJ Einstellungen. Die Werte in dieser Datei überschreiben \"bluej.defs\"
 # menus and menu items
 
-menu.package=Project
+menu.package=Projekt
 menu.package.new=Neu...
 menu.package.open=Öffnen...
 menu.package.openNonBlueJ=Open Non BlueJ...
@@ -453,11 +453,12 @@ menu.group.users=Users
 menu.group.configuration=Configuration
 
 menu.help=Hilfe
-menu.help.tutorial=BlueJ-Tutorial...
-menu.help.reference=BlueJ Referenzhandbuch...
-menu.help.standardApi=Java Klassen-Libraries...
 menu.help.about=Über BlueJ...
+menu.help.versionCheck=Version prüfen...
 menu.help.copyright=Copyright...
+menu.help.website=BlueJ Web-Site...
+menu.help.tutorial=BlueJ-Tutorial...
+menu.help.standardApi=Java Klassen-Libraries...
 
 # tool tips
 

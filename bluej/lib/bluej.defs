@@ -39,8 +39,9 @@ bluej.language=english
 ## edit these URLs.
 #####################################################################
 
-bluej.url.tutorial=http://bluej.monash.edu/tutorial/tutorial.pdf
-bluej.url.reference=http://bluej.monash.edu/reference/manual.pdf
+bluej.url.bluej=http://www.bluej.org
+bluej.url.tutorial=http://www.bluej.org/tutorial/tutorial.pdf
+bluej.url.reference=http://www.bluej.org/reference/manual.pdf
 bluej.url.javaStdLib=http://java.sun.com/j2se/1.3/docs/api/index.html
 
 #####################################################################

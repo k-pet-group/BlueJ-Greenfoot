@@ -329,6 +329,15 @@ pkgmgr.importfailed.helpLine1=The import has failed to copy the following files.
 pkgmgr.importfailed.helpLine2=This is most likely due to these files already
 pkgmgr.importfailed.helpLine3=being present in the destination project.
 
+# "version check" dialog
+pkgmgr.versionDlg.title=BlueJ:  Check for new version
+pkgmgr.versionDlg.helpLine1=This function will check whether a newer BlueJ version
+pkgmgr.versionDlg.helpLine2=is available. You must be online for this to work.
+pkgmgr.versionDlg.check=Check Version
+pkgmgr.versionDlg.upToDate=The current version is up to date.
+pkgmgr.versionDlg.currentVersion=Your current BlueJ version is 
+pkgmgr.versionDlg.newVersion=The most recent BlueJ version is 
+
 # run applet dialog
 pkgmgr.runApplet.title=BlueJ:  Run Applet
 pkgmgr.runApplet.webPageLabel=Create Web Page
@@ -453,11 +462,12 @@ menu.group.users=Users
 menu.group.configuration=Configuration
 
 menu.help=Help
-menu.help.tutorial=BlueJ Tutorial...
-menu.help.reference=BlueJ Reference Manual...
-menu.help.standardApi=Java Class Libraries...
 menu.help.about=About BlueJ...
+menu.help.versionCheck=Check Version...
 menu.help.copyright=Copyright...
+menu.help.website=BlueJ Web Site...
+menu.help.tutorial=BlueJ Tutorial...
+menu.help.standardApi=Java Class Libraries...
 
 # tool tips
 
