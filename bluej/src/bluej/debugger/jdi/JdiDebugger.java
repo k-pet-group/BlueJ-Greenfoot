@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1563 2002-12-09 05:25:37Z ajp $
+ * @version $Id: JdiDebugger.java 1582 2002-12-13 06:32:37Z ajp $
  *
  * The startup process is as follows:
  *
@@ -80,9 +80,6 @@ public final class JdiDebugger extends Debugger
     // the name of the method used to suspend the ExecServer
     static final String SERVER_SUSPEND_METHOD_NAME = "suspendExecution";
 
-    // 
-    static final String RUNTIME_CLASSNAME = "java.lang.Runtime";
-
     // ==== instance data ====
 
     // The remote virtual machine used with this debugger
@@ -95,9 +92,9 @@ public final class JdiDebugger extends Debugger
     private ObjectReference serverInstance = null;  // the exec server instance
     private ThreadReference serverThread = null;    // the thread of the exec server instance
 
-    private ObjectReference exitException = null;   // an exception used to interrupt
-                                                    // the main thread when simulating
-                                                    // a System.exit()
+    private ObjectReference exitException = null; // an exception used to interrupt
+    // the main thread when simulating
+    // a System.exit()
 
     private Map execServerMethods = null;           // map of String names to ExecServer methods
                                                     // used by JdiDebugger.invokeMethod
@@ -305,26 +302,6 @@ public final class JdiDebugger extends Debugger
         exitbpreq.enable();
     }
 
-    void runtimeExitAddBreakpoint()
-    {
-        EventRequestManager erm = machine.eventRequestManager();
-        ClassType runtimeClass = (ClassType) findClassByName(machine, RUNTIME_CLASSNAME, null);
-
-        // set a breakpoint in the suspend method
-        Method exitMethod = findMethodByName(runtimeClass, "exit");
-        if(exitMethod == null) {
-            Debug.reportError("invalid VM server object");
-            Debug.reportError("Fatal: User code execution will not work");
-            return;
-        }
-        Location exitMethodLoc = exitMethod.location();
-
-        BreakpointRequest exitbpreq = erm.createBreakpointRequest(exitMethodLoc);
-        exitbpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-        exitbpreq.putProperty("isExitCall", "true");
-        exitbpreq.enable();      
-    }
-    
     /**
      * This method is called by the VMEventHandler when the execution server
      * class (ExecServer) has been loaded into the VM. We use this to set
@@ -345,7 +322,6 @@ public final class JdiDebugger extends Debugger
         // add the breakpoints (these may be cleared later on and so will
         // need to be readded)
         serverClassAddBreakpoints();
-        runtimeExitAddBreakpoint();
     }
 
 
@@ -857,6 +833,7 @@ public final class JdiDebugger extends Debugger
         String exceptionText = (val == null ? null : val.value());
 
         if(excClass.equals("bluej.runtime.ExitException")) {
+
             // this was a "System.exit()", not a real exception!
             exitStatus = FORCED_EXIT;
             machineStatus = IDLE;
@@ -908,14 +885,6 @@ public final class JdiDebugger extends Debugger
                 }
                 catch(com.sun.jdi.InvalidTypeException ite) { }
             }
-        }
-        else if("true".equals(event.request().getProperty("isExitCall"))) {
-            try {
-                event.thread().stop(exitException);
-            }
-            catch(com.sun.jdi.InvalidTypeException ite) { ite.printStackTrace(); }
-            supressErrorOutput();
-            event.thread().resume();
         }
         else {
             // breakpoint set by user in user code
@@ -1031,6 +1000,9 @@ public final class JdiDebugger extends Debugger
         catch(AbsentInformationException e) {
             return Config.getString("debugger.jdiDebugger.noLineNumberMsg");
         }
+        catch(InvalidLineNumberException e) {
+            return Config.getString("debugger.jdiDebugger.noCodeMsg");
+        }
         catch(Exception e) {
             Debug.reportError("breakpoint error: " + e);
             return Config.getString("debugger.jdiDebugger.internalErrorMsg");
@@ -1053,8 +1025,7 @@ public final class JdiDebugger extends Debugger
         while(it.hasNext()) {
             BreakpointRequest bp = (BreakpointRequest) it.next();
 
-            if(!bp.location().declaringType().name().equals(SERVER_CLASSNAME) &&
-                !bp.location().declaringType().name().equals(RUNTIME_CLASSNAME)) {
+            if(!bp.location().declaringType().name().equals(SERVER_CLASSNAME)) {
                 savedBreakpoints.add(bp.location());
             }
         }
@@ -1064,7 +1035,6 @@ public final class JdiDebugger extends Debugger
         // suspendMethod breakpoints
         erm.deleteAllBreakpoints();
         serverClassAddBreakpoints();
-        runtimeExitAddBreakpoint();
     }
 
     /**

@@ -10,7 +10,7 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 1563 2002-12-09 05:25:37Z ajp $
+ * @version $Id: RemoteSecurityManager.java 1582 2002-12-13 06:32:37Z ajp $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
@@ -44,7 +44,7 @@ public class RemoteSecurityManager extends SecurityManager
      *
      * @param status   the exit status.
      */
-    public void checkXXXExit(int status)
+    public void checkExit(int status)
     {
         /**
          * Many AWT programs react to a window close event by
@@ -95,12 +95,12 @@ public class RemoteSecurityManager extends SecurityManager
         }
     }
 
-/*    public void checkMemberAccess(Class clazz,
+    public void checkMemberAccess(Class clazz,
                                     int which)
     {
 
     }
-*/
+
     /**
      * With the exception of checkExit(int) we want to
      * behave just as if there were no SecurityManager
@@ -110,6 +110,7 @@ public class RemoteSecurityManager extends SecurityManager
      */
     public void checkPermission(Permission perm)
     {
+
     }
 
     /**
@@ -122,5 +123,6 @@ public class RemoteSecurityManager extends SecurityManager
      */
     public void checkPermission(Permission perm, Object context)
     {
+
     }
 }
