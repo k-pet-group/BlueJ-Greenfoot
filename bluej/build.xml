@@ -1,78 +1,75 @@
-<project name="bluej" default="ready-to-run" basedir=".">
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="ready-to-run" name="bluej">
 
     <!-- set global properties for this build -->
     <!-- the first two are the only values you should need to change -->
-    <property name="bluej_home" value="O:\home\banjo\project\bluej\main\bluej" />
-    <property name="java_home" value="O:\programming\jdk1.4" />
+    <property name="bluej_home" value="c:\projects\bluej"/>
+    <property name="java_home" value="c:\jdk1.4"/> 
+    <!-- property name="java_home" value="c:\jdk1.3.1_01" /--> 
 
-    <property name="build.compiler" value="modern" />
+    <property name="build.compiler" value="modern"/>
     <!-- property name="build.compiler" value="jikes" /-->
-    <property name="build.compiler.fulldepend" value="yes" />
-    <property name="build.compiler.emacs" value="yes" />
-    <property name="build.compiler.debug" value="yes" />
-
+    <property name="build.compiler.fulldepend" value="yes"/>
+    <property name="build.compiler.emacs" value="yes"/>
+    <property name="build.compiler.debug" value="yes"/>
+      
     <!-- set up common directories -->
-    <property name="src" value="src" />
-    <property name="build" value="classes" />
+    <property name="src" value="src"/>
+    <property name="build" value="classes"/>
 
     <!-- set up classpath -->
     <path id="bluej.class.path">
-        <pathelement location="${bluej_home}/lib/antlrall.jar" />
+        <pathelement location="${bluej_home}/lib/antlrall.jar"/>
         <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
         <!--pathelement location="${bluej_home}/lib/junit.jar" /-->
-        <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip" />
-        <pathelement location="${java_home}/lib/tools.jar" />
+        <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip"/>
+        <pathelement location="${java_home}/lib/tools.jar"/>
     </path>
 
     <target name="prepare">
         <!-- Create the time stamp -->
         <tstamp/>
         <!-- Create the build directory structure used by compile -->
-        <mkdir dir="${build}" />
+        <mkdir dir="${build}"/>
     </target>
 
     <target name="parser">
         <ant dir="src/bluej/parser" target="construct"/>
-        <!-- Generate the parser Java code
-        <antlr
-            fork="no"
-            target="src/bluej/parser/java.g"
-            outputdirectory="src/bluej/parser"
-        /> -->
+        <!-- Generate the parser Java code <antlr fork="no" target="src/bluej/parser/java.g" outputdirectory="src/bluej/parser"/> -->
     </target>
 
-    <target name="compile" depends="prepare">
-        <!-- depend srcdir="${src}"
-                destdir="${build}"
-                cache="depcache"
-                closure="no" -->
+    <target depends="prepare" name="compile">
+        <!-- depend srcdir="${src}" destdir="${build}" cache="depcache" closure="no" -->
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${src}"
-            destdir="${build}"
-            excludes="de/**, archiver/**, gnu/**, javax/**, kopi/**,
-            		net/**/test/**,
-            		net/**,
-			bluej/groupwork/**,
-			bluej/tester/**,
-                        bluej/browser/**,
-                        bluej/guibuilder/**,
-                        bluej/editor/moe/Moe.java" >
-            <classpath refid="bluej.class.path" />
-        </javac>
+        <javac destdir="${build}" excludes="de/**, 
+            archiver/**, gnu/**, javax/**, kopi/**, 
+            net/**/test/**,
+            net/**,    
+            bluej/groupwork/**,    
+            bluej/tester/**,                         
+            bluej/browser/**,                         
+            bluej/guibuilder/**,                         
+            bluej/editor/moe/Moe.java" 
+            srcdir="${src}">
+            <classpath refid="bluej.class.path"/>
+       </javac>
     </target>
 
-    <target name="jarred" depends="compile">
+    <target depends="compile" name="jarred">
         <!-- jar up all the classes -->
-        <jar jarfile="${bluej_home}/lib/bluej.jar"
-             compress="no" >
-            <fileset dir="${build}" >
+        <jar compress="no" jarfile="${bluej_home}/lib/bluej.jar">
+            <fileset dir="${build}">
             </fileset>
         </jar>
     </target>
 
-    <target name="ready-to-run" depends="jarred, inspector">
+    <target depends="jarred, inspector" name="ready-to-run">
     </target>
 
+    <target name="editor-dist">
+        <ant antfile="editor.xml" dir="src/bluej/editor" target="dist"/>
+    </target>
+    
     <target name="inspector">
         <ant antfile="inspector.xml" dir="inspector" target="compile-inspector"/>
     </target>
@@ -81,25 +78,28 @@
         <!-- Run the java code in ${build} -->
         <java classname="bluej.Main" fork="yes" jvm="${java_home}/bin/java">
             <classpath>
-	        <pathelement location="${bluej_home}/lib/bluej.jar" />
-                <path refid="bluej.class.path" />
+	        <pathelement location="${bluej_home}/lib/bluej.jar"/>
+                <path refid="bluej.class.path"/>
             </classpath>
             <!-- <arg path="${bluej_home}/test-examples/dummy/bluej.pkg"/> -->
         </java>
     </target>
 
-    <target name="dist">
-         <ant antfile="package.xml" dir="package" target="dist"/>
+    <target name="dist" depends="editor-dist">
+        <ant antfile="package.xml" dir="package" target="dist"/>
     </target>
 
     <target name="clean">
         <!-- Delete the ${build} directory trees -->
-        <delete dir="${build}/bluej" />
-        <delete dir="${build}/org" />
-        <delete dir="${build}/net" />
-        <delete file="${bluej_home}/lib/bluej.jar" />
+        <delete dir="${build}/bluej"/>
+        <delete dir="${build}/org"/>
+        <delete dir="${build}/net"/>
+        <delete file="${bluej_home}/lib/bluej.jar"/>
         <!-- Clean inspectors -->
 	<ant antfile="inspector.xml" dir="inspector" target="clean-inspector"/>
     </target>
 
+    <target name="editor-clean">
+        <ant antfile="editor.xml" dir="src/bluej/editor" target="clean"/>
+    </target>    
 </project>
