@@ -1,6 +1,5 @@
 package bluej.debugmgr;
 
-import bluej.debugger.gentype.GenType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.views.CallableView;
 import bluej.views.Comment;
@@ -13,7 +12,7 @@ import bluej.views.MethodView;
  * information such as the method signature, javadoc, etc...
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ExpressionInformation.java 2964 2004-08-31 01:14:04Z davmac $
+ * @version $Id: ExpressionInformation.java 2965 2004-08-31 05:58:15Z davmac $
  */
 public class ExpressionInformation {
 	private Comment comment;
@@ -26,7 +25,7 @@ public class ExpressionInformation {
     private String[] args;
     
 	// if expression is a call of an instance method, this is the type of the instance.
-    private GenType instanceType;
+    private GenTypeClass instanceType;
     
     private static final Comment emptyComment = new Comment();;
 
@@ -136,7 +135,7 @@ public class ExpressionInformation {
      * 
      * @return The type of the object, or null.
      */
-    public GenType getInstanceType()
+    public GenTypeClass getInstanceType()
     {
         return instanceType;
     }

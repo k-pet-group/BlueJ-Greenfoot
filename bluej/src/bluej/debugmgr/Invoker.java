@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 2955 2004-08-30 06:15:11Z davmac $
+ * @version $Id: Invoker.java 2965 2004-08-31 05:58:15Z davmac $
  */
 
 public class Invoker
@@ -181,17 +181,26 @@ public class Invoker
 
         this.shellName = getShellName();
 
+        // We want a map of all the type parameters that may appear in the
+        // method signature to the corresponding instantiation types from the
+        // object to which the method is being applied.
+        //
+        // Tpar names in the method signature however correspond to names from
+        // the class in which the method was declared. So we need to map tpars
+        // from the object's class to that class.
         this.objName = objWrapper.getName();
         this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName());
         Reflective superRefl = new JavaReflective(member.getDeclaringView().getViewClass());
-        GenTypeClass.addDefaultParamBases(typeMap, superRefl);
-        if (typeMap == null) {
-            typeMap = new HashMap();
-            GenTypeClass objGenType = objWrapper.getObject().getGenType();
-            Reflective objRefl = objGenType.getReflective();
-            GenTypeClass.addDefaultParamBases(typeMap, objRefl);
-            if (typeMap.isEmpty())
-                typeMap = null;
+        if (typeMap != null)
+            GenTypeClass.addDefaultParamBases(typeMap, superRefl);
+        else {
+            // DAV what the @#$! was I trying to do here?
+            //typeMap = new HashMap();
+            //GenTypeClass objGenType = objWrapper.getObject().getGenType();
+            //Reflective objRefl = objGenType.getReflective();
+            //GenTypeClass.addDefaultParamBases(typeMap, objRefl);
+            //if (typeMap.isEmpty())
+            //    typeMap = null;
         }
         executionEvent = ExecutionEvent.createObjectMethod(objName);
         
@@ -260,6 +269,8 @@ public class Invoker
                 if(constructing) {
 	                TypeParamView[] formalTypeParamViews = mDialog.getFormalTypeParams();	               
 	                int len = (formalTypeParamViews == null ? 0 : formalTypeParamViews.length);
+                    if(len > actualTypeParams.length)
+                        len = 0;
 	                for (int i = 0; i < len; i++) {
 	                    TypeParamView view = formalTypeParamViews[i];
 	                    GenType formalType = view.getParamType();

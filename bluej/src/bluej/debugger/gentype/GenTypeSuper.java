@@ -6,7 +6,7 @@ import java.util.Map;
  * "? super ..." type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSuper.java 2818 2004-07-26 03:42:35Z davmac $
+ * @version $Id: GenTypeSuper.java 2965 2004-08-31 05:58:15Z davmac $
  */
 public class GenTypeSuper extends GenTypeWildcard
 {
@@ -58,10 +58,12 @@ public class GenTypeSuper extends GenTypeWildcard
         // Try mapping other -> this
         GenTypeClass superClass = baseClass;
         Reflective superReflective = baseClass.reflective;
-        Map mapping = otherBaseClass.mapToSuper(superReflective.getName());
-        
-        // If that failed, map this -> other
-        if( mapping == null ) {
+        Map mapping;
+        try {
+            mapping = otherBaseClass.mapToSuper(superReflective.getName());
+        }
+        catch(BadInheritanceChainException bice) {
+            // If that failed, map this -> other
             superClass = otherBaseClass;
             superReflective = otherBaseClass.reflective;
             mapping = baseClass.mapToSuper(superReflective.getName());

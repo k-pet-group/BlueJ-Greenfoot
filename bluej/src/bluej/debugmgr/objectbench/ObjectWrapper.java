@@ -41,7 +41,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2964 2004-08-31 01:14:04Z davmac $
+ * @version $Id: ObjectWrapper.java 2965 2004-08-31 05:58:15Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -206,14 +206,14 @@ public class ObjectWrapper extends JComponent
             
             // get the generic parameter map & reflective
             Map tparTypes = obj.getGenericParams();
-            if (tparTypes == null)
-                tparTypes = new HashMap();
             Reflective reflective = obj.getGenType().getReflective();
-            for (Iterator i = reflective.getTypeParams().iterator(); i.hasNext();) {
-                GenTypeDeclTpar tpar = (GenTypeDeclTpar) i.next();
-                String paramName = tpar.getTparName();
-                if (!tparTypes.containsKey(paramName)) {
-                    tparTypes.put(paramName, tpar.getBound());
+            if (tparTypes != null) {
+                for (Iterator i = reflective.getTypeParams().iterator(); i.hasNext();) {
+                    GenTypeDeclTpar tpar = (GenTypeDeclTpar) i.next();
+                    String paramName = tpar.getTparName();
+                    if (!tparTypes.containsKey(paramName)) {
+                        tparTypes.put(paramName, tpar.getBound());
+                    }
                 }
             }
 
@@ -276,12 +276,11 @@ public class ObjectWrapper extends JComponent
      * @param menu      the menu that the items are to be created for
      * @param methods   the methods for which menu items should be created
      * @param filter    the filter which decides on which methods should be shown
-     * @param first     the index of the methods array which represents the
-     *                  starting point of the menu items
-     * @param last      the index of the methods array which represents the end
-     *                  point of the menu items
      * @param sizeLimit the limit to which the menu should grow before openeing
      *                  submenus
+     * @param genericParams  the mapping of generic type parameter names to
+     *                  their corresponding types in the object instance
+     *                  (a map of String -> GenType).
      */
     private void createMenuItems(JComponent menu, MethodView[] methods,
                                  ViewFilter filter, int sizeLimit,

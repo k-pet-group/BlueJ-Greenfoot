@@ -26,7 +26,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2964 2004-08-31 01:14:04Z davmac $
+ * @version $Id: ResultInspector.java 2965 2004-08-31 05:58:15Z davmac $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -134,11 +134,16 @@ public class ResultInspector extends Inspector
      */
     private void calcResultType()
     {
-        GenType instanceType = expressionInformation.getInstanceType();
+        GenTypeClass instanceType = expressionInformation.getInstanceType();
         // We know it's a MethodView, as we don't inspect the result of a
         // constructor!
         MethodView methodView = (MethodView) expressionInformation.getMethodView();
 
+        if (instanceType.isRaw()) {
+            resultType = new GenTypeClass(new JavaReflective(methodView.getReturnType().getViewClass()));
+            return;
+        }
+        
         // Find the expected return type
         Method m = methodView.getMethod();
         GenType methodReturnType = JavaUtils.getJavaUtils().getReturnType(m);
@@ -152,11 +157,10 @@ public class ResultInspector extends Inspector
             methodReturnType = ((GenTypeParameterizable) methodReturnType).mapTparsToTypes(tparmap);
 
             // Pull in parameters from declaring type
-            if (instanceType instanceof GenTypeClass) {
-                GenTypeClass maptype = (GenTypeClass) instanceType;
-                tparmap = maptype.mapToSuper(m.getDeclaringClass().getName());
+            GenTypeClass maptype = instanceType;
+            tparmap = maptype.mapToSuper(m.getDeclaringClass().getName());
+            if (tparmap != null)
                 methodReturnType = ((GenTypeParameterizable) methodReturnType).mapTparsToTypes(tparmap);
-            }
         }
 
         resultType = methodReturnType;

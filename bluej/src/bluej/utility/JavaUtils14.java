@@ -13,7 +13,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 2955 2004-08-30 06:15:11Z davmac $
+ * @version $Id: JavaUtils14.java 2965 2004-08-31 05:58:15Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -162,7 +162,7 @@ public class JavaUtils14 extends JavaUtils
     /**
      * Gets nicely formatted strings describing the parameter types.
      */
-    private String[] getParameterTypes(Class[] params)
+    static String[] getParameterTypes(Class[] params)
     {
         String[] parameterTypes = new String[params.length];
         for (int j = 0; j < params.length; j++) {

@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2964 2004-08-31 01:14:04Z davmac $
+ * @version $Id: GenTypeClass.java 2965 2004-08-31 05:58:15Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -49,7 +49,8 @@ public class GenTypeClass extends GenTypeSolid {
     /**
      * New GenTypeClass from a reflective and map of type parameter names to
      * types. For type parameters not in the map, the base type is used (as
-     * a wilcard with "extends" clause).
+     * a wilcard with "extends" clause). If the map is null however, the type
+     * is treated as a raw type.
      * 
      * @param r  The Reflective representing the class.
      * @param mparams  A list of GenTypeParameterizables giving the type
@@ -58,6 +59,11 @@ public class GenTypeClass extends GenTypeSolid {
     public GenTypeClass(Reflective r, Map mparams)
     {
         reflective = r;
+        
+        // if mparams == null, this is a raw type. Nothing more to do.
+        if (mparams == null)
+            return;
+        
         params = new ArrayList();
         Iterator declParmsI = r.getTypeParams().iterator();
         while( declParmsI.hasNext() ) {
@@ -121,6 +127,18 @@ public class GenTypeClass extends GenTypeSolid {
     public boolean isGeneric()
     {
         return (params != null);
+    }
+    
+    /**
+     * Check whether this is a raw type, ie. a generic class type with no
+     * type parameter substitutions supplied. (Return is false for a non-
+     * generic class type).
+     * 
+     * @return  true if the type is a raw type
+     */
+    public boolean isRaw()
+    {
+        return getMap() == null;
     }
 
     public String toString(boolean stripPrefix)
@@ -197,19 +215,22 @@ public class GenTypeClass extends GenTypeSolid {
      * 
      * @param subType   the supertype to map from
      * @param basename    the fully-qualified name of the base type to map to
-     * @return  A map of (String -> GenType), or null if the inheritance
-     *              chain doesn't exist
+     * @return  A map of (String -> GenType)
+     * 
+     * @throws BadInheritanceChainException
      */
     public Map mapToSuper(String basename)
     {
         Map tparams = getMap();
+        if (tparams == null)
+            return null;
         if( rawName().equals(basename))
             return tparams;
         
         // the base type could actually be an interface, or a base class. 
         Stack inheritanceStack = getInheritanceChain(reflective, basename);
         if( inheritanceStack == null )
-            return null;
+            throw new BadInheritanceChainException();
         
         String bname;
         Iterator i = inheritanceStack.iterator();
@@ -240,13 +261,15 @@ public class GenTypeClass extends GenTypeSolid {
         // only one test is needed for both cases.
 
         List baseParams = baseType.getTypeParams();
-        if(baseParams.isEmpty())
+        if (baseParams.isEmpty())
             return;
-        
+
         GenTypeClass baseClass = subType.superTypeByName(baseType.getName());
-        baseClass = (GenTypeClass)baseClass.mapTparsToTypes(tparams);
+        baseClass = (GenTypeClass) baseClass.mapTparsToTypes(tparams);
         tparams.clear();
-        tparams.putAll(baseClass.getMap());
+        Map baseMap = baseClass.getMap();
+        if (baseMap != null)
+            tparams.putAll(baseClass.getMap());
     }
     
     /**
@@ -294,6 +317,8 @@ public class GenTypeClass extends GenTypeSolid {
             return new HashMap();
         
         Map r = getMap();
+        if (r == null)
+            r = new HashMap();
         List l = new LinkedList();
         for( Iterator i = reflective.getTypeParams().iterator(); i.hasNext(); ) {
             String paramName = ((GenTypeTpar)i.next()).getTparName();
@@ -378,15 +403,15 @@ public class GenTypeClass extends GenTypeSolid {
     
     /**
      * Get a map of type parameter names to the corresponding types, for this
-     * type.
+     * type. Returns null if this represents a raw type.
      * @return the map (of String -> GenTypeParameterizable).
      */
     public Map getMap()
     {
-        HashMap r = new HashMap();
-        if( params == null )
-            return r;
         List formalParams = reflective.getTypeParams();
+        if( params == null && ! formalParams.isEmpty())
+            return null;
+        HashMap r = new HashMap();
         Iterator paramIterator = params.iterator();
         Iterator formalIterator = formalParams.iterator();
         

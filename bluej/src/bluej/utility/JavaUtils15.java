@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2955 2004-08-30 06:15:11Z davmac $
+ * @version $Id: JavaUtils15.java 2965 2004-08-31 05:58:15Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -35,11 +35,17 @@ public class JavaUtils15 extends JavaUtils {
     
     public String getShortDesc(Method method, String [] paramnames, Map tparams)
     {
+        // If tparams is null, the parent object is raw.
+        if(tparams == null) {
+            String name = JavaUtils14.getTypeName(method.getReturnType()) + " " + method.getName();
+            Class[] params = method.getParameterTypes();
+            String[] paramTypes = JavaUtils14.getParameterTypes(params);
+            return makeDescription(name, paramTypes, paramnames, false, false);
+        }
+        
         // Don't want to modify the map which was passed in, so make a copy
         // of it:
-        Map newMap = new HashMap();
-        if (tparams != null)
-            newMap.putAll(tparams);
+        Map newMap = new HashMap(tparams);
         
         // add any method type parameters into the map, replacing existing
         // map entries.
@@ -75,6 +81,14 @@ public class JavaUtils15 extends JavaUtils {
     
     public String getLongDesc(Method method, String [] paramnames, Map tparams)
     {
+        // If tparams is null, the parent object is raw.
+        if(tparams == null) {
+            String name = JavaUtils14.getTypeName(method.getReturnType()) + " " + method.getName();
+            Class[] params = method.getParameterTypes();
+            String[] paramTypes = JavaUtils14.getParameterTypes(params);
+            return makeDescription(name, paramTypes, paramnames, true, false);
+        }
+        
         // Don't want to modify the map which was passed in, so make a copy
         // of it:
         Map newMap = new HashMap();

@@ -10,7 +10,7 @@ import bluej.debugger.gentype.GenTypeClass;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 2655 2004-06-24 05:53:55Z davmac $
+ *@version    $Id: DebuggerObject.java 2965 2004-08-31 05:58:15Z davmac $
  */
 public abstract class DebuggerObject
 {
@@ -54,8 +54,8 @@ public abstract class DebuggerObject
 
     /**
      * Get a mapping of the type parameter names for this objects class to the
-     * actual type, for all parameters where some information is known. May
-     * return null.
+     * actual type, for all parameters where some information is known.
+     * Returns null for a raw object.
      * 
      * @return a Map (String:JdiGenType) of type parameter names to types
      */

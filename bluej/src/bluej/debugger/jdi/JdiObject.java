@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2961 2004-08-30 12:54:12Z polle $
+ * @version $Id: JdiObject.java 2965 2004-08-31 05:58:15Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -61,6 +61,10 @@ public class JdiObject extends DebuggerObject
      */
     public static JdiObject getDebuggerObject(ObjectReference obj, Field field, JdiObject parent)
     {
+        // A raw object contains only raw objects.
+        if (parent.isRaw())
+            return getDebuggerObject(obj);
+        
         GenType expectedType = JdiReflective.fromField(field, parent);
         if (obj instanceof ArrayReference)
             return new JdiArray((ArrayReference) obj, expectedType);
@@ -69,11 +73,6 @@ public class JdiObject extends DebuggerObject
             return new JdiObject(obj, (GenTypeClass) expectedType);
         
         return new JdiObject(obj);
-        
-        //if (obj instanceof ArrayReference)
-        //    return new JdiArray((ArrayReference) obj, field, parent);
-        //else
-        //    return new JdiObject(obj, field, parent);
     }
     
     
@@ -163,8 +162,8 @@ public class JdiObject extends DebuggerObject
     
     /**
      * Get a mapping of the type parameter names for this objects class to the
-     * actual type, for all parameters where some information is known. May
-     * return null.
+     * actual type, for all parameters where some information is known.
+     * Returns null for a raw object.
      * 
      * @return a Map (String:JdiGenType) of type parameter names to types
      */
@@ -175,7 +174,23 @@ public class JdiObject extends DebuggerObject
             r = new HashMap();
             r.putAll(genericParams);
         }
+        else if (! isRaw())
+            r = new HashMap();
         return r;
+    }
+    
+    /**
+     * Determine whether this is a raw object. That is, an object of a class
+     * which has formal type parameters, but for which no actual types have
+     * been given.
+     * @return  true if the object is raw, otherwise false.
+     */
+    private boolean isRaw()
+    {
+        if(obj.referenceType().genericSignature() != null && genericParams == null)
+            return true;
+        else
+            return false;
     }
 
     /**
@@ -570,8 +585,8 @@ public class JdiObject extends DebuggerObject
                     }
                 }
 
-                if( jvmSupportsGenerics )
-                    fieldString += JdiReflective.fromField(field,this).toString(true);
+                if (jvmSupportsGenerics && !isRaw())
+                    fieldString += JdiReflective.fromField(field, this).toString(true);
                 else
                     fieldString += JavaNames.stripPrefix(field.typeName());
 
