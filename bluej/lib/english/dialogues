@@ -386,3 +386,7 @@ it a CD?).
 To fully use this project, you must ensure that it is on a writable
 file system (usually your hard disk), and that you have write 
 permission in the project directory and each file within it.
+
+could-not-write-shell-file
+BlueJ was unable to write to the project directory.
+Make it writable.
