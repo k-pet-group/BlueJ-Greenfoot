@@ -322,22 +322,18 @@ public class ExtensionsManager implements BlueJEventListener
      * @param  arg      This really depends on that event is given
      */
     public void blueJEvent(int eventId, Object arg)
-        {
+    {
 
-        if ( eventId == BlueJEvent.EXECUTION_RESULT )
-            {
+        if ( eventId == BlueJEvent.EXECUTION_RESULT ) {
             ExecutionEvent exevent = (ExecutionEvent) arg;
             delegateEvent ( new InvocationEvent ( exevent ) );
             return;              
-            }
-
-        if ( eventId == BlueJEvent.CREATE_VM_DONE) 
-            {
-            delegateEvent (new ApplicationEvent (ApplicationEvent.APP_READY_EVENT));
-            return;
-            }
-
-        // I cannot put any warining on unknown events here since I get a bunch of events in any case.
         }
 
-    } // End of class
+        if ( eventId == BlueJEvent.CREATE_VM_DONE) {
+            delegateEvent (new ApplicationEvent (ApplicationEvent.APP_READY_EVENT));
+            return;
+        }
+    }
+
+} // End of class
